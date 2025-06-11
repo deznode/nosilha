@@ -3,6 +3,7 @@ import { DirectoryEntry } from "@/types/directory";
 import { StarIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
 import Link from "next/link";
+import StarRating from "./start-rating";
 
 interface DirectoryCardProps {
   entry: DirectoryEntry;
@@ -48,17 +49,7 @@ export function DirectoryCard({ entry }: DirectoryCardProps) {
 
           {/* Rating Section */}
           <div className="mt-3 flex items-center gap-2">
-            <div className="flex items-center">
-              {/* Renders 5 stars, coloring them based on the rating */}
-              {[...Array(5)].map((_, i) => (
-                <StarIcon
-                  key={i}
-                  className={`h-5 w-5 ${
-                    entry.rating > i ? "text-sunny-yellow" : "text-gray-300"
-                  }`}
-                />
-              ))}
-            </div>
+            <StarRating rating={entry.rating} />
             <p className="text-sm text-volcanic-gray">
               ({entry.reviewCount} reviews)
             </p>
