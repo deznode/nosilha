@@ -1,0 +1,56 @@
+package com.nosilha.core.controller
+
+import com.nosilha.core.dto.DirectoryEntryDto
+import com.nosilha.core.service.DirectoryEntryService
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
+
+/**
+ * REST controller for accessing the Nosilha directory entries.
+ *
+ * This controller exposes a versioned API (v1) for retrieving information
+ * about landmarks, restaurants, hotels, and other points of interest on Brava.
+ *
+ * @param service The business logic layer for directory entries.
+ */
+@RestController
+@RequestMapping("/api/v1/directory")
+class DirectoryEntryController(
+  private val service: DirectoryEntryService
+) {
+
+  /**
+   * Retrieves a list of directory entries.
+   *
+   * This endpoint can be optionally filtered by a `category` request parameter.
+   * If the `category` is provided, only entries of that type are returned.
+   * Otherwise, all directory entries are returned.
+   *
+   * @param category An optional string to filter entries by their type (e.g., "Restaurant").
+   * @return A list of [DirectoryEntryDto] objects.
+   */
+  @GetMapping("/entries")
+  fun getEntries(@RequestParam(required = false) category: String?): List<DirectoryEntryDto> {
+    return category?.let {
+      service.getEntriesByCategory(it)
+    } ?: service.getAllEntries()
+  }
+
+  /**
+   * Retrieves a single directory entry by its unique identifier.
+   *
+   * @param id The UUID of the directory entry to retrieve.
+   * @return The [DirectoryEntryDto] with a 200 OK status.
+   * If the entry is not found, the service will throw an exception that results
+   * in a 404 Not Found status.
+   */
+  @GetMapping("/{id}")
+  fun getEntryById(@PathVariable id: UUID): DirectoryEntryDto {
+    return service.getEntryById(id)
+  }
+}

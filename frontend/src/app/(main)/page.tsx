@@ -3,16 +3,45 @@ import Image from "next/image";
 import { getEntriesByCategory } from "@/lib/api";
 import { DirectoryCard } from "@/components/ui/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
+import {
+  MapIcon,
+  ListBulletIcon,
+  BookOpenIcon,
+} from "@heroicons/react/24/outline";
 
-// Convert the page to an async function to fetch data on the server
+// Data for the new "Island Guide" (features) section
+const nosilhaFeatures = [
+  {
+    name: "Interactive Map",
+    description:
+      "Navigate with ease. Our detailed map shows every point of interest, from restaurants and hotels to hidden trails and scenic viewpoints.",
+    href: "/map",
+    icon: MapIcon,
+  },
+  {
+    name: "Complete Directory",
+    description:
+      "Discover the best of Brava. Browse a comprehensive, up-to-date directory of businesses, landmarks, and cultural sites.",
+    href: "/directory/all",
+    icon: ListBulletIcon,
+  },
+  {
+    name: "Rich History & Culture",
+    description:
+      "Dive into the stories, figures, and traditions that make Brava unique. Explore historical articles, photo galleries, and more.",
+    href: "/history",
+    icon: BookOpenIcon,
+  },
+];
+
 export default async function HomePage() {
-  // Fetch entries for the "Featured Highlights" section
   const featuredEntries = await getEntriesByCategory("all");
 
   return (
     <>
-      {/* Hero Section (from previous task) */}
+      {/* Hero Section */}
       <section className="relative flex h-[calc(100vh-81px)] items-center justify-center text-center text-white">
+        {/* ... existing hero section code ... */}
         <Image
           src="https://picsum.photos/1600/900?random=10"
           alt="A scenic, panoramic view of Brava, Cape Verde's coastline"
@@ -40,7 +69,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Task 2: Featured Items Section */}
+      {/* Featured Highlights Section */}
       <section className="bg-white py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <PageHeader
@@ -48,13 +77,50 @@ export default async function HomePage() {
             subtitle="Get a glimpse of the unique places and experiences Brava has to offer."
           />
           <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:mx-0 lg:max-w-none lg:grid-cols-4 md:grid-cols-2">
-            {/* Display the first 4 entries from the API call */}
             {featuredEntries.slice(0, 4).map((entry) => (
               <DirectoryCard key={entry.id} entry={entry} />
             ))}
           </div>
         </div>
       </section>
+
+      {/* Newly Added Section: Island Guide */}
+      <div className="bg-off-white py-24 sm:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl lg:text-center">
+            <h2 className="text-base font-semibold leading-7 text-ocean-blue">
+              An Island of Treasures
+            </h2>
+            <p className="mt-2 font-serif text-3xl font-bold tracking-tight text-volcanic-gray-dark sm:text-4xl">
+              Your Comprehensive Guide to Brava
+            </p>
+            <p className="mt-6 text-lg leading-8 text-volcanic-gray">
+              Our platform is designed to help you explore every facet of the
+              island, from its stunning geography to its rich cultural tapestry.
+            </p>
+          </div>
+          <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+            <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-3">
+              {nosilhaFeatures.map((feature) => (
+                <div key={feature.name} className="relative pl-16">
+                  <dt className="text-base font-semibold leading-7 text-volcanic-gray-dark">
+                    <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-ocean-blue">
+                      <feature.icon
+                        className="h-6 w-6 text-white"
+                        aria-hidden="true"
+                      />
+                    </div>
+                    {feature.name}
+                  </dt>
+                  <dd className="mt-2 text-base leading-7 text-volcanic-gray">
+                    {feature.description}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+      </div>
     </>
   );
 }
