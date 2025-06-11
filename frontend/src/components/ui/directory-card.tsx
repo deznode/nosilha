@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { DirectoryEntry } from "@/lib/types";
+import { DirectoryEntry } from "@/types/directory";
 import { StarIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
 import Link from "next/link";

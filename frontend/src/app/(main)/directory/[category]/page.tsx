@@ -1,6 +1,6 @@
 import { getEntriesByCategory } from "@/lib/api";
-import { DirectoryCard } from "@/components/ui/DirectoryCard";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { DirectoryCard } from "@/components/ui/directory-card";
+import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 
 // Define the props for a dynamic page component in Next.js

@@ -1,6 +1,6 @@
 import { getEntriesByCategory } from "@/lib/api";
-import { DirectoryCard } from "@/components/ui/DirectoryCard";
-import { PageHeader } from "@/components/ui/PageHeader";
+import { DirectoryCard } from "@/components/ui/directory-card";
+import { PageHeader } from "@/components/ui/page-header";
 
 /**
  * An updated test page that uses the PageHeader component.

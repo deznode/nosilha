@@ -1,4 +1,4 @@
-import { DirectoryEntry } from "./types";
+import { DirectoryEntry } from "../types/directory";
 
 const MOCK_ENTRIES: DirectoryEntry[] = [
   {

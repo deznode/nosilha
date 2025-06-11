@@ -9,7 +9,7 @@ import {
   BuildingOffice2Icon,
   SparklesIcon,
 } from "@heroicons/react/24/solid";
-import { DirectoryEntry } from "@/lib/types";
+import { DirectoryEntry } from "@/types/directory";
 
 interface DetailPageProps {
   params: { slug: string };
