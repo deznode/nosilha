@@ -34,7 +34,7 @@ class DirectoryEntryController(
    * @return A list of [DirectoryEntryDto] objects.
    */
   @GetMapping("/entries")
-  fun getEntries(@RequestParam(required = false) category: String?): List<DirectoryEntryDto> {
+  fun getEntries(@RequestParam(name = "category", required = false) category: String?): List<DirectoryEntryDto> {
     return category?.let {
       service.getEntriesByCategory(it)
     } ?: service.getAllEntries()

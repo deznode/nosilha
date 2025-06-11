@@ -7,7 +7,7 @@ export interface BaseDirectoryEntry {
   imageUrl: string;
   town: string;
   description: string; // A description is general enough for all types
-  rating: number;
+  rating: number | undefined;
   reviewCount: number;
 }
 

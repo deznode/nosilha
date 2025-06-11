@@ -22,6 +22,7 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
     is Restaurant -> RestaurantDto(
       id = entityId,
       name = this.name,
+      slug = this.slug,
       description = this.description,
       town = this.town,
       imageUrl = this.imageUrl,
@@ -38,6 +39,7 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
     is Hotel -> HotelDto(
       id = entityId,
       name = this.name,
+      slug = this.slug,
       description = this.description,
       town = this.town,
       imageUrl = this.imageUrl,
@@ -52,6 +54,7 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
     is Beach -> BeachDto(
       id = entityId,
       name = this.name,
+      slug = this.slug,
       description = this.description,
       town = this.town,
       imageUrl = this.imageUrl,
@@ -63,6 +66,7 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
     is Landmark -> LandmarkDto(
       id = entityId,
       name = this.name,
+      slug = this.slug,
       description = this.description,
       town = this.town,
       imageUrl = this.imageUrl,

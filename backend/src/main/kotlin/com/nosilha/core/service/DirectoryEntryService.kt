@@ -36,7 +36,7 @@ class DirectoryEntryService(
    * @return A list of [DirectoryEntryDto] for the given category.
    */
   fun getEntriesByCategory(category: String): List<DirectoryEntryDto> {
-    return repository.findByCategory(category).map { it.toDto() }
+    return repository.findByCategoryIgnoreCase(category).map { it.toDto() }
   }
 
   /**
