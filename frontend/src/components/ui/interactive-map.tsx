@@ -7,80 +7,68 @@ import Link from "next/link";
 // It's crucial to import the Mapbox GL CSS for the map to display correctly.
 import "mapbox-gl/dist/mapbox-gl.css";
 
+import { MapPinIcon } from "@heroicons/react/24/solid";
 import type { DirectoryEntry } from "@/types/directory";
 import { getEntriesByCategory } from "@/lib/api";
 
-export default function InteractiveMap() {
-  const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
-
+export function InteractiveMap() {
+  // 1. State for storing fetched directory entries
   const [entries, setEntries] = useState<DirectoryEntry[]>([]);
+  // 2. State for managing the currently selected marker's popup
   const [selectedEntry, setSelectedEntry] = useState<DirectoryEntry | null>(
     null
   );
-  const [error, setError] = useState<string | null>(null);
 
+  // 3. Fetch all entries from the backend API on component mount
   useEffect(() => {
-    // --- Refactoring Applied ---
-    // Fetch entries using the centralized API function
-    const fetchEntries = async () => {
-      try {
-        const data = await getEntriesByCategory("all");
-        if (data.length === 0) {
-          // This could be a valid empty set or an error from the API returning []
-          console.warn("No map entries found.");
-        }
-        setEntries(data);
-      } catch (err) {
-        console.error(err);
-        setError("Could not load points of interest. Please try again later.");
-      }
-    };
-
+    async function fetchEntries() {
+      const allEntries = await getEntriesByCategory("all");
+      setEntries(allEntries);
+    }
     fetchEntries();
-  }, []); // Empty dependency array ensures this runs once
+  }, []);
 
-  if (!mapboxToken) {
-    return (
-      <div className="flex h-full w-full items-center justify-center bg-gray-100">
-        <p className="text-red-600">Mapbox Access Token is not configured.</p>
-      </div>
-    );
-  }
+  // 4. Read the Mapbox access token from environment variables
+  const mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
-  if (error) {
-    return (
-      <div className="flex h-full w-full items-center justify-center bg-gray-100">
-        <p className="text-red-600">{error}</p>
-      </div>
-    );
+  if (!mapboxAccessToken) {
+    console.error("Mapbox Access Token is not set!");
+    return <div>Map cannot be loaded. Missing configuration.</div>;
   }
 
   return (
     <Map
-      mapboxAccessToken={mapboxToken}
+      mapboxAccessToken={mapboxAccessToken}
       initialViewState={{
-        longitude: -24.71,
-        latitude: 14.87,
+        longitude: -24.706,
+        latitude: 14.875,
         zoom: 13,
       }}
       style={{ width: "100%", height: "100%" }}
       mapStyle="mapbox://styles/mapbox/streets-v12"
     >
+      {/* 5. Map over the fetched entries to create a Marker for each one */}
       {entries.map((entry) => (
         <Marker
           key={entry.id}
           longitude={entry.longitude}
           latitude={entry.latitude}
           anchor="bottom"
-          onClick={(e) => {
-            e.originalEvent.stopPropagation();
-            setSelectedEntry(entry);
-          }}
         >
-          <div className="cursor-pointer text-2xl">📍</div>
+          <button
+            type="button"
+            className="cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedEntry(entry);
+            }}
+          >
+            <MapPinIcon className="h-8 w-8 text-ocean-blue" />
+          </button>
         </Marker>
       ))}
 
+      {/* 6. Conditionally render a Popup if an entry is selected */}
       {selectedEntry && (
         <Popup
           longitude={selectedEntry.longitude}
@@ -90,10 +78,15 @@ export default function InteractiveMap() {
           closeOnClick={false}
         >
           <div className="p-1">
-            <h3 className="font-bold">{selectedEntry.name}</h3>
+            <h3 className="font-bold text-volcanic-gray-dark">
+              {selectedEntry.name}
+            </h3>
+            <p className="text-sm text-volcanic-gray">
+              {selectedEntry.category}
+            </p>
             <Link
-              href={`/directory/entry/${selectedEntry.slug}`} // Adjusted path based on file structure
-              className="text-blue-600 hover:underline"
+              href={`/directory/entry/${selectedEntry.slug}`}
+              className="text-sm font-semibold text-ocean-blue hover:underline"
             >
               View Details &rarr;
             </Link>

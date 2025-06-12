@@ -1,11 +1,13 @@
 "use client";
-import dynamic from "next/dynamic";
+
 import { PageHeader } from "@/components/ui/page-header";
+import dynamic from "next/dynamic";
 import { Suspense } from "react";
 
-// Dynamically import the map component with the updated file name
+// Dynamically import the InteractiveMap component with SSR turned off.
 const InteractiveMap = dynamic(
-  () => import("@/components/ui/interactive-map"),
+  () =>
+    import("@/components/ui/interactive-map").then((mod) => mod.InteractiveMap),
   {
     ssr: false,
     loading: () => (
@@ -16,17 +18,20 @@ const InteractiveMap = dynamic(
 
 export default function MapPage() {
   return (
-    <main className="container mx-auto px-4 py-8">
-      <PageHeader
-        title="Interactive Map of Brava"
-        subtitle="Explore landmarks, businesses, and points of interest across the island."
-      />
+    <div className="bg-off-white font-sans">
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <PageHeader
+          title="Interactive Map of Brava"
+          subtitle="Explore every restaurant, landmark, and point of interest across the island."
+        />
+      </div>
 
-      <div className="mt-8 w-full h-[600px] rounded-lg shadow-md overflow-hidden">
+      {/* The map component will be rendered on the client side */}
+      <div className="h-[75vh] w-full">
         <Suspense fallback={<div className="h-full w-full bg-gray-200" />}>
           <InteractiveMap />
         </Suspense>
       </div>
-    </main>
+    </div>
   );
 }
