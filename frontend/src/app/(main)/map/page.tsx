@@ -1,7 +1,6 @@
-// frontend/src/app/(main)/map/page.tsx
-
+"use client";
 import dynamic from "next/dynamic";
-import { PageHeader } from "@/components/ui/page-header"; // Corrected import based on file structure
+import { PageHeader } from "@/components/ui/page-header";
 import { Suspense } from "react";
 
 // Dynamically import the map component with the updated file name

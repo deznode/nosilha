@@ -1,22 +1,14 @@
-// frontend/src/components/ui/InteractiveMap.tsx
-
 "use client";
 
 import { useState, useEffect } from "react";
-import Map, { Marker, Popup } from "react-map-gl";
+import Map, { Marker, Popup } from "react-map-gl/mapbox";
 import Link from "next/link";
 
 // It's crucial to import the Mapbox GL CSS for the map to display correctly.
 import "mapbox-gl/dist/mapbox-gl.css";
 
-// Define a type for our directory entries to ensure type safety
-interface DirectoryEntry {
-  id: string;
-  name: string;
-  slug: string;
-  latitude: number;
-  longitude: number;
-}
+import type { DirectoryEntry } from "@/types/directory";
+import { getEntriesByCategory } from "@/lib/api";
 
 export default function InteractiveMap() {
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
@@ -28,16 +20,15 @@ export default function InteractiveMap() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Fetch all directory entries from our Spring Boot backend
+    // --- Refactoring Applied ---
+    // Fetch entries using the centralized API function
     const fetchEntries = async () => {
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/directory/entries`
-        );
-        if (!response.ok) {
-          throw new Error("Failed to fetch map data");
+        const data = await getEntriesByCategory("all");
+        if (data.length === 0) {
+          // This could be a valid empty set or an error from the API returning []
+          console.warn("No map entries found.");
         }
-        const data: DirectoryEntry[] = await response.json();
         setEntries(data);
       } catch (err) {
         console.error(err);
@@ -46,7 +37,7 @@ export default function InteractiveMap() {
     };
 
     fetchEntries();
-  }, []); // Empty dependency array ensures this runs once on component mount
+  }, []); // Empty dependency array ensures this runs once
 
   if (!mapboxToken) {
     return (
@@ -82,12 +73,10 @@ export default function InteractiveMap() {
           latitude={entry.latitude}
           anchor="bottom"
           onClick={(e) => {
-            // Stop event propagation to prevent map click events
             e.originalEvent.stopPropagation();
             setSelectedEntry(entry);
           }}
         >
-          {/* You can use a custom SVG icon here */}
           <div className="cursor-pointer text-2xl">📍</div>
         </Marker>
       ))}
@@ -98,12 +87,12 @@ export default function InteractiveMap() {
           latitude={selectedEntry.latitude}
           anchor="top"
           onClose={() => setSelectedEntry(null)}
-          closeOnClick={false} // We handle the close button explicitly
+          closeOnClick={false}
         >
           <div className="p-1">
             <h3 className="font-bold">{selectedEntry.name}</h3>
             <Link
-              href={`/directory/slug/${selectedEntry.slug}`}
+              href={`/directory/entry/${selectedEntry.slug}`} // Adjusted path based on file structure
               className="text-blue-600 hover:underline"
             >
               View Details &rarr;
