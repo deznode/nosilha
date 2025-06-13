@@ -24,3 +24,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+  cloud:
+    gcp:
+      credentials:
+        location: "classpath:sa-key.json"
+gcp:
+  gcs-bucket-name: "nosilha-com-media-storage-useast1"

@@ -1,11 +1,16 @@
 package com.nosilha.core.controller
 
+import com.nosilha.core.dto.CreateEntryRequestDto
 import com.nosilha.core.dto.DirectoryEntryDto
 import com.nosilha.core.service.DirectoryEntryService
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
@@ -22,6 +27,21 @@ import java.util.UUID
 class DirectoryEntryController(
   private val service: DirectoryEntryService
 ) {
+
+  /**
+   * Creates a new directory entry.
+   *
+   * This endpoint handles `POST` requests to `/api/v1/directory/entries`.
+   * The `@ResponseStatus(HttpStatus.CREATED)` annotation ensures a 201 status is returned on success.
+   *
+   * @param request The request body containing the details of the entry to create.
+   * @return The DTO of the newly created entry.
+   */
+  @PostMapping("/entries")
+  @ResponseStatus(HttpStatus.CREATED)
+  fun createNewEntry(@RequestBody request: CreateEntryRequestDto): DirectoryEntryDto {
+    return service.createEntry(request)
+  }
 
   /**
    * Retrieves a list of directory entries.

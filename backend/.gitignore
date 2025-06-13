@@ -125,3 +125,5 @@ flyway.conf
 ### Performance ###
 *.hprof
 *.jfr
+
+sa-key.json

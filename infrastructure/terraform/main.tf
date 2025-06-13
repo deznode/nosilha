@@ -8,7 +8,7 @@ terraform {
   required_providers {
     google = {
       source  = "hashicorp/google"
-      version = "~> 5.0"
+      version = "6.39.0"
     }
   }
 }
@@ -24,7 +24,7 @@ resource "google_storage_bucket" "media_storage" {
   # Creates a globally unique bucket name. e.g., "nosilha-com-media-storage-useast1"
   name          = "nosilha-com-${var.bucket_name_suffix}"
   location      = var.gcp_region
-  force_destroy = false # Set to true in dev environments to allow deletion of non-empty buckets.
+  force_destroy = true # Set to true in dev environments to allow deletion of non-empty buckets.
 
   # Enables Uniform Bucket-Level Access for simpler and more consistent permission management.
   uniform_bucket_level_access = true

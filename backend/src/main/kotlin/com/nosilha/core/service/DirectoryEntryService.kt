@@ -1,11 +1,16 @@
 package com.nosilha.core.service
 
+import com.nosilha.core.domain.Beach
+import com.nosilha.core.domain.Hotel
+import com.nosilha.core.domain.Landmark
+import com.nosilha.core.domain.Restaurant
+import com.nosilha.core.dto.CreateEntryRequestDto
 import com.nosilha.core.dto.DirectoryEntryDto
 import com.nosilha.core.dto.toDto
 import com.nosilha.core.exception.ResourceNotFoundException
 import com.nosilha.core.repository.DirectoryEntryRepository
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 /**
  * Service class for handling business logic related to directory entries.
@@ -19,6 +24,46 @@ import java.util.UUID
 class DirectoryEntryService(
   private val repository: DirectoryEntryRepository
 ) {
+
+  /**
+   * Creates a new directory entry based on the provided request data.
+   *
+   * @param request The DTO containing all necessary data for the new entry.
+   * @return The DTO of the newly created and saved entry.
+   * @throws IllegalArgumentException if the category in the request is invalid.
+   */
+  fun createEntry(request: CreateEntryRequestDto): DirectoryEntryDto {
+    val newEntry = when (request.category) {
+      "Restaurant" -> Restaurant().apply {
+        this.phoneNumber = request.phoneNumber
+        this.openingHours = request.openingHours
+        this.cuisine = request.cuisine
+      }
+      "Hotel" -> Hotel().apply {
+        this.amenities = request.amenities
+        this.phoneNumber = request.phoneNumber
+      }
+      "Beach" -> Beach()
+      "Landmark" -> Landmark()
+      else -> throw IllegalArgumentException("Invalid category provided: ${request.category}")
+    }
+
+    newEntry.apply {
+      this.name = request.name
+      this.description = request.description
+      this.town = request.town
+      this.latitude = request.latitude
+      this.longitude = request.longitude
+      this.imageUrl = request.imageUrl
+      // Generate a simple, URL-friendly slug
+      this.slug = request.name.lowercase()
+        .replace(Regex("\\s+"), "-") // Replace spaces with hyphens
+        .replace(Regex("[^a-z0-9-]"), "") // Remove non-alphanumeric characters (except hyphens)
+    }
+
+    val savedEntry = repository.save(newEntry)
+    return savedEntry.toDto()
+  }
 
   /**
    * Retrieves all directory entries from the database and maps them to DTOs.
