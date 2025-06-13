@@ -10,6 +10,7 @@ import { PlusIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
+import { NosilhaLogo } from "./logo";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -41,7 +42,7 @@ export function Header() {
             {/* Logo */}
             <div className="flex shrink-0 items-center">
               <Link href="/" className="font-bold text-ocean-blue">
-                nosilha.com
+                <NosilhaLogo />
               </Link>
             </div>
             {/* Desktop Navigation */}
