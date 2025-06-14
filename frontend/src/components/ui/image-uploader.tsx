@@ -1,136 +1,121 @@
 "use client";
 
-import { useState, FormEvent, ChangeEvent } from "react";
+import { useState, useCallback, DragEvent, ChangeEvent } from "react";
+import { PhotoIcon } from "@heroicons/react/24/solid";
+import Image from "next/image";
 import { Button } from "@/components/catalyst-ui/button";
-import { Input } from "@/components/catalyst-ui/input";
-import {
-  ArrowUpOnSquareIcon,
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-} from "@heroicons/react/20/solid";
+import clsx from "clsx";
 
-type UploadStatus = "idle" | "uploading" | "success" | "error";
+interface ImageUploaderProps {
+  onFileSelect: (file: File | null) => void;
+}
 
-export function ImageUploader() {
-  // State for the selected file
-  const [file, setFile] = useState<File | null>(null);
-  // State to track the upload process
-  const [status, setStatus] = useState<UploadStatus>("idle");
-  // State for storing the URL from a successful response
-  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
-  // State for storing any error messages
-  const [error, setError] = useState<string | null>(null);
+export function ImageUploader({ onFileSelect }: ImageUploaderProps) {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [activeDrag, setActiveDrag] = useState(false);
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
-      setStatus("idle"); // Reset status when a new file is selected
-      setError(null);
-      setUploadedUrl(null);
-    }
+  const handleFile = useCallback(
+    (file: File | undefined) => {
+      if (file && file.type.startsWith("image/")) {
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+        onFileSelect(file);
+      } else {
+        // Handle non-image file selection if necessary
+        onFileSelect(null);
+      }
+    },
+    [onFileSelect]
+  );
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActiveDrag(true);
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    if (!file) return;
+    e.stopPropagation();
+    setActiveDrag(false);
+  };
 
-    setStatus("uploading");
-    setError(null);
-    setUploadedUrl(null);
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setActiveDrag(false);
+    const file = e.dataTransfer.files?.[0];
+    handleFile(file);
+  };
 
-    const formData = new FormData();
-    formData.append("file", file);
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    handleFile(file);
+  };
 
-    try {
-      const response = await fetch(
-        "http://localhost:8080/api/v1/media/upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        // If response is not OK, use the error message from the API, or a default one
-        throw new Error(result.message || "Upload failed. Please try again.");
-      }
-
-      setStatus("success");
-      setUploadedUrl(result.url);
-    } catch (err: any) {
-      setStatus("error");
-      setError(err.message);
-    }
+  const handleRemoveImage = () => {
+    setPreviewUrl(null);
+    onFileSelect(null);
   };
 
   return (
-    <div className="max-w-md rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label
-            htmlFor="file-upload"
-            className="block text-sm font-medium leading-6 text-gray-900"
-          >
-            Select Image
-          </label>
-          <Input
-            id="file-upload"
-            name="file-upload"
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="mt-2"
-          />
+    <div className="w-full">
+      {previewUrl ? (
+        // Image Preview State
+        <div className="relative rounded-lg border border-gray-300">
+          <div className="aspect-video relative">
+            <Image
+              src={previewUrl}
+              alt="Selected image preview"
+              fill
+              className="object-contain rounded-lg"
+            />
+          </div>
+          <div className="p-2 border-t border-gray-200 text-center">
+            <Button type="button" plain onClick={handleRemoveImage}>
+              Remove / Change File
+            </Button>
+          </div>
         </div>
-
-        <Button
-          type="submit"
-          disabled={!file || status === "uploading"}
-          className="w-full"
+      ) : (
+        // Drag and Drop State
+        <div
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={clsx(
+            "flex justify-center rounded-lg border border-dashed px-6 py-10 transition-colors duration-200",
+            activeDrag ? "border-ocean-blue bg-blue-50" : "border-gray-900/25"
+          )}
         >
-          <ArrowUpOnSquareIcon className="h-5 w-5" />
-          <span>
-            {status === "uploading" ? "Uploading..." : "Upload Image"}
-          </span>
-        </Button>
-      </form>
-
-      {/* User Feedback Section */}
-      <div className="mt-4 text-center">
-        {status === "success" && uploadedUrl && (
-          <div className="rounded-md bg-green-50 p-4 text-sm text-green-700">
-            <div className="flex items-center justify-center gap-x-2">
-              <CheckCircleIcon className="h-5 w-5" />
-              <p>
-                <strong>Success!</strong> Image uploaded.
-              </p>
-            </div>
-            <p className="mt-2 break-all text-xs">
-              URL:{" "}
-              <a
-                href={uploadedUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-mono underline"
+          <div className="text-center">
+            <PhotoIcon
+              aria-hidden="true"
+              className="mx-auto h-12 w-12 text-gray-300"
+            />
+            <div className="mt-4 flex text-sm leading-6 text-gray-600">
+              <label
+                htmlFor="file-upload"
+                className="relative cursor-pointer rounded-md bg-white font-semibold text-ocean-blue focus-within:outline-none focus-within:ring-2 focus-within:ring-ocean-blue focus-within:ring-offset-2 hover:text-ocean-blue/80"
               >
-                {uploadedUrl}
-              </a>
+                <span>Upload a file</span>
+                <input
+                  id="file-upload"
+                  name="file-upload"
+                  type="file"
+                  className="sr-only"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                />
+              </label>
+              <p className="pl-1">or drag and drop</p>
+            </div>
+            <p className="text-xs leading-5 text-gray-600">
+              PNG, JPG, GIF up to 10MB
             </p>
           </div>
-        )}
-        {status === "error" && error && (
-          <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">
-            <div className="flex items-center justify-center gap-x-2">
-              <ExclamationCircleIcon className="h-5 w-5" />
-              <p>
-                <strong>Error:</strong> {error}
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

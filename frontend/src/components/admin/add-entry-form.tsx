@@ -5,12 +5,7 @@ import { Button } from "@/components/catalyst-ui/button";
 import { Input } from "@/components/catalyst-ui/input";
 import { Textarea } from "@/components/catalyst-ui/textarea";
 import { Select } from "@/components/catalyst-ui/select";
-import {
-  Field,
-  FieldGroup,
-  Fieldset,
-  Label,
-} from "@/components/catalyst-ui/fieldset";
+import { Field, Label } from "@/components/catalyst-ui/fieldset";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { createDirectoryEntry } from "@/lib/api";
 import type { DirectoryEntry } from "@/types/directory";
@@ -22,8 +17,8 @@ import {
   AlertTitle,
 } from "@/components/catalyst-ui/alert";
 
+// ... (Types and initial state are unchanged and omitted for brevity)
 type FormStatus = "idle" | "submitting" | "success" | "error";
-
 type FormData = Omit<
   DirectoryEntry,
   "id" | "slug" | "rating" | "reviewCount" | "imageUrl" | "details" | "category"
@@ -36,7 +31,6 @@ type FormData = Omit<
     amenities?: string;
   };
 };
-
 const initialFormData: FormData = {
   name: "",
   description: "",
@@ -46,7 +40,6 @@ const initialFormData: FormData = {
   longitude: 0,
   details: {},
 };
-
 const categories: Exclude<DirectoryEntry["category"], "">[] = [
   "Restaurant",
   "Hotel",
@@ -61,6 +54,7 @@ export function AddEntryForm() {
   const [message, setMessage] = useState<string>("");
   const [isAlertOpen, setIsAlertOpen] = useState(false);
 
+  // ... (Handler functions are unchanged and omitted for brevity)
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -87,10 +81,7 @@ export function AddEntryForm() {
       setIsAlertOpen(true);
       return;
     }
-
     setStatus("submitting");
-    setMessage("");
-
     const payload: Omit<
       DirectoryEntry,
       "id" | "slug" | "rating" | "reviewCount"
@@ -124,16 +115,12 @@ export function AddEntryForm() {
     try {
       await createDirectoryEntry(payload);
       setStatus("success");
-      setMessage(
-        "Entry data submitted successfully! You can now upload an image."
-      );
+      setMessage("The new directory entry has been created successfully!");
       setIsAlertOpen(true);
-      nextStep(); // Automatically proceed to the image upload step
-    } catch (err: unknown) {
+      setFormData(initialFormData);
+    } catch (err: any) {
       setStatus("error");
-      setMessage(
-        err instanceof Error ? err.message : "An unknown error occurred."
-      );
+      setMessage(err.message || "An unknown error occurred.");
       setIsAlertOpen(true);
     }
   };
@@ -142,19 +129,18 @@ export function AddEntryForm() {
 
   return (
     <>
-      <div className="max-w-2xl mx-auto p-8 bg-white shadow-lg rounded-lg">
-        <h2 className="text-2xl font-bold font-serif text-center mb-2">
-          Add New Directory Entry
-        </h2>
-        <p className="text-center text-gray-500 mb-6">
-          Step {currentStep} of 4
-        </p>
-
-        {/* The <form> tag now only wraps steps 1-3 */}
-        <form onSubmit={handleSubmit}>
-          {currentStep === 1 && (
-            <Fieldset>
-              <FieldGroup>
+      <form onSubmit={handleSubmit}>
+        <div className="space-y-12">
+          {/* Section 1: Directory Entry Details */}
+          <div className="border-b border-gray-900/10 pb-12">
+            <h2 className="text-base font-semibold leading-7 text-gray-900">
+              Directory Entry Details
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-gray-600">
+              This information will be publicly displayed for the new location.
+            </p>
+            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+              <div className="sm:col-span-4">
                 <Field>
                   <Label>Name</Label>
                   <Input
@@ -165,16 +151,8 @@ export function AddEntryForm() {
                     disabled={isSubmitting}
                   />
                 </Field>
-                <Field>
-                  <Label>Description</Label>
-                  <Textarea
-                    name="description"
-                    value={formData.description}
-                    onChange={handleInputChange}
-                    required
-                    disabled={isSubmitting}
-                  />
-                </Field>
+              </div>
+              <div className="sm:col-span-3">
                 <Field>
                   <Label>Town</Label>
                   <Input
@@ -185,6 +163,8 @@ export function AddEntryForm() {
                     disabled={isSubmitting}
                   />
                 </Field>
+              </div>
+              <div className="sm:col-span-3">
                 <Field>
                   <Label>Category</Label>
                   <Select
@@ -204,19 +184,35 @@ export function AddEntryForm() {
                     ))}
                   </Select>
                 </Field>
-              </FieldGroup>
-            </Fieldset>
-          )}
+              </div>
+              <div className="col-span-full">
+                <Field>
+                  <Label>Description</Label>
+                  <Textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    required
+                    disabled={isSubmitting}
+                    rows={4}
+                  />
+                </Field>
+              </div>
+            </div>
+          </div>
 
-          {currentStep === 2 && (
-            <Fieldset>
-              <legend className="text-lg font-medium text-gray-900 mb-4">
-                Category Details
-              </legend>
-              <FieldGroup>
-                {/* Conditional fields... */}
-                {formData.category === "Restaurant" && (
-                  <>
+          {/* Section 2: Category-Specific Information */}
+          <div className="border-b border-gray-900/10 pb-12">
+            <h2 className="text-base font-semibold leading-7 text-gray-900">
+              Category-Specific Information
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-gray-600">
+              Provide details relevant to the selected category.
+            </p>
+            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+              {formData.category === "Restaurant" && (
+                <>
+                  <div className="sm:col-span-3">
                     <Field>
                       <Label>Phone Number</Label>
                       <Input
@@ -226,6 +222,8 @@ export function AddEntryForm() {
                         disabled={isSubmitting}
                       />
                     </Field>
+                  </div>
+                  <div className="sm:col-span-3">
                     <Field>
                       <Label>Opening Hours</Label>
                       <Input
@@ -235,6 +233,8 @@ export function AddEntryForm() {
                         disabled={isSubmitting}
                       />
                     </Field>
+                  </div>
+                  <div className="sm:col-span-full">
                     <Field>
                       <Label>Cuisine (comma-separated)</Label>
                       <Input
@@ -244,10 +244,12 @@ export function AddEntryForm() {
                         disabled={isSubmitting}
                       />
                     </Field>
-                  </>
-                )}
-                {formData.category === "Hotel" && (
-                  <>
+                  </div>
+                </>
+              )}
+              {formData.category === "Hotel" && (
+                <>
+                  <div className="sm:col-span-3">
                     <Field>
                       <Label>Phone Number</Label>
                       <Input
@@ -257,6 +259,8 @@ export function AddEntryForm() {
                         disabled={isSubmitting}
                       />
                     </Field>
+                  </div>
+                  <div className="sm:col-span-full">
                     <Field>
                       <Label>Amenities (comma-separated)</Label>
                       <Input
@@ -266,25 +270,31 @@ export function AddEntryForm() {
                         disabled={isSubmitting}
                       />
                     </Field>
-                  </>
-                )}
-                {(formData.category === "Beach" ||
-                  formData.category === "Landmark" ||
-                  formData.category === "") && (
-                  <p className="text-gray-500">
+                  </div>
+                </>
+              )}
+              {(formData.category === "Beach" ||
+                formData.category === "Landmark" ||
+                formData.category === "") && (
+                <div className="sm:col-span-full">
+                  <p className="text-sm text-gray-500">
                     No specific details required for this category.
                   </p>
-                )}
-              </FieldGroup>
-            </Fieldset>
-          )}
+                </div>
+              )}
+            </div>
+          </div>
 
-          {currentStep === 3 && (
-            <Fieldset>
-              <legend className="text-lg font-medium text-gray-900 mb-4">
-                Location Coordinates
-              </legend>
-              <FieldGroup className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+          {/* Section 3: Location & Media */}
+          <div className="pb-12">
+            <h2 className="text-base font-semibold leading-7 text-gray-900">
+              Location & Media
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-gray-600">
+              Set the geographic coordinates and upload an image for this entry.
+            </p>
+            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+              <div className="sm:col-span-3">
                 <Field>
                   <Label>Latitude</Label>
                   <Input
@@ -297,6 +307,8 @@ export function AddEntryForm() {
                     disabled={isSubmitting}
                   />
                 </Field>
+              </div>
+              <div className="sm:col-span-3">
                 <Field>
                   <Label>Longitude</Label>
                   <Input
@@ -309,63 +321,36 @@ export function AddEntryForm() {
                     disabled={isSubmitting}
                   />
                 </Field>
-              </FieldGroup>
-            </Fieldset>
-          )}
-
-          {/* Navigation Buttons for the main form */}
-          <div className="mt-8 flex justify-between">
-            <Button
-              type="button"
-              onClick={prevStep}
-              disabled={currentStep === 1 || isSubmitting}
-              plain
-            >
-              Back
-            </Button>
-
-            {currentStep < 3 ? (
-              <Button type="button" onClick={nextStep} disabled={isSubmitting}>
-                Next
-              </Button>
-            ) : (
-              // This is the submit button for the main form (steps 1-3)
-              <Button type="submit" color="blue" disabled={isSubmitting}>
-                {isSubmitting ? "Submitting Data..." : "Submit Data & Proceed"}
-              </Button>
-            )}
-          </div>
-        </form>
-
-        {currentStep === 4 && (
-          <div>
-            <div className="my-8 border-t border-gray-200"></div>
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              Step 4: Upload Main Image
-            </h3>
-            <p className="text-sm text-gray-500 mb-4">
-              The directory entry has been saved. You can now upload the primary
-              image for this location.
-            </p>
-            <ImageUploader />
-            <div className="mt-8 flex justify-between">
-              <Button type="button" onClick={prevStep} plain>
-                Back
-              </Button>
-              {/* A new button to complete the whole process */}
-              <Button
-                onClick={() => {
-                  setFormData(initialFormData);
-                  setCurrentStep(1);
-                }}
-                color="green"
-              >
-                Add Another Entry
-              </Button>
+              </div>
+              <Field className="col-span-full">
+                <Label>Primary Image</Label>
+                <div className="mt-2">
+                  <ImageUploader />
+                </div>
+              </Field>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+
+        {/* Final Actions with Themed Button */}
+        <div className="mt-6 flex items-center justify-end gap-x-6">
+          <Button
+            type="button"
+            plain
+            onClick={() => setFormData(initialFormData)}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            className="bg-ocean-blue hover:bg-ocean-blue/90"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Saving..." : "Save Entry"}
+          </Button>
+        </div>
+      </form>
 
       <Alert open={isAlertOpen} onClose={() => setIsAlertOpen(false)}>
         <AlertTitle>{status === "success" ? "Success" : "Error"}</AlertTitle>
