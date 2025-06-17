@@ -4,6 +4,7 @@ import clsx from "clsx";
 
 import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
+import { AuthProvider } from "@/components/providers/auth-provider";
 import "./globals.css";
 
 // 1. Set up the primary and secondary fonts using next/font/google.
@@ -45,12 +46,14 @@ export default function RootLayout({
           merriweather.variable
         )}
       >
-        <div className="flex min-h-screen flex-col">
-          {/* 3. Render the global Header, main content, and Footer */}
-          <Header />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-        </div>
+        <AuthProvider>
+          <div className="flex min-h-screen flex-col">
+            {/* 3. Render the global Header, main content, and Footer */}
+            <Header />
+            <main className="flex-grow">{children}</main>
+            <Footer />
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );

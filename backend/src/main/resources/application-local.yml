@@ -31,3 +31,6 @@ spring:
         location: "classpath:sa-key.json"
 gcp:
   gcs-bucket-name: "nosilha-com-media-storage-useast1"
+
+supabase:
+  jwt-secret: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndxcGdibXJnd2JleHhsZGVva2l1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDA5NzQzOSwiZXhwIjoyMDY1NjczNDM5fQ.Fgqu1WgVEz8SJpaN2CYa08z0yePJG7nX86Nj-yqAbdw
