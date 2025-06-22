@@ -15,6 +15,7 @@ import { NosilhaLogo } from "./logo";
 import { useAuth } from "@/components/providers/auth-provider";
 import { supabase } from "@/lib/supabase-client";
 import { Button } from "@/components/catalyst-ui/button";
+import { ThemeToggle } from "./theme-toggle";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -38,13 +39,13 @@ export function Header() {
   return (
     <Disclosure
       as="nav"
-      className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-sm"
+      className="sticky top-0 z-50 border-b border-gray-200 dark:border-gray-600 bg-white/80 dark:bg-volcanic-gray-dark/80 backdrop-blur-sm"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between">
           <div className="flex">
             <div className="mr-2 flex items-center md:hidden">
-              <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ocean-blue">
+              <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ocean-blue">
                 <span className="sr-only">Open main menu</span>
                 <Bars3Icon className="block h-6 w-6 group-data-open:hidden" />
                 <XMarkIcon className="hidden h-6 w-6 group-data-open:block" />
@@ -63,8 +64,8 @@ export function Header() {
                   className={clsx(
                     "inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium",
                     pathname === item.href
-                      ? "border-ocean-blue text-gray-900"
-                      : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                      ? "border-ocean-blue text-gray-900 dark:text-white"
+                      : "border-transparent text-gray-500 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 hover:text-gray-700 dark:hover:text-white"
                   )}
                   aria-current={pathname === item.href ? "page" : undefined}
                 >
@@ -85,9 +86,10 @@ export function Header() {
               </Link>
             </div>
             <div className="ml-4 flex items-center gap-x-4">
+              <ThemeToggle />
               {session ? (
                 <>
-                  <span className="text-sm text-gray-600">
+                  <span className="text-sm text-gray-600 dark:text-gray-300">
                     {session.user.email}
                   </span>
                   <Button onClick={handleLogout} plain>
@@ -98,13 +100,13 @@ export function Header() {
                 <>
                   <Link
                     href="/login"
-                    className="text-sm font-semibold text-gray-700 hover:text-ocean-blue"
+                    className="text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-ocean-blue"
                   >
                     Log in
                   </Link>
                   <Link
                     href="/signup"
-                    className="text-sm font-semibold text-gray-700 hover:text-ocean-blue"
+                    className="text-sm font-semibold text-gray-700 dark:text-gray-200 hover:text-ocean-blue"
                   >
                     Sign up
                   </Link>
