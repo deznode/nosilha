@@ -23,7 +23,7 @@ class SecurityConfig(
   @Bean
   fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
 
-    if (Arrays.asList(*env.activeProfiles).contains("local")) {
+    if (listOf(*env.activeProfiles).contains("local")) {
       http.cors { cors ->
         cors.configurationSource {
           CorsConfiguration()
@@ -47,7 +47,7 @@ class SecurityConfig(
           // Allow public access to media upload endpoint (can be secured later if needed)
           .requestMatchers(HttpMethod.POST, "/api/v1/media/upload").permitAll()
           // Only allow users with the 'ADMIN' role to create new directory entries
-          .requestMatchers(HttpMethod.POST, "/api/v1/directory/entries").hasRole("ADMIN")
+          .requestMatchers(HttpMethod.POST, "/api/v1/directory/entries").hasRole("authenticated")
           // All other requests must be authenticated
           .anyRequest().authenticated()
       }

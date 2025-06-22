@@ -10,6 +10,7 @@ import com.nosilha.core.dto.toDto
 import com.nosilha.core.exception.ResourceNotFoundException
 import com.nosilha.core.repository.jpa.DirectoryEntryRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 /**
@@ -32,6 +33,7 @@ class DirectoryEntryService(
    * @return The DTO of the newly created and saved entry.
    * @throws IllegalArgumentException if the category in the request is invalid.
    */
+  @Transactional
   fun createEntry(request: CreateEntryRequestDto): DirectoryEntryDto {
     val newEntry = when (request.category) {
       "Restaurant" -> Restaurant().apply {
@@ -39,10 +41,12 @@ class DirectoryEntryService(
         this.openingHours = request.openingHours
         this.cuisine = request.cuisine
       }
+
       "Hotel" -> Hotel().apply {
         this.amenities = request.amenities
         this.phoneNumber = request.phoneNumber
       }
+
       "Beach" -> Beach()
       "Landmark" -> Landmark()
       else -> throw IllegalArgumentException("Invalid category provided: ${request.category}")
