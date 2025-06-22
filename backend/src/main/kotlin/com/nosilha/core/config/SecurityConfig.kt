@@ -3,21 +3,40 @@ package com.nosilha.core.config
 import com.nosilha.core.security.JwtAuthenticationFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.core.env.Environment
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
+import java.util.*
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-  private val jwtAuthFilter: JwtAuthenticationFilter
+  private val jwtAuthFilter: JwtAuthenticationFilter,
+  private val env: Environment
 ) {
 
   @Bean
   fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+
+    if (Arrays.asList(*env.activeProfiles).contains("local")) {
+      http.cors { cors ->
+        cors.configurationSource {
+          CorsConfiguration()
+            .apply {
+              allowedOrigins = listOf("http://localhost:3000")
+              allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+              allowedHeaders = listOf("*")
+              allowCredentials = true
+            }
+        }
+      }
+    }
+
     http
       // 1. Disable CSRF for stateless APIs
       .csrf { it.disable() }

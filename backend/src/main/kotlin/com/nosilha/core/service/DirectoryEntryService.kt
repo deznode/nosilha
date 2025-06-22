@@ -8,7 +8,7 @@ import com.nosilha.core.dto.CreateEntryRequestDto
 import com.nosilha.core.dto.DirectoryEntryDto
 import com.nosilha.core.dto.toDto
 import com.nosilha.core.exception.ResourceNotFoundException
-import com.nosilha.core.repository.DirectoryEntryRepository
+import com.nosilha.core.repository.jpa.DirectoryEntryRepository
 import org.springframework.stereotype.Service
 import java.util.*
 
