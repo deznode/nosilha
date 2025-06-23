@@ -1,3 +1,51 @@
+# ===================================================================
+# PRODUCTION CONFIGURATION (Default Profile)
+# For Google Cloud Run
+# ===================================================================
 spring:
   application:
     name: nosilha-core-api
+
+  # Database Configuration for Production (Supabase)
+  # NOTE: The url, username, and password properties are intentionally omitted.
+  # Spring Boot will automatically bind them from the Cloud Run environment variables:
+  # SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
+  datasource:
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+
+  # Flyway Configuration
+  flyway:
+    enabled: true
+
+  # JPA/Hibernate Configuration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  # Disable default security password generation since we use JWT
+  security:
+    user:
+      password: # Leave empty to disable default user
+
+  # Google Cloud Platform Configuration for Production
+  # NOTE: The project-id is intentionally omitted as it will be bound from
+  # the SPRING_CLOUD_GCP_PROJECT_ID environment variable.
+  # Emulator settings are also omitted to connect to live GCP services.
+  cloud:
+    gcp: {}
+
+# The production GCS bucket name, provided as an environment variable in Cloud Run.
+gcp:
+  gcs-bucket-name: ${GCS_BUCKET_NAME}
+
+# The production Supabase JWT secret, sourced from Google Secret Manager
+# and provided as an environment variable.
+supabase:
+  jwt-secret: ${SUPABASE_JWT_SECRET}
+

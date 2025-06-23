@@ -11,7 +11,6 @@ import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
-import java.util.*
 
 @Configuration
 @EnableWebSecurity
@@ -46,7 +45,7 @@ class SecurityConfig(
         it.requestMatchers(HttpMethod.GET, "/api/v1/directory/**").permitAll()
           // Allow public access to media upload endpoint (can be secured later if needed)
           .requestMatchers(HttpMethod.POST, "/api/v1/media/upload").permitAll()
-          // Only allow users with the 'ADMIN' role to create new directory entries
+          // Only allow authenticated users to create new directory entries
           .requestMatchers(HttpMethod.POST, "/api/v1/directory/entries").hasRole("authenticated")
           // All other requests must be authenticated
           .anyRequest().authenticated()

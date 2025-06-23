@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
+
 plugins {
 	kotlin("jvm") version "1.9.25"
 	kotlin("plugin.spring") version "1.9.25"
@@ -65,4 +67,9 @@ allOpen {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+
+tasks.getByName<BootBuildImage>("bootBuildImage") {
+	imageName.set("us-east1-docker.pkg.dev/nosilha/nosilha-backend/nosilha-core-api:${project.version}")
 }
