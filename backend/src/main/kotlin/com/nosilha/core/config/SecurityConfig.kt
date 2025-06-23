@@ -34,6 +34,18 @@ class SecurityConfig(
             }
         }
       }
+    } else if (listOf(*env.activeProfiles).contains("prod")) {
+      http.cors { cors ->
+        cors.configurationSource {
+          CorsConfiguration()
+            .apply {
+              allowedOrigins = listOf("https://nosilha-frontend-fgvp3vntma-ue.a.run.app")
+              allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+              allowedHeaders = listOf("*")
+              allowCredentials = true
+            }
+        }
+      }
     }
 
     http

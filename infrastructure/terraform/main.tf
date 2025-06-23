@@ -107,3 +107,22 @@ resource "google_artifact_registry_repository" "api_repository" {
     "env"     = "shared"
   }
 }
+
+resource "google_artifact_registry_repository" "frontend_repository" {
+  # The user-friendly name for the repository.
+  repository_id = "nosilha-frontend"
+
+  # Specifies that this repository will store Docker images.
+  format = "DOCKER"
+
+  # The GCP region where the repository will be located.
+  location = var.gcp_region # This uses the existing "us-east1" variable.
+
+  description = "Docker repository for Nosilha.com frontend UI images."
+
+  # Optional: Add labels for organization and cost tracking.
+  labels = {
+    "service" = "nosilha-frontend"
+    "env"     = "shared"
+  }
+}

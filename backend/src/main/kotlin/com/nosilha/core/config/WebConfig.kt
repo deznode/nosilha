@@ -31,4 +31,18 @@ class WebConfig {
       }
     }
   }
+
+  @Bean
+  @Profile("prod")
+  fun prodCorsConfigurer(): WebMvcConfigurer {
+    return object : WebMvcConfigurer {
+      override fun addCorsMappings(registry: CorsRegistry) {
+        registry.addMapping("/api/**") // Apply CORS rules to all API endpoints
+          .allowedOrigins("https://nosilha-frontend-fgvp3vntma-ue.a.run.app")
+          .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+          .allowedHeaders("*")
+          .allowCredentials(true)
+      }
+    }
+  }
 }

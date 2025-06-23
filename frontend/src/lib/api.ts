@@ -2,12 +2,12 @@ import type { DirectoryEntry } from "@/types/directory";
 import { supabase } from "@/lib/supabase-client";
 
 // 1. Read the base URL from environment variables.
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // 2. Add a check to ensure the variable is defined.
 if (!API_BASE_URL) {
   throw new Error(
-    "NEXT_PUBLIC_API_BASE_URL is not defined. Please check your .env.local file."
+    "NEXT_PUBLIC_API_URL is not defined. Please check your .env.local file."
   );
 }
 
@@ -17,9 +17,14 @@ if (!API_BASE_URL) {
  * @param options - Fetch options
  * @returns Promise with the fetch response
  */
-async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
-  const { data: { session } } = await supabase.auth.getSession();
-  
+async function authenticatedFetch(
+  url: string,
+  options: RequestInit = {}
+): Promise<Response> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
   const headers = {
     ...options.headers,
   };
@@ -27,7 +32,7 @@ async function authenticatedFetch(url: string, options: RequestInit = {}): Promi
   // Add Authorization header if user is authenticated
   if (session?.access_token) {
     Object.assign(headers, {
-      'Authorization': `Bearer ${session.access_token}`,
+      Authorization: `Bearer ${session.access_token}`,
     });
   }
 
@@ -40,12 +45,14 @@ async function authenticatedFetch(url: string, options: RequestInit = {}): Promi
   if (response.status === 401) {
     // Token expired or invalid - sign out user
     await supabase.auth.signOut();
-    window.location.href = '/login';
-    throw new Error('Authentication expired. Please log in again.');
+    window.location.href = "/login";
+    throw new Error("Authentication expired. Please log in again.");
   }
 
   if (response.status === 403) {
-    throw new Error('Access denied. You do not have permission to perform this action.');
+    throw new Error(
+      "Access denied. You do not have permission to perform this action."
+    );
   }
 
   return response;
@@ -61,8 +68,8 @@ export async function getEntriesByCategory(
 ): Promise<DirectoryEntry[]> {
   const endpoint =
     category.toLowerCase() === "all"
-      ? `${API_BASE_URL}/entries`
-      : `${API_BASE_URL}/entries?category=${category}`;
+      ? `${API_BASE_URL}/api/v1/directory/entries`
+      : `${API_BASE_URL}/api/v1/directory/entries?category=${category}`;
 
   try {
     const response = await fetch(endpoint, { cache: "no-store" });
@@ -85,7 +92,7 @@ export async function getEntriesByCategory(
 export async function getEntryBySlug(
   slug: string
 ): Promise<DirectoryEntry | undefined> {
-  const endpoint = `${API_BASE_URL}/slug/${slug}`;
+  const endpoint = `${API_BASE_URL}/api/v1/directory/slug/${slug}`;
 
   try {
     const response = await fetch(endpoint, { cache: "no-store" });
@@ -112,7 +119,7 @@ export async function getEntryBySlug(
 export async function createDirectoryEntry(
   entryData: Omit<DirectoryEntry, "id" | "slug" | "rating" | "reviewCount">
 ): Promise<DirectoryEntry> {
-  const endpoint = `${API_BASE_URL}/entries`;
+  const endpoint = `${API_BASE_URL}/api/v1/directory/entries`;
 
   const response = await authenticatedFetch(endpoint, {
     method: "POST",

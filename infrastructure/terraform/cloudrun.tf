@@ -147,7 +147,6 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
   ]
 }
 
-
 # --- Public Access IAM Policy for Cloud Run ---
 #
 # This grants the 'run.invoker' role to 'allUsers', which makes the
@@ -160,3 +159,59 @@ resource "google_cloud_run_v2_service_iam_member" "allow_public_access" {
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
+
+
+# Deploys the containerized Next.js frontend application.
+#
+resource "google_cloud_run_v2_service" "nosilha_frontend" {
+  name                = "nosilha-frontend"
+  location            = var.gcp_region # Deploys to us-east1
+  deletion_protection = false
+
+  template {
+    containers {
+      # The full path to the frontend container image in its Artifact Registry.
+      image = "us-east1-docker.pkg.dev/${var.gcp_project_id}/nosilha-frontend/nosilha-web-ui:${var.frontend_image_tag}"
+
+      # Configure container port for Next.js
+      ports {
+        name           = "http1"
+        container_port = 3000
+      }
+
+      # Configure memory and CPU resources for free tier
+      resources {
+        limits = {
+          cpu    = "1000m"
+          memory = "512Mi"
+        }
+      }
+
+      # --- CRITICAL: Provide the Backend URL to the Frontend ---
+      # This environment variable tells the Next.js app where to find the live backend API.
+      # It dynamically uses the URI of the backend service we already deployed.
+      env {
+        name  = "NEXT_PUBLIC_API_URL"
+        value = google_cloud_run_v2_service.nosilha_backend_api.uri
+      }
+    }
+  }
+}
+
+
+# Public Access for Frontend Service ---
+#
+# Grants the 'run.invoker' role to 'allUsers' to make the website
+# publicly accessible on the internet.
+#
+resource "google_cloud_run_v2_service_iam_member" "allow_frontend_public_access" {
+  project  = google_cloud_run_v2_service.nosilha_frontend.project
+  location = google_cloud_run_v2_service.nosilha_frontend.location
+  name     = google_cloud_run_v2_service.nosilha_frontend.name
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}
+
+
+
+
