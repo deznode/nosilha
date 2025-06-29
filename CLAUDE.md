@@ -57,11 +57,17 @@ docker-compose down     # Stop all services
   - `/directory/[category]` - Category listing pages
   - `/directory/entry/[slug]` - Individual business/landmark pages
 - **Mobile-First Design**: All components are responsive and mobile-optimized
+- **Standalone Output**: Configured for containerized deployment with `output: "standalone"` in `next.config.ts`
 
 ### Database Strategy
 - **PostgreSQL**: Primary database for structured data (directory entries, user accounts)
 - **Firestore**: Flexible metadata storage for AI-processed images and documents
 - **Google Cloud Storage**: Media asset storage with CDN integration
+
+### AI & Media Processing
+- **Google Cloud Vision API**: Automated image analysis and metadata extraction
+- **AI Service**: Processes uploaded media to generate descriptions and extract features
+- **Image Metadata Repository**: Firestore-based storage for AI-generated content insights
 
 ## Development Environment Setup
 
@@ -95,8 +101,8 @@ The application will be available at:
 - Frontend: `http://localhost:3000`
 - Backend API: `http://localhost:8080/api/v1/`
 - PostgreSQL: `localhost:5432`
-- Firestore Emulator: `localhost:8081`
-- GCS Emulator: `localhost:8082`
+- Firestore Emulator: `http://localhost:8081`
+- GCS Emulator: `http://localhost:8082`
 
 ## Important Code Patterns
 
@@ -114,6 +120,7 @@ The application will be available at:
 - Use JPA repositories for database operations
 - All entities extend proper base classes and use UUID primary keys
 - Flyway handles database migrations in `backend/src/main/resources/db/`
+- Single Table Inheritance pattern for `DirectoryEntry` and its subclasses (`Restaurant`, `Hotel`, `Landmark`, `Beach`)
 
 ### Styling & UI
 - **Tailwind CSS** with custom design system colors
@@ -127,13 +134,19 @@ The application will be available at:
 
 ## Cloud Deployment
 - **Google Cloud Platform** with Terraform configurations in `/infrastructure/terraform/`
-- **Cloud Run** for backend deployment
-- **Firebase Hosting** for frontend (configuration in frontend directory)
-- Container images pushed to Google Artifact Registry
+- **Cloud Run** for both backend and frontend deployment
+- **Google Artifact Registry** for container image storage
+- **Google Cloud Storage** for media asset storage
+- **Google Secret Manager** for secure configuration management
 
 ## Key Files to Know
 - `frontend/src/app/layout.tsx` - Root layout with global providers
 - `backend/src/main/kotlin/com/nosilha/core/domain/DirectoryEntry.kt` - Core domain model
 - `frontend/src/lib/api.ts` - API client configuration
+- `frontend/next.config.ts` - Next.js configuration with standalone output
+- `frontend/Dockerfile` - Multi-stage Docker build for Cloud Run deployment
+- `backend/build.gradle.kts` - Kotlin/Spring Boot build configuration
+- `backend/src/main/resources/application.yml` - Production configuration
 - `infrastructure/docker/docker-compose.yml` - Local development environment
-- `infrastructure/terraform/` - Cloud infrastructure as code
+- `infrastructure/terraform/cloudrun.tf` - Cloud Run deployment configuration
+- `infrastructure/terraform/main.tf` - Core GCP infrastructure (GCS, Artifact Registry)
