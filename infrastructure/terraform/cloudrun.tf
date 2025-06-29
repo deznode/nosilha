@@ -27,6 +27,12 @@ resource "google_secret_manager_secret_iam_member" "grant_jwt_secret_access" {
   member    = google_service_account.backend_runner.member
 }
 
+resource "google_storage_bucket_iam_member" "grant_gcs_access" {
+  bucket = "nosilha-com-media-storage-useast1"
+  role   = "roles/storage.objectAdmin"
+  member = google_service_account.backend_runner.member
+}
+
 resource "google_secret_manager_secret_iam_member" "grant_db_url_access" {
   project   = var.gcp_project_id
   secret_id = "supabase_db_url"
@@ -190,6 +196,10 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
       # --- CRITICAL: Provide the Backend URL to the Frontend ---
       # This environment variable tells the Next.js app where to find the live backend API.
       # It dynamically uses the URI of the backend service we already deployed.
+      env {
+        name  = "NEXT_PUBLIC_API_URL"
+        value = google_cloud_run_v2_service.nosilha_backend_api.uri
+      }
       env {
         name  = "NEXT_PUBLIC_API_URL"
         value = google_cloud_run_v2_service.nosilha_backend_api.uri

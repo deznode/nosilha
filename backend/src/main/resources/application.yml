@@ -2,6 +2,11 @@
 # PRODUCTION CONFIGURATION (Default Profile)
 # For Google Cloud Run
 # ===================================================================
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
+
 spring:
   application:
     name: nosilha-core-api
