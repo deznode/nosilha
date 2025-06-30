@@ -1,9 +1,9 @@
 package com.nosilha.core.config
 
 import com.nosilha.core.security.JwtAuthenticationFilter
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.core.env.Environment
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -16,30 +16,19 @@ import org.springframework.web.cors.CorsConfiguration
 @EnableWebSecurity
 class SecurityConfig(
   private val jwtAuthFilter: JwtAuthenticationFilter,
-  private val env: Environment
+  @Value("\${app.cors.allowed-origins}")
+  private var allowedOrigins: List<String>
 ) {
 
   @Bean
   fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
 
-    if (listOf(*env.activeProfiles).contains("local")) {
+    if (allowedOrigins.isNotEmpty()) {
       http.cors { cors ->
         cors.configurationSource {
           CorsConfiguration()
             .apply {
-              allowedOrigins = listOf("http://localhost:3000")
-              allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
-              allowedHeaders = listOf("*")
-              allowCredentials = true
-            }
-        }
-      }
-    } else if (listOf(*env.activeProfiles).contains("prod")) {
-      http.cors { cors ->
-        cors.configurationSource {
-          CorsConfiguration()
-            .apply {
-              allowedOrigins = listOf("https://nosilha-frontend-fgvp3vntma-ue.a.run.app")
+              allowedOrigins = allowedOrigins
               allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
               allowedHeaders = listOf("*")
               allowCredentials = true

@@ -22,7 +22,7 @@ variable "bucket_name_suffix" {
 variable "api_image_tag" {
   type        = string
   description = "The tag of the nosilha-core-api image to deploy (e.g., '0.0.1-SNAPSHOT')."
-  default     = "0.0.4-SNAPSHOT"
+  default     = "latest"
 }
 
 variable "frontend_image_tag" {

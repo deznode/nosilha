@@ -12,25 +12,28 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @Configuration
 class WebConfig {
 
-    @Value("\${app.cors.allowed-origins}")
-    private lateinit var allowedOrigins: Array<String>
+  @Value("\${app.cors.allowed-origins}")
+  private lateinit var allowedOrigins: Array<String>
 
-    /**
-     * Creates a bean that defines global CORS settings for the application.
-     * This is necessary to allow the frontend development server to make requests to the API.
-     *
-     * @return A WebMvcConfigurer with the specified CORS rules.
-     */
-    @Bean
-    fun corsConfigurer(): WebMvcConfigurer {
-        return object : WebMvcConfigurer {
-            override fun addCorsMappings(registry: CorsRegistry) {
-                registry.addMapping("/api/**") // Apply CORS rules to all API endpoints
-                    .allowedOrigins(*allowedOrigins)
-                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                    .allowedHeaders("*")
-                    .allowCredentials(true)
-            }
+  /**
+   * Creates a bean that defines global CORS settings for the application.
+   * This is necessary to allow the frontend development server to make requests to the API.
+   *
+   * @return A WebMvcConfigurer with the specified CORS rules.
+   */
+  @Bean
+  fun corsConfigurer(): WebMvcConfigurer {
+    return object : WebMvcConfigurer {
+      override fun addCorsMappings(registry: CorsRegistry) {
+        if (allowedOrigins.isNotEmpty()) {
+          registry.addMapping("/api/**") // Apply CORS rules to all API endpoints
+            .allowedOrigins(*allowedOrigins)
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            .allowedHeaders("*")
+            .allowCredentials(true)
         }
+
+      }
     }
+  }
 }

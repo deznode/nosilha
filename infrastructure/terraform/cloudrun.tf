@@ -201,7 +201,7 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
         value = google_cloud_run_v2_service.nosilha_backend_api.uri
       }
       env {
-        name  = "NEXT_PUBLIC_API_URL"
+        name  = "API_URL"
         value = google_cloud_run_v2_service.nosilha_backend_api.uri
       }
     }
