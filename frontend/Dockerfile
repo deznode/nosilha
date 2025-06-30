@@ -32,9 +32,9 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 
 # Set the environment to production
-ENV NODE_ENV production
+ENV NODE_ENV=production
 # Optionally, disable Next.js telemetry
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Create a non-root user for security purposes
 RUN addgroup -g 1001 -S nodejs
