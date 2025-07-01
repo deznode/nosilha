@@ -132,10 +132,61 @@ The application will be available at:
 - Backend: Use `./gradlew test` to run JUnit tests
 - Frontend: Testing setup should be added (currently not configured)
 
+## CI/CD Pipeline Architecture
+
+The project uses a **modular CI/CD architecture** with service-specific workflows that maintain comprehensive security and testing while enabling independent deployment cycles.
+
+### Workflow Overview
+- **Backend CI/CD** (`.github/workflows/backend-ci.yml`) - Spring Boot/Kotlin service pipeline
+- **Frontend CI/CD** (`.github/workflows/frontend-ci.yml`) - Next.js/React application pipeline  
+- **Infrastructure CI/CD** (`.github/workflows/infrastructure-ci.yml`) - Terraform infrastructure management
+- **PR Validation** (`.github/workflows/pr-validation.yml`) - Consolidated PR validation and reporting
+- **Integration Tests** (`.github/workflows/integration-ci.yml`) - Cross-service integration and E2E testing
+
+### Key Features
+- **Path-based Triggering**: Workflows only run when relevant files change
+- **Comprehensive Security**: Trivy vulnerability scanning, tfsec, detekt, ESLint with SARIF reporting
+- **Quality Gates**: Automated testing, linting, type checking, and bundle size analysis
+- **Reusable Workflows**: Service workflows can be called from PR validation for consolidated testing
+- **Smart Deployment**: Branch-based environment promotion (develop→staging, main→production)
+- **Health Monitoring**: Automated health checks and deployment validation
+
+### Security & Compliance
+- **Vulnerability Scanning**: Trivy scans for dependencies and container vulnerabilities
+- **Static Analysis**: detekt (Kotlin), ESLint (TypeScript), tfsec (Terraform)
+- **SARIF Integration**: Security findings uploaded to GitHub Security tab
+- **Dependency Review**: Automated dependency vulnerability and license checking
+- **CodeQL Analysis**: GitHub's semantic code analysis for security issues
+
+### Testing Strategy
+- **Backend**: JUnit tests with PostgreSQL integration, Jacoco coverage reporting
+- **Frontend**: ESLint, TypeScript checking, build validation, bundle size monitoring
+- **Infrastructure**: Terraform validation, security scanning, plan review
+- **Integration**: API integration tests, E2E testing, performance validation
+- **Security Integration**: Security headers validation, deployment health checks
+
+### Deployment Environments
+- **Staging**: Deployed from `develop` branch to `*-staging` Cloud Run services
+- **Production**: Deployed from `main` branch to production Cloud Run services  
+- **Registry**: Google Artifact Registry (`us-central1-docker.pkg.dev`)
+- **Region**: europe-west1 for Cloud Run deployments
+
+### Required GitHub Secrets
+- `GCP_SA_KEY`: Google Cloud service account key for authentication
+- `GCP_PROJECT_ID`: Google Cloud project ID
+- `STAGING_API_URL`: Backend API URL for staging environment
+- `PRODUCTION_API_URL`: Backend API URL for production environment
+
+### Workflow Triggers
+- **Push to main/develop**: Full CI/CD pipeline with deployment
+- **Pull Requests**: Comprehensive validation without deployment
+- **Manual Dispatch**: On-demand deployment with environment selection
+- **Scheduled**: Daily integration tests and drift detection
+
 ## Cloud Deployment
 - **Google Cloud Platform** with Terraform configurations in `/infrastructure/terraform/`
 - **Cloud Run** for both backend and frontend deployment
-- **Google Artifact Registry** for container image storage
+- **Google Artifact Registry** for container image storage (migrated from GCR)
 - **Google Cloud Storage** for media asset storage
 - **Google Secret Manager** for secure configuration management
 

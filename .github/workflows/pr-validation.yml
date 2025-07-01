@@ -1,0 +1,271 @@
+name: PR Validation
+
+on:
+  pull_request:
+    branches: [main, develop]
+  pull_request_target:
+    branches: [main, develop]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.changes.outputs.backend }}
+      frontend: ${{ steps.changes.outputs.frontend }}
+      infrastructure: ${{ steps.changes.outputs.infrastructure }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+            infrastructure:
+              - 'infrastructure/**'
+
+  # Call the individual service workflows for PR validation
+  backend-validation:
+    name: Backend Validation
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    uses: ./.github/workflows/backend-ci.yml
+    secrets: inherit
+    with:
+      skip-deploy: true
+
+  frontend-validation:
+    name: Frontend Validation  
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    uses: ./.github/workflows/frontend-ci.yml
+    secrets: inherit
+    with:
+      skip-deploy: true
+
+  infrastructure-validation:
+    name: Infrastructure Validation
+    needs: changes
+    if: needs.changes.outputs.infrastructure == 'true'
+    uses: ./.github/workflows/infrastructure-ci.yml
+    secrets: inherit
+
+  # Global security scan for the entire repository
+  global-security-scan:
+    name: Global Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Run Trivy vulnerability scanner (full repository)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          format: 'sarif'
+          output: 'trivy-global-results.sarif'
+          
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-global-results.sarif'
+          category: 'global-security'
+
+  # Dependency vulnerability check
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v3
+        with:
+          fail-on-severity: high
+          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
+
+  # Code quality analysis
+  code-quality:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/init@v2
+        with:
+          languages: typescript, kotlin
+          
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+        
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+
+  # Comprehensive PR status reporting
+  pr-status-report:
+    name: PR Status Report
+    runs-on: ubuntu-latest
+    needs: [
+      changes,
+      backend-validation,
+      frontend-validation, 
+      infrastructure-validation,
+      global-security-scan,
+      dependency-review,
+      code-quality
+    ]
+    if: always() && github.event_name == 'pull_request'
+    
+    steps:
+      - name: Generate PR Status Report
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const results = {
+              'Backend Validation': '${{ needs.backend-validation.result }}',
+              'Frontend Validation': '${{ needs.frontend-validation.result }}',
+              'Infrastructure Validation': '${{ needs.infrastructure-validation.result }}',
+              'Global Security Scan': '${{ needs.global-security-scan.result }}',
+              'Dependency Review': '${{ needs.dependency-review.result }}',
+              'Code Quality Analysis': '${{ needs.code-quality.result }}'
+            };
+            
+            const changes = {
+              backend: '${{ needs.changes.outputs.backend }}' === 'true',
+              frontend: '${{ needs.changes.outputs.frontend }}' === 'true',
+              infrastructure: '${{ needs.changes.outputs.infrastructure }}' === 'true'
+            };
+            
+            let comment = '## 🚀 PR Validation Results\n\n';
+            
+            // Changes summary
+            comment += '### 📁 Components Changed:\n';
+            if (changes.backend) comment += '- ✅ **Backend** (Spring Boot/Kotlin)\n';
+            if (changes.frontend) comment += '- ✅ **Frontend** (Next.js/React)\n';
+            if (changes.infrastructure) comment += '- ✅ **Infrastructure** (Terraform)\n';
+            if (!changes.backend && !changes.frontend && !changes.infrastructure) {
+              comment += '- ℹ️ No core component changes detected\n';
+            }
+            comment += '\n';
+            
+            // Validation results
+            comment += '### 🔍 Validation Results:\n';
+            let allPassed = true;
+            let hasFailures = false;
+            
+            for (const [check, result] of Object.entries(results)) {
+              if (result === 'skipped') {
+                comment += `⏭️ **${check}**: Skipped (no relevant changes)\n`;
+                continue;
+              }
+              
+              const icon = result === 'success' ? '✅' : '❌';
+              comment += `${icon} **${check}**: ${result}\n`;
+              
+              if (result === 'failure') {
+                allPassed = false;
+                hasFailures = true;
+              } else if (result !== 'success') {
+                allPassed = false;
+              }
+            }
+            
+            comment += '\n';
+            
+            // Summary and next steps
+            if (allPassed) {
+              comment += '### 🎉 Status: READY FOR REVIEW\n';
+              comment += 'All validation checks have passed successfully! This PR is ready for code review and merge.\n\n';
+              comment += '**Next Steps:**\n';
+              comment += '- 👀 Request code review from team members\n';
+              comment += '- 🔄 Merge when approved (will trigger deployment)\n';
+            } else if (hasFailures) {
+              comment += '### ⚠️ Status: CHANGES REQUIRED\n';
+              comment += 'Some validation checks have failed. Please review and fix the issues above.\n\n';
+              comment += '**Action Required:**\n';
+              comment += '- 🔧 Fix the failing validation checks\n';
+              comment += '- 🔄 Push changes to re-trigger validation\n';
+              comment += '- ✅ Ensure all checks pass before requesting review\n';
+            } else {
+              comment += '### ⏳ Status: IN PROGRESS\n';
+              comment += 'Some validation checks are still running or were cancelled.\n\n';
+              comment += '**Please wait for:**\n';
+              comment += '- ⏱️ All checks to complete\n';
+              comment += '- ✅ Successful validation results\n';
+            }
+            
+            comment += '\n---\n';
+            comment += `*Updated: ${new Date().toISOString()} | PR: #${context.issue.number}*`;
+            
+            // Find existing comment to update or create new one
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('🚀 PR Validation Results')
+            );
+            
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
+            }
+
+  # Auto-merge for Dependabot PRs
+  dependabot-auto-merge:
+    name: Dependabot Auto-merge
+    runs-on: ubuntu-latest
+    needs: [
+      backend-validation,
+      frontend-validation,
+      infrastructure-validation,
+      global-security-scan,
+      dependency-review,
+      code-quality
+    ]
+    if: |
+      always() && 
+      github.event_name == 'pull_request' &&
+      github.actor == 'dependabot[bot]' &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
+      
+    steps:
+      - name: Enable auto-merge for Dependabot PRs
+        run: gh pr merge --auto --merge "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Approve Dependabot PR
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

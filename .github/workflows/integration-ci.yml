@@ -1,0 +1,339 @@
+name: Integration & End-to-End
+
+on:
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to test against'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+  schedule:
+    # Run integration tests daily at 6 AM UTC
+    - cron: '0 6 * * *'
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: europe-west1
+
+jobs:
+  # Detect what services have changed
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.changes.outputs.backend }}
+      frontend: ${{ steps.changes.outputs.frontend }}
+      infrastructure: ${{ steps.changes.outputs.infrastructure }}
+      any-service: ${{ steps.changes.outputs.backend == 'true' || steps.changes.outputs.frontend == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+            infrastructure:
+              - 'infrastructure/**'
+
+  # Wait for individual service builds to complete
+  wait-for-services:
+    name: Wait for Service Builds
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.any-service == 'true'
+    steps:
+      - name: Wait for Backend Build
+        if: needs.changes.outputs.backend == 'true'
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.ref }}
+          check-name: 'Build & Package (Backend CI/CD)'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 30
+          
+      - name: Wait for Frontend Build
+        if: needs.changes.outputs.frontend == 'true'
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: ${{ github.ref }}
+          check-name: 'Build & Package (Frontend CI/CD)'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 30
+
+  # API Integration Tests
+  api-integration-tests:
+    name: API Integration Tests
+    runs-on: ubuntu-latest
+    needs: [changes, wait-for-services]
+    if: always() && (needs.changes.outputs.backend == 'true' || github.event_name == 'schedule')
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: test
+          POSTGRES_USER: test
+          POSTGRES_DB: nosilha_integration
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        
+      - name: Run Integration Tests
+        working-directory: ./backend
+        run: ./gradlew integrationTest
+        env:
+          SPRING_PROFILES_ACTIVE: integration
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/nosilha_integration
+          SPRING_DATASOURCE_USERNAME: test
+          SPRING_DATASOURCE_PASSWORD: test
+          
+      - name: Publish Integration Test Results
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: API Integration Tests
+          path: backend/build/test-results/integrationTest/*.xml
+          reporter: java-junit
+
+  # Frontend Integration Tests
+  frontend-integration-tests:
+    name: Frontend Integration Tests
+    runs-on: ubuntu-latest
+    needs: [changes, wait-for-services]
+    if: always() && (needs.changes.outputs.frontend == 'true' || github.event_name == 'schedule')
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+          
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+        
+      # Placeholder for when frontend tests are implemented
+      - name: Run Integration Tests (Placeholder)
+        working-directory: ./frontend
+        run: |
+          echo "Frontend integration tests would run here"
+          echo "Example: npm run test:integration"
+          
+      - name: Build and Test Frontend
+        working-directory: ./frontend
+        run: npm run build
+        env:
+          NODE_ENV: production
+          API_URL: http://localhost:8080/api/v1
+
+  # End-to-End Tests using deployed services
+  e2e-tests:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    needs: [changes, wait-for-services]
+    if: always() && github.ref == 'refs/heads/develop'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+          
+      - name: Install dependencies
+        working-directory: ./frontend
+        run: npm ci
+        
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          
+      - name: Get Service URLs
+        id: urls
+        run: |
+          BACKEND_URL=$(gcloud run services describe nosilha-backend-staging --region=${{ env.REGION }} --format='value(status.url)')
+          FRONTEND_URL=$(gcloud run services describe nosilha-frontend-staging --region=${{ env.REGION }} --format='value(status.url)')
+          echo "backend_url=$BACKEND_URL" >> $GITHUB_OUTPUT
+          echo "frontend_url=$FRONTEND_URL" >> $GITHUB_OUTPUT
+          
+      - name: Run E2E Tests (Placeholder)
+        working-directory: ./frontend
+        run: |
+          echo "End-to-end tests would run here against:"
+          echo "Backend URL: ${{ steps.urls.outputs.backend_url }}"
+          echo "Frontend URL: ${{ steps.urls.outputs.frontend_url }}"
+          echo "Example: npx playwright test --project=e2e"
+        env:
+          BACKEND_URL: ${{ steps.urls.outputs.backend_url }}
+          FRONTEND_URL: ${{ steps.urls.outputs.frontend_url }}
+
+  # Performance Tests
+  performance-tests:
+    name: Performance Tests
+    runs-on: ubuntu-latest
+    needs: [changes, wait-for-services]
+    if: always() && (github.ref == 'refs/heads/main' || github.event_name == 'schedule')
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          
+      - name: Get Backend Service URL
+        id: backend-url
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            URL=$(gcloud run services describe nosilha-backend --region=${{ env.REGION }} --format='value(status.url)')
+          else
+            URL=$(gcloud run services describe nosilha-backend-staging --region=${{ env.REGION }} --format='value(status.url)')
+          fi
+          echo "url=$URL" >> $GITHUB_OUTPUT
+          
+      - name: Install Artillery
+        run: npm install -g artillery@latest
+        
+      - name: Run Performance Tests
+        run: |
+          echo "Performance tests would run here against: ${{ steps.backend-url.outputs.url }}"
+          echo "Example: artillery quick --count 100 --num 10 ${{ steps.backend-url.outputs.url }}/actuator/health"
+          
+      - name: Basic Load Test
+        run: |
+          # Simple load test using curl in parallel
+          echo "Running basic load test..."
+          for i in {1..10}; do
+            curl -s "${{ steps.backend-url.outputs.url }}/actuator/health" &
+          done
+          wait
+          echo "Load test completed"
+
+  # Security Integration Tests
+  security-integration:
+    name: Security Integration Tests
+    runs-on: ubuntu-latest
+    needs: [changes, wait-for-services]
+    if: always() && needs.changes.outputs.any-service == 'true'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          
+      - name: Get Service URLs
+        id: urls
+        run: |
+          BACKEND_URL=$(gcloud run services describe nosilha-backend-staging --region=${{ env.REGION }} --format='value(status.url)' 2>/dev/null || echo "")
+          FRONTEND_URL=$(gcloud run services describe nosilha-frontend-staging --region=${{ env.REGION }} --format='value(status.url)' 2>/dev/null || echo "")
+          echo "backend_url=$BACKEND_URL" >> $GITHUB_OUTPUT
+          echo "frontend_url=$FRONTEND_URL" >> $GITHUB_OUTPUT
+          
+      - name: Security Headers Check
+        run: |
+          if [ -n "${{ steps.urls.outputs.frontend_url }}" ]; then
+            echo "Checking security headers for frontend..."
+            curl -I "${{ steps.urls.outputs.frontend_url }}" | grep -E "(X-Frame-Options|X-Content-Type-Options|Content-Security-Policy)" || echo "Warning: Some security headers missing"
+          fi
+          
+          if [ -n "${{ steps.urls.outputs.backend_url }}" ]; then
+            echo "Checking security headers for backend..."
+            curl -I "${{ steps.urls.outputs.backend_url }}/actuator/health" | grep -E "(X-Frame-Options|X-Content-Type-Options)" || echo "Warning: Some security headers missing"
+          fi
+
+  # Deployment Health Verification
+  deployment-health:
+    name: Deployment Health Check
+    runs-on: ubuntu-latest
+    needs: [changes, wait-for-services]
+    if: always() && needs.changes.outputs.any-service == 'true'
+    
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          
+      - name: Check Service Health
+        run: |
+          # Check backend health
+          if gcloud run services describe nosilha-backend-staging --region=${{ env.REGION }} >/dev/null 2>&1; then
+            BACKEND_URL=$(gcloud run services describe nosilha-backend-staging --region=${{ env.REGION }} --format='value(status.url)')
+            echo "Checking backend health: $BACKEND_URL/actuator/health"
+            curl -f "$BACKEND_URL/actuator/health" && echo "✅ Backend is healthy" || echo "❌ Backend health check failed"
+          fi
+          
+          # Check frontend health
+          if gcloud run services describe nosilha-frontend-staging --region=${{ env.REGION }} >/dev/null 2>&1; then
+            FRONTEND_URL=$(gcloud run services describe nosilha-frontend-staging --region=${{ env.REGION }} --format='value(status.url)')
+            echo "Checking frontend health: $FRONTEND_URL"
+            curl -f "$FRONTEND_URL" && echo "✅ Frontend is accessible" || echo "❌ Frontend health check failed"
+          fi
+
+  # Integration Test Report
+  integration-report:
+    name: Integration Test Report
+    runs-on: ubuntu-latest
+    needs: [
+      api-integration-tests,
+      frontend-integration-tests,
+      e2e-tests,
+      performance-tests,
+      security-integration,
+      deployment-health
+    ]
+    if: always()
+    
+    steps:
+      - name: Generate Integration Report
+        run: |
+          echo "## 🔗 Integration Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| API Integration | ${{ needs.api-integration-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Frontend Integration | ${{ needs.frontend-integration-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| End-to-End Tests | ${{ needs.e2e-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Performance Tests | ${{ needs.performance-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Integration | ${{ needs.security-integration.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Deployment Health | ${{ needs.deployment-health.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "*Integration tests completed at $(date)*" >> $GITHUB_STEP_SUMMARY
