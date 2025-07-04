@@ -28,7 +28,7 @@ resource "google_secret_manager_secret_iam_member" "grant_jwt_secret_access" {
 }
 
 resource "google_storage_bucket_iam_member" "grant_gcs_access" {
-  bucket = "nosilha-com-media-storage-useast1"
+  bucket = google_storage_bucket.media_storage.name
   role   = "roles/storage.objectAdmin"
   member = google_service_account.backend_runner.member
 }
@@ -63,7 +63,7 @@ resource "google_secret_manager_secret_iam_member" "grant_db_password_access" {
 resource "google_cloud_run_v2_service" "nosilha_backend_api" {
   name                = "nosilha-backend-api"
   location            = var.gcp_region
-  deletion_protection = false
+  deletion_protection = true
 
   template {
     # Run the container using the dedicated service account
@@ -172,7 +172,7 @@ resource "google_cloud_run_v2_service_iam_member" "allow_public_access" {
 resource "google_cloud_run_v2_service" "nosilha_frontend" {
   name                = "nosilha-frontend"
   location            = var.gcp_region # Deploys to us-east1
-  deletion_protection = false
+  deletion_protection = true
 
   template {
     containers {

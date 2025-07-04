@@ -13,9 +13,9 @@ variable "gcp_region" {
   default     = "us-east1"
 }
 
-variable "bucket_name_suffix" {
+variable "media_bucket_name" {
   type        = string
-  description = "A suffix to create a unique GCS bucket name."
+  description = "The suffix for the media storage bucket name."
   default     = "media-storage-useast1"
 }
 
