@@ -9,7 +9,7 @@ The local development setup uses Docker Compose to run a PostgreSQL database con
 ### Prerequisites
 
 - Docker Desktop installed and running on your Mac
-- Java 17+ installed
+- Java 21 installed
 - The backend Spring Boot application configured with Flyway migrations
 
 ### Project Structure
@@ -32,6 +32,7 @@ cd infrastructure/docker && docker-compose up -d
 ```
 
 **What this command does:**
+
 - Downloads PostgreSQL 16 Alpine image (first time only)
 - Starts the database container in detached mode
 - Creates persistent storage in `infrastructure/docker/data/`
@@ -40,6 +41,7 @@ cd infrastructure/docker && docker-compose up -d
 ### 2. Run the Spring Boot Application
 
 #### Option A: Using IntelliJ IDEA
+
 1. Open the `NosIlhaCoreApplication.kt` file in your IDE
 2. Click the green play button next to the main method
 3. Edit the run configuration:
@@ -49,14 +51,17 @@ cd infrastructure/docker && docker-compose up -d
 4. Run the application
 
 #### Option B: Using VS Code
+
 1. Open the integrated terminal in VS Code
 2. Navigate to the backend directory and run:
+
 ```bash
 cd backend
 ./gradlew bootRun --args='--spring.profiles.active=local'
 ```
 
 #### Option C: Command Line (from project root)
+
 ```bash
 # Navigate to backend and run with Gradle
 cd backend
@@ -68,6 +73,7 @@ java -Dspring.profiles.active=local -jar build/libs/*-SNAPSHOT.jar
 ```
 
 #### Option D: Using Environment Variable
+
 ```bash
 cd backend
 export SPRING_PROFILES_ACTIVE=local
@@ -160,22 +166,26 @@ cd infrastructure/docker && docker-compose down
 ### Database Issues
 
 **If the database won't start:**
+
 - Check if port 5432 is already in use: `lsof -i :5432`
 - Ensure Docker Desktop is running
 - Check Docker logs: `docker-compose logs db`
 
 **If you get connection refused errors:**
+
 - Verify the container is running: `docker ps`
 - Check if the container is healthy: `docker-compose ps`
 
 ### Spring Boot Issues
 
 **If the app can't connect to the database:**
+
 - Ensure you're using the `local` profile
 - Check that the database container is running
 - Verify the connection details in `application-local.properties`
 
 **If Flyway migrations fail:**
+
 - Check the SQL syntax in migration files
 - Ensure the database is empty for the first migration
 - Check Flyway logs in the application output
@@ -189,6 +199,7 @@ cd infrastructure/docker && docker-compose down
 ## Production Notes
 
 This local setup mirrors the production environment structure:
+
 - Same PostgreSQL version as used in Supabase
 - Same database schema via Flyway migrations
 - Same Spring Boot configuration patterns

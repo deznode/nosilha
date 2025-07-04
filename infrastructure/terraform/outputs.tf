@@ -1,5 +1,3 @@
-# outputs.tf
-#
 # Defines the outputs from our Terraform configuration.
 
 output "gcs_media_bucket_name" {

@@ -1,5 +1,3 @@
-# main.tf
-#
 # Defines the core infrastructure for Nosilha.com's media storage on GCP.
 # This includes the GCS bucket for storing media files and the service account
 # that the backend API will use to upload those files.
@@ -54,7 +52,7 @@ resource "google_storage_bucket_iam_member" "public_reader" {
 # Google Artifact Registry for Container Images
 # ------------------------------------------------------------------------------
 
-resource "google_artifact_registry_repository" "api_repository" {
+resource "google_artifact_registry_repository" "backend_repository" {
   # The user-friendly name for the repository.
   repository_id = "nosilha-backend"
 
