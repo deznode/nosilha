@@ -2,9 +2,9 @@ name: PR Validation
 
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [main]
   pull_request_target:
-    branches: [main, develop]
+    branches: [main]
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}

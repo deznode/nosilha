@@ -2,12 +2,12 @@ name: Frontend CI/CD
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-ci.yml'
   pull_request:
-    branches: [main, develop]
+    branches: [main]
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-ci.yml'
@@ -20,19 +20,16 @@ on:
         default: false
   workflow_dispatch:
     inputs:
-      environment:
-        description: 'Environment to deploy to'
+      deploy:
+        description: 'Deploy to production'
         required: true
-        default: 'staging'
-        type: choice
-        options:
-        - staging
-        - production
+        default: false
+        type: boolean
 
 env:
-  REGISTRY: us-central1-docker.pkg.dev
+  REGISTRY: us-east1-docker.pkg.dev
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  REGION: europe-west1
+  REGION: us-east1
   SERVICE_NAME: nosilha-frontend
 
 jobs:
@@ -152,7 +149,7 @@ jobs:
     name: Build & Package
     runs-on: ubuntu-latest
     needs: [security-scan, lint, test]
-    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && !inputs.skip-deploy
+    if: github.ref == 'refs/heads/main' && !inputs.skip-deploy
     outputs:
       image-tag: ${{ steps.meta.outputs.tags }}
       image-digest: ${{ steps.build.outputs.digest }}
@@ -185,7 +182,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-frontend/nosilha-web-ui
           tags: |
             type=ref,event=branch
             type=sha,prefix={{branch}}-
@@ -199,60 +196,17 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}:${{ github.sha }}
-            ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}:${{ github.ref_name }}
+            ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-frontend/nosilha-web-ui:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-frontend/nosilha-web-ui:${{ github.ref_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           
       - name: Tag latest for main branch
         if: github.ref == 'refs/heads/main'
         run: |
-          docker tag ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}:${{ github.sha }} \
-            ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}:latest
-          docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}:latest
-
-  deploy-staging:
-    name: Deploy to Staging
-    runs-on: ubuntu-latest
-    needs: [build]
-    if: github.ref == 'refs/heads/develop' && needs.build.result == 'success' && !inputs.skip-deploy
-    environment: staging
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-          
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-        
-      - name: Deploy to Cloud Run (Staging)
-        run: |
-          gcloud run deploy ${{ env.SERVICE_NAME }}-staging \
-            --image=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}:${{ github.sha }} \
-            --platform=managed \
-            --region=${{ env.REGION }} \
-            --allow-unauthenticated \
-            --set-env-vars="NODE_ENV=production,API_URL=${{ secrets.STAGING_API_URL }}" \
-            --memory=512Mi \
-            --cpu=1 \
-            --min-instances=0 \
-            --max-instances=5 \
-            --timeout=300
-            
-      - name: Health Check
-        run: |
-          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }}-staging --region=${{ env.REGION }} --format='value(status.url)')
-          echo "Service URL: $SERVICE_URL"
-          
-          # Wait for service to be ready
-          sleep 30
-          
-          # Basic health check
-          curl -f "$SERVICE_URL" || (echo "Health check failed" && exit 1)
+          docker tag ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-frontend/nosilha-web-ui:${{ github.sha }} \
+            ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-frontend/nosilha-web-ui:latest
+          docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-frontend/nosilha-web-ui:latest
 
   deploy-production:
     name: Deploy to Production
@@ -275,7 +229,7 @@ jobs:
       - name: Deploy to Cloud Run (Production)
         run: |
           gcloud run deploy ${{ env.SERVICE_NAME }} \
-            --image=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+            --image=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-frontend/nosilha-web-ui:${{ github.sha }} \
             --platform=managed \
             --region=${{ env.REGION }} \
             --allow-unauthenticated \
