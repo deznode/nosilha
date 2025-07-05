@@ -44,3 +44,4 @@ jobs:
         with:
           sarif_file: 'trivy-${{ inputs.scan-category }}-results.sarif'
           category: ${{ inputs.scan-category }}
+        continue-on-error: true

@@ -55,6 +55,7 @@ jobs:
         with:
           sarif_file: 'trivy-frontend-results.sarif'
           category: 'frontend-trivy'
+        continue-on-error: true
 
   lint:
     name: Code Quality & Linting
@@ -86,6 +87,7 @@ jobs:
         with:
           sarif_file: frontend/eslint-results.sarif
           category: 'frontend-eslint'
+        continue-on-error: true
 
   test:
     name: Tests & Type Checking

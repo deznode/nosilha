@@ -55,6 +55,7 @@ jobs:
         with:
           sarif_file: 'trivy-backend-results.sarif'
           category: 'backend-trivy'
+        continue-on-error: true
 
   lint:
     name: Code Quality & Linting
@@ -85,6 +86,7 @@ jobs:
         with:
           sarif_file: backend/build/reports/detekt/detekt.sarif
           category: 'backend-detekt'
+        continue-on-error: true
 
   test:
     name: Tests & Coverage

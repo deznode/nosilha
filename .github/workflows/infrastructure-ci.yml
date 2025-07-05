@@ -51,6 +51,7 @@ jobs:
         with:
           sarif_file: infrastructure/terraform/tfsec.sarif
           category: 'infrastructure-tfsec'
+        continue-on-error: true
 
   validate:
     name: Terraform Validation
