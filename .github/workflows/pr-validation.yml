@@ -92,26 +92,6 @@ jobs:
           fail-on-severity: high
           allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
 
-  # Code quality analysis
-  code-quality:
-    name: Code Quality Analysis
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          
-      - name: Run CodeQL Analysis
-        uses: github/codeql-action/init@v2
-        with:
-          languages: typescript, kotlin
-          
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v2
-        
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
-
   # Comprehensive PR status reporting
   pr-status-report:
     name: PR Status Report
@@ -122,8 +102,7 @@ jobs:
       frontend-validation, 
       infrastructure-validation,
       global-security-scan,
-      dependency-review,
-      code-quality
+      dependency-review
     ]
     if: always() && github.event_name == 'pull_request'
     
@@ -137,8 +116,7 @@ jobs:
               'Frontend Validation': '${{ needs.frontend-validation.result }}',
               'Infrastructure Validation': '${{ needs.infrastructure-validation.result }}',
               'Global Security Scan': '${{ needs.global-security-scan.result }}',
-              'Dependency Review': '${{ needs.dependency-review.result }}',
-              'Code Quality Analysis': '${{ needs.code-quality.result }}'
+              'Dependency Review': '${{ needs.dependency-review.result }}'
             };
             
             const changes = {
@@ -247,8 +225,7 @@ jobs:
       frontend-validation,
       infrastructure-validation,
       global-security-scan,
-      dependency-review,
-      code-quality
+      dependency-review
     ]
     if: |
       always() && 

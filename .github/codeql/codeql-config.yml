@@ -1,0 +1,29 @@
+name: "Nos Ilha CodeQL Config"
+
+disable-default-queries: false
+
+queries:
+  - uses: security-and-quality
+
+# Paths to include in the analysis
+paths:
+  - "backend/src"
+  - "frontend/src"
+
+# Paths to ignore during analysis
+paths-ignore:
+  - "**/node_modules"
+  - "**/build"
+  - "**/dist"
+  - "**/target"
+  - "**/*.min.js"
+  - "**/*.bundle.js"
+  - "**/test/**"
+  - "**/tests/**"
+  - "**/__tests__/**"
+  - "**/spec/**"
+  - "**/specs/**"
+  - "infrastructure/docker"
+  - "infrastructure/terraform"
+  - "scripts"
+  - "docs"

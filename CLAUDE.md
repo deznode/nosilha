@@ -142,6 +142,7 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - **Infrastructure CI/CD** (`.github/workflows/infrastructure-ci.yml`) - Terraform infrastructure management
 - **PR Validation** (`.github/workflows/pr-validation.yml`) - Consolidated PR validation and reporting
 - **Integration Tests** (`.github/workflows/integration-ci.yml`) - Cross-service integration and E2E testing
+- **CodeQL Analysis** (`.github/workflows/codeql.yml`) - GitHub Advanced Security code scanning
 
 ### Key Features
 - **Path-based Triggering**: Workflows only run when relevant files change
@@ -156,7 +157,8 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - **Static Analysis**: detekt (Kotlin), ESLint (TypeScript), tfsec (Terraform)
 - **SARIF Integration**: Security findings uploaded to GitHub Security tab
 - **Dependency Review**: Automated dependency vulnerability and license checking
-- **CodeQL Analysis**: GitHub's semantic code analysis for security issues
+- **CodeQL Analysis**: GitHub's semantic code analysis for security issues (dedicated workflow)
+- **Advanced Security**: GitHub Advanced Security enabled for comprehensive code scanning
 
 ### Testing Strategy
 - **Backend**: JUnit tests with PostgreSQL integration, Jacoco coverage reporting
@@ -198,3 +200,6 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - `infrastructure/docker/docker-compose.yml` - Local development environment
 - `infrastructure/terraform/cloudrun.tf` - Cloud Run deployment configuration
 - `infrastructure/terraform/main.tf` - Core GCP infrastructure (GCS, Artifact Registry)
+- `.github/workflows/codeql.yml` - GitHub Advanced Security code scanning
+- `.github/codeql/codeql-config.yml` - CodeQL configuration for security analysis
+- `SECURITY.md` - Security policy and vulnerability reporting procedures
