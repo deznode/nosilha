@@ -1,0 +1,27 @@
+# Trivy ignore file for Nos Ilha
+# Ignore test files and development dependencies
+
+# Test files
+**/*test*
+**/*spec*
+**/test/**
+**/tests/**
+**/__tests__/**
+
+# Development dependencies
+**/node_modules/**
+**/build/**
+**/dist/**
+**/.gradle/**
+**/target/**
+
+# Documentation
+**/docs/**
+**/*.md
+
+# Example files
+**/*example*
+**/*.example.*
+
+# Specific CVEs to ignore (with justification)
+# CVE-YYYY-XXXX  # Justification for ignoring this vulnerability

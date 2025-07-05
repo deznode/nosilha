@@ -1,0 +1,74 @@
+title = "GitLeaks Configuration for Nos Ilha"
+
+[extend]
+# Include default GitLeaks rules
+useDefault = true
+
+[[rules]]
+description = "AWS Access Key ID"
+id = "aws-access-key-id"
+regex = '''AKIA[0-9A-Z]{16}'''
+tags = ["aws", "secret"]
+
+[[rules]]
+description = "AWS Secret Access Key"
+id = "aws-secret-access-key"
+regex = '''[0-9a-zA-Z/+]{40}'''
+tags = ["aws", "secret"]
+
+[[rules]]
+description = "Google API Key"
+id = "google-api-key"
+regex = '''AIza[0-9A-Za-z\-_]{35}'''
+tags = ["google", "api-key"]
+
+[[rules]]
+description = "GitHub Personal Access Token"
+id = "github-pat"
+regex = '''ghp_[0-9a-zA-Z]{36}'''
+tags = ["github", "token"]
+
+[[rules]]
+description = "JWT Token"
+id = "jwt-token"
+regex = '''eyJ[A-Za-z0-9_-]*\.[A-Za-z0-9_-]*\.[A-Za-z0-9_-]*'''
+tags = ["jwt", "token"]
+
+[[rules]]
+description = "Private Key"
+id = "private-key"
+regex = '''-----BEGIN [A-Z ]*PRIVATE KEY-----'''
+tags = ["private-key", "certificate"]
+
+[[rules]]
+description = "Hardcoded Password"
+id = "hardcoded-password"
+regex = '''(?i)(password|passwd|pwd)\s*[:=]\s*["'][^"'\s]{8,}["']'''
+tags = ["password", "hardcoded"]
+
+[allowlist]
+description = "Allow test files and examples"
+files = [
+    '''^.*_test\..*$''',
+    '''^.*\.test\..*$''',
+    '''^.*\.spec\..*$''',
+    '''^.*example.*$''',
+    '''^.*\.example\..*$''',
+    '''^docs/.*$''',
+    '''^README.*$'''
+]
+
+paths = [
+    '''**/test/**''',
+    '''**/tests/**''',
+    '''**/__tests__/**''',
+    '''**/examples/**''',
+    '''**/docs/**'''
+]
+
+regexes = [
+    '''(test|spec|mock|fake|dummy|placeholder)''',
+    '''example''',
+    '''TODO''',
+    '''FIXME'''
+]
