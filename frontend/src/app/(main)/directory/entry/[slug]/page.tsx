@@ -84,7 +84,8 @@ function CategorySpecificDetails({ entry }: { entry: DirectoryEntry }) {
 export default async function DirectoryEntryDetailPage({
   params,
 }: DetailPageProps) {
-  const entry = await getEntryBySlug(params.slug);
+  const { slug } = await params;
+  const entry = await getEntryBySlug(slug);
 
   if (!entry) {
     notFound();

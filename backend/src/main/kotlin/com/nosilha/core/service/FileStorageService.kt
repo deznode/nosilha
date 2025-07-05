@@ -3,50 +3,63 @@ package com.nosilha.core.service
 import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.Storage
+import com.nosilha.core.domain.ImageMetadata
+import com.nosilha.core.repository.firestore.ImageMetadataRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.util.UUID
 
 /**
- * A service to handle file storage operations using Google Cloud Storage (GCS).
+ * A service to handle file storage operations using Google Cloud Storage (GCS)
+ * and trigger subsequent AI analysis.
  *
- * @param storage The Google Cloud Storage client, auto-configured by Spring Cloud GCP.
- * @param bucketName The name of the GCS bucket, injected from application properties.
+ * @param storage The Google Cloud Storage client.
+ * @param bucketName The name of the GCS bucket.
+ * @param aiService The service for performing AI vision analysis.
+ * @param imageMetadataRepository The repository for saving analysis results to Firestore.
  */
 @Service
 class FileStorageService(
-    private val storage: Storage,
-    @Value("\${gcp.gcs-bucket-name}") private val bucketName: String
+  private val storage: Storage,
+  @Value("\${gcp.gcs-bucket-name}") private val bucketName: String,
+  private val aiService: AIService,
+  private val imageMetadataRepository: ImageMetadataRepository
 ) {
 
   /**
-   * Uploads a file to the configured Google Cloud Storage bucket.
+   * Uploads a file to GCS, triggers AI analysis, and saves the metadata to Firestore.
    *
-   * It generates a unique name for the file to prevent collisions and returns
-   * the publicly accessible URL of the uploaded object.
-   *
-   * @param file The file to upload, received from a multipart request.
+   * @param file The file to upload.
    * @return The public URL string of the newly uploaded file.
    */
   fun uploadFile(file: MultipartFile): String {
-    // 1. Generate a unique filename to avoid collisions.
+    // 1. Generate a unique filename and upload the object to GCS.
     val originalFileName = file.originalFilename ?: "file"
     val extension = originalFileName.substringAfterLast('.', "")
     val uniqueFileName = "${UUID.randomUUID()}.$extension"
 
-    // 2. Create a BlobId which uniquely identifies the object in GCS.
     val blobId = BlobId.of(bucketName, uniqueFileName)
-
-    // 3. Create BlobInfo with metadata. Setting the content type is good practice.
     val blobInfo = BlobInfo.newBuilder(blobId)
-        .setContentType(file.contentType)
-        .build()
-
-    // 4. Perform the upload to GCS.
+      .setContentType(file.contentType)
+      .build()
     storage.create(blobInfo, file.bytes)
 
-    // 5. Return the public URL of the uploaded file.
-    return "https://storage.googleapis.com/$bucketName/$uniqueFileName"
+    // 2. After successful upload, trigger the AI analysis and metadata persistence.
+    val gcsPath = "gs://$bucketName/$uniqueFileName"
+    val publicUrl = "https://storage.googleapis.com/$bucketName/$uniqueFileName"
+
+    // Generate tags using the AI service.
+    val tags = aiService.generateTagsForImage(gcsPath)
+
+    // Create the metadata object.
+    if (tags.isNotEmpty()) {
+      val metadata = ImageMetadata(gcsUrl = publicUrl, tags = tags)
+      // Save to Firestore reactively. .subscribe() triggers the non-blocking operation.
+      imageMetadataRepository.save(metadata).subscribe()
+    }
+
+    // 3. Return the public URL immediately to the client.
+    return publicUrl
   }
 }

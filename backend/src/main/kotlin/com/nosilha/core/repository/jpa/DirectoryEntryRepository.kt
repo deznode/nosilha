@@ -1,4 +1,4 @@
-package com.nosilha.core.repository
+package com.nosilha.core.repository.jpa
 
 import com.nosilha.core.domain.DirectoryEntry
 import org.springframework.data.jpa.repository.JpaRepository

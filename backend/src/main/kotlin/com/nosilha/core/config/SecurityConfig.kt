@@ -1,6 +1,7 @@
 package com.nosilha.core.config
 
 import com.nosilha.core.security.JwtAuthenticationFilter
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -9,15 +10,33 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.web.cors.CorsConfiguration
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-  private val jwtAuthFilter: JwtAuthenticationFilter
+  private val jwtAuthFilter: JwtAuthenticationFilter,
+  @Value("\${app.cors.allowed-origins}")
+  private var allowedOrigins: List<String>
 ) {
 
   @Bean
   fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+
+    if (allowedOrigins.isNotEmpty()) {
+      http.cors { cors ->
+        cors.configurationSource {
+          CorsConfiguration()
+            .apply {
+              allowedOrigins = allowedOrigins
+              allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+              allowedHeaders = listOf("*")
+              allowCredentials = true
+            }
+        }
+      }
+    }
+
     http
       // 1. Disable CSRF for stateless APIs
       .csrf { it.disable() }
@@ -27,8 +46,8 @@ class SecurityConfig(
         it.requestMatchers(HttpMethod.GET, "/api/v1/directory/**").permitAll()
           // Allow public access to media upload endpoint (can be secured later if needed)
           .requestMatchers(HttpMethod.POST, "/api/v1/media/upload").permitAll()
-          // Only allow users with the 'ADMIN' role to create new directory entries
-          .requestMatchers(HttpMethod.POST, "/api/v1/directory/entries").hasRole("ADMIN")
+          // Only allow authenticated users to create new directory entries
+          .requestMatchers(HttpMethod.POST, "/api/v1/directory/entries").hasRole("authenticated")
           // All other requests must be authenticated
           .anyRequest().authenticated()
       }
