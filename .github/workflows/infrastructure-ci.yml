@@ -38,11 +38,12 @@ jobs:
           soft_fail: true
           
       - name: Upload tfsec scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: tfsec.sarif
           category: 'infrastructure-tfsec'
+        continue-on-error: true
 
   validate:
     name: Terraform Validation

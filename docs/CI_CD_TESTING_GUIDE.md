@@ -206,6 +206,13 @@ git push origin test/error-handling
    - Check action versions for compatibility
    - Verify external service availability
 
+5. **SARIF Upload Warnings**
+   - Warning: "Advanced Security must be enabled for this repository to use code scanning"
+   - This is expected for repositories without GitHub Advanced Security enabled
+   - Security scans still run and produce results; only the SARIF upload to GitHub Security tab is affected
+   - Workflows use `continue-on-error: true` to prevent failures when SARIF upload is unavailable
+   - For public repositories or private repos with Advanced Security, SARIF results appear in the Security tab
+
 ### Recovery Procedures
 
 If new workflows fail, you can quickly restore the legacy system:

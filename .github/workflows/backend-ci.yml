@@ -50,11 +50,12 @@ jobs:
           output: 'trivy-backend-results.sarif'
           
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: 'trivy-backend-results.sarif'
           category: 'backend-trivy'
+        continue-on-error: true
 
   lint:
     name: Code Quality & Linting
@@ -80,11 +81,12 @@ jobs:
         continue-on-error: true
         
       - name: Upload detekt results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: backend/build/reports/detekt/detekt.sarif
           category: 'backend-detekt'
+        continue-on-error: true
 
   test:
     name: Tests & Coverage

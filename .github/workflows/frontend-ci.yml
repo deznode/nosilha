@@ -50,11 +50,12 @@ jobs:
           output: 'trivy-frontend-results.sarif'
           
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: 'trivy-frontend-results.sarif'
           category: 'frontend-trivy'
+        continue-on-error: true
 
   lint:
     name: Code Quality & Linting
@@ -81,11 +82,12 @@ jobs:
         continue-on-error: true
         
       - name: Upload ESLint results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: frontend/eslint-results.sarif
           category: 'frontend-eslint'
+        continue-on-error: true
 
   test:
     name: Tests & Type Checking

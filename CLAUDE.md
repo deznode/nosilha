@@ -154,7 +154,8 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 ### Security & Compliance
 - **Vulnerability Scanning**: Trivy scans for dependencies and container vulnerabilities
 - **Static Analysis**: detekt (Kotlin), ESLint (TypeScript), tfsec (Terraform)
-- **SARIF Integration**: Security findings uploaded to GitHub Security tab
+- **SARIF Integration**: Security findings uploaded to GitHub Security tab (when Advanced Security is enabled)
+- **Graceful Degradation**: Workflows continue even if SARIF upload fails (e.g., repositories without Advanced Security)
 - **Dependency Review**: Automated dependency vulnerability and license checking
 - **CodeQL Analysis**: GitHub's semantic code analysis for security issues
 
