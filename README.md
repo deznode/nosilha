@@ -30,7 +30,7 @@ To create a community-maintained, authoritative online resource for Brava that p
 This project is built with a modern, scalable, and robust technology stack designed for performance and maintainability.
 
 | Layer                 | Technology                                                              | Purpose                                                                |
-| --------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+ | --------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | **Frontend** | [React](https://react.dev/) + [Next.js](https://nextjs.org/) (App Router) | UI, Server-Side Rendering (SSR), Static Site Generation (SSG)          |
 |                       | [TypeScript](https://www.typescriptlang.org/)                           | Type safety and developer experience                                   |
 |                       | [Tailwind CSS](https://tailwindcss.com/)                                | Utility-first styling for rapid, responsive UI development             |
