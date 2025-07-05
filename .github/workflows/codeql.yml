@@ -54,20 +54,6 @@ jobs:
     # For this repository, we need to handle Kotlin (Java) backend and TypeScript frontend separately
     - name: Autobuild
       uses: github/codeql-action/autobuild@v3
-      
-    # Manual build steps if autobuild fails
-    - name: Build Kotlin Backend
-      if: matrix.language == 'java'
-      run: |
-        cd backend
-        ./gradlew build -x test
-        
-    - name: Build TypeScript Frontend  
-      if: matrix.language == 'javascript'
-      run: |
-        cd frontend
-        npm ci
-        npm run build
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
