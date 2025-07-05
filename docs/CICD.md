@@ -60,14 +60,18 @@ Runs on every pull request to `main` branch.
 
 ### 2. CodeQL Analysis (`.github/workflows/codeql.yml`)
 
-**GitHub Advanced Security** - Automated code security analysis
+**⚠️ Requires GitHub Advanced Security** - This workflow will fail if Advanced Security is not enabled
 
-**Features:**
+**Features (when Advanced Security is enabled):**
 - **Multi-language Support** - Analyzes TypeScript and Kotlin/Java code
 - **Scheduled Scanning** - Weekly automated security scans
 - **Pull Request Analysis** - Security analysis on every PR
 - **Custom Configuration** - Tailored scanning rules and paths
 - **Security Query Packs** - Uses security-and-quality query pack
+
+**Requirements:**
+- **GitHub Advanced Security license** for private repositories
+- **Free for public repositories** - Advanced Security is available at no cost
 
 **Triggers:**
 - Push to `main` branch
@@ -195,11 +199,19 @@ The backend exposes these endpoints for monitoring:
 
 ## Security Considerations
 
-### GitHub Advanced Security
+### Security Features Available Without Advanced Security
+- **Trivy Scanner** - Container and dependency vulnerability scanning
+- **Static Analysis** - detekt (Kotlin), ESLint (TypeScript), tfsec (Terraform)
+- **Basic Dependency Review** - Automated dependency vulnerability checking
+- **SARIF Integration** - Security findings uploaded to GitHub Security tab (for compatible tools)
+
+### GitHub Advanced Security (Requires License for Private Repos)
 - **CodeQL Analysis** - Automated semantic code analysis for TypeScript and Kotlin
 - **Secret Scanning** - Detects accidentally committed secrets and credentials
-- **Dependency Review** - Automated vulnerability checking for dependencies
+- **Advanced Dependency Review** - Enhanced vulnerability checking with more features
 - **Security Advisories** - Proactive notification of security issues
+
+**Note:** Advanced Security is free for public repositories but requires a paid license for private repositories.
 
 ### Image Security
 - **Trivy scanner** runs on all pull requests

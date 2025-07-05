@@ -36,14 +36,21 @@ We take security vulnerabilities seriously. If you discover a security vulnerabi
 
 ## Security Features
 
-This repository implements several security measures:
+### Automated Security Scanning (Available Without Advanced Security)
 
-### Automated Security Scanning
+- **Trivy Scanning**: Container and dependency vulnerability scanning
+- **Static Code Analysis**: detekt (Kotlin), ESLint (TypeScript), tfsec (Terraform)
+- **Basic Dependency Review**: Automated dependency vulnerability checking
+- **Build Security**: Secure build processes and container image scanning
+
+### GitHub Advanced Security Features (Requires License for Private Repos)
 
 - **CodeQL Analysis**: Automated code security analysis
-- **Trivy Scanning**: Container and dependency vulnerability scanning
-- **Dependency Review**: Automated dependency vulnerability checking
 - **Secret Scanning**: Detection of accidentally committed secrets
+- **Advanced Dependency Features**: Enhanced vulnerability analysis
+- **Security Advisories**: Proactive security notifications
+
+**Note:** Advanced Security is free for public repositories but requires a paid license for private repositories. The repository currently has security scanning available through Trivy and static analysis tools.
 
 ### Development Security
 

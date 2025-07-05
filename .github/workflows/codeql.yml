@@ -1,5 +1,10 @@
 name: "CodeQL Analysis"
 
+# WARNING: This workflow requires GitHub Advanced Security to be enabled
+# If Advanced Security is not enabled, this workflow will fail with 403 errors
+# For private repositories, Advanced Security requires a paid license
+# For public repositories, Advanced Security is available for free
+
 on:
   push:
     branches: [ "main" ]

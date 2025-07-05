@@ -157,8 +157,8 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - **Static Analysis**: detekt (Kotlin), ESLint (TypeScript), tfsec (Terraform)
 - **SARIF Integration**: Security findings uploaded to GitHub Security tab
 - **Dependency Review**: Automated dependency vulnerability and license checking
-- **CodeQL Analysis**: GitHub's semantic code analysis for security issues (dedicated workflow)
-- **Advanced Security**: GitHub Advanced Security enabled for comprehensive code scanning
+- **CodeQL Analysis**: GitHub's semantic code analysis for security issues (requires Advanced Security)
+- **Advanced Security Ready**: CodeQL workflow configured but requires Advanced Security license
 
 ### Testing Strategy
 - **Backend**: JUnit tests with PostgreSQL integration, Jacoco coverage reporting
@@ -200,6 +200,6 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - `infrastructure/docker/docker-compose.yml` - Local development environment
 - `infrastructure/terraform/cloudrun.tf` - Cloud Run deployment configuration
 - `infrastructure/terraform/main.tf` - Core GCP infrastructure (GCS, Artifact Registry)
-- `.github/workflows/codeql.yml` - GitHub Advanced Security code scanning
-- `.github/codeql/codeql-config.yml` - CodeQL configuration for security analysis
+- `.github/workflows/codeql.yml` - GitHub Advanced Security code scanning (requires license)
+- `.github/codeql/codeql-config.yml` - CodeQL configuration for security analysis (requires Advanced Security)
 - `SECURITY.md` - Security policy and vulnerability reporting procedures

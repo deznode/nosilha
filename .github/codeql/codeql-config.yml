@@ -1,3 +1,11 @@
+# Nos Ilha CodeQL Configuration
+# 
+# WARNING: This configuration requires GitHub Advanced Security to be enabled
+# - For private repositories: Requires a paid Advanced Security license
+# - For public repositories: Advanced Security is available for free
+# 
+# If Advanced Security is not enabled, the CodeQL workflow will fail with 403 errors.
+
 name: "Nos Ilha CodeQL Config"
 
 disable-default-queries: false
