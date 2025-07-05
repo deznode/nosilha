@@ -157,8 +157,11 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - **Static Analysis**: detekt (Kotlin), ESLint (TypeScript), tfsec (Terraform)
 - **SARIF Integration**: Security findings uploaded to GitHub Security tab
 - **Dependency Review**: Automated dependency vulnerability and license checking
-- **CodeQL Analysis**: GitHub's semantic code analysis for security issues (requires Advanced Security)
-- **Advanced Security Ready**: CodeQL workflow configured but requires Advanced Security license
+- **CodeQL Analysis**: Integrated into PR validation and scheduled scans for Kotlin and TypeScript
+  - **PR Integration**: Security scanning on every pull request (continues on error if Advanced Security unavailable)
+  - **Scheduled Scans**: Weekly security analysis on main branch
+  - **Language Support**: Java/Kotlin (backend) and JavaScript/TypeScript (frontend)
+- **Advanced Security Ready**: CodeQL workflows configured for when Advanced Security is enabled
 
 ### Testing Strategy
 - **Backend**: JUnit tests with PostgreSQL integration, Jacoco coverage reporting
