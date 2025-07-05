@@ -36,12 +36,11 @@ This project is built with a modern, scalable, and robust technology stack desig
 |                       | [Tailwind CSS](https://tailwindcss.com/)                                | Utility-first styling for rapid, responsive UI development             |
 | **Backend** | [Spring Boot](https://spring.io/projects/spring-boot) + [Kotlin](https://kotlinlang.org/)    | Robust, concise, and scalable REST API development                     |
 | **Databases** | [PostgreSQL](https://www.postgresql.org/)                               | Primary relational database for structured content (businesses, towns) |
-|                       | [MongoDB](https://www.mongodb.com/)                                     | Storage for flexible media metadata, AI tags, and document schemas     |
+|                       | [Google Firestore](https://firebase.google.com/docs/firestore)         | Flexible metadata storage for AI-processed images and documents        |
 | **Mapping** | [Leaflet.js](https://leafletjs.com/) + [OpenStreetMap](https://www.openstreetmap.org/) | Interactive, customizable, and open-source mapping solution            |
-| **AI Services** | Azure Cognitive Services / AWS Rekognition                              | Image/video analysis, OCR, and recognition tasks                       |
-| **Storage & CDN** | Azure Blob Storage / Amazon S3                                          | Scalable storage for all media assets                                  |
-|                       | Azure CDN / AWS CloudFront                                              | Global content delivery for fast media loading                         |
-| **Infrastructure** | Azure App Service / AWS Elastic Beanstalk                               | Deployment, scaling, and management of web applications                |
+| **AI Services** | [Google Cloud Vision API](https://cloud.google.com/vision)              | Image/video analysis, OCR, and recognition tasks                       |
+| **Storage & CDN** | [Google Cloud Storage](https://cloud.google.com/storage)                | Scalable storage for all media assets with CDN integration             |
+| **Infrastructure** | [Google Cloud Run](https://cloud.google.com/run)                        | Serverless deployment and scaling of containerized applications        |
 | **Security** | Let's Encrypt                                                           | Free, automated SSL/TLS certificates                                   |
 
 ## 🧱 Architectural & Implementation Guidelines
@@ -71,13 +70,45 @@ This project adheres to clean architecture principles to ensure separation of co
 
 ## 🚀 Getting Started
 
-Instructions on how to get the project running locally will be added here. This will include:
+### Prerequisites
 
-1.  **Prerequisites:** List of required software (Node.js, JDK, Docker, etc.).
-2.  **Environment Setup:** How to configure `.env` files with API keys and database credentials.
-3.  **Database Setup:** Instructions for running PostgreSQL and MongoDB via Docker Compose.
-4.  **Running the Backend:** `cd backend && ./gradlew bootRun`
-5.  **Running the Frontend:** `cd frontend && npm install && npm run dev`
+- **Node.js 18+** and npm
+- **Java 21** (OpenJDK or Oracle JDK)
+- **Docker** and Docker Compose
+- **PostgreSQL** (or use Docker Compose setup)
+
+### Local Development Setup
+
+1. **Start infrastructure services**:
+   ```bash
+   cd infrastructure/docker && docker-compose up -d
+   ```
+   This starts:
+   - PostgreSQL database (localhost:5432)
+   - Firestore emulator (localhost:8081)
+   - Google Cloud Storage emulator (localhost:8082)
+
+2. **Backend setup**:
+   ```bash
+   cd backend
+   # Database will auto-migrate on startup via Flyway
+   ./gradlew bootRun --args='--spring.profiles.active=local'
+   ```
+
+3. **Frontend setup**:
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+### Application URLs
+
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:8080/api/v1/
+- **PostgreSQL**: localhost:5432 (database: `nosilha_db`, user: `nosilha`, password: `nosilha`)
+- **Firestore Emulator**: http://localhost:8081
+- **GCS Emulator**: http://localhost:8082
 
 ## 🤝 Contribution Guidelines
 

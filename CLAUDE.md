@@ -61,7 +61,7 @@ docker-compose down     # Stop all services
 
 ### Database Strategy
 - **PostgreSQL**: Primary database for structured data (directory entries, user accounts)
-- **Firestore**: Flexible metadata storage for AI-processed images and documents
+- **Google Firestore**: Flexible metadata storage for AI-processed images and documents
 - **Google Cloud Storage**: Media asset storage with CDN integration
 
 ### AI & Media Processing
@@ -87,7 +87,7 @@ docker-compose down     # Stop all services
    ```bash
    cd backend
    # Database will auto-migrate on startup via Flyway
-   ./gradlew bootRun
+   ./gradlew bootRun --args='--spring.profiles.active=local'
    ```
 
 3. **Frontend setup**:
@@ -100,7 +100,7 @@ docker-compose down     # Stop all services
 The application will be available at:
 - Frontend: `http://localhost:3000`
 - Backend API: `http://localhost:8080/api/v1/`
-- PostgreSQL: `localhost:5432`
+- PostgreSQL: `localhost:5432` (database: `nosilha_db`, user: `nosilha`, password: `nosilha`)
 - Firestore Emulator: `http://localhost:8081`
 - GCS Emulator: `http://localhost:8082`
 
@@ -168,7 +168,7 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 ### Deployment Environments
 - **Staging**: Deployed from `develop` branch to `*-staging` Cloud Run services
 - **Production**: Deployed from `main` branch to production Cloud Run services  
-- **Registry**: Google Artifact Registry (`us-central1-docker.pkg.dev`)
+- **Registry**: Google Artifact Registry (us-central1-docker.pkg.dev)
 - **Region**: europe-west1 for Cloud Run deployments
 
 ### Required GitHub Secrets
@@ -186,7 +186,7 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 ## Cloud Deployment
 - **Google Cloud Platform** with Terraform configurations in `/infrastructure/terraform/`
 - **Cloud Run** for both backend and frontend deployment
-- **Google Artifact Registry** for container image storage (migrated from GCR)
+- **Google Artifact Registry** for container image storage (us-central1-docker.pkg.dev)
 - **Google Cloud Storage** for media asset storage
 - **Google Secret Manager** for secure configuration management
 

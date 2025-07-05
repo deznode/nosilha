@@ -63,7 +63,7 @@ base64 -i ~/nosilha-sa-key.json
 ```bash
 # Enable necessary APIs
 gcloud services enable run.googleapis.com
-gcloud services enable containerregistry.googleapis.com
+gcloud services enable artifactregistry.googleapis.com
 gcloud services enable cloudbuild.googleapis.com
 gcloud services enable secretmanager.googleapis.com
 ```
@@ -208,7 +208,7 @@ gcloud projects get-iam-policy $PROJECT_ID \
 ### Issue: "Image not found" during deployment
 **Solution:** Check if images were built and pushed:
 ```bash
-gcloud container images list --repository=gcr.io/$PROJECT_ID
+gcloud artifacts docker images list us-central1-docker.pkg.dev/$PROJECT_ID/docker-repo
 ```
 
 ### Issue: "Service not responding" after deployment

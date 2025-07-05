@@ -210,7 +210,7 @@ git push origin test/error-handling
 
 2. **Docker Build Failures**
    - Verify Artifact Registry repository exists
-   - Check Docker authentication
+   - Check Docker authentication with `gcloud auth configure-docker us-east1-docker.pkg.dev`
    - Review build context and Dockerfile paths
 
 3. **Workflow Syntax Errors**
@@ -228,17 +228,14 @@ git push origin test/error-handling
 If new workflows fail, you can quickly restore the legacy system:
 
 ```bash
-# Restore legacy workflows
-mv .github/workflows/ci-cd-legacy.yml .github/workflows/ci-cd.yml
-mv .github/workflows/pr-checks-legacy.yml .github/workflows/pr-checks.yml
-
-# Disable new workflows
-mkdir .github/workflows/new-ci
-mv .github/workflows/backend-ci.yml .github/workflows/new-ci/
-mv .github/workflows/frontend-ci.yml .github/workflows/new-ci/
-mv .github/workflows/infrastructure-ci.yml .github/workflows/new-ci/
-mv .github/workflows/pr-validation.yml .github/workflows/new-ci/
-mv .github/workflows/integration-ci.yml .github/workflows/new-ci/
+# If needed, backup current workflows and restore previous versions
+# Note: Adjust these commands based on your actual workflow structure
+mkdir .github/workflows/backup
+mv .github/workflows/backend-ci.yml .github/workflows/backup/
+mv .github/workflows/frontend-ci.yml .github/workflows/backup/
+mv .github/workflows/infrastructure-ci.yml .github/workflows/backup/
+mv .github/workflows/pr-validation.yml .github/workflows/backup/
+mv .github/workflows/integration-ci.yml .github/workflows/backup/
 ```
 
 ## Success Criteria

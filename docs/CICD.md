@@ -65,7 +65,7 @@ Runs on pushes to `main` and `develop` branches, plus manual workflow dispatch.
 1. **Change Detection** - Only builds changed services
 2. **Testing** - Full test suite for affected services
 3. **Docker Image Building** - Multi-architecture container builds
-4. **Image Registry** - Google Container Registry (gcr.io)
+4. **Image Registry** - Google Artifact Registry (us-central1-docker.pkg.dev)
 5. **Deployment** - Google Cloud Run deployment
 6. **Health Checks** - Post-deployment validation
 
@@ -115,14 +115,11 @@ SLACK_WEBHOOK              # For deployment notifications
 The GCP service account needs these IAM roles:
 
 ```bash
-# Container Registry
-roles/storage.admin
+# Artifact Registry
+roles/artifactregistry.admin
 
 # Cloud Run
 roles/run.admin
-
-# Artifact Registry (if using)
-roles/artifactregistry.admin
 
 # Service Account User (for deployment)
 roles/iam.serviceAccountUser
@@ -236,7 +233,7 @@ gcloud run services describe nosilha-backend --region=europe-west1
 ### Debug Commands
 ```bash
 # List all images in registry
-gcloud container images list --repository=gcr.io/$GCP_PROJECT_ID
+gcloud artifacts docker images list us-central1-docker.pkg.dev/$GCP_PROJECT_ID/docker-repo
 
 # Check Cloud Run services
 gcloud run services list --region=europe-west1
