@@ -1,13 +1,13 @@
 
 # Nos Ilha - Brava Island Cultural & Tourism Directory
 
-**nosilha.com** is the definitive online tourism and cultural heritage hub for Brava Island, Cape Verde. Our mission is to provide a comprehensive, beautiful, and accessible digital experience that connects international tourists, local residents, business owners, and the global Cape Verdean diaspora to the heart of Brava.
+**nosilha.com** is a community-driven online tourism and cultural heritage hub for Brava Island, Cape Verde. This open-source, volunteer-supported project aims to provide a comprehensive digital experience that connects international tourists, local residents, business owners, and the global Cape Verdean diaspora to the heart of Brava.
 
-The platform showcases the island's unique landmarks, vibrant businesses, rich history, and living culture through an interactive and modern web application.
+As a community-supported initiative with limited resources, the platform focuses on showcasing the island's unique landmarks, vibrant businesses, rich history, and living culture through a modern and accessible web application.
 
 ## 🎯 Project Goal
 
-To create a single, authoritative online resource for Brava that promotes sustainable tourism, preserves cultural memory, and fosters economic opportunity for the local community.
+To create a community-maintained, authoritative online resource for Brava that promotes sustainable tourism, preserves cultural memory, and fosters economic opportunity for the local community through volunteer contributions and collaborative development.
 
 ## 👥 Target Audience
 

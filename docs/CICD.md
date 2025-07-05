@@ -1,6 +1,6 @@
 # CI/CD Pipeline Setup
 
-This document describes the continuous integration and deployment pipeline for the Nos Ilha platform.
+This document describes the continuous integration and deployment pipeline for the Nos Ilha platform - a community-supported, open-source project with cost-optimized infrastructure.
 
 ## Overview
 
@@ -70,23 +70,18 @@ Runs on pushes to `main` and `develop` branches, plus manual workflow dispatch.
 6. **Health Checks** - Post-deployment validation
 
 **Deployment Strategy:**
-- `develop` branch → **staging** environment
 - `main` branch → **production** environment
-- Infrastructure changes only deploy on `main` branch
+- Infrastructure changes deploy with application changes on `main` branch
 
 ## Environment Configuration
-
-### Staging Environment
-- **Backend:** `nosilha-backend-staging`
-- **Frontend:** `nosilha-frontend-staging`
-- **Resources:** 1Gi memory, 1 CPU, 0-10 instances
-- **Spring Profile:** `staging`
 
 ### Production Environment
 - **Backend:** `nosilha-backend`
 - **Frontend:** `nosilha-frontend`
-- **Resources:** 2Gi memory, 2 CPU, 1-100 instances
+- **Resources:** 1Gi memory, 1 CPU, 0-10 instances (cost-optimized for community budget)
 - **Spring Profile:** `production`
+- **Region:** `us-east1`
+- **Note:** Single environment setup to minimize costs for volunteer-supported project
 
 ## Required GitHub Secrets
 
@@ -100,7 +95,6 @@ GCP_SA_KEY                  # Service account JSON key (base64 encoded)
 
 ### Environment URLs
 ```bash
-STAGING_API_URL             # Backend URL for staging frontend
 PRODUCTION_API_URL          # Backend URL for production frontend
 ```
 
@@ -145,21 +139,21 @@ npm test
 Use the deployment script for manual deployments:
 
 ```bash
-# Deploy to staging
-./scripts/deploy.sh staging all latest
+# Deploy to production
+./scripts/deploy.sh production all latest
 
-# Deploy backend to production
+# Deploy backend to production with specific version
 ./scripts/deploy.sh production backend v1.0.0
 
-# Deploy frontend to staging with specific tag
-./scripts/deploy.sh staging frontend develop-abc123
+# Deploy frontend to production with specific tag
+./scripts/deploy.sh production frontend v1.0.1
 ```
 
 ### Environment Variables for Local Deployment
 ```bash
 export GCP_PROJECT_ID="your-project-id"
-export GCP_REGION="europe-west1"
-export STAGING_API_URL="https://your-staging-backend-url"
+export GCP_REGION="us-east1"
+export REGISTRY="us-east1-docker.pkg.dev"
 export PRODUCTION_API_URL="https://your-production-backend-url"
 ```
 
@@ -233,10 +227,10 @@ gcloud run services describe nosilha-backend --region=europe-west1
 ### Debug Commands
 ```bash
 # List all images in registry
-gcloud artifacts docker images list us-central1-docker.pkg.dev/$GCP_PROJECT_ID/docker-repo
+gcloud artifacts docker images list us-east1-docker.pkg.dev/$GCP_PROJECT_ID/docker-repo
 
 # Check Cloud Run services
-gcloud run services list --region=europe-west1
+gcloud run services list --region=us-east1
 
 # View deployment logs
 gcloud logging read "resource.type=cloud_run_revision" --limit=100
@@ -245,9 +239,8 @@ gcloud logging read "resource.type=cloud_run_revision" --limit=100
 ## Best Practices
 
 ### Branch Strategy
-1. **Feature branches** → `develop` (staging deployment)
-2. **Release branches** → `main` (production deployment)
-3. **Hotfix branches** → `main` (immediate production fix)
+1. **Feature branches** → `main` (production deployment)
+2. **Hotfix branches** → `main` (immediate production fix)
 
 ### Deployment Strategy
 1. **Blue-green deployments** via Cloud Run traffic splitting

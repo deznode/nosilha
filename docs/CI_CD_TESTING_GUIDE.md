@@ -109,36 +109,19 @@ Check that the PR receives:
 
 ### Phase 3: Integration Testing
 
-#### 3.1 Merge to Develop Branch
-After PR validation passes:
+#### 3.1 Production Deployment Testing
+After PR validation passes, merge to main for production deployment:
 
 ```bash
-# Merge PR to develop branch
+# Merge PR to main branch
 gh pr merge --merge
 ```
 
 **Expected Results:**
-- ✅ Individual service workflows trigger with deployment
-- ✅ Images build and deploy to staging environment
-- ✅ Health checks pass for deployed services
-- ✅ Integration workflow runs cross-service tests
-
-#### 3.2 Production Deployment Testing
-Test production deployment (use with caution):
-
-```bash
-# Create PR from develop to main for production deployment
-gh pr create --title "Deploy: Production release" \
-  --body "Deploy tested changes to production" \
-  --base main \
-  --head develop
-```
-
-**Expected Results:**
-- ✅ Full validation suite runs
-- ✅ After merge: Production deployment to main Cloud Run services
+- ✅ Production deployment workflow triggers
+- ✅ Images build and deploy to production Cloud Run services
 - ✅ Health checks validate production deployment
-- ✅ Performance tests run against production
+- ✅ Integration tests run against production
 
 ### Phase 4: Edge Case Testing
 
@@ -245,7 +228,6 @@ The new CI/CD architecture is ready for production when:
 - ✅ All individual workflows pass for respective component changes
 - ✅ PR validation provides comprehensive status reporting
 - ✅ Security scanning and quality gates function correctly
-- ✅ Staging deployments work reliably from develop branch
 - ✅ Production deployments work reliably from main branch
 - ✅ Health checks and monitoring validate deployments
 - ✅ Integration tests coordinate properly across services

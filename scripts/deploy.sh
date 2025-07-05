@@ -13,12 +13,12 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Default values
-ENVIRONMENT=${1:-staging}
+ENVIRONMENT=${1:-production}
 SERVICE=${2:-all}
 IMAGE_TAG=${3:-latest}
 PROJECT_ID=${GCP_PROJECT_ID}
-REGION=${GCP_REGION:-europe-west1}
-REGISTRY=${REGISTRY:-gcr.io}
+REGION=${GCP_REGION:-us-east1}
+REGISTRY=${REGISTRY:-us-east1-docker.pkg.dev}
 
 # Validate inputs
 if [ -z "$PROJECT_ID" ]; then
@@ -26,8 +26,8 @@ if [ -z "$PROJECT_ID" ]; then
     exit 1
 fi
 
-if [ "$ENVIRONMENT" != "staging" ] && [ "$ENVIRONMENT" != "production" ]; then
-    echo -e "${RED}Error: Environment must be 'staging' or 'production'${NC}"
+if [ "$ENVIRONMENT" != "production" ]; then
+    echo -e "${RED}Error: Environment must be 'production' (staging removed for cost optimization)${NC}"
     exit 1
 fi
 
@@ -50,22 +50,13 @@ deploy_backend() {
     
     echo -e "${GREEN}Deploying backend service...${NC}"
     
-    # Set environment-specific configurations
-    if [ "$env" = "staging" ]; then
-        SERVICE_NAME="nosilha-backend-staging"
-        MEMORY="1Gi"
-        CPU="1"
-        MIN_INSTANCES="0"
-        MAX_INSTANCES="10"
-        SPRING_PROFILE="staging"
-    else
-        SERVICE_NAME="nosilha-backend"
-        MEMORY="2Gi"
-        CPU="2"
-        MIN_INSTANCES="1"
-        MAX_INSTANCES="100"
-        SPRING_PROFILE="production"
-    fi
+    # Production-only configuration (cost-optimized for community project)
+    SERVICE_NAME="nosilha-backend"
+    MEMORY="1Gi"
+    CPU="1"
+    MIN_INSTANCES="0"
+    MAX_INSTANCES="10"
+    SPRING_PROFILE="production"
     
     # Deploy to Cloud Run
     gcloud run deploy "$SERVICE_NAME" \
@@ -94,22 +85,13 @@ deploy_frontend() {
     
     echo -e "${GREEN}Deploying frontend service...${NC}"
     
-    # Set environment-specific configurations
-    if [ "$env" = "staging" ]; then
-        SERVICE_NAME="nosilha-frontend-staging"
-        MEMORY="512Mi"
-        CPU="1"
-        MIN_INSTANCES="0"
-        MAX_INSTANCES="5"
-        API_URL_VAR="STAGING_API_URL"
-    else
-        SERVICE_NAME="nosilha-frontend"
-        MEMORY="1Gi"
-        CPU="1"
-        MIN_INSTANCES="1"
-        MAX_INSTANCES="50"
-        API_URL_VAR="PRODUCTION_API_URL"
-    fi
+    # Production-only configuration (cost-optimized for community project)
+    SERVICE_NAME="nosilha-frontend"
+    MEMORY="512Mi"
+    CPU="1"
+    MIN_INSTANCES="0"
+    MAX_INSTANCES="10"
+    API_URL_VAR="PRODUCTION_API_URL"
     
     # Get API URL from environment variable
     API_URL=$(eval echo "\$$API_URL_VAR")
@@ -196,11 +178,7 @@ main() {
             deploy_backend "$ENVIRONMENT" "$IMAGE_TAG"
             
             # Health check for backend
-            if [ "$ENVIRONMENT" = "staging" ]; then
-                BACKEND_URL=$(gcloud run services describe "nosilha-backend-staging" --region="$REGION" --format="value(status.url)")
-            else
-                BACKEND_URL=$(gcloud run services describe "nosilha-backend" --region="$REGION" --format="value(status.url)")
-            fi
+            BACKEND_URL=$(gcloud run services describe "nosilha-backend" --region="$REGION" --format="value(status.url)")
             
             health_check "$BACKEND_URL" "backend"
         else
@@ -214,11 +192,7 @@ main() {
             deploy_frontend "$ENVIRONMENT" "$IMAGE_TAG"
             
             # Health check for frontend
-            if [ "$ENVIRONMENT" = "staging" ]; then
-                FRONTEND_URL=$(gcloud run services describe "nosilha-frontend-staging" --region="$REGION" --format="value(status.url)")
-            else
-                FRONTEND_URL=$(gcloud run services describe "nosilha-frontend" --region="$REGION" --format="value(status.url)")
-            fi
+            FRONTEND_URL=$(gcloud run services describe "nosilha-frontend" --region="$REGION" --format="value(status.url)")
             
             health_check "$FRONTEND_URL" "frontend"
         else
@@ -236,19 +210,11 @@ main() {
     echo -e "${YELLOW}Image tag: $IMAGE_TAG${NC}"
     
     if [ "$SERVICE" = "backend" ] || [ "$SERVICE" = "all" ]; then
-        if [ "$ENVIRONMENT" = "staging" ]; then
-            echo -e "${GREEN}Backend URL: $(gcloud run services describe "nosilha-backend-staging" --region="$REGION" --format="value(status.url)")${NC}"
-        else
-            echo -e "${GREEN}Backend URL: $(gcloud run services describe "nosilha-backend" --region="$REGION" --format="value(status.url)")${NC}"
-        fi
+        echo -e "${GREEN}Backend URL: $(gcloud run services describe "nosilha-backend" --region="$REGION" --format="value(status.url)")${NC}"
     fi
     
     if [ "$SERVICE" = "frontend" ] || [ "$SERVICE" = "all" ]; then
-        if [ "$ENVIRONMENT" = "staging" ]; then
-            echo -e "${GREEN}Frontend URL: $(gcloud run services describe "nosilha-frontend-staging" --region="$REGION" --format="value(status.url)")${NC}"
-        else
-            echo -e "${GREEN}Frontend URL: $(gcloud run services describe "nosilha-frontend" --region="$REGION" --format="value(status.url)")${NC}"
-        fi
+        echo -e "${GREEN}Frontend URL: $(gcloud run services describe "nosilha-frontend" --region="$REGION" --format="value(status.url)")${NC}"
     fi
 }
 
@@ -259,7 +225,7 @@ show_help() {
     echo "Usage: $0 [environment] [service] [image_tag]"
     echo ""
     echo "Arguments:"
-    echo "  environment    Target environment (staging|production) [default: staging]"
+    echo "  environment    Target environment (production only) [default: production]"
     echo "  service        Service to deploy (backend|frontend|all) [default: all]"
     echo "  image_tag      Docker image tag to deploy [default: latest]"
     echo ""
@@ -271,10 +237,10 @@ show_help() {
     echo "  PRODUCTION_API_URL  API URL for production environment"
     echo ""
     echo "Examples:"
-    echo "  $0                                    # Deploy all services to staging with latest tag"
+    echo "  $0                                    # Deploy all services to production with latest tag"
     echo "  $0 production                         # Deploy all services to production with latest tag"
-    echo "  $0 staging backend develop-abc123     # Deploy backend to staging with specific tag"
-    echo "  $0 production frontend v1.0.0         # Deploy frontend to production with version tag"
+    echo "  $0 production backend v1.0.0          # Deploy backend to production with specific tag"
+    echo "  $0 production frontend v1.0.1         # Deploy frontend to production with version tag"
     echo ""
 }
 

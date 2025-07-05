@@ -1,12 +1,12 @@
 # CI/CD Quick Setup Guide
 
-This guide will help you set up the CI/CD pipeline for the Nos Ilha project in 10 minutes.
+This guide will help you set up the CI/CD pipeline for the Nos Ilha community project in 10 minutes. This setup is optimized for cost-effectiveness and single-environment deployment.
 
 ## Prerequisites Checklist
 
-- [ ] Google Cloud Project created
-- [ ] GitHub repository access
-- [ ] `gcloud` CLI installed and authenticated
+- [x] Google Cloud Project created
+- [x] GitHub repository access
+- [x] `gcloud` CLI installed and authenticated
 - [ ] Docker installed (for local testing)
 
 ## Step 1: Google Cloud Setup
@@ -79,7 +79,6 @@ Add these repository secrets:
 |-------------|-------|-------------|
 | `GCP_PROJECT_ID` | your-project-id | Your Google Cloud project ID |
 | `GCP_SA_KEY` | base64-encoded-key | The base64 encoded service account key |
-| `STAGING_API_URL` | TBD | Backend URL for staging (set after first deploy) |
 | `PRODUCTION_API_URL` | TBD | Backend URL for production (set after first deploy) |
 
 ### 2.2 Create Environment Protection Rules
@@ -93,20 +92,10 @@ Add these repository secrets:
 
 ## Step 3: Initial Deployment
 
-### 3.1 Deploy Staging (from develop branch)
+### 3.1 Deploy Production (from main branch)
 ```bash
-# Create and switch to develop branch if it doesn't exist
-git checkout -b develop
-
-# Push to trigger staging deployment
-git push origin develop
-```
-
-### 3.2 Deploy Production (from main branch)
-```bash
-# Merge develop to main when ready for production
+# Push to main branch to trigger production deployment
 git checkout main
-git merge develop
 git push origin main
 ```
 
@@ -120,11 +109,11 @@ git push origin main
 ### 4.2 Check Cloud Run Services
 ```bash
 # List deployed services
-gcloud run services list --region=europe-west1
+gcloud run services list --region=us-east1
 
 # Check service status
-gcloud run services describe nosilha-backend-staging --region=europe-west1
-gcloud run services describe nosilha-frontend-staging --region=europe-west1
+gcloud run services describe nosilha-backend --region=us-east1
+gcloud run services describe nosilha-frontend --region=us-east1
 ```
 
 ### 4.3 Test Deployed Services
@@ -143,27 +132,27 @@ After first deployment, update these secrets with actual URLs:
 
 ```bash
 # Get backend URL
-BACKEND_URL=$(gcloud run services describe nosilha-backend-staging \
-    --region=europe-west1 --format="value(status.url)")
+BACKEND_URL=$(gcloud run services describe nosilha-backend \
+    --region=us-east1 --format="value(status.url)")
 
 # Get frontend URL  
-FRONTEND_URL=$(gcloud run services describe nosilha-frontend-staging \
-    --region=europe-west1 --format="value(status.url)")
+FRONTEND_URL=$(gcloud run services describe nosilha-frontend \
+    --region=us-east1 --format="value(status.url)")
 
-echo "Staging Backend URL: $BACKEND_URL"
-echo "Staging Frontend URL: $FRONTEND_URL"
+echo "Production Backend URL: $BACKEND_URL"
+echo "Production Frontend URL: $FRONTEND_URL"
 ```
 
-Update `STAGING_API_URL` and `PRODUCTION_API_URL` in GitHub Secrets.
+Update `PRODUCTION_API_URL` in GitHub Secrets.
 
 ### 5.2 Configure CORS (Backend)
 Update your backend's allowed origins to include the frontend URLs:
 
 ```yaml
-# In application-staging.yml
+# In application.yml (production)
 app:
   cors:
-    allowed-origins: https://your-frontend-staging-url,https://your-frontend-production-url
+    allowed-origins: https://your-frontend-production-url
 ```
 
 ## Step 6: Test Full Pipeline
@@ -192,8 +181,7 @@ git push origin feature/test-cicd
    - ✅ Build validation
 
 ### 6.3 Test Deployment
-1. Merge PR to `develop` → triggers staging deployment
-2. Merge `develop` to `main` → triggers production deployment
+1. Merge PR to `main` → triggers production deployment
 
 ## Common Issues & Solutions
 
@@ -208,7 +196,7 @@ gcloud projects get-iam-policy $PROJECT_ID \
 ### Issue: "Image not found" during deployment
 **Solution:** Check if images were built and pushed:
 ```bash
-gcloud artifacts docker images list us-central1-docker.pkg.dev/$PROJECT_ID/docker-repo
+gcloud artifacts docker images list us-east1-docker.pkg.dev/$PROJECT_ID/docker-repo
 ```
 
 ### Issue: "Service not responding" after deployment
@@ -223,12 +211,11 @@ gcloud logs read --service=nosilha-backend --limit=50
 ## Success Checklist
 
 - [ ] All GitHub Actions workflows run successfully
-- [ ] Staging services deployed and accessible
 - [ ] Production services deployed and accessible  
 - [ ] Frontend connects to backend APIs
 - [ ] Health checks pass
 - [ ] PR validation works correctly
-- [ ] Branch-based deployments work (develop→staging, main→production)
+- [ ] Production deployment works from main branch
 
 ## Next Steps
 
