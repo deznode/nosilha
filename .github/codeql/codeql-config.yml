@@ -1,0 +1,143 @@
+name: "Enhanced Security CodeQL Configuration"
+
+# Disable default compiled language autodetection
+disable-default-language-detection: true
+
+# Language-specific configurations
+languages:
+  - java-kotlin
+  - javascript-typescript
+
+# Query configuration
+queries:
+  - name: security-and-quality
+    uses: security-and-quality
+  - name: security-experimental  
+    uses: security-experimental
+  - name: custom-security-queries
+    uses: ./.github/codeql/queries/
+
+# Path filters to focus on application code
+paths:
+  - "backend/src/"
+  - "frontend/src/"
+  - "!**/node_modules/**"
+  - "!**/build/**"
+  - "!**/dist/**"
+  - "!**/.gradle/**"
+  - "!**/target/**"
+
+# Paths to ignore during analysis
+paths-ignore:
+  - "**/*.test.*"
+  - "**/*.spec.*"
+  - "**/test/**"
+  - "**/tests/**"
+  - "**/__tests__/**"
+  - "**/docs/**"
+  - "**/*.md"
+  - "infrastructure/docker/**"
+  - "scripts/**"
+
+# Custom query packs for enhanced security
+packs:
+  - codeql/java-queries:AlertSuppression.ql
+  - codeql/java-queries:Security/
+  - codeql/javascript-queries:Security/
+  - codeql/javascript-queries:AngularJS/
+
+# External data configuration for enhanced analysis
+external-repository-token: ${{ github.token }}
+
+# Build configuration
+build-mode: manual
+
+# Analysis configuration
+analysis:
+  # Increase timeout for complex analysis
+  timeout: 120
+  # Enable detailed analysis
+  detailed: true
+  # Custom compiler options
+  compiler-spec: |
+    java:
+      version: "21"
+      source: "21"
+      target: "21"
+    kotlin:
+      version: "1.9"
+      jvm-target: "21"
+    typescript:
+      strict: true
+      target: "ES2022"
+      module: "commonjs"
+
+# Security-specific query configurations
+query-filters:
+  - include:
+      kind: problem
+      problem.severity: error
+      tags: security
+  - include:
+      kind: problem
+      problem.severity: warning
+      tags: security
+  - exclude:
+      kind: problem
+      tags: experimental
+      # Exclude if confidence is low
+      precision: low
+
+# Custom security patterns to detect
+custom-patterns:
+  # SQL injection patterns
+  - pattern: ".*[Qq]uery.*concat.*"
+    message: "Potential SQL injection vulnerability"
+    severity: error
+  
+  # XSS patterns  
+  - pattern: "innerHTML.*\\+.*"
+    message: "Potential XSS vulnerability"
+    severity: warning
+    
+  # Hardcoded secrets patterns
+  - pattern: "(password|secret|key|token)\\s*=\\s*[\"'][^\"']{8,}[\"']"
+    message: "Potential hardcoded secret"
+    severity: error
+    
+  # Insecure random patterns
+  - pattern: "Math\\.random\\(\\)"
+    message: "Use cryptographically secure random for security purposes"
+    severity: warning
+
+# Framework-specific configurations
+frameworks:
+  spring:
+    # Enable Spring Security analysis
+    security: true
+    # Check for common Spring vulnerabilities
+    vulnerabilities:
+      - csrf-disabled
+      - cors-wildcard
+      - security-misconfiguration
+      
+  react:
+    # Enable React security analysis
+    security: true
+    # Check for common React vulnerabilities
+    vulnerabilities:
+      - xss-dangerouslySetInnerHTML
+      - jsx-injection
+      - prop-types-validation
+
+# Machine learning-based analysis
+ml-powered-queries: true
+
+# Performance optimization
+performance:
+  # Use parallel analysis where possible
+  parallel: true
+  # Limit memory usage
+  max-memory: "4G"
+  # Cache compiled queries
+  cache-queries: true

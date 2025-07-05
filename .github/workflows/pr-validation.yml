@@ -92,25 +92,76 @@ jobs:
           fail-on-severity: high
           allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
 
-  # Code quality analysis
-  code-quality:
-    name: Code Quality Analysis
+  # Enhanced security analysis
+  security-analysis:
+    name: Enhanced Security Analysis
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           
-      - name: Run CodeQL Analysis
-        uses: github/codeql-action/init@v2
+      # Use our enhanced CodeQL configuration
+      - name: Initialize Enhanced CodeQL
+        uses: github/codeql-action/init@v3
         with:
-          languages: typescript, kotlin
+          languages: java-kotlin,javascript-typescript
+          config-file: ./.github/codeql/codeql-config.yml
+          queries: +security-and-quality,security-experimental
           
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v2
-        
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v2
+      # Setup build environments
+      - name: Setup Java for Backend Analysis
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          
+      - name: Setup Node.js for Frontend Analysis
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+          
+      # Build applications for better analysis
+      - name: Build Backend
+        run: |
+          cd backend
+          ./gradlew clean build -x test --no-daemon
+          
+      - name: Build Frontend
+        run: |
+          cd frontend
+          npm ci
+          npm run build
+        env:
+          NODE_ENV: production
+          NEXT_PUBLIC_API_URL: http://localhost:8080/api/v1
+          
+      - name: Perform Enhanced CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          upload: true
+          
+      # Additional security scanning
+      - name: Run Semgrep SAST
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/owasp-top-ten
+            p/react
+            p/typescript
+            p/kotlin
+          generate-sarif-file: true
+          sarif-file: semgrep-results.sarif
+          
+      - name: Upload Semgrep Results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep-results.sarif
+          category: 'semgrep-security'
 
   # Comprehensive PR status reporting
   pr-status-report:
@@ -123,7 +174,7 @@ jobs:
       infrastructure-validation,
       global-security-scan,
       dependency-review,
-      code-quality
+      security-analysis
     ]
     if: always() && github.event_name == 'pull_request'
     
@@ -138,7 +189,7 @@ jobs:
               'Infrastructure Validation': '${{ needs.infrastructure-validation.result }}',
               'Global Security Scan': '${{ needs.global-security-scan.result }}',
               'Dependency Review': '${{ needs.dependency-review.result }}',
-              'Code Quality Analysis': '${{ needs.code-quality.result }}'
+              'Enhanced Security Analysis': '${{ needs.security-analysis.result }}'
             };
             
             const changes = {
@@ -248,7 +299,7 @@ jobs:
       infrastructure-validation,
       global-security-scan,
       dependency-review,
-      code-quality
+      security-analysis
     ]
     if: |
       always() && 

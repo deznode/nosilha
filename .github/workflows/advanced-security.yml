@@ -1,0 +1,406 @@
+name: "Advanced Security Suite"
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    # Run comprehensive security scan daily at 4 AM UTC
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+    inputs:
+      scan-level:
+        description: 'Security scan level'
+        required: true
+        default: 'standard'
+        type: choice
+        options:
+        - standard
+        - comprehensive
+        - deep
+
+env:
+  SCAN_LEVEL: ${{ github.event.inputs.scan-level || 'standard' }}
+
+jobs:
+  # Security metadata and planning
+  security-planning:
+    name: Security Scan Planning
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      scan-paths: ${{ steps.scan-paths.outputs.paths }}
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Determine scan scope
+      id: set-matrix
+      run: |
+        if [ "$SCAN_LEVEL" = "comprehensive" ] || [ "$SCAN_LEVEL" = "deep" ]; then
+          echo "matrix={\"include\":[{\"component\":\"backend\",\"path\":\"./backend\",\"language\":\"java-kotlin\"},{\"component\":\"frontend\",\"path\":\"./frontend\",\"language\":\"javascript-typescript\"},{\"component\":\"infrastructure\",\"path\":\"./infrastructure\",\"language\":\"hcl\"},{\"component\":\"global\",\"path\":\".\",\"language\":\"multi\"}]}" >> $GITHUB_OUTPUT
+        else
+          echo "matrix={\"include\":[{\"component\":\"backend\",\"path\":\"./backend\",\"language\":\"java-kotlin\"},{\"component\":\"frontend\",\"path\":\"./frontend\",\"language\":\"javascript-typescript\"}]}" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Identify scan paths
+      id: scan-paths
+      run: |
+        paths=$(find . -type f \( -name "*.kt" -o -name "*.java" -o -name "*.ts" -o -name "*.js" -o -name "*.tsx" -o -name "*.jsx" \) \
+          -not -path "./.git/*" \
+          -not -path "./node_modules/*" \
+          -not -path "./build/*" \
+          -not -path "./dist/*" | wc -l)
+        echo "paths=$paths" >> $GITHUB_OUTPUT
+        echo "📊 Found $paths source files to analyze"
+
+  # Comprehensive vulnerability scanning
+  vulnerability-scan:
+    name: Vulnerability Scan
+    runs-on: ubuntu-latest
+    needs: security-planning
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.security-planning.outputs.matrix) }}
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup scanning environment for ${{ matrix.component }}
+      run: |
+        echo "🔧 Setting up scan environment for ${{ matrix.component }}"
+        case "${{ matrix.component }}" in
+          "backend")
+            echo "SCAN_CMD=trivy fs --security-checks vuln,secret,config" >> $GITHUB_ENV
+            ;;
+          "frontend")
+            echo "SCAN_CMD=trivy fs --security-checks vuln,secret,config" >> $GITHUB_ENV
+            ;;
+          "infrastructure")
+            echo "SCAN_CMD=trivy config" >> $GITHUB_ENV
+            ;;
+          *)
+            echo "SCAN_CMD=trivy fs --security-checks vuln,secret,config" >> $GITHUB_ENV
+            ;;
+        esac
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: ${{ matrix.path }}
+        format: 'sarif'
+        output: 'trivy-${{ matrix.component }}-results.sarif'
+        severity: 'CRITICAL,HIGH,MEDIUM'
+        exit-code: '0'  # Don't fail the build
+        
+    - name: Advanced Trivy scan (if comprehensive)
+      if: env.SCAN_LEVEL == 'comprehensive' || env.SCAN_LEVEL == 'deep'
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: ${{ matrix.path }}
+        format: 'json'
+        output: 'trivy-${{ matrix.component }}-detailed.json'
+        severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
+        
+    - name: Container image scanning (if applicable)
+      if: matrix.component == 'backend' || matrix.component == 'frontend'
+      run: |
+        if [ -f "${{ matrix.path }}/Dockerfile" ]; then
+          echo "🐳 Found Dockerfile, scanning container..."
+          docker build -t temp-scan-image:latest ${{ matrix.path }}
+          trivy image --format sarif --output trivy-${{ matrix.component }}-container.sarif temp-scan-image:latest
+        fi
+
+    - name: Upload vulnerability scan results
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-${{ matrix.component }}-results.sarif'
+        category: 'trivy-${{ matrix.component }}'
+
+  # Enhanced SAST scanning
+  advanced-sast:
+    name: Advanced SAST Analysis
+    runs-on: ubuntu-latest
+    needs: security-planning
+    
+    strategy:
+      matrix:
+        analysis: ['codeql', 'semgrep', 'sonar']
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: CodeQL Analysis
+      if: matrix.analysis == 'codeql'
+      uses: github/codeql-action/init@v3
+      with:
+        languages: 'java-kotlin,javascript-typescript'
+        config-file: ./.github/codeql/codeql-config.yml
+        queries: +security-and-quality,security-experimental
+
+    - name: Build for CodeQL
+      if: matrix.analysis == 'codeql'
+      run: |
+        # Backend build
+        cd backend && ./gradlew build -x test --no-daemon
+        cd ..
+        # Frontend build  
+        cd frontend && npm ci && npm run build
+        
+    - name: Perform CodeQL Analysis
+      if: matrix.analysis == 'codeql'
+      uses: github/codeql-action/analyze@v3
+      with:
+        upload: true
+
+    - name: Semgrep SAST Scan
+      if: matrix.analysis == 'semgrep'
+      uses: semgrep/semgrep-action@v1
+      with:
+        config: >-
+          p/security-audit
+          p/owasp-top-ten
+          p/cwe-top-25
+          p/react
+          p/typescript
+          p/kotlin
+        generate-sarif-file: true
+        sarif-file: semgrep-results.sarif
+
+    - name: Upload Semgrep results
+      if: matrix.analysis == 'semgrep'
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: semgrep-results.sarif
+        category: 'semgrep-sast'
+
+    - name: SonarCloud Scan
+      if: matrix.analysis == 'sonar' && (env.SCAN_LEVEL == 'comprehensive' || env.SCAN_LEVEL == 'deep')
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  # Dependency security analysis
+  dependency-security:
+    name: Dependency Security Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: GitHub Dependency Review
+      uses: actions/dependency-review-action@v4
+      with:
+        fail-on-severity: high
+        fail-on-scopes: runtime
+        comment-summary-in-pr: true
+
+    - name: Setup Node.js for Frontend deps
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Frontend dependency audit
+      run: |
+        cd frontend
+        npm ci
+        npm audit --audit-level=high --production
+        # Generate detailed report
+        npm audit --json > ../frontend-audit.json || true
+
+    - name: Setup Java for Backend deps
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Backend dependency audit
+      run: |
+        cd backend
+        ./gradlew build --no-daemon
+        # Generate dependency report
+        ./gradlew dependencyCheckAnalyze || true
+
+    - name: OWASP Dependency Check
+      if: env.SCAN_LEVEL == 'comprehensive' || env.SCAN_LEVEL == 'deep'
+      uses: dependency-check/Dependency-Check_Action@main
+      with:
+        project: 'Nos Ilha'
+        path: '.'
+        format: 'SARIF'
+        out: 'dependency-check-reports'
+        
+    - name: Upload OWASP Dependency Check results
+      if: env.SCAN_LEVEL == 'comprehensive' || env.SCAN_LEVEL == 'deep'
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: dependency-check-reports/dependency-check-report.sarif
+
+  # Configuration security analysis
+  config-security:
+    name: Configuration Security Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Terraform Security Scan
+      if: hashFiles('infrastructure/terraform/**/*.tf') != ''
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'config'
+        scan-ref: 'infrastructure/terraform'
+        format: 'sarif'
+        output: 'trivy-terraform-config.sarif'
+
+    - name: Kubernetes Security Scan
+      if: hashFiles('infrastructure/k8s/**/*.yaml') != ''
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'config'
+        scan-ref: 'infrastructure/k8s'
+        format: 'sarif'
+        output: 'trivy-k8s-config.sarif'
+
+    - name: Docker Security Scan
+      run: |
+        find . -name "Dockerfile*" -type f | while read dockerfile; do
+          echo "🐳 Scanning $dockerfile"
+          trivy config --format sarif --output "trivy-docker-$(basename $(dirname $dockerfile)).sarif" "$dockerfile"
+        done
+
+    - name: Upload configuration scan results
+      if: always()
+      run: |
+        for sarif_file in trivy-*-config.sarif trivy-docker-*.sarif; do
+          if [ -f "$sarif_file" ]; then
+            echo "Uploading $sarif_file"
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              /repos/${{ github.repository }}/code-scanning/sarifs \
+              -f "sarif=@$sarif_file" \
+              -f "commit_sha=${{ github.sha }}" \
+              -f "ref=${{ github.ref }}"
+          fi
+        done
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Security reporting and summary
+  security-summary:
+    name: Security Summary Report
+    runs-on: ubuntu-latest
+    needs: [vulnerability-scan, advanced-sast, dependency-security, config-security]
+    if: always()
+    
+    steps:
+    - name: Generate Security Summary
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const jobResults = {
+            'Vulnerability Scan': '${{ needs.vulnerability-scan.result }}',
+            'Advanced SAST': '${{ needs.advanced-sast.result }}',
+            'Dependency Security': '${{ needs.dependency-security.result }}',
+            'Config Security': '${{ needs.config-security.result }}'
+          };
+          
+          let summary = '## 🛡️ Advanced Security Analysis Summary\n\n';
+          summary += `**Scan Level**: ${process.env.SCAN_LEVEL || 'standard'}\n`;
+          summary += `**Trigger**: ${context.eventName}\n`;
+          summary += `**Branch**: ${context.ref}\n`;
+          summary += `**Commit**: ${context.sha.substring(0, 8)}\n\n`;
+          
+          summary += '### 🔍 Analysis Results\n';
+          summary += '| Analysis Type | Status | Details |\n';
+          summary += '|---------------|--------|---------|\n';
+          
+          let hasFailures = false;
+          let allSuccess = true;
+          
+          for (const [analysis, result] of Object.entries(jobResults)) {
+            const icon = result === 'success' ? '✅' : result === 'failure' ? '❌' : '⏭️';
+            const detailsLink = result === 'failure' ? '[View Details](https://github.com/${{ github.repository }}/security)' : '-';
+            summary += `| ${analysis} | ${icon} ${result} | ${detailsLink} |\n`;
+            
+            if (result === 'failure') {
+              hasFailures = true;
+              allSuccess = false;
+            } else if (result !== 'success') {
+              allSuccess = false;
+            }
+          }
+          
+          summary += '\n### 📊 Security Dashboard\n';
+          summary += '- [Security Overview](https://github.com/${{ github.repository }}/security)\n';
+          summary += '- [Code Scanning Alerts](https://github.com/${{ github.repository }}/security/code-scanning)\n';
+          summary += '- [Secret Scanning Alerts](https://github.com/${{ github.repository }}/security/secret-scanning)\n';
+          summary += '- [Dependency Alerts](https://github.com/${{ github.repository }}/security/dependabot)\n\n';
+          
+          if (allSuccess) {
+            summary += '### ✅ Security Status: SECURE\n';
+            summary += 'All security analysis passed successfully. No immediate security concerns detected.\n';
+          } else if (hasFailures) {
+            summary += '### ⚠️ Security Status: REQUIRES ATTENTION\n';
+            summary += 'Some security analysis detected issues that require review and remediation.\n';
+            summary += '\n**Recommended Actions:**\n';
+            summary += '1. Review security alerts in the [Security tab](https://github.com/${{ github.repository }}/security)\n';
+            summary += '2. Address high and critical severity findings\n';
+            summary += '3. Update dependencies with known vulnerabilities\n';
+            summary += '4. Review and fix configuration issues\n';
+          } else {
+            summary += '### ⏳ Security Status: IN PROGRESS\n';
+            summary += 'Security analysis is still running or was skipped.\n';
+          }
+          
+          summary += '\n---\n';
+          summary += `*Report generated: ${new Date().toISOString()}*\n`;
+          summary += `*Scan ID: ${context.runId}*`;
+          
+          // Output to job summary
+          core.summary.addRaw(summary).write();
+          
+          // Comment on PR if applicable
+          if (context.eventName === 'pull_request') {
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            const existingComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('🛡️ Advanced Security Analysis Summary')
+            );
+            
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: summary
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: summary
+              });
+            }
+          }

@@ -1,0 +1,228 @@
+name: "CodeQL Security Analysis"
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly on Monday at 2 AM UTC
+  workflow_dispatch:
+
+env:
+  # Fail the workflow if CodeQL finds any alerts
+  CODEQL_FAIL_ON_ERROR: true
+
+jobs:
+  analyze:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'java-kotlin', 'javascript-typescript' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 2
+
+    # Initialize CodeQL with enhanced configuration
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        # Use custom queries for enhanced security scanning
+        queries: +security-and-quality,security-experimental
+        # Custom query packs for specific vulnerabilities
+        packs: |
+          codeql/${{ matrix.language }}-queries:AlertSuppression.ql
+          codeql/${{ matrix.language }}-queries:Security/
+        config-file: ./.github/codeql/codeql-config.yml
+
+    # Setup build environment based on language
+    - name: Setup Java for Backend
+      if: matrix.language == 'java-kotlin'
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+
+    - name: Setup Node.js for Frontend
+      if: matrix.language == 'javascript-typescript'
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+
+    # Custom build steps for better analysis coverage
+    - name: Build Backend (Kotlin/Java)
+      if: matrix.language == 'java-kotlin'
+      run: |
+        cd backend
+        ./gradlew clean build -x test --no-daemon
+        # Generate additional metadata for analysis
+        ./gradlew ktlintCheck detekt --continue
+
+    - name: Build Frontend (TypeScript/JavaScript)
+      if: matrix.language == 'javascript-typescript'
+      run: |
+        cd frontend
+        npm ci
+        # Build with type checking for better analysis
+        npx tsc --noEmit
+        npm run build
+      env:
+        NODE_ENV: production
+        NEXT_PUBLIC_API_URL: http://localhost:8080/api/v1
+
+    # Perform CodeQL Analysis
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
+        # Upload SARIF results even if there are findings
+        upload: true
+        # Add additional debugging
+        debug: true
+
+    # Custom post-analysis steps
+    - name: Process CodeQL Results
+      if: always()
+      run: |
+        echo "CodeQL analysis completed for ${{ matrix.language }}"
+        # Check if SARIF file was generated
+        if [ -f "${{ runner.workspace }}/results/codeql-${{ matrix.language }}.sarif" ]; then
+          echo "SARIF file generated successfully"
+          # Count findings (optional)
+          jq '.runs[0].results | length' "${{ runner.workspace }}/results/codeql-${{ matrix.language }}.sarif" || echo "Could not count findings"
+        else
+          echo "No SARIF file found"
+        fi
+
+  # Aggregate results and create summary
+  analysis-summary:
+    name: Analysis Summary
+    runs-on: ubuntu-latest
+    needs: analyze
+    if: always()
+    steps:
+    - name: Generate Security Analysis Summary
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const results = {
+            'Java/Kotlin Analysis': '${{ needs.analyze.outputs.java-kotlin-result }}',
+            'JavaScript/TypeScript Analysis': '${{ needs.analyze.outputs.javascript-typescript-result }}'
+          };
+          
+          let summary = '## 🔒 Security Analysis Summary\n\n';
+          summary += '| Language | Status |\n';
+          summary += '|----------|--------|\n';
+          
+          for (const [lang, result] of Object.entries(results)) {
+            const icon = result === 'success' ? '✅' : result === 'failure' ? '❌' : '⏭️';
+            summary += `| ${lang} | ${icon} ${result || 'skipped'} |\n`;
+          }
+          
+          summary += '\n### 📊 Analysis Details\n';
+          summary += '- **CodeQL Queries**: Security + Quality + Experimental\n';
+          summary += '- **Languages Analyzed**: Java/Kotlin (Backend), TypeScript/JavaScript (Frontend)\n';
+          summary += '- **Build Coverage**: Full application build with dependencies\n';
+          summary += '- **Custom Rules**: Enhanced security patterns enabled\n\n';
+          
+          if ('${{ needs.analyze.result }}' === 'failure') {
+            summary += '⚠️ **Action Required**: Security findings detected. Please review the [Security tab](https://github.com/${{ github.repository }}/security/code-scanning) for details.\n';
+          } else {
+            summary += '✅ **Status**: No security issues detected in this analysis.\n';
+          }
+          
+          summary += '\n---\n';
+          summary += `*Analysis completed at: ${new Date().toISOString()}*`;
+          
+          // Post as comment on PR if it's a PR
+          if (context.eventName === 'pull_request') {
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+          }
+          
+          // Always output to job summary
+          core.summary.addRaw(summary).write();
+
+  # Security hardening validation
+  security-hardening-check:
+    name: Security Hardening Validation
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Check Security Configuration Files
+      run: |
+        echo "🔍 Validating security configuration..."
+        
+        # Check for required security files
+        files=(
+          ".github/SECURITY.md"
+          ".github/dependabot.yml"
+          "backend/src/main/kotlin/com/nosilha/core/config/SecurityConfig.kt"
+          "frontend/src/lib/api.ts"
+        )
+        
+        for file in "${files[@]}"; do
+          if [ -f "$file" ]; then
+            echo "✅ Found: $file"
+          else
+            echo "❌ Missing: $file"
+            exit 1
+          fi
+        done
+        
+        echo "✅ All security configuration files present"
+
+    - name: Validate Security Headers
+      run: |
+        echo "🔍 Checking security headers configuration..."
+        
+        # Check if security headers are configured in backend
+        if grep -r "CORS\|SecurityConfig\|JWT" backend/src/main/kotlin/; then
+          echo "✅ Security configuration found in backend"
+        else
+          echo "❌ Security configuration missing in backend"
+          exit 1
+        fi
+        
+        # Check if authentication is configured in frontend
+        if grep -r "auth\|jwt\|token" frontend/src/lib/; then
+          echo "✅ Authentication configuration found in frontend"
+        else
+          echo "❌ Authentication configuration missing in frontend"
+          exit 1
+        fi
+        
+        echo "✅ Security headers validation completed"
+
+    - name: Check Dependency Security
+      run: |
+        echo "🔍 Validating dependency security configuration..."
+        
+        # Check if security scanning is enabled in workflows
+        if grep -r "trivy\|codeql\|security" .github/workflows/; then
+          echo "✅ Security scanning enabled in CI/CD"
+        else
+          echo "❌ Security scanning not found in CI/CD"
+          exit 1
+        fi
+        
+        echo "✅ Dependency security validation completed"
