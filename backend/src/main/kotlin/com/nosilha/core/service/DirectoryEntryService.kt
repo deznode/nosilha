@@ -61,7 +61,7 @@ class DirectoryEntryService(
       this.imageUrl = request.imageUrl
       // Generate a simple, URL-friendly slug
       this.slug = request.name.lowercase()
-        .replace(Regex("\s+"), "-") // Replace spaces with hyphens
+        .replace(Regex("\\s+"), "-") // Replace spaces with hyphens
         .replace(Regex("[^a-z0-9-]$"), "") // Remove non-alphanumeric characters (except hyphens)
     }
 
