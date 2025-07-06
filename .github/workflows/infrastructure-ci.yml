@@ -21,7 +21,7 @@ on:
   workflow_dispatch:
 
 env:
-  TF_VERSION: "1.6.0"
+  TF_VERSION: "1.12.2"
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
 
 jobs:
