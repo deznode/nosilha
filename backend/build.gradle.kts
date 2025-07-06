@@ -1,3 +1,5 @@
+import io.gitlab.arturbosch.detekt.Detekt
+import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 
 plugins {
@@ -82,4 +84,19 @@ configurations.all {
 			useVersion(io.gitlab.arturbosch.detekt.getSupportedKotlinVersion())
 		}
 	}
+}
+
+detekt {
+	buildUponDefaultConfig = true // preconfigure defaults
+}
+
+tasks.withType<Detekt>().configureEach {
+	jvmTarget = "1.8"
+	reports {
+		sarif.required.set(true)
+		md.required.set(true)
+	}
+}
+tasks.withType<DetektCreateBaselineTask>().configureEach {
+	jvmTarget = "1.8"
 }
