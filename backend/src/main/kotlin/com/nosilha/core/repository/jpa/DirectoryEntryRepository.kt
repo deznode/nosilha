@@ -14,28 +14,27 @@ import java.util.UUID
  */
 @Repository
 interface DirectoryEntryRepository : JpaRepository<DirectoryEntry, UUID> {
+    /**
+     * Finds all DirectoryEntry instances that match the given category.
+     *
+     * This query leverages the discriminator column (`category`) from the
+     * SINGLE_TABLE inheritance strategy. For example, calling this method with
+     * the string "Restaurant" will return a list of objects that are instances
+     * of the Restaurant subclass.
+     *
+     * @param category The category name to filter by (e.g., "Restaurant", "Hotel").
+     * @return A list of DirectoryEntry entities matching the specified category.
+     */
+    fun findByCategoryIgnoreCase(category: String): List<DirectoryEntry>
 
-  /**
-   * Finds all DirectoryEntry instances that match the given category.
-   *
-   * This query leverages the discriminator column (`category`) from the
-   * SINGLE_TABLE inheritance strategy. For example, calling this method with
-   * the string "Restaurant" will return a list of objects that are instances
-   * of the Restaurant subclass.
-   *
-   * @param category The category name to filter by (e.g., "Restaurant", "Hotel").
-   * @return A list of DirectoryEntry entities matching the specified category.
-   */
-  fun findByCategoryIgnoreCase(category: String): List<DirectoryEntry>
-
-  /**
-   * Finds a single DirectoryEntry by its unique slug.
-   *
-   * Since slugs are unique across all directory entries, this method will
-   * return at most one entry matching the given slug.
-   *
-   * @param slug The unique slug to search for.
-   * @return An Optional containing the DirectoryEntry if found, empty otherwise.
-   */
-  fun findBySlug(slug: String): DirectoryEntry?
+    /**
+     * Finds a single DirectoryEntry by its unique slug.
+     *
+     * Since slugs are unique across all directory entries, this method will
+     * return at most one entry matching the given slug.
+     *
+     * @param slug The unique slug to search for.
+     * @return An Optional containing the DirectoryEntry if found, empty otherwise.
+     */
+    fun findBySlug(slug: String): DirectoryEntry?
 }

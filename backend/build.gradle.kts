@@ -1,5 +1,5 @@
-// import io.gitlab.arturbosch.detekt.Detekt
-// import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
+import io.gitlab.arturbosch.detekt.Detekt
+import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 
 plugins {
@@ -8,7 +8,9 @@ plugins {
     id("org.springframework.boot") version "3.4.7"
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "1.9.25"
-// 	id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    jacoco
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
 }
 
 group = "com.nosilha"
@@ -29,7 +31,7 @@ extra["testcontainersVersion"] = "1.21.3"
 
 dependencies {
 
-// 	detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -81,25 +83,71 @@ tasks.getByName<BootBuildImage>("bootBuildImage") {
     imageName.set("us-east1-docker.pkg.dev/nosilha/nosilha-backend/nosilha-core-api:${project.version}")
 }
 
-// configurations.all {
-// 	resolutionStrategy.eachDependency {
-// 		if (requested.group == "org.jetbrains.kotlin") {
-// 			useVersion(io.gitlab.arturbosch.detekt.getSupportedKotlinVersion())
-// 		}
-// 	}
-// }
-//
-// detekt {
-// 	buildUponDefaultConfig = true // preconfigure defaults
-// }
-//
-// tasks.withType<Detekt>().configureEach {
-// 	jvmTarget = "1.8"
-// 	reports {
-// 		sarif.required.set(true)
-// 		md.required.set(true)
-// 	}
-// }
-// tasks.withType<DetektCreateBaselineTask>().configureEach {
-// 	jvmTarget = "1.8"
-// }
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
+    finalizedBy(tasks.jacocoTestCoverageVerification)
+}
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.jacocoTestReport)
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.05".toBigDecimal()
+            }
+        }
+    }
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.jetbrains.kotlin") {
+            useVersion(io.gitlab.arturbosch.detekt.getSupportedKotlinVersion())
+        }
+    }
+}
+
+detekt {
+    buildUponDefaultConfig = true // preconfigure defaults
+    baseline = file("detekt-baseline.xml")
+    config.setFrom(file("detekt.yml"))
+}
+
+ktlint {
+    version.set("1.0.1")
+    android.set(false)
+    ignoreFailures.set(true) // Allow build to continue for now
+    reporters {
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.SARIF)
+    }
+}
+
+tasks.withType<Detekt>().configureEach {
+    jvmTarget = "21"
+    reports {
+        sarif.required.set(true)
+        md.required.set(true)
+    }
+}
+tasks.withType<DetektCreateBaselineTask>().configureEach {
+    jvmTarget = "21"
+}
+
+// Configure task dependencies
+tasks.named("detekt").configure {
+    dependsOn("ktlintCheck")
+}
+
+tasks.named("check").configure {
+    dependsOn("ktlintCheck")
+}

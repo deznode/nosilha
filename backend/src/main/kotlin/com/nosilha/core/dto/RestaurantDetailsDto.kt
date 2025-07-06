@@ -8,7 +8,7 @@ package com.nosilha.core.dto
  * @param cuisine A list of cuisine types offered (e.g., ["Cape Verdean", "Seafood"]).
  */
 data class RestaurantDetailsDto(
-  val phoneNumber: String,
-  val openingHours: String,
-  val cuisine: List<String>
+    val phoneNumber: String,
+    val openingHours: String,
+    val cuisine: List<String>,
 ) : DetailsDto

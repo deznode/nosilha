@@ -15,22 +15,22 @@ import java.util.*
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "category")
 @JsonSubTypes(
-  JsonSubTypes.Type(value = RestaurantDto::class, name = "Restaurant"),
-  JsonSubTypes.Type(value = HotelDto::class, name = "Hotel"),
-  JsonSubTypes.Type(value = BeachDto::class, name = "Beach"),
-  JsonSubTypes.Type(value = LandmarkDto::class, name = "Landmark")
+    JsonSubTypes.Type(value = RestaurantDto::class, name = "Restaurant"),
+    JsonSubTypes.Type(value = HotelDto::class, name = "Hotel"),
+    JsonSubTypes.Type(value = BeachDto::class, name = "Beach"),
+    JsonSubTypes.Type(value = LandmarkDto::class, name = "Landmark"),
 )
 abstract class DirectoryEntryDto {
-  abstract val id: UUID
-  abstract val name: String
-  abstract val slug: String
-  abstract val description: String
-  abstract val town: String
-  abstract val latitude: Double
-  abstract val longitude: Double
-  abstract val imageUrl: String?
-  abstract val rating: Double?
-  abstract val reviewCount: Int
+    abstract val id: UUID
+    abstract val name: String
+    abstract val slug: String
+    abstract val description: String
+    abstract val town: String
+    abstract val latitude: Double
+    abstract val longitude: Double
+    abstract val imageUrl: String?
+    abstract val rating: Double?
+    abstract val reviewCount: Int
 }
 
 /**
@@ -38,17 +38,17 @@ abstract class DirectoryEntryDto {
  */
 @JsonTypeName("Restaurant")
 data class RestaurantDto(
-  override val id: UUID,
-  override val name: String,
-  override val slug: String,
-  override val description: String,
-  override val town: String,
-  override val latitude: Double,
-  override val longitude: Double,
-  override val imageUrl: String?,
-  override val rating: Double?,
-  override val reviewCount: Int,
-  val details: RestaurantDetailsDto,
+    override val id: UUID,
+    override val name: String,
+    override val slug: String,
+    override val description: String,
+    override val town: String,
+    override val latitude: Double,
+    override val longitude: Double,
+    override val imageUrl: String?,
+    override val rating: Double?,
+    override val reviewCount: Int,
+    val details: RestaurantDetailsDto,
 ) : DirectoryEntryDto()
 
 /**
@@ -56,17 +56,17 @@ data class RestaurantDto(
  */
 @JsonTypeName("Hotel")
 data class HotelDto(
-  override val id: UUID,
-  override val name: String,
-  override val slug: String,
-  override val description: String,
-  override val town: String,
-  override val latitude: Double,
-  override val longitude: Double,
-  override val imageUrl: String?,
-  override val rating: Double?,
-  override val reviewCount: Int,
-  val details: HotelDetailsDto
+    override val id: UUID,
+    override val name: String,
+    override val slug: String,
+    override val description: String,
+    override val town: String,
+    override val latitude: Double,
+    override val longitude: Double,
+    override val imageUrl: String?,
+    override val rating: Double?,
+    override val reviewCount: Int,
+    val details: HotelDetailsDto,
 ) : DirectoryEntryDto()
 
 /**
@@ -74,17 +74,17 @@ data class HotelDto(
  */
 @JsonTypeName("Beach")
 data class BeachDto(
-  override val id: UUID,
-  override val name: String,
-  override val slug: String,
-  override val description: String,
-  override val town: String,
-  override val latitude: Double,
-  override val longitude: Double,
-  override val imageUrl: String?,
-  override val rating: Double?,
-  override val reviewCount: Int,
-  val details: DetailsDto? = null
+    override val id: UUID,
+    override val name: String,
+    override val slug: String,
+    override val description: String,
+    override val town: String,
+    override val latitude: Double,
+    override val longitude: Double,
+    override val imageUrl: String?,
+    override val rating: Double?,
+    override val reviewCount: Int,
+    val details: DetailsDto? = null,
 ) : DirectoryEntryDto()
 
 /**
@@ -92,15 +92,15 @@ data class BeachDto(
  */
 @JsonTypeName("Landmark")
 data class LandmarkDto(
-  override val id: UUID,
-  override val name: String,
-  override val slug: String,
-  override val description: String,
-  override val town: String,
-  override val latitude: Double,
-  override val longitude: Double,
-  override val imageUrl: String?,
-  override val rating: Double?,
-  override val reviewCount: Int,
-  val details: DetailsDto? = null
+    override val id: UUID,
+    override val name: String,
+    override val slug: String,
+    override val description: String,
+    override val town: String,
+    override val latitude: Double,
+    override val longitude: Double,
+    override val imageUrl: String?,
+    override val rating: Double?,
+    override val reviewCount: Int,
+    val details: DetailsDto? = null,
 ) : DirectoryEntryDto()
