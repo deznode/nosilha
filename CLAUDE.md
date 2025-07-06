@@ -142,6 +142,7 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - **Infrastructure CI/CD** (`.github/workflows/infrastructure-ci.yml`) - Terraform infrastructure management
 - **PR Validation** (`.github/workflows/pr-validation.yml`) - Consolidated PR validation and reporting
 - **Integration Tests** (`.github/workflows/integration-ci.yml`) - Cross-service integration and E2E testing
+- **CodeQL Analysis** (`.github/workflows/codeql.yml`) - GitHub Advanced Security code scanning
 
 ### Key Features
 - **Path-based Triggering**: Workflows only run when relevant files change
@@ -157,7 +158,11 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - **SARIF Integration**: Security findings uploaded to GitHub Security tab (when Advanced Security is enabled)
 - **Graceful Degradation**: Workflows continue even if SARIF upload fails (e.g., repositories without Advanced Security)
 - **Dependency Review**: Automated dependency vulnerability and license checking
-- **CodeQL Analysis**: GitHub's semantic code analysis for security issues
+- **CodeQL Analysis**: Integrated into PR validation and scheduled scans for Kotlin and TypeScript
+  - **PR Integration**: Security scanning on every pull request (continues on error if Advanced Security unavailable)
+  - **Scheduled Scans**: Weekly security analysis on main branch
+  - **Language Support**: Java/Kotlin (backend) and JavaScript/TypeScript (frontend)
+- **Advanced Security Ready**: CodeQL workflows configured for when Advanced Security is enabled
 
 ### Testing Strategy
 - **Backend**: JUnit tests with PostgreSQL integration, Jacoco coverage reporting
@@ -199,3 +204,6 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - `infrastructure/docker/docker-compose.yml` - Local development environment
 - `infrastructure/terraform/cloudrun.tf` - Cloud Run deployment configuration
 - `infrastructure/terraform/main.tf` - Core GCP infrastructure (GCS, Artifact Registry)
+- `.github/workflows/codeql.yml` - GitHub Advanced Security code scanning (requires license)
+- `.github/codeql/codeql-config.yml` - CodeQL configuration for security analysis (requires Advanced Security)
+- `SECURITY.md` - Security policy and vulnerability reporting procedures

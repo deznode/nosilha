@@ -99,28 +99,53 @@ jobs:
           fail-on-severity: high
           allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
 
-  # Code quality analysis
-  code-quality:
-    name: Code Quality Analysis
+  # CodeQL analysis for security scanning (requires Advanced Security for private repos)
+  codeql-analysis:
+    name: CodeQL Analysis
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true  # Don't fail the entire PR if CodeQL fails due to licensing
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript', 'java' ]
+        # Use 'java' for Kotlin and 'javascript' for TypeScript
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21 (for Kotlin backend)
+        if: matrix.language == 'java'
+        uses: actions/setup-java@v4
         with:
-          fetch-depth: 0
-          
-      - name: Run CodeQL Analysis
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Set up Node.js (for TypeScript frontend)
+        if: matrix.language == 'javascript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'frontend/package-lock.json'
+
+      - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: typescript, kotlin
-        continue-on-error: true
-          
+          languages: ${{ matrix.language }}
+          config-file: ./.github/codeql/codeql-config.yml
+
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
-        continue-on-error: true
-        
+
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
-        continue-on-error: true
+        with:
+          category: "/language:${{matrix.language}}"
 
   # Comprehensive PR status reporting
   pr-status-report:
@@ -133,7 +158,7 @@ jobs:
       infrastructure-validation,
       global-security-scan,
       dependency-review,
-      code-quality
+      codeql-analysis
     ]
     if: always() && github.event_name == 'pull_request'
     
@@ -148,7 +173,7 @@ jobs:
               'Infrastructure Validation': '${{ needs.infrastructure-validation.result }}',
               'Global Security Scan': '${{ needs.global-security-scan.result }}',
               'Dependency Review': '${{ needs.dependency-review.result }}',
-              'Code Quality Analysis': '${{ needs.code-quality.result }}'
+              'CodeQL Analysis': '${{ needs.codeql-analysis.result }}'
             };
             
             const changes = {
@@ -180,13 +205,19 @@ jobs:
                 continue;
               }
               
+              // Special handling for CodeQL when Advanced Security isn't enabled
+              if (check === 'CodeQL Analysis' && result === 'failure') {
+                comment += `⚠️ **${check}**: Failed (likely requires GitHub Advanced Security - this is optional)\n`;
+                continue;
+              }
+              
               const icon = result === 'success' ? '✅' : '❌';
               comment += `${icon} **${check}**: ${result}\n`;
               
-              if (result === 'failure') {
+              if (result === 'failure' && check !== 'CodeQL Analysis') {
                 allPassed = false;
                 hasFailures = true;
-              } else if (result !== 'success') {
+              } else if (result !== 'success' && result !== 'failure') {
                 allPassed = false;
               }
             }
@@ -258,7 +289,7 @@ jobs:
       infrastructure-validation,
       global-security-scan,
       dependency-review,
-      code-quality
+      codeql-analysis
     ]
     if: |
       always() && 
