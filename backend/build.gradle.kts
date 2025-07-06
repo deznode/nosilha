@@ -6,6 +6,7 @@ plugins {
 	id("org.springframework.boot") version "3.4.7"
 	id("io.spring.dependency-management") version "1.1.7"
 	kotlin("plugin.jpa") version "1.9.25"
+	id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
 group = "com.nosilha"
@@ -24,6 +25,7 @@ repositories {
 extra["springCloudGcpVersion"] = "6.2.2"
 
 dependencies {
+	detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.springframework.boot:spring-boot-starter-web")
@@ -72,4 +74,12 @@ tasks.withType<Test> {
 
 tasks.getByName<BootBuildImage>("bootBuildImage") {
 	imageName.set("us-east1-docker.pkg.dev/nosilha/nosilha-backend/nosilha-core-api:${project.version}")
+}
+
+configurations.all {
+	resolutionStrategy.eachDependency {
+		if (requested.group == "org.jetbrains.kotlin") {
+			useVersion(io.gitlab.arturbosch.detekt.getSupportedKotlinVersion())
+		}
+	}
 }
