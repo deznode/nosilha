@@ -32,13 +32,13 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
                 rating = this.rating,
                 reviewCount = this.reviewCount,
                 details =
-                    RestaurantDetailsDto(
-                        phoneNumber = this.phoneNumber ?: "",
-                        openingHours = this.openingHours ?: "",
-                        cuisine =
-                            this.cuisine?.split(',')?.map { it.trim() }?.filter { it.isNotBlank() }
-                                ?: emptyList(),
-                    ),
+                RestaurantDetailsDto(
+                    phoneNumber = this.phoneNumber ?: "",
+                    openingHours = this.openingHours ?: "",
+                    cuisine =
+                    this.cuisine?.split(',')?.map { it.trim() }?.filter { it.isNotBlank() }
+                        ?: emptyList(),
+                ),
             )
 
         is Hotel ->
@@ -54,11 +54,11 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
                 rating = this.rating,
                 reviewCount = this.reviewCount,
                 details =
-                    HotelDetailsDto(
-                        amenities =
-                            this.amenities?.split(',')?.map { it.trim() }?.filter { it.isNotBlank() }
-                                ?: emptyList(),
-                    ),
+                HotelDetailsDto(
+                    amenities =
+                    this.amenities?.split(',')?.map { it.trim() }?.filter { it.isNotBlank() }
+                        ?: emptyList(),
+                ),
             )
 
         is Beach ->
