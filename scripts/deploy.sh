@@ -56,7 +56,7 @@ deploy_backend() {
     CPU="1"
     MIN_INSTANCES="0"
     MAX_INSTANCES="10"
-    SPRING_PROFILE="prod"
+    SPRING_PROFILE="production"
     
     # Deploy to Cloud Run
     gcloud run deploy "$SERVICE_NAME" \
