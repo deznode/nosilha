@@ -56,7 +56,7 @@ deploy_backend() {
     CPU="1"
     MIN_INSTANCES="0"
     MAX_INSTANCES="10"
-    SPRING_PROFILE="production"
+    SPRING_PROFILE="prod"
     
     # Deploy to Cloud Run
     gcloud run deploy "$SERVICE_NAME" \
@@ -231,7 +231,7 @@ show_help() {
     echo ""
     echo "Environment Variables:"
     echo "  GCP_PROJECT_ID      Google Cloud project ID (required)"
-    echo "  GCP_REGION          Google Cloud region [default: europe-west1]"
+    echo "  GCP_REGION          Google Cloud region [default: us-east1]"
     echo "  REGISTRY            Container registry [default: gcr.io]"
     echo "  STAGING_API_URL     API URL for staging environment"
     echo "  PRODUCTION_API_URL  API URL for production environment"
