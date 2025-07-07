@@ -95,21 +95,6 @@ jobs:
       run:
         working-directory: ./backend
     
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: test
-          POSTGRES_USER: test
-          POSTGRES_DB: nosilha_test
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
     steps:
       - uses: actions/checkout@v4
       
@@ -228,10 +213,10 @@ jobs:
             --region=${{ env.REGION }} \
             --allow-unauthenticated \
             --set-env-vars="SPRING_PROFILES_ACTIVE=production" \
-            --memory=2Gi \
-            --cpu=2 \
+            --memory=1Gi \
+            --cpu=1 \
             --min-instances=1 \
-            --max-instances=100 \
+            --max-instances=5 \
             --timeout=300
             
       - name: Health Check
