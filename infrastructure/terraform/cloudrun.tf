@@ -86,7 +86,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
       # Secrets are sourced securely from Secret Manager.
       env {
         name  = "SPRING_PROFILES_ACTIVE"
-        value = "prod"
+        value = "production"
       }
 
       # Provides the application with the GCP Project ID for Spring Cloud GCP auto-configuration.
