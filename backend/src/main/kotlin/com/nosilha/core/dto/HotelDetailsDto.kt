@@ -6,5 +6,5 @@ package com.nosilha.core.dto
  * @param amenities A list of amenities offered (e.g., ["Wi-Fi", "Pool"]).
  */
 data class HotelDetailsDto(
-  val amenities: List<String>
+    val amenities: List<String>,
 ) : DetailsDto

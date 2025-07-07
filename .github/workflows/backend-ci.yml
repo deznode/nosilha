@@ -42,7 +42,7 @@ jobs:
           fetch-depth: 0
           
       - name: Run Trivy vulnerability scanner on backend
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: 'fs'
           scan-ref: './backend'
@@ -50,11 +50,12 @@ jobs:
           output: 'trivy-backend-results.sarif'
           
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: 'trivy-backend-results.sarif'
           category: 'backend-trivy'
+        continue-on-error: true
 
   lint:
     name: Code Quality & Linting
@@ -73,18 +74,19 @@ jobs:
           distribution: 'temurin'
           
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         
-      - name: Run Kotlin lint (detekt)
+      - name: Run Kotlin lint and formatting (detekt)
         run: ./gradlew detekt
         continue-on-error: true
         
       - name: Upload detekt results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
           sarif_file: backend/build/reports/detekt/detekt.sarif
           category: 'backend-detekt'
+        continue-on-error: true
 
   test:
     name: Tests & Coverage
@@ -93,21 +95,6 @@ jobs:
       run:
         working-directory: ./backend
     
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: test
-          POSTGRES_USER: test
-          POSTGRES_DB: nosilha_test
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
     steps:
       - uses: actions/checkout@v4
       
@@ -118,15 +105,12 @@ jobs:
           distribution: 'temurin'
           
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         
       - name: Run tests with coverage
         run: ./gradlew test jacocoTestReport
         env:
           SPRING_PROFILES_ACTIVE: test
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/nosilha_test
-          SPRING_DATASOURCE_USERNAME: test
-          SPRING_DATASOURCE_PASSWORD: test
           
       - name: Generate test report
         uses: dorny/test-reporter@v1
@@ -137,7 +121,7 @@ jobs:
           reporter: java-junit
           
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: backend/build/reports/jacoco/test/jacocoTestReport.xml
           flags: backend
@@ -165,7 +149,7 @@ jobs:
           distribution: 'temurin'
           
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -229,10 +213,10 @@ jobs:
             --region=${{ env.REGION }} \
             --allow-unauthenticated \
             --set-env-vars="SPRING_PROFILES_ACTIVE=production" \
-            --memory=2Gi \
-            --cpu=2 \
+            --memory=1Gi \
+            --cpu=1 \
             --min-instances=1 \
-            --max-instances=100 \
+            --max-instances=5 \
             --timeout=300
             
       - name: Health Check

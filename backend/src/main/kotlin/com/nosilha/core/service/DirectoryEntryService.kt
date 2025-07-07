@@ -23,93 +23,96 @@ import java.util.*
  */
 @Service
 class DirectoryEntryService(
-  private val repository: DirectoryEntryRepository
+    private val repository: DirectoryEntryRepository,
 ) {
+    /**
+     * Creates a new directory entry based on the provided request data.
+     *
+     * @param request The DTO containing all necessary data for the new entry.
+     * @return The DTO of the newly created and saved entry.
+     * @throws IllegalArgumentException if the category in the request is invalid.
+     */
+    @Transactional
+    fun createEntry(request: CreateEntryRequestDto): DirectoryEntryDto {
+        val newEntry =
+            when (request.category) {
+                "Restaurant" ->
+                    Restaurant().apply {
+                        this.phoneNumber = request.phoneNumber
+                        this.openingHours = request.openingHours
+                        this.cuisine = request.cuisine
+                    }
 
-  /**
-   * Creates a new directory entry based on the provided request data.
-   *
-   * @param request The DTO containing all necessary data for the new entry.
-   * @return The DTO of the newly created and saved entry.
-   * @throws IllegalArgumentException if the category in the request is invalid.
-   */
-  @Transactional
-  fun createEntry(request: CreateEntryRequestDto): DirectoryEntryDto {
-    val newEntry = when (request.category) {
-      "Restaurant" -> Restaurant().apply {
-        this.phoneNumber = request.phoneNumber
-        this.openingHours = request.openingHours
-        this.cuisine = request.cuisine
-      }
+                "Hotel" ->
+                    Hotel().apply {
+                        this.amenities = request.amenities
+                        this.phoneNumber = request.phoneNumber
+                    }
 
-      "Hotel" -> Hotel().apply {
-        this.amenities = request.amenities
-        this.phoneNumber = request.phoneNumber
-      }
+                "Beach" -> Beach()
+                "Landmark" -> Landmark()
+                else -> throw IllegalArgumentException("Invalid category provided: ${request.category}")
+            }
 
-      "Beach" -> Beach()
-      "Landmark" -> Landmark()
-      else -> throw IllegalArgumentException("Invalid category provided: ${request.category}")
+        newEntry.apply {
+            this.name = request.name
+            this.description = request.description
+            this.town = request.town
+            this.latitude = request.latitude
+            this.longitude = request.longitude
+            this.imageUrl = request.imageUrl
+            // Generate a simple, URL-friendly slug
+            this.slug =
+                request.name.lowercase()
+                    .replace(Regex("\\s+"), "-") // Replace spaces with hyphens
+                    .replace(Regex("[^a-z0-9-]$"), "") // Remove non-alphanumeric characters (except hyphens)
+        }
+
+        val savedEntry = repository.save(newEntry)
+        return savedEntry.toDto()
     }
 
-    newEntry.apply {
-      this.name = request.name
-      this.description = request.description
-      this.town = request.town
-      this.latitude = request.latitude
-      this.longitude = request.longitude
-      this.imageUrl = request.imageUrl
-      // Generate a simple, URL-friendly slug
-      this.slug = request.name.lowercase()
-        .replace(Regex("\s+"), "-") // Replace spaces with hyphens
-        .replace(Regex("[^a-z0-9-]$"), "") // Remove non-alphanumeric characters (except hyphens)
+    /**
+     * Retrieves all directory entries from the database and maps them to DTOs.
+     *
+     * @return A list of [DirectoryEntryDto] representing all entries.
+     */
+    fun getAllEntries(): List<DirectoryEntryDto> {
+        return repository.findAll().map { it.toDto() }
     }
 
-    val savedEntry = repository.save(newEntry)
-    return savedEntry.toDto()
-  }
+    /**
+     * Retrieves all directory entries of a specific category and maps them to DTOs.
+     *
+     * @param category The category to filter by (e.g., "Restaurant", "Hotel").
+     * @return A list of [DirectoryEntryDto] for the given category.
+     */
+    fun getEntriesByCategory(category: String): List<DirectoryEntryDto> {
+        return repository.findByCategoryIgnoreCase(category).map { it.toDto() }
+    }
 
-  /**
-   * Retrieves all directory entries from the database and maps them to DTOs.
-   *
-   * @return A list of [DirectoryEntryDto] representing all entries.
-   */
-  fun getAllEntries(): List<DirectoryEntryDto> {
-    return repository.findAll().map { it.toDto() }
-  }
+    /**
+     * Finds a single directory entry by its unique ID.
+     *
+     * @param id The UUID of the entry to find.
+     * @return The corresponding [DirectoryEntryDto].
+     * @throws ResourceNotFoundException if no entry with the given ID exists.
+     */
+    fun getEntryById(id: UUID): DirectoryEntryDto {
+        return repository.findById(id)
+            .map { it.toDto() }
+            .orElseThrow { ResourceNotFoundException("Directory entry with ID '$id' not found.") }
+    }
 
-  /**
-   * Retrieves all directory entries of a specific category and maps them to DTOs.
-   *
-   * @param category The category to filter by (e.g., "Restaurant", "Hotel").
-   * @return A list of [DirectoryEntryDto] for the given category.
-   */
-  fun getEntriesByCategory(category: String): List<DirectoryEntryDto> {
-    return repository.findByCategoryIgnoreCase(category).map { it.toDto() }
-  }
-
-  /**
-   * Finds a single directory entry by its unique ID.
-   *
-   * @param id The UUID of the entry to find.
-   * @return The corresponding [DirectoryEntryDto].
-   * @throws ResourceNotFoundException if no entry with the given ID exists.
-   */
-  fun getEntryById(id: UUID): DirectoryEntryDto {
-    return repository.findById(id)
-      .map { it.toDto() }
-      .orElseThrow { ResourceNotFoundException("Directory entry with ID '$id' not found.") }
-  }
-
-  /**
-   * Finds a single directory entry by its unique slug.
-   *
-   * @param slug The unique slug of the entry to find.
-   * @return The corresponding [DirectoryEntryDto].
-   * @throws ResourceNotFoundException if no entry with the given slug exists.
-   */
-  fun getEntryBySlug(slug: String): DirectoryEntryDto {
-    return repository.findBySlug(slug)?.toDto()
-      ?: throw ResourceNotFoundException("Directory entry with slug '$slug' not found.")
-  }
+    /**
+     * Finds a single directory entry by its unique slug.
+     *
+     * @param slug The unique slug of the entry to find.
+     * @return The corresponding [DirectoryEntryDto].
+     * @throws ResourceNotFoundException if no entry with the given slug exists.
+     */
+    fun getEntryBySlug(slug: String): DirectoryEntryDto {
+        return repository.findBySlug(slug)?.toDto()
+            ?: throw ResourceNotFoundException("Directory entry with slug '$slug' not found.")
+    }
 }

@@ -171,7 +171,7 @@ resource "google_cloud_run_v2_service_iam_member" "allow_public_access" {
 #
 resource "google_cloud_run_v2_service" "nosilha_frontend" {
   name                = "nosilha-frontend"
-  location            = var.gcp_region # Deploys to us-east1
+  location            = var.gcp_region
   deletion_protection = true
 
   template {
@@ -221,7 +221,3 @@ resource "google_cloud_run_v2_service_iam_member" "allow_frontend_public_access"
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
-
-
-
-

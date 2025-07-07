@@ -38,9 +38,9 @@ The CI/CD pipeline is built using GitHub Actions and supports:
 
 ## Workflows
 
-### 1. PR Validation (`.github/workflows/pr-checks.yml`)
+### 1. PR Validation (`.github/workflows/pr-validation.yml`)
 
-Runs on every pull request to `main` or `develop` branches.
+Runs on every pull request to `main` branch.
 
 **Quality Gates:**
 - **Security Scanning** - Trivy vulnerability scanner
@@ -50,6 +50,7 @@ Runs on every pull request to `main` or `develop` branches.
 - **Frontend Testing** - TypeScript checking and build validation
 - **Infrastructure Validation** - Terraform fmt, validate, and tfsec security scan
 - **Bundle Size Check** - Frontend bundle size analysis
+- **Dependency Review** - Automated dependency vulnerability checking
 
 **Features:**
 - Automated PR comments with validation results
@@ -57,7 +58,27 @@ Runs on every pull request to `main` or `develop` branches.
 - Test coverage reports via Codecov
 - Auto-merge for Dependabot PRs when all checks pass
 
-### 2. CI/CD Pipeline (`.github/workflows/ci-cd.yml`)
+### 2. CodeQL Analysis (`.github/workflows/codeql.yml`)
+
+**⚠️ Requires GitHub Advanced Security** - This workflow will fail if Advanced Security is not enabled
+
+**Features (when Advanced Security is enabled):**
+- **Multi-language Support** - Analyzes TypeScript and Kotlin/Java code
+- **Scheduled Scanning** - Weekly automated security scans
+- **Pull Request Analysis** - Security analysis on every PR
+- **Custom Configuration** - Tailored scanning rules and paths
+- **Security Query Packs** - Uses security-and-quality query pack
+
+**Requirements:**
+- **GitHub Advanced Security license** for private repositories
+- **Free for public repositories** - Advanced Security is available at no cost
+
+**Triggers:**
+- Push to `main` branch
+- Pull requests to `main` branch  
+- Weekly schedule (Monday 3:30 AM UTC)
+
+### 3. Service-Specific CI/CD Pipelines
 
 Runs on pushes to `main` and `develop` branches, plus manual workflow dispatch.
 
@@ -178,6 +199,20 @@ The backend exposes these endpoints for monitoring:
 
 ## Security Considerations
 
+### Security Features Available Without Advanced Security
+- **Trivy Scanner** - Container and dependency vulnerability scanning
+- **Static Analysis** - detekt (Kotlin), ESLint (TypeScript), tfsec (Terraform)
+- **Basic Dependency Review** - Automated dependency vulnerability checking
+- **SARIF Integration** - Security findings uploaded to GitHub Security tab (for compatible tools)
+
+### GitHub Advanced Security (Requires License for Private Repos)
+- **CodeQL Analysis** - Automated semantic code analysis for TypeScript and Kotlin
+- **Secret Scanning** - Detects accidentally committed secrets and credentials
+- **Advanced Dependency Review** - Enhanced vulnerability checking with more features
+- **Security Advisories** - Proactive notification of security issues
+
+**Note:** Advanced Security is free for public repositories but requires a paid license for private repositories.
+
 ### Image Security
 - **Trivy scanner** runs on all pull requests
 - **Minimal base images** (distroless for production)
@@ -192,6 +227,12 @@ The backend exposes these endpoints for monitoring:
 - **GitHub Secrets** for CI/CD configuration
 - **Google Secret Manager** for runtime secrets
 - **Environment variables** for non-sensitive configuration
+
+### Code Security
+- **SARIF Integration** - Security findings uploaded to GitHub Security tab
+- **Multiple Scanners** - Trivy, detekt, ESLint, tfsec for comprehensive coverage
+- **Automated Fixes** - Dependabot for dependency updates
+- **Security Policies** - Defined vulnerability response procedures
 
 ## Troubleshooting
 

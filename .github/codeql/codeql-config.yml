@@ -1,0 +1,37 @@
+# Nos Ilha CodeQL Configuration
+# 
+# WARNING: This configuration requires GitHub Advanced Security to be enabled
+# - For private repositories: Requires a paid Advanced Security license
+# - For public repositories: Advanced Security is available for free
+# 
+# If Advanced Security is not enabled, the CodeQL workflow will fail with 403 errors.
+
+name: "Nos Ilha CodeQL Config"
+
+disable-default-queries: false
+
+queries:
+  - uses: security-and-quality
+
+# Paths to include in the analysis
+paths:
+  - "backend/src"
+  - "frontend/src"
+
+# Paths to ignore during analysis
+paths-ignore:
+  - "**/node_modules"
+  - "**/build"
+  - "**/dist"
+  - "**/target"
+  - "**/*.min.js"
+  - "**/*.bundle.js"
+  - "**/test/**"
+  - "**/tests/**"
+  - "**/__tests__/**"
+  - "**/spec/**"
+  - "**/specs/**"
+  - "infrastructure/docker"
+  - "infrastructure/terraform"
+  - "scripts"
+  - "docs"

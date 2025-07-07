@@ -17,23 +17,24 @@ import org.springframework.web.multipart.MultipartFile
 @RestController
 @RequestMapping("/api/v1/media")
 class FileUploadController(
-  private val fileStorageService: FileStorageService
+    private val fileStorageService: FileStorageService,
 ) {
-
-  /**
-   * Handles the uploading of a single file via a multipart/form-data request.
-   *
-   * Upon successful upload, it returns a JSON object containing the publicly
-   * accessible URL of the file. The `@ResponseStatus(HttpStatus.CREATED)`
-   * annotation ensures a 201 status code is returned on success.
-   *
-   * @param file The file to be uploaded, bound from the "file" part of the request.
-   * @return A map containing the file's public URL, which will be serialized to JSON.
-   */
-  @PostMapping("/upload")
-  @ResponseStatus(HttpStatus.CREATED)
-  fun uploadFile(@RequestParam("file") file: MultipartFile): Map<String, String> {
-    val publicUrl = fileStorageService.uploadFile(file)
-    return mapOf("url" to publicUrl)
-  }
+    /**
+     * Handles the uploading of a single file via a multipart/form-data request.
+     *
+     * Upon successful upload, it returns a JSON object containing the publicly
+     * accessible URL of the file. The `@ResponseStatus(HttpStatus.CREATED)`
+     * annotation ensures a 201 status code is returned on success.
+     *
+     * @param file The file to be uploaded, bound from the "file" part of the request.
+     * @return A map containing the file's public URL, which will be serialized to JSON.
+     */
+    @PostMapping("/upload")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun uploadFile(
+        @RequestParam("file") file: MultipartFile,
+    ): Map<String, String> {
+        val publicUrl = fileStorageService.uploadFile(file)
+        return mapOf("url" to publicUrl)
+    }
 }
