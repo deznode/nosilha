@@ -134,10 +134,18 @@ jobs:
               }
             }
 
+            // Helper function to extract section content
+            function extractSection(review, sectionName) {
+              const regex = new RegExp(`## ${sectionName}\\s*([\\s\\S]*?)(?=##|$)`, 'i');
+              const match = review.match(regex);
+              return match && match[1] ? match[1].trim() : '';
+            }
+
             let allReviews = [];
-            let criticalIssues = [];
-            let suggestions = [];
-            let positivePoints = [];
+            let allCriticalIssues = [];
+            let allSuggestions = [];
+            let allPositivePoints = [];
+            let allActionItems = [];
 
             // Process each changed file
             for (const file of changedFiles) {
@@ -188,48 +196,80 @@ jobs:
                - Missing documentation
                - API documentation needs
 
-            Format your response as follows:
+            Format your response EXACTLY as follows:
             ## Critical Issues 🚨
-            [List any critical issues that must be fixed]
+            [List any critical issues that must be fixed, or write "No critical issues found."]
 
             ## Suggestions for Improvement 💡
-            [List suggestions and improvements]
+            [List suggestions and improvements, or write "No specific suggestions."]
 
             ## Positive Aspects ✅
-            [Highlight good practices and well-written code]
+            [Highlight good practices and well-written code, or write "Standard implementation."]
 
             ## Action Items 📋
-            [Specific, actionable items for the developer]
+            [Specific, actionable items for the developer, or write "No specific action items."]
 
             Be specific, constructive, and provide code examples where helpful.`;
 
               try {
                 const review = await callClaudeAPI(prompt);
-                allReviews.push({
+                
+                // Extract individual sections
+                const criticalIssues = extractSection(review, 'Critical Issues 🚨');
+                const suggestions = extractSection(review, 'Suggestions for Improvement 💡');
+                const positiveAspects = extractSection(review, 'Positive Aspects ✅');
+                const actionItems = extractSection(review, 'Action Items 📋');
+
+                // Store structured review data
+                const fileReview = {
                   file: file,
-                  review: review
-                });
+                  criticalIssues: criticalIssues,
+                  suggestions: suggestions,
+                  positiveAspects: positiveAspects,
+                  actionItems: actionItems,
+                  fullReview: review
+                };
 
-                // Parse the review to extract different sections
-                const criticalSection = review.match(/## Critical Issues 🚨\s*([\s\S]*?)(?=##|$)/);
-                const suggestionSection = review.match(/## Suggestions for Improvement 💡\s*([\s\S]*?)(?=##|$)/);
-                const positiveSection = review.match(/## Positive Aspects ✅\s*([\s\S]*?)(?=##|$)/);
+                allReviews.push(fileReview);
 
-                if (criticalSection && criticalSection[1].trim()) {
-                  criticalIssues.push(`**${file}**\n${criticalSection[1].trim()}`);
+                // Collect issues for summary sections (only if content exists and is not placeholder)
+                if (criticalIssues && !criticalIssues.toLowerCase().includes('no critical issues')) {
+                  allCriticalIssues.push({
+                    file: file,
+                    content: criticalIssues
+                  });
                 }
-                if (suggestionSection && suggestionSection[1].trim()) {
-                  suggestions.push(`**${file}**\n${suggestionSection[1].trim()}`);
+
+                if (suggestions && !suggestions.toLowerCase().includes('no specific suggestions')) {
+                  allSuggestions.push({
+                    file: file,
+                    content: suggestions
+                  });
                 }
-                if (positiveSection && positiveSection[1].trim()) {
-                  positivePoints.push(`**${file}**\n${positiveSection[1].trim()}`);
+
+                if (positiveAspects && !positiveAspects.toLowerCase().includes('standard implementation')) {
+                  allPositivePoints.push({
+                    file: file,
+                    content: positiveAspects
+                  });
+                }
+
+                if (actionItems && !actionItems.toLowerCase().includes('no specific action items')) {
+                  allActionItems.push({
+                    file: file,
+                    content: actionItems
+                  });
                 }
 
               } catch (error) {
                 console.error(`Error reviewing ${file}:`, error.message);
                 allReviews.push({
                   file: file,
-                  review: `Error occurred during review: ${error.message}`
+                  criticalIssues: `Error occurred during review: ${error.message}`,
+                  suggestions: '',
+                  positiveAspects: '',
+                  actionItems: '',
+                  fullReview: `Error occurred during review: ${error.message}`
                 });
               }
             }
@@ -254,124 +294,232 @@ jobs:
             This automated review analyzed ${allReviews.length} changed files using Claude AI to identify potential issues, improvements, and positive aspects of the code changes.
 
             ### 🎯 Quick Stats
-            - **Critical Issues Found:** ${criticalIssues.length}
-            - **Improvement Suggestions:** ${suggestions.length}
-            - **Positive Highlights:** ${positivePoints.length}
+            - **Critical Issues Found:** ${allCriticalIssues.length}
+            - **Improvement Suggestions:** ${allSuggestions.length}
+            - **Positive Highlights:** ${allPositivePoints.length}
+            - **Action Items:** ${allActionItems.length}
 
             ---
             `;
 
-            if (criticalIssues.length > 0) {
-              markdownReport += `## 🚨 Critical Issues (${criticalIssues.length})
+            // Critical Issues Summary (only if there are issues)
+            if (allCriticalIssues.length > 0) {
+              markdownReport += `## 🚨 Critical Issues Summary (${allCriticalIssues.length})
 
             These issues should be addressed before merging:
 
-            ${criticalIssues.join('\n\n---\n\n')}
+            `;
+              allCriticalIssues.forEach((issue, index) => {
+                markdownReport += `### ${index + 1}. \`${issue.file}\`
+            ${issue.content}
 
-            ---
+            `;
+              });
+              markdownReport += `---
 
             `;
             }
 
-            if (suggestions.length > 0) {
-              markdownReport += `## 💡 Suggestions for Improvement (${suggestions.length})
+            // Suggestions Summary (only if there are suggestions)
+            if (allSuggestions.length > 0) {
+              markdownReport += `## 💡 Improvement Suggestions Summary (${allSuggestions.length})
 
-            ${suggestions.join('\n\n---\n\n')}
+            `;
+              allSuggestions.forEach((suggestion, index) => {
+                markdownReport += `### ${index + 1}. \`${suggestion.file}\`
+            ${suggestion.content}
 
-            ---
+            `;
+              });
+              markdownReport += `---
 
             `;
             }
 
-            if (positivePoints.length > 0) {
-              markdownReport += `## ✅ Positive Aspects (${positivePoints.length})
+            // Positive Aspects Summary (only if there are highlights)
+            if (allPositivePoints.length > 0) {
+              markdownReport += `## ✅ Positive Aspects Summary (${allPositivePoints.length})
 
-            ${positivePoints.join('\n\n---\n\n')}
+            `;
+              allPositivePoints.forEach((positive, index) => {
+                markdownReport += `### ${index + 1}. \`${positive.file}\`
+            ${positive.content}
 
-            ---
+            `;
+              });
+              markdownReport += `---
 
             `;
             }
 
+            // Action Items Checklist
             markdownReport += `## 📋 Action Items Checklist
 
             Based on the review, here are the recommended action items:
 
-            ### High Priority
-            ${criticalIssues.length > 0 ? 
-              criticalIssues.map((issue, index) => `- [ ] **Critical Issue ${index + 1}:** Address security/functionality concerns in the highlighted areas`).join('\n') : 
-              '- [ ] No critical issues identified ✅'
+            `;
+
+            if (allCriticalIssues.length > 0) {
+              markdownReport += `### 🚨 High Priority (Critical Issues)
+            `;
+              allCriticalIssues.forEach((issue, index) => {
+                markdownReport += `- [ ] **\`${issue.file}\`:** Address critical security/functionality concerns
+            `;
+              });
+              markdownReport += `
+            `;
             }
 
-            ### Medium Priority
-            ${suggestions.length > 0 ? 
-              suggestions.slice(0, 5).map((suggestion, index) => `- [ ] **Improvement ${index + 1}:** Consider implementing suggested enhancements`).join('\n') : 
-              '- [ ] No major improvements suggested'
+            if (allActionItems.length > 0) {
+              markdownReport += `### 📋 Specific Action Items
+            `;
+              allActionItems.forEach((item, index) => {
+                markdownReport += `#### \`${item.file}\`
+            ${item.content}
+
+            `;
+              });
             }
 
-            ### Documentation & Testing
+            if (allSuggestions.length > 0) {
+              markdownReport += `### 💡 Medium Priority (Improvements)
+            `;
+              allSuggestions.slice(0, 5).forEach((suggestion, index) => {
+                markdownReport += `- [ ] **\`${suggestion.file}\`:** Consider implementing suggested enhancements
+            `;
+              });
+              markdownReport += `
+            `;
+            }
+
+            markdownReport += `### 📚 General Tasks
             - [ ] Review test coverage for new/modified code
             - [ ] Update documentation if API changes were made
             - [ ] Consider adding inline comments for complex logic
+            - [ ] Verify all critical issues are resolved before merging
 
             ---
 
-            ## 📄 Detailed File Reviews
+            ## 📄 File-by-File Review Details
 
             `;
 
-            // Add detailed reviews for each file
-            for (const fileReview of allReviews) {
-              markdownReport += `### 📁 \`${fileReview.file}\`
-
-            ${fileReview.review}
-
-            ---
+            // Add concise file reviews without duplicating the summary sections
+            allReviews.forEach((fileReview, index) => {
+              markdownReport += `### ${index + 1}. 📁 \`${fileReview.file}\`
 
             `;
-            }
 
-            markdownReport += `
-            ## 🔍 Review Methodology
+              // Only show non-empty sections
+              if (fileReview.criticalIssues && !fileReview.criticalIssues.toLowerCase().includes('no critical issues')) {
+                markdownReport += `**🚨 Critical Issues:**
+            ${fileReview.criticalIssues}
+
+            `;
+              }
+
+              if (fileReview.suggestions && !fileReview.suggestions.toLowerCase().includes('no specific suggestions')) {
+                markdownReport += `**💡 Suggestions:**
+            ${fileReview.suggestions}
+
+            `;
+              }
+
+              if (fileReview.positiveAspects && !fileReview.positiveAspects.toLowerCase().includes('standard implementation')) {
+                markdownReport += `**✅ Positive Aspects:**
+            ${fileReview.positiveAspects}
+
+            `;
+              }
+
+              if (fileReview.actionItems && !fileReview.actionItems.toLowerCase().includes('no specific action items')) {
+                markdownReport += `**📋 Action Items:**
+            ${fileReview.actionItems}
+
+            `;
+              }
+
+              // If no significant findings, show a brief summary
+              if ((!fileReview.criticalIssues || fileReview.criticalIssues.toLowerCase().includes('no critical issues')) &&
+                  (!fileReview.suggestions || fileReview.suggestions.toLowerCase().includes('no specific suggestions')) &&
+                  (!fileReview.actionItems || fileReview.actionItems.toLowerCase().includes('no specific action items'))) {
+                markdownReport += `✅ **No significant issues found** - Code follows good practices.
+
+            `;
+              }
+
+              markdownReport += `---
+
+            `;
+            });
+
+            markdownReport += `## 🔍 Review Methodology
 
             This review was conducted using Claude AI with focus on:
-            - Code quality and best practices
-            - Security vulnerability detection
-            - Performance optimization opportunities
-            - Bug detection and edge case handling
-            - Testing and documentation completeness
+            - **Code Quality:** Adherence to best practices and maintainability
+            - **Security:** Vulnerability detection and secure coding practices
+            - **Performance:** Algorithm efficiency and resource optimization
+            - **Reliability:** Bug detection and edge case handling
+            - **Documentation:** Test coverage and code documentation
 
-            > **Note:** This is an automated review. While comprehensive, it should complement (not replace) human code review.
+            > **Note:** This is an automated review. While comprehensive, it should complement (not replace) human code review for critical systems.
 
             ---
 
-            *Generated by Claude AI Code Review Action*
+            *Generated by Claude AI Code Review Action v2.0*
             `;
 
             // Save the report as an artifact
             fs.writeFileSync('claude-review-report.md', markdownReport);
 
-            // Post review as PR comment
-            const MAX_COMMENT_LENGTH = 65536; // GitHub's limit
-            let comment = markdownReport;
-            
-            if (comment.length > MAX_COMMENT_LENGTH) {
-              comment = comment.substring(0, MAX_COMMENT_LENGTH - 100) + '\n\n*[Report truncated due to length. Full report available in workflow artifacts.]*';
+            // Create a shorter comment for PR (summary only)
+            let prComment = `# 🤖 Claude AI Code Review Summary
+
+            **Files Reviewed:** ${allReviews.length} | **Critical Issues:** ${allCriticalIssues.length} | **Suggestions:** ${allSuggestions.length} | **Positive Highlights:** ${allPositivePoints.length}
+
+            `;
+
+            if (allCriticalIssues.length > 0) {
+              prComment += `## 🚨 Critical Issues Found (${allCriticalIssues.length})
+            ${allCriticalIssues.map((issue, index) => `${index + 1}. **\`${issue.file}\`** - Address critical concerns before merging`).join('\n')}
+
+            `;
             }
 
+            if (allCriticalIssues.length === 0) {
+              prComment += `## ✅ No Critical Issues Found
+            Great job! No critical security or functionality issues detected.
+
+            `;
+            }
+
+            if (allSuggestions.length > 0) {
+              prComment += `## 💡 Improvement Opportunities (${allSuggestions.length})
+            Consider reviewing the detailed suggestions for code quality improvements.
+
+            `;
+            }
+
+            prComment += `---
+            📋 **Full detailed report available in workflow artifacts** - Download \`claude-review-report.md\` for complete analysis.
+
+            *Generated by Claude AI Code Review Action*`;
+
+            // Post the shorter comment to PR
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
-              body: comment
+              body: prComment
             });
 
             // Set workflow summary
             const summary = `## Claude AI Review Summary
             - Files reviewed: ${allReviews.length}
-            - Critical issues: ${criticalIssues.length}
-            - Suggestions: ${suggestions.length}
-            - Positive highlights: ${positivePoints.length}`;
+            - Critical issues: ${allCriticalIssues.length}
+            - Suggestions: ${allSuggestions.length}
+            - Positive highlights: ${allPositivePoints.length}
+            - Action items: ${allActionItems.length}`;
             
             core.summary.addRaw(summary);
             await core.summary.write();
