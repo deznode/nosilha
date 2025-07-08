@@ -1,0 +1,155 @@
+# Cloud Build configuration for Nosilha Frontend UI
+# This file builds a Next.js React application and deploys it to Cloud Run
+
+steps:
+  # Step 1: Install dependencies and run linting
+  - name: 'node:20-alpine'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        cd frontend
+        npm ci
+        npm run lint
+        echo "✅ Dependencies installed and linting completed"
+    id: 'install-and-lint'
+
+  # Step 2: Build the Next.js application
+  - name: 'node:20-alpine'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        cd frontend
+        
+        # Set environment variables for production build
+        export NODE_ENV=production
+        export NEXT_TELEMETRY_DISABLED=1
+        
+        # Create .env.local with production API URL
+        echo "API_URL=https://nosilha-backend-api-1009175690264.us-east1.run.app" > .env.local
+        echo "NEXT_PUBLIC_API_URL=https://nosilha-backend-api-1009175690264.us-east1.run.app" >> .env.local
+        
+        # Build the application
+        npm run build
+        
+        echo "✅ Next.js build completed successfully"
+    id: 'build-app'
+    waitFor: ['install-and-lint']
+
+  # Step 3: Build and push the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/${_IMAGE_NAME}:${SHORT_SHA}'
+      - '-t'
+      - '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/${_IMAGE_NAME}:latest'
+      - '-f'
+      - 'frontend/Dockerfile'
+      - './frontend'
+    id: 'build-docker-image'
+    waitFor: ['build-app']
+
+  # Step 4: Push the Docker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/${_IMAGE_NAME}:${SHORT_SHA}'
+    id: 'push-image-sha'
+    waitFor: ['build-docker-image']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - '${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/${_IMAGE_NAME}:latest'
+    id: 'push-image-latest'
+    waitFor: ['build-docker-image']
+
+  # Step 5: Deploy to Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud run deploy ${_SERVICE_NAME} \
+          --image=${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/${_IMAGE_NAME}:${SHORT_SHA} \
+          --region=${_REGION} \
+          --platform=managed \
+          --allow-unauthenticated \
+          --set-env-vars="NODE_ENV=production,NEXT_TELEMETRY_DISABLED=1,API_URL=https://nosilha-backend-api-1009175690264.us-east1.run.app,NEXT_PUBLIC_API_URL=https://nosilha-backend-api-1009175690264.us-east1.run.app" \
+          --memory=512Mi \
+          --cpu=1 \
+          --max-instances=5 \
+          --min-instances=1 \
+          --port=3000 \
+          --timeout=300s \
+          --concurrency=80 \
+          --cpu-throttling \
+          --execution-environment=gen2
+        
+        echo "✅ Deployment to Cloud Run completed"
+    id: 'deploy-to-cloud-run'
+    waitFor: ['push-image-sha', 'push-image-latest']
+
+  # Step 6: Verify deployment health
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # Get the service URL
+        SERVICE_URL=$(gcloud run services describe ${_SERVICE_NAME} \
+          --region=${_REGION} \
+          --format='value(status.url)')
+        
+        # Wait for the service to be ready
+        echo "🔍 Verifying service health at: $SERVICE_URL"
+        
+        # Health check with retry logic
+        for i in {1..30}; do
+          if curl -f -s -I "$SERVICE_URL" | grep -q "200 OK"; then
+            echo "✅ Service is healthy and responding"
+            break
+          else
+            echo "⏳ Waiting for service to be ready (attempt $i/30)..."
+            sleep 10
+          fi
+        done
+        
+        # Final health check
+        if curl -f -s -I "$SERVICE_URL" | grep -q "200 OK"; then
+          echo "🎉 Frontend deployment successful!"
+          echo "📍 Service URL: $SERVICE_URL"
+        else
+          echo "❌ Health check failed after deployment"
+          exit 1
+        fi
+    id: 'verify-deployment'
+    waitFor: ['deploy-to-cloud-run']
+
+# Build configuration
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_STANDARD_2'  # 2 vCPUs, 8GB RAM for Node.js builds
+  diskSizeGb: 10
+  dynamic_substitutions: true
+
+# Timeout for the entire build (free tier limit: 120 minutes/day)
+timeout: '900s'  # 15 minutes max per build
+
+# Default substitutions (can be overridden by trigger)
+substitutions:
+  _REGION: 'us-east1'
+  _REPOSITORY_NAME: 'nosilha-frontend'
+  _IMAGE_NAME: 'nosilha-web-ui'
+  _SERVICE_NAME: 'nosilha-frontend'
+  _REGISTRY_URL: 'us-east1-docker.pkg.dev'
+
+# Tags for organization
+tags:
+  - 'frontend'
+  - 'nextjs'
+  - 'react'
+  - 'cloud-run'
+  - 'nosilha'

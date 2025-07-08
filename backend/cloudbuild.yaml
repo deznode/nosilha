@@ -1,0 +1,141 @@
+# Cloud Build configuration for Nosilha Backend API
+# This file builds a Spring Boot Kotlin application and deploys it to Cloud Run
+
+steps:
+  # Step 1: Build and test the application
+  - name: 'gradle:8.11.1-jdk21'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        cd backend
+        ./gradlew clean test jacocoTestReport
+        echo "✅ Tests completed successfully"
+    id: 'test-backend'
+
+  # Step 2: Build the application JAR
+  - name: 'gradle:8.11.1-jdk21'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        cd backend
+        ./gradlew bootJar
+        echo "✅ JAR build completed"
+    id: 'build-jar'
+    waitFor: ['test-backend']
+
+  # Step 3: Build and push the Docker image using Spring Boot's bootBuildImage
+  - name: 'gradle:8.11.1-jdk21'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        cd backend
+        
+        # Configure Docker to use gcloud for authentication
+        gcloud auth configure-docker ${_REGISTRY_URL}
+        
+        # Build and push the image using Spring Boot's buildpacks
+        ./gradlew bootBuildImage \
+          --imageName=${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/${_IMAGE_NAME}:${SHORT_SHA} \
+          --publishImage
+        
+        # Tag the image with 'latest' for main branch
+        docker tag ${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/${_IMAGE_NAME}:${SHORT_SHA} \
+                   ${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/${_IMAGE_NAME}:latest
+        
+        docker push ${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/${_IMAGE_NAME}:latest
+        
+        echo "✅ Docker image built and pushed successfully"
+    id: 'build-and-push-image'
+    waitFor: ['build-jar']
+
+  # Step 4: Deploy to Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud run deploy ${_SERVICE_NAME} \
+          --image=${_REGISTRY_URL}/${PROJECT_ID}/${_REPOSITORY_NAME}/${_IMAGE_NAME}:${SHORT_SHA} \
+          --region=${_REGION} \
+          --platform=managed \
+          --allow-unauthenticated \
+          --service-account=backend-runner@${PROJECT_ID}.iam.gserviceaccount.com \
+          --set-env-vars="SPRING_PROFILES_ACTIVE=production,SPRING_CLOUD_GCP_PROJECT_ID=${PROJECT_ID},GCS_BUCKET_NAME=nosilha-com-media-storage-useast1" \
+          --memory=1Gi \
+          --cpu=1 \
+          --max-instances=5 \
+          --min-instances=1 \
+          --port=8080 \
+          --timeout=300s \
+          --concurrency=80 \
+          --cpu-throttling \
+          --execution-environment=gen2
+        
+        echo "✅ Deployment to Cloud Run completed"
+    id: 'deploy-to-cloud-run'
+    waitFor: ['build-and-push-image']
+
+  # Step 5: Verify deployment health
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # Get the service URL
+        SERVICE_URL=$(gcloud run services describe ${_SERVICE_NAME} \
+          --region=${_REGION} \
+          --format='value(status.url)')
+        
+        # Wait for the service to be ready
+        echo "🔍 Verifying service health at: $SERVICE_URL"
+        
+        # Health check with retry logic
+        for i in {1..30}; do
+          if curl -f -s "$SERVICE_URL/api/v1/health" > /dev/null 2>&1; then
+            echo "✅ Service is healthy and responding"
+            break
+          else
+            echo "⏳ Waiting for service to be ready (attempt $i/30)..."
+            sleep 10
+          fi
+        done
+        
+        # Final health check
+        if curl -f -s "$SERVICE_URL/api/v1/health" > /dev/null 2>&1; then
+          echo "🎉 Backend deployment successful!"
+          echo "📍 Service URL: $SERVICE_URL"
+        else
+          echo "❌ Health check failed after deployment"
+          exit 1
+        fi
+    id: 'verify-deployment'
+    waitFor: ['deploy-to-cloud-run']
+
+# Build configuration
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: 'E2_STANDARD_2'  # 2 vCPUs, 8GB RAM for Java builds
+  diskSizeGb: 10
+  dynamic_substitutions: true
+
+# Timeout for the entire build (free tier limit: 120 minutes/day)
+timeout: '1200s'  # 20 minutes max per build
+
+# Default substitutions (can be overridden by trigger)
+substitutions:
+  _REGION: 'us-east1'
+  _REPOSITORY_NAME: 'nosilha-backend'
+  _IMAGE_NAME: 'nosilha-core-api'
+  _SERVICE_NAME: 'nosilha-backend-api'
+  _REGISTRY_URL: 'us-east1-docker.pkg.dev'
+
+# Tags for organization
+tags:
+  - 'backend'
+  - 'spring-boot'
+  - 'kotlin'
+  - 'cloud-run'
+  - 'nosilha'

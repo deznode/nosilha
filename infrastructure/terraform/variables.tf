@@ -48,3 +48,15 @@ variable "budget_pubsub_topic" {
   description = "Pub/Sub topic for budget notifications."
   default     = null
 }
+
+variable "github_owner" {
+  type        = string
+  description = "GitHub repository owner/organization name."
+  default     = "bravdigital"
+}
+
+variable "github_repository" {
+  type        = string
+  description = "GitHub repository name."
+  default     = "nosilha"
+}
