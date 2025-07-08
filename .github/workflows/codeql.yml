@@ -1,9 +1,12 @@
 name: "CodeQL Analysis (Scheduled)"
 
 # WARNING: This workflow requires GitHub Advanced Security to be enabled
-# If Advanced Security is not enabled, this workflow will fail with 403 errors
+# If Advanced Security is not enabled, this workflow will fail gracefully
 # For private repositories, Advanced Security requires a paid license
 # For public repositories, Advanced Security is available for free
+# 
+# The workflow uses continue-on-error to prevent failures when Advanced Security
+# is not available, allowing the workflow to complete without blocking other processes
 # 
 # This workflow provides scheduled security scanning complementary to the
 # CodeQL analysis in PR validation workflow
@@ -19,6 +22,7 @@ jobs:
     name: Analyze
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    continue-on-error: true  # Don't fail if Advanced Security is not available
     permissions:
       actions: read
       contents: read

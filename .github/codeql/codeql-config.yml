@@ -4,7 +4,8 @@
 # - For private repositories: Requires a paid Advanced Security license
 # - For public repositories: Advanced Security is available for free
 # 
-# If Advanced Security is not enabled, the CodeQL workflow will fail with 403 errors.
+# The CodeQL workflows use continue-on-error to fail gracefully when Advanced Security
+# is not available, preventing workflow failures while still attempting security analysis
 
 name: "Nos Ilha CodeQL Config"
 
