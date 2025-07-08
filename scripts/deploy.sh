@@ -231,7 +231,7 @@ show_help() {
     echo ""
     echo "Environment Variables:"
     echo "  GCP_PROJECT_ID      Google Cloud project ID (required)"
-    echo "  GCP_REGION          Google Cloud region [default: europe-west1]"
+    echo "  GCP_REGION          Google Cloud region [default: us-east1]"
     echo "  REGISTRY            Container registry [default: gcr.io]"
     echo "  STAGING_API_URL     API URL for staging environment"
     echo "  PRODUCTION_API_URL  API URL for production environment"

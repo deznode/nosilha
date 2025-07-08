@@ -1,8 +1,16 @@
 name: PR Validation
 
-# NOTE: SARIF upload steps use continue-on-error: true to handle repositories
-# without GitHub Advanced Security enabled. This prevents workflow failures
-# while still attempting to upload security scan results when available.
+# NOTE: SARIF upload steps, CodeQL analysis, and Dependency Review use continue-on-error: true
+# to handle repositories without GitHub Advanced Security enabled. This prevents workflow failures
+# while still attempting to run security analysis when available.
+# 
+# For private repositories, these jobs require GitHub Advanced Security license:
+# - CodeQL Analysis (security scanning)
+# - Dependency Review (vulnerability checking)
+# - SARIF uploads (security results)
+# 
+# These jobs will run but fail gracefully if Advanced Security is not available,
+# allowing the PR validation to complete successfully.
 
 on:
   pull_request:
@@ -86,12 +94,14 @@ jobs:
         with:
           sarif_file: 'trivy-global-results.sarif'
           category: 'global-security'
+        # SARIF upload requires Advanced Security for private repos
         continue-on-error: true
 
-  # Dependency vulnerability check
+  # Dependency vulnerability check (requires Advanced Security for private repos)
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/dependency-review-action@v3
@@ -104,7 +114,7 @@ jobs:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    continue-on-error: true  # Don't fail the entire PR if CodeQL fails due to licensing
+    continue-on-error: true
     permissions:
       actions: read
       contents: read
@@ -205,8 +215,8 @@ jobs:
                 continue;
               }
               
-              // Special handling for CodeQL when Advanced Security isn't enabled
-              if (check === 'CodeQL Analysis' && result === 'failure') {
+              // Special handling for Advanced Security-dependent jobs
+              if ((check === 'CodeQL Analysis' || check === 'Dependency Review') && result === 'failure') {
                 comment += `⚠️ **${check}**: Failed (likely requires GitHub Advanced Security - this is optional)\n`;
                 continue;
               }
