@@ -21,12 +21,30 @@ variable "media_bucket_name" {
 
 variable "api_image_tag" {
   type        = string
-  description = "The tag of the nosilha-core-api image to deploy (e.g., '0.0.1-SNAPSHOT')."
+  description = "The tag of the nosilha-core-api image to deploy (e.g., git commit SHA, 'latest')."
   default     = "latest"
 }
 
 variable "frontend_image_tag" {
   type        = string
-  description = "The tag of the nosilha-web-ui image to deploy (e.g., 'latest')."
+  description = "The tag of the nosilha-web-ui image to deploy (e.g., git commit SHA, 'latest')."
   default     = "latest"
+}
+
+variable "billing_account_id" {
+  type        = string
+  description = "The billing account ID for budget monitoring."
+  default     = null
+}
+
+variable "budget_notification_channels" {
+  type        = list(string)
+  description = "List of notification channels for budget alerts."
+  default     = []
+}
+
+variable "budget_pubsub_topic" {
+  type        = string
+  description = "Pub/Sub topic for budget notifications."
+  default     = null
 }

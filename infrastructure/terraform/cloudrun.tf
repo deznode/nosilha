@@ -12,6 +12,9 @@ resource "google_service_account" "backend_runner" {
   account_id   = "nosilha-backend-runner"
   display_name = "Nosilha.com Backend Runner"
   description  = "Service Account for the Nosilha Backend Cloud Run service."
+
+  # Ensure IAM API is enabled before creating service account
+  depends_on = [google_project_service.iam]
 }
 
 
@@ -146,6 +149,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
 
   # Ensure the Secret Manager permissions are in place before creating the service.
   depends_on = [
+    google_project_service.cloud_run,
     google_secret_manager_secret_iam_member.grant_jwt_secret_access,
     google_secret_manager_secret_iam_member.grant_db_url_access,
     google_secret_manager_secret_iam_member.grant_db_user_access,
@@ -173,6 +177,9 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
   name                = "nosilha-frontend"
   location            = var.gcp_region
   deletion_protection = true
+
+  # Ensure Cloud Run API is enabled before creating service
+  depends_on = [google_project_service.cloud_run]
 
   template {
     containers {

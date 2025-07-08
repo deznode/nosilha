@@ -101,7 +101,7 @@ jobs:
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
-    continue-on-error: true  # Don't fail the entire PR if dependency review fails due to licensing
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/dependency-review-action@v3
@@ -114,7 +114,7 @@ jobs:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    continue-on-error: true  # Don't fail the entire PR if CodeQL fails due to licensing
+    continue-on-error: true
     permissions:
       actions: read
       contents: read

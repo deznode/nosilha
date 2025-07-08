@@ -31,6 +31,7 @@ env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: us-east1
   SERVICE_NAME: nosilha-backend-api
+  IMAGE_TAG: ${{ github.sha }}
 
 jobs:
   security-scan:

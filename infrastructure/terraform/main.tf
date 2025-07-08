@@ -9,6 +9,13 @@ terraform {
       version = "6.39.0"
     }
   }
+
+  # Remote backend for state management
+  # This enables CI/CD workflows to share state safely
+  backend "gcs" {
+    bucket = "nosilha-terraform-state-bucket"
+    prefix = "terraform/state"
+  }
 }
 
 provider "google" {
@@ -86,6 +93,42 @@ resource "google_artifact_registry_repository" "frontend_repository" {
   # Optional: Add labels for organization and cost tracking.
   labels = {
     "service" = "nosilha-frontend"
+    "env"     = "shared"
+  }
+}
+
+# ------------------------------------------------------------------------------
+# Terraform State Management Infrastructure
+# ------------------------------------------------------------------------------
+
+# GCS bucket for storing Terraform state
+# This must be created before configuring the backend
+resource "google_storage_bucket" "terraform_state" {
+  name          = "nosilha-terraform-state-bucket"
+  location      = var.gcp_region
+  force_destroy = false # Prevent accidental deletion of state files
+
+  # Enable versioning to keep history of state files
+  versioning {
+    enabled = true
+  }
+
+  # Enable uniform bucket-level access for better security
+  uniform_bucket_level_access = true
+
+  # Lifecycle management to prevent excessive storage costs
+  lifecycle_rule {
+    condition {
+      age = 90 # Keep state versions for 90 days
+    }
+    action {
+      type = "Delete"
+    }
+  }
+
+  # Labels for organization
+  labels = {
+    "purpose" = "terraform-state"
     "env"     = "shared"
   }
 }

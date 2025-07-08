@@ -23,6 +23,8 @@ on:
 env:
   TF_VERSION: "1.12.2"
   TF_VAR_gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}
+  TF_VAR_api_image_tag: ${{ github.sha }}
+  TF_VAR_frontend_image_tag: ${{ github.sha }}
 
 jobs:
   security-scan:
@@ -108,7 +110,7 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
           
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -reconfigure
         
       - name: Terraform Plan
         id: plan
@@ -193,7 +195,7 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
           
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -reconfigure
         
       - name: Terraform Plan
         run: terraform plan -out=tfplan
@@ -232,7 +234,7 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
           
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -reconfigure
         
       - name: Check for Configuration Drift
         id: drift
