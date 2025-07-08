@@ -63,6 +63,13 @@ resource "google_project_iam_member" "cicd_project_viewer" {
   member  = google_service_account.cicd_deployer.member
 }
 
+# Allow CI/CD to manage storage bucket IAM policies
+resource "google_project_iam_member" "cicd_storage_admin" {
+  project = var.gcp_project_id
+  role    = "roles/storage.admin"
+  member  = google_service_account.cicd_deployer.member
+}
+
 # ------------------------------------------------------------------------------
 # Service Account Key for GitHub Actions
 # ------------------------------------------------------------------------------
