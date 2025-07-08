@@ -5,6 +5,8 @@
 # Budget alert for the entire project
 # This helps keep costs within free tier limits
 resource "google_billing_budget" "project_budget" {
+  count = var.billing_account_id != null ? 1 : 0
+  
   billing_account = var.billing_account_id
   display_name    = "Nosilha Project Budget"
 
@@ -52,7 +54,7 @@ resource "google_billing_budget" "project_budget" {
   }
 
   # Ensure billing API is enabled
-  depends_on = [google_project_service.billing]
+  depends_on = [google_project_service.billing, google_project_service.billing_budgets]
 }
 
 # ------------------------------------------------------------------------------
@@ -64,8 +66,11 @@ resource "google_monitoring_dashboard" "nosilha_dashboard" {
   dashboard_json = jsonencode({
     displayName = "Nosilha Infrastructure Monitoring"
     mosaicLayout = {
+      columns = 12
       tiles = [
         {
+          xPos   = 0
+          yPos   = 0
           width  = 6
           height = 4
           widget = {
@@ -75,7 +80,7 @@ resource "google_monitoring_dashboard" "nosilha_dashboard" {
                 {
                   timeSeriesQuery = {
                     timeSeriesFilter = {
-                      filter = "resource.type=\"cloud_run_revision\""
+                      filter = "resource.type=\"cloud_run_revision\" AND metric.type=\"run.googleapis.com/request_count\""
                       aggregation = {
                         alignmentPeriod  = "60s"
                         perSeriesAligner = "ALIGN_RATE"
@@ -88,6 +93,8 @@ resource "google_monitoring_dashboard" "nosilha_dashboard" {
           }
         },
         {
+          xPos   = 6
+          yPos   = 0
           width  = 6
           height = 4
           widget = {
@@ -110,6 +117,8 @@ resource "google_monitoring_dashboard" "nosilha_dashboard" {
           }
         },
         {
+          xPos   = 0
+          yPos   = 4
           width  = 6
           height = 4
           widget = {
@@ -132,6 +141,8 @@ resource "google_monitoring_dashboard" "nosilha_dashboard" {
           }
         },
         {
+          xPos   = 6
+          yPos   = 4
           width  = 6
           height = 4
           widget = {

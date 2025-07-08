@@ -3,4 +3,14 @@
 # Rename this file to 'terraform.tfvars' and fill in your GCP Project ID.
 # Do not commit the actual terraform.tfvars file to version control.
 
+# Required variables
 gcp_project_id = "your-gcp-project-id-goes-here"
+gcp_region     = "us-east1"
+
+# Optional: For cost monitoring
+billing_account_id = ""
+budget_notification_channels = ["your-notification-channel-id"]
+
+# Image tags (will be overridden by CI/CD)
+api_image_tag      = "latest"
+frontend_image_tag = "latest"
