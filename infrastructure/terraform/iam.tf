@@ -40,6 +40,10 @@ resource "google_storage_bucket_iam_member" "cicd_terraform_state_admin" {
   bucket = google_storage_bucket.terraform_state.name
   role   = "roles/storage.objectAdmin"
   member = google_service_account.cicd_deployer.member
+  
+  depends_on = [
+    google_project_iam_member.cicd_storage_admin
+  ]
 }
 
 # Allow CI/CD to read/write to the media storage bucket (for integration tests)
@@ -47,6 +51,10 @@ resource "google_storage_bucket_iam_member" "cicd_media_storage_access" {
   bucket = google_storage_bucket.media_storage.name
   role   = "roles/storage.objectAdmin"
   member = google_service_account.cicd_deployer.member
+  
+  depends_on = [
+    google_project_iam_member.cicd_storage_admin
+  ]
 }
 
 # Allow CI/CD to manage IAM policies (needed for service account binding)
