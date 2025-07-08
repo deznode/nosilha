@@ -1,0 +1,387 @@
+name: Claude AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main, develop, codereview]
+
+env:
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v40
+        with:
+          files: |
+            **/*.py
+            **/*.js
+            **/*.ts
+            **/*.jsx
+            **/*.tsx
+            **/*.java
+            **/*.go
+            **/*.rs
+            **/*.cpp
+            **/*.c
+            **/*.h
+            **/*.cs
+            **/*.php
+            **/*.rb
+            **/*.swift
+            **/*.kt
+            **/*.scala
+            **/*.sql
+            **/*.yaml
+            **/*.yml
+            **/*.json
+            **/*.md
+            **/*.dockerfile
+            **/Dockerfile
+
+      - name: Setup Node.js
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          npm install axios
+
+      - name: Run Claude Review
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/github-script@v7
+        env:
+          CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const axios = require('axios');
+            const fs = require('fs');
+            const path = require('path');
+
+            const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+            const changedFiles = process.env.CHANGED_FILES.split(' ');
+            
+            if (!ANTHROPIC_API_KEY) {
+              core.setFailed('ANTHROPIC_API_KEY secret is not set');
+              return;
+            }
+
+            // Function to get file content
+            async function getFileContent(filePath) {
+              try {
+                if (fs.existsSync(filePath)) {
+                  return fs.readFileSync(filePath, 'utf8');
+                }
+                return null;
+              } catch (error) {
+                console.log(`Error reading file ${filePath}:`, error.message);
+                return null;
+              }
+            }
+
+            // Function to get git diff for a file
+            async function getFileDiff(filePath) {
+              try {
+                const { execSync } = require('child_process');
+                const diff = execSync(`git diff HEAD~1 HEAD -- "${filePath}"`, { encoding: 'utf8' });
+                return diff;
+              } catch (error) {
+                console.log(`Error getting diff for ${filePath}:`, error.message);
+                return null;
+              }
+            }
+
+            // Function to call Claude API
+            async function callClaudeAPI(prompt) {
+              try {
+                const response = await axios.post('https://api.anthropic.com/v1/messages', {
+                  model: 'claude-3-5-sonnet-20241022',
+                  max_tokens: 4000,
+                  messages: [{
+                    role: 'user',
+                    content: prompt
+                  }]
+                }, {
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': ANTHROPIC_API_KEY,
+                    'anthropic-version': '2023-06-01'
+                  }
+                });
+
+                return response.data.content[0].text;
+              } catch (error) {
+                console.error('Claude API error:', error.response?.data || error.message);
+                throw error;
+              }
+            }
+
+            let allReviews = [];
+            let criticalIssues = [];
+            let suggestions = [];
+            let positivePoints = [];
+
+            // Process each changed file
+            for (const file of changedFiles) {
+              if (file.trim() === '') continue;
+            
+              console.log(`Processing file: ${file}`);
+            
+              const content = await getFileContent(file);
+              const diff = await getFileDiff(file);
+            
+              if (!content && !diff) {
+                console.log(`Skipping ${file} - no content or diff available`);
+                continue;
+              }
+
+              const prompt = `You are an expert code reviewer. Please review this code change and provide detailed feedback.
+
+            File: ${file}
+
+            ${diff ? `Git Diff:\n\`\`\`diff\n${diff}\n\`\`\`` : ''}
+
+            ${content ? `Current File Content:\n\`\`\`\n${content}\n\`\`\`` : ''}
+
+            Please provide a comprehensive review focusing on:
+
+            1. **Code Quality & Best Practices**
+               - Adherence to coding standards and conventions
+               - Code structure and organization
+               - Readability and maintainability
+
+            2. **Security Concerns**
+               - Potential vulnerabilities
+               - Input validation
+               - Authentication and authorization issues
+
+            3. **Performance Issues**
+               - Algorithm efficiency
+               - Resource usage
+               - Potential bottlenecks
+
+            4. **Bug Detection**
+               - Logic errors
+               - Edge cases not handled
+               - Potential runtime issues
+
+            5. **Testing & Documentation**
+               - Test coverage gaps
+               - Missing documentation
+               - API documentation needs
+
+            Format your response as follows:
+            ## Critical Issues 🚨
+            [List any critical issues that must be fixed]
+
+            ## Suggestions for Improvement 💡
+            [List suggestions and improvements]
+
+            ## Positive Aspects ✅
+            [Highlight good practices and well-written code]
+
+            ## Action Items 📋
+            [Specific, actionable items for the developer]
+
+            Be specific, constructive, and provide code examples where helpful.`;
+
+              try {
+                const review = await callClaudeAPI(prompt);
+                allReviews.push({
+                  file: file,
+                  review: review
+                });
+
+                // Parse the review to extract different sections
+                const criticalSection = review.match(/## Critical Issues 🚨\s*([\s\S]*?)(?=##|$)/);
+                const suggestionSection = review.match(/## Suggestions for Improvement 💡\s*([\s\S]*?)(?=##|$)/);
+                const positiveSection = review.match(/## Positive Aspects ✅\s*([\s\S]*?)(?=##|$)/);
+
+                if (criticalSection && criticalSection[1].trim()) {
+                  criticalIssues.push(`**${file}**\n${criticalSection[1].trim()}`);
+                }
+                if (suggestionSection && suggestionSection[1].trim()) {
+                  suggestions.push(`**${file}**\n${suggestionSection[1].trim()}`);
+                }
+                if (positiveSection && positiveSection[1].trim()) {
+                  positivePoints.push(`**${file}**\n${positiveSection[1].trim()}`);
+                }
+
+              } catch (error) {
+                console.error(`Error reviewing ${file}:`, error.message);
+                allReviews.push({
+                  file: file,
+                  review: `Error occurred during review: ${error.message}`
+                });
+              }
+            }
+
+            // Generate comprehensive markdown report
+            const reportDate = new Date().toISOString().split('T')[0];
+            const prNumber = context.payload.pull_request.number;
+            const prTitle = context.payload.pull_request.title;
+            const author = context.payload.pull_request.user.login;
+
+            let markdownReport = `# 🤖 Claude AI Code Review Report
+
+            **Pull Request:** #${prNumber} - ${prTitle}
+            **Author:** @${author}
+            **Review Date:** ${reportDate}
+            **Files Reviewed:** ${allReviews.length}
+
+            ---
+
+            ## 📊 Executive Summary
+
+            This automated review analyzed ${allReviews.length} changed files using Claude AI to identify potential issues, improvements, and positive aspects of the code changes.
+
+            ### 🎯 Quick Stats
+            - **Critical Issues Found:** ${criticalIssues.length}
+            - **Improvement Suggestions:** ${suggestions.length}
+            - **Positive Highlights:** ${positivePoints.length}
+
+            ---
+            `;
+
+            if (criticalIssues.length > 0) {
+              markdownReport += `## 🚨 Critical Issues (${criticalIssues.length})
+
+            These issues should be addressed before merging:
+
+            ${criticalIssues.join('\n\n---\n\n')}
+
+            ---
+
+            `;
+            }
+
+            if (suggestions.length > 0) {
+              markdownReport += `## 💡 Suggestions for Improvement (${suggestions.length})
+
+            ${suggestions.join('\n\n---\n\n')}
+
+            ---
+
+            `;
+            }
+
+            if (positivePoints.length > 0) {
+              markdownReport += `## ✅ Positive Aspects (${positivePoints.length})
+
+            ${positivePoints.join('\n\n---\n\n')}
+
+            ---
+
+            `;
+            }
+
+            markdownReport += `## 📋 Action Items Checklist
+
+            Based on the review, here are the recommended action items:
+
+            ### High Priority
+            ${criticalIssues.length > 0 ? 
+              criticalIssues.map((issue, index) => `- [ ] **Critical Issue ${index + 1}:** Address security/functionality concerns in the highlighted areas`).join('\n') : 
+              '- [ ] No critical issues identified ✅'
+            }
+
+            ### Medium Priority
+            ${suggestions.length > 0 ? 
+              suggestions.slice(0, 5).map((suggestion, index) => `- [ ] **Improvement ${index + 1}:** Consider implementing suggested enhancements`).join('\n') : 
+              '- [ ] No major improvements suggested'
+            }
+
+            ### Documentation & Testing
+            - [ ] Review test coverage for new/modified code
+            - [ ] Update documentation if API changes were made
+            - [ ] Consider adding inline comments for complex logic
+
+            ---
+
+            ## 📄 Detailed File Reviews
+
+            `;
+
+            // Add detailed reviews for each file
+            for (const fileReview of allReviews) {
+              markdownReport += `### 📁 \`${fileReview.file}\`
+
+            ${fileReview.review}
+
+            ---
+
+            `;
+            }
+
+            markdownReport += `
+            ## 🔍 Review Methodology
+
+            This review was conducted using Claude AI with focus on:
+            - Code quality and best practices
+            - Security vulnerability detection
+            - Performance optimization opportunities
+            - Bug detection and edge case handling
+            - Testing and documentation completeness
+
+            > **Note:** This is an automated review. While comprehensive, it should complement (not replace) human code review.
+
+            ---
+
+            *Generated by Claude AI Code Review Action*
+            `;
+
+            // Save the report as an artifact
+            fs.writeFileSync('claude-review-report.md', markdownReport);
+
+            // Post review as PR comment
+            const MAX_COMMENT_LENGTH = 65536; // GitHub's limit
+            let comment = markdownReport;
+            
+            if (comment.length > MAX_COMMENT_LENGTH) {
+              comment = comment.substring(0, MAX_COMMENT_LENGTH - 100) + '\n\n*[Report truncated due to length. Full report available in workflow artifacts.]*';
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: comment
+            });
+
+            // Set workflow summary
+            const summary = `## Claude AI Review Summary
+            - Files reviewed: ${allReviews.length}
+            - Critical issues: ${criticalIssues.length}
+            - Suggestions: ${suggestions.length}
+            - Positive highlights: ${positivePoints.length}`;
+            
+            core.summary.addRaw(summary);
+            await core.summary.write();
+
+            console.log('Claude review completed successfully!');
+
+      - name: Upload Review Report
+        if: steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-review-report
+          path: claude-review-report.md
+          retention-days: 30
