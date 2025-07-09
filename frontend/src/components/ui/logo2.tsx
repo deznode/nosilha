@@ -23,7 +23,7 @@ const letterVariants = {
     transition: {
       duration: 2.5, // The total time for one full wave cycle
       repeat: Infinity, // Loop the animation forever
-      ease: "easeInOut", // Ensures the motion is smooth at the peaks
+      ease: "easeInOut" as const, // Ensures the motion is smooth at the peaks
     },
   },
 };

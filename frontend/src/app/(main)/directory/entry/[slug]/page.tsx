@@ -15,7 +15,7 @@ import { ImageGallery } from "@/components/ui/image-gallery";
 import { ImageUploader } from "@/components/ui/image-uploader";
 
 interface DetailPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -142,10 +142,10 @@ export default async function DirectoryEntryDetailPage({
             </h2>
             <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
               <p className="text-4xl font-bold text-volcanic-gray-dark">
-                {entry.rating.toFixed(1)}
+                {entry.rating?.toFixed(1) || 'N/A'}
               </p>
               <div className="flex flex-col">
-                <StarRating rating={entry.rating} />
+                <StarRating rating={entry.rating || 0} />
                 <p className="text-sm text-volcanic-gray">
                   Based on {entry.reviewCount} reviews
                 </p>
@@ -185,7 +185,7 @@ export default async function DirectoryEntryDetailPage({
             Have a photo of this location? Share it with the community!
           </p>
           <div className="mt-8 flex justify-center">
-            <ImageUploader />
+            <ImageUploader onFileSelect={() => {}} />
           </div>
         </div>
       </div>

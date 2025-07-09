@@ -5,9 +5,9 @@ import Link from "next/link";
 
 // Define the props for a dynamic page component in Next.js
 interface DirectoryCategoryPageProps {
-  params: {
+  params: Promise<{
     category: string;
-  };
+  }>;
 }
 
 /**
