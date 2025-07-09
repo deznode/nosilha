@@ -109,28 +109,89 @@ jobs:
               }
             }
 
-            // Function to call Claude API
-            async function callClaudeAPI(prompt) {
-              try {
-                const response = await axios.post('https://api.anthropic.com/v1/messages', {
-                  model: 'claude-3-5-sonnet-20241022',
-                  max_tokens: 4000,
-                  messages: [{
-                    role: 'user',
-                    content: prompt
-                  }]
-                }, {
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': ANTHROPIC_API_KEY,
-                    'anthropic-version': '2023-06-01'
+            // Custom error class for reviews
+            class ReviewError extends Error {
+              constructor(message, file, type) {
+                super(message);
+                this.file = file;
+                this.type = type;
+                this.name = 'ReviewError';
+              }
+            }
+            
+            // Helper function to sanitize file paths
+            function sanitizeFilePath(filePath) {
+              const path = require('path');
+              return path.normalize(filePath).replace(/^(\.\.[\\/])+/, '');
+            }
+            
+            // Helper function to chunk content for large files
+            function chunkContent(content, maxChunkSize = 15000) {
+              const chunks = [];
+              let currentChunk = '';
+              const lines = content.split('\n');
+              
+              for (const line of lines) {
+                if (currentChunk.length + line.length + 1 > maxChunkSize) {
+                  if (currentChunk.trim()) {
+                    chunks.push(currentChunk.trim());
                   }
-                });
+                  currentChunk = line;
+                } else {
+                  currentChunk += (currentChunk ? '\n' : '') + line;
+                }
+              }
+              
+              if (currentChunk.trim()) {
+                chunks.push(currentChunk.trim());
+              }
+              
+              return chunks;
+            }
+            
+            // Function to call Claude API with retry logic and rate limiting
+            async function callClaudeAPI(prompt, retries = 3) {
+              for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                  const response = await axios.post('https://api.anthropic.com/v1/messages', {
+                    model: 'claude-3-5-sonnet-20241022',
+                    max_tokens: 4000,
+                    messages: [{
+                      role: 'user',
+                      content: prompt
+                    }]
+                  }, {
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'x-api-key': ANTHROPIC_API_KEY,
+                      'anthropic-version': '2023-06-01'
+                    },
+                    timeout: 30000 // 30 second timeout
+                  });
 
-                return response.data.content[0].text;
-              } catch (error) {
-                console.error('Claude API error:', error.response?.data || error.message);
-                throw error;
+                  return response.data.content[0].text;
+                } catch (error) {
+                  const isRetryable = error.response?.status === 429 || 
+                                     error.response?.status >= 500 || 
+                                     error.code === 'ECONNABORTED';
+                  
+                  if (attempt === retries || !isRetryable) {
+                    // Sanitize error message to avoid exposing sensitive information
+                    const sanitizedError = {
+                      status: error.response?.status || 'unknown',
+                      message: error.response?.status === 429 ? 'Rate limit exceeded' : 
+                              error.response?.status >= 500 ? 'Server error' : 
+                              'API request failed'
+                    };
+                    console.error(`Claude API error (attempt ${attempt}/${retries}):`, sanitizedError);
+                    throw new ReviewError(sanitizedError.message, 'api', 'request_failed');
+                  }
+                  
+                  // Exponential backoff for retries
+                  const delay = Math.pow(2, attempt - 1) * 1000;
+                  console.log(`Retrying in ${delay}ms... (attempt ${attempt + 1}/${retries})`);
+                  await new Promise(resolve => setTimeout(resolve, delay));
+                }
               }
             }
 
@@ -147,17 +208,51 @@ jobs:
             let allPositivePoints = [];
             let allActionItems = [];
 
+            // Configuration for file processing
+            const MAX_FILES_TO_REVIEW = 10;
+            const MAX_FILE_SIZE = 50000; // 50KB max per file
+            const EXCLUDED_PATTERNS = [
+              /node_modules/,
+              /\.git/,
+              /\.DS_Store/,
+              /\.env/,
+              /\.key$/,
+              /\.pem$/,
+              /\.p12$/,
+              /\.pfx$/,
+              /package-lock\.json$/,
+              /yarn\.lock$/
+            ];
+            
+            // Filter and sanitize files
+            const validFiles = changedFiles
+              .filter(file => file.trim() !== '')
+              .map(file => sanitizeFilePath(file))
+              .filter(file => !EXCLUDED_PATTERNS.some(pattern => pattern.test(file)))
+              .slice(0, MAX_FILES_TO_REVIEW);
+            
+            console.log(`Processing ${validFiles.length} files (${changedFiles.length} total changed)`);
+            
             // Process each changed file
-            for (const file of changedFiles) {
-              if (file.trim() === '') continue;
-            
+            for (const file of validFiles) {
               console.log(`Processing file: ${file}`);
-            
-              const content = await getFileContent(file);
-              const diff = await getFileDiff(file);
-            
-              if (!content && !diff) {
-                console.log(`Skipping ${file} - no content or diff available`);
+              
+              try {
+                const content = await getFileContent(file);
+                const diff = await getFileDiff(file);
+                
+                if (!content && !diff) {
+                  console.log(`Skipping ${file} - no content or diff available`);
+                  continue;
+                }
+                
+                // Check file size
+                if (content && content.length > MAX_FILE_SIZE) {
+                  console.log(`Skipping ${file} - file too large (${content.length} bytes)`);
+                  continue;
+                }
+              } catch (error) {
+                console.error(`Error processing ${file}:`, error.message);
                 continue;
               }
 
@@ -505,24 +600,36 @@ jobs:
 
             *Generated by Claude AI Code Review Action*`;
 
-            // Post the shorter comment to PR
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber,
-              body: prComment
-            });
+            // Post the shorter comment to PR with error handling
+            try {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: prComment
+              });
+              console.log('✅ PR comment posted successfully');
+            } catch (error) {
+              console.error('❌ Failed to post PR comment:', error.message);
+              // Continue with the workflow even if commenting fails
+            }
 
-            // Set workflow summary
-            const summary = `## Claude AI Review Summary
-            - Files reviewed: ${allReviews.length}
-            - Critical issues: ${allCriticalIssues.length}
-            - Suggestions: ${allSuggestions.length}
-            - Positive highlights: ${allPositivePoints.length}
-            - Action items: ${allActionItems.length}`;
-            
-            core.summary.addRaw(summary);
-            await core.summary.write();
+            // Set workflow summary with error handling
+            try {
+              const summary = `## Claude AI Review Summary
+              - Files reviewed: ${allReviews.length}
+              - Critical issues: ${allCriticalIssues.length}
+              - Suggestions: ${allSuggestions.length}
+              - Positive highlights: ${allPositivePoints.length}
+              - Action items: ${allActionItems.length}`;
+              
+              core.summary.addRaw(summary);
+              await core.summary.write();
+              console.log('✅ Workflow summary updated successfully');
+            } catch (error) {
+              console.error('❌ Failed to update workflow summary:', error.message);
+              // Continue with the workflow even if summary fails
+            }
 
             console.log('Claude review completed successfully!');
 

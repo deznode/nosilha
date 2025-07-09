@@ -51,13 +51,6 @@ resource "google_project_service" "storage" {
   disable_on_destroy = false
 }
 
-# Enable Cloud Build API (useful for container builds)
-resource "google_project_service" "cloud_build" {
-  project = var.gcp_project_id
-  service = "cloudbuild.googleapis.com"
-
-  disable_on_destroy = false
-}
 
 # Enable Cloud Monitoring API (for budget alerts)
 resource "google_project_service" "monitoring" {
@@ -96,7 +89,6 @@ locals {
     google_project_service.cloud_resource_manager,
     google_project_service.iam,
     google_project_service.storage,
-    google_project_service.cloud_build,
     google_project_service.monitoring,
     google_project_service.billing,
     google_project_service.billing_budgets

@@ -213,10 +213,12 @@ jobs:
             --platform=managed \
             --region=${{ env.REGION }} \
             --allow-unauthenticated \
+            --service-account=backend-runner@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
             --set-env-vars="SPRING_PROFILES_ACTIVE=production" \
+            --set-secrets="SPRING_CLOUD_GCP_PROJECT_ID=projects/${{ env.PROJECT_ID }}/secrets/gcp-project-id:latest,GCS_BUCKET_NAME=projects/${{ env.PROJECT_ID }}/secrets/gcs-bucket-name:latest" \
             --memory=1Gi \
             --cpu=1 \
-            --min-instances=1 \
+            --min-instances=0 \
             --max-instances=5 \
             --timeout=300
             
