@@ -77,8 +77,12 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v3
         
+      - name: Stop any existing Gradle daemons
+        run: ./gradlew --stop
+        continue-on-error: true
+        
       - name: Run Kotlin lint and formatting (detekt)
-        run: ./gradlew detekt
+        run: ./gradlew detekt --no-daemon
         continue-on-error: true
         
       - name: Upload detekt results
@@ -108,8 +112,12 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v3
         
+      - name: Stop any existing Gradle daemons
+        run: ./gradlew --stop
+        continue-on-error: true
+        
       - name: Run tests with coverage
-        run: ./gradlew test jacocoTestReport
+        run: ./gradlew test jacocoTestReport --no-daemon
         env:
           SPRING_PROFILES_ACTIVE: test
           
@@ -152,6 +160,10 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v3
         
+      - name: Stop any existing Gradle daemons
+        run: ./gradlew --stop
+        continue-on-error: true
+        
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -173,7 +185,7 @@ jobs:
       - name: Build and push Docker image
         id: build
         run: |
-          ./gradlew bootBuildImage \
+          ./gradlew bootBuildImage --no-daemon \
             --imageName=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-backend/nosilha-core-api:${{ github.sha }} \
             --publishImage
           
