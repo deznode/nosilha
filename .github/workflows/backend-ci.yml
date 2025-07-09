@@ -75,7 +75,7 @@ jobs:
         
 
   test:
-    name: Tests & Coverage
+    name: Tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -92,8 +92,8 @@ jobs:
           
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v3
-      - name: Run tests with coverage
-        run: ./gradlew test jacocoTestReport --no-daemon
+      - name: Run tests
+        run: ./gradlew test --no-daemon
         env:
           SPRING_PROFILES_ACTIVE: test
           

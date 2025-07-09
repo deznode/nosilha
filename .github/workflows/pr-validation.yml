@@ -89,17 +89,6 @@ jobs:
           output: 'trivy-global-results.sarif'
           
 
-  # Dependency vulnerability check (requires Advanced Security for private repos)
-  dependency-review:
-    name: Dependency Review
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/dependency-review-action@v3
-        with:
-          fail-on-severity: high
-          allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
 
 
   # Comprehensive PR status reporting
@@ -111,8 +100,7 @@ jobs:
       backend-validation,
       frontend-validation, 
       infrastructure-validation,
-      global-security-scan,
-      dependency-review
+      global-security-scan
     ]
     if: always() && github.event_name == 'pull_request'
     
@@ -125,8 +113,7 @@ jobs:
               'Backend Validation': '${{ needs.backend-validation.result }}',
               'Frontend Validation': '${{ needs.frontend-validation.result }}',
               'Infrastructure Validation': '${{ needs.infrastructure-validation.result }}',
-              'Global Security Scan': '${{ needs.global-security-scan.result }}',
-              'Dependency Review': '${{ needs.dependency-review.result }}'
+              'Global Security Scan': '${{ needs.global-security-scan.result }}'
             };
             
             const changes = {
@@ -158,11 +145,6 @@ jobs:
                 continue;
               }
               
-              // Special handling for Advanced Security-dependent jobs
-              if (check === 'Dependency Review' && result === 'failure') {
-                comment += `⚠️ **${check}**: Failed (likely requires GitHub Advanced Security - this is optional)\n`;
-                continue;
-              }
               
               const icon = result === 'success' ? '✅' : '❌';
               comment += `${icon} **${check}**: ${result}\n`;
@@ -240,8 +222,7 @@ jobs:
       backend-validation,
       frontend-validation,
       infrastructure-validation,
-      global-security-scan,
-      dependency-review
+      global-security-scan
     ]
     if: |
       always() && 

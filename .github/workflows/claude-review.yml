@@ -291,7 +291,6 @@ jobs:
                - Potential runtime issues
 
             5. **Testing & Documentation**
-               - Test coverage gaps
                - Missing documentation
                - API documentation needs
 
@@ -492,7 +491,6 @@ jobs:
             }
 
             markdownReport += `### 📚 General Tasks
-            - [ ] Review test coverage for new/modified code
             - [ ] Update documentation if API changes were made
             - [ ] Consider adding inline comments for complex logic
             - [ ] Verify all critical issues are resolved before merging
@@ -559,7 +557,7 @@ jobs:
             - **Security:** Vulnerability detection and secure coding practices
             - **Performance:** Algorithm efficiency and resource optimization
             - **Reliability:** Bug detection and edge case handling
-            - **Documentation:** Test coverage and code documentation
+            - **Documentation:** Code documentation
 
             > **Note:** This is an automated review. While comprehensive, it should complement (not replace) human code review for critical systems.
 
