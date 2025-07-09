@@ -6,7 +6,7 @@
 # This helps keep costs within free tier limits
 resource "google_billing_budget" "project_budget" {
   count = var.billing_account_id != null ? 1 : 0
-  
+
   billing_account = var.billing_account_id
   display_name    = "Nosilha Project Budget"
 

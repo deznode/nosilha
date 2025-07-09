@@ -19,8 +19,8 @@ terraform {
 }
 
 provider "google" {
-  project               = var.gcp_project_id
-  region                = var.gcp_region
+  project = var.gcp_project_id
+  region  = var.gcp_region
 }
 
 # --- Google Cloud Storage (GCS) Bucket ---
@@ -50,7 +50,7 @@ resource "google_storage_bucket_iam_member" "public_reader" {
   bucket = google_storage_bucket.media_storage.name
   role   = "roles/storage.objectViewer"
   member = "allUsers"
-  
+
   depends_on = [
     google_storage_bucket.media_storage
   ]
