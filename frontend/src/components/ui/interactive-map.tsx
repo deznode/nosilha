@@ -13,7 +13,7 @@ import type {
 } from "supercluster";
 
 import type { DirectoryEntry } from "@/types/directory";
-import { getEntriesByCategory } from "@/lib/api";
+import { getEntriesForMap } from "@/lib/api";
 import { CategoryMarkerIcon } from "./category-marker-icon";
 import { MapFilterControl } from "./map-filter-control";
 
@@ -56,7 +56,7 @@ export function InteractiveMap() {
 
   useEffect(() => {
     async function fetchEntries() {
-      const allEntries = await getEntriesByCategory("all");
+      const allEntries = await getEntriesForMap("all");
       setEntries(allEntries);
     }
     fetchEntries();

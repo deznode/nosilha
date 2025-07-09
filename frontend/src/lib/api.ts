@@ -1,5 +1,6 @@
 import type { DirectoryEntry } from "@/types/directory";
 import { supabase } from "@/lib/supabase-client";
+import { getMockEntriesByCategory, getMockEntryBySlug } from "@/lib/mock-api";
 
 // 1. Read the base URL from environment variables.
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -60,6 +61,7 @@ async function authenticatedFetch(
 
 /**
  * Fetches all directory entries or entries for a specific category from the backend API.
+ * Uses ISR with 1 hour cache for optimal performance and falls back to mock data.
  * @param category The category to fetch, or 'all' to fetch all entries.
  * @returns A promise that resolves to an array of directory entries.
  */
@@ -72,20 +74,26 @@ export async function getEntriesByCategory(
       : `${API_BASE_URL}/api/v1/directory/entries?category=${category}`;
 
   try {
-    const response = await fetch(endpoint, { cache: "no-store" });
+    // Use ISR with 1 hour cache for directory content (semi-static data)
+    const response = await fetch(endpoint, { 
+      next: { revalidate: 3600 } 
+    });
+    
     if (!response.ok) {
       throw new Error(`API call failed with status: ${response.status}`);
     }
 
     return await response.json();
   } catch (error) {
-    console.error("Failed to fetch entries by category:", error);
-    return [];
+    console.error("Failed to fetch entries by category, using fallback:", error);
+    // Fallback to mock data for resilience
+    return getMockEntriesByCategory(category);
   }
 }
 
 /**
  * Fetches a single directory entry by its slug from the backend API.
+ * Uses ISR with 30 minute cache for individual entries and falls back to mock data.
  * @param slug The slug of the entry to fetch.
  * @returns A promise that resolves to a single directory entry or undefined if not found.
  */
@@ -95,19 +103,24 @@ export async function getEntryBySlug(
   const endpoint = `${API_BASE_URL}/api/v1/directory/slug/${slug}`;
 
   try {
-    const response = await fetch(endpoint, { cache: "no-store" });
+    // Use ISR with 30 minute cache for individual entries
+    const response = await fetch(endpoint, { 
+      next: { revalidate: 1800 } 
+    });
 
     if (!response.ok) {
       if (response.status === 404) {
-        return undefined;
+        // Try fallback for 404s as well
+        return getMockEntryBySlug(slug);
       }
       throw new Error(`API call failed with status: ${response.status}`);
     }
 
     return await response.json();
   } catch (error) {
-    console.error(`Failed to fetch entry by slug "${slug}":`, error);
-    return undefined;
+    console.error(`Failed to fetch entry by slug "${slug}", using fallback:`, error);
+    // Fallback to mock data for resilience
+    return getMockEntryBySlug(slug);
   }
 }
 
@@ -135,4 +148,34 @@ export async function createDirectoryEntry(
   }
 
   return await response.json();
+}
+
+/**
+ * Fetches entries for real-time interactive features like maps.
+ * Uses no-store cache to ensure fresh data for dynamic interactions.
+ * @param category The category to fetch, or 'all' to fetch all entries.
+ * @returns A promise that resolves to an array of directory entries.
+ */
+export async function getEntriesForMap(
+  category: string = "all"
+): Promise<DirectoryEntry[]> {
+  const endpoint =
+    category.toLowerCase() === "all"
+      ? `${API_BASE_URL}/api/v1/directory/entries`
+      : `${API_BASE_URL}/api/v1/directory/entries?category=${category}`;
+
+  try {
+    // Keep dynamic for real-time map interactions
+    const response = await fetch(endpoint, { cache: "no-store" });
+    
+    if (!response.ok) {
+      throw new Error(`API call failed with status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to fetch entries for map, using fallback:", error);
+    // Fallback to mock data for resilience
+    return getMockEntriesByCategory(category);
+  }
 }

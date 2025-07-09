@@ -3,6 +3,9 @@ import { DirectoryCard } from "@/components/ui/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
 import Link from "next/link";
 
+// Enable ISR with 1 hour revalidation for directory content
+export const revalidate = 3600;
+
 // Define the props for a dynamic page component in Next.js
 interface DirectoryCategoryPageProps {
   params: Promise<{

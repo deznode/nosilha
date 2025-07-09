@@ -1,6 +1,9 @@
 import Image from "next/image";
 import { getEntryBySlug } from "@/lib/api";
 import { notFound } from "next/navigation";
+
+// Enable ISR with 30 minute revalidation for individual entries
+export const revalidate = 1800;
 import {
   StarIcon,
   MapPinIcon,

@@ -80,6 +80,17 @@ export async function getEntriesByCategory(
   );
 }
 
+// Synchronous fallback functions for build-time use
+export function getMockEntriesByCategory(
+  category: string
+): DirectoryEntry[] {
+  console.log(`Using mock fallback for category: ${category}`);
+  if (category.toLowerCase() === "all") return MOCK_ENTRIES;
+  return MOCK_ENTRIES.filter(
+    (entry) => entry.category.toLowerCase() === category.toLowerCase()
+  );
+}
+
 export async function getEntryById(
   id: string
 ): Promise<DirectoryEntry | undefined> {
@@ -91,5 +102,13 @@ export async function getEntryBySlug(
   slug: string
 ): Promise<DirectoryEntry | undefined> {
   console.log(`Fetching entry with slug: ${slug}`);
+  return MOCK_ENTRIES.find((entry) => entry.slug === slug);
+}
+
+// Synchronous fallback function for build-time use
+export function getMockEntryBySlug(
+  slug: string
+): DirectoryEntry | undefined {
+  console.log(`Using mock fallback for slug: ${slug}`);
   return MOCK_ENTRIES.find((entry) => entry.slug === slug);
 }
