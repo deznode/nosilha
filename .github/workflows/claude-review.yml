@@ -237,9 +237,13 @@ jobs:
             for (const file of validFiles) {
               console.log(`Processing file: ${file}`);
               
+              // Declare variables outside try-catch block to maintain scope
+              let content = null;
+              let diff = null;
+              
               try {
-                const content = await getFileContent(file);
-                const diff = await getFileDiff(file);
+                content = await getFileContent(file);
+                diff = await getFileDiff(file);
                 
                 if (!content && !diff) {
                   console.log(`Skipping ${file} - no content or diff available`);
