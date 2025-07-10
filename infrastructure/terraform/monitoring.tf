@@ -62,7 +62,9 @@ resource "google_billing_budget" "project_budget" {
 # ------------------------------------------------------------------------------
 
 # Custom dashboard for monitoring Cloud Run metrics
+# Only created when monitoring is enabled to reduce costs for community project
 resource "google_monitoring_dashboard" "nosilha_dashboard" {
+  count = var.enable_monitoring_dashboard ? 1 : 0
   dashboard_json = jsonencode({
     displayName = "Nosilha Infrastructure Monitoring"
     mosaicLayout = {

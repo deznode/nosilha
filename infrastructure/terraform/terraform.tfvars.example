@@ -11,3 +11,6 @@ gcp_region     = "us-east1"
 billing_account_id = ""
 budget_notification_channels = ["your-notification-channel-id"]
 
+# Optional: Enable monitoring dashboard (additional cost)
+enable_monitoring_dashboard = false
+

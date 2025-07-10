@@ -78,6 +78,13 @@ resource "google_project_iam_member" "cicd_storage_admin" {
   member  = google_service_account.cicd_deployer.member
 }
 
+# Allow CI/CD to manage monitoring dashboards and metrics
+resource "google_project_iam_member" "cicd_monitoring_editor" {
+  project = var.gcp_project_id
+  role    = "roles/monitoring.editor"
+  member  = google_service_account.cicd_deployer.member
+}
+
 # ------------------------------------------------------------------------------
 # Service Account Key for GitHub Actions
 # ------------------------------------------------------------------------------
