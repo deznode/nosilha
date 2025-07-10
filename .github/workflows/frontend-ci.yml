@@ -208,7 +208,6 @@ jobs:
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-frontend/nosilha-web-ui:${{ github.sha }}
-            ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-frontend/nosilha-web-ui:${{ github.ref_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |

@@ -38,9 +38,3 @@ variable "budget_pubsub_topic" {
   default     = null
 }
 
-variable "enable_monitoring_dashboard" {
-  type        = bool
-  description = "Enable monitoring dashboard creation (additional cost for community project)."
-  default     = false
-}
-
