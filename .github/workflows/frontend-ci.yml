@@ -36,7 +36,7 @@ env:
 jobs:
   security-scan:
     name: Security Scanning
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -53,7 +53,7 @@ jobs:
 
   lint:
     name: Code Quality & Linting
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     defaults:
       run:
         working-directory: ./frontend
@@ -78,7 +78,7 @@ jobs:
 
   test:
     name: Tests & Type Checking
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     defaults:
       run:
         working-directory: ./frontend
@@ -111,8 +111,8 @@ jobs:
 
   bundle-analysis:
     name: Bundle Size Analysis
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-22.04
+    if: github.event_name == 'pull_request' && !github.event.pull_request.draft
     defaults:
       run:
         working-directory: ./frontend
@@ -120,7 +120,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Check for relevant changes
+        id: changes
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            bundle:
+              - 'frontend/package.json'
+              - 'frontend/package-lock.json'
+              - 'frontend/src/**'
+              - 'frontend/next.config.ts'
+      
       - name: Setup Node.js
+        if: ${{ steps.changes.outputs.bundle == 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: '18'
@@ -128,25 +140,27 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
           
       - name: Install dependencies
+        if: ${{ steps.changes.outputs.bundle == 'true' }}
         run: npm ci
         
       - name: Build and check bundle size
+        if: ${{ steps.changes.outputs.bundle == 'true' }}
         run: |
           npm run build
           npx bundlesize
         continue-on-error: true
         env:
           NODE_ENV: production
-          API_URL: http://localhost:8080/api/v1
+          NEXT_PUBLIC_API_URL: ${{secrets.NEXT_PUBLIC_API_URL}}
           NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
   build:
     name: Build & Package
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [security-scan, lint, test]
-    if: github.ref == 'refs/heads/main' && !inputs.skip-deploy
+    if: github.ref == 'refs/heads/main' && !inputs.skip-deploy && !github.event.pull_request.draft
     outputs:
       image-tag: ${{ steps.meta.outputs.tags }}
       image-digest: ${{ steps.build.outputs.digest }}
@@ -198,6 +212,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
+            NEXT_PUBLIC_API_URL: ${{secrets.NEXT_PUBLIC_API_URL}}
             NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
@@ -211,7 +226,7 @@ jobs:
 
   deploy-production:
     name: Deploy to Production
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [build]
     if: github.ref == 'refs/heads/main' && needs.build.result == 'success' && !inputs.skip-deploy
     environment: production
