@@ -124,9 +124,12 @@ jobs:
       - name: Build and push Docker image
         id: build
         run: |
+          # Build image locally first
           ./gradlew bootBuildImage --no-daemon \
-            --imageName=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-backend/nosilha-core-api:${{ github.sha }} \
-            --publishImage
+            --imageName=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-backend/nosilha-core-api:${{ github.sha }}
+          
+          # Push the image using Docker CLI (which uses the gcloud auth)
+          docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-backend/nosilha-core-api:${{ github.sha }}
           
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
             docker tag ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-backend/nosilha-core-api:${{ github.sha }} \

@@ -208,6 +208,7 @@ jobs:
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-frontend/nosilha-web-ui:${{ github.sha }}
+            ${{ github.ref == 'refs/heads/main' && format('{0}/{1}/nosilha-frontend/nosilha-web-ui:latest', env.REGISTRY, env.PROJECT_ID) || '' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
@@ -215,13 +216,6 @@ jobs:
             NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-          
-      - name: Tag latest for main branch
-        if: github.ref == 'refs/heads/main'
-        run: |
-          docker tag ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-frontend/nosilha-web-ui:${{ github.sha }} \
-            ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-frontend/nosilha-web-ui:latest
-          docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-frontend/nosilha-web-ui:latest
 
   deploy-production:
     name: Deploy to Production
