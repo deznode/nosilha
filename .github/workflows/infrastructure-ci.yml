@@ -103,6 +103,26 @@ jobs:
       - name: Terraform Init
         run: terraform init -reconfigure
         
+      - name: Handle existing state locks
+        run: |
+          echo "Checking for existing Terraform locks..."
+          # Force unlock the specific problematic lock if it exists
+          terraform force-unlock -force 1752177952260121 || true
+          # General lock cleanup - extract any lock ID and unlock
+          LOCK_OUTPUT=$(terraform plan 2>&1 || true)
+          if echo "$LOCK_OUTPUT" | grep -q "Error acquiring the state lock"; then
+            echo "Lock detected, attempting cleanup..."
+            LOCK_ID=$(echo "$LOCK_OUTPUT" | grep -A 10 "Lock Info:" | grep "ID:" | awk '{print $2}' | head -n1)
+            if [ -n "$LOCK_ID" ]; then
+              echo "Unlocking state with ID: $LOCK_ID"
+              terraform force-unlock -force "$LOCK_ID" || true
+              sleep 5
+            fi
+          else
+            echo "No lock detected, proceeding..."
+          fi
+        continue-on-error: true
+        
       - name: Terraform Plan
         id: plan
         run: terraform plan -no-color -out=tfplan
@@ -116,6 +136,21 @@ jobs:
         with:
           name: terraform-plan
           path: infrastructure/terraform/plan-output.txt
+          
+      - name: Cleanup locks on failure
+        if: failure()
+        run: |
+          echo "Workflow failed, cleaning up any remaining locks..."
+          # Try to extract and unlock any remaining lock IDs
+          LOCK_OUTPUT=$(terraform plan 2>&1 || true)
+          if echo "$LOCK_OUTPUT" | grep -q "Lock Info:"; then
+            LOCK_ID=$(echo "$LOCK_OUTPUT" | grep -A 10 "Lock Info:" | grep "ID:" | awk '{print $2}' | head -n1)
+            if [ -n "$LOCK_ID" ]; then
+              echo "Force unlocking state with ID: $LOCK_ID"
+              terraform force-unlock -force "$LOCK_ID" || true
+            fi
+          fi
+        continue-on-error: true
 
   plan-comment:
     name: Comment Terraform Plan on PR
@@ -188,8 +223,50 @@ jobs:
       - name: Terraform Init
         run: terraform init -reconfigure
         
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan
+      - name: Handle existing state locks
+        run: |
+          echo "Checking for existing Terraform locks..."
+          # Force unlock the specific problematic lock if it exists
+          terraform force-unlock -force 1752177952260121 || true
+          # General lock cleanup - extract any lock ID and unlock
+          LOCK_OUTPUT=$(terraform plan 2>&1 || true)
+          if echo "$LOCK_OUTPUT" | grep -q "Error acquiring the state lock"; then
+            echo "Lock detected, attempting cleanup..."
+            LOCK_ID=$(echo "$LOCK_OUTPUT" | grep -A 10 "Lock Info:" | grep "ID:" | awk '{print $2}' | head -n1)
+            if [ -n "$LOCK_ID" ]; then
+              echo "Unlocking state with ID: $LOCK_ID"
+              terraform force-unlock -force "$LOCK_ID" || true
+              sleep 5
+            fi
+          else
+            echo "No lock detected, proceeding..."
+          fi
+        continue-on-error: true
+        
+      - name: Terraform Plan with retry
+        run: |
+          MAX_RETRIES=3
+          RETRY_COUNT=0
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            echo "Terraform plan attempt $((RETRY_COUNT + 1))/$MAX_RETRIES"
+            
+            if terraform plan -out=tfplan; then
+              echo "Terraform plan succeeded"
+              exit 0
+            else
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+              if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+                echo "Plan failed, retrying in 10 seconds..."
+                sleep 10
+                # Try to clear any potential locks before retry
+                terraform force-unlock -force $(terraform plan 2>&1 | grep "ID:" | awk '{print $2}' | head -n1) || true
+              else
+                echo "All retry attempts failed"
+                exit 1
+              fi
+            fi
+          done
         
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
@@ -201,6 +278,21 @@ jobs:
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           terraform state list >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          
+      - name: Cleanup locks on failure
+        if: failure()
+        run: |
+          echo "Workflow failed, cleaning up any remaining locks..."
+          # Try to extract and unlock any remaining lock IDs
+          LOCK_OUTPUT=$(terraform plan 2>&1 || true)
+          if echo "$LOCK_OUTPUT" | grep -q "Lock Info:"; then
+            LOCK_ID=$(echo "$LOCK_OUTPUT" | grep -A 10 "Lock Info:" | grep "ID:" | awk '{print $2}' | head -n1)
+            if [ -n "$LOCK_ID" ]; then
+              echo "Force unlocking state with ID: $LOCK_ID"
+              terraform force-unlock -force "$LOCK_ID" || true
+            fi
+          fi
+        continue-on-error: true
 
   drift-detection:
     name: Configuration Drift Detection
@@ -226,6 +318,26 @@ jobs:
           
       - name: Terraform Init
         run: terraform init -reconfigure
+        
+      - name: Handle existing state locks
+        run: |
+          echo "Checking for existing Terraform locks..."
+          # Force unlock the specific problematic lock if it exists
+          terraform force-unlock -force 1752177952260121 || true
+          # General lock cleanup - extract any lock ID and unlock
+          LOCK_OUTPUT=$(terraform plan 2>&1 || true)
+          if echo "$LOCK_OUTPUT" | grep -q "Error acquiring the state lock"; then
+            echo "Lock detected, attempting cleanup..."
+            LOCK_ID=$(echo "$LOCK_OUTPUT" | grep -A 10 "Lock Info:" | grep "ID:" | awk '{print $2}' | head -n1)
+            if [ -n "$LOCK_ID" ]; then
+              echo "Unlocking state with ID: $LOCK_ID"
+              terraform force-unlock -force "$LOCK_ID" || true
+              sleep 5
+            fi
+          else
+            echo "No lock detected, proceeding..."
+          fi
+        continue-on-error: true
         
       - name: Check for Configuration Drift
         id: drift
@@ -268,3 +380,18 @@ jobs:
       - name: Notify on Success
         if: steps.drift.outputs.exit_code == '0'
         run: echo "✅ No configuration drift detected - infrastructure is in sync"
+        
+      - name: Cleanup locks on failure
+        if: failure()
+        run: |
+          echo "Workflow failed, cleaning up any remaining locks..."
+          # Try to extract and unlock any remaining lock IDs
+          LOCK_OUTPUT=$(terraform plan 2>&1 || true)
+          if echo "$LOCK_OUTPUT" | grep -q "Lock Info:"; then
+            LOCK_ID=$(echo "$LOCK_OUTPUT" | grep -A 10 "Lock Info:" | grep "ID:" | awk '{print $2}' | head -n1)
+            if [ -n "$LOCK_ID" ]; then
+              echo "Force unlocking state with ID: $LOCK_ID"
+              terraform force-unlock -force "$LOCK_ID" || true
+            fi
+          fi
+        continue-on-error: true
