@@ -9,7 +9,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "1.9.25"
     jacoco
-    id("io.gitlab.arturbosch.detekt") version "1.23.6"
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
 }
 
 group = "com.nosilha"
@@ -27,7 +27,7 @@ repositories {
 
 extra["springCloudGcpVersion"] = "6.2.2"
 extra["testcontainersVersion"] = "1.21.3"
-extra["detektVersion"] = "1.23.6"
+extra["detektVersion"] = "1.23.8"
 
 dependencies {
 
@@ -108,13 +108,15 @@ tasks.jacocoTestCoverageVerification {
     }
 }
 
-configurations.all {
-    resolutionStrategy.eachDependency {
-        if (requested.group == "org.jetbrains.kotlin") {
-            useVersion(
-                io.gitlab.arturbosch.detekt
-                    .getSupportedKotlinVersion(),
-            )
+dependencyManagement {
+    configurations.matching { it.name == "detekt" }.all {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "org.jetbrains.kotlin") {
+                useVersion(
+                    io.gitlab.arturbosch.detekt
+                        .getSupportedKotlinVersion(),
+                )
+            }
         }
     }
 }
