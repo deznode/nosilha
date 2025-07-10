@@ -19,17 +19,6 @@ variable "media_bucket_name" {
   default     = "media-storage-useast1"
 }
 
-variable "api_image_tag" {
-  type        = string
-  description = "The tag of the nosilha-core-api image to deploy (e.g., git commit SHA, 'latest')."
-  default     = "latest"
-}
-
-variable "frontend_image_tag" {
-  type        = string
-  description = "The tag of the nosilha-web-ui image to deploy (e.g., git commit SHA, 'latest')."
-  default     = "latest"
-}
 
 variable "billing_account_id" {
   type        = string
