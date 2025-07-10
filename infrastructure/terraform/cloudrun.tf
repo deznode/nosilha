@@ -74,8 +74,8 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
 
     containers {
       # The full path to the container image in Artifact Registry.
-      # The tag is controlled by a variable for easy updates.
-      image = "us-east1-docker.pkg.dev/${var.gcp_project_id}/nosilha-backend/nosilha-core-api:${var.api_image_tag}"
+      # Uses latest tag - actual deployments handled by CI/CD
+      image = "us-east1-docker.pkg.dev/${var.gcp_project_id}/nosilha-backend/nosilha-core-api:latest"
 
       # Configure memory and CPU resources
       resources {
@@ -184,7 +184,8 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
   template {
     containers {
       # The full path to the frontend container image in its Artifact Registry.
-      image = "us-east1-docker.pkg.dev/${var.gcp_project_id}/nosilha-frontend/nosilha-web-ui:${var.frontend_image_tag}"
+      # Uses latest tag - actual deployments handled by CI/CD
+      image = "us-east1-docker.pkg.dev/${var.gcp_project_id}/nosilha-frontend/nosilha-web-ui:latest"
 
       # Configure container port for Next.js
       ports {

@@ -23,8 +23,6 @@ on:
 env:
   TF_VERSION: "1.12.2"
   TF_VAR_gcp_project_id: ${{ secrets.GCP_PROJECT_ID }}
-  TF_VAR_api_image_tag: ${{ github.sha }}
-  TF_VAR_frontend_image_tag: ${{ github.sha }}
 
 jobs:
   security-scan:
