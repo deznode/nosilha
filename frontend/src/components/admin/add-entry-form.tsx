@@ -107,8 +107,8 @@ export function AddEntryForm() {
       payload.details = {
         phoneNumber: formData.details.phoneNumber || "",
         amenities:
-          formData.details.amenities?.split(",").map((item) => item.trim()) ||
-          [],
+          (formData.details.amenities?.split(",").map((item) => item.trim()) ||
+          []) as ("Wi-Fi" | "Pool" | "Parking")[],
       };
     }
 
@@ -325,7 +325,7 @@ export function AddEntryForm() {
               <Field className="col-span-full">
                 <Label>Primary Image</Label>
                 <div className="mt-2">
-                  <ImageUploader />
+                  <ImageUploader onFileSelect={() => {}} />
                 </div>
               </Field>
             </div>

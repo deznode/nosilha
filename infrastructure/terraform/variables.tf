@@ -48,3 +48,4 @@ variable "budget_pubsub_topic" {
   description = "Pub/Sub topic for budget notifications."
   default     = null
 }
+

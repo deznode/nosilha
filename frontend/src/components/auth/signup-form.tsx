@@ -38,7 +38,7 @@ export function SignupForm() {
   return (
     <div className="mx-auto max-w-md">
       {success ? (
-        <Alert color="green">Check your email for the confirmation link!</Alert>
+        <Alert color="green" onClose={() => setSuccess(false)}>Check your email for the confirmation link!</Alert>
       ) : (
         <form onSubmit={handleSignUp} className="space-y-6">
           <Field>
@@ -63,7 +63,7 @@ export function SignupForm() {
             />
           </Field>
 
-          {error && <Alert color="red">{error}</Alert>}
+          {error && <Alert color="red" onClose={() => setError(null)}>{error}</Alert>}
 
           <div>
             <Button

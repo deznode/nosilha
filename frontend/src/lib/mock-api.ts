@@ -8,6 +8,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     category: "Restaurant",
     imageUrl: "https://picsum.photos/800/600?random=1", // <-- Updated
     town: "Nova Sintra",
+    latitude: 14.8650,
+    longitude: -24.7070,
     description:
       "A beloved local spot known for its fresh seafood and traditional Cape Verdean dishes, offering an authentic taste of Brava.",
     rating: 4.5,
@@ -25,6 +27,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     category: "Hotel",
     imageUrl: "https://picsum.photos/800/600?random=2", // <-- Updated
     town: "Nova Sintra",
+    latitude: 14.8640,
+    longitude: -24.7080,
     description:
       "A charming and comfortable hotel offering stunning panoramic views of the island and the ocean.",
     rating: 4.8,
@@ -41,6 +45,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     category: "Beach",
     imageUrl: "https://picsum.photos/800/600?random=3", // <-- Updated
     town: "Fajã d'Água",
+    latitude: 14.8470,
+    longitude: -24.7200,
     description:
       "A beautiful natural swimming bay with volcanic black sand and clear waters, surrounded by dramatic green cliffs.",
     rating: 5.0,
@@ -54,6 +60,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     category: "Landmark",
     imageUrl: "https://picsum.photos/800/600?random=4", // <-- Updated
     town: "Nova Sintra",
+    latitude: 14.8690,
+    longitude: -24.7050,
     description:
       "A scenic viewpoint dedicated to the famous poet Eugénio Tavares, offering breathtaking views of the coastline.",
     rating: 4.9,
@@ -72,6 +80,17 @@ export async function getEntriesByCategory(
   );
 }
 
+// Synchronous fallback functions for build-time use
+export function getMockEntriesByCategory(
+  category: string
+): DirectoryEntry[] {
+  console.log(`Using mock fallback for category: ${category}`);
+  if (category.toLowerCase() === "all") return MOCK_ENTRIES;
+  return MOCK_ENTRIES.filter(
+    (entry) => entry.category.toLowerCase() === category.toLowerCase()
+  );
+}
+
 export async function getEntryById(
   id: string
 ): Promise<DirectoryEntry | undefined> {
@@ -83,5 +102,13 @@ export async function getEntryBySlug(
   slug: string
 ): Promise<DirectoryEntry | undefined> {
   console.log(`Fetching entry with slug: ${slug}`);
+  return MOCK_ENTRIES.find((entry) => entry.slug === slug);
+}
+
+// Synchronous fallback function for build-time use
+export function getMockEntryBySlug(
+  slug: string
+): DirectoryEntry | undefined {
+  console.log(`Using mock fallback for slug: ${slug}`);
   return MOCK_ENTRIES.find((entry) => entry.slug === slug);
 }

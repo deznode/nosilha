@@ -109,47 +109,154 @@ jobs:
               }
             }
 
-            // Function to call Claude API
-            async function callClaudeAPI(prompt) {
-              try {
-                const response = await axios.post('https://api.anthropic.com/v1/messages', {
-                  model: 'claude-3-5-sonnet-20241022',
-                  max_tokens: 4000,
-                  messages: [{
-                    role: 'user',
-                    content: prompt
-                  }]
-                }, {
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-key': ANTHROPIC_API_KEY,
-                    'anthropic-version': '2023-06-01'
+            // Custom error class for reviews
+            class ReviewError extends Error {
+              constructor(message, file, type) {
+                super(message);
+                this.file = file;
+                this.type = type;
+                this.name = 'ReviewError';
+              }
+            }
+            
+            // Helper function to sanitize file paths
+            function sanitizeFilePath(filePath) {
+              const path = require('path');
+              return path.normalize(filePath).replace(/^(\.\.[\\/])+/, '');
+            }
+            
+            // Helper function to chunk content for large files
+            function chunkContent(content, maxChunkSize = 15000) {
+              const chunks = [];
+              let currentChunk = '';
+              const lines = content.split('\n');
+              
+              for (const line of lines) {
+                if (currentChunk.length + line.length + 1 > maxChunkSize) {
+                  if (currentChunk.trim()) {
+                    chunks.push(currentChunk.trim());
                   }
-                });
+                  currentChunk = line;
+                } else {
+                  currentChunk += (currentChunk ? '\n' : '') + line;
+                }
+              }
+              
+              if (currentChunk.trim()) {
+                chunks.push(currentChunk.trim());
+              }
+              
+              return chunks;
+            }
+            
+            // Function to call Claude API with retry logic and rate limiting
+            async function callClaudeAPI(prompt, retries = 3) {
+              for (let attempt = 1; attempt <= retries; attempt++) {
+                try {
+                  const response = await axios.post('https://api.anthropic.com/v1/messages', {
+                    model: 'claude-3-5-sonnet-20241022',
+                    max_tokens: 4000,
+                    messages: [{
+                      role: 'user',
+                      content: prompt
+                    }]
+                  }, {
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'x-api-key': ANTHROPIC_API_KEY,
+                      'anthropic-version': '2023-06-01'
+                    },
+                    timeout: 30000 // 30 second timeout
+                  });
 
-                return response.data.content[0].text;
-              } catch (error) {
-                console.error('Claude API error:', error.response?.data || error.message);
-                throw error;
+                  return response.data.content[0].text;
+                } catch (error) {
+                  const isRetryable = error.response?.status === 429 || 
+                                     error.response?.status >= 500 || 
+                                     error.code === 'ECONNABORTED';
+                  
+                  if (attempt === retries || !isRetryable) {
+                    // Sanitize error message to avoid exposing sensitive information
+                    const sanitizedError = {
+                      status: error.response?.status || 'unknown',
+                      message: error.response?.status === 429 ? 'Rate limit exceeded' : 
+                              error.response?.status >= 500 ? 'Server error' : 
+                              'API request failed'
+                    };
+                    console.error(`Claude API error (attempt ${attempt}/${retries}):`, sanitizedError);
+                    throw new ReviewError(sanitizedError.message, 'api', 'request_failed');
+                  }
+                  
+                  // Exponential backoff for retries
+                  const delay = Math.pow(2, attempt - 1) * 1000;
+                  console.log(`Retrying in ${delay}ms... (attempt ${attempt + 1}/${retries})`);
+                  await new Promise(resolve => setTimeout(resolve, delay));
+                }
               }
             }
 
-            let allReviews = [];
-            let criticalIssues = [];
-            let suggestions = [];
-            let positivePoints = [];
+            // Helper function to extract section content
+            function extractSection(review, sectionName) {
+              const regex = new RegExp(`## ${sectionName}\\s*([\\s\\S]*?)(?=##|$)`, 'i');
+              const match = review.match(regex);
+              return match && match[1] ? match[1].trim() : '';
+            }
 
+            let allReviews = [];
+            let allCriticalIssues = [];
+            let allSuggestions = [];
+            let allPositivePoints = [];
+            let allActionItems = [];
+
+            // Configuration for file processing
+            const MAX_FILES_TO_REVIEW = 10;
+            const MAX_FILE_SIZE = 50000; // 50KB max per file
+            const EXCLUDED_PATTERNS = [
+              /node_modules/,
+              /\.git/,
+              /\.DS_Store/,
+              /\.env/,
+              /\.key$/,
+              /\.pem$/,
+              /\.p12$/,
+              /\.pfx$/,
+              /package-lock\.json$/,
+              /yarn\.lock$/
+            ];
+            
+            // Filter and sanitize files
+            const validFiles = changedFiles
+              .filter(file => file.trim() !== '')
+              .map(file => sanitizeFilePath(file))
+              .filter(file => !EXCLUDED_PATTERNS.some(pattern => pattern.test(file)))
+              .slice(0, MAX_FILES_TO_REVIEW);
+            
+            console.log(`Processing ${validFiles.length} files (${changedFiles.length} total changed)`);
+            
             // Process each changed file
-            for (const file of changedFiles) {
-              if (file.trim() === '') continue;
-            
+            for (const file of validFiles) {
               console.log(`Processing file: ${file}`);
-            
-              const content = await getFileContent(file);
-              const diff = await getFileDiff(file);
-            
-              if (!content && !diff) {
-                console.log(`Skipping ${file} - no content or diff available`);
+              
+              // Declare variables outside try-catch block to maintain scope
+              let content = null;
+              let diff = null;
+              
+              try {
+                content = await getFileContent(file);
+                diff = await getFileDiff(file);
+                
+                if (!content && !diff) {
+                  console.log(`Skipping ${file} - no content or diff available`);
+                  continue;
+                }
+                
+                // Check file size
+                if (content && content.length > MAX_FILE_SIZE) {
+                  console.log(`Skipping ${file} - file too large (${content.length} bytes)`);
+                  continue;
+                }
+              } catch (error) {
+                console.error(`Error processing ${file}:`, error.message);
                 continue;
               }
 
@@ -184,52 +291,83 @@ jobs:
                - Potential runtime issues
 
             5. **Testing & Documentation**
-               - Test coverage gaps
                - Missing documentation
                - API documentation needs
 
-            Format your response as follows:
+            Format your response EXACTLY as follows:
             ## Critical Issues 🚨
-            [List any critical issues that must be fixed]
+            [List any critical issues that must be fixed, or write "No critical issues found."]
 
             ## Suggestions for Improvement 💡
-            [List suggestions and improvements]
+            [List suggestions and improvements, or write "No specific suggestions."]
 
             ## Positive Aspects ✅
-            [Highlight good practices and well-written code]
+            [Highlight good practices and well-written code, or write "Standard implementation."]
 
             ## Action Items 📋
-            [Specific, actionable items for the developer]
+            [Specific, actionable items for the developer, or write "No specific action items."]
 
             Be specific, constructive, and provide code examples where helpful.`;
 
               try {
                 const review = await callClaudeAPI(prompt);
-                allReviews.push({
+                
+                // Extract individual sections
+                const criticalIssues = extractSection(review, 'Critical Issues 🚨');
+                const suggestions = extractSection(review, 'Suggestions for Improvement 💡');
+                const positiveAspects = extractSection(review, 'Positive Aspects ✅');
+                const actionItems = extractSection(review, 'Action Items 📋');
+
+                // Store structured review data
+                const fileReview = {
                   file: file,
-                  review: review
-                });
+                  criticalIssues: criticalIssues,
+                  suggestions: suggestions,
+                  positiveAspects: positiveAspects,
+                  actionItems: actionItems,
+                  fullReview: review
+                };
 
-                // Parse the review to extract different sections
-                const criticalSection = review.match(/## Critical Issues 🚨\s*([\s\S]*?)(?=##|$)/);
-                const suggestionSection = review.match(/## Suggestions for Improvement 💡\s*([\s\S]*?)(?=##|$)/);
-                const positiveSection = review.match(/## Positive Aspects ✅\s*([\s\S]*?)(?=##|$)/);
+                allReviews.push(fileReview);
 
-                if (criticalSection && criticalSection[1].trim()) {
-                  criticalIssues.push(`**${file}**\n${criticalSection[1].trim()}`);
+                // Collect issues for summary sections (only if content exists and is not placeholder)
+                if (criticalIssues && !criticalIssues.toLowerCase().includes('no critical issues')) {
+                  allCriticalIssues.push({
+                    file: file,
+                    content: criticalIssues
+                  });
                 }
-                if (suggestionSection && suggestionSection[1].trim()) {
-                  suggestions.push(`**${file}**\n${suggestionSection[1].trim()}`);
+
+                if (suggestions && !suggestions.toLowerCase().includes('no specific suggestions')) {
+                  allSuggestions.push({
+                    file: file,
+                    content: suggestions
+                  });
                 }
-                if (positiveSection && positiveSection[1].trim()) {
-                  positivePoints.push(`**${file}**\n${positiveSection[1].trim()}`);
+
+                if (positiveAspects && !positiveAspects.toLowerCase().includes('standard implementation')) {
+                  allPositivePoints.push({
+                    file: file,
+                    content: positiveAspects
+                  });
+                }
+
+                if (actionItems && !actionItems.toLowerCase().includes('no specific action items')) {
+                  allActionItems.push({
+                    file: file,
+                    content: actionItems
+                  });
                 }
 
               } catch (error) {
                 console.error(`Error reviewing ${file}:`, error.message);
                 allReviews.push({
                   file: file,
-                  review: `Error occurred during review: ${error.message}`
+                  criticalIssues: `Error occurred during review: ${error.message}`,
+                  suggestions: '',
+                  positiveAspects: '',
+                  actionItems: '',
+                  fullReview: `Error occurred during review: ${error.message}`
                 });
               }
             }
@@ -254,127 +392,246 @@ jobs:
             This automated review analyzed ${allReviews.length} changed files using Claude AI to identify potential issues, improvements, and positive aspects of the code changes.
 
             ### 🎯 Quick Stats
-            - **Critical Issues Found:** ${criticalIssues.length}
-            - **Improvement Suggestions:** ${suggestions.length}
-            - **Positive Highlights:** ${positivePoints.length}
+            - **Critical Issues Found:** ${allCriticalIssues.length}
+            - **Improvement Suggestions:** ${allSuggestions.length}
+            - **Positive Highlights:** ${allPositivePoints.length}
+            - **Action Items:** ${allActionItems.length}
 
             ---
             `;
 
-            if (criticalIssues.length > 0) {
-              markdownReport += `## 🚨 Critical Issues (${criticalIssues.length})
+            // Critical Issues Summary (only if there are issues)
+            if (allCriticalIssues.length > 0) {
+              markdownReport += `## 🚨 Critical Issues Summary (${allCriticalIssues.length})
 
             These issues should be addressed before merging:
 
-            ${criticalIssues.join('\n\n---\n\n')}
+            `;
+              allCriticalIssues.forEach((issue, index) => {
+                markdownReport += `### ${index + 1}. \`${issue.file}\`
+            ${issue.content}
 
-            ---
+            `;
+              });
+              markdownReport += `---
 
             `;
             }
 
-            if (suggestions.length > 0) {
-              markdownReport += `## 💡 Suggestions for Improvement (${suggestions.length})
+            // Suggestions Summary (only if there are suggestions)
+            if (allSuggestions.length > 0) {
+              markdownReport += `## 💡 Improvement Suggestions Summary (${allSuggestions.length})
 
-            ${suggestions.join('\n\n---\n\n')}
+            `;
+              allSuggestions.forEach((suggestion, index) => {
+                markdownReport += `### ${index + 1}. \`${suggestion.file}\`
+            ${suggestion.content}
 
-            ---
+            `;
+              });
+              markdownReport += `---
 
             `;
             }
 
-            if (positivePoints.length > 0) {
-              markdownReport += `## ✅ Positive Aspects (${positivePoints.length})
+            // Positive Aspects Summary (only if there are highlights)
+            if (allPositivePoints.length > 0) {
+              markdownReport += `## ✅ Positive Aspects Summary (${allPositivePoints.length})
 
-            ${positivePoints.join('\n\n---\n\n')}
+            `;
+              allPositivePoints.forEach((positive, index) => {
+                markdownReport += `### ${index + 1}. \`${positive.file}\`
+            ${positive.content}
 
-            ---
+            `;
+              });
+              markdownReport += `---
 
             `;
             }
 
+            // Action Items Checklist
             markdownReport += `## 📋 Action Items Checklist
 
             Based on the review, here are the recommended action items:
 
-            ### High Priority
-            ${criticalIssues.length > 0 ? 
-              criticalIssues.map((issue, index) => `- [ ] **Critical Issue ${index + 1}:** Address security/functionality concerns in the highlighted areas`).join('\n') : 
-              '- [ ] No critical issues identified ✅'
+            `;
+
+            if (allCriticalIssues.length > 0) {
+              markdownReport += `### 🚨 High Priority (Critical Issues)
+            `;
+              allCriticalIssues.forEach((issue, index) => {
+                markdownReport += `- [ ] **\`${issue.file}\`:** Address critical security/functionality concerns
+            `;
+              });
+              markdownReport += `
+            `;
             }
 
-            ### Medium Priority
-            ${suggestions.length > 0 ? 
-              suggestions.slice(0, 5).map((suggestion, index) => `- [ ] **Improvement ${index + 1}:** Consider implementing suggested enhancements`).join('\n') : 
-              '- [ ] No major improvements suggested'
+            if (allActionItems.length > 0) {
+              markdownReport += `### 📋 Specific Action Items
+            `;
+              allActionItems.forEach((item, index) => {
+                markdownReport += `#### \`${item.file}\`
+            ${item.content}
+
+            `;
+              });
             }
 
-            ### Documentation & Testing
-            - [ ] Review test coverage for new/modified code
+            if (allSuggestions.length > 0) {
+              markdownReport += `### 💡 Medium Priority (Improvements)
+            `;
+              allSuggestions.slice(0, 5).forEach((suggestion, index) => {
+                markdownReport += `- [ ] **\`${suggestion.file}\`:** Consider implementing suggested enhancements
+            `;
+              });
+              markdownReport += `
+            `;
+            }
+
+            markdownReport += `### 📚 General Tasks
             - [ ] Update documentation if API changes were made
             - [ ] Consider adding inline comments for complex logic
+            - [ ] Verify all critical issues are resolved before merging
 
             ---
 
-            ## 📄 Detailed File Reviews
+            ## 📄 File-by-File Review Details
 
             `;
 
-            // Add detailed reviews for each file
-            for (const fileReview of allReviews) {
-              markdownReport += `### 📁 \`${fileReview.file}\`
-
-            ${fileReview.review}
-
-            ---
+            // Add concise file reviews without duplicating the summary sections
+            allReviews.forEach((fileReview, index) => {
+              markdownReport += `### ${index + 1}. 📁 \`${fileReview.file}\`
 
             `;
-            }
 
-            markdownReport += `
-            ## 🔍 Review Methodology
+              // Only show non-empty sections
+              if (fileReview.criticalIssues && !fileReview.criticalIssues.toLowerCase().includes('no critical issues')) {
+                markdownReport += `**🚨 Critical Issues:**
+            ${fileReview.criticalIssues}
+
+            `;
+              }
+
+              if (fileReview.suggestions && !fileReview.suggestions.toLowerCase().includes('no specific suggestions')) {
+                markdownReport += `**💡 Suggestions:**
+            ${fileReview.suggestions}
+
+            `;
+              }
+
+              if (fileReview.positiveAspects && !fileReview.positiveAspects.toLowerCase().includes('standard implementation')) {
+                markdownReport += `**✅ Positive Aspects:**
+            ${fileReview.positiveAspects}
+
+            `;
+              }
+
+              if (fileReview.actionItems && !fileReview.actionItems.toLowerCase().includes('no specific action items')) {
+                markdownReport += `**📋 Action Items:**
+            ${fileReview.actionItems}
+
+            `;
+              }
+
+              // If no significant findings, show a brief summary
+              if ((!fileReview.criticalIssues || fileReview.criticalIssues.toLowerCase().includes('no critical issues')) &&
+                  (!fileReview.suggestions || fileReview.suggestions.toLowerCase().includes('no specific suggestions')) &&
+                  (!fileReview.actionItems || fileReview.actionItems.toLowerCase().includes('no specific action items'))) {
+                markdownReport += `✅ **No significant issues found** - Code follows good practices.
+
+            `;
+              }
+
+              markdownReport += `---
+
+            `;
+            });
+
+            markdownReport += `## 🔍 Review Methodology
 
             This review was conducted using Claude AI with focus on:
-            - Code quality and best practices
-            - Security vulnerability detection
-            - Performance optimization opportunities
-            - Bug detection and edge case handling
-            - Testing and documentation completeness
+            - **Code Quality:** Adherence to best practices and maintainability
+            - **Security:** Vulnerability detection and secure coding practices
+            - **Performance:** Algorithm efficiency and resource optimization
+            - **Reliability:** Bug detection and edge case handling
+            - **Documentation:** Code documentation
 
-            > **Note:** This is an automated review. While comprehensive, it should complement (not replace) human code review.
+            > **Note:** This is an automated review. While comprehensive, it should complement (not replace) human code review for critical systems.
 
             ---
 
-            *Generated by Claude AI Code Review Action*
+            *Generated by Claude AI Code Review Action v2.0*
             `;
 
             // Save the report as an artifact
             fs.writeFileSync('claude-review-report.md', markdownReport);
 
-            // Post review as PR comment
-            const MAX_COMMENT_LENGTH = 65536; // GitHub's limit
-            let comment = markdownReport;
-            
-            if (comment.length > MAX_COMMENT_LENGTH) {
-              comment = comment.substring(0, MAX_COMMENT_LENGTH - 100) + '\n\n*[Report truncated due to length. Full report available in workflow artifacts.]*';
+            // Create a shorter comment for PR (summary only)
+            let prComment = `# 🤖 Claude AI Code Review Summary
+
+            **Files Reviewed:** ${allReviews.length} | **Critical Issues:** ${allCriticalIssues.length} | **Suggestions:** ${allSuggestions.length} | **Positive Highlights:** ${allPositivePoints.length}
+
+            `;
+
+            if (allCriticalIssues.length > 0) {
+              prComment += `## 🚨 Critical Issues Found (${allCriticalIssues.length})
+            ${allCriticalIssues.map((issue, index) => `${index + 1}. **\`${issue.file}\`** - Address critical concerns before merging`).join('\n')}
+
+            `;
             }
 
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber,
-              body: comment
-            });
+            if (allCriticalIssues.length === 0) {
+              prComment += `## ✅ No Critical Issues Found
+            Great job! No critical security or functionality issues detected.
 
-            // Set workflow summary
-            const summary = `## Claude AI Review Summary
-            - Files reviewed: ${allReviews.length}
-            - Critical issues: ${criticalIssues.length}
-            - Suggestions: ${suggestions.length}
-            - Positive highlights: ${positivePoints.length}`;
-            
-            core.summary.addRaw(summary);
-            await core.summary.write();
+            `;
+            }
+
+            if (allSuggestions.length > 0) {
+              prComment += `## 💡 Improvement Opportunities (${allSuggestions.length})
+            Consider reviewing the detailed suggestions for code quality improvements.
+
+            `;
+            }
+
+            prComment += `---
+            📋 **Full detailed report available in workflow artifacts** - Download \`claude-review-report.md\` for complete analysis.
+
+            *Generated by Claude AI Code Review Action*`;
+
+            // Post the shorter comment to PR with error handling
+            try {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: prComment
+              });
+              console.log('✅ PR comment posted successfully');
+            } catch (error) {
+              console.error('❌ Failed to post PR comment:', error.message);
+              // Continue with the workflow even if commenting fails
+            }
+
+            // Set workflow summary with error handling
+            try {
+              const summary = `## Claude AI Review Summary
+              - Files reviewed: ${allReviews.length}
+              - Critical issues: ${allCriticalIssues.length}
+              - Suggestions: ${allSuggestions.length}
+              - Positive highlights: ${allPositivePoints.length}
+              - Action items: ${allActionItems.length}`;
+              
+              core.summary.addRaw(summary);
+              await core.summary.write();
+              console.log('✅ Workflow summary updated successfully');
+            } catch (error) {
+              console.error('❌ Failed to update workflow summary:', error.message);
+              // Continue with the workflow even if summary fails
+            }
 
             console.log('Claude review completed successfully!');
 

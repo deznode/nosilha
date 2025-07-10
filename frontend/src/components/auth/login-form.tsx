@@ -60,7 +60,7 @@ export function LoginForm() {
           />
         </Field>
 
-        {error && <Alert color="red">{error}</Alert>}
+        {error && <Alert color="red" onClose={() => setError(null)}>{error}</Alert>}
 
         <div>
           <Button

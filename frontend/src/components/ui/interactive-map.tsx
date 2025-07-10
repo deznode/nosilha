@@ -13,7 +13,7 @@ import type {
 } from "supercluster";
 
 import type { DirectoryEntry } from "@/types/directory";
-import { getEntriesByCategory } from "@/lib/api";
+import { getEntriesForMap } from "@/lib/api";
 import { CategoryMarkerIcon } from "./category-marker-icon";
 import { MapFilterControl } from "./map-filter-control";
 
@@ -37,9 +37,9 @@ type ClusterFeatureWithProps = ClusterFeature<{
 
 // The type guard now correctly distinguishes between the two feature types.
 function isClusterFeature(
-  feature: SuperclusterPointFeature<PointProperties>
+  feature: SuperclusterPointFeature<PointProperties> | ClusterFeatureWithProps
 ): feature is ClusterFeatureWithProps {
-  return !!feature.properties.cluster;
+  return !!(feature.properties as any).cluster;
 }
 
 export function InteractiveMap() {
@@ -56,7 +56,7 @@ export function InteractiveMap() {
 
   useEffect(() => {
     async function fetchEntries() {
-      const allEntries = await getEntriesByCategory("all");
+      const allEntries = await getEntriesForMap("all");
       setEntries(allEntries);
     }
     fetchEntries();
@@ -121,8 +121,11 @@ export function InteractiveMap() {
         mapStyle="mapbox://styles/mapbox/streets-v12"
         onMove={(e) => {
           setZoom(e.viewState.zoom);
-          if (e.target) {
-            setBounds(e.target.getBounds().toArray().flat() as BBox);
+          if (e.target && e.target.getBounds) {
+            const bounds = e.target.getBounds();
+            if (bounds) {
+              setBounds(bounds.toArray().flat() as BBox);
+            }
           }
         }}
       >
@@ -167,7 +170,7 @@ export function InteractiveMap() {
             );
           }
 
-          const entryId = cluster.properties.entryId;
+          const entryId = (cluster as PointFeature).properties.entryId;
           const entry = filteredEntries.find((e) => e.id === entryId);
 
           if (!entry) return null;

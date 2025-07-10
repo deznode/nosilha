@@ -31,7 +31,7 @@ extra["detektVersion"] = "1.23.8"
 
 dependencies {
 
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:${property("detektVersion")}")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
@@ -108,13 +108,15 @@ tasks.jacocoTestCoverageVerification {
     }
 }
 
-configurations.all {
-    resolutionStrategy.eachDependency {
-        if (requested.group == "org.jetbrains.kotlin") {
-            useVersion(
-                io.gitlab.arturbosch.detekt
-                    .getSupportedKotlinVersion(),
-            )
+dependencyManagement {
+    configurations.matching { it.name == "detekt" }.all {
+        resolutionStrategy.eachDependency {
+            if (requested.group == "org.jetbrains.kotlin") {
+                useVersion(
+                    io.gitlab.arturbosch.detekt
+                        .getSupportedKotlinVersion(),
+                )
+            }
         }
     }
 }

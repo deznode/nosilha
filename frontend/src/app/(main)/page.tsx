@@ -34,6 +34,9 @@ const nosilhaFeatures = [
   },
 ];
 
+// Force dynamic rendering for real-time featured content
+export const dynamic = 'force-dynamic'
+
 export default async function HomePage() {
   const featuredEntries = await getEntriesByCategory("all");
 

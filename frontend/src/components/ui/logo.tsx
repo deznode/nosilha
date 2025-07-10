@@ -26,7 +26,7 @@ const letterVariants = {
     opacity: 1,
     y: 0, // Animate to final position
     transition: {
-      type: "spring",
+      type: "spring" as const,
       damping: 12,
       stiffness: 200,
     },
