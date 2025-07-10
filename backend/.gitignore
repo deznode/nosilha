@@ -113,6 +113,7 @@ buildNumber.properties
 
 ### Application specific ###
 application-*.yml
+!application-test.yml
 !application.yml
 !application-*.yml.example
 
