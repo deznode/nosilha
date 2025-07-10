@@ -10,7 +10,9 @@ env:
 
 jobs:
   claude-review:
-    runs-on: ubuntu-latest
+    # Skip for draft PRs and small changes to save costs
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-22.04
     permissions:
       contents: read
       pull-requests: write
@@ -28,28 +30,19 @@ jobs:
         uses: tj-actions/changed-files@v46
         with:
           files: |
-            **/*.py
-            **/*.js
-            **/*.ts
-            **/*.jsx
-            **/*.tsx
-            **/*.java
-            **/*.go
-            **/*.rs
-            **/*.cpp
-            **/*.c
-            **/*.h
-            **/*.cs
-            **/*.php
-            **/*.rb
-            **/*.swift
             **/*.kt
-            **/*.scala
+            **/*.java
+            **/*.ts
+            **/*.tsx
+            **/*.js
+            **/*.jsx
             **/*.sql
+          files_ignore: |
+            **/*.md
             **/*.yaml
             **/*.yml
             **/*.json
-            **/*.md
+            **/package-lock.json
             **/*.dockerfile
             **/Dockerfile
 
@@ -65,7 +58,7 @@ jobs:
           npm install axios
 
       - name: Run Claude Review
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.changed-files.outputs.any_changed == 'true' && steps.changed-files.outputs.all_changed_files_count > 1
         uses: actions/github-script@v7
         env:
           CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}

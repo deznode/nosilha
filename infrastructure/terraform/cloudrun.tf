@@ -77,11 +77,11 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
       # Uses latest tag - actual deployments handled by CI/CD
       image = "us-east1-docker.pkg.dev/${var.gcp_project_id}/nosilha-backend/nosilha-core-api:latest"
 
-      # Configure memory and CPU resources
+      # Configure memory and CPU resources for free tier
       resources {
         limits = {
           cpu    = "1000m"
-          memory = "1Gi"
+          memory = "512Mi"
         }
       }
 
