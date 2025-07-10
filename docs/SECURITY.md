@@ -16,8 +16,8 @@ We take security vulnerabilities seriously. If you discover a security vulnerabi
 ### How to Report
 
 1. **DO NOT** open a public issue for security vulnerabilities
-2. **Email** security issues to the repository maintainers
-3. **Use** GitHub's private vulnerability reporting feature if available
+2. **Use** GitHub's private vulnerability reporting feature (recommended)
+3. **Email** security issues to: security@nosilha.com
 4. **Include** as much detail as possible about the vulnerability
 
 ### What to Include
@@ -45,12 +45,12 @@ We take security vulnerabilities seriously. If you discover a security vulnerabi
 
 ### GitHub Advanced Security Features (Requires License for Private Repos)
 
-- **CodeQL Analysis**: Automated code security analysis
-- **Secret Scanning**: Detection of accidentally committed secrets
-- **Advanced Dependency Features**: Enhanced vulnerability analysis
-- **Security Advisories**: Proactive security notifications
+- **CodeQL Analysis**: Automated semantic code analysis for TypeScript and Kotlin
+- **Secret Scanning**: Detection of accidentally committed secrets and credentials
+- **Advanced Dependency Features**: Enhanced vulnerability analysis with more detailed reporting
+- **Security Advisories**: Proactive security notifications and automated remediation
 
-**Note:** Advanced Security is free for public repositories but requires a paid license for private repositories. The repository currently has security scanning available through Trivy and static analysis tools.
+**Note:** Advanced Security is free for public repositories but requires a paid license for private repositories. This repository implements comprehensive security scanning through Trivy and static analysis tools, with CodeQL analysis available when Advanced Security is enabled.
 
 ### Development Security
 
@@ -61,10 +61,11 @@ We take security vulnerabilities seriously. If you discover a security vulnerabi
 
 ### Infrastructure Security
 
-- **Least Privilege**: Minimal IAM permissions for services
-- **Encrypted Secrets**: All sensitive data encrypted at rest
-- **Network Security**: HTTPS-only communication
-- **Container Security**: Minimal attack surface with distroless images
+- **Least Privilege**: Minimal IAM permissions for Cloud Run services and CI/CD
+- **Encrypted Secrets**: All sensitive data stored in Google Secret Manager
+- **Network Security**: HTTPS-only communication with automatic SSL/TLS certificates
+- **Container Security**: Minimal attack surface with optimized base images
+- **Cloud Run Security**: Services run in Google's secure container runtime environment
 
 ## Security Best Practices
 
@@ -78,12 +79,18 @@ We take security vulnerabilities seriously. If you discover a security vulnerabi
 
 ### For Deployment
 
-1. Use official container images
-2. Enable all security features in production
-3. Regularly update base images
-4. Monitor security alerts and act promptly
-5. Implement proper logging and monitoring
+1. Use verified and scanned container images from Google Artifact Registry
+2. Enable all security features in production Cloud Run environment
+3. Regularly update base images and dependencies through automated workflows
+4. Monitor security alerts through GitHub Security tab and act promptly
+5. Implement comprehensive logging through Google Cloud Logging
+6. Use Google Secret Manager for all sensitive configuration
+7. Ensure minimal resource allocation and auto-scaling for cost and security optimization
 
 ## Contact
 
-For security-related questions or concerns, please contact the repository maintainers through appropriate channels.
+For security-related questions or concerns:
+
+- **Security Issues**: Use GitHub's private vulnerability reporting or email security@nosilha.com
+- **General Questions**: Create an issue in the repository with the `security` label
+- **CI/CD Security**: Refer to the [CI/CD Pipeline Documentation](./CI_CD_PIPELINE.md) for deployment security details
