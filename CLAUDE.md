@@ -347,12 +347,26 @@ docker-compose down     # Stop all services
    npm run dev
    ```
 
-The application will be available at:
-- **Frontend**: `http://localhost:3000` (Next.js development server)
+## Environment Configuration
+
+### Local Development URLs
+- **Frontend**: `http://localhost:3000` (Next.js development server with Turbopack)
 - **Backend API**: `http://localhost:8080/api/v1/` (Spring Boot with live reload)
-- **PostgreSQL**: `localhost:5432` (database: `nosilha_db`, user: `nosilha`, password: `nosilha`)
+- **Database**: `localhost:5432` (PostgreSQL: database=`nosilha_db`, user=`nosilha`, password=`nosilha`)
 - **Firestore Emulator**: `http://localhost:8081` (AI metadata storage)
 - **GCS Emulator**: `http://localhost:8082` (Media file storage)
+
+### Key Health Endpoints
+- **Backend Health**: `http://localhost:8080/actuator/health`
+- **Backend Metrics**: `http://localhost:8080/actuator/metrics`
+- **API Directory**: `http://localhost:8080/api/v1/directory/entries`
+
+### Production Environment
+- **Cloud Platform**: Google Cloud Platform (GCP)
+- **Region**: `us-east1`
+- **Services**: Cloud Run (auto-scaling serverless containers)
+- **Registry**: Google Artifact Registry (`us-east1-docker.pkg.dev`)
+- **Authentication**: Supabase Auth with JWT tokens
 
 ### Verification Steps
 ```bash
@@ -405,11 +419,40 @@ docker-compose exec postgres psql -U nosilha -d nosilha_db -c "SELECT version();
 - Flyway handles database migrations in `backend/src/main/resources/db/`
 - Single Table Inheritance pattern for `DirectoryEntry` and its subclasses (`Restaurant`, `Hotel`, `Landmark`, `Beach`)
 
-### Styling & UI
-- **Tailwind CSS** with custom design system colors
-- **Headless UI** components for accessibility
-- **Catalyst UI** component library in `/components/catalyst-ui/`
-- Custom fonts: Lato (primary) and Merriweather (headings)
+### Frontend Design System & Styling
+
+#### Design System Documentation
+- **Main Documentation**: [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) - Comprehensive styling guide and component library
+- **Brand Identity**: "Clean, inviting, authentic, and lush" - digital extension of Brava Island
+- **Design Philosophy**: Reflects Cape Verde's natural beauty and cultural richness
+
+#### Color Palette (Brava-Inspired)
+- **Ocean Blue** (`#005A8D`): Primary brand color, navigation highlights, CTAs
+- **Valley Green** (`#3E7D5A`): Secondary brand color, success states, nature elements  
+- **Bougainvillea Pink** (`#D90368`): Accent color for CTAs and highlights
+- **Sunny Yellow** (`#F7B801`): Warning states and cheerful accents
+- **Volcanic Gray** (`#6C757D`, `#343A40`): Text and neutral elements
+- **Off White** (`#F8F9FA`): Clean background color
+
+#### Typography System
+- **Headings**: Merriweather (serif) - elegant, storytelling typeface for titles
+- **Body Text**: Lato (sans-serif) - clean, modern, highly readable for content
+- **Font Loading**: Google Fonts with CSS variables and optimized performance
+
+#### Component Architecture
+- **Catalyst UI**: Professional component library (25+ components) in `frontend/src/components/catalyst-ui/`
+  - Button, Input, Card, Dialog, Dropdown, Table, Avatar, Badge, etc.
+- **Custom Components**: Project-specific implementations in `frontend/src/components/ui/`
+  - DirectoryCard, PageHeader, ThemeToggle, StarRating, InteractiveMap
+- **Mobile-First**: All components responsive with Tailwind breakpoints
+- **Dark Mode**: Class-based theming with system preference detection
+
+#### Key Styling Files
+- `frontend/src/app/globals.css:4-28` - CSS custom properties for colors and dark mode
+- `frontend/tailwind.config.ts` - Tailwind configuration with custom theme tokens  
+- `frontend/src/app/layout.tsx:12-22` - Font configuration (Lato + Merriweather)
+- `frontend/src/components/ui/theme-toggle.tsx:13-72` - Theme switching logic
+- `frontend/src/components/catalyst-ui/button.tsx:6-158` - Button component with all variants
 
 ## Testing Strategy
 
@@ -643,10 +686,13 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - `docs/SECURITY.md` - Security policy and vulnerability reporting procedures
 
 ### Documentation Files
-- `CLAUDE.md` - Comprehensive development guide and architecture documentation
+- `CLAUDE.md` - Comprehensive development guide and architecture documentation (this file)
+- `docs/ARCHITECTURE.md` - Detailed technical architecture with system flows and diagrams
+- `docs/DESIGN_SYSTEM.md` - Complete frontend design system and component library guide
+- `docs/API_REFERENCE.md` - Backend API documentation with endpoints and examples
 - `docs/CI_CD_PIPELINE.md` - Detailed CI/CD setup and troubleshooting guide
 - `docs/CI_CD_TESTING.md` - Comprehensive testing procedures for CI/CD pipeline
-- `README.md` - Project overview and quick start guide
+- `README.md` - Project overview and quick start guide for public repository
 
 ## Troubleshooting Common Issues
 

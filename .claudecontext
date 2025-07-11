@@ -1,0 +1,55 @@
+# Claude Context Configuration for Nos Ilha
+# This file provides additional context hints for Claude Code
+
+project_type: "full_stack_web_application"
+domain: "tourism_and_cultural_heritage"
+location: "brava_island_cape_verde"
+
+# Primary Technologies
+languages:
+  - "typescript"
+  - "kotlin" 
+  - "sql"
+  - "hcl"
+
+frameworks:
+  - "nextjs_15_app_router"
+  - "spring_boot_3_4_7"
+  - "tailwind_css"
+  - "catalyst_ui"
+
+cloud_platform: "google_cloud_platform"
+database: "postgresql_with_firestore"
+auth: "supabase_jwt"
+
+# Key Architectural Patterns
+patterns:
+  - "single_table_inheritance"
+  - "domain_driven_design" 
+  - "mobile_first_responsive"
+  - "dark_mode_support"
+  - "incremental_static_regeneration"
+  - "server_components_first"
+
+# Development Approach
+development_style:
+  - "component_composition"
+  - "type_safety_first"
+  - "accessibility_focused"
+  - "performance_optimized"
+  - "security_by_design"
+
+# Brand Colors (for UI context)
+brand_colors:
+  primary: "#005A8D"  # Ocean Blue
+  secondary: "#3E7D5A"  # Valley Green  
+  accent: "#D90368"  # Bougainvillea Pink
+  warning: "#F7B801"  # Sunny Yellow
+
+# Common File Patterns
+file_conventions:
+  components: "kebab-case.tsx"
+  pages: "page.tsx"
+  layouts: "layout.tsx"  
+  api_routes: "/api/v1/*"
+  styles: "globals.css + tailwind"
