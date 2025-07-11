@@ -54,3 +54,14 @@ gcp:
 supabase:
   jwt-secret: ${SUPABASE_JWT_SECRET}
 
+# Spring Boot Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+      show-components: when_authorized
+

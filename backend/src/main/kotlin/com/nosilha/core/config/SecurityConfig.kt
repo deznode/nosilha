@@ -40,13 +40,14 @@ class SecurityConfig(
             .csrf { it.disable() }
             // 2. Define authorization rules for endpoints
             .authorizeHttpRequests {
-                // Allow public read access to all directory GET endpoints
+                // Allow public access to health check endpoints
                 it
+                    .requestMatchers(HttpMethod.GET, "/actuator/health/**")
+                    .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/directory/**")
                     .permitAll()
-                    // Allow public access to media upload endpoint (can be secured later if needed)
                     .requestMatchers(HttpMethod.POST, "/api/v1/media/upload")
-                    .permitAll()
+                    .hasRole("authenticated")
                     // Only allow authenticated users to create new directory entries
                     .requestMatchers(HttpMethod.POST, "/api/v1/directory/entries")
                     .hasRole("authenticated")
