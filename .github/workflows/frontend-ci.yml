@@ -241,6 +241,7 @@ jobs:
             --image=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-frontend/nosilha-web-ui:${{ github.sha }} \
             --platform=managed \
             --region=${{ env.REGION }} \
+            --service-account=frontend-runner@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
             --set-env-vars="NODE_ENV=production,NEXT_TELEMETRY_DISABLED=1" \
             --memory=512Mi \
             --cpu=1 \

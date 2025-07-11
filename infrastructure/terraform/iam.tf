@@ -2,12 +2,80 @@
 # IAM Configuration for CI/CD and Service Accounts
 # ------------------------------------------------------------------------------
 
+# ------------------------------------------------------------------------------
+# CI/CD Service Account
+# ------------------------------------------------------------------------------
+
 # Dedicated service account for CI/CD operations
 # This account will be used by GitHub Actions for automated deployments
 resource "google_service_account" "cicd_deployer" {
   account_id   = "nosilha-cicd-deployer"
   display_name = "Nosilha CI/CD Deployer"
   description  = "Service account for GitHub Actions CI/CD pipeline operations"
+}
+
+# ------------------------------------------------------------------------------
+# Runtime Service Accounts
+# ------------------------------------------------------------------------------
+
+# Backend service account - needs access to secrets and GCS
+resource "google_service_account" "backend_runner" {
+  account_id   = "nosilha-backend-runner"
+  display_name = "Nosilha.com Backend Runner"
+  description  = "Service Account for the Nosilha Backend Cloud Run service."
+
+  # Ensure IAM API is enabled before creating service account
+  depends_on = [google_project_service.iam]
+}
+
+# Frontend service account - minimal permissions, no secrets needed
+resource "google_service_account" "frontend_runner" {
+  account_id   = "nosilha-frontend-runner"
+  display_name = "Nosilha.com Frontend Runner"
+  description  = "Service Account for the Nosilha Frontend Cloud Run service."
+
+  # Ensure IAM API is enabled before creating service account
+  depends_on = [google_project_service.iam]
+}
+
+# ------------------------------------------------------------------------------
+# Runtime Service Account Permissions
+# ------------------------------------------------------------------------------
+
+# Grant backend service account access to secrets
+resource "google_secret_manager_secret_iam_member" "grant_jwt_secret_access" {
+  project   = var.gcp_project_id
+  secret_id = "supabase_jwt_secret"
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_service_account.backend_runner.member
+}
+
+resource "google_secret_manager_secret_iam_member" "grant_db_url_access" {
+  project   = var.gcp_project_id
+  secret_id = "supabase_db_url"
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_service_account.backend_runner.member
+}
+
+resource "google_secret_manager_secret_iam_member" "grant_db_user_access" {
+  project   = var.gcp_project_id
+  secret_id = "supabase_db_username"
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_service_account.backend_runner.member
+}
+
+resource "google_secret_manager_secret_iam_member" "grant_db_password_access" {
+  project   = var.gcp_project_id
+  secret_id = "supabase_db_password"
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_service_account.backend_runner.member
+}
+
+# Grant backend service account access to GCS bucket
+resource "google_storage_bucket_iam_member" "grant_gcs_access" {
+  bucket = google_storage_bucket.media_storage.name
+  role   = "roles/storage.objectAdmin"
+  member = google_service_account.backend_runner.member
 }
 
 # ------------------------------------------------------------------------------
@@ -138,4 +206,14 @@ output "cicd_service_account_key" {
   description = "Base64-encoded private key for the CI/CD service account"
   value       = google_service_account_key.cicd_deployer_key.private_key
   sensitive   = true
+}
+
+output "backend_runner_service_account_email" {
+  description = "Email address of the backend runner service account"
+  value       = google_service_account.backend_runner.email
+}
+
+output "frontend_runner_service_account_email" {
+  description = "Email address of the frontend runner service account"
+  value       = google_service_account.frontend_runner.email
 }

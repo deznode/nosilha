@@ -3,69 +3,10 @@
 # Nosilha.com backend API on Google Cloud Run.
 # ------------------------------------------------------------------------------
 
-# --- Service Account for Cloud Run Execution ---
-#
-# A dedicated service account for the Cloud Run service to run as.
-# This follows the principle of least privilege.
-#
-resource "google_service_account" "backend_runner" {
-  account_id   = "nosilha-backend-runner"
-  display_name = "Nosilha.com Backend Runner"
-  description  = "Service Account for the Nosilha Backend Cloud Run service."
-
-  # Ensure IAM API is enabled before creating service account
-  depends_on = [google_project_service.iam]
-}
-
-# Frontend service account - minimal permissions, no secrets needed
-resource "google_service_account" "frontend_runner" {
-  account_id   = "nosilha-frontend-runner"
-  display_name = "Nosilha.com Frontend Runner"
-  description  = "Service Account for the Nosilha Frontend Cloud Run service."
-
-  # Ensure IAM API is enabled before creating service account
-  depends_on = [google_project_service.iam]
-}
-
-
-# --- Secret Manager IAM Permissions ---
-#
-# Grant the Cloud Run service account the 'Secret Accessor' role
-# for each secret the application needs at runtime.
-#
-resource "google_secret_manager_secret_iam_member" "grant_jwt_secret_access" {
-  project   = var.gcp_project_id
-  secret_id = "supabase_jwt_secret"
-  role      = "roles/secretmanager.secretAccessor"
-  member    = google_service_account.backend_runner.member
-}
-
-resource "google_storage_bucket_iam_member" "grant_gcs_access" {
-  bucket = google_storage_bucket.media_storage.name
-  role   = "roles/storage.objectAdmin"
-  member = google_service_account.backend_runner.member
-}
-
-resource "google_secret_manager_secret_iam_member" "grant_db_url_access" {
-  project   = var.gcp_project_id
-  secret_id = "supabase_db_url"
-  role      = "roles/secretmanager.secretAccessor"
-  member    = google_service_account.backend_runner.member
-}
-
-resource "google_secret_manager_secret_iam_member" "grant_db_user_access" {
-  project   = var.gcp_project_id
-  secret_id = "supabase_db_username"
-  role      = "roles/secretmanager.secretAccessor"
-  member    = google_service_account.backend_runner.member
-}
-
-resource "google_secret_manager_secret_iam_member" "grant_db_password_access" {
-  project   = var.gcp_project_id
-  secret_id = "supabase_db_password"
-  role      = "roles/secretmanager.secretAccessor"
-  member    = google_service_account.backend_runner.member
-}
+# ------------------------------------------------------------------------------
+# Cloud Run Services
+# ------------------------------------------------------------------------------
+# Note: Service accounts and their permissions are defined in iam.tf
 
 
 # --- Google Cloud Run Service Definition ---
@@ -157,13 +98,10 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
     }
   }
 
-  # Ensure the Secret Manager permissions are in place before creating the service.
+  # Ensure the Cloud Run API is enabled before creating the service.
+  # Service account and permissions are managed in iam.tf
   depends_on = [
-    google_project_service.cloud_run,
-    google_secret_manager_secret_iam_member.grant_jwt_secret_access,
-    google_secret_manager_secret_iam_member.grant_db_url_access,
-    google_secret_manager_secret_iam_member.grant_db_user_access,
-    google_secret_manager_secret_iam_member.grant_db_password_access
+    google_project_service.cloud_run
   ]
 }
 
