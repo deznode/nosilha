@@ -192,28 +192,3 @@ resource "google_service_account_key" "cicd_deployer_key" {
     create_before_destroy = true
   }
 }
-
-# ------------------------------------------------------------------------------
-# Outputs for CI/CD Configuration
-# ------------------------------------------------------------------------------
-
-output "cicd_service_account_email" {
-  description = "Email address of the CI/CD service account"
-  value       = google_service_account.cicd_deployer.email
-}
-
-output "cicd_service_account_key" {
-  description = "Base64-encoded private key for the CI/CD service account"
-  value       = google_service_account_key.cicd_deployer_key.private_key
-  sensitive   = true
-}
-
-output "backend_runner_service_account_email" {
-  description = "Email address of the backend runner service account"
-  value       = google_service_account.backend_runner.email
-}
-
-output "frontend_runner_service_account_email" {
-  description = "Email address of the frontend runner service account"
-  value       = google_service_account.frontend_runner.email
-}
