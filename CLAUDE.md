@@ -8,30 +8,10 @@ Nos Ilha is a community-driven tourism and cultural heritage platform for Brava 
 
 ### System Architecture Overview
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │    Backend      │    │  Infrastructure │
-│   (Next.js)     │    │ (Spring Boot)   │    │     (GCP)       │
-├─────────────────┤    ├─────────────────┤    ├─────────────────┤
-│ • React 19      │◄──►│ • Kotlin/JVM    │◄──►│ • Cloud Run     │
-│ • App Router    │    │ • PostgreSQL    │    │ • Artifact Reg. │
-│ • Tailwind CSS  │    │ • JWT Auth      │    │ • Cloud Storage │
-│ • ISR Caching   │    │ • Domain-Driven │    │ • Secret Mgr.   │
-│ • Supabase Auth │    │ • RESTful APIs  │    │ • IAM Security  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-           │                      │                      │
-           └──────────────────────┼──────────────────────┘
-                                  │
-                    ┌─────────────────┐
-                    │    CI/CD        │
-                    │ (GitHub Actions)│
-                    ├─────────────────┤
-                    │ • Modular Flows │
-                    │ • Security Scan │
-                    │ • Auto Deploy   │
-                    │ • Health Checks │
-                    └─────────────────┘
-```
+**Frontend** (Next.js 15): React 19, App Router, Tailwind CSS, ISR Caching, Supabase Auth  
+**Backend** (Spring Boot): Kotlin/JVM, PostgreSQL, JWT Auth, Domain-Driven, RESTful APIs  
+**Infrastructure** (GCP): Cloud Run, Artifact Registry, Cloud Storage, Secret Manager, IAM  
+**CI/CD** (GitHub Actions): Modular workflows, security scanning, auto-deployment, health checks
 
 ## Architecture
 
@@ -42,43 +22,12 @@ This is a **full-stack application** with four main components:
 - **Infrastructure**: Docker Compose for local development, Terraform for cloud deployment
 - **CI/CD**: Modular GitHub Actions workflows with automated security scanning and deployment
 
-### Component Integration Flows
+### Key Integration Flows
 
-#### 1. User Authentication Flow
-```
-User → Frontend → Supabase Auth → JWT Token → Backend Validation → Database Access
-  ↓                    ↓              ↓              ↓                 ↓
-Login      Generate      Access       Verify         Authorized
-Request    JWT Token     Protected    JWT Claims     Operations
-                         Resources
-```
-
-#### 2. Content Management Flow
-```
-Admin UI → Backend API → PostgreSQL → Cache Invalidation → Frontend Update
-   ↓           ↓            ↓              ↓                    ↓
-Create/       Process      Store          Clear ISR            Display
-Update        Business     Directory      Cache Tags           Updated
-Content       Logic        Entry                               Content
-```
-
-#### 3. Media Processing Flow
-```
-File Upload → GCS Storage → Cloud Vision API → Metadata → Firestore → Frontend
-     ↓            ↓              ↓               ↓           ↓          ↓
-  Validate    Store Asset    AI Analysis     Extract     Store      Display
-  & Upload    Securely      (OCR, Tags)     Features    Metadata   Enhanced
-                                                                    Content
-```
-
-#### 4. CI/CD Deployment Flow
-```
-Git Push → GitHub Actions → Security Scan → Build → Deploy → Health Check
-    ↓           ↓              ↓            ↓        ↓         ↓
- Trigger    Path-based      Trivy,        Docker   Cloud    Validate
- Service    Workflow        detekt,       Images   Run      Service
- Changes    Selection       ESLint                         Health
-```
+**Authentication**: User → Frontend → Supabase Auth → JWT Token → Backend Validation → Database Access  
+**Content Management**: Admin UI → Backend API → PostgreSQL → Cache Invalidation → Frontend Update  
+**Media Processing**: File Upload → GCS Storage → Cloud Vision API → Metadata → Firestore → Frontend  
+**CI/CD Deployment**: Git Push → GitHub Actions → Security Scan → Build → Deploy → Health Check
 
 ## Common Development Commands
 
@@ -177,61 +126,10 @@ docker-compose down     # Stop all services
 - **API Integration**: Centralized API client with error handling and fallback to mock data
 
 #### Frontend Architecture
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Frontend (Next.js 15)                       │
-├─────────────────────────────────────────────────────────────────┤
-│  App Router Structure                                           │
-│  app/                                                           │
-│  ├─ layout.tsx              (Root layout + providers)          │
-│  ├─ (auth)/                 (Authentication pages)             │
-│  │  ├─ login/page.tsx                                           │
-│  │  └─ signup/page.tsx                                          │
-│  ├─ (main)/                 (Public pages)                     │
-│  │  ├─ page.tsx             (Homepage)                          │
-│  │  ├─ directory/[category]/page.tsx                            │
-│  │  ├─ directory/entry/[slug]/page.tsx                          │
-│  │  └─ map/page.tsx                                             │
-│  └─ (admin)/                (Protected admin pages)            │
-│     └─ add-entry/page.tsx                                       │
-├─────────────────────────────────────────────────────────────────┤
-│  Components Architecture                                        │
-│  components/                                                    │
-│  ├─ providers/              (Context providers)                │
-│  │  └─ auth-provider.tsx    (Supabase auth state)              │
-│  ├─ catalyst-ui/            (Design system components)         │
-│  │  ├─ button.tsx, input.tsx, etc.                             │
-│  │  └─ auth-layout.tsx                                          │
-│  ├─ ui/                     (Custom UI components)             │
-│  │  ├─ header.tsx, footer.tsx                                  │
-│  │  ├─ directory-card.tsx                                       │
-│  │  └─ interactive-map.tsx                                      │
-│  └─ admin/                  (Admin-specific components)        │
-│     └─ add-entry-form.tsx                                       │
-├─────────────────────────────────────────────────────────────────┤
-│  Data Fetching & State                                          │
-│  lib/                                                           │
-│  ├─ api.ts                  (Backend API client)               │
-│  ├─ supabase-client.ts      (Auth configuration)               │
-│  └─ mock-api.ts             (Fallback data)                    │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Data Flow Strategy                           │
-│                                                                 │
-│  ISR Caching (Static-ish content):                             │
-│  ┌─ getEntriesByCategory() ─► 1 hour cache ─► Directory pages  │
-│  └─ getEntryBySlug() ─────► 30 min cache ─► Detail pages      │
-│                                                                 │
-│  Real-time (Interactive features):                             │
-│  ┌─ getEntriesForMap() ───► no-cache ─────► Interactive map    │
-│  └─ createDirectoryEntry() ─► revalidate ──► Admin operations  │
-│                                                                 │
-│  Authentication Flow:                                           │
-│  User ─► Supabase Auth ─► JWT Token ─► API Requests ─► Backend │
-└─────────────────────────────────────────────────────────────────┘
-```
+**App Router**: (auth)/ login/signup, (main)/ homepage/directory/map, (admin)/ protected pages  
+**Components**: providers/ (auth-provider), catalyst-ui/ (design system), ui/ (custom), admin/ (forms)  
+**Data Layer**: api.ts (backend client), supabase-client.ts (auth), mock-api.ts (fallback)  
+**Caching**: ISR for directory pages (1hr), real-time for map, authentication via Supabase JWT
 
 ### Database Strategy
 - **PostgreSQL**: Primary database for structured data (directory entries, user accounts)
@@ -239,85 +137,14 @@ docker-compose down     # Stop all services
 - **Google Cloud Storage**: Media asset storage with CDN integration
 
 #### Database Architecture
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      Data Storage Strategy                     │
-├─────────────────────────────────────────────────────────────────┤
-│  PostgreSQL (Primary - Structured Data)                        │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │  Tables:                                                │   │
-│  │  ├─ directory_entries (Single Table Inheritance)       │   │
-│  │  │  ├─ Common: id, name, slug, description, town       │   │
-│  │  │  ├─ Restaurant: cuisine, hours, phone_number        │   │
-│  │  │  ├─ Hotel: amenities                                 │   │
-│  │  │  └─ Landmark: historical_info                       │   │
-│  │  ├─ flyway_schema_history (Migration tracking)        │   │
-│  │  └─ [Future: users, reviews, ratings]                 │   │
-│  └─────────────────────────────────────────────────────────┘   │
-├─────────────────────────────────────────────────────────────────┤
-│  Google Cloud Storage (Media Assets)                           │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │  Buckets:                                               │   │
-│  │  ├─ nosilha-com-media-storage-useast1                  │   │
-│  │  │  ├─ images/ (Business photos, landmarks)            │   │
-│  │  │  ├─ videos/ (Promotional content)                   │   │
-│  │  │  └─ documents/ (Historical documents, menus)        │   │
-│  │  └─ Public read access for CDN distribution            │   │
-│  └─────────────────────────────────────────────────────────┘   │
-├─────────────────────────────────────────────────────────────────┤
-│  Google Firestore (AI Metadata)                                │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │  Collections:                                           │   │
-│  │  ├─ image_metadata/                                     │   │
-│  │  │  ├─ vision_api_results (Labels, text, landmarks)    │   │
-│  │  │  ├─ processing_status (Success, error states)       │   │
-│  │  │  └─ extracted_features (Colors, objects, text)      │   │
-│  │  └─ document_metadata/                                  │   │
-│  │     ├─ ocr_results (Extracted text from documents)     │   │
-│  │     └─ content_analysis (Language, sentiment)          │   │
-│  └─────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
-```
+**PostgreSQL**: directory_entries (Single Table Inheritance), flyway_schema_history, [Future: users, reviews]  
+**Google Cloud Storage**: nosilha-com-media-storage-useast1 (images/, videos/, documents/)  
+**Google Firestore**: image_metadata/ (vision_api_results, processing_status), document_metadata/ (ocr_results, content_analysis)
 
 ### AI & Media Processing
-- **Google Cloud Vision API**: Automated image analysis and metadata extraction
-- **AI Service**: Processes uploaded media to generate descriptions and extract features
-- **Image Metadata Repository**: Firestore-based storage for AI-generated content insights
-
-#### AI Processing Workflow
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     AI Media Processing Flow                   │
-├─────────────────────────────────────────────────────────────────┤
-│  Step 1: Media Upload                                          │
-│  Frontend ─► Backend API ─► GCS Bucket                         │
-│     ↓             ↓              ↓                              │
-│  Validate    Authorize       Store Asset                       │
-│  File Type   User Access     Securely                          │
-├─────────────────────────────────────────────────────────────────┤
-│  Step 2: AI Analysis (Async)                                   │
-│  Backend ─► Cloud Vision API ─► Analysis Results               │
-│     ↓             ↓                    ↓                       │
-│  Trigger      Process Image         Extract:                   │
-│  Analysis     Recognition           • Labels & Categories      │
-│                                     • Text (OCR)               │
-│                                     • Landmark Detection       │
-│                                     • Object Recognition       │
-├─────────────────────────────────────────────────────────────────┤
-│  Step 3: Metadata Storage                                      │
-│  Results ─► Firestore ─► Backend API ─► Frontend               │
-│     ↓           ↓            ↓              ↓                  │
-│  Structure   Store in     Update DB      Display Enhanced     │
-│  Metadata    Collection   References     Content to Users      │
-├─────────────────────────────────────────────────────────────────┤
-│  AI Features Enabled:                                          │
-│  • Automatic image tagging and categorization                  │
-│  • Text extraction from historical documents                   │
-│  • Landmark identification for tourist sites                   │
-│  • Content accessibility improvements                          │
-│  • Search optimization with AI-generated keywords             │
-└─────────────────────────────────────────────────────────────────┘
-```
+**Cloud Vision API**: Image analysis and metadata extraction with OCR, labeling, landmark detection  
+**Workflow**: Upload → GCS → AI Analysis → Firestore → Enhanced Frontend Content  
+**Features**: Auto-tagging, text extraction, accessibility improvements, search optimization
 
 ## Development Environment Setup
 
@@ -370,17 +197,10 @@ docker-compose down     # Stop all services
 
 ### Verification Steps
 ```bash
-# Test backend health
-curl http://localhost:8080/actuator/health
-
-# Test API endpoint
-curl http://localhost:8080/api/v1/directory/entries
-
-# Test frontend
-open http://localhost:3000
-
-# Check database connectivity
-docker-compose exec postgres psql -U nosilha -d nosilha_db -c "SELECT version();"
+curl http://localhost:8080/actuator/health  # Backend health
+curl http://localhost:8080/api/v1/directory/entries  # API test
+open http://localhost:3000  # Frontend test
+docker-compose exec postgres psql -U nosilha -d nosilha_db -c "SELECT version();"  # DB test
 ```
 
 ## Important Code Patterns
@@ -392,26 +212,9 @@ docker-compose exec postgres psql -U nosilha -d nosilha_db -c "SELECT version();
 - Authentication flow: Frontend → Supabase Auth → JWT → Backend validation → Database
 
 ### Authentication & Security Flow
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     Authentication Flow                        │
-├─────────────────────────────────────────────────────────────────┤
-│  1. User Login                                                  │
-│     Frontend (login-form.tsx) ─► Supabase Auth                │
-│                                                                 │
-│  2. Token Management                                            │
-│     Supabase ─► JWT Token ─► AuthProvider (auth-provider.tsx)   │
-│                                                                 │
-│  3. API Requests                                                │
-│     Frontend ─► api.ts ─► JWT Header ─► Backend API            │
-│                                                                 │
-│  4. Backend Validation                                          │
-│     JwtAuthenticationFilter ─► Validate Token ─► Authorize     │
-│                                                                 │
-│  5. Protected Routes                                            │
-│     middleware.ts ─► Check Auth State ─► Allow/Redirect       │
-└─────────────────────────────────────────────────────────────────┘
-```
+**Login**: Frontend (login-form.tsx) → Supabase Auth → JWT Token → AuthProvider (auth-provider.tsx)  
+**API Requests**: Frontend → api.ts → JWT Header → Backend API → JwtAuthenticationFilter → Validate & Authorize  
+**Protected Routes**: middleware.ts → Check Auth State → Allow/Redirect
 
 ### Database Access
 - Use JPA repositories for database operations
@@ -420,94 +223,35 @@ docker-compose exec postgres psql -U nosilha -d nosilha_db -c "SELECT version();
 - Single Table Inheritance pattern for `DirectoryEntry` and its subclasses (`Restaurant`, `Hotel`, `Landmark`, `Beach`)
 
 ### Frontend Design System & Styling
-
-#### Design System Documentation
-- **Main Documentation**: [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) - Comprehensive styling guide and component library
-- **Brand Identity**: "Clean, inviting, authentic, and lush" - digital extension of Brava Island
-- **Design Philosophy**: Reflects Cape Verde's natural beauty and cultural richness
-
-#### Color Palette (Brava-Inspired)
-- **Ocean Blue** (`#005A8D`): Primary brand color, navigation highlights, CTAs
-- **Valley Green** (`#3E7D5A`): Secondary brand color, success states, nature elements  
-- **Bougainvillea Pink** (`#D90368`): Accent color for CTAs and highlights
-- **Sunny Yellow** (`#F7B801`): Warning states and cheerful accents
-- **Volcanic Gray** (`#6C757D`, `#343A40`): Text and neutral elements
-- **Off White** (`#F8F9FA`): Clean background color
-
-#### Typography System
-- **Headings**: Merriweather (serif) - elegant, storytelling typeface for titles
-- **Body Text**: Lato (sans-serif) - clean, modern, highly readable for content
-- **Font Loading**: Google Fonts with CSS variables and optimized performance
-
-#### Component Architecture
-- **Catalyst UI**: Professional component library (25+ components) in `frontend/src/components/catalyst-ui/`
-  - Button, Input, Card, Dialog, Dropdown, Table, Avatar, Badge, etc.
-- **Custom Components**: Project-specific implementations in `frontend/src/components/ui/`
-  - DirectoryCard, PageHeader, ThemeToggle, StarRating, InteractiveMap
-- **Mobile-First**: All components responsive with Tailwind breakpoints
-- **Dark Mode**: Class-based theming with system preference detection
-
-#### Key Styling Files
-- `frontend/src/app/globals.css:4-28` - CSS custom properties for colors and dark mode
-- `frontend/tailwind.config.ts` - Tailwind configuration with custom theme tokens  
-- `frontend/src/app/layout.tsx:12-22` - Font configuration (Lato + Merriweather)
-- `frontend/src/components/ui/theme-toggle.tsx:13-72` - Theme switching logic
-- `frontend/src/components/catalyst-ui/button.tsx:6-158` - Button component with all variants
+**Documentation**: See [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) for comprehensive styling guide  
+**Brand**: "Clean, inviting, authentic, and lush" - digital extension of Brava Island  
+**Colors**: Ocean Blue (#005A8D), Valley Green (#3E7D5A), Bougainvillea Pink (#D90368), Sunny Yellow (#F7B801)  
+**Typography**: Merriweather (headings), Lato (body text), Google Fonts with CSS variables  
+**Components**: Catalyst UI (25+ components), Custom UI (DirectoryCard, PageHeader, ThemeToggle), mobile-first with dark mode  
+**Key Files**: globals.css, tailwind.config.ts, layout.tsx, theme-toggle.tsx, button.tsx
 
 ## Testing Strategy
 
 ### Backend Testing
 ```bash
-# Run all tests with PostgreSQL integration
-cd backend && ./gradlew test
-
-# Run with coverage report
-./gradlew test jacocoTestReport
-
-# Run specific test class
-./gradlew test --tests "DirectoryEntryControllerTest"
-
-# Run linting and static analysis
-./gradlew detekt
+cd backend && ./gradlew test  # All tests with PostgreSQL
+./gradlew test jacocoTestReport  # With coverage
+./gradlew test --tests "DirectoryEntryControllerTest"  # Specific test
+./gradlew detekt  # Linting and static analysis
 ```
-**Configuration**: Tests use PostgreSQL service in CI/CD workflows
-**Coverage**: Jacoco reports generated for code coverage analysis
+**Configuration**: PostgreSQL service in CI/CD, Jacoco coverage reports
 
 ### Frontend Testing
 ```bash
-# Type checking
-cd frontend && npx tsc --noEmit
-
-# Linting
-npm run lint
-
-# Build validation (tests compilation)
-npm run build
-
-# Bundle size analysis
-npx bundlesize
+cd frontend && npx tsc --noEmit  # Type checking
+npm run lint && npm run build  # Linting and build
+npx bundlesize  # Bundle analysis
 ```
-**Configuration**: ESLint with TypeScript, bundle size monitoring in PRs
-**Future**: Unit testing framework to be added
+**Configuration**: ESLint with TypeScript, bundle size monitoring, unit testing TBD
 
-### Integration Testing
-```bash
-# Cross-service integration tests
-# Workflow: .github/workflows/integration-ci.yml
-# - API endpoint validation
-# - End-to-end user flows
-# - Performance testing
-# - Security header validation
-```
-
-### Security Testing
-```bash
-# Automated security scanning
-# - Trivy: Container and dependency vulnerabilities
-# - detekt: Kotlin static analysis
-# - ESLint: TypeScript security rules
-# - tfsec: Terraform security validation
-```
+### Integration & Security Testing
+**Integration**: API validation, E2E flows, performance, security headers (`.github/workflows/integration-ci.yml`)  
+**Security**: Trivy (containers/deps), detekt (Kotlin), ESLint (TypeScript), tfsec (Terraform)
 
 ## CI/CD Pipeline Architecture
 
@@ -529,54 +273,10 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - **Health Monitoring**: Automated health checks and deployment validation
 
 #### CI/CD Flow Architecture
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         GitHub Actions CI/CD                      │
-├─────────────────────────────────────────────────────────────────┤
-│  Trigger: Push to main / Pull Request                             │
-│                               │                                  │
-│                               ▼                                  │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │                    Path Detection                          │  │
-│  │   (dorny/paths-filter determines changed components)         │  │
-│  └────────────────────┬──────────────────────────────────────────┘  │
-│                               │                                  │
-│       ┌───────────────────┼─────────────────────────┐       │
-│       │                                                      │       │
-│       ▼                    ▼                    ▼                │
-│  ┌───────────┐  ┌───────────┐  ┌─────────────────┐       │
-│  │  Backend   │  │  Frontend  │  │  Infrastructure │       │
-│  │   CI/CD    │  │   CI/CD    │  │      CI/CD       │       │
-│  ├───────────┤  ├───────────┤  ├─────────────────┤       │
-│  │• Security  │  │• Security  │  │• tfsec Scan      │       │
-│  │• Tests     │  │• Lint/Type │  │• Terraform        │       │
-│  │• Docker    │  │• Bundle    │  │  Validation      │       │
-│  │• Deploy    │  │• Docker    │  │• Infrastructure   │       │
-│  │• Health    │  │• Deploy    │  │  Deployment      │       │
-│  └───────────┘  └───────────┘  └─────────────────┘       │
-│       │                    │                    │                │
-│       └───────────────────┼─────────────────────────┘       │
-│                               │                                  │
-│                               ▼                                  │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │                    Artifact Registry                        │  │
-│  │    ┌────────────────────────────────────────────────┐    │  │
-│  │    │ nosilha-backend/nosilha-core-api:latest       │    │  │
-│  │    │ nosilha-frontend/nosilha-web-ui:latest        │    │  │
-│  │    └────────────────────────────────────────────────┘    │  │
-│  └─────────────────────────────────────────────────────────┘  │
-│                               │                                  │
-│                               ▼                                  │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │                  Cloud Run Services                         │  │
-│  │    ┌──────────────────────┐  ┌───────────────────────┐    │  │
-│  │    │ nosilha-backend-api  │  │ nosilha-frontend     │    │  │
-│  │    │ (Spring Boot)        │  │ (Next.js)            │    │  │
-│  │    │ /actuator/health     │  │ Public web app       │    │  │
-│  │    └──────────────────────┘  └───────────────────────┘    │  │
-│  └─────────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-```
+**Trigger**: Push to main / Pull Request → Path Detection (dorny/paths-filter)  
+**Services**: Backend CI/CD (security, tests, Docker, deploy), Frontend CI/CD (security, lint, bundle, Docker, deploy), Infrastructure CI/CD (tfsec, Terraform validation)  
+**Registry**: Google Artifact Registry (nosilha-backend/nosilha-core-api:latest, nosilha-frontend/nosilha-web-ui:latest)  
+**Deploy**: Cloud Run Services (nosilha-backend-api, nosilha-frontend with health checks)
 
 ### Security & Compliance
 - **Vulnerability Scanning**: Trivy scans for dependencies and container vulnerabilities
@@ -587,39 +287,10 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - **Advanced Security Ready**: Workflows configured for when Advanced Security is enabled
 
 #### Security Scanning Flow
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Integrated Security Scanning                    │
-├─────────────────────────────────────────────────────────────────┤
-│  Every PR & Push to Main:                                        │
-│                                                                 │
-│  Backend Security:                 Frontend Security:           │
-│  ┌───────────────────────┐  ┌───────────────────────┐  │
-│  │ Trivy (Dependencies)   │  │ Trivy (Dependencies)   │  │
-│  │ detekt (Kotlin)        │  │ ESLint (TypeScript)    │  │
-│  │ Docker Scan            │  │ Docker Scan            │  │
-│  │ SARIF Upload           │  │ SARIF Upload           │  │
-│  └───────────────────────┘  └───────────────────────┘  │
-│                                                                 │
-│  Infrastructure Security:          Global Security:             │
-│  ┌───────────────────────┐  ┌───────────────────────┐  │
-│  │ tfsec (Terraform)      │  │ Repository Scan        │  │
-│  │ Resource Validation    │  │ Dependency Review      │  │
-│  │ IAM Policy Review      │  │ License Compliance     │  │
-│  │ SARIF Upload           │  │ SARIF Upload           │  │
-│  └───────────────────────┘  └───────────────────────┘  │
-│                                                                 │
-│                              │                                │
-│                              ▼                                │
-│  ┌─────────────────────────────────────────────────────────┐  │
-│  │                GitHub Security Tab                        │  │
-│  │  - Vulnerability alerts and remediation guidance         │  │
-│  │  - Security findings from all SARIF uploads             │  │
-│  │  - Dependency vulnerability tracking                     │  │
-│  │  - Automated security notifications                      │  │
-│  └─────────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-```
+**Backend**: Trivy (dependencies), detekt (Kotlin), Docker scan, SARIF upload  
+**Frontend**: Trivy (dependencies), ESLint (TypeScript), Docker scan, SARIF upload  
+**Infrastructure**: tfsec (Terraform), resource validation, IAM policy review, SARIF upload  
+**Global**: Repository scan, dependency review, license compliance → GitHub Security Tab
 
 ### Testing Strategy
 - **Backend**: JUnit tests with PostgreSQL integration, Jacoco coverage reporting
