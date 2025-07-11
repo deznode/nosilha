@@ -86,6 +86,30 @@ resource "google_project_iam_member" "cicd_monitoring_editor" {
 }
 
 # ------------------------------------------------------------------------------
+# Service Account Impersonation Permissions
+# ------------------------------------------------------------------------------
+
+# Allow CI/CD service account to act as the backend runner service account
+resource "google_service_account_iam_binding" "cicd_can_act_as_backend_runner" {
+  service_account_id = "projects/${var.gcp_project_id}/serviceAccounts/${google_service_account.backend_runner.email}"
+  role               = "roles/iam.serviceAccountUser"
+
+  members = [
+    google_service_account.cicd_deployer.member,
+  ]
+}
+
+# Allow CI/CD service account to act as the frontend runner service account
+resource "google_service_account_iam_binding" "cicd_can_act_as_frontend_runner" {
+  service_account_id = "projects/${var.gcp_project_id}/serviceAccounts/${google_service_account.frontend_runner.email}"
+  role               = "roles/iam.serviceAccountUser"
+
+  members = [
+    google_service_account.cicd_deployer.member,
+  ]
+}
+
+# ------------------------------------------------------------------------------
 # Service Account Key for GitHub Actions
 # ------------------------------------------------------------------------------
 

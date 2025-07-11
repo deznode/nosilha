@@ -17,6 +17,16 @@ resource "google_service_account" "backend_runner" {
   depends_on = [google_project_service.iam]
 }
 
+# Frontend service account - minimal permissions, no secrets needed
+resource "google_service_account" "frontend_runner" {
+  account_id   = "nosilha-frontend-runner"
+  display_name = "Nosilha.com Frontend Runner"
+  description  = "Service Account for the Nosilha Frontend Cloud Run service."
+
+  # Ensure IAM API is enabled before creating service account
+  depends_on = [google_project_service.iam]
+}
+
 
 # --- Secret Manager IAM Permissions ---
 #
@@ -182,6 +192,9 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
   depends_on = [google_project_service.cloud_run]
 
   template {
+    # Run the container using the dedicated frontend service account
+    service_account = google_service_account.frontend_runner.email
+
     containers {
       # The full path to the frontend container image in its Artifact Registry.
       # Uses latest tag - actual deployments handled by CI/CD
