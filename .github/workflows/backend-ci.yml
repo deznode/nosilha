@@ -162,7 +162,7 @@ jobs:
             --platform=managed \
             --region=${{ env.REGION }} \
             --allow-unauthenticated \
-            --service-account=backend-runner@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
+            --service-account=nosilha-backend-runner@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
             --set-env-vars="SPRING_PROFILES_ACTIVE=production" \
             --memory=1Gi \
             --cpu=1 \
