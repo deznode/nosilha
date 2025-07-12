@@ -44,6 +44,8 @@ jobs:
           format: sarif
           soft_fail: true
           additional_args: --out=tfsec.sarif
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
 
   validate:
