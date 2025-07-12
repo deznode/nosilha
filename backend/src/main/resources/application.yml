@@ -34,9 +34,8 @@ spring:
         format_sql: false
 
   # Disable default security password generation since we use JWT
-  security:
-    user:
-      password: # Leave empty to disable default user
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
 
   # Google Cloud Platform Configuration for Production
   # NOTE: The project-id is intentionally omitted as it will be bound from
@@ -44,6 +43,7 @@ spring:
   # Emulator settings are also omitted to connect to live GCP services.
   cloud:
     gcp: {}
+
 
 # The production GCS bucket name, provided as an environment variable in Cloud Run.
 gcp:

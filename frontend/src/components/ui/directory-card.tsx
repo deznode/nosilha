@@ -26,13 +26,19 @@ export function DirectoryCard({ entry }: DirectoryCardProps) {
       <Card className="h-full overflow-hidden transition-shadow duration-200 ease-in-out hover:shadow-lg">
         {/* Image Section */}
         <div className="relative aspect-[16/10] w-full">
-          <Image
-            src={entry.imageUrl}
-            alt={`Photo of ${entry.name}`}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover"
-          />
+          {entry.imageUrl ? (
+            <Image
+              src={entry.imageUrl}
+              alt={`Photo of ${entry.name}`}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gray-200">
+              <span className="text-gray-500">No image available</span>
+            </div>
+          )}
         </div>
 
         {/* Content Section */}

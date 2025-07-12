@@ -4,7 +4,7 @@ export interface BaseDirectoryEntry {
   slug: string; // Slugs are essential for all public entries
   name: string;
   category: "Restaurant" | "Hotel" | "Beach" | "Landmark";
-  imageUrl: string;
+  imageUrl: string | null;
   town: string;
   latitude: number;
   longitude: number;

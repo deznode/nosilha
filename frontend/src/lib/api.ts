@@ -179,3 +179,33 @@ export async function getEntriesForMap(
     return getMockEntriesByCategory(category);
   }
 }
+
+/**
+ * Uploads an image file to the backend API and returns the public URL.
+ * Requires user authentication via JWT token.
+ * @param file The image file to upload.
+ * @returns A promise that resolves to the public URL of the uploaded image.
+ */
+export async function uploadImage(file: File): Promise<string> {
+  const endpoint = `${API_BASE_URL}/api/v1/media/upload`;
+
+  // Create FormData for multipart/form-data request
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await authenticatedFetch(endpoint, {
+    method: "POST",
+    body: formData,
+    // Don't set Content-Type header - let browser set it with boundary for multipart
+  });
+
+  if (!response.ok) {
+    const errorResult = await response.json().catch(() => ({
+      message: "Failed to upload image",
+    }));
+    throw new Error(errorResult.message || "Failed to upload image.");
+  }
+
+  const result = await response.json();
+  return result.url;
+}

@@ -15,7 +15,7 @@ import {
 
 import type { DirectoryEntry } from "@/types/directory";
 import { ImageGallery } from "@/components/ui/image-gallery";
-import { ImageUploader } from "@/components/ui/image-uploader";
+import { ContributePhotosSection } from "@/components/ui/contribute-photos-section";
 
 interface DetailPageProps {
   params: Promise<{ slug: string }>;
@@ -109,13 +109,19 @@ export default async function DirectoryEntryDetailPage({
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         {/* Main hero image */}
         <div className="relative h-[400px] w-full overflow-hidden rounded-xl shadow-lg">
-          <Image
-            src={entry.imageUrl}
-            alt={`Main photo of ${entry.name}`}
-            fill
-            className="object-cover"
-            priority
-          />
+          {entry.imageUrl ? (
+            <Image
+              src={entry.imageUrl}
+              alt={`Main photo of ${entry.name}`}
+              fill
+              className="object-cover"
+              priority
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gray-200">
+              <span className="text-xl text-gray-500">No image available</span>
+            </div>
+          )}
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-x-12 gap-y-10 lg:grid-cols-3">
@@ -180,17 +186,7 @@ export default async function DirectoryEntryDetailPage({
         <div className="my-16 border-t border-gray-200" />
 
         {/* --- NEW: Image Uploader Section --- */}
-        <div className="mx-auto max-w-2xl">
-          <h2 className="font-serif text-3xl font-bold text-volcanic-gray-dark text-center">
-            Contribute Photos
-          </h2>
-          <p className="mt-2 text-center text-lg leading-8 text-volcanic-gray">
-            Have a photo of this location? Share it with the community!
-          </p>
-          <div className="mt-8 flex justify-center">
-            <ImageUploader onFileSelect={() => {}} />
-          </div>
-        </div>
+        <ContributePhotosSection />
       </div>
     </div>
   );
