@@ -561,5 +561,4 @@ This architecture documentation provides a comprehensive overview of the Nos Ilh
 - **Development Guide**: [`CLAUDE.md`](../CLAUDE.md)
 - **CI/CD Pipeline**: [`CI_CD_PIPELINE.md`](CI_CD_PIPELINE.md)
 - **API Documentation**: [`API_REFERENCE.md`](API_REFERENCE.md)
-- **Frontend Guide**: [`FRONTEND_GUIDE.md`](FRONTEND_GUIDE.md)
-- **Deployment Guide**: [`DEPLOYMENT_GUIDE.md`](DEPLOYMENT_GUIDE.md)
+- **Design System**: [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md)
