@@ -153,15 +153,16 @@ resource "google_project_iam_member" "cicd_monitoring_editor" {
   member  = google_service_account.cicd_deployer.member
 }
 
-# Grant CI/CD service account Editor role for domain mapping operations
+# Editor role for CI/CD service account (MANUAL SETUP REQUIRED)
 # SECURITY NOTE: Domain mapping requires broad permissions due to Google Cloud limitations
-# This is currently the only way to enable domain mapping creation in CI/CD pipelines
+# This role must be granted manually using gcloud CLI before running Terraform:
+#
+# gcloud projects add-iam-policy-binding nosilha \
+#     --member="serviceAccount:nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com" \
+#     --role="roles/editor"
+#
+# This manual step is required because the service account cannot grant permissions to itself
 # TODO: Monitor Google Cloud IAM updates for more granular domain mapping permissions
-resource "google_project_iam_member" "cicd_editor_for_domain_mapping" {
-  project = var.gcp_project_id
-  role    = "roles/editor"
-  member  = google_service_account.cicd_deployer.member
-}
 
 # ------------------------------------------------------------------------------
 # Service Account Impersonation Permissions
