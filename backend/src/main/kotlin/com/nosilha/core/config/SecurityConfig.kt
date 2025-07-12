@@ -26,7 +26,7 @@ class SecurityConfig(
                 cors.configurationSource {
                     CorsConfiguration()
                         .apply {
-                            allowedOrigins = allowedOrigins
+                            allowedOriginPatterns = this@SecurityConfig.allowedOrigins
                             allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
                             allowedHeaders = listOf("*")
                             allowCredentials = true

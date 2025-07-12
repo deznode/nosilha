@@ -11,6 +11,12 @@ spring:
   application:
     name: nosilha-core-api
 
+  # Multipart file upload configuration
+  servlet:
+    multipart:
+      max-file-size: 10MB        # Allow up to 10MB per file
+      max-request-size: 15MB     # Allow up to 15MB per request
+
   # Database Configuration for Production (Supabase)
   # NOTE: The url, username, and password properties are intentionally omitted.
   # Spring Boot will automatically bind them from the Cloud Run environment variables:
