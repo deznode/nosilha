@@ -3,19 +3,25 @@
 # https://cloud.google.com/run/docs/mapping-custom-domains#verify
 
 resource "google_cloud_run_domain_mapping" "nosilha-frontend-domain-mapping" {
-  name     = "www.nosilha.com"
-  location = "us-east1"
+  name     = "nosilha.com"
+  location = google_cloud_run_v2_service.nosilha_frontend.location
 
+  metadata {
+    namespace = var.gcp_project_id
+  }
   spec {
-    route_name = "nosilha-frontend"
+    route_name = google_cloud_run_v2_service.nosilha_frontend.name
   }
 }
 
 resource "google_cloud_run_domain_mapping" "nosilha-backend-domain-mapping" {
   name     = "api.nosilha.com"
-  location = "us-east1"
+  location = google_cloud_run_v2_service.nosilha_backend_api.location
 
+  metadata {
+    namespace = var.gcp_project_id
+  }
   spec {
-    route_name = "nosilha-backend-api"
+    route_name = google_cloud_run_v2_service.nosilha_backend_api.name
   }
 }
