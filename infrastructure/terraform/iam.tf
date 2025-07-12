@@ -79,28 +79,6 @@ resource "google_storage_bucket_iam_member" "grant_gcs_access" {
 }
 
 # ------------------------------------------------------------------------------
-# Custom IAM Roles
-# ------------------------------------------------------------------------------
-
-# Custom role for Cloud Run domain mapping operations
-# This provides minimal permissions required for domain mapping creation/management
-# SECURITY NOTE: If this custom role approach fails due to API limitations,
-# fallback to using roles/editor temporarily while Google resolves domain mapping IAM
-resource "google_project_iam_custom_role" "domain_mapper" {
-  role_id     = "domainMapper"
-  title       = "Cloud Run Domain Mapping Manager"
-  description = "Custom role with minimal permissions for Cloud Run domain mapping operations"
-
-  permissions = [
-    "run.domainmappings.create",
-    "run.domainmappings.get",
-    "run.domainmappings.list",
-    "run.domainmappings.delete",
-    "run.domainmappings.update"
-  ]
-}
-
-# ------------------------------------------------------------------------------
 # IAM Roles for CI/CD Service Account
 # ------------------------------------------------------------------------------
 
@@ -175,22 +153,15 @@ resource "google_project_iam_member" "cicd_monitoring_editor" {
   member  = google_service_account.cicd_deployer.member
 }
 
-# Grant CI/CD service account the custom domain mapping role
-# FALLBACK: If deployment fails with permission errors, uncomment the editor role below
-# and comment out this custom role assignment
-resource "google_project_iam_member" "cicd_domain_mapper" {
+# Grant CI/CD service account Editor role for domain mapping operations
+# SECURITY NOTE: Domain mapping requires broad permissions due to Google Cloud limitations
+# This is currently the only way to enable domain mapping creation in CI/CD pipelines
+# TODO: Monitor Google Cloud IAM updates for more granular domain mapping permissions
+resource "google_project_iam_member" "cicd_editor_for_domain_mapping" {
   project = var.gcp_project_id
-  role    = google_project_iam_custom_role.domain_mapper.id
+  role    = "roles/editor"
   member  = google_service_account.cicd_deployer.member
 }
-
-# FALLBACK OPTION: Uncomment if custom role fails
-# WARNING: This grants broad permissions - use only as temporary workaround
-# resource "google_project_iam_member" "cicd_editor_fallback" {
-#   project = var.gcp_project_id
-#   role    = "roles/editor"
-#   member  = google_service_account.cicd_deployer.member
-# }
 
 # ------------------------------------------------------------------------------
 # Service Account Impersonation Permissions
