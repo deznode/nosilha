@@ -151,18 +151,6 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
           memory = "512Mi"
         }
       }
-
-      # --- CRITICAL: Provide the Backend URL to the Frontend ---
-      # This environment variable tells the Next.js app where to find the live backend API.
-      # It dynamically uses the URI of the backend service we already deployed.
-      env {
-        name  = "NEXT_PUBLIC_API_URL"
-        value = google_cloud_run_v2_service.nosilha_backend_api.uri
-      }
-      env {
-        name  = "API_URL"
-        value = google_cloud_run_v2_service.nosilha_backend_api.uri
-      }
     }
   }
 }
