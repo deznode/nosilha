@@ -43,3 +43,49 @@ output "frontend_runner_service_account_email" {
   description = "Email address of the frontend runner service account"
   value       = google_service_account.frontend_runner.email
 }
+
+# ------------------------------------------------------------------------------
+# Domain Mapping and SSL Certificate Outputs
+# ------------------------------------------------------------------------------
+
+output "primary_domain_url" {
+  description = "The primary domain URL for the frontend application"
+  value       = "https://${google_cloud_run_domain_mapping.nosilha-frontend-domain-mapping.name}"
+}
+
+output "www_domain_url" {
+  description = "The www subdomain URL for the frontend application"
+  value       = "https://${google_cloud_run_domain_mapping.nosilha-www-domain-mapping.name}"
+}
+
+output "api_domain_url" {
+  description = "The API domain URL for backend services"
+  value       = "https://${google_cloud_run_domain_mapping.nosilha-backend-domain-mapping.name}"
+}
+
+output "domain_mapping_status" {
+  description = "Status of all domain mappings"
+  value = {
+    primary_domain = {
+      domain = google_cloud_run_domain_mapping.nosilha-frontend-domain-mapping.name
+      status = google_cloud_run_domain_mapping.nosilha-frontend-domain-mapping.status
+    }
+    www_domain = {
+      domain = google_cloud_run_domain_mapping.nosilha-www-domain-mapping.name
+      status = google_cloud_run_domain_mapping.nosilha-www-domain-mapping.status
+    }
+    api_domain = {
+      domain = google_cloud_run_domain_mapping.nosilha-backend-domain-mapping.name
+      status = google_cloud_run_domain_mapping.nosilha-backend-domain-mapping.status
+    }
+  }
+}
+
+output "dns_records" {
+  description = "DNS records that should be configured at the domain registrar"
+  value = {
+    primary_domain = google_cloud_run_domain_mapping.nosilha-frontend-domain-mapping.status[0].resource_records
+    www_domain     = google_cloud_run_domain_mapping.nosilha-www-domain-mapping.status[0].resource_records
+    api_domain     = google_cloud_run_domain_mapping.nosilha-backend-domain-mapping.status[0].resource_records
+  }
+}

@@ -23,6 +23,11 @@ provider "google" {
   region  = var.gcp_region
 }
 
+# Data source for project information
+data "google_project" "project" {
+  project_id = var.gcp_project_id
+}
+
 # --- Google Cloud Storage (GCS) Bucket ---
 
 resource "google_storage_bucket" "media_storage" {
