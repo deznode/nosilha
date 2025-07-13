@@ -35,7 +35,7 @@ const nosilhaFeatures = [
 ];
 
 // Force dynamic rendering for real-time featured content
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const featuredEntries = await getEntriesByCategory("all");
@@ -46,7 +46,8 @@ export default async function HomePage() {
       <section className="relative flex h-[calc(100vh-81px)] items-center justify-center text-center text-white">
         {/* ... existing hero section code ... */}
         <Image
-          src="https://picsum.photos/1600/900?random=10"
+          // src="https://picsum.photos/1600/900?random=10"
+          src={"/images/hero-bay2.jpg"}
           alt="A scenic, panoramic view of Brava, Cape Verde's coastline"
           fill
           className="object-cover"
