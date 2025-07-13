@@ -40,7 +40,8 @@ class FileStorageService(
 
         val blobId = BlobId.of(bucketName, uniqueFileName)
         val blobInfo =
-            BlobInfo.newBuilder(blobId)
+            BlobInfo
+                .newBuilder(blobId)
                 .setContentType(file.contentType)
                 .build()
         storage.create(blobInfo, file.bytes)
