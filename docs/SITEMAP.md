@@ -100,7 +100,33 @@ This document provides a comprehensive overview of the frontend application's ro
 - **Beaches** → `/directory/beach`
 - **Map** → `/map`
 
-### Secondary Navigation
+### Footer Navigation (Extended Site Structure)
+
+#### Explore Brava Section
+- **Interactive Map** → `/map`
+- **Towns & Villages** → `/towns` ⚠️ **MISSING LANDING PAGE**
+- **Restaurants & Cafes** → `/directory/restaurant`
+- **Landmarks** → `/directory/landmark`
+- **Beaches & Bays** → `/directory/beach`
+
+#### Culture & History Section
+- **History of Brava** → `/history` ⚠️ **MISSING PAGE**
+- **Historical Figures** → `/people` ⚠️ **MISSING PAGE**
+- **Music & Arts** → `/media/music` ⚠️ **MISSING PAGE**
+- **Photo Galleries** → `/media/photos` ⚠️ **MISSING PAGE**
+
+#### Connect Section
+- **About Us** → `/about` ⚠️ **MISSING PAGE**
+- **Contact Us** → `/contact` ⚠️ **MISSING PAGE**
+- **Contribute** → `/contribute` ⚠️ **MISSING PAGE**
+- **Privacy Policy** → `/privacy` ⚠️ **MISSING PAGE**
+- **Terms of Service** → `/terms` ⚠️ **MISSING PAGE**
+
+#### Newsletter Subscription
+- **Newsletter Signup** → (Form component in footer, not a separate route)
+- **Social Media Links** → External links to Facebook and Instagram
+
+### Secondary Navigation (Header)
 - **Contribute** → `/contribute` ⚠️ **MISSING PAGE**
 - **Add Entry** → `/add-entry` (Admin only, conditional display)
 
@@ -111,20 +137,66 @@ This document provides a comprehensive overview of the frontend application's ro
 
 ## Missing/Incomplete Routes
 
-### 1. Contribute Page
-- **Expected Route**: `/contribute`
-- **Status**: Referenced in header navigation but no corresponding page exists
-- **Purpose**: Likely community contribution guidelines or forms
+### High Priority Pages
 
-### 2. History Section
+#### 1. Towns Landing Page
+- **Expected Route**: `/towns`
+- **Status**: Referenced in footer navigation but no corresponding page exists
+- **Purpose**: Overview of all towns and villages on Brava Island with navigation to individual town pages
+
+#### 2. History Section
 - **Expected Route**: `/history`
 - **Status**: Directory exists at `(main)/history/` but no `page.tsx` file
 - **Purpose**: Historical articles and cultural heritage content
 
-### 3. Towns Pages
+#### 3. Individual Towns Pages
 - **Expected Route**: `/towns/[slug]`
 - **Status**: Directory structure exists at `(main)/towns/[slug]/` but no `page.tsx` file
 - **Purpose**: Individual town information and local guides
+
+#### 4. About Us Page
+- **Expected Route**: `/about`
+- **Status**: Referenced in footer navigation but no corresponding page exists
+- **Purpose**: Information about the Nos Ilha platform, mission, and team
+
+#### 5. Contact Us Page
+- **Expected Route**: `/contact`
+- **Status**: Referenced in footer navigation but no corresponding page exists
+- **Purpose**: Contact information, support forms, and communication channels
+
+#### 6. Contribute Page
+- **Expected Route**: `/contribute`
+- **Status**: Referenced in both header and footer navigation but no corresponding page exists
+- **Purpose**: Community contribution guidelines, photo submission forms, and volunteer opportunities
+
+### Medium Priority Pages
+
+#### 7. Historical Figures Page
+- **Expected Route**: `/people`
+- **Status**: Referenced in footer navigation but no corresponding page exists
+- **Purpose**: Profiles of notable historical figures from Brava Island
+
+#### 8. Music & Arts Page
+- **Expected Route**: `/media/music`
+- **Status**: Referenced in footer navigation but no corresponding page or directory structure exists
+- **Purpose**: Showcase of Brava's musical heritage, traditional arts, and cultural expressions
+
+#### 9. Photo Galleries Page
+- **Expected Route**: `/media/photos`
+- **Status**: Referenced in footer navigation but no corresponding page or directory structure exists
+- **Purpose**: Curated photo collections showcasing Brava's landscapes, culture, and community
+
+### Legal/Compliance Pages
+
+#### 10. Privacy Policy Page
+- **Expected Route**: `/privacy`
+- **Status**: Referenced in footer navigation but no corresponding page exists
+- **Purpose**: Privacy policy and data protection information
+
+#### 11. Terms of Service Page
+- **Expected Route**: `/terms`
+- **Status**: Referenced in footer navigation but no corresponding page exists
+- **Purpose**: Terms of service and usage agreements
 
 ## Route Protection Analysis
 
@@ -179,9 +251,25 @@ This document provides a comprehensive overview of the frontend application's ro
 ## Future Development Considerations
 
 ### High Priority Missing Routes
-1. **`/contribute`** - Community contribution page
-2. **`/history`** - Cultural heritage section
-3. **`/towns/[slug]`** - Individual town pages
+1. **`/towns`** - Towns and villages landing page with overview of all settlements
+2. **`/history`** - Cultural heritage section with historical articles and content
+3. **`/towns/[slug]`** - Individual town pages with detailed local information
+4. **`/about`** - About Us page explaining the platform's mission and team
+5. **`/contact`** - Contact page with support information and communication channels
+6. **`/contribute`** - Community contribution page with guidelines and forms
+
+### Medium Priority Missing Routes
+7. **`/people`** - Historical figures and notable personalities from Brava
+8. **`/media/music`** - Music and arts showcase highlighting Brava's cultural heritage
+9. **`/media/photos`** - Photo galleries featuring curated collections of island imagery
+
+### Legal/Compliance Routes (Required for Production)
+10. **`/privacy`** - Privacy policy and data protection information
+11. **`/terms`** - Terms of service and usage agreements
+
+### New Route Group Considerations
+- **Media Routes** (`/media/*`): New route group needed for music and photo galleries
+- **Legal Routes**: Consider grouping privacy and terms pages for better organization
 
 ### Recommended Improvements
 1. **Server-side Route Protection**: Implement proper middleware authentication
@@ -194,6 +282,25 @@ This document provides a comprehensive overview of the frontend application's ro
 2. **Bundle Splitting**: Route-based code splitting
 3. **Image Optimization**: Dynamic image optimization for entry pages
 
+## Summary
+
+### Current Route Status
+- **Implemented Routes**: 9 pages (Homepage, Map, Directory categories, Entry details, Auth pages, Add entry, Test page)
+- **Missing Routes**: 11 pages identified from footer navigation analysis
+- **Total Planned Routes**: 20 pages for complete platform functionality
+
+### Missing Routes by Category
+- **High Priority**: 6 pages (Towns landing, History, Individual towns, About, Contact, Contribute)
+- **Medium Priority**: 3 pages (People, Music & Arts, Photo galleries)
+- **Legal/Compliance**: 2 pages (Privacy, Terms)
+
+### Development Impact
+The footer component reveals a significantly larger planned site structure than initially documented. Implementation of these missing routes is essential for:
+1. **User Experience**: Complete navigation functionality across all footer links
+2. **Content Strategy**: Comprehensive coverage of Brava Island's culture and tourism
+3. **Platform Completeness**: Professional presentation with proper legal and about pages
+4. **Community Engagement**: Full contribution and cultural content ecosystem
+
 ---
 
-*This sitemap reflects the current state of the frontend application as of the last analysis. Routes marked with ⚠️ indicate missing or incomplete functionality that requires development attention.*
+*This sitemap reflects the current state of the frontend application as of the comprehensive analysis including footer navigation. Routes marked with ⚠️ indicate missing or incomplete functionality that requires development attention. Updated to include all 11 missing pages discovered through footer component analysis.*
