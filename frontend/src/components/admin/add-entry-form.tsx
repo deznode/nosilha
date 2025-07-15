@@ -49,7 +49,6 @@ const categories: Exclude<DirectoryEntry["category"], "">[] = [
 
 export function AddEntryForm() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
-  const [currentStep, setCurrentStep] = useState(1);
   const [status, setStatus] = useState<FormStatus>("idle");
   const [message, setMessage] = useState<string>("");
   const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -69,9 +68,6 @@ export function AddEntryForm() {
       details: { ...prev.details, [name]: value },
     }));
   };
-
-  const nextStep = () => setCurrentStep((prev) => prev + 1);
-  const prevStep = () => setCurrentStep((prev) => prev - 1);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -93,11 +89,12 @@ export function AddEntryForm() {
       longitude: Number(formData.longitude),
       imageUrl: "",
       category: formData.category,
-      details: null,
+      details: null, // Will be set below based on category
     };
 
     if (payload.category === "Restaurant") {
       payload.details = {
+        category: "Restaurant",
         phoneNumber: formData.details.phoneNumber || "",
         openingHours: formData.details.openingHours || "",
         cuisine:
@@ -105,10 +102,15 @@ export function AddEntryForm() {
       };
     } else if (payload.category === "Hotel") {
       payload.details = {
+        category: "Hotel",
         phoneNumber: formData.details.phoneNumber || "",
-        amenities:
-          (formData.details.amenities?.split(",").map((item) => item.trim()) ||
-          []) as ("Wi-Fi" | "Pool" | "Parking")[],
+        amenities: (formData.details.amenities
+          ?.split(",")
+          .map((item) => item.trim()) || []) as (
+          | "Wi-Fi"
+          | "Pool"
+          | "Parking"
+        )[],
       };
     }
 

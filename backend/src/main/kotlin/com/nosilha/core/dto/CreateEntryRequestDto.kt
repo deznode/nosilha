@@ -1,8 +1,8 @@
 package com.nosilha.core.dto
 
 /**
- * DTO for creating a new directory entry. It contains all possible fields
- * for any entry type. Fields specific to a category are nullable.
+ * DTO for creating a new directory entry. It contains core fields
+ * and category-specific details in a structured object.
  */
 data class CreateEntryRequestDto(
     val name: String,
@@ -12,10 +12,5 @@ data class CreateEntryRequestDto(
     val latitude: Double,
     val longitude: Double,
     val imageUrl: String?,
-    // Restaurant-specific fields
-    val phoneNumber: String?,
-    val openingHours: String?,
-    val cuisine: String?, // Expected as a comma-separated string, e.g., "Cape Verdean,Seafood"
-    // Hotel-specific fields
-    val amenities: String?, // Expected as a comma-separated string, e.g., "Wi-Fi,Pool"
+    val details: DetailsDto?, // Category-specific details object
 )

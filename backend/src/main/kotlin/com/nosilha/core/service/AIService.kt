@@ -8,49 +8,61 @@ import com.google.cloud.vision.v1.ImageSource
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
+/**
+ * Service to handle interactions with the Google Cloud Vision AI API.
+ */
 @Service
 class AIService {
     private val logger = LoggerFactory.getLogger(AIService::class.java)
 
     /**
-     * Analyzes an image stored in GCS using the Vision AI API to generate descriptive tags.
+     * Analyzes an image in GCS to generate descriptive tags.
      *
      * @param gcsPath The full GCS path to the image (e.g., "gs://bucket-name/image.jpg").
      * @return A list of tag descriptions with a confidence score greater than 0.85.
      */
     fun generateTagsForImage(gcsPath: String): List<String> {
-        logger.info("Generating tags for image: $gcsPath")
+        logger.info("Requesting AI analysis for image: $gcsPath")
+        val generatedTags = mutableListOf<String>()
 
         try {
-            // The .use block ensures the client is automatically closed after use.
+            // The .use block properly closes the client after the operation.
             ImageAnnotatorClient.create().use { imageAnnotatorClient ->
+                // Build the Image object from the GCS path
+                val imageSource = ImageSource.newBuilder().setImageUri(gcsPath).build()
+                val image = Image.newBuilder().setSource(imageSource).build()
 
-                // Build the image representation from the GCS path
-                val source = ImageSource.newBuilder().setImageUri(gcsPath).build()
-                val image = Image.newBuilder().setSource(source).build()
-
-                // Specify the feature type (LABEL_DETECTION)
+                // Specify the LABEL_DETECTION feature
                 val feature = Feature.newBuilder().setType(Feature.Type.LABEL_DETECTION).build()
 
                 // Build the request
                 val request =
-                    AnnotateImageRequest.newBuilder()
+                    AnnotateImageRequest
+                        .newBuilder()
                         .addFeatures(feature)
                         .setImage(image)
                         .build()
 
-                // Send the request to the Vision AI API
+                // Send the request
                 val response = imageAnnotatorClient.batchAnnotateImages(listOf(request))
 
                 // Parse the response and extract high-confidence labels
-                return response.responsesList.firstOrNull()?.labelAnnotationsList
-                    ?.filter { it.score > 0.85f } // Filter for labels with high confidence
-                    ?.map { it.description } // Extract the text description
-                    ?: emptyList()
+                val labels =
+                    response.responsesList
+                        .firstOrNull()
+                        ?.labelAnnotationsList
+                        ?.filter { it.score > 0.85f }
+                        ?.map { it.description }
+                        ?: emptyList()
+
+                generatedTags.addAll(labels)
             }
         } catch (e: Exception) {
-            logger.error("Failed to analyze image with Vision AI: ${e.message}", e)
-            return emptyList() // Return an empty list in case of an error
+            logger.error("Error analyzing image with Vision AI: ${e.message}", e)
+            return emptyList()
         }
+
+        logger.info("Found ${generatedTags.size} high-confidence tags for $gcsPath.")
+        return generatedTags
     }
 }

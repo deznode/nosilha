@@ -5,6 +5,8 @@ import com.nosilha.core.domain.Hotel
 import com.nosilha.core.domain.Landmark
 import com.nosilha.core.domain.Restaurant
 import com.nosilha.core.dto.CreateEntryRequestDto
+import com.nosilha.core.dto.CreateRestaurantDetailsDto
+import com.nosilha.core.dto.CreateHotelDetailsDto
 import com.nosilha.core.dto.DirectoryEntryDto
 import com.nosilha.core.dto.toDto
 import com.nosilha.core.exception.ResourceNotFoundException
@@ -36,18 +38,22 @@ class DirectoryEntryService(
     fun createEntry(request: CreateEntryRequestDto): DirectoryEntryDto {
         val newEntry =
             when (request.category) {
-                "Restaurant" ->
+                "Restaurant" -> {
+                    val restaurantDetails = request.details as? CreateRestaurantDetailsDto
                     Restaurant().apply {
-                        this.phoneNumber = request.phoneNumber
-                        this.openingHours = request.openingHours
-                        this.cuisine = request.cuisine
+                        this.phoneNumber = restaurantDetails?.phoneNumber
+                        this.openingHours = restaurantDetails?.openingHours
+                        this.cuisine = restaurantDetails?.cuisine?.joinToString(",")
                     }
+                }
 
-                "Hotel" ->
+                "Hotel" -> {
+                    val hotelDetails = request.details as? CreateHotelDetailsDto
                     Hotel().apply {
-                        this.amenities = request.amenities
-                        this.phoneNumber = request.phoneNumber
+                        this.phoneNumber = hotelDetails?.phoneNumber
+                        this.amenities = hotelDetails?.amenities?.joinToString(",")
                     }
+                }
 
                 "Beach" -> Beach()
                 "Landmark" -> Landmark()

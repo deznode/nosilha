@@ -53,7 +53,7 @@ class FileStorageService(
         // Generate tags using the AI service.
         val tags = aiService.generateTagsForImage(gcsPath)
 
-        // Create the metadata object.
+        // Create the metadata object if tags were found.
         if (tags.isNotEmpty()) {
             val metadata = ImageMetadata(gcsUrl = publicUrl, tags = tags)
             // Save to Firestore reactively. .subscribe() triggers the non-blocking operation.

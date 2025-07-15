@@ -15,12 +15,14 @@ export interface BaseDirectoryEntry {
 
 // 2. Interfaces for CATEGORY-SPECIFIC details
 export interface RestaurantDetails {
+  category: "Restaurant";
   phoneNumber: string;
   openingHours: string; // For simplicity this is a string, but could be a structured object
   cuisine: string[];
 }
 
 export interface HotelDetails {
+  category: "Hotel";
   phoneNumber: string;
   amenities: ("Wi-Fi" | "Pool" | "Parking")[];
 }

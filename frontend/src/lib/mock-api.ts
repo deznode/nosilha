@@ -15,6 +15,7 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     rating: 4.5,
     reviewCount: 88,
     details: {
+      category: "Restaurant",
       phoneNumber: "+238 285 1234",
       openingHours: "12:00 PM - 10:00 PM Daily",
       cuisine: ["Cape Verdean", "Seafood", "Traditional"],
@@ -34,6 +35,7 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     rating: 4.8,
     reviewCount: 120,
     details: {
+      category: "Hotel",
       phoneNumber: "+238 285 5678",
       amenities: ["Wi-Fi", "Pool", "Parking"],
     },
