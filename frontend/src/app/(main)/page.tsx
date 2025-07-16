@@ -105,9 +105,13 @@ export default async function HomePage() {
           <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
             <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-3">
               {nosilhaFeatures.map((feature) => (
-                <div key={feature.name} className="relative pl-16">
-                  <dt className="text-base font-semibold leading-7 text-volcanic-gray-dark">
-                    <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-ocean-blue">
+                <Link
+                  key={feature.name}
+                  href={feature.href}
+                  className="group relative block pl-16 rounded-lg p-4 transition-all duration-300 hover:bg-white hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-ocean-blue focus:ring-offset-2"
+                >
+                  <dt className="text-base font-semibold leading-7 text-volcanic-gray-dark group-hover:text-ocean-blue transition-colors duration-300">
+                    <div className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-lg bg-ocean-blue group-hover:bg-ocean-blue/90 transition-colors duration-300">
                       <feature.icon
                         className="h-6 w-6 text-white"
                         aria-hidden="true"
@@ -115,10 +119,10 @@ export default async function HomePage() {
                     </div>
                     {feature.name}
                   </dt>
-                  <dd className="mt-2 text-base leading-7 text-volcanic-gray">
+                  <dd className="mt-2 text-base leading-7 text-volcanic-gray group-hover:text-volcanic-gray-dark transition-colors duration-300">
                     {feature.description}
                   </dd>
-                </div>
+                </Link>
               ))}
             </dl>
           </div>
