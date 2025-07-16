@@ -28,6 +28,7 @@ repositories {
 extra["springCloudGcpVersion"] = "6.2.2"
 extra["testcontainersVersion"] = "1.21.3"
 extra["detektVersion"] = "1.23.8"
+extra["kotlinLogging"] = "7.0.3"
 
 dependencies {
 
@@ -40,6 +41,7 @@ dependencies {
     implementation("com.google.cloud:spring-cloud-gcp-starter-storage")
     implementation("com.google.cloud:spring-cloud-gcp-starter-data-firestore")
     implementation("com.google.cloud:spring-cloud-gcp-starter-vision")
+    implementation("io.github.oshai:kotlin-logging-jvm:${property("kotlinLogging")}")
     implementation("io.jsonwebtoken:jjwt-api:0.12.5")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
     runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")

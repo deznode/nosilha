@@ -5,7 +5,7 @@ import com.google.cloud.vision.v1.Feature
 import com.google.cloud.vision.v1.Image
 import com.google.cloud.vision.v1.ImageAnnotatorClient
 import com.google.cloud.vision.v1.ImageSource
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 
 /**
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service
  */
 @Service
 class AIService {
-    private val logger = LoggerFactory.getLogger(AIService::class.java)
+    private val logger = KotlinLogging.logger {}
 
     /**
      * Analyzes an image in GCS to generate descriptive tags.
@@ -22,7 +22,7 @@ class AIService {
      * @return A list of tag descriptions with a confidence score greater than 0.85.
      */
     fun generateTagsForImage(gcsPath: String): List<String> {
-        logger.info("Requesting AI analysis for image: $gcsPath")
+        logger.info { "Requesting AI analysis for image: $gcsPath" }
         val generatedTags = mutableListOf<String>()
 
         try {
@@ -58,11 +58,12 @@ class AIService {
                 generatedTags.addAll(labels)
             }
         } catch (e: Exception) {
-            logger.error("Error analyzing image with Vision AI: ${e.message}", e)
+            logger.error(e) { "Error analyzing image with Vision AI: ${e.message}" }
             return emptyList()
         }
 
-        logger.info("Found ${generatedTags.size} high-confidence tags for $gcsPath.")
+        logger.info { "Found ${generatedTags.size} high-confidence tags for $gcsPath." }
+        logger.info { "Tags:  $generatedTags" }
         return generatedTags
     }
 }

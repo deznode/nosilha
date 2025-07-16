@@ -89,3 +89,27 @@ output "dns_records" {
     api_domain     = google_cloud_run_domain_mapping.nosilha-backend-domain-mapping.status[0].resource_records
   }
 }
+
+# ------------------------------------------------------------------------------
+# Database and Storage Outputs
+# ------------------------------------------------------------------------------
+
+output "firestore_database_name" {
+  description = "The name of the Firestore database"
+  value       = google_firestore_database.default.name
+}
+
+output "firestore_database_location" {
+  description = "The location of the Firestore database"
+  value       = google_firestore_database.default.location_id
+}
+
+output "firestore_database_id" {
+  description = "The full resource ID of the Firestore database"
+  value       = google_firestore_database.default.id
+}
+
+output "gcs_media_bucket_name_only" {
+  description = "The name of the GCS bucket for media storage (bucket name only)"
+  value       = google_storage_bucket.media_storage.name
+}

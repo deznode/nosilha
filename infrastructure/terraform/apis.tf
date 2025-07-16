@@ -76,6 +76,14 @@ resource "google_project_service" "billing_budgets" {
   disable_on_destroy = false
 }
 
+# Enable Firestore API
+resource "google_project_service" "firestore" {
+  project = var.gcp_project_id
+  service = "firestore.googleapis.com"
+
+  disable_on_destroy = false
+}
+
 # ------------------------------------------------------------------------------
 # API Dependencies
 # ------------------------------------------------------------------------------
@@ -91,6 +99,7 @@ locals {
     google_project_service.storage,
     google_project_service.monitoring,
     google_project_service.billing,
-    google_project_service.billing_budgets
+    google_project_service.billing_budgets,
+    google_project_service.firestore
   ]
 }
