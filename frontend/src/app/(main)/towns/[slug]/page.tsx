@@ -1,0 +1,320 @@
+import Link from "next/link";
+import Image from "next/image";
+import { notFound } from "next/navigation";
+import { PageHeader } from "@/components/ui/page-header";
+import { DirectoryCard } from "@/components/ui/directory-card";
+import { getEntriesByCategory } from "@/lib/api";
+import { 
+  MapPinIcon, 
+  UserGroupIcon, 
+  BuildingOfficeIcon,
+  CameraIcon 
+} from "@heroicons/react/24/outline";
+
+// Enable ISR with 1 hour revalidation for town content
+export const revalidate = 3600;
+
+// Town data (in a real implementation, this would come from the API)
+const townData = {
+  "nova-sintra": {
+    name: "Nova Sintra",
+    description: "The charming capital of Brava Island, perched high in the mountains",
+    population: "Approximately 1,200 residents",
+    elevation: "480 meters above sea level",
+    founded: "Late 17th century",
+    highlights: [
+      "Municipal Camera building with Portuguese colonial architecture",
+      "Central square with traditional cobblestone design",
+      "Historic church dating back to the 18th century",
+      "Panoramic viewpoints overlooking the island"
+    ],
+    heroImage: "/images/towns/nova-sintra-hero.jpg",
+    gallery: [
+      "/images/towns/nova-sintra-1.jpg",
+      "/images/towns/nova-sintra-2.jpg",
+      "/images/towns/nova-sintra-3.jpg"
+    ]
+  },
+  "furna": {
+    name: "Furna",
+    description: "A picturesque coastal village known for its dramatic cliffs and ocean views",
+    population: "Approximately 800 residents",
+    elevation: "Sea level to 100 meters",
+    founded: "Early 18th century",
+    highlights: [
+      "Dramatic coastal cliffs and natural rock formations",
+      "Traditional fishing village atmosphere",
+      "Access to secluded beaches and swimming spots",
+      "Historic lighthouse overlooking the Atlantic"
+    ],
+    heroImage: "/images/towns/furna-hero.jpg",
+    gallery: [
+      "/images/towns/furna-1.jpg",
+      "/images/towns/furna-2.jpg",
+      "/images/towns/furna-3.jpg"
+    ]
+  },
+  "faja-de-agua": {
+    name: "Fajã de Água",
+    description: "A tranquil village nestled in Brava's fertile valleys",
+    population: "Approximately 500 residents",
+    elevation: "200-300 meters above sea level",
+    founded: "18th century",
+    highlights: [
+      "Lush agricultural terraces and gardens",
+      "Traditional Cape Verdean architecture",
+      "Peaceful village atmosphere",
+      "Mountain hiking trails and nature walks"
+    ],
+    heroImage: "/images/towns/faja-de-agua-hero.jpg",
+    gallery: [
+      "/images/towns/faja-de-agua-1.jpg",
+      "/images/towns/faja-de-agua-2.jpg",
+      "/images/towns/faja-de-agua-3.jpg"
+    ]
+  },
+  "nossa-senhora-do-monte": {
+    name: "Nossa Senhora do Monte",
+    description: "A small mountain settlement with stunning panoramic views",
+    population: "Approximately 300 residents",
+    elevation: "600 meters above sea level",
+    founded: "19th century",
+    highlights: [
+      "Breathtaking panoramic views of the island",
+      "Traditional mountain architecture",
+      "Quiet, contemplative atmosphere",
+      "Access to hiking trails and nature walks"
+    ],
+    heroImage: "/images/towns/nossa-senhora-do-monte-hero.jpg",
+    gallery: [
+      "/images/towns/nossa-senhora-do-monte-1.jpg",
+      "/images/towns/nossa-senhora-do-monte-2.jpg",
+      "/images/towns/nossa-senhora-do-monte-3.jpg"
+    ]
+  }
+};
+
+// Define the props for the dynamic page
+interface TownPageProps {
+  params: Promise<{
+    slug: string;
+  }>;
+}
+
+export default async function TownPage({ params }: TownPageProps) {
+  const { slug } = await params;
+  
+  // Get town data
+  const town = townData[slug as keyof typeof townData];
+  
+  if (!town) {
+    notFound();
+  }
+  
+  // Fetch directory entries for this town (for now, we'll get all entries as a fallback)
+  let townEntries: any[] = [];
+  try {
+    const allEntries = await getEntriesByCategory("all");
+    // Filter entries by town name (this would be better implemented with a proper API function)
+    townEntries = allEntries.filter(entry => 
+      entry.town && entry.town.toLowerCase().includes(town.name.toLowerCase())
+    );
+  } catch (error) {
+    console.error("Failed to fetch entries for town:", error);
+    townEntries = [];
+  }
+
+  return (
+    <div className="bg-off-white font-sans">
+      {/* Hero Section */}
+      <section className="relative h-96 overflow-hidden">
+        <Image
+          src={town.heroImage}
+          alt={`Scenic view of ${town.name}, Brava Island`}
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 flex items-center justify-center text-center text-white">
+          <div className="max-w-3xl px-4">
+            <h1 className="font-serif text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
+              {town.name}
+            </h1>
+            <p className="mt-4 text-lg sm:text-xl">
+              {town.description}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+        {/* Town Overview */}
+        <section className="bg-white p-8 rounded-lg shadow-sm">
+          <div className="grid gap-8 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <h2 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-4">
+                About {town.name}
+              </h2>
+              <p className="text-lg text-volcanic-gray mb-6">
+                {town.description}
+              </p>
+              
+              <h3 className="font-semibold text-lg text-volcanic-gray-dark mb-3">
+                What Makes {town.name} Special
+              </h3>
+              <ul className="space-y-2 text-volcanic-gray">
+                {town.highlights.map((highlight, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="text-ocean-blue mr-2">•</span>
+                    {highlight}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="bg-off-white p-4 rounded-lg">
+                <div className="flex items-center mb-2">
+                  <UserGroupIcon className="h-5 w-5 text-ocean-blue mr-2" />
+                  <span className="font-semibold text-volcanic-gray-dark">Population</span>
+                </div>
+                <p className="text-volcanic-gray">{town.population}</p>
+              </div>
+              
+              <div className="bg-off-white p-4 rounded-lg">
+                <div className="flex items-center mb-2">
+                  <MapPinIcon className="h-5 w-5 text-ocean-blue mr-2" />
+                  <span className="font-semibold text-volcanic-gray-dark">Elevation</span>
+                </div>
+                <p className="text-volcanic-gray">{town.elevation}</p>
+              </div>
+              
+              <div className="bg-off-white p-4 rounded-lg">
+                <div className="flex items-center mb-2">
+                  <BuildingOfficeIcon className="h-5 w-5 text-ocean-blue mr-2" />
+                  <span className="font-semibold text-volcanic-gray-dark">Founded</span>
+                </div>
+                <p className="text-volcanic-gray">{town.founded}</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Photo Gallery */}
+        <section className="mt-16">
+          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-8">
+            Photo Gallery
+          </h3>
+          <div className="grid gap-4 md:grid-cols-3">
+            {town.gallery.map((image, index) => (
+              <div key={index} className="relative h-64 overflow-hidden rounded-lg">
+                <Image
+                  src={image}
+                  alt={`View ${index + 1} of ${town.name}`}
+                  fill
+                  className="object-cover transition-transform duration-300 hover:scale-105"
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Local Directory Entries */}
+        {townEntries.length > 0 && (
+          <section className="mt-16">
+            <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-8">
+              Places to Visit in {town.name}
+            </h3>
+            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {townEntries.map((entry) => (
+                <DirectoryCard key={entry.id} entry={entry} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Contribute Section */}
+        <section className="mt-16 bg-gradient-to-r from-ocean-blue/10 to-valley-green/10 p-8 rounded-lg text-center">
+          <CameraIcon className="h-12 w-12 text-ocean-blue mx-auto mb-4" />
+          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-4">
+            Share Your {town.name} Experience
+          </h3>
+          <p className="text-lg text-volcanic-gray mb-6">
+            Have photos or stories from {town.name}? Help us showcase this beautiful part of Brava Island.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/contribute"
+              className="rounded-md bg-ocean-blue px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-ocean-blue/90"
+            >
+              Contribute Photos
+            </Link>
+            <Link
+              href="/map"
+              className="rounded-md border-2 border-ocean-blue px-6 py-3 text-base font-semibold text-ocean-blue transition-colors hover:bg-ocean-blue hover:text-white"
+            >
+              View on Map
+            </Link>
+          </div>
+        </section>
+
+        {/* Navigation */}
+        <section className="mt-16 text-center">
+          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-6">
+            Explore More of Brava
+          </h3>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/towns"
+              className="rounded-md bg-valley-green px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-valley-green/90"
+            >
+              All Towns & Villages
+            </Link>
+            <Link
+              href="/history"
+              className="rounded-md border-2 border-valley-green px-6 py-3 text-base font-semibold text-valley-green transition-colors hover:bg-valley-green hover:text-white"
+            >
+              Learn History
+            </Link>
+            <Link
+              href="/directory/all"
+              className="rounded-md border-2 border-volcanic-gray px-6 py-3 text-base font-semibold text-volcanic-gray transition-colors hover:bg-volcanic-gray hover:text-white"
+            >
+              Browse Directory
+            </Link>
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
+
+// Generate static params for known towns
+export async function generateStaticParams() {
+  return Object.keys(townData).map((slug) => ({
+    slug,
+  }));
+}
+
+// Generate metadata for SEO
+export async function generateMetadata({ params }: TownPageProps) {
+  const { slug } = await params;
+  const town = townData[slug as keyof typeof townData];
+  
+  if (!town) {
+    return {
+      title: 'Town Not Found | Nos Ilha',
+    };
+  }
+  
+  return {
+    title: `${town.name} | Towns of Brava Island | Nos Ilha`,
+    description: town.description,
+    openGraph: {
+      title: `${town.name} - Brava Island`,
+      description: town.description,
+      images: [town.heroImage],
+    },
+  };
+}
