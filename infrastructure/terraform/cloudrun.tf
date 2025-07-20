@@ -166,7 +166,7 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
       # Configure memory and CPU resources optimized for free tier  
       resources {
         limits = {
-          cpu    = "500m"  # Reduced CPU for frontend (0.5 vCPU)
+          cpu    = "1000m"  # Reduced CPU for frontend (0.5 vCPU)
           memory = "256Mi" # Reduced memory to optimize costs
         }
         cpu_idle = true # CPU only allocated during request processing
