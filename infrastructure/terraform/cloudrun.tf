@@ -22,21 +22,28 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
   template {
     # Run the container using the dedicated service account
     service_account = google_service_account.backend_runner.email
-    
-    # Set CPU to be allocated only during request processing
-    cpu_throttling = false
+
+    # Set CPU to be allocated only during request processing (critical for free tier)
+    # This is configured via cpu_idle in the resources block
+
+    # Optimize scaling for free tier usage
+    scaling {
+      min_instance_count = 0 # Scale to zero when not in use
+      max_instance_count = 3 # Limit maximum instances
+    }
 
     containers {
       # The full path to the container image in Artifact Registry.
       # Uses latest tag - actual deployments handled by CI/CD
       image = "us-east1-docker.pkg.dev/${var.gcp_project_id}/nosilha-backend/nosilha-core-api:latest"
 
-      # Configure memory and CPU resources for free tier
+      # Configure memory and CPU resources optimized for free tier
       resources {
         limits = {
-          cpu    = "1000m"
-          memory = "512Mi"
+          cpu    = "1000m" # 1 vCPU max for free tier
+          memory = "256Mi" # Reduced from 512Mi to optimize costs
         }
+        cpu_idle = true # CPU only allocated during request processing
       }
 
       # Inject environment variables into the container.
@@ -136,8 +143,14 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
     # Run the container using the dedicated frontend service account
     service_account = google_service_account.frontend_runner.email
 
-    # Set CPU to be allocated only during request processing
-    cpu_throttling = false
+    # Set CPU to be allocated only during request processing (critical for free tier)
+    # This is configured via cpu_idle in the resources block
+
+    # Optimize scaling for free tier usage
+    scaling {
+      min_instance_count = 0 # Scale to zero when not in use
+      max_instance_count = 2 # Lower limit for frontend
+    }
 
     containers {
       # The full path to the frontend container image in its Artifact Registry.
@@ -150,12 +163,13 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
         container_port = 3000
       }
 
-      # Configure memory and CPU resources for free tier
+      # Configure memory and CPU resources optimized for free tier  
       resources {
         limits = {
-          cpu    = "1000m"
-          memory = "512Mi"
+          cpu    = "500m"  # Reduced CPU for frontend (0.5 vCPU)
+          memory = "256Mi" # Reduced memory to optimize costs
         }
+        cpu_idle = true # CPU only allocated during request processing
       }
     }
   }
