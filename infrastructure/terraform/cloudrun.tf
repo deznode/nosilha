@@ -22,6 +22,9 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
   template {
     # Run the container using the dedicated service account
     service_account = google_service_account.backend_runner.email
+    
+    # Set CPU to be allocated only during request processing
+    cpu_throttling = false
 
     containers {
       # The full path to the container image in Artifact Registry.
@@ -132,6 +135,9 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
   template {
     # Run the container using the dedicated frontend service account
     service_account = google_service_account.frontend_runner.email
+
+    # Set CPU to be allocated only during request processing
+    cpu_throttling = false
 
     containers {
       # The full path to the frontend container image in its Artifact Registry.
