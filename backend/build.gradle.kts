@@ -29,6 +29,7 @@ extra["springCloudGcpVersion"] = "6.2.2"
 extra["testcontainersVersion"] = "1.21.3"
 extra["detektVersion"] = "1.23.8"
 extra["kotlinLogging"] = "7.0.3"
+extra["springdocOpenApiVersion"] = "2.8.9"
 
 dependencies {
 
@@ -38,6 +39,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${property("springdocOpenApiVersion")}")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.google.cloud:spring-cloud-gcp-starter-storage")
     implementation("com.google.cloud:spring-cloud-gcp-starter-data-firestore")
     implementation("com.google.cloud:spring-cloud-gcp-starter-vision")
