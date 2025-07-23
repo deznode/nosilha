@@ -1,6 +1,8 @@
 package com.nosilha.core.repository.jpa
 
 import com.nosilha.core.domain.DirectoryEntry
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.UUID
@@ -26,6 +28,34 @@ interface DirectoryEntryRepository : JpaRepository<DirectoryEntry, UUID> {
      * @return A list of DirectoryEntry entities matching the specified category.
      */
     fun findByCategoryIgnoreCase(category: String): List<DirectoryEntry>
+
+    /**
+     * Finds all DirectoryEntry instances that match the given category with pagination.
+     *
+     * @param category The category name to filter by (e.g., "Restaurant", "Hotel").
+     * @param pageable Pagination parameters.
+     * @return A page of DirectoryEntry entities matching the specified category.
+     */
+    fun findByCategoryIgnoreCase(category: String, pageable: Pageable): Page<DirectoryEntry>
+
+    /**
+     * Finds all DirectoryEntry instances that match the given town with pagination.
+     *
+     * @param town The town name to filter by.
+     * @param pageable Pagination parameters.
+     * @return A page of DirectoryEntry entities matching the specified town.
+     */
+    fun findByTownIgnoreCase(town: String, pageable: Pageable): Page<DirectoryEntry>
+
+    /**
+     * Finds all DirectoryEntry instances that match both category and town with pagination.
+     *
+     * @param category The category name to filter by.
+     * @param town The town name to filter by.
+     * @param pageable Pagination parameters.
+     * @return A page of DirectoryEntry entities matching both filters.
+     */
+    fun findByCategoryIgnoreCaseAndTownIgnoreCase(category: String, town: String, pageable: Pageable): Page<DirectoryEntry>
 
     /**
      * Finds a single DirectoryEntry by its unique slug.

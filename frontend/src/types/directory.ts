@@ -11,6 +11,8 @@ export interface BaseDirectoryEntry {
   description: string; // A description is general enough for all types
   rating: number | undefined;
   reviewCount: number;
+  createdAt: string; // ISO 8601 timestamp
+  updatedAt: string; // ISO 8601 timestamp
 }
 
 // 2. Interfaces for CATEGORY-SPECIFIC details

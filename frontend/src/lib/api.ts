@@ -63,15 +63,24 @@ async function authenticatedFetch(
  * Fetches all directory entries or entries for a specific category from the backend API.
  * Uses ISR with 1 hour cache for optimal performance and falls back to mock data.
  * @param category The category to fetch, or 'all' to fetch all entries.
+ * @param page The page number (default: 0).
+ * @param size The page size (default: 20).
  * @returns A promise that resolves to an array of directory entries.
  */
 export async function getEntriesByCategory(
-  category: string
+  category: string,
+  page: number = 0,
+  size: number = 20
 ): Promise<DirectoryEntry[]> {
-  const endpoint =
-    category.toLowerCase() === "all"
-      ? `${API_BASE_URL}/api/v1/directory/entries`
-      : `${API_BASE_URL}/api/v1/directory/entries?category=${category}`;
+  const params = new URLSearchParams();
+  
+  if (category.toLowerCase() !== "all") {
+    params.append("category", category);
+  }
+  params.append("page", page.toString());
+  params.append("size", size.toString());
+
+  const endpoint = `${API_BASE_URL}/api/v1/directory/entries?${params.toString()}`;
 
   try {
     // Use ISR with 1 hour cache for directory content (semi-static data)
@@ -83,7 +92,9 @@ export async function getEntriesByCategory(
       throw new Error(`API call failed with status: ${response.status}`);
     }
 
-    return await response.json();
+    const apiResponse = await response.json();
+    // Extract data from PagedApiResponse
+    return apiResponse.data || [];
   } catch (error) {
     console.error("Failed to fetch entries by category, using fallback:", error);
     // Fallback to mock data for resilience
@@ -116,7 +127,9 @@ export async function getEntryBySlug(
       throw new Error(`API call failed with status: ${response.status}`);
     }
 
-    return await response.json();
+    const apiResponse = await response.json();
+    // Extract data from ApiResponse
+    return apiResponse.data;
   } catch (error) {
     console.error(`Failed to fetch entry by slug "${slug}", using fallback:`, error);
     // Fallback to mock data for resilience
@@ -130,7 +143,7 @@ export async function getEntryBySlug(
  * @returns A promise that resolves to the newly created directory entry.
  */
 export async function createDirectoryEntry(
-  entryData: Omit<DirectoryEntry, "id" | "slug" | "rating" | "reviewCount">
+  entryData: Omit<DirectoryEntry, "id" | "slug" | "rating" | "reviewCount" | "createdAt" | "updatedAt">
 ): Promise<DirectoryEntry> {
   const endpoint = `${API_BASE_URL}/api/v1/directory/entries`;
 
@@ -144,10 +157,12 @@ export async function createDirectoryEntry(
 
   if (!response.ok) {
     const errorResult = await response.json();
-    throw new Error(errorResult.message || "Failed to create directory entry.");
+    throw new Error(errorResult.error || errorResult.message || "Failed to create directory entry.");
   }
 
-  return await response.json();
+  const apiResponse = await response.json();
+  // Extract data from ApiResponse
+  return apiResponse.data;
 }
 
 /**
@@ -159,10 +174,15 @@ export async function createDirectoryEntry(
 export async function getEntriesForMap(
   category: string = "all"
 ): Promise<DirectoryEntry[]> {
-  const endpoint =
-    category.toLowerCase() === "all"
-      ? `${API_BASE_URL}/api/v1/directory/entries`
-      : `${API_BASE_URL}/api/v1/directory/entries?category=${category}`;
+  const params = new URLSearchParams();
+  
+  if (category.toLowerCase() !== "all") {
+    params.append("category", category);
+  }
+  // Use larger page size for map view to get more entries
+  params.append("size", "100");
+
+  const endpoint = `${API_BASE_URL}/api/v1/directory/entries?${params.toString()}`;
 
   try {
     // Keep dynamic for real-time map interactions
@@ -172,7 +192,9 @@ export async function getEntriesForMap(
       throw new Error(`API call failed with status: ${response.status}`);
     }
 
-    return await response.json();
+    const apiResponse = await response.json();
+    // Extract data from PagedApiResponse
+    return apiResponse.data || [];
   } catch (error) {
     console.error("Failed to fetch entries for map, using fallback:", error);
     // Fallback to mock data for resilience
@@ -184,14 +206,22 @@ export async function getEntriesForMap(
  * Uploads an image file to the backend API and returns the public URL.
  * Requires user authentication via JWT token.
  * @param file The image file to upload.
+ * @param category Optional category for file organization.
+ * @param description Optional description of the file.
  * @returns A promise that resolves to the public URL of the uploaded image.
  */
-export async function uploadImage(file: File): Promise<string> {
+export async function uploadImage(
+  file: File,
+  category?: string,
+  description?: string
+): Promise<string> {
   const endpoint = `${API_BASE_URL}/api/v1/media/upload`;
 
   // Create FormData for multipart/form-data request
   const formData = new FormData();
   formData.append("file", file);
+  if (category) formData.append("category", category);
+  if (description) formData.append("description", description);
 
   const response = await authenticatedFetch(endpoint, {
     method: "POST",
@@ -201,11 +231,12 @@ export async function uploadImage(file: File): Promise<string> {
 
   if (!response.ok) {
     const errorResult = await response.json().catch(() => ({
-      message: "Failed to upload image",
+      error: "Failed to upload image",
     }));
-    throw new Error(errorResult.message || "Failed to upload image.");
+    throw new Error(errorResult.error || errorResult.message || "Failed to upload image.");
   }
 
-  const result = await response.json();
-  return result.url;
+  const apiResponse = await response.json();
+  // Extract URL from MediaMetadataDto in ApiResponse
+  return apiResponse.data.url;
 }

@@ -1,8 +1,10 @@
 package com.nosilha.core.dto
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import java.time.LocalDateTime
 import java.util.*
 
 /**
@@ -31,6 +33,12 @@ abstract class DirectoryEntryDto {
     abstract val imageUrl: String?
     abstract val rating: Double?
     abstract val reviewCount: Int
+    
+    @get:JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+    abstract val createdAt: LocalDateTime
+    
+    @get:JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+    abstract val updatedAt: LocalDateTime
 }
 
 /**
@@ -48,6 +56,8 @@ data class RestaurantDto(
     override val imageUrl: String?,
     override val rating: Double?,
     override val reviewCount: Int,
+    override val createdAt: LocalDateTime,
+    override val updatedAt: LocalDateTime,
     val details: RestaurantDetailsDto,
 ) : DirectoryEntryDto()
 
@@ -66,6 +76,8 @@ data class HotelDto(
     override val imageUrl: String?,
     override val rating: Double?,
     override val reviewCount: Int,
+    override val createdAt: LocalDateTime,
+    override val updatedAt: LocalDateTime,
     val details: HotelDetailsDto,
 ) : DirectoryEntryDto()
 
@@ -84,6 +96,8 @@ data class BeachDto(
     override val imageUrl: String?,
     override val rating: Double?,
     override val reviewCount: Int,
+    override val createdAt: LocalDateTime,
+    override val updatedAt: LocalDateTime,
     val details: DetailsDto? = null,
 ) : DirectoryEntryDto()
 
@@ -102,5 +116,7 @@ data class LandmarkDto(
     override val imageUrl: String?,
     override val rating: Double?,
     override val reviewCount: Int,
+    override val createdAt: LocalDateTime,
+    override val updatedAt: LocalDateTime,
     val details: DetailsDto? = null,
 ) : DirectoryEntryDto()

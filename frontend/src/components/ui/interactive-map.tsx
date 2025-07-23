@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Map, { Marker, Popup, MapRef } from "react-map-gl/mapbox";
 import useSupercluster from "use-supercluster";
 import Link from "next/link";
@@ -49,18 +49,40 @@ export function InteractiveMap() {
   );
   const [selectedCategories, setSelectedCategories] =
     useState<string[]>(ALL_CATEGORIES);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [bounds, setBounds] = useState<BBox | undefined>(undefined);
   const [zoom, setZoom] = useState(13);
   const mapRef = useRef<MapRef>(null);
 
-  useEffect(() => {
-    async function fetchEntries() {
+  const fetchEntries = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
       const allEntries = await getEntriesForMap("all");
       setEntries(allEntries);
+    } catch (err) {
+      console.error("Failed to fetch map entries:", err);
+      setError("Failed to load map data. Please try refreshing the page.");
+    } finally {
+      setIsLoading(false);
     }
-    fetchEntries();
   }, []);
+
+  const handleRetry = () => {
+    fetchEntries().catch(console.error);
+  };
+
+  const handleFilterChange = (category: string, isChecked: boolean) => {
+    setSelectedCategories((prev) =>
+      isChecked ? [...prev, category] : prev.filter((c) => c !== category)
+    );
+  };
+
+  useEffect(() => {
+    fetchEntries().catch(console.error);
+  }, [fetchEntries]);
 
   const filteredEntries = useMemo(() => {
     return entries.filter((entry) =>
@@ -94,17 +116,86 @@ export function InteractiveMap() {
     options: { radius: 75, maxZoom: 20 },
   });
 
-  const handleFilterChange = (category: string, isChecked: boolean) => {
-    setSelectedCategories((prev) =>
-      isChecked ? [...prev, category] : prev.filter((c) => c !== category)
-    );
-  };
-
   const mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
   if (!mapboxAccessToken) {
     console.error("Mapbox Access Token is not set!");
-    return <div>Map cannot be loaded. Missing configuration.</div>;
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <p className="text-lg font-semibold text-gray-600">
+            Map cannot be loaded
+          </p>
+          <p className="text-sm text-gray-500">Missing configuration</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-ocean-blue"></div>
+          <p className="text-lg font-semibold text-gray-600">Loading map...</p>
+          <p className="text-sm text-gray-500">Please wait while we load the locations</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+            <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.924-.833-2.598 0L3.732 14.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <p className="mb-2 text-lg font-semibold text-gray-600">
+            Unable to load map
+          </p>
+          <p className="mb-4 text-sm text-gray-500">{error}</p>
+          <button
+            onClick={handleRetry}
+            className="rounded-md bg-ocean-blue px-4 py-2 text-sm font-medium text-white hover:bg-ocean-blue/90 focus:outline-none focus:ring-2 focus:ring-ocean-blue focus:ring-offset-2"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (entries.length === 0) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+            <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <p className="mb-2 text-lg font-semibold text-gray-600">
+            No locations found
+          </p>
+          <p className="mb-4 text-sm text-gray-500">
+            There are currently no locations to display on the map
+          </p>
+          <button
+            onClick={handleRetry}
+            className="rounded-md bg-ocean-blue px-4 py-2 text-sm font-medium text-white hover:bg-ocean-blue/90 focus:outline-none focus:ring-2 focus:ring-ocean-blue focus:ring-offset-2"
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -129,12 +220,28 @@ export function InteractiveMap() {
           }
         }}
       >
-        <div className="absolute right-4 top-4 z-10">
+        <div className="absolute right-4 top-4 z-10 space-y-2">
           <MapFilterControl
             categories={ALL_CATEGORIES}
             selectedCategories={selectedCategories}
             onFilterChange={handleFilterChange}
           />
+          <button
+            onClick={handleRetry}
+            className="flex w-full items-center justify-center rounded-lg bg-ocean-blue px-3 py-2 text-sm font-medium text-white shadow-lg hover:bg-ocean-blue/90 focus:outline-none focus:ring-2 focus:ring-ocean-blue focus:ring-offset-2 disabled:opacity-50"
+            disabled={isLoading}
+            title="Refresh map data"
+          >
+            <svg 
+              className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} 
+              fill="none" 
+              viewBox="0 0 24 24" 
+              stroke="currentColor"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span className="ml-2">{isLoading ? 'Refreshing...' : 'Refresh'}</span>
+          </button>
         </div>
 
         {clusters.map((cluster) => {
