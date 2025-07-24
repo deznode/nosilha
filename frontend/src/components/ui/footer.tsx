@@ -55,7 +55,7 @@ const navigation = {
 export function Footer() {
   return (
     <footer
-      className="bg-gray-100 dark:bg-volcanic-gray-dark text-gray-600 dark:text-gray-300"
+      className="bg-background-secondary text-text-secondary"
       aria-labelledby="footer-heading"
     >
       <h2 id="footer-heading" className="sr-only">
@@ -65,7 +65,7 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* Column 1: Explore Brava */}
           <div>
-            <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">
+            <h3 className="text-base font-semibold leading-6 text-text-primary">
               Explore Brava
             </h3>
             <ul role="list" className="mt-6 space-y-4">
@@ -73,7 +73,7 @@ export function Footer() {
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="text-sm leading-6 hover:text-gray-900 dark:hover:text-white"
+                    className="text-sm leading-6 hover:text-text-primary"
                   >
                     {item.name}
                   </Link>
@@ -84,7 +84,7 @@ export function Footer() {
 
           {/* Column 2: Culture & History */}
           <div>
-            <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">
+            <h3 className="text-base font-semibold leading-6 text-text-primary">
               Culture & History
             </h3>
             <ul role="list" className="mt-6 space-y-4">
@@ -92,7 +92,7 @@ export function Footer() {
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="text-sm leading-6 hover:text-gray-900 dark:hover:text-white"
+                    className="text-sm leading-6 hover:text-text-primary"
                   >
                     {item.name}
                   </Link>
@@ -103,7 +103,7 @@ export function Footer() {
 
           {/* Column 3: Connect */}
           <div>
-            <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">
+            <h3 className="text-base font-semibold leading-6 text-text-primary">
               Connect
             </h3>
             <ul role="list" className="mt-6 space-y-4">
@@ -111,7 +111,7 @@ export function Footer() {
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="text-sm leading-6 hover:text-gray-900 dark:hover:text-white"
+                    className="text-sm leading-6 hover:text-text-primary"
                   >
                     {item.name}
                   </Link>
@@ -122,7 +122,7 @@ export function Footer() {
 
           {/* Column 4: Newsletter */}
           <div className="mt-10 lg:mt-0">
-            <h3 className="text-base font-semibold leading-6 text-gray-900 dark:text-white">
+            <h3 className="text-base font-semibold leading-6 text-text-primary">
               Subscribe to our newsletter
             </h3>
             <p className="mt-2 text-sm leading-6">
@@ -140,7 +140,7 @@ export function Footer() {
                 required
                 placeholder="Enter your email"
                 autoComplete="email"
-                className="w-full min-w-0 appearance-none rounded-md border-0 bg-white dark:bg-white/5 px-3 py-1.5 text-base text-gray-900 dark:text-white shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-white/10 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-ocean-blue sm:w-64 sm:text-sm sm:leading-6 xl:w-full"
+                className="w-full min-w-0 appearance-none rounded-md border-0 bg-background-primary px-3 py-1.5 text-base text-text-primary shadow-sm ring-1 ring-inset ring-border-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-inset focus:ring-ocean-blue sm:w-64 sm:text-sm sm:leading-6 xl:w-full"
               />
               <div className="mt-4 sm:mt-0 sm:ml-4 sm:shrink-0">
                 <button
@@ -155,20 +155,20 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-16 border-t border-gray-300 dark:border-white/10 pt-8 sm:mt-20 md:flex md:items-center md:justify-between lg:mt-24">
+        <div className="mt-16 border-t border-border-primary pt-8 sm:mt-20 md:flex md:items-center md:justify-between lg:mt-24">
           <div className="flex space-x-6 md:order-2">
             {navigation.social.map((item) => (
               <a
                 key={item.name}
                 href={item.href}
-                className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                className="text-text-tertiary hover:text-text-secondary"
               >
                 <span className="sr-only">{item.name}</span>
                 <item.icon className="h-6 w-6" aria-hidden="true" />
               </a>
             ))}
           </div>
-          <p className="mt-8 text-xs leading-5 text-gray-500 dark:text-gray-400 md:order-1 md:mt-0">
+          <p className="mt-8 text-xs leading-5 text-text-tertiary md:order-1 md:mt-0">
             &copy; {new Date().getFullYear()} Nosilha.com. All rights reserved.
           </p>
         </div>

@@ -73,7 +73,7 @@ export default async function HomePage() {
       </section>
 
       {/* Featured Highlights Section */}
-      <section className="bg-white dark:bg-gray-900 py-20 sm:py-24">
+      <section className="bg-background-primary py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <PageHeader
             title="Featured Highlights"
@@ -88,16 +88,16 @@ export default async function HomePage() {
       </section>
 
       {/* Newly Added Section: Island Guide */}
-      <div className="bg-off-white dark:bg-gray-800 py-24 sm:py-32">
+      <div className="bg-background-secondary py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:text-center">
             <h2 className="text-base font-semibold leading-7 text-ocean-blue dark:text-ocean-blue">
               An Island of Treasures
             </h2>
-            <p className="mt-2 font-serif text-3xl font-bold tracking-tight text-volcanic-gray-dark dark:text-white sm:text-4xl">
+            <p className="mt-2 font-serif text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
               Your Comprehensive Guide to Brava
             </p>
-            <p className="mt-6 text-lg leading-8 text-volcanic-gray dark:text-gray-300">
+            <p className="mt-6 text-lg leading-8 text-text-secondary">
               Our platform is designed to help you explore every facet of the
               island, from its stunning geography to its rich cultural tapestry.
             </p>
@@ -108,9 +108,9 @@ export default async function HomePage() {
                 <Link
                   key={feature.name}
                   href={feature.href}
-                  className="group relative block pl-16 rounded-lg p-4 transition-all duration-300 hover:bg-white dark:hover:bg-gray-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-ocean-blue focus:ring-offset-2"
+                  className="group relative block pl-16 rounded-lg p-4 transition-all duration-300 hover:bg-background-primary hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-ocean-blue focus:ring-offset-2"
                 >
-                  <dt className="text-base font-semibold leading-7 text-volcanic-gray-dark dark:text-white group-hover:text-ocean-blue transition-colors duration-300">
+                  <dt className="text-base font-semibold leading-7 text-text-primary group-hover:text-ocean-blue transition-colors duration-300">
                     <div className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-lg bg-ocean-blue group-hover:bg-ocean-blue/90 transition-colors duration-300">
                       <feature.icon
                         className="h-6 w-6 text-white"
@@ -119,7 +119,7 @@ export default async function HomePage() {
                     </div>
                     {feature.name}
                   </dt>
-                  <dd className="mt-2 text-base leading-7 text-volcanic-gray dark:text-gray-300 group-hover:text-volcanic-gray-dark dark:group-hover:text-gray-100 transition-colors duration-300">
+                  <dd className="mt-2 text-base leading-7 text-text-secondary group-hover:text-text-primary transition-colors duration-300">
                     {feature.description}
                   </dd>
                 </Link>

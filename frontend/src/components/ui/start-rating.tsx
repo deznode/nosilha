@@ -7,7 +7,7 @@ export default function StarRating({ rating }: { rating: number | undefined }) {
         <StarIcon
           key={i}
           className={`h-5 w-5 ${
-            (rating ?? 0) > i ? "text-sunny-yellow" : "text-gray-300 dark:text-gray-600"
+            (rating ?? 0) > i ? "text-sunny-yellow" : "text-text-tertiary"
           }`}
         />
       ))}
