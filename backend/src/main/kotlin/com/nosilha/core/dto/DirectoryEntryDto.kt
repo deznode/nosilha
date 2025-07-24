@@ -15,7 +15,7 @@ import java.util.*
  * concrete subtype. This allows clients to easily deserialize the object into
  * a discriminated union type.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "category")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "category", visible = true)
 @JsonSubTypes(
     JsonSubTypes.Type(value = RestaurantDto::class, name = "Restaurant"),
     JsonSubTypes.Type(value = HotelDto::class, name = "Hotel"),
@@ -39,6 +39,8 @@ abstract class DirectoryEntryDto {
     
     @get:JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     abstract val updatedAt: LocalDateTime
+
+    abstract val category: String
 }
 
 /**
@@ -59,6 +61,7 @@ data class RestaurantDto(
     override val createdAt: LocalDateTime,
     override val updatedAt: LocalDateTime,
     val details: RestaurantDetailsDto,
+    override val category: String = "Restaurant",
 ) : DirectoryEntryDto()
 
 /**
@@ -79,6 +82,7 @@ data class HotelDto(
     override val createdAt: LocalDateTime,
     override val updatedAt: LocalDateTime,
     val details: HotelDetailsDto,
+    override val category: String = "Hotel",
 ) : DirectoryEntryDto()
 
 /**
@@ -99,6 +103,7 @@ data class BeachDto(
     override val createdAt: LocalDateTime,
     override val updatedAt: LocalDateTime,
     val details: DetailsDto? = null,
+    override val category: String = "Beach",
 ) : DirectoryEntryDto()
 
 /**
@@ -119,4 +124,5 @@ data class LandmarkDto(
     override val createdAt: LocalDateTime,
     override val updatedAt: LocalDateTime,
     val details: DetailsDto? = null,
+    override val category: String = "Landmark",
 ) : DirectoryEntryDto()
