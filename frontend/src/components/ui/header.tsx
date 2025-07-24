@@ -133,7 +133,7 @@ export function Header() {
         </div>
       </div>
 
-      <DisclosurePanel className="md:hidden">
+      <DisclosurePanel className="md:hidden bg-white dark:bg-gray-800">
         <div className="space-y-1 pb-3 pt-2">
           {navigation.map((item) => (
             <DisclosureButton
@@ -143,8 +143,8 @@ export function Header() {
               className={clsx(
                 "block border-l-4 py-2 pl-3 pr-4 text-base font-medium",
                 pathname === item.href
-                  ? "border-ocean-blue bg-blue-50 text-ocean-blue"
-                  : "border-transparent text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                  ? "border-ocean-blue bg-blue-50 dark:bg-blue-900/50 text-ocean-blue dark:text-blue-300"
+                  : "border-transparent text-gray-600 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700"
               )}
               aria-current={pathname === item.href ? "page" : undefined}
             >
@@ -152,22 +152,22 @@ export function Header() {
             </DisclosureButton>
           ))}
         </div>
-        <div className="border-t border-gray-200 pb-3 pt-4">
+        <div className="border-t border-gray-200 dark:border-gray-600 pb-3 pt-4">
           <div className="px-2 space-y-1">
             {session ? (
               <>
                 <div className="px-3 py-2">
-                  <p className="text-base font-medium text-gray-800">
+                  <p className="text-base font-medium text-gray-800 dark:text-white">
                     Signed in as
                   </p>
-                  <p className="font-medium text-gray-600">
+                  <p className="font-medium text-gray-600 dark:text-gray-300">
                     {session.user.email}
                   </p>
                 </div>
                 <DisclosureButton
                   as="button"
                   onClick={handleLogout}
-                  className="block w-full text-left rounded-md px-3 py-2 text-base font-medium text-gray-600 hover:bg-gray-50"
+                  className="block w-full text-left rounded-md px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   Logout
                 </DisclosureButton>
@@ -177,14 +177,14 @@ export function Header() {
                 <DisclosureButton
                   as="a"
                   href="/login"
-                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-600 hover:bg-gray-50"
+                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   Log in
                 </DisclosureButton>
                 <DisclosureButton
                   as="a"
                   href="/signup"
-                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-600 hover:bg-gray-50"
+                  className="block rounded-md px-3 py-2 text-base font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
                   Sign up
                 </DisclosureButton>

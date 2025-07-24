@@ -15,11 +15,11 @@ interface PageHeaderProps {
 export function PageHeader({ title, subtitle }: PageHeaderProps) {
   return (
     <div className="text-center">
-      <h1 className="font-serif text-4xl font-bold tracking-tight text-volcanic-gray-dark sm:text-5xl">
+      <h1 className="font-serif text-4xl font-bold tracking-tight text-volcanic-gray-dark dark:text-white sm:text-5xl">
         {title}
       </h1>
       {subtitle && (
-        <p className="mx-auto mt-4 max-w-3xl font-sans text-lg text-volcanic-gray">
+        <p className="mx-auto mt-4 max-w-3xl font-sans text-lg text-volcanic-gray dark:text-gray-300">
           {subtitle}
         </p>
       )}

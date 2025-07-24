@@ -36,7 +36,7 @@ export default async function DirectoryCategoryPage({
   const pageTitle = formatCategoryTitle(category);
 
   return (
-    <div className="bg-off-white font-sans">
+    <div className="bg-off-white dark:bg-gray-900 font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader
           title={pageTitle}
@@ -53,10 +53,10 @@ export default async function DirectoryCategoryPage({
         ) : (
           // If no entries are found, display a helpful message
           <div className="mt-16 text-center">
-            <p className="text-xl text-volcanic-gray">
+            <p className="text-xl text-volcanic-gray dark:text-gray-300">
               No listings found in the "{pageTitle}" category.
             </p>
-            <p className="mt-2 text-base text-volcanic-gray">
+            <p className="mt-2 text-base text-volcanic-gray dark:text-gray-400">
               Please try another category or check back later.
             </p>
             <Link
