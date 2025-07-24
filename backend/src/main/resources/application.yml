@@ -71,3 +71,8 @@ management:
       show-details: when-authorized
       show-components: when_authorized
 
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

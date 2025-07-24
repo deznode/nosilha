@@ -1,8 +1,10 @@
 package com.nosilha.core.dto
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
+import java.time.LocalDateTime
 import java.util.*
 
 /**
@@ -13,7 +15,7 @@ import java.util.*
  * concrete subtype. This allows clients to easily deserialize the object into
  * a discriminated union type.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "category")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "category", visible = true)
 @JsonSubTypes(
     JsonSubTypes.Type(value = RestaurantDto::class, name = "Restaurant"),
     JsonSubTypes.Type(value = HotelDto::class, name = "Hotel"),
@@ -31,6 +33,14 @@ abstract class DirectoryEntryDto {
     abstract val imageUrl: String?
     abstract val rating: Double?
     abstract val reviewCount: Int
+    
+    @get:JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+    abstract val createdAt: LocalDateTime
+    
+    @get:JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+    abstract val updatedAt: LocalDateTime
+
+    abstract val category: String
 }
 
 /**
@@ -48,7 +58,10 @@ data class RestaurantDto(
     override val imageUrl: String?,
     override val rating: Double?,
     override val reviewCount: Int,
+    override val createdAt: LocalDateTime,
+    override val updatedAt: LocalDateTime,
     val details: RestaurantDetailsDto,
+    override val category: String = "Restaurant",
 ) : DirectoryEntryDto()
 
 /**
@@ -66,7 +79,10 @@ data class HotelDto(
     override val imageUrl: String?,
     override val rating: Double?,
     override val reviewCount: Int,
+    override val createdAt: LocalDateTime,
+    override val updatedAt: LocalDateTime,
     val details: HotelDetailsDto,
+    override val category: String = "Hotel",
 ) : DirectoryEntryDto()
 
 /**
@@ -84,7 +100,10 @@ data class BeachDto(
     override val imageUrl: String?,
     override val rating: Double?,
     override val reviewCount: Int,
+    override val createdAt: LocalDateTime,
+    override val updatedAt: LocalDateTime,
     val details: DetailsDto? = null,
+    override val category: String = "Beach",
 ) : DirectoryEntryDto()
 
 /**
@@ -102,5 +121,8 @@ data class LandmarkDto(
     override val imageUrl: String?,
     override val rating: Double?,
     override val reviewCount: Int,
+    override val createdAt: LocalDateTime,
+    override val updatedAt: LocalDateTime,
     val details: DetailsDto? = null,
+    override val category: String = "Landmark",
 ) : DirectoryEntryDto()

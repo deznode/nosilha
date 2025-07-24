@@ -60,15 +60,16 @@ Authorization: Bearer <token>
 
 ### Data Model
 
-The API uses a single-table inheritance pattern for all directory entries:
+The API uses a single-table inheritance pattern with nested DTOs for type-specific details:
 
 ```typescript
-interface DirectoryEntry {
+// Base structure for all directory entries
+interface BaseDirectoryEntry {
   id: string;                    // UUID
   name: string;                 // Business/landmark name
   slug: string;                 // URL-friendly identifier
   description: string;          // Detailed description
-  category: "RESTAURANT" | "HOTEL" | "LANDMARK" | "BEACH";
+  category: "Restaurant" | "Hotel" | "Landmark" | "Beach";
   town: string;                 // Location town
   latitude: number;             // Geographic coordinate
   longitude: number;            // Geographic coordinate
@@ -77,13 +78,26 @@ interface DirectoryEntry {
   reviewCount: number;          // Number of reviews
   createdAt: string;            // ISO 8601 timestamp
   updatedAt: string;            // ISO 8601 timestamp
-  
-  // Type-specific fields (nullable for other types)
-  phoneNumber?: string;         // Restaurant/Hotel contact
-  openingHours?: string;        // Business hours
-  cuisine?: string;             // Restaurant cuisine types
-  amenities?: string;           // Hotel amenities
 }
+
+// Restaurant-specific details
+interface RestaurantDetails {
+  phoneNumber: string;          // Contact phone number
+  openingHours: string;         // Business hours
+  cuisine: string[];            // Array of cuisine types
+}
+
+// Hotel-specific details
+interface HotelDetails {
+  amenities: string[];          // Array of amenities
+}
+
+// Complete directory entry types
+type DirectoryEntry = 
+  | (BaseDirectoryEntry & { category: "Restaurant"; details: RestaurantDetails })
+  | (BaseDirectoryEntry & { category: "Hotel"; details: HotelDetails })
+  | (BaseDirectoryEntry & { category: "Beach"; details: null })
+  | (BaseDirectoryEntry & { category: "Landmark"; details: null });
 ```
 
 ### Get All Directory Entries
@@ -93,46 +107,52 @@ GET /api/v1/directory/entries
 ```
 
 **Query Parameters**:
-- `category` (optional): Filter by category (`RESTAURANT`, `HOTEL`, `LANDMARK`, `BEACH`)
+- `category` (optional): Filter by category (`Restaurant`, `Hotel`, `Landmark`, `Beach`)
 - `town` (optional): Filter by town name
 - `page` (optional): Page number (default: 0)
 - `size` (optional): Page size (default: 20)
 
 **Example Request**:
 ```bash
-curl -X GET "http://localhost:8080/api/v1/directory/entries?category=RESTAURANT&town=Vila Nova Sintra" \
+curl -X GET "http://localhost:8080/api/v1/directory/entries?category=Restaurant&town=Vila Nova Sintra" \
   -H "Accept: application/json"
 ```
 
 **Response** (200 OK):
 ```json
 {
-  "content": [
+  "data": [
     {
       "id": "123e4567-e89b-12d3-a456-426614174000",
       "name": "Casa do Bacalhau",
       "slug": "casa-do-bacalhau",
       "description": "Traditional Cape Verdean restaurant serving fresh seafood and local specialties.",
-      "category": "RESTAURANT",
+      "category": "Restaurant",
       "town": "Vila Nova Sintra",
       "latitude": 14.8564,
       "longitude": -24.7144,
       "imageUrl": "https://storage.googleapis.com/bucket/casa-bacalhau.jpg",
       "rating": 4.5,
       "reviewCount": 28,
-      "phoneNumber": "+238 283 1234",
-      "openingHours": "Mon-Sat 11:00-22:00; Sun 12:00-20:00",
-      "cuisine": "Cape Verdean,Seafood",
       "createdAt": "2024-01-01T10:00:00Z",
-      "updatedAt": "2024-01-15T14:30:00Z"
+      "updatedAt": "2024-01-15T14:30:00Z",
+      "details": {
+        "phoneNumber": "+238 283 1234",
+        "openingHours": "Mon-Sat 11:00-22:00; Sun 12:00-20:00",
+        "cuisine": ["Cape Verdean", "Seafood"]
+      }
     }
   ],
   "pageable": {
     "page": 0,
     "size": 20,
     "totalElements": 1,
-    "totalPages": 1
-  }
+    "totalPages": 1,
+    "first": true,
+    "last": true
+  },
+  "timestamp": "2024-01-15T10:30:00Z",
+  "status": 200
 }
 ```
 
@@ -154,31 +174,39 @@ curl -X GET "http://localhost:8080/api/v1/directory/entries/123e4567-e89b-12d3-a
 **Response** (200 OK):
 ```json
 {
-  "id": "123e4567-e89b-12d3-a456-426614174000",
-  "name": "Casa do Bacalhau",
-  "slug": "casa-do-bacalhau",
-  "description": "Traditional Cape Verdean restaurant serving fresh seafood and local specialties.",
-  "category": "RESTAURANT",
-  "town": "Vila Nova Sintra",
-  "latitude": 14.8564,
-  "longitude": -24.7144,
-  "imageUrl": "https://storage.googleapis.com/bucket/casa-bacalhau.jpg",
-  "rating": 4.5,
-  "reviewCount": 28,
-  "phoneNumber": "+238 283 1234",
-  "openingHours": "Mon-Sat 11:00-22:00; Sun 12:00-20:00",
-  "cuisine": "Cape Verdean,Seafood",
-  "createdAt": "2024-01-01T10:00:00Z",
-  "updatedAt": "2024-01-15T14:30:00Z"
+  "data": {
+    "id": "123e4567-e89b-12d3-a456-426614174000",
+    "name": "Casa do Bacalhau",
+    "slug": "casa-do-bacalhau",
+    "description": "Traditional Cape Verdean restaurant serving fresh seafood and local specialties.",
+    "category": "Restaurant",
+    "town": "Vila Nova Sintra",
+    "latitude": 14.8564,
+    "longitude": -24.7144,
+    "imageUrl": "https://storage.googleapis.com/bucket/casa-bacalhau.jpg",
+    "rating": 4.5,
+    "reviewCount": 28,
+    "createdAt": "2024-01-01T10:00:00Z",
+    "updatedAt": "2024-01-15T14:30:00Z",
+    "details": {
+      "phoneNumber": "+238 283 1234",
+      "openingHours": "Mon-Sat 11:00-22:00; Sun 12:00-20:00",
+      "cuisine": ["Cape Verdean", "Seafood"]
+    }
+  },
+  "timestamp": "2024-01-15T10:30:00Z",
+  "status": 200
 }
 ```
 
 **Response** (404 Not Found):
 ```json
 {
-  "error": "Directory entry not found",
-  "id": "123e4567-e89b-12d3-a456-426614174000",
-  "timestamp": "2024-01-15T10:30:00Z"
+  "error": "Resource Not Found",
+  "message": "Directory entry with ID '123e4567-e89b-12d3-a456-426614174000' not found.",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "path": "/api/v1/directory/entries/123e4567-e89b-12d3-a456-426614174000",
+  "status": 404
 }
 ```
 
@@ -212,36 +240,44 @@ Content-Type: application/json
 {
   "name": "New Restaurant",
   "description": "A wonderful new dining experience on Brava Island.",
-  "category": "RESTAURANT",
+  "category": "Restaurant",
   "town": "Vila Nova Sintra",
   "latitude": 14.8564,
   "longitude": -24.7144,
   "imageUrl": "https://storage.googleapis.com/bucket/new-restaurant.jpg",
-  "phoneNumber": "+238 283 5678",
-  "openingHours": "Daily 12:00-23:00",
-  "cuisine": "International,Cape Verdean"
+  "details": {
+    "phoneNumber": "+238 283 5678",
+    "openingHours": "Daily 12:00-23:00",
+    "cuisine": ["International", "Cape Verdean"]
+  }
 }
 ```
 
 **Response** (201 Created):
 ```json
 {
-  "id": "456e7890-e89b-12d3-a456-426614174001",
-  "name": "New Restaurant",
-  "slug": "new-restaurant",
-  "description": "A wonderful new dining experience on Brava Island.",
-  "category": "RESTAURANT",
-  "town": "Vila Nova Sintra",
-  "latitude": 14.8564,
-  "longitude": -24.7144,
-  "imageUrl": "https://storage.googleapis.com/bucket/new-restaurant.jpg",
-  "rating": null,
-  "reviewCount": 0,
-  "phoneNumber": "+238 283 5678",
-  "openingHours": "Daily 12:00-23:00",
-  "cuisine": "International,Cape Verdean",
-  "createdAt": "2024-01-15T15:00:00Z",
-  "updatedAt": "2024-01-15T15:00:00Z"
+  "data": {
+    "id": "456e7890-e89b-12d3-a456-426614174001",
+    "name": "New Restaurant",
+    "slug": "new-restaurant",
+    "description": "A wonderful new dining experience on Brava Island.",
+    "category": "Restaurant",
+    "town": "Vila Nova Sintra",
+    "latitude": 14.8564,
+    "longitude": -24.7144,
+    "imageUrl": "https://storage.googleapis.com/bucket/new-restaurant.jpg",
+    "rating": null,
+    "reviewCount": 0,
+    "createdAt": "2024-01-15T15:00:00Z",
+    "updatedAt": "2024-01-15T15:00:00Z",
+    "details": {
+      "phoneNumber": "+238 283 5678",
+      "openingHours": "Daily 12:00-23:00",
+      "cuisine": ["International", "Cape Verdean"]
+    }
+  },
+  "timestamp": "2024-01-15T15:00:00Z",
+  "status": 201
 }
 ```
 
@@ -252,23 +288,29 @@ Content-Type: application/json
   "details": [
     {
       "field": "name",
+      "rejectedValue": "",
       "message": "Name is required"
     },
     {
       "field": "latitude",
+      "rejectedValue": 95.0,
       "message": "Latitude must be between -90 and 90"
     }
   ],
-  "timestamp": "2024-01-15T10:30:00Z"
+  "timestamp": "2024-01-15T10:30:00Z",
+  "path": "/api/v1/directory/entries",
+  "status": 400
 }
 ```
 
 **Response** (403 Forbidden):
 ```json
 {
-  "error": "Insufficient permissions",
-  "message": "Admin role required to create directory entries",
-  "timestamp": "2024-01-15T10:30:00Z"
+  "error": "Access Denied",
+  "message": "Insufficient permissions to create directory entries",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "path": "/api/v1/directory/entries",
+  "status": 403
 }
 ```
 
@@ -334,25 +376,32 @@ curl -X POST "http://localhost:8080/api/v1/media/upload" \
 **Response** (201 Created):
 ```json
 {
-  "id": "789e0123-e89b-12d3-a456-426614174002",
-  "fileName": "restaurant-photo.jpg",
-  "originalName": "IMG_20240115_123456.jpg",
-  "contentType": "image/jpeg",
-  "size": 2048576,
-  "url": "https://storage.googleapis.com/bucket/media/789e0123-e89b-12d3-a456-426614174002.jpg",
-  "category": "restaurant",
-  "description": "Main dining area",
-  "uploadedAt": "2024-01-15T15:30:00Z",
-  "uploadedBy": "user@example.com"
+  "data": {
+    "id": "789e0123-e89b-12d3-a456-426614174002",
+    "fileName": "restaurant-photo.jpg",
+    "originalName": "IMG_20240115_123456.jpg",
+    "contentType": "image/jpeg",
+    "size": 2048576,
+    "url": "https://storage.googleapis.com/bucket/media/789e0123-e89b-12d3-a456-426614174002.jpg",
+    "category": "restaurant",
+    "description": "Main dining area",
+    "uploadedAt": "2024-01-15T15:30:00Z",
+    "uploadedBy": null,
+    "aiMetadata": null
+  },
+  "timestamp": "2024-01-15T15:30:00Z",
+  "status": 201
 }
 ```
 
 **Response** (400 Bad Request):
 ```json
 {
-  "error": "Invalid file",
+  "error": "Bad Request",
   "message": "File type not supported. Allowed types: jpg, jpeg, png, gif, mp4",
-  "timestamp": "2024-01-15T10:30:00Z"
+  "timestamp": "2024-01-15T10:30:00Z",
+  "path": "/api/v1/media/upload",
+  "status": 400
 }
 ```
 
@@ -368,22 +417,26 @@ GET /api/v1/media/{id}
 **Response** (200 OK):
 ```json
 {
-  "id": "789e0123-e89b-12d3-a456-426614174002",
-  "fileName": "restaurant-photo.jpg",
-  "originalName": "IMG_20240115_123456.jpg",
-  "contentType": "image/jpeg",
-  "size": 2048576,
-  "url": "https://storage.googleapis.com/bucket/media/789e0123-e89b-12d3-a456-426614174002.jpg",
-  "category": "restaurant",
-  "description": "Main dining area",
-  "uploadedAt": "2024-01-15T15:30:00Z",
-  "uploadedBy": "user@example.com",
-  "aiMetadata": {
-    "labels": ["restaurant", "dining", "interior"],
-    "textDetected": ["Casa do Bacalhau", "Menu"],
-    "landmarks": [],
-    "processedAt": "2024-01-15T15:31:00Z"
-  }
+  "data": {
+    "id": "789e0123-e89b-12d3-a456-426614174002",
+    "fileName": "restaurant-photo.jpg",
+    "originalName": "IMG_20240115_123456.jpg",
+    "contentType": "image/jpeg",
+    "size": 2048576,
+    "url": "https://storage.googleapis.com/bucket/media/789e0123-e89b-12d3-a456-426614174002.jpg",
+    "category": "restaurant",
+    "description": "Main dining area",
+    "uploadedAt": "2024-01-15T15:30:00Z",
+    "uploadedBy": null,
+    "aiMetadata": {
+      "labels": ["restaurant", "dining", "interior"],
+      "textDetected": ["Casa do Bacalhau", "Menu"],
+      "landmarks": [],
+      "processedAt": "2024-01-15T15:31:00Z"
+    }
+  },
+  "timestamp": "2024-01-15T10:30:00Z",
+  "status": 200
 }
 ```
 
@@ -612,9 +665,12 @@ async function authenticatedFetch(url: string, options: RequestInit = {}) {
 
 // Get directory entries with caching
 export async function getEntriesByCategory(category: string) {
-  const endpoint = category === 'all'
-    ? `${API_BASE_URL}/api/v1/directory/entries`
-    : `${API_BASE_URL}/api/v1/directory/entries?category=${category}`;
+  const params = new URLSearchParams();
+  if (category !== 'all') params.append('category', category);
+  params.append('page', '0');
+  params.append('size', '20');
+  
+  const endpoint = `${API_BASE_URL}/api/v1/directory/entries?${params}`;
     
   const response = await fetch(endpoint, { 
     next: { revalidate: 3600 } // 1-hour ISR cache
@@ -624,7 +680,9 @@ export async function getEntriesByCategory(category: string) {
     throw new Error(`Failed to fetch entries: ${response.status}`);
   }
   
-  return response.json();
+  const apiResponse = await response.json();
+  // Extract data from PagedApiResponse
+  return apiResponse.data;
 }
 
 // Create new directory entry
@@ -639,10 +697,12 @@ export async function createDirectoryEntry(entryData: CreateEntryDto) {
   
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.message || 'Failed to create entry');
+    throw new Error(error.error || error.message || 'Failed to create entry');
   }
   
-  return response.json();
+  const apiResponse = await response.json();
+  // Extract data from ApiResponse
+  return apiResponse.data;
 }
 ```
 
@@ -650,7 +710,7 @@ export async function createDirectoryEntry(entryData: CreateEntryDto) {
 
 #### Get Restaurants in Vila Nova Sintra
 ```bash
-curl -X GET "http://localhost:8080/api/v1/directory/entries?category=RESTAURANT&town=Vila%20Nova%20Sintra" \
+curl -X GET "http://localhost:8080/api/v1/directory/entries?category=Restaurant&town=Vila%20Nova%20Sintra" \
   -H "Accept: application/json"
 ```
 
@@ -662,11 +722,13 @@ curl -X POST "http://localhost:8080/api/v1/directory/entries" \
   -d '{
     "name": "Hotel Brava Vista",
     "description": "Oceanfront hotel with stunning views of the Atlantic.",
-    "category": "HOTEL",
+    "category": "Hotel",
     "town": "Vila Nova Sintra",
     "latitude": 14.8584,
     "longitude": -24.7164,
-    "amenities": "Wi-Fi,Pool,Restaurant,Ocean View"
+    "details": {
+      "amenities": ["Wi-Fi", "Pool", "Restaurant", "Ocean View"]
+    }
   }'
 ```
 

@@ -16,7 +16,6 @@ interface DirectoryCardProps {
  * @param {DirectoryEntry} props.entry The directory entry data to display.
  */
 export function DirectoryCard({ entry }: DirectoryCardProps) {
-  console.log("entry=", entry);
   return (
     <Link
       href={`/directory/entry/${entry.slug}`}

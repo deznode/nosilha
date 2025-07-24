@@ -21,7 +21,7 @@ import {
 type FormStatus = "idle" | "submitting" | "success" | "error";
 type FormData = Omit<
   DirectoryEntry,
-  "id" | "slug" | "rating" | "reviewCount" | "imageUrl" | "details" | "category"
+  "id" | "slug" | "rating" | "reviewCount" | "imageUrl" | "details" | "category" | "createdAt" | "updatedAt"
 > & {
   category: DirectoryEntry["category"] | "";
   details: {
@@ -78,9 +78,10 @@ export function AddEntryForm() {
       return;
     }
     setStatus("submitting");
+    // Create payload matching backend CreateEntryRequestDto structure
     const payload: Omit<
       DirectoryEntry,
-      "id" | "slug" | "rating" | "reviewCount"
+      "id" | "slug" | "rating" | "reviewCount" | "createdAt" | "updatedAt"
     > = {
       name: formData.name,
       description: formData.description,
@@ -92,9 +93,9 @@ export function AddEntryForm() {
       details: null, // Will be set below based on category
     };
 
+    // Create category-specific details matching backend DTOs
     if (payload.category === "Restaurant") {
       payload.details = {
-        category: "Restaurant",
         phoneNumber: formData.details.phoneNumber || "",
         openingHours: formData.details.openingHours || "",
         cuisine:
@@ -102,17 +103,13 @@ export function AddEntryForm() {
       };
     } else if (payload.category === "Hotel") {
       payload.details = {
-        category: "Hotel",
         phoneNumber: formData.details.phoneNumber || "",
-        amenities: (formData.details.amenities
+        amenities: formData.details.amenities
           ?.split(",")
-          .map((item) => item.trim()) || []) as (
-          | "Wi-Fi"
-          | "Pool"
-          | "Parking"
-        )[],
+          .map((item) => item.trim()) || [],
       };
     }
+    // Beach and Landmark categories don't need details (details: null)
 
     try {
       await createDirectoryEntry(payload);
@@ -122,7 +119,18 @@ export function AddEntryForm() {
       setFormData(initialFormData);
     } catch (err: any) {
       setStatus("error");
-      setMessage(err.message || "An unknown error occurred.");
+      
+      // Handle backend validation errors with field-specific details
+      if (err.message && err.message.includes("Validation failed")) {
+        setMessage("Please check the form fields and correct any validation errors.");
+      } else if (err.message && err.message.includes("403")) {
+        setMessage("You don't have permission to create directory entries. Please contact an administrator.");
+      } else if (err.message && err.message.includes("401")) {
+        setMessage("Your session has expired. Please log in again.");
+      } else {
+        setMessage(err.message || "An unexpected error occurred while creating the entry. Please try again.");
+      }
+      
       setIsAlertOpen(true);
     }
   };

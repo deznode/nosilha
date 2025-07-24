@@ -1,19 +1,12 @@
 package com.nosilha.core.dto
 
-import com.fasterxml.jackson.annotation.JsonSubTypes
-import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
 
 /**
- * Sealed interface for category-specific details with Jackson polymorphism support.
- * Uses Jackson's polymorphism annotations to handle proper JSON serialization/deserialization
- * based on a 'category' discriminator property for consistency with the parent DirectoryEntry.
+ * Sealed interface for category-specific details.
+ * The category discriminator is handled at the parent DirectoryEntry level,
+ * so details objects contain only their specific data without redundant type information.
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "category")
-@JsonSubTypes(
-    JsonSubTypes.Type(value = CreateRestaurantDetailsDto::class, name = "Restaurant"),
-    JsonSubTypes.Type(value = CreateHotelDetailsDto::class, name = "Hotel"),
-)
 sealed interface DetailsDto
 
 /**

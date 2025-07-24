@@ -44,6 +44,8 @@ class SecurityConfig(
                 it
                     .requestMatchers(HttpMethod.GET, "/actuator/health/**")
                     .permitAll()
+                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
+                    .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/directory/**")
                     .permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/v1/media/upload")

@@ -31,6 +31,8 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
                 imageUrl = this.imageUrl,
                 rating = this.rating,
                 reviewCount = this.reviewCount,
+                createdAt = this.createdAt,
+                updatedAt = this.updatedAt,
                 details =
                 RestaurantDetailsDto(
                     phoneNumber = this.phoneNumber ?: "",
@@ -53,6 +55,8 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
                 imageUrl = this.imageUrl,
                 rating = this.rating,
                 reviewCount = this.reviewCount,
+                createdAt = this.createdAt,
+                updatedAt = this.updatedAt,
                 details =
                 HotelDetailsDto(
                     amenities =
@@ -73,6 +77,8 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
                 imageUrl = this.imageUrl,
                 rating = this.rating,
                 reviewCount = this.reviewCount,
+                createdAt = this.createdAt,
+                updatedAt = this.updatedAt,
                 // The `details` field is null by default in the BeachDto constructor.
             )
 
@@ -88,6 +94,8 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
                 imageUrl = this.imageUrl,
                 rating = this.rating,
                 reviewCount = this.reviewCount,
+                createdAt = this.createdAt,
+                updatedAt = this.updatedAt,
                 // The `details` field is null by default in the LandmarkDto constructor.
             )
 
