@@ -29,7 +29,7 @@ function StarRating({ rating }: { rating: number }) {
         <StarIcon
           key={i}
           className={`h-5 w-5 ${
-            rating > i ? "text-sunny-yellow" : "text-gray-300"
+            rating > i ? "text-sunny-yellow" : "text-text-tertiary"
           }`}
         />
       ))}
@@ -133,8 +133,8 @@ export default async function DirectoryEntryDetailPage({
               priority
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gray-200">
-              <span className="text-xl text-gray-500">No image available</span>
+            <div className="flex h-full w-full items-center justify-center bg-background-tertiary">
+              <span className="text-xl text-text-tertiary">No image available</span>
             </div>
           )}
         </div>
@@ -149,7 +149,7 @@ export default async function DirectoryEntryDetailPage({
               {entry.description}
             </p>
 
-            <div className="my-8 border-t border-gray-200" />
+            <div className="my-8 border-t border-border-primary" />
 
             {/* --- NEW: Image Gallery Section --- */}
             <div className="space-y-4">
@@ -159,7 +159,7 @@ export default async function DirectoryEntryDetailPage({
               <ImageGallery imageUrls={sampleImages} />
             </div>
 
-            <div className="my-8 border-t border-gray-200" />
+            <div className="my-8 border-t border-border-primary" />
 
             <h2 className="font-serif text-3xl font-bold text-volcanic-gray-dark">
               User Reviews
@@ -180,7 +180,7 @@ export default async function DirectoryEntryDetailPage({
           {/* Right Column (Sidebar): Map & Info */}
           <div className="lg:col-span-1">
             <div className="rounded-lg bg-white p-6 shadow-md">
-              <div className="aspect-video w-full rounded-md bg-gray-200">
+              <div className="aspect-video w-full rounded-md bg-background-tertiary">
                 <div className="flex h-full w-full items-center justify-center">
                   <MapPinIcon className="h-12 w-12 text-volcanic-gray" />
                 </div>

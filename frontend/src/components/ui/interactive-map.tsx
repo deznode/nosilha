@@ -121,12 +121,12 @@ export function InteractiveMap() {
   if (!mapboxAccessToken) {
     console.error("Mapbox Access Token is not set!");
     return (
-      <div className="flex h-full w-full items-center justify-center bg-gray-100">
+      <div className="flex h-full w-full items-center justify-center bg-background-secondary">
         <div className="text-center">
-          <p className="text-lg font-semibold text-gray-600">
+          <p className="text-lg font-semibold text-text-secondary">
             Map cannot be loaded
           </p>
-          <p className="text-sm text-gray-500">Missing configuration</p>
+          <p className="text-sm text-text-tertiary">Missing configuration</p>
         </div>
       </div>
     );
@@ -135,11 +135,11 @@ export function InteractiveMap() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex h-full w-full items-center justify-center bg-gray-100">
+      <div className="flex h-full w-full items-center justify-center bg-background-secondary">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-ocean-blue"></div>
-          <p className="text-lg font-semibold text-gray-600">Loading map...</p>
-          <p className="text-sm text-gray-500">Please wait while we load the locations</p>
+          <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4 border-border-primary border-t-ocean-blue"></div>
+          <p className="text-lg font-semibold text-text-secondary">Loading map...</p>
+          <p className="text-sm text-text-tertiary">Please wait while we load the locations</p>
         </div>
       </div>
     );
@@ -148,7 +148,7 @@ export function InteractiveMap() {
   // Error state
   if (error) {
     return (
-      <div className="flex h-full w-full items-center justify-center bg-gray-100">
+      <div className="flex h-full w-full items-center justify-center bg-background-secondary">
         <div className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
             <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -173,7 +173,7 @@ export function InteractiveMap() {
   // Empty state
   if (entries.length === 0) {
     return (
-      <div className="flex h-full w-full items-center justify-center bg-gray-100">
+      <div className="flex h-full w-full items-center justify-center bg-background-secondary">
         <div className="text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
             <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

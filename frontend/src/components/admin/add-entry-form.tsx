@@ -142,11 +142,11 @@ export function AddEntryForm() {
       <form onSubmit={handleSubmit}>
         <div className="space-y-12">
           {/* Section 1: Directory Entry Details */}
-          <div className="border-b border-gray-900/10 pb-12">
-            <h2 className="text-base font-semibold leading-7 text-gray-900">
+          <div className="border-b border-border-primary pb-12">
+            <h2 className="text-base font-semibold leading-7 text-text-primary">
               Directory Entry Details
             </h2>
-            <p className="mt-1 text-sm leading-6 text-gray-600">
+            <p className="mt-1 text-sm leading-6 text-text-secondary">
               This information will be publicly displayed for the new location.
             </p>
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
@@ -212,11 +212,11 @@ export function AddEntryForm() {
           </div>
 
           {/* Section 2: Category-Specific Information */}
-          <div className="border-b border-gray-900/10 pb-12">
-            <h2 className="text-base font-semibold leading-7 text-gray-900">
+          <div className="border-b border-border-primary pb-12">
+            <h2 className="text-base font-semibold leading-7 text-text-primary">
               Category-Specific Information
             </h2>
-            <p className="mt-1 text-sm leading-6 text-gray-600">
+            <p className="mt-1 text-sm leading-6 text-text-secondary">
               Provide details relevant to the selected category.
             </p>
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
@@ -287,7 +287,7 @@ export function AddEntryForm() {
                 formData.category === "Landmark" ||
                 formData.category === "") && (
                 <div className="sm:col-span-full">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-text-tertiary">
                     No specific details required for this category.
                   </p>
                 </div>
@@ -297,10 +297,10 @@ export function AddEntryForm() {
 
           {/* Section 3: Location & Media */}
           <div className="pb-12">
-            <h2 className="text-base font-semibold leading-7 text-gray-900">
+            <h2 className="text-base font-semibold leading-7 text-text-primary">
               Location & Media
             </h2>
-            <p className="mt-1 text-sm leading-6 text-gray-600">
+            <p className="mt-1 text-sm leading-6 text-text-secondary">
               Set the geographic coordinates and upload an image for this entry.
             </p>
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">

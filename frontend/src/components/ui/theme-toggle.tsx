@@ -100,8 +100,8 @@ export function ThemeToggle() {
       onClick={cycleTheme}
       className={clsx(
         "relative inline-flex items-center justify-center rounded-md p-2",
-        "text-gray-500 dark:text-gray-300",
-        "hover:bg-gray-100 dark:hover:bg-gray-700",
+        "text-text-secondary",
+        "hover:bg-background-secondary",
         "focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ocean-blue",
         "transition-colors duration-200"
       )}

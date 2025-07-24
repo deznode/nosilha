@@ -70,7 +70,7 @@ export function FooterAlt() {
           <div className="mt-8 flex items-center justify-center gap-x-6">
             <Link
               href="/directory/all"
-              className="rounded-md bg-ocean-blue px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-ocean-blue/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocean-blue"
+              className="rounded-md bg-ocean-blue px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-ocean-blue/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocean-blue"
             >
               Explore the Directory
             </Link>

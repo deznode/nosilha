@@ -64,7 +64,7 @@ export default async function HomePage() {
           <div className="mt-10">
             <Link
               href="/map"
-              className="rounded-md bg-ocean-blue px-6 py-3.5 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-ocean-blue/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocean-blue"
+              className="rounded-md bg-ocean-blue px-6 py-3.5 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-ocean-blue/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocean-blue"
             >
               Explore the Interactive Map
             </Link>

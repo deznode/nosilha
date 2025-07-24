@@ -24,10 +24,10 @@ export default function AddEntryPage() {
       <div className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+            <h2 className="text-3xl font-bold tracking-tight text-text-primary">
               Loading...
             </h2>
-            <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+            <p className="mt-2 text-lg text-text-secondary">
               Checking authentication status.
             </p>
           </div>
@@ -41,10 +41,10 @@ export default function AddEntryPage() {
       <div className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+            <h2 className="text-3xl font-bold tracking-tight text-text-primary">
               Authentication Required
             </h2>
-            <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+            <p className="mt-2 text-lg text-text-secondary">
               Please log in to access this page.
             </p>
           </div>
