@@ -6,7 +6,7 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     slug: "nha-kasa-restaurante",
     name: "Nha Kasa Restaurante",
     category: "Restaurant",
-    imageUrl: "https://picsum.photos/800/600?random=1", // <-- Updated
+    imageUrl: "https://picsum.photos/800/600?random=1",
     town: "Nova Sintra",
     latitude: 14.8650,
     longitude: -24.7070,
@@ -14,8 +14,9 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
       "A beloved local spot known for its fresh seafood and traditional Cape Verdean dishes, offering an authentic taste of Brava.",
     rating: 4.5,
     reviewCount: 88,
+    createdAt: "2024-01-01T10:00:00Z",
+    updatedAt: "2024-01-15T14:30:00Z",
     details: {
-      category: "Restaurant",
       phoneNumber: "+238 285 1234",
       openingHours: "12:00 PM - 10:00 PM Daily",
       cuisine: ["Cape Verdean", "Seafood", "Traditional"],
@@ -26,7 +27,7 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     slug: "pousada-djabraba",
     name: "Pousada Djabraba",
     category: "Hotel",
-    imageUrl: "https://picsum.photos/800/600?random=2", // <-- Updated
+    imageUrl: "https://picsum.photos/800/600?random=2",
     town: "Nova Sintra",
     latitude: 14.8640,
     longitude: -24.7080,
@@ -34,8 +35,10 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
       "A charming and comfortable hotel offering stunning panoramic views of the island and the ocean.",
     rating: 4.8,
     reviewCount: 120,
+    createdAt: "2024-01-02T10:00:00Z",
+    updatedAt: "2024-01-16T14:30:00Z",
     details: {
-      category: "Hotel",
+      // Note: phoneNumber might not be available from backend yet for hotels
       phoneNumber: "+238 285 5678",
       amenities: ["Wi-Fi", "Pool", "Parking"],
     },
@@ -45,7 +48,7 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     slug: "praia-de-faja-d-agua",
     name: "Praia de Fajã d'Água",
     category: "Beach",
-    imageUrl: "https://picsum.photos/800/600?random=3", // <-- Updated
+    imageUrl: "https://picsum.photos/800/600?random=3",
     town: "Fajã d'Água",
     latitude: 14.8470,
     longitude: -24.7200,
@@ -53,6 +56,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
       "A beautiful natural swimming bay with volcanic black sand and clear waters, surrounded by dramatic green cliffs.",
     rating: 5.0,
     reviewCount: 250,
+    createdAt: "2024-01-03T10:00:00Z",
+    updatedAt: "2024-01-17T14:30:00Z",
     details: null,
   },
   {
@@ -60,7 +65,7 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     slug: "miradouro-eugenio-tavares",
     name: "Miradouro Eugénio Tavares",
     category: "Landmark",
-    imageUrl: "https://picsum.photos/800/600?random=4", // <-- Updated
+    imageUrl: "https://picsum.photos/800/600?random=4",
     town: "Nova Sintra",
     latitude: 14.8690,
     longitude: -24.7050,
@@ -68,6 +73,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
       "A scenic viewpoint dedicated to the famous poet Eugénio Tavares, offering breathtaking views of the coastline.",
     rating: 4.9,
     reviewCount: 150,
+    createdAt: "2024-01-04T10:00:00Z",
+    updatedAt: "2024-01-18T14:30:00Z",
     details: null,
   },
 ];

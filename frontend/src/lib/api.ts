@@ -1,6 +1,7 @@
 import type { DirectoryEntry } from "@/types/directory";
 import { supabase } from "@/lib/supabase-client";
 import { getMockEntriesByCategory, getMockEntryBySlug } from "@/lib/mock-api";
+import { validateDirectoryEntries, validateDirectoryEntry } from "@/lib/api-validation";
 
 // 1. Read the base URL from environment variables.
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -93,8 +94,9 @@ export async function getEntriesByCategory(
     }
 
     const apiResponse = await response.json();
-    // Extract data from PagedApiResponse
-    return apiResponse.data || [];
+    // Extract and validate data from PagedApiResponse - backend returns PagedApiResponse<DirectoryEntryDto>
+    const rawData = apiResponse.data || [];
+    return validateDirectoryEntries(rawData);
   } catch (error) {
     console.error("Failed to fetch entries by category, using fallback:", error);
     // Fallback to mock data for resilience
@@ -128,8 +130,8 @@ export async function getEntryBySlug(
     }
 
     const apiResponse = await response.json();
-    // Extract data from ApiResponse
-    return apiResponse.data;
+    // Extract and validate data from ApiResponse - backend returns ApiResponse<DirectoryEntryDto>
+    return validateDirectoryEntry(apiResponse.data) || undefined;
   } catch (error) {
     console.error(`Failed to fetch entry by slug "${slug}", using fallback:`, error);
     // Fallback to mock data for resilience
@@ -156,12 +158,27 @@ export async function createDirectoryEntry(
   });
 
   if (!response.ok) {
-    const errorResult = await response.json();
-    throw new Error(errorResult.error || errorResult.message || "Failed to create directory entry.");
+    try {
+      const errorResult = await response.json();
+      
+      // Handle validation errors with detailed field information
+      if (errorResult.error === "Validation failed" && errorResult.details) {
+        const fieldErrors = errorResult.details.map((detail: any) => 
+          `${detail.field}: ${detail.message}`
+        ).join(", ");
+        throw new Error(`Validation failed: ${fieldErrors}`);
+      }
+      
+      // Handle other structured errors
+      throw new Error(errorResult.error || errorResult.message || `API error: ${response.status}`);
+    } catch (parseError) {
+      // If we can't parse the error response, provide a generic message
+      throw new Error(`Failed to create directory entry (${response.status})`);
+    }
   }
 
   const apiResponse = await response.json();
-  // Extract data from ApiResponse
+  // Extract data from ApiResponse - backend returns ApiResponse<DirectoryEntryDto>
   return apiResponse.data;
 }
 
@@ -193,8 +210,9 @@ export async function getEntriesForMap(
     }
 
     const apiResponse = await response.json();
-    // Extract data from PagedApiResponse
-    return apiResponse.data || [];
+    // Extract and validate data from PagedApiResponse - backend returns PagedApiResponse<DirectoryEntryDto>
+    const rawData = apiResponse.data || [];
+    return validateDirectoryEntries(rawData);
   } catch (error) {
     console.error("Failed to fetch entries for map, using fallback:", error);
     // Fallback to mock data for resilience
@@ -230,13 +248,15 @@ export async function uploadImage(
   });
 
   if (!response.ok) {
-    const errorResult = await response.json().catch(() => ({
-      error: "Failed to upload image",
-    }));
-    throw new Error(errorResult.error || errorResult.message || "Failed to upload image.");
+    try {
+      const errorResult = await response.json();
+      throw new Error(errorResult.error || errorResult.message || `Upload failed (${response.status})`);
+    } catch (parseError) {
+      throw new Error(`Failed to upload image (${response.status})`);
+    }
   }
 
   const apiResponse = await response.json();
-  // Extract URL from MediaMetadataDto in ApiResponse
+  // Extract URL from MediaMetadataDto in ApiResponse - backend returns ApiResponse<MediaMetadataDto>
   return apiResponse.data.url;
 }

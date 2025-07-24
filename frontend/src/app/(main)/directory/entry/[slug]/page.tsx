@@ -16,6 +16,7 @@ import {
 import type { DirectoryEntry } from "@/types/directory";
 import { ImageGallery } from "@/components/ui/image-gallery";
 import { ContributePhotosSection } from "@/components/ui/contribute-photos-section";
+import { getRestaurantDetails, getHotelDetails } from "@/lib/api-validation";
 
 interface DetailPageProps {
   params: Promise<{ slug: string }>;
@@ -37,48 +38,62 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 function CategorySpecificDetails({ entry }: { entry: DirectoryEntry }) {
-  // Logic for displaying details based on category (Restaurant, Hotel, etc.)
+  // Logic for displaying details based on category using safe accessors
   switch (entry.category) {
-    case "Restaurant":
+    case "Restaurant": {
+      const restaurantDetails = getRestaurantDetails(entry);
       return (
         <>
-          <div className="flex items-start">
-            <PhoneIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
-            <p className="ml-3 text-base text-volcanic-gray">
-              {entry.details.phoneNumber}
-            </p>
-          </div>
-          <div className="flex items-start">
-            <ClockIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
-            <p className="ml-3 text-base text-volcanic-gray">
-              {entry.details.openingHours}
-            </p>
-          </div>
-          <div className="flex items-start">
-            <SparklesIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
-            <p className="ml-3 text-base text-volcanic-gray">
-              Cuisine: {entry.details.cuisine.join(", ")}
-            </p>
-          </div>
+          {restaurantDetails.phoneNumber && (
+            <div className="flex items-start">
+              <PhoneIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
+              <p className="ml-3 text-base text-volcanic-gray">
+                {restaurantDetails.phoneNumber}
+              </p>
+            </div>
+          )}
+          {restaurantDetails.openingHours && (
+            <div className="flex items-start">
+              <ClockIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
+              <p className="ml-3 text-base text-volcanic-gray">
+                {restaurantDetails.openingHours}
+              </p>
+            </div>
+          )}
+          {restaurantDetails.cuisine.length > 0 && (
+            <div className="flex items-start">
+              <SparklesIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
+              <p className="ml-3 text-base text-volcanic-gray">
+                Cuisine: {restaurantDetails.cuisine.join(", ")}
+              </p>
+            </div>
+          )}
         </>
       );
-    case "Hotel":
+    }
+    case "Hotel": {
+      const hotelDetails = getHotelDetails(entry);
       return (
         <>
-          <div className="flex items-start">
-            <PhoneIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
-            <p className="ml-3 text-base text-volcanic-gray">
-              {entry.details.phoneNumber}
-            </p>
-          </div>
-          <div className="flex items-start">
-            <BuildingOffice2Icon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
-            <p className="ml-3 text-base text-volcanic-gray">
-              Amenities: {entry.details.amenities.join(", ")}
-            </p>
-          </div>
+          {hotelDetails.phoneNumber && (
+            <div className="flex items-start">
+              <PhoneIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
+              <p className="ml-3 text-base text-volcanic-gray">
+                {hotelDetails.phoneNumber}
+              </p>
+            </div>
+          )}
+          {hotelDetails.amenities.length > 0 && (
+            <div className="flex items-start">
+              <BuildingOffice2Icon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
+              <p className="ml-3 text-base text-volcanic-gray">
+                Amenities: {hotelDetails.amenities.join(", ")}
+              </p>
+            </div>
+          )}
         </>
       );
+    }
     default:
       return null;
   }

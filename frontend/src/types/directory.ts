@@ -15,18 +15,16 @@ export interface BaseDirectoryEntry {
   updatedAt: string; // ISO 8601 timestamp
 }
 
-// 2. Interfaces for CATEGORY-SPECIFIC details
+// 2. Interfaces for CATEGORY-SPECIFIC details (no redundant discriminator)
 export interface RestaurantDetails {
-  category: "Restaurant";
   phoneNumber: string;
   openingHours: string; // For simplicity this is a string, but could be a structured object
   cuisine: string[];
 }
 
 export interface HotelDetails {
-  category: "Hotel";
-  phoneNumber: string;
-  amenities: ("Wi-Fi" | "Pool" | "Parking")[];
+  phoneNumber?: string; // Backend may not always provide this for hotels
+  amenities: string[]; // Backend uses generic string array, not restricted values
 }
 
 // A beach or landmark might not have any unique details yet
