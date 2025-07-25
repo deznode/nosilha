@@ -120,20 +120,18 @@ Replace all hardcoded colors in the custom components with the appropriate CSS v
 
 After the CSS changes are implemented, the `ThemeToggle` component should be tested to ensure that it continues to function as expected. The component's logic for adding and removing the `.dark` class will still work with the new CSS variable-driven approach.
 
-## 4. Post-Refactoring Review Findings
+## 4. Post-Refactoring Review Findings (Sixth Review)
 
-After the initial refactoring, a follow-up review was conducted. The following findings were noted:
+After the sixth round of refactoring, a follow-up review was conducted. The following findings were noted:
 
-*   **Semantic Color Variables:** The introduction of semantic color variables (e.g., `--color-background-primary`, `--color-text-primary`) is a significant improvement.
-*   **Improved Dark Mode Colors:** The dark mode colors in `globals.css` are now more aligned with the design system's intent.
-*   **Outdated Tailwind CSS Configuration:** The `tailwind.config.ts` file still specifies `darkMode: "class"`.
-*   **Incorrect `globals.css` Structure:** The `@theme` directive is still not being used to its full potential, with dark mode overrides in a separate `.dark` block.
+*   **Modernized Tailwind CSS Configuration:** The `tailwind.config.ts` file is now aligned with the latest Tailwind CSS v4 best practices.
+*   **Improved `globals.css` Structure:** The `globals.css` file now includes the `@custom-variant dark` definition, which is the correct way to define a class-based dark mode strategy in Tailwind CSS v4.
+*   **Incorrect `globals.css` Structure:** The dark mode variables are still defined in a separate `@layer theme`, rather than being nested inside the main `@theme` block using the `@dark` at-rule. While this works, it's not the most streamlined way to manage themes in Tailwind v4.
 *   **Hardcoded Colors in Components:** There are still many instances of hardcoded colors in the components.
 
 ## 5. Final Recommendations
 
 To complete the dark mode refactoring, the following actions are recommended:
 
-1.  **Update `tailwind.config.ts`:** Remove the `darkMode: "class"` line from the `tailwind.config.ts` file.
-2.  **Refactor `globals.css`:** Consolidate all color and font definitions within the `@theme` directive in `globals.css`.
-3.  **Update Component Styles:** Replace all hardcoded colors in the custom components with the appropriate CSS variables.
+1.  **Refactor `globals.css`:** Consolidate all color and font definitions within the `@theme` directive in `globals.css`, using the `@dark` at-rule for dark mode overrides.
+2.  **Update Component Styles:** Replace all hardcoded colors in the custom components with the appropriate CSS variables.
