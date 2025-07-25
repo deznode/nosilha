@@ -39,9 +39,32 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const theme = localStorage.getItem('theme') || 'system';
+                  const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  const shouldBeDark = theme === 'dark' || (theme === 'system' && systemDark);
+                  if (shouldBeDark) {
+                    document.documentElement.classList.add('dark');
+                  }
+                } catch (e) {
+                  // Fallback to system preference
+                  if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.classList.add('dark');
+                  }
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
       <body
         className={clsx(
-          "min-h-screen bg-off-white font-sans antialiased",
+          "min-h-screen bg-background-primary font-sans antialiased transition-colors duration-200",
           lato.variable,
           merriweather.variable
         )}

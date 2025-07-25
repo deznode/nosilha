@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   /* Font Tokens */
@@ -38,38 +37,34 @@
   --color-border-secondary: #E9ECEF;
 }
 
-@layer theme {
-  :root, :host {
-    @variant dark {
-      /* Brand Colors - Dark Mode Adaptations */
-      --color-ocean-blue: #9EBED1;
-      --color-valley-green: #B3CBBE;
-      --color-bougainvillea-pink: #EFA1C6;
-      --color-sunny-yellow: #F7B801; /* Sunny yellow remains consistent */
-      --color-off-white: #2D3748; /* Dark background for off-white contexts */
-      --color-volcanic-gray: #A0AEC0; /* Lighter gray for secondary text */
-      --color-volcanic-gray-dark: #F7FAFC; /* Light gray for primary text in dark mode */
+@variant dark {
+  /* Brand Colors - Dark Mode Adaptations */
+  --color-ocean-blue: #9EBED1;
+  --color-valley-green: #B3CBBE;
+  --color-bougainvillea-pink: #EFA1C6;
+  --color-sunny-yellow: #F7B801; /* Sunny yellow remains consistent */
+  --color-off-white: #2D3748; /* Dark background for off-white contexts */
+  --color-volcanic-gray: #A0AEC0; /* Lighter gray for secondary text */
+  --color-volcanic-gray-dark: #F7FAFC; /* Light gray for primary text in dark mode */
 
-      /* Accent Colors - Dark Mode */
-      --color-accent-error: #F87171;
-      --color-accent-success: #10B981;
-      --color-accent-warning: #F59E0B;
+  /* Accent Colors - Dark Mode */
+  --color-accent-error: #F87171;
+  --color-accent-success: #10B981;
+  --color-accent-warning: #F59E0B;
 
-      /* Semantic Background Colors - Dark Mode */
-      --color-background-primary: #1A202C;
-      --color-background-secondary: #2D3748;
-      --color-background-tertiary: #4A5568;
+  /* Semantic Background Colors - Dark Mode */
+  --color-background-primary: #1A202C;
+  --color-background-secondary: #2D3748;
+  --color-background-tertiary: #4A5568;
 
-      /* Semantic Text Colors - Dark Mode */
-      --color-text-primary: #F7FAFC;
-      --color-text-secondary: #E2E8F0;
-      --color-text-tertiary: #A0AEC0;
+  /* Semantic Text Colors - Dark Mode */
+  --color-text-primary: #F7FAFC;
+  --color-text-secondary: #E2E8F0;
+  --color-text-tertiary: #A0AEC0;
 
-      /* Semantic Border Colors - Dark Mode */
-      --color-border-primary: #4A5568;
-      --color-border-secondary: #2D3748;
-    }
-  }
+  /* Semantic Border Colors - Dark Mode */
+  --color-border-primary: #4A5568;
+  --color-border-secondary: #2D3748;
 }
 
 @layer base {
