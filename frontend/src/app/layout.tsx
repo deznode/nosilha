@@ -41,7 +41,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={clsx(
-          "min-h-screen bg-off-white dark:bg-volcanic-gray-dark font-sans antialiased",
+          "min-h-screen bg-off-white font-sans antialiased",
           lato.variable,
           merriweather.variable
         )}

@@ -55,7 +55,7 @@ const base = [
   // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
   'dark:before:hidden',
   // Background color applied to control in dark mode
-  'dark:bg-white/5 dark:group-data-checked:bg-(--radio-checked-bg)',
+  'dark:bg-background-primary/5 dark:group-data-checked:bg-(--radio-checked-bg)',
   // Border
   'border border-zinc-950/15 group-data-checked:border-transparent group-data-hover:group-data-checked:border-transparent group-data-hover:border-zinc-950/30 group-data-checked:bg-(--radio-checked-border)',
   'dark:border-white/15 dark:group-data-checked:border-white/5 dark:group-data-hover:group-data-checked:border-white/5 dark:group-data-hover:border-white/30',
