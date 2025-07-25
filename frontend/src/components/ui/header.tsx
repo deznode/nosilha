@@ -90,7 +90,7 @@ export function Header() {
               <div className="ml-2 shrink-0">
                 <Link
                   href="/add-entry"
-                  className="relative inline-flex items-center gap-x-1.5 rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                  className="relative inline-flex items-center gap-x-1.5 rounded-md bg-accent-error px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-accent-error/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-error"
                 >
                   <PlusIcon aria-hidden="true" className="-ml-0.5 h-5 w-5" />
                   Add Entry
@@ -143,7 +143,7 @@ export function Header() {
               className={clsx(
                 "block border-l-4 py-2 pl-3 pr-4 text-base font-medium",
                 pathname === item.href
-                  ? "border-ocean-blue bg-blue-50 dark:bg-blue-900/50 text-ocean-blue dark:text-blue-300"
+                  ? "border-ocean-blue bg-ocean-blue/10 text-ocean-blue"
                   : "border-transparent text-text-secondary hover:border-border-primary hover:bg-background-secondary"
               )}
               aria-current={pathname === item.href ? "page" : undefined}

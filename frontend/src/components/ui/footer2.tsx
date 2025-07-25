@@ -50,7 +50,7 @@ const navigation = {
 
 export function FooterAlt() {
   return (
-    <footer className="bg-white" aria-labelledby="footer-heading">
+    <footer className="bg-background-primary" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">
         Footer
       </h2>
@@ -84,7 +84,7 @@ export function FooterAlt() {
         </div>
 
         {/* Link Grid Section */}
-        <div className="mt-24 border-t border-gray-900/10 pt-16 sm:mt-32 sm:pt-20 lg:mt-40 lg:pt-24">
+        <div className="mt-24 border-t border-border-primary pt-16 sm:mt-32 sm:pt-20 lg:mt-40 lg:pt-24">
           <div className="grid grid-cols-1 md:grid-cols-3 md:gap-8">
             {/* Column 1 */}
             <div>
@@ -144,7 +144,7 @@ export function FooterAlt() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 md:flex md:items-center md:justify-between lg:mt-24">
+        <div className="mt-16 border-t border-border-primary pt-8 sm:mt-20 md:flex md:items-center md:justify-between lg:mt-24">
           <div className="flex space-x-6 md:order-2">
             {navigation.social.map((item) => (
               <a

@@ -8,8 +8,8 @@ export function ImageGallery({ imageUrls }: ImageGalleryProps) {
   // 2. Handle the empty state if no images are provided.
   if (!imageUrls || imageUrls.length === 0) {
     return (
-      <div className="flex h-48 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50">
-        <p className="text-center text-sm text-gray-500">
+      <div className="flex h-48 items-center justify-center rounded-lg border-2 border-dashed border-border-primary bg-background-secondary">
+        <p className="text-center text-sm text-text-tertiary">
           No images have been uploaded for this location yet.
         </p>
       </div>

@@ -30,11 +30,11 @@ export function MapFilterControl({
                 checked={selectedCategories.includes(category)}
                 // CORRECTED: The 'onChange' handler now directly receives the boolean 'checked' state.
                 onChange={(checked) => onFilterChange(category, checked)}
-                className="h-4 w-4 rounded border-gray-300 text-ocean-blue focus:ring-ocean-blue"
+                className="h-4 w-4 rounded border-border-primary text-ocean-blue focus:ring-ocean-blue"
               />
               <Label
                 htmlFor={category}
-                className="ml-3 block text-sm font-medium leading-6 text-gray-900"
+                className="ml-3 block text-sm font-medium leading-6 text-text-primary"
               >
                 {category}
               </Label>

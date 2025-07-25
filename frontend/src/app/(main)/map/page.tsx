@@ -11,7 +11,7 @@ const InteractiveMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-[600px] w-full animate-pulse rounded-lg bg-gray-200" />
+      <div className="h-[600px] w-full animate-pulse rounded-lg bg-background-secondary" />
     ),
   }
 );
@@ -28,7 +28,7 @@ export default function MapPage() {
 
       {/* The map component will be rendered on the client side */}
       <div className="h-[75vh] w-full">
-        <Suspense fallback={<div className="h-full w-full bg-gray-200" />}>
+        <Suspense fallback={<div className="h-full w-full bg-background-secondary" />}>
           <InteractiveMap />
         </Suspense>
       </div>

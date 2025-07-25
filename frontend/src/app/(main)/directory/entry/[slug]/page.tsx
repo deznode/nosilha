@@ -179,7 +179,7 @@ export default async function DirectoryEntryDetailPage({
 
           {/* Right Column (Sidebar): Map & Info */}
           <div className="lg:col-span-1">
-            <div className="rounded-lg bg-white p-6 shadow-md">
+            <div className="rounded-lg bg-background-primary p-6 shadow-md">
               <div className="aspect-video w-full rounded-md bg-background-tertiary">
                 <div className="flex h-full w-full items-center justify-center">
                   <MapPinIcon className="h-12 w-12 text-volcanic-gray" />
@@ -198,7 +198,7 @@ export default async function DirectoryEntryDetailPage({
           </div>
         </div>
 
-        <div className="my-16 border-t border-gray-200" />
+        <div className="my-16 border-t border-border-primary" />
 
         {/* --- NEW: Image Uploader Section --- */}
         <ContributePhotosSection />

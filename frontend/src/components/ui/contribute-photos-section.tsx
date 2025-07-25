@@ -98,11 +98,11 @@ export function ContributePhotosSection() {
             
             {uploadStatus === "error" && (
               <div className="text-center space-y-2">
-                <div className="flex items-center justify-center space-x-2 text-red-600">
+                <div className="flex items-center justify-center space-x-2 text-accent-error">
                   <ExclamationCircleIcon className="h-5 w-5" />
                   <span className="font-medium">Upload failed</span>
                 </div>
-                <p className="text-sm text-red-600">{errorMessage}</p>
+                <p className="text-sm text-accent-error">{errorMessage}</p>
                 <p className="text-xs text-volcanic-gray">
                   Please try again or check if you&apos;re logged in.
                 </p>

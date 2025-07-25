@@ -29,7 +29,7 @@ export default function ContactPage() {
           
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {/* General Inquiries */}
-            <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center">
               <EnvelopeIcon className="h-12 w-12 text-ocean-blue mx-auto mb-4" />
               <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-2">
                 General Inquiries
@@ -46,7 +46,7 @@ export default function ContactPage() {
             </div>
 
             {/* Content & Contributions */}
-            <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center">
               <CameraIcon className="h-12 w-12 text-valley-green mx-auto mb-4" />
               <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-2">
                 Content & Contributions
@@ -63,7 +63,7 @@ export default function ContactPage() {
             </div>
 
             {/* Technical Support */}
-            <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center">
               <CodeBracketIcon className="h-12 w-12 text-bougainvillea-pink mx-auto mb-4" />
               <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-2">
                 Technical Support
@@ -82,7 +82,7 @@ export default function ContactPage() {
         </section>
 
         {/* Contact Form */}
-        <section className="mt-16 bg-white p-8 rounded-lg shadow-sm">
+        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm">
           <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-6 text-center">
             Send Us a Message
           </h3>
@@ -97,7 +97,7 @@ export default function ContactPage() {
                   type="text"
                   id="name"
                   name="name"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue"
+                  className="w-full px-4 py-3 border border-border-primary rounded-md focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue"
                   placeholder="Enter your name"
                 />
               </div>
@@ -110,7 +110,7 @@ export default function ContactPage() {
                   type="email"
                   id="email"
                   name="email"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue"
+                  className="w-full px-4 py-3 border border-border-primary rounded-md focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue"
                   placeholder="Enter your email"
                 />
               </div>
@@ -123,7 +123,7 @@ export default function ContactPage() {
               <select
                 id="subject"
                 name="subject"
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue"
+                className="w-full px-4 py-3 border border-border-primary rounded-md focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue"
               >
                 <option value="">Select a subject</option>
                 <option value="general">General Inquiry</option>
@@ -143,7 +143,7 @@ export default function ContactPage() {
                 id="message"
                 name="message"
                 rows={6}
-                className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue"
+                className="w-full px-4 py-3 border border-border-primary rounded-md focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue"
                 placeholder="Tell us how we can help you..."
               ></textarea>
             </div>
@@ -166,7 +166,7 @@ export default function ContactPage() {
           </h3>
           
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm">
               <div className="flex items-start mb-3">
                 <QuestionMarkCircleIcon className="h-6 w-6 text-ocean-blue mr-3 mt-0.5" />
                 <h4 className="font-semibold text-volcanic-gray-dark">
@@ -180,7 +180,7 @@ export default function ContactPage() {
               </p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm">
               <div className="flex items-start mb-3">
                 <QuestionMarkCircleIcon className="h-6 w-6 text-valley-green mr-3 mt-0.5" />
                 <h4 className="font-semibold text-volcanic-gray-dark">
@@ -194,7 +194,7 @@ export default function ContactPage() {
               </p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm">
               <div className="flex items-start mb-3">
                 <QuestionMarkCircleIcon className="h-6 w-6 text-bougainvillea-pink mr-3 mt-0.5" />
                 <h4 className="font-semibold text-volcanic-gray-dark">
@@ -208,7 +208,7 @@ export default function ContactPage() {
               </p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm">
               <div className="flex items-start mb-3">
                 <QuestionMarkCircleIcon className="h-6 w-6 text-sunny-yellow mr-3 mt-0.5" />
                 <h4 className="font-semibold text-volcanic-gray-dark">
@@ -248,7 +248,7 @@ export default function ContactPage() {
         </section>
 
         {/* Response Time Notice */}
-        <section className="mt-16 bg-white p-6 rounded-lg shadow-sm">
+        <section className="mt-16 bg-background-primary p-6 rounded-lg shadow-sm">
           <div className="flex items-center justify-center">
             <ChatBubbleLeftRightIcon className="h-8 w-8 text-ocean-blue mr-3" />
             <div>

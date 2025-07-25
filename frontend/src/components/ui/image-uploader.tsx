@@ -62,7 +62,7 @@ export function ImageUploader({ onFileSelect }: ImageUploaderProps) {
     <div className="w-full">
       {previewUrl ? (
         // Image Preview State
-        <div className="relative rounded-lg border border-gray-300">
+        <div className="relative rounded-lg border border-border-primary">
           <div className="aspect-video relative">
             <Image
               src={previewUrl}
@@ -71,7 +71,7 @@ export function ImageUploader({ onFileSelect }: ImageUploaderProps) {
               className="object-contain rounded-lg"
             />
           </div>
-          <div className="p-2 border-t border-gray-200 text-center">
+          <div className="p-2 border-t border-border-secondary text-center">
             <Button type="button" plain onClick={handleRemoveImage}>
               Remove / Change File
             </Button>
@@ -85,15 +85,15 @@ export function ImageUploader({ onFileSelect }: ImageUploaderProps) {
           onDrop={handleDrop}
           className={clsx(
             "flex justify-center rounded-lg border border-dashed px-6 py-10 transition-colors duration-200",
-            activeDrag ? "border-ocean-blue bg-blue-50" : "border-gray-900/25"
+            activeDrag ? "border-ocean-blue bg-ocean-blue/10" : "border-border-primary"
           )}
         >
           <div className="text-center">
             <PhotoIcon
               aria-hidden="true"
-              className="mx-auto h-12 w-12 text-gray-300"
+              className="mx-auto h-12 w-12 text-text-tertiary"
             />
-            <div className="mt-4 flex text-sm leading-6 text-gray-600">
+            <div className="mt-4 flex text-sm leading-6 text-text-secondary">
               <label
                 htmlFor="file-upload"
                 className="relative cursor-pointer rounded-md bg-white font-semibold text-ocean-blue focus-within:outline-none focus-within:ring-2 focus-within:ring-ocean-blue focus-within:ring-offset-2 hover:text-ocean-blue/80"
@@ -110,7 +110,7 @@ export function ImageUploader({ onFileSelect }: ImageUploaderProps) {
               </label>
               <p className="pl-1">or drag and drop</p>
             </div>
-            <p className="text-xs leading-5 text-gray-600">
+            <p className="text-xs leading-5 text-text-secondary">
               PNG, JPG, GIF up to 10MB
             </p>
           </div>
