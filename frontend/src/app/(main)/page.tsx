@@ -91,7 +91,7 @@ export default async function HomePage() {
       <div className="bg-background-secondary py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:text-center">
-            <h2 className="text-base font-semibold leading-7 text-ocean-blue dark:text-ocean-blue">
+            <h2 className="text-base font-semibold leading-7 text-ocean-blue">
               An Island of Treasures
             </h2>
             <p className="mt-2 font-serif text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">

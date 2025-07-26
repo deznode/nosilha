@@ -15,7 +15,7 @@ export const dynamic = "force-static";
 
 export default function AboutPage() {
   return (
-    <div className="bg-off-white font-sans">
+    <div className="bg-background-secondary font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader
           title="About Nos Ilha"
@@ -23,19 +23,19 @@ export default function AboutPage() {
         />
 
         {/* Hero Section */}
-        <section className="mt-16 bg-white p-8 rounded-lg shadow-sm">
+        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
           <div className="grid gap-8 lg:grid-cols-2 items-center">
             <div>
-              <h2 className="font-serif text-3xl font-bold text-volcanic-gray-dark mb-4">
+              <h2 className="font-serif text-3xl font-bold text-text-primary mb-4">
                 Preserving Heritage, Building Community
               </h2>
-              <p className="text-lg text-volcanic-gray mb-4">
+              <p className="text-lg text-text-secondary mb-4">
                 Nos Ilha is more than a tourism platform—it's a digital bridge connecting 
                 Brava Island with the world. Through technology and community collaboration, 
                 we're preserving the island's rich cultural heritage while making it accessible 
                 to visitors and diaspora communities worldwide.
               </p>
-              <p className="text-volcanic-gray">
+              <p className="text-text-secondary">
                 Our volunteer-driven, open-source approach ensures that the platform remains 
                 true to its community roots while leveraging modern technology to showcase 
                 the authentic beauty of Brava Island.
@@ -54,39 +54,39 @@ export default function AboutPage() {
 
         {/* Mission & Values */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-8 text-center">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
             Our Mission & Values
           </h3>
           
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center border border-border-primary">
               <HeartIcon className="h-12 w-12 text-ocean-blue mx-auto mb-4" />
-              <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-2">
+              <h4 className="font-semibold text-lg text-text-primary mb-2">
                 Community First
               </h4>
-              <p className="text-volcanic-gray">
+              <p className="text-text-secondary">
                 Every feature we build serves the local community of Brava Island, 
                 with input from residents, business owners, and cultural experts.
               </p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center border border-border-primary">
               <GlobeAltIcon className="h-12 w-12 text-valley-green mx-auto mb-4" />
-              <h4 className="font-semibold text-volcanic-gray-dark mb-2">
+              <h4 className="font-semibold text-text-primary mb-2">
                 Cultural Preservation
               </h4>
-              <p className="text-volcanic-gray">
+              <p className="text-text-secondary">
                 We document and preserve Brava's unique history, traditions, and 
                 stories for future generations and global audiences.
               </p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center border border-border-primary">
               <UsersIcon className="h-12 w-12 text-bougainvillea-pink mx-auto mb-4" />
-              <h4 className="font-semibold text-volcanic-gray-dark mb-2">
+              <h4 className="font-semibold text-text-primary mb-2">
                 Open Collaboration
               </h4>
-              <p className="text-volcanic-gray">
+              <p className="text-text-secondary">
                 As an open-source project, we welcome contributions from developers, 
                 content creators, and cultural enthusiasts worldwide.
               </p>
@@ -95,22 +95,22 @@ export default function AboutPage() {
         </section>
 
         {/* Technical Approach */}
-        <section className="mt-16 bg-white p-8 rounded-lg shadow-sm">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-6">
+        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6">
             Technical Excellence in Service of Culture
           </h3>
           
           <div className="grid gap-8 md:grid-cols-2">
             <div>
-              <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-3">
+              <h4 className="font-semibold text-lg text-text-primary mb-3">
                 Modern Architecture
               </h4>
-              <p className="text-volcanic-gray mb-4">
+              <p className="text-text-secondary mb-4">
                 Built with Next.js 15, React 19, and Spring Boot, our platform combines 
                 cutting-edge web technology with robust backend services to deliver a 
                 fast, accessible experience for all users.
               </p>
-              <ul className="text-sm text-volcanic-gray space-y-1">
+              <ul className="text-sm text-text-secondary space-y-1">
                 <li>• Next.js App Router with Server Components</li>
                 <li>• Spring Boot with Kotlin backend</li>
                 <li>• PostgreSQL database with Google Cloud integration</li>
@@ -119,15 +119,15 @@ export default function AboutPage() {
             </div>
             
             <div>
-              <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-3">
+              <h4 className="font-semibold text-lg text-text-primary mb-3">
                 Community-Driven Development
               </h4>
-              <p className="text-volcanic-gray mb-4">
+              <p className="text-text-secondary mb-4">
                 Every technical decision is made with community needs in mind, ensuring 
                 the platform remains accessible, culturally appropriate, and genuinely 
                 useful for both locals and visitors.
               </p>
-              <ul className="text-sm text-volcanic-gray space-y-1">
+              <ul className="text-sm text-text-secondary space-y-1">
                 <li>• Open-source codebase on GitHub</li>
                 <li>• Mobile-first responsive design</li>
                 <li>• Multilingual support planning</li>
@@ -139,39 +139,39 @@ export default function AboutPage() {
 
         {/* Platform Features */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-8 text-center">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
             Platform Features
           </h3>
           
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
               <MapIcon className="h-8 w-8 text-ocean-blue mb-3" />
-              <h4 className="font-semibold text-volcanic-gray-dark mb-2">
+              <h4 className="font-semibold text-text-primary mb-2">
                 Interactive Map
               </h4>
-              <p className="text-sm text-volcanic-gray">
+              <p className="text-sm text-text-secondary">
                 Navigate Brava Island with our detailed interactive map featuring 
                 businesses, landmarks, and cultural sites.
               </p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
               <CameraIcon className="h-8 w-8 text-valley-green mb-3" />
-              <h4 className="font-semibold text-volcanic-gray-dark mb-2">
+              <h4 className="font-semibold text-text-primary mb-2">
                 Photo Galleries
               </h4>
-              <p className="text-sm text-volcanic-gray">
+              <p className="text-sm text-text-secondary">
                 Community-contributed photo galleries showcase the island's 
                 natural beauty and cultural events.
               </p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
               <CodeBracketIcon className="h-8 w-8 text-bougainvillea-pink mb-3" />
-              <h4 className="font-semibold text-volcanic-gray-dark mb-2">
+              <h4 className="font-semibold text-text-primary mb-2">
                 Directory System
               </h4>
-              <p className="text-sm text-volcanic-gray">
+              <p className="text-sm text-text-secondary">
                 Comprehensive directory of restaurants, hotels, landmarks, 
                 and cultural sites with detailed information.
               </p>
@@ -181,23 +181,23 @@ export default function AboutPage() {
 
         {/* Community Impact */}
         <section className="mt-16 bg-gradient-to-r from-ocean-blue/10 to-valley-green/10 p-8 rounded-lg">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-6 text-center">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6 text-center">
             Community Impact
           </h3>
           
           <div className="grid gap-8 md:grid-cols-2">
             <div className="text-center">
               <div className="text-3xl font-bold text-ocean-blue mb-2">100%</div>
-              <div className="text-sm text-volcanic-gray-dark font-medium mb-1">Open Source</div>
-              <p className="text-xs text-volcanic-gray">
+              <div className="text-sm text-text-primary font-medium mb-1">Open Source</div>
+              <p className="text-xs text-text-secondary">
                 All code is publicly available, ensuring transparency and community ownership.
               </p>
             </div>
             
             <div className="text-center">
               <div className="text-3xl font-bold text-valley-green mb-2">0</div>
-              <div className="text-sm text-volcanic-gray-dark font-medium mb-1">Commercial Interests</div>
-              <p className="text-xs text-volcanic-gray">
+              <div className="text-sm text-text-primary font-medium mb-1">Commercial Interests</div>
+              <p className="text-xs text-text-secondary">
                 No commercial backing—purely community-driven and volunteer-supported.
               </p>
             </div>
@@ -206,10 +206,10 @@ export default function AboutPage() {
 
         {/* Get Involved */}
         <section className="mt-16 text-center">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-4">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-4">
             Join Our Community
           </h3>
-          <p className="text-lg text-volcanic-gray mb-8">
+          <p className="text-lg text-text-secondary mb-8">
             Whether you're a developer, photographer, writer, or cultural enthusiast, 
             there's a place for you in the Nos Ilha community.
           </p>
@@ -235,7 +235,7 @@ export default function AboutPage() {
             </Link>
             <Link
               href="/history"
-              className="rounded-md border-2 border-volcanic-gray px-4 py-3 text-sm font-semibold text-volcanic-gray transition-colors hover:bg-volcanic-gray hover:text-white"
+              className="rounded-md border-2 border-volcanic-gray px-4 py-3 text-sm font-semibold text-text-secondary transition-colors hover:bg-volcanic-gray hover:text-white"
             >
               Learn More
             </Link>

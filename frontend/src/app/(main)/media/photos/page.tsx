@@ -126,7 +126,7 @@ export default function PhotosPage() {
   const otherGalleries = photoGalleries.filter(gallery => !gallery.featured);
 
   return (
-    <div className="bg-off-white font-sans">
+    <div className="bg-background-secondary font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader
           title="Photo Galleries"
@@ -134,18 +134,18 @@ export default function PhotosPage() {
         />
 
         {/* Introduction Section */}
-        <section className="mt-16 bg-white p-8 rounded-lg shadow-sm">
+        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm">
           <div className="grid gap-8 lg:grid-cols-2 items-center">
             <div>
-              <h2 className="font-serif text-3xl font-bold text-volcanic-gray-dark mb-4">
+              <h2 className="font-serif text-3xl font-bold text-text-primary mb-4">
                 A Visual Journey Through Brava
               </h2>
-              <p className="text-lg text-volcanic-gray mb-4">
+              <p className="text-lg text-text-secondary mb-4">
                 These photo galleries capture the essence of Brava Island—from its dramatic 
                 volcanic landscapes to its vibrant cultural traditions. Each image tells a 
                 story of this remarkable island and its resilient people.
               </p>
-              <p className="text-volcanic-gray">
+              <p className="text-text-secondary">
                 All photographs are contributed by community members, visitors, and 
                 local photographers who want to share the beauty of Brava with the world.
               </p>
@@ -163,16 +163,16 @@ export default function PhotosPage() {
 
         {/* Photo Statistics */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-8 text-center">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
             Gallery Categories
           </h3>
           
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
             {categories.map((category) => (
-              <div key={category.value} className="bg-white p-6 rounded-lg shadow-sm text-center">
+              <div key={category.value} className="bg-background-primary p-6 rounded-lg shadow-sm text-center">
                 <div className="text-2xl font-bold text-ocean-blue mb-1">{category.count}</div>
-                <div className="text-sm text-volcanic-gray-dark font-medium">{category.name}</div>
-                <div className="text-xs text-volcanic-gray">photographs</div>
+                <div className="text-sm text-text-primary font-medium">{category.name}</div>
+                <div className="text-xs text-text-secondary">photographs</div>
               </div>
             ))}
           </div>
@@ -180,13 +180,13 @@ export default function PhotosPage() {
 
         {/* Featured Galleries */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-8">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8">
             Featured Galleries
           </h3>
           
           <div className="grid gap-8 lg:grid-cols-3">
             {featuredGalleries.map((gallery) => (
-              <div key={gallery.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+              <div key={gallery.id} className="bg-background-primary rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
                 <div className="relative h-48">
                   <Image
                     src={gallery.coverImage}
@@ -195,7 +195,7 @@ export default function PhotosPage() {
                     className="object-cover"
                   />
                   <div className="absolute top-4 left-4">
-                    <span className="bg-white/90 text-volcanic-gray-dark px-2 py-1 rounded text-xs font-medium">
+                    <span className="bg-background-primary/90 text-text-primary px-2 py-1 rounded text-xs font-medium">
                       {gallery.category}
                     </span>
                   </div>
@@ -207,10 +207,10 @@ export default function PhotosPage() {
                   </div>
                 </div>
                 <div className="p-6">
-                  <h4 className="font-serif text-xl font-bold text-volcanic-gray-dark mb-2">
+                  <h4 className="font-serif text-xl font-bold text-text-primary mb-2">
                     {gallery.title}
                   </h4>
-                  <p className="text-volcanic-gray mb-4">
+                  <p className="text-text-secondary mb-4">
                     {gallery.description}
                   </p>
                   
@@ -239,13 +239,13 @@ export default function PhotosPage() {
 
         {/* Other Galleries */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-8">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8">
             More Galleries
           </h3>
           
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {otherGalleries.map((gallery) => (
-              <div key={gallery.id} className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+              <div key={gallery.id} className="bg-background-primary p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-start space-x-4">
                   <div className="relative h-16 w-16 flex-shrink-0">
                     <Image
@@ -260,15 +260,15 @@ export default function PhotosPage() {
                       <span className="text-xs bg-valley-green/10 text-valley-green px-2 py-1 rounded">
                         {gallery.category}
                       </span>
-                      <span className="text-xs text-volcanic-gray ml-2 flex items-center">
+                      <span className="text-xs text-text-secondary ml-2 flex items-center">
                         <PhotoIcon className="h-3 w-3 mr-1" />
                         {gallery.imageCount}
                       </span>
                     </div>
-                    <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-1">
+                    <h4 className="font-semibold text-lg text-text-primary mb-1">
                       {gallery.title}
                     </h4>
-                    <p className="text-sm text-volcanic-gray mb-3">
+                    <p className="text-sm text-text-secondary mb-3">
                       {gallery.description}
                     </p>
                     <button className="text-sm text-ocean-blue hover:text-ocean-blue/80 font-medium">
@@ -282,17 +282,17 @@ export default function PhotosPage() {
         </section>
 
         {/* Contribution Guidelines */}
-        <section className="mt-16 bg-white p-8 rounded-lg shadow-sm">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-6 text-center">
+        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6 text-center">
             Share Your Photos
           </h3>
           
           <div className="grid gap-8 md:grid-cols-2">
             <div>
-              <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-3">
+              <h4 className="font-semibold text-lg text-text-primary mb-3">
                 Photo Submission Guidelines
               </h4>
-              <ul className="space-y-2 text-volcanic-gray">
+              <ul className="space-y-2 text-text-secondary">
                 <li className="flex items-start">
                   <CameraIcon className="h-4 w-4 text-ocean-blue mr-2 mt-0.5 flex-shrink-0" />
                   High-resolution images (minimum 1200px width)
@@ -313,10 +313,10 @@ export default function PhotosPage() {
             </div>
             
             <div>
-              <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-3">
+              <h4 className="font-semibold text-lg text-text-primary mb-3">
                 What We're Looking For
               </h4>
-              <ul className="space-y-2 text-volcanic-gray">
+              <ul className="space-y-2 text-text-secondary">
                 <li>• Scenic landscapes and natural beauty</li>
                 <li>• Cultural events and traditional celebrations</li>
                 <li>• Daily life and community moments</li>
@@ -339,17 +339,17 @@ export default function PhotosPage() {
 
         {/* Community Highlights */}
         <section className="mt-16 bg-gradient-to-r from-ocean-blue/10 to-valley-green/10 p-8 rounded-lg">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-6 text-center">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6 text-center">
             Community Contributions
           </h3>
           
           <div className="grid gap-8 md:grid-cols-2">
             <div className="text-center">
               <HeartIcon className="h-12 w-12 text-ocean-blue mx-auto mb-3" />
-              <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-2">
+              <h4 className="font-semibold text-lg text-text-primary mb-2">
                 Local Photographers
               </h4>
-              <p className="text-volcanic-gray">
+              <p className="text-text-secondary">
                 Many of our galleries feature work by talented local photographers 
                 who capture the authentic spirit of Brava Island.
               </p>
@@ -357,10 +357,10 @@ export default function PhotosPage() {
             
             <div className="text-center">
               <CameraIcon className="h-12 w-12 text-valley-green mx-auto mb-3" />
-              <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-2">
+              <h4 className="font-semibold text-lg text-text-primary mb-2">
                 Visitor Contributions
               </h4>
-              <p className="text-volcanic-gray">
+              <p className="text-text-secondary">
                 Visitors to Brava Island share their unique perspectives, 
                 helping us showcase the island through different eyes.
               </p>
@@ -370,10 +370,10 @@ export default function PhotosPage() {
 
         {/* Explore More */}
         <section className="mt-16 text-center">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-4">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-4">
             Explore More of Brava
           </h3>
-          <p className="text-lg text-volcanic-gray mb-6">
+          <p className="text-lg text-text-secondary mb-6">
             Discover other aspects of Brava Island's rich culture and heritage.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

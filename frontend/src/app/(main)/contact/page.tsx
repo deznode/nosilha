@@ -14,7 +14,7 @@ export const dynamic = "force-static";
 
 export default function ContactPage() {
   return (
-    <div className="bg-off-white font-sans">
+    <div className="bg-background-secondary font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader
           title="Contact Us"
@@ -23,7 +23,7 @@ export default function ContactPage() {
 
         {/* Contact Methods */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-8 text-center">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
             Get in Touch
           </h3>
           
@@ -31,10 +31,10 @@ export default function ContactPage() {
             {/* General Inquiries */}
             <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center">
               <EnvelopeIcon className="h-12 w-12 text-ocean-blue mx-auto mb-4" />
-              <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-2">
+              <h4 className="font-semibold text-lg text-text-primary mb-2">
                 General Inquiries
               </h4>
-              <p className="text-volcanic-gray mb-4">
+              <p className="text-text-secondary mb-4">
                 Questions about the platform, partnerships, or general information.
               </p>
               <a
@@ -48,10 +48,10 @@ export default function ContactPage() {
             {/* Content & Contributions */}
             <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center">
               <CameraIcon className="h-12 w-12 text-valley-green mx-auto mb-4" />
-              <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-2">
+              <h4 className="font-semibold text-lg text-text-primary mb-2">
                 Content & Contributions
               </h4>
-              <p className="text-volcanic-gray mb-4">
+              <p className="text-text-secondary mb-4">
                 Share photos, stories, or information about Brava Island.
               </p>
               <a
@@ -65,10 +65,10 @@ export default function ContactPage() {
             {/* Technical Support */}
             <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center">
               <CodeBracketIcon className="h-12 w-12 text-bougainvillea-pink mx-auto mb-4" />
-              <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-2">
+              <h4 className="font-semibold text-lg text-text-primary mb-2">
                 Technical Support
               </h4>
-              <p className="text-volcanic-gray mb-4">
+              <p className="text-text-secondary mb-4">
                 Development questions, bug reports, or technical collaboration.
               </p>
               <a
@@ -83,14 +83,14 @@ export default function ContactPage() {
 
         {/* Contact Form */}
         <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-6 text-center">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6 text-center">
             Send Us a Message
           </h3>
           
           <form className="max-w-2xl mx-auto">
             <div className="grid gap-6 md:grid-cols-2">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-volcanic-gray-dark mb-2">
+                <label htmlFor="name" className="block text-sm font-medium text-text-primary mb-2">
                   Your Name
                 </label>
                 <input
@@ -103,7 +103,7 @@ export default function ContactPage() {
               </div>
               
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-volcanic-gray-dark mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-text-primary mb-2">
                   Email Address
                 </label>
                 <input
@@ -117,7 +117,7 @@ export default function ContactPage() {
             </div>
             
             <div className="mt-6">
-              <label htmlFor="subject" className="block text-sm font-medium text-volcanic-gray-dark mb-2">
+              <label htmlFor="subject" className="block text-sm font-medium text-text-primary mb-2">
                 Subject
               </label>
               <select
@@ -136,7 +136,7 @@ export default function ContactPage() {
             </div>
             
             <div className="mt-6">
-              <label htmlFor="message" className="block text-sm font-medium text-volcanic-gray-dark mb-2">
+              <label htmlFor="message" className="block text-sm font-medium text-text-primary mb-2">
                 Message
               </label>
               <textarea
@@ -161,7 +161,7 @@ export default function ContactPage() {
 
         {/* FAQ Section */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-8 text-center">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
             Frequently Asked Questions
           </h3>
           
@@ -169,11 +169,11 @@ export default function ContactPage() {
             <div className="bg-background-primary p-6 rounded-lg shadow-sm">
               <div className="flex items-start mb-3">
                 <QuestionMarkCircleIcon className="h-6 w-6 text-ocean-blue mr-3 mt-0.5" />
-                <h4 className="font-semibold text-volcanic-gray-dark">
+                <h4 className="font-semibold text-text-primary">
                   How can I add my business to the directory?
                 </h4>
               </div>
-              <p className="text-volcanic-gray ml-9">
+              <p className="text-text-secondary ml-9">
                 Visit our <Link href="/contribute" className="text-ocean-blue hover:underline">contribute page</Link> or 
                 use the <Link href="/add-entry" className="text-ocean-blue hover:underline">add entry form</Link> to 
                 submit your business information. Our team will review and publish it.
@@ -183,11 +183,11 @@ export default function ContactPage() {
             <div className="bg-background-primary p-6 rounded-lg shadow-sm">
               <div className="flex items-start mb-3">
                 <QuestionMarkCircleIcon className="h-6 w-6 text-valley-green mr-3 mt-0.5" />
-                <h4 className="font-semibold text-volcanic-gray-dark">
+                <h4 className="font-semibold text-text-primary">
                   Can I contribute photos of Brava Island?
                 </h4>
               </div>
-              <p className="text-volcanic-gray ml-9">
+              <p className="text-text-secondary ml-9">
                 Absolutely! We welcome photo contributions from community members. 
                 Please ensure you have permission to share the images and include 
                 location information when possible.
@@ -197,11 +197,11 @@ export default function ContactPage() {
             <div className="bg-background-primary p-6 rounded-lg shadow-sm">
               <div className="flex items-start mb-3">
                 <QuestionMarkCircleIcon className="h-6 w-6 text-bougainvillea-pink mr-3 mt-0.5" />
-                <h4 className="font-semibold text-volcanic-gray-dark">
+                <h4 className="font-semibold text-text-primary">
                   Is the platform available in other languages?
                 </h4>
               </div>
-              <p className="text-volcanic-gray ml-9">
+              <p className="text-text-secondary ml-9">
                 Currently, the platform is available in English, but we're planning 
                 to add Portuguese and Kriolu support in the future. If you'd like to 
                 help with translation, please contact us.
@@ -211,11 +211,11 @@ export default function ContactPage() {
             <div className="bg-background-primary p-6 rounded-lg shadow-sm">
               <div className="flex items-start mb-3">
                 <QuestionMarkCircleIcon className="h-6 w-6 text-sunny-yellow mr-3 mt-0.5" />
-                <h4 className="font-semibold text-volcanic-gray-dark">
+                <h4 className="font-semibold text-text-primary">
                   How can I get involved in development?
                 </h4>
               </div>
-              <p className="text-volcanic-gray ml-9">
+              <p className="text-text-secondary ml-9">
                 Nos Ilha is an open-source project! Check out our GitHub repository 
                 or contact our development team to learn about contributing to the codebase.
               </p>
@@ -225,10 +225,10 @@ export default function ContactPage() {
 
         {/* Community Links */}
         <section className="mt-16 bg-gradient-to-r from-ocean-blue/10 to-valley-green/10 p-8 rounded-lg text-center">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-4">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-4">
             Join Our Community
           </h3>
-          <p className="text-lg text-volcanic-gray mb-6">
+          <p className="text-lg text-text-secondary mb-6">
             Connect with other Brava Island enthusiasts and stay updated on platform developments.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -252,8 +252,8 @@ export default function ContactPage() {
           <div className="flex items-center justify-center">
             <ChatBubbleLeftRightIcon className="h-8 w-8 text-ocean-blue mr-3" />
             <div>
-              <h4 className="font-semibold text-volcanic-gray-dark">Response Time</h4>
-              <p className="text-volcanic-gray">
+              <h4 className="font-semibold text-text-primary">Response Time</h4>
+              <p className="text-text-secondary">
                 We typically respond to inquiries within 24-48 hours. Thank you for your patience!
               </p>
             </div>

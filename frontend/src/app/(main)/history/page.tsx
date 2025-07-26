@@ -53,7 +53,7 @@ const historicalFigures = [
 
 export default function HistoryPage() {
   return (
-    <div className="bg-off-white font-sans">
+    <div className="bg-background-secondary font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader
           title="History & Heritage"
@@ -61,19 +61,19 @@ export default function HistoryPage() {
         />
 
         {/* Introduction Section */}
-        <section className="mt-16 bg-white p-8 rounded-lg shadow-sm">
+        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
           <div className="grid gap-8 lg:grid-cols-2 items-center">
             <div>
-              <h2 className="font-serif text-3xl font-bold text-volcanic-gray-dark mb-4">
+              <h2 className="font-serif text-3xl font-bold text-text-primary mb-4">
                 The Island of Flowers and Music
               </h2>
-              <p className="text-lg text-volcanic-gray mb-4">
+              <p className="text-lg text-text-secondary mb-4">
                 Brava Island, though the smallest inhabited island in Cape Verde, 
                 holds an outsized place in the nation's cultural heritage. Known as 
                 "Ilha das Flores" (Island of Flowers), Brava has been the birthplace 
                 of many renowned poets, musicians, and artists.
               </p>
-              <p className="text-volcanic-gray">
+              <p className="text-text-secondary">
                 Its dramatic landscape, formed by ancient volcanic activity, has 
                 inspired generations of artists and continues to shape the character 
                 of its resilient people.
@@ -92,7 +92,7 @@ export default function HistoryPage() {
 
         {/* Historical Sections */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-8 text-center">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
             Chapters of Brava's Story
           </h3>
           
@@ -104,14 +104,14 @@ export default function HistoryPage() {
                 <div className={index % 2 === 1 ? 'lg:col-start-2' : ''}>
                   <div className="flex items-center mb-4">
                     <section.icon className="h-8 w-8 text-ocean-blue mr-3" />
-                    <h4 className="font-serif text-xl font-bold text-volcanic-gray-dark">
+                    <h4 className="font-serif text-xl font-bold text-text-primary">
                       {section.title}
                     </h4>
                   </div>
-                  <p className="text-sm text-volcanic-gray mb-3 font-medium">
+                  <p className="text-sm text-text-secondary mb-3 font-medium">
                     {section.description}
                   </p>
-                  <p className="text-volcanic-gray">
+                  <p className="text-text-secondary">
                     {section.content}
                   </p>
                 </div>
@@ -129,21 +129,21 @@ export default function HistoryPage() {
         </section>
 
         {/* Historical Figures */}
-        <section className="mt-16 bg-white p-8 rounded-lg shadow-sm">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-6 text-center">
+        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6 text-center">
             Notable Figures from Brava
           </h3>
           
           <div className="grid gap-6 md:grid-cols-2">
             {historicalFigures.map((figure) => (
               <div key={figure.name} className="border-l-4 border-ocean-blue pl-6">
-                <h4 className="font-semibold text-lg text-volcanic-gray-dark">
+                <h4 className="font-semibold text-lg text-text-primary">
                   {figure.name}
                 </h4>
                 <p className="text-sm text-ocean-blue font-medium mb-2">
                   {figure.role} • {figure.years}
                 </p>
-                <p className="text-volcanic-gray">
+                <p className="text-text-secondary">
                   {figure.description}
                 </p>
               </div>
@@ -153,54 +153,54 @@ export default function HistoryPage() {
 
         {/* Timeline Section */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-8 text-center">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
             Key Historical Periods
           </h3>
           
           <div className="space-y-6">
-            <div className="flex items-start space-x-4 bg-white p-6 rounded-lg shadow-sm">
+            <div className="flex items-start space-x-4 bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
               <div className="flex-shrink-0 w-16 text-center">
                 <span className="font-bold text-ocean-blue">1462</span>
               </div>
               <div>
-                <h4 className="font-semibold text-volcanic-gray-dark">Discovery</h4>
-                <p className="text-volcanic-gray">
+                <h4 className="font-semibold text-text-primary">Discovery</h4>
+                <p className="text-text-secondary">
                   Brava Island is discovered by Portuguese navigators during the Age of Exploration.
                 </p>
               </div>
             </div>
             
-            <div className="flex items-start space-x-4 bg-white p-6 rounded-lg shadow-sm">
+            <div className="flex items-start space-x-4 bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
               <div className="flex-shrink-0 w-16 text-center">
                 <span className="font-bold text-ocean-blue">1680s</span>
               </div>
               <div>
-                <h4 className="font-semibold text-volcanic-gray-dark">Settlement</h4>
-                <p className="text-volcanic-gray">
+                <h4 className="font-semibold text-text-primary">Settlement</h4>
+                <p className="text-text-secondary">
                   Permanent settlement begins as refugees from Fogo Island settle on Brava following volcanic eruptions.
                 </p>
               </div>
             </div>
             
-            <div className="flex items-start space-x-4 bg-white p-6 rounded-lg shadow-sm">
+            <div className="flex items-start space-x-4 bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
               <div className="flex-shrink-0 w-16 text-center">
                 <span className="font-bold text-ocean-blue">1800s</span>
               </div>
               <div>
-                <h4 className="font-semibold text-volcanic-gray-dark">Cultural Flowering</h4>
-                <p className="text-volcanic-gray">
+                <h4 className="font-semibold text-text-primary">Cultural Flowering</h4>
+                <p className="text-text-secondary">
                   The island becomes a center of artistic and musical development, producing many renowned poets and musicians.
                 </p>
               </div>
             </div>
             
-            <div className="flex items-start space-x-4 bg-white p-6 rounded-lg shadow-sm">
+            <div className="flex items-start space-x-4 bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
               <div className="flex-shrink-0 w-16 text-center">
                 <span className="font-bold text-ocean-blue">1975</span>
               </div>
               <div>
-                <h4 className="font-semibold text-volcanic-gray-dark">Independence</h4>
-                <p className="text-volcanic-gray">
+                <h4 className="font-semibold text-text-primary">Independence</h4>
+                <p className="text-text-secondary">
                   Cape Verde gains independence, and Brava continues its role as a cultural beacon within the new nation.
                 </p>
               </div>
@@ -210,15 +210,15 @@ export default function HistoryPage() {
 
         {/* Cultural Traditions */}
         <section className="mt-16 bg-gradient-to-r from-ocean-blue/10 to-valley-green/10 p-8 rounded-lg">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-6 text-center">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6 text-center">
             Living Traditions
           </h3>
           
           <div className="grid gap-6 md:grid-cols-3">
             <div className="text-center">
               <MusicalNoteIcon className="h-12 w-12 text-ocean-blue mx-auto mb-3" />
-              <h4 className="font-semibold text-volcanic-gray-dark mb-2">Morna Music</h4>
-              <p className="text-sm text-volcanic-gray">
+              <h4 className="font-semibold text-text-primary mb-2">Morna Music</h4>
+              <p className="text-sm text-text-secondary">
                 The soulful musical genre that expresses the Cape Verdean soul, 
                 with many masterpieces created on Brava.
               </p>
@@ -226,8 +226,8 @@ export default function HistoryPage() {
             
             <div className="text-center">
               <BookOpenIcon className="h-12 w-12 text-valley-green mx-auto mb-3" />
-              <h4 className="font-semibold text-volcanic-gray-dark mb-2">Oral Storytelling</h4>
-              <p className="text-sm text-volcanic-gray">
+              <h4 className="font-semibold text-text-primary mb-2">Oral Storytelling</h4>
+              <p className="text-sm text-text-secondary">
                 Rich tradition of storytelling that preserves local legends, 
                 history, and cultural wisdom.
               </p>
@@ -235,8 +235,8 @@ export default function HistoryPage() {
             
             <div className="text-center">
               <GlobeAltIcon className="h-12 w-12 text-bougainvillea-pink mx-auto mb-3" />
-              <h4 className="font-semibold text-volcanic-gray-dark mb-2">Diaspora Connection</h4>
-              <p className="text-sm text-volcanic-gray">
+              <h4 className="font-semibold text-text-primary mb-2">Diaspora Connection</h4>
+              <p className="text-sm text-text-secondary">
                 Strong cultural ties maintained with Brava communities 
                 around the world, especially in New England.
               </p>
@@ -246,10 +246,10 @@ export default function HistoryPage() {
 
         {/* Explore Further */}
         <section className="mt-16 text-center">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-4">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-4">
             Explore More of Brava
           </h3>
-          <p className="text-lg text-volcanic-gray mb-6">
+          <p className="text-lg text-text-secondary mb-6">
             Discover the places where this rich history comes alive today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

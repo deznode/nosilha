@@ -13,7 +13,7 @@ export const dynamic = "force-static";
 
 export default function ContributePage() {
   return (
-    <div className="bg-off-white font-sans">
+    <div className="bg-background-secondary font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader
           title="Contribute to Nos Ilha"
@@ -21,13 +21,13 @@ export default function ContributePage() {
         />
 
         {/* Hero Section */}
-        <section className="mt-16 rounded-lg bg-white p-8 shadow-sm">
+        <section className="mt-16 rounded-lg bg-background-primary p-8 shadow-sm">
           <div className="text-center">
             <HeartIcon className="mx-auto h-16 w-16 text-ocean-blue" />
-            <h2 className="mt-4 font-serif text-2xl font-bold text-volcanic-gray-dark">
+            <h2 className="mt-4 font-serif text-2xl font-bold text-text-primary">
               Together, We Build Something Beautiful
             </h2>
-            <p className="mt-4 text-lg text-volcanic-gray">
+            <p className="mt-4 text-lg text-text-secondary">
               Nos Ilha is powered by community contributions. Every photo, story, 
               and piece of information helps preserve and share the beauty of Brava Island.
             </p>
@@ -36,22 +36,22 @@ export default function ContributePage() {
 
         {/* Contribution Types */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-8">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8">
             Ways to Contribute
           </h3>
           
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {/* Photo Contributions */}
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm">
               <CameraIcon className="h-10 w-10 text-ocean-blue mb-4" />
-              <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-2">
+              <h4 className="font-semibold text-lg text-text-primary mb-2">
                 Share Your Photos
               </h4>
-              <p className="text-volcanic-gray mb-4">
+              <p className="text-text-secondary mb-4">
                 Help us showcase the beauty of Brava by contributing your photographs 
                 of landscapes, businesses, landmarks, and cultural events.
               </p>
-              <ul className="text-sm text-volcanic-gray space-y-1 mb-4">
+              <ul className="text-sm text-text-secondary space-y-1 mb-4">
                 <li>• High-resolution images preferred</li>
                 <li>• Include location and date information</li>
                 <li>• Respect privacy and property rights</li>
@@ -65,16 +65,16 @@ export default function ContributePage() {
             </div>
 
             {/* Information Updates */}
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm">
               <DocumentTextIcon className="h-10 w-10 text-valley-green mb-4" />
-              <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-2">
+              <h4 className="font-semibold text-lg text-text-primary mb-2">
                 Update Information
               </h4>
-              <p className="text-volcanic-gray mb-4">
+              <p className="text-text-secondary mb-4">
                 Know about a new business, updated hours, or changes to a landmark? 
                 Help keep our directory accurate and current.
               </p>
-              <ul className="text-sm text-volcanic-gray space-y-1 mb-4">
+              <ul className="text-sm text-text-secondary space-y-1 mb-4">
                 <li>• Business hours and contact info</li>
                 <li>• New restaurants or accommodations</li>
                 <li>• Seasonal closures or changes</li>
@@ -88,16 +88,16 @@ export default function ContributePage() {
             </div>
 
             {/* Local Stories */}
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm">
               <MapIcon className="h-10 w-10 text-bougainvillea-pink mb-4" />
-              <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-2">
+              <h4 className="font-semibold text-lg text-text-primary mb-2">
                 Share Local Stories
               </h4>
-              <p className="text-volcanic-gray mb-4">
+              <p className="text-text-secondary mb-4">
                 Contribute historical information, cultural insights, or personal 
                 stories that help visitors understand Brava's rich heritage.
               </p>
-              <ul className="text-sm text-volcanic-gray space-y-1 mb-4">
+              <ul className="text-sm text-text-secondary space-y-1 mb-4">
                 <li>• Historical accounts and legends</li>
                 <li>• Cultural traditions and customs</li>
                 <li>• Personal experiences and tips</li>
@@ -113,17 +113,17 @@ export default function ContributePage() {
         </section>
 
         {/* Guidelines Section */}
-        <section className="mt-16 bg-white p-8 rounded-lg shadow-sm">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-6">
+        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6">
             Contribution Guidelines
           </h3>
           
           <div className="grid gap-8 md:grid-cols-2">
             <div>
-              <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-3">
+              <h4 className="font-semibold text-lg text-text-primary mb-3">
                 Photo Guidelines
               </h4>
-              <ul className="space-y-2 text-volcanic-gray">
+              <ul className="space-y-2 text-text-secondary">
                 <li>• Submit only your original photographs</li>
                 <li>• Ensure images are clear and well-lit</li>
                 <li>• Include accurate location information</li>
@@ -133,10 +133,10 @@ export default function ContributePage() {
             </div>
             
             <div>
-              <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-3">
+              <h4 className="font-semibold text-lg text-text-primary mb-3">
                 Information Standards
               </h4>
-              <ul className="space-y-2 text-volcanic-gray">
+              <ul className="space-y-2 text-text-secondary">
                 <li>• Provide accurate and up-to-date information</li>
                 <li>• Include reliable sources when possible</li>
                 <li>• Be respectful of local culture and traditions</li>
@@ -149,10 +149,10 @@ export default function ContributePage() {
 
         {/* Contact Section */}
         <section className="mt-16 text-center">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-4">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-4">
             Have Questions?
           </h3>
-          <p className="text-lg text-volcanic-gray mb-6">
+          <p className="text-lg text-text-secondary mb-6">
             We're here to help you contribute to the Nos Ilha community.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

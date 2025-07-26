@@ -18,7 +18,7 @@ const InteractiveMap = dynamic(
 
 export default function MapPage() {
   return (
-    <div className="bg-off-white font-sans">
+    <div className="bg-background-secondary font-sans">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader
           title="Interactive Map of Brava"

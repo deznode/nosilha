@@ -85,7 +85,7 @@ const culturalEvents = [
 
 export default function MusicPage() {
   return (
-    <div className="bg-off-white font-sans">
+    <div className="bg-background-secondary font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader
           title="Music & Arts"
@@ -93,18 +93,18 @@ export default function MusicPage() {
         />
 
         {/* Introduction Section */}
-        <section className="mt-16 bg-white p-8 rounded-lg shadow-sm">
+        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm">
           <div className="grid gap-8 lg:grid-cols-2 items-center">
             <div>
-              <h2 className="font-serif text-3xl font-bold text-volcanic-gray-dark mb-4">
+              <h2 className="font-serif text-3xl font-bold text-text-primary mb-4">
                 The Island of Music
               </h2>
-              <p className="text-lg text-volcanic-gray mb-4">
+              <p className="text-lg text-text-secondary mb-4">
                 Brava Island has earned its reputation as the musical heart of Cape Verde. 
                 This small island has produced some of the country's greatest musicians, 
                 poets, and composers, whose works continue to touch hearts around the world.
               </p>
-              <p className="text-volcanic-gray">
+              <p className="text-text-secondary">
                 From the haunting melodies of morna to the rhythmic celebrations of coladeira, 
                 Brava's musical traditions reflect the island's unique culture and the 
                 experiences of its people.
@@ -123,7 +123,7 @@ export default function MusicPage() {
 
         {/* Musical Traditions */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-8 text-center">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
             Musical Traditions
           </h3>
           
@@ -132,17 +132,17 @@ export default function MusicPage() {
               <div key={tradition.title} className={`grid gap-8 lg:grid-cols-2 items-center ${
                 index % 2 === 1 ? 'lg:grid-flow-col-dense' : ''
               }`}>
-                <div className={`bg-white p-6 rounded-lg shadow-sm ${index % 2 === 1 ? 'lg:col-start-2' : ''}`}>
+                <div className={`bg-background-primary p-6 rounded-lg shadow-sm ${index % 2 === 1 ? 'lg:col-start-2' : ''}`}>
                   <div className="flex items-center mb-4">
                     <tradition.icon className={`h-8 w-8 text-${tradition.color} mr-3`} />
-                    <h4 className="font-serif text-xl font-bold text-volcanic-gray-dark">
+                    <h4 className="font-serif text-xl font-bold text-text-primary">
                       {tradition.title}
                     </h4>
                   </div>
-                  <p className="text-sm text-volcanic-gray mb-3 font-medium">
+                  <p className="text-sm text-text-secondary mb-3 font-medium">
                     {tradition.description}
                   </p>
-                  <p className="text-volcanic-gray">
+                  <p className="text-text-secondary">
                     {tradition.details}
                   </p>
                 </div>
@@ -161,13 +161,13 @@ export default function MusicPage() {
 
         {/* Famous Musicians */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-8">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8">
             Notable Musicians
           </h3>
           
           <div className="grid gap-8 lg:grid-cols-2">
             {famousMusicians.filter(musician => musician.featured).map((musician) => (
-              <div key={musician.name} className="bg-white rounded-lg shadow-sm overflow-hidden">
+              <div key={musician.name} className="bg-background-primary rounded-lg shadow-sm overflow-hidden">
                 <div className="relative h-48">
                   <Image
                     src={musician.image}
@@ -177,21 +177,21 @@ export default function MusicPage() {
                   />
                 </div>
                 <div className="p-6">
-                  <h4 className="font-serif text-xl font-bold text-volcanic-gray-dark mb-1">
+                  <h4 className="font-serif text-xl font-bold text-text-primary mb-1">
                     {musician.name}
                   </h4>
                   <p className="text-sm text-ocean-blue font-medium mb-3">
                     {musician.title}
                   </p>
-                  <p className="text-volcanic-gray mb-4">
+                  <p className="text-text-secondary mb-4">
                     {musician.description}
                   </p>
                   
                   <div className="space-y-2">
-                    <h5 className="font-semibold text-sm text-volcanic-gray-dark">
+                    <h5 className="font-semibold text-sm text-text-primary">
                       Notable Achievements:
                     </h5>
-                    <ul className="text-sm text-volcanic-gray space-y-1">
+                    <ul className="text-sm text-text-secondary space-y-1">
                       {musician.achievements.map((achievement, index) => (
                         <li key={index} className="flex items-start">
                           <span className="text-sunny-yellow mr-2">•</span>
@@ -208,7 +208,7 @@ export default function MusicPage() {
           {/* Other Musicians */}
           <div className="mt-8 grid gap-6 md:grid-cols-2">
             {famousMusicians.filter(musician => !musician.featured).map((musician) => (
-              <div key={musician.name} className="bg-white p-6 rounded-lg shadow-sm">
+              <div key={musician.name} className="bg-background-primary p-6 rounded-lg shadow-sm">
                 <div className="flex items-start space-x-4">
                   <div className="relative h-16 w-16 flex-shrink-0">
                     <Image
@@ -219,16 +219,16 @@ export default function MusicPage() {
                     />
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-1">
+                    <h4 className="font-semibold text-lg text-text-primary mb-1">
                       {musician.name}
                     </h4>
                     <p className="text-sm text-valley-green font-medium mb-2">
                       {musician.title}
                     </p>
-                    <p className="text-sm text-volcanic-gray mb-2">
+                    <p className="text-sm text-text-secondary mb-2">
                       {musician.description}
                     </p>
-                    <p className="text-xs text-volcanic-gray">
+                    <p className="text-xs text-text-secondary">
                       <span className="font-medium">Known for:</span> {musician.achievements[0]}
                     </p>
                   </div>
@@ -239,8 +239,8 @@ export default function MusicPage() {
         </section>
 
         {/* Cultural Events */}
-        <section className="mt-16 bg-white p-8 rounded-lg shadow-sm">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-6 text-center">
+        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6 text-center">
             Cultural Events & Festivals
           </h3>
           
@@ -255,13 +255,13 @@ export default function MusicPage() {
                     className="object-cover"
                   />
                 </div>
-                <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-2">
+                <h4 className="font-semibold text-lg text-text-primary mb-2">
                   {event.name}
                 </h4>
                 <p className="text-sm text-ocean-blue font-medium mb-2">
                   {event.description}
                 </p>
-                <p className="text-volcanic-gray">
+                <p className="text-text-secondary">
                   {event.details}
                 </p>
               </div>
@@ -271,47 +271,47 @@ export default function MusicPage() {
 
         {/* Musical Instruments */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-8 text-center">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
             Traditional Instruments
           </h3>
           
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center">
               <div className="bg-ocean-blue/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <MusicalNoteIcon className="h-8 w-8 text-ocean-blue" />
               </div>
-              <h4 className="font-semibold text-volcanic-gray-dark mb-2">Viola</h4>
-              <p className="text-sm text-volcanic-gray">
+              <h4 className="font-semibold text-text-primary mb-2">Viola</h4>
+              <p className="text-sm text-text-secondary">
                 The primary string instrument used in morna and coladeira music.
               </p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center">
               <div className="bg-valley-green/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <MusicalNoteIcon className="h-8 w-8 text-valley-green" />
               </div>
-              <h4 className="font-semibold text-volcanic-gray-dark mb-2">Cavaquinho</h4>
-              <p className="text-sm text-volcanic-gray">
+              <h4 className="font-semibold text-text-primary mb-2">Cavaquinho</h4>
+              <p className="text-sm text-text-secondary">
                 A small string instrument that adds rhythmic accompaniment.
               </p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center">
               <div className="bg-bougainvillea-pink/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <MusicalNoteIcon className="h-8 w-8 text-bougainvillea-pink" />
               </div>
-              <h4 className="font-semibold text-volcanic-gray-dark mb-2">Ferrinho</h4>
-              <p className="text-sm text-volcanic-gray">
+              <h4 className="font-semibold text-text-primary mb-2">Ferrinho</h4>
+              <p className="text-sm text-text-secondary">
                 A metal scraper that provides percussion in traditional music.
               </p>
             </div>
             
-            <div className="bg-white p-6 rounded-lg shadow-sm text-center">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center">
               <div className="bg-sunny-yellow/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
                 <MusicalNoteIcon className="h-8 w-8 text-sunny-yellow" />
               </div>
-              <h4 className="font-semibold text-volcanic-gray-dark mb-2">Tambor</h4>
-              <p className="text-sm text-volcanic-gray">
+              <h4 className="font-semibold text-text-primary mb-2">Tambor</h4>
+              <p className="text-sm text-text-secondary">
                 Traditional drum used in batuko and other rhythmic music.
               </p>
             </div>
@@ -320,17 +320,17 @@ export default function MusicPage() {
 
         {/* Global Impact */}
         <section className="mt-16 bg-gradient-to-r from-ocean-blue/10 to-valley-green/10 p-8 rounded-lg">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-6 text-center">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6 text-center">
             Global Impact
           </h3>
           
           <div className="grid gap-8 md:grid-cols-2">
             <div className="text-center">
               <GlobeAltIcon className="h-12 w-12 text-ocean-blue mx-auto mb-3" />
-              <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-2">
+              <h4 className="font-semibold text-lg text-text-primary mb-2">
                 International Recognition
               </h4>
-              <p className="text-volcanic-gray">
+              <p className="text-text-secondary">
                 Brava's musical traditions have gained international recognition, with 
                 Cape Verdean music being performed in concert halls worldwide.
               </p>
@@ -338,10 +338,10 @@ export default function MusicPage() {
             
             <div className="text-center">
               <HeartIcon className="h-12 w-12 text-valley-green mx-auto mb-3" />
-              <h4 className="font-semibold text-lg text-volcanic-gray-dark mb-2">
+              <h4 className="font-semibold text-lg text-text-primary mb-2">
                 Cultural Preservation
               </h4>
-              <p className="text-volcanic-gray">
+              <p className="text-text-secondary">
                 Young musicians continue to learn and preserve traditional Brava music, 
                 ensuring these cultural treasures survive for future generations.
               </p>
@@ -351,10 +351,10 @@ export default function MusicPage() {
 
         {/* Explore More */}
         <section className="mt-16 text-center">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-4">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-4">
             Explore More Culture
           </h3>
-          <p className="text-lg text-volcanic-gray mb-6">
+          <p className="text-lg text-text-secondary mb-6">
             Discover more about Brava's rich cultural heritage and the people who created it.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
