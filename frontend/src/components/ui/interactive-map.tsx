@@ -312,10 +312,10 @@ export function InteractiveMap() {
             closeOnClick={false}
           >
             <div className="p-1">
-              <h3 className="font-bold text-volcanic-gray-dark">
+              <h3 className="font-bold text-text-primary">
                 {selectedEntry.name}
               </h3>
-              <p className="text-sm text-volcanic-gray">
+              <p className="text-sm text-text-secondary">
                 {selectedEntry.category}
               </p>
               <Link

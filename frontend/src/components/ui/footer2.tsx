@@ -60,10 +60,10 @@ export function FooterAlt() {
           <h2 className="font-serif text-base font-semibold leading-7 text-ocean-blue">
             Your journey awaits
           </h2>
-          <p className="mt-2 text-4xl font-bold tracking-tight text-volcanic-gray-dark sm:text-5xl">
+          <p className="mt-2 text-4xl font-bold tracking-tight text-text-primary sm:text-5xl">
             Discover the Soul of Brava
           </p>
-          <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-volcanic-gray">
+          <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-text-secondary">
             Begin your exploration of the island's hidden gems, rich history,
             and vibrant culture through our interactive directory and map.
           </p>
@@ -76,7 +76,7 @@ export function FooterAlt() {
             </Link>
             <Link
               href="/map"
-              className="text-sm font-semibold leading-6 text-volcanic-gray-dark hover:text-black"
+              className="text-sm font-semibold leading-6 text-text-primary hover:text-text-primary/80"
             >
               View Interactive Map <span aria-hidden="true">→</span>
             </Link>
@@ -88,7 +88,7 @@ export function FooterAlt() {
           <div className="grid grid-cols-1 md:grid-cols-3 md:gap-8">
             {/* Column 1 */}
             <div>
-              <h3 className="text-sm font-semibold leading-6 text-volcanic-gray-dark">
+              <h3 className="text-sm font-semibold leading-6 text-text-primary">
                 Explore Brava
               </h3>
               <ul role="list" className="mt-6 space-y-4">
@@ -96,7 +96,7 @@ export function FooterAlt() {
                   <li key={item.name}>
                     <Link
                       href={item.href}
-                      className="text-sm leading-6 text-volcanic-gray hover:text-volcanic-gray-dark"
+                      className="text-sm leading-6 text-text-secondary hover:text-text-primary"
                     >
                       {item.name}
                     </Link>
@@ -106,7 +106,7 @@ export function FooterAlt() {
             </div>
             {/* Column 2 */}
             <div className="mt-10 md:mt-0">
-              <h3 className="text-sm font-semibold leading-6 text-volcanic-gray-dark">
+              <h3 className="text-sm font-semibold leading-6 text-text-primary">
                 Culture & History
               </h3>
               <ul role="list" className="mt-6 space-y-4">
@@ -114,7 +114,7 @@ export function FooterAlt() {
                   <li key={item.name}>
                     <Link
                       href={item.href}
-                      className="text-sm leading-6 text-volcanic-gray hover:text-volcanic-gray-dark"
+                      className="text-sm leading-6 text-text-secondary hover:text-text-primary"
                     >
                       {item.name}
                     </Link>
@@ -124,7 +124,7 @@ export function FooterAlt() {
             </div>
             {/* Column 3 */}
             <div className="mt-10 md:mt-0">
-              <h3 className="text-sm font-semibold leading-6 text-volcanic-gray-dark">
+              <h3 className="text-sm font-semibold leading-6 text-text-primary">
                 Connect
               </h3>
               <ul role="list" className="mt-6 space-y-4">
@@ -132,7 +132,7 @@ export function FooterAlt() {
                   <li key={item.name}>
                     <Link
                       href={item.href}
-                      className="text-sm leading-6 text-volcanic-gray hover:text-volcanic-gray-dark"
+                      className="text-sm leading-6 text-text-secondary hover:text-text-primary"
                     >
                       {item.name}
                     </Link>
@@ -150,14 +150,14 @@ export function FooterAlt() {
               <a
                 key={item.name}
                 href={item.href}
-                className="text-volcanic-gray hover:text-volcanic-gray-dark"
+                className="text-text-secondary hover:text-text-primary"
               >
                 <span className="sr-only">{item.name}</span>
                 <item.icon className="h-6 w-6" aria-hidden="true" />
               </a>
             ))}
           </div>
-          <p className="mt-8 text-xs leading-5 text-volcanic-gray md:order-1 md:mt-0">
+          <p className="mt-8 text-xs leading-5 text-text-secondary md:order-1 md:mt-0">
             &copy; {new Date().getFullYear()} Nosilha.com. All rights reserved.
           </p>
         </div>

@@ -60,7 +60,7 @@ export function NosilhaLogo({
         ))}
       </motion.div>
       {showSubtitle && (
-        <p className="mt-1 text-sm text-volcanic-gray tracking-widest">
+        <p className="mt-1 text-sm text-text-secondary tracking-widest">
           BRAVA, CAPE VERDE
         </p>
       )}

@@ -46,10 +46,10 @@ export function ContributePhotosSection() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h2 className="font-serif text-3xl font-bold text-volcanic-gray-dark text-center">
+      <h2 className="font-serif text-3xl font-bold text-text-primary text-center">
         Contribute Photos
       </h2>
-      <p className="mt-2 text-center text-lg leading-8 text-volcanic-gray">
+      <p className="mt-2 text-center text-lg leading-8 text-text-secondary">
         Have a photo of this location? Share it with the community!
       </p>
       
@@ -72,7 +72,7 @@ export function ContributePhotosSection() {
             </div>
             
             <div className="space-y-2">
-              <p className="text-sm text-volcanic-gray">
+              <p className="text-sm text-text-secondary">
                 Thank you for contributing to our community.
               </p>
               <button
@@ -103,7 +103,7 @@ export function ContributePhotosSection() {
                   <span className="font-medium">Upload failed</span>
                 </div>
                 <p className="text-sm text-accent-error">{errorMessage}</p>
-                <p className="text-xs text-volcanic-gray">
+                <p className="text-xs text-text-secondary">
                   Please try again or check if you&apos;re logged in.
                 </p>
               </div>

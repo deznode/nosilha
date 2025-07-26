@@ -51,7 +51,7 @@ export function Logo() {
           </motion.span>
         ))}
       </motion.div>
-      <p className="mt-1 text-sm tracking-widest text-volcanic-gray">
+      <p className="mt-1 text-sm tracking-widest text-text-secondary">
         BRAVA, CAPE VERDE
       </p>
     </div>

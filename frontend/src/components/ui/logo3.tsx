@@ -3,7 +3,7 @@ import React from "react";
 export function Logo() {
   return (
     <div className="flex items-center cursor-default">
-      <h1 className="text-3xl font-sans text-volcanic-gray">
+      <h1 className="text-3xl font-sans text-text-secondary">
         {/* The "N" is styled separately for a distinct look */}
         <span
           className="
