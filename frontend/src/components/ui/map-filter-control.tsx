@@ -15,9 +15,9 @@ export function MapFilterControl({
   onFilterChange,
 }: MapFilterControlProps) {
   return (
-    <div className="rounded-lg bg-white/80 p-4 shadow-lg backdrop-blur-sm">
+    <div className="rounded-lg bg-background-primary/80 p-4 shadow-lg backdrop-blur-sm border border-border-primary">
       <fieldset>
-        <legend className="text-base font-semibold text-volcanic-gray-dark">
+        <legend className="text-base font-semibold text-text-primary">
           Filter by Category
         </legend>
         <div className="mt-4 space-y-3">
