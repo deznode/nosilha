@@ -153,17 +153,17 @@ export default async function TownPage({ params }: TownPageProps) {
         <section className="bg-white p-8 rounded-lg shadow-sm">
           <div className="grid gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2">
-              <h2 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-4">
+              <h2 className="font-serif text-2xl font-bold text-text-primary mb-4">
                 About {town.name}
               </h2>
-              <p className="text-lg text-volcanic-gray mb-6">
+              <p className="text-lg text-text-secondary mb-6">
                 {town.description}
               </p>
               
-              <h3 className="font-semibold text-lg text-volcanic-gray-dark mb-3">
+              <h3 className="font-semibold text-lg text-text-primary mb-3">
                 What Makes {town.name} Special
               </h3>
-              <ul className="space-y-2 text-volcanic-gray">
+              <ul className="space-y-2 text-text-secondary">
                 {town.highlights.map((highlight, index) => (
                   <li key={index} className="flex items-start">
                     <span className="text-ocean-blue mr-2">•</span>
@@ -177,25 +177,25 @@ export default async function TownPage({ params }: TownPageProps) {
               <div className="bg-off-white p-4 rounded-lg">
                 <div className="flex items-center mb-2">
                   <UserGroupIcon className="h-5 w-5 text-ocean-blue mr-2" />
-                  <span className="font-semibold text-volcanic-gray-dark">Population</span>
+                  <span className="font-semibold text-text-primary">Population</span>
                 </div>
-                <p className="text-volcanic-gray">{town.population}</p>
+                <p className="text-text-secondary">{town.population}</p>
               </div>
               
               <div className="bg-off-white p-4 rounded-lg">
                 <div className="flex items-center mb-2">
                   <MapPinIcon className="h-5 w-5 text-ocean-blue mr-2" />
-                  <span className="font-semibold text-volcanic-gray-dark">Elevation</span>
+                  <span className="font-semibold text-text-primary">Elevation</span>
                 </div>
-                <p className="text-volcanic-gray">{town.elevation}</p>
+                <p className="text-text-secondary">{town.elevation}</p>
               </div>
               
               <div className="bg-off-white p-4 rounded-lg">
                 <div className="flex items-center mb-2">
                   <BuildingOfficeIcon className="h-5 w-5 text-ocean-blue mr-2" />
-                  <span className="font-semibold text-volcanic-gray-dark">Founded</span>
+                  <span className="font-semibold text-text-primary">Founded</span>
                 </div>
-                <p className="text-volcanic-gray">{town.founded}</p>
+                <p className="text-text-secondary">{town.founded}</p>
               </div>
             </div>
           </div>
@@ -203,7 +203,7 @@ export default async function TownPage({ params }: TownPageProps) {
 
         {/* Photo Gallery */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-8">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8">
             Photo Gallery
           </h3>
           <div className="grid gap-4 md:grid-cols-3">
@@ -223,7 +223,7 @@ export default async function TownPage({ params }: TownPageProps) {
         {/* Local Directory Entries */}
         {townEntries.length > 0 && (
           <section className="mt-16">
-            <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-8">
+            <h3 className="font-serif text-2xl font-bold text-text-primary mb-8">
               Places to Visit in {town.name}
             </h3>
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -237,10 +237,10 @@ export default async function TownPage({ params }: TownPageProps) {
         {/* Contribute Section */}
         <section className="mt-16 bg-gradient-to-r from-ocean-blue/10 to-valley-green/10 p-8 rounded-lg text-center">
           <CameraIcon className="h-12 w-12 text-ocean-blue mx-auto mb-4" />
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-4">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-4">
             Share Your {town.name} Experience
           </h3>
-          <p className="text-lg text-volcanic-gray mb-6">
+          <p className="text-lg text-text-secondary mb-6">
             Have photos or stories from {town.name}? Help us showcase this beautiful part of Brava Island.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -261,7 +261,7 @@ export default async function TownPage({ params }: TownPageProps) {
 
         {/* Navigation */}
         <section className="mt-16 text-center">
-          <h3 className="font-serif text-2xl font-bold text-volcanic-gray-dark mb-6">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6">
             Explore More of Brava
           </h3>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -279,7 +279,7 @@ export default async function TownPage({ params }: TownPageProps) {
             </Link>
             <Link
               href="/directory/all"
-              className="rounded-md border-2 border-volcanic-gray px-6 py-3 text-base font-semibold text-volcanic-gray transition-colors hover:bg-volcanic-gray hover:text-white"
+              className="rounded-md border-2 border-border-primary px-6 py-3 text-base font-semibold text-text-primary transition-colors hover:bg-text-primary hover:text-background-primary"
             >
               Browse Directory
             </Link>

@@ -235,7 +235,7 @@ export default function AboutPage() {
             </Link>
             <Link
               href="/history"
-              className="rounded-md border-2 border-volcanic-gray px-4 py-3 text-sm font-semibold text-text-secondary transition-colors hover:bg-volcanic-gray hover:text-white"
+              className="rounded-md border-2 border-border-primary px-4 py-3 text-sm font-semibold text-text-primary transition-colors hover:bg-text-primary hover:text-background-primary"
             >
               Learn More
             </Link>

@@ -47,7 +47,7 @@ function CategorySpecificDetails({ entry }: { entry: DirectoryEntry }) {
           {restaurantDetails.phoneNumber && (
             <div className="flex items-start">
               <PhoneIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
-              <p className="ml-3 text-base text-volcanic-gray">
+              <p className="ml-3 text-base text-text-secondary">
                 {restaurantDetails.phoneNumber}
               </p>
             </div>
@@ -55,7 +55,7 @@ function CategorySpecificDetails({ entry }: { entry: DirectoryEntry }) {
           {restaurantDetails.openingHours && (
             <div className="flex items-start">
               <ClockIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
-              <p className="ml-3 text-base text-volcanic-gray">
+              <p className="ml-3 text-base text-text-secondary">
                 {restaurantDetails.openingHours}
               </p>
             </div>
@@ -63,7 +63,7 @@ function CategorySpecificDetails({ entry }: { entry: DirectoryEntry }) {
           {restaurantDetails.cuisine.length > 0 && (
             <div className="flex items-start">
               <SparklesIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
-              <p className="ml-3 text-base text-volcanic-gray">
+              <p className="ml-3 text-base text-text-secondary">
                 Cuisine: {restaurantDetails.cuisine.join(", ")}
               </p>
             </div>
@@ -78,7 +78,7 @@ function CategorySpecificDetails({ entry }: { entry: DirectoryEntry }) {
           {hotelDetails.phoneNumber && (
             <div className="flex items-start">
               <PhoneIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
-              <p className="ml-3 text-base text-volcanic-gray">
+              <p className="ml-3 text-base text-text-secondary">
                 {hotelDetails.phoneNumber}
               </p>
             </div>
@@ -86,7 +86,7 @@ function CategorySpecificDetails({ entry }: { entry: DirectoryEntry }) {
           {hotelDetails.amenities.length > 0 && (
             <div className="flex items-start">
               <BuildingOffice2Icon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
-              <p className="ml-3 text-base text-volcanic-gray">
+              <p className="ml-3 text-base text-text-secondary">
                 Amenities: {hotelDetails.amenities.join(", ")}
               </p>
             </div>
@@ -142,10 +142,10 @@ export default async function DirectoryEntryDetailPage({
         <div className="mt-8 grid grid-cols-1 gap-x-12 gap-y-10 lg:grid-cols-3">
           {/* Left Column: Details & Reviews */}
           <div className="lg:col-span-2">
-            <h1 className="font-serif text-4xl font-bold text-volcanic-gray-dark sm:text-5xl">
+            <h1 className="font-serif text-4xl font-bold text-text-primary sm:text-5xl">
               {entry.name}
             </h1>
-            <p className="mt-4 text-lg leading-relaxed text-volcanic-gray">
+            <p className="mt-4 text-lg leading-relaxed text-text-secondary">
               {entry.description}
             </p>
 
@@ -153,7 +153,7 @@ export default async function DirectoryEntryDetailPage({
 
             {/* --- NEW: Image Gallery Section --- */}
             <div className="space-y-4">
-              <h2 className="font-serif text-3xl font-bold text-volcanic-gray-dark">
+              <h2 className="font-serif text-3xl font-bold text-text-primary">
                 Gallery
               </h2>
               <ImageGallery imageUrls={sampleImages} />
@@ -161,16 +161,16 @@ export default async function DirectoryEntryDetailPage({
 
             <div className="my-8 border-t border-border-primary" />
 
-            <h2 className="font-serif text-3xl font-bold text-volcanic-gray-dark">
+            <h2 className="font-serif text-3xl font-bold text-text-primary">
               User Reviews
             </h2>
             <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-              <p className="text-4xl font-bold text-volcanic-gray-dark">
+              <p className="text-4xl font-bold text-text-primary">
                 {entry.rating?.toFixed(1) || 'N/A'}
               </p>
               <div className="flex flex-col">
                 <StarRating rating={entry.rating || 0} />
-                <p className="text-sm text-volcanic-gray">
+                <p className="text-sm text-text-secondary">
                   Based on {entry.reviewCount} reviews
                 </p>
               </div>
@@ -182,13 +182,13 @@ export default async function DirectoryEntryDetailPage({
             <div className="rounded-lg bg-background-primary p-6 shadow-md">
               <div className="aspect-video w-full rounded-md bg-background-tertiary">
                 <div className="flex h-full w-full items-center justify-center">
-                  <MapPinIcon className="h-12 w-12 text-volcanic-gray" />
+                  <MapPinIcon className="h-12 w-12 text-text-secondary" />
                 </div>
               </div>
               <div className="mt-6 space-y-4">
                 <div className="flex items-start">
                   <MapPinIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
-                  <p className="ml-3 text-base text-volcanic-gray">
+                  <p className="ml-3 text-base text-text-secondary">
                     {entry.town}, Brava, Cape Verde
                   </p>
                 </div>

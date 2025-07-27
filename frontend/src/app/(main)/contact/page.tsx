@@ -97,7 +97,7 @@ export default function ContactPage() {
                   type="text"
                   id="name"
                   name="name"
-                  className="w-full px-4 py-3 border border-border-primary rounded-md focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue"
+                  className="w-full px-4 py-3 border border-border-primary rounded-md bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue transition-colors"
                   placeholder="Enter your name"
                 />
               </div>
@@ -110,7 +110,7 @@ export default function ContactPage() {
                   type="email"
                   id="email"
                   name="email"
-                  className="w-full px-4 py-3 border border-border-primary rounded-md focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue"
+                  className="w-full px-4 py-3 border border-border-primary rounded-md bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue transition-colors"
                   placeholder="Enter your email"
                 />
               </div>
@@ -123,7 +123,7 @@ export default function ContactPage() {
               <select
                 id="subject"
                 name="subject"
-                className="w-full px-4 py-3 border border-border-primary rounded-md focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue"
+                className="w-full px-4 py-3 border border-border-primary rounded-md bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue transition-colors"
               >
                 <option value="">Select a subject</option>
                 <option value="general">General Inquiry</option>
@@ -143,7 +143,7 @@ export default function ContactPage() {
                 id="message"
                 name="message"
                 rows={6}
-                className="w-full px-4 py-3 border border-border-primary rounded-md focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue"
+                className="w-full px-4 py-3 border border-border-primary rounded-md bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue transition-colors"
                 placeholder="Tell us how we can help you..."
               ></textarea>
             </div>
