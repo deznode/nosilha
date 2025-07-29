@@ -58,8 +58,8 @@ export default async function HomePage() {
             Discover the Soul of Brava
           </h1>
           <p className="mt-6 text-lg leading-8 sm:text-xl">
-            Your journey into the heart of Cape Verde's most enchanting and
-            untouched island begins here.
+            Your journey into the heart of Cape Verde's most enchanting
+            hidden gem begins here.
           </p>
           <div className="mt-10">
             <Link
