@@ -37,7 +37,7 @@ This document provides a comprehensive plan for reviewing, fact-checking, and en
 - Consider adding visitor testimonials
 
 #### Research Tasks:
-- [ ] Verify hero image authenticity or source replacement
+- [x] Verify hero image authenticity or source replacement
 - [ ] Contact Brava tourism board for current statistics
 - [ ] Research recent tourism development projects
 - [ ] Validate accessibility and infrastructure claims
