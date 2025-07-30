@@ -1,11 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { PageHeader } from "@/components/ui/page-header";
-import { 
-  MusicalNoteIcon, 
+import {
+  MusicalNoteIcon,
   StarIcon,
-  CalendarIcon
+  CalendarIcon,
 } from "@heroicons/react/24/outline";
+import { BackToTopButton } from "@/components/ui/back-to-top-button";
 
 // Enable ISR with 2 hour revalidation for people content
 export const revalidate = 7200;
@@ -15,48 +16,53 @@ const historicalEras = [
   {
     era: "Cultural Foundation",
     period: "1867-1930",
-    description: "The birth of Cape Verdean cultural identity through literature and music",
-    context: "This era saw the emergence of Cape Verde's distinct cultural voice, with Brava becoming the cradle of the nation's most emotional and enduring artistic expressions.",
+    description: "Forging a national soul through art and language",
+    context:
+      "This foundational era marks the period when a distinctly Cape Verdean cultural identity was first articulated, codified, and disseminated. Figures of this time elevated the morna to national soul music and pioneered Cape Verdean Crioulo as a legitimate literary language, laying the emotional and artistic groundwork for all future movements.",
     figures: [
       {
         name: "Eugénio Tavares",
-        role: "Poet and Composer",
+        role: "Cultural Patriarch and Revolutionary",
         category: "Literature & Music",
         years: "1867-1930",
         influence: "Revolutionary",
-        description: "Cape Verde's definitive cultural patriarch who transformed morna from satirical to soulful, championing Crioulo as a literary language. His works define the nation's cultural identity and express the eternal theme of saudade.",
+        description:
+          "Cape Verde's definitive cultural figure who transformed morna 'from laughter to weeping,' pioneering Crioulo as a literary language. His exile in New Bedford (1900-1910) intensified his connection to sodade, creating the emotional template for Cape Verdean identity worldwide.",
         achievements: [
-          "Wrote the immortal morna 'Hora di Bai' (Time to Go)",
-          "Published 'Mornas: Cantigas Crioulas' posthumously in 1932",
-          "Founded Portuguese-language newspaper 'A Alvorada' in New Bedford",
-          "Transformed morna from satirical to deeply emotional genre"
+          "Transformed morna from satirical to deeply emotional, soulful genre",
+          "Published 'Mornas: Cantigas Crioulas' posthumously in 1932, foundational Cape Verdean literature",
+          "Founded 'A Alvorada' (Dawn), first Portuguese-language newspaper in the United States",
+          "Featured on 2000 escudo banknote, cementing status as national cultural icon",
         ],
         image: "/images/people/eugenio-tavares.jpg",
-        featured: true
+        featured: true,
       },
       {
         name: "Nhô Raul de Pina",
-        role: "Master Violinist and Composer",
+        role: "Master Violinist and Traditional Keeper",
         category: "Music & Tradition",
         years: "Late 1800s-Early 1900s",
         influence: "Foundational",
-        description: "Legendary violinist and composer from Brava who &lsquo;marked generations&rsquo; with his mastery. Though biographical details are scarce, his profound musical legacy lives on through family lineage and community memory.",
+        description:
+          "Legendary violinist and composer from Brava who 'marked generations' with his mastery of traditional morna techniques. Though biographical details remain in community memory, his profound musical legacy established the instrumental foundation that complemented Tavares's lyrical innovations.",
         achievements: [
-          "Master violinist who influenced generations of musicians",
-          "Composed traditional works that defined Brava's sound",
-          "Preserved and transmitted classical morna techniques",
-          "Created lasting musical legacy through family lineage"
+          "Master violinist who influenced generations of Brava musicians",
+          "Preserved and transmitted classical morna instrumental techniques",
+          "Established musical lineage that continues through descendants",
+          "Represented the anonymous backbone of Brava's musical culture",
         ],
         image: "/images/people/nho-raul-pina.jpg",
-        featured: false
-      }
-    ]
+        featured: false,
+      },
+    ],
   },
   {
     era: "Political Awakening",
     period: "1900-1975",
-    description: "From cultural pride to political action and national liberation",
-    context: "Building on Tavares's cultural foundation, this generation translated identity into political struggle, contributing directly to Cape Verde's independence movement.",
+    description:
+      "From cultural pride to political action and national liberation",
+    context:
+      "Building on Tavares's cultural foundation, this generation translated identity into political struggle, contributing directly to Cape Verde's independence movement.",
     figures: [
       {
         name: "Artur Augusto da Silva",
@@ -64,87 +70,110 @@ const historicalEras = [
         category: "Literature & Politics",
         years: "1912-1983",
         influence: "Revolutionary",
-        description: "Multifaceted intellectual who embodied the transition from cultural pride to political struggle. Close collaborator of Amílcar Cabral, he actively defended political prisoners and served as Supreme Court judge after independence.",
+        description:
+          "Multifaceted intellectual who embodied the transition from cultural pride to political struggle. Close collaborator of Amílcar Cabral, he actively defended political prisoners and served as Supreme Court judge after independence.",
         achievements: [
           "Published poetry in the influential *Claridade* movement",
           "Close friend and collaborator of independence leader Amílcar Cabral",
           "Defended political prisoners against colonial oppression",
-          "Served as Supreme Court judge in post-independence Guinea-Bissau"
+          "Served as Supreme Court judge in post-independence Guinea-Bissau",
         ],
         image: "/images/people/artur-silva.jpg",
-        featured: true
+        featured: true,
       },
       {
-        name: "João José Dias",
-        role: "Religious Pioneer",
-        category: "Faith & Mission",
-        years: "fl. 1901",
-        influence: "Global",
-        description: "Bravan who converted to the Church of the Nazarene in America and returned to establish the first Church of the Nazarene in Africa. His mission from Brava spread across 44 African nations.",
+        name: "Viriato de Barros",
+        role: "Diplomat and Nation-Builder",
+        category: "Diplomacy & Education",
+        years: "1932-2018",
+        influence: "National",
+        description:
+          "Post-independence diplomat who represented Cape Verde abroad as Ambassador to Senegal and the Holy See, and Chargé d'Affaires in Washington D.C. Later became an intellectual exploring Cape Verdean identity through his books 'Identidade' and 'Para Lá de Alcatraz.'",
         achievements: [
-          "Founded first Church of the Nazarene in Africa on Brava (1901)",
-          "Initiated religious movement that spread to 44 African nations",
-          "Exemplified 'reverse mission' from diaspora back to homeland",
-          "Street named in his honor in Nova Sintra"
+          "Served as Ambassador to Senegal and the Holy See",
+          "Chargé d'Affaires in Washington D.C. (1978-1980)",
+          "Director of Secondary Education shaping post-independence generation",
+          "Author exploring Cape Verdean identity in globalized world",
         ],
-        image: "/images/people/joao-dias.jpg",
-        featured: false
+        image: "/images/people/viriato-barros.jpg",
+        featured: true,
       },
-      {
-        name: "Padre Pio Gottin",
-        role: "Priest and Social Leader",
-        category: "Faith & Community",
-        years: "1924-1999",
-        influence: "Community",
-        description: "Italian Capuchin priest who served Brava for 24 years (1955-1979), remembered as &lsquo;father, missionary, educator, and friend.&rsquo; His &lsquo;Escola Materna&rsquo; fed over 300 children during severe droughts.",
-        achievements: [
-          "Served Brava community with dedication for 24 years",
-          "Created &lsquo;Escola Materna&rsquo; feeding 300+ children during famines",
-          "Founded Congregation of Franciscan Sisters of Immaculate Conception",
-          "Beloved community leader during critical development period"
-        ],
-        image: "/images/people/padre-pio.jpg",
-        featured: false
-      }
-    ]
+    ],
   },
   {
     era: "Diaspora Expansion",
     period: "1880s-1960s",
-    description: "Global influence through migration and cultural preservation",
-    context: "Bravans leveraged diaspora networks to achieve extraordinary international influence, creating lasting institutions and preserving cultural traditions across continents.",
+    description: "Building global communities and institutions",
+    context:
+      "This era showcases the most dramatic evidence of the 'Brava Phenomenon.' Fueled by whaling industry connections, migrants demonstrated remarkable capacity for leadership, entrepreneurship, and institution-building. Far from their homeland, they founded massive religious movements, established resilient community networks, and achieved phenomenal global influence.",
     figures: [
       {
         name: "Marcelino 'Daddy' Grace",
-        role: "Religious Leader and Entrepreneur",
+        role: "Religious Entrepreneur and Institution Builder",
         category: "Faith & Business",
-        years: "c.1881-1960",
+        years: "1881-1960",
         influence: "Phenomenal",
-        description: "Born Marcelino Manuel da Graça on Brava, became 'Sweet Daddy' Grace, founder of United House of Prayer for All People. Built spiritual and economic empire with millions of followers and vast real estate holdings.",
+        description:
+          "Born Marcelino Manuel da Graça on Brava, became 'Sweet Daddy' Grace, founder of United House of Prayer for All People. From a $39 tent in Massachusetts, he built one of the largest and wealthiest African-American religious denominations of the 20th century, demonstrating the transference of Brava's maritime leadership culture to American urban religious life.",
         achievements: [
-          "Founded major African-American Christian denomination (1919)",
-          "Built spiritual empire with hundreds of churches nationwide",
-          "Accumulated vast real estate holdings including hotels and apartments",
-          "Counted millions of followers by his death"
+          "Founded United House of Prayer with 3+ million followers in 350+ locations",
+          "Built business empire valued at $25 million by death, including Manhattan real estate",
+          "Pioneer of integrated congregations in segregated American South",
+          "Created commercial enterprises selling 'Grace Coffee' and 'Grace Cold Cream'",
         ],
         image: "/images/people/daddy-grace.jpg",
-        featured: true
+        featured: true,
+      },
+      {
+        name: "João José Dias",
+        role: "Religious Pioneer and Missionary",
+        category: "Faith & Mission",
+        years: "1873-1964",
+        influence: "Global",
+        description:
+          "Born on Brava, followed his sea captain father to New Bedford where he converted to the Church of the Nazarene. Returned to Brava in 1901 to establish the first Protestant mission in Cape Verde, enduring decades of persecution, imprisonment, and violence to plant a religious movement that spread across 44 African nations.",
+        achievements: [
+          "Founded first Church of the Nazarene in Africa on Brava (1901)",
+          "Initiated religious movement that spread to 44 African nations",
+          "Survived four imprisonments and violent persecution for faith",
+          "Street named in his honor in Vila Nova Sintra",
+        ],
+        image: "/images/people/joao-dias.jpg",
+        featured: true,
       },
       {
         name: "Adelina Domingues",
-        role: "Centenarian and Missionary",
+        role: "Centenarian Missionary and Community Leader",
         category: "Faith & Longevity",
         years: "1888-2002",
-        influence: "Inspirational",
-        description: "Born on Brava, emigrated to Massachusetts in 1907 and lived 114 years, becoming the world's oldest person. Active missionary for Church of the Nazarene, connecting back to Brava's spiritual legacy.",
+        influence: "Cultural",
+        description:
+          "Born on Brava, emigrated to New Bedford in 1907 and lived 114 years, becoming the world's oldest person at death. Active missionary for Church of the Nazarene who used factory earnings to fund religious work, sending Bibles and aid back to Brava. Her 1953 ministry in Brava was so effective that 'every tavern in the village closed and dance halls stopped functioning.'",
         achievements: [
-          "Lived 114 years and 183 days - world's oldest person at death",
-          "Active missionary for Church of the Nazarene",
-          "Embodied resilience spanning three centuries",
-          "Symbol of Bravense longevity and faith"
+          "Lived 114 years, 183 days - verified as world's oldest person at death",
+          "Active grassroots missionary organizing Cape Verdean Protestant community",
+          "Donated family property on Brava to Church of the Nazarene",
+          "Embodied century of diaspora history as living repository",
         ],
         image: "/images/people/adelina-domingues.jpg",
-        featured: false
+        featured: false,
+      },
+      {
+        name: "Padre Pio Gottin",
+        role: "Missionary and Community Builder",
+        category: "Faith & Community",
+        years: "1924-1999",
+        influence: "Community",
+        description:
+          "Italian Capuchin priest who served Brava for 24 years (1955-1979), remembered as 'father, missionary, educator, and friend.' His 'Escola Materna' fed over 300 children during severe droughts. Demonstrates Brava's cultural gravity—capable of attracting dedicated individuals from abroad who became integral community pillars.",
+        achievements: [
+          "Served Brava community with dedication for 24 years (1955-1979)",
+          "Created 'Escola Materna' feeding 300+ children during famines",
+          "Founded Congregation of Franciscan Sisters of Immaculate Conception",
+          "Followed diaspora to U.S., ministering to Cape Verdean immigrants until death",
+        ],
+        image: "/images/people/padre-pio.jpg",
+        featured: false,
       },
       {
         name: "Ivo Pires",
@@ -152,23 +181,43 @@ const historicalEras = [
         category: "Traditional Crafts",
         years: "1942-2009",
         influence: "Cultural",
-        description: "Self-taught master craftsman who emigrated to Boston in 1967, bringing traditional Bravense instrument-making skills to America. Professionalized his craft and passed knowledge to his son Roosevelt.",
+        description:
+          "Self-taught master craftsman who emigrated to Boston in 1967, bringing traditional Bravense instrument-making skills to America. Professionalized his craft and passed knowledge to his son Roosevelt.",
         achievements: [
           "Master luthier who brought Bravense craft to America",
           "Established professional workshop and reputation in Boston",
           "Preserved and refined traditional instrument-making techniques",
-          "Founded dynasty continuing through son Roosevelt"
+          "Founded dynasty continuing through son Roosevelt",
         ],
         image: "/images/people/ivo-pires.jpg",
-        featured: false
-      }
-    ]
+        featured: false,
+      },
+      {
+        name: "Antonio Jose Coelho",
+        role: "Sea Captain and Community Leader",
+        category: "Maritime & Community",
+        years: "c. 1851-c. 1944",
+        influence: "Community",
+        description:
+          "Early diaspora leader in Providence, Rhode Island who served as interpreter and community pillar for fellow Cape Verdean immigrants. Owned the packet schooner 'Nellie May' that transported people and goods between New England and Brava, fighting for years to reclaim his ship after dubious auction proceedings.",
+        achievements: [
+          "Community interpreter and leader in Fox Point, Providence",
+          "Operated vital transport lifeline between Brava and New England",
+          "Advocated directly to U.S. Presidents Cleveland and McKinley",
+          "Exemplified tenacity and resilience of early diaspora pioneers",
+        ],
+        image: "/images/people/antonio-coelho.jpg",
+        featured: false,
+      },
+    ],
   },
   {
     era: "Contemporary Era",
     period: "1975-Present",
-    description: "Modern leadership and cultural preservation in the global age",
-    context: "Contemporary figures continue Brava's legacy of disproportionate influence, from American politics to international cultural preservation, maintaining connections between island and diaspora.",
+    description:
+      "Modern leadership and cultural preservation in the global age",
+    context:
+      "Contemporary figures continue Brava's legacy of disproportionate influence, from American politics to international cultural preservation, maintaining connections between island and diaspora.",
     figures: [
       {
         name: "David Soares",
@@ -176,15 +225,16 @@ const historicalEras = [
         category: "Law & Politics",
         years: "b.1969",
         influence: "National",
-        description: "Born on Brava, raised in Rhode Island, became long-serving District Attorney for Albany County, New York. Gained national reputation as progressive prosecutor challenging harsh drug laws and government corruption.",
+        description:
+          "Born on Brava, raised in Rhode Island, became long-serving District Attorney for Albany County, New York. Gained national reputation as progressive prosecutor challenging harsh drug laws and government corruption.",
         achievements: [
           "Long-serving District Attorney with national reputation",
           "Progressive prosecutor challenging Rockefeller drug laws",
           "High-profile government integrity cases",
-          "Cornell University and Albany Law School graduate"
+          "Cornell University and Albany Law School graduate",
         ],
         image: "/images/people/david-soares.jpg",
-        featured: true
+        featured: true,
       },
       {
         name: "Roosevelt Pires",
@@ -192,15 +242,16 @@ const historicalEras = [
         category: "Arts & Heritage",
         years: "Contemporary",
         influence: "Cultural",
-        description: "Continues his father's legendary instrument-making tradition at South End String Instrument in Boston. Represents the living bridge between Brava's cultural heritage and global artistry, working on instruments for world-renowned musicians.",
+        description:
+          "Continues his father's legendary instrument-making tradition at South End String Instrument in Boston. Represents the living bridge between Brava's cultural heritage and global artistry, working on instruments for world-renowned musicians.",
         achievements: [
           "Maintains family tradition of master luthiers from Brava",
           "Creates instruments for professional musicians including Yo-Yo Ma",
           "Bridges traditional Bravense craftsmanship with modern techniques",
-          "Preserves and shares cultural heritage through artisanship"
+          "Preserves and shares cultural heritage through artisanship",
         ],
         image: "/images/people/roosevelt-pires.jpg",
-        featured: false
+        featured: false,
       },
       {
         name: "Vuca Pinheiro",
@@ -208,15 +259,16 @@ const historicalEras = [
         category: "Music & Heritage",
         years: "Contemporary",
         influence: "Cultural",
-        description: "Contemporary singer, composer, and instrumentalist explicitly dedicated to preserving Brava's musical heritage. His 2023 albums directly honor Eugénio Tavares and revive the island's mandolin traditions.",
+        description:
+          "Contemporary singer, composer, and instrumentalist explicitly dedicated to preserving Brava's musical heritage. His 2023 albums directly honor Eugénio Tavares and revive the island's mandolin traditions.",
         achievements: [
           "Released *Ilha Brava Ilha Formosa* featuring Tavares's 'Hino Bravense'",
           "Revived island's mandolin tradition with *Bandolins da Ilha Brava*",
           "Preserves and performs traditional Bravense music internationally",
-          "Bridges historical and contemporary musical expression"
+          "Bridges historical and contemporary musical expression",
         ],
         image: "/images/people/vuca-pinheiro.jpg",
-        featured: false
+        featured: false,
       },
       {
         name: "Ana Lúcia Ramos Lisboa",
@@ -224,25 +276,76 @@ const historicalEras = [
         category: "Film & Documentation",
         years: "Contemporary",
         influence: "Cultural",
-        description: "Film director born in Furna who documents Cape Verde's independence history. Her work on Amílcar Cabral and national identity brings Brava's contribution to liberation full circle through cinema.",
+        description:
+          "Film director born in Furna who documents Cape Verde's independence history. Her work on Amílcar Cabral and national identity brings Brava's contribution to liberation full circle through cinema.",
         achievements: [
           "Directed acclaimed documentary on independence leader Amílcar Cabral",
           "Created *Cabo Verde nha cretcheu* exploring national identity",
           "Uses Cape Verdean landscapes to explore democratic principles",
-          "Historicizes revolution that figures like Artur Silva participated in"
+          "Historicizes revolution that figures like Artur Silva participated in",
         ],
         image: "/images/people/ana-lisboa.jpg",
-        featured: false
-      }
-    ]
-  }
+        featured: false,
+      },
+      {
+        name: "Nilton Fernandes",
+        role: "Professional Footballer and Global Ambassador",
+        category: "Sports & Athletics",
+        years: "1979-2024",
+        influence: "Global",
+        description:
+          "Professional footballer who represented Brava's legacy in the globalized world of European football. Played in top leagues across Portugal, Slovenia, Cyprus, Bulgaria, and Israel, winning the Slovenian PrvaLiga and Football Cup. His journey from Brava to European stadiums illustrates how the island's tradition of producing determined, successful individuals adapted to 21st-century opportunities.",
+        achievements: [
+          "Won Slovenian PrvaLiga with NK Maribor (2008-09 season)",
+          "Won Slovenian Football Cup with FC Koper (2006-07)",
+          "Competed in top leagues across 5 European countries",
+          "Represented modern diaspora pathway through athletic excellence",
+        ],
+        image: "/images/people/nilton-fernandes.jpg",
+        featured: false,
+      },
+      {
+        name: "Vinny deMacedo",
+        role: "State Senator and Public Servant",
+        category: "Politics & Public Service",
+        years: "b. 1965",
+        influence: "National",
+        description:
+          "Born on Brava, immigrated to Massachusetts at six months old. Long-serving Republican legislator in Massachusetts House and Senate who represents the modern diaspora's political success and diverse ideological paths within American democracy.",
+        achievements: [
+          "Served over two decades in Massachusetts legislature",
+          "Small business owner demonstrating entrepreneurial success",
+          "Republican leader representing conservative diaspora voice",
+          "Bridge between Cape Verdean community and American politics",
+        ],
+        image: "/images/people/vinny-demacedo.jpg",
+        featured: false,
+      },
+      {
+        name: "Gardenia Benrós",
+        role: "Cultural Preservationist and Singer",
+        category: "Music & Heritage",
+        years: "Contemporary",
+        influence: "Cultural",
+        description:
+          "International singer with deep Brava family roots who preserves and performs traditional morna. Her parents were from Brava, her grandmother was a contemporary of Eugénio Tavares, and her debut album featured five Tavares compositions, bridging historical and contemporary musical expression.",
+        achievements: [
+          "Albums featuring Brava songwriters including Tavares compositions",
+          "International career preserving traditional morna repertoire",
+          "Bridge between Brava's golden age and contemporary global audiences",
+          "Cultural ambassador for Cape Verdean musical heritage",
+        ],
+        image: "/images/people/gardenia-benros.jpg",
+        featured: false,
+      },
+    ],
+  },
 ];
 
 // Flatten all figures for easier filtering
-const historicalFigures = historicalEras.flatMap(era => era.figures);
+const historicalFigures = historicalEras.flatMap((era) => era.figures);
 
 export default function PeoplePage() {
-
   return (
     <div className="bg-background-secondary font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
@@ -252,24 +355,39 @@ export default function PeoplePage() {
         />
 
         {/* Introduction Section */}
-        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm">
+        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
           <div className="grid gap-8 lg:grid-cols-2 items-center">
             <div>
               <h2 className="font-serif text-3xl font-bold text-text-primary mb-4">
-                Souls of Brava: From Poets to Patriots
+                Our People, Our Legacy: The Extraordinary Sons and Daughters of
+                Brava
               </h2>
               <p className="text-lg text-text-secondary mb-4">
-                Brava Island, though small in size, has produced an extraordinary constellation 
-                of individuals whose contributions echo far beyond its shores. From the immortal 
-                verses of Eugénio Tavares to the skilled hands of the Pires family luthiers, 
-                from Captain Antonio Jose Coelho's pioneering leadership in the diaspora to 
-                contemporary voices like Gardenia Benrós preserving musical traditions.
+                Our beautiful island tells a remarkable story. Known as{" "}
+                <em>Ilha das Flores</em>
+                (Island of Flowers) for its lush, mist-covered valleys, Brava
+                may be the smallest inhabited island in Cape Verde—just 62
+                square kilometers—but from our shores have come extraordinary
+                individuals whose influence has touched hearts and changed lives
+                across continents, shaping Cape Verdean culture, national
+                identity, and diaspora communities worldwide.
+              </p>
+              <p className="text-text-secondary mb-4">
+                This remarkable legacy isn't by chance—it's rooted in our unique
+                history: the 1680 Fogo eruption that brought refugees who found
+                sanctuary here, the American whaling ships that connected us to
+                New England, and a maritime culture that nurtured strong
+                leaders, creative spirits, and entrepreneurs who carried Brava's
+                values wherever they traveled.
               </p>
               <p className="text-text-secondary">
-                These remarkable souls embody the spirit of Brava—creative, resilient, 
-                and deeply connected to both home and the wider world. Their stories span 
-                centuries, linking the island's volcanic origins to its vibrant global 
-                diaspora, weaving a tapestry of cultural heritage that continues to inspire.
+                From Eugénio Tavares who gave Cape Verde its cultural voice
+                through morna and <em>sodade</em>, to Marcelino "Daddy" Grace
+                who built a spiritual movement with millions of followers, to
+                contemporary leaders like David Soares making their mark in
+                American politics—our people show that an island's true size is
+                measured not in kilometers, but in the courage, creativity, and
+                lasting impact of its sons and daughters.
               </p>
             </div>
             <div className="relative h-64 lg:h-80">
@@ -288,11 +406,11 @@ export default function PeoplePage() {
           <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
             Historical Progression of Influence
           </h3>
-          
+
           <div className="relative">
             {/* Timeline Line */}
             <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-ocean-blue via-valley-green to-bougainvillea-pink"></div>
-            
+
             <div className="space-y-8">
               {historicalEras.map((era, index) => (
                 <div key={era.era} className="relative flex items-start">
@@ -300,7 +418,7 @@ export default function PeoplePage() {
                   <div className="w-8 h-8 rounded-full bg-ocean-blue flex items-center justify-center text-white text-sm font-bold relative z-10">
                     {index + 1}
                   </div>
-                  
+
                   {/* Era Content */}
                   <div className="ml-6 bg-background-primary p-4 rounded-lg shadow-sm border border-border-primary flex-1">
                     <div className="flex justify-between items-start mb-2">
@@ -311,13 +429,20 @@ export default function PeoplePage() {
                         {era.period}
                       </span>
                     </div>
-                    <p className="text-text-secondary text-sm mb-3">{era.description}</p>
+                    <p className="text-text-secondary text-sm mb-3">
+                      {era.description}
+                    </p>
                     <div className="flex flex-wrap gap-2">
-                      {era.figures.filter(f => f.featured).map((figure) => (
-                        <span key={figure.name} className="text-xs bg-valley-green/10 text-valley-green px-2 py-1 rounded">
-                          {figure.name}
-                        </span>
-                      ))}
+                      {era.figures
+                        .filter((f) => f.featured)
+                        .map((figure) => (
+                          <span
+                            key={figure.name}
+                            className="text-xs bg-valley-green/10 text-valley-green px-2 py-1 rounded"
+                          >
+                            {figure.name}
+                          </span>
+                        ))}
                     </div>
                   </div>
                 </div>
@@ -333,13 +458,17 @@ export default function PeoplePage() {
             <div className="mb-8">
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 rounded-full bg-ocean-blue/10 flex items-center justify-center mr-4">
-                  <span className="text-ocean-blue font-bold text-lg">{eraIndex + 1}</span>
+                  <span className="text-ocean-blue font-bold text-lg">
+                    {eraIndex + 1}
+                  </span>
                 </div>
                 <div>
                   <h3 className="font-serif text-2xl font-bold text-text-primary">
                     {era.era} ({era.period})
                   </h3>
-                  <p className="text-text-secondary font-medium">{era.description}</p>
+                  <p className="text-text-secondary font-medium">
+                    {era.description}
+                  </p>
                 </div>
               </div>
               <div className="bg-gradient-to-r from-ocean-blue/5 to-valley-green/5 p-4 rounded-lg border-l-4 border-ocean-blue">
@@ -350,11 +479,16 @@ export default function PeoplePage() {
             {/* Era Figures */}
             <div className="space-y-8">
               {era.figures.map((figure) => (
-                <div key={figure.name} className={`grid gap-6 lg:grid-cols-${figure.featured ? '2' : '1'} ${
-                  figure.featured 
-                    ? 'bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary' 
-                    : 'bg-background-primary/50 p-4 rounded-lg'
-                }`}>
+                <div
+                  key={figure.name}
+                  className={`grid gap-6 lg:grid-cols-${
+                    figure.featured ? "2" : "1"
+                  } ${
+                    figure.featured
+                      ? "bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary"
+                      : "bg-background-primary/50 p-4 rounded-lg"
+                  }`}
+                >
                   {figure.featured && (
                     <div className="relative h-64 lg:h-80">
                       <Image
@@ -365,8 +499,12 @@ export default function PeoplePage() {
                       />
                     </div>
                   )}
-                  
-                  <div className={figure.featured ? '' : 'flex items-start space-x-4'}>
+
+                  <div
+                    className={
+                      figure.featured ? "" : "flex items-start space-x-4"
+                    }
+                  >
                     {!figure.featured && (
                       <div className="relative h-16 w-16 flex-shrink-0">
                         <Image
@@ -377,7 +515,7 @@ export default function PeoplePage() {
                         />
                       </div>
                     )}
-                    
+
                     <div className="flex-1">
                       <div className="flex items-center mb-2">
                         <span className="text-xs bg-ocean-blue/10 text-ocean-blue px-2 py-1 rounded">
@@ -387,36 +525,69 @@ export default function PeoplePage() {
                           <CalendarIcon className="h-3 w-3 mr-1" />
                           {figure.years}
                         </span>
-                        <span className={`text-xs px-2 py-1 rounded ml-2 ${
-                          figure.influence === 'Revolutionary' ? 'bg-bougainvillea-pink/10 text-bougainvillea-pink' :
-                          figure.influence === 'Phenomenal' ? 'bg-sunny-yellow/10 text-sunny-yellow' :
-                          figure.influence === 'National' ? 'bg-valley-green/10 text-valley-green' :
-                          figure.influence === 'Global' ? 'bg-ocean-blue/20 text-ocean-blue' :
-                          'bg-gray-100 text-gray-600'
-                        }`}>
+                        <span
+                          className={`text-xs px-2 py-1 rounded ml-2 ${
+                            figure.influence === "Revolutionary"
+                              ? "bg-bougainvillea-pink/10 text-bougainvillea-pink"
+                              : figure.influence === "Phenomenal"
+                              ? "bg-sunny-yellow/10 text-sunny-yellow"
+                              : figure.influence === "National"
+                              ? "bg-valley-green/10 text-valley-green"
+                              : figure.influence === "Global"
+                              ? "bg-ocean-blue/20 text-ocean-blue"
+                              : "bg-gray-100 text-gray-600"
+                          }`}
+                        >
                           {figure.influence} Impact
                         </span>
                       </div>
-                      
-                      <h4 className={`font-serif ${figure.featured ? 'text-xl' : 'text-lg'} font-bold text-text-primary mb-1`}>
+
+                      <h4
+                        className={`font-serif ${
+                          figure.featured ? "text-xl" : "text-lg"
+                        } font-bold text-text-primary mb-1`}
+                      >
                         {figure.name}
                       </h4>
-                      <p className={`${figure.featured ? 'text-sm' : 'text-xs'} text-ocean-blue font-medium mb-3`}>
+                      <p
+                        className={`${
+                          figure.featured ? "text-sm" : "text-xs"
+                        } text-ocean-blue font-medium mb-3`}
+                      >
                         {figure.role}
                       </p>
-                      <p className={`${figure.featured ? 'text-base' : 'text-sm'} text-text-secondary mb-4`}>
+                      <p
+                        className={`${
+                          figure.featured ? "text-base" : "text-sm"
+                        } text-text-secondary mb-4`}
+                      >
                         {figure.description}
                       </p>
-                      
+
                       <div>
-                        <h5 className={`font-semibold ${figure.featured ? 'text-sm' : 'text-xs'} text-text-primary mb-2`}>
+                        <h5
+                          className={`font-semibold ${
+                            figure.featured ? "text-sm" : "text-xs"
+                          } text-text-primary mb-2`}
+                        >
                           Key Achievements:
                         </h5>
-                        <ul className={`${figure.featured ? 'text-sm' : 'text-xs'} text-text-secondary space-y-1`}>
-                          {(figure.featured ? figure.achievements : figure.achievements.slice(0, 2)).map((achievement, index) => (
+                        <ul
+                          className={`${
+                            figure.featured ? "text-sm" : "text-xs"
+                          } text-text-secondary space-y-1`}
+                        >
+                          {(figure.featured
+                            ? figure.achievements
+                            : figure.achievements.slice(0, 2)
+                          ).map((achievement, index) => (
                             <li key={index} className="flex items-start">
                               <StarIcon className="h-3 w-3 text-sunny-yellow mr-2 mt-0.5 flex-shrink-0" />
-                              <span dangerouslySetInnerHTML={{ __html: achievement }} />
+                              <span
+                                dangerouslySetInnerHTML={{
+                                  __html: achievement,
+                                }}
+                              />
                             </li>
                           ))}
                         </ul>
@@ -434,76 +605,218 @@ export default function PeoplePage() {
           <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
             The Evolution of Brava&rsquo;s Global Impact
           </h3>
-          
+
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <div className="bg-gradient-to-br from-ocean-blue/10 to-ocean-blue/5 p-6 rounded-lg shadow-sm text-center border border-ocean-blue/20">
               <MusicalNoteIcon className="h-10 w-10 text-ocean-blue mx-auto mb-3" />
-              <h4 className="font-semibold text-text-primary mb-2">Cultural Foundation</h4>
-              <p className="text-xs text-ocean-blue font-medium mb-2">1867-1930</p>
+              <h4 className="font-semibold text-text-primary mb-2">
+                Cultural Foundation
+              </h4>
+              <p className="text-xs text-ocean-blue font-medium mb-2">
+                1867-1930
+              </p>
               <p className="text-sm text-text-secondary">
-                Eugénio Tavares and early masters established the artistic and linguistic foundation that defines Cape Verdean identity.
+                Eugénio Tavares and early masters established the artistic and
+                linguistic foundation that defines Cape Verdean identity.
               </p>
             </div>
-            
+
             <div className="bg-gradient-to-br from-valley-green/10 to-valley-green/5 p-6 rounded-lg shadow-sm text-center border border-valley-green/20">
-              <svg className="h-10 w-10 text-valley-green mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+              <svg
+                className="h-10 w-10 text-valley-green mx-auto mb-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                />
               </svg>
-              <h4 className="font-semibold text-text-primary mb-2">Political Awakening</h4>
-              <p className="text-xs text-valley-green font-medium mb-2">1900-1975</p>
+              <h4 className="font-semibold text-text-primary mb-2">
+                Political Awakening
+              </h4>
+              <p className="text-xs text-valley-green font-medium mb-2">
+                1900-1975
+              </p>
               <p className="text-sm text-text-secondary">
-                Intellectuals like Artur Silva translated cultural pride into political action, contributing to national liberation.
+                Intellectuals like Artur Silva translated cultural pride into
+                political action, contributing to national liberation.
               </p>
             </div>
-            
+
             <div className="bg-gradient-to-br from-bougainvillea-pink/10 to-bougainvillea-pink/5 p-6 rounded-lg shadow-sm text-center border border-bougainvillea-pink/20">
-              <svg className="h-10 w-10 text-bougainvillea-pink mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                className="h-10 w-10 text-bougainvillea-pink mx-auto mb-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
-              <h4 className="font-semibold text-text-primary mb-2">Diaspora Expansion</h4>
-              <p className="text-xs text-bougainvillea-pink font-medium mb-2">1880s-1960s</p>
+              <h4 className="font-semibold text-text-primary mb-2">
+                Diaspora Expansion
+              </h4>
+              <p className="text-xs text-bougainvillea-pink font-medium mb-2">
+                1880s-1960s
+              </p>
               <p className="text-sm text-text-secondary">
-                Figures like &quot;Daddy&quot; Grace achieved extraordinary global influence through migration and institution-building.
+                Figures like &quot;Daddy&quot; Grace achieved extraordinary
+                global influence through migration and institution-building.
               </p>
             </div>
-            
+
             <div className="bg-gradient-to-br from-sunny-yellow/10 to-sunny-yellow/5 p-6 rounded-lg shadow-sm text-center border border-sunny-yellow/20">
-              <svg className="h-10 w-10 text-sunny-yellow mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              <svg
+                className="h-10 w-10 text-sunny-yellow mx-auto mb-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
               </svg>
-              <h4 className="font-semibold text-text-primary mb-2">Contemporary Era</h4>
-              <p className="text-xs text-sunny-yellow font-medium mb-2">1975-Present</p>
+              <h4 className="font-semibold text-text-primary mb-2">
+                Contemporary Era
+              </h4>
+              <p className="text-xs text-sunny-yellow font-medium mb-2">
+                1975-Present
+              </p>
               <p className="text-sm text-text-secondary">
-                Modern leaders like David Soares maintain Brava&rsquo;s tradition of disproportionate global influence and cultural preservation.
+                Modern leaders like David Soares maintain Brava&rsquo;s
+                tradition of disproportionate global influence and cultural
+                preservation.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Legacy Section */}
+        {/* Contemporary Community Leaders */}
+        <section className="mt-16">
+          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
+            Contemporary Guardians: Preserving Heritage and Community
+          </h3>
+
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mb-8">
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
+              <h4 className="font-semibold text-lg text-text-primary mb-3">
+                Eugenia Duarte
+              </h4>
+              <p className="text-sm text-ocean-blue font-medium mb-2">
+                Community Activist & Healthcare Advocate
+              </p>
+              <p className="text-sm text-text-secondary mb-3">
+                Brava native who became a powerful voice for island's right to
+                adequate medical services. Her viral advocacy declaring "we may
+                be the smallest island, but that doesn't mean we deserve less"
+                represents modern leadership focused on fundamental community
+                well-being.
+              </p>
+              <ul className="text-xs text-text-secondary space-y-1">
+                <li>• Advocate for reliable medical facilities on Brava</li>
+                <li>• Champion of equal services for smallest island</li>
+                <li>• Voice for preventable death awareness</li>
+              </ul>
+            </div>
+
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
+              <h4 className="font-semibold text-lg text-text-primary mb-3">
+                Carlos Bango
+              </h4>
+              <p className="text-sm text-valley-green font-medium mb-2">
+                Conservationist & Environmental Leader
+              </p>
+              <p className="text-sm text-text-secondary mb-3">
+                Native of Brava serving as Terrestrial Program Leader for
+                Biflores organization. Works to preserve the island's unique
+                biodiversity, understanding that Brava's culture is inseparable
+                from its environment and that conservation is cultural
+                preservation.
+              </p>
+              <ul className="text-xs text-text-secondary space-y-1">
+                <li>• Terrestrial Program Leader for Biflores</li>
+                <li>
+                  • Harmonizes human activities with ecosystem preservation
+                </li>
+                <li>• Links environmental conservation to cultural heritage</li>
+              </ul>
+            </div>
+
+            <div className="bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
+              <h4 className="font-semibold text-lg text-text-primary mb-3">
+                Candida Rose
+              </h4>
+              <p className="text-sm text-ocean-blue font-medium mb-2">
+                Singer & Cultural Researcher
+              </p>
+              <p className="text-sm text-text-secondary mb-3">
+                New Bedford-based singer and contributor to "Cabo Verdean Women Writing Remembrance, Resistance and Revolution." Her research traces the lineage of female musicians, actively participating in the construction and preservation of Cape Verdean cultural memory.
+              </p>
+              <ul className="text-xs text-text-secondary space-y-1">
+                <li>• Researches lineage of Cape Verdean female musicians</li>
+                <li>• Contributor to "Kriolas Poderozas" scholarly collection</li>
+                <li>• Preserves diaspora cultural memory through music</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-valley-green/5 to-ocean-blue/5 p-6 rounded-lg border-l-4 border-valley-green">
+            <h4 className="font-semibold text-lg text-text-primary mb-3">
+              Holistic Heritage Preservation
+            </h4>
+            <p className="text-text-secondary">
+              Today's leaders understand that cultural preservation is a
+              holistic endeavor—honoring the past while fighting for the future,
+              celebrating artistic achievement while ensuring the fundamental
+              well-being of the community that produces it. As Brava navigates
+              21st-century challenges, its greatest resource remains the
+              resilience, creativity, and profound love for homeland that
+              defines its people.
+            </p>
+          </div>
+        </section>
+
+        {/* Living Legacy */}
         <section className="mt-16 bg-gradient-to-r from-ocean-blue/10 to-valley-green/10 p-8 rounded-lg">
           <h3 className="font-serif text-2xl font-bold text-text-primary mb-6 text-center">
-            Living Legacy
+            The Continuing Phenomenon
           </h3>
-          
+
           <div className="grid gap-8 md:grid-cols-2">
             <div className="text-center">
               <h4 className="font-semibold text-lg text-text-primary mb-2">
-                Cultural Preservation
+                Cultural DNA Transmission
               </h4>
               <p className="text-text-secondary">
-                These figures established traditions of cultural preservation that continue 
-                today through festivals, storytelling, and artistic expression.
+                From Tavares's morna to the Pires family luthiers, from Daddy
+                Grace's religious empire to contemporary conservationists—the
+                Brava Phenomenon continues through intergenerational
+                transmission of leadership, creativity, and
+                institutional-building skills.
               </p>
             </div>
-            
+
             <div className="text-center">
               <h4 className="font-semibold text-lg text-text-primary mb-2">
-                International Recognition
+                Global Resonance
               </h4>
               <p className="text-text-secondary">
-                Their contributions helped establish Cape Verde's reputation as a nation 
-                rich in cultural heritage and artistic achievement.
+                These figures prove that significance cannot be measured by
+                population or geography, but by the reach and resonance of a
+                people's legacy. The story of Brava demonstrates that the
+                smallest islands can produce the most outsized influence on the
+                world stage.
               </p>
             </div>
           </div>
@@ -515,7 +828,8 @@ export default function PeoplePage() {
             Explore More Cultural Heritage
           </h3>
           <p className="text-lg text-text-secondary mb-6">
-            Learn more about the cultural context and historical background of these remarkable figures.
+            Learn more about the cultural context and historical background of
+            these remarkable figures.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -538,6 +852,7 @@ export default function PeoplePage() {
             </Link>
           </div>
         </section>
+        <BackToTopButton />
       </div>
     </div>
   );
@@ -546,12 +861,18 @@ export default function PeoplePage() {
 // Generate metadata for SEO
 export async function generateMetadata() {
   return {
-    title: 'Historical Figures of Brava Island | Nos Ilha',
-    description: 'Discover the remarkable people who shaped Brava Island\'s rich cultural heritage, from poets and musicians to storytellers and community leaders.',
+    title:
+      "Brava Island Historical Figures: The Phenomenon of Disproportionate Influence | Nos Ilha",
+    description:
+      "Explore the extraordinary legacy of Brava Island's notable figures who achieved phenomenal global influence. From Eugénio Tavares who created Cape Verde's cultural soul to Marcelino \"Daddy\" Grace who built a spiritual empire, discover how the smallest island produced revolutionary impact on literature, music, religion, and politics across continents.",
     openGraph: {
-      title: 'Historical Figures - Brava Island',
-      description: 'Learn about the notable figures who contributed to Cape Verde\'s cultural identity and Brava Island\'s heritage.',
-      images: ['/images/people/brava-cultural-heritage.jpg'],
+      title:
+        "The Brava Phenomenon: Historical Figures of Extraordinary Influence",
+      description:
+        'Discover Brava Island\'s remarkable legacy: Eugénio Tavares (morna music patriarch), Marcelino "Daddy" Grace (religious entrepreneur), João José Dias (Protestant pioneer), Artur Augusto da Silva (independence intellectual), David Soares (American politician), and contemporary leaders preserving heritage.',
+      images: ["/images/people/brava-cultural-heritage.jpg"],
     },
+    keywords:
+      "Brava Island historical figures, Eugénio Tavares Cape Verde poet, Marcelino Daddy Grace United House Prayer, Brava Phenomenon disproportionate influence, João José Dias Church Nazarene Africa, morna music origins Brava, Cape Verde cultural patriots, Artur Augusto da Silva independence, David Soares Albany District Attorney, Adelina Domingues centenarian, Padre Pio Gottin missionary, Roosevelt Pires luthier Boston, Brava diaspora New England, whaling industry Cape Verde, sodade meaning longing, Crioulo literature language, Nhô Raul violinist, Ana Lúcia Ramos Lisboa filmmaker, Nilton Fernandes footballer, Vila Nova Sintra cultural heritage, Vuca Pinheiro mandolin music, Gardenia Benrós traditional singer, Cape Verde smallest island biggest influence, Biflores conservation Brava, ethnobotany traditional knowledge, Eugenia Duarte healthcare advocate, Carlos Bango environmental leader",
   };
 }
