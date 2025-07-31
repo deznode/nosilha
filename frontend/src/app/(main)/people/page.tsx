@@ -78,7 +78,7 @@ const historicalEras = [
           "Defended political prisoners against colonial oppression",
           "Served as Supreme Court judge in post-independence Guinea-Bissau",
         ],
-        image: "/images/people/artur-silva.jpg",
+        image: "/images/people/artur-silva2.jpg",
         featured: true,
       },
       {
@@ -155,7 +155,7 @@ const historicalEras = [
           "Donated family property on Brava to Church of the Nazarene",
           "Embodied century of diaspora history as living repository",
         ],
-        image: "/images/people/adelina-domingues.jpg",
+        image: "/images/people/adelina-domingues2.jpg",
         featured: false,
       },
       {
@@ -206,7 +206,7 @@ const historicalEras = [
           "Advocated directly to U.S. Presidents Cleveland and McKinley",
           "Exemplified tenacity and resilience of early diaspora pioneers",
         ],
-        image: "/images/people/antonio-coelho.jpg",
+        image: "/images/people/antonio-coelho.webp",
         featured: false,
       },
     ],
@@ -284,7 +284,7 @@ const historicalEras = [
           "Uses Cape Verdean landscapes to explore democratic principles",
           "Historicizes revolution that figures like Artur Silva participated in",
         ],
-        image: "/images/people/ana-lisboa.jpg",
+        image: "/images/people/ana-lisboa.png",
         featured: false,
       },
       {
@@ -301,7 +301,7 @@ const historicalEras = [
           "Competed in top leagues across 5 European countries",
           "Represented modern diaspora pathway through athletic excellence",
         ],
-        image: "/images/people/nilton-fernandes.jpg",
+        image: "/images/people/nilton-fernandes2.webp",
         featured: false,
       },
       {
@@ -506,12 +506,12 @@ export default function PeoplePage() {
                     }
                   >
                     {!figure.featured && (
-                      <div className="relative aspect-square h-16 w-16 flex-shrink-0">
+                      <div className="relative aspect-square h-28 w-28 flex-shrink-0">
                         <Image
                           src={figure.image}
                           alt={`Portrait of ${figure.name}`}
                           fill
-                          className="object-cover object-center rounded-full"
+                          className="object-cover object-top rounded-full"
                         />
                       </div>
                     )}
