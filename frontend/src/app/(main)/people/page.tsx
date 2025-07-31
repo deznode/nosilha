@@ -401,54 +401,11 @@ export default function PeoplePage() {
           </div>
         </section>
 
-        {/* Historical Timeline Overview */}
+        {/* Historical Progression of Influence */}
         <section className="mt-16">
           <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
             Historical Progression of Influence
           </h3>
-
-          <div className="relative">
-            {/* Timeline Line */}
-            <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-ocean-blue via-valley-green to-bougainvillea-pink"></div>
-
-            <div className="space-y-8">
-              {historicalEras.map((era, index) => (
-                <div key={era.era} className="relative flex items-start">
-                  {/* Timeline Dot */}
-                  <div className="w-8 h-8 rounded-full bg-ocean-blue flex items-center justify-center text-white text-sm font-bold relative z-10">
-                    {index + 1}
-                  </div>
-
-                  {/* Era Content */}
-                  <div className="ml-6 bg-background-primary p-4 rounded-lg shadow-sm border border-border-primary flex-1">
-                    <div className="flex justify-between items-start mb-2">
-                      <h4 className="font-serif text-lg font-bold text-text-primary">
-                        {era.era}
-                      </h4>
-                      <span className="text-sm text-ocean-blue font-medium bg-ocean-blue/10 px-2 py-1 rounded">
-                        {era.period}
-                      </span>
-                    </div>
-                    <p className="text-text-secondary text-sm mb-3">
-                      {era.description}
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {era.figures
-                        .filter((f) => f.featured)
-                        .map((figure) => (
-                          <span
-                            key={figure.name}
-                            className="text-xs bg-valley-green/10 text-valley-green px-2 py-1 rounded"
-                          >
-                            {figure.name}
-                          </span>
-                        ))}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </section>
 
         {/* Historical Eras */}
