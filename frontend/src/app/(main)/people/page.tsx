@@ -34,7 +34,7 @@ const historicalEras = [
           "Founded 'A Alvorada' (Dawn), first Portuguese-language newspaper in the United States",
           "Featured on 2000 escudo banknote, cementing status as national cultural icon",
         ],
-        image: "/images/people/eugenio-tavares.png",
+        image: "/images/people/eugenio-tavares2.jpg",
         featured: true,
       },
       {
@@ -490,12 +490,12 @@ export default function PeoplePage() {
                   }`}
                 >
                   {figure.featured && (
-                    <div className="relative h-64 lg:h-80">
+                    <div className="relative aspect-[3/4] w-full max-w-sm mx-auto">
                       <Image
                         src={figure.image}
                         alt={`Portrait of ${figure.name}`}
                         fill
-                        className="object-cover rounded-lg"
+                        className="object-cover object-top rounded-lg"
                       />
                     </div>
                   )}
@@ -506,12 +506,12 @@ export default function PeoplePage() {
                     }
                   >
                     {!figure.featured && (
-                      <div className="relative h-16 w-16 flex-shrink-0">
+                      <div className="relative aspect-square h-16 w-16 flex-shrink-0">
                         <Image
                           src={figure.image}
                           alt={`Portrait of ${figure.name}`}
                           fill
-                          className="object-cover rounded-full"
+                          className="object-cover object-center rounded-full"
                         />
                       </div>
                     )}
