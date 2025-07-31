@@ -34,7 +34,7 @@ const historicalEras = [
           "Founded 'A Alvorada' (Dawn), first Portuguese-language newspaper in the United States",
           "Featured on 2000 escudo banknote, cementing status as national cultural icon",
         ],
-        image: "/images/people/eugenio-tavares.jpg",
+        image: "/images/people/eugenio-tavares.png",
         featured: true,
       },
       {
@@ -233,7 +233,7 @@ const historicalEras = [
           "High-profile government integrity cases",
           "Cornell University and Albany Law School graduate",
         ],
-        image: "/images/people/david-soares.jpg",
+        image: "/images/people/david-soares.webp",
         featured: true,
       },
       {
@@ -761,11 +761,17 @@ export default function PeoplePage() {
                 Singer & Cultural Researcher
               </p>
               <p className="text-sm text-text-secondary mb-3">
-                New Bedford-based singer and contributor to "Cabo Verdean Women Writing Remembrance, Resistance and Revolution." Her research traces the lineage of female musicians, actively participating in the construction and preservation of Cape Verdean cultural memory.
+                New Bedford-based singer and contributor to "Cabo Verdean Women
+                Writing Remembrance, Resistance and Revolution." Her research
+                traces the lineage of female musicians, actively participating
+                in the construction and preservation of Cape Verdean cultural
+                memory.
               </p>
               <ul className="text-xs text-text-secondary space-y-1">
                 <li>• Researches lineage of Cape Verdean female musicians</li>
-                <li>• Contributor to "Kriolas Poderozas" scholarly collection</li>
+                <li>
+                  • Contributor to "Kriolas Poderozas" scholarly collection
+                </li>
                 <li>• Preserves diaspora cultural memory through music</li>
               </ul>
             </div>
