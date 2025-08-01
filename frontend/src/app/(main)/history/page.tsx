@@ -110,7 +110,7 @@ export default function HistoryPage() {
                 are of Cape Verde.
               </p>
             </div>
-            <div className="relative h-64 lg:h-80">
+            <div className="relative aspect-[3/4] w-full">
               <Image
                 src="/images/history/brava-overview.jpg"
                 alt="Historical view of Brava Island showing the dramatic volcanic landscape"
@@ -223,7 +223,7 @@ export default function HistoryPage() {
                   <p className="text-text-secondary">{section.content}</p>
                 </div>
                 <div
-                  className={`relative h-64 ${
+                  className={`relative aspect-[4/3] w-full ${
                     index % 2 === 1 ? "lg:col-start-1" : ""
                   }`}
                 >
@@ -275,7 +275,7 @@ export default function HistoryPage() {
                   deep American connections.
                 </p>
               </div>
-              <div className="relative h-64">
+              <div className="relative aspect-[4/3] w-full">
                 <Image
                   src="/images/history/whaling-heritage3.webp"
                   alt="Historic whaling vessel representing the maritime connection between Brava and New England"
