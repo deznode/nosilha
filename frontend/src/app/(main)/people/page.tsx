@@ -294,7 +294,7 @@ const historicalEras = [
         years: "1979-2024",
         influence: "Global",
         description:
-          "Professional footballer who represented Brava's legacy in the globalized world of European football. Played in top leagues across Portugal, Slovenia, Cyprus, Bulgaria, and Israel, winning the Slovenian PrvaLiga and Football Cup. His journey from Brava to European stadiums illustrates how the island's tradition of producing determined, successful individuals adapted to 21st-century opportunities.",
+          "Brava-born footballer who competed professionally across five European countries, achieving success in Slovenia's top division with championship and cup victories. His career spanned over a decade in Europe's competitive football landscape.",
         achievements: [
           "Won Slovenian PrvaLiga with NK Maribor (2008-09 season)",
           "Won Slovenian Football Cup with FC Koper (2006-07)",
