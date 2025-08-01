@@ -392,7 +392,7 @@ export default function PeoplePage() {
             </div>
             <div className="relative h-64 lg:h-80">
               <Image
-                src="/images/people/brava-cultural-heritage.jpg"
+                src="/images/people/brava-cultural-heritage3.jpg"
                 alt="Cultural heritage of Brava Island showing traditional life and customs"
                 fill
                 className="object-cover rounded-lg"
