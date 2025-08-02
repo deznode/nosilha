@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { PageHeader } from "@/components/ui/page-header";
 import { BackToTopButton } from "@/components/ui/back-to-top-button";
+import { VideoHeroSection } from "@/components/ui/video-hero-section";
 import {
   BookOpenIcon,
   ClockIcon,
@@ -100,27 +101,28 @@ export default function HistoryPage() {
                 all no matter where we go.
               </p>
               <p className="text-text-secondary">
-                Our community story began in 1680 when Mount Fogo erupted on the
-                neighboring island, sending refugees to find safety on our
-                shores. Brava became their sanctuary, and our community was
-                built not through conquest, but through compassion and the
-                shared will to survive. Later, American whaling ships discovered
-                our skilled sailors, creating connections that span the
-                Atlantic—making us as much a part of New England families as we
-                are of Cape Verde.
+                Today, from our mountain capital of Vila Nova Sintra, perched
+                500 meters above the Atlantic, you can see the entire story of
+                our people spread below. Our community began in 1680 when Mount
+                Fogo erupted, sending refugees to find safety on our shores.
+                Brava became their sanctuary, built not through conquest, but
+                through compassion. Later, American whaling ships discovered our
+                skilled sailors, creating connections that span the Atlantic—
+                making us as much a part of New England families as we are of
+                Cape Verde.
               </p>
             </div>
-            <div className="relative aspect-video w-full">
-              <video
-                src="/images/history/brava-overview.mp4"
-                autoPlay
-                loop
-                muted
-                playsInline
-                aria-label="Historical view of Brava Island showing the dramatic volcanic landscape"
-                className="object-cover rounded-lg w-full h-full"
-              />
-            </div>
+            <VideoHeroSection
+              videoSrc="/images/history/brava-overview.mp4"
+              title="Vila Nova Sintra"
+              subtitle="Heart of Brava Island"
+              overlayContent={[
+                { text: "Our Island's Capital", delay: 1.0 },
+                { text: "500 Meters Above Sea Level", delay: 1.5 },
+                { text: "Where Culture & Community Thrive", delay: 2.0 },
+              ]}
+              className="aspect-video rounded-lg overflow-hidden"
+            />
           </div>
         </section>
 
@@ -129,6 +131,9 @@ export default function HistoryPage() {
           <h3 className="font-serif text-2xl font-bold text-text-primary mb-6">
             A Land Born of Fire: From Submarine Birth to Refuge Island
           </h3>
+          <p className="text-text-secondary mb-8 text-center italic">
+            The dramatic landscape you see from Vila Nova Sintra today tells an ancient story of fire, sea, and human resilience.
+          </p>
 
           <div className="grid gap-8 lg:grid-cols-2 mb-8">
             <div>
