@@ -25,22 +25,22 @@ export function VideoHeroSection({
 }: VideoHeroSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const isInView = useInView(sectionRef, { 
-    once: false, 
-    margin: "-10% 0px -10% 0px" 
+  const isInView = useInView(sectionRef, {
+    once: false,
+    margin: "-10% 0px -10% 0px",
   });
-  
+
   const [isVideoReady, setIsVideoReady] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   // Check for reduced motion preference
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReducedMotion(mediaQuery.matches);
-    
+
     const handleChange = () => setReducedMotion(mediaQuery.matches);
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
   // Handle video play/pause based on intersection
@@ -58,9 +58,9 @@ export function VideoHeroSection({
   const handleScrollToNext = () => {
     const nextSection = sectionRef.current?.nextElementSibling;
     if (nextSection) {
-      nextSection.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
+      nextSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
       });
     }
   };
@@ -77,17 +77,17 @@ export function VideoHeroSection({
   };
 
   const textVariants = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       y: 30,
-      scale: 0.95 
+      scale: 0.95,
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       scale: 1,
       transition: {
-        type: "spring",
+        type: "spring" as const,
         damping: 20,
         stiffness: 100,
       },
@@ -102,7 +102,7 @@ export function VideoHeroSection({
       transition: {
         delay: delay,
         duration: 0.8,
-        ease: "easeOut",
+        ease: "easeOut" as const,
       },
     }),
   };
@@ -129,7 +129,7 @@ export function VideoHeroSection({
           className="h-full w-full object-cover"
           aria-label="Aerial view of Vila Nova Sintra, the capital of Brava Island"
         />
-        
+
         {/* Brand-colored Gradient Overlay for Text Readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-ocean-blue/80 via-ocean-blue/30 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-valley-green/40 via-transparent to-ocean-blue/40" />
@@ -139,15 +139,12 @@ export function VideoHeroSection({
       <div className="relative z-10 flex min-h-screen items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl text-center">
           {/* Main Title */}
-          <motion.div
-            variants={textVariants}
-            className="mb-6"
-          >
-            <h2 className="font-serif text-4xl font-bold text-white sm:text-5xl lg:text-6xl">
+          <motion.div variants={textVariants} className="mb-6">
+            <h1 className="font-serif text-4xl font-bold text-white sm:text-6xl md:text-7xl">
               {title}
-            </h2>
+            </h1>
             {subtitle && (
-              <p className="mt-4 text-xl text-white/90 sm:text-2xl">
+              <p className="font-sans mt-6 text-lg leading-8 text-white/90 sm:text-xl">
                 {subtitle}
               </p>
             )}
@@ -160,7 +157,7 @@ export function VideoHeroSection({
                 key={index}
                 variants={overlayVariants}
                 custom={content.delay}
-                className="text-lg text-white/95 sm:text-xl font-serif"
+                className="font-serif text-lg text-white/95 sm:text-xl"
               >
                 <span className="inline-block rounded-lg bg-gradient-to-r from-ocean-blue/60 to-valley-green/60 px-6 py-3 backdrop-blur-sm border border-white/20 shadow-lg">
                   {content.text}
@@ -174,39 +171,41 @@ export function VideoHeroSection({
       {/* Scroll Indicator - Positioned at Bottom */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
-        animate={{ 
-          opacity: isInView ? 1 : 0, 
-          y: isInView ? 0 : 20 
+        animate={{
+          opacity: isInView ? 1 : 0,
+          y: isInView ? 0 : 20,
         }}
         transition={{ delay: 3, duration: 0.6 }}
-        className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-20"
+        className="absolute bottom-44 left-1/2 transform -translate-x-1/2 z-20"
       >
         <button
           onClick={handleScrollToNext}
-          className="flex flex-col items-center text-white/80 hover:text-white transition-colors duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-sunny-yellow focus:ring-opacity-50 rounded-lg p-2"
-          aria-label="Scroll to next section"
+          className="group flex flex-col items-center text-white/80 hover:text-white transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-sunny-yellow/50 focus:ring-offset-2 rounded-lg p-2"
+          aria-label="Scroll to next section to continue reading the story"
         >
-          <span className="mb-3 text-sm uppercase tracking-widest font-semibold">Explore Further</span>
+          <span className="font-sans mb-3 text-sm uppercase tracking-widest font-semibold">
+            Explore Further
+          </span>
           <motion.div
             animate={{ y: [0, 8, 0] }}
-            transition={{ 
-              duration: 2.5, 
-              repeat: Infinity, 
-              ease: "easeInOut" 
+            transition={{
+              duration: 2.5,
+              repeat: Infinity,
+              ease: "easeInOut" as const,
             }}
             className="h-6 w-6 text-sunny-yellow"
           >
-            <svg 
-              fill="none" 
-              stroke="currentColor" 
+            <svg
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
               className="h-full w-full"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M19 14l-7 7m0 0l-7-7m7 7V3" 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 14l-7 7m0 0l-7-7m7 7V3"
               />
             </svg>
           </motion.div>
