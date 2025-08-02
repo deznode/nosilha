@@ -395,7 +395,7 @@ export default function PeoplePage() {
                 src="/images/people/brava-cultural-heritage3.jpg"
                 alt="Cultural heritage of Brava Island showing traditional life and customs"
                 fill
-                className="object-cover rounded-lg"
+                className="object-cover object-top rounded-lg"
               />
             </div>
           </div>

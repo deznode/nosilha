@@ -87,32 +87,35 @@ export default function HistoryPage() {
         <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
           <div className="max-w-4xl mx-auto">
             <p className="text-lg text-text-secondary mb-6">
-              Our island has two beautiful sides to its character. The
-              Portuguese name "Brava" means "wild" or "brave"—perfect for our
-              dramatic volcanic cliffs and steep mountain slopes. But throughout
-              Cape Verde, we're known by a gentler name that captures our heart:
-              <em className="mx-1">Ilha das Flores</em> (Island of Flowers),
-              celebrating the lush, green valleys where vibrant flowers bloom
-              year-round in our island's cooling mists.
+              Brava Island occupies a unique position in Cape Verdean history—a
+              place where geography and circumstance converged to create something
+              extraordinary. Known by the Portuguese name "Brava" (wild or brave)
+              for its formidable volcanic terrain, it earned the gentler title{" "}
+              <em className="mx-1">Ilha das Flores</em> (Island of Flowers) for
+              the relative abundance of its mist-fed valleys compared to the more
+              arid neighboring islands.
             </p>
             <p className="text-text-secondary mb-6">
-              This same duality lives in our culture. Though we're the smallest
-              inhabited island in Cape Verde with just 6,000 people, Brava has
-              given the world remarkable poets, musicians, and leaders whose
-              influence reaches far beyond our shores. At the heart of it all is{" "}
-              <em className="mx-1">sodade</em>—that deep, beautiful longing that
-              every Cape Verdean carries, the feeling that connects us all no
-              matter where we go.
+              At just 62.5 square kilometers, Brava is the smallest inhabited
+              island in the Cape Verde archipelago, yet it has produced a cultural
+              and political influence disproportionate to its size. This phenomenon
+              stems from a defining moment in 1680 when a catastrophic eruption of
+              Pico do Fogo forced thousands of refugees from the neighboring island
+              to seek sanctuary on Brava's shores. Unlike most colonial
+              settlements founded through conquest, Brava's society was forged
+              through collective compassion and survival.
             </p>
             <p className="text-text-secondary">
-              Today, from our mountain capital of Vila Nova Sintra, perched 500
-              meters above the Atlantic, you can see the entire story of our
-              people spread below. Our community began in 1680 when Mount Fogo
-              erupted, sending refugees to find safety on our shores. Brava
-              became their sanctuary, built not through conquest, but through
-              compassion. Later, American whaling ships discovered our skilled
-              sailors, creating connections that span the Atlantic— making us as
-              much a part of New England families as we are of Cape Verde.
+              From Vila Nova Sintra, the mountain capital established around 1700
+              as protection against coastal pirate raids, the island's entire
+              history unfolds. The American whaling industry of the 18th and 19th
+              centuries transformed Brava from an isolated Portuguese colony into
+              a transnational community, with ships carrying Bravense men to New
+              England ports and eventually establishing the "Brava Packet Trade"
+              that would bind families across the Atlantic for generations. This
+              maritime connection gave birth to the profound cultural sentiment
+              of <em className="mx-1">sodade</em>—the bittersweet longing that
+              defines the Cape Verdean experience of separation and remembrance.
             </p>
           </div>
         </section>
