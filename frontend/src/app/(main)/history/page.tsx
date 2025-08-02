@@ -74,57 +74,49 @@ export default function HistoryPage() {
           subtitle="Discover the rich cultural tapestry and fascinating history of Brava Island, from its volcanic origins to its vibrant musical traditions."
         />
 
-        {/* Introduction Section */}
+        {/* Clean Video Hero */}
+        <VideoHeroSection
+          videoSrc="/images/history/brava-overview.mp4"
+          title="Our Island, Our Story: The History of Brava"
+          subtitle="From Vila Nova Sintra's heights, discover the rich tapestry of Brava Island"
+          overlayContent={[]}
+          className="mt-16 h-[60vh]"
+        />
+
+        {/* Traditional Introduction Section */}
         <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
-          <div className="grid gap-8 lg:grid-cols-2 items-center">
-            <div>
-              <h2 className="font-serif text-3xl font-bold text-text-primary mb-4">
-                Our Island, Our Story: The History of Brava
-              </h2>
-              <p className="text-lg text-text-secondary mb-4">
-                Our island has two beautiful sides to its character. The
-                Portuguese name "Brava" means "wild" or "brave"—perfect for our
-                dramatic volcanic cliffs and steep mountain slopes. But
-                throughout Cape Verde, we're known by a gentler name that
-                captures our heart:
-                <em>Ilha das Flores</em> (Island of Flowers), celebrating the
-                lush, green valleys where vibrant flowers bloom year-round in
-                our island's cooling mists.
-              </p>
-              <p className="text-text-secondary mb-4">
-                This same duality lives in our culture. Though we're the
-                smallest inhabited island in Cape Verde with just 6,000 people,
-                Brava has given the world remarkable poets, musicians, and
-                leaders whose influence reaches far beyond our shores. At the
-                heart of it all is <em>sodade</em>—that deep, beautiful longing
-                that every Cape Verdean carries, the feeling that connects us
-                all no matter where we go.
-              </p>
-              <p className="text-text-secondary">
-                Today, from our mountain capital of Vila Nova Sintra, perched
-                500 meters above the Atlantic, you can see the entire story of
-                our people spread below. Our community began in 1680 when Mount
-                Fogo erupted, sending refugees to find safety on our shores.
-                Brava became their sanctuary, built not through conquest, but
-                through compassion. Later, American whaling ships discovered our
-                skilled sailors, creating connections that span the Atlantic—
-                making us as much a part of New England families as we are of
-                Cape Verde.
-              </p>
-            </div>
-            <VideoHeroSection
-              videoSrc="/images/history/brava-overview.mp4"
-              title="Vila Nova Sintra"
-              subtitle="Heart of Brava Island"
-              overlayContent={[
-                { text: "Our Island's Capital", delay: 1.0 },
-                { text: "500 Meters Above Sea Level", delay: 1.5 },
-                { text: "Where Culture & Community Thrive", delay: 2.0 },
-              ]}
-              className="aspect-video rounded-lg overflow-hidden"
-            />
+          <div className="max-w-4xl mx-auto">
+            <p className="text-lg text-text-secondary mb-6">
+              Our island has two beautiful sides to its character. The
+              Portuguese name "Brava" means "wild" or "brave"—perfect for our
+              dramatic volcanic cliffs and steep mountain slopes. But throughout
+              Cape Verde, we're known by a gentler name that captures our heart:
+              <em className="mx-1">Ilha das Flores</em> (Island of Flowers),
+              celebrating the lush, green valleys where vibrant flowers bloom
+              year-round in our island's cooling mists.
+            </p>
+            <p className="text-text-secondary mb-6">
+              This same duality lives in our culture. Though we're the smallest
+              inhabited island in Cape Verde with just 6,000 people, Brava has
+              given the world remarkable poets, musicians, and leaders whose
+              influence reaches far beyond our shores. At the heart of it all is{" "}
+              <em className="mx-1">sodade</em>—that deep, beautiful longing that
+              every Cape Verdean carries, the feeling that connects us all no
+              matter where we go.
+            </p>
+            <p className="text-text-secondary">
+              Today, from our mountain capital of Vila Nova Sintra, perched 500
+              meters above the Atlantic, you can see the entire story of our
+              people spread below. Our community began in 1680 when Mount Fogo
+              erupted, sending refugees to find safety on our shores. Brava
+              became their sanctuary, built not through conquest, but through
+              compassion. Later, American whaling ships discovered our skilled
+              sailors, creating connections that span the Atlantic— making us as
+              much a part of New England families as we are of Cape Verde.
+            </p>
           </div>
         </section>
+
 
         {/* Geological Origins & Settlement */}
         <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
@@ -132,7 +124,8 @@ export default function HistoryPage() {
             A Land Born of Fire: From Submarine Birth to Refuge Island
           </h3>
           <p className="text-text-secondary mb-8 text-center italic">
-            The dramatic landscape you see from Vila Nova Sintra today tells an ancient story of fire, sea, and human resilience.
+            The dramatic landscape you see from Vila Nova Sintra today tells an
+            ancient story of fire, sea, and human resilience.
           </p>
 
           <div className="grid gap-8 lg:grid-cols-2 mb-8">
