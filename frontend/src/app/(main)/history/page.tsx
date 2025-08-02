@@ -111,11 +111,14 @@ export default function HistoryPage() {
               </p>
             </div>
             <div className="relative aspect-video w-full">
-              <Image
-                src="/images/history/brava-overview.jpg"
-                alt="Historical view of Brava Island showing the dramatic volcanic landscape"
-                fill
-                className="object-cover rounded-lg"
+              <video
+                src="/images/history/brava-overview.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                aria-label="Historical view of Brava Island showing the dramatic volcanic landscape"
+                className="object-cover rounded-lg w-full h-full"
               />
             </div>
           </div>
