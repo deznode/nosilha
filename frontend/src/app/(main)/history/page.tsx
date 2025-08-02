@@ -68,22 +68,22 @@ const historicalFigures = [
 export default function HistoryPage() {
   return (
     <div className="bg-background-secondary font-sans">
+      {/* Full-Screen Video Hero */}
+      <VideoHeroSection
+        videoSrc="/images/history/brava-overview.mp4"
+        title="Our Island, Our Story: The History of Brava"
+        subtitle="From Vila Nova Sintra's heights, discover the rich tapestry of Brava Island"
+        overlayContent={[]}
+        className="h-[calc(100vh-81px)]"
+      />
+
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader
           title="History & Heritage"
           subtitle="Discover the rich cultural tapestry and fascinating history of Brava Island, from its volcanic origins to its vibrant musical traditions."
         />
 
-        {/* Clean Video Hero */}
-        <VideoHeroSection
-          videoSrc="/images/history/brava-overview.mp4"
-          title="Our Island, Our Story: The History of Brava"
-          subtitle="From Vila Nova Sintra's heights, discover the rich tapestry of Brava Island"
-          overlayContent={[]}
-          className="mt-16 h-[60vh]"
-        />
-
-        {/* Traditional Introduction Section */}
+        {/* Introduction Section */}
         <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
           <div className="max-w-4xl mx-auto">
             <p className="text-lg text-text-secondary mb-6">
@@ -116,7 +116,6 @@ export default function HistoryPage() {
             </p>
           </div>
         </section>
-
 
         {/* Geological Origins & Settlement */}
         <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">

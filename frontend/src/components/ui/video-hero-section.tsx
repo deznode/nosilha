@@ -54,6 +54,17 @@ export function VideoHeroSection({
     }
   }, [isInView, isVideoReady, reducedMotion]);
 
+  // Handle smooth scroll to next section
+  const handleScrollToNext = () => {
+    const nextSection = sectionRef.current?.nextElementSibling;
+    if (nextSection) {
+      nextSection.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -157,46 +168,50 @@ export function VideoHeroSection({
               </motion.div>
             ))}
           </div>
-
-          {/* Scroll Indicator */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ 
-              opacity: isInView ? 1 : 0, 
-              y: isInView ? 0 : 20 
-            }}
-            transition={{ delay: 3, duration: 0.6 }}
-            className="mt-16"
-          >
-            <div className="flex flex-col items-center text-white/80">
-              <span className="mb-3 text-sm uppercase tracking-widest font-semibold">Explore Further</span>
-              <motion.div
-                animate={{ y: [0, 8, 0] }}
-                transition={{ 
-                  duration: 2.5, 
-                  repeat: Infinity, 
-                  ease: "easeInOut" 
-                }}
-                className="h-6 w-6 text-sunny-yellow"
-              >
-                <svg 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                  className="h-full w-full"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M19 14l-7 7m0 0l-7-7m7 7V3" 
-                  />
-                </svg>
-              </motion.div>
-            </div>
-          </motion.div>
         </div>
       </div>
+
+      {/* Scroll Indicator - Positioned at Bottom */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ 
+          opacity: isInView ? 1 : 0, 
+          y: isInView ? 0 : 20 
+        }}
+        transition={{ delay: 3, duration: 0.6 }}
+        className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-20"
+      >
+        <button
+          onClick={handleScrollToNext}
+          className="flex flex-col items-center text-white/80 hover:text-white transition-colors duration-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-sunny-yellow focus:ring-opacity-50 rounded-lg p-2"
+          aria-label="Scroll to next section"
+        >
+          <span className="mb-3 text-sm uppercase tracking-widest font-semibold">Explore Further</span>
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ 
+              duration: 2.5, 
+              repeat: Infinity, 
+              ease: "easeInOut" 
+            }}
+            className="h-6 w-6 text-sunny-yellow"
+          >
+            <svg 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+              className="h-full w-full"
+            >
+              <path 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                strokeWidth={2} 
+                d="M19 14l-7 7m0 0l-7-7m7 7V3" 
+              />
+            </svg>
+          </motion.div>
+        </button>
+      </motion.div>
 
       {/* Reduced Motion Fallback Message */}
       {reducedMotion && (
