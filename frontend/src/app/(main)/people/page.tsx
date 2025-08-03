@@ -7,6 +7,7 @@ import {
   CalendarIcon,
 } from "@heroicons/react/24/outline";
 import { BackToTopButton } from "@/components/ui/back-to-top-button";
+import { CitationSection } from "@/components/ui/citation-section";
 
 // Enable ISR with 2 hour revalidation for people content
 export const revalidate = 7200;
@@ -342,8 +343,68 @@ const historicalEras = [
   },
 ];
 
-// Flatten all figures for easier filtering
-const historicalFigures = historicalEras.flatMap((era) => era.figures);
+const citations = [
+  {
+    source: "Brava, Cape Verde - Wikipedia",
+    author: "Wikipedia",
+    year: 2025,
+    url: "https://en.wikipedia.org/wiki/Brava,_Cape_Verde",
+  },
+  {
+    source: "Cape Verde: Brava - Portuguese Historical Museum",
+    author: "Portuguese Historical Museum",
+    year: 2025,
+    url: "https://portuguesemuseum.org/?page_id=1808&category=3&event=325",
+  },
+  {
+    source: "Official Tourist Guide - brava - Capo Verde",
+    author: "caboverde.com",
+    year: 2025,
+    url: "http://www.caboverde.com/ilhas/brava/guide-e.htm",
+  },
+  {
+    source: "Eugénio Tavares - Wikipedia",
+    author: "Wikipedia",
+    year: 2025,
+    url: "https://en.wikipedia.org/wiki/Eug%C3%A9nio_Tavares",
+  },
+  {
+    source: "Roosevelt Pires — FOSEL: Friends of the South End Library",
+    author: "FOSEL",
+    year: 2021,
+    url: "https://www.friendsofsouthendlibrary.org/local-focus/2021/6/eric-knudson-w2g3w-rsy4b-hw8xn",
+  },
+  {
+    source: "Dias, João José - Dictionary of African Christian Biography",
+    author: "Dictionary of African Christian Biography",
+    year: 2025,
+    url: "https://dacb.org/stories/capeverde/dias-joao/",
+  },
+  {
+    source: "Domingues, Adelina - Dictionary of African Christian Biography",
+    author: "Dictionary of African Christian Biography",
+    year: 2025,
+    url: "https://dacb.org/stories/capeverde/domingues-adelina/",
+  },
+  {
+    source: "Remember Padre Pio Gottin - Brava News",
+    author: "Brava News",
+    year: 2025,
+    url: "https://www.brava.news/en/remember-padre-pio-gottin",
+  },
+  {
+    source: "About the DA - Albany County District Attorney",
+    author: "Albany County District Attorney",
+    year: 2025,
+    url: "https://www.albanycountyda.com/about.html",
+  },
+  {
+    source: "Nilton Fernandes - Wikipedia",
+    author: "Wikipedia",
+    year: 2025,
+    url: "https://en.wikipedia.org/wiki/Nilton_Fernandes",
+  },
+];
 
 export default function PeoplePage() {
   return (
@@ -373,19 +434,19 @@ export default function PeoplePage() {
                 identity, and diaspora communities worldwide.
               </p>
               <p className="text-text-secondary mb-4">
-                This remarkable legacy isn't by chance—it's rooted in our unique
+                This remarkable legacy isn&apos;t by chance—it&apos;s rooted in our unique
                 history: the 1680 Fogo eruption that brought refugees who found
                 sanctuary here, the American whaling ships that connected us to
                 New England, and a maritime culture that nurtured strong
-                leaders, creative spirits, and entrepreneurs who carried Brava's
+                leaders, creative spirits, and entrepreneurs who carried Brava&apos;s
                 values wherever they traveled.
               </p>
               <p className="text-text-secondary">
                 From Eugénio Tavares who gave Cape Verde its cultural voice
-                through morna and <em>sodade</em>, to Marcelino "Daddy" Grace
+                through morna and <em>sodade</em>, to Marcelino &quot;Daddy&quot; Grace
                 who built a spiritual movement with millions of followers, to
                 contemporary leaders like David Soares making their mark in
-                American politics—our people show that an island's true size is
+                American politics—our people show that an island&apos;s true size is
                 measured not in kilometers, but in the courage, creativity, and
                 lasting impact of its sons and daughters.
               </p>
@@ -438,13 +499,7 @@ export default function PeoplePage() {
               {era.figures.map((figure) => (
                 <div
                   key={figure.name}
-                  className={`grid gap-6 lg:grid-cols-${
-                    figure.featured ? "2" : "1"
-                  } ${
-                    figure.featured
-                      ? "bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary"
-                      : "bg-background-primary/50 p-4 rounded-lg"
-                  }`}
+                  className={`grid gap-6 lg:grid-cols-${figure.featured ? "2" : "1"} ${figure.featured ? "bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary" : "bg-background-primary/50 p-4 rounded-lg"}`}
                 >
                   {figure.featured && (
                     <div className="relative aspect-[3/4] w-full max-w-sm mx-auto">
@@ -483,56 +538,36 @@ export default function PeoplePage() {
                           {figure.years}
                         </span>
                         <span
-                          className={`text-xs px-2 py-1 rounded ml-2 ${
-                            figure.influence === "Revolutionary"
-                              ? "bg-bougainvillea-pink/10 text-bougainvillea-pink"
-                              : figure.influence === "Phenomenal"
-                              ? "bg-sunny-yellow/10 text-sunny-yellow"
-                              : figure.influence === "National"
-                              ? "bg-valley-green/10 text-valley-green"
-                              : figure.influence === "Global"
-                              ? "bg-ocean-blue/20 text-ocean-blue"
-                              : "bg-gray-100 text-gray-600"
-                          }`}
+                          className={`text-xs px-2 py-1 rounded ml-2 ${figure.influence === "Revolutionary" ? "bg-bougainvillea-pink/10 text-bougainvillea-pink" : figure.influence === "Phenomenal" ? "bg-sunny-yellow/10 text-sunny-yellow" : figure.influence === "National" ? "bg-valley-green/10 text-valley-green" : figure.influence === "Global" ? "bg-ocean-blue/20 text-ocean-blue" : "bg-gray-100 text-gray-600"}`}
                         >
                           {figure.influence} Impact
                         </span>
                       </div>
 
                       <h4
-                        className={`font-serif ${
-                          figure.featured ? "text-xl" : "text-lg"
-                        } font-bold text-text-primary mb-1`}
+                        className={`font-serif ${figure.featured ? "text-xl" : "text-lg"} font-bold text-text-primary mb-1`}
                       >
                         {figure.name}
                       </h4>
                       <p
-                        className={`${
-                          figure.featured ? "text-sm" : "text-xs"
-                        } text-ocean-blue font-medium mb-3`}
+                        className={`${figure.featured ? "text-sm" : "text-xs"} text-ocean-blue font-medium mb-3`}
                       >
                         {figure.role}
                       </p>
                       <p
-                        className={`${
-                          figure.featured ? "text-base" : "text-sm"
-                        } text-text-secondary mb-4`}
+                        className={`${figure.featured ? "text-base" : "text-sm"} text-text-secondary mb-4`}
                       >
                         {figure.description}
                       </p>
 
                       <div>
                         <h5
-                          className={`font-semibold ${
-                            figure.featured ? "text-sm" : "text-xs"
-                          } text-text-primary mb-2`}
+                          className={`font-semibold ${figure.featured ? "text-sm" : "text-xs"} text-text-primary mb-2`}
                         >
                           Key Achievements:
                         </h5>
                         <ul
-                          className={`${
-                            figure.featured ? "text-sm" : "text-xs"
-                          } text-text-secondary space-y-1`}
+                          className={`${figure.featured ? "text-sm" : "text-xs"} text-text-secondary space-y-1`}
                         >
                           {(figure.featured
                             ? figure.achievements
@@ -541,9 +576,7 @@ export default function PeoplePage() {
                             <li key={index} className="flex items-start">
                               <StarIcon className="h-3 w-3 text-sunny-yellow mr-2 mt-0.5 flex-shrink-0" />
                               <span
-                                dangerouslySetInnerHTML={{
-                                  __html: achievement,
-                                }}
+                                dangerouslySetInnerHTML={{ __html: achievement }}
                               />
                             </li>
                           ))}
@@ -674,7 +707,7 @@ export default function PeoplePage() {
                 Community Activist & Healthcare Advocate
               </p>
               <p className="text-sm text-text-secondary mb-3">
-                Brava native who became a powerful voice for island's right to
+                Brava native who became a powerful voice for island&apos;s right to
                 adequate medical services. Her viral advocacy declaring "we may
                 be the smallest island, but that doesn't mean we deserve less"
                 represents modern leadership focused on fundamental community
@@ -696,8 +729,8 @@ export default function PeoplePage() {
               </p>
               <p className="text-sm text-text-secondary mb-3">
                 Native of Brava serving as Terrestrial Program Leader for
-                Biflores organization. Works to preserve the island's unique
-                biodiversity, understanding that Brava's culture is inseparable
+                Biflores organization. Works to preserve the island&apos;s unique
+                biodiversity, understanding that Brava&apos;s culture is inseparable
                 from its environment and that conservation is cultural
                 preservation.
               </p>
@@ -739,7 +772,7 @@ export default function PeoplePage() {
               Holistic Heritage Preservation
             </h4>
             <p className="text-text-secondary">
-              Today's leaders understand that cultural preservation is a
+              Today&apos;s leaders understand that cultural preservation is a
               holistic endeavor—honoring the past while fighting for the future,
               celebrating artistic achievement while ensuring the fundamental
               well-being of the community that produces it. As Brava navigates
@@ -773,6 +806,7 @@ export default function PeoplePage() {
             </Link>
           </div>
         </section>
+        <CitationSection citations={citations} />
         <BackToTopButton />
       </div>
     </div>
@@ -790,7 +824,7 @@ export async function generateMetadata() {
       title:
         "The Brava Phenomenon: Era-Based Historical Figures & Contemporary Guardians",
       description:
-        'Journey through Brava\'s historical eras: Cultural Foundation with Eugénio Tavares, Political Awakening with independence intellectuals, Diaspora Expansion featuring "Daddy" Grace\'s phenomenal influence, and Contemporary Era with David Soares, Eugenia Duarte, Carlos Bango, and modern heritage preservationists.',
+        "Journey through Brava's historical eras: Cultural Foundation with Eugénio Tavares, Political Awakening with independence intellectuals, Diaspora Expansion featuring \"Daddy\" Grace's phenomenal influence, and Contemporary Era with David Soares, Eugenia Duarte, Carlos Bango, and modern heritage preservationists.",
       images: ["/images/people/brava-cultural-heritage.jpg"],
     },
     keywords:
