@@ -1,22 +1,39 @@
 import Link from "next/link";
-import Image from "next/image";
-import { PageHeader } from "@/components/ui/page-header";
-import { PhotoGalleryFilter } from "@/components/ui/photo-gallery-filter";
+import { notFound } from "next/navigation";
+import { GalleryImageGrid } from "@/components/ui/gallery-image-grid";
 import { 
-  CameraIcon, 
-  PhotoIcon, 
-  EyeIcon,
+  ArrowLeftIcon,
   MapPinIcon,
-  CalendarIcon,
-  HeartIcon
+  PhotoIcon
 } from "@heroicons/react/24/outline";
 
-// Enable ISR with 1 hour revalidation for photo content
+// Enable ISR with 1 hour revalidation for gallery content
 export const revalidate = 3600;
 
-// Photo galleries data with full cultural context and metadata
-const photoGalleries = [
-  {
+// Gallery data structure (this would come from API in production)
+interface Photo {
+  src: string;
+  alt: string;
+  location: string;
+  date: string;
+  description: string;
+}
+
+interface Gallery {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  imageCount: number;
+  coverImage: string;
+  featured: boolean;
+  culturalContext: string;
+  location: string;
+  photos: Photo[];
+}
+
+const galleryData: Record<string, Gallery> = {
+  "landscapes": {
     id: "landscapes",
     title: "Volcanic Majesty",
     description: "Our island's dramatic landscapes tell the story of ancient volcanic forces that shaped every valley and peak, from the misty highlands to the rugged coastlines that define our home",
@@ -68,10 +85,24 @@ const photoGalleries = [
         location: "Road to Nova Sintra",
         date: "2024",
         description: "The famous winding road that brings every visitor home to our capital"
+      },
+      {
+        src: "/images/galleries/landscapes/landscape-7.jpg",
+        alt: "Morning light over terraced mountainsides",
+        location: "Mountain valleys",
+        date: "2024",
+        description: "Ancient agricultural terraces that shape our mountain landscape"
+      },
+      {
+        src: "/images/galleries/landscapes/landscape-8.jpg",
+        alt: "Volcanic rock formations along the coast",
+        location: "Coastal areas",
+        date: "2024",
+        description: "Sculpted by millions of years of Atlantic weather and volcanic activity"
       }
     ]
   },
-  {
+  "coastal": {
     id: "coastal",
     title: "Where Ocean Meets Land",
     description: "Our coastlines capture the eternal dialogue between volcanic rock and Atlantic waves, creating natural pools and dramatic seascapes that have sheltered and inspired our people",
@@ -126,7 +157,7 @@ const photoGalleries = [
       }
     ]
   },
-  {
+  "cultural": {
     id: "cultural",
     title: "Our Living Traditions",
     description: "The celebrations, festivals, and daily customs that keep our island's spirit alive, from religious processions to musical gatherings that echo with the voices of our ancestors",
@@ -181,7 +212,7 @@ const photoGalleries = [
       }
     ]
   },
-  {
+  "architecture": {
     id: "architecture",
     title: "Built Heritage",
     description: "The colonial sobrados and sacred spaces that house our memories, from Portuguese-influenced churches to the colorful homes built with love and remittances from distant shores",
@@ -222,7 +253,7 @@ const photoGalleries = [
       }
     ]
   },
-  {
+  "daily-life": {
     id: "daily-life",
     title: "Island Rhythms",
     description: "The gentle pace of daily life on our island, where every morning brings the same warm greetings and every evening finds families gathered under stars that seem closer here than anywhere else",
@@ -263,7 +294,7 @@ const photoGalleries = [
       }
     ]
   },
-  {
+  "flora-fauna": {
     id: "flora-fauna",
     title: "Island of Flowers",
     description: "The vibrant life that thrives in our misty climate, from the hibiscus and bougainvillea that color our gardens to the seabirds that fish our coastal waters alongside our boats",
@@ -304,165 +335,91 @@ const photoGalleries = [
       }
     ]
   }
-];
+};
 
-const categories = [
-  { name: "All", value: "all", count: photoGalleries.reduce((sum, gallery) => sum + gallery.imageCount, 0) },
-  { name: "Nature", value: "nature", count: photoGalleries.filter(g => g.category === "Nature").reduce((sum, gallery) => sum + gallery.imageCount, 0) },
-  { name: "Culture", value: "culture", count: photoGalleries.filter(g => g.category === "Culture").reduce((sum, gallery) => sum + gallery.imageCount, 0) },
-  { name: "Architecture", value: "architecture", count: photoGalleries.filter(g => g.category === "Architecture").reduce((sum, gallery) => sum + gallery.imageCount, 0) },
-  { name: "Community", value: "community", count: photoGalleries.filter(g => g.category === "Community").reduce((sum, gallery) => sum + gallery.imageCount, 0) }
-];
+interface GalleryPageProps {
+  params: Promise<{
+    galleryId: string;
+  }>;
+}
 
-export default function PhotosPage() {
+export default function GalleryPage({ params }: { params: { galleryId: string } }) {
+  const gallery = galleryData[params.galleryId];
+  
+  if (!gallery) {
+    notFound();
+  }
 
   return (
     <div className="bg-background-secondary font-sans">
+      {/* Back Navigation */}
+      <div className="bg-background-primary border-b border-border-primary">
+        <div className="mx-auto max-w-screen-xl px-4 py-4 sm:px-6 lg:px-8">
+          <Link
+            href="/media/photos"
+            className="inline-flex items-center text-ocean-blue hover:text-ocean-blue/80 font-medium"
+          >
+            <ArrowLeftIcon className="h-4 w-4 mr-2" />
+            Back to Photo Galleries
+          </Link>
+        </div>
+      </div>
+
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
-        <PageHeader
-          title="Our Island in Images"
-          subtitle="Journey through our home in Brava through the eyes of those who love it most—our neighbors, visitors, and storytellers who capture the moments that make this island extraordinary."
-        />
-
-        {/* Introduction Section */}
-        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm">
-          <div className="grid gap-8 lg:grid-cols-2 items-center">
-            <div>
-              <h2 className="font-serif text-3xl font-bold text-text-primary mb-4">
-                Through Our Eyes: Brava in Living Color
-              </h2>
-              <p className="text-lg text-text-secondary mb-4">
-                Every image in these galleries carries a piece of our island's soul. From the morning mist 
-                that rolls over Nova Sintra to the evening light that turns our coastal pools into mirrors 
-                of gold, these photographs capture not just how our island looks, but how it feels to call 
-                this place home.
-              </p>
-              <p className="text-text-secondary">
-                Shared by our community members, longtime visitors, and anyone whose heart has been 
-                touched by Brava's unique beauty, these images are love letters to our <em>Ilha das Flores</em>.
-              </p>
-            </div>
-            <div className="relative h-64 lg:h-80">
-              <Image
-                src="/images/galleries/brava-photo-overview.jpg"
-                alt="Photographer capturing the beauty of Brava Island"
-                fill
-                className="object-cover rounded-lg"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Gallery Filter and Display */}
-        <PhotoGalleryFilter galleries={photoGalleries} categories={categories} />
-
-        {/* Contribution Guidelines */}
-        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6 text-center">
-            Share Your Photos
-          </h3>
-          
-          <div className="grid gap-8 md:grid-cols-2">
-            <div>
-              <h4 className="font-semibold text-lg text-text-primary mb-3">
-                Photo Submission Guidelines
-              </h4>
-              <ul className="space-y-2 text-text-secondary">
-                <li className="flex items-start">
-                  <CameraIcon className="h-4 w-4 text-ocean-blue mr-2 mt-0.5 flex-shrink-0" />
-                  High-resolution images (minimum 1200px width)
-                </li>
-                <li className="flex items-start">
-                  <MapPinIcon className="h-4 w-4 text-ocean-blue mr-2 mt-0.5 flex-shrink-0" />
-                  Include location information when possible
-                </li>
-                <li className="flex items-start">
-                  <CalendarIcon className="h-4 w-4 text-ocean-blue mr-2 mt-0.5 flex-shrink-0" />
-                  Add date and context for cultural events
-                </li>
-                <li className="flex items-start">
-                  <EyeIcon className="h-4 w-4 text-ocean-blue mr-2 mt-0.5 flex-shrink-0" />
-                  Respect privacy and property rights
-                </li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold text-lg text-text-primary mb-3">
-                What We're Looking For
-              </h4>
-              <ul className="space-y-2 text-text-secondary">
-                <li>• Scenic landscapes and natural beauty</li>
-                <li>• Cultural events and traditional celebrations</li>
-                <li>• Daily life and community moments</li>
-                <li>• Historical sites and architecture</li>
-                <li>• Local flora and fauna</li>
-                <li>• Street scenes and local businesses</li>
-              </ul>
-            </div>
+        {/* Gallery Header */}
+        <div className="mb-12">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-sm bg-ocean-blue/10 text-ocean-blue px-3 py-1 rounded-full">
+              {gallery.category}
+            </span>
+            <span className="text-sm text-text-secondary flex items-center">
+              <PhotoIcon className="h-4 w-4 mr-1" />
+              {gallery.photos.length} images
+            </span>
+            <span className="text-sm text-text-secondary flex items-center">
+              <MapPinIcon className="h-4 w-4 mr-1" />
+              {gallery.location}
+            </span>
           </div>
           
-          <div className="mt-8 text-center">
-            <Link
-              href="/contribute"
-              className="rounded-md bg-ocean-blue px-8 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-ocean-blue/90"
-            >
-              Contribute Your Photos
-            </Link>
-          </div>
-        </section>
-
-        {/* Community Highlights */}
-        <section className="mt-16 bg-gradient-to-r from-ocean-blue/10 to-valley-green/10 p-8 rounded-lg">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6 text-center">
-            Community Contributions
-          </h3>
+          <h1 className="font-serif text-4xl font-bold text-text-primary mb-4">
+            {gallery.title}
+          </h1>
           
-          <div className="grid gap-8 md:grid-cols-2">
-            <div className="text-center">
-              <HeartIcon className="h-12 w-12 text-ocean-blue mx-auto mb-3" />
-              <h4 className="font-semibold text-lg text-text-primary mb-2">
-                Local Photographers
-              </h4>
-              <p className="text-text-secondary">
-                Many of our galleries feature work by talented local photographers 
-                who capture the authentic spirit of Brava Island.
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <CameraIcon className="h-12 w-12 text-valley-green mx-auto mb-3" />
-              <h4 className="font-semibold text-lg text-text-primary mb-2">
-                Visitor Contributions
-              </h4>
-              <p className="text-text-secondary">
-                Visitors to Brava Island share their unique perspectives, 
-                helping us showcase the island through different eyes.
-              </p>
-            </div>
+          <p className="text-lg text-text-secondary mb-6 max-w-4xl">
+            {gallery.description}
+          </p>
+          
+          <div className="bg-gradient-to-r from-ocean-blue/5 to-valley-green/5 p-4 rounded-lg border-l-4 border-ocean-blue">
+            <p className="text-text-secondary italic">
+              {gallery.culturalContext}
+            </p>
           </div>
-        </section>
+        </div>
+
+        {/* Image Grid */}
+        <GalleryImageGrid photos={gallery.photos} />
 
         {/* Explore More */}
         <section className="mt-16 text-center">
           <h3 className="font-serif text-2xl font-bold text-text-primary mb-4">
-            Explore More of Brava
+            Explore More Galleries
           </h3>
           <p className="text-lg text-text-secondary mb-6">
-            Discover other aspects of Brava Island's rich culture and heritage.
+            Discover more visual stories from our beautiful island.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/history"
-              className="rounded-md border-2 border-valley-green px-6 py-3 text-base font-semibold text-valley-green transition-colors hover:bg-valley-green hover:text-white"
+              href="/media/photos"
+              className="rounded-md bg-ocean-blue px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-ocean-blue/90"
             >
-              Island History
+              All Photo Galleries
             </Link>
             <Link
-              href="/map"
+              href="/contribute"
               className="rounded-md border-2 border-ocean-blue px-6 py-3 text-base font-semibold text-ocean-blue transition-colors hover:bg-ocean-blue hover:text-white"
             >
-              Interactive Map
+              Share Your Photos
             </Link>
           </div>
         </section>
@@ -471,15 +428,31 @@ export default function PhotosPage() {
   );
 }
 
+// Generate static params for known galleries
+export async function generateStaticParams() {
+  return Object.keys(galleryData).map((galleryId) => ({
+    galleryId,
+  }));
+}
+
 // Generate metadata for SEO
-export async function generateMetadata() {
+export async function generateMetadata({ params }: GalleryPageProps) {
+  const { galleryId } = await params;
+  const gallery = galleryData[galleryId];
+  
+  if (!gallery) {
+    return {
+      title: 'Gallery Not Found | Nos Ilha',
+    };
+  }
+  
   return {
-    title: 'Photo Galleries of Brava Island | Nos Ilha',
-    description: 'Discover the visual story of Brava Island through curated collections of photographs showcasing its natural beauty, cultural heritage, and daily life.',
+    title: `${gallery.title} | Photo Galleries | Nos Ilha`,
+    description: gallery.description,
     openGraph: {
-      title: 'Photo Galleries - Brava Island',
-      description: 'Explore stunning photographs of Brava Island including landscapes, cultural events, architecture, and community life.',
-      images: ['/images/galleries/brava-photo-overview.jpg'],
+      title: `${gallery.title} - Brava Island Photos`,
+      description: gallery.description,
+      images: [gallery.coverImage],
     },
   };
 }
