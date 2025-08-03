@@ -11,46 +11,66 @@ import {
 // Enable ISR with 2 hour revalidation for towns content
 export const revalidate = 7200;
 
-// Towns data (in a real implementation, this could come from the API)
+// Towns data based on comprehensive research
 const townsData = [
   {
     slug: "nova-sintra",
     name: "Nova Sintra",
-    description: "The charming capital of Brava Island, perched high in the mountains",
+    description: "Our mountain capital where cobblestone streets wind between flower-filled gardens and colonial sobrados tell stories of diaspora dreams realized",
     population: "~1,200",
-    elevation: "480m",
-    highlights: ["Municipal buildings", "Central square", "Mountain views"],
+    elevation: "500m",
+    highlights: ["UNESCO Tentative List site", "Praça Eugénio Tavares", "Colonial sobrados", "Eugénio Tavares Museum"],
     image: "/images/towns/nova-sintra-card.jpg",
     featured: true
   },
   {
     slug: "furna",
     name: "Furna",
-    description: "A picturesque coastal village with dramatic cliffs and ocean views",
+    description: "Where the sea meets the land in a perfect volcanic embrace, this ancient harbor welcomes every visitor with the rhythms of working boats and ocean waves",
     population: "~800",
-    elevation: "0-100m",
-    highlights: ["Coastal cliffs", "Fishing village", "Lighthouse"],
+    elevation: "Sea level",
+    highlights: ["Volcanic crater harbor", "Fishing fleet", "Maritime festivals", "Nossa Senhora dos Navegantes"],
     image: "/images/towns/furna-card.jpg",
     featured: true
   },
   {
     slug: "faja-de-agua",
     name: "Fajã de Água",
-    description: "A tranquil village nestled in Brava's fertile valleys",
-    population: "~500",
-    elevation: "200-300m",
-    highlights: ["Agricultural terraces", "Traditional architecture", "Hiking trails"],
+    description: "Once our gateway to the world's whaling ships, now a hidden paradise where volcanic pools offer perfect refuge from the Atlantic's power",
+    population: "~126",
+    elevation: "Sea level-100m",
+    highlights: ["Natural swimming pools", "Agricultural terraces", "Abandoned airport", "Emigrant monument"],
     image: "/images/towns/faja-de-agua-card.jpg",
     featured: false
   },
   {
     slug: "nossa-senhora-do-monte",
     name: "Nossa Senhora do Monte",
-    description: "A small mountain settlement with stunning panoramic views",
+    description: "High among the clouds, this sacred place has drawn pilgrims for over 150 years, offering both spiritual solace and breathtaking views of our island home",
     population: "~300",
-    elevation: "600m",
-    highlights: ["Mountain views", "Traditional homes", "Quiet atmosphere"],
+    elevation: "770m",
+    highlights: ["Pilgrimage church", "August 15th festival", "Monte Fontainhas views", "Religious processions"],
     image: "/images/towns/nossa-senhora-do-monte-card.jpg",
+    featured: false
+  },
+  {
+    slug: "cachaco",
+    name: "Cachaço",
+    description: "In Brava's remote highlands, generations of families have perfected the art of cheese-making, creating flavors that carry the essence of our mountain pastures",
+    population: "~200",
+    elevation: "592m",
+    highlights: ["Queijo do Cachaço", "Fogo island views", "Traditional cheese making", "Mountain isolation"],
+    image: "/images/towns/cachaco-card.jpg",
+    featured: false
+  },
+  {
+    slug: "cova-joana",
+    name: "Cova Joana",
+    description: "Cradled within an ancient crater's embrace, this peaceful valley village showcases the harmony possible between volcanic power and human cultivation",
+    population: "~150",
+    elevation: "400m",
+    highlights: ["Volcanic crater setting", "Colonial sobrados", "Hibiscus hedges", "Mountain tranquility"],
+    image: "/images/towns/cova-joana-card.jpg",
     featured: false
   }
 ];
@@ -75,19 +95,23 @@ export default function TownsPage() {
                 Island Communities
               </h2>
               <p className="text-lg text-text-secondary mb-4">
-                Brava Island is home to several distinct communities, each shaped by 
-                the island's dramatic geography. From the mountainous capital of Nova Sintra 
-                to the coastal village of Furna, every settlement tells a unique story.
+                Our island's settlements tell stories written in stone and song. Each village on Brava 
+                has been shaped by the dramatic forces that created our volcanic landscape and the 
+                maritime heritage that connected us to the world. From Nova Sintra's heritage 
+                colonial architecture to Furna's ancient crater harbor, these communities reflect 
+                centuries of Cape Verdean resilience and creativity.
               </p>
               <p className="text-text-secondary">
-                Explore these communities to understand the diverse character of Brava 
-                and the resilient spirit of its people.
+                Walking through our villages, you'll discover the authentic <em>morabeza</em> 
+                hospitality that welcomes every visitor as family, and hear the musical traditions 
+                that gave birth to <em>morna</em>—the soulful melodies that carry our deepest 
+                emotions of <em>sodade</em> and connection to home.
               </p>
             </div>
             <div className="relative h-64 lg:h-80">
               <Image
                 src="/images/towns/brava-towns-overview.jpg"
-                alt="Panoramic view of Brava Island showing various settlements"
+                alt="Panoramic view of Brava Island's settlements from the famous road of 99 turns"
                 fill
                 className="object-cover rounded-lg"
               />
@@ -98,7 +122,7 @@ export default function TownsPage() {
         {/* Featured Towns */}
         <section className="mt-16">
           <h3 className="font-serif text-2xl font-bold text-text-primary mb-8">
-            Major Settlements
+            Our Main Communities
           </h3>
           
           <div className="grid gap-8 md:grid-cols-2">
@@ -160,7 +184,7 @@ export default function TownsPage() {
         {/* Other Towns */}
         <section className="mt-16">
           <h3 className="font-serif text-2xl font-bold text-text-primary mb-8">
-            Other Communities
+            Hidden Gems
           </h3>
           
           <div className="grid gap-6 md:grid-cols-2">
@@ -255,10 +279,10 @@ export default function TownsPage() {
 export async function generateMetadata() {
   return {
     title: 'Towns & Villages of Brava Island | Nos Ilha',
-    description: 'Discover the charming settlements of Brava Island, from the mountainous capital Nova Sintra to the coastal village of Furna.',
+    description: 'Discover Brava Island\'s authentic settlements: UNESCO-listed Nova Sintra, volcanic crater harbor Furna, natural pools of Fajã de Água, and historic pilgrimage sites.',
     openGraph: {
       title: 'Towns & Villages - Brava Island',
-      description: 'Explore the unique communities that make up Brava Island, each with its own character and story.',
+      description: 'Explore authentic Cape Verdean communities from UNESCO heritage sites to volcanic crater harbors, shaped by morna music traditions and maritime heritage.',
       images: ['/images/towns/brava-towns-overview.jpg'],
     },
   };

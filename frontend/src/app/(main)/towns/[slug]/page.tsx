@@ -14,19 +14,21 @@ import {
 // Enable ISR with 1 hour revalidation for town content
 export const revalidate = 3600;
 
-// Town data (in a real implementation, this would come from the API)
+// Town data based on comprehensive research
 const townData = {
   "nova-sintra": {
     name: "Nova Sintra",
-    description: "The charming capital of Brava Island, perched high in the mountains",
+    description: "The cultured capital of Brava Island, recognized as a UNESCO World Heritage Tentative List site since 2013",
     population: "Approximately 1,200 residents",
-    elevation: "480 meters above sea level",
+    elevation: "500 meters above sea level",
     founded: "Late 17th century",
     highlights: [
-      "Municipal Camera building with Portuguese colonial architecture",
-      "Central square with traditional cobblestone design",
-      "Historic church dating back to the 18th century",
-      "Panoramic viewpoints overlooking the island"
+      "UNESCO World Heritage Tentative List site (2013)",
+      "Praça Eugénio Tavares - the island's main social hub",
+      "Eugénio Tavares House Museum - birthplace of morna music",
+      "Colonial sobrados built by diaspora emigrants from New Bedford",
+      "Road of 99 turns scenic journey from Furna",
+      "Igreja São João Baptista colonial church (c. 1880)"
     ],
     heroImage: "/images/towns/nova-sintra-hero.jpg",
     gallery: [
@@ -37,15 +39,17 @@ const townData = {
   },
   "furna": {
     name: "Furna",
-    description: "A picturesque coastal village known for its dramatic cliffs and ocean views",
+    description: "Brava's maritime gateway nestled in an ancient volcanic crater bay, home to an authentic fishing community",
     population: "Approximately 800 residents",
-    elevation: "Sea level to 100 meters",
-    founded: "Early 18th century",
+    elevation: "Sea level",
+    founded: "Early 18th century as major port",
     highlights: [
-      "Dramatic coastal cliffs and natural rock formations",
-      "Traditional fishing village atmosphere",
-      "Access to secluded beaches and swimming spots",
-      "Historic lighthouse overlooking the Atlantic"
+      "Volcanic crater bay providing natural breakwater",
+      "Active fishing fleet with colorful artisanal boats",
+      "Nossa Senhora dos Navegantes maritime procession",
+      "Historic connection to American whaling industry",
+      "Nossa Senhora de Boa Viagem chapel overlooking the sea",
+      "Traditional fishing community daily rhythms"
     ],
     heroImage: "/images/towns/furna-hero.jpg",
     gallery: [
@@ -56,15 +60,17 @@ const townData = {
   },
   "faja-de-agua": {
     name: "Fajã de Água",
-    description: "A tranquil village nestled in Brava's fertile valleys",
-    population: "Approximately 500 residents",
-    elevation: "200-300 meters above sea level",
-    founded: "18th century",
+    description: "Brava's original main harbor before 1843, now a verdant paradise famous for magnificent natural swimming pools",
+    population: "Approximately 126 residents (2010 census)",
+    elevation: "Sea level to 100 meters",
+    founded: "18th century as main port",
     highlights: [
-      "Lush agricultural terraces and gardens",
-      "Traditional Cape Verdean architecture",
-      "Peaceful village atmosphere",
-      "Mountain hiking trails and nature walks"
+      "Magnificent natural swimming pools formed by volcanic rock",
+      "Historic main harbor for American whaling ships",
+      "Intricate agricultural terraces (socos) on mountainsides",
+      "Abandoned Esperadinha Airport runway (closed 2004)",
+      "Monumento aos Emigrantes commemorating lost emigrants",
+      "Traditional sugarcane spirit (grog) production"
     ],
     heroImage: "/images/towns/faja-de-agua-hero.jpg",
     gallery: [
@@ -75,21 +81,65 @@ const townData = {
   },
   "nossa-senhora-do-monte": {
     name: "Nossa Senhora do Monte",
-    description: "A small mountain settlement with stunning panoramic views",
+    description: "Historic pilgrimage sanctuary at 770m elevation, established as official pilgrimage site in 1862",
     population: "Approximately 300 residents",
-    elevation: "600 meters above sea level",
-    founded: "19th century",
+    elevation: "770 meters above sea level",
+    founded: "Parish established around 1826",
     highlights: [
-      "Breathtaking panoramic views of the island",
-      "Traditional mountain architecture",
-      "Quiet, contemplative atmosphere",
-      "Access to hiking trails and nature walks"
+      "Official Catholic pilgrimage church since 1862",
+      "Annual Feast of Nossa Senhora do Monte (August 15th)",
+      "Religious procession from nearby Mato village",
+      "Panoramic views toward Monte Fontainhas (976m peak)",
+      "Connection to Madeiran settlers' faith traditions",
+      "Administrative center for western Brava parish"
     ],
     heroImage: "/images/towns/nossa-senhora-do-monte-hero.jpg",
     gallery: [
       "/images/towns/nossa-senhora-do-monte-1.jpg",
       "/images/towns/nossa-senhora-do-monte-2.jpg",
       "/images/towns/nossa-senhora-do-monte-3.jpg"
+    ]
+  },
+  "cachaco": {
+    name: "Cachaço",
+    description: "Remote mountain village at 592m elevation, famous throughout Cape Verde for its traditional handmade goat cheese",
+    population: "Approximately 200 residents",
+    elevation: "592 meters above sea level",
+    founded: "19th century",
+    highlights: [
+      "Famous Queijo do Cachaço traditional goat cheese",
+      "Second southernmost settlement in Cape Verde archipelago",
+      "Spectacular views across the water to Fogo island",
+      "Traditional cheese-making demonstrations",
+      "Remote mountain isolation and tranquility",
+      "Authentic rural Cape Verdean village life"
+    ],
+    heroImage: "/images/towns/cachaco-hero.jpg",
+    gallery: [
+      "/images/towns/cachaco-1.jpg",
+      "/images/towns/cachaco-2.jpg",
+      "/images/towns/cachaco-3.jpg"
+    ]
+  },
+  "cova-joana": {
+    name: "Cova Joana",
+    description: "Strikingly picturesque village nestled within a mountain valley that was once a volcanic crater",
+    population: "Approximately 150 residents",
+    elevation: "400 meters above sea level",
+    founded: "19th century",
+    highlights: [
+      "Former volcanic crater valley setting",
+      "Beautiful colonial sobrados architecture",
+      "Vibrant hibiscus hedges throughout the village",
+      "Tranquil natural harmony and mountain atmosphere",
+      "Location between Nova Sintra and Nossa Senhora do Monte",
+      "Traditional Cape Verdean mountain village charm"
+    ],
+    heroImage: "/images/towns/cova-joana-hero.jpg",
+    gallery: [
+      "/images/towns/cova-joana-1.jpg",
+      "/images/towns/cova-joana-2.jpg",
+      "/images/towns/cova-joana-3.jpg"
     ]
   }
 };
@@ -125,7 +175,7 @@ export default async function TownPage({ params }: TownPageProps) {
   }
 
   return (
-    <div className="bg-off-white font-sans">
+    <div className="bg-background-secondary font-sans">
       {/* Hero Section */}
       <section className="relative h-96 overflow-hidden">
         <Image
@@ -150,7 +200,7 @@ export default async function TownPage({ params }: TownPageProps) {
 
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         {/* Town Overview */}
-        <section className="bg-white p-8 rounded-lg shadow-sm">
+        <section className="bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
           <div className="grid gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2">
               <h2 className="font-serif text-2xl font-bold text-text-primary mb-4">
@@ -174,7 +224,7 @@ export default async function TownPage({ params }: TownPageProps) {
             </div>
             
             <div className="space-y-4">
-              <div className="bg-off-white p-4 rounded-lg">
+              <div className="bg-background-secondary p-4 rounded-lg">
                 <div className="flex items-center mb-2">
                   <UserGroupIcon className="h-5 w-5 text-ocean-blue mr-2" />
                   <span className="font-semibold text-text-primary">Population</span>
@@ -182,7 +232,7 @@ export default async function TownPage({ params }: TownPageProps) {
                 <p className="text-text-secondary">{town.population}</p>
               </div>
               
-              <div className="bg-off-white p-4 rounded-lg">
+              <div className="bg-background-secondary p-4 rounded-lg">
                 <div className="flex items-center mb-2">
                   <MapPinIcon className="h-5 w-5 text-ocean-blue mr-2" />
                   <span className="font-semibold text-text-primary">Elevation</span>
@@ -190,7 +240,7 @@ export default async function TownPage({ params }: TownPageProps) {
                 <p className="text-text-secondary">{town.elevation}</p>
               </div>
               
-              <div className="bg-off-white p-4 rounded-lg">
+              <div className="bg-background-secondary p-4 rounded-lg">
                 <div className="flex items-center mb-2">
                   <BuildingOfficeIcon className="h-5 w-5 text-ocean-blue mr-2" />
                   <span className="font-semibold text-text-primary">Founded</span>
