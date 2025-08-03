@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { PageHeader } from "@/components/ui/page-header";
 import { BackToTopButton } from "@/components/ui/back-to-top-button";
 import { VideoHeroSection } from "@/components/ui/video-hero-section";
@@ -10,6 +9,7 @@ import {
   MusicalNoteIcon,
 } from "@heroicons/react/24/outline";
 import { CitationSection } from "@/components/ui/citation-section";
+import { ImageWithCourtesy } from "@/components/ui/image-with-courtesy";
 
 // Enable ISR with 2 hour revalidation for historical content
 export const revalidate = 7200;
@@ -39,6 +39,7 @@ const historicalSections = [
     content:
       "The American whaling industry transformed Brava from an isolated Portuguese colony into a transnational community. Yankee whaling captains, impressed by Bravense maritime skills, recruited local men for voyages to Pacific hunting grounds. This connection created the 'Brava Packet Trade'—regular ship service between the island and New England ports, carrying passengers, mail, cargo, and crucial remittances. For over a century, whaling became Brava's principal industry, establishing permanent bonds with Massachusetts communities that continue today.",
     image: "/images/history/brava-maritime2.jpg",
+    image_courtesy: "New Bedford Whaling Museum",
   },
 ];
 
@@ -270,9 +271,10 @@ export default function HistoryPage() {
                     index % 2 === 1 ? "lg:col-start-1" : ""
                   }`}
                 >
-                  <Image
+                  <ImageWithCourtesy
                     src={section.image}
                     alt={section.description}
+                    courtesy={section.image_courtesy}
                     fill
                     className="object-cover object-top rounded-lg"
                   />
@@ -319,11 +321,12 @@ export default function HistoryPage() {
                 </p>
               </div>
               <div className="relative aspect-video w-full">
-                <Image
+                <ImageWithCourtesy
                   src="/images/history/whaling-heritage3.webp"
                   alt="Historic whaling vessel representing the maritime connection between Brava and New England"
                   fill
                   className="object-cover object-top rounded-lg"
+                  courtesy="New Bedford Whaling Museum"
                 />
               </div>
             </div>
