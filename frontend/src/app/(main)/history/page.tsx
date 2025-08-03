@@ -23,6 +23,7 @@ const historicalSections = [
     content:
       "Brava is fundamentally a geological creation of fire and sea—an ancient stratovolcano rising from the ocean floor. Though appearing as a separate landmass, it remains physically connected beneath the surface to the colossal volcano of neighboring Fogo, making it geologically part of the same immense structure. This submarine formation began 2-3 million years ago, with explosive sub-aerial volcanism occurring around 250,000 years ago, creating the dramatic landscape of steep cliffs and fertile valleys that defines the island today.",
     image: "/images/history/brava-formation.jpg",
+    image_courtesy: "[Geological Source TBD]", // TODO: Update with proper source attribution
   },
   {
     title: "Cultural Flowering",
@@ -31,6 +32,7 @@ const historicalSections = [
     content:
       "Brava transformed from a place of refuge into the cultural heart of Cape Verde. Here, Eugénio Tavares revolutionized the morna from satirical to soulful, creating the emotional template for the nation's music. His pioneering use of Brava Crioulo as a literary language elevated the vernacular to high art, giving voice to the universal Cape Verdean experience of *sodade*—the profound longing that defines the diaspora experience. The island's cultural contributions far exceed its small size, earning it recognition as the 'Island of Flowers'.",
     image: "/images/history/brava-culture.webp",
+    image_courtesy: "[Cultural Archive TBD]", // TODO: Update with proper source attribution
   },
   {
     title: "Transnational Community",
@@ -39,7 +41,7 @@ const historicalSections = [
     content:
       "The American whaling industry transformed Brava from an isolated Portuguese colony into a transnational community. Yankee whaling captains, impressed by Bravense maritime skills, recruited local men for voyages to Pacific hunting grounds. This connection created the 'Brava Packet Trade'—regular ship service between the island and New England ports, carrying passengers, mail, cargo, and crucial remittances. For over a century, whaling became Brava's principal industry, establishing permanent bonds with Massachusetts communities that continue today.",
     image: "/images/history/brava-maritime2.jpg",
-    image_courtesy: "New Bedford Whaling Museum",
+    image_courtesy: "[Maritime Archive TBD]", // TODO: Update with proper source attribution
   },
 ];
 
@@ -324,9 +326,9 @@ export default function HistoryPage() {
                 <ImageWithCourtesy
                   src="/images/history/whaling-heritage3.webp"
                   alt="Historic whaling vessel representing the maritime connection between Brava and New England"
+                  courtesy="[Whaling Museum Archive TBD]" // TODO: Update with proper source attribution
                   fill
                   className="object-cover object-top rounded-lg"
-                  courtesy="New Bedford Whaling Museum"
                 />
               </div>
             </div>

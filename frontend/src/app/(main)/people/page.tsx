@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { PageHeader } from "@/components/ui/page-header";
+import { ImageWithCourtesy } from "@/components/ui/image-with-courtesy";
 import {
   MusicalNoteIcon,
   StarIcon,
@@ -452,9 +453,11 @@ export default function PeoplePage() {
               </p>
             </div>
             <div className="relative h-64 lg:h-80">
-              <Image
+              {/* TODO: Update courtesy text with proper source attribution */}
+              <ImageWithCourtesy
                 src="/images/people/brava-cultural-heritage3.jpg"
                 alt="Cultural heritage of Brava Island showing traditional life and customs"
+                courtesy="[Cultural Archive TBD]"
                 fill
                 className="object-cover object-top rounded-lg"
               />
@@ -503,9 +506,12 @@ export default function PeoplePage() {
                 >
                   {figure.featured && (
                     <div className="relative aspect-[3/4] w-full max-w-sm mx-auto">
-                      <Image
+                      {/* TODO: Update courtesy text with proper source attribution */}
+                      <ImageWithCourtesy
                         src={figure.image}
                         alt={`Portrait of ${figure.name}`}
+                        courtesy="[Historical Archive TBD]"
+                        variant="large"
                         fill
                         className="object-cover object-top rounded-lg"
                       />
@@ -514,15 +520,19 @@ export default function PeoplePage() {
 
                   <div
                     className={
-                      figure.featured ? "" : "flex items-start space-x-4"
+                      figure.featured ? "" : "flex items-start"
                     }
                   >
                     {!figure.featured && (
-                      <div className="relative aspect-square h-28 w-28 flex-shrink-0">
-                        <Image
+                      <div className="flex-shrink-0 mr-4">
+                        {/* TODO: Update courtesy text with proper source attribution */}
+                        <ImageWithCourtesy
                           src={figure.image}
                           alt={`Portrait of ${figure.name}`}
-                          fill
+                          courtesy="[Historical Archive TBD]"
+                          variant="icon"
+                          width={112}
+                          height={112}
                           className="object-cover object-top rounded-full"
                         />
                       </div>
