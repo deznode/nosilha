@@ -749,42 +749,6 @@ export default function PeoplePage() {
             </p>
           </div>
         </section>
-
-        {/* Living Legacy */}
-        <section className="mt-16 bg-gradient-to-r from-ocean-blue/10 to-valley-green/10 p-8 rounded-lg">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6 text-center">
-            The Continuing Phenomenon
-          </h3>
-
-          <div className="grid gap-8 md:grid-cols-2">
-            <div className="text-center">
-              <h4 className="font-semibold text-lg text-text-primary mb-2">
-                Cultural DNA Transmission
-              </h4>
-              <p className="text-text-secondary">
-                From Tavares's morna to the Pires family luthiers, from Daddy
-                Grace's religious empire to contemporary conservationists—the
-                Brava Phenomenon continues through intergenerational
-                transmission of leadership, creativity, and
-                institutional-building skills.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <h4 className="font-semibold text-lg text-text-primary mb-2">
-                Global Resonance
-              </h4>
-              <p className="text-text-secondary">
-                These figures prove that significance cannot be measured by
-                population or geography, but by the reach and resonance of a
-                people's legacy. The story of Brava demonstrates that the
-                smallest islands can produce the most outsized influence on the
-                world stage.
-              </p>
-            </div>
-          </div>
-        </section>
-
         {/* Explore More */}
         <section className="mt-16 text-center">
           <h3 className="font-serif text-2xl font-bold text-text-primary mb-4">
@@ -825,17 +789,17 @@ export default function PeoplePage() {
 export async function generateMetadata() {
   return {
     title:
-      "Brava Island Historical Figures: The Phenomenon of Disproportionate Influence | Nos Ilha",
+      "Brava Island Historical Figures: Global Influence",
     description:
-      "Explore the extraordinary legacy of Brava Island's notable figures who achieved phenomenal global influence. From Eugénio Tavares who created Cape Verde's cultural soul to Marcelino \"Daddy\" Grace who built a spiritual empire, discover how the smallest island produced revolutionary impact on literature, music, religion, and politics across continents.",
+      "Discover Brava's remarkable legacy: Eugénio Tavares, Marcelino 'Daddy' Grace, David Soares, and contemporary leaders achieving extraordinary global influence.",
     openGraph: {
       title:
-        "The Brava Phenomenon: Historical Figures of Extraordinary Influence",
+        "The Brava Phenomenon: Era-Based Historical Figures & Contemporary Guardians",
       description:
-        'Discover Brava Island\'s remarkable legacy: Eugénio Tavares (morna music patriarch), Marcelino "Daddy" Grace (religious entrepreneur), João José Dias (Protestant pioneer), Artur Augusto da Silva (independence intellectual), David Soares (American politician), and contemporary leaders preserving heritage.',
+        'Journey through Brava\'s historical eras: Cultural Foundation with Eugénio Tavares, Political Awakening with independence intellectuals, Diaspora Expansion featuring "Daddy" Grace\'s phenomenal influence, and Contemporary Era with David Soares, Eugenia Duarte, Carlos Bango, and modern heritage preservationists.',
       images: ["/images/people/brava-cultural-heritage.jpg"],
     },
     keywords:
-      "Brava Island historical figures, Eugénio Tavares Cape Verde poet, Marcelino Daddy Grace United House Prayer, Brava Phenomenon disproportionate influence, João José Dias Church Nazarene Africa, morna music origins Brava, Cape Verde cultural patriots, Artur Augusto da Silva independence, David Soares Albany District Attorney, Adelina Domingues centenarian, Padre Pio Gottin missionary, Roosevelt Pires luthier Boston, Brava diaspora New England, whaling industry Cape Verde, sodade meaning longing, Crioulo literature language, Nhô Raul violinist, Ana Lúcia Ramos Lisboa filmmaker, Nilton Fernandes footballer, Vila Nova Sintra cultural heritage, Vuca Pinheiro mandolin music, Gardenia Benrós traditional singer, Cape Verde smallest island biggest influence, Biflores conservation Brava, ethnobotany traditional knowledge, Eugenia Duarte healthcare advocate, Carlos Bango environmental leader",
+      "Brava Island historical figures eras, Eugénio Tavares Cape Verde poet Cultural Foundation, Marcelino Daddy Grace United House Prayer Diaspora Expansion, Brava Phenomenon disproportionate influence levels, João José Dias Church Nazarene Africa, morna music origins Brava, Cape Verde cultural patriots Political Awakening, Artur Augusto da Silva independence intellectual, David Soares Albany District Attorney Contemporary Era, Adelina Domingues centenarian, Padre Pio Gottin missionary, Roosevelt Pires luthier Boston, Brava diaspora New England, whaling industry Cape Verde, sodade meaning longing, Crioulo literature language, Nhô Raul violinist traditional keeper, Ana Lúcia Ramos Lisboa filmmaker, Nilton Fernandes footballer global ambassador, Vila Nova Sintra cultural heritage, Vuca Pinheiro mandolin music contemporary, Gardenia Benrós traditional singer, Cape Verde smallest island biggest influence, Biflores conservation Brava, ethnobotany traditional knowledge, Eugenia Duarte healthcare advocate contemporary guardian, Carlos Bango environmental leader Biflores, Candida Rose singer cultural researcher, holistic heritage preservation, Revolutionary Phenomenal National Global Cultural influence levels, era-based organization historical progression",
   };
 }
