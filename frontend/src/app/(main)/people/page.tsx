@@ -766,12 +766,6 @@ export default function PeoplePage() {
               Explore History
             </Link>
             <Link
-              href="/media/music"
-              className="rounded-md border-2 border-valley-green px-6 py-3 text-base font-semibold text-valley-green transition-colors hover:bg-valley-green hover:text-white"
-            >
-              Music & Arts
-            </Link>
-            <Link
               href="/contribute"
               className="rounded-md border-2 border-ocean-blue px-6 py-3 text-base font-semibold text-ocean-blue transition-colors hover:bg-ocean-blue hover:text-white"
             >

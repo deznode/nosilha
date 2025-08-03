@@ -17,7 +17,7 @@ export default function PrivacyPage() {
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader
           title="Privacy Policy"
-          subtitle="This privacy policy explains how Nos Ilha collects, uses, and protects your personal information."
+          subtitle="Our commitment to protecting your privacy while preserving and celebrating Brava Island's cultural heritage together."
         />
 
         {/* Last Updated */}
@@ -40,16 +40,22 @@ export default function PrivacyPage() {
             <ShieldCheckIcon className="h-8 w-8 text-ocean-blue mr-3 mt-1" />
             <div>
               <h2 className="font-serif text-2xl font-bold text-text-primary mb-4">
-                Our Commitment to Privacy
+                Our Commitment to You and Brava&apos;s Heritage
               </h2>
               <p className="text-lg text-text-secondary mb-4">
-                Nos Ilha is committed to protecting your privacy and personal information. 
-                As a community-driven, volunteer-supported platform, we collect minimal 
-                data and use it only to improve your experience and serve the Brava Island community.
+                Nos Ilha is more than a website—it&apos;s a labor of love created by volunteers 
+                passionate about preserving Brava Island&apos;s rich cultural heritage. We&apos;re 
+                committed to protecting your privacy with the same care and respect we show 
+                for our island&apos;s traditions, stories, and community bonds.
+              </p>
+              <p className="text-text-secondary mb-4">
+                As a community-driven, volunteer-supported platform, we collect only the minimal 
+                information needed to help preserve and share Brava&apos;s cultural treasures, 
+                connect diaspora communities, and support local businesses and landmarks.
               </p>
               <p className="text-text-secondary">
-                This privacy policy describes how we collect, use, store, and protect 
-                your information when you use our website and services.
+                This privacy policy explains how we handle your information with the respect 
+                and transparency that our community deserves.
               </p>
             </div>
           </div>
@@ -68,9 +74,8 @@ export default function PrivacyPage() {
               </h4>
               <ul className="space-y-2 text-text-secondary ml-4">
                 <li>• Account registration information (name, email address)</li>
-                <li>• Content you submit (directory entries, photos, comments)</li>
-                <li>• Contact form submissions and support requests</li>
-                <li>• Newsletter subscription information</li>
+                <li>• Cultural content you share (stories about Brava, photos, business information, historical memories)</li>
+                <li>• Support requests and inquiries you send us</li>
                 <li>• User preferences and settings</li>
               </ul>
             </div>
@@ -94,9 +99,8 @@ export default function PrivacyPage() {
               </h4>
               <ul className="space-y-2 text-text-secondary ml-4">
                 <li>• Authentication data from Supabase (our authentication provider)</li>
-                <li>• Analytics data from Google Analytics (if enabled)</li>
+                <li>• Analytics data for platform improvement (anonymized usage patterns)</li>
                 <li>• Map data from Mapbox for location services</li>
-                <li>• Social media interactions (if you connect social accounts)</li>
               </ul>
             </div>
           </div>
@@ -111,27 +115,26 @@ export default function PrivacyPage() {
           <div className="grid gap-6 md:grid-cols-2">
             <div>
               <h4 className="font-semibold text-lg text-text-primary mb-3">
-                Platform Operation
+                Preserving Cultural Heritage
               </h4>
               <ul className="space-y-2 text-text-secondary">
-                <li>• Provide and maintain our services</li>
-                <li>• Process and display your contributions</li>
-                <li>• Authenticate and secure your account</li>
-                <li>• Respond to support requests</li>
-                <li>• Send important service notifications</li>
+                <li>• Share and preserve stories about Brava Island</li>
+                <li>• Display your cultural contributions to help others discover the island</li>
+                <li>• Connect diaspora communities with their homeland</li>
+                <li>• Support local businesses and cultural sites</li>
+                <li>• Keep you informed about important updates</li>
               </ul>
             </div>
             
             <div>
               <h4 className="font-semibold text-lg text-text-primary mb-3">
-                Improvement & Communication
+                Community Care & Protection
               </h4>
               <ul className="space-y-2 text-text-secondary">
-                <li>• Improve platform functionality</li>
-                <li>• Analyze usage patterns and trends</li>
-                <li>• Send newsletter updates (with consent)</li>
-                <li>• Prevent fraud and abuse</li>
-                <li>• Comply with legal requirements</li>
+                <li>• Improve the platform to better serve our community</li>
+                <li>• Understand how people use the site to make it more helpful</li>
+                <li>• Protect the community from spam and inappropriate content</li>
+                <li>• Follow laws that help keep everyone safe</li>
               </ul>
             </div>
           </div>
@@ -183,7 +186,7 @@ export default function PrivacyPage() {
                 Your Privacy Rights
               </h3>
               <p className="text-text-secondary mb-4">
-                You have the following rights regarding your personal information:
+                As a valued member of our community, you have full control over your personal information:
               </p>
               
               <div className="grid gap-4 md:grid-cols-2">
@@ -200,7 +203,6 @@ export default function PrivacyPage() {
                 <div>
                   <h4 className="font-semibold text-text-primary mb-2">Communication</h4>
                   <ul className="text-text-secondary space-y-1">
-                    <li>• Opt out of marketing emails</li>
                     <li>• Limit data processing</li>
                     <li>• Object to certain uses</li>
                     <li>• File privacy complaints</li>
@@ -219,28 +221,28 @@ export default function PrivacyPage() {
           
           <div className="space-y-4">
             <p className="text-text-secondary">
-              We use cookies and similar technologies to enhance your experience:
+              We use simple cookies to make your visits to our cultural heritage platform more enjoyable:
             </p>
             
             <div className="grid gap-4 md:grid-cols-3">
               <div className="bg-background-tertiary p-4 rounded">
                 <h4 className="font-semibold text-text-primary mb-2">Essential Cookies</h4>
                 <p className="text-sm text-text-secondary">
-                  Required for basic website functionality, authentication, and security.
+                  Needed for the website to work properly and keep your account secure.
                 </p>
               </div>
               
               <div className="bg-background-tertiary p-4 rounded">
                 <h4 className="font-semibold text-text-primary mb-2">Analytics Cookies</h4>
                 <p className="text-sm text-text-secondary">
-                  Help us understand how visitors use our site to improve performance.
+                  Help us understand how to make the platform more useful for our community.
                 </p>
               </div>
               
               <div className="bg-background-tertiary p-4 rounded">
                 <h4 className="font-semibold text-text-primary mb-2">Preference Cookies</h4>
                 <p className="text-sm text-text-secondary">
-                  Remember your settings and preferences for a better experience.
+                  Remember your preferences so you feel at home when you visit.
                 </p>
               </div>
             </div>
@@ -292,11 +294,11 @@ export default function PrivacyPage() {
               <div>
                 <h4 className="font-semibold text-text-primary mb-2">Analytics</h4>
                 <p className="text-sm text-text-secondary mb-2">
-                  <strong>Google Analytics:</strong> Provides website usage analytics (if enabled).
+                  <strong>Privacy-Focused Analytics:</strong> We use minimal, anonymized analytics to understand how to better serve our community.
                 </p>
-                <Link href="https://policies.google.com/privacy" className="text-xs text-ocean-blue hover:underline">
-                  View Google Privacy Policy
-                </Link>
+                <p className="text-xs text-text-secondary">
+                  Data is aggregated and cannot be traced to individual users.
+                </p>
               </div>
             </div>
           </div>
@@ -310,25 +312,26 @@ export default function PrivacyPage() {
           
           <div className="space-y-4">
             <p className="text-text-secondary">
-              We retain your information only as long as necessary for the purposes outlined in this policy:
+              We keep your information only as long as needed to preserve Brava&apos;s cultural heritage and serve our community:
             </p>
             
             <ul className="space-y-2 text-text-secondary ml-4">
-              <li>• Account data: Retained while your account is active</li>
-              <li>• Content contributions: Retained to maintain platform integrity</li>
-              <li>• Log data: Typically retained for 30-90 days</li>
-              <li>• Analytics data: Aggregated and anonymized after 26 months</li>
-              <li>• Marketing data: Retained until you unsubscribe</li>
+              <li>• Account data: Kept while you&apos;re part of our community</li>
+              <li>• Cultural contributions: Preserved to maintain our shared heritage</li>
+              <li>• Technical data: Kept briefly for security and improvements</li>
+              <li>• Usage insights: Made anonymous to protect individual privacy</li>
             </ul>
             
             <p className="text-text-secondary mt-4">
-              When you delete your account, we will remove your personal information within 30 days, 
-              though some information may remain in backups for up to 90 days.
+              If you decide to leave our community, we&apos;ll remove your personal information 
+              promptly while preserving any cultural contributions you&apos;ve chosen to share 
+              for the benefit of future generations learning about Brava.
             </p>
           </div>
         </section>
 
         {/* Contact Information */}
+        {/* TODO: Verify that privacy@nosilha.com is set up and monitored */}
         <section className="mt-16 bg-gradient-to-r from-ocean-blue/10 to-valley-green/10 p-8 rounded-lg">
           <div className="text-center">
             <EnvelopeIcon className="h-12 w-12 text-ocean-blue mx-auto mb-4" />

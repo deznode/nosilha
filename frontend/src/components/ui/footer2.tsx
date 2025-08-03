@@ -11,7 +11,6 @@ const navigation = {
   culture: [
     { name: "History of Brava", href: "/history" },
     { name: "Historical Figures", href: "/people" },
-    { name: "Music & Arts", href: "/media/music" },
   ],
   connect: [
     { name: "About Us", href: "/about" },

@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/ui/page-header";
-import { 
-  EnvelopeIcon, 
-  ChatBubbleLeftRightIcon, 
+import {
+  EnvelopeIcon,
+  ChatBubbleLeftRightIcon,
   QuestionMarkCircleIcon,
   CodeBracketIcon,
   CameraIcon,
-  MapIcon
+  MapIcon,
 } from "@heroicons/react/24/outline";
 
 // Static page - no revalidation needed
@@ -22,11 +22,15 @@ export default function ContactPage() {
         />
 
         {/* Contact Methods */}
+        {/* TODO: Verify that these email addresses are set up and monitored:
+             - info@nosilha.com
+             - contribute@nosilha.com  
+             - dev@nosilha.com */}
         <section className="mt-16">
           <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
             Get in Touch
           </h3>
-          
+
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {/* General Inquiries */}
             <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center">
@@ -35,7 +39,8 @@ export default function ContactPage() {
                 General Inquiries
               </h4>
               <p className="text-text-secondary mb-4">
-                Questions about the platform, partnerships, or general information.
+                Questions about the platform, partnerships, or general
+                information.
               </p>
               <a
                 href="mailto:info@nosilha.com"
@@ -71,12 +76,22 @@ export default function ContactPage() {
               <p className="text-text-secondary mb-4">
                 Development questions, bug reports, or technical collaboration.
               </p>
-              <a
-                href="mailto:dev@nosilha.com"
-                className="inline-flex items-center text-bougainvillea-pink hover:text-bougainvillea-pink/80 font-medium"
-              >
-                dev@nosilha.com
-              </a>
+              <div className="space-y-2">
+                <a
+                  href="mailto:dev@nosilha.com"
+                  className="block text-bougainvillea-pink hover:text-bougainvillea-pink/80 font-medium"
+                >
+                  dev@nosilha.com
+                </a>
+                <a
+                  href="https://github.com/bravdigital/nosilha"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-bougainvillea-pink hover:text-bougainvillea-pink/80 font-medium text-sm"
+                >
+                  GitHub Repository →
+                </a>
+              </div>
             </div>
           </div>
         </section>
@@ -86,11 +101,30 @@ export default function ContactPage() {
           <h3 className="font-serif text-2xl font-bold text-text-primary mb-6 text-center">
             Send Us a Message
           </h3>
-          
-          <form className="max-w-2xl mx-auto">
+
+          {/* Form Notice */}
+          <div className="max-w-2xl mx-auto mb-6 p-4 bg-sunny-yellow/10 border border-sunny-yellow/20 rounded-md">
+            <div className="flex items-center">
+              <QuestionMarkCircleIcon className="h-6 w-6 text-sunny-yellow mr-3" />
+              <div>
+                <p className="text-sm text-text-primary font-medium">
+                  Contact form coming soon!
+                </p>
+                <p className="text-xs text-text-secondary">
+                  For now, please use the email addresses above to get in touch
+                  with us directly.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <form className="max-w-2xl mx-auto opacity-50 pointer-events-none">
             <div className="grid gap-6 md:grid-cols-2">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-text-primary mb-2">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-text-primary mb-2"
+                >
                   Your Name
                 </label>
                 <input
@@ -101,9 +135,12 @@ export default function ContactPage() {
                   placeholder="Enter your name"
                 />
               </div>
-              
+
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-text-primary mb-2">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-text-primary mb-2"
+                >
                   Email Address
                 </label>
                 <input
@@ -115,9 +152,12 @@ export default function ContactPage() {
                 />
               </div>
             </div>
-            
+
             <div className="mt-6">
-              <label htmlFor="subject" className="block text-sm font-medium text-text-primary mb-2">
+              <label
+                htmlFor="subject"
+                className="block text-sm font-medium text-text-primary mb-2"
+              >
                 Subject
               </label>
               <select
@@ -134,9 +174,12 @@ export default function ContactPage() {
                 <option value="other">Other</option>
               </select>
             </div>
-            
+
             <div className="mt-6">
-              <label htmlFor="message" className="block text-sm font-medium text-text-primary mb-2">
+              <label
+                htmlFor="message"
+                className="block text-sm font-medium text-text-primary mb-2"
+              >
                 Message
               </label>
               <textarea
@@ -147,7 +190,7 @@ export default function ContactPage() {
                 placeholder="Tell us how we can help you..."
               ></textarea>
             </div>
-            
+
             <div className="mt-6 text-center">
               <button
                 type="submit"
@@ -164,7 +207,7 @@ export default function ContactPage() {
           <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
             Frequently Asked Questions
           </h3>
-          
+
           <div className="grid gap-6 md:grid-cols-2">
             <div className="bg-background-primary p-6 rounded-lg shadow-sm">
               <div className="flex items-start mb-3">
@@ -174,12 +217,20 @@ export default function ContactPage() {
                 </h4>
               </div>
               <p className="text-text-secondary ml-9">
-                Visit our <Link href="/contribute" className="text-ocean-blue hover:underline">contribute page</Link> or 
-                use the <Link href="/add-entry" className="text-ocean-blue hover:underline">add entry form</Link> to 
-                submit your business information. Our team will review and publish it.
+                Visit our{" "}
+                <Link
+                  href="/contribute"
+                  className="text-ocean-blue hover:underline"
+                >
+                  contribute page
+                </Link>{" "}
+                for detailed instructions. We need your business name, location,
+                contact details, description, and photos if possible. All
+                submissions are reviewed by our volunteer team within 1-2 weeks
+                to ensure accuracy and cultural authenticity.
               </p>
             </div>
-            
+
             <div className="bg-background-primary p-6 rounded-lg shadow-sm">
               <div className="flex items-start mb-3">
                 <QuestionMarkCircleIcon className="h-6 w-6 text-valley-green mr-3 mt-0.5" />
@@ -188,12 +239,20 @@ export default function ContactPage() {
                 </h4>
               </div>
               <p className="text-text-secondary ml-9">
-                Absolutely! We welcome photo contributions from community members. 
-                Please ensure you have permission to share the images and include 
-                location information when possible.
+                Yes! We especially welcome high-quality photos of landscapes,
+                cultural events, local businesses, and daily life on Brava.
+                Please ensure you own the photos or have permission to share
+                them, include specific location details, and send them to{" "}
+                <a
+                  href="mailto:contribute@nosilha.com"
+                  className="text-valley-green hover:underline"
+                >
+                  contribute@nosilha.com
+                </a>{" "}
+                with a brief description of what and where the photo was taken.
               </p>
             </div>
-            
+
             <div className="bg-background-primary p-6 rounded-lg shadow-sm">
               <div className="flex items-start mb-3">
                 <QuestionMarkCircleIcon className="h-6 w-6 text-bougainvillea-pink mr-3 mt-0.5" />
@@ -202,12 +261,20 @@ export default function ContactPage() {
                 </h4>
               </div>
               <p className="text-text-secondary ml-9">
-                Currently, the platform is available in English, but we're planning 
-                to add Portuguese and Kriolu support in the future. If you'd like to 
-                help with translation, please contact us.
+                Currently available in English only. We&apos;re actively
+                planning Portuguese and Kriolu (Cape Verdean Crioulo) support
+                for 2026. If you&apos;re fluent in these languages and
+                interested in helping translate content, please email{" "}
+                <a
+                  href="mailto:contribute@nosilha.com"
+                  className="text-bougainvillea-pink hover:underline"
+                >
+                  contribute@nosilha.com
+                </a>{" "}
+                with &quot;Translation Help&quot; in the subject line.
               </p>
             </div>
-            
+
             <div className="bg-background-primary p-6 rounded-lg shadow-sm">
               <div className="flex items-start mb-3">
                 <QuestionMarkCircleIcon className="h-6 w-6 text-sunny-yellow mr-3 mt-0.5" />
@@ -216,8 +283,25 @@ export default function ContactPage() {
                 </h4>
               </div>
               <p className="text-text-secondary ml-9">
-                Nos Ilha is an open-source project! Check out our GitHub repository 
-                or contact our development team to learn about contributing to the codebase.
+                Nos Ilha is fully open-source! Visit our{" "}
+                <a
+                  href="https://github.com/bravdigital/nosilha"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sunny-yellow hover:underline"
+                >
+                  GitHub repository
+                </a>{" "}
+                to see current issues, contribution guidelines, and the tech
+                stack (Next.js, React, Spring Boot, Kotlin). New developers can
+                start with &quot;good first issue&quot; labels, or email{" "}
+                <a
+                  href="mailto:dev@nosilha.com"
+                  className="text-sunny-yellow hover:underline"
+                >
+                  dev@nosilha.com
+                </a>{" "}
+                for guidance.
               </p>
             </div>
           </div>
@@ -229,7 +313,8 @@ export default function ContactPage() {
             Join Our Community
           </h3>
           <p className="text-lg text-text-secondary mb-6">
-            Connect with other Brava Island enthusiasts and stay updated on platform developments.
+            Connect with other Brava Island enthusiasts and stay updated on
+            platform developments.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -238,6 +323,14 @@ export default function ContactPage() {
             >
               Contribute Content
             </Link>
+            <a
+              href="https://github.com/bravdigital/nosilha"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-md border-2 border-bougainvillea-pink px-6 py-3 text-base font-semibold text-bougainvillea-pink transition-colors hover:bg-bougainvillea-pink hover:text-white"
+            >
+              View on GitHub
+            </a>
             <Link
               href="/about"
               className="rounded-md border-2 border-valley-green px-6 py-3 text-base font-semibold text-valley-green transition-colors hover:bg-valley-green hover:text-white"
@@ -254,7 +347,8 @@ export default function ContactPage() {
             <div>
               <h4 className="font-semibold text-text-primary">Response Time</h4>
               <p className="text-text-secondary">
-                We typically respond to inquiries within 24-48 hours. Thank you for your patience!
+                We typically respond to inquiries within 24-48 hours. Thank you
+                for your patience!
               </p>
             </div>
           </div>
@@ -267,12 +361,14 @@ export default function ContactPage() {
 // Generate metadata for SEO
 export async function generateMetadata() {
   return {
-    title: 'Contact Us | Nos Ilha - Get in Touch',
-    description: 'Contact the Nos Ilha team for inquiries, contributions, technical support, or to learn more about our community-driven platform for Brava Island.',
+    title: "Contact Us | Nos Ilha - Get in Touch",
+    description:
+      "Contact the Nos Ilha team for inquiries, contributions, technical support, or to learn more about our community-driven platform for Brava Island.",
     openGraph: {
-      title: 'Contact Nos Ilha',
-      description: 'Get in touch with the Nos Ilha community for support, contributions, or general inquiries about Brava Island.',
-      images: ['/images/contact/contact-hero.jpg'],
+      title: "Contact Nos Ilha",
+      description:
+        "Get in touch with the Nos Ilha community for support, contributions, or general inquiries about Brava Island.",
+      images: ["/images/contact/contact-hero.jpg"],
     },
   };
 }
