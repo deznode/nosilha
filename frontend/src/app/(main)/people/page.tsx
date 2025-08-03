@@ -531,6 +531,7 @@ export default function PeoplePage() {
                           alt={`Portrait of ${figure.name}`}
                           courtesy="[Historical Archive TBD]"
                           variant="icon"
+                          tooltipPosition="right"
                           width={112}
                           height={112}
                           className="object-cover object-top rounded-full"

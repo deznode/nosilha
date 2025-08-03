@@ -13,6 +13,8 @@ type ImageWithCourtesyProps = {
   variant?: "large" | "small" | "icon" | "auto";
   showTooltip?: boolean;
   iconPosition?: "bottom-right" | "top-right" | "bottom-left";
+  tooltipPosition?: "auto" | "top-left" | "top-right" | "top-center" | "bottom-left" | "bottom-right" | "left" | "right";
+  tooltipAlignment?: "start" | "center" | "end";
 };
 
 export function ImageWithCourtesy({
@@ -26,6 +28,8 @@ export function ImageWithCourtesy({
   variant = "large",
   showTooltip = true,
   iconPosition = "bottom-right",
+  tooltipPosition = "auto",
+  tooltipAlignment = "center",
 }: ImageWithCourtesyProps) {
   const imageProps = fill ? { fill } : { width, height };
   
@@ -47,6 +51,40 @@ export function ImageWithCourtesy({
     "bottom-right": "bottom-1 right-1",
     "top-right": "top-1 right-1",
     "bottom-left": "bottom-1 left-1"
+  };
+
+  // Smart tooltip positioning logic
+  const getTooltipPositionClasses = (position: string, iconPos: string) => {
+    const baseClasses = "absolute px-2 py-1 bg-background-tertiary/95 text-text-primary text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap backdrop-blur-sm z-10 pointer-events-none";
+    
+    // Auto-detect optimal position based on icon placement and context
+    if (position === "auto") {
+      // For left-side images (common in people page), show tooltip to the right
+      // For centered images, show above
+      switch (iconPos) {
+        case "bottom-right":
+          return `${baseClasses} left-full top-1/2 transform -translate-y-1/2 ml-2`; // Right side
+        case "top-right":
+          return `${baseClasses} bottom-full right-0 mb-2`; // Above, right-aligned
+        case "bottom-left":
+          return `${baseClasses} right-full top-1/2 transform -translate-y-1/2 mr-2`; // Left side
+        default:
+          return `${baseClasses} bottom-full left-1/2 transform -translate-x-1/2 mb-2`; // Above, centered
+      }
+    }
+    
+    // Explicit positioning
+    const positionClasses = {
+      "top-left": "bottom-full left-0 mb-2",
+      "top-right": "bottom-full right-0 mb-2",
+      "top-center": "bottom-full left-1/2 transform -translate-x-1/2 mb-2",
+      "bottom-left": "top-full left-0 mt-2",
+      "bottom-right": "top-full right-0 mt-2",
+      "left": "right-full top-1/2 transform -translate-y-1/2 mr-2",
+      "right": "left-full top-1/2 transform -translate-y-1/2 ml-2"
+    };
+    
+    return `${baseClasses} ${positionClasses[position] || positionClasses["top-right"]}`;
   };
 
   if (effectiveVariant === "icon") {
@@ -73,7 +111,7 @@ export function ImageWithCourtesy({
             
             {/* Tooltip on hover */}
             {showTooltip && (
-              <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-background-tertiary/95 text-text-primary text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap backdrop-blur-sm z-10 pointer-events-none">
+              <div className={getTooltipPositionClasses(tooltipPosition, iconPosition)}>
                 Courtesy of: {courtesy}
               </div>
             )}
