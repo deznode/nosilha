@@ -17,8 +17,8 @@ export default function TermsPage() {
     <div className="bg-background-secondary font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader
-          title="Terms of Service"
-          subtitle="Please read these terms carefully before using the Nos Ilha platform. By using our services, you agree to be bound by these terms."
+          title="Community Guidelines"
+          subtitle="Welcome to our community dedicated to preserving and celebrating Brava Island's cultural heritage. These guidelines help us create a respectful and welcoming space for everyone who shares our passion for the island's history and traditions."
         />
 
         {/* Last Updated */}
@@ -41,52 +41,46 @@ export default function TermsPage() {
             <DocumentTextIcon className="h-8 w-8 text-ocean-blue mr-3 mt-1" />
             <div>
               <h2 className="font-serif text-2xl font-bold text-text-primary mb-4">
-                Welcome to Nos Ilha
+                Welcome to Our Cultural Heritage Community
               </h2>
               <p className="text-lg text-text-secondary mb-4">
-                These Terms of Service ("Terms") govern your use of the Nos Ilha platform, 
-                website, and services. Nos Ilha is a community-driven platform celebrating 
-                the cultural heritage and natural beauty of Brava Island, Cape Verde.
+                Nos Ilha is more than just a website—it&apos;s a labor of love created by volunteers 
+                who are passionate about preserving and sharing the remarkable cultural heritage 
+                of Brava Island, Cape Verde. Our mission is to create a digital home where the 
+                stories, traditions, and beauty of our beloved &ldquo;Ilha das Flores&rdquo; can be 
+                celebrated and passed down to future generations.
               </p>
               <p className="text-text-secondary">
-                By accessing or using our platform, you agree to comply with and be bound 
-                by these Terms. If you do not agree to these Terms, please do not use our services.
+                These community guidelines help us maintain a space that honors our shared values 
+                of respect, authenticity, and cultural preservation. By participating in our 
+                community, you&apos;re helping us keep Brava&apos;s heritage alive for the world to discover.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Acceptance and Eligibility */}
+        {/* Acceptance and Community Guidelines */}
         <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
           <h3 className="font-serif text-2xl font-bold text-text-primary mb-6">
-            1. Acceptance and Eligibility
+            1. Welcome to Our Community
           </h3>
           
           <div className="space-y-4">
             <div>
               <h4 className="font-semibold text-lg text-text-primary mb-2">
-                1.1 Agreement to Terms
+                1.1 Joining Our Community
               </h4>
               <p className="text-text-secondary">
-                By using Nos Ilha, you confirm that you have read, understood, and agree to be bound by these Terms and our Privacy Policy.
+                By exploring Nos Ilha, you&apos;re joining a community dedicated to celebrating and preserving Brava Island&apos;s rich cultural heritage. Using our platform means you agree to these community guidelines and our Privacy Policy.
               </p>
             </div>
             
             <div>
               <h4 className="font-semibold text-lg text-text-primary mb-2">
-                1.2 Age Requirements
+                1.2 Respectful Participation
               </h4>
               <p className="text-text-secondary">
-                You must be at least 13 years old to use our services. If you are under 18, you must have parental consent to use our platform.
-              </p>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold text-lg text-text-primary mb-2">
-                1.3 Capacity to Enter Agreement
-              </h4>
-              <p className="text-text-secondary">
-                You represent that you have the legal capacity to enter into these Terms and that your use of our services complies with applicable laws.
+                We welcome everyone who shares our passion for Brava&apos;s culture and heritage. By participating, you agree to engage respectfully and follow applicable laws in your use of our platform.
               </p>
             </div>
           </div>
@@ -175,53 +169,52 @@ export default function TermsPage() {
           </div>
         </section>
 
-        {/* User Content and Conduct */}
+        {/* Community Contributions */}
         <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
           <div className="flex items-start mb-4">
             <UsersIcon className="h-8 w-8 text-valley-green mr-3 mt-1" />
             <div>
               <h3 className="font-serif text-2xl font-bold text-text-primary mb-6">
-                4. User Content and Conduct
+                4. Sharing Our Cultural Heritage
               </h3>
               
               <div className="space-y-4">
                 <div>
                   <h4 className="font-semibold text-lg text-text-primary mb-2">
-                    4.1 Content Guidelines
+                    4.1 How to Contribute Meaningfully
                   </h4>
-                  <p className="text-text-secondary mb-2">When contributing content, you must:</p>
+                  <p className="text-text-secondary mb-2">We encourage you to share stories, photos, and memories that celebrate Brava&apos;s heritage. Great contributions:</p>
                   <ul className="text-text-secondary space-y-1 ml-4">
-                    <li>• Provide accurate and truthful information</li>
-                    <li>• Respect intellectual property rights</li>
-                    <li>• Only submit content you have permission to share</li>
-                    <li>• Respect local culture and traditions</li>
-                    <li>• Avoid offensive, discriminatory, or harmful content</li>
+                    <li>• Share authentic stories and accurate information about the island</li>
+                    <li>• Honor and respect Brava&apos;s cultural traditions and values</li>
+                    <li>• Include only content you have permission to share</li>
+                    <li>• Help preserve our community&apos;s history for future generations</li>
+                    <li>• Create a welcoming space for all who love Brava</li>
                   </ul>
                 </div>
                 
                 <div>
                   <h4 className="font-semibold text-lg text-text-primary mb-2">
-                    4.2 Prohibited Conduct
+                    4.2 Keeping Our Community Safe
                   </h4>
-                  <p className="text-text-secondary mb-2">You may not:</p>
+                  <p className="text-text-secondary mb-2">To maintain a respectful environment for everyone, please avoid:</p>
                   <ul className="text-text-secondary space-y-1 ml-4">
-                    <li>• Post false, misleading, or defamatory content</li>
-                    <li>• Harass, threaten, or intimidate other users</li>
-                    <li>• Spam or engage in commercial solicitation</li>
-                    <li>• Attempt to hack or disrupt our services</li>
-                    <li>• Violate applicable laws or regulations</li>
-                    <li>• Impersonate others or misrepresent your identity</li>
+                    <li>• Sharing inaccurate or misleading information about our community</li>
+                    <li>• Content that disrespects our culture or hurts community members</li>
+                    <li>• Unwanted promotional or commercial content</li>
+                    <li>• Technical disruption of our platform</li>
+                    <li>• Pretending to be someone you&apos;re not</li>
                   </ul>
                 </div>
                 
                 <div>
                   <h4 className="font-semibold text-lg text-text-primary mb-2">
-                    4.3 Content Ownership and License
+                    4.3 Sharing Your Stories
                   </h4>
                   <p className="text-text-secondary">
-                    You retain ownership of content you submit but grant us a non-exclusive, 
-                    royalty-free license to use, display, and distribute your content on our platform 
-                    for the purpose of operating and promoting our services.
+                    When you share content with us, you keep ownership of your stories and photos. 
+                    You&apos;re giving us permission to display and share your contributions on our platform 
+                    to help preserve and celebrate Brava&apos;s cultural heritage together.
                   </p>
                 </div>
               </div>
@@ -288,44 +281,44 @@ export default function TermsPage() {
           </div>
         </section>
 
-        {/* Disclaimers and Limitations */}
+        {/* Important Notices */}
         <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
           <div className="flex items-start mb-4">
             <ExclamationTriangleIcon className="h-8 w-8 text-sunny-yellow mr-3 mt-1" />
             <div>
               <h3 className="font-serif text-2xl font-bold text-text-primary mb-6">
-                7. Disclaimers and Limitations
+                7. Important Things to Know
               </h3>
               
               <div className="space-y-4">
                 <div>
                   <h4 className="font-semibold text-lg text-text-primary mb-2">
-                    7.1 Service Disclaimer
+                    7.1 About Our Content
                   </h4>
                   <p className="text-text-secondary">
-                    Our services are provided "as is" without warranties of any kind. 
-                    We do not guarantee the accuracy, completeness, or reliability of content on our platform.
+                    While we work hard to provide accurate information about Brava Island, 
+                    we&apos;re a volunteer-driven community platform. We cannot guarantee that all 
+                    information is complete or error-free, so please use your best judgment.
                   </p>
                 </div>
                 
                 <div>
                   <h4 className="font-semibold text-lg text-text-primary mb-2">
-                    7.2 Limitation of Liability
+                    7.2 Our Responsibility
                   </h4>
                   <p className="text-text-secondary">
-                    To the fullest extent permitted by law, Nos Ilha shall not be liable for any 
-                    indirect, incidental, special, consequential, or punitive damages arising from 
-                    your use of our services.
+                    As a community heritage project, we provide this platform &ldquo;as is&rdquo; and do our best to keep it running smoothly. 
+                    However, we cannot be responsible for any problems that might arise from using our services.
                   </p>
                 </div>
                 
                 <div>
                   <h4 className="font-semibold text-lg text-text-primary mb-2">
-                    7.3 Third-Party Services
+                    7.3 External Links
                   </h4>
                   <p className="text-text-secondary">
-                    Our platform may contain links to third-party websites or services. 
-                    We are not responsible for the content, privacy policies, or practices of third parties.
+                    Sometimes we link to other websites that we think you&apos;ll find interesting. 
+                    We&apos;re not responsible for what happens on those other sites - each has its own rules and policies.
                   </p>
                 </div>
               </div>
@@ -333,40 +326,42 @@ export default function TermsPage() {
           </div>
         </section>
 
-        {/* Termination */}
+        {/* Account Management */}
         <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
           <h3 className="font-serif text-2xl font-bold text-text-primary mb-6">
-            8. Termination
+            8. Account Management
           </h3>
           
           <div className="space-y-4">
             <div>
               <h4 className="font-semibold text-lg text-text-primary mb-2">
-                8.1 Termination by You
+                8.1 Managing Your Account
               </h4>
               <p className="text-text-secondary">
-                You may terminate your account at any time by contacting us or using account 
-                deletion features. Upon termination, your access to the platform will cease.
+                You&apos;re always free to leave our community at any time by contacting us or using 
+                our account deletion features. We&apos;ll be sad to see you go, but we respect your choice.
               </p>
             </div>
             
             <div>
               <h4 className="font-semibold text-lg text-text-primary mb-2">
-                8.2 Termination by Us
+                8.2 Community Standards
               </h4>
               <p className="text-text-secondary">
-                We may suspend or terminate your access to our services at any time, with or without 
-                cause, including for violation of these Terms or harmful conduct.
+                If someone&apos;s behavior goes against our community spirit or these guidelines, 
+                we may need to temporarily restrict or remove their access to keep our platform 
+                safe and welcoming for everyone who loves Brava&apos;s heritage.
               </p>
             </div>
             
             <div>
               <h4 className="font-semibold text-lg text-text-primary mb-2">
-                8.3 Effect of Termination
+                8.3 Moving Forward
               </h4>
               <p className="text-text-secondary">
-                Upon termination, your right to use our services will immediately cease. 
-                Provisions that by their nature should survive termination will remain in effect.
+                If you decide to leave or if we need to restrict access, the basic protections 
+                around content and community standards will continue to apply to maintain the 
+                integrity of our cultural heritage platform.
               </p>
             </div>
           </div>
@@ -435,17 +430,18 @@ export default function TermsPage() {
         <section className="mt-16 bg-gradient-to-r from-ocean-blue/10 to-valley-green/10 p-8 rounded-lg">
           <div className="text-center">
             <h3 className="font-serif text-2xl font-bold text-text-primary mb-4">
-              Questions About These Terms?
+              Questions About Our Community?
             </h3>
             <p className="text-lg text-text-secondary mb-6">
-              If you have questions about these Terms of Service, please contact us.
+              We&apos;re here to help! If you have any questions about our community guidelines 
+              or need assistance, please reach out to us.
             </p>
             <div className="space-y-2">
               <p className="text-text-secondary">
-                <strong>Email:</strong> legal@nosilha.com
+                <strong>Community Support:</strong> info@nosilha.com
               </p>
               <p className="text-text-secondary">
-                <strong>General Contact:</strong> info@nosilha.com
+                <strong>Legal Questions:</strong> legal@nosilha.com
               </p>
             </div>
           </div>
@@ -485,12 +481,12 @@ export default function TermsPage() {
 // Generate metadata for SEO
 export async function generateMetadata() {
   return {
-    title: 'Terms of Service | Nos Ilha',
-    description: 'Read the Terms of Service for Nos Ilha, including user guidelines, content policies, and platform rules for our community-driven platform.',
+    title: 'Community Guidelines | Nos Ilha',
+    description: 'Join our community dedicated to preserving Brava Island\'s cultural heritage. Read our welcoming guidelines for sharing stories, photos, and celebrating our island\'s traditions together.',
     openGraph: {
-      title: 'Terms of Service - Nos Ilha',
-      description: 'Terms of Service for the Nos Ilha platform, outlining user rights, responsibilities, and community guidelines.',
-      images: ['/images/terms/terms-of-service.jpg'],
+      title: 'Community Guidelines - Nos Ilha',
+      description: 'Community guidelines for the Nos Ilha platform, celebrating Brava Island\'s cultural heritage through respectful participation and shared passion.',
+      images: ['/images/terms/community-guidelines.jpg'],
     },
     robots: {
       index: true,

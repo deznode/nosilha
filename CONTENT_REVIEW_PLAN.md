@@ -79,11 +79,11 @@ This document provides a comprehensive plan for reviewing, fact-checking, and en
 - **Cultural Claims**: Verify "Island of Flowers and Music" historical basis
 
 #### Specific Verification Tasks:
-- [ ] **1462 Discovery**: Research Portuguese navigation records for Brava discovery
-- [ ] **1680s Settlement**: Verify volcanic activity on Fogo and subsequent migration
-- [ ] **Eugénio Tavares**: Verify birth/death dates (1867-1930), works, and contributions
-- [ ] **"Nhô Djunga"**: Research if this is a real historical figure or placeholder
-- [ ] **Independence Date**: Verify 1975 Cape Verde independence details
+- [x] **1462 Discovery**: Research Portuguese navigation records for Brava discovery
+- [x] **1680s Settlement**: Verify volcanic activity on Fogo and subsequent migration
+- [x] **Eugénio Tavares**: Verify birth/death dates (1867-1930), works, and contributions
+- [x] **"Nhô Djunga"**: Research if this is a real historical figure or placeholder
+- [x] **Independence Date**: Verify 1975 Cape Verde independence details
 
 #### Content Gaps to Address:
 - Pre-colonial indigenous presence (if any)
@@ -112,10 +112,10 @@ This document provides a comprehensive plan for reviewing, fact-checking, and en
 - **Community Figures**: Verify Nha Nasia Gomi, Ti Goi, Dona Bibinha - check if real or fictional
 
 #### Research Priority Tasks:
-- [ ] **Primary Source Research**: Access Cape Verde National Archives for biographical records
-- [ ] **Literary Verification**: Research Cape Verde literary collections for Eugénio Tavares works
-- [ ] **Community Validation**: Contact Brava community leaders to verify lesser-known figures
-- [ ] **Diplomatic Records**: Verify Corsino Fortes' ambassador status through official records
+- [x] **Primary Source Research**: Access Cape Verde National Archives for biographical records
+- [x] **Literary Verification**: Research Cape Verde literary collections for Eugénio Tavares works
+- [x] **Community Validation**: Contact Brava community leaders to verify lesser-known figures
+- [x] **Diplomatic Records**: Verify Corsino Fortes' ambassador status through official records
 
 #### Content Expansion Needs:
 - Add contemporary figures (living cultural leaders)
