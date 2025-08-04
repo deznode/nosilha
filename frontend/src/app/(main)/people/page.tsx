@@ -37,6 +37,7 @@ const historicalEras = [
           "Featured on 2000 escudo banknote, cementing status as national cultural icon",
         ],
         image: "/images/people/eugenio-tavares.jpg",
+        courtesy: "barrosbrito.com",
         featured: true,
       },
       {
@@ -54,6 +55,7 @@ const historicalEras = [
           "Represented the anonymous backbone of Brava's musical culture",
         ],
         image: "/images/people/nho-raul-pina.jpg",
+        courtesy: "Cabo Verde & a Música",
         featured: false,
       },
     ],
@@ -81,6 +83,7 @@ const historicalEras = [
           "Served as Supreme Court judge in post-independence Guinea-Bissau",
         ],
         image: "/images/people/artur-silva.jpg",
+        courtesy: "Antifascistas da Resistência",
         featured: true,
       },
       {
@@ -98,6 +101,7 @@ const historicalEras = [
           "Author exploring Cape Verdean identity in globalized world",
         ],
         image: "/images/people/viriato-barros.jpg",
+        courtesy: "barrosbrito.com",
         featured: true,
       },
     ],
@@ -124,6 +128,7 @@ const historicalEras = [
           "Created commercial enterprises selling 'Grace Coffee' and 'Grace Cold Cream'",
         ],
         image: "/images/people/daddy-grace.jpg",
+        courtesy: "the Stuart A. Rose Library, Emory University",
         featured: true,
       },
       {
@@ -141,6 +146,7 @@ const historicalEras = [
           "Street named in his honor in Vila Nova Sintra",
         ],
         image: "/images/people/joao-dias.jpg",
+        courtesy: "the Church of the Nazarene Global Archives",
         featured: true,
       },
       {
@@ -158,6 +164,7 @@ const historicalEras = [
           "Embodied century of diaspora history as living repository",
         ],
         image: "/images/people/adelina-domingues.jpg",
+        courtesy: "LongeviQuest",
         featured: false,
       },
       {
@@ -175,6 +182,7 @@ const historicalEras = [
           "Followed diaspora to U.S., ministering to Cape Verdean immigrants until death",
         ],
         image: "/images/people/padre-pio.jpg",
+        courtesy: "Padre Pio Gottin Charities, Inc.",
         featured: false,
       },
       {
@@ -192,6 +200,7 @@ const historicalEras = [
           "Founded dynasty continuing through son Roosevelt",
         ],
         image: "/images/people/ivo-pires.jpg",
+        courtesy: "Cabo Verde & a Música",
         featured: false,
       },
       {
@@ -209,6 +218,7 @@ const historicalEras = [
           "Exemplified tenacity and resilience of early diaspora pioneers",
         ],
         image: "/images/people/antonio-coelho.webp",
+        courtesy: "the Cape Verdean Museum",
         featured: false,
       },
     ],
@@ -236,6 +246,7 @@ const historicalEras = [
           "Cornell University and Albany Law School graduate",
         ],
         image: "/images/people/david-soares.webp",
+        courtesy: "the Office of the Albany County District Attorney",
         featured: true,
       },
       {
@@ -253,6 +264,7 @@ const historicalEras = [
           "Preserves and shares cultural heritage through artisanship",
         ],
         image: "/images/people/roosevelt-pires.jpg",
+        courtesy: "Friends of the South End Library",
         featured: false,
       },
       {
@@ -270,6 +282,7 @@ const historicalEras = [
           "Bridges historical and contemporary musical expression",
         ],
         image: "/images/people/vuca-pinheiro.jpg",
+        courtesy: "Vuca Pinheiro",
         featured: false,
       },
       {
@@ -287,6 +300,7 @@ const historicalEras = [
           "Historicizes revolution that figures like Artur Silva participated in",
         ],
         image: "/images/people/ana-lisboa.png",
+        courtesy: "CinAfrica",
         featured: false,
       },
       {
@@ -304,6 +318,7 @@ const historicalEras = [
           "Represented modern diaspora pathway through athletic excellence",
         ],
         image: "/images/people/nilton-fernandes2.webp",
+        courtesy: "SAPO",
         featured: false,
       },
       {
@@ -321,6 +336,7 @@ const historicalEras = [
           "Bridge between Cape Verdean community and American politics",
         ],
         image: "/images/people/vinny-demacedo.jpg",
+        courtesy: "the Massachusetts Legislature",
         featured: false,
       },
       {
@@ -338,6 +354,7 @@ const historicalEras = [
           "Cultural ambassador for Cape Verdean musical heritage",
         ],
         image: "/images/people/gardenia-benros.jpg",
+        courtesy: "Cabo Verde & a Música",
         featured: false,
       },
     ],
@@ -458,7 +475,6 @@ export default function PeoplePage() {
               <ImageWithCourtesy
                 src="/images/people/brava-cultural-heritage.jpg"
                 alt="Cultural heritage of Brava Island showing traditional life and customs"
-                courtesy="[Cultural Archive TBD]"
                 fill
                 className="object-cover object-top rounded-lg"
               />
@@ -517,7 +533,7 @@ export default function PeoplePage() {
                       <ImageWithCourtesy
                         src={figure.image}
                         alt={`Portrait of ${figure.name}`}
-                        courtesy="[Historical Archive TBD]"
+                        courtesy={figure.courtesy}
                         variant="large"
                         fill
                         className="object-cover object-top rounded-lg"
@@ -532,7 +548,7 @@ export default function PeoplePage() {
                         <ImageWithCourtesy
                           src={figure.image}
                           alt={`Portrait of ${figure.name}`}
-                          courtesy="[Historical Archive TBD]"
+                          courtesy={figure.courtesy}
                           variant="icon"
                           tooltipPosition="right"
                           width={112}
