@@ -70,6 +70,7 @@ const historicalFigures = [
 ];
 
 const citations = [
+  // Geological & Formation Sources  
   {
     source:
       "Volcano-stratigraphic and structural evolution of Brava Island (Cape Verde) based on 40Ar/39Ar, U–Th and field constraints",
@@ -78,11 +79,36 @@ const citations = [
     url: "https://www.researchgate.net/publication/248257199_Volcano-stratigraphic_and_structural_evolution_of_Brava_Island_Cape_Verde_based_on_40Ar39Ar_U-Th_and_field_constraints",
   },
   {
-    source:
-      "Brava Island: geological structure and historical evolution of rocks",
-    author: "Brava News",
+    source: "Volcano-tectonic structure of Brava Island (Cape Verde)",
+    author: "ResearchGate", 
     year: 2025,
-    url: "https://www.brava.news/en/island-brava-geological-structure-and-historical-evolution-of-the-rocks",
+    url: "https://www.researchgate.net/publication/257426859_Volcano-tectonic_structure_of_Brava_Island_Cape_Verde",
+  },
+  {
+    source: "Brava - Smithsonian Institution Global Volcanism Program",
+    author: "Smithsonian Institution",
+    year: 2025,
+    url: "https://volcano.si.edu/volcano.cfm?vn=384020",
+  },
+  {
+    source: "Anthropogenic transitions from forested to human-dominated landscapes in southern Macaronesia",
+    author: "PNAS",
+    year: 2025,
+    url: "https://www.pnas.org/doi/10.1073/pnas.2022215118",
+  },
+  {
+    source: "Tracing human impacts on the islands of Cabo Verde: Palaeoecology for the conservation of island ecosystems",
+    author: "ResearchGate",
+    year: 2025,
+    url: "https://www.researchgate.net/publication/363365368_Tracing_human_impacts_on_the_islands_of_Cabo_Verde_Palaeoecology_for_the_conservation_of_island_ecosystems",
+  },
+  
+  // Historical & Migration Sources
+  {
+    source: "Cape Verde: Brava - Portuguese Historical Museum",
+    author: "Portuguese Historical Museum",
+    year: 2025,
+    url: "https://portuguesemuseum.org/?page_id=1808&category=3&event=325",
   },
   {
     source:
@@ -92,10 +118,43 @@ const citations = [
     url: "https://www.brava.news/en/brushstrokes-in-the-past-freguesia-of-nossa-senhora-do-monte-its-origins-its-past-and-its-history",
   },
   {
-    source: "Cape Verde: Brava - Portuguese Historical Museum",
-    author: "Portuguese Historical Museum",
+    source: "Cape Verdean Americans",
+    author: "Wikipedia",
     year: 2025,
-    url: "https://portuguesemuseum.org/?page_id=1808&category=3&event=325",
+    url: "https://en.wikipedia.org/wiki/Cape_Verdean_Americans",
+  },
+  {
+    source: "Cape Verdean American Packet Trade - The Schooner Ernestina",
+    author: "Schooner Ernestina Archive",
+    year: 2025,
+    url: "http://www.archive.ernestina.org/history/Tchuba/tchuba-4.pdf",
+  },
+  {
+    source:
+      "The Cape Verdean nation is a product of human mobility, and migration has continued",
+    author: "Jørgen Carling",
+    year: 2025,
+    url: "https://jorgencarling.org/wp-content/uploads/2019/02/carling-and-c385kesson-2009-mobility-at-the-heart-of-a-nation.pdf",
+  },
+  {
+    source: "Cabo Verde - Independence Struggle, Colonization, Decolonization",
+    author: "Britannica",
+    year: 2025,
+    url: "https://www.britannica.com/place/Cabo-Verde/Struggle-for-independence",
+  },
+  
+  // Cultural & Musical Heritage Sources
+  {
+    source: "Morna - Cabo Verde",
+    author: "caboverde-info.com",
+    year: 2025,
+    url: "https://www.caboverde-info.com/eng/Identity/Culture/Morna",
+  },
+  {
+    source: "The Morna of Eugénio Tavares - Cabo Verde",
+    author: "caboverde-info.com",
+    year: 2025,
+    url: "https://www.caboverde-info.com/eng/Identity/Culture/The-Morna-of-Eugenio-Tavares",
   },
   {
     source: "A Voyage Around the World - New Bedford Whaling Museum",
@@ -104,10 +163,44 @@ const citations = [
     url: "https://www.whalingmuseum.org/exhibition/a-voyage-around-the-world/",
   },
   {
-    source: "Morna - Cabo Verde",
-    author: "caboverde-info.com",
+    source: "Timeline - The Cape Cod Cape Verdean Museum & Cultural Center",
+    author: "Cape Cod Cape Verdean Museum",
     year: 2025,
-    url: "https://www.caboverde-info.com/eng/Identity/Culture/Morna",
+    url: "http://www.capecodcvmuseum.org/timeline",
+  },
+  
+  // Contemporary & Modern Sources
+  {
+    source: "Cloud-moisture harvesting to combat hydroclimatic risk",
+    author: "UNESCO",
+    year: 2025,
+    url: "https://www.unesco.org/en/articles/cloud-moisture-harvesting-combat-hydroclimatc-risk",
+  },
+  {
+    source: "A new road for safety, development, and tourism on a seismic island",
+    author: "World Bank",
+    year: 2025,
+    url: "https://www.worldbank.org/en/news/feature/2023/02/23/cabo-verde-a-new-road-for-safety-development-and-tourism-on-a-seismic-island",
+  },
+  {
+    source: "Ilha Brava: 50 Years of Independence, a stifled hope",
+    author: "Brava News",
+    year: 2025,
+    url: "https://www.brava.news/en/ilha-brava-50-years-of-independence-a-suffocated-hope",
+  },
+  
+  // Additional Academic Sources
+  {
+    source: "A genetic and linguistic analysis of the admixture histories of the islands of Cabo Verde",
+    author: "eLife Sciences",
+    year: 2025,
+    url: "https://elifesciences.org/articles/79827",
+  },
+  {
+    source: "Survey chapter: Cape Verdean Creole of Brava",
+    author: "APiCS Online",
+    year: 2025,
+    url: "https://apics-online.info/surveys/31",
   },
 ];
 
