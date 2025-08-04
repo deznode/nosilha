@@ -36,7 +36,7 @@ const historicalEras = [
           "Founded 'A Alvorada' (Dawn), first Portuguese-language newspaper in the United States",
           "Featured on 2000 escudo banknote, cementing status as national cultural icon",
         ],
-        image: "/images/people/eugenio-tavares2.jpg",
+        image: "/images/people/eugenio-tavares.jpg",
         featured: true,
       },
       {
@@ -80,7 +80,7 @@ const historicalEras = [
           "Defended political prisoners against colonial oppression",
           "Served as Supreme Court judge in post-independence Guinea-Bissau",
         ],
-        image: "/images/people/artur-silva2.jpg",
+        image: "/images/people/artur-silva.jpg",
         featured: true,
       },
       {
@@ -157,7 +157,7 @@ const historicalEras = [
           "Donated family property on Brava to Church of the Nazarene",
           "Embodied century of diaspora history as living repository",
         ],
-        image: "/images/people/adelina-domingues2.jpg",
+        image: "/images/people/adelina-domingues.jpg",
         featured: false,
       },
       {
@@ -435,27 +435,28 @@ export default function PeoplePage() {
                 identity, and diaspora communities worldwide.
               </p>
               <p className="text-text-secondary mb-4">
-                This remarkable legacy isn&apos;t by chance—it&apos;s rooted in our unique
-                history: the 1680 Fogo eruption that brought refugees who found
-                sanctuary here, the American whaling ships that connected us to
-                New England, and a maritime culture that nurtured strong
-                leaders, creative spirits, and entrepreneurs who carried Brava&apos;s
-                values wherever they traveled.
+                This remarkable legacy isn&apos;t by chance—it&apos;s rooted in
+                our unique history: the 1680 Fogo eruption that brought refugees
+                who found sanctuary here, the American whaling ships that
+                connected us to New England, and a maritime culture that
+                nurtured strong leaders, creative spirits, and entrepreneurs who
+                carried Brava&apos;s values wherever they traveled.
               </p>
               <p className="text-text-secondary">
                 From Eugénio Tavares who gave Cape Verde its cultural voice
-                through morna and <em>sodade</em>, to Marcelino &quot;Daddy&quot; Grace
-                who built a spiritual movement with millions of followers, to
-                contemporary leaders like David Soares making their mark in
-                American politics—our people show that an island&apos;s true size is
-                measured not in kilometers, but in the courage, creativity, and
-                lasting impact of its sons and daughters.
+                through morna and <em>sodade</em>, to Marcelino
+                &quot;Daddy&quot; Grace who built a spiritual movement with
+                millions of followers, to contemporary leaders like David Soares
+                making their mark in American politics—our people show that an
+                island&apos;s true size is measured not in kilometers, but in
+                the courage, creativity, and lasting impact of its sons and
+                daughters.
               </p>
             </div>
             <div className="relative h-64 lg:h-80">
               {/* TODO: Update courtesy text with proper source attribution */}
               <ImageWithCourtesy
-                src="/images/people/brava-cultural-heritage3.jpg"
+                src="/images/people/brava-cultural-heritage.jpg"
                 alt="Cultural heritage of Brava Island showing traditional life and customs"
                 courtesy="[Cultural Archive TBD]"
                 fill
@@ -502,7 +503,13 @@ export default function PeoplePage() {
               {era.figures.map((figure) => (
                 <div
                   key={figure.name}
-                  className={`grid gap-6 lg:grid-cols-${figure.featured ? "2" : "1"} ${figure.featured ? "bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary" : "bg-background-primary/50 p-4 rounded-lg"}`}
+                  className={`grid gap-6 lg:grid-cols-${
+                    figure.featured ? "2" : "1"
+                  } ${
+                    figure.featured
+                      ? "bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary"
+                      : "bg-background-primary/50 p-4 rounded-lg"
+                  }`}
                 >
                   {figure.featured && (
                     <div className="relative aspect-[3/4] w-full max-w-sm mx-auto">
@@ -518,11 +525,7 @@ export default function PeoplePage() {
                     </div>
                   )}
 
-                  <div
-                    className={
-                      figure.featured ? "" : "flex items-start"
-                    }
-                  >
+                  <div className={figure.featured ? "" : "flex items-start"}>
                     {!figure.featured && (
                       <div className="flex-shrink-0 mr-4">
                         {/* TODO: Update courtesy text with proper source attribution */}
@@ -549,36 +552,56 @@ export default function PeoplePage() {
                           {figure.years}
                         </span>
                         <span
-                          className={`text-xs px-2 py-1 rounded ml-2 ${figure.influence === "Revolutionary" ? "bg-bougainvillea-pink/10 text-bougainvillea-pink" : figure.influence === "Phenomenal" ? "bg-sunny-yellow/10 text-sunny-yellow" : figure.influence === "National" ? "bg-valley-green/10 text-valley-green" : figure.influence === "Global" ? "bg-ocean-blue/20 text-ocean-blue" : "bg-gray-100 text-gray-600"}`}
+                          className={`text-xs px-2 py-1 rounded ml-2 ${
+                            figure.influence === "Revolutionary"
+                              ? "bg-bougainvillea-pink/10 text-bougainvillea-pink"
+                              : figure.influence === "Phenomenal"
+                              ? "bg-sunny-yellow/10 text-sunny-yellow"
+                              : figure.influence === "National"
+                              ? "bg-valley-green/10 text-valley-green"
+                              : figure.influence === "Global"
+                              ? "bg-ocean-blue/20 text-ocean-blue"
+                              : "bg-gray-100 text-gray-600"
+                          }`}
                         >
                           {figure.influence} Impact
                         </span>
                       </div>
 
                       <h4
-                        className={`font-serif ${figure.featured ? "text-xl" : "text-lg"} font-bold text-text-primary mb-1`}
+                        className={`font-serif ${
+                          figure.featured ? "text-xl" : "text-lg"
+                        } font-bold text-text-primary mb-1`}
                       >
                         {figure.name}
                       </h4>
                       <p
-                        className={`${figure.featured ? "text-sm" : "text-xs"} text-ocean-blue font-medium mb-3`}
+                        className={`${
+                          figure.featured ? "text-sm" : "text-xs"
+                        } text-ocean-blue font-medium mb-3`}
                       >
                         {figure.role}
                       </p>
                       <p
-                        className={`${figure.featured ? "text-base" : "text-sm"} text-text-secondary mb-4`}
+                        className={`${
+                          figure.featured ? "text-base" : "text-sm"
+                        } text-text-secondary mb-4`}
                       >
                         {figure.description}
                       </p>
 
                       <div>
                         <h5
-                          className={`font-semibold ${figure.featured ? "text-sm" : "text-xs"} text-text-primary mb-2`}
+                          className={`font-semibold ${
+                            figure.featured ? "text-sm" : "text-xs"
+                          } text-text-primary mb-2`}
                         >
                           Key Achievements:
                         </h5>
                         <ul
-                          className={`${figure.featured ? "text-sm" : "text-xs"} text-text-secondary space-y-1`}
+                          className={`${
+                            figure.featured ? "text-sm" : "text-xs"
+                          } text-text-secondary space-y-1`}
                         >
                           {(figure.featured
                             ? figure.achievements
@@ -587,7 +610,9 @@ export default function PeoplePage() {
                             <li key={index} className="flex items-start">
                               <StarIcon className="h-3 w-3 text-sunny-yellow mr-2 mt-0.5 flex-shrink-0" />
                               <span
-                                dangerouslySetInnerHTML={{ __html: achievement }}
+                                dangerouslySetInnerHTML={{
+                                  __html: achievement,
+                                }}
                               />
                             </li>
                           ))}
@@ -718,11 +743,11 @@ export default function PeoplePage() {
                 Community Activist & Healthcare Advocate
               </p>
               <p className="text-sm text-text-secondary mb-3">
-                Brava native who became a powerful voice for island&apos;s right to
-                adequate medical services. Her viral advocacy declaring "we may
-                be the smallest island, but that doesn't mean we deserve less"
-                represents modern leadership focused on fundamental community
-                well-being.
+                Brava native who became a powerful voice for island&apos;s right
+                to adequate medical services. Her viral advocacy declaring "we
+                may be the smallest island, but that doesn't mean we deserve
+                less" represents modern leadership focused on fundamental
+                community well-being.
               </p>
               <ul className="text-xs text-text-secondary space-y-1">
                 <li>• Advocate for reliable medical facilities on Brava</li>
@@ -740,10 +765,10 @@ export default function PeoplePage() {
               </p>
               <p className="text-sm text-text-secondary mb-3">
                 Native of Brava serving as Terrestrial Program Leader for
-                Biflores organization. Works to preserve the island&apos;s unique
-                biodiversity, understanding that Brava&apos;s culture is inseparable
-                from its environment and that conservation is cultural
-                preservation.
+                Biflores organization. Works to preserve the island&apos;s
+                unique biodiversity, understanding that Brava&apos;s culture is
+                inseparable from its environment and that conservation is
+                cultural preservation.
               </p>
               <ul className="text-xs text-text-secondary space-y-1">
                 <li>• Terrestrial Program Leader for Biflores</li>
@@ -827,8 +852,7 @@ export default function PeoplePage() {
 // Generate metadata for SEO
 export async function generateMetadata() {
   return {
-    title:
-      "Brava Island Historical Figures: Global Influence",
+    title: "Brava Island Historical Figures: Global Influence",
     description:
       "Discover Brava's remarkable legacy: Eugénio Tavares, Marcelino 'Daddy' Grace, David Soares, and contemporary leaders achieving extraordinary global influence.",
     openGraph: {
