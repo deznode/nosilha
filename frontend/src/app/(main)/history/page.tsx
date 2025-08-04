@@ -40,7 +40,7 @@ const historicalSections = [
     icon: ClockIcon,
     content:
       "The American whaling industry transformed Brava from an isolated Portuguese colony into a transnational community. Yankee whaling captains, impressed by Bravense maritime skills, recruited local men for voyages to Pacific hunting grounds. This connection created the 'Brava Packet Trade'—regular ship service between the island and New England ports, carrying passengers, mail, cargo, and crucial remittances. For over a century, whaling became Brava's principal industry, establishing permanent bonds with Massachusetts communities that continue today.",
-    image: "/images/history/brava-maritime2.jpg",
+    image: "/images/history/brava-maritime.jpg",
     image_courtesy: "[Maritime Archive TBD]", // TODO: Update with proper source attribution
   },
 ];
@@ -71,19 +71,22 @@ const historicalFigures = [
 
 const citations = [
   {
-    source: "Volcano-stratigraphic and structural evolution of Brava Island (Cape Verde) based on 40Ar/39Ar, U–Th and field constraints",
+    source:
+      "Volcano-stratigraphic and structural evolution of Brava Island (Cape Verde) based on 40Ar/39Ar, U–Th and field constraints",
     author: "ResearchGate",
     year: 2025,
     url: "https://www.researchgate.net/publication/248257199_Volcano-stratigraphic_and_structural_evolution_of_Brava_Island_Cape_Verde_based_on_40Ar39Ar_U-Th_and_field_constraints",
   },
   {
-    source: "Brava Island: geological structure and historical evolution of rocks",
+    source:
+      "Brava Island: geological structure and historical evolution of rocks",
     author: "Brava News",
     year: 2025,
     url: "https://www.brava.news/en/island-brava-geological-structure-and-historical-evolution-of-the-rocks",
   },
   {
-    source: "Brushstrokes in the past: Parish of Nossa Senhora do Monte, its origins, its past and its history",
+    source:
+      "Brushstrokes in the past: Parish of Nossa Senhora do Monte, its origins, its past and its history",
     author: "Brava News",
     year: 2025,
     url: "https://www.brava.news/en/brushstrokes-in-the-past-freguesia-of-nossa-senhora-do-monte-its-origins-its-past-and-its-history",
@@ -131,33 +134,36 @@ export default function HistoryPage() {
           <div className="max-w-4xl mx-auto">
             <p className="text-lg text-text-secondary mb-6">
               Brava Island occupies a unique position in Cape Verdean history—a
-              place where geography and circumstance converged to create something
-              extraordinary. Known by the Portuguese name &quot;Brava&quot; (wild or brave)
-              for its formidable volcanic terrain, it earned the gentler title{" "}
+              place where geography and circumstance converged to create
+              something extraordinary. Known by the Portuguese name
+              &quot;Brava&quot; (wild or brave) for its formidable volcanic
+              terrain, it earned the gentler title{" "}
               <em className="mx-1">Ilha das Flores</em> (Island of Flowers) for
-              the relative abundance of its mist-fed valleys compared to the more
-              arid neighboring islands.
+              the relative abundance of its mist-fed valleys compared to the
+              more arid neighboring islands.
             </p>
             <p className="text-text-secondary mb-6">
               At just 62.5 square kilometers, Brava is the smallest inhabited
-              island in the Cape Verde archipelago, yet it has produced a cultural
-              and political influence disproportionate to its size. This phenomenon
-              stems from a defining moment in 1680 when a catastrophic eruption of
-              Pico do Fogo forced thousands of refugees from the neighboring island
-              to seek sanctuary on Brava&apos;s shores. Unlike most colonial
-              settlements founded through conquest, Brava&apos;s society was forged
-              through collective compassion and survival.
+              island in the Cape Verde archipelago, yet it has produced a
+              cultural and political influence disproportionate to its size.
+              This phenomenon stems from a defining moment in 1680 when a
+              catastrophic eruption of Pico do Fogo forced thousands of refugees
+              from the neighboring island to seek sanctuary on Brava&apos;s
+              shores. Unlike most colonial settlements founded through conquest,
+              Brava&apos;s society was forged through collective compassion and
+              survival.
             </p>
             <p className="text-text-secondary">
-              From Vila Nova Sintra, the mountain capital established around 1700
-              as protection against coastal pirate raids, the island&apos;s entire
-              history unfolds. The American whaling industry of the 18th and 19th
-              centuries transformed Brava from an isolated Portuguese colony into
-              a transnational community, with ships carrying Bravense men to New
-              England ports and eventually establishing the &quot;Brava Packet Trade&quot;
-              that would bind families across the Atlantic for generations. This
-              maritime connection gave birth to the profound cultural sentiment
-              of <em className="mx-1">sodade</em>—the bittersweet longing that
+              From Vila Nova Sintra, the mountain capital established around
+              1700 as protection against coastal pirate raids, the island&apos;s
+              entire history unfolds. The American whaling industry of the 18th
+              and 19th centuries transformed Brava from an isolated Portuguese
+              colony into a transnational community, with ships carrying
+              Bravense men to New England ports and eventually establishing the
+              &quot;Brava Packet Trade&quot; that would bind families across the
+              Atlantic for generations. This maritime connection gave birth to
+              the profound cultural sentiment of{" "}
+              <em className="mx-1">sodade</em>—the bittersweet longing that
               defines the Cape Verdean experience of separation and remembrance.
             </p>
           </div>
@@ -179,10 +185,10 @@ export default function HistoryPage() {
                 Geological Genesis
               </h4>
               <p className="text-text-secondary mb-4">
-                Brava&apos;s story begins in the ocean depths 2-3 million years ago,
-                when it formed as a submarine volcano, its foundation built from
-                pillow lavas and hyaloclastites—the unmistakable signatures of
-                underwater eruptions where molten rock meets cold seawater.
+                Brava&apos;s story begins in the ocean depths 2-3 million years
+                ago, when it formed as a submarine volcano, its foundation built
+                from pillow lavas and hyaloclastites—the unmistakable signatures
+                of underwater eruptions where molten rock meets cold seawater.
               </p>
               <p className="text-text-secondary mb-4">
                 Around 250,000 years ago, a violent new phase began with highly
@@ -206,11 +212,12 @@ export default function HistoryPage() {
               </h4>
               <p className="text-text-secondary mb-4">
                 Portuguese explorer Diogo Afonso discovered uninhabited Brava in
-                1462, but permanent settlement didn&apos;t begin until around 1620,
-                with only a few hundred fishermen from Madeira and the Azores.
-                The island&apos;s destiny changed forever in 1680 when Mount Fogo&apos;s
-                catastrophic eruption engulfed the neighboring island in ash,
-                destroying farmland and forcing a desperate mass exodus.
+                1462, but permanent settlement didn&apos;t begin until around
+                1620, with only a few hundred fishermen from Madeira and the
+                Azores. The island&apos;s destiny changed forever in 1680 when
+                Mount Fogo&apos;s catastrophic eruption engulfed the neighboring
+                island in ash, destroying farmland and forcing a desperate mass
+                exodus.
               </p>
               <p className="text-text-secondary mb-4">
                 Brava, with its fertile valleys and fresh water, became the
@@ -233,11 +240,12 @@ export default function HistoryPage() {
               A Community Forged by Compassion
             </h4>
             <p className="text-text-secondary">
-              Unlike many colonial settlements built through conquest, Brava&apos;s
-              society was forged through an act of collective compassion and
-              survival. This refugee foundation created a unique cultural DNA of
-              resilience, community solidarity, and acceptance of otherness that
-              continues to define the island&apos;s character today.
+              Unlike many colonial settlements built through conquest,
+              Brava&apos;s society was forged through an act of collective
+              compassion and survival. This refugee foundation created a unique
+              cultural DNA of resilience, community solidarity, and acceptance
+              of otherness that continues to define the island&apos;s character
+              today.
             </p>
           </div>
         </section>
@@ -302,24 +310,24 @@ export default function HistoryPage() {
                   From the late 18th century, American whaling ships from New
                   Bedford and other New England ports began frequenting Cape
                   Verdean waters as part of their trans-Atlantic routes to
-                  Pacific hunting grounds. Brava&apos;s sheltered harbors at Fajã de
-                  Água and Furna became essential provisioning stops, where
-                  vessels could replenish fresh water, supplies,
+                  Pacific hunting grounds. Brava&apos;s sheltered harbors at
+                  Fajã de Água and Furna became essential provisioning stops,
+                  where vessels could replenish fresh water, supplies,
                   and—crucially—crew.
                 </p>
                 <p className="text-text-secondary mb-4">
                   This maritime traffic created an unintentional engine of
-                  globalization that permanently broke Brava&apos;s isolation. Yankee
-                  captains, recognizing exceptional maritime skills among local
-                  men, began systematic recruitment. For Bravans facing
+                  globalization that permanently broke Brava&apos;s isolation.
+                  Yankee captains, recognizing exceptional maritime skills among
+                  local men, began systematic recruitment. For Bravans facing
                   recurring cycles of drought, famine, and poverty, a berth on a
                   whaleship offered wages and a chance at a new life.
                 </p>
                 <p className="text-text-secondary">
                   This recruitment transformed Brava from an isolated Portuguese
                   colony into a transnational community, perceived as more
-                  &quot;European&quot; and less &quot;African&quot; than its neighbors due to these
-                  deep American connections.
+                  &quot;European&quot; and less &quot;African&quot; than its
+                  neighbors due to these deep American connections.
                 </p>
               </div>
               <div className="relative aspect-video w-full">
@@ -341,11 +349,11 @@ export default function HistoryPage() {
               </h4>
               <p className="text-text-secondary mb-3">
                 As whaling declined, old whaling vessels were converted into
-                &quot;packet ships&quot; that formalized emigration patterns with regular
-                service between Brava and New England. These aging but treasured
-                vessels became the lifeline of a transnational community,
-                carrying passengers, mail, cargo, and the emotional threads
-                binding families across the Atlantic.
+                &quot;packet ships&quot; that formalized emigration patterns
+                with regular service between Brava and New England. These aging
+                but treasured vessels became the lifeline of a transnational
+                community, carrying passengers, mail, cargo, and the emotional
+                threads binding families across the Atlantic.
               </p>
               <ul className="text-sm text-text-secondary space-y-1">
                 <li>
@@ -353,8 +361,8 @@ export default function HistoryPage() {
                   crossing in 1893
                 </li>
                 <li>
-                  • <strong>Valkyria:</strong> Known as the &quot;Queen of the Cape
-                  Verde Packets&quot;
+                  • <strong>Valkyria:</strong> Known as the &quot;Queen of the
+                  Cape Verde Packets&quot;
                 </li>
                 <li>
                   • <strong>Ernestina:</strong> Famous Grand Banks schooner
@@ -380,9 +388,9 @@ export default function HistoryPage() {
                 that became a pillar of the local economy.
               </p>
               <p className="text-text-secondary text-sm">
-                This wasn&apos;t merely commerce—it was the vital circulatory system
-                of a community that existed simultaneously on both sides of the
-                Atlantic. The flow of people, money, goods, and cultural
+                This wasn&apos;t merely commerce—it was the vital circulatory
+                system of a community that existed simultaneously on both sides
+                of the Atlantic. The flow of people, money, goods, and cultural
                 exchange created an identity that was neither fully Cape Verdean
                 nor American, but uniquely Bravan.
               </p>
@@ -486,9 +494,9 @@ export default function HistoryPage() {
                   The Great Migration
                 </h4>
                 <p className="text-text-secondary">
-                  Mount Fogo&apos;s catastrophic eruption forces a mass exodus from
-                  the neighboring island. Brava, with its fertile valleys and
-                  fresh water, becomes the primary sanctuary for refugees,
+                  Mount Fogo&apos;s catastrophic eruption forces a mass exodus
+                  from the neighboring island. Brava, with its fertile valleys
+                  and fresh water, becomes the primary sanctuary for refugees,
                   establishing the demographic foundation of its society through
                   an act of collective compassion rather than conquest.
                 </p>
@@ -508,8 +516,8 @@ export default function HistoryPage() {
                   causing widespread death and desperation. This crisis marks
                   the beginning of systematic emigration to America as a
                   survival strategy, establishing patterns that would define
-                  Brava&apos;s relationship with the wider world for centuries to
-                  come.
+                  Brava&apos;s relationship with the wider world for centuries
+                  to come.
                 </p>
               </div>
             </div>
@@ -523,12 +531,12 @@ export default function HistoryPage() {
                   The Whaling Connection
                 </h4>
                 <p className="text-text-secondary">
-                  American whaling ships from New England begin using Brava&apos;s
-                  sheltered harbors at Fajã de Água and Furna as provisioning
-                  stops on trans-Atlantic routes to Pacific hunting grounds.
-                  Impressed by Bravense maritime skills, Yankee captains begin
-                  systematic recruitment, creating the foundation for over a
-                  century of transnational community.
+                  American whaling ships from New England begin using
+                  Brava&apos;s sheltered harbors at Fajã de Água and Furna as
+                  provisioning stops on trans-Atlantic routes to Pacific hunting
+                  grounds. Impressed by Bravense maritime skills, Yankee
+                  captains begin systematic recruitment, creating the foundation
+                  for over a century of transnational community.
                 </p>
               </div>
             </div>
@@ -542,9 +550,10 @@ export default function HistoryPage() {
                   Packet Trade Era
                 </h4>
                 <p className="text-text-secondary">
-                  The &quot;Brava Packet Trade&quot; formalizes emigration patterns, with
-                  ships carrying passengers, mail, and goods between Brava and
-                  New England ports, creating a vital transnational lifeline.
+                  The &quot;Brava Packet Trade&quot; formalizes emigration
+                  patterns, with ships carrying passengers, mail, and goods
+                  between Brava and New England ports, creating a vital
+                  transnational lifeline.
                 </p>
               </div>
             </div>
@@ -558,9 +567,9 @@ export default function HistoryPage() {
                   Birth of Eugénio Tavares
                 </h4>
                 <p className="text-text-secondary">
-                  Birth of Cape Verde&apos;s most celebrated poet and composer, who
-                  would transform the morna musical genre and champion Crioulo
-                  as a literary language.
+                  Birth of Cape Verde&apos;s most celebrated poet and composer,
+                  who would transform the morna musical genre and champion
+                  Crioulo as a literary language.
                 </p>
               </div>
             </div>
@@ -577,9 +586,9 @@ export default function HistoryPage() {
                   Facing persecution for his journalism criticizing Portuguese
                   colonial injustices, Eugénio Tavares is forced into exile in
                   New Bedford. Rather than silencing him, this exile
-                  internationalizes his voice. He founds &quot;A Alvorada&quot; (Dawn),
-                  the first Portuguese-language newspaper in the United States,
-                  and writes his most poignant mornas about *sodade* and
+                  internationalizes his voice. He founds &quot;A Alvorada&quot;
+                  (Dawn), the first Portuguese-language newspaper in the United
+                  States, and writes his most poignant mornas about *sodade* and
                   separation.
                 </p>
               </div>
@@ -594,11 +603,12 @@ export default function HistoryPage() {
                   Literary Immortality
                 </h4>
                 <p className="text-text-secondary">
-                  Publication of &quot;Mornas: Cantigas Crioulas,&quot; Tavares&apos;s
-                  posthumous collection that becomes the foundational text of
-                  Cape Verdean literature. His poem &quot;Morna de Aguada&quot; later
-                  appears on the 2000 escudo banknote alongside his portrait,
-                  cementing his status as the nation&apos;s cultural patriarch.
+                  Publication of &quot;Mornas: Cantigas Crioulas,&quot;
+                  Tavares&apos;s posthumous collection that becomes the
+                  foundational text of Cape Verdean literature. His poem
+                  &quot;Morna de Aguada&quot; later appears on the 2000 escudo
+                  banknote alongside his portrait, cementing his status as the
+                  nation&apos;s cultural patriarch.
                 </p>
               </div>
             </div>
@@ -634,10 +644,10 @@ export default function HistoryPage() {
                   crosswinds, leaving the island entirely dependent on ferry
                   service and reinforcing its isolation. Yet this challenge
                   sparks innovation: cloud water collection projects leverage
-                  the island&apos;s unique microclimate, while contemporary artists
-                  like Vuca Pinheiro explicitly honor Eugénio Tavares, and the
-                  diaspora continues producing leaders like District Attorney
-                  David Soares.
+                  the island&apos;s unique microclimate, while contemporary
+                  artists like Vuca Pinheiro explicitly honor Eugénio Tavares,
+                  and the diaspora continues producing leaders like District
+                  Attorney David Soares.
                 </p>
               </div>
             </div>
@@ -660,7 +670,8 @@ export default function HistoryPage() {
                 Brava pioneered the definitive morna style—slow tempo (around 60
                 beats per minute), romantic themes, and accentuated lyricism
                 rooted in 19th-century Romanticism. Eugénio Tavares transformed
-                it &quot;from laughter to weeping,&quot; codifying <em>sodade</em>
+                it &quot;from laughter to weeping,&quot; codifying{" "}
+                <em>sodade</em>
                 as the emotional core of Cape Verdean identity. This musical
                 form became the nation&apos;s most powerful cultural export.
               </p>
@@ -710,12 +721,12 @@ export default function HistoryPage() {
                 The Diaspora Continues to Lead
               </h4>
               <p className="text-text-secondary mb-3">
-                Brava&apos;s pattern of producing leaders with outsized influence
-                continues today. From Massachusetts State Senator Vinny deMacedo
-                to Albany County District Attorney David Soares, Bravense
-                descendants achieve prominent positions in American civic life
-                while maintaining deep homeland connections through remittances,
-                cultural preservation, and return visits.
+                Brava&apos;s pattern of producing leaders with outsized
+                influence continues today. From Massachusetts State Senator
+                Vinny deMacedo to Albany County District Attorney David Soares,
+                Bravense descendants achieve prominent positions in American
+                civic life while maintaining deep homeland connections through
+                remittances, cultural preservation, and return visits.
               </p>
               <p className="text-sm text-text-secondary">
                 Contemporary artists like Gardenia Benrós and Vuca Pinheiro
@@ -730,10 +741,10 @@ export default function HistoryPage() {
                 Innovation from Isolation
               </h4>
               <p className="text-text-secondary mb-3">
-                Brava&apos;s contemporary challenges mirror its historical patterns:
-                geographic isolation (airport closed since 2004), economic
-                constraints, and climate vulnerability. Yet the island is
-                pioneering innovative solutions, including cloud water
+                Brava&apos;s contemporary challenges mirror its historical
+                patterns: geographic isolation (airport closed since 2004),
+                economic constraints, and climate vulnerability. Yet the island
+                is pioneering innovative solutions, including cloud water
                 collection projects that leverage its unique microclimate to
                 address water scarcity.
               </p>
@@ -802,12 +813,12 @@ export default function HistoryPage() {
               The Paradox Continues
             </h4>
             <p className="text-text-secondary">
-              Today, Brava remains true to its paradoxical nature: a &quot;wild&quot;
-              island known for flowers, a tiny community with global influence,
-              an isolated place that created transnational identity. Its
-              greatest challenge—geographic isolation—is also its greatest
-              asset, preserving an authentic atmosphere in an increasingly
-              homogenized world. The future lies in embracing this
+              Today, Brava remains true to its paradoxical nature: a
+              &quot;wild&quot; island known for flowers, a tiny community with
+              global influence, an isolated place that created transnational
+              identity. Its greatest challenge—geographic isolation—is also its
+              greatest asset, preserving an authentic atmosphere in an
+              increasingly homogenized world. The future lies in embracing this
               distinctiveness, turning isolation into a compelling invitation
               for those seeking genuine cultural connection.
             </p>
@@ -848,8 +859,7 @@ export default function HistoryPage() {
 // Generate metadata for SEO
 export async function generateMetadata() {
   return {
-    title:
-      "Brava Island History: Volcanic Origins to Cultural Legacy",
+    title: "Brava Island History: Volcanic Origins to Cultural Legacy",
     description:
       "Explore Brava Island's extraordinary history: volcanic birth, 1680 refugee settlement, Eugénio Tavares and morna music, whaling connections to New England.",
     openGraph: {
