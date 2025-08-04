@@ -1,4 +1,5 @@
 import type { DirectoryEntry } from "@/types/directory";
+import type { Town } from "@/types/town";
 
 /**
  * Type guard to check if an object has the basic structure of a DirectoryEntry
@@ -140,4 +141,73 @@ export function getHotelDetails(entry: DirectoryEntry) {
     phoneNumber: entry.details.phoneNumber || null,
     amenities: entry.details.amenities || [],
   };
+}
+
+/**
+ * Type guard to check if an object has the basic structure of a Town
+ */
+export function isTown(obj: any): obj is Town {
+  if (!obj || typeof obj !== "object") {
+    console.warn("Town validation failed - not an object:", obj);
+    return false;
+  }
+
+  const hasValidStructure = (
+    typeof obj.id === "string" &&
+    typeof obj.slug === "string" &&
+    typeof obj.name === "string" &&
+    typeof obj.description === "string" &&
+    typeof obj.latitude === "number" &&
+    typeof obj.longitude === "number" &&
+    (obj.population === null || typeof obj.population === "string") &&
+    (obj.elevation === null || typeof obj.elevation === "string") &&
+    (obj.founded === null || typeof obj.founded === "string") &&
+    Array.isArray(obj.highlights) &&
+    (obj.heroImage === null || typeof obj.heroImage === "string") &&
+    Array.isArray(obj.gallery) &&
+    (obj.createdAt === undefined || typeof obj.createdAt === "string") &&
+    (obj.updatedAt === undefined || typeof obj.updatedAt === "string")
+  );
+
+  if (!hasValidStructure) {
+    console.warn("Town structure validation failed for:", obj);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Validates an array of objects as Town array with logging
+ */
+export function validateTowns(data: any[]): Town[] {
+  if (!Array.isArray(data)) {
+    console.warn("API response data is not an array:", data);
+    return [];
+  }
+
+  return data.filter((item, index) => {
+    if (!isTown(item)) {
+      console.warn(`Invalid Town at index ${index}:`, item);
+      return false;
+    }
+    return true;
+  });
+}
+
+/**
+ * Safely extracts a Town from API response with validation
+ */
+export function validateTown(data: any): Town | null {
+  if (!data) {
+    console.warn("API response data is null or undefined");
+    return null;
+  }
+
+  if (!isTown(data)) {
+    console.warn("Invalid Town structure:", data);
+    return null;
+  }
+
+  return data;
 }

@@ -1,4 +1,5 @@
 import { DirectoryEntry } from "../types/directory";
+import { Town } from "../types/town";
 
 const MOCK_ENTRIES: DirectoryEntry[] = [
   {
@@ -120,4 +121,115 @@ export function getMockEntryBySlug(
 ): DirectoryEntry | undefined {
   console.log(`Using mock fallback for slug: ${slug}`);
   return MOCK_ENTRIES.find((entry) => entry.slug === slug);
+}
+
+// Mock town data based on the existing frontend hardcoded data
+const MOCK_TOWNS: Town[] = [
+  {
+    id: "1",
+    slug: "nova-sintra",
+    name: "Nova Sintra",
+    description: "Our mountain capital where cobblestone streets wind between flower-filled gardens and colonial sobrados tell stories of diaspora dreams realized",
+    latitude: 14.851,
+    longitude: -24.338,
+    population: "~1,200",
+    elevation: "500m",
+    founded: "Late 17th century",
+    highlights: ["UNESCO Tentative List site", "Praça Eugénio Tavares", "Colonial sobrados", "Eugénio Tavares Museum"],
+    heroImage: "/images/towns/nova-sintra-hero.jpg",
+    gallery: ["/images/towns/nova-sintra-1.jpg", "/images/towns/nova-sintra-2.jpg", "/images/towns/nova-sintra-3.jpg"],
+    createdAt: "2024-01-01T10:00:00Z",
+    updatedAt: "2024-01-01T10:00:00Z"
+  },
+  {
+    id: "2",
+    slug: "furna",
+    name: "Furna",
+    description: "Where the sea meets the land in a perfect volcanic embrace, this ancient harbor welcomes every visitor with the rhythms of working boats and ocean waves",
+    latitude: 14.821,
+    longitude: -24.323,
+    population: "~800",
+    elevation: "Sea level",
+    founded: "Early 18th century as major port",
+    highlights: ["Volcanic crater harbor", "Fishing fleet", "Maritime festivals", "Nossa Senhora dos Navegantes"],
+    heroImage: "/images/towns/furna-hero.jpg",
+    gallery: ["/images/towns/furna-1.jpg", "/images/towns/furna-2.jpg", "/images/towns/furna-3.jpg"],
+    createdAt: "2024-01-01T10:00:00Z",
+    updatedAt: "2024-01-01T10:00:00Z"
+  },
+  {
+    id: "3",
+    slug: "faja-de-agua",
+    name: "Fajã de Água",
+    description: "Once our gateway to the world's whaling ships, now a hidden paradise where volcanic pools offer perfect refuge from the Atlantic's power",
+    latitude: 14.836,
+    longitude: -24.366,
+    population: "~126",
+    elevation: "Sea level-100m",
+    founded: "18th century as main port",
+    highlights: ["Natural swimming pools", "Agricultural terraces", "Abandoned airport", "Emigrant monument"],
+    heroImage: "/images/towns/faja-de-agua-hero.jpg",
+    gallery: ["/images/towns/faja-de-agua-1.jpg", "/images/towns/faja-de-agua-2.jpg", "/images/towns/faja-de-agua-3.jpg"],
+    createdAt: "2024-01-01T10:00:00Z",
+    updatedAt: "2024-01-01T10:00:00Z"
+  },
+  {
+    id: "4",
+    slug: "nossa-senhora-do-monte",
+    name: "Nossa Senhora do Monte",
+    description: "High among the clouds, this sacred place has drawn pilgrims for over 150 years, offering both spiritual solace and breathtaking views of our island home",
+    latitude: 14.865,
+    longitude: -24.355,
+    population: "~300",
+    elevation: "770m",
+    founded: "Parish established around 1826",
+    highlights: ["Pilgrimage church", "August 15th festival", "Monte Fontainhas views", "Religious processions"],
+    heroImage: "/images/towns/nossa-senhora-do-monte-hero.jpg",
+    gallery: ["/images/towns/nossa-senhora-do-monte-1.jpg", "/images/towns/nossa-senhora-do-monte-2.jpg", "/images/towns/nossa-senhora-do-monte-3.jpg"],
+    createdAt: "2024-01-01T10:00:00Z",
+    updatedAt: "2024-01-01T10:00:00Z"
+  },
+  {
+    id: "5",
+    slug: "cachaco",
+    name: "Cachaço",
+    description: "In Brava's remote highlands, generations of families have perfected the art of cheese-making, creating flavors that carry the essence of our mountain pastures",
+    latitude: 14.848,
+    longitude: -24.372,
+    population: "~200",
+    elevation: "592m",
+    founded: "19th century",
+    highlights: ["Queijo do Cachaço", "Fogo island views", "Traditional cheese making", "Mountain isolation"],
+    heroImage: "/images/towns/cachaco-hero.jpg",
+    gallery: ["/images/towns/cachaco-1.jpg", "/images/towns/cachaco-2.jpg", "/images/towns/cachaco-3.jpg"],
+    createdAt: "2024-01-01T10:00:00Z",
+    updatedAt: "2024-01-01T10:00:00Z"
+  },
+  {
+    id: "6",
+    slug: "cova-joana",
+    name: "Cova Joana",
+    description: "Cradled within an ancient crater's embrace, this peaceful valley village showcases the harmony possible between volcanic power and human cultivation",
+    latitude: 14.859,
+    longitude: -24.349,
+    population: "~150",
+    elevation: "400m",
+    founded: "19th century",
+    highlights: ["Volcanic crater setting", "Colonial sobrados", "Hibiscus hedges", "Mountain tranquility"],
+    heroImage: "/images/towns/cova-joana-hero.jpg",
+    gallery: ["/images/towns/cova-joana-1.jpg", "/images/towns/cova-joana-2.jpg", "/images/towns/cova-joana-3.jpg"],
+    createdAt: "2024-01-01T10:00:00Z",
+    updatedAt: "2024-01-01T10:00:00Z"
+  }
+];
+
+// Synchronous fallback functions for town data
+export function getMockTowns(): Town[] {
+  console.log("Using mock fallback for towns");
+  return MOCK_TOWNS;
+}
+
+export function getMockTownBySlug(slug: string): Town | undefined {
+  console.log(`Using mock fallback for town slug: ${slug}`);
+  return MOCK_TOWNS.find((town) => town.slug === slug);
 }

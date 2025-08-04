@@ -3,7 +3,8 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { DirectoryCard } from "@/components/ui/directory-card";
-import { getEntriesByCategory } from "@/lib/api";
+import { getEntriesByCategory, getTownBySlug } from "@/lib/api";
+import type { Town } from "@/types/town";
 import { 
   MapPinIcon, 
   UserGroupIcon, 
@@ -13,136 +14,6 @@ import {
 
 // Enable ISR with 1 hour revalidation for town content
 export const revalidate = 3600;
-
-// Town data based on comprehensive research
-const townData = {
-  "nova-sintra": {
-    name: "Nova Sintra",
-    description: "The cultured capital of Brava Island, recognized as a UNESCO World Heritage Tentative List site since 2013",
-    population: "Approximately 1,200 residents",
-    elevation: "500 meters above sea level",
-    founded: "Late 17th century",
-    highlights: [
-      "UNESCO World Heritage Tentative List site (2013)",
-      "Praça Eugénio Tavares - the island's main social hub",
-      "Eugénio Tavares House Museum - birthplace of morna music",
-      "Colonial sobrados built by diaspora emigrants from New Bedford",
-      "Road of 99 turns scenic journey from Furna",
-      "Igreja São João Baptista colonial church (c. 1880)"
-    ],
-    heroImage: "/images/towns/nova-sintra-hero.jpg",
-    gallery: [
-      "/images/towns/nova-sintra-1.jpg",
-      "/images/towns/nova-sintra-2.jpg",
-      "/images/towns/nova-sintra-3.jpg"
-    ]
-  },
-  "furna": {
-    name: "Furna",
-    description: "Brava's maritime gateway nestled in an ancient volcanic crater bay, home to an authentic fishing community",
-    population: "Approximately 800 residents",
-    elevation: "Sea level",
-    founded: "Early 18th century as major port",
-    highlights: [
-      "Volcanic crater bay providing natural breakwater",
-      "Active fishing fleet with colorful artisanal boats",
-      "Nossa Senhora dos Navegantes maritime procession",
-      "Historic connection to American whaling industry",
-      "Nossa Senhora de Boa Viagem chapel overlooking the sea",
-      "Traditional fishing community daily rhythms"
-    ],
-    heroImage: "/images/towns/furna-hero.jpg",
-    gallery: [
-      "/images/towns/furna-1.jpg",
-      "/images/towns/furna-2.jpg",
-      "/images/towns/furna-3.jpg"
-    ]
-  },
-  "faja-de-agua": {
-    name: "Fajã de Água",
-    description: "Brava's original main harbor before 1843, now a verdant paradise famous for magnificent natural swimming pools",
-    population: "Approximately 126 residents (2010 census)",
-    elevation: "Sea level to 100 meters",
-    founded: "18th century as main port",
-    highlights: [
-      "Magnificent natural swimming pools formed by volcanic rock",
-      "Historic main harbor for American whaling ships",
-      "Intricate agricultural terraces (socos) on mountainsides",
-      "Abandoned Esperadinha Airport runway (closed 2004)",
-      "Monumento aos Emigrantes commemorating lost emigrants",
-      "Traditional sugarcane spirit (grog) production"
-    ],
-    heroImage: "/images/towns/faja-de-agua-hero.jpg",
-    gallery: [
-      "/images/towns/faja-de-agua-1.jpg",
-      "/images/towns/faja-de-agua-2.jpg",
-      "/images/towns/faja-de-agua-3.jpg"
-    ]
-  },
-  "nossa-senhora-do-monte": {
-    name: "Nossa Senhora do Monte",
-    description: "Historic pilgrimage sanctuary at 770m elevation, established as official pilgrimage site in 1862",
-    population: "Approximately 300 residents",
-    elevation: "770 meters above sea level",
-    founded: "Parish established around 1826",
-    highlights: [
-      "Official Catholic pilgrimage church since 1862",
-      "Annual Feast of Nossa Senhora do Monte (August 15th)",
-      "Religious procession from nearby Mato village",
-      "Panoramic views toward Monte Fontainhas (976m peak)",
-      "Connection to Madeiran settlers' faith traditions",
-      "Administrative center for western Brava parish"
-    ],
-    heroImage: "/images/towns/nossa-senhora-do-monte-hero.jpg",
-    gallery: [
-      "/images/towns/nossa-senhora-do-monte-1.jpg",
-      "/images/towns/nossa-senhora-do-monte-2.jpg",
-      "/images/towns/nossa-senhora-do-monte-3.jpg"
-    ]
-  },
-  "cachaco": {
-    name: "Cachaço",
-    description: "Remote mountain village at 592m elevation, famous throughout Cape Verde for its traditional handmade goat cheese",
-    population: "Approximately 200 residents",
-    elevation: "592 meters above sea level",
-    founded: "19th century",
-    highlights: [
-      "Famous Queijo do Cachaço traditional goat cheese",
-      "Second southernmost settlement in Cape Verde archipelago",
-      "Spectacular views across the water to Fogo island",
-      "Traditional cheese-making demonstrations",
-      "Remote mountain isolation and tranquility",
-      "Authentic rural Cape Verdean village life"
-    ],
-    heroImage: "/images/towns/cachaco-hero.jpg",
-    gallery: [
-      "/images/towns/cachaco-1.jpg",
-      "/images/towns/cachaco-2.jpg",
-      "/images/towns/cachaco-3.jpg"
-    ]
-  },
-  "cova-joana": {
-    name: "Cova Joana",
-    description: "Strikingly picturesque village nestled within a mountain valley that was once a volcanic crater",
-    population: "Approximately 150 residents",
-    elevation: "400 meters above sea level",
-    founded: "19th century",
-    highlights: [
-      "Former volcanic crater valley setting",
-      "Beautiful colonial sobrados architecture",
-      "Vibrant hibiscus hedges throughout the village",
-      "Tranquil natural harmony and mountain atmosphere",
-      "Location between Nova Sintra and Nossa Senhora do Monte",
-      "Traditional Cape Verdean mountain village charm"
-    ],
-    heroImage: "/images/towns/cova-joana-hero.jpg",
-    gallery: [
-      "/images/towns/cova-joana-1.jpg",
-      "/images/towns/cova-joana-2.jpg",
-      "/images/towns/cova-joana-3.jpg"
-    ]
-  }
-};
 
 // Define the props for the dynamic page
 interface TownPageProps {
@@ -154,8 +25,8 @@ interface TownPageProps {
 export default async function TownPage({ params }: TownPageProps) {
   const { slug } = await params;
   
-  // Get town data
-  const town = townData[slug as keyof typeof townData];
+  // Get town data from API with graceful fallback
+  const town = await getTownBySlug(slug);
   
   if (!town) {
     notFound();
@@ -179,7 +50,7 @@ export default async function TownPage({ params }: TownPageProps) {
       {/* Hero Section */}
       <section className="relative h-96 overflow-hidden">
         <Image
-          src={town.heroImage}
+          src={town.heroImage || "/images/towns/default-town.jpg"}
           alt={`Scenic view of ${town.name}, Brava Island`}
           fill
           className="object-cover"
@@ -229,7 +100,7 @@ export default async function TownPage({ params }: TownPageProps) {
                   <UserGroupIcon className="h-5 w-5 text-ocean-blue mr-2" />
                   <span className="font-semibold text-text-primary">Population</span>
                 </div>
-                <p className="text-text-secondary">{town.population}</p>
+                <p className="text-text-secondary">{town.population || "Population information not available"}</p>
               </div>
               
               <div className="bg-background-secondary p-4 rounded-lg">
@@ -237,7 +108,7 @@ export default async function TownPage({ params }: TownPageProps) {
                   <MapPinIcon className="h-5 w-5 text-ocean-blue mr-2" />
                   <span className="font-semibold text-text-primary">Elevation</span>
                 </div>
-                <p className="text-text-secondary">{town.elevation}</p>
+                <p className="text-text-secondary">{town.elevation || "Elevation information not available"}</p>
               </div>
               
               <div className="bg-background-secondary p-4 rounded-lg">
@@ -245,30 +116,32 @@ export default async function TownPage({ params }: TownPageProps) {
                   <BuildingOfficeIcon className="h-5 w-5 text-ocean-blue mr-2" />
                   <span className="font-semibold text-text-primary">Founded</span>
                 </div>
-                <p className="text-text-secondary">{town.founded}</p>
+                <p className="text-text-secondary">{town.founded || "Founding information not available"}</p>
               </div>
             </div>
           </div>
         </section>
 
         {/* Photo Gallery */}
-        <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8">
-            Photo Gallery
-          </h3>
-          <div className="grid gap-4 md:grid-cols-3">
-            {town.gallery.map((image, index) => (
-              <div key={index} className="relative h-64 overflow-hidden rounded-lg">
-                <Image
-                  src={image}
-                  alt={`View ${index + 1} of ${town.name}`}
-                  fill
-                  className="object-cover transition-transform duration-300 hover:scale-105"
-                />
-              </div>
-            ))}
-          </div>
-        </section>
+        {town.gallery && town.gallery.length > 0 && (
+          <section className="mt-16">
+            <h3 className="font-serif text-2xl font-bold text-text-primary mb-8">
+              Photo Gallery
+            </h3>
+            <div className="grid gap-4 md:grid-cols-3">
+              {town.gallery.map((image, index) => (
+                <div key={index} className="relative h-64 overflow-hidden rounded-lg">
+                  <Image
+                    src={image}
+                    alt={`View ${index + 1} of ${town.name}`}
+                    fill
+                    className="object-cover transition-transform duration-300 hover:scale-105"
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Local Directory Entries */}
         {townEntries.length > 0 && (
@@ -340,17 +213,21 @@ export default async function TownPage({ params }: TownPageProps) {
   );
 }
 
-// Generate static params for known towns
+// Generate static params for known towns - uses mock data for build-time generation
 export async function generateStaticParams() {
-  return Object.keys(townData).map((slug) => ({
-    slug,
+  // Import mock data for build-time static generation
+  const { getMockTowns } = await import("@/lib/mock-api");
+  const towns = getMockTowns();
+  
+  return towns.map((town) => ({
+    slug: town.slug,
   }));
 }
 
-// Generate metadata for SEO
+// Generate metadata for SEO - uses API with fallback to mock data
 export async function generateMetadata({ params }: TownPageProps) {
   const { slug } = await params;
-  const town = townData[slug as keyof typeof townData];
+  const town = await getTownBySlug(slug);
   
   if (!town) {
     return {
@@ -364,7 +241,7 @@ export async function generateMetadata({ params }: TownPageProps) {
     openGraph: {
       title: `${town.name} - Brava Island`,
       description: town.description,
-      images: [town.heroImage],
+      images: [town.heroImage || "/images/towns/default-town.jpg"],
     },
   };
 }

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { PageHeader } from "@/components/ui/page-header";
+import { getTowns } from "@/lib/api";
+import type { Town } from "@/types/town";
 import { 
   MapPinIcon, 
   UserGroupIcon, 
@@ -11,73 +13,17 @@ import {
 // Enable ISR with 2 hour revalidation for towns content
 export const revalidate = 7200;
 
-// Towns data based on comprehensive research
-const townsData = [
-  {
-    slug: "nova-sintra",
-    name: "Nova Sintra",
-    description: "Our mountain capital where cobblestone streets wind between flower-filled gardens and colonial sobrados tell stories of diaspora dreams realized",
-    population: "~1,200",
-    elevation: "500m",
-    highlights: ["UNESCO Tentative List site", "Praça Eugénio Tavares", "Colonial sobrados", "Eugénio Tavares Museum"],
-    image: "/images/towns/nova-sintra-card.jpg",
-    featured: true
-  },
-  {
-    slug: "furna",
-    name: "Furna",
-    description: "Where the sea meets the land in a perfect volcanic embrace, this ancient harbor welcomes every visitor with the rhythms of working boats and ocean waves",
-    population: "~800",
-    elevation: "Sea level",
-    highlights: ["Volcanic crater harbor", "Fishing fleet", "Maritime festivals", "Nossa Senhora dos Navegantes"],
-    image: "/images/towns/furna-card.jpg",
-    featured: true
-  },
-  {
-    slug: "faja-de-agua",
-    name: "Fajã de Água",
-    description: "Once our gateway to the world's whaling ships, now a hidden paradise where volcanic pools offer perfect refuge from the Atlantic's power",
-    population: "~126",
-    elevation: "Sea level-100m",
-    highlights: ["Natural swimming pools", "Agricultural terraces", "Abandoned airport", "Emigrant monument"],
-    image: "/images/towns/faja-de-agua-card.jpg",
-    featured: false
-  },
-  {
-    slug: "nossa-senhora-do-monte",
-    name: "Nossa Senhora do Monte",
-    description: "High among the clouds, this sacred place has drawn pilgrims for over 150 years, offering both spiritual solace and breathtaking views of our island home",
-    population: "~300",
-    elevation: "770m",
-    highlights: ["Pilgrimage church", "August 15th festival", "Monte Fontainhas views", "Religious processions"],
-    image: "/images/towns/nossa-senhora-do-monte-card.jpg",
-    featured: false
-  },
-  {
-    slug: "cachaco",
-    name: "Cachaço",
-    description: "In Brava's remote highlands, generations of families have perfected the art of cheese-making, creating flavors that carry the essence of our mountain pastures",
-    population: "~200",
-    elevation: "592m",
-    highlights: ["Queijo do Cachaço", "Fogo island views", "Traditional cheese making", "Mountain isolation"],
-    image: "/images/towns/cachaco-card.jpg",
-    featured: false
-  },
-  {
-    slug: "cova-joana",
-    name: "Cova Joana",
-    description: "Cradled within an ancient crater's embrace, this peaceful valley village showcases the harmony possible between volcanic power and human cultivation",
-    population: "~150",
-    elevation: "400m",
-    highlights: ["Volcanic crater setting", "Colonial sobrados", "Hibiscus hedges", "Mountain tranquility"],
-    image: "/images/towns/cova-joana-card.jpg",
-    featured: false
-  }
-];
-
-export default function TownsPage() {
-  const featuredTowns = townsData.filter(town => town.featured);
-  const otherTowns = townsData.filter(town => !town.featured);
+export default async function TownsPage() {
+  // Fetch towns from API with graceful fallback to mock data
+  const towns = await getTowns();
+  
+  // Separate featured towns (Nova Sintra and Furna) from others
+  const featuredTowns = towns.filter(town => 
+    town.slug === "nova-sintra" || town.slug === "furna"
+  );
+  const otherTowns = towns.filter(town => 
+    town.slug !== "nova-sintra" && town.slug !== "furna"
+  );
 
   return (
     <div className="bg-background-secondary font-sans">
@@ -130,7 +76,7 @@ export default function TownsPage() {
               <div key={town.slug} className="bg-background-primary rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow border border-border-primary">
                 <div className="relative h-48">
                   <Image
-                    src={town.image}
+                    src={town.heroImage || "/images/towns/default-town.jpg"}
                     alt={`View of ${town.name}`}
                     fill
                     className="object-cover"
@@ -147,11 +93,11 @@ export default function TownsPage() {
                   <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
                     <div className="flex items-center text-text-secondary">
                       <UserGroupIcon className="h-4 w-4 text-ocean-blue mr-2" />
-                      {town.population}
+                      {town.population || "Population unknown"}
                     </div>
                     <div className="flex items-center text-text-secondary">
                       <MapPinIcon className="h-4 w-4 text-ocean-blue mr-2" />
-                      {town.elevation}
+                      {town.elevation || "Elevation unknown"}
                     </div>
                   </div>
                   
@@ -193,7 +139,7 @@ export default function TownsPage() {
                 <div className="flex items-start space-x-4">
                   <div className="relative h-20 w-20 flex-shrink-0">
                     <Image
-                      src={town.image}
+                      src={town.heroImage || "/images/towns/default-town.jpg"}
                       alt={`View of ${town.name}`}
                       fill
                       className="object-cover rounded-lg"
@@ -209,11 +155,11 @@ export default function TownsPage() {
                     <div className="flex items-center space-x-4 text-xs text-text-secondary mb-2">
                       <span className="flex items-center">
                         <UserGroupIcon className="h-3 w-3 mr-1" />
-                        {town.population}
+                        {town.population || "Population unknown"}
                       </span>
                       <span className="flex items-center">
                         <MapPinIcon className="h-3 w-3 mr-1" />
-                        {town.elevation}
+                        {town.elevation || "Elevation unknown"}
                       </span>
                     </div>
                     <Link

@@ -1,5 +1,7 @@
 package com.nosilha.core.dto
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.nosilha.core.domain.*
 
 /**
@@ -101,4 +103,51 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
 
         else -> throw IllegalStateException("Unsupported or unknown DirectoryEntry type: ${this::class.simpleName}")
     }
+}
+
+/**
+ * Maps a Town JPA entity to its corresponding public-facing DTO.
+ *
+ * This extension function handles JSON parsing for highlights and gallery arrays,
+ * ensuring proper conversion from stored JSON strings to List<String> for the DTO.
+ *
+ * @receiver The Town entity instance to map.
+ * @return The corresponding TownDto for the entity.
+ * @throws IllegalStateException if the entity's ID is null, as DTOs are meant for persisted entities.
+ */
+fun Town.toDto(): TownDto {
+    // A persisted entity must have an ID. Throw an exception if it's null, as this indicates a logical error.
+    val entityId = this.id ?: throw IllegalStateException("Cannot map an entity with a null ID to a DTO.")
+
+    val objectMapper = jacksonObjectMapper()
+    
+    // Parse JSON arrays safely, defaulting to empty lists if null or invalid
+    val highlightsList = try {
+        this.highlights?.let { objectMapper.readValue<List<String>>(it) } ?: emptyList()
+    } catch (e: Exception) {
+        emptyList<String>()
+    }
+    
+    val galleryList = try {
+        this.gallery?.let { objectMapper.readValue<List<String>>(it) } ?: emptyList()
+    } catch (e: Exception) {
+        emptyList<String>()
+    }
+    
+    return TownDto(
+        id = entityId,
+        name = this.name,
+        slug = this.slug,
+        description = this.description,
+        latitude = this.latitude,
+        longitude = this.longitude,
+        population = this.population,
+        elevation = this.elevation,
+        founded = this.founded,
+        highlights = highlightsList,
+        heroImage = this.heroImage,
+        gallery = galleryList,
+        createdAt = this.createdAt,
+        updatedAt = this.updatedAt
+    )
 }

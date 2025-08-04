@@ -1,7 +1,8 @@
 import type { DirectoryEntry } from "@/types/directory";
+import type { Town } from "@/types/town";
 import { supabase } from "@/lib/supabase-client";
-import { getMockEntriesByCategory, getMockEntryBySlug } from "@/lib/mock-api";
-import { validateDirectoryEntries, validateDirectoryEntry } from "@/lib/api-validation";
+import { getMockEntriesByCategory, getMockEntryBySlug, getMockTowns, getMockTownBySlug } from "@/lib/mock-api";
+import { validateDirectoryEntries, validateDirectoryEntry, validateTowns, validateTown } from "@/lib/api-validation";
 
 // 1. Read the base URL from environment variables.
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -259,4 +260,95 @@ export async function uploadImage(
   const apiResponse = await response.json();
   // Extract URL from MediaMetadataDto in ApiResponse - backend returns ApiResponse<MediaMetadataDto>
   return apiResponse.data.url;
+}
+
+/**
+ * Fetches all towns from the backend API.
+ * Uses ISR with 1 hour cache for optimal performance and falls back to mock data.
+ * @returns A promise that resolves to an array of towns.
+ */
+export async function getTowns(): Promise<Town[]> {
+  const endpoint = `${API_BASE_URL}/api/v1/towns/all`;
+
+  try {
+    // Use ISR with 1 hour cache for towns data (semi-static data)
+    const response = await fetch(endpoint, { 
+      next: { revalidate: 3600 } 
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API call failed with status: ${response.status}`);
+    }
+
+    const apiResponse = await response.json();
+    // Extract and validate data from ApiResponse - backend returns ApiResponse<List<TownDto>>
+    const rawData = apiResponse.data || [];
+    return validateTowns(rawData);
+  } catch (error) {
+    console.error("Failed to fetch towns, using fallback:", error);
+    // Fallback to mock data for resilience
+    return getMockTowns();
+  }
+}
+
+/**
+ * Fetches a single town by its slug from the backend API.
+ * Uses ISR with 30 minute cache for individual towns and falls back to mock data.
+ * @param slug The slug of the town to fetch.
+ * @returns A promise that resolves to a single town or undefined if not found.
+ */
+export async function getTownBySlug(
+  slug: string
+): Promise<Town | undefined> {
+  const endpoint = `${API_BASE_URL}/api/v1/towns/slug/${slug}`;
+
+  try {
+    // Use ISR with 30 minute cache for individual towns
+    const response = await fetch(endpoint, { 
+      next: { revalidate: 1800 } 
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        // Try fallback for 404s as well
+        return getMockTownBySlug(slug);
+      }
+      throw new Error(`API call failed with status: ${response.status}`);
+    }
+
+    const apiResponse = await response.json();
+    // Extract and validate data from ApiResponse - backend returns ApiResponse<TownDto>
+    return validateTown(apiResponse.data) || undefined;
+  } catch (error) {
+    console.error(`Failed to fetch town by slug "${slug}", using fallback:`, error);
+    // Fallback to mock data for resilience
+    return getMockTownBySlug(slug);
+  }
+}
+
+/**
+ * Fetches towns for real-time interactive features like maps.
+ * Uses no-store cache to ensure fresh data for dynamic interactions.
+ * @returns A promise that resolves to an array of towns.
+ */
+export async function getTownsForMap(): Promise<Town[]> {
+  const endpoint = `${API_BASE_URL}/api/v1/towns/all`;
+
+  try {
+    // Keep dynamic for real-time map interactions
+    const response = await fetch(endpoint, { cache: "no-store" });
+    
+    if (!response.ok) {
+      throw new Error(`API call failed with status: ${response.status}`);
+    }
+
+    const apiResponse = await response.json();
+    // Extract and validate data from ApiResponse - backend returns ApiResponse<List<TownDto>>
+    const rawData = apiResponse.data || [];
+    return validateTowns(rawData);
+  } catch (error) {
+    console.error("Failed to fetch towns for map, using fallback:", error);
+    // Fallback to mock data for resilience
+    return getMockTowns();
+  }
 }
