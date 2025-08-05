@@ -22,6 +22,14 @@ This is a **full-stack application** with four main components:
 - **Infrastructure**: Docker Compose for local development, Terraform for cloud deployment
 - **CI/CD**: Modular GitHub Actions workflows with automated security scanning and deployment
 
+## Project Organization
+
+The project follows a clear organizational structure:
+
+- **`plan/`** - Dynamic planning documents for future features, research, and implementation strategies
+- **`docs/`** - Static project documentation (architecture, design system, API reference, etc.)
+- **`prompts/`** - Historical prompts and content used for development and AI interactions
+
 ### Key Integration Flows
 
 **Authentication**: User → Frontend → Supabase Auth → JWT Token → Backend Validation → Database Access  
@@ -357,12 +365,25 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - `docs/SECURITY.md` - Security policy and vulnerability reporting procedures
 
 ### Documentation Files
-- `CLAUDE.md` - Comprehensive development guide and architecture documentation (this file)
+
+#### Core Project Documentation (`docs/`)
 - `docs/ARCHITECTURE.md` - Detailed technical architecture with system flows and diagrams
 - `docs/DESIGN_SYSTEM.md` - Complete frontend design system and component library guide
 - `docs/API_REFERENCE.md` - Backend API documentation with endpoints and examples
 - `docs/CI_CD_PIPELINE.md` - Detailed CI/CD setup and troubleshooting guide
 - `docs/CI_CD_TESTING.md` - Comprehensive testing procedures for CI/CD pipeline
+- `docs/SECURITY.md` - Security policy and vulnerability reporting procedures
+
+#### Planning & Strategy Documents (`plan/`)
+- `plan/GALLERY_API_INTEGRATION.md` - Implementation strategy for gallery API integration
+- `plan/IMAGE_ASSET_RESEARCH_PLAN.md` - Research plan for image asset management
+- `plan/MVP_PRODUCTION_READINESS_ASSESSMENT.md` - Production readiness assessment
+- `plan/UI_API_INTEGRATION_ANALYSIS.md` - UI and API integration analysis
+- `plan/CONTENT_REVIEW_PLAN.md` - Content review and validation strategy
+- `plan/LLM_RESEARCH_PROMPTS.md` - LLM interaction research and prompts
+
+#### Root Documentation
+- `CLAUDE.md` - Comprehensive development guide and architecture documentation (this file)
 - `README.md` - Project overview and quick start guide for public repository
 
 ## Troubleshooting Common Issues
