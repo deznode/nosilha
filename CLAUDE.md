@@ -47,6 +47,7 @@ npm run dev             # Start development server with Turbopack
 npm run build           # Build for production
 npm run start           # Start production server
 npm run lint            # Run ESLint
+npx tsc --noEmit        # TypeScript type checking
 ```
 
 ### Backend (Spring Boot + Kotlin)
@@ -55,6 +56,8 @@ cd backend
 ./gradlew bootRun       # Start development server
 ./gradlew build         # Build JAR
 ./gradlew test          # Run tests
+./gradlew detekt        # Run Kotlin code analysis
+./gradlew test jacocoTestReport  # Run tests with coverage reports
 ./gradlew bootBuildImage # Build Docker image
 ```
 
@@ -63,6 +66,9 @@ cd backend
 cd infrastructure/docker
 docker-compose up -d    # Start PostgreSQL, Firestore & GCS emulators
 docker-compose down     # Stop all services
+# Database management
+docker-compose exec postgres psql -U nosilha -d nosilha_db  # Access PostgreSQL
+docker-compose exec postgres pg_dump -U nosilha nosilha_db > backup.sql  # Create backup
 ```
 
 ## Key Architecture Patterns
@@ -190,6 +196,24 @@ docker-compose down     # Stop all services
 - **Database**: `localhost:5432` (PostgreSQL: database=`nosilha_db`, user=`nosilha`, password=`nosilha`)
 - **Firestore Emulator**: `http://localhost:8081` (AI metadata storage)
 - **GCS Emulator**: `http://localhost:8082` (Media file storage)
+
+### Required Environment Variables
+
+#### Frontend (.env.local)
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:8080
+NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=your_mapbox_token_here
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+#### Backend (Environment Variables)
+```bash
+SPRING_PROFILES_ACTIVE=local
+DATABASE_URL=jdbc:postgresql://localhost:5432/nosilha_db
+DATABASE_USERNAME=nosilha  
+DATABASE_PASSWORD=nosilha
+```
 
 ### Key Health Endpoints
 - **Backend Health**: `http://localhost:8080/actuator/health`
@@ -370,6 +394,7 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - `docs/ARCHITECTURE.md` - Detailed technical architecture with system flows and diagrams
 - `docs/DESIGN_SYSTEM.md` - Complete frontend design system and component library guide
 - `docs/API_REFERENCE.md` - Backend API documentation with endpoints and examples
+- `docs/API_CODING_STANDARDS.md` - Comprehensive backend coding standards with Bean Validation, auditing, and internationalization patterns
 - `docs/CI_CD_PIPELINE.md` - Detailed CI/CD setup and troubleshooting guide
 - `docs/CI_CD_TESTING.md` - Comprehensive testing procedures for CI/CD pipeline
 - `docs/SECURITY.md` - Security policy and vulnerability reporting procedures

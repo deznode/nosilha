@@ -1,6 +1,7 @@
 # Project specific
 prompts/
 GEMINI.md
+.claude/
 
 # IDE and Editor files
 .vscode/
