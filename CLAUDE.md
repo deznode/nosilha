@@ -30,6 +30,34 @@ The project follows a clear organizational structure:
 - **`docs/`** - Static project documentation (architecture, design system, API reference, etc.)
 - **`prompts/`** - Historical prompts and content used for development and AI interactions
 
+### Planning & Template System
+
+#### Planning Directory Organization  
+- **`plan/active/`** - Plans currently being implemented
+- **`plan/pending/`** - Future work that depends on active plans
+- **`plan/completed/`** - Archive of successfully implemented plans
+- **`plan/templates/`** - Reusable templates and patterns
+
+#### Creating New Plans
+When creating new planning documents:
+1. **Use Template**: Always start with `plan/templates/plan-template.md`
+2. **Proper Directory**: Place in appropriate directory based on status
+3. **Naming Convention**: Use descriptive names like `[topic]-[action].md`
+4. **File References**: Include specific file paths and line numbers
+5. **Actionable Steps**: Each step should be implementable
+
+#### When to Create Plans
+- Complex multi-step implementations (3+ hours of work)
+- Breaking down large features into phases
+- Coordinating work across multiple files/systems
+- User explicitly requests planning
+
+#### Planning Process
+- Plans are dynamic and should evolve as work progresses
+- Move plans between directories as status changes
+- Archive completed plans for future reference
+- Claude Code can discover current plans using LS tool as needed
+
 ### Key Integration Flows
 
 **Authentication**: User → Frontend → Supabase Auth → JWT Token → Backend Validation → Database Access  

@@ -53,3 +53,27 @@ file_conventions:
   layouts: "layout.tsx"  
   api_routes: "/api/v1/*"
   styles: "globals.css + tailwind"
+
+# Planning System Configuration
+planning_system:
+  template_location: "plan/templates/plan-template.md"
+  directory_structure:
+    active: "plan/active/"      # Current work
+    pending: "plan/pending/"    # Future work
+    completed: "plan/completed/" # Archived
+    templates: "plan/templates/" # Templates
+  
+planning_behavior:
+  - "Use plan-template.md for all new planning documents"
+  - "Include specific file paths with line numbers"
+  - "Place plans in appropriate directory by status"
+  - "Use descriptive file names: [topic]-[action].md"
+  - "Define clear success criteria with checkboxes"
+  - "Plans are dynamic - update as work progresses"
+
+# Auto-create plans when
+create_plan_triggers:
+  - "User requests planning or organization"
+  - "Complex multi-step work (3+ hours estimated)"
+  - "Feature breakdown into phases needed"
+  - "Cross-system coordination required"
