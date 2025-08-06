@@ -1,7 +1,7 @@
 # Project specific
 prompts/
 GEMINI.md
-.claude/
+settings.local.json
 
 # IDE and Editor files
 .vscode/
