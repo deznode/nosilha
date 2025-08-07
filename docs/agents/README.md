@@ -1,6 +1,6 @@
 # Claude Sub-Agents Documentation
 
-This directory contains specialized documentation and knowledge bases for the 8 Claude sub-agents designed for the Nos Ilha platform.
+This directory contains specialized documentation and knowledge bases for the 10 Claude sub-agents designed for the Nos Ilha cultural heritage platform.
 
 ## Agent Overview
 
@@ -12,7 +12,9 @@ This directory contains specialized documentation and knowledge bases for the 8 
 | [Motion Agent](./motion-agent/) | Animations & interactions | Framer Motion, micro-interactions |
 | [DevOps Agent](./devops-agent/) | CI/CD & deployment | GitHub Actions, Terraform, GCP |
 | [Media Agent](./media-agent/) | AI & media processing | Cloud Vision, GCS, image processing |
-| [Data Agent](./data-agent/) | Database architecture | PostgreSQL, migrations, optimization |
+| [Data Agent](./data-agent/) | Multi-database architecture | PostgreSQL, Firestore, polyglot persistence |
+| [Content Agent](./content-agent/) | Cultural content creation | Heritage storytelling, multilingual copy |
+| [Fact Checker Agent](./factchecker-agent/) | Cultural accuracy verification | Historical validation, community consultation |
 | [Integration Agent](./integration-agent/) | Type safety & integration | API contracts, E2E testing |
 
 ## Usage Guidelines
@@ -22,14 +24,17 @@ Choose agents based on the primary domain of your task:
 - **API development** → Backend Agent
 - **UI/UX work** → Frontend Agent + Motion Agent
 - **Map features** → Mapbox Agent
-- **Database changes** → Data Agent
+- **Database changes** → Data Agent (PostgreSQL + Firestore)
+- **Cultural content** → Content Agent + Fact Checker Agent
+- **Historical accuracy** → Fact Checker Agent
 - **Deployment issues** → DevOps Agent
 
 ### Multi-Agent Coordination
 For complex features requiring multiple domains:
 1. **Primary Agent**: Handles the main implementation
 2. **Supporting Agents**: Provide specialized expertise
-3. **Integration Agent**: Ensures type safety and contracts
+3. **Content + Fact Checker**: For culturally-sensitive content
+4. **Integration Agent**: Ensures type safety and cultural quality
 
 ### Knowledge Base Structure
 Each agent directory contains:

@@ -19,7 +19,7 @@ To create a community-maintained, authoritative online resource for Brava that p
 ## ✨ Core Features
 
   * **Comprehensive Directory:** A curated database of businesses, services, and points of interest, organized by categories like `Restaurants`, `Lodging`, `Artisans`, and `Services`.
-  * **Interactive Maps:** A multi-layered, offline-ready map built with Leaflet.js and OpenStreetMap, featuring custom markers for landmarks, businesses, and historical sites.
+  * **Interactive Maps:** A multi-layered, responsive map built with Mapbox, featuring custom markers for landmarks, businesses, and historical sites with rich interactivity and beautiful styling.
   * **Rich Media Galleries:** Stunning photo and video galleries showcasing Brava's landscapes, people, and culture, with AI-enhanced organization.
   * **Town & Historical Pages:** Detailed pages for each town (`Vila Nova Sintra`, `Furna`, `Nossa Senhora do Monte`, etc.) and significant historical figures or events.
   * **AI-Enhanced Discovery:** Automated media tagging, location inference from photos, OCR for historical documents, and facial/landmark recognition to make content more searchable and accessible.
@@ -40,7 +40,7 @@ This project is built with a modern, scalable, and robust technology stack desig
 |                       | [Spring Boot Actuator](https://spring.io/guides/gs/actuator-service)   | Production monitoring and health checks                                |
 | **Databases** | [PostgreSQL](https://www.postgresql.org/) 15                           | Primary relational database with single-table inheritance pattern     |
 |                       | [Google Firestore](https://firebase.google.com/docs/firestore)         | Flexible metadata storage for AI-processed images and documents        |
-| **Mapping** | [Leaflet.js](https://leafletjs.com/) + [OpenStreetMap](https://www.openstreetmap.org/) | Interactive, customizable, and open-source mapping solution            |
+| **Mapping** | [Mapbox](https://www.mapbox.com/)                                       | Interactive, customizable mapping with rich styling and geocoding     |
 | **AI Services** | [Google Cloud Vision API](https://cloud.google.com/vision)              | Image/video analysis, OCR, landmark recognition, and content tagging   |
 | **Storage & CDN** | [Google Cloud Storage](https://cloud.google.com/storage)                | Scalable media storage with public CDN distribution                    |
 | **Infrastructure** | [Google Cloud Run](https://cloud.google.com/run)                        | Serverless deployment with auto-scaling and zero-downtime updates      |
@@ -63,8 +63,9 @@ This project adheres to clean architecture principles to ensure separation of co
 ├─────────────────┤    ├─────────────────┤    ├─────────────────┤
 │ • React 19      │◄──►│ • Kotlin/JVM    │◄──►│ • Cloud Run     │
 │ • App Router    │    │ • PostgreSQL    │    │ • Artifact Reg. │
-│ • Tailwind CSS  │    │ • JWT Auth      │    │ • Cloud Storage │
-│ • ISR Caching   │    │ • Domain-Driven │    │ • Secret Mgr.   │
+│ • Tailwind CSS  │    │ • Firestore     │    │ • Cloud Storage │
+│ • ISR Caching   │    │ • JWT Auth      │    │ • Secret Mgr.   │
+│ • Mapbox Maps   │    │ • Domain-Driven │    │ • Vision API    │
 │ • Supabase Auth │    │ • RESTful APIs  │    │ • IAM Security  │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
            │                      │                      │

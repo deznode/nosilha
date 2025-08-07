@@ -1,7 +1,7 @@
 # Agent Coordination Protocols
 
 ## Overview
-This document defines how the 8 Nos Ilha Claude sub-agents coordinate and hand off tasks to ensure seamless development workflows while maintaining their specialized expertise.
+This document defines how the 10 Nos Ilha Claude sub-agents coordinate and hand off tasks to ensure seamless development workflows while maintaining their specialized expertise and cultural heritage focus.
 
 ## Agent Interaction Matrix
 
@@ -12,15 +12,18 @@ This document defines how the 8 Nos Ilha Claude sub-agents coordinate and hand o
 | **New API Endpoint** | Backend | Integration, Data | Backend creates endpoint → Integration defines types → Data handles schema |
 | **Map Feature** | Mapbox | Frontend, Motion | Mapbox handles map logic → Frontend integrates → Motion adds animations |
 | **UI Component** | Frontend | Motion, Integration | Frontend creates component → Motion adds interactions → Integration ensures type safety |
-| **Database Migration** | Data | Backend, DevOps | Data designs schema → Backend updates entities → DevOps handles deployment |
-| **Gallery Feature** | Media | Frontend, Motion, Mapbox | Media handles upload → Frontend creates UI → Motion adds animations → Mapbox shows locations |
+| **Database Migration** | Data | Backend, DevOps | Data designs PostgreSQL/Firestore schema → Backend updates entities → DevOps handles deployment |
+| **Gallery Feature** | Media | Frontend, Motion, Mapbox, Data | Media handles upload → Data stores metadata → Frontend creates UI → Motion adds animations → Mapbox shows locations |
+| **Cultural Content Creation** | Content | Fact Checker, Frontend | Content creates culturally authentic copy → Fact Checker verifies accuracy → Frontend integrates |
+| **Heritage Page Development** | Content | Fact Checker, Frontend, Motion | Content develops narrative → Fact Checker validates → Frontend implements → Motion enhances storytelling |
+| **Multi-Database Integration** | Data | Backend, Media | Data designs polyglot persistence → Backend implements services → Media integrates metadata storage |
 | **CI/CD Pipeline** | DevOps | Backend, Frontend | DevOps configures pipeline → Backend/Frontend agents handle service-specific workflows |
 
 ## Handoff Protocols
 
-### 1. Tourism Feature Development Flow
+### 1. Cultural Heritage Feature Development Flow
 
-#### Example: Adding New Location Type (e.g., "Viewpoint")
+#### Example: Adding New Heritage Location Type (e.g., "Cultural Site")
 
 **Phase 1: Planning & Design**
 ```
@@ -200,14 +203,41 @@ When handing off between agents, use this structured format:
 - ❌ **Shouldn't:** UI components, backend business logic, map features
 
 **Data Agent**
-- ✅ **Should:** Database schema, migrations, query optimization, data modeling
+- ✅ **Should:** PostgreSQL schema, Firestore collections, migrations, query optimization, polyglot persistence
 - ❌ **Shouldn't:** API endpoints, frontend logic, CI/CD configuration
+
+**Content Copywriter Agent**
+- ✅ **Should:** Cultural heritage content, multilingual copy, community storytelling, brand voice
+- ❌ **Shouldn't:** Technical implementation, database design, API development
+
+**Cultural Fact Checker Agent**  
+- ✅ **Should:** Historical accuracy, cultural authenticity, community validation, bias detection
+- ❌ **Shouldn't:** Content creation, technical implementation, marketing copy
 
 **Integration Agent**
 - ✅ **Should:** Type safety, API contracts, testing, cross-stack integration
 - ❌ **Shouldn't:** Specific implementation details, specialized domain logic
 
 ### 3. Escalation Procedures
+
+#### Cultural Content Development Coordination
+
+**Cultural Heritage Content Creation Flow**
+```
+Content Request → Content Agent (creates authentic narrative)
+Content Agent → Fact Checker Agent (verifies accuracy, community validation)
+Fact Checker Agent → Content Agent (provides corrections/enhancements)
+Content Agent → Frontend Agent (implements culturally-sensitive presentation)
+Frontend Agent → Motion Agent (adds storytelling animations if appropriate)
+Integration Agent → Final validation (ensures technical and cultural quality)
+```
+
+**Cross-Cultural Validation Process**
+```
+Content Agent → Creates multilingual content → Fact Checker validates cultural nuances
+Fact Checker → Community consultation → Cultural authenticity confirmation
+Content Agent → Incorporates feedback → Frontend integration preparation
+```
 
 #### When Agents Need Help Outside Their Domain
 
@@ -307,4 +337,4 @@ Integration Agent → Ensures final integration → Validates complete feature
 - **Quarterly:** Update agent specifications and protocols
 - **Annually:** Comprehensive review of agent architecture and effectiveness
 
-This coordination system ensures that the specialized Claude sub-agents work together effectively while maintaining their domain expertise and delivering high-quality results for the Nos Ilha tourism platform.
+This coordination system ensures that the specialized Claude sub-agents work together effectively while maintaining their domain expertise and delivering high-quality, culturally authentic results for the Nos Ilha cultural heritage and sustainable tourism platform.

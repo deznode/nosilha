@@ -6,9 +6,9 @@
 **Dependencies:** None
 
 ## What & Why
-- **Problem:** Complex full-stack development requires specialized expertise across multiple domains (backend APIs, frontend React, mapping, animations, CI/CD, etc.)
-- **Solution:** Create 8 specialized Claude sub-agents with domain-specific knowledge and capabilities
-- **Expected Outcome:** Enhanced development efficiency with specialized agents for each technical domain
+- **Problem:** Complex cultural heritage & tourism platform requires specialized expertise across multiple domains (backend APIs, frontend React, mapping, content creation, fact-checking, databases, CI/CD, etc.)
+- **Solution:** Create 10 specialized Claude sub-agents with domain-specific knowledge and capabilities for both technical development and cultural content accuracy
+- **Expected Outcome:** Enhanced development efficiency with specialized agents for technical domains plus accurate, culturally-sensitive content creation
 
 ## Agent Specifications
 
@@ -156,29 +156,79 @@
 - Media CDN integration patterns
 
 ### 7. Database Architecture Agent (`nosilha-data-agent`)
-**Primary Role**: PostgreSQL schema design and Flyway migrations
+**Primary Role**: Multi-database specialist for PostgreSQL and Firestore
 **Expertise Areas**:
-- Single Table Inheritance modeling for DirectoryEntry
-- Flyway migration versioning and rollback strategies
-- PostgreSQL performance optimization
-- JPA entity relationship mapping
-- Database indexing for geospatial queries
-- Connection pooling and transaction management
+- **PostgreSQL**: Single Table Inheritance modeling for DirectoryEntry
+- **PostgreSQL**: Flyway migration versioning and rollback strategies
+- **PostgreSQL**: Performance optimization and connection pooling
+- **Firestore**: Document modeling for AI metadata and image processing
+- **Firestore**: Real-time updates and offline synchronization
+- **Cross-database**: Data consistency patterns between relational and NoSQL
 
 **Key Files**:
 - `backend/src/main/kotlin/com/nosilha/core/domain/*.kt`
 - `backend/src/main/kotlin/com/nosilha/core/repository/**/*.kt`
 - `backend/src/main/resources/db/migration/*.sql`
+- Firestore collection structures and security rules
 - Database configuration in application properties
 
 **Specialized Knowledge**:
-- PostgreSQL PostGIS for geospatial data
-- Query optimization for tourism search
-- Data archival and cleanup strategies
-- Database migration testing patterns
-- Performance monitoring and tuning
+- **PostgreSQL**: PostGIS for geospatial data, JPA entity relationships
+- **Firestore**: Image metadata storage, EXIF data, AI-generated tags
+- **Integration**: Polyglot persistence patterns for cultural heritage data
+- **Performance**: Query optimization across both database systems
+- **Migrations**: Schema evolution strategies for both SQL and NoSQL
 
-### 8. Type Safety & Integration Agent (`nosilha-integration-agent`)
+### 8. Content Copywriter Agent (`nosilha-content-agent`)
+**Primary Role**: Cultural heritage content creation and multilingual copywriting
+**Expertise Areas**:
+- Cape Verdean cultural context and historical sensitivity
+- Tourism copywriting that respects local heritage
+- Multilingual content creation (English, Portuguese, French)
+- Community-focused storytelling and voice
+- SEO-optimized content for cultural sites
+- Diaspora community engagement writing
+
+**Key Files**:
+- Frontend page content and meta descriptions
+- Cultural heritage narratives and descriptions
+- Business directory descriptions with cultural context
+- Historical figure and landmark content
+- Community event and festival descriptions
+
+**Specialized Knowledge**:
+- Cape Verde cultural nuances and authentic voice
+- Tourism marketing that preserves cultural integrity
+- Community-inclusive language patterns
+- Structured data markup for cultural content (Schema.org)
+- Content localization best practices for island communities
+
+### 9. Cultural Fact Checker Agent (`nosilha-factchecker-agent`)
+**Primary Role**: Historical and cultural accuracy verification for Brava Island content
+**Expertise Areas**:
+- Cape Verdean history and Brava Island-specific facts
+- Verification of historical figures and dates
+- Cultural practice and tradition accuracy
+- Community consultation and source validation
+- Bias detection in cultural representation
+- Authenticity assessment for heritage content
+
+**Key Files**:
+- History page content verification
+- People page biographical accuracy
+- Cultural practice and tradition descriptions
+- Historical landmark and site information
+- Community event and festival details
+
+**Specialized Knowledge**:
+- Primary source research for Cape Verde history
+- Community knowledge validation processes
+- Oral history preservation and verification
+- Cultural sensitivity in historical narrative
+- Diaspora community fact-checking networks
+- Academic source validation for island history
+
+### 10. Type Safety & Integration Agent (`nosilha-integration-agent`)
 **Primary Role**: Full-stack type safety and API integration
 **Expertise Areas**:
 - Frontend/backend type interface alignment
@@ -213,25 +263,30 @@
 
 ## Agent Coordination Patterns
 
-### Tourism Feature Development
-- **Frontend** + **Mapbox** + **Motion** → Interactive location pages with animated map transitions
-- **Backend** + **Media** + **Data** → Location data with rich media and geospatial queries
+### Cultural Heritage Content Development
+- **Content** + **Fact Checker** + **Frontend** → Authentic, accurate cultural pages with proper presentation
+- **Content** + **Media** + **Data** → Rich cultural narratives with verified historical context and multimedia
+
+### Community-Focused Tourism
+- **Content** + **Mapbox** + **Motion** → Interactive location pages with culturally-sensitive storytelling
+- **Fact Checker** + **Backend** + **Data** → Verified historical data with proper community representation
 
 ### User Experience Enhancement  
-- **Motion** + **Frontend** → Smooth page transitions and micro-interactions
-- **Mapbox** + **Media** → Interactive photo galleries with location context
+- **Motion** + **Frontend** → Smooth page transitions and culturally-appropriate micro-interactions
+- **Mapbox** + **Media** → Interactive galleries showcasing authentic Brava Island life
 
 ### Technical Excellence
 - **Integration** + **DevOps** → Full-stack type safety with automated testing
-- **Data** + **Backend** → Optimized queries and proper database architecture
+- **Data** + **Backend** → Optimized queries across PostgreSQL and Firestore architectures
 
 ## Success Criteria
-- [ ] All 8 agents have detailed specifications
-- [ ] Agent knowledge bases are comprehensive
-- [ ] Specialized prompts are effective and tested
-- [ ] Agent coordination patterns are documented
-- [ ] Testing procedures validate agent effectiveness
-- [ ] Documentation enables easy agent deployment
+- [ ] All 10 agents have detailed specifications with cultural heritage focus
+- [ ] Agent knowledge bases include Cape Verdean cultural context
+- [ ] Content and fact-checking agents have community validation processes
+- [ ] Specialized prompts preserve cultural authenticity and accuracy
+- [ ] Agent coordination patterns support community-focused development
+- [ ] Testing procedures validate both technical functionality and cultural sensitivity
+- [ ] Documentation enables culturally-aware agent deployment
 
 ---
 **Created:** 2025-01-06  

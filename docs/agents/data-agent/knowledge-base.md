@@ -1,27 +1,34 @@
 # Data Agent Knowledge Base
 
-## Domain Expertise: PostgreSQL + Database Architecture + Performance Optimization
+## Domain Expertise: Multi-Database Architecture (PostgreSQL + Firestore)
 
-### Architecture Overview
+### Hybrid Architecture Overview
 ```
 Application Layer (Spring Boot)
     ↓
-JPA/Hibernate (ORM)
+┌─────────────────────┬─────────────────────┐
+│  JPA/Hibernate      │  Firestore SDK      │
+│  (Relational ORM)   │  (Document DB)      │
+└─────────────────────┼─────────────────────┘
+    ↓                     ↓
+PostgreSQL Database   Google Firestore
+(Structured Data)     (AI Metadata & EXIF)
+    ↓                     ↓
+Flyway Migrations     Real-time Updates
     ↓
-PostgreSQL Database (Primary)
-    ↓
-Flyway Migrations (Version Control)
-    ↓
-HikariCP Connection Pool
+HikariCP Pool
 ```
 
 ### Key Technologies
-- **PostgreSQL 15** - Primary relational database for structured tourism data
-- **Flyway** - Database migration and version control
+- **PostgreSQL 15** - Primary relational database for structured heritage data
+- **Google Firestore** - NoSQL document store for AI metadata, image EXIF, tags
+- **Flyway** - SQL database migration and version control
 - **JPA/Hibernate** - Object-relational mapping with Spring Data
-- **HikariCP** - High-performance connection pooling
+- **Firestore SDK** - Real-time document database operations
+- **HikariCP** - High-performance PostgreSQL connection pooling
 - **Single Table Inheritance** - DirectoryEntry hierarchy optimization
 - **PostGIS** (future) - Geospatial data extensions for location-based queries
+- **Firestore Security Rules** - Document-level access control for metadata
 
 ## Core Database Patterns
 
@@ -644,4 +651,412 @@ backend/src/main/kotlin/com/nosilha/core/domain/
 └── Beach.kt                                  # Beach-specific fields
 ```
 
-This knowledge base provides comprehensive coverage of PostgreSQL database design, performance optimization, and tourism-specific data management patterns for the Nos Ilha platform.
+## Firestore Integration Patterns
+
+### 1. Image Metadata Document Structure
+```javascript
+// Collection: image_metadata
+// Document ID: {image_uuid}
+{
+  // Basic file information
+  fileName: "brava-lighthouse-sunset.jpg",
+  gcsPath: "images/landmarks/brava-lighthouse-sunset.jpg",
+  publicUrl: "https://storage.googleapis.com/nosilha-media/images/...",
+  contentType: "image/jpeg",
+  fileSize: 2048576,
+  
+  // Relational database reference
+  directoryEntryId: "550e8400-e29b-41d4-a716-446655440000",
+  category: "LANDMARK",
+  
+  // EXIF data extracted from image
+  exifData: {
+    camera: "iPhone 14 Pro",
+    captureDate: "2024-03-15T18:30:00Z",
+    gpsCoordinates: {
+      latitude: 14.8756,
+      longitude: -24.7045
+    },
+    cameraSettings: {
+      focalLength: "24mm",
+      aperture: "f/1.78",
+      shutterSpeed: "1/120",
+      iso: 100
+    }
+  },
+  
+  // Google Cloud Vision API analysis
+  aiAnalysis: {
+    labels: [
+      { description: "lighthouse", score: 0.97, topicality: 0.95 },
+      { description: "sunset", score: 0.89, topicality: 0.92 },
+      { description: "ocean", score: 0.85, topicality: 0.88 },
+      { description: "Cape Verde", score: 0.78, topicality: 0.91 }
+    ],
+    landmarks: [
+      {
+        description: "Brava Island Lighthouse",
+        score: 0.94,
+        boundingPoly: { vertices: [/*...*/] },
+        locations: [{ latLng: { latitude: 14.8756, longitude: -24.7045 } }]
+      }
+    ],
+    textAnnotations: [
+      {
+        description: "Built 1876",
+        boundingPoly: { vertices: [/*...*/] }
+      }
+    ],
+    safeSearchAnnotation: {
+      adult: "VERY_UNLIKELY",
+      spoof: "UNLIKELY", 
+      medical: "UNLIKELY",
+      violence: "VERY_UNLIKELY",
+      racy: "UNLIKELY"
+    }
+  },
+  
+  // Community-contributed tags
+  communityTags: [
+    "historic", "navigation", "coastal", "Portuguese colonial", "sunset spot"
+  ],
+  
+  // Cultural context (for heritage platform)
+  culturalMetadata: {
+    historicalPeriod: "Portuguese Colonial",
+    culturalSignificance: "Navigation landmark for Cape Verdean fishermen",
+    communityStories: [
+      "Local fishermen use this lighthouse to navigate home",
+      "Popular wedding photography location"
+    ]
+  },
+  
+  // Processing metadata
+  processingStatus: "COMPLETED",
+  processedAt: "2024-03-15T19:15:00Z",
+  processingVersion: "v2.1",
+  
+  // Timestamps
+  createdAt: "2024-03-15T18:45:00Z",
+  updatedAt: "2024-03-15T19:15:00Z"
+}
+```
+
+### 2. Firestore Security Rules
+```javascript
+// firestore.rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Image metadata - read public, write authenticated
+    match /image_metadata/{imageId} {
+      allow read: if true; // Public read for displaying images
+      allow write: if request.auth != null; // Authenticated users can upload
+      allow delete: if request.auth != null && 
+                       request.auth.token.admin == true; // Only admins can delete
+    }
+    
+    // Cultural heritage documents - public read, admin write
+    match /cultural_heritage/{heritageId} {
+      allow read: if true;
+      allow write: if request.auth != null && 
+                      request.auth.token.admin == true;
+    }
+    
+    // Community contributions - authenticated users
+    match /community_contributions/{contributionId} {
+      allow read: if true;
+      allow create: if request.auth != null && 
+                       request.auth.uid == resource.data.userId;
+      allow update: if request.auth != null && 
+                       (request.auth.uid == resource.data.userId || 
+                        request.auth.token.admin == true);
+    }
+  }
+}
+```
+
+### 3. Spring Data for Firestore Query Patterns
+```kotlin
+// Firestore entity with Spring Data annotations
+@Document("image_metadata")
+data class ImageMetadata(
+    @DocumentId
+    val id: String = "",
+    
+    val fileName: String = "",
+    val gcsPath: String = "",
+    val publicUrl: String = "",
+    val contentType: String = "",
+    val fileSize: Long = 0,
+    
+    val directoryEntryId: String = "",
+    val category: String = "",
+    
+    val exifData: ExifData? = null,
+    val aiAnalysis: AiAnalysis? = null,
+    val communityTags: List<String> = emptyList(),
+    val culturalMetadata: CulturalMetadata? = null,
+    
+    val processingStatus: String = "PENDING",
+    val processedAt: LocalDateTime? = null,
+    val processingVersion: String = "",
+    
+    @CreatedDate
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+    
+    @LastModifiedDate 
+    val updatedAt: LocalDateTime = LocalDateTime.now()
+)
+
+// Spring Data Firestore Repository
+@Repository
+interface ImageMetadataRepository : FirestoreReactiveRepository<ImageMetadata, String> {
+    
+    fun findByCategoryAndProcessingStatus(
+        category: String, 
+        processingStatus: String
+    ): Flux<ImageMetadata>
+    
+    fun findByDirectoryEntryId(directoryEntryId: String): Flux<ImageMetadata>
+    
+    fun findByCommunityTagsContaining(tag: String): Flux<ImageMetadata>
+    
+    fun findByProcessingStatusOrderByCreatedAtDesc(
+        processingStatus: String,
+        pageable: Pageable
+    ): Flux<ImageMetadata>
+}
+
+// Service using Spring Data Firestore
+@Service
+class FirestoreImageService(
+    private val imageMetadataRepository: ImageMetadataRepository
+) {
+    
+    fun saveImageMetadata(metadata: ImageMetadata): Mono<ImageMetadata> {
+        return imageMetadataRepository.save(metadata)
+    }
+    
+    fun getImagesByCategory(category: String): Flux<ImageMetadata> {
+        return imageMetadataRepository.findByCategoryAndProcessingStatus(
+            category, 
+            "COMPLETED"
+        )
+    }
+    
+    fun searchImagesByTags(tags: List<String>): Flux<ImageMetadata> {
+        return tags.map { tag ->
+            imageMetadataRepository.findByCommunityTagsContaining(tag)
+        }.fold(Flux.empty()) { acc, flux -> acc.mergeWith(flux) }
+        .distinct { it.id }
+    }
+    
+    fun getRecentCompletedImages(limit: Int = 50): Flux<ImageMetadata> {
+        return imageMetadataRepository.findByProcessingStatusOrderByCreatedAtDesc(
+            "COMPLETED",
+            PageRequest.of(0, limit)
+        )
+    }
+    
+    fun getImagesForDirectoryEntry(entryId: String): Flux<ImageMetadata> {
+        return imageMetadataRepository.findByDirectoryEntryId(entryId)
+    }
+}
+```
+
+### 4. Cross-Database Consistency Patterns
+```kotlin
+// Transactional service ensuring data consistency with Spring Data Firestore
+@Service 
+@Transactional
+class HeritageDataService(
+    private val directoryEntryRepository: DirectoryEntryRepository,
+    private val firestoreImageService: FirestoreImageService
+) {
+    
+    fun createDirectoryEntryWithMedia(
+        entry: DirectoryEntry, 
+        mediaFiles: List<MultipartFile>
+    ): Mono<DirectoryEntry> {
+        
+        // 1. Save to PostgreSQL first (ACID transaction)
+        val savedEntry = directoryEntryRepository.save(entry)
+        
+        // 2. Process and save media metadata to Firestore using reactive streams
+        val mediaProcessing = Flux.fromIterable(mediaFiles)
+            .flatMap { file -> processAndSaveMedia(file, savedEntry.id) }
+            .collectList()
+        
+        // 3. Return when all operations complete
+        return mediaProcessing
+            .map { savedEntry }
+            .onErrorResume { throwable ->
+                // Compensation: rollback PostgreSQL if Firestore fails
+                directoryEntryRepository.delete(savedEntry)
+                Mono.error(RuntimeException("Failed to save media metadata", throwable))
+            }
+    }
+    
+    private fun processAndSaveMedia(
+        file: MultipartFile, 
+        entryId: UUID
+    ): Mono<ImageMetadata> {
+        return Mono.fromCallable { uploadToGCS(file) }
+            .subscribeOn(Schedulers.boundedElastic())
+            .flatMap { gcsPath -> 
+                analyzeWithVisionAPI(gcsPath).map { analysis ->
+                    ImageMetadata(
+                        directoryEntryId = entryId.toString(),
+                        gcsPath = gcsPath,
+                        aiAnalysis = analysis,
+                        // ... other metadata
+                    )
+                }
+            }
+            .flatMap { metadata -> 
+                firestoreImageService.saveImageMetadata(metadata) 
+            }
+    }
+}
+```
+
+### 5. Data Synchronization Strategies
+```kotlin
+// Scheduled service to maintain data consistency with Spring Data Firestore
+@Component
+class DataSynchronizationService(
+    private val directoryEntryRepository: DirectoryEntryRepository,
+    private val firestoreImageService: FirestoreImageService,
+    private val imageMetadataRepository: ImageMetadataRepository
+) {
+    
+    private val logger = LoggerFactory.getLogger(DataSynchronizationService::class.java)
+    
+    @Scheduled(fixedRate = 300000) // Every 5 minutes
+    fun validateDataConsistency() {
+        // Find PostgreSQL entries without Firestore metadata
+        val entriesWithoutMedia = directoryEntryRepository
+            .findEntriesWithoutMediaMetadata()
+            
+        entriesWithoutMedia.forEach { entry ->
+            logger.warn("Directory entry ${entry.id} missing media metadata")
+            // Could trigger reprocessing or alert
+        }
+        
+        // Clean up orphaned Firestore documents
+        cleanupOrphanedFirestoreDocuments()
+            .subscribe()
+    }
+    
+    private fun cleanupOrphanedFirestoreDocuments(): Mono<Void> {
+        return imageMetadataRepository.findAll()
+            .flatMap { metadata ->
+                val entryExists = directoryEntryRepository
+                    .existsById(UUID.fromString(metadata.directoryEntryId))
+                
+                if (!entryExists) {
+                    logger.info("Removing orphaned metadata: ${metadata.id}")
+                    imageMetadataRepository.deleteById(metadata.id)
+                } else {
+                    Mono.empty()
+                }
+            }
+            .then()
+    }
+    
+    // Additional method for batch consistency validation
+    fun validateBatchConsistency(): Mono<ConsistencyReport> {
+        val postgresCount = Mono.fromCallable { 
+            directoryEntryRepository.count() 
+        }
+        
+        val firestoreCount = imageMetadataRepository
+            .findAll()
+            .map { it.directoryEntryId }
+            .distinct()
+            .count()
+        
+        return Mono.zip(postgresCount, firestoreCount) { pg, fs ->
+            ConsistencyReport(
+                postgresEntries = pg,
+                firestoreUniqueEntries = fs,
+                isConsistent = pg == fs
+            )
+        }
+    }
+}
+
+data class ConsistencyReport(
+    val postgresEntries: Long,
+    val firestoreUniqueEntries: Long,
+    val isConsistent: Boolean
+)
+```
+
+### 6. Spring Data Firestore Configuration
+```kotlin
+// Configuration for Spring Data Firestore
+@Configuration
+@EnableReactiveFirestoreRepositories(basePackages = ["com.nosilha.core.repository.firestore"])
+class FirestoreConfig {
+    
+    @Bean
+    fun firestoreOptions(): FirestoreOptions {
+        return FirestoreOptions.getDefaultInstance()
+    }
+    
+    @Bean
+    fun firestore(firestoreOptions: FirestoreOptions): Firestore {
+        return firestoreOptions.service
+    }
+    
+    @Bean
+    fun firestoreTemplate(firestore: Firestore): ReactiveFirestoreTemplate {
+        return ReactiveFirestoreTemplate(firestore, FirestoreClassMapper())
+    }
+    
+    @Bean
+    fun firestoreMappingContext(): FirestoreMappingContext {
+        return FirestoreMappingContext()
+    }
+}
+
+// Application properties for Firestore
+# application.yml
+spring:
+  cloud:
+    gcp:
+      project-id: ${GCP_PROJECT_ID:nos-ilha-project}
+      firestore:
+        enabled: true
+        host-port: localhost:8081  # For emulator, remove for production
+        emulator:
+          enabled: true            # For development, false for production
+```
+
+## Polyglot Persistence Best Practices
+
+### 1. Data Distribution Strategy
+- **PostgreSQL**: Structured business data, relationships, ACID transactions
+- **Firestore**: Unstructured metadata, real-time updates, AI analysis results  
+- **Spring Data**: Unified repository pattern for both databases
+- **Consistency**: Eventually consistent with compensation patterns and reactive streams
+- **Performance**: Async operations with proper error handling using Mono/Flux
+
+### 2. Query Optimization Across Databases
+- Use PostgreSQL for complex relational queries and reporting
+- Use Firestore for real-time updates and flexible metadata queries  
+- Implement caching layers to reduce cross-database operations
+- Design denormalized views for common query patterns
+- Use Spring Data repository abstractions for consistent query patterns
+
+### 3. Spring Data Integration Benefits
+- **Consistent API**: Same repository patterns for PostgreSQL (JPA) and Firestore
+- **Reactive Support**: Native reactive streams with Mono/Flux for Firestore
+- **Annotation-based**: Clean entity mapping with @Document, @DocumentId
+- **Automatic Auditing**: @CreatedDate, @LastModifiedDate support
+- **Query Methods**: Derived query methods work with both databases
+
+This knowledge base now provides comprehensive coverage of both PostgreSQL relational database design and Spring Data Firestore integration patterns, specifically optimized for cultural heritage metadata management and AI-enhanced media processing in the Nos Ilha platform.
