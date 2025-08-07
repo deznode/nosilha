@@ -1,6 +1,8 @@
 # Backend Agent Knowledge Base
 
-## Domain Expertise: Spring Boot + Kotlin API Development
+## Domain Expertise: Spring Boot + Kotlin API Development for Cultural Heritage Platform
+
+This platform serves as a cultural heritage hub connecting Brava Island locals to the global Cape Verdean diaspora while supporting sustainable, community-focused tourism.
 
 ### Architecture Overview
 ```
@@ -35,61 +37,67 @@ Database Layer (PostgreSQL)
 @Entity
 @Table(name = "directory_entries")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "entry_type", discriminatorType = DiscriminatorType.STRING)
-abstract class DirectoryEntry(
+@DiscriminatorColumn(name = "category", discriminatorType = DiscriminatorType.STRING)
+abstract class DirectoryEntry {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    open val id: UUID = UUID.randomUUID(),
-    
+    @GeneratedValue
+    var id: UUID? = null
+
     @Column(nullable = false)
-    open val name: String,
-    
-    @Column(columnDefinition = "TEXT")
-    open val description: String?,
-    
-    @Enumerated(EnumType.STRING)
+    lateinit var name: String
+
+    @Column(unique = true, nullable = false)
+    lateinit var slug: String
+
+    @Column(length = 2048)
+    lateinit var description: String
+
+    @Column(name = "category", nullable = false, insertable = false, updatable = false)
+    lateinit var category: String
+
     @Column(nullable = false)
-    open val category: Category,
-    
-    @Column(precision = 10, scale = 8)
-    open val latitude: Double?,
-    
-    @Column(precision = 11, scale = 8) 
-    open val longitude: Double?,
-    
-    @CreatedDate
+    lateinit var town: String
+
+    @Column(nullable = false)
+    var latitude: Double = 0.0
+
+    @Column(nullable = false)
+    var longitude: Double = 0.0
+
+    var imageUrl: String? = null
+    var rating: Double? = null
+    var reviewCount: Int = 0
+
+    // Restaurant-specific fields (all nullable in base table)
+    var phoneNumber: String? = null
+    var openingHours: String? = null
+    var cuisine: String? = null
+
+    // Hotel-specific fields (all nullable in base table)
+    var amenities: String? = null
+
     @Column(name = "created_at", nullable = false, updatable = false)
-    open val createdAt: LocalDateTime = LocalDateTime.now(),
-    
-    @LastModifiedDate
+    var createdAt: LocalDateTime = LocalDateTime.now()
+
     @Column(name = "updated_at", nullable = false)
-    open val updatedAt: LocalDateTime = LocalDateTime.now()
-)
+    var updatedAt: LocalDateTime = LocalDateTime.now()
+    
+    @PrePersist
+    protected fun onCreate() {
+        val now = LocalDateTime.now()
+        createdAt = now
+        updatedAt = now
+    }
+
+    @PreUpdate
+    protected fun onUpdate() {
+        updatedAt = LocalDateTime.now()
+    }
+}
 
 @Entity
-@DiscriminatorValue("RESTAURANT")
-class Restaurant(
-    name: String,
-    description: String?,
-    category: Category,
-    latitude: Double?,
-    longitude: Double?,
-    
-    @Column(length = 100)
-    val cuisine: String?,
-    
-    @Column(name = "price_range", length = 20)
-    val priceRange: String?,
-    
-    @Column(columnDefinition = "TEXT")
-    val hours: String?
-) : DirectoryEntry(
-    name = name,
-    description = description,
-    category = category,
-    latitude = latitude,
-    longitude = longitude
-)
+@DiscriminatorValue("Restaurant")
+class Restaurant : DirectoryEntry()
 ```
 
 **Key Points**:
@@ -120,12 +128,35 @@ data class DirectoryEntryDto(
     val details: Any? // Type-specific details
 )
 
-fun DirectoryEntry.toDto(): DirectoryEntryDto = when (this) {
-    is Restaurant -> DirectoryEntryDto(
-        id = id, name = name, category = category, type = "RESTAURANT",
-        details = RestaurantDetailsDto(cuisine, priceRange, hours)
+fun DirectoryEntry.toDto(): DirectoryEntryDto {
+    val details = when (this.category) {
+        "Restaurant" -> RestaurantDetailsDto(
+            cuisine = this.cuisine,
+            phoneNumber = this.phoneNumber,
+            openingHours = this.openingHours
+        )
+        "Hotel" -> HotelDetailsDto(
+            amenities = this.amenities?.split(",")?.map { it.trim() } ?: emptyList()
+        )
+        else -> null
+    }
+    
+    return DirectoryEntryDto(
+        id = this.id!!,
+        name = this.name,
+        slug = this.slug,
+        description = this.description,
+        category = this.category,
+        town = this.town,
+        latitude = this.latitude,
+        longitude = this.longitude,
+        imageUrl = this.imageUrl,
+        rating = this.rating,
+        reviewCount = this.reviewCount,
+        details = details,
+        createdAt = this.createdAt,
+        updatedAt = this.updatedAt
     )
-    // ... other mappings
 }
 ```
 
@@ -134,18 +165,67 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto = when (this) {
 @RestController
 @RequestMapping("/api/v1/directory")
 class DirectoryEntryController(
-    private val directoryService: DirectoryEntryService
+    private val service: DirectoryEntryService,
 ) {
+    @PostMapping("/entries")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun createNewEntry(
+        @RequestBody request: CreateEntryRequestDto,
+    ): ApiResponse<DirectoryEntryDto> {
+        val createdEntry = service.createEntry(request)
+        return ApiResponse(data = createdEntry, status = HttpStatus.CREATED.value())
+    }
+
     @GetMapping("/entries")
-    fun getAllEntries(): ResponseEntity<ApiResponse<List<DirectoryEntryDto>>> {
-        return try {
-            val entries = directoryService.getAllEntries()
-            ResponseEntity.ok(ApiResponse.success(entries))
-        } catch (e: Exception) {
-            logger.error("Error fetching entries", e)
-            ResponseEntity.internalServerError()
-                .body(ApiResponse.error("Failed to fetch entries"))
+    fun getEntries(
+        @RequestParam(name = "category", required = false) category: String?,
+        @RequestParam(name = "town", required = false) town: String?,
+        @RequestParam(name = "page", defaultValue = "0") page: Int,
+        @RequestParam(name = "size", defaultValue = "20") size: Int,
+    ): PagedApiResponse<DirectoryEntryDto> {
+        val pageable: Pageable = PageRequest.of(page, size, Sort.by("createdAt").descending())
+        
+        val resultPage = when {
+            category != null && town != null -> service.getEntriesByCategoryAndTownPage(category, town, pageable)
+            category != null -> service.getEntriesByCategoryPage(category, pageable)
+            town != null -> service.getEntriesByTownPage(town, pageable)
+            else -> service.getEntriesPage(pageable)
         }
+        
+        return PagedApiResponse.from(resultPage)
+    }
+
+    @GetMapping("/entries/{id}")
+    fun getEntryById(
+        @PathVariable id: UUID,
+    ): ApiResponse<DirectoryEntryDto> {
+        val entry = service.getEntryById(id)
+        return ApiResponse(data = entry)
+    }
+
+    @GetMapping("/slug/{slug}")
+    fun getEntryBySlug(
+        @PathVariable slug: String,
+    ): ApiResponse<DirectoryEntryDto> {
+        val entry = service.getEntryBySlug(slug)
+        return ApiResponse(data = entry)
+    }
+
+    @PutMapping("/entries/{id}")
+    fun updateEntry(
+        @PathVariable id: UUID,
+        @RequestBody request: CreateEntryRequestDto,
+    ): ApiResponse<DirectoryEntryDto> {
+        val updatedEntry = service.updateEntry(id, request)
+        return ApiResponse(data = updatedEntry)
+    }
+
+    @DeleteMapping("/entries/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteEntry(
+        @PathVariable id: UUID,
+    ) {
+        service.deleteEntry(id)
     }
 }
 ```
@@ -213,20 +293,53 @@ class JwtAuthenticationFilter(
 
 ### Supabase JWT Validation
 ```kotlin
-@Service
-class JwtService(
-    @Value("\${supabase.jwt.secret}") private val jwtSecret: String
-) {
-    fun validateToken(token: String): Boolean {
-        return try {
-            val verifier = JWT.require(Algorithm.HMAC256(jwtSecret))
-                .withIssuer("https://your-supabase-project.supabase.co/auth/v1")
-                .build()
-            verifier.verify(token)
-            true
-        } catch (e: Exception) {
-            false
+@Component
+class JwtAuthenticationFilter(
+    @Value("\${supabase.jwt-secret}") private val jwtSecret: String,
+) : OncePerRequestFilter() {
+    override fun doFilterInternal(
+        request: HttpServletRequest,
+        response: HttpServletResponse,
+        filterChain: FilterChain,
+    ) {
+        val authHeader: String? = request.getHeader("Authorization")
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response)
+            return
         }
+
+        val token = authHeader.substring(7)
+
+        try {
+            val key = Keys.hmacShaKeyFor(jwtSecret.toByteArray())
+            val claims: Claims =
+                Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(token)
+                    .payload
+
+            if (SecurityContextHolder.getContext().authentication == null) {
+                val userId = claims.subject
+                val role = claims["role"] as? String ?: "USER"
+                val authorities = listOf(SimpleGrantedAuthority("ROLE_$role"))
+
+                val authentication =
+                    UsernamePasswordAuthenticationToken(
+                        userId,
+                        null,
+                        authorities,
+                    )
+
+                authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
+                SecurityContextHolder.getContext().authentication = authentication
+            }
+        } catch (e: Exception) {
+            logger.warn("JWT token processing error: ${e.message}")
+        }
+
+        filterChain.doFilter(request, response)
     }
 }
 ```
@@ -536,4 +649,103 @@ class GlobalExceptionHandler {
 }
 ```
 
-This knowledge base provides comprehensive coverage of the backend architecture, patterns, and best practices specific to the Nos Ilha platform.
+## Error Handling Standards
+
+### Global Exception Handler
+```kotlin
+@RestControllerAdvice
+class GlobalExceptionHandler {
+    
+    @ExceptionHandler(ResourceNotFoundException::class)
+    fun handleResourceNotFound(
+        ex: ResourceNotFoundException,
+        request: HttpServletRequest
+    ): ResponseEntity<ErrorResponse> {
+        logger.warn { "Resource not found: ${ex.message}" }
+        
+        val errorResponse = ErrorResponse(
+            error = "Resource Not Found",
+            message = ex.message ?: "The requested resource was not found",
+            path = request.requestURI,
+            status = HttpStatus.NOT_FOUND.value(),
+            timestamp = LocalDateTime.now()
+        )
+        
+        return ResponseEntity(errorResponse, HttpStatus.NOT_FOUND)
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException::class, BindException::class)
+    fun handleValidationErrors(
+        ex: Exception,
+        request: HttpServletRequest
+    ): ResponseEntity<ValidationErrorResponse> {
+        logger.warn { "Validation failed: ${ex.message}" }
+        
+        val fieldErrors = when (ex) {
+            is MethodArgumentNotValidException -> ex.bindingResult.fieldErrors
+            is BindException -> ex.bindingResult.fieldErrors
+            else -> emptyList()
+        }
+        
+        val validationErrors = fieldErrors.map { fieldError ->
+            ValidationErrorResponse.FieldError(
+                field = fieldError.field,
+                rejectedValue = fieldError.rejectedValue,
+                message = fieldError.defaultMessage ?: "Invalid value"
+            )
+        }
+        
+        val errorResponse = ValidationErrorResponse(
+            error = "Validation failed",
+            details = validationErrors,
+            path = request.requestURI,
+            status = HttpStatus.BAD_REQUEST.value(),
+            timestamp = LocalDateTime.now()
+        )
+        
+        return ResponseEntity(errorResponse, HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(BusinessException::class)
+    fun handleBusinessException(
+        ex: BusinessException,
+        request: HttpServletRequest
+    ): ResponseEntity<ErrorResponse> {
+        logger.warn { "Business logic error: ${ex.message}" }
+        
+        val errorResponse = ErrorResponse(
+            error = "Business Rule Violation",
+            message = ex.message ?: "A business rule was violated",
+            path = request.requestURI,
+            status = HttpStatus.UNPROCESSABLE_ENTITY.value(),
+            timestamp = LocalDateTime.now()
+        )
+        
+        return ResponseEntity(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY)
+    }
+
+    @ExceptionHandler(Exception::class)
+    fun handleGenericException(
+        ex: Exception,
+        request: HttpServletRequest
+    ): ResponseEntity<ErrorResponse> {
+        logger.error(ex) { "Unhandled exception occurred" }
+        
+        val errorResponse = ErrorResponse(
+            error = "Internal Server Error",
+            message = "An unexpected error occurred. Please try again later.",
+            path = request.requestURI,
+            status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            timestamp = LocalDateTime.now()
+        )
+        
+        return ResponseEntity(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+}
+
+// Custom exceptions for specific HTTP status codes
+class ResourceNotFoundException(message: String) : RuntimeException(message)
+class BusinessException(message: String) : RuntimeException(message)
+```
+
+This knowledge base provides comprehensive coverage of the backend architecture, patterns, and best practices specific to the Nos Ilha cultural heritage platform that connects Brava locals to the global Cape Verdean diaspora while supporting sustainable community-focused tourism.
