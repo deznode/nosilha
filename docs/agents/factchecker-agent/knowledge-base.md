@@ -3,9 +3,11 @@
 ## Domain Expertise: Cape Verdean History & Cultural Accuracy Verification
 
 ### Primary Mission
+
 Ensure historical accuracy, cultural authenticity, and community representation in all Nos Ilha platform content. Verify facts about Brava Island, Cape Verde history, and cultural practices while maintaining sensitivity to oral traditions and diverse community perspectives.
 
 ### Core Competencies
+
 - **Cape Verde Historical Research** - 1460s to present, with focus on Brava Island
 - **Cultural Practice Verification** - Traditional customs, music, language, and social structures
 - **Biographical Accuracy** - Historical figures, cultural contributors, and community leaders
@@ -16,7 +18,8 @@ Ensure historical accuracy, cultural authenticity, and community representation 
 ## Historical Foundation
 
 ### Cape Verde Historical Timeline
-```
+
+```text
 1460s - Portuguese "Discovery" and Initial Settlement
 - Portuguese navigators encounter uninhabited islands
 - Beginning of slave trade and plantation establishment
@@ -261,19 +264,57 @@ Community Representatives:
   - Diaspora community organization leaders
 ```
 
-### 2. Consultation Process
+### 2. Consultation Process for React Component Content
 ```mermaid
 graph TD
-    A[Content Review Request] --> B[Initial Fact Research]
-    B --> C[Identify Potential Issues]
-    C --> D[Consult Relevant Sources]
-    D --> E[Community Expert Consultation]
-    E --> F[Multi-Source Verification]
-    F --> G[Bias Analysis]
-    G --> H[Recommendations Report]
-    H --> I[Content Agent Collaboration]
-    I --> J[Final Verification]
-    J --> K[Ongoing Monitoring]
+    A[Component Data Review Request] --> B[Historical Data Structure Analysis]
+    B --> C[Identify Accuracy Issues in Arrays/Objects]
+    C --> D[Consult Academic Sources for Verification]
+    D --> E[Community Expert Review of Content Fields]
+    E --> F[Multi-Source Verification of Claims]
+    F --> G[Bias Analysis of Descriptions and Context]
+    G --> H[TypeScript Data Structure Recommendations]
+    H --> I[Content Agent Implementation Review]
+    I --> J[Component ISR Cache Validation]
+    J --> K[SEO Metadata Accuracy Check]
+    K --> L[Ongoing Community Feedback Integration]
+```
+
+### React Component Fact-Checking Workflow
+```typescript
+// Example fact-checking workflow for history/page.tsx
+const componentFactCheckWorkflow = {
+  1: {
+    step: "Data Structure Analysis",
+    process: "Review historicalSections[], historicalEras[], and citations[] for accuracy",
+    tools: ["TypeScript interface validation", "Source cross-referencing"]
+  },
+  2: {
+    step: "Historical Figure Verification",
+    process: "Validate biographical data in historicalEras[].figures[]",
+    checkpoints: ["Birth/death dates", "Achievements accuracy", "Influence categorization", "Role descriptions"]
+  },
+  3: {
+    step: "Cultural Content Review",
+    process: "Examine historicalSections[] content for cultural authenticity",
+    focus: ["Avoid othering language", "Respect sacred practices", "Include community voice"]
+  },
+  4: {
+    step: "Citation Validation",
+    process: "Verify all sources in citations[] array",
+    requirements: ["Academic credibility", "Source diversity", "Current accessibility"]
+  },
+  5: {
+    step: "Community Consultation",
+    process: "Present data structures to cultural authorities for feedback",
+    deliverable: "Community-validated content recommendations"
+  },
+  6: {
+    step: "Implementation Review", 
+    process: "Review updated component for accuracy and cultural sensitivity",
+    validation: "Final approval before deployment with ISR caching"
+  }
+};
 ```
 
 ### 3. Verification Standards
@@ -353,74 +394,163 @@ Verification Strategies:
   - Economic reality integration
 ```
 
-## Content Review Framework
+## Content Review Framework for React Components
 
-### 1. Historical Accuracy Assessment
-```yaml
-Timeline Verification:
-  - [ ] Dates and chronology accurate
-  - [ ] Historical context properly provided
-  - [ ] Cause and effect relationships verified
-  - [ ] Multiple source confirmation
-  - [ ] Regional specificity confirmed
+### 1. Historical Accuracy Assessment for JSX Data Structures
+```typescript
+// Example review process for historicalSections array in history/page.tsx
+const historicalAccuracyReview = {
+  timelineVerification: {
+    datesAccurate: boolean,           // Check years in historicalEras[].period
+    historicalContextProvided: boolean, // Verify historicalEras[].context accuracy
+    causeEffectVerified: boolean,     // Review content narratives for accuracy
+    multipleSourceConfirmed: boolean, // Cross-reference citations array
+    regionalSpecificityConfirmed: boolean // Ensure Brava-specific accuracy
+  },
+  culturalContext: {
+    socialConditionsExplained: boolean,    // Review historicalSections[].content
+    culturalSignificanceConveyed: boolean, // Verify cultural importance claims
+    contemporaryRelevanceAddressed: boolean, // Check modern connections
+    communityImpactAcknowledged: boolean,  // Ensure community voice present
+    evolutionRecognized: boolean           // Track changes over time
+  }
+};
 
-Cultural Context:
-  - [ ] Social and economic conditions explained
-  - [ ] Cultural significance properly conveyed
-  - [ ] Contemporary relevance addressed
-  - [ ] Community impact acknowledged
-  - [ ] Evolution and change recognized
+// Review checklist for historical figures data
+const figureAccuracyReview = {
+  biographical: {
+    birthDeathDates: boolean,        // Verify historicalEras[].figures[].years
+    roleAccurate: boolean,          // Check historicalEras[].figures[].role
+    achievementsVerified: boolean,   // Review achievements[] array accuracy
+    influenceLevelJustified: boolean, // Verify influence categorization
+    imageAttributionCorrect: boolean  // Check courtesy field accuracy
+  }
+};
 ```
 
-### 2. Cultural Authenticity Review
-```yaml
-Traditional Practices:
-  - [ ] Accuracy of cultural descriptions
-  - [ ] Proper cultural context provided
-  - [ ] Contemporary practice status verified
-  - [ ] Regional variations acknowledged
-  - [ ] Sacred elements properly handled
+### 2. Cultural Authenticity Review for Component Content
+```typescript
+// Review process for cultural content embedded in React components
+const culturalAuthenticityReview = {
+  traditionalPractices: {
+    accuracyOfDescriptions: boolean,      // Review historicalSections[] cultural content
+    properContextProvided: boolean,       // Check if context explains significance
+    contemporaryStatusVerified: boolean,  // Ensure current practice status accurate
+    regionalVariationsAcknowledged: boolean, // Account for Brava-specific practices
+    sacredElementsHandled: boolean        // Respectful treatment of sensitive topics
+  },
+  communityRepresentation: {
+    diverseVoicesIncluded: boolean,      // Check for multiple perspectives in content
+    womensContributionsRecognized: boolean, // Verify female figures in historicalEras
+    socialClassesRepresented: boolean,    // Ensure not just elite perspectives
+    diasporaConnectionsAcknowledged: boolean, // Verify emigration stories included
+    contemporaryRealityReflected: boolean // Modern challenges and innovations noted
+  },
+  contentDataValidation: {
+    imageAttributions: string[],          // Verify courtesy fields for all images
+    citationAccuracy: Citation[],         // Cross-check citations array sources
+    achievementsFactChecked: string[],    // Review all achievements[] claims
+    culturalTermsExplained: boolean       // Ensure Kriolu terms have context
+  }
+};
 
-Community Representation:
-  - [ ] Diverse voices and perspectives included
-  - [ ] Women's contributions recognized
-  - [ ] Different social classes represented
-  - [ ] Diaspora connections acknowledged
-  - [ ] Contemporary reality reflected
+// Specific review for people/page.tsx historical figures
+const figureValidationProcess = {
+  verifyBiographicalData: (figure: HistoricalFigure) => {
+    // Check birth/death years against multiple sources
+    // Verify role and category assignments
+    // Fact-check all achievements array items
+    // Confirm influence level categorization
+    // Validate image attribution in courtesy field
+  },
+  validateCulturalClaims: (figure: HistoricalFigure) => {
+    // Review cultural impact statements in description
+    // Verify claims about Cape Verdean identity
+    // Check diaspora connection accuracy
+    // Confirm community consultation for sensitive content
+  }
+};
 ```
 
-### 3. Bias and Sensitivity Analysis
-```yaml
-Colonial Perspective Check:
-  - [ ] Portuguese supremacy narratives avoided
-  - [ ] Indigenous agency recognized
-  - [ ] Economic exploitation acknowledged
-  - [ ] Cultural hierarchy rejected
-  - [ ] Resistance movements honored
+### 3. Bias and Sensitivity Analysis for Component Content
+```typescript
+// Bias detection for React component content structures
+const biasAnalysisFramework = {
+  colonialPerspectiveCheck: {
+    portugueseSupremacyNarratives: boolean,  // Scan historicalSections[] for problematic framing
+    indigenousAgencyRecognized: boolean,     // Ensure Cape Verdean agency emphasized
+    economicExploitationAcknowledged: boolean, // Address colonial economic structures
+    culturalHierarchyRejected: boolean,      // Avoid European culture superiority
+    resistanceMovementsHonored: boolean      // Include resistance in historicalEras
+  },
+  tourismEthicsReview: {
+    exoticOtheringAvoided: boolean,         // Review all description fields for othering
+    povertyTourismRejected: boolean,        // Avoid romanticizing hardship
+    culturalCommodificationMinimized: boolean, // Respect sacred/private practices
+    communityBenefitsEmphasized: boolean,   // Center community agency and benefits
+    authenticRepresentationMaintained: boolean // Avoid performative authenticity
+  },
+  contentSensitivityAudit: {
+    emigrationNarratives: {
+      avoidAdventureFraming: boolean,       // Frame as necessity, not adventure
+      acknowledgeSeparationPain: boolean,   // Honor sodade and family separation
+      recognizeEconomicDrivers: boolean,    // Explain poverty/drought drivers
+      celebrateResilience: boolean         // Honor strength without romanticizing
+    },
+    culturalPracticesReview: {
+      respectSacredElements: boolean,       // No exploitation of spiritual practices
+      avoidMonolithicRepresentation: boolean, // Acknowledge diversity within culture
+      includeEvolution: boolean,           // Show culture as living, changing
+      centerCommunityVoices: boolean       // Prioritize local perspectives
+    }
+  }
+};
 
-Tourism Ethics Review:
-  - [ ] Exotic othering avoided
-  - [ ] Poverty tourism rejected
-  - [ ] Cultural commodification minimized
-  - [ ] Community benefits emphasized
-  - [ ] Authentic representation maintained
+// Review process for specific content types
+const contentTypeReview = {
+  historicalFigureReview: (figures: HistoricalFigure[]) => {
+    // Check for balanced gender representation
+    // Verify diverse social class representation
+    // Ensure achievements don't overstate influence
+    // Confirm cultural sensitivity in descriptions
+    // Review influence categorization for bias
+  },
+  culturalSectionReview: (sections: HistoricalSection[]) => {
+    // Scan content for othering language
+    // Verify cultural practices not exoticized
+    // Check for community voice integration
+    // Ensure contemporary relevance acknowledged
+    // Review image selection for dignity
+  },
+  citationReview: (citations: Citation[]) => {
+    // Verify source diversity and perspectives
+    // Check for colonial/academic bias in sources
+    // Ensure community sources included
+    // Validate contemporary scholarship
+    // Confirm diaspora voices represented
+  }
+};
 ```
 
-## Collaboration Guidelines
+## Collaboration Guidelines for React/JSX Content
 
 ### With Content Agent
-- Review all historical claims and cultural descriptions
-- Provide source documentation for verified facts
-- Suggest alternative phrasing for accuracy
-- Recommend additional context when needed
-- Flag potentially sensitive or controversial content
+- Review TypeScript data structures for historical accuracy
+- Validate citations array sources and provide additional documentation
+- Suggest alternative phrasing for content fields (description, achievements)
+- Recommend additional context for historicalSections[] narratives
+- Flag potentially sensitive content in figure descriptions
+- Review SEO keywords in generateMetadata() for historical accuracy
+- Validate image courtesy attributions for proper source citation
 
 ### With Community Stakeholders
-- Approach with respect and cultural sensitivity
-- Explain platform mission and community benefits
-- Offer appropriate compensation for consultation time
-- Provide content drafts for community review
-- Incorporate feedback respectfully and thoroughly
+- Approach with respect and cultural sensitivity when reviewing component content
+- Explain platform mission and community benefits of accurate representation
+- Offer appropriate compensation for consultation time on historical data
+- Provide TypeScript data structure excerpts for community review
+- Incorporate feedback into component data fields respectfully and thoroughly
+- Ensure community voices are reflected in historicalEras context fields
+- Validate that contemporary community leaders are accurately represented
 
 ### With Academic Experts
 - Consult for complex historical questions

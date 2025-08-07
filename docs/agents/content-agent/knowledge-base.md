@@ -61,6 +61,54 @@ Cultural Sensitivity:
   - Acknowledge emigration/diaspora experience sensitively
 ```
 
+## Content Management System
+
+### React/JSX Component Structure
+```
+frontend/src/app/(main)/
+├── history/
+│   └── page.tsx          # Historical content as React component
+├── people/
+│   └── page.tsx          # Historical figures as React component
+├── directory/
+│   └── [category]/
+│       └── page.tsx      # Category-based directory content
+└── about/
+    └── page.tsx          # About page content
+
+Content Structure:
+- Content data embedded directly in TypeScript objects within page components
+- Rich data structures including images, citations, achievements arrays
+- ISR caching with revalidate: 7200 (2 hours) for content pages
+- Integration with custom UI components (PageHeader, CitationSection, etc.)
+```
+
+### Content Creation Workflow
+
+1. **Research Phase**
+   - Gather historical sources and verify with factchecker-agent
+   - Collect high-quality images with proper attribution
+   - Interview community members and elders
+   - Cross-reference multiple academic sources
+
+2. **Component Development**
+   - Create TypeScript data structures within React page components
+   - Structure content in organized objects/arrays with semantic organization
+   - Include inline citations, achievements, and metadata
+   - Integrate multimedia elements with Next.js Image optimization
+
+3. **Review Process**
+   - Submit TypeScript data structures for fact-checking review
+   - Cultural sensitivity review by community members
+   - SEO optimization through generateMetadata() functions
+   - Final editorial review for tone and voice
+
+4. **Publication**
+   - Deploy React components with ISR caching (7200s for content pages)
+   - Update navigation and cross-references between components
+   - Monitor engagement and user feedback
+   - Schedule regular content updates by modifying component data
+
 ## Content Categories & Templates
 
 ### 1. Directory Entry Descriptions
@@ -106,39 +154,54 @@ Owner Maria Santos sources directly from the village's fishing cooperative, ensu
 *Family-owned since 1987 | Call ahead during festival seasons*
 ```
 
-### 2. Historical & Cultural Pages
-```markdown
-# Town Page Template: {Town Name}
+### 2. Historical & Cultural Content (React Component Data Structure)
+```typescript
+// Within frontend/src/app/(main)/history/page.tsx
+const historicalSections = [
+  {
+    title: "Cultural Flowering",
+    description: "The birthplace of morna music and Crioulo literature",
+    icon: MusicalNoteIcon, // Heroicons import
+    content: "Brava transformed from a place of refuge into the cultural heart of Cape Verde. Here, Eugénio Tavares revolutionized the morna from satirical to soulful, creating the emotional template for the nation's music. His pioneering use of Brava Crioulo as a literary language elevated the vernacular to high art, giving voice to the universal Cape Verdean experience of *sodade*—the profound longing that defines the diaspora experience.",
+    image: "/images/history/brava-culture.webp",
+    image_courtesy: "Cabo Verde & a Música"
+  },
+  // Additional cultural elements...
+];
 
-## {Town Name} - {Subtitle highlighting unique character}
-
-{Opening paragraph establishing geographic and cultural context}
-
-### History & Heritage
-{2-3 paragraphs covering:}
-- Settlement history and Portuguese colonial period
-- Economic evolution (agriculture, fishing, emigration)
-- Cultural contributions to Cape Verdean identity
-- Connection to diaspora communities
-
-### Community Life Today
-{Contemporary life, challenges, and resilience:}
-- Current population and demographics
-- Local economy and livelihoods  
-- Cultural practices and celebrations
-- Community organizations and initiatives
-
-### Places to Experience
-{Highlight 3-4 key locations with cultural significance}
-
-### Getting There & Around
-{Practical information with cultural context}
-
-### Cultural Etiquette
-{Brief guidance for respectful visitation}
+// Historical figures organized by era
+const historicalEras = [
+  {
+    era: "Cultural Foundation",
+    period: "1867-1930", 
+    description: "Forging a national soul through art and language",
+    context: "This foundational era marks the period when a distinctly Cape Verdean cultural identity was first articulated, codified, and disseminated.",
+    figures: [
+      {
+        name: "Eugénio Tavares",
+        role: "Cultural Patriarch and Revolutionary",
+        category: "Literature & Music",
+        years: "1867-1930",
+        influence: "Revolutionary",
+        description: "Cape Verde's definitive cultural figure who transformed morna 'from laughter to weeping,' pioneering Crioulo as a literary language.",
+        achievements: [
+          "Transformed morna from satirical to deeply emotional, soulful genre",
+          "Published 'Mornas: Cantigas Crioulas' posthumously in 1932",
+          "Founded 'A Alvorada' (Dawn), first Portuguese-language newspaper in the United States"
+        ],
+        image: "/images/people/eugenio-tavares.jpg",
+        courtesy: "barrosbrito.com",
+        featured: true
+      }
+      // Additional figures...
+    ]
+  }
+  // Additional eras...
+];
+```
 
 ---
-**Example: Nova Sintra**
+**Example Implementation: Vila Nova Sintra**
 
 ## Nova Sintra - Capital of Hearts and Heritage
 
@@ -169,29 +232,47 @@ Regular aluguer (shared taxi) service connects Nova Sintra to all island village
 Greetings are important - a handshake and "Bon dia" (Good day) in Kriolu shows respect. Photography of people requires permission. Sunday mornings are reserved for church and family time. Evening is when the community gathers in the central praça for conversation and connection.
 ```
 
-### 3. Cultural Heritage Features
-```markdown
-# Heritage Feature Template
+### 3. Cultural Heritage Features (React Component Integration)
+```typescript
+// Within frontend/src/app/(main)/history/page.tsx - Cultural Traditions Section
+const culturalTraditions = [
+  {
+    title: "The Brava Morna",
+    icon: MusicalNoteIcon,
+    description: "Brava pioneered the definitive morna style—slow tempo (around 60 beats per minute), romantic themes, and accentuated lyricism rooted in 19th-century Romanticism. Eugénio Tavares transformed it 'from laughter to weeping,' codifying sodade as the emotional core of Cape Verdean identity."
+  },
+  {
+    title: "Crioulo Literature", 
+    icon: BookOpenIcon,
+    description: "Brava was the birthplace of Cape Verdean literature in the vernacular. Tavares pioneered writing in Brava Crioulo, elevating the people's language to high art and literary prestige."
+  },
+  {
+    title: "Transnational Identity",
+    icon: GlobeAltIcon, 
+    description: "Brava's unique identity transcends geography—it exists simultaneously in Cape Verde and New England. This hyphenated identity, forged through whaling and maintained through family ties, creates communities that are uniquely Bravan."
+  }
+];
 
-## {Cultural Element/Tradition Name}
-
-### Cultural Significance
-{Why this tradition/element is important to Brava Island and Cape Verdean culture}
-
-### Historical Context  
-{Origins, evolution, and connection to broader Cape Verdean experience}
-
-### Contemporary Practice
-{How this tradition lives on today, adaptations, and community involvement}
-
-### Diaspora Connection
-{How emigrants and their descendants maintain or adapt this tradition}
-
-### Experience Opportunities
-{Where visitors can respectfully learn about or participate in this tradition}
+// JSX Integration with grid layout
+<section className="mt-16 bg-gradient-to-r from-ocean-blue/10 to-valley-green/10 p-8 rounded-lg">
+  <h3 className="font-serif text-2xl font-bold text-text-primary mb-6 text-center">
+    Living Traditions: The Cultural DNA of Brava
+  </h3>
+  
+  <div className="grid gap-6 md:grid-cols-3">
+    {culturalTraditions.map((tradition) => (
+      <div key={tradition.title} className="text-center">
+        <tradition.icon className="h-12 w-12 text-ocean-blue mx-auto mb-3" />
+        <h4 className="font-semibold text-text-primary mb-2">{tradition.title}</h4>
+        <p className="text-sm text-text-secondary">{tradition.description}</p>
+      </div>
+    ))}
+  </div>
+</section>
+```
 
 ---
-**Example: Morna Music Tradition**
+**Example Implementation: Living Traditions Section**
 
 ## Morna - The Soul of Cape Verde in Song
 
@@ -226,23 +307,30 @@ The music creates spaces for cultural memory and intergenerational connection, a
 
 ## SEO & Technical Content Guidelines
 
-### 1. SEO Best Practices for Heritage Tourism
-```yaml
-Keyword Strategy:
-  Primary: "Brava Island", "Cape Verde culture", "Nova Sintra", "Cabo Verde heritage"
-  Long-tail: "authentic Cape Verdean experience", "Brava Island restaurants", "morna music tradition"
-  Cultural: "morabeza", "sodade", "Kriolu language", "Cape Verde diaspora"
-  
-Meta Description Templates:
-  - Directory: "Experience authentic {category} in {location}. {Brief description highlighting cultural connection and community roots.}"
-  - Heritage: "Discover the {cultural element} tradition of Brava Island, Cape Verde. {Historical significance and contemporary relevance.}"
-  - Community: "Connect with the heart of Cape Verdean culture in {location}. {Community focus and authentic experiences.}"
+### 1. SEO Best Practices with Next.js generateMetadata()
+```typescript
+// Example generateMetadata() function within page component
+export async function generateMetadata() {
+  return {
+    title: "Brava Island History: Volcanic Origins to Cultural Legacy",
+    description: "Explore Brava Island's extraordinary history: volcanic birth, 1680 refugee settlement, Eugénio Tavares and morna music, whaling connections to New England.",
+    openGraph: {
+      title: "Brava Island: Complete Cultural History with Video Journey - Wild Island, Tender Soul",
+      description: "Experience Brava's remarkable story: volcanic formation, Great Migration of 1680, Eugénio Tavares and morna music, transnational whaling era, contemporary innovation.",
+      images: ["/images/history/brava-overview.jpg"]
+    },
+    keywords: "Brava Island history video, Cape Verde cultural heritage, Eugénio Tavares poet, morna music origins, sodade meaning, 1680 Fogo migration, American whaling industry, Cape Verdean diaspora, New Bedford connections, Brava Crioulo literature, Island of Flowers, volcanic stratovolcano, transnational community, Vila Nova Sintra, packet trade era, Brava maritime heritage"
+  }
+}
 
-Structure Data (Schema.org):
-  - LocalBusiness for directory entries
-  - TouristAttraction for heritage sites  
-  - Article for cultural content
-  - Event for festivals and celebrations
+// Keyword Strategy Guidelines:
+const keywordCategories = {
+  primary: ["Brava Island", "Cape Verde culture", "Vila Nova Sintra", "Cabo Verde heritage"],
+  longTail: ["authentic Cape Verdean experience", "Brava Island restaurants", "morna music tradition"],
+  cultural: ["morabeza", "sodade", "Kriolu language", "Cape Verde diaspora"],
+  historical: ["Eugénio Tavares", "volcanic formation", "whaling connections", "Great Migration 1680"],
+  contemporary: ["cloud water collection", "airport closure 2004", "contemporary preservation"]
+};
 ```
 
 ### 2. Multilingual Content Strategy
@@ -342,55 +430,111 @@ Technical Requirements:
 
 ## Key File Locations & Integration
 
-### Content Management Files
+### Content Management Files (React/JSX Structure)
 ```
-frontend/src/content/
-├── pages/
-│   ├── towns/
-│   │   ├── nova-sintra.md
-│   │   ├── faja-de-agua.md
-│   │   └── furna.md
-│   ├── heritage/
-│   │   ├── morna-music.md
-│   │   ├── traditional-crafts.md
-│   │   └── festival-traditions.md
-│   └── directory/
-│       ├── restaurants/
-│       ├── hotels/
-│       └── landmarks/
-├── translations/
-│   ├── pt/
-│   ├── fr/
-│   └── kriolu/
-└── templates/
-    ├── directory-entry.md
-    ├── heritage-feature.md
-    └── town-profile.md
+frontend/src/app/(main)/
+├── history/
+│   └── page.tsx              # Historical content with data structures
+├── people/
+│   └── page.tsx              # Historical figures with era organization
+├── directory/
+│   ├── page.tsx              # Main directory page
+│   ├── [category]/
+│   │   └── page.tsx          # Category-specific content
+│   └── entry/[slug]/
+│       └── page.tsx          # Individual entry details
+├── about/
+│   └── page.tsx              # About page content
+└── layout.tsx                # Root layout with providers
+
+frontend/src/components/ui/
+├── page-header.tsx           # Consistent page headers
+├── citation-section.tsx      # Academic citations
+├── back-to-top-button.tsx    # UX navigation
+├── image-with-courtesy.tsx   # Attribution handling
+└── video-hero-section.tsx    # Hero video integration
+
+frontend/public/images/
+├── history/                  # Historical content images
+├── people/                   # Portrait and biographical images
+└── directory/                # Business and location images
 ```
 
-### Content API Integration
+### Content Data Structures for React Components
 ```typescript
-// Content types for API integration
-interface HeritageContent {
-  id: string;
+// Historical figure interface
+interface HistoricalFigure {
+  name: string;
+  role: string;
+  category: string;
+  years: string;
+  influence: "Revolutionary" | "Phenomenal" | "National" | "Global" | "Cultural";
+  description: string;
+  achievements: string[];
+  image: string;
+  courtesy: string;
+  featured: boolean;
+}
+
+// Historical section interface
+interface HistoricalSection {
   title: string;
-  slug: string;
-  category: 'town' | 'heritage' | 'directory';
+  description: string;
+  icon: React.ComponentType<any>; // Heroicons component
   content: string;
-  culturalContext: string[];
-  diasporeRelevance: boolean;
-  communitySource?: string;
-  translations: {
-    [language: string]: Partial<HeritageContent>;
+  image: string;
+  image_courtesy: string;
+}
+
+// Citation interface for academic sources
+interface Citation {
+  source: string;
+  author: string;
+  year: number;
+  url: string;
+}
+
+// Page-level metadata interface
+interface PageMetadata {
+  title: string;
+  description: string;
+  openGraph: {
+    title: string;
+    description: string;
+    images: string[];
   };
-  seo: {
-    metaDescription: string;
-    keywords: string[];
-    schemaType: string;
+  keywords: string;
+}
+
+// Content validation checklist for React components
+interface ContentValidation {
+  historicalAccuracy: {
+    datesVerified: boolean;
+    sourceSupported: boolean;
+    factCheckerReview: boolean;
+    culturalContextExplained: boolean;
+    controversiesAcknowledged: boolean;
   };
-  accessibility: {
-    readingLevel: number;
-    culturalTermsGlossary: string[];
+  culturalSensitivity: {
+    communityReview: boolean;
+    respectfulLanguage: boolean;
+    diversePerspectives: boolean;
+    sensitiveinfoHandled: boolean;
+    contemporaryRelevance: boolean;
+  };
+  technicalQuality: {
+    metadataComplete: boolean;
+    imagesAttributed: boolean;
+    internalLinking: boolean;
+    isrCaching: boolean;
+    accessibilityStandards: boolean;
+  };
+  brandConsistency: {
+    designSystemClasses: boolean;
+    typographyPatterns: boolean;
+    uiComponents: boolean;
+    navigationPatterns: boolean;
+    crossReferences: boolean;
   };
 }
 ```
