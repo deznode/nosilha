@@ -16,12 +16,86 @@ Supabase Auth Integration
 ```
 
 ### Key Technologies
-- **Next.js 15** with App Router architecture
-- **React 19** with Server Components and Concurrent Features
-- **TypeScript** with strict mode and comprehensive typing
-- **Tailwind CSS** with custom design system
+- **Next.js 15.3.3** with App Router and async dynamic APIs
+- **React 19.0.0** with Server Components and Concurrent Features  
+- **TypeScript 5** with strict mode and comprehensive typing
+- **Tailwind CSS 4** with custom design system and CSS variables
 - **Catalyst UI** component library (25+ components)
-- **Supabase Auth** for authentication and user management
+- **Supabase Auth 2.50.0** for authentication and user management
+- **Mapbox GL JS 3.12.0** for interactive mapping
+- **Framer Motion 12** for animations and transitions
+
+## Next.js 15 Async Dynamic APIs
+
+### 1. Async Dynamic Route Parameters
+```typescript
+// Next.js 15 introduces async params - based on Context7 documentation
+import { notFound } from 'next/navigation'
+
+interface DirectoryEntryPageProps {
+  params: Promise<{ slug: string }>
+}
+
+export default async function DirectoryEntryPage({ params }: DirectoryEntryPageProps) {
+  // Await params in Next.js 15
+  const { slug } = await params
+  
+  const entry = await getEntryBySlug(slug)
+  
+  if (!entry) {
+    notFound()
+  }
+
+  return (
+    <div>
+      <h1>{entry.name}</h1>
+      <p>{entry.description}</p>
+    </div>
+  )
+}
+```
+
+### 2. Async Headers and Cookies
+```typescript
+// Next.js 15 async dynamic APIs
+import { headers, cookies } from 'next/headers'
+
+export default async function AuthenticatedPage() {
+  // Await headers in Next.js 15
+  const headersList = await headers()
+  const authorization = headersList.get('authorization')
+  
+  // Await cookies in Next.js 15  
+  const cookieStore = await cookies()
+  const sessionToken = cookieStore.get('session')
+  
+  if (!sessionToken || !authorization) {
+    redirect('/login')
+  }
+
+  return <div>Protected content</div>
+}
+```
+
+### 3. Async Search Parameters
+```typescript
+interface SearchPageProps {
+  searchParams: Promise<{ category?: string; query?: string }>
+}
+
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  // Await searchParams in Next.js 15
+  const { category, query } = await searchParams
+  
+  const entries = await searchEntries({ category, query })
+  
+  return (
+    <div>
+      <SearchResults entries={entries} />
+    </div>
+  )
+}
+```
 
 ## Core Patterns
 
@@ -320,13 +394,139 @@ export function DirectoryEntryForm({ onSubmit }: { onSubmit: (data: CreateEntryR
 
 ### 2. API Integration Pattern
 ```typescript
-// Centralized API client with error handling
-// lib/api.ts
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
+// Based on actual implementation from frontend/src/lib/api.ts
+import type { DirectoryEntry } from "@/types/directory"
+import type { Town } from "@/types/town"
+import { supabase } from "@/lib/supabase-client"
+import { getMockEntriesByCategory, getMockEntryBySlug } from "@/lib/mock-api"
 
-interface ApiResponse<T> {
-  success: boolean
-  data?: T
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL
+
+// Environment variable validation
+if (!API_BASE_URL) {
+  throw new Error(
+    "NEXT_PUBLIC_API_URL is not defined. Please check your .env.local file."
+  )
+}
+
+/**
+ * Creates an authenticated fetch request with JWT token from Supabase session
+ */
+async function authenticatedFetch(
+  url: string,
+  options: RequestInit = {}
+): Promise<Response> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  const headers = {
+    ...options.headers,
+  }
+
+  // Add Authorization header if user is authenticated
+  if (session?.access_token) {
+    Object.assign(headers, {
+      Authorization: `Bearer ${session.access_token}`,
+    })
+  }
+
+  const response = await fetch(url, {
+    ...options,
+    headers,
+  })
+
+  // Handle authentication errors
+  if (response.status === 401) {
+    await supabase.auth.signOut()
+    window.location.href = "/login"
+    throw new Error("Authentication expired. Please log in again.")
+  }
+
+  if (response.status === 403) {
+    throw new Error(
+      "Access denied. You do not have permission to perform this action."
+    )
+  }
+
+  return response
+}
+
+/**
+ * Fetches all directory entries with ISR caching and fallback to mock data
+ */
+export async function getEntriesByCategory(
+  category: string,
+  page: number = 0,
+  size: number = 20
+): Promise<DirectoryEntry[]> {
+  const params = new URLSearchParams()
+  
+  if (category.toLowerCase() !== "all") {
+    params.append("category", category)
+  }
+  params.append("page", page.toString())
+  params.append("size", size.toString())
+
+  const endpoint = `${API_BASE_URL}/api/v1/directory/entries?${params.toString()}`
+
+  try {
+    // Use ISR with 1 hour cache for directory content
+    const response = await fetch(endpoint, { 
+      next: { revalidate: 3600 } 
+    })
+    
+    if (!response.ok) {
+      throw new Error(`API call failed with status: ${response.status}`)
+    }
+
+    const apiResponse = await response.json()
+    const rawData = apiResponse.data || []
+    return validateDirectoryEntries(rawData)
+  } catch (error) {
+    console.error("Failed to fetch entries by category, using fallback:", error)
+    // Fallback to mock data for resilience
+    return getMockEntriesByCategory(category)
+  }
+}
+
+/**
+ * Creates a new directory entry with authentication
+ */
+export async function createDirectoryEntry(
+  entryData: Omit<DirectoryEntry, "id" | "slug" | "rating" | "reviewCount" | "createdAt" | "updatedAt">
+): Promise<DirectoryEntry> {
+  const endpoint = `${API_BASE_URL}/api/v1/directory/entries`
+
+  const response = await authenticatedFetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(entryData),
+  })
+
+  if (!response.ok) {
+    try {
+      const errorResult = await response.json()
+      
+      // Handle validation errors with detailed field information
+      if (errorResult.error === "Validation failed" && errorResult.details) {
+        const fieldErrors = errorResult.details.map((detail: any) => 
+          `${detail.field}: ${detail.message}`
+        ).join(", ")
+        throw new Error(`Validation failed: ${fieldErrors}`)
+      }
+      
+      throw new Error(errorResult.error || errorResult.message || `API error: ${response.status}`)
+    } catch (parseError) {
+      throw new Error(`Failed to create directory entry (${response.status})`)
+    }
+  }
+
+  const apiResponse = await response.json()
+  return apiResponse.data
+}
   error?: string
   message?: string
 }

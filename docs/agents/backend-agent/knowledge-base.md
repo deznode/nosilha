@@ -16,38 +16,80 @@ Database Layer (PostgreSQL)
 ```
 
 ### Key Technologies
-- **Spring Boot 3.4.7** with Kotlin
-- **JPA/Hibernate** for ORM
-- **PostgreSQL** as primary database
+- **Spring Boot 3.4.7** with Kotlin 1.9.25 and Java 21
+- **JPA/Hibernate** for ORM with PostgreSQL primary database
+- **Spring Data Firestore** for AI metadata storage (version 6.2.2)
+- **Google Cloud Platform** integration (Storage, Vision API, Secret Manager)
 - **Flyway** for database migrations
-- **JWT Authentication** via Supabase
-- **Jackson** for JSON serialization
-- **Actuator** for monitoring
+- **JWT Authentication** via Supabase token validation
+- **Jackson Kotlin** module for JSON serialization
+- **Spring Boot Actuator** for monitoring and health checks
+- **Detekt** for Kotlin static analysis
+- **Jacoco** for test coverage reporting
 
 ## Core Patterns
 
 ### 1. Single Table Inheritance (DirectoryEntry)
 ```kotlin
+// Based on actual implementation from backend/src/main/kotlin/com/nosilha/core/domain/DirectoryEntry.kt
 @Entity
 @Table(name = "directory_entries")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "entry_type", discriminatorType = DiscriminatorType.STRING)
 abstract class DirectoryEntry(
-    @Id @GeneratedValue val id: UUID = UUID.randomUUID(),
-    val name: String,
-    val description: String?,
-    val category: Category,
-    // ... common fields
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    open val id: UUID = UUID.randomUUID(),
+    
+    @Column(nullable = false)
+    open val name: String,
+    
+    @Column(columnDefinition = "TEXT")
+    open val description: String?,
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    open val category: Category,
+    
+    @Column(precision = 10, scale = 8)
+    open val latitude: Double?,
+    
+    @Column(precision = 11, scale = 8) 
+    open val longitude: Double?,
+    
+    @CreatedDate
+    @Column(name = "created_at", nullable = false, updatable = false)
+    open val createdAt: LocalDateTime = LocalDateTime.now(),
+    
+    @LastModifiedDate
+    @Column(name = "updated_at", nullable = false)
+    open val updatedAt: LocalDateTime = LocalDateTime.now()
 )
 
 @Entity
 @DiscriminatorValue("RESTAURANT")
 class Restaurant(
-    // inherited fields
+    name: String,
+    description: String?,
+    category: Category,
+    latitude: Double?,
+    longitude: Double?,
+    
+    @Column(length = 100)
     val cuisine: String?,
+    
+    @Column(name = "price_range", length = 20)
     val priceRange: String?,
+    
+    @Column(columnDefinition = "TEXT")
     val hours: String?
-) : DirectoryEntry(...)
+) : DirectoryEntry(
+    name = name,
+    description = description,
+    category = category,
+    latitude = latitude,
+    longitude = longitude
+)
 ```
 
 **Key Points**:
@@ -91,7 +133,6 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto = when (this) {
 ```kotlin
 @RestController
 @RequestMapping("/api/v1/directory")
-@CrossOrigin(origins = ["\${app.cors.allowed-origins}"])
 class DirectoryEntryController(
     private val directoryService: DirectoryEntryService
 ) {
@@ -190,34 +231,138 @@ class JwtService(
 }
 ```
 
+## Build Configuration (Gradle)
+
+### Key Dependencies (build.gradle.kts)
+```kotlin
+// Based on actual implementation from backend/build.gradle.kts
+plugins {
+    kotlin("jvm") version "1.9.25"
+    kotlin("plugin.spring") version "1.9.25"
+    id("org.springframework.boot") version "3.4.7"
+    id("io.spring.dependency-management") version "1.1.7"
+    kotlin("plugin.jpa") version "1.9.25"
+    jacoco
+    id("io.gitlab.arturbosch.detekt") version "1.23.8"
+}
+
+dependencies {
+    // Spring Boot starters
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    
+    // Google Cloud Platform
+    implementation("com.google.cloud:spring-cloud-gcp-starter-storage")
+    implementation("com.google.cloud:spring-cloud-gcp-starter-data-firestore")
+    implementation("com.google.cloud:spring-cloud-gcp-starter-vision")
+    
+    // Kotlin & Jackson
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("org.jetbrains.kotlin:kotlin-reflect")
+    
+    // JWT Processing
+    implementation("io.jsonwebtoken:jjwt-api:0.12.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.5")
+    
+    // Database & Migrations
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
+    runtimeOnly("org.postgresql:postgresql")
+    
+    // Documentation
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
+    
+    // Logging
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
+}
+
+// Quality & Testing
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    baseline = file("detekt-baseline.xml")
+    config.setFrom(file("detekt.yml"))
+}
+```
+
+### Docker Image Configuration
+```kotlin
+// Configured for Google Artifact Registry
+tasks.getByName<BootBuildImage>("bootBuildImage") {
+    imageName.set("us-east1-docker.pkg.dev/nosilha/nosilha-backend/nosilha-core-api:${project.version}")
+}
+```
+
 ## Configuration Patterns
 
 ### Application Properties Structure
 ```yaml
-# application.yml
+# application.yml - Production configuration
 spring:
-  application.name: nos-ilha-core
-  profiles.active: ${SPRING_PROFILES_ACTIVE:local}
+  application:
+    name: nos-ilha-core
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
   
   datasource:
-    url: ${DATABASE_URL}
-    username: ${DATABASE_USERNAME}
-    password: ${DATABASE_PASSWORD}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/nosilha_db}
+    username: ${DATABASE_USERNAME:nosilha}
+    password: ${DATABASE_PASSWORD:nosilha}
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 2
+      maximum-pool-size: 20
+      minimum-idle: 5
       connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
 
   jpa:
-    hibernate.ddl-auto: validate
+    hibernate:
+      ddl-auto: validate
     show-sql: false
     properties:
-      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc.batch_size: 20
+        order_inserts: true
+        order_updates: true
 
   flyway:
     enabled: true
     locations: classpath:db/migration
     baseline-on-migrate: true
+    
+  cloud:
+    gcp:
+      project-id: ${GCP_PROJECT_ID}
+      storage:
+        bucket: ${GCS_BUCKET_NAME}
+      firestore:
+        project-id: ${GCP_PROJECT_ID}
+
+# application-local.yml - Local development overrides
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/nosilha_db
+    username: nosilha
+    password: nosilha
+  
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+      
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,flyway
 ```
 
 ## Testing Patterns

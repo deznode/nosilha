@@ -13,12 +13,15 @@ Data Layer (GeoJSON, Vector Tiles)
 Mapbox Studio (Style & Data)
 ```
 
-### Key Technologies
-- **Mapbox GL JS v3.x** - Core mapping library
-- **React 18/19** - Component framework
-- **TypeScript** - Type safety for mapping APIs
-- **Tailwind CSS** - Styling integration
+### Key Technologies  
+- **Mapbox GL JS 3.12.0** - Core mapping library
+- **React 19.0.0** - Component framework with concurrent features
+- **Next.js 15.3.3** - Framework with App Router integration
+- **TypeScript 5** - Type safety for mapping APIs
+- **Tailwind CSS 4** - Styling integration with CSS variables
 - **React Hooks** - State management for map interactions
+- **react-map-gl 8.0.4** - React wrapper for Mapbox GL JS
+- **supercluster 8.0.1** - Point clustering for performance
 
 ## Core Integration Patterns
 
