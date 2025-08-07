@@ -343,8 +343,9 @@ interface GalleryPageProps {
   }>;
 }
 
-export default function GalleryPage({ params }: { params: { galleryId: string } }) {
-  const gallery = galleryData[params.galleryId];
+export default async function GalleryPage({ params }: GalleryPageProps) {
+  const { galleryId } = await params;
+  const gallery = galleryData[galleryId];
   
   if (!gallery) {
     notFound();

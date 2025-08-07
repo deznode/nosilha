@@ -1,31 +1,34 @@
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town } from "@/types/town";
+import type { DirectoryEntryDto, TownDto } from "@/types/api";
 
 /**
  * Type guard to check if an object has the basic structure of a DirectoryEntry
  */
-export function isDirectoryEntry(obj: any): obj is DirectoryEntry {
+export function isDirectoryEntry(obj: unknown): obj is DirectoryEntry {
   // First check for missing category field - this is the main issue we're seeing
-  if (!obj || typeof obj !== "object" || !obj.category) {
+  if (!obj || typeof obj !== "object" || !("category" in obj) || !(obj as Record<string, unknown>).category) {
     console.warn("Missing category field in DirectoryEntry:", obj);
     return false;
   }
 
+  const entry = obj as Record<string, unknown>;
+
   const hasValidStructure = (
-    typeof obj.id === "string" &&
-    typeof obj.name === "string" &&
-    typeof obj.slug === "string" &&
-    typeof obj.description === "string" &&
-    typeof obj.category === "string" &&
-    typeof obj.town === "string" &&
-    typeof obj.latitude === "number" &&
-    typeof obj.longitude === "number" &&
-    typeof obj.reviewCount === "number" &&
-    (obj.rating === undefined || obj.rating === null || typeof obj.rating === "number") &&
-    (obj.imageUrl === undefined || obj.imageUrl === null || typeof obj.imageUrl === "string") &&
-    (obj.createdAt === undefined || typeof obj.createdAt === "string") &&
-    (obj.updatedAt === undefined || typeof obj.updatedAt === "string") &&
-    ["Restaurant", "Hotel", "Beach", "Landmark"].includes(obj.category)
+    typeof entry.id === "string" &&
+    typeof entry.name === "string" &&
+    typeof entry.slug === "string" &&
+    typeof entry.description === "string" &&
+    typeof entry.category === "string" &&
+    typeof entry.town === "string" &&
+    typeof entry.latitude === "number" &&
+    typeof entry.longitude === "number" &&
+    typeof entry.reviewCount === "number" &&
+    (entry.rating === undefined || entry.rating === null || typeof entry.rating === "number") &&
+    (entry.imageUrl === undefined || entry.imageUrl === null || typeof entry.imageUrl === "string") &&
+    (entry.createdAt === undefined || typeof entry.createdAt === "string") &&
+    (entry.updatedAt === undefined || typeof entry.updatedAt === "string") &&
+    ["Restaurant", "Hotel", "Beach", "Landmark"].includes(entry.category as string)
   );
 
   if (!hasValidStructure) {
@@ -75,13 +78,13 @@ export function hasHotelDetails(entry: DirectoryEntry): entry is DirectoryEntry 
 /**
  * Validates an array of objects as DirectoryEntry array with logging
  */
-export function validateDirectoryEntries(data: any[]): DirectoryEntry[] {
+export function validateDirectoryEntries(data: unknown): DirectoryEntry[] {
   if (!Array.isArray(data)) {
     console.warn("API response data is not an array:", data);
     return [];
   }
 
-  return data.filter((item, index) => {
+  return data.filter((item, index): item is DirectoryEntry => {
     if (!isDirectoryEntry(item)) {
       console.warn(`Invalid DirectoryEntry at index ${index}:`, item);
       return false;
@@ -93,7 +96,7 @@ export function validateDirectoryEntries(data: any[]): DirectoryEntry[] {
 /**
  * Safely extracts a DirectoryEntry from API response with validation
  */
-export function validateDirectoryEntry(data: any): DirectoryEntry | null {
+export function validateDirectoryEntry(data: unknown): DirectoryEntry | null {
   if (!data) {
     console.warn("API response data is null or undefined");
     return null;
@@ -146,27 +149,29 @@ export function getHotelDetails(entry: DirectoryEntry) {
 /**
  * Type guard to check if an object has the basic structure of a Town
  */
-export function isTown(obj: any): obj is Town {
+export function isTown(obj: unknown): obj is Town {
   if (!obj || typeof obj !== "object") {
     console.warn("Town validation failed - not an object:", obj);
     return false;
   }
 
+  const town = obj as Record<string, unknown>;
+
   const hasValidStructure = (
-    typeof obj.id === "string" &&
-    typeof obj.slug === "string" &&
-    typeof obj.name === "string" &&
-    typeof obj.description === "string" &&
-    typeof obj.latitude === "number" &&
-    typeof obj.longitude === "number" &&
-    (obj.population === null || typeof obj.population === "string") &&
-    (obj.elevation === null || typeof obj.elevation === "string") &&
-    (obj.founded === null || typeof obj.founded === "string") &&
-    Array.isArray(obj.highlights) &&
-    (obj.heroImage === null || typeof obj.heroImage === "string") &&
-    Array.isArray(obj.gallery) &&
-    (obj.createdAt === undefined || typeof obj.createdAt === "string") &&
-    (obj.updatedAt === undefined || typeof obj.updatedAt === "string")
+    typeof town.id === "string" &&
+    typeof town.slug === "string" &&
+    typeof town.name === "string" &&
+    typeof town.description === "string" &&
+    typeof town.latitude === "number" &&
+    typeof town.longitude === "number" &&
+    (town.population === null || typeof town.population === "string") &&
+    (town.elevation === null || typeof town.elevation === "string") &&
+    (town.founded === null || typeof town.founded === "string") &&
+    Array.isArray(town.highlights) &&
+    (town.heroImage === null || typeof town.heroImage === "string") &&
+    Array.isArray(town.gallery) &&
+    (town.createdAt === undefined || typeof town.createdAt === "string") &&
+    (town.updatedAt === undefined || typeof town.updatedAt === "string")
   );
 
   if (!hasValidStructure) {
@@ -180,13 +185,13 @@ export function isTown(obj: any): obj is Town {
 /**
  * Validates an array of objects as Town array with logging
  */
-export function validateTowns(data: any[]): Town[] {
+export function validateTowns(data: unknown): Town[] {
   if (!Array.isArray(data)) {
     console.warn("API response data is not an array:", data);
     return [];
   }
 
-  return data.filter((item, index) => {
+  return data.filter((item, index): item is Town => {
     if (!isTown(item)) {
       console.warn(`Invalid Town at index ${index}:`, item);
       return false;
@@ -198,7 +203,7 @@ export function validateTowns(data: any[]): Town[] {
 /**
  * Safely extracts a Town from API response with validation
  */
-export function validateTown(data: any): Town | null {
+export function validateTown(data: unknown): Town | null {
   if (!data) {
     console.warn("API response data is null or undefined");
     return null;

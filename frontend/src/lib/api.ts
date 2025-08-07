@@ -1,18 +1,10 @@
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town } from "@/types/town";
+import type { ApiErrorResponse, ErrorDetail } from "@/types/api";
+import { env, getApiEndpoint } from "@/lib/env";
 import { supabase } from "@/lib/supabase-client";
 import { getMockEntriesByCategory, getMockEntryBySlug, getMockTowns, getMockTownBySlug } from "@/lib/mock-api";
 import { validateDirectoryEntries, validateDirectoryEntry, validateTowns, validateTown } from "@/lib/api-validation";
-
-// 1. Read the base URL from environment variables.
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-
-// 2. Add a check to ensure the variable is defined.
-if (!API_BASE_URL) {
-  throw new Error(
-    "NEXT_PUBLIC_API_URL is not defined. Please check your .env.local file."
-  );
-}
 
 /**
  * Creates an authenticated fetch request with JWT token from Supabase session
@@ -82,7 +74,7 @@ export async function getEntriesByCategory(
   params.append("page", page.toString());
   params.append("size", size.toString());
 
-  const endpoint = `${API_BASE_URL}/api/v1/directory/entries?${params.toString()}`;
+  const endpoint = `${env.apiUrl}/api/v1/directory/entries?${params.toString()}`;
 
   try {
     // Use ISR with 1 hour cache for directory content (semi-static data)
@@ -114,7 +106,7 @@ export async function getEntriesByCategory(
 export async function getEntryBySlug(
   slug: string
 ): Promise<DirectoryEntry | undefined> {
-  const endpoint = `${API_BASE_URL}/api/v1/directory/slug/${slug}`;
+  const endpoint = `${env.apiUrl}/api/v1/directory/slug/${slug}`;
 
   try {
     // Use ISR with 30 minute cache for individual entries
@@ -148,7 +140,7 @@ export async function getEntryBySlug(
 export async function createDirectoryEntry(
   entryData: Omit<DirectoryEntry, "id" | "slug" | "rating" | "reviewCount" | "createdAt" | "updatedAt">
 ): Promise<DirectoryEntry> {
-  const endpoint = `${API_BASE_URL}/api/v1/directory/entries`;
+  const endpoint = `${env.apiUrl}/api/v1/directory/entries`;
 
   const response = await authenticatedFetch(endpoint, {
     method: "POST",
@@ -164,7 +156,7 @@ export async function createDirectoryEntry(
       
       // Handle validation errors with detailed field information
       if (errorResult.error === "Validation failed" && errorResult.details) {
-        const fieldErrors = errorResult.details.map((detail: any) => 
+        const fieldErrors = errorResult.details.map((detail: ErrorDetail) => 
           `${detail.field}: ${detail.message}`
         ).join(", ");
         throw new Error(`Validation failed: ${fieldErrors}`);
@@ -200,7 +192,7 @@ export async function getEntriesForMap(
   // Use larger page size for map view to get more entries
   params.append("size", "100");
 
-  const endpoint = `${API_BASE_URL}/api/v1/directory/entries?${params.toString()}`;
+  const endpoint = `${env.apiUrl}/api/v1/directory/entries?${params.toString()}`;
 
   try {
     // Keep dynamic for real-time map interactions
@@ -234,7 +226,7 @@ export async function uploadImage(
   category?: string,
   description?: string
 ): Promise<string> {
-  const endpoint = `${API_BASE_URL}/api/v1/media/upload`;
+  const endpoint = `${env.apiUrl}/api/v1/media/upload`;
 
   // Create FormData for multipart/form-data request
   const formData = new FormData();
@@ -268,7 +260,7 @@ export async function uploadImage(
  * @returns A promise that resolves to an array of towns.
  */
 export async function getTowns(): Promise<Town[]> {
-  const endpoint = `${API_BASE_URL}/api/v1/towns/all`;
+  const endpoint = `${env.apiUrl}/api/v1/towns/all`;
 
   try {
     // Use ISR with 1 hour cache for towns data (semi-static data)
@@ -300,7 +292,7 @@ export async function getTowns(): Promise<Town[]> {
 export async function getTownBySlug(
   slug: string
 ): Promise<Town | undefined> {
-  const endpoint = `${API_BASE_URL}/api/v1/towns/slug/${slug}`;
+  const endpoint = `${env.apiUrl}/api/v1/towns/slug/${slug}`;
 
   try {
     // Use ISR with 30 minute cache for individual towns
@@ -332,7 +324,7 @@ export async function getTownBySlug(
  * @returns A promise that resolves to an array of towns.
  */
 export async function getTownsForMap(): Promise<Town[]> {
-  const endpoint = `${API_BASE_URL}/api/v1/towns/all`;
+  const endpoint = `${env.apiUrl}/api/v1/towns/all`;
 
   try {
     // Keep dynamic for real-time map interactions

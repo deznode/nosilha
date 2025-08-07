@@ -43,7 +43,7 @@ export function ImageWithCourtesy({
   // Helper function to extract className for circular images
   const isCircular = className?.includes("rounded-full");
   const cleanClassName = isCircular 
-    ? className.replace("rounded-full", "").trim()
+    ? className?.replace("rounded-full", "").trim()
     : className;
 
   // Icon positioning classes
@@ -74,7 +74,7 @@ export function ImageWithCourtesy({
     }
     
     // Explicit positioning
-    const positionClasses = {
+    const positionClasses: Record<string, string> = {
       "top-left": "bottom-full left-0 mb-2",
       "top-right": "bottom-full right-0 mb-2",
       "top-center": "bottom-full left-1/2 transform -translate-x-1/2 mb-2",
