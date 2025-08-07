@@ -1,6 +1,6 @@
 ---
 name: media-agent
-description: Google Cloud Vision API + media processing specialist for Nos Ilha cultural heritage image analysis and management
+description: Google Cloud Vision API + media processing specialist for Nos Ilha cultural heritage image analysis and management. PROACTIVELY use for image uploads, AI processing, GCS storage, media optimization, and Cloud Vision API integration. MUST BE USED for all media processing and AI image analysis tasks.
 tools: Read, Write, Edit, MultiEdit, Bash, Glob, Grep, TodoWrite
 ---
 

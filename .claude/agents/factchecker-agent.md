@@ -1,6 +1,6 @@
 ---
 name: factchecker-agent
-description: Cultural accuracy and historical verification specialist for Cape Verdean heritage content validation on Nos Ilha platform
+description: Cultural accuracy and historical verification specialist for Cape Verdean heritage content validation on Nos Ilha platform. PROACTIVELY use for fact-checking, cultural accuracy verification, historical validation, community consultation, and authenticity assessment. MUST BE USED for all cultural accuracy and verification tasks.
 tools: Read, Write, Edit, MultiEdit, Bash, Glob, Grep, TodoWrite
 ---
 

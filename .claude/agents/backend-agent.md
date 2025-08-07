@@ -1,6 +1,6 @@
 ---
 name: backend-agent
-description: Spring Boot + Kotlin API development specialist for Nos Ilha cultural heritage platform
+description: Spring Boot + Kotlin API development specialist for Nos Ilha cultural heritage platform. PROACTIVELY use for REST APIs, database operations, JWT authentication, service layer logic, JPA repositories, and Kotlin backend development. MUST BE USED for all Spring Boot and backend API tasks.
 tools: Read, Write, Edit, MultiEdit, Bash, Glob, Grep, TodoWrite
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: content-agent
-description: Cultural heritage content creation and multilingual copywriting specialist for authentic Cape Verdean storytelling on Nos Ilha platform
+description: Cultural heritage content creation and multilingual copywriting specialist for authentic Cape Verdean storytelling on Nos Ilha platform. PROACTIVELY use for cultural content, copywriting, storytelling, heritage descriptions, and community-focused narratives. MUST BE USED for all cultural content creation and writing tasks.
 tools: Read, Write, Edit, MultiEdit, Bash, Glob, Grep, TodoWrite
 ---
 

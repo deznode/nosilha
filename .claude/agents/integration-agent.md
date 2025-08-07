@@ -1,6 +1,6 @@
 ---
 name: integration-agent
-description: Full-stack type safety and API integration specialist ensuring seamless frontend-backend communication for Nos Ilha cultural heritage platform
+description: Full-stack type safety and API integration specialist ensuring seamless frontend-backend communication for Nos Ilha cultural heritage platform. PROACTIVELY use for API contracts, TypeScript interfaces, integration testing, error handling, and cross-stack type safety. MUST BE USED for all integration and type safety tasks.
 tools: Read, Write, Edit, MultiEdit, Bash, Glob, Grep, TodoWrite
 ---
 

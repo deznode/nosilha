@@ -1,6 +1,6 @@
 ---
 name: frontend-agent
-description: Next.js 15 + React 19 + TypeScript frontend specialist for Nos Ilha cultural heritage platform
+description: Next.js 15 + React 19 + TypeScript frontend specialist for Nos Ilha cultural heritage platform. PROACTIVELY use for React components, Next.js pages, UI/UX design, Tailwind styling, client-side features, and frontend performance optimization. MUST BE USED for all frontend development tasks.
 tools: Read, Write, Edit, MultiEdit, Bash, Glob, Grep, TodoWrite
 ---
 

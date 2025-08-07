@@ -1,6 +1,6 @@
 ---
 name: devops-agent
-description: CI/CD deployment and Google Cloud Platform infrastructure specialist for Nos Ilha cultural heritage platform operations
+description: CI/CD deployment and Google Cloud Platform infrastructure specialist for Nos Ilha cultural heritage platform operations. PROACTIVELY use for GitHub Actions workflows, GCP deployments, Terraform infrastructure, Docker containerization, and CI/CD pipeline management. MUST BE USED for all DevOps and infrastructure tasks.
 tools: Read, Write, Edit, MultiEdit, Bash, Glob, Grep, TodoWrite
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: motion-agent
-description: Framer Motion animations and interactive graphics specialist for Nos Ilha cultural heritage platform user experience enhancement
+description: Framer Motion animations and interactive graphics specialist for Nos Ilha cultural heritage platform user experience enhancement. PROACTIVELY use for animations, transitions, micro-interactions, scroll-triggered effects, and UI motion design. MUST BE USED for all animation and interactive graphics tasks.
 tools: Read, Write, Edit, MultiEdit, Bash, Glob, Grep, TodoWrite
 ---
 

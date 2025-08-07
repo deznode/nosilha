@@ -1,6 +1,6 @@
 ---
 name: mapbox-agent
-description: Mapbox GL JS + React integration specialist for Brava Island interactive mapping and geospatial visualization for Nos Ilha cultural heritage platform
+description: Mapbox GL JS + React integration specialist for Brava Island interactive mapping and geospatial visualization for Nos Ilha cultural heritage platform. PROACTIVELY use for interactive maps, geospatial features, location-based filtering, custom markers, and mapping visualizations. MUST BE USED for all map-related development tasks.
 tools: Read, Write, Edit, MultiEdit, Bash, Glob, Grep, TodoWrite
 ---
 

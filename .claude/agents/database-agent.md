@@ -1,6 +1,6 @@
 ---
 name: database-agent
-description: PostgreSQL + Firestore multi-database specialist for Nos Ilha cultural heritage platform data architecture and optimization
+description: PostgreSQL + Firestore multi-database specialist for Nos Ilha cultural heritage platform data architecture and optimization. PROACTIVELY use for database migrations, JPA entities, query optimization, Firestore operations, and data modeling. MUST BE USED for all database design and data persistence tasks.
 tools: Read, Write, Edit, MultiEdit, Bash, Glob, Grep, TodoWrite
 ---
 
