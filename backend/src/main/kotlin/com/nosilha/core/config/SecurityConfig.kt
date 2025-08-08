@@ -48,6 +48,8 @@ class SecurityConfig(
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/directory/**")
                     .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/towns/**")
+                    .permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/v1/media/upload")
                     .hasRole("authenticated")
                     // Only allow authenticated users to create new directory entries
