@@ -20,7 +20,21 @@ The `@playwright/mcp` integration provides browser automation capabilities throu
 
 ## Configuration Files
 
-### Server Configuration (`.mcp/server-config.json`)
+### Project Structure
+```
+nos-ilha/                               # Multi-language project root
+├── .mcp.json                          # MCP client configuration (project root)
+├── frontend/                          # Next.js frontend
+│   ├── .mcp/server-config.json       # Playwright MCP server config
+│   ├── package.json                  # Frontend dependencies & scripts
+│   └── ...                           # Frontend files
+├── backend/                           # Spring Boot backend  
+│   ├── build.gradle.kts              # Backend dependencies & scripts
+│   └── ...                           # Backend files
+└── infrastructure/                    # Terraform & Docker configs
+```
+
+### Server Configuration (`frontend/.mcp/server-config.json`)
 
 The server configuration defines how Playwright MCP runs:
 
@@ -42,16 +56,16 @@ The server configuration defines how Playwright MCP runs:
 }
 ```
 
-### Client Configuration (`.mcp/client-config.json`)
+### Client Configuration (`.mcp.json` - Project Root)
 
-Configuration for different MCP clients:
+Configuration for Claude Code and other MCP clients:
 
 ```json
 {
   "mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": ["@playwright/mcp@latest", "--config", ".mcp/server-config.json"]
+      "args": ["@playwright/mcp@latest", "--config", "frontend/.mcp/server-config.json"]
     }
   }
 }
@@ -61,15 +75,27 @@ Configuration for different MCP clients:
 
 ### Starting the MCP Server
 
+**From the frontend directory** (`/Users/jcosta/Projects/nosilha/frontend`):
+
 ```bash
 # Start with visual browser (for development)
 npm run mcp:server
 
-# Start headless (for CI/CD)
+# Start headless (for CI/CD)  
 npm run mcp:server:headless
 
 # Start with HTTP endpoint on port 8931
 npm run mcp:server:port
+```
+
+**Direct command from anywhere**:
+
+```bash
+# From project root
+npx @playwright/mcp@latest --config frontend/.mcp/server-config.json
+
+# From frontend directory  
+npx @playwright/mcp@latest --config .mcp/server-config.json
 ```
 
 ### Available Scripts

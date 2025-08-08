@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest", 
+        "--config", 
+        "frontend/.mcp/server-config.json"
+      ],
+      "cwd": "frontend",
+      "env": {
+        "NODE_ENV": "development"
+      }
+    },
+    "playwright-headless": {
+      "command": "npx", 
+      "args": [
+        "@playwright/mcp@latest",
+        "--config",
+        ".mcp/server-config.json", 
+        "--headless"
+      ],
+      "cwd": "frontend",
+      "env": {
+        "NODE_ENV": "production"
+      }
+    }
+  }
+}
