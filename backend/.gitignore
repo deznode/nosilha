@@ -93,6 +93,8 @@ Thumbs.db
 .jacoco/
 jacoco.exec
 coverage/
+/build/reports/
+/build/test-results/
 
 ### Kotlin/JVM ###
 .kotlin/

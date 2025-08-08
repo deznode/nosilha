@@ -13,6 +13,18 @@
 # testing
 /coverage
 
+# Playwright testing artifacts
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Lighthouse CI
+/.lighthouseci/
+
+# Test mock data (temporary files)
+/src/lib/__test_mocks__/*.json
+
 # next.js
 /.next/
 /out/

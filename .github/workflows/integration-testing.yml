@@ -1,0 +1,530 @@
+name: Integration Testing
+
+# Comprehensive integration testing workflow for Nos Ilha Tourism Platform
+# Runs Playwright E2E tests, Lighthouse CI audits, and K6 performance testing
+# Optimized for tourism platform requirements: mobile-first, cultural content, API reliability
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+      - '.github/workflows/integration-testing.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+  workflow_dispatch:
+    inputs:
+      test_scope:
+        description: 'Test scope'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+        - full
+        - critical
+        - mobile
+        - performance
+        - api-contracts
+
+env:
+  NODE_VERSION: '18'
+  JAVA_VERSION: '21'
+  # Tourism platform specific environment
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '0'
+  FORCE_COLOR: '1'
+  
+jobs:
+  # Setup and preparation
+  setup:
+    name: Setup Integration Testing
+    runs-on: ubuntu-22.04
+    outputs:
+      test-scope: ${{ steps.determine-scope.outputs.scope }}
+      backend-needed: ${{ steps.determine-scope.outputs.backend }}
+      frontend-needed: ${{ steps.determine-scope.outputs.frontend }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Determine test scope
+        id: determine-scope
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "scope=${{ github.event.inputs.test_scope }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "scope=critical" >> $GITHUB_OUTPUT
+          else
+            echo "scope=full" >> $GITHUB_OUTPUT
+          fi
+          
+          # Determine which services are needed
+          echo "backend=true" >> $GITHUB_OUTPUT
+          echo "frontend=true" >> $GITHUB_OUTPUT
+
+  # Backend service setup
+  backend-service:
+    name: Setup Backend Service
+    runs-on: ubuntu-22.04
+    needs: setup
+    if: needs.setup.outputs.backend-needed == 'true'
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: nosilha_test
+          POSTGRES_USER: nosilha
+          POSTGRES_PASSWORD: nosilha
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Java ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('backend/**/*.gradle*', 'backend/**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+            
+      - name: Build and start backend
+        working-directory: backend
+        run: |
+          ./gradlew build -x test
+          ./gradlew bootRun --args='--spring.profiles.active=test' &
+          sleep 30
+          
+      - name: Wait for backend health
+        run: |
+          for i in {1..30}; do
+            if curl -f http://localhost:8080/actuator/health; then
+              echo "Backend is healthy"
+              break
+            fi
+            echo "Waiting for backend... ($i/30)"
+            sleep 2
+          done
+          
+      - name: Verify critical API endpoints
+        run: |
+          curl -f http://localhost:8080/api/v1/directory/entries || exit 1
+          curl -f http://localhost:8080/api/v1/towns/all || exit 1
+          
+      - name: Keep backend running
+        run: |
+          # Backend continues running for subsequent jobs
+          echo "Backend service ready for integration testing"
+
+  # Frontend service setup
+  frontend-service:
+    name: Setup Frontend Service
+    runs-on: ubuntu-22.04
+    needs: [setup, backend-service]
+    if: always() && needs.setup.outputs.frontend-needed == 'true'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+          
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+        
+      - name: Build frontend
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8080
+          NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
+        run: npm run build
+        
+      - name: Start frontend service
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8080
+          NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
+        run: |
+          npm run start &
+          sleep 20
+          
+      - name: Wait for frontend health
+        run: |
+          for i in {1..20}; do
+            if curl -f http://localhost:3000; then
+              echo "Frontend is healthy"
+              break
+            fi
+            echo "Waiting for frontend... ($i/20)"
+            sleep 3
+          done
+
+  # Critical user journeys testing (always run)
+  critical-tests:
+    name: Critical Tourism Journeys
+    runs-on: ubuntu-22.04
+    needs: [setup, backend-service, frontend-service]
+    if: always() && (needs.setup.outputs.test-scope == 'critical' || needs.setup.outputs.test-scope == 'full')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+          
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+        
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium firefox
+        
+      - name: Run test setup
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8080
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+        run: npm run test:setup
+        
+      - name: Run critical tourism tests
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8080
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+          NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
+        run: npm run test:critical
+        
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: critical-test-results
+          path: |
+            frontend/test-results/
+            frontend/playwright-report/
+          retention-days: 7
+
+  # Mobile tourism experience testing
+  mobile-tests:
+    name: Mobile Tourism Experience
+    runs-on: ubuntu-22.04
+    needs: [setup, backend-service, frontend-service]
+    if: always() && (needs.setup.outputs.test-scope == 'mobile' || needs.setup.outputs.test-scope == 'full')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+          
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+        
+      - name: Install mobile browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium webkit
+        
+      - name: Run mobile tourism tests
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8080
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+          NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
+        run: npm run test:mobile
+        
+      - name: Upload mobile test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-test-results
+          path: |
+            frontend/test-results/
+            frontend/playwright-report/
+          retention-days: 7
+
+  # API contract testing
+  api-contracts:
+    name: API Contract Testing
+    runs-on: ubuntu-22.04
+    needs: [setup, backend-service]
+    if: always() && (needs.setup.outputs.test-scope == 'api-contracts' || needs.setup.outputs.test-scope == 'full')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+          
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+        
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+        
+      - name: Run API contract tests
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8080
+        run: npm run test:api
+        
+      - name: Upload API test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-contract-results
+          path: |
+            frontend/test-results/
+          retention-days: 7
+
+  # Performance and Core Web Vitals testing
+  performance-tests:
+    name: Performance & Core Web Vitals
+    runs-on: ubuntu-22.04
+    needs: [setup, backend-service, frontend-service]
+    if: always() && (needs.setup.outputs.test-scope == 'performance' || needs.setup.outputs.test-scope == 'full')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+          
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+        
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+        
+      - name: Install K6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+          
+      - name: Run Core Web Vitals tests
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8080
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+          NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
+        run: npm run test:performance
+        
+      - name: Run Lighthouse CI audits
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8080
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+          NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+        run: npm run lighthouse:audit
+        
+      - name: Run K6 performance tests
+        working-directory: frontend
+        env:
+          API_BASE_URL: http://localhost:8080
+        run: npm run k6:all
+        
+      - name: Upload performance results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-test-results
+          path: |
+            frontend/test-results/
+            frontend/.lighthouseci/
+            frontend/results/
+          retention-days: 14
+
+  # Test result aggregation and reporting
+  test-summary:
+    name: Test Results Summary
+    runs-on: ubuntu-22.04
+    needs: [critical-tests, mobile-tests, api-contracts, performance-tests]
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          
+      - name: Download all test artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: test-artifacts/
+          
+      - name: Install cleanup dependencies
+        working-directory: frontend
+        run: npm ci --production=false
+        
+      - name: Run test cleanup and aggregation
+        working-directory: frontend
+        run: |
+          # Combine results from all test runs
+          mkdir -p test-results
+          mkdir -p .lighthouseci
+          mkdir -p results
+          
+          # Copy results from artifacts
+          find ../test-artifacts -name "*.json" -exec cp {} test-results/ \; || true
+          find ../test-artifacts -name "lhr-*.json" -exec cp {} .lighthouseci/ \; || true
+          find ../test-artifacts -name "*summary.json" -exec cp {} results/ \; || true
+          
+          # Run cleanup and generate final report
+          npm run test:teardown
+          
+      - name: Generate integration test report
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs').promises;
+            const path = require('path');
+            
+            try {
+              // Read CI integration results
+              const ciDataPath = 'frontend/test-output/ci-integration-results.json';
+              const ciData = JSON.parse(await fs.readFile(ciDataPath, 'utf8'));
+              
+              // Create PR comment with results
+              let comment = '## 🏝️ Nos Ilha Integration Test Results\n\n';
+              
+              comment += `### 🎯 Test Execution Summary\n`;
+              comment += `- **Tests Total**: ${ciData.metrics.testsTotal}\n`;
+              comment += `- **Tests Passed**: ${ciData.metrics.testsPassed}\n`;
+              comment += `- **Tests Failed**: ${ciData.metrics.testsFailed}\n`;
+              comment += `- **Performance Score**: ${Math.round(ciData.metrics.performanceScore)}/100\n`;
+              comment += `- **API Response Time**: ${Math.round(ciData.metrics.apiResponseTime)}ms\n\n`;
+              
+              comment += `### 🏖️ Tourism Platform Quality\n`;
+              comment += `- **Mobile Readiness**: ${Math.round(ciData.tourismQuality.mobileReadiness * 100)}%\n`;
+              comment += `- **Cultural Content Access**: ${ciData.tourismQuality.culturalContentReliability ? '✅' : '❌'}\n`;
+              comment += `- **Directory Functionality**: ${ciData.tourismQuality.directoryFunctionality ? '✅' : '❌'}\n\n`;
+              
+              comment += `### 🚀 Deployment Status\n`;
+              comment += ciData.deploymentReady ? 
+                '✅ **Ready for deployment** - All tourism quality metrics passed\n' : 
+                '⚠️ **Not ready for deployment** - Some issues need attention\n';
+              
+              if (ciData.recommendations.length > 0) {
+                comment += `\n### 💡 Recommendations\n`;
+                ciData.recommendations.forEach(rec => {
+                  comment += `- ${rec}\n`;
+                });
+              }
+              
+              comment += `\n### 📊 Detailed Reports\n`;
+              comment += `- [Playwright Test Report](../actions/runs/${context.runId})\n`;
+              comment += `- [Lighthouse Audit Results](../actions/runs/${context.runId})\n`;
+              comment += `- [K6 Performance Results](../actions/runs/${context.runId})\n`;
+              
+              comment += `\n---\n*Integration tests completed at ${ciData.timestamp}*`;
+              
+              // Find existing comment to update or create new one
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+              });
+              
+              const botComment = comments.find(comment => 
+                comment.user.type === 'Bot' && 
+                comment.body.includes('🏝️ Nos Ilha Integration Test Results')
+              );
+              
+              if (botComment) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id,
+                  body: comment
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body: comment
+                });
+              }
+              
+            } catch (error) {
+              console.log('Could not generate PR comment:', error.message);
+            }
+        
+      - name: Upload final test summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-summary
+          path: |
+            frontend/test-output/
+            frontend/test-results/
+          retention-days: 30
+          
+      - name: Set job status based on results
+        run: |
+          if [ -f "frontend/test-output/ci-integration-results.json" ]; then
+            SUCCESS=$(cat frontend/test-output/ci-integration-results.json | jq -r '.success')
+            if [ "$SUCCESS" != "true" ]; then
+              echo "Integration tests failed - check detailed results"
+              exit 1
+            fi
+          fi

@@ -6,7 +6,35 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report",
+    
+    "test:performance": "playwright test --project=performance",
+    "test:mobile": "playwright test --project=mobile-chrome --project=mobile-safari",
+    "test:api": "playwright test --project=api-contracts",
+    "test:critical": "playwright test tests/shared/",
+    
+    "lighthouse:audit": "lhci autorun",
+    "lighthouse:upload": "lhci upload",
+    "lighthouse:assert": "lhci assert",
+    
+    "k6:directory": "k6 run tests/k6/directory-api-load.js",
+    "k6:towns": "k6 run tests/k6/towns-api-load.js",
+    "k6:journey": "k6 run tests/k6/integrated-user-journey.js",
+    "k6:all": "npm run k6:directory && npm run k6:towns && npm run k6:journey",
+    
+    "test:setup": "node tests/setup/pre-test-setup.js",
+    "test:teardown": "node tests/setup/post-test-cleanup.js",
+    
+    "test:ci": "npm run test:setup && npm run test:e2e && npm run lighthouse:audit && npm run test:teardown",
+    "test:ci:mobile": "npm run test:mobile && npm run lighthouse:audit",
+    "test:ci:performance": "npm run test:performance && npm run k6:all",
+    "test:ci:contracts": "npm run test:api"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
@@ -24,6 +52,8 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@lighthouse-ci/cli": "^0.12.0",
+    "@playwright/test": "^1.47.0",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/postcss": "^4",
     "@types/geojson": "^7946.0.16",
@@ -31,6 +61,7 @@
     "@types/node": "^20.19.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv": "^16.3.1",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
     "tailwindcss": "^4",
