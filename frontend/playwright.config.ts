@@ -7,6 +7,7 @@ try {
   // dotenv is optional for testing
 }
 
+
 /**
  * Playwright configuration for Nos Ilha integration testing.
  * 
@@ -38,12 +39,19 @@ export default defineConfig({
   },
 
   /* Reporter config optimized for CI/CD integration */
-  reporter: [
-    ['html', { outputDir: 'playwright-report', open: 'never' }],
-    ['json', { outputFile: 'test-results/results.json' }],
-    ['junit', { outputFile: 'test-results/junit.xml' }],
-    ...(process.env.CI ? [['github']] : [['list']]),
-  ],
+  reporter: process.env.CI 
+    ? [
+        ['html', { outputDir: 'playwright-report', open: 'never' }],
+        ['json', { outputFile: 'test-results/results.json' }],
+        ['junit', { outputFile: 'test-results/junit.xml' }],
+        ['github'],
+      ]
+    : [
+        ['html', { outputDir: 'playwright-report', open: 'never' }],
+        ['json', { outputFile: 'test-results/results.json' }],
+        ['junit', { outputFile: 'test-results/junit.xml' }],
+        ['list'],
+      ],
 
   /* Shared settings for all the projects below */
   use: {
@@ -126,6 +134,7 @@ export default defineConfig({
       },
       testMatch: '**/performance/**/*.spec.ts',
     },
+
   ],
 
   /* Local dev server configuration */

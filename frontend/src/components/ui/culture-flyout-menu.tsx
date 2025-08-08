@@ -30,10 +30,10 @@ export function CultureFlyoutMenu({ items, className }: CultureFlyoutMenuProps) 
     <Popover className={clsx("relative", className)}>
       <PopoverButton 
         className={clsx(
-          "flex items-center gap-x-1 text-sm/6 font-semibold",
+          "flex items-center gap-x-1 text-sm font-medium border-b-2 px-1 pt-1",
           isActiveSection 
-            ? "text-ocean-blue" 
-            : "text-text-secondary hover:text-text-primary"
+            ? "border-ocean-blue text-text-primary" 
+            : "border-transparent text-text-secondary hover:border-border-primary hover:text-text-primary"
         )}
       >
         Culture
@@ -45,15 +45,15 @@ export function CultureFlyoutMenu({ items, className }: CultureFlyoutMenuProps) 
 
       <PopoverPanel
         transition
-        className="absolute left-1/2 z-10 mt-3 w-screen max-w-md -translate-x-1/2 overflow-hidden rounded-3xl bg-background-primary shadow-lg ring-1 ring-border-primary transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
+        className="absolute left-1/2 z-10 mt-8 w-screen max-w-md -translate-x-1/2 overflow-hidden rounded-3xl bg-background-primary shadow-lg ring-1 ring-border-primary transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
       >
-        <div className="p-4">
+        <div className="p-3">
           {items.map((item) => (
             <Link
               key={item.name}
               href={item.href}
               className={clsx(
-                "group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-background-secondary transition-colors duration-200",
+                "group relative flex items-center gap-x-6 rounded-lg p-3 text-sm/6 hover:bg-background-secondary transition-colors duration-200",
                 pathname === item.href && "bg-background-secondary"
               )}
             >

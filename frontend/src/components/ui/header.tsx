@@ -4,8 +4,15 @@ import {
   Disclosure,
   DisclosureButton,
   DisclosurePanel,
+  PopoverGroup,
 } from "@headlessui/react";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { 
+  Bars3Icon, 
+  XMarkIcon,
+  BookOpenIcon,
+  UserGroupIcon,
+  CameraIcon
+} from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -16,6 +23,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { supabase } from "@/lib/supabase-client";
 import { Button } from "@/components/catalyst-ui/button";
 import { ThemeToggle } from "./theme-toggle";
+import { CultureFlyoutMenu } from "./culture-flyout-menu";
 
 const navigation = [
   { name: "Home", href: "/" },
@@ -23,6 +31,27 @@ const navigation = [
   { name: "Landmarks", href: "/directory/landmark" },
   { name: "Beaches", href: "/directory/beach" },
   { name: "Map", href: "/map" },
+];
+
+const cultureNavigation = [
+  { 
+    name: "History of Brava", 
+    description: "Discover the island's rich past and heritage",
+    href: "/history", 
+    icon: BookOpenIcon 
+  },
+  { 
+    name: "Historical Figures", 
+    description: "Meet the people who shaped Brava",
+    href: "/people", 
+    icon: UserGroupIcon 
+  },
+  { 
+    name: "Photo Galleries", 
+    description: "Visual stories of Brava's beauty",
+    href: "/media/photos", 
+    icon: CameraIcon 
+  },
 ];
 
 export function Header() {
@@ -56,7 +85,7 @@ export function Header() {
                 <NosilhaLogo />
               </Link>
             </div>
-            <div className="hidden md:ml-6 md:flex md:space-x-8">
+            <PopoverGroup className="hidden md:ml-6 md:flex md:space-x-8">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
@@ -72,7 +101,12 @@ export function Header() {
                   {item.name}
                 </Link>
               ))}
-            </div>
+              
+              <CultureFlyoutMenu 
+                items={cultureNavigation}
+                className="inline-flex items-center"
+              />
+            </PopoverGroup>
           </div>
 
           <div className="hidden items-center md:flex">
@@ -151,6 +185,30 @@ export function Header() {
               {item.name}
             </DisclosureButton>
           ))}
+          
+          {/* Culture section for mobile */}
+          <div className="border-l-4 border-transparent">
+            <div className="py-2 pl-3 pr-4 text-sm font-semibold text-text-primary bg-background-secondary">
+              Culture
+            </div>
+            {cultureNavigation.map((item) => (
+              <DisclosureButton
+                key={item.name}
+                as="a"
+                href={item.href}
+                className={clsx(
+                  "flex items-center gap-x-3 py-2 pl-6 pr-4 text-sm",
+                  pathname === item.href
+                    ? "bg-ocean-blue/10 text-ocean-blue"
+                    : "text-text-secondary hover:bg-background-secondary"
+                )}
+                aria-current={pathname === item.href ? "page" : undefined}
+              >
+                <item.icon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
+                {item.name}
+              </DisclosureButton>
+            ))}
+          </div>
         </div>
         <div className="border-t border-border-primary pb-3 pt-4">
           <div className="px-2 space-y-1">
