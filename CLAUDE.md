@@ -363,6 +363,35 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - Custom marker and popup implementations
 - Map performance optimization
 
+### Motion Agent
+**Purpose**: Framer Motion animations and interactive graphics specialist for Nos Ilha platform user experience enhancement  
+**Key Responsibilities**:
+- Animation and transition development
+- Micro-interactions and UI motion design
+- Scroll-triggered effects and page transitions
+- Performance-optimized animations
+- Interactive graphics and visual effects
+
+### Playwright MCP Agent
+**Purpose**: Browser automation and testing specialist using Playwright MCP for Nos Ilha platform testing and interaction  
+**Documentation Reference**: See [`frontend/README-MCP.md`](frontend/README-MCP.md) for comprehensive setup and usage guide  
+**Configuration Files**: 
+- `frontend/.mcp/server-config.json` - Playwright MCP server configuration (headless by default)
+- `.mcp.json` - MCP client configuration for Claude Code integration
+**Key Responsibilities**:
+- Automated browser testing and interaction
+- Visual testing and screenshot generation  
+- Accessibility testing and validation
+- PDF generation and documentation
+- Interactive development assistance through browser automation
+- Performance testing and Core Web Vitals monitoring
+
+**MCP Integration Commands**:
+- `npm run mcp:server:headless` - Default headless mode (recommended for most tasks)
+- `npm run mcp:server` - GUI browser mode (for visual debugging and interactive development)
+- `npm run mcp:server:port` - HTTP transport on port 8931 (for web-based integrations)
+- Configuration uses **headless mode by default** for optimal performance and resource usage
+
 ## Agent Usage Guidelines
 
 ### When to Use Specialized Agents
