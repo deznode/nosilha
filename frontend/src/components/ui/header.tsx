@@ -9,9 +9,9 @@ import {
 import {
   Bars3Icon,
   XMarkIcon,
-  BookOpenIcon,
   UserGroupIcon,
   CameraIcon,
+  BookOpenIcon,
 } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
@@ -192,55 +192,10 @@ export function Header() {
           ))}
 
           {/* Culture section for mobile */}
-          <div className="border-l-4 border-ocean-blue/20 bg-gradient-to-r from-ocean-blue/5 to-transparent">
-            <div className="py-3 pl-4 pr-4 text-base font-bold text-ocean-blue bg-ocean-blue/10 border-b border-ocean-blue/20">
-              <div className="flex items-center gap-x-2">
-                <BookOpenIcon className="h-5 w-5" aria-hidden="true" />
-                Culture
-              </div>
-            </div>
-            {cultureNavigation.map((item) => (
-              <DisclosureButton
-                key={item.name}
-                as="a"
-                href={item.href}
-                className={clsx(
-                  "flex items-center gap-x-4 py-4 pl-6 pr-4 text-base min-h-[48px] transition-all duration-200 ease-out active:scale-[0.98] active:bg-ocean-blue/20",
-                  pathname === item.href
-                    ? "bg-ocean-blue/15 text-ocean-blue border-r-4 border-ocean-blue font-semibold"
-                    : "text-text-secondary hover:bg-ocean-blue/10 hover:text-text-primary focus:bg-ocean-blue/10 focus:text-text-primary"
-                )}
-                aria-current={pathname === item.href ? "page" : undefined}
-              >
-                <div
-                  className={clsx(
-                    "flex items-center justify-center h-8 w-8 rounded-lg transition-all duration-200",
-                    pathname === item.href
-                      ? "bg-ocean-blue/20 text-ocean-blue"
-                      : "bg-background-secondary text-text-tertiary group-hover:bg-ocean-blue/10 group-hover:text-ocean-blue"
-                  )}
-                >
-                  <item.icon
-                    className="h-5 w-5 flex-shrink-0"
-                    aria-hidden="true"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div
-                    className={clsx(
-                      "font-medium truncate",
-                      pathname === item.href ? "text-ocean-blue" : ""
-                    )}
-                  >
-                    {item.name}
-                  </div>
-                  <p className="text-sm text-text-tertiary mt-0.5 truncate">
-                    {item.description}
-                  </p>
-                </div>
-              </DisclosureButton>
-            ))}
-          </div>
+          <CultureFlyoutMenu
+            items={cultureNavigation}
+            isMobile={true}
+          />
         </div>
         <div className="border-t border-border-primary pb-3 pt-4">
           <div className="px-2 space-y-1">

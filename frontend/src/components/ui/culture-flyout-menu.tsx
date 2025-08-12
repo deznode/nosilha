@@ -1,7 +1,12 @@
 "use client";
 
-import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
+import { 
+  Popover, 
+  PopoverButton, 
+  PopoverPanel
+} from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { BookOpenIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
@@ -17,16 +22,18 @@ interface CultureMenuItem {
 interface CultureFlyoutMenuProps {
   items: CultureMenuItem[];
   className?: string;
+  isMobile?: boolean;
 }
 
 export function CultureFlyoutMenu({
   items,
   className,
+  isMobile = false,
 }: CultureFlyoutMenuProps) {
   const pathname = usePathname();
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // Enhanced keyboard navigation
+  // Enhanced keyboard navigation for desktop popover
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!panelRef.current) return;
@@ -62,12 +69,71 @@ export function CultureFlyoutMenu({
     }
   }, []);
 
+
+  // Mobile implementation - always expanded for better UX
+  if (isMobile) {
+    return (
+      <div className="border-l-4 border-ocean-blue/20 bg-gradient-to-r from-ocean-blue/5 to-transparent">
+        <div className="py-3 pl-4 pr-4 text-base font-bold text-ocean-blue bg-ocean-blue/10 border-b border-ocean-blue/20">
+          <div className="flex items-center gap-x-2">
+            <BookOpenIcon className="h-5 w-5" aria-hidden="true" />
+            Culture
+          </div>
+        </div>
+        {items.map((item) => (
+          <Link
+            key={item.name}
+            href={item.href}
+            className={clsx(
+              "flex items-center gap-x-4 py-4 pl-6 pr-4 text-base min-h-[48px] transition-all duration-200 ease-out active:scale-[0.98] active:bg-ocean-blue/20 focus:outline-none focus:ring-2 focus:ring-ocean-blue/30 focus:ring-offset-2 focus:ring-offset-background-primary",
+              pathname === item.href
+                ? "bg-ocean-blue/15 text-ocean-blue border-r-4 border-ocean-blue font-semibold"
+                : "text-text-secondary hover:bg-ocean-blue/10 hover:text-text-primary focus:bg-ocean-blue/10 focus:text-text-primary"
+            )}
+            aria-current={pathname === item.href ? "page" : undefined}
+          >
+            <div
+              className={clsx(
+                "flex items-center justify-center h-8 w-8 rounded-lg transition-all duration-200",
+                pathname === item.href
+                  ? "bg-ocean-blue/20 text-ocean-blue"
+                  : "bg-background-secondary text-text-tertiary group-hover:bg-ocean-blue/10 group-hover:text-ocean-blue"
+              )}
+            >
+              <item.icon
+                className="h-5 w-5 flex-shrink-0"
+                aria-hidden="true"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div
+                className={clsx(
+                  "font-medium truncate",
+                  pathname === item.href ? "text-ocean-blue" : ""
+                )}
+              >
+                {item.name}
+              </div>
+              <p className="text-sm text-text-tertiary mt-0.5 truncate">
+                {item.description}
+              </p>
+            </div>
+          </Link>
+        ))}
+      </div>
+    );
+  }
+
+  // Desktop implementation using Popover (existing implementation)
   return (
-    <Popover className={clsx("relative", className)}>
+    <Popover className="relative">
       {({ open }) => (
         <>
           <PopoverButton
-            className="group flex items-center gap-x-1 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ocean-blue/20 focus:ring-offset-2 focus:ring-offset-background-primary"
+            className={clsx(
+              "group flex items-center gap-x-1 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ocean-blue/20 focus:ring-offset-2 focus:ring-offset-background-primary",
+              className
+            )}
             aria-expanded={open}
             aria-haspopup="true"
             aria-label="Culture menu - explore Brava's history, people, and photo galleries"
