@@ -263,10 +263,131 @@ open http://localhost:3000  # Frontend test
 docker-compose exec postgres psql -U nosilha -d nosilha_db -c "SELECT version();"  # DB test
 ```
 
+## Specialized Agent Definitions
+
+When working with this codebase, Claude Code can utilize specialized agents for domain-specific tasks. Each agent MUST reference the appropriate documentation to ensure consistency with established standards.
+
+### Frontend Agent
+**Purpose**: Next.js 15 + React 19 + TypeScript frontend specialist for Nos Ilha cultural heritage platform  
+**Documentation Reference**: MUST reference [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) for all UI/styling decisions  
+**Key Responsibilities**:
+- React components and Next.js App Router pages
+- Tailwind CSS styling following design system standards
+- Mobile-first responsive design implementation
+- Component library usage (Catalyst UI + Custom UI)
+- Client-side features and interactivity
+- Frontend performance optimization
+- Dark/light theme implementation
+
+**Required Documentation Compliance**:
+- Follow brand colors and typography from DESIGN_SYSTEM.md
+- Use semantic color tokens and CSS variables
+- Implement mobile-first responsive patterns
+- Adhere to component architecture guidelines
+
+### Backend Agent  
+**Purpose**: Spring Boot + Kotlin API development specialist for Nos Ilha cultural heritage platform  
+**Documentation Reference**: MUST reference [`docs/API_CODING_STANDARDS.md`](docs/API_CODING_STANDARDS.md) for all development patterns  
+**Key Responsibilities**:
+- REST API development with proper HTTP status codes
+- JPA entities and repository implementations
+- Service layer business logic
+- JWT authentication and authorization
+- Bean Validation for input validation
+- Database operations and Flyway migrations
+- Kotlin backend development best practices
+
+**Required Documentation Compliance**:
+- Follow Single Table Inheritance patterns for DirectoryEntry
+- Implement proper entity auditing and validation
+- Use established DTO mapping patterns
+- Adhere to API versioning conventions (/api/v1/)
+
+### Integration Agent
+**Purpose**: Full-stack type safety and API integration specialist ensuring seamless frontend-backend communication  
+**Documentation References**: Cross-reference both DESIGN_SYSTEM.md and API_CODING_STANDARDS.md  
+**Key Responsibilities**:
+- TypeScript interfaces and API contracts
+- Frontend-backend data flow integration
+- Error handling across the stack
+- Authentication flow implementation
+- API client configuration and caching strategies
+- Type safety validation and testing
+
+### Database Agent
+**Purpose**: PostgreSQL + Firestore multi-database specialist for Nos Ilha platform data architecture  
+**Documentation Reference**: Reference API_CODING_STANDARDS.md for entity patterns and migration standards  
+**Key Responsibilities**:
+- Database schema design and migrations
+- JPA entity relationships and mappings
+- Query optimization and performance
+- Firestore operations for AI metadata
+- Data modeling for cultural heritage content
+- Database connection pooling and configuration
+
+### DevOps Agent
+**Purpose**: CI/CD deployment and Google Cloud Platform infrastructure specialist  
+**Documentation References**: [`docs/CI_CD_PIPELINE.md`](docs/CI_CD_PIPELINE.md) and infrastructure documentation  
+**Key Responsibilities**:
+- GitHub Actions workflow management
+- GCP deployment and Cloud Run configuration
+- Terraform infrastructure as code
+- Docker containerization and registry management
+- Security scanning and compliance
+- Monitoring and health checks
+
+### Content Agent
+**Purpose**: Cultural heritage content creation and multilingual specialist for authentic Cape Verdean storytelling  
+**Key Responsibilities**:
+- Cultural content creation and validation
+- Copywriting for heritage descriptions
+- Community-focused narrative development
+- Content review and accuracy verification
+- Multilingual content management
+
+### Media Agent
+**Purpose**: Google Cloud Vision API + media processing specialist for heritage image analysis  
+**Key Responsibilities**:
+- Image upload and GCS storage management
+- Cloud Vision API integration for AI analysis
+- Media optimization and processing workflows
+- CDN configuration for asset delivery
+- Image metadata extraction and tagging
+
+### Mapbox Agent
+**Purpose**: Mapbox GL JS + React integration specialist for Brava Island interactive mapping  
+**Key Responsibilities**:
+- Interactive map development and customization
+- Geospatial data visualization
+- Location-based filtering and search
+- Custom marker and popup implementations
+- Map performance optimization
+
+## Agent Usage Guidelines
+
+### When to Use Specialized Agents
+- **Frontend tasks**: Always use Frontend Agent for UI/component work
+- **Backend API tasks**: Always use Backend Agent for Spring Boot/Kotlin development  
+- **Cross-stack work**: Use Integration Agent for full-stack feature implementation
+- **Infrastructure tasks**: Use DevOps Agent for deployment and infrastructure changes
+- **Content creation**: Use Content Agent for cultural heritage content
+
+### Documentation Compliance Requirements
+- **MANDATORY**: All agents must reference their specified documentation before making changes
+- **Validation**: Agents should validate their work against established standards
+- **Consistency**: Cross-reference related documentation when work spans multiple domains
+- **Updates**: When standards change, agents must adapt their approach accordingly
+
+### Cross-Agent Coordination
+- Integration Agent coordinates between Frontend and Backend agents
+- DevOps Agent ensures deployment compatibility with all service agents
+- Content Agent validates cultural accuracy across all content-generating agents
+- Media Agent works with Frontend Agent for optimal asset delivery
+
 ## Important Code Patterns
 
 ### API Integration
-- Frontend uses `/lib/api.ts` for backend communication
+- Frontend uses `/lib/api.ts` for backend communication (see [`docs/API_CODING_STANDARDS.md`](docs/API_CODING_STANDARDS.md))
 - All API calls should handle errors gracefully and return proper types
 - Backend endpoints follow RESTful conventions with proper HTTP status codes
 - Authentication flow: Frontend → Supabase Auth → JWT → Backend validation → Database
@@ -277,7 +398,7 @@ docker-compose exec postgres psql -U nosilha -d nosilha_db -c "SELECT version();
 **Protected Routes**: middleware.ts → Check Auth State → Allow/Redirect
 
 ### Database Access
-- Use JPA repositories for database operations
+- Use JPA repositories for database operations (see [`docs/API_CODING_STANDARDS.md`](docs/API_CODING_STANDARDS.md))
 - All entities extend proper base classes and use UUID primary keys
 - Flyway handles database migrations in `backend/src/main/resources/db/`
 - Single Table Inheritance pattern for `DirectoryEntry` and its subclasses (`Restaurant`, `Hotel`, `Landmark`, `Beach`)
