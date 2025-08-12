@@ -6,12 +6,12 @@ import {
   DisclosurePanel,
   PopoverGroup,
 } from "@headlessui/react";
-import { 
-  Bars3Icon, 
+import {
+  Bars3Icon,
   XMarkIcon,
   BookOpenIcon,
   UserGroupIcon,
-  CameraIcon
+  CameraIcon,
 } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
@@ -34,23 +34,23 @@ const navigation = [
 ];
 
 const cultureNavigation = [
-  { 
-    name: "History of Brava", 
+  {
+    name: "History of Brava",
     description: "Discover the island's rich past and heritage",
-    href: "/history", 
-    icon: BookOpenIcon 
+    href: "/history",
+    icon: BookOpenIcon,
   },
-  { 
-    name: "Historical Figures", 
+  {
+    name: "Historical Figures",
     description: "Meet the people who shaped Brava",
-    href: "/people", 
-    icon: UserGroupIcon 
+    href: "/people",
+    icon: UserGroupIcon,
   },
-  { 
-    name: "Photo Galleries", 
+  {
+    name: "Photo Galleries",
     description: "Visual stories of Brava's beauty",
-    href: "/media/photos", 
-    icon: CameraIcon 
+    href: "/media/photos",
+    icon: CameraIcon,
   },
 ];
 
@@ -101,10 +101,15 @@ export function Header() {
                   {item.name}
                 </Link>
               ))}
-              
-              <CultureFlyoutMenu 
+
+              <CultureFlyoutMenu
                 items={cultureNavigation}
-                className="inline-flex items-center"
+                className={clsx(
+                  "inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium",
+                  cultureNavigation.some(item => pathname === item.href)
+                    ? "border-ocean-blue text-text-primary"
+                    : "border-transparent text-text-secondary hover:border-border-primary hover:text-text-primary"
+                )}
               />
             </PopoverGroup>
           </div>
@@ -120,7 +125,7 @@ export function Header() {
               </Link>
             </div>
             {/* Admin-only Add Entry button */}
-            {user?.role === 'ADMIN' && (
+            {user?.role === "ADMIN" && (
               <div className="ml-2 shrink-0">
                 <Link
                   href="/add-entry"
@@ -185,11 +190,14 @@ export function Header() {
               {item.name}
             </DisclosureButton>
           ))}
-          
+
           {/* Culture section for mobile */}
-          <div className="border-l-4 border-transparent">
-            <div className="py-2 pl-3 pr-4 text-sm font-semibold text-text-primary bg-background-secondary">
-              Culture
+          <div className="border-l-4 border-ocean-blue/20 bg-gradient-to-r from-ocean-blue/5 to-transparent">
+            <div className="py-3 pl-4 pr-4 text-base font-bold text-ocean-blue bg-ocean-blue/10 border-b border-ocean-blue/20">
+              <div className="flex items-center gap-x-2">
+                <BookOpenIcon className="h-5 w-5" aria-hidden="true" />
+                Culture
+              </div>
             </div>
             {cultureNavigation.map((item) => (
               <DisclosureButton
@@ -197,15 +205,39 @@ export function Header() {
                 as="a"
                 href={item.href}
                 className={clsx(
-                  "flex items-center gap-x-3 py-2 pl-6 pr-4 text-sm",
+                  "flex items-center gap-x-4 py-4 pl-6 pr-4 text-base min-h-[48px] transition-all duration-200 ease-out active:scale-[0.98] active:bg-ocean-blue/20",
                   pathname === item.href
-                    ? "bg-ocean-blue/10 text-ocean-blue"
-                    : "text-text-secondary hover:bg-background-secondary"
+                    ? "bg-ocean-blue/15 text-ocean-blue border-r-4 border-ocean-blue font-semibold"
+                    : "text-text-secondary hover:bg-ocean-blue/10 hover:text-text-primary focus:bg-ocean-blue/10 focus:text-text-primary"
                 )}
                 aria-current={pathname === item.href ? "page" : undefined}
               >
-                <item.icon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
-                {item.name}
+                <div
+                  className={clsx(
+                    "flex items-center justify-center h-8 w-8 rounded-lg transition-all duration-200",
+                    pathname === item.href
+                      ? "bg-ocean-blue/20 text-ocean-blue"
+                      : "bg-background-secondary text-text-tertiary group-hover:bg-ocean-blue/10 group-hover:text-ocean-blue"
+                  )}
+                >
+                  <item.icon
+                    className="h-5 w-5 flex-shrink-0"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div
+                    className={clsx(
+                      "font-medium truncate",
+                      pathname === item.href ? "text-ocean-blue" : ""
+                    )}
+                  >
+                    {item.name}
+                  </div>
+                  <p className="text-sm text-text-tertiary mt-0.5 truncate">
+                    {item.description}
+                  </p>
+                </div>
               </DisclosureButton>
             ))}
           </div>

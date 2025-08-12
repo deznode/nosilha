@@ -1,13 +1,10 @@
 "use client";
 
-import { 
-  Popover,
-  PopoverButton,
-  PopoverPanel,
-} from "@headlessui/react";
+import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
 import clsx from "clsx";
 
 interface CultureMenuItem {
@@ -22,70 +19,140 @@ interface CultureFlyoutMenuProps {
   className?: string;
 }
 
-export function CultureFlyoutMenu({ items, className }: CultureFlyoutMenuProps) {
+export function CultureFlyoutMenu({
+  items,
+  className,
+}: CultureFlyoutMenuProps) {
   const pathname = usePathname();
-  const isActiveSection = items.some(item => pathname === item.href);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // Enhanced keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!panelRef.current) return;
+
+      const panel = panelRef.current;
+      const focusableElements = panel.querySelectorAll("a[href]");
+      const currentIndex = Array.from(focusableElements).indexOf(
+        document.activeElement as HTMLAnchorElement
+      );
+
+      switch (event.key) {
+        case "ArrowDown":
+          event.preventDefault();
+          const nextIndex =
+            currentIndex < focusableElements.length - 1 ? currentIndex + 1 : 0;
+          (focusableElements[nextIndex] as HTMLElement).focus();
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          const prevIndex =
+            currentIndex > 0 ? currentIndex - 1 : focusableElements.length - 1;
+          (focusableElements[prevIndex] as HTMLElement).focus();
+          break;
+      }
+    };
+
+    if (panelRef.current) {
+      panelRef.current.addEventListener("keydown", handleKeyDown);
+      return () => {
+        if (panelRef.current) {
+          panelRef.current.removeEventListener("keydown", handleKeyDown);
+        }
+      };
+    }
+  }, []);
 
   return (
     <Popover className={clsx("relative", className)}>
-      <PopoverButton 
-        className={clsx(
-          "flex items-center gap-x-1 text-sm font-medium border-b-2 px-1 pt-1",
-          isActiveSection 
-            ? "border-ocean-blue text-text-primary" 
-            : "border-transparent text-text-secondary hover:border-border-primary hover:text-text-primary"
-        )}
-      >
-        Culture
-        <ChevronDownIcon 
-          aria-hidden="true" 
-          className="size-5 flex-none text-text-tertiary" 
-        />
-      </PopoverButton>
-
-      <PopoverPanel
-        transition
-        className="absolute left-1/2 z-10 mt-8 w-screen max-w-md -translate-x-1/2 overflow-hidden rounded-3xl bg-background-primary shadow-lg ring-1 ring-border-primary transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
-      >
-        <div className="p-3">
-          {items.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
+      {({ open }) => (
+        <>
+          <PopoverButton
+            className="group flex items-center gap-x-1 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ocean-blue/20 focus:ring-offset-2 focus:ring-offset-background-primary"
+            aria-expanded={open}
+            aria-haspopup="true"
+            aria-label="Culture menu - explore Brava's history, people, and photo galleries"
+          >
+            Culture
+            <ChevronDownIcon
+              aria-hidden="true"
               className={clsx(
-                "group relative flex items-center gap-x-6 rounded-lg p-3 text-sm/6 hover:bg-background-secondary transition-colors duration-200",
-                pathname === item.href && "bg-background-secondary"
+                "size-5 flex-none text-text-tertiary transition-transform duration-200 ease-out group-hover:text-text-secondary",
+                open && "rotate-180"
               )}
-            >
-              <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-ocean-blue/10 group-hover:bg-ocean-blue/20 transition-colors duration-200">
-                <item.icon 
-                  aria-hidden="true" 
+            />
+          </PopoverButton>
+
+          <PopoverPanel
+            ref={panelRef}
+            transition
+            className="absolute left-1/2 z-50 mt-3 w-screen max-w-md -translate-x-1/2 overflow-hidden rounded-3xl bg-background-primary shadow-2xl ring-1 ring-border-primary transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in backdrop-blur-sm"
+            role="menu"
+            aria-label="Culture navigation menu"
+          >
+            <div className="p-4">
+              {items.map((item, index) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  role="menuitem"
+                  tabIndex={-1}
+                  aria-describedby={`culture-item-${index}-desc`}
                   className={clsx(
-                    "size-6 transition-colors duration-200",
-                    pathname === item.href 
-                      ? "text-ocean-blue" 
-                      : "text-text-secondary group-hover:text-ocean-blue"
-                  )} 
-                />
-              </div>
-              <div className="flex-auto">
-                <div className={clsx(
-                  "block font-semibold transition-colors duration-200",
-                  pathname === item.href 
-                    ? "text-ocean-blue" 
-                    : "text-text-primary group-hover:text-ocean-blue"
-                )}>
-                  {item.name}
-                  <span className="absolute inset-0" />
-                </div>
-                <p className="mt-1 text-text-secondary group-hover:text-text-primary transition-colors duration-200">
-                  {item.description}
-                </p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </PopoverPanel>
+                    "group relative flex items-center gap-x-6 rounded-xl p-4 text-sm/6 transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-ocean-blue/30 focus:ring-offset-2 focus:ring-offset-background-primary focus:bg-ocean-blue/5",
+                    "hover:bg-background-secondary hover:shadow-sm hover:scale-[1.02] active:scale-[0.98]",
+                    pathname === item.href &&
+                      "bg-ocean-blue/10 ring-1 ring-ocean-blue/20"
+                  )}
+                >
+                  <div
+                    className={clsx(
+                      "flex size-12 flex-none items-center justify-center rounded-xl transition-all duration-300 ease-out",
+                      pathname === item.href
+                        ? "bg-ocean-blue/20 scale-105"
+                        : "bg-ocean-blue/10 group-hover:bg-ocean-blue/25 group-hover:scale-110 group-focus:bg-ocean-blue/25 group-focus:scale-110"
+                    )}
+                  >
+                    <item.icon
+                      aria-hidden="true"
+                      className={clsx(
+                        "size-6 transition-all duration-300 ease-out",
+                        pathname === item.href
+                          ? "text-ocean-blue scale-110"
+                          : "text-text-secondary group-hover:text-ocean-blue group-hover:scale-110 group-focus:text-ocean-blue group-focus:scale-110"
+                      )}
+                    />
+                  </div>
+                  <div className="flex-auto min-w-0">
+                    <div
+                      className={clsx(
+                        "block font-semibold text-base transition-all duration-300 ease-out truncate",
+                        pathname === item.href
+                          ? "text-ocean-blue"
+                          : "text-text-primary group-hover:text-ocean-blue group-focus:text-ocean-blue"
+                      )}
+                    >
+                      {item.name}
+                      <span className="absolute inset-0" />
+                    </div>
+                    <p
+                      id={`culture-item-${index}-desc`}
+                      className={clsx(
+                        "mt-1 text-sm leading-relaxed transition-all duration-300 ease-out",
+                        pathname === item.href
+                          ? "text-text-primary"
+                          : "text-text-secondary group-hover:text-text-primary group-focus:text-text-primary"
+                      )}
+                    >
+                      {item.description}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </PopoverPanel>
+        </>
+      )}
     </Popover>
   );
 }
