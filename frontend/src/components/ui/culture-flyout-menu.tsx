@@ -53,12 +53,11 @@ export function CultureFlyoutMenu({
       }
     };
 
-    if (panelRef.current) {
-      panelRef.current.addEventListener("keydown", handleKeyDown);
+    const currentPanel = panelRef.current;
+    if (currentPanel) {
+      currentPanel.addEventListener("keydown", handleKeyDown);
       return () => {
-        if (panelRef.current) {
-          panelRef.current.removeEventListener("keydown", handleKeyDown);
-        }
+        currentPanel.removeEventListener("keydown", handleKeyDown);
       };
     }
   }, []);
