@@ -267,7 +267,7 @@ docker-compose exec postgres psql -U nosilha -d nosilha_db -c "SELECT version();
 
 When working with this codebase, Claude Code can utilize specialized agents for domain-specific tasks. Each agent MUST reference the appropriate documentation to ensure consistency with established standards.
 
-### Frontend Agent
+### frontend-engineer
 **Purpose**: Next.js 15 + React 19 + TypeScript frontend specialist for Nos Ilha cultural heritage platform  
 **Documentation Reference**: MUST reference [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) for all UI/styling decisions  
 **Key Responsibilities**:
@@ -285,7 +285,7 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - Implement mobile-first responsive patterns
 - Adhere to component architecture guidelines
 
-### Backend Agent  
+### backend-engineer  
 **Purpose**: Spring Boot + Kotlin API development specialist for Nos Ilha cultural heritage platform  
 **Documentation Reference**: MUST reference [`docs/API_CODING_STANDARDS.md`](docs/API_CODING_STANDARDS.md) for all development patterns  
 **Key Responsibilities**:
@@ -303,7 +303,7 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - Use established DTO mapping patterns
 - Adhere to API versioning conventions (/api/v1/)
 
-### Integration Agent
+### integration-specialist
 **Purpose**: Full-stack type safety and API integration specialist ensuring seamless frontend-backend communication  
 **Documentation References**: Cross-reference both DESIGN_SYSTEM.md and API_CODING_STANDARDS.md  
 **Key Responsibilities**:
@@ -314,7 +314,7 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - API client configuration and caching strategies
 - Type safety validation and testing
 
-### Database Agent
+### database-engineer
 **Purpose**: PostgreSQL + Firestore multi-database specialist for Nos Ilha platform data architecture  
 **Documentation Reference**: Reference API_CODING_STANDARDS.md for entity patterns and migration standards  
 **Key Responsibilities**:
@@ -325,7 +325,7 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - Data modeling for cultural heritage content
 - Database connection pooling and configuration
 
-### DevOps Agent
+### devops-engineer
 **Purpose**: CI/CD deployment and Google Cloud Platform infrastructure specialist  
 **Documentation References**: [`docs/CI_CD_PIPELINE.md`](docs/CI_CD_PIPELINE.md) and infrastructure documentation  
 **Key Responsibilities**:
@@ -336,7 +336,7 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - Security scanning and compliance
 - Monitoring and health checks
 
-### Content Agent
+### content-creator
 **Purpose**: Cultural heritage content creation and multilingual specialist for authentic Cape Verdean storytelling  
 **Key Responsibilities**:
 - Cultural content creation and validation
@@ -345,7 +345,7 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - Content review and accuracy verification
 - Multilingual content management
 
-### Media Agent
+### media-processor
 **Purpose**: Google Cloud Vision API + media processing specialist for heritage image analysis  
 **Key Responsibilities**:
 - Image upload and GCS storage management
@@ -354,7 +354,7 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - CDN configuration for asset delivery
 - Image metadata extraction and tagging
 
-### Mapbox Agent
+### mapbox-specialist
 **Purpose**: Mapbox GL JS + React integration specialist for Brava Island interactive mapping  
 **Key Responsibilities**:
 - Interactive map development and customization
@@ -363,7 +363,7 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - Custom marker and popup implementations
 - Map performance optimization
 
-### Motion Agent
+### motion-specialist
 **Purpose**: Framer Motion animations and interactive graphics specialist for Nos Ilha platform user experience enhancement  
 **Key Responsibilities**:
 - Animation and transition development
@@ -395,11 +395,11 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 ## Agent Usage Guidelines
 
 ### When to Use Specialized Agents
-- **Frontend tasks**: Always use Frontend Agent for UI/component work
-- **Backend API tasks**: Always use Backend Agent for Spring Boot/Kotlin development  
-- **Cross-stack work**: Use Integration Agent for full-stack feature implementation
-- **Infrastructure tasks**: Use DevOps Agent for deployment and infrastructure changes
-- **Content creation**: Use Content Agent for cultural heritage content
+- **Frontend tasks**: Always use frontend-engineer for UI/component work
+- **Backend API tasks**: Always use backend-engineer for Spring Boot/Kotlin development  
+- **Cross-stack work**: Use integration-specialist for full-stack feature implementation
+- **Infrastructure tasks**: Use devops-engineer for deployment and infrastructure changes
+- **Content creation**: Use content-creator for cultural heritage content
 
 ### Documentation Compliance Requirements
 - **MANDATORY**: All agents must reference their specified documentation before making changes
@@ -408,10 +408,10 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - **Updates**: When standards change, agents must adapt their approach accordingly
 
 ### Cross-Agent Coordination
-- Integration Agent coordinates between Frontend and Backend agents
-- DevOps Agent ensures deployment compatibility with all service agents
-- Content Agent validates cultural accuracy across all content-generating agents
-- Media Agent works with Frontend Agent for optimal asset delivery
+- integration-specialist coordinates between frontend-engineer and backend-engineer agents
+- devops-engineer ensures deployment compatibility with all service agents
+- content-creator validates cultural accuracy across all content-generating agents
+- media-processor works with frontend-engineer for optimal asset delivery
 
 ## Important Code Patterns
 

@@ -140,12 +140,12 @@ Always reference these critical files:
 
 ## Integration Coordination
 
-### With Backend Agent
+### With backend-engineer
 - Ensure TypeScript interfaces match backend DTOs
 - Coordinate JWT token handling and user sessions
 - Match frontend error states with backend responses
 
-### With Media Agent
+### With media-processor
 - Coordinate GCS integration for heritage photos
 - Create user-friendly media upload experiences
 - Display cultural heritage images effectively
