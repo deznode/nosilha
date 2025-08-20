@@ -7,6 +7,9 @@ import {
   MapIcon,
   ListBulletIcon,
   BookOpenIcon,
+  UserGroupIcon,
+  CameraIcon,
+  BuildingOfficeIcon,
 } from "@heroicons/react/24/outline";
 
 // Data for the new "Island Guide" (features) section
@@ -34,6 +37,41 @@ const nosilhaFeatures = [
   },
 ];
 
+// Data for popular pages widget - surfacing important footer links
+const popularPages = [
+  {
+    name: "Towns & Villages",
+    description:
+      "Explore the charming settlements and communities across Brava",
+    href: "/towns",
+    icon: BuildingOfficeIcon,
+    category: "Explore",
+  },
+  {
+    name: "History of Brava",
+    description:
+      "Discover the fascinating stories and events that shaped this remarkable island",
+    href: "/history",
+    icon: BookOpenIcon,
+    category: "Culture",
+  },
+  {
+    name: "Photo Galleries",
+    description:
+      "Browse stunning visual stories of Brava's landscapes and culture",
+    href: "/media/photos",
+    icon: CameraIcon,
+    category: "Culture",
+  },
+  {
+    name: "Historical Figures",
+    description: "Meet the remarkable people who shaped Brava's rich heritage",
+    href: "/people",
+    icon: UserGroupIcon,
+    category: "Culture",
+  },
+];
+
 // Force dynamic rendering for real-time featured content
 export const dynamic = "force-dynamic";
 
@@ -58,7 +96,7 @@ export default async function HomePage() {
             Discover the Soul of Brava
           </h1>
           <p className="mt-6 text-lg leading-8 sm:text-xl">
-            Your journey into the heart of Cape Verde's most enchanting
+            Your journey into the heart of Cape Verde&apos;s most enchanting
             hidden gem begins here.
           </p>
           <div className="mt-10">
@@ -128,6 +166,53 @@ export default async function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* Popular Pages Section - Surfacing Important Links */}
+      <section className="bg-background-primary py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl lg:text-center">
+            <h2 className="text-base font-semibold leading-7 text-ocean-blue">
+              Discover More
+            </h2>
+            <p className="mt-2 font-serif text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
+              Popular Destinations & Stories
+            </p>
+            <p className="mt-6 text-lg leading-8 text-text-secondary">
+              Don&apos;t miss these essential pages that showcase the depth and
+              beauty of Brava&apos;s culture and communities.
+            </p>
+          </div>
+          <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-2">
+            {popularPages.map((page) => (
+              <Link
+                key={page.name}
+                href={page.href}
+                className="group relative flex gap-x-6 rounded-lg p-6 text-sm leading-6 hover:bg-background-secondary transition-all duration-300 hover:shadow-md border border-border-primary hover:border-ocean-blue/30"
+              >
+                <div className="flex h-12 w-12 flex-none items-center justify-center rounded-lg bg-ocean-blue/10 group-hover:bg-ocean-blue/20 transition-colors duration-300">
+                  <page.icon
+                    className="h-6 w-6 text-ocean-blue group-hover:text-ocean-blue/90"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div className="flex-auto">
+                  <div className="flex items-center gap-x-2">
+                    <span className="text-xs font-medium text-ocean-blue bg-ocean-blue/10 px-2 py-1 rounded-md">
+                      {page.category}
+                    </span>
+                  </div>
+                  <div className="mt-2 font-semibold text-text-primary group-hover:text-ocean-blue transition-colors duration-300">
+                    {page.name}
+                  </div>
+                  <p className="mt-1 text-text-secondary group-hover:text-text-primary transition-colors duration-300">
+                    {page.description}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
     </>
   );
 }

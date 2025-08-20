@@ -12,7 +12,7 @@
 
 ## Agent Specifications
 
-### 1. Spring Boot API Agent (`nosilha-backend-agent`)
+### 1. Spring Boot API Agent (`backend-engineer`)
 **Primary Role**: Backend development specialist for Kotlin Spring Boot services
 **Expertise Areas**:
 - Single Table Inheritance patterns for DirectoryEntry hierarchy
@@ -35,7 +35,7 @@
 - Bean validation and error handling
 - Actuator endpoints for monitoring
 
-### 2. Next.js Frontend Agent (`nosilha-frontend-agent`)
+### 2. Next.js Frontend Agent (`frontend-engineer`)
 **Primary Role**: Modern React development with App Router and TypeScript
 **Expertise Areas**:
 - Next.js 15 App Router architecture
@@ -59,7 +59,7 @@
 - Bundle optimization and performance
 - Dark mode theming with CSS variables
 
-### 3. Mapbox & GIS Agent (`nosilha-mapbox-agent`)
+### 3. Mapbox & GIS Agent (`mapbox-specialist`)
 **Primary Role**: Mapbox GL JS expert and geospatial visualization specialist
 **Expertise Areas**:
 - Mapbox GL JS v3+ integration with React
@@ -83,7 +83,7 @@
 - React hooks for map state management
 - Accessibility patterns for interactive maps
 
-### 4. Motion & Graphics Agent (`nosilha-motion-agent`)
+### 4. Motion & Graphics Agent (`motion-specialist`)
 **Primary Role**: Animation and interactive graphics specialist using Framer Motion
 **Expertise Areas**:
 - Framer Motion animation patterns and performance
@@ -107,7 +107,7 @@
 - Tourism-focused storytelling through motion
 - Cross-browser animation compatibility
 
-### 5. CI/CD Pipeline Agent (`nosilha-devops-agent`)
+### 5. CI/CD Pipeline Agent (`devops-engineer`)
 **Primary Role**: GitHub Actions workflows and Google Cloud deployment
 **Expertise Areas**:
 - Modular GitHub Actions workflow architecture
@@ -131,7 +131,7 @@
 - Cost optimization for Cloud Run
 - Automated security vulnerability management
 
-### 6. Media & AI Integration Agent (`nosilha-media-agent`)
+### 6. Media & AI Integration Agent (`media-processor`)
 **Primary Role**: Cloud Vision API, GCS storage, and image processing
 **Expertise Areas**:
 - Google Cloud Storage integration patterns
@@ -155,7 +155,7 @@
 - Content moderation workflows
 - Media CDN integration patterns
 
-### 7. Database Architecture Agent (`nosilha-data-agent`)
+### 7. Database Architecture Agent (`database-engineer`)
 **Primary Role**: Multi-database specialist for PostgreSQL and Firestore
 **Expertise Areas**:
 - **PostgreSQL**: Single Table Inheritance modeling for DirectoryEntry
@@ -179,7 +179,7 @@
 - **Performance**: Query optimization across both database systems
 - **Migrations**: Schema evolution strategies for both SQL and NoSQL
 
-### 8. Content Copywriter Agent (`nosilha-content-agent`)
+### 8. Content Copywriter Agent (`content-creator`)
 **Primary Role**: Cultural heritage content creation and multilingual copywriting
 **Expertise Areas**:
 - Cape Verdean cultural context and historical sensitivity
@@ -203,7 +203,7 @@
 - Structured data markup for cultural content (Schema.org)
 - Content localization best practices for island communities
 
-### 9. Cultural Fact Checker Agent (`nosilha-factchecker-agent`)
+### 9. Cultural Fact Checker Agent (`cultural-heritage-verifier`)
 **Primary Role**: Historical and cultural accuracy verification for Brava Island content
 **Expertise Areas**:
 - Cape Verdean history and Brava Island-specific facts
@@ -228,7 +228,7 @@
 - Diaspora community fact-checking networks
 - Academic source validation for island history
 
-### 10. Type Safety & Integration Agent (`nosilha-integration-agent`)
+### 10. Type Safety & Integration Agent (`integration-specialist`)
 **Primary Role**: Full-stack type safety and API integration
 **Expertise Areas**:
 - Frontend/backend type interface alignment
@@ -291,16 +291,16 @@
 ## Final Implementation Results
 
 ### ✅ **10 Claude Sub-Agents Successfully Implemented** (`.claude/agents/`):
-1. **backend-agent.md** - Spring Boot + Kotlin cultural heritage API specialist
-2. **frontend-agent.md** - Next.js 15 + React 19 cultural platform UI specialist
-3. **mapbox-agent.md** - Interactive Brava Island mapping and geospatial specialist
-4. **motion-agent.md** - Framer Motion cultural storytelling animation specialist
-5. **devops-agent.md** - CI/CD + GCP cultural platform deployment specialist
-6. **media-agent.md** - AI + Cloud Vision cultural heritage media processing specialist
-7. **database-agent.md** - PostgreSQL + Firestore cultural data architecture specialist
-8. **integration-agent.md** - Type safety + API contracts + cross-stack testing specialist
-9. **content-agent.md** - Cultural heritage content creation + multilingual storytelling specialist
-10. **factchecker-agent.md** - Historical accuracy + community validation specialist
+1. **backend-engineer.md** - Spring Boot + Kotlin cultural heritage API specialist
+2. **frontend-engineer.md** - Next.js 15 + React 19 cultural platform UI specialist
+3. **mapbox-specialist.md** - Interactive Brava Island mapping and geospatial specialist
+4. **motion-specialist.md** - Framer Motion cultural storytelling animation specialist
+5. **devops-engineer.md** - CI/CD + GCP cultural platform deployment specialist
+6. **media-processor.md** - AI + Cloud Vision cultural heritage media processing specialist
+7. **database-engineer.md** - PostgreSQL + Firestore cultural data architecture specialist
+8. **integration-specialist.md** - Type safety + API contracts + cross-stack testing specialist
+9. **content-creator.md** - Cultural heritage content creation + multilingual storytelling specialist
+10. **cultural-heritage-verifier.md** - Historical accuracy + community validation specialist
 
 ### ✅ **Key Achievements**:
 - **Cultural heritage focus** throughout all agents (not generic tourism)
