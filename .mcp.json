@@ -3,6 +3,13 @@
     "playwright": {
       "command": "npx",
       "args": ["@playwright/mcp@latest", "--config", "frontend/.mcp/server-config.json"]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
     }
   }
 }
