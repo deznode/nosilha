@@ -131,7 +131,7 @@ export function CultureFlyoutMenu({
         <>
           <PopoverButton
             className={clsx(
-              "group flex items-center gap-x-1 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ocean-blue/20 focus:ring-offset-2 focus:ring-offset-background-primary",
+              "group inline-flex items-center gap-x-1 h-16 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ocean-blue/20 focus:ring-offset-2 focus:ring-offset-background-primary",
               className
             )}
             aria-expanded={open}

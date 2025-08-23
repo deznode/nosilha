@@ -80,3 +80,5 @@ k6-*.json
 
 # Local CI/CD artifacts
 .github/artifacts/
+
+.playwright-mcp
