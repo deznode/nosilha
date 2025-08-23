@@ -35,7 +35,7 @@ INSERT INTO towns (slug, name, description, latitude, longitude, population, ele
 ),
 (
     'faja-de-agua',
-    'Fajã de Água',
+    'Fajã d''Água',
     'Once our gateway to the world''s whaling ships, now a hidden paradise where volcanic pools offer perfect refuge from the Atlantic''s power',
     14.87306,
     -24.73194,
