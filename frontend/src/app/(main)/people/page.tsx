@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { PageHeader } from "@/components/ui/page-header";
 import { ImageWithCourtesy } from "@/components/ui/image-with-courtesy";
 import {
@@ -476,6 +475,7 @@ export default function PeoplePage() {
                 src="/images/people/brava-cultural-heritage.jpg"
                 alt="Cultural heritage of Brava Island showing traditional life and customs"
                 fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover object-top rounded-lg"
               />
             </div>
@@ -536,7 +536,9 @@ export default function PeoplePage() {
                         courtesy={figure.courtesy}
                         variant="large"
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         className="object-cover object-top rounded-lg"
+                        priority={figure.name === "Eugénio Tavares"}
                       />
                     </div>
                   )}
@@ -553,6 +555,7 @@ export default function PeoplePage() {
                           tooltipPosition="right"
                           width={112}
                           height={112}
+                          sizes="112px"
                           className="object-cover object-top rounded-full"
                         />
                       </div>

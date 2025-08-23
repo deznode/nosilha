@@ -1,6 +1,9 @@
 
+"use client";
+
 import Image from "next/image";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import { useState } from "react";
 
 type ImageWithCourtesyProps = {
   src: string;
@@ -15,6 +18,8 @@ type ImageWithCourtesyProps = {
   iconPosition?: "bottom-right" | "top-right" | "bottom-left";
   tooltipPosition?: "auto" | "top-left" | "top-right" | "top-center" | "bottom-left" | "bottom-right" | "left" | "right";
   tooltipAlignment?: "start" | "center" | "end";
+  sizes?: string;
+  priority?: boolean;
 };
 
 export function ImageWithCourtesy({
@@ -30,8 +35,11 @@ export function ImageWithCourtesy({
   iconPosition = "bottom-right",
   tooltipPosition = "auto",
   tooltipAlignment = "center",
+  sizes,
+  priority = false,
 }: ImageWithCourtesyProps) {
-  const imageProps = fill ? { fill } : { width, height };
+  const [imageError, setImageError] = useState(false);
+  const imageProps = fill ? { fill, sizes, priority } : { width, height, sizes };
   
   // Auto-detect variant based on size if variant is "auto"
   const effectiveVariant = variant === "auto" 
@@ -54,6 +62,19 @@ export function ImageWithCourtesy({
   };
 
   // Smart tooltip positioning logic
+  // Fallback placeholder component for missing images
+  const ImagePlaceholder = ({ width: w, height: h }: { width?: number; height?: number }) => (
+    <div 
+      className={`flex items-center justify-center bg-background-secondary ${isCircular ? "rounded-full" : "rounded-lg"}`}
+      style={{ width: w || width || "100%", height: h || height || "100%" }}
+    >
+      <div className="text-center p-4">
+        <InformationCircleIcon className="w-8 h-8 text-text-tertiary mx-auto mb-2" />
+        <p className="text-xs text-text-tertiary">Image not available</p>
+      </div>
+    </div>
+  );
+
   const getTooltipPositionClasses = (position: string, iconPos: string) => {
     const baseClasses = "absolute px-2 py-1 bg-background-tertiary/95 text-text-primary text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap backdrop-blur-sm z-10 pointer-events-none";
     
@@ -95,12 +116,17 @@ export function ImageWithCourtesy({
           className={`relative overflow-hidden bg-background-secondary ${isCircular ? "rounded-full" : ""}`}
           style={{ width: width || 112, height: height || 112 }}
         >
-          <Image
-            src={src}
-            alt={alt}
-            className={cleanClassName}
-            {...imageProps}
-          />
+          {imageError ? (
+            <ImagePlaceholder width={width || 112} height={height || 112} />
+          ) : (
+            <Image
+              src={src}
+              alt={alt}
+              className={cleanClassName}
+              onError={() => setImageError(true)}
+              {...imageProps}
+            />
+          )}
         </div>
         {courtesy && (
           <>
@@ -129,12 +155,17 @@ export function ImageWithCourtesy({
           className={`relative flex-shrink-0 overflow-hidden bg-background-secondary ${isCircular ? "rounded-full" : ""}`}
           style={{ width: width || 112, height: height || 112 }}
         >
-          <Image
-            src={src}
-            alt={alt}
-            className={cleanClassName}
-            {...imageProps}
-          />
+          {imageError ? (
+            <ImagePlaceholder width={width || 112} height={height || 112} />
+          ) : (
+            <Image
+              src={src}
+              alt={alt}
+              className={cleanClassName}
+              onError={() => setImageError(true)}
+              {...imageProps}
+            />
+          )}
         </div>
         {courtesy && (
           <div className="mt-2 text-center max-w-[120px]">
@@ -150,12 +181,17 @@ export function ImageWithCourtesy({
   // For large images: use design system colors for dark mode support
   return (
     <div className="relative w-full h-full">
-      <Image
-        src={src}
-        alt={alt}
-        className={className}
-        {...imageProps}
-      />
+      {imageError ? (
+        <ImagePlaceholder />
+      ) : (
+        <Image
+          src={src}
+          alt={alt}
+          className={className}
+          onError={() => setImageError(true)}
+          {...imageProps}
+        />
+      )}
       {courtesy && (
         <div className="absolute bottom-0 right-0 bg-background-tertiary/90 text-text-primary px-2 py-1 rounded-tl-lg backdrop-blur-sm">
           <p className="text-xs font-sans">Courtesy of: {courtesy}</p>
