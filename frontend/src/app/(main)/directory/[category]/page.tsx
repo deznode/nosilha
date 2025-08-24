@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { getEntriesByCategory } from "@/lib/api";
 import { DirectoryCard } from "@/components/ui/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
+import { generatePageMetadata, siteConfig } from "@/lib/metadata";
+import type { BreadcrumbListSchema } from "@/types/metadata";
 import Link from "next/link";
 
 // Enable ISR with 1 hour revalidation for directory content
@@ -11,6 +14,73 @@ interface DirectoryCategoryPageProps {
   params: Promise<{
     category: string;
   }>;
+}
+
+// Generate dynamic metadata for directory category pages
+export async function generateMetadata({
+  params,
+}: DirectoryCategoryPageProps): Promise<Metadata> {
+  const { category } = await params;
+  const pageTitle = formatCategoryTitle(category);
+  const isAllCategory = category === "all";
+
+  const title = isAllCategory 
+    ? "Complete Directory - All Listings"
+    : `${pageTitle} Directory`;
+  
+  const description = isAllCategory
+    ? "Browse the complete directory of businesses, landmarks, beaches, and cultural sites on Brava Island, Cape Verde. Discover authentic local experiences and connect with Cape Verdean heritage."
+    : `Discover the best ${pageTitle.toLowerCase()} on Brava Island, Cape Verde. Authentic local experiences, cultural heritage sites, and community-owned businesses for Cape Verdean diaspora and visitors.`;
+
+  const keywords = isAllCategory
+    ? ["complete directory", "all listings", "Brava Island businesses", "Cape Verde tourism"]
+    : [
+        `${pageTitle.toLowerCase()} Brava Island`,
+        `${pageTitle.toLowerCase()} Cape Verde`,
+        `best ${pageTitle.toLowerCase()}`,
+        `authentic ${pageTitle.toLowerCase()}`,
+        `local ${pageTitle.toLowerCase()}`,
+        `community ${pageTitle.toLowerCase()}`,
+      ];
+
+  // Generate breadcrumb structured data
+  const breadcrumbSchema: BreadcrumbListSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteConfig.url,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Directory",
+        item: `${siteConfig.url}/directory/all`,
+      },
+      ...(isAllCategory ? [] : [
+        {
+          "@type": "ListItem" as const,
+          position: 3,
+          name: pageTitle,
+          item: `${siteConfig.url}/directory/${category}`,
+        },
+      ]),
+    ],
+  };
+
+  return generatePageMetadata({
+    title,
+    description,
+    path: `/directory/${category}`,
+    keywords,
+    structuredData: [breadcrumbSchema],
+    baseUrl: siteConfig.url,
+    siteName: siteConfig.name,
+    defaultImage: siteConfig.ogImage,
+  });
 }
 
 /**

@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { getEntryBySlug } from "@/lib/api";
+import { generateDirectoryEntryMetadata, siteConfig } from "@/lib/metadata";
 import { notFound } from "next/navigation";
 
 // Enable ISR with 30 minute revalidation for individual entries
@@ -20,6 +22,28 @@ import { getRestaurantDetails, getHotelDetails } from "@/lib/api-validation";
 
 interface DetailPageProps {
   params: Promise<{ slug: string }>;
+}
+
+// Generate dynamic metadata for directory entries
+export async function generateMetadata({
+  params,
+}: DetailPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const entry = await getEntryBySlug(slug);
+
+  if (!entry) {
+    return {
+      title: "Entry Not Found",
+      description: "The requested directory entry could not be found.",
+    };
+  }
+
+  return generateDirectoryEntryMetadata({
+    entry,
+    baseUrl: siteConfig.url,
+    siteName: siteConfig.name,
+    defaultImage: siteConfig.ogImage,
+  });
 }
 
 function StarRating({ rating }: { rating: number }) {

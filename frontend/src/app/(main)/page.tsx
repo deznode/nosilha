@@ -1,8 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { getEntriesByCategory } from "@/lib/api";
 import { DirectoryCard } from "@/components/ui/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
+import { generatePageMetadata, siteConfig, createStructuredDataScript, generateOrganizationSchema } from "@/lib/metadata";
+import type { TouristDestinationSchema } from "@/types/metadata";
 import {
   MapIcon,
   ListBulletIcon,
@@ -11,6 +14,48 @@ import {
   CameraIcon,
   BuildingOfficeIcon,
 } from "@heroicons/react/24/outline";
+
+// Generate metadata for homepage with cultural heritage focus
+export const metadata: Metadata = generatePageMetadata({
+  title: "Discover the Soul of Brava Island",
+  description: "Your gateway to authentic Cape Verdean culture and heritage on Brava Island. Explore stunning landscapes, local businesses, cultural sites, and connect with the global Cape Verdean diaspora.",
+  path: "/",
+  keywords: [
+    "Brava Island homepage",
+    "Cape Verde tourism",
+    "authentic cultural experiences",
+    "Cape Verdean diaspora",
+    "island destination",
+    "cultural heritage platform",
+    "local businesses Brava",
+    "tourism guide Cape Verde",
+    "Atlantic islands",
+    "West Africa travel",
+  ],
+  structuredData: [
+    {
+      "@context": "https://schema.org",
+      "@type": "TouristDestination",
+      name: "Brava Island, Cape Verde",
+      description: "The flower island of Cape Verde, known for its lush landscapes, rich cultural heritage, and authentic Cape Verdean experiences.",
+      image: [`${siteConfig.url}/images/hero.jpg`],
+      address: {
+        "@type": "PostalAddress",
+        addressCountry: "CV",
+        addressLocality: "Brava Island",
+      },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: 14.8676,
+        longitude: -24.7098,
+      },
+      touristType: ["cultural tourism", "eco-tourism", "heritage tourism", "island tourism"],
+    } as TouristDestinationSchema,
+  ],
+  baseUrl: siteConfig.url,
+  siteName: siteConfig.name,
+  defaultImage: siteConfig.ogImage,
+});
 
 // Data for the new "Island Guide" (features) section
 const nosilhaFeatures = [

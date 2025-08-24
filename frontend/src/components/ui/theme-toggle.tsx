@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   SunIcon, 
   MoonIcon, 
@@ -72,14 +73,19 @@ export function ThemeToggle() {
   };
 
   const getIcon = () => {
+    const iconProps = {
+      className: "h-5 w-5",
+      key: theme, // Add key for AnimatePresence
+    };
+    
     switch (theme) {
       case "light":
-        return <SunIcon className="h-5 w-5" />;
+        return <SunIcon {...iconProps} />;
       case "dark":
-        return <MoonIcon className="h-5 w-5" />;
+        return <MoonIcon {...iconProps} />;
       case "system":
       default:
-        return <ComputerDesktopIcon className="h-5 w-5" />;
+        return <ComputerDesktopIcon {...iconProps} />;
     }
   };
 
@@ -96,19 +102,49 @@ export function ThemeToggle() {
   };
 
   return (
-    <button
+    <motion.button
       onClick={cycleTheme}
       className={clsx(
         "relative inline-flex items-center justify-center rounded-md p-2",
         "text-text-secondary",
-        "hover:bg-background-secondary",
+        "hover:bg-background-secondary hover:text-text-primary",
         "focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ocean-blue",
-        "transition-colors duration-200"
+        "transition-all duration-200"
       )}
+      whileHover={{ 
+        scale: 1.1,
+        backgroundColor: "var(--color-background-secondary)"
+      }}
+      whileTap={{ scale: 0.95 }}
       title={`${getLabel()}. Click to cycle themes.`}
       aria-label={`Current theme: ${getLabel()}. Click to cycle themes.`}
     >
-      {getIcon()}
-    </button>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={theme}
+          initial={{ 
+            rotateY: -90,
+            opacity: 0,
+            scale: 0.8
+          }}
+          animate={{ 
+            rotateY: 0,
+            opacity: 1,
+            scale: 1
+          }}
+          exit={{ 
+            rotateY: 90,
+            opacity: 0,
+            scale: 0.8
+          }}
+          transition={{ 
+            duration: 0.2,
+            ease: "easeInOut"
+          }}
+        >
+          {getIcon()}
+        </motion.div>
+      </AnimatePresence>
+    </motion.button>
   );
 }

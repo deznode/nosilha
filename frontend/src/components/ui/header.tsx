@@ -91,10 +91,10 @@ export function Header() {
                   key={item.name}
                   href={item.href}
                   className={clsx(
-                    "inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium",
+                    "inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium transition-all duration-200 ease-in-out",
                     pathname === item.href
-                      ? "border-ocean-blue text-text-primary"
-                      : "border-transparent text-text-secondary hover:border-border-primary hover:text-text-primary"
+                      ? "border-ocean-blue text-text-primary transform scale-105"
+                      : "border-transparent text-text-secondary hover:border-border-primary hover:text-text-primary hover:scale-105"
                   )}
                   aria-current={pathname === item.href ? "page" : undefined}
                 >
@@ -118,9 +118,9 @@ export function Header() {
             <div className="shrink-0">
               <Link
                 href="/contribute"
-                className="relative inline-flex items-center gap-x-1.5 rounded-md bg-ocean-blue px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-ocean-blue/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocean-blue"
+                className="relative inline-flex items-center gap-x-1.5 rounded-md bg-ocean-blue px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-ocean-blue/90 hover:shadow-md hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocean-blue transition-all duration-200 ease-in-out transform active:scale-95"
               >
-                <PlusIcon aria-hidden="true" className="-ml-0.5 h-5 w-5" />
+                <PlusIcon aria-hidden="true" className="-ml-0.5 h-5 w-5 transition-transform duration-200 hover:rotate-90" />
                 Contribute
               </Link>
             </div>
@@ -129,9 +129,9 @@ export function Header() {
               <div className="ml-2 shrink-0">
                 <Link
                   href="/add-entry"
-                  className="relative inline-flex items-center gap-x-1.5 rounded-md bg-accent-error px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-accent-error/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-error"
+                  className="relative inline-flex items-center gap-x-1.5 rounded-md bg-accent-error px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-accent-error/90 hover:shadow-md hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-error transition-all duration-200 ease-in-out transform active:scale-95"
                 >
-                  <PlusIcon aria-hidden="true" className="-ml-0.5 h-5 w-5" />
+                  <PlusIcon aria-hidden="true" className="-ml-0.5 h-5 w-5 transition-transform duration-200 hover:rotate-90" />
                   Add Entry
                 </Link>
               </div>
@@ -151,13 +151,13 @@ export function Header() {
                 <>
                   <Link
                     href="/login"
-                    className="text-sm font-semibold text-text-primary hover:text-ocean-blue"
+                    className="text-sm font-semibold text-text-primary hover:text-ocean-blue transition-all duration-200 hover:scale-105 transform active:scale-95"
                   >
                     Log in
                   </Link>
                   <Link
                     href="/signup"
-                    className="text-sm font-semibold text-text-primary hover:text-ocean-blue"
+                    className="text-sm font-semibold text-text-primary hover:text-ocean-blue transition-all duration-200 hover:scale-105 transform active:scale-95"
                   >
                     Sign up
                   </Link>
@@ -172,19 +172,21 @@ export function Header() {
         </div>
       </div>
 
-      <DisclosurePanel className="md:hidden bg-background-primary">
+      <DisclosurePanel className="md:hidden bg-background-primary/95 backdrop-blur-sm border-t border-border-primary">
         <div className="space-y-1 pb-3 pt-2">
-          {navigation.map((item) => (
+          {navigation.map((item, index) => (
             <DisclosureButton
               key={item.name}
               as="a"
               href={item.href}
               className={clsx(
-                "block border-l-4 py-2 pl-3 pr-4 text-base font-medium",
+                "block border-l-4 py-2 pl-3 pr-4 text-base font-medium transition-all duration-200 ease-in-out",
+                "animate-slide-up",
                 pathname === item.href
-                  ? "border-ocean-blue bg-ocean-blue/10 text-ocean-blue"
-                  : "border-transparent text-text-secondary hover:border-border-primary hover:bg-background-secondary"
+                  ? "border-ocean-blue bg-ocean-blue/10 text-ocean-blue transform translate-x-1"
+                  : "border-transparent text-text-secondary hover:border-border-primary hover:bg-background-secondary hover:translate-x-1"
               )}
+              style={{ animationDelay: `${index * 50}ms` }}
               aria-current={pathname === item.href ? "page" : undefined}
             >
               {item.name}
