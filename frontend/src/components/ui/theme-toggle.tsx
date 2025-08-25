@@ -75,7 +75,6 @@ export function ThemeToggle() {
   const getIcon = () => {
     const iconProps = {
       className: "h-5 w-5",
-      key: theme, // Add key for AnimatePresence
     };
     
     switch (theme) {

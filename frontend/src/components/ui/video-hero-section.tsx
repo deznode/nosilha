@@ -180,7 +180,7 @@ export function VideoHeroSection({
       >
         <button
           onClick={handleScrollToNext}
-          className="group flex flex-col items-center text-white/80 hover:text-white transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-sunny-yellow/50 focus:ring-offset-2 rounded-lg p-2"
+          className="group flex flex-col items-center text-white/80 hover:text-white transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-sunny-yellow/50 focus:ring-offset-2 rounded-lg p-2 cursor-pointer"
           aria-label="Scroll to next section to continue reading the story"
         >
           <span className="font-sans mb-3 text-sm uppercase tracking-widest font-semibold">
