@@ -9,7 +9,7 @@ INSERT INTO directory_entries (
              gen_random_uuid(),
              'djababas-eco-lodge',
              'Djabraba''s Eco-Lodge',
-             'An authentic eco-lodge in Cruz Grande offering sustainable mountain accommodation with traditional Cape Verdean hospitality and stunning views of the volcanic landscape.'
+             'An authentic eco-lodge in Cruz Grande offering sustainable mountain accommodation with traditional Cape Verdean hospitality and stunning views of the volcanic landscape.',
              'Hotel',
              'Nova Sintra',
              14.8710, -24.7120,

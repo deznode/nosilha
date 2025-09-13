@@ -413,8 +413,9 @@ export function generateOrganizationSchema(baseUrl: string = siteConfig.url): Or
     sameAs: [
       // Add social media URLs when available
       "https://twitter.com/nosilha_cv",
-      "https://facebook.com/nosilha",
+      "https://www.facebook.com/profile.php?id=61559941075153",
       "https://instagram.com/nosilha",
+      "https://www.youtube.com/@nosilha",
     ],
     address: {
       "@type": "PostalAddress",
