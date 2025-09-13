@@ -46,26 +46,21 @@ export function NosilhaLogo({
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        whileHover={{ scale: 1.05 }}
-        className="flex overflow-hidden transition-transform duration-300 cursor-pointer" // overflow-hidden to contain the slide-up animation
+        className="flex overflow-hidden"
         aria-label={logoText}
       >
         {letters.map((letter, index) => (
           <motion.span
             key={index}
             variants={letterVariants}
-            whileHover={{ 
-              textShadow: "0 0 8px var(--color-ocean-blue), 0 0 12px var(--color-ocean-blue)",
-              transition: { duration: 0.2 }
-            }}
-            className="text-4xl font-bold text-ocean-blue transition-all duration-200"
+            className="text-5xl font-bold text-ocean-blue"
           >
             {letter}
           </motion.span>
         ))}
       </motion.div>
       {showSubtitle && (
-        <motion.p 
+        <motion.p
           className="mt-1 text-sm text-text-secondary tracking-widest"
           whileHover={{ color: "var(--color-ocean-blue)" }}
           transition={{ duration: 0.2 }}

@@ -82,7 +82,7 @@ export function Header() {
             </div>
             <div className="flex shrink-0 items-center">
               <Link href="/">
-                <NosilhaLogo />
+                <NosilhaLogo showSubtitle={true} />
               </Link>
             </div>
             <PopoverGroup className="hidden md:ml-6 md:flex md:space-x-8">
@@ -106,7 +106,7 @@ export function Header() {
                 items={cultureNavigation}
                 className={clsx(
                   "inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium",
-                  cultureNavigation.some(item => pathname === item.href)
+                  cultureNavigation.some((item) => pathname === item.href)
                     ? "border-ocean-blue text-text-primary"
                     : "border-transparent text-text-secondary hover:border-border-primary hover:text-text-primary"
                 )}
@@ -120,7 +120,10 @@ export function Header() {
                 href="/contribute"
                 className="relative inline-flex items-center gap-x-1.5 rounded-md bg-ocean-blue px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-ocean-blue/90 hover:shadow-md hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocean-blue transition-all duration-200 ease-in-out transform active:scale-95"
               >
-                <PlusIcon aria-hidden="true" className="-ml-0.5 h-5 w-5 transition-transform duration-200 hover:rotate-90" />
+                <PlusIcon
+                  aria-hidden="true"
+                  className="-ml-0.5 h-5 w-5 transition-transform duration-200 hover:rotate-90"
+                />
                 Contribute
               </Link>
             </div>
@@ -131,7 +134,10 @@ export function Header() {
                   href="/add-entry"
                   className="relative inline-flex items-center gap-x-1.5 rounded-md bg-accent-error px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-accent-error/90 hover:shadow-md hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-error transition-all duration-200 ease-in-out transform active:scale-95"
                 >
-                  <PlusIcon aria-hidden="true" className="-ml-0.5 h-5 w-5 transition-transform duration-200 hover:rotate-90" />
+                  <PlusIcon
+                    aria-hidden="true"
+                    className="-ml-0.5 h-5 w-5 transition-transform duration-200 hover:rotate-90"
+                  />
                   Add Entry
                 </Link>
               </div>
@@ -194,10 +200,7 @@ export function Header() {
           ))}
 
           {/* Culture section for mobile */}
-          <CultureFlyoutMenu
-            items={cultureNavigation}
-            isMobile={true}
-          />
+          <CultureFlyoutMenu items={cultureNavigation} isMobile={true} />
         </div>
         <div className="border-t border-border-primary pb-3 pt-4">
           <div className="px-2 space-y-1">
