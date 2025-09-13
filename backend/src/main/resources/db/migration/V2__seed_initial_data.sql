@@ -4,7 +4,7 @@
 -- A Hotel
 INSERT INTO directory_entries (
     id, slug, name, description, category, town, latitude, longitude,
-    image_url, rating, review_count, phone_number, amenities
+    phone_number, amenities
 ) VALUES (
              gen_random_uuid(),
              'djababas-eco-lodge',
@@ -13,17 +13,13 @@ INSERT INTO directory_entries (
              'Hotel',
              'Nova Sintra',
              14.8710, -24.7120,
-             'https://picsum.photos/800/600?random=2',
-             4.8,
-             120,
              '+238 555 5678',
              'Eco-Tourism,Mountain Views,Traditional Architecture,Cultural Immersion,Sustainable Practices'
          );
 
 -- A Beach
 INSERT INTO directory_entries (
-    id, slug, name, description, category, town, latitude, longitude,
-    image_url, rating, review_count
+    id, slug, name, description, category, town, latitude, longitude
 ) VALUES (
              gen_random_uuid(),
              'praia-de-faja-dagua',
@@ -31,10 +27,7 @@ INSERT INTO directory_entries (
              'A beautiful black sand beach nestled in a green valley, offering a tranquil escape and natural swimming pools.',
              'Beach',
              'Fajã d''Água',
-             14.8588, -24.7578,
-             'https://picsum.photos/800/600?random=3',
-             4.9,
-             250
+             14.8588, -24.7578
          );
 
 
@@ -60,8 +53,7 @@ INSERT INTO directory_entries (
 
 -- Igreja Nossa Senhora do Monte
 INSERT INTO directory_entries (
-    id, slug, name, description, category, town, latitude, longitude,
-    image_url, rating, review_count
+    id, slug, name, description, category, town, latitude, longitude
 ) VALUES (
              gen_random_uuid(),
              'igreja-nossa-senhora-do-monte',
@@ -69,16 +61,12 @@ INSERT INTO directory_entries (
              'This sacred pilgrimage church has drawn faithful souls for over 150 years, where August processions unite island residents with diaspora descendants in shared devotion.',
              'Landmark',
              'Nossa Senhora do Monte',
-             14.8658, -24.7045,
-             'https://picsum.photos/800/600?random=19',
-             4.9,
-             234
+             14.8658, -24.7045
          );
 
 -- Casa Eugénio Tavares
 INSERT INTO directory_entries (
-    id, slug, name, description, category, town, latitude, longitude,
-    image_url, rating, review_count
+    id, slug, name, description, category, town, latitude, longitude
 ) VALUES (
              gen_random_uuid(),
              'casa-eugenio-tavares',
@@ -86,17 +74,13 @@ INSERT INTO directory_entries (
              'The preserved home of Cape Verde''s greatest poet, where morna was perfected and sodade given voice, connecting our island soul to hearts across the world.',
              'Landmark',
              'Nova Sintra',
-             14.8648, -24.7068,
-             'https://picsum.photos/800/600?random=20',
-             4.7,
-             189
+             14.8648, -24.7068
          );
 
 
 -- Praça Eugénio Tavares
 INSERT INTO directory_entries (
-    id, slug, name, description, category, town, latitude, longitude,
-    image_url, rating, review_count
+    id, slug, name, description, category, town, latitude, longitude
 ) VALUES (
              gen_random_uuid(),
              'praca-eugenio-tavares',
@@ -104,10 +88,7 @@ INSERT INTO directory_entries (
              'Our town''s cultural heart where the poet''s bust watches over daily life, surrounded by colonial sobrados and the hibiscus gardens that inspired his verses about island beauty.',
              'Landmark',
              'Nova Sintra',
-             14.8638, -24.7062,
-             'https://picsum.photos/800/600?random=22',
-             4.6,
-             167
+             14.8638, -24.7062
          );
 
 
@@ -125,7 +106,7 @@ INSERT INTO directory_entries (
 -- Pousada Nova Sintra (Authentic)
 INSERT INTO directory_entries (
     id, slug, name, description, category, town, latitude, longitude,
-    image_url, rating, review_count, phone_number, amenities
+    phone_number, amenities
 ) VALUES (
              gen_random_uuid(),
              'pousada-nova-sintra',
@@ -134,9 +115,6 @@ INSERT INTO directory_entries (
              'Hotel',
              'Nova Sintra',
              14.8640, -24.7060,
-             'https://picsum.photos/800/600?random=31',
-             4.3,
-             95,
              '+238 285 1200',
              'Family-Run,Cultural Immersion,Mountain Views,Traditional Breakfast,Local Guides'
          );
@@ -144,7 +122,7 @@ INSERT INTO directory_entries (
 -- Pensão Paulo (Authentic)
 INSERT INTO directory_entries (
     id, slug, name, description, category, town, latitude, longitude,
-    image_url, rating, review_count, phone_number, amenities
+    phone_number, amenities
 ) VALUES (
              gen_random_uuid(),
              'pensao-paulo',
@@ -153,9 +131,6 @@ INSERT INTO directory_entries (
              'Hotel',
              'Nova Sintra',
              14.8650, -24.7070,
-             'https://picsum.photos/800/600?random=32',
-             4.1,
-             78,
              '+238 285 1300',
              'Community Experience,Local Hospitality,Central Location,Traditional Architecture'
          );
@@ -163,7 +138,7 @@ INSERT INTO directory_entries (
 -- Nós Raiz (Authentic Restaurant)
 INSERT INTO directory_entries (
     id, slug, name, description, category, town, latitude, longitude,
-    image_url, rating, review_count, phone_number, opening_hours, cuisine
+    phone_number, opening_hours, cuisine
 ) VALUES (
              gen_random_uuid(),
              'nos-raiz',
@@ -172,9 +147,6 @@ INSERT INTO directory_entries (
              'Restaurant',
              'Nova Sintra',
              14.8635, -24.7055,
-             'https://picsum.photos/800/600?random=33',
-             4.5,
-             112,
              '+238 285 1400',
              '11:00 AM - 10:00 PM Daily',
              'Traditional Cape Verdean,Cultural Storytelling,Local Recipes,Heritage Cuisine'
