@@ -11,8 +11,8 @@ import {
   ListBulletIcon,
   BookOpenIcon,
   UserGroupIcon,
-  CameraIcon,
-  BuildingOfficeIcon,
+  // CameraIcon, // TODO: Re-enable when photo galleries feature is ready
+  // BuildingOfficeIcon, // TODO: Re-enable when towns & villages feature is ready
 } from "@heroicons/react/24/outline";
 
 // Generate metadata for homepage with cultural heritage focus
@@ -76,7 +76,7 @@ const nosilhaFeatures = [
   {
     name: "Rich History & Culture",
     description:
-      "Dive into the stories, figures, and traditions that make Brava unique. Explore historical articles, photo galleries, and more.",
+      "Dive into the stories, figures, and traditions that make Brava unique. Explore historical articles and more.",
     href: "/history",
     icon: BookOpenIcon,
   },
@@ -84,6 +84,7 @@ const nosilhaFeatures = [
 
 // Data for popular pages widget - surfacing important footer links
 const popularPages = [
+  /* TODO: Enable when towns & villages feature is ready
   {
     name: "Towns & Villages",
     description:
@@ -92,6 +93,7 @@ const popularPages = [
     icon: BuildingOfficeIcon,
     category: "Explore",
   },
+  */
   {
     name: "History of Brava",
     description:
@@ -100,6 +102,7 @@ const popularPages = [
     icon: BookOpenIcon,
     category: "Culture",
   },
+  /* TODO: Enable when photo galleries feature is ready
   {
     name: "Photo Galleries",
     description:
@@ -108,6 +111,7 @@ const popularPages = [
     icon: CameraIcon,
     category: "Culture",
   },
+  */
   {
     name: "Historical Figures",
     description: "Meet the remarkable people who shaped Brava's rich heritage",
@@ -115,7 +119,7 @@ const popularPages = [
     icon: UserGroupIcon,
     category: "Culture",
   },
-];
+].filter(Boolean); // Remove any undefined entries
 
 // Force dynamic rendering for real-time featured content
 export const dynamic = "force-dynamic";

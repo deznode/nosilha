@@ -4,16 +4,20 @@ import Link from "next/link";
 const navigation = {
   explore: [
     { name: "Interactive Map", href: "/map" },
+    /* TODO: Enable when towns & villages feature is ready
     { name: "Towns & Villages", href: "/towns" },
+    */
     { name: "Restaurants & Cafes", href: "/directory/restaurant" },
     { name: "Landmarks", href: "/directory/landmark" },
     { name: "Beaches & Bays", href: "/directory/beach" },
-  ],
+  ].filter(Boolean), // Remove any undefined entries
   culture: [
     { name: "History of Brava", href: "/history" },
     { name: "Historical Figures", href: "/people" },
+    /* TODO: Enable when photo galleries feature is ready
     { name: "Photo Galleries", href: "/media/photos" },
-  ],
+    */
+  ].filter(Boolean), // Remove any undefined entries
   connect: [
     { name: "About Us", href: "/about" },
     { name: "Contact Us", href: "/contact" },

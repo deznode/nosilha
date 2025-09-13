@@ -10,7 +10,7 @@ import {
   Bars3Icon,
   XMarkIcon,
   UserGroupIcon,
-  CameraIcon,
+  // CameraIcon, // TODO: Re-enable when photo galleries feature is ready
   BookOpenIcon,
 } from "@heroicons/react/24/outline";
 import { PlusIcon } from "@heroicons/react/20/solid";
@@ -46,13 +46,15 @@ const cultureNavigation = [
     href: "/people",
     icon: UserGroupIcon,
   },
+  /* TODO: Enable when photo galleries feature is ready
   {
     name: "Photo Galleries",
     description: "Visual stories of Brava's beauty",
     href: "/media/photos",
     icon: CameraIcon,
   },
-];
+  */
+].filter(Boolean); // Remove any undefined entries
 
 export function Header() {
   const { session, user } = useAuth();
