@@ -19,18 +19,22 @@ I need to verify the authenticity and cultural accuracy of seed data for Brava I
 - Any coordinates outside these bounds (especially -24.3xxx which places entries in mainland Africa)
 - Coordinates that place entries on other Cape Verde islands
 
-## STEP 2: BUSINESS AUTHENTICITY RESEARCH
+## STEP 2: ENTITY AUTHENTICITY RESEARCH
 
-**Use Exa research to verify each business exists**:
-- Search for specific business names + "Brava Island Cape Verde"
-- Check booking sites for accommodations (Skyscanner, Booking.com, etc.)
+**IMPORTANT NOTE**: V6 seed focuses on TOWNS and geographic locations, not businesses. Adjust research approach accordingly.
+
+**Use Exa research to verify each entry exists**:
+- Search for specific names + "Brava Island Cape Verde"
+- **CRITICAL**: Always specify "Brava Island Cape Verde" to avoid confusion with other locations named "Brava"
+- For businesses: Check booking sites (Skyscanner, Booking.com, etc.)
+- For towns/villages: Use Wikipedia, geographic databases, and mapping services
 - Verify against official sources like visitbrava.net
-- Cross-reference with local business directories
+- Cross-reference with local directories and cultural heritage sites
 
 **Evidence Standards**:
-- ✅ KEEP: Businesses found on multiple verified sources
-- ⚠️ VERIFY: Businesses found on one source only
-- ❌ REMOVE: Businesses with no evidence found
+- ✅ KEEP: Entries found on multiple verified sources
+- ⚠️ VERIFY: Entries found on one source only
+- ❌ REMOVE: Entries with no evidence found
 
 ## STEP 3: CULTURAL HERITAGE VERIFICATION
 
@@ -80,32 +84,39 @@ I need to verify the authenticity and cultural accuracy of seed data for Brava I
 
 **Verified Sources for Brava Island**:
 - visitbrava.net (official tourism site)
-- Booking platforms: Skyscanner, Booking.com, Hotels.com
-- Wikipedia articles on Brava Island locations
-- Cape Verde tourism directories
-- Cultural heritage databases
-- Geographic databases and mapping services
+- brava.news (local news website with current business and community information)
+- Wikipedia articles on Brava Island locations (**CRITICAL**: Search for "Brava Island Cape Verde" specifically to avoid confusion with other "Brava" locations worldwide)
+- Booking platforms: Skyscanner, Booking.com, Hotels.com (for accommodations)
+- Cape Verde tourism directories and government websites
+- Cultural heritage databases and academic sources
+- Geographic databases and mapping services (OpenStreetMap, Google Maps)
+- Portuguese colonial archives (for historical sites)
 
 **Exa Research Strategy**:
-1. Use company research tool for specific business verification
-2. Use web search for general location verification
-3. Use deep researcher for complex cultural heritage questions
-4. Cross-reference findings across multiple sources
+1. **ALWAYS** include "Brava Island Cape Verde" in all searches to ensure correct geographic focus
+2. Use company research tool for specific business verification
+3. Use web search for towns, villages, and geographic location verification
+4. Use local news sources (like brava.news) to verify current business operations and recent community developments
+5. Use deep researcher for complex cultural heritage questions
+6. Cross-reference findings across multiple sources
+7. **Verify location specificity**: Ensure results reference the correct Brava Island in Cape Verde, not other locations with similar names
 
 ## OUTPUT REQUIREMENTS
 
 Provide a structured report with:
 
 ### VERIFIED ENTRIES (Keep)
-- Business/landmark name
+- Entry name (business/landmark/town/village)
 - Evidence source(s)
 - Coordinate verification status
 - Cultural authenticity assessment
+- **Geographic specificity confirmation**: Verified as Brava Island, Cape Verde location
 
 ### FLAGGED ENTRIES (Remove)
-- Business/landmark name
+- Entry name (business/landmark/town/village)
 - Reason for removal
 - What evidence was searched for but not found
+- **Location confusion check**: Any confusion with other "Brava" locations worldwide
 
 ### COORDINATE CORRECTIONS NEEDED
 - List of entries with coordinate errors
