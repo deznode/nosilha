@@ -29,6 +29,9 @@ spring:
   # Flyway Configuration
   flyway:
     enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+    validate-on-migrate: true
 
   # JPA/Hibernate Configuration
   jpa:
