@@ -104,12 +104,12 @@ jobs:
         
       - name: Run Integration Tests
         working-directory: ./backend
-        # run: ./gradlew integrationTest
-        run: |
-          echo "Backend integration tests would run here"
-          echo "Example: ./gradlew test"
+        run: ./gradlew test
         env:
           SPRING_PROFILES_ACTIVE: test
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/nosilha_integration
+          SPRING_DATASOURCE_USERNAME: test
+          SPRING_DATASOURCE_PASSWORD: test
 
       - name: Publish Integration Test Results
         uses: dorny/test-reporter@v1
