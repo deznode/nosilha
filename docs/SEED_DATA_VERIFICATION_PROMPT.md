@@ -15,9 +15,14 @@ I need to verify the authenticity and cultural accuracy of seed data for Brava I
 - Latitude: 14.800°N to 14.880°N
 - Longitude: -24.720°W to -24.640°W
 
+**Coordinate Verification Resources**:
+- **Primary**: Use `research/map.osm` file for accurate coordinate lookup of authentic locations
+- **Secondary**: Cross-reference with mapping services (OpenStreetMap, Google Maps)
+
 **Check for**:
 - Any coordinates outside these bounds (especially -24.3xxx which places entries in mainland Africa)
 - Coordinates that place entries on other Cape Verde islands
+- **NEW**: Compare coordinates against authentic locations in research/map.osm for accuracy
 
 ## STEP 2: ENTITY AUTHENTICITY RESEARCH
 
@@ -83,6 +88,7 @@ I need to verify the authenticity and cultural accuracy of seed data for Brava I
 ## RESEARCH RESOURCES TO USE
 
 **Verified Sources for Brava Island**:
+- **research/map.osm** - OpenStreetMap dataset containing authentic Brava Island geographic data with precise coordinates and verified location names (use for coordinate verification and location name authenticity)
 - visitbrava.net (official tourism site)
 - brava.news (local news website with current business and community information)
 - Wikipedia articles on Brava Island locations (**CRITICAL**: Search for "Brava Island Cape Verde" specifically to avoid confusion with other "Brava" locations worldwide)
