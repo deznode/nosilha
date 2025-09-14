@@ -108,17 +108,17 @@ class TownService(
             this.elevation = elevation
             this.founded = founded
             this.heroImage = heroImage
-            
+
             // Generate a simple, URL-friendly slug
             this.slug = name.lowercase()
                 .replace(Regex("\\s+"), "-") // Replace spaces with hyphens
                 .replace(Regex("[^a-z0-9-]"), "") // Remove non-alphanumeric characters (except hyphens)
-            
+
             // Serialize arrays to JSON
             this.highlights = if (highlights.isNotEmpty()) {
                 objectMapper.writeValueAsString(highlights)
             } else null
-            
+
             this.gallery = if (gallery.isNotEmpty()) {
                 objectMapper.writeValueAsString(gallery)
             } else null
@@ -171,17 +171,17 @@ class TownService(
             this.elevation = elevation
             this.founded = founded
             this.heroImage = heroImage
-            
+
             // Update slug if name changed
             this.slug = name.lowercase()
                 .replace(Regex("\\s+"), "-")
                 .replace(Regex("[^a-z0-9-]"), "")
-            
+
             // Update JSON arrays
             this.highlights = if (highlights.isNotEmpty()) {
                 objectMapper.writeValueAsString(highlights)
             } else null
-            
+
             this.gallery = if (gallery.isNotEmpty()) {
                 objectMapper.writeValueAsString(gallery)
             } else null

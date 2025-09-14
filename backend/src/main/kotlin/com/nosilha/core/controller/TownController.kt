@@ -52,7 +52,7 @@ class TownController(
 
     /**
      * Retrieves all towns without pagination, ordered by name.
-     * 
+     *
      * This endpoint is useful for dropdowns, maps, and other UI components
      * that need the complete list of towns.
      *

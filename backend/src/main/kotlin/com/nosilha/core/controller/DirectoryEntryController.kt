@@ -72,14 +72,14 @@ class DirectoryEntryController(
         @RequestParam(name = "size", defaultValue = "20") size: Int,
     ): PagedApiResponse<DirectoryEntryDto> {
         val pageable: Pageable = PageRequest.of(page, size, Sort.by("createdAt").descending())
-        
+
         val resultPage = when {
             category != null && town != null -> service.getEntriesByCategoryAndTownPage(category, town, pageable)
             category != null -> service.getEntriesByCategoryPage(category, pageable)
             town != null -> service.getEntriesByTownPage(town, pageable)
             else -> service.getEntriesPage(pageable)
         }
-        
+
         return PagedApiResponse.from(resultPage)
     }
 

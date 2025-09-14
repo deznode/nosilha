@@ -187,7 +187,7 @@ class DirectoryEntryService(
         val newSlug = request.name.lowercase()
             .replace(Regex("\\s+"), "-")
             .replace(Regex("[^a-z0-9-]$"), "")
-            
+
         if (newSlug != existingEntry.slug && repository.findBySlug(newSlug) != null) {
             throw BusinessException("A directory entry with slug '$newSlug' already exists.")
         }

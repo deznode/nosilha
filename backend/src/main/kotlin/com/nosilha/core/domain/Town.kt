@@ -77,7 +77,7 @@ class Town {
      * JPA lifecycle callback to set createdAt timestamp on entity creation.
      */
     @PrePersist
-    protected fun onCreate() {
+    private fun onCreate() {
         val now = LocalDateTime.now()
         createdAt = now
         updatedAt = now
@@ -87,7 +87,7 @@ class Town {
      * JPA lifecycle callback to update updatedAt timestamp on entity modification.
      */
     @PreUpdate
-    protected fun onUpdate() {
+    private fun onUpdate() {
         updatedAt = LocalDateTime.now()
     }
 

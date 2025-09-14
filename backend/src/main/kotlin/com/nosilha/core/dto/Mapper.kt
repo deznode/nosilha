@@ -120,20 +120,24 @@ fun Town.toDto(): TownDto {
     val entityId = this.id ?: throw IllegalStateException("Cannot map an entity with a null ID to a DTO.")
 
     val objectMapper = jacksonObjectMapper()
-    
+
     // Parse JSON arrays safely, defaulting to empty lists if null or invalid
     val highlightsList = try {
         this.highlights?.let { objectMapper.readValue<List<String>>(it) } ?: emptyList()
-    } catch (e: Exception) {
+    } catch (e: com.fasterxml.jackson.core.JsonProcessingException) {
+        // Log the error and return empty list as fallback
+        println("Failed to parse highlights JSON for town ${this.name}: ${e.message}")
         emptyList<String>()
     }
-    
+
     val galleryList = try {
         this.gallery?.let { objectMapper.readValue<List<String>>(it) } ?: emptyList()
-    } catch (e: Exception) {
+    } catch (e: com.fasterxml.jackson.core.JsonProcessingException) {
+        // Log the error and return empty list as fallback
+        println("Failed to parse gallery JSON for town ${this.name}: ${e.message}")
         emptyList<String>()
     }
-    
+
     return TownDto(
         id = entityId,
         name = this.name,

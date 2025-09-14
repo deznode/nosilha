@@ -24,10 +24,10 @@ data class TownDto(
     val highlights: List<String>,
     val heroImage: String?,
     val gallery: List<String>,
-    
+
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     val createdAt: LocalDateTime,
-    
+
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     val updatedAt: LocalDateTime
 )

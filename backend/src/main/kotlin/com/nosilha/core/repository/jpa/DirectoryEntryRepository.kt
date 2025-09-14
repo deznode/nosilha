@@ -55,7 +55,11 @@ interface DirectoryEntryRepository : JpaRepository<DirectoryEntry, UUID> {
      * @param pageable Pagination parameters.
      * @return A page of DirectoryEntry entities matching both filters.
      */
-    fun findByCategoryIgnoreCaseAndTownIgnoreCase(category: String, town: String, pageable: Pageable): Page<DirectoryEntry>
+    fun findByCategoryIgnoreCaseAndTownIgnoreCase(
+        category: String,
+        town: String,
+        pageable: Pageable
+    ): Page<DirectoryEntry>
 
     /**
      * Finds a single DirectoryEntry by its unique slug.

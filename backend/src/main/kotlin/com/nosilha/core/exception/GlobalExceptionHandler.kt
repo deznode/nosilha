@@ -33,7 +33,7 @@ class GlobalExceptionHandler {
         request: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
         logger.warn { "Resource not found: ${ex.message}" }
-        
+
         val errorResponse = ErrorResponse(
             error = "Resource Not Found",
             message = ex.message ?: "The requested resource was not found",
@@ -41,7 +41,7 @@ class GlobalExceptionHandler {
             status = HttpStatus.NOT_FOUND.value(),
             timestamp = LocalDateTime.now()
         )
-        
+
         return ResponseEntity(errorResponse, HttpStatus.NOT_FOUND)
     }
 
@@ -54,13 +54,13 @@ class GlobalExceptionHandler {
         request: HttpServletRequest
     ): ResponseEntity<ValidationErrorResponse> {
         logger.warn { "Validation failed: ${ex.message}" }
-        
+
         val fieldErrors = when (ex) {
             is MethodArgumentNotValidException -> ex.bindingResult.fieldErrors
             is BindException -> ex.bindingResult.fieldErrors
             else -> emptyList()
         }
-        
+
         val validationErrors = fieldErrors.map { fieldError ->
             ValidationErrorResponse.FieldError(
                 field = fieldError.field,
@@ -68,7 +68,7 @@ class GlobalExceptionHandler {
                 message = fieldError.defaultMessage ?: "Invalid value"
             )
         }
-        
+
         val errorResponse = ValidationErrorResponse(
             error = "Validation failed",
             details = validationErrors,
@@ -76,7 +76,7 @@ class GlobalExceptionHandler {
             status = HttpStatus.BAD_REQUEST.value(),
             timestamp = LocalDateTime.now()
         )
-        
+
         return ResponseEntity(errorResponse, HttpStatus.BAD_REQUEST)
     }
 
@@ -89,7 +89,7 @@ class GlobalExceptionHandler {
         request: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
         logger.warn { "Malformed JSON request: ${ex.message}" }
-        
+
         val errorResponse = ErrorResponse(
             error = "Bad Request",
             message = "Invalid JSON format in request body",
@@ -97,7 +97,7 @@ class GlobalExceptionHandler {
             status = HttpStatus.BAD_REQUEST.value(),
             timestamp = LocalDateTime.now()
         )
-        
+
         return ResponseEntity(errorResponse, HttpStatus.BAD_REQUEST)
     }
 
@@ -110,15 +110,15 @@ class GlobalExceptionHandler {
         request: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
         logger.warn { "Type mismatch error: ${ex.message}" }
-        
+
         val errorResponse = ErrorResponse(
-            error = "Bad Request", 
+            error = "Bad Request",
             message = "Invalid parameter type for '${ex.name}': expected ${ex.requiredType?.simpleName}",
             path = request.requestURI,
             status = HttpStatus.BAD_REQUEST.value(),
             timestamp = LocalDateTime.now()
         )
-        
+
         return ResponseEntity(errorResponse, HttpStatus.BAD_REQUEST)
     }
 
@@ -131,7 +131,7 @@ class GlobalExceptionHandler {
         request: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
         logger.warn { "Illegal argument: ${ex.message}" }
-        
+
         val errorResponse = ErrorResponse(
             error = "Bad Request",
             message = ex.message ?: "Invalid request parameter",
@@ -139,7 +139,7 @@ class GlobalExceptionHandler {
             status = HttpStatus.BAD_REQUEST.value(),
             timestamp = LocalDateTime.now()
         )
-        
+
         return ResponseEntity(errorResponse, HttpStatus.BAD_REQUEST)
     }
 
@@ -152,7 +152,7 @@ class GlobalExceptionHandler {
         request: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
         logger.warn { "No handler found for ${ex.httpMethod} ${ex.requestURL}" }
-        
+
         val errorResponse = ErrorResponse(
             error = "Not Found",
             message = "No endpoint found for ${ex.httpMethod} ${ex.requestURL}",
@@ -160,7 +160,7 @@ class GlobalExceptionHandler {
             status = HttpStatus.NOT_FOUND.value(),
             timestamp = LocalDateTime.now()
         )
-        
+
         return ResponseEntity(errorResponse, HttpStatus.NOT_FOUND)
     }
 
@@ -173,7 +173,7 @@ class GlobalExceptionHandler {
         request: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
         logger.warn { "Business logic error: ${ex.message}" }
-        
+
         val errorResponse = ErrorResponse(
             error = "Business Rule Violation",
             message = ex.message ?: "A business rule was violated",
@@ -181,7 +181,7 @@ class GlobalExceptionHandler {
             status = HttpStatus.UNPROCESSABLE_ENTITY.value(),
             timestamp = LocalDateTime.now()
         )
-        
+
         return ResponseEntity(errorResponse, HttpStatus.UNPROCESSABLE_ENTITY)
     }
 
@@ -194,7 +194,7 @@ class GlobalExceptionHandler {
         request: HttpServletRequest
     ): ResponseEntity<ErrorResponse> {
         logger.error(ex) { "Unhandled exception occurred" }
-        
+
         val errorResponse = ErrorResponse(
             error = "Internal Server Error",
             message = "An unexpected error occurred. Please try again later.",
@@ -202,7 +202,7 @@ class GlobalExceptionHandler {
             status = HttpStatus.INTERNAL_SERVER_ERROR.value(),
             timestamp = LocalDateTime.now()
         )
-        
+
         return ResponseEntity(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR)
     }
 }

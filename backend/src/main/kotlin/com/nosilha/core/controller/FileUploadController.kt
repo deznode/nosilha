@@ -44,7 +44,7 @@ class FileUploadController(
         @RequestParam("description", required = false) description: String?,
     ): ApiResponse<MediaMetadataDto> {
         val publicUrl = fileStorageService.uploadFile(file)
-        
+
         // Create comprehensive metadata response
         val mediaMetadata = MediaMetadataDto(
             id = java.util.UUID.randomUUID().toString(),

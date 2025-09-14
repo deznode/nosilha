@@ -33,10 +33,10 @@ abstract class DirectoryEntryDto {
     abstract val imageUrl: String?
     abstract val rating: Double?
     abstract val reviewCount: Int
-    
+
     @get:JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     abstract val createdAt: LocalDateTime
-    
+
     @get:JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     abstract val updatedAt: LocalDateTime
 

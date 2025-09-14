@@ -129,6 +129,7 @@ dependencyManagement {
 
 detekt {
     buildUponDefaultConfig = true // preconfigure defaults
+    autoCorrect = true // enable auto-correction for formatting rules
     baseline = file("detekt-baseline.xml")
     config.setFrom(file("detekt.yml"))
 }
