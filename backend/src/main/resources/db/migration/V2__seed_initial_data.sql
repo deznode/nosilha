@@ -9,7 +9,7 @@ INSERT INTO directory_entries (
              gen_random_uuid(),
              'djababas-eco-lodge',
              'Djabraba''s Eco-Lodge',
-             'An authentic eco-lodge in Cruz Grande offering sustainable mountain accommodation with traditional Cape Verdean hospitality and stunning views of the volcanic landscape.',
+             'An eco-lodge offering sustainable mountain accommodation with traditional Cape Verdean hospitality and stunning views of the volcanic landscape.',
              'Hotel',
              'Nova Sintra',
              14.8710, -24.7120,
@@ -58,10 +58,10 @@ INSERT INTO directory_entries (
              gen_random_uuid(),
              'igreja-nossa-senhora-do-monte',
              'Igreja Nossa Senhora do Monte',
-             'This sacred pilgrimage church has drawn faithful souls for over 150 years, where August processions unite island residents with diaspora descendants in shared devotion.',
+             'This sacred pilgrimage church has drawn faithful souls for over 160 years, where August processions unite island residents with diaspora descendants in shared devotion.',
              'Landmark',
              'Nossa Senhora do Monte',
-             14.8658, -24.7045
+             14.8591559, -24.7164904
          );
 
 -- Casa Eugénio Tavares
@@ -114,8 +114,8 @@ INSERT INTO directory_entries (
              'An authentic family-run pousada in the heart of Nova Sintra, offering traditional Cape Verdean hospitality with views of the surrounding mountains and cultural immersion experiences.',
              'Hotel',
              'Nova Sintra',
-             14.8640, -24.7060,
-             '+238 285 1200',
+             14.8687443, -24.6943796,
+             '+238 262 0444',
              'Family-Run,Cultural Immersion,Mountain Views,Traditional Breakfast,Local Guides'
          );
 
