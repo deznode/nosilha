@@ -4,19 +4,7 @@ This directory contains reusable GitHub Actions workflow templates that can be u
 
 ## Available Templates
 
-### security-scan.yml
-Reusable workflow for Trivy vulnerability scanning with SARIF reporting.
-
-**Usage:**
-```yaml
-jobs:
-  security:
-    uses: ./.github/workflows/templates/security-scan.yml
-    with:
-      scan-path: './backend'
-      scan-category: 'backend-security'
-      working-directory: '.'
-```
+> **Note**: For security scanning, use the main reusable workflow at `/.github/workflows/reusable-security-scan.yml` instead of individual templates.
 
 ### docker-build.yml
 Reusable workflow for building and pushing Docker images to Google Artifact Registry.

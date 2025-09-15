@@ -31,25 +31,10 @@ concurrency:
 jobs:
   security-scan:
     name: Infrastructure Security Scanning
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./infrastructure/terraform
-    
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          
-      - name: Run tfsec security scanner
-        uses: aquasecurity/tfsec-action@v1.0.3
-        with:
-          working_directory: infrastructure/terraform
-          format: sarif
-          soft_fail: true
-          additional_args: --out=tfsec.sarif
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    uses: ./.github/workflows/reusable-security-scan.yml
+    with:
+      components: 'infrastructure'
+      include-lint-analysis: false
           
 
   validate:

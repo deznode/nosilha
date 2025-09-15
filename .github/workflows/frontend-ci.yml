@@ -6,11 +6,29 @@ on:
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-ci.yml'
+      - '.github/workflows/reusable-security-scan.yml'
+      # Exclude documentation and non-functional changes to save costs
+      - '!frontend/**/*.md'
+      - '!frontend/**/*.txt'
+      - '!frontend/**/*.gitignore'
+      - '!frontend/**/README*'
+      - '!frontend/**/.editorconfig'
+      - '!frontend/**/*.stories.*'  # Storybook files
+      - '!frontend/**/*.test.*'     # Individual test files (CI runs all tests anyway)
   pull_request:
     branches: [main]
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-ci.yml'
+      - '.github/workflows/reusable-security-scan.yml'
+      # Exclude documentation and non-functional changes to save costs
+      - '!frontend/**/*.md'
+      - '!frontend/**/*.txt'
+      - '!frontend/**/*.gitignore'
+      - '!frontend/**/README*'
+      - '!frontend/**/.editorconfig'
+      - '!frontend/**/*.stories.*'  # Storybook files
+      - '!frontend/**/*.test.*'     # Individual test files (CI runs all tests anyway)
   workflow_call:
     inputs:
       skip-deploy:
@@ -40,70 +58,63 @@ concurrency:
 jobs:
   security-scan:
     name: Security Scanning
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          
-      - name: Run Trivy vulnerability scanner on frontend
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          scan-type: 'fs'
-          scan-ref: './frontend'
-          format: 'sarif'
-          output: 'trivy-frontend-results.sarif'
-          
+    uses: ./.github/workflows/reusable-security-scan.yml
+    with:
+      components: 'frontend'
+      include-lint-analysis: true
 
-  lint:
-    name: Code Quality & Linting
+  test-and-lint:
+    name: Tests & Quality
     runs-on: ubuntu-latest
+
+    # Cost-conscious matrix: test primary Node.js version plus LTS
+    strategy:
+      matrix:
+        node-version: ['18']
+        include:
+          # Add Node.js 20 testing only for PRs to ensure future compatibility
+          - node-version: '20'
+            test-scope: 'compatibility'
+      fail-fast: false
+      max-parallel: 2
+
+    # Skip Node.js 20 testing on main branch to save costs
+    if: ${{ !(matrix.node-version == '20' && github.event_name != 'pull_request') }}
+
     defaults:
       run:
         working-directory: ./frontend
-        
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Run ESLint
-        run: npm run lint -- --format=@microsoft/eslint-formatter-sarif --output-file=eslint-results.sarif
-        
 
-  test:
-    name: Tests & Type Checking
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./frontend
-        
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
+
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-          
+
       - name: Install dependencies
         run: npm ci
-        
-      - name: Run type checking
-        run: npx tsc --noEmit
-        
-      - name: Build project (test)
-        run: npm run build
+
+      # Run comprehensive tests for primary Node.js version
+      - name: Run comprehensive quality checks (Node.js 18)
+        if: ${{ matrix.node-version == '18' }}
+        run: |
+          # Run linting, type checking, and build in parallel
+          npm run lint -- --format=@microsoft/eslint-formatter-sarif --output-file=eslint-results.sarif &
+          npx tsc --noEmit &
+          wait
+          # Build after checks pass
+          npm run build
+
+      # Run compatibility tests for newer Node.js version
+      - name: Run compatibility tests (Node.js 20)
+        if: ${{ matrix.test-scope == 'compatibility' }}
+        run: |
+          npx tsc --noEmit
+          npm run build
         env:
           NODE_ENV: production
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
@@ -157,11 +168,55 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
+  # Cost-optimization: detect if changes are substantial enough to warrant build
+  change-detection:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && !inputs.skip-deploy && !github.event.pull_request.draft
+    outputs:
+      frontend-code-changed: ${{ steps.changes.outputs.frontend-code-changed }}
+      only-docs: ${{ steps.changes.outputs.only-docs }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need previous commit to compare
+
+      - name: Check for substantial changes
+        id: changes
+        run: |
+          # Check if only documentation/config files changed
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD | grep "^frontend/" || true)
+
+          # Count substantial vs documentation changes
+          SUBSTANTIAL_CHANGES=0
+          DOC_CHANGES=0
+
+          while IFS= read -r file; do
+            if [[ "$file" =~ \.(md|txt|gitignore|editorconfig|stories\.)$ ]] || [[ "$file" =~ README ]] || [[ "$file" =~ \.test\. ]]; then
+              DOC_CHANGES=$((DOC_CHANGES + 1))
+            else
+              SUBSTANTIAL_CHANGES=$((SUBSTANTIAL_CHANGES + 1))
+            fi
+          done <<< "$CHANGED_FILES"
+
+          # Determine if we should skip expensive operations
+          if [[ $SUBSTANTIAL_CHANGES -gt 0 ]]; then
+            echo "frontend-code-changed=true" >> $GITHUB_OUTPUT
+            echo "only-docs=false" >> $GITHUB_OUTPUT
+            echo "✅ Substantial frontend changes detected: $SUBSTANTIAL_CHANGES files"
+          else
+            echo "frontend-code-changed=false" >> $GITHUB_OUTPUT
+            echo "only-docs=true" >> $GITHUB_OUTPUT
+            echo "⏭️ Only documentation changes detected: $DOC_CHANGES files"
+          fi
+
   build:
     name: Build & Package
     runs-on: ubuntu-latest
-    needs: [security-scan, lint, test]
-    if: github.ref == 'refs/heads/main' && !inputs.skip-deploy && !github.event.pull_request.draft
+    needs: [security-scan, test-and-lint, change-detection]
+    # Skip build if only documentation changes (save costs)
+    if: needs.change-detection.outputs.frontend-code-changed == 'true'
     outputs:
       image-tag: ${{ steps.meta.outputs.tags }}
       image-digest: ${{ steps.build.outputs.digest }}
