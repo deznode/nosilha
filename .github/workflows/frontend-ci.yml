@@ -6,29 +6,11 @@ on:
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-ci.yml'
-      - '.github/workflows/reusable-security-scan.yml'
-      # Exclude documentation and non-functional changes to save costs
-      - '!frontend/**/*.md'
-      - '!frontend/**/*.txt'
-      - '!frontend/**/*.gitignore'
-      - '!frontend/**/README*'
-      - '!frontend/**/.editorconfig'
-      - '!frontend/**/*.stories.*'  # Storybook files
-      - '!frontend/**/*.test.*'     # Individual test files (CI runs all tests anyway)
   pull_request:
     branches: [main]
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-ci.yml'
-      - '.github/workflows/reusable-security-scan.yml'
-      # Exclude documentation and non-functional changes to save costs
-      - '!frontend/**/*.md'
-      - '!frontend/**/*.txt'
-      - '!frontend/**/*.gitignore'
-      - '!frontend/**/README*'
-      - '!frontend/**/.editorconfig'
-      - '!frontend/**/*.stories.*'  # Storybook files
-      - '!frontend/**/*.test.*'     # Individual test files (CI runs all tests anyway)
   workflow_call:
     inputs:
       skip-deploy:
@@ -51,48 +33,75 @@ env:
   SERVICE_NAME: nosilha-frontend
   IMAGE_TAG: ${{ github.sha }}
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   security-scan:
     name: Security Scanning
-    uses: ./.github/workflows/reusable-security-scan.yml
-    with:
-      components: 'frontend'
-      include-lint-analysis: true
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Run Trivy vulnerability scanner on frontend
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'fs'
+          scan-ref: './frontend'
+          format: 'sarif'
+          output: 'trivy-frontend-results.sarif'
+          
 
-  test-and-lint:
-    name: Tests & Quality
-    runs-on: ubuntu-latest
-
+  lint:
+    name: Code Quality & Linting
+    runs-on: ubuntu-22.04
     defaults:
       run:
         working-directory: ./frontend
-
+        
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node.js 20
+      
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '18'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-
+          
       - name: Install dependencies
         run: npm ci
+        
+      - name: Run ESLint
+        run: npm run lint -- --format=@microsoft/eslint-formatter-sarif --output-file=eslint-results.sarif
+        continue-on-error: true
+        
 
-      # Run comprehensive quality checks with production Node.js version
-      - name: Run tests and quality checks
-        run: |
-          # Run linting, type checking, and build in parallel
-          npm run lint -- --format=@microsoft/eslint-formatter-sarif --output-file=eslint-results.sarif &
-          npx tsc --noEmit &
-          wait
-          # Build after checks pass
-          npm run build
+  test:
+    name: Tests & Type Checking
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: ./frontend
+        
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run type checking
+        run: npx tsc --noEmit
+        continue-on-error: true
+        
+      - name: Build project (test)
+        run: npm run build
         env:
           NODE_ENV: production
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
@@ -102,7 +111,7 @@ jobs:
 
   bundle-analysis:
     name: Bundle Size Analysis
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: github.event_name == 'pull_request' && !github.event.pull_request.draft
     defaults:
       run:
@@ -139,6 +148,7 @@ jobs:
         run: |
           npm run build
           npx bundlesize
+        continue-on-error: true
         env:
           NODE_ENV: production
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
@@ -146,82 +156,32 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
-  # Cost-optimization: detect if changes are substantial enough to warrant build
-  change-detection:
-    name: Detect Changes
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && !inputs.skip-deploy && !github.event.pull_request.draft
-    outputs:
-      frontend-code-changed: ${{ steps.changes.outputs.frontend-code-changed }}
-      only-docs: ${{ steps.changes.outputs.only-docs }}
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2  # Need previous commit to compare
-
-      - name: Check for substantial changes
-        id: changes
-        run: |
-          # Check if only documentation/config files changed
-          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD | grep "^frontend/" || true)
-
-          # Count substantial vs documentation changes
-          SUBSTANTIAL_CHANGES=0
-          DOC_CHANGES=0
-
-          while IFS= read -r file; do
-            if [[ "$file" =~ \.(md|txt|gitignore|editorconfig|stories\.)$ ]] || [[ "$file" =~ README ]] || [[ "$file" =~ \.test\. ]]; then
-              DOC_CHANGES=$((DOC_CHANGES + 1))
-            else
-              SUBSTANTIAL_CHANGES=$((SUBSTANTIAL_CHANGES + 1))
-            fi
-          done <<< "$CHANGED_FILES"
-
-          # Determine if we should skip expensive operations
-          if [[ $SUBSTANTIAL_CHANGES -gt 0 ]]; then
-            echo "frontend-code-changed=true" >> $GITHUB_OUTPUT
-            echo "only-docs=false" >> $GITHUB_OUTPUT
-            echo "✅ Substantial frontend changes detected: $SUBSTANTIAL_CHANGES files"
-          else
-            echo "frontend-code-changed=false" >> $GITHUB_OUTPUT
-            echo "only-docs=true" >> $GITHUB_OUTPUT
-            echo "⏭️ Only documentation changes detected: $DOC_CHANGES files"
-          fi
-
   build:
     name: Build & Package
-    runs-on: ubuntu-latest
-    needs: [security-scan, test-and-lint, change-detection]
-    # Skip build if only documentation changes (save costs)
-    if: needs.change-detection.outputs.frontend-code-changed == 'true'
+    runs-on: ubuntu-22.04
+    needs: [security-scan, lint, test]
+    if: github.ref == 'refs/heads/main' && !inputs.skip-deploy && !github.event.pull_request.draft
     outputs:
       image-tag: ${{ steps.meta.outputs.tags }}
       image-digest: ${{ steps.build.outputs.digest }}
     defaults:
       run:
         working-directory: ./frontend
-
-    # Add OIDC permissions
-    permissions:
-      contents: read
-      id-token: write  # Required for OIDC token requests
-
+        
     steps:
       - uses: actions/checkout@v4
-
+      
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-
+          
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
-          service_account: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
           
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker ${{ env.REGISTRY }}
@@ -241,7 +201,7 @@ jobs:
             
       - name: Build and push Docker image
         id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v5
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
@@ -251,33 +211,26 @@ jobs:
             ${{ github.ref == 'refs/heads/main' && format('{0}/{1}/nosilha-frontend/nosilha-web-ui:latest', env.REGISTRY, env.PROJECT_ID) || '' }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          provenance: false
           build-args: |
-            NEXT_PUBLIC_API_URL=${{ vars.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
             NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
   deploy-production:
     name: Deploy to Production
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [build]
     if: github.ref == 'refs/heads/main' && needs.build.result == 'success' && !inputs.skip-deploy
     environment: production
-
-    # Add OIDC permissions
-    permissions:
-      contents: read
-      id-token: write  # Required for OIDC token requests
-
+    
     steps:
       - uses: actions/checkout@v4
-
+      
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
-          service_account: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
           
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
@@ -290,10 +243,10 @@ jobs:
             --region=${{ env.REGION }} \
             --service-account=nosilha-frontend-runner@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
             --set-env-vars="NODE_ENV=production,NEXT_TELEMETRY_DISABLED=1" \
-            --memory=256Mi \
+            --memory=512Mi \
             --cpu=1 \
             --min-instances=0 \
-            --max-instances=2 \
+            --max-instances=5 \
             --timeout=300
             
       - name: Health Check

@@ -1,4 +1,4 @@
-name: Cost-Optimized Docker Build Template
+name: Docker Build Template
 
 on:
   workflow_call:
@@ -19,75 +19,41 @@ on:
         description: 'Container registry URL'
         required: false
         type: string
-        default: 'us-east1-docker.pkg.dev'
+        default: 'us-central1-docker.pkg.dev'
       project-id:
         description: 'GCP Project ID'
         required: true
         type: string
-      workload-identity-provider:
-        description: 'GCP Workload Identity Provider'
-        required: false
-        type: string
-        default: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
-      service-account:
-        description: 'GCP Service Account'
-        required: false
-        type: string
-        default: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
-      build-args:
-        description: 'Docker build arguments (key=value format, one per line)'
-        required: false
-        type: string
-        default: ''
+    secrets:
+      gcp-sa-key:
+        description: 'GCP Service Account Key'
+        required: true
     outputs:
       image-tag:
         description: 'Built image tag'
         value: ${{ jobs.build.outputs.image-tag }}
-      image-digest:
-        description: 'Built image digest'
-        value: ${{ jobs.build.outputs.image-digest }}
-
-# Cost optimization: concurrency control
-concurrency:
-  group: docker-build-${{ inputs.image-name }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build:
-    name: Build & Push (${{ inputs.image-name }})
-    runs-on: ubuntu-latest
-
-    # OIDC permissions for secure authentication
-    permissions:
-      contents: read
-      id-token: write
-      packages: write
-
+    name: Build & Push Docker Image
+    runs-on: ubuntu-22.04
     outputs:
       image-tag: ${{ steps.meta.outputs.tags }}
-      image-digest: ${{ steps.build.outputs.digest }}
-
+      
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # OIDC authentication (more secure than service account keys)
+      - uses: actions/checkout@v4
+      
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          workload_identity_provider: ${{ inputs.workload-identity-provider }}
-          service_account: ${{ inputs.service-account }}
-
+          credentials_json: ${{ secrets.gcp-sa-key }}
+          
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker ${{ inputs.registry }}
-
+        
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        with:
-          # Cost optimization: use default builder to save setup time
-          driver: docker-container
-
-      # Enhanced metadata extraction with cost-conscious tagging
+        
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -95,51 +61,16 @@ jobs:
           images: ${{ inputs.registry }}/${{ inputs.project-id }}/nosilha/${{ inputs.image-name }}
           tags: |
             type=ref,event=branch
-            type=sha,prefix={{branch}}-,format=short
+            type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
-          labels: |
-            org.opencontainers.image.title=${{ inputs.image-name }}
-            org.opencontainers.image.description=Nos Ilha ${{ inputs.image-name }} service
-            org.opencontainers.image.vendor=Nos Ilha Community
-
-      # Parse build arguments if provided
-      - name: Parse build arguments
-        id: build-args
-        run: |
-          if [ -n "${{ inputs.build-args }}" ]; then
-            echo "args<<EOF" >> $GITHUB_OUTPUT
-            echo "${{ inputs.build-args }}" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          fi
-
-      # Cost-optimized build with enhanced caching
+            
       - name: Build and push Docker image
-        id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v5
         with:
           context: ${{ inputs.context-path }}
           file: ${{ inputs.dockerfile-path }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          build-args: ${{ steps.build-args.outputs.args }}
-          # Enhanced caching for cost optimization
-          cache-from: |
-            type=gha
-            type=registry,ref=${{ inputs.registry }}/${{ inputs.project-id }}/nosilha/${{ inputs.image-name }}:buildcache
-          cache-to: |
-            type=gha,mode=max
-            type=registry,ref=${{ inputs.registry }}/${{ inputs.project-id }}/nosilha/${{ inputs.image-name }}:buildcache,mode=max
-          # Use registry cache for faster builds
-          platforms: linux/amd64  # Single platform for cost efficiency
-
-      # Cost monitoring output
-      - name: Build summary
-        run: |
-          echo "## Docker Build Summary 🐳" >> $GITHUB_STEP_SUMMARY
-          echo "**Image:** ${{ inputs.image-name }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Registry:** ${{ inputs.registry }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Tags:** ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Digest:** ${{ steps.build.outputs.digest }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "*Enhanced caching enabled for cost optimization*" >> $GITHUB_STEP_SUMMARY
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

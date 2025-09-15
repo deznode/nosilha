@@ -18,15 +18,11 @@ env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: us-east1
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   # Detect what services have changed
   changes:
     name: Detect Changes
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       backend: ${{ steps.changes.outputs.backend }}
       frontend: ${{ steps.changes.outputs.frontend }}
@@ -50,7 +46,7 @@ jobs:
   # Wait for individual service builds to complete
   wait-for-services:
     name: Wait for Service Builds
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: changes
     if: needs.changes.outputs.any-service == 'true'
     steps:
@@ -75,7 +71,7 @@ jobs:
   # API Integration Tests
   api-integration-tests:
     name: API Integration Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [changes, wait-for-services]
     if: always() && (needs.changes.outputs.backend == 'true' || github.event_name == 'schedule')
     
@@ -126,7 +122,7 @@ jobs:
   # Frontend Integration Tests
   frontend-integration-tests:
     name: Frontend Integration Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [changes, wait-for-services]
     if: always() && (needs.changes.outputs.frontend == 'true' || github.event_name == 'schedule')
     
@@ -165,7 +161,7 @@ jobs:
   # End-to-End Tests using deployed services
   e2e-tests:
     name: End-to-End Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [changes, wait-for-services]
     if: always() && github.ref == 'refs/heads/main'
     
@@ -210,7 +206,7 @@ jobs:
   # Performance Tests
   performance-tests:
     name: Performance Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [changes, wait-for-services]
     if: always() && (github.ref == 'refs/heads/main' || github.event_name == 'schedule')
     
@@ -249,7 +245,7 @@ jobs:
   # Security Integration Tests
   security-integration:
     name: Security Integration Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [changes, wait-for-services]
     if: always() && needs.changes.outputs.any-service == 'true'
     
@@ -284,7 +280,7 @@ jobs:
   # Deployment Health Verification
   deployment-health:
     name: Deployment Health Check
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [changes, wait-for-services]
     if: always() && needs.changes.outputs.any-service == 'true'
     
@@ -313,7 +309,7 @@ jobs:
   # Integration Test Report
   integration-report:
     name: Integration Test Report
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [
       api-integration-tests,
       frontend-integration-tests,

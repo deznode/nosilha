@@ -21,14 +21,10 @@ on:
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   changes:
     name: Detect Changes
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       backend: ${{ steps.changes.outputs.backend }}
       frontend: ${{ steps.changes.outputs.frontend }}
@@ -79,7 +75,7 @@ jobs:
   # Global security scan for the entire repository
   global-security-scan:
     name: Global Security Scan
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
         with:
@@ -98,7 +94,7 @@ jobs:
   # Comprehensive PR status reporting
   pr-status-report:
     name: PR Status Report
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [
       changes,
       backend-validation,
@@ -221,7 +217,7 @@ jobs:
   # Auto-merge for Dependabot PRs
   dependabot-auto-merge:
     name: Dependabot Auto-merge
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [
       backend-validation,
       frontend-validation,
