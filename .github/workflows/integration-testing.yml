@@ -28,10 +28,6 @@ on:
         - critical
         - mobile
         - performance
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
         - api-contracts
 
 env:
@@ -45,7 +41,7 @@ jobs:
   # Setup and preparation
   setup:
     name: Setup Integration Testing
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     outputs:
       test-scope: ${{ steps.determine-scope.outputs.scope }}
       backend-needed: ${{ steps.determine-scope.outputs.backend }}
@@ -73,7 +69,7 @@ jobs:
   # Backend service setup
   backend-service:
     name: Setup Backend Service
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: setup
     if: needs.setup.outputs.backend-needed == 'true'
     
@@ -143,7 +139,7 @@ jobs:
   # Frontend service setup
   frontend-service:
     name: Setup Frontend Service
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [setup, backend-service]
     if: always() && needs.setup.outputs.frontend-needed == 'true'
     
@@ -192,7 +188,7 @@ jobs:
   # Critical user journeys testing (always run)
   critical-tests:
     name: Critical Tourism Journeys
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [setup, backend-service, frontend-service]
     if: always() && (needs.setup.outputs.test-scope == 'critical' || needs.setup.outputs.test-scope == 'full')
     
@@ -243,7 +239,7 @@ jobs:
   # Mobile tourism experience testing
   mobile-tests:
     name: Mobile Tourism Experience
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [setup, backend-service, frontend-service]
     if: always() && (needs.setup.outputs.test-scope == 'mobile' || needs.setup.outputs.test-scope == 'full')
     
@@ -287,7 +283,7 @@ jobs:
   # API contract testing
   api-contracts:
     name: API Contract Testing
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [setup, backend-service]
     if: always() && (needs.setup.outputs.test-scope == 'api-contracts' || needs.setup.outputs.test-scope == 'full')
     
@@ -328,7 +324,7 @@ jobs:
   # Performance and Core Web Vitals testing
   performance-tests:
     name: Performance & Core Web Vitals
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [setup, backend-service, frontend-service]
     if: always() && (needs.setup.outputs.test-scope == 'performance' || needs.setup.outputs.test-scope == 'full')
     
@@ -396,7 +392,7 @@ jobs:
   # Test result aggregation and reporting
   test-summary:
     name: Test Results Summary
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [critical-tests, mobile-tests, api-contracts, performance-tests]
     if: always()
     

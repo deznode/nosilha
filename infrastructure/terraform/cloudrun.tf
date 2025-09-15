@@ -27,10 +27,9 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
     # This is configured via cpu_idle in the resources block
 
     # Optimize scaling for free tier usage
-    # Configuration aligns with CI/CD deployment: --min-instances=0 --max-instances=3
     scaling {
       min_instance_count = 0 # Scale to zero when not in use
-      max_instance_count = 3 # Limit maximum instances (matches CI/CD config)
+      max_instance_count = 3 # Limit maximum instances
     }
 
     containers {
@@ -39,21 +38,12 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
       image = "us-east1-docker.pkg.dev/${var.gcp_project_id}/nosilha-backend/nosilha-core-api:latest"
 
       # Configure memory and CPU resources optimized for free tier
-      # These limits align with CI/CD deployment configuration for consistency
       resources {
         limits = {
           cpu    = "1000m" # 1 vCPU max for free tier
-          memory = "256Mi" # Optimized for Spring Boot apps (matches CI/CD: 256Mi)
+          memory = "256Mi" # Reduced from 512Mi to optimize costs
         }
         cpu_idle = true # CPU only allocated during request processing
-      }
-
-      # Request timeout for backend API calls
-      # Individual probe timeout (10s) with 30 retries every 10s = 300s total startup time
-      startup_probe {
-        timeout_seconds = 10
-        period_seconds  = 10
-        failure_threshold = 30
       }
 
       # Inject environment variables into the container.
@@ -157,10 +147,9 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
     # This is configured via cpu_idle in the resources block
 
     # Optimize scaling for free tier usage
-    # Configuration aligns with CI/CD deployment: --min-instances=0 --max-instances=2
     scaling {
       min_instance_count = 0 # Scale to zero when not in use
-      max_instance_count = 2 # Lower limit for frontend (matches CI/CD config)
+      max_instance_count = 2 # Lower limit for frontend
     }
 
     containers {
@@ -174,22 +163,13 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
         container_port = 3000
       }
 
-      # Configure memory and CPU resources optimized for free tier
-      # These limits align with CI/CD deployment configuration for consistency
+      # Configure memory and CPU resources optimized for free tier  
       resources {
         limits = {
-          cpu    = "1000m"  # 1 vCPU for Next.js frontend
-          memory = "256Mi" # Optimized for Next.js apps (matches CI/CD: 256Mi)
+          cpu    = "1000m"  # Reduced CPU for frontend (0.5 vCPU)
+          memory = "256Mi" # Reduced memory to optimize costs
         }
         cpu_idle = true # CPU only allocated during request processing
-      }
-
-      # Request timeout for frontend requests
-      # Individual probe timeout (10s) with 30 retries every 10s = 300s total startup time
-      startup_probe {
-        timeout_seconds = 10
-        period_seconds  = 10
-        failure_threshold = 30
       }
     }
   }

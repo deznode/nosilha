@@ -192,70 +192,14 @@ resource "google_service_account_iam_binding" "cicd_can_act_as_frontend_runner" 
 # Service Account Key for GitHub Actions
 # ------------------------------------------------------------------------------
 
-# Service Account Key for GitHub Actions - DEPRECATED
-# Note: Replaced by Workload Identity Federation for enhanced security
-# Commenting out to implement OIDC authentication
-# resource "google_service_account_key" "cicd_deployer_key" {
-#   service_account_id = google_service_account.cicd_deployer.name
-#   public_key_type    = "TYPE_X509_PEM_FILE"
-#
-#   # Lifecycle management to prevent key rotation issues
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
-
-# ------------------------------------------------------------------------------
-# Workload Identity Federation for GitHub Actions OIDC
-# ------------------------------------------------------------------------------
-
-# Workload Identity Pool - Trust anchor for external identities
-resource "google_iam_workload_identity_pool" "github_actions_pool" {
-  workload_identity_pool_id = "github-actions-pool"
-  display_name              = "GitHub Actions Pool"
-  description               = "OIDC identity pool for Nos Ilha GitHub Actions workflows"
-}
-
-# GitHub OIDC Provider - Specific trust relationship with GitHub
-resource "google_iam_workload_identity_pool_provider" "github_provider" {
-  workload_identity_pool_id          = google_iam_workload_identity_pool.github_actions_pool.workload_identity_pool_id
-  workload_identity_pool_provider_id = "github-provider"
-  display_name                       = "GitHub Actions OIDC Provider"
-  description                        = "OIDC provider for bravdigital/nosilha repository"
-
-  # Map GitHub OIDC token claims to Google Cloud attributes
-  attribute_mapping = {
-    "google.subject"       = "assertion.sub"
-    "attribute.repository" = "assertion.repository"
-    "attribute.actor"      = "assertion.actor"
-    "attribute.ref"        = "assertion.ref"
-  }
-
-  # Security: Only allow authentication from our specific repository
-  attribute_condition = "assertion.repository == 'bravdigital/nosilha'"
-
-  oidc {
-    issuer_uri = "https://token.actions.githubusercontent.com"
-  }
-}
-
-# Service Account Impersonation Binding
-resource "google_service_account_iam_binding" "github_workload_identity_user" {
+# Create a service account key for GitHub Actions authentication
+# Note: In production, consider using Workload Identity Federation instead
+resource "google_service_account_key" "cicd_deployer_key" {
   service_account_id = google_service_account.cicd_deployer.name
-  role               = "roles/iam.workloadIdentityUser"
+  public_key_type    = "TYPE_X509_PEM_FILE"
 
-  members = [
-    "principalSet://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github_actions_pool.workload_identity_pool_id}/attribute.repository/bravdigital/nosilha"
-  ]
-}
-
-# Outputs for GitHub Actions configuration
-output "workload_identity_provider" {
-  description = "Workload Identity Provider for GitHub Actions OIDC"
-  value       = google_iam_workload_identity_pool_provider.github_provider.name
-}
-
-output "github_actions_service_account" {
-  description = "Service account email for GitHub Actions impersonation"
-  value       = google_service_account.cicd_deployer.email
+  # Lifecycle management to prevent key rotation issues
+  lifecycle {
+    create_before_destroy = true
+  }
 }
