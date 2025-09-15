@@ -28,11 +28,12 @@ output "cicd_service_account_email" {
   value       = google_service_account.cicd_deployer.email
 }
 
-output "cicd_service_account_key" {
-  description = "Base64-encoded private key for the CI/CD service account"
-  value       = google_service_account_key.cicd_deployer_key.private_key
-  sensitive   = true
-}
+# Removed - Service Account Key replaced by Workload Identity Federation
+# output "cicd_service_account_key" {
+#   description = "Base64-encoded private key for the CI/CD service account"
+#   value       = google_service_account_key.cicd_deployer_key.private_key
+#   sensitive   = true
+# }
 
 output "backend_runner_service_account_email" {
   description = "Email address of the backend runner service account"
