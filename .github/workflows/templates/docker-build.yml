@@ -19,7 +19,7 @@ on:
         description: 'Container registry URL'
         required: false
         type: string
-        default: 'us-central1-docker.pkg.dev'
+        default: 'us-east1-docker.pkg.dev'
       project-id:
         description: 'GCP Project ID'
         required: true
@@ -36,7 +36,7 @@ on:
 jobs:
   build:
     name: Build & Push Docker Image
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     outputs:
       image-tag: ${{ steps.meta.outputs.tags }}
       
@@ -65,7 +65,7 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
             
       - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ${{ inputs.context-path }}
           file: ${{ inputs.dockerfile-path }}
