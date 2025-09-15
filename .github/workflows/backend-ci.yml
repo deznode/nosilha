@@ -77,10 +77,19 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/actions/setup-gradle@v4
         with:
           gradle-home-cache-cleanup: true
           cache-read-only: ${{ github.event_name == 'pull_request' }}
+          dependency-graph: 'generate-and-submit'
+        continue-on-error: true
+        id: gradle-setup
+
+      - name: Setup Gradle (fallback without cache)
+        if: failure() && steps.gradle-setup.outcome == 'failure'
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true
           dependency-graph: 'generate-and-submit'
 
       # Run comprehensive tests with production Java version
@@ -92,6 +101,18 @@ jobs:
           wait
         env:
           SPRING_PROFILES_ACTIVE: test
+
+      - name: Report test results
+        if: always()
+        run: |
+          echo "🔍 Backend CI Status Report:"
+          echo "Gradle Setup: ${{ steps.gradle-setup.outcome || 'success' }}"
+          echo "Tests & Code Quality: ${{ steps.tests.outcome || job.status }}"
+          if [ "${{ job.status }}" = "failure" ]; then
+            echo "❌ Backend CI failed - check logs above for details"
+          else
+            echo "✅ Backend CI completed successfully"
+          fi
 
   # Cost-optimization: detect if changes are substantial enough to warrant build
   change-detection:
@@ -164,10 +185,19 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/actions/setup-gradle@v4
         with:
           gradle-home-cache-cleanup: true
           cache-read-only: ${{ github.event_name == 'pull_request' }}
+          dependency-graph: generate-and-submit
+        continue-on-error: true
+        id: gradle-setup-deploy
+
+      - name: Setup Gradle (fallback without cache)
+        if: failure() && steps.gradle-setup-deploy.outcome == 'failure'
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true
           dependency-graph: generate-and-submit
 
       - name: Authenticate to Google Cloud

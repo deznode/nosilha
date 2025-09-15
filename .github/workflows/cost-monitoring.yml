@@ -74,6 +74,21 @@ jobs:
               head_branch: .head_branch
             }' > workflow_runs.json
 
+          # Debug: Check API response structure and validate data
+          echo "🔍 API Response validation:"
+          if [ ! -s workflow_runs.json ]; then
+            echo "⚠️ workflow_runs.json is empty or doesn't exist"
+            echo "[]" > workflow_runs.json
+          fi
+
+          # Count and validate workflow runs
+          run_count=$(jq -s 'length' workflow_runs.json 2>/dev/null || echo "0")
+          echo "📊 Found ${run_count} workflow runs for analysis"
+
+          if [ "$run_count" -eq 0 ]; then
+            echo "ℹ️ No workflow runs found in the specified period. This might be normal for a quiet period."
+          fi
+
           # Get detailed job information for each workflow run
           echo "🔍 Fetching job details for workflow runs..."
 
@@ -94,35 +109,51 @@ jobs:
           declare -A workflow_runs
           declare -A workflow_success
 
-          # Process each workflow run
-          while IFS= read -r run; do
-            if [ -z "$run" ]; then continue; fi
+          # Process each workflow run with error handling
+          while IFS= read -r run || [ -n "$run" ]; do
+            # Skip empty lines and null values
+            if [ -z "$run" ] || [ "$run" = "null" ] || [ "$run" = "" ]; then
+              continue
+            fi
 
-            run_id=$(echo "$run" | jq -r '.id')
-            workflow_name=$(echo "$run" | jq -r '.name')
-            conclusion=$(echo "$run" | jq -r '.conclusion')
+            # Validate run data structure before processing
+            run_id=$(echo "$run" | jq -r '.id // empty' 2>/dev/null)
+            workflow_name=$(echo "$run" | jq -r '.name // empty' 2>/dev/null)
+            conclusion=$(echo "$run" | jq -r '.conclusion // empty' 2>/dev/null)
+
+            # Skip if essential fields are missing
+            if [ -z "$run_id" ] || [ "$run_id" = "null" ] || [ -z "$workflow_name" ] || [ "$workflow_name" = "null" ]; then
+              echo "⚠️ Skipping malformed workflow run data: $run"
+              continue
+            fi
 
             echo "Processing run $run_id for workflow: $workflow_name"
 
-            # Get jobs for this run
-            gh api repos/${{ github.repository }}/actions/runs/$run_id/jobs \
-              --jq '.jobs[] | {
+            # Get jobs for this run with error handling
+            if ! gh api repos/${{ github.repository }}/actions/runs/$run_id/jobs \
+              --jq '.jobs[]? | {
                 name: .name,
                 status: .status,
                 conclusion: .conclusion,
                 started_at: .started_at,
                 completed_at: .completed_at,
                 runner_name: .runner_name,
-                steps: [.steps[] | {name: .name, status: .status, conclusion: .conclusion}]
-              }' > "jobs_${run_id}.json"
+                steps: [.steps[]? | {name: .name, status: .status, conclusion: .conclusion}]
+              }' > "jobs_${run_id}.json" 2>/dev/null; then
+              echo "⚠️ Failed to fetch jobs for run $run_id, skipping"
+              continue
+            fi
 
             # Calculate runtime for this workflow run
             run_minutes=0
-            while IFS= read -r job; do
-              if [ -z "$job" ]; then continue; fi
+            while IFS= read -r job || [ -n "$job" ]; do
+              # Skip empty lines and null values
+              if [ -z "$job" ] || [ "$job" = "null" ] || [ "$job" = "" ]; then
+                continue
+              fi
 
-              started_at=$(echo "$job" | jq -r '.started_at')
-              completed_at=$(echo "$job" | jq -r '.completed_at')
+              started_at=$(echo "$job" | jq -r '.started_at // empty' 2>/dev/null)
+              completed_at=$(echo "$job" | jq -r '.completed_at // empty' 2>/dev/null)
 
               if [ "$started_at" != "null" ] && [ "$completed_at" != "null" ]; then
                 start_epoch=$(date -d "$started_at" +%s)
@@ -157,7 +188,21 @@ jobs:
             # Clean up job file
             rm -f "jobs_${run_id}.json"
 
-          done < <(jq -c '.[]' workflow_runs.json)
+          done < <(jq -c '.[]?' workflow_runs.json 2>/dev/null || echo "")
+
+          # Special handling for empty results
+          if [ $total_runs -eq 0 ]; then
+            echo "📝 No workflow runs found in the specified period - generating empty report"
+            echo "" >> usage_summary.md
+            echo "## ℹ️ No Activity Found" >> usage_summary.md
+            echo "" >> usage_summary.md
+            echo "No GitHub Actions workflow runs were found in the specified time period." >> usage_summary.md
+            echo "This could indicate:" >> usage_summary.md
+            echo "- Very quiet development period" >> usage_summary.md
+            echo "- All activity outside the monitoring window" >> usage_summary.md
+            echo "- Possible API filtering issues (check date range)" >> usage_summary.md
+            echo "" >> usage_summary.md
+          fi
 
           # Generate summary report
           echo "## 📊 Usage Summary" >> usage_summary.md
