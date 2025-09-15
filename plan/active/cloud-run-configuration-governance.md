@@ -34,7 +34,7 @@ This document outlines the process improvements needed to prevent Cloud Run conf
 **Implementation**:
 - Create weekly scheduled workflow to check actual vs expected configuration
 - Use `gcloud run services describe` to get deployed configuration
-- Compare with Terraform state and alert on differences
+- Compare with `terraform plan` output to validate against desired state (not just applied state)
 - Create GitHub issue automatically if drift is detected
 
 **Files to Create**:

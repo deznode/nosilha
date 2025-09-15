@@ -49,9 +49,9 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
       }
 
       # Request timeout for backend API calls
-      # Matches CI/CD deployment: --timeout=300
+      # Individual probe timeout (10s) with 30 retries every 10s = 300s total startup time
       startup_probe {
-        timeout_seconds = 300
+        timeout_seconds = 10
         period_seconds  = 10
         failure_threshold = 30
       }
@@ -185,9 +185,9 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
       }
 
       # Request timeout for frontend requests
-      # Matches CI/CD deployment: --timeout=300
+      # Individual probe timeout (10s) with 30 retries every 10s = 300s total startup time
       startup_probe {
-        timeout_seconds = 300
+        timeout_seconds = 10
         period_seconds  = 10
         failure_threshold = 30
       }
