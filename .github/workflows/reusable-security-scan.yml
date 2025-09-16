@@ -97,7 +97,7 @@ jobs:
           working_directory: infrastructure/terraform
           format: sarif
           soft_fail: true
-          additional_args: --out=tfsec-infrastructure-results.sarif
+          additional_args: --out=tfsec-infrastructure-results.sarif --no-colour
         continue-on-error: true
 
       - name: Upload SARIF results
