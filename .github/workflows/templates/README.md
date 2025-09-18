@@ -19,14 +19,15 @@ jobs:
       dockerfile-path: './frontend/Dockerfile'
       image-name: 'nosilha-frontend'
       project-id: ${{ secrets.GCP_PROJECT_ID }}
-    secrets:
-      gcp-sa-key: ${{ secrets.GCP_SA_KEY }}
+      # OIDC authentication parameters (optional, defaults provided)
+      workload-identity-provider: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
+      service-account: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
 ```
 
 ## Best Practices
 
 1. **Parameterization**: Make templates flexible with input parameters
-2. **Secrets Management**: Pass secrets explicitly, don't inherit automatically
+2. **OIDC Authentication**: Use Workload Identity Federation instead of service account keys for enhanced security
 3. **Output Values**: Provide useful outputs for downstream jobs
 4. **Error Handling**: Include proper error handling and cleanup
 5. **Documentation**: Document all inputs, outputs, and usage examples
