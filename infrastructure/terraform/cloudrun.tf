@@ -49,11 +49,17 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
       }
 
       # Request timeout for backend API calls
-      # Individual probe timeout (10s) with 30 retries every 10s = 300s total startup time
+      # HTTP health check using Spring Boot Actuator endpoint
+      # Optimized settings: 10s delay + 3s period × 12 failures = 46s total startup window
       startup_probe {
-        timeout_seconds   = 10
-        period_seconds    = 10
-        failure_threshold = 30
+        http_get {
+          path = "/actuator/health"
+          port = 8080
+        }
+        initial_delay_seconds = 10 # Allow JVM bootstrap time
+        period_seconds        = 3  # Check every 3s for faster scaling
+        timeout_seconds       = 5  # More generous HTTP timeout
+        failure_threshold     = 12 # Maintain reasonable total window
       }
 
       # Inject environment variables into the container.
@@ -185,11 +191,17 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
       }
 
       # Request timeout for frontend requests
-      # Individual probe timeout (10s) with 30 retries every 10s = 300s total startup time
+      # HTTP health check using custom Next.js health endpoint
+      # Optimized settings: 5s delay + 3s period × 8 failures = 29s total startup window
       startup_probe {
-        timeout_seconds   = 10
-        period_seconds    = 10
-        failure_threshold = 30
+        http_get {
+          path = "/api/health"
+          port = 3000
+        }
+        initial_delay_seconds = 5 # Next.js starts faster than JVM
+        period_seconds        = 3 # Check every 3s for faster scaling
+        timeout_seconds       = 5 # Sufficient for HTTP response
+        failure_threshold     = 8 # Appropriate for Next.js startup
       }
     }
   }
