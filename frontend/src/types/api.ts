@@ -262,7 +262,13 @@ export interface ApiClientConfig {
  */
 export interface CacheConfig {
   revalidate?: number; // ISR revalidation in seconds
-  cache?: "force-cache" | "no-cache" | "no-store" | "default" | "reload" | "only-if-cached";
+  cache?:
+    | "force-cache"
+    | "no-cache"
+    | "no-store"
+    | "default"
+    | "reload"
+    | "only-if-cached";
 }
 
 // ================================
@@ -299,7 +305,9 @@ export function isApiResponse<T>(obj: unknown): obj is ApiResponse<T> {
 /**
  * Type guard for paginated API responses
  */
-export function isPagedApiResponse<T>(obj: unknown): obj is PagedApiResponse<T> {
+export function isPagedApiResponse<T>(
+  obj: unknown
+): obj is PagedApiResponse<T> {
   return (
     typeof obj === "object" &&
     obj !== null &&
@@ -318,27 +326,34 @@ export function isPagedApiResponse<T>(obj: unknown): obj is PagedApiResponse<T> 
 /**
  * Extract validation error messages from API error response
  */
-export function extractValidationErrors(errorResponse: ApiErrorResponse): Record<string, string> {
+export function extractValidationErrors(
+  errorResponse: ApiErrorResponse
+): Record<string, string> {
   if (!errorResponse.details) {
     return {};
   }
 
-  return errorResponse.details.reduce((acc, detail) => {
-    acc[detail.field] = detail.message;
-    return acc;
-  }, {} as Record<string, string>);
+  return errorResponse.details.reduce(
+    (acc, detail) => {
+      acc[detail.field] = detail.message;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
 }
 
 /**
  * Format validation errors for display
  */
-export function formatValidationErrors(errorResponse: ApiErrorResponse): string {
+export function formatValidationErrors(
+  errorResponse: ApiErrorResponse
+): string {
   if (!errorResponse.details) {
     return errorResponse.message;
   }
 
   return errorResponse.details
-    .map(detail => `${detail.field}: ${detail.message}`)
+    .map((detail) => `${detail.field}: ${detail.message}`)
     .join(", ");
 }
 

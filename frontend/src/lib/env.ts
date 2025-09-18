@@ -10,12 +10,12 @@
 interface EnvironmentConfig {
   // API Configuration
   apiUrl: string;
-  
+
   // Third-party Services
   mapboxAccessToken: string;
   supabaseUrl: string;
   supabaseAnonKey: string;
-  
+
   // Application Configuration
   nodeEnv: "development" | "production" | "test";
   isProd: boolean;
@@ -34,7 +34,7 @@ function requireEnvVar(name: string, value: string | undefined): string {
   if (!value || value.trim() === "") {
     throw new Error(
       `Missing required environment variable: ${name}. ` +
-      `Please check your .env.local file and ensure ${name} is defined.`
+        `Please check your .env.local file and ensure ${name} is defined.`
     );
   }
   return value.trim();
@@ -44,7 +44,7 @@ function requireEnvVar(name: string, value: string | undefined): string {
  * Gets an optional environment variable with a default value
  */
 function getOptionalEnvVar(
-  name: string, 
+  name: string,
   defaultValue: string,
   value?: string
 ): string {
@@ -54,9 +54,11 @@ function getOptionalEnvVar(
 /**
  * Validates NODE_ENV and returns normalized value
  */
-function validateNodeEnv(nodeEnv?: string): "development" | "production" | "test" {
+function validateNodeEnv(
+  nodeEnv?: string
+): "development" | "production" | "test" {
   const env = nodeEnv?.toLowerCase();
-  
+
   if (env === "production" || env === "prod") {
     return "production";
   }
@@ -79,45 +81,57 @@ export const env: EnvironmentConfig = (() => {
   try {
     // Validate NODE_ENV
     const nodeEnv = validateNodeEnv(process.env.NODE_ENV);
-    
+
     // Required environment variables
-    const apiUrl = requireEnvVar("NEXT_PUBLIC_API_URL", process.env.NEXT_PUBLIC_API_URL);
-    const mapboxAccessToken = requireEnvVar("NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN", process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN);
-    const supabaseUrl = requireEnvVar("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL);
-    const supabaseAnonKey = requireEnvVar("NEXT_PUBLIC_SUPABASE_ANON_KEY", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-    
+    const apiUrl = requireEnvVar(
+      "NEXT_PUBLIC_API_URL",
+      process.env.NEXT_PUBLIC_API_URL
+    );
+    const mapboxAccessToken = requireEnvVar(
+      "NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN",
+      process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
+    );
+    const supabaseUrl = requireEnvVar(
+      "NEXT_PUBLIC_SUPABASE_URL",
+      process.env.NEXT_PUBLIC_SUPABASE_URL
+    );
+    const supabaseAnonKey = requireEnvVar(
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    );
+
     // Derived environment flags
     const isProd = nodeEnv === "production";
     const isDev = nodeEnv === "development";
     const isTest = nodeEnv === "test";
-    
+
     // Validate API URL format
     try {
       new URL(apiUrl);
     } catch {
       throw new Error(
         `Invalid NEXT_PUBLIC_API_URL format: "${apiUrl}". ` +
-        `Please provide a valid URL (e.g., "http://localhost:8080" or "https://api.example.com")`
+          `Please provide a valid URL (e.g., "http://localhost:8080" or "https://api.example.com")`
       );
     }
-    
+
     // Validate Supabase URL format
     try {
       new URL(supabaseUrl);
     } catch {
       throw new Error(
         `Invalid NEXT_PUBLIC_SUPABASE_URL format: "${supabaseUrl}". ` +
-        `Please provide a valid Supabase project URL.`
+          `Please provide a valid Supabase project URL.`
       );
     }
-    
+
     // Validate Mapbox token format (basic check)
     if (!mapboxAccessToken.startsWith("pk.")) {
       console.warn(
         `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN does not start with "pk." - this might not be a valid Mapbox public token.`
       );
     }
-    
+
     return {
       apiUrl,
       mapboxAccessToken,
@@ -128,7 +142,6 @@ export const env: EnvironmentConfig = (() => {
       isDev,
       isTest,
     };
-    
   } catch (error) {
     // In development, log the error and provide helpful guidance
     if (process.env.NODE_ENV !== "production") {
@@ -140,14 +153,20 @@ export const env: EnvironmentConfig = (() => {
       console.error("2. Add the missing environment variables:");
       console.error("");
       console.error("NEXT_PUBLIC_API_URL=http://localhost:8080");
-      console.error("NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=pk.your_mapbox_token_here");
-      console.error("NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co");
-      console.error("NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here");
+      console.error(
+        "NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=pk.your_mapbox_token_here"
+      );
+      console.error(
+        "NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co"
+      );
+      console.error(
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here"
+      );
       console.error("");
       console.error("3. Restart your development server");
       console.error("");
     }
-    
+
     // Re-throw to prevent the app from starting with invalid configuration
     throw error;
   }
@@ -203,30 +222,30 @@ export function getApiEndpoint(path: string): string {
  */
 export function validateEnvironment(): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
-  
+
   try {
     // Test API URL accessibility (basic URL validation)
     new URL(env.apiUrl);
   } catch {
     errors.push(`Invalid API URL: ${env.apiUrl}`);
   }
-  
+
   try {
     // Test Supabase URL accessibility
     new URL(env.supabaseUrl);
   } catch {
     errors.push(`Invalid Supabase URL: ${env.supabaseUrl}`);
   }
-  
+
   // Check for required tokens
   if (!env.mapboxAccessToken) {
     errors.push("Missing Mapbox access token");
   }
-  
+
   if (!env.supabaseAnonKey) {
     errors.push("Missing Supabase anonymous key");
   }
-  
+
   return {
     valid: errors.length === 0,
     errors,
@@ -241,7 +260,7 @@ export function logEnvironmentInfo(): void {
     console.log("🌍 Environment: Production");
     return;
   }
-  
+
   console.log("🌍 Environment Configuration:");
   console.log(`  - Environment: ${env.nodeEnv}`);
   console.log(`  - API URL: ${env.apiUrl}`);

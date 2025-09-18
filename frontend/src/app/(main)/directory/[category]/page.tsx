@@ -24,16 +24,21 @@ export async function generateMetadata({
   const pageTitle = formatCategoryTitle(category);
   const isAllCategory = category === "all";
 
-  const title = isAllCategory 
+  const title = isAllCategory
     ? "Complete Directory - All Listings"
     : `${pageTitle} Directory`;
-  
+
   const description = isAllCategory
     ? "Browse the complete directory of businesses, landmarks, beaches, and cultural sites on Brava Island, Cape Verde. Discover authentic local experiences and connect with Cape Verdean heritage."
     : `Discover the best ${pageTitle.toLowerCase()} on Brava Island, Cape Verde. Authentic local experiences, cultural heritage sites, and community-owned businesses for Cape Verdean diaspora and visitors.`;
 
   const keywords = isAllCategory
-    ? ["complete directory", "all listings", "Brava Island businesses", "Cape Verde tourism"]
+    ? [
+        "complete directory",
+        "all listings",
+        "Brava Island businesses",
+        "Cape Verde tourism",
+      ]
     : [
         `${pageTitle.toLowerCase()} Brava Island`,
         `${pageTitle.toLowerCase()} Cape Verde`,
@@ -60,14 +65,16 @@ export async function generateMetadata({
         name: "Directory",
         item: `${siteConfig.url}/directory/all`,
       },
-      ...(isAllCategory ? [] : [
-        {
-          "@type": "ListItem" as const,
-          position: 3,
-          name: pageTitle,
-          item: `${siteConfig.url}/directory/${category}`,
-        },
-      ]),
+      ...(isAllCategory
+        ? []
+        : [
+            {
+              "@type": "ListItem" as const,
+              position: 3,
+              name: pageTitle,
+              item: `${siteConfig.url}/directory/${category}`,
+            },
+          ]),
     ],
   };
 
@@ -123,15 +130,15 @@ export default async function DirectoryCategoryPage({
         ) : (
           // If no entries are found, display a helpful message
           <div className="mt-16 text-center">
-            <p className="text-xl text-text-secondary">
+            <p className="text-text-secondary text-xl">
               No listings found in the "{pageTitle}" category.
             </p>
-            <p className="mt-2 text-base text-text-tertiary">
+            <p className="text-text-tertiary mt-2 text-base">
               Please try another category or check back later.
             </p>
             <Link
               href="/"
-              className="mt-6 inline-block rounded-md bg-ocean-blue px-6 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-ocean-blue/90 focus:outline-none focus:ring-2 focus:ring-ocean-blue focus:ring-offset-2"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 focus:ring-ocean-blue mt-6 inline-block rounded-md px-6 py-3 text-sm font-medium text-white shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
             >
               Back to Home
             </Link>

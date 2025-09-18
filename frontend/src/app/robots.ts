@@ -3,7 +3,7 @@ import { siteConfig } from "@/lib/metadata";
 
 /**
  * Generate robots.txt for Nos Ilha Cultural Heritage Platform
- * 
+ *
  * Optimized for search engine discovery of Cape Verdean cultural heritage
  * and tourism content while protecting admin and authentication areas.
  */
@@ -43,7 +43,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: [
           "/",
           "/about",
-          "/map", 
+          "/map",
           "/directory/",
           "/towns/",
           "/history",
@@ -73,7 +73,7 @@ export default function robots(): MetadataRoute.Robots {
           "/map",
           "/directory/",
           "/towns/",
-          "/history", 
+          "/history",
           "/people",
           "/media/",
           "/contact",
@@ -85,7 +85,7 @@ export default function robots(): MetadataRoute.Robots {
           "/admin/",
           "/api/",
           "/login",
-          "/signup", 
+          "/signup",
           "/test",
           "/add-entry",
           "/_next/",

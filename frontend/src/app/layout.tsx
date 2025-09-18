@@ -5,7 +5,11 @@ import clsx from "clsx";
 import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
 import { AuthProvider } from "@/components/providers/auth-provider";
-import { siteConfig, generateOrganizationSchema, createStructuredDataScript } from "@/lib/metadata";
+import {
+  siteConfig,
+  generateOrganizationSchema,
+  createStructuredDataScript,
+} from "@/lib/metadata";
 import "./globals.css";
 
 // 1. Set up the primary and secondary fonts using next/font/google.
@@ -121,7 +125,7 @@ export default function RootLayout({
       </head>
       <body
         className={clsx(
-          "min-h-screen bg-background-primary font-sans antialiased transition-all duration-300 ease-in-out",
+          "bg-background-primary min-h-screen font-sans antialiased transition-all duration-300 ease-in-out",
           lato.variable,
           merriweather.variable
         )}
@@ -130,7 +134,7 @@ export default function RootLayout({
           <div className="flex min-h-screen flex-col">
             {/* 3. Render the global Header, main content, and Footer */}
             <Header />
-            <main className="flex-grow animate-fade-in">{children}</main>
+            <main className="animate-fade-in flex-grow">{children}</main>
             <Footer />
           </div>
         </AuthProvider>

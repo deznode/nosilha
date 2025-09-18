@@ -53,7 +53,7 @@ export function NosilhaLogo({
           <motion.span
             key={index}
             variants={letterVariants}
-            className="text-5xl font-bold text-ocean-blue"
+            className="text-ocean-blue text-5xl font-bold"
           >
             {letter}
           </motion.span>
@@ -61,7 +61,7 @@ export function NosilhaLogo({
       </motion.div>
       {showSubtitle && (
         <motion.p
-          className="mt-1 text-sm text-text-secondary tracking-widest"
+          className="text-text-secondary mt-1 text-sm tracking-widest"
           whileHover={{ color: "var(--color-ocean-blue)" }}
           transition={{ duration: 0.2 }}
         >

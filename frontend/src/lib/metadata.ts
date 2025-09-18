@@ -16,7 +16,7 @@ import type { DirectoryEntry } from "@/types/directory";
 
 /**
  * SEO Metadata Generation Utilities for Nos Ilha Cultural Heritage Platform
- * 
+ *
  * This module provides comprehensive metadata generation for tourism content,
  * cultural heritage sites, and business listings with proper structured data.
  */
@@ -27,9 +27,10 @@ export const siteConfig = {
   title: "Nos Ilha - Your Guide to Brava, Cape Verde",
   description:
     "The definitive online tourism and cultural heritage platform for Brava Island, Cape Verde. Discover authentic experiences, cultural sites, local businesses, and connect with Cape Verdean heritage.",
-  url: process.env.NODE_ENV === "production" 
-    ? "https://nosilha.com" 
-    : "http://localhost:3000",
+  url:
+    process.env.NODE_ENV === "production"
+      ? "https://nosilha.com"
+      : "http://localhost:3000",
   ogImage: "/images/og-image.jpg",
   twitterHandle: "@nosilha_cv",
   keywords: [
@@ -109,7 +110,12 @@ export function generatePageMetadata(options: PageMetadataOptions): Metadata {
         width: img.width,
         height: img.height,
         alt: img.alt,
-        type: img.type as "image/jpeg" | "image/png" | "image/webp" | "image/gif" | undefined,
+        type: img.type as
+          | "image/jpeg"
+          | "image/png"
+          | "image/webp"
+          | "image/gif"
+          | undefined,
       })),
     },
     twitter: {
@@ -122,9 +128,12 @@ export function generatePageMetadata(options: PageMetadataOptions): Metadata {
     alternates: {
       canonical: url,
     },
-    other: structuredData.length > 0 ? {
-      "structured-data": JSON.stringify(structuredData),
-    } : undefined,
+    other:
+      structuredData.length > 0
+        ? {
+            "structured-data": JSON.stringify(structuredData),
+          }
+        : undefined,
   };
 }
 
@@ -143,14 +152,15 @@ export function generateDirectoryEntryMetadata(
   } = options;
 
   const title = `${entry.name} - ${entry.category} in ${entry.town}`;
-  const description = entry.description || 
+  const description =
+    entry.description ||
     `Discover ${entry.name}, a wonderful ${entry.category.toLowerCase()} located in ${entry.town}, Brava Island, Cape Verde.`;
-  
+
   const url = `${baseUrl}/directory/entry/${entry.slug}`;
-  
+
   // Use entry image if available, fallback to default
   const entryImages: OpenGraphImage[] = [];
-  
+
   if (entry.imageUrl) {
     entryImages.push({
       url: entry.imageUrl,
@@ -160,10 +170,10 @@ export function generateDirectoryEntryMetadata(
       type: "image/jpeg",
     });
   }
-  
+
   // Add any additional provided images
   entryImages.push(...images);
-  
+
   // Fallback to default if no images
   if (entryImages.length === 0) {
     entryImages.push({
@@ -177,7 +187,7 @@ export function generateDirectoryEntryMetadata(
 
   // Generate appropriate structured data based on entry category
   const structuredData: StructuredData[] = [];
-  
+
   switch (entry.category) {
     case "Restaurant":
       if (entry.details && "cuisine" in entry.details) {
@@ -206,7 +216,11 @@ export function generateDirectoryEntryMetadata(
     `${entry.town} ${entry.category.toLowerCase()}`,
   ];
 
-  if (entry.category === "Restaurant" && entry.details && "cuisine" in entry.details) {
+  if (
+    entry.category === "Restaurant" &&
+    entry.details &&
+    "cuisine" in entry.details
+  ) {
     keywords.push(...entry.details.cuisine);
   }
 
@@ -249,7 +263,11 @@ function generateRestaurantSchema(
     url: `${baseUrl}/directory/entry/${entry.slug}`,
   };
 
-  if (entry.details && "phoneNumber" in entry.details && entry.details.phoneNumber) {
+  if (
+    entry.details &&
+    "phoneNumber" in entry.details &&
+    entry.details.phoneNumber
+  ) {
     restaurant.telephone = entry.details.phoneNumber;
   }
 
@@ -257,7 +275,11 @@ function generateRestaurantSchema(
     restaurant.servesCuisine = entry.details.cuisine;
   }
 
-  if (entry.details && "openingHours" in entry.details && entry.details.openingHours) {
+  if (
+    entry.details &&
+    "openingHours" in entry.details &&
+    entry.details.openingHours
+  ) {
     restaurant.openingHours = [entry.details.openingHours];
   }
 
@@ -298,7 +320,11 @@ function generateLodgingSchema(
     url: `${baseUrl}/directory/entry/${entry.slug}`,
   };
 
-  if (entry.details && "phoneNumber" in entry.details && entry.details.phoneNumber) {
+  if (
+    entry.details &&
+    "phoneNumber" in entry.details &&
+    entry.details.phoneNumber
+  ) {
     lodging.telephone = entry.details.phoneNumber;
   }
 
@@ -392,7 +418,9 @@ function generateBreadcrumbSchema(
 /**
  * Generate organization structured data for the main site
  */
-export function generateOrganizationSchema(baseUrl: string = siteConfig.url): OrganizationSchema {
+export function generateOrganizationSchema(
+  baseUrl: string = siteConfig.url
+): OrganizationSchema {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
@@ -430,7 +458,7 @@ export function generateOrganizationSchema(baseUrl: string = siteConfig.url): Or
  */
 export function createStructuredDataScript(data: StructuredData[]): string {
   if (data.length === 0) return "";
-  
+
   const jsonLd = data.length === 1 ? data[0] : data;
   return JSON.stringify(jsonLd);
 }

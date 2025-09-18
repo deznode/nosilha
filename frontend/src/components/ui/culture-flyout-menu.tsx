@@ -1,10 +1,6 @@
 "use client";
 
-import { 
-  Popover, 
-  PopoverButton, 
-  PopoverPanel
-} from "@headlessui/react";
+import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import { BookOpenIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
@@ -69,12 +65,11 @@ export function CultureFlyoutMenu({
     }
   }, []);
 
-
   // Mobile implementation - always expanded for better UX
   if (isMobile) {
     return (
-      <div className="border-l-4 border-ocean-blue/20 bg-gradient-to-r from-ocean-blue/5 to-transparent">
-        <div className="py-3 pl-4 pr-4 text-base font-bold text-ocean-blue bg-ocean-blue/10 border-b border-ocean-blue/20">
+      <div className="border-ocean-blue/20 from-ocean-blue/5 border-l-4 bg-gradient-to-r to-transparent">
+        <div className="text-ocean-blue bg-ocean-blue/10 border-ocean-blue/20 border-b py-3 pr-4 pl-4 text-base font-bold">
           <div className="flex items-center gap-x-2">
             <BookOpenIcon className="h-5 w-5" aria-hidden="true" />
             Culture
@@ -85,36 +80,33 @@ export function CultureFlyoutMenu({
             key={item.name}
             href={item.href}
             className={clsx(
-              "flex items-center gap-x-4 py-4 pl-6 pr-4 text-base min-h-[48px] transition-all duration-200 ease-out active:scale-[0.98] active:bg-ocean-blue/20 focus:outline-none focus:ring-2 focus:ring-ocean-blue/30 focus:ring-offset-2 focus:ring-offset-background-primary",
+              "active:bg-ocean-blue/20 focus:ring-ocean-blue/30 focus:ring-offset-background-primary flex min-h-[48px] items-center gap-x-4 py-4 pr-4 pl-6 text-base transition-all duration-200 ease-out focus:ring-2 focus:ring-offset-2 focus:outline-none active:scale-[0.98]",
               pathname === item.href
-                ? "bg-ocean-blue/15 text-ocean-blue border-r-4 border-ocean-blue font-semibold"
+                ? "bg-ocean-blue/15 text-ocean-blue border-ocean-blue border-r-4 font-semibold"
                 : "text-text-secondary hover:bg-ocean-blue/10 hover:text-text-primary focus:bg-ocean-blue/10 focus:text-text-primary"
             )}
             aria-current={pathname === item.href ? "page" : undefined}
           >
             <div
               className={clsx(
-                "flex items-center justify-center h-8 w-8 rounded-lg transition-all duration-200",
+                "flex h-8 w-8 items-center justify-center rounded-lg transition-all duration-200",
                 pathname === item.href
                   ? "bg-ocean-blue/20 text-ocean-blue"
                   : "bg-background-secondary text-text-tertiary group-hover:bg-ocean-blue/10 group-hover:text-ocean-blue"
               )}
             >
-              <item.icon
-                className="h-5 w-5 flex-shrink-0"
-                aria-hidden="true"
-              />
+              <item.icon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               <div
                 className={clsx(
-                  "font-medium truncate",
+                  "truncate font-medium",
                   pathname === item.href ? "text-ocean-blue" : ""
                 )}
               >
                 {item.name}
               </div>
-              <p className="text-sm text-text-tertiary mt-0.5 truncate">
+              <p className="text-text-tertiary mt-0.5 truncate text-sm">
                 {item.description}
               </p>
             </div>
@@ -131,7 +123,7 @@ export function CultureFlyoutMenu({
         <>
           <PopoverButton
             className={clsx(
-              "group inline-flex items-center gap-x-1 h-16 transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-ocean-blue/20 focus:ring-offset-2 focus:ring-offset-background-primary",
+              "group focus:ring-ocean-blue/20 focus:ring-offset-background-primary inline-flex h-16 items-center gap-x-1 transition-all duration-200 ease-out focus:ring-2 focus:ring-offset-2 focus:outline-none",
               className
             )}
             aria-expanded={open}
@@ -142,7 +134,7 @@ export function CultureFlyoutMenu({
             <ChevronDownIcon
               aria-hidden="true"
               className={clsx(
-                "size-5 flex-none text-text-tertiary transition-transform duration-200 ease-out group-hover:text-text-secondary",
+                "text-text-tertiary group-hover:text-text-secondary size-5 flex-none transition-transform duration-200 ease-out",
                 open && "rotate-180"
               )}
             />
@@ -151,7 +143,7 @@ export function CultureFlyoutMenu({
           <PopoverPanel
             ref={panelRef}
             transition
-            className="absolute left-1/2 z-50 mt-3 w-screen max-w-md -translate-x-1/2 overflow-hidden rounded-3xl bg-background-primary shadow-2xl ring-1 ring-border-primary transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in backdrop-blur-sm"
+            className="bg-background-primary ring-border-primary absolute left-1/2 z-50 mt-3 w-screen max-w-md -translate-x-1/2 overflow-hidden rounded-3xl shadow-2xl ring-1 backdrop-blur-sm transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
             role="menu"
             aria-label="Culture navigation menu"
           >
@@ -164,10 +156,10 @@ export function CultureFlyoutMenu({
                   tabIndex={-1}
                   aria-describedby={`culture-item-${index}-desc`}
                   className={clsx(
-                    "group relative flex items-center gap-x-6 rounded-xl p-4 text-sm/6 transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-ocean-blue/30 focus:ring-offset-2 focus:ring-offset-background-primary focus:bg-ocean-blue/5",
-                    "hover:bg-background-secondary hover:shadow-sm hover:scale-[1.02] active:scale-[0.98]",
+                    "group focus:ring-ocean-blue/30 focus:ring-offset-background-primary focus:bg-ocean-blue/5 relative flex items-center gap-x-6 rounded-xl p-4 text-sm/6 transition-all duration-300 ease-out focus:ring-2 focus:ring-offset-2 focus:outline-none",
+                    "hover:bg-background-secondary hover:scale-[1.02] hover:shadow-sm active:scale-[0.98]",
                     pathname === item.href &&
-                      "bg-ocean-blue/10 ring-1 ring-ocean-blue/20"
+                      "bg-ocean-blue/10 ring-ocean-blue/20 ring-1"
                   )}
                 >
                   <div
@@ -175,7 +167,7 @@ export function CultureFlyoutMenu({
                       "flex size-12 flex-none items-center justify-center rounded-xl transition-all duration-300 ease-out",
                       pathname === item.href
                         ? "bg-ocean-blue/20 scale-105"
-                        : "bg-ocean-blue/10 group-hover:bg-ocean-blue/25 group-hover:scale-110 group-focus:bg-ocean-blue/25 group-focus:scale-110"
+                        : "bg-ocean-blue/10 group-hover:bg-ocean-blue/25 group-focus:bg-ocean-blue/25 group-hover:scale-110 group-focus:scale-110"
                     )}
                   >
                     <item.icon
@@ -184,14 +176,14 @@ export function CultureFlyoutMenu({
                         "size-6 transition-all duration-300 ease-out",
                         pathname === item.href
                           ? "text-ocean-blue scale-110"
-                          : "text-text-secondary group-hover:text-ocean-blue group-hover:scale-110 group-focus:text-ocean-blue group-focus:scale-110"
+                          : "text-text-secondary group-hover:text-ocean-blue group-focus:text-ocean-blue group-hover:scale-110 group-focus:scale-110"
                       )}
                     />
                   </div>
-                  <div className="flex-auto min-w-0">
+                  <div className="min-w-0 flex-auto">
                     <div
                       className={clsx(
-                        "block font-semibold text-base transition-all duration-300 ease-out truncate",
+                        "block truncate text-base font-semibold transition-all duration-300 ease-out",
                         pathname === item.href
                           ? "text-ocean-blue"
                           : "text-text-primary group-hover:text-ocean-blue group-focus:text-ocean-blue"

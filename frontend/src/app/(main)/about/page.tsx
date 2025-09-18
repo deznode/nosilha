@@ -23,13 +23,13 @@ export default function AboutPage() {
         />
 
         {/* Hero Section */}
-        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
-          <div className="grid gap-8 lg:grid-cols-2 items-center">
+        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+          <div className="grid items-center gap-8 lg:grid-cols-2">
             <div>
-              <h2 className="font-serif text-3xl font-bold text-text-primary mb-4">
+              <h2 className="text-text-primary mb-4 font-serif text-3xl font-bold">
                 Preserving Heritage, Building Community
               </h2>
-              <p className="text-lg text-text-secondary mb-4">
+              <p className="text-text-secondary mb-4 text-lg">
                 Nos Ilha is more than a tourism platform—it's a digital bridge
                 connecting Brava Island with the world. Through technology and
                 community collaboration, we're preserving the island's rich
@@ -48,7 +48,7 @@ export default function AboutPage() {
                 src="/images/about/community-collaboration.jpg"
                 alt="Community members collaborating on preserving Brava Island's heritage"
                 fill
-                className="object-cover rounded-lg"
+                className="rounded-lg object-cover"
               />
             </div>
           </div>
@@ -56,14 +56,14 @@ export default function AboutPage() {
 
         {/* Mission & Values */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
+          <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
             Our Mission & Values
           </h3>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center border border-border-primary">
-              <HeartIcon className="h-12 w-12 text-ocean-blue mx-auto mb-4" />
-              <h4 className="font-semibold text-lg text-text-primary mb-2">
+            <div className="bg-background-primary border-border-primary rounded-lg border p-6 text-center shadow-sm">
+              <HeartIcon className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
+              <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 Community First
               </h4>
               <p className="text-text-secondary">
@@ -73,9 +73,9 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center border border-border-primary">
-              <GlobeAltIcon className="h-12 w-12 text-valley-green mx-auto mb-4" />
-              <h4 className="font-semibold text-text-primary mb-2">
+            <div className="bg-background-primary border-border-primary rounded-lg border p-6 text-center shadow-sm">
+              <GlobeAltIcon className="text-valley-green mx-auto mb-4 h-12 w-12" />
+              <h4 className="text-text-primary mb-2 font-semibold">
                 Cultural Preservation
               </h4>
               <p className="text-text-secondary">
@@ -84,9 +84,9 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center border border-border-primary">
-              <UsersIcon className="h-12 w-12 text-bougainvillea-pink mx-auto mb-4" />
-              <h4 className="font-semibold text-text-primary mb-2">
+            <div className="bg-background-primary border-border-primary rounded-lg border p-6 text-center shadow-sm">
+              <UsersIcon className="text-bougainvillea-pink mx-auto mb-4 h-12 w-12" />
+              <h4 className="text-text-primary mb-2 font-semibold">
                 Open Collaboration
               </h4>
               <p className="text-text-secondary">
@@ -99,14 +99,14 @@ export default function AboutPage() {
         </section>
 
         {/* Technical Approach */}
-        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6">
+        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+          <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
             Technical Excellence in Service of Culture
           </h3>
 
           <div className="grid gap-8 md:grid-cols-2">
             <div>
-              <h4 className="font-semibold text-lg text-text-primary mb-3">
+              <h4 className="text-text-primary mb-3 text-lg font-semibold">
                 Modern Architecture
               </h4>
               <p className="text-text-secondary mb-4">
@@ -114,7 +114,7 @@ export default function AboutPage() {
                 combines cutting-edge web technology with robust backend
                 services to deliver a fast, accessible experience for all users.
               </p>
-              <ul className="text-sm text-text-secondary space-y-1">
+              <ul className="text-text-secondary space-y-1 text-sm">
                 <li>• Next.js App Router with Server Components</li>
                 <li>• Spring Boot with Kotlin backend</li>
                 <li>• PostgreSQL database with Google Cloud integration</li>
@@ -123,7 +123,7 @@ export default function AboutPage() {
             </div>
 
             <div>
-              <h4 className="font-semibold text-lg text-text-primary mb-3">
+              <h4 className="text-text-primary mb-3 text-lg font-semibold">
                 Community-Driven Development
               </h4>
               <p className="text-text-secondary mb-4">
@@ -131,7 +131,7 @@ export default function AboutPage() {
                 ensuring the platform remains accessible, culturally
                 appropriate, and genuinely useful for both locals and visitors.
               </p>
-              <ul className="text-sm text-text-secondary space-y-1">
+              <ul className="text-text-secondary space-y-1 text-sm">
                 <li>• Open-source codebase on GitHub</li>
                 <li>• Mobile-first responsive design</li>
                 <li>• Multilingual support planning</li>
@@ -143,39 +143,39 @@ export default function AboutPage() {
 
         {/* Platform Features */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
+          <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
             Platform Features
           </h3>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <MapIcon className="h-8 w-8 text-ocean-blue mb-3" />
-              <h4 className="font-semibold text-text-primary mb-2">
+            <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
+              <MapIcon className="text-ocean-blue mb-3 h-8 w-8" />
+              <h4 className="text-text-primary mb-2 font-semibold">
                 Interactive Map
               </h4>
-              <p className="text-sm text-text-secondary">
+              <p className="text-text-secondary text-sm">
                 Navigate Brava Island with our detailed interactive map
                 featuring businesses, landmarks, and cultural sites.
               </p>
             </div>
 
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <CameraIcon className="h-8 w-8 text-valley-green mb-3" />
-              <h4 className="font-semibold text-text-primary mb-2">
+            <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
+              <CameraIcon className="text-valley-green mb-3 h-8 w-8" />
+              <h4 className="text-text-primary mb-2 font-semibold">
                 Photo Galleries
               </h4>
-              <p className="text-sm text-text-secondary">
+              <p className="text-text-secondary text-sm">
                 Community-contributed photo galleries showcase the island's
                 natural beauty and cultural events.
               </p>
             </div>
 
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <CodeBracketIcon className="h-8 w-8 text-bougainvillea-pink mb-3" />
-              <h4 className="font-semibold text-text-primary mb-2">
+            <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
+              <CodeBracketIcon className="text-bougainvillea-pink mb-3 h-8 w-8" />
+              <h4 className="text-text-primary mb-2 font-semibold">
                 Directory System
               </h4>
-              <p className="text-sm text-text-secondary">
+              <p className="text-text-secondary text-sm">
                 Comprehensive directory of restaurants, hotels, landmarks, and
                 cultural sites with detailed information.
               </p>
@@ -184,31 +184,31 @@ export default function AboutPage() {
         </section>
 
         {/* Community Impact */}
-        <section className="mt-16 bg-gradient-to-r from-ocean-blue/10 to-valley-green/10 p-8 rounded-lg">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6 text-center">
+        <section className="from-ocean-blue/10 to-valley-green/10 mt-16 rounded-lg bg-gradient-to-r p-8">
+          <h3 className="text-text-primary mb-6 text-center font-serif text-2xl font-bold">
             Community Impact
           </h3>
 
           <div className="grid gap-8 md:grid-cols-2">
             <div className="text-center">
-              <div className="text-3xl font-bold text-ocean-blue mb-2">
+              <div className="text-ocean-blue mb-2 text-3xl font-bold">
                 100%
               </div>
-              <div className="text-sm text-text-primary font-medium mb-1">
+              <div className="text-text-primary mb-1 text-sm font-medium">
                 Open Source
               </div>
-              <p className="text-xs text-text-secondary">
+              <p className="text-text-secondary text-xs">
                 All code is publicly available, ensuring transparency and
                 community ownership.
               </p>
             </div>
 
             <div className="text-center">
-              <div className="text-3xl font-bold text-valley-green mb-2">0</div>
-              <div className="text-sm text-text-primary font-medium mb-1">
+              <div className="text-valley-green mb-2 text-3xl font-bold">0</div>
+              <div className="text-text-primary mb-1 text-sm font-medium">
                 Commercial Interests
               </div>
-              <p className="text-xs text-text-secondary">
+              <p className="text-text-secondary text-xs">
                 No commercial backing—purely community-driven and
                 volunteer-supported.
               </p>
@@ -218,10 +218,10 @@ export default function AboutPage() {
 
         {/* Get Involved */}
         <section className="mt-16 text-center">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-4">
+          <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
             Join Our Community
           </h3>
-          <p className="text-lg text-text-secondary mb-8">
+          <p className="text-text-secondary mb-8 text-lg">
             Whether you're a developer, photographer, writer, or cultural
             enthusiast, there's a place for you in the Nos Ilha community.
           </p>
@@ -229,25 +229,25 @@ export default function AboutPage() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Link
               href="/contribute"
-              className="rounded-md bg-ocean-blue px-4 py-3 text-sm font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-ocean-blue/90"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-4 py-3 text-sm font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105"
             >
               Contribute Content
             </Link>
             <Link
               href="https://github.com/bravdigital/nosilha"
-              className="rounded-md border-2 border-valley-green px-4 py-3 text-sm font-semibold text-valley-green transition-colors hover:bg-valley-green hover:text-white"
+              className="border-valley-green text-valley-green hover:bg-valley-green rounded-md border-2 px-4 py-3 text-sm font-semibold transition-colors hover:text-white"
             >
               View on GitHub
             </Link>
             <Link
               href="/contact"
-              className="rounded-md border-2 border-bougainvillea-pink px-4 py-3 text-sm font-semibold text-bougainvillea-pink transition-colors hover:bg-bougainvillea-pink hover:text-white"
+              className="border-bougainvillea-pink text-bougainvillea-pink hover:bg-bougainvillea-pink rounded-md border-2 px-4 py-3 text-sm font-semibold transition-colors hover:text-white"
             >
               Get in Touch
             </Link>
             <Link
               href="/history"
-              className="rounded-md border-2 border-border-primary px-4 py-3 text-sm font-semibold text-text-primary transition-colors hover:bg-text-primary hover:text-background-primary"
+              className="border-border-primary text-text-primary hover:bg-text-primary hover:text-background-primary rounded-md border-2 px-4 py-3 text-sm font-semibold transition-colors"
             >
               Learn More
             </Link>

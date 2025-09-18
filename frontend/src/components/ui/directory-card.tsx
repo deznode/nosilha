@@ -34,7 +34,7 @@ export function DirectoryCard({ entry }: DirectoryCardProps) {
               className="object-cover"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-background-tertiary">
+            <div className="bg-background-tertiary flex h-full w-full items-center justify-center">
               <span className="text-text-tertiary">No image available</span>
             </div>
           )}
@@ -43,10 +43,10 @@ export function DirectoryCard({ entry }: DirectoryCardProps) {
         {/* Content Section */}
         <div className="flex flex-1 flex-col p-4">
           <div className="flex-1">
-            <p className="text-sm text-text-secondary">
+            <p className="text-text-secondary text-sm">
               {entry.category} &middot; {entry.town}
             </p>
-            <h3 className="mt-1 font-semibold text-lg text-text-primary">
+            <h3 className="text-text-primary mt-1 text-lg font-semibold">
               {entry.name}
             </h3>
           </div>
@@ -54,7 +54,7 @@ export function DirectoryCard({ entry }: DirectoryCardProps) {
           {/* Rating Section */}
           <div className="mt-3 flex items-center gap-2">
             <StarRating rating={entry.rating} />
-            <p className="text-sm text-text-secondary">
+            <p className="text-text-secondary text-sm">
               ({entry.reviewCount} reviews)
             </p>
           </div>

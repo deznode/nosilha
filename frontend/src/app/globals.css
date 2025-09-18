@@ -10,62 +10,62 @@
   --animate-glow: glow 4s ease-in-out infinite;
 
   /* Brand Color Palette */
-  --color-ocean-blue: #005A8D;
-  --color-valley-green: #3E7D5A;
-  --color-bougainvillea-pink: #D90368;
-  --color-sunny-yellow: #F7B801;
-  --color-off-white: #F8F9FA;
-  --color-volcanic-gray: #6C757D;
-  --color-volcanic-gray-dark: #343A40;
+  --color-ocean-blue: #005a8d;
+  --color-valley-green: #3e7d5a;
+  --color-bougainvillea-pink: #d90368;
+  --color-sunny-yellow: #f7b801;
+  --color-off-white: #f8f9fa;
+  --color-volcanic-gray: #6c757d;
+  --color-volcanic-gray-dark: #343a40;
 
   /* Accent Colors for UI States */
-  --color-accent-error: #DC2626;
+  --color-accent-error: #dc2626;
   --color-accent-success: #059669;
-  --color-accent-warning: #D97706;
+  --color-accent-warning: #d97706;
 
   /* Semantic Background Colors - Light Mode */
-  --color-background-primary: #FFFFFF;
-  --color-background-secondary: #F8F9FA;
-  --color-background-tertiary: #E9ECEF;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #f8f9fa;
+  --color-background-tertiary: #e9ecef;
 
   /* Semantic Text Colors - Light Mode */
-  --color-text-primary: #343A40;
-  --color-text-secondary: #6C757D;
-  --color-text-tertiary: #ADB5BD;
+  --color-text-primary: #343a40;
+  --color-text-secondary: #6c757d;
+  --color-text-tertiary: #adb5bd;
 
   /* Semantic Border Colors - Light Mode */
-  --color-border-primary: #DEE2E6;
-  --color-border-secondary: #E9ECEF;
+  --color-border-primary: #dee2e6;
+  --color-border-secondary: #e9ecef;
 }
 
 @variant dark {
   /* Brand Colors - Dark Mode Adaptations */
-  --color-ocean-blue: #9EBED1;
-  --color-valley-green: #B3CBBE;
-  --color-bougainvillea-pink: #EFA1C6;
-  --color-sunny-yellow: #F7B801; /* Sunny yellow remains consistent */
-  --color-off-white: #2D3748; /* Dark background for off-white contexts */
-  --color-volcanic-gray: #A0AEC0; /* Lighter gray for secondary text */
-  --color-volcanic-gray-dark: #F7FAFC; /* Light gray for primary text in dark mode */
+  --color-ocean-blue: #9ebed1;
+  --color-valley-green: #b3cbbe;
+  --color-bougainvillea-pink: #efa1c6;
+  --color-sunny-yellow: #f7b801; /* Sunny yellow remains consistent */
+  --color-off-white: #2d3748; /* Dark background for off-white contexts */
+  --color-volcanic-gray: #a0aec0; /* Lighter gray for secondary text */
+  --color-volcanic-gray-dark: #f7fafc; /* Light gray for primary text in dark mode */
 
   /* Accent Colors - Dark Mode */
-  --color-accent-error: #F87171;
-  --color-accent-success: #10B981;
-  --color-accent-warning: #F59E0B;
+  --color-accent-error: #f87171;
+  --color-accent-success: #10b981;
+  --color-accent-warning: #f59e0b;
 
   /* Semantic Background Colors - Dark Mode */
-  --color-background-primary: #1A202C;
-  --color-background-secondary: #2D3748;
-  --color-background-tertiary: #4A5568;
+  --color-background-primary: #1a202c;
+  --color-background-secondary: #2d3748;
+  --color-background-tertiary: #4a5568;
 
   /* Semantic Text Colors - Dark Mode */
-  --color-text-primary: #F7FAFC;
-  --color-text-secondary: #E2E8F0;
-  --color-text-tertiary: #A0AEC0;
+  --color-text-primary: #f7fafc;
+  --color-text-secondary: #e2e8f0;
+  --color-text-tertiary: #a0aec0;
 
   /* Semantic Border Colors - Dark Mode */
-  --color-border-primary: #4A5568;
-  --color-border-secondary: #2D3748;
+  --color-border-primary: #4a5568;
+  --color-border-secondary: #2d3748;
 }
 
 @layer base {
@@ -79,7 +79,7 @@
     html {
       scroll-behavior: auto;
     }
-    
+
     *,
     *::before,
     *::after {
@@ -92,18 +92,24 @@
 
   /* Keyframes for Animations */
   @keyframes glow {
-    from, to {
+    from,
+    to {
       opacity: 0.8;
-      text-shadow: 0 0 8px var(--color-ocean-blue), 0 0 10px var(--color-ocean-blue);
+      text-shadow:
+        0 0 8px var(--color-ocean-blue),
+        0 0 10px var(--color-ocean-blue);
     }
     50% {
       opacity: 1;
-      text-shadow: 0 0 12px var(--color-ocean-blue), 0 0 20px var(--color-ocean-blue);
+      text-shadow:
+        0 0 12px var(--color-ocean-blue),
+        0 0 20px var(--color-ocean-blue);
     }
   }
 
   @keyframes pulse-subtle {
-    0%, 100% {
+    0%,
+    100% {
       opacity: 1;
       transform: scale(1);
     }
@@ -148,6 +154,6 @@
 
   /* Focus ring for better accessibility */
   .focus-ring {
-    @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-ocean-blue focus-visible:ring-offset-2;
+    @apply focus-visible:ring-ocean-blue focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
   }
 }

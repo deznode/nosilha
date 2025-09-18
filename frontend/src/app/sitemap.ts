@@ -4,7 +4,7 @@ import { siteConfig } from "@/lib/metadata";
 
 /**
  * Generate sitemap for Nos Ilha Cultural Heritage Platform
- * 
+ *
  * Includes static pages and dynamic directory entries for optimal SEO coverage
  * supporting Cape Verdean diaspora discovery through search engines.
  */
@@ -122,7 +122,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     // Fetch all directory entries for dynamic pages
     const allEntries = await getEntriesByCategory("all");
-    
+
     // Generate sitemap entries for each directory item
     const dynamicPages = allEntries.map((entry) => ({
       url: `${baseUrl}/directory/entry/${entry.slug}`,
@@ -181,7 +181,7 @@ function getTownPages(
   currentDate: string
 ): MetadataRoute.Sitemap {
   const uniqueTowns = [...new Set(entries.map((entry) => entry.town))];
-  
+
   return uniqueTowns.map((town) => ({
     url: `${baseUrl}/towns/${encodeURIComponent(town.toLowerCase().replace(/\s+/g, "-"))}`,
     lastModified: currentDate,

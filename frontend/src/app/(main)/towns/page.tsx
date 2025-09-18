@@ -34,13 +34,13 @@ export default async function TownsPage() {
         />
 
         {/* Introduction Section */}
-        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
-          <div className="grid gap-8 lg:grid-cols-2 items-center">
+        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+          <div className="grid items-center gap-8 lg:grid-cols-2">
             <div>
-              <h2 className="font-serif text-3xl font-bold text-text-primary mb-4">
+              <h2 className="text-text-primary mb-4 font-serif text-3xl font-bold">
                 Island Communities
               </h2>
-              <p className="text-lg text-text-secondary mb-4">
+              <p className="text-text-secondary mb-4 text-lg">
                 Our island's settlements tell stories written in stone and song.
                 Each village on Brava has been shaped by the dramatic forces
                 that created our volcanic landscape and the maritime heritage
@@ -63,7 +63,7 @@ export default async function TownsPage() {
                 src="/images/towns/brava-towns-overview.jpg"
                 alt="Panoramic view of Brava Island's settlements from the famous road of 99 turns"
                 fill
-                className="object-cover rounded-lg"
+                className="rounded-lg object-cover"
               />
             </div>
           </div>
@@ -71,7 +71,7 @@ export default async function TownsPage() {
 
         {/* Featured Towns */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8">
+          <h3 className="text-text-primary mb-8 font-serif text-2xl font-bold">
             Our Main Communities
           </h3>
 
@@ -79,7 +79,7 @@ export default async function TownsPage() {
             {featuredTowns.map((town) => (
               <div
                 key={town.slug}
-                className="bg-background-primary rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow border border-border-primary"
+                className="bg-background-primary border-border-primary overflow-hidden rounded-lg border shadow-sm transition-shadow hover:shadow-md"
               >
                 <div className="relative h-48">
                   <Image
@@ -90,31 +90,31 @@ export default async function TownsPage() {
                   />
                 </div>
                 <div className="p-6">
-                  <h4 className="font-serif text-xl font-bold text-text-primary mb-2">
+                  <h4 className="text-text-primary mb-2 font-serif text-xl font-bold">
                     {town.name}
                   </h4>
                   <p className="text-text-secondary mb-4">{town.description}</p>
 
-                  <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
-                    <div className="flex items-center text-text-secondary">
-                      <UserGroupIcon className="h-4 w-4 text-ocean-blue mr-2" />
+                  <div className="mb-4 grid grid-cols-2 gap-4 text-sm">
+                    <div className="text-text-secondary flex items-center">
+                      <UserGroupIcon className="text-ocean-blue mr-2 h-4 w-4" />
                       {town.population || "Population unknown"}
                     </div>
-                    <div className="flex items-center text-text-secondary">
-                      <MapPinIcon className="h-4 w-4 text-ocean-blue mr-2" />
+                    <div className="text-text-secondary flex items-center">
+                      <MapPinIcon className="text-ocean-blue mr-2 h-4 w-4" />
                       {town.elevation || "Elevation unknown"}
                     </div>
                   </div>
 
                   <div className="mb-4">
-                    <p className="text-sm font-medium text-text-primary mb-2">
+                    <p className="text-text-primary mb-2 text-sm font-medium">
                       Highlights:
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {town.highlights.map((highlight, index) => (
                         <span
                           key={index}
-                          className="text-xs bg-ocean-blue/10 text-ocean-blue px-2 py-1 rounded"
+                          className="bg-ocean-blue/10 text-ocean-blue rounded px-2 py-1 text-xs"
                         >
                           {highlight}
                         </span>
@@ -124,7 +124,7 @@ export default async function TownsPage() {
 
                   <Link
                     href={`/towns/${town.slug}`}
-                    className="inline-flex items-center text-ocean-blue hover:text-ocean-blue/80 font-medium"
+                    className="text-ocean-blue hover:text-ocean-blue/80 inline-flex items-center font-medium"
                   >
                     Explore {town.name} →
                   </Link>
@@ -136,7 +136,7 @@ export default async function TownsPage() {
 
         {/* Other Towns */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8">
+          <h3 className="text-text-primary mb-8 font-serif text-2xl font-bold">
             Hidden Gems
           </h3>
 
@@ -144,7 +144,7 @@ export default async function TownsPage() {
             {otherTowns.map((town) => (
               <div
                 key={town.slug}
-                className="bg-background-primary p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-border-primary"
+                className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm transition-shadow hover:shadow-md"
               >
                 <div className="flex items-start space-x-4">
                   <div className="relative h-20 w-20 flex-shrink-0">
@@ -152,29 +152,29 @@ export default async function TownsPage() {
                       src={town.heroImage || "/images/towns/default-town.jpg"}
                       alt={`View of ${town.name}`}
                       fill
-                      className="object-cover rounded-lg"
+                      className="rounded-lg object-cover"
                     />
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-semibold text-lg text-text-primary mb-1">
+                    <h4 className="text-text-primary mb-1 text-lg font-semibold">
                       {town.name}
                     </h4>
-                    <p className="text-sm text-text-secondary mb-2">
+                    <p className="text-text-secondary mb-2 text-sm">
                       {town.description}
                     </p>
-                    <div className="flex items-center space-x-4 text-xs text-text-secondary mb-2">
+                    <div className="text-text-secondary mb-2 flex items-center space-x-4 text-xs">
                       <span className="flex items-center">
-                        <UserGroupIcon className="h-3 w-3 mr-1" />
+                        <UserGroupIcon className="mr-1 h-3 w-3" />
                         {town.population || "Population unknown"}
                       </span>
                       <span className="flex items-center">
-                        <MapPinIcon className="h-3 w-3 mr-1" />
+                        <MapPinIcon className="mr-1 h-3 w-3" />
                         {town.elevation || "Elevation unknown"}
                       </span>
                     </div>
                     <Link
                       href={`/towns/${town.slug}`}
-                      className="text-sm text-ocean-blue hover:text-ocean-blue/80 font-medium"
+                      className="text-ocean-blue hover:text-ocean-blue/80 text-sm font-medium"
                     >
                       Learn more →
                     </Link>
@@ -186,18 +186,18 @@ export default async function TownsPage() {
         </section>
 
         {/* Interactive Map CTA */}
-        <section className="mt-16 bg-gradient-to-r from-ocean-blue/10 to-valley-green/10 p-8 rounded-lg text-center">
-          <MapPinIcon className="h-12 w-12 text-ocean-blue mx-auto mb-4" />
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-4">
+        <section className="from-ocean-blue/10 to-valley-green/10 mt-16 rounded-lg bg-gradient-to-r p-8 text-center">
+          <MapPinIcon className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
+          <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
             Explore on the Interactive Map
           </h3>
-          <p className="text-lg text-text-secondary mb-6">
+          <p className="text-text-secondary mb-6 text-lg">
             See the locations of all towns and discover points of interest in
             each community.
           </p>
           <Link
             href="/map"
-            className="rounded-md bg-ocean-blue px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-ocean-blue/90"
+            className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105"
           >
             View Map
           </Link>
@@ -205,24 +205,24 @@ export default async function TownsPage() {
 
         {/* Contribute Section */}
         <section className="mt-16 text-center">
-          <CameraIcon className="h-12 w-12 text-valley-green mx-auto mb-4" />
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-4">
+          <CameraIcon className="text-valley-green mx-auto mb-4 h-12 w-12" />
+          <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
             Share Your Town Stories
           </h3>
-          <p className="text-lg text-text-secondary mb-6">
+          <p className="text-text-secondary mb-6 text-lg">
             Help us build a comprehensive guide to Brava's communities with your
             photos and experiences.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Link
               href="/contribute"
-              className="rounded-md bg-valley-green px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-valley-green/90"
+              className="bg-valley-green hover:bg-valley-green/90 rounded-md px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105"
             >
               Contribute Content
             </Link>
             <Link
               href="/directory/all"
-              className="rounded-md border-2 border-valley-green px-6 py-3 text-base font-semibold text-valley-green transition-colors hover:bg-valley-green hover:text-white"
+              className="border-valley-green text-valley-green hover:bg-valley-green rounded-md border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
             >
               Browse Directory
             </Link>

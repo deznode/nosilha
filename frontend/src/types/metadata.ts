@@ -3,7 +3,7 @@ import type { DirectoryEntry } from "./directory";
 
 /**
  * SEO Metadata Types for Nos Ilha Cultural Heritage Platform
- * 
+ *
  * These types provide comprehensive TypeScript support for SEO optimization
  * including Open Graph, Twitter Cards, and structured data for tourism content.
  */
@@ -225,7 +225,8 @@ export interface MetadataGeneratorOptions {
   twitterHandle?: string;
 }
 
-export interface DirectoryEntryMetadataOptions extends MetadataGeneratorOptions {
+export interface DirectoryEntryMetadataOptions
+  extends MetadataGeneratorOptions {
   entry: DirectoryEntry;
   images?: OpenGraphImage[];
 }

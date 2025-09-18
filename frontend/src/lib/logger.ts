@@ -78,13 +78,13 @@ function createLogEntry(
  */
 function formatForConsole(entry: LogEntry): string {
   const parts: string[] = [];
-  
+
   // Add timestamp in development
   if (config.includeTimestamp) {
     const time = new Date(entry.timestamp).toLocaleTimeString();
     parts.push(`[${time}]`);
   }
-  
+
   // Add log level
   const levelEmojis = {
     debug: "🔍",
@@ -93,20 +93,20 @@ function formatForConsole(entry: LogEntry): string {
     error: "❌",
   };
   parts.push(`${levelEmojis[entry.level]} ${entry.level.toUpperCase()}`);
-  
+
   // Add component if available
   if (entry.component && config.includeComponent) {
     parts.push(`[${entry.component}]`);
   }
-  
+
   // Add action if available
   if (entry.action) {
     parts.push(`{${entry.action}}`);
   }
-  
+
   // Add main message
   parts.push(entry.message);
-  
+
   return parts.join(" ");
 }
 
@@ -115,12 +115,12 @@ function formatForConsole(entry: LogEntry): string {
  */
 function logToConsole(entry: LogEntry): void {
   if (!config.enableConsole) return;
-  
+
   // Skip debug logs in production
   if (entry.level === "debug" && !config.enableDebug) return;
-  
+
   const message = formatForConsole(entry);
-  
+
   // Use appropriate console method
   switch (entry.level) {
     case "debug":
@@ -151,11 +151,18 @@ function log(
   action?: string,
   error?: Error
 ): void {
-  const entry = createLogEntry(level, message, context, component, action, error);
-  
+  const entry = createLogEntry(
+    level,
+    message,
+    context,
+    component,
+    action,
+    error
+  );
+
   // Log to console
   logToConsole(entry);
-  
+
   // In production, you might want to send logs to an external service
   if (env.isProd && entry.level === "error") {
     // TODO: Send to error tracking service (e.g., Sentry, LogRocket)
@@ -170,38 +177,65 @@ export const logger = {
   /**
    * Debug logging - only shown in development
    */
-  debug(message: string, context?: LogContext, component?: string, action?: string): void {
+  debug(
+    message: string,
+    context?: LogContext,
+    component?: string,
+    action?: string
+  ): void {
     log("debug", message, context, component, action);
   },
 
   /**
    * Info logging - general application information
    */
-  info(message: string, context?: LogContext, component?: string, action?: string): void {
+  info(
+    message: string,
+    context?: LogContext,
+    component?: string,
+    action?: string
+  ): void {
     log("info", message, context, component, action);
   },
 
   /**
    * Warning logging - something unexpected but not breaking
    */
-  warn(message: string, context?: LogContext, component?: string, action?: string): void {
+  warn(
+    message: string,
+    context?: LogContext,
+    component?: string,
+    action?: string
+  ): void {
     log("warn", message, context, component, action);
   },
 
   /**
    * Error logging - something went wrong
    */
-  error(message: string, error?: Error, context?: LogContext, component?: string, action?: string): void {
+  error(
+    message: string,
+    error?: Error,
+    context?: LogContext,
+    component?: string,
+    action?: string
+  ): void {
     log("error", message, context, component, action, error);
   },
 
   /**
    * API request logging
    */
-  apiRequest(method: string, url: string, status?: number, duration?: number, component = "API"): void {
+  apiRequest(
+    method: string,
+    url: string,
+    status?: number,
+    duration?: number,
+    component = "API"
+  ): void {
     const context = { method, url, status, duration };
     const message = `${method} ${url}`;
-    
+
     if (status && status >= 400) {
       this.warn(message, context, component, "request");
     } else {
@@ -212,10 +246,16 @@ export const logger = {
   /**
    * API error logging
    */
-  apiError(method: string, url: string, error: Error, status?: number, component = "API"): void {
+  apiError(
+    method: string,
+    url: string,
+    error: Error,
+    status?: number,
+    component = "API"
+  ): void {
     const context = { method, url, status };
     const message = `${method} ${url} failed`;
-    
+
     this.error(message, error, context, component, "request");
   },
 
@@ -229,7 +269,12 @@ export const logger = {
   /**
    * Performance logging
    */
-  performance(operation: string, duration: number, context?: LogContext, component?: string): void {
+  performance(
+    operation: string,
+    duration: number,
+    context?: LogContext,
+    component?: string
+  ): void {
     const perfContext = { ...context, duration: `${duration}ms` };
     this.debug(`Performance: ${operation}`, perfContext, component, "perf");
   },
@@ -237,7 +282,12 @@ export const logger = {
   /**
    * Validation error logging
    */
-  validationError(field: string, value: unknown, rule: string, component?: string): void {
+  validationError(
+    field: string,
+    value: unknown,
+    rule: string,
+    component?: string
+  ): void {
     const context = { field, value, rule };
     this.warn(`Validation failed: ${field}`, context, component, "validation");
   },
@@ -245,7 +295,10 @@ export const logger = {
   /**
    * Authentication logging
    */
-  auth(action: "login" | "logout" | "signup" | "token_refresh", userId?: string): void {
+  auth(
+    action: "login" | "logout" | "signup" | "token_refresh",
+    userId?: string
+  ): void {
     const context = { userId };
     this.info(`Authentication: ${action}`, context, "Auth", action);
   },
@@ -274,8 +327,12 @@ export function createComponentLogger(component: string) {
       logger.info(message, context, component, action),
     warn: (message: string, context?: LogContext, action?: string) =>
       logger.warn(message, context, component, action),
-    error: (message: string, error?: Error, context?: LogContext, action?: string) =>
-      logger.error(message, error, context, component, action),
+    error: (
+      message: string,
+      error?: Error,
+      context?: LogContext,
+      action?: string
+    ) => logger.error(message, error, context, component, action),
   };
 }
 
@@ -288,9 +345,9 @@ export function measureTime<T>(
   component?: string
 ): T | Promise<T> {
   const start = performance.now();
-  
+
   const result = fn();
-  
+
   if (result instanceof Promise) {
     return result.then(
       (value) => {
@@ -321,27 +378,47 @@ export function logFunction<T extends (...args: unknown[]) => unknown>(
 ): T {
   return ((...args: Parameters<T>) => {
     logger.debug(`Entering ${name}`, { args }, component, "function");
-    
+
     try {
       const result = fn(...args);
-      
+
       if (result instanceof Promise) {
         return result.then(
           (value) => {
-            logger.debug(`Exiting ${name}`, { success: true }, component, "function");
+            logger.debug(
+              `Exiting ${name}`,
+              { success: true },
+              component,
+              "function"
+            );
             return value;
           },
           (error) => {
-            logger.debug(`Exiting ${name}`, { success: false, error }, component, "function");
+            logger.debug(
+              `Exiting ${name}`,
+              { success: false, error },
+              component,
+              "function"
+            );
             throw error;
           }
         );
       } else {
-        logger.debug(`Exiting ${name}`, { success: true }, component, "function");
+        logger.debug(
+          `Exiting ${name}`,
+          { success: true },
+          component,
+          "function"
+        );
         return result;
       }
     } catch (error) {
-      logger.debug(`Exiting ${name}`, { success: false, error }, component, "function");
+      logger.debug(
+        `Exiting ${name}`,
+        { success: false, error },
+        component,
+        "function"
+      );
       throw error;
     }
   }) as T;
@@ -389,6 +466,10 @@ export function consoleWarn(message: string, context?: LogContext): void {
  * Legacy console.error replacement - use logger.error instead
  * @deprecated Use logger.error() instead
  */
-export function consoleError(message: string, error?: Error, context?: LogContext): void {
+export function consoleError(
+  message: string,
+  error?: Error,
+  context?: LogContext
+): void {
   logger.error(message, error, context, "Legacy");
 }

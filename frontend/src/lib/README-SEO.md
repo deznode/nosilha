@@ -37,6 +37,7 @@ Our SEO implementation specifically targets:
 ### Structured Data Schema
 
 #### Tourism & Heritage
+
 - `TouristDestination` for Brava Island
 - `TouristAttraction` for landmarks and beaches
 - `LocalBusiness` for community-owned businesses
@@ -45,6 +46,7 @@ Our SEO implementation specifically targets:
 - `Organization` for the platform itself
 
 #### Navigation & Discovery
+
 - `BreadcrumbList` for clear site navigation
 - Dynamic priority assignment based on cultural significance
 - Category-specific metadata for restaurants, hotels, landmarks, beaches
@@ -54,6 +56,7 @@ Our SEO implementation specifically targets:
 ### 1. Metadata Generation System
 
 **Base Configuration (`siteConfig`)**:
+
 ```typescript
 export const siteConfig = {
   name: "Nos Ilha",
@@ -65,6 +68,7 @@ export const siteConfig = {
 ```
 
 **Key Functions**:
+
 - `generatePageMetadata()` - Comprehensive page metadata
 - `generateDirectoryEntryMetadata()` - Business/landmark specific metadata
 - `createStructuredDataScript()` - JSON-LD injection
@@ -75,6 +79,7 @@ export const siteConfig = {
 **Dynamic Pages**: All directory entries with category-based priorities
 **Town Pages**: Auto-generated from directory entry locations
 **Smart Priorities**:
+
 - Homepage: 1.0
 - Directory & Map: 0.9
 - Restaurants & Hotels: 0.7-0.8
@@ -91,6 +96,7 @@ export const siteConfig = {
 ### 4. Open Graph & Social Media
 
 **Rich Social Previews**:
+
 - Custom Open Graph images (1200x630)
 - Cultural heritage descriptions
 - Proper locale settings (en_US)
@@ -98,6 +104,7 @@ export const siteConfig = {
 - Site-wide branding consistency
 
 **Directory Entry Social Cards**:
+
 - Business-specific images when available
 - Town and category context
 - Cultural significance emphasis
@@ -106,6 +113,7 @@ export const siteConfig = {
 ## 🔧 Usage Examples
 
 ### Basic Page Metadata
+
 ```typescript
 export const metadata: Metadata = generatePageMetadata({
   title: "About Brava Island",
@@ -116,6 +124,7 @@ export const metadata: Metadata = generatePageMetadata({
 ```
 
 ### Directory Entry Metadata
+
 ```typescript
 export async function generateMetadata({ params }): Promise<Metadata> {
   const entry = await getEntryBySlug(params.slug);
@@ -128,6 +137,7 @@ export async function generateMetadata({ params }): Promise<Metadata> {
 ```
 
 ### Custom Structured Data
+
 ```typescript
 const structuredData: TouristAttractionSchema = {
   "@context": "https://schema.org",
@@ -142,6 +152,7 @@ const structuredData: TouristAttractionSchema = {
 ## 📊 SEO Impact & Metrics
 
 ### Search Engine Optimization
+
 - **Complete metadata coverage** for all public pages
 - **Rich snippet eligibility** for business listings
 - **Local SEO optimization** for Cape Verde tourism
@@ -149,6 +160,7 @@ const structuredData: TouristAttractionSchema = {
 - **Mobile-first implementation** for smartphone users
 
 ### Technical SEO Features
+
 - **Proper HTML structure** with semantic meta tags
 - **Canonical URL management** to prevent duplicate content
 - **Image optimization** with alt text and sizing
@@ -158,21 +170,25 @@ const structuredData: TouristAttractionSchema = {
 ## 🚀 Next Steps & Recommendations
 
 ### Image Optimization
+
 1. Create custom Open Graph images for main categories
 2. Implement dynamic OG image generation for entries
 3. Add proper logo files referenced in structured data
 
 ### Enhanced Structured Data
+
 1. Add review/rating schemas when user reviews are implemented
 2. Include event schemas for cultural events
 3. Add FAQ schemas for common heritage questions
 
 ### Local SEO Enhancement
+
 1. Google Business Profile integration for businesses
 2. Local citation management for Cape Verde directories
 3. Multilingual SEO for Portuguese content
 
 ### Analytics Integration
+
 1. Google Search Console setup for keyword tracking
 2. Performance monitoring for Core Web Vitals
 3. Search analytics for diaspora user behavior
@@ -180,12 +196,14 @@ const structuredData: TouristAttractionSchema = {
 ## 🔍 Validation & Testing
 
 ### SEO Testing Tools
+
 - **Google Rich Results Test**: Validate structured data
 - **Facebook Sharing Debugger**: Test Open Graph tags
 - **Twitter Card Validator**: Verify Twitter previews
 - **Lighthouse SEO Audit**: Overall SEO health check
 
 ### Key Validation Commands
+
 ```bash
 # Build and validate
 npm run build

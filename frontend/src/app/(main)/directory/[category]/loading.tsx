@@ -11,8 +11,8 @@ export default function DirectoryCategoryLoading() {
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         {/* Header skeleton */}
         <div className="text-center">
-          <div className="h-8 bg-background-tertiary rounded w-48 mx-auto animate-pulse mb-4" />
-          <div className="h-4 bg-background-tertiary rounded w-64 mx-auto animate-pulse" />
+          <div className="bg-background-tertiary mx-auto mb-4 h-8 w-48 animate-pulse rounded" />
+          <div className="bg-background-tertiary mx-auto h-4 w-64 animate-pulse rounded" />
         </div>
 
         {/* Directory grid skeleton */}

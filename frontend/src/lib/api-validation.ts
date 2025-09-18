@@ -7,14 +7,19 @@ import type { DirectoryEntryDto, TownDto } from "@/types/api";
  */
 export function isDirectoryEntry(obj: unknown): obj is DirectoryEntry {
   // First check for missing category field - this is the main issue we're seeing
-  if (!obj || typeof obj !== "object" || !("category" in obj) || !(obj as Record<string, unknown>).category) {
+  if (
+    !obj ||
+    typeof obj !== "object" ||
+    !("category" in obj) ||
+    !(obj as Record<string, unknown>).category
+  ) {
     console.warn("Missing category field in DirectoryEntry:", obj);
     return false;
   }
 
   const entry = obj as Record<string, unknown>;
 
-  const hasValidStructure = (
+  const hasValidStructure =
     typeof entry.id === "string" &&
     typeof entry.name === "string" &&
     typeof entry.slug === "string" &&
@@ -24,12 +29,17 @@ export function isDirectoryEntry(obj: unknown): obj is DirectoryEntry {
     typeof entry.latitude === "number" &&
     typeof entry.longitude === "number" &&
     typeof entry.reviewCount === "number" &&
-    (entry.rating === undefined || entry.rating === null || typeof entry.rating === "number") &&
-    (entry.imageUrl === undefined || entry.imageUrl === null || typeof entry.imageUrl === "string") &&
+    (entry.rating === undefined ||
+      entry.rating === null ||
+      typeof entry.rating === "number") &&
+    (entry.imageUrl === undefined ||
+      entry.imageUrl === null ||
+      typeof entry.imageUrl === "string") &&
     (entry.createdAt === undefined || typeof entry.createdAt === "string") &&
     (entry.updatedAt === undefined || typeof entry.updatedAt === "string") &&
-    ["Restaurant", "Hotel", "Beach", "Landmark"].includes(entry.category as string)
-  );
+    ["Restaurant", "Hotel", "Beach", "Landmark"].includes(
+      entry.category as string
+    );
 
   if (!hasValidStructure) {
     console.warn("DirectoryEntry structure validation failed for:", obj);
@@ -42,9 +52,11 @@ export function isDirectoryEntry(obj: unknown): obj is DirectoryEntry {
 /**
  * Type guard to check if a DirectoryEntry has Restaurant details
  */
-export function hasRestaurantDetails(entry: DirectoryEntry): entry is DirectoryEntry & { 
-  category: "Restaurant"; 
-  details: { phoneNumber: string; openingHours: string; cuisine: string[] } 
+export function hasRestaurantDetails(
+  entry: DirectoryEntry
+): entry is DirectoryEntry & {
+  category: "Restaurant";
+  details: { phoneNumber: string; openingHours: string; cuisine: string[] };
 } {
   return (
     entry.category === "Restaurant" &&
@@ -60,9 +72,11 @@ export function hasRestaurantDetails(entry: DirectoryEntry): entry is DirectoryE
 /**
  * Type guard to check if a DirectoryEntry has Hotel details
  */
-export function hasHotelDetails(entry: DirectoryEntry): entry is DirectoryEntry & { 
-  category: "Hotel"; 
-  details: { phoneNumber?: string; amenities: string[] } 
+export function hasHotelDetails(
+  entry: DirectoryEntry
+): entry is DirectoryEntry & {
+  category: "Hotel";
+  details: { phoneNumber?: string; amenities: string[] };
 } {
   return (
     entry.category === "Hotel" &&
@@ -157,7 +171,7 @@ export function isTown(obj: unknown): obj is Town {
 
   const town = obj as Record<string, unknown>;
 
-  const hasValidStructure = (
+  const hasValidStructure =
     typeof town.id === "string" &&
     typeof town.slug === "string" &&
     typeof town.name === "string" &&
@@ -171,8 +185,7 @@ export function isTown(obj: unknown): obj is Town {
     (town.heroImage === null || typeof town.heroImage === "string") &&
     Array.isArray(town.gallery) &&
     (town.createdAt === undefined || typeof town.createdAt === "string") &&
-    (town.updatedAt === undefined || typeof town.updatedAt === "string")
-  );
+    (town.updatedAt === undefined || typeof town.updatedAt === "string");
 
   if (!hasValidStructure) {
     console.warn("Town structure validation failed for:", obj);

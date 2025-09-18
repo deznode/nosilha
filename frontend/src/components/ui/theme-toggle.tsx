@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  SunIcon, 
-  MoonIcon, 
-  ComputerDesktopIcon 
+import {
+  SunIcon,
+  MoonIcon,
+  ComputerDesktopIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 
@@ -23,7 +23,9 @@ export function ThemeToggle() {
 
     // Function to update system theme
     const updateSystemTheme = () => {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
       setSystemTheme(prefersDark ? "dark" : "light");
     };
 
@@ -35,7 +37,9 @@ export function ThemeToggle() {
     mediaQuery.addEventListener("change", updateSystemTheme);
 
     // Apply initial theme
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
     applyTheme(initialTheme, prefersDark);
 
     // Cleanup listener
@@ -50,9 +54,8 @@ export function ThemeToggle() {
   }, [systemTheme, theme]);
 
   const applyTheme = (newTheme: Theme, systemPrefersDark: boolean) => {
-    const shouldBeDark = 
-      newTheme === "dark" || 
-      (newTheme === "system" && systemPrefersDark);
+    const shouldBeDark =
+      newTheme === "dark" || (newTheme === "system" && systemPrefersDark);
 
     if (shouldBeDark) {
       document.documentElement.classList.add("dark");
@@ -76,7 +79,7 @@ export function ThemeToggle() {
     const iconProps = {
       className: "h-5 w-5",
     };
-    
+
     switch (theme) {
       case "light":
         return <SunIcon {...iconProps} />;
@@ -107,12 +110,12 @@ export function ThemeToggle() {
         "relative inline-flex items-center justify-center rounded-md p-2",
         "text-text-secondary",
         "hover:bg-background-secondary hover:text-text-primary",
-        "focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ocean-blue",
+        "focus:ring-ocean-blue focus:ring-2 focus:outline-none focus:ring-inset",
         "transition-all duration-200"
       )}
-      whileHover={{ 
+      whileHover={{
         scale: 1.1,
-        backgroundColor: "var(--color-background-secondary)"
+        backgroundColor: "var(--color-background-secondary)",
       }}
       whileTap={{ scale: 0.95 }}
       title={`${getLabel()}. Click to cycle themes.`}
@@ -121,24 +124,24 @@ export function ThemeToggle() {
       <AnimatePresence mode="wait">
         <motion.div
           key={theme}
-          initial={{ 
+          initial={{
             rotateY: -90,
             opacity: 0,
-            scale: 0.8
+            scale: 0.8,
           }}
-          animate={{ 
+          animate={{
             rotateY: 0,
             opacity: 1,
-            scale: 1
+            scale: 1,
           }}
-          exit={{ 
+          exit={{
             rotateY: 90,
             opacity: 0,
-            scale: 0.8
+            scale: 0.8,
           }}
-          transition={{ 
+          transition={{
             duration: 0.2,
-            ease: "easeInOut"
+            ease: "easeInOut",
           }}
         >
           {getIcon()}

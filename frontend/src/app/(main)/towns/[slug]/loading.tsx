@@ -10,24 +10,24 @@ export default function TownPageLoading() {
     <div className="bg-background-secondary font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         {/* Page header skeleton */}
-        <div className="text-center mb-16">
-          <div className="h-10 bg-background-tertiary rounded w-64 mx-auto animate-pulse mb-4" />
-          <div className="h-5 bg-background-tertiary rounded w-96 mx-auto animate-pulse" />
+        <div className="mb-16 text-center">
+          <div className="bg-background-tertiary mx-auto mb-4 h-10 w-64 animate-pulse rounded" />
+          <div className="bg-background-tertiary mx-auto h-5 w-96 animate-pulse rounded" />
         </div>
 
         {/* Town info section skeleton */}
-        <div className="mb-16 bg-background-primary rounded-lg p-6 animate-pulse">
-          <div className="h-6 bg-background-tertiary rounded w-48 mb-4" />
+        <div className="bg-background-primary mb-16 animate-pulse rounded-lg p-6">
+          <div className="bg-background-tertiary mb-4 h-6 w-48 rounded" />
           <div className="space-y-2">
-            <div className="h-4 bg-background-tertiary rounded w-full" />
-            <div className="h-4 bg-background-tertiary rounded w-3/4" />
-            <div className="h-4 bg-background-tertiary rounded w-5/6" />
+            <div className="bg-background-tertiary h-4 w-full rounded" />
+            <div className="bg-background-tertiary h-4 w-3/4 rounded" />
+            <div className="bg-background-tertiary h-4 w-5/6 rounded" />
           </div>
         </div>
 
         {/* Directory entries section skeleton */}
         <div>
-          <div className="h-6 bg-background-tertiary rounded w-56 mb-8 animate-pulse" />
+          <div className="bg-background-tertiary mb-8 h-6 w-56 animate-pulse rounded" />
           <DirectoryGridSkeleton count={6} />
         </div>
       </div>

@@ -9,37 +9,40 @@ export default function HomeLoading() {
   return (
     <div className="bg-background-primary">
       {/* Hero section skeleton */}
-      <div className="relative h-[50vh] bg-background-tertiary animate-pulse">
+      <div className="bg-background-tertiary relative h-[50vh] animate-pulse">
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
-            <div className="h-12 bg-background-secondary rounded w-96 mx-auto mb-4" />
-            <div className="h-6 bg-background-secondary rounded w-80 mx-auto" />
+            <div className="bg-background-secondary mx-auto mb-4 h-12 w-96 rounded" />
+            <div className="bg-background-secondary mx-auto h-6 w-80 rounded" />
           </div>
         </div>
       </div>
 
       {/* Featured entries section skeleton */}
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="text-center mb-8">
-          <div className="h-8 bg-background-tertiary rounded w-64 mx-auto animate-pulse mb-4" />
-          <div className="h-4 bg-background-tertiary rounded w-96 mx-auto animate-pulse" />
+        <div className="mb-8 text-center">
+          <div className="bg-background-tertiary mx-auto mb-4 h-8 w-64 animate-pulse rounded" />
+          <div className="bg-background-tertiary mx-auto h-4 w-96 animate-pulse rounded" />
         </div>
 
         {/* Featured directory grid skeleton - matches homepage layout */}
-        <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:mx-0 lg:max-w-none lg:grid-cols-4 md:grid-cols-2">
+        <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 md:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-4">
           {Array.from({ length: 4 }, (_, index) => (
             <div key={index} className="animate-pulse">
-              <div className="aspect-[16/10] bg-background-tertiary rounded-lg mb-4" />
+              <div className="bg-background-tertiary mb-4 aspect-[16/10] rounded-lg" />
               <div className="space-y-2">
-                <div className="h-4 bg-background-tertiary rounded w-2/3" />
-                <div className="h-6 bg-background-tertiary rounded w-3/4" />
-                <div className="flex items-center gap-2 mt-3">
+                <div className="bg-background-tertiary h-4 w-2/3 rounded" />
+                <div className="bg-background-tertiary h-6 w-3/4 rounded" />
+                <div className="mt-3 flex items-center gap-2">
                   <div className="flex gap-1">
                     {Array.from({ length: 5 }).map((_, starIndex) => (
-                      <div key={starIndex} className="h-4 w-4 bg-background-tertiary rounded" />
+                      <div
+                        key={starIndex}
+                        className="bg-background-tertiary h-4 w-4 rounded"
+                      />
                     ))}
                   </div>
-                  <div className="h-4 bg-background-tertiary rounded w-20" />
+                  <div className="bg-background-tertiary h-4 w-20 rounded" />
                 </div>
               </div>
             </div>
@@ -48,17 +51,20 @@ export default function HomeLoading() {
 
         {/* Popular pages section skeleton */}
         <div className="mt-32">
-          <div className="text-center mb-16">
-            <div className="h-8 bg-background-tertiary rounded w-48 mx-auto animate-pulse mb-4" />
-            <div className="h-4 bg-background-tertiary rounded w-72 mx-auto animate-pulse" />
+          <div className="mb-16 text-center">
+            <div className="bg-background-tertiary mx-auto mb-4 h-8 w-48 animate-pulse rounded" />
+            <div className="bg-background-tertiary mx-auto h-4 w-72 animate-pulse rounded" />
           </div>
-          
+
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, index) => (
-              <div key={index} className="bg-background-secondary rounded-lg p-6 animate-pulse">
-                <div className="h-8 w-8 bg-background-tertiary rounded mb-4" />
-                <div className="h-6 bg-background-tertiary rounded w-3/4 mb-2" />
-                <div className="h-4 bg-background-tertiary rounded w-full" />
+              <div
+                key={index}
+                className="bg-background-secondary animate-pulse rounded-lg p-6"
+              >
+                <div className="bg-background-tertiary mb-4 h-8 w-8 rounded" />
+                <div className="bg-background-tertiary mb-2 h-6 w-3/4 rounded" />
+                <div className="bg-background-tertiary h-4 w-full rounded" />
               </div>
             ))}
           </div>

@@ -77,7 +77,7 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
           {/* Column 1: Explore Brava */}
           <div>
-            <h3 className="text-base font-semibold leading-6 text-text-primary">
+            <h3 className="text-text-primary text-base leading-6 font-semibold">
               Explore Brava
             </h3>
             <ul role="list" className="mt-6 space-y-4">
@@ -85,7 +85,7 @@ export function Footer() {
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="text-sm leading-6 hover:text-text-primary"
+                    className="hover:text-text-primary text-sm leading-6"
                   >
                     {item.name}
                   </Link>
@@ -96,7 +96,7 @@ export function Footer() {
 
           {/* Column 2: Culture & History */}
           <div>
-            <h3 className="text-base font-semibold leading-6 text-text-primary">
+            <h3 className="text-text-primary text-base leading-6 font-semibold">
               Culture & History
             </h3>
             <ul role="list" className="mt-6 space-y-4">
@@ -104,7 +104,7 @@ export function Footer() {
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="text-sm leading-6 hover:text-text-primary"
+                    className="hover:text-text-primary text-sm leading-6"
                   >
                     {item.name}
                   </Link>
@@ -115,7 +115,7 @@ export function Footer() {
 
           {/* Column 3: Connect */}
           <div>
-            <h3 className="text-base font-semibold leading-6 text-text-primary">
+            <h3 className="text-text-primary text-base leading-6 font-semibold">
               Connect
             </h3>
             <ul role="list" className="mt-6 space-y-4">
@@ -123,7 +123,7 @@ export function Footer() {
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="text-sm leading-6 hover:text-text-primary"
+                    className="hover:text-text-primary text-sm leading-6"
                   >
                     {item.name}
                   </Link>
@@ -134,7 +134,7 @@ export function Footer() {
 
           {/* Column 4: Newsletter */}
           <div className="mt-10 lg:mt-0">
-            <h3 className="text-base font-semibold leading-6 text-text-primary">
+            <h3 className="text-text-primary text-base leading-6 font-semibold">
               Subscribe to our newsletter
             </h3>
             <p className="mt-2 text-sm leading-6">
@@ -152,12 +152,12 @@ export function Footer() {
                 required
                 placeholder="Enter your email"
                 autoComplete="email"
-                className="w-full min-w-0 appearance-none rounded-md border-0 bg-background-primary px-3 py-1.5 text-base text-text-primary shadow-sm ring-1 ring-inset ring-border-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-inset focus:ring-ocean-blue sm:w-64 sm:text-sm sm:leading-6 xl:w-full"
+                className="bg-background-primary text-text-primary ring-border-primary placeholder:text-text-tertiary focus:ring-ocean-blue w-full min-w-0 appearance-none rounded-md border-0 px-3 py-1.5 text-base shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset sm:w-64 sm:text-sm sm:leading-6 xl:w-full"
               />
               <div className="mt-4 sm:mt-0 sm:ml-4 sm:shrink-0">
                 <button
                   type="submit"
-                  className="flex w-full items-center justify-center rounded-md bg-ocean-blue px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-ocean-blue/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocean-blue"
+                  className="bg-ocean-blue hover:bg-ocean-blue/90 focus-visible:outline-ocean-blue flex w-full items-center justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2"
                 >
                   Subscribe
                 </button>
@@ -167,7 +167,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-16 border-t border-border-primary pt-8 sm:mt-20 md:flex md:items-center md:justify-between lg:mt-24">
+        <div className="border-border-primary mt-16 border-t pt-8 sm:mt-20 md:flex md:items-center md:justify-between lg:mt-24">
           <div className="flex space-x-6 md:order-2">
             {navigation.social.map((item) => (
               <a
@@ -180,7 +180,7 @@ export function Footer() {
               </a>
             ))}
           </div>
-          <p className="mt-8 text-xs leading-5 text-text-tertiary md:order-1 md:mt-0">
+          <p className="text-text-tertiary mt-8 text-xs leading-5 md:order-1 md:mt-0">
             &copy; {new Date().getFullYear()} Nosilha.com. All rights reserved.
           </p>
         </div>

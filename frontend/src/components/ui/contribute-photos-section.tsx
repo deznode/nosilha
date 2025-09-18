@@ -4,7 +4,10 @@ import { useState } from "react";
 import Image from "next/image";
 import { ImageUploader } from "./image-uploader";
 import { uploadImage } from "@/lib/api";
-import { CheckCircleIcon, ExclamationCircleIcon } from "@heroicons/react/24/solid";
+import {
+  CheckCircleIcon,
+  ExclamationCircleIcon,
+} from "@heroicons/react/24/solid";
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
@@ -46,23 +49,23 @@ export function ContributePhotosSection() {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <h2 className="font-serif text-3xl font-bold text-text-primary text-center">
+      <h2 className="text-text-primary text-center font-serif text-3xl font-bold">
         Contribute Photos
       </h2>
-      <p className="mt-2 text-center text-lg leading-8 text-text-secondary">
+      <p className="text-text-secondary mt-2 text-center text-lg leading-8">
         Have a photo of this location? Share it with the community!
       </p>
-      
+
       <div className="mt-8 flex justify-center">
         {uploadStatus === "success" && uploadedUrl ? (
-          <div className="text-center space-y-6">
-            <div className="flex items-center justify-center space-x-2 text-valley-green">
+          <div className="space-y-6 text-center">
+            <div className="text-valley-green flex items-center justify-center space-x-2">
               <CheckCircleIcon className="h-6 w-6" />
               <span className="font-medium">Photo uploaded successfully!</span>
             </div>
-            
+
             {/* Display the uploaded image */}
-            <div className="relative w-64 h-48 mx-auto rounded-lg overflow-hidden shadow-md">
+            <div className="relative mx-auto h-48 w-64 overflow-hidden rounded-lg shadow-md">
               <Image
                 src={uploadedUrl}
                 alt="Successfully uploaded photo"
@@ -70,9 +73,9 @@ export function ContributePhotosSection() {
                 className="object-cover"
               />
             </div>
-            
+
             <div className="space-y-2">
-              <p className="text-sm text-text-secondary">
+              <p className="text-text-secondary text-sm">
                 Thank you for contributing to our community.
               </p>
               <button
@@ -86,24 +89,24 @@ export function ContributePhotosSection() {
         ) : (
           <div className="w-full space-y-4">
             <ImageUploader onFileSelect={handleFileSelect} />
-            
+
             {uploadStatus === "uploading" && (
               <div className="text-center">
-                <div className="inline-flex items-center space-x-2 text-ocean-blue">
-                  <div className="animate-spin h-4 w-4 border-2 border-ocean-blue border-t-transparent rounded-full"></div>
+                <div className="text-ocean-blue inline-flex items-center space-x-2">
+                  <div className="border-ocean-blue h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"></div>
                   <span>Uploading your photo...</span>
                 </div>
               </div>
             )}
-            
+
             {uploadStatus === "error" && (
-              <div className="text-center space-y-2">
-                <div className="flex items-center justify-center space-x-2 text-accent-error">
+              <div className="space-y-2 text-center">
+                <div className="text-accent-error flex items-center justify-center space-x-2">
                   <ExclamationCircleIcon className="h-5 w-5" />
                   <span className="font-medium">Upload failed</span>
                 </div>
-                <p className="text-sm text-accent-error">{errorMessage}</p>
-                <p className="text-xs text-text-secondary">
+                <p className="text-accent-error text-sm">{errorMessage}</p>
+                <p className="text-text-secondary text-xs">
                   Please try again or check if you&apos;re logged in.
                 </p>
               </div>

@@ -131,8 +131,8 @@ export function VideoHeroSection({
         />
 
         {/* Brand-colored Gradient Overlay for Text Readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-ocean-blue/80 via-ocean-blue/30 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-valley-green/40 via-transparent to-ocean-blue/40" />
+        <div className="from-ocean-blue/80 via-ocean-blue/30 absolute inset-0 bg-gradient-to-t to-transparent" />
+        <div className="from-valley-green/40 to-ocean-blue/40 absolute inset-0 bg-gradient-to-r via-transparent" />
       </div>
 
       {/* Content Overlay */}
@@ -144,7 +144,7 @@ export function VideoHeroSection({
               {title}
             </h1>
             {subtitle && (
-              <p className="font-sans mt-6 text-lg leading-8 text-white/90 sm:text-xl">
+              <p className="mt-6 font-sans text-lg leading-8 text-white/90 sm:text-xl">
                 {subtitle}
               </p>
             )}
@@ -159,7 +159,7 @@ export function VideoHeroSection({
                 custom={content.delay}
                 className="font-serif text-lg text-white/95 sm:text-xl"
               >
-                <span className="inline-block rounded-lg bg-gradient-to-r from-ocean-blue/60 to-valley-green/60 px-6 py-3 backdrop-blur-sm border border-white/20 shadow-lg">
+                <span className="from-ocean-blue/60 to-valley-green/60 inline-block rounded-lg border border-white/20 bg-gradient-to-r px-6 py-3 shadow-lg backdrop-blur-sm">
                   {content.text}
                 </span>
               </motion.div>
@@ -176,14 +176,14 @@ export function VideoHeroSection({
           y: isInView ? 0 : 20,
         }}
         transition={{ delay: 3, duration: 0.6 }}
-        className="absolute bottom-44 left-1/2 transform -translate-x-1/2 z-20"
+        className="absolute bottom-44 left-1/2 z-20 -translate-x-1/2 transform"
       >
         <button
           onClick={handleScrollToNext}
-          className="group flex flex-col items-center text-white/80 hover:text-white transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-sunny-yellow/50 focus:ring-offset-2 rounded-lg p-2 cursor-pointer"
+          className="group focus:ring-sunny-yellow/50 flex cursor-pointer flex-col items-center rounded-lg p-2 text-white/80 transition-colors duration-300 hover:text-white focus:ring-2 focus:ring-offset-2 focus:outline-none"
           aria-label="Scroll to next section to continue reading the story"
         >
-          <span className="font-sans mb-3 text-sm uppercase tracking-widest font-semibold">
+          <span className="mb-3 font-sans text-sm font-semibold tracking-widest uppercase">
             Explore Further
           </span>
           <motion.div
@@ -193,7 +193,7 @@ export function VideoHeroSection({
               repeat: Infinity,
               ease: "easeInOut" as const,
             }}
-            className="h-6 w-6 text-sunny-yellow"
+            className="text-sunny-yellow h-6 w-6"
           >
             <svg
               fill="none"
@@ -214,8 +214,8 @@ export function VideoHeroSection({
 
       {/* Reduced Motion Fallback Message */}
       {reducedMotion && (
-        <div className="absolute bottom-6 right-6 z-20">
-          <div className="rounded-lg bg-ocean-blue/70 px-4 py-2 text-sm text-white/95 backdrop-blur-sm border border-white/20 shadow-lg">
+        <div className="absolute right-6 bottom-6 z-20">
+          <div className="bg-ocean-blue/70 rounded-lg border border-white/20 px-4 py-2 text-sm text-white/95 shadow-lg backdrop-blur-sm">
             Video paused for accessibility
           </div>
         </div>

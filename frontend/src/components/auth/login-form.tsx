@@ -39,14 +39,14 @@ export function LoginForm() {
   };
 
   return (
-    <motion.div 
+    <motion.div
       className="mx-auto max-w-md"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
-      <motion.form 
-        onSubmit={handleLogin} 
+      <motion.form
+        onSubmit={handleLogin}
         className="space-y-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -65,7 +65,7 @@ export function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="transition-all duration-200 focus:ring-2 focus:ring-ocean-blue focus:border-transparent"
+              className="focus:ring-ocean-blue transition-all duration-200 focus:border-transparent focus:ring-2"
             />
           </Field>
         </motion.div>
@@ -83,7 +83,7 @@ export function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="transition-all duration-200 focus:ring-2 focus:ring-ocean-blue focus:border-transparent"
+              className="focus:ring-ocean-blue transition-all duration-200 focus:border-transparent focus:ring-2"
             />
           </Field>
         </motion.div>
@@ -108,13 +108,10 @@ export function LoginForm() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.3 }}
         >
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
             <Button
               type="submit"
-              className="w-full bg-ocean-blue relative overflow-hidden"
+              className="bg-ocean-blue relative w-full overflow-hidden"
               disabled={isSubmitting}
             >
               <AnimatePresence mode="wait">

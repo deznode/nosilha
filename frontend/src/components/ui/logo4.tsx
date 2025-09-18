@@ -34,10 +34,10 @@ export function Logo() {
     const getColors = () => {
       const style = getComputedStyle(document.documentElement);
       return [
-        style.getPropertyValue('--color-ocean-blue').trim(),
-        style.getPropertyValue('--color-valley-green').trim(),
-        style.getPropertyValue('--color-sunny-yellow').trim(),
-        style.getPropertyValue('--color-volcanic-gray').trim(),
+        style.getPropertyValue("--color-ocean-blue").trim(),
+        style.getPropertyValue("--color-valley-green").trim(),
+        style.getPropertyValue("--color-sunny-yellow").trim(),
+        style.getPropertyValue("--color-volcanic-gray").trim(),
       ];
     };
     const colors = getColors();
@@ -105,7 +105,7 @@ export function Logo() {
   }, []);
 
   return (
-    <div className="relative flex h-48 w-full items-center justify-center rounded-lg bg-volcanic-gray-dark">
+    <div className="bg-volcanic-gray-dark relative flex h-48 w-full items-center justify-center rounded-lg">
       <canvas ref={canvasRef} className="absolute inset-0 z-0 h-full w-full" />
       <h1 className="relative z-10 font-serif text-6xl font-bold text-white drop-shadow-lg">
         Nosilha

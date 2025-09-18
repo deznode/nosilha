@@ -1,6 +1,6 @@
 /**
  * Interface representing a town or village on Brava Island.
- * 
+ *
  * Towns are geographic containers that hold directory entries (businesses, landmarks, etc.).
  * This interface matches the TownDto from the backend API.
  */

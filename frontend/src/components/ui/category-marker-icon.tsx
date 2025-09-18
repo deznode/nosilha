@@ -17,13 +17,17 @@ export function CategoryMarkerIcon({
 }: CategoryMarkerIconProps) {
   switch (category) {
     case "Restaurant":
-      return <ShoppingBagIcon className={`${className} text-bougainvillea-pink`} />;
+      return (
+        <ShoppingBagIcon className={`${className} text-bougainvillea-pink`} />
+      );
     case "Hotel":
       return <BuildingOffice2Icon className={`${className} text-ocean-blue`} />;
     case "Beach":
       return <SunIcon className={`${className} text-sunny-yellow`} />;
     case "Landmark":
-      return <BuildingLibraryIcon className={`${className} text-valley-green`} />;
+      return (
+        <BuildingLibraryIcon className={`${className} text-valley-green`} />
+      );
     default:
       return <MapPinIcon className={`${className} text-text-tertiary`} />;
   }

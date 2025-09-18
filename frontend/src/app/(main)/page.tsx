@@ -4,7 +4,12 @@ import Image from "next/image";
 import { getEntriesByCategory } from "@/lib/api";
 import { DirectoryCard } from "@/components/ui/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
-import { generatePageMetadata, siteConfig, createStructuredDataScript, generateOrganizationSchema } from "@/lib/metadata";
+import {
+  generatePageMetadata,
+  siteConfig,
+  createStructuredDataScript,
+  generateOrganizationSchema,
+} from "@/lib/metadata";
 import type { TouristDestinationSchema } from "@/types/metadata";
 import {
   MapIcon,
@@ -18,7 +23,8 @@ import {
 // Generate metadata for homepage with cultural heritage focus
 export const metadata: Metadata = generatePageMetadata({
   title: "Discover the Soul of Brava Island",
-  description: "Your gateway to authentic Cape Verdean culture and heritage on Brava Island. Explore stunning landscapes, local businesses, cultural sites, and connect with the global Cape Verdean diaspora.",
+  description:
+    "Your gateway to authentic Cape Verdean culture and heritage on Brava Island. Explore stunning landscapes, local businesses, cultural sites, and connect with the global Cape Verdean diaspora.",
   path: "/",
   keywords: [
     "Brava Island homepage",
@@ -37,7 +43,8 @@ export const metadata: Metadata = generatePageMetadata({
       "@context": "https://schema.org",
       "@type": "TouristDestination",
       name: "Brava Island, Cape Verde",
-      description: "The flower island of Cape Verde, known for its lush landscapes, rich cultural heritage, and authentic Cape Verdean experiences.",
+      description:
+        "The flower island of Cape Verde, known for its lush landscapes, rich cultural heritage, and authentic Cape Verdean experiences.",
       image: [`${siteConfig.url}/images/hero.jpg`],
       address: {
         "@type": "PostalAddress",
@@ -49,7 +56,12 @@ export const metadata: Metadata = generatePageMetadata({
         latitude: 14.8676,
         longitude: -24.7098,
       },
-      touristType: ["cultural tourism", "eco-tourism", "heritage tourism", "island tourism"],
+      touristType: [
+        "cultural tourism",
+        "eco-tourism",
+        "heritage tourism",
+        "island tourism",
+      ],
     } as TouristDestinationSchema,
   ],
   baseUrl: siteConfig.url,
@@ -151,7 +163,7 @@ export default async function HomePage() {
           <div className="mt-10">
             <Link
               href="/map"
-              className="rounded-md bg-ocean-blue px-6 py-3.5 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-ocean-blue/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocean-blue"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 focus-visible:outline-ocean-blue rounded-md px-6 py-3.5 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               Explore the Interactive Map
             </Link>
@@ -166,7 +178,7 @@ export default async function HomePage() {
             title="Featured Highlights"
             subtitle="Get a glimpse of the unique places and experiences Brava has to offer."
           />
-          <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:mx-0 lg:max-w-none lg:grid-cols-4 md:grid-cols-2">
+          <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 md:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-4">
             {featuredEntries.slice(0, 4).map((entry) => (
               <DirectoryCard key={entry.id} entry={entry} />
             ))}
@@ -178,13 +190,13 @@ export default async function HomePage() {
       <div className="bg-background-secondary py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:text-center">
-            <h2 className="text-base font-semibold leading-7 text-ocean-blue">
+            <h2 className="text-ocean-blue text-base leading-7 font-semibold">
               An Island of Treasures
             </h2>
-            <p className="mt-2 font-serif text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
+            <p className="text-text-primary mt-2 font-serif text-3xl font-bold tracking-tight sm:text-4xl">
               Your Comprehensive Guide to Brava
             </p>
-            <p className="mt-6 text-lg leading-8 text-text-secondary">
+            <p className="text-text-secondary mt-6 text-lg leading-8">
               Our platform is designed to help you explore every facet of the
               island, from its stunning geography to its rich cultural tapestry.
             </p>
@@ -195,10 +207,10 @@ export default async function HomePage() {
                 <Link
                   key={feature.name}
                   href={feature.href}
-                  className="group relative block pl-16 rounded-lg p-4 transition-all duration-300 hover:bg-background-primary hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-ocean-blue focus:ring-offset-2"
+                  className="group hover:bg-background-primary focus:ring-ocean-blue relative block rounded-lg p-4 pl-16 transition-all duration-300 hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:outline-none"
                 >
-                  <dt className="text-base font-semibold leading-7 text-text-primary group-hover:text-ocean-blue transition-colors duration-300">
-                    <div className="absolute left-4 top-4 flex h-10 w-10 items-center justify-center rounded-lg bg-ocean-blue group-hover:bg-ocean-blue/90 transition-colors duration-300">
+                  <dt className="text-text-primary group-hover:text-ocean-blue text-base leading-7 font-semibold transition-colors duration-300">
+                    <div className="bg-ocean-blue group-hover:bg-ocean-blue/90 absolute top-4 left-4 flex h-10 w-10 items-center justify-center rounded-lg transition-colors duration-300">
                       <feature.icon
                         className="h-6 w-6 text-white"
                         aria-hidden="true"
@@ -206,7 +218,7 @@ export default async function HomePage() {
                     </div>
                     {feature.name}
                   </dt>
-                  <dd className="mt-2 text-base leading-7 text-text-secondary group-hover:text-text-primary transition-colors duration-300">
+                  <dd className="text-text-secondary group-hover:text-text-primary mt-2 text-base leading-7 transition-colors duration-300">
                     {feature.description}
                   </dd>
                 </Link>
@@ -220,13 +232,13 @@ export default async function HomePage() {
       <section className="bg-background-primary py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:text-center">
-            <h2 className="text-base font-semibold leading-7 text-ocean-blue">
+            <h2 className="text-ocean-blue text-base leading-7 font-semibold">
               Discover More
             </h2>
-            <p className="mt-2 font-serif text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
+            <p className="text-text-primary mt-2 font-serif text-3xl font-bold tracking-tight sm:text-4xl">
               Popular Destinations & Stories
             </p>
-            <p className="mt-6 text-lg leading-8 text-text-secondary">
+            <p className="text-text-secondary mt-6 text-lg leading-8">
               Don&apos;t miss these essential pages that showcase the depth and
               beauty of Brava&apos;s culture and communities.
             </p>
@@ -236,24 +248,24 @@ export default async function HomePage() {
               <Link
                 key={page.name}
                 href={page.href}
-                className="group relative flex gap-x-6 rounded-lg p-6 text-sm leading-6 hover:bg-background-secondary transition-all duration-300 hover:shadow-md border border-border-primary hover:border-ocean-blue/30"
+                className="group hover:bg-background-secondary border-border-primary hover:border-ocean-blue/30 relative flex gap-x-6 rounded-lg border p-6 text-sm leading-6 transition-all duration-300 hover:shadow-md"
               >
-                <div className="flex h-12 w-12 flex-none items-center justify-center rounded-lg bg-ocean-blue/10 group-hover:bg-ocean-blue/20 transition-colors duration-300">
+                <div className="bg-ocean-blue/10 group-hover:bg-ocean-blue/20 flex h-12 w-12 flex-none items-center justify-center rounded-lg transition-colors duration-300">
                   <page.icon
-                    className="h-6 w-6 text-ocean-blue group-hover:text-ocean-blue/90"
+                    className="text-ocean-blue group-hover:text-ocean-blue/90 h-6 w-6"
                     aria-hidden="true"
                   />
                 </div>
                 <div className="flex-auto">
                   <div className="flex items-center gap-x-2">
-                    <span className="text-xs font-medium text-ocean-blue bg-ocean-blue/10 px-2 py-1 rounded-md">
+                    <span className="text-ocean-blue bg-ocean-blue/10 rounded-md px-2 py-1 text-xs font-medium">
                       {page.category}
                     </span>
                   </div>
-                  <div className="mt-2 font-semibold text-text-primary group-hover:text-ocean-blue transition-colors duration-300">
+                  <div className="text-text-primary group-hover:text-ocean-blue mt-2 font-semibold transition-colors duration-300">
                     {page.name}
                   </div>
-                  <p className="mt-1 text-text-secondary group-hover:text-text-primary transition-colors duration-300">
+                  <p className="text-text-secondary group-hover:text-text-primary mt-1 transition-colors duration-300">
                     {page.description}
                   </p>
                 </div>

@@ -7,18 +7,18 @@ import { Card } from "@/components/ui/card";
  */
 export function DirectoryCardSkeleton() {
   return (
-    <Card className="h-full overflow-hidden animate-pulse">
+    <Card className="h-full animate-pulse overflow-hidden">
       {/* Image Section Skeleton - matches aspect-[16/10] from DirectoryCard */}
-      <div className="relative aspect-[16/10] w-full bg-background-tertiary" />
+      <div className="bg-background-tertiary relative aspect-[16/10] w-full" />
 
       {/* Content Section Skeleton */}
       <div className="flex flex-1 flex-col p-4">
         <div className="flex-1">
           {/* Category & Town Line - matches entry.category & entry.town */}
-          <div className="h-4 bg-background-tertiary rounded w-2/3 mb-2" />
-          
+          <div className="bg-background-tertiary mb-2 h-4 w-2/3 rounded" />
+
           {/* Title Line - matches entry.name */}
-          <div className="h-6 bg-background-tertiary rounded w-3/4" />
+          <div className="bg-background-tertiary h-6 w-3/4 rounded" />
         </div>
 
         {/* Rating Section Skeleton - matches StarRating & review count */}
@@ -26,11 +26,14 @@ export function DirectoryCardSkeleton() {
           {/* Star rating placeholder */}
           <div className="flex gap-1">
             {Array.from({ length: 5 }).map((_, index) => (
-              <div key={index} className="h-4 w-4 bg-background-tertiary rounded" />
+              <div
+                key={index}
+                className="bg-background-tertiary h-4 w-4 rounded"
+              />
             ))}
           </div>
           {/* Review count placeholder */}
-          <div className="h-4 bg-background-tertiary rounded w-20" />
+          <div className="bg-background-tertiary h-4 w-20 rounded" />
         </div>
       </div>
     </Card>

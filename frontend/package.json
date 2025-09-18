@@ -29,10 +29,13 @@
     "test:ci:mobile": "npm run test:mobile && npm run lighthouse:audit",
     "test:ci:performance": "npm run test:performance && npm run k6:all",
     "test:ci:contracts": "npm run test:api",
-    
     "mcp:server": "npx @playwright/mcp@latest --config .mcp/server-config.json",
     "mcp:server:headless": "npx @playwright/mcp@latest --config .mcp/server-config.json --headless",
-    "mcp:server:port": "npx @playwright/mcp@latest --config .mcp/server-config.json --port 8931"
+    "mcp:server:port": "npx @playwright/mcp@latest --config .mcp/server-config.json --port 8931",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint:fix": "next lint --fix && prettier --write .",
+    "lint:all": "next lint && prettier --check ."
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
@@ -63,6 +66,10 @@
     "dotenv": "^16.3.1",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.6.14",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

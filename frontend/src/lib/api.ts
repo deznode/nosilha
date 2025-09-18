@@ -3,8 +3,18 @@ import type { Town } from "@/types/town";
 import type { ApiErrorResponse, ErrorDetail } from "@/types/api";
 import { env, getApiEndpoint } from "@/lib/env";
 import { supabase } from "@/lib/supabase-client";
-import { getMockEntriesByCategory, getMockEntryBySlug, getMockTowns, getMockTownBySlug } from "@/lib/mock-api";
-import { validateDirectoryEntries, validateDirectoryEntry, validateTowns, validateTown } from "@/lib/api-validation";
+import {
+  getMockEntriesByCategory,
+  getMockEntryBySlug,
+  getMockTowns,
+  getMockTownBySlug,
+} from "@/lib/mock-api";
+import {
+  validateDirectoryEntries,
+  validateDirectoryEntry,
+  validateTowns,
+  validateTown,
+} from "@/lib/api-validation";
 
 /**
  * Creates an authenticated fetch request with JWT token from Supabase session
@@ -67,7 +77,7 @@ export async function getEntriesByCategory(
   size: number = 20
 ): Promise<DirectoryEntry[]> {
   const params = new URLSearchParams();
-  
+
   if (category.toLowerCase() !== "all") {
     params.append("category", category);
   }
@@ -78,10 +88,10 @@ export async function getEntriesByCategory(
 
   try {
     // Use ISR with 1 hour cache for directory content (semi-static data)
-    const response = await fetch(endpoint, { 
-      next: { revalidate: 3600 } 
+    const response = await fetch(endpoint, {
+      next: { revalidate: 3600 },
     });
-    
+
     if (!response.ok) {
       throw new Error(`API call failed with status: ${response.status}`);
     }
@@ -91,7 +101,10 @@ export async function getEntriesByCategory(
     const rawData = apiResponse.data || [];
     return validateDirectoryEntries(rawData);
   } catch (error) {
-    console.error("Failed to fetch entries by category, using fallback:", error);
+    console.error(
+      "Failed to fetch entries by category, using fallback:",
+      error
+    );
     // Fallback to mock data for resilience
     return getMockEntriesByCategory(category);
   }
@@ -110,8 +123,8 @@ export async function getEntryBySlug(
 
   try {
     // Use ISR with 30 minute cache for individual entries
-    const response = await fetch(endpoint, { 
-      next: { revalidate: 1800 } 
+    const response = await fetch(endpoint, {
+      next: { revalidate: 1800 },
     });
 
     if (!response.ok) {
@@ -126,7 +139,10 @@ export async function getEntryBySlug(
     // Extract and validate data from ApiResponse - backend returns ApiResponse<DirectoryEntryDto>
     return validateDirectoryEntry(apiResponse.data) || undefined;
   } catch (error) {
-    console.error(`Failed to fetch entry by slug "${slug}", using fallback:`, error);
+    console.error(
+      `Failed to fetch entry by slug "${slug}", using fallback:`,
+      error
+    );
     // Fallback to mock data for resilience
     return getMockEntryBySlug(slug);
   }
@@ -138,7 +154,10 @@ export async function getEntryBySlug(
  * @returns A promise that resolves to the newly created directory entry.
  */
 export async function createDirectoryEntry(
-  entryData: Omit<DirectoryEntry, "id" | "slug" | "rating" | "reviewCount" | "createdAt" | "updatedAt">
+  entryData: Omit<
+    DirectoryEntry,
+    "id" | "slug" | "rating" | "reviewCount" | "createdAt" | "updatedAt"
+  >
 ): Promise<DirectoryEntry> {
   const endpoint = `${env.apiUrl}/api/v1/directory/entries`;
 
@@ -153,17 +172,21 @@ export async function createDirectoryEntry(
   if (!response.ok) {
     try {
       const errorResult = await response.json();
-      
+
       // Handle validation errors with detailed field information
       if (errorResult.error === "Validation failed" && errorResult.details) {
-        const fieldErrors = errorResult.details.map((detail: ErrorDetail) => 
-          `${detail.field}: ${detail.message}`
-        ).join(", ");
+        const fieldErrors = errorResult.details
+          .map((detail: ErrorDetail) => `${detail.field}: ${detail.message}`)
+          .join(", ");
         throw new Error(`Validation failed: ${fieldErrors}`);
       }
-      
+
       // Handle other structured errors
-      throw new Error(errorResult.error || errorResult.message || `API error: ${response.status}`);
+      throw new Error(
+        errorResult.error ||
+          errorResult.message ||
+          `API error: ${response.status}`
+      );
     } catch (parseError) {
       // If we can't parse the error response, provide a generic message
       throw new Error(`Failed to create directory entry (${response.status})`);
@@ -185,7 +208,7 @@ export async function getEntriesForMap(
   category: string = "all"
 ): Promise<DirectoryEntry[]> {
   const params = new URLSearchParams();
-  
+
   if (category.toLowerCase() !== "all") {
     params.append("category", category);
   }
@@ -197,7 +220,7 @@ export async function getEntriesForMap(
   try {
     // Keep dynamic for real-time map interactions
     const response = await fetch(endpoint, { cache: "no-store" });
-    
+
     if (!response.ok) {
       throw new Error(`API call failed with status: ${response.status}`);
     }
@@ -243,7 +266,11 @@ export async function uploadImage(
   if (!response.ok) {
     try {
       const errorResult = await response.json();
-      throw new Error(errorResult.error || errorResult.message || `Upload failed (${response.status})`);
+      throw new Error(
+        errorResult.error ||
+          errorResult.message ||
+          `Upload failed (${response.status})`
+      );
     } catch (parseError) {
       throw new Error(`Failed to upload image (${response.status})`);
     }
@@ -264,10 +291,10 @@ export async function getTowns(): Promise<Town[]> {
 
   try {
     // Use ISR with 1 hour cache for towns data (semi-static data)
-    const response = await fetch(endpoint, { 
-      next: { revalidate: 3600 } 
+    const response = await fetch(endpoint, {
+      next: { revalidate: 3600 },
     });
-    
+
     if (!response.ok) {
       throw new Error(`API call failed with status: ${response.status}`);
     }
@@ -289,15 +316,13 @@ export async function getTowns(): Promise<Town[]> {
  * @param slug The slug of the town to fetch.
  * @returns A promise that resolves to a single town or undefined if not found.
  */
-export async function getTownBySlug(
-  slug: string
-): Promise<Town | undefined> {
+export async function getTownBySlug(slug: string): Promise<Town | undefined> {
   const endpoint = `${env.apiUrl}/api/v1/towns/slug/${slug}`;
 
   try {
     // Use ISR with 30 minute cache for individual towns
-    const response = await fetch(endpoint, { 
-      next: { revalidate: 1800 } 
+    const response = await fetch(endpoint, {
+      next: { revalidate: 1800 },
     });
 
     if (!response.ok) {
@@ -312,7 +337,10 @@ export async function getTownBySlug(
     // Extract and validate data from ApiResponse - backend returns ApiResponse<TownDto>
     return validateTown(apiResponse.data) || undefined;
   } catch (error) {
-    console.error(`Failed to fetch town by slug "${slug}", using fallback:`, error);
+    console.error(
+      `Failed to fetch town by slug "${slug}", using fallback:`,
+      error
+    );
     // Fallback to mock data for resilience
     return getMockTownBySlug(slug);
   }
@@ -329,7 +357,7 @@ export async function getTownsForMap(): Promise<Town[]> {
   try {
     // Keep dynamic for real-time map interactions
     const response = await fetch(endpoint, { cache: "no-store" });
-    
+
     if (!response.ok) {
       throw new Error(`API call failed with status: ${response.status}`);
     }

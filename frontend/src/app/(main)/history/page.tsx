@@ -70,7 +70,7 @@ const historicalFigures = [
 ];
 
 const citations = [
-  // Geological & Formation Sources  
+  // Geological & Formation Sources
   {
     source:
       "Volcano-stratigraphic and structural evolution of Brava Island (Cape Verde) based on 40Ar/39Ar, U–Th and field constraints",
@@ -80,7 +80,7 @@ const citations = [
   },
   {
     source: "Volcano-tectonic structure of Brava Island (Cape Verde)",
-    author: "ResearchGate", 
+    author: "ResearchGate",
     year: 2025,
     url: "https://www.researchgate.net/publication/257426859_Volcano-tectonic_structure_of_Brava_Island_Cape_Verde",
   },
@@ -91,18 +91,20 @@ const citations = [
     url: "https://volcano.si.edu/volcano.cfm?vn=384020",
   },
   {
-    source: "Anthropogenic transitions from forested to human-dominated landscapes in southern Macaronesia",
+    source:
+      "Anthropogenic transitions from forested to human-dominated landscapes in southern Macaronesia",
     author: "PNAS",
     year: 2025,
     url: "https://www.pnas.org/doi/10.1073/pnas.2022215118",
   },
   {
-    source: "Tracing human impacts on the islands of Cabo Verde: Palaeoecology for the conservation of island ecosystems",
+    source:
+      "Tracing human impacts on the islands of Cabo Verde: Palaeoecology for the conservation of island ecosystems",
     author: "ResearchGate",
     year: 2025,
     url: "https://www.researchgate.net/publication/363365368_Tracing_human_impacts_on_the_islands_of_Cabo_Verde_Palaeoecology_for_the_conservation_of_island_ecosystems",
   },
-  
+
   // Historical & Migration Sources
   {
     source: "Cape Verde: Brava - Portuguese Historical Museum",
@@ -142,7 +144,7 @@ const citations = [
     year: 2025,
     url: "https://www.britannica.com/place/Cabo-Verde/Struggle-for-independence",
   },
-  
+
   // Cultural & Musical Heritage Sources
   {
     source: "Morna - Cabo Verde",
@@ -168,7 +170,7 @@ const citations = [
     year: 2025,
     url: "http://www.capecodcvmuseum.org/timeline",
   },
-  
+
   // Contemporary & Modern Sources
   {
     source: "Cloud-moisture harvesting to combat hydroclimatic risk",
@@ -177,7 +179,8 @@ const citations = [
     url: "https://www.unesco.org/en/articles/cloud-moisture-harvesting-combat-hydroclimatc-risk",
   },
   {
-    source: "A new road for safety, development, and tourism on a seismic island",
+    source:
+      "A new road for safety, development, and tourism on a seismic island",
     author: "World Bank",
     year: 2025,
     url: "https://www.worldbank.org/en/news/feature/2023/02/23/cabo-verde-a-new-road-for-safety-development-and-tourism-on-a-seismic-island",
@@ -188,10 +191,11 @@ const citations = [
     year: 2025,
     url: "https://www.brava.news/en/ilha-brava-50-years-of-independence-a-suffocated-hope",
   },
-  
+
   // Additional Academic Sources
   {
-    source: "A genetic and linguistic analysis of the admixture histories of the islands of Cabo Verde",
+    source:
+      "A genetic and linguistic analysis of the admixture histories of the islands of Cabo Verde",
     author: "eLife Sciences",
     year: 2025,
     url: "https://elifesciences.org/articles/79827",
@@ -223,9 +227,9 @@ export default function HistoryPage() {
         />
 
         {/* Introduction Section */}
-        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
-          <div className="max-w-4xl mx-auto">
-            <p className="text-lg text-text-secondary mb-6">
+        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+          <div className="mx-auto max-w-4xl">
+            <p className="text-text-secondary mb-6 text-lg">
               Brava Island occupies a unique position in Cape Verdean history—a
               place where geography and circumstance converged to create
               something extraordinary. Known by the Portuguese name
@@ -263,8 +267,8 @@ export default function HistoryPage() {
         </section>
 
         {/* Geological Origins & Settlement */}
-        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6">
+        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+          <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
             A Land Born of Fire: From Submarine Birth to Refuge Island
           </h3>
           <p className="text-text-secondary mb-8 text-center italic">
@@ -272,9 +276,9 @@ export default function HistoryPage() {
             ancient story of fire, sea, and human resilience.
           </p>
 
-          <div className="grid gap-8 lg:grid-cols-2 mb-8">
+          <div className="mb-8 grid gap-8 lg:grid-cols-2">
             <div>
-              <h4 className="font-semibold text-lg text-text-primary mb-3">
+              <h4 className="text-text-primary mb-3 text-lg font-semibold">
                 Geological Genesis
               </h4>
               <p className="text-text-secondary mb-4">
@@ -300,7 +304,7 @@ export default function HistoryPage() {
             </div>
 
             <div>
-              <h4 className="font-semibold text-lg text-text-primary mb-3">
+              <h4 className="text-text-primary mb-3 text-lg font-semibold">
                 The Great Migration of 1680
               </h4>
               <p className="text-text-secondary mb-4">
@@ -328,8 +332,8 @@ export default function HistoryPage() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-ocean-blue/5 to-valley-green/5 p-6 rounded-lg border-l-4 border-ocean-blue">
-            <h4 className="font-semibold text-lg text-text-primary mb-3">
+          <div className="from-ocean-blue/5 to-valley-green/5 border-ocean-blue rounded-lg border-l-4 bg-gradient-to-r p-6">
+            <h4 className="text-text-primary mb-3 text-lg font-semibold">
               A Community Forged by Compassion
             </h4>
             <p className="text-text-secondary">
@@ -345,7 +349,7 @@ export default function HistoryPage() {
 
         {/* Historical Sections */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
+          <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
             Chapters of Brava&apos;s Story
           </h3>
 
@@ -353,18 +357,18 @@ export default function HistoryPage() {
             {historicalSections.map((section, index) => (
               <div
                 key={section.title}
-                className={`grid gap-8 lg:grid-cols-2 items-center ${
+                className={`grid items-center gap-8 lg:grid-cols-2 ${
                   index % 2 === 1 ? "lg:grid-flow-col-dense" : ""
                 }`}
               >
                 <div className={index % 2 === 1 ? "lg:col-start-2" : ""}>
-                  <div className="flex items-center mb-4">
-                    <section.icon className="h-8 w-8 text-ocean-blue mr-3" />
-                    <h4 className="font-serif text-xl font-bold text-text-primary">
+                  <div className="mb-4 flex items-center">
+                    <section.icon className="text-ocean-blue mr-3 h-8 w-8" />
+                    <h4 className="text-text-primary font-serif text-xl font-bold">
                       {section.title}
                     </h4>
                   </div>
-                  <p className="text-sm text-text-secondary mb-3 font-medium">
+                  <p className="text-text-secondary mb-3 text-sm font-medium">
                     {section.description}
                   </p>
                   <p className="text-text-secondary">{section.content}</p>
@@ -379,7 +383,7 @@ export default function HistoryPage() {
                     alt={section.description}
                     courtesy={section.image_courtesy}
                     fill
-                    className="object-cover object-top rounded-lg"
+                    className="rounded-lg object-cover object-top"
                   />
                 </div>
               </div>
@@ -389,14 +393,14 @@ export default function HistoryPage() {
 
         {/* Whaling & Maritime Heritage */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
+          <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
             The Yankee Connection: Whaling & Maritime Heritage
           </h3>
 
-          <div className="bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary mb-8">
-            <div className="grid gap-8 lg:grid-cols-2 items-center">
+          <div className="bg-background-primary border-border-primary mb-8 rounded-lg border p-8 shadow-sm">
+            <div className="grid items-center gap-8 lg:grid-cols-2">
               <div>
-                <h4 className="font-serif text-xl font-bold text-text-primary mb-4">
+                <h4 className="text-text-primary mb-4 font-serif text-xl font-bold">
                   An Engine of Globalization
                 </h4>
                 <p className="text-text-secondary mb-4">
@@ -428,15 +432,15 @@ export default function HistoryPage() {
                   src="/images/history/whaling-heritage3.webp"
                   alt="Historic whaling vessel representing the maritime connection between Brava and New England"
                   fill
-                  className="object-cover object-top rounded-lg"
+                  className="rounded-lg object-cover object-top"
                 />
               </div>
             </div>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <h4 className="font-semibold text-lg text-text-primary mb-3">
+            <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
+              <h4 className="text-text-primary mb-3 text-lg font-semibold">
                 The &quot;Brava Packet Trade&quot;
               </h4>
               <p className="text-text-secondary mb-3">
@@ -447,7 +451,7 @@ export default function HistoryPage() {
                 community, carrying passengers, mail, cargo, and the emotional
                 threads binding families across the Atlantic.
               </p>
-              <ul className="text-sm text-text-secondary space-y-1">
+              <ul className="text-text-secondary space-y-1 text-sm">
                 <li>
                   • <strong>Nellie May:</strong> Endured a harrowing 90-day
                   crossing in 1893
@@ -467,8 +471,8 @@ export default function HistoryPage() {
               </ul>
             </div>
 
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <h4 className="font-semibold text-lg text-text-primary mb-3">
+            <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
+              <h4 className="text-text-primary mb-3 text-lg font-semibold">
                 A Transnational Lifeline
               </h4>
               <p className="text-text-secondary mb-3">
@@ -489,8 +493,8 @@ export default function HistoryPage() {
             </div>
           </div>
 
-          <div className="mt-8 bg-gradient-to-r from-valley-green/5 to-ocean-blue/5 p-6 rounded-lg border-l-4 border-valley-green">
-            <h4 className="font-semibold text-lg text-text-primary mb-3">
+          <div className="from-valley-green/5 to-ocean-blue/5 border-valley-green mt-8 rounded-lg border-l-4 bg-gradient-to-r p-6">
+            <h4 className="text-text-primary mb-3 text-lg font-semibold">
               Living Legacy
             </h4>
             <p className="text-text-secondary">
@@ -506,9 +510,9 @@ export default function HistoryPage() {
         </section>
 
         {/* Historical Figures - Preview */}
-        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
-          <div className="text-center mb-8">
-            <h3 className="font-serif text-2xl font-bold text-text-primary mb-4">
+        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+          <div className="mb-8 text-center">
+            <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
               Cultural Architects of Brava
             </h3>
             <p className="text-text-secondary mb-6">
@@ -518,7 +522,7 @@ export default function HistoryPage() {
             </p>
             <Link
               href="/people"
-              className="inline-flex items-center rounded-md bg-ocean-blue px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-ocean-blue/90"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 inline-flex items-center rounded-md px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105"
             >
               Explore All Historical Figures
               <svg
@@ -541,15 +545,15 @@ export default function HistoryPage() {
             {historicalFigures.map((figure) => (
               <div
                 key={figure.name}
-                className="border-l-4 border-ocean-blue pl-6"
+                className="border-ocean-blue border-l-4 pl-6"
               >
-                <h4 className="font-semibold text-lg text-text-primary">
+                <h4 className="text-text-primary text-lg font-semibold">
                   {figure.name}
                 </h4>
-                <p className="text-sm text-ocean-blue font-medium mb-2">
+                <p className="text-ocean-blue mb-2 text-sm font-medium">
                   {figure.role} • {figure.years}
                 </p>
-                <p className="text-sm text-text-secondary">
+                <p className="text-text-secondary text-sm">
                   {figure.description}
                 </p>
               </div>
@@ -559,17 +563,17 @@ export default function HistoryPage() {
 
         {/* Timeline Section */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
+          <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
             Key Historical Periods
           </h3>
 
           <div className="space-y-6">
-            <div className="flex items-start space-x-4 bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <div className="flex-shrink-0 w-16 text-center">
-                <span className="font-bold text-ocean-blue">1462</span>
+            <div className="bg-background-primary border-border-primary flex items-start space-x-4 rounded-lg border p-6 shadow-sm">
+              <div className="w-16 flex-shrink-0 text-center">
+                <span className="text-ocean-blue font-bold">1462</span>
               </div>
               <div>
-                <h4 className="font-semibold text-text-primary">Discovery</h4>
+                <h4 className="text-text-primary font-semibold">Discovery</h4>
                 <p className="text-text-secondary">
                   Brava Island is discovered by Portuguese navigators during the
                   Age of Exploration.
@@ -577,12 +581,12 @@ export default function HistoryPage() {
               </div>
             </div>
 
-            <div className="flex items-start space-x-4 bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <div className="flex-shrink-0 w-16 text-center">
-                <span className="font-bold text-ocean-blue">1680</span>
+            <div className="bg-background-primary border-border-primary flex items-start space-x-4 rounded-lg border p-6 shadow-sm">
+              <div className="w-16 flex-shrink-0 text-center">
+                <span className="text-ocean-blue font-bold">1680</span>
               </div>
               <div>
-                <h4 className="font-semibold text-text-primary">
+                <h4 className="text-text-primary font-semibold">
                   The Great Migration
                 </h4>
                 <p className="text-text-secondary">
@@ -595,12 +599,12 @@ export default function HistoryPage() {
               </div>
             </div>
 
-            <div className="flex items-start space-x-4 bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <div className="flex-shrink-0 w-16 text-center">
-                <span className="font-bold text-ocean-blue">1774</span>
+            <div className="bg-background-primary border-border-primary flex items-start space-x-4 rounded-lg border p-6 shadow-sm">
+              <div className="w-16 flex-shrink-0 text-center">
+                <span className="text-ocean-blue font-bold">1774</span>
               </div>
               <div>
-                <h4 className="font-semibold text-text-primary">
+                <h4 className="text-text-primary font-semibold">
                   The Great Famine
                 </h4>
                 <p className="text-text-secondary">
@@ -614,12 +618,12 @@ export default function HistoryPage() {
               </div>
             </div>
 
-            <div className="flex items-start space-x-4 bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <div className="flex-shrink-0 w-16 text-center">
-                <span className="font-bold text-ocean-blue">Late 1700s</span>
+            <div className="bg-background-primary border-border-primary flex items-start space-x-4 rounded-lg border p-6 shadow-sm">
+              <div className="w-16 flex-shrink-0 text-center">
+                <span className="text-ocean-blue font-bold">Late 1700s</span>
               </div>
               <div>
-                <h4 className="font-semibold text-text-primary">
+                <h4 className="text-text-primary font-semibold">
                   The Whaling Connection
                 </h4>
                 <p className="text-text-secondary">
@@ -633,12 +637,12 @@ export default function HistoryPage() {
               </div>
             </div>
 
-            <div className="flex items-start space-x-4 bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <div className="flex-shrink-0 w-16 text-center">
-                <span className="font-bold text-ocean-blue">1800s</span>
+            <div className="bg-background-primary border-border-primary flex items-start space-x-4 rounded-lg border p-6 shadow-sm">
+              <div className="w-16 flex-shrink-0 text-center">
+                <span className="text-ocean-blue font-bold">1800s</span>
               </div>
               <div>
-                <h4 className="font-semibold text-text-primary">
+                <h4 className="text-text-primary font-semibold">
                   Packet Trade Era
                 </h4>
                 <p className="text-text-secondary">
@@ -650,12 +654,12 @@ export default function HistoryPage() {
               </div>
             </div>
 
-            <div className="flex items-start space-x-4 bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <div className="flex-shrink-0 w-16 text-center">
-                <span className="font-bold text-ocean-blue">1867</span>
+            <div className="bg-background-primary border-border-primary flex items-start space-x-4 rounded-lg border p-6 shadow-sm">
+              <div className="w-16 flex-shrink-0 text-center">
+                <span className="text-ocean-blue font-bold">1867</span>
               </div>
               <div>
-                <h4 className="font-semibold text-text-primary">
+                <h4 className="text-text-primary font-semibold">
                   Birth of Eugénio Tavares
                 </h4>
                 <p className="text-text-secondary">
@@ -666,12 +670,12 @@ export default function HistoryPage() {
               </div>
             </div>
 
-            <div className="flex items-start space-x-4 bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <div className="flex-shrink-0 w-16 text-center">
-                <span className="font-bold text-ocean-blue">1900-1910</span>
+            <div className="bg-background-primary border-border-primary flex items-start space-x-4 rounded-lg border p-6 shadow-sm">
+              <div className="w-16 flex-shrink-0 text-center">
+                <span className="text-ocean-blue font-bold">1900-1910</span>
               </div>
               <div>
-                <h4 className="font-semibold text-text-primary">
+                <h4 className="text-text-primary font-semibold">
                   Tavares in Political Exile
                 </h4>
                 <p className="text-text-secondary">
@@ -686,12 +690,12 @@ export default function HistoryPage() {
               </div>
             </div>
 
-            <div className="flex items-start space-x-4 bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <div className="flex-shrink-0 w-16 text-center">
-                <span className="font-bold text-ocean-blue">1932</span>
+            <div className="bg-background-primary border-border-primary flex items-start space-x-4 rounded-lg border p-6 shadow-sm">
+              <div className="w-16 flex-shrink-0 text-center">
+                <span className="text-ocean-blue font-bold">1932</span>
               </div>
               <div>
-                <h4 className="font-semibold text-text-primary">
+                <h4 className="text-text-primary font-semibold">
                   Literary Immortality
                 </h4>
                 <p className="text-text-secondary">
@@ -705,12 +709,12 @@ export default function HistoryPage() {
               </div>
             </div>
 
-            <div className="flex items-start space-x-4 bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <div className="flex-shrink-0 w-16 text-center">
-                <span className="font-bold text-ocean-blue">1975</span>
+            <div className="bg-background-primary border-border-primary flex items-start space-x-4 rounded-lg border p-6 shadow-sm">
+              <div className="w-16 flex-shrink-0 text-center">
+                <span className="text-ocean-blue font-bold">1975</span>
               </div>
               <div>
-                <h4 className="font-semibold text-text-primary">
+                <h4 className="text-text-primary font-semibold">
                   Independence & Cultural Continuity
                 </h4>
                 <p className="text-text-secondary">
@@ -723,12 +727,12 @@ export default function HistoryPage() {
               </div>
             </div>
 
-            <div className="flex items-start space-x-4 bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <div className="flex-shrink-0 w-16 text-center">
-                <span className="font-bold text-ocean-blue">2004-Present</span>
+            <div className="bg-background-primary border-border-primary flex items-start space-x-4 rounded-lg border p-6 shadow-sm">
+              <div className="w-16 flex-shrink-0 text-center">
+                <span className="text-ocean-blue font-bold">2004-Present</span>
               </div>
               <div>
-                <h4 className="font-semibold text-text-primary">
+                <h4 className="text-text-primary font-semibold">
                   Modern Challenges & Innovation
                 </h4>
                 <p className="text-text-secondary">
@@ -747,18 +751,18 @@ export default function HistoryPage() {
         </section>
 
         {/* Cultural Traditions */}
-        <section className="mt-16 bg-gradient-to-r from-ocean-blue/10 to-valley-green/10 p-8 rounded-lg">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6 text-center">
+        <section className="from-ocean-blue/10 to-valley-green/10 mt-16 rounded-lg bg-gradient-to-r p-8">
+          <h3 className="text-text-primary mb-6 text-center font-serif text-2xl font-bold">
             Living Traditions: The Cultural DNA of Brava
           </h3>
 
           <div className="grid gap-6 md:grid-cols-3">
             <div className="text-center">
-              <MusicalNoteIcon className="h-12 w-12 text-ocean-blue mx-auto mb-3" />
-              <h4 className="font-semibold text-text-primary mb-2">
+              <MusicalNoteIcon className="text-ocean-blue mx-auto mb-3 h-12 w-12" />
+              <h4 className="text-text-primary mb-2 font-semibold">
                 The Brava Morna
               </h4>
-              <p className="text-sm text-text-secondary">
+              <p className="text-text-secondary text-sm">
                 Brava pioneered the definitive morna style—slow tempo (around 60
                 beats per minute), romantic themes, and accentuated lyricism
                 rooted in 19th-century Romanticism. Eugénio Tavares transformed
@@ -770,11 +774,11 @@ export default function HistoryPage() {
             </div>
 
             <div className="text-center">
-              <BookOpenIcon className="h-12 w-12 text-valley-green mx-auto mb-3" />
-              <h4 className="font-semibold text-text-primary mb-2">
+              <BookOpenIcon className="text-valley-green mx-auto mb-3 h-12 w-12" />
+              <h4 className="text-text-primary mb-2 font-semibold">
                 Crioulo Literature
               </h4>
-              <p className="text-sm text-text-secondary">
+              <p className="text-text-secondary text-sm">
                 Brava was the birthplace of Cape Verdean literature in the
                 vernacular. Tavares pioneered writing in Brava Crioulo,
                 elevating the people&apos;s language to high art and literary
@@ -785,11 +789,11 @@ export default function HistoryPage() {
             </div>
 
             <div className="text-center">
-              <GlobeAltIcon className="h-12 w-12 text-bougainvillea-pink mx-auto mb-3" />
-              <h4 className="font-semibold text-text-primary mb-2">
+              <GlobeAltIcon className="text-bougainvillea-pink mx-auto mb-3 h-12 w-12" />
+              <h4 className="text-text-primary mb-2 font-semibold">
                 Transnational Identity
               </h4>
-              <p className="text-sm text-text-secondary">
+              <p className="text-text-secondary text-sm">
                 Brava&apos;s unique identity transcends geography—it exists
                 simultaneously in Cape Verde and New England. This hyphenated
                 identity, forged through whaling and maintained through family
@@ -803,13 +807,13 @@ export default function HistoryPage() {
 
         {/* Modern Cultural Preservation & Contemporary Challenges */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
+          <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
             Contemporary Brava: Heritage & Innovation
           </h3>
 
-          <div className="grid gap-8 md:grid-cols-2 mb-8">
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <h4 className="font-semibold text-lg text-text-primary mb-3">
+          <div className="mb-8 grid gap-8 md:grid-cols-2">
+            <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
+              <h4 className="text-text-primary mb-3 text-lg font-semibold">
                 The Diaspora Continues to Lead
               </h4>
               <p className="text-text-secondary mb-3">
@@ -820,7 +824,7 @@ export default function HistoryPage() {
                 civic life while maintaining deep homeland connections through
                 remittances, cultural preservation, and return visits.
               </p>
-              <p className="text-sm text-text-secondary">
+              <p className="text-text-secondary text-sm">
                 Contemporary artists like Gardenia Benrós and Vuca Pinheiro
                 bridge traditional and modern expression, with recent works
                 explicitly honoring Eugénio Tavares and reviving traditional
@@ -828,8 +832,8 @@ export default function HistoryPage() {
               </p>
             </div>
 
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <h4 className="font-semibold text-lg text-text-primary mb-3">
+            <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
+              <h4 className="text-text-primary mb-3 text-lg font-semibold">
                 Innovation from Isolation
               </h4>
               <p className="text-text-secondary mb-3">
@@ -840,7 +844,7 @@ export default function HistoryPage() {
                 collection projects that leverage its unique microclimate to
                 address water scarcity.
               </p>
-              <p className="text-sm text-text-secondary">
+              <p className="text-text-secondary text-sm">
                 Modern preservation efforts focus on documenting traditional
                 ecological knowledge, maintaining architectural heritage (Vila
                 Nova Sintra is on UNESCO&apos;s tentative list), and developing
@@ -851,57 +855,57 @@ export default function HistoryPage() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-4">
-            <div className="text-center p-4 bg-gradient-to-br from-ocean-blue/10 to-transparent rounded-lg">
-              <div className="text-2xl font-bold text-ocean-blue mb-1">
+            <div className="from-ocean-blue/10 rounded-lg bg-gradient-to-br to-transparent p-4 text-center">
+              <div className="text-ocean-blue mb-1 text-2xl font-bold">
                 ~6,000
               </div>
-              <div className="text-sm font-medium text-text-primary">
+              <div className="text-text-primary text-sm font-medium">
                 Island Residents
               </div>
-              <div className="text-xs text-text-secondary">
+              <div className="text-text-secondary text-xs">
                 Smallest inhabited island
               </div>
             </div>
 
-            <div className="text-center p-4 bg-gradient-to-br from-valley-green/10 to-transparent rounded-lg">
-              <div className="text-2xl font-bold text-valley-green mb-1">
+            <div className="from-valley-green/10 rounded-lg bg-gradient-to-br to-transparent p-4 text-center">
+              <div className="text-valley-green mb-1 text-2xl font-bold">
                 250+
               </div>
-              <div className="text-sm font-medium text-text-primary">
+              <div className="text-text-primary text-sm font-medium">
                 Years of Diaspora
               </div>
-              <div className="text-xs text-text-secondary">
+              <div className="text-text-secondary text-xs">
                 Since 1774 Great Famine
               </div>
             </div>
 
-            <div className="text-center p-4 bg-gradient-to-br from-bougainvillea-pink/10 to-transparent rounded-lg">
-              <div className="text-2xl font-bold text-bougainvillea-pink mb-1">
+            <div className="from-bougainvillea-pink/10 rounded-lg bg-gradient-to-br to-transparent p-4 text-center">
+              <div className="text-bougainvillea-pink mb-1 text-2xl font-bold">
                 1867
               </div>
-              <div className="text-sm font-medium text-text-primary">
+              <div className="text-text-primary text-sm font-medium">
                 Tavares Born
               </div>
-              <div className="text-xs text-text-secondary">
+              <div className="text-text-secondary text-xs">
                 Cultural foundation year
               </div>
             </div>
 
-            <div className="text-center p-4 bg-gradient-to-br from-sunny-yellow/10 to-transparent rounded-lg">
-              <div className="text-2xl font-bold text-sunny-yellow mb-1">
+            <div className="from-sunny-yellow/10 rounded-lg bg-gradient-to-br to-transparent p-4 text-center">
+              <div className="text-sunny-yellow mb-1 text-2xl font-bold">
                 Global
               </div>
-              <div className="text-sm font-medium text-text-primary">
+              <div className="text-text-primary text-sm font-medium">
                 Cultural Impact
               </div>
-              <div className="text-xs text-text-secondary">
+              <div className="text-text-secondary text-xs">
                 Beyond island&apos;s size
               </div>
             </div>
           </div>
 
-          <div className="mt-8 bg-gradient-to-r from-bougainvillea-pink/5 to-sunny-yellow/5 p-6 rounded-lg border-l-4 border-bougainvillea-pink">
-            <h4 className="font-semibold text-lg text-text-primary mb-3">
+          <div className="from-bougainvillea-pink/5 to-sunny-yellow/5 border-bougainvillea-pink mt-8 rounded-lg border-l-4 bg-gradient-to-r p-6">
+            <h4 className="text-text-primary mb-3 text-lg font-semibold">
               The Paradox Continues
             </h4>
             <p className="text-text-secondary">
@@ -919,23 +923,23 @@ export default function HistoryPage() {
 
         {/* Explore Further */}
         <section className="mt-16 text-center">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-4">
+          <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
             Continue Your Journey Through Brava
           </h3>
-          <p className="text-lg text-text-secondary mb-6">
+          <p className="text-text-secondary mb-6 text-lg">
             Explore the people, places, and living traditions that make this
             remarkable island&apos;s history tangible today.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Link
               href="/directory/landmark"
-              className="rounded-md bg-ocean-blue px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-ocean-blue/90"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105"
             >
               Historical Landmarks
             </Link>
             <Link
               href="/map"
-              className="rounded-md border-2 border-ocean-blue px-6 py-3 text-base font-semibold text-ocean-blue transition-colors hover:bg-ocean-blue hover:text-white"
+              className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-md border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
             >
               Explore the Map
             </Link>

@@ -47,6 +47,7 @@ tests/
 **Purpose**: Validate essential tourism flows that work across all devices and browsers.
 
 **Key Tests**:
+
 - **Homepage Discovery**: Hero section, featured highlights, navigation to core features
 - **Directory Browsing**: Restaurant/hotel/beach/landmark discovery with filtering
 - **Interactive Map**: Mapbox integration, marker interactions, spatial discovery
@@ -59,6 +60,7 @@ tests/
 **Purpose**: Ensure optimal experience for traveling tourists using mobile devices.
 
 **Focus Areas**:
+
 - Touch-friendly interactions
 - Offline functionality
 - Network resilience
@@ -72,6 +74,7 @@ tests/
 **Purpose**: Validate frontend-backend compatibility and data integrity.
 
 **Key Validations**:
+
 - Directory API endpoints (`/api/v1/directory/*`)
 - Towns API endpoints (`/api/v1/towns/*`)
 - Response format consistency
@@ -85,6 +88,7 @@ tests/
 **Purpose**: Ensure fast loading for tourism content and optimal mobile performance.
 
 **Metrics**:
+
 - **LCP (Largest Contentful Paint)**: < 2.5s for tourism engagement
 - **FID (First Input Delay)**: < 100ms for responsive interactions
 - **CLS (Cumulative Layout Shift)**: < 0.25 for stable browsing
@@ -97,6 +101,7 @@ tests/
 **Purpose**: Validate performance under realistic tourism traffic patterns.
 
 **Scenarios**:
+
 - **Normal browsing**: 10 concurrent tourists
 - **Peak season**: 25 concurrent users (ferry arrivals, events)
 - **Map data spikes**: 30 requests/second for marker loading
@@ -129,6 +134,7 @@ npm run test:e2e:debug       # Debug specific test failures
 ### Environment Setup
 
 **Required Environment Variables**:
+
 ```bash
 NEXT_PUBLIC_API_URL=http://localhost:8080
 NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=your_mapbox_token_here
@@ -136,6 +142,7 @@ PLAYWRIGHT_BASE_URL=http://localhost:3000
 ```
 
 **Services Required**:
+
 1. **Backend API**: Running on port 8080 with health endpoint
 2. **Frontend**: Running on port 3000 (or custom PLAYWRIGHT_BASE_URL)
 3. **Database**: PostgreSQL with test data
@@ -145,11 +152,13 @@ PLAYWRIGHT_BASE_URL=http://localhost:3000
 **GitHub Actions Workflow**: `.github/workflows/integration-testing.yml`
 
 **Trigger Conditions**:
+
 - **Pull Requests**: Runs critical tests for quick feedback
 - **Main branch push**: Full test suite including performance
 - **Manual dispatch**: Custom scope selection
 
 **Test Scopes**:
+
 - `critical`: Essential tourism journeys only
 - `mobile`: Mobile-focused testing
 - `performance`: Core Web Vitals and load testing
@@ -165,9 +174,9 @@ Tests simulate realistic Cape Verde connectivity:
 ```javascript
 // 3G conditions common in Cape Verde
 await page.emulateNetworkConditions({
-  downloadThroughput: 1.5 * 1024 * 1024 / 8, // 1.5 Mbps
-  uploadThroughput: 750 * 1024 / 8,           // 750 Kbps
-  latency: 200                                // 200ms latency
+  downloadThroughput: (1.5 * 1024 * 1024) / 8, // 1.5 Mbps
+  uploadThroughput: (750 * 1024) / 8, // 750 Kbps
+  latency: 200, // 200ms latency
 });
 ```
 
@@ -175,12 +184,12 @@ await page.emulateNetworkConditions({
 
 ```javascript
 // Verify authentic Cape Verdean cultural references
-const culturalTerms = ['morabeza', 'morna', 'sodade', 'heritage'];
-expect(pageContent).toMatch(new RegExp(culturalTerms.join('|'), 'i'));
+const culturalTerms = ["morabeza", "morna", "sodade", "heritage"];
+expect(pageContent).toMatch(new RegExp(culturalTerms.join("|"), "i"));
 
 // Ensure respectful language
-const inappropriateTerms = ['primitive', 'backward', 'underdeveloped'];
-expect(pageContent).not.toMatch(new RegExp(inappropriateTerms.join('|'), 'i'));
+const inappropriateTerms = ["primitive", "backward", "underdeveloped"];
+expect(pageContent).not.toMatch(new RegExp(inappropriateTerms.join("|"), "i"));
 ```
 
 ### Geographic Validation
@@ -197,20 +206,20 @@ expect(entry.longitude).toBeLessThan(-24.0);
 
 ### Core Web Vitals (Tourism-Optimized)
 
-| Metric | Good | Needs Improvement | Poor | Tourism Priority |
-|--------|------|-------------------|------|------------------|
-| LCP    | < 2.5s | 2.5s - 4s | > 4s | Critical for engagement |
-| FID    | < 100ms | 100ms - 300ms | > 300ms | Essential for interactions |
-| CLS    | < 0.1 | 0.1 - 0.25 | > 0.25 | Important for mobile browsing |
+| Metric | Good    | Needs Improvement | Poor    | Tourism Priority              |
+| ------ | ------- | ----------------- | ------- | ----------------------------- |
+| LCP    | < 2.5s  | 2.5s - 4s         | > 4s    | Critical for engagement       |
+| FID    | < 100ms | 100ms - 300ms     | > 300ms | Essential for interactions    |
+| CLS    | < 0.1   | 0.1 - 0.25        | > 0.25  | Important for mobile browsing |
 
 ### API Performance (Load Testing)
 
-| Endpoint | Response Time | Error Rate | Throughput |
-|----------|---------------|------------|------------|
-| Directory List | < 2s (95th percentile) | < 2% | 30 req/s |
-| Individual Entry | < 1s (95th percentile) | < 1% | 50 req/s |
-| Towns List | < 1.5s (95th percentile) | < 0.5% | 20 req/s |
-| Map Data | < 3s (95th percentile) | < 2% | 15 req/s |
+| Endpoint         | Response Time            | Error Rate | Throughput |
+| ---------------- | ------------------------ | ---------- | ---------- |
+| Directory List   | < 2s (95th percentile)   | < 2%       | 30 req/s   |
+| Individual Entry | < 1s (95th percentile)   | < 1%       | 50 req/s   |
+| Towns List       | < 1.5s (95th percentile) | < 0.5%     | 20 req/s   |
+| Map Data         | < 3s (95th percentile)   | < 2%       | 15 req/s   |
 
 ## Test Data Management
 
@@ -241,6 +250,7 @@ expect(entry.longitude).toBeLessThan(-24.0);
 ### Updating Thresholds
 
 Performance thresholds should be adjusted based on:
+
 - **Real User Monitoring**: Actual tourist behavior data
 - **Network Conditions**: Changes in Cape Verde connectivity
 - **Content Growth**: As platform adds more cultural content
@@ -258,21 +268,25 @@ Performance thresholds should be adjusted based on:
 ### Common Issues
 
 **Test Timeouts**:
+
 - Check network conditions in test configuration
 - Verify services are running and healthy
 - Increase timeouts for complex tourism scenarios
 
 **Mock Data Failures**:
+
 - Regenerate mock data from current API responses
 - Update mock data schemas to match backend changes
 - Verify cultural content appropriateness
 
 **Performance Test Failures**:
+
 - Check for content bloat or unoptimized assets
 - Verify network simulation accuracy
 - Review mobile device performance
 
 **CI/CD Failures**:
+
 - Validate all required secrets are configured
 - Check service startup order and dependencies
 - Review artifact storage and cleanup processes

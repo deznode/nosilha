@@ -21,6 +21,7 @@ The `@playwright/mcp` integration provides browser automation capabilities throu
 ## Configuration Files
 
 ### Project Structure
+
 ```
 nos-ilha/                               # Multi-language project root
 ├── .mcp.json                          # MCP client configuration (project root)
@@ -28,7 +29,7 @@ nos-ilha/                               # Multi-language project root
 │   ├── .mcp/server-config.json       # Playwright MCP server config
 │   ├── package.json                  # Frontend dependencies & scripts
 │   └── ...                           # Frontend files
-├── backend/                           # Spring Boot backend  
+├── backend/                           # Spring Boot backend
 │   ├── build.gradle.kts              # Backend dependencies & scripts
 │   └── ...                           # Backend files
 └── infrastructure/                    # Terraform & Docker configs
@@ -65,7 +66,11 @@ Configuration for Claude Code and other MCP clients:
   "mcpServers": {
     "playwright": {
       "command": "npx",
-      "args": ["@playwright/mcp@latest", "--config", "frontend/.mcp/server-config.json"]
+      "args": [
+        "@playwright/mcp@latest",
+        "--config",
+        "frontend/.mcp/server-config.json"
+      ]
     }
   }
 }
@@ -81,7 +86,7 @@ Configuration for Claude Code and other MCP clients:
 # Start with visual browser (for development)
 npm run mcp:server
 
-# Start headless (for CI/CD)  
+# Start headless (for CI/CD)
 npm run mcp:server:headless
 
 # Start with HTTP endpoint on port 8931
@@ -94,17 +99,17 @@ npm run mcp:server:port
 # From project root
 npx @playwright/mcp@latest --config frontend/.mcp/server-config.json
 
-# From frontend directory  
+# From frontend directory
 npx @playwright/mcp@latest --config .mcp/server-config.json
 ```
 
 ### Available Scripts
 
-| Script | Description |
-|--------|-------------|
-| `mcp:server` | Start Playwright MCP with GUI browser |
-| `mcp:server:headless` | Start Playwright MCP in headless mode |
-| `mcp:server:port` | Start with HTTP transport on port 8931 |
+| Script                | Description                            |
+| --------------------- | -------------------------------------- |
+| `mcp:server`          | Start Playwright MCP with GUI browser  |
+| `mcp:server:headless` | Start Playwright MCP in headless mode  |
+| `mcp:server:port`     | Start with HTTP transport on port 8931 |
 
 ## MCP Client Setup
 
@@ -168,6 +173,7 @@ Use the MCP install button or add to Cursor settings:
 ### 1. Testing Tourism Directory
 
 Ask your MCP client to:
+
 - "Navigate to localhost:3000/directory/restaurants and test the filtering"
 - "Check if the interactive map loads correctly on /map"
 - "Test the mobile navigation menu"
@@ -219,13 +225,8 @@ Restrict or allow specific domains:
 ```json
 {
   "network": {
-    "allowedOrigins": [
-      "http://localhost:3000",
-      "https://*.nosilha.com"
-    ],
-    "blockedOrigins": [
-      "https://*.ads.com"
-    ]
+    "allowedOrigins": ["http://localhost:3000", "https://*.nosilha.com"],
+    "blockedOrigins": ["https://*.ads.com"]
   }
 }
 ```
@@ -257,11 +258,13 @@ MCP_HEADLESS=false
 ### Common Issues
 
 1. **Browser not found**
+
    ```bash
    npx playwright install chromium
    ```
 
 2. **Port already in use**
+
    ```bash
    # Change port in server config or kill existing process
    lsof -ti:8931 | xargs kill -9

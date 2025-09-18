@@ -27,15 +27,15 @@ export default function ContactPage() {
              - contribute@nosilha.com  
              - dev@nosilha.com */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
+          <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
             Get in Touch
           </h3>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {/* General Inquiries */}
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center">
-              <EnvelopeIcon className="h-12 w-12 text-ocean-blue mx-auto mb-4" />
-              <h4 className="font-semibold text-lg text-text-primary mb-2">
+            <div className="bg-background-primary rounded-lg p-6 text-center shadow-sm">
+              <EnvelopeIcon className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
+              <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 General Inquiries
               </h4>
               <p className="text-text-secondary mb-4">
@@ -44,16 +44,16 @@ export default function ContactPage() {
               </p>
               <a
                 href="mailto:info@nosilha.com"
-                className="inline-flex items-center text-ocean-blue hover:text-ocean-blue/80 font-medium"
+                className="text-ocean-blue hover:text-ocean-blue/80 inline-flex items-center font-medium"
               >
                 info@nosilha.com
               </a>
             </div>
 
             {/* Content & Contributions */}
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center">
-              <CameraIcon className="h-12 w-12 text-valley-green mx-auto mb-4" />
-              <h4 className="font-semibold text-lg text-text-primary mb-2">
+            <div className="bg-background-primary rounded-lg p-6 text-center shadow-sm">
+              <CameraIcon className="text-valley-green mx-auto mb-4 h-12 w-12" />
+              <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 Content & Contributions
               </h4>
               <p className="text-text-secondary mb-4">
@@ -61,16 +61,16 @@ export default function ContactPage() {
               </p>
               <a
                 href="mailto:contribute@nosilha.com"
-                className="inline-flex items-center text-valley-green hover:text-valley-green/80 font-medium"
+                className="text-valley-green hover:text-valley-green/80 inline-flex items-center font-medium"
               >
                 contribute@nosilha.com
               </a>
             </div>
 
             {/* Technical Support */}
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm text-center">
-              <CodeBracketIcon className="h-12 w-12 text-bougainvillea-pink mx-auto mb-4" />
-              <h4 className="font-semibold text-lg text-text-primary mb-2">
+            <div className="bg-background-primary rounded-lg p-6 text-center shadow-sm">
+              <CodeBracketIcon className="text-bougainvillea-pink mx-auto mb-4 h-12 w-12" />
+              <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 Technical Support
               </h4>
               <p className="text-text-secondary mb-4">
@@ -79,7 +79,7 @@ export default function ContactPage() {
               <div className="space-y-2">
                 <a
                   href="mailto:dev@nosilha.com"
-                  className="block text-bougainvillea-pink hover:text-bougainvillea-pink/80 font-medium"
+                  className="text-bougainvillea-pink hover:text-bougainvillea-pink/80 block font-medium"
                 >
                   dev@nosilha.com
                 </a>
@@ -87,7 +87,7 @@ export default function ContactPage() {
                   href="https://github.com/bravdigital/nosilha"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-bougainvillea-pink hover:text-bougainvillea-pink/80 font-medium text-sm"
+                  className="text-bougainvillea-pink hover:text-bougainvillea-pink/80 block text-sm font-medium"
                 >
                   GitHub Repository →
                 </a>
@@ -97,20 +97,20 @@ export default function ContactPage() {
         </section>
 
         {/* Contact Form */}
-        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-6 text-center">
+        <section className="bg-background-primary mt-16 rounded-lg p-8 shadow-sm">
+          <h3 className="text-text-primary mb-6 text-center font-serif text-2xl font-bold">
             Send Us a Message
           </h3>
 
           {/* Form Notice */}
-          <div className="max-w-2xl mx-auto mb-6 p-4 bg-sunny-yellow/10 border border-sunny-yellow/20 rounded-md">
+          <div className="bg-sunny-yellow/10 border-sunny-yellow/20 mx-auto mb-6 max-w-2xl rounded-md border p-4">
             <div className="flex items-center">
-              <QuestionMarkCircleIcon className="h-6 w-6 text-sunny-yellow mr-3" />
+              <QuestionMarkCircleIcon className="text-sunny-yellow mr-3 h-6 w-6" />
               <div>
-                <p className="text-sm text-text-primary font-medium">
+                <p className="text-text-primary text-sm font-medium">
                   Contact form coming soon!
                 </p>
-                <p className="text-xs text-text-secondary">
+                <p className="text-text-secondary text-xs">
                   For now, please use the email addresses above to get in touch
                   with us directly.
                 </p>
@@ -118,12 +118,12 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <form className="max-w-2xl mx-auto opacity-50 pointer-events-none">
+          <form className="pointer-events-none mx-auto max-w-2xl opacity-50">
             <div className="grid gap-6 md:grid-cols-2">
               <div>
                 <label
                   htmlFor="name"
-                  className="block text-sm font-medium text-text-primary mb-2"
+                  className="text-text-primary mb-2 block text-sm font-medium"
                 >
                   Your Name
                 </label>
@@ -131,7 +131,7 @@ export default function ContactPage() {
                   type="text"
                   id="name"
                   name="name"
-                  className="w-full px-4 py-3 border border-border-primary rounded-md bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue transition-colors"
+                  className="border-border-primary bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-ocean-blue focus:border-ocean-blue w-full rounded-md border px-4 py-3 transition-colors focus:ring-2"
                   placeholder="Enter your name"
                 />
               </div>
@@ -139,7 +139,7 @@ export default function ContactPage() {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-text-primary mb-2"
+                  className="text-text-primary mb-2 block text-sm font-medium"
                 >
                   Email Address
                 </label>
@@ -147,7 +147,7 @@ export default function ContactPage() {
                   type="email"
                   id="email"
                   name="email"
-                  className="w-full px-4 py-3 border border-border-primary rounded-md bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue transition-colors"
+                  className="border-border-primary bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-ocean-blue focus:border-ocean-blue w-full rounded-md border px-4 py-3 transition-colors focus:ring-2"
                   placeholder="Enter your email"
                 />
               </div>
@@ -156,14 +156,14 @@ export default function ContactPage() {
             <div className="mt-6">
               <label
                 htmlFor="subject"
-                className="block text-sm font-medium text-text-primary mb-2"
+                className="text-text-primary mb-2 block text-sm font-medium"
               >
                 Subject
               </label>
               <select
                 id="subject"
                 name="subject"
-                className="w-full px-4 py-3 border border-border-primary rounded-md bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue transition-colors"
+                className="border-border-primary bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-ocean-blue focus:border-ocean-blue w-full rounded-md border px-4 py-3 transition-colors focus:ring-2"
               >
                 <option value="">Select a subject</option>
                 <option value="general">General Inquiry</option>
@@ -178,7 +178,7 @@ export default function ContactPage() {
             <div className="mt-6">
               <label
                 htmlFor="message"
-                className="block text-sm font-medium text-text-primary mb-2"
+                className="text-text-primary mb-2 block text-sm font-medium"
               >
                 Message
               </label>
@@ -186,7 +186,7 @@ export default function ContactPage() {
                 id="message"
                 name="message"
                 rows={6}
-                className="w-full px-4 py-3 border border-border-primary rounded-md bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-2 focus:ring-ocean-blue focus:border-ocean-blue transition-colors"
+                className="border-border-primary bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-ocean-blue focus:border-ocean-blue w-full rounded-md border px-4 py-3 transition-colors focus:ring-2"
                 placeholder="Tell us how we can help you..."
               ></textarea>
             </div>
@@ -194,7 +194,7 @@ export default function ContactPage() {
             <div className="mt-6 text-center">
               <button
                 type="submit"
-                className="rounded-md bg-ocean-blue px-8 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-ocean-blue/90"
+                className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-8 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105"
               >
                 Send Message
               </button>
@@ -204,15 +204,15 @@ export default function ContactPage() {
 
         {/* FAQ Section */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
+          <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
             Frequently Asked Questions
           </h3>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm">
-              <div className="flex items-start mb-3">
-                <QuestionMarkCircleIcon className="h-6 w-6 text-ocean-blue mr-3 mt-0.5" />
-                <h4 className="font-semibold text-text-primary">
+            <div className="bg-background-primary rounded-lg p-6 shadow-sm">
+              <div className="mb-3 flex items-start">
+                <QuestionMarkCircleIcon className="text-ocean-blue mt-0.5 mr-3 h-6 w-6" />
+                <h4 className="text-text-primary font-semibold">
                   How can I add my business to the directory?
                 </h4>
               </div>
@@ -231,10 +231,10 @@ export default function ContactPage() {
               </p>
             </div>
 
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm">
-              <div className="flex items-start mb-3">
-                <QuestionMarkCircleIcon className="h-6 w-6 text-valley-green mr-3 mt-0.5" />
-                <h4 className="font-semibold text-text-primary">
+            <div className="bg-background-primary rounded-lg p-6 shadow-sm">
+              <div className="mb-3 flex items-start">
+                <QuestionMarkCircleIcon className="text-valley-green mt-0.5 mr-3 h-6 w-6" />
+                <h4 className="text-text-primary font-semibold">
                   Can I contribute photos of Brava Island?
                 </h4>
               </div>
@@ -253,10 +253,10 @@ export default function ContactPage() {
               </p>
             </div>
 
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm">
-              <div className="flex items-start mb-3">
-                <QuestionMarkCircleIcon className="h-6 w-6 text-bougainvillea-pink mr-3 mt-0.5" />
-                <h4 className="font-semibold text-text-primary">
+            <div className="bg-background-primary rounded-lg p-6 shadow-sm">
+              <div className="mb-3 flex items-start">
+                <QuestionMarkCircleIcon className="text-bougainvillea-pink mt-0.5 mr-3 h-6 w-6" />
+                <h4 className="text-text-primary font-semibold">
                   Is the platform available in other languages?
                 </h4>
               </div>
@@ -275,10 +275,10 @@ export default function ContactPage() {
               </p>
             </div>
 
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm">
-              <div className="flex items-start mb-3">
-                <QuestionMarkCircleIcon className="h-6 w-6 text-sunny-yellow mr-3 mt-0.5" />
-                <h4 className="font-semibold text-text-primary">
+            <div className="bg-background-primary rounded-lg p-6 shadow-sm">
+              <div className="mb-3 flex items-start">
+                <QuestionMarkCircleIcon className="text-sunny-yellow mt-0.5 mr-3 h-6 w-6" />
+                <h4 className="text-text-primary font-semibold">
                   How can I get involved in development?
                 </h4>
               </div>
@@ -308,18 +308,18 @@ export default function ContactPage() {
         </section>
 
         {/* Community Links */}
-        <section className="mt-16 bg-gradient-to-r from-ocean-blue/10 to-valley-green/10 p-8 rounded-lg text-center">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-4">
+        <section className="from-ocean-blue/10 to-valley-green/10 mt-16 rounded-lg bg-gradient-to-r p-8 text-center">
+          <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
             Join Our Community
           </h3>
-          <p className="text-lg text-text-secondary mb-6">
+          <p className="text-text-secondary mb-6 text-lg">
             Connect with other Brava Island enthusiasts and stay updated on
             platform developments.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Link
               href="/contribute"
-              className="rounded-md bg-ocean-blue px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-ocean-blue/90"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105"
             >
               Contribute Content
             </Link>
@@ -327,13 +327,13 @@ export default function ContactPage() {
               href="https://github.com/bravdigital/nosilha"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-md border-2 border-bougainvillea-pink px-6 py-3 text-base font-semibold text-bougainvillea-pink transition-colors hover:bg-bougainvillea-pink hover:text-white"
+              className="border-bougainvillea-pink text-bougainvillea-pink hover:bg-bougainvillea-pink rounded-md border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
             >
               View on GitHub
             </a>
             <Link
               href="/about"
-              className="rounded-md border-2 border-valley-green px-6 py-3 text-base font-semibold text-valley-green transition-colors hover:bg-valley-green hover:text-white"
+              className="border-valley-green text-valley-green hover:bg-valley-green rounded-md border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
             >
               Learn More About Us
             </Link>
@@ -341,11 +341,11 @@ export default function ContactPage() {
         </section>
 
         {/* Response Time Notice */}
-        <section className="mt-16 bg-background-primary p-6 rounded-lg shadow-sm">
+        <section className="bg-background-primary mt-16 rounded-lg p-6 shadow-sm">
           <div className="flex items-center justify-center">
-            <ChatBubbleLeftRightIcon className="h-8 w-8 text-ocean-blue mr-3" />
+            <ChatBubbleLeftRightIcon className="text-ocean-blue mr-3 h-8 w-8" />
             <div>
-              <h4 className="font-semibold text-text-primary">Response Time</h4>
+              <h4 className="text-text-primary font-semibold">Response Time</h4>
               <p className="text-text-secondary">
                 We typically respond to inquiries within 24-48 hours. Thank you
                 for your patience!

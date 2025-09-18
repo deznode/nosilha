@@ -33,7 +33,7 @@ export function Logo() {
   const letters = Array.from(logoText);
 
   return (
-    <div className="flex flex-col items-center cursor-default">
+    <div className="flex cursor-default flex-col items-center">
       <motion.div
         variants={containerVariants}
         initial="initial" // Although initial is not defined, it's good practice
@@ -45,13 +45,13 @@ export function Logo() {
           <motion.span
             key={`${letter}-${index}`}
             variants={letterVariants}
-            className="text-4xl font-bold text-ocean-blue"
+            className="text-ocean-blue text-4xl font-bold"
           >
             {letter}
           </motion.span>
         ))}
       </motion.div>
-      <p className="mt-1 text-sm tracking-widest text-text-secondary">
+      <p className="text-text-secondary mt-1 text-sm tracking-widest">
         BRAVA, CAPE VERDE
       </p>
     </div>

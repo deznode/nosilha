@@ -7,7 +7,7 @@ import { Logo as Logo3 } from "@/components/ui/logo3";
 import { Logo as Logo4 } from "@/components/ui/logo4";
 
 // Force dynamic rendering for test page
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
 /**
  * An updated test page that uses the PageHeader component.

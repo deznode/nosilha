@@ -18,23 +18,25 @@ export function smoothScrollTo(
   } = {}
 ) {
   const {
-    behavior = 'smooth',
-    block = 'start',
-    inline = 'nearest',
+    behavior = "smooth",
+    block = "start",
+    inline = "nearest",
     offset = 0,
   } = options;
 
-  if (typeof target === 'string') {
+  if (typeof target === "string") {
     const element = document.querySelector(target) as HTMLElement;
     if (element) {
-      const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+      const elementPosition =
+        element.getBoundingClientRect().top + window.pageYOffset;
       window.scrollTo({
         top: elementPosition - offset,
         behavior,
       });
     }
   } else if (target instanceof HTMLElement) {
-    const elementPosition = target.getBoundingClientRect().top + window.pageYOffset;
+    const elementPosition =
+      target.getBoundingClientRect().top + window.pageYOffset;
     window.scrollTo({
       top: elementPosition - offset,
       behavior,
@@ -73,10 +75,10 @@ export function createSmoothScrollHandler(targetId: string) {
   return (event: React.MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault();
     scrollToSection(targetId);
-    
+
     // Update URL hash without triggering scroll
     if (window.history.pushState) {
-      window.history.pushState(null, '', `#${targetId}`);
+      window.history.pushState(null, "", `#${targetId}`);
     }
   };
 }
@@ -85,7 +87,7 @@ export function createSmoothScrollHandler(targetId: string) {
  * Hook to detect if reduced motion is preferred
  */
 export function useReducedMotion() {
-  if (typeof window === 'undefined') return false;
-  
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (typeof window === "undefined") return false;
+
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }

@@ -27,13 +27,13 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Helper function to extract user role from JWT
 function extractUserRole(session: Session | null): string | undefined {
   if (!session?.access_token) return undefined;
-  
+
   try {
     // Decode JWT payload (simple base64 decode)
-    const payload = JSON.parse(atob(session.access_token.split('.')[1]));
+    const payload = JSON.parse(atob(session.access_token.split(".")[1]));
     return payload.user_role || payload.role;
   } catch (error) {
-    console.warn('Failed to extract role from JWT:', error);
+    console.warn("Failed to extract role from JWT:", error);
     return undefined;
   }
 }
@@ -64,11 +64,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Create user object with role information
-  const user = session ? {
-    id: session.user.id,
-    email: session.user.email,
-    role: extractUserRole(session)
-  } : null;
+  const user = session
+    ? {
+        id: session.user.id,
+        email: session.user.email,
+        role: extractUserRole(session),
+      }
+    : null;
 
   // While the initial session is loading, you might want to show a loader
   // or return null to prevent layout shifts. For this example, we proceed.

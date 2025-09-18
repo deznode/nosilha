@@ -21,7 +21,15 @@ import {
 type FormStatus = "idle" | "submitting" | "success" | "error";
 type FormData = Omit<
   DirectoryEntry,
-  "id" | "slug" | "rating" | "reviewCount" | "imageUrl" | "details" | "category" | "createdAt" | "updatedAt"
+  | "id"
+  | "slug"
+  | "rating"
+  | "reviewCount"
+  | "imageUrl"
+  | "details"
+  | "category"
+  | "createdAt"
+  | "updatedAt"
 > & {
   category: DirectoryEntry["category"] | "";
   details: {
@@ -104,9 +112,9 @@ export function AddEntryForm() {
     } else if (payload.category === "Hotel") {
       payload.details = {
         phoneNumber: formData.details.phoneNumber || "",
-        amenities: formData.details.amenities
-          ?.split(",")
-          .map((item) => item.trim()) || [],
+        amenities:
+          formData.details.amenities?.split(",").map((item) => item.trim()) ||
+          [],
       };
     }
     // Beach and Landmark categories don't need details (details: null)
@@ -119,18 +127,25 @@ export function AddEntryForm() {
       setFormData(initialFormData);
     } catch (err: any) {
       setStatus("error");
-      
+
       // Handle backend validation errors with field-specific details
       if (err.message && err.message.includes("Validation failed")) {
-        setMessage("Please check the form fields and correct any validation errors.");
+        setMessage(
+          "Please check the form fields and correct any validation errors."
+        );
       } else if (err.message && err.message.includes("403")) {
-        setMessage("You don't have permission to create directory entries. Please contact an administrator.");
+        setMessage(
+          "You don't have permission to create directory entries. Please contact an administrator."
+        );
       } else if (err.message && err.message.includes("401")) {
         setMessage("Your session has expired. Please log in again.");
       } else {
-        setMessage(err.message || "An unexpected error occurred while creating the entry. Please try again.");
+        setMessage(
+          err.message ||
+            "An unexpected error occurred while creating the entry. Please try again."
+        );
       }
-      
+
       setIsAlertOpen(true);
     }
   };
@@ -142,11 +157,11 @@ export function AddEntryForm() {
       <form onSubmit={handleSubmit}>
         <div className="space-y-12">
           {/* Section 1: Directory Entry Details */}
-          <div className="border-b border-border-primary pb-12">
-            <h2 className="text-base font-semibold leading-7 text-text-primary">
+          <div className="border-border-primary border-b pb-12">
+            <h2 className="text-text-primary text-base leading-7 font-semibold">
               Directory Entry Details
             </h2>
-            <p className="mt-1 text-sm leading-6 text-text-secondary">
+            <p className="text-text-secondary mt-1 text-sm leading-6">
               This information will be publicly displayed for the new location.
             </p>
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
@@ -212,11 +227,11 @@ export function AddEntryForm() {
           </div>
 
           {/* Section 2: Category-Specific Information */}
-          <div className="border-b border-border-primary pb-12">
-            <h2 className="text-base font-semibold leading-7 text-text-primary">
+          <div className="border-border-primary border-b pb-12">
+            <h2 className="text-text-primary text-base leading-7 font-semibold">
               Category-Specific Information
             </h2>
-            <p className="mt-1 text-sm leading-6 text-text-secondary">
+            <p className="text-text-secondary mt-1 text-sm leading-6">
               Provide details relevant to the selected category.
             </p>
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
@@ -287,7 +302,7 @@ export function AddEntryForm() {
                 formData.category === "Landmark" ||
                 formData.category === "") && (
                 <div className="sm:col-span-full">
-                  <p className="text-sm text-text-tertiary">
+                  <p className="text-text-tertiary text-sm">
                     No specific details required for this category.
                   </p>
                 </div>
@@ -297,10 +312,10 @@ export function AddEntryForm() {
 
           {/* Section 3: Location & Media */}
           <div className="pb-12">
-            <h2 className="text-base font-semibold leading-7 text-text-primary">
+            <h2 className="text-text-primary text-base leading-7 font-semibold">
               Location & Media
             </h2>
-            <p className="mt-1 text-sm leading-6 text-text-secondary">
+            <p className="text-text-secondary mt-1 text-sm leading-6">
               Set the geographic coordinates and upload an image for this entry.
             </p>
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">

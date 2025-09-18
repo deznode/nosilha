@@ -433,14 +433,14 @@ export default function PeoplePage() {
         />
 
         {/* Introduction Section */}
-        <section className="mt-16 bg-background-primary p-8 rounded-lg shadow-sm border border-border-primary">
-          <div className="grid gap-8 lg:grid-cols-2 items-center">
+        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+          <div className="grid items-center gap-8 lg:grid-cols-2">
             <div>
-              <h2 className="font-serif text-3xl font-bold text-text-primary mb-4">
+              <h2 className="text-text-primary mb-4 font-serif text-3xl font-bold">
                 Our People, Our Legacy: The Extraordinary Sons and Daughters of
                 Brava
               </h2>
-              <p className="text-lg text-text-secondary mb-4">
+              <p className="text-text-secondary mb-4 text-lg">
                 Our beautiful island tells a remarkable story. Known as{" "}
                 <em>Ilha das Flores</em>
                 (Island of Flowers) for its lush, mist-covered valleys, Brava
@@ -476,7 +476,7 @@ export default function PeoplePage() {
                 alt="Cultural heritage of Brava Island showing traditional life and customs"
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover object-top rounded-lg"
+                className="rounded-lg object-cover object-top"
               />
             </div>
           </div>
@@ -484,7 +484,7 @@ export default function PeoplePage() {
 
         {/* Historical Progression of Influence */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
+          <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
             Historical Progression of Influence
           </h3>
         </section>
@@ -494,14 +494,14 @@ export default function PeoplePage() {
           <section key={era.era} className="mt-16">
             {/* Era Header */}
             <div className="mb-8">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 rounded-full bg-ocean-blue/10 flex items-center justify-center mr-4">
-                  <span className="text-ocean-blue font-bold text-lg">
+              <div className="mb-4 flex items-center">
+                <div className="bg-ocean-blue/10 mr-4 flex h-12 w-12 items-center justify-center rounded-full">
+                  <span className="text-ocean-blue text-lg font-bold">
                     {eraIndex + 1}
                   </span>
                 </div>
                 <div>
-                  <h3 className="font-serif text-2xl font-bold text-text-primary">
+                  <h3 className="text-text-primary font-serif text-2xl font-bold">
                     {era.era} ({era.period})
                   </h3>
                   <p className="text-text-secondary font-medium">
@@ -509,7 +509,7 @@ export default function PeoplePage() {
                   </p>
                 </div>
               </div>
-              <div className="bg-gradient-to-r from-ocean-blue/5 to-valley-green/5 p-4 rounded-lg border-l-4 border-ocean-blue">
+              <div className="from-ocean-blue/5 to-valley-green/5 border-ocean-blue rounded-lg border-l-4 bg-gradient-to-r p-4">
                 <p className="text-text-secondary italic">{era.context}</p>
               </div>
             </div>
@@ -523,12 +523,12 @@ export default function PeoplePage() {
                     figure.featured ? "2" : "1"
                   } ${
                     figure.featured
-                      ? "bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary"
-                      : "bg-background-primary/50 p-4 rounded-lg"
+                      ? "bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm"
+                      : "bg-background-primary/50 rounded-lg p-4"
                   }`}
                 >
                   {figure.featured && (
-                    <div className="relative aspect-[3/4] w-full max-w-sm mx-auto">
+                    <div className="relative mx-auto aspect-[3/4] w-full max-w-sm">
                       {/* TODO: Update courtesy text with proper source attribution */}
                       <ImageWithCourtesy
                         src={figure.image}
@@ -537,7 +537,7 @@ export default function PeoplePage() {
                         variant="large"
                         fill
                         sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover object-top rounded-lg"
+                        className="rounded-lg object-cover object-top"
                         priority={figure.name === "Eugénio Tavares"}
                       />
                     </div>
@@ -545,7 +545,7 @@ export default function PeoplePage() {
 
                   <div className={figure.featured ? "" : "flex items-start"}>
                     {!figure.featured && (
-                      <div className="flex-shrink-0 mr-4">
+                      <div className="mr-4 flex-shrink-0">
                         {/* TODO: Update courtesy text with proper source attribution */}
                         <ImageWithCourtesy
                           src={figure.image}
@@ -556,31 +556,31 @@ export default function PeoplePage() {
                           width={112}
                           height={112}
                           sizes="112px"
-                          className="object-cover object-top rounded-full"
+                          className="rounded-full object-cover object-top"
                         />
                       </div>
                     )}
 
                     <div className="flex-1">
-                      <div className="flex items-center mb-2">
-                        <span className="text-xs bg-ocean-blue/10 text-ocean-blue px-2 py-1 rounded">
+                      <div className="mb-2 flex items-center">
+                        <span className="bg-ocean-blue/10 text-ocean-blue rounded px-2 py-1 text-xs">
                           {figure.category}
                         </span>
-                        <span className="text-xs text-text-secondary ml-2 flex items-center">
-                          <CalendarIcon className="h-3 w-3 mr-1" />
+                        <span className="text-text-secondary ml-2 flex items-center text-xs">
+                          <CalendarIcon className="mr-1 h-3 w-3" />
                           {figure.years}
                         </span>
                         <span
-                          className={`text-xs px-2 py-1 rounded ml-2 ${
+                          className={`ml-2 rounded px-2 py-1 text-xs ${
                             figure.influence === "Revolutionary"
                               ? "bg-bougainvillea-pink/10 text-bougainvillea-pink"
                               : figure.influence === "Phenomenal"
-                              ? "bg-sunny-yellow/10 text-sunny-yellow"
-                              : figure.influence === "National"
-                              ? "bg-valley-green/10 text-valley-green"
-                              : figure.influence === "Global"
-                              ? "bg-ocean-blue/20 text-ocean-blue"
-                              : "bg-gray-100 text-gray-600"
+                                ? "bg-sunny-yellow/10 text-sunny-yellow"
+                                : figure.influence === "National"
+                                  ? "bg-valley-green/10 text-valley-green"
+                                  : figure.influence === "Global"
+                                    ? "bg-ocean-blue/20 text-ocean-blue"
+                                    : "bg-gray-100 text-gray-600"
                           }`}
                         >
                           {figure.influence} Impact
@@ -590,14 +590,14 @@ export default function PeoplePage() {
                       <h4
                         className={`font-serif ${
                           figure.featured ? "text-xl" : "text-lg"
-                        } font-bold text-text-primary mb-1`}
+                        } text-text-primary mb-1 font-bold`}
                       >
                         {figure.name}
                       </h4>
                       <p
                         className={`${
                           figure.featured ? "text-sm" : "text-xs"
-                        } text-ocean-blue font-medium mb-3`}
+                        } text-ocean-blue mb-3 font-medium`}
                       >
                         {figure.role}
                       </p>
@@ -627,7 +627,7 @@ export default function PeoplePage() {
                             : figure.achievements.slice(0, 2)
                           ).map((achievement, index) => (
                             <li key={index} className="flex items-start">
-                              <StarIcon className="h-3 w-3 text-sunny-yellow mr-2 mt-0.5 flex-shrink-0" />
+                              <StarIcon className="text-sunny-yellow mt-0.5 mr-2 h-3 w-3 flex-shrink-0" />
                               <span
                                 dangerouslySetInnerHTML={{
                                   __html: achievement,
@@ -647,28 +647,28 @@ export default function PeoplePage() {
 
         {/* Evolution of Influence */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
+          <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
             The Evolution of Brava&rsquo;s Global Impact
           </h3>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <div className="bg-gradient-to-br from-ocean-blue/10 to-ocean-blue/5 p-6 rounded-lg shadow-sm text-center border border-ocean-blue/20">
-              <MusicalNoteIcon className="h-10 w-10 text-ocean-blue mx-auto mb-3" />
-              <h4 className="font-semibold text-text-primary mb-2">
+            <div className="from-ocean-blue/10 to-ocean-blue/5 border-ocean-blue/20 rounded-lg border bg-gradient-to-br p-6 text-center shadow-sm">
+              <MusicalNoteIcon className="text-ocean-blue mx-auto mb-3 h-10 w-10" />
+              <h4 className="text-text-primary mb-2 font-semibold">
                 Cultural Foundation
               </h4>
-              <p className="text-xs text-ocean-blue font-medium mb-2">
+              <p className="text-ocean-blue mb-2 text-xs font-medium">
                 1867-1930
               </p>
-              <p className="text-sm text-text-secondary">
+              <p className="text-text-secondary text-sm">
                 Eugénio Tavares and early masters established the artistic and
                 linguistic foundation that defines Cape Verdean identity.
               </p>
             </div>
 
-            <div className="bg-gradient-to-br from-valley-green/10 to-valley-green/5 p-6 rounded-lg shadow-sm text-center border border-valley-green/20">
+            <div className="from-valley-green/10 to-valley-green/5 border-valley-green/20 rounded-lg border bg-gradient-to-br p-6 text-center shadow-sm">
               <svg
-                className="h-10 w-10 text-valley-green mx-auto mb-3"
+                className="text-valley-green mx-auto mb-3 h-10 w-10"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -680,21 +680,21 @@ export default function PeoplePage() {
                   d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
                 />
               </svg>
-              <h4 className="font-semibold text-text-primary mb-2">
+              <h4 className="text-text-primary mb-2 font-semibold">
                 Political Awakening
               </h4>
-              <p className="text-xs text-valley-green font-medium mb-2">
+              <p className="text-valley-green mb-2 text-xs font-medium">
                 1900-1975
               </p>
-              <p className="text-sm text-text-secondary">
+              <p className="text-text-secondary text-sm">
                 Intellectuals like Artur Silva translated cultural pride into
                 political action, contributing to national liberation.
               </p>
             </div>
 
-            <div className="bg-gradient-to-br from-bougainvillea-pink/10 to-bougainvillea-pink/5 p-6 rounded-lg shadow-sm text-center border border-bougainvillea-pink/20">
+            <div className="from-bougainvillea-pink/10 to-bougainvillea-pink/5 border-bougainvillea-pink/20 rounded-lg border bg-gradient-to-br p-6 text-center shadow-sm">
               <svg
-                className="h-10 w-10 text-bougainvillea-pink mx-auto mb-3"
+                className="text-bougainvillea-pink mx-auto mb-3 h-10 w-10"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -706,21 +706,21 @@ export default function PeoplePage() {
                   d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <h4 className="font-semibold text-text-primary mb-2">
+              <h4 className="text-text-primary mb-2 font-semibold">
                 Diaspora Expansion
               </h4>
-              <p className="text-xs text-bougainvillea-pink font-medium mb-2">
+              <p className="text-bougainvillea-pink mb-2 text-xs font-medium">
                 1880s-1960s
               </p>
-              <p className="text-sm text-text-secondary">
+              <p className="text-text-secondary text-sm">
                 Figures like &quot;Daddy&quot; Grace achieved extraordinary
                 global influence through migration and institution-building.
               </p>
             </div>
 
-            <div className="bg-gradient-to-br from-sunny-yellow/10 to-sunny-yellow/5 p-6 rounded-lg shadow-sm text-center border border-sunny-yellow/20">
+            <div className="from-sunny-yellow/10 to-sunny-yellow/5 border-sunny-yellow/20 rounded-lg border bg-gradient-to-br p-6 text-center shadow-sm">
               <svg
-                className="h-10 w-10 text-sunny-yellow mx-auto mb-3"
+                className="text-sunny-yellow mx-auto mb-3 h-10 w-10"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -732,13 +732,13 @@ export default function PeoplePage() {
                   d="M13 10V3L4 14h7v7l9-11h-7z"
                 />
               </svg>
-              <h4 className="font-semibold text-text-primary mb-2">
+              <h4 className="text-text-primary mb-2 font-semibold">
                 Contemporary Era
               </h4>
-              <p className="text-xs text-sunny-yellow font-medium mb-2">
+              <p className="text-sunny-yellow mb-2 text-xs font-medium">
                 1975-Present
               </p>
-              <p className="text-sm text-text-secondary">
+              <p className="text-text-secondary text-sm">
                 Modern leaders like David Soares maintain Brava&rsquo;s
                 tradition of disproportionate global influence and cultural
                 preservation.
@@ -749,47 +749,47 @@ export default function PeoplePage() {
 
         {/* Contemporary Community Leaders */}
         <section className="mt-16">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-8 text-center">
+          <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
             Contemporary Guardians: Preserving Heritage and Community
           </h3>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 mb-8">
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <h4 className="font-semibold text-lg text-text-primary mb-3">
+          <div className="mb-8 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
+              <h4 className="text-text-primary mb-3 text-lg font-semibold">
                 Eugenia Duarte
               </h4>
-              <p className="text-sm text-ocean-blue font-medium mb-2">
+              <p className="text-ocean-blue mb-2 text-sm font-medium">
                 Community Activist & Healthcare Advocate
               </p>
-              <p className="text-sm text-text-secondary mb-3">
+              <p className="text-text-secondary mb-3 text-sm">
                 Brava native who became a powerful voice for island&apos;s right
                 to adequate medical services. Her viral advocacy declaring "we
                 may be the smallest island, but that doesn't mean we deserve
                 less" represents modern leadership focused on fundamental
                 community well-being.
               </p>
-              <ul className="text-xs text-text-secondary space-y-1">
+              <ul className="text-text-secondary space-y-1 text-xs">
                 <li>• Advocate for reliable medical facilities on Brava</li>
                 <li>• Champion of equal services for smallest island</li>
                 <li>• Voice for preventable death awareness</li>
               </ul>
             </div>
 
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <h4 className="font-semibold text-lg text-text-primary mb-3">
+            <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
+              <h4 className="text-text-primary mb-3 text-lg font-semibold">
                 Carlos Bango
               </h4>
-              <p className="text-sm text-valley-green font-medium mb-2">
+              <p className="text-valley-green mb-2 text-sm font-medium">
                 Conservationist & Environmental Leader
               </p>
-              <p className="text-sm text-text-secondary mb-3">
+              <p className="text-text-secondary mb-3 text-sm">
                 Native of Brava serving as Terrestrial Program Leader for
                 Biflores organization. Works to preserve the island&apos;s
                 unique biodiversity, understanding that Brava&apos;s culture is
                 inseparable from its environment and that conservation is
                 cultural preservation.
               </p>
-              <ul className="text-xs text-text-secondary space-y-1">
+              <ul className="text-text-secondary space-y-1 text-xs">
                 <li>• Terrestrial Program Leader for Biflores</li>
                 <li>
                   • Harmonizes human activities with ecosystem preservation
@@ -798,21 +798,21 @@ export default function PeoplePage() {
               </ul>
             </div>
 
-            <div className="bg-background-primary p-6 rounded-lg shadow-sm border border-border-primary">
-              <h4 className="font-semibold text-lg text-text-primary mb-3">
+            <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
+              <h4 className="text-text-primary mb-3 text-lg font-semibold">
                 Candida Rose
               </h4>
-              <p className="text-sm text-ocean-blue font-medium mb-2">
+              <p className="text-ocean-blue mb-2 text-sm font-medium">
                 Singer & Cultural Researcher
               </p>
-              <p className="text-sm text-text-secondary mb-3">
+              <p className="text-text-secondary mb-3 text-sm">
                 New Bedford-based singer and contributor to "Cabo Verdean Women
                 Writing Remembrance, Resistance and Revolution." Her research
                 traces the lineage of female musicians, actively participating
                 in the construction and preservation of Cape Verdean cultural
                 memory.
               </p>
-              <ul className="text-xs text-text-secondary space-y-1">
+              <ul className="text-text-secondary space-y-1 text-xs">
                 <li>• Researches lineage of Cape Verdean female musicians</li>
                 <li>
                   • Contributor to "Kriolas Poderozas" scholarly collection
@@ -822,8 +822,8 @@ export default function PeoplePage() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-r from-valley-green/5 to-ocean-blue/5 p-6 rounded-lg border-l-4 border-valley-green">
-            <h4 className="font-semibold text-lg text-text-primary mb-3">
+          <div className="from-valley-green/5 to-ocean-blue/5 border-valley-green rounded-lg border-l-4 bg-gradient-to-r p-6">
+            <h4 className="text-text-primary mb-3 text-lg font-semibold">
               Holistic Heritage Preservation
             </h4>
             <p className="text-text-secondary">
@@ -839,23 +839,23 @@ export default function PeoplePage() {
         </section>
         {/* Explore More */}
         <section className="mt-16 text-center">
-          <h3 className="font-serif text-2xl font-bold text-text-primary mb-4">
+          <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
             Explore More Cultural Heritage
           </h3>
-          <p className="text-lg text-text-secondary mb-6">
+          <p className="text-text-secondary mb-6 text-lg">
             Learn more about the cultural context and historical background of
             these remarkable figures.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Link
               href="/history"
-              className="rounded-md bg-ocean-blue px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-ocean-blue/90"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105"
             >
               Explore History
             </Link>
             <Link
               href="/contribute"
-              className="rounded-md border-2 border-ocean-blue px-6 py-3 text-base font-semibold text-ocean-blue transition-colors hover:bg-ocean-blue hover:text-white"
+              className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-md border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
             >
               Share Stories
             </Link>
