@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { PhotoIcon, HeartIcon, CameraIcon } from "@heroicons/react/24/outline";
+import { PhotoIcon } from "@heroicons/react/24/outline";
 
 interface Photo {
   src: string;

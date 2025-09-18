@@ -2,12 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { PageHeader } from "@/components/ui/page-header";
 import { getTowns } from "@/lib/api";
-import type { Town } from "@/types/town";
 import {
   MapPinIcon,
   UserGroupIcon,
   CameraIcon,
-  BuildingOfficeIcon,
 } from "@heroicons/react/24/outline";
 
 // Enable ISR with 2 hour revalidation for towns content

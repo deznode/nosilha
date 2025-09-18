@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import {
   XMarkIcon,
@@ -38,6 +38,18 @@ export function ImageLightbox({
     setCurrentIndex(initialIndex);
   }, [initialIndex]);
 
+  const goToNext = useCallback(() => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === photos.length - 1 ? 0 : prevIndex + 1
+    );
+  }, [photos.length]);
+
+  const goToPrevious = useCallback(() => {
+    setCurrentIndex((prevIndex) =>
+      prevIndex === 0 ? photos.length - 1 : prevIndex - 1
+    );
+  }, [photos.length]);
+
   // Keyboard navigation
   useEffect(() => {
     if (!isOpen) return;
@@ -54,7 +66,7 @@ export function ImageLightbox({
 
     document.addEventListener("keydown", handleKeyPress);
     return () => document.removeEventListener("keydown", handleKeyPress);
-  }, [isOpen, currentIndex]);
+  }, [isOpen, currentIndex, goToNext, goToPrevious, onClose]);
 
   // Prevent body scroll when lightbox is open
   useEffect(() => {
@@ -68,18 +80,6 @@ export function ImageLightbox({
       document.body.style.overflow = "unset";
     };
   }, [isOpen]);
-
-  const goToNext = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === photos.length - 1 ? 0 : prevIndex + 1
-    );
-  };
-
-  const goToPrevious = () => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? photos.length - 1 : prevIndex - 1
-    );
-  };
 
   if (!isOpen || !photos[currentIndex]) return null;
 

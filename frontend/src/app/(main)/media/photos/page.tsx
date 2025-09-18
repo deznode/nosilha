@@ -4,7 +4,6 @@ import { PageHeader } from "@/components/ui/page-header";
 import { PhotoGalleryFilter } from "@/components/ui/photo-gallery-filter";
 import {
   CameraIcon,
-  PhotoIcon,
   EyeIcon,
   MapPinIcon,
   CalendarIcon,

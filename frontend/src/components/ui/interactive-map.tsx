@@ -31,15 +31,13 @@ type PointProperties = {
 type PointFeature = Feature<Point, PointProperties>;
 
 // Define the shape of a cluster feature, inheriting the library's base properties.
-type ClusterFeatureWithProps = ClusterFeature<{
-  // We don't need to redefine cluster: true etc. The library handles this.
-}>;
+type ClusterFeatureWithProps = ClusterFeature<Record<string, unknown>>;
 
 // The type guard now correctly distinguishes between the two feature types.
 function isClusterFeature(
   feature: SuperclusterPointFeature<PointProperties> | ClusterFeatureWithProps
 ): feature is ClusterFeatureWithProps {
-  return !!(feature.properties as any).cluster;
+  return !!(feature.properties as { cluster?: boolean }).cluster;
 }
 
 export function InteractiveMap() {

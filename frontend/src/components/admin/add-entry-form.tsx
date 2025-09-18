@@ -125,23 +125,23 @@ export function AddEntryForm() {
       setMessage("The new directory entry has been created successfully!");
       setIsAlertOpen(true);
       setFormData(initialFormData);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStatus("error");
 
       // Handle backend validation errors with field-specific details
-      if (err.message && err.message.includes("Validation failed")) {
+      if (err instanceof Error && err.message.includes("Validation failed")) {
         setMessage(
           "Please check the form fields and correct any validation errors."
         );
-      } else if (err.message && err.message.includes("403")) {
+      } else if (err instanceof Error && err.message.includes("403")) {
         setMessage(
           "You don't have permission to create directory entries. Please contact an administrator."
         );
-      } else if (err.message && err.message.includes("401")) {
+      } else if (err instanceof Error && err.message.includes("401")) {
         setMessage("Your session has expired. Please log in again.");
       } else {
         setMessage(
-          err.message ||
+          (err instanceof Error ? err.message : "Unknown error") ||
             "An unexpected error occurred while creating the entry. Please try again."
         );
       }

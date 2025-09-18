@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { PageHeader } from "@/components/ui/page-header";
 import {
   CameraIcon,
@@ -97,7 +96,7 @@ export default function ContributePage() {
               </h4>
               <p className="text-text-secondary mb-4">
                 Contribute historical information, cultural insights, or
-                personal stories that help visitors understand Brava's rich
+                personal stories that help visitors understand Brava&apos;s rich
                 heritage.
               </p>
               <ul className="text-text-secondary mb-4 space-y-1 text-sm">
@@ -130,7 +129,7 @@ export default function ContributePage() {
                 <li>• Submit only your original photographs</li>
                 <li>• Ensure images are clear and well-lit</li>
                 <li>• Include accurate location information</li>
-                <li>• Respect private property and people's privacy</li>
+                <li>• Respect private property and people&apos;s privacy</li>
                 <li>• Avoid overly commercial or promotional content</li>
               </ul>
             </div>
@@ -156,7 +155,7 @@ export default function ContributePage() {
             Have Questions?
           </h3>
           <p className="text-text-secondary mb-6 text-lg">
-            We're here to help you contribute to the Nos Ilha community.
+            We&apos;re here to help you contribute to the Nos Ilha community.
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Link

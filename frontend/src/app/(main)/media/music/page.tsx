@@ -7,7 +7,6 @@ import {
   PlayIcon,
   HeartIcon,
   GlobeAltIcon,
-  BookOpenIcon,
 } from "@heroicons/react/24/outline";
 
 // Enable ISR with 2 hour revalidation for music content

@@ -315,7 +315,7 @@ export function isPagedApiResponse<T>(
     "timestamp" in obj &&
     "success" in obj &&
     "pagination" in obj &&
-    Array.isArray((obj as any).data)
+    Array.isArray((obj as PagedApiResponse<unknown>).data)
   );
 }
 

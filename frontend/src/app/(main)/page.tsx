@@ -4,12 +4,7 @@ import Image from "next/image";
 import { getEntriesByCategory } from "@/lib/api";
 import { DirectoryCard } from "@/components/ui/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
-import {
-  generatePageMetadata,
-  siteConfig,
-  createStructuredDataScript,
-  generateOrganizationSchema,
-} from "@/lib/metadata";
+import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import type { TouristDestinationSchema } from "@/types/metadata";
 import {
   MapIcon,

@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
 import type {
-  NosilhaMetadata,
   OpenGraphImage,
   DirectoryEntryMetadataOptions,
   PageMetadataOptions,
   StructuredData,
   TouristAttractionSchema,
-  LocalBusinessSchema,
   RestaurantSchema,
   LodgingBusinessSchema,
-  OrganizationSchema,
   BreadcrumbListSchema,
+  OrganizationSchema,
 } from "@/types/metadata";
 import type { DirectoryEntry } from "@/types/directory";
 
@@ -156,7 +154,7 @@ export function generateDirectoryEntryMetadata(
     entry.description ||
     `Discover ${entry.name}, a wonderful ${entry.category.toLowerCase()} located in ${entry.town}, Brava Island, Cape Verde.`;
 
-  const url = `${baseUrl}/directory/entry/${entry.slug}`;
+  const _url = `${baseUrl}/directory/entry/${entry.slug}`;
 
   // Use entry image if available, fallback to default
   const entryImages: OpenGraphImage[] = [];

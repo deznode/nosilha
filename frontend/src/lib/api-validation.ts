@@ -1,6 +1,5 @@
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town } from "@/types/town";
-import type { DirectoryEntryDto, TownDto } from "@/types/api";
 
 /**
  * Type guard to check if an object has the basic structure of a DirectoryEntry

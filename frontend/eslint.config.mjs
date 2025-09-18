@@ -18,6 +18,37 @@ const eslintConfig = [
     },
     rules: {
       "prettier/prettier": "error", // Shows formatting issues as ESLint errors
+
+      // Configure TypeScript no-unused-vars to ignore underscore prefixed variables
+      // This follows industry standard convention for intentionally unused variables
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        {
+          "argsIgnorePattern": "^_",
+          "varsIgnorePattern": "^_",
+          "caughtErrorsIgnorePattern": "^_",
+          "destructuredArrayIgnorePattern": "^_",
+          "ignoreRestSiblings": true
+        }
+      ],
+
+      // Configure react/no-unescaped-entities for cultural heritage content
+      // Allow common punctuation in text content to improve content creation experience
+      "react/no-unescaped-entities": [
+        "error",
+        {
+          "forbid": [
+            {
+              "char": ">",
+              "alternatives": ["&gt;"]
+            },
+            {
+              "char": "}",
+              "alternatives": ["&#125;"]
+            }
+          ]
+        }
+      ]
     },
   },
 ];

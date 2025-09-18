@@ -131,7 +131,7 @@ export default async function DirectoryCategoryPage({
           // If no entries are found, display a helpful message
           <div className="mt-16 text-center">
             <p className="text-text-secondary text-xl">
-              No listings found in the "{pageTitle}" category.
+              No listings found in the &quot;{pageTitle}&quot; category.
             </p>
             <p className="text-text-tertiary mt-2 text-base">
               Please try another category or check back later.

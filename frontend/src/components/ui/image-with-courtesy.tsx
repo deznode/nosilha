@@ -41,7 +41,7 @@ export function ImageWithCourtesy({
   showTooltip = true,
   iconPosition = "bottom-right",
   tooltipPosition = "auto",
-  tooltipAlignment = "center",
+  tooltipAlignment: _tooltipAlignment = "center",
   sizes,
   priority = false,
 }: ImageWithCourtesyProps) {

@@ -6,7 +6,6 @@ import {
   QuestionMarkCircleIcon,
   CodeBracketIcon,
   CameraIcon,
-  MapIcon,
 } from "@heroicons/react/24/outline";
 
 // Static page - no revalidation needed

@@ -41,17 +41,6 @@ function requireEnvVar(name: string, value: string | undefined): string {
 }
 
 /**
- * Gets an optional environment variable with a default value
- */
-function getOptionalEnvVar(
-  name: string,
-  defaultValue: string,
-  value?: string
-): string {
-  return value && value.trim() !== "" ? value.trim() : defaultValue;
-}
-
-/**
  * Validates NODE_ENV and returns normalized value
  */
 function validateNodeEnv(

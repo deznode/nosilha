@@ -30,11 +30,11 @@ export default function AboutPage() {
                 Preserving Heritage, Building Community
               </h2>
               <p className="text-text-secondary mb-4 text-lg">
-                Nos Ilha is more than a tourism platform—it's a digital bridge
-                connecting Brava Island with the world. Through technology and
-                community collaboration, we're preserving the island's rich
-                cultural heritage while making it accessible to visitors and
-                diaspora communities worldwide.
+                Nos Ilha is more than a tourism platform—it&apos;s a digital
+                bridge connecting Brava Island with the world. Through
+                technology and community collaboration, we&apos;re preserving
+                the island&apos;s rich cultural heritage while making it
+                accessible to visitors and diaspora communities worldwide.
               </p>
               <p className="text-text-secondary">
                 Our volunteer-driven, open-source approach ensures that the
@@ -79,8 +79,9 @@ export default function AboutPage() {
                 Cultural Preservation
               </h4>
               <p className="text-text-secondary">
-                We document and preserve Brava's unique history, traditions, and
-                stories for future generations and global audiences.
+                We document and preserve Brava&apos;s unique history,
+                traditions, and stories for future generations and global
+                audiences.
               </p>
             </div>
 
@@ -165,7 +166,7 @@ export default function AboutPage() {
                 Photo Galleries
               </h4>
               <p className="text-text-secondary text-sm">
-                Community-contributed photo galleries showcase the island's
+                Community-contributed photo galleries showcase the island&apos;s
                 natural beauty and cultural events.
               </p>
             </div>
@@ -222,8 +223,8 @@ export default function AboutPage() {
             Join Our Community
           </h3>
           <p className="text-text-secondary mb-8 text-lg">
-            Whether you're a developer, photographer, writer, or cultural
-            enthusiast, there's a place for you in the Nos Ilha community.
+            Whether you&apos;re a developer, photographer, writer, or cultural
+            enthusiast, there&apos;s a place for you in the Nos Ilha community.
           </p>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

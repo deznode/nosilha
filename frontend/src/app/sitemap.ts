@@ -1,4 +1,5 @@
 import { MetadataRoute } from "next";
+import type { DirectoryEntry } from "@/types/directory";
 import { getEntriesByCategory } from "@/lib/api";
 import { siteConfig } from "@/lib/metadata";
 
@@ -176,7 +177,7 @@ function getDynamicPagePriority(category: string, rating?: number): number {
  * Generate town-specific pages if we have unique town data
  */
 function getTownPages(
-  entries: any[],
+  entries: DirectoryEntry[],
   baseUrl: string,
   currentDate: string
 ): MetadataRoute.Sitemap {

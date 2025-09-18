@@ -1,10 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { PageHeader } from "@/components/ui/page-header";
+import type { DirectoryEntry } from "@/types/directory";
 import { DirectoryCard } from "@/components/ui/directory-card";
 import { getEntriesByCategory, getTownBySlug } from "@/lib/api";
-import type { Town } from "@/types/town";
 import {
   MapPinIcon,
   UserGroupIcon,
@@ -33,7 +32,7 @@ export default async function TownPage({ params }: TownPageProps) {
   }
 
   // Fetch directory entries for this town (for now, we'll get all entries as a fallback)
-  let townEntries: any[] = [];
+  let townEntries: DirectoryEntry[] = [];
   try {
     const allEntries = await getEntriesByCategory("all");
     // Filter entries by town name (this would be better implemented with a proper API function)

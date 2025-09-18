@@ -1,7 +1,7 @@
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town } from "@/types/town";
-import type { ApiErrorResponse, ErrorDetail } from "@/types/api";
-import { env, getApiEndpoint } from "@/lib/env";
+import type { ErrorDetail } from "@/types/api";
+import { env } from "@/lib/env";
 import { supabase } from "@/lib/supabase-client";
 import {
   getMockEntriesByCategory,
@@ -187,7 +187,7 @@ export async function createDirectoryEntry(
           errorResult.message ||
           `API error: ${response.status}`
       );
-    } catch (parseError) {
+    } catch (_parseError) {
       // If we can't parse the error response, provide a generic message
       throw new Error(`Failed to create directory entry (${response.status})`);
     }
@@ -271,7 +271,7 @@ export async function uploadImage(
           errorResult.message ||
           `Upload failed (${response.status})`
       );
-    } catch (parseError) {
+    } catch (_parseError) {
       throw new Error(`Failed to upload image (${response.status})`);
     }
   }

@@ -19,8 +19,8 @@ export function smoothScrollTo(
 ) {
   const {
     behavior = "smooth",
-    block = "start",
-    inline = "nearest",
+    block: _block = "start",
+    inline: _inline = "nearest",
     offset = 0,
   } = options;
 
