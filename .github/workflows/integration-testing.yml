@@ -28,11 +28,11 @@ on:
         - critical
         - mobile
         - performance
+        - api-contracts
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-        - api-contracts
 
 env:
   NODE_VERSION: '18'
