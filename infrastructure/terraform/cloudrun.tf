@@ -51,8 +51,8 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
       # Request timeout for backend API calls
       # Individual probe timeout (10s) with 30 retries every 10s = 300s total startup time
       startup_probe {
-        timeout_seconds = 10
-        period_seconds  = 10
+        timeout_seconds   = 10
+        period_seconds    = 10
         failure_threshold = 30
       }
 
@@ -178,7 +178,7 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
       # These limits align with CI/CD deployment configuration for consistency
       resources {
         limits = {
-          cpu    = "1000m"  # 1 vCPU for Next.js frontend
+          cpu    = "1000m" # 1 vCPU for Next.js frontend
           memory = "256Mi" # Optimized for Next.js apps (matches CI/CD: 256Mi)
         }
         cpu_idle = true # CPU only allocated during request processing
@@ -187,8 +187,8 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
       # Request timeout for frontend requests
       # Individual probe timeout (10s) with 30 retries every 10s = 300s total startup time
       startup_probe {
-        timeout_seconds = 10
-        period_seconds  = 10
+        timeout_seconds   = 10
+        period_seconds    = 10
         failure_threshold = 30
       }
     }
