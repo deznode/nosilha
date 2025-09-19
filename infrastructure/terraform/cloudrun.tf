@@ -82,12 +82,15 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value = google_storage_bucket.media_storage.name
       }
 
+      # Secret injection via environment variables (cost-optimized approach)
+      # Using pinned versions instead of "latest" for predictable costs and better control
+      # Each secret access during container startup counts as 1 operation toward free tier limit
       env {
         name = "SUPABASE_JWT_SECRET"
         value_source {
           secret_key_ref {
             secret  = "supabase_jwt_secret"
-            version = "latest"
+            version = "1" # Pin to specific version for cost predictability
           }
         }
       }
@@ -97,7 +100,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = "supabase_db_url"
-            version = "latest"
+            version = "2" # Updated to current enabled version
           }
         }
       }
@@ -107,7 +110,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = "supabase_db_username"
-            version = "latest"
+            version = "3" # Updated to current enabled version
           }
         }
       }
@@ -117,7 +120,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = "supabase_db_password"
-            version = "latest"
+            version = "4" # Updated to current enabled version
           }
         }
       }

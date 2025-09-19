@@ -3,18 +3,18 @@
 # ------------------------------------------------------------------------------
 
 # Budget alert for the entire project
-# This helps keep costs within free tier limits
+# This helps keep costs within free tier limits and Secret Manager usage
 resource "google_billing_budget" "project_budget" {
   count = var.billing_account_id != null ? 1 : 0
 
   billing_account = var.billing_account_id
-  display_name    = "Nosilha Project Budget"
+  display_name    = "Nosilha Project Budget (Free Tier Optimized)"
 
-  # Set budget amount (adjust based on your needs)
+  # Set budget amount optimized for community project
   amount {
     specified_amount {
       currency_code = "USD"
-      units         = "50" # $50 monthly budget
+      units         = "5" # $5 monthly budget - early warning for free tier breaches
     }
   }
 
@@ -31,14 +31,19 @@ resource "google_billing_budget" "project_budget" {
     ]
   }
 
-  # Threshold rules for alerts
+  # Optimized threshold rules for early warning (25%, 50%, 75%)
+  threshold_rules {
+    threshold_percent = 0.25 # Alert at 25% of budget for early warning
+    spend_basis       = "CURRENT_SPEND"
+  }
+
   threshold_rules {
     threshold_percent = 0.5 # Alert at 50% of budget
     spend_basis       = "CURRENT_SPEND"
   }
 
   threshold_rules {
-    threshold_percent = 0.8 # Alert at 80% of budget
+    threshold_percent = 0.75 # Alert at 75% of budget
     spend_basis       = "CURRENT_SPEND"
   }
 
@@ -112,4 +117,102 @@ resource "google_monitoring_uptime_check_config" "frontend_uptime_check" {
   }
 
   depends_on = [google_project_service.monitoring]
+}
+
+# ------------------------------------------------------------------------------
+# Cloud Audit Logs for Secret Manager Access Tracking (Free Tier Optimized)
+# ------------------------------------------------------------------------------
+
+# Enable audit logging for Secret Manager (optimized for free tier)
+# IMPORTANT: Only ADMIN_READ and DATA_WRITE enabled to prevent logging quota exhaustion
+# DATA_READ logs can rapidly consume free tier quotas with frequent secret access
+resource "google_project_iam_audit_config" "secret_manager_audit" {
+  project = var.gcp_project_id
+  service = "secretmanager.googleapis.com"
+
+  # Track administrative operations (free tier safe)
+  audit_log_config {
+    log_type = "ADMIN_READ" # Secret creation, deletion, IAM changes
+  }
+
+  # Track secret creation/rotation (moderate impact)
+  audit_log_config {
+    log_type = "DATA_WRITE" # Secret creation/updates
+  }
+
+  # DATA_READ disabled to prevent free tier quota exhaustion
+  # Enable only when needed for security investigations:
+  # audit_log_config {
+  #   log_type = "DATA_READ" # Track secret access operations (costly)
+  # }
+
+  depends_on = [google_project_service.logging]
+}
+
+# Log metric to count Secret Manager operations for budget monitoring
+# Note: This tracks admin/write operations only due to audit log configuration above
+resource "google_logging_metric" "secret_manager_operations" {
+  name   = "secret_manager_operations"
+  filter = <<-EOT
+    protoPayload.serviceName="secretmanager.googleapis.com"
+    (protoPayload.methodName="google.cloud.secretmanager.v1.SecretManagerService.CreateSecret" OR
+     protoPayload.methodName="google.cloud.secretmanager.v1.SecretManagerService.UpdateSecret" OR
+     protoPayload.methodName="google.cloud.secretmanager.v1.SecretManagerService.DeleteSecret")
+  EOT
+
+  metric_descriptor {
+    metric_kind  = "GAUGE"
+    value_type   = "INT64"
+    display_name = "Secret Manager Operations (Admin/Write)"
+  }
+
+  depends_on = [google_project_service.logging]
+}
+
+# Alert policy for Secret Manager operations (focused on admin activities)
+resource "google_monitoring_alert_policy" "secret_manager_admin_alert" {
+  display_name = "Secret Manager Admin Operations Alert"
+  combiner     = "OR"
+  enabled      = true
+
+  conditions {
+    display_name = "Unusual Secret Manager administrative activity"
+
+    condition_threshold {
+      filter          = "metric.type=\"logging.googleapis.com/user/secret_manager_operations\""
+      duration        = "900s" # 15-minute evaluation window (cost optimized)
+      comparison      = "COMPARISON_GT"
+      threshold_value = 5 # Alert on more than 5 admin operations in 15 minutes
+
+      aggregations {
+        alignment_period   = "900s"
+        per_series_aligner = "ALIGN_RATE"
+      }
+    }
+  }
+
+  documentation {
+    content = <<-EOT
+    This alert triggers when there are unusual Secret Manager administrative operations.
+
+    Possible causes:
+    1. Legitimate secret rotation or management
+    2. Unauthorized secret access attempts
+    3. Automated processes creating/updating secrets
+
+    Free tier considerations:
+    - Only admin/write operations are tracked to preserve logging quota
+    - DATA_READ logging is disabled to prevent quota exhaustion
+
+    Actions to take:
+    1. Review recent secret management activities
+    2. Check IAM audit logs for unauthorized access
+    3. Verify automated processes are working correctly
+    EOT
+  }
+
+  depends_on = [
+    google_logging_metric.secret_manager_operations,
+    google_project_service.monitoring
+  ]
 }
