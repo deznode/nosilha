@@ -93,14 +93,16 @@ jobs:
         working-directory: backend
         run: |
           ./gradlew build -x test --no-daemon
-          ./gradlew bootRun --args='--spring.profiles.active=test' &
+          ./gradlew bootRun &
           sleep 30
         env:
-          # Override Testcontainers with real PostgreSQL for E2E persistence
-          SPRING_PROFILES_ACTIVE: test
+          # Override application defaults with environment variables for E2E testing
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/nosilha_db
           SPRING_DATASOURCE_USERNAME: nosilha
           SPRING_DATASOURCE_PASSWORD: nosilha
+          CORS_ALLOWED_ORIGINS: http://localhost:3000
+          GCS_BUCKET_NAME: test-bucket
+          SUPABASE_JWT_SECRET: test-secret-key-that-is-at-least-32-characters-long
 
       - name: Wait for backend health
         run: |
@@ -244,13 +246,16 @@ jobs:
         working-directory: backend
         run: |
           ./gradlew build -x test --no-daemon
-          ./gradlew bootRun --args='--spring.profiles.active=test' &
+          ./gradlew bootRun &
           sleep 30
         env:
-          SPRING_PROFILES_ACTIVE: test
+          # Override application defaults with environment variables for mobile testing
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/nosilha_db
           SPRING_DATASOURCE_USERNAME: nosilha
           SPRING_DATASOURCE_PASSWORD: nosilha
+          CORS_ALLOWED_ORIGINS: http://localhost:3000
+          GCS_BUCKET_NAME: test-bucket
+          SUPABASE_JWT_SECRET: test-secret-key-that-is-at-least-32-characters-long
 
       - name: Wait for backend health
         run: |
@@ -370,13 +375,16 @@ jobs:
         working-directory: backend
         run: |
           ./gradlew build -x test --no-daemon
-          ./gradlew bootRun --args='--spring.profiles.active=test' &
+          ./gradlew bootRun &
           sleep 30
         env:
-          SPRING_PROFILES_ACTIVE: test
+          # Override application defaults with environment variables for API testing
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/nosilha_db
           SPRING_DATASOURCE_USERNAME: nosilha
           SPRING_DATASOURCE_PASSWORD: nosilha
+          CORS_ALLOWED_ORIGINS: http://localhost:3000
+          GCS_BUCKET_NAME: test-bucket
+          SUPABASE_JWT_SECRET: test-secret-key-that-is-at-least-32-characters-long
 
       - name: Wait for backend health
         run: |
@@ -471,13 +479,16 @@ jobs:
         working-directory: backend
         run: |
           ./gradlew build -x test --no-daemon
-          ./gradlew bootRun --args='--spring.profiles.active=test' &
+          ./gradlew bootRun &
           sleep 30
         env:
-          SPRING_PROFILES_ACTIVE: test
+          # Override application defaults with environment variables for performance testing
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/nosilha_db
           SPRING_DATASOURCE_USERNAME: nosilha
           SPRING_DATASOURCE_PASSWORD: nosilha
+          CORS_ALLOWED_ORIGINS: http://localhost:3000
+          GCS_BUCKET_NAME: test-bucket
+          SUPABASE_JWT_SECRET: test-secret-key-that-is-at-least-32-characters-long
 
       - name: Wait for backend health
         run: |
