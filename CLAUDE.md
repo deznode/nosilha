@@ -515,12 +515,15 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - **Region**: us-east1 for Cloud Run deployments
 
 ### Required GitHub Secrets
-- `GCP_SA_KEY`: Google Cloud service account key for authentication
 - `GCP_PROJECT_ID`: Google Cloud project ID
-- `PRODUCTION_API_URL`: Backend API URL for production environment
 - `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN`: Mapbox API access token for map functionality
 - `NEXT_PUBLIC_SUPABASE_URL`: Supabase project URL for authentication and database
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Supabase anonymous access key for client-side authentication
+
+### Authentication Method
+- **GCP Authentication**: Uses OpenID Connect (OIDC) workload identity provider instead of service account keys
+- **Workload Identity Provider**: `projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider`
+- **Service Account**: `nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com`
 
 ### Workflow Triggers
 - **Push to main**: Full CI/CD pipeline with production deployment

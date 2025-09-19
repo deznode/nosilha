@@ -48,11 +48,16 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.inputs.test_scope == 'critical' || github.event.inputs.test_scope == 'full' || github.event.inputs.test_scope == null
 
+    # Add OIDC permissions for GCP authentication
+    permissions:
+      contents: read
+      id-token: write  # Required for OIDC token requests
+
     services:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_DB: nosilha_e2e
+          POSTGRES_DB: nosilha_db
           POSTGRES_USER: nosilha
           POSTGRES_PASSWORD: nosilha
         options: >-
@@ -93,7 +98,7 @@ jobs:
         env:
           # Override Testcontainers with real PostgreSQL for E2E persistence
           SPRING_PROFILES_ACTIVE: test
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/nosilha_e2e
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/nosilha_db
           SPRING_DATASOURCE_USERNAME: nosilha
           SPRING_DATASOURCE_PASSWORD: nosilha
 
@@ -124,6 +129,12 @@ jobs:
       - name: Install frontend dependencies
         working-directory: frontend
         run: npm ci
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
+          service_account: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
 
       - name: Build frontend
         working-directory: frontend
@@ -188,11 +199,16 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.inputs.test_scope == 'mobile' || github.event.inputs.test_scope == 'full' || github.event.inputs.test_scope == null
 
+    # Add OIDC permissions for GCP authentication
+    permissions:
+      contents: read
+      id-token: write  # Required for OIDC token requests
+
     services:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_DB: nosilha_e2e_mobile
+          POSTGRES_DB: nosilha_db
           POSTGRES_USER: nosilha
           POSTGRES_PASSWORD: nosilha
         options: >-
@@ -232,7 +248,7 @@ jobs:
           sleep 30
         env:
           SPRING_PROFILES_ACTIVE: test
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/nosilha_e2e_mobile
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/nosilha_db
           SPRING_DATASOURCE_USERNAME: nosilha
           SPRING_DATASOURCE_PASSWORD: nosilha
 
@@ -309,11 +325,16 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.inputs.test_scope == 'api-contracts' || github.event.inputs.test_scope == 'full' || github.event.inputs.test_scope == null
 
+    # Add OIDC permissions for GCP authentication
+    permissions:
+      contents: read
+      id-token: write  # Required for OIDC token requests
+
     services:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_DB: nosilha_e2e_api
+          POSTGRES_DB: nosilha_db
           POSTGRES_USER: nosilha
           POSTGRES_PASSWORD: nosilha
         options: >-
@@ -353,7 +374,7 @@ jobs:
           sleep 30
         env:
           SPRING_PROFILES_ACTIVE: test
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/nosilha_e2e_api
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/nosilha_db
           SPRING_DATASOURCE_USERNAME: nosilha
           SPRING_DATASOURCE_PASSWORD: nosilha
 
@@ -405,11 +426,16 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.inputs.test_scope == 'performance' || github.event.inputs.test_scope == 'full' || github.event.inputs.test_scope == null
 
+    # Add OIDC permissions for GCP authentication
+    permissions:
+      contents: read
+      id-token: write  # Required for OIDC token requests
+
     services:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_DB: nosilha_e2e_perf
+          POSTGRES_DB: nosilha_db
           POSTGRES_USER: nosilha
           POSTGRES_PASSWORD: nosilha
         options: >-
@@ -449,7 +475,7 @@ jobs:
           sleep 30
         env:
           SPRING_PROFILES_ACTIVE: test
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/nosilha_e2e_perf
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/nosilha_db
           SPRING_DATASOURCE_USERNAME: nosilha
           SPRING_DATASOURCE_PASSWORD: nosilha
 
@@ -524,7 +550,7 @@ jobs:
           NEXT_PUBLIC_API_URL: http://localhost:8080
           PLAYWRIGHT_BASE_URL: http://localhost:3000
           NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
-          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run lighthouse:audit || echo "Running basic lighthouse tests if lighthouse:audit not available"
 
       - name: Run K6 performance tests
