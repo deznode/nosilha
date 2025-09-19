@@ -161,7 +161,7 @@ resource "google_logging_metric" "secret_manager_operations" {
   EOT
 
   metric_descriptor {
-    metric_kind  = "GAUGE"
+    metric_kind  = "DELTA"
     value_type   = "INT64"
     display_name = "Secret Manager Operations (Admin/Write)"
   }
@@ -179,7 +179,7 @@ resource "google_monitoring_alert_policy" "secret_manager_admin_alert" {
     display_name = "Unusual Secret Manager administrative activity"
 
     condition_threshold {
-      filter          = "metric.type=\"logging.googleapis.com/user/secret_manager_operations\""
+      filter          = "resource.type=\"global\" AND metric.type=\"logging.googleapis.com/user/secret_manager_operations\""
       duration        = "900s" # 15-minute evaluation window (cost optimized)
       comparison      = "COMPARISON_GT"
       threshold_value = 5 # Alert on more than 5 admin operations in 15 minutes
