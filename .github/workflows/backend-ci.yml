@@ -102,6 +102,12 @@ jobs:
           cache-disabled: true
           dependency-graph: 'generate-and-submit'
 
+      # Configure Testcontainers for optimal CI performance
+      - name: Configure Testcontainers
+        run: |
+          echo "TESTCONTAINERS_REUSE_ENABLE=true" >> $GITHUB_ENV
+          echo "TESTCONTAINERS_RYUK_DISABLED=false" >> $GITHUB_ENV
+
       # Run comprehensive tests with production Java version
       - name: Run tests and code quality
         run: |
@@ -172,6 +178,12 @@ jobs:
           cache-disabled: true
           dependency-graph: generate-and-submit
 
+      # Configure Testcontainers for build-time tests
+      - name: Configure Testcontainers for Build
+        run: |
+          echo "TESTCONTAINERS_REUSE_ENABLE=true" >> $GITHUB_ENV
+          echo "TESTCONTAINERS_RYUK_DISABLED=false" >> $GITHUB_ENV
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -183,7 +195,19 @@ jobs:
 
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker ${{ env.REGISTRY }}
-        
+
+      # Set up Docker layer caching for faster builds
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
