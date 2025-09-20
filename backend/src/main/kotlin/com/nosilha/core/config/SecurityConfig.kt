@@ -42,12 +42,18 @@ class SecurityConfig(
             .authorizeHttpRequests { requests ->
                 requests
                     // Allow public access to health check endpoints
-                    .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                    .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info").permitAll()
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                    .requestMatchers("/error").permitAll()
+                    // Allow all GET requests to directory and towns
                     .requestMatchers(HttpMethod.GET, "/api/v1/directory/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/towns/**").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/v1/media/upload").hasRole("authenticated")
-                    .requestMatchers(HttpMethod.POST, "/api/v1/directory/entries").hasRole("authenticated")
+                    // Require authentication for POST/PUT/DELETE operations
+                    .requestMatchers(HttpMethod.POST, "/api/v1/media/upload").hasAnyRole("USER", "ADMIN", "authenticated")
+                    .requestMatchers(HttpMethod.POST, "/api/v1/directory/entries").hasAnyRole("USER", "ADMIN", "authenticated")
+                    .requestMatchers(HttpMethod.PUT, "/api/v1/directory/**").hasAnyRole("USER", "ADMIN", "authenticated")
+                    .requestMatchers(HttpMethod.DELETE, "/api/v1/directory/**").hasAnyRole("USER", "ADMIN", "authenticated")
+                    // All other requests require authentication
                     .anyRequest().authenticated()
             }
             // 3. Set session management to stateless
