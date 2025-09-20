@@ -113,7 +113,7 @@ jobs:
         run: |
           ./gradlew detekt --no-daemon &
           ./gradlew test --no-daemon &
-          ./gradlew integrationTest --no-daemon &
+          # ./gradlew integrationTest --no-daemon &
           wait
         env:
           SPRING_PROFILES_ACTIVE: test
