@@ -39,25 +39,16 @@ class SecurityConfig(
             // 1. Disable CSRF for stateless APIs
             .csrf { it.disable() }
             // 2. Define authorization rules for endpoints
-            .authorizeHttpRequests {
-                // Allow public access to health check endpoints
-                it
-                    .requestMatchers(HttpMethod.GET, "/actuator/health/**")
-                    .permitAll()
-                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/v1/directory/**")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/v1/towns/**")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/v1/media/upload")
-                    .hasRole("authenticated")
-                    // Only allow authenticated users to create new directory entries
-                    .requestMatchers(HttpMethod.POST, "/api/v1/directory/entries")
-                    .hasRole("authenticated")
-                    // All other requests must be authenticated
-                    .anyRequest()
-                    .authenticated()
+            .authorizeHttpRequests { requests ->
+                requests
+                    // Allow public access to health check endpoints
+                    .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/directory/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/towns/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/v1/media/upload").hasRole("authenticated")
+                    .requestMatchers(HttpMethod.POST, "/api/v1/directory/entries").hasRole("authenticated")
+                    .anyRequest().authenticated()
             }
             // 3. Set session management to stateless
             .sessionManagement {
