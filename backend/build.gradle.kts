@@ -91,17 +91,7 @@ tasks.getByName<BootBuildImage>("bootBuildImage") {
 
 // Configure Spring Boot to generate build info for actuator
 springBoot {
-    buildInfo()
-}
-
-// Configure resource processing for property expansion (Maven-style)
-tasks.named<ProcessResources>("processResources") {
-    inputs.property("version", version)
-    filesMatching("**/*.yml") {
-        filter<org.apache.tools.ant.filters.ReplaceTokens>(
-            "tokens" to mapOf("project.version" to project.version.toString())
-        )
-    }
+    buildInfo{}
 }
 
 jacoco {
