@@ -278,12 +278,12 @@ jobs:
             --max-instances=3 \
             --timeout=300
             
-      - name: Enhanced Health Check & Verification
+      - name: Health Check & Verification
         run: |
           SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} --region=${{ env.REGION }} --format='value(status.url)')
           echo "🔍 Service URL: $SERVICE_URL"
 
-          # Enhanced health check with retry logic
+          # health check with retry logic
           max_attempts=12
           attempt=1
           wait_time=10

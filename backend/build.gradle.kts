@@ -13,7 +13,7 @@ plugins {
 }
 
 group = "com.nosilha"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.2-SNAPSHOT"
 
 java {
     toolchain {
@@ -87,6 +87,21 @@ tasks.withType<Test> {
 
 tasks.getByName<BootBuildImage>("bootBuildImage") {
     imageName.set("us-east1-docker.pkg.dev/nosilha/nosilha-backend/nosilha-core-api:${project.version}")
+}
+
+// Configure Spring Boot to generate build info for actuator
+springBoot {
+    buildInfo()
+}
+
+// Configure resource processing for property expansion (Maven-style)
+tasks.named<ProcessResources>("processResources") {
+    inputs.property("version", version)
+    filesMatching("**/*.yml") {
+        filter<org.apache.tools.ant.filters.ReplaceTokens>(
+            "tokens" to mapOf("project.version" to project.version.toString())
+        )
+    }
 }
 
 jacoco {

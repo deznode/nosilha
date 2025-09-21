@@ -77,6 +77,27 @@ management:
     health:
       show-details: never               # Public endpoint shows basic status only for monitoring
       show-components: never
+  info:
+    build:
+      enabled: true
+    java:
+      enabled: false
+    # Disable potentially sensitive contributors
+    env:
+      enabled: false
+    git:
+      enabled: false
+    os:
+      enabled: false
+
+# Safe application information for actuator info endpoint
+info:
+  app:
+    name: "Nos Ilha Core API"
+    description: "Cultural Heritage Platform for Brava Island, Cape Verde"
+    version: "@project.version@"
+    region: "Brava Island, Cape Verde"
+    purpose: "Community-driven tourism and cultural heritage directory"
 
 springdoc:
   api-docs:
@@ -88,4 +109,3 @@ logging:
     root: debug
     web: debug
     com.nosilha: debug
-debug: true
