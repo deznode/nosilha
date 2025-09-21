@@ -265,11 +265,11 @@ jobs:
           # Deploy container image to Cloud Run
           # Note: Secrets are managed by Terraform and persist automatically across revisions
           # No --set-secrets flags needed - Terraform configuration provides secret environment variables
+          # Public access is managed by Terraform IAM policy (google_cloud_run_v2_service_iam_member)
           gcloud run deploy ${{ env.SERVICE_NAME }} \
             --image=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-backend/nosilha-core-api:${{ github.sha }} \
             --platform=managed \
             --region=${{ env.REGION }} \
-            --allow-unauthenticated \
             --service-account=nosilha-backend-runner@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
             --set-env-vars="SPRING_PROFILES_ACTIVE=production" \
             --memory=256Mi \
