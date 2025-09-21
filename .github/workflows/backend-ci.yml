@@ -269,19 +269,99 @@ jobs:
             --allow-unauthenticated \
             --service-account=nosilha-backend-runner@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
             --set-env-vars="SPRING_PROFILES_ACTIVE=production" \
+            --set-secrets="SUPABASE_JWT_SECRET=supabase_jwt_secret:1" \
+            --set-secrets="SPRING_DATASOURCE_URL=supabase_db_url:2" \
+            --set-secrets="SPRING_DATASOURCE_USERNAME=supabase_db_username:3" \
+            --set-secrets="SPRING_DATASOURCE_PASSWORD=supabase_db_password:4" \
             --memory=256Mi \
             --cpu=1 \
             --min-instances=0 \
             --max-instances=3 \
             --timeout=300
             
-      - name: Health Check
+      - name: Enhanced Health Check & Verification
         run: |
           SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} --region=${{ env.REGION }} --format='value(status.url)')
-          echo "Service URL: $SERVICE_URL"
-          
-          # Wait for service to be ready
-          sleep 30
-          
-          # Basic health check
-          curl -f "$SERVICE_URL/actuator/health" || (echo "Health check failed" && exit 1)
+          echo "🔍 Service URL: $SERVICE_URL"
+
+          # Enhanced health check with retry logic
+          max_attempts=12
+          attempt=1
+          wait_time=10
+
+          echo "🏥 Starting health check with up to $max_attempts attempts..."
+
+          while [ $attempt -le $max_attempts ]; do
+            echo "📋 Health check attempt $attempt/$max_attempts (waiting ${wait_time}s between attempts)"
+
+            # Check if service is responding
+            if response=$(curl -s -w "\n%{http_code}" "$SERVICE_URL/actuator/health" 2>/dev/null); then
+              http_code=$(echo "$response" | tail -n1)
+              body=$(echo "$response" | head -n -1)
+
+              if [ "$http_code" = "200" ]; then
+                echo "✅ Health check passed! HTTP $http_code"
+                echo "📊 Health response: $body"
+
+                # Verify the response contains expected health indicators
+                if echo "$body" | grep -q '"status":"UP"'; then
+                  echo "✅ Application status is UP"
+
+                  # Check if database connectivity is working (if your health check includes DB)
+                  if echo "$body" | grep -q -E '(db|database|dataSource)'; then
+                    echo "✅ Database health check detected in response"
+                  fi
+
+                  echo "🎉 Service is healthy and ready to serve traffic!"
+                  exit 0
+                else
+                  echo "⚠️  Service responding but status not UP: $body"
+                fi
+              else
+                echo "❌ Health check failed with HTTP $http_code"
+                echo "📄 Response body: $body"
+              fi
+            else
+              echo "❌ Health check request failed (connection error)"
+            fi
+
+            if [ $attempt -eq $max_attempts ]; then
+              echo "💥 Health check failed after $max_attempts attempts"
+              echo "🔍 Final service status:"
+              gcloud run services describe ${{ env.SERVICE_NAME }} --region=${{ env.REGION }} --format="table(
+                metadata.name,
+                status.conditions[0].type,
+                status.conditions[0].status,
+                status.conditions[0].reason,
+                status.conditions[0].message
+              )" || echo "Failed to get service status"
+              exit 1
+            fi
+
+            echo "⏳ Waiting ${wait_time} seconds before next attempt..."
+            sleep $wait_time
+
+            # Exponential backoff (cap at 30 seconds)
+            wait_time=$((wait_time < 30 ? wait_time + 5 : 30))
+            attempt=$((attempt + 1))
+          done
+
+      - name: Verify Secret Injection
+        run: |
+          echo "🔐 Verifying secret injection configuration..."
+
+          # Check if secrets are properly configured in the service
+          secret_config=$(gcloud run services describe ${{ env.SERVICE_NAME }} --region=${{ env.REGION }} --format="value(spec.template.spec.template.spec.containers[0].env[].name)" 2>/dev/null || echo "")
+
+          required_secrets=("SPRING_DATASOURCE_URL" "SPRING_DATASOURCE_USERNAME" "SPRING_DATASOURCE_PASSWORD" "SUPABASE_JWT_SECRET")
+
+          for secret in "${required_secrets[@]}"; do
+            if echo "$secret_config" | grep -q "$secret"; then
+              echo "✅ $secret is configured"
+            else
+              echo "❌ $secret is missing from service configuration"
+              exit 1
+            fi
+          done
+
+          echo "🔒 All required secrets are properly configured!"
