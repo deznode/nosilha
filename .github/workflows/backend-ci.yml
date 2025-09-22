@@ -349,9 +349,9 @@ jobs:
           echo "🔐 Verifying Terraform-managed secret configuration..."
 
           # Validate that Terraform has properly configured secrets in the Cloud Run service
-          secret_config=$(gcloud run services describe ${{ env.SERVICE_NAME }} --region=${{ env.REGION }} --format="value(spec.template.spec.template.spec.containers[0].env[].name)" 2>/dev/null || echo "")
+          secret_config=$(gcloud run services describe ${{ env.SERVICE_NAME }} --region=${{ env.REGION }} --format="value(spec.template.spec.containers[0].env[].name)" 2>/dev/null || echo "")
 
-          required_secrets=("SPRING_DATASOURCE_URL" "SPRING_DATASOURCE_USERNAME" "SPRING_DATASOURCE_PASSWORD" "SUPABASE_JWT_SECRET")
+          required_secrets=("SPRING_PROFILES_ACTIVE" "SPRING_CLOUD_GCP_PROJECT_ID" "GCS_BUCKET_NAME" "SUPABASE_JWT_SECRET" "SPRING_DATASOURCE_URL" "SPRING_DATASOURCE_USERNAME" "SPRING_DATASOURCE_PASSWORD" "SPRING_FLYWAY_URL" "SPRING_FLYWAY_USER" "SPRING_FLYWAY_PASSWORD")
 
           for secret in "${required_secrets[@]}"; do
             if echo "$secret_config" | grep -q "$secret"; then
