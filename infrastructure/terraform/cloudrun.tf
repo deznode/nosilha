@@ -235,7 +235,7 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
         }
         initial_delay_seconds = 5 # Next.js starts faster than JVM
         period_seconds        = 3 # Check every 3s for faster scaling
-        timeout_seconds       = 5 # Sufficient for HTTP response
+        timeout_seconds       = 2 # Must be < period_seconds (fixed validation error)
         failure_threshold     = 8 # Appropriate for Next.js startup
       }
     }
