@@ -271,7 +271,7 @@ jobs:
             --platform=managed \
             --region=${{ env.REGION }} \
             --service-account=nosilha-backend-runner@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
-            --memory=512Mi \
+            --memory=1Gi \
             --cpu=1 \
             --min-instances=0 \
             --max-instances=3 \
