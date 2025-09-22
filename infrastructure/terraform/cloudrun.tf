@@ -50,16 +50,16 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
 
       # Request timeout for backend API calls
       # HTTP health check using Spring Boot Actuator endpoint
-      # Optimized settings: 10s delay + 3s period × 15 failures = 55s total startup window
+      # Optimized settings: 20s delay + 3s period × 20 failures = 80s total startup window
       startup_probe {
         http_get {
           path = "/actuator/health"
           port = 8080
         }
-        initial_delay_seconds = 10 # Allow JVM bootstrap time
+        initial_delay_seconds = 20 # Allow JVM bootstrap time + production overhead
         period_seconds        = 3  # Check every 3s for faster scaling
         timeout_seconds       = 2  # Must be < period_seconds (fixed validation error)
-        failure_threshold     = 15 # Increased to maintain ~45s startup window
+        failure_threshold     = 20 # Increased to provide 80s total startup window
       }
 
       # Inject environment variables into the container.
