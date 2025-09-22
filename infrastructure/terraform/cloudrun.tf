@@ -100,7 +100,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = "supabase_db_url"
-            version = "2" # Updated to current enabled version
+            version = "1" # Updated to current enabled version
           }
         }
       }
@@ -124,6 +124,38 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
           }
         }
       }
+
+
+      env {
+        name = "SPRING_FLYWAY_URL"
+        value_source {
+          secret_key_ref {
+            secret  = "supabase_session_db_url"
+            version = "1" # Updated to current enabled version
+          }
+        }
+      }
+
+      env {
+        name = "SPRING_FLYWAY_USER"
+        value_source {
+          secret_key_ref {
+            secret  = "supabase_db_username"
+            version = "3" # Updated to current enabled version
+          }
+        }
+      }
+
+      env {
+        name = "SPRING_FLYWAY_PASSWORD"
+        value_source {
+          secret_key_ref {
+            secret  = "supabase_db_password"
+            version = "4" # Updated to current enabled version
+          }
+        }
+      }
+
     }
   }
 

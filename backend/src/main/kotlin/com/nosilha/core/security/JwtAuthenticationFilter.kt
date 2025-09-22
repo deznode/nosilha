@@ -35,64 +35,8 @@ class JwtAuthenticationFilter(
         val token = authHeader.substring(7)
 
         try {
-            val key = Keys.hmacShaKeyFor(jwtSecret.toByteArray())
-            val claims: Claims =
-                Jwts.parser()
-                    .verifyWith(key)
-                    .build()
-                    .parseSignedClaims(token)
-                    .payload
-
-            // If the token is valid and user is not yet authenticated
-            if (SecurityContextHolder.getContext().authentication == null) {
-                // 'sub' claim in a Supabase JWT is the user's UUID
-                val userId = claims.subject
-
-                // Extract roles from Supabase JWT - they can be in different places
-                val authorities = mutableListOf<SimpleGrantedAuthority>()
-
-                // Add default authenticated role
-                authorities.add(SimpleGrantedAuthority("ROLE_authenticated"))
-
-                // Check for role in top-level claims
-                val role = claims["role"] as? String
-                if (role != null) {
-                    authorities.add(SimpleGrantedAuthority("ROLE_$role"))
-                }
-
-                // Check for roles in app_metadata (common Supabase pattern)
-                @Suppress("UNCHECKED_CAST")
-                val appMetadata = claims["app_metadata"] as? Map<String, Any>
-                if (appMetadata != null) {
-                    val appRole = appMetadata["role"] as? String
-                    if (appRole != null) {
-                        authorities.add(SimpleGrantedAuthority("ROLE_$appRole"))
-                    }
-
-                    @Suppress("UNCHECKED_CAST")
-                    val roles = appMetadata["roles"] as? List<String>
-                    roles?.forEach { r ->
-                        authorities.add(SimpleGrantedAuthority("ROLE_$r"))
-                    }
-                }
-
-                // Fallback to USER role if no specific role found
-                if (authorities.size == 1) { // Only has authenticated role
-                    authorities.add(SimpleGrantedAuthority("ROLE_USER"))
-                }
-
-                val authentication =
-                    UsernamePasswordAuthenticationToken(
-                        userId, // Principal is the user's ID
-                        null, // Credentials are not needed for JWT
-                        authorities,
-                    )
-
-                authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
-                SecurityContextHolder.getContext().authentication = authentication
-
-                logger.debug("JWT authentication successful for user: $userId with authorities: ${authorities.map { it.authority }}")
-            }
+            val claims = parseJwtToken(token)
+            authenticateUser(claims, request)
         } catch (e: Exception) {
             // If token is invalid (expired, malformed, etc.), do not set authentication
             // and just proceed. The user will be considered unauthenticated.
@@ -100,5 +44,86 @@ class JwtAuthenticationFilter(
         }
 
         filterChain.doFilter(request, response)
+    }
+
+    private fun parseJwtToken(token: String): Claims {
+        val key = Keys.hmacShaKeyFor(jwtSecret.toByteArray())
+        return Jwts.parser()
+            .verifyWith(key)
+            .build()
+            .parseSignedClaims(token)
+            .payload
+    }
+
+    private fun authenticateUser(claims: Claims, request: HttpServletRequest) {
+        // If the token is valid and user is not yet authenticated
+        if (SecurityContextHolder.getContext().authentication == null) {
+            val userId = claims.subject
+            val authorities = extractAuthorities(claims)
+            val authentication = createAuthentication(userId, authorities, request)
+            SecurityContextHolder.getContext().authentication = authentication
+
+            logger.debug(
+                "JWT authentication successful for user: $userId " +
+                    "with authorities: ${authorities.map { it.authority }}"
+            )
+        }
+    }
+
+    private fun extractAuthorities(claims: Claims): List<SimpleGrantedAuthority> {
+        val authorities = mutableListOf<SimpleGrantedAuthority>()
+
+        // Add default authenticated role
+        authorities.add(SimpleGrantedAuthority("ROLE_authenticated"))
+
+        // Check for role in top-level claims
+        val role = claims["role"] as? String
+        if (role != null) {
+            authorities.add(SimpleGrantedAuthority("ROLE_$role"))
+        }
+
+        // Check for roles in app_metadata (common Supabase pattern)
+        extractAppMetadataRoles(claims, authorities)
+
+        // Fallback to USER role if no specific role found
+        if (authorities.size == 1) { // Only has authenticated role
+            authorities.add(SimpleGrantedAuthority("ROLE_USER"))
+        }
+
+        return authorities
+    }
+
+    private fun extractAppMetadataRoles(
+        claims: Claims,
+        authorities: MutableList<SimpleGrantedAuthority>
+    ) {
+        @Suppress("UNCHECKED_CAST")
+        val appMetadata = claims["app_metadata"] as? Map<String, Any>
+        if (appMetadata != null) {
+            val appRole = appMetadata["role"] as? String
+            if (appRole != null) {
+                authorities.add(SimpleGrantedAuthority("ROLE_$appRole"))
+            }
+
+            @Suppress("UNCHECKED_CAST")
+            val roles = appMetadata["roles"] as? List<String>
+            roles?.forEach { r ->
+                authorities.add(SimpleGrantedAuthority("ROLE_$r"))
+            }
+        }
+    }
+
+    private fun createAuthentication(
+        userId: String?,
+        authorities: List<SimpleGrantedAuthority>,
+        request: HttpServletRequest
+    ): UsernamePasswordAuthenticationToken {
+        val authentication = UsernamePasswordAuthenticationToken(
+            userId, // Principal is the user's ID
+            null, // Credentials are not needed for JWT
+            authorities,
+        )
+        authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
+        return authentication
     }
 }
