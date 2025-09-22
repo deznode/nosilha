@@ -266,7 +266,6 @@ jobs:
             --platform=managed \
             --region=${{ env.REGION }} \
             --service-account=nosilha-frontend-runner@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
-            --update-env-vars="NODE_ENV=production,NEXT_TELEMETRY_DISABLED=1" \
             --memory=256Mi \
             --cpu=1 \
             --min-instances=0 \
