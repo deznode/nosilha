@@ -43,7 +43,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
       resources {
         limits = {
           cpu    = "1000m" # 1 vCPU max for free tier
-          memory = "256Mi" # Optimized for Spring Boot apps (matches CI/CD: 256Mi)
+          memory = "512Mi" # Optimized for Spring Boot apps (matches CI/CD: 512Mi)
         }
         cpu_idle = true # CPU only allocated during request processing
       }
@@ -64,6 +64,10 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
 
       # Inject environment variables into the container.
       # Secrets are sourced securely from Secret Manager.
+       env {
+        name  = "JAVA_OPTS"
+        value = "-Xmx400m -Xms128m -XX:MaxMetaspaceSize=64m -XX:ReservedCodeCacheSize=32m -XX:MaxDirectMemorySize=32m -XX:+UseG1GC -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UseCompressedClassPointers"
+      }
       env {
         name  = "SPRING_PROFILES_ACTIVE"
         value = "production"

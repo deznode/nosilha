@@ -272,7 +272,7 @@ jobs:
             --region=${{ env.REGION }} \
             --service-account=nosilha-backend-runner@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
             --set-env-vars="SPRING_PROFILES_ACTIVE=production" \
-            --memory=256Mi \
+            --memory=512Mi \
             --cpu=1 \
             --min-instances=0 \
             --max-instances=3 \
