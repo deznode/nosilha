@@ -64,10 +64,6 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
 
       # Inject environment variables into the container.
       # Secrets are sourced securely from Secret Manager.
-       env {
-        name  = "JAVA_OPTS"
-        value = "-Xmx400m -Xms128m -XX:MaxMetaspaceSize=64m -XX:ReservedCodeCacheSize=32m -XX:MaxDirectMemorySize=32m -XX:+UseG1GC -XX:+UseStringDeduplication -XX:+UseCompressedOops -XX:+UseCompressedClassPointers"
-      }
       env {
         name  = "SPRING_PROFILES_ACTIVE"
         value = "production"
