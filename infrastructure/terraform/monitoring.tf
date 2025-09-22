@@ -88,7 +88,7 @@ resource "google_monitoring_uptime_check_config" "backend_uptime_check" {
     type = "uptime_url"
     labels = {
       project_id = var.gcp_project_id
-      host       = replace(google_cloud_run_v2_service.nosilha_backend_api.uri, "https://", "")
+      host       = split("/", replace(google_cloud_run_v2_service.nosilha_backend_api.urls[0], "https://", ""))[0]
     }
   }
 
@@ -112,7 +112,7 @@ resource "google_monitoring_uptime_check_config" "frontend_uptime_check" {
     type = "uptime_url"
     labels = {
       project_id = var.gcp_project_id
-      host       = replace(google_cloud_run_v2_service.nosilha_frontend.uri, "https://", "")
+      host       = split("/", replace(google_cloud_run_v2_service.nosilha_frontend.urls[0], "https://", ""))[0]
     }
   }
 
