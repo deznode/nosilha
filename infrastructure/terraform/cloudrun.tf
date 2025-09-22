@@ -43,7 +43,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
       resources {
         limits = {
           cpu    = "1000m" # 1 vCPU max for free tier
-          memory = "512Mi" # Optimized for Spring Boot apps (matches CI/CD: 512Mi)
+          memory = "1Gi"   # Increased from 512Mi to accommodate JVM memory requirements (693MB needed)
         }
         cpu_idle = true # CPU only allocated during request processing
       }
