@@ -133,15 +133,8 @@ export default async function DirectoryEntryDetailPage({
     notFound();
   }
 
-  // Simulate image data with a static array
-  const sampleImages = [
-    "https://picsum.photos/800/600?random=11",
-    "https://picsum.photos/800/600?random=12",
-    "https://picsum.photos/800/600?random=13",
-    "https://picsum.photos/800/600?random=14",
-    "https://picsum.photos/800/600?random=15",
-    "https://picsum.photos/800/600?random=16",
-  ];
+  // Gallery images - will be populated from actual entry data or fallback to empty array
+  const sampleImages: string[] = [];
 
   return (
     <div className="bg-off-white font-sans">
