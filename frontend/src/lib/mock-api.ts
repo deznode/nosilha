@@ -1,5 +1,6 @@
-import { DirectoryEntry } from "../types/directory";
-import { Town } from "../types/town";
+import type { DirectoryEntry } from "@/types/directory";
+import type { Town } from "@/types/town";
+import type { ApiClient } from "@/lib/api-contracts";
 
 const MOCK_ENTRIES: DirectoryEntry[] = [
   // AUTHENTIC HOTEL ENTRIES FROM DATABASE
@@ -182,42 +183,169 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
   },
 ];
 
-export async function getEntriesByCategory(
-  category: string
-): Promise<DirectoryEntry[]> {
-  console.log(`Fetching entries for category: ${category}`);
-  if (category.toLowerCase() === "all") return MOCK_ENTRIES;
-  return MOCK_ENTRIES.filter(
-    (entry) => entry.category.toLowerCase() === category.toLowerCase()
-  );
+/**
+ * Mock API Client - Implements ApiClient interface for testing and development
+ * This implementation provides realistic mock data with simulated async behavior
+ */
+export class MockApiClient implements ApiClient {
+  /**
+   * Simulates network delay for realistic testing
+   */
+  private async simulateDelay(ms: number = 100): Promise<void> {
+    await new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Fetches all directory entries or entries for a specific category.
+   * Simulates ISR caching behavior with realistic delays.
+   */
+  async getEntriesByCategory(
+    category: string,
+    page: number = 0,
+    size: number = 20
+  ): Promise<DirectoryEntry[]> {
+    console.log(`Mock API: Fetching entries for category: ${category}, page: ${page}, size: ${size}`);
+    await this.simulateDelay(150);
+
+    let filteredEntries = MOCK_ENTRIES;
+    if (category.toLowerCase() !== "all") {
+      filteredEntries = MOCK_ENTRIES.filter(
+        (entry) => entry.category.toLowerCase() === category.toLowerCase()
+      );
+    }
+
+    // Simulate pagination
+    const startIndex = page * size;
+    const endIndex = startIndex + size;
+    return filteredEntries.slice(startIndex, endIndex);
+  }
+
+  /**
+   * Fetches a single directory entry by its slug.
+   * Includes realistic delay and proper undefined handling.
+   */
+  async getEntryBySlug(slug: string): Promise<DirectoryEntry | undefined> {
+    console.log(`Mock API: Fetching entry with slug: ${slug}`);
+    await this.simulateDelay(100);
+    return MOCK_ENTRIES.find((entry) => entry.slug === slug);
+  }
+
+  /**
+   * Creates a new directory entry (mock implementation).
+   * Simulates validation and returns a realistic response.
+   */
+  async createDirectoryEntry(
+    entryData: Omit<
+      DirectoryEntry,
+      "id" | "slug" | "rating" | "reviewCount" | "createdAt" | "updatedAt"
+    >
+  ): Promise<DirectoryEntry> {
+    console.log(`Mock API: Creating new directory entry:`, entryData);
+    await this.simulateDelay(300); // Longer delay for write operations
+
+    // Simulate validation
+    if (!entryData.name || entryData.name.trim().length === 0) {
+      throw new Error("Validation failed: name: Name is required");
+    }
+
+    // Create mock entry with generated fields
+    const newEntry: DirectoryEntry = {
+      ...entryData,
+      id: `mock-${Date.now()}`,
+      slug: entryData.name.toLowerCase().replace(/\s+/g, "-"),
+      rating: 0,
+      reviewCount: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    } as DirectoryEntry;
+
+    // Add to mock data (in real scenario, this would persist)
+    MOCK_ENTRIES.push(newEntry);
+    return newEntry;
+  }
+
+  /**
+   * Fetches entries for map display with larger page size.
+   * Uses no caching to simulate real-time map data.
+   */
+  async getEntriesForMap(category: string = "all"): Promise<DirectoryEntry[]> {
+    console.log(`Mock API: Fetching entries for map, category: ${category}`);
+    await this.simulateDelay(200);
+
+    if (category.toLowerCase() === "all") {
+      return MOCK_ENTRIES;
+    }
+    return MOCK_ENTRIES.filter(
+      (entry) => entry.category.toLowerCase() === category.toLowerCase()
+    );
+  }
+
+  /**
+   * Mock image upload implementation.
+   * Simulates file processing and returns a mock URL.
+   */
+  async uploadImage(
+    file: File,
+    category?: string,
+    description?: string
+  ): Promise<string> {
+    console.log(`Mock API: Uploading image:`, {
+      fileName: file.name,
+      size: file.size,
+      category,
+      description
+    });
+    await this.simulateDelay(1000); // Longer delay for file upload
+
+    // Simulate validation
+    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      throw new Error("File size too large. Maximum size is 10MB.");
+    }
+
+    // Return mock URL
+    const timestamp = Date.now();
+    return `/images/uploads/mock-${timestamp}-${file.name}`;
+  }
+
+  /**
+   * Fetches all towns with simulated caching behavior.
+   */
+  async getTowns(): Promise<Town[]> {
+    console.log(`Mock API: Fetching all towns`);
+    await this.simulateDelay(120);
+    return MOCK_TOWNS;
+  }
+
+  /**
+   * Fetches a single town by its slug.
+   */
+  async getTownBySlug(slug: string): Promise<Town | undefined> {
+    console.log(`Mock API: Fetching town with slug: ${slug}`);
+    await this.simulateDelay(100);
+    return MOCK_TOWNS.find((town) => town.slug === slug);
+  }
+
+  /**
+   * Fetches towns for map display.
+   */
+  async getTownsForMap(): Promise<Town[]> {
+    console.log(`Mock API: Fetching towns for map`);
+    await this.simulateDelay(150);
+    return MOCK_TOWNS;
+  }
 }
 
-// Synchronous fallback functions for build-time use
+// Legacy synchronous functions for backward compatibility and build-time use
 export function getMockEntriesByCategory(category: string): DirectoryEntry[] {
-  console.log(`Using mock fallback for category: ${category}`);
+  console.log(`Legacy: Using mock fallback for category: ${category}`);
   if (category.toLowerCase() === "all") return MOCK_ENTRIES;
   return MOCK_ENTRIES.filter(
     (entry) => entry.category.toLowerCase() === category.toLowerCase()
   );
 }
 
-export async function getEntryById(
-  id: string
-): Promise<DirectoryEntry | undefined> {
-  console.log(`Fetching entry with id: ${id}`);
-  return MOCK_ENTRIES.find((entry) => entry.id === id);
-}
-
-export async function getEntryBySlug(
-  slug: string
-): Promise<DirectoryEntry | undefined> {
-  console.log(`Fetching entry with slug: ${slug}`);
-  return MOCK_ENTRIES.find((entry) => entry.slug === slug);
-}
-
-// Synchronous fallback function for build-time use
 export function getMockEntryBySlug(slug: string): DirectoryEntry | undefined {
-  console.log(`Using mock fallback for slug: ${slug}`);
+  console.log(`Legacy: Using mock fallback for slug: ${slug}`);
   return MOCK_ENTRIES.find((entry) => entry.slug === slug);
 }
 
@@ -381,13 +509,13 @@ const MOCK_TOWNS: Town[] = [
   },
 ];
 
-// Synchronous fallback functions for town data
+// Legacy synchronous functions for towns (backward compatibility)
 export function getMockTowns(): Town[] {
-  console.log("Using mock fallback for towns");
+  console.log("Legacy: Using mock fallback for towns");
   return MOCK_TOWNS;
 }
 
 export function getMockTownBySlug(slug: string): Town | undefined {
-  console.log(`Using mock fallback for town slug: ${slug}`);
+  console.log(`Legacy: Using mock fallback for town slug: ${slug}`);
   return MOCK_TOWNS.find((town) => town.slug === slug);
 }
