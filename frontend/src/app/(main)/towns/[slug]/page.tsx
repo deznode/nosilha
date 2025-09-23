@@ -227,11 +227,11 @@ export default async function TownPage({ params }: TownPageProps) {
   );
 }
 
-// Generate static params for known towns - uses mock data for build-time generation
+// Generate static params for known towns - uses unified API
 export async function generateStaticParams() {
-  // Import mock data for build-time static generation
-  const { getMockTowns } = await import("@/lib/mock-api");
-  const towns = getMockTowns();
+  // Use unified API which automatically handles mock/backend switching
+  const { getTowns } = await import("@/lib/api");
+  const towns = await getTowns();
 
   return towns.map((town) => ({
     slug: town.slug,

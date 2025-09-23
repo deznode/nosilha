@@ -120,17 +120,8 @@ export async function getTownsForMap(): Promise<Town[]> {
   return apiClient.getTownsForMap();
 }
 
-// ================================
-// LEGACY EXPORTS (for backward compatibility during transition)
-// ================================
-
-// Re-export legacy functions for build-time static generation
-export {
-  getMockEntriesByCategory,
-  getMockEntryBySlug,
-  getMockTowns,
-  getMockTownBySlug,
-} from "@/lib/mock-api";
+// All components should use the unified API functions above that automatically
+// switch between mock and backend implementations based on environment configuration.
 
 // ================================
 // UTILITY EXPORTS
