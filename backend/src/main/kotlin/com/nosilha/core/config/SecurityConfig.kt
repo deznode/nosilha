@@ -27,9 +27,14 @@ class SecurityConfig(
                     CorsConfiguration()
                         .apply {
                             allowedOriginPatterns = this@SecurityConfig.allowedOrigins
-                            allowedMethods = listOf(
-                                "GET", "POST", "PUT", "DELETE", "OPTIONS"
-                            )
+                            allowedMethods =
+                                listOf(
+                                    "GET",
+                                    "POST",
+                                    "PUT",
+                                    "DELETE",
+                                    "OPTIONS",
+                                )
                             allowedHeaders = listOf("*")
                             allowCredentials = true
                         }
@@ -47,13 +52,15 @@ class SecurityConfig(
                     .requestMatchers(
                         "/actuator/health",
                         "/actuator/health/**",
-                        "/actuator/info"
+                        "/actuator/info",
                     ).permitAll()
-                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                    .requestMatchers("/error").permitAll()
+                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
+                    .permitAll()
                     // Allow all GET requests to directory and towns
-                    .requestMatchers(HttpMethod.GET, "/api/v1/directory/**").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/v1/towns/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/directory/**")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/towns/**")
+                    .permitAll()
                     // Require authentication for POST/PUT/DELETE operations
                     .requestMatchers(HttpMethod.POST, "/api/v1/media/upload")
                     .hasAnyRole("USER", "ADMIN", "authenticated")
@@ -64,7 +71,8 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.DELETE, "/api/v1/directory/**")
                     .hasAnyRole("USER", "ADMIN", "authenticated")
                     // All other requests require authentication
-                    .anyRequest().authenticated()
+                    .anyRequest()
+                    .authenticated()
             }
             // 3. Set session management to stateless
             .sessionManagement {
@@ -73,7 +81,7 @@ class SecurityConfig(
             // 4. Add the custom JWT filter before the standard username/password filter
             .addFilterBefore(
                 jwtAuthFilter,
-                UsernamePasswordAuthenticationFilter::class.java
+                UsernamePasswordAuthenticationFilter::class.java,
             )
 
         return http.build()
