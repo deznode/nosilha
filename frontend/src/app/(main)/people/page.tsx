@@ -216,7 +216,7 @@ const historicalEras = [
           "Advocated directly to U.S. Presidents Cleveland and McKinley",
           "Exemplified tenacity and resilience of early diaspora pioneers",
         ],
-        image: "/images/people/antonio-coelho.webp",
+        image: "/images/people/antonio-coelho.jpg",
         courtesy: "the Cape Verdean Museum",
         featured: false,
       },
