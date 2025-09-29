@@ -1,106 +1,43 @@
-# Plan Status Command
+---
+description: Execute the implementation planning workflow using the plan template to generate design artifacts.
+---
 
-Query the plan/* directory system for current task status and next action recommendations.
+The user input to you can be provided directly by the agent or as a command argument - you **MUST** consider it before proceeding with the prompt (if not empty).
 
-## Usage
+User input:
 
-- `/plan` - Show full plan status report
-- `/plan status` - Current active/pending/completed overview  
-- `/plan next` - Next recommended tasks only
-- `/plan active` - Detailed view of active tasks
-- `/plan deps` - Dependency analysis
+$ARGUMENTS
 
-## Implementation
+Given the implementation details provided as an argument, do this:
 
-When this command is used, analyze the plan directory structure and provide an intelligent status report:
+1. Run `.specify/scripts/bash/setup-plan.sh --json` from the repo root and parse JSON for FEATURE_SPEC, IMPL_PLAN, SPECS_DIR, BRANCH. All future file paths must be absolute.
+   - BEFORE proceeding, inspect FEATURE_SPEC for a `## Clarifications` section with at least one `Session` subheading. If missing or clearly ambiguous areas remain (vague adjectives, unresolved critical choices), PAUSE and instruct the user to run `/clarify` first to reduce rework. Only continue if: (a) Clarifications exist OR (b) an explicit user override is provided (e.g., "proceed without clarification"). Do not attempt to fabricate clarifications yourself.
+2. Read and analyze the feature specification to understand:
+   - The feature requirements and user stories
+   - Functional and non-functional requirements
+   - Success criteria and acceptance criteria
+   - Any technical constraints or dependencies mentioned
 
-### 1. Parse Plan Directory Structure
+3. Read the constitution at `.specify/memory/constitution.md` to understand constitutional requirements.
 
-- Scan `plan/active/*.md` for current tasks
-- Check `plan/pending/*.md` for waiting tasks  
-- Review `plan/completed/*.md` for finished work
+4. Execute the implementation plan template:
+   - Load `.specify/templates/plan-template.md` (already copied to IMPL_PLAN path)
+   - Set Input path to FEATURE_SPEC
+   - Run the Execution Flow (main) function steps 1-9
+   - The template is self-contained and executable
+   - Follow error handling and gate checks as specified
+   - Let the template guide artifact generation in $SPECS_DIR:
+     * Phase 0 generates research.md
+     * Phase 1 generates data-model.md, contracts/, quickstart.md
+     * Phase 2 generates tasks.md
+   - Incorporate user-provided details from arguments into Technical Context: $ARGUMENTS
+   - Update Progress Tracking as you complete each phase
 
-### 2. Extract Plan Metadata
+5. Verify execution completed:
+   - Check Progress Tracking shows all phases complete
+   - Ensure all required artifacts were generated
+   - Confirm no ERROR states in execution
 
-For each plan file, extract:
+6. Report results with branch name, file paths, and generated artifacts.
 
-- **Status**: Current status (Active/Pending/Completed)
-- **Priority**: High/Medium/Low priority level
-- **Time Estimate**: Expected hours/days to complete
-- **Dependencies**: What must be completed first
-- **Progress**: Current completion percentage if available
-
-### 3. Analyze Dependencies
-
-- Identify tasks with no dependencies (ready to start)
-- Map dependency chains between tasks
-- Flag blocked tasks and their blockers
-- Calculate critical path for completion
-
-### 4. Generate Recommendations
-
-Based on analysis, recommend:
-
-- **Highest priority** tasks ready to start immediately  
-- **Dependency order** for optimal workflow
-- **Time estimates** for completion
-- **Potential blockers** to address
-
-## Expected Output Format
-
-```text
-🚀 Nos Ilha Plan Status - 2025-08-07
-
-📊 SUMMARY:
-✅ Completed: 1    🟡 Active: 3    📋 Pending: 3
-
-⚡ NEXT RECOMMENDED TASKS:
-1. type-safety-improvements
-   • Priority: HIGH | Time: 6-8h | Dependencies: None
-   • Status: Ready to start immediately
-   
-2. content-review (fact-checking)  
-   • Priority: HIGH | Time: Ongoing | Dependencies: None
-   • Status: Critical for content accuracy
-
-🔗 DEPENDENCY CHAIN:
-type-safety → gallery-api-integration → gallery-backend-implementation
-
-📋 ACTIVE TASKS:
-• gallery-api-integration (blocked: waiting for type-safety)
-• gallery-backend-implementation (blocked: waiting for api integration)  
-• type-safety-improvements (ready: no dependencies)
-
-📈 PROGRESS OVERVIEW:
-• claude-sub-agents-implementation: ✅ COMPLETED (16 hours)
-• MVP readiness: ✅ PRODUCTION READY (3-7 days setup)
-• Overall completion: ~40% (critical foundation complete)
-```
-
-## Analysis Logic
-
-### Priority Scoring
-
-- **HIGH**: Critical for production or blocking other tasks
-- **MEDIUM**: Important for features but not blocking  
-- **LOW**: Nice-to-have or future enhancements
-
-### Dependency Resolution
-
-- Tasks with no dependencies get highest recommendation
-- Map dependency chains to show optimal work order
-- Identify critical path bottlenecks
-
-### Status Tracking
-
-- **COMPLETED**: Marked as done with completion date
-- **ACTIVE**: Currently available to work on
-- **PENDING**: Waiting for dependencies or future phase
-
-### Time Estimation
-
-- Extract time estimates from plan files
-- Aggregate for total remaining work
-- Provide realistic completion projections
-
-This command serves as a project management dashboard, helping prioritize work and maintain momentum on the Nos Ilha cultural heritage platform development.
+Use absolute paths with the repository root for all file operations to avoid path issues.
