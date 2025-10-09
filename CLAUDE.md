@@ -579,7 +579,12 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - `docs/API_CODING_STANDARDS.md` - Comprehensive backend coding standards with Bean Validation, auditing, and internationalization patterns
 - `docs/CI_CD_PIPELINE.md` - Detailed CI/CD setup and troubleshooting guide
 - `docs/CI_CD_TESTING.md` - Comprehensive testing procedures for CI/CD pipeline
+- `docs/SECRET_MANAGEMENT.md` - Comprehensive secret management guide with monitoring and cost optimization
+- `docs/CULTURAL_HERITAGE_VERIFICATION.md` - Cultural heritage content verification protocols and seed data validation
+- `docs/SITEMAP.md` - Frontend route structure and navigation architecture
+- `docs/GCLOUD_CLOUD_RUN_TROUBLESHOOTING.md` - Operational troubleshooting guide for Cloud Run services
 - `docs/SECURITY.md` - Security policy and vulnerability reporting procedures
+- `docs/monitoring/` - Operational runbooks for monitoring and cost management
 
 #### Planning & Strategy Documents (`plan/`)
 - `plan/GALLERY_API_INTEGRATION.md` - Implementation strategy for gallery API integration
