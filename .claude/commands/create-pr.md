@@ -77,8 +77,11 @@ The PR creation command will execute the following steps:
 
 5. **Check for existing PR**:
    - Use `gh pr list --head <branch>` to check
-   - If PR exists → show URL and exit
-   - If no PR → proceed
+   - If PR exists → offer options:
+     - **[u] Update PR**: Regenerate title/body from current commits and update existing PR
+     - **[v] View PR**: Open PR in browser and exit
+     - **[c] Cancel**: Exit without changes
+   - If no PR → proceed to create new PR
 
 6. **Generate PR title**:
    - Analyze commit messages between base and current branch
@@ -93,10 +96,14 @@ The PR creation command will execute the following steps:
    - Include change statistics
    - Add testing checklist
 
-8. **Create pull request**:
-   - Use GitHub CLI: `gh pr create`
-   - Include title, body, base branch
-   - Add `--draft` flag if requested
+8. **Create or update pull request**:
+   - If creating new PR:
+     - Use GitHub CLI: `gh pr create`
+     - Include title, body, base branch
+     - Add `--draft` flag if requested
+   - If updating existing PR:
+     - Use GitHub CLI: `gh pr edit`
+     - Update title and body with regenerated content
    - Display PR URL and status
 
 ## Implementation
@@ -112,15 +119,16 @@ The script handles all workflow logic including:
 - Repository context auto-detection
 - Comprehensive branch validation
 - Automatic branch pushing
-- Duplicate PR prevention
+- Existing PR detection with update capability
 - Intelligent PR title/body generation from commits
-- GitHub CLI integration
+- GitHub CLI integration for create and update operations
 
 ## Repository Reference
 
 ### Root Repository
 
 Main Nos Ilha project containing:
+
 - **Backend**: Spring Boot 3.4.7 + Kotlin, PostgreSQL, JWT auth
 - **Frontend**: Next.js 15 + React 19, TypeScript, Tailwind CSS
 - **Infrastructure**: Terraform (GCP), Docker Compose (local dev)
@@ -133,6 +141,7 @@ Feature specifications, research documents, and implementation plans stored as a
 ## PR Title Generation
 
 For the **root** repository, the scope is determined from commit messages:
+
 - Contains "backend" → scope = backend
 - Contains "frontend" → scope = frontend
 - Contains "infra" → scope = infra
@@ -146,16 +155,18 @@ For the **plan** submodule, scope is always "planning".
 1. **Auto-detection** - Automatically detects repository from current directory
 2. **Branch Protection** - Cannot create PRs from main branch
 3. **Auto-push** - Automatically pushes branch if not on remote
-4. **Duplicate Prevention** - Checks for existing PR before creating new one
-5. **Default is Ready** - PRs are ready for review by default (use --draft for drafts)
-6. **No Claude Footer** - PR descriptions never include Claude Code footer
-7. **GitHub CLI Required** - Requires `gh` CLI tool to be installed and authenticated
+4. **PR Update Support** - Can update existing PRs with regenerated title/body based on new commits
+5. **User Choice** - When PR exists, offers update/view/cancel options
+6. **Default is Ready** - PRs are ready for review by default (use --draft for drafts)
+7. **No Claude Footer** - PR descriptions never include Claude Code footer
+8. **GitHub CLI Required** - Requires `gh` CLI tool to be installed and authenticated
 
 ## Guidelines
 
 - **Always validate branch state** before creating PR
 - **Auto-push branches** if not on remote
-- **Prevent duplicate PRs** by checking existing PRs first
+- **Check for existing PRs** and offer update option when found
+- **Update intelligently** - regenerate PR content based on current commit history
 - **Generate descriptive titles** using conventional commit format
 - **Be helpful** - guide users through validation failures
 - **Respect flags** - honor draft and base branch preferences

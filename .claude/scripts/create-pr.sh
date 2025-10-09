@@ -166,22 +166,49 @@ check_existing_pr() {
     fi
 
     local existing_pr
-    existing_pr=$(gh pr list --head "$current_branch" --json number,url --jq '.[0]' 2>/dev/null || echo "")
+    existing_pr=$(gh pr list --head "$current_branch" --json number,url,title,state --jq '.[0]' 2>/dev/null || echo "")
 
     if [[ -n "$existing_pr" && "$existing_pr" != "null" ]]; then
         local pr_number
         pr_number=$(echo "$existing_pr" | jq -r '.number')
         local pr_url
         pr_url=$(echo "$existing_pr" | jq -r '.url')
+        local pr_title
+        pr_title=$(echo "$existing_pr" | jq -r '.title')
+        local pr_state
+        pr_state=$(echo "$existing_pr" | jq -r '.state')
 
         echo "ℹ️  A pull request already exists for this branch:"
-        echo "PR #$pr_number: $pr_url"
+        echo "PR #$pr_number: $pr_title"
+        echo "URL: $pr_url"
+        echo "State: $pr_state"
         echo ""
-        echo "Opening existing PR..."
-        gh pr view "$pr_number" --web 2>/dev/null || echo "$pr_url"
+        echo "What would you like to do?"
+        echo "[u] Update PR (regenerate title/body from current commits)"
+        echo "[v] View PR (open in browser)"
+        echo "[c] Cancel"
+        echo ""
+        read -p "Choose an option [u/v/c]: " choice
 
-        [[ "$JSON_MODE" == "true" ]] && json_output "success" "PR already exists" "pr_number=$pr_number" "pr_url=$pr_url"
-        exit 0
+        case "$choice" in
+            u|U)
+                info "Will update existing PR #$pr_number"
+                # Return the PR number to signal update mode
+                echo "UPDATE:$pr_number"
+                return 0
+                ;;
+            v|V)
+                info "Opening existing PR in browser..."
+                gh pr view "$pr_number" --web 2>/dev/null || echo "$pr_url"
+                [[ "$JSON_MODE" == "true" ]] && json_output "success" "PR viewed" "pr_number=$pr_number" "pr_url=$pr_url"
+                exit 0
+                ;;
+            c|C|*)
+                info "PR creation cancelled"
+                [[ "$JSON_MODE" == "true" ]] && json_output "cancelled" "User cancelled" "pr_number=$pr_number"
+                exit 0
+                ;;
+        esac
     fi
 }
 
@@ -308,6 +335,59 @@ EOF
 }
 
 # ============================================================================
+# PR Update
+# ============================================================================
+
+update_pull_request() {
+    local target_path="$1"
+    local pr_number="$2"
+    local title="$3"
+    local body="$4"
+
+    cd "$target_path" || exit 1
+
+    # Check if gh CLI is available
+    if ! command -v gh &> /dev/null; then
+        error "GitHub CLI not found. Please install: https://cli.github.com"
+        [[ "$JSON_MODE" == "true" ]] && json_output "error" "GitHub CLI not found"
+        exit 1
+    fi
+
+    info "Updating PR #$pr_number..."
+
+    # Update PR title and body
+    if gh pr edit "$pr_number" --title "$title" --body "$body"; then
+        success "Pull request updated successfully!"
+
+        # Get updated PR details
+        local pr_details
+        pr_details=$(gh pr view "$pr_number" --json url,state,isDraft --jq '.')
+        local pr_url
+        pr_url=$(echo "$pr_details" | jq -r '.url')
+        local pr_state
+        pr_state=$(echo "$pr_details" | jq -r '.state')
+        local is_draft
+        is_draft=$(echo "$pr_details" | jq -r '.isDraft')
+
+        echo ""
+        echo "📝 Updated Title: $title"
+        echo "🔗 URL: $pr_url"
+        echo "🎯 Base: $BASE_BRANCH"
+        if [[ "$is_draft" == "true" ]]; then
+            echo "📋 Status: Draft"
+        else
+            echo "📋 Status: Ready for review"
+        fi
+
+        [[ "$JSON_MODE" == "true" ]] && json_output "success" "PR updated" "pr_url=$pr_url" "pr_number=$pr_number" "base=$BASE_BRANCH"
+    else
+        error "Failed to update pull request"
+        [[ "$JSON_MODE" == "true" ]] && json_output "error" "Failed to update PR" "pr_number=$pr_number"
+        exit 1
+    fi
+}
+
+# ============================================================================
 # PR Creation
 # ============================================================================
 
@@ -407,7 +487,16 @@ main() {
     ensure_branch_pushed "$target_path" "$current_branch"
 
     # Step 5: Check for existing PR
-    check_existing_pr "$current_branch"
+    local existing_pr_check
+    existing_pr_check=$(check_existing_pr "$current_branch")
+
+    # Parse check result for update mode
+    local update_mode=false
+    local pr_number=""
+    if [[ "$existing_pr_check" =~ ^UPDATE:([0-9]+)$ ]]; then
+        update_mode=true
+        pr_number="${BASH_REMATCH[1]}"
+    fi
 
     # Step 6: Generate PR title
     echo "Generating PR title..."
@@ -415,7 +504,11 @@ main() {
     pr_title=$(generate_pr_title "$target_path")
 
     echo ""
-    echo "Generated PR title:"
+    if [[ "$update_mode" == "true" ]]; then
+        echo "Generated updated PR title:"
+    else
+        echo "Generated PR title:"
+    fi
     echo "$pr_title"
     echo ""
     read -p "Use this title? [y/n/edit]: " approval
@@ -437,9 +530,14 @@ main() {
     local pr_body
     pr_body=$(generate_pr_body "$target_path")
 
-    # Step 8: Create PR
-    echo "Creating pull request..."
-    create_pull_request "$target_path" "$pr_title" "$pr_body"
+    # Step 8: Create or Update PR
+    if [[ "$update_mode" == "true" ]]; then
+        echo "Updating pull request #$pr_number..."
+        update_pull_request "$target_path" "$pr_number" "$pr_title" "$pr_body"
+    else
+        echo "Creating pull request..."
+        create_pull_request "$target_path" "$pr_title" "$pr_body"
+    fi
 }
 
 # Run main workflow
