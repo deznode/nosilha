@@ -30,7 +30,7 @@ You are the Nos Ilha Cultural Heritage Content Planner, specializing in creating
 - Validate geographic context within Brava Island (lat: 14.80-14.90, lng: -24.75 to -24.65)
 
 **Cultural Verification Requirements**:
-- Identify historical claims requiring verification per `docs/CULTURAL_HERITAGE_VERIFICATION_PROTOCOL.md`
+- Identify historical claims requiring verification per `docs/CULTURAL_HERITAGE_VERIFICATION.md`
 - Plan community validation checkpoints for cultural accuracy
 - Note sacred practices or cultural boundaries requiring sensitivity
 - Determine living tradition vs historical artifact presentation approach
@@ -322,7 +322,7 @@ When handing off to content-creator agent:
 
 ### Always Reference Before Planning
 - `docs/DESIGN_SYSTEM.md` - Brand voice, cultural values, morabeza spirit guidelines
-- `docs/CULTURAL_HERITAGE_VERIFICATION_PROTOCOL.md` - Cultural accuracy verification standards and community validation process
+- `docs/CULTURAL_HERITAGE_VERIFICATION.md` - Cultural accuracy verification standards and community validation process
 
 ### Pattern Consistency
 - Review existing content plans in `plan/content/` directory for planning approach consistency

@@ -110,50 +110,7 @@ docker-compose exec postgres pg_dump -U nosilha nosilha_db > backup.sql  # Creat
 - **Database Strategy**: PostgreSQL primary with Flyway migrations, connection pooling via HikariCP
 - **Security**: CORS configuration, input validation, and role-based access control
 
-#### Backend Service Architecture
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Backend API (Spring Boot)                   │
-├─────────────────────────────────────────────────────────────────┤
-│  Controllers (Web Layer)                                        │
-│  ├─ DirectoryController.kt (/api/v1/directory/*)               │
-│  ├─ AuthController.kt      (/api/v1/auth/*)                    │
-│  └─ MediaController.kt     (/api/v1/media/*)                   │
-├─────────────────────────────────────────────────────────────────┤
-│  Services (Business Logic)                                      │
-│  ├─ DirectoryService.kt    (CRUD operations)                   │
-│  ├─ AuthService.kt         (JWT validation)                    │
-│  ├─ MediaService.kt        (GCS operations)                    │
-│  └─ AIService.kt           (Vision API integration)            │
-├─────────────────────────────────────────────────────────────────┤
-│  Repositories (Data Access)                                     │
-│  ├─ DirectoryEntryRepository.kt                                 │
-│  ├─ RestaurantRepository.kt                                     │
-│  └─ HotelRepository.kt                                          │
-├─────────────────────────────────────────────────────────────────┤
-│  Domain Entities                                                │
-│  ├─ DirectoryEntry.kt (Base class)                             │
-│  ├─ Restaurant.kt (@DiscriminatorValue("RESTAURANT"))           │
-│  ├─ Hotel.kt (@DiscriminatorValue("HOTEL"))                     │
-│  └─ Landmark.kt (@DiscriminatorValue("LANDMARK"))               │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     PostgreSQL Database                        │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │             directory_entries table                     │   │
-│  │  ┌─────────┬──────────┬──────────┬─────────────────┐   │   │
-│  │  │   id    │   name   │category  │ type-specific   │   │   │
-│  │  │ (UUID)  │ (string) │(ENUM)    │    fields       │   │   │
-│  │  ├─────────┼──────────┼──────────┼─────────────────┤   │   │
-│  │  │abc-123  │Casa Nova │RESTAURANT│cuisine, hours   │   │   │
-│  │  │def-456  │Hotel Mar │HOTEL     │amenities        │   │   │
-│  │  │ghi-789  │Lighthouse│LANDMARK  │historical_info  │   │   │
-│  │  └─────────┴──────────┴──────────┴─────────────────┘   │   │
-│  └─────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
-```
+> **Detailed Architecture**: See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for complete backend service layer diagrams, file structure, and implementation patterns.
 
 ### Frontend (Next.js App Router)
 - **Route Groups**: Uses parentheses for logical organization `(auth)`, `(main)`, `(admin)` without affecting URLs
@@ -303,17 +260,6 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - Use established DTO mapping patterns
 - Adhere to API versioning conventions (/api/v1/)
 
-### integration-specialist
-**Purpose**: Full-stack type safety and API integration specialist ensuring seamless frontend-backend communication  
-**Documentation References**: Cross-reference both DESIGN_SYSTEM.md and API_CODING_STANDARDS.md  
-**Key Responsibilities**:
-- TypeScript interfaces and API contracts
-- Frontend-backend data flow integration
-- Error handling across the stack
-- Authentication flow implementation
-- API client configuration and caching strategies
-- Type safety validation and testing
-
 ### database-engineer
 **Purpose**: PostgreSQL + Firestore multi-database specialist for Nos Ilha platform data architecture  
 **Documentation Reference**: Reference API_CODING_STANDARDS.md for entity patterns and migration standards  
@@ -337,7 +283,7 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - Monitoring and health checks
 
 ### content-creator
-**Purpose**: Cultural heritage content creation and multilingual specialist for authentic Cape Verdean storytelling  
+**Purpose**: Cultural heritage content creation and multilingual specialist for authentic Cape Verdean storytelling
 **Key Responsibilities**:
 - Cultural content creation and validation
 - Copywriting for heritage descriptions
@@ -345,17 +291,25 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - Content review and accuracy verification
 - Multilingual content management
 
-### media-processor
-**Purpose**: Google Cloud Vision API + media processing specialist for heritage image analysis  
+### cultural-heritage-verifier
+**Purpose**: Historical accuracy and cultural authenticity verification specialist ensuring respectful representation of Cape Verdean heritage content
+**Documentation Reference**: Reference `docs/CULTURAL_HERITAGE_VERIFICATION.md` for verification protocols
 **Key Responsibilities**:
-- Image upload and GCS storage management
-- Cloud Vision API integration for AI analysis
-- Media optimization and processing workflows
-- CDN configuration for asset delivery
-- Image metadata extraction and tagging
+- Historical fact verification with community validation
+- Cultural practice authentication through elder consultation
+- Biographical verification for historical figures
+- Bias detection and correction (colonial perspectives, tourism exoticism)
+- Community consultation coordination
+- Source validation with evidence trail documentation
+
+**Required Documentation Compliance**:
+- Prioritize community knowledge over external academic sources
+- Protect sacred knowledge and cultural intellectual property
+- Ensure community benefit and authentic representation
+- Maintain comprehensive evidence trails with multiple source verification
 
 ### mapbox-specialist
-**Purpose**: Mapbox GL JS + React integration specialist for Brava Island interactive mapping  
+**Purpose**: Mapbox GL JS + React integration specialist for Brava Island interactive mapping
 **Key Responsibilities**:
 - Interactive map development and customization
 - Geospatial data visualization
@@ -363,43 +317,104 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - Custom marker and popup implementations
 - Map performance optimization
 
-### motion-specialist
-**Purpose**: Framer Motion animations and interactive graphics specialist for Nos Ilha platform user experience enhancement  
+### design-review
+**Purpose**: Comprehensive design review specialist for frontend pull requests using Playwright MCP for automated testing
+**Documentation Reference**: Uses Playwright MCP toolset for browser automation and visual testing
 **Key Responsibilities**:
-- Animation and transition development
-- Micro-interactions and UI motion design
-- Scroll-triggered effects and page transitions
-- Performance-optimized animations
-- Interactive graphics and visual effects
+- UI component and pull request design review
+- Visual consistency and accessibility compliance (WCAG 2.1 AA)
+- Responsive design testing across viewports
+- Interactive state testing (hover, active, disabled)
+- Browser console error checking
+- User flow validation with live preview environment
 
-### Playwright MCP Agent
-**Purpose**: Browser automation and testing specialist using Playwright MCP for Nos Ilha platform testing and interaction  
-**Documentation Reference**: See [`frontend/README-MCP.md`](frontend/README-MCP.md) for comprehensive setup and usage guide  
-**Configuration Files**: 
+**Required Review Standards**:
+- Follow "Live Environment First" principle
+- Use triage matrix (Blocker, High-Priority, Medium-Priority, Nitpick)
+- Provide evidence-based feedback with screenshots
+- Verify keyboard navigation and focus states
+- Test mobile/tablet/desktop viewports
+- Validate design token usage and pattern consistency
+
+### seo-content-planner
+**Purpose**: Cultural heritage content planning specialist creating detailed content strategies for Brava Island educational pages with cultural authenticity prioritized over SEO optimization
+**Documentation Reference**: Reference `docs/DESIGN_SYSTEM.md` for brand voice and cultural values
+**Key Responsibilities**:
+- Content plan creation for cultural heritage educational pages (80% of work)
+- Diaspora connection content planning (15% of work)
+- Directory entry content planning with heritage context (5% of work)
+- Cultural authenticity first, SEO optimization second
+- Multilingual strategy planning (English primary, Portuguese, French)
+- Cultural verification checkpoint planning
+- E-E-A-T signal integration for diaspora discovery
+
+**Content Planning Workflow**:
+- Cultural context analysis for Brava Island topics
+- SEO strategy development for diaspora keywords
+- Content outline creation with living tradition focus
+- Multilingual adaptation strategy
+- Schema markup and technical SEO planning
+- Output to `plan/content/` directory structure
+
+### search-specialist
+**Purpose**: Expert web researcher for cultural and historical topics using advanced search techniques and multi-source verification
+**Key Responsibilities**:
+- Advanced search query formulation for cultural research
+- Domain-specific searching and filtering for authoritative sources
+- Multi-source fact verification and cross-referencing
+- Information synthesis across academic and community sources
+- Historical and trend analysis for Cape Verdean heritage
+- Research output storage in `plan/content/cultural-research/` directory
+
+**Research Output**:
+- Comprehensive markdown files with citations
+- Works cited sections with numbered references
+- Credibility assessment of sources
+- Topic-specific directory placement (brava-history/, brava-notable-figures/)
+- Summary reports with key findings and gaps identified
+
+## Available MCP Server Tools
+
+Claude Code has access to Model Context Protocol (MCP) servers that provide additional capabilities. These are **not sub-agents** but rather tool servers that extend Claude Code's capabilities.
+
+### Playwright MCP Server
+**Type**: MCP Tool Server (browser automation capabilities)
+**Documentation**: See [`frontend/README-MCP.md`](frontend/README-MCP.md) for comprehensive setup and usage guide
+**Configuration Files**:
 - `frontend/.mcp/server-config.json` - Playwright MCP server configuration (headless by default)
 - `.mcp.json` - MCP client configuration for Claude Code integration
-**Key Responsibilities**:
+
+**Available Tools**:
+- `mcp__playwright__browser_navigate` - Navigate to URLs in automated browser
+- `mcp__playwright__browser_click` - Click elements on the page
+- `mcp__playwright__browser_take_screenshot` - Capture screenshots for visual testing
+- `mcp__playwright__browser_snapshot` - Get DOM snapshot for analysis
+- `mcp__playwright__browser_evaluate` - Execute JavaScript in browser context
+- And more (see README-MCP.md for complete tool list)
+
+**Common Use Cases**:
 - Automated browser testing and interaction
-- Visual testing and screenshot generation  
-- Accessibility testing and validation
-- PDF generation and documentation
-- Interactive development assistance through browser automation
+- Visual testing and screenshot generation for design review
+- Accessibility testing and WCAG compliance validation
+- PDF generation from web pages
+- Interactive development assistance with live preview
 - Performance testing and Core Web Vitals monitoring
 
-**MCP Integration Commands**:
-- `npm run mcp:server:headless` - Default headless mode (recommended for most tasks)
-- `npm run mcp:server` - GUI browser mode (for visual debugging and interactive development)
-- `npm run mcp:server:port` - HTTP transport on port 8931 (for web-based integrations)
+**MCP Server Commands**:
+- `npm run mcp:server:headless` - Start MCP server in headless mode (recommended for most tasks)
+- `npm run mcp:server` - Start MCP server with GUI browser (for visual debugging and interactive development)
+- `npm run mcp:server:port` - Start MCP server with HTTP transport on port 8931 (for web-based integrations)
 - Configuration uses **headless mode by default** for optimal performance and resource usage
 
 ## Agent Usage Guidelines
 
 ### When to Use Specialized Agents
 - **Frontend tasks**: Always use frontend-engineer for UI/component work
-- **Backend API tasks**: Always use backend-engineer for Spring Boot/Kotlin development  
-- **Cross-stack work**: Use integration-specialist for full-stack feature implementation
+- **Backend API tasks**: Always use backend-engineer for Spring Boot/Kotlin development
 - **Infrastructure tasks**: Use devops-engineer for deployment and infrastructure changes
-- **Content creation**: Use content-creator for cultural heritage content
+- **Content creation**: Use content-creator for cultural heritage content, seo-content-planner for content strategy
+- **Research tasks**: Use search-specialist for cultural and historical research
+- **Design review**: Use design-review for comprehensive UI/UX review with Playwright MCP
 
 ### Documentation Compliance Requirements
 - **MANDATORY**: All agents must reference their specified documentation before making changes
@@ -408,10 +423,11 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - **Updates**: When standards change, agents must adapt their approach accordingly
 
 ### Cross-Agent Coordination
-- integration-specialist coordinates between frontend-engineer and backend-engineer agents
+- frontend-engineer and backend-engineer coordinate on API contracts and TypeScript interfaces
 - devops-engineer ensures deployment compatibility with all service agents
-- content-creator validates cultural accuracy across all content-generating agents
-- media-processor works with frontend-engineer for optimal asset delivery
+- content-creator executes content plans created by seo-content-planner
+- cultural-heritage-verifier validates accuracy for content-creator and seo-content-planner
+- search-specialist provides research foundation for cultural content creation
 
 ## Important Code Patterns
 

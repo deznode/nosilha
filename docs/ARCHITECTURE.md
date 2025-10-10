@@ -245,6 +245,52 @@ backend/
 4. **JWT Authentication**: Stateless authentication with Supabase token validation
 5. **Actuator Integration**: Health checks and metrics for production monitoring
 
+#### Backend Service Layer Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Backend API (Spring Boot)                   │
+├─────────────────────────────────────────────────────────────────┤
+│  Controllers (Web Layer)                                        │
+│  ├─ DirectoryController.kt (/api/v1/directory/*)               │
+│  ├─ AuthController.kt      (/api/v1/auth/*)                    │
+│  └─ MediaController.kt     (/api/v1/media/*)                   │
+├─────────────────────────────────────────────────────────────────┤
+│  Services (Business Logic)                                      │
+│  ├─ DirectoryService.kt    (CRUD operations)                   │
+│  ├─ AuthService.kt         (JWT validation)                    │
+│  ├─ MediaService.kt        (GCS operations)                    │
+│  └─ AIService.kt           (Vision API integration)            │
+├─────────────────────────────────────────────────────────────────┤
+│  Repositories (Data Access)                                     │
+│  ├─ DirectoryEntryRepository.kt                                 │
+│  ├─ RestaurantRepository.kt                                     │
+│  └─ HotelRepository.kt                                          │
+├─────────────────────────────────────────────────────────────────┤
+│  Domain Entities                                                │
+│  ├─ DirectoryEntry.kt (Base class)                             │
+│  ├─ Restaurant.kt (@DiscriminatorValue("RESTAURANT"))           │
+│  ├─ Hotel.kt (@DiscriminatorValue("HOTEL"))                     │
+│  └─ Landmark.kt (@DiscriminatorValue("LANDMARK"))               │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     PostgreSQL Database                        │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │             directory_entries table                     │   │
+│  │  ┌─────────┬──────────┬──────────┬─────────────────┐   │   │
+│  │  │   id    │   name   │category  │ type-specific   │   │   │
+│  │  │ (UUID)  │ (string) │(ENUM)    │    fields       │   │   │
+│  │  ├─────────┼──────────┼──────────┼─────────────────┤   │   │
+│  │  │abc-123  │Casa Nova │RESTAURANT│cuisine, hours   │   │   │
+│  │  │def-456  │Hotel Mar │HOTEL     │amenities        │   │   │
+│  │  │ghi-789  │Lighthouse│LANDMARK  │historical_info  │   │   │
+│  │  └─────────┴──────────┴──────────┴─────────────────┘   │   │
+│  └─────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
 ### Database Schema Design
 
 ```sql
@@ -529,7 +575,134 @@ Form     State      Provider     Filter       Logic      Access
 
 ## 🔮 Future Architecture Considerations
 
-### Planned Enhancements
+### Near-Term Architectural Evolution
+
+The following architectural improvements are actively planned for implementation to enhance modularity, maintainability, and developer experience:
+
+#### Backend: Spring Modulith Integration
+
+**Current State**: Monolithic Spring Boot application with layered architecture
+**Target State**: Modular monolith with well-defined module boundaries using Spring Modulith
+
+```
+Current Backend Architecture           →    Planned Spring Modulith Architecture
+┌─────────────────────────┐                 ┌─────────────────────────────────────┐
+│   Monolithic Backend    │                 │      Modular Backend                │
+│   (Spring Boot)         │                 │      (Spring Modulith)              │
+├─────────────────────────┤                 ├─────────────────────────────────────┤
+│ • Controllers           │                 │ ┌─────────────────────────────────┐ │
+│ • Services              │                 │ │  Directory Module               │ │
+│ • Repositories          │                 │ │  • DirectoryController          │ │
+│ • Domain Entities       │                 │ │  • DirectoryService             │ │
+│ • All in one package    │                 │ │  • DirectoryRepository          │ │
+└─────────────────────────┘                 │ └─────────────────────────────────┘ │
+                                            │ ┌─────────────────────────────────┐ │
+                                            │ │  Media Module                   │ │
+                                            │ │  • MediaController              │ │
+                                            │ │  • MediaService                 │ │
+                                            │ │  • AIService                    │ │
+                                            │ └─────────────────────────────────┘ │
+                                            │ ┌─────────────────────────────────┐ │
+                                            │ │  Auth Module                    │ │
+                                            │ │  • AuthController               │ │
+                                            │ │  • AuthService                  │ │
+                                            │ │  • JwtAuthenticationFilter      │ │
+                                            │ └─────────────────────────────────┘ │
+                                            └─────────────────────────────────────┘
+```
+
+**Benefits:**
+- **Enforced Module Boundaries**: Prevent unwanted dependencies between modules
+- **Independent Evolution**: Modules can evolve independently within clear boundaries
+- **Better Testability**: Test modules in isolation with module-specific test slices
+- **Documentation**: Auto-generated module documentation and dependency visualization
+- **Event-Driven Communication**: Asynchronous module communication via application events
+
+#### Frontend: State Management Architecture
+
+**Current State**: Component-level state with prop drilling and direct API calls
+**Target State**: Centralized state management with Zustand and TanStack Query
+
+```
+Current State Management              →    Planned State Management Architecture
+┌─────────────────────────┐                 ┌─────────────────────────────────────┐
+│   Component State       │                 │      Zustand + TanStack Query       │
+├─────────────────────────┤                 ├─────────────────────────────────────┤
+│ • useState hooks        │                 │ ┌─────────────────────────────────┐ │
+│ • Prop drilling         │                 │ │  Zustand Stores                 │ │
+│ • Direct API calls      │                 │ │  • authStore (user, session)    │ │
+│ • No global state       │                 │ │  • uiStore (theme, modals)      │ │
+│ • Manual caching        │                 │ │  • filterStore (search params)  │ │
+└─────────────────────────┘                 │ └─────────────────────────────────┘ │
+                                            │ ┌─────────────────────────────────┐ │
+                                            │ │  TanStack Query                 │ │
+                                            │ │  • Automatic caching            │ │
+                                            │ │  • Background refetching        │ │
+                                            │ │  • Optimistic updates           │ │
+                                            │ │  • Infinite queries             │ │
+                                            │ └─────────────────────────────────┘ │
+                                            └─────────────────────────────────────┘
+```
+
+**Implementation Details:**
+- **Zustand for Client State**: Theme preferences, UI state, authentication state, filter selections
+- **TanStack Query for Server State**: Directory entries, media metadata, user profiles, API data caching
+- **TypeScript Integration**: Fully typed stores and queries for compile-time safety
+- **DevTools Support**: Redux DevTools (Zustand) and React Query DevTools for debugging
+
+**Benefits:**
+- **Simplified State Management**: Minimal boilerplate with excellent TypeScript support
+- **Automatic Caching**: TanStack Query handles caching, invalidation, and background updates
+- **Better Performance**: Reduced re-renders and optimized data fetching
+- **Developer Experience**: Clear separation between client and server state
+
+#### Testing Infrastructure
+
+**Current State**: Limited testing with basic ESLint validation
+**Target State**: Comprehensive testing across all layers
+
+```
+Current Testing                       →    Planned Testing Infrastructure
+┌─────────────────────────┐                 ┌─────────────────────────────────────┐
+│   Minimal Testing       │                 │      Comprehensive Testing          │
+├─────────────────────────┤                 ├─────────────────────────────────────┤
+│ • ESLint                │                 │ ┌─────────────────────────────────┐ │
+│ • TypeScript checking   │                 │ │  Playwright (E2E Testing)       │ │
+│ • Build validation      │                 │ │  • Cross-browser testing        │ │
+│ • No unit tests         │                 │ │  • User flow validation         │ │
+│ • No E2E tests          │                 │ │  • Visual regression tests      │ │
+└─────────────────────────┘                 │ │  • Accessibility testing        │ │
+                                            │ └─────────────────────────────────┘ │
+                                            │ ┌─────────────────────────────────┐ │
+                                            │ │  Vitest (Unit Testing)          │ │
+                                            │ │  • Component tests              │ │
+                                            │ │  • Hook tests                   │ │
+                                            │ │  • Utility function tests       │ │
+                                            │ │  • Fast, native TypeScript      │ │
+                                            │ └─────────────────────────────────┘ │
+                                            │ ┌─────────────────────────────────┐ │
+                                            │ │  Storybook (Component Docs)     │ │
+                                            │ │  • Component library catalog    │ │
+                                            │ │  • Visual testing               │ │
+                                            │ │  • Design system documentation  │ │
+                                            │ │  • Interaction testing          │ │
+                                            │ └─────────────────────────────────┘ │
+                                            └─────────────────────────────────────┘
+```
+
+**Testing Strategy:**
+- **Playwright**: Critical user flows (authentication, directory browsing, content creation)
+- **Vitest**: Unit tests for components, hooks, utilities, and business logic
+- **Storybook**: Component documentation, visual regression, and isolated development
+- **CI Integration**: Automated testing in GitHub Actions before deployment
+
+**Benefits:**
+- **Confidence in Changes**: Comprehensive test coverage reduces regression risk
+- **Better Documentation**: Storybook provides living documentation for components
+- **Faster Development**: Isolated component development and visual testing
+- **Quality Gates**: Automated testing prevents broken code from reaching production
+
+### Long-Term Planned Enhancements
 
 1. **Microservices Evolution**
    - Extract AI processing to dedicated service

@@ -137,7 +137,7 @@ At Casa da Morabeza, each bowl of cachupa tells a family story spanning generati
 
 ### Always Reference Before Creating Content
 - `docs/DESIGN_SYSTEM.md` - Brand voice, cultural values, and authentic representation guidelines
-- `docs/CULTURAL_HERITAGE_VERIFICATION_PROTOCOL.md` - Cultural accuracy standards and verification process
+- `docs/CULTURAL_HERITAGE_VERIFICATION.md` - Cultural accuracy standards and verification process
 
 ### Cultural Context
 **Brava Island Cultural Heritage Platform**: Creating content that preserves and shares Cape Verdean cultural heritage while serving both local community interests and global diaspora connections. Balance authentic representation with search visibility to help diaspora community discover their ancestral homeland.
