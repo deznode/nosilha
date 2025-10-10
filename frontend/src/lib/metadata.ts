@@ -439,7 +439,7 @@ export function generateOrganizationSchema(
     sameAs: [
       // Add social media URLs when available
       "https://twitter.com/nosilha_cv",
-      "https://www.facebook.com/profile.php?id=61559941075153",
+      "https://www.facebook.com/nosilha.cv",
       "https://instagram.com/nosilha",
       "https://www.youtube.com/@nosilha",
     ],
