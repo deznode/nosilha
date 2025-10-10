@@ -239,12 +239,90 @@ show_post_commit_summary() {
     echo ""
     echo "📤 Ready to push? Run: git push"
 
-    # Special reminder for plan submodule commits
+    # Special handling for plan submodule commits
     if [[ "$SCOPE" == "plan" ]]; then
         echo ""
-        echo "ℹ️  Note: This was a plan submodule commit."
-        echo "   The root repository will show plan/ as modified."
-        echo "   You may want to commit the submodule reference update in the root repo."
+        handle_submodule_reference_update
+    fi
+}
+
+# ============================================================================
+# Submodule Reference Update
+# ============================================================================
+
+handle_submodule_reference_update() {
+    local monorepo_root
+    monorepo_root="$(get_monorepo_root)"
+
+    # Check root repository status
+    cd "$monorepo_root" || return 0
+
+    local root_status
+    root_status=$(git status --porcelain 2>/dev/null || echo "")
+
+    # Check if plan/ submodule is modified
+    if ! echo "$root_status" | grep -q "^ M plan$"; then
+        # No submodule reference change detected
+        return 0
+    fi
+
+    # Count non-submodule changes
+    local other_changes
+    other_changes=$(echo "$root_status" | grep -v "^ M plan$" | wc -l | tr -d ' ')
+
+    # Determine prompt based on whether root has other changes
+    local prompt_message
+    local default_response
+
+    if [[ "$other_changes" -eq 0 ]]; then
+        # Only plan/ is modified - clean case
+        prompt_message="📤 Commit submodule reference to root? [Y/n]"
+        default_response="y"
+    else
+        # Root has other changes - mixed case
+        echo "⚠️  Root repository has other uncommitted changes."
+        prompt_message="📤 Commit submodule reference separately? [y/N]"
+        default_response="n"
+    fi
+
+    # Show prompt
+    read -p "$prompt_message: " response
+    response="${response:-$default_response}"
+
+    if [[ ! "$response" =~ ^[Yy]$ ]]; then
+        # User declined or chose not to commit
+        if [[ "$other_changes" -gt 0 ]]; then
+            echo ""
+            echo "ℹ️  Note: The root repository shows plan/ as modified."
+            echo "   You can commit it later with: /commit root"
+        fi
+        return 0
+    fi
+
+    # User accepted - commit the submodule reference
+    echo ""
+    echo "Committing submodule reference..."
+
+    # Stage only the plan/ submodule
+    git add plan
+
+    # Get the new submodule commit hash
+    local submodule_hash
+    submodule_hash=$(git diff --cached plan | grep "^+Subproject commit" | awk '{print $3}' | cut -c1-7)
+
+    # Generate commit message
+    local commit_message="🔖 chore(submodule): update plan to ${submodule_hash}"
+
+    # Create the commit
+    if git commit -m "$commit_message" >/dev/null 2>&1; then
+        success "Submodule reference committed"
+        echo "📝 Commit: $commit_message"
+        echo "🔗 Branch: $(git rev-parse --abbrev-ref HEAD)"
+        echo ""
+        echo "📤 Ready to push? Run: git push"
+    else
+        error "Failed to commit submodule reference"
+        return 1
     fi
 }
 
@@ -283,7 +361,7 @@ main() {
     # Step 3: Check branch protection
     echo "Checking branch protection..."
     local current_branch
-    current_branch=$(check_branch_protection "$target_path")
+    current_branch=$(check_branch_protection "$target_path" "$SCOPE")
     success "Current branch: $current_branch (safe to commit)"
 
     # Step 4: Run pre-commit checks

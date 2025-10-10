@@ -128,9 +128,11 @@ is_protected_branch() {
 # Check branch protection for a repository
 # Args:
 #   $1 - target repository path
+#   $2 - scope (optional: "root" or "plan")
 # Returns: 0 if safe to commit, exits with error if protected
 check_branch_protection() {
     local target_path="$1"
+    local scope="${2:-root}"
     local current_branch
 
     cd "$target_path" || {
@@ -145,7 +147,9 @@ check_branch_protection() {
         exit 1
     fi
 
-    if is_protected_branch "$current_branch"; then
+    # Only enforce main branch protection for root repository
+    # Plan submodule (documentation) can commit directly to main
+    if is_protected_branch "$current_branch" && [[ "$scope" == "root" ]]; then
         echo "❌ Cannot commit to protected branch: $current_branch" >&2
         echo "" >&2
         echo "The main branch requires pull requests." >&2

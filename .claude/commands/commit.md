@@ -57,7 +57,7 @@ The commit command will execute the following steps:
    - If only one has changes: Auto-select it
    - If both have changes: Present interactive selection
 
-3. **Validate branch** - Check branch protection (hard block on `main`)
+3. **Validate branch** - Check branch protection (blocks `main` in root, allows `main` in plan)
 
 4. **Run pre-commit checks** - Execute appropriate checks based on scope and flags:
    - **Root**: Smart detection based on changed files
@@ -136,12 +136,39 @@ Main Nos Ilha project containing:
 ### Plan Submodule
 Feature specifications, research documents, and implementation plans stored as a Git submodule.
 
+## Seamless Submodule Workflow
+
+When you commit to the **plan** submodule, the command automatically handles the submodule reference update in the **root** repository:
+
+### Clean Case (Only plan/ modified in root)
+```bash
+/commit plan
+# ... commits to plan submodule ...
+
+📤 Commit submodule reference to root? [Y/n]:
+# Press Enter to auto-commit (default: Yes)
+# Stages only plan/ and creates: 🔖 chore(submodule): update plan to a898425
+```
+
+### Mixed Case (Root has other uncommitted changes)
+```bash
+/commit plan
+# ... commits to plan submodule ...
+
+⚠️  Root repository has other uncommitted changes.
+📤 Commit submodule reference separately? [y/N]:
+# Default: No (commit later with other changes)
+# If Yes: Stages only plan/ and commits separately
+```
+
+This seamless workflow ensures the submodule reference stays up-to-date without manual intervention.
+
 ## Important Notes
 
 1. **Path Resolution** - The command works from any directory in the project
 2. **Submodule Independence** - Commits to plan submodule only affect that submodule
-3. **Root Repo Tracking** - After committing to plan, the root repo shows plan/ as modified
-4. **Protected Branches** - main branch is hard-blocked (no exceptions)
+3. **Seamless Submodule Updates** - After committing to plan, automatically prompts to commit the submodule reference in root with smart defaults
+4. **Protected Branches** - main branch is blocked in root repository, but allowed in plan submodule (documentation only)
 5. **No Claude Footer** - Commit messages never include Claude Code footer
 6. **Absolute Paths** - All git operations use absolute paths
 7. **Error Handling** - Clear error messages with actionable suggestions
@@ -150,7 +177,7 @@ Feature specifications, research documents, and implementation plans stored as a
 ## Guidelines
 
 - **ALWAYS resolve paths first** - Never assume current working directory
-- **Check branch protection** - Hard block on main
+- **Check branch protection** - Block main in root, allow main in plan (documentation)
 - **Encourage atomic commits** - One logical change per commit
 - **Follow conventional commits** - Use emoji + type(scope): description format
 - **Be helpful** - Guide users through the process
