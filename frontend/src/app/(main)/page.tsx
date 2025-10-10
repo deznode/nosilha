@@ -5,7 +5,7 @@ import { getEntriesByCategory } from "@/lib/api";
 import { DirectoryCard } from "@/components/ui/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
-import type { TouristDestinationSchema } from "@/types/metadata";
+import type { PlaceSchema } from "@/types/metadata";
 import {
   MapIcon,
   ListBulletIcon,
@@ -19,27 +19,28 @@ import {
 export const metadata: Metadata = generatePageMetadata({
   title: "Discover the Soul of Brava Island",
   description:
-    "Your gateway to authentic Cape Verdean culture and heritage on Brava Island. Explore stunning landscapes, local businesses, cultural sites, and connect with the global Cape Verdean diaspora.",
+    "Preserve and celebrate authentic Cape Verdean culture and heritage on Brava Island. Connect with the global diaspora, explore cultural sites, discover local heritage, and honor the traditions that define our island community.",
   path: "/",
   keywords: [
-    "Brava Island homepage",
-    "Cape Verde tourism",
-    "authentic cultural experiences",
+    "Brava Island cultural heritage",
+    "Cape Verdean culture",
+    "heritage preservation",
     "Cape Verdean diaspora",
-    "island destination",
+    "island cultural hub",
     "cultural heritage platform",
-    "local businesses Brava",
-    "tourism guide Cape Verde",
-    "Atlantic islands",
-    "West Africa travel",
+    "Brava Island traditions",
+    "Cape Verde heritage",
+    "Atlantic islands culture",
+    "authentic Cape Verdean experiences",
   ],
   structuredData: [
     {
       "@context": "https://schema.org",
-      "@type": "TouristDestination",
+      "@type": "Place",
+      additionalType: "https://schema.org/LandmarksOrHistoricalBuildings",
       name: "Brava Island, Cape Verde",
       description:
-        "The flower island of Cape Verde, known for its lush landscapes, rich cultural heritage, and authentic Cape Verdean experiences.",
+        "The flower island of Cape Verde, a cultural heritage hub preserving Cape Verdean traditions, known for its lush landscapes, rich cultural memory, and authentic heritage experiences.",
       image: [`${siteConfig.url}/images/hero.jpg`],
       address: {
         "@type": "PostalAddress",
@@ -51,13 +52,7 @@ export const metadata: Metadata = generatePageMetadata({
         latitude: 14.8676,
         longitude: -24.7098,
       },
-      touristType: [
-        "cultural tourism",
-        "eco-tourism",
-        "heritage tourism",
-        "island tourism",
-      ],
-    } as TouristDestinationSchema,
+    } as PlaceSchema,
   ],
   baseUrl: siteConfig.url,
   siteName: siteConfig.name,

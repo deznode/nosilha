@@ -1,29 +1,30 @@
 
-# Nos Ilha - Brava Island Cultural & Tourism Directory
+# Nos Ilha - Brava Island Cultural Heritage Hub
 
-**nosilha.com** is a community-driven online tourism and cultural heritage hub for Brava Island, Cape Verde. This open-source, volunteer-supported project aims to provide a comprehensive digital experience that connects international tourists, local residents, business owners, and the global Cape Verdean diaspora to the heart of Brava.
+**nosilha.com** is a community-driven cultural heritage hub for Brava Island, Cape Verde. This open-source, volunteer-supported project aims to preserve and celebrate the island's rich cultural memory while providing a comprehensive digital experience that connects the global Cape Verdean diaspora, local residents, business owners, and international visitors to the heart of Brava.
 
-As a community-supported initiative with limited resources, the platform focuses on showcasing the island's unique landmarks, vibrant businesses, rich history, and living culture through a modern and accessible web application.
+As a community-supported initiative, the platform focuses on showcasing the island's rich history, living culture, unique landmarks, and vibrant community through a modern and accessible web application.
 
 ## 🎯 Project Goal
 
-To create a community-maintained, authoritative online resource for Brava that promotes sustainable tourism, preserves cultural memory, and fosters economic opportunity for the local community through volunteer contributions and collaborative development.
+To create a community-maintained, authoritative online resource for Brava that preserves cultural memory, celebrates the island's heritage, and connects the global diaspora to their roots, while supporting sustainable tourism and economic opportunity for the local community through volunteer contributions and collaborative development.
 
 ## 👥 Target Audience
 
-  * **International Tourists:** Travelers seeking authentic experiences, planning trips, and looking for reliable information on accommodations, dining, and activities.
-  * **Local Residents:** Community members looking for a centralized directory of local services and a platform to celebrate their shared heritage.
-  * **Business Owners:** Local entrepreneurs who need a modern platform to market their services to a global audience.
-  * **Cape Verdean Diaspora:** Members of the diaspora community seeking to reconnect with their roots, explore their heritage, and stay informed about life on Brava.
+  * **Cape Verdean Diaspora:** Members of the diaspora community seeking to reconnect with their roots, explore their cultural heritage, and stay informed about life on Brava.
+  * **Local Residents:** Community members looking for a centralized platform to celebrate their shared heritage and directory of local services.
+  * **Cultural Researchers & Historians:** Scholars and enthusiasts studying Cape Verdean history, culture, and traditions.
+  * **International Visitors:** Travelers seeking authentic cultural experiences, planning trips, and looking for reliable information on the island's heritage sites, accommodations, and local businesses.
 
 ## ✨ Core Features
 
-  * **Comprehensive Directory:** A curated database of businesses, services, and points of interest, organized by categories like `Restaurants`, `Lodging`, `Artisans`, and `Services`.
-  * **Interactive Maps:** A multi-layered, responsive map built with Mapbox, featuring custom markers for landmarks, businesses, and historical sites with rich interactivity and beautiful styling.
-  * **Rich Media Galleries:** Stunning photo and video galleries showcasing Brava's landscapes, people, and culture, with AI-enhanced organization.
-  * **Town & Historical Pages:** Detailed pages for each town (`Vila Nova Sintra`, `Furna`, `Nossa Senhora do Monte`, etc.) and significant historical figures or events.
-  * **AI-Enhanced Discovery:** Automated media tagging, location inference from photos, OCR for historical documents, and facial/landmark recognition to make content more searchable and accessible.
-  * **Multilingual Support:** Full content translation and localization for English, Portuguese, and French to serve a global audience.
+  * **Cultural Heritage Archive:** Rich documentation of Brava's history, traditions, and cultural practices, featuring significant historical figures, events, and community stories.
+  * **Town & Historical Pages:** Detailed pages for each town (`Vila Nova Sintra`, `Furna`, `Nossa Senhora do Monte`, etc.) with historical context and cultural significance.
+  * **Rich Media Galleries:** Stunning photo and video galleries showcasing Brava's landscapes, people, and culture, with AI-enhanced organization for preservation and discovery.
+  * **Interactive Heritage Maps:** Multi-layered, responsive maps built with Mapbox, featuring custom markers for landmarks, historical sites, and cultural points of interest with rich storytelling.
+  * **Community Directory:** A curated database of local businesses, artisans, and services that contribute to Brava's cultural and economic vitality.
+  * **AI-Enhanced Discovery:** Automated media tagging, location inference from photos, OCR for historical documents, and landmark recognition to preserve and make cultural content more searchable and accessible.
+  * **Multilingual Support:** Full content translation and localization for English, Portuguese, and French to serve the global Cape Verdean community.
 
 ## 💻 Technology Stack
 

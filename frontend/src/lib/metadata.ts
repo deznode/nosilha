@@ -24,7 +24,7 @@ export const siteConfig = {
   name: "Nos Ilha",
   title: "Nos Ilha - Your Guide to Brava, Cape Verde",
   description:
-    "The definitive online tourism and cultural heritage platform for Brava Island, Cape Verde. Discover authentic experiences, cultural sites, local businesses, and connect with Cape Verdean heritage.",
+    "The definitive cultural heritage hub for Brava Island, Cape Verde. Preserve and celebrate Cape Verdean culture, explore authentic heritage experiences, connect with the global diaspora, and discover local cultural sites and businesses.",
   url:
     process.env.NODE_ENV === "production"
       ? "https://nosilha.com"
@@ -35,15 +35,15 @@ export const siteConfig = {
     "Brava Island",
     "Cape Verde",
     "Cabo Verde",
-    "tourism",
     "cultural heritage",
-    "travel guide",
-    "authentic experiences",
-    "local businesses",
     "Cape Verdean culture",
-    "island destinations",
+    "heritage preservation",
+    "diaspora connection",
+    "authentic experiences",
+    "cultural sites",
+    "local businesses",
+    "island heritage",
     "Atlantic islands",
-    "West Africa tourism",
   ],
 };
 

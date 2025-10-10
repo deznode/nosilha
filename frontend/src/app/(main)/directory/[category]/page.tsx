@@ -36,16 +36,16 @@ export async function generateMetadata({
     ? [
         "complete directory",
         "all listings",
-        "Brava Island businesses",
-        "Cape Verde tourism",
+        "Brava Island cultural sites",
+        "Cape Verde heritage",
       ]
     : [
         `${pageTitle.toLowerCase()} Brava Island`,
         `${pageTitle.toLowerCase()} Cape Verde`,
-        `best ${pageTitle.toLowerCase()}`,
         `authentic ${pageTitle.toLowerCase()}`,
         `local ${pageTitle.toLowerCase()}`,
         `community ${pageTitle.toLowerCase()}`,
+        `heritage ${pageTitle.toLowerCase()}`,
       ];
 
   // Generate breadcrumb structured data
