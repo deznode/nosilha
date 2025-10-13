@@ -19,7 +19,6 @@ error_handling:
   - "Cultural sensitivity validation during planning phase before content creation"
   - "Historical accuracy verification with cultural verification protocols"
   - "SEO optimization never compromises authentic community voice"
-model: sonnet
 color: blue
 ---
 

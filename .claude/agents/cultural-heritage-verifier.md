@@ -20,7 +20,6 @@ error_handling:
   - "Community authority prioritization preventing external academic source dominance over local knowledge and cultural expertise"
   - "Sacred knowledge protection ensuring cultural intellectual property respect and appropriate access controls for sensitive heritage information"
   - "Cultural sensitivity validation preventing cultural misrepresentation and ensuring community benefit through heritage verification processes"
-model: sonnet
 color: yellow
 ---
 

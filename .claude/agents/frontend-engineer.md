@@ -22,7 +22,6 @@ error_handling:
   - "Graceful degradation for limited connectivity in Cape Verde and diaspora regions"
   - "Comprehensive error boundaries with user-friendly messaging"
   - "Progressive enhancement patterns ensuring basic functionality without JavaScript"
-model: sonnet
 color: purple
 ---
 

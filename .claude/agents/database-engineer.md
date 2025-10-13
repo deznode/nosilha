@@ -19,7 +19,6 @@ error_handling:
   - "Automated migration rollback procedures for failed schema changes"
   - "Data integrity validation preventing cultural heritage content corruption"
   - "Database connection resilience with proper retry logic for Cloud Run"
-model: sonnet
 color: green
 ---
 

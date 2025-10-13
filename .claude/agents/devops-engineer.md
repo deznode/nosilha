@@ -19,7 +19,6 @@ error_handling:
   - "Automated CI/CD failure detection with immediate rollback procedures"
   - "Infrastructure drift monitoring with Terraform state reconciliation"
   - "Proactive cost monitoring with budget alerts preventing overruns"
-model: sonnet
 color: yellow
 ---
 

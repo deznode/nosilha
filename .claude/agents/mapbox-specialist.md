@@ -20,7 +20,6 @@ error_handling:
   - "Graceful degradation for limited connectivity with cached map tiles and offline cultural content access"
   - "Geolocation fallback strategies when GPS unavailable with manual location selection and cultural site browsing"
   - "Custom marker rendering failure recovery with fallback styling and cultural category identification"
-model: sonnet
 color: pink
 ---
 

@@ -20,7 +20,6 @@ error_handling:
   - "Services throw specific exceptions (ResourceNotFoundException, BusinessException) for proper HTTP status mapping"
   - "Controllers never catch exceptions - GlobalExceptionHandler manages all error responses"
   - "Comprehensive logging with SLF4J patterns for debugging and monitoring"
-model: sonnet
 color: red
 ---
 
