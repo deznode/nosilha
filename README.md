@@ -125,6 +125,7 @@ The following architectural improvements and feature additions are planned to en
 ### Frontend State Management
   * **Zustand:** Implementing [Zustand](https://zustand-demo.pmnd.rs/) for lightweight, flexible client-side state management with minimal boilerplate and excellent TypeScript support.
   * **TanStack Query:** Integrating [TanStack Query](https://tanstack.com/query) (React Query) for server state management, providing powerful caching, synchronization, and background data fetching capabilities.
+  * **Zod:** Adopting [Zod](https://zod.dev/) for TypeScript-first schema validation, enabling runtime type safety for forms, API requests/responses, and data parsing with seamless TypeScript integration.
 
 ### Testing Infrastructure
   * **Playwright:** Adding comprehensive end-to-end testing with [Playwright](https://playwright.dev/) for cross-browser testing, visual regression testing, and user flow validation.

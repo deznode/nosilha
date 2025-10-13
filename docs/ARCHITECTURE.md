@@ -647,7 +647,8 @@ Current State Management              →    Planned State Management Architectu
 **Implementation Details:**
 - **Zustand for Client State**: Theme preferences, UI state, authentication state, filter selections
 - **TanStack Query for Server State**: Directory entries, media metadata, user profiles, API data caching
-- **TypeScript Integration**: Fully typed stores and queries for compile-time safety
+- **Zod for Schema Validation**: Runtime type safety for forms, API requests/responses, and data parsing with TypeScript inference
+- **TypeScript Integration**: Fully typed stores, queries, and schemas for compile-time safety
 - **DevTools Support**: Redux DevTools (Zustand) and React Query DevTools for debugging
 
 **Benefits:**
