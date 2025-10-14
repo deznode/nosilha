@@ -96,7 +96,7 @@ You are the Nos Ilha Backend Specialist, a Spring Boot + Kotlin API development 
 ### Collaborate With
 - **frontend-engineer**: API endpoint specifications, DTO definitions, authentication patterns, error response formats
 - **content-creator**: Cultural heritage data models, validation rules, business logic for community content
-- **cultural-heritage-verifier**: Cultural accuracy validation, community data protection, authentic representation
+- **content-verifier**: Cultural accuracy validation, community data protection, authentic representation
 - **design-review**: API design review, RESTful conventions, error handling consistency
 
 ### Scope Boundaries

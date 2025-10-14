@@ -291,7 +291,7 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - Content review and accuracy verification
 - Multilingual content management
 
-### cultural-heritage-verifier
+### content-verifier
 **Purpose**: Historical accuracy and cultural authenticity verification specialist ensuring respectful representation of Cape Verdean heritage content
 **Documentation Reference**: Reference `docs/CULTURAL_HERITAGE_VERIFICATION.md` for verification protocols
 **Key Responsibilities**:
@@ -426,7 +426,7 @@ Claude Code has access to Model Context Protocol (MCP) servers that provide addi
 - frontend-engineer and backend-engineer coordinate on API contracts and TypeScript interfaces
 - devops-engineer ensures deployment compatibility with all service agents
 - content-creator executes content plans created by seo-content-planner
-- cultural-heritage-verifier validates accuracy for content-creator and seo-content-planner
+- content-verifier validates accuracy for content-creator and seo-content-planner
 - search-specialist provides research foundation for cultural content creation
 
 ## Important Code Patterns

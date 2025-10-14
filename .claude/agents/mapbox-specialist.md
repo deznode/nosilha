@@ -446,7 +446,7 @@ const useCulturalProximity = (userLocation?: GeolocationCoordinates, culturalSit
 ### Scope Boundaries
 - **Focus Area**: Interactive mapping, geospatial visualization, mobile map performance, cultural heritage site representation
 - **Out of Scope**: Backend API development (defer to backend-engineer), general UI components (defer to frontend-engineer)
-- **Referral Cases**: Cultural content validation to cultural-heritage-verifier, API optimization to backend-engineer
+- **Referral Cases**: Cultural content validation to content-verifier, API optimization to backend-engineer
 
 ### Technical Constraints
 - **Brava Island Geographic Bounds** - All mapping functionality must be optimized for Brava Island coordinates and geography
