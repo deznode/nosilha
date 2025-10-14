@@ -2,7 +2,7 @@ export default function NewsletterSignup() {
   return (
     <section className="bg-background-primary py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="relative isolate overflow-hidden bg-gradient-to-br from-ocean-blue via-ocean-blue/80 to-ocean-blue/60 border border-ocean-blue/30 rounded-3xl px-6 py-24 shadow-lg sm:px-24 xl:py-32 transition-shadow hover:shadow-xl">
+        <div className="relative isolate overflow-hidden bg-gradient-to-br from-ocean-blue via-ocean-blue/80 to-ocean-blue/60 border border-ocean-blue/30 rounded-lg px-6 py-24 shadow-lg sm:px-24 xl:py-32 transition-shadow hover:shadow-xl">
           {/* Ocean-inspired radial gradient overlay */}
           <div
             className="absolute inset-0 -z-10 opacity-20"

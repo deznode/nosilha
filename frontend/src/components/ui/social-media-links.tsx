@@ -83,7 +83,7 @@ export function SocialMediaLinks({
     );
   }
 
-  // Default version - inspired by Android Developers design
+  // Default version - with harbor effect similar to popular pages
   return (
     <nav
       aria-label="Social media links"
@@ -92,26 +92,29 @@ export function SocialMediaLinks({
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <ul className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {socialMediaData.map((item) => (
-            <li key={item.name} className="flex flex-col items-center text-center">
+            <li key={item.name}>
               <a
                 href={item.href}
-                className="group flex flex-col items-center"
+                className="group hover:bg-background-secondary border-border-primary hover:border-ocean-blue/30 hover:ring-ocean-blue/20 flex flex-col items-center rounded-lg border p-6 text-center transition-all duration-300 hover:scale-105 hover:-translate-y-2 hover:shadow-xl hover:ring-2"
                 aria-label={item.ariaLabel}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {/* Icon */}
-                <div className="text-ocean-blue group-hover:text-ocean-blue/80 transition-colors duration-200">
-                  <item.icon className="h-16 w-16 sm:h-20 sm:w-20" aria-hidden="true" />
+                {/* Icon with background circle */}
+                <div className="bg-ocean-blue group-hover:bg-ocean-blue/90 flex h-20 w-20 items-center justify-center rounded-lg transition-colors duration-300 sm:h-24 sm:w-24">
+                  <item.icon
+                    className="h-12 w-12 text-white transition-colors duration-300 sm:h-14 sm:w-14"
+                    aria-hidden="true"
+                  />
                 </div>
 
                 {/* Platform Name */}
-                <h3 className="text-text-primary mt-4 text-lg font-semibold">
+                <h3 className="text-text-primary group-hover:text-ocean-blue mt-4 text-lg font-semibold transition-colors duration-300">
                   {item.name}
                 </h3>
 
                 {/* Description */}
-                <p className="text-text-secondary mt-2 text-sm leading-6 max-w-sm">
+                <p className="text-text-secondary group-hover:text-text-primary mt-2 text-sm leading-6 max-w-sm transition-colors duration-300">
                   {item.description}
                 </p>
               </a>
