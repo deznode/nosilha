@@ -5,6 +5,8 @@ import { NosilhaLogo } from "@/components/ui/logo";
 import { Logo as Logo2 } from "@/components/ui/logo2";
 import { Logo as Logo3 } from "@/components/ui/logo3";
 import { Logo as Logo4 } from "@/components/ui/logo4";
+import NewsletterSignup from "@/components/ui/newsletter";
+import { SocialMediaLinks } from "@/components/ui/social-media-links";
 
 // Force dynamic rendering for test page
 export const dynamic = "force-dynamic";
@@ -32,6 +34,8 @@ export default async function TestPage() {
             <DirectoryCard key={entry.id} entry={entry} />
           ))}
         </div>
+        <NewsletterSignup />
+        <SocialMediaLinks />
       </div>
     </main>
   );

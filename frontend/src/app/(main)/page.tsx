@@ -4,6 +4,8 @@ import Image from "next/image";
 import { getEntriesByCategory } from "@/lib/api";
 import { DirectoryCard } from "@/components/ui/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
+import NewsletterSignup from "@/components/ui/newsletter";
+import { SocialMediaLinks } from "@/components/ui/social-media-links";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import type { PlaceSchema } from "@/types/metadata";
 import {
@@ -264,6 +266,12 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Newsletter Signup Section */}
+      <NewsletterSignup />
+
+      {/* Social Media Links Section */}
+      <SocialMediaLinks />
     </>
   );
 }
