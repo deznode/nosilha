@@ -336,7 +336,7 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - Test mobile/tablet/desktop viewports
 - Validate design token usage and pattern consistency
 
-### seo-content-planner
+### content-planner
 **Purpose**: Cultural heritage content planning specialist creating detailed content strategies for Brava Island educational pages with cultural authenticity prioritized over SEO optimization
 **Documentation Reference**: Reference `docs/DESIGN_SYSTEM.md` for brand voice and cultural values
 **Key Responsibilities**:
@@ -412,7 +412,7 @@ Claude Code has access to Model Context Protocol (MCP) servers that provide addi
 - **Frontend tasks**: Always use frontend-engineer for UI/component work
 - **Backend API tasks**: Always use backend-engineer for Spring Boot/Kotlin development
 - **Infrastructure tasks**: Use devops-engineer for deployment and infrastructure changes
-- **Content creation**: Use content-creator for cultural heritage content, seo-content-planner for content strategy
+- **Content creation**: Use content-creator for cultural heritage content, content-planner for content strategy
 - **Research tasks**: Use search-specialist for cultural and historical research
 - **Design review**: Use design-review for comprehensive UI/UX review with Playwright MCP
 
@@ -425,8 +425,8 @@ Claude Code has access to Model Context Protocol (MCP) servers that provide addi
 ### Cross-Agent Coordination
 - frontend-engineer and backend-engineer coordinate on API contracts and TypeScript interfaces
 - devops-engineer ensures deployment compatibility with all service agents
-- content-creator executes content plans created by seo-content-planner
-- content-verifier validates accuracy for content-creator and seo-content-planner
+- content-creator executes content plans created by content-planner
+- content-verifier validates accuracy for content-creator and content-planner
 - search-specialist provides research foundation for cultural content creation
 
 ## Important Code Patterns

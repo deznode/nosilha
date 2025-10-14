@@ -1,5 +1,5 @@
 ---
-name: seo-content-planner
+name: content-planner
 description: Creates comprehensive content plans for Nos Ilha cultural heritage platform, specializing in Brava Island educational content with cultural authenticity as top priority followed by SEO optimization for diaspora discovery. Outputs detailed planning documents to plan/content/. Use PROACTIVELY for cultural heritage content strategy and planning.
 ---
 
