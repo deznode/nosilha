@@ -2,9 +2,9 @@
  * Vitest setup file for Nos Ilha modular architecture testing
  * Configures global test environment for React 19 components
  */
-import "@testing-library/jest-dom";
 import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
+import "@testing-library/jest-dom/vitest";
 
 // Cleanup after each test to ensure test isolation
 afterEach(() => {

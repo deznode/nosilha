@@ -8,19 +8,14 @@ import {
   ComputerDesktopIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-
-type Theme = "system" | "light" | "dark";
+import { useTheme, useUiStore } from "@/stores/uiStore";
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("system");
+  const theme = useTheme();
+  const setTheme = useUiStore((state) => state.setTheme);
   const [systemTheme, setSystemTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    // Get stored theme preference or default to system
-    const stored = localStorage.getItem("theme") as Theme;
-    const initialTheme = stored || "system";
-    setTheme(initialTheme);
-
     // Function to update system theme
     const updateSystemTheme = () => {
       const prefersDark = window.matchMedia(
@@ -40,11 +35,11 @@ export function ThemeToggle() {
     const prefersDark = window.matchMedia(
       "(prefers-color-scheme: dark)"
     ).matches;
-    applyTheme(initialTheme, prefersDark);
+    applyTheme(theme, prefersDark);
 
     // Cleanup listener
     return () => mediaQuery.removeEventListener("change", updateSystemTheme);
-  }, []);
+  }, [theme]);
 
   // Update theme when systemTheme changes (for system mode)
   useEffect(() => {
@@ -53,7 +48,10 @@ export function ThemeToggle() {
     }
   }, [systemTheme, theme]);
 
-  const applyTheme = (newTheme: Theme, systemPrefersDark: boolean) => {
+  const applyTheme = (
+    newTheme: "system" | "light" | "dark",
+    systemPrefersDark: boolean
+  ) => {
     const shouldBeDark =
       newTheme === "dark" || (newTheme === "system" && systemPrefersDark);
 
@@ -65,13 +63,12 @@ export function ThemeToggle() {
   };
 
   const cycleTheme = () => {
-    const themes: Theme[] = ["system", "light", "dark"];
+    const themes: ("system" | "light" | "dark")[] = ["system", "light", "dark"];
     const currentIndex = themes.indexOf(theme);
     const nextIndex = (currentIndex + 1) % themes.length;
     const nextTheme = themes[nextIndex];
 
     setTheme(nextTheme);
-    localStorage.setItem("theme", nextTheme);
     applyTheme(nextTheme, systemTheme === "dark");
   };
 

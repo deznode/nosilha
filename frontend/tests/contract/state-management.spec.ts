@@ -49,11 +49,11 @@ test.describe('Contract: Zustand Stores', () => {
 
   test('uiStore exists with correct interface', async () => {
     try {
-      const { useUIStore } = await import('@/stores/uiStore');
+      const { useUiStore } = await import('@/stores/uiStore');
 
-      expect(useUIStore).toBeDefined();
+      expect(useUiStore).toBeDefined();
 
-      const state = useUIStore.getState();
+      const state = useUiStore.getState();
 
       // Contract assertions: Required state properties
       expect(state).toHaveProperty('theme');
@@ -87,17 +87,17 @@ test.describe('Contract: Zustand Stores', () => {
       // Contract assertions: Required state properties
       expect(state).toHaveProperty('searchQuery');
       expect(state).toHaveProperty('selectedCategory');
-      expect(state).toHaveProperty('selectedLocation');
+      expect(state).toHaveProperty('selectedTown');
 
       // Contract assertions: Required actions
-      expect(state).toHaveProperty('setSearch');
+      expect(state).toHaveProperty('setSearchQuery');
       expect(state).toHaveProperty('setCategory');
-      expect(state).toHaveProperty('setLocation');
+      expect(state).toHaveProperty('setTown');
       expect(state).toHaveProperty('clearFilters');
 
-      expect(typeof state.setSearch).toBe('function');
+      expect(typeof state.setSearchQuery).toBe('function');
       expect(typeof state.setCategory).toBe('function');
-      expect(typeof state.setLocation).toBe('function');
+      expect(typeof state.setTown).toBe('function');
       expect(typeof state.clearFilters).toBe('function');
     } catch (error) {
       console.log('filterStore not yet implemented (expected in TDD approach)');
@@ -186,11 +186,11 @@ test.describe('Contract: Zod Schemas', () => {
     }
   });
 
-  test('authSchema validates correctly', async () => {
+  test('authSchema (loginSchema) validates correctly', async () => {
     try {
-      const { authSchema } = await import('@/schemas/authSchema');
+      const { loginSchema } = await import('@/schemas/authSchema');
 
-      expect(authSchema).toBeDefined();
+      expect(loginSchema).toBeDefined();
 
       // Valid login data should pass
       const validLogin = {
@@ -198,16 +198,16 @@ test.describe('Contract: Zod Schemas', () => {
         password: 'SecurePassword123!',
       };
 
-      const result = authSchema.safeParse(validLogin);
+      const result = loginSchema.safeParse(validLogin);
       expect(result.success).toBe(true);
 
       // Invalid data should fail
       const invalidLogin = { email: 'invalid-email' }; // Invalid email format, missing password
-      const invalidResult = authSchema.safeParse(invalidLogin);
+      const invalidResult = loginSchema.safeParse(invalidLogin);
       expect(invalidResult.success).toBe(false);
     } catch (error) {
-      console.log('authSchema not yet implemented (expected in TDD approach)');
-      throw new Error('authSchema does not exist or validate incorrectly');
+      console.log('loginSchema not yet implemented (expected in TDD approach)');
+      throw new Error('loginSchema does not exist or validate incorrectly');
     }
   });
 

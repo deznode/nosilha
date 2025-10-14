@@ -22,7 +22,7 @@ export default defineConfig({
         test: {
           name: "unit",
           environment: "jsdom",
-          setupFiles: ["./tests/setup/vitest.setup.ts"],
+          setupFiles: ["./tests/setup/vitest.setup.tsx"],
           coverage: {
             provider: "v8",
             reporter: ["text", "json", "html"],
