@@ -162,7 +162,9 @@ export class BackendApiClient implements ApiClient {
         );
       } catch (_parseError) {
         // If we can't parse the error response, provide a generic message
-        throw new Error(`Failed to create directory entry (${response.status})`);
+        throw new Error(
+          `Failed to create directory entry (${response.status})`
+        );
       }
     }
 

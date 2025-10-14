@@ -24,12 +24,12 @@ const eslintConfig = [
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
-          "argsIgnorePattern": "^_",
-          "varsIgnorePattern": "^_",
-          "caughtErrorsIgnorePattern": "^_",
-          "destructuredArrayIgnorePattern": "^_",
-          "ignoreRestSiblings": true
-        }
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+          destructuredArrayIgnorePattern: "^_",
+          ignoreRestSiblings: true,
+        },
       ],
 
       // Configure react/no-unescaped-entities for cultural heritage content
@@ -37,18 +37,18 @@ const eslintConfig = [
       "react/no-unescaped-entities": [
         "error",
         {
-          "forbid": [
+          forbid: [
             {
-              "char": ">",
-              "alternatives": ["&gt;"]
+              char: ">",
+              alternatives: ["&gt;"],
             },
             {
-              "char": "}",
-              "alternatives": ["&#125;"]
-            }
-          ]
-        }
-      ]
+              char: "}",
+              alternatives: ["&#125;"],
+            },
+          ],
+        },
+      ],
     },
   },
 ];

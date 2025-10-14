@@ -30,11 +30,12 @@ export default function AboutPage() {
                 Preserving Heritage, Building Community
               </h2>
               <p className="text-text-secondary mb-4 text-lg">
-                Nos Ilha is a cultural heritage hub—a digital
-                bridge connecting Brava Island with the world. Through
-                technology and community collaboration, we&apos;re preserving
-                and celebrating the island&apos;s rich cultural memory while connecting
-                the global diaspora to their roots and welcoming visitors who seek authentic heritage experiences.
+                Nos Ilha is a cultural heritage hub—a digital bridge connecting
+                Brava Island with the world. Through technology and community
+                collaboration, we&apos;re preserving and celebrating the
+                island&apos;s rich cultural memory while connecting the global
+                diaspora to their roots and welcoming visitors who seek
+                authentic heritage experiences.
               </p>
               <p className="text-text-secondary">
                 Our volunteer-driven, open-source approach ensures that the

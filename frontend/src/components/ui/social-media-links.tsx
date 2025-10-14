@@ -13,7 +13,8 @@ const socialMediaData: SocialMediaItem[] = [
   {
     name: "Facebook",
     href: "https://www.facebook.com/nosilha.cv",
-    description: "Follow Nos Ilha on Facebook for community updates and cultural heritage stories",
+    description:
+      "Follow Nos Ilha on Facebook for community updates and cultural heritage stories",
     ariaLabel: "Visit Nos Ilha Facebook page",
     icon: (props: React.SVGProps<SVGSVGElement>) => (
       <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
@@ -28,7 +29,8 @@ const socialMediaData: SocialMediaItem[] = [
   {
     name: "Instagram",
     href: "https://instagram.com/nosilha",
-    description: "Discover beautiful photos and moments from Brava Island on Instagram",
+    description:
+      "Discover beautiful photos and moments from Brava Island on Instagram",
     ariaLabel: "Visit Nos Ilha Instagram profile",
     icon: (props: React.SVGProps<SVGSVGElement>) => (
       <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
@@ -43,7 +45,8 @@ const socialMediaData: SocialMediaItem[] = [
   {
     name: "YouTube",
     href: "https://www.youtube.com/@nosilha",
-    description: "Watch videos about Brava Island's culture, history, and traditions on YouTube",
+    description:
+      "Watch videos about Brava Island's culture, history, and traditions on YouTube",
     ariaLabel: "Visit Nos Ilha YouTube channel",
     icon: (props: React.SVGProps<SVGSVGElement>) => (
       <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
@@ -95,7 +98,7 @@ export function SocialMediaLinks({
             <li key={item.name}>
               <a
                 href={item.href}
-                className="group hover:bg-background-secondary border-border-primary hover:border-ocean-blue/30 hover:ring-ocean-blue/20 flex flex-col items-center rounded-lg border p-6 text-center transition-all duration-300 hover:scale-105 hover:-translate-y-2 hover:shadow-xl hover:ring-2"
+                className="group hover:bg-background-secondary border-border-primary hover:border-ocean-blue/30 hover:ring-ocean-blue/20 flex flex-col items-center rounded-lg border p-6 text-center transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-xl hover:ring-2"
                 aria-label={item.ariaLabel}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -114,7 +117,7 @@ export function SocialMediaLinks({
                 </h3>
 
                 {/* Description */}
-                <p className="text-text-secondary group-hover:text-text-primary mt-2 text-sm leading-6 max-w-sm transition-colors duration-300">
+                <p className="text-text-secondary group-hover:text-text-primary mt-2 max-w-sm text-sm leading-6 transition-colors duration-300">
                   {item.description}
                 </p>
               </a>

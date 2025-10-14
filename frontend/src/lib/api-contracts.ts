@@ -157,7 +157,4 @@ export type ApiImplementationType = "backend" | "mock";
 // TYPE EXPORTS
 // ================================
 
-export type {
-  DirectoryEntry,
-  Town,
-};
+export type { DirectoryEntry, Town };

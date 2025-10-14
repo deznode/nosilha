@@ -2,7 +2,7 @@ export default function NewsletterSignup() {
   return (
     <section className="bg-background-primary py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="relative isolate overflow-hidden bg-gradient-to-br from-ocean-blue via-ocean-blue/80 to-ocean-blue/60 border border-ocean-blue/30 rounded-lg px-6 py-24 shadow-lg sm:px-24 xl:py-32 transition-shadow hover:shadow-xl">
+        <div className="from-ocean-blue via-ocean-blue/80 to-ocean-blue/60 border-ocean-blue/30 relative isolate overflow-hidden rounded-lg border bg-gradient-to-br px-6 py-24 shadow-lg transition-shadow hover:shadow-xl sm:px-24 xl:py-32">
           {/* Ocean-inspired radial gradient overlay */}
           <div
             className="absolute inset-0 -z-10 opacity-20"
@@ -14,12 +14,12 @@ export default function NewsletterSignup() {
 
           {/* Content */}
           <div className="relative z-10">
-            <h2 className="mx-auto max-w-3xl text-center text-4xl font-serif font-bold tracking-tight text-white sm:text-5xl">
+            <h2 className="mx-auto max-w-3xl text-center font-serif text-4xl font-bold tracking-tight text-white sm:text-5xl">
               Stay Connected with Brava Island
             </h2>
-            <p className="mx-auto mt-6 max-w-lg text-center text-lg font-sans text-white/90">
-              Get updates on cultural events, new heritage sites, and stories from
-              our island community.
+            <p className="mx-auto mt-6 max-w-lg text-center font-sans text-lg text-white/90">
+              Get updates on cultural events, new heritage sites, and stories
+              from our island community.
             </p>
 
             {/* Newsletter Form */}
@@ -35,18 +35,18 @@ export default function NewsletterSignup() {
                 placeholder="Enter your email"
                 autoComplete="email"
                 aria-label="Email address for newsletter subscription"
-                className="min-w-0 flex-auto rounded-lg border border-white/20 bg-white/10 px-4 py-3 text-base font-sans text-white placeholder:text-white/60 transition-all focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-ocean-blue focus:border-white/40 focus:bg-white/20 sm:text-sm"
+                className="focus:ring-offset-ocean-blue min-w-0 flex-auto rounded-lg border border-white/20 bg-white/10 px-4 py-3 font-sans text-base text-white transition-all placeholder:text-white/60 focus:border-white/40 focus:bg-white/20 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:outline-none sm:text-sm"
               />
               <button
                 type="submit"
-                className="flex-none rounded-lg bg-white px-6 py-3 text-sm font-sans font-semibold text-ocean-blue shadow-sm transition-all hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-[0.98]"
+                className="text-ocean-blue flex-none rounded-lg bg-white px-6 py-3 font-sans text-sm font-semibold shadow-sm transition-all hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-[0.98]"
               >
                 Subscribe
               </button>
             </form>
 
             {/* Privacy Note */}
-            <p className="mx-auto mt-4 max-w-md text-center text-xs font-sans text-white/70">
+            <p className="mx-auto mt-4 max-w-md text-center font-sans text-xs text-white/70">
               We respect your privacy. Unsubscribe at any time.
             </p>
           </div>

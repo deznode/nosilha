@@ -204,7 +204,9 @@ export class MockApiClient implements ApiClient {
     page: number = 0,
     size: number = 20
   ): Promise<DirectoryEntry[]> {
-    console.log(`Mock API: Fetching entries for category: ${category}, page: ${page}, size: ${size}`);
+    console.log(
+      `Mock API: Fetching entries for category: ${category}, page: ${page}, size: ${size}`
+    );
     await this.simulateDelay(150);
 
     let filteredEntries = MOCK_ENTRIES;
@@ -293,12 +295,13 @@ export class MockApiClient implements ApiClient {
       fileName: file.name,
       size: file.size,
       category,
-      description
+      description,
     });
     await this.simulateDelay(1000); // Longer delay for file upload
 
     // Simulate validation
-    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+    if (file.size > 10 * 1024 * 1024) {
+      // 10MB limit
       throw new Error("File size too large. Maximum size is 10MB.");
     }
 

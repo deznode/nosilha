@@ -91,7 +91,10 @@ export const logApiConfiguration = (): void => {
   console.log("Use Mock API:", env.useMockApi);
   console.log("API URL:", env.apiUrl);
   console.log("Implementation:", getApiImplementationType());
-  console.log("Client Instance:", apiClientInstance ? "Created" : "Not Created");
+  console.log(
+    "Client Instance:",
+    apiClientInstance ? "Created" : "Not Created"
+  );
   console.groupEnd();
 };
 
