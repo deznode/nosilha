@@ -87,3 +87,5 @@ storybook-static/
 
 # Local Netlify folder
 .netlify
+
+*storybook.log
