@@ -7,6 +7,7 @@ import { Logo as Logo3 } from "@/components/ui/logo3";
 import { Logo as Logo4 } from "@/components/ui/logo4";
 import NewsletterSignup from "@/components/ui/newsletter";
 import { SocialMediaLinks } from "@/components/ui/social-media-links";
+import Banner from "@/components/ui/banner";
 
 // Force dynamic rendering for test page
 export const dynamic = "force-dynamic";
@@ -21,6 +22,11 @@ export default async function TestPage() {
   return (
     <main className="bg-off-white font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+        <Banner
+          title="Nos Ilha 2025"
+          message="Discover the cultural heritage of Brava Island - explore landmarks, local businesses, and traditions"
+          linkUrl="/directory/all"
+        />
         <NosilhaLogo />
         <Logo2 />
         <Logo3 />
