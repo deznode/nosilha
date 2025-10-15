@@ -74,7 +74,12 @@ export default function Banner({
       </div>
       <p className="text-sm/6 text-gray-900 dark:text-gray-100">
         {linkUrl ? (
-          <a href={linkUrl} className="hover:text-gray-600 dark:hover:text-white">
+          <a
+            href={linkUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-gray-600 dark:hover:text-white"
+          >
             {content}
           </a>
         ) : (
