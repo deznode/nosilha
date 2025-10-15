@@ -1,4 +1,4 @@
-package com.nosilha.core.domain
+package com.nosilha.core.directory.domain
 
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
@@ -6,9 +6,9 @@ import jakarta.persistence.Entity
 /**
  * Represents a Hotel or accommodation entry in the directory.
  *
- * This is a concrete implementation of DirectoryEntry, identified by the
+ * <p>This is a concrete implementation of DirectoryEntry, identified by the
  * discriminator value "Hotel" in the `category` column. It inherits all
- * common properties and can utilize fields like `phoneNumber` and `amenities`.
+ * common properties and can utilize fields like `phoneNumber` and `amenities`.</p>
  */
 @Entity
 @DiscriminatorValue("Hotel")

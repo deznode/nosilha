@@ -1,9 +1,9 @@
-package com.nosilha.core.service
+package com.nosilha.core.directory.domain
 
-import com.nosilha.core.domain.Beach
-import com.nosilha.core.domain.Hotel
-import com.nosilha.core.domain.Landmark
-import com.nosilha.core.domain.Restaurant
+import com.nosilha.core.directory.events.DirectoryEntryCreatedEvent
+import com.nosilha.core.directory.events.DirectoryEntryDeletedEvent
+import com.nosilha.core.directory.events.DirectoryEntryUpdatedEvent
+import com.nosilha.core.directory.repository.DirectoryEntryRepository
 import com.nosilha.core.dto.CreateEntryRequestDto
 import com.nosilha.core.dto.CreateRestaurantDetailsDto
 import com.nosilha.core.dto.CreateHotelDetailsDto
@@ -11,7 +11,7 @@ import com.nosilha.core.dto.DirectoryEntryDto
 import com.nosilha.core.dto.toDto
 import com.nosilha.core.exception.BusinessException
 import com.nosilha.core.exception.ResourceNotFoundException
-import com.nosilha.core.repository.jpa.DirectoryEntryRepository
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -21,17 +21,22 @@ import java.util.*
 /**
  * Service class for handling business logic related to directory entries.
  *
- * This service acts as an intermediary between the controller and the repository,
- * orchestrating data retrieval and transformation from entities to DTOs.
+ * <p>This service acts as an intermediary between the controller and the repository,
+ * orchestrating data retrieval, transformation from entities to DTOs, and publishing
+ * domain events for cross-module communication.</p>
  *
- * @param repository The repository for accessing directory entry data.
+ * @param repository The repository for accessing directory entry data
+ * @param eventPublisher Spring event publisher for module events
  */
 @Service
 class DirectoryEntryService(
     private val repository: DirectoryEntryRepository,
+    private val eventPublisher: ApplicationEventPublisher
 ) {
     /**
      * Creates a new directory entry based on the provided request data.
+     *
+     * <p>Publishes {@link DirectoryEntryCreatedEvent} after successful creation.</p>
      *
      * @param request The DTO containing all necessary data for the new entry.
      * @return The DTO of the newly created and saved entry.
@@ -78,6 +83,16 @@ class DirectoryEntryService(
         }
 
         val savedEntry = repository.save(newEntry)
+
+        // Publish DirectoryEntryCreatedEvent for other modules to react
+        eventPublisher.publishEvent(
+            DirectoryEntryCreatedEvent(
+                entryId = savedEntry.id!!,
+                category = savedEntry.category,
+                name = savedEntry.name
+            )
+        )
+
         return savedEntry.toDto()
     }
 
@@ -172,6 +187,8 @@ class DirectoryEntryService(
     /**
      * Updates an existing directory entry.
      *
+     * <p>Publishes {@link DirectoryEntryUpdatedEvent} after successful update.</p>
+     *
      * @param id The UUID of the entry to update.
      * @param request The DTO containing updated data for the entry.
      * @return The updated [DirectoryEntryDto].
@@ -220,11 +237,22 @@ class DirectoryEntryService(
         }
 
         val updatedEntry = repository.save(existingEntry)
+
+        // Publish DirectoryEntryUpdatedEvent for other modules to react
+        eventPublisher.publishEvent(
+            DirectoryEntryUpdatedEvent(
+                entryId = updatedEntry.id!!,
+                category = updatedEntry.category
+            )
+        )
+
         return updatedEntry.toDto()
     }
 
     /**
      * Deletes a directory entry by its ID.
+     *
+     * <p>Publishes {@link DirectoryEntryDeletedEvent} after successful deletion.</p>
      *
      * @param id The UUID of the entry to delete.
      * @throws ResourceNotFoundException if no entry with the given ID exists.
@@ -234,6 +262,12 @@ class DirectoryEntryService(
         if (!repository.existsById(id)) {
             throw ResourceNotFoundException("Directory entry with ID '$id' not found.")
         }
+
         repository.deleteById(id)
+
+        // Publish DirectoryEntryDeletedEvent for other modules to react
+        eventPublisher.publishEvent(
+            DirectoryEntryDeletedEvent(entryId = id)
+        )
     }
 }

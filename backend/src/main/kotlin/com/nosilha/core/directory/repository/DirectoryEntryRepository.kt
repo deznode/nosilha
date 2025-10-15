@@ -1,6 +1,6 @@
-package com.nosilha.core.repository.jpa
+package com.nosilha.core.directory.repository
 
-import com.nosilha.core.domain.DirectoryEntry
+import com.nosilha.core.directory.domain.DirectoryEntry
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -10,19 +10,23 @@ import java.util.UUID
 /**
  * Spring Data JPA repository for the DirectoryEntry entity hierarchy.
  *
- * This repository manages all entities that extend DirectoryEntry, providing
+ * <p>This repository manages all entities that extend DirectoryEntry, providing
  * polymorphic access to the data. It provides standard CRUD operations and
- * allows for custom queries against the entire `directory_entries` table.
+ * allows for custom queries against the entire `directory_entries` table.</p>
+ *
+ * <p><strong>Single Table Inheritance Support:</strong></p>
+ * <p>This repository works with the STI pattern, allowing queries that return
+ * mixed types (Restaurant, Hotel, Landmark, Beach) or filtered by discriminator.</p>
  */
 @Repository
 interface DirectoryEntryRepository : JpaRepository<DirectoryEntry, UUID> {
     /**
      * Finds all DirectoryEntry instances that match the given category.
      *
-     * This query leverages the discriminator column (`category`) from the
+     * <p>This query leverages the discriminator column (`category`) from the
      * SINGLE_TABLE inheritance strategy. For example, calling this method with
      * the string "Restaurant" will return a list of objects that are instances
-     * of the Restaurant subclass.
+     * of the Restaurant subclass.</p>
      *
      * @param category The category name to filter by (e.g., "Restaurant", "Hotel").
      * @return A list of DirectoryEntry entities matching the specified category.
@@ -64,11 +68,11 @@ interface DirectoryEntryRepository : JpaRepository<DirectoryEntry, UUID> {
     /**
      * Finds a single DirectoryEntry by its unique slug.
      *
-     * Since slugs are unique across all directory entries, this method will
-     * return at most one entry matching the given slug.
+     * <p>Since slugs are unique across all directory entries, this method will
+     * return at most one entry matching the given slug.</p>
      *
      * @param slug The unique slug to search for.
-     * @return An Optional containing the DirectoryEntry if found, empty otherwise.
+     * @return The DirectoryEntry if found, null otherwise.
      */
     fun findBySlug(slug: String): DirectoryEntry?
 }

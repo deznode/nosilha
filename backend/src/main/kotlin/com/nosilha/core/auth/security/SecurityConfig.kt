@@ -1,6 +1,5 @@
-package com.nosilha.core.config
+package com.nosilha.core.auth.security
 
-import com.nosilha.core.security.JwtAuthenticationFilter
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

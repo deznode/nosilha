@@ -1,5 +1,6 @@
-package com.nosilha.core.security
+package com.nosilha.core.auth.security
 
+import com.nosilha.core.auth.events.UserLoggedInEvent
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
@@ -7,6 +8,7 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.core.annotation.Order
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -19,6 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 @Order(1)
 class JwtAuthenticationFilter(
     @Value("\${supabase.jwt-secret}") private val jwtSecret: String,
+    private val eventPublisher: ApplicationEventPublisher
 ) : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -67,6 +70,9 @@ class JwtAuthenticationFilter(
                 "JWT authentication successful for user: $userId " +
                     "with authorities: ${authorities.map { it.authority }}"
             )
+
+            // Publish UserLoggedInEvent for other modules to react
+            eventPublisher.publishEvent(UserLoggedInEvent(userId = userId))
         }
     }
 

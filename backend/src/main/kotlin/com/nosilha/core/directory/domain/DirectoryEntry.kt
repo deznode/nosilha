@@ -1,5 +1,6 @@
-package com.nosilha.core.domain
+package com.nosilha.core.directory.domain
 
+import com.nosilha.core.shared.domain.AuditableEntity
 import jakarta.persistence.Column
 import jakarta.persistence.DiscriminatorColumn
 import jakarta.persistence.DiscriminatorType
@@ -8,25 +9,35 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
-import jakarta.persistence.PrePersist
-import jakarta.persistence.PreUpdate
 import jakarta.persistence.Table
-import java.time.LocalDateTime
 import java.util.UUID
 
 /**
- * Abstract base class for all directory entries on the Nosilha platform.
+ * Abstract base class for all directory entries on the Nos Ilha platform.
  *
- * This entity uses a SINGLE_TABLE inheritance strategy, where all subclasses
- * (e.g., Restaurant, Hotel) are stored in the `directory_entries` table.
+ * <p>This entity uses a SINGLE_TABLE inheritance strategy, where all subclasses
+ * (e.g., Restaurant, Hotel, Landmark, Beach) are stored in the `directory_entries` table.
  * The `category` column is used as the discriminator to determine the specific
- * subtype of each row.
+ * subtype of each row.</p>
+ *
+ * <p><strong>Inheritance Hierarchy:</strong></p>
+ * <pre>
+ * AuditableEntity (shared kernel - provides createdAt, updatedAt)
+ * └── DirectoryEntry (directory module - base directory entry)
+ *     ├── Restaurant (@DiscriminatorValue("RESTAURANT"))
+ *     ├── Hotel (@DiscriminatorValue("HOTEL"))
+ *     ├── Landmark (@DiscriminatorValue("LANDMARK"))
+ *     └── Beach (@DiscriminatorValue("BEACH"))
+ * </pre>
+ *
+ * @see com.nosilha.core.shared.domain.AuditableEntity
  */
 @Entity
 @Table(name = "directory_entries")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "category", discriminatorType = DiscriminatorType.STRING)
-abstract class DirectoryEntry {
+abstract class DirectoryEntry : AuditableEntity() {
+
     @Id
     @GeneratedValue
     var id: UUID? = null
@@ -73,31 +84,6 @@ abstract class DirectoryEntry {
 
     // Hotel-specific fields
     var amenities: String? = null // e.g., "Wi-Fi,Pool,Air Conditioning"
-
-    // Timestamp fields
-    @Column(name = "created_at", nullable = false, updatable = false)
-    var createdAt: LocalDateTime = LocalDateTime.now()
-
-    @Column(name = "updated_at", nullable = false)
-    var updatedAt: LocalDateTime = LocalDateTime.now()
-
-    /**
-     * JPA lifecycle callback to set createdAt timestamp on entity creation.
-     */
-    @PrePersist
-    protected fun onCreate() {
-        val now = LocalDateTime.now()
-        createdAt = now
-        updatedAt = now
-    }
-
-    /**
-     * JPA lifecycle callback to update updatedAt timestamp on entity modification.
-     */
-    @PreUpdate
-    protected fun onUpdate() {
-        updatedAt = LocalDateTime.now()
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

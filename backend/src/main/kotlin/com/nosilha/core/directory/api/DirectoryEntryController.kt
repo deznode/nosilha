@@ -1,10 +1,10 @@
-package com.nosilha.core.controller
+package com.nosilha.core.directory.api
 
+import com.nosilha.core.directory.domain.DirectoryEntryService
 import com.nosilha.core.dto.ApiResponse
 import com.nosilha.core.dto.CreateEntryRequestDto
 import com.nosilha.core.dto.DirectoryEntryDto
 import com.nosilha.core.dto.PagedApiResponse
-import com.nosilha.core.service.DirectoryEntryService
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -22,10 +22,20 @@ import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
 /**
- * REST controller for accessing the Nosilha directory entries.
+ * REST controller for accessing the Nos Ilha directory entries.
  *
- * This controller exposes a versioned API (v1) for retrieving information
- * about landmarks, restaurants, hotels, and other points of interest on Brava.
+ * <p>This controller exposes a versioned API (v1) for retrieving information
+ * about landmarks, restaurants, hotels, and other points of interest on Brava Island.</p>
+ *
+ * <p><strong>Public API Endpoints:</strong></p>
+ * <ul>
+ *   <li>GET /api/v1/directory/entries - List all entries with pagination and filtering</li>
+ *   <li>GET /api/v1/directory/entries/{id} - Get entry by UUID</li>
+ *   <li>GET /api/v1/directory/slug/{slug} - Get entry by slug</li>
+ *   <li>POST /api/v1/directory/entries - Create new entry (authenticated)</li>
+ *   <li>PUT /api/v1/directory/entries/{id} - Update entry (authenticated)</li>
+ *   <li>DELETE /api/v1/directory/entries/{id} - Delete entry (authenticated)</li>
+ * </ul>
  *
  * @param service The business logic layer for directory entries.
  */
@@ -37,8 +47,8 @@ class DirectoryEntryController(
     /**
      * Creates a new directory entry.
      *
-     * This endpoint handles `POST` requests to `/api/v1/directory/entries`.
-     * The `@ResponseStatus(HttpStatus.CREATED)` annotation ensures a 201 status is returned on success.
+     * <p>This endpoint handles `POST` requests to `/api/v1/directory/entries`.
+     * The `@ResponseStatus(HttpStatus.CREATED)` annotation ensures a 201 status is returned on success.</p>
      *
      * @param request The request body containing the details of the entry to create.
      * @return The ApiResponse wrapping the DTO of the newly created entry.
@@ -55,8 +65,8 @@ class DirectoryEntryController(
     /**
      * Retrieves a list of directory entries with pagination support.
      *
-     * This endpoint can be optionally filtered by `category` and `town` parameters.
-     * Supports pagination with `page` and `size` parameters.
+     * <p>This endpoint can be optionally filtered by `category` and `town` parameters.
+     * Supports pagination with `page` and `size` parameters.</p>
      *
      * @param category An optional string to filter entries by their type (e.g., "Restaurant").
      * @param town An optional string to filter entries by town name.
@@ -88,8 +98,7 @@ class DirectoryEntryController(
      *
      * @param id The UUID of the directory entry to retrieve.
      * @return The ApiResponse wrapping [DirectoryEntryDto] with a 200 OK status.
-     * If the entry is not found, the service will throw an exception that results
-     * in a 404 Not Found status.
+     * @throws ResourceNotFoundException if the entry is not found (results in 404 Not Found).
      */
     @GetMapping("/entries/{id}")
     fun getEntryById(
@@ -102,14 +111,13 @@ class DirectoryEntryController(
     /**
      * Retrieves a single directory entry by its unique slug.
      *
-     * This endpoint provides a user-friendly way to access directory entries
+     * <p>This endpoint provides a user-friendly way to access directory entries
      * using human-readable slugs instead of UUIDs. For example:
-     * GET /api/v1/directory/slug/marias-restaurant-nova-sintra
+     * GET /api/v1/directory/slug/marias-restaurant-nova-sintra</p>
      *
      * @param slug The unique slug of the directory entry to retrieve.
      * @return The ApiResponse wrapping [DirectoryEntryDto] with a 200 OK status.
-     * If the entry is not found, the service will throw an exception that results
-     * in a 404 Not Found status.
+     * @throws ResourceNotFoundException if the entry is not found (results in 404 Not Found).
      */
     @GetMapping("/slug/{slug}")
     fun getEntryBySlug(
@@ -125,6 +133,8 @@ class DirectoryEntryController(
      * @param id The UUID of the directory entry to update.
      * @param request The request body containing the updated entry data.
      * @return The ApiResponse wrapping the updated [DirectoryEntryDto].
+     * @throws ResourceNotFoundException if the entry is not found.
+     * @throws BusinessException if the update violates business rules.
      */
     @PutMapping("/entries/{id}")
     fun updateEntry(
@@ -139,6 +149,7 @@ class DirectoryEntryController(
      * Deletes a directory entry by its ID.
      *
      * @param id The UUID of the directory entry to delete.
+     * @throws ResourceNotFoundException if the entry is not found.
      */
     @DeleteMapping("/entries/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

@@ -1,4 +1,4 @@
-package com.nosilha.core.domain
+package com.nosilha.core.directory.domain
 
 import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
@@ -6,10 +6,10 @@ import jakarta.persistence.Entity
 /**
  * Represents a Beach entry in the directory.
  *
- * This is a concrete implementation of DirectoryEntry, identified by the
+ * <p>This is a concrete implementation of DirectoryEntry, identified by the
  * discriminator value "Beach" in the `category` column. It inherits all
  * common properties. Subclass-specific fields like `cuisine` or `amenities`
- * would be null for instances of this type.
+ * would be null for instances of this type.</p>
  */
 @Entity
 @DiscriminatorValue("Beach")
