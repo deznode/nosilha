@@ -1,6 +1,5 @@
-package com.nosilha.core.directory.events
+package com.nosilha.core.shared.events
 
-import com.nosilha.core.shared.events.ApplicationModuleEvent
 import java.time.Instant
 import java.util.UUID
 

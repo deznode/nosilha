@@ -1,19 +1,8 @@
-package com.nosilha.core.directory
-
-import org.springframework.modulith.ApplicationModule
-
 /**
- * Directory Module Metadata
+ * Directory Module
  *
- * <p>This marker class defines the Spring Modulith module metadata for the Directory module.
- * In Kotlin projects, package-info.java is not supported, so we use this annotated marker class instead.
- *
- * <p><strong>Module: Directory</strong>
- * <ul>
- *   <li>Display Name: Directory Module</li>
- *   <li>Dependencies: shared (Shared Kernel only)</li>
- *   <li>Type: DEFAULT (strict encapsulation)</li>
- * </ul>
+ * <p>This module is responsible for managing directory entries (restaurants, hotels, beaches,
+ * landmarks) for the Nos Ilha cultural heritage platform.
  *
  * <p><strong>Responsibilities:</strong>
  * <ul>
@@ -25,8 +14,8 @@ import org.springframework.modulith.ApplicationModule
  *
  * <p><strong>Module Boundaries:</strong>
  * <ul>
- *   <li>Depends on: shared (domain models, events, DTOs)</li>
- *   <li>Exposes: DirectoryEntryController, DirectoryEntryDto (public API)</li>
+ *   <li>Depends on: shared (domain models, events, DTOs, exceptions)</li>
+ *   <li>Exposes: DirectoryEntryController, DirectoryEntryDto (public API), events (named interface)</li>
  *   <li>Internal: DirectoryEntryService, repositories (package-private)</li>
  * </ul>
  *
@@ -38,8 +27,9 @@ import org.springframework.modulith.ApplicationModule
  *
  * @since 1.0
  */
-@ApplicationModule(
+@org.springframework.modulith.ApplicationModule(
     displayName = "Directory Module",
-    allowedDependencies = ["shared"]
+    allowedDependencies = {"shared :: api", "shared :: domain", "shared :: events", "shared :: exception"},
+    type = org.springframework.modulith.ApplicationModule.Type.OPEN
 )
-class DirectoryModuleMetadata
+package com.nosilha.core.directory;

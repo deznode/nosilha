@@ -1,8 +1,8 @@
 package com.nosilha.core.directory.domain
 
-import com.nosilha.core.directory.events.DirectoryEntryCreatedEvent
-import com.nosilha.core.directory.events.DirectoryEntryDeletedEvent
-import com.nosilha.core.directory.events.DirectoryEntryUpdatedEvent
+import com.nosilha.core.shared.events.DirectoryEntryCreatedEvent
+import com.nosilha.core.shared.events.DirectoryEntryDeletedEvent
+import com.nosilha.core.shared.events.DirectoryEntryUpdatedEvent
 import com.nosilha.core.directory.repository.DirectoryEntryRepository
 import com.nosilha.core.shared.api.CreateEntryRequestDto
 import com.nosilha.core.shared.api.CreateRestaurantDetailsDto

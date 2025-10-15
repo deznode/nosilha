@@ -1,6 +1,6 @@
 package com.nosilha.core.media.domain
 
-import com.nosilha.core.directory.events.DirectoryEntryCreatedEvent
+import com.nosilha.core.shared.events.DirectoryEntryCreatedEvent
 import org.slf4j.LoggerFactory
 import org.springframework.modulith.ApplicationModuleListener
 import org.springframework.stereotype.Service

@@ -11,7 +11,7 @@ import org.springframework.modulith.ApplicationModule
  * <p><strong>Module: Authentication</strong>
  * <ul>
  *   <li>Display Name: Authentication Module</li>
- *   <li>Dependencies: shared (Shared Kernel only)</li>
+ *   <li>Dependencies: shared :: events (for domain event base classes)</li>
  *   <li>Type: DEFAULT (strict encapsulation)</li>
  * </ul>
  *
@@ -34,6 +34,6 @@ import org.springframework.modulith.ApplicationModule
  */
 @ApplicationModule(
     displayName = "Authentication Module",
-    allowedDependencies = ["shared"]
+    allowedDependencies = ["shared :: events"]
 )
 class AuthModuleMetadata

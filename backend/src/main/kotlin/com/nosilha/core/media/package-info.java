@@ -14,7 +14,7 @@
  *
  * <p><strong>Module Boundaries:</strong>
  * <ul>
- *   <li>Depends on: shared (domain models, events)</li>
+ *   <li>Depends on: shared :: api, shared :: events</li>
  *   <li>Exposes: MediaController (REST API), MediaEvents (for other modules)</li>
  *   <li>Internal: MediaService, repositories (package-private)</li>
  * </ul>
@@ -29,6 +29,6 @@
  */
 @org.springframework.modulith.ApplicationModule(
     displayName = "Media Module",
-    allowedDependencies = {"shared", "directory :: events"}
+    allowedDependencies = {"shared :: api", "shared :: events"}
 )
 package com.nosilha.core.media;
