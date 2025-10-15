@@ -1,12 +1,15 @@
-package com.nosilha.core.dto
+package com.nosilha.core.directory.domain
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.nosilha.core.directory.domain.DirectoryEntry
-import com.nosilha.core.directory.domain.Restaurant
-import com.nosilha.core.directory.domain.Hotel
-import com.nosilha.core.directory.domain.Beach
-import com.nosilha.core.directory.domain.Landmark
+import com.nosilha.core.shared.api.DirectoryEntryDto
+import com.nosilha.core.shared.api.RestaurantDto
+import com.nosilha.core.shared.api.HotelDto
+import com.nosilha.core.shared.api.BeachDto
+import com.nosilha.core.shared.api.LandmarkDto
+import com.nosilha.core.shared.api.TownDto
+import com.nosilha.core.shared.api.RestaurantDetailsDto
+import com.nosilha.core.shared.api.HotelDetailsDto
 import com.nosilha.core.domain.Town
 
 /**

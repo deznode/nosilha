@@ -6,6 +6,13 @@ import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 import "@testing-library/jest-dom/vitest";
 
+// Set up required environment variables for testing
+process.env.NEXT_PUBLIC_API_URL = "http://localhost:8080";
+process.env.NEXT_PUBLIC_USE_MOCK_API = "false";
+process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN = "pk.test_mapbox_token";
+process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test-project.supabase.co";
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test_supabase_anon_key";
+
 // Cleanup after each test to ensure test isolation
 afterEach(() => {
   cleanup();

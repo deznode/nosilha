@@ -1,4 +1,4 @@
-package com.nosilha.core.dto
+package com.nosilha.core.shared.api
 
 /**
  * DTO for carrying hotel-specific details.

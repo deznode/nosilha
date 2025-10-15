@@ -1,4 +1,4 @@
-package com.nosilha.core.dto
+package com.nosilha.core.shared.api
 
 /**
  * DTO for creating a new directory entry. It contains core fields

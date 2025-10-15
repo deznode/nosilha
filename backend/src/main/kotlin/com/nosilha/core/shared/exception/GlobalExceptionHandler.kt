@@ -1,7 +1,7 @@
-package com.nosilha.core.exception
+package com.nosilha.core.shared.exception
 
-import com.nosilha.core.dto.ErrorResponse
-import com.nosilha.core.dto.ValidationErrorResponse
+import com.nosilha.core.shared.api.ErrorResponse
+import com.nosilha.core.shared.api.ValidationErrorResponse
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus

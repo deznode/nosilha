@@ -1,10 +1,10 @@
 package com.nosilha.core.directory.api
 
 import com.nosilha.core.directory.domain.DirectoryEntryService
-import com.nosilha.core.dto.ApiResponse
-import com.nosilha.core.dto.CreateEntryRequestDto
-import com.nosilha.core.dto.DirectoryEntryDto
-import com.nosilha.core.dto.PagedApiResponse
+import com.nosilha.core.shared.api.ApiResponse
+import com.nosilha.core.shared.api.CreateEntryRequestDto
+import com.nosilha.core.shared.api.DirectoryEntryDto
+import com.nosilha.core.shared.api.PagedApiResponse
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort

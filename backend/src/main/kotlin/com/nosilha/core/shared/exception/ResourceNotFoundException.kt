@@ -1,4 +1,4 @@
-package com.nosilha.core.exception
+package com.nosilha.core.shared.exception
 
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.ResponseStatus

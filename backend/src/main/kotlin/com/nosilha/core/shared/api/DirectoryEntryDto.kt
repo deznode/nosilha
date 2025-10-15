@@ -1,4 +1,4 @@
-package com.nosilha.core.dto
+package com.nosilha.core.shared.api
 
 import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonSubTypes

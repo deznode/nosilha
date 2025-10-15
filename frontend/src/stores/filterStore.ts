@@ -16,6 +16,9 @@ interface FilterState {
   minRating: number | undefined;
   hasImage: boolean | undefined;
 
+  // Multi-select for map filtering
+  selectedCategories: string[];
+
   // Actions
   setSearchQuery: (query: string) => void;
   setCategory: (category: CategoryValue | undefined) => void;
@@ -24,6 +27,10 @@ interface FilterState {
   setHasImage: (hasImage: boolean | undefined) => void;
   setFilters: (filters: Partial<FilterInput>) => void;
   clearFilters: () => void;
+
+  // Multi-category actions for map filtering
+  setSelectedCategories: (categories: string[]) => void;
+  toggleCategory: (category: string, isChecked: boolean) => void;
 
   // Utility
   hasActiveFilters: () => boolean;
@@ -38,6 +45,7 @@ export const useFilterStore = create<FilterState>()(
       selectedTown: undefined,
       minRating: undefined,
       hasImage: undefined,
+      selectedCategories: ["Restaurant", "Hotel", "Beach", "Landmark"], // Default: all categories
 
       // Actions
       setSearchQuery: (query) => set({ searchQuery: query }),
@@ -63,6 +71,16 @@ export const useFilterStore = create<FilterState>()(
           minRating: undefined,
           hasImage: undefined,
         }),
+
+      // Multi-category actions
+      setSelectedCategories: (categories) => set({ selectedCategories: categories }),
+
+      toggleCategory: (category, isChecked) =>
+        set((state) => ({
+          selectedCategories: isChecked
+            ? [...state.selectedCategories, category]
+            : state.selectedCategories.filter((c) => c !== category),
+        })),
 
       hasActiveFilters: () => {
         const state = get();
@@ -91,3 +109,7 @@ export const useMinRating = () => useFilterStore((state) => state.minRating);
 export const useHasImageFilter = () => useFilterStore((state) => state.hasImage);
 export const useHasActiveFilters = () =>
   useFilterStore((state) => state.hasActiveFilters());
+
+// Multi-category selectors for map filtering
+export const useSelectedCategories = () =>
+  useFilterStore((state) => state.selectedCategories);
