@@ -1,9 +1,9 @@
-package com.nosilha.core.controller
+package com.nosilha.core.directory.api
 
 import com.nosilha.core.shared.api.ApiResponse
 import com.nosilha.core.shared.api.PagedApiResponse
 import com.nosilha.core.shared.api.TownDto
-import com.nosilha.core.service.TownService
+import com.nosilha.core.directory.domain.TownService
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort

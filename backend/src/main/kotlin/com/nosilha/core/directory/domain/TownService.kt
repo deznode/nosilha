@@ -1,11 +1,9 @@
-package com.nosilha.core.service
+package com.nosilha.core.directory.domain
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.nosilha.core.domain.Town
 import com.nosilha.core.shared.api.TownDto
-import com.nosilha.core.directory.domain.toDto
 import com.nosilha.core.shared.exception.ResourceNotFoundException
-import com.nosilha.core.repository.jpa.TownRepository
+import com.nosilha.core.directory.repository.TownRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service

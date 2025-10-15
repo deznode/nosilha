@@ -1,4 +1,4 @@
-package com.nosilha.core.config
+package com.nosilha.core.shared.config
 
 import com.google.cloud.spring.data.firestore.repository.config.EnableReactiveFirestoreRepositories
 import jakarta.persistence.EntityManagerFactory
@@ -15,8 +15,8 @@ import org.springframework.orm.jpa.JpaTransactionManager
  * which repositories belong to which data technology, preventing conflicts.
  */
 @Configuration
-@EnableJpaRepositories(basePackages = ["com.nosilha.core.repository.jpa"])
-@EnableReactiveFirestoreRepositories(basePackages = ["com.nosilha.core.repository.firestore"])
+@EnableJpaRepositories(basePackages = ["com.nosilha.core.directory.repository"])
+@EnableReactiveFirestoreRepositories(basePackages = ["com.nosilha.core.media.repository"])
 class PersistenceConfig {
 
     /**

@@ -1,4 +1,4 @@
-package com.nosilha.core.service
+package com.nosilha.core.media.domain
 
 import com.google.cloud.vision.v1.AnnotateImageRequest
 import com.google.cloud.vision.v1.Feature

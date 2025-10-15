@@ -29,6 +29,6 @@
  */
 @org.springframework.modulith.ApplicationModule(
     displayName = "Media Module",
-    allowedDependencies = {"shared"}
+    allowedDependencies = {"shared", "directory :: events"}
 )
 package com.nosilha.core.media;

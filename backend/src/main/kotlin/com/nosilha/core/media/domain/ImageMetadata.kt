@@ -1,4 +1,4 @@
-package com.nosilha.core.domain
+package com.nosilha.core.media.domain
 
 import com.google.cloud.firestore.annotation.DocumentId
 import com.google.cloud.spring.data.firestore.Document

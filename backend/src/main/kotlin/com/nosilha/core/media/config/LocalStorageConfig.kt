@@ -1,4 +1,4 @@
-package com.nosilha.core.config
+package com.nosilha.core.media.config
 
 import com.google.cloud.NoCredentials
 import com.google.cloud.storage.Storage

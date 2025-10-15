@@ -1,8 +1,8 @@
-package com.nosilha.core.controller
+package com.nosilha.core.media.api
 
 import com.nosilha.core.shared.api.ApiResponse
 import com.nosilha.core.shared.api.MediaMetadataDto
-import com.nosilha.core.service.FileStorageService
+import com.nosilha.core.media.domain.FileStorageService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable

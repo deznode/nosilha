@@ -8,7 +8,6 @@ import com.nosilha.core.shared.api.CreateEntryRequestDto
 import com.nosilha.core.shared.api.CreateRestaurantDetailsDto
 import com.nosilha.core.shared.api.CreateHotelDetailsDto
 import com.nosilha.core.shared.api.DirectoryEntryDto
-import com.nosilha.core.directory.domain.toDto
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
 import org.springframework.context.ApplicationEventPublisher

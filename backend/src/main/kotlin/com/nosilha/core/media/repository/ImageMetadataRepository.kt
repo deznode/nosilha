@@ -1,7 +1,7 @@
-package com.nosilha.core.repository.firestore
+package com.nosilha.core.media.repository
 
 import com.google.cloud.spring.data.firestore.FirestoreReactiveRepository
-import com.nosilha.core.domain.ImageMetadata
+import com.nosilha.core.media.domain.ImageMetadata
 import org.springframework.stereotype.Repository
 
 /**

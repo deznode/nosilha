@@ -10,7 +10,6 @@ import com.nosilha.core.shared.api.LandmarkDto
 import com.nosilha.core.shared.api.TownDto
 import com.nosilha.core.shared.api.RestaurantDetailsDto
 import com.nosilha.core.shared.api.HotelDetailsDto
-import com.nosilha.core.domain.Town
 
 /**
  * Maps a DirectoryEntry JPA entity to its corresponding public-facing DTO.

@@ -1,10 +1,9 @@
-package com.nosilha.core.service
+package com.nosilha.core.media.domain
 
 import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.Storage
-import com.nosilha.core.domain.ImageMetadata
-import com.nosilha.core.repository.firestore.ImageMetadataRepository
+import com.nosilha.core.media.repository.ImageMetadataRepository
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
