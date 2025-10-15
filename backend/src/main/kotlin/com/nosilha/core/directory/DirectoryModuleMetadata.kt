@@ -1,3 +1,8 @@
+package com.nosilha.core.directory
+
+import org.springframework.modulith.ApplicationModule
+import org.springframework.modulith.PackageInfo
+
 /**
  * Directory Module
  *
@@ -27,9 +32,10 @@
  *
  * @since 1.0
  */
-@org.springframework.modulith.ApplicationModule(
+@PackageInfo
+@ApplicationModule(
     displayName = "Directory Module",
-    allowedDependencies = {"shared :: api", "shared :: domain", "shared :: events", "shared :: exception"},
-    type = org.springframework.modulith.ApplicationModule.Type.OPEN
+    allowedDependencies = ["shared :: api", "shared :: domain", "shared :: events", "shared :: exception"],
+    type = ApplicationModule.Type.OPEN
 )
-package com.nosilha.core.directory;
+class DirectoryModuleMetadata

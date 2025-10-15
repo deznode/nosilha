@@ -1,3 +1,8 @@
+package com.nosilha.core.shared.exception
+
+import org.springframework.modulith.NamedInterface
+import org.springframework.modulith.PackageInfo
+
 /**
  * Shared Exception package - Common exception types and error handling
  *
@@ -12,5 +17,6 @@
  *
  * @since 1.0
  */
-@org.springframework.modulith.NamedInterface("exception")
-package com.nosilha.core.shared.exception;
+@PackageInfo
+@NamedInterface("exception")
+class PackageInfo

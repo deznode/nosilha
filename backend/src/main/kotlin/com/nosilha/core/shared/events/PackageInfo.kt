@@ -1,3 +1,8 @@
+package com.nosilha.core.shared.events
+
+import org.springframework.modulith.NamedInterface
+import org.springframework.modulith.PackageInfo
+
 /**
  * Shared Events package - Common event models for cross-module communication
  *
@@ -12,5 +17,6 @@
  *
  * @since 1.0
  */
-@org.springframework.modulith.NamedInterface("events")
-package com.nosilha.core.shared.events;
+@PackageInfo
+@NamedInterface("events")
+class PackageInfo

@@ -1,3 +1,8 @@
+package com.nosilha.core.shared.domain
+
+import org.springframework.modulith.NamedInterface
+import org.springframework.modulith.PackageInfo
+
 /**
  * Shared Domain package - Common domain models and base entities
  *
@@ -12,5 +17,6 @@
  *
  * @since 1.0
  */
-@org.springframework.modulith.NamedInterface("domain")
-package com.nosilha.core.shared.domain;
+@PackageInfo
+@NamedInterface("domain")
+class PackageInfo

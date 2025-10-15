@@ -1,3 +1,8 @@
+package com.nosilha.core.shared.api
+
+import org.springframework.modulith.NamedInterface
+import org.springframework.modulith.PackageInfo
+
 /**
  * Shared API package - Public API response models and DTOs
  *
@@ -12,5 +17,6 @@
  *
  * @since 1.0
  */
-@org.springframework.modulith.NamedInterface("api")
-package com.nosilha.core.shared.api;
+@PackageInfo
+@NamedInterface("api")
+class PackageInfo

@@ -1,3 +1,8 @@
+package com.nosilha.core.auth.events
+
+import org.springframework.modulith.NamedInterface
+import org.springframework.modulith.PackageInfo
+
 /**
  * Authentication Events Package - Named Interface
  *
@@ -6,5 +11,6 @@
  *
  * @since 1.0
  */
-@org.springframework.modulith.NamedInterface("events")
-package com.nosilha.core.auth.events;
+@PackageInfo
+@NamedInterface("events")
+class PackageInfo

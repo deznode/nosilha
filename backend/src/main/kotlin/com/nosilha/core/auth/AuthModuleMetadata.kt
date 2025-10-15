@@ -1,6 +1,7 @@
 package com.nosilha.core.auth
 
 import org.springframework.modulith.ApplicationModule
+import org.springframework.modulith.PackageInfo
 
 /**
  * Authentication Module Metadata
@@ -32,6 +33,7 @@ import org.springframework.modulith.ApplicationModule
  *
  * @since 1.0
  */
+@PackageInfo
 @ApplicationModule(
     displayName = "Authentication Module",
     allowedDependencies = ["shared :: events"]

@@ -1,3 +1,8 @@
+package com.nosilha.core.media
+
+import org.springframework.modulith.ApplicationModule
+import org.springframework.modulith.PackageInfo
+
 /**
  * Media Module
  *
@@ -27,8 +32,9 @@
  *
  * @since 1.0
  */
-@org.springframework.modulith.ApplicationModule(
+@PackageInfo
+@ApplicationModule(
     displayName = "Media Module",
-    allowedDependencies = {"shared :: api", "shared :: events"}
+    allowedDependencies = ["shared :: api", "shared :: events"]
 )
-package com.nosilha.core.media;
+class MediaModuleMetadata

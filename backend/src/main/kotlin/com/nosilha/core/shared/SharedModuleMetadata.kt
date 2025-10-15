@@ -1,3 +1,8 @@
+package com.nosilha.core.shared
+
+import org.springframework.modulith.ApplicationModule
+import org.springframework.modulith.PackageInfo
+
 /**
  * Shared Kernel Module
  *
@@ -29,9 +34,10 @@
  *
  * @since 1.0
  */
-@org.springframework.modulith.ApplicationModule(
+@PackageInfo
+@ApplicationModule(
     displayName = "Shared Kernel",
-    allowedDependencies = {},
-    type = org.springframework.modulith.ApplicationModule.Type.OPEN
+    allowedDependencies = [],
+    type = ApplicationModule.Type.OPEN
 )
-package com.nosilha.core.shared;
+class SharedModuleMetadata
