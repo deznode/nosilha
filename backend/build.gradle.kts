@@ -30,6 +30,7 @@ extra["testcontainersVersion"] = "1.21.3"
 extra["detektVersion"] = "1.23.8"
 extra["kotlinLogging"] = "7.0.3"
 extra["springdocOpenApiVersion"] = "2.8.9"
+extra["springModulithVersion"] = "1.2.5"
 
 dependencies {
 
@@ -55,6 +56,12 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
     implementation(platform("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}"))
+
+    // Spring Modulith dependencies
+    implementation("org.springframework.modulith:spring-modulith-starter-core:${property("springModulithVersion")}")
+    implementation("org.springframework.modulith:spring-modulith-starter-jpa:${property("springModulithVersion")}")
+    testImplementation("org.springframework.modulith:spring-modulith-starter-test:${property("springModulithVersion")}")
+
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -116,6 +123,17 @@ tasks.jacocoTestCoverageVerification {
                 minimum = "0.05".toBigDecimal()
             }
         }
+    }
+}
+
+// Spring Modulith documentation generation
+tasks.register("generateModulithDocs") {
+    group = "documentation"
+    description = "Generates Spring Modulith module documentation (PlantUML diagrams)"
+    dependsOn(tasks.test)
+    doLast {
+        println("Spring Modulith documentation will be generated during test execution")
+        println("See build/modulith/ for generated PlantUML diagrams")
     }
 }
 

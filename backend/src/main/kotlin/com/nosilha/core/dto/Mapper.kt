@@ -2,7 +2,12 @@ package com.nosilha.core.dto
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.nosilha.core.domain.*
+import com.nosilha.core.directory.domain.DirectoryEntry
+import com.nosilha.core.directory.domain.Restaurant
+import com.nosilha.core.directory.domain.Hotel
+import com.nosilha.core.directory.domain.Beach
+import com.nosilha.core.directory.domain.Landmark
+import com.nosilha.core.domain.Town
 
 /**
  * Maps a DirectoryEntry JPA entity to its corresponding public-facing DTO.
