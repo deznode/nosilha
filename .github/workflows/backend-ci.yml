@@ -118,6 +118,64 @@ jobs:
         env:
           SPRING_PROFILES_ACTIVE: test
 
+      # Generate Jacoco coverage report
+      - name: Generate coverage report
+        run: ./gradlew jacocoTestReport --no-daemon
+        env:
+          SPRING_PROFILES_ACTIVE: test
+
+      # Enforce 70% coverage threshold (FR-002)
+      - name: Verify coverage thresholds
+        run: |
+          echo "🎯 Verifying test coverage meets 70% threshold..."
+          ./gradlew jacocoTestCoverageVerification --no-daemon
+          echo "✅ Coverage threshold verification passed!"
+        env:
+          SPRING_PROFILES_ACTIVE: test
+
+      # Upload coverage reports
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: always()
+        with:
+          files: ./backend/build/reports/jacoco/test/jacocoTestReport.xml
+          flags: backend-unit
+          name: backend-unit-tests
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      # Verify Spring Modulith module boundaries (FR-004, FR-009)
+      - name: Verify Spring Modulith module boundaries
+        run: |
+          echo "🏗️  Verifying Spring Modulith module structure..."
+          ./gradlew test --tests "com.nosilha.core.ModularityTests" --no-daemon
+          echo "✅ Module boundary verification passed!"
+        env:
+          SPRING_PROFILES_ACTIVE: test
+
+      # Generate Spring Modulith documentation
+      - name: Generate Spring Modulith documentation
+        run: |
+          echo "📊 Generating Spring Modulith PlantUML diagrams..."
+          ./gradlew generateModulithDocs --no-daemon
+          if [ -d "build/modulith" ]; then
+            echo "✅ Module documentation generated successfully!"
+            ls -la build/modulith/
+          else
+            echo "⚠️  Module documentation directory not found"
+          fi
+        env:
+          SPRING_PROFILES_ACTIVE: test
+
+      # Upload Spring Modulith diagrams as artifacts
+      - name: Upload Spring Modulith diagrams
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: spring-modulith-diagrams
+          path: backend/build/modulith/
+          retention-days: 30
+
       - name: Report test results
         if: always()
         run: |
@@ -128,6 +186,9 @@ jobs:
             echo "❌ Backend CI failed - check logs above for details"
           else
             echo "✅ Backend CI completed successfully"
+            echo "✅ Coverage threshold met (>70%)"
+            echo "✅ Module boundaries verified"
+            echo "✅ PlantUML diagrams generated"
           fi
 
   # Note: Path-based triggering (on.push.paths) provides cost optimization
