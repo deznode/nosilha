@@ -197,99 +197,156 @@ frontend/
    - Interactive features: no-cache for real-time updates
 5. **Error Boundaries**: Graceful fallback to mock data when API fails
 
-### Backend Architecture (Spring Boot + Kotlin)
+### Backend Architecture (Spring Boot + Kotlin + Spring Modulith)
 
 ```
 backend/
-├── src/main/kotlin/com/nosilha/
-│   ├── core/
-│   │   ├── domain/                  # Domain entities
-│   │   │   ├── DirectoryEntry.kt    # Base entity (single-table inheritance)
-│   │   │   ├── Restaurant.kt        # Restaurant-specific fields
-│   │   │   ├── Hotel.kt            # Hotel-specific fields
-│   │   │   └── Landmark.kt         # Landmark-specific fields
-│   │   ├── dto/                    # Data transfer objects
-│   │   │   ├── DirectoryEntryDto.kt # API response format
-│   │   │   └── CreateEntryDto.kt   # API request format
-│   │   ├── repository/             # Data access layer
-│   │   │   ├── DirectoryEntryRepository.kt
-│   │   │   ├── RestaurantRepository.kt
-│   │   │   └── HotelRepository.kt
-│   │   ├── service/                # Business logic layer
-│   │   │   ├── DirectoryService.kt # CRUD operations
-│   │   │   ├── AuthService.kt      # JWT validation
-│   │   │   ├── MediaService.kt     # GCS operations
-│   │   │   └── AIService.kt        # Vision API integration
-│   │   └── controller/             # Web layer
-│   │       ├── DirectoryController.kt # REST endpoints
-│   │       ├── AuthController.kt   # Authentication endpoints
-│   │       └── MediaController.kt  # File upload endpoints
-│   ├── config/                     # Configuration classes
-│   │   ├── SecurityConfig.kt       # JWT security configuration
-│   │   ├── CorsConfig.kt          # Cross-origin request setup
-│   │   └── GcpConfig.kt           # Google Cloud configuration
-│   └── NosilhaApplication.kt       # Spring Boot main class
+├── src/main/kotlin/com/nosilha/core/
+│   ├── shared/                     # Shared Kernel (Foundation Layer)
+│   │   ├── PackageInfo.kt         # Module API declaration
+│   │   ├── domain/                # Shared domain primitives
+│   │   │   └── AuditableEntity.kt # Base entity with audit fields
+│   │   ├── events/                # Event infrastructure
+│   │   │   ├── DomainEvent.kt    # Base domain event interface
+│   │   │   └── ApplicationModuleEvent.kt  # Module event base
+│   │   ├── api/                   # Shared API components
+│   │   ├── config/                # Shared configuration
+│   │   └── exception/             # Exception handling
+│   │
+│   ├── auth/                      # Authentication Module
+│   │   ├── PackageInfo.kt        # Module API declaration
+│   │   ├── api/                  # Public REST endpoints
+│   │   │   └── AuthController.kt # Login, logout endpoints
+│   │   ├── security/             # Security components
+│   │   │   ├── JwtAuthenticationFilter.kt
+│   │   │   └── SecurityConfig.kt
+│   │   ├── domain/               # Auth business logic
+│   │   │   ├── JwtAuthenticationService.kt
+│   │   │   └── UserService.kt
+│   │   └── events/               # Auth domain events
+│   │       ├── UserLoggedInEvent.kt
+│   │       └── UserLoggedOutEvent.kt
+│   │
+│   ├── directory/                # Directory Management Module
+│   │   ├── PackageInfo.kt       # Module API declaration
+│   │   ├── api/                 # Public REST endpoints
+│   │   │   └── DirectoryController.kt  # CRUD endpoints
+│   │   ├── domain/              # Directory business logic
+│   │   │   ├── DirectoryEntry.kt    # Base entity (STI pattern)
+│   │   │   ├── Restaurant.kt        # Restaurant subclass
+│   │   │   ├── Hotel.kt            # Hotel subclass
+│   │   │   ├── Landmark.kt         # Landmark subclass
+│   │   │   ├── Beach.kt            # Beach subclass
+│   │   │   └── DirectoryService.kt # Business logic
+│   │   ├── repository/          # Data access layer
+│   │   │   └── DirectoryEntryRepository.kt
+│   │   └── events/              # Directory domain events
+│   │       ├── DirectoryEntryCreatedEvent.kt
+│   │       ├── DirectoryEntryUpdatedEvent.kt
+│   │       └── DirectoryEntryDeletedEvent.kt
+│   │
+│   ├── media/                   # Media Processing Module
+│   │   ├── PackageInfo.kt      # Module API declaration
+│   │   ├── api/                # Public REST endpoints
+│   │   │   └── MediaController.kt  # File upload endpoints
+│   │   ├── config/             # Media-specific configuration
+│   │   ├── domain/             # Media business logic
+│   │   │   └── MediaService.kt # GCS, Vision API integration
+│   │   ├── repository/         # Data access layer
+│   │   │   └── FirestoreMediaRepository.kt
+│   │   └── events/             # Media domain events
+│   │       ├── MediaUploadedEvent.kt
+│   │       └── MediaProcessedEvent.kt
+│   │
+│   └── NosIlhaCoreApplication.kt  # Spring Boot main class
+│
 ├── src/main/resources/
 │   ├── application.yml             # Production configuration
 │   ├── application-local.yml       # Development configuration
 │   └── db/migration/               # Flyway database migrations
-│       └── V1__Create_directory_entries.sql
+│       ├── V1__create_directory_entries_table.sql
+│       ├── V2__add_audit_columns.sql
+│       └── V3__add_spring_modulith_event_publication.sql
 └── build.gradle.kts                # Build configuration
 ```
 
 **Key Architectural Decisions:**
 
-1. **Single Table Inheritance**: All directory entries in one table with discriminator column
-2. **Clean Architecture**: Clear separation between controllers, services, and repositories
-3. **Domain-Driven Design**: Rich domain models with behavior, not just data
-4. **JWT Authentication**: Stateless authentication with Supabase token validation
-5. **Actuator Integration**: Health checks and metrics for production monitoring
+1. **Spring Modulith Architecture**: Modular monolith with enforced module boundaries and event-driven communication
+2. **Single Table Inheritance**: All directory entries in one table with discriminator column (Directory module)
+3. **Event-Driven Communication**: Modules communicate via `@ApplicationModuleListener` without direct dependencies
+4. **Module Isolation**: Each module (auth, directory, media) has independent domain, API, and repository layers
+5. **Shared Kernel**: Common infrastructure (AuditableEntity, events, exceptions) in dedicated shared module
+6. **JWT Authentication**: Stateless authentication with Supabase token validation (Auth module)
+7. **Actuator Integration**: Health checks and metrics for production monitoring
 
-#### Backend Service Layer Diagram
+#### Backend Module Architecture Diagram (Spring Modulith)
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Backend API (Spring Boot)                   │
-├─────────────────────────────────────────────────────────────────┤
-│  Controllers (Web Layer)                                        │
-│  ├─ DirectoryController.kt (/api/v1/directory/*)               │
-│  ├─ AuthController.kt      (/api/v1/auth/*)                    │
-│  └─ MediaController.kt     (/api/v1/media/*)                   │
-├─────────────────────────────────────────────────────────────────┤
-│  Services (Business Logic)                                      │
-│  ├─ DirectoryService.kt    (CRUD operations)                   │
-│  ├─ AuthService.kt         (JWT validation)                    │
-│  ├─ MediaService.kt        (GCS operations)                    │
-│  └─ AIService.kt           (Vision API integration)            │
-├─────────────────────────────────────────────────────────────────┤
-│  Repositories (Data Access)                                     │
-│  ├─ DirectoryEntryRepository.kt                                 │
-│  ├─ RestaurantRepository.kt                                     │
-│  └─ HotelRepository.kt                                          │
-├─────────────────────────────────────────────────────────────────┤
-│  Domain Entities                                                │
-│  ├─ DirectoryEntry.kt (Base class)                             │
-│  ├─ Restaurant.kt (@DiscriminatorValue("RESTAURANT"))           │
-│  ├─ Hotel.kt (@DiscriminatorValue("HOTEL"))                     │
-│  └─ Landmark.kt (@DiscriminatorValue("LANDMARK"))               │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     PostgreSQL Database                        │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │             directory_entries table                     │   │
-│  │  ┌─────────┬──────────┬──────────┬─────────────────┐   │   │
-│  │  │   id    │   name   │category  │ type-specific   │   │   │
-│  │  │ (UUID)  │ (string) │(ENUM)    │    fields       │   │   │
-│  │  ├─────────┼──────────┼──────────┼─────────────────┤   │   │
-│  │  │abc-123  │Casa Nova │RESTAURANT│cuisine, hours   │   │   │
-│  │  │def-456  │Hotel Mar │HOTEL     │amenities        │   │   │
-│  │  │ghi-789  │Lighthouse│LANDMARK  │historical_info  │   │   │
-│  │  └─────────┴──────────┴──────────┴─────────────────┘   │   │
-│  └─────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│               Backend API (Spring Boot + Spring Modulith)                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │  Shared Kernel (com.nosilha.core.shared)                          │    │
+│  │  ├─ domain/AuditableEntity.kt                                     │    │
+│  │  ├─ events/ApplicationModuleEvent.kt                              │    │
+│  │  ├─ api/ (shared API components)                                  │    │
+│  │  └─ exception/ (global exception handling)                        │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                         ▲           ▲           ▲                           │
+│                         │           │           │                           │
+│        ┌────────────────┘           │           └────────────────┐          │
+│        │                            │                            │          │
+│  ┌─────┴─────────┐       ┌──────────┴─────────┐       ┌─────────┴─────┐    │
+│  │ Auth Module   │       │ Directory Module   │       │ Media Module  │    │
+│  │ (auth)        │       │ (directory)        │       │ (media)       │    │
+│  ├───────────────┤       ├────────────────────┤       ├───────────────┤    │
+│  │ API:          │       │ API:               │       │ API:          │    │
+│  │ • AuthController│     │ • DirectoryController│     │ • MediaController│  │
+│  ├───────────────┤       ├────────────────────┤       ├───────────────┤    │
+│  │ Domain:       │       │ Domain:            │       │ Domain:       │    │
+│  │ • UserService │       │ • DirectoryService │       │ • MediaService│    │
+│  │ • JwtAuth     │       │ • DirectoryEntry   │       │               │    │
+│  │   Service     │       │ • Restaurant       │       │               │    │
+│  ├───────────────┤       │ • Hotel, etc.      │       ├───────────────┤    │
+│  │ Security:     │       ├────────────────────┤       │ Repository:   │    │
+│  │ • JwtFilter   │       │ Repository:        │       │ • FirestoreRepo│   │
+│  │ • SecurityCfg │       │ • DirectoryRepo    │       ├───────────────┤    │
+│  ├───────────────┤       ├────────────────────┤       │ Events:       │    │
+│  │ Events:       │       │ Events:            │       │ • MediaUploaded│   │
+│  │ • UserLoggedIn│       │ • EntryCreated ────┼──────►│ • MediaProcessed│ │
+│  └───────────────┘       │ • EntryUpdated     │       └───────────────┘    │
+│                          │ • EntryDeleted     │                            │
+│                          └────────────────────┘                            │
+│                                     │                                       │
+└─────────────────────────────────────┼───────────────────────────────────────┘
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            PostgreSQL Database                              │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │  directory_entries (Single Table Inheritance)                         │  │
+│  │  ┌─────────┬──────────┬────────────┬─────────────────┐               │  │
+│  │  │   id    │   name   │entry_type  │ type-specific   │               │  │
+│  │  │ (UUID)  │ (string) │(discriminator)│    fields    │               │  │
+│  │  ├─────────┼──────────┼────────────┼─────────────────┤               │  │
+│  │  │abc-123  │Casa Nova │RESTAURANT  │cuisine, hours   │               │  │
+│  │  │def-456  │Hotel Mar │HOTEL       │amenities        │               │  │
+│  │  │ghi-789  │Lighthouse│LANDMARK    │historical_info  │               │  │
+│  │  └─────────┴──────────┴────────────┴─────────────────┘               │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │  event_publication (Spring Modulith Event Store)                      │  │
+│  │  Tracks published events for event replay and debugging               │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+**Module Communication:**
+- ✅ **Event-Driven**: Modules communicate via `@ApplicationModuleListener` (e.g., `MediaService` listens to `DirectoryEntryCreatedEvent`)
+- ✅ **No Direct Dependencies**: Modules never import services from other modules
+- ✅ **Enforced Boundaries**: `ModularityTests` verify zero circular dependencies
+- ✅ **Public API Only**: Controllers and events are public; services and repositories are internal
 
 ### Database Schema Design
 

@@ -101,16 +101,18 @@ docker-compose exec postgres pg_dump -U nosilha nosilha_db > backup.sql  # Creat
 
 ## Key Architecture Patterns
 
-### Backend (Spring Boot + Kotlin)
-- **Domain-Driven Design**: Domain entities, DTOs, and services are clearly separated
-- **Single Table Inheritance**: `DirectoryEntry` is the base class for `Restaurant`, `Hotel`, `Landmark`, etc.
-- **Clean Architecture**: Controllers are lightweight and return DTOs; business logic lives in services
+### Backend (Spring Boot + Kotlin + Spring Modulith)
+- **Spring Modulith Architecture**: Modular monolith with enforced module boundaries (`shared`, `auth`, `directory`, `media`)
+- **Event-Driven Communication**: Modules communicate via `@ApplicationModuleListener` without direct dependencies
+- **Module Isolation**: Each module has independent domain, API, and repository layers with verified boundaries
+- **Single Table Inheritance**: `DirectoryEntry` is the base class for `Restaurant`, `Hotel`, `Landmark`, etc. (Directory module)
+- **Clean Architecture**: Controllers (public API), services (internal business logic), repositories (internal data access)
 - **API Versioning**: All REST endpoints are prefixed with `/api/v1/`
-- **Authentication**: JWT-based authentication with Supabase token validation
+- **Authentication**: JWT-based authentication with Supabase token validation (Auth module)
 - **Database Strategy**: PostgreSQL primary with Flyway migrations, connection pooling via HikariCP
 - **Security**: CORS configuration, input validation, and role-based access control
 
-> **Detailed Architecture**: See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for complete backend service layer diagrams, file structure, and implementation patterns.
+> **Detailed Architecture**: See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for complete backend module diagrams, file structure, and Spring Modulith patterns. See [`docs/SPRING_MODULITH.md`](docs/SPRING_MODULITH.md) for module architecture and event-driven communication patterns.
 
 ### Frontend (Next.js App Router)
 - **Route Groups**: Uses parentheses for logical organization `(auth)`, `(main)`, `(admin)` without affecting URLs

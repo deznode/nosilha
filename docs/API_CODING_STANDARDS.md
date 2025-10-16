@@ -1464,58 +1464,83 @@ class GlobalExceptionHandler(
 
 ## 11. Code Organization & Development Guidelines
 
-### 11.1 Package Structure
+### 11.1 Package Structure (Spring Modulith Architecture)
+
+**Note**: This project follows Spring Modulith modular architecture with enforced module boundaries. See [`SPRING_MODULITH.md`](SPRING_MODULITH.md) for comprehensive module documentation.
 
 ```
 com.nosilha.core/
-├── config/                    # Configuration classes
-│   ├── SecurityConfig.kt
-│   ├── JpaAuditingConfig.kt
-│   ├── InternationalizationConfig.kt
-│   └── PersistenceConfig.kt
-├── controller/                # REST controllers
-│   ├── DirectoryEntryController.kt
-│   ├── TownController.kt
-│   └── FileUploadController.kt
-├── service/                   # Business logic layer
-│   ├── DirectoryEntryService.kt
-│   ├── TownService.kt
-│   └── FileStorageService.kt
-├── repository/                # Data access layer
-│   ├── jpa/
-│   │   ├── DirectoryEntryRepository.kt
-│   │   └── TownRepository.kt
-│   └── firestore/
-│       └── ImageMetadataRepository.kt
-├── domain/                    # Entity classes
-│   ├── DirectoryEntry.kt
-│   ├── Restaurant.kt
-│   ├── Hotel.kt
-│   ├── Beach.kt
-│   ├── Landmark.kt
-│   ├── Town.kt
-│   └── ImageMetadata.kt
-├── dto/                       # Data transfer objects
-│   ├── request/
-│   │   ├── CreateEntryRequestDto.kt
-│   │   └── CreateTownRequestDto.kt
-│   ├── response/
-│   │   ├── DirectoryEntryDto.kt
-│   │   ├── RestaurantDto.kt
-│   │   └── TownDto.kt
-│   ├── ApiResponse.kt
-│   └── Mapper.kt
-├── exception/                 # Exception classes
-│   ├── GlobalExceptionHandler.kt
-│   ├── ResourceNotFoundException.kt
-│   └── BusinessException.kt
-├── security/                  # Security components
-│   ├── JwtAuthenticationFilter.kt
-│   └── SecurityService.kt
-└── validation/                # Custom validation
-    ├── UniqueSlugValidator.kt
-    └── CoordinatesValidator.kt
+├── shared/                              # Shared Kernel Module
+│   ├── PackageInfo.kt                  # Module API declaration
+│   ├── domain/                         # Shared domain infrastructure
+│   │   ├── PackageInfo.kt             # Public API marker
+│   │   └── AuditableEntity.kt         # Base entity with audit fields
+│   ├── events/                         # Event infrastructure
+│   │   ├── PackageInfo.kt             # Public API marker
+│   │   ├── DomainEvent.kt             # Base domain event interface
+│   │   └── ApplicationModuleEvent.kt  # Module event base
+│   ├── api/                            # Shared API components
+│   │   └── PackageInfo.kt             # Public API marker
+│   ├── config/                         # Shared configuration
+│   │   └── PackageInfo.kt             # Public API marker
+│   └── exception/                      # Global exception handling
+│       ├── PackageInfo.kt             # Public API marker
+│       ├── GlobalExceptionHandler.kt
+│       ├── ResourceNotFoundException.kt
+│       └── BusinessException.kt
+│
+├── auth/                                # Authentication Module
+│   ├── PackageInfo.kt                  # Module API declaration
+│   ├── api/                            # Public REST endpoints
+│   │   └── AuthController.kt          # Login, logout, token refresh
+│   ├── security/                       # Security components (internal)
+│   │   ├── JwtAuthenticationFilter.kt
+│   │   └── SecurityConfig.kt
+│   ├── domain/                         # Auth business logic (internal)
+│   │   ├── JwtAuthenticationService.kt
+│   │   └── UserService.kt
+│   └── events/                         # Auth domain events (public)
+│       ├── UserLoggedInEvent.kt
+│       └── UserLoggedOutEvent.kt
+│
+├── directory/                           # Directory Management Module
+│   ├── PackageInfo.kt                  # Module API declaration
+│   ├── api/                            # Public REST endpoints
+│   │   └── DirectoryController.kt     # /api/v1/directory/* endpoints
+│   ├── domain/                         # Directory business logic (internal)
+│   │   ├── DirectoryEntry.kt          # Base entity (STI pattern)
+│   │   ├── Restaurant.kt              # Restaurant subclass
+│   │   ├── Hotel.kt                   # Hotel subclass
+│   │   ├── Landmark.kt                # Landmark subclass
+│   │   ├── Beach.kt                   # Beach subclass
+│   │   └── DirectoryService.kt        # Business logic & event publishing
+│   ├── repository/                     # Data access layer (internal)
+│   │   └── DirectoryEntryRepository.kt # JPA repository
+│   └── events/                         # Directory domain events (public)
+│       ├── DirectoryEntryCreatedEvent.kt
+│       ├── DirectoryEntryUpdatedEvent.kt
+│       └── DirectoryEntryDeletedEvent.kt
+│
+└── media/                               # Media Processing Module
+    ├── PackageInfo.kt                  # Module API declaration
+    ├── api/                            # Public REST endpoints
+    │   └── MediaController.kt          # File upload endpoints
+    ├── config/                         # Media-specific configuration (internal)
+    ├── domain/                         # Media business logic (internal)
+    │   └── MediaService.kt             # GCS, Vision API, event listeners
+    ├── repository/                     # Data access layer (internal)
+    │   └── FirestoreMediaRepository.kt # Metadata storage
+    └── events/                         # Media domain events (public)
+        ├── MediaUploadedEvent.kt
+        └── MediaProcessedEvent.kt
 ```
+
+**Key Module Rules:**
+- ✅ **Shared Kernel**: Foundation layer providing common infrastructure (events, audit, exceptions)
+- ✅ **Module Independence**: Each module (`auth`, `directory`, `media`) has isolated domain/repository layers
+- ✅ **Event-Driven Communication**: Modules communicate via `@ApplicationModuleListener` without direct dependencies
+- ✅ **Public API**: Only `api/` (controllers) and `events/` are public; domain/repository/config are internal
+- ✅ **Verification**: `ModularityTests.kt` enforces zero circular dependencies in CI/CD
 
 ### 11.2 Naming Conventions
 
