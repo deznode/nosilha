@@ -429,7 +429,7 @@ export default function HistoryPage() {
               </div>
               <div className="relative aspect-video w-full">
                 <ImageWithCourtesy
-                  src="/images/history/whaling-heritage3.webp"
+                  src="/images/history/whaling-heritage3.jpg"
                   alt="Historic whaling vessel representing the maritime connection between Brava and New England"
                   fill
                   className="rounded-lg object-cover object-top"

@@ -3,21 +3,18 @@
 import {
   createContext,
   useContext,
-  useState,
   useEffect,
   ReactNode,
 } from "react";
 import { supabase } from "@/lib/supabase-client";
 import type { Session } from "@supabase/supabase-js";
+import { useAuthStore } from "@/stores/authStore";
+import type { AuthUser } from "@/schemas/userProfileSchema";
 
-// 1. Define the context type
+// 1. Define the context type (now using store values)
 type AuthContextType = {
   session: Session | null;
-  user: {
-    id: string;
-    email: string | undefined;
-    role?: string;
-  } | null;
+  user: AuthUser | null;
   loading: boolean;
 };
 
@@ -38,15 +35,27 @@ function extractUserRole(session: Session | null): string | undefined {
   }
 }
 
+// Helper to create AuthUser from Session
+function createAuthUser(session: Session | null): AuthUser | null {
+  if (!session) return null;
+
+  return {
+    id: session.user.id,
+    email: session.user.email,
+    role: extractUserRole(session),
+  };
+}
+
 // 3. Create the AuthProvider component
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, session, isLoading, setUser, setSession, setLoading } =
+    useAuthStore();
 
   useEffect(() => {
     // Fetch the initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      setUser(createAuthUser(session));
       setLoading(false);
     });
 
@@ -55,26 +64,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      setUser(createAuthUser(session));
     });
 
     // 5. Unsubscribe from the listener on cleanup
     return () => {
       subscription?.unsubscribe();
     };
-  }, []);
+  }, [setUser, setSession, setLoading]);
 
-  // Create user object with role information
-  const user = session
-    ? {
-        id: session.user.id,
-        email: session.user.email,
-        role: extractUserRole(session),
-      }
-    : null;
-
-  // While the initial session is loading, you might want to show a loader
-  // or return null to prevent layout shifts. For this example, we proceed.
-  const value = { session, user, loading };
+  // Provide context value from store
+  const value = { session, user, loading: isLoading };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

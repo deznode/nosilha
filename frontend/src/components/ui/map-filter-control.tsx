@@ -2,18 +2,22 @@
 
 import { Checkbox } from "@/components/catalyst-ui/checkbox";
 import { Field, Label } from "@/components/catalyst-ui/fieldset";
+import { useSelectedCategories, useFilterStore } from "@/stores/filterStore";
 
 interface MapFilterControlProps {
   categories: string[];
-  selectedCategories: string[];
-  onFilterChange: (category: string, isChecked: boolean) => void;
 }
 
-export function MapFilterControl({
-  categories,
-  selectedCategories,
-  onFilterChange,
-}: MapFilterControlProps) {
+/**
+ * MapFilterControl component for filtering map markers by category.
+ * Uses Zustand filterStore for state management (eliminates prop drilling).
+ *
+ * Phase 2 Migration (T051): Migrated from prop drilling to filterStore.
+ */
+export function MapFilterControl({ categories }: MapFilterControlProps) {
+  const selectedCategories = useSelectedCategories();
+  const toggleCategory = useFilterStore((state) => state.toggleCategory);
+
   return (
     <div className="bg-background-primary/80 border-border-primary rounded-lg border p-4 shadow-lg backdrop-blur-sm">
       <fieldset>
@@ -28,8 +32,7 @@ export function MapFilterControl({
                 name="category-filter"
                 value={category}
                 checked={selectedCategories.includes(category)}
-                // CORRECTED: The 'onChange' handler now directly receives the boolean 'checked' state.
-                onChange={(checked) => onFilterChange(category, checked)}
+                onChange={(checked) => toggleCategory(category, checked)}
                 className="border-border-primary text-ocean-blue focus:ring-ocean-blue h-4 w-4 rounded"
               />
               <Label

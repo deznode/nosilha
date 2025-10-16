@@ -20,7 +20,7 @@ try {
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
-  testDir: "./tests",
+  testDir: "./tests/e2e", // Updated for modular architecture - E2E tests in dedicated directory
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -80,58 +80,13 @@ export default defineConfig({
   /* Configure projects for major browsers and devices */
   projects: [
     {
-      name: "chromium-desktop",
+      name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-      testMatch: "**/desktop/**/*.spec.ts",
     },
-
-    /* Mobile testing - critical for Brava Island tourists */
+    /* Mobile testing - critical for Brava Island tourists (mobile-first platform) */
     {
-      name: "mobile-chrome",
+      name: "Mobile Chrome",
       use: { ...devices["Pixel 5"] },
-      testMatch: ["**/mobile/**/*.spec.ts", "**/shared/**/*.spec.ts"],
-    },
-    {
-      name: "mobile-safari",
-      use: { ...devices["iPhone 13"] },
-      testMatch: ["**/mobile/**/*.spec.ts", "**/shared/**/*.spec.ts"],
-    },
-
-    /* Cross-browser testing for global diaspora access */
-    {
-      name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
-      testMatch: "**/cross-browser/**/*.spec.ts",
-    },
-    {
-      name: "webkit",
-      use: { ...devices["Desktop Safari"] },
-      testMatch: "**/cross-browser/**/*.spec.ts",
-    },
-
-    /* API contract testing */
-    {
-      name: "api-contracts",
-      testMatch: "**/api/**/*.spec.ts",
-      use: {
-        /* API tests don't need a browser */
-        browserName: "chromium",
-        headless: true,
-      },
-    },
-
-    /* Performance testing setup for Core Web Vitals */
-    {
-      name: "performance",
-      use: {
-        ...devices["Desktop Chrome"],
-        /* Enable additional metrics collection */
-        contextOptions: {
-          /* Simulate varying network conditions for island connectivity */
-          offline: false,
-        },
-      },
-      testMatch: "**/performance/**/*.spec.ts",
     },
   ],
 

@@ -5,6 +5,8 @@ import clsx from "clsx";
 import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { QueryProvider } from "@/components/providers/query-provider";
+import Banner from "@/components/ui/banner";
 import {
   siteConfig,
   generateOrganizationSchema,
@@ -130,14 +132,24 @@ export default function RootLayout({
           merriweather.variable
         )}
       >
-        <AuthProvider>
-          <div className="flex min-h-screen flex-col">
-            {/* 3. Render the global Header, main content, and Footer */}
-            <Header />
-            <main className="animate-fade-in flex-grow">{children}</main>
-            <Footer />
-          </div>
-        </AuthProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <div className="flex min-h-screen flex-col">
+              {/* 3. Render the global Header, main content, and Footer */}
+              <Header />
+              {/* Cape Verde World Cup 2026 Celebration Banner - Below Header */}
+              <div className="sticky top-16 z-50">
+                <Banner
+                  title="Tubarões Azuis: Mundial 2026!"
+                  message="From Brockton to Brava, Boston to Praia - the Blue Sharks made history. Read the inside story of Cape Verde's impossible dream."
+                  linkUrl="https://www.bbc.com/sport/football/articles/c04q0gd0yedo"
+                />
+              </div>
+              <main className="animate-fade-in flex-grow">{children}</main>
+              <Footer />
+            </div>
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   );

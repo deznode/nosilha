@@ -1,29 +1,30 @@
 
-# Nos Ilha - Brava Island Cultural & Tourism Directory
+# Nos Ilha - Brava Island Cultural Heritage Hub
 
-**nosilha.com** is a community-driven online tourism and cultural heritage hub for Brava Island, Cape Verde. This open-source, volunteer-supported project aims to provide a comprehensive digital experience that connects international tourists, local residents, business owners, and the global Cape Verdean diaspora to the heart of Brava.
+**nosilha.com** is a community-driven cultural heritage hub for Brava Island, Cape Verde. This open-source, volunteer-supported project aims to preserve and celebrate the island's rich cultural memory while providing a comprehensive digital experience that connects the global Cape Verdean diaspora, local residents, business owners, and international visitors to the heart of Brava.
 
-As a community-supported initiative with limited resources, the platform focuses on showcasing the island's unique landmarks, vibrant businesses, rich history, and living culture through a modern and accessible web application.
+As a community-supported initiative, the platform focuses on showcasing the island's rich history, living culture, unique landmarks, and vibrant community through a modern and accessible web application.
 
 ## 🎯 Project Goal
 
-To create a community-maintained, authoritative online resource for Brava that promotes sustainable tourism, preserves cultural memory, and fosters economic opportunity for the local community through volunteer contributions and collaborative development.
+To create a community-maintained, authoritative online resource for Brava that preserves cultural memory, celebrates the island's heritage, and connects the global diaspora to their roots, while supporting sustainable tourism and economic opportunity for the local community through volunteer contributions and collaborative development.
 
 ## 👥 Target Audience
 
-  * **International Tourists:** Travelers seeking authentic experiences, planning trips, and looking for reliable information on accommodations, dining, and activities.
-  * **Local Residents:** Community members looking for a centralized directory of local services and a platform to celebrate their shared heritage.
-  * **Business Owners:** Local entrepreneurs who need a modern platform to market their services to a global audience.
-  * **Cape Verdean Diaspora:** Members of the diaspora community seeking to reconnect with their roots, explore their heritage, and stay informed about life on Brava.
+  * **Cape Verdean Diaspora:** Members of the diaspora community seeking to reconnect with their roots, explore their cultural heritage, and stay informed about life on Brava.
+  * **Local Residents:** Community members looking for a centralized platform to celebrate their shared heritage and directory of local services.
+  * **Cultural Researchers & Historians:** Scholars and enthusiasts studying Cape Verdean history, culture, and traditions.
+  * **International Visitors:** Travelers seeking authentic cultural experiences, planning trips, and looking for reliable information on the island's heritage sites, accommodations, and local businesses.
 
 ## ✨ Core Features
 
-  * **Comprehensive Directory:** A curated database of businesses, services, and points of interest, organized by categories like `Restaurants`, `Lodging`, `Artisans`, and `Services`.
-  * **Interactive Maps:** A multi-layered, responsive map built with Mapbox, featuring custom markers for landmarks, businesses, and historical sites with rich interactivity and beautiful styling.
-  * **Rich Media Galleries:** Stunning photo and video galleries showcasing Brava's landscapes, people, and culture, with AI-enhanced organization.
-  * **Town & Historical Pages:** Detailed pages for each town (`Vila Nova Sintra`, `Furna`, `Nossa Senhora do Monte`, etc.) and significant historical figures or events.
-  * **AI-Enhanced Discovery:** Automated media tagging, location inference from photos, OCR for historical documents, and facial/landmark recognition to make content more searchable and accessible.
-  * **Multilingual Support:** Full content translation and localization for English, Portuguese, and French to serve a global audience.
+  * **Cultural Heritage Archive:** Rich documentation of Brava's history, traditions, and cultural practices, featuring significant historical figures, events, and community stories.
+  * **Town & Historical Pages:** Detailed pages for each town (`Vila Nova Sintra`, `Furna`, `Nossa Senhora do Monte`, etc.) with historical context and cultural significance.
+  * **Rich Media Galleries:** Stunning photo and video galleries showcasing Brava's landscapes, people, and culture, with AI-enhanced organization for preservation and discovery.
+  * **Interactive Heritage Maps:** Multi-layered, responsive maps built with Mapbox, featuring custom markers for landmarks, historical sites, and cultural points of interest with rich storytelling.
+  * **Community Directory:** A curated database of local businesses, artisans, and services that contribute to Brava's cultural and economic vitality.
+  * **AI-Enhanced Discovery:** Automated media tagging, location inference from photos, OCR for historical documents, and landmark recognition to preserve and make cultural content more searchable and accessible.
+  * **Multilingual Support:** Full content translation and localization for English, Portuguese, and French to serve the global Cape Verdean community.
 
 ## 💻 Technology Stack
 
@@ -113,6 +114,29 @@ This project adheres to clean architecture principles to ensure separation of co
   * **Accessibility (a11y):** We adhere to WCAG guidelines to ensure the platform is usable by everyone.
   * **Security:** Comprehensive security scanning, least-privilege IAM, and encrypted secrets management.
   * **GDPR Compliance:** User data privacy is paramount. AI features involving facial recognition will have strict privacy controls and consent mechanisms.
+
+## ✅ Modern Architecture & Implementation
+
+The Nos Ilha platform has been built with a sophisticated, production-ready architecture that prioritizes scalability, maintainability, and developer experience:
+
+### Backend Modularity
+  * **Spring Modulith Architecture:** Fully modular backend with enforced module boundaries (`shared`, `auth`, `directory`, `media`), event-driven communication, and verified zero circular dependencies. See [`docs/SPRING_MODULITH.md`](docs/SPRING_MODULITH.md) for comprehensive module architecture guide.
+
+### Frontend State Management
+  * **Zustand:** Lightweight client state management with persistence middleware and Redux DevTools integration for UI preferences, authentication, and filter state.
+  * **TanStack Query:** Server state management with automatic caching, background refetching, optimistic updates, and cache invalidation for directory entries, user profiles, and media metadata.
+  * **Zod:** TypeScript-first schema validation enabling runtime type safety for forms (React Hook Form integration), API responses, and data parsing across the platform.
+
+  See [`docs/STATE_MANAGEMENT.md`](docs/STATE_MANAGEMENT.md) for detailed patterns, integration examples, and best practices.
+
+### Testing Infrastructure
+  * **Playwright:** Comprehensive E2E testing with 6 critical user flows, mobile viewport testing, and <5-minute execution time target. Includes Playwright MCP server for browser automation.
+  * **Vitest:** Fast unit testing with jsdom environment, >70% coverage threshold enforcement, and Testing Library integration for components and hooks.
+  * **Storybook:** Living component documentation with 20+ components, accessibility testing (addon-a11y), and visual testing for design system consistency.
+
+  See [`docs/TESTING.md`](docs/TESTING.md) for complete testing guide, patterns, and CI/CD integration.
+
+This modern architecture demonstrates the project's commitment to engineering excellence while serving the cultural heritage preservation mission at its core.
 
 ## 🚀 Getting Started
 

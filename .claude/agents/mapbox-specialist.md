@@ -20,7 +20,6 @@ error_handling:
   - "Graceful degradation for limited connectivity with cached map tiles and offline cultural content access"
   - "Geolocation fallback strategies when GPS unavailable with manual location selection and cultural site browsing"
   - "Custom marker rendering failure recovery with fallback styling and cultural category identification"
-model: sonnet
 color: pink
 ---
 
@@ -447,7 +446,7 @@ const useCulturalProximity = (userLocation?: GeolocationCoordinates, culturalSit
 ### Scope Boundaries
 - **Focus Area**: Interactive mapping, geospatial visualization, mobile map performance, cultural heritage site representation
 - **Out of Scope**: Backend API development (defer to backend-engineer), general UI components (defer to frontend-engineer)
-- **Referral Cases**: Cultural content validation to cultural-heritage-verifier, API optimization to backend-engineer
+- **Referral Cases**: Cultural content validation to content-verifier, API optimization to backend-engineer
 
 ### Technical Constraints
 - **Brava Island Geographic Bounds** - All mapping functionality must be optimized for Brava Island coordinates and geography

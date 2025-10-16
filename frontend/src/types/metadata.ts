@@ -49,6 +49,7 @@ export interface TwitterCardData {
 export type StructuredData =
   | TouristAttractionSchema
   | TouristDestinationSchema
+  | PlaceSchema
   | LocalBusinessSchema
   | LodgingBusinessSchema
   | RestaurantSchema
@@ -97,6 +98,24 @@ export interface TouristDestinationSchema extends BaseSchema {
   };
   includesAttraction?: TouristAttractionSchema[];
   touristType?: string[];
+}
+
+export interface PlaceSchema extends BaseSchema {
+  "@type": "Place";
+  additionalType?: string;
+  name: string;
+  description: string;
+  image: string[];
+  address: {
+    "@type": "PostalAddress";
+    addressCountry: "CV";
+    addressLocality: string;
+  };
+  geo: {
+    "@type": "GeoCoordinates";
+    latitude: number;
+    longitude: number;
+  };
 }
 
 export interface LocalBusinessSchema extends BaseSchema {

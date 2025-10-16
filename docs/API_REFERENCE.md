@@ -485,7 +485,7 @@ GET /actuator/info
   "app": {
     "name": "Nos Ilha API",
     "version": "1.0.0",
-    "description": "Tourism and cultural heritage platform for Brava Island"
+    "description": "Cultural heritage hub for Brava Island, Cape Verde"
   },
   "build": {
     "time": "2024-01-15T10:00:00.000Z",

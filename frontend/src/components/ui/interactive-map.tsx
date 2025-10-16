@@ -16,6 +16,7 @@ import type { DirectoryEntry } from "@/types/directory";
 import { getEntriesForMap } from "@/lib/api";
 import { CategoryMarkerIcon } from "./category-marker-icon";
 import { MapFilterControl } from "./map-filter-control";
+import { useSelectedCategories } from "@/stores/filterStore";
 
 const ALL_CATEGORIES = ["Restaurant", "Hotel", "Beach", "Landmark"];
 
@@ -40,13 +41,16 @@ function isClusterFeature(
   return !!(feature.properties as { cluster?: boolean }).cluster;
 }
 
+/**
+ * InteractiveMap component displays directory entries on a Mapbox map with clustering.
+ * Phase 2 Migration: Uses filterStore for category filtering (eliminates prop drilling).
+ */
 export function InteractiveMap() {
   const [entries, setEntries] = useState<DirectoryEntry[]>([]);
   const [selectedEntry, setSelectedEntry] = useState<DirectoryEntry | null>(
     null
   );
-  const [selectedCategories, setSelectedCategories] =
-    useState<string[]>(ALL_CATEGORIES);
+  const selectedCategories = useSelectedCategories();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -70,12 +74,6 @@ export function InteractiveMap() {
 
   const handleRetry = () => {
     fetchEntries().catch(console.error);
-  };
-
-  const handleFilterChange = (category: string, isChecked: boolean) => {
-    setSelectedCategories((prev) =>
-      isChecked ? [...prev, category] : prev.filter((c) => c !== category)
-    );
   };
 
   useEffect(() => {
@@ -248,11 +246,7 @@ export function InteractiveMap() {
         }}
       >
         <div className="absolute top-4 right-4 z-10 space-y-2">
-          <MapFilterControl
-            categories={ALL_CATEGORIES}
-            selectedCategories={selectedCategories}
-            onFilterChange={handleFilterChange}
-          />
+          <MapFilterControl categories={ALL_CATEGORIES} />
           <button
             onClick={handleRetry}
             className="bg-ocean-blue hover:bg-ocean-blue/90 focus:ring-ocean-blue flex w-full items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-white shadow-lg focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:opacity-50"

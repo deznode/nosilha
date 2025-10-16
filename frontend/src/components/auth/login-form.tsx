@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase-client";
+import { loginSchema, type LoginInput } from "@/schemas/authSchema";
 import { Button } from "@/components/catalyst-ui/button";
 import { Input } from "@/components/catalyst-ui/input";
 import { Field, Label } from "@/components/catalyst-ui/fieldset";
@@ -12,24 +15,26 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 
 export function LoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const onSubmit = async (data: LoginInput) => {
     setError(null);
-    setIsSubmitting(true);
 
     const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: data.email,
+      password: data.password,
     });
 
     if (error) {
       setError(error.message);
-      setIsSubmitting(false);
     } else {
       // On successful login, redirect to the homepage.
       // Supabase client handles setting the session cookie automatically.
@@ -46,7 +51,7 @@ export function LoginForm() {
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
       <motion.form
-        onSubmit={handleLogin}
+        onSubmit={handleSubmit(onSubmit)}
         className="space-y-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -61,12 +66,12 @@ export function LoginForm() {
             <Label>Email</Label>
             <Input
               type="email"
-              name="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              {...register("email")}
               className="focus:ring-ocean-blue transition-all duration-200 focus:border-transparent focus:ring-2"
             />
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+            )}
           </Field>
         </motion.div>
 
@@ -79,12 +84,14 @@ export function LoginForm() {
             <Label>Password</Label>
             <Input
               type="password"
-              name="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              {...register("password")}
               className="focus:ring-ocean-blue transition-all duration-200 focus:border-transparent focus:ring-2"
             />
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.password.message}
+              </p>
+            )}
           </Field>
         </motion.div>
 

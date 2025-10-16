@@ -46,7 +46,7 @@ const historicalEras = [
         years: "Late 1800s-Early 1900s",
         influence: "Foundational",
         description:
-          "Legendary violinist and composer from Brava who 'marked generations' with his mastery of traditional morna techniques. Though biographical details remain in community memory, his profound musical legacy established the instrumental foundation that complemented Tavares's lyrical innovations.",
+          "Though biographical details remain primarily in community memory, this legendary violinist and composer from Brava 'marked generations' with his mastery of traditional morna techniques. His profound musical legacy established the instrumental foundation that complemented Tavares's lyrical innovations.",
         achievements: [
           "Master violinist who influenced generations of Brava musicians",
           "Preserved and transmitted classical morna instrumental techniques",
@@ -95,7 +95,7 @@ const historicalEras = [
           "Post-independence diplomat who represented Cape Verde abroad as Ambassador to Senegal and the Holy See, and Chargé d'Affaires in Washington D.C. Later became an intellectual exploring Cape Verdean identity through his books 'Identidade' and 'Para Lá de Alcatraz.'",
         achievements: [
           "Served as Ambassador to Senegal and the Holy See",
-          "Chargé d'Affaires in Washington D.C. (1978-1980)",
+          "Chargé d'Affaires in Washington D.C. (from 1978)",
           "Director of Secondary Education shaping post-independence generation",
           "Author exploring Cape Verdean identity in globalized world",
         ],
@@ -116,7 +116,7 @@ const historicalEras = [
         name: "Marcelino 'Daddy' Grace",
         role: "Religious Entrepreneur and Institution Builder",
         category: "Faith & Business",
-        years: "1881-1960",
+        years: "1881 (some sources indicate 1884)-1960",
         influence: "Phenomenal",
         description:
           "Born Marcelino Manuel da Graça on Brava, became 'Sweet Daddy' Grace, founder of United House of Prayer for All People. From a $39 tent in Massachusetts, he built one of the largest and wealthiest African-American religious denominations of the 20th century, demonstrating the transference of Brava's maritime leadership culture to American urban religious life.",
@@ -191,7 +191,7 @@ const historicalEras = [
         years: "1942-2009",
         influence: "Cultural",
         description:
-          "Self-taught master craftsman who emigrated to Boston in 1967, bringing traditional Bravense instrument-making skills to America. Professionalized his craft and passed knowledge to his son Roosevelt.",
+          "Self-taught master craftsman who, according to his son Roosevelt Pires, emigrated to Boston in 1967, bringing traditional Bravense instrument-making skills to America. Professionalized his craft and passed knowledge to his son Roosevelt.",
         achievements: [
           "Master luthier who brought Bravense craft to America",
           "Established professional workshop and reputation in Boston",
@@ -216,7 +216,7 @@ const historicalEras = [
           "Advocated directly to U.S. Presidents Cleveland and McKinley",
           "Exemplified tenacity and resilience of early diaspora pioneers",
         ],
-        image: "/images/people/antonio-coelho.webp",
+        image: "/images/people/antonio-coelho.jpg",
         courtesy: "the Cape Verdean Museum",
         featured: false,
       },
@@ -258,7 +258,7 @@ const historicalEras = [
           "Continues his father's legendary instrument-making tradition at South End String Instrument in Boston. Represents the living bridge between Brava's cultural heritage and global artistry, working on instruments for world-renowned musicians.",
         achievements: [
           "Maintains family tradition of master luthiers from Brava",
-          "Creates instruments for professional musicians including Yo-Yo Ma",
+          "Repairs and maintains instruments for professional musicians including Yo-Yo Ma",
           "Bridges traditional Bravense craftsmanship with modern techniques",
           "Preserves and shares cultural heritage through artisanship",
         ],
@@ -420,6 +420,66 @@ const citations = [
     author: "Wikipedia",
     year: 2025,
     url: "https://en.wikipedia.org/wiki/Nilton_Fernandes",
+  },
+  {
+    source: "Marcelino Manuel da Graça - Wikipedia",
+    author: "Wikipedia",
+    year: 2025,
+    url: "https://en.wikipedia.org/wiki/Marcelino_Manuel_da_Gra%C3%A7a",
+  },
+  {
+    source: "Marcelino Manuel da Graça - Encyclopaedia Britannica",
+    author: "Britannica",
+    year: 2025,
+    url: "https://www.britannica.com/biography/Marcelino-Manuel-da-Graca",
+  },
+  {
+    source: "Artur Augusto da Silva - Wikipedia",
+    author: "Wikipedia",
+    year: 2025,
+    url: "https://en.wikipedia.org/wiki/Artur_Augusto_da_Silva",
+  },
+  {
+    source: "Viriato de Barros - Wikipedia",
+    author: "Wikipedia",
+    year: 2025,
+    url: "https://en.wikipedia.org/wiki/Viriato_de_Barros",
+  },
+  {
+    source: "Vinny deMacedo - Wikipedia",
+    author: "Wikipedia",
+    year: 2025,
+    url: "https://en.wikipedia.org/wiki/Vinny_deMacedo",
+  },
+  {
+    source: "Ana Lúcia Ramos Lisboa - Wikipedia",
+    author: "Wikipedia",
+    year: 2025,
+    url: "https://en.wikipedia.org/wiki/Ana_L%C3%BAcia_Ramos_Lisboa",
+  },
+  {
+    source: "Gardénia Benrós - Cabo Verde & a Música Virtual Museum",
+    author: "Cabo Verde & a Música",
+    year: 2025,
+    url: "https://eng.caboverdeamusica.online/gardenia-benros/",
+  },
+  {
+    source: "Vuca Pinheiro - Cabo Verde & a Música Virtual Museum",
+    author: "Cabo Verde & a Música",
+    year: 2025,
+    url: "https://eng.caboverdeamusica.online/vuca-pinheiro/",
+  },
+  {
+    source: "Captain Antonio Jose Coelho - The Creola Genealogist",
+    author: "The Creola Genealogist",
+    year: 2025,
+    url: "https://thecreolagenealogist.com/tag/captain-antonio-jose-coelho/",
+  },
+  {
+    source: "Ivo Pires - Cape Verdean Museum Hall of Fame",
+    author: "Cape Verdean Museum",
+    year: 2005,
+    url: "https://capeverdeanmuseum.org/hall-of-fame/f/2005-hof-ivo-pires",
   },
 ];
 
@@ -752,6 +812,14 @@ export default function PeoplePage() {
           <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
             Contemporary Guardians: Preserving Heritage and Community
           </h3>
+
+          <div className="border-valley-green bg-valley-green/5 mb-6 rounded-lg border-l-4 p-4">
+            <p className="text-text-secondary text-sm italic">
+              <strong>Note:</strong> Contemporary community leaders whose work
+              continues to unfold. Biographical details are based on community
+              knowledge and are pending comprehensive documentation.
+            </p>
+          </div>
 
           <div className="mb-8 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">

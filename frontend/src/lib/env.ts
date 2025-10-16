@@ -10,6 +10,7 @@
 interface EnvironmentConfig {
   // API Configuration
   apiUrl: string;
+  useMockApi: boolean;
 
   // Third-party Services
   mapboxAccessToken: string;
@@ -89,6 +90,9 @@ export const env: EnvironmentConfig = (() => {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     );
 
+    // API Configuration - Optional mock API setting
+    const useMockApi = process.env.NEXT_PUBLIC_USE_MOCK_API === "true";
+
     // Derived environment flags
     const isProd = nodeEnv === "production";
     const isDev = nodeEnv === "development";
@@ -123,6 +127,7 @@ export const env: EnvironmentConfig = (() => {
 
     return {
       apiUrl,
+      useMockApi,
       mapboxAccessToken,
       supabaseUrl,
       supabaseAnonKey,
@@ -142,6 +147,7 @@ export const env: EnvironmentConfig = (() => {
       console.error("2. Add the missing environment variables:");
       console.error("");
       console.error("NEXT_PUBLIC_API_URL=http://localhost:8080");
+      console.error("NEXT_PUBLIC_USE_MOCK_API=false");
       console.error(
         "NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=pk.your_mapbox_token_here"
       );
@@ -253,6 +259,7 @@ export function logEnvironmentInfo(): void {
   console.log("🌍 Environment Configuration:");
   console.log(`  - Environment: ${env.nodeEnv}`);
   console.log(`  - API URL: ${env.apiUrl}`);
+  console.log(`  - Use Mock API: ${env.useMockApi}`);
   console.log(`  - Supabase URL: ${env.supabaseUrl}`);
   console.log(`  - Mapbox Token: ${env.mapboxAccessToken.substring(0, 20)}...`);
   console.log(`  - Browser: ${isBrowser}`);

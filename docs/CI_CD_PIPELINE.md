@@ -191,6 +191,105 @@ gcloud secrets create supabase_jwt_secret --data-file=- <<< "your-jwt-secret"
 - End-to-end testing scenarios
 - Performance validation
 
+## 🎯 Quality Gates
+
+The Nos Ilha CI/CD pipeline enforces comprehensive quality gates to ensure code quality, test coverage, and architectural integrity before deployment.
+
+### Coverage Quality Gates
+
+**Frontend Coverage (Vitest)**
+- **Threshold**: Minimum 70% code coverage (lines, functions, branches, statements)
+- **Enforcement**: Build fails if coverage drops below threshold
+- **Configuration**: `frontend/vitest.config.ts` (lines 36-41)
+- **Reporting**: Coverage reports uploaded to Codecov with `frontend-unit` flag
+
+**Backend Coverage (Jacoco)**
+- **Threshold**: Minimum 70% code coverage
+- **Enforcement**: `jacocoTestCoverageVerification` task fails build if below threshold
+- **Configuration**: `backend/build.gradle.kts` (line 123)
+- **Reporting**: Coverage reports uploaded to Codecov with `backend-unit` flag
+
+### Module Boundary Quality Gates (Backend)
+
+**Spring Modulith Verification**
+- **Purpose**: Enforce modular architecture boundaries (FR-004, FR-009)
+- **Validation**: `ModularityTests.kt` verifies:
+  - Zero circular dependencies between modules
+  - Modules only depend on allowed dependencies (e.g., `shared` module)
+  - Event-driven communication patterns are followed
+- **Enforcement**: Build fails if module boundary violations detected
+- **Documentation**: PlantUML diagrams auto-generated to visualize module structure
+
+**Generated Artifacts**:
+- `build/modulith/*.puml` - Module dependency diagrams
+- Uploaded as workflow artifacts with 30-day retention
+
+### Bundle Size Quality Gates (Frontend)
+
+**Bundle Analysis**
+- **Threshold**: Maximum 500KB bundle size (compressed)
+- **Enforcement**: PR builds fail if bundle exceeds limit
+- **Tool**: Next.js bundle analyzer + custom size check
+- **Trigger**: Only runs on PRs with frontend changes
+- **Configuration**: `frontend-ci.yml` (lines 205-271)
+
+**Analysis Output**:
+```bash
+Total bundle size: 423KB (within 500KB limit) ✅
+```
+
+### Test Execution Quality Gates
+
+**End-to-End Tests (Playwright)**
+- **Execution Time**: Must complete within 5 minutes (FR-001)
+- **Coverage**: Critical user flows (authentication, directory browsing, content creation, map interaction)
+- **Environment**: Headless Chromium browser with mobile viewport testing
+- **Enforcement**: Timeout failures block PR merge
+
+**Unit Tests (Vitest + JUnit)**
+- **Frontend**: React components, hooks, and utilities
+- **Backend**: Services, repositories, domain logic with PostgreSQL integration
+- **Isolation**: Tests must be independent and parallelizable
+- **Enforcement**: Any test failure blocks PR merge
+
+### Branch Protection Rules
+
+**Main Branch Protection** (Recommended Configuration):
+1. **Require status checks to pass before merging**:
+   - `security-scan` (frontend & backend)
+   - `test-and-lint` (frontend & backend)
+   - `unit-tests` (frontend)
+   - `e2e-tests` (frontend)
+   - `bundle-analysis` (frontend on PRs)
+2. **Require branches to be up to date before merging**
+3. **Require linear history**
+
+**Manual Configuration Required**:
+```bash
+# Configure via GitHub UI:
+# Settings → Branches → Branch Protection Rules → main
+
+# OR via GitHub API (requires admin permissions):
+gh api repos/:owner/:repo/branches/main/protection \
+  -X PUT \
+  -f required_status_checks='{"strict":true,"contexts":["security-scan","test-and-lint","unit-tests","e2e-tests"]}'
+```
+
+### Quality Gate Metrics
+
+**Quantitative Targets** (Phase 4 Success Criteria):
+- ✅ Frontend coverage: >70%
+- ✅ Backend coverage: >70%
+- ✅ E2E test execution: <5 minutes
+- ✅ Bundle size: <500KB
+- ✅ Module boundary violations: 0
+- ✅ Total CI/CD time: <10 minutes
+
+**Enforcement Strategy**:
+- **PR Stage**: All quality gates must pass for PR approval
+- **Deployment Stage**: Only code passing all gates can be deployed to production
+- **Monitoring**: Coverage and quality metrics tracked over time via Codecov
+
 ## 🎯 Environment Configuration
 
 ### Production Environment
