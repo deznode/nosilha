@@ -589,12 +589,19 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 ### Documentation Files
 
 #### Core Project Documentation (`docs/`)
-- `docs/ARCHITECTURE.md` - Detailed technical architecture with system flows and diagrams
+- `docs/ARCHITECTURE.md` - Detailed technical architecture with system flows and diagrams (**Updated: Shows implemented modular architecture**)
 - `docs/DESIGN_SYSTEM.md` - Complete frontend design system and component library guide
 - `docs/API_REFERENCE.md` - Backend API documentation with endpoints and examples
 - `docs/API_CODING_STANDARDS.md` - Comprehensive backend coding standards with Bean Validation, auditing, and internationalization patterns
 - `docs/CI_CD_PIPELINE.md` - Detailed CI/CD setup and troubleshooting guide
 - `docs/CI_CD_TESTING.md` - Comprehensive testing procedures for CI/CD pipeline
+
+#### Modular Architecture Documentation (NEW - Phase 1-3 Implementation)
+- `docs/TESTING.md` - **Comprehensive testing guide** (Playwright E2E, Vitest unit tests, Storybook component docs)
+- `docs/STATE_MANAGEMENT.md` - **State management patterns guide** (Zustand, TanStack Query, Zod validation)
+- `docs/SPRING_MODULITH.md` - **Backend module architecture guide** (Module structure, event-driven communication, verification)
+
+#### Additional Documentation
 - `docs/SECRET_MANAGEMENT.md` - Comprehensive secret management guide with monitoring and cost optimization
 - `docs/CULTURAL_HERITAGE_VERIFICATION.md` - Cultural heritage content verification protocols and seed data validation
 - `docs/SITEMAP.md` - Frontend route structure and navigation architecture
