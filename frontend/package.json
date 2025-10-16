@@ -2,6 +2,15 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bravdigital/nosilha.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bravdigital/nosilha/issues"
+  },
+  "homepage": "https://github.com/bravdigital/nosilha#readme",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",

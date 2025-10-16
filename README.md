@@ -213,7 +213,9 @@ This is an open project dedicated to the celebration of Brava. We welcome contri
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the `LICENSE.md` file for details.
+This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0) - see the [LICENSE](LICENSE) file for details.
+
+**Why AGPL-3.0?** This license ensures that Nos Ilha remains a community-owned cultural heritage platform. Any modifications or improvements to the codebase must be shared back with the community, protecting the collaborative spirit and ensuring the platform continues to serve Brava Island's cultural preservation mission.
 
 ## ✉️ Contact
 

@@ -14,6 +14,7 @@ plugins {
 
 group = "com.nosilha"
 version = "0.0.2-SNAPSHOT"
+description = "Nos Ilha - Community-driven cultural heritage hub for Brava Island, Cape Verde"
 
 java {
     toolchain {
