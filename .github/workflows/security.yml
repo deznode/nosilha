@@ -20,5 +20,5 @@ jobs:
         with:
           comment-pr: true
           claude-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
-          claude-model: claude-opus-4-1-20250805
+          claude-model: claude-sonnet-4-5-20250929
           custom-security-scan-instructions: "" # Add any custom instructions specific to your codebase here.
