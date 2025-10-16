@@ -99,21 +99,33 @@ backend/src/main/kotlin/com/nosilha/core/
 **Package**: `com.nosilha.core.shared`
 **Purpose**: Foundation layer providing common infrastructure for all modules
 
+**Module Detection**: Spring Modulith auto-detects this module by directory structure (no module-level `PackageInfo.kt` required)
+
 **Structure:**
 ```
 shared/
-├── PackageInfo.kt         # Module API declaration
 ├── domain/
-│   ├── PackageInfo.kt    # Domain layer API
+│   ├── PackageInfo.kt    # @PackageInfo + @NamedInterface("domain") for public API
 │   └── AuditableEntity.kt # Base entity with createdAt, updatedAt
 ├── events/
-│   ├── PackageInfo.kt    # Events layer API
+│   ├── PackageInfo.kt    # @PackageInfo + @NamedInterface("events") for public API
 │   ├── DomainEvent.kt    # Base interface for all domain events
 │   └── ApplicationModuleEvent.kt  # Base for module events
 ├── api/
-│   └── PackageInfo.kt    # API layer declarations
+│   └── PackageInfo.kt    # @PackageInfo + @NamedInterface("api") for public API
+├── config/
+│   └── PackageInfo.kt    # @PackageInfo for configuration
 └── exception/
-    └── PackageInfo.kt    # Exception handling
+    └── PackageInfo.kt    # @PackageInfo for exception handling
+```
+
+**Named Interface Pattern:**
+```kotlin
+// shared/domain/PackageInfo.kt
+@PackageInfo
+@NamedInterface("domain")
+class PackageInfo
+// Allows other modules to reference as: "shared :: domain"
 ```
 
 **Key Files:**
@@ -147,19 +159,21 @@ abstract class AuditableEntity(
 **Package**: `com.nosilha.core.auth`
 **Purpose**: Authentication, authorization, and user management
 
+**Module Detection**: Spring Modulith auto-detects this module by directory structure
+
 **Structure:**
 ```
 auth/
-├── PackageInfo.kt         # Module API declaration
 ├── api/
 │   └── AuthController.kt  # Public REST endpoints (login, logout)
 ├── security/
 │   ├── JwtAuthenticationFilter.kt  # JWT validation filter
 │   └── SecurityConfig.kt           # Spring Security configuration
 ├── domain/
-│   ├── JwtAuthenticationService.kt # Auth business logic
-│   └── UserService.kt              # User management
+│   ├── JwtAuthenticationService.kt # Auth business logic (internal)
+│   └── UserService.kt              # User management (internal)
 └── events/
+    ├── PackageInfo.kt         # @PackageInfo for public event API
     ├── UserLoggedInEvent.kt   # Published on successful login
     └── UserLoggedOutEvent.kt  # Published on logout
 ```
@@ -175,21 +189,22 @@ auth/
 **Package**: `com.nosilha.core.directory`
 **Purpose**: Manage cultural heritage directory entries (restaurants, hotels, landmarks, beaches)
 
+**Module Detection**: Spring Modulith auto-detects this module by directory structure
+
 **Structure:**
 ```
 directory/
-├── PackageInfo.kt         # Module API declaration
 ├── api/
 │   └── DirectoryController.kt  # Public REST endpoints (/api/v1/directory/*)
 ├── domain/
-│   ├── DirectoryEntry.kt    # Base entity (Single Table Inheritance)
-│   ├── Restaurant.kt        # Restaurant-specific fields
-│   ├── Hotel.kt             # Hotel-specific fields
-│   ├── Landmark.kt          # Landmark-specific fields
-│   ├── Beach.kt             # Beach-specific fields
-│   └── DirectoryService.kt  # Business logic, event publishing
+│   ├── DirectoryEntry.kt    # Base entity (Single Table Inheritance) - internal
+│   ├── Restaurant.kt        # Restaurant-specific fields - internal
+│   ├── Hotel.kt             # Hotel-specific fields - internal
+│   ├── Landmark.kt          # Landmark-specific fields - internal
+│   ├── Beach.kt             # Beach-specific fields - internal
+│   └── DirectoryService.kt  # Business logic, event publishing - internal
 ├── repository/
-│   └── DirectoryEntryRepository.kt  # JPA data access
+│   └── DirectoryEntryRepository.kt  # JPA data access - internal
 └── events/
     ├── DirectoryEntryCreatedEvent.kt  # Published on entry creation
     ├── DirectoryEntryUpdatedEvent.kt  # Published on entry update
@@ -236,16 +251,19 @@ class Restaurant(
 **Package**: `com.nosilha.core.media`
 **Purpose**: Media asset management (images, videos) and AI processing
 
+**Module Detection**: Spring Modulith auto-detects this module by directory structure
+
 **Structure:**
 ```
 media/
-├── PackageInfo.kt         # Module API declaration
 ├── api/
 │   └── MediaController.kt  # Public REST endpoints (file upload)
+├── config/
+│   └── [GCS/Vision API config]  # Media-specific configuration - internal
 ├── domain/
-│   └── MediaService.kt     # GCS operations, AI processing, event listeners
+│   └── MediaService.kt     # GCS operations, AI processing, event listeners - internal
 ├── repository/
-│   └── FirestoreMediaRepository.kt  # Metadata storage
+│   └── FirestoreMediaRepository.kt  # Metadata storage - internal
 └── events/
     ├── MediaUploadedEvent.kt    # Published after file upload
     └── MediaProcessedEvent.kt   # Published after AI processing
@@ -370,14 +388,18 @@ class MediaService {
 
 ### Package Visibility
 
-**Public API** (declared in `package-info.java`):
-- Controllers (REST endpoints)
-- Events (domain events)
+**Module Detection**: Spring Modulith auto-detects modules by directory structure under `com.nosilha.core`
 
-**Internal** (package-private):
-- Services (business logic)
-- Repositories (data access)
-- Domain entities
+**Public API** (accessible from other modules):
+- Controllers in `api/` packages (REST endpoints)
+- Events in `events/` packages (domain events)
+- Named interfaces declared with `@PackageInfo` + `@NamedInterface`
+
+**Internal** (package-private, not accessible from other modules):
+- Services in `domain/` packages (business logic)
+- Repositories in `repository/` packages (data access)
+- Domain entities in `domain/` packages
+- Configuration in `config/` packages
 
 ### Verification
 
@@ -453,22 +475,13 @@ ls build/modulith/*.puml
 
 ### Step 1: Create Module Structure
 
+Spring Modulith automatically detects modules by directory structure under `com.nosilha.core`. Simply create a new package directory:
+
 ```bash
 mkdir -p src/main/kotlin/com/nosilha/core/newmodule/{api,domain,repository,events}
 ```
 
-### Step 2: Define Package Info
-
-```kotlin
-// newmodule/PackageInfo.kt
-@org.springframework.modulith.ApplicationModule(
-    displayName = "New Module",
-    allowedDependencies = ["shared"]
-)
-package com.nosilha.core.newmodule
-```
-
-### Step 3: Implement Domain Logic
+### Step 2: Implement Domain Logic
 
 ```kotlin
 // newmodule/domain/NewService.kt
@@ -489,7 +502,16 @@ class NewService(
 }
 ```
 
-### Step 4: Add Verification Tests
+**Optional: Named Interfaces** (for advanced API granularity)
+```kotlin
+// newmodule/domain/PackageInfo.kt
+@PackageInfo
+@NamedInterface("domain")
+class PackageInfo
+// Allows other modules to selectively reference: "newmodule :: domain"
+```
+
+### Step 3: Add Verification Tests
 
 ```kotlin
 @Test
@@ -502,7 +524,7 @@ fun `new module should only depend on shared`() {
 }
 ```
 
-### Step 5: Generate Documentation
+### Step 4: Generate Documentation
 
 ```bash
 ./gradlew test --tests "ModularityTests"
