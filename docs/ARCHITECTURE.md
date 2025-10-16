@@ -199,76 +199,29 @@ frontend/
 
 ### Backend Architecture (Spring Boot + Kotlin + Spring Modulith)
 
+**Module Organization:**
+
 ```
-backend/
-├── src/main/kotlin/com/nosilha/core/
-│   ├── shared/                     # Shared Kernel (Foundation Layer)
-│   │   ├── PackageInfo.kt         # Module API declaration
-│   │   ├── domain/                # Shared domain primitives
-│   │   │   └── AuditableEntity.kt # Base entity with audit fields
-│   │   ├── events/                # Event infrastructure
-│   │   │   ├── DomainEvent.kt    # Base domain event interface
-│   │   │   └── ApplicationModuleEvent.kt  # Module event base
-│   │   ├── api/                   # Shared API components
-│   │   ├── config/                # Shared configuration
-│   │   └── exception/             # Exception handling
-│   │
-│   ├── auth/                      # Authentication Module
-│   │   ├── PackageInfo.kt        # Module API declaration
-│   │   ├── api/                  # Public REST endpoints
-│   │   │   └── AuthController.kt # Login, logout endpoints
-│   │   ├── security/             # Security components
-│   │   │   ├── JwtAuthenticationFilter.kt
-│   │   │   └── SecurityConfig.kt
-│   │   ├── domain/               # Auth business logic
-│   │   │   ├── JwtAuthenticationService.kt
-│   │   │   └── UserService.kt
-│   │   └── events/               # Auth domain events
-│   │       ├── UserLoggedInEvent.kt
-│   │       └── UserLoggedOutEvent.kt
-│   │
-│   ├── directory/                # Directory Management Module
-│   │   ├── PackageInfo.kt       # Module API declaration
-│   │   ├── api/                 # Public REST endpoints
-│   │   │   └── DirectoryController.kt  # CRUD endpoints
-│   │   ├── domain/              # Directory business logic
-│   │   │   ├── DirectoryEntry.kt    # Base entity (STI pattern)
-│   │   │   ├── Restaurant.kt        # Restaurant subclass
-│   │   │   ├── Hotel.kt            # Hotel subclass
-│   │   │   ├── Landmark.kt         # Landmark subclass
-│   │   │   ├── Beach.kt            # Beach subclass
-│   │   │   └── DirectoryService.kt # Business logic
-│   │   ├── repository/          # Data access layer
-│   │   │   └── DirectoryEntryRepository.kt
-│   │   └── events/              # Directory domain events
-│   │       ├── DirectoryEntryCreatedEvent.kt
-│   │       ├── DirectoryEntryUpdatedEvent.kt
-│   │       └── DirectoryEntryDeletedEvent.kt
-│   │
-│   ├── media/                   # Media Processing Module
-│   │   ├── PackageInfo.kt      # Module API declaration
-│   │   ├── api/                # Public REST endpoints
-│   │   │   └── MediaController.kt  # File upload endpoints
-│   │   ├── config/             # Media-specific configuration
-│   │   ├── domain/             # Media business logic
-│   │   │   └── MediaService.kt # GCS, Vision API integration
-│   │   ├── repository/         # Data access layer
-│   │   │   └── FirestoreMediaRepository.kt
-│   │   └── events/             # Media domain events
-│   │       ├── MediaUploadedEvent.kt
-│   │       └── MediaProcessedEvent.kt
-│   │
-│   └── NosIlhaCoreApplication.kt  # Spring Boot main class
-│
-├── src/main/resources/
-│   ├── application.yml             # Production configuration
-│   ├── application-local.yml       # Development configuration
-│   └── db/migration/               # Flyway database migrations
-│       ├── V1__create_directory_entries_table.sql
-│       ├── V2__add_audit_columns.sql
-│       └── V3__add_spring_modulith_event_publication.sql
-└── build.gradle.kts                # Build configuration
+backend/src/main/kotlin/com/nosilha/core/
+├── shared/      # Shared Kernel - Common infrastructure (events, audit, exceptions)
+├── auth/        # Authentication Module - JWT auth and user management
+├── directory/   # Directory Module - Cultural heritage entries (STI pattern)
+└── media/       # Media Module - GCS storage and AI processing
 ```
+
+**Standard Module Structure:**
+
+Each module follows a consistent pattern with these internal layers:
+- `PackageInfo.kt` - Declares module API and dependencies
+- `api/` - REST controllers (public, exposed to other modules)
+- `domain/` - Business entities and services (internal)
+- `repository/` - Data access layer (internal)
+- `events/` - Domain events (public, exposed to other modules)
+
+**Key Points:**
+- See `docs/SPRING_MODULITH.md` for detailed module architecture
+- Database migrations: `backend/src/main/resources/db/migration/`
+- Configuration: `backend/src/main/resources/application*.yml`
 
 **Key Architectural Decisions:**
 
