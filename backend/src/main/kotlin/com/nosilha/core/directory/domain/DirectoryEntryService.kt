@@ -87,7 +87,7 @@ class DirectoryEntryService(
         eventPublisher.publishEvent(
             DirectoryEntryCreatedEvent(
                 entryId = savedEntry.id!!,
-                category = savedEntry.category,
+                category = savedEntry.getCategoryValue(),
                 name = savedEntry.name
             )
         )
@@ -241,7 +241,7 @@ class DirectoryEntryService(
         eventPublisher.publishEvent(
             DirectoryEntryUpdatedEvent(
                 entryId = updatedEntry.id!!,
-                category = updatedEntry.category
+                category = updatedEntry.getCategoryValue()
             )
         )
 

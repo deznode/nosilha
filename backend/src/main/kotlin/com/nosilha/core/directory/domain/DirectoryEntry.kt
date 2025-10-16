@@ -104,6 +104,6 @@ abstract class DirectoryEntry : AuditableEntity() {
 
     override fun toString(): String {
         // Dynamically includes the concrete class name (e.g., "Restaurant")
-        return "${this.javaClass.simpleName}(id=$id, name='$name', category='$category')"
+        return "${this.javaClass.simpleName}(id=$id, name='$name', category='${getCategoryValue()}')"
     }
 }

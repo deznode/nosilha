@@ -162,3 +162,24 @@ fun Town.toDto(): TownDto {
         updatedAt = this.updatedAt
     )
 }
+
+/**
+ * Returns the category value for this DirectoryEntry using polymorphic type checking.
+ *
+ * This approach is preferred over accessing the discriminator field directly as it:
+ * - Avoids lateinit initialization issues with the discriminator column
+ * - Leverages Kotlin's polymorphic when expressions for type safety
+ * - Decouples business logic from database schema details
+ * - Provides consistent behavior regardless of entity state (transient vs persisted)
+ *
+ * @receiver The DirectoryEntry instance to get the category value for.
+ * @return The category string corresponding to the entity's runtime type.
+ * @throws IllegalStateException if the entity type is not a known DirectoryEntry subclass.
+ */
+fun DirectoryEntry.getCategoryValue(): String = when (this) {
+    is Restaurant -> "Restaurant"
+    is Hotel -> "Hotel"
+    is Beach -> "Beach"
+    is Landmark -> "Landmark"
+    else -> throw IllegalStateException("Unknown DirectoryEntry type: ${this::class.simpleName}")
+}
