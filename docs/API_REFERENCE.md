@@ -785,6 +785,6 @@ Production uses specific domain configuration.
 
 For additional support and examples, refer to:
 - **Architecture Guide**: [`ARCHITECTURE.md`](ARCHITECTURE.md)
-- **Frontend Integration**: [`FRONTEND_GUIDE.md`](FRONTEND_GUIDE.md)
+- **Frontend Design System**: [`DESIGN_SYSTEM.md`](DESIGN_SYSTEM.md)
 - **Development Setup**: [`../CLAUDE.md`](../CLAUDE.md)
-- **Deployment Guide**: [`DEPLOYMENT_GUIDE.md`](DEPLOYMENT_GUIDE.md)
+- **CI/CD & Deployment**: [`CI_CD_PIPELINE.md`](CI_CD_PIPELINE.md)
