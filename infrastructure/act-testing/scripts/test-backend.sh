@@ -40,9 +40,11 @@ SKIP_VALIDATE=false
 EXPORT_LOGS=""
 TIMEOUT=60
 
-# Backend jobs (excluding deployment)
-BACKEND_JOBS=("security-scan" "test-and-lint")
-EXCLUDED_JOBS=("build" "deploy-production")
+# Backend jobs (excluding deployment and reusable workflows)
+# Note: security-scan uses reusable workflow (workflow_call) which ACT doesn't support
+# Run security-scan explicitly with --job security-scan if needed (will fail with ACT limitation warning)
+BACKEND_JOBS=("test-and-lint")
+EXCLUDED_JOBS=("build" "deploy-production" "security-scan")
 SELECTED_JOBS=()
 
 # Performance tracking
@@ -86,12 +88,15 @@ EXAMPLES:
     $(basename "$0") --dry-run
 
 BACKEND JOBS (non-deployment):
-    - security-scan: Trivy vulnerability scanning
-    - test-and-lint: JUnit tests, detekt analysis
+    - test-and-lint: JUnit tests, detekt analysis, Jacoco coverage
 
-EXCLUDED JOBS (never run locally):
-    - build: Docker image build
-    - deploy-production: Production deployment
+EXCLUDED JOBS (cannot run locally with ACT):
+    - security-scan: Reusable workflow (workflow_call) - ACT limitation
+    - build: Docker image build (requires cloud authentication)
+    - deploy-production: Production deployment (safety exclusion)
+
+NOTE: security-scan job uses workflow_call which ACT doesn't support.
+      Run manually with --job security-scan to see ACT limitation error.
 
 For more information, see: infrastructure/act-testing/README.md
 EOF

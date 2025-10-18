@@ -142,18 +142,20 @@ Backend Workflow Testing
    - PostgreSQL: healthy
    - Redis: healthy
 🏃 Running workflow jobs...
-   - security-scan: passed
    - test-and-lint: passed
 ✅ Workflow execution completed successfully
-⏱️  Duration: 6m 23s
+⏱️  Duration: 5m 30s
 ```
+
+**Note**: The `security-scan` job is excluded by default because it uses a reusable workflow (`workflow_call`), which ACT doesn't support. Security scanning still runs in GitHub Actions CI/CD.
 
 ### Validation Checklist
 
 - [ ] Exit code: 0
-- [ ] All jobs show "passed" status
+- [ ] test-and-lint job shows "passed" status
 - [ ] Duration: <7 minutes (420s)
 - [ ] **No deployment jobs executed** (build, deploy-production excluded)
+- [ ] **security-scan excluded** (ACT limitation with reusable workflows)
 - [ ] Services cleaned up: `docker ps | grep act-testing` (empty)
 - [ ] PostgreSQL and Redis services healthy during execution
 
@@ -542,6 +544,7 @@ For comprehensive troubleshooting guidance, see [README.md § Troubleshooting](R
 
 | Issue | Exit Code | Solution Reference |
 |-------|-----------|-------------------|
+| **"unsupported object type"** | **1** | **Reusable workflow limitation - use --job test-and-lint** |
 | Docker not running | 2 | [README.md § Docker Installation](README.md#prerequisites--version-requirements) |
 | ACT not installed | 4 | [README.md § ACT Installation](README.md#prerequisites--version-requirements) |
 | Insufficient memory | 3 | [README.md § Resource Requirements](README.md#resource-requirements--optimization) |
@@ -550,6 +553,12 @@ For comprehensive troubleshooting guidance, see [README.md § Troubleshooting](R
 | Slow execution | - | [README.md § Performance Optimization](README.md#resource-requirements--optimization) |
 | Workflow file not found | 4 | [README.md § Troubleshooting](README.md#troubleshooting) |
 | Secrets not loaded | 4 | [README.md § Troubleshooting](README.md#troubleshooting) |
+
+#### ACT Reusable Workflow Limitation
+
+The `security-scan` job uses GitHub's reusable workflow feature (`workflow_call`), which ACT doesn't support. This is a known ACT limitation, not an infrastructure issue.
+
+**Solution**: The job is now excluded by default. Backend tests run successfully with the `test-and-lint` job, which includes JUnit tests, detekt analysis, and Jacoco coverage reporting.
 
 ### Quick Fixes
 
