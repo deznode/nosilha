@@ -1,16 +1,15 @@
 # Docker Compose for Act Testing Services
 # This provides the same services as the main docker-compose.yml but optimized for testing
-version: '3.9'
 
 networks:
   act-testing:
-    driver: bridge
+    external: true
     name: act-testing
 
 services:
   # PostgreSQL Database for Backend Testing
   postgres:
-    image: postgres:15
+    image: postgres:16-alpine
     container_name: act-postgres
     environment:
       POSTGRES_DB: nosilha_test

@@ -175,7 +175,7 @@ test_docker_images() {
 
     local images=(
         "catthehacker/ubuntu:act-22.04"
-        "postgres:15"
+        "postgres:16-alpine"
         "redis:7-alpine"
     )
 
