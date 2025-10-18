@@ -30,6 +30,3 @@
 
 # Artifact server (for job outputs)
 --artifact-server-path=/tmp/act-artifacts
-
-# Increase timeout for complex workflows
---container-timeout=60m
