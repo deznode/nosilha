@@ -36,7 +36,7 @@ Request: Refactor ACT (GitHub Actions local testing) infrastructure with utiliti
 - **✅ Phase 3.3** (Scripts): Complete - Backend, frontend, integration, PR validation scripts
 - **✅ Phase 3.4** (Utilities): Complete - export-logs.sh, cleanup.sh with --force flag
 - **✅ Phase 3.5** (Payloads): Complete - push, pull_request, workflow_dispatch, schedule JSON
-- **🟡 Phase 3.6** (Documentation): In Progress - README enhancements (T017-T020)
+- **✅ Phase 3.6** (Documentation): Complete - Comprehensive README.md (1200+ lines, 4 major sections)
 - **⏳ Phase 3.7** (Validation): Pending - Quickstart scenario execution (T021-T027)
 
 ## Active Tasks
@@ -108,6 +108,33 @@ Request: Refactor ACT (GitHub Actions local testing) infrastructure with utiliti
   - schedule.json: Cron-based event with ACT limitations documented
 - **Notes**: Implements FR-011 (multiple event types), includes usage examples and customization guides
 
+### Phase 3.6: Documentation - T017-T020
+
+- **Status**: ✅ Complete
+- **Completed**: 2025-10-18 (during /implement execution)
+- **Description**: Comprehensive README.md enhancements with 4 major sections
+- **Deliverables**:
+  - T017: Comprehensive troubleshooting (exit codes, decision tree, platform-specific fixes)
+  - T018: Prerequisites & version requirements (minimum versions, installation guides)
+  - T019: Resource requirements & optimization (caching strategies, performance targets)
+  - T020: Cross-platform considerations (macOS/Linux/Windows WSL specifics)
+- **Notes**: Implements FR-002 (prerequisites), FR-009 (troubleshooting), FR-015 (performance targets), FR-021 (resource validation). README.md expanded from 411 to 1200+ lines with comprehensive developer guidance.
+
+### MANUAL_TESTING_GUIDE.md Refactoring
+
+- **Status**: ✅ Complete
+- **Completed**: 2025-10-18 (during /implement execution)
+- **Description**: Refactored manual testing guide to align with quickstart validation scenarios
+- **Deliverables**:
+  - Streamlined from 1195 to 729 lines (~39% reduction in size)
+  - Aligned 7 scenarios with quickstart.md structure and format
+  - Added Scenario 6 (Log Export for Debugging) using export-logs.sh utility
+  - Updated Scenario 7 (Complete Cleanup) using cleanup.sh --force utility
+  - Replaced detailed troubleshooting sections with README.md references
+  - Updated expected duration from 60-90 minutes to 20-30 minutes
+  - Added comprehensive cross-references to README.md sections
+- **Notes**: Provides complete documentation foundation for Phase 3.7 validation execution (T021-T027). Guide now optimized for quickstart validation with clear step-by-step instructions for human operators. Reduced duplication by referencing comprehensive README.md for troubleshooting, prerequisites, and optimization.
+
 ## Blocked Tasks
 
 *No blocked tasks at this time*
@@ -157,16 +184,16 @@ graph TD
 - **Frontend**: <4 minutes (test-frontend.sh)
 - **Integration**: <6 minutes (test-integration.sh)
 
-## Success Metrics (Updated Progress: 59% Complete)
+## Success Metrics (Updated Progress: 74% Complete - Documentation Phase Complete)
 
-- 🟡 **Tasks**: 16/27 complete (59%) - Phases 3.1-3.5 ✅, 3.6-3.7 pending
-- ⏳ **Quickstart scenarios**: 0/7 executed - Ready to test after documentation complete
-- ⏳ **Performance target**: Not yet validated - Will measure in Phase 3.7
+- 🟢 **Tasks**: 20/27 complete (74%) - Phases 3.1-3.6 ✅, Phase 3.7 documentation ✅, Phase 3.7 execution pending
+- ⏳ **Quickstart scenarios**: 0/7 executed - **Documentation complete**, ready for manual execution (T021-T027)
+- ⏳ **Performance target**: Not yet validated - Will measure in Phase 3.7 execution
 - ✅ **Resource validation**: Working - validate-resources.sh with fail-fast (FR-021)
 - ✅ **Deployment exclusion**: Implemented - Job filtering in all test scripts (FR-018)
 - ✅ **Cleanup capability**: Implemented - cleanup.sh with --force flag (FR-007)
-- 🟡 **Documentation**: In progress - README enhancements (Phase 3.6)
-- ⏳ **Cross-platform**: To be validated - Platform-specific docs in Phase 3.6
+- ✅ **Documentation**: Complete - Comprehensive README.md (1200+ lines) + MANUAL_TESTING_GUIDE.md (729 lines)
+- ⏳ **Cross-platform**: To be validated - Platform-specific documentation complete, testing pending
 
 ### Completed Deliverables
 - ✅ 6 utility/testing scripts enhanced or created
@@ -174,12 +201,23 @@ graph TD
 - ✅ Configuration files updated (actrc, docker-compose)
 - ✅ Resource validation framework implemented
 - ✅ Comprehensive cleanup utility created
+- ✅ Complete developer documentation (README.md: 1200+ lines)
+- ✅ Quickstart validation guide (MANUAL_TESTING_GUIDE.md: 729 lines, 7 scenarios)
+- ✅ Troubleshooting guide with exit codes and platform-specific fixes
+- ✅ Prerequisites, resource requirements, and optimization guides
 
-### Remaining Work
-- 🟡 4 documentation tasks (T017-T020) - 3-4 hours estimated
-- ⏳ 7 validation scenarios (T021-T027) - 2-3 hours estimated
+### Remaining Work (Phase 3.7: Manual Validation Execution)
+- ⏳ **7 validation scenarios (T021-T027)** - 2-3 hours estimated
+  - T021: Execute Scenario 1 (First-Time Setup)
+  - T022: Execute Scenario 2 (Backend Workflow Testing)
+  - T023: Execute Scenario 3 (Frontend Workflow Testing)
+  - T024: Execute Scenario 4 (Integration Workflow Testing)
+  - T025: Execute Scenario 5 (Resource Constraint Handling)
+  - T026: Execute Scenario 6 (Log Export for Debugging)
+  - T027: Execute Scenario 7 (Complete Cleanup)
 - ⏳ Performance benchmarking (<10 min target)
 - ⏳ Cross-platform compatibility testing
+- **📝 Note**: All documentation complete. Execution requires human operator following MANUAL_TESTING_GUIDE.md
 
 ---
 *Orchestrated by product-manager with --thinkhard intensive analysis*
