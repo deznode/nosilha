@@ -15,6 +15,23 @@ const dirname =
 export default defineConfig({
   plugins: [react()],
   test: {
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      exclude: [
+        "node_modules/",
+        "tests/",
+        "**/*.config.*",
+        "**/types/**",
+        ".storybook/",
+      ],
+      thresholds: {
+        lines: 70,
+        functions: 70,
+        branches: 70,
+        statements: 70,
+      },
+    },
     projects: [
       // Unit testing project for React components, hooks, and utilities
       {
@@ -23,23 +40,6 @@ export default defineConfig({
           name: "unit",
           environment: "jsdom",
           setupFiles: ["./tests/setup/vitest.setup.tsx"],
-          coverage: {
-            provider: "v8",
-            reporter: ["text", "json", "html"],
-            exclude: [
-              "node_modules/",
-              "tests/",
-              "**/*.config.*",
-              "**/types/**",
-              ".storybook/",
-            ],
-            thresholds: {
-              lines: 70,
-              functions: 70,
-              branches: 70,
-              statements: 70,
-            },
-          },
           include: ["tests/unit/**/*.test.{ts,tsx}"],
         },
       },

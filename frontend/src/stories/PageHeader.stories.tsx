@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { PageHeader } from '@/components/ui/page-header';
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { PageHeader } from "@/components/ui/page-header";
 
 /**
  * PageHeader provides consistent heading sections across Nos Ilha pages,
@@ -9,20 +9,20 @@ import { PageHeader } from '@/components/ui/page-header';
  * visual hierarchy and improve readability on mobile devices.
  */
 const meta = {
-  title: 'Nos Ilha/PageHeader',
+  title: "Nos Ilha/PageHeader",
   component: PageHeader,
   parameters: {
-    layout: 'padded',
+    layout: "padded",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     title: {
-      control: 'text',
-      description: 'Main page title displayed in serif font',
+      control: "text",
+      description: "Main page title displayed in serif font",
     },
     subtitle: {
-      control: 'text',
-      description: 'Optional subtitle providing context',
+      control: "text",
+      description: "Optional subtitle providing context",
     },
   },
 } satisfies Meta<typeof PageHeader>;
@@ -36,7 +36,7 @@ type Story = StoryObj<typeof meta>;
  */
 export const Default: Story = {
   args: {
-    title: 'Explore Brava Island',
+    title: "Explore Brava Island",
   },
 };
 
@@ -46,8 +46,9 @@ export const Default: Story = {
  */
 export const WithSubtitle: Story = {
   args: {
-    title: 'Cultural Heritage',
-    subtitle: 'Discover the rich history, traditions, and landmarks that make Brava Island a unique gem in Cape Verde.',
+    title: "Cultural Heritage",
+    subtitle:
+      "Discover the rich history, traditions, and landmarks that make Brava Island a unique gem in Cape Verde.",
   },
 };
 
@@ -57,8 +58,9 @@ export const WithSubtitle: Story = {
  */
 export const DirectoryPage: Story = {
   args: {
-    title: 'Directory',
-    subtitle: 'Explore restaurants, hotels, landmarks, and cultural sites that celebrate Brava Island\'s unique heritage.',
+    title: "Directory",
+    subtitle:
+      "Explore restaurants, hotels, landmarks, and cultural sites that celebrate Brava Island's unique heritage.",
   },
 };
 
@@ -68,8 +70,9 @@ export const DirectoryPage: Story = {
  */
 export const AboutPage: Story = {
   args: {
-    title: 'About Nos Ilha',
-    subtitle: 'Preserving and celebrating the cultural memory of Brava Island for current and future generations.',
+    title: "About Nos Ilha",
+    subtitle:
+      "Preserving and celebrating the cultural memory of Brava Island for current and future generations.",
   },
 };
 
@@ -79,8 +82,9 @@ export const AboutPage: Story = {
  */
 export const HistoryPage: Story = {
   args: {
-    title: 'Brava Island History',
-    subtitle: 'From volcanic origins to vibrant cultural hub, explore the fascinating story of Brava Island through the centuries.',
+    title: "Brava Island History",
+    subtitle:
+      "From volcanic origins to vibrant cultural hub, explore the fascinating story of Brava Island through the centuries.",
   },
 };
 
@@ -90,8 +94,9 @@ export const HistoryPage: Story = {
  */
 export const LongTitle: Story = {
   args: {
-    title: 'The Complete Guide to Brava Island\'s Cultural Heritage and Historical Landmarks',
-    subtitle: 'Everything you need to know about exploring the island.',
+    title:
+      "The Complete Guide to Brava Island's Cultural Heritage and Historical Landmarks",
+    subtitle: "Everything you need to know about exploring the island.",
   },
 };
 
@@ -101,8 +106,9 @@ export const LongTitle: Story = {
  */
 export const LongSubtitle: Story = {
   args: {
-    title: 'Notable Figures',
-    subtitle: 'Brava Island has been home to many influential poets, musicians, sailors, and cultural leaders who have shaped Cape Verdean identity both at home and in the diaspora communities around the world. Explore their stories and contributions to our rich cultural tapestry.',
+    title: "Notable Figures",
+    subtitle:
+      "Brava Island has been home to many influential poets, musicians, sailors, and cultural leaders who have shaped Cape Verdean identity both at home and in the diaspora communities around the world. Explore their stories and contributions to our rich cultural tapestry.",
   },
 };
 
@@ -112,8 +118,9 @@ export const LongSubtitle: Story = {
  */
 export const PortugueseTitle: Story = {
   args: {
-    title: 'Bem-vindo à Ilha Brava',
-    subtitle: 'Descubra a rica herança cultural de Cabo Verde através dos olhos da Ilha Brava.',
+    title: "Bem-vindo à Ilha Brava",
+    subtitle:
+      "Descubra a rica herança cultural de Cabo Verde através dos olhos da Ilha Brava.",
   },
 };
 
@@ -123,8 +130,9 @@ export const PortugueseTitle: Story = {
  */
 export const TownsPage: Story = {
   args: {
-    title: 'Towns & Villages',
-    subtitle: 'From Nova Sintra to Fajã d\'Água, explore the charming settlements that dot Brava Island\'s landscape.',
+    title: "Towns & Villages",
+    subtitle:
+      "From Nova Sintra to Fajã d'Água, explore the charming settlements that dot Brava Island's landscape.",
   },
 };
 
@@ -134,7 +142,8 @@ export const TownsPage: Story = {
  */
 export const MediaGallery: Story = {
   args: {
-    title: 'Photo Gallery',
-    subtitle: 'Community-contributed images capturing the beauty, culture, and daily life of Brava Island.',
+    title: "Photo Gallery",
+    subtitle:
+      "Community-contributed images capturing the beauty, culture, and daily life of Brava Island.",
   },
 };
