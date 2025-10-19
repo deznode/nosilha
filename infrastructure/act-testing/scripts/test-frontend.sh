@@ -40,9 +40,11 @@ SKIP_VALIDATE=false
 EXPORT_LOGS=""
 TIMEOUT=60
 
-# Frontend jobs (excluding deployment)
-FRONTEND_JOBS=("security-scan" "test-and-build" "bundle-analysis")
-EXCLUDED_JOBS=("build" "deploy-production")
+# Frontend jobs (excluding deployment and reusable workflows)
+# Note: security-scan uses reusable workflow (workflow_call) which ACT doesn't support
+# Note: bundle-analysis only runs on pull_request events, skipped for push
+FRONTEND_JOBS=("test-and-lint" "unit-tests" "e2e-tests")
+EXCLUDED_JOBS=("build" "deploy-production" "security-scan" "bundle-analysis")
 SELECTED_JOBS=()
 
 # Performance tracking
@@ -76,20 +78,25 @@ EXAMPLES:
     # Run all non-deployment jobs
     $(basename "$0")
 
-    # Run only security scan and build
-    $(basename "$0") --job security-scan --job test-and-build
+    # Run only lint and unit tests
+    $(basename "$0") --job test-and-lint --job unit-tests
 
     # Verbose mode with log export
     $(basename "$0") -v --export-logs ./logs
 
 FRONTEND JOBS (non-deployment):
-    - security-scan: Trivy vulnerability scanning
-    - test-and-build: TypeScript checks, ESLint, build
-    - bundle-analysis: Bundle size analysis
+    - test-and-lint: TypeScript checks, ESLint, build
+    - unit-tests: Vitest unit tests with coverage
+    - e2e-tests: Playwright E2E tests
 
-EXCLUDED JOBS (never run locally):
-    - build: Docker image build
-    - deploy-production: Production deployment
+EXCLUDED JOBS (cannot run locally with ACT):
+    - security-scan: Reusable workflow (workflow_call) - ACT limitation
+    - bundle-analysis: Only runs on pull_request events
+    - build: Docker image build (requires cloud authentication)
+    - deploy-production: Production deployment (safety exclusion)
+
+NOTE: security-scan job uses workflow_call which ACT doesn't support.
+      bundle-analysis only runs on pull_request events (skipped for push).
 
 For more information, see: infrastructure/act-testing/README.md
 EOF

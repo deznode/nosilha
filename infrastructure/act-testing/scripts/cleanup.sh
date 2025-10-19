@@ -78,7 +78,7 @@ log_success() {
 }
 
 log_warning() {
-    echo -e "${YELLOW} ${RESET} $1"
+    echo -e "${YELLOW}ï¿½${RESET} $1"
 }
 
 log_error() {
@@ -117,11 +117,11 @@ echo ""
 # Confirm cleanup if not forced
 if [ "$FORCE" = false ]; then
     echo -e "${YELLOW}This will clean up ACT testing resources:${RESET}"
-    echo "  " Stop and remove containers"
-    echo "  " Remove test volumes"
-    echo "  " Clean artifact directory"
+    echo "  â€¢ Stop and remove containers"
+    echo "  â€¢ Remove test volumes"
+    echo "  â€¢ Clean artifact directory"
     if [ "$REMOVE_NETWORK" = true ]; then
-        echo "  " Remove act-testing network"
+        echo "  â€¢ Remove act-testing network"
     fi
     echo ""
     read -p "Continue? (y/N): " -n 1 -r
@@ -156,7 +156,7 @@ if [ -n "$RUNNING_CONTAINERS" ]; then
             echo -e "${GREEN}${RESET}"
             CONTAINERS_STOPPED=$((CONTAINERS_STOPPED + 1))
         else
-            echo -e "${YELLOW}  already stopped${RESET}"
+            echo -e "${YELLOW}ï¿½ already stopped${RESET}"
         fi
     done
 
@@ -235,7 +235,7 @@ if [ "$REMOVE_NETWORK" = true ]; then
 
     if docker network inspect act-testing &> /dev/null; then
         if [ "$FORCE" = false ]; then
-            echo -e "${YELLOW}  Warning: Removing the network will require recreation on next test run${RESET}"
+            echo -e "${YELLOW}ï¿½ Warning: Removing the network will require recreation on next test run${RESET}"
             read -p "Are you sure? (y/N): " -n 1 -r
             echo ""
             if [[ ! $REPLY =~ ^[Yy]$ ]]; then
