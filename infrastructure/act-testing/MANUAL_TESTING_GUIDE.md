@@ -507,14 +507,19 @@ Network removed: Preserved for reuse
 - [ ] No volumes with act-testing label
 - [ ] Network persists for reuse: `docker network ls | grep act-testing`
 - [ ] /tmp/act-artifacts cleaned
+- [ ] No orphaned `act-*` workflow containers (if you ran manual `act` commands)
 - [ ] Exit code: 0
 
 ### Verify Clean Environment
 
 ```bash
-# Verify no ACT containers exist
+# Verify no ACT containers exist on act-testing network
 docker ps -a --filter network=act-testing
 # Expected: Empty list
+
+# Verify no orphaned ACT workflow containers (from manual act commands)
+docker ps -a --filter "name=act-"
+# Expected: Empty list (or only containers you intentionally kept)
 
 # Verify no ACT volumes exist
 docker volume ls --filter label=project=act-testing
@@ -531,6 +536,28 @@ docker network ls | grep act-testing
 - Manual container removal: `docker rm -f $(docker ps -aq --filter network=act-testing)`
 - Manual volume removal: `docker volume prune -f`
 - See [README.md § Troubleshooting](README.md#troubleshooting)
+
+### Additional Cleanup: Manual ACT Commands
+
+**Note**: If you've run `act` commands **directly** (not through the test scripts), you may have additional containers that the cleanup script won't remove. These containers use the `host` network instead of the `act-testing` network.
+
+```bash
+# Check for orphaned ACT workflow containers
+docker ps -a --filter "name=act-"
+
+# If any exist, remove them manually
+docker rm -f $(docker ps -a -q --filter "name=act-")
+```
+
+**Why this happens:**
+- Test scripts (`test-backend.sh`, `test-frontend.sh`) automatically clean up their containers
+- Manual `act` commands create containers on the `host` network
+- The `cleanup.sh` script only targets containers on the `act-testing` network
+
+**When to use this:**
+- After running `act --job <job-name>` commands directly
+- Before/after manual workflow debugging sessions
+- When `docker ps -a` shows containers with names like `act-Backend-CI-CD-*` or `act-Frontend-CI-CD-*`
 
 **Success Criteria**: ✅ Containers removed, volumes pruned, network preserved, exit code 0
 
