@@ -6,7 +6,13 @@ import { z } from "zod";
  */
 
 // Category enum matching backend
-const categoryEnum = z.enum(["Restaurant", "Hotel", "Beach", "Landmark", "all"]);
+const categoryEnum = z.enum([
+  "Restaurant",
+  "Hotel",
+  "Beach",
+  "Landmark",
+  "all",
+]);
 
 // Filter parameters schema
 export const filterSchema = z.object({
@@ -42,7 +48,9 @@ export function parseUrlSearchParams(
     searchQuery: urlParams.q,
     category: urlParams.category as z.infer<typeof categoryEnum> | undefined,
     town: urlParams.town,
-    minRating: urlParams.minRating ? parseFloat(urlParams.minRating) : undefined,
+    minRating: urlParams.minRating
+      ? parseFloat(urlParams.minRating)
+      : undefined,
     hasImage: urlParams.hasImage === "true",
   });
 }

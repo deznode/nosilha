@@ -41,8 +41,8 @@ export default function Banner({
         <circle r={1} cx={1} cy={1} />
       </svg>
       {message}&nbsp;
-      {linkUrl && <span aria-hidden="true">&rarr;</span>}
-      {" "}<span aria-hidden="true">✨</span>
+      {linkUrl && <span aria-hidden="true">&rarr;</span>}{" "}
+      <span aria-hidden="true">✨</span>
     </>
   );
 
