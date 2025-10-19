@@ -90,7 +90,8 @@ Parse the input: $ARGUMENTS
 !`git branch --show-current`
 !`ls -la`
 !`ls -la plan/specs/ 2>/dev/null || echo "No specs directory"`
-!`cat AGENT_TODOS.md 2>/dev/null || echo "No existing AGENT_TODOS.md"`
+!`cat AGENT_TODOS.md 2>/dev/null || echo "No AGENT_TODOS.md in project root"`
+!`if [ -n "$SPEC_NAME" ]; then cat plan/specs/$SPEC_NAME/AGENT_TODOS.md 2>/dev/null || echo "No AGENT_TODOS.md in spec directory"; fi`
 
 ## Input Type Detection
 
@@ -134,6 +135,10 @@ You are a strategic leader who:
 ## AGENT_TODOS.md Structure
 
 Create/update this file to track all work:
+
+**File Location Based on Input Type**:
+- **Spec Kit** (e.g., `oauth-integration`): Create at `plan/specs/{spec-name}/AGENT_TODOS.md`
+- **Natural Language Request**: Create at `./AGENT_TODOS.md` (project root)
 
 ````markdown
 # Agent Task Tracking
@@ -228,6 +233,7 @@ graph TD
 After gathering context:
 
 1. **Create AGENT_TODOS.md** with:
+   - **Location**: `plan/specs/{spec-name}/AGENT_TODOS.md` for Spec Kit, `./AGENT_TODOS.md` for natural language request
    - Active enhancement flags noted
    - Flag-specific task considerations
    - Enhanced success criteria based on thinking mode
@@ -273,7 +279,7 @@ The `/implement` command will:
 - Apply all active enhancement flags automatically
 
 You should:
-- Create AGENT_TODOS.md to track high-level phases (e.g., "Implementation Phase 1", "Testing Phase", "Deployment Phase")
+- Create `plan/specs/{spec-name}/AGENT_TODOS.md` to track high-level phases (e.g., "Implementation Phase 1", "Testing Phase", "Deployment Phase")
 - Monitor `/implement` progress and update AGENT_TODOS.md with phase completions
 - Step in only if `/implement` gets blocked and needs guidance
 
@@ -365,6 +371,8 @@ To orchestrate our team effectively, I need to understand:
 ### Creating Enhanced Task Tracking
 
 I'll create AGENT_TODOS.md with flag-based enhancements:
+- **Spec Kit**: `plan/specs/{spec-name}/AGENT_TODOS.md`
+- **Natural Language**: `./AGENT_TODOS.md`
 
 [Create file noting active flags and enhanced requirements]
 
@@ -399,7 +407,7 @@ When working with a spec kit from plan/specs/{spec-name}/:
 ```markdown
 I've reviewed the spec.md and tasks.md. I'll now delegate implementation to the `/implement` command, which will execute the tasks systematically.
 
-I've created AGENT_TODOS.md to track high-level phases. I'll monitor progress and update as implementation proceeds.
+I've created `plan/specs/{spec-name}/AGENT_TODOS.md` to track high-level phases. I'll monitor progress and update as implementation proceeds.
 ```
 
 Then invoke:
