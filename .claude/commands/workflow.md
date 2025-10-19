@@ -90,7 +90,7 @@ Parse the input: $ARGUMENTS
 !`git branch --show-current`
 !`ls -la`
 !`ls -la plan/specs/ 2>/dev/null || echo "No specs directory"`
-!`cat AGENT_TODOS.md 2>/dev/null || echo "No AGENT_TODOS.md in project root"`
+!`cat plan/AGENT_TODOS.md 2>/dev/null || echo "No AGENT_TODOS.md in plan directory"`
 !`if [ -n "$SPEC_NAME" ]; then cat plan/specs/$SPEC_NAME/AGENT_TODOS.md 2>/dev/null || echo "No AGENT_TODOS.md in spec directory"; fi`
 
 ## Input Type Detection
@@ -138,7 +138,12 @@ Create/update this file to track all work:
 
 **File Location Based on Input Type**:
 - **Spec Kit** (e.g., `oauth-integration`): Create at `plan/specs/{spec-name}/AGENT_TODOS.md`
-- **Natural Language Request**: Create at `./AGENT_TODOS.md` (project root)
+- **Natural Language Request**: Create at `plan/AGENT_TODOS.md`
+
+**Archiving Strategy for Natural Language Requests**:
+- Before creating new `plan/AGENT_TODOS.md`, check if one already exists
+- If exists: Move to `plan/archive/AGENT_TODOS-{timestamp}.md` (e.g., `AGENT_TODOS-2025-10-18-143022.md`)
+- This preserves previous work history and prevents conflicts between unrelated features
 
 ````markdown
 # Agent Task Tracking
@@ -232,14 +237,20 @@ graph TD
 
 After gathering context:
 
-1. **Create AGENT_TODOS.md** with:
-   - **Location**: `plan/specs/{spec-name}/AGENT_TODOS.md` for Spec Kit, `./AGENT_TODOS.md` for natural language request
+1. **Archive existing AGENT_TODOS.md (if natural language request)**:
+   - Check if `plan/AGENT_TODOS.md` exists
+   - If exists: Move to `plan/archive/AGENT_TODOS-{timestamp}.md` (format: `AGENT_TODOS-YYYY-MM-DD-HHMMSS.md`)
+   - Example: `!mv plan/AGENT_TODOS.md plan/archive/AGENT_TODOS-2025-10-18-143022.md`
+   - This preserves previous work history automatically
+
+2. **Create AGENT_TODOS.md** with:
+   - **Location**: `plan/specs/{spec-name}/AGENT_TODOS.md` for Spec Kit, `plan/AGENT_TODOS.md` for natural language request
    - Active enhancement flags noted
    - Flag-specific task considerations
    - Enhanced success criteria based on thinking mode
    - [If Spec Kit]: Map tasks from tasks.md into AGENT_TODOS.md format with agent assignments
 
-2. **Spec Kit Task Mapping** (if applicable):
+3. **Spec Kit Task Mapping** (if applicable):
    - Review tasks.md for ordered implementation tasks
    - Preserve original task IDs from tasks.md (e.g., T-001, T-002) for traceability
    - Identify task dependencies from the spec and tasks.md
@@ -249,7 +260,7 @@ After gathering context:
    - Group tasks into logical phases for progress tracking
    - Reference spec.md sections for context understanding
 
-3. **Apply Enhanced Planning**:
+4. **Apply Enhanced Planning**:
    - **--seq**: Create detailed step-by-step execution plan
    - **--exa**: Leverage web research for requirements and best practices
    - **--c7**: Research and apply industry best practices
@@ -257,7 +268,7 @@ After gathering context:
    - **--thinkhard**: Deep dive on technical challenges
    - **--thinkharder**: Exhaustive risk and opportunity analysis
 
-3. **Agent Assignment with Flag Context**:
+5. **Agent Assignment with Flag Context**:
    When flags are active, pass enhanced instructions to agents
 
 ### Phase 3: Agent Orchestration
@@ -370,9 +381,12 @@ To orchestrate our team effectively, I need to understand:
 
 ### Creating Enhanced Task Tracking
 
+[If Natural Language Request and plan/AGENT_TODOS.md exists]:
+I'll first archive the existing `plan/AGENT_TODOS.md` to `plan/archive/AGENT_TODOS-{timestamp}.md`
+
 I'll create AGENT_TODOS.md with flag-based enhancements:
 - **Spec Kit**: `plan/specs/{spec-name}/AGENT_TODOS.md`
-- **Natural Language**: `./AGENT_TODOS.md`
+- **Natural Language**: `plan/AGENT_TODOS.md`
 
 [Create file noting active flags and enhanced requirements]
 
