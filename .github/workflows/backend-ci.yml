@@ -106,7 +106,17 @@ jobs:
       - name: Configure Testcontainers
         run: |
           echo "TESTCONTAINERS_REUSE_ENABLE=true" >> $GITHUB_ENV
-          echo "TESTCONTAINERS_RYUK_DISABLED=false" >> $GITHUB_ENV
+          # ACT uses sibling PostgreSQL container (no Docker-in-Docker)
+          if [ "$ACT" = "true" ]; then
+            echo "TESTCONTAINERS_RYUK_DISABLED=true" >> $GITHUB_ENV
+            echo "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/nosilha_test" >> $GITHUB_ENV
+            echo "SPRING_DATASOURCE_USERNAME=test" >> $GITHUB_ENV
+            echo "SPRING_DATASOURCE_PASSWORD=test" >> $GITHUB_ENV
+            echo "ℹ️ Running in ACT - using sibling PostgreSQL container"
+          else
+            echo "TESTCONTAINERS_RYUK_DISABLED=false" >> $GITHUB_ENV
+            echo "ℹ️ Running in GitHub Actions - using Testcontainers"
+          fi
 
       # Run comprehensive tests with production Java version
       - name: Run tests and code quality
