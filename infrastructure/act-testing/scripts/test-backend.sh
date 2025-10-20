@@ -131,9 +131,9 @@ cleanup() {
         log_section "Cleanup"
 
         # Stop services
-        if docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.act.yml" ps | grep -q "Up"; then
+        if docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.yaml" ps | grep -q "Up"; then
             log_info "Stopping test services..."
-            docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.act.yml" down
+            docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.yaml" down
             log_success "Services stopped"
         fi
 
@@ -249,19 +249,19 @@ start_services() {
     # Check if cleanup requested
     if [[ "$CLEAN" == "true" ]]; then
         log_info "Cleaning up existing containers and volumes..."
-        docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.act.yml" down -v 2>/dev/null || true
+        docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.yaml" down -v 2>/dev/null || true
     fi
 
     # Start PostgreSQL (primary requirement for backend)
     log_info "Starting PostgreSQL..."
-    docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.act.yml" up -d postgres
+    docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.yaml" up -d postgres
 
     # Wait for health check
     log_info "Waiting for PostgreSQL to be healthy (max 60s)..."
     local timeout=60
     local elapsed=0
     while [[ $elapsed -lt $timeout ]]; do
-        if docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.act.yml" ps postgres | grep -q "healthy"; then
+        if docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.yaml" ps postgres | grep -q "healthy"; then
             log_success "PostgreSQL is healthy"
             return 0
         fi
@@ -270,7 +270,7 @@ start_services() {
     done
 
     log_error "PostgreSQL failed to become healthy within ${timeout}s"
-    docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.act.yml" logs postgres
+    docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.yaml" logs postgres
     exit 5
 }
 

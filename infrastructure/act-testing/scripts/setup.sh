@@ -176,7 +176,7 @@ echo "Pulling ACT runner image (catthehacker/ubuntu:act-22.04)..."
 docker pull catthehacker/ubuntu:act-22.04
 
 echo "Pulling service images..."
-docker pull postgres:15
+docker pull postgres:16
 docker pull redis:7-alpine
 
 echo ""

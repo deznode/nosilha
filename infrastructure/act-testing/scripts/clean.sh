@@ -63,8 +63,8 @@ done
 
 # Stop and remove service containers
 echo -e "${YELLOW}🛑 Stopping act testing services...${NC}"
-if docker-compose -f "$SCRIPT_DIR/../docker/docker-compose.act.yml" ps -q 2>/dev/null | grep -q .; then
-    docker-compose -f "$SCRIPT_DIR/../docker/docker-compose.act.yml" down -v
+if docker-compose -f "$SCRIPT_DIR/../docker/docker-compose.yaml" ps -q 2>/dev/null | grep -q .; then
+    docker-compose -f "$SCRIPT_DIR/../docker/docker-compose.yaml" down -v
     echo -e "${GREEN}✅ Services stopped${NC}"
 else
     echo -e "${GREEN}✅ No services running${NC}"

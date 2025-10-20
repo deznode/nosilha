@@ -106,11 +106,11 @@ test_configuration_files() {
         log_test_fail ".actrc not found"
     fi
 
-    # Check docker-compose.act.yml
-    if [[ -f "$ACT_CONFIG_DIR/docker/docker-compose.act.yml" ]]; then
-        log_test_pass "docker-compose.act.yml exists"
+    # Check docker-compose.yaml
+    if [[ -f "$ACT_CONFIG_DIR/docker/docker-compose.yaml" ]]; then
+        log_test_pass "docker-compose.yaml exists"
     else
-        log_test_fail "docker-compose.act.yml not found"
+        log_test_fail "docker-compose.yaml not found"
     fi
 
     # Check config directory

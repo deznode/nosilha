@@ -42,7 +42,7 @@ log_error() { echo -e "${RED}✗${NC} $1" >&2; }
 # Cleanup trap
 cleanup() {
     log_info "Stopping test services..."
-    docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.act.yml" down 2>/dev/null || true
+    docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.yaml" down 2>/dev/null || true
 }
 trap cleanup EXIT INT TERM
 
@@ -54,7 +54,7 @@ start_services_phased() {
     # Phase 1: Core services (PostgreSQL, Redis)
     log_info "Phase 1: Starting core services..."
     for svc in "${PHASE_1_SERVICES[@]}"; do
-        docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.act.yml" up -d "$svc"
+        docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.yaml" up -d "$svc"
     done
 
     # Wait for Phase 1 health
@@ -62,7 +62,7 @@ start_services_phased() {
     while [[ $elapsed -lt $timeout ]]; do
         local all_healthy=true
         for svc in "${PHASE_1_SERVICES[@]}"; do
-            if ! docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.act.yml" ps "$svc" | grep -q "healthy"; then
+            if ! docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.yaml" ps "$svc" | grep -q "healthy"; then
                 all_healthy=false
                 break
             fi
@@ -77,7 +77,7 @@ start_services_phased() {
     # Phase 2: Emulator services (Firestore, GCS)
     log_info "Phase 2: Starting emulator services..."
     for svc in "${PHASE_2_SERVICES[@]}"; do
-        docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.act.yml" up -d "$svc"
+        docker-compose -f "$ACT_CONFIG_DIR/docker/docker-compose.yaml" up -d "$svc"
     done
 
     # Wait for Phase 2 (longer timeout for emulators)

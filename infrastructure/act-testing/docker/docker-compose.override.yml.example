@@ -8,7 +8,7 @@
 # Usage:
 #   cp docker-compose.override.yml.example docker-compose.override.yml
 #   # Edit docker-compose.override.yml with your custom settings
-#   docker-compose -f docker-compose.act.yml -f docker-compose.override.yml up -d
+#   docker-compose -f docker-compose.yaml -f docker-compose.override.yml up -d
 
 version: '3.9'
 

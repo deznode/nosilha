@@ -153,7 +153,7 @@ infrastructure/act-testing/
 │   ├── test-integration.sh     # Integration tests with services
 │   └── clean.sh                # Cleanup containers and resources
 └── docker/
-    ├── docker-compose.act.yml  # Services for testing
+    ├── docker-compose.yaml     # Services for testing
     └── init-scripts/           # Database initialization
         └── 01-init-test-db.sql
 ```
@@ -252,9 +252,9 @@ act push --workflows .github/workflows/backend-ci.yml
 
 ## 🐳 Service Containers
 
-The `docker-compose.act.yml` provides testing services:
+The `docker-compose.yaml` provides testing services:
 
-- **PostgreSQL 15**: Database for backend tests
+- **PostgreSQL 16**: Database for backend tests
 - **Firestore Emulator**: Metadata storage testing
 - **GCS Emulator**: File storage testing
 - **Redis**: Caching layer testing
@@ -263,16 +263,16 @@ The `docker-compose.act.yml` provides testing services:
 
 ```bash
 # Start all services
-docker-compose -f docker/docker-compose.act.yml up -d
+docker-compose -f docker/docker-compose.yaml up -d
 
 # Stop services
-docker-compose -f docker/docker-compose.act.yml down
+docker-compose -f docker/docker-compose.yaml down
 
 # View service logs
-docker-compose -f docker/docker-compose.act.yml logs
+docker-compose -f docker/docker-compose.yaml logs
 
 # Check service health
-docker-compose -f docker/docker-compose.act.yml ps
+docker-compose -f docker/docker-compose.yaml ps
 ```
 
 ## 🎯 Testing Different Scenarios
@@ -398,16 +398,16 @@ cp docker/docker-compose.override.yml.example docker/docker-compose.override.yml
 **Solutions**:
 ```bash
 # Check service logs
-docker-compose -f docker/docker-compose.act.yml logs postgres
+docker-compose -f docker/docker-compose.yaml logs postgres
 
-# Increase startup timeout (edit docker-compose.yml)
+# Increase startup timeout (edit docker-compose.yaml)
 # Change healthcheck.start_period from 30s to 60s
 
 # Restart services
-docker-compose -f docker/docker-compose.act.yml restart
+docker-compose -f docker/docker-compose.yaml restart
 
 # Verify health
-docker-compose -f docker/docker-compose.act.yml ps
+docker-compose -f docker/docker-compose.yaml ps
 ```
 
 #### 5. Resource Constraints (Exit Code: 3)
@@ -609,7 +609,7 @@ For comprehensive troubleshooting validation, see [quickstart.md](./quickstart.m
 
 2. **Check service health**:
    ```bash
-   docker-compose -f docker/docker-compose.act.yml ps
+   docker-compose -f docker/docker-compose.yaml ps
    ```
 
 3. **Verify resources**:
@@ -779,7 +779,7 @@ act --rm
 ```bash
 # Pull common images before testing
 docker pull catthehacker/ubuntu:act-22.04
-docker pull postgres:15
+docker pull postgres:16
 docker pull redis:7-alpine
 
 # Or use setup script
