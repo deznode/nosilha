@@ -136,9 +136,11 @@ export default function RootLayout({
           <AuthProvider>
             <div className="flex min-h-screen flex-col">
               {/* 3. Render the global Header, main content, and Footer */}
-              <Header />
+              <div className="print:hidden">
+                <Header />
+              </div>
               {/* Cape Verde World Cup 2026 Celebration Banner - Below Header */}
-              <div className="sticky top-16 z-50">
+              <div className="sticky top-16 z-50 print:hidden">
                 <Banner
                   title="Tubarões Azuis: Mundial 2026!"
                   message="From Brockton to Brava, Boston to Praia - the Blue Sharks made history. Read the inside story of Cape Verde's impossible dream."
@@ -146,7 +148,9 @@ export default function RootLayout({
                 />
               </div>
               <main className="animate-fade-in flex-grow">{children}</main>
-              <Footer />
+              <div className="print:hidden">
+                <Footer />
+              </div>
             </div>
           </AuthProvider>
         </QueryProvider>
