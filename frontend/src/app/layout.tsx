@@ -136,9 +136,7 @@ export default function RootLayout({
           <AuthProvider>
             <div className="flex min-h-screen flex-col">
               {/* 3. Render the global Header, main content, and Footer */}
-              <div className="print:hidden">
-                <Header />
-              </div>
+              <Header className="print:hidden" />
               {/* Cape Verde World Cup 2026 Celebration Banner - Below Header */}
               <div className="sticky top-16 z-50 print:hidden">
                 <Banner

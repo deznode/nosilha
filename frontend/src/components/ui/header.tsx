@@ -56,7 +56,11 @@ const cultureNavigation = [
   */
 ].filter(Boolean); // Remove any undefined entries
 
-export function Header() {
+interface HeaderProps {
+  className?: string;
+}
+
+export function Header({ className }: HeaderProps = {}) {
   const { session, user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
@@ -70,7 +74,10 @@ export function Header() {
   return (
     <Disclosure
       as="nav"
-      className="border-border-primary bg-background-primary/80 sticky top-0 z-50 border-b backdrop-blur-sm"
+      className={clsx(
+        "border-border-primary bg-background-primary/80 sticky top-0 z-50 border-b backdrop-blur-sm",
+        className
+      )}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between">
