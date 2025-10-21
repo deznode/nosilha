@@ -79,3 +79,5 @@ k6-*.json
 .github/artifacts/
 
 .playwright-mcp
+
+/CHANGELOG.md
