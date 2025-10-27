@@ -83,4 +83,4 @@ k6-*.json
 /CHANGELOG.md
 
 # Symbolic link to external plugin repository
-arkhe-claude-plugins/
+/arkhe-claude-plugins
