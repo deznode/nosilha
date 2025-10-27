@@ -82,15 +82,17 @@ if ! command -v act &> /dev/null; then
             echo -e "${GREEN}✓ ACT installed successfully${NC}"
         else
             echo -e "${RED}ACT installation skipped. Please install manually:${NC}"
-            echo "  macOS:   brew install act"
-            echo "  Linux:   curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash"
-            echo "  Windows: scoop install act"
+            echo "  macOS:          brew install act"
+            echo "  Linux (user):   curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | bash -s -- -b ~/.local/bin"
+            echo "  Linux (system): curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash -s -- -b /usr/local/bin"
+            echo "  Windows:        scoop install act"
             exit 4
         fi
     else
         echo -e "${RED}Homebrew not found. Please install ACT manually:${NC}"
-        echo "  Linux:   curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash"
-        echo "  Windows: scoop install act"
+        echo "  Linux (user):   curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | bash -s -- -b ~/.local/bin"
+        echo "  Linux (system): curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash -s -- -b /usr/local/bin"
+        echo "  Windows:        scoop install act"
         echo "  Or visit: https://github.com/nektos/act#installation"
         exit 4
     fi
