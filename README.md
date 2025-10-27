@@ -207,6 +207,11 @@ For production deployment to Google Cloud:
 
 See [`CLAUDE.md`](CLAUDE.md) for detailed architecture documentation and troubleshooting guide.
 
+## 🧾 Version History
+
+You can view all project releases, updates, and planned milestones in the  
+➡️ [**Nos Ilha Changelog**](CHANGELOG.md)
+
 ## 🤝 Contribution Guidelines
 
 This is an open project dedicated to the celebration of Brava. We welcome contributions from the community. Please read our `CONTRIBUTING.md` file for details on our code of conduct and the process for submitting pull requests.
