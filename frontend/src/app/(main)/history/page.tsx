@@ -10,6 +10,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { CitationSection } from "@/components/ui/citation-section";
 import { ImageWithCourtesy } from "@/components/ui/image-with-courtesy";
+import { PrintButton } from "@/components/ui/print-button";
+import { PrintPageWrapper } from "@/components/ui/print-page-wrapper";
 
 // Enable ISR with 2 hour revalidation for historical content
 export const revalidate = 7200;
@@ -210,7 +212,8 @@ const citations = [
 
 export default function HistoryPage() {
   return (
-    <div className="bg-background-secondary font-sans">
+    <PrintPageWrapper>
+      <div className="bg-background-secondary font-sans">
       {/* Full-Screen Video Hero */}
       <VideoHeroSection
         videoSrc="/images/history/brava-overview.mp4"
@@ -225,6 +228,9 @@ export default function HistoryPage() {
           title="History & Heritage"
           subtitle="Discover the rich cultural tapestry and fascinating history of Brava Island, from its volcanic origins to its vibrant musical traditions."
         />
+
+        {/* Print Button */}
+        <PrintButton className="mb-8" />
 
         {/* Introduction Section */}
         <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
@@ -945,10 +951,15 @@ export default function HistoryPage() {
             </Link>
           </div>
         </section>
-        <CitationSection citations={citations} />
+
+        {/* Citation Section - don't split across pages */}
+        <div className="break-inside-avoid">
+          <CitationSection citations={citations} />
+        </div>
         <BackToTopButton />
       </div>
     </div>
+    </PrintPageWrapper>
   );
 }
 

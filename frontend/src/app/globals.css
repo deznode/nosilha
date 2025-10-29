@@ -157,3 +157,108 @@
     @apply focus-visible:ring-ocean-blue focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
   }
 }
+
+@layer utilities {
+  /* ========================================
+   * PRINT MEDIA UTILITIES
+   * ======================================== */
+  @media print {
+    /* === Typography Optimization === */
+    body {
+      color: black;
+      background-color: white;
+      font-size: 12pt; /* WCAG 2.1 AA minimum */
+      line-height: 1.5;
+      font-family: var(--font-serif); /* Merriweather for print readability */
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      color: black;
+      page-break-after: avoid; /* Keep headings with following content */
+    }
+
+    /* === Link URL Display (Footnote Style) === */
+
+    /* Show URLs for absolute links */
+    a[href^="http"]::after {
+      content: " (" attr(href) ")";
+      font-size: 0.875rem; /* 14px - smaller than body text */
+      color: #555; /* Subtle gray to differentiate from main text */
+      word-wrap: break-word; /* Prevent URL overflow */
+    }
+
+    /* Prepend domain for relative links */
+    a[href^="/"]::after {
+      content: " (https://nosilha.com" attr(href) ")";
+      font-size: 0.875rem;
+      color: #555;
+      word-wrap: break-word;
+    }
+
+    /* Don't show URLs for anchor links (same page) */
+    a[href^="#"]::after {
+      content: none;
+    }
+
+    /* === Background & Shadow Removal === */
+
+    /* Remove all decorative backgrounds (conserve ink) */
+    *:not(img) {
+      background-color: white !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+    }
+
+    /* === Image Optimization === */
+
+    img {
+      max-width: 100%;
+      page-break-inside: avoid; /* Don't split images across pages */
+    }
+
+    /* Figures (image + caption) - keep together */
+    figure {
+      page-break-inside: avoid;
+    }
+
+    figcaption {
+      color: black;
+      font-size: 0.875rem;
+    }
+
+    /* === Page Break Management === */
+
+    /* Prevent orphaned headings */
+    h1, h2, h3 {
+      page-break-after: avoid;
+    }
+
+    /* Keep related elements together */
+    .break-inside-avoid,
+    blockquote,
+    pre,
+    table {
+      page-break-inside: avoid;
+    }
+
+    /* === Margins for Print === */
+
+    @page {
+      margin: 2cm; /* Standard print margins */
+    }
+
+    /* === Video Elements === */
+
+    /* Hide video players (can't play videos on paper) */
+    video,
+    iframe[src*="youtube"],
+    iframe[src*="vimeo"] {
+      display: none;
+    }
+
+    /* Show video captions/descriptions if they exist */
+    .video-description {
+      display: block !important;
+    }
+  }
+}
