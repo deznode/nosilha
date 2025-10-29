@@ -84,9 +84,10 @@ check_act_tool() {
     if ! command -v act &> /dev/null; then
         log_error "ACT tool not found"
         echo "Install ACT:"
-        echo "  macOS:   brew install act"
-        echo "  Linux:   curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash"
-        echo "  Windows: scoop install act"
+        echo "  macOS:          brew install act"
+        echo "  Linux (user):   curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | bash -s -- -b ~/.local/bin"
+        echo "  Linux (system): curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash -s -- -b /usr/local/bin"
+        echo "  Windows:        scoop install act"
         EXIT_CODE=4
         VALIDATION_FAILED=1
         return 1

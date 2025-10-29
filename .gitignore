@@ -79,3 +79,8 @@ k6-*.json
 .github/artifacts/
 
 .playwright-mcp
+
+/CHANGELOG.md
+
+# Symbolic link to external plugin repository
+/arkhe-claude-plugins
