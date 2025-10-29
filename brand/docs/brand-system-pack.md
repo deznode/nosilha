@@ -186,5 +186,3 @@ For version history and release notes, see
 [`CHANGELOG.md`](../CHANGELOG.md)
 
 > *“Preserving the soul of Brava through design, code, and community.”*
-
-

@@ -8,6 +8,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { BackToTopButton } from "@/components/ui/back-to-top-button";
 import { CitationSection } from "@/components/ui/citation-section";
+import { PrintButton } from "@/components/ui/print-button";
+import { PrintPageWrapper } from "@/components/ui/print-page-wrapper";
 
 // Enable ISR with 2 hour revalidation for people content
 export const revalidate = 7200;
@@ -485,12 +487,16 @@ const citations = [
 
 export default function PeoplePage() {
   return (
-    <div className="bg-background-secondary font-sans">
+    <PrintPageWrapper>
+      <div className="bg-background-secondary font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader
           title="Historical Figures"
           subtitle="Discover the remarkable people who shaped Brava Island's rich cultural heritage and continue to inspire generations."
         />
+
+        {/* Print Button */}
+        <PrintButton className="mb-8" />
 
         {/* Introduction Section */}
         <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
@@ -929,10 +935,15 @@ export default function PeoplePage() {
             </Link>
           </div>
         </section>
-        <CitationSection citations={citations} />
+
+        {/* Citation Section - don't split across pages */}
+        <div className="break-inside-avoid">
+          <CitationSection citations={citations} />
+        </div>
         <BackToTopButton />
       </div>
     </div>
+    </PrintPageWrapper>
   );
 }
 
