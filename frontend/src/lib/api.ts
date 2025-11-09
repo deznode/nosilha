@@ -1,5 +1,10 @@
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town } from "@/types/town";
+import type {
+  ReactionCreateDto,
+  ReactionResponseDto,
+  ReactionCountsDto,
+} from "@/types/reaction";
 import { getApiClient } from "@/lib/api-factory";
 
 /**
@@ -122,6 +127,76 @@ export async function getTownsForMap(): Promise<Town[]> {
 
 // All components should use the unified API functions above that automatically
 // switch between mock and backend implementations based on environment configuration.
+
+// ================================
+// REACTION OPERATIONS (User Story 2)
+// ================================
+
+/**
+ * Submits a new reaction or updates an existing reaction.
+ * Requires user authentication via JWT token.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param createDto Contains contentId and reactionType
+ * @returns A promise that resolves to the reaction response with updated count
+ * @throws Error if rate limit exceeded (HTTP 429)
+ * @throws Error if authentication failed (HTTP 401)
+ */
+export async function submitReaction(
+  createDto: ReactionCreateDto
+): Promise<ReactionResponseDto> {
+  return apiClient.submitReaction(createDto);
+}
+
+/**
+ * Removes user's reaction to content.
+ * Requires user authentication via JWT token.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param contentId UUID of the heritage page/content
+ * @throws Error if reaction doesn't exist (HTTP 404)
+ * @throws Error if authentication failed (HTTP 401)
+ */
+export async function deleteReaction(contentId: string): Promise<void> {
+  return apiClient.deleteReaction(contentId);
+}
+
+/**
+ * Gets aggregated reaction counts for a specific content page.
+ * Public endpoint - no authentication required to view counts.
+ * If user is authenticated, response includes their current reaction.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param contentId UUID of the heritage page/content
+ * @returns A promise that resolves to reaction counts and user's reaction (if authenticated)
+ */
+export async function getReactionCounts(
+  contentId: string
+): Promise<ReactionCountsDto> {
+  return apiClient.getReactionCounts(contentId);
+}
+
+// ================================
+// SUGGESTION OPERATIONS (User Story 3)
+// ================================
+
+/**
+ * Submits a content improvement suggestion.
+ * No authentication required - allows community contributions.
+ * Rate limited to 5 submissions per hour per IP address.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param suggestionDto Contains contentId, name, email, suggestionType, message, and honeypot
+ * @returns A promise that resolves to the suggestion response with confirmation message
+ * @throws Error if rate limit exceeded (HTTP 429)
+ * @throws Error if validation fails (HTTP 400)
+ */
+export async function submitSuggestion(suggestionDto: {
+  contentId: string;
+  name: string;
+  email: string;
+  suggestionType: 'CORRECTION' | 'ADDITION' | 'FEEDBACK';
+  message: string;
+  honeypot?: string;
+}): Promise<{ id: string | null; message: string }> {
+  return apiClient.submitSuggestion(suggestionDto);
+}
 
 // ================================
 // UTILITY EXPORTS

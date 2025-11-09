@@ -6,6 +6,11 @@ import type {
   ApiResponse,
   PagedApiResponse,
 } from "@/lib/api-contracts";
+import type {
+  ReactionCreateDto,
+  ReactionResponseDto,
+  ReactionCountsDto,
+} from "@/types/reaction";
 import { CacheConfig } from "@/lib/api-contracts";
 import { env } from "@/lib/env";
 import { supabase } from "@/lib/supabase-client";
@@ -306,5 +311,165 @@ export class BackendApiClient implements ApiClient {
     // Extract and validate data from ApiResponse
     const rawData = apiResponse.data || [];
     return validateTowns(rawData);
+  }
+
+  // ================================
+  // REACTION OPERATIONS (User Story 2)
+  // ================================
+
+  /**
+   * Submits a new reaction or updates an existing reaction.
+   *
+   * **Authentication Required**: Uses JWT token from Supabase session.
+   *
+   * **Business Rules**:
+   * - If user has no reaction: creates new reaction
+   * - If user clicks same reaction type: removes reaction (toggle off)
+   * - If user clicks different type: replaces old with new reaction
+   *
+   * **Rate Limiting**: Maximum 10 reactions per minute per user.
+   * Backend returns HTTP 429 if exceeded.
+   *
+   * @param createDto Contains contentId and reactionType
+   * @returns ReactionResponseDto with reaction details and updated count
+   * @throws Error if rate limit exceeded (HTTP 429)
+   * @throws Error if authentication failed (HTTP 401)
+   */
+  async submitReaction(
+    createDto: ReactionCreateDto
+  ): Promise<ReactionResponseDto> {
+    const endpoint = `${env.apiUrl}/api/v1/reactions`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(createDto),
+      cache: "no-store", // Never cache POST requests
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        throw new Error("Too many reactions. Please wait a moment.");
+      }
+      throw new Error(`Failed to submit reaction: ${response.status}`);
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Removes user's reaction to content.
+   *
+   * **Authentication Required**: Uses JWT token from Supabase session.
+   *
+   * @param contentId UUID of the heritage page/content
+   * @throws Error if reaction doesn't exist (HTTP 404)
+   * @throws Error if authentication failed (HTTP 401)
+   */
+  async deleteReaction(contentId: string): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/reactions/content/${contentId}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "DELETE",
+      cache: "no-store", // Never cache DELETE requests
+    });
+
+    if (!response.ok && response.status !== 204) {
+      if (response.status === 404) {
+        throw new Error("Reaction not found");
+      }
+      throw new Error(`Failed to delete reaction: ${response.status}`);
+    }
+  }
+
+  /**
+   * Gets aggregated reaction counts for a specific content page.
+   *
+   * **Public Endpoint**: No authentication required to view counts.
+   * If user is authenticated, response includes their current reaction.
+   *
+   * **Caching**: Results cached for 5 minutes (ISR).
+   *
+   * @param contentId UUID of the heritage page/content
+   * @returns ReactionCountsDto with counts map and user's reaction (if authenticated)
+   */
+  async getReactionCounts(contentId: string): Promise<ReactionCountsDto> {
+    const endpoint = `${env.apiUrl}/api/v1/reactions/content/${contentId}`;
+
+    // Use authenticatedFetch to include JWT if available, but don't fail if not authenticated
+    try {
+      const response = await this.authenticatedFetch(endpoint, {
+        method: "GET",
+        next: CacheConfig.REACTION_COUNTS,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch reaction counts: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      // If authentication failed but we're just viewing counts, try unauthenticated
+      const response = await fetch(endpoint, {
+        method: "GET",
+        next: CacheConfig.REACTION_COUNTS,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch reaction counts: ${response.status}`);
+      }
+
+      return await response.json();
+    }
+  }
+
+  /**
+   * Submits a content improvement suggestion.
+   *
+   * **Public Endpoint**: No authentication required - allows community contributions.
+   *
+   * **Rate Limiting**: 5 submissions per hour per IP address.
+   *
+   * **Spam Protection**: Honeypot field validation on server side.
+   *
+   * @param suggestionDto Contains contentId, name, email, suggestionType, message, and honeypot
+   * @returns Promise resolving to suggestion response with confirmation message
+   * @throws Error if rate limit exceeded (HTTP 429)
+   * @throws Error if validation fails (HTTP 400)
+   */
+  async submitSuggestion(suggestionDto: {
+    contentId: string;
+    name: string;
+    email: string;
+    suggestionType: 'CORRECTION' | 'ADDITION' | 'FEEDBACK';
+    message: string;
+    honeypot?: string;
+  }): Promise<{ id: string | null; message: string }> {
+    const endpoint = `${env.apiUrl}/api/v1/suggestions`;
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(suggestionDto),
+      cache: "no-store", // Never cache POST requests
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Rate limit exceeded. Please try again later.");
+      }
+      if (response.status === 400) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Invalid suggestion data. Please check your input.");
+      }
+      throw new Error(`Failed to submit suggestion: ${response.status}`);
+    }
+
+    return await response.json();
   }
 }

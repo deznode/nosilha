@@ -18,6 +18,7 @@ import {
 import type { DirectoryEntry } from "@/types/directory";
 import { ImageGallery } from "@/components/ui/image-gallery";
 import { ContributePhotosSection } from "@/components/ui/contribute-photos-section";
+import { ContentActionToolbar } from "@/components/content-actions/ContentActionToolbar";
 import { getRestaurantDetails, getHotelDetails } from "@/lib/api-validation";
 
 interface DetailPageProps {
@@ -167,6 +168,16 @@ export default async function DirectoryEntryDetailPage({
             <p className="text-text-secondary mt-4 text-lg leading-relaxed">
               {entry.description}
             </p>
+
+            {/* Content Action Toolbar */}
+            <div className="mt-6">
+              <ContentActionToolbar
+                contentId={entry.id}
+                title={entry.name}
+                description={entry.description}
+                image={entry.imageUrl || undefined}
+              />
+            </div>
 
             <div className="border-border-primary my-8 border-t" />
 

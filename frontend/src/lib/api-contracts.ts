@@ -1,5 +1,10 @@
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town } from "@/types/town";
+import type {
+  ReactionCreateDto,
+  ReactionResponseDto,
+  ReactionCountsDto,
+} from "@/types/reaction";
 
 /**
  * API Contracts - Defines the interface for all API implementations
@@ -46,6 +51,25 @@ export interface ApiClient {
     category?: string,
     description?: string
   ): Promise<string>;
+
+  // Reaction Operations (User Story 2)
+  submitReaction(
+    createDto: ReactionCreateDto
+  ): Promise<ReactionResponseDto>;
+
+  deleteReaction(contentId: string): Promise<void>;
+
+  getReactionCounts(contentId: string): Promise<ReactionCountsDto>;
+
+  // Suggestion Operations (User Story 3)
+  submitSuggestion(suggestionDto: {
+    contentId: string;
+    name: string;
+    email: string;
+    suggestionType: 'CORRECTION' | 'ADDITION' | 'FEEDBACK';
+    message: string;
+    honeypot?: string;
+  }): Promise<{ id: string | null; message: string }>;
 }
 
 // ================================
@@ -137,6 +161,9 @@ export const CacheConfig = {
 
   // Map data - needs to be dynamic
   MAP_DATA: { cache: "no-store" as const },
+
+  // Reaction counts - cached for 5 minutes (per spec.md FR-015)
+  REACTION_COUNTS: { revalidate: 300 }, // 5 minutes
 } as const;
 
 // ================================
