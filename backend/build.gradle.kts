@@ -10,6 +10,7 @@ plugins {
     kotlin("plugin.jpa") version "1.9.25"
     jacoco
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
 }
 
 group = "com.nosilha"
@@ -162,11 +163,29 @@ detekt {
 
 tasks.withType<Detekt>().configureEach {
     jvmTarget = "21"
+    parallel = true // Enable parallel execution for better performance
     reports {
         sarif.required.set(true)
         md.required.set(true)
+        html.required.set(true) // Add HTML report for better local viewing
     }
 }
 tasks.withType<DetektCreateBaselineTask>().configureEach {
     jvmTarget = "21"
+}
+
+// Ktlint configuration for code formatting
+configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    version.set("1.2.1")
+    android.set(false)
+    ignoreFailures.set(false)
+    reporters {
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.SARIF)
+    }
+    filter {
+        exclude("**/generated/**")
+        include("**/kotlin/**")
+    }
 }

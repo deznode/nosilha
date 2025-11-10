@@ -1,9 +1,9 @@
 package com.nosilha.core.directory.domain
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.nosilha.core.directory.repository.TownRepository
 import com.nosilha.core.shared.api.TownDto
 import com.nosilha.core.shared.exception.ResourceNotFoundException
-import com.nosilha.core.directory.repository.TownRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -95,32 +95,40 @@ class TownService(
         founded: String? = null,
         highlights: List<String> = emptyList(),
         heroImage: String? = null,
-        gallery: List<String> = emptyList()
+        gallery: List<String> = emptyList(),
     ): TownDto {
-        val town = Town().apply {
-            this.name = name
-            this.description = description
-            this.latitude = latitude
-            this.longitude = longitude
-            this.population = population
-            this.elevation = elevation
-            this.founded = founded
-            this.heroImage = heroImage
+        val town =
+            Town().apply {
+                this.name = name
+                this.description = description
+                this.latitude = latitude
+                this.longitude = longitude
+                this.population = population
+                this.elevation = elevation
+                this.founded = founded
+                this.heroImage = heroImage
 
-            // Generate a simple, URL-friendly slug
-            this.slug = name.lowercase()
-                .replace(Regex("\\s+"), "-") // Replace spaces with hyphens
-                .replace(Regex("[^a-z0-9-]"), "") // Remove non-alphanumeric characters (except hyphens)
+                // Generate a simple, URL-friendly slug
+                this.slug =
+                    name.lowercase()
+                        .replace(Regex("\\s+"), "-") // Replace spaces with hyphens
+                        .replace(Regex("[^a-z0-9-]"), "") // Remove non-alphanumeric characters (except hyphens)
 
-            // Serialize arrays to JSON
-            this.highlights = if (highlights.isNotEmpty()) {
-                objectMapper.writeValueAsString(highlights)
-            } else null
+                // Serialize arrays to JSON
+                this.highlights =
+                    if (highlights.isNotEmpty()) {
+                        objectMapper.writeValueAsString(highlights)
+                    } else {
+                        null
+                    }
 
-            this.gallery = if (gallery.isNotEmpty()) {
-                objectMapper.writeValueAsString(gallery)
-            } else null
-        }
+                this.gallery =
+                    if (gallery.isNotEmpty()) {
+                        objectMapper.writeValueAsString(gallery)
+                    } else {
+                        null
+                    }
+            }
 
         val savedTown = repository.save(town)
         return savedTown.toDto()
@@ -155,10 +163,11 @@ class TownService(
         founded: String? = null,
         highlights: List<String> = emptyList(),
         heroImage: String? = null,
-        gallery: List<String> = emptyList()
+        gallery: List<String> = emptyList(),
     ): TownDto {
-        val existingTown = repository.findById(id)
-            .orElseThrow { ResourceNotFoundException("Town with ID '$id' not found.") }
+        val existingTown =
+            repository.findById(id)
+                .orElseThrow { ResourceNotFoundException("Town with ID '$id' not found.") }
 
         existingTown.apply {
             this.name = name
@@ -171,18 +180,25 @@ class TownService(
             this.heroImage = heroImage
 
             // Update slug if name changed
-            this.slug = name.lowercase()
-                .replace(Regex("\\s+"), "-")
-                .replace(Regex("[^a-z0-9-]"), "")
+            this.slug =
+                name.lowercase()
+                    .replace(Regex("\\s+"), "-")
+                    .replace(Regex("[^a-z0-9-]"), "")
 
             // Update JSON arrays
-            this.highlights = if (highlights.isNotEmpty()) {
-                objectMapper.writeValueAsString(highlights)
-            } else null
+            this.highlights =
+                if (highlights.isNotEmpty()) {
+                    objectMapper.writeValueAsString(highlights)
+                } else {
+                    null
+                }
 
-            this.gallery = if (gallery.isNotEmpty()) {
-                objectMapper.writeValueAsString(gallery)
-            } else null
+            this.gallery =
+                if (gallery.isNotEmpty()) {
+                    objectMapper.writeValueAsString(gallery)
+                } else {
+                    null
+                }
         }
 
         val updatedTown = repository.save(existingTown)

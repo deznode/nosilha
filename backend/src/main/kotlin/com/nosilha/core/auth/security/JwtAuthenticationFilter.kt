@@ -21,7 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 @Order(1)
 class JwtAuthenticationFilter(
     @Value("\${supabase.jwt-secret}") private val jwtSecret: String,
-    private val eventPublisher: ApplicationEventPublisher
+    private val eventPublisher: ApplicationEventPublisher,
 ) : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
@@ -58,7 +58,10 @@ class JwtAuthenticationFilter(
             .payload
     }
 
-    private fun authenticateUser(claims: Claims, request: HttpServletRequest) {
+    private fun authenticateUser(
+        claims: Claims,
+        request: HttpServletRequest,
+    ) {
         // If the token is valid and user is not yet authenticated
         if (SecurityContextHolder.getContext().authentication == null) {
             val userId = claims.subject
@@ -68,7 +71,7 @@ class JwtAuthenticationFilter(
 
             logger.debug(
                 "JWT authentication successful for user: $userId " +
-                    "with authorities: ${authorities.map { it.authority }}"
+                    "with authorities: ${authorities.map { it.authority }}",
             )
 
             // Publish UserLoggedInEvent for other modules to react
@@ -101,7 +104,7 @@ class JwtAuthenticationFilter(
 
     private fun extractAppMetadataRoles(
         claims: Claims,
-        authorities: MutableList<SimpleGrantedAuthority>
+        authorities: MutableList<SimpleGrantedAuthority>,
     ) {
         @Suppress("UNCHECKED_CAST")
         val appMetadata = claims["app_metadata"] as? Map<String, Any>
@@ -122,13 +125,14 @@ class JwtAuthenticationFilter(
     private fun createAuthentication(
         userId: String?,
         authorities: List<SimpleGrantedAuthority>,
-        request: HttpServletRequest
+        request: HttpServletRequest,
     ): UsernamePasswordAuthenticationToken {
-        val authentication = UsernamePasswordAuthenticationToken(
-            userId, // Principal is the user's ID
-            null, // Credentials are not needed for JWT
-            authorities,
-        )
+        val authentication =
+            UsernamePasswordAuthenticationToken(
+                userId, // Principal is the user's ID
+                null, // Credentials are not needed for JWT
+                authorities,
+            )
         authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
         return authentication
     }

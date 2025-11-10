@@ -21,7 +21,7 @@ import java.util.*
  */
 @Service
 class SuggestionService(
-    private val suggestionRepository: SuggestionRepository
+    private val suggestionRepository: SuggestionRepository,
 ) {
     private val logger = LoggerFactory.getLogger(SuggestionService::class.java)
 
@@ -39,7 +39,10 @@ class SuggestionService(
      * @throws HoneypotSpamDetectedException if honeypot field is filled
      */
     @Transactional
-    fun submitSuggestion(dto: SuggestionCreateDto, ipAddress: String?): SuggestionResponseDto {
+    fun submitSuggestion(
+        dto: SuggestionCreateDto,
+        ipAddress: String?,
+    ): SuggestionResponseDto {
         logger.info("Processing suggestion submission for content ${dto.contentId} from IP: $ipAddress")
 
         // Honeypot spam protection
@@ -53,19 +56,20 @@ class SuggestionService(
             logger.warn("Rate limit exceeded for IP: $ipAddress")
             throw RateLimitExceededException(
                 "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
-                    "Please try again later."
+                    "Please try again later.",
             )
         }
 
         // Create and persist suggestion
-        val suggestion = Suggestion(
-            contentId = dto.contentId,
-            name = dto.name.trim(),
-            email = dto.email.trim().lowercase(),
-            suggestionType = dto.suggestionType,
-            message = dto.message.trim(),
-            ipAddress = ipAddress
-        )
+        val suggestion =
+            Suggestion(
+                contentId = dto.contentId,
+                name = dto.name.trim(),
+                email = dto.email.trim().lowercase(),
+                suggestionType = dto.suggestionType,
+                message = dto.message.trim(),
+                ipAddress = ipAddress,
+            )
 
         val savedSuggestion = suggestionRepository.save(suggestion)
         logger.info("Suggestion ${savedSuggestion.id} created successfully for content ${dto.contentId}")
@@ -76,8 +80,9 @@ class SuggestionService(
 
         return SuggestionResponseDto(
             id = savedSuggestion.id!!,
-            message = "Thank you for helping preserve our cultural heritage. Your suggestion has been received " +
-                "and will be reviewed by our team."
+            message =
+                "Thank you for helping preserve our cultural heritage. Your suggestion has been received " +
+                    "and will be reviewed by our team.",
         )
     }
 

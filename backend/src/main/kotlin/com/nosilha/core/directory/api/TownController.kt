@@ -1,9 +1,9 @@
 package com.nosilha.core.directory.api
 
+import com.nosilha.core.directory.domain.TownService
 import com.nosilha.core.shared.api.ApiResponse
 import com.nosilha.core.shared.api.PagedApiResponse
 import com.nosilha.core.shared.api.TownDto
-import com.nosilha.core.directory.domain.TownService
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -114,18 +114,19 @@ class TownController(
     fun createTown(
         @RequestBody request: CreateTownRequestDto,
     ): ApiResponse<TownDto> {
-        val createdTown = service.createTown(
-            name = request.name,
-            description = request.description,
-            latitude = request.latitude,
-            longitude = request.longitude,
-            population = request.population,
-            elevation = request.elevation,
-            founded = request.founded,
-            highlights = request.highlights ?: emptyList(),
-            heroImage = request.heroImage,
-            gallery = request.gallery ?: emptyList()
-        )
+        val createdTown =
+            service.createTown(
+                name = request.name,
+                description = request.description,
+                latitude = request.latitude,
+                longitude = request.longitude,
+                population = request.population,
+                elevation = request.elevation,
+                founded = request.founded,
+                highlights = request.highlights ?: emptyList(),
+                heroImage = request.heroImage,
+                gallery = request.gallery ?: emptyList(),
+            )
         return ApiResponse(data = createdTown, status = HttpStatus.CREATED.value())
     }
 
@@ -141,19 +142,20 @@ class TownController(
         @PathVariable id: UUID,
         @RequestBody request: CreateTownRequestDto,
     ): ApiResponse<TownDto> {
-        val updatedTown = service.updateTown(
-            id = id,
-            name = request.name,
-            description = request.description,
-            latitude = request.latitude,
-            longitude = request.longitude,
-            population = request.population,
-            elevation = request.elevation,
-            founded = request.founded,
-            highlights = request.highlights ?: emptyList(),
-            heroImage = request.heroImage,
-            gallery = request.gallery ?: emptyList()
-        )
+        val updatedTown =
+            service.updateTown(
+                id = id,
+                name = request.name,
+                description = request.description,
+                latitude = request.latitude,
+                longitude = request.longitude,
+                population = request.population,
+                elevation = request.elevation,
+                founded = request.founded,
+                highlights = request.highlights ?: emptyList(),
+                heroImage = request.heroImage,
+                gallery = request.gallery ?: emptyList(),
+            )
         return ApiResponse(data = updatedTown)
     }
 
@@ -184,5 +186,5 @@ data class CreateTownRequestDto(
     val founded: String? = null,
     val highlights: List<String>? = null,
     val heroImage: String? = null,
-    val gallery: List<String>? = null
+    val gallery: List<String>? = null,
 )

@@ -15,9 +15,8 @@ import java.util.UUID
 data class ReactionCreateDto(
     @field:NotNull(message = "Content ID is required")
     val contentId: UUID,
-
     @field:NotNull(message = "Reaction type is required")
-    val reactionType: ReactionType
+    val reactionType: ReactionType,
 )
 
 /**
@@ -35,7 +34,7 @@ data class ReactionResponseDto(
     val id: UUID,
     val contentId: UUID,
     val reactionType: ReactionType,
-    val count: Int
+    val count: Int,
 )
 
 /**
@@ -51,5 +50,5 @@ data class ReactionResponseDto(
 data class ReactionCountsDto(
     val contentId: UUID,
     val reactions: Map<ReactionType, Int>,
-    val userReaction: ReactionType? = null
+    val userReaction: ReactionType? = null,
 )

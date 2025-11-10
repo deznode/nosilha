@@ -25,35 +25,31 @@ import java.util.UUID
 @Table(
     name = "reactions",
     uniqueConstraints = [
-        UniqueConstraint(name = "uq_user_content", columnNames = ["user_id", "content_id"])
+        UniqueConstraint(name = "uq_user_content", columnNames = ["user_id", "content_id"]),
     ],
     indexes = [
         Index(name = "idx_reactions_content", columnList = "content_id"),
         Index(name = "idx_reactions_user", columnList = "user_id"),
-        Index(name = "idx_reactions_created", columnList = "created_at")
-    ]
+        Index(name = "idx_reactions_created", columnList = "created_at"),
+    ],
 )
 data class Reaction(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: UUID? = null,
-
     @NotNull
     @Column(name = "user_id", nullable = false)
     val userId: UUID,
-
     @NotNull
     @Column(name = "content_id", nullable = false)
     val contentId: UUID,
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "reaction_type", nullable = false, length = 20)
     val reactionType: ReactionType,
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    val createdAt: Instant? = null
+    val createdAt: Instant? = null,
 )
 
 /**
@@ -78,5 +74,5 @@ enum class ReactionType {
     INTERESTING,
 
     /** 🙏 Gratitude for sharing, cultural appreciation */
-    THANKYOU
+    THANKYOU,
 }

@@ -29,9 +29,8 @@ import java.util.UUID
 @RestController
 @RequestMapping("/api/v1/directory")
 class RelatedContentController(
-    private val relatedContentService: RelatedContentService
+    private val relatedContentService: RelatedContentService,
 ) {
-
     private val logger = LoggerFactory.getLogger(RelatedContentController::class.java)
 
     /**
@@ -61,22 +60,23 @@ class RelatedContentController(
     @GetMapping("/entries/{contentId}/related")
     fun getRelatedContent(
         @PathVariable contentId: UUID,
-        @RequestParam(name = "limit", defaultValue = "5") limit: Int
+        @RequestParam(name = "limit", defaultValue = "5") limit: Int,
     ): ApiResponse<List<DirectoryEntryDto>> {
         logger.info("GET /api/v1/directory/entries/{}/related?limit={}", contentId, limit)
 
         // Validate limit parameter
-        val validatedLimit = when {
-            limit < 3 -> {
-                logger.warn("Limit {} is below minimum, using 3", limit)
-                3
+        val validatedLimit =
+            when {
+                limit < 3 -> {
+                    logger.warn("Limit {} is below minimum, using 3", limit)
+                    3
+                }
+                limit > 5 -> {
+                    logger.warn("Limit {} exceeds maximum, using 5", limit)
+                    5
+                }
+                else -> limit
             }
-            limit > 5 -> {
-                logger.warn("Limit {} exceeds maximum, using 5", limit)
-                5
-            }
-            else -> limit
-        }
 
         // Find related content using service
         val relatedEntries = relatedContentService.findRelatedContent(contentId, validatedLimit)
@@ -88,7 +88,7 @@ class RelatedContentController(
 
         return ApiResponse(
             data = relatedDtos,
-            status = HttpStatus.OK.value()
+            status = HttpStatus.OK.value(),
         )
     }
 }

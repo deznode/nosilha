@@ -4,8 +4,8 @@ import com.nosilha.core.directory.domain.DirectoryEntry
 import com.nosilha.core.directory.domain.Restaurant
 import com.nosilha.core.directory.repository.DirectoryEntryRepository
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -28,7 +28,6 @@ import java.util.UUID
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class RelatedContentControllerTest {
-
     @Autowired
     private lateinit var mockMvc: MockMvc
 
@@ -45,41 +44,44 @@ class RelatedContentControllerTest {
         directoryEntryRepository.deleteAll()
 
         // Create test restaurants in Nova Sintra
-        testRestaurant1 = Restaurant().apply {
-            name = "Test Restaurant 1"
-            slug = "test-restaurant-1"
-            description = "A traditional Cape Verdean restaurant"
-            town = "Nova Sintra"
-            latitude = 14.8651
-            longitude = -24.7092
-            cuisine = "Cape Verdean,Seafood"
-            imageUrl = "https://example.com/image1.jpg"
-        }
+        testRestaurant1 =
+            Restaurant().apply {
+                name = "Test Restaurant 1"
+                slug = "test-restaurant-1"
+                description = "A traditional Cape Verdean restaurant"
+                town = "Nova Sintra"
+                latitude = 14.8651
+                longitude = -24.7092
+                cuisine = "Cape Verdean,Seafood"
+                imageUrl = "https://example.com/image1.jpg"
+            }
         testRestaurant1 = directoryEntryRepository.save(testRestaurant1)
 
-        testRestaurant2 = Restaurant().apply {
-            name = "Test Restaurant 2"
-            slug = "test-restaurant-2"
-            description = "Another traditional restaurant in the same town"
-            town = "Nova Sintra"
-            latitude = 14.8652
-            longitude = -24.7093
-            cuisine = "Cape Verdean,International"
-            imageUrl = "https://example.com/image2.jpg"
-        }
+        testRestaurant2 =
+            Restaurant().apply {
+                name = "Test Restaurant 2"
+                slug = "test-restaurant-2"
+                description = "Another traditional restaurant in the same town"
+                town = "Nova Sintra"
+                latitude = 14.8652
+                longitude = -24.7093
+                cuisine = "Cape Verdean,International"
+                imageUrl = "https://example.com/image2.jpg"
+            }
         testRestaurant2 = directoryEntryRepository.save(testRestaurant2)
 
         // Create a restaurant in a different town
-        testRestaurant3 = Restaurant().apply {
-            name = "Test Restaurant 3"
-            slug = "test-restaurant-3"
-            description = "A restaurant in a different town"
-            town = "Fajã d'Água"
-            latitude = 14.8500
-            longitude = -24.7200
-            cuisine = "Cape Verdean,Seafood"
-            imageUrl = "https://example.com/image3.jpg"
-        }
+        testRestaurant3 =
+            Restaurant().apply {
+                name = "Test Restaurant 3"
+                slug = "test-restaurant-3"
+                description = "A restaurant in a different town"
+                town = "Fajã d'Água"
+                latitude = 14.8500
+                longitude = -24.7200
+                cuisine = "Cape Verdean,Seafood"
+                imageUrl = "https://example.com/image3.jpg"
+            }
         testRestaurant3 = directoryEntryRepository.save(testRestaurant3)
     }
 
@@ -88,7 +90,7 @@ class RelatedContentControllerTest {
     fun `getRelatedContent with valid contentId should return related entries`() {
         mockMvc.perform(
             get("/api/v1/directory/entries/${testRestaurant1.id}/related")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON),
         )
             .andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -102,20 +104,21 @@ class RelatedContentControllerTest {
     @Test
     @DisplayName("GET /api/v1/directory/entries/{id}/related - Should prioritize same category and town")
     fun `getRelatedContent should prioritize same category and town matches`() {
-        val result = mockMvc.perform(
-            get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=5")
-                .contentType(MediaType.APPLICATION_JSON)
-        )
-            .andExpect(status().isOk)
-            .andExpect(jsonPath("$.data").isArray)
-            .andReturn()
+        val result =
+            mockMvc.perform(
+                get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=5")
+                    .contentType(MediaType.APPLICATION_JSON),
+            )
+                .andExpect(status().isOk)
+                .andExpect(jsonPath("$.data").isArray)
+                .andReturn()
 
         val responseBody = result.response.contentAsString
         println("Related content response: $responseBody")
 
         // testRestaurant2 should be included (same category + same town)
         mockMvc.perform(
-            get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=5")
+            get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=5"),
         )
             .andExpect(jsonPath("$.data[?(@.name == 'Test Restaurant 2')]").exists())
     }
@@ -124,7 +127,7 @@ class RelatedContentControllerTest {
     @DisplayName("GET /api/v1/directory/entries/{id}/related - Should exclude current entry from results")
     fun `getRelatedContent should exclude the current entry from results`() {
         mockMvc.perform(
-            get("/api/v1/directory/entries/${testRestaurant1.id}/related")
+            get("/api/v1/directory/entries/${testRestaurant1.id}/related"),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.data[?(@.id == '${testRestaurant1.id}')]").doesNotExist())
@@ -134,7 +137,7 @@ class RelatedContentControllerTest {
     @DisplayName("GET /api/v1/directory/entries/{id}/related - Should respect limit parameter")
     fun `getRelatedContent with limit parameter should return correct number of results`() {
         mockMvc.perform(
-            get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=3")
+            get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=3"),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.data.length()").value(org.hamcrest.Matchers.lessThanOrEqualTo(3)))
@@ -144,7 +147,7 @@ class RelatedContentControllerTest {
     @DisplayName("GET /api/v1/directory/entries/{id}/related - Should validate limit minimum (3)")
     fun `getRelatedContent with limit below 3 should default to 3`() {
         mockMvc.perform(
-            get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=1")
+            get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=1"),
         )
             .andExpect(status().isOk)
             // Service should auto-correct to minimum of 3 (or return fewer if not enough data)
@@ -156,20 +159,21 @@ class RelatedContentControllerTest {
     fun `getRelatedContent with limit above 5 should cap at 5`() {
         // Create additional test restaurants to ensure we have enough data
         (4..10).forEach { i ->
-            val restaurant = Restaurant().apply {
-                name = "Test Restaurant $i"
-                slug = "test-restaurant-$i"
-                description = "Another test restaurant"
-                town = "Nova Sintra"
-                latitude = 14.8650 + (i * 0.0001)
-                longitude = -24.7090 + (i * 0.0001)
-                cuisine = "Cape Verdean"
-            }
+            val restaurant =
+                Restaurant().apply {
+                    name = "Test Restaurant $i"
+                    slug = "test-restaurant-$i"
+                    description = "Another test restaurant"
+                    town = "Nova Sintra"
+                    latitude = 14.8650 + (i * 0.0001)
+                    longitude = -24.7090 + (i * 0.0001)
+                    cuisine = "Cape Verdean"
+                }
             directoryEntryRepository.save(restaurant)
         }
 
         mockMvc.perform(
-            get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=10")
+            get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=10"),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.data.length()").value(org.hamcrest.Matchers.lessThanOrEqualTo(5)))
@@ -181,7 +185,7 @@ class RelatedContentControllerTest {
         val nonExistentId = UUID.randomUUID()
 
         mockMvc.perform(
-            get("/api/v1/directory/entries/$nonExistentId/related")
+            get("/api/v1/directory/entries/$nonExistentId/related"),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.data").isArray)
@@ -196,7 +200,7 @@ class RelatedContentControllerTest {
         // Even though different towns, shared cuisine should include it
 
         mockMvc.perform(
-            get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=5")
+            get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=5"),
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.data").isArray)

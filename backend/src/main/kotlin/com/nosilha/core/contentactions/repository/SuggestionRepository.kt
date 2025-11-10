@@ -20,7 +20,6 @@ import java.util.UUID
  */
 @Repository
 interface SuggestionRepository : JpaRepository<Suggestion, UUID> {
-
     /**
      * Finds all suggestions for a specific content page.
      *
@@ -42,7 +41,10 @@ interface SuggestionRepository : JpaRepository<Suggestion, UUID> {
      * @param after Timestamp threshold (typically 1 hour ago)
      * @return Number of suggestions from this IP since the given timestamp
      */
-    fun countByIpAddressAndCreatedAtAfter(ipAddress: String, after: Instant): Long
+    fun countByIpAddressAndCreatedAtAfter(
+        ipAddress: String,
+        after: Instant,
+    ): Long
 
     /**
      * Finds the most recent suggestions ordered by creation timestamp.

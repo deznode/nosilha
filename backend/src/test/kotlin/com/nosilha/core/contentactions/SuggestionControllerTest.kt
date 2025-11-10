@@ -1,11 +1,12 @@
 package com.nosilha.core.contentactions
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.nosilha.core.contentactions.api.SuggestionCreateDto
 import com.nosilha.core.contentactions.domain.SuggestionType
 import com.nosilha.core.contentactions.repository.SuggestionRepository
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
@@ -14,8 +15,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
-import org.springframework.transaction.annotation.Transactional
-import com.fasterxml.jackson.databind.ObjectMapper
 import java.util.UUID
 
 /**
@@ -28,7 +27,6 @@ import java.util.UUID
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class SuggestionControllerTest {
-
     @Autowired
     private lateinit var mockMvc: MockMvc
 
@@ -47,19 +45,21 @@ class SuggestionControllerTest {
     @Test
     @DisplayName("POST /api/v1/suggestions - Valid suggestion should return 201 Created")
     fun `submitSuggestion with valid data should create suggestion and return 201`() {
-        val dto = SuggestionCreateDto(
-            contentId = UUID.randomUUID(),
-            name = "Maria Santos",
-            email = "maria.santos@example.com",
-            suggestionType = SuggestionType.CORRECTION,
-            message = "The article states that Eugénio Tavares was born in 1867, but historical records show he was born on October 18, 1867 in Brava Island."
-        )
+        val dto =
+            SuggestionCreateDto(
+                contentId = UUID.randomUUID(),
+                name = "Maria Santos",
+                email = "maria.santos@example.com",
+                suggestionType = SuggestionType.CORRECTION,
+                message = "The article states that Eugénio Tavares was born in 1867, but historical records show " +
+                    "he was born on October 18, 1867 in Brava Island.",
+            )
 
         mockMvc.perform(
             post("/api/v1/suggestions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto))
-                .header("X-Forwarded-For", "192.168.1.100")
+                .header("X-Forwarded-For", "192.168.1.100"),
         )
             .andExpect(status().isCreated)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -77,20 +77,21 @@ class SuggestionControllerTest {
     @Test
     @DisplayName("POST /api/v1/suggestions - Honeypot spam should return 201 but not persist")
     fun `submitSuggestion with honeypot field should return success but not persist`() {
-        val dto = mapOf(
-            "contentId" to UUID.randomUUID().toString(),
-            "name" to "Spam Bot",
-            "email" to "spam@bot.com",
-            "suggestionType" to "FEEDBACK",
-            "message" to "This is spam content that should be caught by honeypot",
-            "honeypot" to "http://spam-link.com" // Honeypot field filled by bot
-        )
+        val dto =
+            mapOf(
+                "contentId" to UUID.randomUUID().toString(),
+                "name" to "Spam Bot",
+                "email" to "spam@bot.com",
+                "suggestionType" to "FEEDBACK",
+                "message" to "This is spam content that should be caught by honeypot",
+                "honeypot" to "http://spam-link.com", // Honeypot field filled by bot
+            )
 
         mockMvc.perform(
             post("/api/v1/suggestions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto))
-                .header("X-Forwarded-For", "10.0.0.1")
+                .header("X-Forwarded-For", "10.0.0.1"),
         )
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.id").isEmpty) // No ID returned for spam
@@ -103,18 +104,19 @@ class SuggestionControllerTest {
     @Test
     @DisplayName("POST /api/v1/suggestions - Missing required field should return 400")
     fun `submitSuggestion with missing name should return 400 Bad Request`() {
-        val dto = mapOf(
-            "contentId" to UUID.randomUUID().toString(),
-            // "name" missing
-            "email" to "test@example.com",
-            "suggestionType" to "FEEDBACK",
-            "message" to "This is a test message for validation"
-        )
+        val dto =
+            mapOf(
+                "contentId" to UUID.randomUUID().toString(),
+                // "name" missing
+                "email" to "test@example.com",
+                "suggestionType" to "FEEDBACK",
+                "message" to "This is a test message for validation",
+            )
 
         mockMvc.perform(
             post("/api/v1/suggestions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
+                .content(objectMapper.writeValueAsString(dto)),
         )
             .andExpect(status().isBadRequest)
     }
@@ -122,18 +124,19 @@ class SuggestionControllerTest {
     @Test
     @DisplayName("POST /api/v1/suggestions - Name too short should return 400")
     fun `submitSuggestion with name less than 2 characters should return 400`() {
-        val dto = SuggestionCreateDto(
-            contentId = UUID.randomUUID(),
-            name = "A", // Too short (min 2)
-            email = "test@example.com",
-            suggestionType = SuggestionType.FEEDBACK,
-            message = "This is a test message for validation"
-        )
+        val dto =
+            SuggestionCreateDto(
+                contentId = UUID.randomUUID(),
+                name = "A", // Too short (min 2)
+                email = "test@example.com",
+                suggestionType = SuggestionType.FEEDBACK,
+                message = "This is a test message for validation",
+            )
 
         mockMvc.perform(
             post("/api/v1/suggestions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
+                .content(objectMapper.writeValueAsString(dto)),
         )
             .andExpect(status().isBadRequest)
     }
@@ -141,18 +144,19 @@ class SuggestionControllerTest {
     @Test
     @DisplayName("POST /api/v1/suggestions - Invalid email should return 400")
     fun `submitSuggestion with invalid email format should return 400`() {
-        val dto = SuggestionCreateDto(
-            contentId = UUID.randomUUID(),
-            name = "Test User",
-            email = "invalid-email", // Invalid format
-            suggestionType = SuggestionType.FEEDBACK,
-            message = "This is a test message for validation"
-        )
+        val dto =
+            SuggestionCreateDto(
+                contentId = UUID.randomUUID(),
+                name = "Test User",
+                email = "invalid-email", // Invalid format
+                suggestionType = SuggestionType.FEEDBACK,
+                message = "This is a test message for validation",
+            )
 
         mockMvc.perform(
             post("/api/v1/suggestions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
+                .content(objectMapper.writeValueAsString(dto)),
         )
             .andExpect(status().isBadRequest)
     }
@@ -160,18 +164,19 @@ class SuggestionControllerTest {
     @Test
     @DisplayName("POST /api/v1/suggestions - Message too short should return 400")
     fun `submitSuggestion with message less than 10 characters should return 400`() {
-        val dto = SuggestionCreateDto(
-            contentId = UUID.randomUUID(),
-            name = "Test User",
-            email = "test@example.com",
-            suggestionType = SuggestionType.FEEDBACK,
-            message = "Short" // Too short (min 10)
-        )
+        val dto =
+            SuggestionCreateDto(
+                contentId = UUID.randomUUID(),
+                name = "Test User",
+                email = "test@example.com",
+                suggestionType = SuggestionType.FEEDBACK,
+                message = "Short", // Too short (min 10)
+            )
 
         mockMvc.perform(
             post("/api/v1/suggestions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
+                .content(objectMapper.writeValueAsString(dto)),
         )
             .andExpect(status().isBadRequest)
     }
@@ -179,18 +184,19 @@ class SuggestionControllerTest {
     @Test
     @DisplayName("POST /api/v1/suggestions - Message too long should return 400")
     fun `submitSuggestion with message exceeding 5000 characters should return 400`() {
-        val dto = SuggestionCreateDto(
-            contentId = UUID.randomUUID(),
-            name = "Test User",
-            email = "test@example.com",
-            suggestionType = SuggestionType.FEEDBACK,
-            message = "x".repeat(5001) // Too long (max 5000)
-        )
+        val dto =
+            SuggestionCreateDto(
+                contentId = UUID.randomUUID(),
+                name = "Test User",
+                email = "test@example.com",
+                suggestionType = SuggestionType.FEEDBACK,
+                message = "x".repeat(5001), // Too long (max 5000)
+            )
 
         mockMvc.perform(
             post("/api/v1/suggestions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
+                .content(objectMapper.writeValueAsString(dto)),
         )
             .andExpect(status().isBadRequest)
     }
@@ -203,37 +209,39 @@ class SuggestionControllerTest {
 
         // Submit 5 valid suggestions (should all succeed)
         repeat(5) { index ->
-            val dto = SuggestionCreateDto(
-                contentId = contentId,
-                name = "Test User $index",
-                email = "test$index@example.com",
-                suggestionType = SuggestionType.FEEDBACK,
-                message = "This is test message number $index for rate limiting validation"
-            )
+            val dto =
+                SuggestionCreateDto(
+                    contentId = contentId,
+                    name = "Test User $index",
+                    email = "test$index@example.com",
+                    suggestionType = SuggestionType.FEEDBACK,
+                    message = "This is test message number $index for rate limiting validation",
+                )
 
             mockMvc.perform(
                 post("/api/v1/suggestions")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(dto))
-                    .header("X-Forwarded-For", ipAddress)
+                    .header("X-Forwarded-For", ipAddress),
             )
                 .andExpect(status().isCreated)
         }
 
         // 6th submission from same IP should be rate limited
-        val dto = SuggestionCreateDto(
-            contentId = contentId,
-            name = "Test User 6",
-            email = "test6@example.com",
-            suggestionType = SuggestionType.FEEDBACK,
-            message = "This submission should be rate limited"
-        )
+        val dto =
+            SuggestionCreateDto(
+                contentId = contentId,
+                name = "Test User 6",
+                email = "test6@example.com",
+                suggestionType = SuggestionType.FEEDBACK,
+                message = "This submission should be rate limited",
+            )
 
         mockMvc.perform(
             post("/api/v1/suggestions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto))
-                .header("X-Forwarded-For", ipAddress)
+                .header("X-Forwarded-For", ipAddress),
         )
             .andExpect(status().isTooManyRequests)
             .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("exceeded")))
@@ -249,36 +257,38 @@ class SuggestionControllerTest {
         val contentId = UUID.randomUUID()
 
         // Submit from IP 1
-        val dto1 = SuggestionCreateDto(
-            contentId = contentId,
-            name = "User from IP 1",
-            email = "user1@example.com",
-            suggestionType = SuggestionType.FEEDBACK,
-            message = "This is a suggestion from IP address 1"
-        )
+        val dto1 =
+            SuggestionCreateDto(
+                contentId = contentId,
+                name = "User from IP 1",
+                email = "user1@example.com",
+                suggestionType = SuggestionType.FEEDBACK,
+                message = "This is a suggestion from IP address 1",
+            )
 
         mockMvc.perform(
             post("/api/v1/suggestions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto1))
-                .header("X-Forwarded-For", "192.168.1.1")
+                .header("X-Forwarded-For", "192.168.1.1"),
         )
             .andExpect(status().isCreated)
 
         // Submit from IP 2 (should also succeed - different rate limit bucket)
-        val dto2 = SuggestionCreateDto(
-            contentId = contentId,
-            name = "User from IP 2",
-            email = "user2@example.com",
-            suggestionType = SuggestionType.FEEDBACK,
-            message = "This is a suggestion from IP address 2"
-        )
+        val dto2 =
+            SuggestionCreateDto(
+                contentId = contentId,
+                name = "User from IP 2",
+                email = "user2@example.com",
+                suggestionType = SuggestionType.FEEDBACK,
+                message = "This is a suggestion from IP address 2",
+            )
 
         mockMvc.perform(
             post("/api/v1/suggestions")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto2))
-                .header("X-Forwarded-For", "192.168.1.2")
+                .header("X-Forwarded-For", "192.168.1.2"),
         )
             .andExpect(status().isCreated)
 
@@ -318,7 +328,7 @@ class SuggestionControllerTest {
     private fun submitValidSuggestion(
         contentId: UUID,
         type: SuggestionType,
-        ipAddress: String
+        ipAddress: String,
     ) = mockMvc.perform(
         post("/api/v1/suggestions")
             .contentType(MediaType.APPLICATION_JSON)
@@ -329,10 +339,10 @@ class SuggestionControllerTest {
                         name = "Test User",
                         email = "test@example.com",
                         suggestionType = type,
-                        message = "This is a valid test message for $type suggestion type"
-                    )
-                )
+                        message = "This is a valid test message for $type suggestion type",
+                    ),
+                ),
             )
-            .header("X-Forwarded-For", ipAddress)
+            .header("X-Forwarded-For", ipAddress),
     )
 }

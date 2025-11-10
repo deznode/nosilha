@@ -18,12 +18,11 @@ import org.springframework.orm.jpa.JpaTransactionManager
 @EnableJpaRepositories(
     basePackages = [
         "com.nosilha.core.directory.repository",
-        "com.nosilha.core.contentactions.repository"
-    ]
+        "com.nosilha.core.contentactions.repository",
+    ],
 )
 @EnableReactiveFirestoreRepositories(basePackages = ["com.nosilha.core.media.repository"])
 class PersistenceConfig {
-
     /**
      * Defines the primary transaction manager for the application.
      * By annotating this with @Primary, we tell Spring to use the JPA transaction

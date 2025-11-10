@@ -24,9 +24,8 @@ import java.util.UUID
  */
 @Service
 class RelatedContentService(
-    private val directoryEntryRepository: DirectoryEntryRepository
+    private val directoryEntryRepository: DirectoryEntryRepository,
 ) {
-
     private val logger = LoggerFactory.getLogger(RelatedContentService::class.java)
 
     /**
@@ -42,7 +41,10 @@ class RelatedContentService(
      * @param contentId UUID of the current heritage page
      * @return List of 3-5 related DirectoryEntry items, empty list if none found
      */
-    fun findRelatedContent(contentId: UUID, limit: Int = 5): List<DirectoryEntry> {
+    fun findRelatedContent(
+        contentId: UUID,
+        limit: Int = 5,
+    ): List<DirectoryEntry> {
         require(limit in 3..5) { "Limit must be between 3 and 5" }
 
         logger.debug("Finding related content for contentId={}, limit={}", contentId, limit)
@@ -59,18 +61,19 @@ class RelatedContentService(
             currentEntry.id,
             currentEntry.category,
             currentEntry.town,
-            currentEntry.cuisine
+            currentEntry.cuisine,
         )
 
         // 2. Find related content using prioritized matching
         val relatedEntries = mutableListOf<DirectoryEntry>()
 
         // Priority 1: Same category + same town
-        val sameCategoryTown = directoryEntryRepository.findByCategoryIgnoreCaseAndTownIgnoreCase(
-            currentEntry.category,
-            currentEntry.town,
-            PageRequest.of(0, limit + 1) // +1 to account for excluding current entry
-        ).content.filter { it.id != contentId }.take(limit)
+        val sameCategoryTown =
+            directoryEntryRepository.findByCategoryIgnoreCaseAndTownIgnoreCase(
+                currentEntry.category,
+                currentEntry.town,
+                PageRequest.of(0, limit + 1), // +1 to account for excluding current entry
+            ).content.filter { it.id != contentId }.take(limit)
 
         relatedEntries.addAll(sameCategoryTown)
         logger.debug("Found {} same category + same town matches", sameCategoryTown.size)
@@ -87,43 +90,45 @@ class RelatedContentService(
         ) {
             val cuisineKeywords = currentEntry.cuisine!!.split(",").map { it.trim().lowercase() }
 
-            val sameCategoryCuisine = directoryEntryRepository.findByCategoryIgnoreCase(
-                currentEntry.category,
-                PageRequest.of(0, limit * 2) // Get more candidates for cuisine filtering
-            ).content
-                .filter { entry ->
-                    entry.id != contentId &&
-                        !entry.cuisine.isNullOrBlank() &&
-                        !relatedEntries.contains(entry) &&
-                        hasSharedCuisine(entry.cuisine!!, cuisineKeywords)
-                }
-                .take(limit - relatedEntries.size)
+            val sameCategoryCuisine =
+                directoryEntryRepository.findByCategoryIgnoreCase(
+                    currentEntry.category,
+                    PageRequest.of(0, limit * 2), // Get more candidates for cuisine filtering
+                ).content
+                    .filter { entry ->
+                        entry.id != contentId &&
+                            !entry.cuisine.isNullOrBlank() &&
+                            !relatedEntries.contains(entry) &&
+                            hasSharedCuisine(entry.cuisine!!, cuisineKeywords)
+                    }
+                    .take(limit - relatedEntries.size)
 
             relatedEntries.addAll(sameCategoryCuisine)
             logger.debug(
                 "Found {} same category + cuisine matches (total: {})",
                 sameCategoryCuisine.size,
-                relatedEntries.size
+                relatedEntries.size,
             )
         }
 
         // Priority 3: Same category fallback (if still need more results)
         if (relatedEntries.size < 3) {
-            val sameCategoryOnly = directoryEntryRepository.findByCategoryIgnoreCase(
-                currentEntry.category,
-                PageRequest.of(0, limit * 2) // Get more candidates
-            ).content
-                .filter { entry ->
-                    entry.id != contentId &&
-                        !relatedEntries.contains(entry)
-                }
-                .take(limit - relatedEntries.size)
+            val sameCategoryOnly =
+                directoryEntryRepository.findByCategoryIgnoreCase(
+                    currentEntry.category,
+                    PageRequest.of(0, limit * 2), // Get more candidates
+                ).content
+                    .filter { entry ->
+                        entry.id != contentId &&
+                            !relatedEntries.contains(entry)
+                    }
+                    .take(limit - relatedEntries.size)
 
             relatedEntries.addAll(sameCategoryOnly)
             logger.debug(
                 "Found {} same category fallback matches (total: {})",
                 sameCategoryOnly.size,
-                relatedEntries.size
+                relatedEntries.size,
             )
         }
 
@@ -131,7 +136,7 @@ class RelatedContentService(
         logger.info(
             "Returning {} related content items for contentId={}",
             finalResults.size,
-            contentId
+            contentId,
         )
 
         return finalResults
@@ -144,7 +149,10 @@ class RelatedContentService(
      * @param keywords Preprocessed keywords from the source cuisine
      * @return true if at least one cuisine keyword matches
      */
-    private fun hasSharedCuisine(cuisine1: String, keywords: List<String>): Boolean {
+    private fun hasSharedCuisine(
+        cuisine1: String,
+        keywords: List<String>,
+    ): Boolean {
         val cuisines1 = cuisine1.split(",").map { it.trim().lowercase() }
         return cuisines1.any { c1 -> keywords.any { keyword -> c1.contains(keyword) || keyword.contains(c1) } }
     }

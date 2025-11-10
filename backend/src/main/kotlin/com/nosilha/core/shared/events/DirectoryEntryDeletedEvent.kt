@@ -26,5 +26,5 @@ import java.util.UUID
  */
 data class DirectoryEntryDeletedEvent(
     val entryId: UUID,
-    override val occurredAt: Instant = Instant.now()
+    override val occurredAt: Instant = Instant.now(),
 ) : ApplicationModuleEvent

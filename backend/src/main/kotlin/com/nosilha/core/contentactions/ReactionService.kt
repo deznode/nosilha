@@ -35,9 +35,8 @@ import java.util.concurrent.ConcurrentHashMap
 @Service
 @Transactional
 class ReactionService(
-    private val reactionRepository: ReactionRepository
+    private val reactionRepository: ReactionRepository,
 ) {
-
     private val logger = LoggerFactory.getLogger(ReactionService::class.java)
 
     // In-memory rate limiter: userId -> list of recent submission timestamps
@@ -72,20 +71,26 @@ class ReactionService(
      * @throws IllegalArgumentException if contentId or reaction type is invalid
      */
     @CacheEvict(value = [CACHE_NAME], key = "#createDto.contentId")
-    fun submitReaction(userId: UUID, createDto: ReactionCreateDto): ReactionResponseDto {
+    fun submitReaction(
+        userId: UUID,
+        createDto: ReactionCreateDto,
+    ): ReactionResponseDto {
         logger.debug(
             "Submitting reaction for user {} on content {}: {}",
-            userId, createDto.contentId, createDto.reactionType
+            userId,
+            createDto.contentId,
+            createDto.reactionType,
         )
 
         // Check rate limit
         if (!checkRateLimit(userId)) {
             logger.warn(
                 "Rate limit exceeded for user {} (max {} reactions/minute)",
-                userId, MAX_REACTIONS_PER_MINUTE
+                userId,
+                MAX_REACTIONS_PER_MINUTE,
             )
             throw RateLimitExceededException(
-                "Too many reactions. Maximum $MAX_REACTIONS_PER_MINUTE reactions per minute allowed."
+                "Too many reactions. Maximum $MAX_REACTIONS_PER_MINUTE reactions per minute allowed.",
             )
         }
 
@@ -97,57 +102,68 @@ class ReactionService(
             if (existingReaction.reactionType == createDto.reactionType) {
                 logger.info(
                     "Removing existing reaction {} for user {} on content {}",
-                    createDto.reactionType, userId, createDto.contentId
+                    createDto.reactionType,
+                    userId,
+                    createDto.contentId,
                 )
                 reactionRepository.delete(existingReaction)
 
                 // Return response with decremented count
-                val newCount = reactionRepository.countByContentIdAndReactionType(
-                    createDto.contentId,
-                    createDto.reactionType
-                ).toInt()
+                val newCount =
+                    reactionRepository.countByContentIdAndReactionType(
+                        createDto.contentId,
+                        createDto.reactionType,
+                    ).toInt()
 
                 return ReactionResponseDto(
                     id = existingReaction.id!!,
                     contentId = createDto.contentId,
                     reactionType = createDto.reactionType,
-                    count = newCount
+                    count = newCount,
                 )
             }
 
             // Different reaction type: delete old, create new (replace behavior)
             logger.info(
                 "Replacing reaction {} with {} for user {} on content {}",
-                existingReaction.reactionType, createDto.reactionType, userId, createDto.contentId
+                existingReaction.reactionType,
+                createDto.reactionType,
+                userId,
+                createDto.contentId,
             )
             reactionRepository.delete(existingReaction)
         }
 
         // Create new reaction
-        val newReaction = Reaction(
-            userId = userId,
-            contentId = createDto.contentId,
-            reactionType = createDto.reactionType
-        )
+        val newReaction =
+            Reaction(
+                userId = userId,
+                contentId = createDto.contentId,
+                reactionType = createDto.reactionType,
+            )
 
         val savedReaction = reactionRepository.save(newReaction)
 
         // Get updated count for this reaction type
-        val updatedCount = reactionRepository.countByContentIdAndReactionType(
-            createDto.contentId,
-            createDto.reactionType
-        ).toInt()
+        val updatedCount =
+            reactionRepository.countByContentIdAndReactionType(
+                createDto.contentId,
+                createDto.reactionType,
+            ).toInt()
 
         logger.info(
             "Reaction submitted successfully: {} by user {} on content {} (count: {})",
-            createDto.reactionType, userId, createDto.contentId, updatedCount
+            createDto.reactionType,
+            userId,
+            createDto.contentId,
+            updatedCount,
         )
 
         return ReactionResponseDto(
             id = savedReaction.id!!,
             contentId = createDto.contentId,
             reactionType = createDto.reactionType,
-            count = updatedCount
+            count = updatedCount,
         )
     }
 
@@ -162,11 +178,15 @@ class ReactionService(
      * @throws NoSuchElementException if reaction doesn't exist
      */
     @CacheEvict(value = [CACHE_NAME], key = "#contentId")
-    fun deleteReaction(userId: UUID, contentId: UUID) {
+    fun deleteReaction(
+        userId: UUID,
+        contentId: UUID,
+    ) {
         logger.debug("Deleting reaction for user {} on content {}", userId, contentId)
 
-        val existingReaction = reactionRepository.findByUserIdAndContentId(userId, contentId)
-            ?: throw NoSuchElementException("No reaction found for user $userId on content $contentId")
+        val existingReaction =
+            reactionRepository.findByUserIdAndContentId(userId, contentId)
+                ?: throw NoSuchElementException("No reaction found for user $userId on content $contentId")
 
         reactionRepository.delete(existingReaction)
 
@@ -189,31 +209,38 @@ class ReactionService(
      */
     @Cacheable(value = [CACHE_NAME], key = "#contentId")
     @Transactional(readOnly = true)
-    fun getReactionCounts(contentId: UUID, userId: UUID?): ReactionCountsDto {
+    fun getReactionCounts(
+        contentId: UUID,
+        userId: UUID?,
+    ): ReactionCountsDto {
         logger.debug("Fetching reaction counts for content {} (user: {})", contentId, userId)
 
         // Get aggregated counts from database
         val counts = reactionRepository.getReactionCountsByContentId(contentId)
 
         // Convert to map, ensuring all reaction types are present (with 0 if no reactions)
-        val countsMap = ReactionType.entries.associateWith { type ->
-            counts.find { it.type == type }?.count?.toInt() ?: 0
-        }
+        val countsMap =
+            ReactionType.entries.associateWith { type ->
+                counts.find { it.type == type }?.count?.toInt() ?: 0
+            }
 
         // Get user's reaction if authenticated
-        val userReaction = userId?.let {
-            reactionRepository.findByUserIdAndContentId(it, contentId)?.reactionType
-        }
+        val userReaction =
+            userId?.let {
+                reactionRepository.findByUserIdAndContentId(it, contentId)?.reactionType
+            }
 
         logger.debug(
             "Reaction counts for content {}: {} (user reaction: {})",
-            contentId, countsMap, userReaction
+            contentId,
+            countsMap,
+            userReaction,
         )
 
         return ReactionCountsDto(
             contentId = contentId,
             reactions = countsMap,
-            userReaction = userReaction
+            userReaction = userReaction,
         )
     }
 

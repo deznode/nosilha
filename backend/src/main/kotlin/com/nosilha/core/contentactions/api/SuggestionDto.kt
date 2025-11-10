@@ -30,25 +30,20 @@ import java.util.UUID
 data class SuggestionCreateDto(
     @field:NotNull(message = "Content ID is required")
     val contentId: UUID,
-
     @field:NotBlank(message = "Name is required")
     @field:Size(min = 2, max = 255, message = "Name must be between 2 and 255 characters")
     val name: String,
-
     @field:NotBlank(message = "Email is required")
     @field:Email(message = "Invalid email format")
     @field:Size(max = 255, message = "Email must not exceed 255 characters")
     val email: String,
-
     @field:NotNull(message = "Suggestion type is required")
     val suggestionType: SuggestionType,
-
     @field:NotBlank(message = "Message is required")
     @field:Size(min = 10, max = 5000, message = "Message must be between 10 and 5000 characters")
     val message: String,
-
     // Honeypot field for spam protection (should be empty)
-    val honeypot: String? = null
+    val honeypot: String? = null,
 )
 
 /**
@@ -61,5 +56,5 @@ data class SuggestionCreateDto(
  */
 data class SuggestionResponseDto(
     val id: UUID?,
-    val message: String = "Thank you for helping preserve our cultural heritage. Your suggestion has been received."
+    val message: String = "Thank you for helping preserve our cultural heritage. Your suggestion has been received.",
 )

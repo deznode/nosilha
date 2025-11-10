@@ -31,9 +31,8 @@ import java.util.UUID
 @RequestMapping("/api/v1/reactions")
 @Validated
 class ReactionController(
-    private val reactionService: ReactionService
+    private val reactionService: ReactionService,
 ) {
-
     companion object {
         private val logger = LoggerFactory.getLogger(ReactionController::class.java)
     }
@@ -96,29 +95,34 @@ class ReactionController(
     @PostMapping
     fun submitReaction(
         @Valid @RequestBody createDto: ReactionCreateDto,
-        authentication: Authentication
+        authentication: Authentication,
     ): ResponseEntity<ReactionResponseDto> {
         val userId = extractUserId(authentication)
 
         logger.info(
             "User {} submitting reaction {} for content {}",
-            userId, createDto.reactionType, createDto.contentId
+            userId,
+            createDto.reactionType,
+            createDto.contentId,
         )
 
-        val response = try {
-            reactionService.submitReaction(userId, createDto)
-        } catch (e: ReactionService.RateLimitExceededException) {
-            logger.warn("Rate limit exceeded for user {}: {}", userId, e.message)
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                .body(null)
-        }
+        val response =
+            try {
+                reactionService.submitReaction(userId, createDto)
+            } catch (e: ReactionService.RateLimitExceededException) {
+                logger.warn("Rate limit exceeded for user {}: {}", userId, e.message)
+                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(null)
+            }
 
         // Return 201 Created for new reactions, 200 OK for updates/removals
         val status = if (response.count > 0) HttpStatus.CREATED else HttpStatus.OK
 
         logger.info(
             "Reaction submitted successfully: {} by user {} (count: {})",
-            createDto.reactionType, userId, response.count
+            createDto.reactionType,
+            userId,
+            response.count,
         )
 
         return ResponseEntity.status(status).body(response)
@@ -152,7 +156,7 @@ class ReactionController(
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deleteReaction(
         @PathVariable contentId: UUID,
-        authentication: Authentication
+        authentication: Authentication,
     ) {
         val userId = extractUserId(authentication)
 
@@ -224,7 +228,7 @@ class ReactionController(
     @GetMapping("/content/{contentId}")
     fun getReactionCounts(
         @PathVariable contentId: UUID,
-        authentication: Authentication?
+        authentication: Authentication?,
     ): ResponseEntity<ReactionCountsDto> {
         val userId = authentication?.let { extractUserId(it) }
 
@@ -234,7 +238,9 @@ class ReactionController(
 
         logger.debug(
             "Returning reaction counts for content {}: {} (user reaction: {})",
-            contentId, counts.reactions, counts.userReaction
+            contentId,
+            counts.reactions,
+            counts.userReaction,
         )
 
         return ResponseEntity.ok(counts)
@@ -251,8 +257,9 @@ class ReactionController(
      * @throws IllegalStateException if principal is not a valid UUID
      */
     private fun extractUserId(authentication: Authentication): UUID {
-        val principal = authentication.principal as? String
-            ?: throw IllegalStateException("Authentication principal must be a string (user ID)")
+        val principal =
+            authentication.principal as? String
+                ?: throw IllegalStateException("Authentication principal must be a string (user ID)")
 
         return try {
             UUID.fromString(principal)

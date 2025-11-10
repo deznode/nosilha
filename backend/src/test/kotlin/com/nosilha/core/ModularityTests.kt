@@ -26,7 +26,6 @@ import org.springframework.modulith.docs.Documenter
  * Status: Expected to FAIL until modules are extracted in Phase 3
  */
 class ModularityTests {
-
     private val modules = ApplicationModules.of("com.nosilha.core")
 
     /**
@@ -70,7 +69,7 @@ class ModularityTests {
 
                 Current error: ${e.message}
                 """.trimIndent(),
-                e
+                e,
             )
         }
     }
@@ -113,7 +112,7 @@ class ModularityTests {
 
                 Current error: ${e.message}
                 """.trimIndent(),
-                e
+                e,
             )
         }
     }
@@ -130,8 +129,9 @@ class ModularityTests {
     @Test
     fun `verify shared kernel exists`() {
         try {
-            val sharedModule = modules.getModuleByName("shared")
-                .orElseThrow { AssertionError("Shared kernel module not found") }
+            val sharedModule =
+                modules.getModuleByName("shared")
+                    .orElseThrow { AssertionError("Shared kernel module not found") }
 
             println("✅ Shared kernel module found: ${sharedModule.name}")
         } catch (e: Exception) {
@@ -147,7 +147,7 @@ class ModularityTests {
 
                 Current error: ${e.message}
                 """.trimIndent(),
-                e
+                e,
             )
         }
     }
@@ -166,8 +166,9 @@ class ModularityTests {
     @Test
     fun `verify auth module exists`() {
         try {
-            val authModule = modules.getModuleByName("auth")
-                .orElseThrow { AssertionError("Auth module not found") }
+            val authModule =
+                modules.getModuleByName("auth")
+                    .orElseThrow { AssertionError("Auth module not found") }
 
             println("✅ Auth module found: ${authModule.name}")
         } catch (e: Exception) {
@@ -183,7 +184,7 @@ class ModularityTests {
 
                 Current error: ${e.message}
                 """.trimIndent(),
-                e
+                e,
             )
         }
     }
@@ -202,8 +203,9 @@ class ModularityTests {
     @Test
     fun `verify directory module exists`() {
         try {
-            val directoryModule = modules.getModuleByName("directory")
-                .orElseThrow { AssertionError("Directory module not found") }
+            val directoryModule =
+                modules.getModuleByName("directory")
+                    .orElseThrow { AssertionError("Directory module not found") }
 
             println("✅ Directory module found: ${directoryModule.name}")
         } catch (e: Exception) {
@@ -221,7 +223,7 @@ class ModularityTests {
 
                 Current error: ${e.message}
                 """.trimIndent(),
-                e
+                e,
             )
         }
     }
@@ -240,8 +242,9 @@ class ModularityTests {
     @Test
     fun `verify media module exists`() {
         try {
-            val mediaModule = modules.getModuleByName("media")
-                .orElseThrow { AssertionError("Media module not found") }
+            val mediaModule =
+                modules.getModuleByName("media")
+                    .orElseThrow { AssertionError("Media module not found") }
 
             println("✅ Media module found: ${mediaModule.name}")
         } catch (e: Exception) {
@@ -258,7 +261,7 @@ class ModularityTests {
 
                 Current error: ${e.message}
                 """.trimIndent(),
-                e
+                e,
             )
         }
     }

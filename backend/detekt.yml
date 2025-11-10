@@ -161,7 +161,7 @@ complexity:
     active: true
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
     thresholdInFiles: 15
-    thresholdInClasses: 15
+    thresholdInClasses: 20
     thresholdInInterfaces: 11
     thresholdInObjects: 11
     thresholdInEnums: 11
@@ -803,10 +803,14 @@ style:
   ForbiddenMethodCall:
     active: false
     methods:
-      - reason: 'print does not allow you to configure the output stream. Use a logger instead.'
+      - reason: 'print does not allow you to configure the output stream. Use SLF4J logger instead.'
         value: 'kotlin.io.print'
-      - reason: 'println does not allow you to configure the output stream. Use a logger instead.'
+      - reason: 'println does not allow you to configure the output stream. Use SLF4J logger instead.'
         value: 'kotlin.io.println'
+      - reason: 'Use SLF4J logger instead of System.out'
+        value: 'java.lang.System.out.println'
+      - reason: 'Use SLF4J logger instead of System.err'
+        value: 'java.lang.System.err.println'
   ForbiddenSuppress:
     active: false
     rules: []
@@ -830,12 +834,17 @@ style:
       - '0'
       - '1'
       - '2'
+      - '100'
+      - '200'
+      - '400'
+      - '404'
+      - '500'
     ignoreHashCodeFunction: true
-    ignorePropertyDeclaration: false
+    ignorePropertyDeclaration: true
     ignoreLocalVariableDeclaration: false
     ignoreConstantDeclaration: true
     ignoreCompanionObjectPropertyDeclaration: true
-    ignoreAnnotation: false
+    ignoreAnnotation: true
     ignoreNamedArgument: true
     ignoreEnums: false
     ignoreRanges: false

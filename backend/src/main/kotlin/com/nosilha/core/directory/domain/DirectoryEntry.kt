@@ -37,7 +37,6 @@ import java.util.UUID
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "category", discriminatorType = DiscriminatorType.STRING)
 abstract class DirectoryEntry : AuditableEntity() {
-
     @Id
     @GeneratedValue
     var id: UUID? = null

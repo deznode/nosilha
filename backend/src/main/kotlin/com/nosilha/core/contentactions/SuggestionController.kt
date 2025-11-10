@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/v1/suggestions")
 class SuggestionController(
-    private val suggestionService: SuggestionService
+    private val suggestionService: SuggestionService,
 ) {
     private val logger = LoggerFactory.getLogger(SuggestionController::class.java)
 
@@ -65,7 +65,7 @@ class SuggestionController(
     @PostMapping
     fun submitSuggestion(
         @Valid @RequestBody dto: SuggestionCreateDto,
-        request: HttpServletRequest
+        request: HttpServletRequest,
     ): ResponseEntity<SuggestionResponseDto> {
         val ipAddress = extractIpAddress(request)
         logger.info("Received suggestion submission from IP: $ipAddress for content ${dto.contentId}")
@@ -80,8 +80,8 @@ class SuggestionController(
                 .body(
                     SuggestionResponseDto(
                         id = null,
-                        message = e.message ?: "Rate limit exceeded. Please try again later."
-                    )
+                        message = e.message ?: "Rate limit exceeded. Please try again later.",
+                    ),
                 )
         } catch (e: HoneypotSpamDetectedException) {
             logger.warn("Honeypot spam detected from IP: $ipAddress")
@@ -90,8 +90,8 @@ class SuggestionController(
                 .body(
                     SuggestionResponseDto(
                         id = null,
-                        message = "Thank you for your submission."
-                    )
+                        message = "Thank you for your submission.",
+                    ),
                 )
         } catch (e: Exception) {
             logger.error("Error processing suggestion from IP: $ipAddress", e)
@@ -99,8 +99,8 @@ class SuggestionController(
                 .body(
                     SuggestionResponseDto(
                         id = null,
-                        message = "An error occurred while processing your suggestion. Please try again later."
-                    )
+                        message = "An error occurred while processing your suggestion. Please try again later.",
+                    ),
                 )
         }
     }

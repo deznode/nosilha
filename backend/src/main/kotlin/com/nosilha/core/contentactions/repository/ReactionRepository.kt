@@ -21,7 +21,6 @@ import java.util.UUID
  */
 @Repository
 interface ReactionRepository : JpaRepository<Reaction, UUID> {
-
     /**
      * Finds all reactions for a specific content page.
      *
@@ -44,7 +43,10 @@ interface ReactionRepository : JpaRepository<Reaction, UUID> {
      * @param contentId UUID of the heritage page/content
      * @return The user's reaction if it exists, null otherwise
      */
-    fun findByUserIdAndContentId(userId: UUID, contentId: UUID): Reaction?
+    fun findByUserIdAndContentId(
+        userId: UUID,
+        contentId: UUID,
+    ): Reaction?
 
     /**
      * Counts reactions of a specific type for a content page.
@@ -56,7 +58,10 @@ interface ReactionRepository : JpaRepository<Reaction, UUID> {
      * @param reactionType Type of reaction to count
      * @return Number of reactions of the specified type
      */
-    fun countByContentIdAndReactionType(contentId: UUID, reactionType: ReactionType): Long
+    fun countByContentIdAndReactionType(
+        contentId: UUID,
+        reactionType: ReactionType,
+    ): Long
 
     /**
      * Deletes all reactions by a specific user for a content page.
@@ -67,7 +72,10 @@ interface ReactionRepository : JpaRepository<Reaction, UUID> {
      * @param userId UUID of the authenticated user
      * @param contentId UUID of the heritage page/content
      */
-    fun deleteByUserIdAndContentId(userId: UUID, contentId: UUID)
+    fun deleteByUserIdAndContentId(
+        userId: UUID,
+        contentId: UUID,
+    )
 
     /**
      * Gets aggregated reaction counts for a content page.
@@ -84,9 +92,11 @@ interface ReactionRepository : JpaRepository<Reaction, UUID> {
         FROM Reaction r
         WHERE r.contentId = :contentId
         GROUP BY r.reactionType
-    """
+    """,
     )
-    fun getReactionCountsByContentId(@Param("contentId") contentId: UUID): List<ReactionCount>
+    fun getReactionCountsByContentId(
+        @Param("contentId") contentId: UUID,
+    ): List<ReactionCount>
 }
 
 /**

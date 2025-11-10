@@ -2,14 +2,14 @@ package com.nosilha.core.directory.domain
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.nosilha.core.shared.api.DirectoryEntryDto
-import com.nosilha.core.shared.api.RestaurantDto
-import com.nosilha.core.shared.api.HotelDto
 import com.nosilha.core.shared.api.BeachDto
-import com.nosilha.core.shared.api.LandmarkDto
-import com.nosilha.core.shared.api.TownDto
-import com.nosilha.core.shared.api.RestaurantDetailsDto
+import com.nosilha.core.shared.api.DirectoryEntryDto
 import com.nosilha.core.shared.api.HotelDetailsDto
+import com.nosilha.core.shared.api.HotelDto
+import com.nosilha.core.shared.api.LandmarkDto
+import com.nosilha.core.shared.api.RestaurantDetailsDto
+import com.nosilha.core.shared.api.RestaurantDto
+import com.nosilha.core.shared.api.TownDto
 
 /**
  * Maps a DirectoryEntry JPA entity to its corresponding public-facing DTO.
@@ -43,13 +43,13 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
                 createdAt = this.createdAt,
                 updatedAt = this.updatedAt,
                 details =
-                RestaurantDetailsDto(
-                    phoneNumber = this.phoneNumber ?: "",
-                    openingHours = this.openingHours ?: "",
-                    cuisine =
-                    this.cuisine?.split(',')?.map { it.trim() }?.filter { it.isNotBlank() }
-                        ?: emptyList(),
-                ),
+                    RestaurantDetailsDto(
+                        phoneNumber = this.phoneNumber ?: "",
+                        openingHours = this.openingHours ?: "",
+                        cuisine =
+                            this.cuisine?.split(',')?.map { it.trim() }?.filter { it.isNotBlank() }
+                                ?: emptyList(),
+                    ),
             )
 
         is Hotel ->
@@ -67,11 +67,11 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
                 createdAt = this.createdAt,
                 updatedAt = this.updatedAt,
                 details =
-                HotelDetailsDto(
-                    amenities =
-                    this.amenities?.split(',')?.map { it.trim() }?.filter { it.isNotBlank() }
-                        ?: emptyList(),
-                ),
+                    HotelDetailsDto(
+                        amenities =
+                            this.amenities?.split(',')?.map { it.trim() }?.filter { it.isNotBlank() }
+                                ?: emptyList(),
+                    ),
             )
 
         is Beach ->
@@ -129,21 +129,23 @@ fun Town.toDto(): TownDto {
     val objectMapper = jacksonObjectMapper()
 
     // Parse JSON arrays safely, defaulting to empty lists if null or invalid
-    val highlightsList = try {
-        this.highlights?.let { objectMapper.readValue<List<String>>(it) } ?: emptyList()
-    } catch (e: com.fasterxml.jackson.core.JsonProcessingException) {
-        // Log the error and return empty list as fallback
-        println("Failed to parse highlights JSON for town ${this.name}: ${e.message}")
-        emptyList<String>()
-    }
+    val highlightsList =
+        try {
+            this.highlights?.let { objectMapper.readValue<List<String>>(it) } ?: emptyList()
+        } catch (e: com.fasterxml.jackson.core.JsonProcessingException) {
+            // Log the error and return empty list as fallback
+            println("Failed to parse highlights JSON for town ${this.name}: ${e.message}")
+            emptyList<String>()
+        }
 
-    val galleryList = try {
-        this.gallery?.let { objectMapper.readValue<List<String>>(it) } ?: emptyList()
-    } catch (e: com.fasterxml.jackson.core.JsonProcessingException) {
-        // Log the error and return empty list as fallback
-        println("Failed to parse gallery JSON for town ${this.name}: ${e.message}")
-        emptyList<String>()
-    }
+    val galleryList =
+        try {
+            this.gallery?.let { objectMapper.readValue<List<String>>(it) } ?: emptyList()
+        } catch (e: com.fasterxml.jackson.core.JsonProcessingException) {
+            // Log the error and return empty list as fallback
+            println("Failed to parse gallery JSON for town ${this.name}: ${e.message}")
+            emptyList<String>()
+        }
 
     return TownDto(
         id = entityId,
@@ -159,7 +161,7 @@ fun Town.toDto(): TownDto {
         heroImage = this.heroImage,
         gallery = galleryList,
         createdAt = this.createdAt,
-        updatedAt = this.updatedAt
+        updatedAt = this.updatedAt,
     )
 }
 
@@ -176,10 +178,11 @@ fun Town.toDto(): TownDto {
  * @return The category string corresponding to the entity's runtime type.
  * @throws IllegalStateException if the entity type is not a known DirectoryEntry subclass.
  */
-fun DirectoryEntry.getCategoryValue(): String = when (this) {
-    is Restaurant -> "Restaurant"
-    is Hotel -> "Hotel"
-    is Beach -> "Beach"
-    is Landmark -> "Landmark"
-    else -> throw IllegalStateException("Unknown DirectoryEntry type: ${this::class.simpleName}")
-}
+fun DirectoryEntry.getCategoryValue(): String =
+    when (this) {
+        is Restaurant -> "Restaurant"
+        is Hotel -> "Hotel"
+        is Beach -> "Beach"
+        is Landmark -> "Landmark"
+        else -> throw IllegalStateException("Unknown DirectoryEntry type: ${this::class.simpleName}")
+    }

@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service
  */
 @Service
 internal class MediaService {
-
     private val logger = LoggerFactory.getLogger(MediaService::class.java)
 
     /**
@@ -46,7 +45,7 @@ internal class MediaService {
             "Received DirectoryEntryCreatedEvent for entry: {} (category: {}, name: {})",
             event.entryId,
             event.category,
-            event.name
+            event.name,
         )
 
         // TODO: Create placeholder media metadata in Firestore

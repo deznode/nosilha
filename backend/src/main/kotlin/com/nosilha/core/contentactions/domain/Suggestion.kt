@@ -33,46 +33,39 @@ import java.util.UUID
     indexes = [
         Index(name = "idx_suggestions_created", columnList = "created_at"),
         Index(name = "idx_suggestions_content", columnList = "content_id"),
-        Index(name = "idx_suggestions_ip", columnList = "ip_address, created_at")
-    ]
+        Index(name = "idx_suggestions_ip", columnList = "ip_address, created_at"),
+    ],
 )
 data class Suggestion(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: UUID? = null,
-
     @NotNull
     @Column(name = "content_id", nullable = false)
     val contentId: UUID,
-
     @NotBlank
     @Size(min = 2, max = 255)
     @Column(name = "name", nullable = false, length = 255)
     val name: String,
-
     @NotBlank
     @Email
     @Size(max = 255)
     @Column(name = "email", nullable = false, length = 255)
     val email: String,
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "suggestion_type", nullable = false, length = 20)
     val suggestionType: SuggestionType,
-
     @NotBlank
     @Size(min = 10, max = 5000)
     @Column(name = "message", nullable = false, columnDefinition = "TEXT")
     val message: String,
-
     @Size(max = 45)
     @Column(name = "ip_address", length = 45)
     val ipAddress: String? = null,
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
-    val createdAt: Instant? = null
+    val createdAt: Instant? = null,
 )
 
 /**
@@ -93,5 +86,5 @@ enum class SuggestionType {
     ADDITION,
 
     /** General feedback on content quality */
-    FEEDBACK
+    FEEDBACK,
 }
