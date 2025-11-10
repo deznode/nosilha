@@ -394,6 +394,7 @@ test.describe("Towns Exploration - Cultural Heritage Discovery", () => {
 
   test("handles connectivity issues with graceful degradation", async ({
     page,
+    context,
   }) => {
     await page.goto("/towns");
 
@@ -406,7 +407,7 @@ test.describe("Towns Exploration - Cultural Heritage Discovery", () => {
     ).toBeVisible();
 
     // Simulate going offline
-    await page.setOffline(true);
+    await context.setOffline(true);
 
     // Try to navigate to map integration
     const mapLink = page.getByRole("link", { name: /view map/i });
@@ -429,7 +430,7 @@ test.describe("Towns Exploration - Cultural Heritage Discovery", () => {
     }
 
     // Restore connectivity
-    await page.setOffline(false);
+    await context.setOffline(false);
   });
 
   test("supports SEO and metadata for cultural discoverability", async ({
