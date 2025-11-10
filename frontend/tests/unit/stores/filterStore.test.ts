@@ -4,7 +4,11 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { useFilterStore, useSearchQuery, useSelectedCategory } from "@/stores/filterStore";
+import {
+  useFilterStore,
+  useSearchQuery,
+  useSelectedCategory,
+} from "@/stores/filterStore";
 
 describe("filterStore", () => {
   beforeEach(() => {

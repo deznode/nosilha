@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import React, { useEffect } from 'react';
-import { Button } from '@/components/catalyst-ui/button';
-import { PrinterIcon } from '@heroicons/react/24/outline';
+import React, { useEffect } from "react";
+import { Button } from "@/components/catalyst-ui/button";
+import { PrinterIcon } from "@heroicons/react/24/outline";
 
 interface PrintButtonProps {
   /**
    * Button variant (from Catalyst UI)
    */
-  variant?: 'primary' | 'secondary' | 'outline';
+  variant?: "primary" | "secondary" | "outline";
 
   /**
    * Custom label text (defaults to "Print")
@@ -63,10 +63,10 @@ interface PrintButtonProps {
  * />
  */
 export function PrintButton({
-  variant = 'secondary',
-  label = 'Print',
+  variant = "secondary",
+  label = "Print",
   showIcon = true,
-  className = '',
+  className = "",
   onAfterPrint,
 }: PrintButtonProps) {
   /**
@@ -75,15 +75,15 @@ export function PrintButton({
    * This satisfies T076: Add page URL to print footer for citation
    */
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const currentUrl = window.location.href;
-      document.body.setAttribute('data-url', currentUrl);
+      document.body.setAttribute("data-url", currentUrl);
     }
 
     return () => {
       // Cleanup: remove data attribute when component unmounts
-      if (typeof document !== 'undefined') {
-        document.body.removeAttribute('data-url');
+      if (typeof document !== "undefined") {
+        document.body.removeAttribute("data-url");
       }
     };
   }, []);
@@ -94,7 +94,7 @@ export function PrintButton({
    * Satisfies T073: Implement window.print() invocation with print stylesheet
    */
   const handlePrint = () => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       // Trigger browser print dialog
       window.print();
 
@@ -105,31 +105,24 @@ export function PrintButton({
     }
   };
 
+  // Map variant prop to Catalyst Button props
+  const buttonProps =
+    variant === "outline"
+      ? { outline: true as const }
+      : variant === "secondary"
+        ? { plain: true as const }
+        : {};
+
   return (
     <Button
-      variant={variant}
+      {...buttonProps}
       onClick={handlePrint}
       aria-label={`${label} this page`}
-      className={`
-        /* T045: Ensure 44×44px minimum touch targets on mobile (US6) */
-        min-h-[44px] min-w-[44px]
-
-        /* T048: Responsive icon sizes (larger on mobile) */
-        text-base md:text-sm
-
-        /* Don't show print button in print view */
-        print:hidden
-
-        ${className}
-      `.trim()}
+      className={`/* T045: Ensure 44×44px minimum touch targets on mobile (US6) */ /* T048: Responsive icon sizes (larger on mobile) */ /* Don't show print button in print view */ min-h-[44px] min-w-[44px] text-base md:text-sm print:hidden ${className} `.trim()}
     >
       {showIcon && (
         <PrinterIcon
-          className="
-            /* T048: Larger icons on mobile for better touch targets */
-            h-6 w-6 md:h-5 md:w-5
-            mr-2
-          "
+          className="/* T048: Larger icons on mobile for better touch targets */ mr-2 h-6 w-6 md:h-5 md:w-5"
           aria-hidden="true"
         />
       )}

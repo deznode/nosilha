@@ -349,6 +349,253 @@ Authorization: Bearer <token>
 
 **Response** (403 Forbidden): Insufficient permissions
 
+### Get Related Content
+
+Get 3-5 related content items based on category, town, and cuisine matching.
+
+```http
+GET /api/v1/directory/entries/{contentId}/related?limit=5
+```
+
+**Path Parameters**:
+- `contentId`: UUID of the current heritage page
+
+**Query Parameters**:
+- `limit`: Number of results to return (3-5, default: 5)
+
+**Example Request**:
+```bash
+curl "http://localhost:8080/api/v1/directory/entries/789e0123-e45b-67c8-d901-234567890abc/related?limit=5"
+```
+
+**Response** (200 OK):
+```json
+{
+  "data": [
+    {
+      "id": "uuid-1",
+      "name": "Casa da Morabeza",
+      "slug": "casa-da-morabeza",
+      "description": "Traditional Cape Verdean cuisine...",
+      "category": "Restaurant",
+      "town": "Nova Sintra",
+      "latitude": 14.8735,
+      "longitude": -24.7085,
+      "imageUrl": "https://storage.googleapis.com/...",
+      "rating": 4.5,
+      "reviewCount": 42,
+      "details": {
+        "phoneNumber": "+238 285 1234",
+        "openingHours": "10:00-22:00",
+        "cuisine": ["Cape Verdean", "Portuguese"]
+      },
+      "createdAt": "2024-01-15T10:30:00Z",
+      "updatedAt": "2024-01-15T10:30:00Z"
+    }
+  ],
+  "success": true
+}
+```
+
+**Matching Algorithm**:
+1. **Priority 1**: Same category + same town (highest geographical relevance)
+2. **Priority 2**: Same category + shared cuisine (for restaurants)
+3. **Priority 3**: Same category only (fallback)
+
+**Caching**: Results cached for 5 minutes using ISR
+
+**Response** (404 Not Found): Content not found
+
+## 💖 Reactions API
+
+The Reactions API allows authenticated users to express emotional responses to cultural heritage content.
+
+### Submit or Update Reaction
+
+Submit a new reaction or update an existing one. If the user clicks the same reaction type, it will be removed (toggle off).
+
+```http
+POST /api/v1/reactions
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+**Request Body**:
+```json
+{
+  "contentId": "789e0123-e45b-67c8-d901-234567890abc",
+  "reactionType": "LOVE"
+}
+```
+
+**Reaction Types**:
+- `LOVE`: ❤️ Deep appreciation, personal connection
+- `HELPFUL`: 👍 Educational value, useful information
+- `INTERESTING`: 🤔 Intellectually engaging, sparked curiosity
+- `THANKYOU`: 🙏 Gratitude for sharing, cultural appreciation
+
+**Business Rules**:
+- One reaction per user per content page
+- Clicking same type removes reaction (toggle off)
+- Clicking different type replaces old reaction
+- Rate limit: 10 reactions per minute per user
+
+**Response** (201 Created):
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "contentId": "789e0123-e45b-67c8-d901-234567890abc",
+  "reactionType": "LOVE",
+  "count": 43
+}
+```
+
+**Response** (429 Too Many Requests):
+```json
+{
+  "error": "Too many reactions. Please wait a moment.",
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+**Response** (401 Unauthorized): Authentication required
+
+### Get Reaction Counts
+
+Get aggregated reaction counts for a specific content page. Public endpoint - no authentication required.
+
+```http
+GET /api/v1/reactions/content/{contentId}
+```
+
+**Path Parameters**:
+- `contentId`: UUID of the heritage page/content
+
+**Example Request**:
+```bash
+curl "http://localhost:8080/api/v1/reactions/content/789e0123-e45b-67c8-d901-234567890abc"
+```
+
+**Response** (200 OK) - Unauthenticated:
+```json
+{
+  "contentId": "789e0123-e45b-67c8-d901-234567890abc",
+  "reactions": {
+    "LOVE": 42,
+    "HELPFUL": 15,
+    "INTERESTING": 28,
+    "THANKYOU": 8
+  },
+  "userReaction": null
+}
+```
+
+**Response** (200 OK) - Authenticated:
+```json
+{
+  "contentId": "789e0123-e45b-67c8-d901-234567890abc",
+  "reactions": {
+    "LOVE": 42,
+    "HELPFUL": 15,
+    "INTERESTING": 28,
+    "THANKYOU": 8
+  },
+  "userReaction": "LOVE"
+}
+```
+
+**Caching**: Results cached for 5 minutes using ISR
+
+### Remove Reaction
+
+Remove the authenticated user's reaction to content.
+
+```http
+DELETE /api/v1/reactions/content/{contentId}
+Authorization: Bearer <token>
+```
+
+**Path Parameters**:
+- `contentId`: UUID of the heritage page/content
+
+**Response** (204 No Content): Successfully removed
+
+**Response** (404 Not Found): Reaction not found
+
+**Response** (401 Unauthorized): Authentication required
+
+## 💬 Suggestions API
+
+The Suggestions API allows community members to submit improvements and corrections to cultural heritage content.
+
+### Submit Content Suggestion
+
+Submit a suggestion for content improvement. Public endpoint - no authentication required.
+
+```http
+POST /api/v1/suggestions
+Content-Type: application/json
+```
+
+**Request Body**:
+```json
+{
+  "contentId": "789e0123-e45b-67c8-d901-234567890abc",
+  "name": "Maria Santos",
+  "email": "maria.santos@example.com",
+  "suggestionType": "CORRECTION",
+  "message": "The article states that Eugénio Tavares was born in 1867, but historical records show he was born on October 18, 1867 in Brava Island.",
+  "honeypot": ""
+}
+```
+
+**Suggestion Types**:
+- `CORRECTION`: Fix factual errors or inaccuracies
+- `ADDITION`: Add missing information or context
+- `FEEDBACK`: General feedback on content quality
+
+**Validation Rules**:
+- `name`: 2-255 characters
+- `email`: Valid email format (RFC 5322)
+- `message`: 10-5000 characters
+- `honeypot`: Must be empty (spam protection)
+
+**Rate Limiting**: 5 submissions per hour per IP address
+
+**Response** (201 Created):
+```json
+{
+  "id": "660f9511-f39c-52e5-b827-557766551111",
+  "message": "Thank you for helping preserve our cultural heritage. Your suggestion has been received."
+}
+```
+
+**Response** (429 Too Many Requests):
+```json
+{
+  "message": "Rate limit exceeded. Please try again later.",
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+**Response** (400 Bad Request):
+```json
+{
+  "message": "Invalid suggestion data. Please check your input.",
+  "details": [
+    {
+      "field": "email",
+      "message": "Invalid email format"
+    }
+  ]
+}
+```
+
+**Spam Protection**:
+- Honeypot field validation (client-side field must be empty)
+- IP-based rate limiting
+- Email notification to administrators
+
 ## 📱 Media Upload API
 
 ### Upload Media File

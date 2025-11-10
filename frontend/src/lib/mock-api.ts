@@ -350,11 +350,17 @@ export class MockApiClient implements ApiClient {
   // In-memory storage for mock reactions (simulates database)
   private mockReactions: Map<
     string,
-    { id: string; contentId: string; userId: string; reactionType: ReactionType }
+    {
+      id: string;
+      contentId: string;
+      userId: string;
+      reactionType: ReactionType;
+    }
   > = new Map();
 
   // Track reaction counts per content (simulates aggregated database query)
-  private mockReactionCounts: Map<string, Record<ReactionType, number>> = new Map();
+  private mockReactionCounts: Map<string, Record<ReactionType, number>> =
+    new Map();
 
   /**
    * Submits a new reaction or updates an existing reaction (mock implementation).
@@ -389,7 +395,10 @@ export class MockApiClient implements ApiClient {
     if (existingReaction?.reactionType === createDto.reactionType) {
       // Remove reaction
       this.mockReactions.delete(reactionKey);
-      counts[createDto.reactionType] = Math.max(0, counts[createDto.reactionType] - 1);
+      counts[createDto.reactionType] = Math.max(
+        0,
+        counts[createDto.reactionType] - 1
+      );
 
       return {
         id: existingReaction.id,
@@ -400,7 +409,10 @@ export class MockApiClient implements ApiClient {
     }
 
     // If user had different reaction, decrement old count
-    if (existingReaction && existingReaction.reactionType !== createDto.reactionType) {
+    if (
+      existingReaction &&
+      existingReaction.reactionType !== createDto.reactionType
+    ) {
       counts[existingReaction.reactionType] = Math.max(
         0,
         counts[existingReaction.reactionType] - 1
@@ -499,7 +511,7 @@ export class MockApiClient implements ApiClient {
     contentId: string;
     name: string;
     email: string;
-    suggestionType: 'CORRECTION' | 'ADDITION' | 'FEEDBACK';
+    suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";
     message: string;
     honeypot?: string;
   }): Promise<{ id: string | null; message: string }> {
@@ -508,23 +520,26 @@ export class MockApiClient implements ApiClient {
 
     // Simulate honeypot spam protection
     if (suggestionDto.honeypot) {
-      console.log('Mock API: Honeypot spam detected');
+      console.log("Mock API: Honeypot spam detected");
       // Silently accept spam (return success to avoid revealing detection)
       return {
         id: null,
-        message: 'Thank you for your submission.',
+        message: "Thank you for your submission.",
       };
     }
 
     // Simulate validation errors
     if (suggestionDto.name.length < 2 || suggestionDto.name.length > 255) {
-      throw new Error('Name must be between 2 and 255 characters');
+      throw new Error("Name must be between 2 and 255 characters");
     }
-    if (!suggestionDto.email.includes('@')) {
-      throw new Error('Invalid email format');
+    if (!suggestionDto.email.includes("@")) {
+      throw new Error("Invalid email format");
     }
-    if (suggestionDto.message.length < 10 || suggestionDto.message.length > 5000) {
-      throw new Error('Message must be between 10 and 5000 characters');
+    if (
+      suggestionDto.message.length < 10 ||
+      suggestionDto.message.length > 5000
+    ) {
+      throw new Error("Message must be between 10 and 5000 characters");
     }
 
     // Simulate successful submission
@@ -533,7 +548,8 @@ export class MockApiClient implements ApiClient {
 
     return {
       id: suggestionId,
-      message: 'Thank you for helping preserve our cultural heritage. Your suggestion has been received and will be reviewed by our team.',
+      message:
+        "Thank you for helping preserve our cultural heritage. Your suggestion has been received and will be reviewed by our team.",
     };
   }
 
@@ -551,7 +567,9 @@ export class MockApiClient implements ApiClient {
     contentId: string,
     limit: number = 5
   ): Promise<DirectoryEntry[]> {
-    console.log(`Mock API: Fetching related content for ${contentId}, limit=${limit}`);
+    console.log(
+      `Mock API: Fetching related content for ${contentId}, limit=${limit}`
+    );
     await this.simulateDelay(150);
 
     // Find the current entry
@@ -573,16 +591,24 @@ export class MockApiClient implements ApiClient {
     relatedEntries.push(...sameCategoryTown);
 
     // Priority 2: Same category + shared cuisine (for restaurants)
-    if (relatedEntries.length < limit && currentEntry.cuisine) {
-      const currentCuisines = currentEntry.cuisine.split(',').map(c => c.trim().toLowerCase());
+    if (
+      relatedEntries.length < limit &&
+      currentEntry.category === "Restaurant" &&
+      currentEntry.details?.cuisine &&
+      currentEntry.details.cuisine.length > 0
+    ) {
+      const currentCuisines = currentEntry.details.cuisine.map((c) =>
+        c.trim().toLowerCase()
+      );
       const sameCategoryCuisine = MOCK_ENTRIES.filter(
         (entry) =>
           entry.id !== contentId &&
-          entry.category.toLowerCase() === currentEntry.category.toLowerCase() &&
-          entry.cuisine &&
+          entry.category === "Restaurant" &&
+          entry.details?.cuisine &&
+          entry.details.cuisine.length > 0 &&
           !relatedEntries.includes(entry) &&
-          entry.cuisine.split(',').some(c =>
-            currentCuisines.some(cc => c.trim().toLowerCase().includes(cc))
+          entry.details.cuisine.some((c) =>
+            currentCuisines.some((cc) => c.trim().toLowerCase().includes(cc))
           )
       );
       relatedEntries.push(...sameCategoryCuisine);
@@ -593,7 +619,8 @@ export class MockApiClient implements ApiClient {
       const sameCategoryOnly = MOCK_ENTRIES.filter(
         (entry) =>
           entry.id !== contentId &&
-          entry.category.toLowerCase() === currentEntry.category.toLowerCase() &&
+          entry.category.toLowerCase() ===
+            currentEntry.category.toLowerCase() &&
           !relatedEntries.includes(entry)
       );
       relatedEntries.push(...sameCategoryOnly);

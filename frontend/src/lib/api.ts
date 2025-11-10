@@ -191,7 +191,7 @@ export async function submitSuggestion(suggestionDto: {
   contentId: string;
   name: string;
   email: string;
-  suggestionType: 'CORRECTION' | 'ADDITION' | 'FEEDBACK';
+  suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";
   message: string;
   honeypot?: string;
 }): Promise<{ id: string | null; message: string }> {

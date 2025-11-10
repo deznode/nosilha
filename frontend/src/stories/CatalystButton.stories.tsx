@@ -204,7 +204,7 @@ export const InForm: Story = {
  */
 export const ButtonGroup: Story = {
   decorators: [
-    (Story) => (
+    () => (
       <div className="flex gap-2">
         <Button outline>Cancel</Button>
         <Button plain>Save Draft</Button>

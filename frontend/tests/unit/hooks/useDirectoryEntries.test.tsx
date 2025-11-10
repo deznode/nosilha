@@ -15,7 +15,8 @@ const mockDirectoryEntries: DirectoryEntry[] = [
     name: "Casa da Morabeza",
     slug: "casa-da-morabeza",
     category: "Restaurant",
-    description: "Traditional Cape Verdean restaurant serving authentic cachupa",
+    description:
+      "Traditional Cape Verdean restaurant serving authentic cachupa",
     town: "Nova Sintra",
     latitude: 14.8675,
     longitude: -24.7065,
@@ -24,6 +25,11 @@ const mockDirectoryEntries: DirectoryEntry[] = [
     imageUrl: "https://example.com/image.jpg",
     createdAt: "2024-01-01T00:00:00Z",
     updatedAt: "2024-01-01T00:00:00Z",
+    details: {
+      phoneNumber: "+238 281 1234",
+      openingHours: "Mon-Sat 12:00-22:00",
+      cuisine: ["Cape Verdean", "Seafood"],
+    },
   },
   {
     id: "2",
@@ -39,6 +45,9 @@ const mockDirectoryEntries: DirectoryEntry[] = [
     imageUrl: "https://example.com/hotel.jpg",
     createdAt: "2024-01-02T00:00:00Z",
     updatedAt: "2024-01-02T00:00:00Z",
+    details: {
+      amenities: ["Wi-Fi", "Pool", "Restaurant"],
+    },
   },
 ];
 
@@ -93,10 +102,9 @@ describe("useDirectoryEntries", () => {
     const mockError = new Error("Failed to fetch entries");
     vi.mocked(api.getEntriesByCategory).mockRejectedValue(mockError);
 
-    const { result } = renderHook(
-      () => useDirectoryEntries("all", 0, 20),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useDirectoryEntries("all", 0, 20), {
+      wrapper,
+    });
 
     // Wait for the query to fail
     await waitFor(() => expect(result.current.isError).toBe(true));
@@ -129,7 +137,9 @@ describe("useDirectoryEntries", () => {
     );
 
     // Should immediately have cached data (not loading)
-    await waitFor(() => expect(result2.current.data).toEqual(mockDirectoryEntries));
+    await waitFor(() =>
+      expect(result2.current.data).toEqual(mockDirectoryEntries)
+    );
 
     // API should not be called again (cached)
     expect(api.getEntriesByCategory).toHaveBeenCalledTimes(1);
@@ -167,12 +177,13 @@ describe("useDirectoryEntries", () => {
 
     vi.mocked(api.getEntriesByCategory).mockResolvedValue(invalidData as any);
 
-    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleErrorSpy = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
-    const { result } = renderHook(
-      () => useDirectoryEntries("all", 0, 20),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useDirectoryEntries("all", 0, 20), {
+      wrapper,
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -189,10 +200,7 @@ describe("useDirectoryEntries", () => {
   it("uses default parameters when not provided", async () => {
     vi.mocked(api.getEntriesByCategory).mockResolvedValue(mockDirectoryEntries);
 
-    const { result } = renderHook(
-      () => useDirectoryEntries(),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useDirectoryEntries(), { wrapper });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -204,10 +212,11 @@ describe("useDirectoryEntries", () => {
     vi.mocked(api.getEntriesByCategory).mockResolvedValue(mockDirectoryEntries);
 
     const { result } = renderHook(
-      () => useDirectoryEntries("Restaurant", 0, 20, {
-        staleTime: 10 * 60 * 1000, // 10 minutes
-        gcTime: 60 * 60 * 1000, // 1 hour
-      }),
+      () =>
+        useDirectoryEntries("Restaurant", 0, 20, {
+          staleTime: 10 * 60 * 1000, // 10 minutes
+          gcTime: 60 * 60 * 1000, // 1 hour
+        }),
       { wrapper }
     );
 

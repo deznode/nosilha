@@ -451,12 +451,121 @@ Claude Code has access to Model Context Protocol (MCP) servers that provide addi
 - Single Table Inheritance pattern for `DirectoryEntry` and its subclasses (`Restaurant`, `Hotel`, `Landmark`, `Beach`)
 
 ### Frontend Design System & Styling
-**Documentation**: See [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) for comprehensive styling guide  
-**Brand**: "Clean, inviting, authentic, and lush" - digital extension of Brava Island  
-**Colors**: Ocean Blue (#005A8D), Valley Green (#3E7D5A), Bougainvillea Pink (#D90368), Sunny Yellow (#F7B801)  
-**Typography**: Merriweather (headings), Lato (body text), Google Fonts with CSS variables  
-**Components**: Catalyst UI (25+ components), Custom UI (DirectoryCard, PageHeader, ThemeToggle), mobile-first with dark mode  
+**Documentation**: See [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) for comprehensive styling guide
+**Brand**: "Clean, inviting, authentic, and lush" - digital extension of Brava Island
+**Colors**: Ocean Blue (#005A8D), Valley Green (#3E7D5A), Bougainvillea Pink (#D90368), Sunny Yellow (#F7B801)
+**Typography**: Merriweather (headings), Lato (body text), Google Fonts with CSS variables
+**Components**: Catalyst UI (25+ components), Custom UI (DirectoryCard, PageHeader, ThemeToggle), mobile-first with dark mode
 **Key Files**: globals.css, tailwind.config.ts, layout.tsx, theme-toggle.tsx, button.tsx
+
+### Content Action Section Pattern
+
+The Content Action Section provides cultural heritage engagement features for sharing, reacting, and contributing to heritage content.
+
+**Architecture**:
+- **Location**: `frontend/src/components/content-actions/`
+- **Backend API**: `/api/v1/reactions`, `/api/v1/suggestions`, `/api/v1/directory/entries/{id}/related`
+- **Database**: PostgreSQL tables (`reactions`, `suggestions`)
+- **Authentication**: Supabase Auth with JWT validation (reactions only)
+- **Caching**: ISR with 5-minute revalidation for counts and related content
+
+**Core Components**:
+
+1. **ContentActionToolbar** (`ContentActionToolbar.tsx`)
+   - ARIA toolbar pattern for accessibility (role="toolbar")
+   - Hybrid placement: fixed left rail (desktop lg+), horizontal in-flow (mobile/tablet)
+   - Integrates all action buttons with proper keyboard navigation
+   - File: `frontend/src/components/content-actions/ContentActionToolbar.tsx`
+
+2. **ShareButton** (`ShareButton.tsx`)
+   - Web Share API with clipboard fallback
+   - Native share dialog on supported devices
+   - Copy link confirmation with visual feedback (2-second CheckIcon)
+   - ARIA live region for screen reader announcements
+   - File: `frontend/src/components/content-actions/ShareButton.tsx`
+
+3. **ReactionButton** (`ReactionButton.tsx`)
+   - Authenticated user reactions (❤️ Love, 👍 Helpful, 🤔 Interesting, 🙏 Thank You)
+   - Optimistic UI updates with rollback on error
+   - Public reaction counts for all users
+   - Rate limiting: 10 reactions/minute per user
+   - File: `frontend/src/components/content-actions/ReactionButton.tsx`
+
+4. **SuggestImprovementForm** (`SuggestImprovementForm.tsx`)
+   - Community contribution modal form
+   - Three suggestion types: CORRECTION, ADDITION, FEEDBACK
+   - Honeypot spam protection
+   - Rate limiting: 5 submissions/hour per IP
+   - File: `frontend/src/components/content-actions/SuggestImprovementForm.tsx`
+
+5. **PrintButton** (`print-button.tsx`)
+   - Browser-native print dialog (window.print())
+   - Print stylesheet for clean layout
+   - Citation URL in footer
+   - File: `frontend/src/components/ui/print-button.tsx`
+   - Stylesheet: `frontend/src/styles/print.css`
+
+6. **RelatedContent** (`RelatedContent.tsx`)
+   - Content discovery algorithm (category + town + cuisine matching)
+   - Responsive layout: horizontal scroll (mobile), 2-col (tablet), 3-col (desktop)
+   - Displays 3-5 related heritage items
+   - File: `frontend/src/components/content-actions/RelatedContent.tsx`
+
+**Backend Services** (`backend/src/main/kotlin/com/nosilha/core/`):
+- **ReactionService**: Business logic with rate limiting
+- **ReactionController**: REST API endpoints (POST, DELETE, GET)
+- **SuggestionService**: Email notifications and spam protection
+- **SuggestionController**: Public submission endpoint
+- **RelatedContentService**: Three-tier relevance algorithm
+- **RelatedContentController**: Content discovery endpoint
+
+**API Endpoints**:
+```
+POST   /api/v1/reactions                    - Submit reaction (auth required)
+DELETE /api/v1/reactions/content/{id}       - Remove reaction (auth required)
+GET    /api/v1/reactions/content/{id}       - Get reaction counts (public)
+POST   /api/v1/suggestions                  - Submit suggestion (public)
+GET    /api/v1/directory/entries/{id}/related?limit=5 - Get related content (public)
+```
+
+**Usage Example**:
+```tsx
+import { ContentActionToolbar } from '@/components/content-actions/ContentActionToolbar';
+
+// In heritage page component
+<ContentActionToolbar
+  contentId={entry.id}
+  title={entry.name}
+  description={entry.description}
+  image={entry.imageUrl || undefined}
+/>
+```
+
+**Accessibility Features**:
+- WCAG 2.1 AA compliant
+- Keyboard navigation (Tab, Arrow keys, Enter, Escape)
+- Screen reader support (NVDA, JAWS, VoiceOver)
+- 44×44px minimum touch targets on mobile
+- Visible focus indicators (3:1 contrast minimum)
+- ARIA live regions for dynamic content announcements
+
+**Performance**:
+- Bundle size: <15KB per page (verified)
+- ISR caching: 5-minute revalidation
+- Optimistic UI for instant feedback
+- First Input Delay target: <100ms
+- Time to Interactive target: <3s on 3G
+
+**Testing**:
+- Backend integration tests: `ReactionControllerTest.kt`, `SuggestionControllerTest.kt`, `RelatedContentControllerTest.kt`
+- Frontend E2E tests: `frontend/tests/e2e/content-actions.spec.ts`
+- Accessibility tests: `frontend/tests/e2e/accessibility.spec.ts`
+
+**Documentation**:
+- Feature spec: `plan/specs/004-content-action-section/spec.md`
+- Implementation plan: `plan/specs/004-content-action-section/plan.md`
+- API contracts: `plan/specs/004-content-action-section/contracts/`
+- Developer quickstart: `plan/specs/004-content-action-section/quickstart.md`
 
 ## Testing Strategy
 

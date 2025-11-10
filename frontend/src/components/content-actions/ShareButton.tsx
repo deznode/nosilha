@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { ShareIcon, CheckIcon } from '@heroicons/react/24/outline';
-import { Button } from '../catalyst-ui/button';
+import React, { useState } from "react";
+import { ShareIcon, CheckIcon } from "@heroicons/react/24/outline";
+import { Button } from "../catalyst-ui/button";
 
 interface ShareButtonProps {
   /**
@@ -58,10 +58,12 @@ export function ShareButton({
   title,
   url,
   description,
-  image,
-  className = '',
+  image: _image,
+  className = "",
 }: ShareButtonProps) {
-  const [status, setStatus] = useState<'idle' | 'shared' | 'copied' | 'error'>('idle');
+  const [status, setStatus] = useState<"idle" | "shared" | "copied" | "error">(
+    "idle"
+  );
 
   /**
    * Handle share button click
@@ -82,50 +84,51 @@ export function ShareButton({
         await navigator.share(shareData);
 
         // Success - update status
-        setStatus('shared');
+        setStatus("shared");
 
         // Reset status after 3 seconds
-        setTimeout(() => setStatus('idle'), 3000);
+        setTimeout(() => setStatus("idle"), 3000);
       } else {
         // Fallback: Copy to clipboard
         await navigator.clipboard.writeText(url);
 
         // Success - update status
-        setStatus('copied');
+        setStatus("copied");
 
         // Reset status after 3 seconds
-        setTimeout(() => setStatus('idle'), 3000);
+        setTimeout(() => setStatus("idle"), 3000);
       }
     } catch (error) {
       // Handle errors (user cancelled share or clipboard failed)
-      if (error instanceof Error && error.name === 'AbortError') {
+      if (error instanceof Error && error.name === "AbortError") {
         // User cancelled the share dialog - this is expected behavior, not an error
-        setStatus('idle');
+        setStatus("idle");
       } else {
         // Actual error occurred
-        console.error('Share failed:', error);
-        setStatus('error');
+        console.error("Share failed:", error);
+        setStatus("error");
 
         // Reset error status after 3 seconds
-        setTimeout(() => setStatus('idle'), 3000);
+        setTimeout(() => setStatus("idle"), 3000);
       }
     }
   };
 
   // Determine button icon based on status
-  const Icon = status === 'shared' || status === 'copied' ? CheckIcon : ShareIcon;
+  const Icon =
+    status === "shared" || status === "copied" ? CheckIcon : ShareIcon;
 
   // Determine button label based on status
   const getButtonLabel = () => {
     switch (status) {
-      case 'shared':
-        return 'Shared!';
-      case 'copied':
-        return 'Link Copied!';
-      case 'error':
-        return 'Failed';
+      case "shared":
+        return "Shared!";
+      case "copied":
+        return "Link Copied!";
+      case "error":
+        return "Failed";
       default:
-        return 'Share';
+        return "Share";
     }
   };
 
@@ -137,7 +140,7 @@ export function ShareButton({
         onClick={handleShare}
         className={className}
         aria-label={`Share ${title}`}
-        disabled={status === 'shared' || status === 'copied'}
+        disabled={status === "shared" || status === "copied"}
       >
         <Icon data-slot="icon" />
         {getButtonLabel()}
@@ -150,9 +153,9 @@ export function ShareButton({
         aria-atomic="true"
         className="sr-only"
       >
-        {status === 'shared' && 'Content shared successfully'}
-        {status === 'copied' && 'Link copied to clipboard'}
-        {status === 'error' && 'Failed to share content'}
+        {status === "shared" && "Content shared successfully"}
+        {status === "copied" && "Link copied to clipboard"}
+        {status === "error" && "Failed to share content"}
       </div>
     </>
   );

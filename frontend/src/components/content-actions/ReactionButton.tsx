@@ -1,23 +1,19 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import { Button } from '../catalyst-ui/button';
-import { useAuth } from '../providers/auth-provider';
-import {
-  submitReaction,
-  deleteReaction,
-  getReactionCounts,
-} from '@/lib/api';
+import React, { useState, useEffect } from "react";
+import { Button } from "../catalyst-ui/button";
+import { useAuth } from "../providers/auth-provider";
+import { submitReaction, deleteReaction, getReactionCounts } from "@/lib/api";
 import type {
   ReactionType,
   ReactionCountsDto,
   ReactionCreateDto,
-} from '@/types/reaction';
+} from "@/types/reaction";
 import {
   REACTION_EMOJIS,
   REACTION_LABELS,
   REACTION_DESCRIPTIONS,
-} from '@/types/reaction';
+} from "@/types/reaction";
 
 interface ReactionButtonProps {
   /**
@@ -62,7 +58,7 @@ interface ReactionButtonProps {
  */
 export function ReactionButton({
   contentId,
-  className = '',
+  className = "",
 }: ReactionButtonProps) {
   // Authentication state
   const { user, loading: authLoading } = useAuth();
@@ -93,8 +89,8 @@ export function ReactionButton({
         setUserReaction(data.userReaction);
         setError(null);
       } catch (err) {
-        console.error('Failed to fetch reaction counts:', err);
-        setError('Failed to load reactions');
+        console.error("Failed to fetch reaction counts:", err);
+        setError("Failed to load reactions");
         // Initialize with zero counts on error
         setCounts({
           contentId,
@@ -117,7 +113,7 @@ export function ReactionButton({
     // T035: Check authentication state
     if (!user) {
       setShowLoginPrompt(true);
-      setFeedback('Please log in to react to content');
+      setFeedback("Please log in to react to content");
       setTimeout(() => {
         setShowLoginPrompt(false);
         setFeedback(null);
@@ -136,7 +132,8 @@ export function ReactionButton({
 
     // Determine action: toggle off, change reaction, or new reaction
     const isTogglingOff = userReaction === reactionType;
-    const isChangingReaction = userReaction !== null && userReaction !== reactionType;
+    const isChangingReaction =
+      userReaction !== null && userReaction !== reactionType;
 
     // T034: Optimistic UI update
     const newCounts = { ...counts.reactions };
@@ -187,7 +184,7 @@ export function ReactionButton({
       setOptimisticState(null);
       setError(null);
     } catch (err) {
-      console.error('Failed to submit reaction:', err);
+      console.error("Failed to submit reaction:", err);
 
       // T034: Rollback optimistic update on error
       if (optimisticState) {
@@ -201,12 +198,12 @@ export function ReactionButton({
 
       // Handle rate limiting error
       const errorMessage = (err as Error).message;
-      if (errorMessage.includes('Too many reactions')) {
-        setError('Rate limit exceeded. Please wait a moment.');
-        setFeedback('Too many reactions. Please wait.');
+      if (errorMessage.includes("Too many reactions")) {
+        setError("Rate limit exceeded. Please wait a moment.");
+        setFeedback("Too many reactions. Please wait.");
       } else {
-        setError('Failed to submit reaction. Please try again.');
-        setFeedback('Failed to submit reaction');
+        setError("Failed to submit reaction. Please try again.");
+        setFeedback("Failed to submit reaction");
       }
 
       // Clear error after 3 seconds
@@ -240,7 +237,12 @@ export function ReactionButton({
   }
 
   // T036: Display reaction counts for all reaction types
-  const allReactionTypes: ReactionType[] = ['LOVE', 'HELPFUL', 'INTERESTING', 'THANKYOU'];
+  const allReactionTypes: ReactionType[] = [
+    "LOVE",
+    "HELPFUL",
+    "INTERESTING",
+    "THANKYOU",
+  ];
 
   return (
     <div className={`flex flex-col gap-3 ${className}`.trim()}>
@@ -262,8 +264,8 @@ export function ReactionButton({
                 type="button"
                 outline
                 onClick={() => handleReaction(type)}
-                className={`min-w-[80px] min-h-[44px]`}
-                aria-label={`${label}: ${description}. ${count} ${count === 1 ? 'person' : 'people'} reacted.`}
+                className={`min-h-[44px] min-w-[80px]`}
+                aria-label={`${label}: ${description}. ${count} ${count === 1 ? "person" : "people"} reacted.`}
                 aria-pressed="false"
                 title={description}
               >
@@ -280,11 +282,8 @@ export function ReactionButton({
               key={type}
               type="button"
               onClick={() => handleReaction(type)}
-              className={`
-                min-w-[80px] min-h-[44px]
-                ring-2 ring-blue-500 dark:ring-blue-400
-              `.trim()}
-              aria-label={`${label}: ${description}. ${count} ${count === 1 ? 'person' : 'people'} reacted. You reacted with this.`}
+              className={`min-h-[44px] min-w-[80px] ring-2 ring-blue-500 dark:ring-blue-400`.trim()}
+              aria-label={`${label}: ${description}. ${count} ${count === 1 ? "person" : "people"} reacted. You reacted with this.`}
               aria-pressed="true"
               title={description}
             >
@@ -300,16 +299,13 @@ export function ReactionButton({
       {/* T035: Login prompt for unauthenticated users */}
       {showLoginPrompt && (
         <div
-          className="text-sm text-blue-600 dark:text-blue-400 p-2 bg-blue-50 dark:bg-blue-900/20 rounded"
+          className="rounded bg-blue-50 p-2 text-sm text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
           role="alert"
         >
-          Please{' '}
-          <a
-            href="/login"
-            className="underline hover:no-underline font-medium"
-          >
+          Please{" "}
+          <a href="/login" className="font-medium underline hover:no-underline">
             log in
-          </a>{' '}
+          </a>{" "}
           to react to content
         </div>
       )}
@@ -317,7 +313,7 @@ export function ReactionButton({
       {/* Error message display */}
       {error && (
         <div
-          className="text-sm text-red-600 dark:text-red-400 p-2 bg-red-50 dark:bg-red-900/20 rounded"
+          className="rounded bg-red-50 p-2 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400"
           role="alert"
         >
           {error}

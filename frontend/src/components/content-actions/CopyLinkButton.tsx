@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { LinkIcon, CheckIcon } from '@heroicons/react/24/outline';
-import { Button } from '../catalyst-ui/button';
+import React, { useState } from "react";
+import { LinkIcon, CheckIcon } from "@heroicons/react/24/outline";
+import { Button } from "../catalyst-ui/button";
 
 interface CopyLinkButtonProps {
   /**
@@ -36,11 +36,8 @@ interface CopyLinkButtonProps {
  * @example
  * <CopyLinkButton url="https://nosilha.com/directory/entry/eugenio-tavares-monument" />
  */
-export function CopyLinkButton({
-  url,
-  className = '',
-}: CopyLinkButtonProps) {
-  const [status, setStatus] = useState<'idle' | 'copied' | 'error'>('idle');
+export function CopyLinkButton({ url, className = "" }: CopyLinkButtonProps) {
+  const [status, setStatus] = useState<"idle" | "copied" | "error">("idle");
 
   /**
    * Handle copy button click
@@ -54,54 +51,54 @@ export function CopyLinkButton({
         await navigator.clipboard.writeText(url);
 
         // Success - update status
-        setStatus('copied');
+        setStatus("copied");
 
         // Reset status after 2.5 seconds
-        setTimeout(() => setStatus('idle'), 2500);
+        setTimeout(() => setStatus("idle"), 2500);
       } else {
         // Fallback for browsers without Clipboard API
         // Create temporary text area to copy from
-        const textArea = document.createElement('textarea');
+        const textArea = document.createElement("textarea");
         textArea.value = url;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-9999px';
+        textArea.style.position = "fixed";
+        textArea.style.left = "-9999px";
         document.body.appendChild(textArea);
         textArea.select();
 
         try {
-          document.execCommand('copy');
-          setStatus('copied');
-          setTimeout(() => setStatus('idle'), 2500);
+          document.execCommand("copy");
+          setStatus("copied");
+          setTimeout(() => setStatus("idle"), 2500);
         } catch (err) {
-          console.error('Fallback copy failed:', err);
-          setStatus('error');
-          setTimeout(() => setStatus('idle'), 2500);
+          console.error("Fallback copy failed:", err);
+          setStatus("error");
+          setTimeout(() => setStatus("idle"), 2500);
         } finally {
           document.body.removeChild(textArea);
         }
       }
     } catch (error) {
       // Handle errors
-      console.error('Copy failed:', error);
-      setStatus('error');
+      console.error("Copy failed:", error);
+      setStatus("error");
 
       // Reset error status after 2.5 seconds
-      setTimeout(() => setStatus('idle'), 2500);
+      setTimeout(() => setStatus("idle"), 2500);
     }
   };
 
   // Determine button icon based on status (T021: Visual confirmation with CheckIcon swap)
-  const Icon = status === 'copied' ? CheckIcon : LinkIcon;
+  const Icon = status === "copied" ? CheckIcon : LinkIcon;
 
   // Determine button label based on status
   const getButtonLabel = () => {
     switch (status) {
-      case 'copied':
-        return 'Copied!';
-      case 'error':
-        return 'Failed';
+      case "copied":
+        return "Copied!";
+      case "error":
+        return "Failed";
       default:
-        return 'Copy Link';
+        return "Copy Link";
     }
   };
 
@@ -113,7 +110,7 @@ export function CopyLinkButton({
         onClick={handleCopy}
         className={className}
         aria-label="Copy link to clipboard"
-        disabled={status === 'copied'}
+        disabled={status === "copied"}
       >
         <Icon data-slot="icon" />
         {getButtonLabel()}
@@ -126,8 +123,8 @@ export function CopyLinkButton({
         aria-atomic="true"
         className="sr-only"
       >
-        {status === 'copied' && 'Link copied to clipboard'}
-        {status === 'error' && 'Failed to copy link'}
+        {status === "copied" && "Link copied to clipboard"}
+        {status === "error" && "Failed to copy link"}
       </div>
     </>
   );

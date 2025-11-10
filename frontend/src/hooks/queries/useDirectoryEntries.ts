@@ -1,9 +1,6 @@
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { getEntriesByCategory } from "@/lib/api";
-import {
-  directoryEntriesSchema,
-  type DirectoryEntryInput,
-} from "@/schemas/directoryEntrySchema";
+import { directoryEntriesSchema } from "@/schemas/directoryEntrySchema";
 import type { DirectoryEntry } from "@/types/directory";
 
 /**
@@ -56,7 +53,7 @@ export function useDirectoryEntries(
  * Useful for pre-loading data on hover or navigation hints.
  */
 export function usePrefetchDirectoryEntries(
-  queryClient: any,
+  queryClient: unknown,
   category: string = "all",
   page: number = 0,
   size: number = 20

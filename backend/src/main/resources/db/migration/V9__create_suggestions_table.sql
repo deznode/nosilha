@@ -10,7 +10,7 @@ CREATE TABLE suggestions (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
   -- Constraints
-  CONSTRAINT chk_suggestion_type CHECK (suggestion_type IN ('correction', 'addition', 'feedback')),
+  CONSTRAINT chk_suggestion_type CHECK (suggestion_type IN ('CORRECTION', 'ADDITION', 'FEEDBACK')),
   CONSTRAINT chk_message_length CHECK (char_length(message) >= 10 AND char_length(message) <= 5000)
 );
 
@@ -23,4 +23,4 @@ CREATE INDEX idx_suggestions_ip ON suggestions(ip_address, created_at);
 COMMENT ON TABLE suggestions IS 'Community contributions for content improvement (corrections, additions, feedback)';
 COMMENT ON COLUMN suggestions.content_id IS 'Reference to heritage page/content UUID';
 COMMENT ON COLUMN suggestions.ip_address IS 'IPv4 or IPv6 address for rate limiting (nullable for privacy)';
-COMMENT ON COLUMN suggestions.suggestion_type IS 'Type of suggestion: correction, addition, feedback';
+COMMENT ON COLUMN suggestions.suggestion_type IS 'Type of suggestion: CORRECTION, ADDITION, FEEDBACK';

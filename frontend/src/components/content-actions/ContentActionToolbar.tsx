@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import React, { useRef, useState, KeyboardEvent } from 'react';
-import { ShareButton } from './ShareButton';
-import { CopyLinkButton } from './CopyLinkButton';
-import { ReactionButton } from './ReactionButton';
-import { SuggestImprovementForm } from './SuggestImprovementForm';
-import { PrintButton } from '../ui/print-button';
-import { Button } from '@/components/catalyst-ui/button';
-import { PencilSquareIcon } from '@heroicons/react/24/outline';
+import React, { useRef, useState, KeyboardEvent } from "react";
+import { ShareButton } from "./ShareButton";
+import { CopyLinkButton } from "./CopyLinkButton";
+import { ReactionButton } from "./ReactionButton";
+import { SuggestImprovementForm } from "./SuggestImprovementForm";
+import { PrintButton } from "../ui/print-button";
+import { Button } from "@/components/catalyst-ui/button";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 
 interface ContentActionToolbarProps {
   /**
@@ -80,17 +80,18 @@ interface ContentActionToolbarProps {
 export function ContentActionToolbar({
   contentId,
   title,
-  contentType = 'content',
+  contentType = "content",
   url,
   description,
   image,
-  className = '',
+  className = "",
 }: ContentActionToolbarProps) {
   const toolbarRef = useRef<HTMLDivElement>(null);
   const [isSuggestionFormOpen, setIsSuggestionFormOpen] = useState(false);
 
   // Get current page URL if not provided
-  const shareUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
+  const shareUrl =
+    url || (typeof window !== "undefined" ? window.location.href : "");
 
   /**
    * Handle keyboard navigation within the toolbar
@@ -103,41 +104,44 @@ export function ContentActionToolbar({
 
     // Get all focusable buttons within the toolbar
     const buttons = Array.from(
-      toolbar.querySelectorAll('button:not([disabled])')
+      toolbar.querySelectorAll("button:not([disabled])")
     ) as HTMLButtonElement[];
 
-    const currentIndex = buttons.indexOf(document.activeElement as HTMLButtonElement);
+    const currentIndex = buttons.indexOf(
+      document.activeElement as HTMLButtonElement
+    );
 
     switch (event.key) {
-      case 'ArrowRight':
-      case 'ArrowDown':
+      case "ArrowRight":
+      case "ArrowDown":
         event.preventDefault();
         // Move to next button (wrap to first if at end)
         const nextIndex = (currentIndex + 1) % buttons.length;
         buttons[nextIndex]?.focus();
         break;
 
-      case 'ArrowLeft':
-      case 'ArrowUp':
+      case "ArrowLeft":
+      case "ArrowUp":
         event.preventDefault();
         // Move to previous button (wrap to last if at beginning)
-        const prevIndex = currentIndex <= 0 ? buttons.length - 1 : currentIndex - 1;
+        const prevIndex =
+          currentIndex <= 0 ? buttons.length - 1 : currentIndex - 1;
         buttons[prevIndex]?.focus();
         break;
 
-      case 'Escape':
+      case "Escape":
         event.preventDefault();
         // Remove focus from toolbar
         (document.activeElement as HTMLElement)?.blur();
         break;
 
-      case 'Home':
+      case "Home":
         event.preventDefault();
         // Move to first button
         buttons[0]?.focus();
         break;
 
-      case 'End':
+      case "End":
         event.preventDefault();
         // Move to last button
         buttons[buttons.length - 1]?.focus();
@@ -152,28 +156,7 @@ export function ContentActionToolbar({
       aria-label="Content actions"
       aria-orientation="horizontal"
       onKeyDown={handleKeyDown}
-      className={`
-        print:hidden
-
-        /* T043, T044: Responsive hybrid placement (US6) */
-        /* Mobile (< md): In-flow horizontal layout below content */
-        flex flex-col gap-4
-        w-full
-
-        /* Tablet (md-lg): In-flow with optimized spacing */
-        md:gap-5
-
-        /* Desktop (lg+): Fixed left rail for easy access while reading */
-        lg:fixed lg:left-4 lg:top-24
-        lg:w-64 lg:max-h-[calc(100vh-8rem)]
-        lg:overflow-y-auto lg:overflow-x-hidden
-        lg:sticky
-
-        /* Ensure no horizontal scroll on any viewport (T046) */
-        overflow-x-hidden
-
-        ${className}
-      `.trim()}
+      className={`/* T043, T044: Responsive hybrid placement (US6) */ /* Mobile (< md): In-flow horizontal layout below content */ /* Tablet (md-lg): In-flow with optimized spacing */ /* Desktop (lg+): Fixed left rail for easy access while reading */ /* Ensure no horizontal scroll on any viewport (T046) */ flex w-full flex-col gap-4 overflow-x-hidden md:gap-5 lg:fixed lg:sticky lg:top-24 lg:left-4 lg:max-h-[calc(100vh-8rem)] lg:w-64 lg:overflow-x-hidden lg:overflow-y-auto print:hidden ${className} `.trim()}
       data-content-id={contentId}
     >
       {/* Primary actions: Share, Copy, Print */}
@@ -186,27 +169,23 @@ export function ContentActionToolbar({
           image={image}
         />
         <CopyLinkButton url={shareUrl} />
-        <PrintButton
-          variant="secondary"
-          label="Print"
-          showIcon={true}
-        />
+        <PrintButton variant="secondary" label="Print" showIcon={true} />
       </div>
 
       {/* Reaction section (User Story 2: Emotional Connection) */}
-      <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
+        <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
           How does this content make you feel?
         </h3>
         <ReactionButton contentId={contentId} />
       </div>
 
       {/* Suggestion section (User Story 3: Community Contributions) */}
-      <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
-        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
+        <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
           Help preserve cultural heritage
         </h3>
-        <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+        <p className="mb-3 text-xs text-gray-600 dark:text-gray-400">
           Share your knowledge or suggest improvements to this content
         </p>
         <Button
@@ -214,7 +193,7 @@ export function ContentActionToolbar({
           className="w-full md:w-auto"
           aria-label="Suggest improvement to this content"
         >
-          <PencilSquareIcon className="h-5 w-5 mr-2" />
+          <PencilSquareIcon className="mr-2 h-5 w-5" />
           Suggest Improvement
         </Button>
       </div>

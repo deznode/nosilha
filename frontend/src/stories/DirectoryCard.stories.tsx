@@ -211,7 +211,7 @@ export const WithoutImage: Story = {
  */
 export const GridLayout: Story = {
   decorators: [
-    (Story) => (
+    () => (
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <DirectoryCard entry={restaurantEntry} />
         <DirectoryCard entry={hotelEntry} />

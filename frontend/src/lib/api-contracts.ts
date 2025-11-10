@@ -53,9 +53,7 @@ export interface ApiClient {
   ): Promise<string>;
 
   // Reaction Operations (User Story 2)
-  submitReaction(
-    createDto: ReactionCreateDto
-  ): Promise<ReactionResponseDto>;
+  submitReaction(createDto: ReactionCreateDto): Promise<ReactionResponseDto>;
 
   deleteReaction(contentId: string): Promise<void>;
 
@@ -66,13 +64,16 @@ export interface ApiClient {
     contentId: string;
     name: string;
     email: string;
-    suggestionType: 'CORRECTION' | 'ADDITION' | 'FEEDBACK';
+    suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";
     message: string;
     honeypot?: string;
   }): Promise<{ id: string | null; message: string }>;
 
   // Related Content Operations (User Story 5 - Phase 9)
-  getRelatedContent(contentId: string, limit?: number): Promise<DirectoryEntry[]>;
+  getRelatedContent(
+    contentId: string,
+    limit?: number
+  ): Promise<DirectoryEntry[]>;
 }
 
 // ================================

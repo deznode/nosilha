@@ -1,0 +1,50 @@
+# Terraform ignore patterns for Nos Ilha infrastructure
+
+# Terraform state files
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Terraform lock file (commit this, but ignore temporary locks)
+.terraform.lock.hcl.bak
+
+# Terraform variable files with sensitive data
+*.tfvars
+*.auto.tfvars
+secrets.tfvars
+terraform.tfvars
+
+# Crash log files
+crash.log
+crash.*.log
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.bak
+*.backup
+
+# Log files
+*.log
+
+# Environment files
+.env*
+
+# Testing and temporary files
+*.tmp
+*.temp
+test/
+tests/
+
+# Documentation drafts
+*.draft.md

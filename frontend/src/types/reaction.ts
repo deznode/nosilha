@@ -15,17 +15,17 @@
  * - INTERESTING: Intellectually engaging, sparked curiosity
  * - THANKYOU: Gratitude for sharing, cultural appreciation
  */
-export type ReactionType = 'LOVE' | 'HELPFUL' | 'INTERESTING' | 'THANKYOU';
+export type ReactionType = "LOVE" | "HELPFUL" | "INTERESTING" | "THANKYOU";
 
 /**
  * Emoji mapping for reaction types.
  * Used for UI display in ReactionButton component.
  */
 export const REACTION_EMOJIS: Record<ReactionType, string> = {
-  LOVE: '❤️',
-  HELPFUL: '👍',
-  INTERESTING: '🤔',
-  THANKYOU: '🙏',
+  LOVE: "❤️",
+  HELPFUL: "👍",
+  INTERESTING: "🤔",
+  THANKYOU: "🙏",
 };
 
 /**
@@ -33,10 +33,10 @@ export const REACTION_EMOJIS: Record<ReactionType, string> = {
  * Used for accessibility (ARIA labels) and tooltips.
  */
 export const REACTION_LABELS: Record<ReactionType, string> = {
-  LOVE: 'Love',
-  HELPFUL: 'Helpful',
-  INTERESTING: 'Interesting',
-  THANKYOU: 'Thank you',
+  LOVE: "Love",
+  HELPFUL: "Helpful",
+  INTERESTING: "Interesting",
+  THANKYOU: "Thank you",
 };
 
 /**
@@ -44,10 +44,10 @@ export const REACTION_LABELS: Record<ReactionType, string> = {
  * Used for tooltips and accessibility descriptions.
  */
 export const REACTION_DESCRIPTIONS: Record<ReactionType, string> = {
-  LOVE: 'Deep appreciation, personal connection',
-  HELPFUL: 'Educational value, useful information',
-  INTERESTING: 'Intellectually engaging, sparked curiosity',
-  THANKYOU: 'Gratitude for sharing, cultural appreciation',
+  LOVE: "Deep appreciation, personal connection",
+  HELPFUL: "Educational value, useful information",
+  INTERESTING: "Intellectually engaging, sparked curiosity",
+  THANKYOU: "Gratitude for sharing, cultural appreciation",
 };
 
 /**
@@ -136,5 +136,5 @@ export interface ReactionErrorResponse {
   /**
    * Error type (for programmatic handling)
    */
-  error?: 'RateLimitExceeded' | 'Unauthorized' | 'NotFound' | 'ServerError';
+  error?: "RateLimitExceeded" | "Unauthorized" | "NotFound" | "ServerError";
 }

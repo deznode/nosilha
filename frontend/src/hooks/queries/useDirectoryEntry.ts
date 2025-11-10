@@ -52,7 +52,7 @@ export function useDirectoryEntry(
  * Prefetch a directory entry for improved perceived performance.
  * Useful for pre-loading data on hover or navigation hints.
  */
-export function usePrefetchDirectoryEntry(queryClient: any, slug: string) {
+export function usePrefetchDirectoryEntry(queryClient: unknown, slug: string) {
   return () =>
     queryClient.prefetchQuery({
       queryKey: ["directory", "entry", slug],

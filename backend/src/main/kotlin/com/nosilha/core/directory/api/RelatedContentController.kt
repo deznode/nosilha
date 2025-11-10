@@ -1,6 +1,7 @@
 package com.nosilha.core.directory.api
 
 import com.nosilha.core.directory.RelatedContentService
+import com.nosilha.core.directory.domain.toDto
 import com.nosilha.core.shared.api.ApiResponse
 import com.nosilha.core.shared.api.DirectoryEntryDto
 import org.slf4j.LoggerFactory
@@ -80,28 +81,8 @@ class RelatedContentController(
         // Find related content using service
         val relatedEntries = relatedContentService.findRelatedContent(contentId, validatedLimit)
 
-        // Convert to DTOs
-        val relatedDtos = relatedEntries.map { entry ->
-            DirectoryEntryDto(
-                id = entry.id!!,
-                name = entry.name,
-                slug = entry.slug,
-                description = entry.description,
-                category = entry.category,
-                town = entry.town,
-                latitude = entry.latitude,
-                longitude = entry.longitude,
-                imageUrl = entry.imageUrl,
-                rating = entry.rating,
-                reviewCount = entry.reviewCount,
-                phoneNumber = entry.phoneNumber,
-                openingHours = entry.openingHours,
-                cuisine = entry.cuisine,
-                amenities = entry.amenities,
-                createdAt = entry.createdAt,
-                updatedAt = entry.updatedAt
-            )
-        }
+        // Convert to DTOs using the polymorphic toDto() extension function
+        val relatedDtos = relatedEntries.map { entry -> entry.toDto() }
 
         logger.info("Returning {} related content items for contentId={}", relatedDtos.size, contentId)
 

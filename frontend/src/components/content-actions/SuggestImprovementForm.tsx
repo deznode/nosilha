@@ -1,13 +1,19 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Button } from '@/components/catalyst-ui/button';
-import { Input } from '@/components/catalyst-ui/input';
-import { Field, Label } from '@/components/catalyst-ui/fieldset';
-import { Dialog, DialogActions, DialogBody, DialogDescription, DialogTitle } from '@/components/catalyst-ui/dialog';
-import { api } from '@/lib/api';
+import { useState } from "react";
+import { Button } from "@/components/catalyst-ui/button";
+import { Input } from "@/components/catalyst-ui/input";
+import { Field, Label } from "@/components/catalyst-ui/fieldset";
+import {
+  Dialog,
+  DialogActions,
+  DialogBody,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/catalyst-ui/dialog";
+import { submitSuggestion } from "@/lib/api";
 
-type SuggestionType = 'CORRECTION' | 'ADDITION' | 'FEEDBACK';
+type SuggestionType = "CORRECTION" | "ADDITION" | "FEEDBACK";
 
 interface SuggestImprovementFormProps {
   contentId: string;
@@ -24,11 +30,12 @@ export function SuggestImprovementForm({
   isOpen,
   onClose,
 }: SuggestImprovementFormProps) {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [suggestionType, setSuggestionType] = useState<SuggestionType>('FEEDBACK');
-  const [message, setMessage] = useState('');
-  const [honeypot, setHoneypot] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [suggestionType, setSuggestionType] =
+    useState<SuggestionType>("FEEDBACK");
+  const [message, setMessage] = useState("");
+  const [honeypot, setHoneypot] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -40,19 +47,19 @@ export function SuggestImprovementForm({
 
     // Client-side validation
     if (!name || name.length < 2 || name.length > 255) {
-      setSubmitError('Name must be between 2 and 255 characters');
+      setSubmitError("Name must be between 2 and 255 characters");
       setIsSubmitting(false);
       return;
     }
 
-    if (!email || !email.includes('@')) {
-      setSubmitError('Please enter a valid email address');
+    if (!email || !email.includes("@")) {
+      setSubmitError("Please enter a valid email address");
       setIsSubmitting(false);
       return;
     }
 
     if (!message || message.length < 10 || message.length > 5000) {
-      setSubmitError('Message must be between 10 and 5000 characters');
+      setSubmitError("Message must be between 10 and 5000 characters");
       setIsSubmitting(false);
       return;
     }
@@ -66,7 +73,7 @@ export function SuggestImprovementForm({
     }
 
     try {
-      await api.submitSuggestion({
+      await submitSuggestion({
         contentId,
         name: name.trim(),
         email: email.trim().toLowerCase(),
@@ -79,17 +86,17 @@ export function SuggestImprovementForm({
       setSubmitError(null);
 
       // Reset form
-      setName('');
-      setEmail('');
-      setSuggestionType('FEEDBACK');
-      setMessage('');
-      setHoneypot('');
+      setName("");
+      setEmail("");
+      setSuggestionType("FEEDBACK");
+      setMessage("");
+      setHoneypot("");
     } catch (error) {
-      console.error('Error submitting suggestion:', error);
+      console.error("Error submitting suggestion:", error);
       setSubmitError(
         error instanceof Error
           ? error.message
-          : 'An error occurred while submitting your suggestion. Please try again later.'
+          : "An error occurred while submitting your suggestion. Please try again later."
       );
     } finally {
       setIsSubmitting(false);
@@ -108,13 +115,14 @@ export function SuggestImprovementForm({
     <Dialog open={isOpen} onClose={handleClose}>
       <DialogTitle>Suggest Improvement</DialogTitle>
       <DialogDescription>
-        Help us improve this content about <strong>{contentTitle}</strong>.
-        Your suggestions help preserve the accuracy and richness of Brava Island's cultural heritage.
+        Help us improve this content about <strong>{contentTitle}</strong>. Your
+        suggestions help preserve the accuracy and richness of Brava Island's
+        cultural heritage.
       </DialogDescription>
 
       {submitSuccess ? (
         <DialogBody>
-          <div className="rounded-md bg-green-50 dark:bg-green-900/20 p-4">
+          <div className="rounded-md bg-green-50 p-4 dark:bg-green-900/20">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg
@@ -135,8 +143,9 @@ export function SuggestImprovementForm({
                   Thank you for helping preserve our cultural heritage!
                 </p>
                 <p className="mt-2 text-sm text-green-700 dark:text-green-300">
-                  Your suggestion has been received and will be reviewed by our team.
-                  We appreciate your contribution to maintaining the accuracy of Brava Island's cultural content.
+                  Your suggestion has been received and will be reviewed by our
+                  team. We appreciate your contribution to maintaining the
+                  accuracy of Brava Island's cultural content.
                 </p>
               </div>
             </div>
@@ -202,13 +211,21 @@ export function SuggestImprovementForm({
                   name="suggestionType"
                   required
                   value={suggestionType}
-                  onChange={(e) => setSuggestionType(e.target.value as SuggestionType)}
+                  onChange={(e) =>
+                    setSuggestionType(e.target.value as SuggestionType)
+                  }
                   disabled={isSubmitting}
-                  className="block w-full rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50"
+                  className="block w-full rounded-lg border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
                 >
-                  <option value="CORRECTION">Correction - Fix factual errors or inaccuracies</option>
-                  <option value="ADDITION">Addition - Add missing information or context</option>
-                  <option value="FEEDBACK">Feedback - General feedback on content quality</option>
+                  <option value="CORRECTION">
+                    Correction - Fix factual errors or inaccuracies
+                  </option>
+                  <option value="ADDITION">
+                    Addition - Add missing information or context
+                  </option>
+                  <option value="FEEDBACK">
+                    Feedback - General feedback on content quality
+                  </option>
                 </select>
               </Field>
 
@@ -224,7 +241,7 @@ export function SuggestImprovementForm({
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Please provide details about your suggestion..."
                   disabled={isSubmitting}
-                  className="block w-full rounded-lg border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50"
+                  className="block w-full rounded-lg border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
                 />
                 <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                   {message.length}/5000 characters (minimum 10)
@@ -232,8 +249,10 @@ export function SuggestImprovementForm({
               </Field>
 
               {submitError && (
-                <div className="rounded-md bg-red-50 dark:bg-red-900/20 p-4">
-                  <p className="text-sm text-red-800 dark:text-red-200">{submitError}</p>
+                <div className="rounded-md bg-red-50 p-4 dark:bg-red-900/20">
+                  <p className="text-sm text-red-800 dark:text-red-200">
+                    {submitError}
+                  </p>
                 </div>
               )}
             </div>
@@ -244,7 +263,7 @@ export function SuggestImprovementForm({
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Submitting...' : 'Submit Suggestion'}
+              {isSubmitting ? "Submitting..." : "Submit Suggestion"}
             </Button>
           </DialogActions>
         </form>

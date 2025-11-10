@@ -1,7 +1,6 @@
-'use client';
+"use client";
 
-import { PrintButton } from '@/components/ui/print-button';
-import { usePrintScrollFix } from '@/lib/print-utils';
+import { usePrintScrollFix } from "@/lib/print-utils";
 
 interface PrintPageWrapperProps {
   children: React.ReactNode;

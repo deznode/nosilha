@@ -410,7 +410,7 @@ export class BackendApiClient implements ApiClient {
       }
 
       return await response.json();
-    } catch (error) {
+    } catch (_error) {
       // If authentication failed but we're just viewing counts, try unauthenticated
       const response = await fetch(endpoint, {
         method: "GET",
@@ -443,7 +443,7 @@ export class BackendApiClient implements ApiClient {
     contentId: string;
     name: string;
     email: string;
-    suggestionType: 'CORRECTION' | 'ADDITION' | 'FEEDBACK';
+    suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";
     message: string;
     honeypot?: string;
   }): Promise<{ id: string | null; message: string }> {
@@ -461,11 +461,16 @@ export class BackendApiClient implements ApiClient {
     if (!response.ok) {
       if (response.status === 429) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Rate limit exceeded. Please try again later.");
+        throw new Error(
+          errorData.message || "Rate limit exceeded. Please try again later."
+        );
       }
       if (response.status === 400) {
         const errorData = await response.json();
-        throw new Error(errorData.message || "Invalid suggestion data. Please check your input.");
+        throw new Error(
+          errorData.message ||
+            "Invalid suggestion data. Please check your input."
+        );
       }
       throw new Error(`Failed to submit suggestion: ${response.status}`);
     }

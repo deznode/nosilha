@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { DirectoryEntry } from '@/types/directory';
-import { getRelatedContent } from '@/lib/api';
-import { DirectoryCard } from '@/components/ui/directory-card';
+import React, { useEffect, useState } from "react";
+import { DirectoryEntry } from "@/types/directory";
+import { getRelatedContent } from "@/lib/api";
+import { DirectoryCard } from "@/components/ui/directory-card";
 
 interface RelatedContentProps {
   /**
@@ -48,8 +48,8 @@ interface RelatedContentProps {
 export function RelatedContent({
   contentId,
   limit = 5,
-  heading = 'Explore Related Content',
-  className = '',
+  heading = "Explore Related Content",
+  className = "",
 }: RelatedContentProps) {
   const [relatedEntries, setRelatedEntries] = useState<DirectoryEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,8 +64,8 @@ export function RelatedContent({
         const entries = await getRelatedContent(contentId, limit);
         setRelatedEntries(entries);
       } catch (err) {
-        console.error('Failed to fetch related content:', err);
-        setError('Failed to load related content. Please try again later.');
+        console.error("Failed to fetch related content:", err);
+        setError("Failed to load related content. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -84,7 +84,7 @@ export function RelatedContent({
         aria-label="Loading related content"
       >
         <div className="container mx-auto px-4 py-8">
-          <h2 className="text-text-primary text-2xl font-semibold mb-6">
+          <h2 className="text-text-primary mb-6 text-2xl font-semibold">
             {heading}
           </h2>
           {/* Loading skeleton */}
@@ -125,33 +125,33 @@ export function RelatedContent({
       aria-label="Related cultural heritage content"
     >
       <div className="container mx-auto px-4 py-8 lg:py-12">
-        <h2 className="text-text-primary text-2xl font-semibold mb-6">
+        <h2 className="text-text-primary mb-6 text-2xl font-semibold">
           {heading}
         </h2>
 
         {/* Mobile: Horizontal scroll */}
         <div className="sm:hidden">
           <div
-            className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            className="scrollbar-hide flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {relatedEntries.map((entry) => (
               <div
                 key={entry.id}
-                className="flex-shrink-0 w-[280px] snap-start"
+                className="w-[280px] flex-shrink-0 snap-start"
               >
                 <DirectoryCard entry={entry} />
               </div>
             ))}
           </div>
           {/* Scroll indicator */}
-          <p className="text-text-tertiary text-xs text-center mt-2">
+          <p className="text-text-tertiary mt-2 text-center text-xs">
             Swipe to see more →
           </p>
         </div>
 
         {/* Tablet & Desktop: Grid layout */}
-        <div className="hidden sm:grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="hidden gap-6 sm:grid sm:grid-cols-2 lg:grid-cols-3">
           {relatedEntries.map((entry) => (
             <DirectoryCard key={entry.id} entry={entry} />
           ))}

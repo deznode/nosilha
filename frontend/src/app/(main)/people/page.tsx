@@ -489,460 +489,462 @@ export default function PeoplePage() {
   return (
     <PrintPageWrapper>
       <div className="bg-background-secondary font-sans">
-      <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
-        <PageHeader
-          title="Historical Figures"
-          subtitle="Discover the remarkable people who shaped Brava Island's rich cultural heritage and continue to inspire generations."
-        />
+        <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+          <PageHeader
+            title="Historical Figures"
+            subtitle="Discover the remarkable people who shaped Brava Island's rich cultural heritage and continue to inspire generations."
+          />
 
-        {/* Print Button */}
-        <PrintButton className="mb-8" />
+          {/* Print Button */}
+          <PrintButton className="mb-8" />
 
-        {/* Introduction Section */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
-          <div className="grid items-center gap-8 lg:grid-cols-2">
-            <div>
-              <h2 className="text-text-primary mb-4 font-serif text-3xl font-bold">
-                Our People, Our Legacy: The Extraordinary Sons and Daughters of
-                Brava
-              </h2>
-              <p className="text-text-secondary mb-4 text-lg">
-                Our beautiful island tells a remarkable story. Known as{" "}
-                <em>Ilha das Flores</em>
-                (Island of Flowers) for its lush, mist-covered valleys, Brava
-                may be the smallest inhabited island in Cape Verde—just 62
-                square kilometers—but from our shores have come extraordinary
-                individuals whose influence has touched hearts and changed lives
-                across continents, shaping Cape Verdean culture, national
-                identity, and diaspora communities worldwide.
-              </p>
-              <p className="text-text-secondary mb-4">
-                This remarkable legacy isn&apos;t by chance—it&apos;s rooted in
-                our unique history: the 1680 Fogo eruption that brought refugees
-                who found sanctuary here, the American whaling ships that
-                connected us to New England, and a maritime culture that
-                nurtured strong leaders, creative spirits, and entrepreneurs who
-                carried Brava&apos;s values wherever they traveled.
-              </p>
-              <p className="text-text-secondary">
-                From Eugénio Tavares who gave Cape Verde its cultural voice
-                through morna and <em>sodade</em>, to Marcelino
-                &quot;Daddy&quot; Grace who built a spiritual movement with
-                millions of followers, to contemporary leaders like David Soares
-                making their mark in American politics—our people show that an
-                island&apos;s true size is measured not in kilometers, but in
-                the courage, creativity, and lasting impact of its sons and
-                daughters.
-              </p>
-            </div>
-            <div className="relative h-64 lg:h-80">
-              {/* TODO: Update courtesy text with proper source attribution */}
-              <ImageWithCourtesy
-                src="/images/people/brava-cultural-heritage.jpg"
-                alt="Cultural heritage of Brava Island showing traditional life and customs"
-                fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="rounded-lg object-cover object-top"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Historical Progression of Influence */}
-        <section className="mt-16">
-          <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
-            Historical Progression of Influence
-          </h3>
-        </section>
-
-        {/* Historical Eras */}
-        {historicalEras.map((era, eraIndex) => (
-          <section key={era.era} className="mt-16">
-            {/* Era Header */}
-            <div className="mb-8">
-              <div className="mb-4 flex items-center">
-                <div className="bg-ocean-blue/10 mr-4 flex h-12 w-12 items-center justify-center rounded-full">
-                  <span className="text-ocean-blue text-lg font-bold">
-                    {eraIndex + 1}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-text-primary font-serif text-2xl font-bold">
-                    {era.era} ({era.period})
-                  </h3>
-                  <p className="text-text-secondary font-medium">
-                    {era.description}
-                  </p>
-                </div>
+          {/* Introduction Section */}
+          <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+            <div className="grid items-center gap-8 lg:grid-cols-2">
+              <div>
+                <h2 className="text-text-primary mb-4 font-serif text-3xl font-bold">
+                  Our People, Our Legacy: The Extraordinary Sons and Daughters
+                  of Brava
+                </h2>
+                <p className="text-text-secondary mb-4 text-lg">
+                  Our beautiful island tells a remarkable story. Known as{" "}
+                  <em>Ilha das Flores</em>
+                  (Island of Flowers) for its lush, mist-covered valleys, Brava
+                  may be the smallest inhabited island in Cape Verde—just 62
+                  square kilometers—but from our shores have come extraordinary
+                  individuals whose influence has touched hearts and changed
+                  lives across continents, shaping Cape Verdean culture,
+                  national identity, and diaspora communities worldwide.
+                </p>
+                <p className="text-text-secondary mb-4">
+                  This remarkable legacy isn&apos;t by chance—it&apos;s rooted
+                  in our unique history: the 1680 Fogo eruption that brought
+                  refugees who found sanctuary here, the American whaling ships
+                  that connected us to New England, and a maritime culture that
+                  nurtured strong leaders, creative spirits, and entrepreneurs
+                  who carried Brava&apos;s values wherever they traveled.
+                </p>
+                <p className="text-text-secondary">
+                  From Eugénio Tavares who gave Cape Verde its cultural voice
+                  through morna and <em>sodade</em>, to Marcelino
+                  &quot;Daddy&quot; Grace who built a spiritual movement with
+                  millions of followers, to contemporary leaders like David
+                  Soares making their mark in American politics—our people show
+                  that an island&apos;s true size is measured not in kilometers,
+                  but in the courage, creativity, and lasting impact of its sons
+                  and daughters.
+                </p>
               </div>
-              <div className="from-ocean-blue/5 to-valley-green/5 border-ocean-blue rounded-lg border-l-4 bg-gradient-to-r p-4">
-                <p className="text-text-secondary italic">{era.context}</p>
+              <div className="relative h-64 lg:h-80">
+                {/* TODO: Update courtesy text with proper source attribution */}
+                <ImageWithCourtesy
+                  src="/images/people/brava-cultural-heritage.jpg"
+                  alt="Cultural heritage of Brava Island showing traditional life and customs"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="rounded-lg object-cover object-top"
+                />
               </div>
             </div>
+          </section>
 
-            {/* Era Figures */}
-            <div className="space-y-8">
-              {era.figures.map((figure) => (
-                <div
-                  key={figure.name}
-                  className={`grid gap-6 lg:grid-cols-${
-                    figure.featured ? "2" : "1"
-                  } ${
-                    figure.featured
-                      ? "bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm"
-                      : "bg-background-primary/50 rounded-lg p-4"
-                  }`}
-                >
-                  {figure.featured && (
-                    <div className="relative mx-auto aspect-[3/4] w-full max-w-sm">
-                      {/* TODO: Update courtesy text with proper source attribution */}
-                      <ImageWithCourtesy
-                        src={figure.image}
-                        alt={`Portrait of ${figure.name}`}
-                        courtesy={figure.courtesy}
-                        variant="large"
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="rounded-lg object-cover object-top"
-                        priority={figure.name === "Eugénio Tavares"}
-                      />
-                    </div>
-                  )}
+          {/* Historical Progression of Influence */}
+          <section className="mt-16">
+            <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
+              Historical Progression of Influence
+            </h3>
+          </section>
 
-                  <div className={figure.featured ? "" : "flex items-start"}>
-                    {!figure.featured && (
-                      <div className="mr-4 flex-shrink-0">
+          {/* Historical Eras */}
+          {historicalEras.map((era, eraIndex) => (
+            <section key={era.era} className="mt-16">
+              {/* Era Header */}
+              <div className="mb-8">
+                <div className="mb-4 flex items-center">
+                  <div className="bg-ocean-blue/10 mr-4 flex h-12 w-12 items-center justify-center rounded-full">
+                    <span className="text-ocean-blue text-lg font-bold">
+                      {eraIndex + 1}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-text-primary font-serif text-2xl font-bold">
+                      {era.era} ({era.period})
+                    </h3>
+                    <p className="text-text-secondary font-medium">
+                      {era.description}
+                    </p>
+                  </div>
+                </div>
+                <div className="from-ocean-blue/5 to-valley-green/5 border-ocean-blue rounded-lg border-l-4 bg-gradient-to-r p-4">
+                  <p className="text-text-secondary italic">{era.context}</p>
+                </div>
+              </div>
+
+              {/* Era Figures */}
+              <div className="space-y-8">
+                {era.figures.map((figure) => (
+                  <div
+                    key={figure.name}
+                    className={`grid gap-6 lg:grid-cols-${
+                      figure.featured ? "2" : "1"
+                    } ${
+                      figure.featured
+                        ? "bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm"
+                        : "bg-background-primary/50 rounded-lg p-4"
+                    }`}
+                  >
+                    {figure.featured && (
+                      <div className="relative mx-auto aspect-[3/4] w-full max-w-sm">
                         {/* TODO: Update courtesy text with proper source attribution */}
                         <ImageWithCourtesy
                           src={figure.image}
                           alt={`Portrait of ${figure.name}`}
                           courtesy={figure.courtesy}
-                          variant="icon"
-                          tooltipPosition="right"
-                          width={112}
-                          height={112}
-                          sizes="112px"
-                          className="rounded-full object-cover object-top"
+                          variant="large"
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          className="rounded-lg object-cover object-top"
+                          priority={figure.name === "Eugénio Tavares"}
                         />
                       </div>
                     )}
 
-                    <div className="flex-1">
-                      <div className="mb-2 flex items-center">
-                        <span className="bg-ocean-blue/10 text-ocean-blue rounded px-2 py-1 text-xs">
-                          {figure.category}
-                        </span>
-                        <span className="text-text-secondary ml-2 flex items-center text-xs">
-                          <CalendarIcon className="mr-1 h-3 w-3" />
-                          {figure.years}
-                        </span>
-                        <span
-                          className={`ml-2 rounded px-2 py-1 text-xs ${
-                            figure.influence === "Revolutionary"
-                              ? "bg-bougainvillea-pink/10 text-bougainvillea-pink"
-                              : figure.influence === "Phenomenal"
-                                ? "bg-sunny-yellow/10 text-sunny-yellow"
-                                : figure.influence === "National"
-                                  ? "bg-valley-green/10 text-valley-green"
-                                  : figure.influence === "Global"
-                                    ? "bg-ocean-blue/20 text-ocean-blue"
-                                    : "bg-gray-100 text-gray-600"
-                          }`}
-                        >
-                          {figure.influence} Impact
-                        </span>
-                      </div>
+                    <div className={figure.featured ? "" : "flex items-start"}>
+                      {!figure.featured && (
+                        <div className="mr-4 flex-shrink-0">
+                          {/* TODO: Update courtesy text with proper source attribution */}
+                          <ImageWithCourtesy
+                            src={figure.image}
+                            alt={`Portrait of ${figure.name}`}
+                            courtesy={figure.courtesy}
+                            variant="icon"
+                            tooltipPosition="right"
+                            width={112}
+                            height={112}
+                            sizes="112px"
+                            className="rounded-full object-cover object-top"
+                          />
+                        </div>
+                      )}
 
-                      <h4
-                        className={`font-serif ${
-                          figure.featured ? "text-xl" : "text-lg"
-                        } text-text-primary mb-1 font-bold`}
-                      >
-                        {figure.name}
-                      </h4>
-                      <p
-                        className={`${
-                          figure.featured ? "text-sm" : "text-xs"
-                        } text-ocean-blue mb-3 font-medium`}
-                      >
-                        {figure.role}
-                      </p>
-                      <p
-                        className={`${
-                          figure.featured ? "text-base" : "text-sm"
-                        } text-text-secondary mb-4`}
-                      >
-                        {figure.description}
-                      </p>
+                      <div className="flex-1">
+                        <div className="mb-2 flex items-center">
+                          <span className="bg-ocean-blue/10 text-ocean-blue rounded px-2 py-1 text-xs">
+                            {figure.category}
+                          </span>
+                          <span className="text-text-secondary ml-2 flex items-center text-xs">
+                            <CalendarIcon className="mr-1 h-3 w-3" />
+                            {figure.years}
+                          </span>
+                          <span
+                            className={`ml-2 rounded px-2 py-1 text-xs ${
+                              figure.influence === "Revolutionary"
+                                ? "bg-bougainvillea-pink/10 text-bougainvillea-pink"
+                                : figure.influence === "Phenomenal"
+                                  ? "bg-sunny-yellow/10 text-sunny-yellow"
+                                  : figure.influence === "National"
+                                    ? "bg-valley-green/10 text-valley-green"
+                                    : figure.influence === "Global"
+                                      ? "bg-ocean-blue/20 text-ocean-blue"
+                                      : "bg-gray-100 text-gray-600"
+                            }`}
+                          >
+                            {figure.influence} Impact
+                          </span>
+                        </div>
 
-                      <div>
-                        <h5
-                          className={`font-semibold ${
-                            figure.featured ? "text-sm" : "text-xs"
-                          } text-text-primary mb-2`}
+                        <h4
+                          className={`font-serif ${
+                            figure.featured ? "text-xl" : "text-lg"
+                          } text-text-primary mb-1 font-bold`}
                         >
-                          Key Achievements:
-                        </h5>
-                        <ul
+                          {figure.name}
+                        </h4>
+                        <p
                           className={`${
                             figure.featured ? "text-sm" : "text-xs"
-                          } text-text-secondary space-y-1`}
+                          } text-ocean-blue mb-3 font-medium`}
                         >
-                          {(figure.featured
-                            ? figure.achievements
-                            : figure.achievements.slice(0, 2)
-                          ).map((achievement, index) => (
-                            <li key={index} className="flex items-start">
-                              <StarIcon className="text-sunny-yellow mt-0.5 mr-2 h-3 w-3 flex-shrink-0" />
-                              <span
-                                dangerouslySetInnerHTML={{
-                                  __html: achievement,
-                                }}
-                              />
-                            </li>
-                          ))}
-                        </ul>
+                          {figure.role}
+                        </p>
+                        <p
+                          className={`${
+                            figure.featured ? "text-base" : "text-sm"
+                          } text-text-secondary mb-4`}
+                        >
+                          {figure.description}
+                        </p>
+
+                        <div>
+                          <h5
+                            className={`font-semibold ${
+                              figure.featured ? "text-sm" : "text-xs"
+                            } text-text-primary mb-2`}
+                          >
+                            Key Achievements:
+                          </h5>
+                          <ul
+                            className={`${
+                              figure.featured ? "text-sm" : "text-xs"
+                            } text-text-secondary space-y-1`}
+                          >
+                            {(figure.featured
+                              ? figure.achievements
+                              : figure.achievements.slice(0, 2)
+                            ).map((achievement, index) => (
+                              <li key={index} className="flex items-start">
+                                <StarIcon className="text-sunny-yellow mt-0.5 mr-2 h-3 w-3 flex-shrink-0" />
+                                <span
+                                  dangerouslySetInnerHTML={{
+                                    __html: achievement,
+                                  }}
+                                />
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            </section>
+          ))}
+
+          {/* Evolution of Influence */}
+          <section className="mt-16">
+            <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
+              The Evolution of Brava&rsquo;s Global Impact
+            </h3>
+
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+              <div className="from-ocean-blue/10 to-ocean-blue/5 border-ocean-blue/20 rounded-lg border bg-gradient-to-br p-6 text-center shadow-sm">
+                <MusicalNoteIcon className="text-ocean-blue mx-auto mb-3 h-10 w-10" />
+                <h4 className="text-text-primary mb-2 font-semibold">
+                  Cultural Foundation
+                </h4>
+                <p className="text-ocean-blue mb-2 text-xs font-medium">
+                  1867-1930
+                </p>
+                <p className="text-text-secondary text-sm">
+                  Eugénio Tavares and early masters established the artistic and
+                  linguistic foundation that defines Cape Verdean identity.
+                </p>
+              </div>
+
+              <div className="from-valley-green/10 to-valley-green/5 border-valley-green/20 rounded-lg border bg-gradient-to-br p-6 text-center shadow-sm">
+                <svg
+                  className="text-valley-green mx-auto mb-3 h-10 w-10"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                  />
+                </svg>
+                <h4 className="text-text-primary mb-2 font-semibold">
+                  Political Awakening
+                </h4>
+                <p className="text-valley-green mb-2 text-xs font-medium">
+                  1900-1975
+                </p>
+                <p className="text-text-secondary text-sm">
+                  Intellectuals like Artur Silva translated cultural pride into
+                  political action, contributing to national liberation.
+                </p>
+              </div>
+
+              <div className="from-bougainvillea-pink/10 to-bougainvillea-pink/5 border-bougainvillea-pink/20 rounded-lg border bg-gradient-to-br p-6 text-center shadow-sm">
+                <svg
+                  className="text-bougainvillea-pink mx-auto mb-3 h-10 w-10"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <h4 className="text-text-primary mb-2 font-semibold">
+                  Diaspora Expansion
+                </h4>
+                <p className="text-bougainvillea-pink mb-2 text-xs font-medium">
+                  1880s-1960s
+                </p>
+                <p className="text-text-secondary text-sm">
+                  Figures like &quot;Daddy&quot; Grace achieved extraordinary
+                  global influence through migration and institution-building.
+                </p>
+              </div>
+
+              <div className="from-sunny-yellow/10 to-sunny-yellow/5 border-sunny-yellow/20 rounded-lg border bg-gradient-to-br p-6 text-center shadow-sm">
+                <svg
+                  className="text-sunny-yellow mx-auto mb-3 h-10 w-10"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
+                  />
+                </svg>
+                <h4 className="text-text-primary mb-2 font-semibold">
+                  Contemporary Era
+                </h4>
+                <p className="text-sunny-yellow mb-2 text-xs font-medium">
+                  1975-Present
+                </p>
+                <p className="text-text-secondary text-sm">
+                  Modern leaders like David Soares maintain Brava&rsquo;s
+                  tradition of disproportionate global influence and cultural
+                  preservation.
+                </p>
+              </div>
             </div>
           </section>
-        ))}
 
-        {/* Evolution of Influence */}
-        <section className="mt-16">
-          <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
-            The Evolution of Brava&rsquo;s Global Impact
-          </h3>
+          {/* Contemporary Community Leaders */}
+          <section className="mt-16">
+            <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
+              Contemporary Guardians: Preserving Heritage and Community
+            </h3>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <div className="from-ocean-blue/10 to-ocean-blue/5 border-ocean-blue/20 rounded-lg border bg-gradient-to-br p-6 text-center shadow-sm">
-              <MusicalNoteIcon className="text-ocean-blue mx-auto mb-3 h-10 w-10" />
-              <h4 className="text-text-primary mb-2 font-semibold">
-                Cultural Foundation
-              </h4>
-              <p className="text-ocean-blue mb-2 text-xs font-medium">
-                1867-1930
-              </p>
-              <p className="text-text-secondary text-sm">
-                Eugénio Tavares and early masters established the artistic and
-                linguistic foundation that defines Cape Verdean identity.
+            <div className="border-valley-green bg-valley-green/5 mb-6 rounded-lg border-l-4 p-4">
+              <p className="text-text-secondary text-sm italic">
+                <strong>Note:</strong> Contemporary community leaders whose work
+                continues to unfold. Biographical details are based on community
+                knowledge and are pending comprehensive documentation.
               </p>
             </div>
 
-            <div className="from-valley-green/10 to-valley-green/5 border-valley-green/20 rounded-lg border bg-gradient-to-br p-6 text-center shadow-sm">
-              <svg
-                className="text-valley-green mx-auto mb-3 h-10 w-10"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-                />
-              </svg>
-              <h4 className="text-text-primary mb-2 font-semibold">
-                Political Awakening
-              </h4>
-              <p className="text-valley-green mb-2 text-xs font-medium">
-                1900-1975
-              </p>
-              <p className="text-text-secondary text-sm">
-                Intellectuals like Artur Silva translated cultural pride into
-                political action, contributing to national liberation.
-              </p>
+            <div className="mb-8 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
+                <h4 className="text-text-primary mb-3 text-lg font-semibold">
+                  Eugenia Duarte
+                </h4>
+                <p className="text-ocean-blue mb-2 text-sm font-medium">
+                  Community Activist & Healthcare Advocate
+                </p>
+                <p className="text-text-secondary mb-3 text-sm">
+                  Brava native who became a powerful voice for island&apos;s
+                  right to adequate medical services. Her viral advocacy
+                  declaring "we may be the smallest island, but that doesn't
+                  mean we deserve less" represents modern leadership focused on
+                  fundamental community well-being.
+                </p>
+                <ul className="text-text-secondary space-y-1 text-xs">
+                  <li>• Advocate for reliable medical facilities on Brava</li>
+                  <li>• Champion of equal services for smallest island</li>
+                  <li>• Voice for preventable death awareness</li>
+                </ul>
+              </div>
+
+              <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
+                <h4 className="text-text-primary mb-3 text-lg font-semibold">
+                  Carlos Bango
+                </h4>
+                <p className="text-valley-green mb-2 text-sm font-medium">
+                  Conservationist & Environmental Leader
+                </p>
+                <p className="text-text-secondary mb-3 text-sm">
+                  Native of Brava serving as Terrestrial Program Leader for
+                  Biflores organization. Works to preserve the island&apos;s
+                  unique biodiversity, understanding that Brava&apos;s culture
+                  is inseparable from its environment and that conservation is
+                  cultural preservation.
+                </p>
+                <ul className="text-text-secondary space-y-1 text-xs">
+                  <li>• Terrestrial Program Leader for Biflores</li>
+                  <li>
+                    • Harmonizes human activities with ecosystem preservation
+                  </li>
+                  <li>
+                    • Links environmental conservation to cultural heritage
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
+                <h4 className="text-text-primary mb-3 text-lg font-semibold">
+                  Candida Rose
+                </h4>
+                <p className="text-ocean-blue mb-2 text-sm font-medium">
+                  Singer & Cultural Researcher
+                </p>
+                <p className="text-text-secondary mb-3 text-sm">
+                  New Bedford-based singer and contributor to "Cabo Verdean
+                  Women Writing Remembrance, Resistance and Revolution." Her
+                  research traces the lineage of female musicians, actively
+                  participating in the construction and preservation of Cape
+                  Verdean cultural memory.
+                </p>
+                <ul className="text-text-secondary space-y-1 text-xs">
+                  <li>• Researches lineage of Cape Verdean female musicians</li>
+                  <li>
+                    • Contributor to "Kriolas Poderozas" scholarly collection
+                  </li>
+                  <li>• Preserves diaspora cultural memory through music</li>
+                </ul>
+              </div>
             </div>
 
-            <div className="from-bougainvillea-pink/10 to-bougainvillea-pink/5 border-bougainvillea-pink/20 rounded-lg border bg-gradient-to-br p-6 text-center shadow-sm">
-              <svg
-                className="text-bougainvillea-pink mx-auto mb-3 h-10 w-10"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <h4 className="text-text-primary mb-2 font-semibold">
-                Diaspora Expansion
+            <div className="from-valley-green/5 to-ocean-blue/5 border-valley-green rounded-lg border-l-4 bg-gradient-to-r p-6">
+              <h4 className="text-text-primary mb-3 text-lg font-semibold">
+                Holistic Heritage Preservation
               </h4>
-              <p className="text-bougainvillea-pink mb-2 text-xs font-medium">
-                1880s-1960s
-              </p>
-              <p className="text-text-secondary text-sm">
-                Figures like &quot;Daddy&quot; Grace achieved extraordinary
-                global influence through migration and institution-building.
+              <p className="text-text-secondary">
+                Today&apos;s leaders understand that cultural preservation is a
+                holistic endeavor—honoring the past while fighting for the
+                future, celebrating artistic achievement while ensuring the
+                fundamental well-being of the community that produces it. As
+                Brava navigates 21st-century challenges, its greatest resource
+                remains the resilience, creativity, and profound love for
+                homeland that defines its people.
               </p>
             </div>
-
-            <div className="from-sunny-yellow/10 to-sunny-yellow/5 border-sunny-yellow/20 rounded-lg border bg-gradient-to-br p-6 text-center shadow-sm">
-              <svg
-                className="text-sunny-yellow mx-auto mb-3 h-10 w-10"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
-                />
-              </svg>
-              <h4 className="text-text-primary mb-2 font-semibold">
-                Contemporary Era
-              </h4>
-              <p className="text-sunny-yellow mb-2 text-xs font-medium">
-                1975-Present
-              </p>
-              <p className="text-text-secondary text-sm">
-                Modern leaders like David Soares maintain Brava&rsquo;s
-                tradition of disproportionate global influence and cultural
-                preservation.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Contemporary Community Leaders */}
-        <section className="mt-16">
-          <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
-            Contemporary Guardians: Preserving Heritage and Community
-          </h3>
-
-          <div className="border-valley-green bg-valley-green/5 mb-6 rounded-lg border-l-4 p-4">
-            <p className="text-text-secondary text-sm italic">
-              <strong>Note:</strong> Contemporary community leaders whose work
-              continues to unfold. Biographical details are based on community
-              knowledge and are pending comprehensive documentation.
+          </section>
+          {/* Explore More */}
+          <section className="mt-16 text-center">
+            <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
+              Explore More Cultural Heritage
+            </h3>
+            <p className="text-text-secondary mb-6 text-lg">
+              Learn more about the cultural context and historical background of
+              these remarkable figures.
             </p>
-          </div>
-
-          <div className="mb-8 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
-              <h4 className="text-text-primary mb-3 text-lg font-semibold">
-                Eugenia Duarte
-              </h4>
-              <p className="text-ocean-blue mb-2 text-sm font-medium">
-                Community Activist & Healthcare Advocate
-              </p>
-              <p className="text-text-secondary mb-3 text-sm">
-                Brava native who became a powerful voice for island&apos;s right
-                to adequate medical services. Her viral advocacy declaring "we
-                may be the smallest island, but that doesn't mean we deserve
-                less" represents modern leadership focused on fundamental
-                community well-being.
-              </p>
-              <ul className="text-text-secondary space-y-1 text-xs">
-                <li>• Advocate for reliable medical facilities on Brava</li>
-                <li>• Champion of equal services for smallest island</li>
-                <li>• Voice for preventable death awareness</li>
-              </ul>
+            <div className="flex flex-col justify-center gap-4 sm:flex-row">
+              <Link
+                href="/history"
+                className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105"
+              >
+                Explore History
+              </Link>
+              <Link
+                href="/contribute"
+                className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-md border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
+              >
+                Share Stories
+              </Link>
             </div>
+          </section>
 
-            <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
-              <h4 className="text-text-primary mb-3 text-lg font-semibold">
-                Carlos Bango
-              </h4>
-              <p className="text-valley-green mb-2 text-sm font-medium">
-                Conservationist & Environmental Leader
-              </p>
-              <p className="text-text-secondary mb-3 text-sm">
-                Native of Brava serving as Terrestrial Program Leader for
-                Biflores organization. Works to preserve the island&apos;s
-                unique biodiversity, understanding that Brava&apos;s culture is
-                inseparable from its environment and that conservation is
-                cultural preservation.
-              </p>
-              <ul className="text-text-secondary space-y-1 text-xs">
-                <li>• Terrestrial Program Leader for Biflores</li>
-                <li>
-                  • Harmonizes human activities with ecosystem preservation
-                </li>
-                <li>• Links environmental conservation to cultural heritage</li>
-              </ul>
-            </div>
-
-            <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
-              <h4 className="text-text-primary mb-3 text-lg font-semibold">
-                Candida Rose
-              </h4>
-              <p className="text-ocean-blue mb-2 text-sm font-medium">
-                Singer & Cultural Researcher
-              </p>
-              <p className="text-text-secondary mb-3 text-sm">
-                New Bedford-based singer and contributor to "Cabo Verdean Women
-                Writing Remembrance, Resistance and Revolution." Her research
-                traces the lineage of female musicians, actively participating
-                in the construction and preservation of Cape Verdean cultural
-                memory.
-              </p>
-              <ul className="text-text-secondary space-y-1 text-xs">
-                <li>• Researches lineage of Cape Verdean female musicians</li>
-                <li>
-                  • Contributor to "Kriolas Poderozas" scholarly collection
-                </li>
-                <li>• Preserves diaspora cultural memory through music</li>
-              </ul>
-            </div>
+          {/* Citation Section - don't split across pages */}
+          <div className="break-inside-avoid">
+            <CitationSection citations={citations} />
           </div>
-
-          <div className="from-valley-green/5 to-ocean-blue/5 border-valley-green rounded-lg border-l-4 bg-gradient-to-r p-6">
-            <h4 className="text-text-primary mb-3 text-lg font-semibold">
-              Holistic Heritage Preservation
-            </h4>
-            <p className="text-text-secondary">
-              Today&apos;s leaders understand that cultural preservation is a
-              holistic endeavor—honoring the past while fighting for the future,
-              celebrating artistic achievement while ensuring the fundamental
-              well-being of the community that produces it. As Brava navigates
-              21st-century challenges, its greatest resource remains the
-              resilience, creativity, and profound love for homeland that
-              defines its people.
-            </p>
-          </div>
-        </section>
-        {/* Explore More */}
-        <section className="mt-16 text-center">
-          <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
-            Explore More Cultural Heritage
-          </h3>
-          <p className="text-text-secondary mb-6 text-lg">
-            Learn more about the cultural context and historical background of
-            these remarkable figures.
-          </p>
-          <div className="flex flex-col justify-center gap-4 sm:flex-row">
-            <Link
-              href="/history"
-              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105"
-            >
-              Explore History
-            </Link>
-            <Link
-              href="/contribute"
-              className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-md border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
-            >
-              Share Stories
-            </Link>
-          </div>
-        </section>
-
-        {/* Citation Section - don't split across pages */}
-        <div className="break-inside-avoid">
-          <CitationSection citations={citations} />
+          <BackToTopButton />
         </div>
-        <BackToTopButton />
       </div>
-    </div>
     </PrintPageWrapper>
   );
 }
