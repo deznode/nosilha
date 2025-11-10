@@ -63,6 +63,9 @@ class SecurityConfig(
                     // Allow public suggestions (community contributions without authentication)
                     .requestMatchers(HttpMethod.POST, "/api/v1/suggestions")
                     .permitAll()
+                    // Allow public access to reaction counts (GET only, POST/DELETE require auth)
+                    .requestMatchers(HttpMethod.GET, "/api/v1/reactions/content/**")
+                    .permitAll()
                     // Require authentication for POST/PUT/DELETE operations
                     .requestMatchers(HttpMethod.POST, "/api/v1/media/upload")
                     .hasAnyRole("USER", "ADMIN", "authenticated")
