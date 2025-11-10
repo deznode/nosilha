@@ -78,12 +78,14 @@ interface ReactionRepository : JpaRepository<Reaction, UUID> {
      * @param contentId UUID of the heritage page/content
      * @return Map of reaction type to count (e.g., {LOVE=42, HELPFUL=15})
      */
-    @Query("""
+    @Query(
+        """
         SELECT r.reactionType as type, COUNT(r) as count
         FROM Reaction r
         WHERE r.contentId = :contentId
         GROUP BY r.reactionType
-    """)
+    """
+    )
     fun getReactionCountsByContentId(@Param("contentId") contentId: UUID): List<ReactionCount>
 }
 

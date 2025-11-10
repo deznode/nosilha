@@ -3,7 +3,6 @@ package com.nosilha.core.contentactions
 import com.nosilha.core.contentactions.api.SuggestionCreateDto
 import com.nosilha.core.contentactions.api.SuggestionResponseDto
 import com.nosilha.core.contentactions.domain.Suggestion
-import com.nosilha.core.contentactions.domain.SuggestionType
 import com.nosilha.core.contentactions.repository.SuggestionRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -54,7 +53,7 @@ class SuggestionService(
             logger.warn("Rate limit exceeded for IP: $ipAddress")
             throw RateLimitExceededException(
                 "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
-                "Please try again later."
+                    "Please try again later."
             )
         }
 

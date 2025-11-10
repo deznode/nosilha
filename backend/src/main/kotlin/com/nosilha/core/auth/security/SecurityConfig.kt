@@ -60,6 +60,9 @@ class SecurityConfig(
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/towns/**")
                     .permitAll()
+                    // Allow public suggestions (community contributions without authentication)
+                    .requestMatchers(HttpMethod.POST, "/api/v1/suggestions")
+                    .permitAll()
                     // Require authentication for POST/PUT/DELETE operations
                     .requestMatchers(HttpMethod.POST, "/api/v1/media/upload")
                     .hasAnyRole("USER", "ADMIN", "authenticated")

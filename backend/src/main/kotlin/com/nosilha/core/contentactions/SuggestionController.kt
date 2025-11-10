@@ -77,25 +77,31 @@ class SuggestionController(
         } catch (e: RateLimitExceededException) {
             logger.warn("Rate limit exceeded for IP: $ipAddress - ${e.message}")
             ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                .body(SuggestionResponseDto(
-                    id = null,
-                    message = e.message ?: "Rate limit exceeded. Please try again later."
-                ))
+                .body(
+                    SuggestionResponseDto(
+                        id = null,
+                        message = e.message ?: "Rate limit exceeded. Please try again later."
+                    )
+                )
         } catch (e: HoneypotSpamDetectedException) {
             logger.warn("Honeypot spam detected from IP: $ipAddress")
             // Return success to avoid revealing spam detection to bots
             ResponseEntity.status(HttpStatus.CREATED)
-                .body(SuggestionResponseDto(
-                    id = null,
-                    message = "Thank you for your submission."
-                ))
+                .body(
+                    SuggestionResponseDto(
+                        id = null,
+                        message = "Thank you for your submission."
+                    )
+                )
         } catch (e: Exception) {
             logger.error("Error processing suggestion from IP: $ipAddress", e)
             ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(SuggestionResponseDto(
-                    id = null,
-                    message = "An error occurred while processing your suggestion. Please try again later."
-                ))
+                .body(
+                    SuggestionResponseDto(
+                        id = null,
+                        message = "An error occurred while processing your suggestion. Please try again later."
+                    )
+                )
         }
     }
 
