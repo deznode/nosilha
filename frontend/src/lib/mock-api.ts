@@ -536,6 +536,73 @@ export class MockApiClient implements ApiClient {
       message: 'Thank you for helping preserve our cultural heritage. Your suggestion has been received and will be reviewed by our team.',
     };
   }
+
+  /**
+   * Mock implementation for fetching related content.
+   * Simulates the backend algorithm by matching category, town, and cuisine.
+   *
+   * **User Story 5 - Phase 9**: Discovering Related Cultural Content
+   *
+   * @param contentId UUID of the current heritage page
+   * @param limit Number of results to return (3-5, default: 5)
+   * @returns Promise resolving to array of related directory entries
+   */
+  async getRelatedContent(
+    contentId: string,
+    limit: number = 5
+  ): Promise<DirectoryEntry[]> {
+    console.log(`Mock API: Fetching related content for ${contentId}, limit=${limit}`);
+    await this.simulateDelay(150);
+
+    // Find the current entry
+    const currentEntry = MOCK_ENTRIES.find((entry) => entry.id === contentId);
+    if (!currentEntry) {
+      console.warn(`Mock API: Content ${contentId} not found`);
+      return [];
+    }
+
+    const relatedEntries: DirectoryEntry[] = [];
+
+    // Priority 1: Same category + same town
+    const sameCategoryTown = MOCK_ENTRIES.filter(
+      (entry) =>
+        entry.id !== contentId &&
+        entry.category.toLowerCase() === currentEntry.category.toLowerCase() &&
+        entry.town.toLowerCase() === currentEntry.town.toLowerCase()
+    );
+    relatedEntries.push(...sameCategoryTown);
+
+    // Priority 2: Same category + shared cuisine (for restaurants)
+    if (relatedEntries.length < limit && currentEntry.cuisine) {
+      const currentCuisines = currentEntry.cuisine.split(',').map(c => c.trim().toLowerCase());
+      const sameCategoryCuisine = MOCK_ENTRIES.filter(
+        (entry) =>
+          entry.id !== contentId &&
+          entry.category.toLowerCase() === currentEntry.category.toLowerCase() &&
+          entry.cuisine &&
+          !relatedEntries.includes(entry) &&
+          entry.cuisine.split(',').some(c =>
+            currentCuisines.some(cc => c.trim().toLowerCase().includes(cc))
+          )
+      );
+      relatedEntries.push(...sameCategoryCuisine);
+    }
+
+    // Priority 3: Same category fallback
+    if (relatedEntries.length < 3) {
+      const sameCategoryOnly = MOCK_ENTRIES.filter(
+        (entry) =>
+          entry.id !== contentId &&
+          entry.category.toLowerCase() === currentEntry.category.toLowerCase() &&
+          !relatedEntries.includes(entry)
+      );
+      relatedEntries.push(...sameCategoryOnly);
+    }
+
+    const results = relatedEntries.slice(0, limit);
+    console.log(`Mock API: Returning ${results.length} related entries`);
+    return results;
+  }
 }
 
 // Legacy synchronous functions for backward compatibility and build-time use

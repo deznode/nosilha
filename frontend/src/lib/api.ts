@@ -199,6 +199,32 @@ export async function submitSuggestion(suggestionDto: {
 }
 
 // ================================
+// RELATED CONTENT OPERATIONS (User Story 5 - Phase 9)
+// ================================
+
+/**
+ * Fetches 3-5 related content items for a given heritage page.
+ * Public endpoint - no authentication required.
+ * Uses content discovery algorithm matching by category, town, and cuisine.
+ * Automatically uses the configured API implementation (backend or mock).
+ *
+ * **Algorithm Priority**:
+ * 1. Same category + same town (highest relevance)
+ * 2. Same category + same cuisine (for restaurants)
+ * 3. Same category only (fallback)
+ *
+ * @param contentId UUID of the current heritage page
+ * @param limit Number of results to return (3-5, default: 5)
+ * @returns A promise that resolves to an array of related directory entries
+ */
+export async function getRelatedContent(
+  contentId: string,
+  limit: number = 5
+): Promise<DirectoryEntry[]> {
+  return apiClient.getRelatedContent(contentId, limit);
+}
+
+// ================================
 // UTILITY EXPORTS
 // ================================
 

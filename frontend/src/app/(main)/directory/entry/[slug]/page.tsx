@@ -19,6 +19,7 @@ import type { DirectoryEntry } from "@/types/directory";
 import { ImageGallery } from "@/components/ui/image-gallery";
 import { ContributePhotosSection } from "@/components/ui/contribute-photos-section";
 import { ContentActionToolbar } from "@/components/content-actions/ContentActionToolbar";
+import { RelatedContent } from "@/components/content-actions/RelatedContent";
 import { getRestaurantDetails, getHotelDetails } from "@/lib/api-validation";
 
 interface DetailPageProps {
@@ -178,6 +179,15 @@ export default async function DirectoryEntryDetailPage({
                 image={entry.imageUrl || undefined}
               />
             </div>
+
+            <div className="border-border-primary my-8 border-t" />
+
+            {/* Related Content Section - Phase 9: User Story 5 */}
+            <RelatedContent
+              contentId={entry.id}
+              limit={5}
+              heading="Explore Related Heritage"
+            />
 
             <div className="border-border-primary my-8 border-t" />
 

@@ -70,6 +70,9 @@ export interface ApiClient {
     message: string;
     honeypot?: string;
   }): Promise<{ id: string | null; message: string }>;
+
+  // Related Content Operations (User Story 5 - Phase 9)
+  getRelatedContent(contentId: string, limit?: number): Promise<DirectoryEntry[]>;
 }
 
 // ================================
@@ -164,6 +167,9 @@ export const CacheConfig = {
 
   // Reaction counts - cached for 5 minutes (per spec.md FR-015)
   REACTION_COUNTS: { revalidate: 300 }, // 5 minutes
+
+  // Related content - cached for 5 minutes (User Story 5)
+  RELATED_CONTENT: { revalidate: 300 }, // 5 minutes
 } as const;
 
 // ================================

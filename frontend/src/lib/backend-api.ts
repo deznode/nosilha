@@ -472,4 +472,42 @@ export class BackendApiClient implements ApiClient {
 
     return await response.json();
   }
+
+  /**
+   * Fetches 3-5 related content items for a given heritage page.
+   * Uses content discovery algorithm matching by category, town, and cuisine.
+   * Cached for 5 minutes using ISR (per spec.md Phase 9).
+   *
+   * **User Story 5 - Phase 9**: Discovering Related Cultural Content
+   *
+   * @param contentId UUID of the current heritage page
+   * @param limit Number of results to return (3-5, default: 5)
+   * @returns Promise resolving to array of related directory entries
+   */
+  async getRelatedContent(
+    contentId: string,
+    limit: number = 5
+  ): Promise<DirectoryEntry[]> {
+    const endpoint = `${env.apiUrl}/api/v1/directory/entries/${contentId}/related?limit=${limit}`;
+
+    const response = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      next: CacheConfig.RELATED_CONTENT, // 5-minute ISR cache
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        // Content not found, return empty array
+        console.warn(`Content ${contentId} not found for related content`);
+        return [];
+      }
+      throw new Error(`Failed to fetch related content: ${response.status}`);
+    }
+
+    const apiResponse: ApiResponse<DirectoryEntry[]> = await response.json();
+    return apiResponse.data;
+  }
 }
