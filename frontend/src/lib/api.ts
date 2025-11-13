@@ -5,6 +5,7 @@ import type {
   ReactionResponseDto,
   ReactionCountsDto,
 } from "@/types/reaction";
+import type { PaginatedResult } from "@/lib/api-contracts";
 import { getApiClient } from "@/lib/api-factory";
 
 /**
@@ -34,7 +35,7 @@ export async function getEntriesByCategory(
   category: string,
   page: number = 0,
   size: number = 20
-): Promise<DirectoryEntry[]> {
+): Promise<PaginatedResult<DirectoryEntry>> {
   return apiClient.getEntriesByCategory(category, page, size);
 }
 
@@ -73,7 +74,7 @@ export async function createDirectoryEntry(
  */
 export async function getEntriesForMap(
   category: string = "all"
-): Promise<DirectoryEntry[]> {
+): Promise<PaginatedResult<DirectoryEntry>> {
   return apiClient.getEntriesForMap(category);
 }
 
@@ -189,6 +190,9 @@ export async function getReactionCounts(
  */
 export async function submitSuggestion(suggestionDto: {
   contentId: string;
+  pageTitle: string;
+  pageUrl: string;
+  contentType: string;
   name: string;
   email: string;
   suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";

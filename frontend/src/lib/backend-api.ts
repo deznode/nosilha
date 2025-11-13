@@ -1,10 +1,12 @@
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town } from "@/types/town";
-import type { ErrorDetail } from "@/types/api";
+import type { ErrorDetail, MediaMetadataDto } from "@/types/api";
 import type {
   ApiClient,
   ApiResponse,
   PagedApiResponse,
+  PaginatedResult,
+  PaginationMetadata,
 } from "@/lib/api-contracts";
 import type {
   ReactionCreateDto,
@@ -78,7 +80,7 @@ export class BackendApiClient implements ApiClient {
     category: string,
     page: number = 0,
     size: number = 20
-  ): Promise<DirectoryEntry[]> {
+  ): Promise<PaginatedResult<DirectoryEntry>> {
     const params = new URLSearchParams();
 
     if (category.toLowerCase() !== "all") {
@@ -98,10 +100,13 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`API call failed with status: ${response.status}`);
     }
 
-    const apiResponse: PagedApiResponse<DirectoryEntry> = await response.json();
-    // Extract and validate data from PagedApiResponse
-    const rawData = apiResponse.data || [];
-    return validateDirectoryEntries(rawData);
+    const payload = (await response.json()) as unknown;
+    const { items, pagination } =
+      this.unwrapPagedResult<DirectoryEntry>(payload);
+    return {
+      items: validateDirectoryEntries(items),
+      pagination,
+    };
   }
 
   /**
@@ -123,9 +128,9 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`API call failed with status: ${response.status}`);
     }
 
-    const apiResponse: ApiResponse<DirectoryEntry> = await response.json();
-    // Extract and validate data from ApiResponse
-    return validateDirectoryEntry(apiResponse.data) || undefined;
+    const payload = (await response.json()) as unknown;
+    const entry = this.unwrapApiResponse<DirectoryEntry>(payload);
+    return validateDirectoryEntry(entry) || undefined;
   }
 
   /**
@@ -173,16 +178,17 @@ export class BackendApiClient implements ApiClient {
       }
     }
 
-    const apiResponse: ApiResponse<DirectoryEntry> = await response.json();
-    // Extract data from ApiResponse
-    return apiResponse.data;
+    const payload = (await response.json()) as unknown;
+    return this.unwrapApiResponse<DirectoryEntry>(payload);
   }
 
   /**
    * Fetches entries for real-time interactive features like maps.
    * Uses no-store cache to ensure fresh data for dynamic interactions.
    */
-  async getEntriesForMap(category: string = "all"): Promise<DirectoryEntry[]> {
+  async getEntriesForMap(
+    category: string = "all"
+  ): Promise<PaginatedResult<DirectoryEntry>> {
     const params = new URLSearchParams();
 
     if (category.toLowerCase() !== "all") {
@@ -200,10 +206,13 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`API call failed with status: ${response.status}`);
     }
 
-    const apiResponse: PagedApiResponse<DirectoryEntry> = await response.json();
-    // Extract and validate data from PagedApiResponse
-    const rawData = apiResponse.data || [];
-    return validateDirectoryEntries(rawData);
+    const payload = (await response.json()) as unknown;
+    const { items, pagination } =
+      this.unwrapPagedResult<DirectoryEntry>(payload);
+    return {
+      items: validateDirectoryEntries(items),
+      pagination,
+    };
   }
 
   /**
@@ -242,9 +251,9 @@ export class BackendApiClient implements ApiClient {
       }
     }
 
-    const apiResponse = await response.json();
-    // Extract URL from MediaMetadataDto in ApiResponse
-    return apiResponse.data.url;
+    const payload = (await response.json()) as unknown;
+    const mediaMetadata = this.unwrapApiResponse<MediaMetadataDto>(payload);
+    return mediaMetadata.url;
   }
 
   /**
@@ -263,9 +272,8 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`API call failed with status: ${response.status}`);
     }
 
-    const apiResponse: ApiResponse<Town[]> = await response.json();
-    // Extract and validate data from ApiResponse
-    const rawData = apiResponse.data || [];
+    const payload = (await response.json()) as unknown;
+    const rawData = this.unwrapApiResponse<Town[]>(payload) ?? [];
     return validateTowns(rawData);
   }
 
@@ -288,9 +296,9 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`API call failed with status: ${response.status}`);
     }
 
-    const apiResponse: ApiResponse<Town> = await response.json();
-    // Extract and validate data from ApiResponse
-    return validateTown(apiResponse.data) || undefined;
+    const payload = (await response.json()) as unknown;
+    const town = this.unwrapApiResponse<Town>(payload);
+    return validateTown(town) || undefined;
   }
 
   /**
@@ -307,9 +315,8 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`API call failed with status: ${response.status}`);
     }
 
-    const apiResponse: ApiResponse<Town[]> = await response.json();
-    // Extract and validate data from ApiResponse
-    const rawData = apiResponse.data || [];
+    const payload = (await response.json()) as unknown;
+    const rawData = this.unwrapApiResponse<Town[]>(payload) ?? [];
     return validateTowns(rawData);
   }
 
@@ -356,7 +363,8 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`Failed to submit reaction: ${response.status}`);
     }
 
-    return await response.json();
+    const payload = await response.json();
+    return this.unwrapApiResponse<ReactionResponseDto>(payload);
   }
 
   /**
@@ -399,29 +407,29 @@ export class BackendApiClient implements ApiClient {
     const endpoint = `${env.apiUrl}/api/v1/reactions/content/${contentId}`;
 
     // Use authenticatedFetch to include JWT if available, but don't fail if not authenticated
+    const processResponse = async (
+      response: Response
+    ): Promise<ReactionCountsDto> => {
+      if (!response.ok) {
+        throw new Error(`Failed to fetch reaction counts: ${response.status}`);
+      }
+      const payload = await response.json();
+      return this.unwrapApiResponse<ReactionCountsDto>(payload);
+    };
+
     try {
       const response = await this.authenticatedFetch(endpoint, {
         method: "GET",
         next: CacheConfig.REACTION_COUNTS,
       });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch reaction counts: ${response.status}`);
-      }
-
-      return await response.json();
+      return await processResponse(response);
     } catch (_error) {
       // If authentication failed but we're just viewing counts, try unauthenticated
       const response = await fetch(endpoint, {
         method: "GET",
         next: CacheConfig.REACTION_COUNTS,
       });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch reaction counts: ${response.status}`);
-      }
-
-      return await response.json();
+      return await processResponse(response);
     }
   }
 
@@ -441,6 +449,9 @@ export class BackendApiClient implements ApiClient {
    */
   async submitSuggestion(suggestionDto: {
     contentId: string;
+    pageTitle: string;
+    pageUrl: string;
+    contentType: string;
     name: string;
     email: string;
     suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";
@@ -475,7 +486,10 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`Failed to submit suggestion: ${response.status}`);
     }
 
-    return await response.json();
+    const payload = await response.json();
+    return this.unwrapApiResponse<{ id: string | null; message: string }>(
+      payload
+    );
   }
 
   /**
@@ -512,7 +526,100 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`Failed to fetch related content: ${response.status}`);
     }
 
-    const apiResponse: ApiResponse<DirectoryEntry[]> = await response.json();
-    return apiResponse.data;
+    const payload = (await response.json()) as unknown;
+    return this.unwrapApiResponse<DirectoryEntry[]>(payload);
+  }
+
+  /**
+   * Determines whether a payload follows the ApiResponse envelope structure.
+   */
+  private isApiResponsePayload<T>(
+    payload: unknown
+  ): payload is ApiResponse<T> {
+    return (
+      typeof payload === "object" &&
+      payload !== null &&
+      "data" in payload
+    );
+  }
+
+  private isPagedApiResponsePayload<T>(
+    payload: unknown
+  ): payload is PagedApiResponse<T> {
+    return (
+      typeof payload === "object" &&
+      payload !== null &&
+      "data" in payload &&
+      ("pageable" in payload || "pagination" in payload)
+    );
+  }
+
+  /**
+   * Extracts the data portion from ApiResponse envelopes, enforcing the shared contract.
+   */
+  private unwrapApiResponse<T>(payload: unknown): T {
+    if (!this.isApiResponsePayload<T>(payload)) {
+      throw new Error("Unexpected API response format: missing data wrapper");
+    }
+    return payload.data as T;
+  }
+
+  /**
+   * Extracts paginated results (items + metadata) from payloads.
+   */
+  private unwrapPagedResult<T>(payload: unknown): PaginatedResult<T> {
+    if (this.isPagedApiResponsePayload<T>(payload)) {
+      return {
+        items: ((payload as PagedApiResponse<T>).data ?? []) as T[],
+        pagination: this.extractPaginationMetadata(payload),
+      };
+    }
+
+    if (this.isApiResponsePayload<T[]>(payload)) {
+      return {
+        items: (payload.data ?? []) as T[],
+        pagination: null,
+      };
+    }
+
+    throw new Error("Unexpected API response format: expected paged data");
+  }
+
+  private extractPaginationMetadata(
+    payload: PagedApiResponse<unknown> | Record<string, unknown>
+  ): PaginationMetadata | null {
+    const source = (payload as Record<string, any>).pageable ??
+      (payload as Record<string, any>).pagination;
+
+    if (!source) {
+      return null;
+    }
+
+    const page =
+      source.page ?? source.currentPage ?? source.number ?? source.index ?? 0;
+    const size = source.size ?? source.pageSize ?? source.limit ?? 0;
+    const totalElements =
+      source.totalElements ?? source.total ?? source.count ?? 0;
+    const totalPages =
+      source.totalPages ??
+      source.pages ??
+      (size > 0 ? Math.max(1, Math.ceil(totalElements / size)) : 1);
+
+    return {
+      page,
+      size,
+      totalElements,
+      totalPages,
+      first: Boolean(
+        source.first ??
+          (typeof page === "number" ? page <= 0 : source.isFirst)
+      ),
+      last: Boolean(
+        source.last ??
+          (typeof totalPages === "number"
+            ? page >= totalPages - 1
+            : source.isLast)
+      ),
+    };
   }
 }

@@ -10,6 +10,8 @@ import jakarta.persistence.Id
 import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
 import jakarta.persistence.Table
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.util.UUID
 
 /**
@@ -73,6 +75,13 @@ abstract class DirectoryEntry : AuditableEntity() {
     var rating: Double? = null // Nullable to indicate no ratings yet
 
     var reviewCount: Int = 0
+
+    @Column(name = "tags")
+    var tags: String? = null
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "content_actions", columnDefinition = "jsonb")
+    var contentActions: String? = null
 
     // --- Subclass-specific fields, nullable in the base table ---
 

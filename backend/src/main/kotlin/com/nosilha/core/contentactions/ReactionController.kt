@@ -3,13 +3,21 @@ package com.nosilha.core.contentactions
 import com.nosilha.core.contentactions.api.ReactionCountsDto
 import com.nosilha.core.contentactions.api.ReactionCreateDto
 import com.nosilha.core.contentactions.api.ReactionResponseDto
+import com.nosilha.core.shared.api.ApiResponse
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
 import org.springframework.validation.annotation.Validated
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
 /**
@@ -89,14 +97,14 @@ class ReactionController(
      *
      * @param createDto Contains contentId and reactionType
      * @param authentication Spring Security authentication (contains userId from JWT)
-     * @return ReactionResponseDto with reaction details and updated count
-     * @throws ReactionService.RateLimitExceededException if rate limit exceeded (HTTP 429)
+     * @return ApiResponse wrapping ReactionResponseDto with reaction details and updated count
+     * @throws com.nosilha.core.shared.exception.RateLimitExceededException if rate limit exceeded (HTTP 429)
      */
     @PostMapping
     fun submitReaction(
         @Valid @RequestBody createDto: ReactionCreateDto,
         authentication: Authentication,
-    ): ResponseEntity<ReactionResponseDto> {
+    ): ResponseEntity<ApiResponse<ReactionResponseDto>> {
         val userId = extractUserId(authentication)
 
         logger.info(
@@ -106,26 +114,27 @@ class ReactionController(
             createDto.contentId,
         )
 
-        val response =
-            try {
-                reactionService.submitReaction(userId, createDto)
-            } catch (e: ReactionService.RateLimitExceededException) {
-                logger.warn("Rate limit exceeded for user {}: {}", userId, e.message)
-                return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                    .body(null)
-            }
+        val result = reactionService.submitReaction(userId, createDto)
 
         // Return 201 Created for new reactions, 200 OK for updates/removals
-        val status = if (response.count > 0) HttpStatus.CREATED else HttpStatus.OK
+        val status =
+            when (result.operation) {
+                ReactionService.ReactionSubmissionResult.Operation.CREATED -> HttpStatus.CREATED
+                ReactionService.ReactionSubmissionResult.Operation.UPDATED,
+                ReactionService.ReactionSubmissionResult.Operation.REMOVED,
+                -> HttpStatus.OK
+            }
 
         logger.info(
-            "Reaction submitted successfully: {} by user {} (count: {})",
+            "Reaction submitted successfully: {} by user {} (count: {}, operation: {})",
             createDto.reactionType,
             userId,
-            response.count,
+            result.reaction.count,
+            result.operation,
         )
 
-        return ResponseEntity.status(status).body(response)
+        val payload = ApiResponse(data = result.reaction, status = status.value())
+        return ResponseEntity.status(status).body(payload)
     }
 
     /**
@@ -150,7 +159,7 @@ class ReactionController(
      * @param contentId UUID of the heritage page/content
      * @param authentication Spring Security authentication (contains userId from JWT)
      * @return 204 No Content on success
-     * @throws NoSuchElementException if reaction doesn't exist (HTTP 404)
+     * @throws com.nosilha.core.shared.exception.ResourceNotFoundException if reaction doesn't exist (HTTP 404)
      */
     @DeleteMapping("/content/{contentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -162,13 +171,9 @@ class ReactionController(
 
         logger.info("User {} deleting reaction for content {}", userId, contentId)
 
-        try {
-            reactionService.deleteReaction(userId, contentId)
-            logger.info("Reaction deleted successfully for user {} on content {}", userId, contentId)
-        } catch (e: NoSuchElementException) {
-            logger.warn("Attempted to delete non-existent reaction: user {} content {}", userId, contentId)
-            throw e
-        }
+        reactionService.deleteReaction(userId, contentId)
+
+        logger.info("Reaction deleted successfully for user {} on content {}", userId, contentId)
     }
 
     /**
@@ -229,7 +234,7 @@ class ReactionController(
     fun getReactionCounts(
         @PathVariable contentId: UUID,
         authentication: Authentication?,
-    ): ResponseEntity<ReactionCountsDto> {
+    ): ApiResponse<ReactionCountsDto> {
         val userId = authentication?.let { extractUserId(it) }
 
         logger.debug("Fetching reaction counts for content {} (user: {})", contentId, userId)
@@ -243,7 +248,7 @@ class ReactionController(
             counts.userReaction,
         )
 
-        return ResponseEntity.ok(counts)
+        return ApiResponse(data = counts)
     }
 
     /**

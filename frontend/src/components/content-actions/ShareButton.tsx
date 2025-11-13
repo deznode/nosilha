@@ -1,8 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ShareIcon, CheckIcon } from "@heroicons/react/24/outline";
 import { Button } from "../catalyst-ui/button";
+import {
+  Dialog,
+  DialogActions,
+  DialogBody,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/catalyst-ui/dialog";
+import { CopyLinkButton } from "./CopyLinkButton";
+import { ActionToast } from "./ActionToast";
 
 interface ShareButtonProps {
   /**
@@ -64,61 +73,77 @@ export function ShareButton({
   const [status, setStatus] = useState<"idle" | "shared" | "copied" | "error">(
     "idle"
   );
+  const [supportsNativeShare, setSupportsNativeShare] = useState(false);
+  const [isFallbackOpen, setIsFallbackOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [showToast, setShowToast] = useState(false);
+
+  useEffect(() => {
+    if (typeof navigator !== "undefined" && typeof navigator.share === "function") {
+      setSupportsNativeShare(true);
+    }
+  }, []);
+
+  const truncatedDescription = useMemo(() => {
+    if (!description) {
+      return title;
+    }
+    if (description.length <= 160) {
+      return description;
+    }
+    return `${description.slice(0, 157)}…`;
+  }, [description, title]);
+
+  const showSuccessToast = (message: string) => {
+    setToastMessage(message);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2500);
+  };
 
   /**
    * Handle share button click
-   * Tries Web Share API first, falls back to clipboard
+   * Tries Web Share API first, falls back to custom dialog
    */
   const handleShare = async () => {
+    if (!supportsNativeShare) {
+      setIsFallbackOpen(true);
+      return;
+    }
+
     try {
-      // Check if Web Share API is available
-      if (navigator.share) {
-        // Prepare share data
-        const shareData: ShareData = {
-          title,
-          text: description || title,
-          url,
-        };
+      const shareData: ShareData = {
+        title,
+        text: truncatedDescription,
+        url,
+      };
 
-        // Try to share using native share dialog
-        await navigator.share(shareData);
-
-        // Success - update status
-        setStatus("shared");
-
-        // Reset status after 3 seconds
-        setTimeout(() => setStatus("idle"), 3000);
-      } else {
-        // Fallback: Copy to clipboard
-        await navigator.clipboard.writeText(url);
-
-        // Success - update status
-        setStatus("copied");
-
-        // Reset status after 3 seconds
-        setTimeout(() => setStatus("idle"), 3000);
-      }
+      await navigator.share(shareData);
+      setStatus("shared");
+      showSuccessToast("Content shared successfully");
+      setTimeout(() => setStatus("idle"), 3000);
     } catch (error) {
-      // Handle errors (user cancelled share or clipboard failed)
       if (error instanceof Error && error.name === "AbortError") {
-        // User cancelled the share dialog - this is expected behavior, not an error
         setStatus("idle");
       } else {
-        // Actual error occurred
         console.error("Share failed:", error);
         setStatus("error");
-
-        // Reset error status after 3 seconds
         setTimeout(() => setStatus("idle"), 3000);
       }
     }
   };
 
-  // Determine button icon based on status
+  const handleFacebookShare = () => {
+    const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+      url
+    )}`;
+    window.open(shareUrl, "_blank", "noopener,noreferrer");
+    showSuccessToast("Facebook share window opened");
+    setIsFallbackOpen(false);
+  };
+
   const Icon =
     status === "shared" || status === "copied" ? CheckIcon : ShareIcon;
 
-  // Determine button label based on status
   const getButtonLabel = () => {
     switch (status) {
       case "shared":
@@ -157,6 +182,54 @@ export function ShareButton({
         {status === "copied" && "Link copied to clipboard"}
         {status === "error" && "Failed to share content"}
       </div>
+
+      <ActionToast message={toastMessage} show={showToast} />
+
+      <Dialog open={isFallbackOpen} onClose={() => setIsFallbackOpen(false)}>
+        <DialogTitle>Share this story</DialogTitle>
+        <DialogDescription>
+          Native sharing isn&apos;t available in this browser. Use the options
+          below to copy or share the canonical link.
+        </DialogDescription>
+        <DialogBody>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                Copy link
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Copies the canonical URL ({url}) to your clipboard.
+              </p>
+              <div className="mt-2">
+                <CopyLinkButton
+                  url={url}
+                  onCopied={() => setIsFallbackOpen(false)}
+                />
+              </div>
+            </div>
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+              <p className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                Share to Facebook
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Preferred platform for diaspora networks.
+              </p>
+              <Button
+                className="mt-2 w-full md:w-auto"
+                onClick={handleFacebookShare}
+                aria-label="Share on Facebook"
+              >
+                Open Facebook Share
+              </Button>
+            </div>
+          </div>
+        </DialogBody>
+        <DialogActions>
+          <Button plain onClick={() => setIsFallbackOpen(false)}>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

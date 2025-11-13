@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
  */
 export default async function TestPage() {
   // Fetch all entries from our mock API.
-  const entries = await getEntriesByCategory("all");
+  const { items: entries } = await getEntriesByCategory("all");
 
   return (
     <main className="bg-off-white font-sans">

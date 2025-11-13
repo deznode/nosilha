@@ -11,6 +11,37 @@ This document provides comprehensive documentation for the Nos Ilha backend API,
 **Authentication**: JWT Bearer tokens (Supabase)  
 **Content-Type**: `application/json`
 
+### Standard Response Envelope
+
+Every controller response is wrapped with the shared envelopes from [`com/nosilha/core/shared/api/ApiResponse.kt`](../backend/src/main/kotlin/com/nosilha/core/shared/api/ApiResponse.kt):
+
+- `ApiResponse<T>` — single resource payloads
+- `PagedApiResponse<T>` — list endpoints with pagination metadata
+- `ErrorResponse` — non-validation errors (`error`, `message`, `status`, `timestamp`, `path`)
+- `ValidationErrorResponse` — bean validation failures with `details: FieldError[]`
+
+```jsonc
+// ApiResponse example
+{
+  "data": { "id": "c5a...", "name": "Furna Cultural Center" },
+  "status": 200,
+  "timestamp": "2024-05-05T12:04:00Z"
+}
+
+// ValidationErrorResponse example
+{
+  "error": "Validation failed",
+  "details": [
+    { "field": "name", "rejectedValue": "", "message": "Name is required" }
+  ],
+  "status": 400,
+  "timestamp": "2024-05-05T12:05:00Z",
+  "path": "/api/v1/directory/entries"
+}
+```
+
+Clients should always read the `data` node (or `pageable` metadata) for successful calls and inspect the `error/details` nodes for failures. No endpoint returns raw DTOs or primitive lists.
+
 ## 🔐 Authentication
 
 ### Authentication Flow

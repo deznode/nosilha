@@ -995,6 +995,35 @@ class DirectoryEntryController(
 - **Status Codes**: Use `@ResponseStatus` for non-200 responses
 - **Documentation**: Include clear method documentation
 
+#### 8.1.3 Standard Response Envelopes
+
+All controllers **must** return the shared response envelopes defined in [`com/nosilha/core/shared/api/ApiResponse.kt`](../backend/src/main/kotlin/com/nosilha/core/shared/api/ApiResponse.kt):
+
+- Successful single-resource responses: `ApiResponse<T>`
+- Paginated list responses: `PagedApiResponse<T>` (prefer `PagedApiResponse.from(page)`)
+- Error responses: `ErrorResponse` for general failures, `ValidationErrorResponse` (with `FieldError` entries) for bean validation issues
+
+This guarantees consistent `data`, `status`, and `timestamp` fields across the API and lets clients rely on a single contract. Controllers should never return bare DTOs/maps; convert service results into the envelopes inside the controller boundary and allow the global `RestExceptionHandler` to produce the corresponding error wrapper:
+
+```kotlin
+@ExceptionHandler(MethodArgumentNotValidException::class)
+fun handleValidation(ex: MethodArgumentNotValidException, request: HttpServletRequest): ResponseEntity<ValidationErrorResponse> {
+    val details = ex.bindingResult.fieldErrors.map {
+        ValidationErrorResponse.FieldError(field = it.field, rejectedValue = it.rejectedValue, message = it.defaultMessage ?: "Invalid value")
+    }
+
+    return ResponseEntity.badRequest().body(
+        ValidationErrorResponse(
+            error = "Validation failed",
+            details = details,
+            path = request.requestURI
+        )
+    )
+}
+```
+
+If a controller needs to override the HTTP status (e.g., `201 Created`), set it via `@ResponseStatus` and pass the same numeric value to the `status` property of the response wrapper for parity with the serialized payload.
+
 ### 8.2 Service Layer Standards
 
 #### 8.2.1 Service Structure

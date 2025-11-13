@@ -26,37 +26,8 @@ This is a **full-stack application** with four main components:
 
 The project follows a clear organizational structure:
 
-- **`plan/`** - Dynamic planning documents for future features, research, and implementation strategies
+- **`plan/`** - Git submodule containing SpecKit specifications and planning documents (see plan repository README for details)
 - **`docs/`** - Static project documentation (architecture, design system, API reference, etc.)
-- **`prompts/`** - Historical prompts and content used for development and AI interactions
-
-### Planning & Template System
-
-#### Planning Directory Organization
-- **`plan/active/`** - Plans currently being implemented
-- **`plan/pending/`** - Future work that depends on active plans
-- **`plan/completed/`** - Archive of successfully implemented plans
-- **`plan/templates/`** - Reusable templates and patterns
-
-#### Creating New Plans
-When creating new planning documents:
-1. **Use Template**: Always start with `plan/templates/plan-template.md`
-2. **Proper Directory**: Place in appropriate directory based on status
-3. **Naming Convention**: Use descriptive names like `[topic]-[action].md`
-4. **File References**: Include specific file paths and line numbers
-5. **Actionable Steps**: Each step should be implementable
-
-#### When to Create Plans
-- Complex multi-step implementations (3+ hours of work)
-- Breaking down large features into phases
-- Coordinating work across multiple files/systems
-- User explicitly requests planning
-
-#### Planning Process
-- Plans are dynamic and should evolve as work progresses
-- Move plans between directories as status changes
-- Archive completed plans for future reference
-- Claude Code can discover current plans using LS tool as needed
 
 ### Key Integration Flows
 
@@ -312,7 +283,6 @@ When working with this codebase, Claude Code can utilize specialized agents for 
 - Multi-source fact verification and cross-referencing
 - Information synthesis across academic and community sources
 - Historical and trend analysis for Cape Verdean heritage
-- Research output storage in `plan/content/cultural-research/` directory
 
 ## Available MCP Server Tools
 
@@ -397,21 +367,6 @@ Claude Code has access to Model Context Protocol (MCP) servers that provide addi
 **Components**: Catalyst UI (25+ components), Custom UI (DirectoryCard, PageHeader, ThemeToggle), mobile-first with dark mode
 **Key Files**: globals.css, tailwind.config.ts, layout.tsx, theme-toggle.tsx, button.tsx
 
-### Content Action Section Pattern
-
-The Content Action Section provides cultural heritage engagement features for sharing, reacting, and contributing to heritage content.
-
-**Documentation**: See [`docs/CONTENT_ACTIONS.md`](docs/CONTENT_ACTIONS.md) for comprehensive implementation details
-
-**Key Components**: ContentActionToolbar, ShareButton, ReactionButton, SuggestImprovementForm, PrintButton, RelatedContent
-
-**API Endpoints**:
-- `POST /api/v1/reactions` - Submit reaction (auth required)
-- `DELETE /api/v1/reactions/content/{id}` - Remove reaction (auth required)
-- `GET /api/v1/reactions/content/{id}` - Get reaction counts (public)
-- `POST /api/v1/suggestions` - Submit suggestion (public)
-- `GET /api/v1/directory/entries/{id}/related?limit=5` - Get related content (public)
-
 ## Testing Strategy
 
 ### Backend Testing
@@ -461,7 +416,6 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - `docs/API_REFERENCE.md` - Backend API documentation with endpoints and examples
 - `docs/API_CODING_STANDARDS.md` - Comprehensive backend coding standards
 - `docs/CI_CD_PIPELINE.md` - Detailed CI/CD setup and troubleshooting guide
-- `docs/CONTENT_ACTIONS.md` - Content Action Section implementation guide
 - `docs/TROUBLESHOOTING.md` - Common issues and solutions
 
 ### Module Architecture Documentation

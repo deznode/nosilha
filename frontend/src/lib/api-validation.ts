@@ -31,6 +31,9 @@ export function isDirectoryEntry(obj: unknown): obj is DirectoryEntry {
     (entry.rating === undefined ||
       entry.rating === null ||
       typeof entry.rating === "number") &&
+    Array.isArray(entry.tags) &&
+    entry.tags.every((tag) => typeof tag === "string") &&
+    isValidContentActions(entry.contentActions) &&
     (entry.imageUrl === undefined ||
       entry.imageUrl === null ||
       typeof entry.imageUrl === "string") &&
@@ -46,6 +49,24 @@ export function isDirectoryEntry(obj: unknown): obj is DirectoryEntry {
   }
 
   return true;
+}
+
+function isValidContentActions(value: unknown): boolean {
+  if (value === undefined || value === null) {
+    return true;
+  }
+
+  if (typeof value !== "object") {
+    return false;
+  }
+
+  const config = value as Record<string, unknown>;
+  const isValidList = (list: unknown) =>
+    list === undefined ||
+    list === null ||
+    (Array.isArray(list) && list.every((item) => typeof item === "string"));
+
+  return isValidList(config.order) && isValidList(config.disabled);
 }
 
 /**

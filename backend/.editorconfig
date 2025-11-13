@@ -16,5 +16,5 @@ ktlint_standard_trailing-comma-on-declaration-site = disabled
 ktlint_standard_multiline-expression-wrapping = disabled
 
 # Allow wildcard imports for test files (common pattern with MockMvc and testing DSLs)
-[**/test/**/*.kt]
-ktlint_standard_no-wildcard-imports = disabled
+# [**/test/**/*.kt]
+# ktlint_standard_no-wildcard-imports = disabled

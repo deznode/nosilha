@@ -56,34 +56,44 @@ class RelatedContentService(
             return emptyList()
         }
 
-        logger.debug(
-            "Current entry: id={}, category={}, town={}, cuisine={}",
-            currentEntry.id,
-            currentEntry.category,
-            currentEntry.town,
-            currentEntry.cuisine,
-        )
-
-        // 2. Find related content using prioritized matching
         val relatedEntries = mutableListOf<DirectoryEntry>()
 
-        // Priority 1: Same category + same town
-        val sameCategoryTown =
-            directoryEntryRepository.findByCategoryIgnoreCaseAndTownIgnoreCase(
-                currentEntry.category,
-                currentEntry.town,
-                PageRequest.of(0, limit + 1), // +1 to account for excluding current entry
-            ).content.filter { it.id != contentId }.take(limit)
+        val currentTags = currentEntry.parseTags()
 
-        relatedEntries.addAll(sameCategoryTown)
-        logger.debug("Found {} same category + same town matches", sameCategoryTown.size)
+        // Priority 1: Tag-based matching (multiple shared tags outrank single matches)
+        if (currentTags.isNotEmpty()) {
+            logger.debug("Attempting tag-based matching for entry {} with tags {}", currentEntry.id, currentTags)
+            val tagMatchedEntries =
+                findTagMatches(currentEntry, currentTags)
+                    .filterNot { it.id == contentId }
+                    .filterNot { relatedEntries.contains(it) }
+                    .take(limit)
 
-        // If we have enough results, return early
-        if (relatedEntries.size >= limit) {
-            return relatedEntries.take(limit)
+            relatedEntries.addAll(tagMatchedEntries)
+            logger.debug("Found {} tag-based matches", tagMatchedEntries.size)
         }
 
-        // Priority 2: For restaurants, try same category + same cuisine
+        // Priority 2: Same category + town (geographic relevance)
+        if (relatedEntries.size < limit) {
+            val sameCategoryTown =
+                directoryEntryRepository.findByCategoryIgnoreCaseAndTownIgnoreCase(
+                    currentEntry.category,
+                    currentEntry.town,
+                    PageRequest.of(0, limit + 1),
+                ).content
+                    .filter { it.id != contentId }
+                    .filterNot { relatedEntries.contains(it) }
+                    .take(limit - relatedEntries.size)
+
+            relatedEntries.addAll(sameCategoryTown)
+            logger.debug(
+                "Added {} same category + town matches (total: {})",
+                sameCategoryTown.size,
+                relatedEntries.size,
+            )
+        }
+
+        // Priority 3: Cuisine affinity for restaurants
         if (currentEntry.category.equals("RESTAURANT", ignoreCase = true) &&
             !currentEntry.cuisine.isNullOrBlank() &&
             relatedEntries.size < limit
@@ -93,7 +103,7 @@ class RelatedContentService(
             val sameCategoryCuisine =
                 directoryEntryRepository.findByCategoryIgnoreCase(
                     currentEntry.category,
-                    PageRequest.of(0, limit * 2), // Get more candidates for cuisine filtering
+                    PageRequest.of(0, limit * 2),
                 ).content
                     .filter { entry ->
                         entry.id != contentId &&
@@ -105,18 +115,18 @@ class RelatedContentService(
 
             relatedEntries.addAll(sameCategoryCuisine)
             logger.debug(
-                "Found {} same category + cuisine matches (total: {})",
+                "Added {} cuisine-based matches (total: {})",
                 sameCategoryCuisine.size,
                 relatedEntries.size,
             )
         }
 
-        // Priority 3: Same category fallback (if still need more results)
-        if (relatedEntries.size < 3) {
+        // Priority 4: Same category fallback
+        if (relatedEntries.size < limit) {
             val sameCategoryOnly =
                 directoryEntryRepository.findByCategoryIgnoreCase(
                     currentEntry.category,
-                    PageRequest.of(0, limit * 2), // Get more candidates
+                    PageRequest.of(0, limit * 2),
                 ).content
                     .filter { entry ->
                         entry.id != contentId &&
@@ -126,7 +136,7 @@ class RelatedContentService(
 
             relatedEntries.addAll(sameCategoryOnly)
             logger.debug(
-                "Found {} same category fallback matches (total: {})",
+                "Added {} same-category fallback matches (total: {})",
                 sameCategoryOnly.size,
                 relatedEntries.size,
             )
@@ -156,4 +166,38 @@ class RelatedContentService(
         val cuisines1 = cuisine1.split(",").map { it.trim().lowercase() }
         return cuisines1.any { c1 -> keywords.any { keyword -> c1.contains(keyword) || keyword.contains(c1) } }
     }
+
+    private fun findTagMatches(
+        currentEntry: DirectoryEntry,
+        currentTags: List<String>,
+    ): List<DirectoryEntry> {
+        val tagSet = currentTags.map { it.lowercase() }.toSet()
+        val sameCategoryEntries =
+            directoryEntryRepository.findByCategoryIgnoreCase(
+                currentEntry.category,
+            )
+
+        return sameCategoryEntries
+            .filter { it.id != currentEntry.id }
+            .map { entry ->
+                val entryTags = entry.parseTags()
+                val sharedCount = entryTags.map { it.lowercase() }.count { tagSet.contains(it) }
+                TagScore(entry, sharedCount)
+            }
+            .filter { it.score > 0 }
+            .sortedWith(compareByDescending<TagScore> { it.score }.thenBy { it.entry.name })
+            .map { it.entry }
+    }
+
+    private fun DirectoryEntry.parseTags(): List<String> =
+        this.tags
+            ?.split(',')
+            ?.map { it.trim() }
+            ?.filter { it.isNotEmpty() }
+            ?: emptyList()
+
+    private data class TagScore(
+        val entry: DirectoryEntry,
+        val score: Int,
+    )
 }

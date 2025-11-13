@@ -60,6 +60,12 @@ data class Suggestion(
     @Size(min = 10, max = 5000)
     @Column(name = "message", nullable = false, columnDefinition = "TEXT")
     val message: String,
+    @Column(name = "page_title", length = 512)
+    val pageTitle: String? = null,
+    @Column(name = "page_url", length = 2048)
+    val pageUrl: String? = null,
+    @Column(name = "content_type", length = 100)
+    val contentType: String? = null,
     @Size(max = 45)
     @Column(name = "ip_address", length = 45)
     val ipAddress: String? = null,

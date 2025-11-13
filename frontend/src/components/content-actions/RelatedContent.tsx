@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { DirectoryEntry } from "@/types/directory";
 import { getRelatedContent } from "@/lib/api";
-import { DirectoryCard } from "@/components/ui/directory-card";
 
 interface RelatedContentProps {
   /**
@@ -129,39 +130,86 @@ export function RelatedContent({
           {heading}
         </h2>
 
-        {/* Mobile: Horizontal scroll */}
-        <div className="sm:hidden">
-          <div
-            className="scrollbar-hide flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            {relatedEntries.map((entry) => (
-              <div
-                key={entry.id}
-                className="w-[280px] flex-shrink-0 snap-start"
-              >
-                <DirectoryCard entry={entry} />
-              </div>
-            ))}
-          </div>
-          {/* Scroll indicator */}
-          <p className="text-text-tertiary mt-2 text-center text-xs">
-            Swipe to see more →
-          </p>
-        </div>
-
-        {/* Tablet & Desktop: Grid layout */}
-        <div className="hidden gap-6 sm:grid sm:grid-cols-2 lg:grid-cols-3">
-          {relatedEntries.map((entry) => (
-            <DirectoryCard key={entry.id} entry={entry} />
-          ))}
-        </div>
+        <RelatedCardsGrid entries={relatedEntries} />
       </div>
     </section>
   );
 }
 
-// CSS to hide scrollbar on mobile (add to globals.css if needed)
-// .scrollbar-hide::-webkit-scrollbar {
-//   display: none;
-// }
+function RelatedCardsGrid({ entries }: { entries: DirectoryEntry[] }) {
+  return (
+    <>
+      {/* Mobile: Horizontal scroll */}
+      <div className="sm:hidden">
+        <div
+          className="scrollbar-hide flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+          {entries.map((entry) => (
+            <div
+              key={entry.id}
+              className="w-[280px] flex-shrink-0 snap-start"
+            >
+              <RelatedEntryCard entry={entry} />
+            </div>
+          ))}
+        </div>
+        <p className="text-text-tertiary mt-2 text-center text-xs">
+          Swipe to see more →
+        </p>
+      </div>
+
+      {/* Tablet & Desktop */}
+      <div className="hidden gap-6 sm:grid sm:grid-cols-2 lg:grid-cols-3">
+        {entries.map((entry) => (
+          <RelatedEntryCard key={entry.id} entry={entry} />
+        ))}
+      </div>
+    </>
+  );
+}
+
+function RelatedEntryCard({ entry }: { entry: DirectoryEntry }) {
+  const excerpt =
+    entry.description.length > 80
+      ? `${entry.description.slice(0, 77)}…`
+      : entry.description;
+
+  return (
+    <Link
+      href={`/directory/entry/${entry.slug}`}
+      aria-label={`View details for ${entry.name}`}
+      className="block h-full"
+    >
+      <article className="flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md dark:border-gray-700 dark:bg-gray-900">
+        <div className="relative h-40 w-full">
+          {entry.imageUrl ? (
+            <Image
+              src={entry.imageUrl}
+              alt={`Photo of ${entry.name}`}
+              fill
+              className="object-cover"
+              sizes="(max-width: 640px) 280px, (max-width: 1024px) 50vw, 33vw"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gray-100 text-sm text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+              No image available
+            </div>
+          )}
+        </div>
+        <div className="flex flex-1 flex-col gap-2 p-4">
+          <span className="text-xs font-semibold uppercase tracking-wide text-ocean-blue">
+            {entry.category}
+          </span>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            {entry.name}
+          </h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400">{excerpt}</p>
+          <p className="mt-auto text-xs font-medium text-gray-500 dark:text-gray-400">
+            {entry.town}
+          </p>
+        </div>
+      </article>
+    </Link>
+  );
+}

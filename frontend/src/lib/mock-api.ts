@@ -1,6 +1,10 @@
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town } from "@/types/town";
-import type { ApiClient } from "@/lib/api-contracts";
+import type {
+  ApiClient,
+  PaginatedResult,
+  PaginationMetadata,
+} from "@/lib/api-contracts";
 import type {
   ReactionCreateDto,
   ReactionResponseDto,
@@ -21,6 +25,11 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     longitude: -24.712,
     description:
       "An eco-lodge offering sustainable mountain accommodation with traditional Cape Verdean hospitality and stunning views of the volcanic landscape.",
+    tags: ["eco-lodge", "sustainable", "mountain", "nova-sintra"],
+    contentActions: {
+      order: ["SHARE", "REACTIONS", "COPY_LINK", "PRINT", "SUGGEST"],
+      disabled: ["PRINT"],
+    },
     rating: 4.8,
     reviewCount: 120,
     createdAt: "2024-01-01T10:00:00Z",
@@ -47,6 +56,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     longitude: -24.6943796,
     description:
       "An authentic family-run pousada in the heart of Nova Sintra, offering traditional Cape Verdean hospitality with views of the surrounding mountains and cultural immersion experiences.",
+    tags: ["hospitality", "family-run", "nova-sintra"],
+    contentActions: null,
     rating: 4.6,
     reviewCount: 87,
     createdAt: "2024-01-02T10:00:00Z",
@@ -73,6 +84,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     longitude: -24.707,
     description:
       "A welcoming pensão offering comfortable accommodation and authentic local experience in Nova Sintra, where guests become part of the Brava Island community.",
+    tags: ["community", "hospitality", "nova-sintra"],
+    contentActions: null,
     rating: 4.3,
     reviewCount: 112,
     createdAt: "2024-01-03T10:00:00Z",
@@ -100,6 +113,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     longitude: -24.7055,
     description:
       "An authentic local restaurant celebrating Cape Verdean roots with traditional recipes and cultural storytelling, where every meal connects diners to Brava Island heritage.",
+    tags: ["restaurant", "local-cuisine", "nova-sintra", "heritage"],
+    contentActions: null,
     rating: 4.5,
     reviewCount: 88,
     createdAt: "2024-01-04T10:00:00Z",
@@ -128,6 +143,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     longitude: -24.7578,
     description:
       "A beautiful black sand beach nestled in a green valley, offering a tranquil escape and natural swimming pools.",
+    tags: ["beach", "nature", "faja-dagua"],
+    contentActions: null,
     rating: 5.0,
     reviewCount: 250,
     createdAt: "2024-01-05T10:00:00Z",
@@ -147,6 +164,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     longitude: -24.7164904,
     description:
       "This sacred pilgrimage church has drawn faithful souls for over 160 years, where August processions unite island residents with diaspora descendants in shared devotion.",
+    tags: ["pilgrimage", "heritage", "nossa-senhora-do-monte"],
+    contentActions: null,
     rating: 4.9,
     reviewCount: 234,
     createdAt: "2024-01-06T10:00:00Z",
@@ -164,6 +183,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     longitude: -24.7068,
     description:
       "The preserved home of Cape Verde's greatest poet, where morna was perfected and sodade given voice, connecting our island soul to hearts across the world.",
+    tags: ["morna", "heritage", "nova-sintra"],
+    contentActions: null,
     rating: 4.7,
     reviewCount: 189,
     createdAt: "2024-01-07T10:00:00Z",
@@ -181,6 +202,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     longitude: -24.7062,
     description:
       "Our town's cultural heart where the poet's bust watches over daily life, surrounded by colonial sobrados and the hibiscus gardens that inspired his verses about island beauty.",
+    tags: ["heritage", "public-square", "nova-sintra"],
+    contentActions: null,
     rating: 4.6,
     reviewCount: 167,
     createdAt: "2024-01-08T10:00:00Z",
@@ -209,7 +232,7 @@ export class MockApiClient implements ApiClient {
     category: string,
     page: number = 0,
     size: number = 20
-  ): Promise<DirectoryEntry[]> {
+  ): Promise<PaginatedResult<DirectoryEntry>> {
     console.log(
       `Mock API: Fetching entries for category: ${category}, page: ${page}, size: ${size}`
     );
@@ -225,7 +248,20 @@ export class MockApiClient implements ApiClient {
     // Simulate pagination
     const startIndex = page * size;
     const endIndex = startIndex + size;
-    return filteredEntries.slice(startIndex, endIndex);
+    const items = filteredEntries.slice(startIndex, endIndex);
+    const totalElements = filteredEntries.length;
+    const totalPages = Math.max(1, Math.ceil(totalElements / size || 1));
+
+    const pagination: PaginationMetadata = {
+      page,
+      size,
+      totalElements,
+      totalPages,
+      first: page <= 0,
+      last: page >= totalPages - 1,
+    };
+
+    return { items, pagination };
   }
 
   /**
@@ -276,16 +312,29 @@ export class MockApiClient implements ApiClient {
    * Fetches entries for map display with larger page size.
    * Uses no caching to simulate real-time map data.
    */
-  async getEntriesForMap(category: string = "all"): Promise<DirectoryEntry[]> {
+  async getEntriesForMap(
+    category: string = "all"
+  ): Promise<PaginatedResult<DirectoryEntry>> {
     console.log(`Mock API: Fetching entries for map, category: ${category}`);
     await this.simulateDelay(200);
 
-    if (category.toLowerCase() === "all") {
-      return MOCK_ENTRIES;
-    }
-    return MOCK_ENTRIES.filter(
-      (entry) => entry.category.toLowerCase() === category.toLowerCase()
-    );
+    const filtered =
+      category.toLowerCase() === "all"
+        ? MOCK_ENTRIES
+        : MOCK_ENTRIES.filter(
+          (entry) => entry.category.toLowerCase() === category.toLowerCase()
+        );
+
+    const pagination: PaginationMetadata = {
+      page: 0,
+      size: filtered.length,
+      totalElements: filtered.length,
+      totalPages: 1,
+      first: true,
+      last: true,
+    };
+
+    return { items: filtered, pagination };
   }
 
   /**
@@ -509,6 +558,9 @@ export class MockApiClient implements ApiClient {
    */
   async submitSuggestion(suggestionDto: {
     contentId: string;
+    pageTitle: string;
+    pageUrl: string;
+    contentType: string;
     name: string;
     email: string;
     suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";

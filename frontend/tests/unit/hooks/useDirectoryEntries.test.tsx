@@ -17,6 +17,8 @@ const mockDirectoryEntries: DirectoryEntry[] = [
     category: "Restaurant",
     description:
       "Traditional Cape Verdean restaurant serving authentic cachupa",
+    tags: ["restaurant", "cape-verdean"],
+    contentActions: null,
     town: "Nova Sintra",
     latitude: 14.8675,
     longitude: -24.7065,
@@ -37,6 +39,8 @@ const mockDirectoryEntries: DirectoryEntry[] = [
     slug: "hotel-brava",
     category: "Hotel",
     description: "Comfortable hotel with ocean views",
+    tags: ["hotel", "ocean-view"],
+    contentActions: null,
     town: "Nova Sintra",
     latitude: 14.8685,
     longitude: -24.7075,
@@ -50,6 +54,20 @@ const mockDirectoryEntries: DirectoryEntry[] = [
     },
   },
 ];
+
+const mockPagination = {
+  page: 0,
+  size: 20,
+  totalElements: mockDirectoryEntries.length,
+  totalPages: 1,
+  first: true,
+  last: true,
+};
+
+const createPaginatedResult = (items: DirectoryEntry[]) => ({
+  items,
+  pagination: mockPagination,
+});
 
 describe("useDirectoryEntries", () => {
   let queryClient: QueryClient;
@@ -74,7 +92,9 @@ describe("useDirectoryEntries", () => {
 
   it("fetches directory entries successfully", async () => {
     // Mock the API call to return mock data
-    vi.mocked(api.getEntriesByCategory).mockResolvedValue(mockDirectoryEntries);
+    vi.mocked(api.getEntriesByCategory).mockResolvedValue(
+      createPaginatedResult(mockDirectoryEntries)
+    );
 
     const { result } = renderHook(
       () => useDirectoryEntries("Restaurant", 0, 20),
@@ -89,7 +109,7 @@ describe("useDirectoryEntries", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     // Verify data was fetched correctly
-    expect(result.current.data).toEqual(mockDirectoryEntries);
+    expect(result.current.data?.items).toEqual(mockDirectoryEntries);
     expect(result.current.isLoading).toBe(false);
     expect(result.current.error).toBeNull();
 
@@ -116,7 +136,9 @@ describe("useDirectoryEntries", () => {
   });
 
   it("caches data correctly", async () => {
-    vi.mocked(api.getEntriesByCategory).mockResolvedValue(mockDirectoryEntries);
+    vi.mocked(api.getEntriesByCategory).mockResolvedValue(
+      createPaginatedResult(mockDirectoryEntries)
+    );
 
     // First render
     const { result: result1, unmount: unmount1 } = renderHook(
@@ -138,7 +160,7 @@ describe("useDirectoryEntries", () => {
 
     // Should immediately have cached data (not loading)
     await waitFor(() =>
-      expect(result2.current.data).toEqual(mockDirectoryEntries)
+      expect(result2.current.data?.items).toEqual(mockDirectoryEntries)
     );
 
     // API should not be called again (cached)
@@ -146,7 +168,9 @@ describe("useDirectoryEntries", () => {
   });
 
   it("refetches when category changes", async () => {
-    vi.mocked(api.getEntriesByCategory).mockResolvedValue(mockDirectoryEntries);
+    vi.mocked(api.getEntriesByCategory).mockResolvedValue(
+      createPaginatedResult(mockDirectoryEntries)
+    );
 
     const { result, rerender } = renderHook(
       ({ category }) => useDirectoryEntries(category, 0, 20),
@@ -175,7 +199,9 @@ describe("useDirectoryEntries", () => {
       },
     ];
 
-    vi.mocked(api.getEntriesByCategory).mockResolvedValue(invalidData as any);
+    vi.mocked(api.getEntriesByCategory).mockResolvedValue(
+      createPaginatedResult(invalidData as any)
+    );
 
     const consoleErrorSpy = vi
       .spyOn(console, "error")
@@ -192,13 +218,15 @@ describe("useDirectoryEntries", () => {
       "Directory entries validation failed:",
       expect.any(Object)
     );
-    expect(result.current.data).toEqual(invalidData);
+    expect(result.current.data?.items).toEqual(invalidData);
 
     consoleErrorSpy.mockRestore();
   });
 
   it("uses default parameters when not provided", async () => {
-    vi.mocked(api.getEntriesByCategory).mockResolvedValue(mockDirectoryEntries);
+    vi.mocked(api.getEntriesByCategory).mockResolvedValue(
+      createPaginatedResult(mockDirectoryEntries)
+    );
 
     const { result } = renderHook(() => useDirectoryEntries(), { wrapper });
 
@@ -209,7 +237,9 @@ describe("useDirectoryEntries", () => {
   });
 
   it("respects custom staleTime and gcTime", async () => {
-    vi.mocked(api.getEntriesByCategory).mockResolvedValue(mockDirectoryEntries);
+    vi.mocked(api.getEntriesByCategory).mockResolvedValue(
+      createPaginatedResult(mockDirectoryEntries)
+    );
 
     const { result } = renderHook(
       () =>
@@ -222,6 +252,6 @@ describe("useDirectoryEntries", () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(result.current.data).toEqual(mockDirectoryEntries);
+    expect(result.current.data?.items).toEqual(mockDirectoryEntries);
   });
 });

@@ -25,11 +25,13 @@ export interface ApiClient {
     category: string,
     page?: number,
     size?: number
-  ): Promise<DirectoryEntry[]>;
+  ): Promise<PaginatedResult<DirectoryEntry>>;
 
   getEntryBySlug(slug: string): Promise<DirectoryEntry | undefined>;
 
-  getEntriesForMap(category?: string): Promise<DirectoryEntry[]>;
+  getEntriesForMap(
+    category?: string
+  ): Promise<PaginatedResult<DirectoryEntry>>;
 
   createDirectoryEntry(
     entryData: Omit<
@@ -62,6 +64,9 @@ export interface ApiClient {
   // Suggestion Operations (User Story 3)
   submitSuggestion(suggestionDto: {
     contentId: string;
+    pageTitle: string;
+    pageUrl: string;
+    contentType: string;
     name: string;
     email: string;
     suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";
@@ -74,6 +79,20 @@ export interface ApiClient {
     contentId: string,
     limit?: number
   ): Promise<DirectoryEntry[]>;
+}
+
+export interface PaginationMetadata {
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+}
+
+export interface PaginatedResult<T> {
+  items: T[];
+  pagination: PaginationMetadata | null;
 }
 
 // ================================

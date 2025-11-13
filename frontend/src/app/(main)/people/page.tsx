@@ -8,8 +8,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { BackToTopButton } from "@/components/ui/back-to-top-button";
 import { CitationSection } from "@/components/ui/citation-section";
-import { PrintButton } from "@/components/ui/print-button";
 import { PrintPageWrapper } from "@/components/ui/print-page-wrapper";
+import { ContentActionToolbar } from "@/components/content-actions/ContentActionToolbar";
 
 // Enable ISR with 2 hour revalidation for people content
 export const revalidate = 7200;
@@ -362,6 +362,8 @@ const historicalEras = [
   },
 ];
 
+const PEOPLE_PAGE_CONTENT_ID = "66666666-7777-4888-8faf-999999999999";
+
 const citations = [
   {
     source: "Brava, Cape Verde - Wikipedia",
@@ -495,8 +497,17 @@ export default function PeoplePage() {
             subtitle="Discover the remarkable people who shaped Brava Island's rich cultural heritage and continue to inspire generations."
           />
 
-          {/* Print Button */}
-          <PrintButton className="mb-8" />
+          {/* Content Action Toolbar */}
+          <ContentActionToolbar
+            className="mb-8"
+            contentId={PEOPLE_PAGE_CONTENT_ID}
+            title="Historical Figures of Brava"
+            description="Explore the Bravense leaders, artists, and spiritual guardians whose influence spans oceans."
+            contentType="people"
+            pageUrl="/people"
+            image="/images/people/eugenio-tavares.jpg"
+            layout="inline"
+          />
 
           {/* Introduction Section */}
           <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">

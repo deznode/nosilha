@@ -19,6 +19,7 @@ interface SuggestImprovementFormProps {
   contentId: string;
   contentTitle: string;
   contentType: string;
+  pageUrl: string;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -27,6 +28,7 @@ export function SuggestImprovementForm({
   contentId,
   contentTitle,
   contentType,
+  pageUrl,
   isOpen,
   onClose,
 }: SuggestImprovementFormProps) {
@@ -75,6 +77,9 @@ export function SuggestImprovementForm({
     try {
       await submitSuggestion({
         contentId,
+        pageTitle: contentTitle,
+        pageUrl,
+        contentType,
         name: name.trim(),
         email: email.trim().toLowerCase(),
         suggestionType,
@@ -157,6 +162,8 @@ export function SuggestImprovementForm({
             {/* Hidden fields for context */}
             <input type="hidden" name="contentId" value={contentId} />
             <input type="hidden" name="contentType" value={contentType} />
+            <input type="hidden" name="pageTitle" value={contentTitle} />
+            <input type="hidden" name="pageUrl" value={pageUrl} />
 
             {/* Honeypot field (hidden from real users, visible to bots) */}
             <div className="hidden" aria-hidden="true">

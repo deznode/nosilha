@@ -135,6 +135,11 @@ export default async function DirectoryEntryDetailPage({
     notFound();
   }
 
+  const canonicalUrl = new URL(
+    `/directory/entry/${entry.slug}`,
+    siteConfig.url
+  ).toString();
+
   // Gallery images - will be populated from actual entry data or fallback to empty array
   const sampleImages: string[] = [];
 
@@ -174,9 +179,13 @@ export default async function DirectoryEntryDetailPage({
             <div className="mt-6">
               <ContentActionToolbar
                 contentId={entry.id}
+                contentType={entry.category}
                 title={entry.name}
                 description={entry.description}
                 image={entry.imageUrl || undefined}
+                url={canonicalUrl}
+                pageUrl={canonicalUrl}
+                contentActions={entry.contentActions}
               />
             </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, KeyboardEvent } from "react";
+import React, { useRef, useState, KeyboardEvent, useMemo } from "react";
 import { ShareButton } from "./ShareButton";
 import { CopyLinkButton } from "./CopyLinkButton";
 import { ReactionButton } from "./ReactionButton";
@@ -8,6 +8,20 @@ import { SuggestImprovementForm } from "./SuggestImprovementForm";
 import { PrintButton } from "../ui/print-button";
 import { Button } from "@/components/catalyst-ui/button";
 import { PencilSquareIcon } from "@heroicons/react/24/outline";
+import type {
+  ContentActionSettings,
+  ContentActionType,
+} from "@/types/directory";
+
+const DEFAULT_ACTION_ORDER: ContentActionType[] = [
+  "SHARE",
+  "COPY_LINK",
+  "PRINT",
+  "REACTIONS",
+  "SUGGEST",
+];
+
+const PRIMARY_ACTIONS: ContentActionType[] = ["SHARE", "COPY_LINK", "PRINT"];
 
 interface ContentActionToolbarProps {
   /**
@@ -41,9 +55,26 @@ interface ContentActionToolbarProps {
   image?: string;
 
   /**
+   * Optional action override configuration
+   */
+  contentActions?: ContentActionSettings | null;
+
+  /**
+   * Canonical page URL (used by SuggestImprovementForm when provided)
+   */
+  pageUrl?: string;
+
+  /**
    * Additional CSS classes
    */
   className?: string;
+
+  /**
+   * Layout mode.
+   * - default: sticky/fixed rail on desktop (directory entry pages)
+   * - inline: standard in-flow layout (static pages like History/People)
+   */
+  layout?: "default" | "inline";
 }
 
 /**
@@ -84,7 +115,10 @@ export function ContentActionToolbar({
   url,
   description,
   image,
+  contentActions = null,
+  pageUrl,
   className = "",
+  layout = "default",
 }: ContentActionToolbarProps) {
   const toolbarRef = useRef<HTMLDivElement>(null);
   const [isSuggestionFormOpen, setIsSuggestionFormOpen] = useState(false);
@@ -92,6 +126,29 @@ export function ContentActionToolbar({
   // Get current page URL if not provided
   const shareUrl =
     url || (typeof window !== "undefined" ? window.location.href : "");
+  const suggestionPageUrl = pageUrl || shareUrl;
+
+  const normalizedOrder = useMemo(() => {
+    const configured = contentActions?.order ?? DEFAULT_ACTION_ORDER;
+    const merged = [...configured, ...DEFAULT_ACTION_ORDER];
+    return Array.from(new Set(merged));
+  }, [contentActions]);
+
+  const disabledSet = useMemo(
+    () => new Set(contentActions?.disabled ?? []),
+    [contentActions]
+  );
+
+  const finalOrder = normalizedOrder.filter(
+    (action) => !disabledSet.has(action)
+  );
+
+  const primaryOrder = finalOrder.filter((action) =>
+    PRIMARY_ACTIONS.includes(action)
+  );
+
+  const isReactionsEnabled = finalOrder.includes("REACTIONS");
+  const isSuggestEnabled = finalOrder.includes("SUGGEST");
 
   /**
    * Handle keyboard navigation within the toolbar
@@ -149,6 +206,89 @@ export function ContentActionToolbar({
     }
   };
 
+  const sections: React.ReactNode[] = [];
+  let primaryRendered = false;
+  let reactionsRendered = false;
+  let suggestRendered = false;
+
+  finalOrder.forEach((action) => {
+    if (PRIMARY_ACTIONS.includes(action) && !primaryRendered) {
+      primaryRendered = true;
+      if (primaryOrder.length > 0) {
+        sections.push(
+          <div
+            key="primary-actions"
+            className="flex flex-wrap gap-2 md:gap-3"
+          >
+            {primaryOrder.map((primaryAction) => {
+              if (primaryAction === "SHARE") {
+                return (
+                  <ShareButton
+                    key="share"
+                    title={title}
+                    url={shareUrl}
+                    description={description}
+                    image={image}
+                  />
+                );
+              }
+              if (primaryAction === "COPY_LINK") {
+                return <CopyLinkButton key="copy" url={shareUrl} />;
+              }
+              if (primaryAction === "PRINT") {
+                return (
+                  <PrintButton
+                    key="print"
+                    variant="secondary"
+                    label="Print"
+                    showIcon={true}
+                  />
+                );
+              }
+              return null;
+            })}
+          </div>
+        );
+      }
+    } else if (action === "REACTIONS" && !reactionsRendered && isReactionsEnabled) {
+      reactionsRendered = true;
+      sections.push(
+        <div
+          key="reactions"
+          className="border-t border-gray-200 pt-4 dark:border-gray-700"
+        >
+          <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+            How does this content make you feel?
+          </h3>
+          <ReactionButton contentId={contentId} />
+        </div>
+      );
+    } else if (action === "SUGGEST" && !suggestRendered && isSuggestEnabled) {
+      suggestRendered = true;
+      sections.push(
+        <div
+          key="suggest"
+          className="border-t border-gray-200 pt-4 dark:border-gray-700"
+        >
+          <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+            Help preserve cultural heritage
+          </h3>
+          <p className="mb-3 text-xs text-gray-600 dark:text-gray-400">
+            Share your knowledge or suggest improvements to this content
+          </p>
+          <Button
+            onClick={() => setIsSuggestionFormOpen(true)}
+            className="w-full md:w-auto"
+            aria-label="Suggest improvement to this content"
+          >
+            <PencilSquareIcon className="mr-2 h-5 w-5" />
+            Suggest Improvement
+          </Button>
+        </div>
+      );
+    }
+  });
+
   return (
     <div
       ref={toolbarRef}
@@ -156,56 +296,25 @@ export function ContentActionToolbar({
       aria-label="Content actions"
       aria-orientation="horizontal"
       onKeyDown={handleKeyDown}
-      className={`/* T043, T044: Responsive hybrid placement (US6) */ /* Mobile (< md): In-flow horizontal layout below content */ /* Tablet (md-lg): In-flow with optimized spacing */ /* Desktop (lg+): Fixed left rail for easy access while reading */ /* Ensure no horizontal scroll on any viewport (T046) */ flex w-full flex-col gap-4 overflow-x-hidden md:gap-5 lg:fixed lg:sticky lg:top-24 lg:left-4 lg:max-h-[calc(100vh-8rem)] lg:w-64 lg:overflow-x-hidden lg:overflow-y-auto print:hidden ${className} `.trim()}
+      className={`/* T043, T044: Responsive hybrid placement (US6) */ /* Mobile (< md): In-flow horizontal layout below content */ /* Tablet (md-lg): In-flow with optimized spacing */ /* Desktop (lg+): Fixed left rail for easy access while reading */ /* Ensure no horizontal scroll on any viewport (T046) */ flex w-full flex-col gap-4 overflow-x-hidden md:gap-5 ${
+        layout === "default"
+          ? "lg:fixed lg:sticky lg:top-24 lg:left-4 lg:max-h-[calc(100vh-8rem)] lg:w-64 lg:overflow-x-hidden lg:overflow-y-auto"
+          : "lg:relative lg:top-auto lg:left-auto lg:w-full lg:max-h-none lg:overflow-visible"
+      } print:hidden ${className} `.trim()}
       data-content-id={contentId}
     >
-      {/* Primary actions: Share, Copy, Print */}
-      {/* T045: Ensure 44×44px minimum touch targets on mobile */}
-      <div className="flex flex-wrap gap-2 md:gap-3">
-        <ShareButton
-          title={title}
-          url={shareUrl}
-          description={description}
-          image={image}
+      {sections}
+
+      {isSuggestEnabled && (
+        <SuggestImprovementForm
+          contentId={contentId}
+          contentTitle={title}
+          contentType={contentType}
+          pageUrl={suggestionPageUrl}
+          isOpen={isSuggestionFormOpen}
+          onClose={() => setIsSuggestionFormOpen(false)}
         />
-        <CopyLinkButton url={shareUrl} />
-        <PrintButton variant="secondary" label="Print" showIcon={true} />
-      </div>
-
-      {/* Reaction section (User Story 2: Emotional Connection) */}
-      <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
-        <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-          How does this content make you feel?
-        </h3>
-        <ReactionButton contentId={contentId} />
-      </div>
-
-      {/* Suggestion section (User Story 3: Community Contributions) */}
-      <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
-        <h3 className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-          Help preserve cultural heritage
-        </h3>
-        <p className="mb-3 text-xs text-gray-600 dark:text-gray-400">
-          Share your knowledge or suggest improvements to this content
-        </p>
-        <Button
-          onClick={() => setIsSuggestionFormOpen(true)}
-          className="w-full md:w-auto"
-          aria-label="Suggest improvement to this content"
-        >
-          <PencilSquareIcon className="mr-2 h-5 w-5" />
-          Suggest Improvement
-        </Button>
-      </div>
-
-      {/* Suggestion Form Modal */}
-      <SuggestImprovementForm
-        contentId={contentId}
-        contentTitle={title}
-        contentType={contentType}
-        isOpen={isSuggestionFormOpen}
-        onClose={() => setIsSuggestionFormOpen(false)}
-      />
+      )}
     </div>
   );
 }

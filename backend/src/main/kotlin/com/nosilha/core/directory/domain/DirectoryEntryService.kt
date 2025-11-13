@@ -1,5 +1,6 @@
 package com.nosilha.core.directory.domain
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nosilha.core.directory.repository.DirectoryEntryRepository
 import com.nosilha.core.shared.api.CreateEntryRequestDto
 import com.nosilha.core.shared.api.CreateHotelDetailsDto
@@ -32,6 +33,8 @@ class DirectoryEntryService(
     private val repository: DirectoryEntryRepository,
     private val eventPublisher: ApplicationEventPublisher,
 ) {
+    private val metadataObjectMapper = jacksonObjectMapper()
+
     /**
      * Creates a new directory entry based on the provided request data.
      *
@@ -74,6 +77,11 @@ class DirectoryEntryService(
             this.latitude = request.latitude
             this.longitude = request.longitude
             this.imageUrl = request.imageUrl
+            this.tags = request.tags?.joinToString(",")
+            this.contentActions =
+                request.contentActions?.let {
+                    metadataObjectMapper.writeValueAsString(it)
+                }
             // Generate a simple, URL-friendly slug
             this.slug =
                 request.name.lowercase()
@@ -232,6 +240,11 @@ class DirectoryEntryService(
             latitude = request.latitude
             longitude = request.longitude
             imageUrl = request.imageUrl
+            tags = request.tags?.joinToString(",")
+            contentActions =
+                request.contentActions?.let {
+                    metadataObjectMapper.writeValueAsString(it)
+                }
         }
 
         // Update type-specific fields based on the existing entity type

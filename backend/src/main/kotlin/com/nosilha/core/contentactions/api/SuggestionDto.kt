@@ -30,6 +30,15 @@ import java.util.UUID
 data class SuggestionCreateDto(
     @field:NotNull(message = "Content ID is required")
     val contentId: UUID,
+    @field:NotBlank(message = "Page title is required")
+    @field:Size(max = 512, message = "Page title must not exceed 512 characters")
+    val pageTitle: String,
+    @field:NotBlank(message = "Page URL is required")
+    @field:Size(max = 2048, message = "Page URL must not exceed 2048 characters")
+    val pageUrl: String,
+    @field:NotBlank(message = "Content type is required")
+    @field:Size(max = 100, message = "Content type must not exceed 100 characters")
+    val contentType: String,
     @field:NotBlank(message = "Name is required")
     @field:Size(min = 2, max = 255, message = "Name must be between 2 and 255 characters")
     val name: String,

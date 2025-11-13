@@ -4,6 +4,7 @@ import com.nosilha.core.contentactions.api.SuggestionCreateDto
 import com.nosilha.core.contentactions.api.SuggestionResponseDto
 import com.nosilha.core.contentactions.domain.Suggestion
 import com.nosilha.core.contentactions.repository.SuggestionRepository
+import com.nosilha.core.shared.exception.RateLimitExceededException
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -64,6 +65,9 @@ class SuggestionService(
         val suggestion =
             Suggestion(
                 contentId = dto.contentId,
+                pageTitle = dto.pageTitle.trim(),
+                pageUrl = dto.pageUrl.trim(),
+                contentType = dto.contentType.trim().lowercase(),
                 name = dto.name.trim(),
                 email = dto.email.trim().lowercase(),
                 suggestionType = dto.suggestionType,
@@ -115,11 +119,6 @@ class SuggestionService(
         return suggestionRepository.findByContentIdOrderByCreatedAtDesc(contentId)
     }
 }
-
-/**
- * Exception thrown when rate limit is exceeded.
- */
-class RateLimitExceededException(message: String) : RuntimeException(message)
 
 /**
  * Exception thrown when honeypot spam protection is triggered.

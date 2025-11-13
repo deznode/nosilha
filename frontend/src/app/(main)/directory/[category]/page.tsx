@@ -109,7 +109,7 @@ export default async function DirectoryCategoryPage({
   params,
 }: DirectoryCategoryPageProps) {
   const { category } = await params;
-  const entries = await getEntriesByCategory(category);
+  const { items: entries } = await getEntriesByCategory(category);
   const pageTitle = formatCategoryTitle(category);
 
   return (

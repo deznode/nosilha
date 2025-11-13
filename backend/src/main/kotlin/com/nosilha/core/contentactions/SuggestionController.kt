@@ -2,12 +2,16 @@ package com.nosilha.core.contentactions
 
 import com.nosilha.core.contentactions.api.SuggestionCreateDto
 import com.nosilha.core.contentactions.api.SuggestionResponseDto
+import com.nosilha.core.shared.api.ApiResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.bind.annotation.RestController
 
 /**
  * REST controller for community content improvement suggestions.
@@ -60,48 +64,32 @@ class SuggestionController(
      *
      * @param dto Suggestion data from the form submission
      * @param request HTTP request (used to extract IP address)
-     * @return ResponseEntity with SuggestionResponseDto (201 Created) or error (400/429)
+     * @return ApiResponse with SuggestionResponseDto (201 Created).
+     * Rate limit violations continue propagating to the global handler.
      */
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     fun submitSuggestion(
         @Valid @RequestBody dto: SuggestionCreateDto,
         request: HttpServletRequest,
-    ): ResponseEntity<SuggestionResponseDto> {
+    ): ApiResponse<SuggestionResponseDto> {
         val ipAddress = extractIpAddress(request)
         logger.info("Received suggestion submission from IP: $ipAddress for content ${dto.contentId}")
 
         return try {
             val response = suggestionService.submitSuggestion(dto, ipAddress)
             logger.info("Suggestion ${response.id} created successfully")
-            ResponseEntity.status(HttpStatus.CREATED).body(response)
-        } catch (e: RateLimitExceededException) {
-            logger.warn("Rate limit exceeded for IP: $ipAddress - ${e.message}")
-            ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                .body(
-                    SuggestionResponseDto(
-                        id = null,
-                        message = e.message ?: "Rate limit exceeded. Please try again later.",
-                    ),
-                )
+            ApiResponse(data = response, status = HttpStatus.CREATED.value())
         } catch (e: HoneypotSpamDetectedException) {
             logger.warn("Honeypot spam detected from IP: $ipAddress")
-            // Return success to avoid revealing spam detection to bots
-            ResponseEntity.status(HttpStatus.CREATED)
-                .body(
+            ApiResponse(
+                data =
                     SuggestionResponseDto(
                         id = null,
                         message = "Thank you for your submission.",
                     ),
-                )
-        } catch (e: Exception) {
-            logger.error("Error processing suggestion from IP: $ipAddress", e)
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(
-                    SuggestionResponseDto(
-                        id = null,
-                        message = "An error occurred while processing your suggestion. Please try again later.",
-                    ),
-                )
+                status = HttpStatus.CREATED.value(),
+            )
         }
     }
 

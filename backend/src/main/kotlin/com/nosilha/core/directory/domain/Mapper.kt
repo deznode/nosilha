@@ -3,6 +3,7 @@ package com.nosilha.core.directory.domain
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.nosilha.core.shared.api.BeachDto
+import com.nosilha.core.shared.api.ContentActionSettingsDto
 import com.nosilha.core.shared.api.DirectoryEntryDto
 import com.nosilha.core.shared.api.HotelDetailsDto
 import com.nosilha.core.shared.api.HotelDto
@@ -10,6 +11,10 @@ import com.nosilha.core.shared.api.LandmarkDto
 import com.nosilha.core.shared.api.RestaurantDetailsDto
 import com.nosilha.core.shared.api.RestaurantDto
 import com.nosilha.core.shared.api.TownDto
+import org.slf4j.LoggerFactory
+
+private val directoryMetadataMapper = jacksonObjectMapper()
+private val directoryMapperLogger = LoggerFactory.getLogger("DirectoryEntryMapper")
 
 /**
  * Maps a DirectoryEntry JPA entity to its corresponding public-facing DTO.
@@ -27,6 +32,9 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
     val entityId =
         this.id ?: throw IllegalStateException("Cannot map an entity with a null ID to a DTO.")
 
+    val tagList = this.parseTags()
+    val contentActionSettings = this.parseContentActions()
+
     return when (this) {
         is Restaurant ->
             RestaurantDto(
@@ -34,6 +42,8 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
                 name = this.name,
                 slug = this.slug,
                 description = this.description,
+                tags = tagList,
+                contentActions = contentActionSettings,
                 town = this.town,
                 latitude = this.latitude,
                 longitude = this.longitude,
@@ -58,6 +68,8 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
                 name = this.name,
                 slug = this.slug,
                 description = this.description,
+                tags = tagList,
+                contentActions = contentActionSettings,
                 town = this.town,
                 latitude = this.latitude,
                 longitude = this.longitude,
@@ -80,6 +92,8 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
                 name = this.name,
                 slug = this.slug,
                 description = this.description,
+                tags = tagList,
+                contentActions = contentActionSettings,
                 town = this.town,
                 latitude = this.latitude,
                 longitude = this.longitude,
@@ -97,6 +111,8 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
                 name = this.name,
                 slug = this.slug,
                 description = this.description,
+                tags = tagList,
+                contentActions = contentActionSettings,
                 town = this.town,
                 latitude = this.latitude,
                 longitude = this.longitude,
@@ -109,6 +125,27 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
             )
 
         else -> throw IllegalStateException("Unsupported or unknown DirectoryEntry type: ${this::class.simpleName}")
+    }
+}
+
+private fun DirectoryEntry.parseTags(): List<String> =
+    this.tags
+        ?.split(',')
+        ?.map { it.trim() }
+        ?.filter { it.isNotEmpty() }
+        ?: emptyList()
+
+private fun DirectoryEntry.parseContentActions(): ContentActionSettingsDto? {
+    val config = this.contentActions ?: return null
+    return try {
+        directoryMetadataMapper.readValue<ContentActionSettingsDto>(config)
+    } catch (ex: com.fasterxml.jackson.core.JsonProcessingException) {
+        directoryMapperLogger.warn(
+            "Failed to parse content_actions metadata for entry {}: {}",
+            this.id ?: "unsaved",
+            ex.message,
+        )
+        null
     }
 }
 

@@ -29,17 +29,15 @@ repositories {
 
 extra["springCloudGcpVersion"] = "6.2.2"
 extra["testcontainersVersion"] = "1.21.3"
-extra["detektVersion"] = "1.23.8"
 extra["kotlinLogging"] = "7.0.3"
 extra["springdocOpenApiVersion"] = "2.8.9"
 extra["springModulithVersion"] = "1.2.5"
 
 dependencies {
-
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:${property("detektVersion")}")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${property("springdocOpenApiVersion")}")
@@ -64,6 +62,7 @@ dependencies {
     implementation("org.springframework.modulith:spring-modulith-starter-jpa:${property("springModulithVersion")}")
     testImplementation("org.springframework.modulith:spring-modulith-starter-test:${property("springModulithVersion")}")
 
+    implementation("com.github.ben-manes.caffeine:caffeine")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -156,7 +155,7 @@ dependencyManagement {
 
 detekt {
     buildUponDefaultConfig = true // preconfigure defaults
-    autoCorrect = true // enable auto-correction for formatting rules
+    autoCorrect = false // formatting handled by ktlint
     baseline = file("detekt-baseline.xml")
     config.setFrom(file("detekt.yml"))
 }
@@ -188,4 +187,8 @@ configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         exclude("**/generated/**")
         include("**/kotlin/**")
     }
+}
+
+tasks.named("check") {
+    dependsOn("detekt", "ktlintCheck")
 }

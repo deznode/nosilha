@@ -21,24 +21,7 @@ class SecurityConfig(
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         if (allowedOrigins.isNotEmpty()) {
-            http.cors { cors ->
-                cors.configurationSource {
-                    CorsConfiguration()
-                        .apply {
-                            allowedOriginPatterns = this@SecurityConfig.allowedOrigins
-                            allowedMethods =
-                                listOf(
-                                    "GET",
-                                    "POST",
-                                    "PUT",
-                                    "DELETE",
-                                    "OPTIONS",
-                                )
-                            allowedHeaders = listOf("*")
-                            allowCredentials = true
-                        }
-                }
-            }
+            http.cors { cors -> cors.configurationSource { createCorsConfiguration() } }
         }
 
         http
@@ -91,4 +74,12 @@ class SecurityConfig(
 
         return http.build()
     }
+
+    private fun createCorsConfiguration() =
+        CorsConfiguration().apply {
+            allowedOriginPatterns = this@SecurityConfig.allowedOrigins
+            allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            allowedHeaders = listOf("*")
+            allowCredentials = true
+        }
 }

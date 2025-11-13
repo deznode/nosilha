@@ -10,8 +10,8 @@ import {
 } from "@heroicons/react/24/outline";
 import { CitationSection } from "@/components/ui/citation-section";
 import { ImageWithCourtesy } from "@/components/ui/image-with-courtesy";
-import { PrintButton } from "@/components/ui/print-button";
 import { PrintPageWrapper } from "@/components/ui/print-page-wrapper";
+import { ContentActionToolbar } from "@/components/content-actions/ContentActionToolbar";
 
 // Enable ISR with 2 hour revalidation for historical content
 export const revalidate = 7200;
@@ -210,6 +210,8 @@ const citations = [
   },
 ];
 
+const HISTORY_PAGE_CONTENT_ID = "11111111-2222-4333-8444-555555555555";
+
 export default function HistoryPage() {
   return (
     <PrintPageWrapper>
@@ -229,8 +231,17 @@ export default function HistoryPage() {
             subtitle="Discover the rich cultural tapestry and fascinating history of Brava Island, from its volcanic origins to its vibrant musical traditions."
           />
 
-          {/* Print Button */}
-          <PrintButton className="mb-8" />
+          {/* Content Action Toolbar */}
+          <ContentActionToolbar
+            className="mb-8"
+            contentId={HISTORY_PAGE_CONTENT_ID}
+            title="History & Heritage"
+            description="Discover the full history of Brava Island—from volcanic origins to global cultural influence."
+            contentType="history"
+            pageUrl="/history"
+            image="/images/history/brava-formation.jpg"
+            layout="inline"
+          />
 
           {/* Introduction Section */}
           <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">

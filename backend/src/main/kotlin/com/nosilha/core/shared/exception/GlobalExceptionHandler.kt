@@ -194,6 +194,28 @@ class GlobalExceptionHandler {
     }
 
     /**
+     * Handles rate limit violations (429 errors) from content action services.
+     */
+    @ExceptionHandler(RateLimitExceededException::class)
+    fun handleRateLimitExceeded(
+        ex: RuntimeException,
+        request: HttpServletRequest,
+    ): ResponseEntity<ErrorResponse> {
+        logger.warn { "Rate limit exceeded: ${ex.message}" }
+
+        val errorResponse =
+            ErrorResponse(
+                error = "Too Many Requests",
+                message = ex.message ?: "Rate limit exceeded. Please try again later.",
+                path = request.requestURI,
+                status = HttpStatus.TOO_MANY_REQUESTS.value(),
+                timestamp = LocalDateTime.now(),
+            )
+
+        return ResponseEntity(errorResponse, HttpStatus.TOO_MANY_REQUESTS)
+    }
+
+    /**
      * Handles all other unhandled exceptions (500 errors).
      */
     @ExceptionHandler(Exception::class)
@@ -221,3 +243,9 @@ class GlobalExceptionHandler {
  * Results in HTTP 422 Unprocessable Entity responses.
  */
 class BusinessException(message: String) : RuntimeException(message)
+
+/**
+ * Indicates callers exceeded a defined rate limit.
+ * Allows feature modules to communicate the violation without coupling.
+ */
+class RateLimitExceededException(message: String) : RuntimeException(message)
