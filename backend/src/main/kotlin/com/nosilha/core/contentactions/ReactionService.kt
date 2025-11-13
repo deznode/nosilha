@@ -300,6 +300,10 @@ class ReactionService(
      *   <li>Otherwise, deny submission</li>
      * </ol>
      *
+     * <p><strong>Thread Safety</strong>: Synchronizes on the submissions deque to ensure
+     * atomic check-and-modify operations, preventing race conditions where multiple
+     * concurrent requests could bypass the rate limit.</p>
+     *
      * <p><strong>Production Note</strong>: This in-memory implementation works for single
      * instances but needs Redis for distributed deployments (multiple backend pods).</p>
      *
@@ -313,17 +317,20 @@ class ReactionService(
         // Get or create user's submission history
         val submissions = rateLimiter.computeIfAbsent(userId) { ConcurrentLinkedDeque() }
 
-        // Remove old submissions outside the time window
-        submissions.removeIf { it.isBefore(windowStart) }
+        // CRITICAL: Synchronize entire check-and-modify sequence to prevent race conditions
+        synchronized(submissions) {
+            // Remove old submissions outside the time window
+            submissions.removeIf { it.isBefore(windowStart) }
 
-        // Check if under limit
-        if (submissions.size >= MAX_REACTIONS_PER_MINUTE) {
-            return false
+            // Check if under limit
+            if (submissions.size >= MAX_REACTIONS_PER_MINUTE) {
+                return false
+            }
+
+            // Record this submission
+            submissions.add(now)
+            return true
         }
-
-        // Record this submission
-        submissions.add(now)
-        return true
     }
 
     data class ReactionSubmissionResult(

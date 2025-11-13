@@ -189,7 +189,7 @@ export function ReactionButton({
       // T034: Rollback optimistic update on error
       if (optimisticState) {
         setCounts({
-          ...counts,
+          contentId,
           reactions: optimisticState.counts,
           userReaction: optimisticState.userReaction,
         });
