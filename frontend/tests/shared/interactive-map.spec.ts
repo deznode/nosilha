@@ -395,28 +395,25 @@ test.describe("Interactive Map - Spatial Tourism Discovery", () => {
 
 // Performance-focused map tests
 test.describe("Map Performance for Tourism", () => {
-  test("loads efficiently on various connection speeds", async ({ page }) => {
+  test("loads efficiently on various connection speeds", async ({
+    page,
+    context,
+  }) => {
     // Test with different connection speeds
+    const { throttleNetwork } = await import("../utils/network");
     const connectionProfiles = [
       {
         name: "3G",
-        downloadThroughput: (1.5 * 1024 * 1024) / 8,
-        uploadThroughput: (750 * 1024) / 8,
         latency: 150,
       },
       {
         name: "4G",
-        downloadThroughput: (4 * 1024 * 1024) / 8,
-        uploadThroughput: (3 * 1024 * 1024) / 8,
         latency: 50,
       },
     ];
 
     for (const profile of connectionProfiles) {
-      await page.emulateNetworkConditions({
-        offline: false,
-        downloadThroughput: profile.downloadThroughput,
-        uploadThroughput: profile.uploadThroughput,
+      await throttleNetwork(context, {
         latency: profile.latency,
       });
 

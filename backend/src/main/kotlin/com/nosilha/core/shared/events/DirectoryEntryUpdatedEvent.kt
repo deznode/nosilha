@@ -27,5 +27,5 @@ import java.util.UUID
 data class DirectoryEntryUpdatedEvent(
     val entryId: UUID,
     val category: String,
-    override val occurredAt: Instant = Instant.now()
+    override val occurredAt: Instant = Instant.now(),
 ) : ApplicationModuleEvent

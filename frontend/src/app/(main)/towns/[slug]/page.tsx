@@ -34,7 +34,7 @@ export default async function TownPage({ params }: TownPageProps) {
   // Fetch directory entries for this town (for now, we'll get all entries as a fallback)
   let townEntries: DirectoryEntry[] = [];
   try {
-    const allEntries = await getEntriesByCategory("all");
+    const { items: allEntries } = await getEntriesByCategory("all");
     // Filter entries by town name (this would be better implemented with a proper API function)
     townEntries = allEntries.filter(
       (entry) =>

@@ -183,9 +183,10 @@ test.describe("Directory Browsing - Core Tourism Discovery", () => {
     browserName,
   }) => {
     // Focus on mobile devices where tourists will primarily browse
-    if (browserName !== "chromium") {
-      test.skip("Mobile optimization test runs on mobile Chrome");
-    }
+    test.skip(
+      browserName !== "chromium",
+      "Mobile optimization test runs on mobile Chrome"
+    );
 
     await page.goto("/directory/all");
 
@@ -234,6 +235,7 @@ test.describe("Directory Browsing - Core Tourism Discovery", () => {
 
   test("maintains functionality with intermittent connectivity", async ({
     page,
+    context,
   }) => {
     await page.goto("/directory/all");
 
@@ -244,7 +246,7 @@ test.describe("Directory Browsing - Core Tourism Discovery", () => {
       .count();
 
     // Simulate network going offline (common scenario in Cape Verde)
-    await page.setOffline(true);
+    await context.setOffline(true);
 
     // Try to navigate to a category
     const restaurantLink = page
@@ -269,7 +271,7 @@ test.describe("Directory Browsing - Core Tourism Discovery", () => {
     }
 
     // Restore connectivity
-    await page.setOffline(false);
+    await context.setOffline(false);
 
     // Verify functionality returns
     await page.reload({ waitUntil: "networkidle" });

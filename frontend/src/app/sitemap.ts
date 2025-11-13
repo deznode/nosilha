@@ -122,7 +122,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     // Fetch all directory entries for dynamic pages
-    const allEntries = await getEntriesByCategory("all");
+    const { items: allEntries } = await getEntriesByCategory("all");
 
     // Generate sitemap entries for each directory item
     const dynamicPages = allEntries.map((entry) => ({

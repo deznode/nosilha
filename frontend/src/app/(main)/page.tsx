@@ -129,7 +129,7 @@ const popularPages = [
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const featuredEntries = await getEntriesByCategory("all");
+  const { items: featuredEntries } = await getEntriesByCategory("all");
 
   return (
     <>

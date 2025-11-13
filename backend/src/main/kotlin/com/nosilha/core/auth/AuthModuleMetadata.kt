@@ -36,6 +36,6 @@ import org.springframework.modulith.PackageInfo
 @PackageInfo
 @ApplicationModule(
     displayName = "Authentication Module",
-    allowedDependencies = ["shared :: events"]
+    allowedDependencies = ["shared :: events"],
 )
 class AuthModuleMetadata

@@ -38,6 +38,8 @@ const restaurantEntry: DirectoryEntry = {
   town: "Nova Sintra",
   description:
     "A family-run restaurant serving traditional Cape Verdean cachupa and fresh seafood.",
+  tags: ["restaurant", "traditional", "cape-verdean"],
+  contentActions: null,
   imageUrl: "/api/placeholder/400/250",
   rating: 4.8,
   reviewCount: 127,
@@ -60,6 +62,8 @@ const hotelEntry: DirectoryEntry = {
   town: "Fajã d'Água",
   description:
     "Cozy guesthouse with stunning ocean views and traditional Cape Verdean hospitality.",
+  tags: ["hotel", "ocean-view", "hospitality"],
+  contentActions: null,
   imageUrl: "/api/placeholder/400/250",
   rating: 4.5,
   reviewCount: 89,
@@ -81,6 +85,8 @@ const landmarkEntry: DirectoryEntry = {
   town: "Nova Sintra",
   description:
     "Historic 19th-century church in the heart of Nova Sintra, a testament to Brava Island's Catholic heritage.",
+  tags: ["landmark", "heritage", "nova-sintra"],
+  contentActions: null,
   imageUrl: "/api/placeholder/400/250",
   rating: 5.0,
   reviewCount: 342,
@@ -99,6 +105,8 @@ const beachEntry: DirectoryEntry = {
   town: "Fajã d'Água",
   description:
     "Secluded black sand beach surrounded by dramatic cliffs and lush vegetation. A hidden gem of Brava Island.",
+  tags: ["beach", "nature", "faja-dagua"],
+  contentActions: null,
   imageUrl: "/api/placeholder/400/250",
   rating: 4.9,
   reviewCount: 256,
@@ -117,6 +125,8 @@ const entryWithLongDescription: DirectoryEntry = {
   town: "Nova Sintra",
   description:
     "Dedicated to the life and work of Eugénio Tavares (1867–1930), one of Cape Verde's most celebrated poets and composers. The museum showcases his contributions to morna music and Cape Verdean literature, featuring original manuscripts, personal belongings, and historical photographs. A must-visit for anyone interested in Cape Verdean cultural heritage and the evolution of morna as a musical genre.",
+  tags: ["museum", "morna", "heritage"],
+  contentActions: null,
   imageUrl: "/api/placeholder/400/250",
   rating: 4.7,
   reviewCount: 98,
@@ -135,6 +145,8 @@ const entryWithoutImage: DirectoryEntry = {
   town: "Nova Sintra",
   description:
     "Local market featuring fresh produce, handicrafts, and traditional Cape Verdean goods.",
+  tags: ["market", "heritage", "nova-sintra"],
+  contentActions: null,
   imageUrl: null, // Changed from undefined to null
   rating: 4.3,
   reviewCount: 45,
@@ -211,7 +223,7 @@ export const WithoutImage: Story = {
  */
 export const GridLayout: Story = {
   decorators: [
-    (Story) => (
+    () => (
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <DirectoryCard entry={restaurantEntry} />
         <DirectoryCard entry={hotelEntry} />

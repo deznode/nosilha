@@ -62,7 +62,7 @@ export function InteractiveMap() {
     try {
       setIsLoading(true);
       setError(null);
-      const allEntries = await getEntriesForMap("all");
+      const { items: allEntries } = await getEntriesForMap("all");
       setEntries(allEntries);
     } catch (err) {
       console.error("Failed to fetch map entries:", err);

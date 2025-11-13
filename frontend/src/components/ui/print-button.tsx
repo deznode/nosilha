@@ -1,59 +1,132 @@
-'use client'; // Client Component marker for Next.js
+"use client";
 
-import { PrinterIcon } from '@heroicons/react/24/outline';
+import React, { useEffect } from "react";
+import { Button } from "@/components/catalyst-ui/button";
+import { PrinterIcon } from "@heroicons/react/24/outline";
 
 interface PrintButtonProps {
   /**
-   * Additional Tailwind CSS classes for customization
-   * @example "ml-4 mt-2" for positioning
+   * Button variant (from Catalyst UI)
    */
-  className?: string;
+  variant?: "primary" | "secondary" | "outline";
 
   /**
-   * Visual variant of the button
-   * - 'primary': Ocean blue background, prominent style
-   * - 'secondary': Outlined style, less prominent
-   * @default 'primary'
-   */
-  variant?: 'primary' | 'secondary';
-
-  /**
-   * Button label text
-   * @default "Print"
+   * Custom label text (defaults to "Print")
    */
   label?: string;
 
   /**
-   * Whether to show printer icon alongside text
-   * @default true
+   * Whether to show the printer icon
    */
   showIcon?: boolean;
+
+  /**
+   * Additional CSS classes
+   */
+  className?: string;
+
+  /**
+   * Optional callback after print dialog is triggered
+   */
+  onAfterPrint?: () => void;
 }
 
+/**
+ * Print Button Component for Cultural Heritage Pages
+ *
+ * Provides optimized printing functionality for cultural heritage content with:
+ * - Clean layout without navigation/toolbars (via print.css)
+ * - Readable typography (12pt minimum)
+ * - High contrast for accessibility
+ * - Citation URL in footer
+ * - Proper page break handling
+ *
+ * **Features**:
+ * - Invokes browser's native print dialog (window.print())
+ * - Automatically applies print-optimized stylesheet
+ * - Sets page URL in body data attribute for citation footer
+ * - Works across all modern browsers (Chrome, Firefox, Safari, Edge)
+ *
+ * **Print Stylesheet**: frontend/src/styles/print.css
+ *
+ * **Accessibility**:
+ * - ARIA label for screen readers
+ * - Keyboard accessible (Enter/Space to activate)
+ * - Visible focus indicator
+ * - 44×44px minimum touch targets on mobile (WCAG 2.1 AA)
+ *
+ * @example
+ * <PrintButton
+ *   variant="secondary"
+ *   label="Print"
+ *   showIcon={true}
+ * />
+ */
 export function PrintButton({
-  className,
-  variant = 'primary',
-  label = 'Print',
+  variant = "secondary",
+  label = "Print",
   showIcon = true,
+  className = "",
+  onAfterPrint,
 }: PrintButtonProps) {
+  /**
+   * Set page URL in body data attribute for print citation footer
+   * The print.css uses body::after { content: "Source: " attr(data-url); }
+   * This satisfies T076: Add page URL to print footer for citation
+   */
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const currentUrl = window.location.href;
+      document.body.setAttribute("data-url", currentUrl);
+    }
+
+    return () => {
+      // Cleanup: remove data attribute when component unmounts
+      if (typeof document !== "undefined") {
+        document.body.removeAttribute("data-url");
+      }
+    };
+  }, []);
+
+  /**
+   * Handle print button click
+   * Invokes browser's native print dialog which applies @media print styles
+   * Satisfies T073: Implement window.print() invocation with print stylesheet
+   */
   const handlePrint = () => {
-    window.print();
+    if (typeof window !== "undefined") {
+      // Trigger browser print dialog
+      window.print();
+
+      // Optional callback after print dialog is triggered
+      if (onAfterPrint) {
+        onAfterPrint();
+      }
+    }
   };
 
-  // Variant-based styling
-  const baseStyles = 'print:hidden inline-flex items-center gap-2 px-4 py-2 rounded-md font-semibold transition-colors';
-  const variantStyles = variant === 'primary'
-    ? 'bg-ocean-blue text-white hover:bg-ocean-blue/90'
-    : 'border-2 border-ocean-blue text-ocean-blue hover:bg-ocean-blue hover:text-white';
+  // Map variant prop to Catalyst Button props
+  const buttonProps =
+    variant === "outline"
+      ? { outline: true as const }
+      : variant === "secondary"
+        ? { plain: true as const }
+        : {};
 
   return (
-    <button
+    <Button
+      {...buttonProps}
       onClick={handlePrint}
-      className={`${baseStyles} ${variantStyles} ${className}`}
-      aria-label="Print this page"
+      aria-label={`${label} this page`}
+      className={`/* T045: Ensure 44×44px minimum touch targets on mobile (US6) */ /* T048: Responsive icon sizes (larger on mobile) */ /* Don't show print button in print view */ min-h-[44px] min-w-[44px] text-base md:text-sm print:hidden ${className} `.trim()}
     >
-      {showIcon && <PrinterIcon className="h-5 w-5" />}
+      {showIcon && (
+        <PrinterIcon
+          className="/* T048: Larger icons on mobile for better touch targets */ mr-2 h-6 w-6 md:h-5 md:w-5"
+          aria-hidden="true"
+        />
+      )}
       {label}
-    </button>
+    </Button>
   );
 }

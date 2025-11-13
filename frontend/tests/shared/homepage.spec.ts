@@ -105,12 +105,11 @@ test.describe("Homepage - Tourism Platform Entry Point", () => {
 
   test("performs well for mobile tourists with limited bandwidth", async ({
     page,
+    context,
   }) => {
     // Simulate mobile device with slower connection (common in Cape Verde)
-    await page.emulateNetworkConditions({
-      offline: false,
-      downloadThroughput: (1.5 * 1024 * 1024) / 8, // 1.5 Mbps
-      uploadThroughput: (750 * 1024) / 8, // 750 Kbps
+    const {throttleNetwork} = await import("../utils/network");
+    await throttleNetwork(context, {
       latency: 150, // 150ms latency
     });
 
@@ -235,7 +234,11 @@ test.describe("Homepage Performance Metrics", () => {
   test("measures Core Web Vitals for tourism platform", async ({ page }) => {
     // This would integrate with real performance monitoring in production
     const performanceMetrics = await page.evaluate(() => {
-      return new Promise((resolve) => {
+      return new Promise<{
+        lcp: number;
+        fid: number;
+        cls: number;
+      }>((resolve) => {
         // Simulate basic performance measurement
         resolve({
           lcp: performance.now(), // Largest Contentful Paint

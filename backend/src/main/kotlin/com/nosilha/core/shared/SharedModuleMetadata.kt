@@ -38,6 +38,6 @@ import org.springframework.modulith.PackageInfo
 @ApplicationModule(
     displayName = "Shared Kernel",
     allowedDependencies = [],
-    type = ApplicationModule.Type.OPEN
+    type = ApplicationModule.Type.OPEN,
 )
 class SharedModuleMetadata

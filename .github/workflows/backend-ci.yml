@@ -121,12 +121,30 @@ jobs:
       # Run comprehensive tests with production Java version
       - name: Run tests and code quality
         run: |
+          ./gradlew ktlintCheck --no-daemon &
           ./gradlew detekt --no-daemon &
           ./gradlew test --no-daemon &
           # ./gradlew integrationTest --no-daemon &
           wait
         env:
           SPRING_PROFILES_ACTIVE: test
+
+      # Upload code quality SARIF reports to GitHub Security
+      - name: Upload ktlint SARIF report
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: backend/build/reports/ktlint/ktlintMainSourceSetCheck/ktlintMainSourceSetCheck.sarif
+          category: 'code-quality-ktlint'
+        continue-on-error: true
+
+      - name: Upload detekt SARIF report
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: backend/build/reports/detekt/detekt.sarif
+          category: 'code-quality-detekt'
+        continue-on-error: true
 
       # Generate Jacoco coverage report
       - name: Generate coverage report

@@ -1,4 +1,4 @@
-import { useQuery, UseQueryOptions } from "@tanstack/react-query";
+import { useQuery, UseQueryOptions, QueryClient } from "@tanstack/react-query";
 import { getEntryBySlug } from "@/lib/api";
 import { directoryEntrySchema } from "@/schemas/directoryEntrySchema";
 import type { DirectoryEntry } from "@/types/directory";
@@ -52,7 +52,10 @@ export function useDirectoryEntry(
  * Prefetch a directory entry for improved perceived performance.
  * Useful for pre-loading data on hover or navigation hints.
  */
-export function usePrefetchDirectoryEntry(queryClient: any, slug: string) {
+export function usePrefetchDirectoryEntry(
+  queryClient: QueryClient,
+  slug: string
+) {
   return () =>
     queryClient.prefetchQuery({
       queryKey: ["directory", "entry", slug],

@@ -1,0 +1,383 @@
+/**
+ * Print Stylesheet for Nos Ilha Cultural Heritage Platform
+ *
+ * Optimizes cultural heritage content for printing with:
+ * - Clean layout without navigation/toolbars
+ * - Readable typography (12pt minimum)
+ * - High contrast for accessibility
+ * - Citation URL in footer
+ * - Proper page break handling
+ *
+ * Usage: Import in root layout (layout.tsx)
+ */
+
+@media print {
+  /* ===== Hide Interactive Elements ===== */
+
+  /* Navigation */
+  header,
+  nav,
+  [role="navigation"],
+  .navigation,
+  .navbar,
+  .nav-menu {
+    display: none !important;
+  }
+
+  /* Action Toolbar */
+  [role="toolbar"],
+  .content-actions,
+  .action-toolbar,
+  .share-button,
+  .reaction-button,
+  .print-button {
+    display: none !important;
+  }
+
+  /* Sidebars and Widgets */
+  aside,
+  [role="complementary"],
+  .sidebar,
+  .related-content,
+  .widget {
+    display: none !important;
+  }
+
+  /* Footer (except attribution) */
+  footer:not(.attribution),
+  .footer:not(.attribution) {
+    display: none !important;
+  }
+
+  /* Forms and Interactive Elements */
+  button,
+  input,
+  textarea,
+  select,
+  .form,
+  .modal,
+  .overlay {
+    display: none !important;
+  }
+
+  /* ===== Layout and Typography ===== */
+
+  /* Reset to single column */
+  * {
+    float: none !important;
+    position: static !important;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-size: 12pt;
+    line-height: 1.6;
+    color: #000;
+    background: #fff;
+  }
+
+  /* Main content area */
+  main,
+  article,
+  [role="main"] {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 1cm !important;
+    display: block !important;
+  }
+
+  /* Headings */
+  h1 {
+    font-size: 20pt;
+    margin-bottom: 0.5cm;
+    page-break-after: avoid;
+  }
+
+  h2 {
+    font-size: 16pt;
+    margin-top: 0.5cm;
+    margin-bottom: 0.3cm;
+    page-break-after: avoid;
+  }
+
+  h3 {
+    font-size: 14pt;
+    margin-top: 0.4cm;
+    margin-bottom: 0.2cm;
+    page-break-after: avoid;
+  }
+
+  h4, h5, h6 {
+    font-size: 12pt;
+    margin-top: 0.3cm;
+    margin-bottom: 0.2cm;
+    page-break-after: avoid;
+  }
+
+  /* Paragraphs */
+  p {
+    font-size: 12pt;
+    line-height: 1.6;
+    margin-bottom: 0.3cm;
+    orphans: 3;
+    widows: 3;
+  }
+
+  /* Lists */
+  ul, ol {
+    font-size: 12pt;
+    line-height: 1.6;
+    margin-bottom: 0.3cm;
+  }
+
+  li {
+    margin-bottom: 0.1cm;
+  }
+
+  /* Links */
+  a {
+    color: #000;
+    text-decoration: underline;
+  }
+
+  /* Show URLs for external links */
+  a[href^="http"]:after {
+    content: " (" attr(href) ")";
+    font-size: 10pt;
+    color: #666;
+  }
+
+  /* Don't show URLs for internal navigation */
+  a[href^="/"]:after,
+  a[href^="#"]:after {
+    content: "";
+  }
+
+  /* ===== Images and Media ===== */
+
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+    page-break-inside: avoid;
+    display: block;
+    margin: 0.5cm auto;
+  }
+
+  figure {
+    page-break-inside: avoid;
+    margin: 0.5cm 0;
+  }
+
+  figcaption {
+    font-size: 10pt;
+    font-style: italic;
+    text-align: center;
+    margin-top: 0.2cm;
+  }
+
+  /* Hide video/audio players */
+  video,
+  audio,
+  iframe,
+  embed,
+  object {
+    display: none !important;
+  }
+
+  /* ===== Page Break Control ===== */
+
+  /* Avoid breaking inside these elements */
+  blockquote,
+  pre,
+  code,
+  table,
+  figure,
+  .highlight,
+  .callout,
+  .info-box {
+    page-break-inside: avoid;
+  }
+
+  /* Force page breaks before major sections */
+  .page-break-before {
+    page-break-before: always;
+  }
+
+  .page-break-after {
+    page-break-after: always;
+  }
+
+  /* Avoid page breaks after headings */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+
+  /* Keep headings with following content */
+  h1, h2, h3 {
+    page-break-inside: avoid;
+  }
+
+  /* ===== Tables ===== */
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11pt;
+    margin: 0.5cm 0;
+    page-break-inside: avoid;
+  }
+
+  th, td {
+    border: 1px solid #000;
+    padding: 0.2cm;
+    text-align: left;
+  }
+
+  th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+
+  /* ===== Code Blocks ===== */
+
+  pre, code {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 10pt;
+    background-color: #f5f5f5;
+    border: 1px solid #ccc;
+  }
+
+  pre {
+    padding: 0.3cm;
+    margin: 0.5cm 0;
+    overflow: visible;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  code {
+    padding: 0.1cm 0.2cm;
+  }
+
+  /* ===== Blockquotes ===== */
+
+  blockquote {
+    margin: 0.5cm 1cm;
+    padding: 0.3cm 0.5cm;
+    border-left: 3px solid #666;
+    font-style: italic;
+    page-break-inside: avoid;
+  }
+
+  /* ===== Citation Footer ===== */
+
+  /* Add page URL for citation */
+  body::after {
+    content: "Source: " attr(data-url);
+    display: block;
+    margin-top: 1cm;
+    padding-top: 0.5cm;
+    border-top: 1px solid #ccc;
+    font-size: 10pt;
+    color: #666;
+    text-align: center;
+  }
+
+  /* Attribution footer (keep visible) */
+  .attribution {
+    display: block !important;
+    margin-top: 1cm;
+    padding-top: 0.3cm;
+    border-top: 1px solid #ccc;
+    font-size: 10pt;
+    text-align: center;
+    page-break-inside: avoid;
+  }
+
+  /* ===== Accessibility ===== */
+
+  /* Ensure sufficient contrast */
+  * {
+    color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Remove shadows and decorative effects */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* ===== Cultural Heritage Specific ===== */
+
+  /* Directory entry metadata */
+  .entry-metadata,
+  .heritage-info {
+    display: block !important;
+    margin: 0.5cm 0;
+    padding: 0.3cm;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    page-break-inside: avoid;
+  }
+
+  /* Location and contact information */
+  .location,
+  .contact-info {
+    font-size: 11pt;
+    margin: 0.3cm 0;
+  }
+
+  /* Cultural significance markers */
+  .cultural-significance,
+  .heritage-value {
+    font-weight: bold;
+    color: #000;
+  }
+
+  /* ===== Utility Classes ===== */
+
+  .print-only {
+    display: block !important;
+  }
+
+  .no-print,
+  .screen-only {
+    display: none !important;
+  }
+
+  /* ===== Page Settings ===== */
+
+  @page {
+    margin: 2cm;
+    size: A4;
+
+    @top-left {
+      content: "Nos Ilha - Cultural Heritage of Brava Island";
+      font-size: 10pt;
+      color: #666;
+    }
+
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 10pt;
+      color: #666;
+    }
+  }
+
+  /* First page header */
+  @page :first {
+    margin-top: 3cm;
+  }
+}

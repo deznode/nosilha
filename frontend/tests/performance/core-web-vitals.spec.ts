@@ -1,4 +1,6 @@
 import { test, expect } from "@playwright/test";
+import { throttleNetwork } from "../utils/network";
+import { collectWebVitals } from "../utils/web-vitals";
 
 /**
  * Core Web Vitals Performance Tests for Nos Ilha Tourism Platform
@@ -17,135 +19,15 @@ import { test, expect } from "@playwright/test";
  * - Image-heavy content optimization (directory cards, hero images)
  */
 
-interface WebVitalsMetrics {
-  lcp: number;
-  fid: number;
-  cls: number;
-  fcp: number;
-  ttfb: number;
-  inp?: number; // Interaction to Next Paint (future replacement for FID)
-}
-
 test.describe("Core Web Vitals - Tourism Performance", () => {
-  // Helper function to collect Web Vitals metrics
-  async function collectWebVitals(page: any): Promise<WebVitalsMetrics> {
-    return await page.evaluate(() => {
-      return new Promise<WebVitalsMetrics>((resolve) => {
-        const metrics: Partial<WebVitalsMetrics> = {};
-        let metricsCollected = 0;
-        const totalMetrics = 5; // LCP, FID, CLS, FCP, TTFB
-
-        // Function to check if we've collected all metrics
-        const checkComplete = () => {
-          metricsCollected++;
-          if (
-            metricsCollected >= totalMetrics ||
-            (metrics.lcp &&
-              metrics.fid !== undefined &&
-              metrics.cls !== undefined)
-          ) {
-            resolve({
-              lcp: metrics.lcp || 0,
-              fid: metrics.fid || 0,
-              cls: metrics.cls || 0,
-              fcp: metrics.fcp || 0,
-              ttfb: metrics.ttfb || 0,
-              inp: metrics.inp,
-            });
-          }
-        };
-
-        // Use web-vitals library if available, otherwise use Performance API
-        if (typeof (window as any).webVitals !== "undefined") {
-          const { getLCP, getFID, getCLS, getFCP, getTTFB } = (window as any)
-            .webVitals;
-
-          getLCP((metric: any) => {
-            metrics.lcp = metric.value;
-            checkComplete();
-          });
-
-          getFID((metric: any) => {
-            metrics.fid = metric.value;
-            checkComplete();
-          });
-
-          getCLS((metric: any) => {
-            metrics.cls = metric.value;
-            checkComplete();
-          });
-
-          getFCP((metric: any) => {
-            metrics.fcp = metric.value;
-            checkComplete();
-          });
-
-          getTTFB((metric: any) => {
-            metrics.ttfb = metric.value;
-            checkComplete();
-          });
-        } else {
-          // Fallback to Performance API
-          const observer = new PerformanceObserver((list) => {
-            const entries = list.getEntries();
-
-            entries.forEach((entry) => {
-              if (entry.entryType === "largest-contentful-paint") {
-                metrics.lcp = entry.startTime;
-              } else if (entry.entryType === "first-input") {
-                metrics.fid = (entry as any).processingStart - entry.startTime;
-              } else if (entry.entryType === "layout-shift") {
-                if (!(entry as any).hadRecentInput) {
-                  metrics.cls = (metrics.cls || 0) + (entry as any).value;
-                }
-              } else if (
-                entry.entryType === "paint" &&
-                entry.name === "first-contentful-paint"
-              ) {
-                metrics.fcp = entry.startTime;
-              } else if (entry.entryType === "navigation") {
-                metrics.ttfb = (entry as any).responseStart;
-              }
-            });
-
-            checkComplete();
-          });
-
-          observer.observe({
-            entryTypes: [
-              "largest-contentful-paint",
-              "first-input",
-              "layout-shift",
-              "paint",
-              "navigation",
-            ],
-          });
-
-          // Timeout fallback
-          setTimeout(() => {
-            resolve({
-              lcp: metrics.lcp || 0,
-              fid: metrics.fid || 0,
-              cls: metrics.cls || 0,
-              fcp: metrics.fcp || 0,
-              ttfb: metrics.ttfb || 0,
-              inp: metrics.inp,
-            });
-          }, 10000);
-        }
-      });
-    });
-  }
 
   test("homepage meets Core Web Vitals thresholds for tourism UX", async ({
     page,
+    context,
   }) => {
     // Simulate mobile tourist with moderate connectivity
-    await page.emulateNetworkConditions({
-      offline: false,
-      downloadThroughput: (1.5 * 1024 * 1024) / 8, // 1.5 Mbps (realistic for Cape Verde)
-      uploadThroughput: (750 * 1024) / 8, // 750 Kbps
-      latency: 200, // 200ms latency
+    await throttleNetwork(context, {
+      latency: 200, // 200ms latency (realistic for Cape Verde)
     });
 
     // Navigate to homepage
@@ -210,12 +92,12 @@ test.describe("Core Web Vitals - Tourism Performance", () => {
     expect(finalMetrics.cls).toBeLessThan(0.25); // Visual stability during scrolling
   });
 
-  test("interactive map performance for mobile tourists", async ({ page }) => {
+  test("interactive map performance for mobile tourists", async ({
+    page,
+    context,
+  }) => {
     // This is the most complex page - needs special attention
-    await page.emulateNetworkConditions({
-      offline: false,
-      downloadThroughput: (1 * 1024 * 1024) / 8, // 1 Mbps (slower mobile connection)
-      uploadThroughput: (500 * 1024) / 8, // 500 Kbps
+    await throttleNetwork(context, {
       latency: 300, // 300ms latency (island connectivity)
     });
 
@@ -282,24 +164,21 @@ test.describe("Core Web Vitals - Tourism Performance", () => {
     }
   });
 
-  test("performance across different connection speeds", async ({ page }) => {
+  test("performance across different connection speeds", async ({
+    page,
+    context,
+  }) => {
     const connectionProfiles = [
       {
         name: "4G",
-        downloadThroughput: (4 * 1024 * 1024) / 8,
-        uploadThroughput: (3 * 1024 * 1024) / 8,
         latency: 50,
       },
       {
         name: "3G",
-        downloadThroughput: (1.5 * 1024 * 1024) / 8,
-        uploadThroughput: (750 * 1024) / 8,
         latency: 150,
       },
       {
         name: "Slow 3G",
-        downloadThroughput: (500 * 1024) / 8,
-        uploadThroughput: (500 * 1024) / 8,
         latency: 300,
       },
     ];
@@ -307,10 +186,7 @@ test.describe("Core Web Vitals - Tourism Performance", () => {
     for (const profile of connectionProfiles) {
       console.log(`Testing performance on ${profile.name} connection...`);
 
-      await page.emulateNetworkConditions({
-        offline: false,
-        downloadThroughput: profile.downloadThroughput,
-        uploadThroughput: profile.uploadThroughput,
+      await throttleNetwork(context, {
         latency: profile.latency,
       });
 
@@ -415,7 +291,9 @@ test.describe("Core Web Vitals - Tourism Performance", () => {
 
     // Analyze third-party scripts
     const thirdPartyScripts = await page.evaluate(() => {
-      const scripts = Array.from(document.querySelectorAll("script[src]"));
+      const scripts = Array.from(
+        document.querySelectorAll("script[src]")
+      ) as HTMLScriptElement[];
       return scripts
         .map((script) => ({
           src: script.src,
@@ -442,12 +320,10 @@ test.describe("Mobile Core Web Vitals - Tourism Focus", () => {
 
   test("mobile homepage performance for traveling tourists", async ({
     page,
+    context,
   }) => {
     // Simulate mobile network conditions
-    await page.emulateNetworkConditions({
-      offline: false,
-      downloadThroughput: (1.2 * 1024 * 1024) / 8, // 1.2 Mbps (mobile 3G)
-      uploadThroughput: (500 * 1024) / 8, // 500 Kbps
+    await throttleNetwork(context, {
       latency: 250, // 250ms (mobile latency)
     });
 

@@ -1,6 +1,16 @@
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town } from "@/types/town";
-import type { ApiClient } from "@/lib/api-contracts";
+import type {
+  ApiClient,
+  PaginatedResult,
+  PaginationMetadata,
+} from "@/lib/api-contracts";
+import type {
+  ReactionCreateDto,
+  ReactionResponseDto,
+  ReactionCountsDto,
+  ReactionType,
+} from "@/types/reaction";
 
 const MOCK_ENTRIES: DirectoryEntry[] = [
   // AUTHENTIC HOTEL ENTRIES FROM DATABASE
@@ -15,6 +25,11 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     longitude: -24.712,
     description:
       "An eco-lodge offering sustainable mountain accommodation with traditional Cape Verdean hospitality and stunning views of the volcanic landscape.",
+    tags: ["eco-lodge", "sustainable", "mountain", "nova-sintra"],
+    contentActions: {
+      order: ["SHARE", "REACTIONS", "COPY_LINK", "PRINT", "SUGGEST"],
+      disabled: ["PRINT"],
+    },
     rating: 4.8,
     reviewCount: 120,
     createdAt: "2024-01-01T10:00:00Z",
@@ -41,6 +56,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     longitude: -24.6943796,
     description:
       "An authentic family-run pousada in the heart of Nova Sintra, offering traditional Cape Verdean hospitality with views of the surrounding mountains and cultural immersion experiences.",
+    tags: ["hospitality", "family-run", "nova-sintra"],
+    contentActions: null,
     rating: 4.6,
     reviewCount: 87,
     createdAt: "2024-01-02T10:00:00Z",
@@ -67,6 +84,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     longitude: -24.707,
     description:
       "A welcoming pensão offering comfortable accommodation and authentic local experience in Nova Sintra, where guests become part of the Brava Island community.",
+    tags: ["community", "hospitality", "nova-sintra"],
+    contentActions: null,
     rating: 4.3,
     reviewCount: 112,
     createdAt: "2024-01-03T10:00:00Z",
@@ -94,6 +113,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     longitude: -24.7055,
     description:
       "An authentic local restaurant celebrating Cape Verdean roots with traditional recipes and cultural storytelling, where every meal connects diners to Brava Island heritage.",
+    tags: ["restaurant", "local-cuisine", "nova-sintra", "heritage"],
+    contentActions: null,
     rating: 4.5,
     reviewCount: 88,
     createdAt: "2024-01-04T10:00:00Z",
@@ -122,6 +143,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     longitude: -24.7578,
     description:
       "A beautiful black sand beach nestled in a green valley, offering a tranquil escape and natural swimming pools.",
+    tags: ["beach", "nature", "faja-dagua"],
+    contentActions: null,
     rating: 5.0,
     reviewCount: 250,
     createdAt: "2024-01-05T10:00:00Z",
@@ -141,6 +164,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     longitude: -24.7164904,
     description:
       "This sacred pilgrimage church has drawn faithful souls for over 160 years, where August processions unite island residents with diaspora descendants in shared devotion.",
+    tags: ["pilgrimage", "heritage", "nossa-senhora-do-monte"],
+    contentActions: null,
     rating: 4.9,
     reviewCount: 234,
     createdAt: "2024-01-06T10:00:00Z",
@@ -158,6 +183,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     longitude: -24.7068,
     description:
       "The preserved home of Cape Verde's greatest poet, where morna was perfected and sodade given voice, connecting our island soul to hearts across the world.",
+    tags: ["morna", "heritage", "nova-sintra"],
+    contentActions: null,
     rating: 4.7,
     reviewCount: 189,
     createdAt: "2024-01-07T10:00:00Z",
@@ -175,6 +202,8 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     longitude: -24.7062,
     description:
       "Our town's cultural heart where the poet's bust watches over daily life, surrounded by colonial sobrados and the hibiscus gardens that inspired his verses about island beauty.",
+    tags: ["heritage", "public-square", "nova-sintra"],
+    contentActions: null,
     rating: 4.6,
     reviewCount: 167,
     createdAt: "2024-01-08T10:00:00Z",
@@ -203,7 +232,7 @@ export class MockApiClient implements ApiClient {
     category: string,
     page: number = 0,
     size: number = 20
-  ): Promise<DirectoryEntry[]> {
+  ): Promise<PaginatedResult<DirectoryEntry>> {
     console.log(
       `Mock API: Fetching entries for category: ${category}, page: ${page}, size: ${size}`
     );
@@ -219,7 +248,20 @@ export class MockApiClient implements ApiClient {
     // Simulate pagination
     const startIndex = page * size;
     const endIndex = startIndex + size;
-    return filteredEntries.slice(startIndex, endIndex);
+    const items = filteredEntries.slice(startIndex, endIndex);
+    const totalElements = filteredEntries.length;
+    const totalPages = Math.max(1, Math.ceil(totalElements / size || 1));
+
+    const pagination: PaginationMetadata = {
+      page,
+      size,
+      totalElements,
+      totalPages,
+      first: page <= 0,
+      last: page >= totalPages - 1,
+    };
+
+    return { items, pagination };
   }
 
   /**
@@ -270,16 +312,29 @@ export class MockApiClient implements ApiClient {
    * Fetches entries for map display with larger page size.
    * Uses no caching to simulate real-time map data.
    */
-  async getEntriesForMap(category: string = "all"): Promise<DirectoryEntry[]> {
+  async getEntriesForMap(
+    category: string = "all"
+  ): Promise<PaginatedResult<DirectoryEntry>> {
     console.log(`Mock API: Fetching entries for map, category: ${category}`);
     await this.simulateDelay(200);
 
-    if (category.toLowerCase() === "all") {
-      return MOCK_ENTRIES;
-    }
-    return MOCK_ENTRIES.filter(
-      (entry) => entry.category.toLowerCase() === category.toLowerCase()
-    );
+    const filtered =
+      category.toLowerCase() === "all"
+        ? MOCK_ENTRIES
+        : MOCK_ENTRIES.filter(
+          (entry) => entry.category.toLowerCase() === category.toLowerCase()
+        );
+
+    const pagination: PaginationMetadata = {
+      page: 0,
+      size: filtered.length,
+      totalElements: filtered.length,
+      totalPages: 1,
+      first: true,
+      last: true,
+    };
+
+    return { items: filtered, pagination };
   }
 
   /**
@@ -335,6 +390,297 @@ export class MockApiClient implements ApiClient {
     console.log(`Mock API: Fetching towns for map`);
     await this.simulateDelay(150);
     return MOCK_TOWNS;
+  }
+
+  // ================================
+  // REACTION OPERATIONS (User Story 2) - Mock Implementation
+  // ================================
+
+  // In-memory storage for mock reactions (simulates database)
+  private mockReactions: Map<
+    string,
+    {
+      id: string;
+      contentId: string;
+      userId: string;
+      reactionType: ReactionType;
+    }
+  > = new Map();
+
+  // Track reaction counts per content (simulates aggregated database query)
+  private mockReactionCounts: Map<string, Record<ReactionType, number>> =
+    new Map();
+
+  /**
+   * Submits a new reaction or updates an existing reaction (mock implementation).
+   * Simulates backend business logic: toggle behavior and rate limiting.
+   */
+  async submitReaction(
+    createDto: ReactionCreateDto
+  ): Promise<ReactionResponseDto> {
+    console.log(`Mock API: Submitting reaction`, createDto);
+    await this.simulateDelay(200);
+
+    // Mock user ID (in real app, this comes from JWT token)
+    const mockUserId = "mock-user-123";
+    const reactionKey = `${mockUserId}-${createDto.contentId}`;
+
+    // Get existing reaction for this user + content
+    const existingReaction = this.mockReactions.get(reactionKey);
+
+    // Initialize counts if not exist
+    if (!this.mockReactionCounts.has(createDto.contentId)) {
+      this.mockReactionCounts.set(createDto.contentId, {
+        LOVE: 0,
+        HELPFUL: 0,
+        INTERESTING: 0,
+        THANKYOU: 0,
+      });
+    }
+
+    const counts = this.mockReactionCounts.get(createDto.contentId)!;
+
+    // Toggle behavior: If clicking same type, remove reaction
+    if (existingReaction?.reactionType === createDto.reactionType) {
+      // Remove reaction
+      this.mockReactions.delete(reactionKey);
+      counts[createDto.reactionType] = Math.max(
+        0,
+        counts[createDto.reactionType] - 1
+      );
+
+      return {
+        id: existingReaction.id,
+        contentId: createDto.contentId,
+        reactionType: createDto.reactionType,
+        count: counts[createDto.reactionType],
+      };
+    }
+
+    // If user had different reaction, decrement old count
+    if (
+      existingReaction &&
+      existingReaction.reactionType !== createDto.reactionType
+    ) {
+      counts[existingReaction.reactionType] = Math.max(
+        0,
+        counts[existingReaction.reactionType] - 1
+      );
+    }
+
+    // Create or update reaction
+    const reactionId = existingReaction?.id || `mock-reaction-${Date.now()}`;
+    this.mockReactions.set(reactionKey, {
+      id: reactionId,
+      contentId: createDto.contentId,
+      userId: mockUserId,
+      reactionType: createDto.reactionType,
+    });
+
+    // Increment new count
+    counts[createDto.reactionType] += 1;
+
+    return {
+      id: reactionId,
+      contentId: createDto.contentId,
+      reactionType: createDto.reactionType,
+      count: counts[createDto.reactionType],
+    };
+  }
+
+  /**
+   * Removes user's reaction to content (mock implementation).
+   */
+  async deleteReaction(contentId: string): Promise<void> {
+    console.log(`Mock API: Deleting reaction for content ${contentId}`);
+    await this.simulateDelay(150);
+
+    // Mock user ID
+    const mockUserId = "mock-user-123";
+    const reactionKey = `${mockUserId}-${contentId}`;
+
+    const existingReaction = this.mockReactions.get(reactionKey);
+    if (!existingReaction) {
+      throw new Error("Reaction not found");
+    }
+
+    // Decrement count
+    const counts = this.mockReactionCounts.get(contentId);
+    if (counts) {
+      counts[existingReaction.reactionType] = Math.max(
+        0,
+        counts[existingReaction.reactionType] - 1
+      );
+    }
+
+    // Remove reaction
+    this.mockReactions.delete(reactionKey);
+  }
+
+  /**
+   * Gets aggregated reaction counts for a specific content page (mock implementation).
+   * Returns realistic mock data with optional user reaction.
+   */
+  async getReactionCounts(contentId: string): Promise<ReactionCountsDto> {
+    console.log(`Mock API: Fetching reaction counts for content ${contentId}`);
+    await this.simulateDelay(100);
+
+    // Mock user ID
+    const mockUserId = "mock-user-123";
+    const reactionKey = `${mockUserId}-${contentId}`;
+
+    // Get current counts or initialize with realistic mock data
+    let counts = this.mockReactionCounts.get(contentId);
+    if (!counts) {
+      // Generate realistic mock counts for demonstration
+      counts = {
+        LOVE: Math.floor(Math.random() * 50) + 10, // 10-60 loves
+        HELPFUL: Math.floor(Math.random() * 30) + 5, // 5-35 helpful
+        INTERESTING: Math.floor(Math.random() * 20) + 3, // 3-23 interesting
+        THANKYOU: Math.floor(Math.random() * 40) + 8, // 8-48 thank you
+      };
+      this.mockReactionCounts.set(contentId, counts);
+    }
+
+    // Get user's current reaction if exists
+    const userReaction = this.mockReactions.get(reactionKey);
+
+    return {
+      contentId,
+      reactions: counts,
+      userReaction: userReaction?.reactionType || null,
+    };
+  }
+
+  /**
+   * Submits a content improvement suggestion (mock implementation).
+   * Simulates backend validation, rate limiting, and honeypot spam protection.
+   */
+  async submitSuggestion(suggestionDto: {
+    contentId: string;
+    pageTitle: string;
+    pageUrl: string;
+    contentType: string;
+    name: string;
+    email: string;
+    suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";
+    message: string;
+    honeypot?: string;
+  }): Promise<{ id: string | null; message: string }> {
+    console.log(`Mock API: Submitting suggestion`, suggestionDto);
+    await this.simulateDelay(300);
+
+    // Simulate honeypot spam protection
+    if (suggestionDto.honeypot) {
+      console.log("Mock API: Honeypot spam detected");
+      // Silently accept spam (return success to avoid revealing detection)
+      return {
+        id: null,
+        message: "Thank you for your submission.",
+      };
+    }
+
+    // Simulate validation errors
+    if (suggestionDto.name.length < 2 || suggestionDto.name.length > 255) {
+      throw new Error("Name must be between 2 and 255 characters");
+    }
+    if (!suggestionDto.email.includes("@")) {
+      throw new Error("Invalid email format");
+    }
+    if (
+      suggestionDto.message.length < 10 ||
+      suggestionDto.message.length > 5000
+    ) {
+      throw new Error("Message must be between 10 and 5000 characters");
+    }
+
+    // Simulate successful submission
+    const suggestionId = `mock-suggestion-${Date.now()}`;
+    console.log(`Mock API: Suggestion ${suggestionId} created successfully`);
+
+    return {
+      id: suggestionId,
+      message:
+        "Thank you for helping preserve our cultural heritage. Your suggestion has been received and will be reviewed by our team.",
+    };
+  }
+
+  /**
+   * Mock implementation for fetching related content.
+   * Simulates the backend algorithm by matching category, town, and cuisine.
+   *
+   * **User Story 5 - Phase 9**: Discovering Related Cultural Content
+   *
+   * @param contentId UUID of the current heritage page
+   * @param limit Number of results to return (3-5, default: 5)
+   * @returns Promise resolving to array of related directory entries
+   */
+  async getRelatedContent(
+    contentId: string,
+    limit: number = 5
+  ): Promise<DirectoryEntry[]> {
+    console.log(
+      `Mock API: Fetching related content for ${contentId}, limit=${limit}`
+    );
+    await this.simulateDelay(150);
+
+    // Find the current entry
+    const currentEntry = MOCK_ENTRIES.find((entry) => entry.id === contentId);
+    if (!currentEntry) {
+      console.warn(`Mock API: Content ${contentId} not found`);
+      return [];
+    }
+
+    const relatedEntries: DirectoryEntry[] = [];
+
+    // Priority 1: Same category + same town
+    const sameCategoryTown = MOCK_ENTRIES.filter(
+      (entry) =>
+        entry.id !== contentId &&
+        entry.category.toLowerCase() === currentEntry.category.toLowerCase() &&
+        entry.town.toLowerCase() === currentEntry.town.toLowerCase()
+    );
+    relatedEntries.push(...sameCategoryTown);
+
+    // Priority 2: Same category + shared cuisine (for restaurants)
+    if (
+      relatedEntries.length < limit &&
+      currentEntry.category === "Restaurant" &&
+      currentEntry.details?.cuisine &&
+      currentEntry.details.cuisine.length > 0
+    ) {
+      const currentCuisines = currentEntry.details.cuisine.map((c) =>
+        c.trim().toLowerCase()
+      );
+      const sameCategoryCuisine = MOCK_ENTRIES.filter(
+        (entry) =>
+          entry.id !== contentId &&
+          entry.category === "Restaurant" &&
+          entry.details?.cuisine &&
+          entry.details.cuisine.length > 0 &&
+          !relatedEntries.includes(entry) &&
+          entry.details.cuisine.some((c) =>
+            currentCuisines.some((cc) => c.trim().toLowerCase().includes(cc))
+          )
+      );
+      relatedEntries.push(...sameCategoryCuisine);
+    }
+
+    // Priority 3: Same category fallback
+    if (relatedEntries.length < 3) {
+      const sameCategoryOnly = MOCK_ENTRIES.filter(
+        (entry) =>
+          entry.id !== contentId &&
+          entry.category.toLowerCase() ===
+            currentEntry.category.toLowerCase() &&
+          !relatedEntries.includes(entry)
+      );
+      relatedEntries.push(...sameCategoryOnly);
+    }
+
+    const results = relatedEntries.slice(0, limit);
+    console.log(`Mock API: Returning ${results.length} related entries`);
+    return results;
   }
 }
 

@@ -19,43 +19,47 @@
  * - Mobile-first responsive design for island visitors
  */
 
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('Map Loading and Display', () => {
-  test('should load map page successfully', async ({ page }) => {
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+test.describe("Map Loading and Display", () => {
+  test("should load map page successfully", async ({ page }) => {
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
 
     // Page should load without errors
-    const heading = page.locator('h1, h2').first();
+    const heading = page.locator("h1, h2").first();
     await expect(heading).toBeVisible();
 
     // Verify we're on the map page
-    expect(page.url()).toContain('/map');
+    expect(page.url()).toContain("/map");
   });
 
-  test('should initialize Mapbox map container', async ({ page }) => {
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+  test("should initialize Mapbox map container", async ({ page }) => {
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
 
     // Wait for map to initialize (Mapbox creates canvas element)
     await page.waitForTimeout(2000);
 
     // Map container should exist
-    const mapContainer = page.locator('.mapboxgl-map, [class*="mapbox"], [id*="map"]').first();
+    const mapContainer = page
+      .locator('.mapboxgl-map, [class*="mapbox"], [id*="map"]')
+      .first();
     const hasMapContainer = await mapContainer.isVisible().catch(() => false);
 
     if (hasMapContainer) {
       await expect(mapContainer).toBeVisible();
 
       // Map should have canvas element (Mapbox GL JS renders to canvas)
-      const canvas = mapContainer.locator('canvas');
+      const canvas = mapContainer.locator("canvas");
       const hasCanvas = await canvas.isVisible().catch(() => false);
 
       expect(hasCanvas).toBeTruthy();
     } else {
       // If Mapbox token is not configured, there might be an error message
-      const errorMessage = page.locator('text=/mapbox.*token/i, text=/map.*error/i');
+      const errorMessage = page.locator(
+        "text=/mapbox.*token/i, text=/map.*error/i"
+      );
       const hasError = await errorMessage.isVisible().catch(() => false);
 
       // Either map loads or shows configuration error
@@ -63,15 +67,15 @@ test.describe('Map Loading and Display', () => {
     }
   });
 
-  test('should display map centered on Brava Island', async ({ page }) => {
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+  test("should display map centered on Brava Island", async ({ page }) => {
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
 
     // Wait for map to load
     await page.waitForTimeout(3000);
 
     // Check if map loaded successfully
-    const canvas = page.locator('canvas').first();
+    const canvas = page.locator("canvas").first();
     const hasCanvas = await canvas.isVisible().catch(() => false);
 
     if (hasCanvas) {
@@ -87,35 +91,40 @@ test.describe('Map Loading and Display', () => {
     }
   });
 
-  test('should handle missing Mapbox token gracefully', async ({ page }) => {
+  test("should handle missing Mapbox token gracefully", async ({ page }) => {
     // This test verifies the app handles missing/invalid Mapbox token
 
     // Monitor console for Mapbox-related errors
     const consoleErrors: string[] = [];
-    page.on('console', (msg) => {
-      if (msg.type() === 'error') {
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
         consoleErrors.push(msg.text());
       }
     });
 
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
     // If Mapbox token is not configured, should show user-friendly message
     // rather than just crashing
-    const errorMessages = page.locator('text=/configuration.*error/i, text=/map.*unavailable/i');
-    const hasUserFriendlyError = await errorMessages.first().isVisible().catch(() => false);
+    const errorMessages = page.locator(
+      "text=/configuration.*error/i, text=/map.*unavailable/i"
+    );
+    const hasUserFriendlyError = await errorMessages
+      .first()
+      .isVisible()
+      .catch(() => false);
 
     // App should either load map or show friendly error (not crash)
     expect(true).toBeTruthy();
   });
 });
 
-test.describe('Map Markers and Popups', () => {
-  test('should display markers for directory entries', async ({ page }) => {
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+test.describe("Map Markers and Popups", () => {
+  test("should display markers for directory entries", async ({ page }) => {
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
 
     // Wait for map and markers to load
     await page.waitForTimeout(3000);
@@ -129,13 +138,15 @@ test.describe('Map Markers and Popups', () => {
     expect(markerCount).toBeGreaterThanOrEqual(0);
   });
 
-  test('should open popup when marker is clicked', async ({ page }) => {
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+  test("should open popup when marker is clicked", async ({ page }) => {
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(3000);
 
     // Find first marker
-    const firstMarker = page.locator('.mapboxgl-marker, [class*="marker"]').first();
+    const firstMarker = page
+      .locator('.mapboxgl-marker, [class*="marker"]')
+      .first();
     const hasMarker = await firstMarker.isVisible().catch(() => false);
 
     if (hasMarker) {
@@ -151,7 +162,9 @@ test.describe('Map Markers and Popups', () => {
 
       if (hasPopup) {
         // Popup should have entry information
-        const popupContent = popup.locator('.mapboxgl-popup-content, [class*="popup-content"]');
+        const popupContent = popup.locator(
+          '.mapboxgl-popup-content, [class*="popup-content"]'
+        );
         await expect(popupContent).toBeVisible();
 
         // Popup should have entry name/title
@@ -161,25 +174,27 @@ test.describe('Map Markers and Popups', () => {
     }
   });
 
-  test('should display entry details in popup', async ({ page }) => {
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+  test("should display entry details in popup", async ({ page }) => {
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(3000);
 
-    const firstMarker = page.locator('.mapboxgl-marker').first();
+    const firstMarker = page.locator(".mapboxgl-marker").first();
     const hasMarker = await firstMarker.isVisible().catch(() => false);
 
     if (hasMarker) {
       await firstMarker.click();
       await page.waitForTimeout(500);
 
-      const popup = page.locator('.mapboxgl-popup-content');
+      const popup = page.locator(".mapboxgl-popup-content");
       const hasPopup = await popup.isVisible().catch(() => false);
 
       if (hasPopup) {
         // Popup should contain:
         // 1. Entry name
-        const entryName = popup.locator('h2, h3, strong, [class*="title"]').first();
+        const entryName = popup
+          .locator('h2, h3, strong, [class*="title"]')
+          .first();
         const hasName = await entryName.isVisible().catch(() => false);
 
         // 2. Link to full details
@@ -192,59 +207,65 @@ test.describe('Map Markers and Popups', () => {
     }
   });
 
-  test('should navigate to entry detail page from popup link', async ({ page }) => {
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+  test("should navigate to entry detail page from popup link", async ({
+    page,
+  }) => {
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(3000);
 
-    const firstMarker = page.locator('.mapboxgl-marker').first();
+    const firstMarker = page.locator(".mapboxgl-marker").first();
     const hasMarker = await firstMarker.isVisible().catch(() => false);
 
     if (hasMarker) {
       await firstMarker.click();
       await page.waitForTimeout(500);
 
-      const popup = page.locator('.mapboxgl-popup-content');
+      const popup = page.locator(".mapboxgl-popup-content");
       const hasPopup = await popup.isVisible().catch(() => false);
 
       if (hasPopup) {
-        const detailsLink = popup.locator('a[href*="/directory/entry/"]').first();
+        const detailsLink = popup
+          .locator('a[href*="/directory/entry/"]')
+          .first();
         const hasLink = await detailsLink.isVisible().catch(() => false);
 
         if (hasLink) {
           // Click link to navigate to detail page
           await detailsLink.click();
-          await page.waitForLoadState('networkidle');
+          await page.waitForLoadState("networkidle");
 
           // Should navigate to entry detail page
-          expect(page.url()).toContain('/directory/entry/');
+          expect(page.url()).toContain("/directory/entry/");
 
           // Detail page should load
-          const detailHeading = page.locator('h1').first();
+          const detailHeading = page.locator("h1").first();
           await expect(detailHeading).toBeVisible();
         }
       }
     }
   });
 
-  test('should close popup when close button is clicked', async ({ page }) => {
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+  test("should close popup when close button is clicked", async ({ page }) => {
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(3000);
 
-    const firstMarker = page.locator('.mapboxgl-marker').first();
+    const firstMarker = page.locator(".mapboxgl-marker").first();
     const hasMarker = await firstMarker.isVisible().catch(() => false);
 
     if (hasMarker) {
       await firstMarker.click();
       await page.waitForTimeout(500);
 
-      const popup = page.locator('.mapboxgl-popup');
+      const popup = page.locator(".mapboxgl-popup");
       const hasPopup = await popup.isVisible().catch(() => false);
 
       if (hasPopup) {
         // Find close button
-        const closeButton = popup.locator('button.mapboxgl-popup-close-button, button:has-text("×")');
+        const closeButton = popup.locator(
+          'button.mapboxgl-popup-close-button, button:has-text("×")'
+        );
         const hasCloseButton = await closeButton.isVisible().catch(() => false);
 
         if (hasCloseButton) {
@@ -260,26 +281,33 @@ test.describe('Map Markers and Popups', () => {
   });
 });
 
-test.describe('Map Controls and Interaction', () => {
-  test('should have zoom controls', async ({ page }) => {
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+test.describe("Map Controls and Interaction", () => {
+  test("should have zoom controls", async ({ page }) => {
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
     // Mapbox GL JS adds zoom controls
-    const zoomControls = page.locator('.mapboxgl-ctrl-zoom-in, .mapboxgl-ctrl-zoom-out');
-    const hasZoomControls = await zoomControls.first().isVisible().catch(() => false);
+    const zoomControls = page.locator(
+      ".mapboxgl-ctrl-zoom-in, .mapboxgl-ctrl-zoom-out"
+    );
+    const hasZoomControls = await zoomControls
+      .first()
+      .isVisible()
+      .catch(() => false);
 
     // Zoom controls are optional but common
     expect(true).toBeTruthy(); // Soft check
   });
 
-  test('should support zoom in interaction', async ({ page }) => {
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+  test("should support zoom in interaction", async ({ page }) => {
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
-    const zoomInButton = page.locator('.mapboxgl-ctrl-zoom-in, button[aria-label*="Zoom in"]');
+    const zoomInButton = page.locator(
+      '.mapboxgl-ctrl-zoom-in, button[aria-label*="Zoom in"]'
+    );
     const hasZoomIn = await zoomInButton.isVisible().catch(() => false);
 
     if (hasZoomIn) {
@@ -288,17 +316,17 @@ test.describe('Map Controls and Interaction', () => {
       await page.waitForTimeout(500);
 
       // Map should still be visible and functional
-      const canvas = page.locator('canvas').first();
+      const canvas = page.locator("canvas").first();
       await expect(canvas).toBeVisible();
     }
   });
 
-  test('should support pan/drag interaction', async ({ page }) => {
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+  test("should support pan/drag interaction", async ({ page }) => {
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
-    const canvas = page.locator('canvas').first();
+    const canvas = page.locator("canvas").first();
     const hasCanvas = await canvas.isVisible().catch(() => false);
 
     if (hasCanvas) {
@@ -306,9 +334,15 @@ test.describe('Map Controls and Interaction', () => {
 
       if (canvasBox) {
         // Drag map to pan
-        await page.mouse.move(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2);
+        await page.mouse.move(
+          canvasBox.x + canvasBox.width / 2,
+          canvasBox.y + canvasBox.height / 2
+        );
         await page.mouse.down();
-        await page.mouse.move(canvasBox.x + canvasBox.width / 2 + 50, canvasBox.y + canvasBox.height / 2 + 50);
+        await page.mouse.move(
+          canvasBox.x + canvasBox.width / 2 + 50,
+          canvasBox.y + canvasBox.height / 2 + 50
+        );
         await page.mouse.up();
 
         // Map should still be visible after panning
@@ -317,12 +351,12 @@ test.describe('Map Controls and Interaction', () => {
     }
   });
 
-  test('should support mouse wheel zoom', async ({ page }) => {
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+  test("should support mouse wheel zoom", async ({ page }) => {
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
-    const canvas = page.locator('canvas').first();
+    const canvas = page.locator("canvas").first();
     const hasCanvas = await canvas.isVisible().catch(() => false);
 
     if (hasCanvas) {
@@ -330,7 +364,10 @@ test.describe('Map Controls and Interaction', () => {
 
       if (canvasBox) {
         // Hover over map
-        await page.mouse.move(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2);
+        await page.mouse.move(
+          canvasBox.x + canvasBox.width / 2,
+          canvasBox.y + canvasBox.height / 2
+        );
 
         // Scroll to zoom
         await page.mouse.wheel(0, -100); // Scroll up to zoom in
@@ -341,13 +378,15 @@ test.describe('Map Controls and Interaction', () => {
     }
   });
 
-  test('should have geolocation control if enabled', async ({ page }) => {
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+  test("should have geolocation control if enabled", async ({ page }) => {
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
     // Geolocation control is optional
-    const geolocateButton = page.locator('.mapboxgl-ctrl-geolocate, button[aria-label*="geolocate"]');
+    const geolocateButton = page.locator(
+      '.mapboxgl-ctrl-geolocate, button[aria-label*="geolocate"]'
+    );
     const hasGeolocate = await geolocateButton.isVisible().catch(() => false);
 
     // Just verify it doesn't crash if present
@@ -355,17 +394,17 @@ test.describe('Map Controls and Interaction', () => {
   });
 });
 
-test.describe('Map Mobile Interactions', () => {
-  test('should work on mobile viewport', async ({ page }) => {
+test.describe("Map Mobile Interactions", () => {
+  test("should work on mobile viewport", async ({ page }) => {
     // Set mobile viewport (iPhone 12 Pro)
     await page.setViewportSize({ width: 390, height: 844 });
 
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
     // Map should be visible on mobile
-    const canvas = page.locator('canvas').first();
+    const canvas = page.locator("canvas").first();
     const hasCanvas = await canvas.isVisible().catch(() => false);
 
     if (hasCanvas) {
@@ -381,14 +420,14 @@ test.describe('Map Mobile Interactions', () => {
     }
   });
 
-  test('should support touch interactions on mobile', async ({ page }) => {
+  test("should support touch interactions on mobile", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
 
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
-    const firstMarker = page.locator('.mapboxgl-marker').first();
+    const firstMarker = page.locator(".mapboxgl-marker").first();
     const hasMarker = await firstMarker.isVisible().catch(() => false);
 
     if (hasMarker) {
@@ -397,21 +436,21 @@ test.describe('Map Mobile Interactions', () => {
       await page.waitForTimeout(500);
 
       // Popup should open
-      const popup = page.locator('.mapboxgl-popup');
+      const popup = page.locator(".mapboxgl-popup");
       const hasPopup = await popup.isVisible().catch(() => false);
 
       expect(hasPopup).toBeTruthy();
     }
   });
 
-  test('should support pinch-to-zoom on mobile', async ({ page }) => {
+  test("should support pinch-to-zoom on mobile", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
 
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
-    const canvas = page.locator('canvas').first();
+    const canvas = page.locator("canvas").first();
     const hasCanvas = await canvas.isVisible().catch(() => false);
 
     if (hasCanvas) {
@@ -421,15 +460,15 @@ test.describe('Map Mobile Interactions', () => {
     }
   });
 
-  test('should have mobile-optimized controls', async ({ page }) => {
+  test("should have mobile-optimized controls", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
 
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
     // Zoom controls should be visible and accessible on mobile
-    const zoomControls = page.locator('.mapboxgl-ctrl-zoom-in');
+    const zoomControls = page.locator(".mapboxgl-ctrl-zoom-in");
     const hasZoomControls = await zoomControls.isVisible().catch(() => false);
 
     if (hasZoomControls) {
@@ -445,12 +484,12 @@ test.describe('Map Mobile Interactions', () => {
   });
 });
 
-test.describe('Map Performance', () => {
-  test('should load map in reasonable time', async ({ page }) => {
+test.describe("Map Performance", () => {
+  test("should load map in reasonable time", async ({ page }) => {
     const startTime = Date.now();
 
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
 
     // Wait for map to initialize
     await page.waitForTimeout(2000);
@@ -461,18 +500,23 @@ test.describe('Map Performance', () => {
     expect(loadTime).toBeLessThan(5000);
   });
 
-  test('should not have console errors during map initialization', async ({ page }) => {
+  test("should not have console errors during map initialization", async ({
+    page,
+  }) => {
     const consoleErrors: string[] = [];
 
-    page.on('console', (msg) => {
-      if (msg.type() === 'error' && !msg.text().includes('Mapbox access token')) {
+    page.on("console", (msg) => {
+      if (
+        msg.type() === "error" &&
+        !msg.text().includes("Mapbox access token")
+      ) {
         // Ignore Mapbox token errors in test environment
         consoleErrors.push(msg.text());
       }
     });
 
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(3000);
 
     // Should not have critical errors (excluding Mapbox token warning)
@@ -481,42 +525,44 @@ test.describe('Map Performance', () => {
   });
 });
 
-test.describe('Map Accessibility', () => {
-  test('should have accessible map container', async ({ page }) => {
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+test.describe("Map Accessibility", () => {
+  test("should have accessible map container", async ({ page }) => {
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
 
     // Map container should have role or aria-label
-    const mapContainer = page.locator('[role="application"], [aria-label*="map"]').first();
+    const mapContainer = page
+      .locator('[role="application"], [aria-label*="map"]')
+      .first();
     const hasAccessibleMap = await mapContainer.isVisible().catch(() => false);
 
     // Mapbox adds accessibility attributes
     expect(true).toBeTruthy(); // Soft check
   });
 
-  test('should support keyboard navigation for popups', async ({ page }) => {
-    await page.goto('/map');
-    await page.waitForLoadState('networkidle');
+  test("should support keyboard navigation for popups", async ({ page }) => {
+    await page.goto("/map");
+    await page.waitForLoadState("networkidle");
     await page.waitForTimeout(3000);
 
-    const firstMarker = page.locator('.mapboxgl-marker').first();
+    const firstMarker = page.locator(".mapboxgl-marker").first();
     const hasMarker = await firstMarker.isVisible().catch(() => false);
 
     if (hasMarker) {
       await firstMarker.click();
       await page.waitForTimeout(500);
 
-      const popup = page.locator('.mapboxgl-popup-content');
+      const popup = page.locator(".mapboxgl-popup-content");
       const hasPopup = await popup.isVisible().catch(() => false);
 
       if (hasPopup) {
         // Tab to popup links
-        await page.keyboard.press('Tab');
+        await page.keyboard.press("Tab");
 
         const activeElement = await page.evaluate(() => {
           return {
             tagName: document.activeElement?.tagName,
-            href: document.activeElement?.getAttribute('href'),
+            href: document.activeElement?.getAttribute("href"),
           };
         });
 

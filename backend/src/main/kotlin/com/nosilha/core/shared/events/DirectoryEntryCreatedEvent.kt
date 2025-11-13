@@ -30,5 +30,5 @@ data class DirectoryEntryCreatedEvent(
     val entryId: UUID,
     val category: String,
     val name: String,
-    override val occurredAt: Instant = Instant.now()
+    override val occurredAt: Instant = Instant.now(),
 ) : ApplicationModuleEvent

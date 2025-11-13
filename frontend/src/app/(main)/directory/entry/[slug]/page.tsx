@@ -18,6 +18,8 @@ import {
 import type { DirectoryEntry } from "@/types/directory";
 import { ImageGallery } from "@/components/ui/image-gallery";
 import { ContributePhotosSection } from "@/components/ui/contribute-photos-section";
+import { ContentActionToolbar } from "@/components/content-actions/ContentActionToolbar";
+import { RelatedContent } from "@/components/content-actions/RelatedContent";
 import { getRestaurantDetails, getHotelDetails } from "@/lib/api-validation";
 
 interface DetailPageProps {
@@ -133,6 +135,11 @@ export default async function DirectoryEntryDetailPage({
     notFound();
   }
 
+  const canonicalUrl = new URL(
+    `/directory/entry/${entry.slug}`,
+    siteConfig.url
+  ).toString();
+
   // Gallery images - will be populated from actual entry data or fallback to empty array
   const sampleImages: string[] = [];
 
@@ -167,6 +174,29 @@ export default async function DirectoryEntryDetailPage({
             <p className="text-text-secondary mt-4 text-lg leading-relaxed">
               {entry.description}
             </p>
+
+            {/* Content Action Toolbar */}
+            <div className="mt-6">
+              <ContentActionToolbar
+                contentId={entry.id}
+                contentType={entry.category}
+                title={entry.name}
+                description={entry.description}
+                image={entry.imageUrl || undefined}
+                url={canonicalUrl}
+                pageUrl={canonicalUrl}
+                contentActions={entry.contentActions}
+              />
+            </div>
+
+            <div className="border-border-primary my-8 border-t" />
+
+            {/* Related Content Section - Phase 9: User Story 5 */}
+            <RelatedContent
+              contentId={entry.id}
+              limit={5}
+              heading="Explore Related Heritage"
+            />
 
             <div className="border-border-primary my-8 border-t" />
 

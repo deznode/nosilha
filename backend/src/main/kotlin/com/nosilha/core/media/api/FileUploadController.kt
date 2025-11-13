@@ -1,8 +1,8 @@
 package com.nosilha.core.media.api
 
+import com.nosilha.core.media.domain.FileStorageService
 import com.nosilha.core.shared.api.ApiResponse
 import com.nosilha.core.shared.api.MediaMetadataDto
-import com.nosilha.core.media.domain.FileStorageService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -46,19 +46,20 @@ class FileUploadController(
         val publicUrl = fileStorageService.uploadFile(file)
 
         // Create comprehensive metadata response
-        val mediaMetadata = MediaMetadataDto(
-            id = java.util.UUID.randomUUID().toString(),
-            fileName = file.originalFilename ?: "unknown",
-            originalName = file.originalFilename ?: "unknown",
-            contentType = file.contentType ?: "application/octet-stream",
-            size = file.size,
-            url = publicUrl,
-            category = category,
-            description = description,
-            uploadedAt = LocalDateTime.now(),
-            uploadedBy = null, // TODO: Extract from JWT token when authentication is implemented
-            aiMetadata = null // TODO: Implement AI processing integration
-        )
+        val mediaMetadata =
+            MediaMetadataDto(
+                id = java.util.UUID.randomUUID().toString(),
+                fileName = file.originalFilename ?: "unknown",
+                originalName = file.originalFilename ?: "unknown",
+                contentType = file.contentType ?: "application/octet-stream",
+                size = file.size,
+                url = publicUrl,
+                category = category,
+                description = description,
+                uploadedAt = LocalDateTime.now(),
+                uploadedBy = null, // TODO: Extract from JWT token when authentication is implemented
+                aiMetadata = null, // TODO: Implement AI processing integration
+            )
 
         return ApiResponse(data = mediaMetadata, status = HttpStatus.CREATED.value())
     }
@@ -75,15 +76,16 @@ class FileUploadController(
     ): ApiResponse<MediaMetadataDto> {
         // TODO: Implement actual metadata retrieval from database/storage
         // For now, return a placeholder response
-        val mediaMetadata = MediaMetadataDto(
-            id = id,
-            fileName = "placeholder.jpg",
-            originalName = "placeholder.jpg",
-            contentType = "image/jpeg",
-            size = 1024000,
-            url = "https://example.com/placeholder.jpg",
-            uploadedAt = LocalDateTime.now(),
-        )
+        val mediaMetadata =
+            MediaMetadataDto(
+                id = id,
+                fileName = "placeholder.jpg",
+                originalName = "placeholder.jpg",
+                contentType = "image/jpeg",
+                size = 1024000,
+                url = "https://example.com/placeholder.jpg",
+                uploadedAt = LocalDateTime.now(),
+            )
 
         return ApiResponse(data = mediaMetadata)
     }

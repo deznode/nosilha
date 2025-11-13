@@ -4,13 +4,36 @@
   <CurrentIssues>
     <ID>EmptyFunctionBlock:CoreApplicationTests.kt$CoreApplicationTests${ }</ID>
     <ID>LongMethod:Mapper.kt$fun DirectoryEntry.toDto(): DirectoryEntryDto</ID>
+    <ID>LongMethod:ReactionService.kt$ReactionService$@CacheEvict(value = [CACHE_NAME], key = "#createDto.contentId") fun submitReaction( userId: UUID, createDto: ReactionCreateDto, ): ReactionResponseDto</ID>
+    <ID>LongMethod:RelatedContentService.kt$RelatedContentService$fun findRelatedContent( contentId: UUID, limit: Int = 5, ): List&lt;DirectoryEntry&gt;</ID>
     <ID>MagicNumber:AIService.kt$AIService$0.85f</ID>
     <ID>MagicNumber:JwtAuthenticationFilter.kt$JwtAuthenticationFilter$7</ID>
+    <ID>MagicNumber:RelatedContentController.kt$RelatedContentController$3</ID>
+    <ID>MagicNumber:RelatedContentController.kt$RelatedContentController$5</ID>
+    <ID>MagicNumber:RelatedContentService.kt$RelatedContentService$3</ID>
+    <ID>MagicNumber:RelatedContentService.kt$RelatedContentService$5</ID>
+    <ID>NoWildcardImports:Reaction.kt$import jakarta.persistence.*</ID>
+    <ID>NoWildcardImports:ReactionController.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>NoWildcardImports:RelatedContentControllerTest.kt$import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*</ID>
+    <ID>NoWildcardImports:Suggestion.kt$import jakarta.persistence.*</ID>
+    <ID>NoWildcardImports:SuggestionController.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>NoWildcardImports:SuggestionControllerTest.kt$import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*</ID>
+    <ID>ReturnCount:RelatedContentService.kt$RelatedContentService$fun findRelatedContent( contentId: UUID, limit: Int = 5, ): List&lt;DirectoryEntry&gt;</ID>
     <ID>SpreadOperator:NosIlhaCoreApplication.kt$(*args)</ID>
+    <ID>SwallowedException:SuggestionController.kt$SuggestionController$e: HoneypotSpamDetectedException</ID>
     <ID>TooGenericExceptionCaught:AIService.kt$AIService$e: Exception</ID>
     <ID>TooGenericExceptionCaught:JwtAuthenticationFilter.kt$JwtAuthenticationFilter$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:SuggestionController.kt$SuggestionController$e: Exception</ID>
+    <ID>UnusedPrivateProperty:ReactionService.kt$ReactionService.Companion$private const val CACHE_TTL_MINUTES = 5</ID>
     <ID>UseCheckOrError:Mapper.kt$throw IllegalStateException("Cannot map an entity with a null ID to a DTO.")</ID>
     <ID>UseCheckOrError:Mapper.kt$throw IllegalStateException("Unknown DirectoryEntry type: ${this::class.simpleName}")</ID>
     <ID>UseCheckOrError:Mapper.kt$throw IllegalStateException("Unsupported or unknown DirectoryEntry type: ${this::class.simpleName}")</ID>
+    <ID>UseCheckOrError:ReactionController.kt$ReactionController$throw IllegalStateException("Authentication principal must be a string (user ID)")</ID>
+    <ID>WildcardImport:Reaction.kt$import jakarta.persistence.*</ID>
+    <ID>WildcardImport:ReactionController.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:RelatedContentControllerTest.kt$import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*</ID>
+    <ID>WildcardImport:Suggestion.kt$import jakarta.persistence.*</ID>
+    <ID>WildcardImport:SuggestionController.kt$import org.springframework.web.bind.annotation.*</ID>
+    <ID>WildcardImport:SuggestionControllerTest.kt$import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*</ID>
   </CurrentIssues>
 </SmellBaseline>

@@ -13,6 +13,7 @@ import {
   createStructuredDataScript,
 } from "@/lib/metadata";
 import "./globals.css";
+import "@/styles/print.css";
 
 // 1. Set up the primary and secondary fonts using next/font/google.
 // The 'variable' option creates a CSS variable we can use in our Tailwind theme.

@@ -6,10 +6,17 @@ permissions:
 
 on:
   pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
 
 jobs:
   security:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+    
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,5 +27,7 @@ jobs:
         with:
           comment-pr: true
           claude-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+
           claude-model: claude-sonnet-4-5-20250929
           custom-security-scan-instructions: "" # Add any custom instructions specific to your codebase here.
