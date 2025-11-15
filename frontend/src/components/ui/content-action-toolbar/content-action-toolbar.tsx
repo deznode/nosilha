@@ -93,17 +93,17 @@ export function ContentActionToolbar({
    * Handle reaction toggle callback from child components
    * Updates local state optimistically for immediate UI feedback
    */
-  const handleReactionToggle = (reactionId: string, newCount: number) => {
+  const handleReactionToggle = (reactionId: string, newCount: number, shouldBeSelected: boolean) => {
     setReactions((prevReactions) => {
       // Find if user had a different reaction selected
       const previouslySelected = prevReactions.find((r) => r.isSelected && r.id !== reactionId);
 
       return prevReactions.map((reaction) => {
         if (reaction.id === reactionId) {
-          // Toggle selection state and update count for clicked reaction
+          // Set selection state deterministically (no blind toggle)
           return {
             ...reaction,
-            isSelected: !reaction.isSelected,
+            isSelected: shouldBeSelected,
             count: newCount,
           };
         }

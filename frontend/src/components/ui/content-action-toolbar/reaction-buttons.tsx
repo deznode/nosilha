@@ -87,16 +87,18 @@ export function ReactionButtons({
     setAnimatingReaction(reactionId);
     setPendingReaction(reactionId);
 
-    // Calculate new count for optimistic update
+    // Calculate new count and selection state for optimistic update
     const optimisticCount = wasSelected ? reaction.count - 1 : reaction.count + 1;
+    const shouldBeSelected = !wasSelected;
 
     // Call parent callback for optimistic update
-    onReactionToggle?.(reactionId, optimisticCount);
+    onReactionToggle?.(reactionId, optimisticCount, shouldBeSelected);
 
     try {
       if (wasSelected) {
         // Remove reaction (clicking same reaction to remove it)
         await deleteReaction(contentId);
+        // State already updated optimistically, no need to call again
       } else {
         // Add new reaction (or switch from previous reaction)
         // Backend will automatically remove the previous reaction when adding a new one
@@ -104,16 +106,16 @@ export function ReactionButtons({
           contentId,
           reactionType,
         });
-        // Update with server count (more accurate than optimistic)
-        onReactionToggle?.(reactionId, response.count);
+        // Update with server count (more accurate than optimistic), keep selection state
+        onReactionToggle?.(reactionId, response.count, true);
       }
 
       // Clear pending state after successful API call
       setPendingReaction(null);
       setAnimatingReaction(null);
     } catch (error: any) {
-      // Rollback optimistic update on error
-      onReactionToggle?.(reactionId, reaction.count);
+      // Rollback optimistic update on error (restore original state)
+      onReactionToggle?.(reactionId, reaction.count, wasSelected);
 
       // Clear animation states
       setPendingReaction(null);

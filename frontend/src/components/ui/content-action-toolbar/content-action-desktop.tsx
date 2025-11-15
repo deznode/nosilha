@@ -5,18 +5,19 @@ import { ReactionButtons } from './reaction-buttons';
 import { ShareButton } from './share-button';
 import { CopyLinkButton } from './copy-link-button';
 import { PrintButton } from './print-button';
+import { SuggestImprovementButton } from './suggest-improvement-button';
 
 /**
  * Desktop Left-Rail Content Action Toolbar (Wireframe Update)
  *
  * Fixed left-rail container with background card styling, vertically centered in viewport.
- * Displays actions in vertical stack per wireframe: Share → Reactions (vertical) → Copy Link → Print.
+ * Displays actions in vertical stack per wireframe: Share → Reactions (vertical) → Copy Link → Print → Suggest.
  *
  * Visual Specifications (Wireframe Alignment):
  * - Position: Fixed, left-4, vertically centered (top-1/2 -translate-y-1/2)
  * - Layout: Vertical stack with 12px spacing (gap-3)
  * - Background: Card with rounded corners and subtle shadow
- * - Action Order: Share, Reactions (❤️ 🎉 💡 👏 vertical), Copy Link, Print
+ * - Action Order: Share, Reactions (❤️ 🎉 💡 👏 vertical), Copy Link, Print, Suggest Improvement
  * - All buttons: icon + label variant
  *
  * Feature: 005-action-toolbar-refactor (Wireframe Update)
@@ -67,6 +68,12 @@ export function ContentActionDesktop({
 
         {/* 4. Print Button (icon + label) */}
         <PrintButton
+          variant="icon-with-label"
+        />
+
+        {/* 5. Suggest Improvement Button (icon + label) */}
+        <SuggestImprovementButton
+          contentSlug={contentSlug}
           variant="icon-with-label"
         />
       </div>

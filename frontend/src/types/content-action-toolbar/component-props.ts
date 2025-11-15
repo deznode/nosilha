@@ -166,7 +166,7 @@ export interface ReactionButtonsProps {
   isAuthenticated: boolean;
 
   /** Callback when reaction toggled (optimistic update) */
-  onReactionToggle?: (reactionId: string, newCount: number) => void;
+  onReactionToggle?: (reactionId: string, newCount: number, shouldBeSelected: boolean) => void;
 
   /** Optional: Orientation (horizontal for mobile, vertical for desktop) */
   orientation?: 'horizontal' | 'vertical';
@@ -262,7 +262,7 @@ export interface ContentActionFABProps {
   isAuthenticated: boolean;
 
   /** Callback when reaction toggled (optimistic update) */
-  onReactionToggle?: (reactionId: string, newCount: number) => void;
+  onReactionToggle?: (reactionId: string, newCount: number, shouldBeSelected: boolean) => void;
 }
 
 /**
@@ -300,7 +300,7 @@ export interface ContentActionDesktopProps {
   isAuthenticated: boolean;
 
   /** Callback when reaction toggled (optimistic update) */
-  onReactionToggle?: (reactionId: string, newCount: number) => void;
+  onReactionToggle?: (reactionId: string, newCount: number, shouldBeSelected: boolean) => void;
 }
 
 // ============================================================================

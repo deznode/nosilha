@@ -1,3 +1,9 @@
+"use client";
+
+export const dynamic = "force-dynamic";
+
+import { useEffect, useRef, useState } from "react";
+import type { DirectoryEntry } from "@/types/directory";
 import { getEntriesByCategory } from "@/lib/api";
 import { DirectoryCard } from "@/components/ui/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
@@ -8,16 +14,98 @@ import { Logo as Logo4 } from "@/components/ui/logo4";
 import NewsletterSignup from "@/components/ui/newsletter";
 import { SocialMediaLinks } from "@/components/ui/social-media-links";
 import Banner from "@/components/ui/banner";
-
-// Force dynamic rendering for test page
-export const dynamic = "force-dynamic";
+import { SuggestImprovementForm } from "@/components/content-actions/SuggestImprovementForm";
+import { RelatedContent } from "@/components/content-actions/RelatedContent";
+import { ActionToast } from "@/components/content-actions/ActionToast";
+import { ShareButton } from "@/components/content-actions/ShareButton";
+import { CopyLinkButton } from "@/components/content-actions/CopyLinkButton";
+import { ReactionButton } from "@/components/content-actions/ReactionButton";
+import { Button } from "@/components/catalyst-ui/button";
 
 /**
  * An updated test page that uses the PageHeader component.
  */
-export default async function TestPage() {
-  // Fetch all entries from our mock API.
-  const { items: entries } = await getEntriesByCategory("all");
+export default function TestPage() {
+  const [entries, setEntries] = useState<DirectoryEntry[]>([]);
+  const [entriesLoading, setEntriesLoading] = useState(true);
+  const [entriesError, setEntriesError] = useState<string | null>(null);
+  const [isSuggestOpen, setIsSuggestOpen] = useState(false);
+  const [standaloneToastMessage, setStandaloneToastMessage] = useState("");
+  const [standaloneToastVariant, setStandaloneToastVariant] = useState<
+    "success" | "error"
+  >("success");
+  const [isStandaloneToastVisible, setIsStandaloneToastVisible] =
+    useState(false);
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadEntries = async () => {
+      try {
+        setEntriesLoading(true);
+        const { items } = await getEntriesByCategory("all");
+        if (isMounted) {
+          setEntries(items);
+          setEntriesError(null);
+        }
+      } catch (error) {
+        console.error("Failed to load entries for the test page:", error);
+        if (isMounted) {
+          setEntriesError(
+            "Unable to load directory entries from the mock API."
+          );
+        }
+      } finally {
+        if (isMounted) {
+          setEntriesLoading(false);
+        }
+      }
+    };
+
+    loadEntries();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleStandaloneToast = (
+    message: string,
+    variant: "success" | "error" = "success"
+  ) => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+
+    setStandaloneToastMessage(message);
+    setStandaloneToastVariant(variant);
+    setIsStandaloneToastVisible(true);
+
+    toastTimeoutRef.current = setTimeout(
+      () => setIsStandaloneToastVisible(false),
+      2500
+    );
+  };
+
+  const showcaseEntry = entries[0];
+  const showcaseContentId = showcaseEntry?.id ?? "demo-content-id";
+  const showcaseUrl = showcaseEntry
+    ? `https://nosilha.com/directory/entry/${showcaseEntry.slug}`
+    : "https://nosilha.com/directory/entry/demo-entry";
+  const showcaseTitle = showcaseEntry?.name ?? "Eugénio Tavares Monument";
+  const showcaseDescription =
+    showcaseEntry?.description ??
+    "A heritage-rich space on Brava Island that highlights our cultural identity.";
+  const showcaseContentType = showcaseEntry?.category ?? "LANDMARK";
 
   return (
     <main className="bg-off-white font-sans">
@@ -36,12 +124,109 @@ export default async function TestPage() {
           subtitle="Rendering all items from the mock API to test our DirectoryCard component."
         />
         <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {entries.map((entry) => (
-            <DirectoryCard key={entry.id} entry={entry} />
-          ))}
+          {entriesLoading && (
+            <p className="text-text-secondary col-span-full text-center">
+              Loading entries from the mock API...
+            </p>
+          )}
+          {entriesError && !entriesLoading && (
+            <p className="text-red-600 col-span-full text-center">
+              {entriesError}
+            </p>
+          )}
+          {!entriesLoading &&
+            !entriesError &&
+            entries.map((entry) => <DirectoryCard key={entry.id} entry={entry} />)}
         </div>
+
+        <section className="mt-16 rounded-2xl bg-white/80 p-6 shadow-sm ring-1 ring-inset ring-zinc-100 dark:bg-zinc-900 dark:ring-zinc-800">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+                Content Action Components Showcase
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Testing every component from{" "}
+                <code className="rounded bg-gray-100 px-2 py-0.5 text-xs dark:bg-gray-800">
+                  content-actions
+                </code>{" "}
+                using mock content data.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <ShareButton
+                title={showcaseTitle}
+                url={showcaseUrl}
+                description={showcaseDescription}
+                className="w-full md:w-auto"
+              />
+              <CopyLinkButton url={showcaseUrl} className="w-full md:w-auto" />
+              <Button onClick={() => setIsSuggestOpen(true)}>
+                Suggest Improvement
+              </Button>
+            </div>
+          </div>
+
+          <div className="mt-8 space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Reactions
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Powered by the <code>ReactionButton</code> component with mock
+                API data.
+              </p>
+              <div className="mt-4">
+                <ReactionButton contentId={showcaseContentId} />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                Standalone Toast
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Triggers <code>ActionToast</code> directly without relying on
+                share/copy flows.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-3">
+                <Button onClick={() => handleStandaloneToast("Success toast triggered!")}>
+                  Show Success Toast
+                </Button>
+                <Button
+                  outline
+                  onClick={() =>
+                    handleStandaloneToast(
+                      "Error toast triggered for demo",
+                      "error"
+                    )
+                  }
+                >
+                  Show Error Toast
+                </Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <NewsletterSignup />
         <SocialMediaLinks />
+        <RelatedContent contentId={showcaseContentId} />
+
+        <SuggestImprovementForm
+          contentId={showcaseContentId}
+          contentTitle={showcaseTitle}
+          contentType={showcaseContentType}
+          pageUrl={showcaseUrl}
+          isOpen={isSuggestOpen}
+          onClose={() => setIsSuggestOpen(false)}
+        />
+
+        <ActionToast
+          message={standaloneToastMessage}
+          show={isStandaloneToastVisible}
+          variant={standaloneToastVariant}
+        />
       </div>
     </main>
   );

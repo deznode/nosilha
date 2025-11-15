@@ -8,6 +8,7 @@ import { ReactionButtons } from './reaction-buttons';
 import { ShareButton } from './share-button';
 import { CopyLinkButton } from './copy-link-button';
 import { PrintButton } from './print-button';
+import { SuggestImprovementButton } from './suggest-improvement-button';
 
 /**
  * Content Action FAB (Floating Action Button) - Wireframe Update
@@ -16,7 +17,7 @@ import { PrintButton } from './print-button';
  * Visible only on mobile viewports (<768px).
  *
  * Action Order (Wireframe Alignment):
- * - Share → Reactions (horizontal) → Copy Link → Print
+ * - Share → Reactions (horizontal) → Copy Link → Print → Suggest
  *
  * Behavior:
  * - Tap FAB: Expand menu upward with stagger animation
@@ -163,6 +164,17 @@ export function ContentActionFAB({
               transition={{ delay: 0.2 }}
             >
               <PrintButton
+                variant="icon-only"
+              />
+            </motion.div>
+
+            {/* 5. Suggest Improvement Button (icon-only) */}
+            <motion.div
+              {...menuItemAnimation}
+              transition={{ delay: 0.25 }}
+            >
+              <SuggestImprovementButton
+                contentSlug={contentSlug}
                 variant="icon-only"
               />
             </motion.div>
