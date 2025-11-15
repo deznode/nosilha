@@ -9,13 +9,19 @@
 /**
  * Reaction types representing emotional responses to cultural heritage content.
  *
- * Each reaction type has a specific meaning for diaspora engagement:
- * - LOVE: Deep appreciation, personal connection to cultural content
- * - HELPFUL: Educational value, useful information for learning
- * - INTERESTING: Intellectually engaging, sparked curiosity
- * - THANKYOU: Gratitude for sharing, cultural appreciation
+ * LinkedIn-style semantic naming pattern (hybrid mix of emotions and content qualities):
+ * - LOVE: Deep appreciation, personal connection to cultural content (emotion)
+ * - CELEBRATE: Excitement, joy, and celebration of cultural discoveries (action/emotion)
+ * - INSIGHTFUL: New learning, discovery, and understanding (content quality)
+ * - SUPPORT: Appreciation, encouragement, and recognition (action/emotion)
  */
-export type ReactionType = "LOVE" | "HELPFUL" | "INTERESTING" | "THANKYOU";
+export type ReactionType = "LOVE" | "CELEBRATE" | "INSIGHTFUL" | "SUPPORT";
+
+/**
+ * UI-friendly reaction identifiers (lowercase).
+ * Used in component props and page data.
+ */
+export type ReactionId = "love" | "celebrate" | "insightful" | "support";
 
 /**
  * Emoji mapping for reaction types.
@@ -23,9 +29,26 @@ export type ReactionType = "LOVE" | "HELPFUL" | "INTERESTING" | "THANKYOU";
  */
 export const REACTION_EMOJIS: Record<ReactionType, string> = {
   LOVE: "❤️",
-  HELPFUL: "👍",
-  INTERESTING: "🤔",
-  THANKYOU: "🙏",
+  CELEBRATE: "🎉",
+  INSIGHTFUL: "💡",
+  SUPPORT: "👏",
+};
+
+/**
+ * Mapping helpers for converting between UI IDs and backend API types.
+ */
+export const reactionIdToType: Record<ReactionId, ReactionType> = {
+  love: "LOVE",
+  celebrate: "CELEBRATE",
+  insightful: "INSIGHTFUL",
+  support: "SUPPORT",
+};
+
+export const reactionTypeToId: Record<ReactionType, ReactionId> = {
+  LOVE: "love",
+  CELEBRATE: "celebrate",
+  INSIGHTFUL: "insightful",
+  SUPPORT: "support",
 };
 
 /**
@@ -34,9 +57,9 @@ export const REACTION_EMOJIS: Record<ReactionType, string> = {
  */
 export const REACTION_LABELS: Record<ReactionType, string> = {
   LOVE: "Love",
-  HELPFUL: "Helpful",
-  INTERESTING: "Interesting",
-  THANKYOU: "Thank you",
+  CELEBRATE: "Celebrate",
+  INSIGHTFUL: "Insightful",
+  SUPPORT: "Support",
 };
 
 /**
@@ -45,9 +68,9 @@ export const REACTION_LABELS: Record<ReactionType, string> = {
  */
 export const REACTION_DESCRIPTIONS: Record<ReactionType, string> = {
   LOVE: "Deep appreciation, personal connection",
-  HELPFUL: "Educational value, useful information",
-  INTERESTING: "Intellectually engaging, sparked curiosity",
-  THANKYOU: "Gratitude for sharing, cultural appreciation",
+  CELEBRATE: "Excitement, joy, and celebration",
+  INSIGHTFUL: "New learning, discovery, and understanding",
+  SUPPORT: "Appreciation, encouragement, and recognition",
 };
 
 /**
@@ -105,7 +128,7 @@ export interface ReactionCountsDto {
   /**
    * Map of reaction types to their aggregated counts
    * All reaction types are always present (with 0 if no reactions)
-   * Example: { "LOVE": 42, "HELPFUL": 15, "INTERESTING": 8, "THANKYOU": 23 }
+   * Example: { "LOVE": 42, "CELEBRATE": 15, "INSIGHTFUL": 8, "SUPPORT": 23 }
    */
   reactions: Record<ReactionType, number>;
 

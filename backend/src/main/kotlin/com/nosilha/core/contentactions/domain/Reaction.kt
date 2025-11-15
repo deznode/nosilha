@@ -9,13 +9,14 @@ import java.util.UUID
 /**
  * Represents a user's emotional response to cultural heritage content.
  *
- * <p>Reactions are immutable once created. When a user changes their reaction,
- * the old reaction is deleted and a new one is created (transactional operation).</p>
+ * <p>Reactions can be updated when a user changes their reaction type.
+ * When switching reactions, the existing entity is updated instead of
+ * deleting and creating a new one (avoids unique constraint violations).</p>
  *
  * <p><strong>Constraints:</strong></p>
  * <ul>
  *   <li>One reaction per user per content page (unique constraint on user_id + content_id)</li>
- *   <li>Reaction type must be one of: LOVE, HELPFUL, INTERESTING, THANKYOU</li>
+ *   <li>Reaction type must be one of: LOVE, CELEBRATE, INSIGHTFUL, SUPPORT</li>
  *   <li>Rate limiting: Maximum 10 reactions per minute per user (enforced in service layer)</li>
  * </ul>
  *
@@ -46,7 +47,7 @@ data class Reaction(
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "reaction_type", nullable = false, length = 20)
-    val reactionType: ReactionType,
+    var reactionType: ReactionType,
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant? = null,
@@ -55,24 +56,25 @@ data class Reaction(
 /**
  * Enum representing the types of emotional responses to cultural heritage content.
  *
- * <p>Each reaction type corresponds to a specific emoji and emotional intent:</p>
+ * <p>Following LinkedIn-style semantic reaction patterns, each reaction type
+ * corresponds to a specific emoji and emotional intent:</p>
  * <ul>
- *   <li>LOVE (❤️): Deep appreciation, personal connection to cultural heritage</li>
- *   <li>HELPFUL (👍): Educational value, useful information discovered</li>
- *   <li>INTERESTING (🤔): Intellectually engaging, sparked curiosity about culture</li>
- *   <li>THANKYOU (🙏): Gratitude for sharing, cultural appreciation</li>
+ *   <li>LOVE (❤️): Deep appreciation and personal connection to cultural heritage</li>
+ *   <li>CELEBRATE (🎉): Excitement, joy, and celebration of cultural heritage content</li>
+ *   <li>INSIGHTFUL (💡): New learning, discovery, and insightful understanding of culture</li>
+ *   <li>SUPPORT (👏): Appreciation, encouragement, and recognition for shared cultural knowledge</li>
  * </ul>
  */
 enum class ReactionType {
-    /** ❤️ Deep appreciation, personal connection */
+    /** ❤️ Deep appreciation and personal connection */
     LOVE,
 
-    /** 👍 Educational value, useful information */
-    HELPFUL,
+    /** 🎉 Excitement, joy, and celebration */
+    CELEBRATE,
 
-    /** 🤔 Intellectually engaging, sparked curiosity */
-    INTERESTING,
+    /** 💡 New learning, discovery, and insightful understanding */
+    INSIGHTFUL,
 
-    /** 🙏 Gratitude for sharing, cultural appreciation */
-    THANKYOU,
+    /** 👏 Appreciation, encouragement, and recognition */
+    SUPPORT,
 }

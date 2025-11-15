@@ -168,11 +168,11 @@ class ReactionControllerTest {
         assertThat(reactions).hasSize(1)
         assertThat(reactions[0].reactionType).isEqualTo(ReactionType.LOVE)
 
-        // Submit different reaction type (HELPFUL)
+        // Submit different reaction type (CELEBRATE)
         val newDto =
             ReactionCreateDto(
                 contentId = TEST_CONTENT_ID,
-                reactionType = ReactionType.HELPFUL,
+                reactionType = ReactionType.CELEBRATE,
             )
 
         mockMvc.perform(
@@ -183,7 +183,7 @@ class ReactionControllerTest {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.status").value(200))
-            .andExpect(jsonPath("$.data.reactionType").value("HELPFUL"))
+            .andExpect(jsonPath("$.data.reactionType").value("CELEBRATE"))
             .andExpect(jsonPath("$.data.count").value(1))
 
         // Verify old reaction was replaced (still only 1 reaction in DB)
@@ -191,7 +191,7 @@ class ReactionControllerTest {
         assertThat(reactions).hasSize(1)
         assertThat(reactions[0].userId).isEqualTo(TEST_USER_ID)
         assertThat(reactions[0].contentId).isEqualTo(TEST_CONTENT_ID)
-        assertThat(reactions[0].reactionType).isEqualTo(ReactionType.HELPFUL)
+        assertThat(reactions[0].reactionType).isEqualTo(ReactionType.CELEBRATE)
     }
 
     @Test
@@ -283,7 +283,7 @@ class ReactionControllerTest {
     fun `getReactionCounts without authentication should return counts with null userReaction`() {
         // Create some reactions from different users
         createReactionForUser(TEST_USER_ID, TEST_CONTENT_ID, ReactionType.LOVE)
-        createReactionForUser(TEST_USER_ID_2, TEST_CONTENT_ID, ReactionType.HELPFUL)
+        createReactionForUser(TEST_USER_ID_2, TEST_CONTENT_ID, ReactionType.CELEBRATE)
 
         mockMvc.perform(
             get("/api/v1/reactions/content/$TEST_CONTENT_ID"),
@@ -292,9 +292,9 @@ class ReactionControllerTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.data.contentId").value(TEST_CONTENT_ID.toString()))
             .andExpect(jsonPath("$.data.reactions.LOVE").value(1))
-            .andExpect(jsonPath("$.data.reactions.HELPFUL").value(1))
-            .andExpect(jsonPath("$.data.reactions.INTERESTING").value(0))
-            .andExpect(jsonPath("$.data.reactions.THANKYOU").value(0))
+            .andExpect(jsonPath("$.data.reactions.CELEBRATE").value(1))
+            .andExpect(jsonPath("$.data.reactions.INSIGHTFUL").value(0))
+            .andExpect(jsonPath("$.data.reactions.SUPPORT").value(0))
             .andExpect(jsonPath("$.data.userReaction").isEmpty)
     }
 
@@ -303,7 +303,7 @@ class ReactionControllerTest {
     fun `getReactionCounts with authentication should return counts with userReaction`() {
         // Create reactions from different users
         createReactionForUser(TEST_USER_ID, TEST_CONTENT_ID, ReactionType.LOVE)
-        createReactionForUser(TEST_USER_ID_2, TEST_CONTENT_ID, ReactionType.HELPFUL)
+        createReactionForUser(TEST_USER_ID_2, TEST_CONTENT_ID, ReactionType.CELEBRATE)
 
         mockMvc.perform(
             get("/api/v1/reactions/content/$TEST_CONTENT_ID")
@@ -313,7 +313,7 @@ class ReactionControllerTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.data.contentId").value(TEST_CONTENT_ID.toString()))
             .andExpect(jsonPath("$.data.reactions.LOVE").value(1))
-            .andExpect(jsonPath("$.data.reactions.HELPFUL").value(1))
+            .andExpect(jsonPath("$.data.reactions.CELEBRATE").value(1))
             .andExpect(jsonPath("$.data.userReaction").value("LOVE"))
     }
 
@@ -325,29 +325,29 @@ class ReactionControllerTest {
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.data.reactionType").value("LOVE"))
 
-        // Test HELPFUL
-        submitValidReaction(TEST_USER_ID, UUID.randomUUID(), ReactionType.HELPFUL)
+        // Test CELEBRATE
+        submitValidReaction(TEST_USER_ID, UUID.randomUUID(), ReactionType.CELEBRATE)
             .andExpect(status().isCreated)
-            .andExpect(jsonPath("$.data.reactionType").value("HELPFUL"))
+            .andExpect(jsonPath("$.data.reactionType").value("CELEBRATE"))
 
-        // Test INTERESTING
-        submitValidReaction(TEST_USER_ID, UUID.randomUUID(), ReactionType.INTERESTING)
+        // Test INSIGHTFUL
+        submitValidReaction(TEST_USER_ID, UUID.randomUUID(), ReactionType.INSIGHTFUL)
             .andExpect(status().isCreated)
-            .andExpect(jsonPath("$.data.reactionType").value("INTERESTING"))
+            .andExpect(jsonPath("$.data.reactionType").value("INSIGHTFUL"))
 
-        // Test THANKYOU
-        submitValidReaction(TEST_USER_ID, UUID.randomUUID(), ReactionType.THANKYOU)
+        // Test SUPPORT
+        submitValidReaction(TEST_USER_ID, UUID.randomUUID(), ReactionType.SUPPORT)
             .andExpect(status().isCreated)
-            .andExpect(jsonPath("$.data.reactionType").value("THANKYOU"))
+            .andExpect(jsonPath("$.data.reactionType").value("SUPPORT"))
 
         // Verify all four were persisted with correct types
         val reactions = reactionRepository.findAll()
         assertThat(reactions).hasSize(4)
         assertThat(reactions.map { it.reactionType }).containsExactlyInAnyOrder(
             ReactionType.LOVE,
-            ReactionType.HELPFUL,
-            ReactionType.INTERESTING,
-            ReactionType.THANKYOU,
+            ReactionType.CELEBRATE,
+            ReactionType.INSIGHTFUL,
+            ReactionType.SUPPORT,
         )
     }
 

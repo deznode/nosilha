@@ -94,7 +94,7 @@ export function ReactionButton({
         // Initialize with zero counts on error
         setCounts({
           contentId,
-          reactions: { LOVE: 0, HELPFUL: 0, INTERESTING: 0, THANKYOU: 0 },
+          reactions: { LOVE: 0, CELEBRATE: 0, INSIGHTFUL: 0, SUPPORT: 0 },
           userReaction: null,
         });
       } finally {
@@ -239,9 +239,9 @@ export function ReactionButton({
   // T036: Display reaction counts for all reaction types
   const allReactionTypes: ReactionType[] = [
     "LOVE",
-    "HELPFUL",
-    "INTERESTING",
-    "THANKYOU",
+    "CELEBRATE",
+    "INSIGHTFUL",
+    "SUPPORT",
   ];
 
   return (

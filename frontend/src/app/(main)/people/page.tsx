@@ -9,7 +9,7 @@ import {
 import { BackToTopButton } from "@/components/ui/back-to-top-button";
 import { CitationSection } from "@/components/ui/citation-section";
 import { PrintPageWrapper } from "@/components/ui/print-page-wrapper";
-import { ContentActionToolbar } from "@/components/content-actions/ContentActionToolbar";
+import { ContentActionToolbar } from "@/components/ui/content-action-toolbar";
 
 // Enable ISR with 2 hour revalidation for people content
 export const revalidate = 7200;
@@ -497,16 +497,19 @@ export default function PeoplePage() {
             subtitle="Discover the remarkable people who shaped Brava Island's rich cultural heritage and continue to inspire generations."
           />
 
-          {/* Content Action Toolbar */}
+          {/* Content Action Toolbar - Refactored (Feature 005) */}
           <ContentActionToolbar
-            className="mb-8"
-            contentId={PEOPLE_PAGE_CONTENT_ID}
-            title="Historical Figures of Brava"
-            description="Explore the Bravense leaders, artists, and spiritual guardians whose influence spans oceans."
-            contentType="people"
-            pageUrl="/people"
-            image="/images/people/eugenio-tavares.jpg"
-            layout="inline"
+            contentId="00000000-0000-0000-0000-000000000001"
+            contentSlug="people-historical-figures"
+            contentTitle="Historical Figures of Brava"
+            contentUrl="https://nosilha.com/people"
+            reactions={[
+              { id: 'love', emoji: '❤️', count: 0, isSelected: false, ariaLabel: 'React with love' },
+              { id: 'celebrate', emoji: '🎉', count: 0, isSelected: false, ariaLabel: 'React to celebrate' },
+              { id: 'insightful', emoji: '💡', count: 0, isSelected: false, ariaLabel: 'Mark as insightful' },
+              { id: 'support', emoji: '👏', count: 0, isSelected: false, ariaLabel: 'Show support' },
+            ]}
+            isAuthenticated={true}
           />
 
           {/* Introduction Section */}

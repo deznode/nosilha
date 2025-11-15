@@ -11,7 +11,7 @@ import {
 import { CitationSection } from "@/components/ui/citation-section";
 import { ImageWithCourtesy } from "@/components/ui/image-with-courtesy";
 import { PrintPageWrapper } from "@/components/ui/print-page-wrapper";
-import { ContentActionToolbar } from "@/components/content-actions/ContentActionToolbar";
+import { ContentActionToolbar } from "@/components/ui/content-action-toolbar";
 
 // Enable ISR with 2 hour revalidation for historical content
 export const revalidate = 7200;
@@ -231,16 +231,19 @@ export default function HistoryPage() {
             subtitle="Discover the rich cultural tapestry and fascinating history of Brava Island, from its volcanic origins to its vibrant musical traditions."
           />
 
-          {/* Content Action Toolbar */}
+          {/* Content Action Toolbar - Refactored (Feature 005) */}
           <ContentActionToolbar
-            className="mb-8"
-            contentId={HISTORY_PAGE_CONTENT_ID}
-            title="History & Heritage"
-            description="Discover the full history of Brava Island—from volcanic origins to global cultural influence."
-            contentType="history"
-            pageUrl="/history"
-            image="/images/history/brava-formation.jpg"
-            layout="inline"
+            contentId="00000000-0000-0000-0000-000000000002"
+            contentSlug="history-heritage"
+            contentTitle="History & Heritage"
+            contentUrl="https://nosilha.com/history"
+            reactions={[
+              { id: 'love', emoji: '❤️', count: 0, isSelected: false, ariaLabel: 'React with love' },
+              { id: 'celebrate', emoji: '🎉', count: 0, isSelected: false, ariaLabel: 'React to celebrate' },
+              { id: 'insightful', emoji: '💡', count: 0, isSelected: false, ariaLabel: 'Mark as insightful' },
+              { id: 'support', emoji: '👏', count: 0, isSelected: false, ariaLabel: 'Show support' },
+            ]}
+            isAuthenticated={true}
           />
 
           {/* Introduction Section */}

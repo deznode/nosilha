@@ -197,9 +197,9 @@ class ReactionController(
      *   "contentId": "789e0123-e45b-67c8-d901-234567890abc",
      *   "reactions": {
      *     "LOVE": 42,
-     *     "HELPFUL": 15,
-     *     "INTERESTING": 8,
-     *     "THANKYOU": 23
+     *     "CELEBRATE": 15,
+     *     "INSIGHTFUL": 8,
+     *     "SUPPORT": 23
      *   },
      *   "userReaction": null
      * }
@@ -218,9 +218,9 @@ class ReactionController(
      *   "contentId": "789e0123-e45b-67c8-d901-234567890abc",
      *   "reactions": {
      *     "LOVE": 42,
-     *     "HELPFUL": 15,
-     *     "INTERESTING": 8,
-     *     "THANKYOU": 23
+     *     "CELEBRATE": 15,
+     *     "INSIGHTFUL": 8,
+     *     "SUPPORT": 23
      *   },
      *   "userReaction": "LOVE"
      * }

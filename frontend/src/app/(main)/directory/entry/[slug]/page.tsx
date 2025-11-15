@@ -18,7 +18,7 @@ import {
 import type { DirectoryEntry } from "@/types/directory";
 import { ImageGallery } from "@/components/ui/image-gallery";
 import { ContributePhotosSection } from "@/components/ui/contribute-photos-section";
-import { ContentActionToolbar } from "@/components/content-actions/ContentActionToolbar";
+import { ContentActionToolbar } from "@/components/ui/content-action-toolbar";
 import { RelatedContent } from "@/components/content-actions/RelatedContent";
 import { getRestaurantDetails, getHotelDetails } from "@/lib/api-validation";
 
@@ -175,17 +175,20 @@ export default async function DirectoryEntryDetailPage({
               {entry.description}
             </p>
 
-            {/* Content Action Toolbar */}
+            {/* Content Action Toolbar - Refactored (Feature 005) */}
             <div className="mt-6">
               <ContentActionToolbar
                 contentId={entry.id}
-                contentType={entry.category}
-                title={entry.name}
-                description={entry.description}
-                image={entry.imageUrl || undefined}
-                url={canonicalUrl}
-                pageUrl={canonicalUrl}
-                contentActions={entry.contentActions}
+                contentSlug={entry.slug}
+                contentTitle={entry.name}
+                contentUrl={canonicalUrl}
+                reactions={[
+                  { id: 'love', emoji: '❤️', count: 0, isSelected: false, ariaLabel: 'React with love' },
+                  { id: 'celebrate', emoji: '🎉', count: 0, isSelected: false, ariaLabel: 'React to celebrate' },
+                  { id: 'insightful', emoji: '💡', count: 0, isSelected: false, ariaLabel: 'Mark as insightful' },
+                  { id: 'support', emoji: '👏', count: 0, isSelected: false, ariaLabel: 'Show support' },
+                ]}
+                isAuthenticated={true}
               />
             </div>
 

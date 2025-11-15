@@ -432,9 +432,9 @@ export class MockApiClient implements ApiClient {
     if (!this.mockReactionCounts.has(createDto.contentId)) {
       this.mockReactionCounts.set(createDto.contentId, {
         LOVE: 0,
-        HELPFUL: 0,
-        INTERESTING: 0,
-        THANKYOU: 0,
+        CELEBRATE: 0,
+        INSIGHTFUL: 0,
+        SUPPORT: 0,
       });
     }
 
@@ -535,9 +535,9 @@ export class MockApiClient implements ApiClient {
       // Generate realistic mock counts for demonstration
       counts = {
         LOVE: Math.floor(Math.random() * 50) + 10, // 10-60 loves
-        HELPFUL: Math.floor(Math.random() * 30) + 5, // 5-35 helpful
-        INTERESTING: Math.floor(Math.random() * 20) + 3, // 3-23 interesting
-        THANKYOU: Math.floor(Math.random() * 40) + 8, // 8-48 thank you
+        CELEBRATE: Math.floor(Math.random() * 30) + 5, // 5-35 celebrate
+        INSIGHTFUL: Math.floor(Math.random() * 20) + 3, // 3-23 insightful
+        SUPPORT: Math.floor(Math.random() * 40) + 8, // 8-48 support
       };
       this.mockReactionCounts.set(contentId, counts);
     }
