@@ -14,12 +14,12 @@ import { Logo as Logo4 } from "@/components/ui/logo4";
 import NewsletterSignup from "@/components/ui/newsletter";
 import { SocialMediaLinks } from "@/components/ui/social-media-links";
 import Banner from "@/components/ui/banner";
-import { SuggestImprovementForm } from "@/components/content-actions/SuggestImprovementForm";
-import { RelatedContent } from "@/components/content-actions/RelatedContent";
-import { ActionToast } from "@/components/content-actions/ActionToast";
-import { ShareButton } from "@/components/content-actions/ShareButton";
-import { CopyLinkButton } from "@/components/content-actions/CopyLinkButton";
-import { ReactionButton } from "@/components/content-actions/ReactionButton";
+import { SuggestImprovementForm } from "@/components/ui/actions/suggest-improvement-form";
+import { RelatedContent } from "@/components/ui/related-content";
+import { ActionToast } from "@/components/ui/action-toast";
+import { ShareButton } from "@/components/ui/actions/share-button";
+import { CopyLinkButton } from "@/components/ui/actions/copy-link-button";
+import { ReactionButtons } from "@/components/ui/actions/reaction-buttons";
 import { Button } from "@/components/catalyst-ui/button";
 
 /**
@@ -158,9 +158,8 @@ export default function TestPage() {
                 title={showcaseTitle}
                 url={showcaseUrl}
                 description={showcaseDescription}
-                className="w-full md:w-auto"
               />
-              <CopyLinkButton url={showcaseUrl} className="w-full md:w-auto" />
+              <CopyLinkButton url={showcaseUrl} />
               <Button onClick={() => setIsSuggestOpen(true)}>
                 Suggest Improvement
               </Button>
@@ -173,11 +172,22 @@ export default function TestPage() {
                 Reactions
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Powered by the <code>ReactionButton</code> component with mock
+                Powered by the <code>ReactionButtons</code> component with mock
                 API data.
               </p>
               <div className="mt-4">
-                <ReactionButton contentId={showcaseContentId} />
+                <ReactionButtons
+                  contentId={showcaseContentId}
+                  contentSlug="test-showcase"
+                  reactions={[
+                    { id: 'love', emoji: '❤️', count: 12, isSelected: false, ariaLabel: 'React with love' },
+                    { id: 'celebrate', emoji: '🎉', count: 5, isSelected: true, ariaLabel: 'React to celebrate' },
+                    { id: 'insightful', emoji: '💡', count: 8, isSelected: false, ariaLabel: 'Mark as insightful' },
+                    { id: 'support', emoji: '👏', count: 3, isSelected: false, ariaLabel: 'Show support' },
+                  ]}
+                  isAuthenticated={true}
+                  orientation="horizontal"
+                />
               </div>
             </div>
 

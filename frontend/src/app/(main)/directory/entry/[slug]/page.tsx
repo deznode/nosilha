@@ -19,7 +19,7 @@ import type { DirectoryEntry } from "@/types/directory";
 import { ImageGallery } from "@/components/ui/image-gallery";
 import { ContributePhotosSection } from "@/components/ui/contribute-photos-section";
 import { ContentActionToolbar } from "@/components/ui/content-action-toolbar";
-import { RelatedContent } from "@/components/content-actions/RelatedContent";
+import { RelatedContent } from "@/components/ui/related-content";
 import { getRestaurantDetails, getHotelDetails } from "@/lib/api-validation";
 
 interface DetailPageProps {
@@ -182,6 +182,7 @@ export default async function DirectoryEntryDetailPage({
                 contentSlug={entry.slug}
                 contentTitle={entry.name}
                 contentUrl={canonicalUrl}
+                contentType={entry.category}
                 reactions={[
                   { id: 'love', emoji: '❤️', count: 0, isSelected: false, ariaLabel: 'React with love' },
                   { id: 'celebrate', emoji: '🎉', count: 0, isSelected: false, ariaLabel: 'React to celebrate' },

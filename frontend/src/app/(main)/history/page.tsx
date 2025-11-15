@@ -237,6 +237,7 @@ export default function HistoryPage() {
             contentSlug="history-heritage"
             contentTitle="History & Heritage"
             contentUrl="https://nosilha.com/history"
+            contentType="Page"
             reactions={[
               { id: 'love', emoji: '❤️', count: 0, isSelected: false, ariaLabel: 'React with love' },
               { id: 'celebrate', emoji: '🎉', count: 0, isSelected: false, ariaLabel: 'React to celebrate' },

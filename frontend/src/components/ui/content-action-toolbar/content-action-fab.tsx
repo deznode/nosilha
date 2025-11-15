@@ -4,11 +4,11 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { ContentActionFABProps } from '@/types/content-action-toolbar/component-props';
 import { Sparkles, X } from 'lucide-react';
-import { ReactionButtons } from './reaction-buttons';
-import { ShareButton } from './share-button';
-import { CopyLinkButton } from './copy-link-button';
-import { PrintButton } from './print-button';
-import { SuggestImprovementButton } from './suggest-improvement-button';
+import { ReactionButtons } from '@/components/ui/actions/reaction-buttons';
+import { ShareButton } from '@/components/ui/actions/share-button';
+import { CopyLinkButton } from '@/components/ui/actions/copy-link-button';
+import { PrintButton } from '@/components/ui/actions/print-button';
+import { SuggestImprovementButton } from '@/components/ui/actions/suggest-improvement-button';
 
 /**
  * Content Action FAB (Floating Action Button) - Wireframe Update
@@ -40,6 +40,7 @@ export function ContentActionFAB({
   contentSlug,
   contentTitle,
   contentUrl,
+  contentType,
   reactions,
   isAuthenticated,
   onReactionToggle,
@@ -174,7 +175,10 @@ export function ContentActionFAB({
               transition={{ delay: 0.25 }}
             >
               <SuggestImprovementButton
-                contentSlug={contentSlug}
+                contentId={contentId}
+                contentTitle={contentTitle}
+                contentType={contentType}
+                pageUrl={contentUrl}
                 variant="icon-only"
               />
             </motion.div>

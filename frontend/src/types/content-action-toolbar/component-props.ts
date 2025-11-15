@@ -127,6 +127,9 @@ export interface ContentActionToolbarProps {
   /** Full URL for sharing and copy link */
   contentUrl: string;
 
+  /** Content type (directory entry type: restaurant, hotel, landmark, etc.) */
+  contentType: string;
+
   /** Available reactions (emoji type, count, user selection state) */
   reactions: Reaction[];
 
@@ -255,6 +258,9 @@ export interface ContentActionFABProps {
   /** Content URL for share */
   contentUrl: string;
 
+  /** Content type (directory entry type) */
+  contentType: string;
+
   /** Available reactions */
   reactions: Reaction[];
 
@@ -292,6 +298,9 @@ export interface ContentActionDesktopProps {
 
   /** Content URL for share */
   contentUrl: string;
+
+  /** Content type (directory entry type) */
+  contentType: string;
 
   /** Available reactions */
   reactions: Reaction[];

@@ -503,6 +503,7 @@ export default function PeoplePage() {
             contentSlug="people-historical-figures"
             contentTitle="Historical Figures of Brava"
             contentUrl="https://nosilha.com/people"
+            contentType="Page"
             reactions={[
               { id: 'love', emoji: '❤️', count: 0, isSelected: false, ariaLabel: 'React with love' },
               { id: 'celebrate', emoji: '🎉', count: 0, isSelected: false, ariaLabel: 'React to celebrate' },

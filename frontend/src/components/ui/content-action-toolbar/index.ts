@@ -24,12 +24,13 @@ export { ContentActionDesktop } from './content-action-desktop';
 // Mobile FAB variant (code-split for desktop optimization)
 export { ContentActionFAB } from './content-action-fab';
 
-// Shared components
-export { ReactionButtons } from './reaction-buttons';
-export { ShareButton } from './share-button';
-export { SuggestImprovementModal } from './suggest-improvement-modal';
-export { CopyLinkButton } from './copy-link-button';
-export { PrintButton } from './print-button';
+// Shared action components (moved to ui/actions/)
+export { ReactionButtons } from '@/components/ui/actions/reaction-buttons';
+export { ShareButton } from '@/components/ui/actions/share-button';
+export { SuggestImprovementForm } from '@/components/ui/actions/suggest-improvement-form';
+export { SuggestImprovementButton } from '@/components/ui/actions/suggest-improvement-button';
+export { CopyLinkButton } from '@/components/ui/actions/copy-link-button';
+export { PrintButton } from '@/components/ui/actions/print-button';
 
 // ============================================================================
 // Type Exports

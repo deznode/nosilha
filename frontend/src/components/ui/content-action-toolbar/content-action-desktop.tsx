@@ -1,11 +1,11 @@
 'use client';
 
 import { ContentActionDesktopProps } from '@/types/content-action-toolbar/component-props';
-import { ReactionButtons } from './reaction-buttons';
-import { ShareButton } from './share-button';
-import { CopyLinkButton } from './copy-link-button';
-import { PrintButton } from './print-button';
-import { SuggestImprovementButton } from './suggest-improvement-button';
+import { ReactionButtons } from '@/components/ui/actions/reaction-buttons';
+import { ShareButton } from '@/components/ui/actions/share-button';
+import { CopyLinkButton } from '@/components/ui/actions/copy-link-button';
+import { PrintButton } from '@/components/ui/actions/print-button';
+import { SuggestImprovementButton } from '@/components/ui/actions/suggest-improvement-button';
 
 /**
  * Desktop Left-Rail Content Action Toolbar (Wireframe Update)
@@ -31,6 +31,7 @@ export function ContentActionDesktop({
   contentSlug,
   contentTitle,
   contentUrl,
+  contentType,
   reactions,
   isAuthenticated,
   onReactionToggle,
@@ -73,7 +74,10 @@ export function ContentActionDesktop({
 
         {/* 5. Suggest Improvement Button (icon + label) */}
         <SuggestImprovementButton
-          contentSlug={contentSlug}
+          contentId={contentId}
+          contentTitle={contentTitle}
+          contentType={contentType}
+          pageUrl={contentUrl}
           variant="icon-with-label"
         />
       </div>
