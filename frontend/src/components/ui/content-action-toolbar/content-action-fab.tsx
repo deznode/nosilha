@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { ContentActionFABProps } from '@/types/content-action-toolbar/component-props';
-import { Sparkles, X } from 'lucide-react';
-import { ReactionButtons } from '@/components/ui/actions/reaction-buttons';
-import { ShareButton } from '@/components/ui/actions/share-button';
-import { CopyLinkButton } from '@/components/ui/actions/copy-link-button';
-import { PrintButton } from '@/components/ui/actions/print-button';
-import { SuggestImprovementButton } from '@/components/ui/actions/suggest-improvement-button';
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { ContentActionFABProps } from "@/types/content-action-toolbar/component-props";
+import { Sparkles, X } from "lucide-react";
+import { ReactionButtons } from "@/components/ui/actions/reaction-buttons";
+import { ShareButton } from "@/components/ui/actions/share-button";
+import { CopyLinkButton } from "@/components/ui/actions/copy-link-button";
+import { PrintButton } from "@/components/ui/actions/print-button";
+import { SuggestImprovementButton } from "@/components/ui/actions/suggest-improvement-button";
 
 /**
  * Content Action FAB (Floating Action Button) - Wireframe Update
@@ -70,17 +70,17 @@ export function ContentActionFAB({
 
     // Escape key to collapse
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isExpanded) {
+      if (event.key === "Escape" && isExpanded) {
         setIsExpanded(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keydown', handleEscape);
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
     };
   }, [isExpanded]);
 
@@ -111,7 +111,7 @@ export function ContentActionFAB({
   return (
     <div
       ref={fabRef}
-      className="fixed bottom-4 right-4 z-50"
+      className="fixed right-4 bottom-4 z-50"
       data-testid="content-action-fab"
     >
       {/* Expanded Menu (appears above FAB) */}
@@ -122,10 +122,7 @@ export function ContentActionFAB({
             className="mb-4 flex flex-col gap-3 rounded-lg bg-[var(--color-background-primary)] p-4 shadow-lg"
           >
             {/* 1. Share Button (icon-only for mobile space efficiency) */}
-            <motion.div
-              {...menuItemAnimation}
-              transition={{ delay: 0.05 }}
-            >
+            <motion.div {...menuItemAnimation} transition={{ delay: 0.05 }}>
               <ShareButton
                 title={contentTitle}
                 url={contentUrl}
@@ -134,10 +131,7 @@ export function ContentActionFAB({
             </motion.div>
 
             {/* 2. Reactions (horizontal orientation, ❤️ 🎉 💡 👏) */}
-            <motion.div
-              {...menuItemAnimation}
-              transition={{ delay: 0.1 }}
-            >
+            <motion.div {...menuItemAnimation} transition={{ delay: 0.1 }}>
               <ReactionButtons
                 reactions={reactions}
                 contentId={contentId}
@@ -149,31 +143,17 @@ export function ContentActionFAB({
             </motion.div>
 
             {/* 3. Copy Link Button (icon-only) */}
-            <motion.div
-              {...menuItemAnimation}
-              transition={{ delay: 0.15 }}
-            >
-              <CopyLinkButton
-                url={contentUrl}
-                variant="icon-only"
-              />
+            <motion.div {...menuItemAnimation} transition={{ delay: 0.15 }}>
+              <CopyLinkButton url={contentUrl} variant="icon-only" />
             </motion.div>
 
             {/* 4. Print Button (icon-only) */}
-            <motion.div
-              {...menuItemAnimation}
-              transition={{ delay: 0.2 }}
-            >
-              <PrintButton
-                variant="icon-only"
-              />
+            <motion.div {...menuItemAnimation} transition={{ delay: 0.2 }}>
+              <PrintButton variant="icon-only" />
             </motion.div>
 
             {/* 5. Suggest Improvement Button (icon-only) */}
-            <motion.div
-              {...menuItemAnimation}
-              transition={{ delay: 0.25 }}
-            >
+            <motion.div {...menuItemAnimation} transition={{ delay: 0.25 }}>
               <SuggestImprovementButton
                 contentId={contentId}
                 contentTitle={contentTitle}
@@ -191,11 +171,19 @@ export function ContentActionFAB({
         {...fabAnimation}
         type="button"
         onClick={handleToggle}
-        aria-label={isExpanded ? 'Close content actions menu' : 'Open content actions menu'}
+        aria-label={
+          isExpanded
+            ? "Close content actions menu"
+            : "Open content actions menu"
+        }
         aria-expanded={isExpanded}
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-ocean-blue)] text-white shadow-lg transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-[var(--color-ocean-blue)] focus:ring-offset-2"
+        className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-ocean-blue)] text-white shadow-lg transition-transform hover:scale-105 focus:ring-2 focus:ring-[var(--color-ocean-blue)] focus:ring-offset-2 focus:outline-none"
       >
-        {isExpanded ? <X className="h-6 w-6" /> : <Sparkles className="h-6 w-6" />}
+        {isExpanded ? (
+          <X className="h-6 w-6" />
+        ) : (
+          <Sparkles className="h-6 w-6" />
+        )}
       </motion.button>
     </div>
   );

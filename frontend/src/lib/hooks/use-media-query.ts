@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 /**
  * Custom hook for responsive breakpoint detection using window.matchMedia
@@ -27,7 +27,7 @@ export function useMediaQuery(query: string): boolean {
 
   useEffect(() => {
     // Check if window is available (client-side only)
-    if (typeof window === 'undefined') {
+    if (typeof window === "undefined") {
       return;
     }
 
@@ -44,11 +44,11 @@ export function useMediaQuery(query: string): boolean {
 
     // Add event listener for dynamic updates
     // Modern browsers support addEventListener on MediaQueryList
-    mediaQueryList.addEventListener('change', handleChange);
+    mediaQueryList.addEventListener("change", handleChange);
 
     // Cleanup listener on unmount
     return () => {
-      mediaQueryList.removeEventListener('change', handleChange);
+      mediaQueryList.removeEventListener("change", handleChange);
     };
   }, [query]);
 

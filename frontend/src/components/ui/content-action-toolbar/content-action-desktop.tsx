@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { ContentActionDesktopProps } from '@/types/content-action-toolbar/component-props';
-import { ReactionButtons } from '@/components/ui/actions/reaction-buttons';
-import { ShareButton } from '@/components/ui/actions/share-button';
-import { CopyLinkButton } from '@/components/ui/actions/copy-link-button';
-import { PrintButton } from '@/components/ui/actions/print-button';
-import { SuggestImprovementButton } from '@/components/ui/actions/suggest-improvement-button';
+import { ContentActionDesktopProps } from "@/types/content-action-toolbar/component-props";
+import { ReactionButtons } from "@/components/ui/actions/reaction-buttons";
+import { ShareButton } from "@/components/ui/actions/share-button";
+import { CopyLinkButton } from "@/components/ui/actions/copy-link-button";
+import { PrintButton } from "@/components/ui/actions/print-button";
+import { SuggestImprovementButton } from "@/components/ui/actions/suggest-improvement-button";
 
 /**
  * Desktop Left-Rail Content Action Toolbar (Wireframe Update)
@@ -40,7 +40,7 @@ export function ContentActionDesktop({
     <div
       role="toolbar"
       aria-label="Content actions"
-      className="fixed left-4 top-1/2 z-40 -translate-y-1/2"
+      className="fixed top-1/2 left-4 z-40 -translate-y-1/2"
     >
       {/* Background card container with rounded corners and shadow */}
       <div className="flex flex-col gap-3 rounded-lg bg-[var(--color-background-primary)] p-4 shadow-md">
@@ -62,15 +62,10 @@ export function ContentActionDesktop({
         />
 
         {/* 3. Copy Link Button (icon + label) */}
-        <CopyLinkButton
-          url={contentUrl}
-          variant="icon-with-label"
-        />
+        <CopyLinkButton url={contentUrl} variant="icon-with-label" />
 
         {/* 4. Print Button (icon + label) */}
-        <PrintButton
-          variant="icon-with-label"
-        />
+        <PrintButton variant="icon-with-label" />
 
         {/* 5. Suggest Improvement Button (icon + label) */}
         <SuggestImprovementButton

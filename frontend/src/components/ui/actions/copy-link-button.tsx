@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
-import { Link as LinkIcon, Check } from 'lucide-react';
+import { useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Link as LinkIcon, Check } from "lucide-react";
 
 /**
  * Copy Link Button Component
@@ -30,13 +30,13 @@ import { Link as LinkIcon, Check } from 'lucide-react';
 
 export interface CopyLinkButtonProps {
   url: string;
-  variant?: 'icon-only' | 'icon-with-label';
+  variant?: "icon-only" | "icon-with-label";
   onCopySuccess?: () => void;
 }
 
 export function CopyLinkButton({
   url,
-  variant = 'icon-with-label',
+  variant = "icon-with-label",
   onCopySuccess,
 }: CopyLinkButtonProps) {
   const [showSuccessToast, setShowSuccessToast] = useState(false);
@@ -67,12 +67,13 @@ export function CopyLinkButton({
         setShowSuccessToast(false);
       }, 2000);
     } catch (error) {
-      console.error('Failed to copy link:', error);
+      console.error("Failed to copy link:", error);
     }
   };
 
   // Check if clipboard API is available
-  const isClipboardAvailable = typeof navigator !== 'undefined' && navigator.clipboard;
+  const isClipboardAvailable =
+    typeof navigator !== "undefined" && navigator.clipboard;
 
   // Animation configuration
   const scaleAnimation = prefersReducedMotion
@@ -90,19 +91,16 @@ export function CopyLinkButton({
           onClick={handleCopyLink}
           disabled={!isClipboardAvailable}
           aria-label="Copy link to clipboard"
-          className={`
-            focus-ring flex h-11 w-11 items-center justify-center rounded-full transition-all
-            ${isActive
-              ? 'bg-[var(--color-ocean-blue)] text-white'
-              : 'bg-[var(--color-background-secondary)] text-[var(--color-text-primary)] hover:bg-gray-200 dark:hover:bg-gray-700'
-            }
-            ${!isClipboardAvailable ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-          `}
+          className={`focus-ring flex h-11 w-11 items-center justify-center rounded-full transition-all ${
+            isActive
+              ? "bg-[var(--color-ocean-blue)] text-white"
+              : "bg-[var(--color-background-secondary)] text-[var(--color-text-primary)] hover:bg-gray-200 dark:hover:bg-gray-700"
+          } ${!isClipboardAvailable ? "cursor-not-allowed opacity-50" : "cursor-pointer"} `}
         >
           <LinkIcon className="h-5 w-5" />
         </motion.button>
 
-        {variant === 'icon-with-label' && (
+        {variant === "icon-with-label" && (
           <span className="mt-1 text-xs font-normal text-[var(--color-text-secondary)]">
             Copy Link
           </span>

@@ -322,8 +322,8 @@ export class MockApiClient implements ApiClient {
       category.toLowerCase() === "all"
         ? MOCK_ENTRIES
         : MOCK_ENTRIES.filter(
-          (entry) => entry.category.toLowerCase() === category.toLowerCase()
-        );
+            (entry) => entry.category.toLowerCase() === category.toLowerCase()
+          );
 
     const pagination: PaginationMetadata = {
       page: 0,

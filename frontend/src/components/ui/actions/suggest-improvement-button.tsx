@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
-import { Lightbulb } from 'lucide-react';
-import { SuggestImprovementForm } from './suggest-improvement-form';
+import { useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Lightbulb } from "lucide-react";
+import { SuggestImprovementForm } from "./suggest-improvement-form";
 
 /**
  * Suggest Improvement Button Component
@@ -43,7 +43,7 @@ export interface SuggestImprovementButtonProps {
   pageUrl: string;
 
   /** Display variant (icon-only or icon-with-label) */
-  variant?: 'icon-only' | 'icon-with-label';
+  variant?: "icon-only" | "icon-with-label";
 
   /** Callback when suggestion submitted successfully */
   onSuggestionSuccess?: () => void;
@@ -54,7 +54,7 @@ export function SuggestImprovementButton({
   contentTitle,
   contentType,
   pageUrl,
-  variant = 'icon-with-label',
+  variant = "icon-with-label",
   onSuggestionSuccess,
 }: SuggestImprovementButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -85,7 +85,7 @@ export function SuggestImprovementButton({
           <Lightbulb className="h-5 w-5" />
         </motion.button>
 
-        {variant === 'icon-with-label' && (
+        {variant === "icon-with-label" && (
           <span className="mt-1 text-xs font-normal text-[var(--color-text-secondary)]">
             Suggest
           </span>

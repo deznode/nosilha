@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { motion, useReducedMotion } from 'framer-motion';
-import { Printer } from 'lucide-react';
+import { motion, useReducedMotion } from "framer-motion";
+import { Printer } from "lucide-react";
 
 /**
  * Print Button Component
@@ -27,12 +27,12 @@ import { Printer } from 'lucide-react';
  */
 
 export interface PrintButtonProps {
-  variant?: 'icon-only' | 'icon-with-label';
+  variant?: "icon-only" | "icon-with-label";
   onPrintTriggered?: () => void;
 }
 
 export function PrintButton({
-  variant = 'icon-with-label',
+  variant = "icon-with-label",
   onPrintTriggered,
 }: PrintButtonProps) {
   const prefersReducedMotion = useReducedMotion();
@@ -67,7 +67,7 @@ export function PrintButton({
         <Printer className="h-5 w-5" />
       </motion.button>
 
-      {variant === 'icon-with-label' && (
+      {variant === "icon-with-label" && (
         <span className="mt-1 text-xs font-normal text-[var(--color-text-secondary)]">
           Print
         </span>

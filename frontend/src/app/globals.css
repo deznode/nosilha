@@ -141,7 +141,8 @@
 
   /* Content Action Toolbar Animations */
   @keyframes bounce-reaction {
-    0%, 100% {
+    0%,
+    100% {
       transform: scale(1);
     }
     50% {
@@ -150,7 +151,8 @@
   }
 
   @keyframes scale-share {
-    0%, 100% {
+    0%,
+    100% {
       transform: scale(1);
     }
     50% {
@@ -249,7 +251,12 @@
       font-family: var(--font-serif); /* Merriweather for print readability */
     }
 
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
       color: black;
       page-break-after: avoid; /* Keep headings with following content */
     }
@@ -306,7 +313,9 @@
     /* === Page Break Management === */
 
     /* Prevent orphaned headings */
-    h1, h2, h3 {
+    h1,
+    h2,
+    h3 {
       page-break-after: avoid;
     }
 

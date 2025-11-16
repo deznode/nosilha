@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
     extend: {
       screens: {
-        'print': { 'raw': 'print' }, // Enables print: prefix → @media print
+        print: { raw: "print" }, // Enables print: prefix → @media print
       },
     },
   },

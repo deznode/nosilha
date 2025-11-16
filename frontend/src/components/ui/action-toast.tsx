@@ -1,6 +1,9 @@
 "use client";
 
-import { CheckCircleIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import {
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+} from "@heroicons/react/24/outline";
 import clsx from "clsx";
 
 type ToastVariant = "success" | "error";
@@ -30,7 +33,7 @@ export function ActionToast({
   return (
     <div
       className={clsx(
-        "fixed bottom-4 right-4 z-[60] flex items-center gap-3 rounded-lg px-4 py-3 shadow-lg",
+        "fixed right-4 bottom-4 z-[60] flex items-center gap-3 rounded-lg px-4 py-3 shadow-lg",
         variant === "success"
           ? "bg-emerald-600 text-white"
           : "bg-red-600 text-white"

@@ -109,7 +109,9 @@
     page-break-after: avoid;
   }
 
-  h4, h5, h6 {
+  h4,
+  h5,
+  h6 {
     font-size: 12pt;
     margin-top: 0.3cm;
     margin-bottom: 0.2cm;
@@ -126,7 +128,8 @@
   }
 
   /* Lists */
-  ul, ol {
+  ul,
+  ol {
     font-size: 12pt;
     line-height: 1.6;
     margin-bottom: 0.3cm;
@@ -210,12 +213,19 @@
   }
 
   /* Avoid page breaks after headings */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     page-break-after: avoid;
   }
 
   /* Keep headings with following content */
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     page-break-inside: avoid;
   }
 
@@ -229,7 +239,8 @@
     page-break-inside: avoid;
   }
 
-  th, td {
+  th,
+  td {
     border: 1px solid #000;
     padding: 0.2cm;
     text-align: left;
@@ -250,7 +261,8 @@
 
   /* ===== Code Blocks ===== */
 
-  pre, code {
+  pre,
+  code {
     font-family: "Courier New", Courier, monospace;
     font-size: 10pt;
     background-color: #f5f5f5;

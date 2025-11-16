@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/catalyst-ui/button";
 import { Input } from "@/components/catalyst-ui/input";
 import { Field, Label } from "@/components/catalyst-ui/fieldset";
@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/catalyst-ui/dialog";
 import { submitSuggestion } from "@/lib/api";
+import { useAuth } from "@/components/providers/auth-provider";
 
 type SuggestionType = "CORRECTION" | "ADDITION" | "FEEDBACK";
 
@@ -32,6 +33,9 @@ export function SuggestImprovementForm({
   isOpen,
   onClose,
 }: SuggestImprovementFormProps) {
+  const { user, session } = useAuth();
+  const isAuthenticated = !!session;
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [suggestionType, setSuggestionType] =
@@ -41,6 +45,13 @@ export function SuggestImprovementForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  // Auto-populate email for authenticated users
+  useEffect(() => {
+    if (isAuthenticated && user?.email) {
+      setEmail(user.email);
+    }
+  }, [isAuthenticated, user?.email]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +65,8 @@ export function SuggestImprovementForm({
       return;
     }
 
-    if (!email || !email.includes("@")) {
+    // Email validation - only for anonymous users
+    if (!isAuthenticated && (!email || !email.includes("@"))) {
       setSubmitError("Please enter a valid email address");
       setIsSubmitting(false);
       return;
@@ -75,13 +87,17 @@ export function SuggestImprovementForm({
     }
 
     try {
+      // Use authenticated user's email if logged in, otherwise use form input
+      const submissionEmail =
+        isAuthenticated && user?.email ? user.email : email.trim();
+
       await submitSuggestion({
         contentId,
         pageTitle: contentTitle,
         pageUrl,
         contentType,
         name: name.trim(),
-        email: email.trim().toLowerCase(),
+        email: submissionEmail.toLowerCase(),
         suggestionType,
         message: message.trim(),
         honeypot: honeypot || undefined,
@@ -195,22 +211,32 @@ export function SuggestImprovementForm({
                 />
               </Field>
 
-              <Field>
-                <Label>Your Email *</Label>
-                <Input
-                  type="email"
-                  name="email"
-                  required
-                  maxLength={255}
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="your.email@example.com"
-                  disabled={isSubmitting}
-                />
-                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                  We may contact you for clarification on your suggestion.
-                </p>
-              </Field>
+              {/* Only show email input for anonymous users */}
+              {!isAuthenticated && (
+                <Field>
+                  <Label>Your Email *</Label>
+                  <Input
+                    type="email"
+                    name="email"
+                    required
+                    maxLength={255}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="your.email@example.com"
+                    disabled={isSubmitting}
+                  />
+                  <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                    We may contact you for clarification on your suggestion.
+                  </p>
+                </Field>
+              )}
+
+              {/* Show email info for authenticated users */}
+              {isAuthenticated && user?.email && (
+                <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                  Submitting as: <strong>{user.email}</strong>
+                </div>
+              )}
 
               <Field>
                 <Label>Suggestion Type *</Label>

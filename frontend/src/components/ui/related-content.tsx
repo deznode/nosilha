@@ -146,10 +146,7 @@ function RelatedCardsGrid({ entries }: { entries: DirectoryEntry[] }) {
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {entries.map((entry) => (
-            <div
-              key={entry.id}
-              className="w-[280px] flex-shrink-0 snap-start"
-            >
+            <div key={entry.id} className="w-[280px] flex-shrink-0 snap-start">
               <RelatedEntryCard entry={entry} />
             </div>
           ))}
@@ -198,7 +195,7 @@ function RelatedEntryCard({ entry }: { entry: DirectoryEntry }) {
           )}
         </div>
         <div className="flex flex-1 flex-col gap-2 p-4">
-          <span className="text-xs font-semibold uppercase tracking-wide text-ocean-blue">
+          <span className="text-ocean-blue text-xs font-semibold tracking-wide uppercase">
             {entry.category}
           </span>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
