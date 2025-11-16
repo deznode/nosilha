@@ -17,11 +17,7 @@ const MotionConfigContext = createContext<MotionConfig>({
   reducedMotion: false,
 });
 
-export function MotionConfigProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export function MotionConfigProvider({ children }: { children: ReactNode }) {
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {

@@ -67,6 +67,8 @@ dependencies {
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("org.springframework.security:spring-security-oauth2-jose")
+    testImplementation("org.springframework.security:spring-security-oauth2-resource-server")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
