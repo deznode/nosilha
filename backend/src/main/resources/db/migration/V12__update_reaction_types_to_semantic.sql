@@ -1,22 +1,24 @@
 -- Migration to update reaction types to LinkedIn-style semantic naming
--- Changes: HEART→LOVE, PARTY→CELEBRATE, LIGHTBULB→INSIGHTFUL, CLAP→SUPPORT
+-- Direct migration from original types to semantic types (no intermediate steps)
+-- Original: LOVE, HELPFUL, INTERESTING, THANKYOU
+-- Target: LOVE, CELEBRATE, INSIGHTFUL, SUPPORT
 -- Reference: docs/API_CODING_STANDARDS.md (Section 4: Data Migration & Schema Evolution)
 
 -- Step 1: Drop the existing check constraint
 ALTER TABLE reactions DROP CONSTRAINT IF EXISTS chk_reaction_type;
 
 -- Step 2: Update existing data to new semantic enum values
--- HEART → LOVE (maintain emotional connection meaning)
-UPDATE reactions SET reaction_type = 'LOVE' WHERE reaction_type = 'HEART';
+-- LOVE → LOVE (no change - maintain emotional connection meaning)
+-- No update needed for LOVE
 
--- PARTY → CELEBRATE (maintain celebration meaning with semantic clarity)
-UPDATE reactions SET reaction_type = 'CELEBRATE' WHERE reaction_type = 'PARTY';
+-- HELPFUL → CELEBRATE (shift from utility to celebration of cultural heritage)
+UPDATE reactions SET reaction_type = 'CELEBRATE' WHERE reaction_type = 'HELPFUL';
 
--- LIGHTBULB → INSIGHTFUL (maintain discovery/learning meaning with semantic clarity)
-UPDATE reactions SET reaction_type = 'INSIGHTFUL' WHERE reaction_type = 'LIGHTBULB';
+-- INTERESTING → INSIGHTFUL (maintain discovery/learning meaning with semantic clarity)
+UPDATE reactions SET reaction_type = 'INSIGHTFUL' WHERE reaction_type = 'INTERESTING';
 
--- CLAP → SUPPORT (maintain appreciation meaning with semantic clarity)
-UPDATE reactions SET reaction_type = 'SUPPORT' WHERE reaction_type = 'CLAP';
+-- THANKYOU → SUPPORT (maintain appreciation meaning with semantic clarity)
+UPDATE reactions SET reaction_type = 'SUPPORT' WHERE reaction_type = 'THANKYOU';
 
 -- Step 3: Add new check constraint with updated semantic enum values
 ALTER TABLE reactions
