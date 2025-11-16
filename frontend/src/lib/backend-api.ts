@@ -558,6 +558,18 @@ export class BackendApiClient implements ApiClient {
     return payload.data as T;
   }
 
+  private isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null;
+  }
+
+  private getNumber(value: unknown): number | undefined {
+    return typeof value === "number" ? value : undefined;
+  }
+
+  private getBoolean(value: unknown): boolean | undefined {
+    return typeof value === "boolean" ? value : undefined;
+  }
+
   /**
    * Extracts paginated results (items + metadata) from payloads.
    */
@@ -582,22 +594,34 @@ export class BackendApiClient implements ApiClient {
   private extractPaginationMetadata(
     payload: PagedApiResponse<unknown> | Record<string, unknown>
   ): PaginationMetadata | null {
-    const source =
-      (payload as Record<string, any>).pageable ??
-      (payload as Record<string, any>).pagination;
+    const payloadRecord = payload as Record<string, unknown>;
+    const sourceCandidate =
+      ("pageable" in payloadRecord ? payloadRecord.pageable : undefined) ??
+      ("pagination" in payloadRecord ? payloadRecord.pagination : undefined);
 
-    if (!source) {
+    if (!this.isRecord(sourceCandidate)) {
       return null;
     }
 
     const page =
-      source.page ?? source.currentPage ?? source.number ?? source.index ?? 0;
-    const size = source.size ?? source.pageSize ?? source.limit ?? 0;
+      this.getNumber(sourceCandidate.page) ??
+      this.getNumber(sourceCandidate.currentPage) ??
+      this.getNumber(sourceCandidate.number) ??
+      this.getNumber(sourceCandidate.index) ??
+      0;
+    const size =
+      this.getNumber(sourceCandidate.size) ??
+      this.getNumber(sourceCandidate.pageSize) ??
+      this.getNumber(sourceCandidate.limit) ??
+      0;
     const totalElements =
-      source.totalElements ?? source.total ?? source.count ?? 0;
+      this.getNumber(sourceCandidate.totalElements) ??
+      this.getNumber(sourceCandidate.total) ??
+      this.getNumber(sourceCandidate.count) ??
+      0;
     const totalPages =
-      source.totalPages ??
-      source.pages ??
+      this.getNumber(sourceCandidate.totalPages) ??
+      this.getNumber(sourceCandidate.pages) ??
       (size > 0 ? Math.max(1, Math.ceil(totalElements / size)) : 1);
 
     return {
@@ -605,15 +629,14 @@ export class BackendApiClient implements ApiClient {
       size,
       totalElements,
       totalPages,
-      first: Boolean(
-        source.first ?? (typeof page === "number" ? page <= 0 : source.isFirst)
-      ),
-      last: Boolean(
-        source.last ??
-          (typeof totalPages === "number"
-            ? page >= totalPages - 1
-            : source.isLast)
-      ),
+      first:
+        this.getBoolean(sourceCandidate.first) ??
+        this.getBoolean(sourceCandidate.isFirst) ??
+        page <= 0,
+      last:
+        this.getBoolean(sourceCandidate.last) ??
+        this.getBoolean(sourceCandidate.isLast) ??
+        page >= totalPages - 1,
     };
   }
 }

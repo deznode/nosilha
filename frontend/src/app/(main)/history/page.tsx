@@ -233,7 +233,7 @@ export default function HistoryPage() {
 
           {/* Content Action Toolbar - Refactored (Feature 005) */}
           <ContentActionToolbar
-            contentId="00000000-0000-0000-0000-000000000002"
+            contentId={HISTORY_PAGE_CONTENT_ID}
             contentSlug="history-heritage"
             contentTitle="History & Heritage"
             contentUrl="https://nosilha.com/history"
