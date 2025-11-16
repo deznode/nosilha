@@ -29,6 +29,13 @@ import { ReactionType } from "@/types/reaction";
  * @param props - Component props including reactions array, orientation, and authentication state
  * @returns Reaction buttons component with enhanced visual feedback
  */
+type ReactionApiError = {
+  response?: {
+    status?: number;
+  };
+  message?: string;
+};
+
 export function ReactionButtons({
   reactions,
   contentId,
@@ -82,11 +89,6 @@ export function ReactionButtons({
     const reactionType = reactionId as ReactionType;
     const wasSelected = reaction.isSelected;
 
-    // Check if user has a different reaction selected (for switching)
-    const previouslySelectedReaction = reactions.find(
-      (r) => r.isSelected && r.id !== reactionId
-    );
-
     // Optimistic update - trigger animation
     setAnimatingReaction(reactionId);
     setPendingReaction(reactionId);
@@ -119,7 +121,9 @@ export function ReactionButtons({
       // Clear pending state after successful API call
       setPendingReaction(null);
       setAnimatingReaction(null);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const apiError = error as ReactionApiError;
+      const status = apiError.response?.status;
       // Rollback optimistic update on error (restore original state)
       onReactionToggle?.(reactionId, reaction.count, wasSelected);
 
@@ -128,11 +132,11 @@ export function ReactionButtons({
       setAnimatingReaction(null);
 
       // Handle specific error codes
-      if (error?.response?.status === 401) {
+      if (status === 401) {
         setErrorMessage("Please sign in again to react");
         setShowErrorToast(true);
         setTimeout(() => setShowErrorToast(false), 5000);
-      } else if (error?.response?.status === 429) {
+      } else if (status === 429) {
         // Rate limit exceeded - enforce cooldown period
         setIsRateLimited(true);
         setErrorMessage(
@@ -145,7 +149,7 @@ export function ReactionButtons({
           setIsRateLimited(false);
           setShowErrorToast(false);
         }, 60000);
-      } else if (error?.response?.status === 404) {
+      } else if (status === 404) {
         setErrorMessage("Content not found");
         setShowErrorToast(true);
         setTimeout(() => setShowErrorToast(false), 5000);
@@ -155,7 +159,12 @@ export function ReactionButtons({
         setTimeout(() => setShowErrorToast(false), 5000);
       }
 
-      console.error("Failed to submit reaction:", error);
+      console.error("Failed to submit reaction:", {
+        error,
+        contentId,
+        contentSlug,
+        reactionId,
+      });
     }
   };
 

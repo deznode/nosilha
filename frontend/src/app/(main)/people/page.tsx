@@ -362,8 +362,6 @@ const historicalEras = [
   },
 ];
 
-const PEOPLE_PAGE_CONTENT_ID = "66666666-7777-4888-8faf-999999999999";
-
 const citations = [
   {
     source: "Brava, Cape Verde - Wikipedia",
@@ -487,6 +485,8 @@ const citations = [
   },
 ];
 
+const PEOPLE_PAGE_CONTENT_ID = "66666666-7777-4888-8faf-999999999999";
+
 export default function PeoplePage() {
   return (
     <PrintPageWrapper>
@@ -499,7 +499,7 @@ export default function PeoplePage() {
 
           {/* Content Action Toolbar - Refactored (Feature 005) */}
           <ContentActionToolbar
-            contentId="00000000-0000-0000-0000-000000000001"
+            contentId={PEOPLE_PAGE_CONTENT_ID}
             contentSlug="people-historical-figures"
             contentTitle="Historical Figures of Brava"
             contentUrl="https://nosilha.com/people"

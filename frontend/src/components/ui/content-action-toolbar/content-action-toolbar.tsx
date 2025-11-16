@@ -54,7 +54,6 @@ export function ContentActionToolbar({
 }: ContentActionToolbarProps) {
   // Manage local reaction state for optimistic updates
   const [reactions, setReactions] = useState<Reaction[]>(initialReactions);
-  const [isLoading, setIsLoading] = useState(true);
 
   // Detect viewport width using media query hook
   // Desktop: min-width 768px (Tailwind md: breakpoint)
@@ -83,8 +82,6 @@ export function ContentActionToolbar({
         console.error("Failed to load reaction counts:", error);
         // Keep using initial props as fallback
         setReactions(initialReactions);
-      } finally {
-        setIsLoading(false);
       }
     };
 
