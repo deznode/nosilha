@@ -5,6 +5,7 @@ import com.nosilha.core.contentactions.api.ReactionCreateDto
 import com.nosilha.core.contentactions.domain.ReactionType
 import com.nosilha.core.contentactions.repository.ReactionRepository
 import org.assertj.core.api.Assertions.assertThat
+import org.hamcrest.Matchers.either
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -64,13 +65,13 @@ class ReactionControllerTest {
                 reactionType = ReactionType.LOVE,
             )
 
-        mockMvc.perform(
-            post("/api/v1/reactions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
-                .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
-        )
-            .andExpect(status().isCreated)
+        mockMvc
+            .perform(
+                post("/api/v1/reactions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(dto))
+                    .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
+            ).andExpect(status().isCreated)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.status").value(201))
             .andExpect(jsonPath("$.data.id").isNotEmpty)
@@ -95,12 +96,12 @@ class ReactionControllerTest {
                 reactionType = ReactionType.LOVE,
             )
 
-        mockMvc.perform(
-            post("/api/v1/reactions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)),
-        )
-            .andExpect(status().`is`(org.hamcrest.Matchers.either(org.hamcrest.Matchers.`is`(401)).or(org.hamcrest.Matchers.`is`(403))))
+        mockMvc
+            .perform(
+                post("/api/v1/reactions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(dto)),
+            ).andExpect(status().`is`(either(Matchers.`is`(401)).or(Matchers.`is`(403))))
 
         // Verify no reaction was persisted
         val reactions = reactionRepository.findAll()
@@ -117,25 +118,25 @@ class ReactionControllerTest {
                 reactionType = ReactionType.LOVE,
             )
 
-        mockMvc.perform(
-            post("/api/v1/reactions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
-                .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
-        )
-            .andExpect(status().isCreated)
+        mockMvc
+            .perform(
+                post("/api/v1/reactions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(dto))
+                    .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
+            ).andExpect(status().isCreated)
 
         // Verify initial reaction was created
         assertThat(reactionRepository.findAll()).hasSize(1)
 
         // Submit same reaction type again (should toggle off)
-        mockMvc.perform(
-            post("/api/v1/reactions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
-                .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                post("/api/v1/reactions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(dto))
+                    .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
+            ).andExpect(status().isOk)
             .andExpect(jsonPath("$.status").value(200))
             .andExpect(jsonPath("$.data.reactionType").value("LOVE"))
             .andExpect(jsonPath("$.data.count").value(0))
@@ -155,13 +156,13 @@ class ReactionControllerTest {
                 reactionType = ReactionType.LOVE,
             )
 
-        mockMvc.perform(
-            post("/api/v1/reactions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(initialDto))
-                .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
-        )
-            .andExpect(status().isCreated)
+        mockMvc
+            .perform(
+                post("/api/v1/reactions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(initialDto))
+                    .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
+            ).andExpect(status().isCreated)
 
         // Verify initial reaction was created
         var reactions = reactionRepository.findAll()
@@ -175,13 +176,13 @@ class ReactionControllerTest {
                 reactionType = ReactionType.CELEBRATE,
             )
 
-        mockMvc.perform(
-            post("/api/v1/reactions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(newDto))
-                .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                post("/api/v1/reactions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(newDto))
+                    .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
+            ).andExpect(status().isOk)
             .andExpect(jsonPath("$.status").value(200))
             .andExpect(jsonPath("$.data.reactionType").value("CELEBRATE"))
             .andExpect(jsonPath("$.data.count").value(1))
@@ -205,13 +206,13 @@ class ReactionControllerTest {
                     reactionType = ReactionType.LOVE,
                 )
 
-            mockMvc.perform(
-                post("/api/v1/reactions")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(dto))
-                    .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
-            )
-                .andExpect(status().isCreated)
+            mockMvc
+                .perform(
+                    post("/api/v1/reactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto))
+                        .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
+                ).andExpect(status().isCreated)
         }
 
         // 11th reaction should be rate limited
@@ -221,14 +222,14 @@ class ReactionControllerTest {
                 reactionType = ReactionType.LOVE,
             )
 
-        mockMvc.perform(
-            post("/api/v1/reactions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
-                .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
-        )
-            .andExpect(status().isTooManyRequests)
-            .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("reactions")))
+        mockMvc
+            .perform(
+                post("/api/v1/reactions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(dto))
+                    .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
+            ).andExpect(status().isTooManyRequests)
+            .andExpect(jsonPath("$.message").value(Matchers.containsString("reactions")))
 
         // Verify only 10 reactions were persisted
         val reactions = reactionRepository.findAll()
@@ -245,23 +246,23 @@ class ReactionControllerTest {
                 reactionType = ReactionType.LOVE,
             )
 
-        mockMvc.perform(
-            post("/api/v1/reactions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
-                .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
-        )
-            .andExpect(status().isCreated)
+        mockMvc
+            .perform(
+                post("/api/v1/reactions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(dto))
+                    .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
+            ).andExpect(status().isCreated)
 
         // Verify reaction was created
         assertThat(reactionRepository.findAll()).hasSize(1)
 
         // Delete the reaction
-        mockMvc.perform(
-            delete("/api/v1/reactions/content/$TEST_CONTENT_ID")
-                .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
-        )
-            .andExpect(status().isNoContent)
+        mockMvc
+            .perform(
+                delete("/api/v1/reactions/content/$TEST_CONTENT_ID")
+                    .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
+            ).andExpect(status().isNoContent)
 
         // Verify reaction was deleted
         val reactions = reactionRepository.findAll()
@@ -271,11 +272,11 @@ class ReactionControllerTest {
     @Test
     @DisplayName("DELETE /api/v1/reactions/content/{id} - Non-existent reaction should return 404")
     fun `deleteReaction for non-existent reaction should return 404`() {
-        mockMvc.perform(
-            delete("/api/v1/reactions/content/$TEST_CONTENT_ID")
-                .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
-        )
-            .andExpect(status().isNotFound)
+        mockMvc
+            .perform(
+                delete("/api/v1/reactions/content/$TEST_CONTENT_ID")
+                    .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
+            ).andExpect(status().isNotFound)
     }
 
     @Test
@@ -285,10 +286,10 @@ class ReactionControllerTest {
         createReactionForUser(TEST_USER_ID, TEST_CONTENT_ID, ReactionType.LOVE)
         createReactionForUser(TEST_USER_ID_2, TEST_CONTENT_ID, ReactionType.CELEBRATE)
 
-        mockMvc.perform(
-            get("/api/v1/reactions/content/$TEST_CONTENT_ID"),
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                get("/api/v1/reactions/content/$TEST_CONTENT_ID"),
+            ).andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.data.contentId").value(TEST_CONTENT_ID.toString()))
             .andExpect(jsonPath("$.data.reactions.LOVE").value(1))
@@ -305,11 +306,11 @@ class ReactionControllerTest {
         createReactionForUser(TEST_USER_ID, TEST_CONTENT_ID, ReactionType.LOVE)
         createReactionForUser(TEST_USER_ID_2, TEST_CONTENT_ID, ReactionType.CELEBRATE)
 
-        mockMvc.perform(
-            get("/api/v1/reactions/content/$TEST_CONTENT_ID")
-                .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                get("/api/v1/reactions/content/$TEST_CONTENT_ID")
+                    .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
+            ).andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.data.contentId").value(TEST_CONTENT_ID.toString()))
             .andExpect(jsonPath("$.data.reactions.LOVE").value(1))
@@ -360,13 +361,13 @@ class ReactionControllerTest {
                 "reactionType" to "LOVE",
             )
 
-        mockMvc.perform(
-            post("/api/v1/reactions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
-                .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
-        )
-            .andExpect(status().isBadRequest)
+        mockMvc
+            .perform(
+                post("/api/v1/reactions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(dto))
+                    .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
+            ).andExpect(status().isBadRequest)
     }
 
     @Test
@@ -378,13 +379,13 @@ class ReactionControllerTest {
                 // "reactionType" missing
             )
 
-        mockMvc.perform(
-            post("/api/v1/reactions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
-                .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
-        )
-            .andExpect(status().isBadRequest)
+        mockMvc
+            .perform(
+                post("/api/v1/reactions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(dto))
+                    .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
+            ).andExpect(status().isBadRequest)
     }
 
     /**
@@ -422,7 +423,6 @@ class ReactionControllerTest {
                         reactionType = reactionType,
                     ),
                 ),
-            )
-            .with(jwt().jwt { it.subject(userId.toString()) }),
+            ).with(jwt().jwt { it.subject(userId.toString()) }),
     )
 }
