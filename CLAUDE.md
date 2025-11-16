@@ -206,8 +206,9 @@ Custom workflow triggers located in `.claude/commands/`. Use syntax: `/command-n
 - `/speckit.checklist` - Generate custom checklist for current feature
 
 **Project Commands:**
-- `/codebase_analysis` - Generate comprehensive analysis and documentation of entire codebase
 - `/research <topic>` - Conduct cultural/historical research with web search, save to plan/content/
+
+> **Note**: For codebase analysis, use `/review:codebase` from the review plugin.
 
 ## Available MCP Server Tools
 
