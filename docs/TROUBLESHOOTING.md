@@ -36,6 +36,11 @@ docker-compose exec postgres psql -U nosilha -d nosilha_db -c "\dt"
 # File: frontend/src/lib/supabase-client.ts
 # Check environment variables in .env.local
 
+# Storybook/Chromatic builds without Supabase secrets
+# Set NEXT_PUBLIC_SUPABASE_USE_STUB=true (or STORYBOOK=true) so Storybook
+# uses the local stub client when NEXT_PUBLIC_SUPABASE_* are unavailable.
+# This prevents build failures during visual-regression runs.
+
 # Verify backend JWT secret configuration
 # File: backend/src/main/resources/application.yml:54-55
 ```
