@@ -1,4 +1,5 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect } from "react";
+import type { ReactNode } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Header } from "@/components/ui/header";
 import {
@@ -17,8 +18,11 @@ const meta = {
   },
   decorators: [
     (Story, context) => {
-      const authState = context.args.__authState;
-      const pathname = context.args.__pathname ?? "/";
+      const authState =
+        (context.parameters.__authState as AuthState | undefined) ??
+        defaultAuthState;
+      const pathname =
+        (context.parameters.__pathname as string | undefined) ?? "/";
       return (
         <StorybookRouterProvider pathname={pathname}>
           <AuthStatePreview authState={authState}>
@@ -30,27 +34,14 @@ const meta = {
       );
     },
   ],
-  args: {
-    __authState: {
-      session: null,
-      user: null,
-    },
-    __pathname: "/",
-  },
-  argTypes: {
-    __authState: {
-      table: { disable: true },
-    },
-    __pathname: {
-      control: "text",
-      description: "Mock pathname for Storybook router context",
-      table: { disable: true },
-    },
-  },
 } satisfies Meta<typeof Header>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof Header>;
+const defaultAuthState: AuthState = {
+  session: null,
+  user: null,
+};
 
 type AuthState = {
   session: ReturnType<typeof createMockSession> | null;
@@ -97,10 +88,14 @@ const adminUser = createMockAuthUser({
 
 export const GuestNavigation: Story = {
   name: "Guest",
+  parameters: {
+    __authState: defaultAuthState,
+    __pathname: "/",
+  },
 };
 
 export const LoggedInMember: Story = {
-  args: {
+  parameters: {
     __authState: {
       session: memberSession,
       user: memberUser,
@@ -110,7 +105,7 @@ export const LoggedInMember: Story = {
 };
 
 export const AdminWithAddEntry: Story = {
-  args: {
+  parameters: {
     __authState: {
       session: adminSession,
       user: adminUser,
@@ -124,13 +119,13 @@ export const MobileMenuOpen: Story = {
     viewport: {
       defaultViewport: "mobile2",
     },
-  },
-  args: {
-    defaultMobileMenuOpen: true,
     __authState: {
       session: memberSession,
       user: memberUser,
     },
+  },
+  args: {
+    defaultMobileMenuOpen: true,
   },
 };
 
@@ -139,12 +134,9 @@ export const MobileMenuClosed: Story = {
     viewport: {
       defaultViewport: "mobile2",
     },
+    __authState: defaultAuthState,
   },
   args: {
     defaultMobileMenuOpen: false,
-    __authState: {
-      session: null,
-      user: null,
-    },
   },
 };

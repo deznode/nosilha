@@ -13,35 +13,34 @@ const meta = {
   component: MapFilterControl,
   args: {
     categories: ["Restaurant", "Hotel", "Beach", "Landmark"],
-    __selectedCategories: defaultSelectedCategories,
   },
   decorators: [
     (Story, context) => (
-      <FilterStateProvider selected={context.args.__selectedCategories}>
+      <FilterStateProvider selected={context.parameters.__selectedCategories}>
         <div className="max-w-sm">
           <Story />
         </div>
       </FilterStateProvider>
     ),
   ],
-  argTypes: {
-    __selectedCategories: {
-      table: { disable: true },
-    },
+  parameters: {
+    __selectedCategories: defaultSelectedCategories,
   },
 } satisfies Meta<typeof MapFilterControl>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-type FilterStateProviderProps = {
+function FilterStateProvider({
+  selected,
+  children,
+}: {
   selected?: string[];
   children: ReactNode;
-};
-
-function FilterStateProvider({ selected, children }: FilterStateProviderProps) {
+}) {
   useEffect(() => {
-    const appliedSelection = selected ?? defaultSelectedCategories;
+    const appliedSelection =
+      (selected as string[] | undefined) ?? defaultSelectedCategories;
 
     useFilterStore.setState((state) => ({
       ...state,
@@ -62,7 +61,7 @@ function FilterStateProvider({ selected, children }: FilterStateProviderProps) {
 export const Default: Story = {};
 
 export const BeachesOnly: Story = {
-  args: {
+  parameters: {
     __selectedCategories: ["Beach"],
   },
 };
