@@ -2,13 +2,18 @@ import { useEffect, type ReactNode } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { MapFilterControl } from "@/components/ui/map-filter-control";
 import { useFilterStore } from "@/stores/filterStore";
-import { userEvent } from "@storybook/test";
+import userEvent from "@testing-library/user-event";
+
+const defaultSelectedCategories = [
+  ...useFilterStore.getState().selectedCategories,
+];
 
 const meta = {
   title: "Nos Ilha/MapFilterControl",
   component: MapFilterControl,
   args: {
     categories: ["Restaurant", "Hotel", "Beach", "Landmark"],
+    __selectedCategories: defaultSelectedCategories,
   },
   decorators: [
     (Story, context) => (
@@ -36,12 +41,19 @@ type FilterStateProviderProps = {
 
 function FilterStateProvider({ selected, children }: FilterStateProviderProps) {
   useEffect(() => {
-    if (selected) {
+    const appliedSelection = selected ?? defaultSelectedCategories;
+
+    useFilterStore.setState((state) => ({
+      ...state,
+      selectedCategories: appliedSelection,
+    }));
+
+    return () => {
       useFilterStore.setState((state) => ({
         ...state,
-        selectedCategories: selected,
+        selectedCategories: defaultSelectedCategories,
       }));
-    }
+    };
   }, [selected]);
 
   return children;
@@ -57,10 +69,40 @@ export const BeachesOnly: Story = {
 
 export const KeyboardNavigation: Story = {
   play: async () => {
-    await userEvent.tab();
-    await userEvent.keyboard(" ");
-    await userEvent.tab();
-    await userEvent.keyboard(" ");
-    await userEvent.tab();
+    const assertState = (condition: boolean, message: string) => {
+      if (!condition) {
+        throw new Error(message);
+      }
+    };
+
+    const initialMatch =
+      JSON.stringify(useFilterStore.getState().selectedCategories) ===
+      JSON.stringify(defaultSelectedCategories);
+    assertState(
+      initialMatch,
+      "Initial selectedCategories should match defaults"
+    );
+
+    const user = userEvent.setup();
+
+    await user.tab(); // focus first checkbox
+    await user.keyboard(" "); // toggle off
+    assertState(
+      JSON.stringify(useFilterStore.getState().selectedCategories) !==
+        JSON.stringify(defaultSelectedCategories),
+      "Toggling should change selectedCategories"
+    );
+
+    await user.keyboard(" "); // toggle back on
+    const resetMatch =
+      JSON.stringify(useFilterStore.getState().selectedCategories) ===
+      JSON.stringify(defaultSelectedCategories);
+    assertState(
+      resetMatch,
+      "Second toggle should restore default selectedCategories"
+    );
+
+    await user.tab();
+    await user.tab();
   },
 };

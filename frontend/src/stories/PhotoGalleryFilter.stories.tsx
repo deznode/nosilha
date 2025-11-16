@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { PhotoGalleryFilter } from "@/components/ui/photo-gallery-filter";
-import { userEvent, within } from "@storybook/test";
+import userEvent from "@testing-library/user-event";
+import { within } from "@testing-library/dom";
 
 /**
  * PhotoGalleryFilter provides category-based filtering for Brava Island photo galleries.
@@ -229,9 +230,10 @@ export const KeyboardNavigation: Story = {
     const firstButton = await canvas.findByRole("button", {
       name: /landscapes/i,
     });
-    await userEvent.click(firstButton);
-    await userEvent.tab();
-    await userEvent.keyboard(" ");
+    const user = userEvent.setup();
+    await user.click(firstButton);
+    await user.tab();
+    await user.keyboard(" ");
   },
 };
 

@@ -53,6 +53,16 @@ export default function Banner({
       ? "bg-black text-white"
       : "bg-gray-50 text-gray-900 dark:bg-gray-800/50 dark:text-gray-100";
 
+  const linkClasses =
+    tone === "high-contrast"
+      ? "text-white underline-offset-2 hover:text-valley-green focus-visible:outline-white focus-visible:outline-2 focus-visible:outline-offset-2"
+      : "hover:text-gray-600 dark:hover:text-white";
+
+  const dismissIconClasses =
+    tone === "high-contrast"
+      ? "text-white hover:text-valley-green"
+      : "text-gray-900 dark:text-gray-400 dark:hover:text-gray-300";
+
   return (
     <div
       className={`relative isolate flex items-center gap-x-6 overflow-hidden px-6 py-2.5 sm:px-3.5 sm:before:flex-1 ${baseClasses}`}
@@ -91,7 +101,7 @@ export default function Banner({
             href={linkUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-gray-600 dark:hover:text-white"
+            className={linkClasses}
           >
             {content}
           </a>
@@ -104,13 +114,13 @@ export default function Banner({
           <button
             type="button"
             onClick={handleDismiss}
-            className="-m-3 p-3 focus-visible:outline-offset-4"
+            className="-m-3 p-3 focus-visible:outline-offset-4 focus-visible:outline-2 focus-visible:outline-current"
             aria-label="Dismiss banner"
           >
             <span className="sr-only">Dismiss</span>
             <XMarkIcon
               aria-hidden="true"
-              className="size-5 text-gray-900 dark:text-gray-400 dark:hover:text-gray-300"
+              className={`size-5 ${dismissIconClasses}`}
             />
           </button>
         </div>

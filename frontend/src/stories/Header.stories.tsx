@@ -7,6 +7,7 @@ import {
   createMockSupabaseUser,
   setAuthState,
 } from "@/stories/storybook-auth-helpers";
+import { StorybookRouterProvider } from "@/stories/storybook-router-context";
 
 const meta = {
   title: "Nos Ilha/Header",
@@ -17,12 +18,15 @@ const meta = {
   decorators: [
     (Story, context) => {
       const authState = context.args.__authState;
+      const pathname = context.args.__pathname ?? "/";
       return (
-        <AuthStatePreview authState={authState}>
-          <div className="bg-background-primary min-h-screen">
-            <Story />
-          </div>
-        </AuthStatePreview>
+        <StorybookRouterProvider pathname={pathname}>
+          <AuthStatePreview authState={authState}>
+            <div className="bg-background-primary min-h-screen">
+              <Story />
+            </div>
+          </AuthStatePreview>
+        </StorybookRouterProvider>
       );
     },
   ],
@@ -31,9 +35,15 @@ const meta = {
       session: null,
       user: null,
     },
+    __pathname: "/",
   },
   argTypes: {
     __authState: {
+      table: { disable: true },
+    },
+    __pathname: {
+      control: "text",
+      description: "Mock pathname for Storybook router context",
       table: { disable: true },
     },
   },
@@ -95,6 +105,7 @@ export const LoggedInMember: Story = {
       session: memberSession,
       user: memberUser,
     },
+    __pathname: "/directory/restaurant",
   },
 };
 
@@ -104,6 +115,7 @@ export const AdminWithAddEntry: Story = {
       session: adminSession,
       user: adminUser,
     },
+    __pathname: "/add-entry",
   },
 };
 

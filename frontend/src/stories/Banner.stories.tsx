@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import Banner from "@/components/ui/banner";
-import { fn } from "@storybook/test";
+const noop = () => {};
 
 /**
  * Banner is used across the site to highlight cultural campaigns,
@@ -15,7 +15,7 @@ const meta = {
     message:
       "Cheer on our local athletes during the island-wide finals this Saturday.",
     linkUrl: "https://nosilha.org/events/brava-womens-cup",
-    onDismiss: fn(),
+    onDismiss: noop,
   },
   parameters: {
     layout: "padded",
@@ -37,6 +37,11 @@ const meta = {
     showDismissButton: {
       control: "boolean",
       description: "Toggle the close button visibility",
+    },
+    tone: {
+      control: "inline-radio",
+      options: ["default", "high-contrast"],
+      description: "Switch between default and WCAG-compliant high-contrast treatment",
     },
   },
 } satisfies Meta<typeof Banner>;

@@ -11,6 +11,7 @@ This document tracks the components we are documenting inside the `frontend` Sto
 - Always colocate mock data inside each story file rather than importing from runtime hooks.
 - Prefer semantic backgrounds/layout decorators that match how the component appears on real pages.
 - Use local `/images/**` assets when rendering `next/image` so they respect the remote pattern in `next.config.ts`.
+- When running Storybook/Chromatic without Supabase credentials, set `NEXT_PUBLIC_SUPABASE_USE_STUB=true` (or `STORYBOOK=true`) so the Supabase stub client stays enabled even in production builds.
 
 ## 3. UI Component Priorities
 | Priority | Component | Location | Storybook States |
