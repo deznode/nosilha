@@ -56,11 +56,15 @@ const cultureNavigation = [
   */
 ].filter(Boolean); // Remove any undefined entries
 
-interface HeaderProps {
+export interface HeaderProps {
   className?: string;
+  defaultMobileMenuOpen?: boolean;
 }
 
-export function Header({ className }: HeaderProps = {}) {
+export function Header({
+  className,
+  defaultMobileMenuOpen = false,
+}: HeaderProps = {}) {
   const { session, user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
@@ -78,6 +82,7 @@ export function Header({ className }: HeaderProps = {}) {
         "border-border-primary bg-background-primary/80 sticky top-0 z-50 border-b backdrop-blur-sm",
         className
       )}
+      defaultOpen={defaultMobileMenuOpen}
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between">
