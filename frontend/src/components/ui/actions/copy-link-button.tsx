@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { Link as LinkIcon, Check } from "lucide-react";
+import { Link as LinkIcon } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 /**
  * Copy Link Button Component
@@ -39,9 +40,9 @@ export function CopyLinkButton({
   variant = "icon-with-label",
   onCopySuccess,
 }: CopyLinkButtonProps) {
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [isActive, setIsActive] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const toast = useToast();
 
   /**
    * Handle copy link to clipboard
@@ -52,7 +53,9 @@ export function CopyLinkButton({
 
       // Show active state briefly
       setIsActive(true);
-      setShowSuccessToast(true);
+
+      // Show success toast
+      toast.showSuccess("Link copied!");
 
       // Call success callback
       onCopySuccess?.();
@@ -61,13 +64,9 @@ export function CopyLinkButton({
       setTimeout(() => {
         setIsActive(false);
       }, 300);
-
-      // Hide toast after 2 seconds
-      setTimeout(() => {
-        setShowSuccessToast(false);
-      }, 2000);
     } catch (error) {
       console.error("Failed to copy link:", error);
+      toast.showError("Failed to copy link");
     }
   };
 
@@ -83,45 +82,27 @@ export function CopyLinkButton({
       };
 
   return (
-    <>
-      <div className="flex flex-col items-center gap-1">
-        <motion.button
-          {...scaleAnimation}
-          type="button"
-          onClick={handleCopyLink}
-          disabled={!isClipboardAvailable}
-          aria-label="Copy link to clipboard"
-          className={`focus-ring flex h-11 w-11 items-center justify-center rounded-full transition-all ${
-            isActive
-              ? "bg-[var(--color-ocean-blue)] text-white"
-              : "bg-[var(--color-background-secondary)] text-[var(--color-text-primary)] hover:bg-gray-200 dark:hover:bg-gray-700"
-          } ${!isClipboardAvailable ? "cursor-not-allowed opacity-50" : "cursor-pointer"} `}
-        >
-          <LinkIcon className="h-5 w-5" />
-        </motion.button>
+    <div className="flex flex-col items-center gap-1">
+      <motion.button
+        {...scaleAnimation}
+        type="button"
+        onClick={handleCopyLink}
+        disabled={!isClipboardAvailable}
+        aria-label="Copy link to clipboard"
+        className={`focus-ring flex h-11 w-11 items-center justify-center rounded-full transition-all ${
+          isActive
+            ? "bg-[var(--color-ocean-blue)] text-white"
+            : "bg-[var(--color-background-secondary)] text-[var(--color-text-primary)] hover:bg-gray-200 dark:hover:bg-gray-700"
+        } ${!isClipboardAvailable ? "cursor-not-allowed opacity-50" : "cursor-pointer"} `}
+      >
+        <LinkIcon className="h-5 w-5" />
+      </motion.button>
 
-        {variant === "icon-with-label" && (
-          <span className="mt-1 text-xs font-normal text-[var(--color-text-secondary)]">
-            Copy Link
-          </span>
-        )}
-      </div>
-
-      {/* Success Toast */}
-      {showSuccessToast && (
-        <motion.div
-          initial={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
-          animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
-          exit={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
-          transition={{ duration: 0.2 }}
-          className="fixed bottom-20 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-lg bg-[var(--color-valley-green)] px-4 py-3 text-white shadow-lg"
-          role="alert"
-          aria-live="polite"
-        >
-          <Check className="h-5 w-5" />
-          <span className="text-sm font-medium">Link copied!</span>
-        </motion.div>
+      {variant === "icon-with-label" && (
+        <span className="mt-1 text-xs font-normal text-[var(--color-text-secondary)]">
+          Copy Link
+        </span>
       )}
-    </>
+    </div>
   );
 }

@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { DirectoryEntry } from "@/types/directory";
 import { getEntriesByCategory } from "@/lib/api";
 import { DirectoryCard } from "@/components/ui/directory-card";
@@ -16,11 +16,11 @@ import { SocialMediaLinks } from "@/components/ui/social-media-links";
 import Banner from "@/components/ui/banner";
 import { SuggestImprovementForm } from "@/components/ui/actions/suggest-improvement-form";
 import { RelatedContent } from "@/components/ui/related-content";
-import { ActionToast } from "@/components/ui/action-toast";
 import { ShareButton } from "@/components/ui/actions/share-button";
 import { CopyLinkButton } from "@/components/ui/actions/copy-link-button";
 import { ReactionButtons } from "@/components/ui/actions/reaction-buttons";
 import { Button } from "@/components/catalyst-ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 /**
  * An updated test page that uses the PageHeader component.
@@ -30,13 +30,7 @@ export default function TestPage() {
   const [entriesLoading, setEntriesLoading] = useState(true);
   const [entriesError, setEntriesError] = useState<string | null>(null);
   const [isSuggestOpen, setIsSuggestOpen] = useState(false);
-  const [standaloneToastMessage, setStandaloneToastMessage] = useState("");
-  const [standaloneToastVariant, setStandaloneToastVariant] = useState<
-    "success" | "error"
-  >("success");
-  const [isStandaloneToastVisible, setIsStandaloneToastVisible] =
-    useState(false);
-  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const toast = useToast();
 
   useEffect(() => {
     let isMounted = true;
@@ -69,32 +63,6 @@ export default function TestPage() {
       isMounted = false;
     };
   }, []);
-
-  useEffect(() => {
-    return () => {
-      if (toastTimeoutRef.current) {
-        clearTimeout(toastTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  const handleStandaloneToast = (
-    message: string,
-    variant: "success" | "error" = "success"
-  ) => {
-    if (toastTimeoutRef.current) {
-      clearTimeout(toastTimeoutRef.current);
-    }
-
-    setStandaloneToastMessage(message);
-    setStandaloneToastVariant(variant);
-    setIsStandaloneToastVisible(true);
-
-    toastTimeoutRef.current = setTimeout(
-      () => setIsStandaloneToastVisible(false),
-      2500
-    );
-  };
 
   const showcaseEntry = entries[0];
   const showcaseContentId = showcaseEntry?.id ?? "demo-content-id";
@@ -219,30 +187,34 @@ export default function TestPage() {
 
             <div>
               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                Standalone Toast
+                Centralized Toast System
               </h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Triggers <code>ActionToast</code> directly without relying on
-                share/copy flows.
+                Demonstrates global toast notifications using{" "}
+                <code>useToast()</code> hook.
               </p>
               <div className="mt-3 flex flex-wrap gap-3">
                 <Button
-                  onClick={() =>
-                    handleStandaloneToast("Success toast triggered!")
-                  }
+                  onClick={() => toast.showSuccess("Success toast triggered!")}
                 >
                   Show Success Toast
                 </Button>
                 <Button
                   outline
                   onClick={() =>
-                    handleStandaloneToast(
-                      "Error toast triggered for demo",
-                      "error"
-                    )
+                    toast.showError("Error toast triggered for demo")
                   }
                 >
                   Show Error Toast
+                </Button>
+                <Button
+                  onClick={() => {
+                    toast.showSuccess("First toast");
+                    setTimeout(() => toast.showError("Second toast"), 500);
+                    setTimeout(() => toast.showSuccess("Third toast"), 1000);
+                  }}
+                >
+                  Test Stacking (3 toasts)
                 </Button>
               </div>
             </div>
@@ -260,12 +232,6 @@ export default function TestPage() {
           pageUrl={showcaseUrl}
           isOpen={isSuggestOpen}
           onClose={() => setIsSuggestOpen(false)}
-        />
-
-        <ActionToast
-          message={standaloneToastMessage}
-          show={isStandaloneToastVisible}
-          variant={standaloneToastVariant}
         />
       </div>
     </main>

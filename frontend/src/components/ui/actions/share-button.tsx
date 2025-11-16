@@ -6,7 +6,8 @@ import {
   ShareButtonProps,
   ShareOption,
 } from "@/types/content-action-toolbar/component-props";
-import { Share2, Link, Check, Facebook, Twitter } from "lucide-react";
+import { Share2, Link, Facebook, Twitter } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 /**
  * Share Button Component
@@ -40,9 +41,9 @@ export function ShareButton({
 }: ShareButtonProps) {
   const [isActive, setIsActive] = useState(false);
   const [isFallbackMenuOpen, setIsFallbackMenuOpen] = useState(false);
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const prefersReducedMotion = useReducedMotion();
+  const toast = useToast();
 
   // Check if native share is available
   const hasNativeShare = typeof navigator !== "undefined" && navigator.share;
@@ -63,12 +64,8 @@ export function ShareButton({
       });
 
       // Show success toast
-      setShowSuccessToast(true);
+      toast.showSuccess("Shared successfully!");
       onShareSuccess?.();
-
-      setTimeout(() => {
-        setShowSuccessToast(false);
-      }, 3000);
     } catch (error) {
       // User cancelled share or error occurred
       console.log("Share cancelled or failed:", error);
@@ -94,15 +91,12 @@ export function ShareButton({
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(url);
-      setShowSuccessToast(true);
+      toast.showSuccess("Link copied!");
       setIsFallbackMenuOpen(false);
       onShareSuccess?.();
-
-      setTimeout(() => {
-        setShowSuccessToast(false);
-      }, 3000);
     } catch (error) {
       console.error("Failed to copy link:", error);
+      toast.showError("Failed to copy link");
     }
   };
 
@@ -117,12 +111,8 @@ export function ShareButton({
       "noopener,noreferrer,width=600,height=400"
     );
     setIsFallbackMenuOpen(false);
-    setShowSuccessToast(true);
+    toast.showSuccess("Shared to Facebook!");
     onShareSuccess?.();
-
-    setTimeout(() => {
-      setShowSuccessToast(false);
-    }, 3000);
   };
 
   /**
@@ -136,12 +126,8 @@ export function ShareButton({
       "noopener,noreferrer,width=600,height=400"
     );
     setIsFallbackMenuOpen(false);
-    setShowSuccessToast(true);
+    toast.showSuccess("Shared to Twitter!");
     onShareSuccess?.();
-
-    setTimeout(() => {
-      setShowSuccessToast(false);
-    }, 3000);
   };
 
   /**
@@ -253,22 +239,6 @@ export function ShareButton({
               </button>
             );
           })}
-        </motion.div>
-      )}
-
-      {/* Success Toast */}
-      {showSuccessToast && (
-        <motion.div
-          initial={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
-          animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
-          exit={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
-          transition={{ duration: 0.2 }}
-          className="fixed right-4 bottom-20 z-50 flex items-center gap-2 rounded-lg bg-[var(--color-valley-green)] px-4 py-3 text-white shadow-lg"
-          role="alert"
-          aria-live="polite"
-        >
-          <Check className="h-5 w-5" />
-          <span className="text-sm font-medium">Shared successfully!</span>
         </motion.div>
       )}
     </div>

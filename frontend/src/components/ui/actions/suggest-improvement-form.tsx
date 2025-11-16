@@ -13,6 +13,7 @@ import {
 } from "@/components/catalyst-ui/dialog";
 import { submitSuggestion } from "@/lib/api";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useToast } from "@/hooks/use-toast";
 
 type SuggestionType = "CORRECTION" | "ADDITION" | "FEEDBACK";
 
@@ -35,6 +36,7 @@ export function SuggestImprovementForm({
 }: SuggestImprovementFormProps) {
   const { user, session } = useAuth();
   const isAuthenticated = !!session;
+  const toast = useToast();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -106,19 +108,30 @@ export function SuggestImprovementForm({
       setSubmitSuccess(true);
       setSubmitError(null);
 
+      // Show success toast
+      toast.showSuccess("Thank you! Your suggestion has been submitted.");
+
       // Reset form
       setName("");
       setEmail("");
       setSuggestionType("FEEDBACK");
       setMessage("");
       setHoneypot("");
+
+      // Close dialog after a brief delay
+      setTimeout(() => {
+        onClose();
+      }, 1500);
     } catch (error) {
       console.error("Error submitting suggestion:", error);
-      setSubmitError(
+      const errorMsg =
         error instanceof Error
           ? error.message
-          : "An error occurred while submitting your suggestion. Please try again later."
-      );
+          : "An error occurred while submitting your suggestion. Please try again later.";
+      setSubmitError(errorMsg);
+
+      // Show error toast
+      toast.showError(errorMsg);
     } finally {
       setIsSubmitting(false);
     }

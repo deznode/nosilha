@@ -6,6 +6,7 @@ import { ReactionButtonsProps } from "@/types/content-action-toolbar/component-p
 import { useAuth } from "@/components/providers/auth-provider";
 import { submitReaction, deleteReaction } from "@/lib/api";
 import { ReactionType } from "@/types/reaction";
+import { useToast } from "@/hooks/use-toast";
 
 /**
  * Reaction Buttons Component
@@ -48,11 +49,9 @@ export function ReactionButtons({
   const [animatingReaction, setAnimatingReaction] = useState<string | null>(
     null
   );
-  const [showSignInPrompt, setShowSignInPrompt] = useState(false);
-  const [showErrorToast, setShowErrorToast] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
   const [isRateLimited, setIsRateLimited] = useState(false);
   const prefersReducedMotion = useReducedMotion();
+  const toast = useToast();
 
   // Get auth session for API calls
   const { session } = useAuth();
@@ -63,8 +62,7 @@ export function ReactionButtons({
   const handleReactionClick = async (reactionId: string) => {
     // Prevent interaction if not authenticated
     if (!isAuthenticated || !session?.access_token) {
-      setShowSignInPrompt(true);
-      setTimeout(() => setShowSignInPrompt(false), 5000);
+      toast.showError("Please sign in to react to content", 5000);
       return;
     }
 
@@ -75,9 +73,7 @@ export function ReactionButtons({
 
     // Prevent clicks during rate limit cooldown
     if (isRateLimited) {
-      setErrorMessage("Please wait a moment before reacting again");
-      setShowErrorToast(true);
-      setTimeout(() => setShowErrorToast(false), 3000);
+      toast.showError("Please wait a moment before reacting again");
       return;
     }
 
@@ -133,30 +129,23 @@ export function ReactionButtons({
 
       // Handle specific error codes
       if (status === 401) {
-        setErrorMessage("Please sign in again to react");
-        setShowErrorToast(true);
-        setTimeout(() => setShowErrorToast(false), 5000);
+        toast.showError("Please sign in again to react", 5000);
       } else if (status === 429) {
         // Rate limit exceeded - enforce cooldown period
         setIsRateLimited(true);
-        setErrorMessage(
-          "Too many reactions. Please wait 60 seconds before trying again"
+        toast.showError(
+          "Too many reactions. Please wait 60 seconds before trying again",
+          60000
         );
-        setShowErrorToast(true);
 
         // Clear rate limit after 60 seconds (backend allows 10 per minute)
         setTimeout(() => {
           setIsRateLimited(false);
-          setShowErrorToast(false);
         }, 60000);
       } else if (status === 404) {
-        setErrorMessage("Content not found");
-        setShowErrorToast(true);
-        setTimeout(() => setShowErrorToast(false), 5000);
+        toast.showError("Content not found", 5000);
       } else {
-        setErrorMessage("Failed to submit reaction. Please try again");
-        setShowErrorToast(true);
-        setTimeout(() => setShowErrorToast(false), 5000);
+        toast.showError("Failed to submit reaction. Please try again", 5000);
       }
 
       console.error("Failed to submit reaction:", {
@@ -169,88 +158,56 @@ export function ReactionButtons({
   };
 
   return (
-    <div className="relative">
-      <div
-        role="group"
-        aria-label="Content reactions"
-        className={`flex ${orientation === "vertical" ? "flex-col" : "flex-row"} gap-2`}
-      >
-        {reactions.map((reaction) => {
-          const isSelected = reaction.isSelected;
-          const isAnimating = animatingReaction === reaction.id;
+    <div
+      role="group"
+      aria-label="Content reactions"
+      className={`flex ${orientation === "vertical" ? "flex-col" : "flex-row"} gap-2`}
+    >
+      {reactions.map((reaction) => {
+        const isSelected = reaction.isSelected;
+        const isAnimating = animatingReaction === reaction.id;
 
-          return (
-            <motion.button
-              key={reaction.id}
-              type="button"
-              onClick={() => handleReactionClick(reaction.id)}
-              disabled={!isAuthenticated}
-              aria-label={reaction.ariaLabel}
-              aria-pressed={isSelected}
-              animate={
-                isAnimating && !prefersReducedMotion
-                  ? {
-                      scale: [1, 1.2, 1],
-                      transition: {
-                        duration: 0.3,
-                        ease: "easeInOut",
-                      },
-                    }
-                  : undefined
-              }
-              className={`focus-ring flex h-11 min-w-[44px] items-center justify-center gap-1.5 rounded-full px-3 py-2 transition-all ${
-                isSelected
-                  ? "scale-110 bg-[var(--color-ocean-blue)] text-white"
-                  : "bg-[var(--color-background-secondary)] hover:bg-gray-200 dark:hover:bg-gray-700"
-              } ${!isAuthenticated ? "cursor-not-allowed opacity-50" : "cursor-pointer"} ${isAnimating ? "animate-bounce-reaction" : ""} `}
-            >
-              {/* Emoji */}
-              <span className={`text-lg ${isSelected ? "scale-110" : ""}`}>
-                {reaction.emoji}
+        return (
+          <motion.button
+            key={reaction.id}
+            type="button"
+            onClick={() => handleReactionClick(reaction.id)}
+            disabled={!isAuthenticated}
+            aria-label={reaction.ariaLabel}
+            aria-pressed={isSelected}
+            animate={
+              isAnimating && !prefersReducedMotion
+                ? {
+                    scale: [1, 1.2, 1],
+                    transition: {
+                      duration: 0.3,
+                      ease: "easeInOut",
+                    },
+                  }
+                : undefined
+            }
+            className={`focus-ring flex h-11 min-w-[44px] items-center justify-center gap-1.5 rounded-full px-3 py-2 transition-all ${
+              isSelected
+                ? "scale-110 bg-[var(--color-ocean-blue)] text-white"
+                : "bg-[var(--color-background-secondary)] hover:bg-gray-200 dark:hover:bg-gray-700"
+            } ${!isAuthenticated ? "cursor-not-allowed opacity-50" : "cursor-pointer"} ${isAnimating ? "animate-bounce-reaction" : ""} `}
+          >
+            {/* Emoji */}
+            <span className={`text-lg ${isSelected ? "scale-110" : ""}`}>
+              {reaction.emoji}
+            </span>
+
+            {/* Count */}
+            {reaction.count > 0 && (
+              <span
+                className={`text-sm font-medium ${isSelected ? "text-white" : "text-[var(--color-text-secondary)]"}`}
+              >
+                {reaction.count}
               </span>
-
-              {/* Count */}
-              {reaction.count > 0 && (
-                <span
-                  className={`text-sm font-medium ${isSelected ? "text-white" : "text-[var(--color-text-secondary)]"}`}
-                >
-                  {reaction.count}
-                </span>
-              )}
-            </motion.button>
-          );
-        })}
-      </div>
-
-      {/* Sign-in Prompt Toast */}
-      {showSignInPrompt && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          className="absolute top-full mt-2 rounded-lg bg-blue-50 p-3 text-sm text-blue-700 shadow-md dark:bg-blue-900/20 dark:text-blue-300"
-          role="alert"
-        >
-          Please{" "}
-          <a href="/login" className="font-medium underline hover:no-underline">
-            sign in
-          </a>{" "}
-          to react to content
-        </motion.div>
-      )}
-
-      {/* Error Toast */}
-      {showErrorToast && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          className="absolute top-full mt-2 rounded-lg bg-red-50 p-3 text-sm text-red-700 shadow-md dark:bg-red-900/20 dark:text-red-300"
-          role="alert"
-        >
-          {errorMessage}
-        </motion.div>
-      )}
+            )}
+          </motion.button>
+        );
+      })}
     </div>
   );
 }
