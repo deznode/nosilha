@@ -1,12 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { ContentActionToolbarProps, Reaction } from '@/types/content-action-toolbar/component-props';
-import { useMediaQuery } from '@/lib/hooks/use-media-query';
-import { ContentActionDesktop } from './content-action-desktop';
-import { ContentActionFAB } from './content-action-fab';
-import { getReactionCounts } from '@/lib/api';
-import { reactionIdToType, type ReactionId } from '@/types/reaction';
+import { useState, useEffect } from "react";
+import {
+  ContentActionToolbarProps,
+  Reaction,
+} from "@/types/content-action-toolbar/component-props";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
+import { ContentActionDesktop } from "./content-action-desktop";
+import { ContentActionFAB } from "./content-action-fab";
+import { getReactionCounts } from "@/lib/api";
 
 /**
  * Content Action Toolbar - Main Container
@@ -56,7 +58,7 @@ export function ContentActionToolbar({
 
   // Detect viewport width using media query hook
   // Desktop: min-width 768px (Tailwind md: breakpoint)
-  const isDesktop = useMediaQuery('(min-width: 768px)');
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   // Fetch initial reaction counts from API on mount
   useEffect(() => {
@@ -64,11 +66,10 @@ export function ContentActionToolbar({
       try {
         const counts = await getReactionCounts(contentId);
 
-        // Transform backend data (LOVE, CELEBRATE, etc.) to UI format (love, celebrate, etc.)
+        // Update reactions with backend data (already using uppercase: LOVE, CELEBRATE, etc.)
         const updatedReactions = initialReactions.map((reaction) => {
-          const backendType = reactionIdToType[reaction.id as ReactionId];
-          const backendCount = counts.reactions[backendType] || 0;
-          const isSelected = counts.userReaction === backendType;
+          const backendCount = counts.reactions[reaction.id] || 0;
+          const isSelected = counts.userReaction === reaction.id;
 
           return {
             ...reaction,
@@ -79,7 +80,7 @@ export function ContentActionToolbar({
 
         setReactions(updatedReactions);
       } catch (error) {
-        console.error('Failed to load reaction counts:', error);
+        console.error("Failed to load reaction counts:", error);
         // Keep using initial props as fallback
         setReactions(initialReactions);
       } finally {
@@ -94,10 +95,16 @@ export function ContentActionToolbar({
    * Handle reaction toggle callback from child components
    * Updates local state optimistically for immediate UI feedback
    */
-  const handleReactionToggle = (reactionId: string, newCount: number, shouldBeSelected: boolean) => {
+  const handleReactionToggle = (
+    reactionId: string,
+    newCount: number,
+    shouldBeSelected: boolean
+  ) => {
     setReactions((prevReactions) => {
       // Find if user had a different reaction selected
-      const previouslySelected = prevReactions.find((r) => r.isSelected && r.id !== reactionId);
+      const previouslySelected = prevReactions.find(
+        (r) => r.isSelected && r.id !== reactionId
+      );
 
       return prevReactions.map((reaction) => {
         if (reaction.id === reactionId) {

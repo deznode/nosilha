@@ -11,7 +11,7 @@
  * @date 2025-01-14
  */
 
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon } from "lucide-react";
 
 // ============================================================================
 // Data Entities
@@ -24,19 +24,19 @@ import { LucideIcon } from 'lucide-react';
  * Authenticated users can toggle reactions; unauthenticated users see dimmed state.
  *
  * @example
- * const heartReaction: Reaction = {
- *   id: 'heart',
+ * const loveReaction: Reaction = {
+ *   id: 'LOVE',
  *   emoji: '❤️',
  *   count: 1201,
  *   isSelected: true,
- *   ariaLabel: 'React with heart',
+ *   ariaLabel: 'React with love',
  * };
  */
 export interface Reaction {
-  /** Unique identifier for reaction type (e.g., "heart", "thumbs_up") */
-  id: string;
+  /** Reaction type (e.g., "LOVE", "CELEBRATE", "INSIGHTFUL", "SUPPORT") */
+  id: "LOVE" | "CELEBRATE" | "INSIGHTFUL" | "SUPPORT";
 
-  /** Emoji character (e.g., "❤️", "👍") */
+  /** Emoji character (e.g., "❤️", "🎉") */
   emoji: string;
 
   /** Total count of reactions of this type (non-negative integer) */
@@ -45,7 +45,7 @@ export interface Reaction {
   /** Whether current user has selected this reaction (false if not authenticated) */
   isSelected: boolean;
 
-  /** ARIA label for accessibility (e.g., "React with heart") */
+  /** ARIA label for accessibility (e.g., "React with love") */
   ariaLabel: string;
 }
 
@@ -62,7 +62,7 @@ export interface Reaction {
  */
 export interface ShareOption {
   /** Unique identifier for share option */
-  id: 'copy-link' | 'facebook' | 'twitter';
+  id: "copy-link" | "facebook" | "twitter";
 
   /** Display label for option */
   label: string;
@@ -169,10 +169,14 @@ export interface ReactionButtonsProps {
   isAuthenticated: boolean;
 
   /** Callback when reaction toggled (optimistic update) */
-  onReactionToggle?: (reactionId: string, newCount: number, shouldBeSelected: boolean) => void;
+  onReactionToggle?: (
+    reactionId: string,
+    newCount: number,
+    shouldBeSelected: boolean
+  ) => void;
 
   /** Optional: Orientation (horizontal for mobile, vertical for desktop) */
-  orientation?: 'horizontal' | 'vertical';
+  orientation?: "horizontal" | "vertical";
 }
 
 /**
@@ -200,7 +204,7 @@ export interface ShareButtonProps {
   description?: string;
 
   /** Optional: Display variant (icon-only or icon-with-label) */
-  variant?: 'icon-only' | 'icon-with-label';
+  variant?: "icon-only" | "icon-with-label";
 
   /** Callback when share succeeds */
   onShareSuccess?: () => void;
@@ -268,7 +272,11 @@ export interface ContentActionFABProps {
   isAuthenticated: boolean;
 
   /** Callback when reaction toggled (optimistic update) */
-  onReactionToggle?: (reactionId: string, newCount: number, shouldBeSelected: boolean) => void;
+  onReactionToggle?: (
+    reactionId: string,
+    newCount: number,
+    shouldBeSelected: boolean
+  ) => void;
 }
 
 /**
@@ -309,7 +317,11 @@ export interface ContentActionDesktopProps {
   isAuthenticated: boolean;
 
   /** Callback when reaction toggled (optimistic update) */
-  onReactionToggle?: (reactionId: string, newCount: number, shouldBeSelected: boolean) => void;
+  onReactionToggle?: (
+    reactionId: string,
+    newCount: number,
+    shouldBeSelected: boolean
+  ) => void;
 }
 
 // ============================================================================
@@ -397,10 +409,10 @@ export interface ContentActionFABState {
  */
 export interface ReactionToggleRequest {
   /** Reaction type identifier */
-  reactionType: 'heart' | 'thumbs_up' | 'thinking' | 'pray';
+  reactionType: "LOVE" | "CELEBRATE" | "INSIGHTFUL" | "SUPPORT";
 
   /** Action to perform */
-  action: 'add' | 'remove';
+  action: "add" | "remove";
 }
 
 /**
@@ -438,7 +450,7 @@ export interface SuggestionSubmitResponse {
   id: string;
 
   /** Submission status */
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
 
   /** ISO 8601 timestamp of creation */
   createdAt: string;
@@ -540,8 +552,8 @@ export const AnimationDurations = {
  */
 export function isValidReactionType(
   type: string
-): type is 'heart' | 'thumbs_up' | 'thinking' | 'pray' {
-  return ['heart', 'thumbs_up', 'thinking', 'pray'].includes(type);
+): type is "LOVE" | "CELEBRATE" | "INSIGHTFUL" | "SUPPORT" {
+  return ["LOVE", "CELEBRATE", "INSIGHTFUL", "SUPPORT"].includes(type);
 }
 
 /**
@@ -549,8 +561,8 @@ export function isValidReactionType(
  */
 export function isValidShareOptionId(
   id: string
-): id is 'copy-link' | 'facebook' | 'twitter' {
-  return ['copy-link', 'facebook', 'twitter'].includes(id);
+): id is "copy-link" | "facebook" | "twitter" {
+  return ["copy-link", "facebook", "twitter"].includes(id);
 }
 
 /**
@@ -571,7 +583,7 @@ export interface CopyLinkButtonProps {
   url: string;
 
   /** Optional: Display variant */
-  variant?: 'icon-only' | 'icon-with-label';
+  variant?: "icon-only" | "icon-with-label";
 
   /** Callback when copy succeeds */
   onCopySuccess?: () => void;
@@ -591,7 +603,7 @@ export interface CopyLinkButtonProps {
  */
 export interface PrintButtonProps {
   /** Optional: Display variant */
-  variant?: 'icon-only' | 'icon-with-label';
+  variant?: "icon-only" | "icon-with-label";
 
   /** Callback when print triggered */
   onPrintTriggered?: () => void;
@@ -604,17 +616,17 @@ export interface PrintButtonProps {
 /**
  * Utility type for action variant (affects styling, spacing).
  */
-export type ActionVariant = 'compact' | 'spacious';
+export type ActionVariant = "compact" | "spacious";
 
 /**
  * Utility type for layout mode.
  */
-export type LayoutMode = 'mobile' | 'desktop';
+export type LayoutMode = "mobile" | "desktop";
 
 /**
  * Utility type for submission status.
  */
-export type SubmissionStatus = 'idle' | 'loading' | 'success' | 'error';
+export type SubmissionStatus = "idle" | "loading" | "success" | "error";
 
 // ============================================================================
 // Exports

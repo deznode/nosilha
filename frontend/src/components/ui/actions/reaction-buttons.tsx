@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
-import { ReactionButtonsProps } from '@/types/content-action-toolbar/component-props';
-import { useAuth } from '@/components/providers/auth-provider';
-import { submitReaction, deleteReaction } from '@/lib/api';
-import { reactionIdToType, type ReactionId } from '@/types/reaction';
+import { useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ReactionButtonsProps } from "@/types/content-action-toolbar/component-props";
+import { useAuth } from "@/components/providers/auth-provider";
+import { submitReaction, deleteReaction } from "@/lib/api";
+import { ReactionType } from "@/types/reaction";
 
 /**
  * Reaction Buttons Component
@@ -34,14 +34,16 @@ export function ReactionButtons({
   contentId,
   contentSlug,
   isAuthenticated,
-  orientation = 'horizontal',
+  orientation = "horizontal",
   onReactionToggle,
 }: ReactionButtonsProps) {
   const [pendingReaction, setPendingReaction] = useState<string | null>(null);
-  const [animatingReaction, setAnimatingReaction] = useState<string | null>(null);
+  const [animatingReaction, setAnimatingReaction] = useState<string | null>(
+    null
+  );
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const [isRateLimited, setIsRateLimited] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 
@@ -66,7 +68,7 @@ export function ReactionButtons({
 
     // Prevent clicks during rate limit cooldown
     if (isRateLimited) {
-      setErrorMessage('Please wait a moment before reacting again');
+      setErrorMessage("Please wait a moment before reacting again");
       setShowErrorToast(true);
       setTimeout(() => setShowErrorToast(false), 3000);
       return;
@@ -76,19 +78,23 @@ export function ReactionButtons({
     const reaction = reactions.find((r) => r.id === reactionId);
     if (!reaction) return;
 
-    // Convert UI reaction ID to backend type
-    const reactionType = reactionIdToType[reactionId as ReactionId];
+    // Reaction ID is already the backend type (LOVE, CELEBRATE, etc.)
+    const reactionType = reactionId as ReactionType;
     const wasSelected = reaction.isSelected;
 
     // Check if user has a different reaction selected (for switching)
-    const previouslySelectedReaction = reactions.find((r) => r.isSelected && r.id !== reactionId);
+    const previouslySelectedReaction = reactions.find(
+      (r) => r.isSelected && r.id !== reactionId
+    );
 
     // Optimistic update - trigger animation
     setAnimatingReaction(reactionId);
     setPendingReaction(reactionId);
 
     // Calculate new count and selection state for optimistic update
-    const optimisticCount = wasSelected ? reaction.count - 1 : reaction.count + 1;
+    const optimisticCount = wasSelected
+      ? reaction.count - 1
+      : reaction.count + 1;
     const shouldBeSelected = !wasSelected;
 
     // Call parent callback for optimistic update
@@ -123,13 +129,15 @@ export function ReactionButtons({
 
       // Handle specific error codes
       if (error?.response?.status === 401) {
-        setErrorMessage('Please sign in again to react');
+        setErrorMessage("Please sign in again to react");
         setShowErrorToast(true);
         setTimeout(() => setShowErrorToast(false), 5000);
       } else if (error?.response?.status === 429) {
         // Rate limit exceeded - enforce cooldown period
         setIsRateLimited(true);
-        setErrorMessage('Too many reactions. Please wait 60 seconds before trying again');
+        setErrorMessage(
+          "Too many reactions. Please wait 60 seconds before trying again"
+        );
         setShowErrorToast(true);
 
         // Clear rate limit after 60 seconds (backend allows 10 per minute)
@@ -138,16 +146,16 @@ export function ReactionButtons({
           setShowErrorToast(false);
         }, 60000);
       } else if (error?.response?.status === 404) {
-        setErrorMessage('Content not found');
+        setErrorMessage("Content not found");
         setShowErrorToast(true);
         setTimeout(() => setShowErrorToast(false), 5000);
       } else {
-        setErrorMessage('Failed to submit reaction. Please try again');
+        setErrorMessage("Failed to submit reaction. Please try again");
         setShowErrorToast(true);
         setTimeout(() => setShowErrorToast(false), 5000);
       }
 
-      console.error('Failed to submit reaction:', error);
+      console.error("Failed to submit reaction:", error);
     }
   };
 
@@ -156,7 +164,7 @@ export function ReactionButtons({
       <div
         role="group"
         aria-label="Content reactions"
-        className={`flex ${orientation === 'vertical' ? 'flex-col' : 'flex-row'} gap-2`}
+        className={`flex ${orientation === "vertical" ? "flex-col" : "flex-row"} gap-2`}
       >
         {reactions.map((reaction) => {
           const isSelected = reaction.isSelected;
@@ -170,31 +178,33 @@ export function ReactionButtons({
               disabled={!isAuthenticated}
               aria-label={reaction.ariaLabel}
               aria-pressed={isSelected}
-              animate={isAnimating && !prefersReducedMotion ? {
-                scale: [1, 1.2, 1],
-                transition: {
-                  duration: 0.3,
-                  ease: 'easeInOut',
-                },
-              } : undefined}
-              className={`
-                focus-ring flex h-11 min-w-[44px] items-center justify-center gap-1.5 rounded-full px-3 py-2 transition-all
-                ${isSelected
-                  ? 'bg-[var(--color-ocean-blue)] text-white scale-110'
-                  : 'bg-[var(--color-background-secondary)] hover:bg-gray-200 dark:hover:bg-gray-700'
-                }
-                ${!isAuthenticated ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                ${isAnimating ? 'animate-bounce-reaction' : ''}
-              `}
+              animate={
+                isAnimating && !prefersReducedMotion
+                  ? {
+                      scale: [1, 1.2, 1],
+                      transition: {
+                        duration: 0.3,
+                        ease: "easeInOut",
+                      },
+                    }
+                  : undefined
+              }
+              className={`focus-ring flex h-11 min-w-[44px] items-center justify-center gap-1.5 rounded-full px-3 py-2 transition-all ${
+                isSelected
+                  ? "scale-110 bg-[var(--color-ocean-blue)] text-white"
+                  : "bg-[var(--color-background-secondary)] hover:bg-gray-200 dark:hover:bg-gray-700"
+              } ${!isAuthenticated ? "cursor-not-allowed opacity-50" : "cursor-pointer"} ${isAnimating ? "animate-bounce-reaction" : ""} `}
             >
               {/* Emoji */}
-              <span className={`text-lg ${isSelected ? 'scale-110' : ''}`}>
+              <span className={`text-lg ${isSelected ? "scale-110" : ""}`}>
                 {reaction.emoji}
               </span>
 
               {/* Count */}
               {reaction.count > 0 && (
-                <span className={`text-sm font-medium ${isSelected ? 'text-white' : 'text-[var(--color-text-secondary)]'}`}>
+                <span
+                  className={`text-sm font-medium ${isSelected ? "text-white" : "text-[var(--color-text-secondary)]"}`}
+                >
                   {reaction.count}
                 </span>
               )}
@@ -212,10 +222,10 @@ export function ReactionButtons({
           className="absolute top-full mt-2 rounded-lg bg-blue-50 p-3 text-sm text-blue-700 shadow-md dark:bg-blue-900/20 dark:text-blue-300"
           role="alert"
         >
-          Please{' '}
+          Please{" "}
           <a href="/login" className="font-medium underline hover:no-underline">
             sign in
-          </a>{' '}
+          </a>{" "}
           to react to content
         </motion.div>
       )}

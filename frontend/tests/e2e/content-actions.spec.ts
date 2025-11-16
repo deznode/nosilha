@@ -109,9 +109,9 @@ test.describe("Content Actions - Share Functionality (US1)", () => {
     page,
   }) => {
     // Check for ARIA live region
-    const liveRegion = page.locator('[role="status"]').or(
-      page.locator('[aria-live="polite"]')
-    );
+    const liveRegion = page
+      .locator('[role="status"]')
+      .or(page.locator('[aria-live="polite"]'));
 
     // Click share/copy button
     const shareButton = page.getByRole("button", { name: /share/i });
@@ -134,7 +134,7 @@ test.describe("Content Actions - Reaction Flow (US2)", () => {
 
     // Look for reaction buttons (should be visible but disabled/prompt login)
     const reactionButton = page
-      .getByRole("button", { name: /love|helpful|interesting|thank/i })
+      .getByRole("button", { name: /love|celebrate|insightful|support/i })
       .first();
 
     // Reaction counts should be visible even when not authenticated
@@ -154,7 +154,7 @@ test.describe("Content Actions - Reaction Flow (US2)", () => {
 
     // Click a reaction button
     const reactionButton = page
-      .getByRole("button", { name: /love|helpful|interesting|thank/i })
+      .getByRole("button", { name: /love|celebrate|insightful|support/i })
       .first();
     await reactionButton.click();
 
@@ -162,7 +162,7 @@ test.describe("Content Actions - Reaction Flow (US2)", () => {
     const loginPrompt = page.getByText(/sign in|log in|please log in/i);
     const loginPage = page.url().includes("/login");
 
-    expect(await loginPrompt.isVisible() || loginPage).toBeTruthy();
+    expect((await loginPrompt.isVisible()) || loginPage).toBeTruthy();
   });
 
   test("T099.3 - reaction picker shows all 4 reaction types", async ({
@@ -174,9 +174,9 @@ test.describe("Content Actions - Reaction Flow (US2)", () => {
     // Find reaction picker or buttons
     const reactions = [
       { emoji: "❤️", name: /love/i },
-      { emoji: "👍", name: /helpful/i },
-      { emoji: "🤔", name: /interesting/i },
-      { emoji: "🙏", name: /thank/i },
+      { emoji: "🎉", name: /celebrate/i },
+      { emoji: "💡", name: /insightful/i },
+      { emoji: "👏", name: /support/i },
     ];
 
     // Verify all 4 reaction types are present
@@ -325,7 +325,7 @@ test.describe("Content Actions - Suggestion Form (US3)", () => {
       .or(page.locator('input[name="url"]'))
       .or(page.locator('input[autocomplete="off"][style*="display: none"]'));
 
-    if (await honeypot.count() > 0) {
+    if ((await honeypot.count()) > 0) {
       // Honeypot field exists
       const isHidden = await honeypot.isHidden();
       expect(isHidden).toBeTruthy();
@@ -450,9 +450,9 @@ test.describe("Content Actions - Print Functionality (US4)", () => {
 
   test("T101.4 - print footer includes citation URL", async ({ page }) => {
     // Check for print footer in the page
-    const footer = page.locator("footer").or(
-      page.locator('[data-testid="print-footer"]')
-    );
+    const footer = page
+      .locator("footer")
+      .or(page.locator('[data-testid="print-footer"]'));
 
     if (await footer.isVisible()) {
       const footerText = await footer.textContent();
@@ -546,7 +546,9 @@ test.describe("Content Actions - Responsive Layout (US6)", () => {
 
     // Verify layout changed (different position or dimensions)
     if (desktopBox && mobileBox) {
-      expect(desktopBox.y !== mobileBox.y || desktopBox.x !== mobileBox.x).toBeTruthy();
+      expect(
+        desktopBox.y !== mobileBox.y || desktopBox.x !== mobileBox.x
+      ).toBeTruthy();
     }
   });
 });
@@ -647,7 +649,9 @@ test.describe("Content Actions - Performance", () => {
     });
 
     // Note: This is a rough check. Actual bundle analysis should be done with bundlesize tool
-    console.log(`Total JS transfer size: ${(transferSize / 1024).toFixed(2)}kb`);
+    console.log(
+      `Total JS transfer size: ${(transferSize / 1024).toFixed(2)}kb`
+    );
   });
 
   test("verifies First Input Delay is fast", async ({ page }) => {

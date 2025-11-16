@@ -1,4 +1,4 @@
--- Migration to update reaction types to LinkedIn-style semantic naming
+-- Migration to update reaction types to semantic naming
 -- Direct migration from original types to semantic types (no intermediate steps)
 -- Original: LOVE, HELPFUL, INTERESTING, THANKYOU
 -- Target: LOVE, CELEBRATE, INSIGHTFUL, SUPPORT
@@ -42,5 +42,5 @@ BEGIN
     RAISE EXCEPTION 'Migration failed: % reactions have invalid reaction_type values', invalid_count;
   END IF;
 
-  RAISE NOTICE 'Migration successful: All reaction types updated to LinkedIn-style semantic values';
+  RAISE NOTICE 'Migration successful: All reaction types updated to semantic values';
 END $$;

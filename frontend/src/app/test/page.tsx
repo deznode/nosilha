@@ -130,16 +130,18 @@ export default function TestPage() {
             </p>
           )}
           {entriesError && !entriesLoading && (
-            <p className="text-red-600 col-span-full text-center">
+            <p className="col-span-full text-center text-red-600">
               {entriesError}
             </p>
           )}
           {!entriesLoading &&
             !entriesError &&
-            entries.map((entry) => <DirectoryCard key={entry.id} entry={entry} />)}
+            entries.map((entry) => (
+              <DirectoryCard key={entry.id} entry={entry} />
+            ))}
         </div>
 
-        <section className="mt-16 rounded-2xl bg-white/80 p-6 shadow-sm ring-1 ring-inset ring-zinc-100 dark:bg-zinc-900 dark:ring-zinc-800">
+        <section className="mt-16 rounded-2xl bg-white/80 p-6 shadow-sm ring-1 ring-zinc-100 ring-inset dark:bg-zinc-900 dark:ring-zinc-800">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
               <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
@@ -180,10 +182,34 @@ export default function TestPage() {
                   contentId={showcaseContentId}
                   contentSlug="test-showcase"
                   reactions={[
-                    { id: 'love', emoji: '❤️', count: 12, isSelected: false, ariaLabel: 'React with love' },
-                    { id: 'celebrate', emoji: '🎉', count: 5, isSelected: true, ariaLabel: 'React to celebrate' },
-                    { id: 'insightful', emoji: '💡', count: 8, isSelected: false, ariaLabel: 'Mark as insightful' },
-                    { id: 'support', emoji: '👏', count: 3, isSelected: false, ariaLabel: 'Show support' },
+                    {
+                      id: "LOVE",
+                      emoji: "❤️",
+                      count: 12,
+                      isSelected: false,
+                      ariaLabel: "React with love",
+                    },
+                    {
+                      id: "CELEBRATE",
+                      emoji: "🎉",
+                      count: 5,
+                      isSelected: true,
+                      ariaLabel: "React to celebrate",
+                    },
+                    {
+                      id: "INSIGHTFUL",
+                      emoji: "💡",
+                      count: 8,
+                      isSelected: false,
+                      ariaLabel: "Mark as insightful",
+                    },
+                    {
+                      id: "SUPPORT",
+                      emoji: "👏",
+                      count: 3,
+                      isSelected: false,
+                      ariaLabel: "Show support",
+                    },
                   ]}
                   isAuthenticated={true}
                   orientation="horizontal"
@@ -200,7 +226,11 @@ export default function TestPage() {
                 share/copy flows.
               </p>
               <div className="mt-3 flex flex-wrap gap-3">
-                <Button onClick={() => handleStandaloneToast("Success toast triggered!")}>
+                <Button
+                  onClick={() =>
+                    handleStandaloneToast("Success toast triggered!")
+                  }
+                >
                   Show Success Toast
                 </Button>
                 <Button

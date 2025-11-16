@@ -9,19 +9,13 @@
 /**
  * Reaction types representing emotional responses to cultural heritage content.
  *
- * LinkedIn-style semantic naming pattern (hybrid mix of emotions and content qualities):
+ * Semantic naming pattern (hybrid mix of emotions and content qualities):
  * - LOVE: Deep appreciation, personal connection to cultural content (emotion)
  * - CELEBRATE: Excitement, joy, and celebration of cultural discoveries (action/emotion)
  * - INSIGHTFUL: New learning, discovery, and understanding (content quality)
  * - SUPPORT: Appreciation, encouragement, and recognition (action/emotion)
  */
 export type ReactionType = "LOVE" | "CELEBRATE" | "INSIGHTFUL" | "SUPPORT";
-
-/**
- * UI-friendly reaction identifiers (lowercase).
- * Used in component props and page data.
- */
-export type ReactionId = "love" | "celebrate" | "insightful" | "support";
 
 /**
  * Emoji mapping for reaction types.
@@ -32,23 +26,6 @@ export const REACTION_EMOJIS: Record<ReactionType, string> = {
   CELEBRATE: "🎉",
   INSIGHTFUL: "💡",
   SUPPORT: "👏",
-};
-
-/**
- * Mapping helpers for converting between UI IDs and backend API types.
- */
-export const reactionIdToType: Record<ReactionId, ReactionType> = {
-  love: "LOVE",
-  celebrate: "CELEBRATE",
-  insightful: "INSIGHTFUL",
-  support: "SUPPORT",
-};
-
-export const reactionTypeToId: Record<ReactionType, ReactionId> = {
-  LOVE: "love",
-  CELEBRATE: "celebrate",
-  INSIGHTFUL: "insightful",
-  SUPPORT: "support",
 };
 
 /**

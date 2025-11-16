@@ -56,8 +56,8 @@ data class Reaction(
 /**
  * Enum representing the types of emotional responses to cultural heritage content.
  *
- * <p>Following LinkedIn-style semantic reaction patterns, each reaction type
- * corresponds to a specific emoji and emotional intent:</p>
+ * <p>Semantic reaction types combining emotions and content qualities,
+ * each corresponds to a specific emoji and emotional intent:</p>
  * <ul>
  *   <li>LOVE (❤️): Deep appreciation and personal connection to cultural heritage</li>
  *   <li>CELEBRATE (🎉): Excitement, joy, and celebration of cultural heritage content</li>

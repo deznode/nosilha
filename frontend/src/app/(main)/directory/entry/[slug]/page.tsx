@@ -184,10 +184,34 @@ export default async function DirectoryEntryDetailPage({
                 contentUrl={canonicalUrl}
                 contentType={entry.category}
                 reactions={[
-                  { id: 'love', emoji: '❤️', count: 0, isSelected: false, ariaLabel: 'React with love' },
-                  { id: 'celebrate', emoji: '🎉', count: 0, isSelected: false, ariaLabel: 'React to celebrate' },
-                  { id: 'insightful', emoji: '💡', count: 0, isSelected: false, ariaLabel: 'Mark as insightful' },
-                  { id: 'support', emoji: '👏', count: 0, isSelected: false, ariaLabel: 'Show support' },
+                  {
+                    id: "LOVE",
+                    emoji: "❤️",
+                    count: 0,
+                    isSelected: false,
+                    ariaLabel: "React with love",
+                  },
+                  {
+                    id: "CELEBRATE",
+                    emoji: "🎉",
+                    count: 0,
+                    isSelected: false,
+                    ariaLabel: "React to celebrate",
+                  },
+                  {
+                    id: "INSIGHTFUL",
+                    emoji: "💡",
+                    count: 0,
+                    isSelected: false,
+                    ariaLabel: "Mark as insightful",
+                  },
+                  {
+                    id: "SUPPORT",
+                    emoji: "👏",
+                    count: 0,
+                    isSelected: false,
+                    ariaLabel: "Show support",
+                  },
                 ]}
                 isAuthenticated={true}
               />
