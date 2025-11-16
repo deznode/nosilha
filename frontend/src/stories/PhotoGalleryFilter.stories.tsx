@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { PhotoGalleryFilter } from "@/components/ui/photo-gallery-filter";
-import userEvent from "@testing-library/user-event";
-import { within } from "@testing-library/dom";
+import { userEvent } from "@storybook/testing-library";
+import { within } from "@storybook/testing-library";
 
 /**
  * PhotoGalleryFilter provides category-based filtering for Brava Island photo galleries.

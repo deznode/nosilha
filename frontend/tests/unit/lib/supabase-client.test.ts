@@ -27,8 +27,8 @@ describe("supabase-client getClient", () => {
   it("throws in production when env vars are missing and stub flag is disabled", async () => {
     process.env.NODE_ENV = "production";
 
-    await expect(
-      import("../../../src/lib/supabase-client")
-    ).rejects.toThrow(/Supabase URL or anonymous key is not defined/);
+    await expect(import("../../../src/lib/supabase-client")).rejects.toThrow(
+      /Supabase URL or anonymous key is not defined/
+    );
   });
 });

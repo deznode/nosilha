@@ -114,7 +114,7 @@ export default function Banner({
           <button
             type="button"
             onClick={handleDismiss}
-            className="-m-3 p-3 focus-visible:outline-offset-4 focus-visible:outline-2 focus-visible:outline-current"
+            className="-m-3 p-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
             aria-label="Dismiss banner"
           >
             <span className="sr-only">Dismiss</span>

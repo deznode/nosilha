@@ -1,7 +1,12 @@
-
 import type React from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Dialog, DialogTitle, DialogDescription, DialogBody, DialogActions } from "@/components/catalyst-ui/dialog";
+import {
+  Dialog,
+  DialogTitle,
+  DialogDescription,
+  DialogBody,
+  DialogActions,
+} from "@/components/catalyst-ui/dialog";
 import { Button } from "@/components/catalyst-ui/button";
 import { Field, Label } from "@/components/catalyst-ui/fieldset";
 import { Input } from "@/components/catalyst-ui/input";

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { getEntriesByCategory } from "@/lib/api";
-import { DirectoryCard } from "@/components/ui/directory-card";
-import { PageHeader } from "@/components/ui/page-header";
+import {
+  DirectoryCategoryPageContent,
+  formatCategoryTitle,
+} from "@/components/pages/directory-category-page-content";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import type { BreadcrumbListSchema } from "@/types/metadata";
-import Link from "next/link";
 
 // Enable ISR with 1 hour revalidation for directory content
 export const revalidate = 3600;
@@ -90,61 +91,10 @@ export async function generateMetadata({
   });
 }
 
-/**
- * A helper function to format the category name from the URL for display.
- * e.g., "restaurant" -> "Restaurant"
- */
-function formatCategoryTitle(category: string): string {
-  if (!category) return "Directory";
-  // Decode URI component for categories like "fazendas%20historicas"
-  const decodedCategory = decodeURIComponent(category);
-  return decodedCategory.charAt(0).toUpperCase() + decodedCategory.slice(1);
-}
-
-/**
- * This is a dynamic server component that displays a list of directory
- * entries based on the category provided in the URL.
- */
 export default async function DirectoryCategoryPage({
   params,
 }: DirectoryCategoryPageProps) {
   const { category } = await params;
   const { items: entries } = await getEntriesByCategory(category);
-  const pageTitle = formatCategoryTitle(category);
-
-  return (
-    <div className="bg-background-secondary font-sans">
-      <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
-        <PageHeader
-          title={pageTitle}
-          subtitle={`Browse all ${pageTitle.toLowerCase()} listings on Brava Island.`}
-        />
-
-        {entries.length > 0 ? (
-          // If entries are found, display them in a grid
-          <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {entries.map((entry) => (
-              <DirectoryCard key={entry.id} entry={entry} />
-            ))}
-          </div>
-        ) : (
-          // If no entries are found, display a helpful message
-          <div className="mt-16 text-center">
-            <p className="text-text-secondary text-xl">
-              No listings found in the &quot;{pageTitle}&quot; category.
-            </p>
-            <p className="text-text-tertiary mt-2 text-base">
-              Please try another category or check back later.
-            </p>
-            <Link
-              href="/"
-              className="bg-ocean-blue hover:bg-ocean-blue/90 focus:ring-ocean-blue mt-6 inline-block rounded-md px-6 py-3 text-sm font-medium text-white shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
-            >
-              Back to Home
-            </Link>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  return <DirectoryCategoryPageContent category={category} entries={entries} />;
 }

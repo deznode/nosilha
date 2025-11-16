@@ -41,7 +41,8 @@ const meta = {
     tone: {
       control: "inline-radio",
       options: ["default", "high-contrast"],
-      description: "Switch between default and WCAG-compliant high-contrast treatment",
+      description:
+        "Switch between default and WCAG-compliant high-contrast treatment",
     },
   },
 } satisfies Meta<typeof Banner>;

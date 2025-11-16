@@ -5,6 +5,7 @@ All findings focus on the Next.js frontend located in `frontend/`. References to
 ---
 
 ## 1. Project Overview
+
 - **Project type:** Cultural-heritage web application frontend that renders public pages, map experiences, and simple admin flows using the Next.js App Router.
 - **Tech stack:** Next.js 15 + React 19 + TypeScript 5, Tailwind CSS v4 tokens, Framer Motion, TanStack Query, Zustand state, Zod validation, Supabase Auth, Mapbox GL, Storybook 9 (Next.js Vite builder). Tooling includes ESLint flat config, Prettier, Vitest, Playwright, Lighthouse CI, k6, Chromatic.
 - **Architecture pattern:** Server Components–first App Router with route groups (`(main)`, `(auth)`, `(admin)`), ISR caching, and a strategy-pattern API layer that swaps between a Spring Boot backend and a local mock service.
@@ -13,7 +14,9 @@ All findings focus on the Next.js frontend located in `frontend/`. References to
 ---
 
 ## 2. Directory Structure Analysis
+
 ### Root-level context
+
 - `.storybook/` – Storybook config (`main.ts`, `preview.ts`, `vitest.setup.ts`) already imports global Tailwind styles but lacks provider wrappers.
 - `.mcp/`, `playwright-mcp-output/`, `playwright-report/`, `test-results/` – Playwright MCP automation artifacts and CI outputs. `playwright-report/data/` contains PNG/WEBM captures; `test-results/` stores per-scenario assets.
 - `.next/` – A full production build (~1.5 GB via `du`). Keeping this folder in the repo inflates clone size and should be pruned.
@@ -22,9 +25,11 @@ All findings focus on the Next.js frontend located in `frontend/`. References to
 - `.env.*` – Local env variants (`.env.local`, `.env.local.example`, `.env.test*`). Real values should be kept out of VCS.
 
 ### `public/`
+
 - Contains hero imagery (`public/images/**`) referenced throughout homepage/people/history routes. Assets mirror palettes defined in `docs/DESIGN_SYSTEM.md`.
 
 ### `src/app/`
+
 - Next.js App Router entrypoint. `layout.tsx` wires fonts, SEO metadata, Supabase/TanStack Query providers, and the persistent `Header`/`Footer`/`Banner`.
 - Route groups:
   - `(main)/` – Public pages (`page.tsx` for home, `map`, `directory/[category]`, per-entry slug page, etc.) that fetch via `lib/api`.
@@ -34,12 +39,14 @@ All findings focus on the Next.js frontend located in `frontend/`. References to
   - `test/` – Appears to hold feature-flag/test routes (not populated yet).
 
 ### `src/components/`
+
 - **`catalyst-ui/`** – Design-system-aligned primitives (Button, Input, Sidebar, etc.) following the brand guidance described in `docs/DESIGN_SYSTEM.md`.
 - **`ui/`** – Nos Ilha–specific composites (DirectoryCard, PageHeader, ContentActionToolbar, InteractiveMap, banners, etc.).
 - **`auth/`, `admin/`** – Feature forms composed from catalyst primitives.
 - **`providers/`** – Behavior providers (`AuthProvider`, `QueryProvider`).
 
 ### Supporting folders
+
 - `src/hooks/` – React hooks such as `useDirectoryEntries` (TanStack Query) and `useMediaQuery`. Query hooks collocate with API fetchers and Zod validation.
 - `src/lib/` – Platform services: API contracts/factory (mock vs backend), Supabase client, env validation, metadata builders, animation system.
 - `src/schemas/` – Zod schemas (directory entries, filters, auth) for runtime validation.
@@ -51,7 +58,9 @@ All findings focus on the Next.js frontend located in `frontend/`. References to
 ---
 
 ## 3. File-by-File Breakdown (Key Representatives)
+
 ### Core Application Files
+
 - `src/app/layout.tsx` – Global metadata (OpenGraph, Twitter, structured data) and providers. Uses fonts defined in `docs/DESIGN_SYSTEM.md` and injects a client-side theme script.
 - `src/app/(main)/page.tsx` – Hero landing page with feature highlights, uses `getEntriesByCategory("all")` and renders `DirectoryCard`.
 - `src/app/(main)/map/page.tsx` – Client page that dynamically imports `InteractiveMap` with suspense fallbacks.
@@ -60,6 +69,7 @@ All findings focus on the Next.js frontend located in `frontend/`. References to
 - `src/app/api/health/route.ts` – Serverless health endpoint.
 
 ### Configuration Files
+
 - `package.json` – Comprehensive scripts for dev/build/test/Storybook/Lighthouse/k6/MCP. Dependencies highlight Next 15, React 19, Tailwind 4, TanStack Query 5, Supabase 2.5x, etc.
 - `tsconfig.json` – Strict mode, path alias `@/*`, bundler module resolution.
 - `next.config.ts` – Standalone output, relaxed ESLint on build, remote image patterns.
@@ -69,6 +79,7 @@ All findings focus on the Next.js frontend located in `frontend/`. References to
 - `Dockerfile` – Three-stage build for Cloud Run; copies standalone server output and exposes 3000.
 
 ### Data Layer & API Abstractions
+
 - `src/lib/api-contracts.ts` – Type-safe interface for API clients, caching hints (`CacheConfig`), pagination metadata.
 - `src/lib/api-factory.ts`, `src/lib/api.ts`, `src/lib/backend-api.ts`, `src/lib/mock-api.ts` – Strategy pattern that toggles between live Spring Boot endpoints and curated mock data. Backend client handles Supabase auth headers, ISR caching, validation, and error parsing. Mock client seeds Cape Verde–authentic samples.
 - `src/lib/env.ts` – Validates required env vars at module load and enforces URL formats; logs guidance if missing.
@@ -76,6 +87,7 @@ All findings focus on the Next.js frontend located in `frontend/`. References to
 - `src/types/*.ts` – Shared DTOs (DirectoryEntry union, Town, Reaction, content-action toolbar props).
 
 ### Frontend/UI Layer
+
 - Catalyst primitives (buttons, inputs, dialogs) reflect spacing/typography tokens from `docs/DESIGN_SYSTEM.md`.
 - Composite UI components in `src/components/ui/` manage complex behavior:
   - `interactive-map.tsx` – Mapbox map with clustering, uses Zustand filters, handles loading/error/empty states.
@@ -83,6 +95,7 @@ All findings focus on the Next.js frontend located in `frontend/`. References to
   - `newsletter`, `page-header`, `directory-card`, `image-gallery`, `related-content`, etc.
 
 ### Testing Assets
+
 - `playwright.config.ts` – Defines E2E projects (Desktop Chrome + Mobile Chrome), attaches tracing/screenshots/videos, seeds data via `tests/setup/global-setup.ts`.
 - `vitest.config.ts` – Multi-project config (unit + browser-based Storybook tests) with coverage thresholds.
 - `tests/e2e/*.spec.ts`, `tests/shared/*.spec.ts` – Scenario-based tests (auth, directory, map, cultural flows).
@@ -90,6 +103,7 @@ All findings focus on the Next.js frontend located in `frontend/`. References to
 - `tests/unit/stores/*.test.ts`, `tests/unit/hooks/*.test.tsx` – Zustand and hook coverage. Component unit tests are missing.
 
 ### Documentation & DevOps
+
 - `README.md` – Still the default `create-next-app` text; needs replacement with project-specific guidance (should reference `docs/DESIGN_SYSTEM.md`/`docs/ARCHITECTURE.md` per repo standards).
 - `../docs/*.md` (outside this folder) – Authoritative guides referenced throughout this analysis.
 - `Dockerfile`, `.env.local.example`, `lighthouserc.js`, `package scripts` – Provide deployment/testing automation, but no `.github` workflows live inside `frontend/` (CI resides at repo root).
@@ -97,23 +111,24 @@ All findings focus on the Next.js frontend located in `frontend/`. References to
 ---
 
 ## 4. API Endpoints Analysis
+
 The frontend’s backend client (`src/lib/backend-api.ts`) targets the Spring Boot API documented in `docs/ARCHITECTURE.md`. Key endpoints:
 
-| Method | Endpoint | Purpose | Notes |
-| --- | --- | --- | --- |
-| `GET` | `/api/v1/directory/entries?category&size&page` | Fetch paginated directory entries or category slices. | Uses ISR revalidate 3600 via `CacheConfig.DIRECTORY_ENTRIES`. |
-| `GET` | `/api/v1/directory/slug/:slug` | Fetch a single entry. | ISR revalidate 1800, returns `undefined` on 404. |
-| `POST` | `/api/v1/directory/entries` | Create a directory entry. | Requires Supabase JWT; handles validation errors via `ErrorDetail`. |
-| `GET` | `/api/v1/directory/entries?size=100` | Map data feed (no-store cache). | Shared with `InteractiveMap`. |
-| `POST` | `/api/v1/media/upload` | Upload image, returns public URL. | Authenticated; accepts optional category/description metadata. |
-| `GET` | `/api/v1/towns/all` | Fetch all towns. | Two usages (general + map). |
-| `GET` | `/api/v1/towns/slug/:slug` | Fetch a town by slug. | Returns undefined on 404. |
-| `POST` | `/api/v1/reactions` | Submit/update reaction (`ReactionCreateDto`). | Requires Supabase auth; Reaction buttons use optimistic updates. |
-| `DELETE` | `/api/v1/reactions/content/:contentId` | Remove current user reaction. | Called when toggling off selection. |
-| `GET` | `/api/v1/reactions/content/:contentId` | Fetch aggregated reaction counts + user reaction. | Cached for 5 minutes via `CacheConfig.REACTION_COUNTS`. |
-| `POST` | `/api/v1/suggestions` | Submit community suggestions for content. | Rate-limited server-side; UI uses `suggest-improvement` actions. |
-| `GET` | `/api/v1/directory/entries/:contentId/related?limit` | Related content feed. | Displayed beneath entry pages. |
-| `GET` | `/api/health` (Next.js route) | Frontend health info (uptime/environment). | Used by infrastructure probes. |
+| Method   | Endpoint                                             | Purpose                                               | Notes                                                               |
+| -------- | ---------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------- |
+| `GET`    | `/api/v1/directory/entries?category&size&page`       | Fetch paginated directory entries or category slices. | Uses ISR revalidate 3600 via `CacheConfig.DIRECTORY_ENTRIES`.       |
+| `GET`    | `/api/v1/directory/slug/:slug`                       | Fetch a single entry.                                 | ISR revalidate 1800, returns `undefined` on 404.                    |
+| `POST`   | `/api/v1/directory/entries`                          | Create a directory entry.                             | Requires Supabase JWT; handles validation errors via `ErrorDetail`. |
+| `GET`    | `/api/v1/directory/entries?size=100`                 | Map data feed (no-store cache).                       | Shared with `InteractiveMap`.                                       |
+| `POST`   | `/api/v1/media/upload`                               | Upload image, returns public URL.                     | Authenticated; accepts optional category/description metadata.      |
+| `GET`    | `/api/v1/towns/all`                                  | Fetch all towns.                                      | Two usages (general + map).                                         |
+| `GET`    | `/api/v1/towns/slug/:slug`                           | Fetch a town by slug.                                 | Returns undefined on 404.                                           |
+| `POST`   | `/api/v1/reactions`                                  | Submit/update reaction (`ReactionCreateDto`).         | Requires Supabase auth; Reaction buttons use optimistic updates.    |
+| `DELETE` | `/api/v1/reactions/content/:contentId`               | Remove current user reaction.                         | Called when toggling off selection.                                 |
+| `GET`    | `/api/v1/reactions/content/:contentId`               | Fetch aggregated reaction counts + user reaction.     | Cached for 5 minutes via `CacheConfig.REACTION_COUNTS`.             |
+| `POST`   | `/api/v1/suggestions`                                | Submit community suggestions for content.             | Rate-limited server-side; UI uses `suggest-improvement` actions.    |
+| `GET`    | `/api/v1/directory/entries/:contentId/related?limit` | Related content feed.                                 | Displayed beneath entry pages.                                      |
+| `GET`    | `/api/health` (Next.js route)                        | Frontend health info (uptime/environment).            | Used by infrastructure probes.                                      |
 
 Request/response payloads follow the `ApiResponse<T>` or `PagedApiResponse<T>` wrappers defined in `src/lib/api-contracts.ts`. The API factory uses `NEXT_PUBLIC_USE_MOCK_API` toggles to substitute the mock client during local development or testing.
 
@@ -122,6 +137,7 @@ Authentication: Supabase session tokens automatically attach via `BackendApiClie
 ---
 
 ## 5. Architecture Deep Dive
+
 - **Rendering model:** Per `docs/ARCHITECTURE.md`, the frontend leans on Server Components for data fetching (e.g., directory listings call `getEntriesByCategory` server-side). Client components are reserved for interactive flows such as maps, auth forms, and toolbars.
 - **Data flow:** Users hit App Router routes → server components call `lib/api` → API factory selects backend vs mock implementation → Backend client fetches Spring Boot endpoints (`env.apiUrl`) using ISR caching hints → responses validated via Zod + manual guards before feeding UI. Client components needing live interactivity (content toolbar, map, search) use TanStack Query or Zustand stores for incremental updates.
 - **State management:** Global auth state is centralized in `src/stores/authStore.ts` (Zustand + persist + devtools). Filters and UI stores follow the same pattern. Local component state handles UI-level details (e.g., Reaction button spinners).
@@ -133,6 +149,7 @@ Authentication: Supabase session tokens automatically attach via `BackendApiClie
 ---
 
 ## 6. Environment & Setup Analysis
+
 - **Required env vars** (validated in `src/lib/env.ts` and documented in `.env.local.example`):
   - `NEXT_PUBLIC_API_URL` – Backend base URL.
   - `NEXT_PUBLIC_USE_MOCK_API` – Switch between backend/mock clients.
@@ -155,6 +172,7 @@ Authentication: Supabase session tokens automatically attach via `BackendApiClie
 ---
 
 ## 7. Technology Stack Breakdown
+
 - **Runtime & Framework:** Node 20, Next.js 15 (App Router), React 19 Server Components.
 - **Styling & Design:** Tailwind CSS v4 semantic tokens, custom CSS animations, fonts from Merriweather/Lato per `docs/DESIGN_SYSTEM.md`.
 - **State & Data:** TanStack Query 5, Zustand 5, React Hook Form + Zod, Supabase Auth, Mapbox GL 3 + react-map-gl, Supercluster for map clustering.
@@ -166,6 +184,7 @@ Authentication: Supabase session tokens automatically attach via `BackendApiClie
 ---
 
 ## 8. Visual Architecture Diagram
+
 ```mermaid
 flowchart LR
     UserBrowser["Users (Desktop + Mobile)"] -->|HTTP| NextApp["Next.js 15 App Router\n(src/app/**)"]
@@ -198,6 +217,7 @@ This diagram captures user-to-frontend interactions, the API switching strategy,
 ---
 
 ## 9. Key Insights & Recommendations
+
 1. **Git hygiene:** `.next/`, `playwright-report/`, and `test-results/` directories are present in the repo tree and account for ~1.5 GB. These build artifacts should remain untracked to keep clones lightweight and prevent accidental deployments of stale bundles.
 2. **Documentation gap:** `frontend/README.md` still contains the default `create-next-app` text. Replace it with project-specific onboarding information referencing `docs/DESIGN_SYSTEM.md` and `docs/ARCHITECTURE.md` so new contributors see the real requirements.
 3. **Storybook coverage:** Only five stories exist despite dozens of components. This limits our ability to enforce design consistency, run Chromatic diffing, or share living documentation with the community.
@@ -209,6 +229,7 @@ This diagram captures user-to-frontend interactions, the API switching strategy,
 ---
 
 ## 10. Storybook Catalog Expansion Plan
+
 To honor the brand language and UX guardrails in `docs/DESIGN_SYSTEM.md`, the Storybook catalog must become the single source of truth for components and page states. Proposed roadmap:
 
 1. **Audit & Inventory (Week 1):**
@@ -246,7 +267,7 @@ Executing this plan will turn Storybook into a living catalog that precise mirro
 
 ---
 
-*Stats: 3,275 files detected (2,145 code files). Repository size sans `node_modules`/`.git` is ~1.5 GB largely because `.next/` is currently present in the workspace.*
+_Stats: 3,275 files detected (2,145 code files). Repository size sans `node_modules`/`.git` is ~1.5 GB largely because `.next/` is currently present in the workspace._
 
 ---
 
@@ -256,57 +277,57 @@ This table enumerates every component/page that still needs Storybook coverage. 
 
 ### Catalyst Primitives (foundational)
 
-| Component | Current Story | Required Scenarios | Notes |
-| --- | --- | --- | --- |
-| `catalyst-ui/button.tsx` | ✓ (`CatalystButton.stories.tsx`) | Add disabled/loading variants, semantic color tokens | Show plain vs brand buttons with keyboard focus ring |
-| `catalyst-ui/input.tsx`, `textarea.tsx` | ✗ | Default, error, disabled, hint text | Demonstrate light/dark backgrounds |
-| `catalyst-ui/checkbox.tsx`, `radio.tsx`, `switch.tsx` | ✗ | Checked/unchecked, focus, error states | Include form-field grouping with `Fieldset` |
-| `catalyst-ui/dialog.tsx`, `dropdown.tsx`, `listbox.tsx` | ✗ | Open/closed, keyboard nav, mobile viewport | Use mock data for menu items |
-| `catalyst-ui/navbar.tsx`, `sidebar(-layout).tsx`, `stacked-layout.tsx` | ✗ | Desktop/mobile breakpoints | Reference route structure from `docs/SITEMAP.md` |
-| `catalyst-ui/alert.tsx`, `badge.tsx`, `pagination.tsx` | ✗ | All color tokens | Include accessibility notes |
+| Component                                                              | Current Story                    | Required Scenarios                                   | Notes                                                |
+| ---------------------------------------------------------------------- | -------------------------------- | ---------------------------------------------------- | ---------------------------------------------------- |
+| `catalyst-ui/button.tsx`                                               | ✓ (`CatalystButton.stories.tsx`) | Add disabled/loading variants, semantic color tokens | Show plain vs brand buttons with keyboard focus ring |
+| `catalyst-ui/input.tsx`, `textarea.tsx`                                | ✗                                | Default, error, disabled, hint text                  | Demonstrate light/dark backgrounds                   |
+| `catalyst-ui/checkbox.tsx`, `radio.tsx`, `switch.tsx`                  | ✗                                | Checked/unchecked, focus, error states               | Include form-field grouping with `Fieldset`          |
+| `catalyst-ui/dialog.tsx`, `dropdown.tsx`, `listbox.tsx`                | ✗                                | Open/closed, keyboard nav, mobile viewport           | Use mock data for menu items                         |
+| `catalyst-ui/navbar.tsx`, `sidebar(-layout).tsx`, `stacked-layout.tsx` | ✗                                | Desktop/mobile breakpoints                           | Reference route structure from `docs/SITEMAP.md`     |
+| `catalyst-ui/alert.tsx`, `badge.tsx`, `pagination.tsx`                 | ✗                                | All color tokens                                     | Include accessibility notes                          |
 
 ### Shared Providers / Utility Components
 
-| Component | Story? | Needed States | Notes |
-| --- | --- | --- | --- |
-| `providers/auth-provider.tsx` | ✗ | Mocked session vs guest | Use Storybook decorators to inject fake Supabase session |
-| `providers/query-provider.tsx` | ✗ | Not visual, but document in MDX how to wrap stories | Provide usage snippet for new stories |
-| `components/ui/page-transition.tsx`, `animated-button.tsx` | ✗ | Motion examples (with `prefers-reduced-motion` note) | Align with Framer Motion tokens |
+| Component                                                  | Story? | Needed States                                        | Notes                                                    |
+| ---------------------------------------------------------- | ------ | ---------------------------------------------------- | -------------------------------------------------------- |
+| `providers/auth-provider.tsx`                              | ✗      | Mocked session vs guest                              | Use Storybook decorators to inject fake Supabase session |
+| `providers/query-provider.tsx`                             | ✗      | Not visual, but document in MDX how to wrap stories  | Provide usage snippet for new stories                    |
+| `components/ui/page-transition.tsx`, `animated-button.tsx` | ✗      | Motion examples (with `prefers-reduced-motion` note) | Align with Framer Motion tokens                          |
 
 ### UI Components (high priority)
 
-| Component | Story? | Required Scenarios |
-| --- | --- | --- |
-| `ui/header.tsx` | ✗ | Guest vs authenticated vs admin user; mobile menu open/closed |
-| `ui/footer.tsx` | ✓ (new) | Add dark-mode variant, Spanish/Portuguese localization example |
-| `ui/banner.tsx` | ✓ (new) | Already covers dismissible vs persistent; add high-contrast check |
-| `ui/directory-card.tsx` | ✓ (existing) | Expand for each category (Restaurant, Hotel, Beach, Landmark) |
-| `ui/directory-card-skeleton.tsx`, `directory-grid-skeleton.tsx` | ✗ | Loading states with dark-mode |
-| `ui/interactive-map.tsx` | ✗ | Static snapshot with mock data + error/empty states (use screenshot or Mapbox mock) |
-| `ui/map-filter-control.tsx`, `photo-gallery-filter.tsx` | ✗ | Selected filters, disabled filters |
-| `ui/content-action-toolbar/*` | ✗ | Desktop vs mobile FAB; authenticated vs guest; reaction rate-limit message |
-| `ui/actions/*` (`reaction-buttons`, `share-button`, `suggest-improvement-form`) | ✗ | Each isolated to test accessibility; include API success/error mocks |
-| `ui/culture-flyout-menu.tsx` | ✗ | Hover vs focus, keyboard navigation |
-| `ui/back-to-top-button.tsx`, `theme-toggle.tsx` | ✗ | Idle vs focus vs active states |
-| `ui/image-gallery.tsx`, `image-lightbox.tsx`, `gallery-image-grid.tsx` | ✗ | Single vs multi-image, caption overlays |
-| `ui/related-content.tsx` | ✗ | With/without data; fallback messaging |
-| `ui/contribute-photos-section.tsx`, `citation-section.tsx`, `print-page-wrapper.tsx` | ✗ | Include print preview example |
-| `ui/page-header.tsx` | ✓ | Add variant for small hero vs large hero w/ breadcrumbs |
-| `ui/newsletter.tsx` | ✓ (new) | Add failure message variant |
-| `ui/social-media-links.tsx` | ✗ | Compact vs default layout |
-| `ui/video-hero-section.tsx`, `image-with-courtesy.tsx`, `category-marker-icon.tsx` | ✗ | Showcases of imaging states |
+| Component                                                                            | Story?       | Required Scenarios                                                                  |
+| ------------------------------------------------------------------------------------ | ------------ | ----------------------------------------------------------------------------------- |
+| `ui/header.tsx`                                                                      | ✗            | Guest vs authenticated vs admin user; mobile menu open/closed                       |
+| `ui/footer.tsx`                                                                      | ✓ (new)      | Add dark-mode variant, Spanish/Portuguese localization example                      |
+| `ui/banner.tsx`                                                                      | ✓ (new)      | Already covers dismissible vs persistent; add high-contrast check                   |
+| `ui/directory-card.tsx`                                                              | ✓ (existing) | Expand for each category (Restaurant, Hotel, Beach, Landmark)                       |
+| `ui/directory-card-skeleton.tsx`, `directory-grid-skeleton.tsx`                      | ✗            | Loading states with dark-mode                                                       |
+| `ui/interactive-map.tsx`                                                             | ✗            | Static snapshot with mock data + error/empty states (use screenshot or Mapbox mock) |
+| `ui/map-filter-control.tsx`, `photo-gallery-filter.tsx`                              | ✗            | Selected filters, disabled filters                                                  |
+| `ui/content-action-toolbar/*`                                                        | ✗            | Desktop vs mobile FAB; authenticated vs guest; reaction rate-limit message          |
+| `ui/actions/*` (`reaction-buttons`, `share-button`, `suggest-improvement-form`)      | ✗            | Each isolated to test accessibility; include API success/error mocks                |
+| `ui/culture-flyout-menu.tsx`                                                         | ✗            | Hover vs focus, keyboard navigation                                                 |
+| `ui/back-to-top-button.tsx`, `theme-toggle.tsx`                                      | ✗            | Idle vs focus vs active states                                                      |
+| `ui/image-gallery.tsx`, `image-lightbox.tsx`, `gallery-image-grid.tsx`               | ✗            | Single vs multi-image, caption overlays                                             |
+| `ui/related-content.tsx`                                                             | ✗            | With/without data; fallback messaging                                               |
+| `ui/contribute-photos-section.tsx`, `citation-section.tsx`, `print-page-wrapper.tsx` | ✗            | Include print preview example                                                       |
+| `ui/page-header.tsx`                                                                 | ✓            | Add variant for small hero vs large hero w/ breadcrumbs                             |
+| `ui/newsletter.tsx`                                                                  | ✓ (new)      | Add failure message variant                                                         |
+| `ui/social-media-links.tsx`                                                          | ✗            | Compact vs default layout                                                           |
+| `ui/video-hero-section.tsx`, `image-with-courtesy.tsx`, `category-marker-icon.tsx`   | ✗            | Showcases of imaging states                                                         |
 
 ### Pages / Route Assemblies
 
-| Route Component | Story? | Needed Scenarios |
-| --- | --- | --- |
-| `(main)/page.tsx` (Home) | ✗ | Default data, fallback when `getEntriesByCategory` empty |
-| `(main)/directory/[category]/page.tsx` | ✗ | Category-specific metadata, empty state, pagination note |
-| `(main)/directory/entry/[slug]/page.tsx` | ✗ | With/without gallery, reaction toolbar variations |
-| `(main)/map/page.tsx` | ✗ | Map loading fallback, dynamic import skeleton |
-| `(main)/history`, `/people`, `/media/photos/[galleryId]` | ✗ | Content layout + action toolbar |
-| `(auth)/login`, `/signup` | ✗ | Valid vs invalid form states |
-| `(admin)/add-entry/page.tsx` + `AddEntryForm` | ✗ | Authenticated vs redirect, validation errors |
+| Route Component                                          | Story? | Needed Scenarios                                         |
+| -------------------------------------------------------- | ------ | -------------------------------------------------------- |
+| `(main)/page.tsx` (Home)                                 | ✗      | Default data, fallback when `getEntriesByCategory` empty |
+| `(main)/directory/[category]/page.tsx`                   | ✗      | Category-specific metadata, empty state, pagination note |
+| `(main)/directory/entry/[slug]/page.tsx`                 | ✗      | With/without gallery, reaction toolbar variations        |
+| `(main)/map/page.tsx`                                    | ✗      | Map loading fallback, dynamic import skeleton            |
+| `(main)/history`, `/people`, `/media/photos/[galleryId]` | ✗      | Content layout + action toolbar                          |
+| `(auth)/login`, `/signup`                                | ✗      | Valid vs invalid form states                             |
+| `(admin)/add-entry/page.tsx` + `AddEntryForm`            | ✗      | Authenticated vs redirect, validation errors             |
 
 ### Implementation Notes
 

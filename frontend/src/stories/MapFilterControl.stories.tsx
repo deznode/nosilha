@@ -2,7 +2,7 @@ import { useEffect, type ReactNode } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { MapFilterControl } from "@/components/ui/map-filter-control";
 import { useFilterStore } from "@/stores/filterStore";
-import userEvent from "@testing-library/user-event";
+import { userEvent } from "@storybook/testing-library";
 
 const defaultSelectedCategories = [
   ...useFilterStore.getState().selectedCategories,
@@ -82,7 +82,7 @@ export const KeyboardNavigation: Story = {
       "Initial selectedCategories should match defaults"
     );
 
-    const user = userEvent.setup();
+    const user = await userEvent.setup();
 
     await user.tab(); // focus first checkbox
     await user.keyboard(" "); // toggle off

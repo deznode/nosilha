@@ -1,6 +1,11 @@
 import type React from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Alert, AlertTitle, AlertDescription, AlertActions } from "@/components/catalyst-ui/alert";
+import {
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  AlertActions,
+} from "@/components/catalyst-ui/alert";
 import { Button } from "@/components/catalyst-ui/button";
 
 const meta = {
@@ -10,7 +15,25 @@ const meta = {
   argTypes: {
     color: {
       control: "select",
-      options: ["red", "orange", "amber", "yellow", "lime", "green", "emerald", "teal", "cyan", "sky", "blue", "indigo", "violet", "purple", "fuchsia", "pink", "rose"],
+      options: [
+        "red",
+        "orange",
+        "amber",
+        "yellow",
+        "lime",
+        "green",
+        "emerald",
+        "teal",
+        "cyan",
+        "sky",
+        "blue",
+        "indigo",
+        "violet",
+        "purple",
+        "fuchsia",
+        "pink",
+        "rose",
+      ],
     },
   },
 } satisfies Meta<typeof Alert>;
