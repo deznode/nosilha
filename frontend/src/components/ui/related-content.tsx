@@ -26,6 +26,11 @@ interface RelatedContentProps {
    * Optional CSS class name for styling
    */
   className?: string;
+
+  /**
+   * Optional prefetched entries for Storybook/tests to avoid live API calls
+   */
+  relatedEntries?: DirectoryEntry[];
 }
 
 /**
@@ -51,12 +56,19 @@ export function RelatedContent({
   limit = 5,
   heading = "Explore Related Content",
   className = "",
+  relatedEntries: prefetchedEntries,
 }: RelatedContentProps) {
-  const [relatedEntries, setRelatedEntries] = useState<DirectoryEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [relatedEntries, setRelatedEntries] = useState<DirectoryEntry[]>(
+    prefetchedEntries ?? []
+  );
+  const [loading, setLoading] = useState(!prefetchedEntries);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (prefetchedEntries) {
+      return;
+    }
+
     async function fetchRelatedContent() {
       try {
         setLoading(true);
@@ -75,7 +87,7 @@ export function RelatedContent({
     if (contentId) {
       fetchRelatedContent();
     }
-  }, [contentId, limit]);
+  }, [contentId, limit, prefetchedEntries]);
 
   // Don't render if no content or error
   if (loading) {

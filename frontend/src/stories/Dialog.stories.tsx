@@ -1,4 +1,5 @@
 
+import type React from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Dialog, DialogTitle, DialogDescription, DialogBody, DialogActions } from "@/components/catalyst-ui/dialog";
 import { Button } from "@/components/catalyst-ui/button";
@@ -18,10 +19,14 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const baseArgs: React.ComponentProps<typeof Dialog> = {
+  open: true,
+  onClose: () => {},
+  children: null,
+};
+
 export const Default: Story = {
-  args: {
-    open: true,
-  },
+  args: baseArgs,
   render: (args) => (
     <Dialog {...args}>
       <DialogTitle>Dialog Title</DialogTitle>
@@ -39,9 +44,7 @@ export const Default: Story = {
 };
 
 export const WithForm: Story = {
-  args: {
-    open: true,
-  },
+  args: baseArgs,
   render: (args) => (
     <Dialog {...args}>
       <DialogTitle>Sign Up</DialogTitle>

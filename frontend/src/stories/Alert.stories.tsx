@@ -1,3 +1,4 @@
+import type React from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { Alert, AlertTitle, AlertDescription, AlertActions } from "@/components/catalyst-ui/alert";
 import { Button } from "@/components/catalyst-ui/button";
@@ -17,6 +18,12 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const baseArgs: React.ComponentProps<typeof Alert> = {
+  open: true,
+  onClose: () => {},
+  children: null,
+};
+
 export const Default: Story = {
   render: (args) => (
     <Alert {...args}>
@@ -24,6 +31,7 @@ export const Default: Story = {
       <AlertDescription>This is a description of the alert.</AlertDescription>
     </Alert>
   ),
+  args: baseArgs,
 };
 
 export const WithActions: Story = {
@@ -37,6 +45,7 @@ export const WithActions: Story = {
       </AlertActions>
     </Alert>
   ),
+  args: baseArgs,
 };
 
 export const Red: Story = {
@@ -47,6 +56,7 @@ export const Red: Story = {
     </Alert>
   ),
   args: {
+    ...baseArgs,
     color: "red",
   },
 };

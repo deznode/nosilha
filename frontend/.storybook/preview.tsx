@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import type { Preview, Decorator } from "@storybook/nextjs-vite";
-import { AuthProvider } from "../src/components/providers/auth-provider";
 import { QueryProvider } from "../src/components/providers/query-provider";
-import { MemoryRouterProvider } from "next-router-mock/MemoryRouterProvider";
 import { initialize, mswDecorator } from "msw-storybook-addon";
+import { StorybookRouterProvider } from "../src/stories/storybook-router-context";
 import "../src/app/globals.css";
 
 // Initialize MSW
@@ -15,9 +14,9 @@ initialize();
  * @returns JSX.Element
  */
 const withMockRouter: Decorator = (Story) => (
-  <MemoryRouterProvider>
+  <StorybookRouterProvider>
     <Story />
-  </MemoryRouterProvider>
+  </StorybookRouterProvider>
 );
 
 /**
@@ -30,7 +29,7 @@ const withTheme: Decorator = (Story, context) => {
   const { globals } = context;
   const theme = globals.theme || "light";
 
-  React.useEffect(() => {
+  useEffect(() => {
     const html = document.documentElement;
     html.classList.remove("light", "dark");
     html.classList.add(theme);
@@ -46,11 +45,9 @@ const withTheme: Decorator = (Story, context) => {
  */
 const withProviders: Decorator = (Story) => (
   <QueryProvider>
-    <AuthProvider>
-      <div className="font-sans">
-        <Story />
-      </div>
-    </AuthProvider>
+    <div className="font-sans">
+      <Story />
+    </div>
   </QueryProvider>
 );
 
