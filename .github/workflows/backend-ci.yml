@@ -64,6 +64,9 @@ concurrency:
 jobs:
   security-scan:
     name: Security Scanning
+    permissions:
+      contents: read
+      security-events: write
     uses: ./.github/workflows/reusable-security-scan.yml
     with:
       components: 'backend'
@@ -72,6 +75,9 @@ jobs:
   test-and-lint:
     name: Tests & Code Quality
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
 
     defaults:
       run:
@@ -131,7 +137,7 @@ jobs:
 
       # Upload code quality SARIF reports to GitHub Security
       - name: Upload ktlint SARIF report
-        if: always()
+        if: always() && hashFiles('backend/build/reports/ktlint/ktlintMainSourceSetCheck/ktlintMainSourceSetCheck.sarif') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: backend/build/reports/ktlint/ktlintMainSourceSetCheck/ktlintMainSourceSetCheck.sarif
@@ -139,7 +145,7 @@ jobs:
         continue-on-error: true
 
       - name: Upload detekt SARIF report
-        if: always()
+        if: always() && hashFiles('backend/build/reports/detekt/detekt.sarif') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: backend/build/reports/detekt/detekt.sarif

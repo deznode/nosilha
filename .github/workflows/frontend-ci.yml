@@ -68,6 +68,9 @@ concurrency:
 jobs:
   security-scan:
     name: Security Scanning
+    permissions:
+      contents: read
+      security-events: write
     uses: ./.github/workflows/reusable-security-scan.yml
     with:
       components: 'frontend'
