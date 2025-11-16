@@ -77,8 +77,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 // 6. Create the custom hook to access the context
 export function useAuth() {
   const context = useContext(AuthContext);
+  const storeState = useAuthStore();
+
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    return {
+      session: storeState.session,
+      user: storeState.user,
+      loading: storeState.isLoading,
+    };
   }
+
   return context;
 }

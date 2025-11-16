@@ -6,19 +6,53 @@ const meta = {
   component: Footer,
   parameters: {
     layout: "fullscreen",
-    docs: {
-      description: {
-        component:
-          "Site-wide footer referencing navigation groupings defined by the design system (see docs/DESIGN_SYSTEM.md).",
-      },
-    },
   },
-  tags: ["autodocs"],
 } satisfies Meta<typeof Footer>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
+  decorators: [
+    (Story) => (
+      <div className="bg-background-primary">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const DarkMode: Story = {
+  decorators: [
+    (Story) => (
+      <div className="dark" data-theme="dark">
+        <div className="bg-gray-950 text-white">
+          <Story />
+        </div>
+      </div>
+    ),
+  ],
+};
+
+export const TranslatedPortuguese: Story = {
+  args: {
+    copy: {
+      exploreHeading: "Explora Brava",
+      cultureHeading: "Cultura & História",
+      connectHeading: "Conecta",
+      newsletterHeading: "Recebe novidades culturais",
+      newsletterDescription:
+        "Envianu histórias, eventos e dicas de viagem para Brava toda semana.",
+      newsletterPlaceholder: "Introduzi bu email",
+      newsletterCta: "Subscreve",
+      legal: "Tudu direitu reservadu.",
+    },
+  },
+  decorators: [
+    (Story) => (
+      <div className="bg-background-primary">
+        <Story />
+      </div>
+    ),
+  ],
 };

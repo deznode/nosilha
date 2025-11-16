@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { PhotoGalleryFilter } from "@/components/ui/photo-gallery-filter";
+import userEvent from "@testing-library/user-event";
+import { within } from "@testing-library/dom";
 
 /**
  * PhotoGalleryFilter provides category-based filtering for Brava Island photo galleries.
@@ -202,6 +204,37 @@ export const LandscapesOnly: Story = {
       </div>
     ),
   ],
+};
+
+export const SelectedFilters: Story = {
+  args: {
+    galleries: mockGalleries,
+    categories: mockCategories.map((category) => ({
+      ...category,
+      isSelected: ["Landscapes", "Culture"].includes(category.name),
+    })),
+  },
+  decorators: [
+    (Story) => (
+      <div className="container mx-auto p-6">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const KeyboardNavigation: Story = {
+  ...Default,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const firstButton = await canvas.findByRole("button", {
+      name: /landscapes/i,
+    });
+    const user = userEvent.setup();
+    await user.click(firstButton);
+    await user.tab();
+    await user.keyboard(" ");
+  },
 };
 
 /**
