@@ -1,11 +1,61 @@
-import type { Preview } from "@storybook/nextjs-vite";
-import "../src/app/globals.css"; // Import Tailwind CSS styles for component preview
+import React from "react";
+import type { Preview, Decorator } from "@storybook/nextjs-vite";
+import { AuthProvider } from "../src/components/providers/auth-provider";
+import { QueryProvider } from "../src/components/providers/query-provider";
+import { MemoryRouterProvider } from "next-router-mock/MemoryRouterProvider";
+import { initialize, mswDecorator } from "msw-storybook-addon";
+import "../src/app/globals.css";
+
+// Initialize MSW
+initialize();
 
 /**
- * Storybook preview configuration for Nos Ilha modular architecture
- * Configures global settings for component documentation
+ * Mock router decorator
+ * @param Story Story component
+ * @returns JSX.Element
  */
+const withMockRouter: Decorator = (Story) => (
+  <MemoryRouterProvider>
+    <Story />
+  </MemoryRouterProvider>
+);
+
+/**
+ * Theme decorator to toggle between light and dark modes
+ * @param Story Story component
+ * @param context Storybook context
+ * @returns JSX.Element
+ */
+const withTheme: Decorator = (Story, context) => {
+  const { globals } = context;
+  const theme = globals.theme || "light";
+
+  React.useEffect(() => {
+    const html = document.documentElement;
+    html.classList.remove("light", "dark");
+    html.classList.add(theme);
+  }, [theme]);
+
+  return <Story />;
+};
+
+/**
+ * Providers decorator to wrap stories with necessary context providers
+ * @param Story Story component
+ * @returns JSX.Element
+ */
+const withProviders: Decorator = (Story) => (
+  <QueryProvider>
+    <AuthProvider>
+      <div className="font-sans">
+        <Story />
+      </div>
+    </AuthProvider>
+  </QueryProvider>
+);
+
 const preview: Preview = {
+  decorators: [mswDecorator, withMockRouter, withTheme, withProviders],
   parameters: {
     controls: {
       matchers: {
@@ -27,10 +77,22 @@ const preview: Preview = {
       ],
     },
     a11y: {
-      // 'todo' - show a11y violations in the test UI only
-      // 'error' - fail CI on a11y violations
-      // 'off' - skip a11y checks entirely
       test: "todo",
+    },
+  },
+  globalTypes: {
+    theme: {
+      name: "Theme",
+      description: "Global theme for components",
+      defaultValue: "light",
+      toolbar: {
+        icon: "circlehollow",
+        items: [
+          { value: "light", title: "Light" },
+          { value: "dark", title: "Dark" },
+        ],
+        showName: true,
+      },
     },
   },
 };
