@@ -247,3 +247,70 @@ Executing this plan will turn Storybook into a living catalog that precise mirro
 ---
 
 *Stats: 3,275 files detected (2,145 code files). Repository size sans `node_modules`/`.git` is ~1.5 GB largely because `.next/` is currently present in the workspace.*
+
+---
+
+## 11. Storybook Component Coverage Plan
+
+This table enumerates every component/page that still needs Storybook coverage. Existing stories (✓) are listed for completeness; all other rows outline the required states, dependencies, and notes so we can scope work in sprints. Reference `docs/DESIGN_SYSTEM.md` for tokens and `src/app/globals.css` for motion utilities.
+
+### Catalyst Primitives (foundational)
+
+| Component | Current Story | Required Scenarios | Notes |
+| --- | --- | --- | --- |
+| `catalyst-ui/button.tsx` | ✓ (`CatalystButton.stories.tsx`) | Add disabled/loading variants, semantic color tokens | Show plain vs brand buttons with keyboard focus ring |
+| `catalyst-ui/input.tsx`, `textarea.tsx` | ✗ | Default, error, disabled, hint text | Demonstrate light/dark backgrounds |
+| `catalyst-ui/checkbox.tsx`, `radio.tsx`, `switch.tsx` | ✗ | Checked/unchecked, focus, error states | Include form-field grouping with `Fieldset` |
+| `catalyst-ui/dialog.tsx`, `dropdown.tsx`, `listbox.tsx` | ✗ | Open/closed, keyboard nav, mobile viewport | Use mock data for menu items |
+| `catalyst-ui/navbar.tsx`, `sidebar(-layout).tsx`, `stacked-layout.tsx` | ✗ | Desktop/mobile breakpoints | Reference route structure from `docs/SITEMAP.md` |
+| `catalyst-ui/alert.tsx`, `badge.tsx`, `pagination.tsx` | ✗ | All color tokens | Include accessibility notes |
+
+### Shared Providers / Utility Components
+
+| Component | Story? | Needed States | Notes |
+| --- | --- | --- | --- |
+| `providers/auth-provider.tsx` | ✗ | Mocked session vs guest | Use Storybook decorators to inject fake Supabase session |
+| `providers/query-provider.tsx` | ✗ | Not visual, but document in MDX how to wrap stories | Provide usage snippet for new stories |
+| `components/ui/page-transition.tsx`, `animated-button.tsx` | ✗ | Motion examples (with `prefers-reduced-motion` note) | Align with Framer Motion tokens |
+
+### UI Components (high priority)
+
+| Component | Story? | Required Scenarios |
+| --- | --- | --- |
+| `ui/header.tsx` | ✗ | Guest vs authenticated vs admin user; mobile menu open/closed |
+| `ui/footer.tsx` | ✓ (new) | Add dark-mode variant, Spanish/Portuguese localization example |
+| `ui/banner.tsx` | ✓ (new) | Already covers dismissible vs persistent; add high-contrast check |
+| `ui/directory-card.tsx` | ✓ (existing) | Expand for each category (Restaurant, Hotel, Beach, Landmark) |
+| `ui/directory-card-skeleton.tsx`, `directory-grid-skeleton.tsx` | ✗ | Loading states with dark-mode |
+| `ui/interactive-map.tsx` | ✗ | Static snapshot with mock data + error/empty states (use screenshot or Mapbox mock) |
+| `ui/map-filter-control.tsx`, `photo-gallery-filter.tsx` | ✗ | Selected filters, disabled filters |
+| `ui/content-action-toolbar/*` | ✗ | Desktop vs mobile FAB; authenticated vs guest; reaction rate-limit message |
+| `ui/actions/*` (`reaction-buttons`, `share-button`, `suggest-improvement-form`) | ✗ | Each isolated to test accessibility; include API success/error mocks |
+| `ui/culture-flyout-menu.tsx` | ✗ | Hover vs focus, keyboard navigation |
+| `ui/back-to-top-button.tsx`, `theme-toggle.tsx` | ✗ | Idle vs focus vs active states |
+| `ui/image-gallery.tsx`, `image-lightbox.tsx`, `gallery-image-grid.tsx` | ✗ | Single vs multi-image, caption overlays |
+| `ui/related-content.tsx` | ✗ | With/without data; fallback messaging |
+| `ui/contribute-photos-section.tsx`, `citation-section.tsx`, `print-page-wrapper.tsx` | ✗ | Include print preview example |
+| `ui/page-header.tsx` | ✓ | Add variant for small hero vs large hero w/ breadcrumbs |
+| `ui/newsletter.tsx` | ✓ (new) | Add failure message variant |
+| `ui/social-media-links.tsx` | ✗ | Compact vs default layout |
+| `ui/video-hero-section.tsx`, `image-with-courtesy.tsx`, `category-marker-icon.tsx` | ✗ | Showcases of imaging states |
+
+### Pages / Route Assemblies
+
+| Route Component | Story? | Needed Scenarios |
+| --- | --- | --- |
+| `(main)/page.tsx` (Home) | ✗ | Default data, fallback when `getEntriesByCategory` empty |
+| `(main)/directory/[category]/page.tsx` | ✗ | Category-specific metadata, empty state, pagination note |
+| `(main)/directory/entry/[slug]/page.tsx` | ✗ | With/without gallery, reaction toolbar variations |
+| `(main)/map/page.tsx` | ✗ | Map loading fallback, dynamic import skeleton |
+| `(main)/history`, `/people`, `/media/photos/[galleryId]` | ✗ | Content layout + action toolbar |
+| `(auth)/login`, `/signup` | ✗ | Valid vs invalid form states |
+| `(admin)/add-entry/page.tsx` + `AddEntryForm` | ✗ | Authenticated vs redirect, validation errors |
+
+### Implementation Notes
+
+1. **Data Mocks:** Use objects from `src/lib/__test_mocks__/*.json` to populate stories. Create helper factories to avoid duplication.
+2. **Decorators:** Extend `.storybook/preview.ts` with providers (Auth, Query, Theme) and viewports so stories share consistent context.
+3. **Status Tracking:** Once a component has stories covering all required states, mark it with ✓ in this plan. Keep the table updated as new components land.
+4. **CI Integration:** Ensure new stories run through `npm run storybook --ci` and Chromatic to catch regressions before merges.
