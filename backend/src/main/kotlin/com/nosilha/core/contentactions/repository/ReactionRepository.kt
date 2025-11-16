@@ -84,7 +84,7 @@ interface ReactionRepository : JpaRepository<Reaction, UUID> {
      * database query instead of multiple countBy calls.</p>
      *
      * @param contentId UUID of the heritage page/content
-     * @return Map of reaction type to count (e.g., {LOVE=42, HELPFUL=15})
+     * @return Map of reaction type to count (e.g., {LOVE=42, CELEBRATE=15})
      */
     @Query(
         """

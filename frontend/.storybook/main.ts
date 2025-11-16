@@ -5,10 +5,7 @@ import type { StorybookConfig } from "@storybook/nextjs-vite";
  * Provides living component documentation for the cultural heritage platform
  */
 const config: StorybookConfig = {
-  stories: [
-    "../src/**/*.mdx",
-    "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)",
-  ],
+  stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
   addons: [
     "@chromatic-com/storybook", // Visual testing and comprehensive addon bundle
     "@storybook/addon-docs", // Documentation addon

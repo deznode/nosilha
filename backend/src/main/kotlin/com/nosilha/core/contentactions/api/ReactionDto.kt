@@ -10,7 +10,7 @@ import java.util.UUID
  * <p>Used in POST /api/v1/reactions endpoint. Requires authentication.</p>
  *
  * @property contentId UUID of the heritage page/content being reacted to
- * @property reactionType Type of emotional response (LOVE, HELPFUL, INTERESTING, THANKYOU)
+ * @property reactionType Type of emotional response (LOVE, CELEBRATE, INSIGHTFUL, SUPPORT)
  */
 data class ReactionCreateDto(
     @field:NotNull(message = "Content ID is required")
@@ -44,7 +44,7 @@ data class ReactionResponseDto(
  * all reaction counts and the current user's reaction (if any).</p>
  *
  * @property contentId UUID of the heritage page/content
- * @property reactions Map of reaction types to their counts (e.g., {"love": 42, "helpful": 15})
+ * @property reactions Map of reaction types to their counts (e.g., {"LOVE": 42, "CELEBRATE": 15})
  * @property userReaction Current user's reaction, if any (null for unauthenticated users)
  */
 data class ReactionCountsDto(

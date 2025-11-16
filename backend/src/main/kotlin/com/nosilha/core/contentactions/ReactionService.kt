@@ -147,14 +147,32 @@ class ReactionService(
             }
             else -> {
                 logger.info(
-                    "Replacing reaction {} with {} for user {} on content {}",
+                    "Updating reaction {} to {} for user {} on content {}",
                     existingReaction.reactionType,
                     createDto.reactionType,
                     userId,
                     createDto.contentId,
                 )
-                reactionRepository.delete(existingReaction)
-                null
+                // Update existing reaction instead of delete + insert to avoid unique constraint violation
+                existingReaction.reactionType = createDto.reactionType
+                val updatedReaction = reactionRepository.save(existingReaction)
+
+                val newCount =
+                    reactionRepository.countByContentIdAndReactionType(
+                        createDto.contentId,
+                        createDto.reactionType,
+                    ).toInt()
+
+                ReactionSubmissionResult(
+                    reaction =
+                        ReactionResponseDto(
+                            id = updatedReaction.id!!,
+                            contentId = createDto.contentId,
+                            reactionType = createDto.reactionType,
+                            count = newCount,
+                        ),
+                    operation = ReactionSubmissionResult.Operation.UPDATED,
+                )
             }
         }
 

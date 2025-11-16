@@ -20,7 +20,6 @@ import { collectWebVitals } from "../utils/web-vitals";
  */
 
 test.describe("Core Web Vitals - Tourism Performance", () => {
-
   test("homepage meets Core Web Vitals thresholds for tourism UX", async ({
     page,
     context,

@@ -71,7 +71,10 @@ export async function collectWebVitals(page: Page): Promise<WebVitals> {
             const lastEntry = entries[entries.length - 1];
             metrics.lcp = lastEntry.startTime;
           });
-          lcpObserver.observe({ type: "largest-contentful-paint", buffered: true });
+          lcpObserver.observe({
+            type: "largest-contentful-paint",
+            buffered: true,
+          });
         } catch (e) {
           // LCP observer not supported
         }

@@ -139,6 +139,49 @@
     }
   }
 
+  /* Content Action Toolbar Animations */
+  @keyframes bounce-reaction {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+  }
+
+  @keyframes scale-share {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes fab-expand {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fab-collapse {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+
   /* Loading animation utilities */
   .animate-pulse-subtle {
     animation: pulse-subtle 2s ease-in-out infinite;
@@ -150,6 +193,42 @@
 
   .animate-fade-in {
     animation: fade-in 0.4s ease-out;
+  }
+
+  /* Content Action Toolbar animation utilities */
+  .animate-bounce-reaction {
+    animation: bounce-reaction 0.3s ease-in-out;
+    /* Performance optimization: GPU acceleration */
+    will-change: transform;
+  }
+
+  .animate-scale-share {
+    animation: scale-share 0.1s ease-in-out;
+    /* Performance optimization: GPU acceleration */
+    will-change: transform;
+  }
+
+  .animate-fab-expand {
+    animation: fab-expand 0.2s ease-out;
+    /* Performance optimization: GPU acceleration */
+    will-change: transform, opacity;
+  }
+
+  .animate-fab-collapse {
+    animation: fab-collapse 0.2s ease-in;
+    /* Performance optimization: GPU acceleration */
+    will-change: transform, opacity;
+  }
+
+  /* Performance degradation strategy for low-end devices */
+  @media (prefers-reduced-motion: no-preference) {
+    /* Only apply will-change on capable devices */
+    .animate-bounce-reaction,
+    .animate-scale-share,
+    .animate-fab-expand,
+    .animate-fab-collapse {
+      /* will-change is already set above */
+    }
   }
 
   /* Focus ring for better accessibility */
@@ -172,7 +251,12 @@
       font-family: var(--font-serif); /* Merriweather for print readability */
     }
 
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
       color: black;
       page-break-after: avoid; /* Keep headings with following content */
     }
@@ -229,7 +313,9 @@
     /* === Page Break Management === */
 
     /* Prevent orphaned headings */
-    h1, h2, h3 {
+    h1,
+    h2,
+    h3 {
       page-break-after: avoid;
     }
 

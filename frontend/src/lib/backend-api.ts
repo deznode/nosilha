@@ -533,14 +533,8 @@ export class BackendApiClient implements ApiClient {
   /**
    * Determines whether a payload follows the ApiResponse envelope structure.
    */
-  private isApiResponsePayload<T>(
-    payload: unknown
-  ): payload is ApiResponse<T> {
-    return (
-      typeof payload === "object" &&
-      payload !== null &&
-      "data" in payload
-    );
+  private isApiResponsePayload<T>(payload: unknown): payload is ApiResponse<T> {
+    return typeof payload === "object" && payload !== null && "data" in payload;
   }
 
   private isPagedApiResponsePayload<T>(
@@ -588,7 +582,8 @@ export class BackendApiClient implements ApiClient {
   private extractPaginationMetadata(
     payload: PagedApiResponse<unknown> | Record<string, unknown>
   ): PaginationMetadata | null {
-    const source = (payload as Record<string, any>).pageable ??
+    const source =
+      (payload as Record<string, any>).pageable ??
       (payload as Record<string, any>).pagination;
 
     if (!source) {
@@ -611,8 +606,7 @@ export class BackendApiClient implements ApiClient {
       totalElements,
       totalPages,
       first: Boolean(
-        source.first ??
-          (typeof page === "number" ? page <= 0 : source.isFirst)
+        source.first ?? (typeof page === "number" ? page <= 0 : source.isFirst)
       ),
       last: Boolean(
         source.last ??

@@ -18,8 +18,8 @@ import {
 import type { DirectoryEntry } from "@/types/directory";
 import { ImageGallery } from "@/components/ui/image-gallery";
 import { ContributePhotosSection } from "@/components/ui/contribute-photos-section";
-import { ContentActionToolbar } from "@/components/content-actions/ContentActionToolbar";
-import { RelatedContent } from "@/components/content-actions/RelatedContent";
+import { ContentActionToolbar } from "@/components/ui/content-action-toolbar";
+import { RelatedContent } from "@/components/ui/related-content";
 import { getRestaurantDetails, getHotelDetails } from "@/lib/api-validation";
 
 interface DetailPageProps {
@@ -175,17 +175,45 @@ export default async function DirectoryEntryDetailPage({
               {entry.description}
             </p>
 
-            {/* Content Action Toolbar */}
+            {/* Content Action Toolbar - Refactored (Feature 005) */}
             <div className="mt-6">
               <ContentActionToolbar
                 contentId={entry.id}
+                contentSlug={entry.slug}
+                contentTitle={entry.name}
+                contentUrl={canonicalUrl}
                 contentType={entry.category}
-                title={entry.name}
-                description={entry.description}
-                image={entry.imageUrl || undefined}
-                url={canonicalUrl}
-                pageUrl={canonicalUrl}
-                contentActions={entry.contentActions}
+                reactions={[
+                  {
+                    id: "LOVE",
+                    emoji: "❤️",
+                    count: 0,
+                    isSelected: false,
+                    ariaLabel: "React with love",
+                  },
+                  {
+                    id: "CELEBRATE",
+                    emoji: "🎉",
+                    count: 0,
+                    isSelected: false,
+                    ariaLabel: "React to celebrate",
+                  },
+                  {
+                    id: "INSIGHTFUL",
+                    emoji: "💡",
+                    count: 0,
+                    isSelected: false,
+                    ariaLabel: "Mark as insightful",
+                  },
+                  {
+                    id: "SUPPORT",
+                    emoji: "👏",
+                    count: 0,
+                    isSelected: false,
+                    ariaLabel: "Show support",
+                  },
+                ]}
+                isAuthenticated={true}
               />
             </div>
 

@@ -29,9 +29,7 @@ export interface ApiClient {
 
   getEntryBySlug(slug: string): Promise<DirectoryEntry | undefined>;
 
-  getEntriesForMap(
-    category?: string
-  ): Promise<PaginatedResult<DirectoryEntry>>;
+  getEntriesForMap(category?: string): Promise<PaginatedResult<DirectoryEntry>>;
 
   createDirectoryEntry(
     entryData: Omit<

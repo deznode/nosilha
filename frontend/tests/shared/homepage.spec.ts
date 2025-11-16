@@ -108,7 +108,7 @@ test.describe("Homepage - Tourism Platform Entry Point", () => {
     context,
   }) => {
     // Simulate mobile device with slower connection (common in Cape Verde)
-    const {throttleNetwork} = await import("../utils/network");
+    const { throttleNetwork } = await import("../utils/network");
     await throttleNetwork(context, {
       latency: 150, // 150ms latency
     });

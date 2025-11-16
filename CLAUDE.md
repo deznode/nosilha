@@ -147,142 +147,68 @@ DATABASE_PASSWORD=nosilha
 - **Registry**: Google Artifact Registry (`us-east1-docker.pkg.dev`)
 - **Authentication**: Supabase Auth with JWT tokens
 
-## Specialized Agent Definitions
+## Skills, Agents, and Commands Architecture
 
-When working with this codebase, Claude Code can utilize specialized agents for domain-specific tasks. Each agent MUST reference the appropriate documentation to ensure consistency with established standards.
+The codebase uses a three-part system for specialized capabilities:
+- **Skills** (`.claude/skills/`) - Domain experts that execute tasks and write code/content
+- **Agents** (`.claude/agents/`) - Planning specialists that create specifications (do NOT write code)
+- **Commands** (`.claude/commands/`) - Slash commands that expand into prompts and trigger workflows
 
-### frontend-engineer
-**Purpose**: Next.js 15 + React 19 + TypeScript frontend specialist for Nos Ilha cultural heritage platform
-**Documentation Reference**: MUST reference [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) for all UI/styling decisions
-**Key Responsibilities**:
-- React components and Next.js App Router pages
-- Tailwind CSS styling following design system standards
-- Mobile-first responsive design implementation
-- Component library usage (Catalyst UI + Custom UI)
-- Client-side features and interactivity
-- Frontend performance optimization
-- Dark/light theme implementation
+### Project Skills
 
-**Required Documentation Compliance**:
-- Follow brand colors and typography from DESIGN_SYSTEM.md
-- Use semantic color tokens and CSS variables
-- Implement mobile-first responsive patterns
-- Adhere to component architecture guidelines
+Domain-specific executors located in `.claude/skills/`. Each skill has detailed documentation in its SKILL.md file.
 
-### backend-engineer
-**Purpose**: Spring Boot + Kotlin API development specialist for Nos Ilha cultural heritage platform
-**Documentation Reference**: MUST reference [`docs/API_CODING_STANDARDS.md`](docs/API_CODING_STANDARDS.md) for all development patterns
-**Key Responsibilities**:
-- REST API development with proper HTTP status codes
-- JPA entities and repository implementations
-- Service layer business logic
-- JWT authentication and authorization
-- Bean Validation for input validation
-- Database operations and Flyway migrations
-- Kotlin backend development best practices
+**Motion & Animation Skills:**
+- `implementing-micro-interactions` - Sets up lib/animation system infrastructure with Framer Motion and motion tokens
+- `architecting-motion-systems` - Audits and refactors motion architecture, plans animation strategies
+- `generating-micro-interactions` - Creates production-ready animated components quickly
 
-**Required Documentation Compliance**:
-- Follow Single Table Inheritance patterns for DirectoryEntry
-- Implement proper entity auditing and validation
-- Use established DTO mapping patterns
-- Adhere to API versioning conventions (/api/v1/)
+> **Coordination**: See `.claude/MOTION_SKILLS_GUIDE.md` for animation workflow patterns
 
-### database-engineer
-**Purpose**: PostgreSQL + Firestore multi-database specialist for Nos Ilha platform data architecture
-**Documentation Reference**: Reference API_CODING_STANDARDS.md for entity patterns and migration standards
-**Key Responsibilities**:
-- Database schema design and migrations
-- JPA entity relationships and mappings
-- Query optimization and performance
-- Firestore operations for AI metadata
-- Data modeling for cultural heritage content
-- Database connection pooling and configuration
+**Content & Cultural Heritage Skills:**
+- `authoring-content` - Creates Cape Verdean cultural heritage content with morabeza spirit and multilingual support
+- `planning-content` - Designs content strategies for educational pages prioritizing cultural authenticity over SEO
+- `verifying-content` - Validates historical accuracy and cultural authenticity (references `CULTURAL_HERITAGE_VERIFICATION.md`)
 
-### devops-engineer
-**Purpose**: CI/CD deployment and Google Cloud Platform infrastructure specialist
-**Documentation References**: [`docs/CI_CD_PIPELINE.md`](docs/CI_CD_PIPELINE.md) and infrastructure documentation
-**Key Responsibilities**:
-- GitHub Actions workflow management
-- GCP deployment and Cloud Run configuration
-- Terraform infrastructure as code
-- Docker containerization and registry management
-- Security scanning and compliance
-- Monitoring and health checks
+**Technical Infrastructure Skills:**
+- `managing-databases` - PostgreSQL schema design with STI patterns and Flyway migrations (references `API_CODING_STANDARDS.md`)
+- `deploying-infrastructure` - CI/CD pipeline management and GCP Cloud Run deployment (references `CI_CD_PIPELINE.md`)
+- `mapping-sites` - Mapbox GL JS v3+ integration for cultural heritage mapping
 
-### content-creator
-**Purpose**: Cultural heritage content creation and multilingual specialist for authentic Cape Verdean storytelling
-**Key Responsibilities**:
-- Cultural content creation and validation
-- Copywriting for heritage descriptions
-- Community-focused narrative development
-- Content review and accuracy verification
-- Multilingual content management
+**Research Skills:**
+- `web-searching` - Advanced web research with multi-source verification for cultural and historical topics
 
-### content-verifier
-**Purpose**: Historical accuracy and cultural authenticity verification specialist ensuring respectful representation of Cape Verdean heritage content
-**Documentation Reference**: Reference `docs/CULTURAL_HERITAGE_VERIFICATION.md` for verification protocols
-**Key Responsibilities**:
-- Historical fact verification with community validation
-- Cultural practice authentication through elder consultation
-- Biographical verification for historical figures
-- Bias detection and correction (colonial perspectives, tourism exoticism)
-- Community consultation coordination
-- Source validation with evidence trail documentation
+> **Note**: Additional plugin skills (like `review:design-review`) are available from external plugins but are not project-specific.
 
-**Required Documentation Compliance**:
-- Prioritize community knowledge over external academic sources
-- Protect sacred knowledge and cultural intellectual property
-- Ensure community benefit and authentic representation
-- Maintain comprehensive evidence trails with multiple source verification
+### Planning Agents
 
-### mapbox-specialist
-**Purpose**: Mapbox GL JS + React integration specialist for Brava Island interactive mapping
-**Key Responsibilities**:
-- Interactive map development and customization
-- Geospatial data visualization
-- Location-based filtering and search
-- Custom marker and popup implementations
-- Map performance optimization
+Architecture planning specialists located in `.claude/agents/`. Agents create detailed specifications that the main agent implements.
 
-### design-review
-**Purpose**: Comprehensive design review specialist for frontend pull requests using Playwright MCP for automated testing
-**Documentation Reference**: Uses Playwright MCP toolset for browser automation and visual testing
-**Key Responsibilities**:
-- UI component and pull request design review
-- Visual consistency and accessibility compliance (WCAG 2.1 AA)
-- Responsive design testing across viewports
-- Interactive state testing (hover, active, disabled)
-- Browser console error checking
-- User flow validation with live preview environment
+- **frontend-engineer** - Plans Next.js 15 + React 19 + TypeScript architecture (MUST reference `docs/DESIGN_SYSTEM.md`)
+- **backend-engineer** - Plans Spring Boot + Kotlin API architecture (MUST reference `docs/API_CODING_STANDARDS.md`)
 
-**Required Review Standards**:
-- Follow "Live Environment First" principle
-- Use triage matrix (Blocker, High-Priority, Medium-Priority, Nitpick)
-- Provide evidence-based feedback with screenshots
-- Verify keyboard navigation and focus states
-- Test mobile/tablet/desktop viewports
-- Validate design token usage and pattern consistency
+> **Important**: Agents are planners only. They output specifications streamed to console. The main agent then implements using appropriate skills.
 
-### content-planner
-**Purpose**: Cultural heritage content planning specialist creating detailed content strategies for Brava Island educational pages with cultural authenticity prioritized over SEO optimization
-**Documentation Reference**: Reference `docs/DESIGN_SYSTEM.md` for brand voice and cultural values
-**Key Responsibilities**:
-- Content plan creation for cultural heritage educational pages (80% of work)
-- Diaspora connection content planning (15% of work)
-- Directory entry content planning with heritage context (5% of work)
-- Cultural authenticity first, SEO optimization second
-- Multilingual strategy planning (English primary, Portuguese, French)
-- Cultural verification checkpoint planning
-- E-E-A-T signal integration for diaspora discovery
+> **Note**: The bash-pro agent has been migrated to the `lang` plugin as the `scripting-bash` skill for better discoverability and shareability across projects.
 
-### search-specialist
-**Purpose**: Expert web researcher for cultural and historical topics using advanced search techniques and multi-source verification
-**Key Responsibilities**:
-- Advanced search query formulation for cultural research
-- Domain-specific searching and filtering for authoritative sources
-- Multi-source fact verification and cross-referencing
-- Information synthesis across academic and community sources
-- Historical and trend analysis for Cape Verdean heritage
+### Slash Commands
+
+Custom workflow triggers located in `.claude/commands/`. Use syntax: `/command-name [arguments]`
+
+**SpecKit Workflow Commands:**
+- `/speckit.specify` - Create or update feature specification from natural language
+- `/speckit.plan` - Execute implementation planning workflow with design artifacts
+- `/speckit.tasks` - Generate actionable, dependency-ordered tasks.md
+- `/speckit.implement` - Execute implementation plan by processing tasks.md
+- `/speckit.clarify` - Identify underspecified areas with targeted questions
+- `/speckit.analyze` - Cross-artifact consistency analysis (spec.md, plan.md, tasks.md)
+- `/speckit.constitution` - Create or update project constitution with dependent templates
+- `/speckit.checklist` - Generate custom checklist for current feature
+
+**Project Commands:**
+- `/research <topic>` - Conduct cultural/historical research with web search, save to plan/content/
+
+> **Note**: For codebase analysis, use `/review:codebase` from the review plugin.
 
 ## Available MCP Server Tools
 
@@ -317,28 +243,47 @@ Claude Code has access to Model Context Protocol (MCP) servers that provide addi
 - `npm run mcp:server:port` - Start MCP server with HTTP transport on port 8931 (for web-based integrations)
 - Configuration uses **headless mode by default** for optimal performance and resource usage
 
-## Agent Usage Guidelines
+## Skills and Agents Usage Guidelines
 
-### When to Use Specialized Agents
-- **Frontend tasks**: Always use frontend-engineer for UI/component work
-- **Backend API tasks**: Always use backend-engineer for Spring Boot/Kotlin development
-- **Infrastructure tasks**: Use devops-engineer for deployment and infrastructure changes
-- **Content creation**: Use content-creator for cultural heritage content, content-planner for content strategy
-- **Research tasks**: Use search-specialist for cultural and historical research
-- **Design review**: Use design-review for comprehensive UI/UX review with Playwright MCP
+### When to Use Skills
+Skills are domain-specific executors that actively write code, create content, or perform specialized tasks. Use skills when:
+- **Motion & Animation**: Setting up animation infrastructure, auditing motion systems, or generating animated components
+- **Content Work**: Creating cultural heritage content, planning content strategy, or verifying historical accuracy
+- **Infrastructure**: Managing databases, deploying to GCP, or implementing map features
+- **Research**: Conducting cultural or historical research with multi-source verification
 
-### Documentation Compliance Requirements
-- **MANDATORY**: All agents must reference their specified documentation before making changes
-- **Validation**: Agents should validate their work against established standards
+### When to Use Agents
+Agents are planning specialists that create architectural specifications. Use agents when:
+- **Frontend Planning**: Need UI/UX architecture plans → Use `frontend-engineer` agent (references DESIGN_SYSTEM.md)
+- **Backend Planning**: Need API/service architecture plans → Use `backend-engineer` agent (references API_CODING_STANDARDS.md)
+
+> **Key Distinction**: Agents create specifications (don't write code). Main agent implements specs using skills.
+
+> **Note**: For Bash scripting, use the `lang:scripting-bash` plugin skill which is automatically invoked.
+
+### Primary Workflow
+1. **For complex features**: Agent creates detailed specification → Main agent implements using appropriate skills
+2. **For direct tasks**: Main agent uses skills directly without agent planning
+
+### Documentation Compliance
+- **MANDATORY**: Both skills and agents must reference specified documentation before working
+- **Frontend work** → Must reference `docs/DESIGN_SYSTEM.md`
+- **Backend work** → Must reference `docs/API_CODING_STANDARDS.md`
+- **Content verification** → Must reference `docs/CULTURAL_HERITAGE_VERIFICATION.md`
+- **Validation**: Validate work against established standards
 - **Consistency**: Cross-reference related documentation when work spans multiple domains
-- **Updates**: When standards change, agents must adapt their approach accordingly
 
-### Cross-Agent Coordination
-- frontend-engineer and backend-engineer coordinate on API contracts and TypeScript interfaces
-- devops-engineer ensures deployment compatibility with all service agents
-- content-creator executes content plans created by content-planner
-- content-verifier validates accuracy for content-creator and content-planner
-- search-specialist provides research foundation for cultural content creation
+### Coordination Patterns
+**Agent-to-Agent**:
+- `frontend-engineer` ↔ `backend-engineer` - Coordinate on API contracts and TypeScript DTO alignment
+
+**Skill Workflows**:
+- Content: `planning-content` → `authoring-content` → `verifying-content`
+- Motion: `architecting-motion-systems` → `implementing-micro-interactions` → `generating-micro-interactions`
+- Research: `web-searching` → `authoring-content` (research foundation for content creation)
+
+**Main Flow**:
+- Agent plans → Main agent executes using skills → Skills produce deliverables
 
 ## Important Code Patterns
 
@@ -444,3 +389,10 @@ Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+## Active Technologies
+- TypeScript 5.x, React 19, Next.js 15 (App Router) + Tailwind CSS, Framer Motion (animations), Radix UI (accessible primitives), Lucide React (icons) (005-action-toolbar-refactor)
+- N/A (frontend-only refactoring, uses existing backend API from feature 004) (005-action-toolbar-refactor)
+
+## Recent Changes
+- 005-action-toolbar-refactor: Added TypeScript 5.x, React 19, Next.js 15 (App Router) + Tailwind CSS, Framer Motion (animations), Radix UI (accessible primitives), Lucide React (icons)
