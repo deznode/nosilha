@@ -25,6 +25,9 @@ export default defineConfig({
         "**/types/**",
         ".storybook/",
       ],
+      // Coverage thresholds - currently advisory (non-blocking) in CI
+      // See frontend-ci.yml for enforcement strategy during test suite development
+      // TODO: Make blocking once test coverage reaches 70%
       thresholds: {
         lines: 70,
         functions: 70,

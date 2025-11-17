@@ -90,15 +90,15 @@ export default defineConfig({
     },
   ],
 
-  /* Local dev server configuration */
-  webServer: process.env.CI
-    ? undefined
-    : {
-        command: "npm run dev",
-        url: "http://localhost:3000",
-        reuseExistingServer: !process.env.CI,
-        timeout: 120 * 1000, // 2 minutes for Next.js startup
-      },
+  /* Dev server configuration for both local and CI environments */
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:3000",
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000, // 2 minutes for Next.js startup
+    stdout: "pipe", // Pipe output to avoid cluttering CI logs
+    stderr: "pipe",
+  },
 
   /* Global setup for seeding test data */
   globalSetup: require.resolve("./tests/setup/global-setup.ts"),
