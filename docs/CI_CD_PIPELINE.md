@@ -186,10 +186,15 @@ gcloud secrets create supabase_jwt_secret --data-file=- <<< "your-jwt-secret"
 ### 5. Integration Testing (`integration-ci.yml`)
 
 **Features:**
-- Cross-service integration tests
-- API endpoint validation
-- End-to-end testing scenarios
-- Performance validation
+- Backend API integration tests with Testcontainers (PostgreSQL)
+- Security header validation on deployed services
+- Deployment health check verification
+- Module boundary verification (Spring Modulith)
+
+**Testing Philosophy:**
+- Frontend E2E tests available locally via Playwright (not in CI - see `docs/TESTING.md`)
+- Optimized for solo maintainer workflow with cost-effective CI usage
+- Weekly scheduled runs plus main branch triggers
 
 ## 🎯 Quality Gates
 

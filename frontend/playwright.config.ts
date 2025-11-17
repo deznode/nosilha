@@ -8,14 +8,18 @@ try {
 }
 
 /**
- * Playwright configuration for Nos Ilha integration testing.
+ * Playwright configuration for Nos Ilha - LOCAL DEVELOPMENT ONLY
+ *
+ * ⚠️ NOTE: E2E tests are NOT run in CI/CD to optimize costs and reduce flakiness.
+ * Run these tests locally before major releases using:
+ *   - npm run test:e2e           (headless, Chromium only)
+ *   - npm run test:e2e:headed    (with browser UI)
+ *   - npm run test:e2e:debug     (debug mode)
  *
  * This config is optimized for:
  * - Tourism platform E2E testing (directory, map, towns)
- * - Mobile-first responsive testing (Brava Island visitors primarily use mobile)
- * - Cross-browser compatibility testing
- * - API contract validation
- * - Performance monitoring integration
+ * - Local pre-release validation
+ * - Chromium browser only (simplified for solo maintainer)
  *
  * @see https://playwright.dev/docs/test-configuration
  */
@@ -23,12 +27,12 @@ export default defineConfig({
   testDir: "./tests/e2e", // Updated for modular architecture - E2E tests in dedicated directory
   /* Run tests in files in parallel */
   fullyParallel: true,
-  /* Fail the build on CI if you accidentally left test.only in the source code. */
-  forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Fail the build if you accidentally left test.only in the source code. */
+  forbidOnly: false, // Local development only
+  /* No retries for local testing (faster feedback) */
+  retries: 0,
+  /* Use available workers for local testing */
+  workers: undefined,
 
   /* Global test timeout for tourism platform flows */
   timeout: 45000, // Extended for map loading and API calls
@@ -37,20 +41,11 @@ export default defineConfig({
     timeout: 10000,
   },
 
-  /* Reporter config optimized for CI/CD integration */
-  reporter: process.env.CI
-    ? [
-        ["html", { outputDir: "playwright-report", open: "never" }],
-        ["json", { outputFile: "test-results/results.json" }],
-        ["junit", { outputFile: "test-results/junit.xml" }],
-        ["github"],
-      ]
-    : [
-        ["html", { outputDir: "playwright-report", open: "never" }],
-        ["json", { outputFile: "test-results/results.json" }],
-        ["junit", { outputFile: "test-results/junit.xml" }],
-        ["list"],
-      ],
+  /* Reporter config for local development */
+  reporter: [
+    ["html", { outputDir: "playwright-report", open: "on-failure" }],
+    ["list"],
+  ],
 
   /* Shared settings for all the projects below */
   use: {
@@ -77,27 +72,21 @@ export default defineConfig({
     },
   },
 
-  /* Configure projects for major browsers and devices */
+  /* Configure projects - Chromium only for simplified testing */
   projects: [
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
-    /* Mobile testing - critical for Brava Island tourists (mobile-first platform) */
-    {
-      name: "Mobile Chrome",
-      use: { ...devices["Pixel 5"] },
-    },
+    /* Mobile testing removed - test manually on real devices before releases */
   ],
 
-  /* Dev server configuration for both local and CI environments */
+  /* Local dev server configuration */
   webServer: {
     command: "npm run dev",
     url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true, // Local development only
     timeout: 120 * 1000, // 2 minutes for Next.js startup
-    stdout: "pipe", // Pipe output to avoid cluttering CI logs
-    stderr: "pipe",
   },
 
   /* Global setup for seeding test data */

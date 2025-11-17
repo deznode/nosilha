@@ -14,6 +14,11 @@ import {
 // Enable ISR with 1 hour revalidation for town content
 export const revalidate = 3600;
 
+// Enable pure ISR without build-time static generation
+// Pages are generated on-demand at runtime (first request)
+export const dynamic = "force-static";
+export const dynamicParams = true;
+
 // Define the props for the dynamic page
 interface TownPageProps {
   params: Promise<{
@@ -225,17 +230,6 @@ export default async function TownPage({ params }: TownPageProps) {
       </div>
     </div>
   );
-}
-
-// Generate static params for known towns - uses unified API
-export async function generateStaticParams() {
-  // Use unified API which automatically handles mock/backend switching
-  const { getTowns } = await import("@/lib/api");
-  const towns = await getTowns();
-
-  return towns.map((town) => ({
-    slug: town.slug,
-  }));
 }
 
 // Generate metadata for SEO - uses API with fallback to mock data

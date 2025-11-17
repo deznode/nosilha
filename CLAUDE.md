@@ -321,29 +321,48 @@ cd backend && ./gradlew test  # All tests with PostgreSQL
 ./gradlew detekt  # Linting and static analysis
 ```
 
-### Frontend Testing
+### Frontend Testing (Simplified for Solo Maintainer)
+
+**CI/CD (Automated):**
 ```bash
 cd frontend && npx tsc --noEmit  # Type checking
-npm run lint && npm run build  # Linting and build
-npx bundlesize  # Bundle analysis
+npm run lint  # ESLint
+npm run build  # Next.js build
 ```
 
+**Local Development (Manual):**
+```bash
+npm run test:e2e  # Playwright E2E tests (Chromium only, local-only)
+npm run test:unit  # Vitest unit tests (4 critical store/hook tests)
+npm run storybook  # Component documentation + a11y addon
+```
+
+**Pre-Release Checklist** (20-30 min before major releases):
+- Run `npm run test:e2e` locally
+- Visual review in Storybook with a11y checks
+- Test on mobile device (iOS Safari + Android Chrome)
+- Optional: Lighthouse audit on key pages
+
 ### Integration & Security Testing
-**Integration**: API validation, E2E flows, performance, security headers (`.github/workflows/integration-ci.yml`)
-**Security**: Trivy (containers/deps), detekt (Kotlin), ESLint (TypeScript), tfsec (Terraform)
+**Backend Integration**: API validation with Testcontainers (`.github/workflows/integration-ci.yml`)
+**Security Integration**: Security headers validation, deployment health checks
+**Security Scanning**: Trivy (containers/deps), detekt (Kotlin), ESLint (TypeScript), tfsec (Terraform)
+**Note**: Frontend E2E and performance tests moved to local development (not in CI)
 
 ## CI/CD Pipeline
 
 The project uses a **modular CI/CD architecture** with service-specific workflows. For comprehensive details, see [`docs/CI_CD_PIPELINE.md`](docs/CI_CD_PIPELINE.md).
 
 **Key Workflows**:
-- **Backend CI/CD**: `.github/workflows/backend-ci.yml` - Spring Boot/Kotlin service pipeline
-- **Frontend CI/CD**: `.github/workflows/frontend-ci.yml` - Next.js/React application pipeline
+- **Backend CI/CD**: `.github/workflows/backend-ci.yml` - Spring Boot/Kotlin service pipeline with full test suite
+- **Frontend CI/CD**: `.github/workflows/frontend-ci.yml` - Next.js/React pipeline (TypeScript + ESLint + build only)
 - **Infrastructure CI/CD**: `.github/workflows/infrastructure-ci.yml` - Terraform infrastructure management
 - **PR Validation**: `.github/workflows/pr-validation.yml` - Consolidated PR validation
-- **Integration Tests**: `.github/workflows/integration-ci.yml` - Cross-service integration and E2E testing
+- **Integration Tests**: `.github/workflows/integration-ci.yml` - Backend integration + security validation
 
-**Key Features**: Path-based triggering, comprehensive security scanning, automated testing, direct deployment to production from main branch, health monitoring
+**Key Features**: Path-based triggering, comprehensive security scanning, TypeScript-first quality gates (frontend), direct deployment to production from main branch, health monitoring
+
+**Testing Philosophy**: Solo-maintained project using lean, budget-conscious CI/CD. Frontend uses TypeScript + ESLint only in CI (75% faster). E2E tests available locally for pre-release validation.
 
 ## Cloud Deployment
 
