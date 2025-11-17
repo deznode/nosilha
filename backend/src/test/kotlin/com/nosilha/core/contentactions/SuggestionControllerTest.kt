@@ -1,6 +1,8 @@
 package com.nosilha.core.contentactions
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.cloud.spring.autoconfigure.firestore.GcpFirestoreAutoConfiguration
+import com.google.cloud.spring.autoconfigure.storage.GcpStorageAutoConfiguration
 import com.nosilha.core.contentactions.api.SuggestionCreateDto
 import com.nosilha.core.contentactions.domain.SuggestionType
 import com.nosilha.core.contentactions.repository.SuggestionRepository
@@ -9,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
@@ -24,13 +27,19 @@ import java.util.UUID
  * Tests the full stack from HTTP request to database persistence,
  * including validation, rate limiting, and spam protection.
  *
- * Note: GCP services (FileStorageService, AIService, ImageMetadataRepository) are disabled
- * in test profile via gcp.enabled=false in application-test.yml. This allows tests to run
- * without GCP credentials or emulator setup.
+ * Note: GCP auto-configuration is excluded to prevent Spring Boot from trying to create
+ * Firestore and Storage beans which require GCP credentials. Our custom GCP services
+ * are disabled via gcp.enabled=false in application-test.yml as a secondary safeguard.
  */
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
+@EnableAutoConfiguration(
+    exclude = [
+        GcpFirestoreAutoConfiguration::class,
+        GcpStorageAutoConfiguration::class,
+    ],
+)
 class SuggestionControllerTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
