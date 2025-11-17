@@ -82,6 +82,13 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value = google_storage_bucket.media_storage.name
       }
 
+      # CORS configuration for frontend API access
+      # Allows both the root domain and www subdomain to access the backend API
+      env {
+        name  = "CORS_ALLOWED_ORIGINS"
+        value = "https://nosilha.com,https://www.nosilha.com"
+      }
+
       # Secret injection via environment variables (cost-optimized approach)
       # Using pinned versions instead of "latest" for predictable costs and better control
       # Each secret access during container startup counts as 1 operation toward free tier limit

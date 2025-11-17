@@ -15,9 +15,13 @@ import { SuggestImprovementButton } from "@/components/ui/actions/suggest-improv
  *
  * Visual Specifications (Wireframe Alignment):
  * - Position: Fixed, left-4, vertically centered (top-1/2 -translate-y-1/2)
- * - Layout: Vertical stack with 12px spacing (gap-3)
+ * - Layout: Vertical stack with visual grouping and dividers
  * - Background: Card with rounded corners and subtle shadow
- * - Action Order: Share, Reactions (❤️ 🎉 💡 👏 vertical), Copy Link, Print, Suggest Improvement
+ * - Action Groups:
+ *   1. Sharing Actions (Share + Copy Link) - tight spacing (gap-2)
+ *   2. Reactions (❤️ 🎉 💡 👏 vertical)
+ *   3. Utility Actions (Print + Suggest) - tight spacing (gap-2)
+ * - Dividers: Horizontal borders between groups using border-border-primary
  * - All buttons: icon + label variant
  *
  * Feature: 005-action-toolbar-refactor (Wireframe Update)
@@ -43,15 +47,24 @@ export function ContentActionDesktop({
       className="fixed top-1/2 left-4 z-40 -translate-y-1/2"
     >
       {/* Background card container with rounded corners and shadow */}
-      <div className="flex flex-col gap-3 rounded-lg bg-[var(--color-background-primary)] p-4 shadow-md">
-        {/* 1. Share Button (icon + label) */}
-        <ShareButton
-          title={contentTitle}
-          url={contentUrl}
-          variant="icon-with-label"
-        />
+      <div className="flex flex-col rounded-lg bg-[var(--color-background-primary)] p-4 shadow-md">
+        {/* Group 1: Sharing Actions */}
+        <div className="flex flex-col gap-2">
+          {/* 1. Share Button (icon + label) */}
+          <ShareButton
+            title={contentTitle}
+            url={contentUrl}
+            variant="icon-with-label"
+          />
 
-        {/* 2. Reactions (vertical orientation, ❤️ 🎉 💡 👏) */}
+          {/* 2. Copy Link Button (icon + label) */}
+          <CopyLinkButton url={contentUrl} variant="icon-with-label" />
+        </div>
+
+        {/* Visual Separator */}
+        <div className="border-border-primary my-3 border-t" />
+
+        {/* Group 2: Reactions (vertical orientation, ❤️ 🎉 💡 👏) */}
         <ReactionButtons
           reactions={reactions}
           contentId={contentId}
@@ -61,20 +74,23 @@ export function ContentActionDesktop({
           onReactionToggle={onReactionToggle}
         />
 
-        {/* 3. Copy Link Button (icon + label) */}
-        <CopyLinkButton url={contentUrl} variant="icon-with-label" />
+        {/* Visual Separator */}
+        <div className="border-border-primary my-3 border-t" />
 
-        {/* 4. Print Button (icon + label) */}
-        <PrintButton variant="icon-with-label" />
+        {/* Group 3: Utility Actions */}
+        <div className="flex flex-col gap-2">
+          {/* 3. Print Button (icon + label) */}
+          <PrintButton variant="icon-with-label" />
 
-        {/* 5. Suggest Improvement Button (icon + label) */}
-        <SuggestImprovementButton
-          contentId={contentId}
-          contentTitle={contentTitle}
-          contentType={contentType}
-          pageUrl={contentUrl}
-          variant="icon-with-label"
-        />
+          {/* 4. Suggest Improvement Button (icon + label) */}
+          <SuggestImprovementButton
+            contentId={contentId}
+            contentTitle={contentTitle}
+            contentType={contentType}
+            pageUrl={contentUrl}
+            variant="icon-with-label"
+          />
+        </div>
       </div>
     </div>
   );

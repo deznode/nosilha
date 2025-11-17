@@ -16,8 +16,10 @@ import { SuggestImprovementButton } from "@/components/ui/actions/suggest-improv
  * Circular floating action button at bottom-right that expands upward to show actions menu.
  * Visible only on mobile viewports (<768px).
  *
- * Action Order (Wireframe Alignment):
- * - Share → Reactions (horizontal) → Copy Link → Print → Suggest
+ * Action Order (Wireframe Alignment with Visual Grouping):
+ * - Group 1: Share + Copy Link (Sharing Actions)
+ * - Group 2: Reactions (horizontal: ❤️ 🎉 💡 👏)
+ * - Group 3: Print + Suggest (Utility Actions)
  *
  * Behavior:
  * - Tap FAB: Expand menu upward with stagger animation
@@ -119,19 +121,30 @@ export function ContentActionFAB({
         {isExpanded && (
           <motion.div
             {...menuAnimation}
-            className="mb-4 flex flex-col gap-3 rounded-lg bg-[var(--color-background-primary)] p-4 shadow-lg"
+            className="mb-4 flex flex-col rounded-lg bg-[var(--color-background-primary)] p-4 shadow-lg"
           >
-            {/* 1. Share Button (icon-only for mobile space efficiency) */}
-            <motion.div {...menuItemAnimation} transition={{ delay: 0.05 }}>
-              <ShareButton
-                title={contentTitle}
-                url={contentUrl}
-                variant="icon-only"
-              />
-            </motion.div>
+            {/* Group 1: Sharing Actions */}
+            <div className="flex flex-col gap-2">
+              {/* 1. Share Button (icon-only for mobile space efficiency) */}
+              <motion.div {...menuItemAnimation} transition={{ delay: 0.05 }}>
+                <ShareButton
+                  title={contentTitle}
+                  url={contentUrl}
+                  variant="icon-only"
+                />
+              </motion.div>
 
-            {/* 2. Reactions (horizontal orientation, ❤️ 🎉 💡 👏) */}
-            <motion.div {...menuItemAnimation} transition={{ delay: 0.1 }}>
+              {/* 2. Copy Link Button (icon-only) */}
+              <motion.div {...menuItemAnimation} transition={{ delay: 0.1 }}>
+                <CopyLinkButton url={contentUrl} variant="icon-only" />
+              </motion.div>
+            </div>
+
+            {/* Visual Separator */}
+            <div className="border-border-primary my-3 border-t" />
+
+            {/* Group 2: Reactions (horizontal orientation, ❤️ 🎉 💡 👏) */}
+            <motion.div {...menuItemAnimation} transition={{ delay: 0.15 }}>
               <ReactionButtons
                 reactions={reactions}
                 contentId={contentId}
@@ -142,26 +155,27 @@ export function ContentActionFAB({
               />
             </motion.div>
 
-            {/* 3. Copy Link Button (icon-only) */}
-            <motion.div {...menuItemAnimation} transition={{ delay: 0.15 }}>
-              <CopyLinkButton url={contentUrl} variant="icon-only" />
-            </motion.div>
+            {/* Visual Separator */}
+            <div className="border-border-primary my-3 border-t" />
 
-            {/* 4. Print Button (icon-only) */}
-            <motion.div {...menuItemAnimation} transition={{ delay: 0.2 }}>
-              <PrintButton variant="icon-only" />
-            </motion.div>
+            {/* Group 3: Utility Actions */}
+            <div className="flex flex-col gap-2">
+              {/* 3. Print Button (icon-only) */}
+              <motion.div {...menuItemAnimation} transition={{ delay: 0.2 }}>
+                <PrintButton variant="icon-only" />
+              </motion.div>
 
-            {/* 5. Suggest Improvement Button (icon-only) */}
-            <motion.div {...menuItemAnimation} transition={{ delay: 0.25 }}>
-              <SuggestImprovementButton
-                contentId={contentId}
-                contentTitle={contentTitle}
-                contentType={contentType}
-                pageUrl={contentUrl}
-                variant="icon-only"
-              />
-            </motion.div>
+              {/* 4. Suggest Improvement Button (icon-only) */}
+              <motion.div {...menuItemAnimation} transition={{ delay: 0.25 }}>
+                <SuggestImprovementButton
+                  contentId={contentId}
+                  contentTitle={contentTitle}
+                  contentType={contentType}
+                  pageUrl={contentUrl}
+                  variant="icon-only"
+                />
+              </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
