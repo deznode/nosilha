@@ -8,7 +8,7 @@ app:
     allowed-origins: http://localhost:3000
 
 spring:
-  # Test Database Configuration (PostgreSQL)
+  # Test Database Configuration (PostgreSQL with Testcontainers)
   datasource:
     url: jdbc:tc:postgresql:16.0:///
     hikari:
@@ -31,13 +31,20 @@ spring:
   flyway:
     enabled: true
 
-  # Disable GCP services for tests
+  # GCP Services Configuration for tests
+  # Note: GCP auto-configuration is excluded in CoreApplicationTests
+  # Tests that need GCP services should configure emulators or mocks individually
   cloud:
     gcp:
+      # Disable auto-configuration (requires explicit opt-in per test)
+      # See CoreApplicationTests for exclusion example
       project-id: test-project
+      # Emulator configuration (only used if GCP services are explicitly enabled)
       firestore:
+        enabled: false
         emulator-host: localhost:8081
       storage:
+        enabled: false
         emulator-host: http://localhost:8082
 
 # Test GCS Configuration
