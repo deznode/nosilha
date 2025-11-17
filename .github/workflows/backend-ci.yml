@@ -121,11 +121,23 @@ jobs:
       # Run comprehensive tests with production Java version
       - name: Run tests and code quality
         run: |
+          # Run in parallel but capture exit codes
           ./gradlew ktlintCheck --no-daemon &
+          pid1=$!
           ./gradlew detekt --no-daemon &
+          pid2=$!
           ./gradlew test --no-daemon &
+          pid3=$!
           # ./gradlew integrationTest --no-daemon &
-          wait
+
+          # Wait for all processes and accumulate failures
+          exit_code=0
+          wait $pid1 || exit_code=1
+          wait $pid2 || exit_code=1
+          wait $pid3 || exit_code=1
+
+          # Exit with error if any process failed
+          exit $exit_code
         env:
           SPRING_PROFILES_ACTIVE: test
 

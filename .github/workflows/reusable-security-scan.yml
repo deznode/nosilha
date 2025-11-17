@@ -164,7 +164,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
@@ -187,8 +187,11 @@ jobs:
   scan-summary:
     name: Security Scan Summary
     runs-on: ubuntu-latest
+    # Don't fail if individual jobs are skipped, only if they failed
     needs: [backend-security, frontend-security, infrastructure-security, backend-lint, frontend-lint]
-    if: always()
+    if: |
+      always() &&
+      !contains(needs.*.result, 'cancelled')
 
     steps:
       - name: Generate scan summary
