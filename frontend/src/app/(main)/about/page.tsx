@@ -206,13 +206,15 @@ export default function AboutPage() {
             </div>
 
             <div className="text-center">
-              <div className="text-valley-green mb-2 text-3xl font-bold">0</div>
+              <div className="text-valley-green mb-2 text-3xl font-bold">
+                <HeartIcon className="mx-auto h-12 w-12" />
+              </div>
               <div className="text-text-primary mb-1 text-sm font-medium">
-                Commercial Interests
+                Volunteer-Powered
               </div>
               <p className="text-text-secondary text-xs">
-                No commercial backing—purely community-driven and
-                volunteer-supported.
+                Driven by passionate volunteers dedicated to preserving Brava
+                Island&apos;s cultural heritage.
               </p>
             </div>
           </div>
