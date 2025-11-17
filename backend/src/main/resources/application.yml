@@ -23,12 +23,14 @@ spring:
   # SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
   datasource:
     hikari:
-      maximum-pool-size: 3              # Reduced for Supabase free tier (60 direct connections)
-      minimum-idle: 1                   # Conservative minimum for session mode
-      connection-timeout: 30000         # 30 seconds connection timeout
-      idle-timeout: 600000              # 10 minutes idle timeout
-      max-lifetime: 1800000             # 30 minutes max connection lifetime
-      leak-detection-threshold: 60000   # 1 minute leak detection
+      maximum-pool-size: 2              # Serverless-optimized (3 instances × 2 = 6 total connections)
+      minimum-idle: 0                   # CRITICAL: Allows pool to scale to zero during idle periods
+      connection-timeout: 20000         # 20 seconds connection timeout
+      idle-timeout: 60000               # 1 minute idle timeout (shorter for serverless)
+      max-lifetime: 300000              # 5 minutes max connection lifetime (shorter for transaction mode)
+      leak-detection-threshold: 30000   # 30 seconds leak detection (earlier detection)
+      validation-timeout: 3000          # 3 seconds validation timeout
+      connection-test-query: "SELECT 1" # Simple validation query for connection health checks
 
   # Flyway Configuration
   flyway:

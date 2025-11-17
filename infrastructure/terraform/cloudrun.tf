@@ -100,7 +100,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = "supabase_db_url"
-            version = "1" # Updated to current enabled version
+            version = "2" # Updated to use correct JDBC parameters for Transaction Mode
           }
         }
       }
