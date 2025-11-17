@@ -1,5 +1,7 @@
 package com.nosilha.core.directory
 
+import com.google.cloud.spring.autoconfigure.firestore.GcpFirestoreAutoConfiguration
+import com.google.cloud.spring.autoconfigure.storage.GcpStorageAutoConfiguration
 import com.nosilha.core.directory.domain.DirectoryEntry
 import com.nosilha.core.directory.domain.Restaurant
 import com.nosilha.core.directory.repository.DirectoryEntryRepository
@@ -7,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
@@ -23,10 +26,21 @@ import java.util.UUID
  * algorithm to verify correct matching based on category, town, and cuisine.
  *
  * Phase 9 - User Story 5: Discovering Related Cultural Content
+ *
+ * Note: GCP services (Firestore, Storage) are excluded because:
+ * 1. CI environment (GitHub Actions) doesn't have GCP credentials
+ * 2. Emulators aren't running in test profile
+ * 3. Tests that specifically need GCP services can enable them individually
  */
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
+@EnableAutoConfiguration(
+    exclude = [
+        GcpFirestoreAutoConfiguration::class,
+        GcpStorageAutoConfiguration::class,
+    ],
+)
 class RelatedContentControllerTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
