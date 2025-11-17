@@ -2,6 +2,7 @@ package com.nosilha.core.directory
 
 import com.google.cloud.spring.autoconfigure.firestore.GcpFirestoreAutoConfiguration
 import com.google.cloud.spring.autoconfigure.storage.GcpStorageAutoConfiguration
+import com.nosilha.core.config.TestGcpConfig
 import com.nosilha.core.directory.domain.DirectoryEntry
 import com.nosilha.core.directory.domain.Restaurant
 import com.nosilha.core.directory.repository.DirectoryEntryRepository
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -27,10 +29,13 @@ import java.util.UUID
  *
  * Phase 9 - User Story 5: Discovering Related Cultural Content
  *
- * Note: GCP services (Firestore, Storage) are excluded because:
+ * Note: GCP services (Firestore, Storage) are mocked using TestGcpConfig because:
  * 1. CI environment (GitHub Actions) doesn't have GCP credentials
  * 2. Emulators aren't running in test profile
- * 3. Tests that specifically need GCP services can enable them individually
+ * 3. Tests that specifically need real GCP services can configure emulators individually
+ *
+ * This approach allows the full Spring context to load with all dependencies satisfied,
+ * while avoiding the need for actual GCP credentials or emulator setup.
  */
 @ActiveProfiles("test")
 @SpringBootTest
@@ -41,6 +46,7 @@ import java.util.UUID
         GcpStorageAutoConfiguration::class,
     ],
 )
+@Import(TestGcpConfig::class)
 class RelatedContentControllerTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
