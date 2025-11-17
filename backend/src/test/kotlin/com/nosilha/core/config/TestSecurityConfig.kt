@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.web.cors.CorsConfiguration
 import javax.crypto.SecretKey
@@ -111,8 +112,8 @@ class TestSecurityConfig {
      * This matches the production behavior where the principal is a string user ID.
      */
     @Bean
-    fun jwtAuthenticationConverter(): org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter {
-        val converter = org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter()
+    fun jwtAuthenticationConverter(): JwtAuthenticationConverter {
+        val converter = JwtAuthenticationConverter()
         // Set principal claim name to "sub" (subject) which contains the user ID
         converter.setPrincipalClaimName("sub")
         return converter
