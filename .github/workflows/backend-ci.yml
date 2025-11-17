@@ -130,13 +130,14 @@ jobs:
           pid3=$!
           # ./gradlew integrationTest --no-daemon &
 
-          # Wait for all processes and capture their exit codes
-          wait $pid1 || exit_code=$?
-          wait $pid2 || exit_code=$?
-          wait $pid3 || exit_code=$?
+          # Wait for all processes and accumulate failures
+          exit_code=0
+          wait $pid1 || exit_code=1
+          wait $pid2 || exit_code=1
+          wait $pid3 || exit_code=1
 
           # Exit with error if any process failed
-          exit ${exit_code:-0}
+          exit $exit_code
         env:
           SPRING_PROFILES_ACTIVE: test
 

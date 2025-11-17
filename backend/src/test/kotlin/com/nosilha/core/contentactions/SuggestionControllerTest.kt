@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.cloud.spring.autoconfigure.core.GcpContextAutoConfiguration
 import com.google.cloud.spring.autoconfigure.firestore.GcpFirestoreAutoConfiguration
 import com.google.cloud.spring.autoconfigure.storage.GcpStorageAutoConfiguration
-import com.google.cloud.spring.vision.CloudVisionAutoConfiguration
+import com.google.cloud.spring.autoconfigure.vision.CloudVisionAutoConfiguration
 import com.nosilha.core.contentactions.api.SuggestionCreateDto
 import com.nosilha.core.contentactions.domain.SuggestionType
 import com.nosilha.core.contentactions.repository.SuggestionRepository

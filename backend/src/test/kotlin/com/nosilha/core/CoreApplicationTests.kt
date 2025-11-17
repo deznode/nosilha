@@ -3,7 +3,7 @@ package com.nosilha.core
 import com.google.cloud.spring.autoconfigure.core.GcpContextAutoConfiguration
 import com.google.cloud.spring.autoconfigure.firestore.GcpFirestoreAutoConfiguration
 import com.google.cloud.spring.autoconfigure.storage.GcpStorageAutoConfiguration
-import com.google.cloud.spring.vision.CloudVisionAutoConfiguration
+import com.google.cloud.spring.autoconfigure.vision.CloudVisionAutoConfiguration
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest

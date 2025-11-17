@@ -3,7 +3,7 @@ package com.nosilha.core.directory
 import com.google.cloud.spring.autoconfigure.core.GcpContextAutoConfiguration
 import com.google.cloud.spring.autoconfigure.firestore.GcpFirestoreAutoConfiguration
 import com.google.cloud.spring.autoconfigure.storage.GcpStorageAutoConfiguration
-import com.google.cloud.spring.vision.CloudVisionAutoConfiguration
+import com.google.cloud.spring.autoconfigure.vision.CloudVisionAutoConfiguration
 import com.nosilha.core.directory.domain.DirectoryEntry
 import com.nosilha.core.directory.domain.Restaurant
 import com.nosilha.core.directory.repository.DirectoryEntryRepository
