@@ -1,34 +1,23 @@
 package com.nosilha.core
 
-import com.google.cloud.spring.autoconfigure.firestore.GcpFirestoreAutoConfiguration
-import com.google.cloud.spring.autoconfigure.storage.GcpStorageAutoConfiguration
-import com.nosilha.core.config.TestGcpConfig
 import org.junit.jupiter.api.Test
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 
 /**
  * Basic integration test to verify Spring Boot application context loads successfully.
  *
- * Note: GCP services (Firestore, Storage) are mocked using TestGcpConfig because:
- * 1. CI environment (GitHub Actions) doesn't have GCP credentials
- * 2. Emulators aren't running in test profile
- * 3. Tests that specifically need real GCP services can configure emulators individually
+ * Note: GCP services (FileStorageService, AIService, ImageMetadataRepository) are disabled
+ * in test profile via gcp.enabled=false in application-test.yml. This prevents these
+ * components from loading and requiring GCP credentials or emulator setup.
  *
- * This approach allows the full Spring context to load with all dependencies satisfied,
- * while avoiding the need for actual GCP credentials or emulator setup.
+ * Tests that specifically need GCP services can:
+ * 1. Set gcp.enabled=true in their test configuration
+ * 2. Configure emulators (Firestore, Storage, Vision AI)
+ * 3. Provide real GCP credentials
  */
 @ActiveProfiles("test")
 @SpringBootTest
-@EnableAutoConfiguration(
-    exclude = [
-        GcpFirestoreAutoConfiguration::class,
-        GcpStorageAutoConfiguration::class,
-    ],
-)
-@Import(TestGcpConfig::class)
 class CoreApplicationTests {
     @Test
     fun contextLoads() {

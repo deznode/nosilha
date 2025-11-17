@@ -48,7 +48,9 @@ spring:
         emulator-host: http://localhost:8082
 
 # Test GCS Configuration
+# Disable GCP services in tests to avoid requiring credentials
 gcp:
+  enabled: false
   serverUrl: http://localhost:8082
   gcs-bucket-name: test-bucket
 

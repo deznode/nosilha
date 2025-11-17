@@ -10,8 +10,17 @@ import org.springframework.stereotype.Service
 
 /**
  * Service to handle interactions with the Google Cloud Vision AI API.
+ *
+ * This service is only enabled when gcp.enabled=true (default). In test environments,
+ * set gcp.enabled=false to prevent this service from loading and requiring GCP credentials.
  */
 @Service
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(
+    prefix = "gcp",
+    name = ["enabled"],
+    havingValue = "true",
+    matchIfMissing = true,
+)
 class AIService {
     private val logger = KotlinLogging.logger {}
 
