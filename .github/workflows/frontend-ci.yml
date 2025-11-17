@@ -96,10 +96,11 @@ jobs:
         run: npm ci
 
       # Run linting and type checking
+      # Note: ESLint with SARIF output is handled by reusable-security-scan.yml to avoid duplication
       - name: Run linting and type checks
         run: |
           # Run linting and type checking in parallel
-          npm run lint -- --format=@microsoft/eslint-formatter-sarif --output-file=eslint-results.sarif &
+          npm run lint &
           npx tsc --noEmit &
           wait
         env:
@@ -113,6 +114,74 @@ jobs:
           NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
+  bundle-analysis:
+    name: Bundle Size Analysis
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && !github.event.pull_request.draft
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for relevant changes
+        id: changes
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            bundle:
+              - 'frontend/package.json'
+              - 'frontend/package-lock.json'
+              - 'frontend/src/**'
+              - 'frontend/next.config.ts'
+
+      - name: Setup Node.js
+        if: ${{ steps.changes.outputs.bundle == 'true' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        if: ${{ steps.changes.outputs.bundle == 'true' }}
+        run: npm ci
+
+      - name: Build and check bundle size
+        if: ${{ steps.changes.outputs.bundle == 'true' }}
+        run: |
+          npm run build
+
+          # Check bundle size and fail if exceeds 500KB threshold
+          echo "Analyzing bundle size..."
+          BUNDLE_SIZE_KB=$(du -sk .next/static/chunks | cut -f1)
+          BUNDLE_SIZE_MB=$(echo "scale=2; $BUNDLE_SIZE_KB / 1024" | bc)
+
+          echo "Total bundle size: ${BUNDLE_SIZE_MB}MB (${BUNDLE_SIZE_KB}KB)"
+
+          # Fail if bundle exceeds 500KB (512000KB with some buffer)
+          if [ $BUNDLE_SIZE_KB -gt 512000 ]; then
+            echo "❌ Bundle size exceeds 500KB limit!"
+            echo "Current size: ${BUNDLE_SIZE_MB}MB"
+            echo "Maximum allowed: 500KB"
+            exit 1
+          else
+            echo "✅ Bundle size within limits (max 500KB)"
+          fi
+
+          # Run bundlesize check if configured
+          if [ -f ".bundlesizerc" ] || grep -q "bundlesize" package.json; then
+            npx bundlesize
+          fi
+        env:
+          NODE_ENV: production
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+
 
   # Note: Path-based triggering (on.push.paths) provides cost optimization
   # while ensuring reliable deployment when the workflow runs
@@ -143,7 +212,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
