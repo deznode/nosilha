@@ -1,7 +1,9 @@
 package com.nosilha.core.directory
 
+import com.google.cloud.spring.autoconfigure.core.GcpContextAutoConfiguration
 import com.google.cloud.spring.autoconfigure.firestore.GcpFirestoreAutoConfiguration
 import com.google.cloud.spring.autoconfigure.storage.GcpStorageAutoConfiguration
+import com.google.cloud.spring.vision.CloudVisionAutoConfiguration
 import com.nosilha.core.directory.domain.DirectoryEntry
 import com.nosilha.core.directory.domain.Restaurant
 import com.nosilha.core.directory.repository.DirectoryEntryRepository
@@ -27,17 +29,18 @@ import java.util.UUID
  *
  * Phase 9 - User Story 5: Discovering Related Cultural Content
  *
- * Note: GCP auto-configuration is excluded to prevent Spring Boot from trying to create
- * Firestore and Storage beans which require GCP credentials. Our custom GCP services
- * are disabled via gcp.enabled=false in application-test.yml as a secondary safeguard.
+ * Note: All GCP auto-configurations are excluded (Context, Firestore, Storage, Vision).
+ * Our custom GCP services are disabled via gcp.enabled=false in application-test.yml.
  */
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 @EnableAutoConfiguration(
     exclude = [
+        GcpContextAutoConfiguration::class,
         GcpFirestoreAutoConfiguration::class,
         GcpStorageAutoConfiguration::class,
+        CloudVisionAutoConfiguration::class,
     ],
 )
 class RelatedContentControllerTest {

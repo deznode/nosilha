@@ -1,8 +1,10 @@
 package com.nosilha.core.contentactions
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.cloud.spring.autoconfigure.core.GcpContextAutoConfiguration
 import com.google.cloud.spring.autoconfigure.firestore.GcpFirestoreAutoConfiguration
 import com.google.cloud.spring.autoconfigure.storage.GcpStorageAutoConfiguration
+import com.google.cloud.spring.vision.CloudVisionAutoConfiguration
 import com.nosilha.core.contentactions.api.SuggestionCreateDto
 import com.nosilha.core.contentactions.domain.SuggestionType
 import com.nosilha.core.contentactions.repository.SuggestionRepository
@@ -27,17 +29,18 @@ import java.util.UUID
  * Tests the full stack from HTTP request to database persistence,
  * including validation, rate limiting, and spam protection.
  *
- * Note: GCP auto-configuration is excluded to prevent Spring Boot from trying to create
- * Firestore and Storage beans which require GCP credentials. Our custom GCP services
- * are disabled via gcp.enabled=false in application-test.yml as a secondary safeguard.
+ * Note: All GCP auto-configurations are excluded (Context, Firestore, Storage, Vision).
+ * Our custom GCP services are disabled via gcp.enabled=false in application-test.yml.
  */
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 @EnableAutoConfiguration(
     exclude = [
+        GcpContextAutoConfiguration::class,
         GcpFirestoreAutoConfiguration::class,
         GcpStorageAutoConfiguration::class,
+        CloudVisionAutoConfiguration::class,
     ],
 )
 class SuggestionControllerTest {
