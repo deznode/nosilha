@@ -13,21 +13,12 @@ import java.util.UUID
  * A service to handle file storage operations using Google Cloud Storage (GCS)
  * and trigger subsequent AI analysis.
  *
- * This service is only enabled when gcp.enabled=true (default). In test environments,
- * set gcp.enabled=false to prevent this service from loading and requiring GCP credentials.
- *
  * @param storage The Google Cloud Storage client.
  * @param bucketName The name of the GCS bucket.
  * @param aiService The service for performing AI vision analysis.
  * @param imageMetadataRepository The repository for saving analysis results to Firestore.
  */
 @Service
-@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(
-    prefix = "gcp",
-    name = ["enabled"],
-    havingValue = "true",
-    matchIfMissing = true,
-)
 class FileStorageService(
     private val storage: Storage,
     @Value("\${gcp.gcs-bucket-name}") private val bucketName: String,

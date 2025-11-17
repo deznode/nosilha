@@ -17,20 +17,10 @@ import java.time.LocalDateTime
 /**
  * REST controller for handling media-related operations, such as file uploads.
  *
- * This controller is only enabled when gcp.enabled=true (default). In test environments,
- * set gcp.enabled=false to prevent this controller from loading since it depends on
- * FileStorageService which requires GCP credentials.
- *
  * @param fileStorageService The service responsible for the underlying file storage logic.
  */
 @RestController
 @RequestMapping("/api/v1/media")
-@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(
-    prefix = "gcp",
-    name = ["enabled"],
-    havingValue = "true",
-    matchIfMissing = true,
-)
 class FileUploadController(
     private val fileStorageService: FileStorageService,
 ) {

@@ -32,12 +32,10 @@ spring:
     enabled: true
 
   # GCP Services Configuration for tests
-  # Note: GCP auto-configuration is excluded in CoreApplicationTests
-  # Tests that need GCP services should configure emulators or mocks individually
+  # Note: GCP auto-configuration is excluded in test classes via @EnableAutoConfiguration(exclude = [...])
+  # GCP service dependencies (Storage, ImageAnnotatorClient) are mocked via GcpMockConfiguration
   cloud:
     gcp:
-      # Disable auto-configuration (requires explicit opt-in per test)
-      # See CoreApplicationTests for exclusion example
       project-id: test-project
       # Emulator configuration (only used if GCP services are explicitly enabled)
       firestore:
@@ -48,9 +46,8 @@ spring:
         emulator-host: http://localhost:8082
 
 # Test GCS Configuration
-# Disable GCP services in tests to avoid requiring credentials
+# GCP services are mocked in tests - see GcpMockConfiguration
 gcp:
-  enabled: false
   serverUrl: http://localhost:8082
   gcs-bucket-name: test-bucket
 

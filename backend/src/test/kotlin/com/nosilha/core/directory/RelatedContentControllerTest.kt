@@ -4,6 +4,7 @@ import com.google.cloud.spring.autoconfigure.core.GcpContextAutoConfiguration
 import com.google.cloud.spring.autoconfigure.firestore.GcpFirestoreAutoConfiguration
 import com.google.cloud.spring.autoconfigure.storage.GcpStorageAutoConfiguration
 import com.google.cloud.spring.autoconfigure.vision.CloudVisionAutoConfiguration
+import com.nosilha.core.config.GcpMockConfiguration
 import com.nosilha.core.directory.domain.DirectoryEntry
 import com.nosilha.core.directory.domain.Restaurant
 import com.nosilha.core.directory.repository.DirectoryEntryRepository
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -30,7 +32,7 @@ import java.util.UUID
  * Phase 9 - User Story 5: Discovering Related Cultural Content
  *
  * Note: All GCP auto-configurations are excluded (Context, Firestore, Storage, Vision).
- * Our custom GCP services are disabled via gcp.enabled=false in application-test.yml.
+ * GCP service dependencies are mocked via GcpMockConfiguration.
  */
 @ActiveProfiles("test")
 @SpringBootTest
@@ -43,6 +45,7 @@ import java.util.UUID
         CloudVisionAutoConfiguration::class,
     ],
 )
+@Import(GcpMockConfiguration::class)
 class RelatedContentControllerTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
