@@ -2,6 +2,8 @@
 
 This guide provides comprehensive testing strategies and validation procedures for the Nos Ilha CI/CD pipeline architecture.
 
+> **📝 Frontend Testing Update (2025)**: Frontend CI/CD has been simplified to TypeScript + ESLint only. E2E and unit tests run locally only (not in CI). See `docs/TESTING.md` for complete details on the TypeScript-first approach for solo maintainers.
+
 ## 🎯 Testing Objectives
 
 1. **Pipeline Validation**: Verify automated build, test, and deployment workflows

@@ -20,7 +20,7 @@ on:
       - '!frontend/**/README*'
       - '!frontend/**/.editorconfig'
       - '!frontend/**/*.stories.*'  # Storybook files
-      - '!frontend/**/*.test.*'     # Individual test files (CI runs all tests anyway)
+      - '!frontend/**/*.test.*'     # Test files (tests run locally only, not in CI)
   pull_request:
     branches: [main]
     paths:
@@ -34,7 +34,7 @@ on:
       - '!frontend/**/README*'
       - '!frontend/**/.editorconfig'
       - '!frontend/**/*.stories.*'  # Storybook files
-      - '!frontend/**/*.test.*'     # Individual test files (CI runs all tests anyway)
+      - '!frontend/**/*.test.*'     # Test files (tests run locally only, not in CI)
   workflow_call:
     inputs:
       skip-deploy:
