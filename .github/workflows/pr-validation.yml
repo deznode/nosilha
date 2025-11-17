@@ -127,11 +127,11 @@ jobs:
             };
             
             let comment = '## 🚀 PR Validation Results\n\n';
-            
+
             // Changes summary
             comment += '### 📁 Components Changed:\n';
             if (changes.backend) comment += '- ✅ **Backend** (Spring Boot/Kotlin)\n';
-            if (changes.frontend) comment += '- ✅ **Frontend** (Next.js/React)\n';
+            if (changes.frontend) comment += '- ✅ **Frontend** (Next.js/React - TypeScript + ESLint only)\n';
             if (changes.infrastructure) comment += '- ✅ **Infrastructure** (Terraform)\n';
             if (!changes.backend && !changes.frontend && !changes.infrastructure) {
               comment += '- ℹ️ No core component changes detected\n';
@@ -170,6 +170,9 @@ jobs:
               comment += '**Next Steps:**\n';
               comment += '- 👀 Request code review from team members\n';
               comment += '- 🔄 Merge when approved (will trigger deployment)\n';
+              if (changes.frontend) {
+                comment += '\n**Frontend Testing Note:** E2E tests (Playwright) available locally: `npm run test:e2e`\n';
+              }
             } else if (hasFailures) {
               comment += '### ⚠️ Status: CHANGES REQUIRED\n';
               comment += 'Some validation checks have failed. Please review and fix the issues above.\n\n';
@@ -184,9 +187,10 @@ jobs:
               comment += '- ⏱️ All checks to complete\n';
               comment += '- ✅ Successful validation results\n';
             }
-            
+
             comment += '\n---\n';
             comment += `*Updated: ${new Date().toISOString()} | PR: #${context.issue.number}*`;
+            comment += '\n*Simplified CI: Frontend runs TypeScript + ESLint only. E2E tests available locally.*';
             
             // Find existing comment to update or create new one
             const { data: comments } = await github.rest.issues.listComments({
