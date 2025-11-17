@@ -100,7 +100,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = "supabase_db_url"
-            version = "2" # Updated to use correct JDBC parameters for Transaction Mode
+            version = "3" # Updated to use Session Mode pooler (port 5432) for prepared statement support
           }
         }
       }

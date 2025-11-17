@@ -17,17 +17,18 @@ spring:
       max-file-size: 10MB        # Allow up to 10MB per file
       max-request-size: 15MB     # Allow up to 15MB per request
 
-  # Database Configuration for Production (Supabase)
+  # Database Configuration for Production (Supabase Session Mode Pooler)
   # NOTE: The url, username, and password properties are intentionally omitted.
   # Spring Boot will automatically bind them from the Cloud Run environment variables:
   # SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
+  # Using Session Mode (port 5432) for prepared statement support (required by Flyway)
   datasource:
     hikari:
-      maximum-pool-size: 2              # Serverless-optimized (3 instances × 2 = 6 total connections)
+      maximum-pool-size: 10             # Session Mode optimized (3 instances × 10 = 30 connections max)
       minimum-idle: 0                   # CRITICAL: Allows pool to scale to zero during idle periods
       connection-timeout: 20000         # 20 seconds connection timeout
-      idle-timeout: 60000               # 1 minute idle timeout (shorter for serverless)
-      max-lifetime: 300000              # 5 minutes max connection lifetime (shorter for transaction mode)
+      idle-timeout: 300000              # 5 minutes idle timeout (longer for Session Mode persistence)
+      max-lifetime: 1800000             # 30 minutes max connection lifetime (Session Mode supports longer)
       leak-detection-threshold: 30000   # 30 seconds leak detection (earlier detection)
       validation-timeout: 3000          # 3 seconds validation timeout
       connection-test-query: "SELECT 1" # Simple validation query for connection health checks
