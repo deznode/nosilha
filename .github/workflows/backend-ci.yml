@@ -148,7 +148,7 @@ jobs:
 
       # Generate Jacoco coverage report
       - name: Generate coverage report
-        run: ./gradlew jacocoTestReport --no-daemon
+        run: ./gradlew jacocoTestReport --no-daemon --debug
         env:
           SPRING_PROFILES_ACTIVE: test
 
