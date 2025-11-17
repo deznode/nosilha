@@ -284,25 +284,26 @@ LIMIT 20;
 spring:
   datasource:
     hikari:
-      # Optimize for Cloud Run serverless scaling
-      minimum-idle: 2
-      maximum-pool-size: 10
-      connection-timeout: 20000
-      idle-timeout: 300000
-      max-lifetime: 1200000
-      leak-detection-threshold: 60000
+      # Optimize for Cloud Run serverless scaling with Supabase Session Mode pooler
+      minimum-idle: 0              # CRITICAL: Allows pool to scale to zero during idle periods
+      maximum-pool-size: 10        # Session Mode optimized (3 instances × 10 = 30 connections max)
+      connection-timeout: 20000    # 20 seconds connection timeout
+      idle-timeout: 300000         # 5 minutes idle timeout (longer for Session Mode persistence)
+      max-lifetime: 1800000        # 30 minutes max connection lifetime (Session Mode supports longer)
+      leak-detection-threshold: 30000  # 30 seconds leak detection (earlier detection)
 
       # Connection validation
       connection-test-query: SELECT 1
-      validation-timeout: 5000
+      validation-timeout: 3000     # 3 seconds validation timeout
 ```
 
 **Configuration Rationale**:
-- **minimum-idle: 2**: Keep 2 connections warm for instant request handling
-- **maximum-pool-size: 10**: Limit connections for Cloud Run instance constraints
-- **idle-timeout: 5 minutes**: Close idle connections to free resources
-- **max-lifetime: 20 minutes**: Refresh connections before database timeout
-- **leak-detection-threshold: 60 seconds**: Detect connection leaks early
+- **minimum-idle: 0**: CRITICAL for Cloud Run scale-to-zero capability during idle periods (serverless optimization)
+- **maximum-pool-size: 10**: Limit connections for Cloud Run instance constraints (3 instances × 10 = 30 connections maximum)
+- **idle-timeout: 5 minutes**: Close idle connections to free resources (Session Mode supports longer persistence than Transaction Mode)
+- **max-lifetime: 30 minutes**: Refresh connections before database timeout (Session Mode supports longer connection lifetimes)
+- **leak-detection-threshold: 30 seconds**: Detect connection leaks early for faster troubleshooting
+- **validation-timeout: 3 seconds**: Fast validation checks to prevent blocking request threads
 
 ### Connection Pool Monitoring
 
