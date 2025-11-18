@@ -85,29 +85,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       # Run linting and type checking
       # Note: ESLint with SARIF output is handled by reusable-security-scan.yml to avoid duplication
       - name: Run linting and type checks
         run: |
           # Run linting and type checking in parallel
-          npm run lint &
-          npx tsc --noEmit &
+          pnpm lint &
+          pnpm exec tsc --noEmit &
           wait
         env:
           NODE_ENV: production
 
       - name: Build application
-        run: npm run build
+        run: pnpm build
         env:
           NODE_ENV: production
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
@@ -135,26 +140,32 @@ jobs:
           filters: |
             bundle:
               - 'frontend/package.json'
-              - 'frontend/package-lock.json'
+              - 'frontend/pnpm-lock.yaml'
               - 'frontend/src/**'
               - 'frontend/next.config.ts'
+
+      - name: Setup pnpm
+        if: ${{ steps.changes.outputs.bundle == 'true' }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
       - name: Setup Node.js
         if: ${{ steps.changes.outputs.bundle == 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install dependencies
         if: ${{ steps.changes.outputs.bundle == 'true' }}
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build and check bundle size
         if: ${{ steps.changes.outputs.bundle == 'true' }}
         run: |
-          npm run build
+          pnpm build
 
           # Check bundle size and fail if exceeds 500KB threshold
           echo "Analyzing bundle size..."
@@ -213,12 +224,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
