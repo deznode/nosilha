@@ -29,9 +29,20 @@ infrastructure/
     └── variables.tf         # Terraform variables
 ```
 
+## Services Overview
+
+### Default Services (Always Running)
+- **PostgreSQL 16** - Port 5432 - Primary database
+- **Firestore Emulator** - Port 8081 - Metadata storage
+- **GCS Emulator** - Port 8082 - Media asset storage
+
+### Profile-Based Services (Optional)
+- **Backend** (`backend`) - Port 8080 - Spring Boot + Kotlin API
+- **Frontend** (`frontend`) - Port 3000 - Next.js 15 with pnpm
+
 ## Getting Started
 
-### 1. Start the Database
+### 1. Start Default Services
 
 From the project root directory (`nosilha`), run:
 
@@ -48,7 +59,58 @@ cd infrastructure/docker && docker-compose up -d
   - Google Cloud Storage emulator on `localhost:8082`
 - Creates persistent storage in `infrastructure/docker/data/`
 
-### 2. Run the Spring Boot Application
+### 1b. (Optional) Start with Frontend
+
+To also run the frontend in Docker:
+
+```bash
+cd infrastructure/docker && docker-compose --profile frontend up -d
+```
+
+**Additional setup required:**
+1. Copy `.env.example` to `.env`
+2. Fill in required environment variables:
+   - `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN`
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+**Frontend Performance:**
+- **First build**: ~35 seconds (using pnpm)
+- **Rebuild with cache**: ~1-2 seconds (BuildKit cache)
+- Access at: http://localhost:3000
+
+### 1c. (Optional) Start with Backend
+
+To run the backend in Docker instead of using gradlew:
+
+**One-time setup** (build the backend image):
+```bash
+cd backend
+./gradlew bootBuildImage --imageName=nosilha-backend:local
+```
+
+Then start with Docker Compose:
+```bash
+cd infrastructure/docker && docker-compose --profile backend up -d
+```
+
+**Backend endpoints:**
+- API: http://localhost:8080/api/v1/directory/
+- Swagger UI: http://localhost:8080/swagger-ui.html
+- Health check: http://localhost:8080/actuator/health
+
+**Note**: For active backend development, using `./gradlew bootRun` is faster than rebuilding the Docker image. The Docker backend profile is useful for full-stack testing or when you need the entire system running in containers.
+
+### 1d. (Optional) Start Full Stack
+
+To run both frontend and backend in Docker:
+```bash
+cd infrastructure/docker && docker-compose --profile frontend --profile backend up -d
+```
+
+This starts all services: database, emulators, backend API, and frontend app. Services communicate via Docker network using service names.
+
+### 2. Run the Spring Boot Application (Traditional Method)
 
 #### Option A: Using IntelliJ IDEA
 
@@ -131,20 +193,31 @@ Connect using any database client with these credentials:
 ### Useful Docker Commands
 
 ```bash
-# Start all services
+# Start default services (db + emulators only)
 cd infrastructure/docker && docker-compose up -d
+
+# Start with specific profiles
+cd infrastructure/docker && docker-compose --profile backend up -d
+cd infrastructure/docker && docker-compose --profile frontend up -d
+cd infrastructure/docker && docker-compose --profile frontend --profile backend up -d
 
 # Stop all services (keeps data)
 cd infrastructure/docker && docker-compose down
 
 # View logs for specific services
 cd infrastructure/docker && docker-compose logs -f db
+cd infrastructure/docker && docker-compose logs -f backend
+cd infrastructure/docker && docker-compose logs -f frontend
 cd infrastructure/docker && docker-compose logs -f firestore-emulator
 cd infrastructure/docker && docker-compose logs -f gcs-emulator
 
 # Restart specific services
 cd infrastructure/docker && docker-compose restart db
-cd infrastructure/docker && docker-compose restart firestore-emulator
+cd infrastructure/docker && docker-compose restart backend
+cd infrastructure/docker && docker-compose restart frontend
+
+# Rebuild backend image after code changes
+cd backend && ./gradlew bootBuildImage --imageName=nosilha-backend:local
 
 # Stop and remove all services with data (⚠️ destructive!)
 cd infrastructure/docker && docker-compose down -v
@@ -231,9 +304,42 @@ cd infrastructure/docker && docker-compose down
 - For Firestore: Set `FIRESTORE_EMULATOR_HOST=localhost:8081`
 - For GCS: Configure your client to use `http://localhost:8082`
 
+### Backend Docker Issues
+
+**If backend image doesn't exist:**
+
+```bash
+cd backend
+./gradlew bootBuildImage --imageName=nosilha-backend:local
+```
+
+**If backend won't start:**
+
+- Check if port 8080 is already in use: `lsof -i :8080`
+- Verify the database is running: `docker-compose ps db`
+- Check backend logs: `docker-compose logs backend`
+- Verify environment variables in `.env` file
+
+**If backend can't connect to services:**
+
+- Ensure services are on the same Docker network
+- Use service names (not localhost): `db:5432`, `gcs-emulator:8082`, `firestore-emulator:8081`
+- Check health status: `docker-compose ps`
+
+**If you need to rebuild after code changes:**
+
+```bash
+cd backend
+./gradlew bootBuildImage --imageName=nosilha-backend:local
+cd ../infrastructure/docker
+docker-compose restart backend
+```
+
 ### Performance Tips
 
 - Keep the database container running between development sessions to avoid startup time
+- For active backend development, use `./gradlew bootRun` instead of Docker (faster iteration)
+- Frontend Docker builds use BuildKit cache for ~99% cache hit rate on rebuilds
 - The `data` directory will grow over time; periodically clean it up if needed
 - Use `docker-compose down -v` to completely reset if you encounter persistent issues
 

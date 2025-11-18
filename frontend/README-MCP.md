@@ -84,13 +84,13 @@ Configuration for Claude Code and other MCP clients:
 
 ```bash
 # Start with visual browser (for development)
-npm run mcp:server
+pnpm run mcp:server
 
 # Start headless (for CI/CD)
-npm run mcp:server:headless
+pnpm run mcp:server:headless
 
 # Start with HTTP endpoint on port 8931
-npm run mcp:server:port
+pnpm run mcp:server:port
 ```
 
 **Direct command from anywhere**:
@@ -281,7 +281,7 @@ MCP_HEADLESS=false
 Start with debug logging:
 
 ```bash
-DEBUG=pw:api npm run mcp:server
+DEBUG=pw:api pnpm run mcp:server
 ```
 
 ### Health Check

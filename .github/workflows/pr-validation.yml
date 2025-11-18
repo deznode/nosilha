@@ -171,7 +171,7 @@ jobs:
               comment += '- 👀 Request code review from team members\n';
               comment += '- 🔄 Merge when approved (will trigger deployment)\n';
               if (changes.frontend) {
-                comment += '\n**Frontend Testing Note:** E2E tests (Playwright) available locally: `npm run test:e2e`\n';
+                comment += '\n**Frontend Testing Note:** E2E tests (Playwright) available locally: `pnpm run test:e2e`\n';
               }
             } else if (hasFailures) {
               comment += '### ⚠️ Status: CHANGES REQUIRED\n';
