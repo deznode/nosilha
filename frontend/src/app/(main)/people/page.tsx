@@ -6,7 +6,7 @@ export const revalidate = 7200;
 
 export default function PeoplePage() {
   return (
-    <div className="bg-background-secondary font-sans min-h-screen">
+    <div className="bg-background-secondary min-h-screen font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader title="Historical Figures" subtitle="Coming Soon" />
 
