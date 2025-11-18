@@ -41,11 +41,11 @@ The project follows a clear organizational structure:
 ### Frontend (Next.js)
 ```bash
 cd frontend
-npm install              # Install dependencies
-npm run dev             # Start development server with Turbopack
-npm run build           # Build for production
-npm run start           # Start production server
-npm run lint            # Run ESLint
+pnpm install              # Install dependencies
+pnpm run dev             # Start development server with Turbopack
+pnpm run build           # Build for production
+pnpm run start           # Start production server
+pnpm run lint            # Run ESLint
 npx tsc --noEmit        # TypeScript type checking
 ```
 
@@ -111,7 +111,7 @@ docker-compose exec postgres pg_dump -U nosilha nosilha_db > backup.sql  # Creat
 ### Local Development
 1. **Start infrastructure services**: `cd infrastructure/docker && docker-compose up -d`
 2. **Backend setup**: `cd backend && ./gradlew bootRun --args='--spring.profiles.active=local'`
-3. **Frontend setup**: `cd frontend && npm install && npm run dev`
+3. **Frontend setup**: `cd frontend && pnpm install && pnpm run dev`
 
 ## Environment Configuration
 
@@ -242,9 +242,9 @@ Claude Code has access to Model Context Protocol (MCP) servers that provide addi
 - Performance testing and Core Web Vitals monitoring
 
 **MCP Server Commands**:
-- `npm run mcp:server:headless` - Start MCP server in headless mode (recommended for most tasks)
-- `npm run mcp:server` - Start MCP server with GUI browser (for visual debugging and interactive development)
-- `npm run mcp:server:port` - Start MCP server with HTTP transport on port 8931 (for web-based integrations)
+- `pnpm run mcp:server:headless` - Start MCP server in headless mode (recommended for most tasks)
+- `pnpm run mcp:server` - Start MCP server with GUI browser (for visual debugging and interactive development)
+- `pnpm run mcp:server:port` - Start MCP server with HTTP transport on port 8931 (for web-based integrations)
 - Configuration uses **headless mode by default** for optimal performance and resource usage
 
 ## Skills and Agents Usage Guidelines
@@ -330,19 +330,19 @@ cd backend && ./gradlew test  # All tests with PostgreSQL
 **CI/CD (Automated):**
 ```bash
 cd frontend && npx tsc --noEmit  # Type checking
-npm run lint  # ESLint
-npm run build  # Next.js build
+pnpm run lint  # ESLint
+pnpm run build  # Next.js build
 ```
 
 **Local Development (Manual):**
 ```bash
-npm run test:e2e  # Playwright E2E tests (Chromium only, local-only)
-npm run test:unit  # Vitest unit tests (4 critical store/hook tests)
-npm run storybook  # Component documentation + a11y addon
+pnpm run test:e2e  # Playwright E2E tests (Chromium only, local-only)
+pnpm run test:unit  # Vitest unit tests (4 critical store/hook tests)
+pnpm run storybook  # Component documentation + a11y addon
 ```
 
 **Pre-Release Checklist** (20-30 min before major releases):
-- Run `npm run test:e2e` locally
+- Run `pnpm run test:e2e` locally
 - Visual review in Storybook with a11y checks
 - Test on mobile device (iOS Safari + Android Chrome)
 - Optional: Lighthouse audit on key pages
