@@ -170,8 +170,8 @@ This modern architecture demonstrates the project's commitment to engineering ex
 3. **Frontend setup**:
    ```bash
    cd frontend
-   npm install
-   npm run dev
+   pnpm install
+   pnpm run dev
    ```
 
 ### Application URLs

@@ -85,35 +85,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       # Run linting and type checking
       # Note: ESLint with SARIF output is handled by reusable-security-scan.yml to avoid duplication
       - name: Run linting and type checks
         run: |
           # Run linting and type checking in parallel
-          npm run lint &
-          npx tsc --noEmit &
+          pnpm lint &
+          pnpm exec tsc --noEmit &
           wait
         env:
           NODE_ENV: production
 
       - name: Build application
-        run: npm run build
+        run: pnpm build
         env:
           NODE_ENV: production
           NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
           NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_GA_ID: ${{ secrets.NEXT_PUBLIC_GA_ID }}
+          NEXT_PUBLIC_CLARITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_CLARITY_PROJECT_ID }}
 
   bundle-analysis:
     name: Bundle Size Analysis
@@ -133,26 +138,30 @@ jobs:
           filters: |
             bundle:
               - 'frontend/package.json'
-              - 'frontend/package-lock.json'
+              - 'frontend/pnpm-lock.yaml'
               - 'frontend/src/**'
               - 'frontend/next.config.ts'
+
+      - name: Setup pnpm
+        if: ${{ steps.changes.outputs.bundle == 'true' }}
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
       - name: Setup Node.js
         if: ${{ steps.changes.outputs.bundle == 'true' }}
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         if: ${{ steps.changes.outputs.bundle == 'true' }}
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Build and check bundle size
         if: ${{ steps.changes.outputs.bundle == 'true' }}
         run: |
-          npm run build
+          pnpm build
 
           # Check bundle size and fail if exceeds 500KB threshold
           echo "Analyzing bundle size..."
@@ -181,6 +190,8 @@ jobs:
           NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_GA_ID: ${{ secrets.NEXT_PUBLIC_GA_ID }}
+          NEXT_PUBLIC_CLARITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_CLARITY_PROJECT_ID }}
 
 
   # Note: Path-based triggering (on.push.paths) provides cost optimization
@@ -209,12 +220,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -259,6 +273,8 @@ jobs:
             NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
             NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
             NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+            NEXT_PUBLIC_GA_ID=${{ secrets.NEXT_PUBLIC_GA_ID }}
+            NEXT_PUBLIC_CLARITY_PROJECT_ID=${{ secrets.NEXT_PUBLIC_CLARITY_PROJECT_ID }}
 
   deploy-production:
     name: Deploy to Production
