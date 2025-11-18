@@ -130,6 +130,10 @@ NEXT_PUBLIC_API_URL=http://localhost:8080
 NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=your_mapbox_token_here
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Analytics Integration (optional for local development)
+NEXT_PUBLIC_GA_ID=your_ga_measurement_id
+NEXT_PUBLIC_CLARITY_PROJECT_ID=your_clarity_project_id
 ```
 
 #### Backend (Environment Variables)
