@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Lato, Merriweather } from "next/font/google";
 import clsx from "clsx";
+import Script from "next/script";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
@@ -13,6 +15,8 @@ import {
   generateOrganizationSchema,
   createStructuredDataScript,
 } from "@/lib/metadata";
+import { AnalyticsListener } from "./analytics-listener";
+import { reportWebVitalsToGA } from "./web-vitals";
 import "./globals.css";
 import "@/styles/print.css";
 
@@ -86,6 +90,10 @@ export const metadata: Metadata = {
   },
 };
 
+// Analytics configuration
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID!;
+const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID || "";
+
 export default function RootLayout({
   children,
 }: {
@@ -134,6 +142,7 @@ export default function RootLayout({
           merriweather.variable
         )}
       >
+        <AnalyticsListener />
         <QueryProvider>
           <AuthProvider>
             <ToastProvider>
@@ -144,7 +153,7 @@ export default function RootLayout({
                 <div className="sticky top-16 z-50 print:hidden">
                   <Banner
                     title="Tubarões Azuis: Mundial 2026!"
-                    message="From Brockton to Brava, Boston to Praia - the Blue Sharks made history. Read the inside story of Cape Verde's impossible dream."
+                    message="From Pawtucket to Brava, Boston to Praia - the Blue Sharks made history. Read the inside story of Cape Verde's impossible dream."
                     linkUrl="https://www.bbc.com/sport/football/articles/c04q0gd0yedo"
                   />
                 </div>
@@ -156,7 +165,42 @@ export default function RootLayout({
             </ToastProvider>
           </AuthProvider>
         </QueryProvider>
+
+        {/* Google Analytics 4 - Optimized loading */}
+        <GoogleAnalytics gaId={GA_ID} />
+
+        {/* Microsoft Clarity - Session replay and heatmaps */}
+        {CLARITY_PROJECT_ID && (
+          <Script
+            id="microsoft-clarity"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function(c,l,a,r,i,t,y){
+                    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+                })(window, document, "clarity", "script", "${CLARITY_PROJECT_ID}");
+              `,
+            }}
+          />
+        )}
       </body>
     </html>
   );
+}
+
+/**
+ * Web Vitals Reporting
+ *
+ * Next.js automatically calls this function with Core Web Vitals metrics.
+ * We send these metrics to Google Analytics 4 for performance monitoring.
+ *
+ * @see https://nextjs.org/docs/app/guides/analytics
+ */
+export function reportWebVitals(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  metric: any
+) {
+  reportWebVitalsToGA(metric);
 }
