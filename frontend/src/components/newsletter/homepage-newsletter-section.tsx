@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
+import clsx from "clsx";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -8,6 +9,10 @@ import {
   type NewsletterInput,
 } from "@/lib/validation/newsletter-schema";
 import { subscribeToNewsletter } from "@/app/actions/newsletter";
+import {
+  hasSubmittedEmail,
+  recordSubmittedEmail,
+} from "@/lib/newsletter-submission-cache";
 
 /**
  * Homepage Newsletter Subscription Section
@@ -26,12 +31,16 @@ import { subscribeToNewsletter } from "@/app/actions/newsletter";
  */
 export default function HomepageNewsletterSection() {
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [messageVariant, setMessageVariant] = useState<
+    "success" | "error" | "info"
+  >("success");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const emailInputRef = useRef<HTMLInputElement | null>(null);
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
   } = useForm<NewsletterInput>({
     resolver: zodResolver(newsletterSchema),
@@ -39,9 +48,21 @@ export default function HomepageNewsletterSection() {
 
   const onSubmit = async (data: NewsletterInput) => {
     try {
-      // Clear previous messages
+      // Clear any previous messages when form is submitted
       setResponseMessage(null);
-      setIsSuccess(false);
+      setIsProcessing(true);
+
+      const normalizedEmail = data.email.trim().toLowerCase();
+
+      if (hasSubmittedEmail(normalizedEmail)) {
+        setMessageVariant("info");
+        setResponseMessage(
+          "This email is already subscribed to our newsletter."
+        );
+        reset();
+        emailInputRef.current?.focus();
+        return;
+      }
 
       // Create FormData for Server Action
       const formData = new FormData();
@@ -54,20 +75,48 @@ export default function HomepageNewsletterSection() {
       const response = await subscribeToNewsletter(formData);
 
       if (response.success) {
-        setIsSuccess(true);
+        recordSubmittedEmail(normalizedEmail);
+
+        if (response.duplicate) {
+          setMessageVariant("info");
+        } else {
+          setMessageVariant("success");
+        }
         setResponseMessage(response.message);
-        reset(); // Clear form on success
+        reset();
+        emailInputRef.current?.focus();
       } else {
-        setIsSuccess(false);
+        setMessageVariant("error");
         setResponseMessage(response.message);
       }
     } catch (_error) {
-      setIsSuccess(false);
+      setMessageVariant("error");
       setResponseMessage(
         "An unexpected error occurred. Please try again later."
       );
+    } finally {
+      setIsProcessing(false);
     }
   };
+
+  /**
+   * Handle validation errors by clearing any existing messages.
+   * This prevents message persistence when validation fails after showing
+   * an "already subscribed" message.
+   */
+  const onInvalid = () => {
+    // Clear the response message when validation fails
+    setResponseMessage(null);
+  };
+
+  const messageClassName = clsx(
+    "mt-4 rounded-md px-4 py-3 text-center text-base font-semibold",
+    {
+      "bg-white/10 text-white": messageVariant === "success",
+      "bg-sunny-yellow/20 text-sunny-yellow": messageVariant === "info",
+      "bg-white text-bougainvillea-pink": messageVariant === "error",
+    }
+  );
 
   return (
     <section className="bg-background-primary py-16 sm:py-24">
@@ -94,17 +143,23 @@ export default function HomepageNewsletterSection() {
 
             {/* Newsletter Form */}
             <form
-              onSubmit={handleSubmit(onSubmit)}
+              onSubmit={handleSubmit(onSubmit, onInvalid)}
               className="mx-auto mt-10 max-w-md"
               noValidate
             >
-              <div className="flex flex-col gap-4 sm:flex-row sm:gap-x-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-x-4">
                 <div className="flex-1">
                   <label htmlFor="newsletter-email" className="sr-only">
                     Email address
                   </label>
                   <input
-                    {...register("email")}
+                    {...register("email", {
+                      setValueAs: (value) => value,
+                    })}
+                    ref={(e) => {
+                      register("email").ref(e);
+                      emailInputRef.current = e;
+                    }}
                     id="newsletter-email"
                     type="email"
                     autoComplete="email"
@@ -112,7 +167,7 @@ export default function HomepageNewsletterSection() {
                     aria-label="Email address for newsletter subscription"
                     aria-invalid={errors.email ? "true" : "false"}
                     aria-describedby={errors.email ? "email-error" : undefined}
-                    disabled={isSubmitting}
+                    disabled={isProcessing}
                     className="focus:ring-offset-ocean-blue w-full rounded-lg border border-white/20 bg-white/10 px-4 py-3 font-sans text-base text-white transition-all placeholder:text-white/60 focus:border-white/40 focus:bg-white/20 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-60 sm:text-sm"
                   />
 
@@ -140,21 +195,19 @@ export default function HomepageNewsletterSection() {
 
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isProcessing}
                   className="text-ocean-blue flex-none rounded-lg bg-white px-6 py-3 font-sans text-sm font-semibold shadow-sm transition-all hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-white disabled:active:scale-100"
                 >
-                  {isSubmitting ? "Subscribing..." : "Subscribe"}
+                  {isProcessing ? "Subscribing..." : "Subscribe"}
                 </button>
               </div>
 
               {/* Success/Error message */}
               {responseMessage && (
                 <div
-                  role={isSuccess ? "status" : "alert"}
+                  role={messageVariant === "error" ? "alert" : "status"}
                   aria-live="polite"
-                  className={`mt-4 text-center text-lg font-medium ${
-                    isSuccess ? "text-white" : "text-white"
-                  }`}
+                  className={messageClassName}
                 >
                   {responseMessage}
                 </div>

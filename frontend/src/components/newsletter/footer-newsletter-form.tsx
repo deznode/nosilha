@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -8,6 +9,10 @@ import {
 } from "@/lib/validation/newsletter-schema";
 import { subscribeToNewsletter } from "@/app/actions/newsletter";
 import { useToast } from "@/hooks/use-toast";
+import {
+  hasSubmittedEmail,
+  recordSubmittedEmail,
+} from "@/lib/newsletter-submission-cache";
 
 /**
  * Footer Newsletter Form Component
@@ -28,11 +33,13 @@ import { useToast } from "@/hooks/use-toast";
  */
 export function FooterNewsletterForm() {
   const toast = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const emailInputRef = useRef<HTMLInputElement | null>(null);
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
   } = useForm<NewsletterInput>({
     resolver: zodResolver(newsletterSchema),
@@ -40,6 +47,23 @@ export function FooterNewsletterForm() {
 
   const onSubmit = async (data: NewsletterInput) => {
     try {
+      const normalizedEmail = data.email.trim().toLowerCase();
+
+      if (hasSubmittedEmail(normalizedEmail)) {
+        // Clear any existing toasts before showing new one
+        toast.toasts.forEach((t) => toast.dismissToast(t.id));
+
+        toast.showInfo(
+          "This email is already subscribed to our newsletter.",
+          5000
+        );
+        reset();
+        emailInputRef.current?.focus();
+        return;
+      }
+
+      setIsProcessing(true);
+
       // Create FormData for Server Action
       const formData = new FormData();
       formData.append("email", data.email);
@@ -51,9 +75,14 @@ export function FooterNewsletterForm() {
       const response = await subscribeToNewsletter(formData);
 
       if (response.success) {
-        // Show success toast (5 seconds per tasks.md)
-        toast.showSuccess(response.message, 5000);
+        recordSubmittedEmail(normalizedEmail);
+        if (response.duplicate) {
+          toast.showInfo(response.message, 5000);
+        } else {
+          toast.showSuccess(response.message, 5000);
+        }
         reset(); // Clear form on success
+        emailInputRef.current?.focus();
       } else {
         // Show error toast (8 seconds per tasks.md)
         toast.showError(response.message, 8000);
@@ -64,14 +93,26 @@ export function FooterNewsletterForm() {
         "An unexpected error occurred. Please try again later.",
         8000
       );
+    } finally {
+      setIsProcessing(false);
     }
+  };
+
+  /**
+   * Handle validation errors by clearing any existing toasts.
+   * This prevents toast persistence when validation fails after showing
+   * an "already subscribed" message.
+   */
+  const onInvalid = () => {
+    // Clear all toasts when validation fails
+    toast.toasts.forEach((t) => toast.dismissToast(t.id));
   };
 
   return (
     <div className="mt-6">
       <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="sm:flex sm:max-w-md"
+        onSubmit={handleSubmit(onSubmit, onInvalid)}
+        className="sm:flex sm:max-w-md sm:items-start"
         noValidate
       >
         <div className="flex-1">
@@ -79,7 +120,13 @@ export function FooterNewsletterForm() {
             Email address
           </label>
           <input
-            {...register("email")}
+            {...register("email", {
+              setValueAs: (value) => value,
+            })}
+            ref={(e) => {
+              register("email").ref(e);
+              emailInputRef.current = e;
+            }}
             id="footer-email-address"
             type="email"
             autoComplete="email"
@@ -87,7 +134,7 @@ export function FooterNewsletterForm() {
             aria-label="Email address for newsletter subscription"
             aria-invalid={errors.email ? "true" : "false"}
             aria-describedby={errors.email ? "footer-email-error" : undefined}
-            disabled={isSubmitting}
+            disabled={isProcessing}
             className="bg-background-primary text-text-primary ring-border-primary placeholder:text-text-tertiary focus:ring-ocean-blue w-full min-w-0 appearance-none rounded-md border-0 px-3 py-1.5 text-base shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset disabled:cursor-not-allowed disabled:opacity-60 sm:w-64 sm:text-sm sm:leading-6 xl:w-full"
           />
 
@@ -116,10 +163,10 @@ export function FooterNewsletterForm() {
         <div className="mt-4 sm:mt-0 sm:ml-4 sm:shrink-0">
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isProcessing}
             className="bg-ocean-blue hover:bg-ocean-blue/90 focus-visible:outline-ocean-blue disabled:hover:bg-ocean-blue flex w-full items-center justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
           >
-            {isSubmitting ? "..." : "Subscribe"}
+            {isProcessing ? "..." : "Subscribe"}
           </button>
         </div>
       </form>

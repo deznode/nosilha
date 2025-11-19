@@ -3,12 +3,13 @@
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
+  InformationCircleIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
 import clsx from "clsx";
 
-type ToastVariant = "success" | "error";
+type ToastVariant = "success" | "error" | "info";
 
 interface ActionToastProps {
   message: string;
@@ -35,7 +36,11 @@ export function ActionToast({
   }
 
   const Icon =
-    variant === "success" ? CheckCircleIcon : ExclamationTriangleIcon;
+    variant === "success"
+      ? CheckCircleIcon
+      : variant === "error"
+        ? ExclamationTriangleIcon
+        : InformationCircleIcon;
 
   return (
     <motion.div
@@ -45,9 +50,9 @@ export function ActionToast({
       transition={{ duration: 0.3, ease: "easeOut" }}
       className={clsx(
         "pointer-events-auto flex items-center gap-3 rounded-lg px-4 py-3 shadow-lg",
-        variant === "success"
-          ? "bg-emerald-600 text-white"
-          : "bg-red-600 text-white"
+        variant === "success" && "bg-emerald-600 text-white",
+        variant === "error" && "bg-red-600 text-white",
+        variant === "info" && "bg-ocean-blue text-white"
       )}
       role="status"
       aria-live="polite"

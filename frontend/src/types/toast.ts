@@ -1,4 +1,4 @@
-export type ToastVariant = "success" | "error";
+export type ToastVariant = "success" | "error" | "info";
 
 export interface Toast {
   id: string;
@@ -17,5 +17,6 @@ export interface ToastContextValue {
   showToast: (message: string, options?: ToastOptions) => void;
   showSuccess: (message: string, duration?: number) => void;
   showError: (message: string, duration?: number) => void;
+  showInfo: (message: string, duration?: number) => void;
   dismissToast: (id: string) => void;
 }
