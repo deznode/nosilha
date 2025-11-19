@@ -5,7 +5,7 @@
 ## Example 1 – New Project Motion Architecture
 
 **Input:**
-"Design the motion system architecture for a new Next.js 15 app using Framer Motion and Tailwind."
+"Design the motion system architecture for a new Next.js 16 app using Framer Motion and Tailwind."
 
 **Expected behavior:**
 - Propose a `lib/animation` structure with tokens, variants, factories, config, components.

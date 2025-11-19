@@ -7,7 +7,7 @@ All findings focus on the Next.js frontend located in `frontend/`. References to
 ## 1. Project Overview
 
 - **Project type:** Cultural-heritage web application frontend that renders public pages, map experiences, and simple admin flows using the Next.js App Router.
-- **Tech stack:** Next.js 15 + React 19 + TypeScript 5, Tailwind CSS v4 tokens, Framer Motion, TanStack Query, Zustand state, Zod validation, Supabase Auth, Mapbox GL, Storybook 9 (Next.js Vite builder). Tooling includes ESLint flat config, Prettier, Vitest, Playwright, Lighthouse CI, k6, Chromatic.
+- **Tech stack:** Next.js 16 + React 19.2 + TypeScript 5, Tailwind CSS v4 tokens, Framer Motion, TanStack Query, Zustand state, Zod validation, Supabase Auth, Mapbox GL, Storybook 9 (Next.js Vite builder). Tooling includes ESLint flat config, Prettier, Vitest, Playwright, Lighthouse CI, k6, Chromatic.
 - **Architecture pattern:** Server Components–first App Router with route groups (`(main)`, `(auth)`, `(admin)`), ISR caching, and a strategy-pattern API layer that swaps between a Spring Boot backend and a local mock service.
 - **Languages & versions:** TypeScript-first codebase (some JS configs). Node 20 in Dockerfile, Mapbox and Supabase clients rely on ES modules. Styling is pure CSS via Tailwind’s new `@theme` DSL.
 
@@ -70,7 +70,7 @@ All findings focus on the Next.js frontend located in `frontend/`. References to
 
 ### Configuration Files
 
-- `package.json` – Comprehensive scripts for dev/build/test/Storybook/Lighthouse/k6/MCP. Dependencies highlight Next 15, React 19, Tailwind 4, TanStack Query 5, Supabase 2.5x, etc.
+- `package.json` – Comprehensive scripts for dev/build/test/Storybook/Lighthouse/k6/MCP. Dependencies highlight Next 16, React 19.2, Tailwind 4, TanStack Query 5, Supabase 2.5x, etc.
 - `tsconfig.json` – Strict mode, path alias `@/*`, bundler module resolution.
 - `next.config.ts` – Standalone output, relaxed ESLint on build, remote image patterns.
 - `tailwind.config.ts` & `src/app/globals.css` – Theme tokens from `docs/DESIGN_SYSTEM.md` with `@theme`/`@variant` definitions and animation utilities.
@@ -173,7 +173,7 @@ Authentication: Supabase session tokens automatically attach via `BackendApiClie
 
 ## 7. Technology Stack Breakdown
 
-- **Runtime & Framework:** Node 20, Next.js 15 (App Router), React 19 Server Components.
+- **Runtime & Framework:** Node 20, Next.js 16 (App Router), React 19.2 Server Components.
 - **Styling & Design:** Tailwind CSS v4 semantic tokens, custom CSS animations, fonts from Merriweather/Lato per `docs/DESIGN_SYSTEM.md`.
 - **State & Data:** TanStack Query 5, Zustand 5, React Hook Form + Zod, Supabase Auth, Mapbox GL 3 + react-map-gl, Supercluster for map clustering.
 - **API Layer:** Strategy pattern via `lib/api-factory`, fetch wrappers with ISR hints, Supabase-authenticated POST/DELETE operations, optional mock responses.
@@ -187,7 +187,7 @@ Authentication: Supabase session tokens automatically attach via `BackendApiClie
 
 ```mermaid
 flowchart LR
-    UserBrowser["Users (Desktop + Mobile)"] -->|HTTP| NextApp["Next.js 15 App Router\n(src/app/**)"]
+    UserBrowser["Users (Desktop + Mobile)"] -->|HTTP| NextApp["Next.js 16 App Router\n(src/app/**)"]
     NextApp -->|SSR/ISR Fetch| ApiLayer["lib/api (Factory)"]
     ApiLayer -->|env.useMockApi| MockClient["MockApiClient\n(src/lib/mock-api.ts)"]
     ApiLayer -->|env.apiUrl| BackendClient["BackendApiClient\n(src/lib/backend-api.ts)"]

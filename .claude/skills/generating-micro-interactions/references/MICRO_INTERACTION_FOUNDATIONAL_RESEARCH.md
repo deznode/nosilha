@@ -4,8 +4,8 @@
 
 This report assumes:
 
-* **React 19 RC** (with React Compiler support)
-* **Next.js 15** (October 2024 release with App Router, improved caching, and enhanced Server Components)
+* **React 19.2** (with React Compiler support)
+* **Next.js 16** (App Router, improved caching, and enhanced Server Components)
 * **TypeScript 5.x**
 * **TailwindCSS**
 * **Framer Motion / Motion for React** (latest version with `motion`, `variants`, `layout`, `layoutId`, `whileInView`, gestures, etc.) ([Motion][1])
@@ -13,7 +13,7 @@ This report assumes:
 
 ### Key Technology Updates (2024-2025)
 
-* **Next.js 15**: Improved caching semantics, better dynamic imports for animation libraries, enhanced Server/Client Component boundaries
+* **Next.js 16**: Improved caching semantics, better dynamic imports for animation libraries, enhanced Server/Client Component boundaries
 * **React 19 Compiler**: Automatic memoization and optimization may affect animation re-render behavior
 * **Bundle Optimization**: Use `next/dynamic` for lazy-loading Framer Motion to reduce initial JS payload
 * **Performance Monitoring**: Regular bundle analysis (`next build && npx next-bundle-analyzer`) recommended
@@ -595,7 +595,7 @@ const LoadingSpinner = () => (
 
 **Edge Caching for Animation Data:**
 
-Leverage Next.js 15's caching for animation configuration:
+Leverage Next.js 16's caching for animation configuration:
 
 ```ts
 // app/actions/animation-config.ts

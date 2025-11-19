@@ -265,7 +265,7 @@ This structured plan provides everything the main agent needs to implement the f
 - `frontend/src/app/(auth)/` - Authentication pages (login, signup)
 - `frontend/src/app/(admin)/` - Protected admin pages
 - `frontend/src/components/ui/` - Custom components (DirectoryCard, PageHeader, etc.)
-- `frontend/src/middleware.ts` - Route protection and authentication checks
+- `frontend/src/proxy.ts` - Route protection and authentication checks
 - `frontend/next.config.ts` - Next.js configuration (standalone output for Cloud Run)
 
 ## Agent Coordination

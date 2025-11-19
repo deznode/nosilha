@@ -182,7 +182,7 @@ frontend/
 │   │   └── mock-api.ts              # Fallback data
 │   ├── types/
 │   │   └── directory.ts             # TypeScript interfaces
-│   └── middleware.ts                # Route protection
+│   └── proxy.ts                     # Route protection
 └── Dockerfile                       # Production container build
 ```
 
@@ -778,7 +778,7 @@ Testing Infrastructure: Comprehensive Multi-Layer Testing
 │ │  Storybook 9 (Component Documentation) - src/stories/                │ │
 │ │  ┌─────────────────────────────────────────────────────────────────┐ │ │
 │ │  │ Configuration: .storybook/main.ts                               │ │ │
-│ │  │  • Framework: @storybook/nextjs (Next.js 15 support)            │ │ │
+│ │  │  • Framework: @storybook/nextjs (Next.js 16 support)            │ │ │
 │ │  │  • Addons: chromatic, docs, a11y, vitest                        │ │ │
 │ │  │  • Deployment: GitHub Pages (automated)                         │ │ │
 │ │  ├─────────────────────────────────────────────────────────────────┤ │ │

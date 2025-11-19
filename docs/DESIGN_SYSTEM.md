@@ -944,7 +944,7 @@ const lato = Lato({
 - **Heroicons**: Beautiful hand-crafted SVG icons
 
 ### Development Tools
-- **Next.js 15**: React framework with App Router
+- **Next.js 16**: React framework with App Router
 - **TypeScript**: Type-safe development
 - **Tailwind CSS v4**: Advanced styling framework with semantic token support
 - **clsx**: Conditional class name utility

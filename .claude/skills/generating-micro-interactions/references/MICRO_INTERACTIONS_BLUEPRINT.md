@@ -10,7 +10,7 @@ The complete micro-interactions blueprint and foundational research is available
 
 This document contains:
 - Comprehensive research on micro-interactions in modern web applications
-- Framer Motion integration patterns with Next.js 15 and React 19
+- Framer Motion integration patterns with Next.js 16 and React 19.2
 - TailwindCSS animation strategies and best practices
 - Accessibility considerations (reduced-motion, ARIA patterns)
 - Performance optimization techniques

@@ -4,7 +4,7 @@ This document provides a comprehensive overview of the frontend application's ro
 
 ## Application Overview
 
-- **Framework**: Next.js 15 with App Router
+- **Framework**: Next.js 16 with App Router
 - **Route Organization**: Uses route groups with parentheses for logical organization
 - **Authentication**: Supabase Auth with client-side guards
 - **Caching Strategy**: ISR (Incremental Static Regeneration) for content pages

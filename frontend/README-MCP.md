@@ -14,7 +14,7 @@ The `@playwright/mcp` integration provides browser automation capabilities throu
 
 ## Prerequisites
 
-- Node.js 18+ installed
+- Node.js 20.9+ installed
 - `@playwright/mcp` installed globally (you mentioned you have this)
 - A compatible MCP client (VS Code, Claude Desktop, Claude Code, Cursor, etc.)
 
