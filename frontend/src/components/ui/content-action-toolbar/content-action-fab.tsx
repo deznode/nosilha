@@ -4,6 +4,14 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ContentActionFABProps } from "@/types/content-action-toolbar/component-props";
 import { Sparkles, X } from "lucide-react";
+import {
+  iconButtonTap,
+  menuFadeIn,
+  makeScaleIn,
+  motionDuration,
+  motionEasing,
+  motionDistance,
+} from "@/lib/animation";
 import { ReactionButtons } from "@/components/ui/actions/reaction-buttons";
 import { ShareButton } from "@/components/ui/actions/share-button";
 import { CopyLinkButton } from "@/components/ui/actions/copy-link-button";
@@ -88,22 +96,26 @@ export function ContentActionFAB({
     };
   }, [isExpanded]);
 
+  // Use centralized menu animation
   const menuAnimation = prefersReducedMotion
     ? {}
     : {
-        initial: { opacity: 0, y: 10 },
-        animate: { opacity: 1, y: 0 },
-        exit: { opacity: 0, y: 10 },
-        transition: { duration: 0.2 },
+        variants: menuFadeIn,
+        initial: "hidden",
+        animate: "visible",
+        exit: "exit",
       };
 
   const menuItemAnimation = prefersReducedMotion
     ? {}
     : {
-        initial: { opacity: 0, y: 10 },
+        initial: { opacity: 0, y: motionDistance.small },
         animate: { opacity: 1, y: 0 },
-        exit: { opacity: 0, y: 10 },
+        exit: { opacity: 0, y: motionDistance.small },
       };
+
+  // FAB entrance animation
+  const fabScaleIn = makeScaleIn();
 
   return (
     <div
@@ -179,7 +191,7 @@ export function ContentActionFAB({
 
       {/* FAB Trigger Button */}
       <motion.button
-        whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
+        whileTap={prefersReducedMotion ? undefined : iconButtonTap}
         initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.8 }}
         animate={
           prefersReducedMotion
@@ -192,7 +204,7 @@ export function ContentActionFAB({
         transition={
           prefersReducedMotion
             ? undefined
-            : { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
+            : { duration: motionDuration.normal, ease: motionEasing.out }
         }
         type="button"
         onClick={handleToggle}

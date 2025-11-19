@@ -7,6 +7,7 @@ import { CopyLinkButton } from "@/components/ui/actions/copy-link-button";
 import { PrintButton } from "@/components/ui/actions/print-button";
 import { SuggestImprovementButton } from "@/components/ui/actions/suggest-improvement-button";
 import { motion, useReducedMotion } from "framer-motion";
+import { motionDuration, motionEasing } from "@/lib/animation";
 
 /**
  * Desktop Left-Rail Content Action Toolbar (Wireframe Update)
@@ -60,7 +61,7 @@ export function ContentActionDesktop({
       transition={
         prefersReducedMotion
           ? undefined
-          : { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
+          : { duration: motionDuration.slow, ease: motionEasing.out }
       }
     >
       {/* Background card container with rounded corners and shadow */}

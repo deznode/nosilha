@@ -82,11 +82,36 @@ When designing a motion system, follow this framework:
 
 ---
 
+## Project Documentation
+
+* `docs/MICRO_INTERACTION.md` – Foundational research, theory, timing, and best practices
+* `docs/ANIMATION_SYSTEM.md` – Implementation guide with code examples and API reference
+
 ## Related Files
 
 - `WORKFLOW.md` – Step-by-step architecture and review workflow.
 - `EXAMPLES.md` – Example scenarios (audits, proposals, migration plans).
 - `TROUBLESHOOTING.md` – Common architectural issues and resolutions.
 - `references/MOTION_SYSTEM_ARCHITECTURE_NOTES.md` – Optional notes and decisions log for a specific project.
+
+## Modern Motion.dev Best Practices
+
+Motion.dev (formerly Framer Motion) provides native reduced motion support:
+
+```tsx
+import { MotionConfig } from "framer-motion";
+
+// In root layout - automatically handles reduced motion
+<MotionConfig reducedMotion="user">
+  {children}
+</MotionConfig>
+```
+
+Options:
+- `"user"` - Respects OS setting automatically
+- `"always"` - Force reduced motion
+- `"never"` - Ignore OS setting
+
+The native `useReducedMotion` hook from framer-motion is also available for component-level checks.
 
 ---

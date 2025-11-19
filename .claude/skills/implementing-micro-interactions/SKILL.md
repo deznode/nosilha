@@ -82,14 +82,11 @@ src/
       tokens.ts        # Durations, easing, distances
       variants.ts      # Common Variants (buttons, lists, modals, toasts)
       factories.ts     # Parametric factories like makeFadeInUp, makeScaleIn
-      config.ts        # MotionConfigProvider + useMotionConfig hook
+      config.tsx       # MotionConfigProvider + useMotionConfig hook
       index.ts         # Re-exports for convenience
-      components/
-        AnimatedButton.tsx
-        HoverCard.tsx
-        FadeInSection.tsx
-        PageTransitionProvider.tsx
 ```
+
+Animated components (e.g., `AnimatedButton`, `HoverCard`) live in `src/components/ui/` and import from `lib/animation`.
 
 Components in `app/` or `src/app/` should import from `lib/animation` instead of defining custom ad-hoc motion values.
 
@@ -132,5 +129,25 @@ When implementing or modifying animations with this Skill:
 * `TROUBLESHOOTING.md` – Common issues and how to fix them.
 * `references/MICRO_INTERACTIONS_BLUEPRINT.md` – Full research blueprint for micro-interactions and motion system design.
 * `assets/lib/animation/` – Production-ready code templates for the animation system.
+
+## Project Documentation
+
+* `docs/MICRO_INTERACTION.md` – Foundational research, theory, timing, and best practices
+* `docs/ANIMATION_SYSTEM.md` – Implementation guide with code examples and API reference
+
+## Modern Motion.dev Best Practices
+
+Motion.dev (formerly Framer Motion) now provides native reduced motion support:
+
+```tsx
+import { MotionConfig } from "framer-motion";
+
+// In root layout - automatically handles reduced motion
+<MotionConfig reducedMotion="user">
+  {children}
+</MotionConfig>
+```
+
+This can be used instead of or alongside the custom `MotionConfigProvider`. The native hook `useReducedMotion` from framer-motion is also available.
 
 ---

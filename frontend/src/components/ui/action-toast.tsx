@@ -8,6 +8,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { motion } from "framer-motion";
 import clsx from "clsx";
+import { makeSlideInFrom } from "@/lib/animation";
 
 type ToastVariant = "success" | "error" | "info";
 
@@ -42,12 +43,15 @@ export function ActionToast({
         ? ExclamationTriangleIcon
         : InformationCircleIcon;
 
+  // Use centralized slide animation
+  const slideFromRight = makeSlideInFrom("right", 100);
+
   return (
     <motion.div
-      initial={{ opacity: 0, x: 100 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 100 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
+      variants={slideFromRight}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
       className={clsx(
         "pointer-events-auto flex items-center gap-3 rounded-lg px-4 py-3 shadow-lg",
         variant === "success" && "bg-emerald-600 text-white",

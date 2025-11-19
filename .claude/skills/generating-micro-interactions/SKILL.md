@@ -210,7 +210,7 @@ If the component requires variants or helper files, the skill will generate mult
 
 ---
 
-# 🔒 Out-of-Scope (Option A Rule)
+# 🔒 Out-of-Scope
 
 This skill *must not* generate:
 
@@ -220,7 +220,29 @@ This skill *must not* generate:
 * File trees unrelated to component output
 * Motion Config Providers or global state managers
 
-These belong to the **Animation System Architect Skill** (Option B).
+These belong to the **`implementing-micro-interactions`** skill (for infrastructure setup) or **`architecting-motion-systems`** skill (for architecture planning).
+
+---
+
+## Project Documentation
+
+* `docs/MICRO_INTERACTION.md` – Foundational research, theory, timing, and best practices
+* `docs/ANIMATION_SYSTEM.md` – Implementation guide with code examples and API reference
+
+## Modern Motion.dev Best Practices
+
+Motion.dev (formerly Framer Motion) provides native reduced motion support:
+
+```tsx
+import { MotionConfig } from "framer-motion";
+
+// In root layout - automatically handles reduced motion
+<MotionConfig reducedMotion="user">
+  {children}
+</MotionConfig>
+```
+
+The native `useReducedMotion` hook from framer-motion is also available for component-level checks.
 
 ---
 
@@ -229,5 +251,6 @@ These belong to the **Animation System Architect Skill** (Option B).
 This skill is strictly based on:
 
 * **MICRO_INTERACTION.md** (timings, patterns, tokens, factories, rules)
+* **ANIMATION_SYSTEM.md** (implementation guide, API reference, usage patterns)
 * **Skill Development Best Practices** (scope definition, invocation triggers, skill boundaries)
 * **SKILLS.md** (canonical structure, layout, metadata, do/don't guidance)

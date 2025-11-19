@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { Printer } from "lucide-react";
+import { iconButtonTap } from "@/lib/animation";
 
 /**
  * Print Button Component
@@ -48,11 +49,11 @@ export function PrintButton({
     onPrintTriggered?.();
   };
 
-  // Animation configuration
+  // Animation configuration using centralized tokens
   const scaleAnimation = prefersReducedMotion
     ? {}
     : {
-        whileTap: { scale: 0.95 },
+        whileTap: iconButtonTap,
       };
 
   return (

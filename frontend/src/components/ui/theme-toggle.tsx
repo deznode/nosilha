@@ -9,6 +9,7 @@ import {
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { useTheme, useUiStore } from "@/stores/uiStore";
+import { iconFlip, motionDuration, motionEasing } from "@/lib/animation";
 
 export function ThemeToggle() {
   const theme = useTheme();
@@ -121,25 +122,10 @@ export function ThemeToggle() {
       <AnimatePresence mode="wait">
         <motion.div
           key={theme}
-          initial={{
-            rotateY: -90,
-            opacity: 0,
-            scale: 0.8,
-          }}
-          animate={{
-            rotateY: 0,
-            opacity: 1,
-            scale: 1,
-          }}
-          exit={{
-            rotateY: 90,
-            opacity: 0,
-            scale: 0.8,
-          }}
-          transition={{
-            duration: 0.2,
-            ease: "easeInOut",
-          }}
+          variants={iconFlip}
+          initial="initial"
+          animate="enter"
+          exit="exit"
         >
           {getIcon()}
         </motion.div>

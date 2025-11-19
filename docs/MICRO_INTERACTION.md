@@ -1,5 +1,11 @@
 # Micro-Interactions & Framer Motion in React/Next.js — Research & Blueprint
 
+## Related Documentation
+
+* [ANIMATION_SYSTEM.md](./ANIMATION_SYSTEM.md) - Implementation guide with code examples and API reference for the `lib/animation` system
+
+---
+
 ## 0. Scope & Assumptions
 
 This report assumes:

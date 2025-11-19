@@ -8,6 +8,7 @@ import {
 } from "@/types/content-action-toolbar/component-props";
 import { Share2, Link, Facebook, Twitter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { iconButtonTap, makeFadeInUp, motionDuration } from "@/lib/animation";
 
 /**
  * Share Button Component
@@ -179,12 +180,15 @@ export function ShareButton({
     };
   }, [isFallbackMenuOpen]);
 
-  // Animation configurations
+  // Animation configurations using centralized tokens
   const scaleAnimation = prefersReducedMotion
     ? {}
     : {
-        whileTap: { scale: 0.95 },
+        whileTap: iconButtonTap,
       };
+
+  // Menu animation using factory
+  const menuAnimation = makeFadeInUp(10);
 
   return (
     <div className="relative" ref={menuRef}>
@@ -216,10 +220,10 @@ export function ShareButton({
       {/* Fallback Menu (Desktop) */}
       {!hasNativeShare && isFallbackMenuOpen && (
         <motion.div
-          initial={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
-          animate={prefersReducedMotion ? {} : { opacity: 1, y: 0 }}
-          exit={prefersReducedMotion ? {} : { opacity: 0, y: 10 }}
-          transition={{ duration: 0.2 }}
+          variants={prefersReducedMotion ? undefined : menuAnimation}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
           className="absolute right-0 bottom-14 z-50 flex flex-col gap-2 rounded-lg bg-[var(--color-background-primary)] p-3 shadow-lg"
         >
           {shareOptions.map((option) => {

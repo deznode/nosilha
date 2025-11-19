@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Lightbulb } from "lucide-react";
 import { SuggestImprovementForm } from "./suggest-improvement-form";
+import { iconButtonTap } from "@/lib/animation";
 
 /**
  * Suggest Improvement Button Component
@@ -60,11 +61,11 @@ export function SuggestImprovementButton({
   const [isOpen, setIsOpen] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 
-  // Animation configuration
+  // Animation configuration using centralized tokens
   const scaleAnimation = prefersReducedMotion
     ? {}
     : {
-        whileTap: { scale: 0.95 },
+        whileTap: iconButtonTap,
       };
 
   const handleClose = () => {

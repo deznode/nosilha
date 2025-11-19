@@ -3,7 +3,7 @@ import { Variants } from "framer-motion";
 import { motionDuration, motionEasing, motionDistance } from "./tokens";
 
 // Fade + Up entrance
-export function makeFadeInUp(distance = motionDistance.small): Variants {
+export function makeFadeInUp(distance: number = motionDistance.small): Variants {
   return {
     hidden: { opacity: 0, y: distance },
     visible: {
@@ -51,7 +51,7 @@ export function makeScaleIn(): Variants {
 // Slide in from any direction
 export function makeSlideInFrom(
   direction: "left" | "right" | "top" | "bottom",
-  distance = motionDistance.medium
+  distance: number = motionDistance.medium
 ): Variants {
   const map = {
     left: { x: -distance },

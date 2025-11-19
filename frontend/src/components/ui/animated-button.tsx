@@ -3,6 +3,7 @@
 import { motion, HTMLMotionProps } from "framer-motion";
 import { forwardRef } from "react";
 import clsx from "clsx";
+import { motionDuration } from "@/lib/animation";
 
 interface AnimatedButtonProps
   extends Omit<HTMLMotionProps<"button">, "children"> {
@@ -80,7 +81,7 @@ export const AnimatedButton = forwardRef<
           className="h-4 w-4 rounded-full border-2 border-current border-t-transparent"
           animate={{ rotate: 360 }}
           transition={{
-            duration: 1,
+            duration: motionDuration.slower * 3, // ~1.14s for spinner
             repeat: Infinity,
             ease: "linear",
           }}

@@ -7,6 +7,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { submitReaction, deleteReaction } from "@/lib/api";
 import { ReactionType } from "@/types/reaction";
 import { useToast } from "@/hooks/use-toast";
+import { motionDuration, motionEasing } from "@/lib/animation";
 
 /**
  * Reaction Buttons Component
@@ -180,8 +181,8 @@ export function ReactionButtons({
                 ? {
                     scale: [1, 1.2, 1],
                     transition: {
-                      duration: 0.3,
-                      ease: "easeInOut",
+                      duration: motionDuration.normal,
+                      ease: motionEasing.inOut,
                     },
                   }
                 : undefined

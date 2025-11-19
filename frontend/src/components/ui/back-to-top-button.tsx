@@ -2,6 +2,15 @@
 
 import { motion } from "framer-motion";
 import { smoothScrollTo } from "@/lib/smooth-scroll";
+import {
+  iconButtonTap,
+  makeFadeInUp,
+  motionDuration,
+  motionDistance,
+} from "@/lib/animation";
+
+// Use factory for entrance animation
+const fadeInUp = makeFadeInUp(motionDistance.medium);
 
 export function BackToTopButton() {
   const handleScrollToTop = () => {
@@ -17,10 +26,10 @@ export function BackToTopButton() {
           scale: 1.05,
           boxShadow: "0 10px 25px -5px rgba(0, 90, 141, 0.2)",
         }}
-        whileTap={{ scale: 0.95 }}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
+        whileTap={iconButtonTap}
+        variants={fadeInUp}
+        initial="hidden"
+        animate="visible"
       >
         <motion.svg
           className="mr-2 h-4 w-4"
@@ -28,7 +37,7 @@ export function BackToTopButton() {
           stroke="currentColor"
           viewBox="0 0 24 24"
           whileHover={{ y: -2 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: motionDuration.fast }}
         >
           <path
             strokeLinecap="round"

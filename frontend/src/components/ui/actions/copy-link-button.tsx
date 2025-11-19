@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Link as LinkIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { iconButtonTap } from "@/lib/animation";
 
 /**
  * Copy Link Button Component
@@ -74,11 +75,11 @@ export function CopyLinkButton({
   const isClipboardAvailable =
     typeof navigator !== "undefined" && navigator.clipboard;
 
-  // Animation configuration
+  // Animation configuration using centralized tokens
   const scaleAnimation = prefersReducedMotion
     ? {}
     : {
-        whileTap: { scale: 0.95 },
+        whileTap: iconButtonTap,
       };
 
   return (
