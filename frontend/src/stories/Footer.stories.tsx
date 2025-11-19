@@ -43,8 +43,6 @@ export const TranslatedPortuguese: Story = {
       newsletterHeading: "Recebe novidades culturais",
       newsletterDescription:
         "Envianu histórias, eventos e dicas de viagem para Brava toda semana.",
-      newsletterPlaceholder: "Introduzi bu email",
-      newsletterCta: "Subscreve",
       legal: "Tudu direitu reservadu.",
     },
   },

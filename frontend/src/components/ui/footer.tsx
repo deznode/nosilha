@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import clsx from "clsx";
 import { SocialMediaLinks } from "@/components/ui/social-media-links";
+import { FooterNewsletterForm } from "@/components/newsletter/footer-newsletter-form";
 // Data for the footer links, based on the proposed structure.
 const defaultNavigation = {
   explore: [
@@ -37,8 +38,6 @@ interface FooterCopy {
   connectHeading: string;
   newsletterHeading: string;
   newsletterDescription: string;
-  newsletterPlaceholder: string;
-  newsletterCta: string;
   legal: string;
 }
 
@@ -49,8 +48,6 @@ const defaultCopy: FooterCopy = {
   newsletterHeading: "Subscribe to our newsletter",
   newsletterDescription:
     "The latest news, articles, and resources, sent to your inbox weekly.",
-  newsletterPlaceholder: "Enter your email",
-  newsletterCta: "Subscribe",
   legal: "All rights reserved.",
 };
 
@@ -141,28 +138,7 @@ export function Footer({
             <p className="mt-2 text-sm leading-6">
               {copy.newsletterDescription}
             </p>
-            <form className="mt-6 sm:flex sm:max-w-md">
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email-address"
-                type="email"
-                required
-                placeholder={copy.newsletterPlaceholder}
-                autoComplete="email"
-                className="bg-background-primary text-text-primary ring-border-primary placeholder:text-text-tertiary focus:ring-ocean-blue w-full min-w-0 appearance-none rounded-md border-0 px-3 py-1.5 text-base shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset sm:w-64 sm:text-sm sm:leading-6 xl:w-full"
-              />
-              <div className="mt-4 sm:mt-0 sm:ml-4 sm:shrink-0">
-                <button
-                  type="submit"
-                  className="bg-ocean-blue hover:bg-ocean-blue/90 focus-visible:outline-ocean-blue flex w-full items-center justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline-2 focus-visible:outline-offset-2"
-                >
-                  {copy.newsletterCta}
-                </button>
-              </div>
-            </form>
+            <FooterNewsletterForm />
           </div>
         </div>
 
