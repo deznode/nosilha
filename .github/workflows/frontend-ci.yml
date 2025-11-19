@@ -90,10 +90,10 @@ jobs:
         with:
           version: 10
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 20.9+
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.9'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -148,11 +148,11 @@ jobs:
         with:
           version: 10
 
-      - name: Setup Node.js
+      - name: Setup Node.js 20.9+
         if: ${{ steps.changes.outputs.bundle == 'true' }}
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.9'
 
       - name: Install dependencies
         if: ${{ steps.changes.outputs.bundle == 'true' }}
@@ -225,10 +225,10 @@ jobs:
         with:
           version: 10
 
-      - name: Setup Node.js
+      - name: Setup Node.js 20.9+
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '20.9'
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
