@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { DirectoryCard } from "@/components/ui/directory-card";
-import NewsletterSignup from "@/components/ui/newsletter";
+import HomepageNewsletterSection from "@/components/newsletter/homepage-newsletter-section";
 import { PageHeader } from "@/components/ui/page-header";
 import { SocialMediaLinks } from "@/components/ui/social-media-links";
 import type { DirectoryEntry } from "@/types/directory";
@@ -212,7 +212,7 @@ export function HomePageContent({ featuredEntries }: HomePageContentProps) {
         </div>
       </section>
 
-      <NewsletterSignup />
+      <HomepageNewsletterSection />
 
       <SocialMediaLinks />
     </>

@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useCallback, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { AnimatePresence } from "framer-motion";
 import type { Toast, ToastContextValue, ToastOptions } from "@/types/toast";
 import { ActionToast } from "@/components/ui/action-toast";
@@ -13,16 +19,22 @@ interface ToastProviderProps {
   children: ReactNode;
 }
 
-const DEFAULT_DURATION = {
-  success: 3000,
-  error: 5000,
+const DEFAULT_DURATION: Record<Toast["variant"], number> = {
+  success: 5000,
+  error: 8000,
+  info: 5000,
 };
 
 export function ToastProvider({ children }: ToastProviderProps) {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const dismissToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    if (timers.current[id]) {
+      clearTimeout(timers.current[id]);
+      delete timers.current[id];
+    }
   }, []);
 
   const showToast = useCallback(
@@ -41,10 +53,9 @@ export function ToastProvider({ children }: ToastProviderProps) {
         duration,
       };
 
-      setToasts((prev) => [...prev, newToast]);
+      setToasts((prev) => [...prev.slice(-2), newToast]);
 
-      // Auto-dismiss after duration
-      setTimeout(() => {
+      timers.current[id] = window.setTimeout(() => {
         dismissToast(id);
       }, duration);
     },
@@ -65,11 +76,19 @@ export function ToastProvider({ children }: ToastProviderProps) {
     [showToast]
   );
 
+  const showInfo = useCallback(
+    (message: string, duration?: number) => {
+      showToast(message, { variant: "info", duration });
+    },
+    [showToast]
+  );
+
   const contextValue: ToastContextValue = {
     toasts,
     showToast,
     showSuccess,
     showError,
+    showInfo,
     dismissToast,
   };
 
