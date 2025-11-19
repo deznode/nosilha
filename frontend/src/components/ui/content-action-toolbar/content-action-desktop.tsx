@@ -6,6 +6,7 @@ import { ShareButton } from "@/components/ui/actions/share-button";
 import { CopyLinkButton } from "@/components/ui/actions/copy-link-button";
 import { PrintButton } from "@/components/ui/actions/print-button";
 import { SuggestImprovementButton } from "@/components/ui/actions/suggest-improvement-button";
+import { motion, useReducedMotion } from "framer-motion";
 
 /**
  * Desktop Left-Rail Content Action Toolbar (Wireframe Update)
@@ -39,12 +40,26 @@ export function ContentActionDesktop({
   reactions,
   isAuthenticated,
   onReactionToggle,
+  isVisible = true,
 }: ContentActionDesktopProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
-    <div
+    <motion.div
       role="toolbar"
       aria-label="Content actions"
+      aria-hidden={!isVisible}
       className="fixed top-1/2 left-4 z-40 -translate-y-1/2"
+      style={{ pointerEvents: isVisible ? "auto" : "none" }}
+      initial={prefersReducedMotion ? false : { opacity: 0, x: -20 }}
+      animate={
+        prefersReducedMotion
+          ? false
+          : { opacity: isVisible ? 1 : 0, x: isVisible ? 0 : -20 }
+      }
+      transition={
+        prefersReducedMotion ? undefined : { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
+      }
     >
       {/* Background card container with rounded corners and shadow */}
       <div className="flex flex-col rounded-lg bg-[var(--color-background-primary)] p-4 shadow-md">
@@ -92,6 +107,6 @@ export function ContentActionDesktop({
           />
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

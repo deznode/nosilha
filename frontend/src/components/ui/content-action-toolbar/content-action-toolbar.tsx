@@ -6,6 +6,7 @@ import {
   Reaction,
 } from "@/types/content-action-toolbar/component-props";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
+import { useScrollTrigger } from "@/lib/hooks/use-scroll-trigger";
 import { ContentActionDesktop } from "./content-action-desktop";
 import { ContentActionFAB } from "./content-action-fab";
 import { getReactionCounts } from "@/lib/api";
@@ -51,6 +52,8 @@ export function ContentActionToolbar({
   reactions: initialReactions,
   isAuthenticated,
   className,
+  showOnScroll = false,
+  scrollThreshold,
 }: ContentActionToolbarProps) {
   // Manage local reaction state for optimistic updates
   const [reactions, setReactions] = useState<Reaction[]>(initialReactions);
@@ -58,6 +61,14 @@ export function ContentActionToolbar({
   // Detect viewport width using media query hook
   // Desktop: min-width 768px (Tailwind md: breakpoint)
   const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  // Calculate scroll threshold (default: window.innerHeight - 81px header height)
+  const defaultThreshold =
+    typeof window !== "undefined" ? window.innerHeight - 81 : 0;
+  const isScrolled = useScrollTrigger(scrollThreshold ?? defaultThreshold);
+
+  // Determine visibility: always show OR show after scroll
+  const isVisible = !showOnScroll || isScrolled;
 
   // Fetch initial reaction counts from API on mount
   useEffect(() => {
@@ -141,6 +152,7 @@ export function ContentActionToolbar({
     reactions,
     isAuthenticated,
     onReactionToggle: handleReactionToggle,
+    isVisible, // Pass visibility state to child components
   };
 
   return (

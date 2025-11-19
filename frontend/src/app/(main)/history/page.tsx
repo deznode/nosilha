@@ -231,46 +231,6 @@ export default function HistoryPage() {
             subtitle="Discover the rich cultural tapestry and fascinating history of Brava Island, from its volcanic origins to its vibrant musical traditions."
           />
 
-          {/* Content Action Toolbar - Refactored (Feature 005) */}
-          <ContentActionToolbar
-            contentId={HISTORY_PAGE_CONTENT_ID}
-            contentSlug="history-heritage"
-            contentTitle="History & Heritage"
-            contentUrl="https://nosilha.com/history"
-            contentType="Page"
-            reactions={[
-              {
-                id: "LOVE",
-                emoji: "❤️",
-                count: 0,
-                isSelected: false,
-                ariaLabel: "React with love",
-              },
-              {
-                id: "CELEBRATE",
-                emoji: "🎉",
-                count: 0,
-                isSelected: false,
-                ariaLabel: "React to celebrate",
-              },
-              {
-                id: "INSIGHTFUL",
-                emoji: "💡",
-                count: 0,
-                isSelected: false,
-                ariaLabel: "Mark as insightful",
-              },
-              {
-                id: "SUPPORT",
-                emoji: "👏",
-                count: 0,
-                isSelected: false,
-                ariaLabel: "Show support",
-              },
-            ]}
-            isAuthenticated={true}
-          />
-
           {/* Introduction Section */}
           <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
             <div className="mx-auto max-w-4xl">
@@ -311,6 +271,47 @@ export default function HistoryPage() {
               </p>
             </div>
           </section>
+
+          {/* Content Action Toolbar - Refactored (Feature 005) with scroll-triggered visibility */}
+          <ContentActionToolbar
+            contentId={HISTORY_PAGE_CONTENT_ID}
+            contentSlug="history-heritage"
+            contentTitle="History & Heritage"
+            contentUrl="https://nosilha.com/history"
+            contentType="Page"
+            reactions={[
+              {
+                id: "LOVE",
+                emoji: "❤️",
+                count: 0,
+                isSelected: false,
+                ariaLabel: "React with love",
+              },
+              {
+                id: "CELEBRATE",
+                emoji: "🎉",
+                count: 0,
+                isSelected: false,
+                ariaLabel: "React to celebrate",
+              },
+              {
+                id: "INSIGHTFUL",
+                emoji: "💡",
+                count: 0,
+                isSelected: false,
+                ariaLabel: "Mark as insightful",
+              },
+              {
+                id: "SUPPORT",
+                emoji: "👏",
+                count: 0,
+                isSelected: false,
+                ariaLabel: "Show support",
+              },
+            ]}
+            isAuthenticated={true}
+            showOnScroll={true}
+          />
 
           {/* Geological Origins & Settlement */}
           <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">

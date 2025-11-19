@@ -46,6 +46,7 @@ export function ContentActionFAB({
   reactions,
   isAuthenticated,
   onReactionToggle,
+  isVisible = true,
 }: ContentActionFABProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -55,6 +56,7 @@ export function ContentActionFAB({
   // Toggle FAB expansion
   const handleToggle = () => {
     if (isAnimating) return; // Prevent concurrent animations
+    if (!isVisible) return; // Prevent interaction when hidden
     setIsAnimating(true);
     setIsExpanded(!isExpanded);
     setTimeout(() => setIsAnimating(false), 200); // Match animation duration
@@ -86,13 +88,6 @@ export function ContentActionFAB({
     };
   }, [isExpanded]);
 
-  // Animation configurations
-  const fabAnimation = prefersReducedMotion
-    ? {}
-    : {
-        whileTap: { scale: 0.95 },
-      };
-
   const menuAnimation = prefersReducedMotion
     ? {}
     : {
@@ -115,6 +110,8 @@ export function ContentActionFAB({
       ref={fabRef}
       className="fixed right-4 bottom-4 z-50"
       data-testid="content-action-fab"
+      aria-hidden={!isVisible}
+      style={{ pointerEvents: isVisible ? "auto" : "none" }}
     >
       {/* Expanded Menu (appears above FAB) */}
       <AnimatePresence>
@@ -182,7 +179,19 @@ export function ContentActionFAB({
 
       {/* FAB Trigger Button */}
       <motion.button
-        {...fabAnimation}
+        whileTap={prefersReducedMotion ? undefined : { scale: 0.95 }}
+        initial={prefersReducedMotion ? false : { opacity: 0, scale: 0.8 }}
+        animate={
+          prefersReducedMotion
+            ? false
+            : {
+                opacity: isVisible ? 1 : 0,
+                scale: isVisible ? 1 : 0.8,
+              }
+        }
+        transition={
+          prefersReducedMotion ? undefined : { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
+        }
         type="button"
         onClick={handleToggle}
         aria-label={

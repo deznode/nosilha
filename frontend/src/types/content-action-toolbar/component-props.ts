@@ -138,6 +138,19 @@ export interface ContentActionToolbarProps {
 
   /** Optional: Custom class name for container */
   className?: string;
+
+  /**
+   * Enable scroll-triggered visibility (fade in after scrolling past threshold).
+   * When true, toolbar is hidden on page load and fades in after scrolling.
+   * @default false
+   */
+  showOnScroll?: boolean;
+
+  /**
+   * Scroll threshold in pixels (default: window.innerHeight - 81).
+   * Used when showOnScroll is true.
+   */
+  scrollThreshold?: number;
 }
 
 /**
@@ -277,6 +290,9 @@ export interface ContentActionFABProps {
     newCount: number,
     shouldBeSelected: boolean
   ) => void;
+
+  /** Visibility state for scroll-triggered display */
+  isVisible?: boolean;
 }
 
 /**
@@ -322,6 +338,9 @@ export interface ContentActionDesktopProps {
     newCount: number,
     shouldBeSelected: boolean
   ) => void;
+
+  /** Visibility state for scroll-triggered display */
+  isVisible?: boolean;
 }
 
 // ============================================================================
