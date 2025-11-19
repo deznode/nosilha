@@ -6,15 +6,15 @@
 
 ## Test Summary
 
-| Scenario (Checklist Ref) | Location | Result | Notes |
-| --- | --- | --- | --- |
-| Valid email submission (`@23`, `@113`) | Homepage & footer | ✅ | Clear success messaging, inputs reset, toast emitted in footer |
-| Empty field validation (`@33`, `@125`) | Homepage & footer | ✅ | Inline `role="alert"` copy “Email is required”, `aria-invalid="true"` |
-| Invalid format validation & edge cases (`@40`, `@47`, `@132`) | Homepage & footer | ✅ | All listed invalid formats return “Please enter a valid email address” |
-| Duplicate email handling (`@57`, `@140`) | Homepage & footer | ❌ | Duplicate submissions behave like new success; no friendly info state |
-| Double-click prevention (`@76`) | Homepage | ❌ | Button never disables nor shows “Subscribing…”, multiple requests fire |
-| Keyboard navigation (`@85`, `@177`) | Homepage & footer | ✅ | Inputs/buttons reachable via Tab order, SR alerts fire |
-| Toast behavior (`@118-119`, `@144-145`, `@167`) | Footer | ❌ | Toasts stack and remain indefinitely; no 5s (success) / 8s (error) auto-dismiss |
+| Scenario (Checklist Ref)                                      | Location          | Result | Notes                                                                           |
+| ------------------------------------------------------------- | ----------------- | ------ | ------------------------------------------------------------------------------- |
+| Valid email submission (`@23`, `@113`)                        | Homepage & footer | ✅     | Clear success messaging, inputs reset, toast emitted in footer                  |
+| Empty field validation (`@33`, `@125`)                        | Homepage & footer | ✅     | Inline `role="alert"` copy “Email is required”, `aria-invalid="true"`           |
+| Invalid format validation & edge cases (`@40`, `@47`, `@132`) | Homepage & footer | ✅     | All listed invalid formats return “Please enter a valid email address”          |
+| Duplicate email handling (`@57`, `@140`)                      | Homepage & footer | ❌     | Duplicate submissions behave like new success; no friendly info state           |
+| Double-click prevention (`@76`)                               | Homepage          | ❌     | Button never disables nor shows “Subscribing…”, multiple requests fire          |
+| Keyboard navigation (`@85`, `@177`)                           | Homepage & footer | ✅     | Inputs/buttons reachable via Tab order, SR alerts fire                          |
+| Toast behavior (`@118-119`, `@144-145`, `@167`)               | Footer            | ❌     | Toasts stack and remain indefinitely; no 5s (success) / 8s (error) auto-dismiss |
 
 ## Detailed Findings
 

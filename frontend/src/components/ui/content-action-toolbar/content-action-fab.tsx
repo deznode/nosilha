@@ -190,7 +190,9 @@ export function ContentActionFAB({
               }
         }
         transition={
-          prefersReducedMotion ? undefined : { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
+          prefersReducedMotion
+            ? undefined
+            : { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
         }
         type="button"
         onClick={handleToggle}

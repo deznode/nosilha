@@ -3,6 +3,7 @@ import { Lato, Merriweather } from "next/font/google";
 import clsx from "clsx";
 import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { Suspense } from "react";
 
 import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
@@ -142,7 +143,9 @@ export default function RootLayout({
           merriweather.variable
         )}
       >
-        <AnalyticsListener />
+        <Suspense fallback={null}>
+          <AnalyticsListener />
+        </Suspense>
         <QueryProvider>
           <AuthProvider>
             <ToastProvider>

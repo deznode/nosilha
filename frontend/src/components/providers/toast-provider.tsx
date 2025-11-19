@@ -27,7 +27,7 @@ const DEFAULT_DURATION: Record<Toast["variant"], number> = {
 
 export function ToastProvider({ children }: ToastProviderProps) {
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const timers = useRef<Record<string, number>>({});
 
   const dismissToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));

@@ -58,7 +58,9 @@ export function ContentActionDesktop({
           : { opacity: isVisible ? 1 : 0, x: isVisible ? 0 : -20 }
       }
       transition={
-        prefersReducedMotion ? undefined : { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
+        prefersReducedMotion
+          ? undefined
+          : { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
       }
     >
       {/* Background card container with rounded corners and shadow */}
