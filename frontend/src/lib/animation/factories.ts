@@ -3,7 +3,9 @@ import { Variants } from "framer-motion";
 import { motionDuration, motionEasing, motionDistance } from "./tokens";
 
 // Fade + Up entrance
-export function makeFadeInUp(distance: number = motionDistance.small): Variants {
+export function makeFadeInUp(
+  distance: number = motionDistance.small
+): Variants {
   return {
     hidden: { opacity: 0, y: distance },
     visible: {

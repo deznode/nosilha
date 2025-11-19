@@ -7,7 +7,6 @@ import { Sparkles, X } from "lucide-react";
 import {
   iconButtonTap,
   menuFadeIn,
-  makeScaleIn,
   motionDuration,
   motionEasing,
   motionDistance,
@@ -113,9 +112,6 @@ export function ContentActionFAB({
         animate: { opacity: 1, y: 0 },
         exit: { opacity: 0, y: motionDistance.small },
       };
-
-  // FAB entrance animation
-  const fabScaleIn = makeScaleIn();
 
   return (
     <div

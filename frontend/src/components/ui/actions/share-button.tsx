@@ -8,7 +8,7 @@ import {
 } from "@/types/content-action-toolbar/component-props";
 import { Share2, Link, Facebook, Twitter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { iconButtonTap, makeFadeInUp, motionDuration } from "@/lib/animation";
+import { iconButtonTap, makeFadeInUp } from "@/lib/animation";
 
 /**
  * Share Button Component
