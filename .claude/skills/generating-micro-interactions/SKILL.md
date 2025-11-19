@@ -19,8 +19,8 @@ entrypoint: skill:generate
 ## 🧠 Purpose & Scope
 This skill generates **React components that include micro-interactions** using:
 
-- **Next.js 15 App Router**
-- **React 19**
+- **Next.js 16 App Router**
+- **React 19.2**
 - **TailwindCSS**
 - **Framer Motion (Motion)**
 - **Radix UI primitives**
@@ -179,7 +179,7 @@ When invoked with a prompt, the skill will:
 3. Generate TypeScript code following:
 
    * React 19 conventions
-   * Next.js 15 Client Component rules
+   * Next.js 16 Client Component rules
    * TailwindCSS best practices
    * Framer Motion best practices
    * Accessibility & reduced-motion compliance

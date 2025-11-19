@@ -8,7 +8,7 @@ Nos Ilha is a community-driven cultural heritage hub for Brava Island, Cape Verd
 
 ### System Architecture Overview
 
-**Frontend** (Next.js 15): React 19, App Router, Tailwind CSS, ISR Caching, Supabase Auth
+**Frontend** (Next.js 16): React 19.2, App Router, Tailwind CSS, ISR Caching, Supabase Auth
 **Backend** (Spring Boot): Kotlin/JVM, PostgreSQL, JWT Auth, Domain-Driven, RESTful APIs
 **Infrastructure** (GCP): Cloud Run, Artifact Registry, Cloud Storage, Secret Manager, IAM
 **CI/CD** (GitHub Actions): Modular workflows, security scanning, auto-deployment, health checks
@@ -17,7 +17,7 @@ Nos Ilha is a community-driven cultural heritage hub for Brava Island, Cape Verd
 
 This is a **full-stack application** with four main components:
 
-- **Frontend**: Next.js 15 (App Router) with React 19, TypeScript, and Tailwind CSS
+- **Frontend**: Next.js 16 (App Router) with React 19.2, TypeScript, and Tailwind CSS
 - **Backend**: Spring Boot 3.4.7 with Kotlin, PostgreSQL (primary), and Google Cloud integrations
 - **Infrastructure**: Docker Compose for local development, Terraform for cloud deployment
 - **CI/CD**: Modular GitHub Actions workflows with automated security scanning and deployment
@@ -103,7 +103,7 @@ docker-compose exec postgres pg_dump -U nosilha nosilha_db > backup.sql  # Creat
 ## Development Environment Setup
 
 ### Prerequisites
-- **Node.js 18+** and npm
+- **Node.js 20.9+** and npm
 - **Java 21** (for backend)
 - **Docker** and Docker Compose
 - **PostgreSQL** (or use Docker Compose setup)
@@ -188,7 +188,7 @@ Domain-specific executors located in `.claude/skills/`. Each skill has detailed 
 
 Architecture planning specialists located in `.claude/agents/`. Agents create detailed specifications that the main agent implements.
 
-- **frontend-engineer** - Plans Next.js 15 + React 19 + TypeScript architecture (MUST reference `docs/DESIGN_SYSTEM.md`)
+- **frontend-engineer** - Plans Next.js 16 + React 19.2 + TypeScript architecture (MUST reference `docs/DESIGN_SYSTEM.md`)
 - **backend-engineer** - Plans Spring Boot + Kotlin API architecture (MUST reference `docs/API_CODING_STANDARDS.md`)
 
 > **Important**: Agents are planners only. They output specifications streamed to console. The main agent then implements using appropriate skills.
@@ -300,7 +300,7 @@ Agents are planning specialists that create architectural specifications. Use ag
 ### Authentication & Security Flow
 **Login**: Frontend (login-form.tsx) → Supabase Auth → JWT Token → AuthProvider (auth-provider.tsx)
 **API Requests**: Frontend → api.ts → JWT Header → Backend API → JwtAuthenticationFilter → Validate & Authorize
-**Protected Routes**: middleware.ts → Check Auth State → Allow/Redirect
+**Protected Routes**: proxy.ts → Check Auth State → Allow/Redirect
 
 ### Database Access
 - Use JPA repositories for database operations (see [`docs/API_CODING_STANDARDS.md`](docs/API_CODING_STANDARDS.md))
@@ -414,8 +414,8 @@ ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
 
 ## Active Technologies
-- TypeScript 5.x, React 19, Next.js 15 (App Router) + Tailwind CSS, Framer Motion (animations), Radix UI (accessible primitives), Lucide React (icons) (005-action-toolbar-refactor)
+- TypeScript 5.x, React 19.2, Next.js 16 (App Router) + Tailwind CSS, Framer Motion (animations), Radix UI (accessible primitives), Lucide React (icons) (005-action-toolbar-refactor)
 - N/A (frontend-only refactoring, uses existing backend API from feature 004) (005-action-toolbar-refactor)
 
 ## Recent Changes
-- 005-action-toolbar-refactor: Added TypeScript 5.x, React 19, Next.js 15 (App Router) + Tailwind CSS, Framer Motion (animations), Radix UI (accessible primitives), Lucide React (icons)
+- 005-action-toolbar-refactor: Added TypeScript 5.x, React 19.2, Next.js 16 (App Router) + Tailwind CSS, Framer Motion (animations), Radix UI (accessible primitives), Lucide React (icons)

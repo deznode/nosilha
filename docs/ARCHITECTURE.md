@@ -6,7 +6,7 @@ This document provides a comprehensive technical overview of the Nos Ilha platfo
 
 Nos Ilha is a modern, full-stack web application built with a microservices-inspired architecture, featuring:
 
-- **Frontend**: Next.js 15 with React 19 (Server Components + Client Components)
+- **Frontend**: Next.js 16 with React 19.2 (Server Components + Client Components)
 - **Backend**: Spring Boot 3.4.7 with Kotlin and domain-driven design
 - **Infrastructure**: Google Cloud Platform with Terraform Infrastructure as Code
 - **CI/CD**: Modular GitHub Actions workflows with comprehensive security scanning
@@ -87,7 +87,7 @@ User Request ──► Frontend (Next.js) ──► Supabase Auth ──► JWT 
 **Implementation Details:**
 - **Frontend**: `components/auth/login-form.tsx` handles user input
 - **Auth Provider**: `components/providers/auth-provider.tsx` manages session state
-- **Middleware**: `middleware.ts` protects routes and redirects unauthorized users
+- **Middleware**: `proxy.ts` protects routes and redirects unauthorized users
 - **Backend Filter**: `JwtAuthenticationFilter` validates tokens and extracts user claims
 - **API Client**: `lib/api.ts` automatically includes JWT headers in requests
 
@@ -144,7 +144,7 @@ File Upload ──► GCS Storage ──► Vision API ──► Metadata Extrac
 
 ## 🛠️ Component Architecture
 
-### Frontend Architecture (Next.js 15)
+### Frontend Architecture (Next.js 16)
 
 ```
 frontend/

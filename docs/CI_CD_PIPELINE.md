@@ -38,7 +38,7 @@ The CI/CD pipeline is built using GitHub Actions and supports:
 - **Google Cloud SDK (gcloud)**
 - **Docker**
 - **Git**
-- **Node.js 18+** and npm
+- **Node.js 20.9+** and npm
 - **Java 21** (OpenJDK or Oracle JDK)
 
 ### Google Cloud Setup

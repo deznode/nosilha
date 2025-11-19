@@ -265,7 +265,7 @@ npx @lhci/cli@latest autorun
 **For CI/CD:**
 - TypeScript 5.x - Type checking
 - ESLint 9.x - Code quality and linting
-- Next.js 15.5 - Build validation
+- Next.js 16.0.3 - Build validation
 
 **For Local Development (NOT in CI):**
 - Playwright 1.56 - E2E testing (Chromium only)

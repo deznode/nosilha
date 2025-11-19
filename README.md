@@ -32,7 +32,7 @@ This project is built with a modern, scalable, and robust technology stack desig
 
 | Layer                 | Technology                                                              | Purpose                                                                |
  | --------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| **Frontend** | [React](https://react.dev/) 19 + [Next.js](https://nextjs.org/) 15 (App Router) | UI, Server-Side Rendering (SSR), Incremental Static Regeneration (ISR) |
+| **Frontend** | [React](https://react.dev/) 19.2 + [Next.js](https://nextjs.org/) 16 (App Router) | UI, Server-Side Rendering (SSR), Incremental Static Regeneration (ISR) |
 |                       | [TypeScript](https://www.typescriptlang.org/)                           | Type safety and developer experience                                   |
 |                       | [Tailwind CSS](https://tailwindcss.com/) + [Catalyst UI](https://catalyst.tailwindui.com/) | Utility-first styling with professional component library             |
 |                       | [Supabase Auth](https://supabase.com/auth)                             | Authentication with JWT token management                               |
@@ -62,7 +62,7 @@ This project adheres to clean architecture principles to ensure separation of co
 │   Frontend      │    │    Backend      │    │  Infrastructure │
 │   (Next.js)     │    │ (Spring Boot)   │    │     (GCP)       │
 ├─────────────────┤    ├─────────────────┤    ├─────────────────┤
-│ • React 19      │◄──►│ • Kotlin/JVM    │◄──►│ • Cloud Run     │
+│ • React 19.2    │◄──►│ • Kotlin/JVM    │◄──►│ • Cloud Run     │
 │ • App Router    │    │ • PostgreSQL    │    │ • Artifact Reg. │
 │ • Tailwind CSS  │    │ • Firestore     │    │ • Cloud Storage │
 │ • ISR Caching   │    │ • JWT Auth      │    │ • Secret Mgr.   │
@@ -142,7 +142,7 @@ This modern architecture demonstrates the project's commitment to engineering ex
 
 ### Prerequisites
 
-- **Node.js 18+** and npm
+- **Node.js 20.9+** and npm
 - **Java 21** (OpenJDK or Oracle JDK)
 - **Docker** and Docker Compose
 - **PostgreSQL** (or use Docker Compose setup)

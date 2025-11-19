@@ -2,11 +2,11 @@
 
 # Nos Ilha Frontend
 
-The Nos Ilha frontend is a Next.js 15 / React 19 application that powers a cultural heritage hub for Brava Island, Cape Verde. It renders public editorial experiences, interactive maps, and lightweight admin workflows that coordinate with the Spring Boot backend. The UI system follows the brand principles documented in `../docs/DESIGN_SYSTEM.md`, while page-level behavior aligns with the reference architecture in `../docs/ARCHITECTURE.md`.
+The Nos Ilha frontend is a Next.js 16 / React 19.2 application that powers a cultural heritage hub for Brava Island, Cape Verde. It renders public editorial experiences, interactive maps, and lightweight admin workflows that coordinate with the Spring Boot backend. The UI system follows the brand principles documented in `../docs/DESIGN_SYSTEM.md`, while page-level behavior aligns with the reference architecture in `../docs/ARCHITECTURE.md`.
 
 ## Tech Stack
 
-- **Framework:** Next.js 15 (App Router, React Server Components) with React 19
+- **Framework:** Next.js 16 (App Router, React Server Components) with React 19.2
 - **Styling:** Tailwind CSS v4 semantic tokens, custom CSS animations, Merriweather + Lato fonts
 - **State & Data:** TanStack Query 5, Zustand stores, React Hook Form + Zod validation
 - **Mapping & Media:** Mapbox GL v3, react-map-gl, Framer Motion animations
