@@ -65,7 +65,7 @@ export default function Banner({
 
   return (
     <div
-      className={`relative isolate flex items-center gap-x-6 overflow-hidden px-6 py-2.5 sm:px-3.5 sm:before:flex-1 ${baseClasses}`}
+      className={`relative isolate flex items-center gap-x-4 overflow-hidden px-3.5 py-2 sm:px-4 sm:py-2.5 sm:before:flex-1 lg:px-6 lg:py-3 ${baseClasses}`}
     >
       <div
         aria-hidden="true"
@@ -95,7 +95,7 @@ export default function Banner({
           className="aspect-[577/310] w-[36.0625rem] bg-gradient-to-r from-[#D90368] to-[#005A8D] opacity-50 dark:opacity-60"
         />
       </div>
-      <p className="text-sm/6">
+      <p className="text-xs/5 sm:text-sm/6">
         {linkUrl ? (
           <a
             href={linkUrl}

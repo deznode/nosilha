@@ -1,6 +1,5 @@
 import Image from "next/image";
 import {
-  StarIcon,
   MapPinIcon,
   PhoneIcon,
   ClockIcon,
@@ -11,27 +10,13 @@ import { ContributePhotosSection } from "@/components/ui/contribute-photos-secti
 import { ContentActionToolbar } from "@/components/ui/content-action-toolbar";
 import { ImageGallery } from "@/components/ui/image-gallery";
 import { RelatedContent } from "@/components/ui/related-content";
+import StarRating from "@/components/ui/start-rating";
 import { getHotelDetails, getRestaurantDetails } from "@/lib/api-validation";
 import { siteConfig } from "@/lib/metadata";
 import type { DirectoryEntry } from "@/types/directory";
 
 export interface DirectoryEntryDetailPageContentProps {
   entry: DirectoryEntry;
-}
-
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <div className="flex items-center">
-      {[...Array(5)].map((_, i) => (
-        <StarIcon
-          key={i}
-          className={`h-5 w-5 ${
-            rating > i ? "text-sunny-yellow" : "text-text-tertiary"
-          }`}
-        />
-      ))}
-    </div>
-  );
 }
 
 function CategorySpecificDetails({ entry }: { entry: DirectoryEntry }) {
@@ -106,7 +91,7 @@ export function DirectoryEntryDetailPageContent({
   const sampleImages: string[] = [];
 
   return (
-    <div className="bg-off-white font-sans">
+    <div className="bg-off-white pb-24 font-sans md:pb-12">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="relative h-[400px] w-full overflow-hidden rounded-xl shadow-lg">
           {entry.imageUrl ? (

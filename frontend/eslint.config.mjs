@@ -17,6 +17,7 @@ const eslintConfig = [
       "out/",
       "build/",
       "dist/",
+      "storybook-static/",
       // Test outputs
       "coverage/",
       "test-results/",

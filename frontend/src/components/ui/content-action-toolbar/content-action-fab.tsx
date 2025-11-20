@@ -116,7 +116,7 @@ export function ContentActionFAB({
   return (
     <div
       ref={fabRef}
-      className="fixed right-4 bottom-4 z-50"
+      className="fixed right-4 bottom-6 z-50 sm:bottom-8"
       data-testid="content-action-fab"
       aria-hidden={!isVisible}
       style={{ pointerEvents: isVisible ? "auto" : "none" }}

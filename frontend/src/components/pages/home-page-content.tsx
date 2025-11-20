@@ -116,6 +116,7 @@ export function HomePageContent({ featuredEntries }: HomePageContentProps) {
           <PageHeader
             title="Featured Highlights"
             subtitle="Get a glimpse of the unique places and experiences Brava has to offer."
+            as="h2"
           />
           <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 md:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-4">
             {featuredEntries.slice(0, 4).map((entry) => (

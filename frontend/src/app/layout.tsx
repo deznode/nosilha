@@ -143,6 +143,12 @@ export default function RootLayout({
           merriweather.variable
         )}
       >
+        <a
+          href="#main-content"
+          className="focus:bg-background-primary focus:text-text-primary focus:ring-ocean-blue sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:shadow-lg focus:ring-2 focus:ring-offset-2 focus:outline-none"
+        >
+          Skip to main content
+        </a>
         <Suspense fallback={null}>
           <AnalyticsListener />
         </Suspense>
@@ -153,14 +159,16 @@ export default function RootLayout({
                 {/* 3. Render the global Header, main content, and Footer */}
                 <Header className="print:hidden" />
                 {/* Cape Verde World Cup 2026 Celebration Banner - Below Header */}
-                <div className="sticky top-16 z-50 print:hidden">
+                <div className="md:sticky md:top-16 md:z-50 print:hidden">
                   <Banner
                     title="Tubarões Azuis: Mundial 2026!"
                     message="From Pawtucket to Brava, Boston to Praia - the Blue Sharks made history. Read the inside story of Cape Verde's impossible dream."
                     linkUrl="https://www.bbc.com/sport/football/articles/c04q0gd0yedo"
                   />
                 </div>
-                <main className="animate-fade-in flex-grow">{children}</main>
+                <main id="main-content" className="animate-fade-in flex-grow">
+                  {children}
+                </main>
                 <div className="print:hidden">
                   <Footer />
                 </div>

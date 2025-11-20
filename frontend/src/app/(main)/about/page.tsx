@@ -112,7 +112,7 @@ export default function AboutPage() {
                 Modern Architecture
               </h4>
               <p className="text-text-secondary mb-4">
-                Built with Next.js 15, React 19, and Spring Boot, our platform
+                Built with Next.js 16, React 19, and Spring Boot, our platform
                 combines cutting-edge web technology with robust backend
                 services to deliver a fast, accessible experience for all users.
               </p>
@@ -265,7 +265,7 @@ export default function AboutPage() {
 // Generate metadata for SEO
 export async function generateMetadata() {
   return {
-    title: "About Nos Ilha | Community-Driven Platform for Brava Island",
+    title: "About Nos Ilha - Community-Driven Platform for Brava Island",
     description:
       "Learn about Nos Ilha, a volunteer-driven, open-source platform celebrating the cultural heritage and natural beauty of Brava Island, Cape Verde.",
     openGraph: {

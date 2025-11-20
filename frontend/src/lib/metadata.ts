@@ -64,7 +64,8 @@ export function generatePageMetadata(options: PageMetadataOptions): Metadata {
   } = options;
 
   const url = `${baseUrl}${path}`;
-  const fullTitle = `${title} | ${siteName}`;
+  // Don't append siteName here - let Next.js title template handle it
+  const fullTitle = title;
 
   // Default Open Graph image
   const defaultOgImage: OpenGraphImage = {

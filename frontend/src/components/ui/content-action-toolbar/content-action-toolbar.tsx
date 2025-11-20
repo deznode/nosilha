@@ -15,11 +15,11 @@ import { getReactionCounts } from "@/lib/api";
  * Content Action Toolbar - Main Container
  *
  * Root container that switches between desktop and mobile layouts based on viewport width.
- * - Desktop (≥768px): Fixed right-rail toolbar (ContentActionDesktop)
- * - Mobile (<768px): Floating Action Button (ContentActionFAB)
+ * - Desktop (≥1024px): Fixed right-rail toolbar (ContentActionDesktop)
+ * - Mobile/Tablet (<1024px): Floating Action Button (ContentActionFAB)
  *
  * Responsibilities:
- * - Detect viewport width using useMediaQuery hook (768px breakpoint)
+ * - Detect viewport width using useMediaQuery hook (1024px breakpoint)
  * - Conditionally render layout variant based on screen size
  * - Pass content context (slug, title, URL) to child components
  *
@@ -59,8 +59,8 @@ export function ContentActionToolbar({
   const [reactions, setReactions] = useState<Reaction[]>(initialReactions);
 
   // Detect viewport width using media query hook
-  // Desktop: min-width 768px (Tailwind md: breakpoint)
-  const isDesktop = useMediaQuery("(min-width: 768px)");
+  // Desktop rail only at >=1024px to avoid crowding tablet layouts
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   // Calculate scroll threshold (default: window.innerHeight - 81px header height)
   const defaultThreshold =
