@@ -1,3 +1,10 @@
+/* ========================================
+ * NOS ILHA BRAND SYSTEM — SYNC SOURCE
+ * Tokens derived from /brand/assets/palette.json
+ * To update: edit palette.json then update values here.
+ * pnpm run sync:brand 
+ * ======================================== */
+
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -10,13 +17,16 @@
   --animate-glow: glow 4s ease-in-out infinite;
 
   /* Brand Color Palette */
-  --color-ocean-blue: #005a8d;
+  --color-ocean-blue: #005a85;
   --color-valley-green: #3e7d5a;
   --color-bougainvillea-pink: #d90368;
   --color-sunny-yellow: #f7b801;
   --color-off-white: #f8f9fa;
   --color-volcanic-gray: #6c757d;
   --color-volcanic-gray-dark: #343a40;
+  --color-accent-error: #dc2626;
+  --color-accent-success: #059669;
+  --color-accent-warning: #d97706;
 
   /* Accent Colors for UI States */
   --color-accent-error: #dc2626;
