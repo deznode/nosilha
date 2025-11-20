@@ -13,7 +13,6 @@ import type { StorybookConfig } from "@storybook/nextjs-vite";
 const config: StorybookConfig = {
   stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
   addons: [
-    "@chromatic-com/storybook", // Visual testing and comprehensive addon bundle
     "@storybook/addon-docs", // Documentation addon
     "@storybook/addon-a11y", // Accessibility testing (KEEP - valuable for local validation)
     // Vitest integration removed - use dedicated npm run test:unit instead

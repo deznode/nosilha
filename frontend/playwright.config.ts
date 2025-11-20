@@ -1,9 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
+import dotenv from "dotenv";
 
 // Load environment variables from .env.local for testing
 try {
-  require("dotenv").config({ path: ".env.local" });
-} catch (e) {
+  dotenv.config({ path: ".env.local" });
+} catch (_e) {
   // dotenv is optional for testing
 }
 

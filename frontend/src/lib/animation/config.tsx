@@ -1,13 +1,8 @@
 // lib/animation/config.ts
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react";
+import { createContext, useContext, ReactNode } from "react";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
 
 interface MotionConfig {
   reducedMotion: boolean;
@@ -18,18 +13,7 @@ const MotionConfigContext = createContext<MotionConfig>({
 });
 
 export function MotionConfigProvider({ children }: { children: ReactNode }) {
-  const [reducedMotion, setReducedMotion] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mq.matches);
-
-    const listener = (event: MediaQueryListEvent) =>
-      setReducedMotion(event.matches);
-
-    mq.addEventListener("change", listener);
-    return () => mq.removeEventListener("change", listener);
-  }, []);
+  const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
   return (
     <MotionConfigContext.Provider value={{ reducedMotion }}>

@@ -4,6 +4,29 @@ import Image from "next/image";
 import { InformationCircleIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 
+// Extracted outside component to prevent state reset on re-render
+function ImagePlaceholder({
+  width,
+  height,
+  isCircular,
+}: {
+  width?: number | string;
+  height?: number | string;
+  isCircular?: boolean;
+}) {
+  return (
+    <div
+      className={`bg-background-secondary flex items-center justify-center ${isCircular ? "rounded-full" : "rounded-lg"}`}
+      style={{ width: width || "100%", height: height || "100%" }}
+    >
+      <div className="p-4 text-center">
+        <InformationCircleIcon className="text-text-tertiary mx-auto mb-2 h-8 w-8" />
+        <p className="text-text-tertiary text-xs">Image not available</p>
+      </div>
+    </div>
+  );
+}
+
 type ImageWithCourtesyProps = {
   src: string;
   alt: string;
@@ -72,25 +95,6 @@ export function ImageWithCourtesy({
   };
 
   // Smart tooltip positioning logic
-  // Fallback placeholder component for missing images
-  const ImagePlaceholder = ({
-    width: w,
-    height: h,
-  }: {
-    width?: number;
-    height?: number;
-  }) => (
-    <div
-      className={`bg-background-secondary flex items-center justify-center ${isCircular ? "rounded-full" : "rounded-lg"}`}
-      style={{ width: w || width || "100%", height: h || height || "100%" }}
-    >
-      <div className="p-4 text-center">
-        <InformationCircleIcon className="text-text-tertiary mx-auto mb-2 h-8 w-8" />
-        <p className="text-text-tertiary text-xs">Image not available</p>
-      </div>
-    </div>
-  );
-
   const getTooltipPositionClasses = (position: string, iconPos: string) => {
     const baseClasses =
       "absolute px-2 py-1 bg-background-tertiary/95 text-text-primary text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap backdrop-blur-sm z-10 pointer-events-none";
@@ -134,7 +138,11 @@ export function ImageWithCourtesy({
           style={{ width: width || 112, height: height || 112 }}
         >
           {imageError ? (
-            <ImagePlaceholder width={width || 112} height={height || 112} />
+            <ImagePlaceholder
+              width={width || 112}
+              height={height || 112}
+              isCircular={isCircular}
+            />
           ) : (
             <Image
               src={src}
@@ -180,7 +188,11 @@ export function ImageWithCourtesy({
           style={{ width: width || 112, height: height || 112 }}
         >
           {imageError ? (
-            <ImagePlaceholder width={width || 112} height={height || 112} />
+            <ImagePlaceholder
+              width={width || 112}
+              height={height || 112}
+              isCircular={isCircular}
+            />
           ) : (
             <Image
               src={src}
@@ -206,7 +218,7 @@ export function ImageWithCourtesy({
   return (
     <div className="relative h-full w-full">
       {imageError ? (
-        <ImagePlaceholder />
+        <ImagePlaceholder isCircular={isCircular} />
       ) : (
         <Image
           src={src}

@@ -2,6 +2,7 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
 
 interface VideoHeroSectionProps {
   videoSrc: string;
@@ -31,17 +32,7 @@ export function VideoHeroSection({
   });
 
   const [isVideoReady, setIsVideoReady] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
-
-  // Check for reduced motion preference
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mediaQuery.matches);
-
-    const handleChange = () => setReducedMotion(mediaQuery.matches);
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
   // Handle video play/pause based on intersection
   useEffect(() => {

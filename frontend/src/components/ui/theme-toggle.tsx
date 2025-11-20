@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   SunIcon,
@@ -9,59 +9,34 @@ import {
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { useTheme, useUiStore } from "@/stores/uiStore";
-import { iconFlip, motionDuration, motionEasing } from "@/lib/animation";
+import { iconFlip } from "@/lib/animation";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
+
+// Apply theme helper - defined outside component to avoid recreation
+function applyTheme(
+  newTheme: "system" | "light" | "dark",
+  systemPrefersDark: boolean
+) {
+  const shouldBeDark =
+    newTheme === "dark" || (newTheme === "system" && systemPrefersDark);
+
+  if (shouldBeDark) {
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+  }
+}
 
 export function ThemeToggle() {
   const theme = useTheme();
   const setTheme = useUiStore((state) => state.setTheme);
-  const [systemTheme, setSystemTheme] = useState<"light" | "dark">("light");
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const systemTheme = prefersDarkMode ? "dark" : "light";
 
+  // Apply theme when theme or system preference changes
   useEffect(() => {
-    // Function to update system theme
-    const updateSystemTheme = () => {
-      const prefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-      setSystemTheme(prefersDark ? "dark" : "light");
-    };
-
-    // Set initial system theme
-    updateSystemTheme();
-
-    // Listen for system theme changes
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    mediaQuery.addEventListener("change", updateSystemTheme);
-
-    // Apply initial theme
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
-    applyTheme(theme, prefersDark);
-
-    // Cleanup listener
-    return () => mediaQuery.removeEventListener("change", updateSystemTheme);
-  }, [theme]);
-
-  // Update theme when systemTheme changes (for system mode)
-  useEffect(() => {
-    if (theme === "system") {
-      applyTheme("system", systemTheme === "dark");
-    }
-  }, [systemTheme, theme]);
-
-  const applyTheme = (
-    newTheme: "system" | "light" | "dark",
-    systemPrefersDark: boolean
-  ) => {
-    const shouldBeDark =
-      newTheme === "dark" || (newTheme === "system" && systemPrefersDark);
-
-    if (shouldBeDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  };
+    applyTheme(theme, prefersDarkMode);
+  }, [theme, prefersDarkMode]);
 
   const cycleTheme = () => {
     const themes: ("system" | "light" | "dark")[] = ["system", "light", "dark"];

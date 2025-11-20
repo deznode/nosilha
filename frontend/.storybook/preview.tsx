@@ -20,6 +20,25 @@ const withMockRouter: Decorator = (Story) => (
 );
 
 /**
+ * Theme wrapper component to toggle between light and dark modes
+ */
+function ThemeWrapper({
+  children,
+  theme,
+}: {
+  children: React.ReactNode;
+  theme: string;
+}) {
+  useEffect(() => {
+    const html = document.documentElement;
+    html.classList.remove("light", "dark");
+    html.classList.add(theme);
+  }, [theme]);
+
+  return <>{children}</>;
+}
+
+/**
  * Theme decorator to toggle between light and dark modes
  * @param Story Story component
  * @param context Storybook context
@@ -29,13 +48,11 @@ const withTheme: Decorator = (Story, context) => {
   const { globals } = context;
   const theme = globals.theme || "light";
 
-  useEffect(() => {
-    const html = document.documentElement;
-    html.classList.remove("light", "dark");
-    html.classList.add(theme);
-  }, [theme]);
-
-  return <Story />;
+  return (
+    <ThemeWrapper theme={theme}>
+      <Story />
+    </ThemeWrapper>
+  );
 };
 
 /**

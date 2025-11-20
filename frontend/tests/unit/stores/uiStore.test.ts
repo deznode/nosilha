@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { useUiStore, useTheme, useActiveModal } from "@/stores/uiStore";
+import { useUiStore } from "@/stores/uiStore";
 
 describe("uiStore", () => {
   beforeEach(() => {

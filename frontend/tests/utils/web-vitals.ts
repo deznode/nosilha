@@ -75,7 +75,7 @@ export async function collectWebVitals(page: Page): Promise<WebVitals> {
             type: "largest-contentful-paint",
             buffered: true,
           });
-        } catch (e) {
+        } catch (_e) {
           // LCP observer not supported
         }
 
@@ -92,7 +92,7 @@ export async function collectWebVitals(page: Page): Promise<WebVitals> {
             });
           });
           fidObserver.observe({ type: "first-input", buffered: true });
-        } catch (e) {
+        } catch (_e) {
           // FID observer not supported
         }
 
@@ -101,15 +101,22 @@ export async function collectWebVitals(page: Page): Promise<WebVitals> {
           let clsValue = 0;
           const clsObserver = new PerformanceObserver((list) => {
             const entries = list.getEntries();
-            entries.forEach((entry: any) => {
-              if (!entry.hadRecentInput) {
-                clsValue += entry.value;
+            entries.forEach(
+              (
+                entry: PerformanceEntry & {
+                  hadRecentInput?: boolean;
+                  value?: number;
+                }
+              ) => {
+                if (!entry.hadRecentInput) {
+                  clsValue += entry.value || 0;
+                }
               }
-            });
+            );
             metrics.cls = clsValue;
           });
           clsObserver.observe({ type: "layout-shift", buffered: true });
-        } catch (e) {
+        } catch (_e) {
           // CLS observer not supported
         }
       }
