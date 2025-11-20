@@ -11,7 +11,6 @@ import { NosilhaLogo } from "@/components/ui/logo";
 import { Logo as Logo2 } from "@/components/ui/logo2";
 import { Logo as Logo3 } from "@/components/ui/logo3";
 import { Logo as Logo4 } from "@/components/ui/logo4";
-import NewsletterSignup from "@/components/ui/newsletter";
 import { SocialMediaLinks } from "@/components/ui/social-media-links";
 import Banner from "@/components/ui/banner";
 import { SuggestImprovementForm } from "@/components/ui/actions/suggest-improvement-form";
@@ -221,7 +220,6 @@ export default function TestPage() {
           </div>
         </section>
 
-        <NewsletterSignup />
         <SocialMediaLinks />
         <RelatedContent contentId={showcaseContentId} />
 

@@ -3,6 +3,8 @@ node_modules
 .next
 build
 dist
+out
+storybook-static
 
 # Lock files
 package-lock.json
@@ -15,6 +17,20 @@ pnpm-lock.yaml
 # Generated files
 **/*.min.js
 **/*.min.css
+*.d.ts
+next-env.d.ts
+
+# Third-party code
+src/components/catalyst-ui
+
+# Cache directories
+.turbo
+.vercel
+.cache
+.nyc_output
+
+# Logs
+*.log
 
 # Test coverage
 coverage

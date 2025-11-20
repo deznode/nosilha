@@ -436,11 +436,11 @@
 - [ ] All User Story 5 scenarios complete
 - [ ] All Phase 8 validation scenarios complete
 
-**Tested By**: ********\_********
-**Date**: ********\_********
-**Environment**: ********\_********
-**Browser(s)**: ********\_********
-**Screen Reader**: ********\_********
+**Tested By**: **\*\*\*\***\_**\*\*\*\***
+**Date**: **\*\*\*\***\_**\*\*\*\***
+**Environment**: **\*\*\*\***\_**\*\*\*\***
+**Browser(s)**: **\*\*\*\***\_**\*\*\*\***
+**Screen Reader**: **\*\*\*\***\_**\*\*\*\***
 
 **Notes/Issues Found**:
 

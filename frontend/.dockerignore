@@ -27,10 +27,7 @@ Thumbs.db
 .gitignore
 
 # Environment files (these should be set via container env vars)
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env*
 
 # Testing
 coverage/
@@ -39,8 +36,17 @@ jest.config.js
 **/*.test.*
 **/*.spec.*
 __tests__/
+tests/
 test-results/
 playwright-report/
+playwright/.cache/
+
+# Cache directories
+.turbo/
+.cache/
+
+# Logs
+*.log
 
 # Documentation
 README.md

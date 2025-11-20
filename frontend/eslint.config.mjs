@@ -86,6 +86,15 @@ const eslintConfig = [
       ],
     },
   },
+  // Test file overrides - relaxed rules for test code
+  {
+    files: ["tests/**/*.ts", "tests/**/*.tsx", "tests/**/*.js"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off", // Mocks need type flexibility
+      "@typescript-eslint/no-unused-vars": "warn", // Demote to warning
+      "@typescript-eslint/no-require-imports": "off", // Allow CommonJS in setup files
+    },
+  },
   ...storybook.configs["flat/recommended"],
 ];
 
