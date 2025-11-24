@@ -15,6 +15,12 @@ tags:
 language: en
 slug: history
 
+# Hero section
+hero:
+  videoSrc: "/images/history/brava-overview.mp4"
+  title: "Our Island, Our Story: The History of Brava"
+  subtitle: "From Vila Nova Sintra's heights, discover the rich tapestry of Brava Island"
+
 # Structured data for components
 sections:
   - title: "Volcanic Foundations"
@@ -81,6 +87,40 @@ timeline:
   - date: "2004-Present"
     title: "Modern Challenges & Innovation"
     description: "Brava's airport closes permanently due to dangerous crosswinds, leaving the island entirely dependent on ferry service and reinforcing its isolation. Yet this challenge sparks innovation: cloud water collection projects leverage the island's unique microclimate, while contemporary artists like Vuca Pinheiro explicitly honor Eugénio Tavares, and the diaspora continues producing leaders like District Attorney David Soares."
+
+# Icon Grid Data for Living Traditions section
+iconGridItems:
+  - icon: "musical-note"
+    title: "The Brava Morna"
+    description: "Brava pioneered the definitive morna style—slow tempo (around 60 beats per minute), romantic themes, and accentuated lyricism rooted in 19th-century Romanticism. Eugénio Tavares transformed it \"from laughter to weeping,\" codifying sodade as the emotional core of Cape Verdean identity. This musical form became the nation's most powerful cultural export."
+    iconColor: "ocean-blue"
+  - icon: "book-open"
+    title: "Crioulo Literature"
+    description: "Brava was the birthplace of Cape Verdean literature in the vernacular. Tavares pioneered writing in Brava Crioulo, elevating the people's language to high art and literary prestige. This radical act validated Cape Verdean cultural identity and inspired generations of writers to celebrate their distinct linguistic heritage."
+    iconColor: "valley-green"
+  - icon: "globe-alt"
+    title: "Transnational Identity"
+    description: "Brava's unique identity transcends geography—it exists simultaneously in Cape Verde and New England. This hyphenated identity, forged through whaling and maintained through family ties, remittances, and cultural exchange, creates communities that are neither fully Cape Verdean nor American, but uniquely Bravan."
+    iconColor: "bougainvillea-pink"
+
+# Statistics Grid Data
+statisticsData:
+  - value: "~6,000"
+    label: "Island Residents"
+    description: "Smallest inhabited island"
+    color: "ocean-blue"
+  - value: "250+"
+    label: "Years of Diaspora"
+    description: "Since 1774 Great Famine"
+    color: "valley-green"
+  - value: "1867"
+    label: "Tavares Born"
+    description: "Cultural foundation year"
+    color: "bougainvillea-pink"
+  - value: "Global"
+    label: "Cultural Impact"
+    description: "Beyond island's size"
+    color: "sunny-yellow"
 
 citations:
   # Geological & Formation Sources
@@ -170,27 +210,28 @@ citations:
     url: "https://apics-online.info/surveys/31"
 ---
 
-<VideoHeroSection
-  videoSrc="/images/history/brava-overview.mp4"
-  title="Our Island, Our Story: The History of Brava"
-  subtitle="From Vila Nova Sintra's heights, discover the rich tapestry of Brava Island"
-  className="h-[calc(100vh-81px)]"
-/>
-
 <PageHeader
   title="History & Heritage"
   subtitle="Discover the rich cultural tapestry and fascinating history of Brava Island, from its volcanic origins to its vibrant musical traditions."
 />
 
-<PrintButton className="mb-8" />
+<Section variant="card">
+<div className="mx-auto max-w-4xl">
 
-## Introduction
+<p className="text-text-secondary mb-6 text-lg">
+Brava Island occupies a unique position in Cape Verdean history—a place where geography and circumstance converged to create something extraordinary. Known by the Portuguese name "Brava" (wild or brave) for its formidable volcanic terrain, it earned the gentler title *Ilha das Flores* (Island of Flowers) for the relative abundance of its mist-fed valleys compared to the more arid neighboring islands.
+</p>
 
-Brava Island occupies a unique position in Cape Verdean history—a place where geography and circumstance converged to create something extraordinary. Known by the Portuguese name **"Brava"** (wild or brave) for its formidable volcanic terrain, it earned the gentler title *Ilha das Flores* (Island of Flowers) for the relative abundance of its mist-fed valleys compared to the more arid neighboring islands.
-
+<p className="text-text-secondary mb-6">
 At just 62.5 square kilometers, Brava is the smallest inhabited island in the Cape Verde archipelago, yet it has produced a cultural and political influence disproportionate to its size. This phenomenon stems from a defining moment in 1680 when a catastrophic eruption of Pico do Fogo forced thousands of refugees from the neighboring island to seek sanctuary on Brava's shores. Unlike most colonial settlements founded through conquest, Brava's society was forged through collective compassion and survival.
+</p>
 
+<p className="text-text-secondary">
 From Vila Nova Sintra, the mountain capital established around 1700 as protection against coastal pirate raids, the island's entire history unfolds. The American whaling industry of the 18th and 19th centuries transformed Brava from an isolated Portuguese colony into a transnational community, with ships carrying Bravense men to New England ports and eventually establishing the "Brava Packet Trade" that would bind families across the Atlantic for generations. This maritime connection gave birth to the profound cultural sentiment of *sodade*—the bittersweet longing that defines the Cape Verdean experience of separation and remembrance.
+</p>
+
+</div>
+</Section>
 
 <ContentActionToolbar
   contentId="11111111-2222-4333-8444-555555555555"
@@ -208,86 +249,145 @@ From Vila Nova Sintra, the mountain capital established around 1700 as protectio
   showOnScroll={true}
 />
 
-## A Land Born of Fire: From Submarine Birth to Refuge Island
+<Section variant="card">
 
-*The dramatic landscape you see from Vila Nova Sintra today tells an ancient story of fire, sea, and human resilience.*
+<h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
+A Land Born of Fire: From Submarine Birth to Refuge Island
+</h3>
 
-### Geological Genesis
+<p className="text-text-secondary mb-8 text-center italic">
+The dramatic landscape you see from Vila Nova Sintra today tells an ancient story of fire, sea, and human resilience.
+</p>
 
+<TwoColumnGrid className="mb-8">
+<div>
+
+<h4 className="text-text-primary mb-3 text-lg font-semibold">Geological Genesis</h4>
+
+<p className="text-text-secondary mb-4">
 Brava's story begins in the ocean depths 2-3 million years ago, when it formed as a submarine volcano, its foundation built from pillow lavas and hyaloclastites—the unmistakable signatures of underwater eruptions where molten rock meets cold seawater.
+</p>
 
+<p className="text-text-secondary mb-4">
 Around 250,000 years ago, a violent new phase began with highly explosive volcanism above sea level, creating the pyroclastic deposits and steep-sided topography that characterizes the island today. Though no historical eruptions are recorded, persistent seismic activity and youthful volcanic features mean Brava cannot be considered extinct.
+</p>
 
+<p className="text-text-secondary">
 This geological restlessness creates a landscape of precarious beauty—the very ground beneath one's feet is untrustworthy, perhaps contributing to the cultural phenomenon of *sodade*, that deep melancholy and longing for stability.
+</p>
 
+</div>
+<div>
 
-### The Great Migration of 1680
+<h4 className="text-text-primary mb-3 text-lg font-semibold">The Great Migration of 1680</h4>
 
+<p className="text-text-secondary mb-4">
 Portuguese explorer Diogo Afonso discovered uninhabited Brava in 1462, but permanent settlement didn't begin until around 1620, with only a few hundred fishermen from Madeira and the Azores. The island's destiny changed forever in 1680 when Mount Fogo's catastrophic eruption engulfed the neighboring island in ash, destroying farmland and forcing a desperate mass exodus.
+</p>
 
+<p className="text-text-secondary mb-4">
 Brava, with its fertile valleys and fresh water, became the primary sanctuary. This sudden influx established deep demographic links—to this day, most Bravan families can trace their origins to Fogo, whether wealthy European landowners or the enslaved people they brought with them.
+</p>
 
+<p className="text-text-secondary">
 Frequent pirate attacks along the coast soon compelled the refugees to seek safety inland, leading to the founding of the capital, Vila Nova Sintra, around 1700, nestled securely at over 500 meters elevation.
+</p>
 
-### A Community Forged by Compassion
+</div>
+</TwoColumnGrid>
 
+<CalloutBox title="A Community Forged by Compassion" variant="ocean-valley">
 Unlike many colonial settlements built through conquest, Brava's society was forged through an act of collective compassion and survival. This refugee foundation created a unique cultural DNA of resilience, community solidarity, and acceptance of otherness that continues to define the island's character today.
+</CalloutBox>
+
+</Section>
 
 <ThematicSections sections={sections} sectionTitle="Chapters of Brava's Story" />
 
-## The Yankee Connection: Whaling & Maritime Heritage
+<Section variant="default">
 
-### An Engine of Globalization
+<SectionTitle centered>The Yankee Connection: Whaling & Maritime Heritage</SectionTitle>
 
+<ContentCard className="mb-8">
+<TwoColumnGrid>
+<div>
+
+<h4 className="text-text-primary mb-4 font-serif text-xl font-bold">
+An Engine of Globalization
+</h4>
+
+<p className="text-text-secondary mb-4">
 From the late 18th century, American whaling ships from New Bedford and other New England ports began frequenting Cape Verdean waters as part of their trans-Atlantic routes to Pacific hunting grounds. Brava's sheltered harbors at Fajã de Água and Furna became essential provisioning stops, where vessels could replenish fresh water, supplies, and—crucially—crew.
+</p>
 
+<p className="text-text-secondary mb-4">
 This maritime traffic created an unintentional engine of globalization that permanently broke Brava's isolation. Yankee captains, recognizing exceptional maritime skills among local men, began systematic recruitment. For Bravans facing recurring cycles of drought, famine, and poverty, a berth on a whaleship offered wages and a chance at a new life.
+</p>
 
+<p className="text-text-secondary">
 This recruitment transformed Brava from an isolated Portuguese colony into a transnational community, perceived as more "European" and less "African" than its neighbors due to these deep American connections.
+</p>
 
+</div>
+
+<div className="relative aspect-video w-full">
 <ImageWithCourtesy
   src="/images/history/whaling-heritage3.jpg"
   alt="Historic whaling vessel representing the maritime connection between Brava and New England"
   courtesy="the New Bedford Whaling Museum"
-  width={800}
-  height={450}
-  className="my-8"
+  fill
+  className="rounded-lg object-cover object-top"
 />
+</div>
 
-### The "Brava Packet Trade"
+</TwoColumnGrid>
+</ContentCard>
 
+<CardGrid columns={2}>
+<ContentCard>
+
+<h4 className="text-text-primary mb-3 text-lg font-semibold">The "Brava Packet Trade"</h4>
+
+<p className="text-text-secondary mb-3">
 As whaling declined, old whaling vessels were converted into "packet ships" that formalized emigration patterns with regular service between Brava and New England. These aging but treasured vessels became the lifeline of a transnational community, carrying passengers, mail, cargo, and the emotional threads binding families across the Atlantic.
+</p>
 
-**Notable Packet Ships:**
-- **Nellie May:** Endured a harrowing 90-day crossing in 1893
-- **Valkyria:** Known as the "Queen of the Cape Verde Packets"
-- **Ernestina:** Famous Grand Banks schooner turned packet ship
-- **Regular Routes:** Seasonal service connecting Brava to New Bedford, Boston
+<ul className="text-text-secondary space-y-1 text-sm">
+<li>• **Nellie May:** Endured a harrowing 90-day crossing in 1893</li>
+<li>• **Valkyria:** Known as the "Queen of the Cape Verde Packets"</li>
+<li>• **Ernestina:** Famous Grand Banks schooner turned packet ship</li>
+<li>• **Regular Routes:** Seasonal service connecting Brava to New Bedford, Boston</li>
+</ul>
 
-### A Transnational Lifeline
+</ContentCard>
 
+<ContentCard>
+
+<h4 className="text-text-primary mb-3 text-lg font-semibold">A Transnational Lifeline</h4>
+
+<p className="text-text-secondary mb-3">
 For over a century, whaling and packet trade became Brava's principal industry, creating seasonal rhythms that persist today. Ships arrived in spring bringing workers for American cranberry bogs and textile mills, returning in autumn with American goods, letters from family, and crucial remittances that became a pillar of the local economy.
+</p>
 
+<p className="text-text-secondary text-sm">
 This wasn't merely commerce—it was the vital circulatory system of a community that existed simultaneously on both sides of the Atlantic. The flow of people, money, goods, and cultural exchange created an identity that was neither fully Cape Verdean nor American, but uniquely Bravan.
+</p>
 
-### Living Legacy
+</ContentCard>
+</CardGrid>
 
+<CalloutBox title="Living Legacy" variant="valley-ocean" className="mt-8">
 This maritime heritage lives on today in the widespread use of English on the island, the prevalence of American goods, the architectural influence visible in Vila Nova Sintra's well-maintained homes (funded by diaspora remittances), and the enduring family connections that bind Brava to Massachusetts communities. The whaling era created not just economic ties but a cultural bridge that continues to span the Atlantic.
+</CalloutBox>
+
+</Section>
 
 
-## Living Traditions: The Cultural DNA of Brava
-
-### The Brava Morna
-
-Brava pioneered the definitive morna style—slow tempo (around 60 beats per minute), romantic themes, and accentuated lyricism rooted in 19th-century Romanticism. Eugénio Tavares transformed it "from laughter to weeping," codifying *sodade* as the emotional core of Cape Verdean identity. This musical form became the nation's most powerful cultural export.
-
-### Crioulo Literature
-
-Brava was the birthplace of Cape Verdean literature in the vernacular. Tavares pioneered writing in Brava Crioulo, elevating the people's language to high art and literary prestige. This radical act validated Cape Verdean cultural identity and inspired generations of writers to celebrate their distinct linguistic heritage.
-
-### Transnational Identity
-
-Brava's unique identity transcends geography—it exists simultaneously in Cape Verde and New England. This hyphenated identity, forged through whaling and maintained through family ties, remittances, and cultural exchange, creates communities that are neither fully Cape Verdean nor American, but uniquely Bravan.
+<IconGrid
+  title="Living Traditions: The Cultural DNA of Brava"
+  items={iconGridItems}
+  columns={3}
+/>
 
 
 <HistoricalFigures
@@ -301,38 +401,74 @@ Brava's unique identity transcends geography—it exists simultaneously in Cape 
 <HistoricalTimeline events={timeline} />
 
 
-## Contemporary Brava: Heritage & Innovation
+<Section variant="default">
 
-### The Diaspora Continues to Lead
+<SectionTitle centered>Contemporary Brava: Heritage & Innovation</SectionTitle>
 
+<CardGrid columns={2} className="mb-8">
+<ContentCard>
+
+<h4 className="text-text-primary mb-3 text-lg font-semibold">
+The Diaspora Continues to Lead
+</h4>
+
+<p className="text-text-secondary mb-3">
 Brava's pattern of producing leaders with outsized influence continues today. From Massachusetts State Senator Vinny deMacedo to Albany County District Attorney David Soares, Bravense descendants achieve prominent positions in American civic life while maintaining deep homeland connections through remittances, cultural preservation, and return visits.
+</p>
 
+<p className="text-text-secondary text-sm">
 Contemporary artists like Gardenia Benrós and Vuca Pinheiro bridge traditional and modern expression, with recent works explicitly honoring Eugénio Tavares and reviving traditional mandolin music for global audiences.
+</p>
 
-### Innovation from Isolation
+</ContentCard>
 
+<ContentCard>
+
+<h4 className="text-text-primary mb-3 text-lg font-semibold">
+Innovation from Isolation
+</h4>
+
+<p className="text-text-secondary mb-3">
 Brava's contemporary challenges mirror its historical patterns: geographic isolation (airport closed since 2004), economic constraints, and climate vulnerability. Yet the island is pioneering innovative solutions, including cloud water collection projects that leverage its unique microclimate to address water scarcity.
+</p>
 
+<p className="text-text-secondary text-sm">
 Modern preservation efforts focus on documenting traditional ecological knowledge, maintaining architectural heritage (Vila Nova Sintra is on UNESCO's tentative list), and developing sustainable tourism that preserves the authentic atmosphere that makes Brava unique.
+</p>
 
-### The Paradox Continues
+</ContentCard>
+</CardGrid>
 
+<StatisticsGrid statistics={statisticsData} />
+
+<CalloutBox title="The Paradox Continues" variant="pink-yellow" className="mt-8">
 Today, Brava remains true to its paradoxical nature: a "wild" island known for flowers, a tiny community with global influence, an isolated place that created transnational identity. Its greatest challenge—geographic isolation—is also its greatest asset, preserving an authentic atmosphere in an increasingly homogenized world. The future lies in embracing this distinctiveness, turning isolation into a compelling invitation for those seeking genuine cultural connection.
+</CalloutBox>
+
+</Section>
 
 
 
-## Continue Your Journey Through Brava
+<Section variant="default" className="text-center">
 
+<h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
+Continue Your Journey Through Brava
+</h3>
+
+<p className="text-text-secondary mb-6 text-lg">
 Explore the people, places, and living traditions that make this remarkable island's history tangible today.
+</p>
 
-<div className="flex flex-col sm:flex-row gap-4 justify-center my-8">
-  <a href="/directory/landmark" className="bg-ocean-blue hover:bg-ocean-blue/90 text-white px-6 py-3 rounded-md font-semibold shadow-lg transition-transform duration-300 hover:scale-105">
-    Historical Landmarks
-  </a>
-  <a href="/map" className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue border-2 px-6 py-3 rounded-md font-semibold transition-colors hover:text-white">
-    Explore the Map
-  </a>
+<div className="flex flex-col justify-center gap-4 sm:flex-row">
+<a href="/directory/landmark" className="bg-ocean-blue hover:bg-ocean-blue/90 inline-block rounded-md px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105">
+Historical Landmarks
+</a>
+<a href="/map" className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue inline-block rounded-md border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white">
+Explore the Map
+</a>
 </div>
+
+</Section>
 
 <CitationSection citations={citations} />
 

@@ -24,6 +24,13 @@ import { RelatedContent } from "@/components/ui/related-content";
 import { HistoricalTimeline } from "@/components/content/historical-timeline";
 import { HistoricalFigures } from "@/components/content/historical-figures";
 import { ThematicSections } from "@/components/content/thematic-sections";
+import { StatisticsGrid } from "@/components/content/statistics-grid";
+import { IconGrid } from "@/components/content/icon-grid";
+import { CalloutBox } from "@/components/content/callout-box";
+import { Card as ContentCard, CardGrid } from "@/components/content/card";
+import { Section } from "@/components/content/section";
+import { TwoColumnGrid } from "@/components/content/two-column-grid";
+import { SectionTitle } from "@/components/content/section-title";
 
 // Custom MDX components for enhanced content
 export const mdxComponents: MDXComponents = {
@@ -77,6 +84,14 @@ export const mdxComponents: MDXComponents = {
   HistoricalTimeline,
   HistoricalFigures,
   ThematicSections,
+  StatisticsGrid,
+  IconGrid,
+  CalloutBox,
+  ContentCard,
+  CardGrid,
+  Section,
+  TwoColumnGrid,
+  SectionTitle,
 
   // Typography enhancements
   h1: ({ children, ...props }) => (

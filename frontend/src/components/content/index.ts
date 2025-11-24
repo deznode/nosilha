@@ -17,3 +17,14 @@ export type { ThematicSection } from "./thematic-sections";
 export { Article } from "./article";
 export { ArticleLayout } from "./article-layout";
 export { TranslationDashboard } from "./translation-dashboard";
+
+export { Section } from "./section";
+export type { SectionProps } from "./section";
+
+export { TwoColumnGrid } from "./two-column-grid";
+export type { TwoColumnGridProps } from "./two-column-grid";
+
+export { SectionTitle } from "./section-title";
+export type { SectionTitleProps } from "./section-title";
+
+export { Card, CardGrid } from "./card";

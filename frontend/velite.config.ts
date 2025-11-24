@@ -65,16 +65,40 @@ const citationSchema = s.object({
   url: s.string().optional(),
 });
 
+const iconGridItemSchema = s.object({
+  icon: s.string(),
+  title: s.string(),
+  description: s.string(),
+  iconColor: s.string().optional(),
+});
+
+const statisticSchema = s.object({
+  value: s.string(),
+  label: s.string(),
+  description: s.string(),
+  color: s.string(),
+});
+
+const heroSchema = s.object({
+  videoSrc: s.string(),
+  title: s.string(),
+  subtitle: s.string(),
+});
+
 // Page collection for top-level routes (/history, /people)
 const pages = defineCollection({
   name: "Page",
   pattern: "pages/**/*.mdx",
   schema: baseContentSchema.extend({
+    // Optional hero section
+    hero: heroSchema.optional(),
     // Optional structured data for cultural heritage pages
     timeline: s.array(timelineEventSchema).optional(),
     figures: s.array(historicalFigureSchema).optional(),
     sections: s.array(thematicSectionSchema).optional(),
     citations: s.array(citationSchema).optional(),
+    iconGridItems: s.array(iconGridItemSchema).optional(),
+    statisticsData: s.array(statisticSchema).optional(),
   }),
 });
 

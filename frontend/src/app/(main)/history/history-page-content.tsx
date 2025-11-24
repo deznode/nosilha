@@ -3,12 +3,19 @@
 import { useMemo } from "react";
 import * as runtime from "react/jsx-runtime";
 import { PrintPageWrapper } from "@/components/ui/print-page-wrapper";
+import { VideoHeroSection } from "@/components/ui/video-hero-section";
 import { mdxComponents } from "@/lib/content/mdx-components";
 import type {
   TimelineEvent,
   HistoricalFigure,
   ThematicSection,
 } from "@/components/content";
+
+interface Hero {
+  videoSrc: string;
+  title: string;
+  subtitle: string;
+}
 
 interface Citation {
   source: string;
@@ -17,21 +24,40 @@ interface Citation {
   url?: string;
 }
 
+interface IconGridItem {
+  icon: string;
+  title: string;
+  description: string;
+  iconColor?: string;
+}
+
+interface Statistic {
+  value: string;
+  label: string;
+  description: string;
+  color: string;
+}
+
 // Type-safe scope for MDX component data
 type MDXScope = {
   sections?: ThematicSection[];
   figures?: HistoricalFigure[];
   timeline?: TimelineEvent[];
   citations?: Citation[];
+  iconGridItems?: IconGridItem[];
+  statisticsData?: Statistic[];
   [key: string]: unknown; // Allow additional props
 };
 
 interface HistoryPageContentProps {
   code: string;
+  hero?: Hero;
   sections: ThematicSection[];
   figures: HistoricalFigure[];
   timeline: TimelineEvent[];
   citations: Citation[];
+  iconGridItems: IconGridItem[];
+  statisticsData: Statistic[];
 }
 
 // Helper to render Velite MDX content with scope
@@ -64,17 +90,42 @@ function MDXWrapper({ code, scope }: { code: string; scope: MDXScope }) {
 
 export function HistoryPageContent({
   code,
+  hero,
   sections,
   figures,
   timeline,
   citations,
+  iconGridItems,
+  statisticsData,
 }: HistoryPageContentProps) {
   return (
     <PrintPageWrapper>
-      <MDXWrapper
-        code={code}
-        scope={{ sections, figures, timeline, citations }}
-      />
+      <div className="bg-background-secondary font-sans">
+        {/* Full-Screen Video Hero (outside container) */}
+        {hero && (
+          <VideoHeroSection
+            videoSrc={hero.videoSrc}
+            title={hero.title}
+            subtitle={hero.subtitle}
+            overlayContent={[]}
+            className="h-[calc(100vh-81px)]"
+          />
+        )}
+
+        <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+          <MDXWrapper
+            code={code}
+            scope={{
+              sections,
+              figures,
+              timeline,
+              citations,
+              iconGridItems,
+              statisticsData,
+            }}
+          />
+        </div>
+      </div>
     </PrintPageWrapper>
   );
 }

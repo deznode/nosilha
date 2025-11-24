@@ -82,10 +82,13 @@ export default async function HistoryPage({ searchParams }: PageProps) {
   return (
     <HistoryPageContent
       code={page.content}
+      hero={page.hero}
       sections={page.sections || []}
       figures={page.figures || []}
       timeline={page.timeline || []}
       citations={page.citations || []}
+      iconGridItems={page.iconGridItems || []}
+      statisticsData={page.statisticsData || []}
     />
   );
 }
