@@ -80,6 +80,9 @@ k6-*.json
 
 .playwright-mcp
 
+# Velite build output
+frontend/.velite
+
 /CHANGELOG.md
 
 # Symbolic link to external plugin repository

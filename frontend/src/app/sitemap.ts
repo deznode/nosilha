@@ -2,6 +2,7 @@ import { MetadataRoute } from "next";
 import type { DirectoryEntry } from "@/types/directory";
 import { getEntriesByCategory } from "@/lib/api";
 import { siteConfig } from "@/lib/metadata";
+import { articles, pages } from "@/.velite";
 
 /**
  * Generate sitemap for Nos Ilha Cultural Heritage Platform
@@ -135,7 +136,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Add town-specific pages if we have location data
     const townPages = getTownPages(allEntries, baseUrl, currentDate);
 
-    return [...staticPages, ...dynamicPages, ...townPages];
+    // Generate sitemap entries for MDX articles (multilingual)
+    const articlePages: MetadataRoute.Sitemap = articles.map((article) => ({
+      url: `${baseUrl}/articles/${article.slug}?lang=${article.language}`,
+      lastModified: article.updatedDate || article.publishDate,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    }));
+
+    // Generate sitemap entries for MDX pages (multilingual)
+    const mdxPages: MetadataRoute.Sitemap = pages.map((page) => ({
+      url: `${baseUrl}/${page.slug}?lang=${page.language}`,
+      lastModified: page.updatedDate || page.publishDate,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    }));
+
+    return [
+      ...staticPages,
+      ...dynamicPages,
+      ...townPages,
+      ...articlePages,
+      ...mdxPages,
+    ];
   } catch (error) {
     console.error("Error generating sitemap:", error);
     // Return static pages if dynamic content fails

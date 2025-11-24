@@ -92,3 +92,11 @@ storybook-static/
 .netlify
 
 *storybook.log
+# Pagefind search index
+public/pagefind/
+
+# Content validation cache
+.cache/
+
+# Velite output
+.velite/

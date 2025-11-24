@@ -39,6 +39,9 @@ const eslintConfig = [
       ".turbo/",
       ".vercel/",
       ".cache/",
+      // Generated content files
+      ".velite/",
+      "public/pagefind/",
     ],
   },
   // Next.js configs

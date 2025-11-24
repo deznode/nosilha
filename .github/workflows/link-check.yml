@@ -1,0 +1,61 @@
+name: External Link Check
+
+on:
+  schedule:
+    # Run every Sunday at 2am UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+
+jobs:
+  check-links:
+    name: Check External Links
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: pnpm install --frozen-lockfile
+
+      - name: Install markdown-link-check
+        run: npm install -g markdown-link-check
+
+      - name: Check external links in MDX files
+        working-directory: frontend
+        run: |
+          find content -name "*.mdx" -print0 | xargs -0 -n1 markdown-link-check --quiet --config ../.github/markdown-link-check-config.json || true
+        continue-on-error: true
+
+      - name: Create issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'External Link Check Failed';
+            const body = `The weekly external link check found broken links in MDX content files.
+
+            Please review the workflow logs and fix any broken external links.
+
+            Workflow run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body,
+              labels: ['content', 'broken-links']
+            });

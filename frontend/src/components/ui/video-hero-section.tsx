@@ -9,7 +9,7 @@ interface VideoHeroSectionProps {
   posterSrc?: string;
   title: string;
   subtitle?: string;
-  overlayContent: {
+  overlayContent?: {
     text: string;
     delay: number;
   }[];
@@ -142,20 +142,22 @@ export function VideoHeroSection({
           </motion.div>
 
           {/* Progressive Text Overlays */}
-          <div className="space-y-4">
-            {overlayContent.map((content, index) => (
-              <motion.div
-                key={index}
-                variants={overlayVariants}
-                custom={content.delay}
-                className="font-serif text-lg text-white/95 sm:text-xl"
-              >
-                <span className="from-ocean-blue/60 to-valley-green/60 inline-block rounded-lg border border-white/20 bg-gradient-to-r px-6 py-3 shadow-lg backdrop-blur-sm">
-                  {content.text}
-                </span>
-              </motion.div>
-            ))}
-          </div>
+          {overlayContent && overlayContent.length > 0 && (
+            <div className="space-y-4">
+              {overlayContent.map((content, index) => (
+                <motion.div
+                  key={index}
+                  variants={overlayVariants}
+                  custom={content.delay}
+                  className="font-serif text-lg text-white/95 sm:text-xl"
+                >
+                  <span className="from-ocean-blue/60 to-valley-green/60 inline-block rounded-lg border border-white/20 bg-gradient-to-r px-6 py-3 shadow-lg backdrop-blur-sm">
+                    {content.text}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

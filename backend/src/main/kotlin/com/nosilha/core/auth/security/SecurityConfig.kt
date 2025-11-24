@@ -49,6 +49,9 @@ class SecurityConfig(
                     // Allow public access to reaction counts (GET only, POST/DELETE require auth)
                     .requestMatchers(HttpMethod.GET, "/api/v1/reactions/content/**")
                     .permitAll()
+                    // Allow public access to content registration (needed for SSR, idempotent)
+                    .requestMatchers(HttpMethod.POST, "/api/v1/content/register")
+                    .permitAll()
                     // Require authentication for POST/PUT/DELETE operations
                     .requestMatchers(HttpMethod.POST, "/api/v1/media/upload")
                     .hasAnyRole("USER", "ADMIN", "authenticated")

@@ -1,0 +1,24 @@
+- id: music
+  name: Music
+  description: Traditional and contemporary Cape Verdean music including Morna, Funana, and Coladeira
+  order: 1
+
+- id: history
+  name: History
+  description: Historical events, colonial era, independence, and diaspora stories
+  order: 2
+
+- id: traditions
+  name: Traditions
+  description: Cultural festivals, cuisine, customs, and community celebrations
+  order: 3
+
+- id: places
+  name: Places
+  description: Landmarks, villages, natural sites, and cultural locations
+  order: 4
+
+- id: people
+  name: People
+  description: Artists, leaders, community figures, and cultural icons
+  order: 5

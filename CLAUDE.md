@@ -43,10 +43,15 @@ The project follows a clear organizational structure:
 cd frontend
 pnpm install              # Install dependencies
 pnpm run dev             # Start development server with Turbopack
-pnpm run build           # Build for production
+pnpm run build           # Build for production (includes Velite content processing)
 pnpm run start           # Start production server
 pnpm run lint            # Run ESLint
 npx tsc --noEmit        # TypeScript type checking
+
+# MDX Content Platform Commands
+pnpm run scaffold-article           # Create new article from template
+pnpm run validate-content           # Validate MDX content (frontmatter, links, refs)
+pnpm run check-translations         # Generate translation status report
 ```
 
 ### Backend (Spring Boot + Kotlin)
@@ -90,6 +95,39 @@ docker-compose exec postgres pg_dump -U nosilha nosilha_db > backup.sql  # Creat
 - **Authentication**: Supabase Auth provider with JWT token management
 - **Caching Strategy**: ISR (Incremental Static Regeneration) for content
 - **API Integration**: Centralized API client with error handling and fallback to mock data
+
+### MDX Content Platform (Feature 007)
+- **Content Processing**: Velite processes MDX files at build time with type-safe schemas
+- **Multilingual Support**: Co-located translations (EN/PT/KEA/FR) with fallback chains and translation status tracking
+- **Content Structure**:
+  - `frontend/content/pages/` - Top-level routes (/history, /people)
+  - `frontend/content/articles/` - Article routes (/articles/*, /history/*, /music/*, /people/*)
+- **Data-Driven Components**: Reusable components for cultural heritage pages:
+  - `HistoricalTimeline` - Timeline events with dates, titles, descriptions
+  - `HistoricalFigures` - Historical figures with roles, years, biographies
+  - `ThematicSections` - Thematic content sections with alternating image layouts
+  - All components support structured data in YAML frontmatter
+- **Pattern for Complex Pages**: Cultural heritage pages (like `/history`) use data-driven MDX:
+  1. Define structured data in YAML frontmatter (sections, figures, timeline, citations)
+  2. Extend Page schema in `velite.config.ts` with optional structured fields
+  3. Create client component to render MDX with structured data as props
+  4. Components access data from props, not hardcoded in JSX
+- **Search**: Pagefind for static, client-side search with language-specific indexes and faceted filtering
+- **Validation**: Pre-commit hooks validate frontmatter schemas, internal links, and cross-references
+- **Scaffolding**: CLI tools for creating new articles from templates (`pnpm run scaffold-article`)
+- **Translation Management**: Admin dashboard at `/admin/translations` shows translation status and outdated content
+- **Key Files**:
+  - `frontend/velite.config.ts` - Velite configuration with Article and Page collections
+  - `frontend/src/lib/content/schemas.ts` - Zod schemas for content validation
+  - `frontend/src/lib/content/translations.ts` - Translation utilities and fallback logic
+  - `frontend/src/lib/content/mdx-components.tsx` - MDX component registry (includes data-driven components)
+  - `frontend/src/components/content/` - Data-driven content components
+  - `frontend/scripts/validate-content.ts` - Content validation script
+  - `frontend/scripts/scaffold-article.ts` - Article scaffolding CLI
+  - `frontend/scripts/check-translations.ts` - Translation status reporting
+
+> **Documentation**: See `plan/specs/007-mdx-content-platform/` for complete specification, implementation plan, and user stories
+> **Pattern Reference**: See `/history` page implementation for data-driven MDX with structured frontmatter
 
 ### Database Strategy
 - **PostgreSQL**: Primary database for structured data (directory entries, user accounts)
@@ -416,6 +454,8 @@ NEVER proactively create documentation files (*.md) or README files. Only create
 ## Active Technologies
 - TypeScript 5.x, React 19.2, Next.js 16 (App Router) + Tailwind CSS, Framer Motion (animations), Radix UI (accessible primitives), Lucide React (icons) (005-action-toolbar-refactor)
 - N/A (frontend-only refactoring, uses existing backend API from feature 004) (005-action-toolbar-refactor)
+- TypeScript 5.x, React 19.2, Next.js 16 (App Router) + Velite (content processing), Pagefind (search), Zod (validation), Husky (pre-commit) (007-mdx-content-platform)
+- Git repository (MDX files), no database for conten (007-mdx-content-platform)
 
 ## Recent Changes
 - 005-action-toolbar-refactor: Added TypeScript 5.x, React 19.2, Next.js 16 (App Router) + Tailwind CSS, Framer Motion (animations), Radix UI (accessible primitives), Lucide React (icons)

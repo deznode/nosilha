@@ -12,8 +12,17 @@
   },
   "homepage": "https://github.com/bravdigital/nosilha#readme",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev:content": "velite --watch",
+    "build:content": "velite --clean",
+    "dev:next": "next dev",
+    "build:next": "next build",
+    "build:search": "pagefind --site .next/server/app --output-path public/pagefind",
+    "validate:content": "npx tsx scripts/validate-content.ts",
+    "validate:content:full": "npx tsx scripts/validate-content.ts --full",
+    "scaffold:article": "npx tsx scripts/scaffold-article.ts",
+    "check:translations": "npx tsx scripts/check-translations.ts",
+    "dev": "run-p dev:*",
+    "build": "run-s build:content build:next build:search",
     "start": "next start",
     "lint": "eslint .",
     "sync:brand": "node ../scripts/sync-brand-tokens.mjs",
@@ -54,9 +63,12 @@
     "react-dom": "19.2.0",
     "react-hook-form": "^7.65.0",
     "react-map-gl": "^8.0.4",
+    "rehype-pretty-code": "^0.14.1",
     "resend": "^6.5.0",
+    "shiki": "^3.15.0",
     "supercluster": "^8.0.1",
     "use-supercluster": "^1.2.0",
+    "velite": "^0.3.0",
     "zod": "^4.1.12",
     "zustand": "^5.0.8"
   },
@@ -76,6 +88,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/geojson": "^7946.0.16",
     "@types/mapbox-gl": "^3.4.1",
+    "@types/mdx": "^2.0.13",
     "@types/node": "^20.19.0",
     "@types/react": "19.2.6",
     "@types/react-dom": "19.2.3",
@@ -90,6 +103,8 @@
     "husky": "^9.1.7",
     "jsdom": "^27.0.0",
     "lint-staged": "^16.2.7",
+    "npm-run-all": "^4.1.5",
+    "pagefind": "^1.4.0",
     "playwright": "^1.56.0",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
@@ -179,6 +194,9 @@
     ],
     "*.{json,md,css,yml,yaml}": [
       "prettier --write"
+    ],
+    "content/**/*.mdx": [
+      "npx tsx scripts/validate-content.ts"
     ]
   }
 }
