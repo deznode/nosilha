@@ -4,10 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { ImageUploader } from "./image-uploader";
 import { uploadImage } from "@/lib/api";
-import {
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-} from "@heroicons/react/24/solid";
+import { CheckCircle, AlertCircle } from "lucide-react";
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
@@ -60,7 +57,7 @@ export function ContributePhotosSection() {
         {uploadStatus === "success" && uploadedUrl ? (
           <div className="space-y-6 text-center">
             <div className="text-valley-green flex items-center justify-center space-x-2">
-              <CheckCircleIcon className="h-6 w-6" />
+              <CheckCircle className="h-6 w-6" />
               <span className="font-medium">Photo uploaded successfully!</span>
             </div>
 
@@ -102,7 +99,7 @@ export function ContributePhotosSection() {
             {uploadStatus === "error" && (
               <div className="space-y-2 text-center">
                 <div className="text-accent-error flex items-center justify-center space-x-2">
-                  <ExclamationCircleIcon className="h-5 w-5" />
+                  <AlertCircle className="h-5 w-5" />
                   <span className="font-medium">Upload failed</span>
                 </div>
                 <p className="text-accent-error text-sm">{errorMessage}</p>

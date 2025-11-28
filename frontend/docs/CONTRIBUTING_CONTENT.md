@@ -84,6 +84,7 @@ content/pages/
 ```
 
 **URL Patterns**:
+
 - Top-level pages: `/[category]` (e.g., `/history`, `/music`, `/people`)
 - Sub-pages: `/[category]/[slug]` (e.g., `/music/morna-origins`, `/people/eugenio-tavares`)
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { XMarkIcon } from "@heroicons/react/20/solid";
+import { X } from "lucide-react";
 import { useState } from "react";
 
 export interface BannerProps {
@@ -118,10 +118,7 @@ export default function Banner({
             aria-label="Dismiss banner"
           >
             <span className="sr-only">Dismiss</span>
-            <XMarkIcon
-              aria-hidden="true"
-              className={`size-5 ${dismissIconClasses}`}
-            />
+            <X aria-hidden="true" className={`size-5 ${dismissIconClasses}`} />
           </button>
         </div>
       )}

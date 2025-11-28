@@ -7,7 +7,45 @@
  */
 
 import { ImageWithCourtesy } from "@/components/ui/image-with-courtesy";
-import * as HeroIcons from "@heroicons/react/24/outline";
+import * as LucideIcons from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
+// Mapping from Heroicons names to Lucide names for backwards compatibility
+const heroToLucideMap: Record<string, string> = {
+  GlobeAltIcon: "Globe",
+  MusicalNoteIcon: "Music",
+  ClockIcon: "Clock",
+  BookOpenIcon: "BookOpen",
+  HeartIcon: "Heart",
+  UserGroupIcon: "Users",
+  MapIcon: "Map",
+  CameraIcon: "Camera",
+  // Kebab-case variants (from some MDX files)
+  "globe-alt": "Globe",
+  "musical-note": "Music",
+  "book-open": "BookOpen",
+  clock: "Clock",
+  heart: "Heart",
+  users: "Users",
+  map: "Map",
+  camera: "Camera",
+};
+
+function getLucideIcon(iconName: string): LucideIcon | null {
+  // First check the mapping for Heroicons names
+  const mappedName = heroToLucideMap[iconName];
+  const lookupName = mappedName || iconName;
+
+  // Type-safe lookup into LucideIcons module
+  const icons = LucideIcons as unknown as Record<string, LucideIcon>;
+  const icon = icons[lookupName];
+
+  // Verify it's a valid component (has a render function)
+  if (icon && typeof icon === "function") {
+    return icon;
+  }
+  return null;
+}
 
 export interface ThematicSection {
   title: string;
@@ -15,7 +53,7 @@ export interface ThematicSection {
   content: string;
   image: string;
   imageCourtesy: string;
-  icon?: string; // Name of Heroicon (e.g., "MusicalNoteIcon")
+  icon?: string; // Lucide icon name (e.g., "Music", "Globe") or legacy Heroicon name
 }
 
 interface ThematicSectionsProps {
@@ -39,14 +77,9 @@ export function ThematicSections({
 
       <div className="space-y-12">
         {sections.map((section, index) => {
-          // Get icon component dynamically
+          // Get icon component dynamically using Lucide
           const IconComponent = section.icon
-            ? (
-                HeroIcons as Record<
-                  string,
-                  React.ComponentType<{ className?: string }>
-                >
-              )[section.icon]
+            ? getLucideIcon(section.icon)
             : null;
 
           return (

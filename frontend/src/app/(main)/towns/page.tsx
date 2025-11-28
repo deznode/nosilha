@@ -2,11 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { PageHeader } from "@/components/ui/page-header";
 import { getTowns } from "@/lib/api";
-import {
-  MapPinIcon,
-  UserGroupIcon,
-  CameraIcon,
-} from "@heroicons/react/24/outline";
+import { MapPin, Users, Camera } from "lucide-react";
 
 // Enable ISR with 2 hour revalidation for towns content
 export const revalidate = 7200;
@@ -95,11 +91,11 @@ export default async function TownsPage() {
 
                   <div className="mb-4 grid grid-cols-2 gap-4 text-sm">
                     <div className="text-text-secondary flex items-center">
-                      <UserGroupIcon className="text-ocean-blue mr-2 h-4 w-4" />
+                      <Users className="text-ocean-blue mr-2 h-4 w-4" />
                       {town.population || "Population unknown"}
                     </div>
                     <div className="text-text-secondary flex items-center">
-                      <MapPinIcon className="text-ocean-blue mr-2 h-4 w-4" />
+                      <MapPin className="text-ocean-blue mr-2 h-4 w-4" />
                       {town.elevation || "Elevation unknown"}
                     </div>
                   </div>
@@ -162,11 +158,11 @@ export default async function TownsPage() {
                     </p>
                     <div className="text-text-secondary mb-2 flex items-center space-x-4 text-xs">
                       <span className="flex items-center">
-                        <UserGroupIcon className="mr-1 h-3 w-3" />
+                        <Users className="mr-1 h-3 w-3" />
                         {town.population || "Population unknown"}
                       </span>
                       <span className="flex items-center">
-                        <MapPinIcon className="mr-1 h-3 w-3" />
+                        <MapPin className="mr-1 h-3 w-3" />
                         {town.elevation || "Elevation unknown"}
                       </span>
                     </div>
@@ -185,7 +181,7 @@ export default async function TownsPage() {
 
         {/* Interactive Map CTA */}
         <section className="from-ocean-blue/10 to-valley-green/10 mt-16 rounded-lg bg-gradient-to-r p-8 text-center">
-          <MapPinIcon className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
+          <MapPin className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
           <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
             Explore on the Interactive Map
           </h3>
@@ -203,7 +199,7 @@ export default async function TownsPage() {
 
         {/* Contribute Section */}
         <section className="mt-16 text-center">
-          <CameraIcon className="text-valley-green mx-auto mb-4 h-12 w-12" />
+          <Camera className="text-valley-green mx-auto mb-4 h-12 w-12" />
           <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
             Share Your Town Stories
           </h3>

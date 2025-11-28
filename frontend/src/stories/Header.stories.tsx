@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import type { ReactNode } from "react";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Header } from "@/components/ui/header";
+import { Header } from "@/components/ui/header2";
 import {
   createMockAuthUser,
   createMockSession,

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { InformationCircleIcon } from "@heroicons/react/24/outline";
+import { Info } from "lucide-react";
 import { useState } from "react";
 
 // Extracted outside component to prevent state reset on re-render
@@ -20,7 +20,7 @@ function ImagePlaceholder({
       style={{ width: width || "100%", height: height || "100%" }}
     >
       <div className="p-4 text-center">
-        <InformationCircleIcon className="text-text-tertiary mx-auto mb-2 h-8 w-8" />
+        <Info className="text-text-tertiary mx-auto mb-2 h-8 w-8" />
         <p className="text-text-tertiary text-xs">Image not available</p>
       </div>
     </div>
@@ -159,7 +159,7 @@ export function ImageWithCourtesy({
             <div
               className={`absolute ${iconPositionClasses[iconPosition]} bg-background-primary/90 flex h-5 w-5 items-center justify-center rounded-full shadow-sm`}
             >
-              <InformationCircleIcon className="text-text-secondary h-3 w-3" />
+              <Info className="text-text-secondary h-3 w-3" />
             </div>
 
             {/* Tooltip on hover */}

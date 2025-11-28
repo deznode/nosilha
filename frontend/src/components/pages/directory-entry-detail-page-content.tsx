@@ -1,11 +1,5 @@
 import Image from "next/image";
-import {
-  MapPinIcon,
-  PhoneIcon,
-  ClockIcon,
-  BuildingOffice2Icon,
-  SparklesIcon,
-} from "@heroicons/react/24/solid";
+import { MapPin, Phone, Clock, Building2, Sparkles } from "lucide-react";
 import { ContributePhotosSection } from "@/components/ui/contribute-photos-section";
 import { ContentActionToolbar } from "@/components/ui/content-action-toolbar";
 import { ImageGallery } from "@/components/ui/image-gallery";
@@ -27,7 +21,7 @@ function CategorySpecificDetails({ entry }: { entry: DirectoryEntry }) {
         <>
           {restaurantDetails.phoneNumber && (
             <div className="flex items-start">
-              <PhoneIcon className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
+              <Phone className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
               <p className="text-text-secondary ml-3 text-base">
                 {restaurantDetails.phoneNumber}
               </p>
@@ -35,7 +29,7 @@ function CategorySpecificDetails({ entry }: { entry: DirectoryEntry }) {
           )}
           {restaurantDetails.openingHours && (
             <div className="flex items-start">
-              <ClockIcon className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
+              <Clock className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
               <p className="text-text-secondary ml-3 text-base">
                 {restaurantDetails.openingHours}
               </p>
@@ -43,7 +37,7 @@ function CategorySpecificDetails({ entry }: { entry: DirectoryEntry }) {
           )}
           {restaurantDetails.cuisine.length > 0 && (
             <div className="flex items-start">
-              <SparklesIcon className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
+              <Sparkles className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
               <p className="text-text-secondary ml-3 text-base">
                 Cuisine: {restaurantDetails.cuisine.join(", ")}
               </p>
@@ -58,7 +52,7 @@ function CategorySpecificDetails({ entry }: { entry: DirectoryEntry }) {
         <>
           {hotelDetails.phoneNumber && (
             <div className="flex items-start">
-              <PhoneIcon className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
+              <Phone className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
               <p className="text-text-secondary ml-3 text-base">
                 {hotelDetails.phoneNumber}
               </p>
@@ -66,7 +60,7 @@ function CategorySpecificDetails({ entry }: { entry: DirectoryEntry }) {
           )}
           {hotelDetails.amenities.length > 0 && (
             <div className="flex items-start">
-              <BuildingOffice2Icon className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
+              <Building2 className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
               <p className="text-text-secondary ml-3 text-base">
                 Amenities: {hotelDetails.amenities.join(", ")}
               </p>
@@ -200,12 +194,12 @@ export function DirectoryEntryDetailPageContent({
             <div className="bg-background-primary rounded-lg p-6 shadow-md">
               <div className="bg-background-tertiary aspect-video w-full rounded-md">
                 <div className="flex h-full w-full items-center justify-center">
-                  <MapPinIcon className="text-text-secondary h-12 w-12" />
+                  <MapPin className="text-text-secondary h-12 w-12" />
                 </div>
               </div>
               <div className="mt-6 space-y-4">
                 <div className="flex items-start">
-                  <MapPinIcon className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
+                  <MapPin className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
                   <p className="text-text-secondary ml-3 text-base">
                     {entry.town}, Brava, Cape Verde
                   </p>

@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/ui/page-header";
 import {
-  DocumentTextIcon,
-  UsersIcon,
-  ExclamationTriangleIcon,
-  CalendarIcon,
-  ScaleIcon,
-  ShieldCheckIcon,
-} from "@heroicons/react/24/outline";
+  FileText,
+  Users,
+  AlertTriangle,
+  Calendar,
+  Scale,
+  ShieldCheck,
+} from "lucide-react";
 
 // Static page - no revalidation needed
 export const dynamic = "force-static";
@@ -24,7 +24,7 @@ export default function TermsPage() {
         {/* Last Updated */}
         <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-6 shadow-sm">
           <div className="flex items-center justify-center text-center">
-            <CalendarIcon className="text-ocean-blue mr-2 h-6 w-6" />
+            <Calendar className="text-ocean-blue mr-2 h-6 w-6" />
             <span className="text-text-secondary">
               <strong>Last Updated:</strong>{" "}
               {new Date().toLocaleDateString("en-US", {
@@ -39,7 +39,7 @@ export default function TermsPage() {
         {/* Introduction */}
         <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
           <div className="mb-4 flex items-start">
-            <DocumentTextIcon className="text-ocean-blue mt-1 mr-3 h-8 w-8" />
+            <FileText className="text-ocean-blue mt-1 mr-3 h-8 w-8" />
             <div>
               <h2 className="text-text-primary mb-4 font-serif text-2xl font-bold">
                 Welcome to Our Cultural Heritage Community
@@ -190,7 +190,7 @@ export default function TermsPage() {
         {/* Community Contributions */}
         <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
           <div className="mb-4 flex items-start">
-            <UsersIcon className="text-valley-green mt-1 mr-3 h-8 w-8" />
+            <Users className="text-valley-green mt-1 mr-3 h-8 w-8" />
             <div>
               <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
                 4. Sharing Our Cultural Heritage
@@ -308,7 +308,7 @@ export default function TermsPage() {
         {/* Privacy and Data Protection */}
         <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
           <div className="mb-4 flex items-start">
-            <ShieldCheckIcon className="text-bougainvillea-pink mt-1 mr-3 h-8 w-8" />
+            <ShieldCheck className="text-bougainvillea-pink mt-1 mr-3 h-8 w-8" />
             <div>
               <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
                 6. Privacy and Data Protection
@@ -329,7 +329,7 @@ export default function TermsPage() {
         {/* Important Notices */}
         <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
           <div className="mb-4 flex items-start">
-            <ExclamationTriangleIcon className="text-sunny-yellow mt-1 mr-3 h-8 w-8" />
+            <AlertTriangle className="text-sunny-yellow mt-1 mr-3 h-8 w-8" />
             <div>
               <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
                 7. Important Things to Know
@@ -450,7 +450,7 @@ export default function TermsPage() {
         {/* Governing Law */}
         <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
           <div className="mb-4 flex items-start">
-            <ScaleIcon className="text-text-secondary mt-1 mr-3 h-8 w-8" />
+            <Scale className="text-text-secondary mt-1 mr-3 h-8 w-8" />
             <div>
               <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
                 10. Governing Law and Disputes

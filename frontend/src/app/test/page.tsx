@@ -11,6 +11,7 @@ import { NosilhaLogo } from "@/components/ui/logo";
 import { Logo as Logo2 } from "@/components/ui/logo2";
 import { Logo as Logo3 } from "@/components/ui/logo3";
 import { Logo as Logo4 } from "@/components/ui/logo4";
+import { Logo as Logo5 } from "@/components/ui/logo5";
 import { SocialMediaLinks } from "@/components/ui/social-media-links";
 import Banner from "@/components/ui/banner";
 import { SuggestImprovementForm } from "@/components/ui/actions/suggest-improvement-form";
@@ -20,6 +21,7 @@ import { CopyLinkButton } from "@/components/ui/actions/copy-link-button";
 import { ReactionButtons } from "@/components/ui/actions/reaction-buttons";
 import { Button } from "@/components/catalyst-ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Header } from "@/components/ui/header2";
 
 /**
  * An updated test page that uses the PageHeader component.
@@ -86,6 +88,7 @@ export default function TestPage() {
         <Logo2 />
         <Logo3 />
         <Logo4 />
+        <Logo5 />
         <PageHeader
           title="Component Test Page"
           subtitle="Rendering all items from the mock API to test our DirectoryCard component."
@@ -231,6 +234,7 @@ export default function TestPage() {
           isOpen={isSuggestOpen}
           onClose={() => setIsSuggestOpen(false)}
         />
+        <Header />
       </div>
     </main>
   );

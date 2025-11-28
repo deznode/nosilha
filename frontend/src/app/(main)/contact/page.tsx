@@ -1,12 +1,6 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/ui/page-header";
-import {
-  EnvelopeIcon,
-  ChatBubbleLeftRightIcon,
-  QuestionMarkCircleIcon,
-  CodeBracketIcon,
-  CameraIcon,
-} from "@heroicons/react/24/outline";
+import { Mail, MessageSquare, HelpCircle, Code, Camera } from "lucide-react";
 
 // Static page - no revalidation needed
 export const dynamic = "force-static";
@@ -33,7 +27,7 @@ export default function ContactPage() {
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {/* General Inquiries */}
             <div className="bg-background-primary rounded-lg p-6 text-center shadow-sm">
-              <EnvelopeIcon className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
+              <Mail className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
               <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 General Inquiries
               </h4>
@@ -51,7 +45,7 @@ export default function ContactPage() {
 
             {/* Content & Contributions */}
             <div className="bg-background-primary rounded-lg p-6 text-center shadow-sm">
-              <CameraIcon className="text-valley-green mx-auto mb-4 h-12 w-12" />
+              <Camera className="text-valley-green mx-auto mb-4 h-12 w-12" />
               <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 Content & Contributions
               </h4>
@@ -68,7 +62,7 @@ export default function ContactPage() {
 
             {/* Technical Support */}
             <div className="bg-background-primary rounded-lg p-6 text-center shadow-sm">
-              <CodeBracketIcon className="text-bougainvillea-pink mx-auto mb-4 h-12 w-12" />
+              <Code className="text-bougainvillea-pink mx-auto mb-4 h-12 w-12" />
               <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 Technical Support
               </h4>
@@ -104,7 +98,7 @@ export default function ContactPage() {
           {/* Form Notice */}
           <div className="bg-sunny-yellow/10 border-sunny-yellow/20 mx-auto mb-6 max-w-2xl rounded-md border p-4">
             <div className="flex items-center">
-              <QuestionMarkCircleIcon className="text-sunny-yellow mr-3 h-6 w-6" />
+              <HelpCircle className="text-sunny-yellow mr-3 h-6 w-6" />
               <div>
                 <p className="text-text-primary text-sm font-medium">
                   Contact form coming soon!
@@ -210,7 +204,7 @@ export default function ContactPage() {
           <div className="grid gap-6 md:grid-cols-2">
             <div className="bg-background-primary rounded-lg p-6 shadow-sm">
               <div className="mb-3 flex items-start">
-                <QuestionMarkCircleIcon className="text-ocean-blue mt-0.5 mr-3 h-6 w-6" />
+                <HelpCircle className="text-ocean-blue mt-0.5 mr-3 h-6 w-6" />
                 <h4 className="text-text-primary font-semibold">
                   How can I add my business to the directory?
                 </h4>
@@ -232,7 +226,7 @@ export default function ContactPage() {
 
             <div className="bg-background-primary rounded-lg p-6 shadow-sm">
               <div className="mb-3 flex items-start">
-                <QuestionMarkCircleIcon className="text-valley-green mt-0.5 mr-3 h-6 w-6" />
+                <HelpCircle className="text-valley-green mt-0.5 mr-3 h-6 w-6" />
                 <h4 className="text-text-primary font-semibold">
                   Can I contribute photos of Brava Island?
                 </h4>
@@ -254,7 +248,7 @@ export default function ContactPage() {
 
             <div className="bg-background-primary rounded-lg p-6 shadow-sm">
               <div className="mb-3 flex items-start">
-                <QuestionMarkCircleIcon className="text-bougainvillea-pink mt-0.5 mr-3 h-6 w-6" />
+                <HelpCircle className="text-bougainvillea-pink mt-0.5 mr-3 h-6 w-6" />
                 <h4 className="text-text-primary font-semibold">
                   Is the platform available in other languages?
                 </h4>
@@ -276,7 +270,7 @@ export default function ContactPage() {
 
             <div className="bg-background-primary rounded-lg p-6 shadow-sm">
               <div className="mb-3 flex items-start">
-                <QuestionMarkCircleIcon className="text-sunny-yellow mt-0.5 mr-3 h-6 w-6" />
+                <HelpCircle className="text-sunny-yellow mt-0.5 mr-3 h-6 w-6" />
                 <h4 className="text-text-primary font-semibold">
                   How can I get involved in development?
                 </h4>
@@ -342,7 +336,7 @@ export default function ContactPage() {
         {/* Response Time Notice */}
         <section className="bg-background-primary mt-16 rounded-lg p-6 shadow-sm">
           <div className="flex items-center justify-center">
-            <ChatBubbleLeftRightIcon className="text-ocean-blue mr-3 h-8 w-8" />
+            <MessageSquare className="text-ocean-blue mr-3 h-8 w-8" />
             <div>
               <h4 className="text-text-primary font-semibold">Response Time</h4>
               <p className="text-text-secondary">

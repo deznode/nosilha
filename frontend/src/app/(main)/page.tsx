@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { getEntriesByCategory } from "@/lib/api";
-import { HomePageContent } from "@/components/pages/home-page-content";
+import { NewHomePageContent } from "@/components/pages/new-home-page-content";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import type { PlaceSchema } from "@/types/metadata";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Discover the Soul of Brava Island",
   description:
-    "Preserve and celebrate authentic Cape Verdean culture and heritage on Brava Island. Connect with the global diaspora, explore cultural sites, discover local heritage, and honor the traditions that define our island community.",
+    "The definitive cultural heritage hub connecting the global Cape Verdean diaspora to Brava Island. Explore history, people, events, traditions, and hidden gems of the Flower Island.",
   path: "/",
   keywords: [
     "Brava Island cultural heritage",
@@ -20,6 +20,14 @@ export const metadata: Metadata = generatePageMetadata({
     "Cape Verde heritage",
     "Atlantic islands culture",
     "authentic Cape Verdean experiences",
+    "Morna music",
+    "Kriolu language",
+    "Nova Sintra",
+    "Fajã d'Agua",
+    "Eugénio Tavares",
+    "Cape Verde events",
+    "Brava tourism",
+    "interactive heritage map",
   ],
   structuredData: [
     {
@@ -51,5 +59,5 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const { items: featuredEntries } = await getEntriesByCategory("all");
-  return <HomePageContent featuredEntries={featuredEntries} />;
+  return <NewHomePageContent featuredEntries={featuredEntries} />;
 }

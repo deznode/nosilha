@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { PhotoIcon } from "@heroicons/react/24/outline";
+import { ImageIcon } from "lucide-react";
 
 interface Photo {
   src: string;
@@ -127,7 +127,7 @@ export function PhotoGalleryFilter({
                   </div>
                   <div className="absolute right-4 bottom-4">
                     <span className="flex items-center rounded bg-black/70 px-2 py-1 text-xs text-white">
-                      <PhotoIcon className="mr-1 h-3 w-3" />
+                      <ImageIcon className="mr-1 h-3 w-3" />
                       {gallery.imageCount}
                     </span>
                   </div>
@@ -197,7 +197,7 @@ export function PhotoGalleryFilter({
                         {gallery.category}
                       </span>
                       <span className="text-text-secondary ml-2 flex items-center text-xs">
-                        <PhotoIcon className="mr-1 h-3 w-3" />
+                        <ImageIcon className="mr-1 h-3 w-3" />
                         {gallery.imageCount}
                       </span>
                     </div>
@@ -227,7 +227,7 @@ export function PhotoGalleryFilter({
         selectedCategory !== "all" && (
           <section className="mt-16 text-center">
             <div className="bg-background-primary border-border-primary rounded-lg border p-8 shadow-sm">
-              <PhotoIcon className="text-text-secondary mx-auto mb-4 h-12 w-12" />
+              <ImageIcon className="text-text-secondary mx-auto mb-4 h-12 w-12" />
               <h3 className="text-text-primary mb-2 font-serif text-xl font-bold">
                 No {categories.find((c) => c.value === selectedCategory)?.name}{" "}
                 Galleries Yet

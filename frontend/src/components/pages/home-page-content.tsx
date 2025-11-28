@@ -6,13 +6,13 @@ import { PageHeader } from "@/components/ui/page-header";
 import { SocialMediaLinks } from "@/components/ui/social-media-links";
 import type { DirectoryEntry } from "@/types/directory";
 import {
-  MapIcon,
-  ListBulletIcon,
-  BookOpenIcon,
-  UserGroupIcon,
-  // CameraIcon,
-  // BuildingOfficeIcon,
-} from "@heroicons/react/24/outline";
+  Map,
+  List,
+  BookOpen,
+  Users,
+  // Camera,
+  // Building,
+} from "lucide-react";
 
 const nosilhaFeatures = [
   {
@@ -20,21 +20,21 @@ const nosilhaFeatures = [
     description:
       "Navigate with ease. Our detailed map shows every point of interest, from restaurants and hotels to hidden trails and scenic viewpoints.",
     href: "/map",
-    icon: MapIcon,
+    icon: Map,
   },
   {
     name: "Complete Directory",
     description:
       "Discover the best of Brava. Browse a comprehensive, up-to-date directory of businesses, landmarks, and cultural sites.",
     href: "/directory/all",
-    icon: ListBulletIcon,
+    icon: List,
   },
   {
     name: "Rich History & Culture",
     description:
       "Dive into the stories, figures, and traditions that make Brava unique. Explore historical articles and more.",
     href: "/history",
-    icon: BookOpenIcon,
+    icon: BookOpen,
   },
 ];
 
@@ -54,7 +54,7 @@ const popularPages = [
     description:
       "Discover the fascinating stories and events that shaped this remarkable island",
     href: "/history",
-    icon: BookOpenIcon,
+    icon: BookOpen,
     category: "Culture",
   },
   /*
@@ -63,7 +63,7 @@ const popularPages = [
     description:
       "Browse stunning visual stories of Brava's landscapes and culture",
     href: "/media/photos",
-    icon: CameraIcon,
+    icon: Camera,
     category: "Culture",
   },
   */
@@ -71,7 +71,7 @@ const popularPages = [
     name: "Historical Figures",
     description: "Meet the remarkable people who shaped Brava's rich heritage",
     href: "/people",
-    icon: UserGroupIcon,
+    icon: Users,
     category: "Culture",
   },
 ].filter(Boolean);

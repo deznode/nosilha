@@ -1,10 +1,4 @@
-import {
-  BuildingLibraryIcon,
-  BuildingOffice2Icon,
-  MapPinIcon,
-  ShoppingBagIcon,
-  SunIcon,
-} from "@heroicons/react/24/solid";
+import { Landmark, Building2, MapPin, ShoppingBag, Sun } from "lucide-react";
 
 interface CategoryMarkerIconProps {
   category: string;
@@ -17,18 +11,14 @@ export function CategoryMarkerIcon({
 }: CategoryMarkerIconProps) {
   switch (category) {
     case "Restaurant":
-      return (
-        <ShoppingBagIcon className={`${className} text-bougainvillea-pink`} />
-      );
+      return <ShoppingBag className={`${className} text-bougainvillea-pink`} />;
     case "Hotel":
-      return <BuildingOffice2Icon className={`${className} text-ocean-blue`} />;
+      return <Building2 className={`${className} text-ocean-blue`} />;
     case "Beach":
-      return <SunIcon className={`${className} text-sunny-yellow`} />;
+      return <Sun className={`${className} text-sunny-yellow`} />;
     case "Landmark":
-      return (
-        <BuildingLibraryIcon className={`${className} text-valley-green`} />
-      );
+      return <Landmark className={`${className} text-valley-green`} />;
     default:
-      return <MapPinIcon className={`${className} text-text-tertiary`} />;
+      return <MapPin className={`${className} text-text-tertiary`} />;
   }
 }

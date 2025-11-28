@@ -2,11 +2,7 @@
 
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  SunIcon,
-  MoonIcon,
-  ComputerDesktopIcon,
-} from "@heroicons/react/24/outline";
+import { Sun, Moon, Monitor } from "lucide-react";
 import clsx from "clsx";
 import { useTheme, useUiStore } from "@/stores/uiStore";
 import { iconFlip } from "@/lib/animation";
@@ -55,12 +51,12 @@ export function ThemeToggle() {
 
     switch (theme) {
       case "light":
-        return <SunIcon {...iconProps} />;
+        return <Sun {...iconProps} />;
       case "dark":
-        return <MoonIcon {...iconProps} />;
+        return <Moon {...iconProps} />;
       case "system":
       default:
-        return <ComputerDesktopIcon {...iconProps} />;
+        return <Monitor {...iconProps} />;
     }
   };
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Search, X } from "lucide-react";
 
 interface SearchResult {
   url: string;
@@ -117,7 +117,7 @@ export function ContentSearch({
     <div className={`relative ${className}`}>
       {/* Search input */}
       <div className="relative">
-        <MagnifyingGlassIcon className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
+        <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
         <input
           type="text"
           value={query}
@@ -142,7 +142,7 @@ export function ContentSearch({
             className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
             aria-label="Clear search"
           >
-            <XMarkIcon className="h-5 w-5" />
+            <X className="h-5 w-5" />
           </button>
         )}
       </div>

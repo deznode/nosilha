@@ -1,11 +1,6 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/ui/page-header";
-import {
-  CameraIcon,
-  DocumentTextIcon,
-  MapIcon,
-  HeartIcon,
-} from "@heroicons/react/24/outline";
+import { Camera, FileText, Map, Heart } from "lucide-react";
 
 // Static page - no revalidation needed
 export const dynamic = "force-static";
@@ -22,7 +17,7 @@ export default function ContributePage() {
         {/* Hero Section */}
         <section className="bg-background-primary mt-16 rounded-lg p-8 shadow-sm">
           <div className="text-center">
-            <HeartIcon className="text-ocean-blue mx-auto h-16 w-16" />
+            <Heart className="text-ocean-blue mx-auto h-16 w-16" />
             <h2 className="text-text-primary mt-4 font-serif text-2xl font-bold">
               Together, We Build Something Beautiful
             </h2>
@@ -43,7 +38,7 @@ export default function ContributePage() {
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {/* Photo Contributions */}
             <div className="bg-background-primary rounded-lg p-6 shadow-sm">
-              <CameraIcon className="text-ocean-blue mb-4 h-10 w-10" />
+              <Camera className="text-ocean-blue mb-4 h-10 w-10" />
               <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 Share Your Photos
               </h4>
@@ -67,7 +62,7 @@ export default function ContributePage() {
 
             {/* Information Updates */}
             <div className="bg-background-primary rounded-lg p-6 shadow-sm">
-              <DocumentTextIcon className="text-valley-green mb-4 h-10 w-10" />
+              <FileText className="text-valley-green mb-4 h-10 w-10" />
               <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 Update Information
               </h4>
@@ -90,7 +85,7 @@ export default function ContributePage() {
 
             {/* Local Stories */}
             <div className="bg-background-primary rounded-lg p-6 shadow-sm">
-              <MapIcon className="text-bougainvillea-pink mb-4 h-10 w-10" />
+              <Map className="text-bougainvillea-pink mb-4 h-10 w-10" />
               <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 Share Local Stories
               </h4>

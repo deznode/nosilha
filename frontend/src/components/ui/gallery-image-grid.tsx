@@ -3,12 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
-import {
-  MapPinIcon,
-  CalendarIcon,
-  EyeIcon,
-  ShareIcon,
-} from "@heroicons/react/24/outline";
+import { MapPin, Calendar, Eye, Share2 } from "lucide-react";
 
 interface Photo {
   src: string;
@@ -57,7 +52,7 @@ export function GalleryImageGrid({ photos }: GalleryImageGridProps) {
                   className="rounded-full bg-white/90 p-2 shadow-lg hover:bg-white"
                   aria-label="View full size"
                 >
-                  <EyeIcon className="text-text-primary h-4 w-4" />
+                  <Eye className="text-text-primary h-4 w-4" />
                 </button>
               </div>
             </div>
@@ -65,11 +60,11 @@ export function GalleryImageGrid({ photos }: GalleryImageGridProps) {
             <div className="p-4">
               <div className="text-text-secondary mb-2 flex items-center gap-4 text-xs">
                 <span className="flex items-center">
-                  <MapPinIcon className="mr-1 h-3 w-3" />
+                  <MapPin className="mr-1 h-3 w-3" />
                   {photo.location}
                 </span>
                 <span className="flex items-center">
-                  <CalendarIcon className="mr-1 h-3 w-3" />
+                  <Calendar className="mr-1 h-3 w-3" />
                   {photo.date}
                 </span>
               </div>
@@ -79,7 +74,7 @@ export function GalleryImageGrid({ photos }: GalleryImageGridProps) {
               </p>
 
               <button className="text-ocean-blue hover:text-ocean-blue/80 flex items-center text-xs font-medium">
-                <ShareIcon className="mr-1 h-3 w-3" />
+                <Share2 className="mr-1 h-3 w-3" />
                 Share
               </button>
             </div>

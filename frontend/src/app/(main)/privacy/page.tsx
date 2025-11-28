@@ -1,12 +1,6 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/ui/page-header";
-import {
-  ShieldCheckIcon,
-  EyeIcon,
-  ServerIcon,
-  EnvelopeIcon,
-  CalendarIcon,
-} from "@heroicons/react/24/outline";
+import { ShieldCheck, Eye, Server, Mail, Calendar } from "lucide-react";
 
 // Static page - no revalidation needed
 export const dynamic = "force-static";
@@ -23,7 +17,7 @@ export default function PrivacyPage() {
         {/* Last Updated */}
         <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-6 shadow-sm">
           <div className="flex items-center justify-center text-center">
-            <CalendarIcon className="text-ocean-blue mr-2 h-6 w-6" />
+            <Calendar className="text-ocean-blue mr-2 h-6 w-6" />
             <span className="text-text-secondary">
               <strong>Last Updated:</strong>{" "}
               {new Date().toLocaleDateString("en-US", {
@@ -38,7 +32,7 @@ export default function PrivacyPage() {
         {/* Introduction */}
         <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
           <div className="mb-4 flex items-start">
-            <ShieldCheckIcon className="text-ocean-blue mt-1 mr-3 h-8 w-8" />
+            <ShieldCheck className="text-ocean-blue mt-1 mr-3 h-8 w-8" />
             <div>
               <h2 className="text-text-primary mb-4 font-serif text-2xl font-bold">
                 Our Commitment to You and Brava&apos;s Heritage
@@ -166,7 +160,7 @@ export default function PrivacyPage() {
         {/* Data Storage and Security */}
         <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
           <div className="mb-4 flex items-start">
-            <ServerIcon className="text-valley-green mt-1 mr-3 h-8 w-8" />
+            <Server className="text-valley-green mt-1 mr-3 h-8 w-8" />
             <div>
               <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
                 Data Storage and Security
@@ -210,7 +204,7 @@ export default function PrivacyPage() {
         {/* Your Rights */}
         <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
           <div className="mb-4 flex items-start">
-            <EyeIcon className="text-bougainvillea-pink mt-1 mr-3 h-8 w-8" />
+            <Eye className="text-bougainvillea-pink mt-1 mr-3 h-8 w-8" />
             <div>
               <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
                 Your Privacy Rights
@@ -412,7 +406,7 @@ export default function PrivacyPage() {
         {/* TODO: Verify that privacy@nosilha.com is set up and monitored */}
         <section className="from-ocean-blue/10 to-valley-green/10 mt-16 rounded-lg bg-gradient-to-r p-8">
           <div className="text-center">
-            <EnvelopeIcon className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
+            <Mail className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
             <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
               Questions About Privacy?
             </h3>

@@ -1,11 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { GalleryImageGrid } from "@/components/ui/gallery-image-grid";
-import {
-  ArrowLeftIcon,
-  MapPinIcon,
-  PhotoIcon,
-} from "@heroicons/react/24/outline";
+import { ArrowLeft, MapPin, ImageIcon } from "lucide-react";
 
 // Enable ISR with 1 hour revalidation for gallery content
 export const revalidate = 3600;
@@ -402,7 +398,7 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
             href="/media/photos"
             className="text-ocean-blue hover:text-ocean-blue/80 inline-flex items-center font-medium"
           >
-            <ArrowLeftIcon className="mr-2 h-4 w-4" />
+            <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Photo Galleries
           </Link>
         </div>
@@ -416,11 +412,11 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
               {gallery.category}
             </span>
             <span className="text-text-secondary flex items-center text-sm">
-              <PhotoIcon className="mr-1 h-4 w-4" />
+              <ImageIcon className="mr-1 h-4 w-4" />
               {gallery.photos.length} images
             </span>
             <span className="text-text-secondary flex items-center text-sm">
-              <MapPinIcon className="mr-1 h-4 w-4" />
+              <MapPin className="mr-1 h-4 w-4" />
               {gallery.location}
             </span>
           </div>

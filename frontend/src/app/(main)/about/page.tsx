@@ -1,14 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { PageHeader } from "@/components/ui/page-header";
-import {
-  HeartIcon,
-  GlobeAltIcon,
-  UsersIcon,
-  CodeBracketIcon,
-  CameraIcon,
-  MapIcon,
-} from "@heroicons/react/24/outline";
+import { Heart, Globe, Users, Code, Camera, Map } from "lucide-react";
 
 // Static page - no revalidation needed
 export const dynamic = "force-static";
@@ -62,8 +55,8 @@ export default function AboutPage() {
           </h3>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <div className="bg-background-primary border-border-primary rounded-lg border p-6 text-center shadow-sm">
-              <HeartIcon className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
+            <div className="bg-background-primary border-border-primary rounded-xl border p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <Heart className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
               <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 Community First
               </h4>
@@ -74,8 +67,8 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="bg-background-primary border-border-primary rounded-lg border p-6 text-center shadow-sm">
-              <GlobeAltIcon className="text-valley-green mx-auto mb-4 h-12 w-12" />
+            <div className="bg-background-primary border-border-primary rounded-xl border p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <Globe className="text-valley-green mx-auto mb-4 h-12 w-12" />
               <h4 className="text-text-primary mb-2 font-semibold">
                 Cultural Preservation
               </h4>
@@ -86,8 +79,8 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="bg-background-primary border-border-primary rounded-lg border p-6 text-center shadow-sm">
-              <UsersIcon className="text-bougainvillea-pink mx-auto mb-4 h-12 w-12" />
+            <div className="bg-background-primary border-border-primary rounded-xl border p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <Users className="text-bougainvillea-pink mx-auto mb-4 h-12 w-12" />
               <h4 className="text-text-primary mb-2 font-semibold">
                 Open Collaboration
               </h4>
@@ -150,8 +143,8 @@ export default function AboutPage() {
           </h3>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
-              <MapIcon className="text-ocean-blue mb-3 h-8 w-8" />
+            <div className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <Map className="text-ocean-blue mb-3 h-8 w-8" />
               <h4 className="text-text-primary mb-2 font-semibold">
                 Interactive Map
               </h4>
@@ -161,8 +154,8 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
-              <CameraIcon className="text-valley-green mb-3 h-8 w-8" />
+            <div className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <Camera className="text-valley-green mb-3 h-8 w-8" />
               <h4 className="text-text-primary mb-2 font-semibold">
                 Photo Galleries
               </h4>
@@ -172,8 +165,8 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm">
-              <CodeBracketIcon className="text-bougainvillea-pink mb-3 h-8 w-8" />
+            <div className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+              <Code className="text-bougainvillea-pink mb-3 h-8 w-8" />
               <h4 className="text-text-primary mb-2 font-semibold">
                 Directory System
               </h4>
@@ -207,7 +200,7 @@ export default function AboutPage() {
 
             <div className="text-center">
               <div className="text-valley-green mb-2 text-3xl font-bold">
-                <HeartIcon className="mx-auto h-12 w-12" />
+                <Heart className="mx-auto h-12 w-12" />
               </div>
               <div className="text-text-primary mb-1 text-sm font-medium">
                 Volunteer-Powered

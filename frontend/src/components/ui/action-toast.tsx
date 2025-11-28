@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  InformationCircleIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
+import { CheckCircle, AlertTriangle, Info, X } from "lucide-react";
 import { motion } from "framer-motion";
 import clsx from "clsx";
 import { makeSlideInFrom } from "@/lib/animation";
@@ -38,10 +33,10 @@ export function ActionToast({
 
   const Icon =
     variant === "success"
-      ? CheckCircleIcon
+      ? CheckCircle
       : variant === "error"
-        ? ExclamationTriangleIcon
-        : InformationCircleIcon;
+        ? AlertTriangle
+        : Info;
 
   // Use centralized slide animation
   const slideFromRight = makeSlideInFrom("right", 100);
@@ -69,7 +64,7 @@ export function ActionToast({
           className="ml-2 flex-shrink-0 rounded-md p-1 hover:bg-white/20 focus:ring-2 focus:ring-white/50 focus:outline-none"
           aria-label="Dismiss notification"
         >
-          <XMarkIcon className="h-4 w-4" aria-hidden="true" />
+          <X className="h-4 w-4" aria-hidden="true" />
         </button>
       )}
     </motion.div>

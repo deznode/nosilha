@@ -4,12 +4,7 @@ import { notFound } from "next/navigation";
 import type { DirectoryEntry } from "@/types/directory";
 import { DirectoryCard } from "@/components/ui/directory-card";
 import { getEntriesByCategory, getTownBySlug } from "@/lib/api";
-import {
-  MapPinIcon,
-  UserGroupIcon,
-  BuildingOfficeIcon,
-  CameraIcon,
-} from "@heroicons/react/24/outline";
+import { MapPin, Users, Building, Camera } from "lucide-react";
 
 // Enable ISR with 1 hour revalidation for town content
 export const revalidate = 3600;
@@ -100,7 +95,7 @@ export default async function TownPage({ params }: TownPageProps) {
             <div className="space-y-4">
               <div className="bg-background-secondary rounded-lg p-4">
                 <div className="mb-2 flex items-center">
-                  <UserGroupIcon className="text-ocean-blue mr-2 h-5 w-5" />
+                  <Users className="text-ocean-blue mr-2 h-5 w-5" />
                   <span className="text-text-primary font-semibold">
                     Population
                   </span>
@@ -112,7 +107,7 @@ export default async function TownPage({ params }: TownPageProps) {
 
               <div className="bg-background-secondary rounded-lg p-4">
                 <div className="mb-2 flex items-center">
-                  <MapPinIcon className="text-ocean-blue mr-2 h-5 w-5" />
+                  <MapPin className="text-ocean-blue mr-2 h-5 w-5" />
                   <span className="text-text-primary font-semibold">
                     Elevation
                   </span>
@@ -124,7 +119,7 @@ export default async function TownPage({ params }: TownPageProps) {
 
               <div className="bg-background-secondary rounded-lg p-4">
                 <div className="mb-2 flex items-center">
-                  <BuildingOfficeIcon className="text-ocean-blue mr-2 h-5 w-5" />
+                  <Building className="text-ocean-blue mr-2 h-5 w-5" />
                   <span className="text-text-primary font-semibold">
                     Founded
                   </span>
@@ -177,7 +172,7 @@ export default async function TownPage({ params }: TownPageProps) {
 
         {/* Contribute Section */}
         <section className="from-ocean-blue/10 to-valley-green/10 mt-16 rounded-lg bg-gradient-to-r p-8 text-center">
-          <CameraIcon className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
+          <Camera className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
           <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
             Share Your {town.name} Experience
           </h3>

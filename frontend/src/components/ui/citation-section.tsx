@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpenIcon, ChevronDownIcon } from "@heroicons/react/24/outline";
+import { BookOpen, ChevronDown } from "lucide-react";
 import { useState } from "react";
 
 type Citation = {
@@ -21,7 +21,7 @@ export function CitationSection({ citations }: CitationSectionProps) {
     <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center">
-          <BookOpenIcon className="text-ocean-blue mr-3 h-8 w-8" />
+          <BookOpen className="text-ocean-blue mr-3 h-8 w-8" />
           <h3 className="text-text-primary font-serif text-2xl font-bold">
             Sources & Citations
           </h3>
@@ -30,7 +30,7 @@ export function CitationSection({ citations }: CitationSectionProps) {
           onClick={() => setIsOpen(!isOpen)}
           className="rounded-full p-2 hover:bg-gray-200"
         >
-          <ChevronDownIcon
+          <ChevronDown
             className={`h-6 w-6 text-gray-600 transition-transform ${
               isOpen ? "rotate-180 transform" : ""
             }`}

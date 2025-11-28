@@ -2,13 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { PageHeader } from "@/components/ui/page-header";
 import { PhotoGalleryFilter } from "@/components/ui/photo-gallery-filter";
-import {
-  CameraIcon,
-  EyeIcon,
-  MapPinIcon,
-  CalendarIcon,
-  HeartIcon,
-} from "@heroicons/react/24/outline";
+import { Camera, Eye, MapPin, Calendar, Heart } from "lucide-react";
 
 // Enable ISR with 1 hour revalidation for photo content
 export const revalidate = 3600;
@@ -440,19 +434,19 @@ export default function PhotosPage() {
               </h4>
               <ul className="text-text-secondary space-y-2">
                 <li className="flex items-start">
-                  <CameraIcon className="text-ocean-blue mt-0.5 mr-2 h-4 w-4 flex-shrink-0" />
+                  <Camera className="text-ocean-blue mt-0.5 mr-2 h-4 w-4 flex-shrink-0" />
                   High-resolution images (minimum 1200px width)
                 </li>
                 <li className="flex items-start">
-                  <MapPinIcon className="text-ocean-blue mt-0.5 mr-2 h-4 w-4 flex-shrink-0" />
+                  <MapPin className="text-ocean-blue mt-0.5 mr-2 h-4 w-4 flex-shrink-0" />
                   Include location information when possible
                 </li>
                 <li className="flex items-start">
-                  <CalendarIcon className="text-ocean-blue mt-0.5 mr-2 h-4 w-4 flex-shrink-0" />
+                  <Calendar className="text-ocean-blue mt-0.5 mr-2 h-4 w-4 flex-shrink-0" />
                   Add date and context for cultural events
                 </li>
                 <li className="flex items-start">
-                  <EyeIcon className="text-ocean-blue mt-0.5 mr-2 h-4 w-4 flex-shrink-0" />
+                  <Eye className="text-ocean-blue mt-0.5 mr-2 h-4 w-4 flex-shrink-0" />
                   Respect privacy and property rights
                 </li>
               </ul>
@@ -491,7 +485,7 @@ export default function PhotosPage() {
 
           <div className="grid gap-8 md:grid-cols-2">
             <div className="text-center">
-              <HeartIcon className="text-ocean-blue mx-auto mb-3 h-12 w-12" />
+              <Heart className="text-ocean-blue mx-auto mb-3 h-12 w-12" />
               <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 Local Photographers
               </h4>
@@ -502,7 +496,7 @@ export default function PhotosPage() {
             </div>
 
             <div className="text-center">
-              <CameraIcon className="text-valley-green mx-auto mb-3 h-12 w-12" />
+              <Camera className="text-valley-green mx-auto mb-3 h-12 w-12" />
               <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 Visitor Contributions
               </h4>

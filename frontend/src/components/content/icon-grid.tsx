@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  MusicalNoteIcon,
-  BookOpenIcon,
-  GlobeAltIcon,
-} from "@heroicons/react/24/outline";
+import { Music, BookOpen, Globe } from "lucide-react";
 
 interface IconGridItem {
   icon: "musical-note" | "book-open" | "globe-alt";
@@ -24,9 +20,9 @@ interface IconGridProps {
 }
 
 const iconComponents = {
-  "musical-note": MusicalNoteIcon,
-  "book-open": BookOpenIcon,
-  "globe-alt": GlobeAltIcon,
+  "musical-note": Music,
+  "book-open": BookOpen,
+  "globe-alt": Globe,
 };
 
 const iconColorClasses = {

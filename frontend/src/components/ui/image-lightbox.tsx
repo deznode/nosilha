@@ -2,13 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import {
-  XMarkIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  MapPinIcon,
-  CalendarIcon,
-} from "@heroicons/react/24/outline";
+import { X, ChevronLeft, ChevronRight, MapPin, Calendar } from "lucide-react";
 
 interface Photo {
   src: string;
@@ -93,7 +87,7 @@ export function ImageLightbox({
         className="absolute top-4 right-4 z-60 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
         aria-label="Close lightbox"
       >
-        <XMarkIcon className="h-6 w-6" />
+        <X className="h-6 w-6" />
       </button>
 
       {/* Navigation buttons */}
@@ -104,14 +98,14 @@ export function ImageLightbox({
             className="absolute left-4 z-60 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
             aria-label="Previous image"
           >
-            <ChevronLeftIcon className="h-6 w-6" />
+            <ChevronLeft className="h-6 w-6" />
           </button>
           <button
             onClick={goToNext}
             className="absolute right-16 z-60 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
             aria-label="Next image"
           >
-            <ChevronRightIcon className="h-6 w-6" />
+            <ChevronRight className="h-6 w-6" />
           </button>
         </>
       )}
@@ -148,11 +142,11 @@ export function ImageLightbox({
 
             <div className="flex items-center gap-4 text-sm text-white/80">
               <span className="flex items-center">
-                <MapPinIcon className="mr-1 h-4 w-4" />
+                <MapPin className="mr-1 h-4 w-4" />
                 {currentPhoto.location}
               </span>
               <span className="flex items-center">
-                <CalendarIcon className="mr-1 h-4 w-4" />
+                <Calendar className="mr-1 h-4 w-4" />
                 {currentPhoto.date}
               </span>
             </div>

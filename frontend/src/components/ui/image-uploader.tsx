@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, DragEvent, ChangeEvent } from "react";
-import { PhotoIcon } from "@heroicons/react/24/solid";
+import { ImageIcon } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/catalyst-ui/button";
 import clsx from "clsx";
@@ -91,7 +91,7 @@ export function ImageUploader({ onFileSelect }: ImageUploaderProps) {
           )}
         >
           <div className="text-center">
-            <PhotoIcon
+            <ImageIcon
               aria-hidden="true"
               className="text-text-tertiary mx-auto h-12 w-12"
             />
