@@ -24,6 +24,8 @@ const baseContentSchema = s.object({
   category: s.enum(categories),
   tags: s.array(s.string().max(30)).min(1).max(10),
   coverImage: s.string().optional(),
+  // Draft status - drafts are filtered out in production
+  draft: s.boolean().optional().default(false),
   // Translation tracking
   sourceHash: s.string().optional(),
   translationStatus: s.enum(["complete", "partial", "outdated"]).optional(),

@@ -10,7 +10,6 @@ import { Footer } from "@/components/ui/footer";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ToastProvider } from "@/components/providers/toast-provider";
-import Banner from "@/components/ui/banner";
 import {
   siteConfig,
   generateOrganizationSchema,
@@ -158,14 +157,6 @@ export default function RootLayout({
               <div className="flex min-h-screen flex-col">
                 {/* 3. Render the global Header, main content, and Footer */}
                 <Header className="print:hidden" />
-                {/* Cape Verde World Cup 2026 Celebration Banner - Below Header */}
-                <div className="md:sticky md:top-16 md:z-50 print:hidden">
-                  <Banner
-                    title="Tubarões Azuis: Mundial 2026!"
-                    message="From Pawtucket to Brava, Boston to Praia - the Blue Sharks made history. Read the inside story of Cape Verde's impossible dream."
-                    linkUrl="https://www.bbc.com/sport/football/articles/c04q0gd0yedo"
-                  />
-                </div>
                 <main id="main-content" className="animate-fade-in flex-grow">
                   {children}
                 </main>

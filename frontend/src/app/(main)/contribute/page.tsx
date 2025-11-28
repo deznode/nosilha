@@ -37,7 +37,7 @@ export default function ContributePage() {
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {/* Photo Contributions */}
-            <div className="bg-background-primary rounded-lg p-6 shadow-sm">
+            <div className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
               <Camera className="text-ocean-blue mb-4 h-10 w-10" />
               <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 Share Your Photos
@@ -61,7 +61,7 @@ export default function ContributePage() {
             </div>
 
             {/* Information Updates */}
-            <div className="bg-background-primary rounded-lg p-6 shadow-sm">
+            <div className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
               <FileText className="text-valley-green mb-4 h-10 w-10" />
               <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 Update Information
@@ -84,7 +84,7 @@ export default function ContributePage() {
             </div>
 
             {/* Local Stories */}
-            <div className="bg-background-primary rounded-lg p-6 shadow-sm">
+            <div className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
               <Map className="text-bougainvillea-pink mb-4 h-10 w-10" />
               <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 Share Local Stories

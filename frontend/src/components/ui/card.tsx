@@ -14,7 +14,7 @@ export const Card = React.forwardRef<
     ref={ref}
     className={clsx(
       // Base styles for the card component
-      "border-border-primary bg-background-primary rounded-lg border",
+      "border-border-primary bg-background-primary rounded-xl border",
       className
     )}
     {...props}

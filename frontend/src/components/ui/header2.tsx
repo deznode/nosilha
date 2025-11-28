@@ -90,9 +90,9 @@ const navigation = [
 ];
 
 const languages = [
-  { code: "EN", label: "English", flag: "🇺🇸" },
-  { code: "PT", label: "Português", flag: "🇵🇹" },
-  { code: "CV", label: "Kriolu", flag: "🇨🇻" },
+  { code: "EN", label: "English", flag: "🇺🇸", disabled: false },
+  { code: "PT", label: "Português", flag: "🇵🇹", disabled: true },
+  { code: "CV", label: "Kriolu", flag: "🇨🇻", disabled: true },
 ];
 
 export interface HeaderProps {
@@ -279,22 +279,35 @@ export function Header({
                       leaveFrom="transform opacity-100 scale-100"
                       leaveTo="transform opacity-0 scale-95"
                     >
-                      <MenuItems className="bg-background-primary absolute right-0 z-10 mt-2 w-36 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
+                      <MenuItems className="bg-background-primary absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
                         {languages.map((lang) => (
-                          <MenuItem key={lang.code}>
+                          <MenuItem key={lang.code} disabled={lang.disabled}>
                             {({ active }) => (
                               <button
-                                onClick={() => setCurrentLang(lang)}
+                                onClick={() =>
+                                  !lang.disabled && setCurrentLang(lang)
+                                }
+                                disabled={lang.disabled}
+                                title={
+                                  lang.disabled ? "Coming soon" : undefined
+                                }
                                 className={clsx(
-                                  active
-                                    ? "bg-background-secondary text-ocean-blue"
-                                    : "text-text-primary",
+                                  lang.disabled
+                                    ? "text-text-tertiary cursor-not-allowed opacity-50"
+                                    : active
+                                      ? "bg-background-secondary text-ocean-blue"
+                                      : "text-text-primary",
                                   "group flex w-full items-center justify-between px-4 py-2 text-sm"
                                 )}
                               >
                                 <span className="flex items-center gap-2">
                                   <span>{lang.flag}</span>
                                   {lang.label}
+                                  {lang.disabled && (
+                                    <span className="text-text-tertiary ml-1 text-xs italic">
+                                      (Coming soon)
+                                    </span>
+                                  )}
                                 </span>
                                 {currentLang.code === lang.code && (
                                   <Check className="text-ocean-blue h-4 w-4" />
@@ -493,12 +506,16 @@ export function Header({
                   {languages.map((lang) => (
                     <button
                       key={lang.code}
-                      onClick={() => setCurrentLang(lang)}
+                      onClick={() => !lang.disabled && setCurrentLang(lang)}
+                      disabled={lang.disabled}
+                      title={lang.disabled ? "Coming soon" : undefined}
                       className={clsx(
                         "flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
-                        currentLang.code === lang.code
-                          ? "bg-ocean-blue border-ocean-blue text-white"
-                          : "text-text-secondary border-border-primary hover:border-ocean-blue bg-transparent"
+                        lang.disabled
+                          ? "border-border-primary text-text-tertiary cursor-not-allowed bg-transparent opacity-40"
+                          : currentLang.code === lang.code
+                            ? "bg-ocean-blue border-ocean-blue text-white"
+                            : "text-text-secondary border-border-primary hover:border-ocean-blue bg-transparent"
                       )}
                     >
                       <span>{lang.flag}</span>

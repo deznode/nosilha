@@ -14,6 +14,11 @@ export { EventCard } from "./event-card";
 export { KrioluProverbCard } from "./kriolu-proverb-card";
 export { WeatherWidget } from "./weather-widget";
 export { StatItem } from "./stat-item";
+export {
+  AnnouncementPill,
+  type AnnouncementPillProps,
+  type AnnouncementIconName,
+} from "./announcement-pill";
 
 // Section Components
 export { HeroSection } from "./hero-section";

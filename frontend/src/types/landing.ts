@@ -85,3 +85,26 @@ export interface QuickAccessLink {
   href: string;
   emoji?: string;
 }
+
+/**
+ * Available icons for announcement badges
+ */
+export type AnnouncementIconName = "trophy" | "megaphone" | "sparkles" | "bell";
+
+/**
+ * Announcement configuration for hero section
+ */
+export interface AnnouncementConfig {
+  /** Unique ID for localStorage persistence */
+  id: string;
+  /** Link destination */
+  href: string;
+  /** Main announcement text */
+  text: string;
+  /** Badge label (e.g., "News", "Update") */
+  badge?: string;
+  /** Optional icon name for the badge */
+  icon?: AnnouncementIconName;
+  /** Whether the announcement can be dismissed (default: true) */
+  dismissible?: boolean;
+}

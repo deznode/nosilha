@@ -8,6 +8,16 @@ import {
   NewsletterCtaSection,
 } from "@/components/landing";
 import type { DirectoryEntry } from "@/types/directory";
+import type { AnnouncementConfig } from "@/types/landing";
+
+const worldCupAnnouncement: AnnouncementConfig = {
+  id: "world-cup-2026",
+  href: "https://www.bbc.com/sport/football/articles/c04q0gd0yedo",
+  text: "Tubarões Azuis: Mundial 2026! Read the full story",
+  badge: "News",
+  icon: "trophy",
+  dismissible: false,
+};
 
 export interface NewHomePageContentProps {
   featuredEntries?: DirectoryEntry[];
@@ -34,7 +44,7 @@ export function NewHomePageContent({
 }: NewHomePageContentProps) {
   return (
     <>
-      <HeroSection />
+      <HeroSection announcement={worldCupAnnouncement} />
       <ExploreHeritageSection />
       <LivingCultureSection />
       <FeaturedStoriesSection entries={featuredEntries} />

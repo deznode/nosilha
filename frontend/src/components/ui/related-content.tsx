@@ -129,7 +129,21 @@ export function RelatedContent({
   }
 
   if (relatedEntries.length === 0) {
-    return null; // Don't show section if no related content
+    return (
+      <section
+        className={`related-content ${className}`}
+        aria-label="No related content available"
+      >
+        <div className="container mx-auto px-4 py-8">
+          <h2 className="text-text-primary mb-6 text-2xl font-semibold">
+            {heading}
+          </h2>
+          <p className="text-text-secondary text-center">
+            No related heritage content available at this time.
+          </p>
+        </div>
+      </section>
+    );
   }
 
   return (
@@ -190,7 +204,7 @@ function RelatedEntryCard({ entry }: { entry: DirectoryEntry }) {
       aria-label={`View details for ${entry.name}`}
       className="block h-full"
     >
-      <article className="flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md dark:border-gray-700 dark:bg-gray-900">
+      <article className="bg-background-primary border-border-primary flex h-full flex-col overflow-hidden rounded-xl border shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
         <div className="relative h-40 w-full">
           {entry.imageUrl ? (
             <Image
@@ -201,7 +215,7 @@ function RelatedEntryCard({ entry }: { entry: DirectoryEntry }) {
               sizes="(max-width: 640px) 280px, (max-width: 1024px) 50vw, 33vw"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gray-100 text-sm text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+            <div className="bg-background-secondary text-text-tertiary flex h-full w-full items-center justify-center text-sm">
               No image available
             </div>
           )}
@@ -210,11 +224,11 @@ function RelatedEntryCard({ entry }: { entry: DirectoryEntry }) {
           <span className="text-ocean-blue text-xs font-semibold tracking-wide uppercase">
             {entry.category}
           </span>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h3 className="text-text-primary text-lg font-semibold">
             {entry.name}
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">{excerpt}</p>
-          <p className="mt-auto text-xs font-medium text-gray-500 dark:text-gray-400">
+          <p className="text-text-secondary text-sm">{excerpt}</p>
+          <p className="text-text-tertiary mt-auto text-xs font-medium">
             {entry.town}
           </p>
         </div>

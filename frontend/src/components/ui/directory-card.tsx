@@ -22,7 +22,7 @@ export function DirectoryCard({ entry }: DirectoryCardProps) {
       aria-label={`View details for ${entry.name}`}
       className="block h-full"
     >
-      <Card className="h-full overflow-hidden transition-shadow duration-200 ease-in-out hover:shadow-lg">
+      <Card className="h-full overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
         {/* Image Section */}
         <div className="relative aspect-[16/10] w-full">
           {entry.imageUrl ? (

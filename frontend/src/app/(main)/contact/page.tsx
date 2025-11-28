@@ -26,7 +26,7 @@ export default function ContactPage() {
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {/* General Inquiries */}
-            <div className="bg-background-primary rounded-lg p-6 text-center shadow-sm">
+            <div className="bg-background-primary border-border-primary rounded-xl border p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
               <Mail className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
               <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 General Inquiries
@@ -44,7 +44,7 @@ export default function ContactPage() {
             </div>
 
             {/* Content & Contributions */}
-            <div className="bg-background-primary rounded-lg p-6 text-center shadow-sm">
+            <div className="bg-background-primary border-border-primary rounded-xl border p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
               <Camera className="text-valley-green mx-auto mb-4 h-12 w-12" />
               <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 Content & Contributions
@@ -61,7 +61,7 @@ export default function ContactPage() {
             </div>
 
             {/* Technical Support */}
-            <div className="bg-background-primary rounded-lg p-6 text-center shadow-sm">
+            <div className="bg-background-primary border-border-primary rounded-xl border p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
               <Code className="text-bougainvillea-pink mx-auto mb-4 h-12 w-12" />
               <h4 className="text-text-primary mb-2 text-lg font-semibold">
                 Technical Support
@@ -202,7 +202,7 @@ export default function ContactPage() {
           </h3>
 
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="bg-background-primary rounded-lg p-6 shadow-sm">
+            <div className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
               <div className="mb-3 flex items-start">
                 <HelpCircle className="text-ocean-blue mt-0.5 mr-3 h-6 w-6" />
                 <h4 className="text-text-primary font-semibold">
@@ -224,7 +224,7 @@ export default function ContactPage() {
               </p>
             </div>
 
-            <div className="bg-background-primary rounded-lg p-6 shadow-sm">
+            <div className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
               <div className="mb-3 flex items-start">
                 <HelpCircle className="text-valley-green mt-0.5 mr-3 h-6 w-6" />
                 <h4 className="text-text-primary font-semibold">
@@ -246,7 +246,7 @@ export default function ContactPage() {
               </p>
             </div>
 
-            <div className="bg-background-primary rounded-lg p-6 shadow-sm">
+            <div className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
               <div className="mb-3 flex items-start">
                 <HelpCircle className="text-bougainvillea-pink mt-0.5 mr-3 h-6 w-6" />
                 <h4 className="text-text-primary font-semibold">
@@ -268,7 +268,7 @@ export default function ContactPage() {
               </p>
             </div>
 
-            <div className="bg-background-primary rounded-lg p-6 shadow-sm">
+            <div className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
               <div className="mb-3 flex items-start">
                 <HelpCircle className="text-sunny-yellow mt-0.5 mr-3 h-6 w-6" />
                 <h4 className="text-text-primary font-semibold">

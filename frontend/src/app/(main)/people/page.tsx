@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { PageHeader } from "@/components/ui/page-header";
 import { pages } from "@/.velite";
 
@@ -6,9 +5,9 @@ import { pages } from "@/.velite";
 export const revalidate = 7200;
 
 export default function PeoplePage() {
-  // Filter to people category, English only
+  // Filter to people category, English only, exclude drafts
   const peoplePages = pages
-    .filter((p) => p.category === "people" && p.language === "en")
+    .filter((p) => p.category === "people" && p.language === "en" && !p.draft)
     .sort(
       (a, b) =>
         new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()
@@ -23,15 +22,44 @@ export default function PeoplePage() {
         />
 
         {peoplePages.length === 0 ? (
-          <div className="py-12 text-center">
-            <p className="text-text-secondary">
-              No content published yet. Check back soon!
-            </p>
+          <div className="py-16 text-center">
+            <div className="mx-auto max-w-2xl rounded-lg border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+              <div className="mb-6">
+                <span className="inline-block rounded-full bg-amber-100 px-4 py-2 text-sm font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                  Coming Soon
+                </span>
+              </div>
+              <h2 className="font-merriweather mb-4 text-2xl font-bold text-gray-900 dark:text-white">
+                Research in Progress
+              </h2>
+              <p className="mb-6 text-gray-600 dark:text-gray-300">
+                We are conducting careful research to properly document the
+                remarkable individuals who shaped Brava&apos;s cultural
+                heritage. Our goal is to present accurate, well-sourced
+                information that honors their legacies.
+              </p>
+              <div className="mb-6 rounded-lg bg-gray-50 p-4 dark:bg-gray-700/50">
+                <p className="text-sm text-gray-600 dark:text-gray-300">
+                  <span className="font-semibold">Expected:</span> Q1 2026
+                </p>
+              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Do you have stories, photos, or information about historical
+                figures from Brava? We&apos;d love to hear from you.{" "}
+                <a
+                  href="/contact"
+                  className="text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                >
+                  Get in touch
+                </a>
+                .
+              </p>
+            </div>
           </div>
         ) : (
           <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {peoplePages.map((page) => (
-              <Link
+              <a
                 key={page.slug}
                 href={`/people/${page.slug}`}
                 className="block overflow-hidden rounded-lg bg-white shadow-md transition-shadow hover:shadow-lg dark:bg-gray-800"
@@ -61,7 +89,7 @@ export default function PeoplePage() {
                     ))}
                   </div>
                 </div>
-              </Link>
+              </a>
             ))}
           </div>
         )}

@@ -5,9 +5,20 @@ import Link from "next/link";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import type { QuickAccessLink } from "@/types/landing";
+import { AnnouncementPill } from "./announcement-pill";
+import type { AnnouncementIconName } from "./announcement-pill";
 
 interface HeroSectionProps {
   quickLinks?: QuickAccessLink[];
+  /** Optional announcement to display above the hero content */
+  announcement?: {
+    id: string;
+    href: string;
+    text: string;
+    badge?: string;
+    icon?: AnnouncementIconName;
+    dismissible?: boolean;
+  };
 }
 
 const defaultQuickLinks: QuickAccessLink[] = [
@@ -24,6 +35,7 @@ const defaultQuickLinks: QuickAccessLink[] = [
  */
 export function HeroSection({
   quickLinks = defaultQuickLinks,
+  announcement,
 }: HeroSectionProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -55,6 +67,18 @@ export function HeroSection({
       {/* Content Container */}
       <div className="relative z-10 container mx-auto px-4 md:px-6">
         <div className="max-w-4xl">
+          {/* Announcement Pill */}
+          {announcement && (
+            <AnnouncementPill
+              id={announcement.id}
+              href={announcement.href}
+              text={announcement.text}
+              badge={announcement.badge}
+              icon={announcement.icon}
+              dismissible={announcement.dismissible ?? true}
+            />
+          )}
+
           {/* Tagline */}
           <div className="text-sunny-yellow mb-6 flex items-center space-x-3 font-bold tracking-widest uppercase">
             <span className="bg-sunny-yellow h-[3px] w-12 rounded-full" />
