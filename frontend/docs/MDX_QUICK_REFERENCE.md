@@ -6,13 +6,13 @@ Quick reference for Nos Ilha content contributors. Print this page for offline r
 
 ```bash
 # Create new article
-pnpm run scaffold-article
+pnpm run scaffold:article
 
 # Validate content
-pnpm run validate-content
+pnpm run validate:content
 
 # Check translation status
-pnpm run check-translations
+pnpm run check:translations
 
 # Local preview
 pnpm run dev
@@ -31,7 +31,7 @@ title: "Article Title (max 100 chars)"
 description: "Brief description for SEO (max 200 chars)"
 author: "Your Name"
 publishDate: "2025-01-24" # YYYY-MM-DD
-category: "history" # history | music | people | culture
+category: "history" # history | music | people | traditions | places
 tags: ["tag1", "tag2", "tag3"]
 language: "en" # en | pt | kea | fr
 ---
@@ -73,7 +73,7 @@ figures:
   - name: "Person Name"
     role: "Role/Occupation"
     years: "1867-1930"
-    biography: "Short bio..."
+    description: "Short bio..."
     imageSrc: "/images/people/photo.jpg"
 
 # Icon Grid
@@ -189,7 +189,7 @@ citations:
   contentId="uuid-here"
   contentSlug="article-slug"
   contentTitle="Article Title"
-  contentUrl="https://nosilha.com/articles/..."
+  contentUrl="https://nosilha.com/music/..."
   contentType="Article"
   reactions={["❤️", "🎉", "💡", "👏"]}
   isAuthenticated={true}
@@ -213,7 +213,7 @@ _Italic text_
 **_Bold and italic_**
 
 [Link text](https://example.com)
-[Internal link](/articles/history/article-slug)
+[Internal link](/history/article-slug)
 
 - Unordered list item
 - Another item
@@ -242,8 +242,8 @@ Horizontal rule
 1. Copy English file:
 
    ```bash
-   cp content/articles/category/slug/en.mdx \
-      content/articles/category/slug/pt.mdx
+   cp content/pages/category/slug/en.mdx \
+      content/pages/category/slug/pt.mdx
    ```
 
 2. Update frontmatter:
@@ -260,12 +260,12 @@ Horizontal rule
 4. Validate:
 
    ```bash
-   pnpm run validate-content
+   pnpm run validate:content
    ```
 
 5. Preview:
    ```bash
-   open http://localhost:3000/articles/category/slug?lang=pt
+   open http://localhost:3000/category/slug?lang=pt
    ```
 
 ### Translation Checklist
@@ -277,7 +277,7 @@ Horizontal rule
 - [ ] Alt text on images translated
 - [ ] Structured data in frontmatter translated
 - [ ] No English fragments remaining
-- [ ] `category` field NOT translated (must stay `history`, `music`, `people`, or `culture`)
+- [ ] `category` field NOT translated (must stay `history`, `music`, `people`, `traditions`, or `places`)
 - [ ] Validation passes
 - [ ] Preview looks correct
 - [ ] Language switcher works
@@ -286,7 +286,7 @@ Horizontal rule
 
 ### Common Error: Invalid Category
 
-**Error**: `category must be one of [history, music, people, culture]`
+**Error**: `category must be one of [history, music, people, traditions, places]`
 
 **Fix**:
 
@@ -306,13 +306,13 @@ language: "pt" # Must match pt.mdx
 
 ### Common Error: Broken Internal Link
 
-**Error**: `Internal link broken: /articles/history/missing`
+**Error**: `Internal link broken: /history/missing`
 
 **Fix**:
 
 - Create the missing article, OR
 - Remove the link, OR
-- Link to English version: `/articles/history/missing?lang=en`
+- Link to English version: `/history/missing?lang=en`
 
 ### Common Error: Missing Image
 
@@ -339,20 +339,18 @@ publishDate: "2025-01-24" # Not "01/24/2025" or "24-01-2025"
 ```
 frontend/
 ├── content/
-│   ├── articles/          # Article files
-│   │   ├── history/
-│   │   ├── music/
-│   │   ├── people/
-│   │   └── culture/
-│   └── pages/             # Top-level pages
-│       ├── history/
-│       └── people/
+│   └── pages/             # All content (top-level & sub-pages)
+│       ├── history/       # /history + sub-pages
+│       ├── music/         # /music + sub-pages
+│       ├── people/        # /people + sub-pages
+│       ├── traditions/    # /traditions + sub-pages
+│       └── places/        # /places + sub-pages
 ├── public/
 │   └── images/            # Image assets
 │       ├── history/
 │       ├── music/
 │       ├── people/
-│       └── culture/
+│       └── traditions/
 └── src/
     ├── components/
     │   └── content/       # Component source
@@ -389,7 +387,7 @@ Common icon names for `icon` prop:
 | Content not appearing    | Check `isDraft: false`, run `pnpm run build`   |
 | Image not loading        | Verify path: `/images/...`, check file exists  |
 | Component not rendering  | Check `src/lib/content/mdx-components.tsx`     |
-| Build error              | Run `pnpm run validate-content` first          |
+| Build error              | Run `pnpm run validate:content` first          |
 | Language switcher broken | Verify file named correctly (`.mdx` not `.md`) |
 | Validation failing       | Read error message, fix field, run again       |
 
@@ -405,7 +403,7 @@ Common icon names for `icon` prop:
 
 Before submitting content:
 
-- [ ] Content validates (`pnpm run validate-content`)
+- [ ] Content validates (`pnpm run validate:content`)
 - [ ] Preview looks correct (`pnpm run dev`)
 - [ ] Images are optimized (< 500KB each)
 - [ ] Alt text on all images

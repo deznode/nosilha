@@ -461,12 +461,12 @@ figures:
   - name: "Eugénio Tavares"
     role: "Poet & Composer"
     years: "1867-1930"
-    biography: "Renowned composer of mornas and chronicler of Brava's soul..."
+    description: "Renowned composer of mornas and chronicler of Brava's soul..."
     imageSrc: "/images/people/eugenio-tavares.jpg"
   - name: "Marcelino 'Daddy' Grace"
     role: "Religious Leader"
     years: "1881-1960"
-    biography: "Founded the United House of Prayer for All People..."
+    description: "Founded the United House of Prayer for All People..."
     imageSrc: "/images/people/daddy-grace.jpg"
 ```
 
@@ -483,7 +483,7 @@ interface HistoricalFigure {
   name: string; // Person's name
   role: string; // Role/occupation
   years: string; // Lifespan (e.g., "1867-1930")
-  biography: string; // Short biography
+  description: string; // Short biography/description
   imageSrc?: string; // Optional photo path
 }
 ```
@@ -498,7 +498,7 @@ figures:
 - name: "Eugénio Tavares"
   role: "Poet & Composer"
   years: "1867-1930"
-  biography: "Renowned composer of mornas..."
+  description: "Renowned composer of mornas..."
   imageSrc: "/images/people/eugenio-tavares.jpg"
 
 ---
@@ -947,7 +947,7 @@ language: "en"
   contentId="22222222-3333-4444-5555-666666666666"
   contentSlug="morna-legacy"
   contentTitle="The Morna: Brava's Musical Legacy"
-  contentUrl="https://nosilha.com/articles/music/morna-legacy"
+  contentUrl="https://nosilha.com/music/morna-legacy"
   contentType="Article"
   reactions={["❤️", "🎉", "💡", "👏"]}
   isAuthenticated={true}
@@ -1025,12 +1025,12 @@ figures:
   - name: "Eugénio Tavares"
     role: "Poet & Composer"
     years: "1867-1930"
-    biography: "Renowned composer of mornas and chronicler of Brava's soul"
+    description: "Renowned composer of mornas and chronicler of Brava's soul"
     imageSrc: "/images/people/eugenio-tavares.jpg"
   - name: "Marcelino 'Daddy' Grace"
     role: "Religious Leader"
     years: "1881-1960"
-    biography: "Founded the United House of Prayer for All People"
+    description: "Founded the United House of Prayer for All People"
     imageSrc: "/images/people/daddy-grace.jpg"
 
 # Timeline of key events

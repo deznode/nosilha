@@ -102,17 +102,6 @@ const pages = defineCollection({
   }),
 });
 
-// Article collection for /articles/* routes
-const articles = defineCollection({
-  name: "Article",
-  pattern: "articles/**/*.mdx",
-  schema: baseContentSchema.extend({
-    relatedArticles: s.array(s.string()).max(5).default([]),
-    series: s.string().optional(),
-    seriesOrder: s.number().optional(),
-  }),
-});
-
 export default defineConfig({
   root: "content",
   output: {
@@ -121,7 +110,7 @@ export default defineConfig({
     base: "/static/",
     clean: true,
   },
-  collections: { pages, articles },
+  collections: { pages },
   mdx: {
     rehypePlugins: [
       [

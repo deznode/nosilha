@@ -28,17 +28,17 @@ Welcome! This guide will help you add articles, stories, and cultural heritage c
 2. **Create a new article**:
 
    ```bash
-   pnpm run scaffold-article
+   pnpm run scaffold:article
    ```
 
    Follow the prompts to create your article from a template.
 
-3. **Write your content** in `content/articles/[category]/[slug]/en.mdx`
+3. **Write your content** in `content/pages/[category]/[slug]/en.mdx`
 
 4. **Validate your content**:
 
    ```bash
-   pnpm run validate-content
+   pnpm run validate:content
    ```
 
 5. **Preview locally**:
@@ -47,81 +47,70 @@ Welcome! This guide will help you add articles, stories, and cultural heritage c
    pnpm run dev
    ```
 
-   Open `http://localhost:3000/articles/[category]/[slug]`
+   Open `http://localhost:3000/[category]/[slug]`
 
 6. **Submit** your content via pull request
 
 ## Content Structure
 
-The Nos Ilha content platform uses **MDX** (Markdown + React components) for all articles and pages. Content is organized into two main types:
+The Nos Ilha content platform uses **MDX** (Markdown + React components) for all articles and pages. All content lives in `content/pages/`:
 
-### Articles (`content/articles/`)
-
-**Purpose**: Blog posts, stories, historical narratives, cultural features
-
-**Structure**:
-
-```
-content/articles/
-├── history/           # Historical content
-│   ├── brava-migration/
-│   │   ├── en.mdx
-│   │   ├── pt.mdx
-│   │   └── kea.mdx
-│   └── whaling-era/
-│       └── en.mdx
-├── music/             # Musical heritage
-├── people/            # Biographical content
-└── culture/           # Cultural practices
-```
-
-**URL Pattern**: `/articles/[category]/[slug]`
-**Example**: `/articles/history/brava-migration`
-
-### Pages (`content/pages/`)
-
-**Purpose**: Top-level routes for major sections (History, People, Culture)
+### Content Organization (`content/pages/`)
 
 **Structure**:
 
 ```
 content/pages/
-├── history/
+├── history/                    # Top-level page: /history
 │   ├── en.mdx
 │   └── pt.mdx
-├── people/
+├── music/                      # Top-level page: /music
+│   ├── en.mdx
+│   ├── morna-origins/          # Sub-page: /music/morna-origins
+│   │   ├── en.mdx
+│   │   └── pt.mdx
+│   └── funana-traditions/      # Sub-page: /music/funana-traditions
+│       └── en.mdx
+├── people/                     # Top-level page: /people
+│   ├── en.mdx
+│   ├── eugenio-tavares/        # Sub-page: /people/eugenio-tavares
+│   │   └── en.mdx
+│   └── daddy-grace/            # Sub-page: /people/daddy-grace
+│       └── en.mdx
+├── traditions/                 # Top-level page: /traditions
 │   └── en.mdx
-└── culture/
+└── places/                     # Top-level page: /places
     └── en.mdx
 ```
 
-**URL Pattern**: `/[slug]`
-**Example**: `/history`, `/people`
+**URL Patterns**:
+- Top-level pages: `/[category]` (e.g., `/history`, `/music`, `/people`)
+- Sub-pages: `/[category]/[slug]` (e.g., `/music/morna-origins`, `/people/eugenio-tavares`)
 
 ## Writing Your First Article
 
 ### Step 1: Choose Your Content Type
 
-**Are you writing a blog-style article or story?** → Use Articles
-**Are you creating a major section page?** → Use Pages (requires coordination with maintainers)
+**Are you writing a sub-page (article, biography, topic)?** → Create in `content/pages/[category]/[slug]/`
+**Are you creating a top-level section page?** → Create in `content/pages/[category]/` (requires coordination with maintainers)
 
 ### Step 2: Use the Scaffolding Tool
 
 The scaffolding tool creates a new article with proper structure and template:
 
 ```bash
-pnpm run scaffold-article
+pnpm run scaffold:article
 ```
 
 **You'll be prompted for**:
 
-- Article category (history, music, people, culture)
+- Article category (history, music, people, traditions, places)
 - Article slug (URL-friendly name, e.g., `brava-migration`)
 - Article title
 - Author name
 - Brief description
 
-**Output**: Creates `content/articles/[category]/[slug]/en.mdx` with template
+**Output**: Creates `content/pages/[category]/[slug]/en.mdx` with template
 
 ### Step 3: Edit Your Article
 
@@ -164,13 +153,13 @@ Write using a combination of:
 
 ```bash
 # Validate frontmatter, links, and references
-pnpm run validate-content
+pnpm run validate:content
 
 # Start dev server
 pnpm run dev
 
 # Open in browser
-open http://localhost:3000/articles/history/brava-migration
+open http://localhost:3000/history/brava-migration
 ```
 
 ## Frontmatter Schema
@@ -185,7 +174,7 @@ title: "Article Title" # Main title (max 100 chars)
 description: "Brief description" # SEO description (max 200 chars)
 author: "Author Name" # Your name
 publishDate: "2025-01-24" # ISO format: YYYY-MM-DD
-category: "history" # history | music | people | culture
+category: "history" # history | music | people | traditions | places
 tags: ["tag1", "tag2"] # Array of tags
 language: "en" # en | pt | kea | fr
 ---
@@ -231,7 +220,7 @@ figures:
   - name: "Eugénio Tavares"
     role: "Poet & Composer"
     years: "1867-1930"
-    biography: "Renowned mornas composer..."
+    description: "Renowned mornas composer..."
     imageSrc: "/images/people/eugenio-tavares.jpg"
 
 # Icon grid items
@@ -395,7 +384,7 @@ figures:
 - name: "Eugénio Tavares"
   role: "Poet & Composer"
   years: "1867-1930"
-  biography: "Renowned mornas composer..."
+  description: "Renowned mornas composer..."
 
 {/* Use in MDX */}
 
@@ -437,7 +426,7 @@ sections:
 **Manual Validation**:
 
 ```bash
-pnpm run validate-content
+pnpm run validate:content
 ```
 
 ### What Gets Validated
@@ -463,7 +452,7 @@ pnpm run validate-content
 
 ### Fixing Validation Errors
 
-**Common Error**: "Invalid frontmatter: category must be one of [history, music, people, culture]"
+**Common Error**: "Invalid frontmatter: category must be one of [history, music, people, traditions, places]"
 
 **Fix**: Update category in frontmatter:
 
@@ -471,7 +460,7 @@ pnpm run validate-content
 category: "history" # Not "historical" or "heritage"
 ```
 
-**Common Error**: "Internal link broken: /articles/history/missing-article"
+**Common Error**: "Internal link broken: /history/missing-article"
 
 **Fix**: Either create the missing article or remove the link
 
@@ -485,16 +474,16 @@ category: "history" # Not "historical" or "heritage"
 
 ```bash
 # 1. Scaffold article
-pnpm run scaffold-article
+pnpm run scaffold:article
 
 # 2. Write content in generated MDX file
-code content/articles/history/my-article/en.mdx
+code content/pages/history/my-article/en.mdx
 
 # 3. Add images to public folder
 cp ~/photos/hero.jpg public/images/history/
 
 # 4. Validate
-pnpm run validate-content
+pnpm run validate:content
 
 # 5. Preview
 pnpm run dev
@@ -524,7 +513,7 @@ code src/app/(main)/people/people-page-content.tsx
 code velite.config.ts
 
 # 6. Validate and preview
-pnpm run validate-content
+pnpm run validate:content
 pnpm run dev
 ```
 
@@ -532,20 +521,20 @@ pnpm run dev
 
 ```bash
 # 1. Check translation status
-pnpm run check-translations
+pnpm run check:translations
 
 # 2. Create translation file (same directory as original)
-code content/articles/history/my-article/pt.mdx
+code content/pages/history/my-article/pt.mdx
 
 # 3. Copy frontmatter and translate
 # Keep same structure, translate content
 
 # 4. Validate
-pnpm run validate-content
+pnpm run validate:content
 
 # 5. Preview with language switcher
 pnpm run dev
-open http://localhost:3000/articles/history/my-article?lang=pt
+open http://localhost:3000/history/my-article?lang=pt
 ```
 
 **Detailed Translation Guide**: See [`docs/TRANSLATION_GUIDE.md`](./TRANSLATION_GUIDE.md)
@@ -554,16 +543,16 @@ open http://localhost:3000/articles/history/my-article?lang=pt
 
 ```bash
 # 1. Find the article
-ls content/articles/history/
+ls content/pages/history/
 
 # 2. Edit the MDX file
-code content/articles/history/brava-migration/en.mdx
+code content/pages/history/brava-migration/en.mdx
 
 # 3. Update updatedDate in frontmatter
 updatedDate: "2025-01-24"
 
 # 4. Validate
-pnpm run validate-content
+pnpm run validate:content
 
 # 5. Preview changes
 pnpm run dev
@@ -626,7 +615,7 @@ import { Section } from "@/components/content/section";
 
 ### Validation Failing
 
-**Issue**: `pnpm run validate-content` shows errors
+**Issue**: `pnpm run validate:content` shows errors
 
 **Steps**:
 

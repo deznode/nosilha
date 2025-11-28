@@ -25,11 +25,14 @@ interface PagefindUI {
 interface ContentSearchProps {
   placeholder?: string;
   className?: string;
+  /** Callback when user submits search (Enter key or explicit action) */
+  onSearchSubmit?: (query: string) => void;
 }
 
 export function ContentSearch({
   placeholder = "Search articles...",
   className = "",
+  onSearchSubmit,
 }: ContentSearchProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -37,16 +40,22 @@ export function ContentSearch({
   const [isOpen, setIsOpen] = useState(false);
   const [pagefind, setPagefind] = useState<PagefindUI | null>(null);
 
-  // Load Pagefind on mount
+  // Load Pagefind on mount (only in browser, after build)
   useEffect(() => {
     async function loadPagefind() {
+      if (typeof window === "undefined") return;
+
       try {
-        // @ts-expect-error - Pagefind is loaded dynamically
-        const pf = await import("/pagefind/pagefind.js");
+        // Use dynamic path to prevent static analysis by bundler
+        const pagefindPath = ["/pagefind", "pagefind.js"].join("/");
+        const pf = await import(/* webpackIgnore: true */ pagefindPath);
         await pf.init();
         setPagefind(pf);
-      } catch (error) {
-        console.error("Failed to load Pagefind:", error);
+      } catch (_error) {
+        // Pagefind not available - likely in development mode before build
+        console.warn(
+          "Pagefind not loaded. Run 'pnpm run build' to generate search index."
+        );
       }
     }
     loadPagefind();
@@ -113,6 +122,12 @@ export function ContentSearch({
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && query.trim() && onSearchSubmit) {
+              e.preventDefault();
+              onSearchSubmit(query.trim());
+            }
+          }}
           placeholder={placeholder}
           className="focus:border-ocean-blue focus:ring-ocean-blue w-full rounded-lg border border-gray-300 bg-white py-2 pr-10 pl-10 text-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
           aria-label="Search articles"
@@ -144,7 +159,7 @@ export function ContentSearch({
               {results.map((result, index) => (
                 <li key={index}>
                   <Link
-                    href={result.url}
+                    href={result.url.replace(/\.html$/, "")}
                     onClick={() => {
                       setIsOpen(false);
                       setQuery("");

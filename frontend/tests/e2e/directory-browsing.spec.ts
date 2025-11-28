@@ -126,7 +126,7 @@ test.describe("Directory Browsing - Main Listing", () => {
 
       // 3. Image or placeholder (optional)
       const image = firstCard.locator("img");
-      const hasImage = await image.isVisible().catch(() => false);
+      const _hasImage = await image.isVisible().catch(() => false);
 
       // 4. Link to detail page
       const link = firstCard.locator('a[href*="/directory/entry/"]');
@@ -201,7 +201,7 @@ test.describe("Directory Browsing - Entry Detail Pages", () => {
 
     if (firstLinkExists) {
       // Get the href before clicking
-      const href = await firstLink.getAttribute("href");
+      const _href = await firstLink.getAttribute("href");
 
       // Click to navigate to detail page
       await firstLink.click();
@@ -249,7 +249,7 @@ test.describe("Directory Browsing - Entry Detail Pages", () => {
         const category = page
           .locator('[class*="badge"], [class*="tag"], [class*="category"]')
           .first();
-        const hasCategory = await category.isVisible().catch(() => false);
+        const _hasCategory = await category.isVisible().catch(() => false);
 
         // Should have at minimum title and description
         expect(hasDescription).toBeTruthy();
@@ -276,10 +276,10 @@ test.describe("Directory Browsing - Entry Detail Pages", () => {
         page.locator('[data-testid="location"]'),
       ];
 
-      let hasLocationInfo = false;
+      let _hasLocationInfo = false;
       for (const indicator of locationIndicators) {
         if (await indicator.isVisible().catch(() => false)) {
-          hasLocationInfo = true;
+          _hasLocationInfo = true;
           break;
         }
       }

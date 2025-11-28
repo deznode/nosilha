@@ -75,7 +75,7 @@ async function collectTestResults() {
     const playwrightResults = await fs.readFile(playwrightResultsPath, "utf8");
     results.playwright = JSON.parse(playwrightResults);
     console.log("   ✓ Playwright results collected");
-  } catch (error) {
+  } catch (_error) {
     console.warn("   ⚠️  Playwright results not found");
   }
 
@@ -101,7 +101,7 @@ async function collectTestResults() {
         `   ✓ Lighthouse results collected (${lhrFiles.length} audits)`
       );
     }
-  } catch (error) {
+  } catch (_error) {
     console.warn("   ⚠️  Lighthouse results not found");
   }
 
@@ -125,7 +125,7 @@ async function collectTestResults() {
         `   ✓ K6 results collected (${Object.keys(k6Results).length} tests)`
       );
     }
-  } catch (error) {
+  } catch (_error) {
     console.warn("   ⚠️  K6 results not found");
   }
 
@@ -173,7 +173,7 @@ async function processPerformanceMetrics() {
       metrics.coreWebVitals = coreWebVitals;
       console.log("   ✓ Core Web Vitals processed");
     }
-  } catch (error) {
+  } catch (_error) {
     console.warn("   ⚠️  Could not process Core Web Vitals");
   }
 
@@ -202,7 +202,7 @@ async function processPerformanceMetrics() {
       metrics.apiPerformance = apiMetrics;
       console.log("   ✓ API performance metrics processed");
     }
-  } catch (error) {
+  } catch (_error) {
     console.warn("   ⚠️  Could not process API performance metrics");
   }
 
@@ -434,7 +434,7 @@ async function organizeArtifacts() {
   for (const dir of organizedDirs) {
     try {
       await fs.mkdir(dir, { recursive: true });
-    } catch (error) {
+    } catch (_error) {
       // Ignore errors
     }
   }
@@ -469,7 +469,7 @@ async function organizeArtifacts() {
           path.join(CONFIG.K6_RESULTS_DIR, file),
           path.join("test-output/k6-results", file)
         );
-      } catch (error) {
+      } catch (_error) {
         // Ignore copy errors
       }
     }

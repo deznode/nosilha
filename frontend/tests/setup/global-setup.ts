@@ -48,7 +48,7 @@ async function globalSetup(config: FullConfig) {
           "⚠️ Backend API health check failed - falling back to mock data"
         );
       }
-    } catch (error) {
+    } catch (_error) {
       console.warn(
         "⚠️ Backend API not accessible - tests will use mock data fallback"
       );

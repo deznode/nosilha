@@ -49,9 +49,9 @@ pnpm run lint            # Run ESLint
 npx tsc --noEmit        # TypeScript type checking
 
 # MDX Content Platform Commands
-pnpm run scaffold-article           # Create new article from template
-pnpm run validate-content           # Validate MDX content (frontmatter, links, refs)
-pnpm run check-translations         # Generate translation status report
+pnpm run scaffold:article           # Create new article from template
+pnpm run validate:content           # Validate MDX content (frontmatter, links, refs)
+pnpm run check:translations         # Generate translation status report
 ```
 
 ### Backend (Spring Boot + Kotlin)
@@ -99,12 +99,13 @@ docker-compose exec postgres pg_dump -U nosilha nosilha_db > backup.sql  # Creat
 ### MDX Content Platform (Feature 007)
 - **Content Processing**: Velite processes MDX files at build time with type-safe schemas
 - **Multilingual Support**: Co-located translations (EN/PT/KEA/FR) with fallback chains and translation status tracking
-- **Content Structure**:
-  - `frontend/content/pages/` - Top-level routes (/history, /people)
-  - `frontend/content/articles/` - Article routes (/articles/*, /history/*, /music/*, /people/*)
+- **Content Structure**: All content lives in `frontend/content/pages/`
+  - Top-level pages: `content/pages/[category]/en.mdx` → URL `/[category]` (e.g., `/history`, `/music`)
+  - Sub-pages: `content/pages/[category]/[slug]/en.mdx` → URL `/[category]/[slug]` (e.g., `/music/morna-origins`)
+  - Categories: `history`, `music`, `people`, `traditions`, `places`
 - **Data-Driven Components**: Reusable components for cultural heritage pages:
   - `HistoricalTimeline` - Timeline events with dates, titles, descriptions
-  - `HistoricalFigures` - Historical figures with roles, years, biographies
+  - `HistoricalFigures` - Historical figures with roles, years, descriptions
   - `ThematicSections` - Thematic content sections with alternating image layouts
   - All components support structured data in YAML frontmatter
 - **Pattern for Complex Pages**: Cultural heritage pages (like `/history`) use data-driven MDX:
@@ -114,10 +115,10 @@ docker-compose exec postgres pg_dump -U nosilha nosilha_db > backup.sql  # Creat
   4. Components access data from props, not hardcoded in JSX
 - **Search**: Pagefind for static, client-side search with language-specific indexes and faceted filtering
 - **Validation**: Pre-commit hooks validate frontmatter schemas, internal links, and cross-references
-- **Scaffolding**: CLI tools for creating new articles from templates (`pnpm run scaffold-article`)
+- **Scaffolding**: CLI tools for creating new articles from templates (`pnpm run scaffold:article`)
 - **Translation Management**: Admin dashboard at `/admin/translations` shows translation status and outdated content
 - **Key Files**:
-  - `frontend/velite.config.ts` - Velite configuration with Article and Page collections
+  - `frontend/velite.config.ts` - Velite configuration with Page collection
   - `frontend/src/lib/content/schemas.ts` - Zod schemas for content validation
   - `frontend/src/lib/content/translations.ts` - Translation utilities and fallback logic
   - `frontend/src/lib/content/mdx-components.tsx` - MDX component registry (includes data-driven components)

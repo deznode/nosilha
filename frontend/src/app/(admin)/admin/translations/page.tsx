@@ -1,20 +1,20 @@
 import { TranslationDashboard } from "@/components/content/translation-dashboard";
 import { PageHeader } from "@/components/ui/page-header";
-import { articles } from "@/.velite";
+import { pages } from "@/.velite";
 import { type Language } from "@/lib/content/translations";
 
 export const revalidate = 3600;
 
 export default function TranslationsPage() {
-  // Transform articles for the dashboard
-  const articleData = articles.map((article) => ({
-    slug: article.slug,
-    category: article.category,
-    title: article.title,
-    language: article.language as Language,
-    publishDate: article.publishDate,
-    updatedDate: article.updatedDate,
-    sourceHash: article.sourceHash,
+  // Transform pages for the dashboard
+  const pageData = pages.map((page) => ({
+    slug: page.slug,
+    category: page.category,
+    title: page.title,
+    language: page.language as Language,
+    publishDate: page.publishDate,
+    updatedDate: page.updatedDate,
+    sourceHash: page.sourceHash,
   }));
 
   return (
@@ -26,7 +26,7 @@ export default function TranslationsPage() {
         />
 
         <div className="mt-8">
-          <TranslationDashboard articles={articleData} />
+          <TranslationDashboard articles={pageData} />
         </div>
       </div>
     </div>

@@ -15,7 +15,7 @@
 
 const fs = require("fs").promises;
 const path = require("path");
-const { spawn } = require("child_process");
+const { spawn: _spawn } = require("child_process");
 
 // Configuration
 const CONFIG = {
@@ -122,7 +122,7 @@ async function prepareDirectories() {
   for (const dir of testDirs) {
     try {
       await fs.mkdir(dir, { recursive: true });
-    } catch (error) {
+    } catch (_error) {
       // Ignore errors for nested directories
     }
   }
@@ -163,7 +163,7 @@ async function performHealthChecks() {
         "   ⚠️  Backend API not accessible - tests will use mock data"
       );
     }
-  } catch (error) {
+  } catch (_error) {
     console.warn("   ⚠️  Backend API check failed - tests will use mock data");
   }
 
@@ -181,14 +181,14 @@ async function performHealthChecks() {
         console.warn("   ⚠️  Frontend not accessible - running API-only tests");
         process.env.API_ONLY_TESTS = "true";
       }
-    } catch (error) {
+    } catch (_error) {
       console.warn("   ⚠️  Frontend check failed - running API-only tests");
       process.env.API_ONLY_TESTS = "true";
     }
   }
 }
 
-async function checkService(url, serviceName) {
+async function checkService(url, _serviceName) {
   const timeout = new Promise((_, reject) =>
     setTimeout(() => reject(new Error("Timeout")), 5000)
   );
@@ -222,7 +222,7 @@ async function checkService(url, serviceName) {
     }
 
     return response.ok || (response.status >= 200 && response.status < 400);
-  } catch (error) {
+  } catch (_error) {
     return false;
   }
 }
@@ -253,7 +253,7 @@ async function validateTestData() {
         try {
           await fs.access(path.join(mockDataPath, file));
           console.log(`   ✓ Mock data file: ${file}`);
-        } catch (error) {
+        } catch (_error) {
           console.warn(`   ⚠️  Mock data file missing: ${file}`);
         }
       }
@@ -298,14 +298,14 @@ async function cleanupPreviousTests() {
             await fs.unlink(path.join(dir, file));
             cleanedCount++;
           }
-        } catch (error) {
+        } catch (_error) {
           // Directory might not exist, which is fine
         }
       } else {
         await fs.unlink(pattern);
         cleanedCount++;
       }
-    } catch (error) {
+    } catch (_error) {
       // File might not exist, which is fine
     }
   }

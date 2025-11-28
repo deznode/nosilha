@@ -40,30 +40,21 @@ User requests French (fr) → Check fr → Check pt → Check en → 404
 
 Translations are **co-located** with the original content in the same directory:
 
-### Article Structure
+### Content Structure
 
 ```
-content/articles/history/brava-migration/
+content/pages/history/brava-migration/
 ├── en.mdx          # English (original)
 ├── pt.mdx          # Portuguese translation
 ├── kea.mdx         # Kabuverdianu translation
 └── fr.mdx          # French translation (optional)
 ```
 
-### Page Structure
-
-```
-content/pages/history/
-├── en.mdx          # English (original)
-├── pt.mdx          # Portuguese translation
-└── kea.mdx         # Kabuverdianu translation
-```
-
 **All translations share the same URL structure**:
 
-- `/articles/history/brava-migration` (auto-detects language)
-- `/articles/history/brava-migration?lang=pt` (explicit Portuguese)
-- `/articles/history/brava-migration?lang=kea` (explicit Kabuverdianu)
+- `/history/brava-migration` (auto-detects language)
+- `/history/brava-migration?lang=pt` (explicit Portuguese)
+- `/history/brava-migration?lang=kea` (explicit Kabuverdianu)
 
 ## Translation Workflow
 
@@ -79,7 +70,7 @@ content/pages/history/
 **Check translation status**:
 
 ```bash
-pnpm run check-translations
+pnpm run check:translations
 ```
 
 This shows which articles need translations and which are outdated.
@@ -90,14 +81,14 @@ This shows which articles need translations and which are outdated.
 
 ```bash
 # Copy the English file as a starting point
-cp content/articles/history/brava-migration/en.mdx \
-   content/articles/history/brava-migration/pt.mdx
+cp content/pages/history/brava-migration/en.mdx \
+   content/pages/history/brava-migration/pt.mdx
 ```
 
 **Using Scaffolding Tool** (for new articles):
 
 ```bash
-pnpm run scaffold-article
+pnpm run scaffold:article
 # Select language: pt
 # Follow prompts
 ```
@@ -121,7 +112,7 @@ language: "pt" # CHANGE to target language
 **Critical Rules**:
 
 - `language`: **MUST** match the file's target language (`pt`, `kea`, `fr`)
-- `category`: **NEVER** translate (must stay `history`, `music`, `people`, or `culture`)
+- `category`: **NEVER** translate (must stay `history`, `music`, `people`, `traditions`, or `places`)
 - `publishDate`: Keep the same as original
 - `updatedDate`: Add when you update a translation
 - `tags`: Translate to target language
@@ -227,10 +218,10 @@ timeline:
 
 ```bash
 # Validate frontmatter and structure
-pnpm run validate-content
+pnpm run validate:content
 
 # Check for common issues
-pnpm run check-translations
+pnpm run check:translations
 ```
 
 ### Step 7: Preview Translation
@@ -240,7 +231,7 @@ pnpm run check-translations
 pnpm run dev
 
 # Open with language parameter
-open http://localhost:3000/articles/history/brava-migration?lang=pt
+open http://localhost:3000/history/brava-migration?lang=pt
 ```
 
 **Test the language switcher**: Verify you can switch between EN ↔ PT ↔ KEA
@@ -248,7 +239,7 @@ open http://localhost:3000/articles/history/brava-migration?lang=pt
 ### Step 8: Submit Translation
 
 ```bash
-git add content/articles/history/brava-migration/pt.mdx
+git add content/pages/history/brava-migration/pt.mdx
 git commit -m "docs(i18n): add Portuguese translation for Brava migration article"
 git push origin feature/translation-pt-brava-migration
 ```
@@ -260,7 +251,7 @@ git push origin feature/translation-pt-brava-migration
 See which articles need translations:
 
 ```bash
-pnpm run check-translations
+pnpm run check:translations
 ```
 
 **Output**:
@@ -275,12 +266,12 @@ Partially Translated: 18 (43%)
 English Only: 12 (29%)
 
 Missing Translations:
-- /articles/history/brava-migration: Missing PT, KEA
-- /articles/music/morna-origins: Missing KEA, FR
-- /pages/people: Missing PT, KEA
+- /history/brava-migration: Missing PT, KEA
+- /music/morna-origins: Missing KEA, FR
+- /people: Missing PT, KEA
 
 Outdated Translations (source updated):
-- /articles/history/whaling-era: PT translation is 5 days old
+- /history/whaling-era: PT translation is 5 days old
 ```
 
 ### Validate Content
@@ -288,10 +279,10 @@ Outdated Translations (source updated):
 Ensure your translation follows schema rules:
 
 ```bash
-pnpm run validate-content
+pnpm run validate:content
 
 # Or validate specific file
-pnpm run validate-content content/articles/history/brava-migration/pt.mdx
+pnpm run validate:content content/pages/history/brava-migration/pt.mdx
 ```
 
 ### Build and Test
@@ -306,7 +297,7 @@ pnpm run build
 pnpm run start
 
 # Test language detection
-open http://localhost:3000/articles/history/brava-migration
+open http://localhost:3000/history/brava-migration
 ```
 
 ## Tracking Translation Status
@@ -411,7 +402,7 @@ Before submitting a translation, verify:
 - [ ] Cultural references adapted appropriately
 - [ ] No broken links (all internal links resolve)
 - [ ] No untranslated English fragments
-- [ ] Validation passes (`pnpm run validate-content`)
+- [ ] Validation passes (`pnpm run validate:content`)
 - [ ] Preview looks correct in browser
 - [ ] Language switcher works
 
@@ -451,7 +442,7 @@ language: "pt" # Must match pt.mdx filename
 
 ### Issue: Translation Shows English Content
 
-**Problem**: Viewing `/articles/history/brava-migration?lang=pt` shows English
+**Problem**: Viewing `/history/brava-migration?lang=pt` shows English
 
 **Causes**:
 
@@ -492,13 +483,13 @@ pnpm run dev
 **Option 1 - Link to English fallback**:
 
 ```mdx
-Read more about [whaling history](/articles/history/whaling-era?lang=en)
+Read more about [whaling history](/history/whaling-era?lang=en)
 ```
 
 **Option 2 - Remove language parameter (auto-detect)**:
 
 ```mdx
-Read more about [whaling history](/articles/history/whaling-era)
+Read more about [whaling history](/history/whaling-era)
 ```
 
 System will show English if PT translation doesn't exist.
@@ -507,8 +498,8 @@ System will show English if PT translation doesn't exist.
 
 ```bash
 # Create translation for linked article
-cp content/articles/history/whaling-era/en.mdx \
-   content/articles/history/whaling-era/pt.mdx
+cp content/pages/history/whaling-era/en.mdx \
+   content/pages/history/whaling-era/pt.mdx
 ```
 
 ### Issue: Outdated Translation Warning

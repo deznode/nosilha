@@ -50,7 +50,7 @@ async function globalTeardown(config: FullConfig) {
         console.log(`✅ Found ${files.length} performance metric files`);
         // In a real implementation, you'd aggregate Core Web Vitals here
       }
-    } catch (error) {
+    } catch (_error) {
       console.log("ℹ️ No performance metrics to process");
     }
 

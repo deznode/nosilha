@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { headers, cookies } from "next/headers";
 import { Article } from "@/components/content/article";
-import { articles } from "@/.velite";
+import { pages } from "@/.velite";
 import {
   getBestLanguage,
   detectLanguage,
@@ -10,7 +10,7 @@ import {
   LANGUAGE_COOKIE_NAME,
 } from "@/lib/content/translations";
 
-interface ArticlePageProps {
+interface PageProps {
   params: Promise<{
     slug: string;
   }>;
@@ -22,59 +22,56 @@ interface ArticlePageProps {
 // ISR revalidation
 export const revalidate = 3600;
 
-// Get articles for this category
-const categoryArticles = articles.filter((a) => a.category === "people");
+// Get pages for this category
+const categoryPages = pages.filter((p) => p.category === "people");
 
 export async function generateStaticParams() {
-  const slugs = [...new Set(categoryArticles.map((article) => article.slug))];
+  const slugs = [...new Set(categoryPages.map((page) => page.slug))];
   return slugs.map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
-}: ArticlePageProps): Promise<Metadata> {
+}: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const article = categoryArticles.find(
-    (a) => a.slug === slug && a.language === "en"
+  const page = categoryPages.find(
+    (p) => p.slug === slug && p.language === "en"
   );
 
-  if (!article) {
-    return { title: "Article Not Found" };
+  if (!page) {
+    return { title: "Page Not Found" };
   }
 
   return {
-    title: `${article.title} | People | Nos Ilha`,
-    description: article.description,
+    title: `${page.title} | People | Nos Ilha`,
+    description: page.description,
     openGraph: {
-      title: article.title,
-      description: article.description,
+      title: page.title,
+      description: page.description,
       type: "article",
-      publishedTime: article.publishDate,
-      modifiedTime: article.updatedDate,
-      authors: [article.author],
-      tags: article.tags,
-      images: article.coverImage ? [article.coverImage] : [],
+      publishedTime: page.publishDate,
+      modifiedTime: page.updatedDate,
+      authors: [page.author],
+      tags: page.tags,
+      images: page.coverImage ? [page.coverImage] : [],
     },
     twitter: {
       card: "summary_large_image",
-      title: article.title,
-      description: article.description,
-      images: article.coverImage ? [article.coverImage] : [],
+      title: page.title,
+      description: page.description,
+      images: page.coverImage ? [page.coverImage] : [],
     },
   };
 }
 
-export default async function PeopleArticlePage({
-  params,
-  searchParams,
-}: ArticlePageProps) {
+export default async function PeoplePage({ params, searchParams }: PageProps) {
   const { slug } = await params;
   const { lang } = await searchParams;
 
-  // Get available languages for this article
-  const availableLanguages = categoryArticles
-    .filter((a) => a.slug === slug)
-    .map((a) => a.language as Language);
+  // Get available languages for this page
+  const availableLanguages = categoryPages
+    .filter((p) => p.slug === slug)
+    .map((p) => p.language as Language);
 
   if (availableLanguages.length === 0) {
     notFound();
@@ -93,12 +90,12 @@ export default async function PeopleArticlePage({
     notFound();
   }
 
-  // Find the article in the best available language
-  const article = categoryArticles.find(
-    (a) => a.slug === slug && a.language === bestLang
+  // Find the page in the best available language
+  const page = categoryPages.find(
+    (p) => p.slug === slug && p.language === bestLang
   );
 
-  if (!article) {
+  if (!page) {
     notFound();
   }
 
@@ -106,23 +103,20 @@ export default async function PeopleArticlePage({
 
   return (
     <Article
-      slug={article.slug}
-      title={article.title}
-      description={article.description}
-      publishDate={article.publishDate}
-      updatedDate={article.updatedDate}
-      author={article.author}
-      category={article.category}
-      tags={article.tags}
-      coverImage={article.coverImage}
-      code={article.content}
-      language={article.language as Language}
+      slug={page.slug}
+      title={page.title}
+      description={page.description}
+      publishDate={page.publishDate}
+      updatedDate={page.updatedDate}
+      author={page.author}
+      category={page.category}
+      tags={page.tags}
+      coverImage={page.coverImage}
+      code={page.content}
+      language={page.language as Language}
       availableLanguages={availableLanguages}
       isFallback={isFallback}
       requestedLanguage={isFallback ? requestedLang : undefined}
-      relatedArticles={article.relatedArticles}
-      series={article.series}
-      seriesOrder={article.seriesOrder}
     />
   );
 }

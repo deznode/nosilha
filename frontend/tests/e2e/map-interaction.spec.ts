@@ -111,7 +111,7 @@ test.describe("Map Loading and Display", () => {
     const errorMessages = page.locator(
       "text=/configuration.*error/i, text=/map.*unavailable/i"
     );
-    const hasUserFriendlyError = await errorMessages
+    const _hasUserFriendlyError = await errorMessages
       .first()
       .isVisible()
       .catch(() => false);
@@ -291,7 +291,7 @@ test.describe("Map Controls and Interaction", () => {
     const zoomControls = page.locator(
       ".mapboxgl-ctrl-zoom-in, .mapboxgl-ctrl-zoom-out"
     );
-    const hasZoomControls = await zoomControls
+    const _hasZoomControls = await zoomControls
       .first()
       .isVisible()
       .catch(() => false);
@@ -387,7 +387,7 @@ test.describe("Map Controls and Interaction", () => {
     const geolocateButton = page.locator(
       '.mapboxgl-ctrl-geolocate, button[aria-label*="geolocate"]'
     );
-    const hasGeolocate = await geolocateButton.isVisible().catch(() => false);
+    const _hasGeolocate = await geolocateButton.isVisible().catch(() => false);
 
     // Just verify it doesn't crash if present
     expect(true).toBeTruthy();
@@ -534,7 +534,7 @@ test.describe("Map Accessibility", () => {
     const mapContainer = page
       .locator('[role="application"], [aria-label*="map"]')
       .first();
-    const hasAccessibleMap = await mapContainer.isVisible().catch(() => false);
+    const _hasAccessibleMap = await mapContainer.isVisible().catch(() => false);
 
     // Mapbox adds accessibility attributes
     expect(true).toBeTruthy(); // Soft check
@@ -559,7 +559,7 @@ test.describe("Map Accessibility", () => {
         // Tab to popup links
         await page.keyboard.press("Tab");
 
-        const activeElement = await page.evaluate(() => {
+        const _activeElement = await page.evaluate(() => {
           return {
             tagName: document.activeElement?.tagName,
             href: document.activeElement?.getAttribute("href"),
