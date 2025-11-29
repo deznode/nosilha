@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { getEntriesByCategory } from "@/lib/api";
-import {
-  DirectoryCategoryPageContent,
-  formatCategoryTitle,
-} from "@/components/pages/directory-category-page-content";
+import { DirectoryCategoryPageContent } from "@/components/pages/directory-category-page-content";
+import { formatCategoryTitle } from "@/lib/directory-utils";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import type { BreadcrumbListSchema } from "@/types/metadata";
 

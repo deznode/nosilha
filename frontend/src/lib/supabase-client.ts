@@ -2,9 +2,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const allowStubClient =
-  process.env.STORYBOOK === "true" ||
-  process.env.NEXT_PUBLIC_SUPABASE_USE_STUB === "true";
+const allowStubClient = process.env.NEXT_PUBLIC_SUPABASE_USE_STUB === "true";
 
 function createStubClient(): SupabaseClient {
   const noop = async () => ({ data: { session: null }, error: null });
@@ -31,7 +29,7 @@ function getClient(): SupabaseClient {
 
     if (process.env.NODE_ENV !== "test") {
       console.warn(
-        "Supabase environment variables are missing. Using a stub client for Storybook/tests."
+        "Supabase environment variables are missing. Using a stub client for tests."
       );
     }
 

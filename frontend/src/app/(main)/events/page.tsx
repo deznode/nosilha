@@ -16,6 +16,7 @@ import {
   Globe, // Added Globe icon for Diaspora events
 } from "lucide-react";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 
 // --- Temporary Link Component (Delete in real app) ---
 const Link = ({
@@ -185,6 +186,21 @@ export default function EventsPage() {
   // Separate Featured Event
   const featuredEvent = EVENTS_DATA.find((e) => e.isFeatured);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
   return (
     <div className="bg-off-white min-h-screen font-sans">
       {/* 1. HERO HEADER */}
@@ -193,17 +209,32 @@ export default function EventsPage() {
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
 
         <div className="relative z-10 container mx-auto px-4 text-center">
-          <div className="text-sunny-yellow mb-4 inline-flex items-center space-x-2 font-bold tracking-widest uppercase">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-sunny-yellow mb-4 inline-flex items-center space-x-2 font-bold tracking-widest uppercase"
+          >
             <Calendar className="h-5 w-5" />
             <span>Island & Diaspora Calendar</span>
-          </div>
-          <h1 className="mb-6 font-serif text-4xl font-bold md:text-6xl">
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-6 font-serif text-4xl font-bold md:text-6xl"
+          >
             Celebrate Life in Brava
-          </h1>
-          <p className="mx-auto max-w-2xl text-xl leading-relaxed text-white/80">
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mx-auto max-w-2xl text-xl leading-relaxed text-white/80"
+          >
             From the rhythmic drums of São João to diaspora gatherings in the US
             and Europe, discover the events that connect our global community.
-          </p>
+          </motion.p>
         </div>
       </section>
 
@@ -212,7 +243,12 @@ export default function EventsPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
             {/* Search */}
-            <div className="group relative w-full md:w-96">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              className="group relative w-full md:w-96"
+            >
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                 <Search className="group-focus-within:text-ocean-blue h-4 w-4 text-gray-400" />
               </div>
@@ -223,10 +259,15 @@ export default function EventsPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-            </div>
+            </motion.div>
 
             {/* Filter Tabs */}
-            <div className="no-scrollbar flex w-full gap-2 overflow-x-auto pb-2 md:w-auto md:pb-0">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+              className="no-scrollbar flex w-full gap-2 overflow-x-auto pb-2 md:w-auto md:pb-0"
+            >
               {[
                 "All",
                 "Festival",
@@ -247,70 +288,81 @@ export default function EventsPage() {
                   {type}
                 </button>
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
       <div className="container mx-auto px-4 py-12">
         {/* 3. FEATURED EVENT (Only show if no search/filter active) */}
-        {featuredEvent && filterType === "All" && !searchQuery && (
-          <div className="mb-16">
-            <h2 className="text-text-primary mb-6 flex items-center font-serif text-2xl font-bold">
-              <Star className="text-sunny-yellow fill-sunny-yellow mr-2" />{" "}
-              Featured Event
-            </h2>
-            <div className="border-border-secondary flex flex-col overflow-hidden rounded-2xl border bg-white shadow-lg md:flex-row">
-              <div className="relative h-64 md:h-auto md:w-2/3">
-                <Image
-                  src={featuredEvent.image}
-                  alt={featuredEvent.title}
-                  fill
-                  className="object-cover"
-                  unoptimized
-                />
-                <div className="absolute top-4 left-4">
-                  <span className="bg-sunny-yellow text-ocean-blue rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase shadow-md">
-                    Don't Miss
-                  </span>
+        <AnimatePresence>
+          {featuredEvent && filterType === "All" && !searchQuery && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-16"
+            >
+              <h2 className="text-text-primary mb-6 flex items-center font-serif text-2xl font-bold">
+                <Star className="text-sunny-yellow fill-sunny-yellow mr-2" />{" "}
+                Featured Event
+              </h2>
+              <div className="border-border-secondary flex flex-col overflow-hidden rounded-2xl border bg-white shadow-lg md:flex-row">
+                <div className="relative h-64 md:h-auto md:w-2/3">
+                  <Image
+                    src={featuredEvent.image}
+                    alt={featuredEvent.title}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                  <div className="absolute top-4 left-4">
+                    <span className="bg-sunny-yellow text-ocean-blue rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase shadow-md">
+                      Don't Miss
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col justify-center bg-gradient-to-br from-white to-blue-50 p-8 md:w-1/3">
+                  <EventTypeBadge type={featuredEvent.type} />
+                  <h3 className="text-text-primary mt-4 mb-2 font-serif text-3xl font-bold">
+                    {featuredEvent.title}
+                  </h3>
+                  <div className="text-text-secondary mb-6 space-y-3">
+                    <div className="flex items-center">
+                      <Calendar className="mr-2 h-4 w-4" />{" "}
+                      {new Date(featuredEvent.date).toLocaleDateString(
+                        "en-US",
+                        {
+                          weekday: "long",
+                          month: "long",
+                          day: "numeric",
+                        }
+                      )}
+                    </div>
+                    <div className="flex items-center">
+                      <Clock className="mr-2 h-4 w-4" /> {featuredEvent.time}
+                    </div>
+                    <div className="flex items-center">
+                      <MapPin className="mr-2 h-4 w-4" />{" "}
+                      {featuredEvent.location}
+                    </div>
+                  </div>
+                  <p className="text-volcanic-gray mb-6 line-clamp-3">
+                    {featuredEvent.description}
+                  </p>
+                  <div className="flex gap-3">
+                    <button className="bg-ocean-blue hover:bg-ocean-blue/90 flex-1 rounded-lg px-4 py-3 font-bold text-white transition-colors">
+                      Event Details
+                    </button>
+                    <button className="border-border-primary text-text-secondary rounded-lg border p-3 hover:bg-gray-50">
+                      <Share2 size={20} />
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div className="flex flex-col justify-center bg-gradient-to-br from-white to-blue-50 p-8 md:w-1/3">
-                <EventTypeBadge type={featuredEvent.type} />
-                <h3 className="text-text-primary mt-4 mb-2 font-serif text-3xl font-bold">
-                  {featuredEvent.title}
-                </h3>
-                <div className="text-text-secondary mb-6 space-y-3">
-                  <div className="flex items-center">
-                    <Calendar className="mr-2 h-4 w-4" />{" "}
-                    {new Date(featuredEvent.date).toLocaleDateString("en-US", {
-                      weekday: "long",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </div>
-                  <div className="flex items-center">
-                    <Clock className="mr-2 h-4 w-4" /> {featuredEvent.time}
-                  </div>
-                  <div className="flex items-center">
-                    <MapPin className="mr-2 h-4 w-4" /> {featuredEvent.location}
-                  </div>
-                </div>
-                <p className="text-volcanic-gray mb-6 line-clamp-3">
-                  {featuredEvent.description}
-                </p>
-                <div className="flex gap-3">
-                  <button className="bg-ocean-blue hover:bg-ocean-blue/90 flex-1 rounded-lg px-4 py-3 font-bold text-white transition-colors">
-                    Event Details
-                  </button>
-                  <button className="border-border-primary text-text-secondary rounded-lg border p-3 hover:bg-gray-50">
-                    <Share2 size={20} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* 4. EVENT LIST GRID */}
         <div>
@@ -319,74 +371,84 @@ export default function EventsPage() {
           </h2>
 
           {filteredEvents.length > 0 ? (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+            >
               {filteredEvents.map((event) => (
-                <Link
-                  key={event.id}
-                  href={`/events/${event.id}`}
-                  className="group border-border-secondary flex h-full flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-                >
-                  {/* Card Image */}
-                  <div className="relative h-48 overflow-hidden">
-                    <Image
-                      src={event.image}
-                      alt={event.title}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      unoptimized
-                    />
-                    <div className="absolute top-3 left-3">
-                      <EventTypeBadge type={event.type} />
-                    </div>
-                  </div>
-
-                  {/* Date Badge (Left Side Layout) */}
-                  <div className="flex flex-grow">
-                    <div className="bg-off-white border-border-secondary flex w-16 flex-col items-center justify-start border-r pt-6 text-center">
-                      <span className="text-ocean-blue text-xs font-bold tracking-wider uppercase">
-                        {new Date(event.date).toLocaleDateString("en-US", {
-                          month: "short",
-                        })}
-                      </span>
-                      <span className="text-text-primary font-serif text-2xl font-bold">
-                        {new Date(event.date).getDate()}
-                      </span>
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-grow p-5">
-                      <h3 className="text-text-primary group-hover:text-ocean-blue mb-2 line-clamp-2 text-lg font-bold transition-colors">
-                        {event.title}
-                      </h3>
-                      <div className="text-text-secondary mb-4 space-y-2 text-sm">
-                        <div className="flex items-center">
-                          <Clock className="mr-2 h-3.5 w-3.5 opacity-70" />{" "}
-                          {event.time}
-                        </div>
-                        <div className="flex items-center">
-                          <MapPin className="mr-2 h-3.5 w-3.5 opacity-70" />{" "}
-                          {event.location}
-                        </div>
+                <motion.div key={event.id} variants={itemVariants}>
+                  <Link
+                    href={`/events/${event.id}`}
+                    className="group border-border-secondary flex h-full flex-col overflow-hidden rounded-xl border bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                  >
+                    {/* Card Image */}
+                    <div className="relative h-48 overflow-hidden">
+                      <Image
+                        src={event.image}
+                        alt={event.title}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        unoptimized
+                      />
+                      <div className="absolute top-3 left-3">
+                        <EventTypeBadge type={event.type} />
                       </div>
-                      <p className="text-volcanic-gray line-clamp-2 text-sm">
-                        {event.description}
-                      </p>
                     </div>
-                  </div>
 
-                  {/* Card Footer */}
-                  <div className="bg-off-white border-border-secondary text-ocean-blue flex items-center justify-between border-t px-5 py-3 text-xs font-semibold">
-                    <span>View Details</span>
-                    <ChevronRight
-                      size={14}
-                      className="transition-transform group-hover:translate-x-1"
-                    />
-                  </div>
-                </Link>
+                    {/* Date Badge (Left Side Layout) */}
+                    <div className="flex flex-grow">
+                      <div className="bg-off-white border-border-secondary flex w-16 flex-col items-center justify-start border-r pt-6 text-center">
+                        <span className="text-ocean-blue text-xs font-bold tracking-wider uppercase">
+                          {new Date(event.date).toLocaleDateString("en-US", {
+                            month: "short",
+                          })}
+                        </span>
+                        <span className="text-text-primary font-serif text-2xl font-bold">
+                          {new Date(event.date).getDate()}
+                        </span>
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-grow p-5">
+                        <h3 className="text-text-primary group-hover:text-ocean-blue mb-2 line-clamp-2 text-lg font-bold transition-colors">
+                          {event.title}
+                        </h3>
+                        <div className="text-text-secondary mb-4 space-y-2 text-sm">
+                          <div className="flex items-center">
+                            <Clock className="mr-2 h-3.5 w-3.5 opacity-70" />{" "}
+                            {event.time}
+                          </div>
+                          <div className="flex items-center">
+                            <MapPin className="mr-2 h-3.5 w-3.5 opacity-70" />{" "}
+                            {event.location}
+                          </div>
+                        </div>
+                        <p className="text-volcanic-gray line-clamp-2 text-sm">
+                          {event.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Card Footer */}
+                    <div className="bg-off-white border-border-secondary text-ocean-blue flex items-center justify-between border-t px-5 py-3 text-xs font-semibold">
+                      <span>View Details</span>
+                      <ChevronRight
+                        size={14}
+                        className="transition-transform group-hover:translate-x-1"
+                      />
+                    </div>
+                  </Link>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           ) : (
-            <div className="border-border-primary rounded-xl border border-dashed bg-white py-20 text-center">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="border-border-primary rounded-xl border border-dashed bg-white py-20 text-center"
+            >
               <Calendar className="mx-auto mb-4 h-12 w-12 text-gray-300" />
               <h3 className="text-text-primary text-lg font-medium">
                 No events found
@@ -394,12 +456,17 @@ export default function EventsPage() {
               <p className="text-text-secondary">
                 Try adjusting your search or filter.
               </p>
-            </div>
+            </motion.div>
           )}
         </div>
 
         {/* 5. CTA: SUBMIT EVENT */}
-        <div className="from-valley-green mt-20 flex flex-col items-center justify-between rounded-3xl bg-gradient-to-r to-emerald-700 p-8 text-center text-white shadow-xl md:flex-row md:p-12 md:text-left">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="from-valley-green mt-20 flex flex-col items-center justify-between rounded-3xl bg-gradient-to-r to-emerald-700 p-8 text-center text-white shadow-xl md:flex-row md:p-12 md:text-left"
+        >
           <div className="mb-8 max-w-2xl md:mb-0">
             <h2 className="mb-4 font-serif text-3xl font-bold">
               Organizing a Community Event?
@@ -414,7 +481,7 @@ export default function EventsPage() {
             <PlusCircle className="mr-2 h-5 w-5" />
             Submit an Event
           </button>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

@@ -28,18 +28,15 @@ The Nos Ilha platform uses a **lean, TypeScript-first testing strategy** optimiz
 This approach aligns with industry best practices for solo-maintained projects:
 - **TypeScript-first quality gates**: Used by Vite, Astro, ts-pattern
 - **Playwright local-only**: Recommended by Remix and Astro communities
-- **Storybook as testing tool**: Used by MUI for primary UI validation
 - **Lean testing pyramid**: Based on Kent C. Dodds Testing Trophy
 
-### Three-Layer Testing
+### Two-Layer Testing
 
 ```
 ┌─────────────────────────────────────┐
 │   CI/CD (Automated - Always Run)   │  ← TypeScript + ESLint + Build
 ├─────────────────────────────────────┤
 │ Local Development (Manual - As Needed)│ ← Playwright E2E + Vitest Unit
-├─────────────────────────────────────┤
-│  Pre-Release (Manual - Before Deploy)│ ← E2E + Storybook + Mobile Testing
 └─────────────────────────────────────┘
 ```
 
@@ -160,42 +157,13 @@ npm run test:unit -- --coverage
 
 **Simplified Configuration**:
 - **No coverage thresholds**: Coverage not enforced
-- **No Storybook integration**: Use Storybook directly instead
 - **No CI uploads**: Local development only
-
-### Storybook Component Documentation
-
-**Location**: `frontend/src/stories/`
-
-**When to use:**
-- Component exploration and documentation
-- Accessibility validation (a11y addon)
-- Visual testing during development
-
-**How to run:**
-```bash
-cd frontend
-
-# Start Storybook dev server
-npm run storybook
-
-# Build static Storybook
-npm run build-storybook
-```
-
-**Key Features**:
-- **26+ component stories** with documentation
-- **Accessibility addon** for WCAG validation
-- **Interactive controls** for testing variations
-- **Design system reference** aligned with docs/DESIGN_SYSTEM.md
-
-**NOT used for automated testing** - Storybook is documentation and exploration only.
 
 ---
 
 ## Pre-Release Checklist
 
-### Before Major Releases (20-30 minutes)
+### Before Major Releases (15-20 minutes)
 
 Run this checklist manually before deploying significant changes:
 
@@ -208,16 +176,7 @@ npm run test:e2e
 - Chromium browser only (desktop)
 - Should have 100% pass rate
 
-#### 2. Storybook Accessibility Review (5 min)
-```bash
-npm run storybook
-```
-- Open Storybook at http://localhost:6006
-- Check "Accessibility" panel for violations
-- Review key components (forms, navigation, modals)
-- Verify WCAG compliance
-
-#### 3. Mobile Device Testing (10 min)
+#### 2. Mobile Device Testing (10 min)
 - **iOS Safari**: Test on iPhone (or simulator)
 - **Android Chrome**: Test on Android device (or emulator)
 - **Key flows**: Homepage → Directory → Entry details → Map
@@ -227,7 +186,7 @@ Focus areas:
 - Touch interactions function properly
 - Performance is acceptable on mobile
 
-#### 4. Optional: Lighthouse Audit (5 min)
+#### 3. Optional: Lighthouse Audit (5 min)
 ```bash
 # Config available in lighthouserc.js
 npx @lhci/cli@latest autorun
@@ -247,7 +206,7 @@ npx @lhci/cli@latest autorun
 **Accessibility violations:**
 1. Note the specific WCAG criteria violated
 2. Fix in the component code
-3. Re-check in Storybook
+3. Use Lighthouse audit or browser dev tools to verify
 4. Verify with screen reader if critical
 
 **Mobile issues:**
@@ -270,15 +229,14 @@ npx @lhci/cli@latest autorun
 **For Local Development (NOT in CI):**
 - Playwright 1.56 - E2E testing (Chromium only)
 - Vitest 3.2 - Unit testing (critical stores/hooks only)
-- Storybook 9.1 - Component documentation + a11y addon
 
 **Removed Tools** (no longer used):
+- Storybook - Removed (maintenance overhead outweighed benefits)
 - Lighthouse CI - Config available (`lighthouserc.js`) but not in CI
 - K6 - Load testing removed (overkill for MVP)
 - Bundle analysis - Removed (Next.js warnings sufficient)
 - Mobile Playwright projects - Test manually on real devices
 - Chromatic - Visual testing service removed
-- Vitest Storybook addon - Removed (use Storybook directly)
 
 ### Configuration Files
 
@@ -286,7 +244,6 @@ npx @lhci/cli@latest autorun
 |------|---------|-------|
 | `playwright.config.ts` | Playwright E2E config | Local development only |
 | `vitest.config.ts` | Vitest unit test config | Local development only |
-| `.storybook/main.ts` | Storybook configuration | Component docs + a11y |
 | `lighthouserc.js` | Lighthouse audit config | Optional manual audits |
 
 ### Test Scripts
@@ -298,13 +255,12 @@ npx @lhci/cli@latest autorun
   "test:e2e:headed": "playwright test --headed",
   "test:e2e:debug": "playwright test --debug",
   "test:e2e:report": "playwright show-report",
-  "test:unit": "vitest --project unit",
-  "storybook": "storybook dev -p 6006",
-  "build-storybook": "storybook build"
+  "test:unit": "vitest --project unit"
 }
 ```
 
 **Removed scripts** (no longer available):
+- `storybook`, `build-storybook`
 - `test:performance`, `test:mobile`, `test:api`, `test:critical`
 - `lighthouse:audit`, `lighthouse:upload`, `lighthouse:assert`
 - `k6:directory`, `k6:towns`, `k6:journey`, `k6:all`
@@ -369,18 +325,6 @@ Fix all build errors locally before pushing.
 - Dev server not started automatically
 - Environment variables not set in `.env.local`
 - Backend API not running (switch to mock API)
-
-### Storybook Won't Start
-
-**Symptom**: `npm run storybook` fails
-
-**Solution**:
-```bash
-cd frontend
-rm -rf .storybook-cache node_modules/.cache
-npm install
-npm run storybook
-```
 
 ### "Tests Used to Run in CI, Why Don't They Now?"
 

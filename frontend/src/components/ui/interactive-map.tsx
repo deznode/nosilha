@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import Map, { Marker, Popup, MapRef } from "react-map-gl/mapbox";
+import Map, { Marker, MapRef } from "react-map-gl/mapbox";
 import useSupercluster from "use-supercluster";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import "mapbox-gl/dist/mapbox-gl.css";
 import type { MapboxErrorEvent } from "mapbox-gl";
 
@@ -18,6 +19,7 @@ import { getEntriesForMap } from "@/lib/api";
 import { CategoryMarkerIcon } from "./category-marker-icon";
 import { MapFilterControl } from "./map-filter-control";
 import { useSelectedCategories } from "@/stores/filterStore";
+import { X, MapPin, Star, ArrowRight } from "lucide-react";
 
 const ALL_CATEGORIES = ["Restaurant", "Hotel", "Beach", "Landmark"];
 
@@ -242,7 +244,7 @@ export function InteractiveMap() {
   }
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative h-full w-full overflow-hidden">
       <Map
         ref={mapRef}
         mapboxAccessToken={mapboxAccessToken}
@@ -275,6 +277,7 @@ export function InteractiveMap() {
             }
           }
         }}
+        onClick={() => setSelectedEntry(null)}
       >
         <div className="absolute top-4 right-4 z-10 space-y-2">
           <MapFilterControl categories={ALL_CATEGORIES} />
@@ -314,9 +317,13 @@ export function InteractiveMap() {
                 latitude={latitude}
                 longitude={longitude}
               >
-                <div
-                  className="bg-ocean-blue flex h-8 w-8 cursor-pointer items-center justify-center rounded-full font-bold text-white"
-                  onClick={() => {
+                <motion.div
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  whileHover={{ scale: 1.1 }}
+                  className="bg-ocean-blue flex h-8 w-8 cursor-pointer items-center justify-center rounded-full font-bold text-white shadow-md"
+                  onClick={(e) => {
+                    e.stopPropagation();
                     const expansionZoom = Math.min(
                       supercluster?.getClusterExpansionZoom(
                         cluster.id as number
@@ -331,7 +338,7 @@ export function InteractiveMap() {
                   }}
                 >
                   {pointCount}
-                </div>
+                </motion.div>
               </Marker>
             );
           }
@@ -348,45 +355,103 @@ export function InteractiveMap() {
               latitude={latitude}
               anchor="bottom"
             >
-              <button
+              <motion.button
                 type="button"
+                initial={{ scale: 0, y: 10, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                whileHover={{ scale: 1.2, y: -5 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className="cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedEntry(entry);
+                  mapRef.current?.flyTo({
+                    center: [entry.longitude, entry.latitude],
+                    zoom: 15,
+                    speed: 1.2,
+                  });
                 }}
               >
                 <CategoryMarkerIcon category={entry.category} />
-              </button>
+              </motion.button>
             </Marker>
           );
         })}
+      </Map>
 
+      {/* Sidebar for Selected Entry */}
+      <AnimatePresence>
         {selectedEntry && (
-          <Popup
-            longitude={selectedEntry.longitude}
-            latitude={selectedEntry.latitude}
-            anchor="top"
-            onClose={() => setSelectedEntry(null)}
-            closeOnClick={false}
+          <motion.div
+            initial={{ x: "-100%", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: "-100%", opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="bg-background-primary border-border-primary absolute top-4 bottom-4 left-4 z-20 w-80 overflow-y-auto rounded-lg border shadow-xl"
           >
-            <div className="p-1">
-              <h3 className="text-text-primary font-bold">
+            <div className="relative h-48 w-full bg-gray-200">
+              {/* Placeholder for image if available, or category color */}
+              <div
+                className={`flex h-full w-full items-center justify-center ${
+                  selectedEntry.category === "Restaurant"
+                    ? "bg-orange-100"
+                    : selectedEntry.category === "Hotel"
+                      ? "bg-blue-100"
+                      : selectedEntry.category === "Beach"
+                        ? "bg-yellow-100"
+                        : "bg-green-100"
+                }`}
+              >
+                <CategoryMarkerIcon category={selectedEntry.category} />
+              </div>
+              <button
+                onClick={() => setSelectedEntry(null)}
+                className="absolute top-2 right-2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-6">
+              <div className="mb-2 flex items-center gap-2">
+                <span className="bg-ocean-blue/10 text-ocean-blue rounded px-2 py-0.5 text-xs font-medium">
+                  {selectedEntry.category}
+                </span>
+                {selectedEntry.rating && (
+                  <span className="flex items-center text-xs text-yellow-500">
+                    <Star className="mr-1 h-3 w-3 fill-current" />
+                    {selectedEntry.rating}
+                  </span>
+                )}
+              </div>
+
+              <h3 className="text-text-primary mb-2 font-serif text-xl font-bold">
                 {selectedEntry.name}
               </h3>
-              <p className="text-text-secondary text-sm">
-                {selectedEntry.category}
+
+              <p className="text-text-secondary mb-4 line-clamp-3 text-sm">
+                {selectedEntry.description}
               </p>
+
+              <div className="text-text-secondary mb-6 space-y-3 text-sm">
+                <div className="flex items-start">
+                  <MapPin className="mt-0.5 mr-2 h-4 w-4 shrink-0" />
+                  <span>{selectedEntry.town}</span>
+                </div>
+              </div>
+
               <Link
                 href={`/directory/entry/${selectedEntry.slug}`}
-                className="text-ocean-blue text-sm font-semibold hover:underline"
+                className="bg-ocean-blue hover:bg-ocean-blue/90 flex w-full items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-white transition-colors"
               >
-                View Details &rarr;
+                View Details
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </div>
-          </Popup>
+          </motion.div>
         )}
-      </Map>
+      </AnimatePresence>
+
       {filteredEntries.length === 0 && !mapLoadError && (
         <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-6 text-center">
           <div className="bg-background-primary/80 rounded-lg px-4 py-3 shadow-md backdrop-blur-sm">

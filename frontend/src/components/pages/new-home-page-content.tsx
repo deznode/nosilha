@@ -1,3 +1,6 @@
+"use client";
+
+import { motion } from "framer-motion";
 import {
   HeroSection,
   ExploreHeritageSection,
@@ -23,34 +26,51 @@ export interface NewHomePageContentProps {
   featuredEntries?: DirectoryEntry[];
 }
 
+const fadeInUp = {
+  initial: { opacity: 0, y: 60 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-100px" },
+  transition: { duration: 0.8, ease: "easeOut" },
+} as const;
+
 /**
  * NewHomePageContent - Main landing page orchestrator
  *
  * Composes all landing page sections into a cohesive page.
  * Accepts optional featured entries from the API to display
  * in the Featured Stories section.
- *
- * Sections:
- * 1. HeroSection - Hero with search and quick access
- * 2. ExploreHeritageSection - Category navigation grid
- * 3. LivingCultureSection - Events + Kriolu proverb + Weather
- * 4. FeaturedStoriesSection - Featured content (API or static)
- * 5. CommunityStatsSection - Archive statistics
- * 6. MapTeaserSection - Interactive map preview
- * 7. NewsletterCtaSection - Community signup CTA
+ * Now features coordinated scroll reveal animations.
  */
 export function NewHomePageContent({
   featuredEntries,
 }: NewHomePageContentProps) {
   return (
-    <>
+    <main className="overflow-hidden">
       <HeroSection announcement={worldCupAnnouncement} />
-      <ExploreHeritageSection />
-      <LivingCultureSection />
-      <FeaturedStoriesSection entries={featuredEntries} />
-      <CommunityStatsSection />
-      <MapTeaserSection />
-      <NewsletterCtaSection />
-    </>
+
+      <motion.div {...fadeInUp}>
+        <ExploreHeritageSection />
+      </motion.div>
+
+      <motion.div {...fadeInUp}>
+        <LivingCultureSection />
+      </motion.div>
+
+      <motion.div {...fadeInUp}>
+        <FeaturedStoriesSection entries={featuredEntries} />
+      </motion.div>
+
+      <motion.div {...fadeInUp}>
+        <CommunityStatsSection />
+      </motion.div>
+
+      <motion.div {...fadeInUp}>
+        <MapTeaserSection />
+      </motion.div>
+
+      <motion.div {...fadeInUp}>
+        <NewsletterCtaSection />
+      </motion.div>
+    </main>
   );
 }

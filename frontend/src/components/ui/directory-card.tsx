@@ -20,21 +20,21 @@ export function DirectoryCard({ entry }: DirectoryCardProps) {
     <Link
       href={`/directory/entry/${entry.slug}`}
       aria-label={`View details for ${entry.name}`}
-      className="block h-full"
+      className="group block h-full"
     >
       <Card className="h-full overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
         {/* Image Section */}
-        <div className="relative aspect-[16/10] w-full">
+        <div className="relative aspect-[16/10] w-full overflow-hidden">
           {entry.imageUrl ? (
             <Image
               src={entry.imageUrl}
               alt={`Photo of ${entry.name}`}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              className="object-cover"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="bg-background-tertiary flex h-full w-full items-center justify-center">
+            <div className="bg-background-tertiary flex h-full w-full items-center justify-center transition-transform duration-500 group-hover:scale-105">
               <span className="text-text-tertiary">No image available</span>
             </div>
           )}

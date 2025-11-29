@@ -245,6 +245,15 @@
   .focus-ring {
     @apply focus-visible:ring-ocean-blue focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
   }
+
+  /* Glassmorphism Utilities */
+  .glass-panel {
+    @apply border border-white/20 bg-white/10 shadow-xl backdrop-blur-md;
+  }
+
+  .dark .glass-panel {
+    @apply border-white/10 bg-black/30;
+  }
 }
 
 @layer utilities {

@@ -1,14 +1,9 @@
-/**
- * ThematicSections Component
- *
- * Renders thematic content sections with alternating image layouts.
- * Supports icons, images with courtesy attribution, and rich content.
- * Designed for cultural heritage content pages.
- */
+"use client";
 
 import { ImageWithCourtesy } from "@/components/ui/image-with-courtesy";
 import * as LucideIcons from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { motion } from "framer-motion";
 
 // Mapping from Heroicons names to Lucide names for backwards compatibility
 const heroToLucideMap: Record<string, string> = {
@@ -70,9 +65,14 @@ export function ThematicSections({
   return (
     <section className={`mt-16 ${className}`}>
       {sectionTitle && (
-        <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
+        <motion.h3
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-text-primary mb-8 text-center font-serif text-2xl font-bold"
+        >
           {sectionTitle}
-        </h3>
+        </motion.h3>
       )}
 
       <div className="space-y-12">
@@ -83,8 +83,12 @@ export function ThematicSections({
             : null;
 
           return (
-            <div
+            <motion.div
               key={`${section.title}-${index}`}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
               className={`grid items-center gap-8 lg:grid-cols-2 ${
                 index % 2 === 1 ? "lg:grid-flow-col-dense" : ""
               }`}
@@ -113,10 +117,10 @@ export function ThematicSections({
                   alt={section.description}
                   courtesy={section.imageCourtesy}
                   fill
-                  className="rounded-lg object-cover object-top"
+                  className="rounded-lg object-cover object-top shadow-md transition-shadow duration-300 hover:shadow-xl"
                 />
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>

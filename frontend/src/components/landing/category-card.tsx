@@ -13,11 +13,12 @@ export function CategoryCard({
   description,
   colorClass,
   href,
-}: CategoryCardProps) {
+  className,
+}: CategoryCardProps & { className?: string }) {
   return (
     <Link
       href={href}
-      className="group border-border-secondary hover:border-ocean-blue/30 relative block h-full overflow-hidden rounded-xl border bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800"
+      className={`group border-border-secondary hover:border-ocean-blue/30 relative block h-full overflow-hidden rounded-xl border bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:border-gray-700 dark:bg-gray-800 ${className || ""}`}
     >
       {/* Background accent circle */}
       <div

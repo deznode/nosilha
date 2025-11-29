@@ -1,5 +1,11 @@
+"use client";
+
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Search } from "lucide-react";
 import { DirectoryCard } from "@/components/ui/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
+import { formatCategoryTitle } from "@/lib/directory-utils";
 import type { DirectoryEntry } from "@/types/directory";
 import Link from "next/link";
 
@@ -13,25 +19,80 @@ export function DirectoryCategoryPageContent({
   entries,
 }: DirectoryCategoryPageContentProps) {
   const pageTitle = formatCategoryTitle(category);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredEntries = entries.filter(
+    (entry) =>
+      entry.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.town.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="bg-background-secondary font-sans">
+    <div className="bg-background-secondary min-h-screen font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader
           title={pageTitle}
           subtitle={`Browse all ${pageTitle.toLowerCase()} listings on Brava Island.`}
         />
 
-        {entries.length > 0 ? (
-          <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {entries.map((entry) => (
-              <DirectoryCard key={entry.id} entry={entry} />
-            ))}
+        {/* Search Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mx-auto mb-12 max-w-md"
+        >
+          <div className="relative">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              <Search className="text-volcanic-gray h-5 w-5" />
+            </div>
+            <input
+              type="text"
+              className="focus:ring-ocean-blue/30 focus:border-ocean-blue block w-full rounded-full border-gray-200 bg-white py-3 pr-4 pl-10 text-sm shadow-sm transition-all focus:ring-4 focus:outline-none"
+              placeholder="Filter by name or town..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
+        </motion.div>
+
+        {filteredEntries.length > 0 ? (
+          <motion.div
+            initial="hidden"
+            animate="show"
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.1,
+                },
+              },
+            }}
+            className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+          >
+            {filteredEntries.map((entry) => (
+              <motion.div
+                key={entry.id}
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  show: { opacity: 1, y: 0 },
+                }}
+              >
+                <DirectoryCard entry={entry} />
+              </motion.div>
+            ))}
+          </motion.div>
         ) : (
-          <div className="mt-16 text-center">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mt-16 text-center"
+          >
             <p className="text-text-secondary text-xl">
-              No listings found in the &quot;{pageTitle}&quot; category.
+              {entries.length === 0
+                ? `No listings found in the "${pageTitle}" category.`
+                : "No listings match your search."}
             </p>
             <p className="text-text-tertiary mt-2 text-base">
               Please try another category or check back later.
@@ -42,15 +103,9 @@ export function DirectoryCategoryPageContent({
             >
               Back to Home
             </Link>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>
   );
-}
-
-export function formatCategoryTitle(category: string): string {
-  if (!category) return "Directory";
-  const decodedCategory = decodeURIComponent(category);
-  return decodedCategory.charAt(0).toUpperCase() + decodedCategory.slice(1);
 }

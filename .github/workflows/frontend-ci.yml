@@ -19,7 +19,6 @@ on:
       - '!frontend/**/*.gitignore'
       - '!frontend/**/README*'
       - '!frontend/**/.editorconfig'
-      - '!frontend/**/*.stories.*'  # Storybook files
       - '!frontend/**/*.test.*'     # Test files (tests run locally only, not in CI)
   pull_request:
     branches: [main]
@@ -33,7 +32,6 @@ on:
       - '!frontend/**/*.gitignore'
       - '!frontend/**/README*'
       - '!frontend/**/.editorconfig'
-      - '!frontend/**/*.stories.*'  # Storybook files
       - '!frontend/**/*.test.*'     # Test files (tests run locally only, not in CI)
   workflow_call:
     inputs:

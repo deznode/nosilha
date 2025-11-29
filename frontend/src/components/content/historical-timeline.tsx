@@ -1,3 +1,7 @@
+"use client";
+
+import { motion } from "framer-motion";
+
 /**
  * HistoricalTimeline Component
  *
@@ -22,15 +26,24 @@ export function HistoricalTimeline({
 }: HistoricalTimelineProps) {
   return (
     <section className={`mt-16 ${className}`}>
-      <h3 className="text-text-primary mb-8 text-center font-serif text-2xl font-bold">
+      <motion.h3
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        className="text-text-primary mb-8 text-center font-serif text-2xl font-bold"
+      >
         Key Historical Periods
-      </h3>
+      </motion.h3>
 
       <div className="space-y-6">
         {events.map((event, index) => (
-          <div
+          <motion.div
             key={`${event.date}-${index}`}
-            className="bg-background-primary border-border-primary flex items-start space-x-4 rounded-lg border p-6 shadow-sm"
+            initial={{ opacity: 0, x: -20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: index * 0.1 }}
+            className="bg-background-primary border-border-primary flex items-start space-x-4 rounded-lg border p-6 shadow-sm transition-shadow duration-300 hover:shadow-md"
           >
             <div className="w-16 flex-shrink-0 text-center">
               <span className="text-ocean-blue font-bold">{event.date}</span>
@@ -39,7 +52,7 @@ export function HistoricalTimeline({
               <h4 className="text-text-primary font-semibold">{event.title}</h4>
               <p className="text-text-secondary">{event.description}</p>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </section>

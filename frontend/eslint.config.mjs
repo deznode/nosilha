@@ -1,5 +1,3 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from "eslint-plugin-storybook";
 import prettier from "eslint-plugin-prettier";
 import eslintConfigPrettier from "eslint-config-prettier";
 import nextConfig from "eslint-config-next";
@@ -17,7 +15,6 @@ const eslintConfig = [
       "out/",
       "build/",
       "dist/",
-      "storybook-static/",
       // Test outputs
       "coverage/",
       "test-results/",
@@ -98,7 +95,6 @@ const eslintConfig = [
       "@typescript-eslint/no-require-imports": "off", // Allow CommonJS in setup files
     },
   },
-  ...storybook.configs["flat/recommended"],
 ];
 
 export default eslintConfig;

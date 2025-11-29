@@ -28,12 +28,12 @@ export function GalleryImageGrid({ photos }: GalleryImageGridProps) {
 
   return (
     <>
-      {/* Image Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {/* Masonry Image Grid */}
+      <div className="columns-1 gap-6 space-y-6 md:columns-2 lg:columns-3">
         {photos.map((photo, index) => (
           <div
             key={index}
-            className="bg-background-primary group overflow-hidden rounded-lg shadow-sm transition-shadow hover:shadow-md"
+            className="bg-background-primary group break-inside-avoid overflow-hidden rounded-lg shadow-sm transition-shadow hover:shadow-md"
           >
             <div
               className="relative aspect-[4/3] cursor-pointer overflow-hidden"
@@ -43,12 +43,15 @@ export function GalleryImageGrid({ photos }: GalleryImageGridProps) {
                 src={photo.src}
                 alt={photo.alt}
                 fill
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/20" />
               <div className="absolute top-4 right-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                 <button
-                  onClick={() => openLightbox(index)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openLightbox(index);
+                  }}
                   className="rounded-full bg-white/90 p-2 shadow-lg hover:bg-white"
                   aria-label="View full size"
                 >

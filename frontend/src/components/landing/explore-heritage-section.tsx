@@ -1,4 +1,7 @@
+"use client";
+
 import { MapPin, BookOpen, Compass, Music } from "lucide-react";
+import { motion } from "framer-motion";
 import { SectionHeader } from "./section-header";
 import { CategoryCard } from "./category-card";
 import type { CategoryCardProps } from "@/types/landing";
@@ -45,6 +48,7 @@ const defaultCategories: CategoryCardProps[] = [
  *
  * Displays category cards for navigating main sections of the site.
  * Features rounded top corners that overlap the hero section.
+ * Now uses a Bento Grid layout for visual interest.
  */
 export function ExploreHeritageSection({
   categories = defaultCategories,
@@ -58,9 +62,18 @@ export function ExploreHeritageSection({
           centered
         />
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {categories.map((category) => (
-            <CategoryCard key={category.href} {...category} />
+        <div className="grid auto-rows-[minmax(200px,auto)] grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
+          {categories.map((category, index) => (
+            <motion.div
+              key={category.href}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              className={index === 0 ? "md:col-span-2 md:row-span-2" : ""}
+            >
+              <CategoryCard {...category} className="h-full" />
+            </motion.div>
           ))}
         </div>
       </div>

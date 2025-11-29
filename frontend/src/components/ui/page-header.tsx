@@ -1,4 +1,7 @@
+"use client";
+
 import React from "react";
+import { motion } from "framer-motion";
 
 interface PageHeaderProps {
   title: string;
@@ -30,14 +33,9 @@ interface PageHeaderProps {
 /**
  * A consistent header component for main pages, displaying a title and an optional subtitle.
  * Aligned with the landing page's SectionHeader pattern for visual consistency.
+ * Now features entrance animations.
  *
  * @param {PageHeaderProps} props The component props.
- * @param {string} props.title The main title, rendered with a serif font.
- * @param {string} [props.subtitle] An optional subtitle, rendered with a sans-serif font.
- * @param {"h1" | "h2"} [props.as="h1"] The heading level to use.
- * @param {boolean} [props.showAccentBar=true] Whether to show the accent bar.
- * @param {boolean} [props.centered=true] Whether to center the content.
- * @param {"default" | "large"} [props.size="large"] The size variant.
  */
 export function PageHeader({
   title,
@@ -51,7 +49,12 @@ export function PageHeader({
     size === "large" ? "text-4xl sm:text-5xl" : "text-3xl md:text-4xl";
 
   return (
-    <div className={`mb-12 ${centered ? "text-center" : "text-left"}`}>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className={`mb-12 ${centered ? "text-center" : "text-left"}`}
+    >
       <Heading
         className={`text-ocean-blue mb-4 font-serif font-bold ${textSizeClasses}`}
       >
@@ -67,12 +70,15 @@ export function PageHeader({
         </p>
       )}
       {showAccentBar && (
-        <div
+        <motion.div
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
           className={`bg-bougainvillea-pink mt-4 h-1 w-24 rounded-full ${
             centered ? "mx-auto" : ""
           }`}
         />
       )}
-    </div>
+    </motion.div>
   );
 }

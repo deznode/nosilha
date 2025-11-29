@@ -28,7 +28,7 @@ interface RelatedContentProps {
   className?: string;
 
   /**
-   * Optional prefetched entries for Storybook/tests to avoid live API calls
+   * Optional prefetched entries for tests to avoid live API calls
    */
   relatedEntries?: DirectoryEntry[];
 }

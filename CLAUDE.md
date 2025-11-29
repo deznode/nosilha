@@ -377,12 +377,10 @@ pnpm run build  # Next.js build
 ```bash
 pnpm run test:e2e  # Playwright E2E tests (Chromium only, local-only)
 pnpm run test:unit  # Vitest unit tests (4 critical store/hook tests)
-pnpm run storybook  # Component documentation + a11y addon
 ```
 
-**Pre-Release Checklist** (20-30 min before major releases):
+**Pre-Release Checklist** (15-20 min before major releases):
 - Run `pnpm run test:e2e` locally
-- Visual review in Storybook with a11y checks
 - Test on mobile device (iOS Safari + Android Chrome)
 - Optional: Lighthouse audit on key pages
 
@@ -426,7 +424,7 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 - `docs/TROUBLESHOOTING.md` - Common issues and solutions
 
 ### Module Architecture Documentation
-- `docs/TESTING.md` - Comprehensive testing guide (Playwright E2E, Vitest unit tests, Storybook)
+- `docs/TESTING.md` - Comprehensive testing guide (Playwright E2E, Vitest unit tests)
 - `docs/STATE_MANAGEMENT.md` - State management patterns guide (Zustand, TanStack Query, Zod)
 - `docs/SPRING_MODULITH.md` - Backend module architecture guide (Module structure, event-driven communication)
 

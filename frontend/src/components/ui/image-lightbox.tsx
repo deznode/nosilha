@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight, MapPin, Calendar } from "lucide-react";
 
@@ -75,117 +76,139 @@ export function ImageLightbox({
     };
   }, [isOpen]);
 
-  if (!isOpen || !photos[currentIndex]) return null;
-
-  const currentPhoto = photos[currentIndex];
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
-      {/* Close button */}
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 z-60 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
-        aria-label="Close lightbox"
-      >
-        <X className="h-6 w-6" />
-      </button>
-
-      {/* Navigation buttons */}
-      {photos.length > 1 && (
-        <>
+    <AnimatePresence>
+      {isOpen && photos[currentIndex] && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm"
+        >
+          {/* Close button */}
           <button
-            onClick={goToPrevious}
-            className="absolute left-4 z-60 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
-            aria-label="Previous image"
+            onClick={onClose}
+            className="absolute top-4 right-4 z-60 rounded-full bg-black/50 p-2 text-white transition-colors hover:scale-110 hover:bg-black/70 active:scale-95"
+            aria-label="Close lightbox"
           >
-            <ChevronLeft className="h-6 w-6" />
+            <X className="h-6 w-6" />
           </button>
-          <button
-            onClick={goToNext}
-            className="absolute right-16 z-60 rounded-full bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
-            aria-label="Next image"
-          >
-            <ChevronRight className="h-6 w-6" />
-          </button>
-        </>
-      )}
 
-      {/* Main content */}
-      <div className="mx-auto flex h-full w-full max-w-7xl flex-col p-4 lg:flex-row">
-        {/* Image */}
-        <div className="relative flex flex-1 items-center justify-center">
-          <div className="relative h-full max-h-[80vh] w-full lg:max-h-full">
-            <Image
-              src={currentPhoto.src}
-              alt={currentPhoto.alt}
-              fill
-              className="object-contain"
-              priority
-            />
-          </div>
-        </div>
-
-        {/* Image info sidebar */}
-        <div className="mt-4 rounded-lg bg-black/30 p-6 text-white backdrop-blur-sm lg:mt-0 lg:ml-6 lg:w-80">
-          <div className="mb-4 flex items-center justify-between">
-            <span className="text-sm text-white/70">
-              {currentIndex + 1} of {photos.length}
-            </span>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <p className="mb-2 text-lg font-medium">
-                {currentPhoto.description}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-4 text-sm text-white/80">
-              <span className="flex items-center">
-                <MapPin className="mr-1 h-4 w-4" />
-                {currentPhoto.location}
-              </span>
-              <span className="flex items-center">
-                <Calendar className="mr-1 h-4 w-4" />
-                {currentPhoto.date}
-              </span>
-            </div>
-          </div>
-
-          {/* Thumbnail navigation for desktop */}
+          {/* Navigation buttons */}
           {photos.length > 1 && (
-            <div className="mt-6 hidden lg:block">
-              <div className="grid max-h-32 grid-cols-4 gap-2 overflow-y-auto">
-                {photos.map((photo, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setCurrentIndex(index)}
-                    className={`relative aspect-square overflow-hidden rounded border-2 transition-colors ${
-                      index === currentIndex
-                        ? "border-white"
-                        : "border-transparent hover:border-white/50"
-                    }`}
+            <>
+              <button
+                onClick={goToPrevious}
+                className="absolute left-4 z-60 rounded-full bg-black/50 p-2 text-white transition-colors hover:scale-110 hover:bg-black/70 active:scale-95"
+                aria-label="Previous image"
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </button>
+              <button
+                onClick={goToNext}
+                className="absolute right-16 z-60 rounded-full bg-black/50 p-2 text-white transition-colors hover:scale-110 hover:bg-black/70 active:scale-95 lg:right-4"
+                aria-label="Next image"
+              >
+                <ChevronRight className="h-6 w-6" />
+              </button>
+            </>
+          )}
+
+          {/* Main content */}
+          <div className="mx-auto flex h-full w-full max-w-7xl flex-col p-4 lg:flex-row lg:items-center lg:justify-center">
+            {/* Image */}
+            <div className="relative flex h-full flex-1 items-center justify-center">
+              <div className="relative flex h-full w-full items-center justify-center">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentIndex}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="relative h-full max-h-[70vh] w-full lg:max-h-[85vh]"
                   >
                     <Image
-                      src={photo.src}
-                      alt={photo.alt}
+                      src={photos[currentIndex].src}
+                      alt={photos[currentIndex].alt}
                       fill
-                      className="object-cover"
+                      className="object-contain"
+                      priority
                     />
-                  </button>
-                ))}
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* Click outside to close */}
-      <div
-        className="absolute inset-0 -z-10"
-        onClick={onClose}
-        aria-label="Close lightbox"
-      />
-    </div>
+            {/* Image info sidebar */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="mt-4 rounded-lg bg-white/10 p-6 text-white backdrop-blur-md lg:mt-0 lg:ml-6 lg:max-h-[85vh] lg:w-80 lg:overflow-y-auto"
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <span className="text-sm text-white/70">
+                  {currentIndex + 1} of {photos.length}
+                </span>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <p className="mb-2 text-lg font-medium">
+                    {photos[currentIndex].description}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-4 text-sm text-white/80">
+                  <span className="flex items-center">
+                    <MapPin className="mr-1 h-4 w-4" />
+                    {photos[currentIndex].location}
+                  </span>
+                  <span className="flex items-center">
+                    <Calendar className="mr-1 h-4 w-4" />
+                    {photos[currentIndex].date}
+                  </span>
+                </div>
+              </div>
+
+              {/* Thumbnail navigation for desktop */}
+              {photos.length > 1 && (
+                <div className="mt-6 hidden lg:block">
+                  <div className="grid grid-cols-4 gap-2">
+                    {photos.map((photo, index) => (
+                      <button
+                        key={index}
+                        onClick={() => setCurrentIndex(index)}
+                        className={`relative aspect-square overflow-hidden rounded border-2 transition-all ${
+                          index === currentIndex
+                            ? "scale-105 border-white shadow-lg"
+                            : "border-transparent opacity-60 hover:border-white/50 hover:opacity-100"
+                        }`}
+                      >
+                        <Image
+                          src={photo.src}
+                          alt={photo.alt}
+                          fill
+                          className="object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          </div>
+
+          {/* Click outside to close */}
+          <div
+            className="absolute inset-0 -z-10"
+            onClick={onClose}
+            aria-label="Close lightbox"
+          />
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

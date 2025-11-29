@@ -1,11 +1,14 @@
+"use client";
+
+import Link from "next/link";
+import { motion } from "framer-motion";
+
 /**
  * HistoricalFigures Component
  *
  * Renders a grid of historical figures with their roles, years, and descriptions.
  * Designed for cultural heritage content pages.
  */
-
-import Link from "next/link";
 
 export interface HistoricalFigure {
   name: string;
@@ -37,9 +40,14 @@ export function HistoricalFigures({
       className={`bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm ${className}`}
     >
       <div className="mb-8 text-center">
-        <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
+        <motion.h3
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-text-primary mb-4 font-serif text-2xl font-bold"
+        >
           {title}
-        </h3>
+        </motion.h3>
         {subtitle && <p className="text-text-secondary mb-6">{subtitle}</p>}
         {exploreLink && (
           <Link
@@ -66,9 +74,13 @@ export function HistoricalFigures({
 
       <div className="grid gap-6 md:grid-cols-3">
         {figures.map((figure, index) => (
-          <div
+          <motion.div
             key={`${figure.name}-${index}`}
-            className="border-ocean-blue border-l-4 pl-6"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: index * 0.1 }}
+            className="border-ocean-blue rounded-r-lg border-l-4 p-4 pl-6 transition-colors duration-300 hover:bg-gray-50/50"
           >
             <h4 className="text-text-primary text-lg font-semibold">
               {figure.slug ? (
@@ -86,7 +98,7 @@ export function HistoricalFigures({
               {figure.role} • {figure.years}
             </p>
             <p className="text-text-secondary text-sm">{figure.description}</p>
-          </div>
+          </motion.div>
         ))}
       </div>
     </section>
