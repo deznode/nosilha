@@ -32,7 +32,7 @@ const defaultCategories: CategoryCardProps[] = [
     title: "Tourism Directory",
     description: "Curated listings of local hotels, restaurants, and guides.",
     colorClass: "bg-valley-green",
-    href: "/directory",
+    href: "/directory/all",
   },
   {
     icon: Music,

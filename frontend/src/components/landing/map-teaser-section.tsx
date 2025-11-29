@@ -61,7 +61,7 @@ export function MapTeaserSection() {
             <div className="group relative aspect-square overflow-hidden rounded-2xl border-4 border-white bg-blue-50 shadow-inner transition-all duration-500 hover:shadow-2xl md:aspect-video dark:border-gray-700">
               {/* Map Image */}
               <Image
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Brava_OpenStreetMap.png/600px-Brava_OpenStreetMap.png"
+                src="/images/map.jpeg"
                 alt="Map of Brava"
                 fill
                 className="object-cover opacity-80 mix-blend-multiply transition-opacity group-hover:opacity-100 dark:mix-blend-normal"

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getEntriesByCategory } from "@/lib/api";
-import { NewHomePageContent } from "@/components/pages/new-home-page-content";
+import { HomePageContent } from "@/components/pages/home-page-content";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import type { PlaceSchema } from "@/types/metadata";
 
@@ -59,5 +59,5 @@ export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const { items: featuredEntries } = await getEntriesByCategory("all");
-  return <NewHomePageContent featuredEntries={featuredEntries} />;
+  return <HomePageContent featuredEntries={featuredEntries} />;
 }
