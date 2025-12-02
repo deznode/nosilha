@@ -6,8 +6,7 @@ import { Suspense } from "react";
 
 // Dynamically import the InteractiveMap component with SSR turned off.
 const InteractiveMap = dynamic(
-  () =>
-    import("@/components/ui/interactive-map").then((mod) => mod.InteractiveMap),
+  () => import("@/features/map").then((mod) => mod.InteractiveMap),
   {
     ssr: false,
     loading: () => (

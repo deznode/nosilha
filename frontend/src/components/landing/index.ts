@@ -10,8 +10,10 @@
 export { SectionHeader } from "./section-header";
 export { CategoryCard } from "./category-card";
 export { FeaturedStoryCard } from "./featured-story-card";
-export { EventCard } from "./event-card";
 export { KrioluProverbCard } from "./kriolu-proverb-card";
+
+// Re-export EventCard from events feature for backward compatibility
+export { EventCard } from "@/features/events";
 export { WeatherWidget } from "./weather-widget";
 export { StatItem } from "./stat-item";
 export {

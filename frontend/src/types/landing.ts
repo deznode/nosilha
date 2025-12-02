@@ -19,17 +19,8 @@ export interface FeaturedItem {
   link: string;
 }
 
-/**
- * Event item for the calendar/events section
- */
-export interface EventItem {
-  id: string;
-  day: string;
-  month: string;
-  title: string;
-  location: string;
-  type: "Music" | "Festival" | "Community";
-}
+// NOTE: EventItem type has been moved to @/features/events/types
+// Import from '@/features/events' instead
 
 /**
  * Category card configuration for navigation sections

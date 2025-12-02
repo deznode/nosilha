@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Camera, Anchor } from "lucide-react";
+import { MapPin } from "lucide-react";
 
 /**
  * MapTeaserSection - Interactive map preview
@@ -61,7 +61,7 @@ export function MapTeaserSection() {
             <div className="group relative aspect-square overflow-hidden rounded-2xl border-4 border-white bg-blue-50 shadow-inner transition-all duration-500 hover:shadow-2xl md:aspect-video dark:border-gray-700">
               {/* Map Image */}
               <Image
-                src="/images/map.jpeg"
+                src="/images/map.jpg"
                 alt="Map of Brava"
                 fill
                 className="object-cover opacity-80 mix-blend-multiply transition-opacity group-hover:opacity-100 dark:mix-blend-normal"
@@ -69,7 +69,7 @@ export function MapTeaserSection() {
               />
 
               {/* Floating Markers */}
-              <div className="absolute top-1/3 left-1/2 z-10 flex animate-bounce items-center gap-2 rounded-lg bg-white p-2 shadow-lg">
+              {/* <div className="absolute top-[25%] left-[0%] z-10 flex animate-bounce items-center gap-2 rounded-lg bg-white p-2 shadow-lg">
                 <div className="bg-bougainvillea-pink rounded-md p-1.5 text-white">
                   <Camera size={14} />
                 </div>
@@ -78,14 +78,14 @@ export function MapTeaserSection() {
                 </div>
               </div>
 
-              <div className="absolute right-1/3 bottom-1/3 z-10 flex animate-pulse items-center gap-2 rounded-lg bg-white p-2 shadow-lg">
+              <div className="absolute top-[1%] right-[15%] z-10 flex animate-pulse items-center gap-2 rounded-lg bg-white p-2 shadow-lg">
                 <div className="bg-ocean-blue rounded-md p-1.5 text-white">
                   <Anchor size={14} />
                 </div>
                 <div className="pr-1 text-xs font-bold text-gray-800">
                   Furna Port
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

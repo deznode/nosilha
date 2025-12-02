@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { Calendar, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { EventCard } from "./event-card";
 import { KrioluProverbCard } from "./kriolu-proverb-card";
 import { WeatherWidget } from "./weather-widget";
-import type { EventItem, KrioluProverb, WeatherData } from "@/types/landing";
+import { EventCard, type EventItem } from "@/features/events";
+import type { KrioluProverb, WeatherData } from "@/types/landing";
 
 interface LivingCultureSectionProps {
   events?: EventItem[];
