@@ -66,6 +66,7 @@ export function LoginForm() {
             <Label>Email</Label>
             <Input
               type="email"
+              autoComplete="email"
               {...register("email")}
               className="focus:ring-ocean-blue transition-all duration-200 focus:border-transparent focus:ring-2"
             />
@@ -86,6 +87,7 @@ export function LoginForm() {
             <Label>Password</Label>
             <Input
               type="password"
+              autoComplete="current-password"
               {...register("password")}
               className="focus:ring-ocean-blue transition-all duration-200 focus:border-transparent focus:ring-2"
             />

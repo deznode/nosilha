@@ -48,6 +48,7 @@ export function SignupForm() {
             <Input
               type="email"
               name="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -58,6 +59,7 @@ export function SignupForm() {
             <Input
               type="password"
               name="password"
+              autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required

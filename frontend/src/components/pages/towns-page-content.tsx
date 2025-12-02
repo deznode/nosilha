@@ -70,6 +70,7 @@ export function TownsPageContent({
                 src="/images/towns/brava-towns-overview.jpg"
                 alt="Panoramic view of Brava Island's settlements from the famous road of 99 turns"
                 fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover transition-transform duration-700 hover:scale-105"
               />
             </div>
@@ -102,6 +103,7 @@ export function TownsPageContent({
                     src={town.heroImage || "/images/towns/default-town.jpg"}
                     alt={`View of ${town.name}`}
                     fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
                     className="object-cover transition-transform duration-500 hover:scale-105"
                   />
                 </div>
@@ -180,6 +182,7 @@ export function TownsPageContent({
                       src={town.heroImage || "/images/towns/default-town.jpg"}
                       alt={`View of ${town.name}`}
                       fill
+                      sizes="80px"
                       className="object-cover transition-transform duration-300 hover:scale-110"
                     />
                   </div>
