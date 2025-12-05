@@ -24,30 +24,30 @@
    */
 
   /* -- Primary Brand -- */
-  --color-ocean-blue: #0E4C75;
-  --color-ocean-blue-light: #2A769E;
-  --color-valley-green: #2F6E4D;
-  --color-bougainvillea-pink: #C02669;
-  --color-sobrado-ochre: #D97706;
-  --color-sunny-yellow: #FBBF24;
+  --color-ocean-blue: #0e4c75;
+  --color-ocean-blue-light: #2a769e;
+  --color-valley-green: #2f6e4d;
+  --color-bougainvillea-pink: #c02669;
+  --color-sobrado-ochre: #d97706;
+  --color-sunny-yellow: #fbbf24;
 
   /* -- Mist & Basalt (Neutrals) -- */
-  --color-mist-50: #F8FAFC;
-  --color-mist-100: #F1F5F9;
-  --color-mist-200: #E2E8F0;
-  --color-basalt-500: #64748B;
-  --color-basalt-800: #1E293B;
-  --color-basalt-900: #0F172A;
+  --color-mist-50: #f8fafc;
+  --color-mist-100: #f1f5f9;
+  --color-mist-200: #e2e8f0;
+  --color-basalt-500: #64748b;
+  --color-basalt-800: #1e293b;
+  --color-basalt-900: #0f172a;
 
   /* -- Functional Status -- */
-  --color-status-error: #BE123C;
-  --color-status-success: #15803D;
-  --color-status-warning: #B45309;
+  --color-status-error: #be123c;
+  --color-status-success: #15803d;
+  --color-status-warning: #b45309;
 
   /* === SEMANTIC LAYER (Light Mode) === */
-  
+
   /* Backgrounds */
-  --color-bg-primary: #FFFFFF;
+  --color-bg-primary: #ffffff;
   --color-bg-secondary: var(--color-mist-50);
   --color-bg-tertiary: var(--color-mist-100);
 
@@ -69,18 +69,18 @@
   /* Use these for layouts - dark mode switches automatically */
 
   /* Backgrounds */
-  --color-canvas: var(--color-bg-primary);       /* Page background */
-  --color-surface: var(--color-bg-secondary);    /* Cards, sidebars */
+  --color-canvas: var(--color-bg-primary); /* Page background */
+  --color-surface: var(--color-bg-secondary); /* Cards, sidebars */
   --color-surface-alt: var(--color-bg-tertiary); /* Hover states, alternates */
 
   /* Text */
-  --color-body: var(--color-text-primary);       /* Main reading text */
-  --color-muted: var(--color-text-secondary);    /* Metadata, captions */
-  --color-brand: var(--color-text-brand);        /* Brand-colored text */
+  --color-body: var(--color-text-primary); /* Main reading text */
+  --color-muted: var(--color-text-secondary); /* Metadata, captions */
+  --color-brand: var(--color-text-brand); /* Brand-colored text */
 
   /* Borders */
-  --color-hairline: var(--color-border-subtle);  /* Light dividers */
-  --color-edge: var(--color-border-strong);      /* Strong borders */
+  --color-hairline: var(--color-border-subtle); /* Light dividers */
+  --color-edge: var(--color-border-strong); /* Strong borders */
 
   /* === BACKWARD COMPATIBILITY ALIASES === */
   /* These map old component class names to new tokens */
@@ -93,19 +93,19 @@
 /* === DARK MODE OVERRIDES (Volcanic Night) === */
 @variant dark {
   /* Brand Adjustments for Dark Mode (Desaturated for eye comfort) */
-  --color-ocean-blue: #38BDF8; /* Sky blue for contrast */
-  --color-bougainvillea-pink: #F472B6; /* Lighter pink */
-  
+  --color-ocean-blue: #38bdf8; /* Sky blue for contrast */
+  --color-bougainvillea-pink: #f472b6; /* Lighter pink */
+
   /* Backgrounds - Deep Basalt */
-  --color-bg-primary: #0B1120; /* Deepest basalt */
-  --color-bg-secondary: #1E293B;
+  --color-bg-primary: #0b1120; /* Deepest basalt */
+  --color-bg-secondary: #1e293b;
   --color-bg-tertiary: #334155;
 
   /* Text */
-  --color-text-primary: #F1F5F9; /* Mist white */
-  --color-text-secondary: #94A3B8;
-  --color-text-brand: #7DD3FC;
-  
+  --color-text-primary: #f1f5f9; /* Mist white */
+  --color-text-secondary: #94a3b8;
+  --color-text-brand: #7dd3fc;
+
   /* Borders */
   --color-border-subtle: #334155;
   --color-border-strong: #475569;
@@ -136,65 +136,124 @@
   }
 
   /* === Keyframes for Animations === */
-  
+
   /* New: Mist Flow Animation */
   @keyframes fog-flow {
-    0% { transform: translateX(0); opacity: 0.3; }
-    50% { transform: translateX(-20px); opacity: 0.5; }
-    100% { transform: translateX(0); opacity: 0.3; }
+    0% {
+      transform: translateX(0);
+      opacity: 0.3;
+    }
+    50% {
+      transform: translateX(-20px);
+      opacity: 0.5;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 0.3;
+    }
   }
 
   @keyframes glow {
-    from, to {
+    from,
+    to {
       opacity: 0.8;
-      text-shadow: 0 0 8px var(--color-ocean-blue), 0 0 10px var(--color-ocean-blue);
+      text-shadow:
+        0 0 8px var(--color-ocean-blue),
+        0 0 10px var(--color-ocean-blue);
     }
     50% {
       opacity: 1;
-      text-shadow: 0 0 12px var(--color-ocean-blue), 0 0 20px var(--color-ocean-blue);
+      text-shadow:
+        0 0 12px var(--color-ocean-blue),
+        0 0 20px var(--color-ocean-blue);
     }
   }
 
   @keyframes pulse-subtle {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.02); }
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.02);
+    }
   }
 
   @keyframes slide-up {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   /* Content Action Toolbar Animations */
   @keyframes bounce-reaction {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
   }
 
   @keyframes scale-share {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
   }
 
   @keyframes fab-expand {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   @keyframes fab-collapse {
-    from { opacity: 1; transform: translateY(0); }
-    to { opacity: 0; transform: translateY(10px); }
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(10px);
+    }
   }
 
   /* === Animation Utilities === */
-  .animate-pulse-subtle { animation: pulse-subtle 2s ease-in-out infinite; }
-  .animate-slide-up { animation: slide-up 0.6s ease-out; }
-  .animate-fade-in { animation: fade-in 0.4s ease-out; }
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s ease-in-out infinite;
+  }
+  .animate-slide-up {
+    animation: slide-up 0.6s ease-out;
+  }
+  .animate-fade-in {
+    animation: fade-in 0.4s ease-out;
+  }
 
   /* Content Action Toolbar animation utilities */
   .animate-bounce-reaction {
@@ -259,7 +318,12 @@
       font-family: var(--font-serif);
     }
 
-    h1, h2, h3, h4, h5, h6 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
       color: black;
       page-break-after: avoid;
     }
@@ -279,7 +343,9 @@
       word-wrap: break-word;
     }
 
-    a[href^="#"]::after { content: none; }
+    a[href^="#"]::after {
+      content: none;
+    }
 
     /* Cleanup */
     *:not(img) {
@@ -293,19 +359,43 @@
       page-break-inside: avoid;
     }
 
-    figure { page-break-inside: avoid; }
-    figcaption { color: black; font-size: 0.875rem; }
+    figure {
+      page-break-inside: avoid;
+    }
+    figcaption {
+      color: black;
+      font-size: 0.875rem;
+    }
 
     /* Breaks */
-    h1, h2, h3 { page-break-after: avoid; }
-    .break-inside-avoid, blockquote, pre, table { page-break-inside: avoid; }
+    h1,
+    h2,
+    h3 {
+      page-break-after: avoid;
+    }
+    .break-inside-avoid,
+    blockquote,
+    pre,
+    table {
+      page-break-inside: avoid;
+    }
 
-    @page { margin: 2cm; }
+    @page {
+      margin: 2cm;
+    }
 
     /* Video Hiding */
-    video, iframe[src*="youtube"], iframe[src*="vimeo"] { display: none; }
-    .video-description { display: block !important; }
-    
-    .no-print { display: none; }
+    video,
+    iframe[src*="youtube"],
+    iframe[src*="vimeo"] {
+      display: none;
+    }
+    .video-description {
+      display: block !important;
+    }
+
+    .no-print {
+      display: none;
+    }
   }
 }

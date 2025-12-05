@@ -59,9 +59,9 @@ export function HeroSection({
           priority
           sizes="100vw"
         />
-        {/* Enhanced Overlay for readability */}
-        <div className="from-ocean-blue/95 via-ocean-blue/60 absolute inset-0 bg-gradient-to-r to-transparent" />
-        <div className="absolute inset-0 bg-black/30" />
+        {/* Enhanced Overlay for readability & atmosphere */}
+        <div className="from-ocean-blue/90 via-ocean-blue/50 to-bougainvillea-pink/20 absolute inset-0 bg-gradient-to-r mix-blend-multiply" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/40" />
       </div>
 
       {/* Content Container */}

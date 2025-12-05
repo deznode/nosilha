@@ -101,6 +101,31 @@ export default async function PeoplePage({ params, searchParams }: PageProps) {
 
   const isFallback = bestLang !== requestedLang;
 
+  // Get related articles
+  const relatedArticles = (page.relatedArticles || [])
+    .map((slug) => {
+      const articleVersions = pages.filter((p) => p.slug === slug);
+      if (articleVersions.length === 0) return null;
+
+      const availableLangs = articleVersions.map((p) => p.language as Language);
+      const bestRelatedLang = getBestLanguage(bestLang, availableLangs);
+
+      const relatedArticle = articleVersions.find(
+        (p) => p.language === bestRelatedLang
+      );
+      if (!relatedArticle) return null;
+
+      return {
+        slug: relatedArticle.slug,
+        title: relatedArticle.title,
+        description: relatedArticle.description,
+        coverImage: relatedArticle.coverImage,
+        category: relatedArticle.category,
+        language: relatedArticle.language,
+      };
+    })
+    .filter((a): a is NonNullable<typeof a> => a !== null);
+
   return (
     <Article
       slug={page.slug}
@@ -117,6 +142,7 @@ export default async function PeoplePage({ params, searchParams }: PageProps) {
       availableLanguages={availableLanguages}
       isFallback={isFallback}
       requestedLanguage={isFallback ? requestedLang : undefined}
+      relatedArticles={relatedArticles}
     />
   );
 }

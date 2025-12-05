@@ -10,6 +10,7 @@ import {
   LANGUAGE_COOKIE_NAME,
   type Language,
 } from "@/lib/content/translations";
+import { RelatedArticles, RelatedArticleData } from "./related-articles";
 
 interface ArticleLayoutProps {
   title: string;
@@ -27,6 +28,7 @@ interface ArticleLayoutProps {
   currentLanguage?: Language;
   isFallback?: boolean;
   requestedLanguage?: Language;
+  relatedArticles?: RelatedArticleData[];
 }
 
 export function ArticleLayout({
@@ -42,6 +44,7 @@ export function ArticleLayout({
   currentLanguage = "en",
   isFallback = false,
   requestedLanguage,
+  relatedArticles = [],
 }: ArticleLayoutProps) {
   return (
     <PrintPageWrapper>
@@ -119,6 +122,12 @@ export function ArticleLayout({
         <div className="prose prose-lg dark:prose-invert max-w-none">
           {children}
         </div>
+
+        {/* Related Articles */}
+        <RelatedArticles
+          articles={relatedArticles}
+          currentLanguage={currentLanguage}
+        />
 
         <BackToTopButton />
       </article>

@@ -18,7 +18,7 @@ import { BackToTopButton } from "@/components/ui/back-to-top-button";
 import { PrintButton } from "@/components/ui/actions/print-button";
 import { Card } from "@/components/ui/card";
 import { ImageGallery } from "@/components/ui/image-gallery";
-import { RelatedContent } from "@/components/ui/related-content";
+import { RelatedEntries } from "@/components/ui/related-entries";
 
 // Content Components (Data-Driven)
 import { HistoricalTimeline } from "@/components/content/historical-timeline";
@@ -78,7 +78,7 @@ export const mdxComponents: MDXComponents = {
   PrintButton,
   Card,
   ImageGallery,
-  RelatedContent,
+  RelatedEntries,
 
   // Data-driven content components
   HistoricalTimeline,

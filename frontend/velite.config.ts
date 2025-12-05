@@ -34,6 +34,8 @@ const baseContentSchema = s.object({
   content: s.mdx(),
   // Slug from frontmatter (allows same slug across languages)
   slug: s.string(),
+  // Related articles
+  relatedArticles: s.array(s.string()).optional(),
 });
 
 // Structured data schemas for cultural heritage pages

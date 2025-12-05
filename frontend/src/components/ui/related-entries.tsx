@@ -6,7 +6,7 @@ import Image from "next/image";
 import { DirectoryEntry } from "@/types/directory";
 import { getRelatedContent } from "@/lib/api";
 
-interface RelatedContentProps {
+interface RelatedEntriesProps {
   /**
    * UUID of the current heritage page
    */
@@ -51,13 +51,13 @@ interface RelatedContentProps {
  * 2. Same category + same cuisine (for restaurants)
  * 3. Same category only (fallback)
  */
-export function RelatedContent({
+export function RelatedEntries({
   contentId,
   limit = 5,
   heading = "Explore Related Content",
   className = "",
   relatedEntries: prefetchedEntries,
-}: RelatedContentProps) {
+}: RelatedEntriesProps) {
   const [relatedEntries, setRelatedEntries] = useState<DirectoryEntry[]>(
     prefetchedEntries ?? []
   );

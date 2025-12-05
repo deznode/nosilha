@@ -5,7 +5,7 @@ import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Suspense } from "react";
 
-import { Header } from "@/components/ui/header2";
+import { Header } from "@/components/ui/header";
 import { Footer } from "@/components/ui/footer";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { QueryProvider } from "@/components/providers/query-provider";

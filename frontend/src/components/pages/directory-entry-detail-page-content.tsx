@@ -7,7 +7,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { ContributePhotosSection } from "@/components/ui/contribute-photos-section";
 import { ContentActionToolbar } from "@/components/ui/content-action-toolbar";
 import { ImageGallery } from "@/components/ui/image-gallery";
-import { RelatedContent } from "@/components/ui/related-content";
+import { RelatedEntries } from "@/components/ui/related-entries";
 import StarRating from "@/components/ui/start-rating";
 import { getHotelDetails, getRestaurantDetails } from "@/lib/api-validation";
 import { siteConfig } from "@/lib/metadata";
@@ -199,7 +199,7 @@ export function DirectoryEntryDetailPageContent({
 
             <div className="border-border-primary my-12 border-t" />
 
-            <RelatedContent
+            <RelatedEntries
               contentId={entry.id}
               limit={5}
               heading="Explore Related Heritage"

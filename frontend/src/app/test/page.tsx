@@ -15,13 +15,13 @@ import { Logo as Logo5 } from "@/components/ui/logo5";
 import { SocialMediaLinks } from "@/components/ui/social-media-links";
 import Banner from "@/components/ui/banner";
 import { SuggestImprovementForm } from "@/components/ui/actions/suggest-improvement-form";
-import { RelatedContent } from "@/components/ui/related-content";
+import { RelatedEntries } from "@/components/ui/related-entries";
 import { ShareButton } from "@/components/ui/actions/share-button";
 import { CopyLinkButton } from "@/components/ui/actions/copy-link-button";
 import { ReactionButtons } from "@/components/ui/actions/reaction-buttons";
 import { Button } from "@/components/catalyst-ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Header } from "@/components/ui/header2";
+import { Header } from "@/components/ui/header";
 
 /**
  * An updated test page that uses the PageHeader component.
@@ -224,7 +224,7 @@ export default function TestPage() {
         </section>
 
         <SocialMediaLinks />
-        <RelatedContent contentId={showcaseContentId} />
+        <RelatedEntries contentId={showcaseContentId} />
 
         <SuggestImprovementForm
           contentId={showcaseContentId}

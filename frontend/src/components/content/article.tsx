@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import * as runtime from "react/jsx-runtime";
 import { ArticleLayout } from "./article-layout";
 import { type Language } from "@/lib/content/translations";
+import { RelatedArticleData } from "./related-articles";
 
 interface ArticleProps {
   // Article metadata
@@ -24,7 +25,7 @@ interface ArticleProps {
   isFallback?: boolean;
   requestedLanguage?: Language;
   // Related content
-  relatedArticles?: string[];
+  relatedArticles?: RelatedArticleData[];
   series?: string;
   seriesOrder?: number;
 }
@@ -65,6 +66,7 @@ export function Article({
   availableLanguages = [],
   isFallback = false,
   requestedLanguage,
+  relatedArticles,
 }: ArticleProps) {
   return (
     <ArticleLayout
@@ -81,6 +83,7 @@ export function Article({
       currentLanguage={language}
       isFallback={isFallback}
       requestedLanguage={requestedLanguage}
+      relatedArticles={relatedArticles}
     >
       <MDXContent code={code} />
     </ArticleLayout>

@@ -11,7 +11,7 @@ interface CardProps {
 export function Card({ title, children, className = "" }: CardProps) {
   return (
     <div
-      className={`bg-background-primary border-border-primary rounded-lg border p-6 shadow-sm ${className}`}
+      className={`bg-surface border-border-primary rounded-lg border p-6 shadow-sm ${className}`}
     >
       {title && (
         <h4 className="text-text-primary mb-3 text-lg font-semibold">
