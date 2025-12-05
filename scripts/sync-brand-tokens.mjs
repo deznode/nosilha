@@ -104,7 +104,10 @@ groups.forEach((group) => {
   // Convert tokens
   Object.entries(group.tokens).forEach(([key, value]) => {
     // CamelCase to kebab-case (e.g., oceanBlue -> --color-ocean-blue)
-    const kebab = key.replace(/[A-Z]/g, (m) => "-" + m.toLowerCase());
+    // Also handles numbers (e.g., mist50 -> mist-50)
+    const kebab = key
+      .replace(/[A-Z]/g, (m) => "-" + m.toLowerCase())
+      .replace(/(\D)(\d)/g, "$1-$2");
     cssVariables += `  --color-${kebab}: ${value};\n`;
   });
 });

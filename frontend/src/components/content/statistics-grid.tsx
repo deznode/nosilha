@@ -4,7 +4,12 @@ interface Statistic {
   value: string;
   label: string;
   description: string;
-  color: "ocean-blue" | "valley-green" | "bougainvillea-pink" | "sobrado-ochre" | "sunny-yellow";
+  color:
+    | "ocean-blue"
+    | "valley-green"
+    | "bougainvillea-pink"
+    | "sobrado-ochre"
+    | "sunny-yellow";
 }
 
 interface StatisticsGridProps {
@@ -48,12 +53,14 @@ export function StatisticsGrid({ statistics }: StatisticsGridProps) {
             className={`${colors.gradient} rounded-lg bg-gradient-to-br to-transparent p-4 text-center`}
           >
             <div className={`${colors.text} mb-1 text-2xl font-bold`}>
-            {stat.value}
-          </div>
-          <div className="text-text-primary text-sm font-medium">
-            {stat.label}
-          </div>
-          <div className="text-text-secondary text-xs">{stat.description}</div>
+              {stat.value}
+            </div>
+            <div className="text-text-primary text-sm font-medium">
+              {stat.label}
+            </div>
+            <div className="text-text-secondary text-xs">
+              {stat.description}
+            </div>
           </div>
         );
       })}
