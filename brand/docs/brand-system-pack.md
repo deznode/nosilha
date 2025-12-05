@@ -38,6 +38,7 @@ These primitives are defined in palette.json and synced to globals.css.
 | **Verde Fajã** | \--color-valley-green | \#2F6E4D | The lush, damp vegetation of Fajã d'Água. |
 | **Hibiscus** | \--color-bougainvillea-pink | \#C02669 | The vibrant, velvety flowers found in Nova Sintra (replacing neon pink). |
 | **Sobrado Ochre** | \--color-sobrado-ochre | \#D97706 | The warm yellow-orange walls of colonial *Sobrado* houses. |
+| **Sunny Yellow** | \--color-sunny-yellow | \#FBBF24 | Warm accent, decorative highlights, call-to-action buttons. |
 
 ### **The "Bruma" Neutral Scale**
 
@@ -47,7 +48,9 @@ Instead of standard grays, we use **cool, blue-tinted slates** to mimic the cons
 | :---- | :---- | :---- | :---- |
 | **Mist 50** | \--color-mist-50 | \#F8FAFC | Page backgrounds (Light Mode). |
 | **Mist 100** | \--color-mist-100 | \#F1F5F9 | Secondary backgrounds, card surfaces. |
+| **Mist 200** | \--color-mist-200 | \#E2E8F0 | Borders, dividers, hover backgrounds. |
 | **Basalt 500** | \--color-basalt-500 | \#64748B | Secondary text, borders, icons. |
+| **Basalt 800** | \--color-basalt-800 | \#1E293B | Dark mode backgrounds, strong contrast text. |
 | **Basalt 900** | \--color-basalt-900 | \#0F172A | Primary text, deep contrast. |
 
 ### **Semantic Status Colors**
@@ -56,7 +59,28 @@ Instead of standard grays, we use **cool, blue-tinted slates** to mimic the cons
 | :---- | :---- | :---- | :---- |
 | **Error** | \--color-status-error | \#BE123C | Destructive actions (Rose-red). |
 | **Success** | \--color-status-success | \#15803D | Confirmation (Forest green). |
-| **Warning** | \--color-status-warning | \#B45309 | Alerts (Ochre). |
+| **Warning** | \--color-status-warning | \#B45309 | Alerts, warning text (Ochre). |
+
+### **Accessibility Compliance (WCAG 2.1)**
+
+All brand colors have been audited for WCAG 2.1 compliance. See `/brand/docs/accessibility-audit-report.md` for full details.
+
+#### Text Color Contrast (on Mist 50 background)
+
+| Color | Ratio | AA (4.5:1) | AAA (7:1) | Use For |
+| :---- | :---- | :---- | :---- | :---- |
+| **Basalt 900** | 17.06:1 | PASS | PASS | Primary body text |
+| **Atlantic Blue** | 8.69:1 | PASS | PASS | Headings, brand text, links |
+| **Basalt 500** | 4.55:1 | PASS | FAIL | Secondary text (Mist 50/White only) |
+| **Status Warning** | 4.80:1 | PASS | FAIL | Warning text messages |
+| **Hibiscus** | 5.39:1 | PASS | FAIL | Accent text (large text preferred) |
+| **Sobrado Ochre** | 3.04:1 | FAIL | FAIL | Icons/graphical objects ONLY |
+
+#### Usage Guidelines
+
+- **Sobrado Ochre (#D97706)**: Use for star ratings, icons, and decorative elements only. Meets WCAG 2.1 SC 1.4.11 (Non-text Contrast: 3:1).
+- **Status Warning (#B45309)**: Use for warning text messages. Meets WCAG 2.1 AA (4.5:1).
+- **Basalt 500 (#64748B)**: Use for secondary text on Mist 50 or White backgrounds only. Fails on Mist 100 (4.34:1).
 
 ## **✍️ Typography**
 
@@ -101,27 +125,31 @@ Imagery should feel real and emotionally grounded — storytelling through authe
 
 ## **🧱 Tailwind & Design Tokens Summary**
 
-The Nos Ilha frontend uses **Tailwind CSS v4** with semantic tokens defined in globals.css and mapped in tailwind.config.ts.
+The Nos Ilha frontend uses **Tailwind CSS v4** with semantic tokens defined in globals.css.
 
-Example:
+**Note:** Tailwind CSS v4 automatically detects `@theme` variables in globals.css via `@import "tailwindcss"`. No explicit color extension is needed in tailwind.config.ts.
 
-extend: {  
-  colors: {  
-    'ocean-blue': 'var(--color-ocean-blue)',  
-    'mist-50': 'var(--color-mist-50)',  
-    'basalt-900': 'var(--color-basalt-900)',  
-  },  
-  fontFamily: {  
-    sans: \['Lato', 'sans-serif'\],  
-    serif: \['Merriweather', 'serif'\],  
-  },  
-}
+Example token usage in components:
+
+```tsx
+// Direct class usage
+<h1 className="text-ocean-blue">Heading</h1>
+<p className="text-basalt-900">Body text</p>
+<span className="bg-sobrado-ochre">Icon badge</span>
+
+// With opacity modifier
+<div className="bg-ocean-blue/20">Transparent background</div>
+
+// Semantic tokens (dark mode auto-switches)
+<p className="text-text-primary">Primary text</p>
+<div className="bg-surface">Card surface</div>
+```
 
 **Breakpoints:** sm 640px · md 768px · lg 1024px · xl 1280px
 
 Spacing and typography scale align with Tailwind defaults.
 
-For implementation details, refer to \[suspicious link removed\].
+For implementation details, refer to [`DESIGN_SYSTEM.md`](../../docs/DESIGN_SYSTEM.md).
 
 ## **♿ Accessibility & Dark Mode**
 
