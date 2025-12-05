@@ -24,7 +24,7 @@ export function SubmitEventCTA() {
           free.
         </p>
       </div>
-      <button className="text-valley-green flex items-center rounded-full bg-white px-8 py-4 font-bold whitespace-nowrap shadow-lg transition-all hover:bg-gray-100">
+      <button className="text-valley-green hover:bg-mist-100 flex items-center rounded-full bg-white px-8 py-4 font-bold whitespace-nowrap shadow-lg transition-all">
         <PlusCircle className="mr-2 h-5 w-5" />
         Submit an Event
       </button>

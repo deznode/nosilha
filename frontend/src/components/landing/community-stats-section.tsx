@@ -22,7 +22,7 @@ export function CommunityStatsSection({
   stats = defaultStats,
 }: CommunityStatsSectionProps) {
   return (
-    <section className="border-border-secondary border-y bg-white py-20 dark:bg-gray-900">
+    <section className="border-hairline bg-surface border-y py-20">
       <div className="container mx-auto px-4 md:px-6">
         <SectionHeader
           title="Our Growing Archive"
@@ -31,7 +31,7 @@ export function CommunityStatsSection({
         />
 
         {/* Stats Bar */}
-        <div className="grid grid-cols-2 divide-x divide-gray-200 md:grid-cols-4 dark:divide-gray-700">
+        <div className="divide-hairline grid grid-cols-2 divide-x md:grid-cols-4">
           {stats.map((stat, index) => (
             <StatItem key={index} {...stat} />
           ))}

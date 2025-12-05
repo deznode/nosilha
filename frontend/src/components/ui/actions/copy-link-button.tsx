@@ -93,7 +93,7 @@ export function CopyLinkButton({
         className={`focus-ring flex h-11 w-11 items-center justify-center rounded-full transition-all ${
           isActive
             ? "bg-[var(--color-ocean-blue)] text-white"
-            : "bg-[var(--color-background-secondary)] text-[var(--color-text-primary)] hover:bg-gray-200 dark:hover:bg-gray-700"
+            : "hover:bg-mist-200 dark:hover:bg-basalt-800 bg-[var(--color-background-secondary)] text-[var(--color-text-primary)]"
         } ${!isClipboardAvailable ? "cursor-not-allowed opacity-50" : "cursor-pointer"} `}
       >
         <LinkIcon className="h-5 w-5" />

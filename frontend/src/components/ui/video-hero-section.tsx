@@ -173,7 +173,7 @@ export function VideoHeroSection({
       >
         <button
           onClick={handleScrollToNext}
-          className="group focus:ring-sunny-yellow/50 flex cursor-pointer flex-col items-center rounded-lg p-2 text-white/80 transition-colors duration-300 hover:text-white focus:ring-2 focus:ring-offset-2 focus:outline-none"
+          className="group focus:ring-sobrado-ochre/50 flex cursor-pointer flex-col items-center rounded-lg p-2 text-white/80 transition-colors duration-300 hover:text-white focus:ring-2 focus:ring-offset-2 focus:outline-none"
           aria-label="Scroll to next section to continue reading the story"
         >
           <span className="mb-3 font-sans text-sm font-semibold tracking-widest uppercase">
@@ -186,7 +186,7 @@ export function VideoHeroSection({
               repeat: Infinity,
               ease: "easeInOut" as const,
             }}
-            className="text-sunny-yellow h-6 w-6"
+            className="text-sobrado-ochre h-6 w-6"
           >
             <svg
               fill="none"

@@ -38,7 +38,7 @@ const defaultCategories: CategoryCardProps[] = [
     icon: Music,
     title: "Culture & Arts",
     description: "The home of Morna, festivals, and local artisans.",
-    colorClass: "bg-sunny-yellow",
+    colorClass: "bg-sobrado-ochre",
     href: "/culture",
   },
 ];

@@ -80,7 +80,7 @@ export function HistoricalFigures({
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: index * 0.1 }}
-            className="border-ocean-blue rounded-r-lg border-l-4 p-4 pl-6 transition-colors duration-300 hover:bg-gray-50/50"
+            className="border-ocean-blue hover:bg-mist-50/50 rounded-r-lg border-l-4 p-4 pl-6 transition-colors duration-300"
           >
             <h4 className="text-text-primary text-lg font-semibold">
               {figure.slug ? (

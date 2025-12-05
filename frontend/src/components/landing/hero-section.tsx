@@ -80,8 +80,8 @@ export function HeroSection({
           )}
 
           {/* Tagline */}
-          <div className="text-sunny-yellow mb-6 flex items-center space-x-3 font-bold tracking-widest uppercase">
-            <span className="bg-sunny-yellow h-[3px] w-12 rounded-full" />
+          <div className="text-sobrado-ochre mb-6 flex items-center space-x-3 font-bold tracking-widest uppercase">
+            <span className="bg-sobrado-ochre h-[3px] w-12 rounded-full" />
             <span className="text-sm md:text-base">
               Ilha das Flores • Cape Verde
             </span>
@@ -90,7 +90,7 @@ export function HeroSection({
           {/* Headline */}
           <h1 className="mb-6 font-serif text-5xl leading-tight font-bold text-white drop-shadow-lg md:text-7xl">
             Discover the <br />
-            <span className="from-sunny-yellow bg-gradient-to-r to-white bg-clip-text text-transparent">
+            <span className="from-sobrado-ochre bg-gradient-to-r to-white bg-clip-text text-transparent">
               Soul of Brava
             </span>
           </h1>
@@ -107,11 +107,11 @@ export function HeroSection({
             className="group relative mb-10 max-w-xl"
           >
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5">
-              <Search className="group-focus-within:text-ocean-blue h-5 w-5 text-gray-400 transition-colors" />
+              <Search className="group-focus-within:text-ocean-blue text-basalt-500 h-5 w-5 transition-colors" />
             </div>
             <input
               type="text"
-              className="focus:ring-ocean-blue/30 focus:border-ocean-blue block w-full rounded-full border border-white/20 bg-white/95 py-5 pr-32 pl-14 text-base text-gray-900 placeholder-gray-500 shadow-2xl backdrop-blur-md transition-all outline-none focus:ring-4"
+              className="focus:ring-ocean-blue/30 focus:border-ocean-blue text-basalt-900 placeholder-basalt-500 block w-full rounded-full border border-white/20 bg-white/95 py-5 pr-32 pl-14 text-base shadow-2xl backdrop-blur-md transition-all outline-none focus:ring-4"
               placeholder="Search history, towns, or businesses..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -134,7 +134,7 @@ export function HeroSection({
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="hover:border-sunny-yellow rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold backdrop-blur-sm transition-all hover:bg-white/20"
+                  className="hover:border-sobrado-ochre rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold backdrop-blur-sm transition-all hover:bg-white/20"
                 >
                   {link.emoji && `${link.emoji} `}
                   {link.label}

@@ -102,7 +102,7 @@ export default function TestMapPage() {
   return (
     <div className="h-screen w-full p-8">
       <h1 className="mb-4 text-2xl font-bold">Map Style Switcher Test</h1>
-      <div className="relative h-96 w-full rounded-lg border bg-gray-100">
+      <div className="bg-mist-100 relative h-96 w-full rounded-lg border">
         <MapStyleSwitcher
           currentStyle="mapbox://styles/mapbox/streets-v12"
           onStyleChange={(style) => console.log("Style changed:", style)}

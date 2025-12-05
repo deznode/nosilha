@@ -64,7 +64,7 @@ export function EventGridCard({ event }: EventGridCardProps) {
               {event.location}
             </div>
           </div>
-          <p className="text-volcanic-gray line-clamp-2 text-sm">
+          <p className="text-basalt-500 line-clamp-2 text-sm">
             {event.description}
           </p>
         </div>

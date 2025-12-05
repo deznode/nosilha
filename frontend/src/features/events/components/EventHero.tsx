@@ -19,7 +19,7 @@ export function EventHero() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-sunny-yellow mb-4 inline-flex items-center space-x-2 font-bold tracking-widest uppercase"
+          className="text-sobrado-ochre mb-4 inline-flex items-center space-x-2 font-bold tracking-widest uppercase"
         >
           <Calendar className="h-5 w-5" />
           <span>Island & Diaspora Calendar</span>

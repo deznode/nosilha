@@ -10,7 +10,7 @@ const styles = {
     // Sizing
     "px-[calc(--spacing(3.5)-1px)] py-[calc(--spacing(2.5)-1px)] sm:px-[calc(--spacing(3)-1px)] sm:py-[calc(--spacing(1.5)-1px)] sm:text-sm/6",
     // Focus
-    "focus:not-data-focus:outline-hidden data-focus:outline-2 data-focus:outline-offset-2 data-focus:outline-blue-500",
+    "focus:not-data-focus:outline-hidden data-focus:outline-2 data-focus:outline-offset-2 data-focus:outline-ocean-blue",
     // Disabled
     "data-disabled:opacity-50",
     // Icon
@@ -42,50 +42,50 @@ const styles = {
   ],
   outline: [
     // Base
-    "border-zinc-950/10 text-zinc-950 data-active:bg-zinc-950/2.5 data-hover:bg-zinc-950/2.5",
+    "border-basalt-900/10 text-basalt-900 data-active:bg-basalt-900/2.5 data-hover:bg-basalt-900/2.5",
     // Dark mode
     "dark:border-border-primary/15 dark:text-text-primary dark:[--btn-bg:transparent] dark:data-active:bg-background-primary/5 dark:data-hover:bg-background-primary/5",
     // Icon
-    "[--btn-icon:var(--color-zinc-500)] data-active:[--btn-icon:var(--color-zinc-700)] data-hover:[--btn-icon:var(--color-zinc-700)] dark:data-active:[--btn-icon:var(--color-zinc-400)] dark:data-hover:[--btn-icon:var(--color-zinc-400)]",
+    "[--btn-icon:var(--color-basalt-500)] data-active:[--btn-icon:var(--color-basalt-800)] data-hover:[--btn-icon:var(--color-basalt-800)] dark:data-active:[--btn-icon:var(--color-mist-200)] dark:data-hover:[--btn-icon:var(--color-mist-200)]",
   ],
   plain: [
     // Base
-    "border-transparent text-zinc-950 data-active:bg-zinc-950/5 data-hover:bg-zinc-950/5",
+    "border-transparent text-basalt-900 data-active:bg-basalt-900/5 data-hover:bg-basalt-900/5",
     // Dark mode
     "dark:text-text-primary dark:data-active:bg-background-primary/10 dark:data-hover:bg-background-primary/10",
     // Icon
-    "[--btn-icon:var(--color-zinc-500)] data-active:[--btn-icon:var(--color-zinc-700)] data-hover:[--btn-icon:var(--color-zinc-700)] dark:[--btn-icon:var(--color-zinc-500)] dark:data-active:[--btn-icon:var(--color-zinc-400)] dark:data-hover:[--btn-icon:var(--color-zinc-400)]",
+    "[--btn-icon:var(--color-basalt-500)] data-active:[--btn-icon:var(--color-basalt-800)] data-hover:[--btn-icon:var(--color-basalt-800)] dark:[--btn-icon:var(--color-basalt-500)] dark:data-active:[--btn-icon:var(--color-mist-200)] dark:data-hover:[--btn-icon:var(--color-mist-200)]",
   ],
   colors: {
     "dark/zinc": [
-      "text-white [--btn-bg:var(--color-zinc-900)] [--btn-border:var(--color-zinc-950)]/90 [--btn-hover-overlay:var(--color-white)]/10",
-      "dark:text-text-primary dark:[--btn-bg:var(--color-volcanic-gray)] dark:[--btn-hover-overlay:var(--color-text-primary)]/5",
-      "[--btn-icon:var(--color-zinc-400)] data-active:[--btn-icon:var(--color-zinc-300)] data-hover:[--btn-icon:var(--color-zinc-300)]",
+      "text-white [--btn-bg:var(--color-basalt-900)] [--btn-border:var(--color-basalt-900)]/90 [--btn-hover-overlay:var(--color-white)]/10",
+      "dark:text-text-primary dark:[--btn-bg:var(--color-basalt-800)] dark:[--btn-hover-overlay:var(--color-text-primary)]/5",
+      "[--btn-icon:var(--color-mist-200)] data-active:[--btn-icon:var(--color-mist-100)] data-hover:[--btn-icon:var(--color-mist-100)]",
     ],
     light: [
-      "text-zinc-950 [--btn-bg:white] [--btn-border:var(--color-zinc-950)]/10 [--btn-hover-overlay:var(--color-zinc-950)]/2.5 data-active:[--btn-border:var(--color-zinc-950)]/15 data-hover:[--btn-border:var(--color-zinc-950)]/15",
-      "dark:text-text-primary dark:[--btn-hover-overlay:var(--color-text-primary)]/5 dark:[--btn-bg:var(--color-volcanic-gray-dark)]",
-      "[--btn-icon:var(--color-zinc-500)] data-active:[--btn-icon:var(--color-zinc-700)] data-hover:[--btn-icon:var(--color-zinc-700)] dark:[--btn-icon:var(--color-zinc-500)] dark:data-active:[--btn-icon:var(--color-zinc-400)] dark:data-hover:[--btn-icon:var(--color-zinc-400)]",
+      "text-basalt-900 [--btn-bg:white] [--btn-border:var(--color-basalt-900)]/10 [--btn-hover-overlay:var(--color-basalt-900)]/2.5 data-active:[--btn-border:var(--color-basalt-900)]/15 data-hover:[--btn-border:var(--color-basalt-900)]/15",
+      "dark:text-text-primary dark:[--btn-hover-overlay:var(--color-text-primary)]/5 dark:[--btn-bg:var(--color-basalt-900)]",
+      "[--btn-icon:var(--color-basalt-500)] data-active:[--btn-icon:var(--color-basalt-800)] data-hover:[--btn-icon:var(--color-basalt-800)] dark:[--btn-icon:var(--color-basalt-500)] dark:data-active:[--btn-icon:var(--color-mist-200)] dark:data-hover:[--btn-icon:var(--color-mist-200)]",
     ],
     "dark/white": [
-      "text-white [--btn-bg:var(--color-zinc-900)] [--btn-border:var(--color-zinc-950)]/90 [--btn-hover-overlay:var(--color-white)]/10",
+      "text-white [--btn-bg:var(--color-basalt-900)] [--btn-border:var(--color-basalt-900)]/90 [--btn-hover-overlay:var(--color-white)]/10",
       "dark:text-text-primary dark:[--btn-bg:var(--color-background-primary)] dark:[--btn-hover-overlay:var(--color-text-primary)]/5",
-      "[--btn-icon:var(--color-zinc-400)] data-active:[--btn-icon:var(--color-zinc-300)] data-hover:[--btn-icon:var(--color-zinc-300)] dark:[--btn-icon:var(--color-zinc-500)] dark:data-active:[--btn-icon:var(--color-zinc-400)] dark:data-hover:[--btn-icon:var(--color-zinc-400)]",
+      "[--btn-icon:var(--color-mist-200)] data-active:[--btn-icon:var(--color-mist-100)] data-hover:[--btn-icon:var(--color-mist-100)] dark:[--btn-icon:var(--color-basalt-500)] dark:data-active:[--btn-icon:var(--color-mist-200)] dark:data-hover:[--btn-icon:var(--color-mist-200)]",
     ],
     dark: [
-      "text-white [--btn-bg:var(--color-zinc-900)] [--btn-border:var(--color-zinc-950)]/90 [--btn-hover-overlay:var(--color-white)]/10",
-      "dark:[--btn-hover-overlay:var(--color-white)]/5 dark:[--btn-bg:var(--color-zinc-800)]",
-      "[--btn-icon:var(--color-zinc-400)] data-active:[--btn-icon:var(--color-zinc-300)] data-hover:[--btn-icon:var(--color-zinc-300)]",
+      "text-white [--btn-bg:var(--color-basalt-900)] [--btn-border:var(--color-basalt-900)]/90 [--btn-hover-overlay:var(--color-white)]/10",
+      "dark:[--btn-hover-overlay:var(--color-white)]/5 dark:[--btn-bg:var(--color-basalt-800)]",
+      "[--btn-icon:var(--color-mist-200)] data-active:[--btn-icon:var(--color-mist-100)] data-hover:[--btn-icon:var(--color-mist-100)]",
     ],
     white: [
-      "text-zinc-950 [--btn-bg:white] [--btn-border:var(--color-zinc-950)]/10 [--btn-hover-overlay:var(--color-zinc-950)]/2.5 data-active:[--btn-border:var(--color-zinc-950)]/15 data-hover:[--btn-border:var(--color-zinc-950)]/15",
-      "dark:[--btn-hover-overlay:var(--color-zinc-950)]/5",
-      "[--btn-icon:var(--color-zinc-400)] data-active:[--btn-icon:var(--color-zinc-500)] data-hover:[--btn-icon:var(--color-zinc-500)]",
+      "text-basalt-900 [--btn-bg:white] [--btn-border:var(--color-basalt-900)]/10 [--btn-hover-overlay:var(--color-basalt-900)]/2.5 data-active:[--btn-border:var(--color-basalt-900)]/15 data-hover:[--btn-border:var(--color-basalt-900)]/15",
+      "dark:[--btn-hover-overlay:var(--color-basalt-900)]/5",
+      "[--btn-icon:var(--color-mist-200)] data-active:[--btn-icon:var(--color-basalt-500)] data-hover:[--btn-icon:var(--color-basalt-500)]",
     ],
     zinc: [
-      "text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-zinc-600)] [--btn-border:var(--color-zinc-700)]/90",
+      "text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-basalt-500)] [--btn-border:var(--color-basalt-800)]/90",
       "dark:[--btn-hover-overlay:var(--color-white)]/5",
-      "[--btn-icon:var(--color-zinc-400)] data-active:[--btn-icon:var(--color-zinc-300)] data-hover:[--btn-icon:var(--color-zinc-300)]",
+      "[--btn-icon:var(--color-mist-200)] data-active:[--btn-icon:var(--color-mist-100)] data-hover:[--btn-icon:var(--color-mist-100)]",
     ],
     indigo: [
       "text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-indigo-500)] [--btn-border:var(--color-indigo-600)]/90",
@@ -108,8 +108,8 @@ const styles = {
       "[--btn-icon:var(--color-amber-600)]",
     ],
     yellow: [
-      "text-yellow-950 [--btn-hover-overlay:var(--color-white)]/25 [--btn-bg:var(--color-yellow-300)] [--btn-border:var(--color-yellow-400)]/80",
-      "[--btn-icon:var(--color-yellow-600)] data-active:[--btn-icon:var(--color-yellow-700)] data-hover:[--btn-icon:var(--color-yellow-700)]",
+      "text-white [--btn-hover-overlay:var(--color-white)]/25 [--btn-bg:var(--color-sobrado-ochre)] [--btn-border:var(--color-sobrado-ochre)]/80",
+      "[--btn-icon:var(--color-white)]/80 data-active:[--btn-icon:var(--color-white)] data-hover:[--btn-icon:var(--color-white)]",
     ],
     lime: [
       "text-lime-950 [--btn-hover-overlay:var(--color-white)]/25 [--btn-bg:var(--color-lime-300)] [--btn-border:var(--color-lime-400)]/80",
@@ -132,8 +132,8 @@ const styles = {
       "[--btn-icon:var(--color-white)]/60 data-active:[--btn-icon:var(--color-white)]/80 data-hover:[--btn-icon:var(--color-white)]/80",
     ],
     blue: [
-      "text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-blue-600)] [--btn-border:var(--color-blue-700)]/90",
-      "[--btn-icon:var(--color-blue-400)] data-active:[--btn-icon:var(--color-blue-300)] data-hover:[--btn-icon:var(--color-blue-300)]",
+      "text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-ocean-blue)] [--btn-border:var(--color-ocean-blue)]/90",
+      "[--btn-icon:var(--color-ocean-blue-light)] data-active:[--btn-icon:var(--color-ocean-blue-light)] data-hover:[--btn-icon:var(--color-ocean-blue-light)]",
     ],
     violet: [
       "text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-violet-500)] [--btn-border:var(--color-violet-600)]/90",

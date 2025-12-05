@@ -117,7 +117,7 @@ export function ContentSearch({
     <div className={`relative ${className}`}>
       {/* Search input */}
       <div className="relative">
-        <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-gray-400" />
+        <Search className="text-muted absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2" />
         <input
           type="text"
           value={query}
@@ -129,7 +129,7 @@ export function ContentSearch({
             }
           }}
           placeholder={placeholder}
-          className="focus:border-ocean-blue focus:ring-ocean-blue w-full rounded-lg border border-gray-300 bg-white py-2 pr-10 pl-10 text-sm focus:ring-1 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+          className="focus:border-ocean-blue focus:ring-ocean-blue border-hairline bg-surface text-body w-full rounded-lg border py-2 pr-10 pl-10 text-sm focus:ring-1 focus:outline-none"
           aria-label="Search articles"
         />
         {query && (
@@ -139,7 +139,7 @@ export function ContentSearch({
               setResults([]);
               setIsOpen(false);
             }}
-            className="absolute top-1/2 right-3 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="text-muted hover:text-body absolute top-1/2 right-3 -translate-y-1/2"
             aria-label="Clear search"
           >
             <X className="h-5 w-5" />
@@ -149,9 +149,9 @@ export function ContentSearch({
 
       {/* Search results dropdown */}
       {isOpen && (query || results.length > 0) && (
-        <div className="absolute top-full z-50 mt-2 w-full rounded-lg border border-gray-200 bg-white shadow-lg dark:border-gray-700 dark:bg-gray-800">
+        <div className="border-hairline bg-surface absolute top-full z-50 mt-2 w-full rounded-lg border shadow-lg">
           {isLoading ? (
-            <div className="p-4 text-center text-sm text-gray-500">
+            <div className="text-muted p-4 text-center text-sm">
               Searching...
             </div>
           ) : results.length > 0 ? (
@@ -164,18 +164,18 @@ export function ContentSearch({
                       setIsOpen(false);
                       setQuery("");
                     }}
-                    className="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    className="hover:bg-surface-alt block px-4 py-3"
                   >
-                    <div className="font-medium text-gray-900 dark:text-white">
+                    <div className="text-body font-medium">
                       {result.meta.title || "Untitled"}
                     </div>
                     {result.meta.category && (
-                      <span className="mt-1 inline-block rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                      <span className="bg-surface-alt text-muted mt-1 inline-block rounded px-2 py-0.5 text-xs">
                         {result.meta.category}
                       </span>
                     )}
                     <p
-                      className="mt-1 line-clamp-2 text-sm text-gray-500 dark:text-gray-400"
+                      className="text-muted mt-1 line-clamp-2 text-sm"
                       dangerouslySetInnerHTML={{ __html: result.excerpt }}
                     />
                   </Link>
@@ -183,7 +183,7 @@ export function ContentSearch({
               ))}
             </ul>
           ) : query ? (
-            <div className="p-4 text-center text-sm text-gray-500">
+            <div className="text-muted p-4 text-center text-sm">
               No results found for &quot;{query}&quot;
             </div>
           ) : null}

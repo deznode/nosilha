@@ -11,7 +11,7 @@ export function Text({
       {...props}
       className={clsx(
         className,
-        "dark:text-text-secondary text-base/6 text-zinc-500 sm:text-sm/6"
+        "dark:text-text-secondary text-base/6 text-basalt-500 sm:text-sm/6"
       )}
     />
   );
@@ -26,7 +26,7 @@ export function TextLink({
       {...props}
       className={clsx(
         className,
-        "dark:text-text-primary dark:decoration-text-primary/50 dark:data-hover:decoration-text-primary text-zinc-950 underline decoration-zinc-950/50 data-hover:decoration-zinc-950"
+        "dark:text-text-primary dark:decoration-text-primary/50 dark:data-hover:decoration-text-primary text-basalt-900 underline decoration-basalt-900/50 data-hover:decoration-basalt-900"
       )}
     />
   );
@@ -41,7 +41,7 @@ export function Strong({
       {...props}
       className={clsx(
         className,
-        "dark:text-text-primary font-medium text-zinc-950"
+        "dark:text-text-primary font-medium text-basalt-900"
       )}
     />
   );
@@ -56,7 +56,7 @@ export function Code({
       {...props}
       className={clsx(
         className,
-        "dark:border-border-primary/20 dark:bg-background-primary/5 dark:text-text-primary rounded-sm border border-zinc-950/10 bg-zinc-950/2.5 px-0.5 text-sm font-medium text-zinc-950 sm:text-[0.8125rem]"
+        "dark:border-border-primary/20 dark:bg-background-primary/5 dark:text-text-primary rounded-sm border border-basalt-900/10 bg-basalt-900/2.5 px-0.5 text-sm font-medium text-basalt-900 sm:text-[0.8125rem]"
       )}
     />
   );

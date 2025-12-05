@@ -28,10 +28,10 @@ export function CitationSection({ citations }: CitationSectionProps) {
         </div>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="rounded-full p-2 hover:bg-gray-200"
+          className="hover:bg-mist-200 rounded-full p-2"
         >
           <ChevronDown
-            className={`h-6 w-6 text-gray-600 transition-transform ${
+            className={`text-basalt-500 h-6 w-6 transition-transform ${
               isOpen ? "rotate-180 transform" : ""
             }`}
           />

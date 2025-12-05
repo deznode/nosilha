@@ -42,7 +42,7 @@ export function NewsletterCtaSection() {
     <section className="bg-ocean-blue relative overflow-hidden py-24 text-white">
       <div className="relative z-10 container mx-auto max-w-3xl px-4 text-center">
         {/* Icon */}
-        <div className="text-sunny-yellow mb-6 inline-block rounded-full bg-white/10 p-4 backdrop-blur-md">
+        <div className="text-sobrado-ochre mb-6 inline-block rounded-full bg-white/10 p-4 backdrop-blur-md">
           <Users size={32} />
         </div>
 
@@ -68,13 +68,13 @@ export function NewsletterCtaSection() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isSubmitting}
-            className="focus:ring-sunny-yellow flex-grow rounded-lg border border-white/20 bg-white/10 px-6 py-4 text-white placeholder-white/60 backdrop-blur-sm transition-all focus:bg-white/20 focus:ring-2 focus:outline-none disabled:opacity-50"
+            className="focus:ring-sobrado-ochre flex-grow rounded-lg border border-white/20 bg-white/10 px-6 py-4 text-white placeholder-white/60 backdrop-blur-sm transition-all focus:bg-white/20 focus:ring-2 focus:outline-none disabled:opacity-50"
             required
           />
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-sunny-yellow text-ocean-blue hover:text-ocean-blue rounded-lg px-8 py-4 font-bold shadow-lg transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-sobrado-ochre text-ocean-blue hover:text-ocean-blue rounded-lg px-8 py-4 font-bold shadow-lg transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting ? "Subscribing..." : "Subscribe"}
           </button>

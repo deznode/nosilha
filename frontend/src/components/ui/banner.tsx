@@ -51,17 +51,17 @@ export default function Banner({
   const baseClasses =
     tone === "high-contrast"
       ? "bg-black text-white"
-      : "bg-gray-50 text-gray-900 dark:bg-gray-800/50 dark:text-gray-100";
+      : "bg-mist-50 text-basalt-900 dark:bg-basalt-800/50 dark:text-mist-100";
 
   const linkClasses =
     tone === "high-contrast"
       ? "text-white underline-offset-2 hover:text-valley-green focus-visible:outline-white focus-visible:outline-2 focus-visible:outline-offset-2"
-      : "hover:text-gray-600 dark:hover:text-white";
+      : "hover:text-basalt-500 dark:hover:text-white";
 
   const dismissIconClasses =
     tone === "high-contrast"
       ? "text-white hover:text-valley-green"
-      : "text-gray-900 dark:text-gray-400 dark:hover:text-gray-300";
+      : "text-basalt-900 dark:text-mist-200 dark:hover:text-mist-100";
 
   return (
     <div

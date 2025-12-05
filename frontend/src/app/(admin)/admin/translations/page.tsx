@@ -18,7 +18,7 @@ export default function TranslationsPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="bg-mist-50 dark:bg-basalt-900 min-h-screen">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <PageHeader
           title="Translation Dashboard"

@@ -26,41 +26,52 @@ export interface HomePageContentProps {
   featuredEntries?: DirectoryEntry[];
 }
 
+// "Bruma" Reveal Animation - Slower, softer entrance
 const fadeInUp = {
-  initial: { opacity: 0, y: 60 },
+  initial: { opacity: 0, y: 40 },
   whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-100px" },
-  transition: { duration: 0.8, ease: "easeOut" },
+  viewport: { once: true, margin: "-10%" },
+  transition: { duration: 1.0, ease: [0.25, 0.46, 0.45, 0.94] }, // Custom bezier for "drifting" feel
 } as const;
 
 export function HomePageContent({ featuredEntries }: HomePageContentProps) {
   return (
-    <main className="overflow-hidden">
-      <HeroSection announcement={worldCupAnnouncement} />
+    <main className="bg-canvas text-body relative overflow-hidden transition-colors duration-700">
+      {/* === Atmospheric "Bruma" Layer === */}
+      <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+        {/* Subtle gradient blob that breathes with the page */}
+        <div className="bg-ocean-blue/5 dark:bg-ocean-blue/10 animate-fog-flow absolute -top-[20%] -left-[10%] h-[50%] w-[70%] rounded-full blur-3xl" />
+        <div className="bg-valley-green/5 dark:bg-valley-green/10 animate-pulse-subtle absolute top-[40%] -right-[10%] h-[40%] w-[60%] rounded-full blur-3xl" />
+      </div>
 
-      <motion.div {...fadeInUp}>
-        <ExploreHeritageSection />
-      </motion.div>
+      {/* === Content Layer (Z-10 to sit above mist) === */}
+      <div className="relative z-10">
+        <HeroSection announcement={worldCupAnnouncement} />
 
-      <motion.div {...fadeInUp}>
-        <LivingCultureSection />
-      </motion.div>
+        <motion.div {...fadeInUp}>
+          <ExploreHeritageSection />
+        </motion.div>
 
-      <motion.div {...fadeInUp}>
-        <FeaturedStoriesSection entries={featuredEntries} />
-      </motion.div>
+        <motion.div {...fadeInUp}>
+          <LivingCultureSection />
+        </motion.div>
 
-      <motion.div {...fadeInUp}>
-        <CommunityStatsSection />
-      </motion.div>
+        <motion.div {...fadeInUp}>
+          <FeaturedStoriesSection entries={featuredEntries} />
+        </motion.div>
 
-      <motion.div {...fadeInUp}>
-        <MapTeaserSection />
-      </motion.div>
+        <motion.div {...fadeInUp}>
+          <CommunityStatsSection />
+        </motion.div>
 
-      <motion.div {...fadeInUp}>
-        <NewsletterCtaSection />
-      </motion.div>
+        <motion.div {...fadeInUp}>
+          <MapTeaserSection />
+        </motion.div>
+
+        <motion.div {...fadeInUp}>
+          <NewsletterCtaSection />
+        </motion.div>
+      </div>
     </main>
   );
 }

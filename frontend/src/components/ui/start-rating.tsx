@@ -14,7 +14,7 @@ export default function StarRating({ rating }: { rating: number | undefined }) {
           aria-hidden="true"
           className={`h-5 w-5 ${
             ratingValue > i
-              ? "text-sunny-yellow fill-sunny-yellow"
+              ? "text-sobrado-ochre fill-sobrado-ochre"
               : "text-text-tertiary"
           }`}
         />

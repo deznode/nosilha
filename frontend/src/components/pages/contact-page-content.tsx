@@ -137,9 +137,9 @@ export function ContactPageContent() {
           </h3>
 
           {/* Form Notice */}
-          <div className="bg-sunny-yellow/10 border-sunny-yellow/20 mx-auto mb-6 max-w-2xl rounded-md border p-4">
+          <div className="bg-sobrado-ochre/10 border-sobrado-ochre/20 mx-auto mb-6 max-w-2xl rounded-md border p-4">
             <div className="flex items-center">
-              <HelpCircle className="text-sunny-yellow mr-3 h-6 w-6" />
+              <HelpCircle className="text-sobrado-ochre mr-3 h-6 w-6" />
               <div>
                 <p className="text-text-primary text-sm font-medium">
                   Contact form coming soon!
@@ -350,7 +350,7 @@ export function ContactPageContent() {
               className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
             >
               <div className="mb-3 flex items-start">
-                <HelpCircle className="text-sunny-yellow mt-0.5 mr-3 h-6 w-6" />
+                <HelpCircle className="text-sobrado-ochre mt-0.5 mr-3 h-6 w-6" />
                 <h4 className="text-text-primary font-semibold">
                   How can I get involved in development?
                 </h4>
@@ -361,7 +361,7 @@ export function ContactPageContent() {
                   href="https://github.com/bravdigital/nosilha"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sunny-yellow hover:underline"
+                  className="text-sobrado-ochre hover:underline"
                 >
                   GitHub repository
                 </a>{" "}
@@ -370,7 +370,7 @@ export function ContactPageContent() {
                 start with &quot;good first issue&quot; labels, or email{" "}
                 <a
                   href="mailto:dev@nosilha.com"
-                  className="text-sunny-yellow hover:underline"
+                  className="text-sobrado-ochre hover:underline"
                 >
                   dev@nosilha.com
                 </a>{" "}

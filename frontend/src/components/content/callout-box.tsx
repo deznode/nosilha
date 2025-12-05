@@ -32,7 +32,7 @@ export function CalloutBox({
       border: "border-valley-green",
     },
     "pink-yellow": {
-      gradient: "from-bougainvillea-pink/5 to-sunny-yellow/5",
+      gradient: "from-bougainvillea-pink/5 to-sobrado-ochre/5",
       border: "border-bougainvillea-pink",
     },
     ocean: {
@@ -48,8 +48,8 @@ export function CalloutBox({
       border: "border-bougainvillea-pink",
     },
     yellow: {
-      gradient: "from-sunny-yellow/5 to-sunny-yellow/10",
-      border: "border-sunny-yellow",
+      gradient: "from-sobrado-ochre/5 to-sobrado-ochre/10",
+      border: "border-sobrado-ochre",
     },
   };
 

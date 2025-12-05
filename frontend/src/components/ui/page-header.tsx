@@ -62,7 +62,7 @@ export function PageHeader({
       </Heading>
       {subtitle && (
         <p
-          className={`text-volcanic-gray font-sans text-lg leading-relaxed ${
+          className={`text-basalt-500 font-sans text-lg leading-relaxed ${
             centered ? "mx-auto max-w-2xl" : "max-w-2xl"
           }`}
         >

@@ -24,47 +24,67 @@ Our color system uses **Tailwind CSS v4** with a semantic token approach that au
 3. **Accent Colors**: State-specific colors for feedback
 
 ```css
-/* Current Implementation - globals.css */
+/* Brand System V1.0.0 "Ilha das Flores" - globals.css */
 @theme {
-  /* Brand Color Palette */
-  --color-ocean-blue: #005A8D;
-  --color-valley-green: #3E7D5A;
-  --color-bougainvillea-pink: #D90368;
-  --color-sunny-yellow: #F7B801;
-  --color-off-white: #F8F9FA;
-  --color-volcanic-gray: #6C757D;
-  --color-volcanic-gray-dark: #343A40;
+  /* === BRAND COLOR PALETTE === */
+
+  /* Primary Brand Colors */
+  --color-ocean-blue: #0E4C75;
+  --color-ocean-blue-light: #2A769E;
+  --color-valley-green: #2F6E4D;
+  --color-bougainvillea-pink: #C02669;
+  --color-sobrado-ochre: #D97706;  /* Replaces sunny-yellow */
+
+  /* Bruma Neutral Scale (Mist/Basalt) */
+  --color-mist-50: #F9FAFB;
+  --color-mist-100: #F3F4F6;
+  --color-mist-200: #E5E7EB;
+  --color-basalt-500: #6B7280;
+  --color-basalt-800: #1F2937;
+  --color-basalt-900: #111827;
+
+  /* Legacy aliases (for backward compatibility) */
+  --color-off-white: var(--color-mist-50);
 
   /* Accent Colors for UI States */
   --color-accent-error: #DC2626;
   --color-accent-success: #059669;
-  --color-accent-warning: #D97706;
+  --color-accent-warning: var(--color-sobrado-ochre);
 
-  /* Semantic Background Colors - Light Mode */
-  --color-background-primary: #FFFFFF;
-  --color-background-secondary: #F8F9FA;
-  --color-background-tertiary: #E9ECEF;
+  /* === SEMANTIC ALIASES ("Semantic Structure, Branded Soul") === */
+  /* Use these for layouts - dark mode switches automatically */
 
-  /* Semantic Text Colors - Light Mode */
-  --color-text-primary: #343A40;
-  --color-text-secondary: #6C757D;
-  --color-text-tertiary: #ADB5BD;
+  /* Backgrounds */
+  --color-canvas: var(--color-bg-primary);       /* Page background */
+  --color-surface: var(--color-bg-secondary);    /* Cards, sidebars */
+  --color-surface-alt: var(--color-bg-tertiary); /* Hover states */
 
-  /* Semantic Border Colors - Light Mode */
-  --color-border-primary: #DEE2E6;
-  --color-border-secondary: #E9ECEF;
+  /* Text */
+  --color-body: var(--color-text-primary);       /* Main reading text */
+  --color-muted: var(--color-text-secondary);    /* Metadata, captions */
+  --color-brand: var(--color-text-brand);        /* Brand-colored text */
+
+  /* Borders */
+  --color-hairline: var(--color-border-subtle);  /* Light dividers */
+  --color-edge: var(--color-border-strong);      /* Strong borders */
+
+  /* === BACKWARD COMPATIBILITY ALIASES === */
+  --color-background-primary: var(--color-canvas);
+  --color-background-secondary: var(--color-surface);
+  --color-background-tertiary: var(--color-surface-alt);
+  --color-border-primary: var(--color-edge);
 }
 
 @layer theme {
   :root, :host {
     @variant dark {
-      /* Automatic dark mode color adaptations */
-      --color-background-primary: #1A202C;
-      --color-background-secondary: #2D3748;
-      --color-text-primary: #F7FAFC;
-      --color-text-secondary: #E2E8F0;
-      --color-border-primary: #4A5568;
-      /* ... additional dark mode tokens */
+      /* "Volcanic Night" Dark Mode Palette */
+      --color-bg-primary: var(--color-basalt-900);
+      --color-bg-secondary: var(--color-basalt-800);
+      --color-text-primary: var(--color-mist-50);
+      --color-text-secondary: var(--color-mist-200);
+      --color-border-subtle: var(--color-basalt-800);
+      --color-border-strong: var(--color-basalt-500);
     }
   }
 }
@@ -90,9 +110,14 @@ Our components use **semantic color tokens** that automatically adapt to light/d
 
 #### Brand Colors (Direct Usage)
 - **`ocean-blue`**: Primary brand color, CTAs, navigation highlights
+- **`ocean-blue-light`**: Secondary brand blue, hover states, lighter accents
 - **`valley-green`**: Secondary brand color, success states
 - **`bougainvillea-pink`**: Accent highlights, important notifications
-- **`sunny-yellow`**: Warning states, cheerful highlights
+- **`sobrado-ochre`**: Warning states, warm accents (replaces sunny-yellow)
+
+#### Neutral Colors (Bruma Scale)
+- **`mist-50/100/200`**: Light neutrals for backgrounds, borders (light mode)
+- **`basalt-500/800/900`**: Dark neutrals for text, backgrounds (dark mode)
 
 #### State Colors
 - **`accent-error`**: Error states, destructive actions
@@ -150,29 +175,48 @@ Our semantic color system provides a comprehensive set of tokens that automatica
 #### Background Tokens
 | Token | Light Mode | Dark Mode | Usage |
 |-------|------------|-----------|-------|
-| `background-primary` | `#FFFFFF` | `#1A202C` | Main page backgrounds, cards |
-| `background-secondary` | `#F8F9FA` | `#2D3748` | Secondary surfaces, panels |
-| `background-tertiary` | `#E9ECEF` | `#4A5568` | Subtle backgrounds, disabled states |
+| `canvas` / `background-primary` | `mist-50` (#F9FAFB) | `basalt-900` (#111827) | Main page backgrounds |
+| `surface` / `background-secondary` | `mist-100` (#F3F4F6) | `basalt-800` (#1F2937) | Cards, sidebars, panels |
+| `surface-alt` / `background-tertiary` | `mist-200` (#E5E7EB) | `basalt-500` (#6B7280) | Hover states, alternates |
 
 #### Text Tokens
 | Token | Light Mode | Dark Mode | Usage |
 |-------|------------|-----------|-------|
-| `text-primary` | `#343A40` | `#F7FAFC` | Main content, headings |
-| `text-secondary` | `#6C757D` | `#E2E8F0` | Secondary text, captions |
-| `text-tertiary` | `#ADB5BD` | `#A0AEC0` | Placeholder text, disabled labels |
+| `body` / `text-primary` | `basalt-900` (#111827) | `mist-50` (#F9FAFB) | Main content, headings |
+| `muted` / `text-secondary` | `basalt-500` (#6B7280) | `mist-200` (#E5E7EB) | Secondary text, captions |
+| `text-tertiary` | `basalt-500` (#6B7280) | `mist-200` (#E5E7EB) | Placeholder text, disabled labels |
 
 #### Border Tokens
 | Token | Light Mode | Dark Mode | Usage |
 |-------|------------|-----------|-------|
-| `border-primary` | `#DEE2E6` | `#4A5568` | Main borders, dividers |
-| `border-secondary` | `#E9ECEF` | `#2D3748` | Subtle borders, form elements |
+| `hairline` / `border-subtle` | `mist-200` (#E5E7EB) | `basalt-800` (#1F2937) | Light dividers, subtle borders |
+| `edge` / `border-strong` | `basalt-500` (#6B7280) | `basalt-500` (#6B7280) | Strong borders, form elements |
 
-#### State Tokens (Consistent across modes)
+#### Brand Color Tokens
+| Token | Hex Value | Usage |
+|-------|-----------|-------|
+| `ocean-blue` | `#0E4C75` | Primary CTAs, navigation highlights, links |
+| `ocean-blue-light` | `#2A769E` | Hover states, secondary blue accents |
+| `valley-green` | `#2F6E4D` | Success states, nature-related elements |
+| `bougainvillea-pink` | `#C02669` | Accent highlights, important notifications |
+| `sobrado-ochre` | `#D97706` | Warning states, warm accents |
+
+#### State Tokens
 | Token | Color | Usage |
 |-------|-------|-------|
-| `accent-error` | `#DC2626` (light) / `#F87171` (dark) | Error states, destructive actions |
-| `accent-success` | `#059669` (light) / `#10B981` (dark) | Success states, confirmation |
-| `accent-warning` | `#D97706` (light) / `#F59E0B` (dark) | Warning states, caution |
+| `accent-error` | `#DC2626` | Error states, destructive actions |
+| `accent-success` | `#059669` | Success states, confirmation |
+| `accent-warning` | `sobrado-ochre` (#D97706) | Warning states, caution |
+
+#### Bruma Neutral Scale
+| Token | Hex Value | Usage |
+|-------|-----------|-------|
+| `mist-50` | `#F9FAFB` | Lightest background, off-white |
+| `mist-100` | `#F3F4F6` | Light backgrounds, cards |
+| `mist-200` | `#E5E7EB` | Borders, dividers, hover states |
+| `basalt-500` | `#6B7280` | Secondary text, muted elements |
+| `basalt-800` | `#1F2937` | Dark backgrounds, dark mode surfaces |
+| `basalt-900` | `#111827` | Darkest backgrounds, primary dark mode |
 
 ### Token Usage Examples
 
@@ -445,14 +489,24 @@ xl: 1280px  /* Large desktop */
 
 ## 🌙 Dark Mode Implementation
 
-### Automatic Semantic Color System
+### "Volcanic Night" Dark Mode Palette
 
-Our dark mode implementation uses **Tailwind CSS v4's @variant dark** feature with semantic color tokens that automatically adapt between light and dark themes.
+Our dark mode implementation uses **Tailwind CSS v4's @variant dark** feature with the **"Volcanic Night"** palette - a deep, rich dark theme inspired by Brava's volcanic landscape.
 
 #### Three-Mode Theme System
 - **System**: Follows user's OS preference (default)
-- **Light**: Force light mode
-- **Dark**: Force dark mode
+- **Light**: Force light mode (Mist palette)
+- **Dark**: Force dark mode (Volcanic Night palette)
+
+#### Volcanic Night Color Mapping
+| Element | Light Mode | Dark Mode (Volcanic Night) |
+|---------|------------|---------------------------|
+| Page Background | `mist-50` (#F9FAFB) | `basalt-900` (#111827) |
+| Card/Surface | `mist-100` (#F3F4F6) | `basalt-800` (#1F2937) |
+| Primary Text | `basalt-900` (#111827) | `mist-50` (#F9FAFB) |
+| Secondary Text | `basalt-500` (#6B7280) | `mist-200` (#E5E7EB) |
+| Subtle Borders | `mist-200` (#E5E7EB) | `basalt-800` (#1F2937) |
+| Strong Borders | `basalt-500` (#6B7280) | `basalt-500` (#6B7280) |
 
 #### Modern Implementation Architecture
 
@@ -474,20 +528,22 @@ const applyTheme = (newTheme: Theme, systemPrefersDark: boolean) => {
 
 #### Semantic Token Approach
 
-**Old Approach (Manual):**
+**Old Approach (Manual - AVOID):**
 ```css
 /* ❌ Manual dark mode - requires duplicate styling */
 .component {
-  @apply bg-white dark:bg-gray-900;
-  @apply text-gray-900 dark:text-white;
-  @apply border-gray-200 dark:border-gray-700;
+  @apply bg-white dark:bg-basalt-900;
+  @apply text-basalt-900 dark:text-mist-50;
+  @apply border-mist-200 dark:border-basalt-800;
 }
 ```
 
-**New Approach (Semantic Tokens):**
+**New Approach (Semantic Tokens - PREFERRED):**
 ```css
 /* ✅ Semantic tokens - automatic dark mode */
 .component {
+  @apply bg-canvas text-body border-hairline;
+  /* Or use backward-compatible aliases: */
   @apply bg-background-primary text-text-primary border-border-primary;
   /* Colors automatically adapt based on .dark class */
 }
@@ -498,10 +554,12 @@ const applyTheme = (newTheme: Theme, systemPrefersDark: boolean) => {
 All 25+ Catalyst UI components have been migrated to use semantic tokens:
 
 ```tsx
-// Before: Manual dark mode handling
-className="bg-white text-gray-900 dark:bg-gray-800 dark:text-white"
+// Before: Manual dark mode handling (AVOID)
+className="bg-white text-basalt-900 dark:bg-basalt-800 dark:text-mist-50"
 
-// After: Semantic tokens (automatic)
+// After: Semantic tokens (automatic) - PREFERRED
+className="bg-canvas text-body"
+// Or with backward-compatible aliases:
 className="bg-background-primary text-text-primary"
 ```
 
@@ -671,9 +729,9 @@ When updating existing components or creating new ones, follow this systematic a
 ```tsx
 // ❌ BEFORE: Manual dark mode handling
 const OldComponent = () => (
-  <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-gray-200 dark:border-gray-700">
-    <h3 className="text-gray-900 dark:text-white">Title</h3>
-    <p className="text-gray-600 dark:text-gray-300">Description</p>
+  <div className="bg-white dark:bg-basalt-900 text-basalt-900 dark:text-mist-50 border-mist-200 dark:border-basalt-800">
+    <h3 className="text-basalt-900 dark:text-mist-50">Title</h3>
+    <p className="text-basalt-500 dark:text-mist-200">Description</p>
   </div>
 );
 ```
@@ -682,6 +740,13 @@ const OldComponent = () => (
 ```tsx
 // ✅ AFTER: Automatic dark mode with semantic tokens
 const NewComponent = () => (
+  <div className="bg-canvas text-body border-hairline">
+    <h3 className="text-body">Title</h3>
+    <p className="text-muted">Description</p>
+  </div>
+);
+// Or with backward-compatible aliases:
+const NewComponentAlt = () => (
   <div className="bg-background-primary text-text-primary border-border-primary">
     <h3 className="text-text-primary">Title</h3>
     <p className="text-text-secondary">Description</p>
@@ -790,35 +855,83 @@ const InteractiveCard = ({ href, children, ...props }) => {
 };
 ```
 
+### Catalyst UI Color Migration
+
+The Catalyst UI components have been migrated from generic `zinc-*` colors to our branded neutral scale (`basalt-*/mist-*`). This ensures visual consistency with the Nos Ilha brand.
+
+#### Migration Mapping
+| Catalyst UI (Original) | Nos Ilha Brand | Usage |
+|------------------------|----------------|-------|
+| `zinc-950` | `basalt-900` | Darkest text, solid buttons |
+| `zinc-900` | `basalt-900` | Primary text color |
+| `zinc-800` | `basalt-800` | Secondary text, dark surfaces |
+| `zinc-700` | `basalt-800` | Borders, subdued text |
+| `zinc-600` | `basalt-500` | Muted text, disabled states |
+| `zinc-500` | `basalt-500` | Placeholder text, subtle borders |
+| `zinc-400` | `mist-200` | Light borders, dividers |
+| `zinc-300` | `mist-200` | Subtle borders |
+| `zinc-200` | `mist-200` | Light backgrounds |
+| `zinc-100` | `mist-100` | Surface backgrounds |
+| `zinc-50` | `mist-50` | Canvas backgrounds |
+
+#### Migrated Components
+The following Catalyst UI components use brand neutrals:
+- **Form Controls**: `input.tsx`, `textarea.tsx`, `select.tsx`, `checkbox.tsx`, `radio.tsx`, `switch.tsx`
+- **Typography**: `text.tsx`, `heading.tsx`
+- **Layout**: `table.tsx`, `divider.tsx`, `fieldset.tsx`
+- **Interactive**: `button.tsx` (all color variants)
+
+#### Example Migration
+```tsx
+// Before: Generic zinc colors
+className="text-zinc-950 border-zinc-950/10 placeholder:text-zinc-500"
+
+// After: Brand neutrals
+className="text-basalt-900 border-basalt-900/10 placeholder:text-basalt-500"
+```
+
+#### Dark Mode Handling in Catalyst UI
+Catalyst UI components use `dark:` prefixed classes that reference our semantic tokens:
+```tsx
+// Light mode uses basalt-900, dark mode uses text-primary semantic token
+className="text-basalt-900 dark:text-text-primary"
+
+// Light mode uses mist-50, dark mode uses background-primary semantic token
+className="bg-mist-50 dark:bg-background-primary"
+```
+
 ### Troubleshooting Common Issues
 
 #### Issue: Colors Don't Change in Dark Mode
 ```tsx
 // ❌ Problem: Using hardcoded colors
-className="text-gray-900 dark:text-white"
+className="text-basalt-900 dark:text-mist-50"
 
 // ✅ Solution: Use semantic tokens
-className="text-text-primary"
+className="text-body" // or "text-text-primary"
 ```
 
 #### Issue: Inconsistent Styling Across Components
 ```tsx
 // ❌ Problem: Different color approaches
 <ComponentA className="bg-white text-black" />
-<ComponentB className="bg-gray-50 text-gray-900" />
+<ComponentB className="bg-mist-50 text-basalt-900" />
 
 // ✅ Solution: Consistent semantic tokens
+<ComponentA className="bg-canvas text-body" />
+<ComponentB className="bg-surface text-body" />
+// Or with backward-compatible aliases:
 <ComponentA className="bg-background-primary text-text-primary" />
 <ComponentB className="bg-background-secondary text-text-primary" />
 ```
 
 #### Issue: Poor Contrast in Dark Mode
 ```tsx
-// ❌ Problem: Manual color selection
-className="text-gray-400 dark:text-gray-600" // Poor contrast
+// ❌ Problem: Manual color selection with poor contrast
+className="text-basalt-500 dark:text-basalt-500" // Poor contrast in dark mode
 
 // ✅ Solution: Use tested semantic tokens
-className="text-text-secondary" // WCAG AA compliant in both modes
+className="text-muted" // or "text-text-secondary" - WCAG AA compliant in both modes
 ```
 
 ### Best Practices Checklist
@@ -913,27 +1026,64 @@ const lato = Lato({
 
 ## 🎯 Technical Architecture
 
+### Brand System V1.0.0 "Ilha das Flores"
+
+The color system follows the **"Semantic Structure, Branded Soul"** approach:
+- **Semantic aliases** (`bg-canvas`, `text-body`) for 90% of layout HTML → Dark mode handled automatically
+- **Direct brand tokens** (`bg-ocean-blue`, `text-bougainvillea-pink`) for brand identity elements
+
 ### Semantic Color System
 ```css
 /* globals.css - Single source of truth */
 @theme {
-  /* Semantic tokens automatically handle light/dark modes */
-  --color-background-primary: #FFFFFF;
-  --color-text-primary: #343A40;
-  /* ... additional tokens */
+  /* Brand Color Palette */
+  --color-ocean-blue: #0E4C75;
+  --color-ocean-blue-light: #2A769E;
+  --color-valley-green: #2F6E4D;
+  --color-bougainvillea-pink: #C02669;
+  --color-sobrado-ochre: #D97706;
+
+  /* Bruma Neutral Scale */
+  --color-mist-50: #F9FAFB;
+  --color-mist-100: #F3F4F6;
+  --color-mist-200: #E5E7EB;
+  --color-basalt-500: #6B7280;
+  --color-basalt-800: #1F2937;
+  --color-basalt-900: #111827;
+
+  /* Semantic Aliases (auto dark mode) */
+  --color-canvas: var(--color-bg-primary);
+  --color-surface: var(--color-bg-secondary);
+  --color-body: var(--color-text-primary);
+  --color-muted: var(--color-text-secondary);
+  --color-hairline: var(--color-border-subtle);
+  --color-edge: var(--color-border-strong);
 }
 
 @layer theme {
   :root, :host {
     @variant dark {
-      /* Automatic dark mode adaptations */
-      --color-background-primary: #1A202C;
-      --color-text-primary: #F7FAFC;
-      /* ... additional dark mode tokens */
+      /* "Volcanic Night" Dark Mode Palette */
+      --color-bg-primary: var(--color-basalt-900);
+      --color-bg-secondary: var(--color-basalt-800);
+      --color-text-primary: var(--color-mist-50);
+      --color-text-secondary: var(--color-mist-200);
+      --color-border-subtle: var(--color-basalt-800);
+      --color-border-strong: var(--color-basalt-500);
     }
   }
 }
 ```
+
+### Developer Decision Matrix
+| Building... | Use | Example |
+|-------------|-----|---------|
+| Card, Sidebar, Section | **Semantic** | `bg-surface` |
+| Paragraph, Heading | **Semantic** | `text-body` |
+| Border, Divider | **Semantic** | `border-hairline` |
+| Button, CTA | **Direct Token** | `bg-ocean-blue` |
+| Icon, Illustration | **Direct Token** | `text-bougainvillea-pink` |
+| Warning/Success state | **Semantic Status** | `text-accent-error` |
 
 ## 📚 Resources & References
 

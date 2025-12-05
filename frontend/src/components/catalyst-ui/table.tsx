@@ -53,7 +53,7 @@ export function Table({
               !bleed && "sm:px-(--gutter)"
             )}
           >
-            <table className="dark:text-text-primary min-w-full text-left text-sm/6 text-zinc-950">
+            <table className="dark:text-text-primary min-w-full text-left text-sm/6 text-basalt-900">
               {children}
             </table>
           </div>
@@ -70,7 +70,7 @@ export function TableHead({
   return (
     <thead
       {...props}
-      className={clsx(className, "dark:text-text-secondary text-zinc-500")}
+      className={clsx(className, "dark:text-text-secondary text-basalt-500")}
     />
   );
 }
@@ -113,14 +113,14 @@ export function TableRow({
         className={clsx(
           className,
           href &&
-            "dark:focus-within:bg-background-primary/2.5 has-[[data-row-link][data-focus]]:outline-2 has-[[data-row-link][data-focus]]:-outline-offset-2 has-[[data-row-link][data-focus]]:outline-blue-500",
-          striped && "dark:even:bg-background-primary/2.5 even:bg-zinc-950/2.5",
+            "dark:focus-within:bg-background-primary/2.5 has-[[data-row-link][data-focus]]:outline-2 has-[[data-row-link][data-focus]]:-outline-offset-2 has-[[data-row-link][data-focus]]:outline-ocean-blue",
+          striped && "dark:even:bg-background-primary/2.5 even:bg-basalt-900/2.5",
           href &&
             striped &&
-            "dark:hover:bg-background-primary/5 hover:bg-zinc-950/5",
+            "dark:hover:bg-background-primary/5 hover:bg-basalt-900/5",
           href &&
             !striped &&
-            "dark:hover:bg-background-primary/2.5 hover:bg-zinc-950/2.5"
+            "dark:hover:bg-background-primary/2.5 hover:bg-basalt-900/2.5"
         )}
       />
     </TableRowContext.Provider>
@@ -138,9 +138,9 @@ export function TableHeader({
       {...props}
       className={clsx(
         className,
-        "dark:border-b-border-primary/10 border-b border-b-zinc-950/10 px-4 py-2 font-medium first:pl-(--gutter,--spacing(2)) last:pr-(--gutter,--spacing(2))",
+        "dark:border-b-border-primary/10 border-b border-b-basalt-900/10 px-4 py-2 font-medium first:pl-(--gutter,--spacing(2)) last:pr-(--gutter,--spacing(2))",
         grid &&
-          "dark:border-l-border-primary/5 border-l border-l-zinc-950/5 first:border-l-0",
+          "dark:border-l-border-primary/5 border-l border-l-basalt-900/5 first:border-l-0",
         !bleed && "sm:first:pl-1 sm:last:pr-1"
       )}
     />
@@ -163,9 +163,9 @@ export function TableCell({
       className={clsx(
         className,
         "relative px-4 first:pl-(--gutter,--spacing(2)) last:pr-(--gutter,--spacing(2))",
-        !striped && "dark:border-border-primary/5 border-b border-zinc-950/5",
+        !striped && "dark:border-border-primary/5 border-b border-basalt-900/5",
         grid &&
-          "dark:border-l-border-primary/5 border-l border-l-zinc-950/5 first:border-l-0",
+          "dark:border-l-border-primary/5 border-l border-l-basalt-900/5 first:border-l-0",
         dense ? "py-2.5" : "py-4",
         !bleed && "sm:first:pl-1 sm:last:pr-1"
       )}

@@ -10,7 +10,7 @@ interface IconGridItem {
     | "ocean-blue"
     | "valley-green"
     | "bougainvillea-pink"
-    | "sunny-yellow";
+    | "sobrado-ochre";
 }
 
 interface IconGridProps {
@@ -29,7 +29,7 @@ const iconColorClasses = {
   "ocean-blue": "text-ocean-blue",
   "valley-green": "text-valley-green",
   "bougainvillea-pink": "text-bougainvillea-pink",
-  "sunny-yellow": "text-sunny-yellow",
+  "sobrado-ochre": "text-sobrado-ochre",
 };
 
 export function IconGrid({ title, items, columns = 3 }: IconGridProps) {

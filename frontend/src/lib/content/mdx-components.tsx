@@ -119,10 +119,7 @@ export const mdxComponents: MDXComponents = {
     </h3>
   ),
   p: ({ children, ...props }) => (
-    <p
-      className="text-nosihla-text-secondary my-4 text-base leading-relaxed dark:text-gray-300"
-      {...props}
-    >
+    <p className="text-muted my-4 text-base leading-relaxed" {...props}>
       {children}
     </p>
   ),
@@ -138,7 +135,7 @@ export const mdxComponents: MDXComponents = {
   ),
   blockquote: ({ children, ...props }) => (
     <blockquote
-      className="border-nosihla-ocean-blue text-nosihla-text-secondary my-6 border-l-4 pl-4 italic dark:text-gray-400"
+      className="border-ocean-blue text-muted my-6 border-l-4 pl-4 italic"
       {...props}
     >
       {children}
@@ -146,17 +143,14 @@ export const mdxComponents: MDXComponents = {
   ),
   pre: ({ children, ...props }) => (
     <pre
-      className="my-6 overflow-x-auto rounded-lg bg-gray-900 p-4 text-gray-100"
+      className="bg-basalt-900 text-mist-100 my-6 overflow-x-auto rounded-lg p-4"
       {...props}
     >
       {children}
     </pre>
   ),
   code: ({ children, ...props }) => (
-    <code
-      className="rounded bg-gray-100 px-1.5 py-0.5 text-sm dark:bg-gray-800"
-      {...props}
-    >
+    <code className="bg-surface rounded px-1.5 py-0.5 text-sm" {...props}>
       {children}
     </code>
   ),

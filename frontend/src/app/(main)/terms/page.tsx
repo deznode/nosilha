@@ -329,7 +329,7 @@ export default function TermsPage() {
         {/* Important Notices */}
         <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
           <div className="mb-4 flex items-start">
-            <AlertTriangle className="text-sunny-yellow mt-1 mr-3 h-8 w-8" />
+            <AlertTriangle className="text-sobrado-ochre mt-1 mr-3 h-8 w-8" />
             <div>
               <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
                 7. Important Things to Know

@@ -60,43 +60,43 @@ const base = [
   // Background color applied to control in dark mode
   "dark:bg-background-primary/5 dark:group-data-checked:bg-(--radio-checked-bg)",
   // Border
-  "border border-zinc-950/15 group-data-checked:border-transparent group-data-hover:group-data-checked:border-transparent group-data-hover:border-zinc-950/30 group-data-checked:bg-(--radio-checked-border)",
+  "border border-basalt-900/15 group-data-checked:border-transparent group-data-hover:group-data-checked:border-transparent group-data-hover:border-basalt-900/30 group-data-checked:bg-(--radio-checked-border)",
   "dark:border-white/15 dark:group-data-checked:border-white/5 dark:group-data-hover:group-data-checked:border-white/5 dark:group-data-hover:border-white/30",
   // Inner highlight shadow
   "after:absolute after:inset-0 after:rounded-full after:shadow-[inset_0_1px_--theme(--color-white/15%)]",
   "dark:after:-inset-px dark:after:hidden dark:after:rounded-full dark:group-data-checked:after:block",
   // Indicator color (light mode)
-  "[--radio-indicator:transparent] group-data-checked:[--radio-indicator:var(--radio-checked-indicator)] group-data-hover:group-data-checked:[--radio-indicator:var(--radio-checked-indicator)] group-data-hover:[--radio-indicator:var(--color-zinc-900)]/10",
+  "[--radio-indicator:transparent] group-data-checked:[--radio-indicator:var(--radio-checked-indicator)] group-data-hover:group-data-checked:[--radio-indicator:var(--radio-checked-indicator)] group-data-hover:[--radio-indicator:var(--color-basalt-900)]/10",
   // Indicator color (dark mode)
-  "dark:group-data-hover:group-data-checked:[--radio-indicator:var(--radio-checked-indicator)] dark:group-data-hover:[--radio-indicator:var(--color-zinc-700)]",
+  "dark:group-data-hover:group-data-checked:[--radio-indicator:var(--radio-checked-indicator)] dark:group-data-hover:[--radio-indicator:var(--color-basalt-800)]",
   // Focus ring
-  "group-data-focus:outline group-data-focus:outline-2 group-data-focus:outline-offset-2 group-data-focus:outline-blue-500",
+  "group-data-focus:outline group-data-focus:outline-2 group-data-focus:outline-offset-2 group-data-focus:outline-ocean-blue",
   // Disabled state
   "group-data-disabled:opacity-50",
-  "group-data-disabled:border-zinc-950/25 group-data-disabled:bg-zinc-950/5 group-data-disabled:[--radio-checked-indicator:var(--color-zinc-950)]/50 group-data-disabled:before:bg-transparent",
+  "group-data-disabled:border-basalt-900/25 group-data-disabled:bg-basalt-900/5 group-data-disabled:[--radio-checked-indicator:var(--color-basalt-900)]/50 group-data-disabled:before:bg-transparent",
   "dark:group-data-disabled:border-white/20 dark:group-data-disabled:bg-white/2.5 dark:group-data-disabled:[--radio-checked-indicator:var(--color-white)]/50 dark:group-data-checked:group-data-disabled:after:hidden",
 ];
 
 const colors = {
   "dark/zinc": [
-    "[--radio-checked-bg:var(--color-zinc-900)] [--radio-checked-border:var(--color-zinc-950)]/90 [--radio-checked-indicator:var(--color-white)]",
-    "dark:[--radio-checked-bg:var(--color-zinc-600)]",
+    "[--radio-checked-bg:var(--color-basalt-900)] [--radio-checked-border:var(--color-basalt-900)]/90 [--radio-checked-indicator:var(--color-white)]",
+    "dark:[--radio-checked-bg:var(--color-basalt-500)]",
   ],
   "dark/white": [
-    "[--radio-checked-bg:var(--color-zinc-900)] [--radio-checked-border:var(--color-zinc-950)]/90 [--radio-checked-indicator:var(--color-white)]",
-    "dark:[--radio-checked-bg:var(--color-white)] dark:[--radio-checked-border:var(--color-zinc-950)]/15 dark:[--radio-checked-indicator:var(--color-zinc-900)]",
+    "[--radio-checked-bg:var(--color-basalt-900)] [--radio-checked-border:var(--color-basalt-900)]/90 [--radio-checked-indicator:var(--color-white)]",
+    "dark:[--radio-checked-bg:var(--color-white)] dark:[--radio-checked-border:var(--color-basalt-900)]/15 dark:[--radio-checked-indicator:var(--color-basalt-900)]",
   ],
   white:
-    "[--radio-checked-bg:var(--color-white)] [--radio-checked-border:var(--color-zinc-950)]/15 [--radio-checked-indicator:var(--color-zinc-900)]",
-  dark: "[--radio-checked-bg:var(--color-zinc-900)] [--radio-checked-border:var(--color-zinc-950)]/90 [--radio-checked-indicator:var(--color-white)]",
-  zinc: "[--radio-checked-indicator:var(--color-white)] [--radio-checked-bg:var(--color-zinc-600)] [--radio-checked-border:var(--color-zinc-700)]/90",
+    "[--radio-checked-bg:var(--color-white)] [--radio-checked-border:var(--color-basalt-900)]/15 [--radio-checked-indicator:var(--color-basalt-900)]",
+  dark: "[--radio-checked-bg:var(--color-basalt-900)] [--radio-checked-border:var(--color-basalt-900)]/90 [--radio-checked-indicator:var(--color-white)]",
+  zinc: "[--radio-checked-indicator:var(--color-white)] [--radio-checked-bg:var(--color-basalt-500)] [--radio-checked-border:var(--color-basalt-800)]/90",
   red: "[--radio-checked-indicator:var(--color-white)] [--radio-checked-bg:var(--color-red-600)] [--radio-checked-border:var(--color-red-700)]/90",
   orange:
     "[--radio-checked-indicator:var(--color-white)] [--radio-checked-bg:var(--color-orange-500)] [--radio-checked-border:var(--color-orange-600)]/90",
   amber:
     "[--radio-checked-bg:var(--color-amber-400)] [--radio-checked-border:var(--color-amber-500)]/80 [--radio-checked-indicator:var(--color-amber-950)]",
   yellow:
-    "[--radio-checked-bg:var(--color-yellow-300)] [--radio-checked-border:var(--color-yellow-400)]/80 [--radio-checked-indicator:var(--color-yellow-950)]",
+    "[--radio-checked-bg:var(--color-sobrado-ochre)] [--radio-checked-border:var(--color-sobrado-ochre)]/80 [--radio-checked-indicator:var(--color-white)]",
   lime: "[--radio-checked-bg:var(--color-lime-300)] [--radio-checked-border:var(--color-lime-400)]/80 [--radio-checked-indicator:var(--color-lime-950)]",
   green:
     "[--radio-checked-indicator:var(--color-white)] [--radio-checked-bg:var(--color-green-600)] [--radio-checked-border:var(--color-green-700)]/90",
@@ -105,7 +105,7 @@ const colors = {
   teal: "[--radio-checked-indicator:var(--color-white)] [--radio-checked-bg:var(--color-teal-600)] [--radio-checked-border:var(--color-teal-700)]/90",
   cyan: "[--radio-checked-bg:var(--color-cyan-300)] [--radio-checked-border:var(--color-cyan-400)]/80 [--radio-checked-indicator:var(--color-cyan-950)]",
   sky: "[--radio-checked-indicator:var(--color-white)] [--radio-checked-bg:var(--color-sky-500)] [--radio-checked-border:var(--color-sky-600)]/80",
-  blue: "[--radio-checked-indicator:var(--color-white)] [--radio-checked-bg:var(--color-blue-600)] [--radio-checked-border:var(--color-blue-700)]/90",
+  blue: "[--radio-checked-indicator:var(--color-white)] [--radio-checked-bg:var(--color-ocean-blue)] [--radio-checked-border:var(--color-ocean-blue)]/90",
   indigo:
     "[--radio-checked-indicator:var(--color-white)] [--radio-checked-bg:var(--color-indigo-500)] [--radio-checked-border:var(--color-indigo-600)]/90",
   violet:

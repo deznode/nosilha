@@ -42,7 +42,7 @@ export function EventGrid({ events, filterType }: EventGridProps) {
           animate={{ opacity: 1 }}
           className="border-border-primary rounded-xl border border-dashed bg-white py-20 text-center"
         >
-          <Calendar className="mx-auto mb-4 h-12 w-12 text-gray-300" />
+          <Calendar className="text-mist-200 mx-auto mb-4 h-12 w-12" />
           <h3 className="text-text-primary text-lg font-medium">
             No events found
           </h3>

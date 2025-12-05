@@ -1,87 +1,121 @@
 /* ========================================
  * NOS ILHA BRAND SYSTEM — SYNC SOURCE
  * Tokens derived from /brand/assets/palette.json
- * To update: edit palette.json then update values here.
- * pnpm run sync:brand 
+ * To update: edit palette.json then run:
+ * node scripts/sync-brand-tokens.mjs
  * ======================================== */
 
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Font Tokens */
-  --font-sans: var(--font-lato), sans-serif;
-  --font-serif: var(--font-merriweather), serif;
+  /* === Font Tokens === */
+  --font-sans: var(--font-lato), "Lato", sans-serif;
+  --font-serif: var(--font-merriweather), "Merriweather", serif;
 
-  /* Animation Tokens */
+  /* === Animation Tokens === */
   --animate-glow: glow 4s ease-in-out infinite;
+  --animate-fog-flow: fog-flow 20s linear infinite;
 
-  /* Brand Color Palette */
-  --color-ocean-blue: #005a85;
-  --color-valley-green: #3e7d5a;
-  --color-bougainvillea-pink: #d90368;
-  --color-sunny-yellow: #f7b801;
-  --color-off-white: #f8f9fa;
-  --color-volcanic-gray: #6c757d;
-  --color-volcanic-gray-dark: #343a40;
-  --color-accent-error: #dc2626;
-  --color-accent-success: #059669;
-  --color-accent-warning: #d97706;
+  /* === BRAND PALETTE (The Brava Tones) === */
+  /* * AUTO-GENERATED from Nos Ilha Design System
+   * Version: 1.0.0 (Ilha das Flores)
+   */
 
-  /* Accent Colors for UI States */
-  --color-accent-error: #dc2626;
-  --color-accent-success: #059669;
-  --color-accent-warning: #d97706;
+  /* -- Primary Brand -- */
+  --color-ocean-blue: #0E4C75;
+  --color-ocean-blue-light: #2A769E;
+  --color-valley-green: #2F6E4D;
+  --color-bougainvillea-pink: #C02669;
+  --color-sobrado-ochre: #D97706;
+  --color-sunny-yellow: #FBBF24;
 
-  /* Semantic Background Colors - Light Mode */
-  --color-background-primary: #ffffff;
-  --color-background-secondary: #f8f9fa;
-  --color-background-tertiary: #e9ecef;
+  /* -- Mist & Basalt (Neutrals) -- */
+  --color-mist-50: #F8FAFC;
+  --color-mist-100: #F1F5F9;
+  --color-mist-200: #E2E8F0;
+  --color-basalt-500: #64748B;
+  --color-basalt-800: #1E293B;
+  --color-basalt-900: #0F172A;
 
-  /* Semantic Text Colors - Light Mode */
-  --color-text-primary: #343a40;
-  --color-text-secondary: #6c757d;
-  --color-text-tertiary: #adb5bd;
+  /* -- Functional Status -- */
+  --color-status-error: #BE123C;
+  --color-status-success: #15803D;
+  --color-status-warning: #B45309;
+  
+  /* === SEMANTIC LAYER (Light Mode) === */
+  
+  /* Backgrounds */
+  --color-bg-primary: #FFFFFF;
+  --color-bg-secondary: var(--color-mist-50);
+  --color-bg-tertiary: var(--color-mist-100);
 
-  /* Semantic Border Colors - Light Mode */
-  --color-border-primary: #dee2e6;
-  --color-border-secondary: #e9ecef;
+  /* Text */
+  --color-text-primary: var(--color-basalt-900);
+  --color-text-secondary: var(--color-basalt-500);
+  --color-text-brand: var(--color-ocean-blue);
+
+  /* Borders */
+  --color-border-subtle: var(--color-mist-200);
+  --color-border-strong: var(--color-basalt-500);
+
+  /* Aliases for UI State colors (Backward Compatibility) */
+  --color-accent-error: var(--color-status-error);
+  --color-accent-success: var(--color-status-success);
+  --color-accent-warning: var(--color-status-warning);
+
+  /* === SEMANTIC ALIASES ("Semantic Structure, Branded Soul") === */
+  /* Use these for layouts - dark mode switches automatically */
+
+  /* Backgrounds */
+  --color-canvas: var(--color-bg-primary);       /* Page background */
+  --color-surface: var(--color-bg-secondary);    /* Cards, sidebars */
+  --color-surface-alt: var(--color-bg-tertiary); /* Hover states, alternates */
+
+  /* Text */
+  --color-body: var(--color-text-primary);       /* Main reading text */
+  --color-muted: var(--color-text-secondary);    /* Metadata, captions */
+  --color-brand: var(--color-text-brand);        /* Brand-colored text */
+
+  /* Borders */
+  --color-hairline: var(--color-border-subtle);  /* Light dividers */
+  --color-edge: var(--color-border-strong);      /* Strong borders */
+
+  /* === BACKWARD COMPATIBILITY ALIASES === */
+  /* These map old component class names to new tokens */
+  --color-background-primary: var(--color-canvas);
+  --color-background-secondary: var(--color-surface);
+  --color-background-tertiary: var(--color-surface-alt);
+  --color-border-primary: var(--color-edge);
 }
 
+/* === DARK MODE OVERRIDES (Volcanic Night) === */
 @variant dark {
-  /* Brand Colors - Dark Mode Adaptations */
-  --color-ocean-blue: #9ebed1;
-  --color-valley-green: #b3cbbe;
-  --color-bougainvillea-pink: #efa1c6;
-  --color-sunny-yellow: #f7b801; /* Sunny yellow remains consistent */
-  --color-off-white: #2d3748; /* Dark background for off-white contexts */
-  --color-volcanic-gray: #a0aec0; /* Lighter gray for secondary text */
-  --color-volcanic-gray-dark: #f7fafc; /* Light gray for primary text in dark mode */
+  /* Brand Adjustments for Dark Mode (Desaturated for eye comfort) */
+  --color-ocean-blue: #38BDF8; /* Sky blue for contrast */
+  --color-bougainvillea-pink: #F472B6; /* Lighter pink */
+  
+  /* Backgrounds - Deep Basalt */
+  --color-bg-primary: #0B1120; /* Deepest basalt */
+  --color-bg-secondary: #1E293B;
+  --color-bg-tertiary: #334155;
 
-  /* Accent Colors - Dark Mode */
-  --color-accent-error: #f87171;
-  --color-accent-success: #10b981;
-  --color-accent-warning: #f59e0b;
-
-  /* Semantic Background Colors - Dark Mode */
-  --color-background-primary: #1a202c;
-  --color-background-secondary: #2d3748;
-  --color-background-tertiary: #4a5568;
-
-  /* Semantic Text Colors - Dark Mode */
-  --color-text-primary: #f7fafc;
-  --color-text-secondary: #e2e8f0;
-  --color-text-tertiary: #a0aec0;
-
-  /* Semantic Border Colors - Dark Mode */
-  --color-border-primary: #4a5568;
-  --color-border-secondary: #2d3748;
+  /* Text */
+  --color-text-primary: #F1F5F9; /* Mist white */
+  --color-text-secondary: #94A3B8;
+  --color-text-brand: #7DD3FC;
+  
+  /* Borders */
+  --color-border-subtle: #334155;
+  --color-border-strong: #475569;
 }
 
 @layer base {
   /* Enhanced Global Scroll Behavior */
   html {
     scroll-behavior: smooth;
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-primary);
   }
 
   /* Respect reduced motion preferences */
@@ -100,144 +134,95 @@
     }
   }
 
-  /* Keyframes for Animations */
+  /* === Keyframes for Animations === */
+  
+  /* New: Mist Flow Animation */
+  @keyframes fog-flow {
+    0% { transform: translateX(0); opacity: 0.3; }
+    50% { transform: translateX(-20px); opacity: 0.5; }
+    100% { transform: translateX(0); opacity: 0.3; }
+  }
+
   @keyframes glow {
-    from,
-    to {
+    from, to {
       opacity: 0.8;
-      text-shadow:
-        0 0 8px var(--color-ocean-blue),
-        0 0 10px var(--color-ocean-blue);
+      text-shadow: 0 0 8px var(--color-ocean-blue), 0 0 10px var(--color-ocean-blue);
     }
     50% {
       opacity: 1;
-      text-shadow:
-        0 0 12px var(--color-ocean-blue),
-        0 0 20px var(--color-ocean-blue);
+      text-shadow: 0 0 12px var(--color-ocean-blue), 0 0 20px var(--color-ocean-blue);
     }
   }
 
   @keyframes pulse-subtle {
-    0%,
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.8;
-      transform: scale(1.02);
-    }
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.02); }
   }
 
   @keyframes slide-up {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes fade-in {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
   /* Content Action Toolbar Animations */
   @keyframes bounce-reaction {
-    0%,
-    100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.2);
-    }
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
   }
 
   @keyframes scale-share {
-    0%,
-    100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.05);
-    }
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
   }
 
   @keyframes fab-expand {
-    from {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
   @keyframes fab-collapse {
-    from {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    to {
-      opacity: 0;
-      transform: translateY(10px);
-    }
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(10px); }
   }
 
-  /* Loading animation utilities */
-  .animate-pulse-subtle {
-    animation: pulse-subtle 2s ease-in-out infinite;
-  }
-
-  .animate-slide-up {
-    animation: slide-up 0.6s ease-out;
-  }
-
-  .animate-fade-in {
-    animation: fade-in 0.4s ease-out;
-  }
+  /* === Animation Utilities === */
+  .animate-pulse-subtle { animation: pulse-subtle 2s ease-in-out infinite; }
+  .animate-slide-up { animation: slide-up 0.6s ease-out; }
+  .animate-fade-in { animation: fade-in 0.4s ease-out; }
 
   /* Content Action Toolbar animation utilities */
   .animate-bounce-reaction {
     animation: bounce-reaction 0.3s ease-in-out;
-    /* Performance optimization: GPU acceleration */
     will-change: transform;
   }
 
   .animate-scale-share {
     animation: scale-share 0.1s ease-in-out;
-    /* Performance optimization: GPU acceleration */
     will-change: transform;
   }
 
   .animate-fab-expand {
     animation: fab-expand 0.2s ease-out;
-    /* Performance optimization: GPU acceleration */
     will-change: transform, opacity;
   }
 
   .animate-fab-collapse {
     animation: fab-collapse 0.2s ease-in;
-    /* Performance optimization: GPU acceleration */
     will-change: transform, opacity;
   }
 
-  /* Performance degradation strategy for low-end devices */
+  /* Performance degradation strategy */
   @media (prefers-reduced-motion: no-preference) {
-    /* Only apply will-change on capable devices */
     .animate-bounce-reaction,
     .animate-scale-share,
     .animate-fab-expand,
     .animate-fab-collapse {
-      /* will-change is already set above */
+      /* will-change is set above */
     }
   }
 
@@ -257,40 +242,35 @@
 }
 
 @layer utilities {
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
   /* ========================================
    * PRINT MEDIA UTILITIES
    * ======================================== */
   @media print {
-    /* === Typography Optimization === */
     body {
       color: black;
       background-color: white;
-      font-size: 12pt; /* WCAG 2.1 AA minimum */
+      font-size: 12pt;
       line-height: 1.5;
-      font-family: var(--font-serif); /* Merriweather for print readability */
+      font-family: var(--font-serif);
     }
 
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6 {
+    h1, h2, h3, h4, h5, h6 {
       color: black;
-      page-break-after: avoid; /* Keep headings with following content */
+      page-break-after: avoid;
     }
 
-    /* === Link URL Display (Footnote Style) === */
-
-    /* Show URLs for absolute links */
+    /* URL Display */
     a[href^="http"]::after {
       content: " (" attr(href) ")";
-      font-size: 0.875rem; /* 14px - smaller than body text */
-      color: #555; /* Subtle gray to differentiate from main text */
-      word-wrap: break-word; /* Prevent URL overflow */
+      font-size: 0.875rem;
+      color: #555;
+      word-wrap: break-word;
     }
 
-    /* Prepend domain for relative links */
     a[href^="/"]::after {
       content: " (https://nosilha.com" attr(href) ")";
       font-size: 0.875rem;
@@ -298,72 +278,33 @@
       word-wrap: break-word;
     }
 
-    /* Don't show URLs for anchor links (same page) */
-    a[href^="#"]::after {
-      content: none;
-    }
+    a[href^="#"]::after { content: none; }
 
-    /* === Background & Shadow Removal === */
-
-    /* Remove all decorative backgrounds (conserve ink) */
+    /* Cleanup */
     *:not(img) {
       background-color: white !important;
       box-shadow: none !important;
       text-shadow: none !important;
     }
 
-    /* === Image Optimization === */
-
     img {
       max-width: 100%;
-      page-break-inside: avoid; /* Don't split images across pages */
-    }
-
-    /* Figures (image + caption) - keep together */
-    figure {
       page-break-inside: avoid;
     }
 
-    figcaption {
-      color: black;
-      font-size: 0.875rem;
-    }
+    figure { page-break-inside: avoid; }
+    figcaption { color: black; font-size: 0.875rem; }
 
-    /* === Page Break Management === */
+    /* Breaks */
+    h1, h2, h3 { page-break-after: avoid; }
+    .break-inside-avoid, blockquote, pre, table { page-break-inside: avoid; }
 
-    /* Prevent orphaned headings */
-    h1,
-    h2,
-    h3 {
-      page-break-after: avoid;
-    }
+    @page { margin: 2cm; }
 
-    /* Keep related elements together */
-    .break-inside-avoid,
-    blockquote,
-    pre,
-    table {
-      page-break-inside: avoid;
-    }
-
-    /* === Margins for Print === */
-
-    @page {
-      margin: 2cm; /* Standard print margins */
-    }
-
-    /* === Video Elements === */
-
-    /* Hide video players (can't play videos on paper) */
-    video,
-    iframe[src*="youtube"],
-    iframe[src*="vimeo"] {
-      display: none;
-    }
-
-    /* Show video captions/descriptions if they exist */
-    .video-description {
-      display: block !important;
-    }
+    /* Video Hiding */
+    video, iframe[src*="youtube"], iframe[src*="vimeo"] { display: none; }
+    .video-description { display: block !important; }
+    
+    .no-print { display: none; }
   }
 }

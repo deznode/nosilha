@@ -261,7 +261,7 @@ export function SuggestImprovementForm({
                     setSuggestionType(e.target.value as SuggestionType)
                   }
                   disabled={isSubmitting}
-                  className="block w-full rounded-lg border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                  className="focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-lg border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
                 >
                   <option value="CORRECTION">
                     Correction - Fix factual errors or inaccuracies
@@ -287,7 +287,7 @@ export function SuggestImprovementForm({
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Please provide details about your suggestion..."
                   disabled={isSubmitting}
-                  className="block w-full rounded-lg border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                  className="focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-lg border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
                 />
                 <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
                   {message.length}/5000 characters (minimum 10)

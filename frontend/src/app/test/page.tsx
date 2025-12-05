@@ -114,12 +114,12 @@ export default function TestPage() {
         <section className="mt-16 rounded-2xl bg-white/80 p-6 shadow-sm ring-1 ring-zinc-100 ring-inset dark:bg-zinc-900 dark:ring-zinc-800">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+              <h2 className="text-basalt-900 dark:text-mist-100 text-2xl font-semibold">
                 Content Action Components Showcase
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-basalt-500 dark:text-mist-200 text-sm">
                 Testing every component from{" "}
-                <code className="rounded bg-gray-100 px-2 py-0.5 text-xs dark:bg-gray-800">
+                <code className="bg-mist-100 dark:bg-basalt-800 rounded px-2 py-0.5 text-xs">
                   content-actions
                 </code>{" "}
                 using mock content data.
@@ -140,10 +140,10 @@ export default function TestPage() {
 
           <div className="mt-8 space-y-6">
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-basalt-900 dark:text-mist-100 text-lg font-semibold">
                 Reactions
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-basalt-500 dark:text-mist-200 text-sm">
                 Powered by the <code>ReactionButtons</code> component with mock
                 API data.
               </p>
@@ -188,10 +188,10 @@ export default function TestPage() {
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <h3 className="text-basalt-900 dark:text-mist-100 text-lg font-semibold">
                 Centralized Toast System
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-basalt-500 dark:text-mist-200 text-sm">
                 Demonstrates global toast notifications using{" "}
                 <code>useToast()</code> hook.
               </p>

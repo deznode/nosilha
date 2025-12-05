@@ -12,7 +12,7 @@ interface EventCardProps {
  */
 export function EventCard({ event }: EventCardProps) {
   return (
-    <div className="border-border-secondary flex overflow-hidden rounded-xl border bg-white shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+    <div className="border-hairline bg-surface flex overflow-hidden rounded-xl border shadow-sm transition-shadow hover:shadow-md">
       {/* Date Badge */}
       <div className="bg-ocean-blue/5 border-border-secondary dark:bg-ocean-blue/10 flex w-20 flex-col items-center justify-center border-r p-2 text-center">
         <span className="text-ocean-blue text-xs font-bold tracking-wider uppercase">

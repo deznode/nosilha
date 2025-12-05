@@ -43,7 +43,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="bg-sunny-yellow/10 border-sunny-yellow/20 mt-8 rounded-lg border p-4">
+                <div className="bg-sobrado-ochre/10 border-sobrado-ochre/20 mt-8 rounded-lg border p-4">
                   <h3 className="text-text-primary font-semibold">
                     Profile Features Coming Soon
                   </h3>

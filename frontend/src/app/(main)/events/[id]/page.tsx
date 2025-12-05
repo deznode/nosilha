@@ -109,7 +109,7 @@ export default function EventDetailPage() {
       </div>
 
       {/* 2. HERO SECTION */}
-      <div className="relative h-[50vh] min-h-[400px] w-full bg-gray-900">
+      <div className="bg-basalt-900 relative h-[50vh] min-h-[400px] w-full">
         <Image
           src={EVENT.image}
           alt={EVENT.title}
@@ -169,7 +169,7 @@ export default function EventDetailPage() {
             </div>
 
             {/* Organizer Card */}
-            <div className="flex items-center justify-between rounded-2xl border border-blue-100 bg-blue-50 p-8">
+            <div className="border-mist-100 bg-mist-50 flex items-center justify-between rounded-2xl border p-8">
               <div>
                 <h4 className="text-ocean-blue mb-1 text-sm font-bold tracking-wider uppercase">
                   Organized by
@@ -178,7 +178,7 @@ export default function EventDetailPage() {
                   {EVENT.organizer}
                 </p>
               </div>
-              <button className="text-ocean-blue hover:bg-ocean-blue flex items-center rounded-lg border border-blue-200 bg-white px-4 py-2 font-semibold shadow-sm transition-colors hover:text-white">
+              <button className="text-ocean-blue hover:bg-ocean-blue border-mist-200 flex items-center rounded-lg border bg-white px-4 py-2 font-semibold shadow-sm transition-colors hover:text-white">
                 <Mail size={18} className="mr-2" />
                 Contact
               </button>
@@ -240,11 +240,11 @@ export default function EventDetailPage() {
                 </div>
 
                 {/* Actions Footer */}
-                <div className="border-border-secondary grid grid-cols-2 gap-3 border-t bg-gray-50 p-4">
+                <div className="border-border-secondary bg-mist-50 grid grid-cols-2 gap-3 border-t p-4">
                   <button className="bg-ocean-blue hover:bg-ocean-blue/90 flex items-center justify-center rounded-xl px-4 py-3 font-bold text-white shadow-md transition-all">
                     Register Now
                   </button>
-                  <button className="text-text-secondary border-border-secondary flex items-center justify-center rounded-xl border bg-white px-4 py-3 font-bold transition-all hover:bg-gray-100">
+                  <button className="text-text-secondary border-border-secondary hover:bg-mist-100 flex items-center justify-center rounded-xl border bg-white px-4 py-3 font-bold transition-all">
                     <Share2 size={18} className="mr-2" /> Share
                   </button>
                 </div>

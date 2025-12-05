@@ -57,7 +57,7 @@ const SectionHeader = ({
       {title}
     </h2>
     {subtitle && (
-      <p className="text-volcanic-gray mx-auto max-w-2xl font-sans text-lg leading-relaxed">
+      <p className="text-basalt-500 mx-auto max-w-2xl font-sans text-lg leading-relaxed">
         {subtitle}
       </p>
     )}
@@ -109,7 +109,7 @@ const FeaturedStoryCard = ({ item }: { item: FeaturedItem }) => (
     href={item.link}
     className="group relative block h-96 cursor-pointer overflow-hidden rounded-2xl shadow-lg transition-shadow duration-300 hover:shadow-2xl"
   >
-    <div className="absolute inset-0 bg-gray-200">
+    <div className="bg-mist-200 absolute inset-0">
       <Image
         src={item.image}
         alt={item.title}
@@ -126,10 +126,10 @@ const FeaturedStoryCard = ({ item }: { item: FeaturedItem }) => (
       <h3 className="mb-2 font-serif text-2xl leading-tight font-bold">
         {item.title}
       </h3>
-      <p className="mb-4 line-clamp-2 text-sm text-gray-200 opacity-0 transition-opacity delay-100 duration-500 group-hover:opacity-100">
+      <p className="text-mist-200 mb-4 line-clamp-2 text-sm opacity-0 transition-opacity delay-100 duration-500 group-hover:opacity-100">
         {item.description}
       </p>
-      <div className="text-sunny-yellow flex w-max items-center border-b border-white/30 pb-1 text-sm font-bold transition-colors hover:border-white">
+      <div className="text-sobrado-ochre flex w-max items-center border-b border-white/30 pb-1 text-sm font-bold transition-colors hover:border-white">
         Read Story <ArrowRight size={16} className="ml-2" />
       </div>
     </div>
@@ -216,8 +216,8 @@ export default function LandingPage() {
             </Link>
 
             {/* Subtitle Line */}
-            <div className="text-sunny-yellow mb-6 flex items-center space-x-3 font-bold tracking-widest uppercase">
-              <span className="bg-sunny-yellow h-[3px] w-12 rounded-full"></span>
+            <div className="text-sobrado-ochre mb-6 flex items-center space-x-3 font-bold tracking-widest uppercase">
+              <span className="bg-sobrado-ochre h-[3px] w-12 rounded-full"></span>
               <span className="text-sm md:text-base">
                 Ilha das Flores • Cape Verde
               </span>
@@ -225,7 +225,7 @@ export default function LandingPage() {
 
             <h1 className="mb-6 font-serif text-5xl leading-tight font-bold text-white drop-shadow-lg md:text-7xl">
               Discover the <br />
-              <span className="from-sunny-yellow bg-gradient-to-r to-white bg-clip-text text-transparent">
+              <span className="from-sobrado-ochre bg-gradient-to-r to-white bg-clip-text text-transparent">
                 Soul of Brava
               </span>
             </h1>
@@ -241,11 +241,11 @@ export default function LandingPage() {
               className="group relative mb-10 max-w-xl"
             >
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5">
-                <Search className="group-focus-within:text-ocean-blue h-5 w-5 text-gray-400 transition-colors" />
+                <Search className="group-focus-within:text-ocean-blue text-basalt-500 h-5 w-5 transition-colors" />
               </div>
               <input
                 type="text"
-                className="focus:ring-ocean-blue/30 focus:border-ocean-blue block w-full rounded-full border border-white/20 bg-white/95 py-5 pr-32 pl-14 text-base text-gray-900 placeholder-gray-500 shadow-2xl backdrop-blur-md transition-all outline-none focus:ring-4"
+                className="focus:ring-ocean-blue/30 focus:border-ocean-blue text-basalt-900 placeholder-basalt-500 block w-full rounded-full border border-white/20 bg-white/95 py-5 pr-32 pl-14 text-base shadow-2xl backdrop-blur-md transition-all outline-none focus:ring-4"
                 placeholder="Search history, towns, or businesses..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -266,19 +266,19 @@ export default function LandingPage() {
               <div className="flex flex-wrap gap-2">
                 <Link
                   href="/people/eugenio-tavares"
-                  className="hover:border-sunny-yellow rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold backdrop-blur-sm transition-all hover:bg-white/20"
+                  className="hover:border-sobrado-ochre rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold backdrop-blur-sm transition-all hover:bg-white/20"
                 >
                   📖 Eugénio Tavares
                 </Link>
                 <Link
                   href="/towns/faja-dagua"
-                  className="hover:border-sunny-yellow rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold backdrop-blur-sm transition-all hover:bg-white/20"
+                  className="hover:border-sobrado-ochre rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold backdrop-blur-sm transition-all hover:bg-white/20"
                 >
                   🌊 Fajã d'Agua
                 </Link>
                 <Link
                   href="/directory/hotels"
-                  className="hover:border-sunny-yellow rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold backdrop-blur-sm transition-all hover:bg-white/20"
+                  className="hover:border-sobrado-ochre rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold backdrop-blur-sm transition-all hover:bg-white/20"
                 >
                   🏨 Hotels
                 </Link>
@@ -322,7 +322,7 @@ export default function LandingPage() {
               icon={Music}
               title="Culture & Arts"
               description="The home of Morna, festivals, and artisans."
-              colorClass="bg-sunny-yellow"
+              colorClass="bg-sobrado-ochre"
               href="/culture"
             />
           </div>
@@ -363,7 +363,7 @@ export default function LandingPage() {
       {/* 4. NEWSLETTER / CTA */}
       <section className="bg-ocean-blue relative overflow-hidden py-24 text-white">
         <div className="relative z-10 container mx-auto max-w-3xl px-4 text-center">
-          <div className="text-sunny-yellow mb-6 inline-block rounded-full bg-white/10 p-4 backdrop-blur-md">
+          <div className="text-sobrado-ochre mb-6 inline-block rounded-full bg-white/10 p-4 backdrop-blur-md">
             <Users size={32} />
           </div>
           <h2 className="mb-6 font-serif text-4xl font-bold md:text-5xl">
@@ -377,9 +377,9 @@ export default function LandingPage() {
             <input
               type="email"
               placeholder="Enter your email address"
-              className="focus:ring-sunny-yellow flex-grow rounded-lg border border-white/20 bg-white/10 px-6 py-4 text-white placeholder-white/60 backdrop-blur-sm transition-all focus:bg-white/20 focus:ring-2 focus:outline-none"
+              className="focus:ring-sobrado-ochre flex-grow rounded-lg border border-white/20 bg-white/10 px-6 py-4 text-white placeholder-white/60 backdrop-blur-sm transition-all focus:bg-white/20 focus:ring-2 focus:outline-none"
             />
-            <button className="bg-sunny-yellow text-ocean-blue hover:text-ocean-blue rounded-lg px-8 py-4 font-bold shadow-lg transition-colors hover:bg-white">
+            <button className="bg-sobrado-ochre text-ocean-blue hover:text-ocean-blue rounded-lg px-8 py-4 font-bold shadow-lg transition-colors hover:bg-white">
               Subscribe
             </button>
           </form>

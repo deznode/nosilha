@@ -32,7 +32,7 @@ function TranslationStatusBadge({ status }: TranslationStatusBadgeProps) {
     current:
       "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
     outdated:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
+      "bg-sobrado-ochre/20 text-sobrado-ochre dark:bg-sobrado-ochre/10 dark:text-sobrado-ochre",
     missing: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
   };
 
@@ -124,72 +124,57 @@ export function TranslationDashboard({ articles }: TranslationDashboardProps) {
     <div className="space-y-8">
       {/* Statistics */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Total Articles
-          </p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
-            {stats.totalArticles}
-          </p>
+        <div className="bg-surface rounded-lg p-4 shadow">
+          <p className="text-muted text-sm">Total Articles</p>
+          <p className="text-body text-2xl font-bold">{stats.totalArticles}</p>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Translation Coverage
-          </p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white">
-            {stats.coverage}%
-          </p>
+        <div className="bg-surface rounded-lg p-4 shadow">
+          <p className="text-muted text-sm">Translation Coverage</p>
+          <p className="text-body text-2xl font-bold">{stats.coverage}%</p>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Missing Translations
-          </p>
-          <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+        <div className="bg-surface rounded-lg p-4 shadow">
+          <p className="text-muted text-sm">Missing Translations</p>
+          <p className="text-status-error text-2xl font-bold">
             {stats.missingTranslations}
           </p>
         </div>
-        <div className="rounded-lg bg-white p-4 shadow dark:bg-gray-800">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Outdated Translations
-          </p>
-          <p className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+        <div className="bg-surface rounded-lg p-4 shadow">
+          <p className="text-muted text-sm">Outdated Translations</p>
+          <p className="text-sobrado-ochre text-2xl font-bold">
             {stats.outdatedTranslations}
           </p>
         </div>
       </div>
 
       {/* Translation Matrix */}
-      <div className="overflow-x-auto rounded-lg bg-white shadow dark:bg-gray-800">
+      <div className="bg-surface overflow-x-auto rounded-lg shadow">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gray-200 dark:border-gray-700">
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
+            <tr className="border-hairline border-b">
+              <th className="text-body px-4 py-3 text-left text-sm font-semibold">
                 Article
               </th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-900 dark:text-white">
+              <th className="text-body px-4 py-3 text-left text-sm font-semibold">
                 Category
               </th>
               {SUPPORTED_LANGUAGES.map((lang) => (
                 <th
                   key={lang}
-                  className="px-4 py-3 text-center text-sm font-semibold text-gray-900 dark:text-white"
+                  className="text-body px-4 py-3 text-center text-sm font-semibold"
                 >
                   {LANGUAGE_NAMES[lang]}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody className="divide-hairline divide-y">
             {Array.from(articlesBySlug.entries()).map(
               ([slug, translations]) => {
                 const englishArticle = translations.find(
                   (t) => t.language === "en"
                 );
                 return (
-                  <tr
-                    key={slug}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50"
-                  >
+                  <tr key={slug} className="hover:bg-surface-alt">
                     <td className="px-4 py-3">
                       <Link
                         href={`/${englishArticle?.category || "articles"}/${slug}`}
@@ -199,7 +184,7 @@ export function TranslationDashboard({ articles }: TranslationDashboardProps) {
                       </Link>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-sm text-gray-600 capitalize dark:text-gray-400">
+                      <span className="text-muted text-sm capitalize">
                         {englishArticle?.category}
                       </span>
                     </td>
@@ -221,7 +206,7 @@ export function TranslationDashboard({ articles }: TranslationDashboardProps) {
       {/* Empty state */}
       {articlesBySlug.size === 0 && (
         <div className="py-12 text-center">
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-muted">
             No articles found. Create your first article to see translation
             status.
           </p>

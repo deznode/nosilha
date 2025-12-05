@@ -53,8 +53,8 @@ export function ArticleLayout({
       >
         {/* Fallback indicator */}
         {isFallback && requestedLanguage && (
-          <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20">
-            <p className="text-sm text-yellow-800 dark:text-yellow-200">
+          <div className="border-sobrado-ochre/30 bg-sobrado-ochre/10 mb-6 rounded-lg border p-4">
+            <p className="text-sobrado-ochre text-sm">
               This content is not available in{" "}
               {LANGUAGE_NAMES[requestedLanguage]}. Showing{" "}
               {LANGUAGE_NAMES[currentLanguage]} version.
@@ -66,7 +66,7 @@ export function ArticleLayout({
         <PageHeader title={title} subtitle={description} />
 
         {/* Article metadata */}
-        <div className="text-nosihla-text-secondary mb-8 flex flex-wrap gap-4 text-sm dark:text-gray-400">
+        <div className="text-muted mb-8 flex flex-wrap gap-4 text-sm">
           <span>
             Published:{" "}
             {new Date(publishDate).toLocaleDateString("en-US", {
@@ -84,7 +84,7 @@ export function ArticleLayout({
           {tags.map((tag) => (
             <span
               key={tag}
-              className="bg-nosihla-ocean-blue/10 text-nosihla-ocean-blue dark:bg-nosihla-ocean-blue/20 dark:text-nosihla-ocean-blue-light rounded-full px-3 py-1 text-sm"
+              className="bg-ocean-blue/10 text-ocean-blue rounded-full px-3 py-1 text-sm"
             >
               {tag}
             </span>
@@ -105,7 +105,7 @@ export function ArticleLayout({
                 className={`rounded px-3 py-1.5 text-sm font-medium transition-colors ${
                   lang === currentLanguage
                     ? "bg-ocean-blue text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                    : "bg-surface-alt text-body hover:bg-surface"
                 }`}
                 aria-current={lang === currentLanguage ? "page" : undefined}
               >

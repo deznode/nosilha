@@ -15,7 +15,7 @@ export function CategoryMarkerIcon({
     case "Hotel":
       return <Building2 className={`${className} text-ocean-blue`} />;
     case "Beach":
-      return <Sun className={`${className} text-sunny-yellow`} />;
+      return <Sun className={`${className} text-sobrado-ochre`} />;
     case "Landmark":
       return <Landmark className={`${className} text-valley-green`} />;
     default:

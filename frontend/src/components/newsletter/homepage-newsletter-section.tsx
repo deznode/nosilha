@@ -113,7 +113,7 @@ export default function HomepageNewsletterSection() {
     "mt-4 rounded-md px-4 py-3 text-center text-base font-semibold",
     {
       "bg-white/10 text-white": messageVariant === "success",
-      "bg-sunny-yellow/20 text-sunny-yellow": messageVariant === "info",
+      "bg-sobrado-ochre/20 text-sobrado-ochre": messageVariant === "info",
       "bg-white text-bougainvillea-pink": messageVariant === "error",
     }
   );

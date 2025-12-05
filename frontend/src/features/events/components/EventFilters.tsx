@@ -45,12 +45,12 @@ export function EventFilters({
             className="group relative w-full md:w-96"
           >
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <Search className="group-focus-within:text-ocean-blue h-4 w-4 text-gray-400" />
+              <Search className="group-focus-within:text-ocean-blue text-basalt-500 h-4 w-4" />
             </div>
             <input
               type="text"
               placeholder="Search events or locations..."
-              className="border-border-primary bg-background-secondary focus:ring-ocean-blue focus:border-ocean-blue block w-full rounded-lg border py-2 pr-3 pl-10 leading-5 placeholder-gray-500 transition-all focus:bg-white focus:ring-1 focus:outline-none sm:text-sm"
+              className="border-border-primary bg-background-secondary focus:ring-ocean-blue focus:border-ocean-blue placeholder-basalt-500 block w-full rounded-lg border py-2 pr-3 pl-10 leading-5 transition-all focus:bg-white focus:ring-1 focus:outline-none sm:text-sm"
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
             />
@@ -70,7 +70,7 @@ export function EventFilters({
                 className={`rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
                   filterType === type
                     ? "bg-ocean-blue text-white shadow-md"
-                    : "text-text-secondary border-border-secondary border bg-white hover:bg-gray-50"
+                    : "text-text-secondary border-border-secondary hover:bg-mist-50 border bg-white"
                 }`}
               >
                 {type}

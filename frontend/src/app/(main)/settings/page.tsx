@@ -75,7 +75,7 @@ export default function SettingsPage() {
                           </div>
                         </div>
                         {category.comingSoon && (
-                          <span className="bg-sunny-yellow/20 text-sunny-yellow rounded-full px-3 py-1 text-xs font-medium">
+                          <span className="bg-sobrado-ochre/20 text-sobrado-ochre rounded-full px-3 py-1 text-xs font-medium">
                             Coming Soon
                           </span>
                         )}
@@ -84,7 +84,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
 
-                <div className="bg-sunny-yellow/10 border-sunny-yellow/20 mt-6 rounded-xl border p-6">
+                <div className="bg-sobrado-ochre/10 border-sobrado-ochre/20 mt-6 rounded-xl border p-6">
                   <h3 className="text-text-primary font-semibold">
                     Settings Features Coming Soon
                   </h3>

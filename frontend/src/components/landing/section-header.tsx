@@ -17,7 +17,7 @@ export function SectionHeader({
         {title}
       </h2>
       {subtitle && (
-        <p className="text-volcanic-gray mx-auto max-w-2xl font-sans text-lg leading-relaxed">
+        <p className="text-basalt-500 mx-auto max-w-2xl font-sans text-lg leading-relaxed">
           {subtitle}
         </p>
       )}

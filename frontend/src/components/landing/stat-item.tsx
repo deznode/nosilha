@@ -12,7 +12,7 @@ export function StatItem({ value, label }: StatItemData) {
       <div className="text-ocean-blue font-serif text-3xl font-bold">
         {value}
       </div>
-      <div className="text-volcanic-gray mt-1 text-xs tracking-wider uppercase">
+      <div className="text-basalt-500 mt-1 text-xs tracking-wider uppercase">
         {label}
       </div>
     </div>

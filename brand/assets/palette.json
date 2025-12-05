@@ -1,22 +1,28 @@
 {
-  "version": "1.0.0",
-  "brand": {
-    "oceanBlue": "#005A8D",
-    "valleyGreen": "#3E7D5A",
-    "bougainvilleaPink": "#D90368",
-    "sunnyYellow": "#F7B801",
-    "offWhite": "#F8F9FA",
-    "volcanicGray": "#6C757D",
-    "volcanicGrayDark": "#343A40"
-  },
-  "accents": {
-    "error": "#DC2626",
-    "success": "#059669",
-    "warning": "#D97706"
-  },
   "meta": {
-    "description": "Nos Ilha Brand Color Palette v1.0.0",
-    "source": "brand-system-pack.md",
-    "license": "MIT"
+    "source": "Nos Ilha Design System",
+    "version": "1.0.0",
+    "codename": "Ilha das Flores"
+  },
+  "brand": {
+    "oceanBlue": "#0E4C75",
+    "oceanBlueLight": "#2A769E",
+    "valleyGreen": "#2F6E4D",
+    "bougainvilleaPink": "#C02669",
+    "sobradoOchre": "#D97706",
+    "sunnyYellow": "#FBBF24"
+  },
+  "neutrals": {
+    "mist50": "#F8FAFC",
+    "mist100": "#F1F5F9",
+    "mist200": "#E2E8F0",
+    "basalt500": "#64748B",
+    "basalt800": "#1E293B",
+    "basalt900": "#0F172A"
+  },
+  "status": {
+    "statusError": "#BE123C",
+    "statusSuccess": "#15803D",
+    "statusWarning": "#B45309"
   }
 }

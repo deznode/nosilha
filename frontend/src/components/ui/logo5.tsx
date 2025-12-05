@@ -40,7 +40,7 @@ const FlowerIcon = ({ className }: { className?: string }) => (
       cx="12"
       cy="11"
       r="1.5"
-      className="text-sunny-yellow"
+      className="text-sobrado-ochre"
       fill="currentColor"
     />
   </svg>
@@ -57,7 +57,7 @@ export function Logo({
 
   // Determine text colors based on 'inverted' prop
   const textColor = inverted ? "text-white" : "text-ocean-blue";
-  const subtitleColor = inverted ? "text-white/80" : "text-volcanic-gray";
+  const subtitleColor = inverted ? "text-white/80" : "text-basalt-500";
   const iconColor = inverted ? "text-white" : "text-bougainvillea-pink";
 
   return (
@@ -112,7 +112,7 @@ export function Logo({
               subtitleColor,
               // On hover, if not inverted, subtitle turns blue. If inverted, it turns yellow.
               inverted
-                ? "group-hover:text-sunny-yellow"
+                ? "group-hover:text-sobrado-ochre"
                 : "group-hover:text-ocean-blue",
               isCompact ? "ml-0.5 text-[0.6rem]" : "mt-1 text-sm"
             )}

@@ -15,7 +15,7 @@ export function MapTeaserSection() {
       <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5" />
 
       <div className="relative z-10 container mx-auto px-4 md:px-6">
-        <div className="border-border-secondary flex flex-col items-center gap-12 rounded-3xl border bg-white p-8 shadow-2xl md:p-12 lg:flex-row dark:bg-gray-800">
+        <div className="border-hairline bg-surface flex flex-col items-center gap-12 rounded-3xl border p-8 shadow-2xl md:p-12 lg:flex-row">
           {/* Text Content */}
           <div className="order-2 lg:order-1 lg:w-1/2">
             <div className="text-ocean-blue mb-4 flex items-center space-x-2 font-bold tracking-widest uppercase">
@@ -38,10 +38,7 @@ export function MapTeaserSection() {
                 "Trace hiking trails with GPS support",
                 "Find local businesses near you",
               ].map((item, i) => (
-                <li
-                  key={i}
-                  className="text-volcanic-gray-dark flex items-center"
-                >
+                <li key={i} className="text-body flex items-center">
                   <div className="bg-valley-green mr-3 h-2 w-2 rounded-full" />
                   {item}
                 </li>
@@ -58,7 +55,7 @@ export function MapTeaserSection() {
 
           {/* Visual/Map Preview */}
           <div className="order-1 w-full lg:order-2 lg:w-1/2">
-            <div className="group relative aspect-square overflow-hidden rounded-2xl border-4 border-white bg-blue-50 shadow-inner transition-all duration-500 hover:shadow-2xl md:aspect-video dark:border-gray-700">
+            <div className="group bg-surface-alt border-surface relative aspect-square overflow-hidden rounded-2xl border-4 shadow-inner transition-all duration-500 hover:shadow-2xl md:aspect-video">
               {/* Map Image */}
               <Image
                 src="/images/map.jpg"
@@ -73,7 +70,7 @@ export function MapTeaserSection() {
                 <div className="bg-bougainvillea-pink rounded-md p-1.5 text-white">
                   <Camera size={14} />
                 </div>
-                <div className="pr-1 text-xs font-bold text-gray-800">
+                <div className="pr-1 text-xs font-bold text-basalt-800">
                   Fajã d&apos;Agua
                 </div>
               </div>
@@ -82,7 +79,7 @@ export function MapTeaserSection() {
                 <div className="bg-ocean-blue rounded-md p-1.5 text-white">
                   <Anchor size={14} />
                 </div>
-                <div className="pr-1 text-xs font-bold text-gray-800">
+                <div className="pr-1 text-xs font-bold text-basalt-800">
                   Furna Port
                 </div>
               </div> */}

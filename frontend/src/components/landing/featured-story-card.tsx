@@ -20,7 +20,7 @@ export function FeaturedStoryCard({ item }: FeaturedStoryCardProps) {
       className="group relative block h-96 cursor-pointer overflow-hidden rounded-2xl shadow-lg transition-shadow duration-300 hover:shadow-2xl"
     >
       {/* Image Background */}
-      <div className="absolute inset-0 bg-gray-200">
+      <div className="bg-mist-200 absolute inset-0">
         <Image
           src={item.image}
           alt={item.title}
@@ -41,10 +41,10 @@ export function FeaturedStoryCard({ item }: FeaturedStoryCardProps) {
         <h3 className="mb-2 font-serif text-2xl leading-tight font-bold">
           {item.title}
         </h3>
-        <p className="mb-4 line-clamp-2 text-sm text-gray-200 opacity-0 transition-opacity delay-100 duration-500 group-hover:opacity-100">
+        <p className="text-mist-200 mb-4 line-clamp-2 text-sm opacity-0 transition-opacity delay-100 duration-500 group-hover:opacity-100">
           {item.description}
         </p>
-        <div className="text-sunny-yellow flex w-max items-center border-b border-white/30 pb-1 text-sm font-bold transition-colors hover:border-white">
+        <div className="text-sobrado-ochre flex w-max items-center border-b border-white/30 pb-1 text-sm font-bold transition-colors hover:border-white">
           Read Story <ArrowRight size={16} className="ml-2" />
         </div>
       </div>

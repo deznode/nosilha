@@ -368,17 +368,17 @@ export function InteractiveMap() {
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="bg-background-primary border-border-primary absolute top-4 bottom-4 left-4 z-20 w-80 overflow-y-auto rounded-lg border shadow-xl"
           >
-            <div className="relative h-48 w-full bg-gray-200">
+            <div className="bg-mist-200 relative h-48 w-full">
               {/* Placeholder for image if available, or category color */}
               <div
                 className={`flex h-full w-full items-center justify-center ${
                   selectedEntry.category === "Restaurant"
-                    ? "bg-orange-100"
+                    ? "bg-sobrado-ochre/20"
                     : selectedEntry.category === "Hotel"
-                      ? "bg-blue-100"
+                      ? "bg-ocean-blue/20"
                       : selectedEntry.category === "Beach"
-                        ? "bg-yellow-100"
-                        : "bg-green-100"
+                        ? "bg-sobrado-ochre/20"
+                        : "bg-valley-green/20"
                 }`}
               >
                 <CategoryMarkerIcon category={selectedEntry.category} />
@@ -397,7 +397,7 @@ export function InteractiveMap() {
                   {selectedEntry.category}
                 </span>
                 {selectedEntry.rating && (
-                  <span className="flex items-center text-xs text-yellow-500">
+                  <span className="text-sobrado-ochre flex items-center text-xs">
                     <Star className="mr-1 h-3 w-3 fill-current" />
                     {selectedEntry.rating}
                   </span>

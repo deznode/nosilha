@@ -44,11 +44,11 @@ export function DirectoryCategoryPageContent({
         >
           <div className="relative">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <Search className="text-volcanic-gray h-5 w-5" />
+              <Search className="text-basalt-500 h-5 w-5" />
             </div>
             <input
               type="text"
-              className="focus:ring-ocean-blue/30 focus:border-ocean-blue block w-full rounded-full border-gray-200 bg-white py-3 pr-4 pl-10 text-sm shadow-sm transition-all focus:ring-4 focus:outline-none"
+              className="focus:ring-ocean-blue/30 focus:border-ocean-blue border-mist-200 block w-full rounded-full bg-white py-3 pr-4 pl-10 text-sm shadow-sm transition-all focus:ring-4 focus:outline-none"
               placeholder="Filter by name or town..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}

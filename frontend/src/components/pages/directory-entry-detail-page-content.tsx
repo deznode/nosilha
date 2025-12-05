@@ -219,7 +219,7 @@ export function DirectoryEntryDetailPageContent({
             <h2 className="text-text-primary font-serif text-3xl font-bold">
               User Reviews
             </h2>
-            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4 rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
+            <div className="border-mist-100 mt-6 flex flex-wrap items-center gap-x-6 gap-y-4 rounded-xl border bg-white p-6 shadow-sm">
               <p className="text-text-primary text-5xl font-bold">
                 {entry.rating?.toFixed(1) || "N/A"}
               </p>
@@ -241,7 +241,7 @@ export function DirectoryEntryDetailPageContent({
           >
             <div className="glass-panel sticky top-24 rounded-xl p-6">
               <div className="bg-background-tertiary mb-6 aspect-video w-full overflow-hidden rounded-lg">
-                <div className="flex h-full w-full items-center justify-center bg-gray-100">
+                <div className="bg-mist-100 flex h-full w-full items-center justify-center">
                   <MapPin className="text-text-secondary h-12 w-12" />
                 </div>
               </div>
@@ -252,7 +252,7 @@ export function DirectoryEntryDetailPageContent({
                     {entry.town}, Brava, Cape Verde
                   </p>
                 </div>
-                <div className="border-t border-gray-200/50 pt-4">
+                <div className="border-mist-200/50 border-t pt-4">
                   <CategorySpecificDetails entry={entry} />
                 </div>
               </div>

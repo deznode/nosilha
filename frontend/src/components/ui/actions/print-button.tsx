@@ -63,7 +63,7 @@ export function PrintButton({
         type="button"
         onClick={handlePrint}
         aria-label="Print page"
-        className="focus-ring flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-background-secondary)] text-[var(--color-text-primary)] transition-colors hover:bg-gray-200 dark:hover:bg-gray-700"
+        className="focus-ring hover:bg-mist-200 dark:hover:bg-basalt-800 flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-background-secondary)] text-[var(--color-text-primary)] transition-colors"
       >
         <Printer className="h-5 w-5" />
       </motion.button>

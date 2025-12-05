@@ -22,7 +22,7 @@ export function WeatherWidget({
   const WeatherIcon = conditionIcons[condition] || CloudSun;
 
   return (
-    <div className="border-border-secondary flex items-center justify-between rounded-2xl border bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <div className="border-hairline bg-surface flex items-center justify-between rounded-2xl border p-6 shadow-sm">
       <div>
         <div className="text-text-secondary mb-1 text-xs font-bold tracking-wider uppercase">
           Current Weather
@@ -32,7 +32,7 @@ export function WeatherWidget({
         </div>
         <div className="text-text-secondary text-sm">{location}</div>
       </div>
-      <div className="text-sunny-yellow">
+      <div className="text-sobrado-ochre">
         <WeatherIcon size={40} />
       </div>
     </div>

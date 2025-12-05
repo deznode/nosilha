@@ -48,24 +48,24 @@ export function SwitchField({
 
 const colors = {
   "dark/zinc": [
-    "[--switch-bg-ring:var(--color-zinc-950)]/90 [--switch-bg:var(--color-zinc-900)] dark:[--switch-bg-ring:transparent] dark:[--switch-bg:var(--color-white)]/25",
-    "[--switch-ring:var(--color-zinc-950)]/90 [--switch-shadow:var(--color-black)]/10 [--switch:white] dark:[--switch-ring:var(--color-zinc-700)]/90",
+    "[--switch-bg-ring:var(--color-basalt-900)]/90 [--switch-bg:var(--color-basalt-900)] dark:[--switch-bg-ring:transparent] dark:[--switch-bg:var(--color-white)]/25",
+    "[--switch-ring:var(--color-basalt-900)]/90 [--switch-shadow:var(--color-black)]/10 [--switch:white] dark:[--switch-ring:var(--color-basalt-800)]/90",
   ],
   "dark/white": [
-    "[--switch-bg-ring:var(--color-zinc-950)]/90 [--switch-bg:var(--color-zinc-900)] dark:[--switch-bg-ring:transparent] dark:[--switch-bg:var(--color-white)]",
-    "[--switch-ring:var(--color-zinc-950)]/90 [--switch-shadow:var(--color-black)]/10 [--switch:white] dark:[--switch-ring:transparent] dark:[--switch:var(--color-zinc-900)]",
+    "[--switch-bg-ring:var(--color-basalt-900)]/90 [--switch-bg:var(--color-basalt-900)] dark:[--switch-bg-ring:transparent] dark:[--switch-bg:var(--color-white)]",
+    "[--switch-ring:var(--color-basalt-900)]/90 [--switch-shadow:var(--color-black)]/10 [--switch:white] dark:[--switch-ring:transparent] dark:[--switch:var(--color-basalt-900)]",
   ],
   dark: [
-    "[--switch-bg-ring:var(--color-zinc-950)]/90 [--switch-bg:var(--color-zinc-900)] dark:[--switch-bg-ring:var(--color-white)]/15",
-    "[--switch-ring:var(--color-zinc-950)]/90 [--switch-shadow:var(--color-black)]/10 [--switch:white]",
+    "[--switch-bg-ring:var(--color-basalt-900)]/90 [--switch-bg:var(--color-basalt-900)] dark:[--switch-bg-ring:var(--color-white)]/15",
+    "[--switch-ring:var(--color-basalt-900)]/90 [--switch-shadow:var(--color-black)]/10 [--switch:white]",
   ],
   zinc: [
-    "[--switch-bg-ring:var(--color-zinc-700)]/90 [--switch-bg:var(--color-zinc-600)] dark:[--switch-bg-ring:transparent]",
-    "[--switch-shadow:var(--color-black)]/10 [--switch:white] [--switch-ring:var(--color-zinc-700)]/90",
+    "[--switch-bg-ring:var(--color-basalt-800)]/90 [--switch-bg:var(--color-basalt-500)] dark:[--switch-bg-ring:transparent]",
+    "[--switch-shadow:var(--color-black)]/10 [--switch:white] [--switch-ring:var(--color-basalt-800)]/90",
   ],
   white: [
     "[--switch-bg-ring:var(--color-black)]/15 [--switch-bg:white] dark:[--switch-bg-ring:transparent]",
-    "[--switch-shadow:var(--color-black)]/10 [--switch-ring:transparent] [--switch:var(--color-zinc-950)]",
+    "[--switch-shadow:var(--color-black)]/10 [--switch-ring:transparent] [--switch:var(--color-basalt-900)]",
   ],
   red: [
     "[--switch-bg-ring:var(--color-red-700)]/90 [--switch-bg:var(--color-red-600)] dark:[--switch-bg-ring:transparent]",
@@ -80,8 +80,8 @@ const colors = {
     "[--switch-ring:transparent] [--switch-shadow:transparent] [--switch:var(--color-amber-950)]",
   ],
   yellow: [
-    "[--switch-bg-ring:var(--color-yellow-400)]/80 [--switch-bg:var(--color-yellow-300)] dark:[--switch-bg-ring:transparent]",
-    "[--switch-ring:transparent] [--switch-shadow:transparent] [--switch:var(--color-yellow-950)]",
+    "[--switch-bg-ring:var(--color-sobrado-ochre)]/80 [--switch-bg:var(--color-sobrado-ochre)] dark:[--switch-bg-ring:transparent]",
+    "[--switch:white] [--switch-ring:var(--color-sobrado-ochre)]/80 [--switch-shadow:var(--color-sobrado-ochre)]/20",
   ],
   lime: [
     "[--switch-bg-ring:var(--color-lime-400)]/80 [--switch-bg:var(--color-lime-300)] dark:[--switch-bg-ring:transparent]",
@@ -108,8 +108,8 @@ const colors = {
     "[--switch:white] [--switch-ring:var(--color-sky-600)]/80 [--switch-shadow:var(--color-sky-900)]/20",
   ],
   blue: [
-    "[--switch-bg-ring:var(--color-blue-700)]/90 [--switch-bg:var(--color-blue-600)] dark:[--switch-bg-ring:transparent]",
-    "[--switch:white] [--switch-ring:var(--color-blue-700)]/90 [--switch-shadow:var(--color-blue-900)]/20",
+    "[--switch-bg-ring:var(--color-ocean-blue)]/90 [--switch-bg:var(--color-ocean-blue)] dark:[--switch-bg-ring:transparent]",
+    "[--switch:white] [--switch-ring:var(--color-ocean-blue)]/90 [--switch-shadow:var(--color-ocean-blue)]/20",
   ],
   indigo: [
     "[--switch-bg-ring:var(--color-indigo-600)]/90 [--switch-bg:var(--color-indigo-500)] dark:[--switch-bg-ring:transparent]",
@@ -160,16 +160,16 @@ export function Switch({
         // Outline and background color in forced-colors mode so switch is still visible
         "forced-colors:outline forced-colors:[--switch-bg:Highlight] dark:forced-colors:[--switch-bg:Highlight]",
         // Unchecked
-        "bg-zinc-200 ring-1 ring-black/5 ring-inset dark:bg-white/5 dark:ring-white/15",
+        "bg-mist-200 ring-1 ring-black/5 ring-inset dark:bg-white/5 dark:ring-white/15",
         // Checked
         "data-checked:bg-(--switch-bg) data-checked:ring-(--switch-bg-ring) dark:data-checked:bg-(--switch-bg) dark:data-checked:ring-(--switch-bg-ring)",
         // Focus
-        "focus:not-data-focus:outline-hidden data-focus:outline-2 data-focus:outline-offset-2 data-focus:outline-blue-500",
+        "focus:not-data-focus:outline-hidden data-focus:outline-2 data-focus:outline-offset-2 data-focus:outline-ocean-blue",
         // Hover
         "data-hover:ring-black/15 data-hover:data-checked:ring-(--switch-bg-ring)",
         "dark:data-hover:ring-white/25 dark:data-hover:data-checked:ring-(--switch-bg-ring)",
         // Disabled
-        "data-disabled:bg-zinc-200 data-disabled:opacity-50 data-disabled:data-checked:bg-zinc-200 data-disabled:data-checked:ring-black/5",
+        "data-disabled:bg-mist-200 data-disabled:opacity-50 data-disabled:data-checked:bg-mist-200 data-disabled:data-checked:ring-black/5",
         "dark:data-disabled:bg-white/15 dark:data-disabled:data-checked:bg-white/15 dark:data-disabled:data-checked:ring-white/15",
         // Color specific styles
         colors[color]

@@ -247,7 +247,7 @@ export function AddEntryForm() {
                     placeholder="heritage, nova-sintra, eco-tourism"
                     disabled={isSubmitting}
                   />
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                  <p className="text-basalt-500 dark:text-mist-200 text-xs">
                     Tags help power related-content discovery (3-5 keywords
                     recommended).
                   </p>

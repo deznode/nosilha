@@ -190,7 +190,7 @@ export function ReactionButtons({
             className={`focus-ring flex h-11 min-w-[44px] items-center justify-center gap-1.5 rounded-full px-3 py-2 transition-all ${
               isSelected
                 ? "scale-110 bg-[var(--color-ocean-blue)] text-white"
-                : "bg-[var(--color-background-secondary)] hover:bg-gray-200 dark:hover:bg-gray-700"
+                : "hover:bg-mist-200 dark:hover:bg-basalt-800 bg-[var(--color-background-secondary)]"
             } ${!isAuthenticated ? "cursor-not-allowed opacity-50" : "cursor-pointer"} ${isAnimating ? "animate-bounce-reaction" : ""} `}
           >
             {/* Emoji */}
