@@ -20,12 +20,13 @@
   /* === BRAND PALETTE (The Brava Tones) === */
   /* * AUTO-GENERATED from Nos Ilha Design System
    * Version: 1.0.0 (Ilha das Flores)
-   * Updated: 2025-12-05
+   * Updated: 2025-12-06
    */
 
   /* -- Primary Brand -- */
   --color-ocean-blue: #0e4c75;
   --color-ocean-blue-light: #2a769e;
+  --color-ocean-blue-deep: #0e4c75;
   --color-valley-green: #2f6e4d;
   --color-bougainvillea-pink: #c02669;
   --color-sobrado-ochre: #d97706;
@@ -94,6 +95,7 @@
 @variant dark {
   /* Brand Adjustments for Dark Mode (Desaturated for eye comfort) */
   --color-ocean-blue: #38bdf8; /* Sky blue for contrast */
+  --color-ocean-blue-deep: #0c3d5e; /* Deeper ocean for dark mode backgrounds */
   --color-bougainvillea-pink: #f472b6; /* Lighter pink */
 
   /* Backgrounds - Deep Basalt */

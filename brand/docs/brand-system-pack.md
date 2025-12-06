@@ -35,6 +35,7 @@ These primitives are defined in palette.json and synced to globals.css.
 | :---- | :---- | :---- | :---- |
 | **Atlantic Blue** | \--color-ocean-blue | \#0E4C75 | The deep, cold Atlantic waters surrounding the steep cliffs. |
 | **Ocean Light** | \--color-ocean-blue-light | \#2A769E | Shallow waters and atmospheric perspective. |
+| **Ocean Deep** | \--color-ocean-blue-deep | \#0E4C75 | Solid ocean blue for dark section backgrounds (newsletter CTA, hero sections). Unlike ocean-blue, darkens slightly in dark mode rather than switching to sky blue. |
 | **Verde Fajã** | \--color-valley-green | \#2F6E4D | The lush, damp vegetation of Fajã d'Água. |
 | **Hibiscus** | \--color-bougainvillea-pink | \#C02669 | The vibrant, velvety flowers found in Nova Sintra (replacing neon pink). |
 | **Sobrado Ochre** | \--color-sobrado-ochre | \#D97706 | The warm yellow-orange walls of colonial *Sobrado* houses. |

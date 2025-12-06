@@ -59,9 +59,8 @@ export function HeroSection({
           priority
           sizes="100vw"
         />
-        {/* Enhanced Overlay for readability & atmosphere */}
-        <div className="from-ocean-blue/90 via-ocean-blue/50 to-bougainvillea-pink/20 absolute inset-0 bg-gradient-to-r mix-blend-multiply" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/40" />
+        {/* Minimal overlay - none in light mode, subtle in dark mode */}
+        <div className="absolute inset-0 bg-black/0 transition-colors dark:bg-black/30" />
       </div>
 
       {/* Content Container */}
@@ -79,27 +78,30 @@ export function HeroSection({
             />
           )}
 
-          {/* Tagline */}
-          <div className="text-sobrado-ochre mb-6 flex items-center space-x-3 font-bold tracking-widest uppercase">
-            <span className="bg-sobrado-ochre h-[3px] w-12 rounded-full" />
-            <span className="text-sm md:text-base">
-              Ilha das Flores • Cape Verde
-            </span>
+          {/* Text Content Panel - Frosted glass for readability */}
+          <div className="mb-8 inline-block rounded-2xl bg-black/15 p-6 backdrop-blur-xs md:p-8 dark:bg-black/40">
+            {/* Tagline */}
+            <div className="text-sobrado-ochre mb-6 flex items-center space-x-3 font-bold tracking-widest uppercase">
+              <span className="bg-sobrado-ochre h-[3px] w-12 rounded-full" />
+              <span className="text-sm md:text-base">
+                Ilha das Flores • Cape Verde
+              </span>
+            </div>
+
+            {/* Headline */}
+            <h1 className="mb-6 font-serif text-5xl leading-tight font-bold text-white drop-shadow-lg md:text-7xl">
+              Discover the <br />
+              <span className="from-sobrado-ochre bg-gradient-to-r to-white bg-clip-text text-transparent">
+                Soul of Brava
+              </span>
+            </h1>
+
+            {/* Subheadline */}
+            <p className="max-w-xl text-lg leading-relaxed text-white/90 drop-shadow-md md:text-xl">
+              The definitive cultural heritage hub connecting the global
+              diaspora to the history, people, and hidden gems of Brava Island.
+            </p>
           </div>
-
-          {/* Headline */}
-          <h1 className="mb-6 font-serif text-5xl leading-tight font-bold text-white drop-shadow-lg md:text-7xl">
-            Discover the <br />
-            <span className="from-sobrado-ochre bg-gradient-to-r to-white bg-clip-text text-transparent">
-              Soul of Brava
-            </span>
-          </h1>
-
-          {/* Subheadline */}
-          <p className="mb-10 max-w-xl text-lg leading-relaxed text-white/90 drop-shadow-md md:text-xl">
-            The definitive cultural heritage hub connecting the global diaspora
-            to the history, people, and hidden gems of Brava Island.
-          </p>
 
           {/* Search Bar - Glassmorphism */}
           <form
@@ -107,11 +109,11 @@ export function HeroSection({
             className="group relative mb-10 max-w-xl"
           >
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5">
-              <Search className="group-focus-within:text-ocean-blue text-basalt-500 h-5 w-5 transition-colors" />
+              <Search className="group-focus-within:text-ocean-blue text-basalt-500 dark:group-focus-within:text-ocean-blue h-5 w-5 transition-colors dark:text-white/70" />
             </div>
             <input
               type="text"
-              className="focus:ring-ocean-blue/30 focus:border-ocean-blue text-basalt-900 placeholder-basalt-500 block w-full rounded-full border border-white/20 bg-white/95 py-5 pr-32 pl-14 text-base shadow-2xl backdrop-blur-md transition-all outline-none focus:ring-4"
+              className="focus:ring-ocean-blue/30 focus:border-ocean-blue text-basalt-900 placeholder-basalt-500 dark:bg-basalt-800/90 block w-full rounded-full border border-white/20 bg-white/95 py-5 pr-32 pl-14 text-base shadow-2xl backdrop-blur-md transition-all outline-none focus:ring-4 dark:border-white/10 dark:text-white dark:placeholder-white/60"
               placeholder="Search history, towns, or businesses..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -125,8 +127,8 @@ export function HeroSection({
           </form>
 
           {/* Quick Access Chips */}
-          <div className="flex flex-col items-start gap-4 text-sm text-white/90 md:flex-row md:items-center">
-            <span className="text-xs font-semibold tracking-wide uppercase opacity-70">
+          <div className="inline-flex flex-col items-start gap-4 rounded-full bg-black/20 px-4 py-3 text-sm text-white backdrop-blur-xs md:flex-row md:items-center dark:bg-black/40">
+            <span className="text-xs font-semibold tracking-wide uppercase">
               Quick Access:
             </span>
             <div className="flex flex-wrap gap-2">
@@ -134,7 +136,7 @@ export function HeroSection({
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="hover:border-sobrado-ochre rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold backdrop-blur-sm transition-all hover:bg-white/20"
+                  className="hover:border-sobrado-ochre rounded-full border border-white/30 bg-white/20 px-4 py-2 text-xs font-semibold transition-all hover:bg-white/30 dark:border-white/20 dark:bg-white/10 dark:hover:bg-white/20"
                 >
                   {link.emoji && `${link.emoji} `}
                   {link.label}

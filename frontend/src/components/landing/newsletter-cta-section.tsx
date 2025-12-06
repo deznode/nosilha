@@ -39,20 +39,20 @@ export function NewsletterCtaSection() {
   };
 
   return (
-    <section className="bg-ocean-blue relative overflow-hidden py-24 text-white">
+    <section className="bg-ocean-blue-deep relative overflow-hidden py-24 text-white">
       <div className="relative z-10 container mx-auto max-w-3xl px-4 text-center">
         {/* Icon */}
-        <div className="text-sobrado-ochre mb-6 inline-block rounded-full bg-white/10 p-4 backdrop-blur-md">
+        <div className="text-bougainvillea-pink mb-6 inline-block rounded-full bg-white/10 p-4 backdrop-blur-md">
           <Users size={32} />
         </div>
 
         {/* Heading */}
-        <h2 className="mb-6 font-serif text-4xl font-bold md:text-5xl">
+        <h2 className="mb-6 font-serif text-4xl font-bold text-white md:text-5xl">
           Join the Brava Community
         </h2>
 
         {/* Description */}
-        <p className="mb-10 text-lg leading-relaxed text-white/80">
+        <p className="mb-10 text-lg leading-relaxed text-white/90">
           Join our community of storytellers. Stay connected with updates or
           find out how you can contribute photos and stories to the archive.
         </p>
@@ -68,13 +68,13 @@ export function NewsletterCtaSection() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={isSubmitting}
-            className="focus:ring-sobrado-ochre flex-grow rounded-lg border border-white/20 bg-white/10 px-6 py-4 text-white placeholder-white/60 backdrop-blur-sm transition-all focus:bg-white/20 focus:ring-2 focus:outline-none disabled:opacity-50"
+            className="focus:ring-bougainvillea-pink flex-grow rounded-lg border border-white/30 bg-white/10 px-6 py-4 text-white placeholder-white/70 backdrop-blur-sm transition-all focus:bg-white/20 focus:ring-2 focus:outline-none disabled:opacity-50"
             required
           />
           <button
             type="submit"
             disabled={isSubmitting}
-            className="bg-sobrado-ochre text-ocean-blue hover:text-ocean-blue rounded-lg px-8 py-4 font-bold shadow-lg transition-colors hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-bougainvillea-pink rounded-lg px-8 py-4 font-bold text-white shadow-lg transition-all hover:shadow-xl hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSubmitting ? "Subscribing..." : "Subscribe"}
           </button>
@@ -92,7 +92,7 @@ export function NewsletterCtaSection() {
         )}
 
         {/* Privacy note */}
-        <p className="mt-6 text-xs text-white/40">
+        <p className="mt-6 text-xs text-white/60">
           We respect your privacy. Unsubscribe at any time.
         </p>
       </div>
