@@ -78,6 +78,14 @@ resource "google_secret_manager_secret_iam_member" "grant_session_db_url_access"
   member    = google_service_account.backend_runner.member
 }
 
+# Grant frontend service account access to Resend API key for newsletter email functionality
+resource "google_secret_manager_secret_iam_member" "grant_resend_api_key_access" {
+  project   = var.gcp_project_id
+  secret_id = "resend_api_key"
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_service_account.frontend_runner.member
+}
+
 # Grant backend service account access to GCS bucket
 resource "google_storage_bucket_iam_member" "grant_gcs_access" {
   bucket = google_storage_bucket.media_storage.name

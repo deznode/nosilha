@@ -245,6 +245,18 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
         timeout_seconds       = 2 # Must be < period_seconds (fixed validation error)
         failure_threshold     = 8 # Appropriate for Next.js startup
       }
+
+      # Secret injection for newsletter email service (Resend)
+      # Used by server actions for newsletter subscription functionality
+      env {
+        name = "RESEND_API_KEY"
+        value_source {
+          secret_key_ref {
+            secret  = "resend_api_key"
+            version = "1" # Pin to specific version for cost predictability
+          }
+        }
+      }
     }
   }
 }
