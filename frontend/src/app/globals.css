@@ -10,9 +10,11 @@
 
 @theme {
   /* === Font Tokens === */
-  --font-sans: var(--font-lato), "Lato", sans-serif;
-  --font-serif: var(--font-merriweather), "Merriweather", serif;
+  /* UI/Body: Outfit (Geometric, Brand-focused, Clean) */
+  --font-sans: var(--font-sans), "Outfit", system-ui, sans-serif;
 
+  /* Headings: Fraunces (Variable, Old-Style, Soft) */
+  --font-serif: var(--font-serif), "Fraunces", Georgia, serif;
   /* === Animation Tokens === */
   --animate-glow: glow 4s ease-in-out infinite;
   --animate-fog-flow: fog-flow 20s linear infinite;

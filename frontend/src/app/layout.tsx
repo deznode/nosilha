@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Lato, Merriweather } from "next/font/google";
+import { Outfit, Fraunces } from "next/font/google";
 import clsx from "clsx";
 import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
@@ -19,19 +19,27 @@ import { AnalyticsListener } from "./analytics-listener";
 import { reportWebVitalsToGA } from "./web-vitals";
 import "./globals.css";
 import "@/styles/print.css";
+// import { pl } from "zod/v4/locales";
 
-// 1. Set up the primary and secondary fonts using next/font/google.
+// 0. Set up the primary and secondary fonts using next/font/google.
 // The 'variable' option creates a CSS variable we can use in our Tailwind theme.
-const lato = Lato({
+// 1. The "Connector" Font (UI/Body)
+// Outfit: Geometric, modern, but warm. Perfect for the "Digital Hub" aspect.
+const outfit = Outfit({
   subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-lato",
+  variable: "--font-sans",
+  display: "swap",
 });
 
-const merriweather = Merriweather({
+// 2. The "Soul" Font (Headings)
+// Fraunces: A Variable font. Soft, wonky, historic, and full of personality.
+// It captures the "Island of Flowers" vibe with its petal-like serifs.
+const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["400", "700", "900"],
-  variable: "--font-merriweather",
+  variable: "--font-serif",
+  // We use the full variable axes for maximum creativity
+  axes: ["SOFT", "WONK", "opsz"],
+  display: "swap",
 });
 
 // 2. Define comprehensive metadata for the site with proper metadataBase
@@ -138,8 +146,8 @@ export default function RootLayout({
       <body
         className={clsx(
           "bg-background-primary min-h-screen font-sans antialiased transition-all duration-300 ease-in-out",
-          lato.variable,
-          merriweather.variable
+          outfit.variable,
+          fraunces.variable
         )}
       >
         <a

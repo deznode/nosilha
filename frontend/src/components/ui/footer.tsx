@@ -47,7 +47,7 @@ const defaultCopy: FooterCopy = {
   connectHeading: "Connect",
   newsletterHeading: "Subscribe to our newsletter",
   newsletterDescription:
-    "The latest news, articles, and resources, sent to your inbox weekly.",
+    "The latest news, articles, and resources, sent to your inbox monthly.",
   legal: "All rights reserved.",
 };
 

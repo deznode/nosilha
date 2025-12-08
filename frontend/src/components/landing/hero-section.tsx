@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+// import Link from "next/link";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import type { QuickAccessLink } from "@/types/landing";
@@ -34,7 +34,7 @@ const defaultQuickLinks: QuickAccessLink[] = [
  * search functionality, and quick access chips.
  */
 export function HeroSection({
-  quickLinks = defaultQuickLinks,
+  _quickLinks = defaultQuickLinks,
   announcement,
 }: HeroSectionProps) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -127,7 +127,7 @@ export function HeroSection({
           </form>
 
           {/* Quick Access Chips */}
-          <div className="inline-flex flex-col items-start gap-4 rounded-full bg-black/20 px-4 py-3 text-sm text-white backdrop-blur-xs md:flex-row md:items-center dark:bg-black/40">
+          {/*<div className="inline-flex flex-col items-start gap-4 rounded-full bg-black/20 px-4 py-3 text-sm text-white backdrop-blur-xs md:flex-row md:items-center dark:bg-black/40">
             <span className="text-xs font-semibold tracking-wide uppercase">
               Quick Access:
             </span>
@@ -143,7 +143,7 @@ export function HeroSection({
                 </Link>
               ))}
             </div>
-          </div>
+          </div>*/}
         </div>
       </div>
     </section>
