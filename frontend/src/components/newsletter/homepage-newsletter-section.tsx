@@ -54,11 +54,11 @@ export default function HomepageNewsletterSection() {
 
       const normalizedEmail = data.email.trim().toLowerCase();
 
+      // Security: Show same success message to prevent email enumeration attacks
+      // (OWASP recommendation: consistent messages for existent/non-existent accounts)
       if (hasSubmittedEmail(normalizedEmail)) {
-        setMessageVariant("info");
-        setResponseMessage(
-          "This email is already subscribed to our newsletter."
-        );
+        setMessageVariant("success");
+        setResponseMessage("Thank you for subscribing!");
         reset();
         emailInputRef.current?.focus();
         return;
@@ -76,12 +76,8 @@ export default function HomepageNewsletterSection() {
 
       if (response.success) {
         recordSubmittedEmail(normalizedEmail);
-
-        if (response.duplicate) {
-          setMessageVariant("info");
-        } else {
-          setMessageVariant("success");
-        }
+        // Always show success message (server no longer returns duplicate flag)
+        setMessageVariant("success");
         setResponseMessage(response.message);
         reset();
         emailInputRef.current?.focus();

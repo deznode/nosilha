@@ -49,14 +49,13 @@ export function FooterNewsletterForm() {
     try {
       const normalizedEmail = data.email.trim().toLowerCase();
 
+      // Security: Show same success message to prevent email enumeration attacks
+      // (OWASP recommendation: consistent messages for existent/non-existent accounts)
       if (hasSubmittedEmail(normalizedEmail)) {
         // Clear any existing toasts before showing new one
         toast.toasts.forEach((t) => toast.dismissToast(t.id));
 
-        toast.showInfo(
-          "This email is already subscribed to our newsletter.",
-          5000
-        );
+        toast.showSuccess("Thank you for subscribing!", 5000);
         reset();
         emailInputRef.current?.focus();
         return;
@@ -76,11 +75,8 @@ export function FooterNewsletterForm() {
 
       if (response.success) {
         recordSubmittedEmail(normalizedEmail);
-        if (response.duplicate) {
-          toast.showInfo(response.message, 5000);
-        } else {
-          toast.showSuccess(response.message, 5000);
-        }
+        // Always show success toast (server no longer returns duplicate flag)
+        toast.showSuccess(response.message, 5000);
         reset(); // Clear form on success
         emailInputRef.current?.focus();
       } else {

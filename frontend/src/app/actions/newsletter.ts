@@ -146,6 +146,8 @@ async function subscribeWithRetry(
       };
 
       // Handle duplicate email detection
+      // Security: Return same success message to prevent email enumeration attacks
+      // (OWASP recommendation: consistent messages for existent/non-existent accounts)
       if (err.message?.includes("Contact already exists")) {
         const duplicateEvent = {
           event: "newsletter_duplicate_detected",
@@ -154,10 +156,10 @@ async function subscribeWithRetry(
         };
         console.log(`[Newsletter] ${JSON.stringify(duplicateEvent)}`);
 
+        // Return identical message as new subscription to prevent enumeration
         return {
           success: true,
-          message: "This email is already subscribed to our newsletter.",
-          duplicate: true,
+          message: "Thank you for subscribing!",
         } as NewsletterResponse;
       }
 
