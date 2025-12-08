@@ -9,7 +9,7 @@ import { AnnouncementPill } from "./announcement-pill";
 import type { AnnouncementIconName } from "./announcement-pill";
 
 interface HeroSectionProps {
-  quickLinks?: QuickAccessLink[];
+  _quickLinks?: QuickAccessLink[];
   /** Optional announcement to display above the hero content */
   announcement?: {
     id: string;
