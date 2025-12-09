@@ -54,7 +54,7 @@ export function ExploreHeritageSection({
   categories = defaultCategories,
 }: ExploreHeritageSectionProps) {
   return (
-    <section className="bg-background-secondary relative z-20 -mt-20 rounded-t-[3rem] py-20">
+    <section className="bg-background-secondary relative z-20 -mt-20 rounded-t-[3rem] py-20 shadow-[0_-30px_60px_-15px_rgba(0,0,0,0.5)]">
       <div className="container mx-auto px-4 md:px-6">
         <SectionHeader
           title="Explore Our Heritage"

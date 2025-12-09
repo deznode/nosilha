@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import {
-  HeroSection,
+  // HeroSection, // Original hero - kept for reference
   ExploreHeritageSection,
   // LivingCultureSection, // TODO: Re-enable when events feature is complete
   FeaturedStoriesSection,
@@ -11,16 +11,18 @@ import {
   NewsletterCtaSection,
 } from "@/components/landing";
 import type { DirectoryEntry } from "@/types/directory";
-import type { AnnouncementConfig } from "@/types/landing";
+// import type { AnnouncementConfig } from "@/types/landing";
+import { HeroSectionAtmospheric } from "../landing/hero-section-atmospheric";
 
-const worldCupAnnouncement: AnnouncementConfig = {
-  id: "world-cup-2026",
-  href: "https://www.bbc.com/sport/football/articles/c04q0gd0yedo",
-  text: "Tubarões Azuis: Mundial 2026! Read the full story",
-  badge: "News",
-  icon: "trophy",
-  dismissible: false,
-};
+// World Cup announcement - kept for future use
+// const worldCupAnnouncement: AnnouncementConfig = {
+//   id: "world-cup-2026",
+//   href: "https://www.bbc.com/sport/football/articles/c04q0gd0yedo",
+//   text: "Tubarões Azuis: Mundial 2026! Read the full story",
+//   badge: "News",
+//   icon: "trophy",
+//   dismissible: false,
+// };
 
 export interface HomePageContentProps {
   featuredEntries?: DirectoryEntry[];
@@ -36,7 +38,7 @@ const fadeInUp = {
 
 export function HomePageContent({ featuredEntries }: HomePageContentProps) {
   return (
-    <main className="bg-canvas text-body relative overflow-hidden transition-colors duration-700">
+    <main className="bg-canvas text-body relative -mt-16 overflow-hidden transition-colors duration-700">
       {/* === Atmospheric "Bruma" Layer === */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
         {/* Subtle gradient blob that breathes with the page */}
@@ -45,12 +47,12 @@ export function HomePageContent({ featuredEntries }: HomePageContentProps) {
       </div>
 
       {/* === Content Layer (Z-10 to sit above mist) === */}
-      <div className="relative z-10">
-        <HeroSection announcement={worldCupAnnouncement} />
+      <div className="bg-background-secondary relative z-10">
+        {/* <HeroSection announcement={worldCupAnnouncement} /> */}
+        <HeroSectionAtmospheric />
 
-        <motion.div {...fadeInUp}>
-          <ExploreHeritageSection />
-        </motion.div>
+        {/* ExploreHeritageSection has its own scroll-linked parallax animation */}
+        <ExploreHeritageSection />
 
         {/* TODO: Re-enable when events feature is complete
         <motion.div {...fadeInUp}>

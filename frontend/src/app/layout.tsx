@@ -165,7 +165,10 @@ export default function RootLayout({
               <div className="flex min-h-screen flex-col">
                 {/* 3. Render the global Header, main content, and Footer */}
                 <Header className="print:hidden" />
-                <main id="main-content" className="animate-fade-in flex-grow">
+                <main
+                  id="main-content"
+                  className="animate-fade-in flex-grow pt-16"
+                >
                   {children}
                 </main>
                 <div className="print:hidden">
