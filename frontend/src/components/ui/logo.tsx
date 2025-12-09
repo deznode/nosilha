@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useId } from "react";
+import clsx from "clsx";
 
 // --- Blooming Hibiscus Icon ---
 
@@ -44,6 +45,12 @@ const petalLayerVariants = {
 };
 
 function BloomingHibiscus({ className }: { className?: string }) {
+  // IMPROVEMENT 1: Generate unique IDs for gradients/filters
+  // This prevents conflicts when the logo appears multiple times (Header + Footer)
+  const uniqueId = useId();
+  const gradientId = `petalGradient-${uniqueId}`;
+  const glowId = `glow-${uniqueId}`;
+
   return (
     <motion.svg
       viewBox="0 0 100 100"
@@ -55,11 +62,11 @@ function BloomingHibiscus({ className }: { className?: string }) {
       whileHover="hover"
     >
       <defs>
-        <linearGradient id="petalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#E91E63" /> {/* Bougainvillea Pink */}
           <stop offset="100%" stopColor="#9C27B0" /> {/* Deep Purple */}
         </linearGradient>
-        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+        <filter id={glowId} x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur stdDeviation="2" result="blur" />
           <feComposite in="SourceGraphic" in2="blur" operator="over" />
         </filter>
@@ -67,65 +74,27 @@ function BloomingHibiscus({ className }: { className?: string }) {
 
       {/* Outer Petals */}
       <motion.g custom={1} variants={petalLayerVariants}>
-        <path
-          d="M50 20 C60 5, 80 20, 80 40 C80 60, 60 70, 50 50"
-          fill="url(#petalGradient)"
-          className="opacity-90"
-          transform="rotate(0 50 50)"
-        />
-        <path
-          d="M50 20 C60 5, 80 20, 80 40 C80 60, 60 70, 50 50"
-          fill="url(#petalGradient)"
-          className="opacity-90"
-          transform="rotate(72 50 50)"
-        />
-        <path
-          d="M50 20 C60 5, 80 20, 80 40 C80 60, 60 70, 50 50"
-          fill="url(#petalGradient)"
-          className="opacity-90"
-          transform="rotate(144 50 50)"
-        />
-        <path
-          d="M50 20 C60 5, 80 20, 80 40 C80 60, 60 70, 50 50"
-          fill="url(#petalGradient)"
-          className="opacity-90"
-          transform="rotate(216 50 50)"
-        />
-        <path
-          d="M50 20 C60 5, 80 20, 80 40 C80 60, 60 70, 50 50"
-          fill="url(#petalGradient)"
-          className="opacity-90"
-          transform="rotate(288 50 50)"
-        />
+        {[0, 72, 144, 216, 288].map((rotation, i) => (
+          <path
+            key={i}
+            d="M50 20 C60 5, 80 20, 80 40 C80 60, 60 70, 50 50"
+            fill={`url(#${gradientId})`}
+            className="opacity-90"
+            transform={`rotate(${rotation} 50 50)`}
+          />
+        ))}
       </motion.g>
 
       {/* Inner Petals (Lighter/Smaller) */}
       <motion.g custom={2} variants={petalLayerVariants}>
-        <path
-          d="M50 35 C55 25, 70 35, 70 45 C70 55, 60 60, 50 50"
-          fill="#FF80AB" // Lighter pink
-          transform="rotate(36 50 50)"
-        />
-        <path
-          d="M50 35 C55 25, 70 35, 70 45 C70 55, 60 60, 50 50"
-          fill="#FF80AB"
-          transform="rotate(108 50 50)"
-        />
-        <path
-          d="M50 35 C55 25, 70 35, 70 45 C70 55, 60 60, 50 50"
-          fill="#FF80AB"
-          transform="rotate(180 50 50)"
-        />
-        <path
-          d="M50 35 C55 25, 70 35, 70 45 C70 55, 60 60, 50 50"
-          fill="#FF80AB"
-          transform="rotate(252 50 50)"
-        />
-        <path
-          d="M50 35 C55 25, 70 35, 70 45 C70 55, 60 60, 50 50"
-          fill="#FF80AB"
-          transform="rotate(324 50 50)"
-        />
+        {[36, 108, 180, 252, 324].map((rotation, i) => (
+          <path
+            key={i}
+            d="M50 35 C55 25, 70 35, 70 45 C70 55, 60 60, 50 50"
+            fill="#FF80AB" // Lighter pink
+            transform={`rotate(${rotation} 50 50)`}
+          />
+        ))}
       </motion.g>
 
       {/* Center Pistil */}
@@ -181,14 +150,33 @@ const textVariants = {
   },
 };
 
+export interface NosilhaLogoProps {
+  showSubtitle?: boolean;
+  className?: string;
+  variant?: "default" | "light"; // IMPROVEMENT 2: Native Light/Dark Mode support
+}
+
 export function NosilhaLogo({
   showSubtitle = false,
   className = "",
-}: {
-  showSubtitle?: boolean;
-  className?: string;
-}) {
+  variant = "default",
+}: NosilhaLogoProps) {
   const [_isHovered, setIsHovered] = useState(false);
+
+  // Determine text colors based on variant
+  // "light" variant is for dark backgrounds (like the Hero image)
+  const textColor = variant === "light" ? "text-white" : "text-text-primary";
+  // On dark backgrounds, standard Ocean Blue is too dark. We use Sky-400 (Brighter Blue) for contrast.
+  const brandColor =
+    variant === "light" ? "text-sky-400 drop-shadow-sm" : "text-ocean-blue";
+
+  // IMPROVEMENT 3: Enhanced Subtitle Contrast
+  // Light mode: Uses warm Amber-50 with shadow for readability on dark mountain images.
+  // Default mode: Uses branded Ocean Blue Light instead of generic gray.
+  const subtitleColor =
+    variant === "light"
+      ? "text-amber-50 drop-shadow-md font-medium"
+      : "text-ocean-blue-light font-medium";
 
   return (
     <motion.div
@@ -211,13 +199,19 @@ export function NosilhaLogo({
         <div className="flex items-baseline leading-none">
           <motion.span
             variants={textVariants}
-            className="text-text-primary font-serif text-3xl font-black tracking-tight md:text-4xl"
+            className={clsx(
+              "font-serif text-3xl font-black tracking-tight transition-colors md:text-4xl",
+              textColor
+            )}
           >
             Nos
           </motion.span>
           <motion.span
             variants={textVariants}
-            className="text-ocean-blue font-serif text-3xl font-black tracking-tight md:text-4xl"
+            className={clsx(
+              "font-serif text-3xl font-black tracking-tight transition-colors md:text-4xl",
+              brandColor
+            )}
           >
             Ilha
           </motion.span>
@@ -231,8 +225,13 @@ export function NosilhaLogo({
             animate={{ height: "auto", opacity: 1 }}
             transition={{ delay: 0.6, duration: 0.5 }}
           >
-            <p className="text-text-secondary text-[0.65rem] font-bold tracking-[0.25em] uppercase md:text-[0.75rem]">
-              Brava, Cape Verde
+            <p
+              className={clsx(
+                "text-[0.65rem] tracking-[0.25em] uppercase transition-colors md:text-[0.75rem]",
+                subtitleColor
+              )}
+            >
+              Brava, Cabo Verde
             </p>
           </motion.div>
         )}

@@ -212,7 +212,7 @@ export function HeroSectionAtmospheric({
             />
             <span className="hidden items-center gap-1.5 text-xs font-medium tracking-wide text-stone-300 uppercase shadow-sm sm:flex">
               <MapPin size={12} aria-hidden="true" />
-              Ilha das Flores &bull; Cape Verde
+              Ilha das Flores &bull; Cabo Verde
             </span>
           </motion.div>
 

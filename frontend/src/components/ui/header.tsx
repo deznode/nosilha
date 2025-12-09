@@ -125,14 +125,32 @@ export function Header({
     router.refresh();
   };
 
+  // --- CONTRAST LOGIC ---
+  // If we are on the Home page AND haven't scrolled yet, we are sitting on top
+  // of the dark atmospheric hero. We need White text.
+  // Otherwise, we use the standard dark/brand colors.
+  const isTransparent = pathname === "/" && !scrolled;
+
+  const textColorClass = isTransparent
+    ? "text-white/90 hover:text-white"
+    : "text-text-secondary hover:text-ocean-blue";
+
+  const activeLinkClass = isTransparent
+    ? "border-white text-white"
+    : "border-ocean-blue text-ocean-blue";
+
+  const iconClass = isTransparent
+    ? "text-white/80 hover:text-white hover:bg-white/10"
+    : "text-text-secondary hover:text-ocean-blue hover:bg-background-secondary";
+
   return (
     <Disclosure
       as="nav"
       className={clsx(
         "fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ease-in-out",
         scrolled
-          ? "glass-panel border-b border-white/10"
-          : "border-transparent bg-transparent",
+          ? "glass-panel border-b border-white/10 py-0" // Standard height when scrolled
+          : "border-transparent bg-transparent py-2", // Little extra padding when transparent for "breathing room"
         className
       )}
       defaultOpen={defaultMobileMenuOpen}
@@ -144,7 +162,12 @@ export function Header({
               {/* Left Section: Logo & Mobile Menu Trigger */}
               <div className="flex items-center">
                 <div className="mr-2 flex md:hidden">
-                  <DisclosureButton className="group text-text-secondary hover:bg-background-secondary focus:ring-ocean-blue relative inline-flex items-center justify-center rounded-md p-2 transition-colors focus:ring-2 focus:outline-none focus:ring-inset">
+                  <DisclosureButton
+                    className={clsx(
+                      "group relative inline-flex items-center justify-center rounded-md p-2 transition-colors focus:ring-2 focus:outline-none focus:ring-inset",
+                      iconClass
+                    )}
+                  >
                     <span className="sr-only">Open main menu</span>
                     {open ? (
                       <X className="block h-6 w-6" aria-hidden="true" />
@@ -156,8 +179,25 @@ export function Header({
                 <div className="flex shrink-0 items-center">
                   <Link
                     href="/"
-                    className="transition-opacity hover:opacity-90"
+                    className="group relative flex items-center transition-opacity hover:opacity-95"
                   >
+                    {/* ARTISTIC BACKLIGHT (The "Mist Halo"):
+                       Instead of changing the logo color, we place a soft, radiant "dawn light" 
+                       behind it. This ensures the dark "Nos Ilha" text is readable against the 
+                       dark mountains, while keeping the brand colors vibrant.
+                    */}
+                    <div
+                      className={clsx(
+                        "absolute top-1/2 left-1/2 -z-10 h-[180%] w-[160%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl transition-opacity duration-700",
+                        isTransparent ? "opacity-100" : "opacity-0"
+                      )}
+                      style={{
+                        background:
+                          "radial-gradient(closest-side, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.4) 40%, transparent 100%)",
+                      }}
+                    />
+
+                    {/* Render the Logo in its original, vibrant colors */}
                     <NosilhaLogo showSubtitle={true} />
                   </Link>
                 </div>
@@ -179,8 +219,8 @@ export function Header({
                         className={clsx(
                           "inline-flex items-center border-b-2 px-1 pt-1 text-sm font-semibold transition-colors duration-200",
                           isCurrent
-                            ? "border-ocean-blue text-ocean-blue"
-                            : "text-text-secondary hover:text-ocean-blue border-transparent"
+                            ? activeLinkClass
+                            : `border-transparent ${textColorClass}`
                         )}
                       >
                         {item.name}
@@ -193,15 +233,18 @@ export function Header({
                               className={clsx(
                                 "group inline-flex items-center border-b-2 px-1 pt-1 text-sm font-semibold transition-colors duration-200 outline-none",
                                 open || isCurrent
-                                  ? "border-ocean-blue text-ocean-blue"
-                                  : "text-text-secondary hover:text-ocean-blue border-transparent"
+                                  ? activeLinkClass
+                                  : `border-transparent ${textColorClass}`
                               )}
                             >
                               <span>{item.name}</span>
                               <ChevronDown
                                 className={clsx(
                                   "ml-1 h-4 w-4 transition duration-200",
-                                  open && "rotate-180"
+                                  open && "rotate-180",
+                                  isTransparent
+                                    ? "text-white/70"
+                                    : "text-text-tertiary"
                                 )}
                                 aria-hidden="true"
                               />
@@ -216,6 +259,9 @@ export function Header({
                               leaveFrom="opacity-100 translate-y-0"
                               leaveTo="opacity-0 translate-y-1"
                             >
+                              {/* DROPDOWNS: These ALWAYS need a solid background (White or Dark Mode Grey).
+                                  We do NOT want these to be transparent.
+                              */}
                               <PopoverPanel className="absolute left-1/2 z-10 mt-3 w-screen max-w-xs -translate-x-1/2 transform px-2 sm:px-0">
                                 <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black/5">
                                   <div className="bg-background-primary relative grid gap-6 px-5 py-6 sm:gap-8 sm:p-8">
@@ -255,7 +301,10 @@ export function Header({
               <div className="flex items-center space-x-2 md:space-x-4">
                 {/* Search Trigger */}
                 <button
-                  className="text-text-secondary hover:text-ocean-blue hover:bg-background-secondary rounded-full p-2 transition-colors"
+                  className={clsx(
+                    "rounded-full p-2 transition-colors",
+                    iconClass
+                  )}
                   aria-label="Search"
                 >
                   <Search className="h-5 w-5" />
@@ -264,12 +313,18 @@ export function Header({
                 <div className="hidden items-center space-x-3 md:flex">
                   {/* Language Selector (Desktop) */}
                   <Menu as="div" className="relative">
-                    <MenuButton className="text-text-secondary hover:text-ocean-blue hover:bg-background-secondary flex items-center gap-1 rounded-full p-2 text-sm font-semibold transition-colors">
+                    <MenuButton
+                      className={clsx(
+                        "flex items-center gap-1 rounded-full p-2 text-sm font-semibold transition-colors",
+                        iconClass
+                      )}
+                    >
                       <Globe className="h-5 w-5" />
                       <span className="hidden lg:inline">
                         {currentLang.code}
                       </span>
                     </MenuButton>
+                    {/* Dropdowns remain standard solid colors */}
                     <Transition
                       as={Fragment}
                       enter="transition ease-out duration-100"
@@ -319,7 +374,12 @@ export function Header({
                       </MenuItems>
                     </Transition>
                   </Menu>
-                  <div className="bg-border-primary mx-1 h-6 w-px" />{" "}
+                  <div
+                    className={clsx(
+                      "mx-1 h-6 w-px",
+                      isTransparent ? "bg-white/30" : "bg-border-primary"
+                    )}
+                  />{" "}
                   {/* Divider */}
                   <Link
                     href="/contribute"
@@ -341,7 +401,14 @@ export function Header({
                   {/* Auth / Profile Section */}
                   {session ? (
                     <Menu as="div" className="relative ml-2">
-                      <MenuButton className="bg-background-secondary text-text-secondary hover:text-ocean-blue hover:ring-ocean-blue/20 flex h-8 w-8 items-center justify-center rounded-full transition-all hover:ring-2 focus:outline-none">
+                      <MenuButton
+                        className={clsx(
+                          "flex h-8 w-8 items-center justify-center rounded-full transition-all focus:outline-none",
+                          isTransparent
+                            ? "bg-white/20 text-white ring-white/30 hover:bg-white/30"
+                            : "bg-background-secondary text-text-secondary hover:text-ocean-blue hover:ring-ocean-blue/20"
+                        )}
+                      >
                         <span className="sr-only">Open user menu</span>
                         <UserCircle className="h-6 w-6" aria-hidden="true" />
                       </MenuButton>
@@ -363,6 +430,7 @@ export function Header({
                               {session.user.email}
                             </p>
                           </div>
+                          {/* ... Keep existing menu items ... */}
                           <div className="py-1">
                             <MenuItem>
                               {({ active }) => (
@@ -419,13 +487,19 @@ export function Header({
                     <div className="flex items-center gap-3 pl-2">
                       <Link
                         href="/login"
-                        className="text-text-primary hover:text-ocean-blue text-sm font-semibold transition-colors"
+                        className={clsx(
+                          "text-sm font-semibold transition-colors",
+                          textColorClass
+                        )}
                       >
                         Log in
                       </Link>
                       <Link
                         href="/signup"
-                        className="text-text-primary hover:text-ocean-blue text-sm font-semibold transition-colors"
+                        className={clsx(
+                          "text-sm font-semibold transition-colors",
+                          textColorClass
+                        )}
                       >
                         Sign up
                       </Link>
@@ -436,7 +510,7 @@ export function Header({
             </div>
           </div>
 
-          {/* Mobile Menu Panel */}
+          {/* Mobile Menu Panel - Standard background (not transparent) so links are readable */}
           <DisclosurePanel className="bg-background-primary border-border-primary max-h-[85vh] overflow-y-auto border-t md:hidden">
             <div className="space-y-1 pt-2 pb-3">
               {navigation.map((item, index) =>
