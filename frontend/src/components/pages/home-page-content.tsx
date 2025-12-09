@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import {
   HeroSection,
   ExploreHeritageSection,
-  LivingCultureSection,
+  // LivingCultureSection, // TODO: Re-enable when events feature is complete
   FeaturedStoriesSection,
   CommunityStatsSection,
   MapTeaserSection,
@@ -52,9 +52,11 @@ export function HomePageContent({ featuredEntries }: HomePageContentProps) {
           <ExploreHeritageSection />
         </motion.div>
 
+        {/* TODO: Re-enable when events feature is complete
         <motion.div {...fadeInUp}>
           <LivingCultureSection />
         </motion.div>
+        */}
 
         <motion.div {...fadeInUp}>
           <FeaturedStoriesSection entries={featuredEntries} />
