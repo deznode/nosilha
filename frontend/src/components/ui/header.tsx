@@ -129,7 +129,7 @@ export function Header({
     <Disclosure
       as="nav"
       className={clsx(
-        "sticky top-0 z-50 border-b transition-all duration-300 ease-in-out",
+        "fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ease-in-out",
         scrolled
           ? "glass-panel border-b border-white/10"
           : "border-transparent bg-transparent",
