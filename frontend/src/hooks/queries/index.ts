@@ -7,3 +7,4 @@ export * from "./useDirectoryEntries";
 export * from "./useDirectoryEntry";
 export * from "./useMediaMetadata";
 export * from "./useUserProfile";
+export * from "./useUnifiedSearch";

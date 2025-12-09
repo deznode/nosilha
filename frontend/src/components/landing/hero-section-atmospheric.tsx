@@ -4,15 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, useScroll, useTransform } from "framer-motion";
-import {
-  Search,
-  ArrowRight,
-  Heart,
-  BookOpen,
-  MapPin,
-  Users,
-  ChevronDown,
-} from "lucide-react";
+import { Heart, BookOpen, MapPin, Users, ChevronDown } from "lucide-react";
+import { UnifiedSearch } from "@/components/search";
 
 interface HeroSectionAtmosphericProps {
   className?: string;
@@ -23,7 +16,6 @@ export function HeroSectionAtmospheric({
 }: HeroSectionAtmosphericProps) {
   const router = useRouter();
   const [searchFocused, setSearchFocused] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   // Scroll-linked opacity for scroll indicator - fades out as user scrolls
   const { scrollYProgress } = useScroll();
@@ -40,13 +32,6 @@ export function HeroSectionAtmospheric({
 
   const handleContribute = () => {
     router.push("/contribute");
-  };
-
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/directory?q=${encodeURIComponent(searchQuery)}`);
-    }
   };
 
   const handleScrollDown = () => {
@@ -286,7 +271,7 @@ export function HeroSectionAtmospheric({
               aria-hidden="true"
             />
 
-            {/* Atmospheric Search Bar */}
+            {/* Atmospheric Search Bar with Unified Search */}
             <div
               className={`group relative w-full transition-all duration-500 ease-out ${searchFocused ? "md:w-96" : "md:w-80"}`}
             >
@@ -294,34 +279,14 @@ export function HeroSectionAtmospheric({
                 className={`absolute inset-0 rounded-lg bg-gradient-to-r from-amber-500/20 to-teal-500/20 opacity-0 blur transition-opacity duration-700 group-hover:opacity-100 ${searchFocused ? "opacity-100" : ""}`}
               />
 
-              <form
-                onSubmit={handleSearch}
-                className="relative flex items-center overflow-hidden rounded-lg border border-white/20 bg-stone-900/60 shadow-inner backdrop-blur-md transition-colors focus-within:border-white/40 focus-within:bg-stone-900/80 hover:border-white/30"
-              >
-                <Search
-                  size={18}
-                  className="ml-4 text-stone-400"
-                  aria-hidden="true"
-                />
-                <input
-                  type="text"
-                  placeholder="Search history, towns, or stories..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full flex-1 border-none bg-transparent px-3 py-3.5 text-sm text-stone-200 placeholder-stone-400 outline-none focus:ring-0"
-                  onFocus={() => setSearchFocused(true)}
-                  onBlur={() => setSearchFocused(false)}
-                  aria-label="Search history, towns, or stories"
-                />
-                <motion.button
-                  type="submit"
-                  whileHover={{ x: 3 }}
-                  className="pr-3 text-stone-400 hover:text-white"
-                  aria-label="Submit search"
-                >
-                  <ArrowRight size={16} />
-                </motion.button>
-              </form>
+              <UnifiedSearch
+                variant="hero"
+                placeholder="Search history, towns, or stories..."
+                onFocusChange={setSearchFocused}
+                onSearchSubmit={(query) =>
+                  router.push(`/directory?q=${encodeURIComponent(query)}`)
+                }
+              />
             </div>
           </motion.div>
         </motion.div>
