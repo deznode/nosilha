@@ -244,7 +244,7 @@ export default function EventDetailPage() {
                   <button className="bg-ocean-blue hover:bg-ocean-blue/90 flex items-center justify-center rounded-xl px-4 py-3 font-bold text-white shadow-md transition-all">
                     Register Now
                   </button>
-                  <button className="text-text-secondary border-border-secondary hover:bg-mist-100 flex items-center justify-center rounded-xl border bg-white px-4 py-3 font-bold transition-all">
+                  <button className="text-text-secondary border-border-secondary hover:bg-mist-100 dark:hover:bg-basalt-800 dark:bg-basalt-800 flex items-center justify-center rounded-xl border bg-white px-4 py-3 font-bold transition-all">
                     <Share2 size={18} className="mr-2" /> Share
                   </button>
                 </div>

@@ -70,7 +70,7 @@ export function EventFilters({
                 className={`rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
                   filterType === type
                     ? "bg-ocean-blue text-white shadow-md"
-                    : "text-text-secondary border-border-secondary hover:bg-mist-50 border bg-white"
+                    : "text-text-secondary border-border-secondary hover:bg-mist-50 dark:hover:bg-basalt-800/50 dark:bg-basalt-800 border bg-white"
                 }`}
               >
                 {type}

@@ -28,7 +28,7 @@ export function CitationSection({ citations }: CitationSectionProps) {
         </div>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="hover:bg-mist-200 rounded-full p-2"
+          className="hover-surface-strong rounded-full p-2"
         >
           <ChevronDown
             className={`text-basalt-500 h-6 w-6 transition-transform ${

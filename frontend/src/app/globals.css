@@ -295,6 +295,19 @@
     @apply focus-visible:ring-ocean-blue focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
   }
 
+  /* Semantic hover surface utilities
+   * Based on Material Design elevation model:
+   * - Light mode: darker surface on hover (shadow metaphor)
+   * - Dark mode: lighter surface on hover (elevation = closer to light source)
+   */
+  .hover-surface {
+    @apply hover:bg-mist-50 dark:hover:bg-basalt-800/50;
+  }
+
+  .hover-surface-strong {
+    @apply hover:bg-mist-200 dark:hover:bg-basalt-800;
+  }
+
   /* Glassmorphism Utilities */
   .glass-panel {
     @apply border border-white/20 bg-white/10 shadow-xl backdrop-blur-md;

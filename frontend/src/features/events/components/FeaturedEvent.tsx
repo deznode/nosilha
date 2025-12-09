@@ -71,7 +71,7 @@ export function FeaturedEvent({ event }: FeaturedEventProps) {
             <button className="bg-ocean-blue hover:bg-ocean-blue/90 flex-1 rounded-lg px-4 py-3 font-bold text-white transition-colors">
               Event Details
             </button>
-            <button className="border-border-primary text-text-secondary hover:bg-mist-50 rounded-lg border p-3">
+            <button className="border-border-primary text-text-secondary hover:bg-mist-50 dark:hover:bg-basalt-800/50 dark:bg-basalt-800 rounded-lg border bg-white p-3">
               <Share2 size={20} />
             </button>
           </div>

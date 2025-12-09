@@ -174,7 +174,7 @@ export function TownsPageContent({
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-background-primary border-border-primary hover:bg-mist-50 rounded-lg border p-6 shadow-sm transition-all duration-300 hover:shadow-md"
+                className="bg-background-primary border-border-primary hover-surface rounded-lg border p-6 shadow-sm transition-all duration-300 hover:shadow-md"
               >
                 <div className="flex items-start space-x-4">
                   <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg">
