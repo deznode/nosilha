@@ -40,8 +40,8 @@ export function CategoryCard({
         {description}
       </p>
 
-      {/* Hover reveal arrow */}
-      <div className="text-ocean-blue absolute bottom-6 left-6 flex -translate-x-4 items-center text-sm font-bold opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100">
+      {/* CTA - Always visible on mobile, hover reveal on desktop */}
+      <div className="text-ocean-blue absolute bottom-6 left-6 flex items-center text-sm font-bold opacity-100 transition-all duration-300 md:-translate-x-4 md:opacity-0 md:group-hover:translate-x-0 md:group-hover:opacity-100">
         Explore Section <ArrowRight size={16} className="ml-1" />
       </div>
     </Link>

@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { Calendar, ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { KrioluProverbCard } from "./kriolu-proverb-card";
 import { WeatherWidget } from "./weather-widget";
 import { EventCard, type EventItem } from "@/features/events";
 import type { KrioluProverb, WeatherData } from "@/types/landing";
+import { springs, stagger } from "@/lib/animation/tokens";
 
 interface LivingCultureSectionProps {
   events?: EventItem[];
@@ -53,6 +54,52 @@ const defaultWeather: WeatherData = {
   condition: "partly-cloudy",
 };
 
+// Animation variants with spring physics for smooth, natural motion
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: stagger.default,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const cardVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 24,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: springs.snappy,
+  },
+};
+
+// Right column uses x-axis entrance (intentional design choice)
+const slideInVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    x: 20,
+  },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: springs.snappy,
+  },
+};
+
+// Simplified variants for users who prefer reduced motion
+const reducedMotionVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.3 },
+  },
+};
+
 /**
  * LivingCultureSection - Events + Language + Weather
  *
@@ -65,6 +112,14 @@ export function LivingCultureSection({
   proverb = defaultProverb,
   weather = defaultWeather,
 }: LivingCultureSectionProps) {
+  const shouldReduceMotion = useReducedMotion();
+  const activeCardVariants = shouldReduceMotion
+    ? reducedMotionVariants
+    : cardVariants;
+  const activeSlideVariants = shouldReduceMotion
+    ? reducedMotionVariants
+    : slideInVariants;
+
   return (
     <section className="bg-background-primary border-border-secondary border-y py-20">
       <div className="container mx-auto px-4 md:px-6">
@@ -73,10 +128,10 @@ export function LivingCultureSection({
           <div className="lg:w-2/3">
             <div className="mb-8 flex items-center justify-between">
               <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial="hidden"
+                whileInView="visible"
                 viewport={{ once: true }}
-                transition={{ duration: 0.5 }}
+                variants={activeSlideVariants}
               >
                 <div className="text-ocean-blue mb-2 flex items-center space-x-2 text-sm font-bold tracking-widest uppercase">
                   <Calendar className="h-4 w-4" />
@@ -94,25 +149,34 @@ export function LivingCultureSection({
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {events.map((event, index) => (
+            {/* Events Grid with container stagger animation */}
+            <motion.div
+              className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.2 }}
+            >
+              {events.map((event) => (
                 <motion.div
                   key={event.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
+                  variants={activeCardVariants}
+                  whileHover={
+                    shouldReduceMotion
+                      ? undefined
+                      : { y: -4, transition: springs.hover }
+                  }
                 >
                   <EventCard event={event} />
                 </motion.div>
               ))}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: events.length * 0.1 }}
-                whileHover={{ scale: 1.02 }}
+                variants={activeCardVariants}
+                whileHover={
+                  shouldReduceMotion
+                    ? undefined
+                    : { scale: 1.02, transition: springs.hover }
+                }
               >
                 <Link
                   href="/events"
@@ -127,30 +191,38 @@ export function LivingCultureSection({
                   </span>
                 </Link>
               </motion.div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Right: Kriolu Corner + Weather Widget */}
-          <div className="flex flex-col gap-6 lg:w-1/3">
+          <motion.div
+            className="flex flex-col gap-6 lg:w-1/3"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              whileHover={{ scale: 1.02 }}
+              variants={activeSlideVariants}
+              whileHover={
+                shouldReduceMotion
+                  ? undefined
+                  : { scale: 1.02, transition: springs.hover }
+              }
             >
               <KrioluProverbCard {...proverb} />
             </motion.div>
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              whileHover={{ scale: 1.02 }}
+              variants={activeSlideVariants}
+              whileHover={
+                shouldReduceMotion
+                  ? undefined
+                  : { scale: 1.02, transition: springs.hover }
+              }
             >
               <WeatherWidget {...weather} />
             </motion.div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

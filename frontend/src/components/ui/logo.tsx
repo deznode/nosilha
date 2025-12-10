@@ -190,7 +190,7 @@ export function NosilhaLogo({
     >
       {/* Larger, more prominent icon */}
       <div className="relative h-14 w-14 shrink-0 md:h-16 md:w-16">
-        <div className="bg-bougainvillea-pink/10 absolute inset-0 scale-75 animate-pulse rounded-full blur-xl" />
+        <div className="bg-bougainvillea-pink/10 pointer-events-none absolute inset-0 scale-75 animate-pulse rounded-full blur-xl" />
         <BloomingHibiscus className="relative z-10 h-full w-full drop-shadow-lg" />
       </div>
 

@@ -22,3 +22,30 @@ export const motionDistance = {
   medium: 16,
   large: 24,
 } as const;
+
+/**
+ * Spring physics presets for Framer Motion animations.
+ * Use these for consistent, natural-feeling motion across the app.
+ */
+export const springs = {
+  /** Soft, ambient feel - for hero backgrounds, mist effects */
+  ambient: { type: "spring" as const, stiffness: 50, damping: 20 },
+  /** Snappy, responsive - for content section entrances */
+  snappy: { type: "spring" as const, stiffness: 200, damping: 20 },
+  /** Bouncy, playful - for icon micro-interactions */
+  bouncy: { type: "spring" as const, stiffness: 400, damping: 15 },
+  /** Quick response - for hover lift effects */
+  hover: { type: "spring" as const, stiffness: 300, damping: 25 },
+} as const;
+
+/**
+ * Stagger timing presets for container animations.
+ */
+export const stagger = {
+  /** Standard stagger for grid items */
+  default: 0.12,
+  /** Fast stagger for quick sequences */
+  fast: 0.08,
+  /** Slow stagger for dramatic reveals */
+  slow: 0.15,
+} as const;

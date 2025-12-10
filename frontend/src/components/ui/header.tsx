@@ -23,7 +23,6 @@ import {
   Map,
   Store,
   Sun,
-  Search,
   Globe,
   UserCircle,
   Plus,
@@ -188,7 +187,7 @@ export function Header({
                     */}
                     <div
                       className={clsx(
-                        "absolute top-1/2 left-1/2 -z-10 h-[180%] w-[160%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl transition-opacity duration-700",
+                        "pointer-events-none absolute top-1/2 left-1/2 -z-10 h-[180%] w-[160%] -translate-x-1/2 -translate-y-1/2 rounded-full blur-xl transition-opacity duration-700",
                         isTransparent ? "opacity-100" : "opacity-0"
                       )}
                       style={{
@@ -297,19 +296,8 @@ export function Header({
                 </PopoverGroup>
               </div>
 
-              {/* Right Section: Utilities (Search, Language, Actions, Auth) */}
+              {/* Right Section: Utilities (Language, Actions, Auth) */}
               <div className="flex items-center space-x-2 md:space-x-4">
-                {/* Search Trigger */}
-                <button
-                  className={clsx(
-                    "rounded-full p-2 transition-colors",
-                    iconClass
-                  )}
-                  aria-label="Search"
-                >
-                  <Search className="h-5 w-5" />
-                </button>
-
                 <div className="hidden items-center space-x-3 md:flex">
                   {/* Language Selector (Desktop) */}
                   <Menu as="div" className="relative">
@@ -511,144 +499,154 @@ export function Header({
           </div>
 
           {/* Mobile Menu Panel - Standard background (not transparent) so links are readable */}
-          <DisclosurePanel className="bg-background-primary border-border-primary max-h-[85vh] overflow-y-auto border-t md:hidden">
-            <div className="space-y-1 pt-2 pb-3">
-              {navigation.map((item, index) =>
-                item.type === "link" ? (
-                  <DisclosureButton
-                    key={item.name}
-                    as={Link}
-                    href={item.href || "#"}
-                    className={clsx(
-                      "animate-slide-up block border-l-4 py-2 pr-4 pl-3 text-base font-medium",
-                      pathname === item.href
-                        ? "border-ocean-blue bg-ocean-blue/5 text-ocean-blue"
-                        : "text-text-secondary hover:border-border-primary hover:bg-background-secondary hover:text-text-primary border-transparent"
-                    )}
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    {item.name}
-                  </DisclosureButton>
-                ) : (
-                  <Disclosure key={item.name} as="div" className="space-y-1">
-                    {({ open }) => (
-                      <>
-                        <DisclosureButton
-                          className="animate-slide-up group text-text-secondary hover:bg-background-secondary hover:text-text-primary flex w-full items-center justify-between border-l-4 border-transparent py-2 pr-4 pl-3 text-base font-medium"
-                          style={{ animationDelay: `${index * 50}ms` }}
-                        >
-                          {item.name}
-                          <ChevronDown
-                            className={clsx(
-                              "text-text-tertiary h-5 w-5 flex-none",
-                              open && "rotate-180"
-                            )}
-                            aria-hidden="true"
-                          />
-                        </DisclosureButton>
-                        <DisclosurePanel className="space-y-1">
-                          {item.items?.map((subItem, subIndex) => (
-                            <DisclosureButton
-                              key={subItem.name}
-                              as={Link}
-                              href={subItem.href}
-                              className="animate-slide-up group text-text-secondary hover:text-ocean-blue hover:bg-background-secondary flex w-full items-center border-l-4 border-transparent py-2 pr-4 pl-10 text-sm font-medium"
-                              style={{
-                                animationDelay: `${(index + subIndex + 1) * 50}ms`,
-                              }}
-                            >
-                              <subItem.icon className="group-hover:text-ocean-blue text-text-tertiary mr-3 h-5 w-5 flex-shrink-0" />
-                              {subItem.name}
-                            </DisclosureButton>
-                          ))}
-                        </DisclosurePanel>
-                      </>
-                    )}
-                  </Disclosure>
-                )
-              )}
-            </div>
-
-            {/* Mobile Actions / Language / Auth */}
-            <div className="border-border-primary border-t pt-4 pb-3">
-              {/* Language Selection Mobile */}
-              <div className="mb-4 px-4">
-                <div className="text-text-tertiary mb-2 text-xs font-semibold tracking-wider uppercase">
-                  Language
-                </div>
-                <div className="flex space-x-2">
-                  {languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => !lang.disabled && setCurrentLang(lang)}
-                      disabled={lang.disabled}
-                      title={lang.disabled ? "Coming soon" : undefined}
+          <Transition
+            as={Fragment}
+            enter="transition duration-200 ease-out"
+            enterFrom="opacity-0 -translate-y-2"
+            enterTo="opacity-100 translate-y-0"
+            leave="transition duration-150 ease-in"
+            leaveFrom="opacity-100 translate-y-0"
+            leaveTo="opacity-0 -translate-y-2"
+          >
+            <DisclosurePanel className="bg-background-primary border-border-primary max-h-[85vh] overflow-y-auto border-t md:hidden">
+              <div className="space-y-1 pt-2 pb-3">
+                {navigation.map((item, index) =>
+                  item.type === "link" ? (
+                    <DisclosureButton
+                      key={item.name}
+                      as={Link}
+                      href={item.href || "#"}
                       className={clsx(
-                        "flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
-                        lang.disabled
-                          ? "border-border-primary text-text-tertiary cursor-not-allowed bg-transparent opacity-40"
-                          : currentLang.code === lang.code
-                            ? "bg-ocean-blue border-ocean-blue text-white"
-                            : "text-text-secondary border-border-primary hover:border-ocean-blue bg-transparent"
+                        "animate-slide-up block border-l-4 py-2 pr-4 pl-3 text-base font-medium",
+                        pathname === item.href
+                          ? "border-ocean-blue bg-ocean-blue/5 text-ocean-blue"
+                          : "text-text-secondary hover:border-border-primary hover:bg-background-secondary hover:text-text-primary border-transparent"
                       )}
+                      style={{ animationDelay: `${index * 50}ms` }}
                     >
-                      <span>{lang.flag}</span>
-                      {lang.code}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-3 px-4">
-                <div className="flex-grow">
-                  {session ? (
-                    <div className="text-text-primary text-base font-medium">
-                      {session.user.email}
-                    </div>
+                      {item.name}
+                    </DisclosureButton>
                   ) : (
-                    <div className="text-text-secondary text-base font-medium">
-                      Guest User
-                    </div>
-                  )}
-                </div>
-                <ThemeToggle />
-              </div>
-              <div className="mt-3 space-y-1 px-2">
-                <Link
-                  href="/contribute"
-                  className="text-ocean-blue hover:bg-ocean-blue/10 block rounded-md px-3 py-2 text-base font-medium"
-                >
-                  + Contribute to Archive
-                </Link>
-                {session ? (
-                  <DisclosureButton
-                    as="button"
-                    onClick={handleLogout}
-                    className="text-text-secondary hover:bg-background-secondary block w-full rounded-md px-3 py-2 text-left text-base font-medium"
-                  >
-                    Sign out
-                  </DisclosureButton>
-                ) : (
-                  <>
-                    <DisclosureButton
-                      as={Link}
-                      href="/login"
-                      className="text-text-secondary hover:bg-background-secondary block rounded-md px-3 py-2 text-base font-medium"
-                    >
-                      Log in
-                    </DisclosureButton>
-                    <DisclosureButton
-                      as={Link}
-                      href="/signup"
-                      className="text-text-secondary hover:bg-background-secondary block rounded-md px-3 py-2 text-base font-medium"
-                    >
-                      Sign up
-                    </DisclosureButton>
-                  </>
+                    <Disclosure key={item.name} as="div" className="space-y-1">
+                      {({ open }) => (
+                        <>
+                          <DisclosureButton
+                            className="animate-slide-up group text-text-secondary hover:bg-background-secondary hover:text-text-primary flex w-full items-center justify-between border-l-4 border-transparent py-2 pr-4 pl-3 text-base font-medium"
+                            style={{ animationDelay: `${index * 50}ms` }}
+                          >
+                            {item.name}
+                            <ChevronDown
+                              className={clsx(
+                                "text-text-tertiary h-5 w-5 flex-none",
+                                open && "rotate-180"
+                              )}
+                              aria-hidden="true"
+                            />
+                          </DisclosureButton>
+                          <DisclosurePanel className="space-y-1">
+                            {item.items?.map((subItem, subIndex) => (
+                              <DisclosureButton
+                                key={subItem.name}
+                                as={Link}
+                                href={subItem.href}
+                                className="animate-slide-up group text-text-secondary hover:text-ocean-blue hover:bg-background-secondary flex w-full items-center border-l-4 border-transparent py-2 pr-4 pl-10 text-sm font-medium"
+                                style={{
+                                  animationDelay: `${(index + subIndex + 1) * 50}ms`,
+                                }}
+                              >
+                                <subItem.icon className="group-hover:text-ocean-blue text-text-tertiary mr-3 h-5 w-5 flex-shrink-0" />
+                                {subItem.name}
+                              </DisclosureButton>
+                            ))}
+                          </DisclosurePanel>
+                        </>
+                      )}
+                    </Disclosure>
+                  )
                 )}
               </div>
-            </div>
-          </DisclosurePanel>
+
+              {/* Mobile Actions / Language / Auth */}
+              <div className="border-border-primary border-t pt-4 pb-3">
+                {/* Language Selection Mobile */}
+                <div className="mb-4 px-4">
+                  <div className="text-text-tertiary mb-2 text-xs font-semibold tracking-wider uppercase">
+                    Language
+                  </div>
+                  <div className="flex space-x-2">
+                    {languages.map((lang) => (
+                      <button
+                        key={lang.code}
+                        onClick={() => !lang.disabled && setCurrentLang(lang)}
+                        disabled={lang.disabled}
+                        title={lang.disabled ? "Coming soon" : undefined}
+                        className={clsx(
+                          "flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+                          lang.disabled
+                            ? "border-border-primary text-text-tertiary cursor-not-allowed bg-transparent opacity-40"
+                            : currentLang.code === lang.code
+                              ? "bg-ocean-blue border-ocean-blue text-white"
+                              : "text-text-secondary border-border-primary hover:border-ocean-blue bg-transparent"
+                        )}
+                      >
+                        <span>{lang.flag}</span>
+                        {lang.code}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-3 px-4">
+                  <div className="flex-grow">
+                    {session ? (
+                      <div className="text-text-primary text-base font-medium">
+                        {session.user.email}
+                      </div>
+                    ) : (
+                      <div className="text-text-secondary text-base font-medium">
+                        Guest User
+                      </div>
+                    )}
+                  </div>
+                  <ThemeToggle />
+                </div>
+                <div className="mt-3 space-y-1 px-2">
+                  <Link
+                    href="/contribute"
+                    className="text-ocean-blue hover:bg-ocean-blue/10 block rounded-md px-3 py-2 text-base font-medium"
+                  >
+                    + Contribute to Archive
+                  </Link>
+                  {session ? (
+                    <DisclosureButton
+                      as="button"
+                      onClick={handleLogout}
+                      className="text-text-secondary hover:bg-background-secondary block w-full rounded-md px-3 py-2 text-left text-base font-medium"
+                    >
+                      Sign out
+                    </DisclosureButton>
+                  ) : (
+                    <>
+                      <DisclosureButton
+                        as={Link}
+                        href="/login"
+                        className="text-text-secondary hover:bg-background-secondary block rounded-md px-3 py-2 text-base font-medium"
+                      >
+                        Log in
+                      </DisclosureButton>
+                      <DisclosureButton
+                        as={Link}
+                        href="/signup"
+                        className="text-text-secondary hover:bg-background-secondary block rounded-md px-3 py-2 text-base font-medium"
+                      >
+                        Sign up
+                      </DisclosureButton>
+                    </>
+                  )}
+                </div>
+              </div>
+            </DisclosurePanel>
+          </Transition>
         </>
       )}
     </Disclosure>

@@ -1,9 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { BookOpen, MapPin, Sparkles, Users } from "lucide-react";
 import { SectionHeader } from "./section-header";
 import clsx from "clsx";
+import { springs, stagger } from "@/lib/animation/tokens";
 
 const visionPillars = [
   {
@@ -12,7 +13,7 @@ const visionPillars = [
     description: "Preserving oral histories",
     color: "text-bougainvillea-pink",
     bg: "bg-bougainvillea-pink/10",
-    border: "group-hover:border-bougainvillea-pink/20",
+    hoverBorder: "hover:border-bougainvillea-pink/20",
   },
   {
     label: "Places",
@@ -20,7 +21,7 @@ const visionPillars = [
     description: "Mapping our heritage",
     color: "text-valley-green",
     bg: "bg-valley-green/10",
-    border: "group-hover:border-valley-green/20",
+    hoverBorder: "hover:border-valley-green/20",
   },
   {
     label: "Memories",
@@ -28,7 +29,7 @@ const visionPillars = [
     description: "Honoring our ancestors",
     color: "text-sobrado-ochre",
     bg: "bg-sobrado-ochre/10",
-    border: "group-hover:border-sobrado-ochre/20",
+    hoverBorder: "hover:border-sobrado-ochre/20",
   },
   {
     label: "Community",
@@ -36,17 +37,60 @@ const visionPillars = [
     description: "Uniting the diaspora",
     color: "text-ocean-blue",
     bg: "bg-ocean-blue/10",
-    border: "group-hover:border-ocean-blue/20",
+    hoverBorder: "hover:border-ocean-blue/20",
   },
 ];
+
+// Animation variants with spring physics for smooth, natural motion
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: stagger.default,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const cardVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 24,
+    scale: 0.95,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: springs.snappy,
+  },
+};
+
+// Simplified variants for users who prefer reduced motion
+const reducedMotionCardVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.3 },
+  },
+};
 
 /**
  * CommunityStatsSection - Archive vision statement
  *
  * Displays the vision for the heritage archive during early stage,
  * replacing numerical stats with qualitative concepts using distinct visual pillars.
+ *
+ * Animation: Uses container stagger pattern with spring physics for smooth,
+ * coordinated entrance animations. Respects prefers-reduced-motion.
  */
 export function CommunityStatsSection() {
+  const shouldReduceMotion = useReducedMotion();
+  const activeCardVariants = shouldReduceMotion
+    ? reducedMotionCardVariants
+    : cardVariants;
+
   return (
     <section className="border-hairline bg-surface relative overflow-hidden border-y py-24">
       {/* Subtle background decoration */}
@@ -59,35 +103,44 @@ export function CommunityStatsSection() {
           centered
         />
 
-        {/* Vision Pillars Grid */}
-        <div className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {visionPillars.map((pillar, index) => (
+        {/* Vision Pillars Grid - Container orchestrates stagger animation */}
+        <motion.div
+          className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+        >
+          {visionPillars.map((pillar) => (
             <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{
-                delay: index * 0.1,
-                duration: 0.5,
-                ease: "easeOut",
-              }}
+              key={pillar.label}
+              variants={activeCardVariants}
+              whileHover={
+                shouldReduceMotion
+                  ? undefined
+                  : { y: -4, transition: springs.hover }
+              }
               className={clsx(
-                "group relative flex flex-col items-center rounded-2xl p-8 text-center transition-all duration-300",
+                "group relative flex flex-col items-center rounded-2xl p-8 text-center",
                 "bg-surface-alt/30 hover:bg-surface-alt border border-transparent hover:shadow-lg",
-                pillar.border
+                pillar.hoverBorder
               )}
             >
-              {/* Icon Circle with Hover Pulse */}
-              <div
+              {/* Icon Circle with Hover Animation */}
+              <motion.div
                 className={clsx(
-                  "mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3",
+                  "mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full",
                   pillar.bg,
                   pillar.color
                 )}
+                whileHover={
+                  shouldReduceMotion
+                    ? undefined
+                    : { scale: 1.1, rotate: 3, transition: springs.bouncy }
+                }
               >
                 <pillar.icon className="h-8 w-8" strokeWidth={1.5} />
-              </div>
+              </motion.div>
 
               {/* Text Content */}
               <h3 className="text-body mb-2 font-serif text-xl font-bold">
@@ -98,7 +151,7 @@ export function CommunityStatsSection() {
               </p>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

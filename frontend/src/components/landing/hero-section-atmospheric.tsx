@@ -3,9 +3,15 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { motion, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useReducedMotion,
+} from "framer-motion";
 import { Heart, BookOpen, MapPin, Users, ChevronDown } from "lucide-react";
 import { UnifiedSearch } from "@/components/search";
+import { springs } from "@/lib/animation/tokens";
 
 interface HeroSectionAtmosphericProps {
   className?: string;
@@ -16,6 +22,7 @@ export function HeroSectionAtmospheric({
 }: HeroSectionAtmosphericProps) {
   const router = useRouter();
   const [searchFocused, setSearchFocused] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   // Scroll-linked opacity for scroll indicator - fades out as user scrolls
   const { scrollYProgress } = useScroll();
@@ -70,7 +77,7 @@ export function HeroSectionAtmospheric({
     visible: {
       y: 0,
       opacity: 1,
-      transition: { type: "spring" as const, stiffness: 50, damping: 20 },
+      transition: springs.ambient,
     },
   };
 
@@ -135,8 +142,8 @@ export function HeroSectionAtmospheric({
       {/* --- 1. Background Layer with Ken Burns Effect --- */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <motion.div
-          variants={backgroundVariants}
-          animate="animate"
+          variants={shouldReduceMotion ? undefined : backgroundVariants}
+          animate={shouldReduceMotion ? undefined : "animate"}
           className="relative h-full w-full"
         >
           <Image
@@ -163,14 +170,14 @@ export function HeroSectionAtmospheric({
 
       {/* Moving Mist/Light layers - Tuned to Warm/Dawn colors */}
       <motion.div
-        variants={mistVariants1}
-        animate="animate"
+        variants={shouldReduceMotion ? undefined : mistVariants1}
+        animate={shouldReduceMotion ? undefined : "animate"}
         className="absolute right-0 bottom-0 left-0 z-10 h-2/3 bg-gradient-to-t from-amber-900/20 via-rose-900/10 to-transparent blur-3xl"
       />
       {/* Secondary Mist Layer for depth */}
       <motion.div
-        variants={mistVariants2}
-        animate="animate"
+        variants={shouldReduceMotion ? undefined : mistVariants2}
+        animate={shouldReduceMotion ? undefined : "animate"}
         className="absolute right-0 bottom-0 left-0 z-10 h-1/2 bg-gradient-to-t from-orange-900/10 via-stone-800/10 to-transparent mix-blend-screen blur-2xl"
       />
 
@@ -312,15 +319,23 @@ export function HeroSectionAtmospheric({
 
       {/* --- 5. Floating Elements (Subtle foreground layer) --- */}
       <motion.div
-        animate={{
-          y: [-10, 10, -10],
-          opacity: [0.4, 0.7, 0.4],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
+        animate={
+          shouldReduceMotion
+            ? undefined
+            : {
+                y: [-10, 10, -10],
+                opacity: [0.4, 0.7, 0.4],
+              }
+        }
+        transition={
+          shouldReduceMotion
+            ? undefined
+            : {
+                duration: 8,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }
+        }
         className="pointer-events-none absolute top-1/4 right-1/4 z-10 h-64 w-64 rounded-full bg-amber-400/5 mix-blend-screen blur-[80px]"
         aria-hidden="true"
       />

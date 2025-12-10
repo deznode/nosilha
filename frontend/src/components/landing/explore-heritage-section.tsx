@@ -1,10 +1,11 @@
 "use client";
 
 import { MapPin, BookOpen, Compass, Music } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { SectionHeader } from "./section-header";
 import { CategoryCard } from "./category-card";
 import type { CategoryCardProps } from "@/types/landing";
+import { springs, stagger } from "@/lib/animation/tokens";
 
 interface ExploreHeritageSectionProps {
   categories?: CategoryCardProps[];
@@ -43,16 +44,59 @@ const defaultCategories: CategoryCardProps[] = [
   },
 ];
 
+// Animation variants with spring physics for smooth, natural motion
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: stagger.default,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const cardVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 24,
+    scale: 0.95,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: springs.snappy,
+  },
+};
+
+// Simplified variants for users who prefer reduced motion
+const reducedMotionCardVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.3 },
+  },
+};
+
 /**
  * ExploreHeritageSection - Navigation grid (Bento Box Style)
  *
  * Displays category cards for navigating main sections of the site.
  * Features rounded top corners that overlap the hero section.
  * Now uses a Bento Grid layout for visual interest.
+ *
+ * Animation: Uses container stagger pattern with spring physics for smooth,
+ * coordinated entrance animations. Respects prefers-reduced-motion.
  */
 export function ExploreHeritageSection({
   categories = defaultCategories,
 }: ExploreHeritageSectionProps) {
+  const shouldReduceMotion = useReducedMotion();
+  const activeCardVariants = shouldReduceMotion
+    ? reducedMotionCardVariants
+    : cardVariants;
+
   return (
     <section className="bg-background-secondary relative z-20 -mt-20 rounded-t-[3rem] py-20 shadow-[0_-30px_60px_-15px_rgba(0,0,0,0.5)]">
       <div className="container mx-auto px-4 md:px-6">
@@ -62,20 +106,24 @@ export function ExploreHeritageSection({
           centered
         />
 
-        <div className="grid auto-rows-[minmax(200px,auto)] grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4">
+        {/* Grid with container stagger animation */}
+        <motion.div
+          className="grid auto-rows-[minmax(200px,auto)] grid-cols-1 gap-6 md:grid-cols-3 lg:grid-cols-4"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+        >
           {categories.map((category, index) => (
             <motion.div
               key={category.href}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              variants={activeCardVariants}
               className={index === 0 ? "md:col-span-2 md:row-span-2" : ""}
             >
               <CategoryCard {...category} className="h-full" />
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
