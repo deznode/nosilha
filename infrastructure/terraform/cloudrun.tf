@@ -227,7 +227,7 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
       resources {
         limits = {
           cpu    = "1000m" # 1 vCPU for Next.js frontend
-          memory = "256Mi" # Optimized for Next.js apps (matches CI/CD: 256Mi)
+          memory = "512Mi" # Increased from 256Mi to fix OOM errors (matches CI/CD: 512Mi)
         }
         cpu_idle = true # CPU only allocated during request processing
       }
