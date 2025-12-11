@@ -43,6 +43,25 @@ const defaultStories: FeaturedItem[] = [
 ];
 
 /**
+ * Category-based fallback images when entry doesn't have an image URL.
+ * Using distinct, relevant images prevents the "placeholder wall" effect.
+ */
+const categoryFallbackImages: Record<string, string> = {
+  Hotel: "/images/history/brava-culture.webp",
+  Beach: "/images/history/brava-formation.jpg",
+  Landmark: "/images/history/brava-maritime.jpg",
+  Restaurant: "/images/history/whaling-heritage.jpg",
+  default: "/images/hero.jpg",
+};
+
+/**
+ * Gets a fallback image based on category, ensuring visual variety
+ */
+function getFallbackImage(category: string): string {
+  return categoryFallbackImages[category] || categoryFallbackImages.default;
+}
+
+/**
  * Converts DirectoryEntry from API to FeaturedItem format
  */
 function directoryEntryToFeaturedItem(entry: DirectoryEntry): FeaturedItem {
@@ -50,7 +69,7 @@ function directoryEntryToFeaturedItem(entry: DirectoryEntry): FeaturedItem {
     id: entry.id,
     title: entry.name,
     category: entry.category,
-    image: entry.imageUrl || "/images/hero.jpg",
+    image: entry.imageUrl || getFallbackImage(entry.category),
     description: entry.description || "",
     link: `/directory/entry/${entry.slug}`,
   };
@@ -72,10 +91,10 @@ export function FeaturedStoriesSection({
     : stories || defaultStories;
 
   return (
-    <section className="bg-background-secondary py-20">
+    <section className="bg-background-secondary py-24 md:py-28">
       <div className="container mx-auto px-4 md:px-6">
         {/* Header with View All link */}
-        <div className="mb-12 flex flex-col items-end justify-between gap-4 md:flex-row">
+        <div className="mb-14 flex flex-col items-end justify-between gap-4 md:mb-16 md:flex-row">
           <div>
             <h2 className="text-text-primary mb-2 font-serif text-3xl font-bold md:text-4xl">
               Featured Stories
@@ -83,12 +102,16 @@ export function FeaturedStoriesSection({
             <p className="text-text-secondary">
               Highlights from the archive and community.
             </p>
+            <p className="text-text-secondary mt-2 max-w-xl text-sm">
+              A rotating selection of stories, places, and memories from
+              Brava—curated to help you dive in quickly.
+            </p>
           </div>
           <Link
             href="/history"
             className="group text-ocean-blue hover:text-bougainvillea-pink flex items-center font-bold transition-colors"
           >
-            View All Archive{" "}
+            View full archive{" "}
             <ArrowRight
               size={20}
               className="ml-2 transition-transform group-hover:translate-x-1"
@@ -97,7 +120,7 @@ export function FeaturedStoriesSection({
         </div>
 
         {/* Story Cards Grid */}
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-14 md:grid-cols-3 md:gap-16">
           {displayStories.map((item) => (
             <FeaturedStoryCard key={item.id} item={item} />
           ))}

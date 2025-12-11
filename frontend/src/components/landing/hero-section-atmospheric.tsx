@@ -9,7 +9,7 @@ import {
   useTransform,
   useReducedMotion,
 } from "framer-motion";
-import { Heart, BookOpen, MapPin, Users, ChevronDown } from "lucide-react";
+import { BookOpen, ChevronDown, MapPin, Users } from "lucide-react";
 import { UnifiedSearch } from "@/components/search";
 import { springs } from "@/lib/animation/tokens";
 
@@ -35,10 +35,6 @@ export function HeroSectionAtmospheric({
   // --- Interaction Handlers ---
   const handleExplore = () => {
     router.push("/history");
-  };
-
-  const handleContribute = () => {
-    router.push("/contribute");
   };
 
   const handleScrollDown = () => {
@@ -137,7 +133,7 @@ export function HeroSectionAtmospheric({
 
   return (
     <section
-      className={`relative h-[88vh] min-h-[600px] w-full overflow-hidden bg-stone-900 font-sans text-white selection:bg-amber-500/30 ${className ?? ""}`}
+      className={`relative h-[88vh] min-h-[720px] w-full overflow-hidden bg-stone-900 font-sans text-white selection:bg-amber-500/30 ${className ?? ""}`}
     >
       {/* --- 1. Background Layer with Ken Burns Effect --- */}
       <div className="absolute inset-0 z-0 overflow-hidden">
@@ -166,7 +162,7 @@ export function HeroSectionAtmospheric({
       </div>
 
       {/* --- 2. Atmospheric Overlays --- */}
-      <div className="absolute inset-0 z-10 bg-gradient-to-t from-stone-950 via-stone-900/60 to-transparent" />
+      <div className="absolute inset-0 z-10 bg-gradient-to-t from-stone-950 via-stone-900/75 to-stone-900/30" />
 
       {/* Moving Mist/Light layers - Tuned to Warm/Dawn colors */}
       <motion.div
@@ -182,14 +178,14 @@ export function HeroSectionAtmospheric({
       />
 
       {/* --- 3. Main Content Container --- */}
-      <div className="relative z-20 mx-auto flex h-full w-full max-w-7xl flex-col justify-end px-6 pb-24 md:pb-32 lg:px-12">
+      <div className="relative z-20 mx-auto flex h-full w-full max-w-7xl flex-col justify-end px-6 pt-16 pb-24 md:pt-20 md:pb-32 lg:px-12 lg:pt-24">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="max-w-3xl"
+          className="relative max-w-3xl"
         >
-          {/* Badge */}
+          {/* Context Badges - Trust & Location */}
           <motion.div
             variants={itemVariants}
             className="mb-6 flex items-center gap-3"
@@ -225,62 +221,36 @@ export function HeroSectionAtmospheric({
           <motion.div variants={itemVariants} className="mb-10 max-w-xl">
             <p className="text-lg leading-relaxed font-light text-stone-200 drop-shadow-md md:text-stone-100">
               A living archive connecting the people of Djabraba and the global
-              diaspora. We are preserving oral histories and celebrating the
+              diaspora. We preserve Brava’s oral histories and celebrate the
               resilience of our island culture.
             </p>
           </motion.div>
 
-          {/* Interactive Area: Search & CTAs */}
-          <motion.div
-            variants={itemVariants}
-            className="flex flex-col items-start gap-5 md:flex-row md:items-center"
-          >
-            {/* Primary Actions */}
-            <div className="flex w-full shrink-0 items-center gap-4 md:w-auto">
-              <motion.button
-                onClick={handleExplore}
-                whileHover={{
-                  scale: 1.02,
-                  backgroundColor: "rgba(255, 255, 255, 1)",
-                }}
-                whileTap={{ scale: 0.98 }}
-                className="group relative flex cursor-pointer items-center gap-2 rounded-lg bg-stone-100 px-6 py-3.5 font-semibold whitespace-nowrap text-stone-900 shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)] transition-colors"
-              >
-                <BookOpen
-                  size={18}
-                  className="text-stone-600 transition-colors group-hover:text-stone-900"
-                  aria-hidden="true"
-                />
-                Explore Heritage
-              </motion.button>
+          {/* Primary CTA - Single focused action to reduce decision paralysis */}
+          <motion.div variants={itemVariants}>
+            <motion.button
+              onClick={handleExplore}
+              whileHover={{
+                scale: 1.03,
+                boxShadow: "0 0 40px -5px rgba(192, 38, 105, 0.6)",
+              }}
+              whileTap={{ scale: 0.97 }}
+              transition={springs.hover}
+              className="bg-bougainvillea-pink shadow-bougainvillea-pink/40 hover:bg-bougainvillea-pink/90 focus-visible:ring-offset-bougainvillea-pink group relative flex min-w-[240px] cursor-pointer items-center gap-2.5 rounded-xl px-6 py-5 text-base font-semibold whitespace-nowrap text-white shadow-2xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 md:px-8"
+            >
+              <BookOpen
+                size={20}
+                className="text-white/90 transition-colors group-hover:text-white"
+                aria-hidden="true"
+              />
+              Start Exploring Brava
+            </motion.button>
+          </motion.div>
 
-              <motion.button
-                onClick={handleContribute}
-                whileHover={{
-                  scale: 1.02,
-                  backgroundColor: "rgba(255, 255, 255, 0.15)",
-                }}
-                whileTap={{ scale: 0.98 }}
-                className="flex cursor-pointer items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-6 py-3.5 font-medium whitespace-nowrap text-white shadow-lg backdrop-blur-sm transition-colors hover:border-white/40"
-              >
-                <Heart
-                  size={18}
-                  className="text-amber-200"
-                  aria-hidden="true"
-                />
-                Contribute
-              </motion.button>
-            </div>
-
-            {/* Divider (Desktop) */}
+          {/* Search Bar - Separate section below CTAs */}
+          <motion.div variants={itemVariants} className="mt-5 w-full max-w-lg">
             <div
-              className="mx-2 hidden h-12 w-px bg-white/10 md:block"
-              aria-hidden="true"
-            />
-
-            {/* Atmospheric Search Bar with Unified Search */}
-            <div
-              className={`group relative w-full transition-all duration-500 ease-out ${searchFocused ? "md:w-96" : "md:w-80"}`}
+              className={`group relative transition-all duration-500 ease-out ${searchFocused ? "scale-[1.02]" : ""}`}
             >
               <div
                 className={`absolute inset-0 rounded-lg bg-gradient-to-r from-amber-500/20 to-teal-500/20 opacity-0 blur transition-opacity duration-700 group-hover:opacity-100 ${searchFocused ? "opacity-100" : ""}`}
@@ -288,7 +258,7 @@ export function HeroSectionAtmospheric({
 
               <UnifiedSearch
                 variant="hero"
-                placeholder="Search history, towns, or stories..."
+                placeholder="Search stories, people, villages, or landmarks…"
                 onFocusChange={setSearchFocused}
                 onSearchSubmit={(query) =>
                   router.push(`/directory?q=${encodeURIComponent(query)}`)

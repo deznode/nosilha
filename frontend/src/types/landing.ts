@@ -31,6 +31,8 @@ export interface CategoryCardProps {
   description: string;
   colorClass: string;
   href: string;
+  /** Custom action text for the card link (defaults to "Explore Section") */
+  actionText?: string;
 }
 
 /**

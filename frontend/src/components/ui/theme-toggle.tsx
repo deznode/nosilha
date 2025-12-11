@@ -76,7 +76,7 @@ export function ThemeToggle() {
     <motion.button
       onClick={cycleTheme}
       className={clsx(
-        "relative inline-flex items-center justify-center rounded-md p-2",
+        "relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md",
         "text-text-secondary",
         "hover:bg-background-secondary hover:text-text-primary",
         "focus:ring-ocean-blue focus:ring-2 focus:outline-none focus:ring-inset",

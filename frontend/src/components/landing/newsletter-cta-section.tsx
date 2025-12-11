@@ -106,14 +106,21 @@ export function NewsletterCtaSection() {
         </div>
 
         {/* Heading */}
-        <h2 className="mb-6 font-serif text-4xl font-bold text-white md:text-5xl">
+        <h2 className="mb-8 font-serif text-4xl font-bold text-white md:text-5xl">
           Join the Brava Community
         </h2>
 
         {/* Description */}
-        <p className="mb-10 text-lg leading-relaxed text-white/90">
-          Join our community of storytellers. Stay connected with updates or
-          find out how you can contribute photos and stories to the archive.
+        <p className="mb-4 text-lg leading-relaxed text-white/90">
+          Join our community of storytellers. Stay connected with updates and
+          learn how you can contribute photos, stories, and knowledge to the
+          archive.
+        </p>
+        <p className="mb-10 text-base leading-relaxed text-white/80">
+          Whether you live on the island or across the world, you&apos;re part
+          of Brava&apos;s story. Get occasional updates with new stories,
+          interactive map features, and ways to support local projects and
+          cultural preservation.
         </p>
 
         {/* Form */}
@@ -135,7 +142,7 @@ export function NewsletterCtaSection() {
               id="landing-newsletter-email"
               type="email"
               autoComplete="email"
-              placeholder="Enter your email address"
+              placeholder="Enter your email address…"
               aria-label="Email address for newsletter subscription"
               aria-invalid={errors.email ? "true" : "false"}
               aria-describedby={
@@ -194,7 +201,8 @@ export function NewsletterCtaSection() {
 
         {/* Privacy note */}
         <p className="mt-6 text-xs text-white/60">
-          We respect your privacy. Unsubscribe at any time.
+          We respect your privacy. No spam, just meaningful stories and updates.
+          Unsubscribe at any time.
         </p>
       </div>
     </section>

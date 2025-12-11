@@ -109,10 +109,10 @@ export function Header({
   const [scrolled, setScrolled] = useState(false);
   const [currentLang, setCurrentLang] = useState(languages[0]); // Default EN
 
-  // Scroll detection
+  // Scroll detection - trigger solid background earlier for better contrast
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
+      setScrolled(window.scrollY > 5);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -148,7 +148,7 @@ export function Header({
       className={clsx(
         "fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ease-in-out",
         scrolled
-          ? "glass-panel border-b border-white/10 py-0" // Standard height when scrolled
+          ? "border-border-primary/50 bg-background-primary/95 dark:bg-background-primary/90 py-0 shadow-sm backdrop-blur-md dark:border-white/10" // Solid background when scrolled for better contrast
           : "border-transparent bg-transparent py-2", // Little extra padding when transparent for "breathing room"
         className
       )}
@@ -216,7 +216,7 @@ export function Header({
                         key={item.name}
                         href={item.href || "#"}
                         className={clsx(
-                          "inline-flex items-center border-b-2 px-1 pt-1 text-sm font-semibold transition-colors duration-200",
+                          "inline-flex min-h-[44px] items-center border-b-2 px-2 text-sm font-semibold transition-colors duration-200",
                           isCurrent
                             ? activeLinkClass
                             : `border-transparent ${textColorClass}`
@@ -230,7 +230,7 @@ export function Header({
                           <>
                             <PopoverButton
                               className={clsx(
-                                "group inline-flex items-center border-b-2 px-1 pt-1 text-sm font-semibold transition-colors duration-200 outline-none",
+                                "group inline-flex min-h-[44px] items-center border-b-2 px-2 text-sm font-semibold transition-colors duration-200 outline-none",
                                 open || isCurrent
                                   ? activeLinkClass
                                   : `border-transparent ${textColorClass}`
@@ -299,11 +299,11 @@ export function Header({
               {/* Right Section: Utilities (Language, Actions, Auth) */}
               <div className="flex items-center space-x-2 md:space-x-4">
                 <div className="hidden items-center space-x-3 md:flex">
-                  {/* Language Selector (Desktop) */}
+                  {/* Language Selector (Desktop) - 44px min touch target for WCAG */}
                   <Menu as="div" className="relative">
                     <MenuButton
                       className={clsx(
-                        "flex items-center gap-1 rounded-full p-2 text-sm font-semibold transition-colors",
+                        "flex min-h-[44px] min-w-[44px] items-center justify-center gap-1 rounded-full text-sm font-semibold transition-colors",
                         iconClass
                       )}
                     >
@@ -472,11 +472,11 @@ export function Header({
                       </Transition>
                     </Menu>
                   ) : (
-                    <div className="flex items-center gap-3 pl-2">
+                    <div className="flex items-center gap-1 pl-2">
                       <Link
                         href="/login"
                         className={clsx(
-                          "text-sm font-semibold transition-colors",
+                          "inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg px-3 text-sm font-semibold transition-colors",
                           textColorClass
                         )}
                       >
@@ -485,7 +485,7 @@ export function Header({
                       <Link
                         href="/signup"
                         className={clsx(
-                          "text-sm font-semibold transition-colors",
+                          "inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg px-3 text-sm font-semibold transition-colors",
                           textColorClass
                         )}
                       >

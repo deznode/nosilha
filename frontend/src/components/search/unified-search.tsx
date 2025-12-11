@@ -112,7 +112,7 @@ export function UnifiedSearch({
     <div ref={containerRef} className={`relative ${className}`}>
       <form
         onSubmit={handleSubmit}
-        className={`relative flex items-center overflow-hidden rounded-lg border transition-colors ${
+        className={`relative flex items-center overflow-hidden rounded-xl border transition-colors ${
           isHero
             ? "border-white/20 bg-stone-900/60 shadow-inner backdrop-blur-md focus-within:border-white/40 focus-within:bg-stone-900/80 hover:border-white/30"
             : "border-hairline bg-surface focus-within:border-ocean-blue focus-within:ring-ocean-blue focus-within:ring-1 hover:border-stone-300"
@@ -120,7 +120,7 @@ export function UnifiedSearch({
       >
         <Search
           size={18}
-          className={`ml-4 ${isHero ? "text-stone-400" : "text-muted"}`}
+          className={`ml-5 ${isHero ? "text-stone-400" : "text-muted"}`}
           aria-hidden="true"
         />
         <input
@@ -131,7 +131,7 @@ export function UnifiedSearch({
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={placeholder}
-          className={`w-full flex-1 border-none bg-transparent px-3 py-3.5 text-sm outline-none focus:ring-0 ${
+          className={`w-full flex-1 border-none bg-transparent px-3 py-4 text-sm outline-none focus:ring-0 ${
             isHero
               ? "text-stone-200 placeholder-stone-400"
               : "text-body placeholder-muted"
@@ -184,7 +184,7 @@ export function UnifiedSearch({
           id="unified-search-results"
           role="listbox"
           aria-label="Search results"
-          className={`absolute bottom-full z-50 mb-2 w-full rounded-lg border shadow-xl ${
+          className={`absolute bottom-full z-50 mb-2 w-full rounded-xl border shadow-xl ${
             isHero
               ? "border-white/20 bg-stone-900/95 backdrop-blur-md"
               : "border-hairline bg-surface"

@@ -13,12 +13,13 @@ export function CategoryCard({
   description,
   colorClass,
   href,
+  actionText = "Explore Section",
   className,
 }: CategoryCardProps & { className?: string }) {
   return (
     <Link
       href={href}
-      className={`group border-hairline hover:border-ocean-blue/30 bg-surface relative block h-full overflow-hidden rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${className || ""}`}
+      className={`group border-border-primary/40 hover:border-ocean-blue/50 bg-surface relative block h-full overflow-hidden rounded-xl border p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${className || ""}`}
     >
       {/* Background accent circle */}
       <div
@@ -40,9 +41,9 @@ export function CategoryCard({
         {description}
       </p>
 
-      {/* CTA - Always visible on mobile, hover reveal on desktop */}
-      <div className="text-ocean-blue absolute bottom-6 left-6 flex items-center text-sm font-bold opacity-100 transition-all duration-300 md:-translate-x-4 md:opacity-0 md:group-hover:translate-x-0 md:group-hover:opacity-100">
-        Explore Section <ArrowRight size={16} className="ml-1" />
+      {/* CTA - Always visible for accessibility, enhanced on hover */}
+      <div className="text-ocean-blue absolute bottom-6 left-6 flex items-center text-sm font-bold opacity-70 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100">
+        {actionText} <ArrowRight size={16} className="ml-1" />
       </div>
     </Link>
   );

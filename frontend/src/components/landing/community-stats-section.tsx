@@ -6,38 +6,31 @@ import { SectionHeader } from "./section-header";
 import clsx from "clsx";
 import { springs, stagger } from "@/lib/animation/tokens";
 
+// Simplified pillars - consistent styling, icons remain colored for identity
 const visionPillars = [
   {
     label: "Stories",
     icon: BookOpen,
     description: "Preserving oral histories",
-    color: "text-bougainvillea-pink",
-    bg: "bg-bougainvillea-pink/10",
-    hoverBorder: "hover:border-bougainvillea-pink/20",
+    iconColor: "text-bougainvillea-pink",
   },
   {
     label: "Places",
     icon: MapPin,
     description: "Mapping our heritage",
-    color: "text-valley-green",
-    bg: "bg-valley-green/10",
-    hoverBorder: "hover:border-valley-green/20",
+    iconColor: "text-valley-green",
   },
   {
     label: "Memories",
     icon: Sparkles,
     description: "Honoring our ancestors",
-    color: "text-sobrado-ochre",
-    bg: "bg-sobrado-ochre/10",
-    hoverBorder: "hover:border-sobrado-ochre/20",
+    iconColor: "text-sobrado-ochre",
   },
   {
     label: "Community",
     icon: Users,
     description: "Uniting the diaspora",
-    color: "text-ocean-blue",
-    bg: "bg-ocean-blue/10",
-    hoverBorder: "hover:border-ocean-blue/20",
+    iconColor: "text-ocean-blue",
   },
 ];
 
@@ -122,24 +115,23 @@ export function CommunityStatsSection() {
               }
               className={clsx(
                 "group relative flex flex-col items-center rounded-2xl p-8 text-center",
-                "bg-surface-alt/30 hover:bg-surface-alt border border-transparent hover:shadow-lg",
-                pillar.hoverBorder
+                "bg-surface-alt/50 hover:bg-surface-alt hover:border-ocean-blue/30 border border-transparent hover:shadow-lg"
               )}
             >
-              {/* Icon Circle with Hover Animation */}
+              {/* Icon Circle - Neutral background, colored icon */}
               <motion.div
                 className={clsx(
-                  "mb-6 inline-flex h-16 w-16 items-center justify-center rounded-full",
-                  pillar.bg,
-                  pillar.color
+                  "mb-6 inline-flex h-14 w-14 items-center justify-center rounded-full",
+                  "bg-surface border-border-primary/20 border",
+                  pillar.iconColor
                 )}
                 whileHover={
                   shouldReduceMotion
                     ? undefined
-                    : { scale: 1.1, rotate: 3, transition: springs.bouncy }
+                    : { scale: 1.1, transition: springs.bouncy }
                 }
               >
-                <pillar.icon className="h-8 w-8" strokeWidth={1.5} />
+                <pillar.icon className="h-7 w-7" strokeWidth={1.5} />
               </motion.div>
 
               {/* Text Content */}

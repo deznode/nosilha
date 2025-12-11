@@ -159,10 +159,16 @@ export function MapTeaserSection() {
               </span>
             </h2>
 
-            <p className="text-text-secondary mb-8 max-w-lg text-lg leading-relaxed">
+            <p className="text-text-secondary mb-4 max-w-md text-lg leading-relaxed">
               Experience the island like never before. Our interactive 3D map
-              layers historical photos, oral histories, and cultural landmarks
-              directly onto the volcanic landscape.
+              layers stories, historical places, and cultural landmarks directly
+              onto Brava&apos;s volcanic landscape.
+            </p>
+            <p className="text-text-secondary mb-8 max-w-md text-base leading-relaxed">
+              Explore Brava visually—from the mist-covered peaks to the coastal
+              villages. Tap into local knowledge, hidden viewpoints, and
+              community-recommended spots, all connected to real stories from
+              people who know the island best.
             </p>
 
             {/* Feature List */}
@@ -176,7 +182,7 @@ export function MapTeaserSection() {
                     Visual History
                   </strong>
                   <span className="text-text-secondary text-sm">
-                    See Nova Sintra through the decades.
+                    See how Brava&apos;s places have changed across time.
                   </span>
                 </div>
               </li>
@@ -186,10 +192,10 @@ export function MapTeaserSection() {
                 </div>
                 <div>
                   <strong className="text-text-primary block text-sm font-bold">
-                    GPS Hiking Trails
+                    QR Hiking Trails
                   </strong>
                   <span className="text-text-secondary text-sm">
-                    Follow ancestral paths from peak to coast.
+                    Follow curated paths from coast to crater.
                   </span>
                 </div>
               </li>
@@ -202,7 +208,7 @@ export function MapTeaserSection() {
                     Local Directory
                   </strong>
                   <span className="text-text-secondary text-sm">
-                    Support local businesses and artisans.
+                    Support small businesses, lodges, and community projects.
                   </span>
                 </div>
               </li>
@@ -210,11 +216,14 @@ export function MapTeaserSection() {
 
             <Link
               href="/map"
-              className="group bg-ocean-blue hover:bg-ocean-blue-deep shadow-ocean-blue/20 inline-flex w-full items-center justify-center gap-2 rounded-lg px-8 py-4 font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl sm:w-auto"
+              className="group bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 shadow-bougainvillea-pink/25 inline-flex w-full items-center justify-center gap-2 rounded-lg px-8 py-4 font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl sm:w-auto"
             >
               <Navigation className="h-5 w-5 transition-transform group-hover:rotate-45" />
               Open Interactive Map
             </Link>
+            <p className="text-text-secondary mt-3 text-sm">
+              Start with a landmark, story pin, or hiking trail.
+            </p>
           </motion.div>
 
           {/* Visual/Map Preview */}
@@ -241,8 +250,8 @@ export function MapTeaserSection() {
               <MapMarker
                 icon={Anchor}
                 label="Furna"
-                top="33%"
-                left="73%"
+                top="0"
+                left="65%"
                 colorClass="bg-ocean-blue"
                 delay={0.5}
                 shouldReduceMotion={shouldReduceMotion}
@@ -251,8 +260,8 @@ export function MapTeaserSection() {
               <MapMarker
                 icon={Camera}
                 label="Nova Sintra"
-                top="53%"
-                left="62%"
+                top="10%"
+                left="45%"
                 colorClass="bg-bougainvillea-pink"
                 delay={0.7}
                 shouldReduceMotion={shouldReduceMotion}
@@ -261,7 +270,7 @@ export function MapTeaserSection() {
               <MapMarker
                 icon={Mountain}
                 label="Fontainhas"
-                top="60%"
+                top="20%"
                 left="53%"
                 colorClass="bg-valley-green"
                 delay={0.9}

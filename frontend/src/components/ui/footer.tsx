@@ -2,7 +2,6 @@ import React from "react";
 import Link from "next/link";
 import clsx from "clsx";
 import { SocialMediaLinks } from "@/components/ui/social-media-links";
-import { FooterNewsletterForm } from "@/components/newsletter/footer-newsletter-form";
 // Data for the footer links, based on the proposed structure.
 const defaultNavigation = {
   explore: [
@@ -36,8 +35,6 @@ interface FooterCopy {
   exploreHeading: string;
   cultureHeading: string;
   connectHeading: string;
-  newsletterHeading: string;
-  newsletterDescription: string;
   legal: string;
 }
 
@@ -45,9 +42,6 @@ const defaultCopy: FooterCopy = {
   exploreHeading: "Explore Brava",
   cultureHeading: "Culture & History",
   connectHeading: "Connect",
-  newsletterHeading: "Subscribe to our newsletter",
-  newsletterDescription:
-    "The latest news, articles, and resources, sent to your inbox monthly.",
   legal: "All rights reserved.",
 };
 
@@ -72,7 +66,8 @@ export function Footer({
         Footer
       </h2>
       <div className="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 lg:py-32">
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
+        {/* Newsletter form removed - consolidated to NewsletterCtaSection above footer */}
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
           {/* Column 1: Explore Brava */}
           <div>
             <h3 className="text-text-primary text-base leading-6 font-semibold">
@@ -128,17 +123,6 @@ export function Footer({
                 </li>
               ))}
             </ul>
-          </div>
-
-          {/* Column 4: Newsletter */}
-          <div className="mt-10 lg:mt-0">
-            <h3 className="text-text-primary text-base leading-6 font-semibold">
-              {copy.newsletterHeading}
-            </h3>
-            <p className="mt-2 text-sm leading-6">
-              {copy.newsletterDescription}
-            </p>
-            <FooterNewsletterForm />
           </div>
         </div>
 

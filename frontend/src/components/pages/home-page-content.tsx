@@ -6,7 +6,6 @@ import {
   ExploreHeritageSection,
   // LivingCultureSection, // TODO: Re-enable when events feature is complete
   FeaturedStoriesSection,
-  CommunityStatsSection,
   MapTeaserSection,
   NewsletterCtaSection,
 } from "@/components/landing";
@@ -51,7 +50,7 @@ export function HomePageContent({ featuredEntries }: HomePageContentProps) {
         {/* <HeroSection announcement={worldCupAnnouncement} /> */}
         <HeroSectionAtmospheric />
 
-        {/* ExploreHeritageSection has its own scroll-linked parallax animation */}
+        {/* Unified onboarding + navigation: "What is NosIlha?" with 3 clickable pillars */}
         <ExploreHeritageSection />
 
         {/* TODO: Re-enable when events feature is complete
@@ -60,16 +59,13 @@ export function HomePageContent({ featuredEntries }: HomePageContentProps) {
         </motion.div>
         */}
 
-        <motion.div {...fadeInUp}>
-          <FeaturedStoriesSection entries={featuredEntries} />
-        </motion.div>
-
-        <motion.div {...fadeInUp}>
-          <CommunityStatsSection />
-        </motion.div>
-
+        {/* Map section before Stories for progressive disclosure (reduce early cognitive load) */}
         <motion.div {...fadeInUp}>
           <MapTeaserSection />
+        </motion.div>
+
+        <motion.div {...fadeInUp}>
+          <FeaturedStoriesSection entries={featuredEntries} />
         </motion.div>
 
         <motion.div {...fadeInUp}>

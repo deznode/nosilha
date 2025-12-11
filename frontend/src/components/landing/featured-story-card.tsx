@@ -30,8 +30,8 @@ export function FeaturedStoryCard({ item }: FeaturedStoryCardProps) {
         />
       </div>
 
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 transition-opacity duration-300 group-hover:opacity-90" />
+      {/* Gradient Overlay - Strengthened for WCAG text contrast */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-black/20 transition-opacity duration-300 group-hover:from-black/100" />
 
       {/* Content */}
       <div className="absolute bottom-0 left-0 w-full translate-y-2 transform p-6 text-white transition-transform duration-300 group-hover:translate-y-0 md:p-8">
@@ -44,8 +44,12 @@ export function FeaturedStoryCard({ item }: FeaturedStoryCardProps) {
         <p className="text-mist-200 mb-4 line-clamp-2 text-sm opacity-0 transition-opacity delay-100 duration-500 group-hover:opacity-100">
           {item.description}
         </p>
-        <div className="text-sobrado-ochre flex w-max items-center border-b border-white/30 pb-1 text-sm font-bold transition-colors hover:border-white">
-          Read Story <ArrowRight size={16} className="ml-2" />
+        <div className="text-sobrado-ochre flex w-max items-center border-b border-white/30 pb-1 text-sm font-bold transition-colors group-hover:border-white group-hover:text-amber-100">
+          Read Story{" "}
+          <ArrowRight
+            size={16}
+            className="ml-2 transition-transform group-hover:translate-x-1"
+          />
         </div>
       </div>
     </Link>
