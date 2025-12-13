@@ -5,8 +5,6 @@ import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Suspense } from "react";
 
-import { Header } from "@/components/ui/header";
-import { Footer } from "@/components/ui/footer";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { QueryProvider } from "@/components/providers/query-provider";
 import { ToastProvider } from "@/components/providers/toast-provider";
@@ -161,21 +159,7 @@ export default function RootLayout({
         </Suspense>
         <QueryProvider>
           <AuthProvider>
-            <ToastProvider>
-              <div className="flex min-h-screen flex-col">
-                {/* 3. Render the global Header, main content, and Footer */}
-                <Header className="print:hidden" />
-                <main
-                  id="main-content"
-                  className="animate-fade-in flex-grow pt-16"
-                >
-                  {children}
-                </main>
-                <div className="print:hidden">
-                  <Footer />
-                </div>
-              </div>
-            </ToastProvider>
+            <ToastProvider>{children}</ToastProvider>
           </AuthProvider>
         </QueryProvider>
 

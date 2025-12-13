@@ -44,10 +44,18 @@ const petalLayerVariants = {
   },
 };
 
-function BloomingHibiscus({ className }: { className?: string }) {
+function BloomingHibiscus({
+  className,
+  instanceId,
+}: {
+  className?: string;
+  instanceId?: string;
+}) {
   // IMPROVEMENT 1: Generate unique IDs for gradients/filters
   // This prevents conflicts when the logo appears multiple times (Header + Footer)
-  const uniqueId = useId();
+  // Using instanceId prop for stable SSR hydration, falling back to useId for dynamic usage
+  const reactId = useId();
+  const uniqueId = instanceId || reactId;
   const gradientId = `petalGradient-${uniqueId}`;
   const glowId = `glow-${uniqueId}`;
 
@@ -154,12 +162,15 @@ export interface NosilhaLogoProps {
   showSubtitle?: boolean;
   className?: string;
   variant?: "default" | "light"; // IMPROVEMENT 2: Native Light/Dark Mode support
+  /** Stable ID for SSR hydration - use unique values when multiple logos on same page */
+  instanceId?: string;
 }
 
 export function NosilhaLogo({
   showSubtitle = false,
   className = "",
   variant = "default",
+  instanceId,
 }: NosilhaLogoProps) {
   const [_isHovered, setIsHovered] = useState(false);
 
@@ -191,7 +202,10 @@ export function NosilhaLogo({
       {/* Larger, more prominent icon */}
       <div className="relative h-14 w-14 shrink-0 md:h-16 md:w-16">
         <div className="bg-bougainvillea-pink/10 pointer-events-none absolute inset-0 scale-75 animate-pulse rounded-full blur-xl" />
-        <BloomingHibiscus className="relative z-10 h-full w-full drop-shadow-lg" />
+        <BloomingHibiscus
+          className="relative z-10 h-full w-full drop-shadow-lg"
+          instanceId={instanceId}
+        />
       </div>
 
       {/* Text Container */}

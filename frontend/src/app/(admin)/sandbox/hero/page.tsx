@@ -23,12 +23,12 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
 // --- Mocks & Utilities ---
 const useRouter = () => ({
-  push: (path) => console.log(`[Router] Navigating to: ${path}`),
+  push: (path: string) => console.log(`[Router] Navigating to: ${path}`),
 });
 
 const springs = {
-  ambient: { type: "spring", stiffness: 50, damping: 20 },
-  hover: { type: "spring", stiffness: 400, damping: 25 },
+  ambient: { type: "spring" as const, stiffness: 50, damping: 20 },
+  hover: { type: "spring" as const, stiffness: 400, damping: 25 },
 };
 
 const NAVIGATION_LINKS = [
@@ -41,7 +41,7 @@ const NAVIGATION_LINKS = [
 // --- Components ---
 
 // 1. Logo (Brand Aligned)
-const NosilhaLogo = ({ className }) => (
+const NosilhaLogo = ({ className }: { className?: string }) => (
   <div className={`flex items-center gap-2 ${className}`}>
     <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#C02669] to-[#D97706] shadow-lg shadow-[#C02669]/20">
       <div className="absolute inset-0 rounded-lg bg-white/20 blur-[1px]" />
@@ -61,10 +61,18 @@ const NosilhaLogo = ({ className }) => (
 );
 
 // 2. Search Bar (Atmospheric "Command Center")
-const SearchBar = ({ placeholder, onFocusChange, onSearchSubmit }) => {
+const SearchBar = ({
+  placeholder,
+  onFocusChange,
+  onSearchSubmit,
+}: {
+  placeholder?: string;
+  onFocusChange?: (status: boolean) => void;
+  onSearchSubmit?: (query: string) => void;
+}) => {
   const [isFocused, setIsFocused] = useState(false);
 
-  const handleFocus = (status) => {
+  const handleFocus = (status: boolean) => {
     setIsFocused(status);
     if (onFocusChange) onFocusChange(status);
   };
@@ -353,8 +361,8 @@ const FixedBackground = () => {
       transition: {
         duration: 25,
         repeat: Infinity,
-        repeatType: "mirror",
-        ease: "easeInOut",
+        repeatType: "mirror" as const,
+        ease: "easeInOut" as const,
       },
     },
   };

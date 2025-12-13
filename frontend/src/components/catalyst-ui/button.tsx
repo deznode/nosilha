@@ -133,7 +133,7 @@ const styles = {
     ],
     blue: [
       "text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-ocean-blue)] [--btn-border:var(--color-ocean-blue)]/90",
-      "[--btn-icon:var(--color-ocean-blue-light)] data-active:[--btn-icon:var(--color-ocean-blue-light)] data-hover:[--btn-icon:var(--color-ocean-blue-light)]",
+      "[--btn-icon:var(--color-white)] data-active:[--btn-icon:var(--color-white)] data-hover:[--btn-icon:var(--color-white)]",
     ],
     violet: [
       "text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-violet-500)] [--btn-border:var(--color-violet-600)]/90",
