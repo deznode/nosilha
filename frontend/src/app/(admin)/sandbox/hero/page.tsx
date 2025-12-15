@@ -23,7 +23,7 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 
 // --- Mocks & Utilities ---
 const useRouter = () => ({
-  push: (path) => console.log(`[Router] Navigating to: ${path}`),
+  push: (path: string) => console.log(`[Router] Navigating to: ${path}`),
 });
 
 const springs = {
