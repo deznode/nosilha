@@ -5,7 +5,7 @@ import {
   // HeroSection, // Original hero - kept for reference
   ExploreHeritageSection,
   // LivingCultureSection, // TODO: Re-enable when events feature is complete
-  FeaturedStoriesSection,
+  // FeaturedStoriesSection,
   MapTeaserSection,
   NewsletterCtaSection,
 } from "@/components/landing";
@@ -35,6 +35,7 @@ const fadeInUp = {
   transition: { duration: 1.0, ease: [0.25, 0.46, 0.45, 0.94] }, // Custom bezier for "drifting" feel
 } as const;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function HomePageContent({ featuredEntries }: HomePageContentProps) {
   return (
     <main className="bg-canvas text-body relative -mt-16 overflow-hidden transition-colors duration-700">
@@ -64,9 +65,9 @@ export function HomePageContent({ featuredEntries }: HomePageContentProps) {
           <MapTeaserSection />
         </motion.div>
 
-        <motion.div {...fadeInUp}>
+        {/* <motion.div {...fadeInUp}>
           <FeaturedStoriesSection entries={featuredEntries} />
-        </motion.div>
+        </motion.div> */}
 
         <motion.div {...fadeInUp}>
           <NewsletterCtaSection />
