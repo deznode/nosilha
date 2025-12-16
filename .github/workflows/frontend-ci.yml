@@ -96,6 +96,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Generate Velite content types before type checking
+      - name: Generate content types
+        run: pnpm build:content
+
       # Run linting and type checking
       # Note: ESLint with SARIF output is handled by reusable-security-scan.yml to avoid duplication
       - name: Run linting and type checks

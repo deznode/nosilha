@@ -61,15 +61,17 @@ const NosilhaLogo = ({ className }: { className?: string }) => (
 );
 
 // 2. Search Bar (Atmospheric "Command Center")
+interface SearchBarProps {
+  placeholder?: string;
+  onFocusChange?: (focused: boolean) => void;
+  onSearchSubmit?: (value: string) => void;
+}
+
 const SearchBar = ({
   placeholder,
   onFocusChange,
   onSearchSubmit,
-}: {
-  placeholder?: string;
-  onFocusChange?: (status: boolean) => void;
-  onSearchSubmit?: (query: string) => void;
-}) => {
+}: SearchBarProps) => {
   const [isFocused, setIsFocused] = useState(false);
 
   const handleFocus = (status: boolean) => {
