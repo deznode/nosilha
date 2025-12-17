@@ -120,17 +120,20 @@ export default async function HistoryPage({ searchParams }: PageProps) {
 
   return (
     <PrintPageWrapper>
-      <div className="bg-background-secondary font-sans">
-        {/* Full-Screen Video Hero */}
+      {/* Outer wrapper: -mt-16 pulls content up behind fixed header for transparent navbar effect */}
+      <div className="relative -mt-16 font-sans">
+        {/* Full-Screen Video Hero - extends behind transparent header */}
         <VideoHeroSection
           videoSrc={hero.videoSrc}
           title={hero.title}
           subtitle={hero.subtitle}
           overlayContent={[]}
-          className="h-[calc(100vh-81px)]"
+          className="min-h-screen"
         />
 
-        <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+        {/* Content section with background - starts below hero */}
+        <div className="bg-background-secondary">
+          <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
           <PageHeader
             title="History & Heritage"
             subtitle="Discover the rich cultural tapestry and fascinating history of Brava Island, from its volcanic origins to its vibrant musical traditions."
@@ -541,6 +544,7 @@ export default async function HistoryPage({ searchParams }: PageProps) {
           </div>
 
           <BackToTopButton />
+          </div>
         </div>
       </div>
     </PrintPageWrapper>

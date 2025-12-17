@@ -3,15 +3,11 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useReducedMotion,
-} from "framer-motion";
-import { BookOpen, ChevronDown, MapPin, Users } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { BookOpen, MapPin, Users } from "lucide-react";
 import { UnifiedSearch } from "@/components/search";
 import { springs } from "@/lib/animation/tokens";
+import { ScrollIndicator } from "@/components/ui/scroll-indicator";
 
 interface HeroSectionAtmosphericProps {
   className?: string;
@@ -23,14 +19,6 @@ export function HeroSectionAtmospheric({
   const router = useRouter();
   const [searchFocused, setSearchFocused] = useState(false);
   const shouldReduceMotion = useReducedMotion();
-
-  // Scroll-linked opacity for scroll indicator - fades out as user scrolls
-  const { scrollYProgress } = useScroll();
-  const scrollIndicatorOpacity = useTransform(
-    scrollYProgress,
-    [0, 0.05, 0.1], // 0% to 10% scroll progress
-    [1, 1, 0] // Fully visible, then fade out
-  );
 
   // --- Interaction Handlers ---
   const handleExplore = () => {
@@ -114,19 +102,6 @@ export function HeroSectionAtmospheric({
         repeat: Infinity,
         ease: "easeInOut" as const,
         delay: 2,
-      },
-    },
-  };
-
-  // Scroll Indicator Animation
-  const scrollIndicatorVariants = {
-    animate: {
-      y: [0, 8, 0],
-      opacity: [0.4, 1, 0.4],
-      transition: {
-        duration: 2,
-        repeat: Infinity,
-        ease: "easeInOut" as const,
       },
     },
   };
@@ -270,22 +245,7 @@ export function HeroSectionAtmospheric({
       </div>
 
       {/* --- 4. Scroll Indicator (Clickable) - Fades out on scroll --- */}
-      <motion.button
-        style={{ opacity: scrollIndicatorOpacity }}
-        onClick={handleScrollDown}
-        className="group absolute bottom-8 left-1/2 z-30 flex -translate-x-1/2 transform cursor-pointer flex-col items-center gap-2 transition-colors hover:text-white"
-        aria-label="Scroll down to content"
-      >
-        <span className="text-[10px] tracking-[0.2em] text-stone-400/80 uppercase transition-colors group-hover:text-white">
-          Scroll
-        </span>
-        <motion.div variants={scrollIndicatorVariants} animate="animate">
-          <ChevronDown
-            size={20}
-            className="text-stone-300/80 transition-colors group-hover:text-white"
-          />
-        </motion.div>
-      </motion.button>
+      <ScrollIndicator onClick={handleScrollDown} />
 
       {/* --- 5. Floating Elements (Subtle foreground layer) --- */}
       <motion.div

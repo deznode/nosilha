@@ -3,6 +3,7 @@
 import { motion, useInView } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
+import { ScrollIndicator } from "@/components/ui/scroll-indicator";
 
 interface VideoHeroSectionProps {
   videoSrc: string;
@@ -161,49 +162,8 @@ export function VideoHeroSection({
         </div>
       </div>
 
-      {/* Scroll Indicator - Positioned at Bottom */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{
-          opacity: isInView ? 1 : 0,
-          y: isInView ? 0 : 20,
-        }}
-        transition={{ delay: 3, duration: 0.6 }}
-        className="absolute bottom-44 left-1/2 z-20 -translate-x-1/2 transform"
-      >
-        <button
-          onClick={handleScrollToNext}
-          className="group focus:ring-sobrado-ochre/50 flex cursor-pointer flex-col items-center rounded-lg p-2 text-white/80 transition-colors duration-300 hover:text-white focus:ring-2 focus:ring-offset-2 focus:outline-none"
-          aria-label="Scroll to next section to continue reading the story"
-        >
-          <span className="mb-3 font-sans text-sm font-semibold tracking-widest uppercase">
-            Explore Further
-          </span>
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{
-              duration: 2.5,
-              repeat: Infinity,
-              ease: "easeInOut" as const,
-            }}
-            className="text-sobrado-ochre h-6 w-6"
-          >
-            <svg
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              className="h-full w-full"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 14l-7 7m0 0l-7-7m7 7V3"
-              />
-            </svg>
-          </motion.div>
-        </button>
-      </motion.div>
+      {/* Scroll Indicator */}
+      <ScrollIndicator onClick={handleScrollToNext} />
 
       {/* Reduced Motion Fallback Message */}
       {reducedMotion && (

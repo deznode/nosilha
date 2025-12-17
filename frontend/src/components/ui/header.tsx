@@ -125,10 +125,11 @@ export function Header({
   };
 
   // --- CONTRAST LOGIC ---
-  // If we are on the Home page AND haven't scrolled yet, we are sitting on top
-  // of the dark atmospheric hero. We need White text.
+  // If we are on pages with dark hero sections AND haven't scrolled yet,
+  // we are sitting on top of dark imagery. We need White text.
   // Otherwise, we use the standard dark/brand colors.
-  const isTransparent = pathname === "/" && !scrolled;
+  const isTransparent =
+    (pathname === "/" || pathname === "/history") && !scrolled;
 
   const textColorClass = isTransparent
     ? "text-white drop-shadow-md hover:text-white/80"
