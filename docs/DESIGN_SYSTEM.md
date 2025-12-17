@@ -35,21 +35,26 @@ Our color system uses **Tailwind CSS v4** with a semantic token approach that au
   --color-bougainvillea-pink: #C02669;
   --color-sobrado-ochre: #D97706;  /* Replaces sunny-yellow */
 
-  /* Bruma Neutral Scale (Mist/Basalt) */
-  --color-mist-50: #F9FAFB;
-  --color-mist-100: #F3F4F6;
-  --color-mist-200: #E5E7EB;
-  --color-basalt-500: #6B7280;
-  --color-basalt-800: #1F2937;
-  --color-basalt-900: #111827;
+  /* Bruma Neutral Scale (Mist/Basalt) - Slate palette */
+  --color-mist-50: #f8fafc;
+  --color-mist-100: #f1f5f9;
+  --color-mist-200: #e2e8f0;
+  --color-basalt-500: #64748b;
+  --color-basalt-800: #1e293b;
+  --color-basalt-900: #0f172a;
 
   /* Legacy aliases (for backward compatibility) */
   --color-off-white: var(--color-mist-50);
 
-  /* Accent Colors for UI States */
-  --color-accent-error: #DC2626;
-  --color-accent-success: #059669;
-  --color-accent-warning: var(--color-sobrado-ochre);
+  /* Status Colors */
+  --color-status-error: #be123c;
+  --color-status-success: #15803d;
+  --color-status-warning: #b45309;
+
+  /* Accent Colors for UI States (aliases) */
+  --color-accent-error: var(--color-status-error);
+  --color-accent-success: var(--color-status-success);
+  --color-accent-warning: var(--color-status-warning);
 
   /* === SEMANTIC ALIASES ("Semantic Structure, Branded Soul") === */
   /* Use these for layouts - dark mode switches automatically */
@@ -175,22 +180,22 @@ Our semantic color system provides a comprehensive set of tokens that automatica
 #### Background Tokens
 | Token | Light Mode | Dark Mode | Usage |
 |-------|------------|-----------|-------|
-| `canvas` / `background-primary` | `mist-50` (#F9FAFB) | `basalt-900` (#111827) | Main page backgrounds |
-| `surface` / `background-secondary` | `mist-100` (#F3F4F6) | `basalt-800` (#1F2937) | Cards, sidebars, panels |
-| `surface-alt` / `background-tertiary` | `mist-200` (#E5E7EB) | `basalt-500` (#6B7280) | Hover states, alternates |
+| `canvas` / `background-primary` | `mist-50` (#f8fafc) | `basalt-900` (#0f172a) | Main page backgrounds |
+| `surface` / `background-secondary` | `mist-100` (#f1f5f9) | `basalt-800` (#1e293b) | Cards, sidebars, panels |
+| `surface-alt` / `background-tertiary` | `mist-200` (#e2e8f0) | `basalt-500` (#64748b) | Hover states, alternates |
 
 #### Text Tokens
 | Token | Light Mode | Dark Mode | Usage |
 |-------|------------|-----------|-------|
-| `body` / `text-primary` | `basalt-900` (#111827) | `mist-50` (#F9FAFB) | Main content, headings |
-| `muted` / `text-secondary` | `basalt-500` (#6B7280) | `mist-200` (#E5E7EB) | Secondary text, captions |
-| `text-tertiary` | `basalt-500` (#6B7280) | `mist-200` (#E5E7EB) | Placeholder text, disabled labels |
+| `body` / `text-primary` | `basalt-900` (#0f172a) | `mist-50` (#f8fafc) | Main content, headings |
+| `muted` / `text-secondary` | `basalt-500` (#64748b) | `mist-200` (#e2e8f0) | Secondary text, captions |
+| `text-tertiary` | `basalt-500` (#64748b) | `mist-200` (#e2e8f0) | Placeholder text, disabled labels |
 
 #### Border Tokens
 | Token | Light Mode | Dark Mode | Usage |
 |-------|------------|-----------|-------|
-| `hairline` / `border-subtle` | `mist-200` (#E5E7EB) | `basalt-800` (#1F2937) | Light dividers, subtle borders |
-| `edge` / `border-strong` | `basalt-500` (#6B7280) | `basalt-500` (#6B7280) | Strong borders, form elements |
+| `hairline` / `border-subtle` | `mist-200` (#e2e8f0) | `basalt-800` (#1e293b) | Light dividers, subtle borders |
+| `edge` / `border-strong` | `basalt-500` (#64748b) | `basalt-500` (#64748b) | Strong borders, form elements |
 
 #### Brand Color Tokens
 | Token | Hex Value | Usage |
@@ -204,19 +209,19 @@ Our semantic color system provides a comprehensive set of tokens that automatica
 #### State Tokens
 | Token | Color | Usage |
 |-------|-------|-------|
-| `accent-error` | `#DC2626` | Error states, destructive actions |
-| `accent-success` | `#059669` | Success states, confirmation |
-| `accent-warning` | `sobrado-ochre` (#D97706) | Warning states, caution |
+| `status-error` / `accent-error` | `#be123c` | Error states, destructive actions (rose-red) |
+| `status-success` / `accent-success` | `#15803d` | Success states, confirmation (forest green) |
+| `status-warning` / `accent-warning` | `#b45309` | Warning states, caution (ochre) |
 
-#### Bruma Neutral Scale
+#### Bruma Neutral Scale (Slate palette)
 | Token | Hex Value | Usage |
 |-------|-----------|-------|
-| `mist-50` | `#F9FAFB` | Lightest background, off-white |
-| `mist-100` | `#F3F4F6` | Light backgrounds, cards |
-| `mist-200` | `#E5E7EB` | Borders, dividers, hover states |
-| `basalt-500` | `#6B7280` | Secondary text, muted elements |
-| `basalt-800` | `#1F2937` | Dark backgrounds, dark mode surfaces |
-| `basalt-900` | `#111827` | Darkest backgrounds, primary dark mode |
+| `mist-50` | `#f8fafc` | Lightest background, off-white |
+| `mist-100` | `#f1f5f9` | Light backgrounds, cards |
+| `mist-200` | `#e2e8f0` | Borders, dividers, hover states |
+| `basalt-500` | `#64748b` | Secondary text, muted elements |
+| `basalt-800` | `#1e293b` | Dark backgrounds, dark mode surfaces |
+| `basalt-900` | `#0f172a` | Darkest backgrounds, primary dark mode |
 
 ### Token Usage Examples
 
@@ -253,38 +258,38 @@ The typography system uses two carefully selected Google Fonts that embody both 
 ```css
 /* Font Variables */
 :root {
-  --font-family-sans: var(--font-lato), sans-serif;
-  --font-family-serif: var(--font-merriweather), serif;
+  --font-sans: "Outfit", system-ui, sans-serif;
+  --font-serif: "Fraunces", Georgia, serif;
 }
 ```
 
 #### Primary Fonts
-- **Lato** (Sans-serif): Clean, modern, highly readable
+- **Outfit** (Sans-serif): Geometric, brand-focused, clean
   - **Usage**: Body text, UI elements, navigation, forms
-  - **Weights**: 400 (Regular), 700 (Bold)
-  - **Character**: Professional, approachable, excellent legibility
+  - **Weights**: 400, 500, 600, 700
+  - **Character**: Modern, approachable, excellent legibility
 
-- **Merriweather** (Serif): Elegant, story-telling typeface
+- **Fraunces** (Serif): Variable, old-style, soft
   - **Usage**: Headings, titles, storytelling content
-  - **Weights**: 400 (Regular), 700 (Bold), 900 (Black)
-  - **Character**: Traditional, authoritative, conveys heritage
+  - **Weights**: 400, 500, 700
+  - **Character**: Traditional, warm, conveys heritage (reflects Brava's literary history - Eugénio Tavares)
 
 ### Typography Implementation
 
 ```tsx
 // Next.js Font Configuration (layout.tsx)
-import { Lato, Merriweather } from "next/font/google";
+import { Outfit, Fraunces } from "next/font/google";
 
-const lato = Lato({
+const outfit = Outfit({
   subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-lato",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-sans",
 });
 
-const merriweather = Merriweather({
+const fraunces = Fraunces({
   subsets: ["latin"],
-  weight: ["400", "700", "900"],
-  variable: "--font-merriweather",
+  weight: ["400", "500", "700"],
+  variable: "--font-serif",
 });
 ```
 
@@ -307,12 +312,12 @@ const merriweather = Merriweather({
 
 | Element | Font | Weight | Size (Mobile) | Size (Desktop) | Usage |
 |---------|------|--------|---------------|----------------|-------|
-| H1 | Merriweather | Bold (700) | text-4xl | text-6xl | Page titles |
-| H2 | Merriweather | Bold (700) | text-3xl | text-4xl | Section headings |
-| H3 | Merriweather | Bold (700) | text-2xl | text-3xl | Subsection titles |
-| Body | Lato | Regular (400) | text-base | text-lg | Main content |
-| Caption | Lato | Regular (400) | text-sm | text-sm | Supplementary text |
-| Button | Lato | Semibold (600) | text-sm | text-base | Interactive elements |
+| H1 | Fraunces | Bold (700) | text-4xl | text-6xl | Page titles |
+| H2 | Fraunces | Bold (700) | text-3xl | text-4xl | Section headings |
+| H3 | Fraunces | Medium (500) | text-2xl | text-3xl | Subsection titles |
+| Body | Outfit | Regular (400) | text-base | text-lg | Main content |
+| Caption | Outfit | Regular (400) | text-sm | text-sm | Supplementary text |
+| Button | Outfit | Semibold (600) | text-sm | text-base | Interactive elements |
 
 ## 🧩 Component Library
 
@@ -501,12 +506,12 @@ Our dark mode implementation uses **Tailwind CSS v4's @variant dark** feature wi
 #### Volcanic Night Color Mapping
 | Element | Light Mode | Dark Mode (Volcanic Night) |
 |---------|------------|---------------------------|
-| Page Background | `mist-50` (#F9FAFB) | `basalt-900` (#111827) |
-| Card/Surface | `mist-100` (#F3F4F6) | `basalt-800` (#1F2937) |
-| Primary Text | `basalt-900` (#111827) | `mist-50` (#F9FAFB) |
-| Secondary Text | `basalt-500` (#6B7280) | `mist-200` (#E5E7EB) |
-| Subtle Borders | `mist-200` (#E5E7EB) | `basalt-800` (#1F2937) |
-| Strong Borders | `basalt-500` (#6B7280) | `basalt-500` (#6B7280) |
+| Page Background | `mist-50` (#f8fafc) | `basalt-900` (#0f172a) |
+| Card/Surface | `mist-100` (#f1f5f9) | `basalt-800` (#1e293b) |
+| Primary Text | `basalt-900` (#0f172a) | `mist-50` (#f8fafc) |
+| Secondary Text | `basalt-500` (#64748b) | `mist-200` (#e2e8f0) |
+| Subtle Borders | `mist-200` (#e2e8f0) | `basalt-800` (#1e293b) |
+| Strong Borders | `basalt-500` (#64748b) | `basalt-500` (#64748b) |
 
 #### Modern Implementation Architecture
 
@@ -990,10 +995,10 @@ className="size-[max(100%,2.75rem)]"
 #### Font Loading
 ```tsx
 // Preload critical fonts with font-display: swap
-const lato = Lato({
+const outfit = Outfit({
   subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-lato",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-sans",
   display: "swap",
 });
 ```
@@ -1037,19 +1042,25 @@ The color system follows the **"Semantic Structure, Branded Soul"** approach:
 /* globals.css - Single source of truth */
 @theme {
   /* Brand Color Palette */
-  --color-ocean-blue: #0E4C75;
-  --color-ocean-blue-light: #2A769E;
-  --color-valley-green: #2F6E4D;
-  --color-bougainvillea-pink: #C02669;
-  --color-sobrado-ochre: #D97706;
+  --color-ocean-blue: #0e4c75;
+  --color-ocean-blue-light: #2a769e;
+  --color-valley-green: #2f6e4d;
+  --color-bougainvillea-pink: #c02669;
+  --color-sobrado-ochre: #d97706;
+  --color-sunny-yellow: #fbbf24;
 
-  /* Bruma Neutral Scale */
-  --color-mist-50: #F9FAFB;
-  --color-mist-100: #F3F4F6;
-  --color-mist-200: #E5E7EB;
-  --color-basalt-500: #6B7280;
-  --color-basalt-800: #1F2937;
-  --color-basalt-900: #111827;
+  /* Bruma Neutral Scale (Slate palette) */
+  --color-mist-50: #f8fafc;
+  --color-mist-100: #f1f5f9;
+  --color-mist-200: #e2e8f0;
+  --color-basalt-500: #64748b;
+  --color-basalt-800: #1e293b;
+  --color-basalt-900: #0f172a;
+
+  /* Status Colors */
+  --color-status-error: #be123c;
+  --color-status-success: #15803d;
+  --color-status-warning: #b45309;
 
   /* Semantic Aliases (auto dark mode) */
   --color-canvas: var(--color-bg-primary);

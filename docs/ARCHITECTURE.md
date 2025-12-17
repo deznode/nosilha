@@ -203,10 +203,11 @@ frontend/
 
 ```
 backend/src/main/kotlin/com/nosilha/core/
-├── shared/      # Shared Kernel - Common infrastructure (events, audit, exceptions)
-├── auth/        # Authentication Module - JWT auth and user management
-├── directory/   # Directory Module - Cultural heritage entries (STI pattern)
-└── media/       # Media Module - GCS storage and AI processing
+├── shared/         # Shared Kernel - Common infrastructure (events, audit, exceptions)
+├── auth/           # Authentication Module - JWT auth and user management
+├── directory/      # Directory Module - Cultural heritage entries (STI pattern)
+├── media/          # Media Module - GCS storage and AI processing
+└── contentactions/ # Content Actions Module - Reactions, suggestions, related content
 ```
 
 **Standard Module Structure:**
@@ -228,7 +229,7 @@ Each module follows a consistent pattern with these internal layers:
 1. **Spring Modulith Architecture**: Modular monolith with enforced module boundaries and event-driven communication
 2. **Single Table Inheritance**: All directory entries in one table with discriminator column (Directory module)
 3. **Event-Driven Communication**: Modules communicate via `@ApplicationModuleListener` without direct dependencies
-4. **Module Isolation**: Each module (auth, directory, media) has independent domain, API, and repository layers
+4. **Module Isolation**: Each module (auth, directory, media, contentactions) has independent domain, API, and repository layers
 5. **Shared Kernel**: Common infrastructure (AuditableEntity, events, exceptions) in dedicated shared module
 6. **JWT Authentication**: Stateless authentication with Supabase token validation (Auth module)
 7. **Actuator Integration**: Health checks and metrics for production monitoring
@@ -294,6 +295,11 @@ Each module follows a consistent pattern with these internal layers:
 │  └───────────────────────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+**Note:** The diagram above shows the core modules. The **ContentActions module** (`contentactions/`) is also present and follows the same pattern with:
+- `ReactionController`, `SuggestionController`, `ContentController`
+- `ReactionService`, `SuggestionService`, `ContentService`
+- Domain entities: `Reaction`, `Suggestion`, `Content`
 
 **Module Communication:**
 - ✅ **Event-Driven**: Modules communicate via `@ApplicationModuleListener` (e.g., `MediaService` listens to `DirectoryEntryCreatedEvent`)

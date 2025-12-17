@@ -59,33 +59,13 @@ The API uses JWT-based authentication with Supabase tokens:
 Authorization: Bearer <supabase_jwt_token>
 ```
 
-### Authentication Endpoints
+### Authentication Validation
 
-While user authentication is handled by Supabase on the frontend, the backend provides validation endpoints:
+Token validation is handled internally by the `JwtAuthenticationFilter` on protected endpoints. There is no separate `/auth/validate` endpoint - the JWT is validated automatically when accessing protected routes.
 
-#### Validate Token
-```http
-GET /api/v1/auth/validate
-Authorization: Bearer <token>
-```
-
-**Response** (200 OK):
-```json
-{
-  "valid": true,
-  "userId": "uuid-string",
-  "email": "user@example.com",
-  "roles": ["USER"]
-}
-```
-
-**Response** (401 Unauthorized):
-```json
-{
-  "error": "Invalid or expired token",
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
+Protected endpoints will return:
+- **401 Unauthorized**: Missing or invalid token
+- **403 Forbidden**: Valid token but insufficient permissions
 
 ## 🏢 Directory Entries API
 

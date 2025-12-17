@@ -71,9 +71,6 @@ pids
 *.seed
 *.pid.lock
 
-# Storybook build outputs
-storybook-static/
-
 # Sentry Config File
 .sentryclirc
 
@@ -91,7 +88,6 @@ storybook-static/
 # Local Netlify folder
 .netlify
 
-*storybook.log
 # Pagefind search index
 public/pagefind/
 

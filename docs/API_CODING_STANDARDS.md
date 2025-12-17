@@ -1550,18 +1550,30 @@ com.nosilha.core/
 │       ├── DirectoryEntryUpdatedEvent.kt
 │       └── DirectoryEntryDeletedEvent.kt
 │
-└── media/                               # Media Processing Module
+├── media/                               # Media Processing Module
+│   ├── PackageInfo.kt                  # Module API declaration
+│   ├── api/                            # Public REST endpoints
+│   │   └── MediaController.kt          # File upload endpoints
+│   ├── config/                         # Media-specific configuration (internal)
+│   ├── domain/                         # Media business logic (internal)
+│   │   └── MediaService.kt             # GCS, Vision API, event listeners
+│   ├── repository/                     # Data access layer (internal)
+│   │   └── FirestoreMediaRepository.kt # Metadata storage
+│   └── events/                         # Media domain events (public)
+│       ├── MediaUploadedEvent.kt
+│       └── MediaProcessedEvent.kt
+│
+└── contentactions/                      # Content Actions Module
     ├── PackageInfo.kt                  # Module API declaration
     ├── api/                            # Public REST endpoints
-    │   └── MediaController.kt          # File upload endpoints
-    ├── config/                         # Media-specific configuration (internal)
-    ├── domain/                         # Media business logic (internal)
-    │   └── MediaService.kt             # GCS, Vision API, event listeners
+    │   └── ContentActionsController.kt # Reactions, suggestions endpoints
+    ├── domain/                         # Content actions business logic (internal)
+    │   ├── ContentActionService.kt     # Reaction & suggestion logic
+    │   └── Reaction.kt                 # Reaction entity
     ├── repository/                     # Data access layer (internal)
-    │   └── FirestoreMediaRepository.kt # Metadata storage
-    └── events/                         # Media domain events (public)
-        ├── MediaUploadedEvent.kt
-        └── MediaProcessedEvent.kt
+    │   └── ReactionRepository.kt       # JPA repository
+    └── events/                         # Content actions domain events (public)
+        └── ReactionCreatedEvent.kt
 ```
 
 **Key Module Rules:**

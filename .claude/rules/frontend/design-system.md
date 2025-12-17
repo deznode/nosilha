@@ -16,20 +16,23 @@ See `docs/DESIGN_SYSTEM.md` for comprehensive styling guide.
 
 | Color | Hex | Usage |
 |-------|-----|-------|
-| Ocean Blue | `#005A8D` | Primary actions, links |
+| Ocean Blue | `#0e4c75` | Primary actions, links |
+| Ocean Blue Deep | `#0e4c75` | Hover states, dark accents (same as Ocean Blue in light mode) |
 | Valley Green | `#3E7D5A` | Success states, nature imagery |
 | Bougainvillea Pink | `#D90368` | Accents, highlights |
 | Sunny Yellow | `#F7B801` | Warnings, call-to-action |
+| Mist (Neutrals) | `#f8fafc` to `#e2e8f0` | Backgrounds (Slate palette) |
+| Basalt (Neutrals) | `#64748b` to `#0f172a` | Text, dark backgrounds (Slate palette) |
 
 ## Typography
 
-- **Headings**: Merriweather (serif)
-- **Body text**: Lato (sans-serif)
+- **Headings**: Fraunces (serif) - variable, old-style, soft
+- **Body text**: Outfit (sans-serif) - geometric, brand-focused, clean
 - **Implementation**: Google Fonts with CSS variables
 
 ```css
---font-heading: 'Merriweather', serif;
---font-body: 'Lato', sans-serif;
+--font-sans: 'Outfit', sans-serif;
+--font-serif: 'Fraunces', serif;
 ```
 
 ## Component Library
@@ -70,11 +73,8 @@ Pre-built accessible components from Catalyst:
 ## Tailwind Usage
 
 ```tsx
-// Prefer semantic class names
-<button className="btn-primary">Submit</button>
-
-// Use design tokens
-<div className="text-ocean-blue bg-valley-green/10">
+// Use semantic CSS variable tokens
+<div className="text-[var(--color-ocean-blue)] bg-[var(--color-valley-green)]/10">
   Content
 </div>
 
@@ -82,6 +82,10 @@ Pre-built accessible components from Catalyst:
 <div className="p-4 md:p-6 lg:p-8">
   Content
 </div>
+
+// Font usage
+<h1 className="font-serif">Heading with Fraunces</h1>
+<p className="font-sans">Body text with Outfit</p>
 ```
 
 ## Reference

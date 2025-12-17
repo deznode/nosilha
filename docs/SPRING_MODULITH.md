@@ -47,14 +47,15 @@ Spring Modulith is a framework that helps structure Spring Boot applications as 
 
 ### Current Modules
 
-The Nos Ilha backend is organized into **4 modules**:
+The Nos Ilha backend is organized into **5 modules**:
 
 ```
 backend/src/main/kotlin/com/nosilha/core/
 ├── shared/           # Shared Kernel (foundation layer)
 ├── auth/             # Authentication Module
 ├── directory/        # Directory Management Module
-└── media/            # Media Processing Module
+├── media/            # Media Processing Module
+└── contentactions/   # Content Actions Module (reactions, suggestions)
 ```
 
 ### Module Dependency Graph
@@ -85,8 +86,15 @@ backend/src/main/kotlin/com/nosilha/core/
 │  │  shared     │      │  shared       │      │  shared     │  │
 │  └─────────────┘      └───────┬───────┘      └──────▲──────┘  │
 │                               │ Events              │         │
-│                               └─────────────────────┘         │
-│                       DirectoryEntryCreatedEvent              │
+│          ┌────────────────────┼─────────────────────┘         │
+│          │                    │                               │
+│  ┌───────┴──────────┐         │                               │
+│  │Content Actions   │         │                               │
+│  │Module            │◄────────┘                               │
+│  │• Reactions       │  DirectoryEntryCreatedEvent             │
+│  │• Suggestions     │                                         │
+│  │Depends: shared   │                                         │
+│  └──────────────────┘                                         │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -285,6 +293,33 @@ class MediaService {
 **Public API:**
 - `MediaController` (REST endpoints)
 - `Media*Event` (domain events)
+
+**Dependencies**: `shared`
+
+### 5. Content Actions Module
+
+**Package**: `com.nosilha.core.contentactions`
+**Purpose**: Manage user reactions, suggestions, and related content for directory entries
+
+**Module Detection**: Spring Modulith auto-detects this module by directory structure
+
+**Structure:**
+```
+contentactions/
+├── api/
+│   └── ContentActionsController.kt  # Public REST endpoints (reactions, suggestions)
+├── domain/
+│   ├── ContentActionService.kt  # Business logic for reactions/suggestions - internal
+│   └── Reaction.kt              # Reaction entity - internal
+├── repository/
+│   └── ReactionRepository.kt    # JPA data access - internal
+└── events/
+    └── ReactionCreatedEvent.kt  # Published when user reacts to content
+```
+
+**Public API:**
+- `ContentActionsController` (REST endpoints)
+- `ReactionCreatedEvent` (domain events)
 
 **Dependencies**: `shared`
 

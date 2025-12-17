@@ -87,8 +87,8 @@ All brand colors have been audited for WCAG 2.1 compliance. See `/brand/docs/acc
 
 | Role | Font | Weights | Usage |
 | :---- | :---- | :---- | :---- |
-| **Primary** | Lato (Sans-serif) | 400, 700 | Body, UI, navigation. Clean and modern. |
-| **Secondary** | Merriweather (Serif) | 400, 700, 900 | Headings. Reflects the literary history of Brava (Eugénio Tavares). |
+| **Primary** | Outfit (Sans-serif) | 400, 500, 600, 700 | Body, UI, navigation. Geometric, brand-focused, clean. |
+| **Secondary** | Fraunces (Serif) | 400, 500, 700 | Headings. Variable, old-style, soft. Reflects the literary history of Brava (Eugénio Tavares). |
 
 ### **Type Scale**
 

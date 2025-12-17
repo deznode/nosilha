@@ -296,10 +296,10 @@ curl -f http://localhost:8080/actuator/health
 ```bash
 # Test frontend locally
 cd frontend
-npm ci
-npm run lint
-npm run build
-npm run dev
+pnpm install
+pnpm run lint
+pnpm run build
+pnpm run dev
 
 # Test Docker build
 docker build -t nosilha-frontend:test .
@@ -327,10 +327,10 @@ curl -f http://localhost:3000
 
 **Test Commands**:
 ```bash
-# Frontend coverage verification
+# Frontend coverage verification (local only - not in CI)
 cd frontend
-npm run test:unit -- --coverage --run
-# Vitest will fail if coverage < 70%
+pnpm run test:unit -- --coverage --run
+# Note: Coverage not enforced in CI, local validation only
 
 # Backend coverage verification
 cd backend
@@ -381,7 +381,7 @@ ModularityTests > generateModuleDocumentation() PASSED
 ```bash
 # Frontend bundle size analysis
 cd frontend
-npm run build
+pnpm run build
 
 # Check bundle size manually
 du -sh .next/static/chunks | awk '{print $1}'
@@ -417,16 +417,16 @@ fi
 
 **Test Commands**:
 ```bash
-# Frontend E2E tests
+# Frontend E2E tests (local only - not in CI)
 cd frontend
-npx playwright test
+pnpm exec playwright test
 # Must complete in <5 minutes
 
-# Frontend unit tests with coverage
-npm run test:unit -- --coverage --run
-# Must pass with ≥70% coverage
+# Frontend unit tests with coverage (local only - not in CI)
+pnpm run test:unit -- --coverage --run
+# Coverage for local validation only
 
-# Backend unit tests
+# Backend unit tests (runs in CI)
 cd backend
 ./gradlew test
 # All tests must pass
@@ -540,9 +540,9 @@ cd ../../backend
 # Phase 3: Frontend Tests
 echo "📋 Phase 3: Frontend Testing"
 cd ../frontend
-npm ci && echo "✅ Frontend dependencies installed" || echo "❌ Frontend dependencies failed"
-npm run lint && echo "✅ Frontend linting passed" || echo "❌ Frontend linting failed"
-npm run build && echo "✅ Frontend build passed" || echo "❌ Frontend build failed"
+pnpm install && echo "✅ Frontend dependencies installed" || echo "❌ Frontend dependencies failed"
+pnpm run lint && echo "✅ Frontend linting passed" || echo "❌ Frontend linting failed"
+pnpm run build && echo "✅ Frontend build passed" || echo "❌ Frontend build failed"
 docker build -t test-frontend . && echo "✅ Frontend Docker build passed" || echo "❌ Frontend Docker build failed"
 
 echo "🎉 CI/CD Pipeline Test Suite Complete!"

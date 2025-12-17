@@ -84,6 +84,3 @@ k6-*.json
 frontend/.velite
 
 /CHANGELOG.md
-
-# Symbolic link to external plugin repository
-/arkhe-claude-plugins

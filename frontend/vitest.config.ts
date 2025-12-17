@@ -25,13 +25,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
-      exclude: [
-        "node_modules/",
-        "tests/",
-        "**/*.config.*",
-        "**/types/**",
-        ".storybook/",
-      ],
+      exclude: ["node_modules/", "tests/", "**/*.config.*", "**/types/**"],
       // Thresholds removed - coverage not enforced (local development only)
     },
     projects: [
@@ -45,7 +39,6 @@ export default defineConfig({
           include: ["tests/unit/**/*.test.{ts,tsx}"],
         },
       },
-      // Storybook testing removed - use Storybook's built-in interaction testing instead
     ],
   },
   resolve: {

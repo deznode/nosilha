@@ -171,12 +171,3 @@ Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
-
-## Active Technologies
-- TypeScript 5.x, React 19.2, Next.js 16 (App Router) + Tailwind CSS, Framer Motion (animations), Radix UI (accessible primitives), Lucide React (icons) (005-action-toolbar-refactor)
-- N/A (frontend-only refactoring, uses existing backend API from feature 004) (005-action-toolbar-refactor)
-- TypeScript 5.x, React 19.2, Next.js 16 (App Router) + Velite (content processing), Pagefind (search), Zod (validation), Husky (pre-commit) (007-mdx-content-platform)
-- Git repository (MDX files), no database for conten (007-mdx-content-platform)
-
-## Recent Changes
-- 005-action-toolbar-refactor: Added TypeScript 5.x, React 19.2, Next.js 16 (App Router) + Tailwind CSS, Framer Motion (animations), Radix UI (accessible primitives), Lucide React (icons)

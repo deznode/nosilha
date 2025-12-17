@@ -11,7 +11,7 @@ The Nos Ilha frontend is a Next.js 16 / React 19.2 application that powers a cul
 - **State & Data:** TanStack Query 5, Zustand stores, React Hook Form + Zod validation
 - **Mapping & Media:** Mapbox GL v3, react-map-gl, Framer Motion animations
 - **Auth & API:** Supabase Auth client, strategy-based API factory that switches between Spring Boot REST endpoints and local mock data
-- **Tooling:** ESLint flat config, Prettier + Tailwind plugin, Storybook 9 (Next.js Vite), Vitest (local), Playwright (local)
+- **Tooling:** ESLint flat config, Prettier + Tailwind plugin, Vitest (local), Playwright (local)
 
 ## Getting Started
 
@@ -44,7 +44,6 @@ The App Router organizes routes under `src/app/(main)` (public experiences), `sr
 | `npm run test:unit` | Vitest unit tests for critical stores/hooks (local only) |
 | `npm run test:e2e` | Playwright E2E suite (Chromium, local only) |
 | `npm run test:e2e:headed` / `npm run test:e2e:debug` | E2E tests with browser UI / debug mode |
-| `npm run storybook` / `npm run build-storybook` | Storybook 9 component docs + a11y validation |
 
 ## Environment
 
@@ -70,13 +69,11 @@ Additional optional variables are documented in `.env.local.example`. Keep secre
 **Local Development (Manual - NOT in CI):**
 - **Unit tests:** Vitest + React Testing Library for critical stores and hooks (`tests/unit/**`). Configure globals in `tests/setup/vitest.setup.tsx`.
 - **E2E tests:** Playwright specs (`tests/e2e`, `tests/shared`) cover auth, directory flows, and map interactions. Run locally before major releases using `npm run test:e2e`. Chromium browser only for simplicity.
-- **Storybook:** Component documentation + a11y addon for accessibility validation. Run `npm run storybook` to explore components and check accessibility.
 
-**Pre-Release Checklist** (20-30 min before major releases):
+**Pre-Release Checklist** (15-20 min before major releases):
 1. Run `npm run test:e2e` locally (validates critical user flows)
-2. Visual review in Storybook with a11y addon checks
-3. Test on mobile device (iOS Safari + Android Chrome)
-4. Optional: Manual Lighthouse audit on key pages (config in `lighthouserc.js`)
+2. Test on mobile device (iOS Safari + Android Chrome)
+3. Optional: Manual Lighthouse audit on key pages (config in `lighthouserc.js`)
 
 **Testing Philosophy:** This project uses a TypeScript-first, budget-conscious approach optimized for solo maintainers. CI runs only type checking + linting + build (75% faster than full test suite). E2E and unit tests available locally for pre-release validation. See `../docs/TESTING.md` for details.
 
@@ -88,7 +85,6 @@ Additional optional variables are documented in `.env.local.example`. Keep secre
 - `src/lib/` – API clients, env validation, metadata builders, Supabase client, animation tokens.
 - `src/stores/` – Zustand stores for auth, filters, and UI state.
 - `src/hooks/` – TanStack Query hooks and reusable utilities (`useMediaQuery`, smooth scroll).
-- `src/stories/` – Storybook stories for primitives, composites, and route-level sections.
 - `tests/` – Playwright E2E tests and Vitest unit tests (local development only, not run in CI).
 
 Refer to `../docs/ARCHITECTURE.md` for a system-level overview (frontend, backend, infrastructure) and to `../docs/DESIGN_SYSTEM.md` for color, typography, and motion guidelines. All code changes should be validated against those documents to maintain brand consistency and architectural integrity.

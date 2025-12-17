@@ -49,9 +49,9 @@ This approach aligns with industry best practices for solo-maintained projects:
 Every push and pull request runs:
 
 1. **Security Scanning** (Trivy + ESLint SARIF)
-2. **TypeScript Compilation** (`npx tsc --noEmit`)
-3. **ESLint** (`npm run lint`)
-4. **Next.js Build** (`npm run build`)
+2. **TypeScript Compilation** (`pnpm exec tsc --noEmit`)
+3. **ESLint** (`pnpm run lint`)
+4. **Next.js Build** (`pnpm run build`)
 
 **Execution Time**: 3-5 minutes (75% faster than previous approach)
 
@@ -99,16 +99,16 @@ Together, these gates catch 80-90% of issues without expensive E2E test infrastr
 cd frontend
 
 # Headless mode (Chromium only)
-npm run test:e2e
+pnpm run test:e2e
 
 # With browser UI (for debugging)
-npm run test:e2e:headed
+pnpm run test:e2e:headed
 
 # Debug mode with breakpoints
-npm run test:e2e:debug
+pnpm run test:e2e:debug
 
 # View last test report
-npm run test:e2e:report
+pnpm run test:e2e:report
 ```
 
 **Test Coverage** (6 critical tests):
@@ -140,13 +140,13 @@ npm run test:e2e:report
 cd frontend
 
 # Run once
-npm run test:unit
+pnpm run test:unit
 
 # Watch mode (for TDD)
-npm run test:unit --watch
+pnpm run test:unit --watch
 
 # With coverage (optional)
-npm run test:unit -- --coverage
+pnpm run test:unit -- --coverage
 ```
 
 **Test Coverage** (4 critical tests):
@@ -170,7 +170,7 @@ Run this checklist manually before deploying significant changes:
 #### 1. Local E2E Tests (10 min)
 ```bash
 cd frontend
-npm run test:e2e
+pnpm run test:e2e
 ```
 - Validates critical user flows work end-to-end
 - Chromium browser only (desktop)
@@ -198,7 +198,7 @@ npx @lhci/cli@latest autorun
 ### What to Do If Tests Fail
 
 **E2E test failures:**
-1. Run `npm run test:e2e:headed` to see what's happening
+1. Run `pnpm run test:e2e:headed` to see what's happening
 2. Fix the issue locally
 3. Re-run tests until passing
 4. DO NOT deploy with failing E2E tests
@@ -277,7 +277,7 @@ npx @lhci/cli@latest autorun
 **Solution**:
 ```bash
 cd frontend
-npx tsc --noEmit
+pnpm exec tsc --noEmit
 ```
 Fix all type errors before pushing. Common issues:
 - Missing type imports
@@ -291,13 +291,13 @@ Fix all type errors before pushing. Common issues:
 **Solution**:
 ```bash
 cd frontend
-npm run lint:fix
+pnpm run lint:fix
 ```
 This auto-fixes most issues. For remaining errors, check `eslint.config.mjs`.
 
 ### Next.js Build Fails in CI
 
-**Symptom**: CI fails during `npm run build`
+**Symptom**: CI fails during `pnpm run build`
 
 **Common causes**:
 1. **Missing environment variables** - Check `.env.local.example`
@@ -307,7 +307,7 @@ This auto-fixes most issues. For remaining errors, check `eslint.config.mjs`.
 **Solution**:
 ```bash
 cd frontend
-npm run build
+pnpm run build
 ```
 Fix all build errors locally before pushing.
 
@@ -316,7 +316,7 @@ Fix all build errors locally before pushing.
 **Symptom**: Playwright tests fail when run locally
 
 **Debugging steps**:
-1. Run with UI: `npm run test:e2e:headed`
+1. Run with UI: `pnpm run test:e2e:headed`
 2. Check if dev server is running: http://localhost:3000
 3. Verify backend API is accessible (if using real API)
 4. Check test data in `tests/setup/global-setup.ts`
