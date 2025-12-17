@@ -28,16 +28,55 @@ import {
   Plus,
   ChevronDown,
   Check,
+  Moon,
 } from "lucide-react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
 
-// Keep your existing imports
-import { NosilhaLogo } from "./logo";
-import { useAuth } from "@/components/providers/auth-provider";
-import { supabase } from "@/lib/supabase-client";
-import { ThemeToggle } from "./theme-toggle";
+/* !!! IMPORTANT FOR PRODUCTION !!!
+  Uncomment the following lines when using in your actual Next.js app.
+  I have commented them out to make this preview work without errors.
+*/
+// import Link from "next/link";
+// import { usePathname, useRouter } from "next/navigation";
+// import { NosilhaLogo } from "./logo";
+// import { useAuth } from "@/components/providers/auth-provider";
+// import { supabase } from "@/lib/supabase-client";
+// import { ThemeToggle } from "./theme-toggle";
+
+/* --- START: TEMPORARY MOCKS FOR PREVIEW (DELETE IN PRODUCTION) --- */
+const Link = ({ href, children, className, ...props }: any) => (
+  <a href={href} className={className} {...props}>
+    {children}
+  </a>
+);
+const usePathname = () => "/"; // Simulating Home Page
+const useRouter = () => ({ push: () => {}, refresh: () => {} });
+const useAuth = () => ({
+  session: { user: { email: "demo@example.com" } },
+  user: { role: "ADMIN" },
+});
+const supabase = { auth: { signOut: async () => {} } };
+
+const NosilhaLogo = ({ showSubtitle }: { showSubtitle?: boolean }) => (
+  <div className="flex flex-col">
+    {/* Added stronger drop shadow to Logo to stand out against the sky */}
+    <span className="font-serif text-2xl font-bold tracking-tight text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+      Nos<span className="text-amber-400">Ilha</span>
+    </span>
+    {showSubtitle && (
+      <span className="text-[0.6rem] font-medium tracking-[0.2em] text-white/90 uppercase drop-shadow-md">
+        Ilha das Flores
+      </span>
+    )}
+  </div>
+);
+
+const ThemeToggle = () => (
+  <button className="rounded-full p-2 text-white drop-shadow-md transition-colors hover:bg-white/10">
+    <Moon size={20} />
+  </button>
+);
+/* --- END: TEMPORARY MOCKS --- */
 
 // --- Configuration ---
 
@@ -127,17 +166,21 @@ export function Header({
   // --- CONTRAST LOGIC ---
   // If we are on the Home page AND haven't scrolled yet, we are sitting on top
   // of the dark atmospheric hero. We need White text.
-  // Otherwise, we use the standard dark/brand colors.
+  // We also add a text shadow and a gradient background (scrim) to ensure readability.
   const isTransparent = pathname === "/" && !scrolled;
 
+  // REFACTORED: Text color logic for better contrast
+  // Added `drop-shadow-md` to ensure text pops against white clouds/waves
   const textColorClass = isTransparent
     ? "text-white drop-shadow-md hover:text-white/80"
     : "text-text-secondary hover:text-ocean-blue";
 
+  // REFACTORED: Border logic
   const activeLinkClass = isTransparent
     ? "border-white text-white drop-shadow-md"
     : "border-ocean-blue text-ocean-blue";
 
+  // REFACTORED: Icon logic
   const iconClass = isTransparent
     ? "text-white drop-shadow-md hover:text-white hover:bg-white/10"
     : "text-text-secondary hover:text-ocean-blue hover:bg-background-secondary";
@@ -146,10 +189,10 @@ export function Header({
     <Disclosure
       as="nav"
       className={clsx(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-300 ease-in-out",
+        "fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ease-in-out",
         scrolled
-          ? "border-border-primary/50 bg-background-primary/95 dark:bg-background-primary/90 border-b py-0 shadow-sm backdrop-blur-md dark:border-white/10" // Solid background when scrolled for better contrast
-          : "bg-gradient-to-b from-black/60 to-transparent", // Scrim gradient for text contrast over hero images
+          ? "border-border-primary/50 bg-background-primary/95 dark:bg-background-primary/90 py-0 shadow-sm backdrop-blur-md dark:border-white/10" // Solid background when scrolled
+          : "border-transparent bg-gradient-to-b from-black/60 to-transparent py-4", // "Scrim": 60% black at top, fading to clear. Preserves image visibility.
         className
       )}
       defaultOpen={defaultMobileMenuOpen}
@@ -163,7 +206,7 @@ export function Header({
                 <div className="mr-2 flex md:hidden">
                   <DisclosureButton
                     className={clsx(
-                      "group focus-visible:ring-ocean-blue relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2",
+                      "group relative inline-flex items-center justify-center rounded-md p-2 transition-colors focus:ring-2 focus:outline-none focus:ring-inset",
                       iconClass
                     )}
                   >
@@ -180,12 +223,9 @@ export function Header({
                     href="/"
                     className="group relative flex items-center transition-opacity hover:opacity-95"
                   >
-                    {/* Render the Logo with variant based on transparent state */}
-                    <NosilhaLogo
-                      showSubtitle={true}
-                      variant={isTransparent ? "light" : "default"}
-                      instanceId="header-logo"
-                    />
+                    {/* Render the Logo */}
+                    {/* Note: I removed the dark background blur behind the logo to keep the sky/image cleaner */}
+                    <NosilhaLogo showSubtitle={true} />
                   </Link>
                 </div>
 
@@ -214,7 +254,7 @@ export function Header({
                       </Link>
                     ) : (
                       <Popover key={item.name} className="relative">
-                        {({ open, close }) => (
+                        {({ open }) => (
                           <>
                             <PopoverButton
                               className={clsx(
@@ -246,28 +286,25 @@ export function Header({
                               leaveFrom="opacity-100 translate-y-0"
                               leaveTo="opacity-0 translate-y-1"
                             >
-                              {/* DROPDOWNS: These ALWAYS need a solid background (White or Dark Mode Grey).
-                                  We do NOT want these to be transparent.
-                              */}
+                              {/* DROPDOWNS: Always solid background for readability */}
                               <PopoverPanel className="absolute left-1/2 z-10 mt-3 w-screen max-w-xs -translate-x-1/2 transform px-2 sm:px-0">
                                 <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black/5">
-                                  <div className="bg-background-primary relative grid gap-6 px-5 py-6 sm:gap-8 sm:p-8">
+                                  <div className="relative grid gap-6 bg-white px-5 py-6 sm:gap-8 sm:p-8 dark:bg-stone-900">
                                     {item.items?.map((subItem) => (
                                       <Link
                                         key={subItem.name}
                                         href={subItem.href}
-                                        onClick={close}
-                                        className="hover:bg-background-secondary -m-3 flex items-start rounded-lg p-3 transition duration-150 ease-in-out"
+                                        className="-m-3 flex items-start rounded-lg p-3 transition duration-150 ease-in-out hover:bg-stone-100 dark:hover:bg-stone-800"
                                       >
                                         <subItem.icon
                                           className="text-ocean-blue h-6 w-6 shrink-0"
                                           aria-hidden="true"
                                         />
                                         <div className="ml-4">
-                                          <p className="text-text-primary text-sm font-medium">
+                                          <p className="text-sm font-medium text-stone-900 dark:text-stone-100">
                                             {subItem.name}
                                           </p>
-                                          <p className="text-text-secondary mt-1 text-xs">
+                                          <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">
                                             {subItem.description}
                                           </p>
                                         </div>
@@ -288,11 +325,11 @@ export function Header({
               {/* Right Section: Utilities (Language, Actions, Auth) */}
               <div className="flex items-center space-x-2 md:space-x-4">
                 <div className="hidden items-center space-x-3 md:flex">
-                  {/* Language Selector (Desktop) - 44px min touch target for WCAG */}
+                  {/* Language Selector (Desktop) */}
                   <Menu as="div" className="relative">
                     <MenuButton
                       className={clsx(
-                        "focus-visible:ring-ocean-blue flex min-h-[44px] min-w-[44px] items-center justify-center gap-1 rounded-full text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2",
+                        "flex min-h-[44px] min-w-[44px] items-center justify-center gap-1 rounded-full text-sm font-semibold transition-colors",
                         iconClass
                       )}
                     >
@@ -301,7 +338,6 @@ export function Header({
                         {currentLang.code}
                       </span>
                     </MenuButton>
-                    {/* Dropdowns remain standard solid colors */}
                     <Transition
                       as={Fragment}
                       enter="transition ease-out duration-100"
@@ -311,7 +347,7 @@ export function Header({
                       leaveFrom="transform opacity-100 scale-100"
                       leaveTo="transform opacity-0 scale-95"
                     >
-                      <MenuItems className="bg-background-primary absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
+                      <MenuItems className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none dark:bg-stone-900">
                         {languages.map((lang) => (
                           <MenuItem key={lang.code} disabled={lang.disabled}>
                             {({ active }) => (
@@ -325,10 +361,10 @@ export function Header({
                                 }
                                 className={clsx(
                                   lang.disabled
-                                    ? "text-text-tertiary cursor-not-allowed opacity-50"
+                                    ? "cursor-not-allowed text-stone-400 opacity-50"
                                     : active
-                                      ? "bg-background-secondary text-ocean-blue"
-                                      : "text-text-primary",
+                                      ? "text-ocean-blue bg-stone-100 dark:bg-stone-800"
+                                      : "text-stone-900 dark:text-stone-100",
                                   "group flex w-full items-center justify-between px-4 py-2 text-sm"
                                 )}
                               >
@@ -336,7 +372,7 @@ export function Header({
                                   <span>{lang.flag}</span>
                                   {lang.label}
                                   {lang.disabled && (
-                                    <span className="text-text-tertiary ml-1 text-xs italic">
+                                    <span className="ml-1 text-xs text-stone-400 italic">
                                       (Coming soon)
                                     </span>
                                   )}
@@ -351,6 +387,8 @@ export function Header({
                       </MenuItems>
                     </Transition>
                   </Menu>
+
+                  {/* REFACTORED: Divider visibility */}
                   <div
                     className={clsx(
                       "mx-1 h-6 w-px",
@@ -358,11 +396,11 @@ export function Header({
                         ? "bg-white/50"
                         : "bg-stone-300 dark:bg-stone-700"
                     )}
-                  />{" "}
-                  {/* Divider */}
+                  />
+
                   <Link
                     href="/contribute"
-                    className="bg-ocean-blue hover:bg-ocean-blue/90 inline-flex items-center gap-x-1.5 rounded-full px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                    className="bg-ocean-blue hover:bg-ocean-blue-light inline-flex items-center gap-x-1.5 rounded-full px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
                   >
                     <Plus className="h-4 w-4" />
                     <span>Contribute</span>
@@ -370,20 +408,22 @@ export function Header({
                   {user?.role === "ADMIN" && (
                     <Link
                       href="/add-entry"
-                      className="text-accent-error hover:bg-accent-error/10 border-accent-error/30 inline-flex items-center gap-x-1.5 rounded-full border px-4 py-2 text-sm font-bold transition-all"
+                      className="inline-flex items-center gap-x-1.5 rounded-full border border-red-200 px-4 py-2 text-sm font-bold text-red-500 transition-all hover:bg-red-50"
                     >
                       <Plus className="h-4 w-4" />
                       <span>Entry</span>
                     </Link>
                   )}
-                  <ThemeToggle variant={isTransparent ? "light" : "default"} />
+                  <ThemeToggle />
                   {/* Auth / Profile Section */}
                   {session ? (
                     <Menu as="div" className="relative ml-2">
                       <MenuButton
                         className={clsx(
-                          "focus-visible:ring-ocean-blue flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2",
-                          iconClass
+                          "flex h-8 w-8 items-center justify-center rounded-full transition-all focus:outline-none",
+                          isTransparent
+                            ? "bg-white/20 text-white ring-white/30 hover:bg-white/30"
+                            : "hover:text-ocean-blue hover:ring-ocean-blue/20 bg-stone-100 text-stone-500 dark:bg-stone-800"
                         )}
                       >
                         <span className="sr-only">Open user menu</span>
@@ -398,16 +438,15 @@ export function Header({
                         leaveFrom="transform opacity-100 scale-100"
                         leaveTo="transform opacity-0 scale-95"
                       >
-                        <MenuItems className="bg-background-primary divide-border-secondary absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y rounded-md py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
+                        <MenuItems className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-stone-200 rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none dark:divide-stone-700 dark:bg-stone-900">
                           <div className="px-4 py-3">
-                            <p className="text-text-secondary text-xs">
+                            <p className="text-xs text-stone-500">
                               Signed in as
                             </p>
-                            <p className="text-text-primary mt-0.5 truncate text-sm font-bold">
+                            <p className="mt-0.5 truncate text-sm font-bold text-stone-900 dark:text-stone-100">
                               {session.user.email}
                             </p>
                           </div>
-                          {/* ... Keep existing menu items ... */}
                           <div className="py-1">
                             <MenuItem>
                               {({ active }) => (
@@ -415,8 +454,8 @@ export function Header({
                                   href="/profile"
                                   className={clsx(
                                     active
-                                      ? "bg-background-secondary text-ocean-blue"
-                                      : "text-text-primary",
+                                      ? "text-ocean-blue bg-stone-100 dark:bg-stone-800"
+                                      : "text-stone-900 dark:text-stone-100",
                                     "block px-4 py-2 text-sm"
                                   )}
                                 >
@@ -430,8 +469,8 @@ export function Header({
                                   href="/settings"
                                   className={clsx(
                                     active
-                                      ? "bg-background-secondary text-ocean-blue"
-                                      : "text-text-primary",
+                                      ? "text-ocean-blue bg-stone-100 dark:bg-stone-800"
+                                      : "text-stone-900 dark:text-stone-100",
                                     "block px-4 py-2 text-sm"
                                   )}
                                 >
@@ -447,8 +486,8 @@ export function Header({
                                   onClick={handleLogout}
                                   className={clsx(
                                     active
-                                      ? "bg-background-secondary text-accent-error"
-                                      : "text-text-secondary",
+                                      ? "bg-stone-100 text-red-600 dark:bg-stone-800"
+                                      : "text-stone-500",
                                     "block w-full px-4 py-2 text-left text-sm"
                                   )}
                                 >
@@ -487,7 +526,7 @@ export function Header({
             </div>
           </div>
 
-          {/* Mobile Menu Panel - Standard background (not transparent) so links are readable */}
+          {/* Mobile Menu Panel */}
           <Transition
             as={Fragment}
             enter="transition duration-200 ease-out"
@@ -497,7 +536,7 @@ export function Header({
             leaveFrom="opacity-100 translate-y-0"
             leaveTo="opacity-0 -translate-y-2"
           >
-            <DisclosurePanel className="bg-background-primary border-border-primary max-h-[85vh] overflow-y-auto border-t md:hidden">
+            <DisclosurePanel className="max-h-[85vh] overflow-y-auto border-t border-stone-200 bg-white md:hidden dark:border-stone-800 dark:bg-stone-900">
               <div className="space-y-1 pt-2 pb-3">
                 {navigation.map((item, index) =>
                   item.type === "link" ? (
@@ -509,7 +548,7 @@ export function Header({
                         "animate-slide-up block border-l-4 py-2 pr-4 pl-3 text-base font-medium",
                         pathname === item.href
                           ? "border-ocean-blue bg-ocean-blue/5 text-ocean-blue"
-                          : "text-text-secondary hover:border-border-primary hover:bg-background-secondary hover:text-text-primary border-transparent"
+                          : "border-transparent text-stone-500 hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900"
                       )}
                       style={{ animationDelay: `${index * 50}ms` }}
                     >
@@ -520,13 +559,13 @@ export function Header({
                       {({ open }) => (
                         <>
                           <DisclosureButton
-                            className="animate-slide-up group text-text-secondary hover:bg-background-secondary hover:text-text-primary flex w-full items-center justify-between border-l-4 border-transparent py-2 pr-4 pl-3 text-base font-medium"
+                            className="animate-slide-up group flex w-full items-center justify-between border-l-4 border-transparent py-2 pr-4 pl-3 text-base font-medium text-stone-500 hover:bg-stone-50 hover:text-stone-900"
                             style={{ animationDelay: `${index * 50}ms` }}
                           >
                             {item.name}
                             <ChevronDown
                               className={clsx(
-                                "text-text-tertiary h-5 w-5 flex-none",
+                                "h-5 w-5 flex-none text-stone-400",
                                 open && "rotate-180"
                               )}
                               aria-hidden="true"
@@ -538,12 +577,12 @@ export function Header({
                                 key={subItem.name}
                                 as={Link}
                                 href={subItem.href}
-                                className="animate-slide-up group text-text-secondary hover:text-ocean-blue hover:bg-background-secondary flex w-full items-center border-l-4 border-transparent py-2 pr-4 pl-10 text-sm font-medium"
+                                className="animate-slide-up group hover:text-ocean-blue flex w-full items-center border-l-4 border-transparent py-2 pr-4 pl-10 text-sm font-medium text-stone-500 hover:bg-stone-50"
                                 style={{
                                   animationDelay: `${(index + subIndex + 1) * 50}ms`,
                                 }}
                               >
-                                <subItem.icon className="group-hover:text-ocean-blue text-text-tertiary mr-3 h-5 w-5 flex-shrink-0" />
+                                <subItem.icon className="group-hover:text-ocean-blue mr-3 h-5 w-5 flex-shrink-0 text-stone-400" />
                                 {subItem.name}
                               </DisclosureButton>
                             ))}
@@ -554,86 +593,6 @@ export function Header({
                   )
                 )}
               </div>
-
-              {/* Mobile Actions / Language / Auth */}
-              <div className="border-border-primary border-t pt-4 pb-3">
-                {/* Language Selection Mobile */}
-                <div className="mb-4 px-4">
-                  <div className="text-text-tertiary mb-2 text-xs font-semibold tracking-wider uppercase">
-                    Language
-                  </div>
-                  <div className="flex space-x-2">
-                    {languages.map((lang) => (
-                      <button
-                        key={lang.code}
-                        onClick={() => !lang.disabled && setCurrentLang(lang)}
-                        disabled={lang.disabled}
-                        title={lang.disabled ? "Coming soon" : undefined}
-                        className={clsx(
-                          "flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
-                          lang.disabled
-                            ? "border-border-primary text-text-tertiary cursor-not-allowed bg-transparent opacity-40"
-                            : currentLang.code === lang.code
-                              ? "bg-ocean-blue border-ocean-blue text-white"
-                              : "text-text-secondary border-border-primary hover:border-ocean-blue bg-transparent"
-                        )}
-                      >
-                        <span>{lang.flag}</span>
-                        {lang.code}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3 px-4">
-                  <div className="flex-grow">
-                    {session ? (
-                      <div className="text-text-primary text-base font-medium">
-                        {session.user.email}
-                      </div>
-                    ) : (
-                      <div className="text-text-secondary text-base font-medium">
-                        Guest User
-                      </div>
-                    )}
-                  </div>
-                  <ThemeToggle />
-                </div>
-                <div className="mt-3 space-y-1 px-2">
-                  <Link
-                    href="/contribute"
-                    className="text-ocean-blue hover:bg-ocean-blue/10 block rounded-md px-3 py-2 text-base font-medium"
-                  >
-                    + Contribute to Archive
-                  </Link>
-                  {session ? (
-                    <DisclosureButton
-                      as="button"
-                      onClick={handleLogout}
-                      className="text-text-secondary hover:bg-background-secondary block w-full rounded-md px-3 py-2 text-left text-base font-medium"
-                    >
-                      Sign out
-                    </DisclosureButton>
-                  ) : (
-                    <>
-                      <DisclosureButton
-                        as={Link}
-                        href="/login"
-                        className="text-text-secondary hover:bg-background-secondary block rounded-md px-3 py-2 text-base font-medium"
-                      >
-                        Log in
-                      </DisclosureButton>
-                      <DisclosureButton
-                        as={Link}
-                        href="/signup"
-                        className="text-text-secondary hover:bg-background-secondary block rounded-md px-3 py-2 text-base font-medium"
-                      >
-                        Sign up
-                      </DisclosureButton>
-                    </>
-                  )}
-                </div>
-              </div>
             </DisclosurePanel>
           </Transition>
         </>
@@ -641,3 +600,6 @@ export function Header({
     </Disclosure>
   );
 }
+
+// !!! IMPORTANT: Add default export for the previewer to work
+export default Header;

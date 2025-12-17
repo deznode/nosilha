@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sun, Moon, Monitor } from "lucide-react";
 import clsx from "clsx";
 import { useTheme, useUiStore } from "@/stores/uiStore";
-import { iconFlip } from "@/lib/animation";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 
 // Apply theme helper - defined outside component to avoid recreation
@@ -23,7 +22,12 @@ function applyTheme(
   }
 }
 
-export function ThemeToggle() {
+export interface ThemeToggleProps {
+  variant?: "default" | "light";
+}
+
+export function ThemeToggle({ variant = "default" }: ThemeToggleProps) {
+  const isLight = variant === "light";
   const theme = useTheme();
   const setTheme = useUiStore((state) => state.setTheme);
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -76,16 +80,13 @@ export function ThemeToggle() {
     <motion.button
       onClick={cycleTheme}
       className={clsx(
-        "relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md",
-        "text-text-secondary",
-        "hover:bg-background-secondary hover:text-text-primary",
-        "focus:ring-ocean-blue focus:ring-2 focus:outline-none focus:ring-inset",
+        "relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full",
+        isLight
+          ? "text-white drop-shadow-md hover:bg-white/10 hover:text-white"
+          : "text-text-secondary hover:bg-background-secondary hover:text-text-primary",
+        "focus-visible:ring-ocean-blue focus:outline-none focus-visible:ring-2",
         "transition-all duration-200"
       )}
-      whileHover={{
-        scale: 1.1,
-        backgroundColor: "var(--color-background-secondary)",
-      }}
       whileTap={{ scale: 0.95 }}
       title={`${getLabel()}. Click to cycle themes.`}
       aria-label={`Current theme: ${getLabel()}. Click to cycle themes.`}
@@ -93,10 +94,10 @@ export function ThemeToggle() {
       <AnimatePresence mode="wait">
         <motion.div
           key={theme}
-          variants={iconFlip}
-          initial="initial"
-          animate="enter"
-          exit="exit"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
         >
           {getIcon()}
         </motion.div>
