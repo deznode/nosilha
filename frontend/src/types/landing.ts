@@ -19,9 +19,6 @@ export interface FeaturedItem {
   link: string;
 }
 
-// NOTE: EventItem type has been moved to @/features/events/types
-// Import from '@/features/events' instead
-
 /**
  * Category card configuration for navigation sections
  */

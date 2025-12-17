@@ -50,7 +50,7 @@ const Link = ({ href, children, className, ...props }: any) => (
   </a>
 );
 const usePathname = () => "/"; // Simulating Home Page
-const useRouter = () => ({ push: () => {}, refresh: () => {} });
+const useRouter = () => ({ push: (_url: string) => Promise.resolve(true), refresh: () => {} });
 const useAuth = () => ({
   session: { user: { email: "demo@example.com" } },
   user: { role: "ADMIN" },

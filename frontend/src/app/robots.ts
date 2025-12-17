@@ -48,7 +48,6 @@ export default function robots(): MetadataRoute.Robots {
           "/towns/",
           "/history",
           "/people",
-          "/media/photos/",
           "/media/music",
           "/contact",
           "/contribute",

@@ -16,9 +16,6 @@ const defaultNavigation = {
   culture: [
     { name: "History of Brava", href: "/history" },
     { name: "Historical Figures", href: "/people" },
-    /* TODO: Enable when photo galleries feature is ready
-    { name: "Photo Galleries", href: "/media/photos" },
-    */
   ].filter(Boolean), // Remove any undefined entries
   connect: [
     { name: "About Us", href: "/about" },

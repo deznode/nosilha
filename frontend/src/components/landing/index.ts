@@ -12,8 +12,6 @@ export { CategoryCard } from "./category-card";
 export { FeaturedStoryCard } from "./featured-story-card";
 export { KrioluProverbCard } from "./kriolu-proverb-card";
 
-// Re-export EventCard from events feature for backward compatibility
-export { EventCard } from "@/features/events";
 export { WeatherWidget } from "./weather-widget";
 export { StatItem } from "./stat-item";
 export {
@@ -25,7 +23,6 @@ export {
 // Section Components
 export { HeroSection } from "./hero-section";
 export { ExploreHeritageSection } from "./explore-heritage-section";
-export { LivingCultureSection } from "./living-culture-section";
 export { FeaturedStoriesSection } from "./featured-stories-section";
 export { CommunityStatsSection } from "./community-stats-section";
 export { MapTeaserSection } from "./map-teaser-section";

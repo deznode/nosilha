@@ -2,10 +2,7 @@
 
 import { motion } from "framer-motion";
 import {
-  // HeroSection, // Original hero - kept for reference
   ExploreHeritageSection,
-  // LivingCultureSection, // TODO: Re-enable when events feature is complete
-  // FeaturedStoriesSection,
   MapTeaserSection,
   NewsletterCtaSection,
 } from "@/components/landing";
@@ -53,12 +50,6 @@ export function HomePageContent({ featuredEntries }: HomePageContentProps) {
 
         {/* Unified onboarding + navigation: "What is NosIlha?" with 3 clickable pillars */}
         <ExploreHeritageSection />
-
-        {/* TODO: Re-enable when events feature is complete
-        <motion.div {...fadeInUp}>
-          <LivingCultureSection />
-        </motion.div>
-        */}
 
         {/* Map section before Stories for progressive disclosure (reduce early cognitive load) */}
         <motion.div {...fadeInUp}>
