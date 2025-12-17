@@ -346,5 +346,19 @@ export const historyData: HistoryPageData = {
       year: 2025,
       url: "https://apics-online.info/surveys/31",
     },
+    // Packet Trade & Maritime Heritage Sources
+    {
+      source:
+        "Travel on the Highways of the Broad Atlantic: Toward a Brief History of the Cape Verdean Packet Trade",
+      author: "J. Marlena Edwards, Penn State University",
+      year: 2023,
+      url: "https://scholarlypublishingcollective.org/uip/jaeh/article/42/4/60/376252/Travel-on-the-Highways-of-the-Broad-Atlantic",
+    },
+    {
+      source: "Cape Verdean Museum Historical Records",
+      author: "Cape Verdean Museum",
+      year: 2025,
+      url: "https://capeverdeanmuseum.org/",
+    },
   ],
 };
