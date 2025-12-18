@@ -1,11 +1,57 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Mail, MessageSquare, HelpCircle, Code, Camera } from "lucide-react";
-import { motion } from "framer-motion";
+import { HelpCircle, CheckCircle, Loader2, Send } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/ui/page-header";
 
+interface FormData {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
 export function ContactPageContent() {
+  const [formData, setFormData] = useState<FormData>({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!agreedToPrivacy) return;
+
+    setIsSubmitting(true);
+
+    // Simulate form submission - in production, this would send to a backend
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
+    setIsSubmitting(false);
+    setIsSubmitted(true);
+  };
+
+  const handleReset = () => {
+    setFormData({ name: "", email: "", subject: "", message: "" });
+    setAgreedToPrivacy(false);
+    setIsSubmitted(false);
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -29,227 +75,197 @@ export function ContactPageContent() {
           subtitle="Get in touch with the Nos Ilha community. We're here to help and would love to hear from you."
         />
 
-        {/* Contact Methods */}
-        {/* TODO: Verify that these email addresses are set up and monitored:
-             - info@nosilha.com
-             - contribute@nosilha.com  
-             - dev@nosilha.com */}
-        <section className="mt-16">
-          <motion.h3
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-text-primary mb-8 text-center font-serif text-2xl font-bold"
-          >
-            Get in Touch
-          </motion.h3>
-
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
-          >
-            {/* General Inquiries */}
-            <motion.div
-              variants={itemVariants}
-              className="bg-background-primary border-border-primary rounded-xl border p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-            >
-              <Mail className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
-              <h4 className="text-text-primary mb-2 text-lg font-semibold">
-                General Inquiries
-              </h4>
-              <p className="text-text-secondary mb-4">
-                Questions about the platform, partnerships, or general
-                information.
-              </p>
-              <a
-                href="mailto:info@nosilha.com"
-                className="text-ocean-blue hover:text-ocean-blue/80 inline-flex items-center font-medium"
-              >
-                info@nosilha.com
-              </a>
-            </motion.div>
-
-            {/* Content & Contributions */}
-            <motion.div
-              variants={itemVariants}
-              className="bg-background-primary border-border-primary rounded-xl border p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-            >
-              <Camera className="text-valley-green mx-auto mb-4 h-12 w-12" />
-              <h4 className="text-text-primary mb-2 text-lg font-semibold">
-                Content & Contributions
-              </h4>
-              <p className="text-text-secondary mb-4">
-                Share photos, stories, or information about Brava Island.
-              </p>
-              <a
-                href="mailto:contribute@nosilha.com"
-                className="text-valley-green hover:text-valley-green/80 inline-flex items-center font-medium"
-              >
-                contribute@nosilha.com
-              </a>
-            </motion.div>
-
-            {/* Technical Support */}
-            <motion.div
-              variants={itemVariants}
-              className="bg-background-primary border-border-primary rounded-xl border p-6 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-            >
-              <Code className="text-bougainvillea-pink mx-auto mb-4 h-12 w-12" />
-              <h4 className="text-text-primary mb-2 text-lg font-semibold">
-                Technical Support
-              </h4>
-              <p className="text-text-secondary mb-4">
-                Development questions, bug reports, or technical collaboration.
-              </p>
-              <div className="space-y-2">
-                <a
-                  href="mailto:dev@nosilha.com"
-                  className="text-bougainvillea-pink hover:text-bougainvillea-pink/80 block font-medium"
-                >
-                  dev@nosilha.com
-                </a>
-                <a
-                  href="https://github.com/bravdigital/nosilha"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-bougainvillea-pink hover:text-bougainvillea-pink/80 block text-sm font-medium"
-                >
-                  GitHub Repository →
-                </a>
-              </div>
-            </motion.div>
-          </motion.div>
-        </section>
-
-        {/* Contact Form */}
+        {/* Contact Form - Ideate Style */}
         <motion.section
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
-          className="bg-background-primary mt-16 rounded-lg p-8 shadow-sm"
+          className="mx-auto mt-12 max-w-2xl"
         >
-          <h3 className="text-text-primary mb-6 text-center font-serif text-2xl font-bold">
-            Send Us a Message
-          </h3>
-
-          {/* Form Notice */}
-          <div className="bg-sobrado-ochre/10 border-sobrado-ochre/20 mx-auto mb-6 max-w-2xl rounded-md border p-4">
-            <div className="flex items-center">
-              <HelpCircle className="text-sobrado-ochre mr-3 h-6 w-6" />
-              <div>
-                <p className="text-text-primary text-sm font-medium">
-                  Contact form coming soon!
-                </p>
-                <p className="text-text-secondary text-xs">
-                  For now, please use the email addresses above to get in touch
-                  with us directly.
-                </p>
-              </div>
+          <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800">
+            {/* Blue Header Bar */}
+            <div className="bg-[var(--color-ocean-blue)] px-6 py-4">
+              <h2 className="flex items-center gap-2 text-xl font-bold text-white">
+                <Send className="h-5 w-5" />
+                Send us a Message
+              </h2>
             </div>
+
+            <AnimatePresence mode="wait">
+              {isSubmitted ? (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className="px-6 py-12 text-center"
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                    className="bg-valley-green/10 mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full"
+                  >
+                    <CheckCircle className="text-valley-green h-10 w-10" />
+                  </motion.div>
+                  <h4 className="text-text-primary mb-2 font-serif text-2xl font-bold">
+                    Obrigado!
+                  </h4>
+                  <p className="text-text-secondary mb-6 text-lg">
+                    Thank you for your message. We&apos;ll get back to you within
+                    24-48 hours.
+                  </p>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleReset}
+                    className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-md border-2 px-6 py-2 font-medium transition-colors hover:text-white"
+                  >
+                    Send Another Message
+                  </motion.button>
+                </motion.div>
+              ) : (
+                <motion.form
+                  key="form"
+                  initial={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onSubmit={handleSubmit}
+                  className="space-y-6 p-6"
+                >
+                  {/* Name and Email Row */}
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div>
+                      <label
+                        htmlFor="name"
+                        className="text-text-primary mb-2 block text-sm font-medium"
+                      >
+                        Your Name
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        required
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        className="border-border-primary bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-ocean-blue focus:border-ocean-blue w-full rounded-md border px-4 py-3 transition-colors focus:ring-2"
+                        placeholder="Enter your name"
+                      />
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="email"
+                        className="text-text-primary mb-2 block text-sm font-medium"
+                      >
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        className="border-border-primary bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-ocean-blue focus:border-ocean-blue w-full rounded-md border px-4 py-3 transition-colors focus:ring-2"
+                        placeholder="Enter your email"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Subject Dropdown */}
+                  <div>
+                    <label
+                      htmlFor="subject"
+                      className="text-text-primary mb-2 block text-sm font-medium"
+                    >
+                      Subject
+                    </label>
+                    <select
+                      id="subject"
+                      name="subject"
+                      required
+                      value={formData.subject}
+                      onChange={handleInputChange}
+                      className="border-border-primary bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-ocean-blue focus:border-ocean-blue w-full rounded-md border px-4 py-3 transition-colors focus:ring-2"
+                    >
+                      <option value="">Select a subject</option>
+                      <option value="general">General Inquiry</option>
+                      <option value="content">Content Contribution</option>
+                      <option value="technical">Technical Support</option>
+                      <option value="partnership">Partnership Opportunity</option>
+                      <option value="report">Report an Issue</option>
+                    </select>
+                  </div>
+
+                  {/* Message Textarea */}
+                  <div>
+                    <label
+                      htmlFor="message"
+                      className="text-text-primary mb-2 block text-sm font-medium"
+                    >
+                      Message
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      rows={6}
+                      required
+                      value={formData.message}
+                      onChange={handleInputChange}
+                      className="border-border-primary bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-ocean-blue focus:border-ocean-blue w-full rounded-md border px-4 py-3 transition-colors focus:ring-2"
+                      placeholder="Tell us how we can help you..."
+                    ></textarea>
+                  </div>
+
+                  {/* Privacy Checkbox */}
+                  <div className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      id="privacy"
+                      required
+                      checked={agreedToPrivacy}
+                      onChange={(e) => setAgreedToPrivacy(e.target.checked)}
+                      className="mt-1 h-4 w-4 rounded border-slate-300 text-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)]"
+                    />
+                    <label
+                      htmlFor="privacy"
+                      className="text-text-secondary text-sm"
+                    >
+                      I agree to the{" "}
+                      <Link
+                        href="/privacy"
+                        className="text-[var(--color-ocean-blue)] hover:underline"
+                      >
+                        privacy policy
+                      </Link>
+                    </label>
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="pt-2">
+                    <motion.button
+                      whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+                      whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+                      type="submit"
+                      disabled={isSubmitting || !agreedToPrivacy}
+                      className="bg-ocean-blue hover:bg-ocean-blue/90 disabled:bg-ocean-blue/50 inline-flex w-full items-center justify-center gap-2 rounded-md px-8 py-3 text-base font-semibold text-white shadow-lg transition-all duration-300 disabled:cursor-not-allowed"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        "Send Message"
+                      )}
+                    </motion.button>
+                  </div>
+                </motion.form>
+              )}
+            </AnimatePresence>
           </div>
-
-          <form className="pointer-events-none mx-auto max-w-2xl opacity-50">
-            <div className="grid gap-6 md:grid-cols-2">
-              <motion.div
-                whileFocus={{ scale: 1.02 }}
-                transition={{ duration: 0.2 }}
-              >
-                <label
-                  htmlFor="name"
-                  className="text-text-primary mb-2 block text-sm font-medium"
-                >
-                  Your Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  className="border-border-primary bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-ocean-blue focus:border-ocean-blue w-full rounded-md border px-4 py-3 transition-colors focus:ring-2"
-                  placeholder="Enter your name"
-                />
-              </motion.div>
-
-              <motion.div
-                whileFocus={{ scale: 1.02 }}
-                transition={{ duration: 0.2 }}
-              >
-                <label
-                  htmlFor="email"
-                  className="text-text-primary mb-2 block text-sm font-medium"
-                >
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  className="border-border-primary bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-ocean-blue focus:border-ocean-blue w-full rounded-md border px-4 py-3 transition-colors focus:ring-2"
-                  placeholder="Enter your email"
-                />
-              </motion.div>
-            </div>
-
-            <motion.div
-              className="mt-6"
-              whileFocus={{ scale: 1.02 }}
-              transition={{ duration: 0.2 }}
-            >
-              <label
-                htmlFor="subject"
-                className="text-text-primary mb-2 block text-sm font-medium"
-              >
-                Subject
-              </label>
-              <select
-                id="subject"
-                name="subject"
-                className="border-border-primary bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-ocean-blue focus:border-ocean-blue w-full rounded-md border px-4 py-3 transition-colors focus:ring-2"
-              >
-                <option value="">Select a subject</option>
-                <option value="general">General Inquiry</option>
-                <option value="content">Content Contribution</option>
-                <option value="business">Business Listing</option>
-                <option value="technical">Technical Support</option>
-                <option value="partnership">Partnership Opportunity</option>
-                <option value="other">Other</option>
-              </select>
-            </motion.div>
-
-            <motion.div
-              className="mt-6"
-              whileFocus={{ scale: 1.02 }}
-              transition={{ duration: 0.2 }}
-            >
-              <label
-                htmlFor="message"
-                className="text-text-primary mb-2 block text-sm font-medium"
-              >
-                Message
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                rows={6}
-                className="border-border-primary bg-background-secondary text-text-primary placeholder:text-text-tertiary focus:ring-ocean-blue focus:border-ocean-blue w-full rounded-md border px-4 py-3 transition-colors focus:ring-2"
-                placeholder="Tell us how we can help you..."
-              ></textarea>
-            </motion.div>
-
-            <div className="mt-6 text-center">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                type="submit"
-                className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-8 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300"
-              >
-                Send Message
-              </motion.button>
-            </div>
-          </form>
         </motion.section>
 
         {/* FAQ Section */}
@@ -275,7 +291,7 @@ export function ContactPageContent() {
               className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
             >
               <div className="mb-3 flex items-start">
-                <HelpCircle className="text-ocean-blue mt-0.5 mr-3 h-6 w-6" />
+                <HelpCircle className="text-ocean-blue mt-0.5 mr-3 h-6 w-6 shrink-0" />
                 <h4 className="text-text-primary font-semibold">
                   How can I add my business to the directory?
                 </h4>
@@ -300,7 +316,7 @@ export function ContactPageContent() {
               className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
             >
               <div className="mb-3 flex items-start">
-                <HelpCircle className="text-valley-green mt-0.5 mr-3 h-6 w-6" />
+                <HelpCircle className="text-valley-green mt-0.5 mr-3 h-6 w-6 shrink-0" />
                 <h4 className="text-text-primary font-semibold">
                   Can I contribute photos of Brava Island?
                 </h4>
@@ -309,14 +325,9 @@ export function ContactPageContent() {
                 Yes! We especially welcome high-quality photos of landscapes,
                 cultural events, local businesses, and daily life on Brava.
                 Please ensure you own the photos or have permission to share
-                them, include specific location details, and send them to{" "}
-                <a
-                  href="mailto:contribute@nosilha.com"
-                  className="text-valley-green hover:underline"
-                >
-                  contribute@nosilha.com
-                </a>{" "}
-                with a brief description of what and where the photo was taken.
+                them. Use the contact form above with &quot;Content
+                Contribution&quot; selected to submit your photos with location
+                details.
               </p>
             </motion.div>
 
@@ -325,7 +336,7 @@ export function ContactPageContent() {
               className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
             >
               <div className="mb-3 flex items-start">
-                <HelpCircle className="text-bougainvillea-pink mt-0.5 mr-3 h-6 w-6" />
+                <HelpCircle className="text-bougainvillea-pink mt-0.5 mr-3 h-6 w-6 shrink-0" />
                 <h4 className="text-text-primary font-semibold">
                   Is the platform available in other languages?
                 </h4>
@@ -334,14 +345,8 @@ export function ContactPageContent() {
                 Currently available in English only. We&apos;re actively
                 planning Portuguese and Kriolu (Cape Verdean Crioulo) support
                 for 2026. If you&apos;re fluent in these languages and
-                interested in helping translate content, please email{" "}
-                <a
-                  href="mailto:contribute@nosilha.com"
-                  className="text-bougainvillea-pink hover:underline"
-                >
-                  contribute@nosilha.com
-                </a>{" "}
-                with &quot;Translation Help&quot; in the subject line.
+                interested in helping translate content, use the contact form
+                with &quot;Partnership Opportunity&quot; selected.
               </p>
             </motion.div>
 
@@ -350,7 +355,7 @@ export function ContactPageContent() {
               className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
             >
               <div className="mb-3 flex items-start">
-                <HelpCircle className="text-sobrado-ochre mt-0.5 mr-3 h-6 w-6" />
+                <HelpCircle className="text-sobrado-ochre mt-0.5 mr-3 h-6 w-6 shrink-0" />
                 <h4 className="text-text-primary font-semibold">
                   How can I get involved in development?
                 </h4>
@@ -367,14 +372,8 @@ export function ContactPageContent() {
                 </a>{" "}
                 to see current issues, contribution guidelines, and the tech
                 stack (Next.js, React, Spring Boot, Kotlin). New developers can
-                start with &quot;good first issue&quot; labels, or email{" "}
-                <a
-                  href="mailto:dev@nosilha.com"
-                  className="text-sobrado-ochre hover:underline"
-                >
-                  dev@nosilha.com
-                </a>{" "}
-                for guidance.
+                start with &quot;good first issue&quot; labels, or use the
+                contact form with &quot;Technical Support&quot; for guidance.
               </p>
             </motion.div>
           </motion.div>
@@ -415,26 +414,6 @@ export function ContactPageContent() {
             >
               Learn More About Us
             </Link>
-          </div>
-        </motion.section>
-
-        {/* Response Time Notice */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2 }}
-          className="bg-background-primary mt-16 rounded-lg p-6 shadow-sm"
-        >
-          <div className="flex items-center justify-center">
-            <MessageSquare className="text-ocean-blue mr-3 h-8 w-8" />
-            <div>
-              <h4 className="text-text-primary font-semibold">Response Time</h4>
-              <p className="text-text-secondary">
-                We typically respond to inquiries within 24-48 hours. Thank you
-                for your patience!
-              </p>
-            </div>
           </div>
         </motion.section>
       </div>

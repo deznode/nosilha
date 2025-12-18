@@ -21,7 +21,7 @@ export interface BaseDirectoryEntry {
   latitude: number;
   longitude: number;
   description: string; // A description is general enough for all types
-  rating: number | undefined;
+  rating: number | null | undefined;
   reviewCount: number;
   createdAt: string; // ISO 8601 timestamp
   updatedAt: string; // ISO 8601 timestamp

@@ -149,7 +149,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 /**
  * Calculate priority for dynamic pages based on category and rating
  */
-function getDynamicPagePriority(category: string, rating?: number): number {
+function getDynamicPagePriority(
+  category: string,
+  rating?: number | null
+): number {
   let basePriority = 0.6;
 
   // Adjust base priority by category

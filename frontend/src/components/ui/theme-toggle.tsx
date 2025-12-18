@@ -24,10 +24,20 @@ function applyTheme(
 
 export interface ThemeToggleProps {
   variant?: "default" | "light";
+  /** Show circular container like other icon buttons */
+  showContainer?: boolean;
 }
 
-export function ThemeToggle({ variant = "default" }: ThemeToggleProps) {
+export function ThemeToggle({
+  variant = "default",
+  showContainer = true,
+}: ThemeToggleProps) {
   const isLight = variant === "light";
+
+  // Circular container styling (like ideate prototype)
+  const containerClass = isLight
+    ? "h-8 w-8 rounded-full bg-white/10 border border-white/30 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+    : "h-8 w-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-ocean-blue hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors";
   const theme = useTheme();
   const setTheme = useUiStore((state) => state.setTheme);
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -81,9 +91,6 @@ export function ThemeToggle({ variant = "default" }: ThemeToggleProps) {
       onClick={cycleTheme}
       className={clsx(
         "relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full",
-        isLight
-          ? "text-white drop-shadow-md hover:bg-white/10 hover:text-white"
-          : "text-text-secondary hover:bg-background-secondary hover:text-text-primary",
         "focus-visible:ring-ocean-blue focus:outline-none focus-visible:ring-2",
         "transition-all duration-200"
       )}
@@ -91,17 +98,39 @@ export function ThemeToggle({ variant = "default" }: ThemeToggleProps) {
       title={`${getLabel()}. Click to cycle themes.`}
       aria-label={`Current theme: ${getLabel()}. Click to cycle themes.`}
     >
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={theme}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
-        >
-          {getIcon()}
-        </motion.div>
-      </AnimatePresence>
+      {showContainer ? (
+        <div className={containerClass}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={theme}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="flex items-center justify-center"
+            >
+              {getIcon()}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      ) : (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={theme}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className={clsx(
+              isLight
+                ? "text-white drop-shadow-md"
+                : "text-text-secondary hover:text-text-primary"
+            )}
+          >
+            {getIcon()}
+          </motion.div>
+        </AnimatePresence>
+      )}
     </motion.button>
   );
 }

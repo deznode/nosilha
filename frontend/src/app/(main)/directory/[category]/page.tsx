@@ -62,7 +62,7 @@ export async function generateMetadata({
         "@type": "ListItem",
         position: 2,
         name: "Directory",
-        item: `${siteConfig.url}/directory/all`,
+        item: `${siteConfig.url}/directory`,
       },
       ...(isAllCategory
         ? []

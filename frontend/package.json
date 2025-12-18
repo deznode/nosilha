@@ -43,6 +43,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@headlessui/react": "^2.2.4",
     "@hookform/resolvers": "^5.2.2",
     "@next/third-parties": "16.0.3",
@@ -59,6 +60,8 @@
     "react-dom": "19.2.0",
     "react-hook-form": "^7.65.0",
     "react-map-gl": "^8.0.4",
+    "react-markdown": "^10.1.0",
+    "recharts": "^3.6.0",
     "rehype-pretty-code": "^0.14.1",
     "resend": "^6.5.0",
     "shiki": "^3.15.0",

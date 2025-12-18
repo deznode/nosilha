@@ -20,14 +20,14 @@ import {
   X,
   Users,
   BookOpen,
-  Map,
-  Store,
-  Sun,
   Globe,
   UserCircle,
   Plus,
   ChevronDown,
   Check,
+  Compass,
+  BookText,
+  Image,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -43,30 +43,6 @@ import { ThemeToggle } from "./theme-toggle";
 
 const navigation = [
   { name: "Home", href: "/", type: "link" },
-  {
-    name: "Explore",
-    type: "dropdown",
-    items: [
-      {
-        name: "Restaurants",
-        href: "/directory/restaurant",
-        icon: Store,
-        description: "Local flavors and dining",
-      },
-      {
-        name: "Landmarks",
-        href: "/directory/landmark",
-        icon: Map,
-        description: "Must-see heritage sites",
-      },
-      {
-        name: "Beaches",
-        href: "/directory/beach",
-        icon: Sun,
-        description: "Sun, sand, and sea",
-      },
-    ],
-  },
   {
     name: "Culture",
     type: "dropdown",
@@ -85,6 +61,9 @@ const navigation = [
       },
     ],
   },
+  { name: "Directory", href: "/directory", type: "link", icon: Compass },
+  { name: "Stories", href: "/stories", type: "link", icon: BookText },
+  { name: "Media", href: "/gallery", type: "link", icon: Image },
   { name: "Map", href: "/map", type: "link" },
 ];
 
@@ -132,8 +111,8 @@ export function Header({
     (pathname === "/" || pathname === "/history") && !scrolled;
 
   const textColorClass = isTransparent
-    ? "text-white drop-shadow-md hover:text-white/80"
-    : "text-text-secondary hover:text-ocean-blue";
+    ? "text-white drop-shadow-md hover:text-white/80 hover:border-white/50"
+    : "text-text-secondary hover:text-ocean-blue hover:border-slate-200 dark:hover:border-slate-600";
 
   const activeLinkClass = isTransparent
     ? "border-white text-white drop-shadow-md"
@@ -142,6 +121,11 @@ export function Header({
   const iconClass = isTransparent
     ? "text-white drop-shadow-md hover:text-white hover:bg-white/10"
     : "text-text-secondary hover:text-ocean-blue hover:bg-background-secondary";
+
+  // Circular container for icon buttons (like ideate prototype)
+  const iconContainerClass = isTransparent
+    ? "h-8 w-8 rounded-full bg-white/10 border border-white/30 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+    : "h-8 w-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-ocean-blue hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors";
 
   return (
     <Disclosure
@@ -205,12 +189,18 @@ export function Header({
                         key={item.name}
                         href={item.href || "#"}
                         className={clsx(
-                          "inline-flex min-h-[44px] items-center border-b-2 px-2 text-sm font-semibold transition-colors duration-200",
+                          "inline-flex h-16 items-center gap-1.5 border-b-2 px-2 text-sm font-medium transition-colors duration-200",
                           isCurrent
                             ? activeLinkClass
                             : `border-transparent ${textColorClass}`
                         )}
                       >
+                        {item.icon && (
+                          <item.icon
+                            className="h-4 w-4"
+                            aria-hidden="true"
+                          />
+                        )}
                         {item.name}
                       </Link>
                     ) : (
@@ -219,7 +209,7 @@ export function Header({
                           <>
                             <PopoverButton
                               className={clsx(
-                                "group inline-flex min-h-[44px] items-center border-b-2 px-2 text-sm font-semibold transition-colors duration-200 outline-none",
+                                "group inline-flex h-16 items-center border-b-2 px-2 text-sm font-medium transition-colors duration-200 outline-none",
                                 open || isCurrent
                                   ? activeLinkClass
                                   : `border-transparent ${textColorClass}`
@@ -293,11 +283,15 @@ export function Header({
                   <Menu as="div" className="relative">
                     <MenuButton
                       className={clsx(
-                        "focus-visible:ring-ocean-blue flex min-h-[44px] min-w-[44px] items-center justify-center gap-1 rounded-full text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2",
-                        iconClass
+                        "focus-visible:ring-ocean-blue flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2",
+                        isTransparent
+                          ? "text-white drop-shadow-md"
+                          : "text-text-secondary"
                       )}
                     >
-                      <Globe className="h-5 w-5" />
+                      <div className={iconContainerClass}>
+                        <Globe className="h-4 w-4" />
+                      </div>
                       <span className="hidden lg:inline">
                         {currentLang.code}
                       </span>
@@ -352,43 +346,17 @@ export function Header({
                       </MenuItems>
                     </Transition>
                   </Menu>
-                  <div
-                    className={clsx(
-                      "mx-1 h-6 w-px",
-                      isTransparent
-                        ? "bg-white/50"
-                        : "bg-stone-300 dark:bg-stone-700"
-                    )}
-                  />{" "}
-                  {/* Divider */}
-                  <Link
-                    href="/contribute"
-                    className="bg-ocean-blue hover:bg-ocean-blue/90 inline-flex items-center gap-x-1.5 rounded-full px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
-                  >
-                    <Plus className="h-4 w-4" />
-                    <span>Contribute</span>
-                  </Link>
-                  {user?.role === "ADMIN" && (
-                    <Link
-                      href="/add-entry"
-                      className="text-accent-error hover:bg-accent-error/10 border-accent-error/30 inline-flex items-center gap-x-1.5 rounded-full border px-4 py-2 text-sm font-bold transition-all"
-                    >
-                      <Plus className="h-4 w-4" />
-                      <span>Entry</span>
-                    </Link>
-                  )}
                   <ThemeToggle variant={isTransparent ? "light" : "default"} />
                   {/* Auth / Profile Section */}
                   {session ? (
                     <Menu as="div" className="relative ml-2">
                       <MenuButton
-                        className={clsx(
-                          "focus-visible:ring-ocean-blue flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2",
-                          iconClass
-                        )}
+                        className="focus-visible:ring-ocean-blue flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2"
                       >
                         <span className="sr-only">Open user menu</span>
-                        <UserCircle className="h-6 w-6" aria-hidden="true" />
+                        <div className={iconContainerClass}>
+                          <UserCircle className="h-4 w-4" aria-hidden="true" />
+                        </div>
                       </MenuButton>
                       <Transition
                         as={Fragment}
@@ -408,7 +376,6 @@ export function Header({
                               {session.user.email}
                             </p>
                           </div>
-                          {/* ... Keep existing menu items ... */}
                           <div className="py-1">
                             <MenuItem>
                               {({ active }) => (
@@ -441,6 +408,27 @@ export function Header({
                               )}
                             </MenuItem>
                           </div>
+                          {/* Admin Section */}
+                          {user?.role === "ADMIN" && (
+                            <div className="py-1">
+                              <MenuItem>
+                                {({ active }) => (
+                                  <Link
+                                    href="/add-entry"
+                                    className={clsx(
+                                      active
+                                        ? "bg-background-secondary text-ocean-blue"
+                                        : "text-text-primary",
+                                      "flex items-center gap-2 px-4 py-2 text-sm"
+                                    )}
+                                  >
+                                    <Plus className="h-4 w-4" />
+                                    Add Entry
+                                  </Link>
+                                )}
+                              </MenuItem>
+                            </div>
+                          )}
                           <div className="py-1">
                             <MenuItem>
                               {({ active }) => (
@@ -602,10 +590,10 @@ export function Header({
                 </div>
                 <div className="mt-3 space-y-1 px-2">
                   <Link
-                    href="/contribute"
+                    href="/contribute/story"
                     className="text-ocean-blue hover:bg-ocean-blue/10 block rounded-md px-3 py-2 text-base font-medium"
                   >
-                    + Contribute to Archive
+                    + Contribute a Story
                   </Link>
                   {session ? (
                     <DisclosureButton

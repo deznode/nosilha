@@ -4,7 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
-import { BookOpen, MapPin, Users } from "lucide-react";
+import { ArrowRight, MapPin, Users } from "lucide-react";
+import Link from "next/link";
 import { UnifiedSearch } from "@/components/search";
 import { springs } from "@/lib/animation/tokens";
 import { ScrollIndicator } from "@/components/ui/scroll-indicator";
@@ -21,10 +22,6 @@ export function HeroSectionAtmospheric({
   const shouldReduceMotion = useReducedMotion();
 
   // --- Interaction Handlers ---
-  const handleExplore = () => {
-    router.push("/history");
-  };
-
   const handleScrollDown = () => {
     // Find the heritage section (the one with rounded top corners that overlaps the hero)
     const sections = document.querySelectorAll("section");
@@ -201,25 +198,42 @@ export function HeroSectionAtmospheric({
             </p>
           </motion.div>
 
-          {/* Primary CTA - Single focused action to reduce decision paralysis */}
-          <motion.div variants={itemVariants}>
-            <motion.button
-              onClick={handleExplore}
-              whileHover={{
-                scale: 1.03,
-                boxShadow: "0 0 40px -5px rgba(192, 38, 105, 0.6)",
-              }}
-              whileTap={{ scale: 0.97 }}
-              transition={springs.hover}
-              className="bg-bougainvillea-pink shadow-bougainvillea-pink/40 hover:bg-bougainvillea-pink/90 focus-visible:ring-offset-bougainvillea-pink group relative flex min-w-[240px] cursor-pointer items-center gap-2.5 rounded-xl px-6 py-5 text-base font-semibold whitespace-nowrap text-white shadow-2xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 md:px-8"
-            >
-              <BookOpen
-                size={20}
-                className="text-white/90 transition-colors group-hover:text-white"
-                aria-hidden="true"
-              />
-              Start Exploring Brava
-            </motion.button>
+          {/* Dual CTAs - Ideate pattern */}
+          <motion.div
+            variants={itemVariants}
+            className="flex flex-col gap-4 sm:flex-row"
+          >
+            {/* Primary CTA - Share Your Story */}
+            <Link href="/contribute/story">
+              <motion.span
+                whileHover={{
+                  scale: 1.03,
+                  boxShadow: "0 0 40px -5px rgba(192, 38, 105, 0.6)",
+                }}
+                whileTap={{ scale: 0.97 }}
+                transition={springs.hover}
+                className="bg-bougainvillea-pink shadow-bougainvillea-pink/40 hover:bg-bougainvillea-pink/90 focus-visible:ring-offset-bougainvillea-pink group relative flex cursor-pointer items-center justify-center gap-2.5 rounded-xl px-8 py-4 text-base font-semibold whitespace-nowrap text-white shadow-2xl transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
+              >
+                Share Your Story
+                <ArrowRight
+                  size={18}
+                  className="text-white/90 transition-transform group-hover:translate-x-0.5 group-hover:text-white"
+                  aria-hidden="true"
+                />
+              </motion.span>
+            </Link>
+
+            {/* Secondary CTA - Explore Directory */}
+            <Link href="/directory">
+              <motion.span
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={springs.hover}
+                className="flex cursor-pointer items-center justify-center rounded-xl border border-white/30 bg-white/10 px-8 py-4 text-base font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2"
+              >
+                Explore Directory
+              </motion.span>
+            </Link>
           </motion.div>
 
           {/* Search Bar - Separate section below CTAs */}
