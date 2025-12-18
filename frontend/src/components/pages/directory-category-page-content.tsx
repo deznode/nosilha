@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Search } from "lucide-react";
+import { Search, Plus } from "lucide-react";
 import { DirectoryCard } from "@/components/ui/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { formatCategoryTitle } from "@/lib/directory-utils";
@@ -118,7 +118,16 @@ export function DirectoryCategoryPageContent({
       {/* Header */}
       <div className="border-b border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
         <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 lg:px-8">
-          <PageHeader title={pageTitle} subtitle={subtitle} />
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <PageHeader title={pageTitle} subtitle={subtitle} />
+            <Link
+              href="/contribute/directory"
+              className="flex shrink-0 items-center gap-2 rounded-xl bg-[var(--color-ocean-blue)] px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-blue-800 active:scale-95"
+            >
+              <Plus size={18} />
+              Add Location
+            </Link>
+          </div>
         </div>
       </div>
 

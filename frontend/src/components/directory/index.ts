@@ -6,3 +6,4 @@ export {
   type DirectoryCategory,
 } from "./filter-toolbar";
 export { ListViewCard } from "./list-view-card";
+export { AddDirectoryEntryForm } from "./add-directory-entry-form";

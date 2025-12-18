@@ -145,6 +145,68 @@ Return each prompt on a new line, numbered 1-3.`;
 };
 
 /**
+ * Generate description and tags for a directory entry using AI.
+ *
+ * @param name - The name of the location
+ * @param category - The category (Restaurant, Landmark, Nature, Culture)
+ * @returns Object with generated description and tags, or null if unavailable
+ */
+export const generateDirectoryEntryContent = async (
+  name: string,
+  category: string
+): Promise<{ description: string; tags: string[] } | null> => {
+  const client = getGeminiClient();
+
+  if (!client) {
+    console.warn("Gemini API key not configured - AI assist unavailable");
+    return null;
+  }
+
+  try {
+    const model = client.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    const prompt = `You are helping document a cultural heritage directory for Brava Island, Cape Verde.
+
+Generate a high-quality 2-3 sentence description and 5 relevant cultural tags for a ${category} in Brava, Cape Verde named "${name}".
+
+The description should:
+- Capture the authentic Cape Verdean atmosphere
+- Be inviting and culturally respectful
+- Mention relevant cultural elements when appropriate (e.g., morna music, Kriolu language, local cuisine)
+
+The tags should be relevant for discovery and SEO, like: traditional, ocean-view, family-owned, live-music, historical, hidden-gem
+
+Format your response exactly as:
+DESCRIPTION: [your description here]
+TAGS: [tag1, tag2, tag3, tag4, tag5]`;
+
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text();
+
+    const descMatch = text.match(/DESCRIPTION:\s*(.*)/i);
+    const tagsMatch = text.match(/TAGS:\s*(.*)/i);
+
+    if (!descMatch || !tagsMatch) {
+      return null;
+    }
+
+    const tags = tagsMatch[1]
+      .split(",")
+      .map((t) => t.trim().replace(/^#/, ""))
+      .filter(Boolean);
+
+    return {
+      description: descMatch[1].trim(),
+      tags,
+    };
+  } catch (error) {
+    console.error("Gemini Directory Entry Error:", error);
+    return null;
+  }
+};
+
+/**
  * Check if Gemini API is available and configured.
  */
 export const isGeminiAvailable = (): boolean => {

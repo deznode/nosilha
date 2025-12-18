@@ -9,6 +9,8 @@ import { SubmissionStatus } from "./story";
 export interface AdminStats {
   newSuggestions: number;
   storySubmissions: number;
+  contactInquiries: number;
+  directorySubmissions: number;
   activeUsers: number;
   locationsCovered: number;
   weeklyActivity: WeeklyActivityData[];
@@ -49,6 +51,41 @@ export interface Contributor {
   role: "Contributor" | "Moderator" | "Admin";
   points: number;
   avatar?: string;
+}
+
+export type ContactMessageStatus = "UNREAD" | "READ" | "REPLIED";
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  status: ContactMessageStatus;
+  timestamp: string;
+}
+
+export type DirectorySubmissionStatus = SubmissionStatus;
+
+export interface DirectorySubmission {
+  id: string;
+  name: string;
+  category: "Restaurant" | "Landmark" | "Nature" | "Culture";
+  town: string;
+  customTown?: string;
+  description: string;
+  tags: string[];
+  imageUrl?: string;
+  priceLevel?: "$" | "$$" | "$$$";
+  latitude?: number;
+  longitude?: number;
+  status: DirectorySubmissionStatus;
+  submittedBy: string;
+  submittedByEmail?: string;
+  submittedAt: string;
+  adminNotes?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
 }
 
 export interface AdminQueueFilters {

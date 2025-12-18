@@ -8,6 +8,8 @@ import type {
   AdminStats,
   Suggestion,
   Contributor,
+  ContactMessage,
+  DirectorySubmission,
   AdminQueueResponse,
 } from "@/types/admin";
 import { SubmissionStatus } from "@/types/story";
@@ -15,6 +17,8 @@ import { SubmissionStatus } from "@/types/story";
 export const MOCK_ADMIN_STATS: AdminStats = {
   newSuggestions: 24,
   storySubmissions: 12,
+  contactInquiries: 5,
+  directorySubmissions: 3,
   activeUsers: 89,
   locationsCovered: 14,
   weeklyActivity: [
@@ -87,6 +91,121 @@ export const MOCK_TOP_CONTRIBUTORS: Contributor[] = [
   { id: "c5", name: "Pedro Nunes", role: "Contributor", points: 72 },
 ];
 
+export const MOCK_CONTACT_MESSAGES: ContactMessage[] = [
+  {
+    id: "cm1",
+    name: "Ana Rodrigues",
+    email: "ana.rodrigues@email.com",
+    subject: "Partnership Opportunity",
+    message:
+      "Hello! I represent a Cape Verdean cultural organization based in Boston. We would love to discuss a potential partnership to promote Brava Island heritage to our diaspora community.",
+    status: "UNREAD",
+    timestamp: "1 hour ago",
+  },
+  {
+    id: "cm2",
+    name: "Pedro Santos",
+    email: "pedro.santos@travel.cv",
+    subject: "Tourism Information Request",
+    message:
+      "I am planning a trip to Brava next month. Could you provide more information about accommodation options in Nova Sintra and the best hiking trails?",
+    status: "UNREAD",
+    timestamp: "3 hours ago",
+  },
+  {
+    id: "cm3",
+    name: "Maria Fernandes",
+    email: "maria.f@example.com",
+    subject: "Photo Contribution",
+    message:
+      "I have a collection of historical photos from my grandmother who lived in Furna in the 1960s. How can I contribute these to your archive?",
+    status: "READ",
+    timestamp: "1 day ago",
+  },
+  {
+    id: "cm4",
+    name: "Carlos Mendes",
+    email: "carlos.m@gmail.com",
+    subject: "Technical Issue Report",
+    message:
+      "The map feature is not loading properly on my mobile device (iPhone 14, Safari). The markers appear but the base map stays blank.",
+    status: "REPLIED",
+    timestamp: "2 days ago",
+  },
+  {
+    id: "cm5",
+    name: "João Tavares",
+    email: "jtavares@diaspora.org",
+    subject: "Translation Volunteer",
+    message:
+      "I am fluent in Portuguese, Kriolu, and English. I would like to volunteer to help translate content for the platform. Please let me know how I can contribute.",
+    status: "READ",
+    timestamp: "3 days ago",
+  },
+];
+
+export const MOCK_DIRECTORY_SUBMISSIONS: DirectorySubmission[] = [
+  {
+    id: "ds1",
+    name: "Bar Saudade",
+    category: "Restaurant",
+    town: "Nova Sintra",
+    description:
+      "A cozy bar in the heart of Nova Sintra serving traditional Cape Verdean drinks and snacks. Known for their grogue and live morna music on weekends.",
+    tags: ["bar", "live-music", "traditional", "grogue"],
+    priceLevel: "$",
+    status: SubmissionStatus.PENDING,
+    submittedBy: "Maria Costa",
+    submittedByEmail: "maria.costa@email.com",
+    submittedAt: "2 hours ago",
+  },
+  {
+    id: "ds2",
+    name: "Miradouro da Esperança",
+    category: "Landmark",
+    town: "Nossa Senhora do Monte",
+    description:
+      "A stunning viewpoint overlooking the entire island and the neighboring Fogo volcano. Best visited at sunset for spectacular views.",
+    tags: ["viewpoint", "sunset", "photography", "hiking"],
+    latitude: 14.8521,
+    longitude: -24.7123,
+    imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+    status: SubmissionStatus.PENDING,
+    submittedBy: "João Neves",
+    submittedByEmail: "joao.neves@example.com",
+    submittedAt: "1 day ago",
+  },
+  {
+    id: "ds3",
+    name: "Trilho das Fontainhas",
+    category: "Nature",
+    town: "Furna",
+    description:
+      "A scenic hiking trail that winds through terraced hillsides and traditional villages. The path offers views of the ocean and connects several natural springs.",
+    tags: ["hiking", "nature", "springs", "scenic"],
+    status: SubmissionStatus.PENDING,
+    submittedBy: "Ana Sousa",
+    submittedByEmail: "ana.sousa@gmail.com",
+    submittedAt: "3 days ago",
+  },
+  {
+    id: "ds4",
+    name: "Casa da Cultura",
+    category: "Culture",
+    town: "Nova Sintra",
+    description:
+      "The cultural center hosts exhibitions, music performances, and workshops on traditional crafts. A hub for local artists and cultural events.",
+    tags: ["museum", "arts", "workshops", "events"],
+    imageUrl: "https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=800",
+    status: SubmissionStatus.APPROVED,
+    submittedBy: "Carlos Lima",
+    submittedByEmail: "carlos.lima@culture.cv",
+    submittedAt: "1 week ago",
+    reviewedBy: "admin",
+    reviewedAt: "5 days ago",
+  },
+];
+
 // Mock API functions
 export const mockAdminApi = {
   getStats: async (): Promise<AdminStats> => {
@@ -131,5 +250,69 @@ export const mockAdminApi = {
   getTopContributors: async (): Promise<Contributor[]> => {
     await new Promise((resolve) => setTimeout(resolve, 200));
     return MOCK_TOP_CONTRIBUTORS;
+  },
+
+  // Contact Messages API
+  getContactMessages: async (): Promise<AdminQueueResponse<ContactMessage>> => {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    return {
+      items: MOCK_CONTACT_MESSAGES,
+      total: MOCK_CONTACT_MESSAGES.length,
+      page: 1,
+      pageSize: 10,
+      hasMore: false,
+    };
+  },
+
+  updateContactMessageStatus: async (
+    id: string,
+    status: ContactMessage["status"]
+  ): Promise<ContactMessage> => {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    const message = MOCK_CONTACT_MESSAGES.find((m) => m.id === id);
+    if (!message) throw new Error("Message not found");
+    return { ...message, status };
+  },
+
+  deleteContactMessage: async (id: string): Promise<void> => {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    const index = MOCK_CONTACT_MESSAGES.findIndex((m) => m.id === id);
+    if (index === -1) throw new Error("Message not found");
+    // In real implementation, this would delete from database
+  },
+
+  // Directory Submissions API
+  getDirectorySubmissions: async (
+    status?: SubmissionStatus | "ALL"
+  ): Promise<AdminQueueResponse<DirectorySubmission>> => {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    const filtered =
+      status && status !== "ALL"
+        ? MOCK_DIRECTORY_SUBMISSIONS.filter((s) => s.status === status)
+        : MOCK_DIRECTORY_SUBMISSIONS;
+    return {
+      items: filtered,
+      total: filtered.length,
+      page: 1,
+      pageSize: 10,
+      hasMore: false,
+    };
+  },
+
+  updateDirectorySubmissionStatus: async (
+    id: string,
+    status: SubmissionStatus,
+    notes?: string
+  ): Promise<DirectorySubmission> => {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    const submission = MOCK_DIRECTORY_SUBMISSIONS.find((s) => s.id === id);
+    if (!submission) throw new Error("Directory submission not found");
+    return {
+      ...submission,
+      status,
+      adminNotes: notes,
+      reviewedBy: "admin",
+      reviewedAt: new Date().toISOString(),
+    };
   },
 };
