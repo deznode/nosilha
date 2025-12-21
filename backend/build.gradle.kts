@@ -27,7 +27,6 @@ repositories {
     mavenCentral()
 }
 
-extra["springCloudGcpVersion"] = "6.2.2"
 extra["testcontainersVersion"] = "1.21.3"
 extra["kotlinLogging"] = "7.0.3"
 extra["springdocOpenApiVersion"] = "2.8.9"
@@ -42,9 +41,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${property("springdocOpenApiVersion")}")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("com.google.cloud:spring-cloud-gcp-starter-storage")
-    implementation("com.google.cloud:spring-cloud-gcp-starter-data-firestore")
-    implementation("com.google.cloud:spring-cloud-gcp-starter-vision")
     implementation("io.github.oshai:kotlin-logging-jvm:${property("kotlinLogging")}")
     implementation("io.jsonwebtoken:jjwt-api:0.12.5")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")
@@ -71,12 +67,6 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-oauth2-resource-server")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
-
-dependencyManagement {
-    imports {
-        mavenBom("com.google.cloud:spring-cloud-gcp-dependencies:${property("springCloudGcpVersion")}")
-    }
 }
 
 kotlin {

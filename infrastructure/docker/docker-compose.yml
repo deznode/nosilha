@@ -12,25 +12,6 @@ services:
       - ./data:/var/lib/postgresql/data
     restart: unless-stopped
 
-  # --- Firestore Emulator Service ---
-  # Uses the official Google Cloud SDK image and a simple, reliable command.
-  firestore-emulator:
-    image: google/cloud-sdk:emulators
-    platform: linux/amd64
-    command: gcloud beta emulators firestore start --host-port=0.0.0.0:8081
-    ports:
-      - "8081:8081"
-
-  # --- Google Cloud Storage (GCS) Emulator Service ---
-  # Uses a dedicated, stable third-party image specifically for GCS emulation.
-  gcs-emulator:
-    image: fsouza/fake-gcs-server:latest
-    command: -scheme http -host 0.0.0.0 -port 8082 -public-host localhost
-    volumes:
-      - ./gcs-storage/data:/storage
-    ports:
-      - "8082:8082"
-
   # --- Backend Service (Spring Boot + Kotlin) ---
   # Profile-based service - only starts when explicitly requested
   # Usage: docker-compose --profile backend up
@@ -45,17 +26,15 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/nosilha_db
       - SPRING_DATASOURCE_USERNAME=nosilha
       - SPRING_DATASOURCE_PASSWORD=nosilha
-      - GCP_SERVERURL=http://gcs-emulator:8082
-      - GCS_BUCKET_NAME=nosilha-media
-      - FIRESTORE_EMULATOR_HOST=firestore-emulator:8081
+      - MEDIA_STORAGE_PATH=/app/uploads
       - SUPABASE_JWT_SECRET=${SUPABASE_JWT_SECRET}
       - APP_CORS_ALLOWED_ORIGINS=http://localhost:3000,http://frontend:3000
+    volumes:
+      - ./uploads:/app/uploads
     profiles:
       - backend
     depends_on:
       - db
-      - firestore-emulator
-      - gcs-emulator
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]

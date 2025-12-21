@@ -8,12 +8,12 @@ paths: infrastructure/**, .github/**
 
 ```bash
 cd infrastructure/docker
-docker-compose up -d    # Start PostgreSQL, Firestore & GCS emulators
+docker-compose up -d    # Start PostgreSQL
 docker-compose down     # Stop all services
 
 # Database management
-docker-compose exec postgres psql -U nosilha -d nosilha_db  # Access PostgreSQL
-docker-compose exec postgres pg_dump -U nosilha nosilha_db > backup.sql  # Create backup
+docker-compose exec db psql -U nosilha -d nosilha_db  # Access PostgreSQL
+docker-compose exec db pg_dump -U nosilha nosilha_db > backup.sql  # Create backup
 ```
 
 ## CI/CD Pipeline
@@ -58,9 +58,11 @@ Solo-maintained project using lean, budget-conscious CI/CD:
 | **Region** | `us-east1` |
 | **Compute** | Cloud Run (auto-scaling serverless containers) |
 | **Registry** | Google Artifact Registry (`us-east1-docker.pkg.dev`) |
-| **Storage** | Google Cloud Storage for media assets |
+| **Database** | Supabase PostgreSQL (external) |
 | **Secrets** | Google Secret Manager for secure configuration |
 | **IaC** | Terraform configurations in `/infrastructure/terraform/` |
+
+**Note**: Media storage in production is deferred. Local filesystem is used for development only.
 
 ## Reference
 

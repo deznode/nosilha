@@ -44,14 +44,13 @@ backend/src/main/resources/db/migration/
 
 | Database | Purpose |
 |----------|---------|
-| **PostgreSQL** | Primary database for structured data (directory entries, user accounts) |
-| **Google Firestore** | Flexible metadata storage for AI-processed images and documents |
-| **Google Cloud Storage** | Media asset storage with CDN integration |
+| **PostgreSQL** | Primary database for all structured data (directory entries, user accounts, media metadata) |
 
-## AI & Media Processing
+## Media Storage
 
-- **Cloud Vision API**: Image analysis and metadata extraction with OCR, labeling, landmark detection
-- **Workflow**: Upload → GCS → AI Analysis → Firestore → Enhanced Frontend Content
+- **Development**: Local filesystem storage (`./uploads` directory)
+- **Production**: Cloud storage integration deferred
+- **Metadata**: Stored in PostgreSQL `media` table with placeholder columns for future AI integration
 
 ## RESTful Conventions
 

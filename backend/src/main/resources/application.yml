@@ -53,17 +53,12 @@ spring:
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
 
-  # Google Cloud Platform Configuration for Production
-  # NOTE: The project-id is intentionally omitted as it will be bound from
-  # the SPRING_CLOUD_GCP_PROJECT_ID environment variable.
-  # Emulator settings are also omitted to connect to live GCP services.
-  cloud:
-    gcp: {}
-
-
-# The production GCS bucket name, provided as an environment variable in Cloud Run.
-gcp:
-  gcs-bucket-name: ${GCS_BUCKET_NAME}
+# Media storage configuration for production
+# NOTE: Production cloud storage is deferred; local filesystem used for development
+media:
+  storage:
+    path: ${MEDIA_STORAGE_PATH:/app/uploads}
+    base-url: ${MEDIA_BASE_URL:https://api.nosilha.com/api/v1/media/files}
 
 # The production Supabase JWT secret, sourced from Google Secret Manager
 # and provided as an environment variable.

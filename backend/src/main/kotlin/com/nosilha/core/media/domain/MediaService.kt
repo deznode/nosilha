@@ -8,23 +8,27 @@ import org.springframework.stereotype.Service
 /**
  * Media Service
  *
- * <p>Handles media asset management, storage, and AI processing orchestration.
- * This service listens to directory entry creation events and automatically
- * creates placeholder media metadata for new entries.
+ * <p>Handles media asset management and storage orchestration.
+ * This service listens to directory entry creation events for potential
+ * automatic media association.</p>
  *
- * <p><strong>Event-Driven Communication:</strong>
+ * <p><strong>Event-Driven Communication:</strong></p>
  * <ul>
  *   <li>Listens to DirectoryEntryCreatedEvent from directory module</li>
- *   <li>Creates placeholder media metadata on entry creation</li>
  *   <li>Publishes MediaUploadedEvent when media is uploaded</li>
- *   <li>Publishes MediaProcessedEvent after AI processing completes</li>
  * </ul>
  *
- * <p><strong>Future Enhancements:</strong>
+ * <p><strong>Storage:</strong></p>
  * <ul>
- *   <li>Google Cloud Storage integration for media uploads</li>
- *   <li>Cloud Vision API integration for image analysis</li>
- *   <li>Firestore integration for metadata storage</li>
+ *   <li>Media files stored on local filesystem (development)</li>
+ *   <li>Metadata persisted in PostgreSQL via MediaRepository</li>
+ *   <li>Cloud storage integration deferred for production</li>
+ * </ul>
+ *
+ * <p><strong>Future Enhancements:</strong></p>
+ * <ul>
+ *   <li>Cloud storage integration for production (GCS or Supabase Storage)</li>
+ *   <li>AI integration for automatic image tagging and alt text generation</li>
  * </ul>
  */
 @Service
@@ -32,10 +36,11 @@ internal class MediaService {
     private val logger = LoggerFactory.getLogger(MediaService::class.java)
 
     /**
-     * Listens to DirectoryEntryCreatedEvent and creates placeholder media metadata.
+     * Listens to DirectoryEntryCreatedEvent for cross-module awareness.
      *
-     * <p>This demonstrates cross-module event-driven communication without direct
-     * coupling between the directory and media modules.
+     * <p>This demonstrates event-driven communication between the directory
+     * and media modules without direct coupling. Media can be associated
+     * with directory entries via the entry_id foreign key.</p>
      *
      * @param event The directory entry created event
      */
@@ -48,8 +53,8 @@ internal class MediaService {
             event.name,
         )
 
-        // TODO: Create placeholder media metadata in Firestore
-        // For now, just log the event to demonstrate listener pattern
-        logger.debug("Creating placeholder media metadata for directory entry: {}", event.entryId)
+        // Media can be associated with this entry via the entry_id field
+        // when uploaded through the FileUploadController
+        logger.debug("Directory entry created - media can be associated via entry_id: {}", event.entryId)
     }
 }

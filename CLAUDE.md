@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Nos Ilha is a community-driven cultural heritage hub for Brava Island, Cape Verde. This volunteer-supported, open-source project is a full-stack web application that preserves and celebrates the island's rich cultural memory through an interactive directory of cultural sites, landmarks, and local businesses, with mapping functionality and AI-enhanced media management.
+Nos Ilha is a community-driven cultural heritage hub for Brava Island, Cape Verde. This volunteer-supported, open-source project is a full-stack web application that preserves and celebrates the island's rich cultural memory through an interactive directory of cultural sites, landmarks, and local businesses, with mapping functionality.
 
 ### System Architecture Overview
 
 **Frontend** (Next.js 16): React 19.2, App Router, Tailwind CSS, ISR Caching, Supabase Auth
 **Backend** (Spring Boot): Kotlin/JVM, PostgreSQL, JWT Auth, Domain-Driven, RESTful APIs
-**Infrastructure** (GCP): Cloud Run, Artifact Registry, Cloud Storage, Secret Manager, IAM
+**Infrastructure** (GCP): Cloud Run, Artifact Registry, Secret Manager, IAM
 **CI/CD** (GitHub Actions): Modular workflows, security scanning, auto-deployment, health checks
 
 ## Architecture
@@ -18,7 +18,7 @@ Nos Ilha is a community-driven cultural heritage hub for Brava Island, Cape Verd
 This is a **full-stack application** with four main components:
 
 - **Frontend**: Next.js 16 (App Router) with React 19.2, TypeScript, and Tailwind CSS
-- **Backend**: Spring Boot 3.4.7 with Kotlin, PostgreSQL (primary), and Google Cloud integrations
+- **Backend**: Spring Boot 3.4.7 with Kotlin, PostgreSQL as the single database
 - **Infrastructure**: Docker Compose for local development, Terraform for cloud deployment
 - **CI/CD**: Modular GitHub Actions workflows with automated security scanning and deployment
 
@@ -33,7 +33,7 @@ The project follows a clear organizational structure:
 
 **Authentication**: User → Frontend → Supabase Auth → JWT Token → Backend Validation → Database Access
 **Content Management**: Admin UI → Backend API → PostgreSQL → Cache Invalidation → Frontend Update
-**Media Processing**: File Upload → GCS Storage → Cloud Vision API → Metadata → Firestore → Frontend
+**Media Upload**: File Upload → Local Storage (dev) → PostgreSQL Metadata → Frontend Display
 **CI/CD Deployment**: Git Push → GitHub Actions → Security Scan → Build → Deploy → Health Check
 
 ## Development Environment Setup
@@ -55,8 +55,7 @@ The project follows a clear organizational structure:
 - **Frontend**: `http://localhost:3000` (Next.js with Turbopack)
 - **Backend API**: `http://localhost:8080/api/v1/` (Spring Boot)
 - **Database**: `localhost:5432` (PostgreSQL: database=`nosilha_db`, user=`nosilha`, password=`nosilha`)
-- **Firestore Emulator**: `http://localhost:8081`
-- **GCS Emulator**: `http://localhost:8082`
+- **Media Storage**: `./uploads` (local filesystem)
 
 ### Required Environment Variables
 

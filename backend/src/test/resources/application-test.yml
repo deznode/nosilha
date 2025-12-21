@@ -31,25 +31,12 @@ spring:
   flyway:
     enabled: true
 
-  # GCP Services Configuration for tests
-  # Note: GCP auto-configuration is excluded in test classes via @EnableAutoConfiguration(exclude = [...])
-  # GCP service dependencies (Storage, ImageAnnotatorClient) are mocked via GcpMockConfiguration
-  cloud:
-    gcp:
-      project-id: test-project
-      # Emulator configuration (only used if GCP services are explicitly enabled)
-      firestore:
-        enabled: false
-        emulator-host: localhost:8081
-      storage:
-        enabled: false
-        emulator-host: http://localhost:8082
-
-# Test GCS Configuration
-# GCP services are mocked in tests - see GcpMockConfiguration
-gcp:
-  serverUrl: http://localhost:8082
-  gcs-bucket-name: test-bucket
+# Media storage configuration for tests
+# Uses temp directory for test isolation
+media:
+  storage:
+    path: ${java.io.tmpdir}/nosilha-test-uploads
+    base-url: http://localhost:8080/api/v1/media/files
 
 # Test JWT Configuration
 supabase:

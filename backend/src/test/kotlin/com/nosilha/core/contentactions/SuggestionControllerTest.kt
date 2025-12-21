@@ -1,11 +1,6 @@
 package com.nosilha.core.contentactions
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.cloud.spring.autoconfigure.core.GcpContextAutoConfiguration
-import com.google.cloud.spring.autoconfigure.firestore.GcpFirestoreAutoConfiguration
-import com.google.cloud.spring.autoconfigure.storage.GcpStorageAutoConfiguration
-import com.google.cloud.spring.autoconfigure.vision.CloudVisionAutoConfiguration
-import com.nosilha.core.config.GcpMockConfiguration
 import com.nosilha.core.contentactions.api.SuggestionCreateDto
 import com.nosilha.core.contentactions.domain.SuggestionType
 import com.nosilha.core.contentactions.repository.SuggestionRepository
@@ -14,10 +9,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -30,22 +23,10 @@ import java.util.UUID
  *
  * Tests the full stack from HTTP request to database persistence,
  * including validation, rate limiting, and spam protection.
- *
- * Note: All GCP auto-configurations are excluded (Context, Firestore, Storage, Vision).
- * GCP service dependencies are mocked via GcpMockConfiguration.
  */
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
-@EnableAutoConfiguration(
-    exclude = [
-        GcpContextAutoConfiguration::class,
-        GcpFirestoreAutoConfiguration::class,
-        GcpStorageAutoConfiguration::class,
-        CloudVisionAutoConfiguration::class,
-    ],
-)
-@Import(GcpMockConfiguration::class)
 class SuggestionControllerTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
