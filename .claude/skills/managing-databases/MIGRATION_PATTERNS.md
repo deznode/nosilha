@@ -14,7 +14,7 @@ This guide provides patterns and examples for creating Flyway migrations followi
 - `V001__create_directory_entries.sql` - Initial table creation
 - `V023__add_cultural_significance.sql` - Add new field
 - `V024__add_heritage_search_indexes.sql` - Performance optimization
-- `V025__add_firestore_integration.sql` - External system integration
+- `V025__add_media_metadata.sql` - Media storage support
 
 ## Single Table Inheritance (STI) Migration Patterns
 

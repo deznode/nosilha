@@ -1558,7 +1558,7 @@ com.nosilha.core/
 │   ├── domain/                         # Media business logic (internal)
 │   │   └── MediaService.kt             # GCS, Vision API, event listeners
 │   ├── repository/                     # Data access layer (internal)
-│   │   └── FirestoreMediaRepository.kt # Metadata storage
+│   │   └── MediaRepository.kt          # Metadata storage
 │   └── events/                         # Media domain events (public)
 │       ├── MediaUploadedEvent.kt
 │       └── MediaProcessedEvent.kt

@@ -271,7 +271,7 @@ media/
 ├── domain/
 │   └── MediaService.kt     # GCS operations, AI processing, event listeners - internal
 ├── repository/
-│   └── FirestoreMediaRepository.kt  # Metadata storage - internal
+│   └── MediaRepository.kt           # Metadata storage - internal
 └── events/
     ├── MediaUploadedEvent.kt    # Published after file upload
     └── MediaProcessedEvent.kt   # Published after AI processing

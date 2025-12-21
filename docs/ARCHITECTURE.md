@@ -45,10 +45,10 @@ Nos Ilha is a modern, full-stack web application built with a microservices-insp
 │  │ ┌─────────────┐ │                            │ │ PostgreSQL  │ │                    │
 │  │ │Controllers  │ │◄──────────────────────────►│ │ (Primary)   │ │                    │
 │  │ │Services     │ │                            │ └─────────────┘ │                    │
-│  │ │Repositories │ │                            │ ┌─────────────┐ │                    │
-│  │ │JWT Auth     │ │                            │ │ Firestore   │ │                    │
-│  │ │Domain Model │ │◄──────────────────────────►│ │ (Metadata)  │ │                    │
-│  │ └─────────────┘ │                            │ └─────────────┘ │                    │
+│  │ │Repositories │ │                            │                 │                    │
+│  │ │JWT Auth     │ │                            │                 │                    │
+│  │ │Domain Model │ │                            │                 │                    │
+│  │ └─────────────┘ │                            │                 │                    │
 │  └─────────┬───────┘                            │ ┌─────────────┐ │                    │
 │            │                                    │ │ Cloud       │ │                    │
 │            ▼                                    │ │ Storage     │ │                    │
@@ -119,10 +119,10 @@ Admin Action ──► Frontend Form ──► Backend API ──► Database �
 ### 3. Media Processing & AI Integration Flow
 
 ```
-File Upload ──► GCS Storage ──► Vision API ──► Metadata Extraction ──► Firestore ──► Frontend Display
+File Upload ──► GCS Storage ──► Vision API ──► Metadata Extraction ──► PostgreSQL ──► Frontend Display
 
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│    User     │    │   Google    │    │   Vision    │    │  Firestore  │    │  Frontend   │
+│    User     │    │   Google    │    │   Vision    │    │ PostgreSQL  │    │  Frontend   │
 │   Upload    │    │   Cloud     │    │     API     │    │  Database   │    │   Display   │
 │             │    │   Storage   │    │             │    │             │    │             │
 └──────┬──────┘    └──────┬──────┘    └──────┬──────┘    └──────┬──────┘    └──────┬──────┘
@@ -139,7 +139,7 @@ File Upload ──► GCS Storage ──► Vision API ──► Metadata Extrac
 - **Upload Component**: `components/ui/image-uploader.tsx` with validation
 - **Backend Service**: `MediaService.kt` handles GCS operations
 - **AI Processing**: `AIService.kt` integrates with Cloud Vision API
-- **Metadata Storage**: Firestore collections for flexible schema
+- **Metadata Storage**: PostgreSQL tables for structured storage
 - **Frontend Integration**: Image galleries with AI-enhanced metadata
 
 ## 🛠️ Component Architecture
@@ -265,7 +265,7 @@ Each module follows a consistent pattern with these internal layers:
 │  │   Service     │       │ • Restaurant       │       │               │    │
 │  ├───────────────┤       │ • Hotel, etc.      │       ├───────────────┤    │
 │  │ Security:     │       ├────────────────────┤       │ Repository:   │    │
-│  │ • JwtFilter   │       │ Repository:        │       │ • FirestoreRepo│   │
+│  │ • JwtFilter   │       │ Repository:        │       │ • MediaRepo    │   │
 │  │ • SecurityCfg │       │ • DirectoryRepo    │       ├───────────────┤    │
 │  ├───────────────┤       ├────────────────────┤       │ Events:       │    │
 │  │ Events:       │       │ Events:            │       │ • MediaUploaded│   │
@@ -374,16 +374,16 @@ CREATE INDEX idx_directory_entries_location ON directory_entries(latitude, longi
 │  └─────────────────┘                           │ └─────────────┘ │                    │
 │            │                                   └─────────────────┘                    │
 │            ▼                                                                          │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐                    │
-│  │   IAM & Security│    │  Secret Manager │    │    Firestore    │                    │
-│  │                 │    │                 │    │                 │                    │
-│  │ ┌─────────────┐ │    │ ┌─────────────┐ │    │ ┌─────────────┐ │                    │
-│  │ │Service      │ │    │ │DB Credentials│ │    │ │AI Metadata  │ │                    │
-│  │ │Accounts     │ │    │ │JWT Secrets  │ │    │ │Collections  │ │                    │
-│  │ │- Backend    │ │    │ │API Keys     │ │    │ │- Images     │ │                    │
-│  │ │- Frontend   │ │    │ └─────────────┘ │    │ │- Documents  │ │                    │
-│  │ │- CI/CD      │ │    └─────────────────┘    │ └─────────────┘ │                    │
-│  │ └─────────────┘ │                           └─────────────────┘                    │
+│  ┌─────────────────┐    ┌─────────────────┐                                          │
+│  │   IAM & Security│    │  Secret Manager │                                          │
+│  │                 │    │                 │                                          │
+│  │ ┌─────────────┐ │    │ ┌─────────────┐ │                                          │
+│  │ │Service      │ │    │ │DB Credentials│ │                                          │
+│  │ │Accounts     │ │    │ │JWT Secrets  │ │                                          │
+│  │ │- Backend    │ │    │ │API Keys     │ │                                          │
+│  │ │- Frontend   │ │    │ └─────────────┘ │                                          │
+│  │ │- CI/CD      │ │    └─────────────────┘                                          │
+│  │ └─────────────┘ │                                                                  │
 │  └─────────────────┘                                                                  │
 │                                                                                         │
 └─────────────────────────────────────────────────────────────────────────────────────────┘
@@ -435,7 +435,6 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
 - **Cloud Storage**: Media files with CDN distribution
 - **Secret Manager**: Encrypted configuration and credentials
 - **IAM**: Least-privilege service accounts and role bindings
-- **Firestore**: NoSQL database for AI metadata
 
 ## 🔄 CI/CD Pipeline Architecture
 
@@ -627,7 +626,7 @@ Backend Architecture: Spring Modulith
 │ │  Media Module (com.nosilha.core.media)                                 │ │
 │ │  • API: MediaController (file upload endpoints)                        │ │
 │ │  • Service: MediaService (GCS, AI processing, event listeners)         │ │
-│ │  • Repository: FirestoreMediaRepository (metadata storage)             │ │
+│ │  • Repository: MediaRepository (metadata storage)                      │ │
 │ │  • Events: MediaUploadedEvent, MediaProcessedEvent                     │ │
 │ │  • Listeners: @ApplicationModuleListener for DirectoryEntryCreated     │ │
 │ │  Dependencies: shared                                                   │ │

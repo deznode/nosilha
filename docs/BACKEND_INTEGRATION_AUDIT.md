@@ -456,8 +456,7 @@ MediaItem {
 ```
 
 **Architecture Options:**
-- **Option A (Existing Pattern):** Extend current media upload with `MediaModule`, store metadata in PostgreSQL
-- **Option B (Alternative):** Keep metadata in Firestore (already configured for GCS integration), add API layer
+- **Option A (Recommended):** Extend current media upload with `MediaModule`, store metadata in PostgreSQL
 
 ---
 
@@ -543,7 +542,7 @@ PagedApiResponse<T> {
 **Dependencies:** Phase 2 (author tracking)
 
 ### Phase 4: Media Enhancement (P2)
-1. Media metadata storage (PostgreSQL vs Firestore decision)
+1. Media metadata storage in PostgreSQL
 2. Media listing with filtering
 3. Admin media review queue
 4. Integration with existing upload

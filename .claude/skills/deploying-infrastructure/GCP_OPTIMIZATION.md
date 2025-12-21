@@ -228,8 +228,6 @@ gsutil lifecycle set lifecycle.json gs://bucket-name
 services:
   postgres:
     image: postgres:15-alpine
-  firestore:
-    image: google/cloud-sdk:emulators
   gcs:
     image: fsouza/fake-gcs-server
 ```
