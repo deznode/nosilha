@@ -160,7 +160,34 @@ For implementation details, refer to [`DESIGN_SYSTEM.md`](../../docs/DESIGN_SYST
 | **Motion Preference** | Respect prefers-reduced-motion media query |
 | **Keyboard Navigation** | All interactive components must support tab focus |
 | **Alt Text** | Required for all media assets |
-| **Dark Mode** | Uses **Basalt/Volcanic Night** variants to maintain tone consistency |
+| **Dark Mode** | Uses **Volcanic Night** palette with adjusted brand colors for eye comfort |
+
+### **Dark Mode Color Overrides (Volcanic Night)**
+
+In dark mode, certain brand colors are adjusted for eye comfort while maintaining brand recognition:
+
+#### Brand Color Adjustments
+
+| Color | Light Mode | Dark Mode | Rationale |
+| :---- | :---- | :---- | :---- |
+| **Ocean Blue** | \#0E4C75 | \#38BDF8 | Sky blue for better contrast on dark backgrounds |
+| **Ocean Blue Deep** | \#0E4C75 | \#0C3D5E | Deeper ocean for dark mode section backgrounds |
+| **Bougainvillea Pink** | \#C02669 | \#F472B6 | Lighter, desaturated pink for reduced eye strain |
+| **Brand Text** | \#0E4C75 | \#7DD3FC | Light cyan for readable brand-colored text |
+
+#### Semantic Token Mapping
+
+| Token | Light Mode | Dark Mode |
+| :---- | :---- | :---- |
+| **bg-primary** | \#FFFFFF | \#0B1120 (deepest basalt) |
+| **bg-secondary** | \#F8FAFC (mist-50) | \#1E293B |
+| **bg-tertiary** | \#F1F5F9 (mist-100) | \#334155 |
+| **text-primary** | \#0F172A (basalt-900) | \#F1F5F9 (mist white) |
+| **text-secondary** | \#64748B (basalt-500) | \#94A3B8 |
+| **border-subtle** | \#E2E8F0 (mist-200) | \#334155 |
+| **border-strong** | \#64748B (basalt-500) | \#475569 |
+
+**Design Philosophy**: Dark mode uses custom-tuned values rather than simple inversions. Background colors are deeper than the named basalt palette for true "volcanic night" immersion, while text and border colors are optimized for readability and reduced eye strain during extended use.
 
 ## **💫 Motion & Interaction**
 

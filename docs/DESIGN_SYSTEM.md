@@ -80,18 +80,26 @@ Our color system uses **Tailwind CSS v4** with a semantic token approach that au
   --color-border-primary: var(--color-edge);
 }
 
-@layer theme {
-  :root, :host {
-    @variant dark {
-      /* "Volcanic Night" Dark Mode Palette */
-      --color-bg-primary: var(--color-basalt-900);
-      --color-bg-secondary: var(--color-basalt-800);
-      --color-text-primary: var(--color-mist-50);
-      --color-text-secondary: var(--color-mist-200);
-      --color-border-subtle: var(--color-basalt-800);
-      --color-border-strong: var(--color-basalt-500);
-    }
-  }
+/* === DARK MODE OVERRIDES (Volcanic Night) === */
+@variant dark {
+  /* Brand Adjustments for Dark Mode (Desaturated for eye comfort) */
+  --color-ocean-blue: #38bdf8; /* Sky blue for contrast */
+  --color-ocean-blue-deep: #0c3d5e; /* Deeper ocean for dark mode backgrounds */
+  --color-bougainvillea-pink: #f472b6; /* Lighter pink */
+
+  /* Backgrounds - Deep Basalt */
+  --color-bg-primary: #0b1120; /* Deepest basalt */
+  --color-bg-secondary: #1e293b;
+  --color-bg-tertiary: #334155;
+
+  /* Text */
+  --color-text-primary: #f1f5f9; /* Mist white */
+  --color-text-secondary: #94a3b8;
+  --color-text-brand: #7dd3fc;
+
+  /* Borders */
+  --color-border-subtle: #334155;
+  --color-border-strong: #475569;
 }
 ```
 
@@ -180,22 +188,23 @@ Our semantic color system provides a comprehensive set of tokens that automatica
 #### Background Tokens
 | Token | Light Mode | Dark Mode | Usage |
 |-------|------------|-----------|-------|
-| `canvas` / `background-primary` | `mist-50` (#f8fafc) | `basalt-900` (#0f172a) | Main page backgrounds |
-| `surface` / `background-secondary` | `mist-100` (#f1f5f9) | `basalt-800` (#1e293b) | Cards, sidebars, panels |
-| `surface-alt` / `background-tertiary` | `mist-200` (#e2e8f0) | `basalt-500` (#64748b) | Hover states, alternates |
+| `canvas` / `background-primary` | `mist-50` (#f8fafc) | #0b1120 (deepest basalt) | Main page backgrounds |
+| `surface` / `background-secondary` | `mist-100` (#f1f5f9) | #1e293b | Cards, sidebars, panels |
+| `surface-alt` / `background-tertiary` | `mist-200` (#e2e8f0) | #334155 | Hover states, alternates |
 
 #### Text Tokens
 | Token | Light Mode | Dark Mode | Usage |
 |-------|------------|-----------|-------|
-| `body` / `text-primary` | `basalt-900` (#0f172a) | `mist-50` (#f8fafc) | Main content, headings |
-| `muted` / `text-secondary` | `basalt-500` (#64748b) | `mist-200` (#e2e8f0) | Secondary text, captions |
-| `text-tertiary` | `basalt-500` (#64748b) | `mist-200` (#e2e8f0) | Placeholder text, disabled labels |
+| `body` / `text-primary` | `basalt-900` (#0f172a) | #f1f5f9 (mist white) | Main content, headings |
+| `muted` / `text-secondary` | `basalt-500` (#64748b) | #94a3b8 | Secondary text, captions |
+| `text-tertiary` | `basalt-500` (#64748b) | #94a3b8 | Placeholder text, disabled labels |
+| `text-brand` | `ocean-blue` (#0e4c75) | #7dd3fc | Brand-colored text |
 
 #### Border Tokens
 | Token | Light Mode | Dark Mode | Usage |
 |-------|------------|-----------|-------|
-| `hairline` / `border-subtle` | `mist-200` (#e2e8f0) | `basalt-800` (#1e293b) | Light dividers, subtle borders |
-| `edge` / `border-strong` | `basalt-500` (#64748b) | `basalt-500` (#64748b) | Strong borders, form elements |
+| `hairline` / `border-subtle` | `mist-200` (#e2e8f0) | #334155 | Light dividers, subtle borders |
+| `edge` / `border-strong` | `basalt-500` (#64748b) | #475569 | Strong borders, form elements |
 
 #### Brand Color Tokens
 | Token | Hex Value | Usage |
@@ -506,12 +515,16 @@ Our dark mode implementation uses **Tailwind CSS v4's @variant dark** feature wi
 #### Volcanic Night Color Mapping
 | Element | Light Mode | Dark Mode (Volcanic Night) |
 |---------|------------|---------------------------|
-| Page Background | `mist-50` (#f8fafc) | `basalt-900` (#0f172a) |
-| Card/Surface | `mist-100` (#f1f5f9) | `basalt-800` (#1e293b) |
-| Primary Text | `basalt-900` (#0f172a) | `mist-50` (#f8fafc) |
-| Secondary Text | `basalt-500` (#64748b) | `mist-200` (#e2e8f0) |
-| Subtle Borders | `mist-200` (#e2e8f0) | `basalt-800` (#1e293b) |
-| Strong Borders | `basalt-500` (#64748b) | `basalt-500` (#64748b) |
+| Page Background | `mist-50` (#f8fafc) | #0b1120 (deepest basalt) |
+| Card/Surface | `mist-100` (#f1f5f9) | #1e293b |
+| Tertiary Surface | `mist-200` (#e2e8f0) | #334155 |
+| Primary Text | `basalt-900` (#0f172a) | #f1f5f9 (mist white) |
+| Secondary Text | `basalt-500` (#64748b) | #94a3b8 |
+| Brand Text | `ocean-blue` (#0e4c75) | #7dd3fc |
+| Subtle Borders | `mist-200` (#e2e8f0) | #334155 |
+| Strong Borders | `basalt-500` (#64748b) | #475569 |
+| Ocean Blue | #0e4c75 | #38bdf8 (sky blue) |
+| Bougainvillea Pink | #c02669 | #f472b6 (lighter pink) |
 
 #### Modern Implementation Architecture
 
@@ -1071,18 +1084,26 @@ The color system follows the **"Semantic Structure, Branded Soul"** approach:
   --color-edge: var(--color-border-strong);
 }
 
-@layer theme {
-  :root, :host {
-    @variant dark {
-      /* "Volcanic Night" Dark Mode Palette */
-      --color-bg-primary: var(--color-basalt-900);
-      --color-bg-secondary: var(--color-basalt-800);
-      --color-text-primary: var(--color-mist-50);
-      --color-text-secondary: var(--color-mist-200);
-      --color-border-subtle: var(--color-basalt-800);
-      --color-border-strong: var(--color-basalt-500);
-    }
-  }
+/* === DARK MODE OVERRIDES (Volcanic Night) === */
+@variant dark {
+  /* Brand Adjustments for Dark Mode (Desaturated for eye comfort) */
+  --color-ocean-blue: #38bdf8; /* Sky blue for contrast */
+  --color-ocean-blue-deep: #0c3d5e; /* Deeper ocean for dark mode backgrounds */
+  --color-bougainvillea-pink: #f472b6; /* Lighter pink */
+
+  /* Backgrounds - Deep Basalt */
+  --color-bg-primary: #0b1120; /* Deepest basalt */
+  --color-bg-secondary: #1e293b;
+  --color-bg-tertiary: #334155;
+
+  /* Text */
+  --color-text-primary: #f1f5f9; /* Mist white */
+  --color-text-secondary: #94a3b8;
+  --color-text-brand: #7dd3fc;
+
+  /* Borders */
+  --color-border-subtle: #334155;
+  --color-border-strong: #475569;
 }
 ```
 
