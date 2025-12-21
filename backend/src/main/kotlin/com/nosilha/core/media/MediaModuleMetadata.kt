@@ -48,6 +48,6 @@ import org.springframework.modulith.PackageInfo
 @PackageInfo
 @ApplicationModule(
     displayName = "Media Module",
-    allowedDependencies = ["shared :: api", "shared :: events"],
+    allowedDependencies = ["shared :: api", "shared :: domain", "shared :: events"],
 )
 class MediaModuleMetadata

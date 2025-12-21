@@ -27,10 +27,17 @@ repositories {
     mavenCentral()
 }
 
-extra["testcontainersVersion"] = "1.21.3"
+extra["testcontainersVersion"] = "1.21.4"
 extra["kotlinLogging"] = "7.0.3"
 extra["springdocOpenApiVersion"] = "2.8.9"
 extra["springModulithVersion"] = "1.2.5"
+
+// Override Spring Boot's testcontainers version for Docker 29+ compatibility
+dependencyManagement {
+    imports {
+        mavenBom("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}")
+    }
+}
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -51,7 +58,6 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
-    implementation(platform("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}"))
 
     // Spring Modulith dependencies
     implementation("org.springframework.modulith:spring-modulith-starter-core:${property("springModulithVersion")}")
