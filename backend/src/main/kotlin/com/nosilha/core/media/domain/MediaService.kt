@@ -4,6 +4,8 @@ import com.nosilha.core.media.repository.MediaRepository
 import com.nosilha.core.shared.events.DirectoryEntryCreatedEvent
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.micrometer.core.instrument.Counter
+import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.modulith.ApplicationModuleListener
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -32,6 +34,7 @@ private val logger = KotlinLogging.logger {}
 class MediaService(
     private val r2StorageService: R2StorageService,
     private val mediaRepository: MediaRepository,
+    meterRegistry: MeterRegistry,
 ) {
     companion object {
         private const val MAX_UPLOADS_PER_HOUR = 20
@@ -40,6 +43,23 @@ class MediaService(
         private const val DAY_IN_SECONDS = 86400L
         private const val MINUTES_IN_HOUR = 60
     }
+
+    // Metrics counters for media operations
+    private val uploadSuccessCounter: Counter = Counter.builder("media.upload.success")
+        .description("Number of successful media upload confirmations")
+        .register(meterRegistry)
+
+    private val uploadFailureCounter: Counter = Counter.builder("media.upload.failure")
+        .description("Number of failed media upload attempts")
+        .register(meterRegistry)
+
+    private val moderationApprovedCounter: Counter = Counter.builder("media.moderation.approved")
+        .description("Number of media items approved by admins")
+        .register(meterRegistry)
+
+    private val moderationRejectedCounter: Counter = Counter.builder("media.moderation.rejected")
+        .description("Number of media items rejected by admins")
+        .register(meterRegistry)
 
     // In-memory rate limiter: userId -> list of upload timestamps
     // TODO: Replace with Redis-based rate limiter for production (distributed instances)
@@ -168,9 +188,10 @@ class MediaService(
         logger.info { "Confirming upload for user $userId: key=$key" }
 
         // Verify the file was actually uploaded to R2
-        check(r2StorageService.objectExists(key)) {
+        if (!r2StorageService.objectExists(key)) {
+            uploadFailureCounter.increment()
             logger.warn { "Upload confirmation failed - object not found in R2: $key" }
-            "Upload not found. Please retry the upload."
+            error("Upload not found. Please retry the upload.")
         }
 
         // Generate unique filename from the key
@@ -195,6 +216,7 @@ class MediaService(
         )
 
         val saved = mediaRepository.save(media)
+        uploadSuccessCounter.increment()
         logger.info { "Created media record: id=${saved.id}, status=${saved.status}" }
 
         return saved
@@ -225,6 +247,7 @@ class MediaService(
         media.reviewedAt = Instant.now()
 
         val saved = mediaRepository.save(media)
+        moderationApprovedCounter.increment()
         logger.info { "Media approved: id=$mediaId by admin $adminId" }
 
         return saved
@@ -258,6 +281,7 @@ class MediaService(
         media.rejectionReason = reason
 
         val saved = mediaRepository.save(media)
+        moderationRejectedCounter.increment()
         logger.info { "Media rejected: id=$mediaId by admin $adminId, reason: $reason" }
 
         return saved

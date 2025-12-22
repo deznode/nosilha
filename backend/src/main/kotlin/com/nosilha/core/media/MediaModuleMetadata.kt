@@ -11,24 +11,24 @@ import org.springframework.modulith.PackageInfo
  *
  * <p><strong>Responsibilities:</strong></p>
  * <ul>
- *   <li>Media file upload and storage (local filesystem for development)</li>
+ *   <li>Media file upload via presigned URLs (direct browser-to-R2 uploads)</li>
  *   <li>Media metadata management in PostgreSQL</li>
- *   <li>File serving via REST API</li>
+ *   <li>Moderation workflow (pending_review → available/deleted)</li>
  *   <li>Association of media with directory entries</li>
  * </ul>
  *
  * <p><strong>Storage Strategy:</strong></p>
  * <ul>
- *   <li>Development: Local filesystem storage</li>
- *   <li>Production: Cloud storage integration deferred</li>
- *   <li>Metadata: PostgreSQL via JPA (Media entity)</li>
+ *   <li>Storage: Cloudflare R2 (S3-compatible) with presigned PUT URLs</li>
+ *   <li>Metadata: PostgreSQL via JPA (Media entity with status lifecycle)</li>
+ *   <li>CDN: R2 public access via custom domain</li>
  * </ul>
  *
  * <p><strong>Module Boundaries:</strong></p>
  * <ul>
- *   <li>Depends on: shared :: api, shared :: events</li>
- *   <li>Exposes: FileUploadController (REST API), MediaUploadedEvent</li>
- *   <li>Internal: MediaService, LocalFileStorageService, MediaRepository</li>
+ *   <li>Depends on: shared :: api, shared :: domain, shared :: events, shared :: exception</li>
+ *   <li>Exposes: MediaController (REST API), MediaUploadedEvent</li>
+ *   <li>Internal: MediaService, R2StorageService, MediaRepository</li>
  * </ul>
  *
  * <p><strong>Event Communication:</strong></p>
@@ -39,7 +39,7 @@ import org.springframework.modulith.PackageInfo
  *
  * <p><strong>Future Enhancements:</strong></p>
  * <ul>
- *   <li>Cloud storage integration (GCS or Supabase Storage)</li>
+ *   <li>Cloud import from Google Photos and Adobe Lightroom</li>
  *   <li>AI integration for automatic image tagging</li>
  * </ul>
  *
@@ -48,6 +48,6 @@ import org.springframework.modulith.PackageInfo
 @PackageInfo
 @ApplicationModule(
     displayName = "Media Module",
-    allowedDependencies = ["shared :: api", "shared :: domain", "shared :: events"],
+    allowedDependencies = ["shared :: api", "shared :: domain", "shared :: events", "shared :: exception"],
 )
 class MediaModuleMetadata
