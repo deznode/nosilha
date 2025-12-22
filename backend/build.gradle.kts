@@ -59,6 +59,10 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
 
+    // Cloudflare R2 (S3-compatible) integration
+    implementation(platform("software.amazon.awssdk:bom:2.29.51"))
+    implementation("software.amazon.awssdk:s3")
+
     // Spring Modulith dependencies
     implementation("org.springframework.modulith:spring-modulith-starter-core:${property("springModulithVersion")}")
     implementation("org.springframework.modulith:spring-modulith-starter-jpa:${property("springModulithVersion")}")

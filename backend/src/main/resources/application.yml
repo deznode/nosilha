@@ -60,6 +60,16 @@ media:
     path: ${MEDIA_STORAGE_PATH:/app/uploads}
     base-url: ${MEDIA_BASE_URL:https://api.nosilha.com/api/v1/media/files}
 
+# Cloudflare R2 configuration (S3-compatible object storage)
+# Credentials provided via environment variables in Cloud Run
+cloudflare:
+  r2:
+    account-id: ${R2_ACCOUNT_ID:}
+    access-key-id: ${R2_ACCESS_KEY_ID:}
+    secret-access-key: ${R2_SECRET_ACCESS_KEY:}
+    bucket-name: ${R2_BUCKET_NAME:nosilha-media}
+    public-url: ${R2_PUBLIC_URL:https://media.nosilha.com}
+
 # The production Supabase JWT secret, sourced from Google Secret Manager
 # and provided as an environment variable.
 supabase:

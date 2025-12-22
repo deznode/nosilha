@@ -196,10 +196,7 @@ export function Header({
                         )}
                       >
                         {item.icon && (
-                          <item.icon
-                            className="h-4 w-4"
-                            aria-hidden="true"
-                          />
+                          <item.icon className="h-4 w-4" aria-hidden="true" />
                         )}
                         {item.name}
                       </Link>
@@ -350,9 +347,7 @@ export function Header({
                   {/* Auth / Profile Section */}
                   {session ? (
                     <Menu as="div" className="relative ml-2">
-                      <MenuButton
-                        className="focus-visible:ring-ocean-blue flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2"
-                      >
+                      <MenuButton className="focus-visible:ring-ocean-blue flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2">
                         <span className="sr-only">Open user menu</span>
                         <div className={iconContainerClass}>
                           <UserCircle className="h-4 w-4" aria-hidden="true" />

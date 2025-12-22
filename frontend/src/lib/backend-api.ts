@@ -1,6 +1,12 @@
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town } from "@/types/town";
-import type { ErrorDetail, MediaMetadataDto } from "@/types/api";
+import type {
+  ErrorDetail,
+  MediaMetadataDto,
+  PresignRequest,
+  PresignResponse,
+  ConfirmRequest,
+} from "@/types/api";
 import type {
   ApiClient,
   ApiResponse,
@@ -215,45 +221,162 @@ export class BackendApiClient implements ApiClient {
     };
   }
 
+  // ================================
+  // MEDIA UPLOAD OPERATIONS (Presigned URL Flow)
+  // ================================
+
   /**
-   * Uploads an image file to the backend API and returns the public URL.
-   * Requires user authentication via JWT token.
+   * Requests a presigned URL for direct browser-to-R2 upload.
+   *
+   * **Authentication Required**: Uses JWT token from Supabase session.
+   *
+   * **Rate Limiting**: Maximum 20 uploads per hour, 100 per day per user.
+   * Backend returns HTTP 429 if exceeded.
+   *
+   * @param request Contains fileName, contentType, and fileSize
+   * @returns PresignResponse with uploadUrl, key, and expiresAt
+   * @throws Error if rate limit exceeded (HTTP 429)
+   * @throws Error if validation fails (HTTP 400)
+   */
+  async getPresignedUploadUrl(
+    request: PresignRequest
+  ): Promise<PresignResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/media/presign`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message ||
+            "Upload rate limit exceeded. Please try again later."
+        );
+      }
+      if (response.status === 400) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || "Invalid file. Please check file type and size."
+        );
+      }
+      throw new Error(`Failed to get upload URL: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<PresignResponse>(payload);
+  }
+
+  /**
+   * Confirms a completed upload and creates the media metadata record.
+   *
+   * **Authentication Required**: Uses JWT token from Supabase session.
+   *
+   * Call this after successfully uploading to R2 using the presigned URL.
+   * Creates a Media record with PENDING_REVIEW status.
+   *
+   * @param request Contains key, originalName, contentType, fileSize, and optional entryId, category, description
+   * @returns MediaMetadataDto with full media metadata
+   * @throws Error if upload not found in R2 (HTTP 422)
+   */
+  async confirmUpload(request: ConfirmRequest): Promise<MediaMetadataDto> {
+    const endpoint = `${env.apiUrl}/api/v1/media/confirm`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.message || `Upload confirmation failed: ${response.status}`
+      );
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<MediaMetadataDto>(payload);
+  }
+
+  /**
+   * Fetches media metadata for a specific directory entry.
+   *
+   * **Public Endpoint**: Returns only AVAILABLE media.
+   *
+   * @param entryId UUID of the directory entry
+   * @returns Array of MediaMetadataDto for the entry
+   */
+  async getMediaByEntry(entryId: string): Promise<MediaMetadataDto[]> {
+    const endpoint = `${env.apiUrl}/api/v1/media/entry/${entryId}`;
+
+    const response = await fetch(endpoint, {
+      method: "GET",
+      next: CacheConfig.INDIVIDUAL_ENTRY,
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return [];
+      }
+      throw new Error(`Failed to fetch media: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<MediaMetadataDto[]>(payload);
+  }
+
+  /**
+   * Legacy method - uploads image using presigned URL flow.
+   * Kept for backwards compatibility with existing components.
+   *
+   * @deprecated Use getPresignedUploadUrl + confirmUpload for new implementations
    */
   async uploadImage(
     file: File,
     category?: string,
     description?: string
   ): Promise<string> {
-    const endpoint = `${env.apiUrl}/api/v1/media/upload`;
-
-    // Create FormData for multipart/form-data request
-    const formData = new FormData();
-    formData.append("file", file);
-    if (category) formData.append("category", category);
-    if (description) formData.append("description", description);
-
-    const response = await this.authenticatedFetch(endpoint, {
-      method: "POST",
-      body: formData,
-      // Don't set Content-Type header - let browser set it with boundary for multipart
+    // Get presigned URL
+    const presignResponse = await this.getPresignedUploadUrl({
+      fileName: file.name,
+      contentType: file.type,
+      fileSize: file.size,
     });
 
-    if (!response.ok) {
-      try {
-        const errorResult = await response.json();
-        throw new Error(
-          errorResult.error ||
-            errorResult.message ||
-            `Upload failed (${response.status})`
-        );
-      } catch (_parseError) {
-        throw new Error(`Failed to upload image (${response.status})`);
-      }
+    // Upload to R2 directly
+    const uploadResponse = await fetch(presignResponse.uploadUrl, {
+      method: "PUT",
+      body: file,
+      headers: {
+        "Content-Type": file.type,
+      },
+    });
+
+    if (!uploadResponse.ok) {
+      throw new Error(`Failed to upload to storage: ${uploadResponse.status}`);
     }
 
-    const payload = (await response.json()) as unknown;
-    const mediaMetadata = this.unwrapApiResponse<MediaMetadataDto>(payload);
-    return mediaMetadata.url;
+    // Confirm upload
+    const mediaMetadata = await this.confirmUpload({
+      key: presignResponse.key,
+      originalName: file.name,
+      contentType: file.type,
+      fileSize: file.size,
+      category,
+      description,
+    });
+
+    return mediaMetadata.publicUrl ?? "";
   }
 
   /**

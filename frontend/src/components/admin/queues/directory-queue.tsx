@@ -34,10 +34,12 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Restaurant: "bg-[var(--color-valley-green)]/10 text-[var(--color-valley-green)]",
+  Restaurant:
+    "bg-[var(--color-valley-green)]/10 text-[var(--color-valley-green)]",
   Landmark: "bg-[var(--color-ocean-blue)]/10 text-[var(--color-ocean-blue)]",
   Nature: "bg-[var(--color-valley-green)]/10 text-[var(--color-valley-green)]",
-  Culture: "bg-[var(--color-bougainvillea)]/10 text-[var(--color-bougainvillea)]",
+  Culture:
+    "bg-[var(--color-bougainvillea)]/10 text-[var(--color-bougainvillea)]",
 };
 
 export function DirectoryQueue({
@@ -170,12 +172,12 @@ export function DirectoryQueue({
                               className="object-cover"
                             />
                           </div>
-                          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                          <span className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
                             Visual Asset Attached
                           </span>
                         </div>
                       )}
-                      <div className="mt-4 flex flex-wrap items-center gap-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      <div className="mt-4 flex flex-wrap items-center gap-3 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
                         <span className="flex items-center gap-1">
                           <MapPin size={12} /> {submission.town}
                         </span>

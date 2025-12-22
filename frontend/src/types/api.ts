@@ -148,28 +148,81 @@ export interface TownDto {
 // ================================
 
 /**
+ * Media status enum matching backend MediaStatus
+ */
+export type MediaStatus =
+  | "PENDING"
+  | "PROCESSING"
+  | "PENDING_REVIEW"
+  | "AVAILABLE"
+  | "DELETED";
+
+/**
+ * Media source enum matching backend MediaSource
+ */
+export type MediaSource = "LOCAL" | "GOOGLE_PHOTOS" | "ADOBE_LIGHTROOM";
+
+/**
  * Media metadata as returned by backend API
+ * Matches MediaResponse from backend
  */
 export interface MediaMetadataDto {
   id: string;
-  filename: string;
-  originalFilename: string;
+  fileName: string;
+  originalName: string;
   contentType: string;
-  size: number;
-  url: string;
-  category?: string;
-  description?: string;
-  uploadedAt: string; // ISO 8601 timestamp
-  uploadedBy: string; // User ID
+  fileSize: number;
+  publicUrl: string | null;
+  status: MediaStatus;
+  source: MediaSource;
+  entryId: string | null;
+  category: string | null;
+  description: string | null;
+  displayOrder: number;
+  uploadedBy: string | null;
+  createdAt: string | null; // ISO 8601 timestamp
+  updatedAt: string | null; // ISO 8601 timestamp
 }
 
 /**
- * File upload request parameters
+ * Request for generating presigned upload URL
+ */
+export interface PresignRequest {
+  fileName: string;
+  contentType: string;
+  fileSize: number;
+}
+
+/**
+ * Response containing presigned URL for direct R2 upload
+ */
+export interface PresignResponse {
+  uploadUrl: string;
+  key: string;
+  expiresAt: string; // ISO 8601 timestamp
+}
+
+/**
+ * Request for confirming completed upload
+ */
+export interface ConfirmRequest {
+  key: string;
+  originalName: string;
+  contentType: string;
+  fileSize: number;
+  entryId?: string;
+  category?: string;
+  description?: string;
+}
+
+/**
+ * File upload request parameters (legacy, for backwards compatibility)
  */
 export interface UploadFileRequest {
   file: File;
   category?: string;
   description?: string;
+  entryId?: string;
 }
 
 // ================================

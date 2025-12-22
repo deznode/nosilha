@@ -83,7 +83,7 @@ class LocalFileStorageService(
             originalName = originalFileName,
             contentType = file.contentType ?: "application/octet-stream",
             fileSize = file.size,
-            storagePath = targetPath.toAbsolutePath().toString(),
+            storageKey = targetPath.toAbsolutePath().toString(),
             publicUrl = "$baseUrl/$uniqueFileName",
             entryId = entryId,
             category = category,
@@ -120,12 +120,12 @@ class LocalFileStorageService(
      * @param media The media entity to delete
      */
     fun deleteFile(media: Media) {
-        val path = Paths.get(media.storagePath)
+        val path = Paths.get(media.storageKey)
         if (Files.exists(path)) {
             Files.delete(path)
-            logger.info { "Deleted file: ${media.storagePath}" }
+            logger.info { "Deleted file: ${media.storageKey}" }
         } else {
-            logger.warn { "File not found for deletion: ${media.storagePath}" }
+            logger.warn { "File not found for deletion: ${media.storageKey}" }
         }
         mediaRepository.delete(media)
         logger.info { "Deleted media record: ${media.id}" }

@@ -18,9 +18,9 @@ export function MessagesQueue({
   onDelete,
 }: MessagesQueueProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState<ContactMessageStatus | "ALL">(
-    "ALL"
-  );
+  const [filterStatus, setFilterStatus] = useState<
+    ContactMessageStatus | "ALL"
+  >("ALL");
 
   const filteredMessages = messages.filter((m) => {
     const matchesSearch =

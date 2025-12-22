@@ -3,6 +3,8 @@ package com.nosilha.core.media.domain
 import com.nosilha.core.shared.domain.AuditableEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.Table
@@ -15,19 +17,22 @@ import java.util.UUID
  * Entity representing uploaded media files with metadata.
  *
  * Stores media file information including storage location, file metadata,
- * and optional AI-generated annotations. This replaces the previous Firestore-based
- * ImageMetadata storage with a PostgreSQL-native solution.
+ * moderation status, and optional AI-generated annotations.
  *
  * Storage Strategy:
- * - Development: Local filesystem storage (configurable path)
- * - Production: Cloud storage integration (deferred)
+ * - All environments: Cloudflare R2 with presigned URL uploads
+ * - Metadata stored in PostgreSQL
+ *
+ * Moderation Workflow:
+ * PENDING → PROCESSING → PENDING_REVIEW → AVAILABLE/DELETED
  *
  * AI Integration (Future):
  * The aiTags, aiLabels, aiAltText, aiDescription, and aiProcessedAt fields are
- * placeholder columns for future Cloud Vision or similar AI integration. They remain
- * nullable until AI processing is implemented.
+ * placeholder columns for future Cloud Vision or similar AI integration.
  *
  * @see AuditableEntity
+ * @see MediaStatus
+ * @see MediaSource
  */
 @Entity
 @Table(name = "media")
@@ -44,10 +49,10 @@ class Media(
     /** File size in bytes. */
     @Column(name = "file_size", nullable = false)
     var fileSize: Long,
-    /** Absolute path where the file is stored on the filesystem. */
-    @Column(name = "storage_path", nullable = false, length = 1024)
-    var storagePath: String,
-    /** Public URL for accessing the file via the API. */
+    /** R2 object key (path within bucket). Renamed from storagePath for R2 compatibility. */
+    @Column(name = "storage_key", nullable = false, length = 512)
+    var storageKey: String,
+    /** Public URL for accessing the file via CDN. */
     @Column(name = "public_url", length = 1024)
     var publicUrl: String? = null,
     /** Optional association with a directory entry. */
@@ -62,6 +67,28 @@ class Media(
     /** Display order for sorting within a collection. */
     @Column(name = "display_order", nullable = false)
     var displayOrder: Int = 0,
+    /** Current lifecycle state of the media. */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    var status: MediaStatus = MediaStatus.PENDING,
+    /** Upload origin (local device, Google Photos, Adobe Lightroom). */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "source", nullable = false)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    var source: MediaSource = MediaSource.LOCAL,
+    /** External identifier for cloud-imported media (Phase 2). */
+    @Column(name = "source_id", length = 512)
+    var sourceId: String? = null,
+    /** Admin user who approved or rejected the media. */
+    @Column(name = "reviewed_by")
+    var reviewedBy: UUID? = null,
+    /** Timestamp of approval or rejection. */
+    @Column(name = "reviewed_at")
+    var reviewedAt: Instant? = null,
+    /** Reason provided when media is rejected. */
+    @Column(name = "rejection_reason", length = 1024)
+    var rejectionReason: String? = null,
     /** AI-generated tags for image classification (PostgreSQL TEXT[] array). */
     @Column(name = "ai_tags", columnDefinition = "TEXT[]")
     @JdbcTypeCode(SqlTypes.ARRAY)

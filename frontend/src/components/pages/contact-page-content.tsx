@@ -113,8 +113,8 @@ export function ContactPageContent() {
                     Obrigado!
                   </h4>
                   <p className="text-text-secondary mb-6 text-lg">
-                    Thank you for your message. We&apos;ll get back to you within
-                    24-48 hours.
+                    Thank you for your message. We&apos;ll get back to you
+                    within 24-48 hours.
                   </p>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
@@ -194,7 +194,9 @@ export function ContactPageContent() {
                       <option value="general">General Inquiry</option>
                       <option value="content">Content Contribution</option>
                       <option value="technical">Technical Support</option>
-                      <option value="partnership">Partnership Opportunity</option>
+                      <option value="partnership">
+                        Partnership Opportunity
+                      </option>
                       <option value="report">Report an Issue</option>
                     </select>
                   </div>

@@ -38,10 +38,14 @@ class SecurityConfig(
                     ).permitAll()
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
                     .permitAll()
-                    // Allow all GET requests to directory and towns
+                    // Allow all GET requests to directory, towns, and media
                     .requestMatchers(HttpMethod.GET, "/api/v1/directory/**")
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/towns/**")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/media/{id}")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/media/entry/{entryId}")
                     .permitAll()
                     // Allow public suggestions (community contributions without authentication)
                     .requestMatchers(HttpMethod.POST, "/api/v1/suggestions")
@@ -53,7 +57,9 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.POST, "/api/v1/content/register")
                     .permitAll()
                     // Require authentication for POST/PUT/DELETE operations
-                    .requestMatchers(HttpMethod.POST, "/api/v1/media/upload")
+                    .requestMatchers(HttpMethod.POST, "/api/v1/media/presign")
+                    .hasAnyRole("USER", "ADMIN", "authenticated")
+                    .requestMatchers(HttpMethod.POST, "/api/v1/media/confirm")
                     .hasAnyRole("USER", "ADMIN", "authenticated")
                     .requestMatchers(HttpMethod.POST, "/api/v1/directory/entries")
                     .hasAnyRole("USER", "ADMIN", "authenticated")

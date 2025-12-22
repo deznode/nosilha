@@ -159,7 +159,9 @@ export function AddDirectoryEntryForm() {
       priceLevel:
         formData.category === "Restaurant" ? formData.priceLevel : undefined,
       latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
-      longitude: formData.longitude ? parseFloat(formData.longitude) : undefined,
+      longitude: formData.longitude
+        ? parseFloat(formData.longitude)
+        : undefined,
       status: SubmissionStatus.PENDING,
       submittedBy: "Current User", // TODO: Get from auth context
     };
@@ -220,9 +222,9 @@ export function AddDirectoryEntryForm() {
         <div className="overflow-hidden rounded-[2.5rem] border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-800">
           {/* Header Branding */}
           <div className="relative overflow-hidden bg-[var(--color-ocean-blue)] px-12 py-12 text-white">
-            <div className="absolute -mr-40 -mt-40 right-0 top-0 h-80 w-80 rounded-full bg-white/5 blur-3xl"></div>
+            <div className="absolute top-0 right-0 -mt-40 -mr-40 h-80 w-80 rounded-full bg-white/5 blur-3xl"></div>
             <div className="relative z-10">
-              <span className="mb-4 inline-block rounded-full bg-white/20 px-3 py-1 text-[10px] font-bold uppercase tracking-widest backdrop-blur-md">
+              <span className="mb-4 inline-block rounded-full bg-white/20 px-3 py-1 text-[10px] font-bold tracking-widest uppercase backdrop-blur-md">
                 Contribution Portal
               </span>
               <h1 className="font-serif text-3xl font-bold md:text-4xl">
@@ -238,7 +240,7 @@ export function AddDirectoryEntryForm() {
           <form onSubmit={handleSubmit} className="space-y-12 p-12">
             {/* Identity Section */}
             <div className="space-y-8">
-              <div className="flex items-center gap-3 border-b border-slate-100 pb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--color-ocean-blue)] dark:border-slate-700">
+              <div className="flex items-center gap-3 border-b border-slate-100 pb-3 text-xs font-bold tracking-[0.2em] text-[var(--color-ocean-blue)] uppercase dark:border-slate-700">
                 <Info size={16} /> 1. Essential Details
               </div>
 
@@ -251,7 +253,7 @@ export function AddDirectoryEntryForm() {
                     <input
                       required
                       type="text"
-                      className="w-full rounded-2xl border border-slate-200 px-5 py-4 text-lg font-medium outline-none transition-all focus:border-[var(--color-ocean-blue)] focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="w-full rounded-2xl border border-slate-200 px-5 py-4 text-lg font-medium transition-all outline-none focus:border-[var(--color-ocean-blue)] focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                       placeholder="e.g., Pensão Sodade"
                       value={formData.name}
                       onChange={(e) =>
@@ -263,7 +265,7 @@ export function AddDirectoryEntryForm() {
                         type="button"
                         onClick={handleAIAutoFill}
                         disabled={isGenerating}
-                        className="absolute right-3 top-3 flex items-center gap-2 rounded-xl bg-[var(--color-bougainvillea)] px-5 py-2 text-xs font-bold text-white shadow-lg transition-all hover:bg-pink-700 active:scale-95 disabled:opacity-50"
+                        className="absolute top-3 right-3 flex items-center gap-2 rounded-xl bg-[var(--color-bougainvillea)] px-5 py-2 text-xs font-bold text-white shadow-lg transition-all hover:bg-pink-700 active:scale-95 disabled:opacity-50"
                       >
                         <Sparkles
                           size={14}
@@ -289,7 +291,7 @@ export function AddDirectoryEntryForm() {
                         }
                         className={`flex flex-col items-center gap-3 rounded-2xl border p-5 transition-all ${
                           formData.category === cat.id
-                            ? `border-[var(--color-${cat.colorClass})] bg-[var(--color-${cat.colorClass})]/5 ring-4 ring-[var(--color-${cat.colorClass})]/10 shadow-lg scale-[1.02]`
+                            ? `border-[var(--color-${cat.colorClass})] bg-[var(--color-${cat.colorClass})]/5 ring-4 ring-[var(--color-${cat.colorClass})]/10 scale-[1.02] shadow-lg`
                             : "border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50/50 dark:border-slate-600 dark:hover:border-slate-500"
                         }`}
                       >
@@ -336,11 +338,11 @@ export function AddDirectoryEntryForm() {
                 </div>
 
                 {useCustomTown ? (
-                  <div className="relative animate-in slide-in-from-top-2 duration-300">
+                  <div className="animate-in slide-in-from-top-2 relative duration-300">
                     <input
                       required
                       type="text"
-                      className="w-full rounded-2xl border border-slate-200 py-4 pl-10 pr-4 outline-none transition-all focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="w-full rounded-2xl border border-slate-200 py-4 pr-4 pl-10 transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                       placeholder="Enter town name..."
                       value={formData.customTown}
                       onChange={(e) =>
@@ -349,13 +351,13 @@ export function AddDirectoryEntryForm() {
                     />
                     <MapPin
                       size={18}
-                      className="absolute left-4 top-4 text-[var(--color-ocean-blue)]"
+                      className="absolute top-4 left-4 text-[var(--color-ocean-blue)]"
                     />
                   </div>
                 ) : (
                   <div className="relative">
                     <select
-                      className="w-full cursor-pointer appearance-none rounded-2xl border border-slate-200 bg-white px-5 py-4 outline-none transition-all focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="w-full cursor-pointer appearance-none rounded-2xl border border-slate-200 bg-white px-5 py-4 transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                       value={formData.town}
                       onChange={(e) =>
                         setFormData({ ...formData, town: e.target.value })
@@ -367,7 +369,7 @@ export function AddDirectoryEntryForm() {
                         </option>
                       ))}
                     </select>
-                    <div className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-slate-400">
+                    <div className="pointer-events-none absolute top-1/2 right-5 -translate-y-1/2 text-slate-400">
                       <ChevronDown className="h-4 w-4" />
                     </div>
                   </div>
@@ -377,7 +379,7 @@ export function AddDirectoryEntryForm() {
 
             {/* Cultural Context */}
             <div className="space-y-8">
-              <div className="flex items-center gap-3 border-b border-slate-100 pb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--color-ocean-blue)] dark:border-slate-700">
+              <div className="flex items-center gap-3 border-b border-slate-100 pb-3 text-xs font-bold tracking-[0.2em] text-[var(--color-ocean-blue)] uppercase dark:border-slate-700">
                 <History size={16} /> 2. Context & Story
               </div>
 
@@ -389,7 +391,7 @@ export function AddDirectoryEntryForm() {
                   <textarea
                     required
                     rows={5}
-                    className="w-full rounded-2xl border border-slate-200 px-5 py-4 leading-relaxed outline-none transition-all focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                    className="w-full rounded-2xl border border-slate-200 px-5 py-4 leading-relaxed transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                     placeholder="Describe the atmosphere, significance, or history of this location..."
                     value={formData.description}
                     onChange={(e) =>
@@ -406,7 +408,7 @@ export function AddDirectoryEntryForm() {
                     <div className="relative">
                       <input
                         type="text"
-                        className="w-full rounded-2xl border border-slate-200 py-3 pl-10 pr-4 text-sm outline-none transition-all focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                        className="w-full rounded-2xl border border-slate-200 py-3 pr-4 pl-10 text-sm transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                         placeholder="ocean-view, historical, hidden-gem"
                         value={formData.tags}
                         onChange={(e) =>
@@ -415,7 +417,7 @@ export function AddDirectoryEntryForm() {
                       />
                       <Tag
                         size={16}
-                        className="absolute left-3.5 top-3.5 text-slate-300"
+                        className="absolute top-3.5 left-3.5 text-slate-300"
                       />
                     </div>
                   </div>
@@ -451,7 +453,7 @@ export function AddDirectoryEntryForm() {
 
             {/* Media & Coordinates */}
             <div className="space-y-8">
-              <div className="flex items-center gap-3 border-b border-slate-100 pb-3 text-xs font-bold uppercase tracking-[0.2em] text-[var(--color-ocean-blue)] dark:border-slate-700">
+              <div className="flex items-center gap-3 border-b border-slate-100 pb-3 text-xs font-bold tracking-[0.2em] text-[var(--color-ocean-blue)] uppercase dark:border-slate-700">
                 <ImageIcon size={16} /> 3. Visuals & Location
               </div>
 
@@ -464,13 +466,13 @@ export function AddDirectoryEntryForm() {
                 onClick={() => document.getElementById("image-input")?.click()}
               >
                 {formData.imageUrl ? (
-                  <div className="relative animate-in zoom-in duration-300">
+                  <div className="animate-in zoom-in relative duration-300">
                     <Image
                       src={formData.imageUrl}
                       alt="Preview"
                       width={320}
                       height={240}
-                      className="max-h-80 rounded-[2rem] border-4 border-white shadow-2xl object-cover"
+                      className="max-h-80 rounded-[2rem] border-4 border-white object-cover shadow-2xl"
                     />
                     <button
                       type="button"
@@ -478,7 +480,7 @@ export function AddDirectoryEntryForm() {
                         e.stopPropagation();
                         setFormData({ ...formData, imageUrl: "" });
                       }}
-                      className="absolute -right-4 -top-4 rounded-full bg-red-500 p-3 text-white shadow-xl transition-all hover:scale-110 active:scale-95"
+                      className="absolute -top-4 -right-4 rounded-full bg-red-500 p-3 text-white shadow-xl transition-all hover:scale-110 active:scale-95"
                     >
                       <X size={20} />
                     </button>
@@ -511,13 +513,13 @@ export function AddDirectoryEntryForm() {
 
               <div className="grid grid-cols-2 gap-8">
                 <div>
-                  <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  <label className="mb-2 block text-[10px] font-bold tracking-widest text-slate-400 uppercase">
                     Latitude
                   </label>
                   <input
                     type="number"
                     step="any"
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition-all focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                     placeholder="14.8687"
                     value={formData.latitude}
                     onChange={(e) =>
@@ -526,13 +528,13 @@ export function AddDirectoryEntryForm() {
                   />
                 </div>
                 <div>
-                  <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  <label className="mb-2 block text-[10px] font-bold tracking-widest text-slate-400 uppercase">
                     Longitude
                   </label>
                   <input
                     type="number"
                     step="any"
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition-all focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
                     placeholder="-24.7011"
                     value={formData.longitude}
                     onChange={(e) =>

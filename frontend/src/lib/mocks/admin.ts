@@ -169,7 +169,8 @@ export const MOCK_DIRECTORY_SUBMISSIONS: DirectorySubmission[] = [
     tags: ["viewpoint", "sunset", "photography", "hiking"],
     latitude: 14.8521,
     longitude: -24.7123,
-    imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+    imageUrl:
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
     status: SubmissionStatus.PENDING,
     submittedBy: "João Neves",
     submittedByEmail: "joao.neves@example.com",
@@ -196,7 +197,8 @@ export const MOCK_DIRECTORY_SUBMISSIONS: DirectorySubmission[] = [
     description:
       "The cultural center hosts exhibitions, music performances, and workshops on traditional crafts. A hub for local artists and cultural events.",
     tags: ["museum", "arts", "workshops", "events"],
-    imageUrl: "https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=800",
+    imageUrl:
+      "https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=800",
     status: SubmissionStatus.APPROVED,
     submittedBy: "Carlos Lima",
     submittedByEmail: "carlos.lima@culture.cv",
