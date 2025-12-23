@@ -1,8 +1,6 @@
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
-import {
-  mediaMetadataListSchema,
-  type MediaMetadata,
-} from "@/schemas/mediaMetadataSchema";
+import { getMediaByEntry } from "@/lib/api";
+import type { MediaMetadataDto } from "@/types/api";
 
 /**
  * TanStack Query hook for fetching media metadata for a directory entry.
@@ -15,36 +13,15 @@ import {
 export function useMediaMetadata(
   entryId: string | undefined,
   options?: Omit<
-    UseQueryOptions<MediaMetadata[], Error>,
+    UseQueryOptions<MediaMetadataDto[], Error>,
     "queryKey" | "queryFn"
   >
 ) {
-  return useQuery<MediaMetadata[], Error>({
+  return useQuery<MediaMetadataDto[], Error>({
     queryKey: ["media", "metadata", entryId],
     queryFn: async () => {
-      // TODO: Replace with actual API call when media metadata endpoint is available
-      // For now, this is a placeholder implementation
-      const response = await fetch(`/api/media/${entryId}`);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch media metadata");
-      }
-
-      const data = await response.json();
-
-      // Runtime validation with Zod
-      const validated = mediaMetadataListSchema.safeParse(data);
-
-      if (!validated.success) {
-        console.error(
-          "Media metadata validation failed:",
-          validated.error.format()
-        );
-        // Return empty array if validation fails
-        return [];
-      }
-
-      return validated.data;
+      if (!entryId) return [];
+      return getMediaByEntry(entryId);
     },
     staleTime: 15 * 60 * 1000, // 15 minutes (media metadata changes infrequently)
     gcTime: 60 * 60 * 1000, // 1 hour

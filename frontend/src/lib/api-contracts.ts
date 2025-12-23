@@ -5,6 +5,7 @@ import type {
   ReactionResponseDto,
   ReactionCountsDto,
 } from "@/types/reaction";
+import type { MediaMetadataDto } from "@/types/api";
 
 /**
  * API Contracts - Defines the interface for all API implementations
@@ -51,6 +52,8 @@ export interface ApiClient {
     category?: string,
     description?: string
   ): Promise<string>;
+
+  getMediaByEntry(entryId: string): Promise<MediaMetadataDto[]>;
 
   // Reaction Operations (User Story 2)
   submitReaction(createDto: ReactionCreateDto): Promise<ReactionResponseDto>;

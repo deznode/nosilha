@@ -5,6 +5,7 @@ import type {
   ReactionResponseDto,
   ReactionCountsDto,
 } from "@/types/reaction";
+import type { MediaMetadataDto } from "@/types/api";
 import type { PaginatedResult } from "@/lib/api-contracts";
 import { getApiClient } from "@/lib/api-factory";
 
@@ -92,6 +93,19 @@ export async function uploadImage(
   description?: string
 ): Promise<string> {
   return apiClient.uploadImage(file, category, description);
+}
+
+/**
+ * Fetches media metadata for a directory entry.
+ * Returns only AVAILABLE media items.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param entryId The directory entry's unique identifier.
+ * @returns A promise that resolves to an array of media metadata.
+ */
+export async function getMediaByEntry(
+  entryId: string
+): Promise<MediaMetadataDto[]> {
+  return apiClient.getMediaByEntry(entryId);
 }
 
 // ================================

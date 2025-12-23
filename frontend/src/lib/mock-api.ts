@@ -11,6 +11,7 @@ import type {
   ReactionCountsDto,
   ReactionType,
 } from "@/types/reaction";
+import type { MediaMetadataDto } from "@/types/api";
 
 const MOCK_ENTRIES: DirectoryEntry[] = [
   // AUTHENTIC HOTEL ENTRIES FROM DATABASE
@@ -363,6 +364,18 @@ export class MockApiClient implements ApiClient {
     // Return mock URL
     const timestamp = Date.now();
     return `/images/uploads/mock-${timestamp}-${file.name}`;
+  }
+
+  /**
+   * Fetches media metadata for a directory entry.
+   * Returns only AVAILABLE media items.
+   */
+  async getMediaByEntry(entryId: string): Promise<MediaMetadataDto[]> {
+    console.log(`Mock API: Fetching media for entry: ${entryId}`);
+    await this.simulateDelay(100);
+
+    // Return empty array for mock (no media uploaded in mock mode)
+    return [];
   }
 
   /**
