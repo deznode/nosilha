@@ -49,6 +49,13 @@ The project follows a clear organizational structure:
 2. **Backend setup**: `cd backend && ./gradlew bootRun --args='--spring.profiles.active=local'`
 3. **Frontend setup**: `cd frontend && pnpm install && pnpm run dev`
 
+## Development Commands
+
+For detailed commands by domain, see the modular rules:
+- Frontend: @.claude/rules/frontend/app-router.md
+- Backend: @.claude/rules/backend/spring-modulith.md
+- Infrastructure: @.claude/rules/infrastructure/cicd-deployment.md
+
 ## Environment Configuration
 
 ### Local Development URLs
@@ -85,6 +92,19 @@ DATABASE_PASSWORD=nosilha
 - **Services**: Cloud Run (auto-scaling serverless containers)
 - **Registry**: Google Artifact Registry (`us-east1-docker.pkg.dev`)
 - **Authentication**: Supabase Auth with JWT tokens
+
+## Claude Code Memory
+
+Use `/memory` to view and edit all loaded memory files.
+
+### Modular Rules (.claude/rules/)
+
+Domain-specific instructions loaded automatically based on file paths:
+
+- `frontend/` - Next.js App Router, design system, Playwright MCP
+- `backend/` - Spring Modulith, API patterns
+- `content/` - MDX authoring platform
+- `infrastructure/` - CI/CD, Docker, cloud deployment
 
 ## Skills, Agents, and Commands
 
