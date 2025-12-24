@@ -115,12 +115,12 @@ class SuggestionService(
      * @return List of suggestions for the content
      */
     @Transactional(readOnly = true)
-    fun getSuggestionsForContent(contentId: UUID): List<Suggestion> {
-        return suggestionRepository.findByContentIdOrderByCreatedAtDesc(contentId)
-    }
+    fun getSuggestionsForContent(contentId: UUID): List<Suggestion> = suggestionRepository.findByContentIdOrderByCreatedAtDesc(contentId)
 }
 
 /**
  * Exception thrown when honeypot spam protection is triggered.
  */
-class HoneypotSpamDetectedException(message: String) : RuntimeException(message)
+class HoneypotSpamDetectedException(
+    message: String
+) : RuntimeException(message)

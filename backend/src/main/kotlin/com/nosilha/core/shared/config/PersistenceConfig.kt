@@ -27,7 +27,5 @@ class PersistenceConfig {
      */
     @Bean
     @Primary
-    fun transactionManager(entityManagerFactory: EntityManagerFactory): JpaTransactionManager {
-        return JpaTransactionManager(entityManagerFactory)
-    }
+    fun transactionManager(entityManagerFactory: EntityManagerFactory): JpaTransactionManager = JpaTransactionManager(entityManagerFactory)
 }

@@ -76,11 +76,12 @@ class RelatedContentService(
         // Priority 2: Same category + town (geographic relevance)
         if (relatedEntries.size < limit) {
             val sameCategoryTown =
-                directoryEntryRepository.findByCategoryIgnoreCaseAndTownIgnoreCase(
-                    currentEntry.category,
-                    currentEntry.town,
-                    PageRequest.of(0, limit + 1),
-                ).content
+                directoryEntryRepository
+                    .findByCategoryIgnoreCaseAndTownIgnoreCase(
+                        currentEntry.category,
+                        currentEntry.town,
+                        PageRequest.of(0, limit + 1),
+                    ).content
                     .filter { it.id != contentId }
                     .filterNot { relatedEntries.contains(it) }
                     .take(limit - relatedEntries.size)
@@ -101,17 +102,17 @@ class RelatedContentService(
             val cuisineKeywords = currentEntry.cuisine!!.split(",").map { it.trim().lowercase() }
 
             val sameCategoryCuisine =
-                directoryEntryRepository.findByCategoryIgnoreCase(
-                    currentEntry.category,
-                    PageRequest.of(0, limit * 2),
-                ).content
+                directoryEntryRepository
+                    .findByCategoryIgnoreCase(
+                        currentEntry.category,
+                        PageRequest.of(0, limit * 2),
+                    ).content
                     .filter { entry ->
                         entry.id != contentId &&
                             !entry.cuisine.isNullOrBlank() &&
                             !relatedEntries.contains(entry) &&
                             hasSharedCuisine(entry.cuisine!!, cuisineKeywords)
-                    }
-                    .take(limit - relatedEntries.size)
+                    }.take(limit - relatedEntries.size)
 
             relatedEntries.addAll(sameCategoryCuisine)
             logger.debug(
@@ -124,15 +125,15 @@ class RelatedContentService(
         // Priority 4: Same category fallback
         if (relatedEntries.size < limit) {
             val sameCategoryOnly =
-                directoryEntryRepository.findByCategoryIgnoreCase(
-                    currentEntry.category,
-                    PageRequest.of(0, limit * 2),
-                ).content
+                directoryEntryRepository
+                    .findByCategoryIgnoreCase(
+                        currentEntry.category,
+                        PageRequest.of(0, limit * 2),
+                    ).content
                     .filter { entry ->
                         entry.id != contentId &&
                             !relatedEntries.contains(entry)
-                    }
-                    .take(limit - relatedEntries.size)
+                    }.take(limit - relatedEntries.size)
 
             relatedEntries.addAll(sameCategoryOnly)
             logger.debug(
@@ -183,8 +184,7 @@ class RelatedContentService(
                 val entryTags = entry.parseTags()
                 val sharedCount = entryTags.map { it.lowercase() }.count { tagSet.contains(it) }
                 TagScore(entry, sharedCount)
-            }
-            .filter { it.score > 0 }
+            }.filter { it.score > 0 }
             .sortedWith(compareByDescending<TagScore> { it.score }.thenBy { it.entry.name })
             .map { it.entry }
     }

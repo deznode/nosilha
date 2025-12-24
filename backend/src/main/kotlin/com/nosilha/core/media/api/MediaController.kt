@@ -256,15 +256,12 @@ class MediaController(
     /**
      * Extracts user ID from Spring Security authentication.
      */
-    private fun extractUserId(authentication: Authentication): String {
-        return authentication.principal as? String
+    private fun extractUserId(authentication: Authentication): String =
+        authentication.principal as? String
             ?: error("Authentication principal must be a string (user ID)")
-    }
 
     /**
      * Checks if authentication has a specific role.
      */
-    private fun Authentication.hasRole(role: String): Boolean {
-        return authorities.any { it.authority == "ROLE_$role" }
-    }
+    private fun Authentication.hasRole(role: String): Boolean = authorities.any { it.authority == "ROLE_$role" }
 }

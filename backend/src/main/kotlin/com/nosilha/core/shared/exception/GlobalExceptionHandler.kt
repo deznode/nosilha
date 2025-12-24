@@ -242,10 +242,14 @@ class GlobalExceptionHandler {
  * Custom exception for business logic violations.
  * Results in HTTP 422 Unprocessable Entity responses.
  */
-class BusinessException(message: String) : RuntimeException(message)
+class BusinessException(
+    message: String
+) : RuntimeException(message)
 
 /**
  * Indicates callers exceeded a defined rate limit.
  * Allows feature modules to communicate the violation without coupling.
  */
-class RateLimitExceededException(message: String) : RuntimeException(message)
+class RateLimitExceededException(
+    message: String
+) : RuntimeException(message)

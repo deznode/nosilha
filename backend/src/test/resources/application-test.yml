@@ -10,7 +10,7 @@ app:
 spring:
   # Test Database Configuration (PostgreSQL with Testcontainers)
   datasource:
-    url: jdbc:tc:postgresql:16.0:///
+    url: jdbc:tc:postgresql:16.0:///?TC_DAEMON=true
     hikari:
       maximum-pool-size: 5
       minimum-idle: 1

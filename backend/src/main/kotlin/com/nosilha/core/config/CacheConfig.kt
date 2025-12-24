@@ -26,7 +26,8 @@ class CacheConfig {
     fun cacheManager(): CacheManager {
         val manager = CaffeineCacheManager(REACTION_COUNTS_CACHE)
         manager.setCaffeine(
-            Caffeine.newBuilder()
+            Caffeine
+                .newBuilder()
                 .expireAfterWrite(REACTION_CACHE_TTL),
         )
         return manager

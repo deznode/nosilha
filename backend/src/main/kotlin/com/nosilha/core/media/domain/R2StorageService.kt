@@ -73,13 +73,15 @@ class R2StorageService(
         val endpoint = URI.create("https://$accountId.r2.cloudflarestorage.com")
         val credentials = AwsBasicCredentials.create(accessKeyId, secretAccessKey)
 
-        s3Client = S3Client.builder()
+        s3Client = S3Client
+            .builder()
             .endpointOverride(endpoint)
             .credentialsProvider(StaticCredentialsProvider.create(credentials))
             .region(Region.of("auto"))
             .build()
 
-        s3Presigner = S3Presigner.builder()
+        s3Presigner = S3Presigner
+            .builder()
             .endpointOverride(endpoint)
             .credentialsProvider(StaticCredentialsProvider.create(credentials))
             .region(Region.of("auto"))
@@ -110,13 +112,15 @@ class R2StorageService(
         val key = generateStorageKey(fileName)
         val expiry = Duration.ofMinutes(expiryMinutes.toLong())
 
-        val putObjectRequest = software.amazon.awssdk.services.s3.model.PutObjectRequest.builder()
+        val putObjectRequest = software.amazon.awssdk.services.s3.model.PutObjectRequest
+            .builder()
             .bucket(bucketName)
             .key(key)
             .contentType(contentType)
             .build()
 
-        val presignRequest = PutObjectPresignRequest.builder()
+        val presignRequest = PutObjectPresignRequest
+            .builder()
             .signatureDuration(expiry)
             .putObjectRequest(putObjectRequest)
             .build()
@@ -139,9 +143,7 @@ class R2StorageService(
      * @param key The storage key of the object
      * @return Full public URL for accessing the object
      */
-    fun getPublicUrl(key: String): String {
-        return "$publicUrl/$key"
-    }
+    fun getPublicUrl(key: String): String = "$publicUrl/$key"
 
     /**
      * Verifies that an object exists in R2 storage.
@@ -154,7 +156,8 @@ class R2StorageService(
         check(isConfigured) { "R2 storage is not configured" }
 
         return try {
-            val request = HeadObjectRequest.builder()
+            val request = HeadObjectRequest
+                .builder()
                 .bucket(bucketName)
                 .key(key)
                 .build()
@@ -174,7 +177,8 @@ class R2StorageService(
     fun deleteObject(key: String) {
         check(isConfigured) { "R2 storage is not configured" }
 
-        val request = DeleteObjectRequest.builder()
+        val request = DeleteObjectRequest
+            .builder()
             .bucket(bucketName)
             .key(key)
             .build()
@@ -203,9 +207,8 @@ class R2StorageService(
      *
      * Removes or replaces characters that might cause issues in URLs or keys.
      */
-    private fun sanitizeFileName(fileName: String): String {
-        return fileName
+    private fun sanitizeFileName(fileName: String): String =
+        fileName
             .replace(Regex("[^a-zA-Z0-9._-]"), "_")
             .take(100)
-    }
 }

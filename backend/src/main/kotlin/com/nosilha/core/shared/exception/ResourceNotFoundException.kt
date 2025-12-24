@@ -11,4 +11,6 @@ import org.springframework.web.bind.annotation.ResponseStatus
  * controller and not otherwise handled.
  */
 @ResponseStatus(HttpStatus.NOT_FOUND)
-class ResourceNotFoundException(message: String) : RuntimeException(message)
+class ResourceNotFoundException(
+    message: String
+) : RuntimeException(message)

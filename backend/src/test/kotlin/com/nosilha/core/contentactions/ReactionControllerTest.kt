@@ -1,6 +1,5 @@
 package com.nosilha.core.contentactions
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.nosilha.core.contentactions.api.ReactionCreateDto
 import com.nosilha.core.contentactions.domain.ReactionType
 import com.nosilha.core.contentactions.repository.ReactionRepository
@@ -12,8 +11,8 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.MediaType
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt
 import org.springframework.test.context.ActiveProfiles
@@ -24,6 +23,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import tools.jackson.databind.json.JsonMapper
 import java.util.UUID
 
 /**
@@ -42,7 +42,7 @@ class ReactionControllerTest {
     private lateinit var mockMvc: MockMvc
 
     @Autowired
-    private lateinit var objectMapper: ObjectMapper
+    private lateinit var jsonMapper: JsonMapper
 
     @Autowired
     private lateinit var reactionRepository: ReactionRepository
@@ -72,7 +72,7 @@ class ReactionControllerTest {
             .perform(
                 post("/api/v1/reactions")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(dto))
+                    .content(jsonMapper.writeValueAsString(dto))
                     .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
             ).andExpect(status().isCreated)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -103,7 +103,7 @@ class ReactionControllerTest {
             .perform(
                 post("/api/v1/reactions")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(dto)),
+                    .content(jsonMapper.writeValueAsString(dto)),
             ).andExpect(status().`is`(either(Matchers.`is`(401)).or(Matchers.`is`(403))))
 
         // Verify no reaction was persisted
@@ -125,7 +125,7 @@ class ReactionControllerTest {
             .perform(
                 post("/api/v1/reactions")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(dto))
+                    .content(jsonMapper.writeValueAsString(dto))
                     .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
             ).andExpect(status().isCreated)
 
@@ -137,7 +137,7 @@ class ReactionControllerTest {
             .perform(
                 post("/api/v1/reactions")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(dto))
+                    .content(jsonMapper.writeValueAsString(dto))
                     .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.status").value(200))
@@ -163,7 +163,7 @@ class ReactionControllerTest {
             .perform(
                 post("/api/v1/reactions")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(initialDto))
+                    .content(jsonMapper.writeValueAsString(initialDto))
                     .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
             ).andExpect(status().isCreated)
 
@@ -183,7 +183,7 @@ class ReactionControllerTest {
             .perform(
                 post("/api/v1/reactions")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(newDto))
+                    .content(jsonMapper.writeValueAsString(newDto))
                     .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.status").value(200))
@@ -213,7 +213,7 @@ class ReactionControllerTest {
                 .perform(
                     post("/api/v1/reactions")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(dto))
+                        .content(jsonMapper.writeValueAsString(dto))
                         .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
                 ).andExpect(status().isCreated)
         }
@@ -229,7 +229,7 @@ class ReactionControllerTest {
             .perform(
                 post("/api/v1/reactions")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(dto))
+                    .content(jsonMapper.writeValueAsString(dto))
                     .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
             ).andExpect(status().isTooManyRequests)
             .andExpect(jsonPath("$.message").value(Matchers.containsString("reactions")))
@@ -253,7 +253,7 @@ class ReactionControllerTest {
             .perform(
                 post("/api/v1/reactions")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(dto))
+                    .content(jsonMapper.writeValueAsString(dto))
                     .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
             ).andExpect(status().isCreated)
 
@@ -368,7 +368,7 @@ class ReactionControllerTest {
             .perform(
                 post("/api/v1/reactions")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(dto))
+                    .content(jsonMapper.writeValueAsString(dto))
                     .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
             ).andExpect(status().isBadRequest)
     }
@@ -386,7 +386,7 @@ class ReactionControllerTest {
             .perform(
                 post("/api/v1/reactions")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(dto))
+                    .content(jsonMapper.writeValueAsString(dto))
                     .with(jwt().jwt { it.subject(TEST_USER_ID.toString()) }),
             ).andExpect(status().isBadRequest)
     }
@@ -404,7 +404,7 @@ class ReactionControllerTest {
         mockMvc.perform(
             post("/api/v1/reactions")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
+                .content(jsonMapper.writeValueAsString(dto))
                 .with(jwt().jwt { it.subject(userId.toString()) }),
         )
     }
@@ -420,7 +420,7 @@ class ReactionControllerTest {
         post("/api/v1/reactions")
             .contentType(MediaType.APPLICATION_JSON)
             .content(
-                objectMapper.writeValueAsString(
+                jsonMapper.writeValueAsString(
                     ReactionCreateDto(
                         contentId = contentId,
                         reactionType = reactionType,

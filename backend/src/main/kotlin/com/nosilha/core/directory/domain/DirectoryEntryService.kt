@@ -1,6 +1,5 @@
 package com.nosilha.core.directory.domain
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nosilha.core.directory.repository.DirectoryEntryRepository
 import com.nosilha.core.shared.api.CreateEntryRequestDto
 import com.nosilha.core.shared.api.CreateHotelDetailsDto
@@ -16,6 +15,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.util.*
 
 /**
@@ -84,7 +84,8 @@ class DirectoryEntryService(
                 }
             // Generate a simple, URL-friendly slug
             this.slug =
-                request.name.lowercase()
+                request.name
+                    .lowercase()
                     .replace(Regex("\\s+"), "-") // Replace spaces with hyphens
                     .replace(Regex("[^a-z0-9-]$"), "") // Remove non-alphanumeric characters (except hyphens)
         }
@@ -108,9 +109,7 @@ class DirectoryEntryService(
      *
      * @return A list of [DirectoryEntryDto] representing all entries.
      */
-    fun getAllEntries(): List<DirectoryEntryDto> {
-        return repository.findAll().map { it.toDto() }
-    }
+    fun getAllEntries(): List<DirectoryEntryDto> = repository.findAll().map { it.toDto() }
 
     /**
      * Retrieves directory entries with pagination support.
@@ -118,9 +117,7 @@ class DirectoryEntryService(
      * @param pageable Pagination parameters (page, size, sort)
      * @return A page of [DirectoryEntryDto] representing the requested entries.
      */
-    fun getEntriesPage(pageable: Pageable): Page<DirectoryEntryDto> {
-        return repository.findAll(pageable).map { it.toDto() }
-    }
+    fun getEntriesPage(pageable: Pageable): Page<DirectoryEntryDto> = repository.findAll(pageable).map { it.toDto() }
 
     /**
      * Retrieves directory entries filtered by category with pagination support.
@@ -132,9 +129,7 @@ class DirectoryEntryService(
     fun getEntriesByCategoryPage(
         category: String,
         pageable: Pageable,
-    ): Page<DirectoryEntryDto> {
-        return repository.findByCategoryIgnoreCase(category, pageable).map { it.toDto() }
-    }
+    ): Page<DirectoryEntryDto> = repository.findByCategoryIgnoreCase(category, pageable).map { it.toDto() }
 
     /**
      * Retrieves directory entries filtered by town with pagination support.
@@ -146,9 +141,7 @@ class DirectoryEntryService(
     fun getEntriesByTownPage(
         town: String,
         pageable: Pageable,
-    ): Page<DirectoryEntryDto> {
-        return repository.findByTownIgnoreCase(town, pageable).map { it.toDto() }
-    }
+    ): Page<DirectoryEntryDto> = repository.findByTownIgnoreCase(town, pageable).map { it.toDto() }
 
     /**
      * Retrieves directory entries filtered by both category and town with pagination support.
@@ -162,9 +155,7 @@ class DirectoryEntryService(
         category: String,
         town: String,
         pageable: Pageable,
-    ): Page<DirectoryEntryDto> {
-        return repository.findByCategoryIgnoreCaseAndTownIgnoreCase(category, town, pageable).map { it.toDto() }
-    }
+    ): Page<DirectoryEntryDto> = repository.findByCategoryIgnoreCaseAndTownIgnoreCase(category, town, pageable).map { it.toDto() }
 
     /**
      * Retrieves all directory entries of a specific category and maps them to DTOs.
@@ -172,9 +163,7 @@ class DirectoryEntryService(
      * @param category The category to filter by (e.g., "Restaurant", "Hotel").
      * @return A list of [DirectoryEntryDto] for the given category.
      */
-    fun getEntriesByCategory(category: String): List<DirectoryEntryDto> {
-        return repository.findByCategoryIgnoreCase(category).map { it.toDto() }
-    }
+    fun getEntriesByCategory(category: String): List<DirectoryEntryDto> = repository.findByCategoryIgnoreCase(category).map { it.toDto() }
 
     /**
      * Finds a single directory entry by its unique ID.
@@ -183,11 +172,11 @@ class DirectoryEntryService(
      * @return The corresponding [DirectoryEntryDto].
      * @throws ResourceNotFoundException if no entry with the given ID exists.
      */
-    fun getEntryById(id: UUID): DirectoryEntryDto {
-        return repository.findById(id)
+    fun getEntryById(id: UUID): DirectoryEntryDto =
+        repository
+            .findById(id)
             .map { it.toDto() }
             .orElseThrow { ResourceNotFoundException("Directory entry with ID '$id' not found.") }
-    }
 
     /**
      * Finds a single directory entry by its unique slug.
@@ -196,10 +185,9 @@ class DirectoryEntryService(
      * @return The corresponding [DirectoryEntryDto].
      * @throws ResourceNotFoundException if no entry with the given slug exists.
      */
-    fun getEntryBySlug(slug: String): DirectoryEntryDto {
-        return repository.findBySlug(slug)?.toDto()
+    fun getEntryBySlug(slug: String): DirectoryEntryDto =
+        repository.findBySlug(slug)?.toDto()
             ?: throw ResourceNotFoundException("Directory entry with slug '$slug' not found.")
-    }
 
     /**
      * Updates an existing directory entry.
@@ -218,12 +206,14 @@ class DirectoryEntryService(
         request: CreateEntryRequestDto,
     ): DirectoryEntryDto {
         val existingEntry =
-            repository.findById(id)
+            repository
+                .findById(id)
                 .orElseThrow { ResourceNotFoundException("Directory entry with ID '$id' not found.") }
 
         // Check if slug is being changed and if it would create a duplicate
         val newSlug =
-            request.name.lowercase()
+            request.name
+                .lowercase()
                 .replace(Regex("\\s+"), "-")
                 .replace(Regex("[^a-z0-9-]$"), "")
 

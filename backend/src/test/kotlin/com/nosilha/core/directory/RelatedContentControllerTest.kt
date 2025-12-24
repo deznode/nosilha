@@ -7,8 +7,8 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -88,11 +88,11 @@ class RelatedContentControllerTest {
     @Test
     @DisplayName("GET /api/v1/directory/entries/{id}/related - Should return related content with 200 OK")
     fun `getRelatedContent with valid contentId should return related entries`() {
-        mockMvc.perform(
-            get("/api/v1/directory/entries/${testRestaurant1.id}/related")
-                .contentType(MediaType.APPLICATION_JSON),
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                get("/api/v1/directory/entries/${testRestaurant1.id}/related")
+                    .contentType(MediaType.APPLICATION_JSON),
+            ).andExpect(status().isOk)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.status").value(200))
             .andExpect(jsonPath("$.data").isArray)
@@ -105,11 +105,11 @@ class RelatedContentControllerTest {
     @DisplayName("GET /api/v1/directory/entries/{id}/related - Should prioritize same category and town")
     fun `getRelatedContent should prioritize same category and town matches`() {
         val result =
-            mockMvc.perform(
-                get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=5")
-                    .contentType(MediaType.APPLICATION_JSON),
-            )
-                .andExpect(status().isOk)
+            mockMvc
+                .perform(
+                    get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=5")
+                        .contentType(MediaType.APPLICATION_JSON),
+                ).andExpect(status().isOk)
                 .andExpect(jsonPath("$.data").isArray)
                 .andReturn()
 
@@ -117,39 +117,39 @@ class RelatedContentControllerTest {
         println("Related content response: $responseBody")
 
         // testRestaurant2 should be included (same category + same town)
-        mockMvc.perform(
-            get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=5"),
-        )
-            .andExpect(jsonPath("$.data[?(@.name == 'Test Restaurant 2')]").exists())
+        mockMvc
+            .perform(
+                get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=5"),
+            ).andExpect(jsonPath("$.data[?(@.name == 'Test Restaurant 2')]").exists())
     }
 
     @Test
     @DisplayName("GET /api/v1/directory/entries/{id}/related - Should exclude current entry from results")
     fun `getRelatedContent should exclude the current entry from results`() {
-        mockMvc.perform(
-            get("/api/v1/directory/entries/${testRestaurant1.id}/related"),
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                get("/api/v1/directory/entries/${testRestaurant1.id}/related"),
+            ).andExpect(status().isOk)
             .andExpect(jsonPath("$.data[?(@.id == '${testRestaurant1.id}')]").doesNotExist())
     }
 
     @Test
     @DisplayName("GET /api/v1/directory/entries/{id}/related - Should respect limit parameter")
     fun `getRelatedContent with limit parameter should return correct number of results`() {
-        mockMvc.perform(
-            get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=3"),
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=3"),
+            ).andExpect(status().isOk)
             .andExpect(jsonPath("$.data.length()").value(org.hamcrest.Matchers.lessThanOrEqualTo(3)))
     }
 
     @Test
     @DisplayName("GET /api/v1/directory/entries/{id}/related - Should validate limit minimum (3)")
     fun `getRelatedContent with limit below 3 should default to 3`() {
-        mockMvc.perform(
-            get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=1"),
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=1"),
+            ).andExpect(status().isOk)
             // Service should auto-correct to minimum of 3 (or return fewer if not enough data)
             .andExpect(jsonPath("$.data.length()").value(org.hamcrest.Matchers.greaterThanOrEqualTo(0)))
     }
@@ -172,10 +172,10 @@ class RelatedContentControllerTest {
             directoryEntryRepository.save(restaurant)
         }
 
-        mockMvc.perform(
-            get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=10"),
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=10"),
+            ).andExpect(status().isOk)
             .andExpect(jsonPath("$.data.length()").value(org.hamcrest.Matchers.lessThanOrEqualTo(5)))
     }
 
@@ -184,10 +184,10 @@ class RelatedContentControllerTest {
     fun `getRelatedContent with non-existent contentId should return empty list`() {
         val nonExistentId = UUID.randomUUID()
 
-        mockMvc.perform(
-            get("/api/v1/directory/entries/$nonExistentId/related"),
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                get("/api/v1/directory/entries/$nonExistentId/related"),
+            ).andExpect(status().isOk)
             .andExpect(jsonPath("$.data").isArray)
             .andExpect(jsonPath("$.data.length()").value(0))
     }
@@ -199,10 +199,10 @@ class RelatedContentControllerTest {
         // testRestaurant3 also has "Cape Verdean,Seafood"
         // Even though different towns, shared cuisine should include it
 
-        mockMvc.perform(
-            get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=5"),
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                get("/api/v1/directory/entries/${testRestaurant1.id}/related?limit=5"),
+            ).andExpect(status().isOk)
             .andExpect(jsonPath("$.data").isArray)
             // Should include testRestaurant3 due to matching cuisine
             .andExpect(jsonPath("$.data.length()").value(org.hamcrest.Matchers.greaterThanOrEqualTo(1)))

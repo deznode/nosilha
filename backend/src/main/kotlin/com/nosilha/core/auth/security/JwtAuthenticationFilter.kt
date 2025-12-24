@@ -51,7 +51,8 @@ class JwtAuthenticationFilter(
 
     private fun parseJwtToken(token: String): Claims {
         val key = Keys.hmacShaKeyFor(jwtSecret.toByteArray())
-        return Jwts.parser()
+        return Jwts
+            .parser()
             .verifyWith(key)
             .build()
             .parseSignedClaims(token)
@@ -64,7 +65,7 @@ class JwtAuthenticationFilter(
     ) {
         // If the token is valid and user is not yet authenticated
         if (SecurityContextHolder.getContext().authentication == null) {
-            val userId = claims.subject
+            val userId = claims.subject ?: return // Skip authentication if no subject
             val authorities = extractAuthorities(claims)
             val authentication = createAuthentication(userId, authorities, request)
             SecurityContextHolder.getContext().authentication = authentication
@@ -123,7 +124,7 @@ class JwtAuthenticationFilter(
     }
 
     private fun createAuthentication(
-        userId: String?,
+        userId: String,
         authorities: List<SimpleGrantedAuthority>,
         request: HttpServletRequest,
     ): UsernamePasswordAuthenticationToken {

@@ -6,7 +6,7 @@ import com.nosilha.core.shared.exception.RateLimitExceededException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
-import org.springframework.modulith.ApplicationModuleListener
+import org.springframework.modulith.events.ApplicationModuleListener
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -45,19 +45,23 @@ class MediaService(
     }
 
     // Metrics counters for media operations
-    private val uploadSuccessCounter: Counter = Counter.builder("media.upload.success")
+    private val uploadSuccessCounter: Counter = Counter
+        .builder("media.upload.success")
         .description("Number of successful media upload confirmations")
         .register(meterRegistry)
 
-    private val uploadFailureCounter: Counter = Counter.builder("media.upload.failure")
+    private val uploadFailureCounter: Counter = Counter
+        .builder("media.upload.failure")
         .description("Number of failed media upload attempts")
         .register(meterRegistry)
 
-    private val moderationApprovedCounter: Counter = Counter.builder("media.moderation.approved")
+    private val moderationApprovedCounter: Counter = Counter
+        .builder("media.moderation.approved")
         .description("Number of media items approved by admins")
         .register(meterRegistry)
 
-    private val moderationRejectedCounter: Counter = Counter.builder("media.moderation.rejected")
+    private val moderationRejectedCounter: Counter = Counter
+        .builder("media.moderation.rejected")
         .description("Number of media items rejected by admins")
         .register(meterRegistry)
 

@@ -30,7 +30,7 @@ data class ApiResponse<T>(
  * @property timestamp When the response was generated
  * @property status HTTP status code
  */
-data class PagedApiResponse<T>(
+data class PagedApiResponse<T : Any>(
     val data: List<T>,
     val pageable: PageableInfo,
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -41,8 +41,8 @@ data class PagedApiResponse<T>(
         /**
          * Creates a PagedApiResponse from a Spring Data Page object.
          */
-        fun <T> from(page: Page<T>): PagedApiResponse<T> {
-            return PagedApiResponse(
+        fun <T : Any> from(page: Page<T>): PagedApiResponse<T> =
+            PagedApiResponse(
                 data = page.content,
                 pageable =
                     PageableInfo(
@@ -54,7 +54,6 @@ data class PagedApiResponse<T>(
                         last = page.isLast,
                     ),
             )
-        }
     }
 }
 

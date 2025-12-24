@@ -130,7 +130,8 @@ class ModularityTests {
     fun `verify shared kernel exists`() {
         try {
             val sharedModule =
-                modules.getModuleByName("shared")
+                modules
+                    .getModuleByName("shared")
                     .orElseThrow { AssertionError("Shared kernel module not found") }
 
             println("✅ Shared kernel module found: ${sharedModule.name}")
@@ -167,7 +168,8 @@ class ModularityTests {
     fun `verify auth module exists`() {
         try {
             val authModule =
-                modules.getModuleByName("auth")
+                modules
+                    .getModuleByName("auth")
                     .orElseThrow { AssertionError("Auth module not found") }
 
             println("✅ Auth module found: ${authModule.name}")
@@ -204,7 +206,8 @@ class ModularityTests {
     fun `verify directory module exists`() {
         try {
             val directoryModule =
-                modules.getModuleByName("directory")
+                modules
+                    .getModuleByName("directory")
                     .orElseThrow { AssertionError("Directory module not found") }
 
             println("✅ Directory module found: ${directoryModule.name}")
@@ -243,7 +246,8 @@ class ModularityTests {
     fun `verify media module exists`() {
         try {
             val mediaModule =
-                modules.getModuleByName("media")
+                modules
+                    .getModuleByName("media")
                     .orElseThrow { AssertionError("Media module not found") }
 
             println("✅ Media module found: ${mediaModule.name}")

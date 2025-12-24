@@ -1,7 +1,5 @@
 package com.nosilha.core.directory.domain
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.nosilha.core.shared.api.BeachDto
 import com.nosilha.core.shared.api.ContentActionSettingsDto
 import com.nosilha.core.shared.api.DirectoryEntryDto
@@ -12,6 +10,8 @@ import com.nosilha.core.shared.api.RestaurantDetailsDto
 import com.nosilha.core.shared.api.RestaurantDto
 import com.nosilha.core.shared.api.TownDto
 import org.slf4j.LoggerFactory
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 
 private val directoryMetadataMapper = jacksonObjectMapper()
 private val directoryMapperLogger = LoggerFactory.getLogger("DirectoryEntryMapper")
@@ -57,7 +57,10 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
                         phoneNumber = this.phoneNumber ?: "",
                         openingHours = this.openingHours ?: "",
                         cuisine =
-                            this.cuisine?.split(',')?.map { it.trim() }?.filter { it.isNotBlank() }
+                            this.cuisine
+                                ?.split(',')
+                                ?.map { it.trim() }
+                                ?.filter { it.isNotBlank() }
                                 ?: emptyList(),
                     ),
             )
@@ -81,7 +84,10 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
                 details =
                     HotelDetailsDto(
                         amenities =
-                            this.amenities?.split(',')?.map { it.trim() }?.filter { it.isNotBlank() }
+                            this.amenities
+                                ?.split(',')
+                                ?.map { it.trim() }
+                                ?.filter { it.isNotBlank() }
                                 ?: emptyList(),
                     ),
             )
@@ -139,7 +145,7 @@ private fun DirectoryEntry.parseContentActions(): ContentActionSettingsDto? {
     val config = this.contentActions ?: return null
     return try {
         directoryMetadataMapper.readValue<ContentActionSettingsDto>(config)
-    } catch (ex: com.fasterxml.jackson.core.JsonProcessingException) {
+    } catch (ex: tools.jackson.core.JacksonException) {
         directoryMapperLogger.warn(
             "Failed to parse content_actions metadata for entry {}: {}",
             this.id ?: "unsaved",
@@ -169,7 +175,7 @@ fun Town.toDto(): TownDto {
     val highlightsList =
         try {
             this.highlights?.let { objectMapper.readValue<List<String>>(it) } ?: emptyList()
-        } catch (e: com.fasterxml.jackson.core.JsonProcessingException) {
+        } catch (e: tools.jackson.core.JacksonException) {
             // Log the error and return empty list as fallback
             println("Failed to parse highlights JSON for town ${this.name}: ${e.message}")
             emptyList<String>()
@@ -178,7 +184,7 @@ fun Town.toDto(): TownDto {
     val galleryList =
         try {
             this.gallery?.let { objectMapper.readValue<List<String>>(it) } ?: emptyList()
-        } catch (e: com.fasterxml.jackson.core.JsonProcessingException) {
+        } catch (e: tools.jackson.core.JacksonException) {
             // Log the error and return empty list as fallback
             println("Failed to parse gallery JSON for town ${this.name}: ${e.message}")
             emptyList<String>()

@@ -107,7 +107,5 @@ class Town {
         return id?.hashCode() ?: 31
     }
 
-    override fun toString(): String {
-        return "Town(id=$id, name='$name', slug='$slug')"
-    }
+    override fun toString(): String = "Town(id=$id, name='$name', slug='$slug')"
 }

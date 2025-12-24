@@ -1,6 +1,5 @@
 package com.nosilha.core.contentactions
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.nosilha.core.contentactions.api.SuggestionCreateDto
 import com.nosilha.core.contentactions.domain.SuggestionType
 import com.nosilha.core.contentactions.repository.SuggestionRepository
@@ -9,13 +8,14 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.MediaType
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import tools.jackson.databind.json.JsonMapper
 import java.util.UUID
 
 /**
@@ -32,7 +32,7 @@ class SuggestionControllerTest {
     private lateinit var mockMvc: MockMvc
 
     @Autowired
-    private lateinit var objectMapper: ObjectMapper
+    private lateinit var jsonMapper: JsonMapper
 
     @Autowired
     private lateinit var suggestionRepository: SuggestionRepository
@@ -59,13 +59,13 @@ class SuggestionControllerTest {
                     "he was born on October 18, 1867 in Brava Island.",
             )
 
-        mockMvc.perform(
-            post("/api/v1/suggestions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
-                .header("X-Forwarded-For", "192.168.1.100"),
-        )
-            .andExpect(status().isCreated)
+        mockMvc
+            .perform(
+                post("/api/v1/suggestions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(dto))
+                    .header("X-Forwarded-For", "192.168.1.100"),
+            ).andExpect(status().isCreated)
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.status").value(201))
             .andExpect(jsonPath("$.data.id").isNotEmpty)
@@ -95,13 +95,13 @@ class SuggestionControllerTest {
                 "honeypot" to "http://spam-link.com", // Honeypot field filled by bot
             )
 
-        mockMvc.perform(
-            post("/api/v1/suggestions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
-                .header("X-Forwarded-For", "10.0.0.1"),
-        )
-            .andExpect(status().isCreated)
+        mockMvc
+            .perform(
+                post("/api/v1/suggestions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(dto))
+                    .header("X-Forwarded-For", "10.0.0.1"),
+            ).andExpect(status().isCreated)
             .andExpect(jsonPath("$.data.id").isEmpty) // No ID returned for spam
 
         // Verify suggestion was NOT persisted to database
@@ -124,12 +124,12 @@ class SuggestionControllerTest {
                 "message" to "This is a test message for validation",
             )
 
-        mockMvc.perform(
-            post("/api/v1/suggestions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)),
-        )
-            .andExpect(status().isBadRequest)
+        mockMvc
+            .perform(
+                post("/api/v1/suggestions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(dto)),
+            ).andExpect(status().isBadRequest)
     }
 
     @Test
@@ -147,12 +147,12 @@ class SuggestionControllerTest {
                 message = "This is a test message for validation",
             )
 
-        mockMvc.perform(
-            post("/api/v1/suggestions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)),
-        )
-            .andExpect(status().isBadRequest)
+        mockMvc
+            .perform(
+                post("/api/v1/suggestions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(dto)),
+            ).andExpect(status().isBadRequest)
     }
 
     @Test
@@ -170,12 +170,12 @@ class SuggestionControllerTest {
                 message = "This is a test message for validation",
             )
 
-        mockMvc.perform(
-            post("/api/v1/suggestions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)),
-        )
-            .andExpect(status().isBadRequest)
+        mockMvc
+            .perform(
+                post("/api/v1/suggestions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(dto)),
+            ).andExpect(status().isBadRequest)
     }
 
     @Test
@@ -193,12 +193,12 @@ class SuggestionControllerTest {
                 message = "Short", // Too short (min 10)
             )
 
-        mockMvc.perform(
-            post("/api/v1/suggestions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)),
-        )
-            .andExpect(status().isBadRequest)
+        mockMvc
+            .perform(
+                post("/api/v1/suggestions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(dto)),
+            ).andExpect(status().isBadRequest)
     }
 
     @Test
@@ -216,12 +216,12 @@ class SuggestionControllerTest {
                 message = "x".repeat(5001), // Too long (max 5000)
             )
 
-        mockMvc.perform(
-            post("/api/v1/suggestions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)),
-        )
-            .andExpect(status().isBadRequest)
+        mockMvc
+            .perform(
+                post("/api/v1/suggestions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(dto)),
+            ).andExpect(status().isBadRequest)
     }
 
     @Test
@@ -244,13 +244,13 @@ class SuggestionControllerTest {
                     message = "This is test message number $index for rate limiting validation",
                 )
 
-            mockMvc.perform(
-                post("/api/v1/suggestions")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(dto))
-                    .header("X-Forwarded-For", ipAddress),
-            )
-                .andExpect(status().isCreated)
+            mockMvc
+                .perform(
+                    post("/api/v1/suggestions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(dto))
+                        .header("X-Forwarded-For", ipAddress),
+                ).andExpect(status().isCreated)
         }
 
         // 6th submission from same IP should be rate limited
@@ -266,13 +266,13 @@ class SuggestionControllerTest {
                 message = "This submission should be rate limited",
             )
 
-        mockMvc.perform(
-            post("/api/v1/suggestions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto))
-                .header("X-Forwarded-For", ipAddress),
-        )
-            .andExpect(status().isTooManyRequests)
+        mockMvc
+            .perform(
+                post("/api/v1/suggestions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(dto))
+                    .header("X-Forwarded-For", ipAddress),
+            ).andExpect(status().isTooManyRequests)
             .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("exceeded")))
 
         // Verify only 5 suggestions were persisted
@@ -298,13 +298,13 @@ class SuggestionControllerTest {
                 message = "This is a suggestion from IP address 1",
             )
 
-        mockMvc.perform(
-            post("/api/v1/suggestions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto1))
-                .header("X-Forwarded-For", "192.168.1.1"),
-        )
-            .andExpect(status().isCreated)
+        mockMvc
+            .perform(
+                post("/api/v1/suggestions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(dto1))
+                    .header("X-Forwarded-For", "192.168.1.1"),
+            ).andExpect(status().isCreated)
 
         // Submit from IP 2 (should also succeed - different rate limit bucket)
         val dto2 =
@@ -319,13 +319,13 @@ class SuggestionControllerTest {
                 message = "This is a suggestion from IP address 2",
             )
 
-        mockMvc.perform(
-            post("/api/v1/suggestions")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto2))
-                .header("X-Forwarded-For", "192.168.1.2"),
-        )
-            .andExpect(status().isCreated)
+        mockMvc
+            .perform(
+                post("/api/v1/suggestions")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(dto2))
+                    .header("X-Forwarded-For", "192.168.1.2"),
+            ).andExpect(status().isCreated)
 
         // Verify both suggestions were persisted
         val suggestions = suggestionRepository.findAll()
@@ -368,7 +368,7 @@ class SuggestionControllerTest {
         post("/api/v1/suggestions")
             .contentType(MediaType.APPLICATION_JSON)
             .content(
-                objectMapper.writeValueAsString(
+                jsonMapper.writeValueAsString(
                     SuggestionCreateDto(
                         contentId = contentId,
                         pageTitle = "Helper Entry",
@@ -380,7 +380,6 @@ class SuggestionControllerTest {
                         message = "This is a valid test message for $type suggestion type",
                     ),
                 ),
-            )
-            .header("X-Forwarded-For", ipAddress),
+            ).header("X-Forwarded-For", ipAddress),
     )
 }

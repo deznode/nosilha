@@ -1,6 +1,5 @@
 package com.nosilha.core.directory.domain
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nosilha.core.directory.repository.TownRepository
 import com.nosilha.core.shared.api.TownDto
 import com.nosilha.core.shared.exception.ResourceNotFoundException
@@ -8,6 +7,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.util.*
 
 /**
@@ -30,9 +30,7 @@ class TownService(
      *
      * @return A list of [TownDto] representing all towns ordered by name.
      */
-    fun getAllTowns(): List<TownDto> {
-        return repository.findAllByOrderByNameAsc().map { it.toDto() }
-    }
+    fun getAllTowns(): List<TownDto> = repository.findAllByOrderByNameAsc().map { it.toDto() }
 
     /**
      * Retrieves towns with pagination support.
@@ -40,9 +38,7 @@ class TownService(
      * @param pageable Pagination parameters (page, size, sort)
      * @return A page of [TownDto] representing the requested towns.
      */
-    fun getTownsPage(pageable: Pageable): Page<TownDto> {
-        return repository.findAll(pageable).map { it.toDto() }
-    }
+    fun getTownsPage(pageable: Pageable): Page<TownDto> = repository.findAll(pageable).map { it.toDto() }
 
     /**
      * Finds a single town by its unique ID.
@@ -51,11 +47,11 @@ class TownService(
      * @return The corresponding [TownDto].
      * @throws ResourceNotFoundException if no town with the given ID exists.
      */
-    fun getTownById(id: UUID): TownDto {
-        return repository.findById(id)
+    fun getTownById(id: UUID): TownDto =
+        repository
+            .findById(id)
             .map { it.toDto() }
             .orElseThrow { ResourceNotFoundException("Town with ID '$id' not found.") }
-    }
 
     /**
      * Finds a single town by its unique slug.
@@ -64,10 +60,9 @@ class TownService(
      * @return The corresponding [TownDto].
      * @throws ResourceNotFoundException if no town with the given slug exists.
      */
-    fun getTownBySlug(slug: String): TownDto {
-        return repository.findBySlug(slug)?.toDto()
+    fun getTownBySlug(slug: String): TownDto =
+        repository.findBySlug(slug)?.toDto()
             ?: throw ResourceNotFoundException("Town with slug '$slug' not found.")
-    }
 
     /**
      * Creates a new town entity.
@@ -110,7 +105,8 @@ class TownService(
 
                 // Generate a simple, URL-friendly slug
                 this.slug =
-                    name.lowercase()
+                    name
+                        .lowercase()
                         .replace(Regex("\\s+"), "-") // Replace spaces with hyphens
                         .replace(Regex("[^a-z0-9-]"), "") // Remove non-alphanumeric characters (except hyphens)
 
@@ -166,7 +162,8 @@ class TownService(
         gallery: List<String> = emptyList(),
     ): TownDto {
         val existingTown =
-            repository.findById(id)
+            repository
+                .findById(id)
                 .orElseThrow { ResourceNotFoundException("Town with ID '$id' not found.") }
 
         existingTown.apply {
@@ -181,7 +178,8 @@ class TownService(
 
             // Update slug if name changed
             this.slug =
-                name.lowercase()
+                name
+                    .lowercase()
                     .replace(Regex("\\s+"), "-")
                     .replace(Regex("[^a-z0-9-]"), "")
 
@@ -225,7 +223,5 @@ class TownService(
      * @param slug The slug to check.
      * @return True if a town with this slug exists, false otherwise.
      */
-    fun existsBySlug(slug: String): Boolean {
-        return repository.existsBySlug(slug)
-    }
+    fun existsBySlug(slug: String): Boolean = repository.existsBySlug(slug)
 }

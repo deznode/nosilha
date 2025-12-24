@@ -59,9 +59,7 @@ class ContentService(
      * @param contentId UUID of the content
      * @return Content if found, null otherwise
      */
-    fun getContent(contentId: UUID): Content? {
-        return contentRepository.findById(contentId).orElse(null)
-    }
+    fun getContent(contentId: UUID): Content? = contentRepository.findById(contentId).orElse(null)
 
     /**
      * Gets content by slug and type.
@@ -73,7 +71,5 @@ class ContentService(
     fun getContentBySlug(
         slug: String,
         contentType: ContentType
-    ): Content? {
-        return contentRepository.findBySlugAndContentType(slug, contentType)
-    }
+    ): Content? = contentRepository.findBySlugAndContentType(slug, contentType)
 }

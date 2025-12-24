@@ -129,10 +129,11 @@ class ReactionService(
                 reactionRepository.delete(existingReaction)
 
                 val newCount =
-                    reactionRepository.countByContentIdAndReactionType(
-                        createDto.contentId,
-                        createDto.reactionType,
-                    ).toInt()
+                    reactionRepository
+                        .countByContentIdAndReactionType(
+                            createDto.contentId,
+                            createDto.reactionType,
+                        ).toInt()
 
                 ReactionSubmissionResult(
                     reaction =
@@ -158,10 +159,11 @@ class ReactionService(
                 val updatedReaction = reactionRepository.save(existingReaction)
 
                 val newCount =
-                    reactionRepository.countByContentIdAndReactionType(
-                        createDto.contentId,
-                        createDto.reactionType,
-                    ).toInt()
+                    reactionRepository
+                        .countByContentIdAndReactionType(
+                            createDto.contentId,
+                            createDto.reactionType,
+                        ).toInt()
 
                 ReactionSubmissionResult(
                     reaction =
@@ -191,10 +193,11 @@ class ReactionService(
             )
 
         val updatedCount =
-            reactionRepository.countByContentIdAndReactionType(
-                createDto.contentId,
-                createDto.reactionType,
-            ).toInt()
+            reactionRepository
+                .countByContentIdAndReactionType(
+                    createDto.contentId,
+                    createDto.reactionType,
+                ).toInt()
 
         logger.info(
             "Reaction submitted successfully: {} by user {} on content {} (count: {})",

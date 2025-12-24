@@ -1,6 +1,5 @@
 package com.nosilha.core.media
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.nosilha.core.media.api.dto.ConfirmRequest
 import com.nosilha.core.media.api.dto.PresignRequest
 import com.nosilha.core.media.domain.MediaStatus
@@ -16,8 +15,8 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -29,6 +28,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import tools.jackson.databind.json.JsonMapper
 import java.time.Instant
 import java.util.*
 
@@ -46,7 +46,7 @@ class MediaUploadIntegrationTest {
     private lateinit var mockMvc: MockMvc
 
     @Autowired
-    private lateinit var objectMapper: ObjectMapper
+    private lateinit var jsonMapper: JsonMapper
 
     @Autowired
     private lateinit var mediaRepository: MediaRepository
@@ -107,13 +107,13 @@ class MediaUploadIntegrationTest {
             fileSize = 1024 * 1024,
         )
 
-        mockMvc.perform(
-            post("/api/v1/media/presign")
-                .with(userAuth())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)),
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                post("/api/v1/media/presign")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(request)),
+            ).andExpect(status().isOk)
             .andExpect(jsonPath("$.data.uploadUrl").isNotEmpty)
             .andExpect(jsonPath("$.data.key").isNotEmpty)
     }
@@ -127,13 +127,13 @@ class MediaUploadIntegrationTest {
             fileSize = 1024 * 1024,
         )
 
-        mockMvc.perform(
-            post("/api/v1/media/presign")
-                .with(userAuth())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)),
-        )
-            .andExpect(status().isBadRequest)
+        mockMvc
+            .perform(
+                post("/api/v1/media/presign")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(request)),
+            ).andExpect(status().isBadRequest)
     }
 
     @Test
@@ -145,13 +145,13 @@ class MediaUploadIntegrationTest {
             fileSize = 60 * 1024 * 1024,
         )
 
-        mockMvc.perform(
-            post("/api/v1/media/presign")
-                .with(userAuth())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)),
-        )
-            .andExpect(status().isBadRequest)
+        mockMvc
+            .perform(
+                post("/api/v1/media/presign")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(request)),
+            ).andExpect(status().isBadRequest)
     }
 
     @Test
@@ -170,13 +170,13 @@ class MediaUploadIntegrationTest {
             description = "Test upload",
         )
 
-        mockMvc.perform(
-            post("/api/v1/media/confirm")
-                .with(userAuth())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)),
-        )
-            .andExpect(status().isCreated)
+        mockMvc
+            .perform(
+                post("/api/v1/media/confirm")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(request)),
+            ).andExpect(status().isCreated)
             .andExpect(jsonPath("$.data.id").isNotEmpty)
             .andExpect(jsonPath("$.data.originalName").value("my-photo.jpg"))
             .andExpect(jsonPath("$.data.status").value("PENDING_REVIEW"))
@@ -204,26 +204,28 @@ class MediaUploadIntegrationTest {
             description = null,
         )
 
-        mockMvc.perform(
-            post("/api/v1/media/confirm")
-                .with(userAuth())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)),
-        )
-            .andExpect(status().is5xxServerError)
+        mockMvc
+            .perform(
+                post("/api/v1/media/confirm")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(request)),
+            ).andExpect(status().is5xxServerError)
     }
 
     @Test
     @DisplayName("Should return 404 for non-existent media")
     fun `get non-existent media should return 404`() {
-        mockMvc.perform(get("/api/v1/media/${UUID.randomUUID()}"))
+        mockMvc
+            .perform(get("/api/v1/media/${UUID.randomUUID()}"))
             .andExpect(status().isNotFound)
     }
 
     @Test
     @DisplayName("Should return empty list for entry with no media")
     fun `get media for entry with no uploads should return empty list`() {
-        mockMvc.perform(get("/api/v1/media/entry/${UUID.randomUUID()}"))
+        mockMvc
+            .perform(get("/api/v1/media/entry/${UUID.randomUUID()}"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.data").isArray)
             .andExpect(jsonPath("$.data").isEmpty)
@@ -232,21 +234,21 @@ class MediaUploadIntegrationTest {
     @Test
     @DisplayName("Should reject pending list for non-admin")
     fun `get pending as non-admin should return 403`() {
-        mockMvc.perform(
-            get("/api/v1/media/pending")
-                .with(userAuth()),
-        )
-            .andExpect(status().isForbidden)
+        mockMvc
+            .perform(
+                get("/api/v1/media/pending")
+                    .with(userAuth()),
+            ).andExpect(status().isForbidden)
     }
 
     @Test
     @DisplayName("Should return pending list for admin")
     fun `get pending as admin should return list`() {
-        mockMvc.perform(
-            get("/api/v1/media/pending")
-                .with(adminAuth()),
-        )
-            .andExpect(status().isOk)
+        mockMvc
+            .perform(
+                get("/api/v1/media/pending")
+                    .with(adminAuth()),
+            ).andExpect(status().isOk)
             .andExpect(jsonPath("$.data").isArray)
     }
 }
