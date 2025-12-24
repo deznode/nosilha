@@ -170,10 +170,3 @@ Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
-
-## Active Technologies
-- Kotlin 1.9+ (backend), TypeScript 5.x (frontend) (008-media-ingestion)
-- Cloudflare R2 (S3-compatible) with PostgreSQL for metadata (008-media-ingestion)
-
-## Recent Changes
-- 008-media-ingestion: Added Kotlin 1.9+ (backend), TypeScript 5.x (frontend)

@@ -1,21 +1,32 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version Change: Initial → 1.0.0
-Modified Principles: N/A (Initial constitution creation)
-Added Sections: All sections (initial creation)
-Removed Sections: None
+Version Change: 1.0.0 → 1.1.0
+Modified Principles:
+  - REMOVED: II. Community-Driven Development
+  - MODIFIED: VII → VI. Developer-Discretion Testing (developer discretion, no TDD mandate)
+  - MODIFIED: VIII → VII. Infrastructure as Code (Terraform exceptions allowed)
+  - RENUMBERED: III-VIII → II-VII
+
+Technical Standards Updated:
+  - Database & Storage: Removed Firestore/GCS, updated to PostgreSQL + Cloudflare R2
+
+Added Sections:
+  - Planning Agents (frontend-engineer, backend-engineer)
+  - Constitution Compliance Checklist format
+
+Removed Sections:
+  - Agent Usage Requirements (replaced by Planning Agents)
 
 Templates Status:
-✅ plan-template.md - Reviewed; aligned with constitution principles
-✅ spec-template.md - Reviewed; aligned with constitution principles
-✅ tasks-template.md - Reviewed; aligned with constitution principles
-✅ checklist-template.md - Present; aligned with constitution principles
-✅ agent-file-template.md - Present; aligned with constitution principles
+✅ plan-template.md - Principle references updated
+✅ spec-template.md - No changes needed
+✅ tasks-template.md - No changes needed
+✅ checklist-template.md - No changes needed
+✅ agent-file-template.md - No changes needed
 
 Follow-up Actions:
-- None; all templates align with established principles
-- Constitution ready for project governance
+- ✅ Agent files updated with Constitution Compliance Checklist format
 -->
 
 # Nos Ilha Constitution
@@ -27,40 +38,35 @@ Every feature, content piece, and design decision MUST prioritize authentic repr
 
 **Rationale**: As a community-driven cultural heritage platform, maintaining authenticity and respectful representation is the foundation of trust with the Cape Verdean diaspora, local community, and international visitors.
 
-### II. Community-Driven Development
-All development decisions MUST consider the volunteer-supported, open-source nature of the project. Solutions MUST be maintainable by contributors with varying skill levels. Code complexity MUST be justified and documented. The platform serves the community first, technology second.
-
-**Rationale**: Sustainability depends on enabling community contributions and ensuring long-term maintainability without requiring enterprise-level resources.
-
-### III. Mobile-First Experience
+### II. Mobile-First Experience
 All user interfaces MUST be designed and tested for mobile devices first, then progressively enhanced for larger screens. Performance on limited connectivity and lower-end devices is non-negotiable. The platform MUST serve diaspora users worldwide with varying network conditions.
 
 **Rationale**: The primary audience includes diaspora members accessing the platform from mobile devices globally, often with constrained bandwidth.
 
-### IV. Documentation-Driven Architecture
+### III. Documentation-Driven Architecture
 Every architectural decision, API contract, and design pattern MUST be documented before implementation. Specialized agents MUST reference established documentation (ARCHITECTURE.md, API_CODING_STANDARDS.md, DESIGN_SYSTEM.md, etc.) before making changes. Documentation lives in `docs/` for static guides and `plan/` for dynamic feature planning.
 
 **Rationale**: Clear documentation ensures consistency, enables new contributors to onboard effectively, and prevents architectural drift in a community-maintained project.
 
-### V. Modular Architecture with Enforced Boundaries
+### IV. Modular Architecture with Enforced Boundaries
 Backend modules (shared, auth, directory, media) MUST maintain independence through Spring Modulith architecture. Modules communicate via events, never direct dependencies. Frontend components follow clear separation: providers, Catalyst UI, custom UI, admin. Circular dependencies are forbidden and verified through automated testing.
 
 **Rationale**: Modular architecture enables parallel development, simplifies testing, reduces coupling, and allows features to be developed and deployed independently.
 
-### VI. Security & Privacy by Design
+### V. Security & Privacy by Design
 All security practices MUST follow least-privilege principles. Secrets management through Google Secret Manager only. No credentials in code or environment files checked into version control. JWT-based authentication with proper token validation. GDPR compliance for user data, especially AI features involving personal information.
 
 **Rationale**: Protecting community data and maintaining trust is paramount. Security breaches would undermine the platform's mission and harm the community it serves.
 
-### VII. Incremental Testing & Validation
-Testing is mandatory for complex features but pragmatic based on risk. Backend MUST have integration tests with PostgreSQL. Frontend MUST pass TypeScript checking, ESLint, and build validation. E2E tests using Playwright for critical user flows. All tests MUST pass before merging to main branch.
+### VI. Developer-Discretion Testing
+Testing is at developer discretion. Complex features SHOULD be tested, but the scope and depth are determined by the developer based on risk and complexity. All code MUST pass TypeScript checking, ESLint validation, and build verification before merge.
 
-**Rationale**: Balanced testing strategy ensures quality without overwhelming volunteer contributors. Focus testing efforts on high-risk areas and critical user journeys.
+**Rationale**: Developer judgment determines appropriate test coverage. Complex features warrant testing, but rigid test requirements are counterproductive.
 
-### VIII. Infrastructure as Code & Automation
-All infrastructure MUST be defined in Terraform with remote state management. CI/CD pipelines MUST be modular and path-based (backend, frontend, infrastructure). Security scanning (Trivy, detekt, ESLint, tfsec) is mandatory. Deployments to production MUST include automated health checks.
+### VII. Infrastructure as Code & Automation
+Infrastructure SHOULD be defined in Terraform where supported. Exceptions are permitted for resources not supported by Terraform providers. CI/CD pipelines MUST be modular and path-based (backend, frontend, infrastructure). Security scanning is mandatory. Production deployments MUST include automated health checks.
 
-**Rationale**: Reproducible infrastructure and automated deployments reduce operational burden on volunteer maintainers and prevent configuration drift.
+**Rationale**: Reproducible infrastructure reduces operational burden. Terraform exceptions acknowledged for provider limitations.
 
 ## Technical Standards
 
@@ -87,9 +93,9 @@ All infrastructure MUST be defined in Terraform with remote state management. CI
 - Avoid prop drilling; use context appropriately
 
 ### Database & Storage
-- PostgreSQL primary database with Flyway migrations
-- Google Firestore for AI-processed metadata
-- Google Cloud Storage for media assets with CDN
+- PostgreSQL primary database with Flyway migrations (single source of truth)
+- Cloudflare R2 for media assets (S3-compatible)
+- PostgreSQL for all metadata including media metadata
 - UUID primary keys for all entities
 - Auditing fields (created_at, updated_at) on all entities
 
@@ -111,19 +117,54 @@ All infrastructure MUST be defined in Terraform with remote state management. CI
 - Hotfix branches: `hotfix/description` format
 - All PRs MUST pass CI/CD validation before merge
 
-### Agent Usage Requirements
-Specialized agents (frontend-engineer, backend-engineer, devops-engineer, content-creator, content-verifier, content-planner, search-specialist, mapbox-specialist, design-review) MUST:
-- Reference their designated documentation before making changes
-- Validate work against established standards
-- Cross-reference related documentation when work spans domains
-- Adapt approach when standards change
+## Planning Agents
+
+Planning agents are specialized assistants that design architecture and create specifications. They MUST NOT write code.
+
+### frontend-engineer
+
+**Scope**: Plans Next.js 16 + React 19.2 + TypeScript frontend architecture
+
+**Mandatory Reference**: `docs/DESIGN_SYSTEM.md`
+
+**Output**: Architectural decisions, component structures, TypeScript interfaces, design system compliance
+
+### backend-engineer
+
+**Scope**: Plans Spring Boot 4 + Kotlin backend API architecture
+
+**Mandatory Reference**: `docs/API_CODING_STANDARDS.md`
+
+**Output**: API designs, data models, module interactions, database schemas
+
+### Planning Agent Rules
+
+1. Planning agents create specifications only - they MUST NOT write code
+2. The main agent implements specifications using appropriate skills
+3. All planning output MUST include a Constitution Compliance Checklist
+
+### Constitution Compliance Checklist Format
+
+All planning agent output MUST include this table:
+
+| Principle | Status | Notes |
+|-----------|--------|-------|
+| I. Cultural Authenticity First | ✅/⚠️/❌ | Explanation if not N/A |
+| II. Mobile-First Experience | ✅/⚠️/❌ | ... |
+| III. Documentation-Driven Architecture | ✅/⚠️/❌ | ... |
+| IV. Modular Architecture | ✅/⚠️/❌ | ... |
+| V. Security & Privacy by Design | ✅/⚠️/❌ | ... |
+| VI. Developer-Discretion Testing | ✅/⚠️/❌ | ... |
+| VII. Infrastructure as Code | ✅/⚠️/❌ | ... |
+
+**Legend**: ✅ Compliant | ⚠️ Partial/Exception | ❌ Non-compliant (requires justification)
 
 ### Complexity Justification
-When violating simplicity principles (e.g., adding new third-party services, introducing design patterns beyond established conventions), developers MUST:
-- Document the specific problem being solved
-- Explain why simpler alternatives are insufficient
-- Include justification in implementation plan
-- Get approval before proceeding with implementation
+
+When violating simplicity principles (e.g., adding new third-party services, introducing design patterns beyond established conventions), planning agents MUST document:
+- The specific problem being solved
+- Why simpler alternatives are insufficient
+- Justification in the implementation plan
 
 ## Governance
 
@@ -148,4 +189,4 @@ When violating simplicity principles (e.g., adding new third-party services, int
 ### Living Document
 This constitution is a living document that evolves with the project. Community feedback is encouraged. Amendments follow the procedure above to maintain consistency and traceability.
 
-**Version**: 1.0.0 | **Ratified**: 2025-01-29 | **Last Amended**: 2025-01-29
+**Version**: 1.1.0 | **Ratified**: 2025-01-29 | **Last Amended**: 2025-12-24
