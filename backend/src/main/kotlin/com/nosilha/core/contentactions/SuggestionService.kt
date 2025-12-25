@@ -1,11 +1,22 @@
 package com.nosilha.core.contentactions
 
+import com.nosilha.core.contentactions.api.ModerationAction
 import com.nosilha.core.contentactions.api.SuggestionCreateDto
+import com.nosilha.core.contentactions.api.SuggestionDetailDto
+import com.nosilha.core.contentactions.api.SuggestionListDto
 import com.nosilha.core.contentactions.api.SuggestionResponseDto
+import com.nosilha.core.contentactions.api.toDetailDto
+import com.nosilha.core.contentactions.api.toListDto
 import com.nosilha.core.contentactions.domain.Suggestion
+import com.nosilha.core.contentactions.domain.SuggestionStatus
+import com.nosilha.core.contentactions.events.SuggestionStatusChangedEvent
 import com.nosilha.core.contentactions.repository.SuggestionRepository
 import com.nosilha.core.shared.exception.RateLimitExceededException
+import com.nosilha.core.shared.exception.ResourceNotFoundException
 import org.slf4j.LoggerFactory
+import org.springframework.context.ApplicationEventPublisher
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -23,6 +34,7 @@ import java.util.*
 @Service
 class SuggestionService(
     private val suggestionRepository: SuggestionRepository,
+    private val eventPublisher: ApplicationEventPublisher,
 ) {
     private val logger = LoggerFactory.getLogger(SuggestionService::class.java)
 
@@ -116,6 +128,133 @@ class SuggestionService(
      */
     @Transactional(readOnly = true)
     fun getSuggestionsForContent(contentId: UUID): List<Suggestion> = suggestionRepository.findByContentIdOrderByCreatedAtDesc(contentId)
+
+    /**
+     * Lists suggestions with optional status filtering and pagination.
+     *
+     * Admin endpoint to view all suggestions with support for filtering by moderation status.
+     * Page size is capped at 100 to prevent excessive data transfer.
+     *
+     * @param status Optional status filter (PENDING, APPROVED, REJECTED). If null, returns all suggestions.
+     * @param page Zero-based page number
+     * @param size Number of items per page (max 100)
+     * @return Paginated list of suggestions as list DTOs
+     */
+    @Transactional(readOnly = true)
+    fun listSuggestions(
+        status: SuggestionStatus?,
+        page: Int,
+        size: Int,
+    ): Page<SuggestionListDto> {
+        val pageable = PageRequest.of(page, minOf(size, 100))
+        val suggestions =
+            if (status != null) {
+                suggestionRepository.findByStatus(status, pageable)
+            } else {
+                suggestionRepository.findAllBy(pageable)
+            }
+
+        logger.debug("Retrieved ${suggestions.numberOfElements} suggestions (page $page, size $size, status: $status)")
+        return suggestions.map { it.toListDto() }
+    }
+
+    /**
+     * Gets detailed information for a specific suggestion.
+     *
+     * Admin endpoint to view complete suggestion details for review.
+     *
+     * @param id UUID of the suggestion
+     * @return Suggestion detail DTO with all fields
+     * @throws ResourceNotFoundException if suggestion is not found
+     */
+    @Transactional(readOnly = true)
+    fun getSuggestion(id: UUID): SuggestionDetailDto {
+        val suggestion =
+            suggestionRepository
+                .findById(id)
+                .orElseThrow { ResourceNotFoundException("Suggestion with id $id not found") }
+
+        logger.debug("Retrieved suggestion $id for admin review")
+        return suggestion.toDetailDto()
+    }
+
+    /**
+     * Updates the status of a suggestion based on admin moderation action.
+     *
+     * Admin endpoint to approve or reject suggestions. Publishes a status change event
+     * for potential email notifications or audit logging.
+     *
+     * @param id UUID of the suggestion
+     * @param action Moderation action (APPROVE or REJECT)
+     * @param notes Optional admin notes about the review decision
+     * @param adminId Supabase user ID of the admin performing the review
+     * @return Updated suggestion detail DTO
+     * @throws ResourceNotFoundException if suggestion is not found
+     */
+    @Transactional
+    fun updateSuggestionStatus(
+        id: UUID,
+        action: ModerationAction,
+        notes: String?,
+        adminId: String,
+    ): SuggestionDetailDto {
+        val suggestion =
+            suggestionRepository
+                .findById(id)
+                .orElseThrow { ResourceNotFoundException("Suggestion with id $id not found") }
+
+        val previousStatus = suggestion.status
+        val newStatus =
+            when (action) {
+                ModerationAction.APPROVE -> SuggestionStatus.APPROVED
+                ModerationAction.REJECT -> SuggestionStatus.REJECTED
+            }
+
+        val updatedSuggestion =
+            suggestion.copy(
+                status = newStatus,
+                adminNotes = notes,
+                reviewedBy = adminId,
+                reviewedAt = Instant.now(),
+            )
+
+        val savedSuggestion = suggestionRepository.save(updatedSuggestion)
+        logger.info("Suggestion $id status changed from $previousStatus to $newStatus by admin $adminId")
+
+        // Publish event for potential email notifications
+        val event =
+            SuggestionStatusChangedEvent(
+                suggestionId = id,
+                previousStatus = previousStatus,
+                newStatus = newStatus,
+                reviewedBy = adminId,
+                adminNotes = notes,
+            )
+        eventPublisher.publishEvent(event)
+        logger.debug("Published SuggestionStatusChangedEvent for suggestion $id")
+
+        return savedSuggestion.toDetailDto()
+    }
+
+    /**
+     * Deletes a suggestion from the system.
+     *
+     * Admin endpoint to remove spam or invalid suggestions. This operation is permanent
+     * and should be used sparingly as it breaks the audit trail.
+     *
+     * @param id UUID of the suggestion to delete
+     * @throws ResourceNotFoundException if suggestion is not found
+     */
+    @Transactional
+    fun deleteSuggestion(id: UUID) {
+        val suggestion =
+            suggestionRepository
+                .findById(id)
+                .orElseThrow { ResourceNotFoundException("Suggestion with id $id not found") }
+
+        suggestionRepository.delete(suggestion)
+        logger.warn("Suggestion $id deleted by admin (content: ${suggestion.contentId}, type: ${suggestion.suggestionType})")
+    }
 }
 
 /**

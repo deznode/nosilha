@@ -1,6 +1,9 @@
 package com.nosilha.core.contentactions.repository
 
 import com.nosilha.core.contentactions.domain.Suggestion
+import com.nosilha.core.contentactions.domain.SuggestionStatus
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.time.Instant
@@ -64,4 +67,38 @@ interface SuggestionRepository : JpaRepository<Suggestion, UUID> {
      * @return List of suggestions ordered by creation time (newest first)
      */
     fun findByContentIdOrderByCreatedAtDesc(contentId: UUID): List<Suggestion>
+
+    /**
+     * Finds all suggestions with a specific status, with pagination support.
+     *
+     * <p>Used for filtering suggestions by moderation status (PENDING, APPROVED, REJECTED).</p>
+     *
+     * @param status The moderation status to filter by
+     * @param pageable Pagination parameters
+     * @return Page of suggestions with the specified status
+     */
+    fun findByStatus(
+        status: SuggestionStatus,
+        pageable: Pageable,
+    ): Page<Suggestion>
+
+    /**
+     * Finds all suggestions with pagination support.
+     *
+     * <p>Used for displaying all suggestions in the admin dashboard with pagination.</p>
+     *
+     * @param pageable Pagination parameters
+     * @return Page of all suggestions
+     */
+    fun findAllBy(pageable: Pageable): Page<Suggestion>
+
+    /**
+     * Counts the number of suggestions with a specific status.
+     *
+     * <p>Used for displaying metrics in the admin dashboard (e.g., pending count badge).</p>
+     *
+     * @param status The moderation status to count
+     * @return Number of suggestions with the specified status
+     */
+    fun countByStatus(status: SuggestionStatus): Long
 }

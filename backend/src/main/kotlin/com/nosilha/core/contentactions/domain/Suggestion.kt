@@ -72,6 +72,18 @@ data class Suggestion(
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant? = null,
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
+    val status: SuggestionStatus = SuggestionStatus.PENDING,
+    @Size(max = 5000)
+    @Column(name = "admin_notes", columnDefinition = "TEXT")
+    val adminNotes: String? = null,
+    @Size(max = 255)
+    @Column(name = "reviewed_by", length = 255)
+    val reviewedBy: String? = null,
+    @Column(name = "reviewed_at")
+    val reviewedAt: Instant? = null,
 )
 
 /**
