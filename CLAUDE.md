@@ -106,11 +106,10 @@ Domain-specific instructions loaded automatically based on file paths:
 - `content/` - MDX authoring platform
 - `infrastructure/` - CI/CD, Docker, cloud deployment
 
-## Skills, Agents, and Commands
+## Skills and Commands
 
-The codebase uses a three-part system for specialized capabilities:
+The codebase uses a two-part system for specialized capabilities:
 - **Skills** (`.claude/skills/`) - Domain experts that execute tasks and write code/content
-- **Agents** (`.claude/agents/`) - Planning specialists that create specifications (do NOT write code)
 - **Commands** (`.claude/commands/`) - Slash commands that expand into prompts and trigger workflows
 
 ### Project Skills
@@ -126,15 +125,6 @@ Domain-specific executors located in `.claude/skills/`. Each skill has detailed 
 
 > **Coordination**: See `.claude/MOTION_SKILLS_GUIDE.md` for animation workflow patterns
 
-### Planning Agents
-
-Architecture planning specialists located in `.claude/agents/`:
-
-- **frontend-engineer** - Plans Next.js 16 + React 19.2 + TypeScript architecture (references `docs/DESIGN_SYSTEM.md`)
-- **backend-engineer** - Plans Spring Boot + Kotlin API architecture (references `docs/API_CODING_STANDARDS.md`)
-
-> **Important**: Agents create specifications only. Main agent implements using appropriate skills.
-
 ### Slash Commands
 
 Custom workflow triggers in `.claude/commands/`. Use syntax: `/command-name [arguments]`
@@ -146,8 +136,7 @@ Custom workflow triggers in `.claude/commands/`. Use syntax: `/command-name [arg
 ### Usage Guidelines
 
 - **Skills**: Use for executing tasks (writing code, content, infrastructure changes)
-- **Agents**: Use for planning complex features (frontend architecture, backend API design)
-- **Primary Workflow**: Agent creates specification → Main agent implements using skills
+- **Commands**: Use to trigger workflows and specialized operations
 
 ### Documentation Compliance
 
