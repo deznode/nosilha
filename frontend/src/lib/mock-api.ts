@@ -4,6 +4,11 @@ import type {
   ApiClient,
   PaginatedResult,
   PaginationMetadata,
+  StorySubmitRequest,
+  StorySubmittedResponse,
+  StoryModerationAction,
+  SuggestionModerationAction,
+  DashboardCounts,
 } from "@/lib/api-contracts";
 import type {
   ReactionCreateDto,
@@ -12,6 +17,23 @@ import type {
   ReactionType,
 } from "@/types/reaction";
 import type { MediaMetadataDto } from "@/types/api";
+import type { StorySubmission, SubmissionStatus } from "@/types/story";
+import type {
+  AdminStats,
+  Suggestion,
+  Contributor,
+  ContactMessage,
+  ContactMessageStatus,
+  DirectorySubmission,
+  AdminQueueResponse,
+} from "@/types/admin";
+import { MOCK_STORIES, mockStoriesApi } from "@/lib/mocks/stories";
+import {
+  MOCK_SUGGESTIONS,
+  MOCK_CONTACT_MESSAGES,
+  MOCK_DIRECTORY_SUBMISSIONS,
+  mockAdminApi,
+} from "@/lib/mocks/admin";
 
 const MOCK_ENTRIES: DirectoryEntry[] = [
   // AUTHENTIC HOTEL ENTRIES FROM DATABASE
@@ -694,6 +716,280 @@ export class MockApiClient implements ApiClient {
     const results = relatedEntries.slice(0, limit);
     console.log(`Mock API: Returning ${results.length} related entries`);
     return results;
+  }
+
+  // ================================
+  // STORY SUBMISSION OPERATIONS (Mock)
+  // ================================
+
+  /**
+   * Submits a new story (mock implementation).
+   * Simulates validation and honeypot spam protection.
+   */
+  async submitStory(data: StorySubmitRequest): Promise<StorySubmittedResponse> {
+    console.log(`Mock API: Submitting story`, data);
+    await this.simulateDelay(500);
+
+    // Simulate honeypot spam detection
+    if (data.honeypot) {
+      console.log("Mock API: Honeypot spam detected");
+      return { id: null, message: "Thank you for your submission." };
+    }
+
+    // Simulate validation
+    if (!data.title || data.title.length < 3) {
+      throw new Error("Title must be at least 3 characters");
+    }
+    if (!data.content || data.content.length < 10) {
+      throw new Error("Content must be at least 10 characters");
+    }
+
+    const storyId = `mock-story-${Date.now()}`;
+    console.log(`Mock API: Story ${storyId} submitted successfully`);
+
+    return {
+      id: storyId,
+      message:
+        "Thank you for sharing your story. It has been submitted for review.",
+    };
+  }
+
+  // ================================
+  // ADMIN STORY MODERATION OPERATIONS (Mock)
+  // ================================
+
+  /**
+   * Gets stories for admin moderation queue (mock implementation).
+   */
+  async getStoriesForAdmin(
+    status?: SubmissionStatus | "ALL",
+    _page: number = 0,
+    _size: number = 20
+  ): Promise<AdminQueueResponse<StorySubmission>> {
+    console.log(`Mock API: Fetching stories for admin, status: ${status}`);
+    return mockStoriesApi.getStoriesForAdmin(status);
+  }
+
+  /**
+   * Updates story moderation status (mock implementation).
+   */
+  async updateStoryStatus(
+    id: string,
+    action: StoryModerationAction,
+    notes?: string
+  ): Promise<void> {
+    console.log(`Mock API: Updating story ${id} with action: ${action}`, notes);
+    await this.simulateDelay(300);
+
+    // Map action to status
+    const statusMap: Record<StoryModerationAction, SubmissionStatus> = {
+      APPROVE: "APPROVED" as SubmissionStatus,
+      REJECT: "REJECTED" as SubmissionStatus,
+      PUBLISH: "APPROVED" as SubmissionStatus,
+      UNPUBLISH: "PENDING" as SubmissionStatus,
+    };
+
+    const story = MOCK_STORIES.find((s) => s.id === id);
+    if (!story) {
+      throw new Error("Story not found");
+    }
+
+    // Update in mock data (in real scenario would persist)
+    story.status = statusMap[action];
+    if (notes) {
+      story.adminNotes = notes;
+    }
+    story.reviewedBy = "admin";
+    story.reviewedAt = new Date().toISOString();
+
+    console.log(`Mock API: Story ${id} status updated to ${story.status}`);
+  }
+
+  /**
+   * Toggles featured status for a story (mock implementation).
+   */
+  async toggleStoryFeatured(id: string, featured: boolean): Promise<void> {
+    console.log(`Mock API: Toggling featured for story ${id} to: ${featured}`);
+    await this.simulateDelay(200);
+    // Mock implementation - just log the action
+  }
+
+  /**
+   * Deletes a story (mock implementation).
+   */
+  async deleteStory(id: string): Promise<void> {
+    console.log(`Mock API: Deleting story ${id}`);
+    await this.simulateDelay(200);
+
+    const index = MOCK_STORIES.findIndex((s) => s.id === id);
+    if (index === -1) {
+      throw new Error("Story not found");
+    }
+    // In real scenario would remove from array
+  }
+
+  // ================================
+  // ADMIN SUGGESTION MODERATION OPERATIONS (Mock)
+  // ================================
+
+  /**
+   * Gets suggestions for admin moderation queue (mock implementation).
+   */
+  async getSuggestionsForAdmin(
+    status?: SubmissionStatus | "ALL",
+    _page: number = 0,
+    _size: number = 20
+  ): Promise<AdminQueueResponse<Suggestion>> {
+    console.log(`Mock API: Fetching suggestions for admin, status: ${status}`);
+    return mockAdminApi.getSuggestions(status);
+  }
+
+  /**
+   * Updates suggestion moderation status (mock implementation).
+   */
+  async updateSuggestionStatus(
+    id: string,
+    action: SuggestionModerationAction,
+    notes?: string
+  ): Promise<void> {
+    console.log(
+      `Mock API: Updating suggestion ${id} with action: ${action}`,
+      notes
+    );
+    await this.simulateDelay(300);
+
+    const statusMap: Record<SuggestionModerationAction, SubmissionStatus> = {
+      APPROVE: "APPROVED" as SubmissionStatus,
+      REJECT: "REJECTED" as SubmissionStatus,
+    };
+
+    const suggestion = MOCK_SUGGESTIONS.find((s) => s.id === id);
+    if (!suggestion) {
+      throw new Error("Suggestion not found");
+    }
+
+    suggestion.status = statusMap[action];
+    if (notes) {
+      suggestion.adminNotes = notes;
+    }
+    suggestion.reviewedBy = "admin";
+    suggestion.reviewedAt = new Date().toISOString();
+  }
+
+  /**
+   * Deletes a suggestion (mock implementation).
+   */
+  async deleteSuggestion(id: string): Promise<void> {
+    console.log(`Mock API: Deleting suggestion ${id}`);
+    await this.simulateDelay(200);
+
+    const index = MOCK_SUGGESTIONS.findIndex((s) => s.id === id);
+    if (index === -1) {
+      throw new Error("Suggestion not found");
+    }
+  }
+
+  // ================================
+  // ADMIN DASHBOARD OPERATIONS (Mock)
+  // ================================
+
+  /**
+   * Gets admin dashboard statistics (mock implementation).
+   */
+  async getAdminStats(): Promise<AdminStats> {
+    console.log(`Mock API: Fetching admin stats`);
+    return mockAdminApi.getStats();
+  }
+
+  /**
+   * Gets dashboard counts for pending items (mock implementation).
+   */
+  async getDashboardCounts(): Promise<DashboardCounts> {
+    console.log(`Mock API: Fetching dashboard counts`);
+    await this.simulateDelay(200);
+
+    // Calculate counts from mock data
+    return {
+      pendingSuggestions: MOCK_SUGGESTIONS.filter((s) => s.status === "PENDING")
+        .length,
+      pendingStories: MOCK_STORIES.filter((s) => s.status === "PENDING").length,
+      pendingMessages: MOCK_CONTACT_MESSAGES.filter(
+        (m) => m.status === "UNREAD"
+      ).length,
+      pendingDirectory: MOCK_DIRECTORY_SUBMISSIONS.filter(
+        (d) => d.status === "PENDING"
+      ).length,
+    };
+  }
+
+  /**
+   * Gets top contributors (mock implementation).
+   */
+  async getTopContributors(): Promise<Contributor[]> {
+    console.log(`Mock API: Fetching top contributors`);
+    return mockAdminApi.getTopContributors();
+  }
+
+  // ================================
+  // ADMIN CONTACT MESSAGES (Mock)
+  // ================================
+
+  /**
+   * Gets contact messages for admin (mock implementation).
+   */
+  async getContactMessages(): Promise<AdminQueueResponse<ContactMessage>> {
+    console.log(`Mock API: Fetching contact messages`);
+    return mockAdminApi.getContactMessages();
+  }
+
+  /**
+   * Updates contact message status (mock implementation).
+   */
+  async updateContactMessageStatus(
+    id: string,
+    status: ContactMessageStatus
+  ): Promise<ContactMessage> {
+    console.log(
+      `Mock API: Updating contact message ${id} status to: ${status}`
+    );
+    return mockAdminApi.updateContactMessageStatus(id, status);
+  }
+
+  /**
+   * Deletes a contact message (mock implementation).
+   */
+  async deleteContactMessage(id: string): Promise<void> {
+    console.log(`Mock API: Deleting contact message ${id}`);
+    return mockAdminApi.deleteContactMessage(id);
+  }
+
+  // ================================
+  // ADMIN DIRECTORY SUBMISSIONS (Mock)
+  // ================================
+
+  /**
+   * Gets directory submissions for admin (mock implementation).
+   */
+  async getDirectorySubmissions(
+    status?: SubmissionStatus | "ALL"
+  ): Promise<AdminQueueResponse<DirectorySubmission>> {
+    console.log(`Mock API: Fetching directory submissions, status: ${status}`);
+    return mockAdminApi.getDirectorySubmissions(status);
+  }
+
+  /**
+   * Updates directory submission status (mock implementation).
+   */
+  async updateDirectorySubmissionStatus(
+    id: string,
+    status: SubmissionStatus,
+    notes?: string
+  ): Promise<DirectorySubmission> {
+    console.log(
+      `Mock API: Updating directory submission ${id} status to: ${status}`,
+      notes
+    );
+    return mockAdminApi.updateDirectorySubmissionStatus(id, status, notes);
   }
 }
 

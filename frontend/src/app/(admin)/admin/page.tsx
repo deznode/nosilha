@@ -15,7 +15,19 @@ import {
   DirectoryQueue,
 } from "@/components/admin/queues";
 import { StoryDetailModal } from "@/components/admin/story-detail-modal";
-import { mockAdminApi, mockStoriesApi } from "@/lib/mocks";
+import {
+  getAdminStats,
+  getSuggestionsForAdmin,
+  getStoriesForAdmin,
+  getContactMessages,
+  getDirectorySubmissions,
+  getTopContributors,
+  updateSuggestionStatus,
+  updateStoryStatus,
+  updateContactMessageStatus,
+  deleteContactMessage,
+  updateDirectorySubmissionStatus,
+} from "@/lib/api";
 import type {
   AdminStats,
   Suggestion,
@@ -58,12 +70,12 @@ export default function AdminDashboardPage() {
           directoryData,
           contributorsData,
         ] = await Promise.all([
-          mockAdminApi.getStats(),
-          mockAdminApi.getSuggestions(),
-          mockStoriesApi.getStoriesForAdmin(),
-          mockAdminApi.getContactMessages(),
-          mockAdminApi.getDirectorySubmissions(),
-          mockAdminApi.getTopContributors(),
+          getAdminStats(),
+          getSuggestionsForAdmin(),
+          getStoriesForAdmin(),
+          getContactMessages(),
+          getDirectorySubmissions(),
+          getTopContributors(),
         ]);
 
         setStats(statsData);
@@ -87,7 +99,10 @@ export default function AdminDashboardPage() {
     status: SubmissionStatus
   ) => {
     try {
-      await mockAdminApi.updateSuggestionStatus(id, status);
+      // Map status to action
+      const action =
+        status === SubmissionStatus.APPROVED ? "APPROVE" : "REJECT";
+      await updateSuggestionStatus(id, action);
       setSuggestions((prev) =>
         prev.map((s) => (s.id === id ? { ...s, status } : s))
       );
@@ -101,7 +116,10 @@ export default function AdminDashboardPage() {
     status: SubmissionStatus
   ) => {
     try {
-      await mockStoriesApi.updateStoryStatus(id, status);
+      // Map status to action
+      const action =
+        status === SubmissionStatus.APPROVED ? "APPROVE" : "REJECT";
+      await updateStoryStatus(id, action);
       setStories((prev) =>
         prev.map((s) => (s.id === id ? { ...s, status } : s))
       );
@@ -125,7 +143,7 @@ export default function AdminDashboardPage() {
     status: ContactMessageStatus
   ) => {
     try {
-      await mockAdminApi.updateContactMessageStatus(id, status);
+      await updateContactMessageStatus(id, status);
       setMessages((prev) =>
         prev.map((m) => (m.id === id ? { ...m, status } : m))
       );
@@ -136,7 +154,7 @@ export default function AdminDashboardPage() {
 
   const handleMessageDelete = async (id: string) => {
     try {
-      await mockAdminApi.deleteContactMessage(id);
+      await deleteContactMessage(id);
       setMessages((prev) => prev.filter((m) => m.id !== id));
     } catch (error) {
       console.error("Failed to delete message:", error);
@@ -148,7 +166,7 @@ export default function AdminDashboardPage() {
     status: SubmissionStatus
   ) => {
     try {
-      await mockAdminApi.updateDirectorySubmissionStatus(id, status);
+      await updateDirectorySubmissionStatus(id, status);
       setDirectorySubmissions((prev) =>
         prev.map((s) => (s.id === id ? { ...s, status } : s))
       );

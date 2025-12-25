@@ -9,7 +9,8 @@ import {
   Confirmation,
 } from "@/components/story-submission";
 import { StoryType } from "@/types/story";
-import { mockStoriesApi } from "@/lib/mocks";
+import { submitStory } from "@/lib/api";
+import type { StorySubmitRequest } from "@/lib/api-contracts";
 
 interface FormData {
   title: string;
@@ -57,14 +58,26 @@ Why is this memory important to you? How does it make you feel today?`;
 
     setIsSubmitting(true);
     try {
-      await mockStoriesApi.submitStory({
+      // Map StoryType enum to backend API format
+      const storyTypeMap: Record<StoryType, StorySubmitRequest["storyType"]> = {
+        [StoryType.QUICK]: "QUICK",
+        [StoryType.FULL]: "FULL",
+        [StoryType.GUIDED]: "GUIDED",
+        [StoryType.PHOTO]: "PHOTO",
+      };
+
+      const response = await submitStory({
         title: formData.title,
         content: formData.content,
+        storyType: storyTypeMap[submissionType],
         location: formData.location || undefined,
-        author: formData.author,
-        type: submissionType,
+        authorName: formData.author,
+        imageUrl: formData.imageUrl || undefined,
       });
-      setSubmitted(true);
+
+      if (response.id || response.message) {
+        setSubmitted(true);
+      }
     } catch (error) {
       console.error("Failed to submit story:", error);
     } finally {

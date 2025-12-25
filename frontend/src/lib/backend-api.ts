@@ -13,7 +13,22 @@ import type {
   PagedApiResponse,
   PaginatedResult,
   PaginationMetadata,
+  StorySubmitRequest,
+  StorySubmittedResponse,
+  StoryModerationAction,
+  SuggestionModerationAction,
+  DashboardCounts,
 } from "@/lib/api-contracts";
+import type { StorySubmission, SubmissionStatus } from "@/types/story";
+import type {
+  AdminStats,
+  Suggestion,
+  Contributor,
+  ContactMessage,
+  ContactMessageStatus,
+  DirectorySubmission,
+  AdminQueueResponse,
+} from "@/types/admin";
 import type {
   ReactionCreateDto,
   ReactionResponseDto,
@@ -651,6 +666,424 @@ export class BackendApiClient implements ApiClient {
 
     const payload = (await response.json()) as unknown;
     return this.unwrapApiResponse<DirectoryEntry[]>(payload);
+  }
+
+  // ================================
+  // STORY SUBMISSION OPERATIONS
+  // ================================
+
+  /**
+   * Submits a new story.
+   *
+   * **Authentication Required**: Requires USER or ADMIN role.
+   *
+   * **Rate Limiting**: 5 submissions per hour per IP address.
+   *
+   * **Spam Protection**: Honeypot field validation on server side.
+   *
+   * @param data Contains title, content, storyType, and optional fields
+   * @returns StorySubmittedResponse with id and confirmation message
+   * @throws Error if rate limit exceeded (HTTP 429)
+   * @throws Error if validation fails (HTTP 400)
+   * @throws Error if authentication failed (HTTP 401/403)
+   */
+  async submitStory(data: StorySubmitRequest): Promise<StorySubmittedResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/stories`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || "Rate limit exceeded. Please try again later."
+        );
+      }
+      if (response.status === 400) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || "Invalid story data. Please check your input."
+        );
+      }
+      throw new Error(`Failed to submit story: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<StorySubmittedResponse>(payload);
+  }
+
+  // ================================
+  // ADMIN STORY MODERATION OPERATIONS
+  // ================================
+
+  /**
+   * Gets stories for admin moderation queue.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param status Filter by submission status (optional)
+   * @param page Page number (0-indexed)
+   * @param size Page size
+   */
+  async getStoriesForAdmin(
+    status?: SubmissionStatus | "ALL",
+    page: number = 0,
+    size: number = 20
+  ): Promise<AdminQueueResponse<StorySubmission>> {
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+    });
+    if (status && status !== "ALL") {
+      params.append("status", status);
+    }
+
+    const endpoint = `${env.apiUrl}/api/v1/admin/stories?${params}`;
+    const response = await this.authenticatedFetch(endpoint);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch stories: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.transformAdminQueueResponse<StorySubmission>(payload);
+  }
+
+  /**
+   * Updates story moderation status.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param id Story submission ID
+   * @param action Moderation action (APPROVE, REJECT, PUBLISH, UNPUBLISH)
+   * @param notes Optional admin notes
+   */
+  async updateStoryStatus(
+    id: string,
+    action: StoryModerationAction,
+    notes?: string
+  ): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/stories/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action,
+        adminNotes: notes,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update story status: ${response.status}`);
+    }
+  }
+
+  /**
+   * Toggles featured status for a story.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param id Story submission ID
+   * @param featured Whether to feature the story
+   */
+  async toggleStoryFeatured(id: string, featured: boolean): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/stories/${id}/featured`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ isFeatured: featured }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to toggle featured status: ${response.status}`);
+    }
+  }
+
+  /**
+   * Deletes a story submission.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param id Story submission ID
+   */
+  async deleteStory(id: string): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/stories/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "DELETE",
+    });
+
+    if (!response.ok && response.status !== 204) {
+      throw new Error(`Failed to delete story: ${response.status}`);
+    }
+  }
+
+  // ================================
+  // ADMIN SUGGESTION MODERATION OPERATIONS
+  // ================================
+
+  /**
+   * Gets suggestions for admin moderation queue.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param status Filter by submission status (optional)
+   * @param page Page number (0-indexed)
+   * @param size Page size
+   */
+  async getSuggestionsForAdmin(
+    status?: SubmissionStatus | "ALL",
+    page: number = 0,
+    size: number = 20
+  ): Promise<AdminQueueResponse<Suggestion>> {
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+    });
+    if (status && status !== "ALL") {
+      params.append("status", status);
+    }
+
+    const endpoint = `${env.apiUrl}/api/v1/admin/suggestions?${params}`;
+    const response = await this.authenticatedFetch(endpoint);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch suggestions: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.transformAdminQueueResponse<Suggestion>(payload);
+  }
+
+  /**
+   * Updates suggestion moderation status.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param id Suggestion ID
+   * @param action Moderation action (APPROVE, REJECT)
+   * @param notes Optional admin notes
+   */
+  async updateSuggestionStatus(
+    id: string,
+    action: SuggestionModerationAction,
+    notes?: string
+  ): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/suggestions/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action,
+        adminNotes: notes,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update suggestion status: ${response.status}`);
+    }
+  }
+
+  /**
+   * Deletes a suggestion.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param id Suggestion ID
+   */
+  async deleteSuggestion(id: string): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/suggestions/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "DELETE",
+    });
+
+    if (!response.ok && response.status !== 204) {
+      throw new Error(`Failed to delete suggestion: ${response.status}`);
+    }
+  }
+
+  // ================================
+  // ADMIN DASHBOARD OPERATIONS
+  // ================================
+
+  /**
+   * Gets admin dashboard statistics.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   */
+  async getAdminStats(): Promise<AdminStats> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/dashboard/stats`;
+    const response = await this.authenticatedFetch(endpoint);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch admin stats: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<AdminStats>(payload);
+  }
+
+  /**
+   * Gets dashboard counts for pending items.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   */
+  async getDashboardCounts(): Promise<DashboardCounts> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/dashboard/counts`;
+    const response = await this.authenticatedFetch(endpoint);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch dashboard counts: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<DashboardCounts>(payload);
+  }
+
+  /**
+   * Gets top contributors list.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   */
+  async getTopContributors(): Promise<Contributor[]> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/dashboard/contributors`;
+    const response = await this.authenticatedFetch(endpoint);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch top contributors: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<Contributor[]>(payload);
+  }
+
+  // ================================
+  // ADMIN CONTACT MESSAGES (Mock fallback - no backend yet)
+  // ================================
+
+  /**
+   * Gets contact messages for admin.
+   *
+   * **Note**: Backend endpoint not implemented yet, returns empty response.
+   */
+  async getContactMessages(): Promise<AdminQueueResponse<ContactMessage>> {
+    // TODO: Implement when backend endpoint is available
+    console.warn("Contact messages API not yet implemented in backend");
+    return {
+      items: [],
+      total: 0,
+      page: 1,
+      pageSize: 10,
+      hasMore: false,
+    };
+  }
+
+  /**
+   * Updates contact message status.
+   *
+   * **Note**: Backend endpoint not implemented yet, throws error.
+   */
+  async updateContactMessageStatus(
+    id: string,
+    status: ContactMessageStatus
+  ): Promise<ContactMessage> {
+    // TODO: Implement when backend endpoint is available
+    throw new Error(
+      `Contact message status update not yet implemented (id: ${id}, status: ${status})`
+    );
+  }
+
+  /**
+   * Deletes a contact message.
+   *
+   * **Note**: Backend endpoint not implemented yet, throws error.
+   */
+  async deleteContactMessage(id: string): Promise<void> {
+    // TODO: Implement when backend endpoint is available
+    throw new Error(`Contact message deletion not yet implemented (id: ${id})`);
+  }
+
+  // ================================
+  // ADMIN DIRECTORY SUBMISSIONS (Mock fallback - no backend yet)
+  // ================================
+
+  /**
+   * Gets directory submissions for admin.
+   *
+   * **Note**: Backend endpoint not implemented yet, returns empty response.
+   */
+  async getDirectorySubmissions(
+    _status?: SubmissionStatus | "ALL"
+  ): Promise<AdminQueueResponse<DirectorySubmission>> {
+    // TODO: Implement when backend endpoint is available
+    console.warn("Directory submissions API not yet implemented in backend");
+    return {
+      items: [],
+      total: 0,
+      page: 1,
+      pageSize: 10,
+      hasMore: false,
+    };
+  }
+
+  /**
+   * Updates directory submission status.
+   *
+   * **Note**: Backend endpoint not implemented yet, throws error.
+   */
+  async updateDirectorySubmissionStatus(
+    id: string,
+    status: SubmissionStatus,
+    _notes?: string
+  ): Promise<DirectorySubmission> {
+    // TODO: Implement when backend endpoint is available
+    throw new Error(
+      `Directory submission status update not yet implemented (id: ${id}, status: ${status})`
+    );
+  }
+
+  // ================================
+  // UTILITY METHODS
+  // ================================
+
+  /**
+   * Transforms backend paged response to AdminQueueResponse format.
+   */
+  private transformAdminQueueResponse<T>(
+    payload: unknown
+  ): AdminQueueResponse<T> {
+    const data = this.unwrapApiResponse<{
+      content: T[];
+      page: { totalElements: number; number: number; size: number };
+    }>(payload);
+
+    return {
+      items: data.content || [],
+      total: data.page?.totalElements || 0,
+      page: (data.page?.number || 0) + 1, // Convert 0-indexed to 1-indexed
+      pageSize: data.page?.size || 20,
+      hasMore:
+        (data.page?.number || 0) <
+        Math.ceil((data.page?.totalElements || 0) / (data.page?.size || 20)) -
+          1,
+    };
   }
 
   /**

@@ -6,7 +6,24 @@ import type {
   ReactionCountsDto,
 } from "@/types/reaction";
 import type { MediaMetadataDto } from "@/types/api";
-import type { PaginatedResult } from "@/lib/api-contracts";
+import type {
+  PaginatedResult,
+  StorySubmitRequest,
+  StorySubmittedResponse,
+  StoryModerationAction,
+  SuggestionModerationAction,
+  DashboardCounts,
+} from "@/lib/api-contracts";
+import type { StorySubmission, SubmissionStatus } from "@/types/story";
+import type {
+  AdminStats,
+  Suggestion,
+  Contributor,
+  ContactMessage,
+  ContactMessageStatus,
+  DirectorySubmission,
+  AdminQueueResponse,
+} from "@/types/admin";
 import { getApiClient } from "@/lib/api-factory";
 
 /**
@@ -240,6 +257,248 @@ export async function getRelatedContent(
   limit: number = 5
 ): Promise<DirectoryEntry[]> {
   return apiClient.getRelatedContent(contentId, limit);
+}
+
+// ================================
+// STORY SUBMISSION OPERATIONS
+// ================================
+
+/**
+ * Submits a new story for review.
+ * No authentication required - open to community contributions.
+ * Rate limited to 5 submissions per hour per IP address.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param data Contains title, content, storyType, and optional fields
+ * @returns A promise that resolves to the submission response with id and message
+ * @throws Error if rate limit exceeded (HTTP 429)
+ * @throws Error if validation fails (HTTP 400)
+ */
+export async function submitStory(
+  data: StorySubmitRequest
+): Promise<StorySubmittedResponse> {
+  return apiClient.submitStory(data);
+}
+
+// ================================
+// ADMIN STORY MODERATION OPERATIONS
+// ================================
+
+/**
+ * Gets stories for admin moderation queue.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param status Filter by submission status (optional, defaults to all)
+ * @param page Page number (0-indexed, default: 0)
+ * @param size Page size (default: 20)
+ * @returns A promise that resolves to paginated story submissions
+ */
+export async function getStoriesForAdmin(
+  status?: SubmissionStatus | "ALL",
+  page?: number,
+  size?: number
+): Promise<AdminQueueResponse<StorySubmission>> {
+  return apiClient.getStoriesForAdmin(status, page, size);
+}
+
+/**
+ * Updates story moderation status.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Story submission ID
+ * @param action Moderation action (APPROVE, REJECT, PUBLISH, UNPUBLISH)
+ * @param notes Optional admin notes
+ */
+export async function updateStoryStatus(
+  id: string,
+  action: StoryModerationAction,
+  notes?: string
+): Promise<void> {
+  return apiClient.updateStoryStatus(id, action, notes);
+}
+
+/**
+ * Toggles featured status for a story.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Story submission ID
+ * @param featured Whether to feature the story
+ */
+export async function toggleStoryFeatured(
+  id: string,
+  featured: boolean
+): Promise<void> {
+  return apiClient.toggleStoryFeatured(id, featured);
+}
+
+/**
+ * Deletes a story submission.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Story submission ID
+ */
+export async function deleteStory(id: string): Promise<void> {
+  return apiClient.deleteStory(id);
+}
+
+// ================================
+// ADMIN SUGGESTION MODERATION OPERATIONS
+// ================================
+
+/**
+ * Gets suggestions for admin moderation queue.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param status Filter by submission status (optional, defaults to all)
+ * @param page Page number (0-indexed, default: 0)
+ * @param size Page size (default: 20)
+ * @returns A promise that resolves to paginated suggestions
+ */
+export async function getSuggestionsForAdmin(
+  status?: SubmissionStatus | "ALL",
+  page?: number,
+  size?: number
+): Promise<AdminQueueResponse<Suggestion>> {
+  return apiClient.getSuggestionsForAdmin(status, page, size);
+}
+
+/**
+ * Updates suggestion moderation status.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Suggestion ID
+ * @param action Moderation action (APPROVE, REJECT)
+ * @param notes Optional admin notes
+ */
+export async function updateSuggestionStatus(
+  id: string,
+  action: SuggestionModerationAction,
+  notes?: string
+): Promise<void> {
+  return apiClient.updateSuggestionStatus(id, action, notes);
+}
+
+/**
+ * Deletes a suggestion.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Suggestion ID
+ */
+export async function deleteSuggestion(id: string): Promise<void> {
+  return apiClient.deleteSuggestion(id);
+}
+
+// ================================
+// ADMIN DASHBOARD OPERATIONS
+// ================================
+
+/**
+ * Gets admin dashboard statistics.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @returns A promise that resolves to admin statistics
+ */
+export async function getAdminStats(): Promise<AdminStats> {
+  return apiClient.getAdminStats();
+}
+
+/**
+ * Gets dashboard counts for pending items.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @returns A promise that resolves to counts of pending items
+ */
+export async function getDashboardCounts(): Promise<DashboardCounts> {
+  return apiClient.getDashboardCounts();
+}
+
+/**
+ * Gets top contributors list.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @returns A promise that resolves to list of top contributors
+ */
+export async function getTopContributors(): Promise<Contributor[]> {
+  return apiClient.getTopContributors();
+}
+
+// ================================
+// ADMIN CONTACT MESSAGES OPERATIONS
+// ================================
+
+/**
+ * Gets contact messages for admin.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * Note: Backend endpoint not yet implemented - uses mock data.
+ * @returns A promise that resolves to paginated contact messages
+ */
+export async function getContactMessages(): Promise<
+  AdminQueueResponse<ContactMessage>
+> {
+  return apiClient.getContactMessages();
+}
+
+/**
+ * Updates contact message status.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * Note: Backend endpoint not yet implemented - uses mock data.
+ * @param id Contact message ID
+ * @param status New status
+ * @returns A promise that resolves to updated contact message
+ */
+export async function updateContactMessageStatus(
+  id: string,
+  status: ContactMessageStatus
+): Promise<ContactMessage> {
+  return apiClient.updateContactMessageStatus(id, status);
+}
+
+/**
+ * Deletes a contact message.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * Note: Backend endpoint not yet implemented - uses mock data.
+ * @param id Contact message ID
+ */
+export async function deleteContactMessage(id: string): Promise<void> {
+  return apiClient.deleteContactMessage(id);
+}
+
+// ================================
+// ADMIN DIRECTORY SUBMISSIONS OPERATIONS
+// ================================
+
+/**
+ * Gets directory submissions for admin.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * Note: Backend endpoint not yet implemented - uses mock data.
+ * @param status Filter by submission status (optional)
+ * @returns A promise that resolves to paginated directory submissions
+ */
+export async function getDirectorySubmissions(
+  status?: SubmissionStatus | "ALL"
+): Promise<AdminQueueResponse<DirectorySubmission>> {
+  return apiClient.getDirectorySubmissions(status);
+}
+
+/**
+ * Updates directory submission status.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * Note: Backend endpoint not yet implemented - uses mock data.
+ * @param id Directory submission ID
+ * @param status New submission status
+ * @param notes Optional admin notes
+ * @returns A promise that resolves to updated directory submission
+ */
+export async function updateDirectorySubmissionStatus(
+  id: string,
+  status: SubmissionStatus,
+  notes?: string
+): Promise<DirectorySubmission> {
+  return apiClient.updateDirectorySubmissionStatus(id, status, notes);
 }
 
 // ================================

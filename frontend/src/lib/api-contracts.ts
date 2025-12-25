@@ -6,6 +6,16 @@ import type {
   ReactionCountsDto,
 } from "@/types/reaction";
 import type { MediaMetadataDto } from "@/types/api";
+import type { StorySubmission, SubmissionStatus } from "@/types/story";
+import type {
+  AdminStats,
+  Suggestion,
+  Contributor,
+  ContactMessage,
+  ContactMessageStatus,
+  DirectorySubmission,
+  AdminQueueResponse,
+} from "@/types/admin";
 
 /**
  * API Contracts - Defines the interface for all API implementations
@@ -80,6 +90,135 @@ export interface ApiClient {
     contentId: string,
     limit?: number
   ): Promise<DirectoryEntry[]>;
+
+  // ================================
+  // STORY SUBMISSION OPERATIONS
+  // ================================
+
+  /**
+   * Submit a new story (public, no auth required)
+   */
+  submitStory(data: StorySubmitRequest): Promise<StorySubmittedResponse>;
+
+  // ================================
+  // ADMIN STORY MODERATION OPERATIONS
+  // ================================
+
+  /**
+   * Get stories for admin moderation queue
+   */
+  getStoriesForAdmin(
+    status?: SubmissionStatus | "ALL",
+    page?: number,
+    size?: number
+  ): Promise<AdminQueueResponse<StorySubmission>>;
+
+  /**
+   * Update story moderation status (approve, reject, publish, unpublish)
+   */
+  updateStoryStatus(
+    id: string,
+    action: StoryModerationAction,
+    notes?: string
+  ): Promise<void>;
+
+  /**
+   * Toggle featured status for a story
+   */
+  toggleStoryFeatured(id: string, featured: boolean): Promise<void>;
+
+  /**
+   * Delete a story
+   */
+  deleteStory(id: string): Promise<void>;
+
+  // ================================
+  // ADMIN SUGGESTION MODERATION OPERATIONS
+  // ================================
+
+  /**
+   * Get suggestions for admin moderation queue
+   */
+  getSuggestionsForAdmin(
+    status?: SubmissionStatus | "ALL",
+    page?: number,
+    size?: number
+  ): Promise<AdminQueueResponse<Suggestion>>;
+
+  /**
+   * Update suggestion moderation status (approve, reject)
+   */
+  updateSuggestionStatus(
+    id: string,
+    action: SuggestionModerationAction,
+    notes?: string
+  ): Promise<void>;
+
+  /**
+   * Delete a suggestion
+   */
+  deleteSuggestion(id: string): Promise<void>;
+
+  // ================================
+  // ADMIN DASHBOARD OPERATIONS
+  // ================================
+
+  /**
+   * Get dashboard statistics
+   */
+  getAdminStats(): Promise<AdminStats>;
+
+  /**
+   * Get dashboard counts (pending items)
+   */
+  getDashboardCounts(): Promise<DashboardCounts>;
+
+  /**
+   * Get top contributors
+   */
+  getTopContributors(): Promise<Contributor[]>;
+
+  // ================================
+  // ADMIN CONTACT MESSAGES (Mock-only for now)
+  // ================================
+
+  /**
+   * Get contact messages for admin
+   */
+  getContactMessages(): Promise<AdminQueueResponse<ContactMessage>>;
+
+  /**
+   * Update contact message status
+   */
+  updateContactMessageStatus(
+    id: string,
+    status: ContactMessageStatus
+  ): Promise<ContactMessage>;
+
+  /**
+   * Delete a contact message
+   */
+  deleteContactMessage(id: string): Promise<void>;
+
+  // ================================
+  // ADMIN DIRECTORY SUBMISSIONS (Mock-only for now)
+  // ================================
+
+  /**
+   * Get directory submissions for admin
+   */
+  getDirectorySubmissions(
+    status?: SubmissionStatus | "ALL"
+  ): Promise<AdminQueueResponse<DirectorySubmission>>;
+
+  /**
+   * Update directory submission status
+   */
+  updateDirectorySubmissionStatus(
+    id: string,
+    status: SubmissionStatus,
+    notes?: string
+  ): Promise<DirectorySubmission>;
 }
 
 export interface PaginationMetadata {
@@ -94,6 +233,57 @@ export interface PaginationMetadata {
 export interface PaginatedResult<T> {
   items: T[];
   pagination: PaginationMetadata | null;
+}
+
+// ================================
+// STORY SUBMISSION TYPES
+// ================================
+
+/**
+ * Request payload for submitting a story
+ */
+export interface StorySubmitRequest {
+  title: string;
+  content: string;
+  storyType: "QUICK" | "FULL" | "GUIDED" | "PHOTO";
+  templateType?: string;
+  relatedPlaceId?: string;
+  location?: string;
+  authorName?: string;
+  imageUrl?: string;
+  honeypot?: string;
+}
+
+/**
+ * Response after submitting a story
+ */
+export interface StorySubmittedResponse {
+  id: string | null;
+  message: string;
+}
+
+/**
+ * Moderation action for stories
+ */
+export type StoryModerationAction =
+  | "APPROVE"
+  | "REJECT"
+  | "PUBLISH"
+  | "UNPUBLISH";
+
+/**
+ * Moderation action for suggestions
+ */
+export type SuggestionModerationAction = "APPROVE" | "REJECT";
+
+/**
+ * Dashboard counts for admin overview
+ */
+export interface DashboardCounts {
+  pendingSuggestions: number;
+  pendingStories: number;
+  pendingMessages: number;
+  pendingDirectory: number;
 }
 
 // ================================
@@ -212,3 +402,16 @@ export type ApiImplementationType = "backend" | "mock";
 // ================================
 
 export type { DirectoryEntry, Town };
+
+// Re-export story and admin types for convenience
+export type { StorySubmission, SubmissionStatus } from "@/types/story";
+
+export type {
+  AdminStats,
+  Suggestion,
+  Contributor,
+  ContactMessage,
+  ContactMessageStatus,
+  DirectorySubmission,
+  AdminQueueResponse,
+} from "@/types/admin";
