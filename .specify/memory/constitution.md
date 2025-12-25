@@ -1,32 +1,31 @@
 <!--
 SYNC IMPACT REPORT
 ==================
-Version Change: 1.0.0 → 1.1.0
+Version Change: 1.1.0 → 1.2.0
 Modified Principles:
-  - REMOVED: II. Community-Driven Development
-  - MODIFIED: VII → VI. Developer-Discretion Testing (developer discretion, no TDD mandate)
-  - MODIFIED: VIII → VII. Infrastructure as Code (Terraform exceptions allowed)
-  - RENUMBERED: III-VIII → II-VII
-
-Technical Standards Updated:
-  - Database & Storage: Removed Firestore/GCS, updated to PostgreSQL + Cloudflare R2
+  - None
 
 Added Sections:
-  - Planning Agents (frontend-engineer, backend-engineer)
-  - Constitution Compliance Checklist format
+  - Planning Agent Invocation Rules (under Planning Agents)
 
 Removed Sections:
-  - Agent Usage Requirements (replaced by Planning Agents)
+  - None
 
 Templates Status:
-✅ plan-template.md - Principle references updated
-✅ spec-template.md - No changes needed
-✅ tasks-template.md - No changes needed
-✅ checklist-template.md - No changes needed
+✅ plan-template.md - No changes needed (already references agents appropriately)
+✅ spec-template.md - No changes needed (does not invoke agents)
+✅ tasks-template.md - No changes needed (does not invoke agents)
+✅ checklist-template.md - No changes needed (does not invoke agents)
 ✅ agent-file-template.md - No changes needed
 
+Command Files Status:
+✅ speckit.plan.md - Already uses agents appropriately (Phase 1 update-agent-context.sh)
+✅ speckit.specify.md - No agent invocations
+✅ speckit.tasks.md - No agent invocations
+✅ speckit.implement.md - No agent invocations
+
 Follow-up Actions:
-- ✅ Agent files updated with Constitution Compliance Checklist format
+- None required
 -->
 
 # Nos Ilha Constitution
@@ -143,6 +142,25 @@ Planning agents are specialized assistants that design architecture and create s
 2. The main agent implements specifications using appropriate skills
 3. All planning output MUST include a Constitution Compliance Checklist
 
+### Planning Agent Invocation Rules
+
+**CRITICAL**: The `frontend-engineer` and `backend-engineer` planning agents MUST ONLY be invoked during the `/speckit.plan` command workflow.
+
+**Permitted Invocation**:
+- `/speckit.plan` - Agents MAY be invoked during Phase 0 (Research) and Phase 1 (Design) to assist with architectural decisions
+
+**Prohibited Invocation**:
+- `/speckit.specify` - MUST NOT invoke planning agents (specification phase is requirements-focused, not architecture-focused)
+- `/speckit.tasks` - MUST NOT invoke planning agents (task generation uses existing plan artifacts)
+- `/speckit.implement` - MUST NOT invoke planning agents (implementation phase executes, does not plan)
+- `/speckit.clarify` - MUST NOT invoke planning agents (clarification is about requirements, not architecture)
+- `/speckit.analyze` - MUST NOT invoke planning agents (analysis is validation, not planning)
+- `/speckit.checklist` - MUST NOT invoke planning agents (checklist generation uses existing artifacts)
+- `/speckit.constitution` - MUST NOT invoke planning agents (governance updates, not feature planning)
+- `/speckit.taskstoissues` - MUST NOT invoke planning agents (issue generation uses existing tasks)
+
+**Rationale**: Planning agents are architecture specialists. Their role is to inform the implementation plan during `/speckit.plan`. Other commands either operate on requirements (before architecture is defined) or on existing artifacts (after architecture is defined). Invoking agents at the wrong phase creates confusion, duplicates work, and may introduce architectural inconsistencies.
+
 ### Constitution Compliance Checklist Format
 
 All planning agent output MUST include this table:
@@ -189,4 +207,4 @@ When violating simplicity principles (e.g., adding new third-party services, int
 ### Living Document
 This constitution is a living document that evolves with the project. Community feedback is encouraged. Amendments follow the procedure above to maintain consistency and traceability.
 
-**Version**: 1.1.0 | **Ratified**: 2025-01-29 | **Last Amended**: 2025-12-24
+**Version**: 1.2.0 | **Ratified**: 2025-01-29 | **Last Amended**: 2025-12-24

@@ -67,6 +67,12 @@ class SecurityConfig(
                     .hasAnyRole("USER", "ADMIN", "authenticated")
                     .requestMatchers(HttpMethod.DELETE, "/api/v1/directory/**")
                     .hasAnyRole("USER", "ADMIN", "authenticated")
+                    // Admin endpoints - require ADMIN role
+                    .requestMatchers("/api/v1/admin/**")
+                    .hasRole("ADMIN")
+                    // Story submission - require authentication
+                    .requestMatchers(HttpMethod.POST, "/api/v1/stories")
+                    .hasAnyRole("USER", "ADMIN", "authenticated")
                     // All other requests require authentication
                     .anyRequest()
                     .authenticated()

@@ -190,3 +190,10 @@ Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+## Active Technologies
+- Kotlin 2.2 / JVM 21 + Spring Boot 4.0.1, Spring Modulith 2.0, Spring Security 6.5, PostgreSQL (009-admin-moderation-api)
+- PostgreSQL (primary), Flyway migrations (009-admin-moderation-api)
+
+## Recent Changes
+- 009-admin-moderation-api: Added Kotlin 2.2 / JVM 21 + Spring Boot 4.0.1, Spring Modulith 2.0, Spring Security 6.5, PostgreSQL
