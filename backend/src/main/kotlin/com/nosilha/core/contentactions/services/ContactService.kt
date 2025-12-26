@@ -10,8 +10,7 @@ import com.nosilha.core.shared.exception.RateLimitExceededException
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
-import java.time.temporal.ChronoUnit
+import java.time.LocalDateTime
 
 /**
  * Service for managing contact form submissions.
@@ -91,7 +90,7 @@ class ContactService(
      * @return true if rate limit is exceeded, false otherwise
      */
     private fun isRateLimitExceeded(ipAddress: String): Boolean {
-        val oneHourAgo = Instant.now().minus(1, ChronoUnit.HOURS)
+        val oneHourAgo = LocalDateTime.now().minusHours(1)
         val recentSubmissions = contactMessageRepository.countByIpAddressAndCreatedAtAfter(ipAddress, oneHourAgo)
 
         logger.debug("IP $ipAddress has $recentSubmissions contact submissions in the last hour")

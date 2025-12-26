@@ -102,18 +102,6 @@ interface SuggestionRepository : JpaRepository<Suggestion, UUID> {
      */
     fun countByStatus(status: SuggestionStatus): Long
 
-    /**
-     * Finds all suggestions submitted by a specific user.
-     *
-     * <p>Used for user profile contribution history to display all suggestions
-     * the user has submitted across all content pages.</p>
-     *
-     * <p><strong>Note:</strong> This method requires the Suggestion entity to have
-     * a userId field. Currently, suggestions use name/email for anonymous submissions.
-     * A migration and entity update will be needed to support authenticated user suggestions.</p>
-     *
-     * @param userId User ID from authentication system (Supabase)
-     * @return List of suggestions submitted by the user
-     */
-    fun findByUserId(userId: String): List<Suggestion>
+    // TODO: Add findByUserId method once Suggestion entity has userId field
+    // fun findByUserId(userId: String): List<Suggestion>
 }

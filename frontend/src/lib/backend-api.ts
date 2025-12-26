@@ -112,7 +112,9 @@ export class BackendApiClient implements ApiClient {
     category: string,
     page: number = 0,
     size: number = 20,
-    searchQuery?: string
+    searchQuery?: string,
+    town?: string,
+    sort?: string
   ): Promise<PaginatedResult<DirectoryEntry>> {
     const params = new URLSearchParams();
 
@@ -123,6 +125,17 @@ export class BackendApiClient implements ApiClient {
     // Only add search query if it's at least 2 characters (matches backend validation)
     if (searchQuery && searchQuery.trim().length >= 2) {
       params.append("q", searchQuery.trim());
+    }
+
+    // Add town parameter if provided
+    if (town) {
+      params.append("town", encodeURIComponent(town));
+    }
+
+    // Add sort parameter if provided
+    // Valid values: name_asc, name_desc, rating_desc, created_at_desc, relevance
+    if (sort) {
+      params.append("sort", encodeURIComponent(sort));
     }
 
     params.append("page", page.toString());

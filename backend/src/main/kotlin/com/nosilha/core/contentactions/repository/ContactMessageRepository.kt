@@ -3,7 +3,7 @@ package com.nosilha.core.contentactions.repository
 import com.nosilha.core.contentactions.domain.ContactMessage
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
-import java.time.Instant
+import java.time.LocalDateTime
 import java.util.UUID
 
 /**
@@ -34,6 +34,6 @@ interface ContactMessageRepository : JpaRepository<ContactMessage, UUID> {
      */
     fun countByIpAddressAndCreatedAtAfter(
         ipAddress: String,
-        after: Instant,
+        after: LocalDateTime,
     ): Long
 }

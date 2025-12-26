@@ -277,10 +277,12 @@ export class MockApiClient implements ApiClient {
     category: string,
     page: number = 0,
     size: number = 20,
-    searchQuery?: string
+    searchQuery?: string,
+    town?: string,
+    sort?: string
   ): Promise<PaginatedResult<DirectoryEntry>> {
     console.log(
-      `Mock API: Fetching entries for category: ${category}, page: ${page}, size: ${size}, search: ${searchQuery}`
+      `Mock API: Fetching entries for category: ${category}, page: ${page}, size: ${size}, search: ${searchQuery}, town: ${town}, sort: ${sort}`
     );
     await this.simulateDelay(150);
 
@@ -288,6 +290,13 @@ export class MockApiClient implements ApiClient {
     if (category.toLowerCase() !== "all") {
       filteredEntries = MOCK_ENTRIES.filter(
         (entry) => entry.category.toLowerCase() === category.toLowerCase()
+      );
+    }
+
+    // Apply town filter if provided
+    if (town) {
+      filteredEntries = filteredEntries.filter(
+        (entry) => entry.town?.toLowerCase() === town.toLowerCase()
       );
     }
 
@@ -299,6 +308,27 @@ export class MockApiClient implements ApiClient {
           entry.name.toLowerCase().includes(query) ||
           entry.description?.toLowerCase().includes(query)
       );
+    }
+
+    // Apply sorting if provided
+    if (sort) {
+      filteredEntries = [...filteredEntries].sort((a, b) => {
+        switch (sort) {
+          case "name_asc":
+            return a.name.localeCompare(b.name);
+          case "name_desc":
+            return b.name.localeCompare(a.name);
+          case "rating_desc":
+            return (b.rating || 0) - (a.rating || 0);
+          case "created_at_desc":
+          default:
+            // Default sort by creation date descending
+            return (
+              new Date(b.createdAt || 0).getTime() -
+              new Date(a.createdAt || 0).getTime()
+            );
+        }
+      });
     }
 
     // Simulate pagination

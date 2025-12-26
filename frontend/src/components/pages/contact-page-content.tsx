@@ -5,6 +5,8 @@ import Link from "next/link";
 import { HelpCircle, CheckCircle, Loader2, Send } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/ui/page-header";
+import { submitContactMessage } from "@/lib/api";
+import type { ContactRequest, ContactSubject } from "@/types/contact";
 
 interface FormData {
   name: string;
@@ -23,6 +25,8 @@ export function ContactPageContent() {
   const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [confirmationMessage, setConfirmationMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -38,18 +42,60 @@ export function ContactPageContent() {
     if (!agreedToPrivacy) return;
 
     setIsSubmitting(true);
+    setErrorMessage("");
 
-    // Simulate form submission - in production, this would send to a backend
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      // Map form subject to ContactSubject enum
+      const subjectMap: Record<string, ContactSubject> = {
+        general: "GENERAL_INQUIRY",
+        content: "CONTENT_SUGGESTION",
+        technical: "TECHNICAL_ISSUE",
+        partnership: "PARTNERSHIP",
+      };
 
-    setIsSubmitting(false);
-    setIsSubmitted(true);
+      const request: ContactRequest = {
+        name: formData.name,
+        email: formData.email,
+        subjectCategory: subjectMap[formData.subject],
+        message: formData.message,
+      };
+
+      const response = await submitContactMessage(request);
+
+      setConfirmationMessage(response.message);
+      setIsSubmitted(true);
+    } catch (error) {
+      if (error instanceof Error) {
+        // Check for specific error messages from backend
+        if (error.message.includes("exceeded the maximum number")) {
+          setErrorMessage(
+            "Too many submissions. Please wait an hour before trying again."
+          );
+        } else if (error.message.includes("Invalid contact form data")) {
+          setErrorMessage(
+            "Invalid form data. Please check your input and try again."
+          );
+        } else {
+          setErrorMessage(
+            "Failed to submit your message. Please try again later."
+          );
+        }
+      } else {
+        setErrorMessage(
+          "An unexpected error occurred. Please try again later."
+        );
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
     setFormData({ name: "", email: "", subject: "", message: "" });
     setAgreedToPrivacy(false);
     setIsSubmitted(false);
+    setConfirmationMessage("");
+    setErrorMessage("");
   };
 
   const containerVariants = {
@@ -113,8 +159,8 @@ export function ContactPageContent() {
                     Obrigado!
                   </h4>
                   <p className="text-text-secondary mb-6 text-lg">
-                    Thank you for your message. We&apos;ll get back to you
-                    within 24-48 hours.
+                    {confirmationMessage ||
+                      "Thank you for your message. We'll get back to you within 24-48 hours."}
                   </p>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
@@ -133,6 +179,17 @@ export function ContactPageContent() {
                   onSubmit={handleSubmit}
                   className="space-y-6 p-6"
                 >
+                  {/* Error Message Display */}
+                  {errorMessage && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="rounded-md border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200"
+                    >
+                      <p className="text-sm font-medium">{errorMessage}</p>
+                    </motion.div>
+                  )}
+
                   {/* Name and Email Row */}
                   <div className="grid gap-6 md:grid-cols-2">
                     <div>
@@ -192,12 +249,11 @@ export function ContactPageContent() {
                     >
                       <option value="">Select a subject</option>
                       <option value="general">General Inquiry</option>
-                      <option value="content">Content Contribution</option>
-                      <option value="technical">Technical Support</option>
+                      <option value="content">Content Suggestion</option>
+                      <option value="technical">Technical Issue</option>
                       <option value="partnership">
                         Partnership Opportunity
                       </option>
-                      <option value="report">Report an Issue</option>
                     </select>
                   </div>
 

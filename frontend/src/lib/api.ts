@@ -424,6 +424,25 @@ export async function getTopContributors(): Promise<Contributor[]> {
 }
 
 // ================================
+// PUBLIC CONTACT FORM OPERATIONS
+// ================================
+
+/**
+ * Submits a contact form message.
+ * Public endpoint - no authentication required.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param request Contact form data
+ * @returns A promise that resolves to confirmation details
+ * @throws Error if rate limit exceeded (HTTP 429)
+ * @throws Error if validation fails (HTTP 400)
+ */
+export async function submitContactMessage(
+  request: import("@/types/contact").ContactRequest
+): Promise<import("@/types/contact").ContactConfirmationDto> {
+  return apiClient.submitContactMessage(request);
+}
+
+// ================================
 // ADMIN CONTACT MESSAGES OPERATIONS
 // ================================
 

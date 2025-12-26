@@ -1,5 +1,7 @@
 package com.nosilha.core.directory.api
 
+import com.nosilha.core.contentactions.api.BookmarkStatusDto
+import com.nosilha.core.contentactions.services.BookmarkService
 import com.nosilha.core.directory.domain.DirectoryEntryService
 import com.nosilha.core.directory.domain.toDto
 import com.nosilha.core.directory.services.SearchService
@@ -12,6 +14,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -34,6 +37,7 @@ import java.util.UUID
  * <ul>
  *   <li>GET /api/v1/directory/entries - List all entries with pagination and filtering</li>
  *   <li>GET /api/v1/directory/entries/{id} - Get entry by UUID</li>
+ *   <li>GET /api/v1/directory/entries/{id}/bookmark-status - Check if entry is bookmarked</li>
  *   <li>GET /api/v1/directory/slug/{slug} - Get entry by slug</li>
  *   <li>POST /api/v1/directory/entries - Create new entry (authenticated)</li>
  *   <li>PUT /api/v1/directory/entries/{id} - Update entry (authenticated)</li>
@@ -41,12 +45,15 @@ import java.util.UUID
  * </ul>
  *
  * @param service The business logic layer for directory entries.
+ * @param searchService The search service for full-text search functionality.
+ * @param bookmarkService The bookmark service for checking bookmark status.
  */
 @RestController
 @RequestMapping("/api/v1/directory")
 class DirectoryEntryController(
     private val service: DirectoryEntryService,
     private val searchService: SearchService,
+    private val bookmarkService: BookmarkService,
 ) {
     /**
      * Creates a new directory entry.
@@ -202,5 +209,72 @@ class DirectoryEntryController(
         @PathVariable id: UUID,
     ) {
         service.deleteEntry(id)
+    }
+
+    /**
+     * Check if a directory entry is bookmarked by the current user.
+     *
+     * <p>This endpoint is public and returns bookmark status based on authentication state:
+     * <ul>
+     *   <li>If user is authenticated: returns actual bookmark status from database</li>
+     *   <li>If user is not authenticated: returns { "isBookmarked": false, "bookmarkId": null }</li>
+     * </ul>
+     *
+     * <p><strong>Example Request (Authenticated):</strong></p>
+     * <pre>
+     * GET /api/v1/directory/entries/550e8400-e29b-41d4-a716-446655440000/bookmark-status
+     * Authorization: Bearer {jwt-token}
+     * </pre>
+     *
+     * <p><strong>Example Response (Authenticated, Bookmarked):</strong></p>
+     * <pre>
+     * {
+     *   "data": {
+     *     "isBookmarked": true,
+     *     "bookmarkId": "789e0123-e45b-67c8-d901-234567890abc"
+     *   },
+     *   "timestamp": "2025-01-15T10:30:00Z",
+     *   "status": 200
+     * }
+     * </pre>
+     *
+     * <p><strong>Example Request (Unauthenticated):</strong></p>
+     * <pre>
+     * GET /api/v1/directory/entries/550e8400-e29b-41d4-a716-446655440000/bookmark-status
+     * </pre>
+     *
+     * <p><strong>Example Response (Unauthenticated):</strong></p>
+     * <pre>
+     * {
+     *   "data": {
+     *     "isBookmarked": false,
+     *     "bookmarkId": null
+     *   },
+     *   "timestamp": "2025-01-15T10:30:00Z",
+     *   "status": 200
+     * }
+     * </pre>
+     *
+     * @param id The UUID of the directory entry to check bookmark status for.
+     * @param authentication Optional Spring Security authentication (null if not authenticated).
+     * @return ApiResponse containing BookmarkStatusDto with bookmark status.
+     */
+    @GetMapping("/entries/{id}/bookmark-status")
+    fun getBookmarkStatus(
+        @PathVariable id: UUID,
+        authentication: Authentication?,
+    ): ApiResponse<BookmarkStatusDto> {
+        // If user is not authenticated, return false
+        if (authentication == null) {
+            return ApiResponse(
+                data = BookmarkStatusDto(isBookmarked = false, bookmarkId = null),
+            )
+        }
+
+        // User is authenticated, check actual bookmark status
+        val userId = authentication.name
+        val bookmarkStatus = bookmarkService.isBookmarked(userId, id)
+
+        return ApiResponse(data = bookmarkStatus)
     }
 }

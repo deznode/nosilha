@@ -37,13 +37,32 @@ import type { ContactRequest, ContactConfirmationDto } from "@/types/contact";
 /**
  * Main API interface that all implementations (backend and mock) must satisfy
  */
+/**
+ * Query parameters for directory entries
+ */
+export interface DirectoryQueryParams {
+  category?: string;
+  page?: number;
+  size?: number;
+  searchQuery?: string;
+  town?: string;
+  sort?:
+    | "name_asc"
+    | "name_desc"
+    | "rating_desc"
+    | "created_at_desc"
+    | "relevance";
+}
+
 export interface ApiClient {
   // Directory Entry Operations
   getEntriesByCategory(
     category: string,
     page?: number,
     size?: number,
-    searchQuery?: string
+    searchQuery?: string,
+    town?: string,
+    sort?: string
   ): Promise<PaginatedResult<DirectoryEntry>>;
 
   getEntryBySlug(slug: string): Promise<DirectoryEntry | undefined>;

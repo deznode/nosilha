@@ -16,6 +16,7 @@ import org.springframework.orm.jpa.JpaTransactionManager
 @Configuration
 @EnableJpaRepositories(
     basePackages = [
+        "com.nosilha.core.auth.repository",
         "com.nosilha.core.directory.repository",
         "com.nosilha.core.contentactions.repository",
         "com.nosilha.core.media.repository",

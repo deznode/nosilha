@@ -8,6 +8,13 @@ import type { FilterInput, CategoryValue } from "@/schemas/filterSchema";
  * Does not persist to localStorage (URL is source of truth).
  */
 
+export type SortByValue =
+  | "name_asc"
+  | "name_desc"
+  | "rating_desc"
+  | "created_at_desc"
+  | "relevance";
+
 interface FilterState {
   // State
   searchQuery: string;
@@ -15,6 +22,7 @@ interface FilterState {
   selectedTown: string | undefined;
   minRating: number | undefined;
   hasImage: boolean | undefined;
+  sortBy: SortByValue;
 
   // Multi-select for map filtering
   selectedCategories: string[];
@@ -25,6 +33,7 @@ interface FilterState {
   setTown: (town: string | undefined) => void;
   setMinRating: (rating: number | undefined) => void;
   setHasImage: (hasImage: boolean | undefined) => void;
+  setSortBy: (sortBy: SortByValue) => void;
   setFilters: (filters: Partial<FilterInput>) => void;
   clearFilters: () => void;
 
@@ -45,6 +54,7 @@ export const useFilterStore = create<FilterState>()(
       selectedTown: undefined,
       minRating: undefined,
       hasImage: undefined,
+      sortBy: "rating_desc",
       selectedCategories: ["Restaurant", "Hotel", "Beach", "Landmark"], // Default: all categories
 
       // Actions
@@ -53,6 +63,7 @@ export const useFilterStore = create<FilterState>()(
       setTown: (town) => set({ selectedTown: town }),
       setMinRating: (rating) => set({ minRating: rating }),
       setHasImage: (hasImage) => set({ hasImage }),
+      setSortBy: (sortBy) => set({ sortBy }),
 
       setFilters: (filters) =>
         set((state) => ({
@@ -70,6 +81,7 @@ export const useFilterStore = create<FilterState>()(
           selectedTown: undefined,
           minRating: undefined,
           hasImage: undefined,
+          sortBy: "rating_desc",
         }),
 
       // Multi-category actions
@@ -110,6 +122,7 @@ export const useSelectedTown = () =>
 export const useMinRating = () => useFilterStore((state) => state.minRating);
 export const useHasImageFilter = () =>
   useFilterStore((state) => state.hasImage);
+export const useSortBy = () => useFilterStore((state) => state.sortBy);
 export const useHasActiveFilters = () =>
   useFilterStore((state) => state.hasActiveFilters());
 

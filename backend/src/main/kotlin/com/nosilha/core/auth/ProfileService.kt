@@ -46,6 +46,7 @@ import java.util.concurrent.ConcurrentLinkedDeque
  */
 @Service
 @Transactional
+@Suppress("UnusedPrivateProperty") // suggestionRepository will be used after Suggestion entity gets userId field
 class ProfileService(
     private val userProfileRepository: UserProfileRepository,
     private val reactionRepository: ReactionRepository,
@@ -256,23 +257,25 @@ class ProfileService(
         val reactionCounts = getReactionCountsByUser(userUuid)
 
         // Get suggestions submitted by user
-        // Note: Handle gracefully if Suggestion entity doesn't have userId field yet
-        val suggestions = try {
-            suggestionRepository.findByUserId(userId).map { suggestion ->
-                SuggestionSummaryDto(
-                    id = suggestion.id!!,
-                    contentId = suggestion.contentId,
-                    suggestionType = suggestion.suggestionType,
-                    status = suggestion.status,
-                    createdAt = suggestion.createdAt!!.let { instant ->
-                        java.time.LocalDateTime.ofInstant(instant, java.time.ZoneOffset.UTC)
-                    },
-                )
-            }
-        } catch (e: Exception) {
-            logger.warn("Error retrieving suggestions for user {}: {}", userId, e.message)
-            emptyList()
-        }
+        // TODO: Re-enable once Suggestion entity has userId field
+        // Note: Suggestion entity currently uses name/email, not userId
+        val suggestions = emptyList<SuggestionSummaryDto>()
+        // val suggestions = try {
+        //     suggestionRepository.findByUserId(userId).map { suggestion ->
+        //         SuggestionSummaryDto(
+        //             id = suggestion.id!!,
+        //             contentId = suggestion.contentId,
+        //             suggestionType = suggestion.suggestionType,
+        //             status = suggestion.status,
+        //             createdAt = suggestion.createdAt!!.let { instant ->
+        //                 java.time.LocalDateTime.ofInstant(instant, java.time.ZoneOffset.UTC)
+        //             },
+        //         )
+        //     }
+        // } catch (e: Exception) {
+        //     logger.warn("Error retrieving suggestions for user {}: {}", userId, e.message)
+        //     emptyList()
+        // }
 
         // Get stories submitted by user
         val stories = storySubmissionRepository.findByAuthorIdOrderByCreatedAtDesc(userId).map { story ->
