@@ -1,15 +1,17 @@
-import io.gitlab.arturbosch.detekt.Detekt
-import io.gitlab.arturbosch.detekt.DetektCreateBaselineTask
 import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 
 plugins {
-    kotlin("jvm") version "2.2.0"
-    kotlin("plugin.spring") version "2.2.0"
+    kotlin("jvm") version "2.3.0"
+    kotlin("plugin.spring") version "2.3.0"
     id("org.springframework.boot") version "4.0.0"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("plugin.jpa") version "2.2.0"
+    kotlin("plugin.jpa") version "2.3.0"
     jacoco
-    id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    // TODO: by JC, 12/26/25 - Re-enable detekt when compatible version is released
+    // Issue: detekt 2.0.0-alpha.1 compiled with Kotlin 2.2.20, but we need Kotlin 2.3.0 for Java 25 JVM target
+    // Solution: Wait for detekt 2.0.0-alpha.2 or stable release compiled with Kotlin 2.3.0
+    // New plugin ID: id("dev.detekt") version "2.0.0+" (changed from io.gitlab.arturbosch.detekt)
+    // Track: https://github.com/detekt/detekt/releases
     id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
 }
 
@@ -19,7 +21,7 @@ description = "Nos Ilha - Community-driven cultural heritage hub for Brava Islan
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -109,7 +111,7 @@ springBoot {
 }
 
 jacoco {
-    toolVersion = "0.8.12"
+    toolVersion = "0.8.14"
 }
 
 tasks.jacocoTestReport {
@@ -146,39 +148,6 @@ tasks.register("generateModulithDocs") {
     }
 }
 
-dependencyManagement {
-    configurations.matching { it.name == "detekt" }.all {
-        resolutionStrategy.eachDependency {
-            if (requested.group == "org.jetbrains.kotlin") {
-                useVersion(
-                    io.gitlab.arturbosch.detekt
-                        .getSupportedKotlinVersion(),
-                )
-            }
-        }
-    }
-}
-
-detekt {
-    buildUponDefaultConfig = true // preconfigure defaults
-    autoCorrect = false // formatting handled by ktlint
-    baseline = file("detekt-baseline.xml")
-    config.setFrom(file("detekt.yml"))
-}
-
-tasks.withType<Detekt>().configureEach {
-    jvmTarget = "21"
-    parallel = true // Enable parallel execution for better performance
-    reports {
-        sarif.required.set(true)
-        md.required.set(true)
-        html.required.set(true) // Add HTML report for better local viewing
-    }
-}
-tasks.withType<DetektCreateBaselineTask>().configureEach {
-    jvmTarget = "21"
-}
-
 // Ktlint configuration for code formatting
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
     version.set("1.5.0")
@@ -197,5 +166,5 @@ configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
 }
 
 tasks.named("check") {
-    dependsOn("detekt", "ktlintCheck")
+    dependsOn("ktlintCheck")
 }
