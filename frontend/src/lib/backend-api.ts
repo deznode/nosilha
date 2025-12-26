@@ -128,14 +128,15 @@ export class BackendApiClient implements ApiClient {
     }
 
     // Add town parameter if provided
+    // Note: URLSearchParams automatically encodes values, no need for encodeURIComponent
     if (town) {
-      params.append("town", encodeURIComponent(town));
+      params.append("town", town);
     }
 
     // Add sort parameter if provided
     // Valid values: name_asc, name_desc, rating_desc, created_at_desc, relevance
     if (sort) {
-      params.append("sort", encodeURIComponent(sort));
+      params.append("sort", sort);
     }
 
     params.append("page", page.toString());
