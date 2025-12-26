@@ -8,14 +8,13 @@ import type { DirectoryEntry } from "@/types/directory";
 
 interface ListViewCardProps {
   entry: DirectoryEntry;
-  isBookmarked: boolean;
-  onToggleBookmark: (id: string) => void;
+  /** Whether to show the bookmark button (default: true) */
+  showBookmark?: boolean;
 }
 
 export function ListViewCard({
   entry,
-  isBookmarked,
-  onToggleBookmark,
+  showBookmark = true,
 }: ListViewCardProps) {
   return (
     <Link href={`/directory/entry/${entry.slug}`} className="group block">
@@ -36,12 +35,11 @@ export function ListViewCard({
               </span>
             </div>
           )}
-          <div className="absolute top-2 right-2">
-            <BookmarkButton
-              isBookmarked={isBookmarked}
-              onToggle={() => onToggleBookmark(entry.id)}
-            />
-          </div>
+          {showBookmark && (
+            <div className="absolute top-2 right-2">
+              <BookmarkButton entryId={entry.id} />
+            </div>
+          )}
           <div className="absolute top-2 left-2">
             <span className="rounded bg-slate-900/80 px-2 py-1 text-xs text-white backdrop-blur-sm">
               {entry.category}

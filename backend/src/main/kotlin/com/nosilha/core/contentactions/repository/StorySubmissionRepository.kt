@@ -46,6 +46,17 @@ interface StorySubmissionRepository : JpaRepository<StorySubmission, UUID> {
     ): Long
 
     /**
+     * Finds all story submissions by a specific author.
+     *
+     * <p>Used for user profile contribution history to display all stories
+     * submitted by the user.</p>
+     *
+     * @param authorId User ID from authentication system (Supabase)
+     * @return List of stories by the author
+     */
+    fun findByAuthorId(authorId: String): List<StorySubmission>
+
+    /**
      * Finds all story submissions by a specific author, ordered by creation time.
      *
      * <p>Used for user dashboards to display their submitted stories and

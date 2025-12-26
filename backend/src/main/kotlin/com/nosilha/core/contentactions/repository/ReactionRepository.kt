@@ -97,6 +97,29 @@ interface ReactionRepository : JpaRepository<Reaction, UUID> {
     fun getReactionCountsByContentId(
         @Param("contentId") contentId: UUID,
     ): List<ReactionCount>
+
+    /**
+     * Gets aggregated reaction counts grouped by reaction type for a specific user.
+     *
+     * <p>Returns a list of reaction counts grouped by type for all reactions
+     * made by the user. Used for user profile contribution history to display
+     * how many reactions of each type (Love, Celebrate, Insightful, Support)
+     * the user has made across all content.</p>
+     *
+     * @param userId UUID of the authenticated user
+     * @return List of reaction counts grouped by type
+     */
+    @Query(
+        """
+        SELECT r.reactionType as type, COUNT(r) as count
+        FROM Reaction r
+        WHERE r.userId = :userId
+        GROUP BY r.reactionType
+    """,
+    )
+    fun countByUserIdGroupByReactionType(
+        @Param("userId") userId: UUID,
+    ): List<ReactionCount>
 }
 
 /**

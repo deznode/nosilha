@@ -16,6 +16,13 @@ import type {
   DirectorySubmission,
   AdminQueueResponse,
 } from "@/types/admin";
+import type {
+  ProfileDto,
+  ContributionsDto,
+  ProfileUpdateRequest,
+} from "@/types/profile";
+import type { BookmarkDto, BookmarkWithEntryDto } from "@/types/bookmark";
+import type { ContactRequest, ContactConfirmationDto } from "@/types/contact";
 
 /**
  * API Contracts - Defines the interface for all API implementations
@@ -35,7 +42,8 @@ export interface ApiClient {
   getEntriesByCategory(
     category: string,
     page?: number,
-    size?: number
+    size?: number,
+    searchQuery?: string
   ): Promise<PaginatedResult<DirectoryEntry>>;
 
   getEntryBySlug(slug: string): Promise<DirectoryEntry | undefined>;
@@ -84,6 +92,16 @@ export interface ApiClient {
     message: string;
     honeypot?: string;
   }): Promise<{ id: string | null; message: string }>;
+
+  // Bookmark Operations (User Story 2)
+  createBookmark(entryId: string): Promise<BookmarkDto>;
+
+  deleteBookmark(entryId: string): Promise<void>;
+
+  getBookmarks(
+    page?: number,
+    size?: number
+  ): Promise<PaginatedResult<BookmarkWithEntryDto>>;
 
   // Related Content Operations (User Story 5 - Phase 9)
   getRelatedContent(
@@ -219,6 +237,50 @@ export interface ApiClient {
     status: SubmissionStatus,
     notes?: string
   ): Promise<DirectorySubmission>;
+
+  // ================================
+  // PROFILE OPERATIONS (User Story 1)
+  // ================================
+
+  /**
+   * Get authenticated user's profile
+   */
+  getProfile(): Promise<ProfileDto>;
+
+  /**
+   * Get authenticated user's contributions
+   */
+  getContributions(): Promise<ContributionsDto>;
+
+  /**
+   * Update authenticated user's profile
+   */
+  updateProfile(request: ProfileUpdateRequest): Promise<ProfileDto>;
+
+  // ================================
+  // CONTACT FORM OPERATIONS (User Story 5)
+  // ================================
+
+  /**
+   * Submit contact form message.
+   *
+   * **Public Endpoint**: No authentication required - allows anonymous contact.
+   *
+   * **Rate Limiting**: 3 submissions per hour per IP address.
+   *
+   * **Validation**:
+   * - name: 2-100 characters
+   * - email: valid email format
+   * - message: 10-5000 characters
+   *
+   * @param request Contact form submission data
+   * @returns ContactConfirmationDto with confirmation message and submission ID
+   * @throws Error if rate limit exceeded (HTTP 429)
+   * @throws Error if validation fails (HTTP 400)
+   */
+  submitContactMessage(
+    request: ContactRequest
+  ): Promise<ContactConfirmationDto>;
 }
 
 export interface PaginationMetadata {

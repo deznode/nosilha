@@ -54,7 +54,6 @@ export function DirectoryCategoryPageContent({
   const [selectedTown, setSelectedTown] = useState("All");
   const [sortBy, setSortBy] = useState<SortBy>("rating");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
-  const [bookmarkedIds, setBookmarkedIds] = useState<Set<string>>(new Set());
 
   // Page title based on selected category
   const pageTitle =
@@ -67,18 +66,6 @@ export function DirectoryCategoryPageContent({
     const uniqueTowns = Array.from(new Set(entries.map((e) => e.town)));
     return ["All", ...uniqueTowns.sort()];
   }, [entries]);
-
-  const toggleBookmark = (id: string) => {
-    setBookmarkedIds((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
-  };
 
   const handleMapClick = () => {
     router.push("/map");
@@ -180,17 +167,9 @@ export function DirectoryCategoryPageContent({
                 }}
               >
                 {viewMode === "grid" ? (
-                  <DirectoryCard
-                    entry={entry}
-                    isBookmarked={bookmarkedIds.has(entry.id)}
-                    onToggleBookmark={toggleBookmark}
-                  />
+                  <DirectoryCard entry={entry} />
                 ) : (
-                  <ListViewCard
-                    entry={entry}
-                    isBookmarked={bookmarkedIds.has(entry.id)}
-                    onToggleBookmark={toggleBookmark}
-                  />
+                  <ListViewCard entry={entry} />
                 )}
               </motion.div>
             ))}

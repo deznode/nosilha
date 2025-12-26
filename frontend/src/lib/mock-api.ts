@@ -27,6 +27,13 @@ import type {
   DirectorySubmission,
   AdminQueueResponse,
 } from "@/types/admin";
+import type { BookmarkDto, BookmarkWithEntryDto } from "@/types/bookmark";
+import type {
+  ProfileDto,
+  ContributionsDto,
+  ProfileUpdateRequest,
+} from "@/types/profile";
+import type { ContactRequest, ContactConfirmationDto } from "@/types/contact";
 import { MOCK_STORIES, mockStoriesApi } from "@/lib/mocks/stories";
 import {
   MOCK_SUGGESTIONS,
@@ -236,10 +243,25 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
 ];
 
 /**
+ * Internal mock bookmark type with userId for storage
+ */
+interface MockBookmark {
+  id: string;
+  userId: string;
+  entryId: string;
+  createdAt: string;
+}
+
+/**
  * Mock API Client - Implements ApiClient interface for testing and development
  * This implementation provides realistic mock data with simulated async behavior
  */
 export class MockApiClient implements ApiClient {
+  /**
+   * Mock bookmark storage for simulating user bookmarks
+   */
+  private mockBookmarks: MockBookmark[] = [];
+
   /**
    * Simulates network delay for realistic testing
    */
@@ -254,10 +276,11 @@ export class MockApiClient implements ApiClient {
   async getEntriesByCategory(
     category: string,
     page: number = 0,
-    size: number = 20
+    size: number = 20,
+    searchQuery?: string
   ): Promise<PaginatedResult<DirectoryEntry>> {
     console.log(
-      `Mock API: Fetching entries for category: ${category}, page: ${page}, size: ${size}`
+      `Mock API: Fetching entries for category: ${category}, page: ${page}, size: ${size}, search: ${searchQuery}`
     );
     await this.simulateDelay(150);
 
@@ -265,6 +288,16 @@ export class MockApiClient implements ApiClient {
     if (category.toLowerCase() !== "all") {
       filteredEntries = MOCK_ENTRIES.filter(
         (entry) => entry.category.toLowerCase() === category.toLowerCase()
+      );
+    }
+
+    // Apply search filter if provided
+    if (searchQuery && searchQuery.trim().length >= 2) {
+      const query = searchQuery.trim().toLowerCase();
+      filteredEntries = filteredEntries.filter(
+        (entry) =>
+          entry.name.toLowerCase().includes(query) ||
+          entry.description?.toLowerCase().includes(query)
       );
     }
 
@@ -640,6 +673,137 @@ export class MockApiClient implements ApiClient {
     };
   }
 
+  // ================================
+  // BOOKMARK OPERATIONS (User Story 2 - Mock)
+  // ================================
+
+  /**
+   * Mock implementation for creating a bookmark.
+   * Simulates saving a bookmark to user's saved places.
+   */
+  async createBookmark(entryId: string): Promise<BookmarkDto> {
+    console.log(`Mock API: Creating bookmark for entry ${entryId}`);
+    await this.simulateDelay(200);
+
+    // Simulate entry not found
+    const entry = MOCK_ENTRIES.find((e) => e.id === entryId);
+    if (!entry) {
+      throw new Error("Directory entry not found.");
+    }
+
+    // Simulate duplicate bookmark
+    const existingBookmark = this.mockBookmarks.find(
+      (b) => b.entryId === entryId && b.userId === "mock-user-id"
+    );
+    if (existingBookmark) {
+      throw new Error("This entry is already bookmarked.");
+    }
+
+    // Simulate max bookmarks limit (100)
+    const userBookmarks = this.mockBookmarks.filter(
+      (b) => b.userId === "mock-user-id"
+    );
+    if (userBookmarks.length >= 100) {
+      throw new Error("Maximum bookmark limit reached.");
+    }
+
+    // Create new bookmark
+    const newBookmark: MockBookmark = {
+      id: `bookmark-${Date.now()}`,
+      userId: "mock-user-id",
+      entryId,
+      createdAt: new Date().toISOString(),
+    };
+
+    this.mockBookmarks.push(newBookmark);
+
+    // Return DTO without userId
+    return {
+      id: newBookmark.id,
+      entryId: newBookmark.entryId,
+      createdAt: newBookmark.createdAt,
+    };
+  }
+
+  /**
+   * Mock implementation for deleting a bookmark.
+   */
+  async deleteBookmark(entryId: string): Promise<void> {
+    console.log(`Mock API: Deleting bookmark for entry ${entryId}`);
+    await this.simulateDelay(200);
+
+    const bookmarkIndex = this.mockBookmarks.findIndex(
+      (b) => b.entryId === entryId && b.userId === "mock-user-id"
+    );
+
+    if (bookmarkIndex === -1) {
+      throw new Error("Bookmark not found");
+    }
+
+    this.mockBookmarks.splice(bookmarkIndex, 1);
+  }
+
+  /**
+   * Mock implementation for fetching user's bookmarks with entry details.
+   */
+  async getBookmarks(
+    page: number = 0,
+    size: number = 20
+  ): Promise<PaginatedResult<BookmarkWithEntryDto>> {
+    console.log(`Mock API: Fetching bookmarks page=${page} size=${size}`);
+    await this.simulateDelay(300);
+
+    // Filter bookmarks for current user
+    const userBookmarks = this.mockBookmarks.filter(
+      (b) => b.userId === "mock-user-id"
+    );
+
+    // Sort by creation date (most recent first)
+    userBookmarks.sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+    // Paginate
+    const start = page * size;
+    const end = start + size;
+    const paginatedBookmarks = userBookmarks.slice(start, end);
+
+    // Enrich with entry details
+    const bookmarksWithEntries: BookmarkWithEntryDto[] = [];
+    for (const bookmark of paginatedBookmarks) {
+      const entry = MOCK_ENTRIES.find((e) => e.id === bookmark.entryId);
+      if (!entry) continue;
+
+      bookmarksWithEntries.push({
+        id: bookmark.id,
+        createdAt: bookmark.createdAt,
+        entry: {
+          id: entry.id,
+          name: entry.name,
+          category: entry.category,
+          slug: entry.slug,
+          description: entry.description,
+          town: entry.town,
+          thumbnailUrl: entry.imageUrl ?? null,
+          averageRating: entry.rating ?? null,
+        },
+      });
+    }
+
+    return {
+      items: bookmarksWithEntries,
+      pagination: {
+        page,
+        size,
+        totalElements: userBookmarks.length,
+        totalPages: Math.ceil(userBookmarks.length / size),
+        first: page === 0,
+        last: end >= userBookmarks.length,
+      },
+    };
+  }
+
   /**
    * Mock implementation for fetching related content.
    * Simulates the backend algorithm by matching category, town, and cuisine.
@@ -990,6 +1154,102 @@ export class MockApiClient implements ApiClient {
       notes
     );
     return mockAdminApi.updateDirectorySubmissionStatus(id, status, notes);
+  }
+
+  // ================================
+  // PROFILE OPERATIONS (User Story 1) - Mock Implementation
+  // ================================
+
+  /**
+   * Gets authenticated user's profile (mock implementation).
+   */
+  async getProfile(): Promise<ProfileDto> {
+    console.warn(
+      "Mock API: getProfile not yet implemented, returning empty profile"
+    );
+    // Return a mock profile with default values
+    return {
+      id: "mock-profile-id",
+      userId: "mock-user-id",
+      displayName: null,
+      location: null,
+      preferredLanguage: "EN",
+      notificationPreferences: {
+        storyPublished: true,
+        suggestionApproved: true,
+        weeklyDigest: false,
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Gets authenticated user's contributions (mock implementation).
+   */
+  async getContributions(): Promise<ContributionsDto> {
+    console.warn(
+      "Mock API: getContributions not yet implemented, returning empty contributions"
+    );
+    // Return a mock contributions object with empty data
+    return {
+      reactionCounts: {},
+      suggestions: [],
+      stories: [],
+      totalReactions: 0,
+      totalSuggestions: 0,
+      totalStories: 0,
+    };
+  }
+
+  /**
+   * Updates authenticated user's profile (mock implementation).
+   */
+  async updateProfile(request: ProfileUpdateRequest): Promise<ProfileDto> {
+    console.warn(
+      "Mock API: updateProfile not yet implemented, returning mock updated profile"
+    );
+    await this.simulateDelay(150);
+
+    // Return a mock profile with the updated values
+    return {
+      id: "mock-profile-id",
+      userId: "mock-user-id",
+      displayName: request.displayName ?? null,
+      location: request.location ?? null,
+      preferredLanguage: request.preferredLanguage ?? "EN",
+      notificationPreferences: {
+        storyPublished: request.notificationPreferences?.storyPublished ?? true,
+        suggestionApproved:
+          request.notificationPreferences?.suggestionApproved ?? true,
+        weeklyDigest: request.notificationPreferences?.weeklyDigest ?? false,
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
+  // ================================
+  // CONTACT FORM OPERATIONS (User Story 5)
+  // ================================
+
+  /**
+   * Submits a contact form message (mock implementation).
+   * Returns a mock confirmation response.
+   */
+  async submitContactMessage(
+    request: ContactRequest
+  ): Promise<ContactConfirmationDto> {
+    console.log("Mock API: Submitting contact form", request);
+    await this.simulateDelay(200);
+
+    // Return mock confirmation
+    return {
+      id: `mock-contact-${Date.now()}`,
+      message:
+        "Thank you for your message. We'll get back to you within 2-3 business days.",
+      submittedAt: new Date().toISOString(),
+    };
   }
 }
 

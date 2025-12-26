@@ -8,3 +8,6 @@ export * from "./useDirectoryEntry";
 export * from "./useMediaMetadata";
 export * from "./useUserProfile";
 export * from "./useUnifiedSearch";
+export * from "./use-contributions";
+export * from "./use-bookmarks";
+export * from "./use-update-profile";

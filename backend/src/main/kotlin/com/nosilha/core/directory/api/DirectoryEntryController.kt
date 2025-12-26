@@ -1,10 +1,13 @@
 package com.nosilha.core.directory.api
 
 import com.nosilha.core.directory.domain.DirectoryEntryService
+import com.nosilha.core.directory.domain.toDto
+import com.nosilha.core.directory.services.SearchService
 import com.nosilha.core.shared.api.ApiResponse
 import com.nosilha.core.shared.api.CreateEntryRequestDto
 import com.nosilha.core.shared.api.DirectoryEntryDto
 import com.nosilha.core.shared.api.PagedApiResponse
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -43,6 +46,7 @@ import java.util.UUID
 @RequestMapping("/api/v1/directory")
 class DirectoryEntryController(
     private val service: DirectoryEntryService,
+    private val searchService: SearchService,
 ) {
     /**
      * Creates a new directory entry.
@@ -63,32 +67,72 @@ class DirectoryEntryController(
     }
 
     /**
-     * Retrieves a list of directory entries with pagination support.
+     * Retrieves a list of directory entries with pagination, search, and filtering support.
      *
-     * <p>This endpoint can be optionally filtered by `category` and `town` parameters.
-     * Supports pagination with `page` and `size` parameters.</p>
+     * <p>This endpoint supports:</p>
+     * <ul>
+     *   <li>Full-text search via `q` parameter (min 2 chars, empty returns no results)</li>
+     *   <li>Filtering by `category` and `town` parameters</li>
+     *   <li>Sorting via `sort` parameter</li>
+     *   <li>Pagination with `page` and `size` parameters</li>
+     * </ul>
      *
+     * <p><strong>Sort Options:</strong></p>
+     * <ul>
+     *   <li>name_asc - Sort by name ascending</li>
+     *   <li>name_desc - Sort by name descending</li>
+     *   <li>rating_desc - Sort by rating descending</li>
+     *   <li>created_at_desc - Sort by creation date descending (default)</li>
+     *   <li>relevance - Sort by search relevance (only valid with q parameter)</li>
+     * </ul>
+     *
+     * @param q Optional search query (minimum 2 characters).
      * @param category An optional string to filter entries by their type (e.g., "Restaurant").
      * @param town An optional string to filter entries by town name.
+     * @param sort Sort order (default: created_at_desc).
      * @param page Page number (default: 0).
      * @param size Page size (default: 20).
      * @return A PagedApiResponse with data containing the list of [DirectoryEntryDto] objects.
      */
     @GetMapping("/entries")
     fun getEntries(
+        @RequestParam(name = "q", required = false) q: String?,
         @RequestParam(name = "category", required = false) category: String?,
         @RequestParam(name = "town", required = false) town: String?,
+        @RequestParam(name = "sort", defaultValue = "created_at_desc") sortParam: String,
         @RequestParam(name = "page", defaultValue = "0") page: Int,
         @RequestParam(name = "size", defaultValue = "20") size: Int,
     ): PagedApiResponse<DirectoryEntryDto> {
-        val pageable: Pageable = PageRequest.of(page, size, Sort.by("createdAt").descending())
-
+        // If search query is provided, use search service
         val resultPage =
-            when {
-                category != null && town != null -> service.getEntriesByCategoryAndTownPage(category, town, pageable)
-                category != null -> service.getEntriesByCategoryPage(category, pageable)
-                town != null -> service.getEntriesByTownPage(town, pageable)
-                else -> service.getEntriesPage(pageable)
+            if (!q.isNullOrBlank()) {
+                // Validate minimum query length - return empty for short queries
+                if (q.trim().length < 2) {
+                    Page.empty<DirectoryEntryDto>(PageRequest.of(page, size))
+                } else {
+                    // For search, we sort by relevance (handled in repository query)
+                    val pageable = PageRequest.of(page, size)
+                    searchService.search(q, category, town, pageable).map { it.toDto() }
+                }
+            } else {
+                // No search query - use existing filter logic with sorting
+                val sort =
+                    when (sortParam) {
+                        "name_asc" -> Sort.by("name").ascending()
+                        "name_desc" -> Sort.by("name").descending()
+                        "rating_desc" -> Sort.by("rating").descending()
+                        else -> Sort.by("createdAt").descending()
+                    }
+
+                val pageable: Pageable = PageRequest.of(page, size, sort)
+
+                when {
+                    category != null && town != null ->
+                        service.getEntriesByCategoryAndTownPage(category, town, pageable)
+                    category != null -> service.getEntriesByCategoryPage(category, pageable)
+                    town != null -> service.getEntriesByTownPage(town, pageable)
+                    else -> service.getEntriesPage(pageable)
+                }
             }
 
         return PagedApiResponse.from(resultPage)

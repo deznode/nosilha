@@ -50,6 +50,9 @@ class SecurityConfig(
                     // Allow public suggestions (community contributions without authentication)
                     .requestMatchers(HttpMethod.POST, "/api/v1/suggestions")
                     .permitAll()
+                    // Allow public contact form submissions (anonymous visitors can submit)
+                    .requestMatchers(HttpMethod.POST, "/api/v1/contact")
+                    .permitAll()
                     // Allow public access to reaction counts (GET only, POST/DELETE require auth)
                     .requestMatchers(HttpMethod.GET, "/api/v1/reactions/content/**")
                     .permitAll()
@@ -73,6 +76,12 @@ class SecurityConfig(
                     // Story submission - require authentication
                     .requestMatchers(HttpMethod.POST, "/api/v1/stories")
                     .hasAnyRole("USER", "ADMIN", "authenticated")
+                    // User profile endpoints - require authentication
+                    .requestMatchers("/api/v1/users/me", "/api/v1/users/me/**")
+                    .hasAnyRole("USER", "ADMIN", "authenticated")
+                    // Bookmark endpoints - require authentication
+                    .requestMatchers("/api/v1/bookmarks", "/api/v1/bookmarks/**")
+                    .hasAnyRole("USER", "ADMIN", "authenticated")
                     // All other requests require authentication
                     .anyRequest()
                     .authenticated()
@@ -82,11 +91,7 @@ class SecurityConfig(
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
             // 4. Add the custom JWT filter before the standard username/password filter
-            .addFilterBefore(
-                jwtAuthFilter,
-                UsernamePasswordAuthenticationFilter::class.java,
-            )
-
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
         return http.build()
     }
 

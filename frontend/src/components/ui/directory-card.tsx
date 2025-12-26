@@ -7,10 +7,8 @@ import { MapPin, Star } from "lucide-react";
 
 interface DirectoryCardProps {
   entry: DirectoryEntry;
-  /** Whether the entry is bookmarked by the user */
-  isBookmarked?: boolean;
-  /** Callback when bookmark is toggled */
-  onToggleBookmark?: (id: string) => void;
+  /** Whether to show the bookmark button (default: true) */
+  showBookmark?: boolean;
 }
 
 /**
@@ -26,13 +24,11 @@ interface DirectoryCardProps {
  *
  * @param {DirectoryCardProps} props The props for the component.
  * @param {DirectoryEntry} props.entry The directory entry data to display.
- * @param {boolean} props.isBookmarked Whether the entry is bookmarked.
- * @param {Function} props.onToggleBookmark Callback when bookmark is toggled.
+ * @param {boolean} props.showBookmark Whether to show the bookmark button (default: true).
  */
 export function DirectoryCard({
   entry,
-  isBookmarked = false,
-  onToggleBookmark,
+  showBookmark = true,
 }: DirectoryCardProps) {
   return (
     <Link
@@ -65,12 +61,9 @@ export function DirectoryCard({
           </div>
 
           {/* Bookmark Button - Top Right */}
-          {onToggleBookmark && (
+          {showBookmark && (
             <div className="absolute top-2 right-2">
-              <BookmarkButton
-                isBookmarked={isBookmarked}
-                onToggle={() => onToggleBookmark(entry.id)}
-              />
+              <BookmarkButton entryId={entry.id} />
             </div>
           )}
         </div>

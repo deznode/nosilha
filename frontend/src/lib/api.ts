@@ -47,14 +47,16 @@ const apiClient = getApiClient();
  * @param category The category to fetch, or 'all' to fetch all entries.
  * @param page The page number (default: 0).
  * @param size The page size (default: 20).
+ * @param searchQuery Optional search query (min 2 chars for API call).
  * @returns A promise that resolves to an array of directory entries.
  */
 export async function getEntriesByCategory(
   category: string,
   page: number = 0,
-  size: number = 20
+  size: number = 20,
+  searchQuery?: string
 ): Promise<PaginatedResult<DirectoryEntry>> {
-  return apiClient.getEntriesByCategory(category, page, size);
+  return apiClient.getEntriesByCategory(category, page, size, searchQuery);
 }
 
 /**
@@ -499,6 +501,52 @@ export async function updateDirectorySubmissionStatus(
   notes?: string
 ): Promise<DirectorySubmission> {
   return apiClient.updateDirectorySubmissionStatus(id, status, notes);
+}
+
+// ================================
+// PROFILE OPERATIONS (User Story 1)
+// ================================
+
+/**
+ * Gets authenticated user's profile.
+ * Requires user authentication via JWT token.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @returns A promise that resolves to the user's profile
+ * @throws Error if authentication failed (HTTP 401)
+ */
+export async function getProfile(): Promise<
+  import("@/types/profile").ProfileDto
+> {
+  return apiClient.getProfile();
+}
+
+/**
+ * Gets authenticated user's contributions.
+ * Requires user authentication via JWT token.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @returns A promise that resolves to the user's contributions data
+ * @throws Error if authentication failed (HTTP 401)
+ */
+export async function getContributions(): Promise<
+  import("@/types/profile").ContributionsDto
+> {
+  return apiClient.getContributions();
+}
+
+/**
+ * Updates authenticated user's profile.
+ * Requires user authentication via JWT token.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param request Profile update data (all fields optional)
+ * @returns A promise that resolves to the updated profile
+ * @throws Error if rate limit exceeded (HTTP 429)
+ * @throws Error if validation fails (HTTP 400)
+ * @throws Error if authentication failed (HTTP 401)
+ */
+export async function updateProfile(
+  request: import("@/types/profile").ProfileUpdateRequest
+): Promise<import("@/types/profile").ProfileDto> {
+  return apiClient.updateProfile(request);
 }
 
 // ================================

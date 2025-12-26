@@ -12,23 +12,21 @@ import {
   SettingsTab,
   type ProfileTabType,
 } from "@/components/profile";
-import { mockUserApi } from "@/lib/mocks";
+import { getProfile } from "@/lib/api";
+import { useUpdateProfile } from "@/hooks/queries/use-update-profile";
 import type {
   UserProfile,
-  UserActivityItem,
-  SavedPlace,
   UserNotificationPreferences,
   UserProfileUpdateData,
 } from "@/types/user-profile";
 import { Language } from "@/types/user-profile";
+import type { PreferredLanguage } from "@/types/profile";
 
 export default function ProfilePage() {
   const { session } = useAuth();
   const [activeTab, setActiveTab] = useState<ProfileTabType>("activity");
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [activities, setActivities] = useState<UserActivityItem[]>([]);
-  const [savedPlaces, setSavedPlaces] = useState<SavedPlace[]>([]);
   const [notifications, setNotifications] =
     useState<UserNotificationPreferences>({
       storyPublished: true,
@@ -36,23 +34,30 @@ export default function ProfilePage() {
       weeklyDigest: false,
     });
 
-  // Load data on mount
+  // Load data on mount (excluding activities and saved places - now handled by their respective tabs)
   useEffect(() => {
     async function loadData() {
       setIsLoading(true);
       try {
-        const [profileData, activityData, placesData, notifData] =
-          await Promise.all([
-            mockUserApi.getProfile(),
-            mockUserApi.getActivity(),
-            mockUserApi.getSavedPlaces(),
-            mockUserApi.getNotificationPreferences(),
-          ]);
+        // Backend returns profile with notificationPreferences included
+        const profileData = await getProfile();
 
-        setProfile(profileData);
-        setActivities(activityData);
-        setSavedPlaces(placesData);
-        setNotifications(notifData);
+        // Map backend ProfileDto to frontend UserProfile type
+        setProfile({
+          id: profileData.id,
+          displayName: profileData.displayName || session?.user.email || "User",
+          email: session?.user.email || "",
+          joinedDate: new Date(profileData.createdAt).toLocaleDateString(),
+          preferredLanguage: profileData.preferredLanguage as Language,
+          location: profileData.location ?? undefined,
+          stats: {
+            // Stats come from contributions API, use defaults for now
+            storiesSubmitted: 0,
+            suggestionsMade: 0,
+            reactionsGiven: 0,
+          },
+        });
+        setNotifications(profileData.notificationPreferences);
       } catch (error) {
         console.error("Failed to load profile data:", error);
       } finally {
@@ -67,32 +72,58 @@ export default function ProfilePage() {
     }
   }, [session]);
 
-  const handleRemoveBookmark = async (id: string) => {
-    try {
-      await mockUserApi.removeBookmark(id);
-      setSavedPlaces((prev) => prev.filter((p) => p.id !== id));
-    } catch (error) {
-      console.error("Failed to remove bookmark:", error);
-    }
-  };
+  // Use the update profile mutation hook
+  const { mutate: updateProfileMutation } = useUpdateProfile();
 
-  const handleSaveSettings = async (
+  const handleSaveSettings = (
     updates: UserProfileUpdateData & {
       notifications?: Partial<UserNotificationPreferences>;
     }
   ) => {
-    try {
-      const { notifications: notifUpdates, ...profileUpdates } = updates;
-      const updatedProfile = await mockUserApi.updateProfile(profileUpdates);
-      setProfile(updatedProfile);
-      if (notifUpdates) {
-        const updatedNotifs =
-          await mockUserApi.updateNotificationPreferences(notifUpdates);
-        setNotifications(updatedNotifs);
+    const { notifications: notifUpdates, ...profileUpdates } = updates;
+
+    updateProfileMutation(
+      {
+        displayName: profileUpdates.displayName,
+        location: profileUpdates.location,
+        preferredLanguage: profileUpdates.preferredLanguage as
+          | PreferredLanguage
+          | undefined,
+        notificationPreferences: notifUpdates
+          ? {
+              storyPublished:
+                notifUpdates.storyPublished ?? notifications.storyPublished,
+              suggestionApproved:
+                notifUpdates.suggestionApproved ??
+                notifications.suggestionApproved,
+              weeklyDigest:
+                notifUpdates.weeklyDigest ?? notifications.weeklyDigest,
+            }
+          : undefined,
+      },
+      {
+        onSuccess: (updatedProfile) => {
+          setProfile((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  displayName:
+                    updatedProfile.displayName ||
+                    session?.user.email ||
+                    prev.displayName,
+                  location: updatedProfile.location ?? undefined,
+                  preferredLanguage:
+                    updatedProfile.preferredLanguage as Language,
+                }
+              : prev
+          );
+          setNotifications(updatedProfile.notificationPreferences);
+        },
+        onError: (error) => {
+          console.error("Failed to save settings:", error);
+        },
       }
-    } catch (error) {
-      console.error("Failed to save settings:", error);
-    }
+    );
   };
 
   // Not logged in state
@@ -158,17 +189,9 @@ export default function ProfilePage() {
           <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
           <div className="p-6">
-            {activeTab === "activity" && (
-              <ActivityTab activities={activities} isLoading={isLoading} />
-            )}
+            {activeTab === "activity" && <ActivityTab />}
 
-            {activeTab === "saved" && (
-              <SavedPlacesTab
-                places={savedPlaces}
-                isLoading={isLoading}
-                onRemove={handleRemoveBookmark}
-              />
-            )}
+            {activeTab === "saved" && <SavedPlacesTab />}
 
             {activeTab === "settings" && (
               <SettingsTab

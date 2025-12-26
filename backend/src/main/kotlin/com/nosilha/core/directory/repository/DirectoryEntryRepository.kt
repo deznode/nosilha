@@ -4,6 +4,9 @@ import com.nosilha.core.directory.domain.DirectoryEntry
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
@@ -19,7 +22,9 @@ import java.util.UUID
  * mixed types (Restaurant, Hotel, Landmark, Beach) or filtered by discriminator.</p>
  */
 @Repository
-interface DirectoryEntryRepository : JpaRepository<DirectoryEntry, UUID> {
+interface DirectoryEntryRepository :
+    JpaRepository<DirectoryEntry, UUID>,
+    JpaSpecificationExecutor<DirectoryEntry> {
     /**
      * Finds all DirectoryEntry instances that match the given category.
      *
@@ -81,4 +86,39 @@ interface DirectoryEntryRepository : JpaRepository<DirectoryEntry, UUID> {
      * @return The DirectoryEntry if found, null otherwise.
      */
     fun findBySlug(slug: String): DirectoryEntry?
+
+    /**
+     * Performs full-text search on directory entries using PostgreSQL's tsvector.
+     *
+     * <p>This method uses the search_vector column (GIN indexed) for fast full-text search.
+     * The search is case-insensitive and ranks results by relevance using ts_rank().</p>
+     *
+     * <p><strong>Search Behavior:</strong></p>
+     * <ul>
+     *   <li>Searches across name (weight A) and description (weight B) fields</li>
+     *   <li>Results are ordered by relevance score (highest first)</li>
+     *   <li>Uses plainto_tsquery for simple query processing (handles multiple words)</li>
+     *   <li>Supports pagination through Spring Data Pageable</li>
+     * </ul>
+     *
+     * @param query The search query string (e.g., "restaurant seafood")
+     * @param pageable Pagination parameters
+     * @return A page of DirectoryEntry entities matching the search query, ordered by relevance
+     */
+    @Query(
+        value = """
+        SELECT * FROM directory_entries
+        WHERE search_vector @@ plainto_tsquery('english', :query)
+        ORDER BY ts_rank(search_vector, plainto_tsquery('english', :query)) DESC
+        """,
+        countQuery = """
+        SELECT COUNT(*) FROM directory_entries
+        WHERE search_vector @@ plainto_tsquery('english', :query)
+        """,
+        nativeQuery = true,
+    )
+    fun searchByQuery(
+        @Param("query") query: String,
+        pageable: Pageable,
+    ): Page<DirectoryEntry>
 }

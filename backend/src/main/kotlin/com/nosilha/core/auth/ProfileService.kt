@@ -1,0 +1,331 @@
+package com.nosilha.core.auth
+
+import com.nosilha.core.auth.api.dto.ContributionsDto
+import com.nosilha.core.auth.api.dto.ProfileDto
+import com.nosilha.core.auth.api.dto.ProfileUpdateRequest
+import com.nosilha.core.auth.api.dto.StorySummaryDto
+import com.nosilha.core.auth.api.dto.SuggestionSummaryDto
+import com.nosilha.core.auth.domain.NotificationPreferences
+import com.nosilha.core.auth.domain.PreferredLanguage
+import com.nosilha.core.auth.domain.UserProfile
+import com.nosilha.core.auth.repository.UserProfileRepository
+import com.nosilha.core.contentactions.domain.ReactionType
+import com.nosilha.core.contentactions.repository.ReactionRepository
+import com.nosilha.core.contentactions.repository.StorySubmissionRepository
+import com.nosilha.core.contentactions.repository.SuggestionRepository
+import com.nosilha.core.shared.exception.RateLimitExceededException
+import com.nosilha.core.shared.exception.ResourceNotFoundException
+import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
+import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentLinkedDeque
+
+/**
+ * Service for managing user profiles and contribution history.
+ *
+ * <p>Implements business logic for:
+ * <ul>
+ *   <li>Profile retrieval with automatic creation (getOrCreate pattern)</li>
+ *   <li>Aggregating user contributions (reactions, suggestions, stories)</li>
+ *   <li>Profile data management and preferences</li>
+ * </ul>
+ *
+ * <p><strong>Profile Auto-Creation</strong>: When a user's profile is requested but doesn't exist,
+ * a new profile is automatically created with default values (EN language, default notification preferences).
+ * This ensures all authenticated users have a profile without requiring explicit signup.</p>
+ *
+ * <p><strong>Contributions Aggregation</strong>: Combines data from multiple modules:
+ * <ul>
+ *   <li>Reactions: Grouped by type with counts</li>
+ *   <li>Suggestions: List of content improvement suggestions with status</li>
+ *   <li>Stories: List of submitted stories with moderation status</li>
+ * </ul>
+ */
+@Service
+@Transactional
+class ProfileService(
+    private val userProfileRepository: UserProfileRepository,
+    private val reactionRepository: ReactionRepository,
+    private val suggestionRepository: SuggestionRepository,
+    private val storySubmissionRepository: StorySubmissionRepository,
+) {
+    private val logger = LoggerFactory.getLogger(ProfileService::class.java)
+
+    // In-memory rate limiter: userId -> list of recent update timestamps
+    // TODO: Replace with Redis-based rate limiter for production (distributed instances)
+    private val rateLimiter = ConcurrentHashMap<String, ConcurrentLinkedDeque<Instant>>()
+
+    companion object {
+        private const val MAX_UPDATES_PER_MINUTE = 10
+        private const val RATE_LIMIT_WINDOW_SECONDS = 60L
+    }
+
+    /**
+     * Retrieves a user's profile, creating it if it doesn't exist.
+     *
+     * <p>This method implements the "getOrCreate" pattern to ensure all authenticated users
+     * have a profile. If a profile doesn't exist for the given userId, a new profile is
+     * created with default values:</p>
+     * <ul>
+     *   <li>Preferred Language: EN (English)</li>
+     *   <li>Notification Preferences: Default opt-in values from NotificationPreferences</li>
+     *   <li>Display Name: null</li>
+     *   <li>Location: null</li>
+     * </ul>
+     *
+     * @param userId Supabase auth user ID from JWT token
+     * @return ProfileDto containing the user's profile information
+     */
+    fun getOrCreateProfile(userId: String): ProfileDto {
+        logger.debug("Retrieving profile for user: {}", userId)
+
+        val profile = userProfileRepository.findByUserId(userId)
+            ?: createDefaultProfile(userId)
+
+        return ProfileDto.fromEntity(profile)
+    }
+
+    /**
+     * Creates a default profile for a new user.
+     *
+     * <p>Called internally when a user doesn't have an existing profile.
+     * Uses default values for all fields to ensure a consistent initial state.</p>
+     *
+     * @param userId Supabase auth user ID
+     * @return The newly created UserProfile entity
+     */
+    private fun createDefaultProfile(userId: String): UserProfile {
+        logger.info("Creating default profile for user: {}", userId)
+
+        val newProfile = UserProfile().apply {
+            this.userId = userId
+            this.preferredLanguage = PreferredLanguage.EN
+            this.notificationPreferences = NotificationPreferences()
+            // displayName and location remain null by default
+        }
+
+        return userProfileRepository.save(newProfile)
+    }
+
+    /**
+     * Updates an existing user profile with provided values.
+     *
+     * <p>Implements partial update semantics - only non-null fields in the request
+     * are applied to the profile. The profile must already exist (should be created
+     * via getOrCreateProfile during initial authentication).</p>
+     *
+     * <p><strong>Rate Limiting</strong>: Maximum 10 updates per minute per user to prevent
+     * abuse. This is enforced using an in-memory sliding window rate limiter.</p>
+     *
+     * <p><strong>Partial Update Rules</strong>:
+     * <ul>
+     *   <li>displayName: Set to provided value if not null</li>
+     *   <li>location: Set to provided value if not null</li>
+     *   <li>preferredLanguage: Set to provided value if not null</li>
+     *   <li>notificationPreferences: Fully replaced if not null</li>
+     * </ul>
+     *
+     * @param userId Supabase auth user ID from JWT token
+     * @param request ProfileUpdateRequest with optional fields to update
+     * @return ProfileDto with the updated profile data
+     * @throws ResourceNotFoundException if profile doesn't exist for userId
+     * @throws RateLimitExceededException if user exceeds 10 updates/minute
+     */
+    fun updateProfile(
+        userId: String,
+        request: ProfileUpdateRequest,
+    ): ProfileDto {
+        logger.debug("Updating profile for user: {}", userId)
+
+        // Check rate limit before proceeding
+        if (!checkRateLimit(userId)) {
+            logger.warn(
+                "Rate limit exceeded for user {} (max {} updates/minute)",
+                userId,
+                MAX_UPDATES_PER_MINUTE,
+            )
+            throw RateLimitExceededException(
+                "Too many profile updates. Maximum $MAX_UPDATES_PER_MINUTE updates per minute allowed.",
+            )
+        }
+
+        val profile = userProfileRepository.findByUserId(userId)
+            ?: throw ResourceNotFoundException("Profile not found for user: $userId")
+
+        // Apply non-null fields from request (partial update)
+        request.displayName?.let { profile.displayName = it }
+        request.location?.let { profile.location = it }
+        request.preferredLanguage?.let { profile.preferredLanguage = it }
+        request.notificationPreferences?.let { profile.notificationPreferences = it }
+
+        val updatedProfile = userProfileRepository.save(profile)
+
+        logger.info("Profile updated successfully for user: {}", userId)
+
+        return ProfileDto.fromEntity(updatedProfile)
+    }
+
+    /**
+     * Checks if user is within rate limit for profile updates.
+     *
+     * <p><strong>Algorithm</strong>:
+     * <ol>
+     *   <li>Get user's recent update timestamps from in-memory cache</li>
+     *   <li>Remove timestamps older than 60 seconds (sliding window)</li>
+     *   <li>If less than 10 updates in last minute, allow and record timestamp</li>
+     *   <li>Otherwise, deny update</li>
+     * </ol>
+     *
+     * <p><strong>Thread Safety</strong>: Synchronizes on the timestamps deque to ensure
+     * atomic check-and-modify operations, preventing race conditions where multiple
+     * concurrent requests could bypass the rate limit.</p>
+     *
+     * <p><strong>Production Note</strong>: This in-memory implementation works for single
+     * instances but needs Redis for distributed deployments (multiple backend pods).</p>
+     *
+     * @param userId String user ID to check
+     * @return true if within rate limit, false if exceeded
+     */
+    private fun checkRateLimit(userId: String): Boolean {
+        val now = Instant.now()
+        val windowStart = now.minusSeconds(RATE_LIMIT_WINDOW_SECONDS)
+
+        // Get or create user's update history
+        val timestamps = rateLimiter.computeIfAbsent(userId) { ConcurrentLinkedDeque() }
+
+        // CRITICAL: Synchronize entire check-and-modify sequence to prevent race conditions
+        synchronized(timestamps) {
+            // Remove old timestamps outside the time window
+            timestamps.removeIf { it.isBefore(windowStart) }
+
+            // Check if under limit
+            if (timestamps.size >= MAX_UPDATES_PER_MINUTE) {
+                return false
+            }
+
+            // Record this update
+            timestamps.add(now)
+            return true
+        }
+    }
+
+    /**
+     * Aggregates all contributions made by a user across the platform.
+     *
+     * <p>Retrieves and combines contribution data from multiple sources:
+     * <ul>
+     *   <li><strong>Reactions</strong>: Aggregated counts grouped by reaction type
+     *       (LOVE, CELEBRATE, INSIGHTFUL, SUPPORT)</li>
+     *   <li><strong>Suggestions</strong>: List of content improvement suggestions with
+     *       type and status (PENDING, APPROVED, REJECTED). Returns empty list if the
+     *       Suggestion entity doesn't have a userId field yet.</li>
+     *   <li><strong>Stories</strong>: List of submitted stories with type and moderation
+     *       status (PENDING, APPROVED, REJECTED, NEEDS_REVISION, PUBLISHED)</li>
+     * </ul>
+     *
+     * <p>Note: The userId for reactions is a UUID, while for suggestions and stories it's a String.
+     * This method handles the conversion appropriately.</p>
+     *
+     * @param userId Supabase auth user ID (String format)
+     * @return ContributionsDto with aggregated counts and lists of contributions
+     */
+    @Transactional(readOnly = true)
+    fun getContributions(userId: String): ContributionsDto {
+        logger.debug("Retrieving contributions for user: {}", userId)
+
+        // Convert userId String to UUID for reaction queries
+        val userUuid = try {
+            UUID.fromString(userId)
+        } catch (e: IllegalArgumentException) {
+            logger.warn("Invalid UUID format for userId: {}", userId)
+            // If userId is not a valid UUID, return empty contributions
+            return ContributionsDto(
+                reactionCounts = emptyMap(),
+                suggestions = emptyList(),
+                stories = emptyList(),
+                totalReactions = 0,
+                totalSuggestions = 0,
+                totalStories = 0,
+            )
+        }
+
+        // Get reaction counts grouped by type
+        val reactionCounts = getReactionCountsByUser(userUuid)
+
+        // Get suggestions submitted by user
+        // Note: Handle gracefully if Suggestion entity doesn't have userId field yet
+        val suggestions = try {
+            suggestionRepository.findByUserId(userId).map { suggestion ->
+                SuggestionSummaryDto(
+                    id = suggestion.id!!,
+                    contentId = suggestion.contentId,
+                    suggestionType = suggestion.suggestionType,
+                    status = suggestion.status,
+                    createdAt = suggestion.createdAt!!.let { instant ->
+                        java.time.LocalDateTime.ofInstant(instant, java.time.ZoneOffset.UTC)
+                    },
+                )
+            }
+        } catch (e: Exception) {
+            logger.warn("Error retrieving suggestions for user {}: {}", userId, e.message)
+            emptyList()
+        }
+
+        // Get stories submitted by user
+        val stories = storySubmissionRepository.findByAuthorIdOrderByCreatedAtDesc(userId).map { story ->
+            StorySummaryDto(
+                id = story.id!!,
+                title = story.title,
+                storyType = story.storyType,
+                status = story.status,
+                createdAt = story.createdAt!!.let { instant ->
+                    java.time.LocalDateTime.ofInstant(instant, java.time.ZoneOffset.UTC)
+                },
+            )
+        }
+
+        val totalReactions = reactionCounts.values.sum()
+        val totalSuggestions = suggestions.size
+        val totalStories = stories.size
+
+        logger.debug(
+            "Retrieved contributions for user {}: {} reactions, {} suggestions, {} stories",
+            userId,
+            totalReactions,
+            totalSuggestions,
+            totalStories,
+        )
+
+        return ContributionsDto(
+            reactionCounts = reactionCounts,
+            suggestions = suggestions,
+            stories = stories,
+            totalReactions = totalReactions,
+            totalSuggestions = totalSuggestions,
+            totalStories = totalStories,
+        )
+    }
+
+    /**
+     * Gets aggregated reaction counts for a user, grouped by reaction type.
+     *
+     * <p>Uses the repository's query to efficiently retrieve counts in a single database call.
+     * Returns a map with all reaction types, even if the count is 0.</p>
+     *
+     * @param userId User UUID
+     * @return Map of reaction type to count
+     */
+    private fun getReactionCountsByUser(userId: UUID): Map<ReactionType, Int> {
+        val counts = reactionRepository.countByUserIdGroupByReactionType(userId)
+
+        if (counts.isEmpty()) {
+            return ReactionType.entries.associateWith { 0 }
+        }
+
+        val aggregated = counts.associate { it.type to it.count.toInt() }
+        return ReactionType.entries.associateWith { type -> aggregated[type] ?: 0 }
+    }
+}

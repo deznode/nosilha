@@ -183,6 +183,7 @@ NEVER proactively create documentation files (*.md) or README files. Only create
 ## Active Technologies
 - Kotlin 2.2 / JVM 21 + Spring Boot 4.0.1, Spring Modulith 2.0, Spring Security 6.5, PostgreSQL (009-admin-moderation-api)
 - PostgreSQL (primary), Flyway migrations (009-admin-moderation-api)
+- PostgreSQL with Flyway migrations, Supabase for auth (010-p2-p4-api-integration)
 
 ## Recent Changes
 - 009-admin-moderation-api: Added Kotlin 2.2 / JVM 21 + Spring Boot 4.0.1, Spring Modulith 2.0, Spring Security 6.5, PostgreSQL

@@ -34,6 +34,17 @@ import type {
   ReactionResponseDto,
   ReactionCountsDto,
 } from "@/types/reaction";
+import type {
+  BookmarkDto,
+  BookmarkWithEntryDto,
+  BookmarkCreateRequest,
+} from "@/types/bookmark";
+import type {
+  ProfileDto,
+  ContributionsDto,
+  ProfileUpdateRequest,
+} from "@/types/profile";
+import type { ContactRequest, ContactConfirmationDto } from "@/types/contact";
 import { CacheConfig } from "@/lib/api-contracts";
 import { env } from "@/lib/env";
 import { supabase } from "@/lib/supabase-client";
@@ -100,22 +111,31 @@ export class BackendApiClient implements ApiClient {
   async getEntriesByCategory(
     category: string,
     page: number = 0,
-    size: number = 20
+    size: number = 20,
+    searchQuery?: string
   ): Promise<PaginatedResult<DirectoryEntry>> {
     const params = new URLSearchParams();
 
     if (category.toLowerCase() !== "all") {
       params.append("category", category);
     }
+
+    // Only add search query if it's at least 2 characters (matches backend validation)
+    if (searchQuery && searchQuery.trim().length >= 2) {
+      params.append("q", searchQuery.trim());
+    }
+
     params.append("page", page.toString());
     params.append("size", size.toString());
 
     const endpoint = `${env.apiUrl}/api/v1/directory/entries?${params.toString()}`;
 
-    // Use ISR with 1 hour cache for directory content (semi-static data)
-    const response = await fetch(endpoint, {
-      next: CacheConfig.DIRECTORY_ENTRIES,
-    });
+    // Use no-store cache for search results to ensure fresh data, ISR for regular browsing
+    const fetchConfig = searchQuery
+      ? { cache: "no-store" as const }
+      : { next: CacheConfig.DIRECTORY_ENTRIES };
+
+    const response = await fetch(endpoint, fetchConfig);
 
     if (!response.ok) {
       throw new Error(`API call failed with status: ${response.status}`);
@@ -630,6 +650,122 @@ export class BackendApiClient implements ApiClient {
     );
   }
 
+  // ================================
+  // BOOKMARK OPERATIONS (User Story 2)
+  // ================================
+
+  /**
+   * Creates a bookmark for a directory entry.
+   *
+   * **Authentication Required**: Uses JWT token from Supabase session.
+   *
+   * **Business Rules**:
+   * - Maximum 100 bookmarks per user
+   * - Returns 409 Conflict if entry already bookmarked
+   * - Returns 404 if directory entry not found
+   *
+   * **Rate Limiting**: Standard API rate limiting applies.
+   *
+   * @param entryId UUID of the directory entry to bookmark
+   * @returns BookmarkDto with bookmark details
+   * @throws Error if maximum bookmarks reached (HTTP 400)
+   * @throws Error if already bookmarked (HTTP 409)
+   * @throws Error if entry not found (HTTP 404)
+   * @throws Error if authentication failed (HTTP 401)
+   */
+  async createBookmark(entryId: string): Promise<BookmarkDto> {
+    const endpoint = `${env.apiUrl}/api/v1/bookmarks`;
+
+    const requestBody: BookmarkCreateRequest = { entryId };
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestBody),
+      cache: "no-store", // Never cache POST requests
+    });
+
+    if (!response.ok) {
+      if (response.status === 400) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Maximum bookmark limit reached.");
+      }
+      if (response.status === 409) {
+        throw new Error("This entry is already bookmarked.");
+      }
+      if (response.status === 404) {
+        throw new Error("Directory entry not found.");
+      }
+      throw new Error(`Failed to create bookmark: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<BookmarkDto>(payload);
+  }
+
+  /**
+   * Removes a bookmark for a directory entry.
+   *
+   * **Authentication Required**: Uses JWT token from Supabase session.
+   *
+   * @param entryId UUID of the directory entry to unbookmark
+   * @throws Error if bookmark not found (HTTP 404)
+   * @throws Error if authentication failed (HTTP 401)
+   */
+  async deleteBookmark(entryId: string): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/bookmarks/${entryId}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "DELETE",
+      cache: "no-store", // Never cache DELETE requests
+    });
+
+    if (!response.ok && response.status !== 204) {
+      if (response.status === 404) {
+        throw new Error("Bookmark not found");
+      }
+      throw new Error(`Failed to delete bookmark: ${response.status}`);
+    }
+  }
+
+  /**
+   * Gets paginated list of user's bookmarked entries with full entry details.
+   *
+   * **Authentication Required**: Uses JWT token from Supabase session.
+   *
+   * Returns bookmarks sorted by creation date (most recent first).
+   *
+   * @param page Page number (0-indexed, default: 0)
+   * @param size Page size (default: 20, max: 100)
+   * @returns PaginatedResult with BookmarkWithEntryDto items
+   * @throws Error if authentication failed (HTTP 401)
+   */
+  async getBookmarks(
+    page: number = 0,
+    size: number = 20
+  ): Promise<PaginatedResult<BookmarkWithEntryDto>> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      size: size.toString(),
+    });
+
+    const endpoint = `${env.apiUrl}/api/v1/users/me/bookmarks?${params.toString()}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "GET",
+      cache: "no-store", // Never cache authenticated user data
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch bookmarks: ${response.status}`);
+    }
+
+    const payload = (await response.json()) as unknown;
+    return this.unwrapPagedResult<BookmarkWithEntryDto>(payload);
+  }
+
   /**
    * Fetches 3-5 related content items for a given heritage page.
    * Uses content discovery algorithm matching by category, town, and cuisine.
@@ -1057,6 +1193,159 @@ export class BackendApiClient implements ApiClient {
     throw new Error(
       `Directory submission status update not yet implemented (id: ${id}, status: ${status})`
     );
+  }
+
+  // ================================
+  // PROFILE OPERATIONS (User Story 1)
+  // ================================
+
+  /**
+   * Gets authenticated user's profile.
+   *
+   * **Authentication Required**: Uses JWT token from Supabase session.
+   *
+   * Retrieves the profile for the authenticated user. If no profile exists,
+   * the backend automatically creates one with default settings.
+   *
+   * @returns ProfileDto with user profile information
+   * @throws Error if authentication failed (HTTP 401)
+   */
+  async getProfile(): Promise<ProfileDto> {
+    const endpoint = `${env.apiUrl}/api/v1/users/me`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "GET",
+      cache: "no-store", // Always fetch fresh profile data
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch profile: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<ProfileDto>(payload);
+  }
+
+  /**
+   * Gets authenticated user's contributions.
+   *
+   * **Authentication Required**: Uses JWT token from Supabase session.
+   *
+   * Retrieves aggregated contribution data including:
+   * - Reactions: Counts grouped by reaction type (LOVE, CELEBRATE, INSIGHTFUL, SUPPORT)
+   * - Suggestions: List of content improvement suggestions with status
+   * - Stories: List of submitted stories with moderation status
+   *
+   * @returns ContributionsDto with aggregated contribution data
+   * @throws Error if authentication failed (HTTP 401)
+   */
+  async getContributions(): Promise<ContributionsDto> {
+    const endpoint = `${env.apiUrl}/api/v1/users/me/contributions`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "GET",
+      cache: "no-store", // Always fetch fresh contributions data
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch contributions: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<ContributionsDto>(payload);
+  }
+
+  /**
+   * Updates authenticated user's profile.
+   *
+   * **Authentication Required**: Uses JWT token from Supabase session.
+   *
+   * All fields in the request are optional to support partial updates.
+   * Rate limited to 10 updates per minute.
+   *
+   * @param request Profile update data (all fields optional)
+   * @returns Updated ProfileDto
+   * @throws Error if rate limit exceeded (HTTP 429)
+   * @throws Error if validation fails (HTTP 400)
+   * @throws Error if authentication failed (HTTP 401)
+   */
+  async updateProfile(request: ProfileUpdateRequest): Promise<ProfileDto> {
+    const endpoint = `${env.apiUrl}/api/v1/users/me`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+      cache: "no-store", // Never cache profile updates
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        throw new Error("Too many profile updates. Please wait a moment.");
+      }
+      if (response.status === 400) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Invalid profile data.");
+      }
+      throw new Error(`Failed to update profile: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<ProfileDto>(payload);
+  }
+
+  // ================================
+  // CONTACT FORM OPERATIONS (User Story 5)
+  // ================================
+
+  /**
+   * Submits a contact form message.
+   *
+   * **Public Endpoint**: No authentication required - allows anonymous contact.
+   *
+   * **Rate Limiting**: 3 submissions per hour per IP address.
+   *
+   * @param request Contact form data (name, email, subjectCategory, message)
+   * @returns ContactConfirmationDto with submission ID and confirmation message
+   * @throws Error if rate limit exceeded (HTTP 429)
+   * @throws Error if validation fails (HTTP 400)
+   */
+  async submitContactMessage(
+    request: ContactRequest
+  ): Promise<ContactConfirmationDto> {
+    const endpoint = `${env.apiUrl}/api/v1/contact`;
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+      cache: "no-store", // Never cache POST requests
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message ||
+            "You've exceeded the maximum number of contact submissions. Please try again later."
+        );
+      }
+      if (response.status === 400) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message ||
+            "Invalid contact form data. Please check your input."
+        );
+      }
+      throw new Error(`Failed to submit contact form: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<ContactConfirmationDto>(payload);
   }
 
   // ================================
