@@ -32,7 +32,7 @@ private val logger = KotlinLogging.logger {}
  */
 @Service
 class MediaService(
-    private val r2StorageService: R2StorageService,
+    private val r2StorageService: R2StorageService?,
     private val mediaRepository: MediaRepository,
     meterRegistry: MeterRegistry,
 ) {
@@ -70,6 +70,20 @@ class MediaService(
     private val hourlyRateLimiter = ConcurrentHashMap<String, ConcurrentLinkedDeque<Instant>>()
     private val dailyRateLimiter = ConcurrentHashMap<String, ConcurrentLinkedDeque<Instant>>()
 
+    /** Whether R2 storage is enabled and available. */
+    val isR2Enabled: Boolean
+        get() = r2StorageService != null
+
+    /**
+     * Throws if R2 storage is not enabled.
+     * Call this before any operation that requires R2.
+     */
+    private fun requireR2Enabled() {
+        check(r2StorageService != null) {
+            "R2 storage is not enabled. Set cloudflare.r2.enabled=true to enable media uploads."
+        }
+    }
+
     /**
      * Generates a presigned PUT URL for direct browser-to-R2 upload.
      *
@@ -89,12 +103,14 @@ class MediaService(
         fileSize: Long,
         userId: String,
     ): PresignedPutUrlResult {
+        requireR2Enabled()
+
         // Check rate limits before proceeding
         checkRateLimit(userId)
 
         logger.info { "Generating presigned URL for user $userId: $fileName ($contentType, $fileSize bytes)" }
 
-        val result = r2StorageService.generatePresignedPutUrl(fileName, contentType)
+        val result = r2StorageService!!.generatePresignedPutUrl(fileName, contentType)
 
         // Record this upload attempt for rate limiting
         recordUploadAttempt(userId)
@@ -189,10 +205,11 @@ class MediaService(
         description: String?,
         userId: String,
     ): Media {
+        requireR2Enabled()
         logger.info { "Confirming upload for user $userId: key=$key" }
 
         // Verify the file was actually uploaded to R2
-        if (!r2StorageService.objectExists(key)) {
+        if (!r2StorageService!!.objectExists(key)) {
             uploadFailureCounter.increment()
             logger.warn { "Upload confirmation failed - object not found in R2: $key" }
             error("Upload not found. Please retry the upload.")
@@ -200,7 +217,7 @@ class MediaService(
 
         // Generate unique filename from the key
         val fileName = key.substringAfterLast("/")
-        val publicUrl = r2StorageService.getPublicUrl(key)
+        val publicUrl = r2StorageService!!.getPublicUrl(key)
 
         // Create media record with PROCESSING status
         // For MVP, we auto-transition to PENDING_REVIEW since there's no async processing
@@ -350,10 +367,10 @@ class MediaService(
             "Can only purge media in DELETED status"
         }
 
-        // Delete from R2
+        // Delete from R2 if enabled
         @Suppress("TooGenericExceptionCaught")
         try {
-            r2StorageService.deleteObject(media.storageKey)
+            r2StorageService?.deleteObject(media.storageKey)
         } catch (e: Exception) {
             logger.error(e) { "Failed to delete object from R2: ${media.storageKey}" }
             // Continue with database deletion even if R2 fails

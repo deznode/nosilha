@@ -42,7 +42,7 @@ import org.springframework.modulith.PackageInfo
 @PackageInfo
 @ApplicationModule(
     displayName = "Content Actions Module",
-    allowedDependencies = ["shared :: api", "shared :: domain", "shared :: events", "shared :: exception"],
+    allowedDependencies = ["shared :: api", "shared :: domain", "shared :: events", "shared :: exception", "shared :: util"],
     type = ApplicationModule.Type.OPEN,
 )
 class ContentActionsModuleMetadata

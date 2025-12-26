@@ -7,6 +7,7 @@ import com.nosilha.core.contentactions.domain.ContactMessage
 import com.nosilha.core.contentactions.domain.ContactStatus
 import com.nosilha.core.contentactions.repository.ContactMessageRepository
 import com.nosilha.core.shared.exception.RateLimitExceededException
+import com.nosilha.core.shared.util.ContentSanitizer
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -65,12 +66,16 @@ class ContactService(
             )
         }
 
+        // Sanitize user input to prevent XSS
+        val sanitizedName = ContentSanitizer.sanitizeStrict(request.name.trim())
+        val sanitizedMessage = ContentSanitizer.sanitize(request.message.trim())
+
         // Create and persist contact message
         val contactMessage = ContactMessage(
-            name = request.name.trim(),
+            name = sanitizedName,
             email = request.email.trim().lowercase(),
             subjectCategory = request.subjectCategory,
-            message = request.message.trim(),
+            message = sanitizedMessage,
             ipAddress = ipAddress ?: "unknown",
             status = ContactStatus.UNREAD,
         )

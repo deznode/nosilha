@@ -3,6 +3,7 @@ package com.nosilha.core.media.domain
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.annotation.PostConstruct
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
@@ -44,9 +45,19 @@ data class PresignedPutUrlResult(
  *
  * R2 is accessed via AWS SDK using the S3 API with a custom endpoint.
  *
+ * This service is only instantiated when R2 is explicitly enabled via
+ * `cloudflare.r2.enabled=true`. When enabled, all required credentials
+ * must be provided or the application will fail to start (fail-fast behavior).
+ *
  * @see PresignedPutUrlResult
  */
 @Service
+@ConditionalOnProperty(
+    prefix = "cloudflare.r2",
+    name = ["enabled"],
+    havingValue = "true",
+    matchIfMissing = false,
+)
 class R2StorageService(
     @Value("\${cloudflare.r2.account-id:}") private val accountId: String,
     @Value("\${cloudflare.r2.access-key-id:}") private val accessKeyId: String,
@@ -65,9 +76,15 @@ class R2StorageService(
 
     @PostConstruct
     fun init() {
-        if (!isConfigured) {
-            logger.warn { "R2 storage not configured - presigned URLs will not work" }
-            return
+        // Fail-fast: If R2 is enabled but credentials are missing, fail at startup
+        require(accountId.isNotBlank()) {
+            "R2 storage is enabled but cloudflare.r2.account-id is not configured"
+        }
+        require(accessKeyId.isNotBlank()) {
+            "R2 storage is enabled but cloudflare.r2.access-key-id is not configured"
+        }
+        require(secretAccessKey.isNotBlank()) {
+            "R2 storage is enabled but cloudflare.r2.secret-access-key is not configured"
         }
 
         val endpoint = URI.create("https://$accountId.r2.cloudflarestorage.com")

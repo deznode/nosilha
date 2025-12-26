@@ -17,6 +17,7 @@ import com.nosilha.core.contentactions.repository.StorySubmissionRepository
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
+import com.nosilha.core.shared.util.ContentSanitizer
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
@@ -77,10 +78,14 @@ class StoryService(
             throw BusinessException("Guided stories must specify a template type")
         }
 
+        // Sanitize user input to prevent XSS
+        val sanitizedTitle = ContentSanitizer.sanitizeStrict(request.title)
+        val sanitizedContent = ContentSanitizer.sanitize(request.content)
+
         // Create entity
         val story = StorySubmission(
-            title = request.title,
-            content = request.content,
+            title = sanitizedTitle,
+            content = sanitizedContent,
             storyType = request.storyType,
             templateType = request.templateType,
             authorId = authorId,
@@ -205,10 +210,13 @@ class StoryService(
                 }
             }
 
+        // Sanitize admin notes if provided
+        val sanitizedNotes = notes?.let { ContentSanitizer.sanitizeStrict(it) }
+
         val updatedStory =
             story.copy(
                 status = newStatus,
-                adminNotes = notes,
+                adminNotes = sanitizedNotes,
                 reviewedBy = adminId,
                 reviewedAt = Instant.now(),
                 publicationSlug = if (action == StoryModerationAction.PUBLISH) slug else story.publicationSlug,

@@ -61,9 +61,11 @@ media:
     base-url: ${MEDIA_BASE_URL:https://api.nosilha.com/api/v1/media/files}
 
 # Cloudflare R2 configuration (S3-compatible object storage)
-# Credentials provided via environment variables in Cloud Run
+# To enable media uploads, set cloudflare.r2.enabled=true (via R2_ENABLED env var)
+# When enabled, all credentials MUST be provided or startup will fail (fail-fast)
 cloudflare:
   r2:
+    enabled: ${R2_ENABLED:false}
     account-id: ${R2_ACCOUNT_ID:}
     access-key-id: ${R2_ACCESS_KEY_ID:}
     secret-access-key: ${R2_SECRET_ACCESS_KEY:}

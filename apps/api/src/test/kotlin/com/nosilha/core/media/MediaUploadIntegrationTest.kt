@@ -251,4 +251,208 @@ class MediaUploadIntegrationTest {
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.data").isArray)
     }
+
+    // =================================================================
+    // MEDIA ACCESS SECURITY TESTS
+    // Tests public/admin access patterns for different media statuses
+    // =================================================================
+
+    @Test
+    @DisplayName("Unauthenticated user can access AVAILABLE media")
+    fun `unauthenticated user can access AVAILABLE media`() {
+        setupDefaultMocks()
+
+        // Create media with AVAILABLE status via confirm + approve flow
+        val storageKey = "uploads/2024/12/available-image.jpg"
+        `when`(r2StorageService.objectExists(storageKey)).thenReturn(true)
+        `when`(r2StorageService.getPublicUrl(storageKey)).thenReturn("https://media.example.com/$storageKey")
+
+        val confirmRequest = ConfirmRequest(
+            key = storageKey,
+            originalName = "public-photo.jpg",
+            contentType = "image/jpeg",
+            fileSize = 1024,
+            entryId = null,
+            category = null,
+            description = null,
+        )
+
+        // Upload as user
+        mockMvc
+            .perform(
+                post("/api/v1/media/confirm")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(confirmRequest)),
+            ).andExpect(status().isCreated)
+
+        // Get the media ID and approve it as admin
+        val media = mediaRepository.findAll().first()
+        media.status = MediaStatus.AVAILABLE
+        mediaRepository.save(media)
+
+        // Unauthenticated user can access AVAILABLE media
+        mockMvc
+            .perform(get("/api/v1/media/${media.id}"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data.status").value("AVAILABLE"))
+    }
+
+    @Test
+    @DisplayName("Unauthenticated user gets 404 for PENDING_REVIEW media")
+    fun `unauthenticated user gets 404 for PENDING_REVIEW media`() {
+        setupDefaultMocks()
+
+        // Create media with PENDING_REVIEW status
+        val storageKey = "uploads/2024/12/pending-image.jpg"
+        `when`(r2StorageService.objectExists(storageKey)).thenReturn(true)
+        `when`(r2StorageService.getPublicUrl(storageKey)).thenReturn("https://media.example.com/$storageKey")
+
+        val confirmRequest = ConfirmRequest(
+            key = storageKey,
+            originalName = "pending-photo.jpg",
+            contentType = "image/jpeg",
+            fileSize = 1024,
+            entryId = null,
+            category = null,
+            description = null,
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/media/confirm")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(confirmRequest)),
+            ).andExpect(status().isCreated)
+
+        val media = mediaRepository.findAll().first()
+        assertThat(media.status).isEqualTo(MediaStatus.PENDING_REVIEW)
+
+        // Unauthenticated user cannot access PENDING_REVIEW media
+        mockMvc
+            .perform(get("/api/v1/media/${media.id}"))
+            .andExpect(status().isNotFound)
+    }
+
+    @Test
+    @DisplayName("Non-admin user gets 404 for PENDING_REVIEW media")
+    fun `non-admin user gets 404 for PENDING_REVIEW media`() {
+        setupDefaultMocks()
+
+        val storageKey = "uploads/2024/12/pending-image2.jpg"
+        `when`(r2StorageService.objectExists(storageKey)).thenReturn(true)
+        `when`(r2StorageService.getPublicUrl(storageKey)).thenReturn("https://media.example.com/$storageKey")
+
+        val confirmRequest = ConfirmRequest(
+            key = storageKey,
+            originalName = "pending-photo2.jpg",
+            contentType = "image/jpeg",
+            fileSize = 1024,
+            entryId = null,
+            category = null,
+            description = null,
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/media/confirm")
+                    .with(userAuth("uploader-user"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(confirmRequest)),
+            ).andExpect(status().isCreated)
+
+        val media = mediaRepository.findAll().first()
+
+        // Different non-admin user cannot access PENDING_REVIEW media
+        mockMvc
+            .perform(
+                get("/api/v1/media/${media.id}")
+                    .with(userAuth("other-user")),
+            ).andExpect(status().isNotFound)
+    }
+
+    @Test
+    @DisplayName("Admin can access PENDING_REVIEW media")
+    fun `admin can access PENDING_REVIEW media`() {
+        setupDefaultMocks()
+
+        val storageKey = "uploads/2024/12/pending-image3.jpg"
+        `when`(r2StorageService.objectExists(storageKey)).thenReturn(true)
+        `when`(r2StorageService.getPublicUrl(storageKey)).thenReturn("https://media.example.com/$storageKey")
+
+        val confirmRequest = ConfirmRequest(
+            key = storageKey,
+            originalName = "pending-for-admin.jpg",
+            contentType = "image/jpeg",
+            fileSize = 1024,
+            entryId = null,
+            category = null,
+            description = null,
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/media/confirm")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(confirmRequest)),
+            ).andExpect(status().isCreated)
+
+        val media = mediaRepository.findAll().first()
+
+        // Admin CAN access PENDING_REVIEW media
+        mockMvc
+            .perform(
+                get("/api/v1/media/${media.id}")
+                    .with(adminAuth()),
+            ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.data.status").value("PENDING_REVIEW"))
+    }
+
+    @Test
+    @DisplayName("Admin can access DELETED media for moderation review")
+    fun `admin can access DELETED media`() {
+        setupDefaultMocks()
+
+        val storageKey = "uploads/2024/12/deleted-image.jpg"
+        `when`(r2StorageService.objectExists(storageKey)).thenReturn(true)
+        `when`(r2StorageService.getPublicUrl(storageKey)).thenReturn("https://media.example.com/$storageKey")
+
+        val confirmRequest = ConfirmRequest(
+            key = storageKey,
+            originalName = "to-delete.jpg",
+            contentType = "image/jpeg",
+            fileSize = 1024,
+            entryId = null,
+            category = null,
+            description = null,
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/media/confirm")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(confirmRequest)),
+            ).andExpect(status().isCreated)
+
+        val media = mediaRepository.findAll().first()
+        media.status = MediaStatus.DELETED
+        media.rejectionReason = "Test rejection"
+        mediaRepository.save(media)
+
+        // Unauthenticated user cannot access DELETED media
+        mockMvc
+            .perform(get("/api/v1/media/${media.id}"))
+            .andExpect(status().isNotFound)
+
+        // Admin CAN access DELETED media for moderation purposes
+        mockMvc
+            .perform(
+                get("/api/v1/media/${media.id}")
+                    .with(adminAuth()),
+            ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.data.status").value("DELETED"))
+    }
 }

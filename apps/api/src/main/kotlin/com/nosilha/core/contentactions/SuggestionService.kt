@@ -13,6 +13,7 @@ import com.nosilha.core.contentactions.events.SuggestionStatusChangedEvent
 import com.nosilha.core.contentactions.repository.SuggestionRepository
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
+import com.nosilha.core.shared.util.ContentSanitizer
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
@@ -73,17 +74,22 @@ class SuggestionService(
             )
         }
 
+        // Sanitize user input to prevent XSS
+        val sanitizedPageTitle = ContentSanitizer.sanitizeStrict(dto.pageTitle.trim())
+        val sanitizedName = ContentSanitizer.sanitizeStrict(dto.name.trim())
+        val sanitizedMessage = ContentSanitizer.sanitize(dto.message.trim())
+
         // Create and persist suggestion
         val suggestion =
             Suggestion(
                 contentId = dto.contentId,
-                pageTitle = dto.pageTitle.trim(),
+                pageTitle = sanitizedPageTitle,
                 pageUrl = dto.pageUrl.trim(),
                 contentType = dto.contentType.trim().lowercase(),
-                name = dto.name.trim(),
+                name = sanitizedName,
                 email = dto.email.trim().lowercase(),
                 suggestionType = dto.suggestionType,
-                message = dto.message.trim(),
+                message = sanitizedMessage,
                 ipAddress = ipAddress,
             )
 
@@ -210,10 +216,13 @@ class SuggestionService(
                 ModerationAction.REJECT -> SuggestionStatus.REJECTED
             }
 
+        // Sanitize admin notes if provided
+        val sanitizedNotes = notes?.let { ContentSanitizer.sanitizeStrict(it) }
+
         val updatedSuggestion =
             suggestion.copy(
                 status = newStatus,
-                adminNotes = notes,
+                adminNotes = sanitizedNotes,
                 reviewedBy = adminId,
                 reviewedAt = Instant.now(),
             )

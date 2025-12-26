@@ -65,6 +65,9 @@ dependencies {
     implementation(platform("software.amazon.awssdk:bom:2.29.51"))
     implementation("software.amazon.awssdk:s3")
 
+    // OWASP HTML Sanitizer for XSS prevention
+    implementation("com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer:20240325.1")
+
     // Spring Modulith dependencies
     implementation("org.springframework.modulith:spring-modulith-starter-core:${property("springModulithVersion")}")
     implementation("org.springframework.modulith:spring-modulith-starter-jpa:${property("springModulithVersion")}")
