@@ -119,8 +119,8 @@ Nx continues expanding JVM support (Android, Kotlin Multiplatform), making it su
 | `nx.json` | Nx workspace configuration with `@nx/next` plugin |
 | `package.json` | Root package with Nx scripts and dependencies |
 | `pnpm-workspace.yaml` | pnpm workspace configuration |
-| `frontend/project.json` | Frontend project definition (uses plugin inference) |
-| `backend/project.json` | Backend project definition with manual Gradle targets |
+| `apps/web/project.json` | Frontend project definition (uses plugin inference) |
+| `apps/api/project.json` | Backend project definition with manual Gradle targets |
 
 ### Root Scripts
 

@@ -449,8 +449,8 @@ GitHub Repository ──► Path Detection ──► Service-Specific Workflows 
 └─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘
           │                      │                      │                      │
       ┌───▼────┐             ┌───▼────┐             ┌───▼────┐             ┌───▼────┐
-      │Push to │            │backend/│            │Backend │            │Cloud   │
-      │main or │            │frontend/│            │Frontend│            │Run     │
+      │Push to │            │apps/   │            │Backend │            │Cloud   │
+      │main or │            │api/web/│            │Frontend│            │Run     │
       │PR      │            │infra/  │            │Infra   │            │Deploy  │
       └────────┘            └────────┘            │Workflows│            └────────┘
                                                   └────────┘
@@ -458,15 +458,11 @@ GitHub Repository ──► Path Detection ──► Service-Specific Workflows 
 
 ### Workflow Structure
 
-1. **Path-Based Triggering** (`dorny/paths-filter@v2`)
+1. **Nx Affected Detection** (replaces dorny/paths-filter)
    ```yaml
-   filters: |
-     backend:
-       - 'backend/**'
-     frontend:
-       - 'frontend/**'
-     infrastructure:
-       - 'infrastructure/**'
+   # Uses nx affected to detect changed projects
+   - run: pnpm nx show projects --affected --base=origin/main
+   # Triggers appropriate workflows for: api, web, infrastructure
    ```
 
 2. **Security Scanning Integration**
