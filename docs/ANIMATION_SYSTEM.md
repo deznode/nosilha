@@ -1,6 +1,6 @@
 # Animation System
 
-This document describes the centralized animation library located in `frontend/src/lib/animation/`, including design principles and implementation guidelines.
+This document describes the centralized animation library located in `apps/web/src/lib/animation/`, including design principles and implementation guidelines.
 
 ## Overview
 
@@ -59,7 +59,7 @@ flowchart TD
 ## File Structure
 
 ```
-frontend/src/lib/animation/
+apps/web/src/lib/animation/
 ├── index.ts      # Re-exports all modules
 ├── tokens.ts     # Core motion design tokens
 ├── variants.ts   # Preset Framer Motion variants

@@ -32,7 +32,7 @@ This audit analyzes the `refactor-from-ideate` branch changes (7,848 lines acros
 ## Part 1: Mock Data Inventory
 
 ### Mock Files Created
-All mock data is centralized in `frontend/src/lib/mocks/`:
+All mock data is centralized in `apps/web/src/lib/mocks/`:
 
 | File | Purpose | Data Entities |
 |------|---------|---------------|
@@ -44,7 +44,7 @@ All mock data is centralized in `frontend/src/lib/mocks/`:
 | `index.ts` | Mock API router | Exports all mock APIs |
 
 ### Type Definitions
-Located in `frontend/src/types/`:
+Located in `apps/web/src/types/`:
 - `admin.ts` - Admin queue types, submission statuses
 - `story.ts` - Story submission and template types
 - `media.ts` - Media item and category types
@@ -57,7 +57,7 @@ Located in `frontend/src/types/`:
 
 ### 2.1 Admin Dashboard (`/admin`)
 
-**UI Location:** `frontend/src/app/(admin)/admin/page.tsx`
+**UI Location:** `apps/web/src/app/(admin)/admin/page.tsx`
 
 **Components:**
 - `components/admin/dashboard/` - KPI cards, activity chart, coverage chart, top contributors
@@ -226,7 +226,7 @@ Response: Suggestion
 
 ### 2.5 User Profile
 
-**UI Location:** `frontend/src/app/(main)/profile/page.tsx`
+**UI Location:** `apps/web/src/app/(main)/profile/page.tsx`
 
 **Components:**
 - `components/profile/profile-header.tsx`
@@ -325,9 +325,9 @@ UserNotificationPreferences {
 ### 2.6 Stories Feature (New)
 
 **UI Location:**
-- `frontend/src/app/(main)/stories/page.tsx` (listing)
-- `frontend/src/app/(main)/stories/[slug]/page.tsx` (detail)
-- `frontend/src/app/(main)/contribute/story/page.tsx` (submission)
+- `apps/web/src/app/(main)/stories/page.tsx` (listing)
+- `apps/web/src/app/(main)/stories/[slug]/page.tsx` (detail)
+- `apps/web/src/app/(main)/contribute/story/page.tsx` (submission)
 
 **Components:**
 - `components/stories/story-card.tsx`
@@ -402,7 +402,7 @@ StorySubmission {
 
 ### 2.7 Gallery/Media Feature
 
-**UI Location:** `frontend/src/app/(main)/gallery/page.tsx`
+**UI Location:** `apps/web/src/app/(main)/gallery/page.tsx`
 
 **Components:**
 - `components/gallery/photo-grid.tsx`
@@ -564,7 +564,7 @@ PagedApiResponse<T> {
 
 ### Backend (New)
 ```
-backend/src/main/kotlin/com/nosilha/
+apps/api/src/main/kotlin/com/nosilha/
 ├── contact/
 │   ├── ContactMessage.kt (entity)
 │   ├── ContactMessageRepository.kt
@@ -595,12 +595,12 @@ backend/src/main/kotlin/com/nosilha/
 
 ### Frontend Integration Points
 ```
-frontend/src/lib/
+apps/web/src/lib/
 ├── api.ts (add new API methods)
 ├── api-contracts.ts (add type contracts)
 └── mocks/ (keep for development fallback)
 
-frontend/src/app/
+apps/web/src/app/
 ├── (admin)/admin/page.tsx (switch from mock to real API)
 ├── (main)/profile/page.tsx (switch from mock to real API)
 ├── (main)/stories/page.tsx (switch from mock to real API)

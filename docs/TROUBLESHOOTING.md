@@ -24,7 +24,7 @@ docker-compose exec postgres psql -U nosilha -d nosilha_db -c "\dt"
 **Solution**:
 ```bash
 # Check backend CORS configuration
-# File: backend/src/main/resources/application-local.yml:8
+# File: apps/api/src/main/resources/application-local.yml:8
 # Ensure CORS_ALLOWED_ORIGINS includes frontend URL
 ```
 
@@ -33,7 +33,7 @@ docker-compose exec postgres psql -U nosilha -d nosilha_db -c "\dt"
 **Solution**:
 ```bash
 # Verify Supabase configuration
-# File: frontend/src/lib/supabase-client.ts
+# File: apps/web/src/lib/supabase-client.ts
 # Check environment variables in .env.local
 
 # Storybook/Chromatic builds without Supabase secrets
@@ -42,7 +42,7 @@ docker-compose exec postgres psql -U nosilha -d nosilha_db -c "\dt"
 # This prevents build failures during visual-regression runs.
 
 # Verify backend JWT secret configuration
-# File: backend/src/main/resources/application.yml:54-55
+# File: apps/api/src/main/resources/application.yml:54-55
 ```
 
 ## CI/CD Pipeline Issues
@@ -62,8 +62,8 @@ docker-compose exec postgres psql -U nosilha -d nosilha_db -c "\dt"
 # Verify GCP_SA_KEY secret is valid JSON
 
 # Test Docker build locally
-cd backend && ./gradlew bootBuildImage
-cd frontend && docker build -t test-frontend .
+cd apps/api && ./gradlew bootBuildImage
+cd apps/web && docker build -t test-frontend .
 ```
 
 ### Terraform state lock errors
@@ -108,7 +108,7 @@ curl -f https://your-service-url/actuator/health
 **Solution**:
 ```bash
 # Check migration file syntax
-# Directory: backend/src/main/resources/db/migration/
+# Directory: apps/api/src/main/resources/db/migration/
 
 # Manual migration repair if needed
 ./gradlew flywayRepair
@@ -119,7 +119,7 @@ curl -f https://your-service-url/actuator/health
 **Solution**:
 ```bash
 # Verify entity discriminator values
-# File: backend/src/main/kotlin/com/nosilha/core/domain/DirectoryEntry.kt:22-47
+# File: apps/api/src/main/kotlin/com/nosilha/core/domain/DirectoryEntry.kt:22-47
 # Check subclass @DiscriminatorValue annotations
 ```
 
@@ -145,8 +145,8 @@ curl -f https://your-service-url/actuator/health
 **Solution**:
 ```bash
 # Check ISR cache configuration
-# File: frontend/src/lib/api.ts:77-80 (1 hour cache)
-# File: frontend/src/lib/api.ts:107-109 (30 min cache)
+# File: apps/web/src/lib/api.ts:77-80 (1 hour cache)
+# File: apps/web/src/lib/api.ts:107-109 (30 min cache)
 
 # Review bundle size
 npm run build && npx bundlesize
@@ -157,7 +157,7 @@ npm run build && npx bundlesize
 **Solution**:
 ```bash
 # Check database connection pool settings
-# File: backend/src/main/resources/application.yml:19-21
+# File: apps/api/src/main/resources/application.yml:19-21
 
 # Monitor with Actuator endpoints
 curl https://your-backend-url/actuator/metrics

@@ -35,7 +35,7 @@ The application uses JWT-based authentication with Supabase. Admin access is con
 The backend extracts roles from JWT in `JwtAuthenticationFilter.kt`:
 
 ```kotlin
-// Location: backend/src/main/kotlin/com/nosilha/core/auth/security/JwtAuthenticationFilter.kt
+// Location: apps/api/src/main/kotlin/com/nosilha/core/auth/security/JwtAuthenticationFilter.kt
 
 private fun extractAuthorities(claims: Claims): List<SimpleGrantedAuthority> {
     val authorities = mutableListOf<SimpleGrantedAuthority>()
@@ -111,7 +111,7 @@ The backend supports these JWT structures:
 Admin endpoints are protected in `SecurityConfig.kt`:
 
 ```kotlin
-// Location: backend/src/main/kotlin/com/nosilha/core/auth/security/SecurityConfig.kt
+// Location: apps/api/src/main/kotlin/com/nosilha/core/auth/security/SecurityConfig.kt
 
 .authorizeHttpRequests { requests ->
     requests
@@ -227,7 +227,7 @@ For dynamic role assignment based on database lookups:
 The frontend extracts roles in `auth-provider.tsx`:
 
 ```typescript
-// Location: frontend/src/components/providers/auth-provider.tsx
+// Location: apps/web/src/components/providers/auth-provider.tsx
 
 function extractUserRole(session: Session | null): string | undefined {
   if (!session?.access_token) return undefined;
@@ -346,7 +346,7 @@ return payload.user_role || payload.role || payload.app_metadata?.role;
 
 ## Related Files
 
-- `backend/src/main/kotlin/com/nosilha/core/auth/security/JwtAuthenticationFilter.kt`
-- `backend/src/main/kotlin/com/nosilha/core/auth/security/SecurityConfig.kt`
-- `frontend/src/components/providers/auth-provider.tsx`
-- `frontend/src/stores/authStore.ts`
+- `apps/api/src/main/kotlin/com/nosilha/core/auth/security/JwtAuthenticationFilter.kt`
+- `apps/api/src/main/kotlin/com/nosilha/core/auth/security/SecurityConfig.kt`
+- `apps/web/src/components/providers/auth-provider.tsx`
+- `apps/web/src/stores/authStore.ts`

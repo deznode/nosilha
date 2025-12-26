@@ -25,19 +25,19 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-          cache-dependency-path: frontend/pnpm-lock.yaml
+          cache-dependency-path: apps/web/pnpm-lock.yaml
 
       - name: Install dependencies
-        working-directory: frontend
+        working-directory: apps/web
         run: pnpm install --frozen-lockfile
 
       - name: Install markdown-link-check
         run: npm install -g markdown-link-check
 
       - name: Check external links in MDX files
-        working-directory: frontend
+        working-directory: apps/web
         run: |
-          find content -name "*.mdx" -print0 | xargs -0 -n1 markdown-link-check --quiet --config ../.github/markdown-link-check-config.json || true
+          find content -name "*.mdx" -print0 | xargs -0 -n1 markdown-link-check --quiet --config ../../.github/markdown-link-check-config.json || true
         continue-on-error: true
 
       - name: Create issue on failure

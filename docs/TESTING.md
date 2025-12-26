@@ -84,9 +84,9 @@ Together, these gates catch 80-90% of issues without expensive E2E test infrastr
 
 ### Playwright E2E Tests (Local Only)
 
-**Location**: `frontend/tests/e2e/`, `frontend/tests/shared/`
+**Location**: `apps/web/tests/e2e/`, `apps/web/tests/shared/`
 
-**Configuration**: `frontend/playwright.config.ts`
+**Configuration**: `apps/web/playwright.config.ts`
 
 **When to run:**
 - Before major releases
@@ -96,7 +96,7 @@ Together, these gates catch 80-90% of issues without expensive E2E test infrastr
 
 **How to run:**
 ```bash
-cd frontend
+cd apps/web
 
 # Headless mode (Chromium only)
 pnpm run test:e2e
@@ -126,9 +126,9 @@ pnpm run test:e2e:report
 
 ### Vitest Unit Tests (Local Only)
 
-**Location**: `frontend/tests/unit/`
+**Location**: `apps/web/tests/unit/`
 
-**Configuration**: `frontend/vitest.config.ts`
+**Configuration**: `apps/web/vitest.config.ts`
 
 **When to run:**
 - During TDD workflow for stores/hooks
@@ -137,7 +137,7 @@ pnpm run test:e2e:report
 
 **How to run:**
 ```bash
-cd frontend
+cd apps/web
 
 # Run once
 pnpm run test:unit
@@ -169,7 +169,7 @@ Run this checklist manually before deploying significant changes:
 
 #### 1. Local E2E Tests (10 min)
 ```bash
-cd frontend
+cd apps/web
 pnpm run test:e2e
 ```
 - Validates critical user flows work end-to-end
@@ -276,7 +276,7 @@ npx @lhci/cli@latest autorun
 
 **Solution**:
 ```bash
-cd frontend
+cd apps/web
 pnpm exec tsc --noEmit
 ```
 Fix all type errors before pushing. Common issues:
@@ -290,7 +290,7 @@ Fix all type errors before pushing. Common issues:
 
 **Solution**:
 ```bash
-cd frontend
+cd apps/web
 pnpm run lint:fix
 ```
 This auto-fixes most issues. For remaining errors, check `eslint.config.mjs`.
@@ -306,7 +306,7 @@ This auto-fixes most issues. For remaining errors, check `eslint.config.mjs`.
 
 **Solution**:
 ```bash
-cd frontend
+cd apps/web
 pnpm run build
 ```
 Fix all build errors locally before pushing.
@@ -343,6 +343,6 @@ Fix all build errors locally before pushing.
 - **CI/CD Pipeline**: `docs/CI_CD_PIPELINE.md` - Complete CI/CD reference
 - **Design System**: `docs/DESIGN_SYSTEM.md` - Component styling standards
 - **Architecture**: `docs/ARCHITECTURE.md` - System overview
-- **Frontend README**: `frontend/README.md` - Quick testing reference
+- **Frontend README**: `apps/web/README.md` - Quick testing reference
 
 For questions or issues, see `docs/TROUBLESHOOTING.md` or open a GitHub issue.

@@ -45,9 +45,9 @@ jobs:
         with:
           filters: |
             backend:
-              - 'backend/**'
+              - 'apps/api/**'
             frontend:
-              - 'frontend/**'
+              - 'apps/web/**'
             infrastructure:
               - 'infrastructure/**'
 
@@ -105,7 +105,7 @@ jobs:
           echo "TESTCONTAINERS_RYUK_DISABLED=false" >> $GITHUB_ENV
 
       - name: Run Integration Tests with Testcontainers
-        working-directory: ./backend
+        working-directory: ./apps/api
         run: ./gradlew test --no-daemon
         env:
           SPRING_PROFILES_ACTIVE: test
@@ -115,7 +115,7 @@ jobs:
         if: always()
         with:
           name: API Integration Tests
-          path: backend/build/test-results/test/*.xml
+          path: apps/api/build/test-results/test/*.xml
           reporter: java-junit
 
   # Security Integration Tests

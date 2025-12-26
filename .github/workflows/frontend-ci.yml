@@ -10,29 +10,29 @@ on:
   push:
     branches: [main]
     paths:
-      - 'frontend/**'
+      - 'apps/web/**'
       - '.github/workflows/frontend-ci.yml'
       - '.github/workflows/reusable-security-scan.yml'
       # Exclude documentation and non-functional changes to save costs
-      - '!frontend/**/*.md'
-      - '!frontend/**/*.txt'
-      - '!frontend/**/*.gitignore'
-      - '!frontend/**/README*'
-      - '!frontend/**/.editorconfig'
-      - '!frontend/**/*.test.*'     # Test files (tests run locally only, not in CI)
+      - '!apps/web/**/*.md'
+      - '!apps/web/**/*.txt'
+      - '!apps/web/**/*.gitignore'
+      - '!apps/web/**/README*'
+      - '!apps/web/**/.editorconfig'
+      - '!apps/web/**/*.test.*'     # Test files (tests run locally only, not in CI)
   pull_request:
     branches: [main]
     paths:
-      - 'frontend/**'
+      - 'apps/web/**'
       - '.github/workflows/frontend-ci.yml'
       - '.github/workflows/reusable-security-scan.yml'
       # Exclude documentation and non-functional changes to save costs
-      - '!frontend/**/*.md'
-      - '!frontend/**/*.txt'
-      - '!frontend/**/*.gitignore'
-      - '!frontend/**/README*'
-      - '!frontend/**/.editorconfig'
-      - '!frontend/**/*.test.*'     # Test files (tests run locally only, not in CI)
+      - '!apps/web/**/*.md'
+      - '!apps/web/**/*.txt'
+      - '!apps/web/**/*.gitignore'
+      - '!apps/web/**/README*'
+      - '!apps/web/**/.editorconfig'
+      - '!apps/web/**/*.test.*'     # Test files (tests run locally only, not in CI)
   workflow_call:
     inputs:
       skip-deploy:
@@ -78,7 +78,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: ./apps/web
 
     steps:
       - uses: actions/checkout@v4
@@ -128,7 +128,7 @@ jobs:
     if: github.event_name == 'pull_request' && !github.event.pull_request.draft
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: ./apps/web
 
     steps:
       - uses: actions/checkout@v4
@@ -139,10 +139,10 @@ jobs:
         with:
           filters: |
             bundle:
-              - 'frontend/package.json'
-              - 'frontend/pnpm-lock.yaml'
-              - 'frontend/src/**'
-              - 'frontend/next.config.ts'
+              - 'apps/web/package.json'
+              - 'apps/web/pnpm-lock.yaml'
+              - 'apps/web/src/**'
+              - 'apps/web/next.config.ts'
 
       - name: Setup pnpm
         if: ${{ steps.changes.outputs.bundle == 'true' }}
@@ -212,7 +212,7 @@ jobs:
       image-digest: ${{ steps.build.outputs.digest }}
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: ./apps/web
 
     # Add OIDC permissions
     permissions:
@@ -261,8 +261,8 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
+          context: ./apps/web
+          file: ./apps/web/Dockerfile
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-frontend/nosilha-web-ui:${{ github.sha }}

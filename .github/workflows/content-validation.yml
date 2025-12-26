@@ -3,9 +3,9 @@ name: Content Validation
 on:
   pull_request:
     paths:
-      - 'frontend/content/**/*.mdx'
-      - 'frontend/content/**/*.yaml'
-      - 'frontend/scripts/validate-content.ts'
+      - 'apps/web/content/**/*.mdx'
+      - 'apps/web/content/**/*.yaml'
+      - 'apps/web/scripts/validate-content.ts'
 
 jobs:
   validate:
@@ -26,16 +26,16 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-          cache-dependency-path: frontend/pnpm-lock.yaml
+          cache-dependency-path: apps/web/pnpm-lock.yaml
 
       - name: Install dependencies
-        working-directory: frontend
+        working-directory: apps/web
         run: pnpm install --frozen-lockfile
 
       - name: Validate content
-        working-directory: frontend
+        working-directory: apps/web
         run: pnpm run validate:content:full
 
       - name: Build Velite content
-        working-directory: frontend
+        working-directory: apps/web
         run: pnpm run build:content

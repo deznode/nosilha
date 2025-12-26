@@ -46,8 +46,8 @@ The project follows a clear organizational structure:
 
 ### Local Development
 1. **Start infrastructure services**: `cd infrastructure/docker && docker-compose up -d`
-2. **Backend setup**: `cd backend && ./gradlew bootRun --args='--spring.profiles.active=local'`
-3. **Frontend setup**: `cd frontend && pnpm install && pnpm run dev`
+2. **Backend setup**: `cd apps/api && ./gradlew bootRun --args='--spring.profiles.active=local'`
+3. **Frontend setup**: `cd apps/web && pnpm install && pnpm run dev`
 
 ## Development Commands
 
@@ -101,8 +101,8 @@ Use `/memory` to view and edit all loaded memory files.
 
 Domain-specific instructions loaded automatically based on file paths:
 
-- `frontend/` - Next.js App Router, design system, Playwright MCP
-- `backend/` - Spring Modulith, API patterns
+- `apps/web/` - Next.js App Router, design system, Playwright MCP
+- `apps/api/` - Spring Modulith, API patterns
 - `content/` - MDX authoring platform
 - `infrastructure/` - CI/CD, Docker, cloud deployment
 

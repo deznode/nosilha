@@ -9,27 +9,27 @@ on:
   push:
     branches: [main]
     paths:
-      - 'backend/**'
+      - 'apps/api/**'
       - '.github/workflows/backend-ci.yml'
       - '.github/workflows/reusable-security-scan.yml'
       # Exclude documentation and non-functional changes to save costs
-      - '!backend/**/*.md'
-      - '!backend/**/*.txt'
-      - '!backend/**/*.gitignore'
-      - '!backend/**/README*'
-      - '!backend/**/.editorconfig'
+      - '!apps/api/**/*.md'
+      - '!apps/api/**/*.txt'
+      - '!apps/api/**/*.gitignore'
+      - '!apps/api/**/README*'
+      - '!apps/api/**/.editorconfig'
   pull_request:
     branches: [main]
     paths:
-      - 'backend/**'
+      - 'apps/api/**'
       - '.github/workflows/backend-ci.yml'
       - '.github/workflows/reusable-security-scan.yml'
       # Exclude documentation and non-functional changes to save costs
-      - '!backend/**/*.md'
-      - '!backend/**/*.txt'
-      - '!backend/**/*.gitignore'
-      - '!backend/**/README*'
-      - '!backend/**/.editorconfig'
+      - '!apps/api/**/*.md'
+      - '!apps/api/**/*.txt'
+      - '!apps/api/**/*.gitignore'
+      - '!apps/api/**/README*'
+      - '!apps/api/**/.editorconfig'
   workflow_call:
     inputs:
       skip-deploy:
@@ -75,7 +75,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./apps/api
 
     steps:
       - uses: actions/checkout@v4
@@ -146,7 +146,7 @@ jobs:
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: backend/build/reports/ktlint/ktlintMainSourceSetCheck/ktlintMainSourceSetCheck.sarif
+          sarif_file: apps/api/build/reports/ktlint/ktlintMainSourceSetCheck/ktlintMainSourceSetCheck.sarif
           category: 'code-quality-ktlint'
         continue-on-error: true
 
@@ -154,7 +154,7 @@ jobs:
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: backend/build/reports/detekt/detekt.sarif
+          sarif_file: apps/api/build/reports/detekt/detekt.sarif
           category: 'code-quality-detekt'
         continue-on-error: true
 
@@ -178,7 +178,7 @@ jobs:
         uses: codecov/codecov-action@v4
         if: always()
         with:
-          files: ./backend/build/reports/jacoco/test/jacocoTestReport.xml
+          files: ./apps/api/build/reports/jacoco/test/jacocoTestReport.xml
           flags: backend-unit
           name: backend-unit-tests
           fail_ci_if_error: false
@@ -213,7 +213,7 @@ jobs:
         if: always()
         with:
           name: spring-modulith-diagrams
-          path: backend/build/modulith/
+          path: apps/api/build/modulith/
           retention-days: 30
 
       - name: Report test results
@@ -247,7 +247,7 @@ jobs:
       image-digest: ${{ steps.build.outputs.digest }}
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./apps/api
 
     # Add OIDC permissions
     permissions:

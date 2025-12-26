@@ -25,7 +25,7 @@ Use when working with CI/CD pipelines, GCP deployment, infrastructure automation
 - **No Service Account Keys**: OIDC token exchange only
 
 ### Modular CI/CD Architecture
-- **Path-Based Triggering**: Backend (`backend/**`), Frontend (`frontend/**`), Infrastructure (`infrastructure/**`)
+- **Path-Based Triggering**: Backend (`apps/api/**`), Frontend (`apps/web/**`), Infrastructure (`infrastructure/**`)
 - **Service-Specific Workflows**: Separate pipelines run in parallel
 - Reference: `.github/workflows/`
 

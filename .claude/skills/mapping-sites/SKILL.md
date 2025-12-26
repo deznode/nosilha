@@ -42,7 +42,7 @@ Use when working with Mapbox GL JS, geospatial visualization, interactive maps, 
 | Clustering | Enable at zoom <14 |
 | Cluster Radius | 50px |
 
-Reference `frontend/src/lib/mapbox-config.ts` for configuration.
+Reference `apps/web/src/lib/mapbox-config.ts` for configuration.
 
 ## Workflows
 
@@ -74,10 +74,10 @@ See [REACT_PATTERNS.md](REACT_PATTERNS.md) for implementation patterns.
 
 | File | Purpose |
 |------|---------|
-| `frontend/src/components/ui/interactive-map.tsx` | Main map component |
-| `frontend/src/hooks/useMapbox.ts` | Custom Mapbox hook |
-| `frontend/src/types/mapbox.ts` | TypeScript interfaces |
-| `frontend/src/lib/mapbox-config.ts` | Map configuration |
+| `apps/web/src/components/ui/interactive-map.tsx` | Main map component |
+| `apps/web/src/hooks/useMapbox.ts` | Custom Mapbox hook |
+| `apps/web/src/types/mapbox.ts` | TypeScript interfaces |
+| `apps/web/src/lib/mapbox-config.ts` | Map configuration |
 
 ## Documentation References
 

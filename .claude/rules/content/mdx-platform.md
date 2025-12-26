@@ -1,5 +1,5 @@
 ---
-paths: frontend/content/**
+paths: apps/web/content/**
 ---
 
 # MDX Content Platform (Feature 007)
@@ -14,7 +14,7 @@ Co-located translations (EN/PT/KEA/FR) with fallback chains and translation stat
 
 ## Content Structure
 
-All content lives in `frontend/content/pages/`:
+All content lives in `apps/web/content/pages/`:
 
 - **Top-level pages**: `content/pages/[category]/en.mdx` → URL `/[category]` (e.g., `/history`, `/music`)
 - **Sub-pages**: `content/pages/[category]/[slug]/en.mdx` → URL `/[category]/[slug]` (e.g., `/music/morna-origins`)
@@ -58,14 +58,14 @@ Cultural heritage pages (like `/history`) use data-driven MDX:
 
 | File | Purpose |
 |------|---------|
-| `frontend/velite.config.ts` | Velite configuration with Page collection |
-| `frontend/src/lib/content/schemas.ts` | Zod schemas for content validation |
-| `frontend/src/lib/content/translations.ts` | Translation utilities and fallback logic |
-| `frontend/src/lib/content/mdx-components.tsx` | MDX component registry (includes data-driven components) |
-| `frontend/src/components/content/` | Data-driven content components |
-| `frontend/scripts/validate-content.ts` | Content validation script |
-| `frontend/scripts/scaffold-article.ts` | Article scaffolding CLI |
-| `frontend/scripts/check-translations.ts` | Translation status reporting |
+| `apps/web/velite.config.ts` | Velite configuration with Page collection |
+| `apps/web/src/lib/content/schemas.ts` | Zod schemas for content validation |
+| `apps/web/src/lib/content/translations.ts` | Translation utilities and fallback logic |
+| `apps/web/src/lib/content/mdx-components.tsx` | MDX component registry (includes data-driven components) |
+| `apps/web/src/components/content/` | Data-driven content components |
+| `apps/web/scripts/validate-content.ts` | Content validation script |
+| `apps/web/scripts/scaffold-article.ts` | Article scaffolding CLI |
+| `apps/web/scripts/check-translations.ts` | Translation status reporting |
 
 ## Reference
 

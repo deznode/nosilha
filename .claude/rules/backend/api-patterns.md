@@ -1,5 +1,5 @@
 ---
-paths: backend/**
+paths: apps/api/**
 ---
 
 # Backend API Patterns
@@ -28,13 +28,13 @@ proxy.ts → Check Auth State → Allow/Redirect
 
 - Use JPA repositories for database operations
 - All entities extend proper base classes and use UUID primary keys
-- Flyway handles database migrations in `backend/src/main/resources/db/`
+- Flyway handles database migrations in `apps/api/src/main/resources/db/`
 - Single Table Inheritance pattern for `DirectoryEntry` subclasses (`Restaurant`, `Hotel`, `Landmark`, `Beach`)
 
 ### Migration Location
 
 ```
-backend/src/main/resources/db/migration/
+apps/api/src/main/resources/db/migration/
 ├── V1__initial_schema.sql
 ├── V2__add_directory_entries.sql
 └── ...

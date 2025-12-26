@@ -46,7 +46,7 @@ All DirectoryEntry types (Restaurant, Hotel, Landmark, Beach) use STI:
 5. Validate Brava Island coordinates (lat: 14.80-14.90, lng: -24.75 to -24.65)
 
 ### Create Migration
-1. Review patterns in `backend/src/main/resources/db/migration/`
+1. Review patterns in `apps/api/src/main/resources/db/migration/`
 2. Design backward-compatible changes
 3. Create file with sequential numbering
 4. Use `CREATE INDEX CONCURRENTLY` for indexes
@@ -77,8 +77,8 @@ See [references/advanced-patterns.md](references/advanced-patterns.md) for:
 
 **Always consult before changes**:
 - `docs/API_CODING_STANDARDS.md` - STI patterns, validation, conventions
-- `backend/src/main/resources/db/migration/` - Existing migration patterns
-- `backend/src/main/kotlin/com/nosilha/core/domain/DirectoryEntry.kt` - STI entity
+- `apps/api/src/main/resources/db/migration/` - Existing migration patterns
+- `apps/api/src/main/kotlin/com/nosilha/core/domain/DirectoryEntry.kt` - STI entity
 
 ## Best Practices
 

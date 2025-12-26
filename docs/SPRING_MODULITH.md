@@ -50,7 +50,7 @@ Spring Modulith is a framework that helps structure Spring Boot applications as 
 The Nos Ilha backend is organized into **5 modules**:
 
 ```
-backend/src/main/kotlin/com/nosilha/core/
+apps/api/src/main/kotlin/com/nosilha/core/
 ├── shared/           # Shared Kernel (foundation layer)
 ├── auth/             # Authentication Module
 ├── directory/        # Directory Management Module
@@ -449,7 +449,7 @@ Spring Modulith automatically verifies:
 
 ### ModularityTests
 
-**Location**: `backend/src/test/kotlin/com/nosilha/core/ModularityTests.kt`
+**Location**: `apps/api/src/test/kotlin/com/nosilha/core/ModularityTests.kt`
 
 ```kotlin
 class ModularityTests {
@@ -501,7 +501,7 @@ ls build/modulith/*.puml
   uses: actions/upload-artifact@v4
   with:
     name: modulith-diagrams
-    path: backend/build/modulith/
+    path: apps/api/build/modulith/
 ```
 
 ---

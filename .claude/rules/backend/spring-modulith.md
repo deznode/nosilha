@@ -1,5 +1,5 @@
 ---
-paths: backend/**
+paths: apps/api/**
 ---
 
 # Spring Modulith Architecture
@@ -7,7 +7,7 @@ paths: backend/**
 ## Commands
 
 ```bash
-cd backend
+cd apps/api
 ./gradlew bootRun                    # Start development server
 ./gradlew build                      # Build JAR
 ./gradlew test                       # Run tests
@@ -28,7 +28,7 @@ cd backend
 ## Testing
 
 ```bash
-cd backend && ./gradlew test         # All tests with PostgreSQL
+cd apps/api && ./gradlew test         # All tests with PostgreSQL
 ./gradlew test jacocoTestReport      # With coverage
 ./gradlew detekt                     # Linting and static analysis
 ```
@@ -42,7 +42,7 @@ cd backend && ./gradlew test         # All tests with PostgreSQL
 ## Module Structure
 
 ```
-backend/src/main/kotlin/com/nosilha/
+apps/api/src/main/kotlin/com/nosilha/
 ├── shared/          # Common utilities and base classes
 ├── auth/            # Authentication module (JWT, Supabase)
 ├── directory/       # Directory entries (Restaurant, Hotel, etc.)

@@ -139,31 +139,31 @@ This document provides a comprehensive overview of the frontend application's ro
 
 #### 1. History Section
 - **Route**: `/history`
-- **File**: `frontend/src/app/(main)/history/page.tsx`
+- **File**: `apps/web/src/app/(main)/history/page.tsx`
 - **Purpose**: Historical articles and cultural heritage content
 - **Features**: Timeline, cultural traditions, notable figures, visual storytelling
 
 #### 2. Individual History Articles
 - **Route**: `/history/[slug]`
-- **File**: `frontend/src/app/(main)/history/[slug]/page.tsx`
+- **File**: `apps/web/src/app/(main)/history/[slug]/page.tsx`
 - **Purpose**: Individual historical article pages
 - **Features**: Dynamic routing, article content, related entries
 
 #### 3. About Us Page
 - **Route**: `/about`
-- **File**: `frontend/src/app/(main)/about/page.tsx`
+- **File**: `apps/web/src/app/(main)/about/page.tsx`
 - **Purpose**: Information about the Nos Ilha platform, mission, and team
 - **Features**: Mission statement, technical approach, community focus, contribution opportunities
 
 #### 4. Contact Us Page
 - **Route**: `/contact`
-- **File**: `frontend/src/app/(main)/contact/page.tsx`
+- **File**: `apps/web/src/app/(main)/contact/page.tsx`
 - **Purpose**: Contact information, support forms, and communication channels
 - **Features**: Contact forms, multiple communication methods, FAQ section
 
 #### 5. Contribute Page
 - **Route**: `/contribute`
-- **File**: `frontend/src/app/(main)/contribute/page.tsx`
+- **File**: `apps/web/src/app/(main)/contribute/page.tsx`
 - **Purpose**: Community contribution guidelines, photo submission forms, and volunteer opportunities
 - **Features**: Contribution types, guidelines, community engagement, clear CTAs
 
@@ -171,13 +171,13 @@ This document provides a comprehensive overview of the frontend application's ro
 
 #### 6. Historical Figures Page
 - **Route**: `/people`
-- **File**: `frontend/src/app/(main)/people/page.tsx`
+- **File**: `apps/web/src/app/(main)/people/page.tsx`
 - **Purpose**: Profiles of notable historical figures from Brava Island
 - **Features**: Featured figures, biographical information, cultural contributions, categorized displays
 
 #### 7. Individual People Profiles
 - **Route**: `/people/[slug]`
-- **File**: `frontend/src/app/(main)/people/[slug]/page.tsx`
+- **File**: `apps/web/src/app/(main)/people/[slug]/page.tsx`
 - **Purpose**: Detailed profile pages for individual historical figures
 - **Features**: Dynamic routing, biographical content, cultural contributions, related history
 
@@ -185,13 +185,13 @@ This document provides a comprehensive overview of the frontend application's ro
 
 #### 8. Towns Index Page
 - **Route**: `/towns`
-- **File**: `frontend/src/app/(main)/towns/page.tsx`
+- **File**: `apps/web/src/app/(main)/towns/page.tsx`
 - **Purpose**: Overview of all towns and settlements on Brava Island
 - **Features**: Town listings, geographic information, quick navigation to individual towns
 
 #### 9. Individual Town Pages
 - **Route**: `/towns/[slug]`
-- **File**: `frontend/src/app/(main)/towns/[slug]/page.tsx`
+- **File**: `apps/web/src/app/(main)/towns/[slug]/page.tsx`
 - **Purpose**: Detailed information about individual towns
 - **Features**: Dynamic routing, town history, points of interest, local businesses, geographic details
 
@@ -199,14 +199,14 @@ This document provides a comprehensive overview of the frontend application's ro
 
 #### 10. User Profile Page
 - **Route**: `/profile`
-- **File**: `frontend/src/app/(main)/profile/page.tsx`
+- **File**: `apps/web/src/app/(main)/profile/page.tsx`
 - **Purpose**: User profile and account information
 - **Features**: Profile display, contribution history, account management
 - **Access**: Requires authentication
 
 #### 11. User Settings Page
 - **Route**: `/settings`
-- **File**: `frontend/src/app/(main)/settings/page.tsx`
+- **File**: `apps/web/src/app/(main)/settings/page.tsx`
 - **Purpose**: User account settings and preferences
 - **Features**: Account settings, notification preferences, privacy controls
 - **Access**: Requires authentication
@@ -215,13 +215,13 @@ This document provides a comprehensive overview of the frontend application's ro
 
 #### 12. Privacy Policy Page
 - **Route**: `/privacy`
-- **File**: `frontend/src/app/(main)/privacy/page.tsx`
+- **File**: `apps/web/src/app/(main)/privacy/page.tsx`
 - **Purpose**: Privacy policy and data protection information
 - **Features**: Comprehensive privacy policy, user rights, data protection, third-party services
 
 #### 13. Terms of Service Page
 - **Route**: `/terms`
-- **File**: `frontend/src/app/(main)/terms/page.tsx`
+- **File**: `apps/web/src/app/(main)/terms/page.tsx`
 - **Purpose**: Terms of service and usage agreements
 - **Features**: Legal document structure, community guidelines, user responsibilities, platform rules
 
@@ -229,7 +229,7 @@ This document provides a comprehensive overview of the frontend application's ro
 
 #### 14. Admin Translations
 - **Route**: `/admin/translations`
-- **File**: `frontend/src/app/(admin)/admin/translations/page.tsx`
+- **File**: `apps/web/src/app/(admin)/admin/translations/page.tsx`
 - **Purpose**: Admin interface for managing translations
 - **Features**: Translation management, language content editing
 - **Access**: Requires admin authentication

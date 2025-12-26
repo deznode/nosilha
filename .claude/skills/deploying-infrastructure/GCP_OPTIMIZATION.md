@@ -259,7 +259,7 @@ services:
 on:
   push:
     paths:
-      - 'backend/**'  # Only rebuild when backend changes
+      - 'apps/api/**'  # Only rebuild when backend changes
 ```
 - Avoid unnecessary builds
 - Reduce compute and storage usage
@@ -268,9 +268,9 @@ on:
 ```yaml
 jobs:
   backend:
-    if: contains(github.event.head_commit.modified, 'backend/')
+    if: contains(github.event.head_commit.modified, 'apps/api/')
   frontend:
-    if: contains(github.event.head_commit.modified, 'frontend/')
+    if: contains(github.event.head_commit.modified, 'apps/web/')
 ```
 - Services build independently
 - Faster deployments, less GitHub Actions time

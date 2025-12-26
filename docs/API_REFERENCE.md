@@ -13,7 +13,7 @@ This document provides comprehensive documentation for the Nos Ilha backend API,
 
 ### Standard Response Envelope
 
-Every controller response is wrapped with the shared envelopes from [`com/nosilha/core/shared/api/ApiResponse.kt`](../backend/src/main/kotlin/com/nosilha/core/shared/api/ApiResponse.kt):
+Every controller response is wrapped with the shared envelopes from [`com/nosilha/core/shared/api/ApiResponse.kt`](../apps/api/src/main/kotlin/com/nosilha/core/shared/api/ApiResponse.kt):
 
 - `ApiResponse<T>` — single resource payloads
 - `PagedApiResponse<T>` — list endpoints with pagination metadata

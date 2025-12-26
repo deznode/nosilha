@@ -1,5 +1,5 @@
 ---
-paths: frontend/**
+paths: apps/web/**
 ---
 
 # Frontend Design System & Styling
@@ -64,11 +64,11 @@ Pre-built accessible components from Catalyst:
 
 | File | Purpose |
 |------|---------|
-| `frontend/src/app/globals.css` | Global styles and CSS variables |
-| `frontend/tailwind.config.ts` | Tailwind configuration |
-| `frontend/src/app/layout.tsx` | Root layout with fonts |
-| `frontend/src/components/ui/theme-toggle.tsx` | Theme switcher |
-| `frontend/src/components/ui/button.tsx` | Button component |
+| `apps/web/src/app/globals.css` | Global styles and CSS variables |
+| `apps/web/tailwind.config.ts` | Tailwind configuration |
+| `apps/web/src/app/layout.tsx` | Root layout with fonts |
+| `apps/web/src/components/ui/theme-toggle.tsx` | Theme switcher |
+| `apps/web/src/components/ui/button.tsx` | Button component |
 
 ## Tailwind Usage
 

@@ -662,7 +662,7 @@ className="hover:bg-ocean-blue/90 focus-visible:outline-2 focus-visible:outline-
 ### File Organization
 
 ```
-frontend/src/
+apps/web/src/
 ├── components/
 │   ├── catalyst-ui/          # Professional component library
 │   │   ├── button.tsx

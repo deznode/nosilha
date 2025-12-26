@@ -45,8 +45,8 @@ Create a feature branch and test backend changes:
 git checkout -b test/backend-ci-workflow
 
 # Make a small change to trigger backend workflow
-echo "# Test change for CI/CD validation" >> backend/README.md
-git add backend/README.md
+echo "# Test change for CI/CD validation" >> apps/api/README.md
+git add apps/api/README.md
 git commit -m "test: trigger backend CI workflow"
 git push origin test/backend-ci-workflow
 ```
@@ -64,8 +64,8 @@ Test frontend-specific changes:
 
 ```bash
 # Make a frontend change
-echo "/* Test change for CI/CD validation */" >> frontend/src/app/globals.css
-git add frontend/src/app/globals.css
+echo "/* Test change for CI/CD validation */" >> apps/web/src/app/globals.css
+git add apps/web/src/app/globals.css
 git commit -m "test: trigger frontend CI workflow"
 git push origin test/backend-ci-workflow
 ```
@@ -190,8 +190,8 @@ Introduce intentional failures to test error handling:
 
 ```bash
 # Add syntax error to test failure handling
-echo "invalid-kotlin-syntax" >> backend/src/main/kotlin/test-error.kt
-git add backend/src/main/kotlin/test-error.kt
+echo "invalid-kotlin-syntax" >> apps/api/src/main/kotlin/test-error.kt
+git add apps/api/src/main/kotlin/test-error.kt
 git commit -m "test: intentional build failure"
 git push origin test/error-handling
 
@@ -260,7 +260,7 @@ gcloud run services list --region=us-east1
 #### D. Backend Test Commands
 ```bash
 # Test backend locally
-cd backend
+cd apps/api
 ./gradlew test
 ./gradlew detekt
 ./gradlew bootRun --args='--spring.profiles.active=local'
@@ -295,7 +295,7 @@ curl -f http://localhost:8080/actuator/health
 #### D. Frontend Test Commands
 ```bash
 # Test frontend locally
-cd frontend
+cd apps/web
 pnpm install
 pnpm run lint
 pnpm run build
@@ -315,25 +315,25 @@ curl -f http://localhost:3000
 
 **Frontend Coverage (Vitest)**
 - [ ] **Threshold Enforcement**: Build fails if coverage drops below 70%
-- [ ] **Configuration**: Vitest config enforces thresholds (frontend/vitest.config.ts:36-41)
+- [ ] **Configuration**: Vitest config enforces thresholds (apps/web/vitest.config.ts:36-41)
 - [ ] **Reporting**: Coverage reports uploaded to Codecov
 - [ ] **Metrics**: Lines, functions, branches, statements all ≥70%
 
 **Backend Coverage (Jacoco)**
 - [ ] **Threshold Enforcement**: `jacocoTestCoverageVerification` task enforces 70% minimum
-- [ ] **Configuration**: Jacoco threshold set in backend/build.gradle.kts:123
+- [ ] **Configuration**: Jacoco threshold set in apps/api/build.gradle.kts:123
 - [ ] **Reporting**: Coverage XML reports generated and uploaded to Codecov
 - [ ] **Build Failure**: Build fails if coverage below 70%
 
 **Test Commands**:
 ```bash
 # Frontend coverage verification (local only - not in CI)
-cd frontend
+cd apps/web
 pnpm run test:unit -- --coverage --run
 # Note: Coverage not enforced in CI, local validation only
 
 # Backend coverage verification
-cd backend
+cd apps/api
 ./gradlew test jacocoTestReport
 ./gradlew jacocoTestCoverageVerification
 # Gradle task fails if coverage < 70%
@@ -350,7 +350,7 @@ cd backend
 **Test Commands**:
 ```bash
 # Run Spring Modulith verification tests
-cd backend
+cd apps/api
 ./gradlew test --tests "com.nosilha.core.ModularityTests"
 
 # Generate module documentation
@@ -380,7 +380,7 @@ ModularityTests > generateModuleDocumentation() PASSED
 **Test Commands**:
 ```bash
 # Frontend bundle size analysis
-cd frontend
+cd apps/web
 pnpm run build
 
 # Check bundle size manually
@@ -418,7 +418,7 @@ fi
 **Test Commands**:
 ```bash
 # Frontend E2E tests (local only - not in CI)
-cd frontend
+cd apps/web
 pnpm exec playwright test
 # Must complete in <5 minutes
 
@@ -427,7 +427,7 @@ pnpm run test:unit -- --coverage --run
 # Coverage for local validation only
 
 # Backend unit tests (runs in CI)
-cd backend
+cd apps/api
 ./gradlew test
 # All tests must pass
 ```
@@ -532,14 +532,14 @@ terraform plan -detailed-exitcode && echo "✅ Terraform plan passed" || echo "�
 
 # Phase 2: Backend Tests
 echo "📋 Phase 2: Backend Testing"
-cd ../../backend
+cd ../../apps/api
 ./gradlew test && echo "✅ Backend tests passed" || echo "❌ Backend tests failed"
 ./gradlew detekt && echo "✅ Backend linting passed" || echo "❌ Backend linting failed"
 ./gradlew bootBuildImage --imageName=test-backend && echo "✅ Backend Docker build passed" || echo "❌ Backend Docker build failed"
 
 # Phase 3: Frontend Tests
 echo "📋 Phase 3: Frontend Testing"
-cd ../frontend
+cd ../apps/web
 pnpm install && echo "✅ Frontend dependencies installed" || echo "❌ Frontend dependencies failed"
 pnpm run lint && echo "✅ Frontend linting passed" || echo "❌ Frontend linting failed"
 pnpm run build && echo "✅ Frontend build passed" || echo "❌ Frontend build failed"

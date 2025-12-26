@@ -496,4 +496,4 @@ ADD COLUMN latitude DECIMAL(10, 8)
 
 **Reference Before Migration**:
 - `docs/API_CODING_STANDARDS.md` - STI patterns and standards
-- `backend/src/main/resources/db/migration/` - Existing migrations for consistency
+- `apps/api/src/main/resources/db/migration/` - Existing migrations for consistency

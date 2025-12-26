@@ -204,13 +204,13 @@ The Nos Ilha CI/CD pipeline enforces comprehensive quality gates to ensure code 
 
 **Frontend Coverage (Vitest)** - *Local only*
 - **Note**: Frontend unit tests and coverage run locally, not in CI
-- **Configuration**: `frontend/vitest.config.ts`
+- **Configuration**: `apps/web/vitest.config.ts`
 - **Local Command**: `pnpm run test:unit`
 
 **Backend Coverage (Jacoco)**
 - **Threshold**: Minimum 70% code coverage
 - **Enforcement**: `jacocoTestCoverageVerification` task fails build if below threshold
-- **Configuration**: `backend/build.gradle.kts` (line 123)
+- **Configuration**: `apps/api/build.gradle.kts` (line 123)
 - **Reporting**: Coverage reports uploaded to Codecov with `backend-unit` flag
 
 ### Module Boundary Quality Gates (Backend)

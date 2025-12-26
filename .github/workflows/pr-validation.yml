@@ -3,12 +3,12 @@ name: PR Validation
 # NOTE: SARIF upload steps, CodeQL analysis, and Dependency Review use continue-on-error: true
 # to handle repositories without GitHub Advanced Security enabled. This prevents workflow failures
 # while still attempting to run security analysis when available.
-# 
+#
 # For private repositories, these jobs require GitHub Advanced Security license:
 # - CodeQL Analysis (security scanning)
 # - Dependency Review (vulnerability checking)
 # - SARIF uploads (security results)
-# 
+#
 # These jobs will run but fail gracefully if Advanced Security is not available,
 # allowing the PR validation to complete successfully.
 
@@ -27,26 +27,65 @@ concurrency:
 
 jobs:
   changes:
-    name: Detect Changes
+    name: Detect Changes (Nx Affected)
     runs-on: ubuntu-latest
     outputs:
-      backend: ${{ steps.changes.outputs.backend }}
-      frontend: ${{ steps.changes.outputs.frontend }}
-      infrastructure: ${{ steps.changes.outputs.infrastructure }}
+      backend: ${{ steps.affected.outputs.api }}
+      frontend: ${{ steps.affected.outputs.web }}
+      infrastructure: ${{ steps.infra.outputs.infrastructure }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: dorny/paths-filter@v2
-        id: changes
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          filters: |
-            backend:
-              - 'backend/**'
-            frontend:
-              - 'frontend/**'
-            infrastructure:
-              - 'infrastructure/**'
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Detect affected Nx projects
+        id: affected
+        run: |
+          # Get the list of affected projects (one per line)
+          AFFECTED=$(pnpm nx show projects --affected --base=origin/main --head=HEAD 2>/dev/null || echo "")
+          echo "Affected projects:"
+          echo "$AFFECTED"
+
+          # Check if specific projects are affected (exact line match)
+          if echo "$AFFECTED" | grep -qxF "api"; then
+            echo "api=true" >> $GITHUB_OUTPUT
+            echo "API project is affected"
+          else
+            echo "api=false" >> $GITHUB_OUTPUT
+            echo "API project is NOT affected"
+          fi
+
+          if echo "$AFFECTED" | grep -qxF "web"; then
+            echo "web=true" >> $GITHUB_OUTPUT
+            echo "Web project is affected"
+          else
+            echo "web=false" >> $GITHUB_OUTPUT
+            echo "Web project is NOT affected"
+          fi
+
+      - name: Detect infrastructure changes
+        id: infra
+        run: |
+          # Infrastructure is not managed by Nx, use git diff for detection
+          if git diff --name-only origin/main...HEAD | grep -q "^infrastructure/"; then
+            echo "infrastructure=true" >> $GITHUB_OUTPUT
+          else
+            echo "infrastructure=false" >> $GITHUB_OUTPUT
+          fi
 
   # Call the individual service workflows for PR validation
   backend-validation:
@@ -190,7 +229,7 @@ jobs:
 
             comment += '\n---\n';
             comment += `*Updated: ${new Date().toISOString()} | PR: #${context.issue.number}*`;
-            comment += '\n*Simplified CI: Frontend runs TypeScript + ESLint only. E2E tests available locally.*';
+            comment += '\n*Change detection: Nx affected | Frontend CI: TypeScript + ESLint only | E2E tests available locally*';
             
             // Find existing comment to update or create new one
             const { data: comments } = await github.rest.issues.listComments({

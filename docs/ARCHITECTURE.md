@@ -147,7 +147,7 @@ File Upload ──► GCS Storage ──► Vision API ──► Metadata Extrac
 ### Frontend Architecture (Next.js 16)
 
 ```
-frontend/
+apps/web/
 ├── src/
 │   ├── app/                          # App Router Structure
 │   │   ├── layout.tsx               # Root layout with providers
@@ -202,7 +202,7 @@ frontend/
 **Module Organization:**
 
 ```
-backend/src/main/kotlin/com/nosilha/core/
+apps/api/src/main/kotlin/com/nosilha/core/
 ├── shared/         # Shared Kernel - Common infrastructure (events, audit, exceptions)
 ├── auth/           # Authentication Module - JWT auth and user management
 ├── directory/      # Directory Module - Cultural heritage entries (STI pattern)
@@ -221,8 +221,8 @@ Each module follows a consistent pattern with these internal layers:
 
 **Key Points:**
 - See `docs/SPRING_MODULITH.md` for detailed module architecture
-- Database migrations: `backend/src/main/resources/db/migration/`
-- Configuration: `backend/src/main/resources/application*.yml`
+- Database migrations: `apps/api/src/main/resources/db/migration/`
+- Configuration: `apps/api/src/main/resources/application*.yml`
 
 **Key Architectural Decisions:**
 
@@ -651,7 +651,7 @@ Backend Architecture: Spring Modulith
 - **Event-Driven Communication**: @ApplicationModuleListener for async module interactions
 
 **Verification:**
-- **Tests**: `backend/src/test/kotlin/com/nosilha/core/ModularityTests.kt`
+- **Tests**: `apps/api/src/test/kotlin/com/nosilha/core/ModularityTests.kt`
 - **CI/CD**: Module boundary verification in backend CI workflow
 - **Dependencies**: Spring Modulith 1.2.5 configured in `build.gradle.kts`
 
@@ -729,10 +729,10 @@ Frontend State Management: Zustand + TanStack Query + Zod
 - **Developer Experience**: Clear separation between client and server state
 
 **Verification:**
-- **Stores**: `frontend/src/stores/{authStore,uiStore,filterStore}.ts`
-- **Hooks**: `frontend/src/hooks/queries/{useDirectoryEntries,useDirectoryEntry,useUserProfile,useMediaMetadata}.ts`
-- **Schemas**: `frontend/src/schemas/{authSchema,directoryEntrySchema,filterSchema,userProfileSchema,mediaMetadataSchema}.ts`
-- **Tests**: `frontend/tests/unit/stores/` and `frontend/tests/unit/hooks/`
+- **Stores**: `apps/web/src/stores/{authStore,uiStore,filterStore}.ts`
+- **Hooks**: `apps/web/src/hooks/queries/{useDirectoryEntries,useDirectoryEntry,useUserProfile,useMediaMetadata}.ts`
+- **Schemas**: `apps/web/src/schemas/{authSchema,directoryEntrySchema,filterSchema,userProfileSchema,mediaMetadataSchema}.ts`
+- **Tests**: `apps/web/tests/unit/stores/` and `apps/web/tests/unit/hooks/`
 
 #### Testing Infrastructure
 
@@ -812,12 +812,12 @@ Testing Infrastructure: Comprehensive Multi-Layer Testing
 - **Quality Gates**: 70% coverage threshold blocks low-quality PRs (FR-002)
 
 **Verification:**
-- **Playwright Config**: `frontend/playwright.config.ts`
-- **Vitest Config**: `frontend/vitest.config.ts` (lines 36-41 for thresholds)
-- **Storybook Config**: `frontend/.storybook/main.ts`
-- **E2E Tests**: `frontend/tests/e2e/*.spec.ts` (6 test files)
-- **Unit Tests**: `frontend/tests/unit/**/*.test.ts*` (4 test files)
-- **Stories**: `frontend/src/stories/*.stories.tsx` (5 story files)
+- **Playwright Config**: `apps/web/playwright.config.ts`
+- **Vitest Config**: `apps/web/vitest.config.ts` (lines 36-41 for thresholds)
+- **Storybook Config**: `apps/web/.storybook/main.ts`
+- **E2E Tests**: `apps/web/tests/e2e/*.spec.ts` (6 test files)
+- **Unit Tests**: `apps/web/tests/unit/**/*.test.ts*` (4 test files)
+- **Stories**: `apps/web/src/stories/*.stories.tsx` (5 story files)
 
 ### Long-Term Planned Enhancements
 

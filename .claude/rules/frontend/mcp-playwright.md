@@ -1,5 +1,5 @@
 ---
-paths: frontend/**
+paths: apps/web/**
 ---
 
 # Playwright MCP Server Tools
@@ -10,13 +10,13 @@ Claude Code has access to Model Context Protocol (MCP) servers that provide brow
 
 ## Documentation
 
-See `frontend/README-MCP.md` for comprehensive setup and usage guide.
+See `apps/web/README-MCP.md` for comprehensive setup and usage guide.
 
 ## Configuration Files
 
 | File | Purpose |
 |------|---------|
-| `frontend/.mcp/server-config.json` | Playwright MCP server configuration (headless by default) |
+| `apps/web/.mcp/server-config.json` | Playwright MCP server configuration (headless by default) |
 | `.mcp.json` | MCP client configuration for Claude Code integration |
 
 ## Available Tools
@@ -29,7 +29,7 @@ See `frontend/README-MCP.md` for comprehensive setup and usage guide.
 | `mcp__playwright__browser_snapshot` | Get DOM snapshot for analysis |
 | `mcp__playwright__browser_evaluate` | Execute JavaScript in browser context |
 
-See `frontend/README-MCP.md` for complete tool list.
+See `apps/web/README-MCP.md` for complete tool list.
 
 ## Common Use Cases
 
@@ -73,4 +73,4 @@ mcp__playwright__browser_click({ element: 'Submit button', ref: 'button[type="su
 
 ## Reference
 
-- See `frontend/README-MCP.md` for complete MCP setup and usage guide
+- See `apps/web/README-MCP.md` for complete MCP setup and usage guide

@@ -1,5 +1,5 @@
 ---
-paths: frontend/**
+paths: apps/web/**
 ---
 
 # Next.js App Router Development
@@ -7,7 +7,7 @@ paths: frontend/**
 ## Commands
 
 ```bash
-cd frontend
+cd apps/web
 pnpm install              # Install dependencies
 pnpm run dev             # Start development server with Turbopack
 pnpm run build           # Build for production (includes Velite content processing)
@@ -29,7 +29,7 @@ npx tsc --noEmit        # TypeScript type checking
 ## Route Structure
 
 ```
-frontend/src/app/
+apps/web/src/app/
 ├── (auth)/              # Auth routes (login, register)
 ├── (main)/              # Public routes
 │   ├── directory/
@@ -45,7 +45,7 @@ frontend/src/app/
 ### CI/CD (Automated)
 
 ```bash
-cd frontend && npx tsc --noEmit  # Type checking
+cd apps/web && npx tsc --noEmit  # Type checking
 pnpm run lint                     # ESLint
 pnpm run build                    # Next.js build
 ```

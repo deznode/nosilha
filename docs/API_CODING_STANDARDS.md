@@ -329,7 +329,7 @@ V11__seed_cape_verde_towns.sql
 #### 4.1.3 File Organization
 
 ```
-backend/src/main/resources/db/migration/
+apps/api/src/main/resources/db/migration/
 ├── V1__create_directory_entries_table.sql          # DDL
 ├── V2__create_towns_table.sql                      # DDL
 ├── V3__create_users_table.sql                      # DDL
@@ -997,7 +997,7 @@ class DirectoryEntryController(
 
 #### 8.1.3 Standard Response Envelopes
 
-All controllers **must** return the shared response envelopes defined in [`com/nosilha/core/shared/api/ApiResponse.kt`](../backend/src/main/kotlin/com/nosilha/core/shared/api/ApiResponse.kt):
+All controllers **must** return the shared response envelopes defined in [`com/nosilha/core/shared/api/ApiResponse.kt`](../apps/api/src/main/kotlin/com/nosilha/core/shared/api/ApiResponse.kt):
 
 - Successful single-resource responses: `ApiResponse<T>`
 - Paginated list responses: `PagedApiResponse<T>` (prefer `PagedApiResponse.from(page)`)

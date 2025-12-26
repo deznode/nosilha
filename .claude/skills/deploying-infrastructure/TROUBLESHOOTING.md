@@ -91,7 +91,7 @@ docker run test-deps npm list
 
 3. **Test Local Build**:
 ```bash
-cd frontend
+cd apps/web
 npm install
 npm run build
 ```
@@ -260,14 +260,14 @@ Error: Migration failed - SQL syntax error
 
 1. **Test Migration Locally**:
 ```bash
-cd backend
+cd apps/api
 ./gradlew flywayMigrate -i
 ```
 
 2. **Validate Migration Syntax**:
 ```bash
 # Check SQL syntax
-psql -f backend/src/main/resources/db/migration/V023__migration.sql
+psql -f apps/api/src/main/resources/db/migration/V023__migration.sql
 ```
 
 3. **Check Migration History**:
@@ -384,7 +384,7 @@ RUN npm run build
 on:
   push:
     paths:
-      - 'backend/**'  # Only run when backend files change
+      - 'apps/api/**'  # Only run when backend files change
 ```
 
 4. **Parallel Job Execution**:

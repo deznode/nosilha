@@ -15,7 +15,7 @@ services:
   # --- Backend Service (Spring Boot + Kotlin) ---
   # Profile-based service - only starts when explicitly requested
   # Usage: docker-compose --profile backend up
-  # Pre-build required: cd backend && ./gradlew bootBuildImage --imageName=nosilha-backend:local
+  # Pre-build required: cd apps/api && ./gradlew bootBuildImage --imageName=nosilha-backend:local
   backend:
     image: nosilha-backend:local
     container_name: nosilha-backend-local
@@ -48,7 +48,7 @@ services:
   # Usage: docker-compose --profile frontend up
   frontend:
     build:
-      context: ../../frontend
+      context: ../../apps/web
       dockerfile: Dockerfile
       args:
         - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://host.docker.internal:8080}
