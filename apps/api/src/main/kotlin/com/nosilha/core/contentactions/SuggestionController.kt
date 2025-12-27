@@ -64,7 +64,7 @@ class SuggestionController(
      *
      * @param dto Suggestion data from the form submission
      * @param request HTTP request (used to extract IP address)
-     * @return ApiResponse with SuggestionResponseDto (201 Created).
+     * @return ApiResult with SuggestionResponseDto (201 Created).
      * Rate limit violations continue propagating to the global handler.
      */
     @PostMapping

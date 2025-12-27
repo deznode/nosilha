@@ -97,7 +97,7 @@ class ReactionController(
      *
      * @param createDto Contains contentId and reactionType
      * @param authentication Spring Security authentication (contains userId from JWT)
-     * @return ApiResponse wrapping ReactionResponseDto with reaction details and updated count
+     * @return ApiResult wrapping ReactionResponseDto with reaction details and updated count
      * @throws com.nosilha.core.shared.exception.RateLimitExceededException if rate limit exceeded (HTTP 429)
      */
     @PostMapping

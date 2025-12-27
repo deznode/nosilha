@@ -55,7 +55,7 @@ class RelatedContentController(
      *
      * @param contentId UUID of the current heritage page
      * @param limit Number of results to return (3-5, default: 5)
-     * @return ApiResponse with list of related content items
+     * @return ApiResult with list of related content items
      */
     @GetMapping("/entries/{contentId}/related")
     fun getRelatedContent(

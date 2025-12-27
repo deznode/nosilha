@@ -64,7 +64,7 @@ class ContactController(
      *
      * @param request Contact form data
      * @param httpRequest HTTP request (used to extract IP address)
-     * @return ApiResponse with ContactConfirmationDto (201 Created)
+     * @return ApiResult with ContactConfirmationDto (201 Created)
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

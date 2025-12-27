@@ -257,7 +257,7 @@ class DirectoryEntryController(
      *
      * @param id The UUID of the directory entry to check bookmark status for.
      * @param authentication Optional Spring Security authentication (null if not authenticated).
-     * @return ApiResponse containing BookmarkStatusDto with bookmark status.
+     * @return ApiResult containing BookmarkStatusDto with bookmark status.
      */
     @GetMapping("/entries/{id}/bookmark-status")
     fun getBookmarkStatus(

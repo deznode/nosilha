@@ -97,7 +97,7 @@ class ProfileController(
      * </pre>
      *
      * @param authentication Spring Security authentication containing user ID from JWT
-     * @return ApiResponse wrapping ProfileDto with user profile information
+     * @return ApiResult wrapping ProfileDto with user profile information
      */
     @GetMapping("/me")
     @Operation(
@@ -174,7 +174,7 @@ class ProfileController(
      *
      * @param authentication Spring Security authentication containing user ID from JWT
      * @param request ProfileUpdateRequest with optional fields to update
-     * @return ApiResponse wrapping ProfileDto with updated profile information
+     * @return ApiResult wrapping ProfileDto with updated profile information
      */
     @PutMapping("/me")
     @Operation(
@@ -259,7 +259,7 @@ class ProfileController(
      * </pre>
      *
      * @param authentication Spring Security authentication containing user ID from JWT
-     * @return ApiResponse wrapping ContributionsDto with aggregated contribution data
+     * @return ApiResult wrapping ContributionsDto with aggregated contribution data
      */
     @GetMapping("/me/contributions")
     @Operation(
