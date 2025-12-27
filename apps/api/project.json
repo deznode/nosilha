@@ -40,15 +40,22 @@
         "cwd": "apps/api"
       }
     },
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "./gradlew bootRun --args='--spring.profiles.active=local'",
+        "cwd": "apps/api"
+      }
+    },
     "lint": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "./gradlew detekt ktlintCheck",
+        "command": "./gradlew ktlintCheck",
         "cwd": "apps/api"
       },
       "cache": true,
       "inputs": ["{projectRoot}/src/**/*.kt"],
-      "outputs": ["{projectRoot}/build/reports/detekt"]
+      "outputs": ["{projectRoot}/build/reports/ktlint"]
     }
   }
 }

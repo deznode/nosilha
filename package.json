@@ -23,6 +23,7 @@
     "graph": "nx graph",
     "web:dev": "nx run web:dev",
     "web:build": "nx run web:build",
+    "api:dev": "nx run api:dev",
     "api:build": "nx run api:build",
     "api:test": "nx run api:test",
     "api:serve": "nx run api:serve"
