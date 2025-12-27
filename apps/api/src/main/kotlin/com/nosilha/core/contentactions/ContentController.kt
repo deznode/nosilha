@@ -1,6 +1,7 @@
 package com.nosilha.core.contentactions
 
 import com.nosilha.core.contentactions.domain.ContentType
+import com.nosilha.core.shared.api.ApiResult
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -11,7 +12,6 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -60,10 +60,10 @@ class ContentController(
     )
     fun registerContent(
         @Valid @RequestBody request: ContentRegistrationRequest,
-    ): ResponseEntity<ContentIdResponse> {
+    ): ApiResult<ContentIdResponse> {
         val contentType = ContentType.valueOf(request.type.uppercase())
         val contentId = contentService.registerContent(request.slug, contentType)
-        return ResponseEntity.ok(ContentIdResponse(contentId = contentId))
+        return ApiResult(data = ContentIdResponse(contentId = contentId))
     }
 }
 

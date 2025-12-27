@@ -3,7 +3,7 @@ package com.nosilha.core.contentactions
 import com.nosilha.core.contentactions.api.ReactionCountsDto
 import com.nosilha.core.contentactions.api.ReactionCreateDto
 import com.nosilha.core.contentactions.api.ReactionResponseDto
-import com.nosilha.core.shared.api.ApiResponse
+import com.nosilha.core.shared.api.ApiResult
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -104,7 +104,7 @@ class ReactionController(
     fun submitReaction(
         @Valid @RequestBody createDto: ReactionCreateDto,
         authentication: Authentication,
-    ): ResponseEntity<ApiResponse<ReactionResponseDto>> {
+    ): ResponseEntity<ApiResult<ReactionResponseDto>> {
         val userId = extractUserId(authentication)
 
         logger.info(
@@ -133,7 +133,7 @@ class ReactionController(
             result.operation,
         )
 
-        val payload = ApiResponse(data = result.reaction, status = status.value())
+        val payload = ApiResult(data = result.reaction, status = status.value())
         return ResponseEntity.status(status).body(payload)
     }
 
@@ -234,7 +234,7 @@ class ReactionController(
     fun getReactionCounts(
         @PathVariable contentId: UUID,
         authentication: Authentication?,
-    ): ApiResponse<ReactionCountsDto> {
+    ): ApiResult<ReactionCountsDto> {
         val userId = authentication?.let { extractUserId(it) }
 
         logger.debug("Fetching reaction counts for content {} (user: {})", contentId, userId)
@@ -248,7 +248,7 @@ class ReactionController(
             counts.userReaction,
         )
 
-        return ApiResponse(data = counts)
+        return ApiResult(data = counts)
     }
 
     /**

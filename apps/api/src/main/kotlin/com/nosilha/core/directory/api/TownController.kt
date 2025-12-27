@@ -1,8 +1,8 @@
 package com.nosilha.core.directory.api
 
 import com.nosilha.core.directory.domain.TownService
-import com.nosilha.core.shared.api.ApiResponse
-import com.nosilha.core.shared.api.PagedApiResponse
+import com.nosilha.core.shared.api.ApiResult
+import com.nosilha.core.shared.api.PagedApiResult
 import com.nosilha.core.shared.api.TownDto
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -44,10 +44,10 @@ class TownController(
     fun getTowns(
         @RequestParam(name = "page", defaultValue = "0") page: Int,
         @RequestParam(name = "size", defaultValue = "20") size: Int,
-    ): PagedApiResponse<TownDto> {
+    ): PagedApiResult<TownDto> {
         val pageable: Pageable = PageRequest.of(page, size, Sort.by("name").ascending())
         val resultPage = service.getTownsPage(pageable)
-        return PagedApiResponse.from(resultPage)
+        return PagedApiResult.from(resultPage)
     }
 
     /**
@@ -59,9 +59,9 @@ class TownController(
      * @return An ApiResponse containing all towns ordered by name.
      */
     @GetMapping("/all")
-    fun getAllTowns(): ApiResponse<List<TownDto>> {
+    fun getAllTowns(): ApiResult<List<TownDto>> {
         val towns = service.getAllTowns()
-        return ApiResponse(data = towns)
+        return ApiResult(data = towns)
     }
 
     /**
@@ -75,9 +75,9 @@ class TownController(
     @GetMapping("/{id}")
     fun getTownById(
         @PathVariable id: UUID,
-    ): ApiResponse<TownDto> {
+    ): ApiResult<TownDto> {
         val town = service.getTownById(id)
-        return ApiResponse(data = town)
+        return ApiResult(data = town)
     }
 
     /**
@@ -95,9 +95,9 @@ class TownController(
     @GetMapping("/slug/{slug}")
     fun getTownBySlug(
         @PathVariable slug: String,
-    ): ApiResponse<TownDto> {
+    ): ApiResult<TownDto> {
         val town = service.getTownBySlug(slug)
-        return ApiResponse(data = town)
+        return ApiResult(data = town)
     }
 
     /**
@@ -113,7 +113,7 @@ class TownController(
     @ResponseStatus(HttpStatus.CREATED)
     fun createTown(
         @RequestBody request: CreateTownRequestDto,
-    ): ApiResponse<TownDto> {
+    ): ApiResult<TownDto> {
         val createdTown =
             service.createTown(
                 name = request.name,
@@ -127,7 +127,7 @@ class TownController(
                 heroImage = request.heroImage,
                 gallery = request.gallery ?: emptyList(),
             )
-        return ApiResponse(data = createdTown, status = HttpStatus.CREATED.value())
+        return ApiResult(data = createdTown, status = HttpStatus.CREATED.value())
     }
 
     /**
@@ -141,7 +141,7 @@ class TownController(
     fun updateTown(
         @PathVariable id: UUID,
         @RequestBody request: CreateTownRequestDto,
-    ): ApiResponse<TownDto> {
+    ): ApiResult<TownDto> {
         val updatedTown =
             service.updateTown(
                 id = id,
@@ -156,7 +156,7 @@ class TownController(
                 heroImage = request.heroImage,
                 gallery = request.gallery ?: emptyList(),
             )
-        return ApiResponse(data = updatedTown)
+        return ApiResult(data = updatedTown)
     }
 
     /**

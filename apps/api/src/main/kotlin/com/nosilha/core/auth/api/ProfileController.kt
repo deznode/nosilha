@@ -6,8 +6,8 @@ import com.nosilha.core.auth.api.dto.ProfileDto
 import com.nosilha.core.auth.api.dto.ProfileUpdateRequest
 import com.nosilha.core.contentactions.api.BookmarkWithEntryDto
 import com.nosilha.core.contentactions.services.BookmarkService
-import com.nosilha.core.shared.api.ApiResponse
-import com.nosilha.core.shared.api.PagedApiResponse
+import com.nosilha.core.shared.api.ApiResult
+import com.nosilha.core.shared.api.PagedApiResult
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -107,7 +107,7 @@ class ProfileController(
     )
     @SwaggerApiResponse(responseCode = "200", description = "Profile retrieved successfully")
     @SwaggerApiResponse(responseCode = "401", description = "Unauthorized - invalid or missing JWT token")
-    fun getProfile(authentication: Authentication): ApiResponse<ProfileDto> {
+    fun getProfile(authentication: Authentication): ApiResult<ProfileDto> {
         val userId = extractUserId(authentication)
 
         logger.info("Retrieving profile for user: {}", userId)
@@ -116,7 +116,7 @@ class ProfileController(
 
         logger.debug("Profile retrieved for user {}: {}", userId, profile.id)
 
-        return ApiResponse(data = profile, status = HttpStatus.OK.value())
+        return ApiResult(data = profile, status = HttpStatus.OK.value())
     }
 
     /**
@@ -190,7 +190,7 @@ class ProfileController(
     fun updateProfile(
         authentication: Authentication,
         @Valid @RequestBody request: ProfileUpdateRequest,
-    ): ApiResponse<ProfileDto> {
+    ): ApiResult<ProfileDto> {
         val userId = extractUserId(authentication)
 
         logger.info("Updating profile for user: {}", userId)
@@ -199,7 +199,7 @@ class ProfileController(
 
         logger.debug("Profile updated for user {}: {}", userId, updatedProfile.id)
 
-        return ApiResponse(data = updatedProfile, status = HttpStatus.OK.value())
+        return ApiResult(data = updatedProfile, status = HttpStatus.OK.value())
     }
 
     /**
@@ -269,7 +269,7 @@ class ProfileController(
     )
     @SwaggerApiResponse(responseCode = "200", description = "Contributions retrieved successfully")
     @SwaggerApiResponse(responseCode = "401", description = "Unauthorized - invalid or missing JWT token")
-    fun getContributions(authentication: Authentication): ApiResponse<ContributionsDto> {
+    fun getContributions(authentication: Authentication): ApiResult<ContributionsDto> {
         val userId = extractUserId(authentication)
 
         logger.info("Retrieving contributions for user: {}", userId)
@@ -284,7 +284,7 @@ class ProfileController(
             contributions.totalStories,
         )
 
-        return ApiResponse(data = contributions, status = HttpStatus.OK.value())
+        return ApiResult(data = contributions, status = HttpStatus.OK.value())
     }
 
     /**
@@ -358,7 +358,7 @@ class ProfileController(
         authentication: Authentication,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
-    ): PagedApiResponse<BookmarkWithEntryDto> {
+    ): PagedApiResult<BookmarkWithEntryDto> {
         val userId = extractUserId(authentication)
 
         logger.info("Retrieving bookmarks for user: {} (page: {}, size: {})", userId, page, size)
@@ -377,7 +377,7 @@ class ProfileController(
             bookmarksPage.totalPages,
         )
 
-        return PagedApiResponse.from(bookmarksPage)
+        return PagedApiResult.from(bookmarksPage)
     }
 
     /**

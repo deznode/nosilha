@@ -2,8 +2,8 @@ package com.nosilha.core.contentactions.api
 
 import com.nosilha.core.contentactions.SuggestionService
 import com.nosilha.core.contentactions.domain.SuggestionStatus
-import com.nosilha.core.shared.api.ApiResponse
-import com.nosilha.core.shared.api.PagedApiResponse
+import com.nosilha.core.shared.api.ApiResult
+import com.nosilha.core.shared.api.PagedApiResult
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -72,9 +72,9 @@ class AdminSuggestionController(
         @RequestParam(required = false) status: SuggestionStatus?,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
-    ): PagedApiResponse<SuggestionListDto> {
+    ): PagedApiResult<SuggestionListDto> {
         val result = suggestionService.listSuggestions(status, page, size)
-        return PagedApiResponse.from(result)
+        return PagedApiResult.from(result)
     }
 
     /**
@@ -90,9 +90,9 @@ class AdminSuggestionController(
     @GetMapping("/{id}")
     fun getSuggestion(
         @PathVariable id: UUID,
-    ): ResponseEntity<ApiResponse<SuggestionDetailDto>> {
+    ): ResponseEntity<ApiResult<SuggestionDetailDto>> {
         val suggestion = suggestionService.getSuggestion(id)
-        return ResponseEntity.ok(ApiResponse(data = suggestion, status = HttpStatus.OK.value()))
+        return ResponseEntity.ok(ApiResult(data = suggestion, status = HttpStatus.OK.value()))
     }
 
     /**
@@ -125,7 +125,7 @@ class AdminSuggestionController(
         @PathVariable id: UUID,
         @Valid @RequestBody request: UpdateSuggestionStatusRequest,
         authentication: Authentication,
-    ): ResponseEntity<ApiResponse<SuggestionDetailDto>> {
+    ): ResponseEntity<ApiResult<SuggestionDetailDto>> {
         val adminId = authentication.name
         val updated =
             suggestionService.updateSuggestionStatus(
@@ -134,7 +134,7 @@ class AdminSuggestionController(
                 notes = request.adminNotes,
                 adminId = adminId,
             )
-        return ResponseEntity.ok(ApiResponse(data = updated, status = HttpStatus.OK.value()))
+        return ResponseEntity.ok(ApiResult(data = updated, status = HttpStatus.OK.value()))
     }
 
     /**

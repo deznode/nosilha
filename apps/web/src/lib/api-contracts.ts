@@ -384,8 +384,8 @@ export interface ApiRequestConfig {
  */
 export interface ApiResponse<T> {
   data: T;
-  success: boolean;
-  message?: string;
+  timestamp: string;
+  status: number;
 }
 
 /**
@@ -393,10 +393,16 @@ export interface ApiResponse<T> {
  */
 export interface PagedApiResponse<T> {
   data: T[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
+  timestamp: string;
+  status: number;
+  pageable: {
+    page: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
+    first: boolean;
+    last: boolean;
+  };
 }
 
 /**

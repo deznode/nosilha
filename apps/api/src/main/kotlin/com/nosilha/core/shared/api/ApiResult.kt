@@ -13,7 +13,7 @@ import java.time.LocalDateTime
  * @property timestamp When the response was generated
  * @property status HTTP status code
  */
-data class ApiResponse<T>(
+data class ApiResult<T>(
     val data: T,
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     val timestamp: LocalDateTime = LocalDateTime.now(),
@@ -30,7 +30,7 @@ data class ApiResponse<T>(
  * @property timestamp When the response was generated
  * @property status HTTP status code
  */
-data class PagedApiResponse<T : Any>(
+data class PagedApiResult<T : Any>(
     val data: List<T>,
     val pageable: PageableInfo,
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -39,10 +39,10 @@ data class PagedApiResponse<T : Any>(
 ) {
     companion object {
         /**
-         * Creates a PagedApiResponse from a Spring Data Page object.
+         * Creates a PagedApiResult from a Spring Data Page object.
          */
-        fun <T : Any> from(page: Page<T>): PagedApiResponse<T> =
-            PagedApiResponse(
+        fun <T : Any> from(page: Page<T>): PagedApiResult<T> =
+            PagedApiResult(
                 data = page.content,
                 pageable =
                     PageableInfo(

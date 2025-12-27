@@ -1,7 +1,7 @@
 package com.nosilha.core.contentactions.api
 
 import com.nosilha.core.contentactions.services.BookmarkService
-import com.nosilha.core.shared.api.ApiResponse
+import com.nosilha.core.shared.api.ApiResult
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -130,7 +130,7 @@ class BookmarkController(
     fun createBookmark(
         @Valid @RequestBody request: BookmarkCreateRequest,
         authentication: Authentication,
-    ): ResponseEntity<ApiResponse<BookmarkDto>> {
+    ): ResponseEntity<ApiResult<BookmarkDto>> {
         val userId = authentication.name
 
         logger.info(
@@ -150,7 +150,7 @@ class BookmarkController(
 
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(ApiResponse(data = bookmark, status = HttpStatus.CREATED.value()))
+            .body(ApiResult(data = bookmark, status = HttpStatus.CREATED.value()))
     }
 
     /**

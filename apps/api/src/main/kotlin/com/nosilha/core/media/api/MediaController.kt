@@ -9,7 +9,7 @@ import com.nosilha.core.media.api.dto.StatusUpdateRequest
 import com.nosilha.core.media.domain.MediaService
 import com.nosilha.core.media.domain.MediaStatus
 import com.nosilha.core.media.repository.MediaRepository
-import com.nosilha.core.shared.api.ApiResponse
+import com.nosilha.core.shared.api.ApiResult
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.validation.Valid
 import org.springframework.data.domain.PageRequest
@@ -59,7 +59,7 @@ class MediaController(
     fun generatePresignedUrl(
         @Valid @RequestBody request: PresignRequest,
         authentication: Authentication,
-    ): ApiResponse<PresignResponse> {
+    ): ApiResult<PresignResponse> {
         val userId = extractUserId(authentication)
         logger.info {
             "Presign request from user $userId: ${request.fileName} " +
@@ -73,7 +73,7 @@ class MediaController(
             userId = userId,
         )
 
-        return ApiResponse(
+        return ApiResult(
             data = PresignResponse(
                 uploadUrl = result.uploadUrl,
                 key = result.key,
@@ -93,7 +93,7 @@ class MediaController(
     fun confirmUpload(
         @Valid @RequestBody request: ConfirmRequest,
         authentication: Authentication,
-    ): ApiResponse<MediaResponse> {
+    ): ApiResult<MediaResponse> {
         val userId = extractUserId(authentication)
         logger.info { "Confirm upload from user $userId: key=${request.key}" }
 
@@ -108,7 +108,7 @@ class MediaController(
             userId = userId,
         )
 
-        return ApiResponse(
+        return ApiResult(
             data = MediaResponse.from(media),
             status = HttpStatus.CREATED.value(),
         )
@@ -124,7 +124,7 @@ class MediaController(
     fun getMedia(
         @PathVariable id: UUID,
         authentication: Authentication?,
-    ): ResponseEntity<ApiResponse<MediaResponse>> {
+    ): ResponseEntity<ApiResult<MediaResponse>> {
         val media = mediaRepository.findById(id).orElse(null)
             ?: return ResponseEntity.notFound().build()
 
@@ -134,7 +134,7 @@ class MediaController(
             return ResponseEntity.notFound().build()
         }
 
-        return ResponseEntity.ok(ApiResponse(data = MediaResponse.from(media)))
+        return ResponseEntity.ok(ApiResult(data = MediaResponse.from(media)))
     }
 
     /**
@@ -143,12 +143,12 @@ class MediaController(
     @GetMapping("/entry/{entryId}")
     fun getMediaByEntry(
         @PathVariable entryId: UUID,
-    ): ApiResponse<List<MediaResponse>> {
+    ): ApiResult<List<MediaResponse>> {
         val mediaList = mediaRepository.findByEntryIdAndStatusOrderByDisplayOrderAsc(
             entryId = entryId,
             status = MediaStatus.AVAILABLE,
         )
-        return ApiResponse(data = mediaList.map { MediaResponse.from(it) })
+        return ApiResult(data = mediaList.map { MediaResponse.from(it) })
     }
 
     /**
@@ -159,7 +159,7 @@ class MediaController(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
         authentication: Authentication,
-    ): ResponseEntity<ApiResponse<List<MediaResponse>>> {
+    ): ResponseEntity<ApiResult<List<MediaResponse>>> {
         if (!authentication.hasRole("ADMIN")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
         }
@@ -171,7 +171,7 @@ class MediaController(
         )
 
         return ResponseEntity.ok(
-            ApiResponse(
+            ApiResult(
                 data = mediaPage.content.map { MediaResponse.from(it) },
             ),
         )
@@ -186,7 +186,7 @@ class MediaController(
         @PathVariable id: UUID,
         @Valid @RequestBody request: StatusUpdateRequest,
         authentication: Authentication,
-    ): ResponseEntity<ApiResponse<MediaResponse>> {
+    ): ResponseEntity<ApiResult<MediaResponse>> {
         if (!authentication.hasRole("ADMIN")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
         }
@@ -205,7 +205,7 @@ class MediaController(
             return ResponseEntity.notFound().build()
         }
 
-        return ResponseEntity.ok(ApiResponse(data = MediaResponse.from(media)))
+        return ResponseEntity.ok(ApiResult(data = MediaResponse.from(media)))
     }
 
     /**

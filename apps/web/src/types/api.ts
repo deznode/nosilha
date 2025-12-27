@@ -9,23 +9,23 @@
 
 /**
  * Standard API response wrapper for single items
+ * Matches backend ApiResult<T> class
  */
 export interface ApiResponse<T> {
   data: T;
   timestamp: string;
-  success: boolean;
-  message?: string;
+  status: number;
 }
 
 /**
  * Standard API response wrapper for paginated data
+ * Matches backend PagedApiResult<T> class
  */
 export interface PagedApiResponse<T> {
   data: T[];
   timestamp: string;
-  success: boolean;
-  message?: string;
-  pagination: {
+  status: number;
+  pageable: {
     page: number;
     size: number;
     totalElements: number;
@@ -351,7 +351,7 @@ export function isApiResponse<T>(obj: unknown): obj is ApiResponse<T> {
     obj !== null &&
     "data" in obj &&
     "timestamp" in obj &&
-    "success" in obj
+    "status" in obj
   );
 }
 
@@ -366,8 +366,8 @@ export function isPagedApiResponse<T>(
     obj !== null &&
     "data" in obj &&
     "timestamp" in obj &&
-    "success" in obj &&
-    "pagination" in obj &&
+    "status" in obj &&
+    "pageable" in obj &&
     Array.isArray((obj as PagedApiResponse<unknown>).data)
   );
 }

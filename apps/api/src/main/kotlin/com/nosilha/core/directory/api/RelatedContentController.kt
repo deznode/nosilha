@@ -2,7 +2,7 @@ package com.nosilha.core.directory.api
 
 import com.nosilha.core.directory.RelatedContentService
 import com.nosilha.core.directory.domain.toDto
-import com.nosilha.core.shared.api.ApiResponse
+import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.DirectoryEntryDto
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -61,7 +61,7 @@ class RelatedContentController(
     fun getRelatedContent(
         @PathVariable contentId: UUID,
         @RequestParam(name = "limit", defaultValue = "5") limit: Int,
-    ): ApiResponse<List<DirectoryEntryDto>> {
+    ): ApiResult<List<DirectoryEntryDto>> {
         logger.info("GET /api/v1/directory/entries/{}/related?limit={}", contentId, limit)
 
         // Validate limit parameter
@@ -86,7 +86,7 @@ class RelatedContentController(
 
         logger.info("Returning {} related content items for contentId={}", relatedDtos.size, contentId)
 
-        return ApiResponse(
+        return ApiResult(
             data = relatedDtos,
             status = HttpStatus.OK.value(),
         )

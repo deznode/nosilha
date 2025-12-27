@@ -5,10 +5,10 @@ import com.nosilha.core.contentactions.services.BookmarkService
 import com.nosilha.core.directory.domain.DirectoryEntryService
 import com.nosilha.core.directory.domain.toDto
 import com.nosilha.core.directory.services.SearchService
-import com.nosilha.core.shared.api.ApiResponse
+import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.CreateEntryRequestDto
 import com.nosilha.core.shared.api.DirectoryEntryDto
-import com.nosilha.core.shared.api.PagedApiResponse
+import com.nosilha.core.shared.api.PagedApiResult
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -68,9 +68,9 @@ class DirectoryEntryController(
     @ResponseStatus(HttpStatus.CREATED)
     fun createNewEntry(
         @RequestBody request: CreateEntryRequestDto,
-    ): ApiResponse<DirectoryEntryDto> {
+    ): ApiResult<DirectoryEntryDto> {
         val createdEntry = service.createEntry(request)
-        return ApiResponse(data = createdEntry, status = HttpStatus.CREATED.value())
+        return ApiResult(data = createdEntry, status = HttpStatus.CREATED.value())
     }
 
     /**
@@ -109,7 +109,7 @@ class DirectoryEntryController(
         @RequestParam(name = "sort", defaultValue = "created_at_desc") sortParam: String,
         @RequestParam(name = "page", defaultValue = "0") page: Int,
         @RequestParam(name = "size", defaultValue = "20") size: Int,
-    ): PagedApiResponse<DirectoryEntryDto> {
+    ): PagedApiResult<DirectoryEntryDto> {
         // If search query is provided, use search service
         val resultPage =
             if (!q.isNullOrBlank()) {
@@ -142,7 +142,7 @@ class DirectoryEntryController(
                 }
             }
 
-        return PagedApiResponse.from(resultPage)
+        return PagedApiResult.from(resultPage)
     }
 
     /**
@@ -155,9 +155,9 @@ class DirectoryEntryController(
     @GetMapping("/entries/{id}")
     fun getEntryById(
         @PathVariable id: UUID,
-    ): ApiResponse<DirectoryEntryDto> {
+    ): ApiResult<DirectoryEntryDto> {
         val entry = service.getEntryById(id)
-        return ApiResponse(data = entry)
+        return ApiResult(data = entry)
     }
 
     /**
@@ -174,9 +174,9 @@ class DirectoryEntryController(
     @GetMapping("/slug/{slug}")
     fun getEntryBySlug(
         @PathVariable slug: String,
-    ): ApiResponse<DirectoryEntryDto> {
+    ): ApiResult<DirectoryEntryDto> {
         val entry = service.getEntryBySlug(slug)
-        return ApiResponse(data = entry)
+        return ApiResult(data = entry)
     }
 
     /**
@@ -192,9 +192,9 @@ class DirectoryEntryController(
     fun updateEntry(
         @PathVariable id: UUID,
         @RequestBody request: CreateEntryRequestDto,
-    ): ApiResponse<DirectoryEntryDto> {
+    ): ApiResult<DirectoryEntryDto> {
         val updatedEntry = service.updateEntry(id, request)
-        return ApiResponse(data = updatedEntry)
+        return ApiResult(data = updatedEntry)
     }
 
     /**
@@ -263,10 +263,10 @@ class DirectoryEntryController(
     fun getBookmarkStatus(
         @PathVariable id: UUID,
         authentication: Authentication?,
-    ): ApiResponse<BookmarkStatusDto> {
+    ): ApiResult<BookmarkStatusDto> {
         // If user is not authenticated, return false
         if (authentication == null) {
-            return ApiResponse(
+            return ApiResult(
                 data = BookmarkStatusDto(isBookmarked = false, bookmarkId = null),
             )
         }
@@ -275,6 +275,6 @@ class DirectoryEntryController(
         val userId = authentication.name
         val bookmarkStatus = bookmarkService.isBookmarked(userId, id)
 
-        return ApiResponse(data = bookmarkStatus)
+        return ApiResult(data = bookmarkStatus)
     }
 }

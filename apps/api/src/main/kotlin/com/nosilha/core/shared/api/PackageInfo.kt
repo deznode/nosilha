@@ -12,7 +12,7 @@ import org.springframework.modulith.PackageInfo
  * <p><strong>Named Interface: "api"</strong>
  * <ul>
  *   <li>Reference in modules as: allowedDependencies = ["shared :: api"]</li>
- *   <li>Contains: ApiResponse, validation DTOs, common API models</li>
+ *   <li>Contains: ApiResult, validation DTOs, common API models</li>
  * </ul>
  *
  * @since 1.0

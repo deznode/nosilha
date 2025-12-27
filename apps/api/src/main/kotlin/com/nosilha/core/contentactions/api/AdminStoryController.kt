@@ -2,8 +2,8 @@ package com.nosilha.core.contentactions.api
 
 import com.nosilha.core.contentactions.StoryService
 import com.nosilha.core.contentactions.domain.StoryStatus
-import com.nosilha.core.shared.api.ApiResponse
-import com.nosilha.core.shared.api.PagedApiResponse
+import com.nosilha.core.shared.api.ApiResult
+import com.nosilha.core.shared.api.PagedApiResult
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -77,9 +77,9 @@ class AdminStoryController(
         @RequestParam(required = false) status: StoryStatus?,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
-    ): PagedApiResponse<StoryListDto> {
+    ): PagedApiResult<StoryListDto> {
         val result = storyService.listStories(status, page, size)
-        return PagedApiResponse.from(result)
+        return PagedApiResult.from(result)
     }
 
     /**
@@ -107,9 +107,9 @@ class AdminStoryController(
     @GetMapping("/{id}")
     fun getStory(
         @PathVariable id: UUID,
-    ): ResponseEntity<ApiResponse<StoryDetailDto>> {
+    ): ResponseEntity<ApiResult<StoryDetailDto>> {
         val story = storyService.getStory(id)
-        return ResponseEntity.ok(ApiResponse(data = story, status = HttpStatus.OK.value()))
+        return ResponseEntity.ok(ApiResult(data = story, status = HttpStatus.OK.value()))
     }
 
     /**
@@ -154,7 +154,7 @@ class AdminStoryController(
         @PathVariable id: UUID,
         @Valid @RequestBody request: UpdateStoryStatusRequest,
         authentication: Authentication,
-    ): ResponseEntity<ApiResponse<StoryDetailDto>> {
+    ): ResponseEntity<ApiResult<StoryDetailDto>> {
         val adminId = authentication.name
         val updated =
             storyService.updateStoryStatus(
@@ -164,7 +164,7 @@ class AdminStoryController(
                 slug = request.publicationSlug,
                 adminId = adminId,
             )
-        return ResponseEntity.ok(ApiResponse(data = updated, status = HttpStatus.OK.value()))
+        return ResponseEntity.ok(ApiResult(data = updated, status = HttpStatus.OK.value()))
     }
 
     /**
@@ -195,9 +195,9 @@ class AdminStoryController(
     fun toggleFeatured(
         @PathVariable id: UUID,
         @Valid @RequestBody request: ToggleFeaturedRequest,
-    ): ResponseEntity<ApiResponse<StoryDetailDto>> {
+    ): ResponseEntity<ApiResult<StoryDetailDto>> {
         val updated = storyService.toggleFeatured(id, request.isFeatured)
-        return ResponseEntity.ok(ApiResponse(data = updated, status = HttpStatus.OK.value()))
+        return ResponseEntity.ok(ApiResult(data = updated, status = HttpStatus.OK.value()))
     }
 
     /**

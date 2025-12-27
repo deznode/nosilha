@@ -2,7 +2,7 @@ package com.nosilha.core.contentactions
 
 import com.nosilha.core.contentactions.api.SuggestionCreateDto
 import com.nosilha.core.contentactions.api.SuggestionResponseDto
-import com.nosilha.core.shared.api.ApiResponse
+import com.nosilha.core.shared.api.ApiResult
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
@@ -72,17 +72,17 @@ class SuggestionController(
     fun submitSuggestion(
         @Valid @RequestBody dto: SuggestionCreateDto,
         request: HttpServletRequest,
-    ): ApiResponse<SuggestionResponseDto> {
+    ): ApiResult<SuggestionResponseDto> {
         val ipAddress = extractIpAddress(request)
         logger.info("Received suggestion submission from IP: $ipAddress for content ${dto.contentId}")
 
         return try {
             val response = suggestionService.submitSuggestion(dto, ipAddress)
             logger.info("Suggestion ${response.id} created successfully")
-            ApiResponse(data = response, status = HttpStatus.CREATED.value())
+            ApiResult(data = response, status = HttpStatus.CREATED.value())
         } catch (e: HoneypotSpamDetectedException) {
             logger.warn("Honeypot spam detected from IP: $ipAddress")
-            ApiResponse(
+            ApiResult(
                 data =
                     SuggestionResponseDto(
                         id = null,

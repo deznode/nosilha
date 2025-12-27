@@ -1,7 +1,7 @@
 package com.nosilha.core.contentactions.api
 
 import com.nosilha.core.contentactions.StoryService
-import com.nosilha.core.shared.api.ApiResponse
+import com.nosilha.core.shared.api.ApiResult
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.slf4j.LoggerFactory
@@ -73,7 +73,7 @@ class StoryController(
         @Valid @RequestBody request: CreateStoryRequest,
         authentication: Authentication,
         httpRequest: HttpServletRequest,
-    ): ResponseEntity<ApiResponse<StorySubmittedResponse>> {
+    ): ResponseEntity<ApiResult<StorySubmittedResponse>> {
         val authorId = authentication.name
         val ipAddress = extractIpAddress(httpRequest)
 
@@ -90,7 +90,7 @@ class StoryController(
 
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(ApiResponse(data = response, status = HttpStatus.CREATED.value()))
+            .body(ApiResult(data = response, status = HttpStatus.CREATED.value()))
     }
 
     /**

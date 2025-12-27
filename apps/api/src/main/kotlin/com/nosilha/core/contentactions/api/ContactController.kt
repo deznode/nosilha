@@ -1,7 +1,7 @@
 package com.nosilha.core.contentactions.api
 
 import com.nosilha.core.contentactions.services.ContactService
-import com.nosilha.core.shared.api.ApiResponse
+import com.nosilha.core.shared.api.ApiResult
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -91,14 +91,14 @@ class ContactController(
     fun submitContact(
         @Valid @RequestBody request: ContactCreateRequest,
         httpRequest: HttpServletRequest,
-    ): ApiResponse<ContactConfirmationDto> {
+    ): ApiResult<ContactConfirmationDto> {
         val ipAddress = extractIpAddress(httpRequest)
         logger.info("Received contact form submission from IP: $ipAddress")
 
         val response = contactService.submitContact(request, ipAddress)
         logger.info("Contact message ${response.id} created successfully")
 
-        return ApiResponse(data = response, status = HttpStatus.CREATED.value())
+        return ApiResult(data = response, status = HttpStatus.CREATED.value())
     }
 
     /**

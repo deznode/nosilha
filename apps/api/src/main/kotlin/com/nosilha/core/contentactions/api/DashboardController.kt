@@ -1,7 +1,7 @@
 package com.nosilha.core.contentactions.api
 
 import com.nosilha.core.contentactions.DashboardService
-import com.nosilha.core.shared.api.ApiResponse
+import com.nosilha.core.shared.api.ApiResult
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -57,8 +57,8 @@ class DashboardController(
      * @return ResponseEntity with ApiResponse containing DashboardCountsResponse
      */
     @GetMapping("/counts")
-    fun getCounts(): ResponseEntity<ApiResponse<DashboardCountsResponse>> {
+    fun getCounts(): ResponseEntity<ApiResult<DashboardCountsResponse>> {
         val counts = dashboardService.getPendingCounts()
-        return ResponseEntity.ok(ApiResponse(data = counts, status = HttpStatus.OK.value()))
+        return ResponseEntity.ok(ApiResult(data = counts, status = HttpStatus.OK.value()))
     }
 }
