@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { mockStoriesApi } from "@/lib/mocks/stories";
+import { getStoryBySlug, getStories } from "@/lib/api";
 import { StoryDetailContent } from "@/components/stories/story-detail-content";
-import { SubmissionStatus } from "@/types/story";
 
 interface StoryDetailPageProps {
   params: Promise<{
@@ -14,7 +13,7 @@ export async function generateMetadata({
   params,
 }: StoryDetailPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const story = await mockStoriesApi.getStoryBySlug(slug);
+  const story = await getStoryBySlug(slug);
 
   if (!story) {
     return {
@@ -39,16 +38,16 @@ export default async function StoryDetailPage({
   params,
 }: StoryDetailPageProps) {
   const { slug } = await params;
-  const story = await mockStoriesApi.getStoryBySlug(slug);
+  const story = await getStoryBySlug(slug);
 
-  // Only show approved stories publicly
-  if (!story || story.status !== SubmissionStatus.APPROVED) {
+  // Only show approved stories publicly (backend already filters)
+  if (!story) {
     notFound();
   }
 
   // Get related stories (same location or type, excluding current)
-  const allStories = await mockStoriesApi.getStories(SubmissionStatus.APPROVED);
-  const relatedStories = allStories
+  const allStoriesResult = await getStories(0, 100);
+  const relatedStories = allStoriesResult.items
     .filter(
       (s) =>
         s.id !== story.id &&

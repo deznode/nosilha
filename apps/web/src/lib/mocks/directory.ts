@@ -7,16 +7,15 @@
 import type { BaseDirectoryEntry } from "@/types/directory";
 
 // Extended directory entry for the enhanced directory view
-export interface MockDirectoryEntry
-  extends Omit<
-    BaseDirectoryEntry,
-    | "slug"
-    | "latitude"
-    | "longitude"
-    | "createdAt"
-    | "updatedAt"
-    | "contentActions"
-  > {
+export interface MockDirectoryEntry extends Omit<
+  BaseDirectoryEntry,
+  | "slug"
+  | "latitude"
+  | "longitude"
+  | "createdAt"
+  | "updatedAt"
+  | "contentActions"
+> {
   priceLevel?: "$" | "$$" | "$$$";
 }
 

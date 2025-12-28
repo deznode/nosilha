@@ -38,7 +38,7 @@ class SecurityConfig(
                     ).permitAll()
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
                     .permitAll()
-                    // Allow all GET requests to directory, towns, and media
+                    // Allow all GET requests to directory, towns, media, and curated media
                     .requestMatchers(HttpMethod.GET, "/api/v1/directory/**")
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/towns/**")
@@ -46,6 +46,8 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.GET, "/api/v1/media/{id}")
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/media/entry/{entryId}")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/curated-media/**")
                     .permitAll()
                     // Allow public suggestions (community contributions without authentication)
                     .requestMatchers(HttpMethod.POST, "/api/v1/suggestions")
@@ -58,6 +60,11 @@ class SecurityConfig(
                     .permitAll()
                     // Allow public access to content registration (needed for SSR, idempotent)
                     .requestMatchers(HttpMethod.POST, "/api/v1/content/register")
+                    .permitAll()
+                    // Allow public access to published stories (GET only)
+                    .requestMatchers(HttpMethod.GET, "/api/v1/stories")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/stories/slug/**")
                     .permitAll()
                     // Require authentication for POST/PUT/DELETE operations
                     .requestMatchers(HttpMethod.POST, "/api/v1/media/presign")

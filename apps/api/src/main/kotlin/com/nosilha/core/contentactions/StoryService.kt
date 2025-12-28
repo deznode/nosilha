@@ -1,6 +1,9 @@
 package com.nosilha.core.contentactions
 
+import com.nosilha.core.auth.api.UserProfileQueryService
 import com.nosilha.core.contentactions.api.CreateStoryRequest
+import com.nosilha.core.contentactions.api.PublicStoryDetailDto
+import com.nosilha.core.contentactions.api.PublicStoryListDto
 import com.nosilha.core.contentactions.api.StoryDetailDto
 import com.nosilha.core.contentactions.api.StoryListDto
 import com.nosilha.core.contentactions.api.StoryModerationAction
@@ -14,6 +17,7 @@ import com.nosilha.core.contentactions.events.StoryPublishedEvent
 import com.nosilha.core.contentactions.events.StoryStatusChangedEvent
 import com.nosilha.core.contentactions.events.StorySubmittedEvent
 import com.nosilha.core.contentactions.repository.StorySubmissionRepository
+import com.nosilha.core.directory.api.DirectoryEntryQueryService
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
@@ -37,6 +41,8 @@ import java.util.UUID
 class StoryService(
     private val repository: StorySubmissionRepository,
     private val eventPublisher: ApplicationEventPublisher,
+    private val userProfileQueryService: UserProfileQueryService,
+    private val directoryEntryQueryService: DirectoryEntryQueryService,
 ) {
     private val logger = LoggerFactory.getLogger(StoryService::class.java)
 
@@ -299,4 +305,105 @@ class StoryService(
         repository.delete(story)
         logger.warn("Story $id deleted by admin (author: ${story.authorId}, type: ${story.storyType})")
     }
+
+    // ========== PUBLIC API METHODS ==========
+
+    /**
+     * Lists published stories for public display.
+     *
+     * Public endpoint to view all published stories with author names resolved.
+     * Page size is capped at 50 for public APIs.
+     *
+     * @param page Zero-based page number
+     * @param size Number of items per page (max 50)
+     * @return Paginated list of published stories as public DTOs
+     */
+    @Transactional(readOnly = true)
+    fun listPublishedStories(
+        page: Int,
+        size: Int,
+    ): Page<PublicStoryListDto> {
+        val pageable = PageRequest.of(page, minOf(size, 50))
+        val stories = repository.findByStatusOrderByCreatedAtDesc(StoryStatus.PUBLISHED, pageable)
+
+        // Batch fetch author display names for efficiency
+        val authorIds = stories.content.map { it.authorId }.distinct()
+        val displayNamesById = userProfileQueryService.findDisplayNames(authorIds)
+
+        // Batch fetch related place names
+        val placeIds = stories.content.mapNotNull { it.relatedPlaceId }.distinct()
+        val placeNamesById = directoryEntryQueryService.findEntryNames(placeIds)
+
+        logger.debug("Retrieved ${stories.numberOfElements} published stories (page $page)")
+        return stories.map { story ->
+            story.toPublicListDto(
+                authorName = displayNamesById[story.authorId] ?: "Anonymous",
+                locationName = story.relatedPlaceId?.let { placeNamesById[it] },
+            )
+        }
+    }
+
+    /**
+     * Gets a published story by its publication slug.
+     *
+     * Public endpoint to retrieve a single published story for display.
+     *
+     * @param slug The URL-friendly publication slug
+     * @return Public story detail DTO
+     * @throws ResourceNotFoundException if story is not found or not published
+     */
+    @Transactional(readOnly = true)
+    fun getPublishedStoryBySlug(slug: String): PublicStoryDetailDto {
+        val story = repository.findByPublicationSlugAndStatus(slug, StoryStatus.PUBLISHED)
+            ?: throw ResourceNotFoundException("Story with slug '$slug' not found")
+
+        // Resolve author name
+        val authorName = userProfileQueryService.findDisplayName(story.authorId) ?: "Anonymous"
+
+        // Resolve location name
+        val locationName = story.relatedPlaceId?.let { placeId ->
+            directoryEntryQueryService.findEntryName(placeId)
+        }
+
+        logger.debug("Retrieved published story by slug: $slug")
+        return story.toPublicDetailDto(authorName, locationName)
+    }
+
+    /**
+     * Extension function to convert StorySubmission entity to public list DTO.
+     */
+    private fun StorySubmission.toPublicListDto(
+        authorName: String,
+        locationName: String?,
+    ) = PublicStoryListDto(
+        id = this.id!!,
+        slug = this.publicationSlug ?: this.id.toString(),
+        title = this.title,
+        excerpt = this.content.take(200) + if (this.content.length > 200) "..." else "",
+        author = authorName,
+        storyType = this.storyType,
+        templateType = this.templateType,
+        location = locationName,
+        isFeatured = this.isFeatured,
+        createdAt = this.createdAt,
+    )
+
+    /**
+     * Extension function to convert StorySubmission entity to public detail DTO.
+     */
+    private fun StorySubmission.toPublicDetailDto(
+        authorName: String,
+        locationName: String?,
+    ) = PublicStoryDetailDto(
+        id = this.id!!,
+        slug = this.publicationSlug ?: this.id.toString(),
+        title = this.title,
+        content = this.content,
+        author = authorName,
+        storyType = this.storyType,
+        templateType = this.templateType,
+        location = locationName,
+        isFeatured = this.isFeatured,
+        createdAt = this.createdAt,
+    )
 }

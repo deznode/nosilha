@@ -1,17 +1,23 @@
 package com.nosilha.core.contentactions.services
 
+import com.nosilha.core.contentactions.api.AdminContactMessageDto
 import com.nosilha.core.contentactions.api.ContactConfirmationDto
 import com.nosilha.core.contentactions.api.ContactCreateRequest
+import com.nosilha.core.contentactions.api.toAdminDto
 import com.nosilha.core.contentactions.api.toConfirmationDto
 import com.nosilha.core.contentactions.domain.ContactMessage
 import com.nosilha.core.contentactions.domain.ContactStatus
 import com.nosilha.core.contentactions.repository.ContactMessageRepository
 import com.nosilha.core.shared.exception.RateLimitExceededException
+import com.nosilha.core.shared.exception.ResourceNotFoundException
 import com.nosilha.core.shared.util.ContentSanitizer
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
+import java.util.UUID
 
 /**
  * Service for managing contact form submissions.
@@ -101,4 +107,110 @@ class ContactService(
         logger.debug("IP $ipAddress has $recentSubmissions contact submissions in the last hour")
         return recentSubmissions >= MAX_SUBMISSIONS_PER_HOUR
     }
+
+    // ================================
+    // ADMIN METHODS
+    // ================================
+
+    /**
+     * Lists contact messages with optional status filtering and pagination.
+     *
+     * <p>Used by admin panel for moderation queue. Messages are sorted by creation date (newest first).</p>
+     *
+     * @param status Optional status filter (UNREAD, READ, ARCHIVED)
+     * @param page Zero-based page number (default: 0)
+     * @param size Number of items per page (default: 20, max: 100)
+     * @return Page of AdminContactMessageDto
+     */
+    @Transactional(readOnly = true)
+    fun listMessages(
+        status: ContactStatus?,
+        page: Int,
+        size: Int,
+    ): Page<AdminContactMessageDto> {
+        val pageable = PageRequest.of(page, size.coerceAtMost(100))
+
+        val messages =
+            if (status != null) {
+                contactMessageRepository.findByStatusOrderByCreatedAtDesc(status, pageable)
+            } else {
+                contactMessageRepository.findAllByOrderByCreatedAtDesc(pageable)
+            }
+
+        logger.debug("Found ${messages.totalElements} contact messages (status=$status, page=$page)")
+        return messages.map { it.toAdminDto() }
+    }
+
+    /**
+     * Gets a single contact message by ID.
+     *
+     * @param id UUID of the contact message
+     * @return AdminContactMessageDto
+     * @throws ResourceNotFoundException if message is not found
+     */
+    @Transactional(readOnly = true)
+    fun getMessage(id: UUID): AdminContactMessageDto {
+        val message =
+            contactMessageRepository.findById(id).orElseThrow {
+                ResourceNotFoundException("Contact message not found: $id")
+            }
+        return message.toAdminDto()
+    }
+
+    /**
+     * Updates the status of a contact message.
+     *
+     * <p>Allows admins to mark messages as READ or ARCHIVED.</p>
+     *
+     * @param id UUID of the contact message
+     * @param status New status (READ or ARCHIVED)
+     * @return Updated AdminContactMessageDto
+     * @throws ResourceNotFoundException if message is not found
+     */
+    @Transactional
+    fun updateStatus(
+        id: UUID,
+        status: ContactStatus,
+    ): AdminContactMessageDto {
+        val message =
+            contactMessageRepository.findById(id).orElseThrow {
+                ResourceNotFoundException("Contact message not found: $id")
+            }
+
+        logger.info("Updating contact message $id status from ${message.status} to $status")
+
+        val updatedMessage = message.copy(status = status)
+        val saved = contactMessageRepository.save(updatedMessage)
+
+        return saved.toAdminDto()
+    }
+
+    /**
+     * Deletes a contact message.
+     *
+     * <p>Permanently removes a message from the database. This operation cannot be undone.</p>
+     *
+     * @param id UUID of the contact message to delete
+     * @throws ResourceNotFoundException if message is not found
+     */
+    @Transactional
+    fun deleteMessage(id: UUID) {
+        if (!contactMessageRepository.existsById(id)) {
+            throw ResourceNotFoundException("Contact message not found: $id")
+        }
+
+        logger.info("Deleting contact message $id")
+        contactMessageRepository.deleteById(id)
+    }
+
+    /**
+     * Counts contact messages by status.
+     *
+     * <p>Used for dashboard pending counts.</p>
+     *
+     * @param status Contact message status to count
+     * @return Number of messages with the specified status
+     */
+    @Transactional(readOnly = true)
+    fun countByStatus(status: ContactStatus): Long = contactMessageRepository.countByStatus(status)
 }

@@ -5,6 +5,7 @@ import com.nosilha.core.contentactions.domain.TemplateType
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
+import java.time.Instant
 import java.util.UUID
 
 /**
@@ -57,4 +58,66 @@ data class CreateStoryRequest(
 data class StorySubmittedResponse(
     val id: UUID?,
     val message: String = "Thank you for sharing your story. It has been submitted for review.",
+)
+
+/**
+ * Public DTO for story list view.
+ *
+ * <p>Used in GET /api/v1/stories endpoint. Provides a compact public view
+ * for displaying published stories in a list or grid format.
+ * Does not include admin-only fields.</p>
+ *
+ * @property id Unique identifier of the story
+ * @property slug URL-friendly publication slug
+ * @property title Title of the story
+ * @property excerpt First 200 characters of content for preview
+ * @property author Display name of the author
+ * @property storyType Type of story (QUICK, FULL, or GUIDED)
+ * @property templateType Optional template category for guided stories
+ * @property location Location name if the story is related to a place
+ * @property isFeatured Whether the story is marked as featured
+ * @property createdAt Timestamp when the story was submitted
+ */
+data class PublicStoryListDto(
+    val id: UUID,
+    val slug: String,
+    val title: String,
+    val excerpt: String,
+    val author: String,
+    val storyType: StoryType,
+    val templateType: TemplateType?,
+    val location: String?,
+    val isFeatured: Boolean,
+    val createdAt: Instant?,
+)
+
+/**
+ * Public DTO for story detail view.
+ *
+ * <p>Used in GET /api/v1/stories/slug/{slug} endpoint. Provides complete
+ * public information for displaying a single published story.
+ * Does not include admin-only fields like adminNotes, reviewedBy, etc.</p>
+ *
+ * @property id Unique identifier of the story
+ * @property slug URL-friendly publication slug
+ * @property title Title of the story
+ * @property content Full story content
+ * @property author Display name of the author
+ * @property storyType Type of story (QUICK, FULL, or GUIDED)
+ * @property templateType Optional template category for guided stories
+ * @property location Location name if the story is related to a place
+ * @property isFeatured Whether the story is marked as featured
+ * @property createdAt Timestamp when the story was submitted
+ */
+data class PublicStoryDetailDto(
+    val id: UUID,
+    val slug: String,
+    val title: String,
+    val content: String,
+    val author: String,
+    val storyType: StoryType,
+    val templateType: TemplateType?,
+    val location: String?,
+    val isFeatured: Boolean,
+    val createdAt: Instant?,
 )

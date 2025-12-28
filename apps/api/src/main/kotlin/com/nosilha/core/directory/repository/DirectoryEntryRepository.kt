@@ -121,4 +121,32 @@ interface DirectoryEntryRepository :
         @Param("query") query: String,
         pageable: Pageable,
     ): Page<DirectoryEntry>
+
+    /**
+     * Counts the number of distinct towns in the directory.
+     *
+     * <p>Used for dashboard statistics to show geographic coverage of the platform.</p>
+     *
+     * @return Number of distinct towns represented in directory entries
+     */
+    @Query("SELECT COUNT(DISTINCT d.town) FROM DirectoryEntry d")
+    fun countDistinctTowns(): Long
+
+    /**
+     * Counts directory entries grouped by town, ordered by count descending.
+     *
+     * <p>Used for dashboard statistics to show which towns have the most content.
+     * Returns the results as a list of pairs (town, count).</p>
+     *
+     * @return List of pairs (town, count) ordered by count descending
+     */
+    @Query(
+        """
+        SELECT d.town, COUNT(d)
+        FROM DirectoryEntry d
+        GROUP BY d.town
+        ORDER BY COUNT(d) DESC
+        """,
+    )
+    fun countByTownGroupByTown(): List<Array<Any>>
 }

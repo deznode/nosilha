@@ -5,6 +5,7 @@ import com.nosilha.core.contentactions.domain.StorySubmission
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 import java.time.Instant
 import java.util.UUID
@@ -102,4 +103,77 @@ interface StorySubmissionRepository : JpaRepository<StorySubmission, UUID> {
      * @return Number of stories with the specified status
      */
     fun countByStatus(status: StoryStatus): Long
+
+    /**
+     * Finds a story by its publication slug and status.
+     *
+     * <p>Used for public story detail pages to retrieve published stories
+     * by their URL-friendly slug.</p>
+     *
+     * @param publicationSlug The URL-friendly slug of the story
+     * @param status The required status (typically PUBLISHED)
+     * @return The story if found with matching slug and status, null otherwise
+     */
+    fun findByPublicationSlugAndStatus(
+        publicationSlug: String,
+        status: StoryStatus,
+    ): StorySubmission?
+
+    /**
+     * Finds all published stories ordered by creation date (newest first).
+     *
+     * <p>Used for public story listing pages to display approved content.</p>
+     *
+     * @param status The status filter (typically PUBLISHED)
+     * @param pageable Pagination parameters
+     * @return Page of stories with the specified status, ordered by creation date descending
+     */
+    fun findByStatusOrderByCreatedAtDesc(
+        status: StoryStatus,
+        pageable: Pageable,
+    ): Page<StorySubmission>
+
+    /**
+     * Counts the number of distinct authors who created stories after a given timestamp.
+     *
+     * <p>Used for dashboard statistics to calculate active users (unique contributors
+     * in a time period, typically last 30 days).</p>
+     *
+     * @param after Timestamp threshold (e.g., 30 days ago)
+     * @return Number of distinct authors with submissions since the given timestamp
+     */
+    @Query("SELECT COUNT(DISTINCT s.authorId) FROM StorySubmission s WHERE s.createdAt >= :after")
+    fun countDistinctAuthorsByCreatedAtAfter(after: Instant): Long
+
+    /**
+     * Counts the number of story submissions created between two timestamps.
+     *
+     * <p>Used for weekly activity charts to show daily submission counts.</p>
+     *
+     * @param startDate Start of time range (inclusive)
+     * @param endDate End of time range (exclusive)
+     * @return Number of submissions created in the time range
+     */
+    fun countByCreatedAtBetween(
+        startDate: Instant,
+        endDate: Instant,
+    ): Long
+
+    /**
+     * Finds top contributors by story count.
+     *
+     * <p>Returns a list of author IDs and their story counts, ordered by count descending.
+     * Used for contributor leaderboards and dashboard statistics.</p>
+     *
+     * @return List of pairs (authorId, storyCount) ordered by count descending
+     */
+    @Query(
+        """
+        SELECT s.authorId, COUNT(s)
+        FROM StorySubmission s
+        GROUP BY s.authorId
+        ORDER BY COUNT(s) DESC
+        """,
+    )
+    fun findTopContributorsByStoryCount(): List<Array<Any>>
 }

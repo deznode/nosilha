@@ -45,6 +45,11 @@ import type {
   ProfileUpdateRequest,
 } from "@/types/profile";
 import type { ContactRequest, ContactConfirmationDto } from "@/types/contact";
+import type {
+  CuratedMedia,
+  CuratedMediaPageResponse,
+  MediaType,
+} from "@/types/curated-media";
 import { CacheConfig } from "@/lib/api-contracts";
 import { env } from "@/lib/env";
 import { supabase } from "@/lib/supabase-client";
@@ -869,6 +874,69 @@ export class BackendApiClient implements ApiClient {
     return this.unwrapApiResponse<StorySubmittedResponse>(payload);
   }
 
+  /**
+   * Fetches published stories from the backend API.
+   * Uses ISR with 30 minute cache for story listings.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @param page Page number (0-indexed, default: 0)
+   * @param size Page size (default: 20)
+   * @returns PaginatedResult with published stories
+   */
+  async getStories(
+    page: number = 0,
+    size: number = 20
+  ): Promise<PaginatedResult<StorySubmission>> {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      size: size.toString(),
+    });
+
+    const endpoint = `${env.apiUrl}/api/v1/stories?${params.toString()}`;
+
+    // Use ISR with 30 minute cache for story listings
+    const response = await fetch(endpoint, {
+      next: { revalidate: 1800 },
+    });
+
+    if (!response.ok) {
+      throw new Error(`API call failed with status: ${response.status}`);
+    }
+
+    const payload = (await response.json()) as unknown;
+    return this.unwrapPagedResult<StorySubmission>(payload);
+  }
+
+  /**
+   * Fetches a single story by its slug from the backend API.
+   * Uses ISR with 30 minute cache for individual stories.
+   *
+   * **Public Endpoint**: No authentication required.
+   * Only returns APPROVED/PUBLISHED stories.
+   *
+   * @param slug The slug of the story to fetch
+   * @returns StorySubmission or undefined if not found
+   */
+  async getStoryBySlug(slug: string): Promise<StorySubmission | undefined> {
+    const endpoint = `${env.apiUrl}/api/v1/stories/slug/${slug}`;
+
+    // Use ISR with 30 minute cache for individual stories
+    const response = await fetch(endpoint, {
+      next: { revalidate: 1800 },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return undefined;
+      }
+      throw new Error(`API call failed with status: ${response.status}`);
+    }
+
+    const payload = (await response.json()) as unknown;
+    return this.unwrapApiResponse<StorySubmission>(payload);
+  }
+
   // ================================
   // ADMIN STORY MODERATION OPERATIONS
   // ================================
@@ -1125,88 +1193,246 @@ export class BackendApiClient implements ApiClient {
   }
 
   // ================================
-  // ADMIN CONTACT MESSAGES (Mock fallback - no backend yet)
+  // ADMIN CONTACT MESSAGES
   // ================================
 
   /**
-   * Gets contact messages for admin.
+   * Gets contact messages for admin with optional status filtering.
    *
-   * **Note**: Backend endpoint not implemented yet, returns empty response.
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param status Optional status filter (UNREAD, READ, ARCHIVED)
+   * @param page Page number (0-indexed, default: 0)
+   * @param size Page size (default: 20)
+   * @returns AdminQueueResponse with ContactMessage items
+   * @throws Error if authentication failed (HTTP 401/403)
    */
-  async getContactMessages(): Promise<AdminQueueResponse<ContactMessage>> {
-    // TODO: Implement when backend endpoint is available
-    console.warn("Contact messages API not yet implemented in backend");
-    return {
-      items: [],
-      total: 0,
-      page: 1,
-      pageSize: 10,
-      hasMore: false,
-    };
+  async getContactMessages(
+    status?: ContactMessageStatus,
+    page: number = 0,
+    size: number = 20
+  ): Promise<AdminQueueResponse<ContactMessage>> {
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+    });
+    if (status) {
+      params.append("status", status);
+    }
+
+    const endpoint = `${env.apiUrl}/api/v1/admin/contact?${params}`;
+    const response = await this.authenticatedFetch(endpoint);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch contact messages: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.transformAdminQueueResponse<ContactMessage>(payload);
   }
 
   /**
    * Updates contact message status.
    *
-   * **Note**: Backend endpoint not implemented yet, throws error.
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param id Contact message ID
+   * @param status New status (UNREAD, READ, ARCHIVED)
+   * @returns Updated ContactMessage
+   * @throws Error if message not found (HTTP 404)
+   * @throws Error if authentication failed (HTTP 401/403)
    */
   async updateContactMessageStatus(
     id: string,
     status: ContactMessageStatus
   ): Promise<ContactMessage> {
-    // TODO: Implement when backend endpoint is available
-    throw new Error(
-      `Contact message status update not yet implemented (id: ${id}, status: ${status})`
-    );
+    const endpoint = `${env.apiUrl}/api/v1/admin/contact/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error("Contact message not found");
+      }
+      throw new Error(
+        `Failed to update contact message status: ${response.status}`
+      );
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<ContactMessage>(payload);
   }
 
   /**
    * Deletes a contact message.
    *
-   * **Note**: Backend endpoint not implemented yet, throws error.
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param id Contact message ID
+   * @throws Error if message not found (HTTP 404)
+   * @throws Error if authentication failed (HTTP 401/403)
    */
   async deleteContactMessage(id: string): Promise<void> {
-    // TODO: Implement when backend endpoint is available
-    throw new Error(`Contact message deletion not yet implemented (id: ${id})`);
+    const endpoint = `${env.apiUrl}/api/v1/admin/contact/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "DELETE",
+    });
+
+    if (!response.ok && response.status !== 204) {
+      if (response.status === 404) {
+        throw new Error("Contact message not found");
+      }
+      throw new Error(`Failed to delete contact message: ${response.status}`);
+    }
   }
 
   // ================================
-  // ADMIN DIRECTORY SUBMISSIONS (Mock fallback - no backend yet)
+  // ADMIN DIRECTORY SUBMISSIONS
   // ================================
 
   /**
-   * Gets directory submissions for admin.
+   * Gets directory submissions for admin with optional status filtering.
    *
-   * **Note**: Backend endpoint not implemented yet, returns empty response.
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param status Optional status filter (PENDING, APPROVED, REJECTED)
+   * @param page Page number (0-indexed, default: 0)
+   * @param size Page size (default: 20)
+   * @returns AdminQueueResponse with DirectorySubmission items
+   * @throws Error if authentication failed (HTTP 401/403)
    */
   async getDirectorySubmissions(
-    _status?: SubmissionStatus | "ALL"
+    status?: SubmissionStatus | "ALL",
+    page: number = 0,
+    size: number = 20
   ): Promise<AdminQueueResponse<DirectorySubmission>> {
-    // TODO: Implement when backend endpoint is available
-    console.warn("Directory submissions API not yet implemented in backend");
-    return {
-      items: [],
-      total: 0,
-      page: 1,
-      pageSize: 10,
-      hasMore: false,
-    };
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+    });
+    if (status && status !== "ALL") {
+      params.append("status", status);
+    }
+
+    const endpoint = `${env.apiUrl}/api/v1/admin/directory-submissions?${params}`;
+    const response = await this.authenticatedFetch(endpoint);
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch directory submissions: ${response.status}`
+      );
+    }
+
+    const payload = await response.json();
+    return this.transformAdminDirectorySubmissionResponse(payload);
   }
 
   /**
    * Updates directory submission status.
    *
-   * **Note**: Backend endpoint not implemented yet, throws error.
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param id Directory submission ID
+   * @param status New status (PENDING, APPROVED, REJECTED)
+   * @param notes Optional admin notes explaining the decision
+   * @returns Updated DirectorySubmission
+   * @throws Error if submission not found (HTTP 404)
+   * @throws Error if authentication failed (HTTP 401/403)
    */
   async updateDirectorySubmissionStatus(
     id: string,
     status: SubmissionStatus,
-    _notes?: string
+    notes?: string
   ): Promise<DirectorySubmission> {
-    // TODO: Implement when backend endpoint is available
-    throw new Error(
-      `Directory submission status update not yet implemented (id: ${id}, status: ${status})`
+    const endpoint = `${env.apiUrl}/api/v1/admin/directory-submissions/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ status, adminNotes: notes }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error("Directory submission not found");
+      }
+      throw new Error(
+        `Failed to update directory submission status: ${response.status}`
+      );
+    }
+
+    const payload = await response.json();
+    return this.transformDirectorySubmission(
+      this.unwrapApiResponse<Record<string, unknown>>(payload)
     );
+  }
+
+  /**
+   * Transforms backend directory submission to frontend format.
+   */
+  private transformDirectorySubmission(
+    dto: Record<string, unknown>
+  ): DirectorySubmission {
+    return {
+      id: dto.id as string,
+      name: dto.name as string,
+      category: dto.category as
+        | "Restaurant"
+        | "Landmark"
+        | "Nature"
+        | "Culture",
+      town: dto.town as string,
+      customTown: dto.customTown as string | undefined,
+      description: dto.description as string,
+      tags: (dto.tags as string[]) || [],
+      imageUrl: dto.imageUrl as string | undefined,
+      priceLevel: dto.priceLevel as "$" | "$$" | "$$$" | undefined,
+      latitude: dto.latitude as number | undefined,
+      longitude: dto.longitude as number | undefined,
+      status: dto.status as SubmissionStatus,
+      submittedBy: dto.submittedBy as string,
+      submittedByEmail: dto.submittedByEmail as string | undefined,
+      submittedAt: dto.submittedAt as string,
+      adminNotes: dto.adminNotes as string | undefined,
+      reviewedBy: dto.reviewedBy as string | undefined,
+      reviewedAt: dto.reviewedAt as string | undefined,
+    };
+  }
+
+  /**
+   * Transforms backend paged response to AdminQueueResponse format for directory submissions.
+   */
+  private transformAdminDirectorySubmissionResponse(
+    payload: unknown
+  ): AdminQueueResponse<DirectorySubmission> {
+    const data = this.unwrapApiResponse<{
+      content: Record<string, unknown>[];
+      page: { totalElements: number; number: number; size: number };
+    }>(payload);
+
+    const items = (data.content || []).map((dto) =>
+      this.transformDirectorySubmission(dto)
+    );
+
+    return {
+      items,
+      total: data.page?.totalElements || 0,
+      page: (data.page?.number || 0) + 1, // Convert 0-indexed to 1-indexed
+      pageSize: data.page?.size || 20,
+      hasMore:
+        (data.page?.number || 0) <
+        Math.ceil((data.page?.totalElements || 0) / (data.page?.size || 20)) -
+          1,
+    };
   }
 
   // ================================
@@ -1360,6 +1586,117 @@ export class BackendApiClient implements ApiClient {
 
     const payload = await response.json();
     return this.unwrapApiResponse<ContactConfirmationDto>(payload);
+  }
+
+  // ================================
+  // CURATED MEDIA OPERATIONS
+  // ================================
+
+  /**
+   * Fetches curated media items from the gallery.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * **Caching**: Uses ISR with 30 minute cache for gallery content.
+   *
+   * @param options Query parameters (mediaType, category, page, size)
+   * @returns CuratedMediaPageResponse with paginated curated media items
+   * @throws Error if API call fails
+   */
+  async getCuratedMedia(options?: {
+    mediaType?: MediaType;
+    category?: string;
+    page?: number;
+    size?: number;
+  }): Promise<CuratedMediaPageResponse> {
+    const params = new URLSearchParams();
+
+    if (options?.mediaType) {
+      params.append("type", options.mediaType);
+    }
+    if (options?.category) {
+      params.append("category", options.category);
+    }
+    if (options?.page !== undefined) {
+      params.append("page", String(options.page));
+    }
+    if (options?.size !== undefined) {
+      params.append("size", String(options.size));
+    }
+
+    const endpoint = `${env.apiUrl}/api/v1/curated-media${params.toString() ? `?${params.toString()}` : ""}`;
+
+    // Use ISR with 30 minute cache for gallery content
+    const response = await fetch(endpoint, {
+      next: { revalidate: 1800 }, // 30 minutes
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch curated media: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<CuratedMediaPageResponse>(payload);
+  }
+
+  /**
+   * Fetches a single curated media item by ID.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * **Caching**: Uses ISR with 30 minute cache for individual media items.
+   *
+   * @param id UUID of the curated media item
+   * @returns CuratedMedia or undefined if not found
+   * @throws Error if API call fails
+   */
+  async getCuratedMediaById(id: string): Promise<CuratedMedia | undefined> {
+    const endpoint = `${env.apiUrl}/api/v1/curated-media/${id}`;
+
+    // Use ISR with 30 minute cache for individual media items
+    const response = await fetch(endpoint, {
+      next: { revalidate: 1800 }, // 30 minutes
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return undefined;
+      }
+      throw new Error(
+        `Failed to fetch curated media by ID: ${response.status}`
+      );
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<CuratedMedia>(payload);
+  }
+
+  /**
+   * Fetches available curated media categories.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * **Caching**: Uses ISR with 1 hour cache for categories list.
+   *
+   * @returns Array of category strings
+   * @throws Error if API call fails
+   */
+  async getCuratedMediaCategories(): Promise<string[]> {
+    const endpoint = `${env.apiUrl}/api/v1/curated-media/categories`;
+
+    // Use ISR with 1 hour cache for relatively static categories
+    const response = await fetch(endpoint, {
+      next: { revalidate: 3600 }, // 1 hour
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch curated media categories: ${response.status}`
+      );
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<string[]>(payload);
   }
 
   // ================================

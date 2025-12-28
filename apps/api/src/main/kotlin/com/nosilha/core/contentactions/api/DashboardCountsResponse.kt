@@ -16,10 +16,14 @@ package com.nosilha.core.contentactions.api
  *
  * @property pendingSuggestions Count of suggestions awaiting moderation (status = PENDING)
  * @property pendingStories Count of story submissions awaiting moderation (status = PENDING)
+ * @property pendingMessages Count of contact messages awaiting review (status = UNREAD)
+ * @property pendingDirectory Count of directory submissions awaiting moderation (status = PENDING)
  * @property totalPending Combined total of all pending items requiring attention
  */
 data class DashboardCountsResponse(
     val pendingSuggestions: Long,
     val pendingStories: Long,
+    val pendingMessages: Long,
+    val pendingDirectory: Long,
     val totalPending: Long,
 )

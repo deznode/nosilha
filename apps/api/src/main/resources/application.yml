@@ -49,10 +49,6 @@ spring:
       hibernate:
         format_sql: false
 
-  # Disable default security password generation since we use JWT
-  autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
-
 # Media storage configuration for production
 # NOTE: Production cloud storage is deferred; local filesystem used for development
 media:

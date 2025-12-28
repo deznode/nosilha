@@ -57,3 +57,46 @@ fun ContactMessage.toConfirmationDto(confirmationMessage: String = DEFAULT_CONFI
         id = checkNotNull(this.id) { "Contact message must be persisted before conversion" },
         message = confirmationMessage,
     )
+
+// ================================
+// ADMIN DTOs
+// ================================
+
+/**
+ * DTO for displaying contact messages in the admin panel.
+ *
+ * <p>Contains all fields needed for admin review and moderation.</p>
+ */
+data class AdminContactMessageDto(
+    val id: UUID,
+    val name: String,
+    val email: String,
+    val subject: String,
+    val message: String,
+    val status: String,
+    val createdAt: java.time.LocalDateTime,
+)
+
+/**
+ * Request DTO for updating contact message status.
+ *
+ * <p>Validation ensures only valid status transitions are allowed.</p>
+ */
+data class UpdateContactStatusRequest(
+    @field:NotNull(message = "Status is required")
+    val status: com.nosilha.core.contentactions.domain.ContactStatus,
+)
+
+/**
+ * Extension function to convert ContactMessage entity to admin DTO.
+ */
+fun ContactMessage.toAdminDto(): AdminContactMessageDto =
+    AdminContactMessageDto(
+        id = checkNotNull(this.id) { "Contact message must be persisted before conversion" },
+        name = this.name,
+        email = this.email,
+        subject = this.subjectCategory.name,
+        message = this.message,
+        status = this.status.name,
+        createdAt = this.createdAt,
+    )

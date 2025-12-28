@@ -243,8 +243,7 @@ export interface MetadataGeneratorOptions {
   twitterHandle?: string;
 }
 
-export interface DirectoryEntryMetadataOptions
-  extends MetadataGeneratorOptions {
+export interface DirectoryEntryMetadataOptions extends MetadataGeneratorOptions {
   entry: DirectoryEntry;
   images?: OpenGraphImage[];
 }

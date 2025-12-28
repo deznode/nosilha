@@ -30,4 +30,15 @@ interface UserProfileRepository : JpaRepository<UserProfile, UUID> {
      * @return The user's profile if it exists, null otherwise
      */
     fun findByUserId(userId: String): UserProfile?
+
+    /**
+     * Finds user profiles by a collection of user IDs.
+     *
+     * <p>Used for batch lookups when displaying multiple stories
+     * with their author names.</p>
+     *
+     * @param userIds Collection of user IDs from authentication system (Supabase)
+     * @return List of user profiles for the given IDs
+     */
+    fun findByUserIdIn(userIds: Collection<String>): List<UserProfile>
 }

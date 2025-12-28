@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { StoryCard, FeaturedCTA } from "@/components/stories";
-import { mockStoriesApi } from "@/lib/mocks";
+import { getStories } from "@/lib/api";
 import type { StorySubmission } from "@/types/story";
-import { SubmissionStatus } from "@/types/story";
 
 function StoryCardSkeleton() {
   return (
@@ -40,12 +39,8 @@ export default function StoriesPage() {
     async function loadStories() {
       setIsLoading(true);
       try {
-        const allStories = await mockStoriesApi.getStories();
-        // Only show approved stories
-        const approved = allStories.filter(
-          (s) => s.status === SubmissionStatus.APPROVED
-        );
-        setStories(approved);
+        const result = await getStories();
+        setStories(result.items);
       } catch (error) {
         console.error("Failed to load stories:", error);
       } finally {

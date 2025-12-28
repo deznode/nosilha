@@ -102,6 +102,20 @@ interface SuggestionRepository : JpaRepository<Suggestion, UUID> {
      */
     fun countByStatus(status: SuggestionStatus): Long
 
+    /**
+     * Counts the number of suggestions created between two timestamps.
+     *
+     * <p>Used for weekly activity charts to show daily suggestion counts.</p>
+     *
+     * @param startDate Start of time range (inclusive)
+     * @param endDate End of time range (exclusive)
+     * @return Number of suggestions created in the time range
+     */
+    fun countByCreatedAtBetween(
+        startDate: Instant,
+        endDate: Instant,
+    ): Long
+
     // TODO: Add findByUserId method once Suggestion entity has userId field
     // fun findByUserId(userId: String): List<Suggestion>
 }

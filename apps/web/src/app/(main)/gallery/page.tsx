@@ -8,8 +8,46 @@ import {
   VideoSection,
   Lightbox,
 } from "@/components/gallery";
-import { mockMediaApi } from "@/lib/mocks";
+import { getCuratedMedia } from "@/lib/api";
 import type { MediaItem, MediaCategory } from "@/types/media";
+import type { CuratedMedia } from "@/types/curated-media";
+
+/**
+ * Maps CuratedMedia from API to MediaItem expected by gallery components
+ */
+function mapCuratedMediaToMediaItem(media: CuratedMedia): MediaItem {
+  // Map category to MediaCategory type (using first available or fallback)
+  const categoryMap: Record<string, MediaCategory> = {
+    Landmark: "Landmark",
+    Historical: "Historical",
+    Nature: "Nature",
+    Culture: "Culture",
+    Event: "Event",
+    Interview: "Interview",
+  };
+  const category = categoryMap[media.category] || "Culture";
+
+  // For YouTube videos, generate thumbnail URL if not provided
+  let thumbnailUrl = media.thumbnailUrl;
+  if (!thumbnailUrl && media.platform === "YOUTUBE" && media.externalId) {
+    thumbnailUrl = `https://img.youtube.com/vi/${media.externalId}/maxresdefault.jpg`;
+  }
+
+  return {
+    id: media.id,
+    type: media.mediaType as "IMAGE" | "VIDEO",
+    url: media.url,
+    thumbnailUrl: thumbnailUrl || undefined,
+    title: media.title,
+    description: media.description || undefined,
+    category,
+    author: media.author || undefined,
+    date: new Date(media.createdAt).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+    }),
+  };
+}
 
 export default function GalleryPage() {
   const [activeTab, setActiveTab] = useState<"photos" | "videos">("photos");
@@ -25,14 +63,18 @@ export default function GalleryPage() {
     async function loadMedia() {
       setIsLoading(true);
       try {
-        const [photosData, videosData] = await Promise.all([
-          mockMediaApi.getPhotos(),
-          mockMediaApi.getVideos(),
+        const [photosResponse, videosResponse] = await Promise.all([
+          getCuratedMedia({ mediaType: "IMAGE", size: 50 }),
+          getCuratedMedia({ mediaType: "VIDEO", size: 20 }),
         ]);
-        setPhotos(photosData);
-        setVideos(videosData);
+
+        setPhotos(photosResponse.items.map(mapCuratedMediaToMediaItem));
+        setVideos(videosResponse.items.map(mapCuratedMediaToMediaItem));
       } catch (error) {
         console.error("Failed to load media:", error);
+        // Set empty arrays on error to show "no content" message
+        setPhotos([]);
+        setVideos([]);
       } finally {
         setIsLoading(false);
       }

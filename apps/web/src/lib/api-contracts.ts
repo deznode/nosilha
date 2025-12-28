@@ -137,6 +137,19 @@ export interface ApiClient {
    */
   submitStory(data: StorySubmitRequest): Promise<StorySubmittedResponse>;
 
+  /**
+   * Get published stories (public endpoint)
+   */
+  getStories(
+    page?: number,
+    size?: number
+  ): Promise<PaginatedResult<StorySubmission>>;
+
+  /**
+   * Get a story by slug (public endpoint)
+   */
+  getStoryBySlug(slug: string): Promise<StorySubmission | undefined>;
+
   // ================================
   // ADMIN STORY MODERATION OPERATIONS
   // ================================
@@ -300,6 +313,46 @@ export interface ApiClient {
   submitContactMessage(
     request: ContactRequest
   ): Promise<ContactConfirmationDto>;
+
+  // ================================
+  // CURATED MEDIA OPERATIONS
+  // ================================
+
+  /**
+   * Get curated media items from the gallery.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @param options Query parameters (mediaType, category, page, size)
+   * @returns CuratedMediaPageResponse with paginated curated media items
+   */
+  getCuratedMedia(options?: {
+    mediaType?: import("@/types/curated-media").MediaType;
+    category?: string;
+    page?: number;
+    size?: number;
+  }): Promise<import("@/types/curated-media").CuratedMediaPageResponse>;
+
+  /**
+   * Get a single curated media item by ID.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @param id UUID of the curated media item
+   * @returns CuratedMedia or undefined if not found
+   */
+  getCuratedMediaById(
+    id: string
+  ): Promise<import("@/types/curated-media").CuratedMedia | undefined>;
+
+  /**
+   * Get available curated media categories.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @returns Array of category strings
+   */
+  getCuratedMediaCategories(): Promise<string[]>;
 }
 
 export interface PaginationMetadata {

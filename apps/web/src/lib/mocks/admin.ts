@@ -96,51 +96,51 @@ export const MOCK_CONTACT_MESSAGES: ContactMessage[] = [
     id: "cm1",
     name: "Ana Rodrigues",
     email: "ana.rodrigues@email.com",
-    subject: "Partnership Opportunity",
+    subject: "PARTNERSHIP",
     message:
       "Hello! I represent a Cape Verdean cultural organization based in Boston. We would love to discuss a potential partnership to promote Brava Island heritage to our diaspora community.",
     status: "UNREAD",
-    timestamp: "1 hour ago",
+    createdAt: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
   },
   {
     id: "cm2",
     name: "Pedro Santos",
     email: "pedro.santos@travel.cv",
-    subject: "Tourism Information Request",
+    subject: "GENERAL_INQUIRY",
     message:
       "I am planning a trip to Brava next month. Could you provide more information about accommodation options in Nova Sintra and the best hiking trails?",
     status: "UNREAD",
-    timestamp: "3 hours ago",
+    createdAt: new Date(Date.now() - 10800000).toISOString(), // 3 hours ago
   },
   {
     id: "cm3",
     name: "Maria Fernandes",
     email: "maria.f@example.com",
-    subject: "Photo Contribution",
+    subject: "CONTENT_SUGGESTION",
     message:
       "I have a collection of historical photos from my grandmother who lived in Furna in the 1960s. How can I contribute these to your archive?",
     status: "READ",
-    timestamp: "1 day ago",
+    createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
   },
   {
     id: "cm4",
     name: "Carlos Mendes",
     email: "carlos.m@gmail.com",
-    subject: "Technical Issue Report",
+    subject: "TECHNICAL_ISSUE",
     message:
       "The map feature is not loading properly on my mobile device (iPhone 14, Safari). The markers appear but the base map stays blank.",
-    status: "REPLIED",
-    timestamp: "2 days ago",
+    status: "ARCHIVED",
+    createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
   },
   {
     id: "cm5",
     name: "João Tavares",
     email: "jtavares@diaspora.org",
-    subject: "Translation Volunteer",
+    subject: "GENERAL_INQUIRY",
     message:
       "I am fluent in Portuguese, Kriolu, and English. I would like to volunteer to help translate content for the platform. Please let me know how I can contribute.",
     status: "READ",
-    timestamp: "3 days ago",
+    createdAt: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
   },
 ];
 

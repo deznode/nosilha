@@ -34,6 +34,11 @@ import type {
   ProfileUpdateRequest,
 } from "@/types/profile";
 import type { ContactRequest, ContactConfirmationDto } from "@/types/contact";
+import type {
+  CuratedMedia,
+  CuratedMediaPageResponse,
+  MediaType as CuratedMediaType,
+} from "@/types/curated-media";
 import { MOCK_STORIES, mockStoriesApi } from "@/lib/mocks/stories";
 import {
   MOCK_SUGGESTIONS,
@@ -41,6 +46,7 @@ import {
   MOCK_DIRECTORY_SUBMISSIONS,
   mockAdminApi,
 } from "@/lib/mocks/admin";
+import { MOCK_MEDIA_ITEMS } from "@/lib/mocks/media";
 
 const MOCK_ENTRIES: DirectoryEntry[] = [
   // AUTHENTIC HOTEL ENTRIES FROM DATABASE
@@ -948,6 +954,57 @@ export class MockApiClient implements ApiClient {
     };
   }
 
+  /**
+   * Fetches published stories (mock implementation).
+   * Returns stories with APPROVED status only.
+   */
+  async getStories(
+    page: number = 0,
+    size: number = 20
+  ): Promise<PaginatedResult<StorySubmission>> {
+    console.log(`Mock API: Fetching stories, page: ${page}, size: ${size}`);
+    await this.simulateDelay(300);
+
+    const approvedStories = await mockStoriesApi.getStories(
+      "APPROVED" as SubmissionStatus
+    );
+
+    // Simple pagination
+    const start = page * size;
+    const end = start + size;
+    const paginatedStories = approvedStories.slice(start, end);
+
+    return {
+      items: paginatedStories,
+      pagination: {
+        page,
+        size,
+        totalElements: approvedStories.length,
+        totalPages: Math.ceil(approvedStories.length / size),
+        first: page === 0,
+        last: end >= approvedStories.length,
+      },
+    };
+  }
+
+  /**
+   * Fetches a single story by slug (mock implementation).
+   * Returns story only if it has APPROVED status.
+   */
+  async getStoryBySlug(slug: string): Promise<StorySubmission | undefined> {
+    console.log(`Mock API: Fetching story by slug: ${slug}`);
+    await this.simulateDelay(200);
+
+    const story = await mockStoriesApi.getStoryBySlug(slug);
+
+    // Only return approved stories for public access
+    if (story && story.status === ("APPROVED" as SubmissionStatus)) {
+      return story;
+    }
+
+    return undefined;
+  }
+
   // ================================
   // ADMIN STORY MODERATION OPERATIONS (Mock)
   // ================================
@@ -1280,6 +1337,119 @@ export class MockApiClient implements ApiClient {
         "Thank you for your message. We'll get back to you within 2-3 business days.",
       submittedAt: new Date().toISOString(),
     };
+  }
+
+  // ================================
+  // CURATED MEDIA OPERATIONS (Mock)
+  // ================================
+
+  /**
+   * Fetches curated media items from the gallery (mock implementation).
+   * Converts existing MOCK_MEDIA_ITEMS to CuratedMedia format.
+   */
+  async getCuratedMedia(options?: {
+    mediaType?: CuratedMediaType;
+    category?: string;
+    page?: number;
+    size?: number;
+  }): Promise<CuratedMediaPageResponse> {
+    console.log(`Mock API: Fetching curated media with options:`, options);
+    await this.simulateDelay(300);
+
+    // Convert MOCK_MEDIA_ITEMS to CuratedMedia format
+    let items: CuratedMedia[] = MOCK_MEDIA_ITEMS.map((item, index) => ({
+      id: item.id,
+      mediaType: item.type as CuratedMediaType,
+      platform:
+        item.type === "VIDEO" ? ("YOUTUBE" as const) : ("SELF_HOSTED" as const),
+      externalId: item.type === "VIDEO" ? "dQw4w9WgXcQ" : null,
+      url: item.url,
+      thumbnailUrl: item.thumbnailUrl || null,
+      title: item.title,
+      description: item.description || null,
+      author: item.author || null,
+      category: item.category,
+      displayOrder: index,
+      status: "ACTIVE" as const,
+      curatedBy: "admin",
+      createdAt: new Date(
+        Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updatedAt: new Date().toISOString(),
+    }));
+
+    // Apply filters
+    if (options?.mediaType) {
+      items = items.filter((item) => item.mediaType === options.mediaType);
+    }
+
+    if (options?.category) {
+      items = items.filter(
+        (item) =>
+          item.category.toLowerCase() === options.category?.toLowerCase()
+      );
+    }
+
+    // Apply pagination
+    const page = options?.page || 0;
+    const size = options?.size || 20;
+    const startIndex = page * size;
+    const endIndex = startIndex + size;
+    const paginatedItems = items.slice(startIndex, endIndex);
+
+    return {
+      items: paginatedItems,
+      totalItems: items.length,
+      totalPages: Math.ceil(items.length / size),
+      currentPage: page,
+    };
+  }
+
+  /**
+   * Fetches a single curated media item by ID (mock implementation).
+   */
+  async getCuratedMediaById(id: string): Promise<CuratedMedia | undefined> {
+    console.log(`Mock API: Fetching curated media by ID: ${id}`);
+    await this.simulateDelay(200);
+
+    const item = MOCK_MEDIA_ITEMS.find((m) => m.id === id);
+    if (!item) return undefined;
+
+    return {
+      id: item.id,
+      mediaType: item.type as CuratedMediaType,
+      platform:
+        item.type === "VIDEO" ? ("YOUTUBE" as const) : ("SELF_HOSTED" as const),
+      externalId: item.type === "VIDEO" ? "dQw4w9WgXcQ" : null,
+      url: item.url,
+      thumbnailUrl: item.thumbnailUrl || null,
+      title: item.title,
+      description: item.description || null,
+      author: item.author || null,
+      category: item.category,
+      displayOrder: 0,
+      status: "ACTIVE" as const,
+      curatedBy: "admin",
+      createdAt: new Date(
+        Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000
+      ).toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Fetches available curated media categories (mock implementation).
+   */
+  async getCuratedMediaCategories(): Promise<string[]> {
+    console.log(`Mock API: Fetching curated media categories`);
+    await this.simulateDelay(150);
+
+    // Extract unique categories from MOCK_MEDIA_ITEMS
+    const categories = Array.from(
+      new Set(MOCK_MEDIA_ITEMS.map((item) => item.category))
+    ).sort();
+
+    return categories;
   }
 }
 

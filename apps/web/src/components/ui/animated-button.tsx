@@ -5,8 +5,10 @@ import { forwardRef } from "react";
 import clsx from "clsx";
 import { motionDuration } from "@/lib/animation";
 
-interface AnimatedButtonProps
-  extends Omit<HTMLMotionProps<"button">, "children"> {
+interface AnimatedButtonProps extends Omit<
+  HTMLMotionProps<"button">,
+  "children"
+> {
   variant?: "primary" | "secondary" | "outline" | "ghost";
   size?: "sm" | "md" | "lg";
   isLoading?: boolean;

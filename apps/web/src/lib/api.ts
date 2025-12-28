@@ -281,6 +281,35 @@ export async function submitStory(
   return apiClient.submitStory(data);
 }
 
+/**
+ * Fetches published stories.
+ * Public endpoint - no authentication required.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param page Page number (0-indexed, default: 0)
+ * @param size Page size (default: 20)
+ * @returns A promise that resolves to paginated story submissions
+ */
+export async function getStories(
+  page: number = 0,
+  size: number = 20
+): Promise<PaginatedResult<StorySubmission>> {
+  return apiClient.getStories(page, size);
+}
+
+/**
+ * Fetches a single story by its slug.
+ * Public endpoint - no authentication required.
+ * Only returns approved/published stories.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param slug The slug of the story to fetch
+ * @returns A promise that resolves to a story or undefined if not found
+ */
+export async function getStoryBySlug(
+  slug: string
+): Promise<StorySubmission | undefined> {
+  return apiClient.getStoryBySlug(slug);
+}
+
 // ================================
 // ADMIN STORY MODERATION OPERATIONS
 // ================================
@@ -566,6 +595,55 @@ export async function updateProfile(
   request: import("@/types/profile").ProfileUpdateRequest
 ): Promise<import("@/types/profile").ProfileDto> {
   return apiClient.updateProfile(request);
+}
+
+// ================================
+// CURATED MEDIA OPERATIONS
+// ================================
+
+/**
+ * Fetches curated media items from the gallery.
+ * Public endpoint - no authentication required.
+ * Uses ISR with 30 minute cache for gallery content.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param options Query parameters (mediaType, category, page, size)
+ * @returns A promise that resolves to paginated curated media items
+ * @throws Error if API call fails
+ */
+export async function getCuratedMedia(options?: {
+  mediaType?: import("@/types/curated-media").MediaType;
+  category?: string;
+  page?: number;
+  size?: number;
+}): Promise<import("@/types/curated-media").CuratedMediaPageResponse> {
+  return apiClient.getCuratedMedia(options);
+}
+
+/**
+ * Fetches a single curated media item by ID.
+ * Public endpoint - no authentication required.
+ * Uses ISR with 30 minute cache for individual media items.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id UUID of the curated media item
+ * @returns A promise that resolves to curated media item or undefined if not found
+ * @throws Error if API call fails
+ */
+export async function getCuratedMediaById(
+  id: string
+): Promise<import("@/types/curated-media").CuratedMedia | undefined> {
+  return apiClient.getCuratedMediaById(id);
+}
+
+/**
+ * Fetches available curated media categories.
+ * Public endpoint - no authentication required.
+ * Uses ISR with 1 hour cache for categories list.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @returns A promise that resolves to array of category strings
+ * @throws Error if API call fails
+ */
+export async function getCuratedMediaCategories(): Promise<string[]> {
+  return apiClient.getCuratedMediaCategories();
 }
 
 // ================================

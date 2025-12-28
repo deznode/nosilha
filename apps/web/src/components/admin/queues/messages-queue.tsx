@@ -52,7 +52,7 @@ export function MessagesQueue({
         return "bg-[var(--color-valley-green)]/10 text-[var(--color-valley-green)]";
       case "READ":
         return "bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300";
-      case "REPLIED":
+      case "ARCHIVED":
         return "bg-[var(--color-ocean-blue)]/10 text-[var(--color-ocean-blue)]";
     }
   };
@@ -72,7 +72,7 @@ export function MessagesQueue({
             <option value="ALL">All Messages</option>
             <option value="UNREAD">Unread</option>
             <option value="READ">Read</option>
-            <option value="REPLIED">Replied</option>
+            <option value="ARCHIVED">Archived</option>
           </select>
         </div>
         <div className="relative w-full sm:w-64">
@@ -146,7 +146,7 @@ export function MessagesQueue({
                           {message.email}
                         </span>
                         <span className="flex items-center gap-1 text-xs text-slate-400">
-                          <Clock size={12} /> {message.timestamp}
+                          <Clock size={12} /> {message.createdAt}
                         </span>
                       </div>
                     </div>
@@ -161,10 +161,10 @@ export function MessagesQueue({
                       </button>
                     )}
                     <button
-                      onClick={() => onStatusChange?.(message.id, "REPLIED")}
+                      onClick={() => onStatusChange?.(message.id, "ARCHIVED")}
                       className="flex items-center gap-1 rounded-lg bg-[var(--color-ocean-blue)] px-3 py-1.5 text-[10px] font-bold text-white shadow-sm transition-all hover:bg-blue-800"
                     >
-                      <Mail size={12} /> Reply
+                      <Mail size={12} /> Archive
                     </button>
                     <button
                       onClick={() => onDelete?.(message.id)}

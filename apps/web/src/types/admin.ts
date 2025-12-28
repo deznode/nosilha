@@ -53,7 +53,11 @@ export interface Contributor {
   avatar?: string;
 }
 
-export type ContactMessageStatus = "UNREAD" | "READ" | "REPLIED";
+/**
+ * Contact message status aligned with backend ContactStatus enum.
+ * State transitions: UNREAD → READ → ARCHIVED, or UNREAD → ARCHIVED
+ */
+export type ContactMessageStatus = "UNREAD" | "READ" | "ARCHIVED";
 
 export interface ContactMessage {
   id: string;
@@ -62,7 +66,8 @@ export interface ContactMessage {
   subject: string;
   message: string;
   status: ContactMessageStatus;
-  timestamp: string;
+  /** ISO datetime string from backend (createdAt field) */
+  createdAt: string;
 }
 
 export type DirectorySubmissionStatus = SubmissionStatus;
