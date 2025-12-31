@@ -30,10 +30,34 @@ interface StoryDetailModalProps {
   onReject: (id: string) => void;
 }
 
+// Config keyed by backend enum names (QUICK, FULL, GUIDED, PHOTO)
 const STORY_TYPE_CONFIG: Record<
-  StoryType,
+  string,
   { icon: typeof BookOpen; label: string; color: string }
 > = {
+  QUICK: {
+    icon: Clock,
+    label: "Quick Memory",
+    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+  },
+  FULL: {
+    icon: BookOpen,
+    label: "Full Story",
+    color: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
+  },
+  GUIDED: {
+    icon: BookOpen,
+    label: "Guided Template",
+    color:
+      "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+  },
+  PHOTO: {
+    icon: Camera,
+    label: "Photo Moment",
+    color:
+      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+  },
+  // Also support frontend enum values for backwards compatibility
   [StoryType.QUICK]: {
     icon: Clock,
     label: "Quick Memory",
@@ -56,6 +80,13 @@ const STORY_TYPE_CONFIG: Record<
     color:
       "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
   },
+};
+
+// Default config for unknown types
+const DEFAULT_TYPE_CONFIG = {
+  icon: BookOpen,
+  label: "Story",
+  color: "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300",
 };
 
 const STATUS_CONFIG: Record<
@@ -87,7 +118,7 @@ export function StoryDetailModal({
 }: StoryDetailModalProps) {
   if (!story) return null;
 
-  const typeConfig = STORY_TYPE_CONFIG[story.type];
+  const typeConfig = STORY_TYPE_CONFIG[story.type] || DEFAULT_TYPE_CONFIG;
   const statusConfig = STATUS_CONFIG[story.status];
   const TypeIcon = typeConfig.icon;
   const isPending = story.status === SubmissionStatus.PENDING;
@@ -153,8 +184,10 @@ export function StoryDetailModal({
                 </div>
               </div>
 
-              {/* Photo for photo stories */}
-              {story.type === StoryType.PHOTO && story.imageUrl && (
+              {/* Photo for photo stories - handle both frontend enum and backend string */}
+              {(story.type === StoryType.PHOTO ||
+                (story.type as string) === "PHOTO") &&
+                story.imageUrl && (
                 <div className="relative mb-6 aspect-video w-full overflow-hidden rounded-lg">
                   <Image
                     src={story.imageUrl}

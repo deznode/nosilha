@@ -19,7 +19,12 @@ import type {
   SuggestionModerationAction,
   DashboardCounts,
 } from "@/lib/api-contracts";
-import type { StorySubmission, SubmissionStatus } from "@/types/story";
+import {
+  type StorySubmission,
+  type StoryTemplate,
+  SubmissionStatus,
+  StoryType,
+} from "@/types/story";
 import type {
   AdminStats,
   Suggestion,
@@ -971,7 +976,113 @@ export class BackendApiClient implements ApiClient {
     }
 
     const payload = await response.json();
-    return this.transformAdminQueueResponse<StorySubmission>(payload);
+    return this.transformAdminStoryResponse(payload);
+  }
+
+  /**
+   * Transforms backend story response to frontend StorySubmission type.
+   * Maps StoryDetailDto fields to frontend StorySubmission interface.
+   */
+  private transformAdminStoryResponse(
+    payload: unknown
+  ): AdminQueueResponse<StorySubmission> {
+    const unwrapped = this.unwrapApiResponse<unknown>(payload);
+
+    let rawItems: Record<string, unknown>[];
+    let pagination: { totalElements: number; number: number; size: number };
+
+    if (Array.isArray(unwrapped)) {
+      rawItems = unwrapped as Record<string, unknown>[];
+      const payloadRecord = payload as Record<string, unknown>;
+      const pageable =
+        (payloadRecord.pageable as Record<string, unknown>) || {};
+      pagination = {
+        totalElements: (pageable.totalElements as number) || 0,
+        number: (pageable.page as number) || 0,
+        size: (pageable.size as number) || 20,
+      };
+    } else {
+      const data = unwrapped as {
+        content: Record<string, unknown>[];
+        page: typeof pagination;
+      };
+      rawItems = data.content || [];
+      pagination = data.page || { totalElements: 0, number: 0, size: 20 };
+    }
+
+    // Map backend StoryDetailDto to frontend StorySubmission type
+    const items: StorySubmission[] = rawItems.map((dto) => ({
+      id: String(dto.id),
+      slug: (dto.publicationSlug as string) || String(dto.id),
+      title: (dto.title as string) || "",
+      content: (dto.content as string) || "",
+      author: (dto.authorId as string) || "Anonymous",
+      authorId: dto.authorId as string | undefined,
+      type: this.mapBackendStoryType(dto.storyType as string),
+      status: this.mapBackendStoryStatus(dto.status as string),
+      submittedAt: (dto.createdAt as string) || new Date().toISOString(),
+      location: dto.relatedPlaceId ? String(dto.relatedPlaceId) : undefined,
+      imageUrl: undefined, // Not provided by backend
+      templateType: this.mapBackendTemplateType(dto.templateType as string | undefined),
+      adminNotes: dto.adminNotes as string | undefined,
+      reviewedBy: dto.reviewedBy as string | undefined,
+      reviewedAt: dto.reviewedAt as string | undefined,
+    }));
+
+    return {
+      items,
+      total: pagination.totalElements,
+      page: pagination.number + 1,
+      pageSize: pagination.size,
+      hasMore:
+        pagination.number <
+        Math.ceil(pagination.totalElements / pagination.size) - 1,
+    };
+  }
+
+  /**
+   * Maps backend StoryType enum to frontend StoryType.
+   */
+  private mapBackendStoryType(backendType: string): StoryType {
+    const typeMap: Record<string, StoryType> = {
+      QUICK: StoryType.QUICK,
+      FULL: StoryType.FULL,
+      GUIDED: StoryType.GUIDED,
+      PHOTO: StoryType.PHOTO,
+    };
+    return typeMap[backendType] || StoryType.FULL;
+  }
+
+  /**
+   * Maps backend StoryStatus enum to frontend SubmissionStatus.
+   */
+  private mapBackendStoryStatus(backendStatus: string): SubmissionStatus {
+    const statusMap: Record<string, SubmissionStatus> = {
+      PENDING: SubmissionStatus.PENDING,
+      APPROVED: SubmissionStatus.APPROVED,
+      REJECTED: SubmissionStatus.REJECTED,
+      NEEDS_REVISION: SubmissionStatus.PENDING, // Map to PENDING in frontend
+      PUBLISHED: SubmissionStatus.APPROVED, // Published = approved in frontend
+    };
+    return statusMap[backendStatus] || SubmissionStatus.PENDING;
+  }
+
+  /**
+   * Maps backend TemplateType enum to frontend StoryTemplate.
+   */
+  private mapBackendTemplateType(
+    backendType: string | undefined
+  ): StoryTemplate | undefined {
+    if (!backendType) return undefined;
+    const templateMap: Record<string, StoryTemplate> = {
+      FAMILY: "family",
+      CHILDHOOD: "childhood",
+      DIASPORA: "migration",
+      TRADITIONS: "traditions",
+      FOOD: "recipe",
+      NARRATIVE: "narrative",
+    };
+    return templateMap[backendType];
   }
 
   /**
@@ -1083,7 +1194,85 @@ export class BackendApiClient implements ApiClient {
     }
 
     const payload = await response.json();
-    return this.transformAdminQueueResponse<Suggestion>(payload);
+    return this.transformAdminSuggestionResponse(payload);
+  }
+
+  /**
+   * Transforms backend suggestion response to frontend Suggestion type.
+   * Maps SuggestionDetailDto fields to frontend Suggestion interface.
+   */
+  private transformAdminSuggestionResponse(
+    payload: unknown
+  ): AdminQueueResponse<Suggestion> {
+    const unwrapped = this.unwrapApiResponse<unknown>(payload);
+
+    let rawItems: Record<string, unknown>[];
+    let pagination: { totalElements: number; number: number; size: number };
+
+    if (Array.isArray(unwrapped)) {
+      rawItems = unwrapped as Record<string, unknown>[];
+      const payloadRecord = payload as Record<string, unknown>;
+      const pageable =
+        (payloadRecord.pageable as Record<string, unknown>) || {};
+      pagination = {
+        totalElements: (pageable.totalElements as number) || 0,
+        number: (pageable.page as number) || 0,
+        size: (pageable.size as number) || 20,
+      };
+    } else {
+      const data = unwrapped as {
+        content: Record<string, unknown>[];
+        page: typeof pagination;
+      };
+      rawItems = data.content || [];
+      pagination = data.page || { totalElements: 0, number: 0, size: 20 };
+    }
+
+    // Map backend SuggestionDetailDto to frontend Suggestion type
+    const items: Suggestion[] = rawItems.map((dto) => ({
+      id: dto.id as string,
+      target: (dto.pageTitle as string) || `${dto.suggestionType} Suggestion`,
+      targetId: dto.contentId as string | undefined,
+      targetType: this.mapContentTypeToTargetType(dto.contentType as string),
+      description: (dto.message as string) || "",
+      status: dto.status as SubmissionStatus,
+      submittedBy: dto.name as string,
+      submittedByEmail: dto.email as string | undefined,
+      timestamp: dto.createdAt as string,
+      adminNotes: dto.adminNotes as string | undefined,
+      reviewedBy: dto.reviewedBy as string | undefined,
+      reviewedAt: dto.reviewedAt as string | undefined,
+    }));
+
+    return {
+      items,
+      total: pagination.totalElements,
+      page: pagination.number + 1,
+      pageSize: pagination.size,
+      hasMore:
+        pagination.number <
+        Math.ceil(pagination.totalElements / pagination.size) - 1,
+    };
+  }
+
+  /**
+   * Maps backend contentType to frontend targetType.
+   */
+  private mapContentTypeToTargetType(
+    contentType: string | undefined
+  ): "directory" | "article" | "story" | undefined {
+    if (!contentType) return undefined;
+    const ct = contentType.toLowerCase();
+    if (ct.includes("directory") || ct.includes("restaurant") || ct.includes("landmark")) {
+      return "directory";
+    }
+    if (ct.includes("article") || ct.includes("heritage")) {
+      return "article";
+    }
+    if (ct.includes("story")) {
+      return "story";
+    }
+    return undefined;
   }
 
   /**
@@ -1705,24 +1894,47 @@ export class BackendApiClient implements ApiClient {
 
   /**
    * Transforms backend paged response to AdminQueueResponse format.
+   * Handles two response formats:
+   * - Format 1: { data: [...], pageable: {...} } - items directly in data array
+   * - Format 2: { data: { content: [...], page: {...} } } - Spring Boot standard
    */
   private transformAdminQueueResponse<T>(
     payload: unknown
   ): AdminQueueResponse<T> {
-    const data = this.unwrapApiResponse<{
-      content: T[];
-      page: { totalElements: number; number: number; size: number };
-    }>(payload);
+    const unwrapped = this.unwrapApiResponse<unknown>(payload);
+
+    let items: T[];
+    let pagination: { totalElements: number; number: number; size: number };
+
+    if (Array.isArray(unwrapped)) {
+      // Format 1: data is directly an array, pageable at root level
+      items = unwrapped as T[];
+      const payloadRecord = payload as Record<string, unknown>;
+      const pageable =
+        (payloadRecord.pageable as Record<string, unknown>) || {};
+      pagination = {
+        totalElements: (pageable.totalElements as number) || 0,
+        number: (pageable.page as number) || 0,
+        size: (pageable.size as number) || 20,
+      };
+    } else {
+      // Format 2: data.content structure (Spring Boot standard)
+      const data = unwrapped as {
+        content: T[];
+        page: typeof pagination;
+      };
+      items = data.content || [];
+      pagination = data.page || { totalElements: 0, number: 0, size: 20 };
+    }
 
     return {
-      items: data.content || [],
-      total: data.page?.totalElements || 0,
-      page: (data.page?.number || 0) + 1, // Convert 0-indexed to 1-indexed
-      pageSize: data.page?.size || 20,
+      items,
+      total: pagination.totalElements,
+      page: pagination.number + 1, // Convert 0-indexed to 1-indexed
+      pageSize: pagination.size,
       hasMore:
-        (data.page?.number || 0) <
-        Math.ceil((data.page?.totalElements || 0) / (data.page?.size || 20)) -
-          1,
+        pagination.number <
+        Math.ceil(pagination.totalElements / pagination.size) - 1,
     };
   }
 

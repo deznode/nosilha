@@ -155,6 +155,35 @@ class StoryService(
     }
 
     /**
+     * Lists stories with full details for admin queue display.
+     *
+     * Returns complete story data including content and review information,
+     * enabling admins to make moderation decisions without loading individual details.
+     *
+     * @param status Optional status filter (PENDING, APPROVED, REJECTED, NEEDS_REVISION, PUBLISHED). If null, returns all stories.
+     * @param page Zero-based page number
+     * @param size Number of items per page (max 100)
+     * @return Paginated list of stories as detail DTOs
+     */
+    @Transactional(readOnly = true)
+    fun listStoriesWithDetails(
+        status: StoryStatus?,
+        page: Int,
+        size: Int,
+    ): Page<StoryDetailDto> {
+        val pageable = PageRequest.of(page, minOf(size, 100))
+        val stories =
+            if (status != null) {
+                repository.findByStatus(status, pageable)
+            } else {
+                repository.findAllBy(pageable)
+            }
+
+        logger.debug("Retrieved ${stories.numberOfElements} stories with details (page $page, size $size, status: $status)")
+        return stories.map { it.toDetailDto() }
+    }
+
+    /**
      * Gets detailed information for a specific story.
      *
      * Admin endpoint to view complete story details for review.

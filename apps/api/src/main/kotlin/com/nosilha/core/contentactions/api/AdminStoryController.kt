@@ -77,8 +77,8 @@ class AdminStoryController(
         @RequestParam(required = false) status: StoryStatus?,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
-    ): PagedApiResult<StoryListDto> {
-        val result = storyService.listStories(status, page, size)
+    ): PagedApiResult<StoryDetailDto> {
+        val result = storyService.listStoriesWithDetails(status, page, size)
         return PagedApiResult.from(result)
     }
 
