@@ -72,8 +72,8 @@ class AdminSuggestionController(
         @RequestParam(required = false) status: SuggestionStatus?,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
-    ): PagedApiResult<SuggestionListDto> {
-        val result = suggestionService.listSuggestions(status, page, size)
+    ): PagedApiResult<SuggestionDetailDto> {
+        val result = suggestionService.listSuggestionsWithDetails(status, page, size)
         return PagedApiResult.from(result)
     }
 

@@ -40,6 +40,15 @@ See `apps/web/README-MCP.md` for complete tool list.
 - Interactive development assistance with live preview
 - Performance testing and Core Web Vitals monitoring
 
+## Authentication
+
+The credentials for logging into the website can be provided using the following environment variables:
+
+```bash
+WEB_USERNAME=your_username
+WEB_PASSWORD=your_password
+```
+
 ## Commands
 
 ```bash

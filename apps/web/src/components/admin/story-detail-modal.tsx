@@ -188,15 +188,15 @@ export function StoryDetailModal({
               {(story.type === StoryType.PHOTO ||
                 (story.type as string) === "PHOTO") &&
                 story.imageUrl && (
-                <div className="relative mb-6 aspect-video w-full overflow-hidden rounded-lg">
-                  <Image
-                    src={story.imageUrl}
-                    alt={story.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              )}
+                  <div className="relative mb-6 aspect-video w-full overflow-hidden rounded-lg">
+                    <Image
+                      src={story.imageUrl}
+                      alt={story.title}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
 
               {/* Story Content */}
               <div className="prose prose-slate dark:prose-invert max-w-none">

@@ -165,6 +165,35 @@ class SuggestionService(
     }
 
     /**
+     * Lists suggestions with full details for admin queue display.
+     *
+     * Returns complete suggestion data including message and page context,
+     * enabling admins to make moderation decisions without loading individual details.
+     *
+     * @param status Optional status filter (PENDING, APPROVED, REJECTED). If null, returns all suggestions.
+     * @param page Zero-based page number
+     * @param size Number of items per page (max 100)
+     * @return Paginated list of suggestions as detail DTOs
+     */
+    @Transactional(readOnly = true)
+    fun listSuggestionsWithDetails(
+        status: SuggestionStatus?,
+        page: Int,
+        size: Int,
+    ): Page<SuggestionDetailDto> {
+        val pageable = PageRequest.of(page, minOf(size, 100))
+        val suggestions =
+            if (status != null) {
+                suggestionRepository.findByStatus(status, pageable)
+            } else {
+                suggestionRepository.findAllBy(pageable)
+            }
+
+        logger.debug("Retrieved ${suggestions.numberOfElements} suggestions with details (page $page, size $size, status: $status)")
+        return suggestions.map { it.toDetailDto() }
+    }
+
+    /**
      * Gets detailed information for a specific suggestion.
      *
      * Admin endpoint to view complete suggestion details for review.

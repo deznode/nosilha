@@ -23,7 +23,7 @@ import { Language } from "@/types/user-profile";
 import type { PreferredLanguage } from "@/types/profile";
 
 export default function ProfilePage() {
-  const { session } = useAuth();
+  const { session, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<ProfileTabType>("activity");
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -125,6 +125,38 @@ export default function ProfilePage() {
       }
     );
   };
+
+  // Auth loading state - skeleton mimics actual profile layout (UX best practice)
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 py-8 dark:bg-slate-900">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          {/* Profile header skeleton */}
+          <div className="animate-pulse rounded-xl bg-white p-6 shadow-sm dark:bg-slate-800">
+            <div className="h-24 rounded-lg bg-slate-200 dark:bg-slate-700" />
+            <div className="mt-4 flex items-center gap-4">
+              <div className="h-16 w-16 rounded-full bg-slate-200 dark:bg-slate-700" />
+              <div className="flex-1">
+                <div className="h-6 w-48 rounded bg-slate-200 dark:bg-slate-700" />
+                <div className="mt-2 h-4 w-32 rounded bg-slate-200 dark:bg-slate-700" />
+              </div>
+            </div>
+          </div>
+          {/* Tabs skeleton */}
+          <div className="mt-6 animate-pulse rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+            <div className="flex gap-4 border-b border-slate-200 p-4 dark:border-slate-700">
+              <div className="h-8 w-24 rounded bg-slate-200 dark:bg-slate-700" />
+              <div className="h-8 w-24 rounded bg-slate-200 dark:bg-slate-700" />
+              <div className="h-8 w-24 rounded bg-slate-200 dark:bg-slate-700" />
+            </div>
+            <div className="p-6">
+              <div className="h-32 rounded bg-slate-200 dark:bg-slate-700" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Not logged in state
   if (!session) {

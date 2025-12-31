@@ -15,7 +15,7 @@ import type {
 } from "@/types/profile";
 
 export default function SettingsPage() {
-  const { session } = useAuth();
+  const { session, loading: authLoading } = useAuth();
   const toast = useToast();
 
   // Loading and data states
@@ -79,6 +79,27 @@ export default function SettingsPage() {
       setIsSaving(false);
     }
   };
+
+  // Auth loading state - show skeleton while checking session
+  if (authLoading) {
+    return (
+      <div className="bg-background-secondary min-h-screen font-sans">
+        <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+          <PageHeader
+            title="Settings"
+            subtitle="Customize your Nos Ilha experience"
+          />
+          <div className="mx-auto mt-12 max-w-2xl">
+            <div className="bg-background-primary animate-pulse rounded-xl p-6 shadow-sm">
+              <div className="bg-background-secondary h-6 w-40 rounded" />
+              <div className="bg-background-secondary mt-4 h-20 rounded" />
+              <div className="bg-background-secondary mt-4 h-20 rounded" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Not logged in state
   if (!session) {

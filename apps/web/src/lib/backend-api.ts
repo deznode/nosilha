@@ -1023,7 +1023,9 @@ export class BackendApiClient implements ApiClient {
       submittedAt: (dto.createdAt as string) || new Date().toISOString(),
       location: dto.relatedPlaceId ? String(dto.relatedPlaceId) : undefined,
       imageUrl: undefined, // Not provided by backend
-      templateType: this.mapBackendTemplateType(dto.templateType as string | undefined),
+      templateType: this.mapBackendTemplateType(
+        dto.templateType as string | undefined
+      ),
       adminNotes: dto.adminNotes as string | undefined,
       reviewedBy: dto.reviewedBy as string | undefined,
       reviewedAt: dto.reviewedAt as string | undefined,
@@ -1263,7 +1265,11 @@ export class BackendApiClient implements ApiClient {
   ): "directory" | "article" | "story" | undefined {
     if (!contentType) return undefined;
     const ct = contentType.toLowerCase();
-    if (ct.includes("directory") || ct.includes("restaurant") || ct.includes("landmark")) {
+    if (
+      ct.includes("directory") ||
+      ct.includes("restaurant") ||
+      ct.includes("landmark")
+    ) {
       return "directory";
     }
     if (ct.includes("article") || ct.includes("heritage")) {
