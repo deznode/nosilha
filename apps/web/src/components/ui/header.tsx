@@ -409,7 +409,7 @@ export function Header({
                               <MenuItem>
                                 {({ active }) => (
                                   <Link
-                                    href="/add-entry"
+                                    href="/contribute/directory"
                                     className={clsx(
                                       active
                                         ? "bg-background-secondary text-ocean-blue"

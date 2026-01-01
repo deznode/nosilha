@@ -18,6 +18,8 @@ import type {
   StoryModerationAction,
   SuggestionModerationAction,
   DashboardCounts,
+  DirectorySubmissionRequest,
+  DirectorySubmissionConfirmation,
 } from "@/lib/api-contracts";
 import {
   type StorySubmission,
@@ -672,6 +674,64 @@ export class BackendApiClient implements ApiClient {
     return this.unwrapApiResponse<{ id: string | null; message: string }>(
       payload
     );
+  }
+
+  /**
+   * Submits a directory entry for review.
+   *
+   * **Public Endpoint**: No authentication required - allows community contributions.
+   *
+   * **Rate Limiting**: 3 submissions per hour per IP address.
+   *
+   * @param request Contains name, category, town, description, and optional fields
+   * @param submittedBy Display name of the submitter (required)
+   * @param submittedByEmail Optional email of the submitter
+   * @returns DirectorySubmissionConfirmation with id, name, and status
+   * @throws Error if rate limit exceeded (HTTP 429)
+   * @throws Error if validation fails (HTTP 400)
+   */
+  async submitDirectoryEntry(
+    request: DirectorySubmissionRequest,
+    submittedBy: string,
+    submittedByEmail?: string
+  ): Promise<DirectorySubmissionConfirmation> {
+    const params = new URLSearchParams();
+    params.append("submittedBy", submittedBy);
+    if (submittedByEmail) {
+      params.append("submittedByEmail", submittedByEmail);
+    }
+
+    const endpoint = `${env.apiUrl}/api/v1/directory-submissions?${params.toString()}`;
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+      cache: "no-store", // Never cache POST requests
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message ||
+            "You've exceeded the maximum number of submissions. Please try again later."
+        );
+      }
+      if (response.status === 400) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message ||
+            "Invalid submission data. Please check your input."
+        );
+      }
+      throw new Error(`Failed to submit directory entry: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<DirectorySubmissionConfirmation>(payload);
   }
 
   // ================================

@@ -101,7 +101,7 @@ class DirectorySubmissionService(
             status = DirectorySubmissionStatus.PENDING,
         )
 
-        val savedSubmission = directorySubmissionRepository.save(submission)
+        val savedSubmission = directorySubmissionRepository.saveAndFlush(submission)
         logger.info("Directory submission ${savedSubmission.id} created successfully")
 
         return AdminDirectorySubmissionDto.fromEntity(savedSubmission)

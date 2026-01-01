@@ -9,6 +9,8 @@ import type {
   StoryModerationAction,
   SuggestionModerationAction,
   DashboardCounts,
+  DirectorySubmissionRequest,
+  DirectorySubmissionConfirmation,
 } from "@/lib/api-contracts";
 import type {
   ReactionCreateDto,
@@ -398,6 +400,45 @@ export class MockApiClient implements ApiClient {
     // Add to mock data (in real scenario, this would persist)
     MOCK_ENTRIES.push(newEntry);
     return newEntry;
+  }
+
+  /**
+   * Mock implementation for submitting a directory entry for review.
+   * Simulates the public submission flow with rate limiting.
+   */
+  async submitDirectoryEntry(
+    request: DirectorySubmissionRequest,
+    submittedBy: string,
+    _submittedByEmail?: string
+  ): Promise<DirectorySubmissionConfirmation> {
+    console.log(
+      `Mock API: Submitting directory entry for review:`,
+      request,
+      submittedBy
+    );
+    await this.simulateDelay(300);
+
+    // Simulate validation
+    if (!request.name || request.name.trim().length === 0) {
+      throw new Error("Validation failed: name: Name is required");
+    }
+    if (!request.description || request.description.trim().length < 10) {
+      throw new Error(
+        "Validation failed: description: Description must be at least 10 characters"
+      );
+    }
+    if (!submittedBy || submittedBy.trim().length === 0) {
+      throw new Error(
+        "Validation failed: submittedBy: Submitter name is required"
+      );
+    }
+
+    // Return confirmation (simulates backend response)
+    return {
+      id: `mock-${Date.now()}`,
+      name: request.name,
+      status: "PENDING",
+    };
   }
 
   /**

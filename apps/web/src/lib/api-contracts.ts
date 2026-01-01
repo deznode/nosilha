@@ -76,6 +76,17 @@ export interface ApiClient {
     >
   ): Promise<DirectoryEntry>;
 
+  /**
+   * Submit a directory entry for review (public, rate-limited).
+   * No authentication required.
+   * Rate limited to 3 submissions per hour per IP address.
+   */
+  submitDirectoryEntry(
+    request: DirectorySubmissionRequest,
+    submittedBy: string,
+    submittedByEmail?: string
+  ): Promise<DirectorySubmissionConfirmation>;
+
   // Town Operations
   getTowns(): Promise<Town[]>;
 
@@ -394,6 +405,31 @@ export interface StorySubmitRequest {
 export interface StorySubmittedResponse {
   id: string | null;
   message: string;
+}
+
+/**
+ * Request payload for submitting a directory entry for review
+ */
+export interface DirectorySubmissionRequest {
+  name: string;
+  category: "RESTAURANT" | "LANDMARK" | "NATURE" | "CULTURE";
+  town: string;
+  customTown?: string;
+  description: string;
+  tags?: string[];
+  imageUrl?: string;
+  priceLevel?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
+/**
+ * Response after submitting a directory entry for review
+ */
+export interface DirectorySubmissionConfirmation {
+  id: string;
+  name: string;
+  status: string;
 }
 
 /**

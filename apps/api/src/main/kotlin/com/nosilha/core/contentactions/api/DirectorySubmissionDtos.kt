@@ -98,3 +98,15 @@ data class CreateDirectorySubmissionRequest(
     val latitude: BigDecimal? = null,
     val longitude: BigDecimal? = null,
 )
+
+/**
+ * DTO for public directory submission confirmation response.
+ *
+ * <p>Returned after a successful submission to confirm the entry was received.
+ * Frontend derives success message from HTTP 201 status.</p>
+ */
+data class DirectorySubmissionConfirmationDto(
+    val id: UUID,
+    val name: String,
+    val status: String,
+)

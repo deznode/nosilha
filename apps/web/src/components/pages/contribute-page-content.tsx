@@ -88,10 +88,10 @@ export function ContributePageContent() {
                 <li>• Respect privacy and property rights</li>
               </ul>
               <Link
-                href="/add-entry"
+                href="/contribute/directory"
                 className="text-ocean-blue hover:text-ocean-blue/80 group inline-flex items-center"
               >
-                Start Contributing Photos{" "}
+                Start Contributing{" "}
                 <span className="ml-1 transition-transform group-hover:translate-x-1">
                   →
                 </span>

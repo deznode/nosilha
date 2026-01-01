@@ -8,5 +8,5 @@ export async function proxy() {
 }
 
 export const config = {
-  matcher: ["/add-entry/:path*"],
+  matcher: ["/contribute/directory/:path*"],
 };

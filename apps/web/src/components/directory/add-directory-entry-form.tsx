@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import {
   ArrowLeft,
   MapPin,
@@ -15,18 +14,19 @@ import {
   Landmark,
   Music,
   Check,
-  Upload,
-  X,
   History,
   Info,
   AlertCircle,
   PlusCircle,
   LayoutGrid,
   ChevronDown,
+  User,
+  Mail,
 } from "lucide-react";
 import { generateDirectoryEntryContent, isGeminiAvailable } from "@/lib/gemini";
-import type { DirectorySubmission } from "@/types/admin";
-import { SubmissionStatus } from "@/types/story";
+import { submitDirectoryEntry } from "@/lib/api";
+import { ImageUploader } from "@/components/ui/image-uploader";
+import type { DirectorySubmissionRequest } from "@/lib/api-contracts";
 
 type DirectoryCategory = "Restaurant" | "Landmark" | "Nature" | "Culture";
 
@@ -89,6 +89,8 @@ interface FormData {
   longitude: string;
   imageUrl: string;
   priceLevel: "$" | "$$" | "$$$";
+  submitterName: string;
+  submitterEmail: string;
 }
 
 export function AddDirectoryEntryForm() {
@@ -109,7 +111,10 @@ export function AddDirectoryEntryForm() {
     longitude: "",
     imageUrl: "",
     priceLevel: "$$",
+    submitterName: "",
+    submitterEmail: "",
   });
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleAIAutoFill = async () => {
     if (!formData.name || !isGeminiAvailable()) return;
@@ -133,47 +138,59 @@ export function AddDirectoryEntryForm() {
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () =>
-        setFormData({ ...formData, imageUrl: reader.result as string });
-      reader.readAsDataURL(file);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError(null);
 
-    // Create submission object
-    const submission: Omit<DirectorySubmission, "id" | "submittedAt"> = {
-      name: formData.name,
-      category: formData.category,
-      town: useCustomTown ? formData.customTown : formData.town,
-      customTown: useCustomTown ? formData.customTown : undefined,
-      description: formData.description,
-      tags: formData.tags.split(",").map((t) => t.trim()),
-      imageUrl: formData.imageUrl || undefined,
-      priceLevel:
-        formData.category === "Restaurant" ? formData.priceLevel : undefined,
-      latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
-      longitude: formData.longitude
-        ? parseFloat(formData.longitude)
-        : undefined,
-      status: SubmissionStatus.PENDING,
-      submittedBy: "Current User", // TODO: Get from auth context
-    };
+    try {
+      // Build the API request with uppercase category
+      const categoryMap: Record<
+        DirectoryCategory,
+        DirectorySubmissionRequest["category"]
+      > = {
+        Restaurant: "RESTAURANT",
+        Landmark: "LANDMARK",
+        Nature: "NATURE",
+        Culture: "CULTURE",
+      };
 
-    // TODO: Submit to API
-    console.log("Submitting:", submission);
+      const request: DirectorySubmissionRequest = {
+        name: formData.name,
+        category: categoryMap[formData.category],
+        town: useCustomTown ? formData.customTown : formData.town,
+        customTown: useCustomTown ? formData.customTown : undefined,
+        description: formData.description,
+        tags: formData.tags
+          ? formData.tags
+              .split(",")
+              .map((t) => t.trim())
+              .filter(Boolean)
+          : [],
+        imageUrl: formData.imageUrl || undefined,
+        priceLevel:
+          formData.category === "Restaurant" ? formData.priceLevel : undefined,
+        latitude: formData.latitude ? parseFloat(formData.latitude) : undefined,
+        longitude: formData.longitude
+          ? parseFloat(formData.longitude)
+          : undefined,
+      };
 
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Submit to API
+      await submitDirectoryEntry(
+        request,
+        formData.submitterName,
+        formData.submitterEmail || undefined
+      );
 
-    setIsSubmitting(false);
-    setStep(3); // Success
+      setStep(3); // Success
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "An unexpected error occurred";
+      setSubmitError(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleBack = () => {
@@ -457,58 +474,23 @@ export function AddDirectoryEntryForm() {
                 <ImageIcon size={16} /> 3. Visuals & Location
               </div>
 
-              <div
-                className={`group flex cursor-pointer flex-col items-center justify-center rounded-[2.5rem] border-3 border-dashed p-16 text-center transition-all hover:bg-slate-50 hover:shadow-inner ${
-                  formData.imageUrl
-                    ? "border-[var(--color-valley-green)]/50 bg-[var(--color-valley-green)]/5"
-                    : "border-slate-200 hover:border-[var(--color-ocean-blue)]/50 dark:border-slate-600"
-                }`}
-                onClick={() => document.getElementById("image-input")?.click()}
-              >
-                {formData.imageUrl ? (
-                  <div className="animate-in zoom-in relative duration-300">
-                    <Image
-                      src={formData.imageUrl}
-                      alt="Preview"
-                      width={320}
-                      height={240}
-                      className="max-h-80 rounded-[2rem] border-4 border-white object-cover shadow-2xl"
-                    />
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setFormData({ ...formData, imageUrl: "" });
-                      }}
-                      className="absolute -top-4 -right-4 rounded-full bg-red-500 p-3 text-white shadow-xl transition-all hover:scale-110 active:scale-95"
-                    >
-                      <X size={20} />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center">
-                    <div className="mb-6 rounded-[2rem] bg-slate-100 p-6 transition-all group-hover:scale-110 group-hover:bg-[var(--color-ocean-blue)]/10 dark:bg-slate-700">
-                      <Upload
-                        size={40}
-                        className="text-slate-400 transition-colors group-hover:text-[var(--color-ocean-blue)]"
-                      />
-                    </div>
-                    <p className="text-lg font-bold text-slate-900 dark:text-white">
-                      Upload primary photo
-                    </p>
-                    <p className="mt-2 max-w-xs text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-                      High-quality photos help visitors appreciate the beauty of
-                      our island.
-                    </p>
-                  </div>
-                )}
-                <input
-                  id="image-input"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleImageUpload}
+              <div>
+                <label className="mb-2 block text-sm font-bold text-slate-900 dark:text-white">
+                  Primary Photo
+                </label>
+                <ImageUploader
+                  onUploadComplete={(url) =>
+                    setFormData((prev) => ({ ...prev, imageUrl: url }))
+                  }
+                  category="directory"
+                  description={formData.name || "Directory entry photo"}
+                  autoUpload={true}
                 />
+                {formData.imageUrl && (
+                  <p className="mt-2 text-sm text-[var(--color-valley-green)]">
+                    Photo uploaded successfully
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-8">
@@ -544,6 +526,79 @@ export function AddDirectoryEntryForm() {
                 </div>
               </div>
             </div>
+
+            {/* Submitter Information */}
+            <div className="space-y-8">
+              <div className="flex items-center gap-3 border-b border-slate-100 pb-3 text-xs font-bold tracking-[0.2em] text-[var(--color-ocean-blue)] uppercase dark:border-slate-700">
+                <User size={16} /> 4. Your Information
+              </div>
+
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-bold text-slate-900 dark:text-white">
+                    Your Name <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      required
+                      type="text"
+                      className="w-full rounded-2xl border border-slate-200 py-3 pr-4 pl-10 transition-all outline-none focus:border-[var(--color-ocean-blue)] focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      placeholder="Enter your name"
+                      value={formData.submitterName}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          submitterName: e.target.value,
+                        })
+                      }
+                    />
+                    <User
+                      size={18}
+                      className="absolute top-3.5 left-3.5 text-slate-300"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-sm font-bold text-slate-900 dark:text-white">
+                    Your Email{" "}
+                    <span className="text-slate-400">(optional)</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="email"
+                      className="w-full rounded-2xl border border-slate-200 py-3 pr-4 pl-10 transition-all outline-none focus:border-[var(--color-ocean-blue)] focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      placeholder="your@email.com"
+                      value={formData.submitterEmail}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          submitterEmail: e.target.value,
+                        })
+                      }
+                    />
+                    <Mail
+                      size={18}
+                      className="absolute top-3.5 left-3.5 text-slate-300"
+                    />
+                  </div>
+                  <p className="mt-1 text-xs text-slate-400">
+                    We may contact you if we have questions about your
+                    submission.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Error Display */}
+            {submitError && (
+              <div className="flex items-start gap-4 rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-900/20">
+                <AlertCircle className="shrink-0 text-red-500" size={20} />
+                <p className="text-sm text-red-700 dark:text-red-400">
+                  {submitError}
+                </p>
+              </div>
+            )}
 
             {/* Submission Actions */}
             <div className="flex flex-col items-center justify-between gap-6 border-t border-slate-100 pt-10 md:flex-row dark:border-slate-700">
