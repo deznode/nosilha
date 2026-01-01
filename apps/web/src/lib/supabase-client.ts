@@ -1,3 +1,4 @@
+import { createBrowserClient } from "@supabase/ssr";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -15,6 +16,14 @@ function createStubClient(): SupabaseClient {
       signOut: noop,
       signUp: async () => ({ data: null, error: null }),
       signInWithPassword: async () => ({ data: null, error: null }),
+      signInWithOAuth: async () => ({
+        data: { url: null, provider: "" },
+        error: null,
+      }),
+      exchangeCodeForSession: async () => ({
+        data: { session: null, user: null },
+        error: null,
+      }),
     },
   } as unknown as SupabaseClient;
 }
@@ -36,6 +45,13 @@ function getClient(): SupabaseClient {
     return createStubClient();
   }
 
+  // Use createBrowserClient from @supabase/ssr for cookie-based sessions
+  // This ensures session is stored in cookies and accessible by proxy/middleware
+  if (typeof window !== "undefined") {
+    return createBrowserClient(supabaseUrl, supabaseAnonKey);
+  }
+
+  // Fallback for server-side (non-request context)
   return createClient(supabaseUrl, supabaseAnonKey);
 }
 

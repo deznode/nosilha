@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
@@ -102,6 +102,7 @@ export default function NosIlhaAuth({
   initialView = "login",
 }: NosIlhaAuthProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLogin, setIsLogin] = useState(initialView === "login");
   const [isOAuthLoading, setIsOAuthLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -166,8 +167,17 @@ export default function NosIlhaAuth({
 
         if (error) throw error;
 
-        // Redirect to homepage on success
-        router.push("/");
+        // Redirect to the return URL or homepage on success
+        const redirectTo = searchParams.get("redirect");
+        // Validate redirect URL to prevent open redirect attacks
+        // Only allow relative paths that start with /
+        const safeRedirect =
+          redirectTo &&
+          redirectTo.startsWith("/") &&
+          !redirectTo.startsWith("//")
+            ? redirectTo
+            : "/";
+        router.push(safeRedirect);
         router.refresh();
       } else {
         // Signup
