@@ -83,4 +83,14 @@ interface MediaRepository : JpaRepository<Media, UUID> {
         entryId: UUID,
         status: MediaStatus,
     ): List<Media>
+
+    /**
+     * Counts media with a specific status.
+     *
+     * Used for dashboard statistics to show pending moderation items.
+     *
+     * @param status The media status to count
+     * @return Number of media entities with the specified status
+     */
+    fun countByStatus(status: MediaStatus): Long
 }

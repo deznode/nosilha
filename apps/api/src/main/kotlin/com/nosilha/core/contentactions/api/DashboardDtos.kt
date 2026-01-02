@@ -18,6 +18,7 @@ package com.nosilha.core.contentactions.api
  * @property storySubmissions Count of story submissions awaiting moderation (status = PENDING)
  * @property contactInquiries Count of contact messages awaiting review (status = UNREAD)
  * @property directorySubmissions Count of directory submissions awaiting moderation (status = PENDING)
+ * @property mediaPending Count of media items awaiting review (status = PENDING_REVIEW or FLAGGED)
  * @property activeUsers Count of unique users who contributed in the last 30 days
  * @property locationsCovered Count of distinct towns represented in the directory
  * @property weeklyActivity Activity data for the last 7 days (suggestions and stories per day)
@@ -28,6 +29,7 @@ data class AdminStatsResponse(
     val storySubmissions: Long,
     val contactInquiries: Long,
     val directorySubmissions: Long,
+    val mediaPending: Long,
     val activeUsers: Long,
     val locationsCovered: Long,
     val weeklyActivity: List<WeeklyActivityData>,

@@ -89,6 +89,9 @@ class Media(
     /** Reason provided when media is rejected. */
     @Column(name = "rejection_reason", length = 1024)
     var rejectionReason: String? = null,
+    /** Queue priority for moderation (0=normal, 1=low, 2=medium, 3=high). */
+    @Column(name = "severity")
+    var severity: Int? = 0,
     /** AI-generated tags for image classification (PostgreSQL TEXT[] array). */
     @Column(name = "ai_tags", columnDefinition = "TEXT[]")
     @JdbcTypeCode(SqlTypes.ARRAY)

@@ -23,6 +23,10 @@ import type {
   ContactMessageStatus,
   DirectorySubmission,
   AdminQueueResponse,
+  AdminMediaListItem,
+  AdminMediaDetail,
+  UpdateMediaStatusRequest,
+  MediaStatus,
 } from "@/types/admin";
 import { getApiClient } from "@/lib/api-factory";
 
@@ -664,6 +668,106 @@ export async function getCuratedMediaById(
  */
 export async function getCuratedMediaCategories(): Promise<string[]> {
   return apiClient.getCuratedMediaCategories();
+}
+
+// ================================
+// ADMIN MEDIA MODERATION OPERATIONS
+// ================================
+
+/**
+ * Gets media items for admin moderation queue.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param status Filter by media status (optional, defaults to all)
+ * @param page Page number (0-indexed, default: 0)
+ * @param size Page size (default: 20)
+ * @returns A promise that resolves to paginated media items
+ */
+export async function getAdminMedia(
+  status?: MediaStatus | "ALL",
+  page?: number,
+  size?: number
+): Promise<AdminQueueResponse<AdminMediaListItem>> {
+  return apiClient.getAdminMedia(status, page, size);
+}
+
+/**
+ * Gets detailed media information for moderation.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Media item ID
+ * @returns A promise that resolves to detailed media information
+ */
+export async function getAdminMediaDetail(
+  id: string
+): Promise<AdminMediaDetail> {
+  return apiClient.getAdminMediaDetail(id);
+}
+
+/**
+ * Updates media moderation status.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Media item ID
+ * @param request Moderation action request (action, reason, adminNotes)
+ */
+export async function updateMediaStatus(
+  id: string,
+  request: UpdateMediaStatusRequest
+): Promise<AdminMediaDetail> {
+  return apiClient.updateMediaStatus(id, request);
+}
+
+/**
+ * Deletes a media item.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Media item ID
+ */
+export async function deleteMedia(id: string): Promise<void> {
+  return apiClient.deleteMedia(id);
+}
+
+// ================================
+// MDX ARCHIVAL ENGINE OPERATIONS
+// ================================
+
+/**
+ * Generates MDX content from an approved story.
+ * Requires ADMIN role authentication.
+ * Only available for stories with status APPROVED.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param storyId The story submission ID
+ * @param options Optional configuration (translations, language)
+ * @returns A promise that resolves to MDX content with validation status
+ * @throws Error if authentication failed (HTTP 401)
+ * @throws Error if story not found or not approved (HTTP 404/400)
+ */
+export async function generateMdx(
+  storyId: string,
+  options?: import("@/types/admin").GenerateMdxOptions
+): Promise<import("@/types/admin").MdxContent> {
+  return apiClient.generateMdx(storyId, options);
+}
+
+/**
+ * Commits MDX content to the repository.
+ * Requires ADMIN role authentication.
+ * Can commit even if schema validation shows errors (warning displayed).
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param storyId The story submission ID
+ * @param mdxSource The MDX content to commit
+ * @param commitMessage Optional custom commit message
+ * @returns A promise that resolves to commit confirmation details
+ * @throws Error if authentication failed (HTTP 401)
+ * @throws Error if commit fails (HTTP 500)
+ */
+export async function commitMdx(
+  storyId: string,
+  mdxSource: string,
+  commitMessage?: string
+): Promise<import("@/types/admin").MdxCommitResult> {
+  return apiClient.commitMdx(storyId, mdxSource, commitMessage);
 }
 
 // ================================

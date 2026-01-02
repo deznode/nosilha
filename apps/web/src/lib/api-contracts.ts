@@ -15,6 +15,9 @@ import type {
   ContactMessageStatus,
   DirectorySubmission,
   AdminQueueResponse,
+  MdxContent,
+  MdxCommitResult,
+  GenerateMdxOptions,
 } from "@/types/admin";
 import type {
   ProfileDto,
@@ -194,6 +197,27 @@ export interface ApiClient {
   deleteStory(id: string): Promise<void>;
 
   // ================================
+  // MDX ARCHIVAL ENGINE OPERATIONS
+  // ================================
+
+  /**
+   * Generate MDX content from an approved story
+   */
+  generateMdx(
+    storyId: string,
+    options?: GenerateMdxOptions
+  ): Promise<MdxContent>;
+
+  /**
+   * Commit MDX content to repository
+   */
+  commitMdx(
+    storyId: string,
+    mdxSource: string,
+    commitMessage?: string
+  ): Promise<MdxCommitResult>;
+
+  // ================================
   // ADMIN SUGGESTION MODERATION OPERATIONS
   // ================================
 
@@ -280,6 +304,39 @@ export interface ApiClient {
     status: SubmissionStatus,
     notes?: string
   ): Promise<DirectorySubmission>;
+
+  // ================================
+  // ADMIN MEDIA MODERATION OPERATIONS
+  // ================================
+
+  /**
+   * Get media items for admin moderation queue
+   */
+  getAdminMedia(
+    status?: import("@/types/admin").MediaStatus | "ALL",
+    page?: number,
+    size?: number
+  ): Promise<AdminQueueResponse<import("@/types/admin").AdminMediaListItem>>;
+
+  /**
+   * Get detailed media information for moderation
+   */
+  getAdminMediaDetail(
+    id: string
+  ): Promise<import("@/types/admin").AdminMediaDetail>;
+
+  /**
+   * Update media moderation status (approve, flag, reject)
+   */
+  updateMediaStatus(
+    id: string,
+    request: import("@/types/admin").UpdateMediaStatusRequest
+  ): Promise<import("@/types/admin").AdminMediaDetail>;
+
+  /**
+   * Delete a media item
+   */
+  deleteMedia(id: string): Promise<void>;
 
   // ================================
   // PROFILE OPERATIONS (User Story 1)

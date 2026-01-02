@@ -101,6 +101,7 @@ export function StoriesQueue({
               <QueueItem
                 key={story.id}
                 type="story"
+                storyId={story.id}
                 title={story.title}
                 content={story.content}
                 storyType={story.type}

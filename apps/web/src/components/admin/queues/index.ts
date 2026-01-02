@@ -3,3 +3,6 @@ export { SuggestionsQueue } from "./suggestions-queue";
 export { StoriesQueue } from "./stories-queue";
 export { MessagesQueue } from "./messages-queue";
 export { DirectoryQueue } from "./directory-queue";
+export { MediaQueue } from "./media-queue";
+export { MediaQueueItem } from "./media-queue-item";
+export { MediaActionModal } from "./media-action-modal";

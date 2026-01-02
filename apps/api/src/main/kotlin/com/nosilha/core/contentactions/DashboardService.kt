@@ -15,6 +15,8 @@ import com.nosilha.core.contentactions.repository.DirectorySubmissionRepository
 import com.nosilha.core.contentactions.repository.StorySubmissionRepository
 import com.nosilha.core.contentactions.repository.SuggestionRepository
 import com.nosilha.core.directory.api.DirectoryEntryQueryService
+import com.nosilha.core.media.domain.MediaStatus
+import com.nosilha.core.media.repository.MediaRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -54,6 +56,7 @@ import java.util.Locale
  * @property storySubmissionRepository Repository for accessing story submission counts
  * @property contactMessageRepository Repository for accessing contact message counts
  * @property directorySubmissionRepository Repository for accessing directory submission counts
+ * @property mediaRepository Repository for accessing media counts
  * @property directoryEntryQueryService Service for accessing directory entry data across module boundaries
  * @property userProfileQueryService Service for retrieving user profile information
  */
@@ -63,6 +66,7 @@ class DashboardService(
     private val storySubmissionRepository: StorySubmissionRepository,
     private val contactMessageRepository: ContactMessageRepository,
     private val directorySubmissionRepository: DirectorySubmissionRepository,
+    private val mediaRepository: MediaRepository,
     private val directoryEntryQueryService: DirectoryEntryQueryService,
     private val userProfileQueryService: UserProfileQueryService,
 ) {
@@ -126,6 +130,11 @@ class DashboardService(
         val pendingMessages = contactMessageRepository.countByStatus(ContactStatus.UNREAD)
         val pendingDirectory = directorySubmissionRepository.countByStatus(DirectorySubmissionStatus.PENDING)
 
+        // Media pending: count of PENDING_REVIEW and FLAGGED media
+        val pendingReviewMedia = mediaRepository.countByStatus(MediaStatus.PENDING_REVIEW)
+        val flaggedMedia = mediaRepository.countByStatus(MediaStatus.FLAGGED)
+        val mediaPending = pendingReviewMedia + flaggedMedia
+
         // Active users: count of unique story authors in the last 30 days
         val thirtyDaysAgo = Instant.now().minus(30, ChronoUnit.DAYS)
         val activeUsers = storySubmissionRepository.countDistinctAuthorsByCreatedAtAfter(thirtyDaysAgo)
@@ -144,6 +153,7 @@ class DashboardService(
             storySubmissions = pendingStories,
             contactInquiries = pendingMessages,
             directorySubmissions = pendingDirectory,
+            mediaPending = mediaPending,
             activeUsers = activeUsers,
             locationsCovered = locationsCovered,
             weeklyActivity = weeklyActivity,

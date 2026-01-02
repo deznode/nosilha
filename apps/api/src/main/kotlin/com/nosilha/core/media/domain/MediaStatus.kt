@@ -7,7 +7,10 @@ package com.nosilha.core.media.domain
  * - PENDING → PROCESSING: After upload is confirmed
  * - PROCESSING → PENDING_REVIEW: After processing completes
  * - PENDING_REVIEW → AVAILABLE: Admin approves
+ * - PENDING_REVIEW → FLAGGED: Admin flags for further review
  * - PENDING_REVIEW → DELETED: Admin rejects
+ * - FLAGGED → AVAILABLE: Admin approves after review
+ * - FLAGGED → DELETED: Admin rejects after review
  * - AVAILABLE → DELETED: Soft delete by owner or admin
  * - DELETED → AVAILABLE: Admin restore
  */
@@ -20,6 +23,9 @@ enum class MediaStatus {
 
     /** Processing complete, awaiting admin approval. */
     PENDING_REVIEW,
+
+    /** Flagged for review due to content concerns or quality issues. */
+    FLAGGED,
 
     /** Approved and publicly visible. */
     AVAILABLE,

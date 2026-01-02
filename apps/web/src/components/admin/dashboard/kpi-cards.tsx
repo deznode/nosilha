@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageSquare, FileText, Users, Map } from "lucide-react";
+import { MessageSquare, FileText, Users, Map, Image } from "lucide-react";
 import type { AdminStats } from "@/types/admin";
 
 interface KPICardsProps {
@@ -54,8 +54,8 @@ function KPICardSkeleton() {
 export function KPICards({ stats, isLoading }: KPICardsProps) {
   if (isLoading) {
     return (
-      <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
+      <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5">
+        {Array.from({ length: 5 }).map((_, i) => (
           <KPICardSkeleton key={i} />
         ))}
       </div>
@@ -63,7 +63,7 @@ export function KPICards({ stats, isLoading }: KPICardsProps) {
   }
 
   return (
-    <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+    <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5">
       <KPICard
         label="New Suggestions"
         value={stats.newSuggestions}
@@ -79,6 +79,14 @@ export function KPICards({ stats, isLoading }: KPICardsProps) {
           <FileText className="h-6 w-6 text-[var(--color-bougainvillea)]" />
         }
         colorClass="bg-[var(--color-bougainvillea)]/10"
+      />
+      <KPICard
+        label="Media Pending"
+        value={stats.mediaPending}
+        icon={
+          <Image className="h-6 w-6 text-[var(--color-sunny-yellow)]" />
+        }
+        colorClass="bg-[var(--color-sunny-yellow)]/10"
       />
       <KPICard
         label="Active Users"

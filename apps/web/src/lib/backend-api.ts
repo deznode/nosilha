@@ -1223,6 +1223,70 @@ export class BackendApiClient implements ApiClient {
   }
 
   // ================================
+  // MDX ARCHIVAL ENGINE OPERATIONS
+  // ================================
+
+  /**
+   * Generates MDX content from an approved story.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param storyId The story submission ID
+   * @param options Optional configuration (translations, language)
+   */
+  async generateMdx(
+    storyId: string,
+    options?: import("@/types/admin").GenerateMdxOptions
+  ): Promise<import("@/types/admin").MdxContent> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/stories/${storyId}/mdx/generate`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(options || {}),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to generate MDX: ${response.status}`);
+    }
+
+    return await response.json();
+  }
+
+  /**
+   * Commits MDX content to the repository.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param storyId The story submission ID
+   * @param mdxSource The MDX content to commit
+   * @param commitMessage Optional custom commit message
+   */
+  async commitMdx(
+    storyId: string,
+    mdxSource: string,
+    commitMessage?: string
+  ): Promise<import("@/types/admin").MdxCommitResult> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/stories/${storyId}/mdx/commit`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ mdxSource, commitMessage }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to commit MDX: ${response.status}`);
+    }
+
+    return await response.json();
+  }
+
+  // ================================
   // ADMIN SUGGESTION MODERATION OPERATIONS
   // ================================
 
@@ -1688,6 +1752,59 @@ export class BackendApiClient implements ApiClient {
         Math.ceil((data.page?.totalElements || 0) / (data.page?.size || 20)) -
           1,
     };
+  }
+
+  // ================================
+  // ADMIN MEDIA MODERATION OPERATIONS
+  // ================================
+
+  /**
+   * Gets media items for admin moderation queue.
+   * Backend endpoint not yet implemented - returns error.
+   */
+  async getAdminMedia(
+    _status?: import("@/types/admin").MediaStatus | "ALL",
+    _page: number = 0,
+    _size: number = 20
+  ): Promise<AdminQueueResponse<import("@/types/admin").AdminMediaListItem>> {
+    throw new Error(
+      "Backend endpoint /api/v1/admin/media not yet implemented. Use mock API for testing."
+    );
+  }
+
+  /**
+   * Gets detailed media information for moderation.
+   * Backend endpoint not yet implemented - returns error.
+   */
+  async getAdminMediaDetail(
+    _id: string
+  ): Promise<import("@/types/admin").AdminMediaDetail> {
+    throw new Error(
+      "Backend endpoint /api/v1/admin/media not yet implemented. Use mock API for testing."
+    );
+  }
+
+  /**
+   * Updates media moderation status.
+   * Backend endpoint not yet implemented - returns error.
+   */
+  async updateMediaStatus(
+    _id: string,
+    _request: import("@/types/admin").UpdateMediaStatusRequest
+  ): Promise<import("@/types/admin").AdminMediaDetail> {
+    throw new Error(
+      "Backend endpoint PUT /api/v1/admin/media not yet implemented. Use mock API for testing."
+    );
+  }
+
+  /**
+   * Deletes a media item.
+   * Backend endpoint not yet implemented - returns error.
+   */
+  async deleteMedia(_id: string): Promise<void> {
+    throw new Error(
+      "Backend endpoint DELETE /api/v1/admin/media not yet implemented. Use mock API for testing."
+    );
   }
 
   // ================================

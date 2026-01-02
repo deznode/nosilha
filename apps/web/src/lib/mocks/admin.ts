@@ -19,6 +19,7 @@ export const MOCK_ADMIN_STATS: AdminStats = {
   storySubmissions: 12,
   contactInquiries: 5,
   directorySubmissions: 3,
+  mediaPending: 7,
   activeUsers: 89,
   locationsCovered: 14,
   weeklyActivity: [

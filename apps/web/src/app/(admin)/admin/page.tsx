@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MessageSquare, FileText, Mail, MapPin } from "lucide-react";
+import { MessageSquare, FileText, Mail, MapPin, Image } from "lucide-react";
 import {
   KPICards,
   ActivityChart,
@@ -13,6 +13,7 @@ import {
   StoriesQueue,
   MessagesQueue,
   DirectoryQueue,
+  MediaQueue,
 } from "@/components/admin/queues";
 import { StoryDetailModal } from "@/components/admin/story-detail-modal";
 import {
@@ -27,6 +28,8 @@ import {
   updateContactMessageStatus,
   deleteContactMessage,
   updateDirectorySubmissionStatus,
+  getAdminMedia,
+  updateMediaStatus,
 } from "@/lib/api";
 import type {
   AdminStats,
@@ -35,11 +38,13 @@ import type {
   ContactMessage,
   ContactMessageStatus,
   DirectorySubmission,
+  AdminMediaListItem,
+  MediaModerationAction,
 } from "@/types/admin";
 import type { StorySubmission } from "@/types/story";
 import { SubmissionStatus } from "@/types/story";
 
-type ActiveTab = "suggestions" | "stories" | "messages" | "directory";
+type ActiveTab = "suggestions" | "stories" | "messages" | "directory" | "media";
 
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("suggestions");
@@ -51,6 +56,7 @@ export default function AdminDashboardPage() {
   const [directorySubmissions, setDirectorySubmissions] = useState<
     DirectorySubmission[]
   >([]);
+  const [mediaItems, setMediaItems] = useState<AdminMediaListItem[]>([]);
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [selectedStory, setSelectedStory] = useState<StorySubmission | null>(
     null
@@ -68,6 +74,7 @@ export default function AdminDashboardPage() {
           storiesData,
           messagesData,
           directoryData,
+          mediaData,
           contributorsData,
         ] = await Promise.all([
           getAdminStats(),
@@ -75,6 +82,7 @@ export default function AdminDashboardPage() {
           getStoriesForAdmin(),
           getContactMessages(),
           getDirectorySubmissions(),
+          getAdminMedia(),
           getTopContributors(),
         ]);
 
@@ -83,6 +91,7 @@ export default function AdminDashboardPage() {
         setStories(storiesData.items);
         setMessages(messagesData.items);
         setDirectorySubmissions(directoryData.items);
+        setMediaItems(mediaData.items);
         setContributors(contributorsData);
       } catch (error) {
         console.error("Failed to load admin data:", error);
@@ -175,6 +184,29 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleMediaStatusChange = async (
+    id: string,
+    action: MediaModerationAction,
+    reason?: string,
+    notes?: string
+  ) => {
+    try {
+      const updatedMedia = await updateMediaStatus(id, {
+        action,
+        reason,
+        adminNotes: notes,
+      });
+      // Update the media item in the list with the new status
+      setMediaItems((prev) =>
+        prev.map((m) =>
+          m.id === id ? { ...m, status: updatedMedia.status } : m
+        )
+      );
+    } catch (error) {
+      console.error("Failed to update media status:", error);
+    }
+  };
+
   const pendingCount =
     suggestions.filter((s) => s.status === SubmissionStatus.PENDING).length +
     stories.filter((s) => s.status === SubmissionStatus.PENDING).length +
@@ -212,6 +244,7 @@ export default function AdminDashboardPage() {
               storySubmissions: 0,
               contactInquiries: 0,
               directorySubmissions: 0,
+              mediaPending: 0,
               activeUsers: 0,
               locationsCovered: 0,
               weeklyActivity: [],
@@ -323,6 +356,28 @@ export default function AdminDashboardPage() {
                 </span>
               )}
             </button>
+            <button
+              onClick={() => setActiveTab("media")}
+              className={`${
+                activeTab === "media"
+                  ? "border-[var(--color-bougainvillea)] text-[var(--color-bougainvillea)]"
+                  : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+              } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
+            >
+              <Image size={16} /> Media Archive
+              {mediaItems.filter(
+                (m) => m.status === "PENDING_REVIEW" || m.status === "FLAGGED"
+              ).length > 0 && (
+                <span className="ml-1 inline-flex items-center rounded-full bg-yellow-100 px-1.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                  {
+                    mediaItems.filter(
+                      (m) =>
+                        m.status === "PENDING_REVIEW" || m.status === "FLAGGED"
+                    ).length
+                  }
+                </span>
+              )}
+            </button>
           </nav>
         </div>
 
@@ -355,6 +410,13 @@ export default function AdminDashboardPage() {
             submissions={directorySubmissions}
             isLoading={isLoading}
             onStatusChange={handleDirectoryStatusChange}
+          />
+        )}
+        {activeTab === "media" && (
+          <MediaQueue
+            mediaItems={mediaItems}
+            isLoading={isLoading}
+            onStatusChange={handleMediaStatusChange}
           />
         )}
       </main>

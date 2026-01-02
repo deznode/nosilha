@@ -8,6 +8,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { SubmissionStatus, StoryType } from "@/types/story";
+import { MdxCommitButton } from "@/components/admin/mdx-engine/mdx-commit-button";
 
 interface BaseQueueItemProps {
   status: SubmissionStatus;
@@ -25,6 +26,7 @@ interface SuggestionQueueItemProps extends BaseQueueItemProps {
 
 interface StoryQueueItemProps extends BaseQueueItemProps {
   type: "story";
+  storyId: string;
   title: string;
   content: string;
   storyType: StoryType;
@@ -64,6 +66,7 @@ function StoryTypeBadge({ storyType }: { storyType: StoryType }) {
 
 export function QueueItem(props: QueueItemProps) {
   const isPending = props.status === SubmissionStatus.PENDING;
+  const isApproved = props.status === SubmissionStatus.APPROVED;
 
   if (props.type === "suggestion") {
     return (
@@ -161,26 +164,39 @@ export function QueueItem(props: QueueItemProps) {
           </p>
         </div>
 
-        <div className="mt-3 flex justify-end space-x-3">
-          <button
-            onClick={props.onViewFull}
-            className="text-xs font-medium text-[var(--color-ocean-blue)] hover:underline"
-          >
-            View Full
-          </button>
-          <span className="text-slate-200 dark:text-slate-600">|</span>
-          <button
-            onClick={props.onApprove}
-            className="text-xs font-medium text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
-          >
-            Publish
-          </button>
-          <button
-            onClick={props.onReject}
-            className="text-xs font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-          >
-            Reject
-          </button>
+        <div className="mt-3 flex items-center justify-between">
+          {/* MDX Generate Button - Only show for APPROVED stories */}
+          <div>
+            {isApproved && (
+              <MdxCommitButton
+                storyId={props.storyId}
+                storyTitle={props.title}
+              />
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex space-x-3">
+            <button
+              onClick={props.onViewFull}
+              className="text-xs font-medium text-[var(--color-ocean-blue)] hover:underline"
+            >
+              View Full
+            </button>
+            <span className="text-slate-200 dark:text-slate-600">|</span>
+            <button
+              onClick={props.onApprove}
+              className="text-xs font-medium text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
+            >
+              Publish
+            </button>
+            <button
+              onClick={props.onReject}
+              className="text-xs font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+            >
+              Reject
+            </button>
+          </div>
         </div>
       </div>
     </li>

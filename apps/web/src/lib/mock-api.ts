@@ -19,7 +19,8 @@ import type {
   ReactionType,
 } from "@/types/reaction";
 import type { MediaMetadataDto } from "@/types/api";
-import type { StorySubmission, SubmissionStatus } from "@/types/story";
+import type { StorySubmission } from "@/types/story";
+import { SubmissionStatus } from "@/types/story";
 import type {
   AdminStats,
   Suggestion,
@@ -1121,6 +1122,110 @@ export class MockApiClient implements ApiClient {
   }
 
   // ================================
+  // MDX ARCHIVAL ENGINE OPERATIONS (Mock)
+  // ================================
+
+  /**
+   * Generates MDX content from an approved story (mock implementation).
+   */
+  async generateMdx(
+    storyId: string,
+    options?: import("@/types/admin").GenerateMdxOptions
+  ): Promise<import("@/types/admin").MdxContent> {
+    console.log(`Mock API: Generating MDX for story ${storyId}`, options);
+    await this.simulateDelay(1000); // Simulate processing time
+
+    const story = MOCK_STORIES.find((s) => s.id === storyId);
+    if (!story) {
+      throw new Error("Story not found");
+    }
+
+    if (story.status !== SubmissionStatus.APPROVED) {
+      throw new Error("Story must be approved before generating MDX");
+    }
+
+    // Generate mock MDX content
+    const mockMdxSource = `---
+title: "${story.title}"
+slug: "${story.slug}"
+author: "${story.author}"
+date: "${story.submittedAt}"
+language: "en"
+location: "${story.location || "Brava Island"}"
+storyType: "${story.type}"
+tags: ["community-story", "heritage"]
+excerpt: "${story.content.substring(0, 100)}..."
+---
+
+# ${story.title}
+
+${story.content
+  .split("\n\n")
+  .map((p) => `${p}`)
+  .join("\n\n")}
+
+---
+
+*Story submitted by ${story.author} on ${story.submittedAt}*
+`;
+
+    // Randomly decide if schema is valid for testing
+    const schemaValid = Math.random() > 0.3; // 70% chance of valid schema
+
+    return {
+      storyId: story.id,
+      slug: story.slug,
+      mdxSource: mockMdxSource,
+      frontmatter: {
+        title: story.title,
+        slug: story.slug,
+        author: story.author,
+        date: story.submittedAt,
+        language: "en",
+        location: story.location || "Brava Island",
+        storyType: story.type,
+        tags: ["community-story", "heritage"],
+        excerpt: `${story.content.substring(0, 100)}...`,
+      },
+      schemaValid,
+      validationErrors: schemaValid
+        ? undefined
+        : [
+            "Missing required field: category",
+            "Date format should be YYYY-MM-DD",
+            "Excerpt exceeds 160 character limit",
+          ],
+      generatedAt: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Commits MDX content to the repository (mock implementation).
+   */
+  async commitMdx(
+    storyId: string,
+    mdxSource: string,
+    commitMessage?: string
+  ): Promise<import("@/types/admin").MdxCommitResult> {
+    console.log(`Mock API: Committing MDX for story ${storyId}`, commitMessage);
+    await this.simulateDelay(1500); // Simulate git operations
+
+    const story = MOCK_STORIES.find((s) => s.id === storyId);
+    if (!story) {
+      throw new Error("Story not found");
+    }
+
+    // Simulate successful commit
+    return {
+      storyId: story.id,
+      slug: story.slug,
+      mdxPath: `content/stories/${story.slug}.mdx`,
+      committedAt: new Date().toISOString(),
+      committedBy: "admin@nosilha.cv",
+    };
+  }
+
+  // ================================
   // ADMIN SUGGESTION MODERATION OPERATIONS (Mock)
   // ================================
 
@@ -1282,6 +1387,147 @@ export class MockApiClient implements ApiClient {
       notes
     );
     return mockAdminApi.updateDirectorySubmissionStatus(id, status, notes);
+  }
+
+  // ================================
+  // ADMIN MEDIA MODERATION OPERATIONS - Mock Implementation
+  // ================================
+
+  /**
+   * Mock data for media items
+   */
+  private mockMediaItems: import("@/types/admin").AdminMediaListItem[] = [
+    {
+      id: "media-1",
+      title: "Historic Photo of Furna",
+      contentType: "image/jpeg",
+      thumbnailUrl: "/images/placeholder.jpg",
+      status: "PENDING_REVIEW",
+      severity: 0,
+      uploadedBy: "Maria Silva",
+      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "media-2",
+      title: "Traditional Dance Performance",
+      contentType: "video/mp4",
+      status: "FLAGGED",
+      severity: 3,
+      uploadedBy: "João Costa",
+      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "media-3",
+      title: "Landscape of Vila Nova Sintra",
+      contentType: "image/png",
+      thumbnailUrl: "/images/placeholder.jpg",
+      status: "AVAILABLE",
+      severity: 0,
+      uploadedBy: "Ana Santos",
+      createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+  ];
+
+  async getAdminMedia(
+    status?: import("@/types/admin").MediaStatus | "ALL",
+    page: number = 0,
+    size: number = 20
+  ): Promise<AdminQueueResponse<import("@/types/admin").AdminMediaListItem>> {
+    console.log(`Mock API: Fetching media items, status: ${status}`);
+
+    const filteredItems =
+      status && status !== "ALL"
+        ? this.mockMediaItems.filter((m) => m.status === status)
+        : this.mockMediaItems;
+
+    const start = page * size;
+    const end = start + size;
+    const items = filteredItems.slice(start, end);
+
+    return {
+      items,
+      total: filteredItems.length,
+      page,
+      pageSize: size,
+      hasMore: end < filteredItems.length,
+    };
+  }
+
+  async getAdminMediaDetail(
+    id: string
+  ): Promise<import("@/types/admin").AdminMediaDetail> {
+    console.log(`Mock API: Fetching media detail for ${id}`);
+
+    const media = this.mockMediaItems.find((m) => m.id === id);
+    if (!media) {
+      throw new Error(`Media item ${id} not found`);
+    }
+
+    return {
+      ...media,
+      fileName: `${media.title.toLowerCase().replace(/\s+/g, "-")}.jpg`,
+      publicUrl: media.thumbnailUrl,
+      category: "heritage",
+      description: "A beautiful capture of Cape Verdean culture and heritage",
+    };
+  }
+
+  async updateMediaStatus(
+    id: string,
+    request: import("@/types/admin").UpdateMediaStatusRequest
+  ): Promise<import("@/types/admin").AdminMediaDetail> {
+    console.log(
+      `Mock API: Updating media ${id} with action: ${request.action}`
+    );
+
+    const mediaIndex = this.mockMediaItems.findIndex((m) => m.id === id);
+    if (mediaIndex === -1) {
+      throw new Error(`Media item ${id} not found`);
+    }
+
+    const media = this.mockMediaItems[mediaIndex];
+
+    // Map action to status
+    let newStatus: import("@/types/admin").MediaStatus;
+    switch (request.action) {
+      case "APPROVE":
+        newStatus = "AVAILABLE";
+        break;
+      case "FLAG":
+        newStatus = "FLAGGED";
+        break;
+      case "REJECT":
+        newStatus = "DELETED";
+        break;
+      default:
+        newStatus = media.status;
+    }
+
+    // Update the mock data
+    this.mockMediaItems[mediaIndex] = {
+      ...media,
+      status: newStatus,
+    };
+
+    return {
+      ...this.mockMediaItems[mediaIndex],
+      fileName: `${media.title.toLowerCase().replace(/\s+/g, "-")}.jpg`,
+      publicUrl: media.thumbnailUrl,
+      category: "heritage",
+      description: "A beautiful capture of Cape Verdean culture and heritage",
+      rejectionReason: request.reason,
+    };
+  }
+
+  async deleteMedia(id: string): Promise<void> {
+    console.log(`Mock API: Deleting media ${id}`);
+
+    const mediaIndex = this.mockMediaItems.findIndex((m) => m.id === id);
+    if (mediaIndex === -1) {
+      throw new Error(`Media item ${id} not found`);
+    }
+
+    this.mockMediaItems.splice(mediaIndex, 1);
   }
 
   // ================================
