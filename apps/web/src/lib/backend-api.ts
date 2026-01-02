@@ -2008,7 +2008,23 @@ export class BackendApiClient implements ApiClient {
     }
 
     const payload = await response.json();
-    return this.unwrapApiResponse<CuratedMediaPageResponse>(payload);
+    const unwrapped = this.unwrapApiResponse<{
+      content: CuratedMedia[];
+      page: {
+        totalElements: number;
+        number: number;
+        size: number;
+        totalPages: number;
+      };
+    }>(payload);
+
+    // Transform Spring Boot paged response to CuratedMediaPageResponse format
+    return {
+      items: unwrapped.content ?? [],
+      totalItems: unwrapped.page?.totalElements ?? 0,
+      totalPages: unwrapped.page?.totalPages ?? 1,
+      currentPage: unwrapped.page?.number ?? 0,
+    };
   }
 
   /**

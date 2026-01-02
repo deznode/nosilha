@@ -442,17 +442,16 @@ export interface PaginatedResult<T> {
 // ================================
 
 /**
- * Request payload for submitting a story
+ * Request payload for submitting a story.
+ * Matches backend CreateStoryRequest DTO.
+ * Note: Author is derived from authenticated user on backend.
  */
 export interface StorySubmitRequest {
   title: string;
   content: string;
-  storyType: "QUICK" | "FULL" | "GUIDED" | "PHOTO";
+  storyType: "QUICK" | "FULL" | "GUIDED";
   templateType?: string;
   relatedPlaceId?: string;
-  location?: string;
-  authorName?: string;
-  imageUrl?: string;
   honeypot?: string;
 }
 

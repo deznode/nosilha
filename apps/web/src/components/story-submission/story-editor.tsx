@@ -56,8 +56,8 @@ interface StoryEditorProps {
   storyType: StoryType;
   content: string;
   title: string;
-  author: string;
-  location: string;
+  author?: string;
+  location?: string;
   onContentChange: (content: string) => void;
 }
 
@@ -65,8 +65,8 @@ export function StoryEditor({
   storyType,
   content,
   title,
-  author,
-  location,
+  author = "",
+  location = "",
   onContentChange,
 }: StoryEditorProps) {
   const [activeTab, setActiveTab] = useState<"write" | "preview">("write");

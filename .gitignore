@@ -2,6 +2,7 @@ settings.local.json
 
 # Dependencies
 node_modules/
+.pnpm-store/
 
 # IDE and Editor files
 .vscode/
