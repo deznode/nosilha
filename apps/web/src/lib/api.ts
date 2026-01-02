@@ -504,12 +504,17 @@ export async function submitContactMessage(
  * Requires ADMIN role authentication.
  * Automatically uses the configured API implementation (backend or mock).
  * Note: Backend endpoint not yet implemented - uses mock data.
+ * @param status Filter by message status (optional)
+ * @param page Page number (default: 0)
+ * @param size Page size (default: 20)
  * @returns A promise that resolves to paginated contact messages
  */
-export async function getContactMessages(): Promise<
-  AdminQueueResponse<ContactMessage>
-> {
-  return apiClient.getContactMessages();
+export async function getContactMessages(
+  status?: ContactMessageStatus,
+  page?: number,
+  size?: number
+): Promise<AdminQueueResponse<ContactMessage>> {
+  return apiClient.getContactMessages(status, page, size);
 }
 
 /**
@@ -549,12 +554,16 @@ export async function deleteContactMessage(id: string): Promise<void> {
  * Automatically uses the configured API implementation (backend or mock).
  * Note: Backend endpoint not yet implemented - uses mock data.
  * @param status Filter by submission status (optional)
+ * @param page Page number (default: 0)
+ * @param size Page size (default: 20)
  * @returns A promise that resolves to paginated directory submissions
  */
 export async function getDirectorySubmissions(
-  status?: SubmissionStatus | "ALL"
+  status?: SubmissionStatus | "ALL",
+  page?: number,
+  size?: number
 ): Promise<AdminQueueResponse<DirectorySubmission>> {
-  return apiClient.getDirectorySubmissions(status);
+  return apiClient.getDirectorySubmissions(status, page, size);
 }
 
 /**

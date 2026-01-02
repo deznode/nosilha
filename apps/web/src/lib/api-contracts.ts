@@ -270,7 +270,11 @@ export interface ApiClient {
   /**
    * Get contact messages for admin
    */
-  getContactMessages(): Promise<AdminQueueResponse<ContactMessage>>;
+  getContactMessages(
+    status?: ContactMessageStatus,
+    page?: number,
+    size?: number
+  ): Promise<AdminQueueResponse<ContactMessage>>;
 
   /**
    * Update contact message status
@@ -293,7 +297,9 @@ export interface ApiClient {
    * Get directory submissions for admin
    */
   getDirectorySubmissions(
-    status?: SubmissionStatus | "ALL"
+    status?: SubmissionStatus | "ALL",
+    page?: number,
+    size?: number
   ): Promise<AdminQueueResponse<DirectorySubmission>>;
 
   /**

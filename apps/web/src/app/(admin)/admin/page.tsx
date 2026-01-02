@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { MessageSquare, FileText, Mail, MapPin, Image } from "lucide-react";
 import {
   KPICards,
@@ -17,28 +17,23 @@ import {
 } from "@/components/admin/queues";
 import { StoryDetailModal } from "@/components/admin/story-detail-modal";
 import {
-  getAdminStats,
-  getSuggestionsForAdmin,
-  getStoriesForAdmin,
-  getContactMessages,
-  getDirectorySubmissions,
-  getTopContributors,
-  updateSuggestionStatus,
-  updateStoryStatus,
-  updateContactMessageStatus,
-  deleteContactMessage,
-  updateDirectorySubmissionStatus,
-  getAdminMedia,
-  updateMediaStatus,
-} from "@/lib/api";
+  useAdminStats,
+  useAdminSuggestions,
+  useAdminStories,
+  useAdminMessages,
+  useAdminDirectorySubmissions,
+  useAdminMedia,
+  useAdminContributors,
+  useUpdateSuggestionStatus,
+  useUpdateStoryStatus,
+  useUpdateMessageStatus,
+  useDeleteMessage,
+  useUpdateDirectoryStatus,
+  useUpdateMediaStatus,
+} from "@/hooks/queries/admin";
 import type {
   AdminStats,
-  Suggestion,
-  Contributor,
-  ContactMessage,
   ContactMessageStatus,
-  DirectorySubmission,
-  AdminMediaListItem,
   MediaModerationAction,
 } from "@/types/admin";
 import type { StorySubmission } from "@/types/story";
@@ -46,95 +41,67 @@ import { SubmissionStatus } from "@/types/story";
 
 type ActiveTab = "suggestions" | "stories" | "messages" | "directory" | "media";
 
+// Default stats for loading state
+const defaultStats: AdminStats = {
+  newSuggestions: 0,
+  storySubmissions: 0,
+  contactInquiries: 0,
+  directorySubmissions: 0,
+  mediaPending: 0,
+  activeUsers: 0,
+  locationsCovered: 0,
+  weeklyActivity: [],
+  coverageByTown: [],
+};
+
 export default function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState<ActiveTab>("suggestions");
-  const [isLoading, setIsLoading] = useState(true);
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [stories, setStories] = useState<StorySubmission[]>([]);
-  const [messages, setMessages] = useState<ContactMessage[]>([]);
-  const [directorySubmissions, setDirectorySubmissions] = useState<
-    DirectorySubmission[]
-  >([]);
-  const [mediaItems, setMediaItems] = useState<AdminMediaListItem[]>([]);
-  const [contributors, setContributors] = useState<Contributor[]>([]);
   const [selectedStory, setSelectedStory] = useState<StorySubmission | null>(
     null
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Load data on mount
-  useEffect(() => {
-    async function loadData() {
-      setIsLoading(true);
-      try {
-        const [
-          statsData,
-          suggestionsData,
-          storiesData,
-          messagesData,
-          directoryData,
-          mediaData,
-          contributorsData,
-        ] = await Promise.all([
-          getAdminStats(),
-          getSuggestionsForAdmin(),
-          getStoriesForAdmin(),
-          getContactMessages(),
-          getDirectorySubmissions(),
-          getAdminMedia(),
-          getTopContributors(),
-        ]);
+  // TanStack Query hooks - each manages its own loading/error state independently
+  const statsQuery = useAdminStats();
+  const suggestionsQuery = useAdminSuggestions();
+  const storiesQuery = useAdminStories();
+  const messagesQuery = useAdminMessages();
+  const directoryQuery = useAdminDirectorySubmissions();
+  const mediaQuery = useAdminMedia();
+  const contributorsQuery = useAdminContributors();
 
-        setStats(statsData);
-        setSuggestions(suggestionsData.items);
-        setStories(storiesData.items);
-        setMessages(messagesData.items);
-        setDirectorySubmissions(directoryData.items);
-        setMediaItems(mediaData.items);
-        setContributors(contributorsData);
-      } catch (error) {
-        console.error("Failed to load admin data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+  // Mutation hooks
+  const updateSuggestion = useUpdateSuggestionStatus();
+  const updateStory = useUpdateStoryStatus();
+  const updateMessage = useUpdateMessageStatus();
+  const deleteMessage = useDeleteMessage();
+  const updateDirectory = useUpdateDirectoryStatus();
+  const updateMedia = useUpdateMediaStatus();
 
-    loadData();
-  }, []);
+  // Derived data with fallbacks
+  const stats = statsQuery.data ?? defaultStats;
+  const suggestions = suggestionsQuery.data?.items ?? [];
+  const stories = storiesQuery.data?.items ?? [];
+  const messages = messagesQuery.data?.items ?? [];
+  const directorySubmissions = directoryQuery.data?.items ?? [];
+  const mediaItems = mediaQuery.data?.items ?? [];
+  const contributors = contributorsQuery.data ?? [];
 
-  const handleSuggestionStatusChange = async (
+  // Loading state - show loading for KPI cards
+  const isLoading = statsQuery.isLoading;
+
+  // Event handlers using mutation hooks
+  const handleSuggestionStatusChange = (
     id: string,
     status: SubmissionStatus
   ) => {
-    try {
-      // Map status to action
-      const action =
-        status === SubmissionStatus.APPROVED ? "APPROVE" : "REJECT";
-      await updateSuggestionStatus(id, action);
-      setSuggestions((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, status } : s))
-      );
-    } catch (error) {
-      console.error("Failed to update suggestion:", error);
-    }
+    const action = status === SubmissionStatus.APPROVED ? "APPROVE" : "REJECT";
+    updateSuggestion.mutate({ id, action });
   };
 
-  const handleStoryStatusChange = async (
-    id: string,
-    status: SubmissionStatus
-  ) => {
-    try {
-      // Map status to action
-      const action =
-        status === SubmissionStatus.APPROVED ? "APPROVE" : "REJECT";
-      await updateStoryStatus(id, action);
-      setStories((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, status } : s))
-      );
-    } catch (error) {
-      console.error("Failed to update story:", error);
-    }
+  const handleStoryStatusChange = (id: string, status: SubmissionStatus) => {
+    const action = status === SubmissionStatus.APPROVED ? "APPROVE" : "REJECT";
+    updateStory.mutate({ id, action });
   };
 
   const handleViewStory = (story: StorySubmission) => {
@@ -147,66 +114,37 @@ export default function AdminDashboardPage() {
     setSelectedStory(null);
   };
 
-  const handleMessageStatusChange = async (
+  const handleMessageStatusChange = (
     id: string,
     status: ContactMessageStatus
   ) => {
-    try {
-      await updateContactMessageStatus(id, status);
-      setMessages((prev) =>
-        prev.map((m) => (m.id === id ? { ...m, status } : m))
-      );
-    } catch (error) {
-      console.error("Failed to update message:", error);
-    }
+    updateMessage.mutate({ id, status });
   };
 
-  const handleMessageDelete = async (id: string) => {
-    try {
-      await deleteContactMessage(id);
-      setMessages((prev) => prev.filter((m) => m.id !== id));
-    } catch (error) {
-      console.error("Failed to delete message:", error);
-    }
+  const handleMessageDelete = (id: string) => {
+    deleteMessage.mutate(id);
   };
 
-  const handleDirectoryStatusChange = async (
+  const handleDirectoryStatusChange = (
     id: string,
     status: SubmissionStatus
   ) => {
-    try {
-      await updateDirectorySubmissionStatus(id, status);
-      setDirectorySubmissions((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, status } : s))
-      );
-    } catch (error) {
-      console.error("Failed to update directory submission:", error);
-    }
+    updateDirectory.mutate({ id, status });
   };
 
-  const handleMediaStatusChange = async (
+  const handleMediaStatusChange = (
     id: string,
     action: MediaModerationAction,
     reason?: string,
     notes?: string
   ) => {
-    try {
-      const updatedMedia = await updateMediaStatus(id, {
-        action,
-        reason,
-        adminNotes: notes,
-      });
-      // Update the media item in the list with the new status
-      setMediaItems((prev) =>
-        prev.map((m) =>
-          m.id === id ? { ...m, status: updatedMedia.status } : m
-        )
-      );
-    } catch (error) {
-      console.error("Failed to update media status:", error);
-    }
+    updateMedia.mutate({
+      id,
+      request: { action, reason, adminNotes: notes },
+    });
   };
 
+  // Computed values
   const pendingCount =
     suggestions.filter((s) => s.status === SubmissionStatus.PENDING).length +
     stories.filter((s) => s.status === SubmissionStatus.PENDING).length +
@@ -237,40 +175,19 @@ export default function AdminDashboardPage() {
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* KPI Cards */}
-        <KPICards
-          stats={
-            stats || {
-              newSuggestions: 0,
-              storySubmissions: 0,
-              contactInquiries: 0,
-              directorySubmissions: 0,
-              mediaPending: 0,
-              activeUsers: 0,
-              locationsCovered: 0,
-              weeklyActivity: [],
-              coverageByTown: [],
-            }
-          }
-          isLoading={isLoading}
-        />
+        <KPICards stats={stats} isLoading={isLoading} />
 
         {/* Analytics Section */}
         <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Weekly Activity Chart */}
-          <ActivityChart
-            data={stats?.weeklyActivity || []}
-            isLoading={isLoading}
-          />
+          <ActivityChart data={stats.weeklyActivity} isLoading={isLoading} />
 
           {/* Geographic & Contributors Column */}
           <div className="space-y-6">
-            <CoverageChart
-              data={stats?.coverageByTown || []}
-              isLoading={isLoading}
-            />
+            <CoverageChart data={stats.coverageByTown} isLoading={isLoading} />
             <TopContributors
               contributors={contributors}
-              isLoading={isLoading}
+              isLoading={contributorsQuery.isLoading}
             />
           </div>
         </div>
@@ -385,14 +302,14 @@ export default function AdminDashboardPage() {
         {activeTab === "suggestions" && (
           <SuggestionsQueue
             suggestions={suggestions}
-            isLoading={isLoading}
+            isLoading={suggestionsQuery.isLoading}
             onStatusChange={handleSuggestionStatusChange}
           />
         )}
         {activeTab === "stories" && (
           <StoriesQueue
             stories={stories}
-            isLoading={isLoading}
+            isLoading={storiesQuery.isLoading}
             onStatusChange={handleStoryStatusChange}
             onViewFull={handleViewStory}
           />
@@ -400,7 +317,7 @@ export default function AdminDashboardPage() {
         {activeTab === "messages" && (
           <MessagesQueue
             messages={messages}
-            isLoading={isLoading}
+            isLoading={messagesQuery.isLoading}
             onStatusChange={handleMessageStatusChange}
             onDelete={handleMessageDelete}
           />
@@ -408,14 +325,14 @@ export default function AdminDashboardPage() {
         {activeTab === "directory" && (
           <DirectoryQueue
             submissions={directorySubmissions}
-            isLoading={isLoading}
+            isLoading={directoryQuery.isLoading}
             onStatusChange={handleDirectoryStatusChange}
           />
         )}
         {activeTab === "media" && (
           <MediaQueue
             mediaItems={mediaItems}
-            isLoading={isLoading}
+            isLoading={mediaQuery.isLoading}
             onStatusChange={handleMediaStatusChange}
           />
         )}

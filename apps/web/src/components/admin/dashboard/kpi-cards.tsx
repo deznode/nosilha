@@ -83,9 +83,7 @@ export function KPICards({ stats, isLoading }: KPICardsProps) {
       <KPICard
         label="Media Pending"
         value={stats.mediaPending}
-        icon={
-          <Image className="h-6 w-6 text-[var(--color-sunny-yellow)]" />
-        }
+        icon={<Image className="h-6 w-6 text-[var(--color-sunny-yellow)]" />}
         colorClass="bg-[var(--color-sunny-yellow)]/10"
       />
       <KPICard

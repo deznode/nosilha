@@ -130,7 +130,9 @@ export function MediaQueueItem({
             {media.severity > 0 && getSeverityLabel(media.severity) && (
               <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                 Severity:{" "}
-                <span className={`font-medium ${getSeverityColor(media.severity)}`}>
+                <span
+                  className={`font-medium ${getSeverityColor(media.severity)}`}
+                >
                   {getSeverityLabel(media.severity)}
                 </span>
               </p>

@@ -1334,8 +1334,14 @@ ${story.content
   /**
    * Gets contact messages for admin (mock implementation).
    */
-  async getContactMessages(): Promise<AdminQueueResponse<ContactMessage>> {
-    console.log(`Mock API: Fetching contact messages`);
+  async getContactMessages(
+    status?: ContactMessageStatus,
+    page?: number,
+    size?: number
+  ): Promise<AdminQueueResponse<ContactMessage>> {
+    console.log(
+      `Mock API: Fetching contact messages, status: ${status}, page: ${page}, size: ${size}`
+    );
     return mockAdminApi.getContactMessages();
   }
 
@@ -1368,9 +1374,13 @@ ${story.content
    * Gets directory submissions for admin (mock implementation).
    */
   async getDirectorySubmissions(
-    status?: SubmissionStatus | "ALL"
+    status?: SubmissionStatus | "ALL",
+    page?: number,
+    size?: number
   ): Promise<AdminQueueResponse<DirectorySubmission>> {
-    console.log(`Mock API: Fetching directory submissions, status: ${status}`);
+    console.log(
+      `Mock API: Fetching directory submissions, status: ${status}, page: ${page}, size: ${size}`
+    );
     return mockAdminApi.getDirectorySubmissions(status);
   }
 
