@@ -35,7 +35,13 @@ import org.springframework.modulith.PackageInfo
 @PackageInfo
 @ApplicationModule(
     displayName = "Directory Module",
-    allowedDependencies = ["shared :: api", "shared :: domain", "shared :: events", "shared :: exception"],
+    allowedDependencies = [
+        "shared :: api",
+        "shared :: domain",
+        "shared :: events",
+        "shared :: exception",
+        "contentactions",
+    ],
     type = ApplicationModule.Type.OPEN,
 )
 class DirectoryModuleMetadata

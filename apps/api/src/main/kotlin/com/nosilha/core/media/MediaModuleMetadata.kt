@@ -49,5 +49,6 @@ import org.springframework.modulith.PackageInfo
 @ApplicationModule(
     displayName = "Media Module",
     allowedDependencies = ["shared :: api", "shared :: domain", "shared :: events", "shared :: exception"],
+    type = ApplicationModule.Type.OPEN,
 )
 class MediaModuleMetadata
