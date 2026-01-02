@@ -4,14 +4,13 @@ import { MapPin, BookOpen, Users } from "lucide-react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { CategoryCard } from "./category-card";
 import type { CategoryCardProps } from "@/types/landing";
-import { springs, stagger } from "@/lib/animation/tokens";
 
 interface ExploreHeritageSectionProps {
   categories?: CategoryCardProps[];
 }
 
 /**
- * Consolidated 3 pillars (merged from original 4 categories):
+ * Consolidated 3 pillars:
  * - Stories: History + Culture merged
  * - Places: Towns + Tourism merged
  * - Community: New pillar for contribution
@@ -46,13 +45,13 @@ const defaultCategories: CategoryCardProps[] = [
   },
 ];
 
-// Animation variants with spring physics for smooth, natural motion
+// Simplified animation variants
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: stagger.default,
+      staggerChildren: 0.1,
       delayChildren: 0.1,
     },
   },
@@ -61,19 +60,16 @@ const containerVariants: Variants = {
 const cardVariants: Variants = {
   hidden: {
     opacity: 0,
-    y: 24,
-    scale: 0.95,
+    y: 16,
   },
   visible: {
     opacity: 1,
     y: 0,
-    scale: 1,
-    transition: springs.snappy,
+    transition: { duration: 0.3, ease: "easeOut" },
   },
 };
 
-// Simplified variants for users who prefer reduced motion
-const reducedMotionCardVariants: Variants = {
+const reducedMotionVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -81,54 +77,46 @@ const reducedMotionCardVariants: Variants = {
   },
 };
 
-// Header text animation variants
 const headerVariants: Variants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 12 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: springs.snappy,
+    transition: { duration: 0.3, ease: "easeOut" },
   },
 };
 
 /**
  * ExploreHeritageSection - Unified onboarding + navigation section
  *
- * Combines the "What is NosIlha?" explanation with actionable navigation cards.
- * This unified approach reduces cognitive load by eliminating duplicate pillar displays.
- *
  * Features:
  * - Onboarding header explaining NosIlha's mission
  * - 3 clickable CategoryCards (Stories, Places, Community)
  * - Kriolu cultural tagline
  * - Rounded top corners that overlap the hero section
- *
- * Animation: Uses container stagger pattern with spring physics for smooth,
- * coordinated entrance animations. Respects prefers-reduced-motion.
  */
 export function ExploreHeritageSection({
   categories = defaultCategories,
 }: ExploreHeritageSectionProps) {
   const shouldReduceMotion = useReducedMotion();
   const activeCardVariants = shouldReduceMotion
-    ? reducedMotionCardVariants
+    ? reducedMotionVariants
     : cardVariants;
   const activeHeaderVariants = shouldReduceMotion
-    ? reducedMotionCardVariants
+    ? reducedMotionVariants
     : headerVariants;
 
   return (
     <section className="bg-background-secondary relative z-20 -mt-20 rounded-t-[3rem] py-20 shadow-[0_-30px_60px_-15px_rgba(0,0,0,0.5)]">
       <div className="container mx-auto px-4 md:px-6">
-        {/* Unified onboarding + navigation content */}
         <motion.div
-          className="mx-auto max-w-4xl"
+          className="mx-auto max-w-5xl"
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
         >
-          {/* Onboarding Header - "What is NosIlha?" */}
+          {/* Onboarding Header */}
           <motion.div
             variants={activeHeaderVariants}
             className="mb-12 text-center"
@@ -150,7 +138,7 @@ export function ExploreHeritageSection({
 
           {/* 3-column navigation grid */}
           <motion.div
-            className="grid grid-cols-1 gap-6 md:grid-cols-3"
+            className="grid grid-cols-1 gap-8 md:grid-cols-3"
             variants={containerVariants}
           >
             {categories.map((category) => (

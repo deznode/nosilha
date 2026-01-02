@@ -14,12 +14,10 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import clsx from "clsx";
-import { springs } from "@/lib/animation/tokens";
 
 /**
- * Animated Marker Component
- * UPDATED: Now uses Circular shape to match the actual product UI
- * Respects prefers-reduced-motion by disabling bobbing animation
+ * Static Marker Component
+ * Simplified: No bobbing animation, no ping pulse
  */
 function MapMarker({
   icon: Icon,
@@ -40,31 +38,12 @@ function MapMarker({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 0 }}
+      initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 0.8 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
+      transition={{ duration: 0.3, delay }}
       className="absolute z-20 flex flex-col items-center gap-2"
       style={{ top, left }}
-      animate={
-        shouldReduceMotion
-          ? undefined
-          : {
-              y: [0, -8, 0],
-            }
-      }
-      transition={
-        shouldReduceMotion
-          ? { duration: 0.3 }
-          : {
-              default: { delay, ...springs.snappy },
-              y: {
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: delay * 2,
-              },
-            }
-      }
     >
       {/* Pin Head (Circle) */}
       <div
@@ -74,13 +53,6 @@ function MapMarker({
         )}
       >
         <Icon size={18} />
-        {/* Pulse Ring */}
-        <span
-          className={clsx(
-            "absolute -inset-1 animate-ping rounded-full opacity-40",
-            colorClass
-          )}
-        />
       </div>
 
       {/* Label (Floating below) */}
@@ -91,22 +63,22 @@ function MapMarker({
   );
 }
 
-// Animation variants with spring physics
+// Simplified animation variants
 const textVariants: Variants = {
-  hidden: { opacity: 0, x: -30 },
+  hidden: { opacity: 0, x: -20 },
   visible: {
     opacity: 1,
     x: 0,
-    transition: springs.snappy,
+    transition: { duration: 0.4, ease: "easeOut" },
   },
 };
 
 const imageVariants: Variants = {
-  hidden: { opacity: 0, x: 30 },
+  hidden: { opacity: 0, x: 20 },
   visible: {
     opacity: 1,
     x: 0,
-    transition: { ...springs.snappy, delay: 0.2 },
+    transition: { duration: 0.4, ease: "easeOut", delay: 0.15 },
   },
 };
 
@@ -129,14 +101,6 @@ export function MapTeaserSection() {
 
   return (
     <section className="bg-background-tertiary relative overflow-hidden py-24">
-      {/* Background Texture */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1h2v2H1V1zm4 4h2v2H5V5zm4 4h2v2H9V9zm4 4h2v2h-2v-2zm4 4h2v2h-2v-2z' fill='%23000000' fill-opacity='1' fill-rule='evenodd'/%3E%3C/svg%3E")`,
-        }}
-      />
-
       <div className="relative z-10 container mx-auto px-4 md:px-6">
         <div className="border-hairline bg-surface flex flex-col items-center gap-12 overflow-hidden rounded-3xl border p-8 shadow-2xl md:p-12 lg:flex-row">
           {/* Text Content */}
@@ -216,7 +180,7 @@ export function MapTeaserSection() {
 
             <Link
               href="/map"
-              className="group bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 shadow-bougainvillea-pink/25 inline-flex w-full items-center justify-center gap-2 rounded-lg px-8 py-4 font-bold text-white shadow-lg transition-all hover:-translate-y-1 hover:shadow-xl sm:w-auto"
+              className="group bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 focus-visible:ring-bougainvillea-pink inline-flex w-full items-center justify-center gap-2 rounded-lg px-8 py-3 font-bold text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:w-auto"
             >
               <Navigation className="h-5 w-5 transition-transform group-hover:rotate-45" />
               Open Interactive Map
@@ -234,26 +198,25 @@ export function MapTeaserSection() {
             viewport={{ once: true }}
             className="order-1 w-full lg:order-2 lg:w-1/2"
           >
-            {/* 3D Map Container Look */}
+            {/* Map Container */}
             <div className="group bg-ocean-blue/5 relative aspect-square w-full overflow-hidden rounded-2xl border-4 border-white shadow-2xl md:aspect-[4/3]">
-              {/* Map Image: Replace with your CLEAN screenshot of the 3D map */}
               <div className="pointer-events-none absolute inset-0 z-10 bg-stone-900/5 mix-blend-multiply" />
               <Image
-                src="/images/map.jpg" // TODO: Use your screenshot here
+                src="/images/map.jpg"
                 alt="3D Map of Brava"
                 fill
-                className="object-cover contrast-[1.1] sepia-[0.1] transition-transform duration-[20s] ease-linear group-hover:scale-110"
+                className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
 
-              {/* Live Markers - Positioning simulated based on typical Brava map layout */}
+              {/* Static Markers */}
               <MapMarker
                 icon={Anchor}
                 label="Furna"
                 top="0"
                 left="65%"
                 colorClass="bg-ocean-blue"
-                delay={0.5}
+                delay={0.3}
                 shouldReduceMotion={shouldReduceMotion}
               />
 
@@ -263,7 +226,7 @@ export function MapTeaserSection() {
                 top="10%"
                 left="45%"
                 colorClass="bg-bougainvillea-pink"
-                delay={0.7}
+                delay={0.4}
                 shouldReduceMotion={shouldReduceMotion}
               />
 
@@ -273,11 +236,11 @@ export function MapTeaserSection() {
                 top="20%"
                 left="53%"
                 colorClass="bg-valley-green"
-                delay={0.9}
+                delay={0.5}
                 shouldReduceMotion={shouldReduceMotion}
               />
 
-              {/* "Interactive" UI Overlay Hint - Simulated Controls */}
+              {/* UI Overlay Controls */}
               <div className="absolute right-4 bottom-4 z-20 flex flex-col gap-2 opacity-80">
                 <div className="text-basalt-500 flex h-8 w-8 items-center justify-center rounded-md bg-white/90 shadow-md">
                   <Navigation size={16} />

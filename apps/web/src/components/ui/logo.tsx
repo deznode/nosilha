@@ -162,6 +162,7 @@ export interface NosilhaLogoProps {
   showSubtitle?: boolean;
   className?: string;
   variant?: "default" | "light"; // IMPROVEMENT 2: Native Light/Dark Mode support
+  size?: "default" | "compact"; // Size variant for different contexts
   /** Stable ID for SSR hydration - use unique values when multiple logos on same page */
   instanceId?: string;
 }
@@ -170,6 +171,7 @@ export function NosilhaLogo({
   showSubtitle = false,
   className = "",
   variant = "default",
+  size = "default",
   instanceId,
 }: NosilhaLogoProps) {
   const [_isHovered, setIsHovered] = useState(false);
@@ -189,9 +191,17 @@ export function NosilhaLogo({
       ? "text-amber-50 drop-shadow-md font-medium"
       : "text-ocean-blue-light font-medium";
 
+  // Size-based classes
+  const iconSize = size === "compact" ? "h-8 w-8" : "h-14 w-14 md:h-16 md:w-16";
+  const textSize =
+    size === "compact"
+      ? "text-xl font-bold"
+      : "text-3xl font-black md:text-4xl";
+  const gapSize = size === "compact" ? "gap-2" : "gap-3";
+
   return (
     <motion.div
-      className={`flex items-center gap-3 ${className}`}
+      className={`flex items-center ${gapSize} ${className}`}
       initial="hidden"
       animate="visible"
       whileHover="hover"
@@ -199,9 +209,11 @@ export function NosilhaLogo({
       onHoverEnd={() => setIsHovered(false)}
       variants={containerVariants}
     >
-      {/* Larger, more prominent icon */}
-      <div className="relative h-14 w-14 shrink-0 md:h-16 md:w-16">
-        <div className="bg-bougainvillea-pink/10 pointer-events-none absolute inset-0 scale-75 animate-pulse rounded-full blur-xl" />
+      {/* Icon */}
+      <div className={clsx("relative shrink-0", iconSize)}>
+        {size !== "compact" && (
+          <div className="bg-bougainvillea-pink/10 pointer-events-none absolute inset-0 scale-75 animate-pulse rounded-full blur-xl" />
+        )}
         <BloomingHibiscus
           className="relative z-10 h-full w-full drop-shadow-lg"
           instanceId={instanceId}
@@ -214,7 +226,8 @@ export function NosilhaLogo({
           <motion.span
             variants={textVariants}
             className={clsx(
-              "font-serif text-3xl font-black tracking-tight transition-colors md:text-4xl",
+              "font-serif tracking-tight transition-colors",
+              textSize,
               textColor
             )}
           >
@@ -223,7 +236,8 @@ export function NosilhaLogo({
           <motion.span
             variants={textVariants}
             className={clsx(
-              "font-serif text-3xl font-black tracking-tight transition-colors md:text-4xl",
+              "font-serif tracking-tight transition-colors",
+              textSize,
               brandColor
             )}
           >

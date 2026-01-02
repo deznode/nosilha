@@ -4,8 +4,7 @@ import type { CategoryCardProps } from "@/types/landing";
 
 /**
  * CategoryCard - Navigation cards for main directory areas
- *
- * Features color-coded icons, hover effects, and animated arrow reveal.
+ * Simplified: CSS-only hover effects, no lift animation
  */
 export function CategoryCard({
   icon: Icon,
@@ -19,16 +18,11 @@ export function CategoryCard({
   return (
     <Link
       href={href}
-      className={`group border-border-primary/40 hover:border-ocean-blue/50 bg-surface relative block h-full overflow-hidden rounded-xl border p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${className || ""}`}
+      className={`group bg-surface relative block h-full overflow-hidden rounded-lg border-t-4 p-6 shadow-sm transition-shadow duration-200 hover:shadow-md ${colorClass.replace("bg-", "border-")} ${className || ""}`}
     >
-      {/* Background accent circle */}
-      <div
-        className={`absolute top-0 right-0 -mt-8 -mr-8 h-24 w-24 rounded-full opacity-10 transition-transform group-hover:scale-150 ${colorClass}`}
-      />
-
       {/* Icon container */}
       <div
-        className={`mb-4 flex h-12 w-12 items-center justify-center rounded-lg ${colorClass} text-white shadow-md`}
+        className={`mb-4 flex h-12 w-12 items-center justify-center rounded-full ${colorClass} text-white shadow-md`}
       >
         <Icon size={24} />
       </div>
@@ -41,8 +35,8 @@ export function CategoryCard({
         {description}
       </p>
 
-      {/* CTA - Always visible for accessibility, enhanced on hover */}
-      <div className="text-ocean-blue absolute bottom-6 left-6 flex items-center text-sm font-bold opacity-70 transition-all duration-300 group-hover:translate-x-1 group-hover:opacity-100">
+      {/* CTA */}
+      <div className="text-ocean-blue absolute bottom-6 left-6 flex items-center text-sm font-bold opacity-70 transition-opacity duration-200 group-hover:opacity-100">
         {actionText} <ArrowRight size={16} className="ml-1" />
       </div>
     </Link>
