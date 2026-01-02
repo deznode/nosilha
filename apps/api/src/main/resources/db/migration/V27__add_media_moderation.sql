@@ -1,14 +1,10 @@
 -- ============================================================================
--- V26: Add media moderation enhancements
+-- V27: Add media moderation enhancements
 -- ============================================================================
--- Adds FLAGGED status value to media_status enum for flagged content
 -- Adds severity column for queue priority (0=normal, 1=low, 2=medium, 3=high)
 -- Creates media_moderation_audit table for audit trail of all moderation actions
+-- Note: FLAGGED enum value was added in V26 (must be in separate transaction)
 -- ============================================================================
-
--- Add FLAGGED status value to existing enum
--- Note: Using AFTER clause to insert in logical position after PENDING_REVIEW
-ALTER TYPE media_status ADD VALUE IF NOT EXISTS 'FLAGGED' AFTER 'PENDING_REVIEW';
 
 -- Add severity column for queue priority (0=normal, 1=low, 2=medium, 3=high)
 ALTER TABLE media ADD COLUMN IF NOT EXISTS severity INT DEFAULT 0;
