@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
-import { X } from "lucide-react";
+import { X, Download } from "lucide-react";
 import Image from "next/image";
 import type { MediaItem } from "@/types/media";
 
@@ -19,6 +19,15 @@ export function Lightbox({ image, onClose }: LightboxProps) {
     },
     [onClose]
   );
+
+  const handleDownload = () => {
+    const link = document.createElement("a");
+    link.href = image.url;
+    link.download = `${image.title?.replace(/[^a-z0-9]/gi, "-") || "brava-photo"}.jpg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
@@ -76,6 +85,16 @@ export function Lightbox({ image, onClose }: LightboxProps) {
                 {image.date}
               </span>
             </div>
+          </div>
+          <div className="mt-4 flex justify-end">
+            <button
+              onClick={handleDownload}
+              className="inline-flex items-center gap-2 rounded-lg bg-slate-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-600 focus:ring-2 focus:ring-slate-500 focus:outline-none"
+              aria-label="Download image"
+            >
+              <Download size={16} />
+              Download
+            </button>
           </div>
         </div>
       </div>

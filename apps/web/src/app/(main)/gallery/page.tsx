@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Image as ImageIcon, Play } from "lucide-react";
+import Link from "next/link";
+import { Image as ImageIcon, Play, Plus } from "lucide-react";
 import {
   PhotoGrid,
   PhotoGridSkeleton,
@@ -95,6 +96,16 @@ export default function GalleryPage() {
             A visual archive of our island. Explore historical photographs,
             community moments, and videos celebrating the culture of Brava.
           </p>
+          <div className="mt-6">
+            <Link
+              href="/contribute/media"
+              className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-ocean-blue)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--color-ocean-blue-deep)] focus:ring-2 focus:ring-white/50 focus:outline-none"
+            >
+              <Plus size={18} />
+              <span className="hidden sm:inline">Add to Archive</span>
+              <span className="sm:hidden">Add</span>
+            </Link>
+          </div>
         </div>
       </div>
 
