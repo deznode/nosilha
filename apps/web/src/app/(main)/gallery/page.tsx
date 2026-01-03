@@ -34,10 +34,16 @@ function mapCuratedMediaToMediaItem(media: CuratedMedia): MediaItem {
     thumbnailUrl = `https://img.youtube.com/vi/${media.externalId}/maxresdefault.jpg`;
   }
 
+  // For video content, use embedUrl from API (already resolved by backend)
+  // For images, use the direct url
+  const url = media.mediaType === "VIDEO"
+    ? (media.embedUrl || media.url || "")
+    : (media.url || "");
+
   return {
     id: media.id,
     type: media.mediaType as "IMAGE" | "VIDEO",
-    url: media.url,
+    url,
     thumbnailUrl: thumbnailUrl || undefined,
     title: media.title,
     description: media.description || undefined,

@@ -1662,18 +1662,16 @@ ${story.content
         item.type === "VIDEO" ? ("YOUTUBE" as const) : ("SELF_HOSTED" as const),
       externalId: item.type === "VIDEO" ? "dQw4w9WgXcQ" : null,
       url: item.url,
+      embedUrl: item.type === "VIDEO" ? "https://www.youtube.com/embed/dQw4w9WgXcQ" : null,
       thumbnailUrl: item.thumbnailUrl || null,
       title: item.title,
       description: item.description || null,
       author: item.author || null,
       category: item.category,
       displayOrder: index,
-      status: "ACTIVE" as const,
-      curatedBy: "admin",
       createdAt: new Date(
         Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000
       ).toISOString(),
-      updatedAt: new Date().toISOString(),
     }));
 
     // Apply filters
@@ -1720,18 +1718,16 @@ ${story.content
         item.type === "VIDEO" ? ("YOUTUBE" as const) : ("SELF_HOSTED" as const),
       externalId: item.type === "VIDEO" ? "dQw4w9WgXcQ" : null,
       url: item.url,
+      embedUrl: item.type === "VIDEO" ? "https://www.youtube.com/embed/dQw4w9WgXcQ" : null,
       thumbnailUrl: item.thumbnailUrl || null,
       title: item.title,
       description: item.description || null,
       author: item.author || null,
       category: item.category,
       displayOrder: 0,
-      status: "ACTIVE" as const,
-      curatedBy: "admin",
       createdAt: new Date(
         Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000
       ).toISOString(),
-      updatedAt: new Date().toISOString(),
     };
   }
 

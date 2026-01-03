@@ -25,17 +25,15 @@ export interface CuratedMedia {
   mediaType: MediaType;
   platform: ExternalPlatform;
   externalId: string | null;
-  url: string;
+  url: string | null;
+  embedUrl: string | null;
   thumbnailUrl: string | null;
   title: string;
   description: string | null;
   author: string | null;
   category: string;
   displayOrder: number;
-  status: CuratedMediaStatus;
-  curatedBy: string;
   createdAt: string;
-  updatedAt: string;
 }
 
 /**

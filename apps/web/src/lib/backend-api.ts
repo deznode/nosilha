@@ -2161,7 +2161,7 @@ export class BackendApiClient implements ApiClient {
     const params = new URLSearchParams();
 
     if (options?.mediaType) {
-      params.append("type", options.mediaType);
+      params.append("mediaType", options.mediaType);
     }
     if (options?.category) {
       params.append("category", options.category);
@@ -2185,22 +2185,34 @@ export class BackendApiClient implements ApiClient {
     }
 
     const payload = await response.json();
-    const unwrapped = this.unwrapApiResponse<{
-      content: CuratedMedia[];
-      page: {
-        totalElements: number;
-        number: number;
-        size: number;
-        totalPages: number;
-      };
-    }>(payload);
 
-    // Transform Spring Boot paged response to CuratedMediaPageResponse format
+    // PagedApiResult has data as array and pageable for pagination
+    const response_data = payload as {
+      data: CuratedMedia[];
+      pageable: {
+        page: number;
+        size: number;
+        totalElements: number;
+        totalPages: number;
+        first: boolean;
+        last: boolean;
+      };
+    };
+
+    const items = response_data.data || [];
+    const pageable = response_data.pageable || {
+      page: 0,
+      size: 50,
+      totalElements: 0,
+      totalPages: 1,
+    };
+
+    // Transform PagedApiResult to CuratedMediaPageResponse format
     return {
-      items: unwrapped.content ?? [],
-      totalItems: unwrapped.page?.totalElements ?? 0,
-      totalPages: unwrapped.page?.totalPages ?? 1,
-      currentPage: unwrapped.page?.number ?? 0,
+      items,
+      totalItems: pageable.totalElements,
+      totalPages: pageable.totalPages,
+      currentPage: pageable.page,
     };
   }
 
