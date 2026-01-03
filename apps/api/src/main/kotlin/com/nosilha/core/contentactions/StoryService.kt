@@ -237,6 +237,7 @@ class StoryService(
                 StoryModerationAction.APPROVE -> StoryStatus.APPROVED
                 StoryModerationAction.REJECT -> StoryStatus.REJECTED
                 StoryModerationAction.REQUEST_REVISION -> StoryStatus.NEEDS_REVISION
+                StoryModerationAction.FLAG -> StoryStatus.FLAGGED
                 StoryModerationAction.PUBLISH -> {
                     if (slug.isNullOrBlank()) {
                         throw BusinessException("Publication slug is required when publishing a story")

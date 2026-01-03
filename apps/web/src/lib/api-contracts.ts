@@ -500,6 +500,7 @@ export interface DirectorySubmissionConfirmation {
 export type StoryModerationAction =
   | "APPROVE"
   | "REJECT"
+  | "FLAG"
   | "PUBLISH"
   | "UNPUBLISH";
 

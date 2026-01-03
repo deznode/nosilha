@@ -11,6 +11,7 @@ interface StoriesQueueProps {
   isLoading?: boolean;
   onStatusChange?: (id: string, status: SubmissionStatus) => void;
   onViewFull?: (story: StorySubmission) => void;
+  onFlag?: (id: string, title: string) => void;
 }
 
 export function StoriesQueue({
@@ -18,6 +19,7 @@ export function StoriesQueue({
   isLoading,
   onStatusChange,
   onViewFull,
+  onFlag,
 }: StoriesQueueProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<SubmissionStatus | "ALL">(
@@ -70,6 +72,7 @@ export function StoriesQueue({
             <option value={SubmissionStatus.PENDING}>Pending</option>
             <option value={SubmissionStatus.APPROVED}>Approved</option>
             <option value={SubmissionStatus.REJECTED}>Rejected</option>
+            <option value={SubmissionStatus.FLAGGED}>Flagged</option>
           </select>
           <button className="flex items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
             <Filter className="mr-2 h-4 w-4" /> Newest First
@@ -117,6 +120,7 @@ export function StoriesQueue({
                   onStatusChange?.(story.id, SubmissionStatus.REJECTED)
                 }
                 onViewFull={() => onViewFull?.(story)}
+                onFlag={() => onFlag?.(story.id, story.title)}
               />
             ))}
           </ul>

@@ -18,6 +18,8 @@ export { useAdminMessages } from "./useAdminMessages";
 export { useAdminDirectorySubmissions } from "./useAdminDirectorySubmissions";
 export { useAdminMedia } from "./useAdminMedia";
 export { useAdminContributors } from "./useAdminContributors";
+export { useSystemHealth } from "./useSystemHealth";
+export type { SystemStatus, SystemHealthResponse } from "./useSystemHealth";
 
 // Mutation hooks
 export { useUpdateSuggestionStatus } from "./useUpdateSuggestionStatus";

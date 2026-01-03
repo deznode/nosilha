@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Search, Filter } from "lucide-react";
 import { MediaQueueItem } from "./media-queue-item";
 import { MediaActionModal } from "./media-action-modal";
+import { ImageLightbox } from "@/components/ui/image-lightbox";
 import type {
   AdminMediaListItem,
   MediaStatus,
@@ -39,6 +40,8 @@ export function MediaQueue({
     mediaId: null,
     mediaTitle: null,
   });
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const filteredMedia = mediaItems.filter((m) => {
     const matchesSearch =
@@ -49,6 +52,22 @@ export function MediaQueue({
     const matchesStatus = filterStatus === "ALL" || m.status === filterStatus;
     return matchesSearch && matchesStatus;
   });
+
+  // Transform media items to lightbox photos format (only images)
+  // Note: highResSrc would come from AdminMediaDetail.publicUrl when available
+  const lightboxPhotos = filteredMedia
+    .filter((m) => m.contentType.startsWith("image/"))
+    .map((m) => ({
+      src: m.thumbnailUrl || "/placeholder-image.jpg",
+      alt: m.title,
+      location: "Brava Island",
+      date: new Date(m.createdAt).toLocaleDateString(),
+      description: m.title,
+      // Map uploadedBy to author for proper attribution
+      author: m.uploadedBy,
+      // highResSrc would be populated from detail view if needed
+      highResSrc: undefined,
+    }));
 
   const handleApprove = (id: string) => {
     onStatusChange?.(id, "APPROVE");
@@ -91,6 +110,23 @@ export function MediaQueue({
       mediaId: null,
       mediaTitle: null,
     });
+  };
+
+  const handlePreview = (mediaId: string) => {
+    // Find the index of this media item in the lightbox photos array
+    const mediaIndex = filteredMedia.findIndex((m) => m.id === mediaId);
+    if (mediaIndex === -1) return;
+
+    // Map the filteredMedia index to the lightboxPhotos index
+    const imageItems = filteredMedia.filter((m) =>
+      m.contentType.startsWith("image/")
+    );
+    const lightboxIdx = imageItems.findIndex((m) => m.id === mediaId);
+
+    if (lightboxIdx !== -1) {
+      setLightboxIndex(lightboxIdx);
+      setLightboxOpen(true);
+    }
   };
 
   if (isLoading) {
@@ -165,6 +201,7 @@ export function MediaQueue({
                 onApprove={() => handleApprove(media.id)}
                 onFlag={() => handleFlag(media.id, media.title)}
                 onReject={() => handleReject(media.id, media.title)}
+                onPreview={() => handlePreview(media.id)}
               />
             ))}
           </ul>
@@ -178,6 +215,14 @@ export function MediaQueue({
         mediaTitle={modalState.mediaTitle || ""}
         onClose={handleModalClose}
         onConfirm={handleModalConfirm}
+      />
+
+      {/* Image Lightbox */}
+      <ImageLightbox
+        photos={lightboxPhotos}
+        initialIndex={lightboxIndex}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
       />
     </div>
   );

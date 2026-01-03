@@ -7,6 +7,7 @@ package com.nosilha.core.contentactions.domain
  * <ul>
  *   <li>PENDING → APPROVED: Admin approves the directory entry</li>
  *   <li>PENDING → REJECTED: Admin rejects the directory entry</li>
+ *   <li>PENDING → FLAGGED: Admin flags for attention</li>
  *   <li>APPROVED: Entry is approved and ready to be added to directory</li>
  * </ul>
  *
@@ -21,4 +22,7 @@ enum class DirectorySubmissionStatus {
 
     /** Rejected by admin with optional feedback */
     REJECTED,
+
+    /** Flagged for attention */
+    FLAGGED,
 }

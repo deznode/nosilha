@@ -6,6 +6,7 @@ import {
   FileText,
   Image as ImageIcon,
   MapPin,
+  Flag,
 } from "lucide-react";
 import { SubmissionStatus, StoryType } from "@/types/story";
 import { MdxCommitButton } from "@/components/admin/mdx-engine/mdx-commit-button";
@@ -16,6 +17,7 @@ interface BaseQueueItemProps {
   timestamp: string;
   onApprove?: () => void;
   onReject?: () => void;
+  onFlag?: () => void;
 }
 
 interface SuggestionQueueItemProps extends BaseQueueItemProps {
@@ -45,6 +47,8 @@ function StatusBadge({ status }: { status: SubmissionStatus }) {
       "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
     [SubmissionStatus.REJECTED]:
       "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+    [SubmissionStatus.FLAGGED]:
+      "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
   };
 
   return (
@@ -195,6 +199,13 @@ export function QueueItem(props: QueueItemProps) {
               className="text-xs font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
             >
               Reject
+            </button>
+            <button
+              onClick={props.onFlag}
+              className="inline-flex items-center gap-1 text-xs font-medium text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300"
+            >
+              <Flag size={12} />
+              Flag
             </button>
           </div>
         </div>

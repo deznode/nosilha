@@ -16,6 +16,8 @@ import {
   MediaQueue,
 } from "@/components/admin/queues";
 import { StoryDetailModal } from "@/components/admin/story-detail-modal";
+import { FlagReasonModal } from "@/components/admin/queues/flag-reason-modal";
+import { SystemStatusBadges } from "@/components/admin/system-status-badge";
 import {
   useAdminStats,
   useAdminSuggestions,
@@ -60,6 +62,11 @@ export default function AdminDashboardPage() {
     null
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFlagModalOpen, setIsFlagModalOpen] = useState(false);
+  const [storyToFlag, setStoryToFlag] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
 
   // TanStack Query hooks - each manages its own loading/error state independently
   const statsQuery = useAdminStats();
@@ -102,6 +109,28 @@ export default function AdminDashboardPage() {
   const handleStoryStatusChange = (id: string, status: SubmissionStatus) => {
     const action = status === SubmissionStatus.APPROVED ? "APPROVE" : "REJECT";
     updateStory.mutate({ id, action });
+  };
+
+  const handleStoryFlag = (id: string, title: string) => {
+    setStoryToFlag({ id, title });
+    setIsFlagModalOpen(true);
+  };
+
+  const handleFlagConfirm = (reason: string) => {
+    if (storyToFlag) {
+      updateStory.mutate({
+        id: storyToFlag.id,
+        action: "FLAG",
+        notes: reason,
+      });
+    }
+    setIsFlagModalOpen(false);
+    setStoryToFlag(null);
+  };
+
+  const handleFlagClose = () => {
+    setIsFlagModalOpen(false);
+    setStoryToFlag(null);
   };
 
   const handleViewStory = (story: StorySubmission) => {
@@ -162,7 +191,8 @@ export default function AdminDashboardPage() {
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
               Admin Dashboard
             </h1>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-4">
+              <SystemStatusBadges />
               {pendingCount > 0 && (
                 <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-300">
                   {pendingCount} Pending Items
@@ -312,6 +342,7 @@ export default function AdminDashboardPage() {
             isLoading={storiesQuery.isLoading}
             onStatusChange={handleStoryStatusChange}
             onViewFull={handleViewStory}
+            onFlag={handleStoryFlag}
           />
         )}
         {activeTab === "messages" && (
@@ -349,6 +380,15 @@ export default function AdminDashboardPage() {
         onReject={(id) =>
           handleStoryStatusChange(id, SubmissionStatus.REJECTED)
         }
+      />
+
+      {/* Flag Reason Modal */}
+      <FlagReasonModal
+        isOpen={isFlagModalOpen}
+        itemType="Story"
+        itemTitle={storyToFlag?.title || ""}
+        onClose={handleFlagClose}
+        onConfirm={handleFlagConfirm}
       />
     </div>
   );

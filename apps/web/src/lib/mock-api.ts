@@ -1078,6 +1078,7 @@ export class MockApiClient implements ApiClient {
     const statusMap: Record<StoryModerationAction, SubmissionStatus> = {
       APPROVE: "APPROVED" as SubmissionStatus,
       REJECT: "REJECTED" as SubmissionStatus,
+      FLAG: "FLAGGED" as SubmissionStatus,
       PUBLISH: "APPROVED" as SubmissionStatus,
       UNPUBLISH: "PENDING" as SubmissionStatus,
     };

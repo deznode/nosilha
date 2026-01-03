@@ -1,6 +1,12 @@
 "use client";
 
-import { CheckCircle, XCircle, Flag, Image as ImageIcon } from "lucide-react";
+import {
+  CheckCircle,
+  XCircle,
+  Flag,
+  Image as ImageIcon,
+  Maximize2,
+} from "lucide-react";
 import type { AdminMediaListItem, MediaStatus } from "@/types/admin";
 
 interface MediaQueueItemProps {
@@ -8,6 +14,7 @@ interface MediaQueueItemProps {
   onApprove: () => void;
   onFlag: () => void;
   onReject: () => void;
+  onPreview?: () => void;
 }
 
 function StatusBadge({ status }: { status: MediaStatus }) {
@@ -67,10 +74,12 @@ export function MediaQueueItem({
   onApprove,
   onFlag,
   onReject,
+  onPreview,
 }: MediaQueueItemProps) {
   const isPendingReview = media.status === "PENDING_REVIEW";
   const isFlagged = media.status === "FLAGGED";
   const showActions = isPendingReview || isFlagged;
+  const isImage = media.contentType.startsWith("image/");
 
   const formatDate = (dateString: string) => {
     try {
@@ -102,13 +111,22 @@ export function MediaQueueItem({
         {/* Media Preview */}
         <div className="mt-2 flex gap-4">
           {media.thumbnailUrl ? (
-            <div className="h-20 w-28 flex-shrink-0 overflow-hidden rounded border border-slate-200 bg-slate-100 dark:border-slate-600 dark:bg-slate-700">
+            <button
+              onClick={isImage && onPreview ? onPreview : undefined}
+              disabled={!isImage || !onPreview}
+              className="group relative h-20 w-28 flex-shrink-0 overflow-hidden rounded border border-slate-200 bg-slate-100 disabled:cursor-default dark:border-slate-600 dark:bg-slate-700"
+            >
               <img
                 src={media.thumbnailUrl}
                 alt={media.title}
                 className="h-full w-full object-cover"
               />
-            </div>
+              {isImage && onPreview && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/30">
+                  <Maximize2 className="h-5 w-5 text-white opacity-0 transition-opacity group-hover:opacity-100" />
+                </div>
+              )}
+            </button>
           ) : (
             <div className="flex h-20 w-28 flex-shrink-0 items-center justify-center rounded border border-slate-200 bg-slate-100 dark:border-slate-600 dark:bg-slate-700">
               <ImageIcon className="h-8 w-8 text-slate-400" />

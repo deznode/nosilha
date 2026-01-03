@@ -15,6 +15,7 @@ export enum SubmissionStatus {
   PENDING = "PENDING",
   APPROVED = "APPROVED",
   REJECTED = "REJECTED",
+  FLAGGED = "FLAGGED",
 }
 
 export interface StorySubmission {
@@ -37,12 +38,14 @@ export interface StorySubmission {
 }
 
 export type StoryTemplate =
-  | "narrative"
-  | "recipe"
-  | "migration"
-  | "childhood"
-  | "family"
-  | "traditions";
+  | "FAMILY"
+  | "CHILDHOOD"
+  | "DIASPORA"
+  | "TRADITIONS"
+  | "FOOD"
+  | "NARRATIVE"
+  | "RECIPE"
+  | "MIGRATION";
 
 export interface StoryFormData {
   title: string;

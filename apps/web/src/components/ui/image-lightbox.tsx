@@ -3,7 +3,14 @@
 import { useState, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import { X, ChevronLeft, ChevronRight, MapPin, Calendar } from "lucide-react";
+import {
+  X,
+  ChevronLeft,
+  ChevronRight,
+  MapPin,
+  Calendar,
+  Download,
+} from "lucide-react";
 
 interface Photo {
   src: string;
@@ -11,6 +18,8 @@ interface Photo {
   location: string;
   date: string;
   description: string;
+  highResSrc?: string;
+  author?: string;
 }
 
 interface ImageLightboxProps {
@@ -171,6 +180,25 @@ export function ImageLightbox({
                     {photos[currentIndex].date}
                   </span>
                 </div>
+              </div>
+
+              {/* Download Button */}
+              <div className="mt-6 border-t border-white/20 pt-6">
+                <a
+                  href={
+                    photos[currentIndex].highResSrc || photos[currentIndex].src
+                  }
+                  download={`brava-${photos[currentIndex].alt.replace(/\s+/g, "-").toLowerCase()}.jpg`}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-white/20"
+                >
+                  <Download className="h-4 w-4" />
+                  Download High-Res
+                </a>
+                {photos[currentIndex].author && (
+                  <p className="mt-2 text-center text-xs text-white/60">
+                    Photo by {photos[currentIndex].author}
+                  </p>
+                )}
               </div>
 
               {/* Thumbnail navigation for desktop */}

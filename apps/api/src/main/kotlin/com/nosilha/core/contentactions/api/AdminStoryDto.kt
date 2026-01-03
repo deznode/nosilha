@@ -88,6 +88,9 @@ enum class StoryModerationAction {
     /** Request revision from the author with feedback */
     REQUEST_REVISION,
 
+    /** Flag the story for attention */
+    FLAG,
+
     /** Publish the story and make it publicly visible */
     PUBLISH,
 }

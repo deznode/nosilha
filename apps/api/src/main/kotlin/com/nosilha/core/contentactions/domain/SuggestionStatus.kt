@@ -6,6 +6,7 @@ package com.nosilha.core.contentactions.domain
  * State Transitions:
  * - PENDING → APPROVED: Admin approves suggestion
  * - PENDING → REJECTED: Admin rejects suggestion
+ * - PENDING → FLAGGED: Admin flags for attention
  */
 enum class SuggestionStatus {
     /** Awaiting admin review (default) */
@@ -16,4 +17,7 @@ enum class SuggestionStatus {
 
     /** Declined by admin */
     REJECTED,
+
+    /** Flagged for attention */
+    FLAGGED,
 }

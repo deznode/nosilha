@@ -9,7 +9,8 @@ import { updateStoryStatus } from "@/lib/api";
 
 interface UpdateStoryParams {
   id: string;
-  action: "APPROVE" | "REJECT";
+  action: "APPROVE" | "REJECT" | "FLAG";
+  notes?: string;
 }
 
 /**
@@ -20,8 +21,8 @@ export function useUpdateStoryStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, action }: UpdateStoryParams) =>
-      updateStoryStatus(id, action),
+    mutationFn: ({ id, action, notes }: UpdateStoryParams) =>
+      updateStoryStatus(id, action, notes),
     onSuccess: () => {
       // Invalidate ALL stories queries (any page/size/status)
       queryClient.invalidateQueries({ queryKey: adminKeys.stories.all() });

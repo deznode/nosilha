@@ -45,4 +45,8 @@ export const adminKeys = {
       [...adminKeys.all, "media", { page, size, status }] as const,
   },
   contributors: () => [...adminKeys.all, "contributors"] as const,
+  system: {
+    all: () => [...adminKeys.all, "system"] as const,
+    health: () => [...adminKeys.all, "system", "health"] as const,
+  },
 };
