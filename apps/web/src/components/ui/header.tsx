@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Fragment } from "react";
 import {
   Disclosure,
   DisclosureButton,
@@ -12,7 +12,8 @@ import {
   Popover,
   PopoverButton,
   PopoverPanel,
-  CloseButton,
+  PopoverGroup,
+  Transition,
 } from "@headlessui/react";
 import {
   Menu as MenuIcon,
@@ -22,6 +23,8 @@ import {
   Plus,
   Check,
   ChevronDown,
+  BookOpen,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -33,9 +36,18 @@ import { supabase } from "@/lib/supabase-client";
 import { ThemeToggle } from "./theme-toggle";
 
 // --- Navigation Config ---
+import type { LucideIcon } from "lucide-react";
+
+type DropdownItem = {
+  name: string;
+  href: string;
+  icon: LucideIcon;
+  description: string;
+};
+
 type NavItem =
   | { name: string; href: string; type?: "link" }
-  | { name: string; type: "dropdown"; items: { name: string; href: string }[] };
+  | { name: string; type: "dropdown"; items: DropdownItem[] };
 
 const navigation: NavItem[] = [
   { name: "Home", href: "/" },
@@ -43,8 +55,18 @@ const navigation: NavItem[] = [
     name: "Culture",
     type: "dropdown",
     items: [
-      { name: "History", href: "/history" },
-      { name: "People", href: "/people" },
+      {
+        name: "History of Brava",
+        href: "/history",
+        icon: BookOpen,
+        description: "The island's rich past",
+      },
+      {
+        name: "Historical Figures",
+        href: "/people",
+        icon: Users,
+        description: "People who shaped Brava",
+      },
     ],
   },
   { name: "Directory", href: "/directory" },
@@ -118,7 +140,7 @@ export function Header({
                 </div>
 
                 {/* Desktop Navigation */}
-                <div className="hidden md:ml-8 md:flex md:space-x-1">
+                <PopoverGroup className="hidden md:ml-8 md:flex md:space-x-1">
                   {navigation.map((item) => {
                     if (item.type === "dropdown") {
                       const isChildActive = item.items.some(
@@ -126,11 +148,11 @@ export function Header({
                       );
                       return (
                         <Popover key={item.name} className="relative">
-                          {({ open }) => (
+                          {({ open, close }) => (
                             <>
                               <PopoverButton
                                 className={clsx(
-                                  "inline-flex h-16 items-center gap-1 border-b-2 px-3 text-sm font-medium transition-colors focus:outline-none",
+                                  "inline-flex h-16 items-center gap-1 border-b-2 px-3 text-sm font-medium transition-colors outline-none",
                                   isChildActive || open
                                     ? "border-ocean-blue text-ocean-blue"
                                     : "text-text-secondary hover:border-border-primary hover:text-ocean-blue border-transparent"
@@ -139,29 +161,50 @@ export function Header({
                                 {item.name}
                                 <ChevronDown
                                   className={clsx(
-                                    "h-4 w-4 transition-transform",
+                                    "h-4 w-4 transition-transform duration-200",
                                     open && "rotate-180"
                                   )}
                                   aria-hidden="true"
                                 />
                               </PopoverButton>
-                              <PopoverPanel className="bg-background-primary absolute left-0 z-10 mt-0 w-48 origin-top-left rounded-md py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
-                                {item.items.map((child) => (
-                                  <CloseButton
-                                    key={child.name}
-                                    as={Link}
-                                    href={child.href}
-                                    className={clsx(
-                                      "hover:bg-background-secondary hover:text-ocean-blue block px-4 py-2 text-sm transition-colors",
-                                      pathname === child.href
-                                        ? "bg-background-secondary text-ocean-blue"
-                                        : "text-text-primary"
-                                    )}
-                                  >
-                                    {child.name}
-                                  </CloseButton>
-                                ))}
-                              </PopoverPanel>
+
+                              <Transition
+                                as={Fragment}
+                                enter="transition ease-out duration-200"
+                                enterFrom="opacity-0 translate-y-1"
+                                enterTo="opacity-100 translate-y-0"
+                                leave="transition ease-in duration-150"
+                                leaveFrom="opacity-100 translate-y-0"
+                                leaveTo="opacity-0 translate-y-1"
+                              >
+                                <PopoverPanel className="absolute left-1/2 z-10 mt-3 w-screen max-w-xs -translate-x-1/2 transform px-2 sm:px-0">
+                                  <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black/5">
+                                    <div className="bg-background-primary relative grid gap-6 px-5 py-6 sm:gap-8 sm:p-8">
+                                      {item.items.map((subItem) => (
+                                        <Link
+                                          key={subItem.name}
+                                          href={subItem.href}
+                                          onClick={() => close()}
+                                          className="hover:bg-background-secondary -m-3 flex items-start rounded-lg p-3 transition duration-150 ease-in-out"
+                                        >
+                                          <subItem.icon
+                                            className="text-ocean-blue h-6 w-6 shrink-0"
+                                            aria-hidden="true"
+                                          />
+                                          <div className="ml-4">
+                                            <p className="text-text-primary text-sm font-medium">
+                                              {subItem.name}
+                                            </p>
+                                            <p className="text-text-secondary mt-1 text-xs">
+                                              {subItem.description}
+                                            </p>
+                                          </div>
+                                        </Link>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </PopoverPanel>
+                              </Transition>
                             </>
                           )}
                         </Popover>
@@ -184,7 +227,7 @@ export function Header({
                       </Link>
                     );
                   })}
-                </div>
+                </PopoverGroup>
               </div>
 
               {/* Right Section: Utilities */}
