@@ -1699,18 +1699,33 @@ export class BackendApiClient implements ApiClient {
 
   /**
    * Transforms backend directory submission to frontend format.
+   * Backend sends uppercase enum values (RESTAURANT), frontend expects title case (Restaurant).
    */
   private transformDirectorySubmission(
     dto: Record<string, unknown>
   ): DirectorySubmission {
+    // Convert uppercase category to title case (RESTAURANT → Restaurant)
+    const categoryMap: Record<
+      string,
+      "Restaurant" | "Landmark" | "Nature" | "Culture"
+    > = {
+      RESTAURANT: "Restaurant",
+      LANDMARK: "Landmark",
+      NATURE: "Nature",
+      CULTURE: "Culture",
+      // Also support already title-case values for backwards compatibility
+      Restaurant: "Restaurant",
+      Landmark: "Landmark",
+      Nature: "Nature",
+      Culture: "Culture",
+    };
+    const rawCategory = (dto.category as string) || "Restaurant";
+    const category = categoryMap[rawCategory] || "Restaurant";
+
     return {
       id: dto.id as string,
       name: dto.name as string,
-      category: dto.category as
-        | "Restaurant"
-        | "Landmark"
-        | "Nature"
-        | "Culture",
+      category,
       town: dto.town as string,
       customTown: dto.customTown as string | undefined,
       description: dto.description as string,
@@ -1731,28 +1746,42 @@ export class BackendApiClient implements ApiClient {
 
   /**
    * Transforms backend paged response to AdminQueueResponse format for directory submissions.
+   *
+   * Backend returns PagedApiResult with structure:
+   * { data: [...], pageable: { page, size, totalElements, ... }, timestamp, status }
    */
   private transformAdminDirectorySubmissionResponse(
     payload: unknown
   ): AdminQueueResponse<DirectorySubmission> {
-    const data = this.unwrapApiResponse<{
-      content: Record<string, unknown>[];
-      page: { totalElements: number; number: number; size: number };
-    }>(payload);
+    // PagedApiResult has data as array and pageable for pagination
+    const response = payload as {
+      data: Record<string, unknown>[];
+      pageable: {
+        page: number;
+        size: number;
+        totalElements: number;
+        totalPages: number;
+        first: boolean;
+        last: boolean;
+      };
+    };
 
-    const items = (data.content || []).map((dto) =>
-      this.transformDirectorySubmission(dto)
-    );
+    const rawItems = response.data || [];
+    const pageable = response.pageable || {
+      page: 0,
+      size: 20,
+      totalElements: 0,
+      last: true,
+    };
+
+    const items = rawItems.map((dto) => this.transformDirectorySubmission(dto));
 
     return {
       items,
-      total: data.page?.totalElements || 0,
-      page: (data.page?.number || 0) + 1, // Convert 0-indexed to 1-indexed
-      pageSize: data.page?.size || 20,
-      hasMore:
-        (data.page?.number || 0) <
-        Math.ceil((data.page?.totalElements || 0) / (data.page?.size || 20)) -
-          1,
+      total: pageable.totalElements,
+      page: pageable.page + 1, // Convert 0-indexed to 1-indexed
+      pageSize: pageable.size,
+      hasMore: !pageable.last,
     };
   }
 
@@ -1762,51 +1791,197 @@ export class BackendApiClient implements ApiClient {
 
   /**
    * Gets media items for admin moderation queue.
-   * Backend endpoint not yet implemented - returns error.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param status Filter by media status (optional)
+   * @param page Page number (0-indexed)
+   * @param size Page size
    */
   async getAdminMedia(
-    _status?: import("@/types/admin").MediaStatus | "ALL",
-    _page: number = 0,
-    _size: number = 20
+    status?: import("@/types/admin").MediaStatus | "ALL",
+    page: number = 0,
+    size: number = 20
   ): Promise<AdminQueueResponse<import("@/types/admin").AdminMediaListItem>> {
-    throw new Error(
-      "Backend endpoint /api/v1/admin/media not yet implemented. Use mock API for testing."
-    );
+    const params = new URLSearchParams({
+      page: String(page),
+      size: String(size),
+    });
+    if (status && status !== "ALL") {
+      params.append("status", status);
+    }
+
+    const endpoint = `${env.apiUrl}/api/v1/admin/media?${params}`;
+    const response = await this.authenticatedFetch(endpoint);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch media: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.transformAdminMediaResponse(payload);
   }
 
   /**
    * Gets detailed media information for moderation.
-   * Backend endpoint not yet implemented - returns error.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param id Media item ID
    */
   async getAdminMediaDetail(
-    _id: string
+    id: string
   ): Promise<import("@/types/admin").AdminMediaDetail> {
-    throw new Error(
-      "Backend endpoint /api/v1/admin/media not yet implemented. Use mock API for testing."
-    );
+    const endpoint = `${env.apiUrl}/api/v1/admin/media/${id}`;
+    const response = await this.authenticatedFetch(endpoint);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error("Media not found");
+      }
+      throw new Error(`Failed to fetch media detail: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    const dto = this.unwrapApiResponse<Record<string, unknown>>(payload);
+    return this.transformMediaDetail(dto);
   }
 
   /**
    * Updates media moderation status.
-   * Backend endpoint not yet implemented - returns error.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param id Media item ID
+   * @param request Update request with action and optional notes
    */
   async updateMediaStatus(
-    _id: string,
-    _request: import("@/types/admin").UpdateMediaStatusRequest
+    id: string,
+    request: import("@/types/admin").UpdateMediaStatusRequest
   ): Promise<import("@/types/admin").AdminMediaDetail> {
-    throw new Error(
-      "Backend endpoint PUT /api/v1/admin/media not yet implemented. Use mock API for testing."
-    );
+    const endpoint = `${env.apiUrl}/api/v1/admin/media/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error("Media not found");
+      }
+      throw new Error(`Failed to update media status: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    const dto = this.unwrapApiResponse<Record<string, unknown>>(payload);
+    return this.transformMediaDetail(dto);
   }
 
   /**
-   * Deletes a media item.
-   * Backend endpoint not yet implemented - returns error.
+   * Deletes a media item (soft delete).
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param id Media item ID
    */
-  async deleteMedia(_id: string): Promise<void> {
-    throw new Error(
-      "Backend endpoint DELETE /api/v1/admin/media not yet implemented. Use mock API for testing."
+  async deleteMedia(id: string): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/media/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "DELETE",
+    });
+
+    if (!response.ok && response.status !== 204) {
+      if (response.status === 404) {
+        throw new Error("Media not found");
+      }
+      throw new Error(`Failed to delete media: ${response.status}`);
+    }
+  }
+
+  /**
+   * Transforms backend media response to AdminQueueResponse format.
+   * Maps MediaDetailDto fields to frontend AdminMediaListItem interface.
+   *
+   * Backend returns PagedApiResult with structure:
+   * { data: [...], pageable: { page, size, totalElements, ... }, timestamp, status }
+   */
+  private transformAdminMediaResponse(
+    payload: unknown
+  ): AdminQueueResponse<import("@/types/admin").AdminMediaListItem> {
+    // PagedApiResult has data as array and pageable for pagination
+    const response = payload as {
+      data: Record<string, unknown>[];
+      pageable: {
+        page: number;
+        size: number;
+        totalElements: number;
+        totalPages: number;
+        first: boolean;
+        last: boolean;
+      };
+    };
+
+    const rawItems = response.data || [];
+    const pageable = response.pageable || {
+      page: 0,
+      size: 20,
+      totalElements: 0,
+      last: true,
+    };
+
+    const items = rawItems.map(
+      (dto): import("@/types/admin").AdminMediaListItem => ({
+        id: dto.id as string,
+        title:
+          (dto.title as string) || (dto.originalName as string) || "Untitled",
+        contentType: (dto.contentType as string) || "unknown",
+        thumbnailUrl: dto.publicUrl as string | undefined,
+        status:
+          (dto.status as import("@/types/admin").MediaStatus) || "PENDING",
+        severity: (dto.severity as number) || 0,
+        uploadedBy: dto.uploadedBy as string | undefined,
+        createdAt: (dto.createdAt as string) || new Date().toISOString(),
+      })
     );
+
+    return {
+      items,
+      total: pageable.totalElements,
+      page: pageable.page + 1, // Convert 0-indexed to 1-indexed
+      pageSize: pageable.size,
+      hasMore: !pageable.last,
+    };
+  }
+
+  /**
+   * Transforms backend media DTO to AdminMediaDetail.
+   */
+  private transformMediaDetail(
+    dto: Record<string, unknown>
+  ): import("@/types/admin").AdminMediaDetail {
+    return {
+      id: dto.id as string,
+      title:
+        (dto.title as string) || (dto.originalName as string) || "Untitled",
+      contentType: (dto.contentType as string) || "unknown",
+      thumbnailUrl: dto.thumbnailUrl as string | undefined,
+      status: (dto.status as import("@/types/admin").MediaStatus) || "PENDING",
+      severity: (dto.severity as number) || 0,
+      uploadedBy: dto.uploadedBy as string | undefined,
+      createdAt: (dto.createdAt as string) || new Date().toISOString(),
+      fileName: (dto.fileName as string) || (dto.originalName as string) || "",
+      publicUrl: dto.publicUrl as string | undefined,
+      category: dto.category as string | undefined,
+      description: dto.description as string | undefined,
+      reviewedBy: dto.reviewedBy as string | undefined,
+      reviewedAt: dto.reviewedAt as string | undefined,
+      rejectionReason: dto.rejectionReason as string | undefined,
+    };
   }
 
   // ================================
