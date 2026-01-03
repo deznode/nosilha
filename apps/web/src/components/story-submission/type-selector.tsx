@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Clock, Camera, Book } from "lucide-react";
+import { Clock, Camera, Book, FileText } from "lucide-react";
 import { StoryType } from "@/types/story";
 
 interface TypeSelectorProps {
@@ -30,6 +30,17 @@ const STORY_TYPES = [
     iconBgClass: "bg-pink-50 dark:bg-pink-900/30",
     iconClass: "text-[var(--color-bougainvillea)]",
     hoverBorderClass: "hover:border-[var(--color-bougainvillea)]",
+  },
+  {
+    type: StoryType.GUIDED,
+    title: "Guided Template",
+    duration: "~15 minutes",
+    description:
+      "Choose from structured templates like Family History, Diaspora Journey, or Food & Recipes.",
+    icon: FileText,
+    iconBgClass: "bg-purple-50 dark:bg-purple-900/30",
+    iconClass: "text-purple-600 dark:text-purple-400",
+    hoverBorderClass: "hover:border-purple-600",
   },
 ];
 
@@ -62,7 +73,7 @@ export function TypeSelector({ onSelect }: TypeSelectorProps) {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {STORY_TYPES.map((item) => {
             const Icon = item.icon;
             return (

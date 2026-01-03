@@ -1,23 +1,37 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Clock, Book } from "lucide-react";
+import { ArrowLeft, Clock, Book, FileText } from "lucide-react";
 import {
   TypeSelector,
+  TemplateSelector,
+  GUIDED_TEMPLATES,
   StoryEditor,
   Confirmation,
 } from "@/components/story-submission";
+import { WORD_LIMITS } from "@/components/story-submission/story-editor";
 import { StoryType } from "@/types/story";
+import type { StoryTemplate } from "@/types/story";
 import { submitStory } from "@/lib/api";
 import type { StorySubmitRequest } from "@/lib/api-contracts";
+import {
+  useStoryDraftStore,
+  useDraft,
+  useLastSaved,
+  useHasDraft,
+} from "@/stores/storyDraftStore";
+import { useAutoSaveDraft } from "@/hooks/useAutoSaveDraft";
 
 interface FormData {
   title: string;
   content: string;
+  templateType?: StoryTemplate;
 }
 
 export default function StorySubmissionPage() {
   const [submissionType, setSubmissionType] = useState<StoryType | null>(null);
+  const [selectedTemplate, setSelectedTemplate] =
+    useState<StoryTemplate | null>(null);
   const [formData, setFormData] = useState<FormData>({
     title: "",
     content: "",
@@ -25,6 +39,20 @@ export default function StorySubmissionPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  // Draft store
+  const draft = useDraft();
+  const lastSaved = useLastSaved();
+  const hasDraft = useHasDraft();
+  const { clearDraft } = useStoryDraftStore();
+
+  // Auto-save draft as user types (debounced)
+  useAutoSaveDraft({
+    title: formData.title,
+    content: formData.content,
+    storyType: submissionType ?? undefined,
+    enabled: !!submissionType,
+  });
 
   // Default template for full stories
   const defaultTemplate = `## The Beginning
@@ -42,6 +70,28 @@ Why is this memory important to you? How does it make you feel today?`;
       setFormData((prev) => ({ ...prev, content: defaultTemplate }));
     } else {
       setFormData((prev) => ({ ...prev, content: "" }));
+    }
+  };
+
+  const handleTemplateSelection = (template: StoryTemplate) => {
+    setSelectedTemplate(template);
+    const templateConfig = GUIDED_TEMPLATES[template];
+    if (templateConfig) {
+      setFormData((prev) => ({
+        ...prev,
+        content: templateConfig.starterPrompt,
+        templateType: template,
+      }));
+    }
+  };
+
+  const handleLoadDraft = () => {
+    if (draft) {
+      setFormData({ title: draft.title, content: draft.content });
+      if (draft.storyType) {
+        setSubmissionType(draft.storyType);
+      }
+      clearDraft();
     }
   };
 
@@ -66,9 +116,11 @@ Why is this memory important to you? How does it make you feel today?`;
         content: formData.content,
         storyType:
           storyTypeMap[submissionType as Exclude<StoryType, StoryType.PHOTO>],
+        templateType: formData.templateType,
       });
 
       if (response.id || response.message) {
+        clearDraft();
         setSubmitted(true);
       }
     } catch (error) {
@@ -106,6 +158,18 @@ Why is this memory important to you? How does it make you feel today?`;
     );
   }
 
+  // Show template selector for GUIDED story type
+  if (submissionType === StoryType.GUIDED && !selectedTemplate) {
+    return (
+      <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-8 dark:bg-slate-900">
+        <TemplateSelector
+          onSelect={handleTemplateSelection}
+          onBack={() => setSubmissionType(null)}
+        />
+      </div>
+    );
+  }
+
   // Determine header styles based on type
   let headerColorClass = "bg-[var(--color-ocean-blue)]";
   let HeaderIcon = Clock;
@@ -114,6 +178,11 @@ Why is this memory important to you? How does it make you feel today?`;
     headerColorClass = "bg-[var(--color-bougainvillea)]";
     HeaderIcon = Book;
   }
+
+  // Word limit validation
+  const wordCount = formData.content.split(/\s+/).filter(Boolean).length;
+  const limit = submissionType ? WORD_LIMITS[submissionType] : Infinity;
+  const isOverLimit = wordCount > limit;
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-8 dark:bg-slate-900">
@@ -124,6 +193,43 @@ Why is this memory important to you? How does it make you feel today?`;
         >
           <ArrowLeft className="mr-2 h-4 w-4" /> Change Type
         </button>
+
+        {/* Draft Resume Banner */}
+        {hasDraft && !submitted && (
+          <div className="mb-6">
+            <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-900/20">
+              <div className="flex items-center gap-3">
+                <FileText className="h-5 w-5 text-[var(--color-ocean-blue)]" />
+                <div>
+                  <p className="font-medium text-slate-900 dark:text-white">
+                    You have a saved draft
+                  </p>
+                  {lastSaved && (
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                      Last saved {new Date(lastSaved).toLocaleString()}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={clearDraft}
+                  className="rounded px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
+                >
+                  Discard
+                </button>
+                <button
+                  type="button"
+                  onClick={handleLoadDraft}
+                  className="rounded bg-[var(--color-ocean-blue)] px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-800"
+                >
+                  Resume Draft
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800">
           <div className={`px-6 py-4 ${headerColorClass}`}>
@@ -163,6 +269,7 @@ Why is this memory important to you? How does it make you feel today?`;
               onContentChange={(content) =>
                 setFormData((prev) => ({ ...prev, content }))
               }
+              templateType={selectedTemplate ?? undefined}
             />
 
             {/* Terms checkbox */}
@@ -186,14 +293,26 @@ Why is this memory important to you? How does it make you feel today?`;
             </div>
 
             {/* Submit button */}
-            <div className="flex justify-end border-t border-slate-200 pt-4 dark:border-slate-700">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex items-center rounded-md bg-[var(--color-ocean-blue)] px-6 py-2 font-medium text-white hover:bg-blue-800 focus:ring-2 focus:ring-[var(--color-ocean-blue)] focus:ring-offset-2 focus:outline-none disabled:opacity-70"
-              >
-                {isSubmitting ? "Submitting..." : "Submit"}
-              </button>
+            <div className="border-t border-slate-200 pt-4 dark:border-slate-700">
+              {isOverLimit && (
+                <p className="mb-3 text-sm text-red-600 dark:text-red-400">
+                  Your story exceeds the word limit. Please shorten it to{" "}
+                  {limit.toLocaleString()} words or less before submitting.
+                </p>
+              )}
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  disabled={isSubmitting || isOverLimit}
+                  className="flex items-center rounded-md bg-[var(--color-ocean-blue)] px-6 py-2 font-medium text-white hover:bg-blue-800 focus:ring-2 focus:ring-[var(--color-ocean-blue)] focus:ring-offset-2 focus:outline-none disabled:opacity-70"
+                >
+                  {isSubmitting
+                    ? "Submitting..."
+                    : isOverLimit
+                      ? "Over Word Limit"
+                      : "Submit"}
+                </button>
+              </div>
             </div>
           </form>
         </div>

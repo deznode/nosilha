@@ -11,10 +11,43 @@ import {
   LayoutTemplate,
   ChevronDown,
   Sparkles,
+  Languages,
+  Undo2,
 } from "lucide-react";
 import Markdown from "react-markdown";
 import { StoryType } from "@/types/story";
-import { polishStoryContent } from "@/lib/gemini";
+import type { StoryTemplate } from "@/types/story";
+import {
+  polishStoryContent,
+  translateContent,
+  isGeminiAvailable,
+} from "@/lib/gemini";
+import { StoryPromptsPanel } from "./story-prompts-panel";
+
+export const WORD_LIMITS: Record<StoryType, number> = {
+  [StoryType.QUICK]: 500,
+  [StoryType.FULL]: 5000,
+  [StoryType.GUIDED]: 5000,
+  [StoryType.PHOTO]: 200,
+};
+
+const WORDS_PER_MINUTE = 200;
+
+function getReadingTime(wordCount: number): string {
+  const minutes = Math.ceil(wordCount / WORDS_PER_MINUTE);
+  if (minutes < 1) return "< 1 min read";
+  return `${minutes} min read`;
+}
+
+function getWarningLevel(
+  wordCount: number,
+  limit: number
+): "none" | "warning" | "error" {
+  const percentage = (wordCount / limit) * 100;
+  if (percentage >= 100) return "error";
+  if (percentage >= 80) return "warning";
+  return "none";
+}
 
 const TEMPLATES = {
   narrative: `## The Beginning
@@ -59,6 +92,7 @@ interface StoryEditorProps {
   author?: string;
   location?: string;
   onContentChange: (content: string) => void;
+  templateType?: StoryTemplate;
 }
 
 export function StoryEditor({
@@ -68,10 +102,15 @@ export function StoryEditor({
   author = "",
   location = "",
   onContentChange,
+  templateType,
 }: StoryEditorProps) {
   const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
   const [isPolishing, setIsPolishing] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [showCharCount, setShowCharCount] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState<"EN" | "PT">("EN");
+  const [originalContent, setOriginalContent] = useState<string>("");
+  const [isTranslating, setIsTranslating] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handlePolish = async () => {
@@ -85,6 +124,43 @@ export function StoryEditor({
     } finally {
       setIsPolishing(false);
     }
+  };
+
+  const handleTranslate = async () => {
+    if (!content) return;
+
+    // Store original on first translation
+    if (!originalContent) {
+      setOriginalContent(content);
+    }
+
+    setIsTranslating(true);
+    // Determine target language (opposite of current)
+    const targetLang = currentLanguage === "EN" ? "PT" : "EN";
+
+    try {
+      // NOTE: translateContent takes 2 params: (content, targetLang)
+      const translated = await translateContent(content, targetLang);
+      onContentChange(translated);
+      setCurrentLanguage(targetLang);
+    } catch (error) {
+      console.error("Translation failed:", error);
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  const handleRevertTranslation = () => {
+    if (originalContent) {
+      onContentChange(originalContent);
+      setOriginalContent("");
+      setCurrentLanguage("EN");
+    }
+  };
+
+  const handleInsertPrompt = (promptText: string) => {
+    const newContent = content + "\n\n> " + promptText + "\n\n";
+    onContentChange(newContent);
   };
 
   const applyTemplate = (templateKey: keyof typeof TEMPLATES) => {
@@ -139,6 +215,11 @@ export function StoryEditor({
   };
 
   const wordCount = content.split(/\s+/).filter(Boolean).length;
+  const charCount = content.length;
+  const limit = WORD_LIMITS[storyType];
+  const warningLevel = getWarningLevel(wordCount, limit);
+  const readingTime = getReadingTime(wordCount);
+  const isOverLimit = wordCount > limit;
 
   return (
     <div>
@@ -264,7 +345,45 @@ export function StoryEditor({
               <Sparkles className="mr-1 h-3 w-3" />
               {isPolishing ? "Polishing..." : "AI Polish"}
             </button>
+
+            {isGeminiAvailable() && (
+              <div className="ml-2 flex items-center gap-1 border-l border-slate-200 pl-2 dark:border-slate-600">
+                <button
+                  type="button"
+                  onClick={handleTranslate}
+                  disabled={isTranslating || !content}
+                  className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-[var(--color-ocean-blue)] hover:bg-blue-50 disabled:opacity-50 dark:hover:bg-blue-900/30"
+                  title={`Translate to ${currentLanguage === "EN" ? "Portuguese" : "English"}`}
+                >
+                  <Languages className="h-3 w-3" />
+                  {isTranslating
+                    ? "..."
+                    : currentLanguage === "EN"
+                      ? "→PT"
+                      : "→EN"}
+                </button>
+
+                {originalContent && (
+                  <button
+                    type="button"
+                    onClick={handleRevertTranslation}
+                    className="rounded p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                    title="Revert to original"
+                  >
+                    <Undo2 className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+            )}
           </div>
+
+          {storyType === StoryType.GUIDED && templateType && (
+            <StoryPromptsPanel
+              templateType={templateType}
+              existingContent={content}
+              onInsertPrompt={handleInsertPrompt}
+            />
+          )}
 
           <textarea
             ref={textareaRef}
@@ -279,14 +398,55 @@ export function StoryEditor({
             value={content}
             onChange={(e) => onContentChange(e.target.value)}
           />
-          <div className="mt-2 flex justify-between">
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
             <span className="text-xs text-slate-500 dark:text-slate-400">
               Markdown supported: **bold**, *italic*, - list
             </span>
-            <span className="text-xs text-slate-500 dark:text-slate-400">
-              {wordCount} words
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-slate-400 dark:text-slate-500">
+                {readingTime}
+              </span>
+
+              <span
+                className={`text-xs transition-colors ${
+                  warningLevel === "error"
+                    ? "font-medium text-red-600 dark:text-red-400"
+                    : warningLevel === "warning"
+                      ? "text-amber-600 dark:text-amber-400"
+                      : "text-slate-500 dark:text-slate-400"
+                }`}
+              >
+                {showCharCount ? (
+                  `${charCount.toLocaleString()} chars`
+                ) : (
+                  <>
+                    {wordCount.toLocaleString()}/{limit.toLocaleString()} words
+                    {isOverLimit && (
+                      <span className="ml-1 font-semibold">(over limit!)</span>
+                    )}
+                  </>
+                )}
+              </span>
+
+              <button
+                type="button"
+                onClick={() => setShowCharCount(!showCharCount)}
+                className="rounded px-1.5 py-0.5 text-xs text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                title={
+                  showCharCount ? "Show word count" : "Show character count"
+                }
+              >
+                {showCharCount ? "words" : "chars"}
+              </button>
+            </div>
           </div>
+
+          {warningLevel === "warning" && (
+            <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+              Approaching word limit ({Math.round((wordCount / limit) * 100)}%
+              used)
+            </p>
+          )}
         </div>
       ) : (
         <div className="prose prose-sm dark:prose-invert prose-headings:font-serif prose-headings:text-[var(--color-ocean-blue)] prose-a:text-[var(--color-ocean-blue)] min-h-[300px] max-w-none rounded-md border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">

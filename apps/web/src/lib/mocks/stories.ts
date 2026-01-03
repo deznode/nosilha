@@ -34,7 +34,7 @@ export const MOCK_STORIES: StorySubmission[] = [
     status: SubmissionStatus.PENDING,
     submittedAt: "1 week ago",
     location: "Furna",
-    templateType: "migration",
+    templateType: "MIGRATION",
   },
   {
     id: "103",
@@ -48,7 +48,7 @@ export const MOCK_STORIES: StorySubmission[] = [
     status: SubmissionStatus.APPROVED,
     submittedAt: "3 weeks ago",
     location: "Nossa Senhora do Monte",
-    templateType: "traditions",
+    templateType: "TRADITIONS",
   },
   {
     id: "104",
@@ -83,7 +83,7 @@ export const STORY_TEMPLATES: Record<
   StoryTemplate,
   { name: string; description: string; prompts: string[] }
 > = {
-  narrative: {
+  NARRATIVE: {
     name: "Free Narrative",
     description: "Tell your story in your own words",
     prompts: [
@@ -91,7 +91,7 @@ export const STORY_TEMPLATES: Record<
       "What makes this memory special to you?",
     ],
   },
-  recipe: {
+  RECIPE: {
     name: "Food & Recipes",
     description: "Share a traditional recipe and its story",
     prompts: [
@@ -101,7 +101,7 @@ export const STORY_TEMPLATES: Record<
       "Share the recipe steps",
     ],
   },
-  migration: {
+  MIGRATION: {
     name: "Migration Journey",
     description: "Share your or your family's emigration story",
     prompts: [
@@ -111,7 +111,7 @@ export const STORY_TEMPLATES: Record<
       "How did you adapt to your new home?",
     ],
   },
-  childhood: {
+  CHILDHOOD: {
     name: "Childhood Memories",
     description: "Remember growing up on Brava",
     prompts: [
@@ -121,7 +121,7 @@ export const STORY_TEMPLATES: Record<
       "What sounds remind you of home?",
     ],
   },
-  family: {
+  FAMILY: {
     name: "Family History",
     description: "Share your family's Brava roots",
     prompts: [
@@ -131,7 +131,7 @@ export const STORY_TEMPLATES: Record<
       "What stories were told about your family?",
     ],
   },
-  traditions: {
+  TRADITIONS: {
     name: "Traditions & Customs",
     description: "Share cultural practices you know",
     prompts: [
@@ -139,6 +139,26 @@ export const STORY_TEMPLATES: Record<
       "How is it practiced?",
       "What does it mean to the community?",
       "How has it changed over time?",
+    ],
+  },
+  DIASPORA: {
+    name: "Diaspora Journey",
+    description: "Tell the story of leaving, adapting, and staying connected",
+    prompts: [
+      "When did you leave Brava?",
+      "What do you remember about the departure?",
+      "How did you adapt to your new home?",
+      "How do you maintain your connection to Brava today?",
+    ],
+  },
+  FOOD: {
+    name: "Food & Recipes",
+    description: "Share the flavors and recipes that taste like home",
+    prompts: [
+      "What is this dish called?",
+      "List the ingredients and preparation steps",
+      "Who taught you this recipe?",
+      "What memories does the smell bring back?",
     ],
   },
 };

@@ -1137,12 +1137,14 @@ export class BackendApiClient implements ApiClient {
   ): StoryTemplate | undefined {
     if (!backendType) return undefined;
     const templateMap: Record<string, StoryTemplate> = {
-      FAMILY: "family",
-      CHILDHOOD: "childhood",
-      DIASPORA: "migration",
-      TRADITIONS: "traditions",
-      FOOD: "recipe",
-      NARRATIVE: "narrative",
+      FAMILY: "FAMILY",
+      CHILDHOOD: "CHILDHOOD",
+      DIASPORA: "DIASPORA",
+      TRADITIONS: "TRADITIONS",
+      FOOD: "FOOD",
+      NARRATIVE: "NARRATIVE",
+      RECIPE: "RECIPE",
+      MIGRATION: "MIGRATION",
     };
     return templateMap[backendType];
   }
