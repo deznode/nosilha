@@ -92,9 +92,7 @@ jobs:
           node-version: '20.9'
 
       - name: Install dependencies
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm rebuild lightningcss
+        run: pnpm install --frozen-lockfile
 
       # Generate Velite content types before type checking
       - name: Generate content types
@@ -156,9 +154,7 @@ jobs:
 
       - name: Install dependencies
         if: ${{ steps.changes.outputs.bundle == 'true' }}
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm rebuild lightningcss
+        run: pnpm install --frozen-lockfile
 
       - name: Build and check bundle size
         if: ${{ steps.changes.outputs.bundle == 'true' }}
