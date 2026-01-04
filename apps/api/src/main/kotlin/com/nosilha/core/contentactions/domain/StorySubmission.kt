@@ -96,6 +96,12 @@ data class StorySubmission(
     var publicationSlug: String? = null,
     @Column(name = "ip_address", length = 45)
     val ipAddress: String? = null,
+    @Column(name = "archived_at")
+    var archivedAt: Instant? = null,
+    @Column(name = "archived_slug", length = 255)
+    var archivedSlug: String? = null,
+    @Column(name = "archived_by", length = 255)
+    var archivedBy: String? = null,
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     val createdAt: Instant? = null,

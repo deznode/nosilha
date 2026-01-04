@@ -201,6 +201,58 @@ class AdminStoryController(
     }
 
     /**
+     * Marks a story as archived to MDX.
+     *
+     * <p>Creates a bidirectional link between a story submission and its archived MDX file
+     * after the MDX has been committed via the AdminMdxController. This endpoint should be
+     * called after successfully committing MDX content to track which stories have been
+     * archived to the content system.</p>
+     *
+     * <h4>Workflow:</h4>
+     * <ol>
+     *   <li>Admin approves and publishes a story via PUT /api/v1/admin/stories/{id}</li>
+     *   <li>Admin generates and commits MDX via POST /api/v1/admin/stories/{id}/commit-mdx</li>
+     *   <li>Admin marks story as archived via this endpoint with the MDX slug</li>
+     * </ol>
+     *
+     * <h4>Business Rules:</h4>
+     * <ul>
+     *   <li>Only published stories can be archived</li>
+     *   <li>Slug must match the slug used in the MDX archive</li>
+     *   <li>Archival status is recorded with admin ID and timestamp</li>
+     * </ul>
+     *
+     * <h4>Validation Rules:</h4>
+     * <ul>
+     *   <li>Slug is required (1-255 characters)</li>
+     *   <li>Archived timestamp is optional (defaults to current time)</li>
+     * </ul>
+     *
+     * @param id UUID of the story to mark as archived
+     * @param request Archive request containing the MDX slug and optional timestamp
+     * @param authentication Spring Security authentication context (provides admin ID)
+     * @return ResponseEntity with ApiResult containing updated StoryDetailDto
+     * @throws ResourceNotFoundException if story is not found (404 Not Found)
+     * @throws BusinessException if story is not in PUBLISHED status
+     */
+    @PatchMapping("/{id}/archive")
+    fun markAsArchived(
+        @PathVariable id: UUID,
+        @Valid @RequestBody request: MarkArchivedRequest,
+        authentication: Authentication,
+    ): ResponseEntity<ApiResult<StoryDetailDto>> {
+        val adminId = authentication.name
+        val updated =
+            storyService.markAsArchived(
+                id = id,
+                slug = request.slug,
+                adminId = adminId,
+                archivedAt = request.archivedAt,
+            )
+        return ResponseEntity.ok(ApiResult(data = updated, status = HttpStatus.OK.value()))
+    }
+
+    /**
      * Deletes a story from the system.
      *
      * <p>Permanently removes a story from the database. This operation should be used sparingly

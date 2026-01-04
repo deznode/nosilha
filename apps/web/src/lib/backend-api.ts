@@ -1283,7 +1283,7 @@ export class BackendApiClient implements ApiClient {
     storyId: string,
     options?: import("@/types/admin").GenerateMdxOptions
   ): Promise<import("@/types/admin").MdxContent> {
-    const endpoint = `${env.apiUrl}/api/v1/admin/stories/${storyId}/mdx/generate`;
+    const endpoint = `${env.apiUrl}/api/v1/admin/stories/${storyId}/generate-mdx`;
 
     const response = await this.authenticatedFetch(endpoint, {
       method: "POST",
@@ -1297,7 +1297,8 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`Failed to generate MDX: ${response.status}`);
     }
 
-    return await response.json();
+    const payload = await response.json();
+    return this.unwrapApiResponse<import("@/types/admin").MdxContent>(payload);
   }
 
   /**
@@ -1314,7 +1315,7 @@ export class BackendApiClient implements ApiClient {
     mdxSource: string,
     commitMessage?: string
   ): Promise<import("@/types/admin").MdxCommitResult> {
-    const endpoint = `${env.apiUrl}/api/v1/admin/stories/${storyId}/mdx/commit`;
+    const endpoint = `${env.apiUrl}/api/v1/admin/stories/${storyId}/commit-mdx`;
 
     const response = await this.authenticatedFetch(endpoint, {
       method: "POST",
@@ -1328,7 +1329,10 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`Failed to commit MDX: ${response.status}`);
     }
 
-    return await response.json();
+    const payload = await response.json();
+    return this.unwrapApiResponse<import("@/types/admin").MdxCommitResult>(
+      payload
+    );
   }
 
   // ================================

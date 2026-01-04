@@ -30,3 +30,4 @@ export {
 } from "./useUpdateMessageStatus";
 export { useUpdateDirectoryStatus } from "./useUpdateDirectoryStatus";
 export { useUpdateMediaStatus } from "./useUpdateMediaStatus";
+export { useArchiveStory } from "./useArchiveStory";

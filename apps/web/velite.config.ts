@@ -106,6 +106,30 @@ const pages = defineCollection({
   }),
 });
 
+// Story types for community-submitted narratives
+const storyTypes = ["quick", "full", "guided"] as const;
+
+// Story schema for community-submitted MDX stories
+const storySchema = s.object({
+  title: s.string().max(255),
+  slug: s.string(),
+  author: s.string(),
+  date: s.isodate(),
+  language: s.enum(["en", "pt", "kea"]),
+  location: s.string().optional(),
+  storyType: s.enum(storyTypes),
+  tags: s.array(s.string()).optional(),
+  sourceStoryId: s.string(), // Links back to DB record
+  content: s.mdx(),
+});
+
+// Stories collection for community-submitted narratives
+const stories = defineCollection({
+  name: "Story",
+  pattern: "stories/**/*.mdx",
+  schema: storySchema,
+});
+
 export default defineConfig({
   root: "content",
   output: {
@@ -114,7 +138,7 @@ export default defineConfig({
     base: "/static/",
     clean: true,
   },
-  collections: { pages },
+  collections: { pages, stories },
   mdx: {
     rehypePlugins: [
       [

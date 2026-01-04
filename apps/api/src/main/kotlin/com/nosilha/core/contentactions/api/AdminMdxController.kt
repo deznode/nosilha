@@ -116,10 +116,11 @@ class AdminMdxController(
                 .findById(id)
                 .orElseThrow { ResourceNotFoundException("Story with id $id not found") }
 
-        // Validate story is approved
-        if (story.status != StoryStatus.APPROVED) {
+        // Validate story is approved or published (both are moderated states suitable for archival)
+        val archivableStatuses = setOf(StoryStatus.APPROVED, StoryStatus.PUBLISHED)
+        if (story.status !in archivableStatuses) {
             throw BusinessException(
-                "Only approved stories can be archived. Current status: ${story.status}. " +
+                "Only approved or published stories can be archived. Current status: ${story.status}. " +
                     "Please approve the story before generating MDX.",
             )
         }
@@ -197,10 +198,11 @@ class AdminMdxController(
                 .findById(id)
                 .orElseThrow { ResourceNotFoundException("Story with id $id not found") }
 
-        // Validate story is approved
-        if (story.status != StoryStatus.APPROVED) {
+        // Validate story is approved or published (both are moderated states suitable for archival)
+        val archivableStatuses = setOf(StoryStatus.APPROVED, StoryStatus.PUBLISHED)
+        if (story.status !in archivableStatuses) {
             throw BusinessException(
-                "Only approved stories can be archived. Current status: ${story.status}. " +
+                "Only approved or published stories can be archived. Current status: ${story.status}. " +
                     "Please approve the story before committing MDX.",
             )
         }

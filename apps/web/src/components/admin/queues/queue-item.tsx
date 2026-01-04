@@ -7,9 +7,13 @@ import {
   Image as ImageIcon,
   MapPin,
   Flag,
+  Github,
+  Code,
+  Loader2,
 } from "lucide-react";
 import { SubmissionStatus, StoryType } from "@/types/story";
 import { MdxCommitButton } from "@/components/admin/mdx-engine/mdx-commit-button";
+import { Badge } from "@/components/catalyst-ui/badge";
 
 interface BaseQueueItemProps {
   status: SubmissionStatus;
@@ -35,6 +39,10 @@ interface StoryQueueItemProps extends BaseQueueItemProps {
   location?: string;
   imageUrl?: string;
   onViewFull?: () => void;
+  onArchive?: () => void;
+  isArchiving?: boolean;
+  archivedAt?: string;
+  commitUrl?: string;
 }
 
 type QueueItemProps = SuggestionQueueItemProps | StoryQueueItemProps;
@@ -71,6 +79,7 @@ function StoryTypeBadge({ storyType }: { storyType: StoryType }) {
 export function QueueItem(props: QueueItemProps) {
   const isPending = props.status === SubmissionStatus.PENDING;
   const isApproved = props.status === SubmissionStatus.APPROVED;
+  const isPublished = props.status === SubmissionStatus.APPROVED;
 
   if (props.type === "suggestion") {
     return (
@@ -135,6 +144,12 @@ export function QueueItem(props: QueueItemProps) {
           <div className="ml-2 flex flex-shrink-0 gap-2">
             <StoryTypeBadge storyType={props.storyType} />
             <StatusBadge status={props.status} />
+            {props.archivedAt && (
+              <Badge color="green" className="inline-flex items-center gap-1">
+                <Github size={10} />
+                Archived
+              </Badge>
+            )}
           </div>
         </div>
 
@@ -169,13 +184,27 @@ export function QueueItem(props: QueueItemProps) {
         </div>
 
         <div className="mt-3 flex items-center justify-between">
-          {/* MDX Generate Button - Only show for APPROVED stories */}
+          {/* Archive Button - Only show for PUBLISHED stories that are not yet archived */}
           <div>
-            {isApproved && (
-              <MdxCommitButton
-                storyId={props.storyId}
-                storyTitle={props.title}
-              />
+            {isPublished && !props.archivedAt && props.onArchive && (
+              <button
+                onClick={props.onArchive}
+                disabled={props.isArchiving}
+                className="inline-flex items-center gap-1.5 rounded-md border border-[var(--color-ocean-blue)] bg-white px-3 py-1 text-xs font-medium text-[var(--color-ocean-blue)] transition-colors hover:bg-[var(--color-ocean-blue)] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-800 dark:hover:bg-[var(--color-ocean-blue)]"
+                title="Archive to MDX"
+              >
+                {props.isArchiving ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Code size={14} />
+                    MDX Archive
+                  </>
+                )}
+              </button>
             )}
           </div>
 

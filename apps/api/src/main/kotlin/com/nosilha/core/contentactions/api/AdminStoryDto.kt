@@ -52,6 +52,9 @@ data class StoryListDto(
  * @property reviewedBy Username/email of the admin who reviewed this story
  * @property reviewedAt Timestamp when the story was reviewed
  * @property publicationSlug Unique slug for published stories
+ * @property archivedAt Timestamp when the story was archived to MDX
+ * @property archivedSlug Slug used in the MDX archive (content/stories/{slug}.mdx)
+ * @property archivedBy Username/email of the admin who archived this story
  * @property createdAt Timestamp when the story was submitted
  * @property updatedAt Timestamp when the story was last updated
  */
@@ -69,6 +72,9 @@ data class StoryDetailDto(
     val reviewedBy: String?,
     val reviewedAt: Instant?,
     val publicationSlug: String?,
+    val archivedAt: Instant?,
+    val archivedSlug: String?,
+    val archivedBy: String?,
     val createdAt: Instant?,
     val updatedAt: Instant?,
 )
@@ -128,6 +134,23 @@ data class ToggleFeaturedRequest(
 )
 
 /**
+ * Request DTO for marking a story as archived to MDX.
+ *
+ * <p>Used in PATCH /api/v1/admin/stories/{id}/archive endpoint.
+ * Allows admins to mark stories as archived after MDX commit, linking the
+ * story submission to its archived MDX file.</p>
+ *
+ * @property slug The slug used in the MDX archive (content/stories/{slug}.mdx)
+ * @property archivedAt Optional timestamp when the story was archived (defaults to now)
+ */
+data class MarkArchivedRequest(
+    @field:NotNull(message = "Slug is required")
+    @field:Size(min = 1, max = 255, message = "Slug must be between 1 and 255 characters")
+    val slug: String,
+    val archivedAt: Instant? = null,
+)
+
+/**
  * Extension function to convert StorySubmission entity to list DTO.
  *
  * <p>Maps domain entity to compact list view for admin panel tables.</p>
@@ -167,6 +190,9 @@ fun StorySubmission.toDetailDto() =
         reviewedBy = this.reviewedBy,
         reviewedAt = this.reviewedAt,
         publicationSlug = this.publicationSlug,
+        archivedAt = this.archivedAt,
+        archivedSlug = this.archivedSlug,
+        archivedBy = this.archivedBy,
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
     )

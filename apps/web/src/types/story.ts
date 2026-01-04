@@ -35,6 +35,8 @@ export interface StorySubmission {
   adminNotes?: string;
   reviewedBy?: string;
   reviewedAt?: string;
+  archivedAt?: string;
+  commitUrl?: string;
 }
 
 export type StoryTemplate =

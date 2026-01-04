@@ -207,6 +207,117 @@ TAGS: [tag1, tag2, tag3, tag4, tag5]`;
 };
 
 /**
+ * Story object for MDX archival conversion.
+ */
+export interface StoryForArchival {
+  id: string;
+  title: string;
+  content: string;
+  author: string;
+  location?: string;
+  storyType: string;
+  publishDate: string;
+}
+
+/**
+ * Generate MDX archival source from a story using AI.
+ *
+ * Converts a user-submitted story into a properly formatted MDX file with:
+ * - YAML frontmatter (title, slug, author, date, language, location, storyType, sourceStoryId)
+ * - Markdown body with cultural component injection for music references
+ * - Preserved Cape Verdean cultural terms
+ *
+ * @param story - The story object to convert
+ * @returns MDX string with frontmatter and body, or error message if generation fails
+ */
+export const generateMDXArchivalSource = async (
+  story: StoryForArchival
+): Promise<string> => {
+  const client = getGeminiClient();
+
+  if (!client) {
+    console.warn("Gemini API key not configured - MDX generation unavailable");
+    return `---
+title: "${story.title}"
+slug: "${story.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")}"
+author: "${story.author}"
+date: "${story.publishDate}"
+language: "PT"
+location: "${story.location || "Brava, Cape Verde"}"
+storyType: "${story.storyType}"
+sourceStoryId: "${story.id}"
+---
+
+${story.content}`;
+  }
+
+  try {
+    const model = client.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    const prompt = `You are a cultural heritage archivist for "Nos Ilha" (Cape Verde), converting personal stories into structured MDX format for preservation.
+
+Convert the following story into MDX format with YAML frontmatter and enhanced markdown body.
+
+Story Details:
+- Title: ${story.title}
+- Author: ${story.author}
+- Location: ${story.location || "Brava, Cape Verde"}
+- Story Type: ${story.storyType}
+- Publish Date: ${story.publishDate}
+- Source Story ID: ${story.id}
+
+Story Content:
+${story.content}
+
+Requirements:
+
+1. Generate YAML frontmatter with these exact fields:
+   - title: Keep the original title in quotes
+   - slug: Create a URL-friendly version of the title (lowercase, hyphens, no special chars)
+   - author: Use the original author name
+   - date: Use the publish date (${story.publishDate})
+   - language: "PT" (Portuguese) or "EN" (English) based on content language
+   - location: "${story.location || "Brava, Cape Verde"}"
+   - storyType: "${story.storyType}"
+   - sourceStoryId: "${story.id}"
+
+2. For the markdown body:
+   - Preserve ALL Cape Verdean cultural terms exactly as written: morna, sodade, cachupa, grogue, batuku, funana, coladeira, morabeza
+   - When music is mentioned (songs, artists, musical traditions), inject a custom component:
+     <MusicReference title="Song Name" artist="Artist Name" />
+   - Maintain paragraph structure and emotional tone
+   - Keep the authentic voice and storytelling style
+   - Do NOT add content that wasn't in the original story
+
+3. Format exactly as:
+---
+title: "Title Here"
+slug: "url-friendly-slug"
+author: "Author Name"
+date: "YYYY-MM-DD"
+language: "PT"
+location: "Location Here"
+storyType: "Type Here"
+sourceStoryId: "ID Here"
+---
+
+[Markdown body with preserved cultural terms and <MusicReference /> components where appropriate]
+
+Return ONLY the MDX output, nothing else.`;
+
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    return response.text() || `Error: Failed to generate MDX content`;
+  } catch (error) {
+    console.error("Gemini MDX Generation Error:", error);
+    return `Error: ${error instanceof Error ? error.message : "Unknown error occurred during MDX generation"}`;
+  }
+};
+
+/**
  * Check if Gemini API is available and configured.
  */
 export const isGeminiAvailable = (): boolean => {

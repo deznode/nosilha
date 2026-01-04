@@ -317,6 +317,54 @@ class StoryService(
     }
 
     /**
+     * Marks a story as archived to MDX.
+     *
+     * Admin endpoint to link a story submission to its archived MDX file after
+     * the MDX has been committed via the AdminMdxController. This creates a
+     * bidirectional reference between the story submission and its archive.
+     *
+     * @param id UUID of the story
+     * @param slug The slug used in the MDX archive (content/stories/{slug}.mdx)
+     * @param adminId Supabase user ID of the admin performing the archival
+     * @param archivedAt Optional timestamp when the story was archived (defaults to now)
+     * @return Updated story detail DTO
+     * @throws ResourceNotFoundException if story is not found
+     * @throws BusinessException if story is not in PUBLISHED status
+     */
+    @Transactional
+    fun markAsArchived(
+        id: UUID,
+        slug: String,
+        adminId: String,
+        archivedAt: Instant? = null,
+    ): StoryDetailDto {
+        val story =
+            repository
+                .findById(id)
+                .orElseThrow { ResourceNotFoundException("Story with id $id not found") }
+
+        // Validate story is published (only published stories should be archived)
+        if (story.status != StoryStatus.PUBLISHED) {
+            throw BusinessException(
+                "Only published stories can be archived. Current status: ${story.status}. " +
+                    "Please publish the story before archiving.",
+            )
+        }
+
+        val updatedStory =
+            story.copy(
+                archivedAt = archivedAt ?: Instant.now(),
+                archivedSlug = slug,
+                archivedBy = adminId,
+            )
+
+        val savedStory = repository.save(updatedStory)
+        logger.info("Story $id marked as archived with slug '$slug' by admin $adminId")
+
+        return savedStory.toDetailDto()
+    }
+
+    /**
      * Deletes a story from the system.
      *
      * Admin endpoint to remove spam or invalid stories. This operation is permanent

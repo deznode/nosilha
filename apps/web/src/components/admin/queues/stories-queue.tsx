@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { Search, Filter } from "lucide-react";
 import { QueueItem } from "./queue-item";
+import { MdxPreviewModal } from "@/components/admin/mdx-preview-modal";
+import { generateMdx, commitMdx } from "@/lib/api";
+import { archiveStoryToMDX } from "@/app/actions/archive-story";
+import { useToast } from "@/hooks/use-toast";
 import type { StorySubmission } from "@/types/story";
 import { SubmissionStatus } from "@/types/story";
 
@@ -25,6 +29,70 @@ export function StoriesQueue({
   const [filterStatus, setFilterStatus] = useState<SubmissionStatus | "ALL">(
     "ALL"
   );
+  const [previewingStory, setPreviewingStory] = useState<StorySubmission | null>(null);
+  const [mdxContent, setMdxContent] = useState<string>("");
+  const [isGeneratingMdx, setIsGeneratingMdx] = useState(false);
+  const [isCommitting, setIsCommitting] = useState(false);
+  const toast = useToast();
+
+  const handleArchive = async (story: StorySubmission) => {
+    setIsGeneratingMdx(true);
+    setPreviewingStory(story);
+
+    try {
+      const content = await generateMdx(story.id);
+      setMdxContent(content.mdxSource);
+    } catch (error) {
+      console.error("Failed to generate MDX:", error);
+      toast.showError(
+        error instanceof Error ? error.message : "Failed to generate MDX content"
+      );
+      setPreviewingStory(null);
+    } finally {
+      setIsGeneratingMdx(false);
+    }
+  };
+
+  const handleCommit = async () => {
+    if (!previewingStory) return;
+
+    setIsCommitting(true);
+
+    try {
+      const result = await archiveStoryToMDX(
+        previewingStory.id,
+        mdxContent,
+        previewingStory.slug,
+        previewingStory.title
+      );
+
+      if (result.success) {
+        toast.showSuccess(
+          `Story archived successfully! Committed to GitHub: ${result.commitUrl || "repository"}`
+        );
+        setPreviewingStory(null);
+        setMdxContent("");
+        // Trigger parent component to refresh the list
+        window.location.reload();
+      } else {
+        toast.showError(result.error || "Failed to commit MDX content");
+      }
+    } catch (error) {
+      console.error("Failed to commit MDX:", error);
+      toast.showError(
+        error instanceof Error ? error.message : "Failed to commit MDX content"
+      );
+    } finally {
+      setIsCommitting(false);
+    }
+  };
+
+  const handleCloseModal = () => {
+    if (!isCommitting) {
+      setPreviewingStory(null);
+      setMdxContent("");
+    }
+  };
 
   const filteredStories = stories.filter((s) => {
     const matchesSearch =
@@ -113,6 +181,8 @@ export function StoriesQueue({
                 timestamp={story.submittedAt}
                 location={story.location}
                 imageUrl={story.imageUrl}
+                archivedAt={story.archivedAt}
+                commitUrl={story.commitUrl}
                 onApprove={() =>
                   onStatusChange?.(story.id, SubmissionStatus.APPROVED)
                 }
@@ -121,11 +191,27 @@ export function StoriesQueue({
                 }
                 onViewFull={() => onViewFull?.(story)}
                 onFlag={() => onFlag?.(story.id, story.title)}
+                onArchive={() => handleArchive(story)}
+                isArchiving={isGeneratingMdx && previewingStory?.id === story.id}
               />
             ))}
           </ul>
         )}
       </div>
+
+      {/* MDX Preview Modal */}
+      {previewingStory && (
+        <MdxPreviewModal
+          isOpen={!!previewingStory}
+          onClose={handleCloseModal}
+          mdxContent={mdxContent}
+          storyTitle={previewingStory.title}
+          slug={previewingStory.slug}
+          storyId={previewingStory.id}
+          onCommit={handleCommit}
+          isCommitting={isCommitting}
+        />
+      )}
     </div>
   );
 }
