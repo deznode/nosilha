@@ -93,6 +93,7 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+        working-directory: .  # Install from root to ensure platform-specific optional deps are resolved
 
       # Generate Velite content types before type checking
       - name: Generate content types
@@ -155,6 +156,7 @@ jobs:
       - name: Install dependencies
         if: ${{ steps.changes.outputs.bundle == 'true' }}
         run: pnpm install --frozen-lockfile
+        working-directory: .  # Install from root to ensure platform-specific optional deps are resolved
 
       - name: Build and check bundle size
         if: ${{ steps.changes.outputs.bundle == 'true' }}
