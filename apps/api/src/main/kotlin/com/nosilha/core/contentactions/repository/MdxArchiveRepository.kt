@@ -59,4 +59,16 @@ interface MdxArchiveRepository : JpaRepository<MdxArchive, UUID> {
      * @return True if an archive exists for this story, false otherwise
      */
     fun existsByStoryId(storyId: UUID): Boolean
+
+    /**
+     * Checks if an MDX archive exists with the given slug.
+     *
+     * <p>Used for unique slug generation to prevent duplicate slugs.
+     * The unique constraint (V31 migration) provides database-level protection,
+     * but this check enables efficient counter-based slug generation.</p>
+     *
+     * @param slug URL-friendly identifier
+     * @return True if an archive with this slug exists, false otherwise
+     */
+    fun existsBySlug(slug: String): Boolean
 }

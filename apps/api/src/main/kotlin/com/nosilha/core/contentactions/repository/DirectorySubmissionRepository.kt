@@ -6,7 +6,6 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
-import java.time.Instant
 import java.util.UUID
 
 /**
@@ -15,35 +14,18 @@ import java.util.UUID
  * <p>Provides standard CRUD operations and custom queries for:
  * <ul>
  *   <li>Finding submissions by status (for admin moderation)</li>
- *   <li>Counting recent submissions by IP address (for rate limiting)</li>
  *   <li>Counting submissions by status (for admin statistics)</li>
  *   <li>Pagination support for all listing operations</li>
  * </ul>
  *
- * <p><strong>Rate Limiting:</strong> The service layer uses
- * {@code countByIpAddressAndCreatedAtAfter} to enforce a limit of 3 submissions
- * per hour per IP address to prevent spam and abuse.</p>
+ * <p><strong>Rate Limiting:</strong> The service layer uses Bucket4j token bucket
+ * algorithm for atomic, race-condition-free rate limiting (3 submissions per hour per IP).</p>
  *
  * <p><strong>Moderation Workflow:</strong> Admins use {@code findByStatus} to
  * review pending submissions, approve or reject with feedback.</p>
  */
 @Repository
 interface DirectorySubmissionRepository : JpaRepository<DirectorySubmission, UUID> {
-    /**
-     * Counts directory submissions from a specific IP address after a given timestamp.
-     *
-     * <p>Used for rate limiting to prevent spam. The service layer enforces a limit
-     * of 3 submissions per hour per IP address.</p>
-     *
-     * @param ipAddress IPv4 or IPv6 address of the submitter
-     * @param after Timestamp threshold (typically 1 hour ago)
-     * @return Number of submissions from this IP since the given timestamp
-     */
-    fun countByIpAddressAndCreatedAtAfter(
-        ipAddress: String,
-        after: Instant,
-    ): Long
-
     /**
      * Finds all directory submissions with a specific status (paginated).
      *

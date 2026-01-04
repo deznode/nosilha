@@ -1,5 +1,7 @@
 package com.nosilha.core.contentactions.services
 
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
 import com.nosilha.core.contentactions.api.AdminDirectorySubmissionDto
 import com.nosilha.core.contentactions.api.CreateDirectorySubmissionRequest
 import com.nosilha.core.contentactions.domain.DirectorySubmission
@@ -8,13 +10,16 @@ import com.nosilha.core.contentactions.repository.DirectorySubmissionRepository
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
 import com.nosilha.core.shared.util.ContentSanitizer
+import io.github.bucket4j.Bucket
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Duration
 import java.time.Instant
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 /**
  * Service for managing directory entry submissions.
@@ -40,8 +45,29 @@ class DirectorySubmissionService(
 
     companion object {
         /** Maximum directory submissions per hour per IP address */
-        const val MAX_SUBMISSIONS_PER_HOUR = 3
+        const val MAX_SUBMISSIONS_PER_HOUR = 3L
     }
+
+    /**
+     * Caffeine cache for rate limiting by IP address.
+     *
+     * <p>Uses Bucket4j's token bucket algorithm for atomic, race-condition-free
+     * rate limiting. Each IP gets a bucket that refills 3 tokens per hour.</p>
+     *
+     * <ul>
+     *   <li>maximumSize: Prevents unbounded memory growth (cap at 10k unique IPs)</li>
+     *   <li>expireAfterAccess: Cleans up buckets for IPs not seen in 1 hour</li>
+     * </ul>
+     *
+     * <p><strong>Note:</strong> For horizontal scaling, consider using Redis-backed
+     * Bucket4j (bucket4j-redis). The current in-memory approach is suitable for
+     * single-instance deployments.</p>
+     */
+    private val rateLimitBuckets: Cache<String, Bucket> = Caffeine
+        .newBuilder()
+        .maximumSize(10_000)
+        .expireAfterAccess(1, TimeUnit.HOURS)
+        .build()
 
     // ================================
     // PUBLIC SUBMISSION METHODS
@@ -69,13 +95,16 @@ class DirectorySubmissionService(
     ): AdminDirectorySubmissionDto {
         logger.info("Processing directory submission from IP: $ipAddress")
 
-        // Rate limiting by IP address
-        if (ipAddress != null && isRateLimitExceeded(ipAddress)) {
-            logger.warn("Rate limit exceeded for IP: $ipAddress")
-            throw RateLimitExceededException(
-                "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
-                    "Please try again later.",
-            )
+        // Atomic rate limiting using Bucket4j token bucket algorithm
+        if (ipAddress != null) {
+            val bucket = getBucketForIp(ipAddress)
+            if (!bucket.tryConsume(1)) {
+                logger.warn("Rate limit exceeded for IP: $ipAddress")
+                throw RateLimitExceededException(
+                    "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
+                        "Please try again later.",
+                )
+            }
         }
 
         // Sanitize user input to prevent XSS
@@ -108,20 +137,37 @@ class DirectorySubmissionService(
     }
 
     /**
-     * Checks if the IP address has exceeded the rate limit.
+     * Gets or creates a rate limit bucket for the given IP address.
      *
-     * <p>Rate limit: 3 submissions per hour per IP address</p>
+     * <p>Uses Bucket4j's token bucket algorithm for atomic, race-condition-free
+     * rate limiting. The bucket is configured to allow MAX_SUBMISSIONS_PER_HOUR
+     * tokens that refill every hour.</p>
      *
-     * @param ipAddress IP address to check
-     * @return true if rate limit is exceeded, false otherwise
+     * <p><strong>Token Bucket Algorithm:</strong></p>
+     * <ul>
+     *   <li>Capacity: 3 tokens (MAX_SUBMISSIONS_PER_HOUR)</li>
+     *   <li>Refill: 3 tokens every hour (intervally refill)</li>
+     *   <li>Each submission consumes 1 token</li>
+     *   <li>If no tokens available, submission is rejected</li>
+     * </ul>
+     *
+     * <p><strong>Thread Safety:</strong> Uses computeIfAbsent for atomic bucket
+     * creation, eliminating race conditions present in the previous DB-based approach.</p>
+     *
+     * @param ipAddress IP address to get bucket for
+     * @return Bucket configured for rate limiting
      */
-    private fun isRateLimitExceeded(ipAddress: String): Boolean {
-        val oneHourAgo = Instant.now().minusSeconds(3600)
-        val recentSubmissions = directorySubmissionRepository.countByIpAddressAndCreatedAtAfter(ipAddress, oneHourAgo)
-
-        logger.debug("IP $ipAddress has $recentSubmissions directory submissions in the last hour")
-        return recentSubmissions >= MAX_SUBMISSIONS_PER_HOUR
-    }
+    private fun getBucketForIp(ipAddress: String): Bucket =
+        rateLimitBuckets.get(ipAddress) {
+            logger.debug("Creating rate limit bucket for IP: $ipAddress")
+            Bucket
+                .builder()
+                .addLimit { limit ->
+                    limit
+                        .capacity(MAX_SUBMISSIONS_PER_HOUR)
+                        .refillIntervally(MAX_SUBMISSIONS_PER_HOUR, Duration.ofHours(1))
+                }.build()
+        }
 
     // ================================
     // ADMIN METHODS

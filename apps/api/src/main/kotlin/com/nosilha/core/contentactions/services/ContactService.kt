@@ -1,5 +1,7 @@
 package com.nosilha.core.contentactions.services
 
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
 import com.nosilha.core.contentactions.api.AdminContactMessageDto
 import com.nosilha.core.contentactions.api.ContactConfirmationDto
 import com.nosilha.core.contentactions.api.ContactCreateRequest
@@ -11,13 +13,15 @@ import com.nosilha.core.contentactions.repository.ContactMessageRepository
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
 import com.nosilha.core.shared.util.ContentSanitizer
+import io.github.bucket4j.Bucket
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
+import java.time.Duration
 import java.util.UUID
+import java.util.concurrent.TimeUnit
 
 /**
  * Service for managing contact form submissions.
@@ -42,8 +46,25 @@ class ContactService(
 
     companion object {
         /** Maximum contact submissions per hour per IP address */
-        const val MAX_SUBMISSIONS_PER_HOUR = 3
+        const val MAX_SUBMISSIONS_PER_HOUR = 3L
     }
+
+    /**
+     * Caffeine cache for rate limiting by IP address.
+     *
+     * <p>Uses Bucket4j's token bucket algorithm for atomic, race-condition-free
+     * rate limiting. Each IP gets a bucket that refills 3 tokens per hour.</p>
+     *
+     * <ul>
+     *   <li>maximumSize: Prevents unbounded memory growth (cap at 10k unique IPs)</li>
+     *   <li>expireAfterAccess: Cleans up buckets for IPs not seen in 1 hour</li>
+     * </ul>
+     */
+    private val rateLimitBuckets: Cache<String, Bucket> = Caffeine
+        .newBuilder()
+        .maximumSize(10_000)
+        .expireAfterAccess(1, TimeUnit.HOURS)
+        .build()
 
     /**
      * Submits a new contact form message.
@@ -63,13 +84,16 @@ class ContactService(
     ): ContactConfirmationDto {
         logger.info("Processing contact form submission from IP: $ipAddress")
 
-        // Rate limiting by IP address
-        if (ipAddress != null && isRateLimitExceeded(ipAddress)) {
-            logger.warn("Rate limit exceeded for IP: $ipAddress")
-            throw RateLimitExceededException(
-                "You have exceeded the maximum number of contact submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
-                    "Please try again later.",
-            )
+        // Atomic rate limiting using Bucket4j token bucket algorithm
+        if (ipAddress != null) {
+            val bucket = getBucketForIp(ipAddress)
+            if (!bucket.tryConsume(1)) {
+                logger.warn("Rate limit exceeded for IP: $ipAddress")
+                throw RateLimitExceededException(
+                    "You have exceeded the maximum number of contact submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
+                        "Please try again later.",
+                )
+            }
         }
 
         // Sanitize user input to prevent XSS
@@ -93,20 +117,26 @@ class ContactService(
     }
 
     /**
-     * Checks if the IP address has exceeded the rate limit.
+     * Gets or creates a rate limit bucket for the given IP address.
      *
-     * <p>Rate limit: 3 submissions per hour per IP address</p>
+     * <p>Uses Bucket4j's token bucket algorithm for atomic, race-condition-free
+     * rate limiting. The bucket is configured to allow MAX_SUBMISSIONS_PER_HOUR
+     * tokens that refill every hour.</p>
      *
-     * @param ipAddress IP address to check
-     * @return true if rate limit is exceeded, false otherwise
+     * @param ipAddress IP address to get bucket for
+     * @return Bucket configured for rate limiting
      */
-    private fun isRateLimitExceeded(ipAddress: String): Boolean {
-        val oneHourAgo = LocalDateTime.now().minusHours(1)
-        val recentSubmissions = contactMessageRepository.countByIpAddressAndCreatedAtAfter(ipAddress, oneHourAgo)
-
-        logger.debug("IP $ipAddress has $recentSubmissions contact submissions in the last hour")
-        return recentSubmissions >= MAX_SUBMISSIONS_PER_HOUR
-    }
+    private fun getBucketForIp(ipAddress: String): Bucket =
+        rateLimitBuckets.get(ipAddress) {
+            logger.debug("Creating rate limit bucket for IP: $ipAddress")
+            Bucket
+                .builder()
+                .addLimit { limit ->
+                    limit
+                        .capacity(MAX_SUBMISSIONS_PER_HOUR)
+                        .refillIntervally(MAX_SUBMISSIONS_PER_HOUR, Duration.ofHours(1))
+                }.build()
+        }
 
     // ================================
     // ADMIN METHODS

@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.yaml.snakeyaml.LoaderOptions
+import org.yaml.snakeyaml.Yaml
+import org.yaml.snakeyaml.constructor.SafeConstructor
 import java.time.Instant
 import java.util.UUID
 
@@ -67,6 +70,14 @@ class AdminMdxController(
     private val eventPublisher: ApplicationEventPublisher,
 ) {
     private val logger = LoggerFactory.getLogger(AdminMdxController::class.java)
+
+    companion object {
+        /**
+         * Valid slug pattern: lowercase alphanumeric with hyphens only.
+         * Prevents path traversal and injection attacks via slug field.
+         */
+        private val SLUG_PATTERN = Regex("^[a-z0-9]+(?:-[a-z0-9]+)*$")
+    }
 
     /**
      * Generates an MDX preview for a story submission.
@@ -278,10 +289,17 @@ class AdminMdxController(
     }
 
     /**
-     * Extracts frontmatter and slug from MDX source.
+     * Extracts frontmatter and slug from MDX source with security protections.
      *
-     * <p>Parses the YAML frontmatter section (between '---' delimiters) and extracts
-     * the slug field. The frontmatter is converted to a Map for JSONB storage.</p>
+     * <p>Parses the YAML frontmatter section (between '---' delimiters) using SnakeYAML's
+     * SafeConstructor to prevent deserialization attacks (CVE-2022-1471).</p>
+     *
+     * <p><strong>Security:</strong></p>
+     * <ul>
+     *   <li>Uses SafeConstructor to prevent arbitrary object instantiation</li>
+     *   <li>Limits alias expansion to prevent billion laughs attacks</li>
+     *   <li>Validates slug format against whitelist pattern</li>
+     * </ul>
      *
      * <h4>MDX Format:</h4>
      * <pre>
@@ -297,7 +315,7 @@ class AdminMdxController(
      *
      * @param mdxSource Complete MDX file content
      * @return Pair of (frontmatter map, slug)
-     * @throws BusinessException if MDX format is invalid or slug is missing
+     * @throws BusinessException if MDX format is invalid, slug is missing, or slug format is invalid
      */
     private fun extractFrontmatter(mdxSource: String): Pair<Map<String, Any>, String> {
         // Extract YAML frontmatter between --- delimiters
@@ -308,29 +326,39 @@ class AdminMdxController(
 
         val yamlContent = match.groupValues[1]
 
-        // Parse YAML to Map (simple key-value parser)
-        val frontmatter = mutableMapOf<String, Any>()
-        var slug: String? = null
+        // Configure SafeConstructor to prevent deserialization attacks (CVE-2022-1471)
+        val loaderOptions =
+            LoaderOptions().apply {
+                maxAliasesForCollections = 50 // Prevent billion laughs attack
+            }
+        val yaml = Yaml(SafeConstructor(loaderOptions))
 
-        yamlContent.lines().forEach { line ->
-            val trimmed = line.trim()
-            if (trimmed.isEmpty() || trimmed.startsWith("#")) return@forEach
-
-            val parts = trimmed.split(":", limit = 2)
-            if (parts.size == 2) {
-                val key = parts[0].trim()
-                val value = parts[1].trim().removeSurrounding("\"")
-
-                frontmatter[key] = value
-
-                if (key == "slug") {
-                    slug = value
+        // Parse YAML safely - only allows basic types (String, Number, Boolean, List, Map)
+        @Suppress("UNCHECKED_CAST")
+        val frontmatter: Map<String, Any> =
+            try {
+                yaml.load<Map<String, Any>>(yamlContent)
+                    ?: throw BusinessException("Invalid YAML frontmatter: empty content")
+            } catch (e: Exception) {
+                when (e) {
+                    is BusinessException -> throw e
+                    else ->
+                        throw BusinessException(
+                            "Invalid YAML frontmatter: ${e.message?.take(100) ?: "parse error"}",
+                        )
                 }
             }
-        }
 
-        if (slug.isNullOrBlank()) {
-            throw BusinessException("Invalid MDX: slug field is required in frontmatter")
+        // Extract and validate slug
+        val slug =
+            frontmatter["slug"] as? String
+                ?: throw BusinessException("MDX frontmatter must contain a 'slug' field")
+
+        // Validate slug format (whitelist approach - prevents path traversal)
+        if (!SLUG_PATTERN.matches(slug)) {
+            throw BusinessException(
+                "Invalid slug format: '$slug'. Must be lowercase alphanumeric with hyphens only (e.g., 'my-story-title').",
+            )
         }
 
         return Pair(frontmatter, slug)

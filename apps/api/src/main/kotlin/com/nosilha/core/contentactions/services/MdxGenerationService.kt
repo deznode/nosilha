@@ -4,6 +4,8 @@ import com.nosilha.core.contentactions.api.GenerateMdxRequest
 import com.nosilha.core.contentactions.api.MdxContentDto
 import com.nosilha.core.contentactions.api.MdxFrontmatter
 import com.nosilha.core.contentactions.domain.StorySubmission
+import com.nosilha.core.contentactions.repository.MdxArchiveRepository
+import com.nosilha.core.shared.exception.BusinessException
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
@@ -70,11 +72,23 @@ interface MdxGenerationService {
  */
 @Service
 @Profile("!production")
-class MockMdxGenerationService : MdxGenerationService {
+class MockMdxGenerationService(
+    private val mdxArchiveRepository: MdxArchiveRepository,
+) : MdxGenerationService {
     private val logger = LoggerFactory.getLogger(MockMdxGenerationService::class.java)
 
     companion object {
         private val DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE.withZone(ZoneId.of("UTC"))
+
+        /**
+         * Maximum slug length to ensure filesystem compatibility and URL friendliness.
+         */
+        private const val MAX_SLUG_LENGTH = 100
+
+        /**
+         * Maximum counter iterations before failing (prevents infinite loops).
+         */
+        private const val MAX_SLUG_COUNTER = 1000
     }
 
     /**
@@ -100,8 +114,9 @@ class MockMdxGenerationService : MdxGenerationService {
     ): MdxContentDto {
         logger.debug("Generating MDX for story {} (type: {})", story.id, story.storyType)
 
-        // Generate URL-friendly slug from title
-        val slug = generateSlug(story.title)
+        // Generate URL-friendly unique slug from title
+        val baseSlug = generateSlug(story.title)
+        val slug = ensureUniqueSlug(baseSlug, story.id!!)
 
         // Build frontmatter
         val frontmatter =
@@ -140,14 +155,76 @@ class MockMdxGenerationService : MdxGenerationService {
      * characters with hyphens. Multiple consecutive hyphens are collapsed
      * to a single hyphen, and leading/trailing hyphens are removed.</p>
      *
+     * <p>The slug is truncated to MAX_SLUG_LENGTH to ensure filesystem
+     * compatibility and URL friendliness.</p>
+     *
      * @param title The story title
-     * @return URL-friendly slug
+     * @return URL-friendly base slug (may need uniqueness suffix)
      */
     private fun generateSlug(title: String): String =
         title
             .lowercase()
             .replace(Regex("[^a-z0-9]+"), "-")
             .trim('-')
+            .take(MAX_SLUG_LENGTH)
+            .trimEnd('-') // Remove trailing hyphen if truncation created one
+
+    /**
+     * Ensures the slug is unique by appending a counter suffix if necessary.
+     *
+     * <p>This method provides application-level uniqueness by checking existing slugs
+     * in the database. Combined with the database unique constraint (V31 migration),
+     * this provides defense-in-depth against duplicate slugs.</p>
+     *
+     * <p><strong>Algorithm:</strong></p>
+     * <ol>
+     *   <li>Check if base slug is already taken by a different story</li>
+     *   <li>If not, return base slug</li>
+     *   <li>Otherwise, append counter suffix (-1, -2, etc.) until unique</li>
+     *   <li>Fail after MAX_SLUG_COUNTER attempts to prevent infinite loops</li>
+     * </ol>
+     *
+     * <p><strong>Note:</strong> If the story already has an archive with this slug,
+     * we return the existing slug to support updates.</p>
+     *
+     * @param baseSlug The base slug generated from the title
+     * @param storyId The story ID to check for existing archives
+     * @return A unique slug
+     * @throws BusinessException if unable to generate a unique slug
+     */
+    private fun ensureUniqueSlug(
+        baseSlug: String,
+        storyId: java.util.UUID,
+    ): String {
+        // Check if this story already has an archive - reuse its slug for updates
+        val existingArchive = mdxArchiveRepository.findByStoryId(storyId)
+        if (existingArchive != null) {
+            logger.debug("Story {} already has archive with slug '{}', reusing", storyId, existingArchive.slug)
+            return existingArchive.slug
+        }
+
+        // Check if base slug is available
+        if (!mdxArchiveRepository.existsBySlug(baseSlug)) {
+            return baseSlug
+        }
+
+        // Find unique slug with counter suffix
+        var counter = 1
+        var candidateSlug: String
+        do {
+            candidateSlug = "$baseSlug-$counter"
+            counter++
+        } while (mdxArchiveRepository.existsBySlug(candidateSlug) && counter < MAX_SLUG_COUNTER)
+
+        if (counter >= MAX_SLUG_COUNTER) {
+            throw BusinessException(
+                "Unable to generate unique slug for title. Please try a different title or contact support.",
+            )
+        }
+
+        logger.info("Generated unique slug '{}' for story {} (base slug '{}' was taken)", candidateSlug, storyId, baseSlug)
+        return candidateSlug
+    }
 
     /**
      * Formats an Instant timestamp to ISO date string (YYYY-MM-DD).

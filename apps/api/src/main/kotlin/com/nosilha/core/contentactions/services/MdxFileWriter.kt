@@ -44,6 +44,15 @@ class MdxFileWriter(
 ) {
     private val logger = LoggerFactory.getLogger(MdxFileWriter::class.java)
 
+    companion object {
+        /**
+         * Valid slug pattern: lowercase alphanumeric with hyphens only.
+         * Examples: "my-story", "story-2024", "a-b-c"
+         * Invalid: "../etc/passwd", "my_story", "My-Story"
+         */
+        private val SLUG_PATTERN = Regex("^[a-z0-9]+(?:-[a-z0-9]+)*$")
+    }
+
     /**
      * Event listener for MDX commit events.
      *
@@ -84,12 +93,42 @@ class MdxFileWriter(
     }
 
     /**
-     * Resolves the full filesystem path for an MDX file.
+     * Resolves the full filesystem path for an MDX file with path traversal protection.
+     *
+     * <p><strong>Security:</strong> This method implements multiple layers of defense against
+     * path traversal attacks:</p>
+     * <ol>
+     *   <li>Whitelist validation: Slug must match [a-z0-9]+(?:-[a-z0-9]+)* pattern</li>
+     *   <li>Path normalization: Resolves symbolic links and removes . and .. components</li>
+     *   <li>Containment check: Verifies final path remains within base directory</li>
+     * </ol>
      *
      * @param slug URL-friendly slug for the content
      * @return Path object pointing to {contentPath}/{slug}.mdx
+     * @throws IllegalArgumentException if slug format is invalid
+     * @throws SecurityException if path traversal is detected
      */
-    private fun resolveMdxPath(slug: String): Path = Path.of(contentPath, "$slug.mdx")
+    private fun resolveMdxPath(slug: String): Path {
+        // 1. Validate slug format (whitelist approach - most secure)
+        if (!SLUG_PATTERN.matches(slug)) {
+            throw IllegalArgumentException(
+                "Invalid slug format: $slug. Must be lowercase alphanumeric with hyphens only.",
+            )
+        }
+
+        // 2. Normalize base path to absolute form
+        val basePath = Path.of(contentPath).toAbsolutePath().normalize()
+
+        // 3. Resolve and normalize target path
+        val targetPath = basePath.resolve("$slug.mdx").normalize()
+
+        // 4. Verify target is within base directory (defense in depth)
+        if (!targetPath.startsWith(basePath)) {
+            throw SecurityException("Path traversal attempt detected for slug: $slug")
+        }
+
+        return targetPath
+    }
 
     /**
      * Writes MDX content to the filesystem.

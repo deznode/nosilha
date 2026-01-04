@@ -1,5 +1,7 @@
 package com.nosilha.core.contentactions
 
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
 import com.nosilha.core.contentactions.api.ModerationAction
 import com.nosilha.core.contentactions.api.SuggestionCreateDto
 import com.nosilha.core.contentactions.api.SuggestionDetailDto
@@ -14,15 +16,17 @@ import com.nosilha.core.contentactions.repository.SuggestionRepository
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
 import com.nosilha.core.shared.util.ContentSanitizer
+import io.github.bucket4j.Bucket
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Duration
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  * Service for managing content improvement suggestions from community members.
@@ -40,8 +44,25 @@ class SuggestionService(
     private val logger = LoggerFactory.getLogger(SuggestionService::class.java)
 
     companion object {
-        const val MAX_SUBMISSIONS_PER_HOUR = 5
+        const val MAX_SUBMISSIONS_PER_HOUR = 5L
     }
+
+    /**
+     * Caffeine cache for rate limiting by IP address.
+     *
+     * <p>Uses Bucket4j's token bucket algorithm for atomic, race-condition-free
+     * rate limiting. Each IP gets a bucket that refills 5 tokens per hour.</p>
+     *
+     * <ul>
+     *   <li>maximumSize: Prevents unbounded memory growth (cap at 10k unique IPs)</li>
+     *   <li>expireAfterAccess: Cleans up buckets for IPs not seen in 1 hour</li>
+     * </ul>
+     */
+    private val rateLimitBuckets: Cache<String, Bucket> = Caffeine
+        .newBuilder()
+        .maximumSize(10_000)
+        .expireAfterAccess(1, TimeUnit.HOURS)
+        .build()
 
     /**
      * Submits a new content improvement suggestion.
@@ -65,13 +86,16 @@ class SuggestionService(
             throw HoneypotSpamDetectedException("Spam submission detected")
         }
 
-        // Rate limiting by IP address
-        if (ipAddress != null && isRateLimitExceeded(ipAddress)) {
-            logger.warn("Rate limit exceeded for IP: $ipAddress")
-            throw RateLimitExceededException(
-                "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
-                    "Please try again later.",
-            )
+        // Atomic rate limiting using Bucket4j token bucket algorithm
+        if (ipAddress != null) {
+            val bucket = getBucketForIp(ipAddress)
+            if (!bucket.tryConsume(1)) {
+                logger.warn("Rate limit exceeded for IP: $ipAddress")
+                throw RateLimitExceededException(
+                    "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
+                        "Please try again later.",
+                )
+            }
         }
 
         // Sanitize user input to prevent XSS
@@ -109,20 +133,26 @@ class SuggestionService(
     }
 
     /**
-     * Checks if the IP address has exceeded the rate limit.
+     * Gets or creates a rate limit bucket for the given IP address.
      *
-     * Rate limit: 5 submissions per hour per IP address
+     * <p>Uses Bucket4j's token bucket algorithm for atomic, race-condition-free
+     * rate limiting. The bucket is configured to allow MAX_SUBMISSIONS_PER_HOUR
+     * tokens that refill every hour.</p>
      *
-     * @param ipAddress IP address to check
-     * @return true if rate limit is exceeded, false otherwise
+     * @param ipAddress IP address to get bucket for
+     * @return Bucket configured for rate limiting
      */
-    private fun isRateLimitExceeded(ipAddress: String): Boolean {
-        val oneHourAgo = Instant.now().minus(1, ChronoUnit.HOURS)
-        val recentSubmissions = suggestionRepository.countByIpAddressAndCreatedAtAfter(ipAddress, oneHourAgo)
-
-        logger.debug("IP $ipAddress has $recentSubmissions submissions in the last hour")
-        return recentSubmissions >= MAX_SUBMISSIONS_PER_HOUR
-    }
+    private fun getBucketForIp(ipAddress: String): Bucket =
+        rateLimitBuckets.get(ipAddress) {
+            logger.debug("Creating rate limit bucket for IP: $ipAddress")
+            Bucket
+                .builder()
+                .addLimit { limit ->
+                    limit
+                        .capacity(MAX_SUBMISSIONS_PER_HOUR)
+                        .refillIntervally(MAX_SUBMISSIONS_PER_HOUR, Duration.ofHours(1))
+                }.build()
+        }
 
     /**
      * Gets all suggestions for a specific content page.

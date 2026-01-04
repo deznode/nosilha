@@ -104,7 +104,26 @@ export class BackendApiClient implements ApiClient {
     if (response.status === 401) {
       // Token expired or invalid - sign out user
       await supabase.auth.signOut();
-      window.location.href = "/login";
+
+      // Validate and sanitize return URL (prevent open redirect attacks)
+      // Only allow safe internal paths: alphanumeric, hyphens, underscores, and slashes
+      const currentPath =
+        typeof window !== "undefined" ? window.location.pathname : "";
+      const safePathPattern = /^\/[a-zA-Z0-9\-_\/]*$/;
+
+      // Build login URL with optional safe returnUrl
+      let loginUrl = "/login";
+      if (
+        currentPath &&
+        safePathPattern.test(currentPath) &&
+        !currentPath.includes("//") && // Prevent protocol-relative URLs
+        currentPath !== "/login" && // Don't redirect back to login
+        currentPath !== "/register" // Don't redirect to auth pages
+      ) {
+        loginUrl = `/login?returnUrl=${encodeURIComponent(currentPath)}`;
+      }
+
+      window.location.href = loginUrl;
       throw new Error("Authentication expired. Please log in again.");
     }
 

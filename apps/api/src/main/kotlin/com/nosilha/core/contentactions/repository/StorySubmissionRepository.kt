@@ -17,35 +17,18 @@ import java.util.UUID
  * <ul>
  *   <li>Finding stories by author ID (for user dashboards)</li>
  *   <li>Finding stories by status (for admin moderation)</li>
- *   <li>Counting recent submissions by IP address (for rate limiting)</li>
  *   <li>Counting stories by status (for admin statistics)</li>
  *   <li>Pagination support for all listing operations</li>
  * </ul>
  *
- * <p><strong>Rate Limiting:</strong> The service layer uses
- * {@code countByIpAddressAndCreatedAtAfter} to enforce a limit of 5 submissions
- * per hour per IP address to prevent spam and abuse.</p>
+ * <p><strong>Rate Limiting:</strong> The service layer uses Bucket4j token bucket
+ * algorithm for atomic, race-condition-free rate limiting (5 submissions per hour per IP).</p>
  *
  * <p><strong>Moderation Workflow:</strong> Admins use {@code findByStatus} to
  * review pending stories, approve for publication, or reject with feedback.</p>
  */
 @Repository
 interface StorySubmissionRepository : JpaRepository<StorySubmission, UUID> {
-    /**
-     * Counts story submissions from a specific IP address after a given timestamp.
-     *
-     * <p>Used for rate limiting to prevent spam. The service layer enforces a limit
-     * of 5 submissions per hour per IP address.</p>
-     *
-     * @param ipAddress IPv4 or IPv6 address of the submitter
-     * @param after Timestamp threshold (typically 1 hour ago)
-     * @return Number of submissions from this IP since the given timestamp
-     */
-    fun countByIpAddressAndCreatedAtAfter(
-        ipAddress: String,
-        after: Instant,
-    ): Long
-
     /**
      * Finds all story submissions by a specific author.
      *

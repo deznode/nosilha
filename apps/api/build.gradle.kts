@@ -74,6 +74,10 @@ dependencies {
     testImplementation("org.springframework.modulith:spring-modulith-starter-test:${property("springModulithVersion")}")
 
     implementation("com.github.ben-manes.caffeine:caffeine")
+
+    // Bucket4j for efficient in-memory rate limiting (token bucket algorithm)
+    implementation("com.bucket4j:bucket4j_jdk17-core:8.14.0")
+
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")

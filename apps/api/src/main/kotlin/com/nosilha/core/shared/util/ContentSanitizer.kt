@@ -14,10 +14,35 @@ object ContentSanitizer {
     /**
      * Policy allowing basic formatting elements only.
      * Suitable for user-generated content like stories and suggestions.
+     *
+     * <p><strong>Security:</strong> Uses OWASP HTML Sanitizer which properly handles:</p>
+     * <ul>
+     *   <li>Nested tags and malformed HTML</li>
+     *   <li>JavaScript event handlers (onclick, onerror, etc.)</li>
+     *   <li>Data URIs and javascript: protocol</li>
+     *   <li>CSS injection via style attributes</li>
+     * </ul>
      */
-    private val formattingPolicy = HtmlPolicyBuilder()
-        .allowElements("p", "br", "b", "i", "em", "strong", "ul", "ol", "li")
-        .toFactory()
+    private val formattingPolicy =
+        HtmlPolicyBuilder()
+            .allowElements("p", "br", "b", "i", "em", "strong", "ul", "ol", "li")
+            .toFactory()
+
+    /**
+     * Strict policy that removes ALL HTML tags.
+     *
+     * <p><strong>Security:</strong> Using an empty HtmlPolicyBuilder produces a policy
+     * that strips all HTML while properly handling edge cases like:</p>
+     * <ul>
+     *   <li>Nested/unclosed tags: &lt;scr&lt;script&gt;ipt&gt;</li>
+     *   <li>Null bytes: &lt;scr\u0000ipt&gt;</li>
+     *   <li>Entity encoding: &amp;lt;script&amp;gt;</li>
+     *   <li>Mixed encoding attacks</li>
+     * </ul>
+     *
+     * <p>This is more secure than regex-based stripping which can be bypassed.</p>
+     */
+    private val strictPolicy = HtmlPolicyBuilder().toFactory()
 
     /**
      * Sanitizes content allowing basic formatting elements.
@@ -35,11 +60,11 @@ object ContentSanitizer {
      *
      * Use for fields that should never contain HTML: names, titles, slugs.
      *
+     * <p><strong>Note:</strong> Uses OWASP HTML Sanitizer with empty policy for
+     * robust XSS prevention. This is more secure than regex-based stripping.</p>
+     *
      * @param input Raw user input
      * @return Plain text with all HTML stripped
      */
-    fun sanitizeStrict(input: String): String {
-        // Remove all HTML tags for strict text-only fields
-        return input.replace(Regex("<[^>]*>"), "").trim()
-    }
+    fun sanitizeStrict(input: String): String = strictPolicy.sanitize(input).trim()
 }
