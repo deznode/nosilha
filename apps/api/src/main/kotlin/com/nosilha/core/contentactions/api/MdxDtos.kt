@@ -15,7 +15,7 @@ import java.util.UUID
  * @property targetLanguage Target language code for translation (e.g., "pt", "en")
  */
 data class GenerateMdxRequest(
-    val includeTranslations: Boolean = false,
+    val includeTranslations: Boolean? = null,
     val targetLanguage: String? = null,
 )
 
