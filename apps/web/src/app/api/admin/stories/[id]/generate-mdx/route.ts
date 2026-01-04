@@ -64,10 +64,7 @@ export async function POST(
 
       // Handle specific error cases
       if (response.status === 404) {
-        return NextResponse.json(
-          { error: "Story not found" },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: "Story not found" }, { status: 404 });
       }
 
       if (response.status === 403) {

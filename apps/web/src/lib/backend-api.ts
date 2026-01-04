@@ -433,8 +433,10 @@ export class BackendApiClient implements ApiClient {
   }): Promise<ApprovedMediaPageResponse> {
     const params = new URLSearchParams();
     if (options?.contentType) params.set("contentType", options.contentType);
-    if (options?.page !== undefined) params.set("page", options.page.toString());
-    if (options?.size !== undefined) params.set("size", options.size.toString());
+    if (options?.page !== undefined)
+      params.set("page", options.page.toString());
+    if (options?.size !== undefined)
+      params.set("size", options.size.toString());
 
     const queryString = params.toString();
     const endpoint = `${env.apiUrl}/api/v1/media/approved${queryString ? `?${queryString}` : ""}`;

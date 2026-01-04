@@ -1683,7 +1683,10 @@ ${story.content
         item.type === "VIDEO" ? ("YOUTUBE" as const) : ("SELF_HOSTED" as const),
       externalId: item.type === "VIDEO" ? "dQw4w9WgXcQ" : null,
       url: item.url,
-      embedUrl: item.type === "VIDEO" ? "https://www.youtube.com/embed/dQw4w9WgXcQ" : null,
+      embedUrl:
+        item.type === "VIDEO"
+          ? "https://www.youtube.com/embed/dQw4w9WgXcQ"
+          : null,
       thumbnailUrl: item.thumbnailUrl || null,
       title: item.title,
       description: item.description || null,
@@ -1739,7 +1742,10 @@ ${story.content
         item.type === "VIDEO" ? ("YOUTUBE" as const) : ("SELF_HOSTED" as const),
       externalId: item.type === "VIDEO" ? "dQw4w9WgXcQ" : null,
       url: item.url,
-      embedUrl: item.type === "VIDEO" ? "https://www.youtube.com/embed/dQw4w9WgXcQ" : null,
+      embedUrl:
+        item.type === "VIDEO"
+          ? "https://www.youtube.com/embed/dQw4w9WgXcQ"
+          : null,
       thumbnailUrl: item.thumbnailUrl || null,
       title: item.title,
       description: item.description || null,

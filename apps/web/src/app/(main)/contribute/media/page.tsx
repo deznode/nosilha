@@ -38,9 +38,18 @@ export default function MediaContributionPage() {
   const selectedFileRef = useRef<File | null>(null);
 
   // Use the R2 upload hook for actual file uploads
-  const { state: uploadState, progress, error: uploadError, upload, reset: resetUpload } = useR2Upload();
+  const {
+    state: uploadState,
+    progress,
+    error: uploadError,
+    upload,
+    reset: resetUpload,
+  } = useR2Upload();
 
-  const isSubmitting = uploadState === "requesting-url" || uploadState === "uploading" || uploadState === "confirming";
+  const isSubmitting =
+    uploadState === "requesting-url" ||
+    uploadState === "uploading" ||
+    uploadState === "confirming";
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -317,9 +326,13 @@ export default function MediaContributionPage() {
                 className="flex w-full items-center justify-center gap-3 rounded-2xl bg-slate-900 py-4 font-bold text-white shadow-xl transition-all hover:bg-[var(--color-ocean-blue)] disabled:opacity-30 dark:bg-slate-700 dark:hover:bg-[var(--color-ocean-blue)]"
               >
                 {uploadState === "requesting-url" && "Preparing upload..."}
-                {uploadState === "uploading" && `Uploading ${progress.percentage}%...`}
+                {uploadState === "uploading" &&
+                  `Uploading ${progress.percentage}%...`}
                 {uploadState === "confirming" && "Finalizing..."}
-                {(uploadState === "idle" || uploadState === "completed" || uploadState === "error") && "Add to Visual Record"}
+                {(uploadState === "idle" ||
+                  uploadState === "completed" ||
+                  uploadState === "error") &&
+                  "Add to Visual Record"}
               </button>
             </div>
           </form>

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Search, Filter } from "lucide-react";
 import { QueueItem } from "./queue-item";
 import { MdxPreviewModal } from "@/components/admin/mdx-preview-modal";
-import { generateMdx, commitMdx } from "@/lib/api";
+import { generateMdx } from "@/lib/api";
 import { archiveStoryToMDX } from "@/app/actions/archive-story";
 import { useToast } from "@/hooks/use-toast";
 import type { StorySubmission } from "@/types/story";
@@ -29,7 +29,8 @@ export function StoriesQueue({
   const [filterStatus, setFilterStatus] = useState<SubmissionStatus | "ALL">(
     "ALL"
   );
-  const [previewingStory, setPreviewingStory] = useState<StorySubmission | null>(null);
+  const [previewingStory, setPreviewingStory] =
+    useState<StorySubmission | null>(null);
   const [mdxContent, setMdxContent] = useState<string>("");
   const [isGeneratingMdx, setIsGeneratingMdx] = useState(false);
   const [isCommitting, setIsCommitting] = useState(false);
@@ -45,7 +46,9 @@ export function StoriesQueue({
     } catch (error) {
       console.error("Failed to generate MDX:", error);
       toast.showError(
-        error instanceof Error ? error.message : "Failed to generate MDX content"
+        error instanceof Error
+          ? error.message
+          : "Failed to generate MDX content"
       );
       setPreviewingStory(null);
     } finally {
@@ -192,7 +195,9 @@ export function StoriesQueue({
                 onViewFull={() => onViewFull?.(story)}
                 onFlag={() => onFlag?.(story.id, story.title)}
                 onArchive={() => handleArchive(story)}
-                isArchiving={isGeneratingMdx && previewingStory?.id === story.id}
+                isArchiving={
+                  isGeneratingMdx && previewingStory?.id === story.id
+                }
               />
             ))}
           </ul>

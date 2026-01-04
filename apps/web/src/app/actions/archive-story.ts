@@ -32,10 +32,13 @@ export async function archiveStoryToMDX(
     // 1. Validate environment variables
     const githubToken = process.env.GITHUB_TOKEN;
     if (!githubToken) {
-      console.error("[Archive Story] Missing GITHUB_TOKEN environment variable");
+      console.error(
+        "[Archive Story] Missing GITHUB_TOKEN environment variable"
+      );
       return {
         success: false,
-        error: "GitHub integration not configured. Please contact an administrator.",
+        error:
+          "GitHub integration not configured. Please contact an administrator.",
       };
     }
 
@@ -102,7 +105,9 @@ Slug: ${slug}
 This story has been archived from the moderation queue and is now available
 as static MDX content in the repository.`;
 
-    console.log(`[Archive Story] Creating commit with message: ${commitMessage.split("\n")[0]}`);
+    console.log(
+      `[Archive Story] Creating commit with message: ${commitMessage.split("\n")[0]}`
+    );
     const { data: commitData } = await octokit.rest.git.createCommit({
       owner: repoOwner,
       repo: repoName,
@@ -112,7 +117,9 @@ as static MDX content in the repository.`;
     });
 
     // 8. Update the branch reference
-    console.log(`[Archive Story] Updating branch reference to: ${commitData.sha}`);
+    console.log(
+      `[Archive Story] Updating branch reference to: ${commitData.sha}`
+    );
     await octokit.rest.git.updateRef({
       owner: repoOwner,
       repo: repoName,
@@ -126,7 +133,9 @@ as static MDX content in the repository.`;
 
     try {
       await markStoryAsArchived(storyId, commitUrl);
-      console.log(`[Archive Story] Story marked as archived in backend: ${storyId}`);
+      console.log(
+        `[Archive Story] Story marked as archived in backend: ${storyId}`
+      );
     } catch (backendError) {
       // Log the error but don't fail the entire operation
       // The commit succeeded, so we should report success to the user
@@ -157,17 +166,25 @@ as static MDX content in the repository.`;
         };
       }
 
-      if (error.message.includes("401") || error.message.includes("authentication")) {
+      if (
+        error.message.includes("401") ||
+        error.message.includes("authentication")
+      ) {
         return {
           success: false,
-          error: "GitHub authentication failed. Please check the GITHUB_TOKEN configuration.",
+          error:
+            "GitHub authentication failed. Please check the GITHUB_TOKEN configuration.",
         };
       }
 
-      if (error.message.includes("404") || error.message.includes("not found")) {
+      if (
+        error.message.includes("404") ||
+        error.message.includes("not found")
+      ) {
         return {
           success: false,
-          error: "GitHub repository not found. Please check repository configuration.",
+          error:
+            "GitHub repository not found. Please check repository configuration.",
         };
       }
 
@@ -181,7 +198,8 @@ as static MDX content in the repository.`;
     // Generic fallback for unknown errors
     return {
       success: false,
-      error: "An unexpected error occurred while archiving the story. Please try again.",
+      error:
+        "An unexpected error occurred while archiving the story. Please try again.",
     };
   }
 }
@@ -249,5 +267,7 @@ async function markStoryAsArchived(
     }
   }
 
-  console.log(`[Archive Story] Successfully marked story ${storyId} as archived`);
+  console.log(
+    `[Archive Story] Successfully marked story ${storyId} as archived`
+  );
 }

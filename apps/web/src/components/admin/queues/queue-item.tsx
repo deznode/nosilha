@@ -12,7 +12,6 @@ import {
   Loader2,
 } from "lucide-react";
 import { SubmissionStatus, StoryType } from "@/types/story";
-import { MdxCommitButton } from "@/components/admin/mdx-engine/mdx-commit-button";
 import { Badge } from "@/components/catalyst-ui/badge";
 
 interface BaseQueueItemProps {
@@ -78,7 +77,6 @@ function StoryTypeBadge({ storyType }: { storyType: StoryType }) {
 
 export function QueueItem(props: QueueItemProps) {
   const isPending = props.status === SubmissionStatus.PENDING;
-  const isApproved = props.status === SubmissionStatus.APPROVED;
   const isPublished = props.status === SubmissionStatus.APPROVED;
 
   if (props.type === "suggestion") {

@@ -37,9 +37,10 @@ function mapCuratedMediaToMediaItem(media: CuratedMedia): MediaItem {
 
   // For video content, use embedUrl from API (already resolved by backend)
   // For images, use the direct url
-  const url = media.mediaType === "VIDEO"
-    ? (media.embedUrl || media.url || "")
-    : (media.url || "");
+  const url =
+    media.mediaType === "VIDEO"
+      ? media.embedUrl || media.url || ""
+      : media.url || "";
 
   return {
     id: media.id,
@@ -118,8 +119,12 @@ export default function GalleryPage() {
         ]);
 
         // Map curated media
-        const curatedPhotoItems = curatedPhotos.items.map(mapCuratedMediaToMediaItem);
-        const curatedVideoItems = curatedVideos.items.map(mapCuratedMediaToMediaItem);
+        const curatedPhotoItems = curatedPhotos.items.map(
+          mapCuratedMediaToMediaItem
+        );
+        const curatedVideoItems = curatedVideos.items.map(
+          mapCuratedMediaToMediaItem
+        );
 
         // Map user-uploaded photos (filter to images only)
         const userPhotoItems = userPhotos.items

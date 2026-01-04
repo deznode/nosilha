@@ -53,7 +53,7 @@ export function useArchiveStory() {
 
       return result;
     },
-    onSuccess: (data, variables) => {
+    onSuccess: () => {
       // Invalidate ALL stories queries (any page/size/status)
       queryClient.invalidateQueries({ queryKey: adminKeys.stories.all() });
 

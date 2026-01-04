@@ -28,7 +28,7 @@ export function MdxPreviewModal({
   isOpen,
   onClose,
   mdxContent,
-  storyTitle,
+  storyTitle: _storyTitle,
   slug,
   storyId,
   onCommit,
@@ -37,7 +37,8 @@ export function MdxPreviewModal({
   const [showValidation, setShowValidation] = useState(true);
 
   // Simulate schema validation (would be replaced with actual validation)
-  const isSchemaValid = mdxContent.includes("---") && mdxContent.includes("title:");
+  const isSchemaValid =
+    mdxContent.includes("---") && mdxContent.includes("title:");
 
   const handleCommit = async () => {
     await onCommit();
