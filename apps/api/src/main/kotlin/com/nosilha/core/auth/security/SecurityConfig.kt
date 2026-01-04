@@ -47,6 +47,8 @@ class SecurityConfig(
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/media/entry/{entryId}")
                     .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/media/approved")
+                    .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/curated-media/**")
                     .permitAll()
                     // Allow public suggestions (community contributions without authentication)

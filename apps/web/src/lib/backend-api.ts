@@ -3,6 +3,7 @@ import type { Town } from "@/types/town";
 import type {
   ErrorDetail,
   MediaMetadataDto,
+  ApprovedMediaPageResponse,
   PresignRequest,
   PresignResponse,
   ConfirmRequest,
@@ -394,6 +395,48 @@ export class BackendApiClient implements ApiClient {
 
     const payload = await response.json();
     return this.unwrapApiResponse<MediaMetadataDto[]>(payload);
+  }
+
+  /**
+   * Get approved (AVAILABLE) user-uploaded media for gallery display.
+   *
+   * This fetches media that has been uploaded by users and approved by admins.
+   * Used by the gallery page to display community-contributed photos alongside
+   * curated external media.
+   *
+   * @param options Query parameters (contentType prefix for filtering, pagination)
+   * @returns ApprovedMediaPageResponse with paginated approved media
+   */
+  async getApprovedMedia(options?: {
+    contentType?: string;
+    page?: number;
+    size?: number;
+  }): Promise<ApprovedMediaPageResponse> {
+    const params = new URLSearchParams();
+    if (options?.contentType) params.set("contentType", options.contentType);
+    if (options?.page !== undefined) params.set("page", options.page.toString());
+    if (options?.size !== undefined) params.set("size", options.size.toString());
+
+    const queryString = params.toString();
+    const endpoint = `${env.apiUrl}/api/v1/media/approved${queryString ? `?${queryString}` : ""}`;
+
+    const response = await fetch(endpoint, {
+      method: "GET",
+      next: CacheConfig.GALLERY, // Use gallery cache config (30 min revalidation)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch approved media: ${response.status}`);
+    }
+
+    const payload: PagedApiResponse<MediaMetadataDto> = await response.json();
+
+    return {
+      items: payload.data,
+      totalItems: payload.pageable.totalElements,
+      totalPages: payload.pageable.totalPages,
+      currentPage: payload.pageable.page,
+    };
   }
 
   /**

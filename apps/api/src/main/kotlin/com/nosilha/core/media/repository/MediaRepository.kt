@@ -93,4 +93,34 @@ interface MediaRepository : JpaRepository<Media, UUID> {
      * @return Number of media entities with the specified status
      */
     fun countByStatus(status: MediaStatus): Long
+
+    /**
+     * Finds media by status with pagination, ordered by display order ascending.
+     *
+     * Used for public gallery display (AVAILABLE status).
+     *
+     * @param status The media status to filter by
+     * @param pageable Pagination parameters
+     * @return Page of media entities with the specified status
+     */
+    fun findByStatusOrderByDisplayOrderAsc(
+        status: MediaStatus,
+        pageable: Pageable,
+    ): Page<Media>
+
+    /**
+     * Finds media by status and content type prefix with pagination.
+     *
+     * Used for gallery display with media type filtering (e.g., "image/").
+     *
+     * @param status The media status to filter by
+     * @param contentTypePrefix The content type prefix (e.g., "image/")
+     * @param pageable Pagination parameters
+     * @return Page of media entities matching the criteria
+     */
+    fun findByStatusAndContentTypeStartingWithOrderByDisplayOrderAsc(
+        status: MediaStatus,
+        contentTypePrefix: String,
+        pageable: Pageable,
+    ): Page<Media>
 }

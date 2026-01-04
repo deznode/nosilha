@@ -9,9 +9,10 @@ import {
   VideoSection,
   Lightbox,
 } from "@/components/gallery";
-import { getCuratedMedia } from "@/lib/api";
+import { getCuratedMedia, getApprovedMedia } from "@/lib/api";
 import type { MediaItem, MediaCategory } from "@/types/media";
 import type { CuratedMedia } from "@/types/curated-media";
+import type { MediaMetadataDto } from "@/types/api";
 
 /**
  * Maps CuratedMedia from API to MediaItem expected by gallery components
@@ -56,6 +57,45 @@ function mapCuratedMediaToMediaItem(media: CuratedMedia): MediaItem {
   };
 }
 
+/**
+ * Maps user-uploaded media (MediaMetadataDto) to MediaItem for gallery display.
+ * This is the Anti-Corruption Layer between the Media bounded context and gallery UI.
+ */
+function mapUserMediaToMediaItem(media: MediaMetadataDto): MediaItem {
+  // Map category string to MediaCategory type
+  const categoryMap: Record<string, MediaCategory> = {
+    Landmark: "Landmark",
+    Historical: "Historical",
+    Nature: "Nature",
+    Culture: "Culture",
+    Event: "Event",
+    Interview: "Interview",
+  };
+  const category = categoryMap[media.category || ""] || "Culture";
+
+  // Determine type based on content type
+  const isVideo = media.contentType?.startsWith("video/");
+  const type: "IMAGE" | "VIDEO" = isVideo ? "VIDEO" : "IMAGE";
+
+  return {
+    id: media.id,
+    type,
+    url: media.publicUrl || "",
+    thumbnailUrl: undefined, // User uploads don't have separate thumbnails
+    title: media.originalName || media.fileName,
+    description: media.description || undefined,
+    category,
+    author: media.uploadedBy || "Community Contributor",
+    date: media.createdAt
+      ? new Date(media.createdAt).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+        })
+      : undefined,
+    source: "user" as const, // Mark source for potential UI differentiation
+  };
+}
+
 export default function GalleryPage() {
   const [activeTab, setActiveTab] = useState<"photos" | "videos">("photos");
   const [photos, setPhotos] = useState<MediaItem[]>([]);
@@ -70,13 +110,27 @@ export default function GalleryPage() {
     async function loadMedia() {
       setIsLoading(true);
       try {
-        const [photosResponse, videosResponse] = await Promise.all([
+        // Fetch from both sources: curated media and user-uploaded approved media
+        const [curatedPhotos, curatedVideos, userPhotos] = await Promise.all([
           getCuratedMedia({ mediaType: "IMAGE", size: 50 }),
           getCuratedMedia({ mediaType: "VIDEO", size: 20 }),
+          getApprovedMedia({ contentType: "image/", size: 50 }),
         ]);
 
-        setPhotos(photosResponse.items.map(mapCuratedMediaToMediaItem));
-        setVideos(videosResponse.items.map(mapCuratedMediaToMediaItem));
+        // Map curated media
+        const curatedPhotoItems = curatedPhotos.items.map(mapCuratedMediaToMediaItem);
+        const curatedVideoItems = curatedVideos.items.map(mapCuratedMediaToMediaItem);
+
+        // Map user-uploaded photos (filter to images only)
+        const userPhotoItems = userPhotos.items
+          .filter((m) => m.contentType?.startsWith("image/"))
+          .map(mapUserMediaToMediaItem);
+
+        // Merge both photo sources (curated first, then user-uploaded)
+        const allPhotos = [...curatedPhotoItems, ...userPhotoItems];
+
+        setPhotos(allPhotos);
+        setVideos(curatedVideoItems);
       } catch (error) {
         console.error("Failed to load media:", error);
         // Set empty arrays on error to show "no content" message

@@ -5,7 +5,7 @@ import type {
   ReactionResponseDto,
   ReactionCountsDto,
 } from "@/types/reaction";
-import type { MediaMetadataDto } from "@/types/api";
+import type { MediaMetadataDto, ApprovedMediaPageResponse } from "@/types/api";
 import type { StorySubmission, SubmissionStatus } from "@/types/story";
 import type {
   AdminStats,
@@ -105,6 +105,20 @@ export interface ApiClient {
   ): Promise<string>;
 
   getMediaByEntry(entryId: string): Promise<MediaMetadataDto[]>;
+
+  /**
+   * Get approved (AVAILABLE) user-uploaded media for gallery display.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @param options Query parameters (contentType prefix, page, size)
+   * @returns ApprovedMediaPageResponse with paginated approved media
+   */
+  getApprovedMedia(options?: {
+    contentType?: string;
+    page?: number;
+    size?: number;
+  }): Promise<ApprovedMediaPageResponse>;
 
   // Reaction Operations (User Story 2)
   submitReaction(createDto: ReactionCreateDto): Promise<ReactionResponseDto>;
@@ -620,6 +634,9 @@ export const CacheConfig = {
 
   // Related content - cached for 5 minutes (User Story 5)
   RELATED_CONTENT: { revalidate: 300 }, // 5 minutes
+
+  // Gallery content - cached for 30 minutes (curated and approved media)
+  GALLERY: { revalidate: 1800 }, // 30 minutes
 } as const;
 
 // ================================

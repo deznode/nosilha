@@ -185,6 +185,17 @@ export interface MediaMetadataDto {
 }
 
 /**
+ * Paginated response for approved media (user-uploaded, AVAILABLE status)
+ * Used by gallery to display approved community contributions
+ */
+export interface ApprovedMediaPageResponse {
+  items: MediaMetadataDto[];
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+}
+
+/**
  * Request for generating presigned upload URL
  */
 export interface PresignRequest {

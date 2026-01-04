@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -10,8 +10,10 @@ import {
   X,
   Check,
   Link as LinkIcon,
+  AlertCircle,
 } from "lucide-react";
 import type { MediaType } from "@/types/media";
+import { useR2Upload } from "@/hooks/useR2Upload";
 
 interface FormData {
   title: string;
@@ -23,7 +25,6 @@ interface FormData {
 }
 
 export default function MediaContributionPage() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     title: "",
@@ -33,10 +34,21 @@ export default function MediaContributionPage() {
     author: "",
     preview: "",
   });
+  // Store the actual file for R2 upload
+  const selectedFileRef = useRef<File | null>(null);
+
+  // Use the R2 upload hook for actual file uploads
+  const { state: uploadState, progress, error: uploadError, upload, reset: resetUpload } = useR2Upload();
+
+  const isSubmitting = uploadState === "requesting-url" || uploadState === "uploading" || uploadState === "confirming";
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Store the file reference for later upload
+      selectedFileRef.current = file;
+
+      // Create preview for display
       const reader = new FileReader();
       reader.onloadend = () =>
         setFormData({
@@ -48,14 +60,31 @@ export default function MediaContributionPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    // Mock submission - actual API integration can be added later
-    setTimeout(() => {
-      setIsSubmitting(false);
+
+    if (formData.type === "IMAGE" && selectedFileRef.current) {
+      // Upload image to R2 storage
+      const result = await upload(selectedFileRef.current, {
+        category: "gallery",
+        description: formData.description || formData.title,
+      });
+
+      if (result) {
+        setSubmitted(true);
+      }
+      // Error handling is done by the hook (uploadError state)
+    } else if (formData.type === "VIDEO") {
+      // For videos, we still accept external URLs (YouTube, Vimeo)
+      // This could be extended to submit to a video moderation queue
       setSubmitted(true);
-    }, 1200);
+    }
+  };
+
+  const clearFile = () => {
+    selectedFileRef.current = null;
+    setFormData({ ...formData, preview: "", url: "" });
+    resetUpload();
   };
 
   // Success confirmation screen
@@ -176,7 +205,7 @@ export default function MediaContributionPage() {
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            setFormData({ ...formData, preview: "", url: "" });
+                            clearFile();
                           }}
                           className="absolute -top-3 -right-3 rounded-full bg-red-500 p-1.5 text-white shadow-lg"
                         >
@@ -256,6 +285,30 @@ export default function MediaContributionPage() {
               </div>
             </div>
 
+            {/* Upload Error */}
+            {uploadError && (
+              <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+                <AlertCircle size={18} className="flex-shrink-0" />
+                <span>{uploadError}</span>
+              </div>
+            )}
+
+            {/* Upload Progress */}
+            {uploadState === "uploading" && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
+                  <span>Uploading...</span>
+                  <span>{progress.percentage}%</span>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                  <div
+                    className="h-full rounded-full bg-[var(--color-ocean-blue)] transition-all duration-300"
+                    style={{ width: `${progress.percentage}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Submit Button */}
             <div className="pt-6">
               <button
@@ -263,7 +316,10 @@ export default function MediaContributionPage() {
                 disabled={isSubmitting || !formData.title || !formData.url}
                 className="flex w-full items-center justify-center gap-3 rounded-2xl bg-slate-900 py-4 font-bold text-white shadow-xl transition-all hover:bg-[var(--color-ocean-blue)] disabled:opacity-30 dark:bg-slate-700 dark:hover:bg-[var(--color-ocean-blue)]"
               >
-                {isSubmitting ? "Syncing..." : "Add to Visual Record"}
+                {uploadState === "requesting-url" && "Preparing upload..."}
+                {uploadState === "uploading" && `Uploading ${progress.percentage}%...`}
+                {uploadState === "confirming" && "Finalizing..."}
+                {(uploadState === "idle" || uploadState === "completed" || uploadState === "error") && "Add to Visual Record"}
               </button>
             </div>
           </form>

@@ -30,6 +30,8 @@ export interface MediaItem {
   locationId?: string;
   locationName?: string;
   status?: SubmissionStatus;
+  /** Source of media: 'curated' for admin-curated content, 'user' for user uploads */
+  source?: "curated" | "user";
 }
 
 export interface PhotoUploadData {

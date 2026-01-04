@@ -10,6 +10,7 @@ import com.nosilha.core.media.domain.MediaService
 import com.nosilha.core.media.domain.MediaStatus
 import com.nosilha.core.media.repository.MediaRepository
 import com.nosilha.core.shared.api.ApiResult
+import com.nosilha.core.shared.api.PagedApiResult
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.validation.Valid
 import org.springframework.data.domain.PageRequest
@@ -149,6 +150,43 @@ class MediaController(
             status = MediaStatus.AVAILABLE,
         )
         return ApiResult(data = mediaList.map { MediaResponse.from(it) })
+    }
+
+    /**
+     * Retrieves paginated list of approved (AVAILABLE) media for public gallery display.
+     *
+     * This endpoint is publicly accessible and returns only approved user-uploaded media.
+     * Supports optional filtering by content type (e.g., "image/" for images only).
+     *
+     * @param contentType Optional content type prefix to filter by (e.g., "image/", "video/")
+     * @param page Page number (0-indexed)
+     * @param size Page size (max 100)
+     * @return Paginated list of approved media
+     */
+    @GetMapping("/approved")
+    fun getApprovedMedia(
+        @RequestParam(required = false) contentType: String?,
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "50") size: Int,
+    ): PagedApiResult<MediaResponse> {
+        logger.debug { "Fetching approved media - contentType: $contentType, page: $page, size: $size" }
+
+        val pageable = PageRequest.of(page, minOf(size, 100))
+
+        val mediaPage = if (contentType != null) {
+            mediaRepository.findByStatusAndContentTypeStartingWithOrderByDisplayOrderAsc(
+                status = MediaStatus.AVAILABLE,
+                contentTypePrefix = contentType,
+                pageable = pageable,
+            )
+        } else {
+            mediaRepository.findByStatusOrderByDisplayOrderAsc(
+                status = MediaStatus.AVAILABLE,
+                pageable = pageable,
+            )
+        }
+
+        return PagedApiResult.from(mediaPage.map { MediaResponse.from(it) })
     }
 
     /**

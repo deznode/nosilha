@@ -18,7 +18,7 @@ import type {
   ReactionCountsDto,
   ReactionType,
 } from "@/types/reaction";
-import type { MediaMetadataDto } from "@/types/api";
+import type { MediaMetadataDto, ApprovedMediaPageResponse } from "@/types/api";
 import type { StorySubmission } from "@/types/story";
 import { SubmissionStatus } from "@/types/story";
 import type {
@@ -509,6 +509,27 @@ export class MockApiClient implements ApiClient {
 
     // Return empty array for mock (no media uploaded in mock mode)
     return [];
+  }
+
+  /**
+   * Fetches approved user-uploaded media for gallery display.
+   * Returns empty in mock mode (no user uploads in mock).
+   */
+  async getApprovedMedia(options?: {
+    contentType?: string;
+    page?: number;
+    size?: number;
+  }): Promise<ApprovedMediaPageResponse> {
+    console.log(`Mock API: Fetching approved media`, options);
+    await this.simulateDelay(100);
+
+    // Return empty array for mock (no media uploaded in mock mode)
+    return {
+      items: [],
+      totalItems: 0,
+      totalPages: 0,
+      currentPage: options?.page ?? 0,
+    };
   }
 
   /**

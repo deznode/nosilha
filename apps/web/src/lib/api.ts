@@ -5,7 +5,7 @@ import type {
   ReactionResponseDto,
   ReactionCountsDto,
 } from "@/types/reaction";
-import type { MediaMetadataDto } from "@/types/api";
+import type { MediaMetadataDto, ApprovedMediaPageResponse } from "@/types/api";
 import type {
   PaginatedResult,
   StorySubmitRequest,
@@ -149,6 +149,18 @@ export async function getMediaByEntry(
   entryId: string
 ): Promise<MediaMetadataDto[]> {
   return apiClient.getMediaByEntry(entryId);
+}
+
+/**
+ * Fetches approved (AVAILABLE) user-uploaded media for gallery display.
+ * This returns community-contributed photos that have been moderated and approved.
+ */
+export async function getApprovedMedia(options?: {
+  contentType?: string;
+  page?: number;
+  size?: number;
+}): Promise<ApprovedMediaPageResponse> {
+  return apiClient.getApprovedMedia(options);
 }
 
 // ================================
