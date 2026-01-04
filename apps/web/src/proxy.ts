@@ -55,7 +55,7 @@ export async function proxy(request: NextRequest) {
   // Redirect unauthenticated users to login
   if (isProtected && !session) {
     const redirectUrl = new URL("/login", request.url);
-    redirectUrl.searchParams.set("redirect", request.nextUrl.pathname);
+    redirectUrl.searchParams.set("returnUrl", request.nextUrl.pathname);
     return NextResponse.redirect(redirectUrl);
   }
 

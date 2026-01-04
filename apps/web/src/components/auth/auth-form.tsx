@@ -168,7 +168,7 @@ export default function NosIlhaAuth({
         if (error) throw error;
 
         // Redirect to the return URL or homepage on success
-        const redirectTo = searchParams.get("redirect");
+        const redirectTo = searchParams.get("returnUrl");
         // Validate redirect URL to prevent open redirect attacks
         // Only allow relative paths that start with /
         const safeRedirect =
