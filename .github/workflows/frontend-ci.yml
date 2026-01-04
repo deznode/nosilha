@@ -145,8 +145,6 @@ jobs:
       - name: Setup pnpm
         if: ${{ steps.changes.outputs.bundle == 'true' }}
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Setup Node.js 20.9+
         if: ${{ steps.changes.outputs.bundle == 'true' }}
