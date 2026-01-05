@@ -37,7 +37,7 @@ SELECT id, title, status FROM story_submissions WHERE title LIKE '%Christmas%';
 
 **Fix Applied:**
 
-File: `apps/api/src/main/kotlin/com/nosilha/core/contentactions/api/AdminMdxController.kt`
+File: `apps/api/src/main/kotlin/com/nosilha/core/stories/api/StoryController.kt`
 
 ```kotlin
 // Before (line 119-125):

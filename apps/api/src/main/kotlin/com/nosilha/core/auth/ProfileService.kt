@@ -11,12 +11,12 @@ import com.nosilha.core.auth.domain.NotificationPreferences
 import com.nosilha.core.auth.domain.PreferredLanguage
 import com.nosilha.core.auth.domain.UserProfile
 import com.nosilha.core.auth.repository.UserProfileRepository
-import com.nosilha.core.contentactions.domain.ReactionType
-import com.nosilha.core.contentactions.repository.ReactionRepository
-import com.nosilha.core.contentactions.repository.StorySubmissionRepository
-import com.nosilha.core.contentactions.repository.SuggestionRepository
+import com.nosilha.core.engagement.domain.ReactionType
+import com.nosilha.core.engagement.repository.ReactionRepository
+import com.nosilha.core.feedback.repository.SuggestionRepository
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
+import com.nosilha.core.stories.repository.StorySubmissionRepository
 import io.github.bucket4j.Bucket
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service

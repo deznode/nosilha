@@ -1,10 +1,10 @@
 package com.nosilha.core.directory.api
 
-import com.nosilha.core.contentactions.api.BookmarkStatusDto
-import com.nosilha.core.contentactions.services.BookmarkService
 import com.nosilha.core.directory.domain.DirectoryEntryService
 import com.nosilha.core.directory.domain.toDto
 import com.nosilha.core.directory.services.SearchService
+import com.nosilha.core.engagement.api.BookmarkStatusDto
+import com.nosilha.core.engagement.services.BookmarkService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.CreateEntryRequestDto
 import com.nosilha.core.shared.api.DirectoryEntryDto

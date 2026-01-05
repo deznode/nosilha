@@ -42,11 +42,15 @@ cd apps/api && ./gradlew test         # All tests with PostgreSQL
 ## Module Structure
 
 ```
-apps/api/src/main/kotlin/com/nosilha/
+apps/api/src/main/kotlin/com/nosilha/core/
 ├── shared/          # Common utilities and base classes
 ├── auth/            # Authentication module (JWT, Supabase)
 ├── directory/       # Directory entries (Restaurant, Hotel, etc.)
-└── media/           # Media processing and storage
+├── media/           # Media processing and storage, MediaQueryService
+├── curatedmedia/    # Admin-curated external content
+├── engagement/      # User interactions (reactions, bookmarks)
+├── stories/         # Community narratives, MDX publishing, StoriesQueryService
+└── feedback/        # Community feedback channels, dashboard
 ```
 
 ## Key Patterns

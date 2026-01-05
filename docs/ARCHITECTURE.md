@@ -206,8 +206,11 @@ apps/api/src/main/kotlin/com/nosilha/core/
 ├── shared/         # Shared Kernel - Common infrastructure (events, audit, exceptions)
 ├── auth/           # Authentication Module - JWT auth and user management
 ├── directory/      # Directory Module - Cultural heritage entries (STI pattern)
-├── media/          # Media Module - GCS storage and AI processing
-└── contentactions/ # Content Actions Module - Reactions, suggestions, related content
+├── media/          # Media Module - Media assets & storage, provides MediaQueryService
+├── curatedmedia/   # Curated Media Module - Admin-curated external content
+├── engagement/     # Engagement Module - User interactions (Content, Reaction, Bookmark)
+├── stories/        # Stories Module - Community narratives & MDX publishing
+└── feedback/       # Feedback Module - Community feedback channels & dashboard
 ```
 
 **Standard Module Structure:**
@@ -229,7 +232,7 @@ Each module follows a consistent pattern with these internal layers:
 1. **Spring Modulith Architecture**: Modular monolith with enforced module boundaries and event-driven communication
 2. **Single Table Inheritance**: All directory entries in one table with discriminator column (Directory module)
 3. **Event-Driven Communication**: Modules communicate via `@ApplicationModuleListener` without direct dependencies
-4. **Module Isolation**: Each module (auth, directory, media, contentactions) has independent domain, API, and repository layers
+4. **Module Isolation**: Each module (auth, directory, media, curatedmedia, engagement, stories, feedback) has independent domain, API, and repository layers
 5. **Shared Kernel**: Common infrastructure (AuditableEntity, events, exceptions) in dedicated shared module
 6. **JWT Authentication**: Stateless authentication with Supabase token validation (Auth module)
 7. **Actuator Integration**: Health checks and metrics for production monitoring
@@ -296,16 +299,49 @@ Each module follows a consistent pattern with these internal layers:
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Note:** The diagram above shows the core modules. The **ContentActions module** (`contentactions/`) is also present and follows the same pattern with:
-- `ReactionController`, `SuggestionController`, `ContentController`
-- `ReactionService`, `SuggestionService`, `ContentService`
-- Domain entities: `Reaction`, `Suggestion`, `Content`
+**Additional Modules:**
+
+The backend also includes specialized domain modules:
+
+**Engagement Module** (`engagement/`):
+- Manages user interactions with published content
+- Controllers: `ReactionController`, `BookmarkController`, `ContentController`
+- Services: `ReactionService`, `BookmarkService`, `ContentService`
+- Domain entities: `Reaction`, `Bookmark`, `Content`
+- Dependencies: shared, directory
+
+**Stories Module** (`stories/`):
+- Manages community-submitted cultural heritage narratives
+- Controllers: `StoryController`
+- Services: `StoryService`, `MdxArchivalService`
+- Query: `StoriesQueryService` (exposes read-only interface for cross-module access)
+- Domain entities: `Story`, `MdxArchive`
+- Dependencies: shared, auth, directory
+
+**Feedback Module** (`feedback/`):
+- Manages community feedback channels and admin dashboard
+- Controllers: `SuggestionController`, `DirectorySubmissionController`, `ContactMessageController`, `DashboardController`
+- Services: `SuggestionService`, `DirectorySubmissionService`, `ContactMessageService`, `DashboardService`
+- Domain entities: `Suggestion`, `DirectorySubmission`, `ContactMessage`
+- Dependencies: shared, auth, directory, stories, media
+
+**Curated Media Module** (`curatedmedia/`):
+- Manages admin-curated external content
+- Controllers: `CuratedMediaController`
+- Services: `CuratedMediaService`
+- Domain entities: `CuratedMedia`
+- Dependencies: shared
 
 **Module Communication:**
 - ✅ **Event-Driven**: Modules communicate via `@ApplicationModuleListener` (e.g., `MediaService` listens to `DirectoryEntryCreatedEvent`)
 - ✅ **No Direct Dependencies**: Modules never import services from other modules
+- ✅ **Query Service Pattern**: Modules expose read-only query interfaces for cross-module data access
+  - `StoriesQueryService` - Stories module exposes query interface for dashboard
+  - `MediaQueryService` - Media module exposes query interface for dashboard
+  - `DirectoryEntryQueryService` - Directory module exposes query interface
+  - `UserProfileQueryService` - Auth module exposes query interface
 - ✅ **Enforced Boundaries**: `ModularityTests` verify zero circular dependencies
-- ✅ **Public API Only**: Controllers and events are public; services and repositories are internal
+- ✅ **Public API Only**: Controllers, events, and query services are public; services and repositories are internal
 
 ### Database Schema Design
 

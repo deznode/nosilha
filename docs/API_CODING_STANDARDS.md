@@ -1613,17 +1613,75 @@ com.nosilha.core/
 │       ├── MediaUploadedEvent.kt
 │       └── MediaProcessedEvent.kt
 │
-└── contentactions/                      # Content Actions Module
-    ├── PackageInfo.kt                  # Module API declaration
+├── curatedmedia/                        # Curated Media Module
+│   ├── api/                            # Public REST endpoints
+│   │   └── CuratedMediaController.kt   # Curated content endpoints
+│   ├── domain/                         # Curated media business logic (internal)
+│   │   ├── CuratedMediaService.kt      # Curated content logic
+│   │   └── CuratedMedia.kt             # Curated media entity
+│   ├── repository/                     # Data access layer (internal)
+│   │   └── CuratedMediaRepository.kt   # JPA repository
+│   └── events/                         # Curated media domain events (public)
+│       └── CuratedMediaEvent.kt
+│
+├── engagement/                          # Engagement Module
+│   ├── api/                            # Public REST endpoints
+│   │   ├── ReactionController.kt       # Reactions endpoints
+│   │   ├── BookmarkController.kt       # Bookmarks endpoints
+│   │   └── ContentController.kt        # Content registration endpoints
+│   ├── domain/                         # Engagement business logic (internal)
+│   │   ├── ReactionService.kt          # Reaction logic
+│   │   ├── BookmarkService.kt          # Bookmark logic
+│   │   ├── ContentService.kt           # Content registration logic
+│   │   ├── Reaction.kt                 # Reaction entity
+│   │   ├── Bookmark.kt                 # Bookmark entity
+│   │   └── Content.kt                  # Content entity
+│   ├── repository/                     # Data access layer (internal)
+│   │   ├── ReactionRepository.kt       # JPA repository
+│   │   ├── BookmarkRepository.kt       # JPA repository
+│   │   └── ContentRepository.kt        # JPA repository
+│   └── events/                         # Engagement domain events (public)
+│       ├── ReactionCreatedEvent.kt
+│       └── BookmarkCreatedEvent.kt
+│
+├── stories/                             # Stories Module
+│   ├── api/                            # Public REST endpoints
+│   │   └── StoryController.kt          # Story submission & moderation endpoints
+│   ├── domain/                         # Stories business logic (internal)
+│   │   ├── StoryService.kt             # Story logic
+│   │   ├── MdxArchivalService.kt       # MDX generation & archival
+│   │   ├── Story.kt                    # Story entity
+│   │   └── MdxArchive.kt               # MDX archive entity
+│   ├── repository/                     # Data access layer (internal)
+│   │   ├── StoryRepository.kt          # JPA repository
+│   │   └── MdxArchiveRepository.kt     # JPA repository
+│   ├── query/                          # Query service (public)
+│   │   └── StoriesQueryService.kt      # Read-only interface for cross-module access
+│   └── events/                         # Stories domain events (public)
+│       ├── StorySubmittedEvent.kt
+│       └── StoryPublishedEvent.kt
+│
+└── feedback/                            # Feedback Module
     ├── api/                            # Public REST endpoints
-    │   └── ContentActionsController.kt # Reactions, suggestions endpoints
-    ├── domain/                         # Content actions business logic (internal)
-    │   ├── ContentActionService.kt     # Reaction & suggestion logic
-    │   └── Reaction.kt                 # Reaction entity
+    │   ├── SuggestionController.kt     # Suggestions endpoints
+    │   ├── DirectorySubmissionController.kt  # Directory submissions endpoints
+    │   ├── ContactMessageController.kt # Contact messages endpoints
+    │   └── DashboardController.kt      # Admin dashboard endpoints
+    ├── domain/                         # Feedback business logic (internal)
+    │   ├── SuggestionService.kt        # Suggestion logic
+    │   ├── DirectorySubmissionService.kt  # Directory submission logic
+    │   ├── ContactMessageService.kt    # Contact message logic
+    │   ├── DashboardService.kt         # Aggregate stats service
+    │   ├── Suggestion.kt               # Suggestion entity
+    │   ├── DirectorySubmission.kt      # Directory submission entity
+    │   └── ContactMessage.kt           # Contact message entity
     ├── repository/                     # Data access layer (internal)
-    │   └── ReactionRepository.kt       # JPA repository
-    └── events/                         # Content actions domain events (public)
-        └── ReactionCreatedEvent.kt
+    │   ├── SuggestionRepository.kt     # JPA repository
+    │   ├── DirectorySubmissionRepository.kt  # JPA repository
+    │   └── ContactMessageRepository.kt # JPA repository
+    └── events/                         # Feedback domain events (public)
+        ├── SuggestionCreatedEvent.kt
+        └── DirectorySubmissionCreatedEvent.kt
 ```
 
 **Key Module Rules:**

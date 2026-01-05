@@ -16,12 +16,12 @@ The Nos Ilha backend requires an architectural approach that balances developmen
 
 - **Team Size**: Solo maintainer with limited time
 - **Budget**: Volunteer-supported, cost-conscious infrastructure
-- **Complexity**: Cultural heritage platform with multiple domains (directory entries, media, authentication, content actions)
+- **Complexity**: Cultural heritage platform with multiple domains (directory entries, media, authentication, user engagement, stories, feedback)
 - **Evolution**: Need for potential future extraction of modules if scale demands
 
 ### Technical Requirements
 
-- Clear separation between business domains (auth, directory, media, contentactions)
+- Clear separation between business domains (auth, directory, media, curatedmedia, engagement, stories, feedback)
 - Event-driven communication for loose coupling
 - Enforceable module boundaries to prevent spaghetti dependencies
 - Single deployable unit for operational simplicity
@@ -38,8 +38,11 @@ apps/api/src/main/kotlin/com/nosilha/core/
 ├── shared/           # Shared Kernel - foundation layer (events, audit, exceptions)
 ├── auth/             # Authentication Module - JWT auth, user management
 ├── directory/        # Directory Module - cultural heritage entries (STI pattern)
-├── media/            # Media Module - file storage, AI processing
-└── contentactions/   # Content Actions Module - reactions, suggestions
+├── media/            # Media Module - file storage, AI processing, MediaQueryService
+├── curatedmedia/     # Curated Media Module - admin-curated external content
+├── engagement/       # Engagement Module - user interactions (reactions, bookmarks)
+├── stories/          # Stories Module - community narratives, MDX publishing, StoriesQueryService
+└── feedback/         # Feedback Module - community feedback channels, dashboard
 ```
 
 ### Key Implementation Patterns

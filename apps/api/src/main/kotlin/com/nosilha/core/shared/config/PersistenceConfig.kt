@@ -18,7 +18,9 @@ import org.springframework.orm.jpa.JpaTransactionManager
     basePackages = [
         "com.nosilha.core.auth.repository",
         "com.nosilha.core.directory.repository",
-        "com.nosilha.core.contentactions.repository",
+        "com.nosilha.core.engagement.repository",
+        "com.nosilha.core.stories.repository",
+        "com.nosilha.core.feedback.repository",
         "com.nosilha.core.curatedmedia.repository",
         "com.nosilha.core.media.repository",
     ],

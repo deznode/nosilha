@@ -14,8 +14,9 @@ import org.springframework.modulith.ApplicationModule
  *   <li><b>shared :: domain</b> - AuditableEntity base class for UserProfile</li>
  *   <li><b>shared :: events</b> - ApplicationModuleEvent base for auth events</li>
  *   <li><b>shared :: exception</b> - Common exceptions (ResourceNotFoundException, RateLimitExceededException)</li>
- *   <li><b>contentactions</b> - Profile contributions view requires read-only cross-module queries
- *       from reactions, suggestions, and story repositories</li>
+ *   <li><b>engagement</b> - Profile contributions view requires read-only access to reactions/bookmarks</li>
+ *   <li><b>stories</b> - Profile contributions view requires read-only access to story submissions</li>
+ *   <li><b>feedback</b> - Profile contributions view requires read-only access to suggestions</li>
  * </ul>
  *
  * <h3>Exposed APIs:</h3>
@@ -39,7 +40,9 @@ import org.springframework.modulith.ApplicationModule
         "shared :: domain",
         "shared :: events",
         "shared :: exception",
-        "contentactions",
+        "engagement",
+        "stories",
+        "feedback",
     ],
     type = ApplicationModule.Type.OPEN,
 )

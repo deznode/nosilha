@@ -40,7 +40,7 @@ import org.springframework.modulith.PackageInfo
         "shared :: domain",
         "shared :: events",
         "shared :: exception",
-        "contentactions",
+        "engagement",
     ],
     type = ApplicationModule.Type.OPEN,
 )

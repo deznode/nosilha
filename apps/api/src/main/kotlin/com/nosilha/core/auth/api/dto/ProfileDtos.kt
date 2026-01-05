@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import com.nosilha.core.auth.domain.NotificationPreferences
 import com.nosilha.core.auth.domain.PreferredLanguage
 import com.nosilha.core.auth.domain.UserProfile
-import com.nosilha.core.contentactions.domain.ReactionType
-import com.nosilha.core.contentactions.domain.StoryStatus
-import com.nosilha.core.contentactions.domain.StoryType
-import com.nosilha.core.contentactions.domain.SuggestionStatus
-import com.nosilha.core.contentactions.domain.SuggestionType
+import com.nosilha.core.engagement.domain.ReactionType
+import com.nosilha.core.feedback.domain.SuggestionStatus
+import com.nosilha.core.feedback.domain.SuggestionType
+import com.nosilha.core.stories.domain.StoryStatus
+import com.nosilha.core.stories.domain.StoryType
 import jakarta.validation.constraints.Size
 import java.time.LocalDateTime
 import java.util.UUID

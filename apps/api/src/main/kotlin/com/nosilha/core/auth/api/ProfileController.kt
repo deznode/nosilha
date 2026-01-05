@@ -4,8 +4,8 @@ import com.nosilha.core.auth.ProfileService
 import com.nosilha.core.auth.api.dto.ContributionsDto
 import com.nosilha.core.auth.api.dto.ProfileDto
 import com.nosilha.core.auth.api.dto.ProfileUpdateRequest
-import com.nosilha.core.contentactions.api.BookmarkWithEntryDto
-import com.nosilha.core.contentactions.services.BookmarkService
+import com.nosilha.core.engagement.api.BookmarkWithEntryDto
+import com.nosilha.core.engagement.services.BookmarkService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
 import io.github.oshai.kotlinlogging.KotlinLogging
