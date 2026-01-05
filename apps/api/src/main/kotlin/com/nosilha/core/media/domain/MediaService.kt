@@ -1,18 +1,21 @@
 package com.nosilha.core.media.domain
 
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
 import com.nosilha.core.media.repository.MediaRepository
 import com.nosilha.core.shared.events.DirectoryEntryCreatedEvent
 import com.nosilha.core.shared.exception.RateLimitExceededException
+import io.github.bucket4j.Bucket
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
 import org.springframework.modulith.events.ApplicationModuleListener
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Duration
 import java.time.Instant
 import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentLinkedDeque
+import java.util.concurrent.TimeUnit
 
 private val logger = KotlinLogging.logger {}
 
@@ -37,11 +40,8 @@ class MediaService(
     meterRegistry: MeterRegistry,
 ) {
     companion object {
-        private const val MAX_UPLOADS_PER_HOUR = 20
-        private const val MAX_UPLOADS_PER_DAY = 100
-        private const val HOUR_IN_SECONDS = 3600L
-        private const val DAY_IN_SECONDS = 86400L
-        private const val MINUTES_IN_HOUR = 60
+        private const val MAX_UPLOADS_PER_HOUR = 20L
+        private const val MAX_UPLOADS_PER_DAY = 100L
     }
 
     // Metrics counters for media operations
@@ -65,10 +65,18 @@ class MediaService(
         .description("Number of media items rejected by admins")
         .register(meterRegistry)
 
-    // In-memory rate limiter: userId -> list of upload timestamps
-    // TODO: Replace with Redis-based rate limiter for production (distributed instances)
-    private val hourlyRateLimiter = ConcurrentHashMap<String, ConcurrentLinkedDeque<Instant>>()
-    private val dailyRateLimiter = ConcurrentHashMap<String, ConcurrentLinkedDeque<Instant>>()
+    /**
+     * Caffeine cache for rate limiting by user ID.
+     *
+     * Uses Bucket4j's token bucket algorithm with dual bandwidth limits:
+     * - 20 uploads per hour (short-term burst protection)
+     * - 100 uploads per day (long-term abuse prevention)
+     */
+    private val rateLimitBuckets: Cache<String, Bucket> = Caffeine
+        .newBuilder()
+        .maximumSize(10_000)
+        .expireAfterAccess(1, TimeUnit.DAYS)
+        .build()
 
     /** Whether R2 storage is enabled and available. */
     val isR2Enabled: Boolean
@@ -112,70 +120,55 @@ class MediaService(
 
         val result = r2StorageService!!.generatePresignedPutUrl(fileName, contentType)
 
-        // Record this upload attempt for rate limiting
-        recordUploadAttempt(userId)
-
         logger.info { "Generated presigned URL for key: ${result.key} (expires: ${result.expiresAt})" }
         return result
     }
 
     /**
-     * Checks if user is within upload rate limits.
+     * Checks if user is within upload rate limits and consumes a token.
      *
-     * Enforces:
-     * - Maximum 20 uploads per hour
-     * - Maximum 100 uploads per day
+     * Uses Bucket4j's token bucket algorithm with dual bandwidth limits:
+     * - Maximum 20 uploads per hour (refills hourly)
+     * - Maximum 100 uploads per day (refills daily)
      *
      * @param userId User to check
-     * @throws RateLimitExceededException if limit exceeded
+     * @throws RateLimitExceededException if either limit exceeded
      */
     private fun checkRateLimit(userId: String) {
-        val now = Instant.now()
-
-        // Check hourly limit
-        val hourlySubmissions = hourlyRateLimiter.computeIfAbsent(userId) { ConcurrentLinkedDeque() }
-        synchronized(hourlySubmissions) {
-            val hourAgo = now.minusSeconds(HOUR_IN_SECONDS)
-            hourlySubmissions.removeIf { it.isBefore(hourAgo) }
-
-            if (hourlySubmissions.size >= MAX_UPLOADS_PER_HOUR) {
-                val oldestInWindow = hourlySubmissions.peekFirst()
-                val minutesUntilReset = if (oldestInWindow != null) {
-                    ((oldestInWindow.epochSecond + HOUR_IN_SECONDS - now.epochSecond) / MINUTES_IN_HOUR).toInt()
-                } else {
-                    MINUTES_IN_HOUR
-                }
-                logger.warn { "Hourly rate limit exceeded for user $userId" }
-                throw RateLimitExceededException(
-                    "Rate limit exceeded. Try again in $minutesUntilReset minutes.",
-                )
-            }
-        }
-
-        // Check daily limit
-        val dailySubmissions = dailyRateLimiter.computeIfAbsent(userId) { ConcurrentLinkedDeque() }
-        synchronized(dailySubmissions) {
-            val dayAgo = now.minusSeconds(DAY_IN_SECONDS)
-            dailySubmissions.removeIf { it.isBefore(dayAgo) }
-
-            if (dailySubmissions.size >= MAX_UPLOADS_PER_DAY) {
-                logger.warn { "Daily rate limit exceeded for user $userId" }
-                throw RateLimitExceededException(
-                    "Daily upload limit reached. Try again tomorrow.",
-                )
-            }
+        val bucket = getBucketForUser(userId)
+        if (!bucket.tryConsume(1)) {
+            logger.warn { "Rate limit exceeded for user $userId" }
+            throw RateLimitExceededException(
+                "Upload rate limit exceeded. Please try again later.",
+            )
         }
     }
 
     /**
-     * Records an upload attempt for rate limiting.
+     * Gets or creates a rate limit bucket for the given user ID.
+     *
+     * Creates a bucket with two bandwidth limits:
+     * - 20 tokens refilling every hour (burst protection)
+     * - 100 tokens refilling every day (abuse prevention)
+     *
+     * @param userId User ID to get bucket for
+     * @return Bucket configured with dual rate limits
      */
-    private fun recordUploadAttempt(userId: String) {
-        val now = Instant.now()
-
-        hourlyRateLimiter.computeIfAbsent(userId) { ConcurrentLinkedDeque() }.add(now)
-        dailyRateLimiter.computeIfAbsent(userId) { ConcurrentLinkedDeque() }.add(now)
-    }
+    private fun getBucketForUser(userId: String): Bucket =
+        rateLimitBuckets.get(userId) {
+            logger.debug { "Creating rate limit bucket for user: $userId" }
+            Bucket
+                .builder()
+                .addLimit { limit ->
+                    limit
+                        .capacity(MAX_UPLOADS_PER_HOUR)
+                        .refillIntervally(MAX_UPLOADS_PER_HOUR, Duration.ofHours(1))
+                }.addLimit { limit ->
+                    limit
+                        .capacity(MAX_UPLOADS_PER_DAY)
+                        .refillIntervally(MAX_UPLOADS_PER_DAY, Duration.ofDays(1))
+                }.build()
+        }
 
     /**
      * Confirms a completed upload and creates the media metadata record.

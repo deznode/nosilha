@@ -1,5 +1,7 @@
 package com.nosilha.core.auth
 
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
 import com.nosilha.core.auth.api.dto.ContributionsDto
 import com.nosilha.core.auth.api.dto.ProfileDto
 import com.nosilha.core.auth.api.dto.ProfileUpdateRequest
@@ -15,13 +17,13 @@ import com.nosilha.core.contentactions.repository.StorySubmissionRepository
 import com.nosilha.core.contentactions.repository.SuggestionRepository
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
+import io.github.bucket4j.Bucket
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
+import java.time.Duration
 import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentLinkedDeque
+import java.util.concurrent.TimeUnit
 
 private val logger = KotlinLogging.logger {}
 
@@ -55,14 +57,21 @@ class ProfileService(
     private val suggestionRepository: SuggestionRepository,
     private val storySubmissionRepository: StorySubmissionRepository,
 ) {
-    // In-memory rate limiter: userId -> list of recent update timestamps
-    // TODO: Replace with Redis-based rate limiter for production (distributed instances)
-    private val rateLimiter = ConcurrentHashMap<String, ConcurrentLinkedDeque<Instant>>()
-
     companion object {
-        private const val MAX_UPDATES_PER_MINUTE = 10
-        private const val RATE_LIMIT_WINDOW_SECONDS = 60L
+        private const val MAX_UPDATES_PER_MINUTE = 10L
     }
+
+    /**
+     * Caffeine cache for rate limiting by user ID.
+     *
+     * Uses Bucket4j's token bucket algorithm for atomic, race-condition-free
+     * rate limiting. Each user gets a bucket that refills 10 tokens per minute.
+     */
+    private val rateLimitBuckets: Cache<String, Bucket> = Caffeine
+        .newBuilder()
+        .maximumSize(10_000)
+        .expireAfterAccess(1, TimeUnit.HOURS)
+        .build()
 
     /**
      * Retrieves a user's profile, creating it if it doesn't exist.
@@ -168,46 +177,31 @@ class ProfileService(
     /**
      * Checks if user is within rate limit for profile updates.
      *
-     * <p><strong>Algorithm</strong>:
-     * <ol>
-     *   <li>Get user's recent update timestamps from in-memory cache</li>
-     *   <li>Remove timestamps older than 60 seconds (sliding window)</li>
-     *   <li>If less than 10 updates in last minute, allow and record timestamp</li>
-     *   <li>Otherwise, deny update</li>
-     * </ol>
-     *
-     * <p><strong>Thread Safety</strong>: Synchronizes on the timestamps deque to ensure
-     * atomic check-and-modify operations, preventing race conditions where multiple
-     * concurrent requests could bypass the rate limit.</p>
-     *
-     * <p><strong>Production Note</strong>: This in-memory implementation works for single
-     * instances but needs Redis for distributed deployments (multiple backend pods).</p>
+     * Uses Bucket4j's token bucket algorithm for atomic, race-condition-free
+     * rate limiting. Each user gets a bucket with 10 tokens that refill every minute.
      *
      * @param userId String user ID to check
-     * @return true if within rate limit, false if exceeded
+     * @return true if within rate limit (token consumed), false if exceeded
      */
-    private fun checkRateLimit(userId: String): Boolean {
-        val now = Instant.now()
-        val windowStart = now.minusSeconds(RATE_LIMIT_WINDOW_SECONDS)
+    private fun checkRateLimit(userId: String): Boolean = getBucketForUser(userId).tryConsume(1)
 
-        // Get or create user's update history
-        val timestamps = rateLimiter.computeIfAbsent(userId) { ConcurrentLinkedDeque() }
-
-        // CRITICAL: Synchronize entire check-and-modify sequence to prevent race conditions
-        synchronized(timestamps) {
-            // Remove old timestamps outside the time window
-            timestamps.removeIf { it.isBefore(windowStart) }
-
-            // Check if under limit
-            if (timestamps.size >= MAX_UPDATES_PER_MINUTE) {
-                return false
-            }
-
-            // Record this update
-            timestamps.add(now)
-            return true
+    /**
+     * Gets or creates a rate limit bucket for the given user ID.
+     *
+     * @param userId User ID to get bucket for
+     * @return Bucket configured for rate limiting (10 requests/minute)
+     */
+    private fun getBucketForUser(userId: String): Bucket =
+        rateLimitBuckets.get(userId) {
+            logger.debug { "Creating rate limit bucket for user: $userId" }
+            Bucket
+                .builder()
+                .addLimit { limit ->
+                    limit
+                        .capacity(MAX_UPDATES_PER_MINUTE)
+                        .refillIntervally(MAX_UPDATES_PER_MINUTE, Duration.ofMinutes(1))
+                }.build()
         }
-    }
 
     /**
      * Aggregates all contributions made by a user across the platform.

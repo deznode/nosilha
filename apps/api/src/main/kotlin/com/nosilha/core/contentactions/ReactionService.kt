@@ -1,5 +1,7 @@
 package com.nosilha.core.contentactions
 
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
 import com.nosilha.core.contentactions.api.ReactionCountsDto
 import com.nosilha.core.contentactions.api.ReactionCreateDto
 import com.nosilha.core.contentactions.api.ReactionResponseDto
@@ -8,15 +10,15 @@ import com.nosilha.core.contentactions.domain.ReactionType
 import com.nosilha.core.contentactions.repository.ReactionRepository
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
+import io.github.bucket4j.Bucket
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.Instant
+import java.time.Duration
 import java.util.UUID
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentLinkedDeque
+import java.util.concurrent.TimeUnit
 
 private val logger = KotlinLogging.logger {}
 
@@ -31,8 +33,8 @@ private val logger = KotlinLogging.logger {}
  *   <li>Enforcing unique constraint (one reaction per user per content)</li>
  * </ul>
  *
- * <p><strong>Rate Limiting</strong>: In-memory rate limiter tracks submissions per user.
- * Production deployments should use Redis or similar for distributed rate limiting.</p>
+ * <p><strong>Rate Limiting</strong>: Uses Bucket4j token bucket algorithm with Caffeine cache
+ * for atomic, race-condition-free rate limiting.</p>
  *
  * <p><strong>Caching</strong>: Reaction counts cached for 5 minutes to reduce database load
  * while maintaining reasonable freshness for community engagement metrics.</p>
@@ -43,16 +45,23 @@ class ReactionService(
     private val reactionRepository: ReactionRepository,
     private val cacheManager: CacheManager,
 ) {
-    // In-memory rate limiter: userId -> list of recent submission timestamps
-    // TODO: Replace with Redis-based rate limiter for production (distributed instances)
-    private val rateLimiter = ConcurrentHashMap<UUID, ConcurrentLinkedDeque<Instant>>()
-
     companion object {
-        private const val MAX_REACTIONS_PER_MINUTE = 10
-        private const val RATE_LIMIT_WINDOW_SECONDS = 60L
+        private const val MAX_REACTIONS_PER_MINUTE = 10L
         private const val CACHE_NAME = "reactionCounts"
         private const val CACHE_TTL_MINUTES = 5
     }
+
+    /**
+     * Caffeine cache for rate limiting by user UUID.
+     *
+     * Uses Bucket4j's token bucket algorithm for atomic, race-condition-free
+     * rate limiting. Each user gets a bucket that refills 10 tokens per minute.
+     */
+    private val rateLimitBuckets: Cache<UUID, Bucket> = Caffeine
+        .newBuilder()
+        .maximumSize(10_000)
+        .expireAfterAccess(1, TimeUnit.HOURS)
+        .build()
 
     /**
      * Submits a new reaction or updates an existing reaction.
@@ -291,46 +300,31 @@ class ReactionService(
     /**
      * Checks if user is within rate limit for reaction submissions.
      *
-     * <p><strong>Algorithm</strong>:
-     * <ol>
-     *   <li>Get user's recent submission timestamps from in-memory cache</li>
-     *   <li>Remove timestamps older than 60 seconds (sliding window)</li>
-     *   <li>If less than 10 submissions in last minute, allow and record timestamp</li>
-     *   <li>Otherwise, deny submission</li>
-     * </ol>
-     *
-     * <p><strong>Thread Safety</strong>: Synchronizes on the submissions deque to ensure
-     * atomic check-and-modify operations, preventing race conditions where multiple
-     * concurrent requests could bypass the rate limit.</p>
-     *
-     * <p><strong>Production Note</strong>: This in-memory implementation works for single
-     * instances but needs Redis for distributed deployments (multiple backend pods).</p>
+     * Uses Bucket4j's token bucket algorithm for atomic, race-condition-free
+     * rate limiting. Each user gets a bucket with 10 tokens that refill every minute.
      *
      * @param userId UUID of the user to check
-     * @return true if within rate limit, false if exceeded
+     * @return true if within rate limit (token consumed), false if exceeded
      */
-    private fun checkRateLimit(userId: UUID): Boolean {
-        val now = Instant.now()
-        val windowStart = now.minusSeconds(RATE_LIMIT_WINDOW_SECONDS)
+    private fun checkRateLimit(userId: UUID): Boolean = getBucketForUser(userId).tryConsume(1)
 
-        // Get or create user's submission history
-        val submissions = rateLimiter.computeIfAbsent(userId) { ConcurrentLinkedDeque() }
-
-        // CRITICAL: Synchronize entire check-and-modify sequence to prevent race conditions
-        synchronized(submissions) {
-            // Remove old submissions outside the time window
-            submissions.removeIf { it.isBefore(windowStart) }
-
-            // Check if under limit
-            if (submissions.size >= MAX_REACTIONS_PER_MINUTE) {
-                return false
-            }
-
-            // Record this submission
-            submissions.add(now)
-            return true
+    /**
+     * Gets or creates a rate limit bucket for the given user UUID.
+     *
+     * @param userId User UUID to get bucket for
+     * @return Bucket configured for rate limiting (10 requests/minute)
+     */
+    private fun getBucketForUser(userId: UUID): Bucket =
+        rateLimitBuckets.get(userId) {
+            logger.debug { "Creating rate limit bucket for user: $userId" }
+            Bucket
+                .builder()
+                .addLimit { limit ->
+                    limit
+                        .capacity(MAX_REACTIONS_PER_MINUTE)
+                        .refillIntervally(MAX_REACTIONS_PER_MINUTE, Duration.ofMinutes(1))
+                }.build()
         }
-    }
 
     data class ReactionSubmissionResult(
         val reaction: ReactionResponseDto,
