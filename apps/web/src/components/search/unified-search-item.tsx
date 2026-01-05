@@ -6,7 +6,8 @@ import {
   Utensils,
   Hotel,
   Umbrella,
-  Landmark,
+  Castle,
+  TreePine,
   FileText,
   type LucideIcon,
 } from "lucide-react";
@@ -22,7 +23,8 @@ const CATEGORY_ICONS: Record<DirectoryCategory, LucideIcon> = {
   Restaurant: Utensils,
   Hotel: Hotel,
   Beach: Umbrella,
-  Landmark: Landmark,
+  Heritage: Castle,
+  Nature: TreePine,
 };
 
 /** Get display label for category */

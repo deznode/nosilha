@@ -26,6 +26,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/directory/landmark",
+        destination: "/directory/heritage",
+        permanent: true, // 301 redirect for SEO after Landmark → Heritage split
+      },
+    ];
+  },
 };
 
 export default nextConfig;

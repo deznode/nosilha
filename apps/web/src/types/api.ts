@@ -74,7 +74,7 @@ export interface DirectoryEntryDto {
   id: string;
   slug: string;
   name: string;
-  category: "Restaurant" | "Hotel" | "Beach" | "Landmark";
+  category: "Restaurant" | "Hotel" | "Beach" | "Heritage" | "Nature";
   imageUrl: string | null;
   town: string;
   latitude: number;
@@ -109,7 +109,7 @@ export interface HotelDetailsDto {
  */
 export interface CreateDirectoryEntryRequest {
   name: string;
-  category: "Restaurant" | "Hotel" | "Beach" | "Landmark";
+  category: "Restaurant" | "Hotel" | "Beach" | "Heritage" | "Nature";
   description: string;
   town: string;
   latitude: number;

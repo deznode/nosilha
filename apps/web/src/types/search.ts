@@ -9,7 +9,12 @@ import type { DirectoryEntry } from "./directory";
 export type SearchResultType = "directory" | "article";
 
 /** Directory category types (matching DirectoryEntry) */
-export type DirectoryCategory = "Restaurant" | "Hotel" | "Beach" | "Landmark";
+export type DirectoryCategory =
+  | "Restaurant"
+  | "Hotel"
+  | "Beach"
+  | "Heritage"
+  | "Nature";
 
 /** Article categories from MDX content */
 export type ArticleCategory =

@@ -1,7 +1,7 @@
-package com.nosilha.core.directory.services
+package com.nosilha.core.places.services
 
-import com.nosilha.core.directory.domain.DirectoryEntry
-import com.nosilha.core.directory.repository.DirectoryEntryRepository
+import com.nosilha.core.places.domain.DirectoryEntry
+import com.nosilha.core.places.repository.DirectoryEntryRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest

@@ -3,7 +3,7 @@ package com.nosilha.core.stories.services
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.nosilha.core.auth.api.UserProfileQueryService
-import com.nosilha.core.directory.api.DirectoryEntryQueryService
+import com.nosilha.core.places.api.PlacesQueryService
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
@@ -48,7 +48,7 @@ class StoryService(
     private val repository: StorySubmissionRepository,
     private val eventPublisher: ApplicationEventPublisher,
     private val userProfileQueryService: UserProfileQueryService,
-    private val directoryEntryQueryService: DirectoryEntryQueryService,
+    private val directoryEntryQueryService: PlacesQueryService,
 ) {
     companion object {
         const val MAX_SUBMISSIONS_PER_HOUR = 5L

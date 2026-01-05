@@ -76,7 +76,7 @@ export type DirectorySubmissionStatus = SubmissionStatus;
 export interface DirectorySubmission {
   id: string;
   name: string;
-  category: "Restaurant" | "Landmark" | "Nature" | "Culture";
+  category: "Restaurant" | "Hotel" | "Beach" | "Heritage" | "Nature";
   town: string;
   customTown?: string;
   description: string;

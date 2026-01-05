@@ -1,7 +1,6 @@
 package com.nosilha.core.feedback
 
 import com.nosilha.core.auth.api.UserProfileQueryService
-import com.nosilha.core.directory.api.DirectoryEntryQueryService
 import com.nosilha.core.feedback.api.AdminStatsResponse
 import com.nosilha.core.feedback.api.ContributorResponse
 import com.nosilha.core.feedback.api.DashboardCountsResponse
@@ -15,6 +14,7 @@ import com.nosilha.core.feedback.repository.DirectorySubmissionRepository
 import com.nosilha.core.feedback.repository.SuggestionRepository
 import com.nosilha.core.media.api.MediaQueryService
 import com.nosilha.core.media.domain.MediaStatus
+import com.nosilha.core.places.api.PlacesQueryService
 import com.nosilha.core.stories.api.StoriesQueryService
 import com.nosilha.core.stories.domain.StoryStatus
 import org.springframework.stereotype.Service
@@ -69,7 +69,7 @@ class DashboardService(
     // Cross-module query services
     private val storiesQueryService: StoriesQueryService,
     private val mediaQueryService: MediaQueryService,
-    private val directoryEntryQueryService: DirectoryEntryQueryService,
+    private val directoryEntryQueryService: PlacesQueryService,
     private val userProfileQueryService: UserProfileQueryService,
 ) {
     /**

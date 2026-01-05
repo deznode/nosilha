@@ -48,7 +48,7 @@ export const MOCK_DIRECTORY_ENTRIES: MockDirectoryEntry[] = [
   {
     id: "3",
     name: "Eugénio Tavares Museum",
-    category: "Landmark",
+    category: "Heritage",
     town: "Nova Sintra",
     rating: 4.7,
     reviewCount: 28,
@@ -74,7 +74,7 @@ export const MOCK_DIRECTORY_ENTRIES: MockDirectoryEntry[] = [
   {
     id: "5",
     name: "Nossa Senhora do Monte",
-    category: "Landmark",
+    category: "Heritage",
     town: "Nossa Senhora do Monte",
     rating: 4.6,
     reviewCount: 15,
@@ -110,7 +110,8 @@ export const DIRECTORY_TOWNS = [
 export const DIRECTORY_CATEGORIES = [
   "Restaurant",
   "Beach",
-  "Landmark",
+  "Heritage",
+  "Nature",
   "Hotel",
 ] as const;
 

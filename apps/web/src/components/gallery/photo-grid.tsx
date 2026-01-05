@@ -13,7 +13,7 @@ interface PhotoGridProps {
 
 const CATEGORIES: (MediaCategory | "All")[] = [
   "All",
-  "Landmark",
+  "Heritage",
   "Historical",
   "Nature",
   "Event",

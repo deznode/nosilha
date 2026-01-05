@@ -196,7 +196,8 @@ export function generateDirectoryEntryMetadata(
     case "Hotel":
       structuredData.push(generateLodgingSchema(entry, baseUrl));
       break;
-    case "Landmark":
+    case "Heritage":
+    case "Nature":
     case "Beach":
       structuredData.push(generateTouristAttractionSchema(entry, baseUrl));
       break;

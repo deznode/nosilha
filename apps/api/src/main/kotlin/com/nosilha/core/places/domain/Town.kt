@@ -1,4 +1,4 @@
-package com.nosilha.core.directory.domain
+package com.nosilha.core.places.domain
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity

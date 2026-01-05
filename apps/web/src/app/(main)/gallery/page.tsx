@@ -20,7 +20,8 @@ import type { MediaMetadataDto } from "@/types/api";
 function mapCuratedMediaToMediaItem(media: CuratedMedia): MediaItem {
   // Map category to MediaCategory type (using first available or fallback)
   const categoryMap: Record<string, MediaCategory> = {
-    Landmark: "Landmark",
+    Heritage: "Heritage",
+    Landmark: "Heritage", // Backward compatibility
     Historical: "Historical",
     Nature: "Nature",
     Culture: "Culture",
@@ -65,7 +66,8 @@ function mapCuratedMediaToMediaItem(media: CuratedMedia): MediaItem {
 function mapUserMediaToMediaItem(media: MediaMetadataDto): MediaItem {
   // Map category string to MediaCategory type
   const categoryMap: Record<string, MediaCategory> = {
-    Landmark: "Landmark",
+    Heritage: "Heritage",
+    Landmark: "Heritage", // Backward compatibility
     Historical: "Historical",
     Nature: "Nature",
     Culture: "Culture",

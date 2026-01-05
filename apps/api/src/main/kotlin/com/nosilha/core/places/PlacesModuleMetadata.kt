@@ -1,17 +1,17 @@
-package com.nosilha.core.directory
+package com.nosilha.core.places
 
 import org.springframework.modulith.ApplicationModule
 import org.springframework.modulith.PackageInfo
 
 /**
- * Directory Module
+ * Places Module
  *
- * <p>This module is responsible for managing directory entries (restaurants, hotels, beaches,
+ * <p>This module is responsible for managing places (restaurants, hotels, beaches,
  * landmarks) for the Nos Ilha cultural heritage platform.
  *
  * <p><strong>Responsibilities:</strong>
  * <ul>
- *   <li>Directory entry management (Restaurant, Hotel, Beach, Landmark)</li>
+ *   <li>Place management (Restaurant, Hotel, Beach, Landmark)</li>
  *   <li>Single Table Inheritance pattern for DirectoryEntry entities</li>
  *   <li>RESTful API for directory operations (CRUD)</li>
  *   <li>Directory entry domain events</li>
@@ -34,7 +34,7 @@ import org.springframework.modulith.PackageInfo
  */
 @PackageInfo
 @ApplicationModule(
-    displayName = "Directory Module",
+    displayName = "Places Module",
     allowedDependencies = [
         "shared :: api",
         "shared :: domain",
@@ -44,4 +44,4 @@ import org.springframework.modulith.PackageInfo
     ],
     type = ApplicationModule.Type.OPEN,
 )
-class DirectoryModuleMetadata
+class PlacesModuleMetadata

@@ -12,7 +12,7 @@ import org.springframework.modulith.PackageInfo
  * - MDX generation and archival for published stories
  *
  * Module Boundaries:
- * - Depends on: shared (base classes, events, exceptions), auth (user profiles), directory (related places)
+ * - Depends on: shared (base classes, events, exceptions), auth (user profiles), places (related places)
  * - Exposes: Controllers, DTOs, StoriesQueryService (public API)
  * - Internal: StoryService, repositories (package-private)
  */
@@ -26,7 +26,7 @@ import org.springframework.modulith.PackageInfo
         "shared :: exception",
         "shared :: util",
         "auth",
-        "directory",
+        "places",
     ],
     type = ApplicationModule.Type.OPEN,
 )

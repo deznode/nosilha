@@ -1775,17 +1775,22 @@ export class BackendApiClient implements ApiClient {
     // Convert uppercase category to title case (RESTAURANT → Restaurant)
     const categoryMap: Record<
       string,
-      "Restaurant" | "Landmark" | "Nature" | "Culture"
+      "Restaurant" | "Hotel" | "Beach" | "Heritage" | "Nature"
     > = {
       RESTAURANT: "Restaurant",
-      LANDMARK: "Landmark",
+      HOTEL: "Hotel",
+      BEACH: "Beach",
+      HERITAGE: "Heritage",
       NATURE: "Nature",
-      CULTURE: "Culture",
       // Also support already title-case values for backwards compatibility
       Restaurant: "Restaurant",
-      Landmark: "Landmark",
+      Hotel: "Hotel",
+      Beach: "Beach",
+      Heritage: "Heritage",
       Nature: "Nature",
-      Culture: "Culture",
+      // Support legacy values for backward compatibility
+      LANDMARK: "Heritage",
+      Landmark: "Heritage",
     };
     const rawCategory = (dto.category as string) || "Restaurant";
     const category = categoryMap[rawCategory] || "Restaurant";

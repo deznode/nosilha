@@ -55,7 +55,7 @@ export const useFilterStore = create<FilterState>()(
       minRating: undefined,
       hasImage: undefined,
       sortBy: "rating_desc",
-      selectedCategories: ["Restaurant", "Hotel", "Beach", "Landmark"], // Default: all categories
+      selectedCategories: ["Restaurant", "Hotel", "Heritage", "Nature"], // Default: all categories
 
       // Actions
       setSearchQuery: (query) => set({ searchQuery: query }),

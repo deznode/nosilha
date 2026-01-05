@@ -191,12 +191,12 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     details: null,
   },
 
-  // AUTHENTIC LANDMARK ENTRIES FROM DATABASE
+  // AUTHENTIC HERITAGE ENTRIES FROM DATABASE
   {
     id: "6",
     slug: "igreja-nossa-senhora-do-monte",
     name: "Igreja Nossa Senhora do Monte",
-    category: "Landmark",
+    category: "Heritage",
     imageUrl: "/images/directory/igreja-nossa-senhora-do-monte.jpg",
     town: "Nossa Senhora do Monte",
     latitude: 14.8591559,
@@ -215,7 +215,7 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     id: "7",
     slug: "casa-eugenio-tavares",
     name: "Casa Eugénio Tavares",
-    category: "Landmark",
+    category: "Heritage",
     imageUrl: "/images/directory/casa-eugenio-tavares.jpg",
     town: "Nova Sintra",
     latitude: 14.8648,
@@ -234,7 +234,7 @@ const MOCK_ENTRIES: DirectoryEntry[] = [
     id: "8",
     slug: "praca-eugenio-tavares",
     name: "Praça Eugénio Tavares",
-    category: "Landmark",
+    category: "Heritage",
     imageUrl: "/images/directory/praca-eugenio-tavares.jpg",
     town: "Nova Sintra",
     latitude: 14.8638,

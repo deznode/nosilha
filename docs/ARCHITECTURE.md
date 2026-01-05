@@ -58,7 +58,7 @@ Nos Ilha is a modern, full-stack web application built with a microservices-insp
 │  │ ┌─────────────┐ │                                                                   │
 │  │ │ Vision API  │ │                                                                   │
 │  │ │ OCR         │ │                                                                   │
-│  │ │ Landmark    │ │                                                                   │
+│  │ │ Heritage    │ │                                                                   │
 │  │ │ Recognition │ │                                                                   │
 │  │ └─────────────┘ │                                                                   │
 │  └─────────────────┘                                                                   │
@@ -205,7 +205,7 @@ apps/web/
 apps/api/src/main/kotlin/com/nosilha/core/
 ├── shared/         # Shared Kernel - Common infrastructure (events, audit, exceptions)
 ├── auth/           # Authentication Module - JWT auth and user management
-├── directory/      # Directory Module - Cultural heritage entries (STI pattern)
+├── places/         # Places Module - Cultural heritage entries (STI pattern)
 ├── media/          # Media Module - Media assets & storage, provides MediaQueryService
 ├── curatedmedia/   # Curated Media Module - Admin-curated external content
 ├── engagement/     # Engagement Module - User interactions (Content, Reaction, Bookmark)
@@ -230,9 +230,9 @@ Each module follows a consistent pattern with these internal layers:
 **Key Architectural Decisions:**
 
 1. **Spring Modulith Architecture**: Modular monolith with enforced module boundaries and event-driven communication
-2. **Single Table Inheritance**: All directory entries in one table with discriminator column (Directory module)
+2. **Single Table Inheritance**: All place entries in one table with discriminator column (Places module)
 3. **Event-Driven Communication**: Modules communicate via `@ApplicationModuleListener` without direct dependencies
-4. **Module Isolation**: Each module (auth, directory, media, curatedmedia, engagement, stories, feedback) has independent domain, API, and repository layers
+4. **Module Isolation**: Each module (auth, places, media, curatedmedia, engagement, stories, feedback) has independent domain, API, and repository layers
 5. **Shared Kernel**: Common infrastructure (AuditableEntity, events, exceptions) in dedicated shared module
 6. **JWT Authentication**: Stateless authentication with Supabase token validation (Auth module)
 7. **Actuator Integration**: Health checks and metrics for production monitoring
@@ -289,7 +289,8 @@ Each module follows a consistent pattern with these internal layers:
 │  │  ├─────────┼──────────┼────────────┼─────────────────┤               │  │
 │  │  │abc-123  │Casa Nova │RESTAURANT  │cuisine, hours   │               │  │
 │  │  │def-456  │Hotel Mar │HOTEL       │amenities        │               │  │
-│  │  │ghi-789  │Lighthouse│LANDMARK    │historical_info  │               │  │
+│  │  │ghi-789  │Fajã Água │HERITAGE    │historical_info  │               │  │
+│  │  │jkl-012  │Ribeira   │NATURE      │ecological_info  │               │  │
 │  │  └─────────┴──────────┴────────────┴─────────────────┘               │  │
 │  └───────────────────────────────────────────────────────────────────────┘  │
 │  ┌───────────────────────────────────────────────────────────────────────┐  │
@@ -308,7 +309,7 @@ The backend also includes specialized domain modules:
 - Controllers: `ReactionController`, `BookmarkController`, `ContentController`
 - Services: `ReactionService`, `BookmarkService`, `ContentService`
 - Domain entities: `Reaction`, `Bookmark`, `Content`
-- Dependencies: shared, directory
+- Dependencies: shared, places
 
 **Stories Module** (`stories/`):
 - Manages community-submitted cultural heritage narratives
@@ -316,14 +317,14 @@ The backend also includes specialized domain modules:
 - Services: `StoryService`, `MdxArchivalService`
 - Query: `StoriesQueryService` (exposes read-only interface for cross-module access)
 - Domain entities: `Story`, `MdxArchive`
-- Dependencies: shared, auth, directory
+- Dependencies: shared, auth, places
 
 **Feedback Module** (`feedback/`):
 - Manages community feedback channels and admin dashboard
 - Controllers: `SuggestionController`, `DirectorySubmissionController`, `ContactMessageController`, `DashboardController`
 - Services: `SuggestionService`, `DirectorySubmissionService`, `ContactMessageService`, `DashboardService`
 - Domain entities: `Suggestion`, `DirectorySubmission`, `ContactMessage`
-- Dependencies: shared, auth, directory, stories, media
+- Dependencies: shared, auth, places, stories, media
 
 **Curated Media Module** (`curatedmedia/`):
 - Manages admin-curated external content
@@ -338,7 +339,7 @@ The backend also includes specialized domain modules:
 - ✅ **Query Service Pattern**: Modules expose read-only query interfaces for cross-module data access
   - `StoriesQueryService` - Stories module exposes query interface for dashboard
   - `MediaQueryService` - Media module exposes query interface for dashboard
-  - `DirectoryEntryQueryService` - Directory module exposes query interface
+  - `PlacesQueryService` - Places module exposes query interface
   - `UserProfileQueryService` - Auth module exposes query interface
 - ✅ **Enforced Boundaries**: `ModularityTests` verify zero circular dependencies
 - ✅ **Public API Only**: Controllers, events, and query services are public; services and repositories are internal
@@ -646,7 +647,7 @@ Backend Architecture: Spring Modulith
 │ ┌─────────────────────────────────────────────────────────────────────────┐ │
 │ │  Directory Module (com.nosilha.core.directory)                         │ │
 │ │  • API: DirectoryController (public REST endpoints)                    │ │
-│ │  • Domain: DirectoryEntry, Restaurant, Hotel, Landmark, Beach (STI)    │ │
+│ │  • Domain: DirectoryEntry, Restaurant, Hotel, Heritage, Nature, Beach (STI)    │ │
 │ │  • Service: DirectoryService (business logic, event publishing)        │ │
 │ │  • Repository: DirectoryEntryRepository (JPA data access)              │ │
 │ │  • Events: DirectoryEntryCreatedEvent, UpdatedEvent, DeletedEvent      │ │

@@ -102,7 +102,7 @@ export const contactMessageSchema = z.object({
 export const directorySubmissionSchema = z.object({
   id: z.string(),
   name: z.string(),
-  category: z.enum(["Restaurant", "Landmark", "Nature", "Culture"]),
+  category: z.enum(["Restaurant", "Heritage", "Nature", "Culture"]),
   town: z.string(),
   customTown: z.string().optional(),
   description: z.string(),

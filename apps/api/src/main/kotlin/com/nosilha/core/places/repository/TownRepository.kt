@@ -1,6 +1,6 @@
-package com.nosilha.core.directory.repository
+package com.nosilha.core.places.repository
 
-import com.nosilha.core.directory.domain.Town
+import com.nosilha.core.places.domain.Town
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository

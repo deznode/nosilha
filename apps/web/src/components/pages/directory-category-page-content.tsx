@@ -23,7 +23,8 @@ const ALL_CATEGORIES: DirectoryCategory[] = [
   "Restaurant",
   "Hotel",
   "Beach",
-  "Landmark",
+  "Heritage",
+  "Nature",
 ];
 
 export interface DirectoryCategoryPageContentProps {
@@ -97,7 +98,7 @@ export function DirectoryCategoryPageContent({
   // Dynamic subtitle based on context
   const subtitle =
     selectedCategory === "All"
-      ? "Discover restaurants, hotels, beaches, and landmarks on Brava Island."
+      ? "Discover restaurants, hotels, beaches, heritage sites, and nature trails on Brava Island."
       : `Browse all ${pageTitle.toLowerCase()} listings on Brava Island.`;
 
   return (

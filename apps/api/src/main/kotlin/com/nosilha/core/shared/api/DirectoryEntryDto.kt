@@ -20,7 +20,8 @@ import java.util.*
     JsonSubTypes.Type(value = RestaurantDto::class, name = "Restaurant"),
     JsonSubTypes.Type(value = HotelDto::class, name = "Hotel"),
     JsonSubTypes.Type(value = BeachDto::class, name = "Beach"),
-    JsonSubTypes.Type(value = LandmarkDto::class, name = "Landmark"),
+    JsonSubTypes.Type(value = HeritageDto::class, name = "Heritage"),
+    JsonSubTypes.Type(value = NatureDto::class, name = "Nature"),
 )
 abstract class DirectoryEntryDto {
     abstract val id: UUID
@@ -115,10 +116,10 @@ data class BeachDto(
 ) : DirectoryEntryDto()
 
 /**
- * DTO for a Landmark entry. Does not contain any specific details.
+ * DTO for a Heritage entry. Does not contain any specific details.
  */
-@JsonTypeName("Landmark")
-data class LandmarkDto(
+@JsonTypeName("Heritage")
+data class HeritageDto(
     override val id: UUID,
     override val name: String,
     override val slug: String,
@@ -134,7 +135,30 @@ data class LandmarkDto(
     override val createdAt: LocalDateTime,
     override val updatedAt: LocalDateTime,
     val details: DetailsDto? = null,
-    override val category: String = "Landmark",
+    override val category: String = "Heritage",
+) : DirectoryEntryDto()
+
+/**
+ * DTO for a Nature entry. Does not contain any specific details.
+ */
+@JsonTypeName("Nature")
+data class NatureDto(
+    override val id: UUID,
+    override val name: String,
+    override val slug: String,
+    override val description: String,
+    override val tags: List<String> = emptyList(),
+    override val contentActions: ContentActionSettingsDto? = null,
+    override val town: String,
+    override val latitude: Double,
+    override val longitude: Double,
+    override val imageUrl: String?,
+    override val rating: Double?,
+    override val reviewCount: Int,
+    override val createdAt: LocalDateTime,
+    override val updatedAt: LocalDateTime,
+    val details: DetailsDto? = null,
+    override val category: String = "Nature",
 ) : DirectoryEntryDto()
 
 /**

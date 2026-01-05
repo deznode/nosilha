@@ -8,7 +8,7 @@ import type { PaginatedResult } from "@/lib/api-contracts";
  * TanStack Query hook for fetching directory entries with runtime validation.
  * Provides automatic caching, refetching, and loading states.
  *
- * @param category - The category to fetch ('all', 'Restaurant', 'Hotel', 'Beach', 'Landmark')
+ * @param category - The category to fetch ('all', 'Restaurant', 'Hotel', 'Beach', 'Heritage', 'Nature')
  * @param page - Page number (default: 0)
  * @param size - Page size (default: 20)
  * @param options - Additional TanStack Query options

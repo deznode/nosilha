@@ -1,6 +1,6 @@
-package com.nosilha.core.directory.repository
+package com.nosilha.core.places.repository
 
-import com.nosilha.core.directory.domain.DirectoryEntry
+import com.nosilha.core.places.domain.DirectoryEntry
 import org.springframework.data.jpa.domain.Specification
 
 /**

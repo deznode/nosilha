@@ -36,6 +36,7 @@ export const ALL_CATEGORIES = [
   "Restaurant",
   "Hotel",
   "Beach",
-  "Landmark",
+  "Heritage",
+  "Nature",
 ] as const;
 export type Category = (typeof ALL_CATEGORIES)[number];

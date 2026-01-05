@@ -20,7 +20,7 @@ import org.springframework.modulith.docs.Documenter
  * Expected Modules:
  * - shared (Shared Kernel) - No dependencies
  * - auth (Authentication Module) - Depends on: shared only
- * - directory (Directory Module) - Depends on: shared only
+ * - places (Places Module) - Depends on: shared only (formerly 'directory')
  * - media (Media Module) - Depends on: shared only
  *
  * Status: Expected to FAIL until modules are extracted in Phase 3
@@ -63,7 +63,7 @@ class ModularityTests {
                 To fix:
                 1. Extract shared kernel module (T061-T064)
                 2. Extract auth module (T065-T070)
-                3. Extract directory module (T071-T079)
+                3. Extract places module (T071-T079) (formerly 'directory')
                 4. Extract media module (T080-T083)
                 5. Configure module package-info.java files with @ApplicationModule
 
@@ -192,36 +192,35 @@ class ModularityTests {
     }
 
     /**
-     * Contract Test: Verify directory module exists
+     * Contract Test: Verify places module exists
      *
-     * Directory module should:
+     * Places module (formerly 'directory') should:
      * - Depend only on shared kernel
-     * - Expose REST controllers
+     * - Expose REST controllers at /api/v1/directory
      * - Publish directory entry events
      *
      * Module boundary verification is handled by the main verify() test.
-     * Expected to FAIL until directory module is extracted (T071-T079).
      */
     @Test
-    fun `verify directory module exists`() {
+    fun `verify places module exists`() {
         try {
-            val directoryModule =
+            val placesModule =
                 modules
-                    .getModuleByName("directory")
-                    .orElseThrow { AssertionError("Directory module not found") }
+                    .getModuleByName("places")
+                    .orElseThrow { AssertionError("Places module not found") }
 
-            println("✅ Directory module found: ${directoryModule.name}")
+            println("✅ Places module found: ${placesModule.name}")
         } catch (e: Exception) {
-            println("❌ Directory module not found (expected in TDD approach)")
+            println("❌ Places module not found")
             throw AssertionError(
                 """
-                Directory module not found.
+                Places module not found.
 
-                Expected in Phase 3.4 (T071-T079):
-                - Create directory module with @ApplicationModule annotation
-                - Move DirectoryEntry and subclasses to directory.domain
-                - Move DirectoryService to directory.domain
-                - Move DirectoryController to directory.api
+                Expected:
+                - Create places module with @ApplicationModule annotation
+                - DirectoryEntry and subclasses in places.domain
+                - DirectoryEntryService in places.domain
+                - DirectoryEntryController in places.api
                 - Define allowedDependencies = ["shared"]
 
                 Current error: ${e.message}

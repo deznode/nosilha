@@ -9,7 +9,7 @@ import { SubmissionStatus } from "./story";
 export type MediaType = "IMAGE" | "VIDEO";
 
 export type MediaCategory =
-  | "Landmark"
+  | "Heritage"
   | "Historical"
   | "Nature"
   | "Culture"

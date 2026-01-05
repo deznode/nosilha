@@ -54,13 +54,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/directory/landmark`,
+      url: `${baseUrl}/directory/heritage`,
       lastModified: currentDate,
       changeFrequency: "weekly" as const,
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/directory/beach`,
+      url: `${baseUrl}/directory/nature`,
       lastModified: currentDate,
       changeFrequency: "weekly" as const,
       priority: 0.8,
@@ -163,10 +163,10 @@ function getDynamicPagePriority(
     case "Hotel":
       basePriority = 0.7;
       break;
-    case "Landmark":
+    case "Heritage":
       basePriority = 0.8;
       break;
-    case "Beach":
+    case "Nature":
       basePriority = 0.8;
       break;
   }

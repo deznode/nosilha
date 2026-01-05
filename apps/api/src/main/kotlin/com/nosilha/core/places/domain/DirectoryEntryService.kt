@@ -1,6 +1,6 @@
-package com.nosilha.core.directory.domain
+package com.nosilha.core.places.domain
 
-import com.nosilha.core.directory.repository.DirectoryEntryRepository
+import com.nosilha.core.places.repository.DirectoryEntryRepository
 import com.nosilha.core.shared.api.CreateEntryRequestDto
 import com.nosilha.core.shared.api.CreateHotelDetailsDto
 import com.nosilha.core.shared.api.CreateRestaurantDetailsDto
@@ -66,7 +66,8 @@ class DirectoryEntryService(
                 }
 
                 "Beach" -> Beach()
-                "Landmark" -> Landmark()
+                "Heritage" -> Heritage()
+                "Nature" -> Nature()
                 else -> throw IllegalArgumentException("Invalid category provided: ${request.category}")
             }
 
@@ -250,7 +251,7 @@ class DirectoryEntryService(
                 existingEntry.phoneNumber = hotelDetails?.phoneNumber
                 existingEntry.amenities = hotelDetails?.amenities?.joinToString(",")
             }
-            // Beach and Landmark don't have specific fields to update
+            // Beach, Heritage, and Nature don't have specific fields to update
         }
 
         val updatedEntry = repository.save(existingEntry)

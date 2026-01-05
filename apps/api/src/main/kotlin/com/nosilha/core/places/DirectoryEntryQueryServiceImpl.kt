@@ -1,23 +1,23 @@
-package com.nosilha.core.directory
+package com.nosilha.core.places
 
-import com.nosilha.core.directory.api.DirectoryEntryQueryService
-import com.nosilha.core.directory.repository.DirectoryEntryRepository
+import com.nosilha.core.places.api.PlacesQueryService
+import com.nosilha.core.places.repository.DirectoryEntryRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 /**
- * Implementation of DirectoryEntryQueryService.
+ * Implementation of PlacesQueryService.
  *
- * <p>Provides read-only access to directory entry names for cross-module queries.
- * This implementation is internal to the directory module and uses the repository directly.</p>
+ * <p>Provides read-only access to places information for cross-module queries.
+ * This implementation is internal to the places module and uses the repository directly.</p>
  *
  * @property repository DirectoryEntry repository for database access
  */
 @Service
 class DirectoryEntryQueryServiceImpl(
     private val repository: DirectoryEntryRepository,
-) : DirectoryEntryQueryService {
+) : PlacesQueryService {
     /**
      * Finds entry names for a collection of entry IDs.
      *

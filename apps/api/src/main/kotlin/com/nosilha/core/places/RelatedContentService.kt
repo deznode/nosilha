@@ -1,7 +1,7 @@
-package com.nosilha.core.directory
+package com.nosilha.core.places
 
-import com.nosilha.core.directory.domain.DirectoryEntry
-import com.nosilha.core.directory.repository.DirectoryEntryRepository
+import com.nosilha.core.places.domain.DirectoryEntry
+import com.nosilha.core.places.repository.DirectoryEntryRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service

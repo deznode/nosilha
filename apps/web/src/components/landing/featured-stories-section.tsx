@@ -49,7 +49,9 @@ const defaultStories: FeaturedItem[] = [
 const categoryFallbackImages: Record<string, string> = {
   Hotel: "/images/history/brava-culture.webp",
   Beach: "/images/history/brava-formation.jpg",
-  Landmark: "/images/history/brava-maritime.jpg",
+  Heritage: "/images/history/brava-maritime.jpg",
+  Nature: "/images/history/brava-formation.jpg",
+  Landmark: "/images/history/brava-maritime.jpg", // Backward compatibility
   Restaurant: "/images/history/whaling-heritage.jpg",
   default: "/images/hero.jpg",
 };

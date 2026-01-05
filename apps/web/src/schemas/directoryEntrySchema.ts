@@ -48,7 +48,11 @@ export const directoryEntrySchema = z.discriminatedUnion("category", [
     details: z.null(),
   }),
   baseDirectoryEntrySchema.extend({
-    category: z.literal("Landmark"),
+    category: z.literal("Heritage"),
+    details: z.null(),
+  }),
+  baseDirectoryEntrySchema.extend({
+    category: z.literal("Nature"),
     details: z.null(),
   }),
 ]);

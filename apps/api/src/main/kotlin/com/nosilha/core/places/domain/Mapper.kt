@@ -1,11 +1,12 @@
-package com.nosilha.core.directory.domain
+package com.nosilha.core.places.domain
 
 import com.nosilha.core.shared.api.BeachDto
 import com.nosilha.core.shared.api.ContentActionSettingsDto
 import com.nosilha.core.shared.api.DirectoryEntryDto
+import com.nosilha.core.shared.api.HeritageDto
 import com.nosilha.core.shared.api.HotelDetailsDto
 import com.nosilha.core.shared.api.HotelDto
-import com.nosilha.core.shared.api.LandmarkDto
+import com.nosilha.core.shared.api.NatureDto
 import com.nosilha.core.shared.api.RestaurantDetailsDto
 import com.nosilha.core.shared.api.RestaurantDto
 import com.nosilha.core.shared.api.TownDto
@@ -111,8 +112,8 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
                 // The `details` field is null by default in the BeachDto constructor.
             )
 
-        is Landmark ->
-            LandmarkDto(
+        is Heritage ->
+            HeritageDto(
                 id = entityId,
                 name = this.name,
                 slug = this.slug,
@@ -127,7 +128,26 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
                 reviewCount = this.reviewCount,
                 createdAt = this.createdAt,
                 updatedAt = this.updatedAt,
-                // The `details` field is null by default in the LandmarkDto constructor.
+                // The `details` field is null by default in the HeritageDto constructor.
+            )
+
+        is Nature ->
+            NatureDto(
+                id = entityId,
+                name = this.name,
+                slug = this.slug,
+                description = this.description,
+                tags = tagList,
+                contentActions = contentActionSettings,
+                town = this.town,
+                latitude = this.latitude,
+                longitude = this.longitude,
+                imageUrl = this.imageUrl,
+                rating = this.rating,
+                reviewCount = this.reviewCount,
+                createdAt = this.createdAt,
+                updatedAt = this.updatedAt,
+                // The `details` field is null by default in the NatureDto constructor.
             )
 
         else -> throw IllegalStateException("Unsupported or unknown DirectoryEntry type: ${this::class.simpleName}")
@@ -222,6 +242,7 @@ fun DirectoryEntry.getCategoryValue(): String =
         is Restaurant -> "Restaurant"
         is Hotel -> "Hotel"
         is Beach -> "Beach"
-        is Landmark -> "Landmark"
+        is Heritage -> "Heritage"
+        is Nature -> "Nature"
         else -> throw IllegalStateException("Unknown DirectoryEntry type: ${this::class.simpleName}")
     }

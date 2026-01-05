@@ -1,8 +1,8 @@
-package com.nosilha.core.directory
+package com.nosilha.core.places
 
-import com.nosilha.core.directory.domain.DirectoryEntry
-import com.nosilha.core.directory.domain.Restaurant
-import com.nosilha.core.directory.repository.DirectoryEntryRepository
+import com.nosilha.core.places.domain.DirectoryEntry
+import com.nosilha.core.places.domain.Restaurant
+import com.nosilha.core.places.repository.DirectoryEntryRepository
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test

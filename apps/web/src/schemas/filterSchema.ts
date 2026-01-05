@@ -10,7 +10,8 @@ const categoryEnum = z.enum([
   "Restaurant",
   "Hotel",
   "Beach",
-  "Landmark",
+  "Heritage",
+  "Nature",
   "all",
 ]);
 

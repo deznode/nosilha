@@ -1,7 +1,7 @@
-package com.nosilha.core.directory.api
+package com.nosilha.core.places.api
 
-import com.nosilha.core.directory.RelatedContentService
-import com.nosilha.core.directory.domain.toDto
+import com.nosilha.core.places.RelatedContentService
+import com.nosilha.core.places.domain.toDto
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.DirectoryEntryDto
 import io.github.oshai.kotlinlogging.KotlinLogging

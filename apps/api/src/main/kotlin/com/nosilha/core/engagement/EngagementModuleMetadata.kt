@@ -8,11 +8,11 @@ import org.springframework.modulith.PackageInfo
  *
  * Manages user interactions with published content including:
  * - Reactions (love, celebrate, insightful, support)
- * - Bookmarks (saved directory entries)
+ * - Bookmarks (saved place entries)
  * - Content registration for reaction tracking
  *
  * Module Boundaries:
- * - Depends on: shared (base classes, events, exceptions), directory (entry validation)
+ * - Depends on: shared (base classes, events, exceptions), places (entry validation)
  * - Exposes: Controllers and DTOs (public API)
  * - Internal: Services, repositories (package-private)
  */
@@ -25,7 +25,7 @@ import org.springframework.modulith.PackageInfo
         "shared :: events",
         "shared :: exception",
         "shared :: util",
-        "directory",
+        "places",
     ],
     type = ApplicationModule.Type.OPEN,
 )

@@ -1,4 +1,11 @@
-import { Landmark, Building2, MapPin, ShoppingBag, Sun } from "lucide-react";
+import {
+  Building2,
+  MapPin,
+  ShoppingBag,
+  Sun,
+  Castle,
+  TreePine,
+} from "lucide-react";
 
 interface CategoryMarkerIconProps {
   category: string;
@@ -16,8 +23,10 @@ export function CategoryMarkerIcon({
       return <Building2 className={`${className} text-ocean-blue`} />;
     case "Beach":
       return <Sun className={`${className} text-sobrado-ochre`} />;
-    case "Landmark":
-      return <Landmark className={`${className} text-valley-green`} />;
+    case "Heritage":
+      return <Castle className={`${className} text-valley-green`} />;
+    case "Nature":
+      return <TreePine className={`${className} text-valley-green`} />;
     default:
       return <MapPin className={`${className} text-text-tertiary`} />;
   }

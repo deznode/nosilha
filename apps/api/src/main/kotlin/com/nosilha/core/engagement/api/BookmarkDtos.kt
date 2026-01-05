@@ -1,7 +1,7 @@
 package com.nosilha.core.engagement.api
 
-import com.nosilha.core.directory.domain.DirectoryEntry
 import com.nosilha.core.engagement.domain.Bookmark
+import com.nosilha.core.places.domain.DirectoryEntry
 import jakarta.validation.constraints.NotNull
 import java.time.Instant
 import java.util.UUID

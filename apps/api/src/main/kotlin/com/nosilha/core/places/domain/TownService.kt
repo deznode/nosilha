@@ -1,6 +1,6 @@
-package com.nosilha.core.directory.domain
+package com.nosilha.core.places.domain
 
-import com.nosilha.core.directory.repository.TownRepository
+import com.nosilha.core.places.repository.TownRepository
 import com.nosilha.core.shared.api.TownDto
 import com.nosilha.core.shared.exception.ResourceNotFoundException
 import org.springframework.data.domain.Page

@@ -24,7 +24,7 @@ export const MOCK_MEDIA_ITEMS: MediaItem[] = [
     url: "https://picsum.photos/id/1036/800/600",
     title: "Furna Harbor at Sunset",
     description: "The ferry arriving from Fogo.",
-    category: "Landmark",
+    category: "Heritage",
     date: "2024",
     author: "João Pereira",
   },
@@ -64,7 +64,7 @@ export const MOCK_MEDIA_ITEMS: MediaItem[] = [
     url: "https://picsum.photos/id/110/800/600",
     title: "Traditional House in Nossa Senhora do Monte",
     description: "Colonial architecture preserved in the highlands.",
-    category: "Landmark",
+    category: "Heritage",
     date: "2024",
     author: "Ana Gomes",
   },
@@ -116,7 +116,7 @@ export const MOCK_MEDIA_ITEMS: MediaItem[] = [
 ];
 
 export const MEDIA_CATEGORIES: MediaCategory[] = [
-  "Landmark",
+  "Heritage",
   "Historical",
   "Nature",
   "Culture",

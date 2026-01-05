@@ -10,9 +10,10 @@ import {
   Sparkles,
   Send,
   Utensils,
-  Mountain,
-  Landmark,
-  Music,
+  Hotel,
+  Umbrella,
+  Castle,
+  TreePine,
   Check,
   History,
   Info,
@@ -31,7 +32,12 @@ import { submitDirectoryEntry } from "@/lib/api";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import type { DirectorySubmissionRequest } from "@/lib/api-contracts";
 
-type DirectoryCategory = "Restaurant" | "Landmark" | "Nature" | "Culture";
+type DirectoryCategory =
+  | "Restaurant"
+  | "Hotel"
+  | "Beach"
+  | "Heritage"
+  | "Nature";
 
 interface CategoryOption {
   id: DirectoryCategory;
@@ -46,29 +52,36 @@ const CATEGORIES: CategoryOption[] = [
     id: "Restaurant",
     label: "Dining",
     icon: <Utensils size={24} />,
-    colorClass: "valley-green",
+    colorClass: "bougainvillea",
     description: "Local eateries & cafes",
   },
   {
-    id: "Landmark",
-    label: "Landmark",
-    icon: <Landmark size={24} />,
+    id: "Hotel",
+    label: "Lodging",
+    icon: <Hotel size={24} />,
     colorClass: "ocean-blue",
-    description: "Monuments & sites",
+    description: "Hotels & guesthouses",
+  },
+  {
+    id: "Beach",
+    label: "Beach",
+    icon: <Umbrella size={24} />,
+    colorClass: "sunny-yellow",
+    description: "Coastal destinations",
+  },
+  {
+    id: "Heritage",
+    label: "Heritage",
+    icon: <Castle size={24} />,
+    colorClass: "valley-green",
+    description: "Historical sites & monuments",
   },
   {
     id: "Nature",
     label: "Nature",
-    icon: <Mountain size={24} />,
+    icon: <TreePine size={24} />,
     colorClass: "valley-green",
-    description: "Hiking & natural pools",
-  },
-  {
-    id: "Culture",
-    label: "Culture",
-    icon: <Music size={24} />,
-    colorClass: "bougainvillea",
-    description: "Music & museums",
+    description: "Hiking trails & natural pools",
   },
 ];
 
@@ -159,9 +172,10 @@ export function AddDirectoryEntryForm() {
         DirectorySubmissionRequest["category"]
       > = {
         Restaurant: "RESTAURANT",
-        Landmark: "LANDMARK",
+        Hotel: "HOTEL",
+        Beach: "BEACH",
+        Heritage: "HERITAGE",
         Nature: "NATURE",
-        Culture: "CULTURE",
       };
 
       const request: DirectorySubmissionRequest = {

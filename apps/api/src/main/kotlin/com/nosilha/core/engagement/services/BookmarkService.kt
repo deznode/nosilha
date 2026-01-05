@@ -1,6 +1,5 @@
 package com.nosilha.core.engagement.services
 
-import com.nosilha.core.directory.repository.DirectoryEntryRepository
 import com.nosilha.core.engagement.api.BookmarkDto
 import com.nosilha.core.engagement.api.BookmarkStatusDto
 import com.nosilha.core.engagement.api.BookmarkWithEntryDto
@@ -8,6 +7,7 @@ import com.nosilha.core.engagement.api.toDto
 import com.nosilha.core.engagement.api.toWithEntryDto
 import com.nosilha.core.engagement.domain.Bookmark
 import com.nosilha.core.engagement.repository.BookmarkRepository
+import com.nosilha.core.places.repository.DirectoryEntryRepository
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
 import io.github.oshai.kotlinlogging.KotlinLogging

@@ -1,20 +1,20 @@
-package com.nosilha.core.directory.api
+package com.nosilha.core.places.api
 
 import java.util.UUID
 
 /**
- * Public query service for directory entry information.
+ * Public query service for places information.
  *
- * <p>This interface is part of the directory module's public API, allowing other modules
- * to query directory entry data without directly accessing the repository.</p>
+ * <p>This interface is part of the places module's public API, allowing other modules
+ * to query places data without directly accessing the repository.</p>
  *
  * <p><strong>Spring Modulith Compliance:</strong> This interface enables cross-module
  * queries while respecting module boundaries. Other modules should inject this
  * service interface, not the DirectoryEntryRepository directly.</p>
  *
- * @see com.nosilha.core.directory.DirectoryEntryQueryServiceImpl
+ * @see com.nosilha.core.places.DirectoryEntryQueryServiceImpl
  */
-interface DirectoryEntryQueryService {
+interface PlacesQueryService {
     /**
      * Finds entry names for a collection of entry IDs.
      *

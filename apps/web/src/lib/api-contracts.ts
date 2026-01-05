@@ -488,7 +488,7 @@ export interface StorySubmittedResponse {
  */
 export interface DirectorySubmissionRequest {
   name: string;
-  category: "RESTAURANT" | "LANDMARK" | "NATURE" | "CULTURE";
+  category: "RESTAURANT" | "HOTEL" | "BEACH" | "HERITAGE" | "NATURE";
   town: string;
   customTown?: string;
   description: string;

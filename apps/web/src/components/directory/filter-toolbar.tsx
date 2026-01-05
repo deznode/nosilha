@@ -9,7 +9,8 @@ export type DirectoryCategory =
   | "Restaurant"
   | "Hotel"
   | "Beach"
-  | "Landmark";
+  | "Heritage"
+  | "Nature";
 
 interface FilterToolbarProps {
   searchTerm: string;
@@ -38,7 +39,8 @@ const CATEGORY_LABELS: Record<DirectoryCategory, string> = {
   Restaurant: "Restaurants",
   Hotel: "Hotels",
   Beach: "Beaches",
-  Landmark: "Landmarks",
+  Heritage: "Heritage Sites",
+  Nature: "Nature & Hiking",
 };
 
 export function FilterToolbar({

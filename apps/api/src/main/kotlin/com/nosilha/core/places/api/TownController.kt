@@ -1,6 +1,6 @@
-package com.nosilha.core.directory.api
+package com.nosilha.core.places.api
 
-import com.nosilha.core.directory.domain.TownService
+import com.nosilha.core.places.domain.TownService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
 import com.nosilha.core.shared.api.TownDto

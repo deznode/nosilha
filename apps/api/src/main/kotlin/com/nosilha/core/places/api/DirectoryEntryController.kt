@@ -1,10 +1,10 @@
-package com.nosilha.core.directory.api
+package com.nosilha.core.places.api
 
-import com.nosilha.core.directory.domain.DirectoryEntryService
-import com.nosilha.core.directory.domain.toDto
-import com.nosilha.core.directory.services.SearchService
 import com.nosilha.core.engagement.api.BookmarkStatusDto
 import com.nosilha.core.engagement.services.BookmarkService
+import com.nosilha.core.places.domain.DirectoryEntryService
+import com.nosilha.core.places.domain.toDto
+import com.nosilha.core.places.services.SearchService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.CreateEntryRequestDto
 import com.nosilha.core.shared.api.DirectoryEntryDto

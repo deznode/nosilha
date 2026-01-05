@@ -163,7 +163,7 @@ export const MOCK_DIRECTORY_SUBMISSIONS: DirectorySubmission[] = [
   {
     id: "ds2",
     name: "Miradouro da Esperança",
-    category: "Landmark",
+    category: "Heritage",
     town: "Nossa Senhora do Monte",
     description:
       "A stunning viewpoint overlooking the entire island and the neighboring Fogo volcano. Best visited at sunset for spectacular views.",
@@ -193,7 +193,7 @@ export const MOCK_DIRECTORY_SUBMISSIONS: DirectorySubmission[] = [
   {
     id: "ds4",
     name: "Casa da Cultura",
-    category: "Culture",
+    category: "Heritage",
     town: "Nova Sintra",
     description:
       "The cultural center hosts exhibitions, music performances, and workshops on traditional crafts. A hub for local artists and cultural events.",

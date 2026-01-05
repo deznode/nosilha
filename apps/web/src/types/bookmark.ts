@@ -54,7 +54,7 @@ export interface BookmarkEntryDetails {
   name: string;
 
   /**
-   * Entry category (Restaurant, Hotel, Beach, Landmark)
+   * Entry category (Restaurant, Hotel, Beach, Heritage, Nature)
    */
   category: string;
 

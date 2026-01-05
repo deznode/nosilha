@@ -15,7 +15,7 @@ export interface BaseDirectoryEntry {
   id: string;
   slug: string; // Slugs are essential for all public entries
   name: string;
-  category: "Restaurant" | "Hotel" | "Beach" | "Landmark";
+  category: "Restaurant" | "Hotel" | "Beach" | "Heritage" | "Nature";
   imageUrl: string | null;
   town: string;
   latitude: number;
@@ -59,6 +59,10 @@ export type DirectoryEntry =
       details: null; // A beach has no specific details in this model
     })
   | (BaseDirectoryEntry & {
-      category: "Landmark";
-      details: null; // A landmark also has no specific details yet
+      category: "Heritage";
+      details: null; // Heritage sites have no specific details yet
+    })
+  | (BaseDirectoryEntry & {
+      category: "Nature";
+      details: null; // Nature sites have no specific details yet
     });

@@ -13,7 +13,7 @@ import org.springframework.modulith.PackageInfo
  * - Admin dashboard (aggregate statistics from all modules)
  *
  * Module Boundaries:
- * - Depends on: shared, auth, directory, stories, engagement, media (for dashboard queries)
+ * - Depends on: shared, auth, places, stories, engagement, media (for dashboard queries)
  * - Exposes: Controllers, DTOs, DashboardService (public API)
  * - Internal: repositories, domain entities (package-private)
  */
@@ -27,7 +27,7 @@ import org.springframework.modulith.PackageInfo
         "shared :: exception",
         "shared :: util",
         "auth",
-        "directory",
+        "places",
         "stories",
         "engagement",
         "media",

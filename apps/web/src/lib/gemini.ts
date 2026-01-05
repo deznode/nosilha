@@ -150,7 +150,7 @@ Return each prompt on a new line, numbered 1-3.`;
  * Generate description and tags for a directory entry using AI.
  *
  * @param name - The name of the location
- * @param category - The category (Restaurant, Landmark, Nature, Culture)
+ * @param category - The category (Restaurant, Heritage, Nature, Culture)
  * @returns Object with generated description and tags, or null if unavailable
  */
 export const generateDirectoryEntryContent = async (

@@ -11,9 +11,10 @@ import {
   XCircle,
   ExternalLink,
   Utensils,
-  Landmark,
-  Mountain,
-  Music,
+  Hotel,
+  Umbrella,
+  Castle,
+  TreePine,
 } from "lucide-react";
 import Image from "next/image";
 import type { DirectorySubmission } from "@/types/admin";
@@ -28,18 +29,20 @@ interface DirectoryQueueProps {
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   Restaurant: <Utensils size={18} />,
-  Landmark: <Landmark size={18} />,
-  Nature: <Mountain size={18} />,
-  Culture: <Music size={18} />,
+  Hotel: <Hotel size={18} />,
+  Beach: <Umbrella size={18} />,
+  Heritage: <Castle size={18} />,
+  Nature: <TreePine size={18} />,
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
   Restaurant:
-    "bg-[var(--color-valley-green)]/10 text-[var(--color-valley-green)]",
-  Landmark: "bg-[var(--color-ocean-blue)]/10 text-[var(--color-ocean-blue)]",
-  Nature: "bg-[var(--color-valley-green)]/10 text-[var(--color-valley-green)]",
-  Culture:
     "bg-[var(--color-bougainvillea)]/10 text-[var(--color-bougainvillea)]",
+  Hotel: "bg-[var(--color-ocean-blue)]/10 text-[var(--color-ocean-blue)]",
+  Beach: "bg-[var(--color-sunny-yellow)]/10 text-[var(--color-sunny-yellow)]",
+  Heritage:
+    "bg-[var(--color-valley-green)]/10 text-[var(--color-valley-green)]",
+  Nature: "bg-[var(--color-valley-green)]/10 text-[var(--color-valley-green)]",
 };
 
 export function DirectoryQueue({

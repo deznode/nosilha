@@ -18,9 +18,9 @@ cd apps/api
 
 ## Architecture Patterns
 
-- **Spring Modulith Architecture**: Modular monolith with enforced module boundaries (`shared`, `auth`, `directory`, `media`)
+- **Spring Modulith Architecture**: Modular monolith with enforced module boundaries (`shared`, `auth`, `places`, `media`, `engagement`, `stories`, `feedback`)
 - **Event-Driven Communication**: Modules communicate via `@ApplicationModuleListener` without direct dependencies
-- **Single Table Inheritance**: `DirectoryEntry` is the base class for `Restaurant`, `Hotel`, `Landmark`, etc.
+- **Single Table Inheritance**: `DirectoryEntry` is the base class for `Restaurant`, `Hotel`, `Beach`, `Heritage`, `Nature`
 - **API Versioning**: All REST endpoints are prefixed with `/api/v1/`
 - **Authentication**: JWT-based authentication with Supabase token validation
 - **Database Strategy**: PostgreSQL primary with Flyway migrations, connection pooling via HikariCP
@@ -45,7 +45,7 @@ cd apps/api && ./gradlew test         # All tests with PostgreSQL
 apps/api/src/main/kotlin/com/nosilha/core/
 ├── shared/          # Common utilities and base classes
 ├── auth/            # Authentication module (JWT, Supabase)
-├── directory/       # Directory entries (Restaurant, Hotel, etc.)
+├── places/          # Places entries (Restaurant, Hotel, Beach, Heritage, Nature)
 ├── media/           # Media processing and storage, MediaQueryService
 ├── curatedmedia/    # Admin-curated external content
 ├── engagement/      # User interactions (reactions, bookmarks)
