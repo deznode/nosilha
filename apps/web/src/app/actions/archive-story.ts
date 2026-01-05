@@ -42,9 +42,9 @@ export async function archiveStoryToMDX(
       };
     }
 
-    const repoOwner = process.env.GITHUB_REPO_OWNER || "jcosta";
+    const repoOwner = process.env.GITHUB_REPO_OWNER || "deznode";
     const repoName = process.env.GITHUB_REPO_NAME || "nosilha";
-    const branch = process.env.GITHUB_CONTENT_BRANCH || "main";
+    const branch = process.env.GITHUB_CONTENT_BRANCH || "content";
 
     // 2. Initialize Octokit client
     const octokit = new Octokit({
