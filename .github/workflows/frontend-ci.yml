@@ -83,16 +83,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js 20.9+
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.9'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Setup Node & pnpm
+        uses: ./.github/actions/setup-node-pnpm
 
       # Generate Velite content types before type checking
       - name: Generate content types
@@ -218,26 +210,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js 20.9+
-        uses: actions/setup-node@v4
+      - name: Setup Node & pnpm
+        uses: ./.github/actions/setup-node-pnpm
         with:
-          node-version: '20.9'
+          install-dependencies: 'false'
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
-          service_account: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
+      - name: GCP Authentication
+        uses: ./.github/actions/gcp-auth
 
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-
-      - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker ${{ env.REGISTRY }}
-        
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         
@@ -289,15 +269,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+      - name: GCP Authentication
+        uses: ./.github/actions/gcp-auth
         with:
-          workload_identity_provider: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
-          service_account: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
-          
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-        
+          configure-docker: 'false'
+
       - name: Deploy to Cloud Run (Production)
         run: |
           gcloud run deploy ${{ env.SERVICE_NAME }} \

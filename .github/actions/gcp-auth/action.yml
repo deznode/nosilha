@@ -1,0 +1,37 @@
+name: 'GCP Authentication'
+description: 'Authenticate to Google Cloud with OIDC and configure Docker for Artifact Registry'
+
+inputs:
+  workload-identity-provider:
+    description: 'Workload Identity Provider'
+    required: false
+    default: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
+  service-account:
+    description: 'Service Account email'
+    required: false
+    default: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
+  configure-docker:
+    description: 'Configure Docker for Artifact Registry'
+    required: false
+    default: 'true'
+  registry:
+    description: 'Artifact Registry URL'
+    required: false
+    default: 'us-east1-docker.pkg.dev'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        workload_identity_provider: ${{ inputs.workload-identity-provider }}
+        service_account: ${{ inputs.service-account }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: Configure Docker for Artifact Registry
+      if: inputs.configure-docker == 'true'
+      shell: bash
+      run: gcloud auth configure-docker ${{ inputs.registry }}
