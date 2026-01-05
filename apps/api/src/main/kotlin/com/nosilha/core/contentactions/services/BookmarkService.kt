@@ -160,13 +160,22 @@ class BookmarkService(
 
         val bookmarksPage = bookmarkRepository.findByUserId(userId, pageable)
 
+        // Batch fetch all entries in a single query (instead of N queries)
+        val entryIds = bookmarksPage.content.map { it.entryId }
+        val entriesById = if (entryIds.isNotEmpty()) {
+            directoryEntryRepository.findAllById(entryIds).associateBy { it.id }
+        } else {
+            emptyMap()
+        }
+
         // Map to DTOs with entry details
         return bookmarksPage.map { bookmark ->
-            val entry = directoryEntryRepository.findById(bookmark.entryId).orElseThrow {
-                // This should not happen due to foreign key constraints, but handle gracefully
-                logger.error("Directory entry {} not found for bookmark {}", bookmark.entryId, bookmark.id)
-                ResourceNotFoundException("Directory entry with ID ${bookmark.entryId} not found")
-            }
+            val entry = entriesById[bookmark.entryId]
+                ?: run {
+                    // This should not happen due to foreign key constraints, but handle gracefully
+                    logger.error("Directory entry {} not found for bookmark {}", bookmark.entryId, bookmark.id)
+                    throw ResourceNotFoundException("Directory entry with ID ${bookmark.entryId} not found")
+                }
             bookmark.toWithEntryDto(entry)
         }
     }
