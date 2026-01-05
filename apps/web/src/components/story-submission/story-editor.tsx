@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   Bold,
   Italic,
@@ -18,10 +18,10 @@ import Markdown from "react-markdown";
 import { StoryType } from "@/types/story";
 import type { StoryTemplate } from "@/types/story";
 import {
-  polishStoryContent,
-  translateContent,
-  isGeminiAvailable,
-} from "@/lib/gemini";
+  polishStoryAction,
+  translateStoryAction,
+  checkGeminiAvailableAction,
+} from "@/app/actions/gemini-actions";
 import { StoryPromptsPanel } from "./story-prompts-panel";
 
 export const WORD_LIMITS: Record<StoryType, number> = {
@@ -111,13 +111,19 @@ export function StoryEditor({
   const [currentLanguage, setCurrentLanguage] = useState<"EN" | "PT">("EN");
   const [originalContent, setOriginalContent] = useState<string>("");
   const [isTranslating, setIsTranslating] = useState(false);
+  const [geminiAvailable, setGeminiAvailable] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Check Gemini availability on mount
+  useEffect(() => {
+    checkGeminiAvailableAction().then(setGeminiAvailable);
+  }, []);
 
   const handlePolish = async () => {
     if (!content) return;
     setIsPolishing(true);
     try {
-      const polished = await polishStoryContent(content);
+      const polished = await polishStoryAction(content);
       onContentChange(polished);
     } catch (error) {
       console.error("Failed to polish content:", error);
@@ -139,8 +145,7 @@ export function StoryEditor({
     const targetLang = currentLanguage === "EN" ? "PT" : "EN";
 
     try {
-      // NOTE: translateContent takes 2 params: (content, targetLang)
-      const translated = await translateContent(content, targetLang);
+      const translated = await translateStoryAction(content, targetLang);
       onContentChange(translated);
       setCurrentLanguage(targetLang);
     } catch (error) {
@@ -335,45 +340,47 @@ export function StoryEditor({
 
             <div className="flex-grow" />
 
-            <button
-              type="button"
-              onClick={handlePolish}
-              disabled={isPolishing || !content}
-              className="flex items-center px-2 text-xs text-[var(--color-bougainvillea)] hover:text-pink-700 disabled:opacity-50"
-              title="Use Gemini AI to fix grammar and improve flow"
-            >
-              <Sparkles className="mr-1 h-3 w-3" />
-              {isPolishing ? "Polishing..." : "AI Polish"}
-            </button>
-
-            {isGeminiAvailable() && (
-              <div className="ml-2 flex items-center gap-1 border-l border-slate-200 pl-2 dark:border-slate-600">
+            {geminiAvailable && (
+              <>
                 <button
                   type="button"
-                  onClick={handleTranslate}
-                  disabled={isTranslating || !content}
-                  className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-[var(--color-ocean-blue)] hover:bg-blue-50 disabled:opacity-50 dark:hover:bg-blue-900/30"
-                  title={`Translate to ${currentLanguage === "EN" ? "Portuguese" : "English"}`}
+                  onClick={handlePolish}
+                  disabled={isPolishing || !content}
+                  className="flex items-center px-2 text-xs text-[var(--color-bougainvillea)] hover:text-pink-700 disabled:opacity-50"
+                  title="Use Gemini AI to fix grammar and improve flow"
                 >
-                  <Languages className="h-3 w-3" />
-                  {isTranslating
-                    ? "..."
-                    : currentLanguage === "EN"
-                      ? "→PT"
-                      : "→EN"}
+                  <Sparkles className="mr-1 h-3 w-3" />
+                  {isPolishing ? "Polishing..." : "AI Polish"}
                 </button>
 
-                {originalContent && (
+                <div className="ml-2 flex items-center gap-1 border-l border-slate-200 pl-2 dark:border-slate-600">
                   <button
                     type="button"
-                    onClick={handleRevertTranslation}
-                    className="rounded p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                    title="Revert to original"
+                    onClick={handleTranslate}
+                    disabled={isTranslating || !content}
+                    className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-[var(--color-ocean-blue)] hover:bg-blue-50 disabled:opacity-50 dark:hover:bg-blue-900/30"
+                    title={`Translate to ${currentLanguage === "EN" ? "Portuguese" : "English"}`}
                   >
-                    <Undo2 className="h-3 w-3" />
+                    <Languages className="h-3 w-3" />
+                    {isTranslating
+                      ? "..."
+                      : currentLanguage === "EN"
+                        ? "→PT"
+                        : "→EN"}
                   </button>
-                )}
-              </div>
+
+                  {originalContent && (
+                    <button
+                      type="button"
+                      onClick={handleRevertTranslation}
+                      className="rounded p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                      title="Revert to original"
+                    >
+                      <Undo2 className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+              </>
             )}
           </div>
 

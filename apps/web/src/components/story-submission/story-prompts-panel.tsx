@@ -8,7 +8,10 @@ import {
   ChevronUp,
   Plus,
 } from "lucide-react";
-import { generateStoryPrompts, isGeminiAvailable } from "@/lib/gemini";
+import {
+  generatePromptsAction,
+  checkGeminiAvailableAction,
+} from "@/app/actions/gemini-actions";
 import type { StoryTemplate } from "@/types/story";
 
 interface StoryPromptsPanelProps {
@@ -26,9 +29,15 @@ export function StoryPromptsPanel({
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [geminiAvailable, setGeminiAvailable] = useState<boolean | null>(null);
+
+  // Check Gemini availability on mount
+  useEffect(() => {
+    checkGeminiAvailableAction().then(setGeminiAvailable);
+  }, []);
 
   const fetchPrompts = useCallback(async () => {
-    if (!isGeminiAvailable()) {
+    if (!geminiAvailable) {
       setError("AI prompts unavailable");
       return;
     }
@@ -36,7 +45,7 @@ export function StoryPromptsPanel({
     setIsLoading(true);
     setError(null);
     try {
-      const newPrompts = await generateStoryPrompts(
+      const newPrompts = await generatePromptsAction(
         templateType,
         existingContent
       );
@@ -47,17 +56,20 @@ export function StoryPromptsPanel({
     } finally {
       setIsLoading(false);
     }
-  }, [templateType, existingContent]);
+  }, [templateType, existingContent, geminiAvailable]);
 
   // Fetch on mount and template change only (intentionally excluding fetchPrompts
   // to avoid refetching on every content keystroke)
   useEffect(() => {
-    fetchPrompts();
+    if (geminiAvailable) {
+      fetchPrompts();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [templateType]);
+  }, [templateType, geminiAvailable]);
 
-  if (!isGeminiAvailable()) {
-    return null; // Don't show panel if Gemini not configured
+  // Don't show panel if Gemini not configured (or still loading)
+  if (geminiAvailable !== true) {
+    return null;
   }
 
   return (

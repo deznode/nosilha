@@ -8,8 +8,10 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Initialize Gemini with the API key from environment variables
+// NOTE: This file should only be used server-side (via server actions or API routes)
+// to keep the API key secure. Never import this directly in client components.
 const getGeminiClient = () => {
-  const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return null;
   }
@@ -319,7 +321,8 @@ Return ONLY the MDX output, nothing else.`;
 
 /**
  * Check if Gemini API is available and configured.
+ * NOTE: Only call this from server-side code (server actions, API routes).
  */
 export const isGeminiAvailable = (): boolean => {
-  return !!process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+  return !!process.env.GEMINI_API_KEY;
 };

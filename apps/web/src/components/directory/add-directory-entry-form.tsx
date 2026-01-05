@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -23,7 +23,10 @@ import {
   User,
   Mail,
 } from "lucide-react";
-import { generateDirectoryEntryContent, isGeminiAvailable } from "@/lib/gemini";
+import {
+  generateDirectoryContentAction,
+  checkGeminiAvailableAction,
+} from "@/app/actions/gemini-actions";
 import { submitDirectoryEntry } from "@/lib/api";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import type { DirectorySubmissionRequest } from "@/lib/api-contracts";
@@ -99,6 +102,12 @@ export function AddDirectoryEntryForm() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [useCustomTown, setUseCustomTown] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [geminiAvailable, setGeminiAvailable] = useState(false);
+
+  // Check Gemini availability on mount
+  useEffect(() => {
+    checkGeminiAvailableAction().then(setGeminiAvailable);
+  }, []);
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -117,10 +126,10 @@ export function AddDirectoryEntryForm() {
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleAIAutoFill = async () => {
-    if (!formData.name || !isGeminiAvailable()) return;
+    if (!formData.name || !geminiAvailable) return;
     setIsGenerating(true);
     try {
-      const result = await generateDirectoryEntryContent(
+      const result = await generateDirectoryContentAction(
         formData.name,
         formData.category
       );
@@ -277,7 +286,7 @@ export function AddDirectoryEntryForm() {
                         setFormData({ ...formData, name: e.target.value })
                       }
                     />
-                    {formData.name && isGeminiAvailable() && (
+                    {formData.name && geminiAvailable && (
                       <button
                         type="button"
                         onClick={handleAIAutoFill}
