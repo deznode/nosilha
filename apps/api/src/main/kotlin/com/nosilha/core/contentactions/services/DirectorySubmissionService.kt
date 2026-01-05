@@ -11,7 +11,7 @@ import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
 import com.nosilha.core.shared.util.ContentSanitizer
 import io.github.bucket4j.Bucket
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -20,6 +20,8 @@ import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Service for managing directory entry submissions.
@@ -41,8 +43,6 @@ import java.util.concurrent.TimeUnit
 class DirectorySubmissionService(
     private val directorySubmissionRepository: DirectorySubmissionRepository,
 ) {
-    private val logger = LoggerFactory.getLogger(DirectorySubmissionService::class.java)
-
     companion object {
         /** Maximum directory submissions per hour per IP address */
         const val MAX_SUBMISSIONS_PER_HOUR = 3L
@@ -93,13 +93,13 @@ class DirectorySubmissionService(
         submittedByEmail: String?,
         ipAddress: String?,
     ): AdminDirectorySubmissionDto {
-        logger.info("Processing directory submission from IP: $ipAddress")
+        logger.info { "Processing directory submission from IP: $ipAddress" }
 
         // Atomic rate limiting using Bucket4j token bucket algorithm
         if (ipAddress != null) {
             val bucket = getBucketForIp(ipAddress)
             if (!bucket.tryConsume(1)) {
-                logger.warn("Rate limit exceeded for IP: $ipAddress")
+                logger.warn { "Rate limit exceeded for IP: $ipAddress" }
                 throw RateLimitExceededException(
                     "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
                         "Please try again later.",
@@ -131,7 +131,7 @@ class DirectorySubmissionService(
         )
 
         val savedSubmission = directorySubmissionRepository.saveAndFlush(submission)
-        logger.info("Directory submission ${savedSubmission.id} created successfully")
+        logger.info { "Directory submission ${savedSubmission.id} created successfully" }
 
         return AdminDirectorySubmissionDto.fromEntity(savedSubmission)
     }
@@ -159,7 +159,7 @@ class DirectorySubmissionService(
      */
     private fun getBucketForIp(ipAddress: String): Bucket =
         rateLimitBuckets.get(ipAddress) {
-            logger.debug("Creating rate limit bucket for IP: $ipAddress")
+            logger.debug { "Creating rate limit bucket for IP: $ipAddress" }
             Bucket
                 .builder()
                 .addLimit { limit ->
@@ -198,7 +198,7 @@ class DirectorySubmissionService(
                 directorySubmissionRepository.findAllByOrderByCreatedAtDesc(pageable)
             }
 
-        logger.debug("Found ${submissions.totalElements} directory submissions (status=$status, page=$page)")
+        logger.debug { "Found ${submissions.totalElements} directory submissions (status=$status, page=$page)" }
         return submissions.map { AdminDirectorySubmissionDto.fromEntity(it) }
     }
 
@@ -242,7 +242,7 @@ class DirectorySubmissionService(
                 ResourceNotFoundException("Directory submission not found: $id")
             }
 
-        logger.info("Updating directory submission $id status from ${submission.status} to $status")
+        logger.info { "Updating directory submission $id status from ${submission.status} to $status" }
 
         submission.status = status
         submission.adminNotes = adminNotes

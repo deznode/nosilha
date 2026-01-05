@@ -9,8 +9,8 @@ import com.nosilha.core.contentactions.services.MdxGenerationService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.validation.Valid
-import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -26,6 +26,8 @@ import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.SafeConstructor
 import java.time.Instant
 import java.util.UUID
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Admin REST controller for MDX archival operations.
@@ -69,8 +71,6 @@ class AdminMdxController(
     private val mdxGenerationService: MdxGenerationService,
     private val eventPublisher: ApplicationEventPublisher,
 ) {
-    private val logger = LoggerFactory.getLogger(AdminMdxController::class.java)
-
     companion object {
         /**
          * Valid slug pattern: lowercase alphanumeric with hyphens only.
@@ -119,7 +119,7 @@ class AdminMdxController(
         @PathVariable id: UUID,
         @RequestBody(required = false) request: GenerateMdxRequest?,
     ): ResponseEntity<ApiResult<MdxContentDto>> {
-        logger.debug("Generating MDX preview for story {}", id)
+        logger.debug { "Generating MDX preview for story $id" }
 
         // Retrieve story
         val story =
@@ -139,7 +139,7 @@ class AdminMdxController(
         // Generate MDX content
         val mdxContent = mdxGenerationService.generate(story, request)
 
-        logger.info("Generated MDX preview for story {} with slug '{}'", id, mdxContent.slug)
+        logger.info { "Generated MDX preview for story $id with slug '${mdxContent.slug}'" }
 
         return ResponseEntity.ok(
             ApiResult(
@@ -201,7 +201,7 @@ class AdminMdxController(
         @Valid @RequestBody request: CommitMdxRequest,
         authentication: Authentication,
     ): ResponseEntity<ApiResult<MdxCommitResultDto>> {
-        logger.debug("Committing MDX for story {}", id)
+        logger.debug { "Committing MDX for story $id" }
 
         // Retrieve story
         val story =
@@ -229,7 +229,7 @@ class AdminMdxController(
         val archive =
             if (existingArchive != null) {
                 // Update existing archive
-                logger.info("Updating existing MDX archive for story {}", id)
+                logger.info { "Updating existing MDX archive for story $id" }
                 existingArchive.copy(
                     slug = slug,
                     mdxPath = mdxPath,
@@ -261,12 +261,7 @@ class AdminMdxController(
             )
         eventPublisher.publishEvent(event)
 
-        logger.info(
-            "Committed MDX for story {} with slug '{}' by admin {}",
-            id,
-            slug,
-            adminId,
-        )
+        logger.info { "Committed MDX for story $id with slug '$slug' by admin $adminId" }
 
         // Build response
         val result =

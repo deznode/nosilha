@@ -2,12 +2,12 @@ package com.nosilha.core.contentactions.api
 
 import com.nosilha.core.contentactions.services.DirectorySubmissionService
 import com.nosilha.core.shared.api.ApiResult
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * REST controller for public directory submissions.
@@ -41,8 +43,6 @@ import org.springframework.web.bind.annotation.RestController
 class DirectorySubmissionController(
     private val directorySubmissionService: DirectorySubmissionService,
 ) {
-    private val logger = LoggerFactory.getLogger(DirectorySubmissionController::class.java)
-
     /**
      * Submits a new directory entry for review.
      *
@@ -98,7 +98,7 @@ class DirectorySubmissionController(
         httpRequest: HttpServletRequest,
     ): ApiResult<DirectorySubmissionConfirmationDto> {
         val ipAddress = extractIpAddress(httpRequest)
-        logger.info("Received directory submission from IP: $ipAddress, submittedBy: $submittedBy")
+        logger.info { "Received directory submission from IP: $ipAddress, submittedBy: $submittedBy" }
 
         val response = directorySubmissionService.submitDirectoryEntry(
             request = request,
@@ -107,7 +107,7 @@ class DirectorySubmissionController(
             ipAddress = ipAddress,
         )
 
-        logger.info("Directory submission ${response.id} created successfully")
+        logger.info { "Directory submission ${response.id} created successfully" }
 
         return ApiResult(
             data = DirectorySubmissionConfirmationDto(

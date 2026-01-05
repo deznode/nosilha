@@ -3,10 +3,12 @@ package com.nosilha.core.contentactions
 import com.nosilha.core.contentactions.domain.Content
 import com.nosilha.core.contentactions.domain.ContentType
 import com.nosilha.core.contentactions.repository.ContentRepository
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Service for managing content registration.
@@ -19,8 +21,6 @@ import java.util.UUID
 class ContentService(
     private val contentRepository: ContentRepository,
 ) {
-    private val logger = LoggerFactory.getLogger(ContentService::class.java)
-
     /**
      * Registers content and returns its ID.
      *
@@ -39,7 +39,7 @@ class ContentService(
         // Check if content already exists
         val existingContent = contentRepository.findBySlugAndContentType(slug, contentType)
         if (existingContent != null) {
-            logger.debug("Content already registered: {} ({})", slug, contentType)
+            logger.debug { "Content already registered: $slug ($contentType)" }
             return existingContent.id!!
         }
 
@@ -49,7 +49,7 @@ class ContentService(
             contentType = contentType,
         )
         val savedContent = contentRepository.save(content)
-        logger.info("Registered new content: {} ({}) with ID {}", slug, contentType, savedContent.id)
+        logger.info { "Registered new content: $slug ($contentType) with ID ${savedContent.id}" }
         return savedContent.id!!
     }
 

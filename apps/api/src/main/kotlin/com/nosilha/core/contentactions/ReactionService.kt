@@ -8,7 +8,7 @@ import com.nosilha.core.contentactions.domain.ReactionType
 import com.nosilha.core.contentactions.repository.ReactionRepository
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.cache.CacheManager
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.stereotype.Service
@@ -17,6 +17,8 @@ import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedDeque
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Service for managing user reactions to cultural heritage content.
@@ -41,8 +43,6 @@ class ReactionService(
     private val reactionRepository: ReactionRepository,
     private val cacheManager: CacheManager,
 ) {
-    private val logger = LoggerFactory.getLogger(ReactionService::class.java)
-
     // In-memory rate limiter: userId -> list of recent submission timestamps
     // TODO: Replace with Redis-based rate limiter for production (distributed instances)
     private val rateLimiter = ConcurrentHashMap<UUID, ConcurrentLinkedDeque<Instant>>()
@@ -79,20 +79,11 @@ class ReactionService(
         userId: UUID,
         createDto: ReactionCreateDto,
     ): ReactionSubmissionResult {
-        logger.debug(
-            "Submitting reaction for user {} on content {}: {}",
-            userId,
-            createDto.contentId,
-            createDto.reactionType,
-        )
+        logger.debug { "Submitting reaction for user $userId on content ${createDto.contentId}: ${createDto.reactionType}" }
 
         // Check rate limit
         if (!checkRateLimit(userId)) {
-            logger.warn(
-                "Rate limit exceeded for user {} (max {} reactions/minute)",
-                userId,
-                MAX_REACTIONS_PER_MINUTE,
-            )
+            logger.warn { "Rate limit exceeded for user $userId (max $MAX_REACTIONS_PER_MINUTE reactions/minute)" }
             throw RateLimitExceededException(
                 "Too many reactions. Maximum $MAX_REACTIONS_PER_MINUTE reactions per minute allowed.",
             )
@@ -120,12 +111,7 @@ class ReactionService(
         when {
             existingReaction == null -> null
             existingReaction.reactionType == createDto.reactionType -> {
-                logger.info(
-                    "Removing existing reaction {} for user {} on content {}",
-                    createDto.reactionType,
-                    userId,
-                    createDto.contentId,
-                )
+                logger.info { "Removing existing reaction ${createDto.reactionType} for user $userId on content ${createDto.contentId}" }
                 reactionRepository.delete(existingReaction)
 
                 val newCount =
@@ -147,13 +133,9 @@ class ReactionService(
                 )
             }
             else -> {
-                logger.info(
-                    "Updating reaction {} to {} for user {} on content {}",
-                    existingReaction.reactionType,
-                    createDto.reactionType,
-                    userId,
-                    createDto.contentId,
-                )
+                logger.info {
+                    "Updating reaction ${existingReaction.reactionType} to ${createDto.reactionType} for user $userId on content ${createDto.contentId}"
+                }
                 // Update existing reaction instead of delete + insert to avoid unique constraint violation
                 existingReaction.reactionType = createDto.reactionType
                 val updatedReaction = reactionRepository.save(existingReaction)
@@ -199,13 +181,9 @@ class ReactionService(
                     createDto.reactionType,
                 ).toInt()
 
-        logger.info(
-            "Reaction submitted successfully: {} by user {} on content {} (count: {})",
-            createDto.reactionType,
-            userId,
-            createDto.contentId,
-            updatedCount,
-        )
+        logger.info {
+            "Reaction submitted successfully: ${createDto.reactionType} by user $userId on content ${createDto.contentId} (count: $updatedCount)"
+        }
 
         val operation =
             if (replacing) {
@@ -241,7 +219,7 @@ class ReactionService(
         userId: UUID,
         contentId: UUID,
     ) {
-        logger.debug("Deleting reaction for user {} on content {}", userId, contentId)
+        logger.debug { "Deleting reaction for user $userId on content $contentId" }
 
         val existingReaction =
             reactionRepository.findByUserIdAndContentId(userId, contentId)
@@ -249,7 +227,7 @@ class ReactionService(
 
         reactionRepository.delete(existingReaction)
 
-        logger.info("Reaction deleted successfully for user {} on content {}", userId, contentId)
+        logger.info { "Reaction deleted successfully for user $userId on content $contentId" }
     }
 
     /**
@@ -271,7 +249,7 @@ class ReactionService(
         contentId: UUID,
         userId: UUID?,
     ): ReactionCountsDto {
-        logger.debug("Fetching reaction counts for content {} (user: {})", contentId, userId)
+        logger.debug { "Fetching reaction counts for content $contentId (user: $userId)" }
 
         val countsMap = getCachedReactionAggregates(contentId)
         val userReaction = userId?.let { reactionRepository.findByUserIdAndContentId(it, contentId)?.reactionType }

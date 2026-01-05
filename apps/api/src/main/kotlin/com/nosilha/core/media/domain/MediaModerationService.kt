@@ -9,13 +9,15 @@ import com.nosilha.core.media.repository.MediaModerationAuditRepository
 import com.nosilha.core.media.repository.MediaRepository
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.util.UUID
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Service for managing media moderation queue and actions.
@@ -39,8 +41,6 @@ class MediaModerationService(
     private val mediaRepository: MediaRepository,
     private val auditRepository: MediaModerationAuditRepository,
 ) {
-    private val logger = LoggerFactory.getLogger(MediaModerationService::class.java)
-
     /**
      * Lists media files with optional status filtering and pagination.
      *
@@ -67,7 +67,7 @@ class MediaModerationService(
                 mediaRepository.findAll(pageable)
             }
 
-        logger.debug("Retrieved ${media.numberOfElements} media files (page $page, size $size, status: $status)")
+        logger.debug { "Retrieved ${media.numberOfElements} media files (page $page, size $size, status: $status)" }
         return media.map { it.toAdminListDto() }
     }
 
@@ -88,7 +88,7 @@ class MediaModerationService(
                 .findById(id)
                 .orElseThrow { ResourceNotFoundException("Media not found with ID: $id") }
 
-        logger.debug("Retrieved media detail: id={}, status={}", id, media.status)
+        logger.debug { "Retrieved media detail: id=$id, status=${media.status}" }
         return media.toAdminDetailDto()
     }
 
@@ -163,7 +163,7 @@ class MediaModerationService(
                 media.reviewedBy = performedBy
                 media.reviewedAt = Instant.now()
                 media.rejectionReason = null // Clear any previous rejection reason
-                logger.info("Media approved: id={}, performedBy={}", id, performedBy)
+                logger.info { "Media approved: id=$id, performedBy=$performedBy" }
             }
             MediaModerationAction.FLAG -> {
                 media.status = MediaStatus.FLAGGED
@@ -171,14 +171,14 @@ class MediaModerationService(
                 media.rejectionReason = reason // Store flag reason in rejection_reason field
                 media.reviewedBy = performedBy
                 media.reviewedAt = Instant.now()
-                logger.info("Media flagged: id={}, severity={}, performedBy={}", id, severity, performedBy)
+                logger.info { "Media flagged: id=$id, severity=$severity, performedBy=$performedBy" }
             }
             MediaModerationAction.REJECT -> {
                 media.status = MediaStatus.DELETED
                 media.rejectionReason = reason
                 media.reviewedBy = performedBy
                 media.reviewedAt = Instant.now()
-                logger.info("Media rejected: id={}, reason={}, performedBy={}", id, reason, performedBy)
+                logger.info { "Media rejected: id=$id, reason=$reason, performedBy=$performedBy" }
             }
         }
 
@@ -196,12 +196,7 @@ class MediaModerationService(
             )
         auditRepository.save(audit)
 
-        logger.debug(
-            "Audit entry created for media moderation: mediaId={}, action={}, performedBy={}",
-            id,
-            action,
-            performedBy
-        )
+        logger.debug { "Audit entry created for media moderation: mediaId=$id, action=$action, performedBy=$performedBy" }
 
         return savedMedia.toAdminDetailDto()
     }
@@ -248,6 +243,6 @@ class MediaModerationService(
             )
         auditRepository.save(audit)
 
-        logger.info("Media deleted: id={}, performedBy={}", id, performedBy)
+        logger.info { "Media deleted: id=$id, performedBy=$performedBy" }
     }
 }

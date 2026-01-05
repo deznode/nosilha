@@ -13,8 +13,9 @@ This document establishes comprehensive coding standards for the Nos Ilha backen
 7. [DTO & Mapping Standards](#dto--mapping-standards)
 8. [Controller & Service Layer Standards](#controller--service-layer-standards)
 9. [Error Handling Standards](#error-handling-standards)
-10. [Future-Ready Standards](#future-ready-standards)
-11. [Code Organization & Development Guidelines](#code-organization--development-guidelines)
+10. [Logging Standards](#logging-standards)
+11. [Future-Ready Standards](#future-ready-standards)
+12. [Code Organization & Development Guidelines](#code-organization--development-guidelines)
 
 ---
 
@@ -1313,11 +1314,60 @@ class GlobalExceptionHandler {
 
 ---
 
-## 10. Future-Ready Standards
+## 10. Logging Standards
 
-### 10.1 Role-Based Access Control (RBAC) Preparation
+### 10.1 Logger Declaration
 
-#### 10.1.1 Security Configuration Placeholder
+Use kotlin-logging (oshai) for all logging. This provides idiomatic Kotlin syntax with lazy evaluation.
+
+Declare the logger at **file level** (not inside a class):
+
+```kotlin
+import io.github.oshai.kotlinlogging.KotlinLogging
+
+private val logger = KotlinLogging.logger {}
+
+class MyService {
+    // logger is accessible here
+}
+```
+
+### 10.2 Log Calls
+
+Use lambda syntax for lazy evaluation - the message string is only created if the log level is enabled:
+
+```kotlin
+logger.debug { "Processing item $itemId" }
+logger.info { "User $userId completed action" }
+logger.warn { "Rate limit exceeded for $userId" }
+logger.error(exception) { "Operation failed for $item" }
+```
+
+### 10.3 Anti-Patterns
+
+Do NOT use the following patterns:
+
+```kotlin
+// ❌ Do NOT use SLF4J LoggerFactory directly
+import org.slf4j.LoggerFactory
+private val logger = LoggerFactory.getLogger(MyService::class.java)
+
+// ❌ Do NOT use placeholder syntax
+logger.info("Processing {}", item)
+```
+
+**Rationale**: kotlin-logging provides better Kotlin integration with:
+- Lambda-based lazy evaluation (performance optimization)
+- String interpolation instead of placeholders (more idiomatic Kotlin)
+- Cleaner syntax with less boilerplate
+
+---
+
+## 11. Future-Ready Standards
+
+### 11.1 Role-Based Access Control (RBAC) Preparation
+
+#### 11.1.1 Security Configuration Placeholder
 
 ```kotlin
 @Configuration
@@ -1343,7 +1393,7 @@ class SecurityConfig {
 }
 ```
 
-#### 10.1.2 Method-Level Security
+#### 11.1.2 Method-Level Security
 
 ```kotlin
 @RestController
@@ -1370,9 +1420,9 @@ class DirectoryEntryController(
 }
 ```
 
-### 10.2 Internationalization (i18n) Preparation
+### 11.2 Internationalization (i18n) Preparation
 
-#### 10.2.1 Message Source Configuration
+#### 11.2.1 Message Source Configuration
 
 ```kotlin
 @Configuration
@@ -1403,7 +1453,7 @@ class InternationalizationConfig {
 }
 ```
 
-#### 10.2.2 Validation Messages (i18n Ready)
+#### 11.2.2 Validation Messages (i18n Ready)
 
 **src/main/resources/messages.properties** (English - default):
 ```properties
@@ -1447,7 +1497,7 @@ entity.beach=Praia
 entity.landmark=Marco
 ```
 
-#### 10.2.3 Localized Error Responses
+#### 11.2.3 Localized Error Responses
 
 ```kotlin
 @ControllerAdvice
@@ -1491,9 +1541,9 @@ class GlobalExceptionHandler(
 
 ---
 
-## 11. Code Organization & Development Guidelines
+## 12. Code Organization & Development Guidelines
 
-### 11.1 Package Structure (Spring Modulith Architecture)
+### 12.1 Package Structure (Spring Modulith Architecture)
 
 **Note**: This project follows Spring Modulith modular architecture with enforced module boundaries. See [`SPRING_MODULITH.md`](SPRING_MODULITH.md) for comprehensive module documentation.
 
@@ -1583,9 +1633,9 @@ com.nosilha.core/
 - ✅ **Public API**: Only `api/` (controllers) and `events/` are public; domain/repository/config are internal
 - ✅ **Verification**: `ModularityTests.kt` enforces zero circular dependencies in CI/CD
 
-### 11.2 Naming Conventions
+### 12.2 Naming Conventions
 
-#### 11.2.1 Classes
+#### 12.2.1 Classes
 
 - **Entities**: Singular noun (e.g., `DirectoryEntry`, `Restaurant`)
 - **DTOs**: Entity name + purpose (e.g., `DirectoryEntryDto`, `CreateEntryRequestDto`)
@@ -1593,21 +1643,21 @@ com.nosilha.core/
 - **Controllers**: Entity name + Controller (e.g., `DirectoryEntryController`)
 - **Repositories**: Entity name + Repository (e.g., `DirectoryEntryRepository`)
 
-#### 11.2.2 Methods
+#### 12.2.2 Methods
 
 - **Repository queries**: `findBy*`, `existsBy*`, `countBy*`
 - **Service methods**: Business-focused verbs (`createEntry`, `updateEntry`, `getEntry`)
 - **Controller methods**: HTTP action-focused (`createEntry`, `getEntries`, `updateEntry`)
 
-#### 11.2.3 Properties and Variables
+#### 12.2.3 Properties and Variables
 
 - **Entity fields**: camelCase (`phoneNumber`, `openingHours`)
 - **DTO fields**: match entity fields for consistency
 - **Database columns**: snake_case (`phone_number`, `opening_hours`)
 
-### 11.3 Documentation Standards
+### 12.3 Documentation Standards
 
-#### 11.3.1 KDoc Standards
+#### 12.3.1 KDoc Standards
 
 ```kotlin
 /**
@@ -1647,7 +1697,7 @@ class DirectoryEntryService(
 }
 ```
 
-#### 11.3.2 Inline Comments
+#### 12.3.2 Inline Comments
 
 ```kotlin
 private fun validateBusinessRules(request: CreateEntryRequestDto, existingEntity: DirectoryEntry? = null) {
@@ -1668,9 +1718,9 @@ private fun validateBusinessRules(request: CreateEntryRequestDto, existingEntity
 }
 ```
 
-### 11.4 Testing Standards
+### 12.4 Testing Standards
 
-#### 11.4.1 Test Organization
+#### 12.4.1 Test Organization
 
 ```
 src/test/kotlin/
@@ -1688,7 +1738,7 @@ src/test/kotlin/
     └── PostgreSQLTestContainer.kt
 ```
 
-#### 11.4.2 Test Naming
+#### 12.4.2 Test Naming
 
 ```kotlin
 class DirectoryEntryServiceTest {

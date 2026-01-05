@@ -8,11 +8,11 @@ import com.nosilha.core.contentactions.api.BookmarkWithEntryDto
 import com.nosilha.core.contentactions.services.BookmarkService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
@@ -23,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import io.swagger.v3.oas.annotations.responses.ApiResponse as SwaggerApiResponse
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * REST controller for user profile and contribution management.
@@ -56,8 +58,6 @@ class ProfileController(
     private val profileService: ProfileService,
     private val bookmarkService: BookmarkService,
 ) {
-    private val logger = LoggerFactory.getLogger(ProfileController::class.java)
-
     /**
      * Retrieves the authenticated user's profile.
      *
@@ -110,11 +110,11 @@ class ProfileController(
     fun getProfile(authentication: Authentication): ApiResult<ProfileDto> {
         val userId = extractUserId(authentication)
 
-        logger.info("Retrieving profile for user: {}", userId)
+        logger.info { "Retrieving profile for user: $userId" }
 
         val profile = profileService.getOrCreateProfile(userId)
 
-        logger.debug("Profile retrieved for user {}: {}", userId, profile.id)
+        logger.debug { "Profile retrieved for user $userId: ${profile.id}" }
 
         return ApiResult(data = profile, status = HttpStatus.OK.value())
     }
@@ -193,11 +193,11 @@ class ProfileController(
     ): ApiResult<ProfileDto> {
         val userId = extractUserId(authentication)
 
-        logger.info("Updating profile for user: {}", userId)
+        logger.info { "Updating profile for user: $userId" }
 
         val updatedProfile = profileService.updateProfile(userId, request)
 
-        logger.debug("Profile updated for user {}: {}", userId, updatedProfile.id)
+        logger.debug { "Profile updated for user $userId: ${updatedProfile.id}" }
 
         return ApiResult(data = updatedProfile, status = HttpStatus.OK.value())
     }
@@ -272,17 +272,13 @@ class ProfileController(
     fun getContributions(authentication: Authentication): ApiResult<ContributionsDto> {
         val userId = extractUserId(authentication)
 
-        logger.info("Retrieving contributions for user: {}", userId)
+        logger.info { "Retrieving contributions for user: $userId" }
 
         val contributions = profileService.getContributions(userId)
 
-        logger.debug(
-            "Contributions retrieved for user {}: {} reactions, {} suggestions, {} stories",
-            userId,
-            contributions.totalReactions,
-            contributions.totalSuggestions,
-            contributions.totalStories,
-        )
+        logger.debug {
+            "Contributions retrieved for user $userId: ${contributions.totalReactions} reactions, ${contributions.totalSuggestions} suggestions, ${contributions.totalStories} stories"
+        }
 
         return ApiResult(data = contributions, status = HttpStatus.OK.value())
     }
@@ -361,7 +357,7 @@ class ProfileController(
     ): PagedApiResult<BookmarkWithEntryDto> {
         val userId = extractUserId(authentication)
 
-        logger.info("Retrieving bookmarks for user: {} (page: {}, size: {})", userId, page, size)
+        logger.info { "Retrieving bookmarks for user: $userId (page: $page, size: $size)" }
 
         // Ensure size doesn't exceed maximum
         val effectiveSize = size.coerceAtMost(100)
@@ -369,13 +365,9 @@ class ProfileController(
 
         val bookmarksPage = bookmarkService.getBookmarks(userId, pageable)
 
-        logger.debug(
-            "Bookmarks retrieved for user {}: {} items on page {}/{}",
-            userId,
-            bookmarksPage.numberOfElements,
-            bookmarksPage.number,
-            bookmarksPage.totalPages,
-        )
+        logger.debug {
+            "Bookmarks retrieved for user $userId: ${bookmarksPage.numberOfElements} items on page ${bookmarksPage.number}/${bookmarksPage.totalPages}"
+        }
 
         return PagedApiResult.from(bookmarksPage)
     }
@@ -396,7 +388,7 @@ class ProfileController(
             authentication.name
                 ?: throw IllegalStateException("Authentication name must be present (user ID)")
 
-        logger.trace("Extracted user ID from authentication: {}", userId)
+        logger.trace { "Extracted user ID from authentication: $userId" }
 
         return userId
     }

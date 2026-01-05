@@ -9,12 +9,12 @@ import com.nosilha.core.shared.api.LandmarkDto
 import com.nosilha.core.shared.api.RestaurantDetailsDto
 import com.nosilha.core.shared.api.RestaurantDto
 import com.nosilha.core.shared.api.TownDto
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.readValue
 
 private val directoryMetadataMapper = jacksonObjectMapper()
-private val directoryMapperLogger = LoggerFactory.getLogger("DirectoryEntryMapper")
+private val logger = KotlinLogging.logger {}
 
 /**
  * Maps a DirectoryEntry JPA entity to its corresponding public-facing DTO.
@@ -146,11 +146,7 @@ private fun DirectoryEntry.parseContentActions(): ContentActionSettingsDto? {
     return try {
         directoryMetadataMapper.readValue<ContentActionSettingsDto>(config)
     } catch (ex: tools.jackson.core.JacksonException) {
-        directoryMapperLogger.warn(
-            "Failed to parse content_actions metadata for entry {}: {}",
-            this.id ?: "unsaved",
-            ex.message,
-        )
+        logger.warn { "Failed to parse content_actions metadata for entry ${this.id ?: "unsaved"}: ${ex.message}" }
         null
     }
 }

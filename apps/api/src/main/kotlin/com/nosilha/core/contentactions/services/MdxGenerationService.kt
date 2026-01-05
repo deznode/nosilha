@@ -6,12 +6,14 @@ import com.nosilha.core.contentactions.api.MdxFrontmatter
 import com.nosilha.core.contentactions.domain.StorySubmission
 import com.nosilha.core.contentactions.repository.MdxArchiveRepository
 import com.nosilha.core.shared.exception.BusinessException
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Service
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Service interface for generating MDX content from story submissions.
@@ -75,8 +77,6 @@ interface MdxGenerationService {
 class MockMdxGenerationService(
     private val mdxArchiveRepository: MdxArchiveRepository,
 ) : MdxGenerationService {
-    private val logger = LoggerFactory.getLogger(MockMdxGenerationService::class.java)
-
     companion object {
         private val DATE_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE.withZone(ZoneId.of("UTC"))
 
@@ -112,7 +112,7 @@ class MockMdxGenerationService(
         story: StorySubmission,
         options: GenerateMdxRequest?,
     ): MdxContentDto {
-        logger.debug("Generating MDX for story {} (type: {})", story.id, story.storyType)
+        logger.debug { "Generating MDX for story ${story.id} (type: ${story.storyType})" }
 
         // Generate URL-friendly unique slug from title
         val baseSlug = generateSlug(story.title)
@@ -135,7 +135,7 @@ class MockMdxGenerationService(
         // Build complete MDX source
         val mdxSource = buildMdxSource(frontmatter, story.content)
 
-        logger.debug("Generated MDX for story {} with slug '{}'", story.id, slug)
+        logger.debug { "Generated MDX for story ${story.id} with slug '$slug'" }
 
         return MdxContentDto(
             storyId = story.id!!,
@@ -199,7 +199,7 @@ class MockMdxGenerationService(
         // Check if this story already has an archive - reuse its slug for updates
         val existingArchive = mdxArchiveRepository.findByStoryId(storyId)
         if (existingArchive != null) {
-            logger.debug("Story {} already has archive with slug '{}', reusing", storyId, existingArchive.slug)
+            logger.debug { "Story $storyId already has archive with slug '${existingArchive.slug}', reusing" }
             return existingArchive.slug
         }
 
@@ -222,7 +222,7 @@ class MockMdxGenerationService(
             )
         }
 
-        logger.info("Generated unique slug '{}' for story {} (base slug '{}' was taken)", candidateSlug, storyId, baseSlug)
+        logger.info { "Generated unique slug '$candidateSlug' for story $storyId (base slug '$baseSlug' was taken)" }
         return candidateSlug
     }
 

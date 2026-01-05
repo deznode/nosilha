@@ -4,8 +4,8 @@ import com.nosilha.core.contentactions.api.ReactionCountsDto
 import com.nosilha.core.contentactions.api.ReactionCreateDto
 import com.nosilha.core.contentactions.api.ReactionResponseDto
 import com.nosilha.core.shared.api.ApiResult
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.validation.Valid
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * REST controller for user reactions to cultural heritage content.
@@ -41,10 +43,6 @@ import java.util.UUID
 class ReactionController(
     private val reactionService: ReactionService,
 ) {
-    companion object {
-        private val logger = LoggerFactory.getLogger(ReactionController::class.java)
-    }
-
     /**
      * Submits a new reaction or updates an existing reaction.
      *
@@ -107,12 +105,7 @@ class ReactionController(
     ): ResponseEntity<ApiResult<ReactionResponseDto>> {
         val userId = extractUserId(authentication)
 
-        logger.info(
-            "User {} submitting reaction {} for content {}",
-            userId,
-            createDto.reactionType,
-            createDto.contentId,
-        )
+        logger.info { "User $userId submitting reaction ${createDto.reactionType} for content ${createDto.contentId}" }
 
         val result = reactionService.submitReaction(userId, createDto)
 
@@ -125,13 +118,9 @@ class ReactionController(
                 -> HttpStatus.OK
             }
 
-        logger.info(
-            "Reaction submitted successfully: {} by user {} (count: {}, operation: {})",
-            createDto.reactionType,
-            userId,
-            result.reaction.count,
-            result.operation,
-        )
+        logger.info {
+            "Reaction submitted successfully: ${createDto.reactionType} by user $userId (count: ${result.reaction.count}, operation: ${result.operation})"
+        }
 
         val payload = ApiResult(data = result.reaction, status = status.value())
         return ResponseEntity.status(status).body(payload)
@@ -169,11 +158,11 @@ class ReactionController(
     ) {
         val userId = extractUserId(authentication)
 
-        logger.info("User {} deleting reaction for content {}", userId, contentId)
+        logger.info { "User $userId deleting reaction for content $contentId" }
 
         reactionService.deleteReaction(userId, contentId)
 
-        logger.info("Reaction deleted successfully for user {} on content {}", userId, contentId)
+        logger.info { "Reaction deleted successfully for user $userId on content $contentId" }
     }
 
     /**
@@ -237,16 +226,11 @@ class ReactionController(
     ): ApiResult<ReactionCountsDto> {
         val userId = authentication?.let { extractUserId(it) }
 
-        logger.debug("Fetching reaction counts for content {} (user: {})", contentId, userId)
+        logger.debug { "Fetching reaction counts for content $contentId (user: $userId)" }
 
         val counts = reactionService.getReactionCounts(contentId, userId)
 
-        logger.debug(
-            "Returning reaction counts for content {}: {} (user reaction: {})",
-            contentId,
-            counts.reactions,
-            counts.userReaction,
-        )
+        logger.debug { "Returning reaction counts for content $contentId: ${counts.reactions} (user reaction: ${counts.userReaction})" }
 
         return ApiResult(data = counts)
     }

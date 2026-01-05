@@ -2,13 +2,13 @@ package com.nosilha.core.contentactions.api
 
 import com.nosilha.core.contentactions.services.BookmarkService
 import com.nosilha.core.shared.api.ApiResult
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 import io.swagger.v3.oas.annotations.responses.ApiResponse as SwaggerApiResponse
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * REST controller for user bookmarks.
@@ -49,8 +51,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse as SwaggerApiResponse
 class BookmarkController(
     private val bookmarkService: BookmarkService,
 ) {
-    private val logger = LoggerFactory.getLogger(BookmarkController::class.java)
-
     /**
      * Create a new bookmark for a directory entry.
      *
@@ -133,20 +133,11 @@ class BookmarkController(
     ): ResponseEntity<ApiResult<BookmarkDto>> {
         val userId = authentication.name
 
-        logger.info(
-            "Creating bookmark for user {} on entry {}",
-            userId,
-            request.entryId,
-        )
+        logger.info { "Creating bookmark for user $userId on entry ${request.entryId}" }
 
         val bookmark = bookmarkService.createBookmark(userId, request.entryId)
 
-        logger.info(
-            "Bookmark created successfully: {} for user {} on entry {}",
-            bookmark.id,
-            userId,
-            request.entryId,
-        )
+        logger.info { "Bookmark created successfully: ${bookmark.id} for user $userId on entry ${request.entryId}" }
 
         return ResponseEntity
             .status(HttpStatus.CREATED)
@@ -203,10 +194,10 @@ class BookmarkController(
     ) {
         val userId = authentication.name
 
-        logger.info("Deleting bookmark for user {} on entry {}", userId, entryId)
+        logger.info { "Deleting bookmark for user $userId on entry $entryId" }
 
         bookmarkService.deleteBookmark(userId, entryId)
 
-        logger.info("Bookmark deleted successfully for user {} on entry {}", userId, entryId)
+        logger.info { "Bookmark deleted successfully for user $userId on entry $entryId" }
     }
 }

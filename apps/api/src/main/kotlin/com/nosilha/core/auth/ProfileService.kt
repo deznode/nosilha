@@ -15,13 +15,15 @@ import com.nosilha.core.contentactions.repository.StorySubmissionRepository
 import com.nosilha.core.contentactions.repository.SuggestionRepository
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedDeque
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Service for managing user profiles and contribution history.
@@ -53,8 +55,6 @@ class ProfileService(
     private val suggestionRepository: SuggestionRepository,
     private val storySubmissionRepository: StorySubmissionRepository,
 ) {
-    private val logger = LoggerFactory.getLogger(ProfileService::class.java)
-
     // In-memory rate limiter: userId -> list of recent update timestamps
     // TODO: Replace with Redis-based rate limiter for production (distributed instances)
     private val rateLimiter = ConcurrentHashMap<String, ConcurrentLinkedDeque<Instant>>()
@@ -81,7 +81,7 @@ class ProfileService(
      * @return ProfileDto containing the user's profile information
      */
     fun getOrCreateProfile(userId: String): ProfileDto {
-        logger.debug("Retrieving profile for user: {}", userId)
+        logger.debug { "Retrieving profile for user: $userId" }
 
         val profile = userProfileRepository.findByUserId(userId)
             ?: createDefaultProfile(userId)
@@ -99,7 +99,7 @@ class ProfileService(
      * @return The newly created UserProfile entity
      */
     private fun createDefaultProfile(userId: String): UserProfile {
-        logger.info("Creating default profile for user: {}", userId)
+        logger.info { "Creating default profile for user: $userId" }
 
         val newProfile = UserProfile().apply {
             this.userId = userId
@@ -139,15 +139,11 @@ class ProfileService(
         userId: String,
         request: ProfileUpdateRequest,
     ): ProfileDto {
-        logger.debug("Updating profile for user: {}", userId)
+        logger.debug { "Updating profile for user: $userId" }
 
         // Check rate limit before proceeding
         if (!checkRateLimit(userId)) {
-            logger.warn(
-                "Rate limit exceeded for user {} (max {} updates/minute)",
-                userId,
-                MAX_UPDATES_PER_MINUTE,
-            )
+            logger.warn { "Rate limit exceeded for user $userId (max $MAX_UPDATES_PER_MINUTE updates/minute)" }
             throw RateLimitExceededException(
                 "Too many profile updates. Maximum $MAX_UPDATES_PER_MINUTE updates per minute allowed.",
             )
@@ -164,7 +160,7 @@ class ProfileService(
 
         val updatedProfile = userProfileRepository.save(profile)
 
-        logger.info("Profile updated successfully for user: {}", userId)
+        logger.info { "Profile updated successfully for user: $userId" }
 
         return ProfileDto.fromEntity(updatedProfile)
     }
@@ -235,13 +231,13 @@ class ProfileService(
      */
     @Transactional(readOnly = true)
     fun getContributions(userId: String): ContributionsDto {
-        logger.debug("Retrieving contributions for user: {}", userId)
+        logger.debug { "Retrieving contributions for user: $userId" }
 
         // Convert userId String to UUID for reaction queries
         val userUuid = try {
             UUID.fromString(userId)
         } catch (e: IllegalArgumentException) {
-            logger.warn("Invalid UUID format for userId: {}", userId)
+            logger.warn { "Invalid UUID format for userId: $userId" }
             // If userId is not a valid UUID, return empty contributions
             return ContributionsDto(
                 reactionCounts = emptyMap(),
@@ -294,13 +290,9 @@ class ProfileService(
         val totalSuggestions = suggestions.size
         val totalStories = stories.size
 
-        logger.debug(
-            "Retrieved contributions for user {}: {} reactions, {} suggestions, {} stories",
-            userId,
-            totalReactions,
-            totalSuggestions,
-            totalStories,
-        )
+        logger.debug {
+            "Retrieved contributions for user $userId: $totalReactions reactions, $totalSuggestions suggestions, $totalStories stories"
+        }
 
         return ContributionsDto(
             reactionCounts = reactionCounts,

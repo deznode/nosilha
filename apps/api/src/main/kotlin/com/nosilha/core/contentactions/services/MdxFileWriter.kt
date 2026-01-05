@@ -1,7 +1,7 @@
 package com.nosilha.core.contentactions.services
 
 import com.nosilha.core.contentactions.events.MdxCommittedEvent
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.modulith.events.ApplicationModuleListener
 import org.springframework.stereotype.Component
@@ -9,6 +9,8 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import kotlin.io.path.notExists
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Event listener that writes MDX content to the filesystem.
@@ -42,8 +44,6 @@ class MdxFileWriter(
     @Value("\${nosilha.content.path:content/stories}")
     private val contentPath: String,
 ) {
-    private val logger = LoggerFactory.getLogger(MdxFileWriter::class.java)
-
     companion object {
         /**
          * Valid slug pattern: lowercase alphanumeric with hyphens only.
@@ -74,19 +74,9 @@ class MdxFileWriter(
         try {
             val filePath = resolveMdxPath(event.slug)
             writeMdxFile(filePath, event.mdxContent)
-            logger.info(
-                "Successfully wrote MDX file for story {} at path: {}",
-                event.storyId,
-                filePath,
-            )
+            logger.info { "Successfully wrote MDX file for story ${event.storyId} at path: $filePath" }
         } catch (e: Exception) {
-            logger.error(
-                "Failed to write MDX file for story {} with slug {}: {}",
-                event.storyId,
-                event.slug,
-                e.message,
-                e,
-            )
+            logger.error(e) { "Failed to write MDX file for story ${event.storyId} with slug ${event.slug}: ${e.message}" }
             // Don't rethrow - allow event processing to continue
             // Failed writes can be retried manually or via admin UI
         }
@@ -146,7 +136,7 @@ class MdxFileWriter(
         // Create parent directories if they don't exist
         if (path.parent.notExists()) {
             Files.createDirectories(path.parent)
-            logger.debug("Created directory: {}", path.parent)
+            logger.debug { "Created directory: ${path.parent}" }
         }
 
         // Write content to file (overwrite if exists)

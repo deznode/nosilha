@@ -3,9 +3,9 @@ package com.nosilha.core.contentactions.api
 import com.nosilha.core.contentactions.StoryService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * REST controller for story submissions and public story access.
@@ -51,8 +53,6 @@ import org.springframework.web.bind.annotation.RestController
 class StoryController(
     private val storyService: StoryService,
 ) {
-    private val logger = LoggerFactory.getLogger(StoryController::class.java)
-
     // ========================================
     // PUBLIC ENDPOINTS
     // ========================================
@@ -110,7 +110,7 @@ class StoryController(
         @RequestParam(name = "page", defaultValue = "0") page: Int,
         @RequestParam(name = "size", defaultValue = "20") size: Int,
     ): PagedApiResult<PublicStoryListDto> {
-        logger.debug("Fetching published stories - page: $page, size: $size")
+        logger.debug { "Fetching published stories - page: $page, size: $size" }
         val stories = storyService.listPublishedStories(page, size)
         return PagedApiResult.from(stories)
     }
@@ -154,7 +154,7 @@ class StoryController(
     fun getPublishedStoryBySlug(
         @PathVariable slug: String,
     ): ApiResult<PublicStoryDetailDto> {
-        logger.debug("Fetching published story by slug: $slug")
+        logger.debug { "Fetching published story by slug: $slug" }
         val story = storyService.getPublishedStoryBySlug(slug)
         return ApiResult(data = story)
     }
@@ -199,16 +199,11 @@ class StoryController(
         val authorId = authentication.name
         val ipAddress = extractIpAddress(httpRequest)
 
-        logger.info(
-            "Received story submission from user: {} (IP: {}) - type: {}",
-            authorId,
-            ipAddress,
-            request.storyType
-        )
+        logger.info { "Received story submission from user: $authorId (IP: $ipAddress) - type: ${request.storyType}" }
 
         val response = storyService.submitStory(request, authorId, ipAddress)
 
-        logger.info("Story ${response.id} created successfully by user: $authorId")
+        logger.info { "Story ${response.id} created successfully by user: $authorId" }
 
         return ResponseEntity
             .status(HttpStatus.CREATED)

@@ -9,12 +9,14 @@ import com.nosilha.core.curatedmedia.domain.CuratedMediaStatus
 import com.nosilha.core.curatedmedia.domain.MediaType
 import com.nosilha.core.curatedmedia.repository.CuratedMediaRepository
 import com.nosilha.core.shared.exception.ResourceNotFoundException
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Service for managing curated media in the Nos Ilha gallery.
@@ -44,8 +46,6 @@ import java.util.UUID
 class CuratedMediaService(
     private val repository: CuratedMediaRepository,
 ) {
-    private val logger = LoggerFactory.getLogger(CuratedMediaService::class.java)
-
     /**
      * Lists active curated media with optional filtering and pagination.
      *
@@ -70,12 +70,7 @@ class CuratedMediaService(
         category: String? = null,
         pageable: Pageable,
     ): Page<CuratedMediaDto> {
-        logger.debug(
-            "Listing active media - type: {}, category: {}, page: {}",
-            mediaType,
-            category,
-            pageable.pageNumber
-        )
+        logger.debug { "Listing active media - type: $mediaType, category: $category, page: ${pageable.pageNumber}" }
 
         val page =
             when {
@@ -123,17 +118,17 @@ class CuratedMediaService(
      * @throws ResourceNotFoundException if media not found or not active
      */
     fun getById(id: UUID): CuratedMediaDto {
-        logger.debug("Fetching curated media by ID: {}", id)
+        logger.debug { "Fetching curated media by ID: $id" }
 
         val media =
             repository.findById(id).orElseThrow {
-                logger.warn("Curated media not found: {}", id)
+                logger.warn { "Curated media not found: $id" }
                 ResourceNotFoundException("Curated media not found with id: $id")
             }
 
         // Only return ACTIVE media to public
         if (media.status != CuratedMediaStatus.ACTIVE) {
-            logger.warn("Attempted to access non-active curated media: {}", id)
+            logger.warn { "Attempted to access non-active curated media: $id" }
             throw ResourceNotFoundException("Curated media not found with id: $id")
         }
 
@@ -150,7 +145,7 @@ class CuratedMediaService(
      * @return List of distinct category names, sorted alphabetically
      */
     fun getCategories(): List<String> {
-        logger.debug("Fetching distinct categories for active curated media")
+        logger.debug { "Fetching distinct categories for active curated media" }
         return repository.findDistinctCategories(CuratedMediaStatus.ACTIVE)
     }
 
@@ -170,12 +165,7 @@ class CuratedMediaService(
         request: CreateCuratedMediaRequest,
         adminId: String,
     ): CuratedMediaDto {
-        logger.info(
-            "Creating curated media - type: {}, title: '{}', admin: {}",
-            request.mediaType,
-            request.title,
-            adminId
-        )
+        logger.info { "Creating curated media - type: ${request.mediaType}, title: '${request.title}', admin: $adminId" }
 
         val media =
             CuratedMedia().apply {
@@ -194,7 +184,7 @@ class CuratedMediaService(
             }
 
         val saved = repository.save(media)
-        logger.info("Created curated media: {}", saved.id)
+        logger.info { "Created curated media: ${saved.id}" }
 
         return saved.toDto()
     }
@@ -216,11 +206,11 @@ class CuratedMediaService(
         id: UUID,
         request: UpdateCuratedMediaRequest,
     ): CuratedMediaDto {
-        logger.info("Updating curated media: {}", id)
+        logger.info { "Updating curated media: $id" }
 
         val media =
             repository.findById(id).orElseThrow {
-                logger.warn("Curated media not found for update: {}", id)
+                logger.warn { "Curated media not found for update: $id" }
                 ResourceNotFoundException("Curated media not found with id: $id")
             }
 
@@ -237,7 +227,7 @@ class CuratedMediaService(
         request.displayOrder?.let { media.displayOrder = it }
 
         val updated = repository.save(media)
-        logger.info("Updated curated media: {}", updated.id)
+        logger.info { "Updated curated media: ${updated.id}" }
 
         return updated.toDto()
     }
@@ -254,17 +244,17 @@ class CuratedMediaService(
      */
     @Transactional
     fun delete(id: UUID) {
-        logger.info("Archiving curated media: {}", id)
+        logger.info { "Archiving curated media: $id" }
 
         val media =
             repository.findById(id).orElseThrow {
-                logger.warn("Curated media not found for deletion: {}", id)
+                logger.warn { "Curated media not found for deletion: $id" }
                 ResourceNotFoundException("Curated media not found with id: $id")
             }
 
         media.status = CuratedMediaStatus.ARCHIVED
         repository.save(media)
 
-        logger.info("Archived curated media: {}", id)
+        logger.info { "Archived curated media: $id" }
     }
 }

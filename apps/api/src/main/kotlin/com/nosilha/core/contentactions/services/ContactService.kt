@@ -14,7 +14,7 @@ import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
 import com.nosilha.core.shared.util.ContentSanitizer
 import io.github.bucket4j.Bucket
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Service for managing contact form submissions.
@@ -42,8 +44,6 @@ import java.util.concurrent.TimeUnit
 class ContactService(
     private val contactMessageRepository: ContactMessageRepository,
 ) {
-    private val logger = LoggerFactory.getLogger(ContactService::class.java)
-
     companion object {
         /** Maximum contact submissions per hour per IP address */
         const val MAX_SUBMISSIONS_PER_HOUR = 3L
@@ -82,13 +82,13 @@ class ContactService(
         request: ContactCreateRequest,
         ipAddress: String?,
     ): ContactConfirmationDto {
-        logger.info("Processing contact form submission from IP: $ipAddress")
+        logger.info { "Processing contact form submission from IP: $ipAddress" }
 
         // Atomic rate limiting using Bucket4j token bucket algorithm
         if (ipAddress != null) {
             val bucket = getBucketForIp(ipAddress)
             if (!bucket.tryConsume(1)) {
-                logger.warn("Rate limit exceeded for IP: $ipAddress")
+                logger.warn { "Rate limit exceeded for IP: $ipAddress" }
                 throw RateLimitExceededException(
                     "You have exceeded the maximum number of contact submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
                         "Please try again later.",
@@ -111,7 +111,7 @@ class ContactService(
         )
 
         val savedMessage = contactMessageRepository.save(contactMessage)
-        logger.info("Contact message ${savedMessage.id} created successfully")
+        logger.info { "Contact message ${savedMessage.id} created successfully" }
 
         return savedMessage.toConfirmationDto()
     }
@@ -128,7 +128,7 @@ class ContactService(
      */
     private fun getBucketForIp(ipAddress: String): Bucket =
         rateLimitBuckets.get(ipAddress) {
-            logger.debug("Creating rate limit bucket for IP: $ipAddress")
+            logger.debug { "Creating rate limit bucket for IP: $ipAddress" }
             Bucket
                 .builder()
                 .addLimit { limit ->
@@ -167,7 +167,7 @@ class ContactService(
                 contactMessageRepository.findAllByOrderByCreatedAtDesc(pageable)
             }
 
-        logger.debug("Found ${messages.totalElements} contact messages (status=$status, page=$page)")
+        logger.debug { "Found ${messages.totalElements} contact messages (status=$status, page=$page)" }
         return messages.map { it.toAdminDto() }
     }
 
@@ -207,7 +207,7 @@ class ContactService(
                 ResourceNotFoundException("Contact message not found: $id")
             }
 
-        logger.info("Updating contact message $id status from ${message.status} to $status")
+        logger.info { "Updating contact message $id status from ${message.status} to $status" }
 
         val updatedMessage = message.copy(status = status)
         val saved = contactMessageRepository.save(updatedMessage)
@@ -229,7 +229,7 @@ class ContactService(
             throw ResourceNotFoundException("Contact message not found: $id")
         }
 
-        logger.info("Deleting contact message $id")
+        logger.info { "Deleting contact message $id" }
         contactMessageRepository.deleteById(id)
     }
 

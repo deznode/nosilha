@@ -2,10 +2,12 @@ package com.nosilha.core.directory
 
 import com.nosilha.core.directory.domain.DirectoryEntry
 import com.nosilha.core.directory.repository.DirectoryEntryRepository
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import java.util.UUID
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Service for discovering related cultural heritage content.
@@ -26,8 +28,6 @@ import java.util.UUID
 class RelatedContentService(
     private val directoryEntryRepository: DirectoryEntryRepository,
 ) {
-    private val logger = LoggerFactory.getLogger(RelatedContentService::class.java)
-
     /**
      * Find 3-5 related content items for a given heritage page.
      *
@@ -47,12 +47,12 @@ class RelatedContentService(
     ): List<DirectoryEntry> {
         require(limit in 3..5) { "Limit must be between 3 and 5" }
 
-        logger.debug("Finding related content for contentId={}, limit={}", contentId, limit)
+        logger.debug { "Finding related content for contentId=$contentId, limit=$limit" }
 
         // 1. Fetch the current content item
         val currentEntry = directoryEntryRepository.findById(contentId).orElse(null)
         if (currentEntry == null) {
-            logger.warn("Content ID {} not found, returning empty related content", contentId)
+            logger.warn { "Content ID $contentId not found, returning empty related content" }
             return emptyList()
         }
 
@@ -62,7 +62,7 @@ class RelatedContentService(
 
         // Priority 1: Tag-based matching (multiple shared tags outrank single matches)
         if (currentTags.isNotEmpty()) {
-            logger.debug("Attempting tag-based matching for entry {} with tags {}", currentEntry.id, currentTags)
+            logger.debug { "Attempting tag-based matching for entry ${currentEntry.id} with tags $currentTags" }
             val tagMatchedEntries =
                 findTagMatches(currentEntry, currentTags)
                     .filterNot { it.id == contentId }
@@ -70,7 +70,7 @@ class RelatedContentService(
                     .take(limit)
 
             relatedEntries.addAll(tagMatchedEntries)
-            logger.debug("Found {} tag-based matches", tagMatchedEntries.size)
+            logger.debug { "Found ${tagMatchedEntries.size} tag-based matches" }
         }
 
         // Priority 2: Same category + town (geographic relevance)
@@ -87,11 +87,7 @@ class RelatedContentService(
                     .take(limit - relatedEntries.size)
 
             relatedEntries.addAll(sameCategoryTown)
-            logger.debug(
-                "Added {} same category + town matches (total: {})",
-                sameCategoryTown.size,
-                relatedEntries.size,
-            )
+            logger.debug { "Added ${sameCategoryTown.size} same category + town matches (total: ${relatedEntries.size})" }
         }
 
         // Priority 3: Cuisine affinity for restaurants
@@ -115,11 +111,7 @@ class RelatedContentService(
                     }.take(limit - relatedEntries.size)
 
             relatedEntries.addAll(sameCategoryCuisine)
-            logger.debug(
-                "Added {} cuisine-based matches (total: {})",
-                sameCategoryCuisine.size,
-                relatedEntries.size,
-            )
+            logger.debug { "Added ${sameCategoryCuisine.size} cuisine-based matches (total: ${relatedEntries.size})" }
         }
 
         // Priority 4: Same category fallback
@@ -136,19 +128,11 @@ class RelatedContentService(
                     }.take(limit - relatedEntries.size)
 
             relatedEntries.addAll(sameCategoryOnly)
-            logger.debug(
-                "Added {} same-category fallback matches (total: {})",
-                sameCategoryOnly.size,
-                relatedEntries.size,
-            )
+            logger.debug { "Added ${sameCategoryOnly.size} same-category fallback matches (total: ${relatedEntries.size})" }
         }
 
         val finalResults = relatedEntries.take(limit)
-        logger.info(
-            "Returning {} related content items for contentId={}",
-            finalResults.size,
-            contentId,
-        )
+        logger.info { "Returning ${finalResults.size} related content items for contentId=$contentId" }
 
         return finalResults
     }

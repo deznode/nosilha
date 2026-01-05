@@ -2,18 +2,20 @@ package com.nosilha.core.contentactions.api
 
 import com.nosilha.core.contentactions.services.ContactService
 import com.nosilha.core.shared.api.ApiResult
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * REST controller for contact form submissions.
@@ -40,8 +42,6 @@ import org.springframework.web.bind.annotation.RestController
 class ContactController(
     private val contactService: ContactService,
 ) {
-    private val logger = LoggerFactory.getLogger(ContactController::class.java)
-
     /**
      * Submits a new contact form message.
      *
@@ -93,10 +93,10 @@ class ContactController(
         httpRequest: HttpServletRequest,
     ): ApiResult<ContactConfirmationDto> {
         val ipAddress = extractIpAddress(httpRequest)
-        logger.info("Received contact form submission from IP: $ipAddress")
+        logger.info { "Received contact form submission from IP: $ipAddress" }
 
         val response = contactService.submitContact(request, ipAddress)
-        logger.info("Contact message ${response.id} created successfully")
+        logger.info { "Contact message ${response.id} created successfully" }
 
         return ApiResult(data = response, status = HttpStatus.CREATED.value())
     }

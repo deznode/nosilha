@@ -4,7 +4,7 @@ import com.nosilha.core.curatedmedia.CuratedMediaService
 import com.nosilha.core.curatedmedia.domain.MediaType
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.domain.PageRequest
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Public REST controller for accessing curated media in the Nos Ilha gallery.
@@ -40,8 +42,6 @@ import java.util.UUID
 class CuratedMediaController(
     private val service: CuratedMediaService,
 ) {
-    private val logger = LoggerFactory.getLogger(CuratedMediaController::class.java)
-
     /**
      * List active curated media with optional filtering and pagination.
      *
@@ -109,13 +109,7 @@ class CuratedMediaController(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
     ): PagedApiResult<CuratedMediaDto> {
-        logger.debug(
-            "Listing curated media - type: {}, category: {}, page: {}, size: {}",
-            mediaType,
-            category,
-            page,
-            size
-        )
+        logger.debug { "Listing curated media - type: $mediaType, category: $category, page: $page, size: $size" }
 
         val pageable = PageRequest.of(page, size.coerceAtMost(100))
         val result = service.listActiveMedia(mediaType, category, pageable)
@@ -164,7 +158,7 @@ class CuratedMediaController(
     fun getById(
         @PathVariable id: UUID,
     ): ApiResult<CuratedMediaDto> {
-        logger.debug("Fetching curated media by ID: {}", id)
+        logger.debug { "Fetching curated media by ID: $id" }
         val media = service.getById(id)
         return ApiResult(data = media)
     }
@@ -201,7 +195,7 @@ class CuratedMediaController(
      */
     @GetMapping("/categories")
     fun getCategories(): ApiResult<List<String>> {
-        logger.debug("Fetching curated media categories")
+        logger.debug { "Fetching curated media categories" }
         val categories = service.getCategories()
         return ApiResult(data = categories)
     }

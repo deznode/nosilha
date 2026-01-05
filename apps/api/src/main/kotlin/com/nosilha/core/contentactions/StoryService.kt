@@ -25,7 +25,7 @@ import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
 import com.nosilha.core.shared.util.ContentSanitizer
 import io.github.bucket4j.Bucket
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -35,6 +35,8 @@ import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Service for managing story submissions.
@@ -48,8 +50,6 @@ class StoryService(
     private val userProfileQueryService: UserProfileQueryService,
     private val directoryEntryQueryService: DirectoryEntryQueryService,
 ) {
-    private val logger = LoggerFactory.getLogger(StoryService::class.java)
-
     companion object {
         const val MAX_SUBMISSIONS_PER_HOUR = 5L
     }
@@ -89,7 +89,7 @@ class StoryService(
     ): StorySubmittedResponse {
         // Honeypot check - if filled, silently accept but don't save
         if (!request.honeypot.isNullOrBlank()) {
-            logger.warn("Honeypot triggered for story submission from IP: {}", ipAddress)
+            logger.warn { "Honeypot triggered for story submission from IP: $ipAddress" }
             return StorySubmittedResponse(id = null)
         }
 
@@ -97,7 +97,7 @@ class StoryService(
         if (ipAddress != null) {
             val bucket = getBucketForIp(ipAddress)
             if (!bucket.tryConsume(1)) {
-                logger.warn("Rate limit exceeded for IP: $ipAddress")
+                logger.warn { "Rate limit exceeded for IP: $ipAddress" }
                 throw RateLimitExceededException(
                     "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). Please try again later.",
                 )
@@ -126,7 +126,7 @@ class StoryService(
         )
 
         val saved = repository.save(story)
-        logger.info("Story submitted: id={}, author={}, type={}", saved.id, authorId, request.storyType)
+        logger.info { "Story submitted: id=${saved.id}, author=$authorId, type=${request.storyType}" }
 
         // Publish event
         eventPublisher.publishEvent(
@@ -156,7 +156,7 @@ class StoryService(
      */
     private fun getBucketForIp(ipAddress: String): Bucket =
         rateLimitBuckets.get(ipAddress) {
-            logger.debug("Creating rate limit bucket for IP: $ipAddress")
+            logger.debug { "Creating rate limit bucket for IP: $ipAddress" }
             Bucket
                 .builder()
                 .addLimit { limit ->
@@ -191,7 +191,7 @@ class StoryService(
                 repository.findAllBy(pageable)
             }
 
-        logger.debug("Retrieved ${stories.numberOfElements} stories (page $page, size $size, status: $status)")
+        logger.debug { "Retrieved ${stories.numberOfElements} stories (page $page, size $size, status: $status)" }
         return stories.map { it.toListDto() }
     }
 
@@ -220,7 +220,7 @@ class StoryService(
                 repository.findAllBy(pageable)
             }
 
-        logger.debug("Retrieved ${stories.numberOfElements} stories with details (page $page, size $size, status: $status)")
+        logger.debug { "Retrieved ${stories.numberOfElements} stories with details (page $page, size $size, status: $status)" }
         return stories.map { it.toDetailDto() }
     }
 
@@ -240,7 +240,7 @@ class StoryService(
                 .findById(id)
                 .orElseThrow { ResourceNotFoundException("Story with id $id not found") }
 
-        logger.debug("Retrieved story $id for admin review")
+        logger.debug { "Retrieved story $id for admin review" }
         return story.toDetailDto()
     }
 
@@ -300,7 +300,7 @@ class StoryService(
             )
 
         val savedStory = repository.save(updatedStory)
-        logger.info("Story $id status changed from $previousStatus to $newStatus by admin $adminId")
+        logger.info { "Story $id status changed from $previousStatus to $newStatus by admin $adminId" }
 
         // Publish appropriate event
         if (action == StoryModerationAction.PUBLISH) {
@@ -312,7 +312,7 @@ class StoryService(
                     title = story.title,
                 )
             eventPublisher.publishEvent(publishEvent)
-            logger.debug("Published StoryPublishedEvent for story $id")
+            logger.debug { "Published StoryPublishedEvent for story $id" }
         } else {
             val statusChangeEvent =
                 StoryStatusChangedEvent(
@@ -323,7 +323,7 @@ class StoryService(
                     adminNotes = notes,
                 )
             eventPublisher.publishEvent(statusChangeEvent)
-            logger.debug("Published StoryStatusChangedEvent for story $id")
+            logger.debug { "Published StoryStatusChangedEvent for story $id" }
         }
 
         return savedStory.toDetailDto()
@@ -353,7 +353,7 @@ class StoryService(
         val updatedStory = story.copy(isFeatured = isFeatured)
         val savedStory = repository.save(updatedStory)
 
-        logger.info("Story $id featured status changed to $isFeatured")
+        logger.info { "Story $id featured status changed to $isFeatured" }
         return savedStory.toDetailDto()
     }
 
@@ -400,7 +400,7 @@ class StoryService(
             )
 
         val savedStory = repository.save(updatedStory)
-        logger.info("Story $id marked as archived with slug '$slug' by admin $adminId")
+        logger.info { "Story $id marked as archived with slug '$slug' by admin $adminId" }
 
         return savedStory.toDetailDto()
     }
@@ -422,7 +422,7 @@ class StoryService(
                 .orElseThrow { ResourceNotFoundException("Story with id $id not found") }
 
         repository.delete(story)
-        logger.warn("Story $id deleted by admin (author: ${story.authorId}, type: ${story.storyType})")
+        logger.warn { "Story $id deleted by admin (author: ${story.authorId}, type: ${story.storyType})" }
     }
 
     // ========== PUBLIC API METHODS ==========
@@ -453,7 +453,7 @@ class StoryService(
         val placeIds = stories.content.mapNotNull { it.relatedPlaceId }.distinct()
         val placeNamesById = directoryEntryQueryService.findEntryNames(placeIds)
 
-        logger.debug("Retrieved ${stories.numberOfElements} published stories (page $page)")
+        logger.debug { "Retrieved ${stories.numberOfElements} published stories (page $page)" }
         return stories.map { story ->
             story.toPublicListDto(
                 authorName = displayNamesById[story.authorId] ?: "Anonymous",
@@ -484,7 +484,7 @@ class StoryService(
             directoryEntryQueryService.findEntryName(placeId)
         }
 
-        logger.debug("Retrieved published story by slug: $slug")
+        logger.debug { "Retrieved published story by slug: $slug" }
         return story.toPublicDetailDto(authorName, locationName)
     }
 

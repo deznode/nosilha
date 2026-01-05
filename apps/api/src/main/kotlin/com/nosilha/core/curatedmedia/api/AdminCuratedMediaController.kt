@@ -2,8 +2,8 @@ package com.nosilha.core.curatedmedia.api
 
 import com.nosilha.core.curatedmedia.CuratedMediaService
 import com.nosilha.core.shared.api.ApiResult
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.validation.Valid
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Admin REST controller for managing curated media in the Nos Ilha gallery.
@@ -43,8 +45,6 @@ import java.util.UUID
 class AdminCuratedMediaController(
     private val service: CuratedMediaService,
 ) {
-    private val logger = LoggerFactory.getLogger(AdminCuratedMediaController::class.java)
-
     /**
      * Create a new curated media item.
      *
@@ -114,16 +114,11 @@ class AdminCuratedMediaController(
     ): ApiResult<CuratedMediaDto> {
         val adminId = authentication.name
 
-        logger.info(
-            "Admin {} creating curated media - type: {}, title: '{}'",
-            adminId,
-            request.mediaType,
-            request.title
-        )
+        logger.info { "Admin $adminId creating curated media - type: ${request.mediaType}, title: '${request.title}'" }
 
         val media = service.create(request, adminId)
 
-        logger.info("Admin {} created curated media: {}", adminId, media.id)
+        logger.info { "Admin $adminId created curated media: ${media.id}" }
 
         return ApiResult(data = media, status = HttpStatus.CREATED.value())
     }
@@ -183,11 +178,11 @@ class AdminCuratedMediaController(
     ): ApiResult<CuratedMediaDto> {
         val adminId = authentication.name
 
-        logger.info("Admin {} updating curated media: {}", adminId, id)
+        logger.info { "Admin $adminId updating curated media: $id" }
 
         val media = service.update(id, request)
 
-        logger.info("Admin {} updated curated media: {}", adminId, id)
+        logger.info { "Admin $adminId updated curated media: $id" }
 
         return ApiResult(data = media)
     }
@@ -222,10 +217,10 @@ class AdminCuratedMediaController(
     ) {
         val adminId = authentication.name
 
-        logger.info("Admin {} archiving curated media: {}", adminId, id)
+        logger.info { "Admin $adminId archiving curated media: $id" }
 
         service.delete(id)
 
-        logger.info("Admin {} archived curated media: {}", adminId, id)
+        logger.info { "Admin $adminId archived curated media: $id" }
     }
 }

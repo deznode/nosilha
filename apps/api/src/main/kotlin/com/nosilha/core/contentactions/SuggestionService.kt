@@ -17,7 +17,7 @@ import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
 import com.nosilha.core.shared.util.ContentSanitizer
 import io.github.bucket4j.Bucket
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -27,6 +27,8 @@ import java.time.Duration
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.TimeUnit
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Service for managing content improvement suggestions from community members.
@@ -41,8 +43,6 @@ class SuggestionService(
     private val suggestionRepository: SuggestionRepository,
     private val eventPublisher: ApplicationEventPublisher,
 ) {
-    private val logger = LoggerFactory.getLogger(SuggestionService::class.java)
-
     companion object {
         const val MAX_SUBMISSIONS_PER_HOUR = 5L
     }
@@ -78,11 +78,11 @@ class SuggestionService(
         dto: SuggestionCreateDto,
         ipAddress: String?,
     ): SuggestionResponseDto {
-        logger.info("Processing suggestion submission for content ${dto.contentId} from IP: $ipAddress")
+        logger.info { "Processing suggestion submission for content ${dto.contentId} from IP: $ipAddress" }
 
         // Honeypot spam protection
         if (!dto.honeypot.isNullOrBlank()) {
-            logger.warn("Honeypot field detected - potential spam from IP: $ipAddress")
+            logger.warn { "Honeypot field detected - potential spam from IP: $ipAddress" }
             throw HoneypotSpamDetectedException("Spam submission detected")
         }
 
@@ -90,7 +90,7 @@ class SuggestionService(
         if (ipAddress != null) {
             val bucket = getBucketForIp(ipAddress)
             if (!bucket.tryConsume(1)) {
-                logger.warn("Rate limit exceeded for IP: $ipAddress")
+                logger.warn { "Rate limit exceeded for IP: $ipAddress" }
                 throw RateLimitExceededException(
                     "You have exceeded the maximum number of submissions ($MAX_SUBMISSIONS_PER_HOUR per hour). " +
                         "Please try again later.",
@@ -118,11 +118,11 @@ class SuggestionService(
             )
 
         val savedSuggestion = suggestionRepository.save(suggestion)
-        logger.info("Suggestion ${savedSuggestion.id} created successfully for content ${dto.contentId}")
+        logger.info { "Suggestion ${savedSuggestion.id} created successfully for content ${dto.contentId}" }
 
         // TODO: Send email notification to administrators
         // This will be implemented when email service is available
-        logger.info("Email notification would be sent for suggestion ${savedSuggestion.id}")
+        logger.info { "Email notification would be sent for suggestion ${savedSuggestion.id}" }
 
         return SuggestionResponseDto(
             id = savedSuggestion.id!!,
@@ -144,7 +144,7 @@ class SuggestionService(
      */
     private fun getBucketForIp(ipAddress: String): Bucket =
         rateLimitBuckets.get(ipAddress) {
-            logger.debug("Creating rate limit bucket for IP: $ipAddress")
+            logger.debug { "Creating rate limit bucket for IP: $ipAddress" }
             Bucket
                 .builder()
                 .addLimit { limit ->
@@ -190,7 +190,7 @@ class SuggestionService(
                 suggestionRepository.findAllBy(pageable)
             }
 
-        logger.debug("Retrieved ${suggestions.numberOfElements} suggestions (page $page, size $size, status: $status)")
+        logger.debug { "Retrieved ${suggestions.numberOfElements} suggestions (page $page, size $size, status: $status)" }
         return suggestions.map { it.toListDto() }
     }
 
@@ -219,7 +219,7 @@ class SuggestionService(
                 suggestionRepository.findAllBy(pageable)
             }
 
-        logger.debug("Retrieved ${suggestions.numberOfElements} suggestions with details (page $page, size $size, status: $status)")
+        logger.debug { "Retrieved ${suggestions.numberOfElements} suggestions with details (page $page, size $size, status: $status)" }
         return suggestions.map { it.toDetailDto() }
     }
 
@@ -239,7 +239,7 @@ class SuggestionService(
                 .findById(id)
                 .orElseThrow { ResourceNotFoundException("Suggestion with id $id not found") }
 
-        logger.debug("Retrieved suggestion $id for admin review")
+        logger.debug { "Retrieved suggestion $id for admin review" }
         return suggestion.toDetailDto()
     }
 
@@ -287,7 +287,7 @@ class SuggestionService(
             )
 
         val savedSuggestion = suggestionRepository.save(updatedSuggestion)
-        logger.info("Suggestion $id status changed from $previousStatus to $newStatus by admin $adminId")
+        logger.info { "Suggestion $id status changed from $previousStatus to $newStatus by admin $adminId" }
 
         // Publish event for potential email notifications
         val event =
@@ -299,7 +299,7 @@ class SuggestionService(
                 adminNotes = notes,
             )
         eventPublisher.publishEvent(event)
-        logger.debug("Published SuggestionStatusChangedEvent for suggestion $id")
+        logger.debug { "Published SuggestionStatusChangedEvent for suggestion $id" }
 
         return savedSuggestion.toDetailDto()
     }
@@ -321,7 +321,7 @@ class SuggestionService(
                 .orElseThrow { ResourceNotFoundException("Suggestion with id $id not found") }
 
         suggestionRepository.delete(suggestion)
-        logger.warn("Suggestion $id deleted by admin (content: ${suggestion.contentId}, type: ${suggestion.suggestionType})")
+        logger.warn { "Suggestion $id deleted by admin (content: ${suggestion.contentId}, type: ${suggestion.suggestionType})" }
     }
 }
 

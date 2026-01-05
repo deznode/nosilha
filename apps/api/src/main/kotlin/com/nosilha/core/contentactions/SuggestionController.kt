@@ -3,15 +3,17 @@ package com.nosilha.core.contentactions
 import com.nosilha.core.contentactions.api.SuggestionCreateDto
 import com.nosilha.core.contentactions.api.SuggestionResponseDto
 import com.nosilha.core.shared.api.ApiResult
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * REST controller for community content improvement suggestions.
@@ -39,8 +41,6 @@ import org.springframework.web.bind.annotation.RestController
 class SuggestionController(
     private val suggestionService: SuggestionService,
 ) {
-    private val logger = LoggerFactory.getLogger(SuggestionController::class.java)
-
     /**
      * Submits a new content improvement suggestion.
      *
@@ -74,14 +74,14 @@ class SuggestionController(
         request: HttpServletRequest,
     ): ApiResult<SuggestionResponseDto> {
         val ipAddress = extractIpAddress(request)
-        logger.info("Received suggestion submission from IP: $ipAddress for content ${dto.contentId}")
+        logger.info { "Received suggestion submission from IP: $ipAddress for content ${dto.contentId}" }
 
         return try {
             val response = suggestionService.submitSuggestion(dto, ipAddress)
-            logger.info("Suggestion ${response.id} created successfully")
+            logger.info { "Suggestion ${response.id} created successfully" }
             ApiResult(data = response, status = HttpStatus.CREATED.value())
         } catch (e: HoneypotSpamDetectedException) {
-            logger.warn("Honeypot spam detected from IP: $ipAddress")
+            logger.warn { "Honeypot spam detected from IP: $ipAddress" }
             ApiResult(
                 data =
                     SuggestionResponseDto(

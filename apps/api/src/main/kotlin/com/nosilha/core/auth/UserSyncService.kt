@@ -3,10 +3,12 @@ package com.nosilha.core.auth
 import com.nosilha.core.auth.domain.User
 import com.nosilha.core.auth.domain.UserRole
 import com.nosilha.core.auth.repository.UserRepository
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Service for Just-in-Time (JIT) user provisioning.
@@ -37,8 +39,6 @@ import java.util.UUID
 class UserSyncService(
     private val userRepository: UserRepository,
 ) {
-    private val logger = LoggerFactory.getLogger(UserSyncService::class.java)
-
     /**
      * Ensures a user record exists in the local database.
      *
@@ -66,12 +66,12 @@ class UserSyncService(
         // Check if user already exists (most common case)
         val existingUser = userRepository.findById(userId).orElse(null)
         if (existingUser != null) {
-            logger.debug("User already exists: id={}", userId)
+            logger.debug { "User already exists: id=$userId" }
             return existingUser
         }
 
         // User doesn't exist - create new record
-        logger.info("Creating new user record via JIT provisioning: id={}, email={}", userId, email)
+        logger.info { "Creating new user record via JIT provisioning: id=$userId, email=$email" }
 
         return try {
             val newUser = User(
@@ -83,9 +83,9 @@ class UserSyncService(
             userRepository.save(newUser)
         } catch (e: Exception) {
             // Handle race condition: another request may have created the user
-            logger.debug("Concurrent user creation detected, fetching existing record: id={}", userId)
+            logger.debug { "Concurrent user creation detected, fetching existing record: id=$userId" }
             userRepository.findById(userId).orElseThrow {
-                logger.error("Failed to create or find user: id={}, email={}", userId, email, e)
+                logger.error(e) { "Failed to create or find user: id=$userId, email=$email" }
                 IllegalStateException("Failed to sync user to local database", e)
             }
         }

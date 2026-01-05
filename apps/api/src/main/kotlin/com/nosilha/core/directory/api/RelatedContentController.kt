@@ -4,7 +4,7 @@ import com.nosilha.core.directory.RelatedContentService
 import com.nosilha.core.directory.domain.toDto
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.DirectoryEntryDto
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * REST controller for discovering related cultural heritage content.
@@ -31,8 +33,6 @@ import java.util.UUID
 class RelatedContentController(
     private val relatedContentService: RelatedContentService,
 ) {
-    private val logger = LoggerFactory.getLogger(RelatedContentController::class.java)
-
     /**
      * Get related content items for a specific heritage page.
      *
@@ -62,17 +62,17 @@ class RelatedContentController(
         @PathVariable contentId: UUID,
         @RequestParam(name = "limit", defaultValue = "5") limit: Int,
     ): ApiResult<List<DirectoryEntryDto>> {
-        logger.info("GET /api/v1/directory/entries/{}/related?limit={}", contentId, limit)
+        logger.info { "GET /api/v1/directory/entries/$contentId/related?limit=$limit" }
 
         // Validate limit parameter
         val validatedLimit =
             when {
                 limit < 3 -> {
-                    logger.warn("Limit {} is below minimum, using 3", limit)
+                    logger.warn { "Limit $limit is below minimum, using 3" }
                     3
                 }
                 limit > 5 -> {
-                    logger.warn("Limit {} exceeds maximum, using 5", limit)
+                    logger.warn { "Limit $limit exceeds maximum, using 5" }
                     5
                 }
                 else -> limit
@@ -84,7 +84,7 @@ class RelatedContentController(
         // Convert to DTOs using the polymorphic toDto() extension function
         val relatedDtos = relatedEntries.map { entry -> entry.toDto() }
 
-        logger.info("Returning {} related content items for contentId={}", relatedDtos.size, contentId)
+        logger.info { "Returning ${relatedDtos.size} related content items for contentId=$contentId" }
 
         return ApiResult(
             data = relatedDtos,

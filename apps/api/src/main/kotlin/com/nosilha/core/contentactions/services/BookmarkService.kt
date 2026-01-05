@@ -10,12 +10,14 @@ import com.nosilha.core.contentactions.repository.BookmarkRepository
 import com.nosilha.core.directory.repository.DirectoryEntryRepository
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
-import org.slf4j.LoggerFactory
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Service for managing user bookmarks for directory entries.
@@ -41,8 +43,6 @@ class BookmarkService(
     private val bookmarkRepository: BookmarkRepository,
     private val directoryEntryRepository: DirectoryEntryRepository,
 ) {
-    private val logger = LoggerFactory.getLogger(BookmarkService::class.java)
-
     companion object {
         private const val MAX_BOOKMARKS_PER_USER = 100
     }
@@ -67,29 +67,24 @@ class BookmarkService(
         userId: String,
         entryId: UUID,
     ): BookmarkDto {
-        logger.debug("Creating bookmark for user {} on entry {}", userId, entryId)
+        logger.debug { "Creating bookmark for user $userId on entry $entryId" }
 
         // Check if directory entry exists
         if (!directoryEntryRepository.existsById(entryId)) {
-            logger.warn("Directory entry not found: {}", entryId)
+            logger.warn { "Directory entry not found: $entryId" }
             throw ResourceNotFoundException("Directory entry with ID $entryId not found")
         }
 
         // Check if already bookmarked (prevent duplicates)
         if (bookmarkRepository.existsByUserIdAndEntryId(userId, entryId)) {
-            logger.warn("User {} already bookmarked entry {}", userId, entryId)
+            logger.warn { "User $userId already bookmarked entry $entryId" }
             throw BusinessException("Entry is already bookmarked")
         }
 
         // Check bookmark limit (maximum 100 per user)
         val currentCount = bookmarkRepository.countByUserId(userId)
         if (currentCount >= MAX_BOOKMARKS_PER_USER) {
-            logger.warn(
-                "User {} exceeded bookmark limit ({}/{})",
-                userId,
-                currentCount,
-                MAX_BOOKMARKS_PER_USER,
-            )
+            logger.warn { "User $userId exceeded bookmark limit ($currentCount/$MAX_BOOKMARKS_PER_USER)" }
             throw BusinessException(
                 "Maximum $MAX_BOOKMARKS_PER_USER bookmarks reached. Please remove some bookmarks before adding new ones.",
             )
@@ -103,12 +98,7 @@ class BookmarkService(
             )
 
         val savedBookmark = bookmarkRepository.save(bookmark)
-        logger.info(
-            "Bookmark created successfully: {} for user {} on entry {}",
-            savedBookmark.id,
-            userId,
-            entryId,
-        )
+        logger.info { "Bookmark created successfully: ${savedBookmark.id} for user $userId on entry $entryId" }
 
         return savedBookmark.toDto()
     }
@@ -127,7 +117,7 @@ class BookmarkService(
         userId: String,
         entryId: UUID,
     ) {
-        logger.debug("Deleting bookmark for user {} on entry {}", userId, entryId)
+        logger.debug { "Deleting bookmark for user $userId on entry $entryId" }
 
         // Check if bookmark exists before deleting
         val bookmark = bookmarkRepository.findByUserIdAndEntryId(userId, entryId)
@@ -136,7 +126,7 @@ class BookmarkService(
             )
 
         bookmarkRepository.delete(bookmark)
-        logger.info("Bookmark deleted successfully for user {} on entry {}", userId, entryId)
+        logger.info { "Bookmark deleted successfully for user $userId on entry $entryId" }
     }
 
     /**
@@ -156,7 +146,7 @@ class BookmarkService(
         userId: String,
         pageable: Pageable,
     ): Page<BookmarkWithEntryDto> {
-        logger.debug("Fetching bookmarks for user {} (page: {})", userId, pageable.pageNumber)
+        logger.debug { "Fetching bookmarks for user $userId (page: ${pageable.pageNumber})" }
 
         val bookmarksPage = bookmarkRepository.findByUserId(userId, pageable)
 
@@ -173,7 +163,7 @@ class BookmarkService(
             val entry = entriesById[bookmark.entryId]
                 ?: run {
                     // This should not happen due to foreign key constraints, but handle gracefully
-                    logger.error("Directory entry {} not found for bookmark {}", bookmark.entryId, bookmark.id)
+                    logger.error { "Directory entry ${bookmark.entryId} not found for bookmark ${bookmark.id}" }
                     throw ResourceNotFoundException("Directory entry with ID ${bookmark.entryId} not found")
                 }
             bookmark.toWithEntryDto(entry)
@@ -196,7 +186,7 @@ class BookmarkService(
         userId: String,
         entryId: UUID,
     ): BookmarkStatusDto {
-        logger.debug("Checking bookmark status for user {} on entry {}", userId, entryId)
+        logger.debug { "Checking bookmark status for user $userId on entry $entryId" }
 
         val bookmark = bookmarkRepository.findByUserIdAndEntryId(userId, entryId)
 
