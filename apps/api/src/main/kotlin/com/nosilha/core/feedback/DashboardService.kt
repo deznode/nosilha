@@ -12,8 +12,8 @@ import com.nosilha.core.feedback.domain.SuggestionStatus
 import com.nosilha.core.feedback.repository.ContactMessageRepository
 import com.nosilha.core.feedback.repository.DirectorySubmissionRepository
 import com.nosilha.core.feedback.repository.SuggestionRepository
-import com.nosilha.core.media.api.MediaQueryService
-import com.nosilha.core.media.domain.MediaStatus
+import com.nosilha.core.gallery.api.MediaQueryService
+import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.places.api.PlacesQueryService
 import com.nosilha.core.stories.api.StoriesQueryService
 import com.nosilha.core.stories.domain.StoryStatus
@@ -133,8 +133,8 @@ class DashboardService(
         val pendingDirectory = directorySubmissionRepository.countByStatus(DirectorySubmissionStatus.PENDING)
 
         // Media pending: count of PENDING_REVIEW and FLAGGED media
-        val pendingReviewMedia = mediaQueryService.countByStatus(MediaStatus.PENDING_REVIEW)
-        val flaggedMedia = mediaQueryService.countByStatus(MediaStatus.FLAGGED)
+        val pendingReviewMedia = mediaQueryService.countByStatus(GalleryMediaStatus.PENDING_REVIEW)
+        val flaggedMedia = mediaQueryService.countByStatus(GalleryMediaStatus.FLAGGED)
         val mediaPending = pendingReviewMedia + flaggedMedia
 
         // Active users: count of unique story authors in the last 30 days

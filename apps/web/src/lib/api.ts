@@ -23,10 +23,6 @@ import type {
   ContactMessageStatus,
   DirectorySubmission,
   AdminQueueResponse,
-  AdminMediaListItem,
-  AdminMediaDetail,
-  UpdateMediaStatusRequest,
-  MediaStatus,
 } from "@/types/admin";
 import { getApiClient } from "@/lib/api-factory";
 
@@ -643,111 +639,154 @@ export async function updateProfile(
 }
 
 // ================================
-// CURATED MEDIA OPERATIONS
+// GALLERY OPERATIONS (UNIFIED MEDIA)
 // ================================
 
 /**
- * Fetches curated media items from the gallery.
+ * Fetches unified gallery media (user uploads + external content).
  * Public endpoint - no authentication required.
  * Uses ISR with 30 minute cache for gallery content.
  * Automatically uses the configured API implementation (backend or mock).
- * @param options Query parameters (mediaType, category, page, size)
- * @returns A promise that resolves to paginated curated media items
+ *
+ * Returns ACTIVE media from both user uploads and admin-curated external
+ * content in a unified, discriminated union response.
+ *
+ * @param options Query parameters (category, page, size)
+ * @returns A promise that resolves to paginated gallery items
  * @throws Error if API call fails
  */
-export async function getCuratedMedia(options?: {
-  mediaType?: import("@/types/curated-media").MediaType;
+export async function getGalleryMedia(options?: {
   category?: string;
   page?: number;
   size?: number;
-}): Promise<import("@/types/curated-media").CuratedMediaPageResponse> {
-  return apiClient.getCuratedMedia(options);
+}): Promise<import("@/types/gallery").GalleryMediaPageResponse> {
+  return apiClient.getGalleryMedia(options);
 }
 
 /**
- * Fetches a single curated media item by ID.
+ * Fetches a single gallery media item by ID.
  * Public endpoint - no authentication required.
  * Uses ISR with 30 minute cache for individual media items.
  * Automatically uses the configured API implementation (backend or mock).
- * @param id UUID of the curated media item
- * @returns A promise that resolves to curated media item or undefined if not found
+ * @param id UUID of the gallery media item
+ * @returns A promise that resolves to gallery media (UserUpload or External) or undefined if not found
  * @throws Error if API call fails
  */
-export async function getCuratedMediaById(
+export async function getGalleryMediaById(
   id: string
-): Promise<import("@/types/curated-media").CuratedMedia | undefined> {
-  return apiClient.getCuratedMediaById(id);
+): Promise<import("@/types/gallery").GalleryMedia | undefined> {
+  return apiClient.getGalleryMediaById(id);
 }
 
 /**
- * Fetches available curated media categories.
+ * Fetches available gallery categories.
  * Public endpoint - no authentication required.
  * Uses ISR with 1 hour cache for categories list.
  * Automatically uses the configured API implementation (backend or mock).
  * @returns A promise that resolves to array of category strings
  * @throws Error if API call fails
  */
-export async function getCuratedMediaCategories(): Promise<string[]> {
-  return apiClient.getCuratedMediaCategories();
+export async function getGalleryCategories(): Promise<string[]> {
+  return apiClient.getGalleryCategories();
+}
+
+/**
+ * Submit external media for admin review.
+ * Public endpoint - no authentication required.
+ * Allows community members to submit external media (YouTube videos, etc.)
+ * for review and potential inclusion in the gallery.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param request External media submission data
+ * @returns A promise that resolves to submission confirmation
+ * @throws Error if API call fails
+ */
+export async function submitExternalMedia(
+  request: import("@/types/gallery").SubmitExternalMediaRequest
+): Promise<{ id: string; message: string }> {
+  return apiClient.submitExternalMedia(request);
+}
+
+// ================================
+// ADMIN GALLERY MODERATION OPERATIONS
+// ================================
+
+/**
+ * Get unified gallery moderation queue (user uploads + external media).
+ * Admin endpoint - requires ADMIN role.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param status Optional status filter
+ * @param page Page number (default: 0)
+ * @param size Page size (default: 20)
+ * @returns A promise that resolves to paginated gallery media items
+ */
+export async function getAdminGallery(
+  status?: import("@/types/gallery").GalleryMediaStatus | "ALL",
+  page?: number,
+  size?: number
+): Promise<
+  import("@/types/admin").AdminQueueResponse<
+    import("@/types/gallery").GalleryMedia
+  >
+> {
+  return apiClient.getAdminGallery(status, page, size);
+}
+
+/**
+ * Get detailed gallery media information for moderation.
+ * Admin endpoint - requires ADMIN role.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Gallery media item ID
+ * @returns A promise that resolves to detailed gallery media item
+ */
+export async function getAdminGalleryDetail(
+  id: string
+): Promise<import("@/types/gallery").GalleryMedia> {
+  return apiClient.getAdminGalleryDetail(id);
+}
+
+/**
+ * Update gallery media moderation status.
+ * Admin endpoint - requires ADMIN role.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Gallery media item ID
+ * @param request Moderation action request
+ * @returns A promise that resolves to updated gallery media item
+ */
+export async function updateGalleryStatus(
+  id: string,
+  request: import("@/types/gallery").UpdateGalleryStatusRequest
+): Promise<import("@/types/gallery").GalleryMedia> {
+  return apiClient.updateGalleryStatus(id, request);
+}
+
+/**
+ * Archive (soft delete) a gallery media item.
+ * Admin endpoint - requires ADMIN role.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Gallery media item ID
+ */
+export async function archiveGalleryMedia(id: string): Promise<void> {
+  return apiClient.archiveGalleryMedia(id);
+}
+
+/**
+ * Create external media directly (admin only, bypasses moderation).
+ * Admin endpoint - requires ADMIN role.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param request External media creation data
+ * @returns A promise that resolves to created external media item
+ */
+export async function createExternalMedia(
+  request: import("@/types/gallery").CreateExternalMediaRequest
+): Promise<import("@/types/gallery").ExternalMedia> {
+  return apiClient.createExternalMedia(request);
 }
 
 // ================================
 // ADMIN MEDIA MODERATION OPERATIONS
 // ================================
-
-/**
- * Gets media items for admin moderation queue.
- * Requires ADMIN role authentication.
- * Automatically uses the configured API implementation (backend or mock).
- * @param status Filter by media status (optional, defaults to all)
- * @param page Page number (0-indexed, default: 0)
- * @param size Page size (default: 20)
- * @returns A promise that resolves to paginated media items
- */
-export async function getAdminMedia(
-  status?: MediaStatus | "ALL",
-  page?: number,
-  size?: number
-): Promise<AdminQueueResponse<AdminMediaListItem>> {
-  return apiClient.getAdminMedia(status, page, size);
-}
-
-/**
- * Gets detailed media information for moderation.
- * Requires ADMIN role authentication.
- * Automatically uses the configured API implementation (backend or mock).
- * @param id Media item ID
- * @returns A promise that resolves to detailed media information
- */
-export async function getAdminMediaDetail(
-  id: string
-): Promise<AdminMediaDetail> {
-  return apiClient.getAdminMediaDetail(id);
-}
-
-/**
- * Updates media moderation status.
- * Requires ADMIN role authentication.
- * Automatically uses the configured API implementation (backend or mock).
- * @param id Media item ID
- * @param request Moderation action request (action, reason, adminNotes)
- */
-export async function updateMediaStatus(
-  id: string,
-  request: UpdateMediaStatusRequest
-): Promise<AdminMediaDetail> {
-  return apiClient.updateMediaStatus(id, request);
-}
-
-/**
- * Deletes a media item.
- * Requires ADMIN role authentication.
- * Automatically uses the configured API implementation (backend or mock).
- * @param id Media item ID
- */
-export async function deleteMedia(id: string): Promise<void> {
-  return apiClient.deleteMedia(id);
-}
+// NOTE: Old admin media operations have been replaced by unified gallery
+// moderation. See ADMIN GALLERY MODERATION OPERATIONS section above.
 
 // ================================
 // MDX ARCHIVAL ENGINE OPERATIONS

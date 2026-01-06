@@ -49,8 +49,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${property("springdocOpenApiVersion")}")
-    // Jackson 3 Kotlin module with tools.jackson namespace
-    implementation("tools.jackson.module:jackson-module-kotlin:3.0.0-rc1")
+    implementation("tools.jackson.module:jackson-module-kotlin:3.0.3")
     implementation("io.github.oshai:kotlin-logging-jvm:${property("kotlinLogging")}")
     implementation("io.jsonwebtoken:jjwt-api:0.12.5")
     runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.5")

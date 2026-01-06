@@ -9,62 +9,16 @@ import {
   VideoSection,
   Lightbox,
 } from "@/components/gallery";
-import { getCuratedMedia, getApprovedMedia } from "@/lib/api";
+import { getGalleryMedia } from "@/lib/api";
 import type { MediaItem, MediaCategory } from "@/types/media";
-import type { CuratedMedia } from "@/types/curated-media";
-import type { MediaMetadataDto } from "@/types/api";
+import type { GalleryMedia } from "@/types/gallery";
 
 /**
- * Maps CuratedMedia from API to MediaItem expected by gallery components
+ * Maps unified GalleryMedia to MediaItem expected by gallery components.
+ * Handles both user uploads and external media in a type-safe way.
  */
-function mapCuratedMediaToMediaItem(media: CuratedMedia): MediaItem {
+function mapGalleryMediaToMediaItem(media: GalleryMedia): MediaItem {
   // Map category to MediaCategory type (using first available or fallback)
-  const categoryMap: Record<string, MediaCategory> = {
-    Heritage: "Heritage",
-    Landmark: "Heritage", // Backward compatibility
-    Historical: "Historical",
-    Nature: "Nature",
-    Culture: "Culture",
-    Event: "Event",
-    Interview: "Interview",
-  };
-  const category = categoryMap[media.category] || "Culture";
-
-  // For YouTube videos, generate thumbnail URL if not provided
-  let thumbnailUrl = media.thumbnailUrl;
-  if (!thumbnailUrl && media.platform === "YOUTUBE" && media.externalId) {
-    thumbnailUrl = `https://img.youtube.com/vi/${media.externalId}/maxresdefault.jpg`;
-  }
-
-  // For video content, use embedUrl from API (already resolved by backend)
-  // For images, use the direct url
-  const url =
-    media.mediaType === "VIDEO"
-      ? media.embedUrl || media.url || ""
-      : media.url || "";
-
-  return {
-    id: media.id,
-    type: media.mediaType as "IMAGE" | "VIDEO",
-    url,
-    thumbnailUrl: thumbnailUrl || undefined,
-    title: media.title,
-    description: media.description || undefined,
-    category,
-    author: media.author || undefined,
-    date: new Date(media.createdAt).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-    }),
-  };
-}
-
-/**
- * Maps user-uploaded media (MediaMetadataDto) to MediaItem for gallery display.
- * This is the Anti-Corruption Layer between the Media bounded context and gallery UI.
- */
-function mapUserMediaToMediaItem(media: MediaMetadataDto): MediaItem {
-  // Map category string to MediaCategory type
   const categoryMap: Record<string, MediaCategory> = {
     Heritage: "Heritage",
     Landmark: "Heritage", // Backward compatibility
@@ -76,27 +30,58 @@ function mapUserMediaToMediaItem(media: MediaMetadataDto): MediaItem {
   };
   const category = categoryMap[media.category || ""] || "Culture";
 
-  // Determine type based on content type
-  const isVideo = media.contentType?.startsWith("video/");
-  const type: "IMAGE" | "VIDEO" = isVideo ? "VIDEO" : "IMAGE";
+  // Use discriminated union to handle different media sources
+  if (media.mediaSource === "EXTERNAL") {
+    // External media (YouTube, Vimeo, etc.)
+    // For YouTube videos, generate thumbnail URL if not provided
+    let thumbnailUrl = media.thumbnailUrl;
+    if (!thumbnailUrl && media.platform === "YOUTUBE" && media.externalId) {
+      thumbnailUrl = `https://img.youtube.com/vi/${media.externalId}/maxresdefault.jpg`;
+    }
 
-  return {
-    id: media.id,
-    type,
-    url: media.publicUrl || "",
-    thumbnailUrl: undefined, // User uploads don't have separate thumbnails
-    title: media.originalName || media.fileName,
-    description: media.description || undefined,
-    category,
-    author: media.uploadedBy || "Community Contributor",
-    date: media.createdAt
-      ? new Date(media.createdAt).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-        })
-      : undefined,
-    source: "user" as const, // Mark source for potential UI differentiation
-  };
+    // For video content, use embedUrl from API (already resolved by backend)
+    // For images, use the direct url
+    const url =
+      media.mediaType === "VIDEO"
+        ? media.embedUrl || media.url || ""
+        : media.url || "";
+
+    return {
+      id: media.id,
+      type: media.mediaType as "IMAGE" | "VIDEO",
+      url,
+      thumbnailUrl: thumbnailUrl || undefined,
+      title: media.title || "Untitled",
+      description: media.description || undefined,
+      category,
+      author: media.author || undefined,
+      date: new Date(media.createdAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+      }),
+    };
+  } else {
+    // User-uploaded media
+    // Determine type based on content type
+    const isVideo = media.contentType?.startsWith("video/");
+    const type: "IMAGE" | "VIDEO" = isVideo ? "VIDEO" : "IMAGE";
+
+    return {
+      id: media.id,
+      type,
+      url: media.publicUrl || "",
+      thumbnailUrl: undefined, // User uploads don't have separate thumbnails
+      title: media.title || media.originalName || media.fileName,
+      description: media.description || undefined,
+      category,
+      author: media.uploadedBy || "Community Contributor",
+      date: new Date(media.createdAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+      }),
+      source: "user" as const, // Mark source for potential UI differentiation
+    };
+  }
 }
 
 export default function GalleryPage() {
@@ -113,31 +98,27 @@ export default function GalleryPage() {
     async function loadMedia() {
       setIsLoading(true);
       try {
-        // Fetch from both sources: curated media and user-uploaded approved media
-        const [curatedPhotos, curatedVideos, userPhotos] = await Promise.all([
-          getCuratedMedia({ mediaType: "IMAGE", size: 50 }),
-          getCuratedMedia({ mediaType: "VIDEO", size: 20 }),
-          getApprovedMedia({ contentType: "image/", size: 50 }),
-        ]);
+        // Fetch unified gallery media (includes both user uploads and external content)
+        // Gallery API automatically returns only ACTIVE items
+        const galleryResponse = await getGalleryMedia({ size: 100 });
 
-        // Map curated media
-        const curatedPhotoItems = curatedPhotos.items.map(
-          mapCuratedMediaToMediaItem
-        );
-        const curatedVideoItems = curatedVideos.items.map(
-          mapCuratedMediaToMediaItem
-        );
+        // Separate photos and videos based on media type
+        const photoItems: MediaItem[] = [];
+        const videoItems: MediaItem[] = [];
 
-        // Map user-uploaded photos (filter to images only)
-        const userPhotoItems = userPhotos.items
-          .filter((m) => m.contentType?.startsWith("image/"))
-          .map(mapUserMediaToMediaItem);
+        galleryResponse.items.forEach((media) => {
+          const mappedItem = mapGalleryMediaToMediaItem(media);
 
-        // Merge both photo sources (curated first, then user-uploaded)
-        const allPhotos = [...curatedPhotoItems, ...userPhotoItems];
+          // Separate by type
+          if (mappedItem.type === "IMAGE") {
+            photoItems.push(mappedItem);
+          } else if (mappedItem.type === "VIDEO") {
+            videoItems.push(mappedItem);
+          }
+        });
 
-        setPhotos(allPhotos);
-        setVideos(curatedVideoItems);
+        setPhotos(photoItems);
+        setVideos(videoItems);
       } catch (error) {
         console.error("Failed to load media:", error);
         // Set empty arrays on error to show "no content" message

@@ -1,31 +1,33 @@
 /**
- * TanStack Query mutation hook for updating media status.
+ * TanStack Query mutation hook for updating gallery media status.
  * Automatically invalidates related queries on success.
+ * Replaces old admin media status updates with unified gallery moderation.
  */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { adminKeys } from "./keys";
-import { updateMediaStatus } from "@/lib/api";
-import type { UpdateMediaStatusRequest } from "@/types/admin";
+import { updateGalleryStatus } from "@/lib/api";
+import type { UpdateGalleryStatusRequest } from "@/types/gallery";
 
-interface UpdateMediaParams {
+interface UpdateGalleryMediaParams {
   id: string;
-  request: UpdateMediaStatusRequest;
+  request: UpdateGalleryStatusRequest;
 }
 
 /**
- * Mutation hook for updating media moderation status.
+ * Mutation hook for updating gallery media moderation status.
+ * Works with both user uploads and external media.
  * Invalidates all media queries and stats on success.
  */
 export function useUpdateMediaStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, request }: UpdateMediaParams) =>
-      updateMediaStatus(id, request),
+    mutationFn: ({ id, request }: UpdateGalleryMediaParams) =>
+      updateGalleryStatus(id, request),
     onSuccess: () => {
-      // Invalidate ALL media queries (any page/size/status)
-      queryClient.invalidateQueries({ queryKey: adminKeys.media.all() });
+      // Invalidate ALL gallery queries (any page/size/status)
+      queryClient.invalidateQueries({ queryKey: adminKeys.gallery.all() });
       // Also refresh stats since counts change
       queryClient.invalidateQueries({ queryKey: adminKeys.stats() });
     },

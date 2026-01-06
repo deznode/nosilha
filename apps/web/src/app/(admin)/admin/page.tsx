@@ -13,7 +13,7 @@ import {
   StoriesQueue,
   MessagesQueue,
   DirectoryQueue,
-  MediaQueue,
+  GalleryQueue,
 } from "@/components/admin/queues";
 import { StoryDetailModal } from "@/components/admin/story-detail-modal";
 import { FlagReasonModal } from "@/components/admin/queues/flag-reason-modal";
@@ -24,24 +24,26 @@ import {
   useAdminStories,
   useAdminMessages,
   useAdminDirectorySubmissions,
-  useAdminMedia,
+  useAdminGallery,
   useAdminContributors,
   useUpdateSuggestionStatus,
   useUpdateStoryStatus,
   useUpdateMessageStatus,
   useDeleteMessage,
   useUpdateDirectoryStatus,
-  useUpdateMediaStatus,
+  useUpdateGalleryStatus,
 } from "@/hooks/queries/admin";
-import type {
-  AdminStats,
-  ContactMessageStatus,
-  MediaModerationAction,
-} from "@/types/admin";
+import type { AdminStats, ContactMessageStatus } from "@/types/admin";
+import type { GalleryModerationAction } from "@/types/gallery";
 import type { StorySubmission } from "@/types/story";
 import { SubmissionStatus } from "@/types/story";
 
-type ActiveTab = "suggestions" | "stories" | "messages" | "directory" | "media";
+type ActiveTab =
+  | "suggestions"
+  | "stories"
+  | "messages"
+  | "directory"
+  | "gallery";
 
 // Default stats for loading state
 const defaultStats: AdminStats = {
@@ -74,7 +76,7 @@ export default function AdminDashboardPage() {
   const storiesQuery = useAdminStories();
   const messagesQuery = useAdminMessages();
   const directoryQuery = useAdminDirectorySubmissions();
-  const mediaQuery = useAdminMedia();
+  const galleryQuery = useAdminGallery();
   const contributorsQuery = useAdminContributors();
 
   // Mutation hooks
@@ -83,7 +85,7 @@ export default function AdminDashboardPage() {
   const updateMessage = useUpdateMessageStatus();
   const deleteMessage = useDeleteMessage();
   const updateDirectory = useUpdateDirectoryStatus();
-  const updateMedia = useUpdateMediaStatus();
+  const updateGallery = useUpdateGalleryStatus();
 
   // Derived data with fallbacks
   const stats = statsQuery.data ?? defaultStats;
@@ -91,7 +93,7 @@ export default function AdminDashboardPage() {
   const stories = storiesQuery.data?.items ?? [];
   const messages = messagesQuery.data?.items ?? [];
   const directorySubmissions = directoryQuery.data?.items ?? [];
-  const mediaItems = mediaQuery.data?.items ?? [];
+  const galleryItems = galleryQuery.data?.items ?? [];
   const contributors = contributorsQuery.data ?? [];
 
   // Loading state - show loading for KPI cards
@@ -161,13 +163,13 @@ export default function AdminDashboardPage() {
     updateDirectory.mutate({ id, status });
   };
 
-  const handleMediaStatusChange = (
+  const handleGalleryStatusChange = (
     id: string,
-    action: MediaModerationAction,
+    action: GalleryModerationAction,
     reason?: string,
     notes?: string
   ) => {
-    updateMedia.mutate({
+    updateGallery.mutate({
       id,
       request: { action, reason, adminNotes: notes },
     });
@@ -304,22 +306,22 @@ export default function AdminDashboardPage() {
               )}
             </button>
             <button
-              onClick={() => setActiveTab("media")}
+              onClick={() => setActiveTab("gallery")}
               className={`${
-                activeTab === "media"
-                  ? "border-[var(--color-bougainvillea)] text-[var(--color-bougainvillea)]"
+                activeTab === "gallery"
+                  ? "border-[var(--color-ocean-blue)] text-[var(--color-ocean-blue)]"
                   : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
             >
-              <Image size={16} /> Media Archive
-              {mediaItems.filter(
-                (m) => m.status === "PENDING_REVIEW" || m.status === "FLAGGED"
+              <Image size={16} /> Gallery
+              {galleryItems.filter(
+                (g) => g.status === "PENDING_REVIEW" || g.status === "FLAGGED"
               ).length > 0 && (
                 <span className="ml-1 inline-flex items-center rounded-full bg-yellow-100 px-1.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
                   {
-                    mediaItems.filter(
-                      (m) =>
-                        m.status === "PENDING_REVIEW" || m.status === "FLAGGED"
+                    galleryItems.filter(
+                      (g) =>
+                        g.status === "PENDING_REVIEW" || g.status === "FLAGGED"
                     ).length
                   }
                 </span>
@@ -360,11 +362,11 @@ export default function AdminDashboardPage() {
             onStatusChange={handleDirectoryStatusChange}
           />
         )}
-        {activeTab === "media" && (
-          <MediaQueue
-            mediaItems={mediaItems}
-            isLoading={mediaQuery.isLoading}
-            onStatusChange={handleMediaStatusChange}
+        {activeTab === "gallery" && (
+          <GalleryQueue
+            items={galleryItems}
+            isLoading={galleryQuery.isLoading}
+            onStatusChange={handleGalleryStatusChange}
           />
         )}
       </main>

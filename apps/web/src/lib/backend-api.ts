@@ -54,10 +54,14 @@ import type {
 } from "@/types/profile";
 import type { ContactRequest, ContactConfirmationDto } from "@/types/contact";
 import type {
-  CuratedMedia,
-  CuratedMediaPageResponse,
-  MediaType,
-} from "@/types/curated-media";
+  GalleryMedia,
+  GalleryMediaPageResponse,
+  GalleryMediaStatus,
+  SubmitExternalMediaRequest,
+  CreateExternalMediaRequest,
+  UpdateGalleryStatusRequest,
+  ExternalMedia,
+} from "@/types/gallery";
 import { CacheConfig } from "@/lib/api-contracts";
 import { env } from "@/lib/env";
 import { supabase } from "@/lib/supabase-client";
@@ -322,7 +326,7 @@ export class BackendApiClient implements ApiClient {
   async getPresignedUploadUrl(
     request: PresignRequest
   ): Promise<PresignResponse> {
-    const endpoint = `${env.apiUrl}/api/v1/media/presign`;
+    const endpoint = `${env.apiUrl}/api/v1/gallery/upload/presign`;
 
     const response = await this.authenticatedFetch(endpoint, {
       method: "POST",
@@ -367,7 +371,7 @@ export class BackendApiClient implements ApiClient {
    * @throws Error if upload not found in R2 (HTTP 422)
    */
   async confirmUpload(request: ConfirmRequest): Promise<MediaMetadataDto> {
-    const endpoint = `${env.apiUrl}/api/v1/media/confirm`;
+    const endpoint = `${env.apiUrl}/api/v1/gallery/upload/confirm`;
 
     const response = await this.authenticatedFetch(endpoint, {
       method: "POST",
@@ -398,7 +402,7 @@ export class BackendApiClient implements ApiClient {
    * @returns Array of MediaMetadataDto for the entry
    */
   async getMediaByEntry(entryId: string): Promise<MediaMetadataDto[]> {
-    const endpoint = `${env.apiUrl}/api/v1/media/entry/${entryId}`;
+    const endpoint = `${env.apiUrl}/api/v1/gallery/entry/${entryId}`;
 
     const response = await fetch(endpoint, {
       method: "GET",
@@ -439,7 +443,7 @@ export class BackendApiClient implements ApiClient {
       params.set("size", options.size.toString());
 
     const queryString = params.toString();
-    const endpoint = `${env.apiUrl}/api/v1/media/approved${queryString ? `?${queryString}` : ""}`;
+    const endpoint = `${env.apiUrl}/api/v1/gallery/approved${queryString ? `?${queryString}` : ""}`;
 
     const response = await fetch(endpoint, {
       method: "GET",
@@ -2211,31 +2215,30 @@ export class BackendApiClient implements ApiClient {
   }
 
   // ================================
-  // CURATED MEDIA OPERATIONS
+  // GALLERY OPERATIONS (UNIFIED MEDIA)
   // ================================
 
   /**
-   * Fetches curated media items from the gallery.
+   * Fetches unified gallery media (user uploads + external content).
    *
    * **Public Endpoint**: No authentication required.
    *
    * **Caching**: Uses ISR with 30 minute cache for gallery content.
    *
-   * @param options Query parameters (mediaType, category, page, size)
-   * @returns CuratedMediaPageResponse with paginated curated media items
+   * Returns ACTIVE media from both user uploads and admin-curated external
+   * content in a unified, discriminated union response.
+   *
+   * @param options Query parameters (category, page, size)
+   * @returns GalleryMediaPageResponse with paginated gallery items
    * @throws Error if API call fails
    */
-  async getCuratedMedia(options?: {
-    mediaType?: MediaType;
+  async getGalleryMedia(options?: {
     category?: string;
     page?: number;
     size?: number;
-  }): Promise<CuratedMediaPageResponse> {
+  }): Promise<GalleryMediaPageResponse> {
     const params = new URLSearchParams();
 
-    if (options?.mediaType) {
-      params.append("mediaType", options.mediaType);
-    }
     if (options?.category) {
       params.append("category", options.category);
     }
@@ -2246,7 +2249,7 @@ export class BackendApiClient implements ApiClient {
       params.append("size", String(options.size));
     }
 
-    const endpoint = `${env.apiUrl}/api/v1/curated-media${params.toString() ? `?${params.toString()}` : ""}`;
+    const endpoint = `${env.apiUrl}/api/v1/gallery${params.toString() ? `?${params.toString()}` : ""}`;
 
     // Use ISR with 30 minute cache for gallery content
     const response = await fetch(endpoint, {
@@ -2254,14 +2257,14 @@ export class BackendApiClient implements ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch curated media: ${response.status}`);
+      throw new Error(`Failed to fetch gallery media: ${response.status}`);
     }
 
     const payload = await response.json();
 
     // PagedApiResult has data as array and pageable for pagination
     const response_data = payload as {
-      data: CuratedMedia[];
+      data: GalleryMedia[];
       pageable: {
         page: number;
         size: number;
@@ -2280,7 +2283,6 @@ export class BackendApiClient implements ApiClient {
       totalPages: 1,
     };
 
-    // Transform PagedApiResult to CuratedMediaPageResponse format
     return {
       items,
       totalItems: pageable.totalElements,
@@ -2290,18 +2292,18 @@ export class BackendApiClient implements ApiClient {
   }
 
   /**
-   * Fetches a single curated media item by ID.
+   * Fetches a single gallery media item by ID.
    *
    * **Public Endpoint**: No authentication required.
    *
    * **Caching**: Uses ISR with 30 minute cache for individual media items.
    *
-   * @param id UUID of the curated media item
-   * @returns CuratedMedia or undefined if not found
+   * @param id UUID of the gallery media item
+   * @returns GalleryMedia (UserUpload or External) or undefined if not found
    * @throws Error if API call fails
    */
-  async getCuratedMediaById(id: string): Promise<CuratedMedia | undefined> {
-    const endpoint = `${env.apiUrl}/api/v1/curated-media/${id}`;
+  async getGalleryMediaById(id: string): Promise<GalleryMedia | undefined> {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/${id}`;
 
     // Use ISR with 30 minute cache for individual media items
     const response = await fetch(endpoint, {
@@ -2313,16 +2315,16 @@ export class BackendApiClient implements ApiClient {
         return undefined;
       }
       throw new Error(
-        `Failed to fetch curated media by ID: ${response.status}`
+        `Failed to fetch gallery media by ID: ${response.status}`
       );
     }
 
     const payload = await response.json();
-    return this.unwrapApiResponse<CuratedMedia>(payload);
+    return this.unwrapApiResponse<GalleryMedia>(payload);
   }
 
   /**
-   * Fetches available curated media categories.
+   * Fetches available gallery categories.
    *
    * **Public Endpoint**: No authentication required.
    *
@@ -2331,8 +2333,8 @@ export class BackendApiClient implements ApiClient {
    * @returns Array of category strings
    * @throws Error if API call fails
    */
-  async getCuratedMediaCategories(): Promise<string[]> {
-    const endpoint = `${env.apiUrl}/api/v1/curated-media/categories`;
+  async getGalleryCategories(): Promise<string[]> {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/categories`;
 
     // Use ISR with 1 hour cache for relatively static categories
     const response = await fetch(endpoint, {
@@ -2340,13 +2342,190 @@ export class BackendApiClient implements ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(
-        `Failed to fetch curated media categories: ${response.status}`
-      );
+      throw new Error(`Failed to fetch gallery categories: ${response.status}`);
     }
 
     const payload = await response.json();
     return this.unwrapApiResponse<string[]>(payload);
+  }
+
+  /**
+   * Submit external media for admin review.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * Allows community members to submit external media (YouTube videos, etc.)
+   * for review and potential inclusion in the gallery.
+   *
+   * @param request External media submission data
+   * @returns Submission confirmation
+   * @throws Error if API call fails
+   */
+  async submitExternalMedia(
+    request: SubmitExternalMediaRequest
+  ): Promise<{ id: string; message: string }> {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/submit`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to submit external media: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<{ id: string; message: string }>(payload);
+  }
+
+  // ================================
+  // ADMIN GALLERY MODERATION OPERATIONS
+  // ================================
+
+  /**
+   * Get unified gallery moderation queue (user uploads + external media).
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param status Optional status filter
+   * @param page Page number (default: 0)
+   * @param size Page size (default: 20)
+   * @returns Paginated list of gallery media items
+   */
+  async getAdminGallery(
+    status?: GalleryMediaStatus | "ALL",
+    page: number = 0,
+    size: number = 20
+  ): Promise<AdminQueueResponse<GalleryMedia>> {
+    const params = new URLSearchParams();
+    if (status && status !== "ALL") {
+      params.append("status", status);
+    }
+    params.append("page", String(page));
+    params.append("size", String(size));
+
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/queue?${params.toString()}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch admin gallery queue: ${response.status}`
+      );
+    }
+
+    const payload = await response.json();
+    return this.transformAdminQueueResponse<GalleryMedia>(payload);
+  }
+
+  /**
+   * Get detailed gallery media information for moderation.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param id Gallery media item ID
+   * @returns Detailed gallery media item
+   */
+  async getAdminGalleryDetail(id: string): Promise<GalleryMedia> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch gallery media detail: ${response.status}`
+      );
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<GalleryMedia>(payload);
+  }
+
+  /**
+   * Update gallery media moderation status.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param id Gallery media item ID
+   * @param request Moderation action request
+   * @returns Updated gallery media item
+   */
+  async updateGalleryStatus(
+    id: string,
+    request: UpdateGalleryStatusRequest
+  ): Promise<GalleryMedia> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/${id}/status`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update gallery status: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<GalleryMedia>(payload);
+  }
+
+  /**
+   * Archive (soft delete) a gallery media item.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param id Gallery media item ID
+   */
+  async archiveGalleryMedia(id: string): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to archive gallery media: ${response.status}`);
+    }
+  }
+
+  /**
+   * Create external media directly (admin only, bypasses moderation).
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param request External media creation data
+   * @returns Created external media item
+   */
+  async createExternalMedia(
+    request: CreateExternalMediaRequest
+  ): Promise<ExternalMedia> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/external`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to create external media: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<ExternalMedia>(payload);
   }
 
   // ================================

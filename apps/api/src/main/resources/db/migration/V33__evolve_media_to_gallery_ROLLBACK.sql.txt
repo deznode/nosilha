@@ -1,0 +1,90 @@
+-- ============================================================================
+-- ROLLBACK SCRIPT FOR V33 (Documentation Only - Not Auto-Executed)
+-- ============================================================================
+-- This file documents how to rollback the V33 migration if needed.
+-- Manual execution required - Flyway does not auto-execute rollback scripts.
+--
+-- WARNING: This will cause data loss for any media added after V33 migration!
+-- Only use in emergency scenarios or during development.
+-- ============================================================================
+
+-- Step 1: Verify curated_media table still exists
+-- If dropped, this rollback is not possible without backup
+SELECT COUNT(*) FROM curated_media;
+
+-- Step 2: Delete migrated curated_media records from gallery_media
+-- (Keep only USER_UPLOAD records that existed before migration)
+DELETE FROM gallery_media WHERE media_source_type = 'EXTERNAL';
+
+-- Step 3: Recreate media_status enum (if it was dropped)
+-- Note: This migration kept the media_source enum as upload_source
+-- The old media_status enum was replaced by gallery_media_status
+
+CREATE TYPE media_status AS ENUM ('PENDING', 'PROCESSING', 'PENDING_REVIEW', 'AVAILABLE', 'DELETED', 'FLAGGED');
+
+-- Step 4: Convert status back to old values
+ALTER TABLE gallery_media ADD COLUMN old_status media_status;
+
+UPDATE gallery_media SET old_status =
+    CASE status::text
+        WHEN 'ACTIVE' THEN 'AVAILABLE'::media_status
+        WHEN 'ARCHIVED' THEN 'DELETED'::media_status
+        WHEN 'PENDING' THEN 'PENDING'::media_status
+        WHEN 'PROCESSING' THEN 'PROCESSING'::media_status
+        WHEN 'PENDING_REVIEW' THEN 'PENDING_REVIEW'::media_status
+        WHEN 'FLAGGED' THEN 'FLAGGED'::media_status
+        ELSE 'PENDING'::media_status
+    END;
+
+ALTER TABLE gallery_media DROP COLUMN status;
+ALTER TABLE gallery_media RENAME COLUMN old_status TO status;
+
+-- Step 5: Rename upload_source back to source
+ALTER TABLE gallery_media RENAME COLUMN upload_source TO source;
+
+-- Step 6: Drop columns added for EXTERNAL media
+ALTER TABLE gallery_media DROP COLUMN media_source_type;
+ALTER TABLE gallery_media DROP COLUMN title;
+ALTER TABLE gallery_media DROP COLUMN external_media_type;
+ALTER TABLE gallery_media DROP COLUMN platform;
+ALTER TABLE gallery_media DROP COLUMN external_id;
+ALTER TABLE gallery_media DROP COLUMN url;
+ALTER TABLE gallery_media DROP COLUMN thumbnail_url;
+ALTER TABLE gallery_media DROP COLUMN author;
+ALTER TABLE gallery_media DROP COLUMN submitted_by;
+ALTER TABLE gallery_media DROP COLUMN curated_by;
+ALTER TABLE gallery_media DROP COLUMN created_by;
+ALTER TABLE gallery_media DROP COLUMN updated_by;
+
+-- Step 7: Rename table back to media
+ALTER TABLE gallery_media RENAME TO media;
+
+-- Step 8: Drop new indexes
+DROP INDEX IF EXISTS idx_gallery_media_source_type;
+DROP INDEX IF EXISTS idx_gallery_media_status_source;
+DROP INDEX IF EXISTS idx_gallery_media_category_status;
+DROP INDEX IF EXISTS idx_gallery_media_external_type;
+DROP INDEX IF EXISTS idx_gallery_media_platform;
+
+-- Step 9: Recreate original indexes
+CREATE INDEX idx_media_status ON media(status);
+CREATE INDEX idx_media_category ON media(category);
+CREATE INDEX idx_media_pending_review ON media(status) WHERE status = 'PENDING_REVIEW';
+CREATE INDEX idx_media_source ON media(source);
+CREATE INDEX idx_media_flagged ON media(status) WHERE status = 'FLAGGED';
+
+-- Step 10: Drop gallery_media_status enum
+DROP TYPE gallery_media_status;
+
+-- Step 11: Verify curated_media table is still intact
+SELECT COUNT(*) FROM curated_media;
+
+-- Step 12: Remove deprecation comment from curated_media
+COMMENT ON TABLE curated_media IS 'Admin-curated external media for the gallery (YouTube videos, external images, podcasts)';
+
+-- ============================================================================
+-- END ROLLBACK SCRIPT
+-- ============================================================================
+-- After rollback, the database should be in the same state as before V33.
+-- curated_media and media are separate tables again.
+-- ============================================================================

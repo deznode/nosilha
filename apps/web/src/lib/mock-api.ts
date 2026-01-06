@@ -37,11 +37,6 @@ import type {
   ProfileUpdateRequest,
 } from "@/types/profile";
 import type { ContactRequest, ContactConfirmationDto } from "@/types/contact";
-import type {
-  CuratedMedia,
-  CuratedMediaPageResponse,
-  MediaType as CuratedMediaType,
-} from "@/types/curated-media";
 import { MOCK_STORIES, mockStoriesApi } from "@/lib/mocks/stories";
 import {
   MOCK_SUGGESTIONS,
@@ -49,7 +44,6 @@ import {
   MOCK_DIRECTORY_SUBMISSIONS,
   mockAdminApi,
 } from "@/lib/mocks/admin";
-import { MOCK_MEDIA_ITEMS } from "@/lib/mocks/media";
 
 const MOCK_ENTRIES: DirectoryEntry[] = [
   // AUTHENTIC HOTEL ENTRIES FROM DATABASE
@@ -1659,118 +1653,75 @@ ${story.content
   }
 
   // ================================
-  // CURATED MEDIA OPERATIONS (Mock)
+  // GALLERY OPERATIONS (UNIFIED MEDIA) - Mock Stubs
   // ================================
 
-  /**
-   * Fetches curated media items from the gallery (mock implementation).
-   * Converts existing MOCK_MEDIA_ITEMS to CuratedMedia format.
-   */
-  async getCuratedMedia(options?: {
-    mediaType?: CuratedMediaType;
-    category?: string;
-    page?: number;
-    size?: number;
-  }): Promise<CuratedMediaPageResponse> {
-    console.log(`Mock API: Fetching curated media with options:`, options);
+  async getGalleryMedia(): Promise<
+    import("@/types/gallery").GalleryMediaPageResponse
+  > {
+    console.log(`Mock API: Gallery methods not implemented yet`);
     await this.simulateDelay(300);
-
-    // Convert MOCK_MEDIA_ITEMS to CuratedMedia format
-    let items: CuratedMedia[] = MOCK_MEDIA_ITEMS.map((item, index) => ({
-      id: item.id,
-      mediaType: item.type as CuratedMediaType,
-      platform:
-        item.type === "VIDEO" ? ("YOUTUBE" as const) : ("SELF_HOSTED" as const),
-      externalId: item.type === "VIDEO" ? "dQw4w9WgXcQ" : null,
-      url: item.url,
-      embedUrl:
-        item.type === "VIDEO"
-          ? "https://www.youtube.com/embed/dQw4w9WgXcQ"
-          : null,
-      thumbnailUrl: item.thumbnailUrl || null,
-      title: item.title,
-      description: item.description || null,
-      author: item.author || null,
-      category: item.category,
-      displayOrder: index,
-      createdAt: new Date(
-        Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000
-      ).toISOString(),
-    }));
-
-    // Apply filters
-    if (options?.mediaType) {
-      items = items.filter((item) => item.mediaType === options.mediaType);
-    }
-
-    if (options?.category) {
-      items = items.filter(
-        (item) =>
-          item.category.toLowerCase() === options.category?.toLowerCase()
-      );
-    }
-
-    // Apply pagination
-    const page = options?.page || 0;
-    const size = options?.size || 20;
-    const startIndex = page * size;
-    const endIndex = startIndex + size;
-    const paginatedItems = items.slice(startIndex, endIndex);
-
-    return {
-      items: paginatedItems,
-      totalItems: items.length,
-      totalPages: Math.ceil(items.length / size),
-      currentPage: page,
-    };
+    return { items: [], totalItems: 0, totalPages: 0, currentPage: 0 };
   }
 
-  /**
-   * Fetches a single curated media item by ID (mock implementation).
-   */
-  async getCuratedMediaById(id: string): Promise<CuratedMedia | undefined> {
-    console.log(`Mock API: Fetching curated media by ID: ${id}`);
+  async getGalleryMediaById(): Promise<
+    import("@/types/gallery").GalleryMedia | undefined
+  > {
     await this.simulateDelay(200);
+    return undefined;
+  }
 
-    const item = MOCK_MEDIA_ITEMS.find((m) => m.id === id);
-    if (!item) return undefined;
+  async getGalleryCategories(): Promise<string[]> {
+    await this.simulateDelay(150);
+    return ["Heritage", "Culture", "Nature"];
+  }
 
+  async submitExternalMedia(): Promise<{ id: string; message: string }> {
+    await this.simulateDelay(500);
     return {
-      id: item.id,
-      mediaType: item.type as CuratedMediaType,
-      platform:
-        item.type === "VIDEO" ? ("YOUTUBE" as const) : ("SELF_HOSTED" as const),
-      externalId: item.type === "VIDEO" ? "dQw4w9WgXcQ" : null,
-      url: item.url,
-      embedUrl:
-        item.type === "VIDEO"
-          ? "https://www.youtube.com/embed/dQw4w9WgXcQ"
-          : null,
-      thumbnailUrl: item.thumbnailUrl || null,
-      title: item.title,
-      description: item.description || null,
-      author: item.author || null,
-      category: item.category,
-      displayOrder: 0,
-      createdAt: new Date(
-        Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000
-      ).toISOString(),
+      id: "mock-submission-id",
+      message: "Submission received for review",
     };
   }
 
-  /**
-   * Fetches available curated media categories (mock implementation).
-   */
-  async getCuratedMediaCategories(): Promise<string[]> {
-    console.log(`Mock API: Fetching curated media categories`);
-    await this.simulateDelay(150);
+  // ================================
+  // ADMIN GALLERY MODERATION - Mock Stubs
+  // ================================
 
-    // Extract unique categories from MOCK_MEDIA_ITEMS
-    const categories = Array.from(
-      new Set(MOCK_MEDIA_ITEMS.map((item) => item.category))
-    ).sort();
+  async getAdminGallery(): Promise<
+    import("@/types/admin").AdminQueueResponse<
+      import("@/types/gallery").GalleryMedia
+    >
+  > {
+    await this.simulateDelay(300);
+    return { items: [], total: 0, page: 0, pageSize: 20, hasMore: false };
+  }
 
-    return categories;
+  async getAdminGalleryDetail(): Promise<
+    import("@/types/gallery").GalleryMedia
+  > {
+    await this.simulateDelay(200);
+    throw new Error("Not found");
+  }
+
+  async updateGalleryStatus(
+    id: string,
+    request: import("@/types/gallery").UpdateGalleryStatusRequest
+  ): Promise<import("@/types/gallery").GalleryMedia> {
+    console.log(`Mock API: Update gallery status ${id}:`, request);
+    await this.simulateDelay(500);
+    throw new Error("Not implemented");
+  }
+
+  async archiveGalleryMedia(): Promise<void> {
+    await this.simulateDelay(300);
+  }
+
+  async createExternalMedia(): Promise<
+    import("@/types/gallery").ExternalMedia
+  > {
+    await this.simulateDelay(500);
+    throw new Error("Not implemented");
   }
 }
 

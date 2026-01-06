@@ -16,9 +16,6 @@ export {
 // Stories
 export { MOCK_STORIES, STORY_TEMPLATES, mockStoriesApi } from "./stories";
 
-// Media
-export { MOCK_MEDIA_ITEMS, MEDIA_CATEGORIES, mockMediaApi } from "./media";
-
 // User Profile
 export {
   MOCK_USER_PROFILE,

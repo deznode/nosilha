@@ -112,6 +112,7 @@ export interface AdminQueueResponse<T> {
 
 /**
  * Media Archive Queue Types
+ * @deprecated Use GalleryMediaStatus from @/types/gallery instead
  */
 export type MediaStatus =
   | "PENDING"
@@ -121,6 +122,9 @@ export type MediaStatus =
   | "AVAILABLE"
   | "DELETED";
 export type MediaSource = "LOCAL" | "GOOGLE_PHOTOS" | "ADOBE_LIGHTROOM";
+/**
+ * @deprecated Use GalleryModerationAction from @/types/gallery instead
+ */
 export type MediaModerationAction = "APPROVE" | "FLAG" | "REJECT";
 
 export interface AdminMediaListItem {

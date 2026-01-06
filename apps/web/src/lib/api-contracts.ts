@@ -326,37 +326,74 @@ export interface ApiClient {
   ): Promise<DirectorySubmission>;
 
   // ================================
-  // ADMIN MEDIA MODERATION OPERATIONS
+  // ADMIN GALLERY MODERATION OPERATIONS
   // ================================
 
   /**
-   * Get media items for admin moderation queue
+   * Get unified gallery moderation queue (user uploads + external media).
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * Returns a paginated list of gallery media items for moderation,
+   * including both user uploads and external content.
+   *
+   * @param status Optional status filter
+   * @param page Page number (default: 0)
+   * @param size Page size (default: 20)
+   * @returns Paginated list of gallery media items
    */
-  getAdminMedia(
-    status?: import("@/types/admin").MediaStatus | "ALL",
+  getAdminGallery(
+    status?: import("@/types/gallery").GalleryMediaStatus | "ALL",
     page?: number,
     size?: number
-  ): Promise<AdminQueueResponse<import("@/types/admin").AdminMediaListItem>>;
+  ): Promise<AdminQueueResponse<import("@/types/gallery").GalleryMedia>>;
 
   /**
-   * Get detailed media information for moderation
+   * Get detailed gallery media information for moderation.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param id Gallery media item ID
+   * @returns Detailed gallery media item
    */
-  getAdminMediaDetail(
+  getAdminGalleryDetail(
     id: string
-  ): Promise<import("@/types/admin").AdminMediaDetail>;
+  ): Promise<import("@/types/gallery").GalleryMedia>;
 
   /**
-   * Update media moderation status (approve, flag, reject)
+   * Update gallery media moderation status.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param id Gallery media item ID
+   * @param request Moderation action request
+   * @returns Updated gallery media item
    */
-  updateMediaStatus(
+  updateGalleryStatus(
     id: string,
-    request: import("@/types/admin").UpdateMediaStatusRequest
-  ): Promise<import("@/types/admin").AdminMediaDetail>;
+    request: import("@/types/gallery").UpdateGalleryStatusRequest
+  ): Promise<import("@/types/gallery").GalleryMedia>;
 
   /**
-   * Delete a media item
+   * Archive (soft delete) a gallery media item.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param id Gallery media item ID
    */
-  deleteMedia(id: string): Promise<void>;
+  archiveGalleryMedia(id: string): Promise<void>;
+
+  /**
+   * Create external media directly (admin only, bypasses moderation).
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param request External media creation data
+   * @returns Created external media item
+   */
+  createExternalMedia(
+    request: import("@/types/gallery").CreateExternalMediaRequest
+  ): Promise<import("@/types/gallery").ExternalMedia>;
 
   // ================================
   // PROFILE OPERATIONS (User Story 1)
@@ -403,44 +440,61 @@ export interface ApiClient {
   ): Promise<ContactConfirmationDto>;
 
   // ================================
-  // CURATED MEDIA OPERATIONS
+  // GALLERY OPERATIONS (UNIFIED MEDIA)
   // ================================
 
   /**
-   * Get curated media items from the gallery.
+   * Get unified gallery media items (user uploads + external content).
    *
    * **Public Endpoint**: No authentication required.
    *
-   * @param options Query parameters (mediaType, category, page, size)
-   * @returns CuratedMediaPageResponse with paginated curated media items
+   * Returns ACTIVE media from both user uploads and admin-curated external
+   * content in a unified, discriminated union response.
+   *
+   * @param options Query parameters (category, page, size)
+   * @returns GalleryMediaPageResponse with paginated gallery items
    */
-  getCuratedMedia(options?: {
-    mediaType?: import("@/types/curated-media").MediaType;
+  getGalleryMedia(options?: {
     category?: string;
     page?: number;
     size?: number;
-  }): Promise<import("@/types/curated-media").CuratedMediaPageResponse>;
+  }): Promise<import("@/types/gallery").GalleryMediaPageResponse>;
 
   /**
-   * Get a single curated media item by ID.
+   * Get a single gallery media item by ID.
    *
    * **Public Endpoint**: No authentication required.
    *
-   * @param id UUID of the curated media item
-   * @returns CuratedMedia or undefined if not found
+   * @param id UUID of the gallery media item
+   * @returns GalleryMedia (UserUpload or External) or undefined if not found
    */
-  getCuratedMediaById(
+  getGalleryMediaById(
     id: string
-  ): Promise<import("@/types/curated-media").CuratedMedia | undefined>;
+  ): Promise<import("@/types/gallery").GalleryMedia | undefined>;
 
   /**
-   * Get available curated media categories.
+   * Get available gallery categories.
    *
    * **Public Endpoint**: No authentication required.
    *
    * @returns Array of category strings
    */
-  getCuratedMediaCategories(): Promise<string[]>;
+  getGalleryCategories(): Promise<string[]>;
+
+  /**
+   * Submit external media for admin review.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * Allows community members to submit external media (YouTube videos, etc.)
+   * for review and potential inclusion in the gallery.
+   *
+   * @param request External media submission data
+   * @returns Submission confirmation
+   */
+  submitExternalMedia(
+    request: import("@/types/gallery").SubmitExternalMediaRequest
+  ): Promise<{ id: string; message: string }>;
 }
 
 export interface PaginationMetadata {

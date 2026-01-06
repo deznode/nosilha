@@ -9,6 +9,7 @@
 
 import type { SubmissionStatus } from "@/types/story";
 import type { ContactMessageStatus, MediaStatus } from "@/types/admin";
+import type { GalleryMediaStatus } from "@/types/gallery";
 
 export const adminKeys = {
   all: ["admin"] as const,
@@ -43,6 +44,12 @@ export const adminKeys = {
     all: () => [...adminKeys.all, "media"] as const,
     list: (page: number, size: number, status?: MediaStatus | "ALL") =>
       [...adminKeys.all, "media", { page, size, status }] as const,
+  },
+  gallery: {
+    all: () => [...adminKeys.all, "gallery"] as const,
+    list: (page: number, size: number, status?: GalleryMediaStatus | "ALL") =>
+      [...adminKeys.all, "gallery", { page, size, status }] as const,
+    detail: (id: string) => [...adminKeys.all, "gallery", id] as const,
   },
   contributors: () => [...adminKeys.all, "contributors"] as const,
   system: {

@@ -6,3 +6,5 @@ export { DirectoryQueue } from "./directory-queue";
 export { MediaQueue } from "./media-queue";
 export { MediaQueueItem } from "./media-queue-item";
 export { MediaActionModal } from "./media-action-modal";
+export { GalleryQueue } from "./gallery-queue";
+export { GalleryQueueItem } from "./gallery-queue-item";

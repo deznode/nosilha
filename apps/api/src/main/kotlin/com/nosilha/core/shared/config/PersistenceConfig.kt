@@ -21,8 +21,7 @@ import org.springframework.orm.jpa.JpaTransactionManager
         "com.nosilha.core.engagement.repository",
         "com.nosilha.core.stories.repository",
         "com.nosilha.core.feedback.repository",
-        "com.nosilha.core.curatedmedia.repository",
-        "com.nosilha.core.media.repository",
+        "com.nosilha.core.gallery.repository",
     ],
 )
 class PersistenceConfig {

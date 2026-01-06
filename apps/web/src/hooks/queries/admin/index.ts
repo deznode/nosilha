@@ -17,6 +17,7 @@ export { useAdminStories } from "./useAdminStories";
 export { useAdminMessages } from "./useAdminMessages";
 export { useAdminDirectorySubmissions } from "./useAdminDirectorySubmissions";
 export { useAdminMedia } from "./useAdminMedia";
+export { useAdminGallery } from "./useAdminGallery";
 export { useAdminContributors } from "./useAdminContributors";
 export { useSystemHealth } from "./useSystemHealth";
 export type { SystemStatus, SystemHealthResponse } from "./useSystemHealth";
@@ -30,4 +31,5 @@ export {
 } from "./useUpdateMessageStatus";
 export { useUpdateDirectoryStatus } from "./useUpdateDirectoryStatus";
 export { useUpdateMediaStatus } from "./useUpdateMediaStatus";
+export { useUpdateGalleryStatus } from "./useUpdateGalleryStatus";
 export { useArchiveStory } from "./useArchiveStory";

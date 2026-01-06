@@ -38,18 +38,20 @@ class SecurityConfig(
                     ).permitAll()
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**")
                     .permitAll()
-                    // Allow all GET requests to directory, towns, media, and curated media
+                    // Allow all GET requests to directory, towns, and gallery
                     .requestMatchers(HttpMethod.GET, "/api/v1/directory/**")
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/towns/**")
                     .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/v1/media/{id}")
+                    .requestMatchers(HttpMethod.GET, "/api/v1/gallery")
                     .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/v1/media/entry/{entryId}")
+                    .requestMatchers(HttpMethod.GET, "/api/v1/gallery/{id}")
                     .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/v1/media/approved")
+                    .requestMatchers(HttpMethod.GET, "/api/v1/gallery/entry/{entryId}")
                     .permitAll()
-                    .requestMatchers(HttpMethod.GET, "/api/v1/curated-media/**")
+                    .requestMatchers(HttpMethod.GET, "/api/v1/gallery/categories")
+                    .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/gallery/approved")
                     .permitAll()
                     // Allow public suggestions (community contributions without authentication)
                     .requestMatchers(HttpMethod.POST, "/api/v1/suggestions")
@@ -72,9 +74,11 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.GET, "/api/v1/stories/slug/**")
                     .permitAll()
                     // Require authentication for POST/PUT/DELETE operations
-                    .requestMatchers(HttpMethod.POST, "/api/v1/media/presign")
+                    .requestMatchers(HttpMethod.POST, "/api/v1/gallery/upload/presign")
                     .hasAnyRole("USER", "ADMIN", "authenticated")
-                    .requestMatchers(HttpMethod.POST, "/api/v1/media/confirm")
+                    .requestMatchers(HttpMethod.POST, "/api/v1/gallery/upload/confirm")
+                    .hasAnyRole("USER", "ADMIN", "authenticated")
+                    .requestMatchers(HttpMethod.POST, "/api/v1/gallery/submit")
                     .hasAnyRole("USER", "ADMIN", "authenticated")
                     .requestMatchers(HttpMethod.POST, "/api/v1/directory/entries")
                     .hasAnyRole("USER", "ADMIN", "authenticated")
@@ -110,7 +114,7 @@ class SecurityConfig(
     private fun createCorsConfiguration() =
         CorsConfiguration().apply {
             allowedOriginPatterns = this@SecurityConfig.allowedOrigins
-            allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            allowedMethods = listOf("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             allowedHeaders = listOf("*")
             allowCredentials = true
         }

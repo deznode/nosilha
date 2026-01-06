@@ -46,8 +46,7 @@ apps/api/src/main/kotlin/com/nosilha/core/
 ├── shared/          # Common utilities and base classes
 ├── auth/            # Authentication module (JWT, Supabase)
 ├── places/          # Places entries (Restaurant, Hotel, Beach, Heritage, Nature)
-├── media/           # Media processing and storage, MediaQueryService
-├── curatedmedia/    # Admin-curated external content
+├── gallery/         # Gallery media (user uploads + curated external content), MediaQueryService
 ├── engagement/      # User interactions (reactions, bookmarks)
 ├── stories/         # Community narratives, MDX publishing, StoriesQueryService
 └── feedback/        # Community feedback channels, dashboard

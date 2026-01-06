@@ -21,7 +21,7 @@ import org.springframework.modulith.docs.Documenter
  * - shared (Shared Kernel) - No dependencies
  * - auth (Authentication Module) - Depends on: shared only
  * - places (Places Module) - Depends on: shared only (formerly 'directory')
- * - media (Media Module) - Depends on: shared only
+ * - gallery (Gallery Module) - Depends on: shared only (formerly 'media')
  *
  * Status: Expected to FAIL until modules are extracted in Phase 3
  */
@@ -64,7 +64,7 @@ class ModularityTests {
                 1. Extract shared kernel module (T061-T064)
                 2. Extract auth module (T065-T070)
                 3. Extract places module (T071-T079) (formerly 'directory')
-                4. Extract media module (T080-T083)
+                4. Extract gallery module (T080-T083) (formerly 'media')
                 5. Configure module package-info.java files with @ApplicationModule
 
                 Current error: ${e.message}
@@ -231,34 +231,34 @@ class ModularityTests {
     }
 
     /**
-     * Contract Test: Verify media module exists
+     * Contract Test: Verify gallery module exists
      *
-     * Media module should:
+     * Gallery module should:
      * - Depend only on shared kernel
      * - Listen to DirectoryEntryCreatedEvent
-     * - Publish media processing events
+     * - Publish gallery media processing events
      *
      * Module boundary verification is handled by the main verify() test.
-     * Expected to FAIL until media module is extracted (T080-T083).
+     * Expected to FAIL until gallery module is extracted (T080-T083).
      */
     @Test
-    fun `verify media module exists`() {
+    fun `verify gallery module exists`() {
         try {
-            val mediaModule =
+            val galleryModule =
                 modules
-                    .getModuleByName("media")
-                    .orElseThrow { AssertionError("Media module not found") }
+                    .getModuleByName("gallery")
+                    .orElseThrow { AssertionError("Gallery module not found") }
 
-            println("✅ Media module found: ${mediaModule.name}")
+            println("✅ Gallery module found: ${galleryModule.name}")
         } catch (e: Exception) {
-            println("❌ Media module not found (expected in TDD approach)")
+            println("❌ Gallery module not found (expected in TDD approach)")
             throw AssertionError(
                 """
-                Media module not found.
+                Gallery module not found.
 
                 Expected in Phase 3.5 (T080-T083):
-                - Create media module with @ApplicationModule annotation
-                - Create MediaService with @ApplicationModuleListener
+                - Create gallery module with @ApplicationModule annotation
+                - Create GalleryService with @ApplicationModuleListener
                 - Listen to DirectoryEntryCreatedEvent
                 - Define allowedDependencies = ["shared"]
 

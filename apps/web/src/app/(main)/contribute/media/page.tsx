@@ -13,7 +13,9 @@ import {
   AlertCircle,
 } from "lucide-react";
 import type { MediaType } from "@/types/media";
+import type { ExternalPlatform } from "@/types/gallery";
 import { useR2Upload } from "@/hooks/useR2Upload";
+import { BackendApiClient } from "@/lib/backend-api";
 
 interface FormData {
   title: string;
@@ -24,8 +26,38 @@ interface FormData {
   preview: string;
 }
 
+/**
+ * Parses a video URL to extract platform and video ID.
+ * Supports YouTube (various formats) and Vimeo.
+ */
+function parseVideoUrl(
+  url: string
+): { platform: ExternalPlatform; externalId: string } | null {
+  // YouTube patterns: youtube.com/watch?v=ID, youtu.be/ID, youtube.com/embed/ID
+  const youtubePatterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+  ];
+  for (const pattern of youtubePatterns) {
+    const match = url.match(pattern);
+    if (match) {
+      return { platform: "YOUTUBE", externalId: match[1] };
+    }
+  }
+
+  // Vimeo patterns: vimeo.com/ID
+  const vimeoPattern = /vimeo\.com\/(\d+)/;
+  const vimeoMatch = url.match(vimeoPattern);
+  if (vimeoMatch) {
+    return { platform: "VIMEO", externalId: vimeoMatch[1] };
+  }
+
+  return null;
+}
+
 export default function MediaContributionPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [videoSubmitting, setVideoSubmitting] = useState(false);
+  const [videoError, setVideoError] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
     title: "",
     type: "IMAGE",
@@ -36,6 +68,7 @@ export default function MediaContributionPage() {
   });
   // Store the actual file for R2 upload
   const selectedFileRef = useRef<File | null>(null);
+  const apiClient = useRef(new BackendApiClient());
 
   // Use the R2 upload hook for actual file uploads
   const {
@@ -49,7 +82,8 @@ export default function MediaContributionPage() {
   const isSubmitting =
     uploadState === "requesting-url" ||
     uploadState === "uploading" ||
-    uploadState === "confirming";
+    uploadState === "confirming" ||
+    videoSubmitting;
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -84,9 +118,35 @@ export default function MediaContributionPage() {
       }
       // Error handling is done by the hook (uploadError state)
     } else if (formData.type === "VIDEO") {
-      // For videos, we still accept external URLs (YouTube, Vimeo)
-      // This could be extended to submit to a video moderation queue
-      setSubmitted(true);
+      // Parse the URL to extract platform and video ID
+      const parsed = parseVideoUrl(formData.url);
+      if (!parsed) {
+        setVideoError("Please enter a valid YouTube or Vimeo URL");
+        return;
+      }
+
+      setVideoSubmitting(true);
+      setVideoError(null);
+
+      try {
+        await apiClient.current.submitExternalMedia({
+          title: formData.title,
+          description: formData.description || undefined,
+          mediaType: "VIDEO",
+          platform: parsed.platform,
+          url: formData.url,
+          externalId: parsed.externalId,
+          author: formData.author || undefined,
+          category: "Community", // Default category for user submissions
+        });
+        setSubmitted(true);
+      } catch (err) {
+        setVideoError(
+          err instanceof Error ? err.message : "Failed to submit video"
+        );
+      } finally {
+        setVideoSubmitting(false);
+      }
     }
   };
 
@@ -294,11 +354,11 @@ export default function MediaContributionPage() {
               </div>
             </div>
 
-            {/* Upload Error */}
-            {uploadError && (
+            {/* Error Display */}
+            {(uploadError || videoError) && (
               <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
                 <AlertCircle size={18} className="flex-shrink-0" />
-                <span>{uploadError}</span>
+                <span>{uploadError || videoError}</span>
               </div>
             )}
 
@@ -329,10 +389,8 @@ export default function MediaContributionPage() {
                 {uploadState === "uploading" &&
                   `Uploading ${progress.percentage}%...`}
                 {uploadState === "confirming" && "Finalizing..."}
-                {(uploadState === "idle" ||
-                  uploadState === "completed" ||
-                  uploadState === "error") &&
-                  "Add to Visual Record"}
+                {videoSubmitting && "Submitting video..."}
+                {!isSubmitting && "Add to Visual Record"}
               </button>
             </div>
           </form>
