@@ -2,6 +2,9 @@ package com.nosilha.core.auth.repository
 
 import com.nosilha.core.auth.domain.UserProfile
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
@@ -41,4 +44,35 @@ interface UserProfileRepository : JpaRepository<UserProfile, UUID> {
      * @return List of user profiles for the given IDs
      */
     fun findByUserIdIn(userIds: Collection<String>): List<UserProfile>
+
+    /**
+     * Atomically inserts a new user profile with default values, or does nothing if one already exists.
+     *
+     * <p>Uses PostgreSQL's ON CONFLICT DO NOTHING to handle race conditions where
+     * multiple concurrent requests attempt to create a profile for the same user.
+     * This is the most robust solution as it's a single atomic database operation
+     * with no race window.</p>
+     *
+     * <p><strong>Default Values:</strong></p>
+     * <ul>
+     *   <li>preferred_language: 'EN' (English)</li>
+     *   <li>notification_preferences: Default opt-in JSON</li>
+     *   <li>created_at/updated_at: Current timestamp</li>
+     * </ul>
+     *
+     * @param userId Supabase auth user ID
+     * @return Number of rows inserted (1 if created, 0 if already exists)
+     */
+    @Modifying
+    @Query(
+        """
+        INSERT INTO user_profiles (id, user_id, preferred_language, notification_preferences, created_at, updated_at)
+        VALUES (gen_random_uuid(), :userId, 'EN', '{"storyPublished":true,"suggestionApproved":true,"weeklyDigest":false}'::jsonb, now(), now())
+        ON CONFLICT (user_id) DO NOTHING
+        """,
+        nativeQuery = true,
+    )
+    fun insertIfNotExists(
+        @Param("userId") userId: String,
+    ): Int
 }

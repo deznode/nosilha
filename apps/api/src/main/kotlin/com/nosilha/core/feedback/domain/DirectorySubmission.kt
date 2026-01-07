@@ -24,7 +24,7 @@ import java.util.UUID
  * Represents a community-submitted directory entry for Brava Island.
  *
  * <p>Directory submissions allow community members to suggest new places
- * (restaurants, landmarks, nature sites, cultural venues) to be added to
+ * (restaurants, hotels, beaches, heritage sites, nature sites) to be added to
  * the directory. Submissions go through an admin moderation workflow before
  * being approved and added to the main directory.</p>
  *
@@ -39,7 +39,7 @@ import java.util.UUID
  * <ul>
  *   <li>Name: 1-255 characters (required)</li>
  *   <li>Description: 10-2000 characters (required)</li>
- *   <li>Category: RESTAURANT, LANDMARK, NATURE, or CULTURE</li>
+ *   <li>Category: RESTAURANT, HOTEL, BEACH, HERITAGE, or NATURE</li>
  *   <li>Town: Required field</li>
  *   <li>Rate limiting: Maximum 3 submissions per hour per IP address</li>
  * </ul>
