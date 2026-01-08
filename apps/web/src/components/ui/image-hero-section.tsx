@@ -11,6 +11,8 @@ interface ImageHeroSectionProps {
   subtitle?: string;
   showScrollIndicator?: boolean;
   className?: string;
+  heightClass?: string;
+  maxHeightClass?: string;
 }
 
 /**
@@ -26,6 +28,8 @@ export function ImageHeroSection({
   subtitle,
   showScrollIndicator = true,
   className = "",
+  heightClass = "h-[65vh]",
+  maxHeightClass = "max-h-[600px]",
 }: ImageHeroSectionProps) {
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -43,7 +47,7 @@ export function ImageHeroSection({
   return (
     <section
       ref={sectionRef}
-      className={`relative flex h-[65vh] min-h-[400px] max-h-[600px] w-full items-center justify-center overflow-hidden ${className}`}
+      className={`relative flex ${heightClass} min-h-[400px] ${maxHeightClass} w-full items-center justify-center overflow-hidden ${className}`}
     >
       {/* Background Image */}
       <div className="absolute inset-0 z-0">

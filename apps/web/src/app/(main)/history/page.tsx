@@ -128,6 +128,8 @@ export default async function HistoryPage({ searchParams }: PageProps) {
           imageAlt="Historical timeline of Brava Island from discovery to present day"
           title={hero.title}
           subtitle={hero.subtitle}
+          heightClass="h-[65vh]"
+          maxHeightClass="max-h-[600px]"
         />
 
         {/* Content section with background - starts below hero */}

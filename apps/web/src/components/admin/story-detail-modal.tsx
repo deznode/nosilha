@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import type { StorySubmission } from "@/types/story";
 import { StoryType, SubmissionStatus } from "@/types/story";
+import { StoryMarkdown } from "../stories/story-markdown";
 
 interface StoryDetailModalProps {
   story: StorySubmission | null;
@@ -177,16 +178,7 @@ export function StoryDetailModal({
               </div>
 
               {/* Story Content */}
-              <div className="prose prose-slate dark:prose-invert max-w-none">
-                {story.content.split("\n\n").map((paragraph, index) => (
-                  <p
-                    key={index}
-                    className="mb-4 leading-relaxed text-slate-700 dark:text-slate-300"
-                  >
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
+              <StoryMarkdown content={story.content} className="prose-slate" />
 
               {/* Admin Notes (if any) */}
               {story.adminNotes && (

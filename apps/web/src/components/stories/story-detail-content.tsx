@@ -13,6 +13,7 @@ import {
 import type { StorySubmission } from "@/types/story";
 import { StoryType } from "@/types/story";
 import { StoryCard } from "./story-card";
+import { StoryMarkdown } from "./story-markdown";
 
 interface StoryDetailContentProps {
   story: StorySubmission;
@@ -114,16 +115,7 @@ export function StoryDetailContent({
       {/* Content */}
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
         {/* Story Content */}
-        <div className="prose prose-lg dark:prose-invert max-w-none">
-          {story.content.split("\n\n").map((paragraph, index) => (
-            <p
-              key={index}
-              className="mb-6 leading-relaxed text-slate-700 dark:text-slate-300"
-            >
-              {paragraph}
-            </p>
-          ))}
-        </div>
+        <StoryMarkdown content={story.content} />
 
         {/* Share CTA */}
         <div className="mt-12 border-t border-slate-200 pt-8 dark:border-slate-700">
