@@ -22,14 +22,14 @@ const CATEGORIES: (MediaCategory | "All")[] = [
 
 function PhotoCardSkeleton() {
   return (
-    <div className="animate-pulse overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
-      <div className="h-64 bg-slate-200 dark:bg-slate-700" />
+    <div className="border-border-primary bg-background-primary animate-pulse overflow-hidden rounded-lg border shadow-sm">
+      <div className="bg-background-tertiary h-64" />
       <div className="p-4">
-        <div className="mb-2 h-3 w-16 rounded bg-slate-200 dark:bg-slate-700" />
-        <div className="mb-2 h-5 w-3/4 rounded bg-slate-200 dark:bg-slate-700" />
-        <div className="mb-3 h-4 w-full rounded bg-slate-200 dark:bg-slate-700" />
-        <div className="border-t border-slate-100 pt-3 dark:border-slate-700">
-          <div className="h-3 w-24 rounded bg-slate-200 dark:bg-slate-700" />
+        <div className="bg-background-tertiary mb-2 h-3 w-16 rounded" />
+        <div className="bg-background-tertiary mb-2 h-5 w-3/4 rounded" />
+        <div className="bg-background-tertiary mb-3 h-4 w-full rounded" />
+        <div className="border-border-secondary border-t pt-3">
+          <div className="bg-background-tertiary h-3 w-24 rounded" />
         </div>
       </div>
     </div>
@@ -51,17 +51,17 @@ export function PhotoGrid({
     <>
       {/* Filter Bar */}
       <div className="mb-8 flex flex-wrap items-center gap-2">
-        <span className="mr-2 flex items-center text-sm font-medium text-slate-500 dark:text-slate-400">
+        <span className="text-text-secondary mr-2 flex items-center text-sm font-medium">
           <Filter size={14} className="mr-1" /> Filter:
         </span>
         {CATEGORIES.map((cat) => (
           <button
             key={cat}
             onClick={() => onCategoryChange(cat)}
-            className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+            className={`min-h-[44px] rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
               categoryFilter === cat
-                ? "border-[var(--color-ocean-blue)] bg-[var(--color-ocean-blue)] text-white"
-                : "border-slate-200 bg-white text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
+                ? "border-ocean-blue bg-ocean-blue text-white"
+                : "border-border-primary bg-background-primary text-text-secondary hover:bg-background-secondary"
             }`}
           >
             {cat}
@@ -74,8 +74,16 @@ export function PhotoGrid({
         {filteredPhotos.map((photo) => (
           <div
             key={photo.id}
-            className="group relative cursor-zoom-in overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-all hover:shadow-lg dark:border-slate-700 dark:bg-slate-800"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onPhotoClick(photo);
+              }
+            }}
             onClick={() => onPhotoClick(photo)}
+            className="group border-border-primary bg-background-primary focus:ring-ocean-blue relative cursor-zoom-in overflow-hidden rounded-lg border shadow-sm transition-all hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:outline-none"
           >
             <div className="relative h-64 overflow-hidden">
               <Image
@@ -92,25 +100,25 @@ export function PhotoGrid({
             <div className="p-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <span className="text-xs font-bold tracking-wider text-[var(--color-ocean-blue)] uppercase">
+                  <span className="text-ocean-blue text-xs font-bold tracking-wider uppercase">
                     {photo.category}
                   </span>
-                  <h3 className="mt-1 font-bold text-slate-900 dark:text-white">
+                  <h3 className="text-text-primary mt-1 font-bold">
                     {photo.title}
                   </h3>
                 </div>
                 {photo.date && (
-                  <span className="rounded bg-slate-100 px-2 py-1 text-xs text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+                  <span className="bg-background-tertiary text-text-secondary rounded px-2 py-1 text-xs">
                     {photo.date}
                   </span>
                 )}
               </div>
               {photo.description && (
-                <p className="mt-2 line-clamp-2 text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-text-secondary mt-2 line-clamp-2 text-sm">
                   {photo.description}
                 </p>
               )}
-              <div className="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-400 dark:border-slate-700 dark:text-slate-500">
+              <div className="border-border-secondary text-text-tertiary mt-3 border-t pt-3 text-xs">
                 Shared by {photo.author || "Anonymous"}
               </div>
             </div>
@@ -119,8 +127,8 @@ export function PhotoGrid({
       </div>
 
       {filteredPhotos.length === 0 && (
-        <div className="rounded-lg border border-slate-200 bg-white py-20 text-center dark:border-slate-700 dark:bg-slate-800">
-          <p className="text-slate-500 dark:text-slate-400">
+        <div className="border-border-primary bg-background-primary rounded-lg border py-20 text-center">
+          <p className="text-text-secondary">
             No photos found in this category.
           </p>
         </div>
@@ -133,11 +141,11 @@ export function PhotoGridSkeleton() {
   return (
     <>
       <div className="mb-8 flex flex-wrap items-center gap-2">
-        <div className="h-5 w-16 rounded bg-slate-200 dark:bg-slate-700" />
+        <div className="bg-background-tertiary h-5 w-16 rounded" />
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="h-6 w-16 rounded-full bg-slate-200 dark:bg-slate-700"
+            className="bg-background-tertiary h-6 w-16 rounded-full"
           />
         ))}
       </div>

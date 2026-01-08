@@ -68,7 +68,7 @@ function StatusBadge({ status }: { status: SubmissionStatus }) {
 
 function StoryTypeBadge({ storyType }: { storyType: StoryType }) {
   return (
-    <span className="inline-flex rounded-full bg-slate-100 px-2 text-xs leading-5 font-semibold text-slate-800 dark:bg-slate-700 dark:text-slate-300">
+    <span className="bg-surface-alt text-body inline-flex rounded-full px-2 text-xs leading-5 font-semibold">
       {storyType}
     </span>
   );
@@ -80,7 +80,7 @@ export function QueueItem(props: QueueItemProps) {
 
   if (props.type === "suggestion") {
     return (
-      <li className="block transition duration-150 ease-in-out hover:bg-slate-50 dark:hover:bg-slate-700/50">
+      <li className="hover:bg-surface-alt block transition duration-150 ease-in-out">
         <div className="px-4 py-4 sm:px-6">
           <div className="flex items-center justify-between">
             <p className="truncate text-sm font-medium text-[var(--color-ocean-blue)]">
@@ -92,11 +92,11 @@ export function QueueItem(props: QueueItemProps) {
           </div>
           <div className="mt-2 sm:flex sm:justify-between">
             <div className="sm:flex">
-              <p className="flex items-center text-sm text-slate-500 dark:text-slate-400">
+              <p className="text-muted flex items-center text-sm">
                 {props.description}
               </p>
             </div>
-            <div className="mt-2 flex items-center text-sm text-slate-500 sm:mt-0 dark:text-slate-400">
+            <div className="text-muted mt-2 flex items-center text-sm sm:mt-0">
               <p>
                 By {props.submittedBy} &bull; {props.timestamp}
               </p>
@@ -125,11 +125,11 @@ export function QueueItem(props: QueueItemProps) {
 
   // Story type
   return (
-    <li className="block transition duration-150 ease-in-out hover:bg-slate-50 dark:hover:bg-slate-700/50">
+    <li className="hover:bg-surface-alt block transition duration-150 ease-in-out">
       <div className="px-4 py-4 sm:px-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+            <FileText className="text-muted h-4 w-4" />
             <p className="truncate text-sm font-medium text-[var(--color-bougainvillea)]">
               {props.title}
             </p>
@@ -149,7 +149,7 @@ export function QueueItem(props: QueueItemProps) {
         {/* Content Preview */}
         <div className="mt-2 flex gap-4">
           {props.imageUrl && (
-            <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded border border-slate-200 bg-slate-100 dark:border-slate-600 dark:bg-slate-700">
+            <div className="border-hairline bg-surface-alt h-16 w-24 flex-shrink-0 overflow-hidden rounded border">
               <img
                 src={props.imageUrl}
                 alt={props.title}
@@ -158,11 +158,9 @@ export function QueueItem(props: QueueItemProps) {
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <p className="line-clamp-2 text-sm text-slate-500 dark:text-slate-400">
-              {props.content}
-            </p>
+            <p className="text-muted line-clamp-2 text-sm">{props.content}</p>
             {props.location && (
-              <p className="mt-1 flex items-center text-xs text-slate-400 dark:text-slate-500">
+              <p className="text-muted mt-1 flex items-center text-xs">
                 <MapPin size={10} className="mr-1" />
                 {props.location}
               </p>
@@ -170,7 +168,7 @@ export function QueueItem(props: QueueItemProps) {
           </div>
         </div>
 
-        <div className="mt-2 flex items-center text-xs text-slate-500 dark:text-slate-400">
+        <div className="text-muted mt-2 flex items-center text-xs">
           <p>
             Submitted by {props.submittedBy} &bull; {props.timestamp}
           </p>
@@ -183,7 +181,7 @@ export function QueueItem(props: QueueItemProps) {
               <button
                 onClick={props.onArchive}
                 disabled={props.isArchiving}
-                className="inline-flex items-center gap-1.5 rounded-md border border-[var(--color-ocean-blue)] bg-white px-3 py-1 text-xs font-medium text-[var(--color-ocean-blue)] transition-colors hover:bg-[var(--color-ocean-blue)] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-800 dark:hover:bg-[var(--color-ocean-blue)]"
+                className="bg-surface inline-flex items-center gap-1.5 rounded-md border border-[var(--color-ocean-blue)] px-3 py-1 text-xs font-medium text-[var(--color-ocean-blue)] transition-colors hover:bg-[var(--color-ocean-blue)] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
                 title="Archive to MDX"
               >
                 {props.isArchiving ? (
@@ -209,7 +207,7 @@ export function QueueItem(props: QueueItemProps) {
             >
               View Full
             </button>
-            <span className="text-slate-200 dark:text-slate-600">|</span>
+            <span className="text-border-hairline">|</span>
             <button
               onClick={props.onApprove}
               className="text-xs font-medium text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"

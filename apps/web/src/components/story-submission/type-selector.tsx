@@ -44,7 +44,6 @@ const STORY_TYPES = [
 ];
 
 export function TypeSelector({ onSelect }: TypeSelectorProps) {
-
   return (
     <div className="min-h-[60vh] px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">

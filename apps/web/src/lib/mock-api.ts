@@ -1087,7 +1087,11 @@ export class MockApiClient implements ApiClient {
     notes?: string,
     slug?: string
   ): Promise<void> {
-    console.log(`Mock API: Updating story ${id} with action: ${action}`, notes, slug);
+    console.log(
+      `Mock API: Updating story ${id} with action: ${action}`,
+      notes,
+      slug
+    );
     await this.simulateDelay(300);
 
     // Map action to status

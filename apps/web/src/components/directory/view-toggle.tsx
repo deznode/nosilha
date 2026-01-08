@@ -11,13 +11,13 @@ interface ViewToggleProps {
 
 export function ViewToggle({ viewMode, onViewModeChange }: ViewToggleProps) {
   return (
-    <div className="flex rounded-md bg-slate-100 p-1 dark:bg-slate-700">
+    <div className="bg-background-tertiary flex rounded-md p-1">
       <button
         onClick={() => onViewModeChange("grid")}
         className={`rounded p-1.5 transition-colors ${
           viewMode === "grid"
-            ? "bg-white text-[var(--color-ocean-blue)] shadow-sm dark:bg-slate-600"
-            : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+            ? "bg-background-primary text-ocean-blue shadow-sm"
+            : "text-text-secondary hover:text-text-primary"
         }`}
         aria-label="Grid view"
       >
@@ -27,8 +27,8 @@ export function ViewToggle({ viewMode, onViewModeChange }: ViewToggleProps) {
         onClick={() => onViewModeChange("list")}
         className={`rounded p-1.5 transition-colors ${
           viewMode === "list"
-            ? "bg-white text-[var(--color-ocean-blue)] shadow-sm dark:bg-slate-600"
-            : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+            ? "bg-background-primary text-ocean-blue shadow-sm"
+            : "text-text-secondary hover:text-text-primary"
         }`}
         aria-label="List view"
       >

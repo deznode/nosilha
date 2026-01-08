@@ -49,19 +49,17 @@ export default function Banner({
   );
 
   const baseClasses =
-    tone === "high-contrast"
-      ? "bg-black text-white"
-      : "bg-mist-50 text-basalt-900 dark:bg-basalt-800/50 dark:text-mist-100";
+    tone === "high-contrast" ? "bg-black text-white" : "bg-surface text-body";
 
   const linkClasses =
     tone === "high-contrast"
       ? "text-white underline-offset-2 hover:text-valley-green focus-visible:outline-white focus-visible:outline-2 focus-visible:outline-offset-2"
-      : "hover:text-basalt-500 dark:hover:text-white";
+      : "hover:text-muted";
 
   const dismissIconClasses =
     tone === "high-contrast"
       ? "text-white hover:text-valley-green"
-      : "text-basalt-900 dark:text-mist-200 dark:hover:text-mist-100";
+      : "text-body hover:text-muted";
 
   return (
     <div
@@ -76,7 +74,7 @@ export default function Banner({
             clipPath:
               "polygon(74.8% 41.9%, 97.2% 73.2%, 100% 34.9%, 92.5% 0.4%, 87.5% 0%, 75% 28.6%, 58.5% 54.6%, 50.1% 56.8%, 46.9% 44%, 48.3% 17.4%, 24.7% 53.9%, 0% 27.9%, 11.9% 74.2%, 24.9% 54.1%, 68.6% 100%, 74.8% 41.9%)",
           }}
-          className={`aspect-[577/310] w-[36.0625rem] bg-gradient-to-r from-[#D90368] to-[#005A8D] ${
+          className={`from-bougainvillea-pink to-ocean-blue aspect-[577/310] w-[36.0625rem] bg-gradient-to-r ${
             tone === "high-contrast"
               ? "opacity-80"
               : "opacity-50 dark:opacity-60"
@@ -92,7 +90,7 @@ export default function Banner({
             clipPath:
               "polygon(74.8% 41.9%, 97.2% 73.2%, 100% 34.9%, 92.5% 0.4%, 87.5% 0%, 75% 28.6%, 58.5% 54.6%, 50.1% 56.8%, 46.9% 44%, 48.3% 17.4%, 24.7% 53.9%, 0% 27.9%, 11.9% 74.2%, 24.9% 54.1%, 68.6% 100%, 74.8% 41.9%)",
           }}
-          className="aspect-[577/310] w-[36.0625rem] bg-gradient-to-r from-[#D90368] to-[#005A8D] opacity-50 dark:opacity-60"
+          className="from-bougainvillea-pink to-ocean-blue aspect-[577/310] w-[36.0625rem] bg-gradient-to-r opacity-50 dark:opacity-60"
         />
       </div>
       <p className="text-xs/5 sm:text-sm/6">

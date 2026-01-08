@@ -60,15 +60,15 @@ export function MediaActionModal({
 
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative w-full max-w-md transform overflow-hidden rounded-lg bg-white shadow-xl transition-all dark:bg-slate-800">
+        <div className="bg-surface relative w-full max-w-md transform overflow-hidden rounded-lg shadow-xl transition-all">
           {/* Header */}
-          <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-700">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+          <div className="border-hairline flex items-center justify-between border-b px-6 py-4">
+            <h3 className="text-body text-lg font-semibold">
               {actionText} Media
             </h3>
             <button
               onClick={handleCancel}
-              className="text-slate-400 hover:text-slate-500 dark:hover:text-slate-300"
+              className="text-muted hover:text-body"
             >
               <X className="h-5 w-5" />
             </button>
@@ -76,7 +76,7 @@ export function MediaActionModal({
 
           {/* Content */}
           <div className="px-6 py-4">
-            <p className="mb-4 text-sm text-slate-700 dark:text-slate-300">
+            <p className="text-body mb-4 text-sm">
               You are about to {actionText.toLowerCase()}{" "}
               <span className="font-medium">{mediaTitle}</span>. Please provide
               a reason:
@@ -86,7 +86,7 @@ export function MediaActionModal({
             <div className="mb-4">
               <label
                 htmlFor="reason"
-                className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                className="text-body mb-2 block text-sm font-medium"
               >
                 Reason
               </label>
@@ -94,7 +94,7 @@ export function MediaActionModal({
                 id="reason"
                 value={selectedReason}
                 onChange={(e) => setSelectedReason(e.target.value)}
-                className="block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:border-[var(--color-ocean-blue)] focus:ring-1 focus:ring-[var(--color-ocean-blue)] focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                className="border-hairline bg-surface text-body block w-full rounded-md border px-3 py-2 text-sm focus:border-[var(--color-ocean-blue)] focus:ring-1 focus:ring-[var(--color-ocean-blue)] focus:outline-none"
               >
                 {FLAG_REASONS.map((reason) => (
                   <option key={reason} value={reason}>
@@ -108,7 +108,7 @@ export function MediaActionModal({
             <div className="mb-4">
               <label
                 htmlFor="notes"
-                className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                className="text-body mb-2 block text-sm font-medium"
               >
                 Additional Notes (Optional)
               </label>
@@ -118,16 +118,16 @@ export function MediaActionModal({
                 onChange={(e) => setAdditionalNotes(e.target.value)}
                 rows={3}
                 placeholder="Add any additional context or notes..."
-                className="block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm placeholder-slate-400 focus:border-[var(--color-ocean-blue)] focus:ring-1 focus:ring-[var(--color-ocean-blue)] focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500"
+                className="border-hairline bg-surface text-body placeholder-muted block w-full rounded-md border px-3 py-2 text-sm focus:border-[var(--color-ocean-blue)] focus:ring-1 focus:ring-[var(--color-ocean-blue)] focus:outline-none"
               />
             </div>
           </div>
 
           {/* Footer */}
-          <div className="flex justify-end gap-3 border-t border-slate-200 px-6 py-4 dark:border-slate-700">
+          <div className="border-hairline flex justify-end gap-3 border-t px-6 py-4">
             <button
               onClick={handleCancel}
-              className="rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="border-hairline bg-surface text-body hover:bg-surface-alt rounded-md border px-4 py-2 text-sm font-medium"
             >
               Cancel
             </button>

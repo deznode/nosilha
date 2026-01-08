@@ -14,8 +14,8 @@ export function TopContributors({
 }: TopContributorsProps) {
   if (isLoading) {
     return (
-      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-        <div className="mb-4 h-6 w-36 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+      <div className="border-hairline bg-surface rounded-lg border p-6 shadow-sm">
+        <div className="bg-surface-alt mb-4 h-6 w-36 animate-pulse rounded" />
         <ul className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
             <li
@@ -23,13 +23,13 @@ export function TopContributors({
               className="flex animate-pulse items-center justify-between"
             >
               <div className="flex items-center">
-                <div className="mr-3 h-8 w-8 rounded-full bg-slate-200 dark:bg-slate-700" />
+                <div className="bg-surface-alt mr-3 h-8 w-8 rounded-full" />
                 <div>
-                  <div className="mb-1 h-4 w-24 rounded bg-slate-200 dark:bg-slate-700" />
-                  <div className="h-3 w-16 rounded bg-slate-200 dark:bg-slate-700" />
+                  <div className="bg-surface-alt mb-1 h-4 w-24 rounded" />
+                  <div className="bg-surface-alt h-3 w-16 rounded" />
                 </div>
               </div>
-              <div className="h-6 w-12 rounded bg-slate-200 dark:bg-slate-700" />
+              <div className="bg-surface-alt h-6 w-12 rounded" />
             </li>
           ))}
         </ul>
@@ -38,8 +38,8 @@ export function TopContributors({
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-      <h3 className="mb-4 flex items-center text-lg font-bold text-slate-900 dark:text-white">
+    <div className="border-hairline bg-surface rounded-lg border p-6 shadow-sm">
+      <h3 className="text-body mb-4 flex items-center text-lg font-bold">
         <Users size={20} className="mr-2 text-[var(--color-ocean-blue)]" />
         Top Contributors
       </h3>
@@ -50,7 +50,7 @@ export function TopContributors({
             className="flex items-center justify-between text-sm"
           >
             <div className="flex items-center">
-              <div className="mr-3 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-[var(--color-ocean-blue)] dark:bg-slate-700">
+              <div className="bg-surface-alt mr-3 flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-[var(--color-ocean-blue)]">
                 {user.avatar ? (
                   <img
                     src={user.avatar}
@@ -62,12 +62,8 @@ export function TopContributors({
                 )}
               </div>
               <div>
-                <p className="font-medium text-slate-900 dark:text-white">
-                  {user.name}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {user.role}
-                </p>
+                <p className="text-body font-medium">{user.name}</p>
+                <p className="text-muted text-xs">{user.role}</p>
               </div>
             </div>
             <span className="rounded-full bg-green-50 px-2 py-1 text-xs font-bold text-[var(--color-valley-green)] dark:bg-green-900/20">

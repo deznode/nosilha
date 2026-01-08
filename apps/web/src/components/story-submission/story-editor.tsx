@@ -228,19 +228,19 @@ export function StoryEditor({
   return (
     <div>
       <div className="mb-2 flex items-end justify-between">
-        <label className="block text-sm font-medium text-slate-900 dark:text-white">
+        <label className="text-body block text-sm font-medium">
           Your Story {storyType === StoryType.QUICK ? "(Max 500 words)" : ""}
         </label>
 
         {/* Tabs */}
-        <div className="flex space-x-1 rounded-lg bg-slate-100 p-0.5 dark:bg-slate-700">
+        <div className="bg-surface-alt flex space-x-1 rounded-lg p-0.5">
           <button
             type="button"
             onClick={() => setActiveTab("write")}
             className={`flex items-center rounded-md px-3 py-1 text-xs font-medium transition-all ${
               activeTab === "write"
-                ? "bg-white text-slate-900 shadow-sm dark:bg-slate-600 dark:text-white"
-                : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                ? "bg-surface text-body shadow-sm"
+                : "text-muted hover:text-body"
             }`}
           >
             <Edit2 className="mr-1 h-3 w-3" /> Write
@@ -250,8 +250,8 @@ export function StoryEditor({
             onClick={() => setActiveTab("preview")}
             className={`flex items-center rounded-md px-3 py-1 text-xs font-medium transition-all ${
               activeTab === "preview"
-                ? "bg-white text-[var(--color-ocean-blue)] shadow-sm dark:bg-slate-600"
-                : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                ? "bg-surface text-[var(--color-ocean-blue)] shadow-sm"
+                : "text-muted hover:text-body"
             }`}
           >
             <Eye className="mr-1 h-3 w-3" /> Preview
@@ -262,11 +262,11 @@ export function StoryEditor({
       {activeTab === "write" ? (
         <div className="relative">
           {/* Toolbar */}
-          <div className="mb-1 flex flex-wrap items-center gap-1 rounded-t-md border border-b-0 border-slate-200 bg-slate-50 p-1 dark:border-slate-600 dark:bg-slate-700">
+          <div className="border-hairline bg-surface mb-1 flex flex-wrap items-center gap-1 rounded-t-md border border-b-0 p-1">
             <button
               type="button"
               onClick={() => insertFormatting("bold")}
-              className="rounded p-1.5 text-slate-500 hover:bg-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-white"
+              className="text-muted hover:bg-surface-alt hover:text-body rounded p-1.5"
               title="Bold"
             >
               <Bold className="h-4 w-4" />
@@ -274,16 +274,16 @@ export function StoryEditor({
             <button
               type="button"
               onClick={() => insertFormatting("italic")}
-              className="rounded p-1.5 text-slate-500 hover:bg-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-white"
+              className="text-muted hover:bg-surface-alt hover:text-body rounded p-1.5"
               title="Italic"
             >
               <Italic className="h-4 w-4" />
             </button>
-            <div className="mx-1 h-4 w-px bg-slate-200 dark:bg-slate-600" />
+            <div className="bg-hairline mx-1 h-4 w-px" />
             <button
               type="button"
               onClick={() => insertFormatting("list")}
-              className="rounded p-1.5 text-slate-500 hover:bg-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-white"
+              className="text-muted hover:bg-surface-alt hover:text-body rounded p-1.5"
               title="Bullet List"
             >
               <List className="h-4 w-4" />
@@ -291,7 +291,7 @@ export function StoryEditor({
             <button
               type="button"
               onClick={() => insertFormatting("quote")}
-              className="rounded p-1.5 text-slate-500 hover:bg-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-600 dark:hover:text-white"
+              className="text-muted hover:bg-surface-alt hover:text-body rounded p-1.5"
               title="Quote"
             >
               <Quote className="h-4 w-4" />
@@ -310,25 +310,25 @@ export function StoryEditor({
                 </button>
 
                 {showTemplates && (
-                  <div className="absolute top-full left-0 z-10 mt-1 w-48 rounded-md border border-slate-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800">
+                  <div className="border-hairline bg-surface absolute top-full left-0 z-10 mt-1 w-48 rounded-md border py-1 shadow-lg">
                     <button
                       type="button"
                       onClick={() => applyTemplate("narrative")}
-                      className="block w-full px-4 py-2 text-left text-xs text-slate-900 hover:bg-slate-50 dark:text-white dark:hover:bg-slate-700"
+                      className="text-body hover:bg-surface-alt block w-full px-4 py-2 text-left text-xs"
                     >
                       General Narrative
                     </button>
                     <button
                       type="button"
                       onClick={() => applyTemplate("migration")}
-                      className="block w-full px-4 py-2 text-left text-xs text-slate-900 hover:bg-slate-50 dark:text-white dark:hover:bg-slate-700"
+                      className="text-body hover:bg-surface-alt block w-full px-4 py-2 text-left text-xs"
                     >
                       Migration Journey
                     </button>
                     <button
                       type="button"
                       onClick={() => applyTemplate("recipe")}
-                      className="block w-full px-4 py-2 text-left text-xs text-slate-900 hover:bg-slate-50 dark:text-white dark:hover:bg-slate-700"
+                      className="text-body hover:bg-surface-alt block w-full px-4 py-2 text-left text-xs"
                     >
                       Family Recipe
                     </button>
@@ -352,7 +352,7 @@ export function StoryEditor({
                   {isPolishing ? "Polishing..." : "AI Polish"}
                 </button>
 
-                <div className="ml-2 flex items-center gap-1 border-l border-slate-200 pl-2 dark:border-slate-600">
+                <div className="border-hairline ml-2 flex items-center gap-1 border-l pl-2">
                   <button
                     type="button"
                     onClick={handleTranslate}
@@ -372,7 +372,7 @@ export function StoryEditor({
                     <button
                       type="button"
                       onClick={handleRevertTranslation}
-                      className="rounded p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                      className="text-muted hover:text-body rounded p-1"
                       title="Revert to original"
                     >
                       <Undo2 className="h-3 w-3" />
@@ -395,7 +395,7 @@ export function StoryEditor({
             ref={textareaRef}
             rows={storyType === StoryType.QUICK ? 8 : 16}
             required
-            className="block w-full rounded-b-md border border-slate-200 bg-white px-3 py-2 font-mono text-sm text-slate-900 shadow-sm focus:border-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)] focus:outline-none dark:border-slate-600 dark:bg-slate-800 dark:text-white"
+            className="border-hairline bg-surface text-body block w-full rounded-b-md border px-3 py-2 font-mono text-sm shadow-sm focus:border-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)] focus:outline-none"
             placeholder={
               storyType === StoryType.QUICK
                 ? "Share a quick memory... (e.g., 'I remember the sound of the ocean at night...')"
@@ -405,21 +405,19 @@ export function StoryEditor({
             onChange={(e) => onContentChange(e.target.value)}
           />
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-            <span className="text-xs text-slate-500 dark:text-slate-400">
+            <span className="text-muted text-xs">
               Markdown supported: **bold**, *italic*, - list
             </span>
             <div className="flex items-center gap-3">
-              <span className="text-xs text-slate-400 dark:text-slate-500">
-                {readingTime}
-              </span>
+              <span className="text-muted text-xs">{readingTime}</span>
 
               <span
                 className={`text-xs transition-colors ${
                   warningLevel === "error"
-                    ? "font-medium text-red-600 dark:text-red-400"
+                    ? "text-accent-error font-medium"
                     : warningLevel === "warning"
-                      ? "text-amber-600 dark:text-amber-400"
-                      : "text-slate-500 dark:text-slate-400"
+                      ? "text-accent-warning"
+                      : "text-muted"
                 }`}
               >
                 {showCharCount ? (
@@ -437,7 +435,7 @@ export function StoryEditor({
               <button
                 type="button"
                 onClick={() => setShowCharCount(!showCharCount)}
-                className="rounded px-1.5 py-0.5 text-xs text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-300"
+                className="text-muted hover:bg-surface-alt hover:text-body rounded px-1.5 py-0.5 text-xs"
                 title={
                   showCharCount ? "Show word count" : "Show character count"
                 }
@@ -448,20 +446,20 @@ export function StoryEditor({
           </div>
 
           {warningLevel === "warning" && (
-            <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+            <p className="text-accent-warning mt-1 text-xs">
               Approaching word limit ({Math.round((wordCount / limit) * 100)}%
               used)
             </p>
           )}
         </div>
       ) : (
-        <div className="prose prose-sm dark:prose-invert prose-headings:font-serif prose-headings:text-[var(--color-ocean-blue)] prose-a:text-[var(--color-ocean-blue)] min-h-[300px] max-w-none rounded-md border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
+        <div className="prose prose-sm dark:prose-invert prose-headings:font-serif prose-headings:text-[var(--color-ocean-blue)] prose-a:text-[var(--color-ocean-blue)] border-hairline bg-surface min-h-[300px] max-w-none rounded-md border p-6">
           {/* Simulated Article Header for Preview */}
-          <div className="mb-6 border-b border-slate-100 pb-4 dark:border-slate-700">
-            <h1 className="mb-2 font-serif text-2xl font-bold text-slate-900 dark:text-white">
+          <div className="border-hairline mb-6 border-b pb-4">
+            <h1 className="text-body mb-2 font-serif text-2xl font-bold">
               {title || "Untitled Story"}
             </h1>
-            <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
+            <div className="text-muted flex items-center text-sm">
               <span className="mr-2 font-medium text-[var(--color-bougainvillea)]">
                 {author || "Anonymous"}
               </span>
@@ -483,23 +481,20 @@ export function StoryEditor({
                 ),
                 h2: ({ children, ...props }) => (
                   <h3
-                    className="mt-5 mb-2 text-lg font-bold text-slate-900 dark:text-white"
+                    className="text-body mt-5 mb-2 text-lg font-bold"
                     {...props}
                   >
                     {children}
                   </h3>
                 ),
                 p: ({ children, ...props }) => (
-                  <p
-                    className="mb-4 leading-relaxed text-slate-900 dark:text-slate-200"
-                    {...props}
-                  >
+                  <p className="text-body mb-4 leading-relaxed" {...props}>
                     {children}
                   </p>
                 ),
                 ul: ({ children, ...props }) => (
                   <ul
-                    className="mb-4 list-disc space-y-1 pl-5 text-slate-900 dark:text-slate-200"
+                    className="text-body mb-4 list-disc space-y-1 pl-5"
                     {...props}
                   >
                     {children}
@@ -507,7 +502,7 @@ export function StoryEditor({
                 ),
                 ol: ({ children, ...props }) => (
                   <ol
-                    className="mb-4 list-decimal space-y-1 pl-5 text-slate-900 dark:text-slate-200"
+                    className="text-body mb-4 list-decimal space-y-1 pl-5"
                     {...props}
                   >
                     {children}
@@ -515,7 +510,7 @@ export function StoryEditor({
                 ),
                 blockquote: ({ children, ...props }) => (
                   <blockquote
-                    className="my-4 border-l-4 border-slate-200 bg-slate-50 py-2 pr-2 pl-4 text-slate-500 italic dark:border-slate-600 dark:bg-slate-700 dark:text-slate-400"
+                    className="border-hairline bg-surface text-muted my-4 border-l-4 py-2 pr-2 pl-4 italic"
                     {...props}
                   >
                     {children}
@@ -526,7 +521,7 @@ export function StoryEditor({
               {content}
             </Markdown>
           ) : (
-            <p className="mt-10 text-center text-slate-500 italic dark:text-slate-400">
+            <p className="text-muted mt-10 text-center italic">
               Nothing to preview yet. Switch to the Write tab to add content.
             </p>
           )}

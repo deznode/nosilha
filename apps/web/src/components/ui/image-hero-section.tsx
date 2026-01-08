@@ -61,7 +61,7 @@ export function ImageHeroSection({
         />
 
         {/* Gradient Overlay for Text Readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-ocean-blue/70 via-ocean-blue/40 to-ocean-blue/20" />
+        <div className="from-ocean-blue/70 via-ocean-blue/40 to-ocean-blue/20 absolute inset-0 bg-gradient-to-t" />
       </div>
 
       {/* Content Overlay */}

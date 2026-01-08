@@ -67,12 +67,12 @@ export function DirectoryQueue({
 
   if (isLoading) {
     return (
-      <div className="overflow-hidden border border-slate-200 bg-white shadow sm:rounded-md dark:border-slate-700 dark:bg-slate-800">
+      <div className="border-hairline bg-surface overflow-hidden border shadow sm:rounded-md">
         <div className="space-y-4 p-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="animate-pulse">
-              <div className="mb-2 h-4 w-1/3 rounded bg-slate-200 dark:bg-slate-700" />
-              <div className="h-3 w-2/3 rounded bg-slate-200 dark:bg-slate-700" />
+              <div className="bg-surface-alt mb-2 h-4 w-1/3 rounded" />
+              <div className="bg-surface-alt h-3 w-2/3 rounded" />
             </div>
           ))}
         </div>
@@ -101,14 +101,14 @@ export function DirectoryQueue({
             onChange={(e) =>
               setFilterStatus(e.target.value as SubmissionStatus | "ALL")
             }
-            className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+            className="border-hairline bg-surface text-muted hover:bg-surface-alt rounded-md border px-3 py-1.5 text-sm font-medium"
           >
             <option value="ALL">All Status</option>
             <option value={SubmissionStatus.PENDING}>Pending</option>
             <option value={SubmissionStatus.APPROVED}>Approved</option>
             <option value={SubmissionStatus.REJECTED}>Rejected</option>
           </select>
-          <button className="flex items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
+          <button className="border-hairline bg-surface text-muted hover:bg-surface-alt flex items-center rounded-md border px-3 py-1.5 text-sm font-medium">
             <Filter className="mr-2 h-4 w-4" /> Newest First
           </button>
         </div>
@@ -118,26 +118,26 @@ export function DirectoryQueue({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search submissions..."
-            className="block w-full rounded-md border border-slate-200 bg-white py-2 pr-3 pl-10 leading-5 placeholder-slate-400 focus:border-[var(--color-ocean-blue)] focus:ring-1 focus:ring-[var(--color-ocean-blue)] focus:outline-none sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:placeholder-slate-500"
+            className="border-hairline bg-surface placeholder-muted block w-full rounded-md border py-2 pr-3 pl-10 leading-5 focus:border-[var(--color-ocean-blue)] focus:ring-1 focus:ring-[var(--color-ocean-blue)] focus:outline-none sm:text-sm"
           />
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <Search className="h-4 w-4 text-slate-400" />
+            <Search className="text-muted h-4 w-4" />
           </div>
         </div>
       </div>
 
       {/* Submissions List */}
-      <div className="overflow-hidden border border-slate-200 bg-white shadow sm:rounded-md dark:border-slate-700 dark:bg-slate-800">
+      <div className="border-hairline bg-surface overflow-hidden border shadow sm:rounded-md">
         {filteredSubmissions.length === 0 ? (
-          <div className="p-8 text-center text-slate-500 dark:text-slate-400">
+          <div className="text-muted p-8 text-center">
             No directory submissions found
           </div>
         ) : (
-          <ul className="divide-y divide-slate-200 dark:divide-slate-700">
+          <ul className="divide-hairline divide-y">
             {filteredSubmissions.map((submission) => (
               <li
                 key={submission.id}
-                className="p-6 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                className="hover:bg-surface-alt p-6 transition-colors"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex gap-4">
@@ -148,11 +148,11 @@ export function DirectoryQueue({
                     </div>
                     <div className="flex-grow">
                       <div className="mb-2 flex items-center gap-3">
-                        <h4 className="font-bold text-slate-900 dark:text-white">
+                        <h4 className="text-body font-bold">
                           {submission.name}
                         </h4>
                         <span
-                          className={`rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500 dark:bg-slate-700 dark:text-slate-400`}
+                          className={`bg-surface-alt text-muted rounded px-2 py-0.5 text-[10px] font-bold`}
                         >
                           {submission.category}
                         </span>
@@ -162,12 +162,12 @@ export function DirectoryQueue({
                           </span>
                         )}
                       </div>
-                      <p className="mt-2 line-clamp-2 max-w-2xl text-sm leading-relaxed text-slate-500 dark:text-slate-400">
+                      <p className="text-muted mt-2 line-clamp-2 max-w-2xl text-sm leading-relaxed">
                         {submission.description}
                       </p>
                       {submission.imageUrl && (
                         <div className="mt-4 flex items-center gap-3">
-                          <div className="relative h-20 w-32 overflow-hidden rounded-lg border border-slate-200 shadow-sm dark:border-slate-700">
+                          <div className="border-hairline relative h-20 w-32 overflow-hidden rounded-lg border shadow-sm">
                             <Image
                               src={submission.imageUrl}
                               alt={submission.name}
@@ -175,12 +175,12 @@ export function DirectoryQueue({
                               className="object-cover"
                             />
                           </div>
-                          <span className="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+                          <span className="text-muted text-[10px] font-bold tracking-widest uppercase">
                             Visual Asset Attached
                           </span>
                         </div>
                       )}
-                      <div className="mt-4 flex flex-wrap items-center gap-3 text-[10px] font-bold tracking-wider text-slate-400 uppercase">
+                      <div className="text-muted mt-4 flex flex-wrap items-center gap-3 text-[10px] font-bold tracking-wider uppercase">
                         <span className="flex items-center gap-1">
                           <MapPin size={12} /> {submission.town}
                         </span>
@@ -193,11 +193,11 @@ export function DirectoryQueue({
                       </div>
                       {submission.tags && submission.tags.length > 0 && (
                         <div className="mt-3 flex flex-wrap items-center gap-2">
-                          <Tag size={12} className="text-slate-400" />
+                          <Tag size={12} className="text-muted" />
                           {submission.tags.slice(0, 4).map((tag) => (
                             <span
                               key={tag}
-                              className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500 dark:bg-slate-700 dark:text-slate-400"
+                              className="bg-surface-alt text-muted rounded-full px-2 py-0.5 text-xs"
                             >
                               #{tag}
                             </span>
@@ -218,7 +218,7 @@ export function DirectoryQueue({
                       {onViewFull && (
                         <button
                           onClick={() => onViewFull(submission)}
-                          className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-bold transition-all hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-700 dark:hover:bg-slate-600"
+                          className="border-hairline bg-surface hover:bg-surface-alt flex items-center gap-1 rounded-lg border px-3 py-1.5 text-[10px] font-bold transition-all"
                         >
                           <ExternalLink size={12} /> View Full
                         </button>

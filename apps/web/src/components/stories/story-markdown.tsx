@@ -73,7 +73,7 @@ export function StoryMarkdown({ content, className = "" }: StoryMarkdownProps) {
           ),
           blockquote: ({ children, ...props }) => (
             <blockquote
-              className="my-6 border-l-4 border-[var(--color-ocean-blue)]/30 bg-slate-50 py-3 pl-4 pr-4 text-slate-600 italic dark:border-slate-600 dark:bg-slate-800/50 dark:text-slate-400"
+              className="my-6 border-l-4 border-[var(--color-ocean-blue)]/30 bg-slate-50 py-3 pr-4 pl-4 text-slate-600 italic dark:border-slate-600 dark:bg-slate-800/50 dark:text-slate-400"
               {...props}
             >
               {children}

@@ -63,7 +63,7 @@ export const MOCK_STORIES: StorySubmission[] = [
     submittedAt: "1 month ago",
     location: "Fajã d'Água",
   },
-  ];
+];
 
 export const STORY_TEMPLATES: Record<
   StoryTemplate,

@@ -56,7 +56,7 @@ export function DirectoryCard({
 
           {/* Category Badge - Top Left */}
           <div className="absolute top-2 left-2">
-            <span className="rounded bg-slate-900/80 px-2 py-1 text-xs text-white backdrop-blur-sm">
+            <span className="rounded bg-basalt-900/80 px-2 py-1 text-xs text-white backdrop-blur-sm">
               {entry.category}
             </span>
           </div>
@@ -78,7 +78,7 @@ export function DirectoryCard({
             </h3>
             {/* Compact rating badge */}
             {entry.rating != null && (
-              <div className="flex shrink-0 items-center rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-xs font-medium text-slate-900 dark:border-slate-600 dark:bg-slate-700 dark:text-white">
+              <div className="border-border-primary bg-background-secondary text-text-primary flex shrink-0 items-center rounded border px-1.5 py-0.5 text-xs font-medium">
                 <Star
                   size={12}
                   className="mr-1 fill-current text-[var(--color-sunny)]"
@@ -107,13 +107,13 @@ export function DirectoryCard({
               {entry.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500 dark:bg-slate-700 dark:text-slate-400"
+                  className="bg-background-tertiary text-text-secondary rounded-full px-2 py-0.5 text-xs"
                 >
                   #{tag}
                 </span>
               ))}
               {entry.tags.length > 3 && (
-                <span className="text-xs text-slate-400 dark:text-slate-500">
+                <span className="text-text-tertiary text-xs">
                   +{entry.tags.length - 3}
                 </span>
               )}

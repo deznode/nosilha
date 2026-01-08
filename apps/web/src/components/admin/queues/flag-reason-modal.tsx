@@ -53,27 +53,27 @@ export function FlagReasonModal({
         <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
           <DialogPanel
             transition
-            className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[enter]:ease-out data-[leave]:duration-200 data-[leave]:ease-in sm:my-8 sm:w-full sm:max-w-md data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 dark:bg-slate-800"
+            className="bg-surface relative transform overflow-hidden rounded-lg text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[enter]:ease-out data-[leave]:duration-200 data-[leave]:ease-in sm:my-8 sm:w-full sm:max-w-md data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-700">
+            <div className="border-hairline flex items-center justify-between border-b px-6 py-4">
               <div className="flex items-center gap-2">
                 <Flag className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-white">
+                <DialogTitle className="text-body text-lg font-semibold">
                   Flag {itemType}
                 </DialogTitle>
               </div>
               <button
                 onClick={handleCancel}
-                className="rounded-full p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
+                className="hover:bg-surface-alt rounded-full p-2 transition-colors"
               >
-                <X size={20} className="text-slate-500 dark:text-slate-400" />
+                <X size={20} className="text-muted" />
               </button>
             </div>
 
             {/* Content */}
             <div className="px-6 py-4">
-              <p className="mb-4 text-sm text-slate-700 dark:text-slate-300">
+              <p className="text-body mb-4 text-sm">
                 You are about to flag{" "}
                 <span className="font-medium">{itemTitle}</span>. Please provide
                 a reason for flagging this item:
@@ -83,7 +83,7 @@ export function FlagReasonModal({
               <div className="mb-4">
                 <label
                   htmlFor="flag-reason"
-                  className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                  className="text-body mb-2 block text-sm font-medium"
                 >
                   Reason <span className="text-red-500">*</span>
                 </label>
@@ -93,20 +93,20 @@ export function FlagReasonModal({
                   onChange={(e) => setReason(e.target.value)}
                   rows={4}
                   placeholder="e.g., Needs verification, Quality concern, Inappropriate content..."
-                  className="block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm placeholder-slate-400 focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500"
+                  className="border-hairline bg-surface text-body placeholder-muted block w-full rounded-md border px-3 py-2 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
                   required
                 />
-                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-muted mt-1 text-xs">
                   This reason will be stored for moderation tracking
                 </p>
               </div>
             </div>
 
             {/* Footer */}
-            <div className="flex justify-end gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-700/30">
+            <div className="border-hairline bg-canvas flex justify-end gap-3 border-t px-6 py-4">
               <button
                 onClick={handleCancel}
-                className="rounded-md border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                className="border-hairline bg-surface text-body hover:bg-surface-alt rounded-md border px-4 py-2 text-sm font-medium"
               >
                 Cancel
               </button>

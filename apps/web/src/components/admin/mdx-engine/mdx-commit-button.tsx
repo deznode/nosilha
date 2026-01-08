@@ -76,7 +76,7 @@ export function MdxCommitButton({ storyId, storyTitle }: MdxCommitButtonProps) {
       <button
         onClick={handleGenerate}
         disabled={isGenerating}
-        className="inline-flex items-center gap-1.5 rounded-md border border-[var(--color-ocean-blue)] bg-white px-3 py-1 text-xs font-medium text-[var(--color-ocean-blue)] transition-colors hover:bg-[var(--color-ocean-blue)] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-800 dark:hover:bg-[var(--color-ocean-blue)]"
+        className="bg-surface inline-flex items-center gap-1.5 rounded-md border border-[var(--color-ocean-blue)] px-3 py-1 text-xs font-medium text-[var(--color-ocean-blue)] transition-colors hover:bg-[var(--color-ocean-blue)] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
         title="Generate MDX for archival"
       >
         {isGenerating ? (

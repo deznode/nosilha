@@ -189,8 +189,8 @@ export default async function HistoryPage({ searchParams }: PageProps) {
                   Brava Island occupies a unique position in Cape Verdean
                   history—a place where geography and circumstance converged to
                   create something extraordinary. Known by the Portuguese name
-                  &quot;Brava&quot; (wild or brave) for its formidable volcanic
-                  terrain, it earned the gentler title{" "}
+                  &quot;Brava&quot; (wild) for its formidable volcanic terrain,
+                  it earned the gentler title{" "}
                   <em className="mx-1">Ilha das Flores</em> (Island of Flowers)
                   for the relative abundance of its mist-fed valleys compared to
                   the more arid neighboring islands.

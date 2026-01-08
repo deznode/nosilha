@@ -74,14 +74,14 @@ export function GalleryQueueItem({
     }
 
     return (
-      <div className="flex h-full w-full items-center justify-center bg-slate-100 dark:bg-slate-700">
+      <div className="bg-surface-alt flex h-full w-full items-center justify-center">
         {getMediaIcon()}
       </div>
     );
   };
 
   return (
-    <div className="flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-4 transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
+    <div className="border-hairline bg-surface flex items-start gap-4 rounded-xl border p-4 transition-shadow hover:shadow-md">
       {/* Thumbnail */}
       <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg">
         {getThumbnail()}
@@ -91,17 +91,17 @@ export function GalleryQueueItem({
       <div className="min-w-0 flex-1">
         <div className="mb-2 flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <h3 className="truncate font-semibold text-slate-900 dark:text-white">
+            <h3 className="text-body truncate font-semibold">
               {item.title || "Untitled"}
             </h3>
             <div className="mt-1 flex flex-wrap items-center gap-2">
               {getSourceBadge()}
               {item.category && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-700 dark:text-slate-400">
+                <span className="bg-surface-alt text-muted inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs">
                   {getMediaIcon()} {item.category}
                 </span>
               )}
-              <span className="text-xs text-slate-500">
+              <span className="text-muted text-xs">
                 {new Date(item.createdAt).toLocaleDateString()}
               </span>
             </div>
@@ -109,13 +109,13 @@ export function GalleryQueueItem({
         </div>
 
         {item.description && (
-          <p className="mb-3 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
+          <p className="text-muted mb-3 line-clamp-2 text-sm">
             {item.description}
           </p>
         )}
 
         {/* Metadata */}
-        <div className="mb-3 space-y-1 text-xs text-slate-500">
+        <div className="text-muted mb-3 space-y-1 text-xs">
           {isUserUploadMedia(item) && (
             <>
               {item.uploadedBy && <div>Uploaded by: {item.uploadedBy}</div>}

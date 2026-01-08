@@ -74,7 +74,7 @@ const STORY_TYPE_CONFIG: Record<
 const DEFAULT_TYPE_CONFIG = {
   icon: BookOpen,
   label: "Story",
-  color: "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300",
+  color: "bg-surface-alt text-body",
 };
 
 const STATUS_CONFIG: Record<
@@ -127,10 +127,10 @@ export function StoryDetailModal({
         <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
           <DialogPanel
             transition
-            className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[enter]:ease-out data-[leave]:duration-200 data-[leave]:ease-in sm:my-8 sm:w-full sm:max-w-2xl data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 dark:bg-slate-800"
+            className="bg-surface relative transform overflow-hidden rounded-lg text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[enter]:ease-out data-[leave]:duration-200 data-[leave]:ease-in sm:my-8 sm:w-full sm:max-w-2xl data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
             {/* Header */}
-            <div className="flex items-start justify-between border-b border-slate-200 p-4 dark:border-slate-700">
+            <div className="border-hairline flex items-start justify-between border-b p-4">
               <div className="flex-1 pr-4">
                 <div className="mb-2 flex items-center gap-2">
                   <span
@@ -145,22 +145,22 @@ export function StoryDetailModal({
                     {statusConfig.label}
                   </span>
                 </div>
-                <DialogTitle className="font-serif text-xl font-bold text-slate-900 dark:text-white">
+                <DialogTitle className="text-body font-serif text-xl font-bold">
                   {story.title}
                 </DialogTitle>
               </div>
               <button
                 onClick={onClose}
-                className="rounded-full p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
+                className="hover:bg-surface-alt rounded-full p-2 transition-colors"
               >
-                <X size={20} className="text-slate-500 dark:text-slate-400" />
+                <X size={20} className="text-muted" />
               </button>
             </div>
 
             {/* Content */}
             <div className="max-h-[60vh] overflow-y-auto p-6">
               {/* Metadata */}
-              <div className="mb-6 flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+              <div className="text-muted mb-6 flex flex-wrap items-center gap-4 text-sm">
                 <div className="flex items-center gap-1.5">
                   <User size={14} />
                   <span>{story.author}</span>
@@ -182,19 +182,17 @@ export function StoryDetailModal({
 
               {/* Admin Notes (if any) */}
               {story.adminNotes && (
-                <div className="mt-6 rounded-lg bg-slate-50 p-4 dark:bg-slate-700/50">
-                  <h4 className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
+                <div className="bg-canvas mt-6 rounded-lg p-4">
+                  <h4 className="text-body mb-2 text-sm font-medium">
                     Admin Notes
                   </h4>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
-                    {story.adminNotes}
-                  </p>
+                  <p className="text-muted text-sm">{story.adminNotes}</p>
                 </div>
               )}
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-3 border-t border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-700/30">
+            <div className="border-hairline bg-canvas flex items-center justify-end gap-3 border-t p-4">
               {isPending ? (
                 <>
                   <button
@@ -221,7 +219,7 @@ export function StoryDetailModal({
               ) : (
                 <button
                   onClick={onClose}
-                  className="rounded-lg bg-slate-200 px-4 py-2 text-slate-700 transition-colors hover:bg-slate-300 dark:bg-slate-600 dark:text-slate-200 dark:hover:bg-slate-500"
+                  className="bg-surface-alt text-body hover:bg-surface-alt/80 rounded-lg px-4 py-2 transition-colors"
                 >
                   Close
                 </button>

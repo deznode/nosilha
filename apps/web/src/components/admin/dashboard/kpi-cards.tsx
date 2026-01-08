@@ -17,19 +17,15 @@ interface KPICardProps {
 
 function KPICard({ label, value, icon, colorClass }: KPICardProps) {
   return (
-    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+    <div className="border-hairline bg-surface overflow-hidden rounded-lg border p-5 shadow-sm">
       <div className="flex items-center">
         <div className={`flex-shrink-0 rounded-md p-3 ${colorClass}`}>
           {icon}
         </div>
         <div className="ml-5 w-0 flex-1">
           <dl>
-            <dt className="truncate text-sm font-medium text-slate-500 dark:text-slate-400">
-              {label}
-            </dt>
-            <dd className="text-2xl font-bold text-slate-900 dark:text-white">
-              {value}
-            </dd>
+            <dt className="text-muted truncate text-sm font-medium">{label}</dt>
+            <dd className="text-body text-2xl font-bold">{value}</dd>
           </dl>
         </div>
       </div>
@@ -39,12 +35,12 @@ function KPICard({ label, value, icon, colorClass }: KPICardProps) {
 
 function KPICardSkeleton() {
   return (
-    <div className="animate-pulse overflow-hidden rounded-lg border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+    <div className="border-hairline bg-surface animate-pulse overflow-hidden rounded-lg border p-5 shadow-sm">
       <div className="flex items-center">
-        <div className="h-12 w-12 flex-shrink-0 rounded-md bg-slate-200 p-3 dark:bg-slate-700" />
+        <div className="bg-surface-alt h-12 w-12 flex-shrink-0 rounded-md p-3" />
         <div className="ml-5 w-0 flex-1">
-          <div className="mb-2 h-4 w-24 rounded bg-slate-200 dark:bg-slate-700" />
-          <div className="h-8 w-12 rounded bg-slate-200 dark:bg-slate-700" />
+          <div className="bg-surface-alt mb-2 h-4 w-24 rounded" />
+          <div className="bg-surface-alt h-8 w-12 rounded" />
         </div>
       </div>
     </div>

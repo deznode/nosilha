@@ -116,7 +116,7 @@ export function DirectoryCategoryPageContent({
   return (
     <div className="bg-background-secondary min-h-screen font-sans">
       {/* Header */}
-      <div className="border-b border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <div className="border-border-primary bg-background-primary border-b shadow-sm">
         <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <PageHeader title={pageTitle} subtitle={subtitle} />
@@ -200,8 +200,8 @@ export function DirectoryCategoryPageContent({
             animate={{ opacity: 1 }}
             className="mt-16 text-center"
           >
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700">
-              <Search className="h-8 w-8 text-slate-500 dark:text-slate-400" />
+            <div className="bg-background-tertiary mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+              <Search className="text-text-secondary h-8 w-8" />
             </div>
             <p className="text-text-secondary text-xl">
               {entries.length === 0

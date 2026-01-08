@@ -141,16 +141,16 @@ export function StoriesQueue({
 
   if (isLoading) {
     return (
-      <div className="overflow-hidden border border-slate-200 bg-white shadow sm:rounded-md dark:border-slate-700 dark:bg-slate-800">
+      <div className="border-hairline bg-surface overflow-hidden border shadow sm:rounded-md">
         <div className="space-y-4 p-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="animate-pulse">
-              <div className="mb-2 h-4 w-1/3 rounded bg-slate-200 dark:bg-slate-700" />
+              <div className="bg-surface-alt mb-2 h-4 w-1/3 rounded" />
               <div className="flex gap-4">
-                <div className="h-16 w-24 rounded bg-slate-200 dark:bg-slate-700" />
+                <div className="bg-surface-alt h-16 w-24 rounded" />
                 <div className="flex-1">
-                  <div className="mb-2 h-3 w-full rounded bg-slate-200 dark:bg-slate-700" />
-                  <div className="h-3 w-2/3 rounded bg-slate-200 dark:bg-slate-700" />
+                  <div className="bg-surface-alt mb-2 h-3 w-full rounded" />
+                  <div className="bg-surface-alt h-3 w-2/3 rounded" />
                 </div>
               </div>
             </div>
@@ -170,7 +170,7 @@ export function StoriesQueue({
             onChange={(e) =>
               setFilterStatus(e.target.value as SubmissionStatus | "ALL")
             }
-            className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+            className="border-hairline bg-surface text-muted hover:bg-surface-alt rounded-md border px-3 py-1.5 text-sm font-medium"
           >
             <option value="ALL">All Status</option>
             <option value={SubmissionStatus.PENDING}>Pending</option>
@@ -178,7 +178,7 @@ export function StoriesQueue({
             <option value={SubmissionStatus.REJECTED}>Rejected</option>
             <option value={SubmissionStatus.FLAGGED}>Flagged</option>
           </select>
-          <button className="flex items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
+          <button className="border-hairline bg-surface text-muted hover:bg-surface-alt flex items-center rounded-md border px-3 py-1.5 text-sm font-medium">
             <Filter className="mr-2 h-4 w-4" /> Newest First
           </button>
         </div>
@@ -188,22 +188,20 @@ export function StoriesQueue({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search stories..."
-            className="block w-full rounded-md border border-slate-200 bg-white py-2 pr-3 pl-10 leading-5 placeholder-slate-400 focus:border-[var(--color-ocean-blue)] focus:ring-1 focus:ring-[var(--color-ocean-blue)] focus:outline-none sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:placeholder-slate-500"
+            className="border-hairline bg-surface placeholder-muted block w-full rounded-md border py-2 pr-3 pl-10 leading-5 focus:border-[var(--color-ocean-blue)] focus:ring-1 focus:ring-[var(--color-ocean-blue)] focus:outline-none sm:text-sm"
           />
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <Search className="h-4 w-4 text-slate-400" />
+            <Search className="text-muted h-4 w-4" />
           </div>
         </div>
       </div>
 
       {/* Stories List */}
-      <div className="overflow-hidden border border-slate-200 bg-white shadow sm:rounded-md dark:border-slate-700 dark:bg-slate-800">
+      <div className="border-hairline bg-surface overflow-hidden border shadow sm:rounded-md">
         {filteredStories.length === 0 ? (
-          <div className="p-8 text-center text-slate-500 dark:text-slate-400">
-            No stories found
-          </div>
+          <div className="text-muted p-8 text-center">No stories found</div>
         ) : (
-          <ul className="divide-y divide-slate-200 dark:divide-slate-700">
+          <ul className="divide-hairline divide-y">
             {filteredStories.map((story) => (
               <QueueItem
                 key={story.id}

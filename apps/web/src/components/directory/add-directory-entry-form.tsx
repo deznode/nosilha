@@ -43,7 +43,11 @@ interface CategoryOption {
   id: DirectoryCategory;
   label: string;
   icon: React.ReactNode;
-  colorClass: string;
+  // Explicit Tailwind classes to ensure JIT compilation
+  selectedBorderClass: string;
+  selectedBgClass: string;
+  selectedRingClass: string;
+  iconBgClass: string;
   description: string;
 }
 
@@ -52,35 +56,50 @@ const CATEGORIES: CategoryOption[] = [
     id: "Restaurant",
     label: "Dining",
     icon: <Utensils size={24} />,
-    colorClass: "bougainvillea",
+    selectedBorderClass: "border-bougainvillea-pink",
+    selectedBgClass: "bg-bougainvillea-pink/5",
+    selectedRingClass: "ring-bougainvillea-pink/10",
+    iconBgClass: "bg-bougainvillea-pink",
     description: "Local eateries & cafes",
   },
   {
     id: "Hotel",
     label: "Lodging",
     icon: <Hotel size={24} />,
-    colorClass: "ocean-blue",
+    selectedBorderClass: "border-ocean-blue",
+    selectedBgClass: "bg-ocean-blue/5",
+    selectedRingClass: "ring-ocean-blue/10",
+    iconBgClass: "bg-ocean-blue",
     description: "Hotels & guesthouses",
   },
   {
     id: "Beach",
     label: "Beach",
     icon: <Umbrella size={24} />,
-    colorClass: "sunny-yellow",
+    selectedBorderClass: "border-sobrado-ochre",
+    selectedBgClass: "bg-sobrado-ochre/5",
+    selectedRingClass: "ring-sobrado-ochre/10",
+    iconBgClass: "bg-sobrado-ochre",
     description: "Coastal destinations",
   },
   {
     id: "Heritage",
     label: "Heritage",
     icon: <Castle size={24} />,
-    colorClass: "valley-green",
+    selectedBorderClass: "border-valley-green",
+    selectedBgClass: "bg-valley-green/5",
+    selectedRingClass: "ring-valley-green/10",
+    iconBgClass: "bg-valley-green",
     description: "Historical sites & monuments",
   },
   {
     id: "Nature",
     label: "Nature",
     icon: <TreePine size={24} />,
-    colorClass: "valley-green",
+    selectedBorderClass: "border-valley-green",
+    selectedBgClass: "bg-valley-green/5",
+    selectedRingClass: "ring-valley-green/10",
+    iconBgClass: "bg-valley-green",
     description: "Hiking trails & natural pools",
   },
 ];
@@ -222,20 +241,18 @@ export function AddDirectoryEntryForm() {
 
   if (step === 3) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6 dark:bg-slate-900">
-        <div className="w-full max-w-md rounded-[2rem] border border-slate-200 bg-white p-12 text-center shadow-2xl dark:border-slate-700 dark:bg-slate-800">
+      <div className="bg-canvas flex min-h-screen items-center justify-center p-6">
+        <div className="border-hairline bg-surface w-full max-w-md rounded-[2rem] border p-12 text-center shadow-2xl">
           <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-[var(--color-valley-green)]/10 shadow-inner">
             <Check className="h-12 w-12 text-[var(--color-valley-green)]" />
           </div>
-          <h2 className="mb-4 font-serif text-3xl font-bold text-slate-900 dark:text-white">
+          <h2 className="text-body mb-4 font-serif text-3xl font-bold">
             Entry Submitted
           </h2>
-          <p className="mb-10 leading-relaxed text-slate-500 dark:text-slate-400">
+          <p className="text-muted mb-10 leading-relaxed">
             Thank you for helping us document Brava. Our team will review{" "}
-            <strong className="text-slate-900 dark:text-white">
-              {formData.name}
-            </strong>{" "}
-            to ensure all information is accurate.
+            <strong className="text-body">{formData.name}</strong> to ensure all
+            information is accurate.
           </p>
           <button
             onClick={handleBack}
@@ -249,17 +266,17 @@ export function AddDirectoryEntryForm() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-12 dark:bg-slate-900">
+    <div className="bg-canvas min-h-screen px-4 py-12">
       <div className="mx-auto max-w-4xl">
         <button
           onClick={handleBack}
-          className="group mb-10 flex items-center font-medium text-slate-500 transition-colors hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+          className="group text-muted hover:text-body mb-10 flex items-center font-medium transition-colors"
         >
           <ArrowLeft className="mr-2 h-4 w-4 transition-transform group-hover:-translate-x-1" />{" "}
           Cancel & Return
         </button>
 
-        <div className="overflow-hidden rounded-[2.5rem] border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-800">
+        <div className="border-hairline bg-surface overflow-hidden rounded-[2.5rem] border shadow-2xl">
           {/* Header Branding */}
           <div className="relative overflow-hidden bg-[var(--color-ocean-blue)] px-12 py-12 text-white">
             <div className="absolute top-0 right-0 -mt-40 -mr-40 h-80 w-80 rounded-full bg-white/5 blur-3xl"></div>
@@ -270,7 +287,7 @@ export function AddDirectoryEntryForm() {
               <h1 className="font-serif text-3xl font-bold md:text-4xl">
                 Documenting Brava&apos;s Landscape
               </h1>
-              <p className="mt-3 max-w-lg text-sm text-slate-200/80">
+              <p className="mt-3 max-w-lg text-sm text-mist-200/80">
                 Every cafe, fountain, and historical house tells a story of our
                 island&apos;s growth and resilience.
               </p>
@@ -280,20 +297,20 @@ export function AddDirectoryEntryForm() {
           <form onSubmit={handleSubmit} className="space-y-12 p-12">
             {/* Identity Section */}
             <div className="space-y-8">
-              <div className="flex items-center gap-3 border-b border-slate-100 pb-3 text-xs font-bold tracking-[0.2em] text-[var(--color-ocean-blue)] uppercase dark:border-slate-700">
+              <div className="border-hairline flex items-center gap-3 border-b pb-3 text-xs font-bold tracking-[0.2em] text-[var(--color-ocean-blue)] uppercase">
                 <Info size={16} /> 1. Essential Details
               </div>
 
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                 <div className="md:col-span-2">
-                  <label className="mb-2 block text-sm font-bold text-slate-900 dark:text-white">
+                  <label className="text-body mb-2 block text-sm font-bold">
                     Location Name
                   </label>
                   <div className="relative">
                     <input
                       required
                       type="text"
-                      className="w-full rounded-2xl border border-slate-200 px-5 py-4 text-lg font-medium transition-all outline-none focus:border-[var(--color-ocean-blue)] focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="border-hairline bg-surface text-body w-full rounded-2xl border px-5 py-4 text-lg font-medium transition-all outline-none focus:border-[var(--color-ocean-blue)] focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
                       placeholder="e.g., Pensão Sodade"
                       value={formData.name}
                       onChange={(e) =>
@@ -305,7 +322,7 @@ export function AddDirectoryEntryForm() {
                         type="button"
                         onClick={handleAIAutoFill}
                         disabled={isGenerating}
-                        className="absolute top-3 right-3 flex items-center gap-2 rounded-xl bg-[var(--color-bougainvillea)] px-5 py-2 text-xs font-bold text-white shadow-lg transition-all hover:bg-pink-700 active:scale-95 disabled:opacity-50"
+                        className="absolute top-3 right-3 flex items-center gap-2 rounded-xl bg-[var(--color-bougainvillea-pink)] px-5 py-2 text-xs font-bold text-white shadow-lg transition-all hover:bg-pink-700 active:scale-95 disabled:opacity-50"
                       >
                         <Sparkles
                           size={14}
@@ -318,7 +335,7 @@ export function AddDirectoryEntryForm() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="mb-4 block text-sm font-bold text-slate-900 dark:text-white">
+                  <label className="text-body mb-4 block text-sm font-bold">
                     Category
                   </label>
                   <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -331,15 +348,15 @@ export function AddDirectoryEntryForm() {
                         }
                         className={`flex flex-col items-center gap-3 rounded-2xl border p-5 transition-all ${
                           formData.category === cat.id
-                            ? `border-[var(--color-${cat.colorClass})] bg-[var(--color-${cat.colorClass})]/5 ring-4 ring-[var(--color-${cat.colorClass})]/10 scale-[1.02] shadow-lg`
-                            : "border-slate-200 text-slate-500 hover:border-slate-300 hover:bg-slate-50/50 dark:border-slate-600 dark:hover:border-slate-500"
+                            ? `${cat.selectedBorderClass} ${cat.selectedBgClass} ring-4 ${cat.selectedRingClass} scale-[1.02] shadow-lg`
+                            : "border-hairline text-muted hover:border-edge hover:bg-surface-alt"
                         }`}
                       >
                         <div
                           className={`rounded-2xl p-3 transition-all ${
                             formData.category === cat.id
-                              ? `bg-[var(--color-${cat.colorClass})] text-white`
-                              : "bg-slate-100 text-slate-400 dark:bg-slate-700"
+                              ? `${cat.iconBgClass} text-white`
+                              : "bg-surface-alt text-muted"
                           }`}
                         >
                           {cat.icon}
@@ -360,7 +377,7 @@ export function AddDirectoryEntryForm() {
 
               <div>
                 <div className="mb-2 flex items-center justify-between">
-                  <label className="text-sm font-bold text-slate-900 dark:text-white">
+                  <label className="text-body text-sm font-bold">
                     Town / Village
                   </label>
                   <button
@@ -382,7 +399,7 @@ export function AddDirectoryEntryForm() {
                     <input
                       required
                       type="text"
-                      className="w-full rounded-2xl border border-slate-200 py-4 pr-4 pl-10 transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="border-hairline bg-surface text-body w-full rounded-2xl border py-4 pr-4 pl-10 transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
                       placeholder="Enter town name..."
                       value={formData.customTown}
                       onChange={(e) =>
@@ -397,7 +414,7 @@ export function AddDirectoryEntryForm() {
                 ) : (
                   <div className="relative">
                     <select
-                      className="w-full cursor-pointer appearance-none rounded-2xl border border-slate-200 bg-white px-5 py-4 transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="border-hairline bg-surface text-body w-full cursor-pointer appearance-none rounded-2xl border px-5 py-4 transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
                       value={formData.town}
                       onChange={(e) =>
                         setFormData({ ...formData, town: e.target.value })
@@ -409,7 +426,7 @@ export function AddDirectoryEntryForm() {
                         </option>
                       ))}
                     </select>
-                    <div className="pointer-events-none absolute top-1/2 right-5 -translate-y-1/2 text-slate-400">
+                    <div className="text-muted pointer-events-none absolute top-1/2 right-5 -translate-y-1/2">
                       <ChevronDown className="h-4 w-4" />
                     </div>
                   </div>
@@ -419,19 +436,19 @@ export function AddDirectoryEntryForm() {
 
             {/* Cultural Context */}
             <div className="space-y-8">
-              <div className="flex items-center gap-3 border-b border-slate-100 pb-3 text-xs font-bold tracking-[0.2em] text-[var(--color-ocean-blue)] uppercase dark:border-slate-700">
+              <div className="border-hairline flex items-center gap-3 border-b pb-3 text-xs font-bold tracking-[0.2em] text-[var(--color-ocean-blue)] uppercase">
                 <History size={16} /> 2. Context & Story
               </div>
 
               <div className="space-y-6">
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-slate-900 dark:text-white">
+                  <label className="text-body mb-2 block text-sm font-bold">
                     Description
                   </label>
                   <textarea
                     required
                     rows={5}
-                    className="w-full rounded-2xl border border-slate-200 px-5 py-4 leading-relaxed transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                    className="border-hairline bg-surface text-body w-full rounded-2xl border px-5 py-4 leading-relaxed transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
                     placeholder="Describe the atmosphere, significance, or history of this location..."
                     value={formData.description}
                     onChange={(e) =>
@@ -442,13 +459,13 @@ export function AddDirectoryEntryForm() {
 
                 <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                   <div>
-                    <label className="mb-2 block text-sm font-bold text-slate-900 dark:text-white">
+                    <label className="text-body mb-2 block text-sm font-bold">
                       Discovery Tags
                     </label>
                     <div className="relative">
                       <input
                         type="text"
-                        className="w-full rounded-2xl border border-slate-200 py-3 pr-4 pl-10 text-sm transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                        className="border-hairline bg-surface text-body w-full rounded-2xl border py-3 pr-4 pl-10 text-sm transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
                         placeholder="ocean-view, historical, hidden-gem"
                         value={formData.tags}
                         onChange={(e) =>
@@ -457,14 +474,14 @@ export function AddDirectoryEntryForm() {
                       />
                       <Tag
                         size={16}
-                        className="absolute top-3.5 left-3.5 text-slate-300"
+                        className="text-muted absolute top-3.5 left-3.5"
                       />
                     </div>
                   </div>
 
                   {formData.category === "Restaurant" && (
-                    <div className="flex items-center gap-4 rounded-2xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-700/50">
-                      <span className="text-xs font-bold text-slate-400">
+                    <div className="border-hairline bg-surface flex items-center gap-4 rounded-2xl border p-4">
+                      <span className="text-muted text-xs font-bold">
                         Price:
                       </span>
                       <div className="flex gap-1">
@@ -478,7 +495,7 @@ export function AddDirectoryEntryForm() {
                             className={`w-10 rounded-lg border py-1.5 text-xs font-bold transition-all ${
                               formData.priceLevel === p
                                 ? "border-[var(--color-valley-green)] bg-[var(--color-valley-green)] text-white"
-                                : "border-slate-200 bg-white text-slate-400 dark:border-slate-600 dark:bg-slate-600"
+                                : "border-hairline bg-surface text-muted"
                             }`}
                           >
                             {p}
@@ -493,12 +510,12 @@ export function AddDirectoryEntryForm() {
 
             {/* Media & Coordinates */}
             <div className="space-y-8">
-              <div className="flex items-center gap-3 border-b border-slate-100 pb-3 text-xs font-bold tracking-[0.2em] text-[var(--color-ocean-blue)] uppercase dark:border-slate-700">
+              <div className="border-hairline flex items-center gap-3 border-b pb-3 text-xs font-bold tracking-[0.2em] text-[var(--color-ocean-blue)] uppercase">
                 <ImageIcon size={16} /> 3. Visuals & Location
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-bold text-slate-900 dark:text-white">
+                <label className="text-body mb-2 block text-sm font-bold">
                   Primary Photo
                 </label>
                 <ImageUploader
@@ -518,13 +535,13 @@ export function AddDirectoryEntryForm() {
 
               <div className="grid grid-cols-2 gap-8">
                 <div>
-                  <label className="mb-2 block text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+                  <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
                     Latitude
                   </label>
                   <input
                     type="number"
                     step="any"
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                    className="border-hairline bg-surface text-body w-full rounded-2xl border px-4 py-3 text-sm transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
                     placeholder="14.8687"
                     value={formData.latitude}
                     onChange={(e) =>
@@ -533,13 +550,13 @@ export function AddDirectoryEntryForm() {
                   />
                 </div>
                 <div>
-                  <label className="mb-2 block text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+                  <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
                     Longitude
                   </label>
                   <input
                     type="number"
                     step="any"
-                    className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                    className="border-hairline bg-surface text-body w-full rounded-2xl border px-4 py-3 text-sm transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
                     placeholder="-24.7011"
                     value={formData.longitude}
                     onChange={(e) =>
@@ -552,20 +569,20 @@ export function AddDirectoryEntryForm() {
 
             {/* Submitter Information */}
             <div className="space-y-8">
-              <div className="flex items-center gap-3 border-b border-slate-100 pb-3 text-xs font-bold tracking-[0.2em] text-[var(--color-ocean-blue)] uppercase dark:border-slate-700">
+              <div className="border-hairline flex items-center gap-3 border-b pb-3 text-xs font-bold tracking-[0.2em] text-[var(--color-ocean-blue)] uppercase">
                 <User size={16} /> 4. Your Information
               </div>
 
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-slate-900 dark:text-white">
+                  <label className="text-body mb-2 block text-sm font-bold">
                     Your Name <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <input
                       required
                       type="text"
-                      className="w-full rounded-2xl border border-slate-200 py-3 pr-4 pl-10 transition-all outline-none focus:border-[var(--color-ocean-blue)] focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="border-hairline bg-surface text-body w-full rounded-2xl border py-3 pr-4 pl-10 transition-all outline-none focus:border-[var(--color-ocean-blue)] focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
                       placeholder="Enter your name"
                       value={formData.submitterName}
                       onChange={(e) =>
@@ -577,20 +594,19 @@ export function AddDirectoryEntryForm() {
                     />
                     <User
                       size={18}
-                      className="absolute top-3.5 left-3.5 text-slate-300"
+                      className="text-muted absolute top-3.5 left-3.5"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-bold text-slate-900 dark:text-white">
-                    Your Email{" "}
-                    <span className="text-slate-400">(optional)</span>
+                  <label className="text-body mb-2 block text-sm font-bold">
+                    Your Email <span className="text-muted">(optional)</span>
                   </label>
                   <div className="relative">
                     <input
                       type="email"
-                      className="w-full rounded-2xl border border-slate-200 py-3 pr-4 pl-10 transition-all outline-none focus:border-[var(--color-ocean-blue)] focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="border-hairline bg-surface text-body w-full rounded-2xl border py-3 pr-4 pl-10 transition-all outline-none focus:border-[var(--color-ocean-blue)] focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
                       placeholder="your@email.com"
                       value={formData.submitterEmail}
                       onChange={(e) =>
@@ -602,10 +618,10 @@ export function AddDirectoryEntryForm() {
                     />
                     <Mail
                       size={18}
-                      className="absolute top-3.5 left-3.5 text-slate-300"
+                      className="text-muted absolute top-3.5 left-3.5"
                     />
                   </div>
-                  <p className="mt-1 text-xs text-slate-400">
+                  <p className="text-muted mt-1 text-xs">
                     We may contact you if we have questions about your
                     submission.
                   </p>
@@ -615,22 +631,20 @@ export function AddDirectoryEntryForm() {
 
             {/* Error Display */}
             {submitError && (
-              <div className="flex items-start gap-4 rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-900/20">
-                <AlertCircle className="shrink-0 text-red-500" size={20} />
-                <p className="text-sm text-red-700 dark:text-red-400">
-                  {submitError}
-                </p>
+              <div className="border-accent-error/20 bg-accent-error/10 flex items-start gap-4 rounded-2xl border p-4">
+                <AlertCircle className="text-accent-error shrink-0" size={20} />
+                <p className="text-accent-error text-sm">{submitError}</p>
               </div>
             )}
 
             {/* Submission Actions */}
-            <div className="flex flex-col items-center justify-between gap-6 border-t border-slate-100 pt-10 md:flex-row dark:border-slate-700">
-              <div className="flex max-w-md items-start gap-4 rounded-2xl border border-[var(--color-sunny-yellow)]/20 bg-[var(--color-sunny-yellow)]/10 p-4">
+            <div className="border-hairline flex flex-col items-center justify-between gap-6 border-t pt-10 md:flex-row">
+              <div className="flex max-w-md items-start gap-4 rounded-2xl border border-[var(--color-sobrado-ochre)]/20 bg-[var(--color-sobrado-ochre)]/10 p-4">
                 <AlertCircle
-                  className="shrink-0 text-[var(--color-sunny-yellow)]"
+                  className="shrink-0 text-[var(--color-sobrado-ochre)]"
                   size={20}
                 />
-                <p className="text-[10px] leading-relaxed text-slate-600 dark:text-slate-300">
+                <p className="text-muted text-[10px] leading-relaxed">
                   <strong>Contributor Note:</strong> Your submission will be
                   reviewed by our team before being published. This ensures all
                   information is accurate.
@@ -640,14 +654,14 @@ export function AddDirectoryEntryForm() {
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="flex-1 px-10 py-4 text-sm font-bold text-slate-500 transition-colors hover:text-slate-900 md:flex-none dark:text-slate-400 dark:hover:text-white"
+                  className="text-muted hover:text-body flex-1 px-10 py-4 text-sm font-bold transition-colors md:flex-none"
                 >
                   Discard
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex flex-1 items-center justify-center gap-3 rounded-2xl bg-slate-900 px-12 py-4 font-bold text-white shadow-xl transition-all hover:bg-[var(--color-ocean-blue)] hover:shadow-[var(--color-ocean-blue)]/20 active:scale-95 disabled:opacity-50 md:flex-none dark:bg-slate-700"
+                  className="bg-ocean-blue hover:bg-ocean-blue/90 flex flex-1 items-center justify-center gap-3 rounded-2xl px-12 py-4 font-bold text-white shadow-xl transition-all active:scale-95 disabled:opacity-50 md:flex-none"
                 >
                   <Send size={18} />{" "}
                   {isSubmitting ? "Submitting..." : "Submit Entry"}

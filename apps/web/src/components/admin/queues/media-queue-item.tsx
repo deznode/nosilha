@@ -19,8 +19,7 @@ interface MediaQueueItemProps {
 
 function StatusBadge({ status }: { status: MediaStatus }) {
   const styles = {
-    PENDING:
-      "bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300",
+    PENDING: "bg-surface-alt text-body",
     PROCESSING:
       "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
     PENDING_REVIEW:
@@ -65,7 +64,7 @@ const getSeverityColor = (severity: number): string => {
     case 3:
       return "text-red-600 dark:text-red-400";
     default:
-      return "text-slate-500 dark:text-slate-400";
+      return "text-muted";
   }
 };
 
@@ -94,7 +93,7 @@ export function MediaQueueItem({
   };
 
   return (
-    <li className="block transition duration-150 ease-in-out hover:bg-slate-50 dark:hover:bg-slate-700/50">
+    <li className="hover:bg-surface-alt block transition duration-150 ease-in-out">
       <div className="px-4 py-4 sm:px-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -114,7 +113,7 @@ export function MediaQueueItem({
             <button
               onClick={isImage && onPreview ? onPreview : undefined}
               disabled={!isImage || !onPreview}
-              className="group relative h-20 w-28 flex-shrink-0 overflow-hidden rounded border border-slate-200 bg-slate-100 disabled:cursor-default dark:border-slate-600 dark:bg-slate-700"
+              className="group border-hairline bg-surface-alt relative h-20 w-28 flex-shrink-0 overflow-hidden rounded border disabled:cursor-default"
             >
               <img
                 src={media.thumbnailUrl}
@@ -128,25 +127,25 @@ export function MediaQueueItem({
               )}
             </button>
           ) : (
-            <div className="flex h-20 w-28 flex-shrink-0 items-center justify-center rounded border border-slate-200 bg-slate-100 dark:border-slate-600 dark:bg-slate-700">
-              <ImageIcon className="h-8 w-8 text-slate-400" />
+            <div className="border-hairline bg-surface-alt flex h-20 w-28 flex-shrink-0 items-center justify-center rounded border">
+              <ImageIcon className="text-muted h-8 w-8" />
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-muted text-xs">
               Type: <span className="font-medium">{media.contentType}</span>
             </p>
             {media.uploadedBy && (
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-muted mt-1 text-xs">
                 Uploaded by:{" "}
                 <span className="font-medium">{media.uploadedBy}</span>
               </p>
             )}
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-muted mt-1 text-xs">
               Date: {formatDate(media.createdAt)}
             </p>
             {media.severity > 0 && getSeverityLabel(media.severity) && (
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              <p className="text-muted mt-1 text-xs">
                 Severity:{" "}
                 <span
                   className={`font-medium ${getSeverityColor(media.severity)}`}

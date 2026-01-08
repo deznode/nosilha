@@ -56,7 +56,7 @@ export function FilterToolbar({
   const showCategoryFilter = categories && selectedCategory && onCategoryChange;
 
   return (
-    <div className="sticky top-16 z-40 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/95">
+    <div className="border-border-primary bg-background-primary/95 sticky top-16 z-40 border-b shadow-sm backdrop-blur-sm">
       <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
           {/* Search */}
@@ -66,9 +66,9 @@ export function FilterToolbar({
               placeholder="Search places..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full rounded-md border border-slate-200 bg-slate-50 py-2 pr-4 pl-10 text-sm text-slate-900 placeholder-slate-500 focus:border-[var(--color-ocean-blue)] focus:ring-2 focus:ring-[var(--color-ocean-blue)] dark:border-slate-600 dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
+              className="border-border-primary bg-background-secondary text-text-primary placeholder-text-tertiary focus:border-ocean-blue focus:ring-ocean-blue w-full rounded-md border py-2 pr-4 pl-10 text-sm focus:ring-2"
             />
-            <Search className="absolute top-2.5 left-3 h-4 w-4 text-slate-500 dark:text-slate-400" />
+            <Search className="text-text-secondary absolute top-2.5 left-3 h-4 w-4" />
           </div>
 
           {/* Filters */}
@@ -80,7 +80,8 @@ export function FilterToolbar({
                 onChange={(e) =>
                   onCategoryChange(e.target.value as DirectoryCategory)
                 }
-                className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)] dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                aria-label="Filter by category"
+                className="border-border-primary bg-background-primary text-text-primary focus:border-ocean-blue focus:ring-ocean-blue rounded-md border px-3 py-2 text-sm"
               >
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>
@@ -94,7 +95,8 @@ export function FilterToolbar({
             <select
               value={selectedTown}
               onChange={(e) => onTownChange(e.target.value)}
-              className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)] dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              aria-label="Filter by town"
+              className="border-border-primary bg-background-primary text-text-primary focus:border-ocean-blue focus:ring-ocean-blue rounded-md border px-3 py-2 text-sm"
             >
               {towns.map((t) => (
                 <option key={t} value={t}>
@@ -107,13 +109,14 @@ export function FilterToolbar({
             <select
               value={sortBy}
               onChange={(e) => onSortChange(e.target.value as SortBy)}
-              className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 focus:border-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)] dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+              aria-label="Sort results by"
+              className="border-border-primary bg-background-primary text-text-primary focus:border-ocean-blue focus:ring-ocean-blue rounded-md border px-3 py-2 text-sm"
             >
               <option value="rating">Top Rated</option>
               <option value="name">A-Z</option>
             </select>
 
-            <div className="mx-2 hidden h-6 w-px bg-slate-200 md:block dark:bg-slate-600" />
+            <div className="bg-border-primary mx-2 hidden h-6 w-px md:block" />
 
             <ViewToggle
               viewMode={viewMode}
@@ -123,14 +126,14 @@ export function FilterToolbar({
         </div>
 
         {/* Results count and map toggle */}
-        <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 dark:border-slate-700">
-          <span className="text-sm text-slate-500 dark:text-slate-400">
+        <div className="border-border-secondary mt-4 flex items-center justify-between border-t pt-3">
+          <span className="text-text-secondary text-sm">
             Showing {resultCount} places
           </span>
           {onMapClick && (
             <button
               onClick={onMapClick}
-              className="flex items-center gap-1 text-sm font-medium text-[var(--color-ocean-blue)] hover:underline"
+              className="text-ocean-blue flex items-center gap-1 text-sm font-medium hover:underline"
             >
               <Map size={16} /> View on Map
             </button>

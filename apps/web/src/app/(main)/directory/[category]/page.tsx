@@ -99,7 +99,7 @@ export default async function DirectoryCategoryPage({
   // Convert URL slug (e.g., "hotels") to API category format (e.g., "Hotel")
   // For "all", keep as-is since the API handles it specially
   const apiCategory =
-    category === "all" ? category : getCategoryFromSlug(category) ?? category;
+    category === "all" ? category : (getCategoryFromSlug(category) ?? category);
   const { items: entries } = await getEntriesByCategory(apiCategory);
   return <DirectoryCategoryPageContent category={category} entries={entries} />;
 }
