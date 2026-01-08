@@ -13,10 +13,10 @@ import type {
 } from "@/components/content";
 
 /**
- * Hero section configuration for the video header
+ * Hero section configuration for the image header
  */
 export interface Hero {
-  videoSrc: string;
+  imageSrc: string;
   title: string;
   subtitle: string;
 }

@@ -6,7 +6,7 @@ import Link from "next/link";
 // UI Components
 import { PageHeader } from "@/components/ui/page-header";
 import { BackToTopButton } from "@/components/ui/back-to-top-button";
-import { VideoHeroSection } from "@/components/ui/video-hero-section";
+import { ImageHeroSection } from "@/components/ui/image-hero-section";
 import { CitationSection } from "@/components/ui/citation-section";
 import { ImageWithCourtesy } from "@/components/ui/image-with-courtesy";
 import { PrintPageWrapper } from "@/components/ui/print-page-wrapper";
@@ -122,13 +122,12 @@ export default async function HistoryPage({ searchParams }: PageProps) {
     <PrintPageWrapper>
       {/* Outer wrapper: -mt-16 pulls content up behind fixed header for transparent navbar effect */}
       <div className="relative -mt-16 font-sans">
-        {/* Full-Screen Video Hero - extends behind transparent header */}
-        <VideoHeroSection
-          videoSrc={hero.videoSrc}
+        {/* Image Hero - extends behind transparent header */}
+        <ImageHeroSection
+          imageSrc={hero.imageSrc}
+          imageAlt="Historical timeline of Brava Island from discovery to present day"
           title={hero.title}
           subtitle={hero.subtitle}
-          overlayContent={[]}
-          className="min-h-screen"
         />
 
         {/* Content section with background - starts below hero */}
@@ -146,6 +145,8 @@ export default async function HistoryPage({ searchParams }: PageProps) {
               contentTitle="History & Heritage"
               contentUrl="https://nosilha.com/history"
               contentType="Page"
+              showOnScroll={true}
+              scrollThreshold={250}
               reactions={[
                 {
                   id: "LOVE",

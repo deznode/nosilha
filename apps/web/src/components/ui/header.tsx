@@ -25,6 +25,7 @@ import {
   ChevronDown,
   BookOpen,
   Users,
+  Shield,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -228,6 +229,22 @@ export function Header({
                     );
                   })}
                 </PopoverGroup>
+
+                {/* Admin Link - Only visible to admins */}
+                {user?.role === "ADMIN" && (
+                  <Link
+                    href="/admin"
+                    className={clsx(
+                      "hidden h-16 items-center gap-1.5 border-b-2 px-3 text-sm font-medium transition-colors md:inline-flex",
+                      pathname.startsWith("/admin")
+                        ? "border-ocean-blue text-ocean-blue"
+                        : "text-text-secondary hover:border-border-primary hover:text-ocean-blue border-transparent"
+                    )}
+                  >
+                    <Shield className="h-4 w-4" />
+                    Admin
+                  </Link>
+                )}
               </div>
 
               {/* Right Section: Utilities */}
@@ -438,6 +455,23 @@ export function Header({
                   </DisclosureButton>
                 );
               })}
+
+              {/* Admin Link - Only visible to admins */}
+              {user?.role === "ADMIN" && (
+                <DisclosureButton
+                  as={Link}
+                  href="/admin"
+                  className={clsx(
+                    "flex items-center gap-2 border-l-4 py-2 pr-4 pl-3 text-base font-medium",
+                    pathname.startsWith("/admin")
+                      ? "border-ocean-blue bg-ocean-blue/5 text-ocean-blue"
+                      : "text-text-secondary hover:border-border-primary hover:bg-background-secondary hover:text-text-primary border-transparent"
+                  )}
+                >
+                  <Shield className="h-5 w-5" />
+                  Admin
+                </DisclosureButton>
+              )}
             </div>
 
             {/* Mobile Actions / Language / Auth */}

@@ -86,7 +86,7 @@ export const contributorSchema = z.object({
   name: z.string(),
   role: z.enum(["Contributor", "Moderator", "Admin"]),
   points: z.number(),
-  avatar: z.string().optional(),
+  avatar: z.string().nullish(), // Backend returns null, not undefined
 });
 
 export const contactMessageSchema = z.object({
