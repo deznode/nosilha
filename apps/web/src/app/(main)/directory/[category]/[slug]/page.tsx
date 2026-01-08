@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import { getEntryBySlug } from "@/lib/api";
 import { generateDirectoryEntryMetadata, siteConfig } from "@/lib/metadata";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { DirectoryEntryDetailPageContent } from "@/components/pages/directory-entry-detail-page-content";
+import { getCategorySlug, getCategoryFromSlug } from "@/lib/directory-utils";
 
 // Enable ISR with 30 minute revalidation for individual entries
 export const revalidate = 1800;
 
 interface DetailPageProps {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ category: string; slug: string }>;
 }
 
 // Generate dynamic metadata for directory entries
@@ -36,11 +37,20 @@ export async function generateMetadata({
 export default async function DirectoryEntryDetailPage({
   params,
 }: DetailPageProps) {
-  const { slug } = await params;
+  const { category, slug } = await params;
   const entry = await getEntryBySlug(slug);
 
   if (!entry) {
     notFound();
+  }
+
+  // Validate that the URL category matches the entry's actual category
+  const expectedCategorySlug = getCategorySlug(entry.category);
+  const urlCategory = getCategoryFromSlug(category);
+
+  // If the category in the URL doesn't match the entry's category, redirect
+  if (urlCategory !== entry.category) {
+    redirect(`/directory/${expectedCategorySlug}/${slug}`);
   }
 
   return <DirectoryEntryDetailPageContent entry={entry} />;

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
 import { BookmarkButton } from "./bookmark-button";
+import { getEntryUrl } from "@/lib/directory-utils";
 import type { DirectoryEntry } from "@/types/directory";
 
 interface ListViewCardProps {
@@ -17,7 +18,7 @@ export function ListViewCard({
   showBookmark = true,
 }: ListViewCardProps) {
   return (
-    <Link href={`/directory/entry/${entry.slug}`} className="group block">
+    <Link href={getEntryUrl(entry.slug, entry.category)} className="group block">
       <div className="flex h-48 flex-row overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
         {/* Image */}
         <div className="relative w-1/3 overflow-hidden">

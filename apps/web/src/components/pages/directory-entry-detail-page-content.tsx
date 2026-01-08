@@ -10,6 +10,7 @@ import { ImageGallery } from "@/components/ui/image-gallery";
 import { RelatedEntries } from "@/components/ui/related-entries";
 import StarRating from "@/components/ui/start-rating";
 import { getHotelDetails, getRestaurantDetails } from "@/lib/api-validation";
+import { getEntryUrl } from "@/lib/directory-utils";
 import { siteConfig } from "@/lib/metadata";
 import type { DirectoryEntry } from "@/types/directory";
 
@@ -82,7 +83,7 @@ export function DirectoryEntryDetailPageContent({
   entry,
 }: DirectoryEntryDetailPageContentProps) {
   const canonicalUrl = new URL(
-    `/directory/entry/${entry.slug}`,
+    getEntryUrl(entry.slug, entry.category),
     siteConfig.url
   ).toString();
 

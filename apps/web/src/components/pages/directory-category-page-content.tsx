@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, Plus } from "lucide-react";
 import { DirectoryCard } from "@/components/ui/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
-import { formatCategoryTitle } from "@/lib/directory-utils";
+import {
+  getCategoryFromSlug,
+  getCategoryDisplayName,
+} from "@/lib/directory-utils";
 import type { DirectoryEntry } from "@/types/directory";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -43,11 +46,13 @@ export function DirectoryCategoryPageContent({
   const router = useRouter();
 
   // Determine initial category from URL category prop
+  // Use getCategoryFromSlug to properly convert URL slugs (e.g., "hotels" → "Hotel")
   const initialCategory: DirectoryCategory =
     category === "all"
       ? "All"
-      : ((category.charAt(0).toUpperCase() +
-          category.slice(1)) as DirectoryCategory);
+      : ((getCategoryFromSlug(category) ??
+          category.charAt(0).toUpperCase() +
+            category.slice(1)) as DirectoryCategory);
 
   const [selectedCategory, setSelectedCategory] =
     useState<DirectoryCategory>(initialCategory);
@@ -56,11 +61,18 @@ export function DirectoryCategoryPageContent({
   const [sortBy, setSortBy] = useState<SortBy>("rating");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
-  // Page title based on selected category
+  // Track client-side mount to fix Framer Motion SSR hydration issue
+  // Without this, animations get stuck at opacity: 0 on initial page load
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  // Page title based on selected category (uses friendly display names like "Hotels", "Heritage Sites")
   const pageTitle =
     selectedCategory === "All"
       ? "Directory"
-      : formatCategoryTitle(selectedCategory.toLowerCase());
+      : getCategoryDisplayName(selectedCategory);
 
   // Extract unique towns for filter
   const towns = useMemo(() => {
@@ -142,6 +154,13 @@ export function DirectoryCategoryPageContent({
       <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 lg:px-8">
         {filteredEntries.length > 0 ? (
           <motion.div
+            // Key forces re-mount when filters change to re-trigger stagger animation
+            // Also handles SSR hydration by changing from "ssr" to filter-based key
+            key={
+              hasMounted
+                ? `${selectedCategory}-${selectedTown}-${searchQuery}`
+                : "ssr"
+            }
             initial="hidden"
             animate="show"
             variants={{

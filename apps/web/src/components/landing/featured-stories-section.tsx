@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { FeaturedStoryCard } from "./featured-story-card";
+import { getEntryUrl } from "@/lib/directory-utils";
 import type { FeaturedItem } from "@/types/landing";
 import type { DirectoryEntry } from "@/types/directory";
 
@@ -73,7 +74,7 @@ function directoryEntryToFeaturedItem(entry: DirectoryEntry): FeaturedItem {
     category: entry.category,
     image: entry.imageUrl || getFallbackImage(entry.category),
     description: entry.description || "",
-    link: `/directory/entry/${entry.slug}`,
+    link: getEntryUrl(entry.slug, entry.category),
   };
 }
 

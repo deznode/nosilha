@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { DirectoryEntry } from "@/types/directory";
 import { BookmarkButton } from "@/components/directory/bookmark-button";
+import { getEntryUrl } from "@/lib/directory-utils";
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
@@ -32,7 +33,7 @@ export function DirectoryCard({
 }: DirectoryCardProps) {
   return (
     <Link
-      href={`/directory/entry/${entry.slug}`}
+      href={getEntryUrl(entry.slug, entry.category)}
       aria-label={`View details for ${entry.name}`}
       className="group block h-full"
     >

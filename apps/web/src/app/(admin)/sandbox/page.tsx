@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import type { DirectoryEntry } from "@/types/directory";
 import { getEntriesByCategory } from "@/lib/api";
+import { getEntryUrl } from "@/lib/directory-utils";
 import { DirectoryCard } from "@/components/ui/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { NosilhaLogo } from "@/components/ui/logo";
@@ -68,8 +69,8 @@ export default function TestPage() {
   const showcaseEntry = entries[0];
   const showcaseContentId = showcaseEntry?.id ?? "demo-content-id";
   const showcaseUrl = showcaseEntry
-    ? `https://nosilha.com/directory/entry/${showcaseEntry.slug}`
-    : "https://nosilha.com/directory/entry/demo-entry";
+    ? `https://nosilha.com${getEntryUrl(showcaseEntry.slug, showcaseEntry.category)}`
+    : "https://nosilha.com/directory/heritage/demo-entry";
   const showcaseTitle = showcaseEntry?.name ?? "Eugénio Tavares Monument";
   const showcaseDescription =
     showcaseEntry?.description ??

@@ -33,6 +33,11 @@ const nextConfig: NextConfig = {
         destination: "/directory/heritage",
         permanent: true, // 301 redirect for SEO after Landmark → Heritage split
       },
+      {
+        source: "/directory/entry/:slug",
+        destination: "/api/redirect/entry/:slug",
+        permanent: false, // Use temporary redirect to API handler
+      },
     ];
   },
 };

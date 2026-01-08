@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { DirectoryEntry } from "@/types/directory";
 import { getRelatedContent } from "@/lib/api";
+import { getEntryUrl } from "@/lib/directory-utils";
 
 interface RelatedEntriesProps {
   /**
@@ -200,7 +201,7 @@ function RelatedEntryCard({ entry }: { entry: DirectoryEntry }) {
 
   return (
     <Link
-      href={`/directory/entry/${entry.slug}`}
+      href={getEntryUrl(entry.slug, entry.category)}
       aria-label={`View details for ${entry.name}`}
       className="block h-full"
     >

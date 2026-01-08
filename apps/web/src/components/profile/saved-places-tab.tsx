@@ -3,6 +3,7 @@
 import { MapPin, Trash2, Bookmark, AlertCircle, Star } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { getEntryUrl } from "@/lib/directory-utils";
 import { useBookmarks, useToggleBookmark } from "@/hooks/queries/use-bookmarks";
 
 function SavedPlaceSkeleton() {
@@ -85,7 +86,7 @@ export function SavedPlacesTab() {
           className="group flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4 transition-colors hover:border-[var(--color-ocean-blue)] dark:border-slate-700 dark:bg-slate-800"
         >
           <Link
-            href={`/directory/entry/${bookmark.entry.slug}`}
+            href={getEntryUrl(bookmark.entry.slug, bookmark.entry.category)}
             className="flex flex-1 items-center gap-4"
           >
             {bookmark.entry.thumbnailUrl ? (

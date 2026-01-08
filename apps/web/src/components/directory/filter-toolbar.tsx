@@ -2,6 +2,7 @@
 
 import { Search, Map } from "lucide-react";
 import { ViewToggle, type ViewMode } from "./view-toggle";
+import { getCategoryDisplayName } from "@/lib/directory-utils";
 
 export type SortBy = "rating" | "name";
 export type DirectoryCategory =
@@ -34,14 +35,7 @@ interface FilterToolbarProps {
   onMapClick?: () => void;
 }
 
-const CATEGORY_LABELS: Record<DirectoryCategory, string> = {
-  All: "All Categories",
-  Restaurant: "Restaurants",
-  Hotel: "Hotels",
-  Beach: "Beaches",
-  Heritage: "Heritage Sites",
-  Nature: "Nature & Hiking",
-};
+// Category display names are now centralized in directory-utils.ts
 
 export function FilterToolbar({
   searchTerm,
@@ -90,7 +84,7 @@ export function FilterToolbar({
               >
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>
-                    {CATEGORY_LABELS[cat]}
+                    {getCategoryDisplayName(cat)}
                   </option>
                 ))}
               </select>

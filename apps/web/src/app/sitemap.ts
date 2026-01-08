@@ -1,6 +1,7 @@
 import { MetadataRoute } from "next";
 import { getEntriesByCategory } from "@/lib/api";
 import { siteConfig } from "@/lib/metadata";
+import { getEntryUrl } from "@/lib/directory-utils";
 import { pages } from "@/.velite";
 
 /**
@@ -114,7 +115,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     // Generate sitemap entries for each directory item
     const dynamicPages = allEntries.map((entry) => ({
-      url: `${baseUrl}/directory/entry/${entry.slug}`,
+      url: `${baseUrl}${getEntryUrl(entry.slug, entry.category)}`,
       lastModified: entry.updatedAt || currentDate,
       changeFrequency: "weekly" as const,
       priority: getDynamicPagePriority(entry.category, entry.rating),
