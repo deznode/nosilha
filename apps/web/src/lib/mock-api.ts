@@ -1084,9 +1084,10 @@ export class MockApiClient implements ApiClient {
   async updateStoryStatus(
     id: string,
     action: StoryModerationAction,
-    notes?: string
+    notes?: string,
+    slug?: string
   ): Promise<void> {
-    console.log(`Mock API: Updating story ${id} with action: ${action}`, notes);
+    console.log(`Mock API: Updating story ${id} with action: ${action}`, notes, slug);
     await this.simulateDelay(300);
 
     // Map action to status
@@ -1094,7 +1095,7 @@ export class MockApiClient implements ApiClient {
       APPROVE: "APPROVED" as SubmissionStatus,
       REJECT: "REJECTED" as SubmissionStatus,
       FLAG: "FLAGGED" as SubmissionStatus,
-      PUBLISH: "APPROVED" as SubmissionStatus,
+      PUBLISH: "PUBLISHED" as SubmissionStatus,
       UNPUBLISH: "PENDING" as SubmissionStatus,
     };
 
@@ -1107,6 +1108,9 @@ export class MockApiClient implements ApiClient {
     story.status = statusMap[action];
     if (notes) {
       story.adminNotes = notes;
+    }
+    if (slug && action === "PUBLISH") {
+      story.slug = slug;
     }
     story.reviewedBy = "admin";
     story.reviewedAt = new Date().toISOString();

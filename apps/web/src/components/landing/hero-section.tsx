@@ -23,7 +23,7 @@ interface HeroSectionProps {
 
 const defaultQuickLinks: QuickAccessLink[] = [
   { label: "Eugénio Tavares", href: "/people/eugenio-tavares", emoji: "📖" },
-  { label: "Fajã d'Agua", href: "/towns/faja-dagua", emoji: "🌊" },
+  { label: "Fajã d'Agua", href: "/directory/nature", emoji: "🌊" },
   { label: "Hotels", href: "/directory/hotels", emoji: "🏨" },
 ];
 

@@ -1178,7 +1178,6 @@ export class BackendApiClient implements ApiClient {
       QUICK: StoryType.QUICK,
       FULL: StoryType.FULL,
       GUIDED: StoryType.GUIDED,
-      PHOTO: StoryType.PHOTO,
     };
     return typeMap[backendType] || StoryType.FULL;
   }
@@ -1225,11 +1224,13 @@ export class BackendApiClient implements ApiClient {
    * @param id Story submission ID
    * @param action Moderation action (APPROVE, REJECT, PUBLISH, UNPUBLISH)
    * @param notes Optional admin notes
+   * @param slug Required when action is PUBLISH - the URL-friendly publication slug
    */
   async updateStoryStatus(
     id: string,
     action: StoryModerationAction,
-    notes?: string
+    notes?: string,
+    slug?: string
   ): Promise<void> {
     const endpoint = `${env.apiUrl}/api/v1/admin/stories/${id}`;
 
@@ -1241,6 +1242,7 @@ export class BackendApiClient implements ApiClient {
       body: JSON.stringify({
         action,
         adminNotes: notes,
+        publicationSlug: slug,
       }),
     });
 

@@ -28,7 +28,6 @@ export const WORD_LIMITS: Record<StoryType, number> = {
   [StoryType.QUICK]: 500,
   [StoryType.FULL]: 5000,
   [StoryType.GUIDED]: 5000,
-  [StoryType.PHOTO]: 200,
 };
 
 const WORDS_PER_MINUTE = 200;

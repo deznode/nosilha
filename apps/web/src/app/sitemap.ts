@@ -1,5 +1,4 @@
 import { MetadataRoute } from "next";
-import type { DirectoryEntry } from "@/types/directory";
 import { getEntriesByCategory } from "@/lib/api";
 import { siteConfig } from "@/lib/metadata";
 import { pages } from "@/.velite";
@@ -66,12 +65,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/towns`,
-      lastModified: currentDate,
-      changeFrequency: "monthly" as const,
-      priority: 0.7,
-    },
-    {
       url: `${baseUrl}/history`,
       lastModified: currentDate,
       changeFrequency: "monthly" as const,
@@ -127,9 +120,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: getDynamicPagePriority(entry.category, entry.rating),
     }));
 
-    // Add town-specific pages if we have location data
-    const townPages = getTownPages(allEntries, baseUrl, currentDate);
-
     // Generate sitemap entries for MDX pages (multilingual)
     const mdxPages: MetadataRoute.Sitemap = pages.map((page) => ({
       url: `${baseUrl}/${page.slug}?lang=${page.language}`,
@@ -138,7 +128,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }));
 
-    return [...staticPages, ...dynamicPages, ...townPages, ...mdxPages];
+    return [...staticPages, ...dynamicPages, ...mdxPages];
   } catch (error) {
     console.error("Error generating sitemap:", error);
     // Return static pages if dynamic content fails
@@ -177,22 +167,4 @@ function getDynamicPagePriority(
   }
 
   return Math.round(basePriority * 10) / 10; // Round to 1 decimal place
-}
-
-/**
- * Generate town-specific pages if we have unique town data
- */
-function getTownPages(
-  entries: DirectoryEntry[],
-  baseUrl: string,
-  currentDate: string
-): MetadataRoute.Sitemap {
-  const uniqueTowns = [...new Set(entries.map((entry) => entry.town))];
-
-  return uniqueTowns.map((town) => ({
-    url: `${baseUrl}/towns/${encodeURIComponent(town.toLowerCase().replace(/\s+/g, "-"))}`,
-    lastModified: currentDate,
-    changeFrequency: "monthly" as const,
-    priority: 0.6,
-  }));
 }

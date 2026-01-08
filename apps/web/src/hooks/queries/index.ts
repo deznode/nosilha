@@ -14,7 +14,6 @@ export * from "./useDirectoryEntry";
 export * from "./useMediaMetadata";
 
 // User hooks
-export * from "./useUserProfile";
 export * from "./use-contributions";
 export * from "./use-bookmarks";
 export * from "./use-update-profile";

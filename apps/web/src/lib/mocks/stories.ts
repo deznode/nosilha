@@ -63,21 +63,7 @@ export const MOCK_STORIES: StorySubmission[] = [
     submittedAt: "1 month ago",
     location: "Fajã d'Água",
   },
-  {
-    id: "105",
-    slug: "view-from-the-road-to-furna",
-    title: "View from the road to Furna",
-    content:
-      "Stopped the car just to take this picture. The clouds were so low today.",
-    author: "Pedro Nunes",
-    authorId: "u5",
-    type: StoryType.PHOTO,
-    status: SubmissionStatus.PENDING,
-    submittedAt: "3 hours ago",
-    location: "Furna Road",
-    imageUrl: "https://picsum.photos/id/49/800/600",
-  },
-];
+  ];
 
 export const STORY_TEMPLATES: Record<
   StoryTemplate,

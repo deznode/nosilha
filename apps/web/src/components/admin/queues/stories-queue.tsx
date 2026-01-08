@@ -4,8 +4,19 @@ import { useState } from "react";
 import { Search, Filter } from "lucide-react";
 import { QueueItem } from "./queue-item";
 import { MdxPreviewModal } from "@/components/admin/mdx-preview-modal";
-import { generateMdx } from "@/lib/api";
+import { generateMdx, updateStoryStatus } from "@/lib/api";
 import { archiveStoryToMDX } from "@/app/actions/archive-story";
+
+/**
+ * Generate a URL-friendly slug from a story title
+ */
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 100);
+}
 import { useToast } from "@/hooks/use-toast";
 import type { StorySubmission } from "@/types/story";
 import { SubmissionStatus } from "@/types/story";
@@ -34,7 +45,29 @@ export function StoriesQueue({
   const [mdxContent, setMdxContent] = useState<string>("");
   const [isGeneratingMdx, setIsGeneratingMdx] = useState(false);
   const [isCommitting, setIsCommitting] = useState(false);
+  const [publishingStoryId, setPublishingStoryId] = useState<string | null>(
+    null
+  );
   const toast = useToast();
+
+  const handlePublish = async (story: StorySubmission) => {
+    setPublishingStoryId(story.id);
+
+    try {
+      const slug = generateSlug(story.title);
+      await updateStoryStatus(story.id, "PUBLISH", undefined, slug);
+      toast.showSuccess(`Story "${story.title}" published successfully!`);
+      // Trigger parent component to refresh the list
+      window.location.reload();
+    } catch (error) {
+      console.error("Failed to publish story:", error);
+      toast.showError(
+        error instanceof Error ? error.message : "Failed to publish story"
+      );
+    } finally {
+      setPublishingStoryId(null);
+    }
+  };
 
   const handleArchive = async (story: StorySubmission) => {
     setIsGeneratingMdx(true);
@@ -186,9 +219,7 @@ export function StoriesQueue({
                 imageUrl={story.imageUrl}
                 archivedAt={story.archivedAt}
                 commitUrl={story.commitUrl}
-                onApprove={() =>
-                  onStatusChange?.(story.id, SubmissionStatus.APPROVED)
-                }
+                onApprove={() => handlePublish(story)}
                 onReject={() =>
                   onStatusChange?.(story.id, SubmissionStatus.REJECTED)
                 }

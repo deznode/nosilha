@@ -9,7 +9,6 @@ import {
   User,
   BookOpen,
   Clock,
-  Camera,
 } from "lucide-react";
 import type { StorySubmission } from "@/types/story";
 import { StoryType } from "@/types/story";
@@ -40,19 +39,27 @@ const STORY_TYPE_CONFIG: Record<
     color:
       "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
   },
-  [StoryType.PHOTO]: {
-    icon: Camera,
-    label: "Photo Moment",
-    color:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-  },
 };
+
+/**
+ * Map API story type string to StoryType enum value.
+ * API returns keys like "FULL", enum values are labels like "Full Story".
+ */
+function getStoryTypeFromApi(apiType: string): StoryType {
+  const typeMap: Record<string, StoryType> = {
+    QUICK: StoryType.QUICK,
+    FULL: StoryType.FULL,
+    GUIDED: StoryType.GUIDED,
+  };
+  return typeMap[apiType] || StoryType.FULL;
+}
 
 export function StoryDetailContent({
   story,
   relatedStories = [],
 }: StoryDetailContentProps) {
-  const typeConfig = STORY_TYPE_CONFIG[story.type];
+  const storyType = getStoryTypeFromApi(story.type);
+  const typeConfig = STORY_TYPE_CONFIG[storyType];
   const TypeIcon = typeConfig.icon;
 
   return (
@@ -106,19 +113,6 @@ export function StoryDetailContent({
 
       {/* Content */}
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
-        {/* Photo Story Image */}
-        {story.type === StoryType.PHOTO && story.imageUrl && (
-          <div className="relative mb-8 aspect-video w-full overflow-hidden rounded-lg">
-            <Image
-              src={story.imageUrl}
-              alt={story.title}
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
-        )}
-
         {/* Story Content */}
         <div className="prose prose-lg dark:prose-invert max-w-none">
           {story.content.split("\n\n").map((paragraph, index) => (

@@ -4,7 +4,6 @@ import {
   CheckCircle,
   XCircle,
   FileText,
-  Image as ImageIcon,
   MapPin,
   Flag,
   Github,
@@ -130,11 +129,7 @@ export function QueueItem(props: QueueItemProps) {
       <div className="px-4 py-4 sm:px-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {props.storyType === StoryType.PHOTO ? (
-              <ImageIcon className="h-4 w-4 text-[var(--color-valley-green)]" />
-            ) : (
-              <FileText className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-            )}
+            <FileText className="h-4 w-4 text-slate-500 dark:text-slate-400" />
             <p className="truncate text-sm font-medium text-[var(--color-bougainvillea)]">
               {props.title}
             </p>

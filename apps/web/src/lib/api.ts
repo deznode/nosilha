@@ -370,13 +370,15 @@ export async function getStoriesForAdmin(
  * @param id Story submission ID
  * @param action Moderation action (APPROVE, REJECT, PUBLISH, UNPUBLISH)
  * @param notes Optional admin notes
+ * @param slug Required when action is PUBLISH - the URL-friendly publication slug
  */
 export async function updateStoryStatus(
   id: string,
   action: StoryModerationAction,
-  notes?: string
+  notes?: string,
+  slug?: string
 ): Promise<void> {
-  return apiClient.updateStoryStatus(id, action, notes);
+  return apiClient.updateStoryStatus(id, action, notes, slug);
 }
 
 /**
@@ -511,7 +513,6 @@ export async function submitContactMessage(
  * Gets contact messages for admin.
  * Requires ADMIN role authentication.
  * Automatically uses the configured API implementation (backend or mock).
- * Note: Backend endpoint not yet implemented - uses mock data.
  * @param status Filter by message status (optional)
  * @param page Page number (default: 0)
  * @param size Page size (default: 20)
@@ -529,7 +530,6 @@ export async function getContactMessages(
  * Updates contact message status.
  * Requires ADMIN role authentication.
  * Automatically uses the configured API implementation (backend or mock).
- * Note: Backend endpoint not yet implemented - uses mock data.
  * @param id Contact message ID
  * @param status New status
  * @returns A promise that resolves to updated contact message
@@ -545,7 +545,6 @@ export async function updateContactMessageStatus(
  * Deletes a contact message.
  * Requires ADMIN role authentication.
  * Automatically uses the configured API implementation (backend or mock).
- * Note: Backend endpoint not yet implemented - uses mock data.
  * @param id Contact message ID
  */
 export async function deleteContactMessage(id: string): Promise<void> {
@@ -560,7 +559,6 @@ export async function deleteContactMessage(id: string): Promise<void> {
  * Gets directory submissions for admin.
  * Requires ADMIN role authentication.
  * Automatically uses the configured API implementation (backend or mock).
- * Note: Backend endpoint not yet implemented - uses mock data.
  * @param status Filter by submission status (optional)
  * @param page Page number (default: 0)
  * @param size Page size (default: 20)
@@ -578,7 +576,6 @@ export async function getDirectorySubmissions(
  * Updates directory submission status.
  * Requires ADMIN role authentication.
  * Automatically uses the configured API implementation (backend or mock).
- * Note: Backend endpoint not yet implemented - uses mock data.
  * @param id Directory submission ID
  * @param status New submission status
  * @param notes Optional admin notes

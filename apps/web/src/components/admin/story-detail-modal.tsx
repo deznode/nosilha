@@ -16,7 +16,6 @@ import {
   Check,
   XCircle,
   Clock,
-  Camera,
   BookOpen,
 } from "lucide-react";
 import type { StorySubmission } from "@/types/story";
@@ -30,7 +29,7 @@ interface StoryDetailModalProps {
   onReject: (id: string) => void;
 }
 
-// Config keyed by backend enum names (QUICK, FULL, GUIDED, PHOTO)
+// Config keyed by backend enum names (QUICK, FULL, GUIDED)
 const STORY_TYPE_CONFIG: Record<
   string,
   { icon: typeof BookOpen; label: string; color: string }
@@ -51,12 +50,6 @@ const STORY_TYPE_CONFIG: Record<
     color:
       "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
   },
-  PHOTO: {
-    icon: Camera,
-    label: "Photo Moment",
-    color:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-  },
   // Also support frontend enum values for backwards compatibility
   [StoryType.QUICK]: {
     icon: Clock,
@@ -73,12 +66,6 @@ const STORY_TYPE_CONFIG: Record<
     label: "Guided Template",
     color:
       "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
-  },
-  [StoryType.PHOTO]: {
-    icon: Camera,
-    label: "Photo Moment",
-    color:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
   },
 };
 
@@ -188,20 +175,6 @@ export function StoryDetailModal({
                   <span>{story.submittedAt}</span>
                 </div>
               </div>
-
-              {/* Photo for photo stories - handle both frontend enum and backend string */}
-              {(story.type === StoryType.PHOTO ||
-                (story.type as string) === "PHOTO") &&
-                story.imageUrl && (
-                  <div className="relative mb-6 aspect-video w-full overflow-hidden rounded-lg">
-                    <Image
-                      src={story.imageUrl}
-                      alt={story.title}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                )}
 
               {/* Story Content */}
               <div className="prose prose-slate dark:prose-invert max-w-none">

@@ -8,7 +8,6 @@ export enum StoryType {
   QUICK = "Quick Memory",
   FULL = "Full Story",
   GUIDED = "Guided Template",
-  PHOTO = "Photo Moment",
 }
 
 export enum SubmissionStatus {

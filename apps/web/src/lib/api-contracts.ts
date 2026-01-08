@@ -193,11 +193,13 @@ export interface ApiClient {
 
   /**
    * Update story moderation status (approve, reject, publish, unpublish)
+   * @param slug Required when action is PUBLISH - the URL-friendly publication slug
    */
   updateStoryStatus(
     id: string,
     action: StoryModerationAction,
-    notes?: string
+    notes?: string,
+    slug?: string
   ): Promise<void>;
 
   /**

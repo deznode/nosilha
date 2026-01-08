@@ -28,7 +28,7 @@ const defaultStories: FeaturedItem[] = [
       "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Faj%C3%A3_de_%C3%81gua_02.jpg/1280px-Faj%C3%A3_de_%C3%81gua_02.jpg",
     description:
       "A stunning natural bay known for its crystal clear pools and lush mango trees.",
-    link: "/towns/faja-dagua",
+    link: "/directory/nature",
   },
   {
     id: "3",
@@ -38,7 +38,7 @@ const defaultStories: FeaturedItem[] = [
       "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&q=80&w=800",
     description:
       "Discover the architectural beauty of Nova Sintra's historic gardens.",
-    link: "/towns/nova-sintra",
+    link: "/directory/heritage",
   },
 ];
 

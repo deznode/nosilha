@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Clock, Book, FileText } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Clock, Book, FileText, LogIn } from "lucide-react";
 import {
   TypeSelector,
   TemplateSelector,
@@ -21,6 +22,7 @@ import {
   useHasDraft,
 } from "@/stores/storyDraftStore";
 import { useAutoSaveDraft } from "@/hooks/useAutoSaveDraft";
+import { useAuth } from "@/components/providers/auth-provider";
 
 interface FormData {
   title: string;
@@ -29,6 +31,7 @@ interface FormData {
 }
 
 export default function StorySubmissionPage() {
+  const { user, loading: authLoading } = useAuth();
   const [submissionType, setSubmissionType] = useState<StoryType | null>(null);
   const [selectedTemplate, setSelectedTemplate] =
     useState<StoryTemplate | null>(null);
@@ -39,6 +42,7 @@ export default function StorySubmissionPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Draft store
   const draft = useDraft();
@@ -46,13 +50,58 @@ export default function StorySubmissionPage() {
   const hasDraft = useHasDraft();
   const { clearDraft } = useStoryDraftStore();
 
-  // Auto-save draft as user types (debounced)
+  // Auto-save draft as user types (debounced) - must be before conditional returns
   useAutoSaveDraft({
     title: formData.title,
     content: formData.content,
     storyType: submissionType ?? undefined,
-    enabled: !!submissionType,
+    enabled: !!submissionType && !!user, // Only auto-save if authenticated
   });
+
+  // Show login prompt if not authenticated
+  if (!authLoading && !user) {
+    return (
+      <div className="min-h-screen bg-slate-50 px-4 py-16 dark:bg-slate-900">
+        <div className="mx-auto max-w-md text-center">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-ocean-blue)]/10">
+            <LogIn className="h-8 w-8 text-[var(--color-ocean-blue)]" />
+          </div>
+          <h1 className="mb-3 font-serif text-2xl font-bold text-slate-900 dark:text-white">
+            Sign in to Share Your Story
+          </h1>
+          <p className="mb-8 text-slate-600 dark:text-slate-400">
+            To preserve your community&apos;s memories and ensure proper
+            attribution, please sign in before submitting your story.
+          </p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <Link
+              href="/login?returnUrl=/contribute/story"
+              className="inline-flex items-center justify-center rounded-md bg-[var(--color-ocean-blue)] px-6 py-3 font-medium text-white hover:bg-blue-800"
+            >
+              <LogIn className="mr-2 h-4 w-4" />
+              Sign In
+            </Link>
+            <Link
+              href="/signup?returnUrl=/contribute/story"
+              className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+            >
+              Create Account
+            </Link>
+          </div>
+          <p className="mt-6 text-sm text-slate-500 dark:text-slate-400">
+            Want to contribute without an account?{" "}
+            <Link
+              href="/contribute/directory"
+              className="text-[var(--color-ocean-blue)] hover:underline"
+            >
+              Add a place to the directory
+            </Link>{" "}
+            instead.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Default template for full stories
   const defaultTemplate = `## The Beginning
@@ -100,12 +149,10 @@ Why is this memory important to you? How does it make you feel today?`;
     if (!submissionType) return;
 
     setIsSubmitting(true);
+    setSubmitError(null);
     try {
       // Map StoryType enum to backend API format
-      const storyTypeMap: Record<
-        Exclude<StoryType, StoryType.PHOTO>,
-        StorySubmitRequest["storyType"]
-      > = {
+      const storyTypeMap: Record<StoryType, StorySubmitRequest["storyType"]> = {
         [StoryType.QUICK]: "QUICK",
         [StoryType.FULL]: "FULL",
         [StoryType.GUIDED]: "GUIDED",
@@ -114,8 +161,7 @@ Why is this memory important to you? How does it make you feel today?`;
       const response = await submitStory({
         title: formData.title,
         content: formData.content,
-        storyType:
-          storyTypeMap[submissionType as Exclude<StoryType, StoryType.PHOTO>],
+        storyType: storyTypeMap[submissionType],
         templateType: formData.templateType,
       });
 
@@ -125,6 +171,9 @@ Why is this memory important to you? How does it make you feel today?`;
       }
     } catch (error) {
       console.error("Failed to submit story:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to submit story";
+      setSubmitError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -132,12 +181,14 @@ Why is this memory important to you? How does it make you feel today?`;
 
   const handleReset = () => {
     setSubmissionType(null);
+    setSelectedTemplate(null);
     setFormData({
       title: "",
       content: "",
     });
     setAgreedToTerms(false);
     setSubmitted(false);
+    setSubmitError(null);
   };
 
   // Show confirmation screen
@@ -149,7 +200,7 @@ Why is this memory important to you? How does it make you feel today?`;
     );
   }
 
-  // Show type selector (PHOTO option redirects to /contribute/directory)
+  // Show type selector
   if (!submissionType) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -188,7 +239,10 @@ Why is this memory important to you? How does it make you feel today?`;
     <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-8 dark:bg-slate-900">
       <div className="mx-auto max-w-2xl">
         <button
-          onClick={() => setSubmissionType(null)}
+          onClick={() => {
+            setSubmissionType(null);
+            setSelectedTemplate(null);
+          }}
           className="mb-6 flex items-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
         >
           <ArrowLeft className="mr-2 h-4 w-4" /> Change Type
@@ -298,6 +352,11 @@ Why is this memory important to you? How does it make you feel today?`;
                 <p className="mb-3 text-sm text-red-600 dark:text-red-400">
                   Your story exceeds the word limit. Please shorten it to{" "}
                   {limit.toLocaleString()} words or less before submitting.
+                </p>
+              )}
+              {submitError && (
+                <p className="mb-3 text-sm text-red-600 dark:text-red-400">
+                  {submitError}
                 </p>
               )}
               <div className="flex justify-end">

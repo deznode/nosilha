@@ -11,11 +11,13 @@ import {
   Check,
   Link as LinkIcon,
   AlertCircle,
+  LogIn,
 } from "lucide-react";
 import type { MediaType } from "@/types/media";
 import type { ExternalPlatform } from "@/types/gallery";
 import { useR2Upload } from "@/hooks/useR2Upload";
 import { BackendApiClient } from "@/lib/backend-api";
+import { useAuth } from "@/components/providers/auth-provider";
 
 interface FormData {
   title: string;
@@ -55,6 +57,7 @@ function parseVideoUrl(
 }
 
 export default function MediaContributionPage() {
+  const { user, loading: authLoading } = useAuth();
   const [submitted, setSubmitted] = useState(false);
   const [videoSubmitting, setVideoSubmitting] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
@@ -69,6 +72,9 @@ export default function MediaContributionPage() {
   // Store the actual file for R2 upload
   const selectedFileRef = useRef<File | null>(null);
   const apiClient = useRef(new BackendApiClient());
+
+  // Check if video mode requires auth
+  const videoRequiresAuth = formData.type === "VIDEO" && !authLoading && !user;
 
   // Use the R2 upload hook for actual file uploads
   const {
@@ -297,6 +303,42 @@ export default function MediaContributionPage() {
                       onChange={handleFileUpload}
                     />
                   </div>
+                </div>
+              ) : videoRequiresAuth ? (
+                /* Video auth prompt */
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center dark:border-amber-800 dark:bg-amber-900/20">
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-800/30">
+                    <LogIn className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <h3 className="mb-2 font-medium text-slate-900 dark:text-white">
+                    Sign in to Share Videos
+                  </h3>
+                  <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">
+                    Video submissions require an account to ensure proper
+                    attribution.
+                  </p>
+                  <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
+                    <Link
+                      href="/login?returnUrl=/contribute/media"
+                      className="inline-flex items-center justify-center rounded-xl bg-[var(--color-ocean-blue)] px-4 py-2 text-sm font-medium text-white hover:bg-blue-800"
+                    >
+                      <LogIn className="mr-2 h-4 w-4" />
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/signup?returnUrl=/contribute/media"
+                      className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200"
+                    >
+                      Create Account
+                    </Link>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, type: "IMAGE" })}
+                    className="mt-4 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
+                  >
+                    Or upload an image instead
+                  </button>
                 </div>
               ) : (
                 <div>
