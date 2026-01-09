@@ -159,11 +159,12 @@ jobs:
         uses: ./.github/actions/setup-node-pnpm
 
       - name: Run ESLint with SARIF output
-        run: pnpm run lint -- --format=@microsoft/eslint-formatter-sarif --output-file=eslint-frontend-results.sarif
+        run: |
+          pnpm run lint -- --format=@microsoft/eslint-formatter-sarif --output-file=eslint-frontend-results.sarif || true
         continue-on-error: true
 
       - name: Upload ESLint SARIF results
-        if: always()
+        if: always() && hashFiles('apps/web/eslint-frontend-results.sarif') != ''
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'apps/web/eslint-frontend-results.sarif'
