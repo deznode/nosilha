@@ -1,663 +1,503 @@
-# State Management Guide - Nos Ilha Platform
+# State Management Guide
 
-This document provides comprehensive guidance on state management in the Nos Ilha cultural heritage platform, covering Zustand for client state, TanStack Query for server state, and Zod for runtime validation.
-
-## Table of Contents
-
-1. [State Management Philosophy](#state-management-philosophy)
-2. [Architecture Overview](#architecture-overview)
-3. [Zustand: Client State Management](#zustand-client-state-management)
-4. [TanStack Query: Server State Management](#tanstack-query-server-state-management)
-5. [Zod: Runtime Validation](#zod-runtime-validation)
-6. [Integration Patterns](#integration-patterns)
-7. [Best Practices](#best-practices)
-8. [Migration Guide](#migration-guide)
-9. [Troubleshooting](#troubleshooting)
+This document provides technical guidance on state management in the Nos Ilha frontend application, covering Zustand for client state, TanStack Query for server state, and Zod for runtime validation.
 
 ---
 
-## State Management Philosophy
+## 1. Architecture Overview
 
-The Nos Ilha platform uses a **modern, layered state management architecture** that clearly separates concerns:
+### 1.1 State Layer Separation
 
+```mermaid
+flowchart TB
+    subgraph Client["📱 Client State (Zustand)"]
+        auth["🔐 AuthStore"]
+        ui["🎨 UiStore"]
+        filter["🔍 FilterStore"]
+        draft["📝 StoryDraftStore"]
+    end
+
+    subgraph Server["⚡ Server State (TanStack Query)"]
+        directory["📋 Directory Entries"]
+        media["🖼️ Media Metadata"]
+        user["👤 User Data"]
+        admin["⚙️ Admin Queries"]
+    end
+
+    subgraph Validation["✅ Runtime Validation (Zod)"]
+        schemas["📐 Schemas"]
+    end
+
+    auth --> |"JWT Token"| Server
+    filter --> |"Query Params"| directory
+    schemas --> |"Validates"| Server
+    schemas --> |"Validates"| Client
+
+    style auth fill:#6366f1,stroke:#4338ca,color:#fff
+    style ui fill:#6366f1,stroke:#4338ca,color:#fff
+    style filter fill:#6366f1,stroke:#4338ca,color:#fff
+    style draft fill:#6366f1,stroke:#4338ca,color:#fff
+    style directory fill:#10b981,stroke:#047857,color:#fff
+    style media fill:#10b981,stroke:#047857,color:#fff
+    style user fill:#10b981,stroke:#047857,color:#fff
+    style admin fill:#10b981,stroke:#047857,color:#fff
+    style schemas fill:#f59e0b,stroke:#d97706,color:#fff
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                  State Management Layers                    │
-├─────────────────────────────────────────────────────────────┤
-│  Client State (Zustand)  │  Server State (TanStack Query)   │
-├──────────────────────────┼──────────────────────────────────┤
-│  • UI preferences        │  • API data                      │
-│  • Authentication        │  • Directory entries             │
-│  • Filter selections     │  • User profiles                 │
-│  • Modal state           │  • Media metadata                │
-├──────────────────────────┴──────────────────────────────────┤
-│            Runtime Validation (Zod)                         │
-│  • Form validation • API response validation • Type safety  │
-└─────────────────────────────────────────────────────────────┘
-```
 
-**Key Principles:**
-- ✅ **Clear Separation**: Client state vs server state
-- ✅ **Type Safety**: TypeScript + Zod runtime validation
-- ✅ **Performance**: Selective re-renders, automatic caching
-- ✅ **Developer Experience**: Minimal boilerplate, excellent DevTools
-
----
-
-## Architecture Overview
-
-### File Structure
+### 1.2 File Structure
 
 ```
 apps/web/src/
-├── stores/                    # Zustand stores (client state)
-│   ├── authStore.ts          # Authentication state
-│   ├── uiStore.ts            # UI preferences and modal state
-│   ├── filterStore.ts        # Search and filter state
-│   └── index.ts              # Centralized exports
-├── hooks/queries/             # TanStack Query hooks (server state)
-│   ├── useDirectoryEntries.ts  # Directory listing queries
-│   ├── useDirectoryEntry.ts    # Single entry queries
-│   ├── useUserProfile.ts       # User profile queries
-│   ├── useMediaMetadata.ts     # Media metadata queries
-│   └── index.ts                # Centralized exports
-└── schemas/                   # Zod validation schemas
+├── stores/                      # Zustand stores (client state)
+│   ├── authStore.ts            # Authentication + session
+│   ├── uiStore.ts              # Theme, modals, sidebar
+│   ├── filterStore.ts          # Search/filter parameters
+│   ├── storyDraftStore.ts      # Story draft persistence
+│   └── index.ts                # Barrel exports
+├── hooks/queries/               # TanStack Query hooks (server state)
+│   ├── useDirectoryEntries.ts  # Paginated directory listing
+│   ├── useDirectoryEntry.ts    # Single entry by slug
+│   ├── useMediaMetadata.ts     # Media metadata
+│   ├── useUnifiedSearch.ts     # Cross-category search
+│   ├── use-bookmarks.ts        # User bookmarks
+│   ├── use-contributions.ts    # User contributions
+│   ├── admin/                  # Admin-specific queries
+│   └── index.ts                # Barrel exports
+└── schemas/                     # Zod validation schemas
     ├── directoryEntrySchema.ts # Directory entry validation
-    ├── authSchema.ts           # Authentication form validation
-    ├── filterSchema.ts         # Filter parameter validation
-    ├── userProfileSchema.ts    # User profile validation
-    ├── mediaMetadataSchema.ts  # Media metadata validation
-    └── index.ts                # Centralized exports
+    ├── authSchema.ts           # Login/signup forms
+    ├── filterSchema.ts         # Filter parameters
+    ├── userProfileSchema.ts    # User profile data
+    ├── mediaMetadataSchema.ts  # Media metadata
+    ├── adminSchemas.ts         # Admin operations
+    └── index.ts                # Barrel exports
 ```
 
 ---
 
-## Zustand: Client State Management
+## 2. Zustand: Client State
 
-### Overview
+### 2.1 Store Summary
 
-Zustand manages **client-side state** that lives in the browser:
-- User authentication (session, user object)
-- UI preferences (theme, language)
-- Transient state (modals, filter panel visibility)
-- URL-synced state (search parameters)
+| Store | Persistence | Purpose |
+|-------|-------------|---------|
+| `useAuthStore` | LocalStorage (user only) | Authentication state, session, user data |
+| `useUiStore` | LocalStorage (theme only) | Theme, modals, sidebar state |
+| `useFilterStore` | None (URL is source of truth) | Search query, category, filters |
+| `useStoryDraftStore` | LocalStorage | Story draft auto-save |
 
-### Basic Store Pattern
+### 2.2 AuthStore
+
+Manages authentication state with Supabase integration.
 
 ```typescript
-// src/stores/authStore.ts
-import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
-
+// apps/web/src/stores/authStore.ts
 interface AuthState {
-  user: User | null;
+  user: AuthUser | null;
   session: Session | null;
   isLoading: boolean;
-  setUser: (user: User | null) => void;
+  setUser: (user: AuthUser | null) => void;
   setSession: (session: Session | null) => void;
+  setLoading: (isLoading: boolean) => void;
   logout: () => void;
 }
 
-export const useAuthStore = create<AuthState>()(
-  devtools(
-    persist(
-      (set) => ({
-        // Initial state
-        user: null,
-        session: null,
-        isLoading: true,
-
-        // Actions
-        setUser: (user) => set({ user, isLoading: false }),
-        setSession: (session) => set({ session }),
-        logout: () => set({ user: null, session: null }),
-      }),
-      {
-        name: 'auth-storage', // LocalStorage key
-      }
-    ),
-    { name: 'AuthStore' } // Redux DevTools name
-  )
-);
+// Pre-built selectors for optimized re-renders
+export const useUser = () => useAuthStore((state) => state.user);
+export const useSession = () => useAuthStore((state) => state.session);
+export const useAuthLoading = () => useAuthStore((state) => state.isLoading);
+export const useIsAuthenticated = () => useAuthStore((state) => state.user !== null);
 ```
 
-### Middleware Explained
+### 2.3 FilterStore
 
-**1. `persist` Middleware**
-```typescript
-persist(
-  (set, get) => ({ /* store */ }),
-  {
-    name: 'auth-storage',  // LocalStorage key
-    partialize: (state) => ({  // Only persist specific fields
-      user: state.user,
-      session: state.session,
-    }),
-  }
-)
-```
-
-**2. `devtools` Middleware**
-```typescript
-devtools(
-  (set, get) => ({ /* store */ }),
-  { name: 'AuthStore' }  // Appears in Redux DevTools
-)
-```
-
-### Using Stores in Components
-
-**❌ Bad: Subscribe to entire store (causes unnecessary re-renders)**
-```typescript
-const { user, session, isLoading } = useAuthStore();
-```
-
-**✅ Good: Selective subscription (only re-renders when `user` changes)**
-```typescript
-const user = useAuthStore((state) => state.user);
-const setUser = useAuthStore((state) => state.setUser);
-```
-
-### Example: UI Store
+Manages directory search and filter state. Does not persist (URL is source of truth).
 
 ```typescript
-// src/stores/uiStore.ts
-import { create } from 'zustand';
-import { persist, devtools } from 'zustand/middleware';
+// apps/web/src/stores/filterStore.ts
+type SortByValue = "name_asc" | "name_desc" | "rating_desc" | "created_at_desc" | "relevance";
 
-interface UIState {
-  theme: 'light' | 'dark';
-  activeModal: string | null;
-  filterPanelOpen: boolean;
-  toggleTheme: () => void;
-  openModal: (modalId: string) => void;
-  closeModal: () => void;
-  toggleFilterPanel: () => void;
+interface FilterState {
+  searchQuery: string;
+  selectedCategory: CategoryValue | undefined;
+  selectedTown: string | undefined;
+  minRating: number | undefined;
+  hasImage: boolean | undefined;
+  sortBy: SortByValue;
+  selectedCategories: string[];  // Multi-select for map filtering
+  // Actions...
+  hasActiveFilters: () => boolean;
 }
 
-export const useUIStore = create<UIState>()(
-  devtools(
-    persist(
-      (set) => ({
-        theme: 'light',
-        activeModal: null,
-        filterPanelOpen: false,
+// Pre-built selectors
+export const useSearchQuery = () => useFilterStore((state) => state.searchQuery);
+export const useSelectedCategory = () => useFilterStore((state) => state.selectedCategory);
+export const useHasActiveFilters = () => useFilterStore((state) => state.hasActiveFilters());
+```
 
-        toggleTheme: () => set((state) => ({
-          theme: state.theme === 'light' ? 'dark' : 'light',
-        })),
+### 2.4 UiStore
 
-        openModal: (modalId) => set({ activeModal: modalId }),
-        closeModal: () => set({ activeModal: null }),
+Manages UI preferences and transient state.
 
-        toggleFilterPanel: () => set((state) => ({
-          filterPanelOpen: !state.filterPanelOpen,
-        })),
-      }),
-      {
-        name: 'ui-storage',
-        partialize: (state) => ({ theme: state.theme }), // Only persist theme
-      }
-    ),
-    { name: 'UIStore' }
-  )
-);
+```typescript
+// apps/web/src/stores/uiStore.ts
+type Theme = "light" | "dark" | "system";
+type ModalType = "login" | "signup" | "filter" | "share" | null;
+
+interface UiState {
+  theme: Theme;
+  activeModal: ModalType;
+  filterPanelOpen: boolean;
+  sidebarOpen: boolean;
+  // Actions...
+}
+
+// Pre-built selectors
+export const useTheme = () => useUiStore((state) => state.theme);
+export const useActiveModal = () => useUiStore((state) => state.activeModal);
+```
+
+### 2.5 StoryDraftStore
+
+Persists story drafts for resume capability.
+
+```typescript
+// apps/web/src/stores/storyDraftStore.ts
+interface StoryDraftData {
+  title: string;
+  content: string;
+  storyType?: StoryType;
+  templateType?: StoryTemplate;
+}
+
+interface StoryDraftState {
+  draft: StoryDraftData | null;
+  lastSaved: string | null;
+  setDraft: (data: Partial<StoryDraftData>) => void;
+  updateDraft: (data: Partial<StoryDraftData>) => void;
+  clearDraft: () => void;
+  hasDraft: () => boolean;
+}
+```
+
+### 2.6 Best Practices
+
+```typescript
+// Always use selective subscriptions
+const user = useAuthStore((state) => state.user);          // Re-renders only when user changes
+const { user } = useAuthStore();                           // Re-renders on ANY store change
+
+// Use pre-built selectors when available
+const isAuthenticated = useIsAuthenticated();              // Optimized
+const theme = useTheme();                                  // Optimized
 ```
 
 ---
 
-## TanStack Query: Server State Management
+## 3. TanStack Query: Server State
 
-### Overview
+### 3.1 Query Data Flow
 
-TanStack Query manages **server-side state** fetched from APIs:
-- Directory entries (restaurants, hotels, landmarks)
-- User profiles
-- Media metadata
-- Any data from backend API
+```mermaid
+sequenceDiagram
+    participant C as Component
+    participant Q as TanStack Query
+    participant A as API Client
+    participant Z as Zod Schema
+    participant S as Server
 
-**Key Features:**
-- ✅ Automatic caching
-- ✅ Background refetching
-- ✅ Optimistic updates
-- ✅ Cache invalidation
-- ✅ Pagination and infinite scroll
+    C->>Q: useDirectoryEntries()
+    Q->>Q: Check cache
+    alt Cache hit (not stale)
+        Q-->>C: Return cached data
+    else Cache miss or stale
+        Q->>A: getEntriesByCategory()
+        A->>S: GET /api/v1/places/entries
+        S-->>A: JSON response
+        A-->>Q: Raw data
+        Q->>Z: safeParse(data)
+        Z-->>Q: Validated data
+        Q->>Q: Update cache
+        Q-->>C: Return data
+    end
 
-### Query Hook Pattern
+    Note over Q: Background refetch on stale
+```
+
+### 3.2 Query Hooks Summary
+
+| Hook | Query Key | Stale Time | Purpose |
+|------|-----------|------------|---------|
+| `useDirectoryEntries` | `["directory", "entries", category, page, size]` | 5 min | Paginated listing |
+| `useDirectoryEntry` | `["directory", "entry", slug]` | 10 min | Single entry |
+| `useUnifiedSearch` | `["search", query]` | 5 min | Cross-category search |
+| `useBookmarks` | `["bookmarks", userId]` | 5 min | User bookmarks |
+| `useContributions` | `["contributions", userId]` | 5 min | User submissions |
+
+### 3.3 Directory Entries Hook
 
 ```typescript
-// src/hooks/queries/useDirectoryEntries.ts
-import { useQuery } from '@tanstack/react-query';
-import { z } from 'zod';
-import { directoryEntrySchema } from '@/schemas/directoryEntrySchema';
-
-const directoryEntriesSchema = z.array(directoryEntrySchema);
-
-export function useDirectoryEntries(category?: string) {
-  return useQuery({
-    queryKey: ['directory', category],  // Unique cache key
+// apps/web/src/hooks/queries/useDirectoryEntries.ts
+export function useDirectoryEntries(
+  category: string = "all",
+  page: number = 0,
+  size: number = 20,
+  options?: UseQueryOptions
+) {
+  return useQuery<PaginatedResult<DirectoryEntry>, Error>({
+    queryKey: ["directory", "entries", category, page, size],
     queryFn: async () => {
-      const params = new URLSearchParams();
-      if (category) params.set('category', category);
-
-      const response = await fetch(`/api/v1/directory/entries?${params}`);
-      if (!response.ok) throw new Error('Failed to fetch');
-
-      const data = await response.json();
+      const result = await getEntriesByCategory(category, page, size);
 
       // Runtime validation with Zod
-      return directoryEntriesSchema.parse(data);
+      const validated = directoryEntriesSchema.safeParse(result.items);
+      if (!validated.success) {
+        console.error("Validation failed:", validated.error.format());
+        return result;  // Graceful degradation
+      }
+
+      return { items: validated.data, pagination: result.pagination };
     },
-    staleTime: 1000 * 60 * 5,   // 5 minutes
-    cacheTime: 1000 * 60 * 30,  // 30 minutes
+    staleTime: 5 * 60 * 1000,   // 5 minutes
+    gcTime: 30 * 60 * 1000,     // 30 minutes (formerly cacheTime)
+    ...options,
   });
 }
 ```
 
-### Using Query Hooks
+### 3.4 Prefetching
 
 ```typescript
-// In a component
-function DirectoryList() {
-  const { data, isLoading, isError, error } = useDirectoryEntries('restaurants');
-
-  if (isLoading) return <LoadingSpinner />;
-  if (isError) return <ErrorMessage error={error} />;
-
-  return (
-    <div>
-      {data?.map(entry => (
-        <DirectoryCard key={entry.id} entry={entry} />
-      ))}
-    </div>
-  );
-}
-```
-
-### Mutation Pattern (Creating/Updating Data)
-
-```typescript
-// src/hooks/mutations/useCreateDirectoryEntry.ts
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { directoryEntrySchema } from '@/schemas/directoryEntrySchema';
-
-export function useCreateDirectoryEntry() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (newEntry: CreateDirectoryEntryInput) => {
-      const response = await fetch('/api/v1/directory/entries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newEntry),
-      });
-
-      if (!response.ok) throw new Error('Failed to create entry');
-
-      const data = await response.json();
-      return directoryEntrySchema.parse(data);
-    },
-
-    // Optimistic update
-    onMutate: async (newEntry) => {
-      await queryClient.cancelQueries({ queryKey: ['directory'] });
-
-      const previousEntries = queryClient.getQueryData(['directory']);
-
-      queryClient.setQueryData(['directory'], (old: any) => [
-        ...old,
-        { ...newEntry, id: 'temp-id' },
-      ]);
-
-      return { previousEntries };
-    },
-
-    // Rollback on error
-    onError: (err, newEntry, context) => {
-      queryClient.setQueryData(['directory'], context?.previousEntries);
-    },
-
-    // Refetch after success
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['directory'] });
-    },
+// Prefetch for improved perceived performance
+export function usePrefetchDirectoryEntry(queryClient: QueryClient, slug: string) {
+  return () => queryClient.prefetchQuery({
+    queryKey: ["directory", "entry", slug],
+    queryFn: () => getEntryBySlug(slug),
+    staleTime: 10 * 60 * 1000,
   });
 }
 ```
 
-### Cache Key Strategy
+### 3.5 Cache Key Strategy
 
-**Hierarchical Keys:**
-```typescript
-['directory']                         // All directory entries
-['directory', 'restaurants']          // Restaurant category
-['directory', 'entry', slug]          // Specific entry
-['user', 'profile', userId]           // User profile
-['media', 'metadata', entryId]        // Media metadata
 ```
-
-**Benefits:**
-- Granular cache invalidation
-- Predictable cache behavior
-- Easy debugging
+["directory"]                          # All directory queries
+["directory", "entries", ...]          # Entry listings
+["directory", "entry", slug]           # Single entry
+["search", query]                      # Search results
+["bookmarks", userId]                  # User bookmarks
+["admin", "stats"]                     # Admin statistics
+["admin", "stories", status]           # Admin story management
+```
 
 ---
 
-## Zod: Runtime Validation
+## 4. Zod: Runtime Validation
 
-### Overview
+### 4.1 Schema Summary
 
-Zod provides **runtime type safety** with TypeScript type inference:
-- Form validation (React Hook Form integration)
-- API response validation
-- Data parsing and transformation
+| Schema | Purpose | Used By |
+|--------|---------|---------|
+| `directoryEntrySchema` | Discriminated union for entry types | Query hooks |
+| `loginSchema` / `signupSchema` | Form validation | React Hook Form |
+| `filterSchema` | URL param validation | FilterStore |
+| `userProfileSchema` | Profile API responses | User queries |
+| `authUserSchema` | Minimal auth context | AuthStore |
 
-### Schema Pattern
+### 4.2 Directory Entry Schema (Discriminated Union)
 
 ```typescript
-// src/schemas/directoryEntrySchema.ts
-import { z } from 'zod';
-
-export const directoryEntrySchema = z.object({
+// apps/web/src/schemas/directoryEntrySchema.ts
+const baseDirectoryEntrySchema = z.object({
   id: z.string().uuid(),
-  name: z.string().min(1, 'Name is required'),
-  category: z.enum(['restaurant', 'hotel', 'landmark', 'beach']),
-  description: z.string().optional(),
-  location: z.string().min(1, 'Location is required'),
-  image: z.string().url().optional(),
-  coordinates: z.object({
-    latitude: z.number().min(-90).max(90),
-    longitude: z.number().min(-180).max(180),
-  }).optional(),
+  slug: z.string().min(1),
+  name: z.string().min(1),
+  imageUrl: z.string().url().nullable(),
+  town: z.string().min(1),
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  description: z.string(),
+  rating: z.number().min(0).max(5).optional(),
+  reviewCount: z.number().int().nonnegative(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
 });
 
-// Infer TypeScript type from schema
-export type DirectoryEntry = z.infer<typeof directoryEntrySchema>;
+export const directoryEntrySchema = z.discriminatedUnion("category", [
+  baseDirectoryEntrySchema.extend({
+    category: z.literal("Restaurant"),
+    details: restaurantDetailsSchema,
+  }),
+  baseDirectoryEntrySchema.extend({
+    category: z.literal("Hotel"),
+    details: hotelDetailsSchema,
+  }),
+  baseDirectoryEntrySchema.extend({
+    category: z.literal("Beach"),
+    details: z.null(),
+  }),
+  // Heritage, Nature...
+]);
+
+// Type inference
+export type DirectoryEntryInput = z.infer<typeof directoryEntrySchema>;
 ```
 
-### Form Validation with React Hook Form
+### 4.3 Form Validation with React Hook Form
 
 ```typescript
-// src/components/admin/DirectoryEntryForm.tsx
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { directoryEntrySchema } from '@/schemas/directoryEntrySchema';
+// Example: Login form
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, type LoginInput } from "@/schemas/authSchema";
 
-export function DirectoryEntryForm() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(directoryEntrySchema),
+function LoginForm() {
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
   });
-
-  const onSubmit = (data) => {
-    // Data is validated and type-safe
-    console.log(data);
-  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <input {...register('name')} />
-      {errors.name && <span>{errors.name.message}</span>}
-
-      <select {...register('category')}>
-        <option value="restaurant">Restaurant</option>
-        <option value="hotel">Hotel</option>
-      </select>
-      {errors.category && <span>{errors.category.message}</span>}
-
-      <button type="submit">Submit</button>
+      <input {...register("email")} />
+      {errors.email && <span>{errors.email.message}</span>}
+      {/* ... */}
     </form>
   );
 }
 ```
 
-### API Response Validation
+### 4.4 URL Parameter Parsing
 
 ```typescript
-// Validate API responses in TanStack Query hooks
-const response = await fetch('/api/v1/directory/entries');
-const data = await response.json();
+// apps/web/src/schemas/filterSchema.ts
+export function parseUrlSearchParams(params: URLSearchParams): FilterInput {
+  const urlParams = urlSearchParamsSchema.parse({
+    q: params.get("q") || undefined,
+    category: params.get("category") || undefined,
+    // ...
+  });
 
-// This throws if validation fails
-const validatedData = directoryEntriesSchema.parse(data);
-
-// Or use safeParse for error handling
-const result = directoryEntriesSchema.safeParse(data);
-if (!result.success) {
-  console.error('Validation failed:', result.error);
-  return;
+  return filterSchema.parse({
+    searchQuery: urlParams.q,
+    category: urlParams.category as CategoryValue | undefined,
+    minRating: urlParams.minRating ? parseFloat(urlParams.minRating) : undefined,
+    hasImage: urlParams.hasImage === "true",
+  });
 }
-
-const validatedData = result.data;
 ```
 
 ---
 
-## Integration Patterns
+## 5. Integration Patterns
 
-### Pattern 1: Combining Client and Server State
+### 5.1 Client + Server State Integration
+
+```mermaid
+flowchart LR
+    subgraph Component["📦 Component"]
+        render["Render"]
+    end
+
+    subgraph Zustand["🟣 Zustand"]
+        category["selectedCategory"]
+    end
+
+    subgraph Query["🟢 TanStack Query"]
+        hook["useDirectoryEntries(category)"]
+    end
+
+    category --> hook
+    hook --> render
+    render --> category
+
+    style Zustand fill:#6366f1,stroke:#4338ca,color:#fff
+    style Query fill:#10b981,stroke:#047857,color:#fff
+```
 
 ```typescript
-// Component using both Zustand and TanStack Query
 function DirectoryPage() {
   // Client state (Zustand)
-  const selectedCategory = useFilterStore((state) => state.selectedCategory);
+  const selectedCategory = useSelectedCategory();
   const setCategory = useFilterStore((state) => state.setCategory);
 
-  // Server state (TanStack Query)
-  const { data, isLoading } = useDirectoryEntries(selectedCategory);
+  // Server state (TanStack Query) - reacts to client state changes
+  const { data, isLoading } = useDirectoryEntries(selectedCategory || "all");
 
   return (
     <div>
-      <select
-        value={selectedCategory}
-        onChange={(e) => setCategory(e.target.value)}
-      >
-        <option value="restaurant">Restaurants</option>
-        <option value="hotel">Hotels</option>
-      </select>
-
-      {isLoading ? (
-        <LoadingSpinner />
-      ) : (
-        <DirectoryList entries={data} />
-      )}
+      <CategorySelector value={selectedCategory} onChange={setCategory} />
+      {isLoading ? <Skeleton /> : <DirectoryList entries={data?.items} />}
     </div>
   );
 }
 ```
 
-### Pattern 2: Form with Client State and Mutation
+### 5.2 Complete Form Pattern
 
 ```typescript
-function CreateEntryForm() {
-  // Zustand for UI state
-  const closeModal = useUIStore((state) => state.closeModal);
+function CreateStoryForm() {
+  // UI state for modal control
+  const closeModal = useUiStore((state) => state.closeModal);
 
-  // TanStack Query mutation
-  const createEntry = useCreateDirectoryEntry();
+  // Draft persistence
+  const { draft, updateDraft, clearDraft } = useStoryDraftStore();
 
-  // React Hook Form with Zod validation
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: zodResolver(directoryEntrySchema),
+  // Form with Zod validation
+  const form = useForm({
+    resolver: zodResolver(storySchema),
+    defaultValues: draft || { title: "", content: "" },
   });
 
+  // Auto-save draft on change
+  useEffect(() => {
+    const subscription = form.watch((values) => updateDraft(values));
+    return () => subscription.unsubscribe();
+  }, [form, updateDraft]);
+
   const onSubmit = async (data) => {
-    await createEntry.mutateAsync(data);
+    await submitStory(data);
+    clearDraft();
     closeModal();
   };
 
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      {/* Form fields */}
-    </form>
-  );
+  return <form onSubmit={form.handleSubmit(onSubmit)}>{/* ... */}</form>;
 }
 ```
 
 ---
 
-## Best Practices
+## 6. Testing
 
-### 1. Selective Zustand Subscriptions
+Unit tests for stores and hooks are located in `apps/web/src/__tests__/`.
 
-```typescript
-// ✅ Good: Only re-renders when user changes
-const user = useAuthStore((state) => state.user);
-
-// ❌ Bad: Re-renders on any authStore change
-const { user } = useAuthStore();
+```bash
+cd apps/web
+pnpm run test:unit    # Run Vitest unit tests
 ```
 
-### 2. Query Key Consistency
+Key test files:
+- `authStore.test.ts` - Authentication state transitions
+- `filterStore.test.ts` - Filter state and URL sync
+- `useDirectoryEntries.test.ts` - Query hook behavior
 
-```typescript
-// ✅ Good: Hierarchical and consistent
-['directory', 'restaurants']
-['directory', 'entry', slug]
-
-// ❌ Bad: Inconsistent naming
-['restaurantsList']
-['entryDetail', slug]
-```
-
-### 3. Zod Schema Reuse
-
-```typescript
-// ✅ Good: Reuse base schemas
-const createEntrySchema = directoryEntrySchema.omit({ id: true, createdAt: true });
-
-// ❌ Bad: Duplicate schemas
-const createEntrySchema = z.object({ name: z.string(), ... });
-```
-
-### 4. Error Handling
-
-```typescript
-// ✅ Good: Handle all states
-const { data, isLoading, isError, error } = useDirectoryEntries();
-
-if (isLoading) return <LoadingSpinner />;
-if (isError) return <ErrorMessage error={error} />;
-
-return <DirectoryList entries={data} />;
-```
-
-### 5. Cache Invalidation
-
-```typescript
-// ✅ Good: Invalidate related queries after mutation
-onSuccess: () => {
-  queryClient.invalidateQueries({ queryKey: ['directory'] });
-}
-
-// ❌ Bad: No cache invalidation (stale data)
-onSuccess: () => {
-  // Nothing
-}
-```
+See [`testing.md`](testing.md) for complete testing documentation.
 
 ---
 
-## Migration Guide
+## 7. Troubleshooting
 
-### From Component State to Zustand
-
-**Before:**
-```typescript
-function MapFilterControl({ filters, setFilters }) {
-  // Props drilling 3 levels deep
-  return <FilterPanel filters={filters} onChange={setFilters} />;
-}
-```
-
-**After:**
-```typescript
-function MapFilterControl() {
-  // Direct access to Zustand store
-  const filters = useFilterStore((state) => state.filters);
-  const setFilters = useFilterStore((state) => state.setFilters);
-
-  return <FilterPanel />;  // No props needed
-}
-```
-
-### From Direct API Calls to TanStack Query
-
-**Before:**
-```typescript
-const [data, setData] = useState([]);
-const [loading, setLoading] = useState(true);
-
-useEffect(() => {
-  fetch('/api/v1/directory/entries')
-    .then(res => res.json())
-    .then(setData)
-    .finally(() => setLoading(false));
-}, []);
-```
-
-**After:**
-```typescript
-const { data, isLoading } = useDirectoryEntries();
-// Automatic caching, refetching, error handling
-```
+| Issue | Symptom | Solution |
+|-------|---------|----------|
+| State not persisting | Resets on reload | Check `persist` middleware and `partialize` config |
+| Stale cache data | Outdated UI after mutation | Call `queryClient.invalidateQueries()` |
+| Excessive re-renders | Performance issues | Use selective subscriptions: `useStore(s => s.field)` |
+| Validation errors | Console warnings | Check Zod schema matches API response structure |
+| Hydration mismatch | SSR errors | Ensure persisted state handles initial `null` gracefully |
 
 ---
 
-## Troubleshooting
+## Related Documentation
 
-### Issue: Store Not Persisting
-
-**Symptom**: State resets on page reload
-
-**Solution**: Verify persist middleware configuration
-```typescript
-persist(
-  (set) => ({ /* state */ }),
-  { name: 'store-name' }  // Must be unique
-)
-```
-
-### Issue: Stale Cache Data
-
-**Symptom**: UI shows outdated data after mutation
-
-**Solution**: Invalidate queries after mutations
-```typescript
-queryClient.invalidateQueries({ queryKey: ['directory'] });
-```
-
-### Issue: Too Many Re-renders
-
-**Symptom**: Component re-renders excessively
-
-**Solution**: Use selective Zustand subscriptions
-```typescript
-// Instead of:
-const state = useStore();
-
-// Use:
-const field = useStore((state) => state.field);
-```
-
----
-
-## Resources
-
-- **Zustand Documentation**: https://docs.pmnd.rs/zustand
-- **TanStack Query Documentation**: https://tanstack.com/query/latest
-- **Zod Documentation**: https://zod.dev/
-- **React Hook Form**: https://react-hook-form.com/
-
----
-
-**Related Documentation**:
 - [`architecture.md`](architecture.md) - System architecture overview
 - [`testing.md`](testing.md) - Testing state management patterns
-- [`CLAUDE.md`](../CLAUDE.md) - Main development guide
+- [`design-system.md`](design-system.md) - Frontend component patterns

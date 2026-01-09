@@ -1,536 +1,509 @@
-# CI/CD Pipeline Documentation
+# CI/CD Pipeline
 
-This document provides comprehensive guidance for the Nos Ilha CI/CD pipeline - a community-supported, open-source project with cost-optimized infrastructure for sustainable deployment.
+This document describes the Nos Ilha CI/CD pipeline architecture, workflow triggers, and deployment process.
 
-## 🏗️ Pipeline Overview
+## Pipeline Overview
 
-The CI/CD pipeline is built using GitHub Actions and supports:
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#4F46E5', 'primaryTextColor': '#fff', 'primaryBorderColor': '#4338CA', 'lineColor': '#6366F1', 'secondaryColor': '#E0E7FF', 'tertiaryColor': '#EEF2FF'}}}%%
+flowchart TB
+    subgraph trigger["Triggers"]
+        PR["Pull Request"]
+        PUSH["Push to main"]
+        MANUAL["Manual Dispatch"]
+        SCHEDULE["Weekly Schedule"]
+    end
 
-- **Modular CI/CD architecture** with service-specific workflows
-- **Production-only deployment** (single environment for cost optimization)
-- **Branch-based workflow** (main → production)
-- **Quality gates** (testing, linting, security scanning)
-- **Automated deployments** to Google Cloud Run
-- **Infrastructure as Code** with Terraform
+    subgraph validation["Validation Stage"]
+        SEC["Security Scan<br/>Trivy + ktlint/ESLint"]
+        TEST["Tests & Linting<br/>Unit + Type Check"]
+        BUNDLE["Bundle Analysis<br/>Size < 500KB"]
+    end
 
-## 🔧 Architecture
+    subgraph build["Build Stage"]
+        BUILD_BE["Build Backend<br/>Spring Boot Image"]
+        BUILD_FE["Build Frontend<br/>Next.js Image"]
+        BUILD_TF["Terraform Plan"]
+    end
 
+    subgraph deploy["Deploy Stage"]
+        DEPLOY_BE["Deploy Backend<br/>Cloud Run"]
+        DEPLOY_FE["Deploy Frontend<br/>Cloud Run"]
+        DEPLOY_TF["Terraform Apply"]
+    end
+
+    subgraph verify["Verification"]
+        HEALTH["Health Checks"]
+        REPORT["Status Report"]
+    end
+
+    PR --> SEC & TEST & BUNDLE
+    PUSH --> SEC & TEST
+    MANUAL --> SEC & TEST
+    SCHEDULE --> SEC & TEST
+
+    SEC --> BUILD_BE & BUILD_FE & BUILD_TF
+    TEST --> BUILD_BE & BUILD_FE & BUILD_TF
+
+    BUILD_BE --> DEPLOY_BE
+    BUILD_FE --> DEPLOY_FE
+    BUILD_TF --> DEPLOY_TF
+
+    DEPLOY_BE & DEPLOY_FE --> HEALTH
+    HEALTH --> REPORT
+
+    style SEC fill:#EF4444,color:#fff
+    style TEST fill:#3B82F6,color:#fff
+    style BUNDLE fill:#8B5CF6,color:#fff
+    style BUILD_BE fill:#F59E0B,color:#fff
+    style BUILD_FE fill:#F59E0B,color:#fff
+    style BUILD_TF fill:#F59E0B,color:#fff
+    style DEPLOY_BE fill:#10B981,color:#fff
+    style DEPLOY_FE fill:#10B981,color:#fff
+    style DEPLOY_TF fill:#10B981,color:#fff
+    style HEALTH fill:#06B6D4,color:#fff
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Developer     │    │   GitHub        │    │   Google Cloud  │
-│                 │    │                 │    │                 │
-│ ┌─────────────┐ │    │ ┌─────────────┐ │    │ ┌─────────────┐ │
-│ │ Feature Dev │ │───▶│ │ Pull Request│ │    │ │  Production │ │
-│ │             │ │    │ │  Validation │ │    │ │ Environment │ │
-│ └─────────────┘ │    │ └─────────────┘ │    │ └─────────────┘ │
-│                 │    │                 │    │                 │
-│ ┌─────────────┐ │    │ ┌─────────────┐ │    │ ┌─────────────┐ │
-│ │ Main Branch │ │───▶│ │ Build &     │ │───▶│ │ Artifact    │ │
-│ │             │ │    │ │ Deploy      │ │    │ │ Registry    │ │
-│ └─────────────┘ │    │ └─────────────┘ │    │ └─────────────┘ │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+
+## Workflows
+
+The pipeline uses five modular workflows with path-based triggering for cost optimization.
+
+### Workflow Summary
+
+| Workflow | File | Triggers | Purpose |
+|----------|------|----------|---------|
+| Backend CI/CD | `backend-ci.yml` | `apps/api/**` changes | Build, test, deploy Spring Boot |
+| Frontend CI/CD | `frontend-ci.yml` | `apps/web/**` changes | Build, lint, deploy Next.js |
+| Infrastructure CI/CD | `infrastructure-ci.yml` | `infrastructure/**` changes | Terraform plan/apply |
+| PR Validation | `pr-validation.yml` | All PRs | Status reporting, auto-merge |
+| Integration Tests | `integration-ci.yml` | Main push, weekly | Health checks, security headers |
+
+### Workflow Trigger Logic
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#4F46E5', 'primaryTextColor': '#fff', 'lineColor': '#6366F1'}}}%%
+flowchart LR
+    subgraph changes["Code Changes"]
+        BE_CODE["apps/api/**"]
+        FE_CODE["apps/web/**"]
+        INFRA_CODE["infrastructure/**"]
+    end
+
+    subgraph workflows["Triggered Workflows"]
+        BE_WF["Backend CI/CD"]
+        FE_WF["Frontend CI/CD"]
+        INFRA_WF["Infrastructure CI/CD"]
+        PR_WF["PR Validation"]
+        INT_WF["Integration Tests"]
+    end
+
+    BE_CODE --> BE_WF
+    FE_CODE --> FE_WF
+    INFRA_CODE --> INFRA_WF
+
+    BE_CODE & FE_CODE & INFRA_CODE --> PR_WF
+    BE_CODE & FE_CODE --> INT_WF
+
+    style BE_WF fill:#4F46E5,color:#fff
+    style FE_WF fill:#3B82F6,color:#fff
+    style INFRA_WF fill:#8B5CF6,color:#fff
+    style PR_WF fill:#F59E0B,color:#fff
+    style INT_WF fill:#10B981,color:#fff
 ```
 
-## 📋 Prerequisites
+## Backend CI/CD
 
-### Required Tools
-- **Terraform** v1.12.2+
-- **Google Cloud SDK (gcloud)**
-- **Docker**
-- **Git**
-- **Node.js 20.9+** and npm
-- **Java 21** (OpenJDK or Oracle JDK)
+**File:** `.github/workflows/backend-ci.yml`
 
-### Google Cloud Setup
+### Triggers
 
-1. **Create a GCP Project**
-   ```bash
-   gcloud projects create your-project-id
-   gcloud config set project your-project-id
-   ```
+- **Push to main:** `apps/api/**` (excludes `.md`, `.txt`, `README*`)
+- **Pull requests:** `apps/api/**` changes
+- **Manual dispatch:** Optional `deploy` and `force_deploy` inputs
 
-2. **Enable Required APIs**
-   ```bash
-   gcloud services enable \
-     run.googleapis.com \
-     artifactregistry.googleapis.com \
-     secretmanager.googleapis.com \
-     cloudbuild.googleapis.com \
-     storage.googleapis.com \
-     iam.googleapis.com \
-     monitoring.googleapis.com
-   ```
+### Jobs
 
-3. **Set up Billing** (required for Cloud Run)
-   - Link a billing account to your project in the GCP Console
+| Job | Description | Condition |
+|-----|-------------|-----------|
+| `security-scan` | Trivy vulnerability scan, ktlint SARIF | Always |
+| `test-and-lint` | JUnit + Testcontainers, ktlint, JaCoCo (70% coverage), Modulith verification | Always |
+| `build` | Gradle `bootBuildImage`, push to Artifact Registry | Main branch only |
+| `deploy-production` | Cloud Run deployment with health checks | Main branch + build success |
 
-## 🚀 Quick Setup Guide
+### Quality Gates
 
-### Step 1: Create Terraform State Bucket
-Before running Terraform, create the state bucket manually:
+- **Coverage threshold:** 70% (enforced by JaCoCo)
+- **Module boundaries:** Spring Modulith verification
+- **Code style:** ktlint (detekt temporarily disabled for Java 25)
+- **Security:** Trivy HIGH/CRITICAL vulnerabilities
+
+### Cloud Run Configuration
+
+```yaml
+Service: nosilha-backend-api
+Memory: 1Gi
+CPU: 1
+Min Instances: 0
+Max Instances: 3
+Timeout: 300s
+```
+
+## Frontend CI/CD
+
+**File:** `.github/workflows/frontend-ci.yml`
+
+### Triggers
+
+- **Push to main:** `apps/web/**` (excludes `.md`, `.test.*`, `README*`)
+- **Pull requests:** `apps/web/**` changes
+- **Manual dispatch:** Optional `deploy` and `force_deploy` inputs
+
+### Jobs
+
+| Job | Description | Condition |
+|-----|-------------|-----------|
+| `security-scan` | Trivy vulnerability scan, ESLint SARIF | Always |
+| `test-and-lint` | TypeScript check, ESLint, Velite content build, Next.js build | Always |
+| `bundle-analysis` | Bundle size check (max 500KB) | PRs only |
+| `build` | Docker build, push to Artifact Registry | Main branch only |
+| `deploy-production` | Cloud Run deployment | Main branch + build success |
+
+### Quality Gates
+
+- **Type safety:** `tsc --noEmit`
+- **Linting:** ESLint
+- **Bundle size:** < 500KB (compressed)
+- **Build success:** Next.js production build
+- **Security:** Trivy HIGH/CRITICAL vulnerabilities
+
+### Cloud Run Configuration
+
+```yaml
+Service: nosilha-frontend
+Memory: 512Mi
+CPU: 1
+Min Instances: 0
+Max Instances: 2
+Timeout: 300s
+```
+
+### Testing Philosophy
+
+Frontend uses a TypeScript-first approach in CI:
+- **CI runs:** TypeScript compilation + ESLint + Next.js build
+- **Local only:** Playwright E2E tests, Vitest unit tests
+
+This provides 75% faster CI while maintaining quality through static analysis.
+
+## Infrastructure CI/CD
+
+**File:** `.github/workflows/infrastructure-ci.yml`
+
+### Triggers
+
+- **Push to main:** `infrastructure/**` changes
+- **Pull requests:** `infrastructure/**` changes
+- **Manual dispatch:** Configuration drift detection
+
+### Jobs
+
+| Job | Description | Condition |
+|-----|-------------|-----------|
+| `security-scan` | Trivy IaC security scan | Always |
+| `validate` | Format check, init, validate | Always |
+| `plan` | Terraform plan with PR comment | PRs only |
+| `plan-comment` | Post plan output to PR | PRs only |
+| `apply` | Terraform apply | Main branch push only |
+| `drift-detection` | Check for configuration drift | Schedule/manual |
+
+### Terraform Configuration
+
+- **Version:** 1.12.2
+- **State:** GCS bucket (`gs://nosilha-terraform-state-bucket`)
+- **Provider caching:** Enabled for performance
+
+## PR Validation
+
+**File:** `.github/workflows/pr-validation.yml`
+
+### Triggers
+
+- **Pull requests:** All PRs to main
+- **Pull request target:** For Dependabot PRs
+
+### Jobs
+
+| Job | Description |
+|-----|-------------|
+| `changes` | Nx-based change detection |
+| `global-security-scan` | Full repository Trivy scan |
+| `pr-status-report` | Aggregated status comment |
+| `dependabot-auto-merge` | Auto-merge passing Dependabot PRs |
+
+### Status Report
+
+The workflow generates a PR comment showing:
+- Components changed (Backend, Frontend, Infrastructure)
+- Validation results from each service CI
+- Overall merge readiness
+
+## Integration Tests
+
+**File:** `.github/workflows/integration-ci.yml`
+
+### Triggers
+
+- **Push to main:** After service deployments
+- **Weekly schedule:** Mondays at 6 AM UTC
+- **Manual dispatch:** On-demand testing
+
+### Jobs
+
+| Job | Description | Condition |
+|-----|-------------|-----------|
+| `changes` | Detect service changes | Always |
+| `wait-for-services` | Wait for service builds | Any service changed |
+| `api-integration-tests` | Testcontainers tests | Backend changed or scheduled |
+| `security-integration` | Security headers validation | Any service changed |
+| `deployment-health` | Cloud Run health checks | Any service changed |
+| `integration-report` | Summary to GitHub Step Summary | Always |
+
+## Security Scanning
+
+**File:** `.github/workflows/reusable-security-scan.yml`
+
+A reusable workflow called by service-specific pipelines.
+
+### Scanning Tools
+
+| Tool | Target | Severity |
+|------|--------|----------|
+| Trivy | Dependencies, containers, IaC | HIGH, CRITICAL |
+| ktlint | Kotlin code style | All |
+| ESLint | TypeScript/React | All (SARIF output) |
+
+### SARIF Integration
+
+All security findings upload to GitHub Security tab:
+- `security-backend`: Backend Trivy results
+- `security-frontend`: Frontend Trivy results
+- `security-infrastructure`: Terraform Trivy results
+- `code-quality-ktlint`: Kotlin style findings
+- `eslint-frontend`: TypeScript/React findings
+
+## Required Secrets
+
+### GCP Service Account Permissions
+
+The CI/CD service account requires these roles:
+- `roles/run.admin` - Cloud Run administration
+- `roles/artifactregistry.admin` - Artifact Registry management
+- `roles/storage.admin` - Cloud Storage management
+- `roles/iam.serviceAccountUser` - Service account usage
+- `roles/secretmanager.accessor` - Secret Manager access
+
+### GCP Authentication
 
 ```bash
-gcloud storage buckets create gs://nosilha-terraform-state-bucket \
-  --location=us-east1 \
-  --uniform-bucket-level-access
+GCP_PROJECT_ID          # GCP project ID
+GCP_SA_KEY              # Service account JSON (base64)
+# OR
+GCP_WORKLOAD_IDENTITY   # Workload Identity Federation
 ```
 
-### Step 2: Configure Terraform Variables
-Create a `terraform.tfvars` file in `infrastructure/terraform/`:
-
-```hcl
-# Required variables
-gcp_project_id = "your-project-id"
-gcp_region     = "us-east1"
-
-# Optional: For cost monitoring
-billing_account_id = "your-billing-account-id"
-budget_notification_channels = ["your-notification-channel-id"]
-
-# Image tags (will be overridden by CI/CD)
-api_image_tag      = "latest"
-frontend_image_tag = "latest"
-```
-
-### Step 3: Deploy Infrastructure
-```bash
-cd infrastructure/terraform
-terraform init
-terraform plan
-terraform apply
-```
-
-This creates:
-- ✅ GCS bucket for media storage
-- ✅ Artifact Registry repositories
-- ✅ Cloud Run services (initially with placeholder images)
-- ✅ IAM service accounts and permissions
-- ✅ Monitoring and budget alerts
-
-### Step 4: Configure GitHub Secrets
-Add the following secrets to your GitHub repository (Settings → Secrets and variables → Actions):
+### Application Secrets
 
 ```bash
-# Get the service account key from Terraform output
-terraform output -raw cicd_service_account_key | base64 -d > cicd-key.json
-
-# Add to GitHub secrets:
-# GCP_SA_KEY: Contents of cicd-key.json (base64 encoded)
-# GCP_PROJECT_ID: Your GCP project ID
-# PRODUCTION_API_URL: https://your-backend-service-url
+NEXT_PUBLIC_API_URL               # Backend URL
+NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN   # Mapbox API token
+NEXT_PUBLIC_SUPABASE_URL          # Supabase project URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY     # Supabase publishable key
+NEXT_PUBLIC_GA_ID                 # Google Analytics (optional)
+NEXT_PUBLIC_CLARITY_PROJECT_ID    # Microsoft Clarity (optional)
+CODECOV_TOKEN                     # Codecov upload token
 ```
 
-### Step 5: Create Required Secrets in Google Secret Manager
-```bash
-# Database configuration (update with your actual values)
-gcloud secrets create supabase_db_url --data-file=- <<< "jdbc:postgresql://your-db-host:5432/your-db"
-gcloud secrets create supabase_db_username --data-file=- <<< "your-db-username"
-gcloud secrets create supabase_db_password --data-file=- <<< "your-db-password"
-gcloud secrets create supabase_jwt_secret --data-file=- <<< "your-jwt-secret"
-```
+## Manual Deployment
 
-## 🔄 CI/CD Workflows
-
-### 1. Backend Workflow (`backend-ci.yml`)
-
-**Triggers:**
-- Push to `main` branch (with backend changes)
-- Pull requests to `main` branch
-- Manual dispatch
-
-**Quality Gates:**
-- **Security Scanning** - Trivy vulnerability scanner with SARIF reports
-- **Backend Linting** - Kotlin detekt static analysis
-- **Backend Testing** - JUnit tests with PostgreSQL integration and Jacoco coverage
-- **Docker Build** - Multi-stage container builds
-- **Deployment** - Google Cloud Run deployment with health checks
-
-### 2. Frontend Workflow (`frontend-ci.yml`)
-
-**Triggers:**
-- Push to `main` branch (with frontend changes)
-- Pull requests to `main` branch
-- Manual dispatch
-
-**Quality Gates:**
-- **Security Scanning** - Trivy vulnerability scanner with SARIF reports
-- **Frontend Linting** - ESLint with SARIF output
-- **Type Checking** - TypeScript compilation and validation
-- **Bundle Analysis** - Bundle size monitoring for PRs
-- **Docker Build** - Optimized Next.js container builds
-- **Deployment** - Google Cloud Run deployment
-
-### 3. Infrastructure Workflow (`infrastructure-ci.yml`)
-
-**Triggers:**
-- Push to `main` branch (with infrastructure changes)
-- Pull requests to `main` branch
-- Manual dispatch
-
-**Quality Gates:**
-- **Security Scanning** - tfsec infrastructure security scan
-- **Terraform Validation** - Format, validate, and plan
-- **Deployment** - Terraform apply on main branch only
-
-### 4. PR Validation Workflow (`pr-validation.yml`)
-
-**Triggers:**
-- Pull requests to `main` branch
-
-**Features:**
-- Consolidated validation across all services
-- Automated PR comments with validation results
-- Security findings uploaded to GitHub Security tab
-- Auto-merge for Dependabot PRs when checks pass
-
-### 5. Integration Testing (`integration-ci.yml`)
-
-**Features:**
-- Backend API integration tests with Testcontainers (PostgreSQL)
-- Security header validation on deployed services
-- Deployment health check verification
-- Module boundary verification (Spring Modulith)
-
-**Testing Philosophy:**
-- Frontend E2E tests available locally via Playwright (not in CI - see `docs/testing.md`)
-- Optimized for solo maintainer workflow with cost-effective CI usage
-- Weekly scheduled runs plus main branch triggers
-
-## 🎯 Quality Gates
-
-The Nos Ilha CI/CD pipeline enforces comprehensive quality gates to ensure code quality, test coverage, and architectural integrity before deployment.
-
-### Coverage Quality Gates
-
-**Frontend Coverage (Vitest)** - *Local only*
-- **Note**: Frontend unit tests and coverage run locally, not in CI
-- **Configuration**: `apps/web/vitest.config.ts`
-- **Local Command**: `pnpm run test:unit`
-
-**Backend Coverage (Jacoco)**
-- **Threshold**: Minimum 70% code coverage
-- **Enforcement**: `jacocoTestCoverageVerification` task fails build if below threshold
-- **Configuration**: `apps/api/build.gradle.kts` (line 123)
-- **Reporting**: Coverage reports uploaded to Codecov with `backend-unit` flag
-
-### Module Boundary Quality Gates (Backend)
-
-**Spring Modulith Verification**
-- **Purpose**: Enforce modular architecture boundaries (FR-004, FR-009)
-- **Validation**: `ModularityTests.kt` verifies:
-  - Zero circular dependencies between modules
-  - Modules only depend on allowed dependencies (e.g., `shared` module)
-  - Event-driven communication patterns are followed
-- **Enforcement**: Build fails if module boundary violations detected
-- **Documentation**: PlantUML diagrams auto-generated to visualize module structure
-
-**Generated Artifacts**:
-- `build/modulith/*.puml` - Module dependency diagrams
-- Uploaded as workflow artifacts with 30-day retention
-
-### Bundle Size Quality Gates (Frontend)
-
-**Bundle Analysis**
-- **Threshold**: Maximum 500KB bundle size (compressed)
-- **Enforcement**: PR builds fail if bundle exceeds limit
-- **Tool**: Next.js bundle analyzer + custom size check
-- **Trigger**: Only runs on PRs with frontend changes
-- **Configuration**: `frontend-ci.yml` (lines 205-271)
-
-**Analysis Output**:
-```bash
-Total bundle size: 423KB (within 500KB limit) ✅
-```
-
-### Test Execution Quality Gates
-
-**End-to-End Tests (Playwright)** - *Local only*
-- **Note**: E2E tests run locally, not in CI (see `docs/testing.md`)
-- **Coverage**: Critical user flows (authentication, directory browsing, content creation, map interaction)
-- **Environment**: Headless Chromium browser with mobile viewport testing
-- **Local Command**: `pnpm run test:e2e`
-
-**Unit Tests**
-- **Frontend**: Vitest for React components, hooks, and utilities - *local only*
-- **Backend (CI)**: JUnit for services, repositories, domain logic with PostgreSQL integration
-- **Enforcement**: Backend test failures block PR merge
-
-### Branch Protection Rules
-
-**Main Branch Protection** (Recommended Configuration):
-1. **Require status checks to pass before merging**:
-   - `security-scan` (frontend & backend)
-   - `test-and-lint` (frontend TypeScript + ESLint, backend tests)
-   - `bundle-analysis` (frontend on PRs)
-2. **Require branches to be up to date before merging**
-3. **Require linear history**
-
-**Manual Configuration Required**:
-```bash
-# Configure via GitHub UI:
-# Settings → Branches → Branch Protection Rules → main
-
-# OR via GitHub API (requires admin permissions):
-gh api repos/:owner/:repo/branches/main/protection \
-  -X PUT \
-  -f required_status_checks='{"strict":true,"contexts":["security-scan","test-and-lint"]}'
-```
-
-### Quality Gate Metrics
-
-**Quantitative Targets**:
-- ✅ Backend coverage: >70% (CI enforced)
-- ✅ Frontend TypeScript + ESLint: pass (CI enforced)
-- ✅ Bundle size: <500KB (CI enforced)
-- ✅ Module boundary violations: 0 (CI enforced)
-- ✅ Total CI/CD time: <10 minutes
-- ℹ️ Frontend unit tests and E2E tests: local validation only
-
-**Enforcement Strategy**:
-- **PR Stage**: All quality gates must pass for PR approval
-- **Deployment Stage**: Only code passing all gates can be deployed to production
-- **Monitoring**: Coverage and quality metrics tracked over time via Codecov
-
-## 🎯 Environment Configuration
-
-### Production Environment
-- **Backend Service:** `nosilha-backend-api`
-- **Frontend Service:** `nosilha-frontend`
-- **Resources:** 
-  - Backend: 1Gi memory, 1 CPU, 0-10 instances
-  - Frontend: 512Mi memory, 1 CPU, 0-10 instances
-- **Spring Profile:** `production`
-- **Region:** `us-east1`
-- **Cost Optimization:** Min instances set to 0, auto-scaling enabled
-
-## 🔐 Required GitHub Secrets
-
-Configure these secrets in your GitHub repository settings:
-
-### Google Cloud Platform
-```bash
-GCP_PROJECT_ID              # Your GCP project ID
-GCP_SA_KEY                  # Service account JSON key (base64 encoded)
-```
-
-### Environment Configuration
-```bash
-PRODUCTION_API_URL          # Backend URL for production frontend
-NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN    # Mapbox API token
-NEXT_PUBLIC_SUPABASE_URL           # Supabase project URL
-NEXT_PUBLIC_SUPABASE_ANON_KEY      # Supabase anonymous key
-```
-
-## 🛡️ Security Features
-
-### Built-in Security (Available Without Advanced Security)
-- **Trivy Scanner** - Container and dependency vulnerability scanning
-- **Static Analysis** - detekt (Kotlin), ESLint (TypeScript), tfsec (Terraform)
-- **Basic Dependency Review** - Automated dependency vulnerability checking
-- **SARIF Integration** - Security findings uploaded to GitHub Security tab
-
-### GitHub Advanced Security (Requires License for Private Repos)
-- **CodeQL Analysis** - Automated semantic code analysis
-- **Secret Scanning** - Detects accidentally committed secrets
-- **Advanced Dependency Review** - Enhanced vulnerability checking
-
-### Service Account Permissions
-The GCP service account needs these IAM roles:
+### Using GitHub Actions
 
 ```bash
-# Artifact Registry
-roles/artifactregistry.admin
-
-# Cloud Run
-roles/run.admin
-
-# Service Account User (for deployment)
-roles/iam.serviceAccountUser
-
-# Secret Manager (for configuration)
-roles/secretmanager.accessor
-```
-
-## 📊 Deployment Process
-
-### Continuous Deployment
-The CI/CD pipeline automatically deploys when you push to the `main` branch:
-
-1. **Code Changes** → Push to `main`
-2. **Security Scanning** → Trivy, detekt, ESLint, tfsec
-3. **Testing** → Unit tests, type checking, Terraform validation
-4. **Building** → Docker images built and pushed to Artifact Registry
-5. **Deployment** → Cloud Run services updated with new images
-6. **Monitoring** → Health checks and monitoring alerts
-
-### Manual Deployment
-You can also trigger deployments manually:
-
-```bash
-# Deploy specific service
+# Deploy backend
 gh workflow run backend-ci.yml --ref main -f deploy=true
+
+# Deploy frontend
 gh workflow run frontend-ci.yml --ref main -f deploy=true
 
-# Deploy infrastructure changes
+# Force deploy (bypasses change detection)
+gh workflow run backend-ci.yml --ref main -f force_deploy=true
+
+# Infrastructure
 gh workflow run infrastructure-ci.yml --ref main
 ```
 
-### Local Development Deployment
-Use the deployment script for manual deployments:
+### Using gcloud CLI
 
 ```bash
-# Deploy to production
-./scripts/deploy.sh production all latest
-
-# Deploy backend to production with specific version
-./scripts/deploy.sh production backend v1.0.0
-```
-
-## 🔍 Monitoring and Observability
-
-### Cloud Run Metrics
-- **Request latency** and **error rates** are automatically tracked
-- **Instance scaling** metrics available in Cloud Console
-- **Application logs** streamed to Cloud Logging
-
-### Custom Metrics
-The backend exposes these endpoints for monitoring:
-- `/actuator/health` - Application health check
-- `/actuator/metrics` - Application metrics
-- `/actuator/info` - Build and application info
-
-### Cost Monitoring
-- **Free Tier Usage**: Cloud Run (2M requests/month), Artifact Registry (0.5GB), Secret Manager (10K operations/month)
-- **Budget Alerts**: Configured for $50/month with notifications
-- **Resource Optimization**: Auto-scaling to zero, minimal resource allocation
-
-## 🔧 Development Workflow
-
-### Feature Development
-1. Create feature branch: `git checkout -b feature/my-feature`
-2. Make changes and commit
-3. Push and create PR: `gh pr create`
-4. CI/CD runs validation (no deployment)
-5. After review, merge to `main`
-6. Automatic deployment to production
-
-### Hotfix Process
-1. Create hotfix branch: `git checkout -b hotfix/urgent-fix`
-2. Make minimal changes
-3. Create PR with `[HOTFIX]` in title
-4. Fast-track review and merge
-5. Automatic production deployment
-
-## 🆘 Troubleshooting
-
-### Common Issues
-
-**1. Authentication Failures**
-```bash
-# Check service account permissions
-gcloud projects get-iam-policy $GCP_PROJECT_ID \
-    --flatten="bindings[].members" \
-    --filter="bindings.members:serviceAccount:$SA_EMAIL"
-```
-
-**2. Build Failures**
-```bash
-# Check Docker build logs
-docker build -t test-image .
-
-# Validate Gradle build
-./gradlew build --stacktrace
-```
-
-**3. Deployment Failures**
-```bash
-# Check Cloud Run service logs
-gcloud logs read --service=nosilha-backend-api --limit=50
-
-# Verify service account permissions
-gcloud projects get-iam-policy $GCP_PROJECT_ID
-```
-
-**4. Health Check Failures**
-```bash
-# Test health endpoint directly
-curl -v https://your-service-url/actuator/health
-
-# Check environment variables
-gcloud run services describe nosilha-backend-api --region=us-east1
-```
-
-### Debug Commands
-```bash
-# List all images in registry
-gcloud artifacts docker images list us-east1-docker.pkg.dev/$GCP_PROJECT_ID/nosilha-backend
-gcloud artifacts docker images list us-east1-docker.pkg.dev/$GCP_PROJECT_ID/nosilha-frontend
-
-# Check Cloud Run services
+# Get current service status
 gcloud run services list --region=us-east1
 
 # View deployment logs
 gcloud logging read "resource.type=cloud_run_revision" --limit=100
+
+# Manual health check
+curl https://[SERVICE_URL]/actuator/health
 ```
 
-## 🎯 Service URLs
+## Troubleshooting
 
-After deployment, get your service URLs:
+### Authentication Failures
 
 ```bash
-# Get service URLs
-terraform output backend_api_service_url
-terraform output frontend_ui_service_url
+# Verify service account permissions
+gcloud projects get-iam-policy $GCP_PROJECT_ID \
+    --flatten="bindings[].members" \
+    --filter="bindings.members:serviceAccount:$SA_EMAIL"
 
-# Check service health
-curl https://your-backend-url/actuator/health
-curl https://your-frontend-url/
+# Required roles
+# - roles/artifactregistry.admin
+# - roles/run.admin
+# - roles/iam.serviceAccountUser
+# - roles/secretmanager.accessor
 ```
 
-## 📈 Best Practices
+### Build Failures
+
+```bash
+# Backend - local verification
+cd apps/api
+./gradlew build --stacktrace
+./gradlew test --info
+
+# Frontend - local verification
+cd apps/web
+pnpm build
+pnpm run lint
+npx tsc --noEmit
+```
+
+### Deployment Failures
+
+```bash
+# Check Cloud Run logs
+gcloud logs read --service=nosilha-backend-api --limit=50
+
+# Describe service for configuration issues
+gcloud run services describe nosilha-backend-api --region=us-east1
+
+# Check revision status
+gcloud run revisions list --service=nosilha-backend-api --region=us-east1
+```
+
+### Health Check Failures
+
+The backend uses exponential backoff with up to 12 attempts:
+
+```bash
+# Test health endpoint directly
+curl -v https://[SERVICE_URL]/actuator/health
+
+# Expected response
+{"status":"UP","components":{"db":{"status":"UP"},...}}
+```
+
+Common causes:
+- **Cold start:** First request after scale-to-zero takes longer
+- **Database connectivity:** Check Supabase connection string
+- **Secret configuration:** Verify Terraform-managed secrets
+
+### Terraform Lock Issues
+
+```bash
+# List existing locks
+terraform force-unlock -force [LOCK_ID]
+
+# The workflow includes automatic lock cleanup
+# See: .github/scripts/terraform-lock-cleanup.sh
+```
+
+### Bundle Size Exceeded
+
+If the frontend bundle exceeds 500KB:
+
+```bash
+# Analyze bundle
+cd apps/web
+pnpm build
+npx @next/bundle-analyzer
+
+# Common fixes:
+# - Dynamic imports for large components
+# - Remove unused dependencies
+# - Use tree-shaking friendly imports
+```
+
+## Best Practices
 
 ### Branch Strategy
-1. **Feature branches** → `main` (production deployment)
-2. **Hotfix branches** → `main` (immediate production fix)
 
-### Deployment Strategy
-1. **Blue-green deployments** via Cloud Run traffic splitting
-2. **Database migrations** run automatically via Flyway
-3. **Zero-downtime deployments** with health checks
-4. **Rollback capability** via container image tags
+- **Feature branches** merged to `main` trigger deployment
+- **Hotfix branches** for urgent fixes (same flow)
+- No staging environment (cost optimization)
 
-### Security Practices
-1. **Least privilege** service account permissions
-2. **Encrypted secrets** in GitHub and Secret Manager
-3. **Regular dependency updates** via Dependabot
-4. **Security scanning** on every PR
+### Deployment Safety
 
-## 🔄 Maintenance
+- **Health checks** with retry and exponential backoff
+- **Terraform-managed secrets** persist across revisions
+- **Rollback:** Use previous container image tags
 
-### Regular Tasks
-1. **Update GitHub Actions** versions quarterly
-2. **Review and rotate** service account keys annually
-3. **Update base Docker images** monthly
-4. **Clean up old images** from registry monthly
+### Cost Optimization
 
-### Monitoring Tasks
-1. **Review deployment metrics** weekly
-2. **Check error rates** and **performance** daily
-3. **Update alerting thresholds** as application grows
-4. **Audit security findings** from automated scans
+- **Path-based triggers:** Only run relevant workflows
+- **Scale-to-zero:** Min instances set to 0
+- **Concurrency control:** Cancel in-progress duplicate runs
+- **Test exclusions:** Frontend E2E runs locally only
 
-## ✅ Success Checklist
+## Local Validation
 
-After completing this setup, you should have:
+### Complete Test Suite
 
-- ✅ **Infrastructure deployed** with Terraform
-- ✅ **CI/CD pipelines** running automatically
-- ✅ **Security scanning** integrated
-- ✅ **Monitoring and alerts** configured
-- ✅ **Cost controls** in place
-- ✅ **Services accessible** via public URLs
-- ✅ **Development workflow** established
+Before pushing changes, run this validation script:
+
+```bash
+#!/bin/bash
+# Complete CI/CD Pipeline Validation
+
+echo "📋 Infrastructure Validation"
+cd infrastructure/terraform
+terraform validate && echo "✅ Terraform validation passed"
+terraform fmt -check -recursive && echo "✅ Terraform formatting passed"
+
+echo "📋 Backend Testing"
+cd ../../apps/api
+./gradlew test && echo "✅ Backend tests passed"
+./gradlew ktlintCheck && echo "✅ Backend linting passed"
+
+echo "📋 Frontend Testing"
+cd ../web
+pnpm run lint && echo "✅ Frontend linting passed"
+npx tsc --noEmit && echo "✅ TypeScript check passed"
+pnpm run build && echo "✅ Frontend build passed"
+```
+
+### Spring Modulith Verification
+
+```bash
+cd apps/api
+
+# Run module boundary verification
+./gradlew test --tests "com.nosilha.core.ModularityTests"
+
+# Generate module documentation
+./gradlew test --tests "ModularityTests"
+ls build/modulith/*.puml  # View generated diagrams
+```
 
 ---
 
-For questions or issues with the CI/CD pipeline, please create an issue in the repository or refer to the [Security Policy](../SECURITY.md) for security-related concerns.
+For secret management, see [docs/secret-management.md](./secret-management.md).
+For security policy, see [SECURITY.md](../SECURITY.md).

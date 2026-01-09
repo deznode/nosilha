@@ -1,172 +1,434 @@
 # Troubleshooting Guide
 
-This document provides solutions to common issues encountered when developing and deploying the Nos Ilha platform.
+Quick reference for resolving common issues in the Nos Ilha platform.
 
-## Development Environment Issues
+## Quick Diagnostics
 
-### Backend fails to start with database connection errors
+| Issue Type | First Command |
+|------------|---------------|
+| Backend won't start | `cd infrastructure/docker && docker-compose ps` |
+| Frontend build fails | `cd apps/web && pnpm run lint && npx tsc --noEmit` |
+| Database connection | `docker-compose exec db psql -U nosilha -d nosilha_db -c "\dt"` |
+| Cloud Run errors | `gcloud logging read 'resource.type="cloud_run_revision" AND severity>="ERROR"' --limit=20` |
 
-**Solution**:
+---
+
+## Local Development
+
+### Docker/PostgreSQL Issues
+
+**PostgreSQL container won't start**
 ```bash
-# Check if PostgreSQL is running via Docker
-cd infrastructure/docker && docker-compose ps
+cd infrastructure/docker
 
-# Restart PostgreSQL service
-docker-compose restart postgres
+# Check container status
+docker-compose ps
 
-# Verify database connectivity
-docker-compose exec postgres psql -U nosilha -d nosilha_db -c "\dt"
-```
-**File Reference**: `infrastructure/docker/docker-compose.yml:82-95`
+# Restart database
+docker-compose down && docker-compose up -d
 
-### Frontend API calls fail with CORS errors
-
-**Solution**:
-```bash
-# Check backend CORS configuration
-# File: apps/api/src/main/resources/application-local.yml:8
-# Ensure CORS_ALLOWED_ORIGINS includes frontend URL
-```
-
-### JWT authentication fails between frontend and backend
-
-**Solution**:
-```bash
-# Verify Supabase configuration
-# File: apps/web/src/lib/supabase-client.ts
-# Check environment variables in .env.local
-
-# Storybook/Chromatic builds without Supabase secrets
-# Set NEXT_PUBLIC_SUPABASE_USE_STUB=true (or STORYBOOK=true) so Storybook
-# uses the local stub client when NEXT_PUBLIC_SUPABASE_* are unavailable.
-# This prevents build failures during visual-regression runs.
-
-# Verify backend JWT secret configuration
-# File: apps/api/src/main/resources/application.yml:54-55
+# Verify database is accepting connections
+docker-compose exec db psql -U nosilha -d nosilha_db -c "SELECT 1"
 ```
 
-## CI/CD Pipeline Issues
-
-### Workflow fails with "Advanced Security must be enabled" warnings
-
-**Solution**: These warnings are expected for repositories without GitHub Advanced Security license. Workflows use `continue-on-error: true` to prevent failures.
-
-**File Reference**: All workflow files use this pattern for SARIF uploads
-
-### Docker build fails in CI/CD
-
-**Solution**:
+**Port 5432 already in use**
 ```bash
-# Check Artifact Registry authentication
-# File: .github/workflows/backend-ci.yml:106-112
-# Verify GCP_SA_KEY secret is valid JSON
+# Find process using port
+lsof -i :5432
 
+# Stop local PostgreSQL (macOS)
+brew services stop postgresql
+
+# Or kill the process
+kill -9 <PID>
+```
+
+**Data persistence issues**
+```bash
+# Reset database completely (WARNING: deletes all data)
+cd infrastructure/docker
+docker-compose down -v
+rm -rf ./data
+docker-compose up -d
+```
+
+### Backend (Spring Boot)
+
+**Database connection refused**
+
+| Check | Command |
+|-------|---------|
+| Container running | `docker-compose ps` |
+| Connection string | Verify `DATABASE_URL` in environment |
+| Port mapping | Ensure `5432:5432` in docker-compose.yml |
+
+```bash
+# Start with local profile
+cd apps/api
+./gradlew bootRun --args='--spring.profiles.active=local'
+```
+
+**Flyway migration fails**
+```bash
+# Check migration files for syntax errors
+ls apps/api/src/main/resources/db/migration/
+
+# Repair Flyway checksum issues
+./gradlew flywayRepair
+
+# View migration status
+./gradlew flywayInfo
+```
+
+**Build fails with Kotlin errors**
+```bash
+# Clean build
+./gradlew clean build --stacktrace
+
+# Check Kotlin style
+./gradlew ktlintCheck
+```
+
+### Frontend (Next.js)
+
+**Dependencies won't install**
+```bash
+cd apps/web
+
+# Clear node_modules and reinstall
+rm -rf node_modules pnpm-lock.yaml
+pnpm install
+```
+
+**TypeScript errors**
+```bash
+# Check types
+npx tsc --noEmit
+
+# Run linter
+pnpm run lint
+```
+
+**Build fails with Velite errors**
+```bash
+# Velite processes MDX content during build
+# Check content files exist
+ls content/
+
+# Clear Next.js cache
+rm -rf .next
+pnpm run build
+```
+
+**Environment variables not loading**
+```bash
+# Verify .env.local exists and contains required variables
+cat apps/web/.env.local
+
+# Required variables:
+# NEXT_PUBLIC_API_URL=http://localhost:8080
+# NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=pk.xxx
+# NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+# NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_xxx
+```
+
+---
+
+## Authentication
+
+### JWT/Supabase Issues
+
+**JWT validation fails**
+
+| Symptom | Solution |
+|---------|----------|
+| 401 Unauthorized | Check `SUPABASE_JWT_SECRET` matches Supabase project |
+| Token expired | Refresh token in frontend auth store |
+| Invalid signature | Verify ES256 algorithm configuration |
+
+```bash
+# Verify backend JWT configuration
+# Check apps/api/src/main/resources/application.yml
+
+# Decode JWT for debugging (use jwt.io or)
+echo $TOKEN | cut -d'.' -f2 | base64 -d | jq
+```
+
+**CORS errors**
+```bash
+# Check backend CORS settings in application-local.yml
+# Ensure allowed origins include http://localhost:3000
+```
+
+**Storybook/Chromatic builds fail without Supabase**
+```bash
+# Set environment variable to use stub client
+NEXT_PUBLIC_SUPABASE_USE_STUB=true pnpm run storybook
+# Or set STORYBOOK=true
+```
+
+---
+
+## Database
+
+### Connection Issues
+
+**Connection timeout**
+```bash
+# Test database connectivity
+docker-compose exec db psql -U nosilha -d nosilha_db -c "\conninfo"
+
+# Check connection pool settings
+# apps/api/src/main/resources/application.yml (HikariCP config)
+```
+
+**"relation does not exist" error**
+```bash
+# Run migrations
+./gradlew flywayMigrate
+
+# Check if tables exist
+docker-compose exec db psql -U nosilha -d nosilha_db -c "\dt"
+```
+
+### Single Table Inheritance Issues
+
+**Entity mapping errors**
+```bash
+# Verify discriminator values match database entries
+docker-compose exec db psql -U nosilha -d nosilha_db \
+  -c "SELECT DISTINCT entry_type FROM directory_entries"
+
+# Check entity annotations in:
+# apps/api/src/main/kotlin/com/nosilha/core/places/domain/
+```
+
+---
+
+## CI/CD Pipeline
+
+### Build Failures
+
+| Workflow | Debug Command |
+|----------|---------------|
+| Backend | `cd apps/api && ./gradlew build --stacktrace` |
+| Frontend | `cd apps/web && pnpm build` |
+| Infrastructure | `cd infrastructure/terraform && terraform validate` |
+
+**Docker build fails in CI**
+```bash
 # Test Docker build locally
 cd apps/api && ./gradlew bootBuildImage
 cd apps/web && docker build -t test-frontend .
+
+# Verify GCP authentication (for CI)
+# Check GCP_SA_KEY secret is valid JSON
 ```
 
-### Terraform state lock errors
+**"Advanced Security must be enabled" warnings**
 
-**Solution**: Infrastructure workflows include automatic state lock cleanup
+These are expected for repositories without GitHub Advanced Security license. Workflows use `continue-on-error: true` to prevent failures.
 
-**File Reference**: `infrastructure-ci.yml:106-125`, `226-244`
+### Terraform Issues
 
-## Production Deployment Issues
-
-### Cloud Run service fails health checks
-
-**Solution**:
+**State lock errors**
 ```bash
-# Check service logs
-gcloud logs read --service=nosilha-backend-api --limit=50
+# Force unlock (use with caution)
+cd infrastructure/terraform
+terraform force-unlock LOCK_ID
 
-# Verify environment variables
+# Check for active locks
+terraform init
+```
+
+**Drift detection**
+```bash
+terraform plan -detailed-exitcode
+# Exit code 2 = drift detected
+```
+
+---
+
+## Cloud Run Deployment
+
+### Service Health
+
+**Health check fails**
+```bash
+# Test health endpoint
+curl -f https://nosilha-backend-api-xxx.run.app/actuator/health
+
+# View service status
 gcloud run services describe nosilha-backend-api --region=us-east1
 
-# Test health endpoint
-curl -f https://your-service-url/actuator/health
+# Check recent logs
+gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="nosilha-backend-api" AND severity>="ERROR"' --limit=20 --freshness=1h
 ```
-**File Reference**: `backend-ci.yml:173-182`, `frontend-ci.yml:252-261`
 
-### Media uploads fail to GCS
+**Service won't start**
 
-**Solution**:
+| Common Cause | Solution |
+|--------------|----------|
+| Cold start timeout | Increase memory to 1Gi |
+| Database unreachable | Verify Supabase connection string |
+| Secret access denied | Check service account permissions |
+| Port misconfiguration | Ensure app listens on $PORT |
+
+```bash
+# Check startup errors
+gcloud logging read 'resource.type="cloud_run_revision" AND textPayload:"APPLICATION FAILED TO START"' --limit=10
+
+# Verify environment variables
+gcloud run services describe nosilha-backend-api --region=us-east1 --format="export"
+```
+
+### Logs and Debugging
+
+**View live logs**
+```bash
+gcloud beta run services logs tail nosilha-backend-api --region=us-east1
+
+# Filter by severity
+gcloud beta run services logs tail nosilha-backend-api --region=us-east1 --log-filter="severity>=ERROR"
+```
+
+**Advanced log filtering**
+```bash
+# Filter by time range (last 24 hours)
+gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="nosilha-backend-api"' --limit=100 --freshness=24h
+
+# Formatted table output
+gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="nosilha-backend-api" AND severity>="WARNING"' --limit=30 --format="table(timestamp,severity,textPayload)"
+
+# Search for specific error patterns
+gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="nosilha-backend-api" AND textPayload:"[ERROR-PATTERN]"' --limit=20
+```
+
+**Database connection issues in production**
+```bash
+# PostgreSQL connection errors
+gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="nosilha-backend-api" AND (textPayload:"connection" OR textPayload:"postgresql")' --limit=20
+
+# SQL and JDBC errors
+gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="nosilha-backend-api" AND (textPayload:"SQLException" OR textPayload:"JDBC" OR textPayload:"PSQLException")' --limit=20
+
+# Flyway migration errors
+gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="nosilha-backend-api" AND textPayload:"flyway"' --limit=15
+```
+
+**Spring Boot application errors**
+```bash
+gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="nosilha-backend-api" AND (textPayload:"org.springframework" OR textPayload:"APPLICATION FAILED TO START")' --limit=20
+```
+
+### Useful gcloud Aliases
+
+Add these to your `~/.bashrc` or `~/.zshrc` for quick Cloud Run diagnostics:
+
+```bash
+# Cloud Run error logs
+alias crlogserr='gcloud logging read "resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"$1\" AND severity>=\"ERROR\"" --limit=20 --freshness=1h'
+
+# Describe Cloud Run service
+alias crdesc='gcloud run services describe "$1" --region="$2"'
+
+# Tail Cloud Run logs
+alias crtail='gcloud beta run services logs tail "$1" --region="$2"'
+```
+
+Usage:
+```bash
+crlogserr nosilha-backend-api
+crdesc nosilha-backend-api us-east1
+crtail nosilha-backend-api us-east1
+```
+
+### Secret Manager
+
+**Permission denied accessing secrets**
 ```bash
 # Check service account permissions
-# File: infrastructure/terraform/iam.tf:74-79
-# Verify backend service account has storage.objectAdmin role
+gcloud projects get-iam-policy PROJECT_ID \
+  --flatten="bindings[].members" \
+  --filter="bindings.members:serviceAccount:SERVICE_ACCOUNT_EMAIL"
 
-# Check bucket configuration
-# File: infrastructure/terraform/main.tf:28-43
+# Required role: roles/secretmanager.secretAccessor
 ```
 
-## Database Issues
+**Secret not updating after rotation**
+1. Verify Terraform version number is updated
+2. Check Cloud Run revision uses new version
+3. Force new deployment if needed
 
-### Flyway migration fails
+---
 
-**Solution**:
+## Performance
+
+### Frontend Slow Loading
+
 ```bash
-# Check migration file syntax
-# Directory: apps/api/src/main/resources/db/migration/
+# Analyze bundle size
+cd apps/web
+pnpm build
+npx @next/bundle-analyzer
 
-# Manual migration repair if needed
-./gradlew flywayRepair
+# Check ISR cache settings in apps/web/src/lib/api.ts
+# Default: 1 hour for listings, 30 min for entries
 ```
 
-### Single Table Inheritance mapping errors
+### Backend API Response Times
 
-**Solution**:
 ```bash
-# Verify entity discriminator values
-# File: apps/api/src/main/kotlin/com/nosilha/core/domain/DirectoryEntry.kt:22-47
-# Check subclass @DiscriminatorValue annotations
+# Check database query performance
+docker-compose exec db psql -U nosilha -d nosilha_db \
+  -c "SELECT * FROM pg_stat_statements ORDER BY total_time DESC LIMIT 10"
+
+# Monitor connection pool
+curl http://localhost:8080/actuator/metrics/hikaricp.connections.active
 ```
 
-## Security & Permissions Issues
+---
 
-### GitHub Actions workflow permission denied
+## Quick Reference
 
-**Solution**:
+### Environment URLs
+
+| Service | Local URL |
+|---------|-----------|
+| Frontend | http://localhost:3000 |
+| Backend API | http://localhost:8080/api/v1/ |
+| PostgreSQL | localhost:5432 |
+| Health Check | http://localhost:8080/actuator/health |
+
+### Production URLs
+
+| Service | URL |
+|---------|-----|
+| Backend API | `gcloud run services describe nosilha-backend-api --format="value(status.url)"` |
+| Frontend | `gcloud run services describe nosilha-frontend --format="value(status.url)"` |
+
+### Essential Commands
+
 ```bash
-# Verify GitHub secrets are configured:
-# - GCP_SA_KEY (base64 encoded service account JSON)
-# - GCP_PROJECT_ID
-# - All NEXT_PUBLIC_* variables
+# Start local development
+cd infrastructure/docker && docker-compose up -d
+cd apps/api && ./gradlew bootRun --args='--spring.profiles.active=local'
+cd apps/web && pnpm dev
 
-# Check service account permissions in GCP Console
-# File: infrastructure/terraform/iam.tf for required roles
+# Run tests
+cd apps/api && ./gradlew test
+cd apps/web && pnpm run test:e2e  # Local only
+
+# Deploy manually
+gh workflow run backend-ci.yml --ref main -f deploy=true
+gh workflow run frontend-ci.yml --ref main -f deploy=true
 ```
 
-## Performance Issues
+---
 
-### Frontend pages load slowly
+## Related Documentation
 
-**Solution**:
-```bash
-# Check ISR cache configuration
-# File: apps/web/src/lib/api.ts:77-80 (1 hour cache)
-# File: apps/web/src/lib/api.ts:107-109 (30 min cache)
-
-# Review bundle size
-npm run build && npx bundlesize
-```
-
-### Backend API response times are high
-
-**Solution**:
-```bash
-# Check database connection pool settings
-# File: apps/api/src/main/resources/application.yml:19-21
-
-# Monitor with Actuator endpoints
-curl https://your-backend-url/actuator/metrics
-```
-
-## Getting Help
-
-For additional support:
-1. **CI/CD Issues**: Refer to `docs/ci-cd-pipeline.md` and `docs/ci-cd-testing.md`
-2. **Security Issues**: Follow procedures in `SECURITY.md`
-3. **Architecture Questions**: Review `CLAUDE.md` and `docs/architecture.md`
-4. **Infrastructure Issues**: Check Terraform state and GCP Console for resource status
+- [CI/CD Pipeline](ci-cd-pipeline.md) - Detailed workflow configuration
+- [Secret Management](secret-management.md) - GCP Secret Manager guide
+- [Architecture](architecture.md) - System design and module structure
+- [SECURITY.md](../SECURITY.md) - Security policy and vulnerability reporting

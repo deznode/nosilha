@@ -119,7 +119,7 @@ For production deployment to Google Cloud:
 3. **Deploy Infrastructure**: Use Terraform to provision GCP resources
 4. **Automated Deployment**: Push to `main` branch triggers automatic deployment
 
-See [`CLAUDE.md`](CLAUDE.md) for detailed architecture documentation and troubleshooting guide.
+See [`docs/architecture.md`](docs/architecture.md) for detailed architecture documentation and [`docs/troubleshooting.md`](docs/troubleshooting.md) for troubleshooting guide.
 
 ## Version History
 

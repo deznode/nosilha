@@ -1,1048 +1,609 @@
 # Nos Ilha API Reference
 
-This document provides comprehensive documentation for the Nos Ilha backend API, including endpoints, request/response formats, authentication, and usage examples.
+REST API documentation for the Nos Ilha backend (Spring Boot 4.0 + Kotlin).
 
-## 📋 API Overview
-
-**Base URL**: `http://localhost:8080/api/v1` (development) / `https://your-backend-url/api/v1` (production)
-
-**API Version**: v1  
-**Response Format**: JSON  
-**Authentication**: JWT Bearer tokens (Supabase)  
+**Base URL**: `http://localhost:8080/api/v1` (development)
 **Content-Type**: `application/json`
+**Authentication**: JWT Bearer tokens (Supabase)
 
-### Standard Response Envelope
+## Response Format
 
-Every controller response is wrapped with the shared envelopes from [`com/nosilha/core/shared/api/ApiResponse.kt`](../apps/api/src/main/kotlin/com/nosilha/core/shared/api/ApiResponse.kt):
+All responses use standard wrappers from `com.nosilha.core.shared.api`:
 
-- `ApiResponse<T>` — single resource payloads
-- `PagedApiResponse<T>` — list endpoints with pagination metadata
-- `ErrorResponse` — non-validation errors (`error`, `message`, `status`, `timestamp`, `path`)
-- `ValidationErrorResponse` — bean validation failures with `details: FieldError[]`
+```mermaid
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: "#2563eb"
+    primaryTextColor: "#fff"
+    primaryBorderColor: "#1d4ed8"
+    lineColor: "#64748b"
+    secondaryColor: "#f1f5f9"
+    tertiaryColor: "#e2e8f0"
+---
+flowchart LR
+    subgraph Success["Success Responses"]
+        A[ApiResult&lt;T&gt;] --> B["data, timestamp, status"]
+        C[PagedApiResult&lt;T&gt;] --> D["data[], pageable, timestamp, status"]
+    end
+    subgraph Error["Error Responses"]
+        E[ErrorResponse] --> F["error, message, path, status"]
+        G[ValidationErrorResponse] --> H["error, details[], path, status"]
+    end
+```
 
-```jsonc
-// ApiResponse example
+**Single Resource**:
+```json
 {
-  "data": { "id": "c5a...", "name": "Furna Cultural Center" },
-  "status": 200,
-  "timestamp": "2024-05-05T12:04:00Z"
-}
-
-// ValidationErrorResponse example
-{
-  "error": "Validation failed",
-  "details": [
-    { "field": "name", "rejectedValue": "", "message": "Name is required" }
-  ],
-  "status": 400,
-  "timestamp": "2024-05-05T12:05:00Z",
-  "path": "/api/v1/directory/entries"
+  "data": { "id": "uuid", "name": "..." },
+  "timestamp": "2025-01-09T12:00:00Z",
+  "status": 200
 }
 ```
 
-Clients should always read the `data` node (or `pageable` metadata) for successful calls and inspect the `error/details` nodes for failures. No endpoint returns raw DTOs or primitive lists.
+**Paginated List**:
+```json
+{
+  "data": [...],
+  "pageable": {
+    "page": 0, "size": 20,
+    "totalElements": 100, "totalPages": 5,
+    "first": true, "last": false
+  },
+  "timestamp": "2025-01-09T12:00:00Z",
+  "status": 200
+}
+```
 
-## 🔐 Authentication
+**Validation Error**:
+```json
+{
+  "error": "Validation failed",
+  "details": [{ "field": "name", "rejectedValue": "", "message": "Name is required" }],
+  "path": "/api/v1/directory/entries",
+  "status": 400
+}
+```
 
-### Authentication Flow
+---
 
-The API uses JWT-based authentication with Supabase tokens:
+## Authentication
 
-1. User authenticates via frontend with Supabase
-2. Frontend receives JWT access token
-3. Token is included in API requests via `Authorization` header
-4. Backend validates token and extracts user claims
-
-### Authorization Header Format
+JWT tokens from Supabase. Include in requests:
 
 ```http
 Authorization: Bearer <supabase_jwt_token>
 ```
 
-### Authentication Validation
+| Response | Meaning |
+|----------|---------|
+| 401 Unauthorized | Missing or invalid token |
+| 403 Forbidden | Valid token but insufficient permissions |
 
-Token validation is handled internally by the `JwtAuthenticationFilter` on protected endpoints. There is no separate `/auth/validate` endpoint - the JWT is validated automatically when accessing protected routes.
+---
 
-Protected endpoints will return:
-- **401 Unauthorized**: Missing or invalid token
-- **403 Forbidden**: Valid token but insufficient permissions
+## Places Module
 
-## 🏢 Directory Entries API
+### Directory Entries
 
-### Data Model
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/directory/entries` | No | List entries with search, filter, pagination |
+| GET | `/directory/entries/{id}` | No | Get entry by UUID |
+| GET | `/directory/slug/{slug}` | No | Get entry by slug |
+| GET | `/directory/entries/{id}/bookmark-status` | Optional | Check if entry is bookmarked |
+| GET | `/directory/entries/{id}/related` | No | Get 3-5 related entries |
+| POST | `/directory/entries` | Yes | Create entry |
+| PUT | `/directory/entries/{id}` | Yes | Update entry |
+| DELETE | `/directory/entries/{id}` | Yes | Delete entry |
 
-The API uses a single-table inheritance pattern with nested DTOs for type-specific details:
+#### GET /directory/entries
 
-```typescript
-// Base structure for all directory entries
-interface BaseDirectoryEntry {
-  id: string;                    // UUID
-  name: string;                 // Business/landmark name
-  slug: string;                 // URL-friendly identifier
-  description: string;          // Detailed description
-  category: "Restaurant" | "Hotel" | "Landmark" | "Beach";
-  town: string;                 // Location town
-  latitude: number;             // Geographic coordinate
-  longitude: number;            // Geographic coordinate
-  imageUrl?: string;            // Primary image URL
-  rating?: number;              // Average rating (0-5)
-  reviewCount: number;          // Number of reviews
-  createdAt: string;            // ISO 8601 timestamp
-  updatedAt: string;            // ISO 8601 timestamp
-}
-
-// Restaurant-specific details
-interface RestaurantDetails {
-  phoneNumber: string;          // Contact phone number
-  openingHours: string;         // Business hours
-  cuisine: string[];            // Array of cuisine types
-}
-
-// Hotel-specific details
-interface HotelDetails {
-  amenities: string[];          // Array of amenities
-}
-
-// Complete directory entry types
-type DirectoryEntry = 
-  | (BaseDirectoryEntry & { category: "Restaurant"; details: RestaurantDetails })
-  | (BaseDirectoryEntry & { category: "Hotel"; details: HotelDetails })
-  | (BaseDirectoryEntry & { category: "Beach"; details: null })
-  | (BaseDirectoryEntry & { category: "Landmark"; details: null });
-```
-
-### Get All Directory Entries
-
-```http
-GET /api/v1/directory/entries
-```
+List entries with search, filtering, and pagination.
 
 **Query Parameters**:
-- `category` (optional): Filter by category (`Restaurant`, `Hotel`, `Landmark`, `Beach`)
-- `town` (optional): Filter by town name
-- `page` (optional): Page number (default: 0)
-- `size` (optional): Page size (default: 20)
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| q | string | - | Full-text search (min 2 chars) |
+| category | string | - | Filter: Restaurant, Hotel, Beach, Heritage, Nature |
+| town | string | - | Filter by town name |
+| sort | string | created_at_desc | name_asc, name_desc, rating_desc, created_at_desc, relevance |
+| page | int | 0 | Page number |
+| size | int | 20 | Page size |
 
-**Example Request**:
 ```bash
-curl -X GET "http://localhost:8080/api/v1/directory/entries?category=Restaurant&town=Vila Nova Sintra" \
-  -H "Accept: application/json"
+curl "http://localhost:8080/api/v1/directory/entries?category=Restaurant&town=Nova%20Sintra&page=0&size=10"
 ```
 
-**Response** (200 OK):
+**Response** (200):
 ```json
 {
-  "data": [
-    {
-      "id": "123e4567-e89b-12d3-a456-426614174000",
-      "name": "Casa do Bacalhau",
-      "slug": "casa-do-bacalhau",
-      "description": "Traditional Cape Verdean restaurant serving fresh seafood and local specialties.",
-      "category": "Restaurant",
-      "town": "Vila Nova Sintra",
-      "latitude": 14.8564,
-      "longitude": -24.7144,
-      "imageUrl": "https://storage.googleapis.com/bucket/casa-bacalhau.jpg",
-      "rating": 4.5,
-      "reviewCount": 28,
-      "createdAt": "2024-01-01T10:00:00Z",
-      "updatedAt": "2024-01-15T14:30:00Z",
-      "details": {
-        "phoneNumber": "+238 283 1234",
-        "openingHours": "Mon-Sat 11:00-22:00; Sun 12:00-20:00",
-        "cuisine": ["Cape Verdean", "Seafood"]
-      }
-    }
-  ],
-  "pageable": {
-    "page": 0,
-    "size": 20,
-    "totalElements": 1,
-    "totalPages": 1,
-    "first": true,
-    "last": true
-  },
-  "timestamp": "2024-01-15T10:30:00Z",
-  "status": 200
-}
-```
-
-### Get Directory Entry by ID
-
-```http
-GET /api/v1/directory/entries/{id}
-```
-
-**Path Parameters**:
-- `id`: UUID of the directory entry
-
-**Example Request**:
-```bash
-curl -X GET "http://localhost:8080/api/v1/directory/entries/123e4567-e89b-12d3-a456-426614174000" \
-  -H "Accept: application/json"
-```
-
-**Response** (200 OK):
-```json
-{
-  "data": {
+  "data": [{
     "id": "123e4567-e89b-12d3-a456-426614174000",
     "name": "Casa do Bacalhau",
     "slug": "casa-do-bacalhau",
-    "description": "Traditional Cape Verdean restaurant serving fresh seafood and local specialties.",
+    "description": "Traditional Cape Verdean restaurant...",
     "category": "Restaurant",
-    "town": "Vila Nova Sintra",
+    "town": "Nova Sintra",
     "latitude": 14.8564,
     "longitude": -24.7144,
-    "imageUrl": "https://storage.googleapis.com/bucket/casa-bacalhau.jpg",
+    "imageUrl": "https://...",
     "rating": 4.5,
     "reviewCount": 28,
-    "createdAt": "2024-01-01T10:00:00Z",
-    "updatedAt": "2024-01-15T14:30:00Z",
+    "createdAt": "2025-01-01T10:00:00Z",
+    "updatedAt": "2025-01-15T14:30:00Z",
     "details": {
       "phoneNumber": "+238 283 1234",
-      "openingHours": "Mon-Sat 11:00-22:00; Sun 12:00-20:00",
+      "openingHours": "Mon-Sat 11:00-22:00",
       "cuisine": ["Cape Verdean", "Seafood"]
     }
-  },
-  "timestamp": "2024-01-15T10:30:00Z",
-  "status": 200
+  }],
+  "pageable": { "page": 0, "size": 10, "totalElements": 1, "totalPages": 1 }
 }
 ```
 
-**Response** (404 Not Found):
-```json
-{
-  "error": "Resource Not Found",
-  "message": "Directory entry with ID '123e4567-e89b-12d3-a456-426614174000' not found.",
-  "timestamp": "2024-01-15T10:30:00Z",
-  "path": "/api/v1/directory/entries/123e4567-e89b-12d3-a456-426614174000",
-  "status": 404
-}
-```
+#### GET /directory/entries/{id}/related
 
-### Get Directory Entry by Slug
+Get 3-5 related content items based on category, town, and cuisine matching.
 
-```http
-GET /api/v1/directory/slug/{slug}
-```
+**Query Parameters**:
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| limit | int | 5 | Number of results (3-5) |
 
-**Path Parameters**:
-- `slug`: URL-friendly identifier
-
-**Example Request**:
 ```bash
-curl -X GET "http://localhost:8080/api/v1/directory/slug/casa-do-bacalhau" \
-  -H "Accept: application/json"
+curl "http://localhost:8080/api/v1/directory/entries/123e4567.../related?limit=5"
 ```
 
-**Response**: Same as Get by ID
+### Towns
 
-### Create Directory Entry
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/towns` | No | List towns with pagination |
+| GET | `/towns/all` | No | Get all towns (for dropdowns) |
+| GET | `/towns/{id}` | No | Get town by UUID |
+| GET | `/towns/slug/{slug}` | No | Get town by slug |
+| POST | `/towns` | Yes | Create town |
+| PUT | `/towns/{id}` | Yes | Update town |
+| DELETE | `/towns/{id}` | Yes | Delete town |
 
-```http
-POST /api/v1/directory/entries
-Authorization: Bearer <token>
-Content-Type: application/json
+---
+
+## Gallery Module
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/gallery` | No | List active gallery media |
+| GET | `/gallery/{id}` | Optional | Get media by ID |
+| GET | `/gallery/entry/{entryId}` | No | Get media for directory entry |
+| GET | `/gallery/categories` | No | Get distinct categories |
+| POST | `/gallery/upload/presign` | Yes | Get presigned URL for upload |
+| POST | `/gallery/upload/confirm` | Yes | Confirm completed upload |
+| POST | `/gallery/submit` | Yes | Submit external media |
+
+#### GET /gallery
+
+List active gallery media (user uploads and external content).
+
+**Query Parameters**:
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| category | string | - | Filter by category |
+| page | int | 0 | Page number |
+| size | int | 50 | Items per page (max 100) |
+
+```bash
+curl "http://localhost:8080/api/v1/gallery?category=Nature&page=0&size=20"
 ```
 
-**Request Body**:
+#### POST /gallery/upload/presign
+
+Generate presigned URL for direct browser-to-R2 upload.
+
+**Rate Limit**: 20 uploads/hour, 100 uploads/day per user.
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/gallery/upload/presign" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fileName": "photo.jpg",
+    "contentType": "image/jpeg",
+    "fileSize": 2048576
+  }'
+```
+
+**Response** (200):
 ```json
 {
-  "name": "New Restaurant",
-  "description": "A wonderful new dining experience on Brava Island.",
-  "category": "Restaurant",
-  "town": "Vila Nova Sintra",
-  "latitude": 14.8564,
-  "longitude": -24.7144,
-  "imageUrl": "https://storage.googleapis.com/bucket/new-restaurant.jpg",
-  "details": {
-    "phoneNumber": "+238 283 5678",
-    "openingHours": "Daily 12:00-23:00",
-    "cuisine": ["International", "Cape Verdean"]
+  "data": {
+    "uploadUrl": "https://r2.example.com/presigned...",
+    "key": "uploads/2025/01/abc123.jpg",
+    "expiresAt": "2025-01-09T12:10:00Z"
   }
 }
 ```
 
-**Response** (201 Created):
+#### POST /gallery/upload/confirm
+
+Confirm upload after file is uploaded to R2.
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/gallery/upload/confirm" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "key": "uploads/2025/01/abc123.jpg",
+    "originalName": "my-photo.jpg",
+    "contentType": "image/jpeg",
+    "fileSize": 2048576,
+    "entryId": "123e4567-e89b-12d3-a456-426614174000",
+    "category": "Nature",
+    "description": "Sunset view from Faja d'\''Agua"
+  }'
+```
+
+---
+
+## Engagement Module
+
+### Reactions
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/reactions/content/{contentId}` | Optional | Get reaction counts |
+| POST | `/reactions` | Yes | Submit/toggle reaction |
+| DELETE | `/reactions/content/{contentId}` | Yes | Remove reaction |
+
+**Reaction Types**: `LOVE`, `CELEBRATE`, `INSIGHTFUL`, `SUPPORT`
+
+#### POST /reactions
+
+Submit or toggle a reaction. Same type removes it, different type replaces it.
+
+**Rate Limit**: 10 reactions/minute per user.
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/reactions" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contentId": "789e0123-e45b-67c8-d901-234567890abc",
+    "reactionType": "LOVE"
+  }'
+```
+
+**Response** (201 Created / 200 OK):
 ```json
 {
   "data": {
-    "id": "456e7890-e89b-12d3-a456-426614174001",
-    "name": "New Restaurant",
-    "slug": "new-restaurant",
-    "description": "A wonderful new dining experience on Brava Island.",
-    "category": "Restaurant",
-    "town": "Vila Nova Sintra",
-    "latitude": 14.8564,
-    "longitude": -24.7144,
-    "imageUrl": "https://storage.googleapis.com/bucket/new-restaurant.jpg",
-    "rating": null,
-    "reviewCount": 0,
-    "createdAt": "2024-01-15T15:00:00Z",
-    "updatedAt": "2024-01-15T15:00:00Z",
-    "details": {
-      "phoneNumber": "+238 283 5678",
-      "openingHours": "Daily 12:00-23:00",
-      "cuisine": ["International", "Cape Verdean"]
-    }
-  },
-  "timestamp": "2024-01-15T15:00:00Z",
-  "status": 201
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "contentId": "789e0123-e45b-67c8-d901-234567890abc",
+    "reactionType": "LOVE",
+    "count": 43
+  }
 }
 ```
 
-**Response** (400 Bad Request):
+#### GET /reactions/content/{contentId}
+
+Get aggregated counts. Includes user's reaction if authenticated.
+
+```bash
+curl "http://localhost:8080/api/v1/reactions/content/789e0123..."
+```
+
+**Response** (200):
 ```json
 {
-  "error": "Validation failed",
-  "details": [
-    {
-      "field": "name",
-      "rejectedValue": "",
-      "message": "Name is required"
+  "data": {
+    "contentId": "789e0123-e45b-67c8-d901-234567890abc",
+    "reactions": {
+      "LOVE": 42,
+      "CELEBRATE": 15,
+      "INSIGHTFUL": 8,
+      "SUPPORT": 23
     },
-    {
-      "field": "latitude",
-      "rejectedValue": 95.0,
-      "message": "Latitude must be between -90 and 90"
-    }
-  ],
-  "timestamp": "2024-01-15T10:30:00Z",
-  "path": "/api/v1/directory/entries",
-  "status": 400
+    "userReaction": "LOVE"
+  }
 }
 ```
 
-**Response** (403 Forbidden):
+### Bookmarks
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/bookmarks` | Yes | Create bookmark |
+| DELETE | `/bookmarks/{entryId}` | Yes | Remove bookmark |
+
+**Limit**: 100 bookmarks per user.
+
+#### POST /bookmarks
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/bookmarks" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{ "entryId": "550e8400-e29b-41d4-a716-446655440000" }'
+```
+
+**Response** (201):
 ```json
 {
-  "error": "Access Denied",
-  "message": "Insufficient permissions to create directory entries",
-  "timestamp": "2024-01-15T10:30:00Z",
-  "path": "/api/v1/directory/entries",
-  "status": 403
+  "data": {
+    "id": "789e0123-e45b-67c8-d901-234567890abc",
+    "entryId": "550e8400-e29b-41d4-a716-446655440000",
+    "createdAt": "2025-01-15T10:30:00Z"
+  }
 }
 ```
 
-### Update Directory Entry
+### Content Registration
 
-```http
-PUT /api/v1/directory/entries/{id}
-Authorization: Bearer <token>
-Content-Type: application/json
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/content/register` | No | Register content for reaction tracking |
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/content/register" \
+  -H "Content-Type: application/json" \
+  -d '{ "slug": "morna-music-history", "type": "article" }'
 ```
 
-**Path Parameters**:
-- `id`: UUID of the directory entry to update
-
-**Request Body**: Same as Create (all fields required)
-
-**Response** (200 OK): Updated directory entry object
-
-**Response** (404 Not Found): Entry not found
-
-**Response** (403 Forbidden): Insufficient permissions
-
-### Delete Directory Entry
-
-```http
-DELETE /api/v1/directory/entries/{id}
-Authorization: Bearer <token>
+**Response** (200):
+```json
+{
+  "data": { "contentId": "550e8400-e29b-41d4-a716-446655440000" }
+}
 ```
 
-**Path Parameters**:
-- `id`: UUID of the directory entry to delete
+---
 
-**Response** (204 No Content): Successfully deleted
+## Stories Module
 
-**Response** (404 Not Found): Entry not found
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/stories` | No | List published stories |
+| GET | `/stories/slug/{slug}` | No | Get published story by slug |
+| POST | `/stories` | Yes | Submit new story |
 
-**Response** (403 Forbidden): Insufficient permissions
-
-### Get Related Content
-
-Get 3-5 related content items based on category, town, and cuisine matching.
-
-```http
-GET /api/v1/directory/entries/{contentId}/related?limit=5
-```
-
-**Path Parameters**:
-- `contentId`: UUID of the current heritage page
+#### GET /stories
 
 **Query Parameters**:
-- `limit`: Number of results to return (3-5, default: 5)
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| page | int | 0 | Page number |
+| size | int | 20 | Items per page (max 50) |
 
-**Example Request**:
+**Response** (200):
+```json
+{
+  "data": [{
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "slug": "my-childhood-in-faja-dagua",
+    "title": "My Childhood in Faja d'Agua",
+    "excerpt": "I remember the sound of waves...",
+    "author": "Maria Silva",
+    "storyType": "FULL",
+    "templateType": "CHILDHOOD",
+    "location": "Faja d'Agua Beach",
+    "isFeatured": true,
+    "createdAt": "2025-01-15T10:30:00Z"
+  }],
+  "pageable": { "page": 0, "size": 20, "totalElements": 45, "totalPages": 3 }
+}
+```
+
+#### POST /stories
+
+Submit a story for moderation.
+
+**Rate Limit**: 5 submissions/hour per IP.
+
+**Story Types**: `QUICK`, `FULL`, `GUIDED`
+
 ```bash
-curl "http://localhost:8080/api/v1/directory/entries/789e0123-e45b-67c8-d901-234567890abc/related?limit=5"
-```
-
-**Response** (200 OK):
-```json
-{
-  "data": [
-    {
-      "id": "uuid-1",
-      "name": "Casa da Morabeza",
-      "slug": "casa-da-morabeza",
-      "description": "Traditional Cape Verdean cuisine...",
-      "category": "Restaurant",
-      "town": "Nova Sintra",
-      "latitude": 14.8735,
-      "longitude": -24.7085,
-      "imageUrl": "https://storage.googleapis.com/...",
-      "rating": 4.5,
-      "reviewCount": 42,
-      "details": {
-        "phoneNumber": "+238 285 1234",
-        "openingHours": "10:00-22:00",
-        "cuisine": ["Cape Verdean", "Portuguese"]
-      },
-      "createdAt": "2024-01-15T10:30:00Z",
-      "updatedAt": "2024-01-15T10:30:00Z"
-    }
-  ],
-  "success": true
-}
-```
-
-**Matching Algorithm**:
-1. **Priority 1**: Same category + same town (highest geographical relevance)
-2. **Priority 2**: Same category + shared cuisine (for restaurants)
-3. **Priority 3**: Same category only (fallback)
-
-**Caching**: Results cached for 5 minutes using ISR
-
-**Response** (404 Not Found): Content not found
-
-## 💖 Reactions API
-
-The Reactions API allows authenticated users to express emotional responses to cultural heritage content.
-
-### Submit or Update Reaction
-
-Submit a new reaction or update an existing one. If the user clicks the same reaction type, it will be removed (toggle off).
-
-```http
-POST /api/v1/reactions
-Authorization: Bearer <token>
-Content-Type: application/json
-```
-
-**Request Body**:
-```json
-{
-  "contentId": "789e0123-e45b-67c8-d901-234567890abc",
-  "reactionType": "LOVE"
-}
-```
-
-**Reaction Types**:
-- `LOVE`: ❤️ Deep appreciation, personal connection
-- `HELPFUL`: 👍 Educational value, useful information
-- `INTERESTING`: 🤔 Intellectually engaging, sparked curiosity
-- `THANKYOU`: 🙏 Gratitude for sharing, cultural appreciation
-
-**Business Rules**:
-- One reaction per user per content page
-- Clicking same type removes reaction (toggle off)
-- Clicking different type replaces old reaction
-- Rate limit: 10 reactions per minute per user
-
-**Response** (201 Created):
-```json
-{
-  "id": "550e8400-e29b-41d4-a716-446655440000",
-  "contentId": "789e0123-e45b-67c8-d901-234567890abc",
-  "reactionType": "LOVE",
-  "count": 43
-}
-```
-
-**Response** (429 Too Many Requests):
-```json
-{
-  "error": "Too many reactions. Please wait a moment.",
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-**Response** (401 Unauthorized): Authentication required
-
-### Get Reaction Counts
-
-Get aggregated reaction counts for a specific content page. Public endpoint - no authentication required.
-
-```http
-GET /api/v1/reactions/content/{contentId}
-```
-
-**Path Parameters**:
-- `contentId`: UUID of the heritage page/content
-
-**Example Request**:
-```bash
-curl "http://localhost:8080/api/v1/reactions/content/789e0123-e45b-67c8-d901-234567890abc"
-```
-
-**Response** (200 OK) - Unauthenticated:
-```json
-{
-  "contentId": "789e0123-e45b-67c8-d901-234567890abc",
-  "reactions": {
-    "LOVE": 42,
-    "HELPFUL": 15,
-    "INTERESTING": 28,
-    "THANKYOU": 8
-  },
-  "userReaction": null
-}
-```
-
-**Response** (200 OK) - Authenticated:
-```json
-{
-  "contentId": "789e0123-e45b-67c8-d901-234567890abc",
-  "reactions": {
-    "LOVE": 42,
-    "HELPFUL": 15,
-    "INTERESTING": 28,
-    "THANKYOU": 8
-  },
-  "userReaction": "LOVE"
-}
-```
-
-**Caching**: Results cached for 5 minutes using ISR
-
-### Remove Reaction
-
-Remove the authenticated user's reaction to content.
-
-```http
-DELETE /api/v1/reactions/content/{contentId}
-Authorization: Bearer <token>
-```
-
-**Path Parameters**:
-- `contentId`: UUID of the heritage page/content
-
-**Response** (204 No Content): Successfully removed
-
-**Response** (404 Not Found): Reaction not found
-
-**Response** (401 Unauthorized): Authentication required
-
-## 💬 Suggestions API
-
-The Suggestions API allows community members to submit improvements and corrections to cultural heritage content.
-
-### Submit Content Suggestion
-
-Submit a suggestion for content improvement. Public endpoint - no authentication required.
-
-```http
-POST /api/v1/suggestions
-Content-Type: application/json
-```
-
-**Request Body**:
-```json
-{
-  "contentId": "789e0123-e45b-67c8-d901-234567890abc",
-  "name": "Maria Santos",
-  "email": "maria.santos@example.com",
-  "suggestionType": "CORRECTION",
-  "message": "The article states that Eugénio Tavares was born in 1867, but historical records show he was born on October 18, 1867 in Brava Island.",
-  "honeypot": ""
-}
-```
-
-**Suggestion Types**:
-- `CORRECTION`: Fix factual errors or inaccuracies
-- `ADDITION`: Add missing information or context
-- `FEEDBACK`: General feedback on content quality
-
-**Validation Rules**:
-- `name`: 2-255 characters
-- `email`: Valid email format (RFC 5322)
-- `message`: 10-5000 characters
-- `honeypot`: Must be empty (spam protection)
-
-**Rate Limiting**: 5 submissions per hour per IP address
-
-**Response** (201 Created):
-```json
-{
-  "id": "660f9511-f39c-52e5-b827-557766551111",
-  "message": "Thank you for helping preserve our cultural heritage. Your suggestion has been received."
-}
-```
-
-**Response** (429 Too Many Requests):
-```json
-{
-  "message": "Rate limit exceeded. Please try again later.",
-  "timestamp": "2024-01-15T10:30:00Z"
-}
-```
-
-**Response** (400 Bad Request):
-```json
-{
-  "message": "Invalid suggestion data. Please check your input.",
-  "details": [
-    {
-      "field": "email",
-      "message": "Invalid email format"
-    }
-  ]
-}
-```
-
-**Spam Protection**:
-- Honeypot field validation (client-side field must be empty)
-- IP-based rate limiting
-- Email notification to administrators
-
-## 📱 Media Upload API
-
-### Upload Media File
-
-```http
-POST /api/v1/media/upload
-Authorization: Bearer <token>
-Content-Type: multipart/form-data
-```
-
-**Request Body** (multipart/form-data):
-- `file`: The media file to upload
-- `category`: Optional category for organization
-- `description`: Optional description
-
-**Example Request**:
-```bash
-curl -X POST "http://localhost:8080/api/v1/media/upload" \
+curl -X POST "http://localhost:8080/api/v1/stories" \
   -H "Authorization: Bearer <token>" \
-  -F "file=@restaurant-photo.jpg" \
-  -F "category=restaurant" \
-  -F "description=Main dining area"
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "My Grandmother'\''s Memories",
+    "content": "She always told stories about the old days...",
+    "storyType": "FULL",
+    "templateType": "FAMILY",
+    "location": "Nova Sintra"
+  }'
 ```
 
-**Response** (201 Created):
+---
+
+## Feedback Module
+
+### Contact
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/contact` | No | Submit contact message |
+
+**Rate Limit**: 3 submissions/hour per IP.
+
+**Subject Categories**: `GENERAL_INQUIRY`, `CONTENT_SUGGESTION`, `TECHNICAL_ISSUE`, `PARTNERSHIP`
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/contact" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Maria Santos",
+    "email": "maria@example.com",
+    "subject": "CONTENT_SUGGESTION",
+    "message": "I have photos from the 1970s festival..."
+  }'
+```
+
+**Response** (201):
 ```json
 {
   "data": {
-    "id": "789e0123-e89b-12d3-a456-426614174002",
-    "fileName": "restaurant-photo.jpg",
-    "originalName": "IMG_20240115_123456.jpg",
-    "contentType": "image/jpeg",
-    "size": 2048576,
-    "url": "https://storage.googleapis.com/bucket/media/789e0123-e89b-12d3-a456-426614174002.jpg",
-    "category": "restaurant",
-    "description": "Main dining area",
-    "uploadedAt": "2024-01-15T15:30:00Z",
-    "uploadedBy": null,
-    "aiMetadata": null
-  },
-  "timestamp": "2024-01-15T15:30:00Z",
-  "status": 201
+    "id": "660f9511-f39c-52e5-b827-557766551111",
+    "message": "Thank you for contacting us. We will respond soon."
+  }
 }
 ```
 
-**Response** (400 Bad Request):
-```json
-{
-  "error": "Bad Request",
-  "message": "File type not supported. Allowed types: jpg, jpeg, png, gif, mp4",
-  "timestamp": "2024-01-15T10:30:00Z",
-  "path": "/api/v1/media/upload",
-  "status": 400
-}
+### Directory Submissions
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/directory-submissions` | Yes | Submit directory entry for review |
+
+**Rate Limit**: 3 submissions/hour per IP.
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/directory-submissions" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Restaurante Vista Mar",
+    "category": "RESTAURANT",
+    "town": "Faja d'\''Agua",
+    "description": "Family-owned restaurant with ocean views..."
+  }'
 ```
 
-### Get Media File Metadata
+---
 
-```http
-GET /api/v1/media/{id}
+## Auth Module
+
+### User Profile
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/users/me` | Yes | Get current user profile |
+| PUT | `/users/me` | Yes | Update profile (rate limit: 10/min) |
+| GET | `/users/me/contributions` | Yes | Get user's contribution stats |
+| GET | `/users/me/bookmarks` | Yes | Get user's bookmarks with entries |
+
+#### GET /users/me
+
+Auto-creates profile if not exists.
+
+```bash
+curl "http://localhost:8080/api/v1/users/me" \
+  -H "Authorization: Bearer <token>"
 ```
 
-**Path Parameters**:
-- `id`: UUID of the media file
-
-**Response** (200 OK):
+**Response** (200):
 ```json
 {
   "data": {
-    "id": "789e0123-e89b-12d3-a456-426614174002",
-    "fileName": "restaurant-photo.jpg",
-    "originalName": "IMG_20240115_123456.jpg",
-    "contentType": "image/jpeg",
-    "size": 2048576,
-    "url": "https://storage.googleapis.com/bucket/media/789e0123-e89b-12d3-a456-426614174002.jpg",
-    "category": "restaurant",
-    "description": "Main dining area",
-    "uploadedAt": "2024-01-15T15:30:00Z",
-    "uploadedBy": null,
-    "aiMetadata": {
-      "labels": ["restaurant", "dining", "interior"],
-      "textDetected": ["Casa do Bacalhau", "Menu"],
-      "landmarks": [],
-      "processedAt": "2024-01-15T15:31:00Z"
-    }
-  },
-  "timestamp": "2024-01-15T10:30:00Z",
-  "status": 200
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "userId": "auth0|123456789",
+    "displayName": "Maria Silva",
+    "location": "Brava Island, Cape Verde",
+    "preferredLanguage": "PT",
+    "notificationPreferences": {
+      "emailNotifications": true,
+      "contentUpdates": true,
+      "communityDigest": false
+    },
+    "createdAt": "2025-01-15T10:30:00Z",
+    "updatedAt": "2025-01-20T14:45:00Z"
+  }
 }
 ```
 
-## 🏥 Health & Monitoring
+#### GET /users/me/contributions
 
-### Health Check
-
-```http
-GET /actuator/health
+```json
+{
+  "data": {
+    "reactionCounts": { "LOVE": 42, "CELEBRATE": 15, "INSIGHTFUL": 8, "SUPPORT": 23 },
+    "suggestions": [{ "id": "...", "contentId": "...", "status": "PENDING" }],
+    "stories": [{ "id": "...", "title": "...", "status": "APPROVED" }],
+    "totalReactions": 88,
+    "totalSuggestions": 1,
+    "totalStories": 1
+  }
+}
 ```
 
-**Response** (200 OK):
+#### GET /users/me/bookmarks
+
+**Query Parameters**:
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| page | int | 0 | Page number |
+| size | int | 20 | Items per page (max 100) |
+
+---
+
+## Health & Monitoring
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/actuator/health` | Health check |
+| GET | `/actuator/info` | Application info |
+| GET | `/actuator/metrics` | Available metrics |
+| GET | `/actuator/metrics/{name}` | Specific metric |
+
+```bash
+curl "http://localhost:8080/actuator/health"
+```
+
+**Response** (200):
 ```json
 {
   "status": "UP",
   "components": {
-    "db": {
-      "status": "UP",
-      "details": {
-        "database": "PostgreSQL",
-        "validationQuery": "isValid()"
-      }
-    },
-    "diskSpace": {
-      "status": "UP",
-      "details": {
-        "total": 10737418240,
-        "free": 8589934592,
-        "threshold": 10485760,
-        "exists": true
-      }
-    }
+    "db": { "status": "UP", "details": { "database": "PostgreSQL" } },
+    "diskSpace": { "status": "UP" }
   }
 }
 ```
-
-### Application Info
-
-```http
-GET /actuator/info
-```
-
-**Response** (200 OK):
-```json
-{
-  "app": {
-    "name": "Nos Ilha API",
-    "version": "1.0.0",
-    "description": "Cultural heritage hub for Brava Island, Cape Verde"
-  },
-  "build": {
-    "time": "2024-01-15T10:00:00.000Z",
-    "version": "1.0.0"
-  },
-  "git": {
-    "branch": "main",
-    "commit": {
-      "id": "abc1234",
-      "time": "2024-01-15T09:30:00.000Z"
-    }
-  }
-}
-```
-
-### Metrics
-
-```http
-GET /actuator/metrics
-```
-
-**Response** (200 OK):
-```json
-{
-  "names": [
-    "http.server.requests",
-    "jvm.memory.used",
-    "jvm.memory.max",
-    "system.cpu.usage",
-    "process.uptime",
-    "hikaricp.connections.active",
-    "hikaricp.connections.creation",
-    "custom.directory.entries.total"
-  ]
-}
-```
-
-### Specific Metric
-
-```http
-GET /actuator/metrics/http.server.requests
-```
-
-**Response** (200 OK):
-```json
-{
-  "name": "http.server.requests",
-  "description": "Duration of HTTP server request handling",
-  "baseUnit": "seconds",
-  "measurements": [
-    {
-      "statistic": "COUNT",
-      "value": 1247.0
-    },
-    {
-      "statistic": "TOTAL_TIME",
-      "value": 123.456789
-    },
-    {
-      "statistic": "MAX",
-      "value": 2.345678
-    }
-  ],
-  "availableTags": [
-    {
-      "tag": "exception",
-      "values": ["None", "DataAccessException"]
-    },
-    {
-      "tag": "method",
-      "values": ["GET", "POST", "PUT", "DELETE"]
-    },
-    {
-      "tag": "status",
-      "values": ["200", "404", "500"]
-    }
-  ]
-}
-```
-
-## 🚨 Error Handling
-
-### Standard Error Response Format
-
-All API errors follow a consistent format:
-
-```json
-{
-  "error": "Brief error description",
-  "message": "Detailed error message",
-  "timestamp": "2024-01-15T10:30:00Z",
-  "path": "/api/v1/directory/entries",
-  "status": 400
-}
-```
-
-### HTTP Status Codes
-
-| Code | Description | Usage |
-|------|-------------|-------|
-| 200  | OK | Successful GET, PUT requests |
-| 201  | Created | Successful POST requests |
-| 204  | No Content | Successful DELETE requests |
-| 400  | Bad Request | Invalid request data |
-| 401  | Unauthorized | Missing or invalid authentication |
-| 403  | Forbidden | Insufficient permissions |
-| 404  | Not Found | Resource not found |
-| 409  | Conflict | Resource conflict (e.g., duplicate slug) |
-| 422  | Unprocessable Entity | Valid JSON but invalid business logic |
-| 500  | Internal Server Error | Server-side error |
-
-### Validation Errors
-
-When request validation fails, the API returns detailed error information:
-
-```json
-{
-  "error": "Validation failed",
-  "details": [
-    {
-      "field": "name",
-      "rejectedValue": "",
-      "message": "Name cannot be empty"
-    },
-    {
-      "field": "latitude",
-      "rejectedValue": 95.0,
-      "message": "Latitude must be between -90 and 90"
-    },
-    {
-      "field": "email",
-      "rejectedValue": "invalid-email",
-      "message": "Email must be a valid email address"
-    }
-  ],
-  "timestamp": "2024-01-15T10:30:00Z",
-  "path": "/api/v1/directory/entries",
-  "status": 400
-}
-```
-
-## 🔍 API Usage Examples
-
-### Frontend Integration (TypeScript)
-
-```typescript
-// lib/api.ts
-import { supabase } from './supabase-client';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-
-async function authenticatedFetch(url: string, options: RequestInit = {}) {
-  const { data: { session } } = await supabase.auth.getSession();
-  
-  const headers = {
-    'Content-Type': 'application/json',
-    ...options.headers,
-  };
-  
-  if (session?.access_token) {
-    headers['Authorization'] = `Bearer ${session.access_token}`;
-  }
-  
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
-  
-  if (response.status === 401) {
-    await supabase.auth.signOut();
-    window.location.href = '/login';
-    throw new Error('Authentication expired');
-  }
-  
-  return response;
-}
-
-// Get directory entries with caching
-export async function getEntriesByCategory(category: string) {
-  const params = new URLSearchParams();
-  if (category !== 'all') params.append('category', category);
-  params.append('page', '0');
-  params.append('size', '20');
-  
-  const endpoint = `${API_BASE_URL}/api/v1/directory/entries?${params}`;
-    
-  const response = await fetch(endpoint, { 
-    next: { revalidate: 3600 } // 1-hour ISR cache
-  });
-  
-  if (!response.ok) {
-    throw new Error(`Failed to fetch entries: ${response.status}`);
-  }
-  
-  const apiResponse = await response.json();
-  // Extract data from PagedApiResponse
-  return apiResponse.data;
-}
-
-// Create new directory entry
-export async function createDirectoryEntry(entryData: CreateEntryDto) {
-  const response = await authenticatedFetch(
-    `${API_BASE_URL}/api/v1/directory/entries`,
-    {
-      method: 'POST',
-      body: JSON.stringify(entryData),
-    }
-  );
-  
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || error.message || 'Failed to create entry');
-  }
-  
-  const apiResponse = await response.json();
-  // Extract data from ApiResponse
-  return apiResponse.data;
-}
-```
-
-### cURL Examples
-
-#### Get Restaurants in Vila Nova Sintra
-```bash
-curl -X GET "http://localhost:8080/api/v1/directory/entries?category=Restaurant&town=Vila%20Nova%20Sintra" \
-  -H "Accept: application/json"
-```
-
-#### Create a New Hotel (Authenticated)
-```bash
-curl -X POST "http://localhost:8080/api/v1/directory/entries" \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "Hotel Brava Vista",
-    "description": "Oceanfront hotel with stunning views of the Atlantic.",
-    "category": "Hotel",
-    "town": "Vila Nova Sintra",
-    "latitude": 14.8584,
-    "longitude": -24.7164,
-    "details": {
-      "amenities": ["Wi-Fi", "Pool", "Restaurant", "Ocean View"]
-    }
-  }'
-```
-
-#### Upload Restaurant Photo
-```bash
-curl -X POST "http://localhost:8080/api/v1/media/upload" \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." \
-  -F "file=@restaurant-interior.jpg" \
-  -F "category=restaurant" \
-  -F "description=Interior dining area"
-```
-
-## 📝 Rate Limiting
-
-The API implements rate limiting to ensure fair usage:
-
-- **Authenticated users**: 1000 requests per hour
-- **Unauthenticated users**: 100 requests per hour
-- **Media uploads**: 50 uploads per hour per user
-
-Rate limit headers are included in responses:
-
-```http
-X-RateLimit-Limit: 1000
-X-RateLimit-Remaining: 999
-X-RateLimit-Reset: 1642248000
-```
-
-## 🔒 Security Considerations
-
-### Input Validation
-- All input is validated against defined schemas
-- SQL injection protection via JPA parameterized queries
-- XSS protection through output encoding
-- File upload validation (type, size, content)
-
-### Authentication Security
-- JWT tokens have configurable expiration
-- Token validation includes issuer and audience checks
-- Refresh tokens handled by Supabase
-- Session invalidation on security events
-
-### CORS Configuration
-Development environment allows `localhost:3000`:
-```yaml
-app:
-  cors:
-    allowed-origins: "http://localhost:3000"
-```
-
-Production uses specific domain configuration.
 
 ---
 
-For additional support and examples, refer to:
-- **Architecture Guide**: [`architecture.md`](architecture.md)
-- **Frontend Design System**: [`design-system.md`](design-system.md)
-- **Development Setup**: [`../CLAUDE.md`](../CLAUDE.md)
-- **CI/CD & Deployment**: [`ci-cd-pipeline.md`](ci-cd-pipeline.md)
+## HTTP Status Codes
+
+| Code | Description | Usage |
+|------|-------------|-------|
+| 200 | OK | Successful GET, PUT |
+| 201 | Created | Successful POST |
+| 204 | No Content | Successful DELETE |
+| 400 | Bad Request | Validation errors |
+| 401 | Unauthorized | Missing/invalid token |
+| 403 | Forbidden | Insufficient permissions |
+| 404 | Not Found | Resource not found |
+| 429 | Too Many Requests | Rate limit exceeded |
+| 500 | Internal Server Error | Server error |
+
+---
+
+## Rate Limiting
+
+| Endpoint | Limit |
+|----------|-------|
+| Profile updates | 10/minute per user |
+| Reactions | 10/minute per user |
+| Gallery uploads | 20/hour, 100/day per user |
+| Story submissions | 5/hour per IP |
+| Contact form | 3/hour per IP |
+| Directory submissions | 3/hour per IP |
+
+Rate limit response (429):
+```json
+{
+  "error": "Too Many Requests",
+  "message": "Rate limit exceeded. Please try again later.",
+  "status": 429
+}
+```
+
+---
+
+## Related Documentation
+
+- [Architecture Guide](architecture.md)
+- [API Coding Standards](api-coding-standards.md)
+- [Spring Modulith Guide](spring-modulith.md)

@@ -7,7 +7,6 @@ This project maintains security updates for the following versions:
 | Version | Supported          |
 | ------- | ------------------ |
 | main    | :white_check_mark: |
-| develop | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
@@ -16,9 +15,8 @@ We take security vulnerabilities seriously. If you discover a security vulnerabi
 ### How to Report
 
 1. **DO NOT** open a public issue for security vulnerabilities
-2. **Use** GitHub's private vulnerability reporting feature (recommended)
-3. **Email** security issues to: security@nosilha.com
-4. **Include** as much detail as possible about the vulnerability
+2. **Use** [GitHub's private vulnerability reporting](../../security/advisories/new) to report security issues
+3. **Include** as much detail as possible about the vulnerability
 
 ### What to Include
 
@@ -91,6 +89,6 @@ We take security vulnerabilities seriously. If you discover a security vulnerabi
 
 For security-related questions or concerns:
 
-- **Security Issues**: Use GitHub's private vulnerability reporting or email security@nosilha.com
+- **Security Issues**: Use [GitHub's private vulnerability reporting](../../security/advisories/new)
 - **General Questions**: Create an issue in the repository with the `security` label
 - **CI/CD Security**: Refer to the [CI/CD Pipeline Documentation](docs/ci-cd-pipeline.md) for deployment security details
