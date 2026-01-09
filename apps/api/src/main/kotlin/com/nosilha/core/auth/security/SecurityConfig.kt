@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm
 import org.springframework.security.oauth2.jwt.JwtDecoder
+import org.springframework.security.oauth2.jwt.JwtValidators
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.web.cors.CorsConfiguration
@@ -25,14 +26,22 @@ class SecurityConfig(
     /**
      * Custom JwtDecoder that explicitly supports ES256 algorithm for Supabase JWKS.
      * Spring Security defaults to RS256, but Supabase uses ES256 for asymmetric JWT signing.
+     * Includes issuer validation to ensure tokens originate from the expected Supabase project.
      */
     @Bean
     fun jwtDecoder(): JwtDecoder {
         val jwksUrl = "$supabaseProjectUrl/auth/v1/.well-known/jwks.json"
-        return NimbusJwtDecoder
+        val issuerUri = "$supabaseProjectUrl/auth/v1"
+
+        val jwtDecoder = NimbusJwtDecoder
             .withJwkSetUri(jwksUrl)
             .jwsAlgorithm(SignatureAlgorithm.ES256)
             .build()
+
+        // Add issuer validation to ensure JWTs originate from the expected Supabase project
+        jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuerUri))
+
+        return jwtDecoder
     }
 
     @Bean
