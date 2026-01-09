@@ -7,6 +7,9 @@ import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm
+import org.springframework.security.oauth2.jwt.JwtDecoder
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.web.cors.CorsConfiguration
 
@@ -16,7 +19,22 @@ class SecurityConfig(
     private val supabaseJwtConverter: SupabaseJwtAuthenticationConverter,
     @Value("\${app.cors.allowed-origins}")
     private var allowedOrigins: List<String>,
+    @Value("\${supabase.project-url}")
+    private val supabaseProjectUrl: String,
 ) {
+    /**
+     * Custom JwtDecoder that explicitly supports ES256 algorithm for Supabase JWKS.
+     * Spring Security defaults to RS256, but Supabase uses ES256 for asymmetric JWT signing.
+     */
+    @Bean
+    fun jwtDecoder(): JwtDecoder {
+        val jwksUrl = "$supabaseProjectUrl/auth/v1/.well-known/jwks.json"
+        return NimbusJwtDecoder
+            .withJwkSetUri(jwksUrl)
+            .jwsAlgorithm(SignatureAlgorithm.ES256)
+            .build()
+    }
+
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         if (allowedOrigins.isNotEmpty()) {

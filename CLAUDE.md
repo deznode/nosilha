@@ -71,7 +71,7 @@ For detailed commands by domain, see the modular rules:
 NEXT_PUBLIC_API_URL=http://localhost:8080
 NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=your_mapbox_token_here
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_your_key  # Publishable key format
 
 # Analytics Integration (optional for local development)
 NEXT_PUBLIC_GA_ID=your_ga_measurement_id
