@@ -63,8 +63,10 @@ export function DirectoryCategoryPageContent({
 
   // Track client-side mount to fix Framer Motion SSR hydration issue
   // Without this, animations get stuck at opacity: 0 on initial page load
+  // This is a valid SSR hydration pattern - see https://react.dev/learn/you-might-not-need-an-effect
   const [hasMounted, setHasMounted] = useState(false);
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Valid hydration pattern: intentional re-render needed after SSR
     setHasMounted(true);
   }, []);
 

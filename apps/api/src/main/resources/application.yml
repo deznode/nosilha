@@ -49,14 +49,6 @@ spring:
       hibernate:
         format_sql: false
 
-  # OAuth2 Resource Server Configuration (JWKS-based JWT verification)
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: ${SUPABASE_PROJECT_URL:https://wqpgbmrgwbexxldeokiu.supabase.co}/auth/v1/.well-known/jwks.json
-          issuer-uri: ${SUPABASE_PROJECT_URL:https://wqpgbmrgwbexxldeokiu.supabase.co}/auth/v1
-
 # Cloudflare R2 configuration (S3-compatible object storage)
 # To enable media uploads, set cloudflare.r2.enabled=true (via R2_ENABLED env var)
 # When enabled, all credentials MUST be provided or startup will fail (fail-fast)

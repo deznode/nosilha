@@ -80,8 +80,7 @@ class DirectorySubmissionService(
      * Entries are stored with PENDING status for admin review.</p>
      *
      * @param request Directory submission data
-     * @param submittedBy Display name or identifier of the submitter
-     * @param submittedByEmail Optional email of the submitter
+     * @param userId Authenticated user ID (from Supabase JWT)
      * @param ipAddress IP address of the submitter (for rate limiting)
      * @return Created AdminDirectorySubmissionDto
      * @throws RateLimitExceededException if user has exceeded submission limit
@@ -89,11 +88,10 @@ class DirectorySubmissionService(
     @Transactional
     fun submitDirectoryEntry(
         request: CreateDirectorySubmissionRequest,
-        submittedBy: String,
-        submittedByEmail: String?,
+        userId: String,
         ipAddress: String?,
     ): AdminDirectorySubmissionDto {
-        logger.info { "Processing directory submission from IP: $ipAddress" }
+        logger.info { "Processing directory submission from user: $userId, IP: $ipAddress" }
 
         // Atomic rate limiting using Bucket4j token bucket algorithm
         if (ipAddress != null) {
@@ -124,8 +122,8 @@ class DirectorySubmissionService(
             priceLevel = request.priceLevel,
             latitude = request.latitude,
             longitude = request.longitude,
-            submittedBy = submittedBy,
-            submittedByEmail = submittedByEmail,
+            submittedBy = userId,
+            submittedByEmail = null,
             ipAddress = ipAddress,
             status = DirectorySubmissionStatus.PENDING,
         )

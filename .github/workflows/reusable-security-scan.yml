@@ -43,7 +43,7 @@ jobs:
 
       - name: Upload SARIF results
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-backend-results.sarif'
           category: 'security-backend'
@@ -73,7 +73,7 @@ jobs:
 
       - name: Upload SARIF results
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-frontend-results.sarif'
           category: 'security-frontend'
@@ -103,7 +103,7 @@ jobs:
 
       - name: Upload SARIF results
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-infrastructure-results.sarif'
           category: 'security-infrastructure'
@@ -135,7 +135,7 @@ jobs:
 
       # - name: Upload detekt results
       #   if: always()
-      #   uses: github/codeql-action/upload-sarif@v3
+      #   uses: github/codeql-action/upload-sarif@v4
       #   with:
       #     sarif_file: 'apps/api/build/reports/detekt/detekt.sarif'
       #     category: 'detekt-backend'
@@ -164,7 +164,7 @@ jobs:
 
       - name: Upload ESLint SARIF results
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'apps/web/eslint-frontend-results.sarif'
           category: 'eslint-frontend'

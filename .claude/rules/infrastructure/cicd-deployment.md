@@ -18,7 +18,7 @@ docker-compose exec db pg_dump -U nosilha nosilha_db > backup.sql  # Create back
 
 ## CI/CD Pipeline
 
-The project uses a **modular CI/CD architecture** with service-specific workflows. See `docs/CI_CD_PIPELINE.md` for comprehensive details.
+The project uses a **modular CI/CD architecture** with service-specific workflows. See `docs/ci-cd-pipeline.md` for comprehensive details.
 
 ### Key Workflows
 
@@ -48,7 +48,7 @@ Solo-maintained project using lean, budget-conscious CI/CD:
 
 - **Backend Integration**: API validation with Testcontainers
 - **Security Integration**: Security headers validation, deployment health checks
-- **Security Scanning**: Trivy (containers/deps), detekt (Kotlin), ESLint (TypeScript), tfsec (Terraform)
+- **Security Scanning**: Trivy (containers/deps), ktlint (Kotlin style), ESLint (TypeScript), tfsec (Terraform)
 
 ## Cloud Deployment
 
@@ -66,5 +66,5 @@ Solo-maintained project using lean, budget-conscious CI/CD:
 
 ## Reference
 
-- See `docs/CI_CD_PIPELINE.md` for detailed CI/CD setup and troubleshooting
-- See `docs/SECRET_MANAGEMENT.md` for secret management guide
+- See `docs/ci-cd-pipeline.md` for detailed CI/CD setup and troubleshooting
+- See `docs/secret-management.md` for secret management guide

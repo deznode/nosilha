@@ -35,4 +35,3 @@ runs:
       with:
         cache-disabled: true
         dependency-graph: 'generate-and-submit'
-      shell: bash

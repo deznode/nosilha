@@ -18,7 +18,7 @@ Nos Ilha is a community-driven cultural heritage hub for Brava Island, Cape Verd
 This is a **full-stack application** with four main components:
 
 - **Frontend**: Next.js 16 (App Router) with React 19.2, TypeScript, and Tailwind CSS
-- **Backend**: Spring Boot 3.4.7 with Kotlin, PostgreSQL as the single database
+- **Backend**: Spring Boot 4.0.0 with Kotlin 2.3.0, Java 25, PostgreSQL as the single database
 - **Infrastructure**: Docker Compose for local development, Terraform for cloud deployment
 - **CI/CD**: Modular GitHub Actions workflows with automated security scanning and deployment
 
@@ -40,7 +40,7 @@ The project follows a clear organizational structure:
 
 ### Prerequisites
 - **Node.js 20.9+** and npm
-- **Java 21** (for backend)
+- **Java 25** (for backend)
 - **Docker** and Docker Compose
 - **PostgreSQL** (or use Docker Compose setup)
 
@@ -71,7 +71,7 @@ For detailed commands by domain, see the modular rules:
 NEXT_PUBLIC_API_URL=http://localhost:8080
 NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=your_mapbox_token_here
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_your_key  # Publishable key format
 
 # Analytics Integration (optional for local development)
 NEXT_PUBLIC_GA_ID=your_ga_measurement_id
@@ -118,12 +118,9 @@ Domain-specific executors located in `.claude/skills/`. Each skill has detailed 
 
 | Category | Skills |
 |----------|--------|
-| **Motion & Animation** | `implementing-micro-interactions`, `architecting-motion-systems`, `generating-micro-interactions` |
 | **Content & Heritage** | `authoring-content`, `planning-content`, `verifying-content` |
-| **Infrastructure** | `managing-databases`, `deploying-infrastructure`, `mapping-sites` |
+| **Infrastructure** | `mapping-sites` |
 | **Research** | `web-searching` |
-
-> **Coordination**: See `.claude/MOTION_SKILLS_GUIDE.md` for animation workflow patterns
 
 ### Slash Commands
 
@@ -140,39 +137,39 @@ Custom workflow triggers in `.claude/commands/`. Use syntax: `/command-name [arg
 
 ### Documentation Compliance
 
-- **Frontend work** → Reference `docs/DESIGN_SYSTEM.md`
-- **Backend work** → Reference `docs/API_CODING_STANDARDS.md`
-- **Content verification** → Reference `docs/CULTURAL_HERITAGE_VERIFICATION.md`
+- **Frontend work** → Reference `docs/design-system.md`
+- **Backend work** → Reference `docs/api-coding-standards.md`
+- **Content verification** → Reference `docs/cultural-heritage-verification.md`
 
 ## Key Documentation Files
 
 ### Core Documentation
-- `docs/ARCHITECTURE.md` - Detailed technical architecture with system flows and diagrams
-- `docs/DESIGN_SYSTEM.md` - Complete frontend design system and component library guide
-- `docs/API_REFERENCE.md` - Backend API documentation with endpoints and examples
-- `docs/API_CODING_STANDARDS.md` - Comprehensive backend coding standards
-- `docs/CI_CD_PIPELINE.md` - Detailed CI/CD setup and troubleshooting guide
-- `docs/TROUBLESHOOTING.md` - Common issues and solutions
+- `docs/architecture.md` - Detailed technical architecture with system flows and diagrams
+- `docs/design-system.md` - Complete frontend design system and component library guide
+- `docs/api-reference.md` - Backend API documentation with endpoints and examples
+- `docs/api-coding-standards.md` - Comprehensive backend coding standards
+- `docs/ci-cd-pipeline.md` - Detailed CI/CD setup and troubleshooting guide
+- `docs/troubleshooting.md` - Common issues and solutions
 
 ### Module Architecture Documentation
-- `docs/TESTING.md` - Comprehensive testing guide (Playwright E2E, Vitest unit tests)
-- `docs/STATE_MANAGEMENT.md` - State management patterns guide (Zustand, TanStack Query, Zod)
-- `docs/SPRING_MODULITH.md` - Backend module architecture guide
+- `docs/testing.md` - Comprehensive testing guide (Playwright E2E, Vitest unit tests)
+- `docs/state-management.md` - State management patterns guide (Zustand, TanStack Query, Zod)
+- `docs/spring-modulith.md` - Backend module architecture guide
 
 ### Additional Documentation
-- `docs/SECRET_MANAGEMENT.md` - Secret management guide
-- `docs/CULTURAL_HERITAGE_VERIFICATION.md` - Cultural heritage content verification protocols
-- `docs/SITEMAP.md` - Frontend route structure and navigation architecture
-- `docs/SECURITY.md` - Security policy and vulnerability reporting procedures
+- `docs/secret-management.md` - Secret management guide
+- `docs/cultural-heritage-verification.md` - Cultural heritage content verification protocols
+- `docs/sitemap.md` - Frontend route structure and navigation architecture
+- `SECURITY.md` - Security policy and vulnerability reporting procedures
 
 ## Troubleshooting
 
-For common issues, see `docs/TROUBLESHOOTING.md`.
+For common issues, see `docs/troubleshooting.md`.
 
 **Quick Help**:
-- **CI/CD Issues**: `docs/CI_CD_PIPELINE.md`
-- **Security Issues**: `docs/SECURITY.md`
-- **Architecture Questions**: `docs/ARCHITECTURE.md`
+- **CI/CD Issues**: `docs/ci-cd-pipeline.md`
+- **Security Issues**: `SECURITY.md`
+- **Architecture Questions**: `docs/architecture.md`
 
 # important-instruction-reminders
 Do what has been asked; nothing more, nothing less.
@@ -181,9 +178,9 @@ ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
 
 ## Active Technologies
-- Kotlin 2.2 / JVM 21 + Spring Boot 4.0.1, Spring Modulith 2.0, Spring Security 6.5, PostgreSQL (009-admin-moderation-api)
-- PostgreSQL (primary), Flyway migrations (009-admin-moderation-api)
-- PostgreSQL with Flyway migrations, Supabase for auth (010-p2-p4-api-integration)
+- Kotlin 2.3.0 / JVM 25 + Spring Boot 4.0.0, Spring Modulith 2.0.1, Spring Security 6.5, PostgreSQL
+- PostgreSQL (primary), Flyway migrations
+- Supabase for auth
 
 ## Recent Changes
-- 009-admin-moderation-api: Added Kotlin 2.2 / JVM 21 + Spring Boot 4.0.1, Spring Modulith 2.0, Spring Security 6.5, PostgreSQL
+- Updated to Kotlin 2.3.0 / Java 25 + Spring Boot 4.0.0, Spring Modulith 2.0.1

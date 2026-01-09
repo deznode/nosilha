@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Users } from "lucide-react";
 import type { Contributor } from "@/types/admin";
 
@@ -50,12 +51,14 @@ export function TopContributors({
             className="flex items-center justify-between text-sm"
           >
             <div className="flex items-center">
-              <div className="bg-surface-alt mr-3 flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-[var(--color-ocean-blue)]">
+              <div className="bg-surface-alt relative mr-3 flex h-8 w-8 items-center justify-center overflow-hidden rounded-full text-xs font-bold text-[var(--color-ocean-blue)]">
                 {user.avatar ? (
-                  <img
+                  <Image
                     src={user.avatar}
                     alt={user.name}
-                    className="h-full w-full rounded-full object-cover"
+                    fill
+                    className="rounded-full object-cover"
+                    unoptimized
                   />
                 ) : (
                   user.name.charAt(0)

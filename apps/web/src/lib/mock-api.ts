@@ -399,18 +399,12 @@ export class MockApiClient implements ApiClient {
 
   /**
    * Mock implementation for submitting a directory entry for review.
-   * Simulates the public submission flow with rate limiting.
+   * Simulates authenticated submission flow.
    */
   async submitDirectoryEntry(
-    request: DirectorySubmissionRequest,
-    submittedBy: string,
-    _submittedByEmail?: string
+    request: DirectorySubmissionRequest
   ): Promise<DirectorySubmissionConfirmation> {
-    console.log(
-      `Mock API: Submitting directory entry for review:`,
-      request,
-      submittedBy
-    );
+    console.log(`Mock API: Submitting directory entry for review:`, request);
     await this.simulateDelay(300);
 
     // Simulate validation
@@ -420,11 +414,6 @@ export class MockApiClient implements ApiClient {
     if (!request.description || request.description.trim().length < 10) {
       throw new Error(
         "Validation failed: description: Description must be at least 10 characters"
-      );
-    }
-    if (!submittedBy || submittedBy.trim().length === 0) {
-      throw new Error(
-        "Validation failed: submittedBy: Submitter name is required"
       );
     }
 

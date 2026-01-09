@@ -87,23 +87,18 @@ export async function createDirectoryEntry(
 }
 
 /**
- * Submits a directory entry for review (public contribution).
- * No authentication required - open to community contributions.
- * Rate limited to 3 submissions per hour per IP address.
+ * Submits a directory entry for review.
+ * Requires authentication - user info is extracted from JWT token.
  * Automatically uses the configured API implementation (backend or mock).
  * @param request Contains name, category, town, description, and optional fields
- * @param submittedBy Display name of the submitter (required)
- * @param submittedByEmail Optional email of the submitter
  * @returns A promise that resolves to confirmation with id, name, and status
  * @throws Error if rate limit exceeded (HTTP 429)
  * @throws Error if validation fails (HTTP 400)
  */
 export async function submitDirectoryEntry(
-  request: import("@/lib/api-contracts").DirectorySubmissionRequest,
-  submittedBy: string,
-  submittedByEmail?: string
+  request: import("@/lib/api-contracts").DirectorySubmissionRequest
 ): Promise<import("@/lib/api-contracts").DirectorySubmissionConfirmation> {
-  return apiClient.submitDirectoryEntry(request, submittedBy, submittedByEmail);
+  return apiClient.submitDirectoryEntry(request);
 }
 
 /**

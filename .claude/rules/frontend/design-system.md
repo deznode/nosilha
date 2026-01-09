@@ -6,7 +6,7 @@ paths: apps/web/**
 
 ## Documentation
 
-See `docs/DESIGN_SYSTEM.md` for comprehensive styling guide.
+See `docs/design-system.md` for comprehensive styling guide.
 
 ## Brand Identity
 
@@ -90,4 +90,4 @@ Pre-built accessible components from Catalyst:
 
 ## Reference
 
-- See `docs/DESIGN_SYSTEM.md` for complete design system documentation
+- See `docs/design-system.md` for complete design system documentation

@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { MessageSquare, FileText, Mail, MapPin, Image } from "lucide-react";
+import {
+  MessageSquare,
+  FileText,
+  Mail,
+  MapPin,
+  Image as ImageIcon,
+} from "lucide-react";
 import {
   KPICards,
   ActivityChart,
@@ -313,7 +319,7 @@ export default function AdminDashboardPage() {
                   : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
             >
-              <Image size={16} /> Gallery
+              <ImageIcon size={16} /> Gallery
               {galleryItems.filter(
                 (g) => g.status === "PENDING_REVIEW" || g.status === "FLAGGED"
               ).length > 0 && (

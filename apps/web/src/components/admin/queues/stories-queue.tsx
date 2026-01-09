@@ -45,7 +45,7 @@ export function StoriesQueue({
   const [mdxContent, setMdxContent] = useState<string>("");
   const [isGeneratingMdx, setIsGeneratingMdx] = useState(false);
   const [isCommitting, setIsCommitting] = useState(false);
-  const [publishingStoryId, setPublishingStoryId] = useState<string | null>(
+  const [_publishingStoryId, setPublishingStoryId] = useState<string | null>(
     null
   );
   const toast = useToast();

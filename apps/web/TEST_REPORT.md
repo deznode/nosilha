@@ -9,11 +9,11 @@
 
 ## Summary
 
-| Component | Tests Passed | Tests Failed | Rate Limited |
-|-----------|-------------|--------------|--------------|
-| Story Contribution | 7/7 | 0 | 2 |
-| Directory Contribution | 4/4 | 0 | 2 |
-| **Total** | **11/11** | **0** | **4** |
+| Component              | Tests Passed | Tests Failed | Rate Limited |
+| ---------------------- | ------------ | ------------ | ------------ |
+| Story Contribution     | 7/7          | 0            | 2            |
+| Directory Contribution | 4/4          | 0            | 2            |
+| **Total**              | **11/11**    | **0**        | **4**        |
 
 All forms function correctly. Rate limiting is working as expected (5 stories/hour, 3 directory entries/hour).
 
@@ -22,24 +22,26 @@ All forms function correctly. Rate limiting is working as expected (5 stories/ho
 ## Story Contribution Tests (`/contribute/story`)
 
 ### Quick Memory
-| Field | Status |
-|-------|--------|
-| Title input | OK |
-| Story textarea | OK |
-| Contributor name | OK |
-| Form submission | **SUBMITTED** |
+
+| Field            | Status        |
+| ---------------- | ------------- |
+| Title input      | OK            |
+| Story textarea   | OK            |
+| Contributor name | OK            |
+| Form submission  | **SUBMITTED** |
 
 **Result:** Story submitted successfully with confirmation "Thank you for sharing!"
 
 ---
 
 ### Full Story
-| Field | Status |
-|-------|--------|
-| Title input | OK |
-| Story textarea | OK |
-| Contributor name | OK |
-| Form submission | **SUBMITTED** |
+
+| Field            | Status        |
+| ---------------- | ------------- |
+| Title input      | OK            |
+| Story textarea   | OK            |
+| Contributor name | OK            |
+| Form submission  | **SUBMITTED** |
 
 **Result:** Story submitted successfully with confirmation message.
 
@@ -48,64 +50,69 @@ All forms function correctly. Rate limiting is working as expected (5 stories/ho
 ### Guided Templates
 
 #### 1. Diaspora Journey
-| Field | Status |
-|-------|--------|
-| Title input | OK |
-| Guided prompts display | OK |
-| Story textarea | OK |
-| Contributor name | OK |
-| Form submission | **SUBMITTED** |
+
+| Field                  | Status        |
+| ---------------------- | ------------- |
+| Title input            | OK            |
+| Guided prompts display | OK            |
+| Story textarea         | OK            |
+| Contributor name       | OK            |
+| Form submission        | **SUBMITTED** |
 
 **Result:** Template submitted successfully.
 
 ---
 
 #### 2. Family History
-| Field | Status |
-|-------|--------|
-| Title input | OK |
-| Guided prompts display | OK |
-| Story textarea | OK |
-| Contributor name | OK |
-| Form submission | **SUBMITTED** |
+
+| Field                  | Status        |
+| ---------------------- | ------------- |
+| Title input            | OK            |
+| Guided prompts display | OK            |
+| Story textarea         | OK            |
+| Contributor name       | OK            |
+| Form submission        | **SUBMITTED** |
 
 **Result:** Template submitted successfully.
 
 ---
 
 #### 3. Childhood Memories
-| Field | Status |
-|-------|--------|
-| Title input | OK |
-| Guided prompts display | OK |
-| Story textarea | OK |
-| Contributor name | OK |
-| Form submission | **SUBMITTED** |
+
+| Field                  | Status        |
+| ---------------------- | ------------- |
+| Title input            | OK            |
+| Guided prompts display | OK            |
+| Story textarea         | OK            |
+| Contributor name       | OK            |
+| Form submission        | **SUBMITTED** |
 
 **Result:** Template submitted successfully.
 
 ---
 
 #### 4. Cultural Traditions
-| Field | Status |
-|-------|--------|
-| Title input | OK |
-| Guided prompts display | OK |
-| Story textarea | OK |
-| Contributor name | OK |
-| Form submission | **RATE LIMITED** |
+
+| Field                  | Status           |
+| ---------------------- | ---------------- |
+| Title input            | OK               |
+| Guided prompts display | OK               |
+| Story textarea         | OK               |
+| Contributor name       | OK               |
+| Form submission        | **RATE LIMITED** |
 
 **Result:** Form validated correctly but hit rate limit (429 - 5 submissions/hour). This confirms rate limiting is functioning properly.
 
 ---
 
 #### 5. Food & Recipes
-| Field | Status |
-|-------|--------|
-| Template selection | OK |
-| Form structure | OK |
-| Guided prompts | OK |
-| Form fields | OK |
+
+| Field              | Status |
+| ------------------ | ------ |
+| Template selection | OK     |
+| Form structure     | OK     |
+| Guided prompts     | OK     |
+| Form fields        | OK     |
 
 **Result:** Template structure verified. Not submitted due to rate limiting, but form loads and functions correctly.
 
@@ -114,18 +121,19 @@ All forms function correctly. Rate limiting is working as expected (5 stories/ho
 ## Directory Contribution Tests (`/contribute/directory`)
 
 ### Category: Dining
-| Field | Status |
-|-------|--------|
-| Location name input | OK |
-| Category selection | OK |
-| Town/Village dropdown | OK |
-| Description textarea | OK |
-| Discovery tags | OK |
-| Price selector | OK |
-| Photo upload area | OK |
-| Lat/Long inputs | OK |
-| Contributor name | OK |
-| Form submission | **SUBMITTED** |
+
+| Field                 | Status        |
+| --------------------- | ------------- |
+| Location name input   | OK            |
+| Category selection    | OK            |
+| Town/Village dropdown | OK            |
+| Description textarea  | OK            |
+| Discovery tags        | OK            |
+| Price selector        | OK            |
+| Photo upload area     | OK            |
+| Lat/Long inputs       | OK            |
+| Contributor name      | OK            |
+| Form submission       | **SUBMITTED** |
 
 **Test Entry:** "Test Restaurant Djabraba"
 **Result:** Entry submitted successfully with confirmation "Entry Submitted".
@@ -133,14 +141,15 @@ All forms function correctly. Rate limiting is working as expected (5 stories/ho
 ---
 
 ### Category: Landmark
-| Field | Status |
-|-------|--------|
-| Location name input | OK |
-| Category selection | OK |
-| Town/Village dropdown | OK |
-| Description textarea | OK |
-| Contributor name | OK |
-| Form submission | **SUBMITTED** |
+
+| Field                 | Status        |
+| --------------------- | ------------- |
+| Location name input   | OK            |
+| Category selection    | OK            |
+| Town/Village dropdown | OK            |
+| Description textarea  | OK            |
+| Contributor name      | OK            |
+| Form submission       | **SUBMITTED** |
 
 **Test Entry:** "Test Historical Monument"
 **Result:** Entry submitted successfully with confirmation "Entry Submitted".
@@ -148,14 +157,15 @@ All forms function correctly. Rate limiting is working as expected (5 stories/ho
 ---
 
 ### Category: Nature
-| Field | Status |
-|-------|--------|
-| Location name input | OK |
-| Category selection | OK |
-| Town/Village dropdown | OK |
-| Description textarea | OK |
-| Contributor name | OK |
-| Form submission | **RATE LIMITED** |
+
+| Field                 | Status           |
+| --------------------- | ---------------- |
+| Location name input   | OK               |
+| Category selection    | OK               |
+| Town/Village dropdown | OK               |
+| Description textarea  | OK               |
+| Contributor name      | OK               |
+| Form submission       | **RATE LIMITED** |
 
 **Test Entry:** "Test Hiking Trail Fontainhas"
 **Result:** Form validated correctly but hit rate limit (429 - 3 submissions/hour for directory). Rate limiting is functioning properly.
@@ -163,10 +173,11 @@ All forms function correctly. Rate limiting is working as expected (5 stories/ho
 ---
 
 ### Category: Culture
-| Field | Status |
-|-------|--------|
-| Category selection | OK |
-| Form structure | OK |
+
+| Field              | Status |
+| ------------------ | ------ |
+| Category selection | OK     |
+| Form structure     | OK     |
 
 **Result:** Category selectable, form structure verified. Not submitted due to rate limiting.
 
@@ -182,9 +193,9 @@ All forms function correctly. Rate limiting is working as expected (5 stories/ho
 
 ## Rate Limiting Observations
 
-| Endpoint | Limit | Status |
-|----------|-------|--------|
-| Story submissions | 5/hour | Working |
+| Endpoint              | Limit  | Status  |
+| --------------------- | ------ | ------- |
+| Story submissions     | 5/hour | Working |
 | Directory submissions | 3/hour | Working |
 
 Rate limiting is correctly implemented and provides appropriate user feedback when limits are exceeded.
@@ -212,6 +223,7 @@ Rate limiting is correctly implemented and provides appropriate user feedback wh
 ## Conclusion
 
 All contribution forms (Story and Directory) are functioning correctly. The test confirms:
+
 - All form fields render and accept input
 - Form validation works for required fields
 - Submissions are processed by the backend

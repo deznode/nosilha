@@ -405,7 +405,7 @@ When handing off to content-creator skill:
 - [ ] Validate cultural practices for authenticity and community approval
 - [ ] Confirm family stories and community examples have appropriate consent
 - [ ] Review for cultural sensitivity around sacred practices and boundaries
-- [ ] Cross-reference with `docs/CULTURAL_HERITAGE_VERIFICATION.md` protocol
+- [ ] Cross-reference with `docs/cultural-heritage-verification.md` protocol
 
 ---
 

@@ -25,4 +25,4 @@ Reference these Cape Verdean cultural terms when creating heritage content.
 - Present terms with respect and proper context
 - Avoid overuse that feels performative
 - Let community voice define meaning through examples
-- Reference `docs/CULTURAL_HERITAGE_VERIFICATION.md` for accuracy standards
+- Reference `docs/cultural-heritage-verification.md` for accuracy standards
