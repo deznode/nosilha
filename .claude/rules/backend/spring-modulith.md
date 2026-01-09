@@ -18,7 +18,7 @@ cd apps/api
 
 ## Architecture Patterns
 
-- **Spring Modulith Architecture**: Modular monolith with enforced module boundaries (`shared`, `auth`, `places`, `media`, `engagement`, `stories`, `feedback`)
+- **Spring Modulith Architecture**: Modular monolith with enforced module boundaries (`shared`, `auth`, `places`, `gallery`, `engagement`, `stories`, `feedback`, `config`)
 - **Event-Driven Communication**: Modules communicate via `@ApplicationModuleListener` without direct dependencies
 - **Single Table Inheritance**: `DirectoryEntry` is the base class for `Restaurant`, `Hotel`, `Beach`, `Heritage`, `Nature`
 - **API Versioning**: All REST endpoints are prefixed with `/api/v1/`
@@ -46,10 +46,11 @@ apps/api/src/main/kotlin/com/nosilha/core/
 ├── shared/          # Common utilities and base classes
 ├── auth/            # Authentication module (JWT, Supabase)
 ├── places/          # Places entries (Restaurant, Hotel, Beach, Heritage, Nature)
-├── gallery/         # Gallery media (user uploads + curated external content), MediaQueryService
+├── gallery/         # Gallery media (user uploads + curated external content)
 ├── engagement/      # User interactions (reactions, bookmarks)
-├── stories/         # Community narratives, MDX publishing, StoriesQueryService
-└── feedback/        # Community feedback channels, dashboard
+├── stories/         # Community narratives, MDX publishing
+├── feedback/        # Community feedback channels, dashboard
+└── config/          # Cache configuration (Caffeine)
 ```
 
 ## Key Patterns

@@ -8,13 +8,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    private val jwtAuthFilter: JwtAuthenticationFilter,
+    private val supabaseJwtConverter: SupabaseJwtAuthenticationConverter,
     @Value("\${app.cors.allowed-origins}")
     private var allowedOrigins: List<String>,
 ) {
@@ -106,8 +105,12 @@ class SecurityConfig(
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
-            // 4. Add the custom JWT filter before the standard username/password filter
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
+            // 4. Enable OAuth2 Resource Server with JWT support (JWKS-based verification)
+            .oauth2ResourceServer { oauth2 ->
+                oauth2.jwt { jwt ->
+                    jwt.jwtAuthenticationConverter(supabaseJwtConverter)
+                }
+            }
         return http.build()
     }
 

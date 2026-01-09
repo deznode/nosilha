@@ -89,19 +89,16 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value = "https://nosilha.com,https://www.nosilha.com"
       }
 
-      # Secret injection via environment variables (cost-optimized approach)
-      # Using pinned versions instead of "latest" for predictable costs and better control
-      # Each secret access during container startup counts as 1 operation toward free tier limit
+      # Supabase project URL for JWKS-based JWT verification (asymmetric ES256)
+      # The backend fetches public keys from ${SUPABASE_PROJECT_URL}/auth/v1/.well-known/jwks.json
       env {
-        name = "SUPABASE_JWT_SECRET"
-        value_source {
-          secret_key_ref {
-            secret  = "supabase_jwt_secret"
-            version = "1" # Pin to specific version for cost predictability
-          }
-        }
+        name  = "SUPABASE_PROJECT_URL"
+        value = "https://wqpgbmrgwbexxldeokiu.supabase.co"
       }
 
+      # Database secrets via Secret Manager (cost-optimized approach)
+      # Using pinned versions instead of "latest" for predictable costs and better control
+      # Each secret access during container startup counts as 1 operation toward free tier limit
       env {
         name = "SPRING_DATASOURCE_URL"
         value_source {

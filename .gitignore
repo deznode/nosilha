@@ -55,6 +55,9 @@ lerna-debug.log*
 *.csr
 *.der
 
+# Reviews (generated artifacts, not source-controlled)
+reviews/
+
 # Docker
 .dockerignore
 

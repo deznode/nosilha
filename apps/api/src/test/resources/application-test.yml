@@ -31,16 +31,19 @@ spring:
   flyway:
     enabled: true
 
-# Media storage configuration for tests
-# Uses temp directory for test isolation
-media:
-  storage:
-    path: ${java.io.tmpdir}/nosilha-test-uploads
-    base-url: http://localhost:8080/api/v1/media/files
+  # OAuth2 Resource Server Configuration for tests
+  # Note: Tests use a mock JwtDecoder from TestSecurityConfig, not the actual JWKS endpoint
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # This URL is not used in tests (mock JwtDecoder is injected instead)
+          jwk-set-uri: https://test-project.supabase.co/auth/v1/.well-known/jwks.json
+          issuer-uri: https://test-project.supabase.co/auth/v1
 
-# Test JWT Configuration
+# Test Supabase Configuration
 supabase:
-  jwt-secret: test-secret-key-that-is-at-least-32-characters-long
+  project-url: https://test-project.supabase.co
 
 # Logging for tests
 logging:

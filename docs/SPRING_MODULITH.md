@@ -53,12 +53,12 @@ The Nos Ilha backend is organized into **8 modules**:
 apps/api/src/main/kotlin/com/nosilha/core/
 ├── shared/           # Shared Kernel (foundation layer)
 ├── auth/             # Authentication Module
-├── directory/        # Directory Management Module
-├── media/            # Media Processing Module
-├── curatedmedia/     # Admin-Curated External Content Module
+├── places/           # Places Module (restaurants, hotels, beaches, heritage, nature)
+├── gallery/          # Gallery Module (user uploads + curated external content)
 ├── engagement/       # User Engagement Module (reactions, bookmarks)
 ├── stories/          # Community Stories Module
-└── feedback/         # Community Feedback Module (suggestions, submissions, dashboard)
+├── feedback/         # Community Feedback Module (suggestions, submissions, dashboard)
+└── config/           # Cache Configuration Module
 ```
 
 ### Module Dependency Graph
@@ -80,10 +80,10 @@ apps/api/src/main/kotlin/com/nosilha/core/
 │        │                           │                           │        │
 │        ▼                           ▼                           ▼        │
 │  ┌─────────────┐           ┌──────────────┐           ┌──────────────┐ │
-│  │Auth Module  │           │Directory     │           │Media Module  │ │
-│  │• JWT        │           │Module        │           │• MediaQuery  │ │
-│  │• UserProfile│           │• Entries     │           │  Service     │ │
-│  │  Query      │           │• DirectoryQuery│         │• GCS Storage │ │
+│  │Auth Module  │           │Places Module │           │Gallery Module│ │
+│  │• JWT        │           │• DirectoryEntry│         │• User uploads│ │
+│  │• UserProfile│           │• Restaurant  │           │• Curated ext │ │
+│  │  Query      │           │• Hotel,Beach │           │  content     │ │
 │  │Depends:     │           │Depends:      │           │Depends:      │ │
 │  │  shared     │           │  shared      │           │  shared      │ │
 │  └─────────────┘           └──────┬───────┘           └──────────────┘ │
@@ -92,15 +92,15 @@ apps/api/src/main/kotlin/com/nosilha/core/
 │        │                          │                          │         │
 │        ▼                          ▼                          ▼         │
 │  ┌─────────────┐           ┌──────────────┐           ┌──────────────┐ │
-│  │Engagement   │           │Stories       │           │Curated Media │ │
-│  │Module       │           │Module        │           │Module        │ │
-│  │• Content    │           │• Story       │           │• CuratedMedia│ │
-│  │• Reaction   │           │• MdxArchive  │           │Depends:      │ │
-│  │• Bookmark   │           │• StoriesQuery│           │  shared      │ │
-│  │Depends:     │           │Depends:      │           └──────────────┘ │
+│  │Engagement   │           │Stories       │           │Config Module │ │
+│  │Module       │           │Module        │           │• CacheConfig │ │
+│  │• Content    │           │• Story       │           │Dependencies: │ │
+│  │• Reaction   │           │• MdxArchive  │           │  NONE        │ │
+│  │• Bookmark   │           │• StoriesQuery│           └──────────────┘ │
+│  │Depends:     │           │Depends:      │                            │
 │  │  shared,    │           │  shared,     │                            │
-│  │  directory  │           │  auth,       │                            │
-│  └─────────────┘           │  directory   │                            │
+│  │  places     │           │  auth,       │                            │
+│  └─────────────┘           │  places      │                            │
 │                            └──────┬───────┘                            │
 │                                   │                                    │
 │                                   ▼                                    │
@@ -114,9 +114,9 @@ apps/api/src/main/kotlin/com/nosilha/core/
 │                            │Depends:      │                            │
 │                            │  shared,     │                            │
 │                            │  auth,       │                            │
-│                            │  directory,  │                            │
+│                            │  places,     │                            │
 │                            │  stories,    │                            │
-│                            │  media       │                            │
+│                            │  gallery     │                            │
 │                            └──────────────┘                            │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
@@ -215,25 +215,26 @@ auth/
 
 **Dependencies**: `shared`
 
-### 3. Directory Module
+### 3. Places Module
 
-**Package**: `com.nosilha.core.directory`
-**Purpose**: Manage cultural heritage directory entries (restaurants, hotels, landmarks, beaches)
+**Package**: `com.nosilha.core.places`
+**Purpose**: Manage cultural heritage directory entries (restaurants, hotels, beaches, heritage sites, nature)
 
 **Module Detection**: Spring Modulith auto-detects this module by directory structure
 
 **Structure:**
 ```
-directory/
+places/
 ├── api/
-│   └── DirectoryController.kt  # Public REST endpoints (/api/v1/directory/*)
+│   └── DirectoryEntryController.kt  # Public REST endpoints (/api/v1/directory/*)
 ├── domain/
 │   ├── DirectoryEntry.kt    # Base entity (Single Table Inheritance) - internal
 │   ├── Restaurant.kt        # Restaurant-specific fields - internal
 │   ├── Hotel.kt             # Hotel-specific fields - internal
-│   ├── Landmark.kt          # Landmark-specific fields - internal
+│   ├── Heritage.kt          # Heritage site-specific fields - internal
 │   ├── Beach.kt             # Beach-specific fields - internal
-│   └── DirectoryService.kt  # Business logic, event publishing - internal
+│   ├── Nature.kt            # Nature site-specific fields - internal
+│   └── DirectoryEntryService.kt  # Business logic, event publishing - internal
 ├── repository/
 │   └── DirectoryEntryRepository.kt  # JPA data access - internal
 └── events/
@@ -243,10 +244,10 @@ directory/
 ```
 
 **Public API:**
-- `DirectoryController` (REST endpoints)
+- `DirectoryEntryController` (REST endpoints)
 - `DirectoryEntry*Event` (domain events)
 
-**Dependencies**: `shared`
+**Dependencies**: `shared`, `engagement`
 
 **Single Table Inheritance Pattern:**
 ```kotlin
@@ -277,33 +278,34 @@ class Restaurant(
 ) : DirectoryEntry(name = name, location = location)
 ```
 
-### 4. Media Module
+### 4. Gallery Module
 
-**Package**: `com.nosilha.core.media`
-**Purpose**: Media asset management (images, videos) and AI processing
+**Package**: `com.nosilha.core.gallery`
+**Purpose**: Unified media management for user-uploaded and admin-curated external content
 
 **Module Detection**: Spring Modulith auto-detects this module by directory structure
 
 **Structure:**
 ```
-media/
+gallery/
 ├── api/
-│   └── MediaController.kt  # Public REST endpoints (file upload)
-├── config/
-│   └── [GCS/Vision API config]  # Media-specific configuration - internal
+│   ├── GalleryController.kt       # Public REST endpoints (user uploads)
+│   └── AdminGalleryController.kt  # Admin REST endpoints (curated content management)
 ├── domain/
-│   └── MediaService.kt     # GCS operations, AI processing, event listeners - internal
+│   ├── GalleryService.kt          # Business logic for all media - internal
+│   ├── GalleryMedia.kt            # Base entity (Single Table Inheritance) - internal
+│   ├── UserUpload.kt              # User-uploaded media - internal
+│   └── ExternalMedia.kt           # Admin-curated external content - internal
 ├── repository/
-│   └── MediaRepository.kt           # Metadata storage - internal
+│   └── GalleryMediaRepository.kt  # JPA data access - internal
 └── events/
-    ├── MediaUploadedEvent.kt    # Published after file upload
-    └── MediaProcessedEvent.kt   # Published after AI processing
+    └── MediaUploadedEvent.kt      # Published after file upload
 ```
 
 **Event Listener Example:**
 ```kotlin
 @Service
-class MediaService {
+class GalleryService {
     @ApplicationModuleListener
     fun onDirectoryEntryCreated(event: DirectoryEntryCreatedEvent) {
         // React to directory entry creation
@@ -314,39 +316,17 @@ class MediaService {
 ```
 
 **Public API:**
-- `MediaController` (REST endpoints)
-- `Media*Event` (domain events)
+- `GalleryController`, `AdminGalleryController` (REST endpoints)
+- `MediaUploadedEvent` (domain events)
 
 **Dependencies**: `shared`
 
-### 5. Curated Media Module
+**Storage Strategy:**
+- **User Uploads**: Cloudflare R2 (S3-compatible) with presigned PUT URLs
+- **External Media**: Platform-hosted content with metadata references (YouTube, Vimeo, etc.)
+- **Metadata**: PostgreSQL via JPA with Single Table Inheritance
 
-**Package**: `com.nosilha.core.curatedmedia`
-**Purpose**: Manage admin-curated external content (YouTube videos, Instagram posts, etc.)
-
-**Module Detection**: Spring Modulith auto-detects this module by directory structure
-
-**Structure:**
-```
-curatedmedia/
-├── api/
-│   └── CuratedMediaController.kt  # Public REST endpoints (CRUD for curated content)
-├── domain/
-│   ├── CuratedMediaService.kt  # Business logic for curated content - internal
-│   └── CuratedMedia.kt         # Curated media entity - internal
-├── repository/
-│   └── CuratedMediaRepository.kt  # JPA data access - internal
-└── events/
-    └── CuratedMediaEvent.kt  # Published when curated content is added/updated
-```
-
-**Public API:**
-- `CuratedMediaController` (REST endpoints)
-- `CuratedMediaEvent` (domain events)
-
-**Dependencies**: `shared`
-
-### 6. Engagement Module
+### 5. Engagement Module
 
 **Package**: `com.nosilha.core.engagement`
 **Purpose**: Manage user interactions with published content (reactions, bookmarks)
@@ -380,9 +360,9 @@ engagement/
 - `ReactionController`, `BookmarkController`, `ContentController` (REST endpoints)
 - `ReactionCreatedEvent`, `BookmarkCreatedEvent` (domain events)
 
-**Dependencies**: `shared`, `directory`
+**Dependencies**: `shared`, `places`
 
-### 7. Stories Module
+### 6. Stories Module
 
 **Package**: `com.nosilha.core.stories`
 **Purpose**: Manage community-submitted cultural heritage narratives and MDX publishing
@@ -414,7 +394,7 @@ stories/
 - `StorySubmittedEvent`, `StoryPublishedEvent` (domain events)
 - `StoriesQueryService` (read-only query interface for dashboard and other modules)
 
-**Dependencies**: `shared`, `auth`, `directory`
+**Dependencies**: `shared`, `auth`, `places`
 
 **Query Service Pattern:**
 ```kotlin
@@ -426,7 +406,7 @@ interface StoriesQueryService {
 }
 ```
 
-### 8. Feedback Module
+### 7. Feedback Module
 
 **Package**: `com.nosilha.core.feedback`
 **Purpose**: Manage community feedback channels (suggestions, directory submissions, contact messages) and admin dashboard
@@ -462,7 +442,7 @@ feedback/
 - `SuggestionController`, `DirectorySubmissionController`, `ContactMessageController`, `DashboardController` (REST endpoints)
 - `SuggestionCreatedEvent`, `DirectorySubmissionCreatedEvent` (domain events)
 
-**Dependencies**: `shared`, `auth`, `directory`, `stories`, `media`
+**Dependencies**: `shared`, `auth`, `places`, `stories`, `engagement`, `gallery`
 
 **Cross-Module Query Pattern:**
 ```kotlin
@@ -470,18 +450,51 @@ feedback/
 @Service
 class DashboardService(
     private val storiesQueryService: StoriesQueryService,  // From stories module
-    private val mediaQueryService: MediaQueryService,      // From media module
+    private val galleryQueryService: GalleryQueryService,  // From gallery module
     private val suggestionRepository: SuggestionRepository
 ) {
     fun getAggregateStats(): DashboardStatsDto {
         return DashboardStatsDto(
             storyCount = storiesQueryService.getStoryCount(),
-            mediaCount = mediaQueryService.getMediaCount(),
+            mediaCount = galleryQueryService.getMediaCount(),
             suggestionCount = suggestionRepository.count()
         )
     }
 }
 ```
+
+### 8. Config Module
+
+**Package**: `com.nosilha.core.config`
+**Purpose**: Application-wide configuration for caching and cross-cutting concerns
+
+**Module Detection**: Spring Modulith auto-detects this module by directory structure
+
+**Structure:**
+```
+config/
+└── CacheConfig.kt  # Caffeine cache configuration
+```
+
+**Key Configuration:**
+```kotlin
+@Configuration
+@EnableCaching
+class CacheConfig {
+    @Bean
+    fun cacheManager(): CacheManager {
+        return CaffeineCacheManager().apply {
+            setCaffeine(
+                Caffeine.newBuilder()
+                    .maximumSize(500)
+                    .expireAfterWrite(Duration.ofMinutes(10))
+            )
+        }
+    }
+}
+```
+
+**Dependencies**: None (infrastructure layer)
 
 ---
 
@@ -523,7 +536,7 @@ class DirectoryService(
 
 **1. Define Event:**
 ```kotlin
-// directory/events/DirectoryEntryCreatedEvent.kt
+// places/events/DirectoryEntryCreatedEvent.kt
 data class DirectoryEntryCreatedEvent(
     val entryId: UUID,
     val name: String,
@@ -533,7 +546,7 @@ data class DirectoryEntryCreatedEvent(
 
 **2. Publish Event:**
 ```kotlin
-// directory/domain/DirectoryService.kt
+// places/domain/DirectoryEntryService.kt
 @Service
 class DirectoryService(
     private val repository: DirectoryEntryRepository,
@@ -553,9 +566,9 @@ class DirectoryService(
 
 **3. Listen to Event:**
 ```kotlin
-// media/domain/MediaService.kt
+// gallery/domain/GalleryService.kt
 @Service
-class MediaService {
+class GalleryService {
     @ApplicationModuleListener
     fun onDirectoryEntryCreated(event: DirectoryEntryCreatedEvent) {
         logger.info("New directory entry: ${event.name}")
@@ -608,13 +621,13 @@ internal class StoryService(
 @Service
 class DashboardService(
     private val storiesQueryService: StoriesQueryService,  // Injected from stories module
-    private val mediaQueryService: MediaQueryService,      // Injected from media module
+    private val galleryQueryService: GalleryQueryService,  // Injected from gallery module
     private val suggestionRepository: SuggestionRepository
 ) {
     fun getAggregateStats(): DashboardStatsDto {
         return DashboardStatsDto(
             storyCount = storiesQueryService.getStoryCount(),
-            mediaCount = mediaQueryService.getMediaCount(),
+            mediaCount = galleryQueryService.getMediaCount(),
             suggestionCount = suggestionRepository.count()
         )
     }
@@ -623,8 +636,8 @@ class DashboardService(
 
 **Query Services in the System:**
 - `StoriesQueryService` - Stories module exposes query interface for dashboard
-- `MediaQueryService` - Media module exposes query interface for dashboard
-- `DirectoryEntryQueryService` - Directory module exposes query interface
+- `GalleryQueryService` - Gallery module exposes query interface for dashboard
+- `PlacesQueryService` - Places module exposes query interface
 - `UserProfileQueryService` - Auth module exposes query interface
 
 **Benefits:**
@@ -684,8 +697,8 @@ class ModularityTests {
     }
 
     @Test
-    fun `directory module should only depend on shared`() {
-        modules.getModuleByName("directory")
+    fun `places module should only depend on shared`() {
+        modules.getModuleByName("places")
             .dependencies
             .forEach { dependency ->
                 assertThat(dependency.name).isEqualTo("shared")
@@ -797,11 +810,11 @@ fun `new module should only depend on shared`() {
 ```
 ✅ Good: Each module has a single responsibility
   - auth: Authentication only
-  - directory: Directory management only
-  - media: Media processing only
+  - places: Places management only
+  - gallery: Media processing only
 
 ❌ Bad: Modules with multiple unrelated responsibilities
-  - core: Everything (auth + directory + media + ...)
+  - core: Everything (auth + places + gallery + ...)
 ```
 
 ### 2. Use Events for Cross-Module Communication
@@ -845,7 +858,7 @@ data class DirectoryEntryCreatedEvent { }
 ```kotlin
 @Test
 fun `verify module dependencies`() {
-    modules.getModuleByName("directory")
+    modules.getModuleByName("places")
         .dependencies
         .forEach { assertThat(it.name).isEqualTo("shared") }
 }
@@ -861,16 +874,16 @@ fun `verify module dependencies`() {
 
 **Example Error**:
 ```
-Module 'directory' depends on 'media' but this is not allowed
+Module 'places' depends on 'gallery' but this is not allowed
 ```
 
 **Solution**: Use events instead of direct dependencies
 ```kotlin
 // Before:
-class DirectoryService(private val mediaService: MediaService)
+class DirectoryEntryService(private val galleryService: GalleryService)
 
 // After:
-class DirectoryService(private val eventPublisher: ApplicationEventPublisher)
+class DirectoryEntryService(private val eventPublisher: ApplicationEventPublisher)
 ```
 
 ### Issue: Circular Dependency

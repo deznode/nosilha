@@ -49,12 +49,13 @@ spring:
       hibernate:
         format_sql: false
 
-# Media storage configuration for production
-# NOTE: Production cloud storage is deferred; local filesystem used for development
-media:
-  storage:
-    path: ${MEDIA_STORAGE_PATH:/app/uploads}
-    base-url: ${MEDIA_BASE_URL:https://api.nosilha.com/api/v1/media/files}
+  # OAuth2 Resource Server Configuration (JWKS-based JWT verification)
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${SUPABASE_PROJECT_URL:https://wqpgbmrgwbexxldeokiu.supabase.co}/auth/v1/.well-known/jwks.json
+          issuer-uri: ${SUPABASE_PROJECT_URL:https://wqpgbmrgwbexxldeokiu.supabase.co}/auth/v1
 
 # Cloudflare R2 configuration (S3-compatible object storage)
 # To enable media uploads, set cloudflare.r2.enabled=true (via R2_ENABLED env var)
@@ -68,10 +69,10 @@ cloudflare:
     bucket-name: ${R2_BUCKET_NAME:nosilha-media}
     public-url: ${R2_PUBLIC_URL:https://media.nosilha.com}
 
-# The production Supabase JWT secret, sourced from Google Secret Manager
-# and provided as an environment variable.
+# Supabase JWT configuration using JWKS (asymmetric key verification)
+# Uses the public JWKS endpoint - no secret needed
 supabase:
-  jwt-secret: ${SUPABASE_JWT_SECRET}
+  project-url: ${SUPABASE_PROJECT_URL:https://wqpgbmrgwbexxldeokiu.supabase.co}
 
 # Spring Boot Actuator Configuration
 management:
