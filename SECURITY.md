@@ -93,4 +93,4 @@ For security-related questions or concerns:
 
 - **Security Issues**: Use GitHub's private vulnerability reporting or email security@nosilha.com
 - **General Questions**: Create an issue in the repository with the `security` label
-- **CI/CD Security**: Refer to the [CI/CD Pipeline Documentation](./CI_CD_PIPELINE.md) for deployment security details
+- **CI/CD Security**: Refer to the [CI/CD Pipeline Documentation](docs/ci-cd-pipeline.md) for deployment security details
