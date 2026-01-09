@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowLeft,
   Image as ImageIcon,
@@ -284,10 +285,13 @@ export default function MediaContributionPage() {
                   >
                     {formData.preview ? (
                       <div className="relative">
-                        <img
+                        <Image
                           src={formData.preview}
-                          className="max-h-40 rounded-xl border-2 border-white shadow-lg"
+                          width={160}
+                          height={160}
+                          className="max-h-40 rounded-xl border-2 border-white object-contain shadow-lg"
                           alt="Preview"
+                          unoptimized
                         />
                         <button
                           type="button"

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   CheckCircle,
   XCircle,
@@ -115,10 +116,12 @@ export function MediaQueueItem({
               disabled={!isImage || !onPreview}
               className="group border-hairline bg-surface-alt relative h-20 w-28 flex-shrink-0 overflow-hidden rounded border disabled:cursor-default"
             >
-              <img
+              <Image
                 src={media.thumbnailUrl}
                 alt={media.title}
-                className="h-full w-full object-cover"
+                fill
+                className="object-cover"
+                unoptimized
               />
               {isImage && onPreview && (
                 <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors group-hover:bg-black/30">

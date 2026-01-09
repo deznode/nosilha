@@ -34,9 +34,7 @@ export function ListViewCard({
             />
           ) : (
             <div className="bg-background-tertiary flex h-full w-full items-center justify-center">
-              <span className="text-text-tertiary">
-                No image
-              </span>
+              <span className="text-text-tertiary">No image</span>
             </div>
           )}
           {showBookmark && (
@@ -45,7 +43,7 @@ export function ListViewCard({
             </div>
           )}
           <div className="absolute top-2 left-2">
-            <span className="rounded bg-basalt-900/80 px-2 py-1 text-xs text-white backdrop-blur-sm">
+            <span className="bg-basalt-900/80 rounded px-2 py-1 text-xs text-white backdrop-blur-sm">
               {entry.category}
             </span>
           </div>

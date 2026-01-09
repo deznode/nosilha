@@ -283,7 +283,7 @@ export function AddDirectoryEntryForm() {
               <h1 className="font-serif text-3xl font-bold md:text-4xl">
                 Documenting Brava&apos;s Landscape
               </h1>
-              <p className="mt-3 max-w-lg text-sm text-mist-200/80">
+              <p className="text-mist-200/80 mt-3 max-w-lg text-sm">
                 Every cafe, fountain, and historical house tells a story of our
                 island&apos;s growth and resilience.
               </p>

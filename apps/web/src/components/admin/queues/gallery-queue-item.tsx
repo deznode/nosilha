@@ -1,10 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import {
   CheckCircle,
   Flag,
   XCircle,
-  Image,
+  Image as ImageIcon,
   Video,
   Music,
   ExternalLink,
@@ -31,7 +32,7 @@ export function GalleryQueueItem({
     if (isExternalMedia(item)) {
       if (item.mediaType === "VIDEO") return <Video size={14} />;
       if (item.mediaType === "AUDIO") return <Music size={14} />;
-      return <Image size={14} />;
+      return <ImageIcon size={14} />;
     }
     return <Upload size={14} />;
   };
@@ -55,20 +56,24 @@ export function GalleryQueueItem({
   const getThumbnail = () => {
     if (isUserUploadMedia(item) && item.publicUrl) {
       return (
-        <img
+        <Image
           src={item.publicUrl}
           alt={item.title || "Gallery item"}
-          className="h-full w-full object-cover"
+          fill
+          className="object-cover"
+          unoptimized
         />
       );
     }
 
     if (isExternalMedia(item) && item.thumbnailUrl) {
       return (
-        <img
+        <Image
           src={item.thumbnailUrl}
           alt={item.title || "Gallery item"}
-          className="h-full w-full object-cover"
+          fill
+          className="object-cover"
+          unoptimized
         />
       );
     }
@@ -83,7 +88,7 @@ export function GalleryQueueItem({
   return (
     <div className="border-hairline bg-surface flex items-start gap-4 rounded-xl border p-4 transition-shadow hover:shadow-md">
       {/* Thumbnail */}
-      <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg">
+      <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg">
         {getThumbnail()}
       </div>
 

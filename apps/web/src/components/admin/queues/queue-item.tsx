@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   CheckCircle,
   XCircle,
@@ -149,11 +150,13 @@ export function QueueItem(props: QueueItemProps) {
         {/* Content Preview */}
         <div className="mt-2 flex gap-4">
           {props.imageUrl && (
-            <div className="border-hairline bg-surface-alt h-16 w-24 flex-shrink-0 overflow-hidden rounded border">
-              <img
+            <div className="border-hairline bg-surface-alt relative h-16 w-24 flex-shrink-0 overflow-hidden rounded border">
+              <Image
                 src={props.imageUrl}
                 alt={props.title}
-                className="h-full w-full object-cover"
+                fill
+                className="object-cover"
+                unoptimized
               />
             </div>
           )}

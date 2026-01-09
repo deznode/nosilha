@@ -137,21 +137,22 @@ export default function GalleryPage() {
       {/* Header */}
       <div className="bg-slate-900 text-white">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <h1 className="mb-4 font-serif text-3xl font-bold md:text-5xl">
-            Brava Media Center
-          </h1>
-          <p className="max-w-2xl text-lg font-light text-slate-300">
-            A visual archive of our island. Explore historical photographs,
-            community moments, and videos celebrating the culture of Brava.
-          </p>
-          <div className="mt-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h1 className="mb-4 font-serif text-3xl font-bold md:text-5xl">
+                Brava Media Center
+              </h1>
+              <p className="max-w-2xl text-lg font-light text-slate-300">
+                A visual archive of our island. Explore historical photographs,
+                community moments, and videos celebrating the culture of Brava.
+              </p>
+            </div>
             <Link
               href="/contribute/media"
-              className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-ocean-blue)] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[var(--color-ocean-blue-deep)] focus:ring-2 focus:ring-white/50 focus:outline-none"
+              className="flex shrink-0 items-center gap-2 rounded-xl bg-[var(--color-ocean-blue)] px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-blue-800 active:scale-95"
             >
               <Plus size={18} />
-              <span className="hidden sm:inline">Add to Archive</span>
-              <span className="sm:hidden">Add</span>
+              Add to Archive
             </Link>
           </div>
         </div>

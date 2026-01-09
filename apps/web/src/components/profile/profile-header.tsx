@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { User, MapPin, Calendar, Edit2 } from "lucide-react";
 import type { UserProfile } from "@/types/user-profile";
 
@@ -52,12 +53,14 @@ export function ProfileHeader({
       {/* Cover Image */}
       <div className="relative h-32 bg-[var(--color-ocean-blue)]">
         <div className="absolute -bottom-12 left-8">
-          <div className="bg-surface h-24 w-24 rounded-full p-1 shadow-md">
+          <div className="bg-surface relative h-24 w-24 overflow-hidden rounded-full p-1 shadow-md">
             {profile.avatarUrl ? (
-              <img
+              <Image
                 src={profile.avatarUrl}
                 alt={profile.displayName}
-                className="h-full w-full rounded-full object-cover"
+                fill
+                className="rounded-full object-cover"
+                unoptimized
               />
             ) : (
               <div className="bg-surface-alt text-muted flex h-full w-full items-center justify-center rounded-full">
