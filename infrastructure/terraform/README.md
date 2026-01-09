@@ -322,5 +322,5 @@ terraform refresh
 - [Cloud Run Documentation](https://cloud.google.com/run/docs)
 - [Workload Identity Federation Guide](https://cloud.google.com/iam/docs/workload-identity-federation)
 - [Cloud Run Free Tier Details](https://cloud.google.com/run/pricing#tables)
-- [Project CI/CD Pipeline](../../docs/CI_CD_PIPELINE.md)
-- [GCP Troubleshooting Guide](../../docs/GCLOUD_CLOUD_RUN_TROUBLESHOOTING.md)
+- [Project CI/CD Pipeline](../../docs/ci-cd-pipeline.md)
+- [GCP Troubleshooting Guide](../../docs/gcloud-cloud-run-troubleshooting.md)

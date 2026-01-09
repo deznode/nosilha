@@ -120,21 +120,21 @@ This project adheres to clean architecture principles to ensure separation of co
 The Nos Ilha platform has been built with a sophisticated, production-ready architecture that prioritizes scalability, maintainability, and developer experience:
 
 ### Backend Modularity
-  * **Spring Modulith Architecture:** Fully modular backend with enforced module boundaries (`shared`, `auth`, `directory`, `media`), event-driven communication, and verified zero circular dependencies. See [`docs/SPRING_MODULITH.md`](docs/SPRING_MODULITH.md) for comprehensive module architecture guide.
+  * **Spring Modulith Architecture:** Fully modular backend with enforced module boundaries (`shared`, `auth`, `directory`, `media`), event-driven communication, and verified zero circular dependencies. See [`docs/spring-modulith.md`](docs/spring-modulith.md) for comprehensive module architecture guide.
 
 ### Frontend State Management
   * **Zustand:** Lightweight client state management with persistence middleware and Redux DevTools integration for UI preferences, authentication, and filter state.
   * **TanStack Query:** Server state management with automatic caching, background refetching, optimistic updates, and cache invalidation for directory entries, user profiles, and media metadata.
   * **Zod:** TypeScript-first schema validation enabling runtime type safety for forms (React Hook Form integration), API responses, and data parsing across the platform.
 
-  See [`docs/STATE_MANAGEMENT.md`](docs/STATE_MANAGEMENT.md) for detailed patterns, integration examples, and best practices.
+  See [`docs/state-management.md`](docs/state-management.md) for detailed patterns, integration examples, and best practices.
 
 ### Testing Infrastructure
   * **Playwright:** Comprehensive E2E testing with 6 critical user flows, mobile viewport testing, and <5-minute execution time target. Includes Playwright MCP server for browser automation.
   * **Vitest:** Fast unit testing with jsdom environment, >70% coverage threshold enforcement, and Testing Library integration for components and hooks.
   * **Storybook:** Living component documentation with 20+ components, accessibility testing (addon-a11y), and visual testing for design system consistency.
 
-  See [`docs/TESTING.md`](docs/TESTING.md) for complete testing guide, patterns, and CI/CD integration.
+  See [`docs/testing.md`](docs/testing.md) for complete testing guide, patterns, and CI/CD integration.
 
 This modern architecture demonstrates the project's commitment to engineering excellence while serving the cultural heritage preservation mission at its core.
 
@@ -200,7 +200,7 @@ docker-compose exec postgres psql -U nosilha -d nosilha_db -c "SELECT version();
 
 For production deployment to Google Cloud:
 
-1. **Review Setup**: See [`docs/CI_CD_PIPELINE.md`](docs/CI_CD_PIPELINE.md) for comprehensive deployment guide
+1. **Review Setup**: See [`docs/ci-cd-pipeline.md`](docs/ci-cd-pipeline.md) for comprehensive deployment guide
 2. **Configure Secrets**: Set up GitHub secrets and Google Cloud credentials
 3. **Deploy Infrastructure**: Use Terraform to provision GCP resources
 4. **Automated Deployment**: Push to `main` branch triggers automatic deployment

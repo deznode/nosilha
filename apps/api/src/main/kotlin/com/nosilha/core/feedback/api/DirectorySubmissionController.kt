@@ -9,19 +9,19 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
 private val logger = KotlinLogging.logger {}
 
 /**
- * REST controller for public directory submissions.
+ * REST controller for directory submissions.
  *
- * <p>Provides a public endpoint for community members to submit new directory entries
+ * <p>Provides an authenticated endpoint for community members to submit new directory entries
  * for review. Submissions go through a moderation queue before being published.</p>
  *
  * <h3>Endpoints:</h3>
@@ -31,7 +31,7 @@ private val logger = KotlinLogging.logger {}
  *
  * <h3>Security:</h3>
  * <ul>
- *   <li>No authentication required (allows anonymous submissions)</li>
+ *   <li>Authentication required (JWT token from Supabase)</li>
  *   <li>Rate limiting: 3 submissions per hour per IP address</li>
  * </ul>
  *
@@ -64,8 +64,7 @@ class DirectorySubmissionController(
      * </ul>
      *
      * @param request Directory submission data
-     * @param submittedBy Display name of the submitter (required)
-     * @param submittedByEmail Optional email of the submitter
+     * @param authentication Spring Security authentication (contains user ID)
      * @param httpRequest HTTP request (used to extract IP address)
      * @return ApiResult with DirectorySubmissionConfirmationDto (201 Created)
      */
@@ -73,7 +72,8 @@ class DirectorySubmissionController(
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(
         summary = "Submit directory entry",
-        description = "Submit a new directory entry for review. Rate limited to 3 submissions per hour per IP address.",
+        description = """Submit a new directory entry for review. Requires authentication.
+            Rate limited to 3 submissions per hour per IP address.""",
     )
     @ApiResponses(
         value = [
@@ -86,6 +86,10 @@ class DirectorySubmissionController(
                 description = "Invalid request data",
             ),
             io.swagger.v3.oas.annotations.responses.ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized - authentication required",
+            ),
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "429",
                 description = "Rate limit exceeded",
             ),
@@ -93,17 +97,16 @@ class DirectorySubmissionController(
     )
     fun submitDirectoryEntry(
         @Valid @RequestBody request: CreateDirectorySubmissionRequest,
-        @RequestParam submittedBy: String,
-        @RequestParam(required = false) submittedByEmail: String?,
+        authentication: Authentication,
         httpRequest: HttpServletRequest,
     ): ApiResult<DirectorySubmissionConfirmationDto> {
+        val userId = extractUserId(authentication)
         val ipAddress = extractIpAddress(httpRequest)
-        logger.info { "Received directory submission from IP: $ipAddress, submittedBy: $submittedBy" }
+        logger.info { "Received directory submission from user: $userId, IP: $ipAddress" }
 
         val response = directorySubmissionService.submitDirectoryEntry(
             request = request,
-            submittedBy = submittedBy,
-            submittedByEmail = submittedByEmail,
+            userId = userId,
             ipAddress = ipAddress,
         )
 
@@ -118,6 +121,17 @@ class DirectorySubmissionController(
             status = HttpStatus.CREATED.value(),
         )
     }
+
+    /**
+     * Extracts user ID from Spring Security authentication.
+     *
+     * @param authentication Spring Security authentication object
+     * @return User ID as String (Supabase auth user ID)
+     * @throws IllegalStateException if authentication name is not present
+     */
+    private fun extractUserId(authentication: Authentication): String =
+        authentication.name
+            ?: throw IllegalStateException("Authentication name must be present (user ID)")
 
     /**
      * Extracts the client IP address from the HTTP request.

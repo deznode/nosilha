@@ -14,11 +14,6 @@ output "frontend_ui_service_url" {
   value       = google_cloud_run_v2_service.nosilha_frontend.uri
 }
 
-output "terraform_state_bucket_name" {
-  description = "The name of the GCS bucket used for Terraform state storage."
-  value       = google_storage_bucket.terraform_state.name
-}
-
 # ------------------------------------------------------------------------------
 # Outputs for CI/CD Configuration
 # ------------------------------------------------------------------------------

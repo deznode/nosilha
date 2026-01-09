@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { ArrowLeft, Clock, Book, FileText, LogIn } from "lucide-react";
+import { ArrowLeft, Clock, Book, FileText } from "lucide-react";
+import { InlineAuthPrompt } from "@/components/ui/inline-auth-prompt";
 import {
   TypeSelector,
   TemplateSelector,
@@ -58,50 +58,8 @@ export default function StorySubmissionPage() {
     enabled: !!submissionType && !!user, // Only auto-save if authenticated
   });
 
-  // Show login prompt if not authenticated
-  if (!authLoading && !user) {
-    return (
-      <div className="min-h-screen bg-slate-50 px-4 py-16 dark:bg-slate-900">
-        <div className="mx-auto max-w-md text-center">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-ocean-blue)]/10">
-            <LogIn className="h-8 w-8 text-[var(--color-ocean-blue)]" />
-          </div>
-          <h1 className="mb-3 font-serif text-2xl font-bold text-slate-900 dark:text-white">
-            Sign in to Share Your Story
-          </h1>
-          <p className="mb-8 text-slate-600 dark:text-slate-400">
-            To preserve your community&apos;s memories and ensure proper
-            attribution, please sign in before submitting your story.
-          </p>
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Link
-              href="/login?returnUrl=/contribute/story"
-              className="inline-flex items-center justify-center rounded-md bg-[var(--color-ocean-blue)] px-6 py-3 font-medium text-white hover:bg-blue-800"
-            >
-              <LogIn className="mr-2 h-4 w-4" />
-              Sign In
-            </Link>
-            <Link
-              href="/signup?returnUrl=/contribute/story"
-              className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-6 py-3 font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-            >
-              Create Account
-            </Link>
-          </div>
-          <p className="mt-6 text-sm text-slate-500 dark:text-slate-400">
-            Want to contribute without an account?{" "}
-            <Link
-              href="/contribute/directory"
-              className="text-[var(--color-ocean-blue)] hover:underline"
-            >
-              Add a place to the directory
-            </Link>{" "}
-            instead.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Check if user needs to authenticate
+  const requiresAuth = !authLoading && !user;
 
   // Default template for full stories
   const defaultTemplate = `## The Beginning
@@ -294,6 +252,15 @@ Why is this memory important to you? How does it make you feel today?`;
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6 p-6">
+            {/* Auth Prompt - shown when user is not authenticated */}
+            {requiresAuth && (
+              <InlineAuthPrompt
+                title="Sign in to Share Your Story"
+                description="To preserve your community's memories and ensure proper attribution, please sign in before submitting."
+                returnUrl="/contribute/story"
+              />
+            )}
+
             {/* Title */}
             <div>
               <label
@@ -362,14 +329,16 @@ Why is this memory important to you? How does it make you feel today?`;
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  disabled={isSubmitting || isOverLimit}
+                  disabled={isSubmitting || isOverLimit || requiresAuth}
                   className="flex items-center rounded-md bg-[var(--color-ocean-blue)] px-6 py-2 font-medium text-white hover:bg-blue-800 focus:ring-2 focus:ring-[var(--color-ocean-blue)] focus:ring-offset-2 focus:outline-none disabled:opacity-70"
                 >
                   {isSubmitting
                     ? "Submitting..."
-                    : isOverLimit
-                      ? "Over Word Limit"
-                      : "Submit"}
+                    : requiresAuth
+                      ? "Sign in to Submit"
+                      : isOverLimit
+                        ? "Over Word Limit"
+                        : "Submit"}
                 </button>
               </div>
             </div>

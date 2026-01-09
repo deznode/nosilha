@@ -747,31 +747,21 @@ export class BackendApiClient implements ApiClient {
   /**
    * Submits a directory entry for review.
    *
-   * **Public Endpoint**: No authentication required - allows community contributions.
-   *
-   * **Rate Limiting**: 3 submissions per hour per IP address.
+   * **Authenticated Endpoint**: Requires valid JWT token.
+   * User info is extracted from the token on the backend.
    *
    * @param request Contains name, category, town, description, and optional fields
-   * @param submittedBy Display name of the submitter (required)
-   * @param submittedByEmail Optional email of the submitter
    * @returns DirectorySubmissionConfirmation with id, name, and status
    * @throws Error if rate limit exceeded (HTTP 429)
    * @throws Error if validation fails (HTTP 400)
+   * @throws Error if not authenticated (HTTP 401)
    */
   async submitDirectoryEntry(
-    request: DirectorySubmissionRequest,
-    submittedBy: string,
-    submittedByEmail?: string
+    request: DirectorySubmissionRequest
   ): Promise<DirectorySubmissionConfirmation> {
-    const params = new URLSearchParams();
-    params.append("submittedBy", submittedBy);
-    if (submittedByEmail) {
-      params.append("submittedByEmail", submittedByEmail);
-    }
+    const endpoint = `${env.apiUrl}/api/v1/directory-submissions`;
 
-    const endpoint = `${env.apiUrl}/api/v1/directory-submissions?${params.toString()}`;
-
-    const response = await fetch(endpoint, {
+    const response = await this.authenticatedFetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

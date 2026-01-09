@@ -11,9 +11,10 @@ cd apps/api
 ./gradlew bootRun                    # Start development server
 ./gradlew build                      # Build JAR
 ./gradlew test                       # Run tests
-./gradlew detekt                     # Run Kotlin code analysis
+./gradlew ktlintCheck                # Run Kotlin style checking
 ./gradlew test jacocoTestReport      # Run tests with coverage reports
 ./gradlew bootBuildImage             # Build Docker image
+# Note: detekt temporarily disabled pending Kotlin 2.3.0 compatibility
 ```
 
 ## Architecture Patterns
@@ -30,14 +31,14 @@ cd apps/api
 ```bash
 cd apps/api && ./gradlew test         # All tests with PostgreSQL
 ./gradlew test jacocoTestReport      # With coverage
-./gradlew detekt                     # Linting and static analysis
+./gradlew ktlintCheck                # Code style checking
 ```
 
 ### Testing Tools
 
 - **Testcontainers**: PostgreSQL integration testing
 - **JaCoCo**: Code coverage reports
-- **Detekt**: Kotlin static analysis
+- **ktlint**: Kotlin code style (detekt temporarily disabled)
 
 ## Module Structure
 
@@ -79,6 +80,6 @@ fun onDirectoryEntryCreated(event: DirectoryEntryCreatedEvent) {
 
 ## Reference
 
-- See `docs/ARCHITECTURE.md` for detailed technical architecture
-- See `docs/SPRING_MODULITH.md` for complete module architecture guide
-- See `docs/API_CODING_STANDARDS.md` for coding standards
+- See `docs/architecture.md` for detailed technical architecture
+- See `docs/spring-modulith.md` for complete module architecture guide
+- See `docs/api-coding-standards.md` for coding standards

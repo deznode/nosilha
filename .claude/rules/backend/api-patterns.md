@@ -9,7 +9,7 @@ paths: apps/api/**
 - Frontend uses `/lib/api.ts` for backend communication
 - All API calls handle errors gracefully with proper types
 - Backend endpoints follow RESTful conventions with proper HTTP status codes
-- See `docs/API_CODING_STANDARDS.md` for comprehensive standards
+- See `docs/api-coding-standards.md` for comprehensive standards
 
 ## Authentication & Security Flow
 
@@ -75,5 +75,5 @@ class DirectoryController {
 
 ## Reference
 
-- See `docs/API_CODING_STANDARDS.md` for comprehensive backend coding standards
-- See `docs/API_REFERENCE.md` for API documentation with endpoints and examples
+- See `docs/api-coding-standards.md` for comprehensive backend coding standards
+- See `docs/api-reference.md` for API documentation with endpoints and examples

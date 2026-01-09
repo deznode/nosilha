@@ -36,7 +36,7 @@ Use when ensuring historical accuracy, cultural authenticity, and respectful com
 | Bias Detection | Colonial perspectives and exoticism identified |
 | Cultural Sensitivity | Appropriate representation and voice preservation |
 
-Reference `docs/CULTURAL_HERITAGE_VERIFICATION.md` for comprehensive protocols.
+Reference `docs/cultural-heritage-verification.md` for comprehensive protocols.
 
 ## Verification Workflows
 
@@ -104,7 +104,7 @@ See [REPORT_TEMPLATE.md](REPORT_TEMPLATE.md) for complete template.
 ## Documentation References
 
 **Always consult**:
-- `docs/CULTURAL_HERITAGE_VERIFICATION.md` - Comprehensive verification protocols
+- `docs/cultural-heritage-verification.md` - Comprehensive verification protocols
 - [VERIFICATION_PATTERNS.md](VERIFICATION_PATTERNS.md) - Historical, cultural, bias patterns
 - [COMMUNITY_CONSULTATION_GUIDE.md](COMMUNITY_CONSULTATION_GUIDE.md) - Elder and practitioner protocols
 - [REPORT_TEMPLATE.md](REPORT_TEMPLATE.md) - Report structure and format

@@ -21,9 +21,9 @@ import {
   PlusCircle,
   LayoutGrid,
   ChevronDown,
-  User,
-  Mail,
 } from "lucide-react";
+import { useAuth } from "@/components/providers/auth-provider";
+import { InlineAuthPrompt } from "@/components/ui/inline-auth-prompt";
 import {
   generateDirectoryContentAction,
   checkGeminiAvailableAction,
@@ -124,17 +124,19 @@ interface FormData {
   longitude: string;
   imageUrl: string;
   priceLevel: "$" | "$$" | "$$$";
-  submitterName: string;
-  submitterEmail: string;
 }
 
 export function AddDirectoryEntryForm() {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [step, setStep] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
   const [useCustomTown, setUseCustomTown] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [geminiAvailable, setGeminiAvailable] = useState(false);
+
+  // Check if user needs to authenticate
+  const requiresAuth = !authLoading && !user;
 
   // Check Gemini availability on mount
   useEffect(() => {
@@ -152,8 +154,6 @@ export function AddDirectoryEntryForm() {
     longitude: "",
     imageUrl: "",
     priceLevel: "$$",
-    submitterName: "",
-    submitterEmail: "",
   });
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -218,12 +218,8 @@ export function AddDirectoryEntryForm() {
           : undefined,
       };
 
-      // Submit to API
-      await submitDirectoryEntry(
-        request,
-        formData.submitterName,
-        formData.submitterEmail || undefined
-      );
+      // Submit to API (user info comes from auth token)
+      await submitDirectoryEntry(request);
 
       setStep(3); // Success
     } catch (error) {
@@ -295,6 +291,15 @@ export function AddDirectoryEntryForm() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-12 p-12">
+            {/* Auth Prompt - shown when user is not authenticated */}
+            {requiresAuth && (
+              <InlineAuthPrompt
+                title="Sign in to Add a Location"
+                description="Directory submissions require an account to ensure proper attribution and quality control."
+                returnUrl="/contribute/directory"
+              />
+            )}
+
             {/* Identity Section */}
             <div className="space-y-8">
               <div className="border-hairline flex items-center gap-3 border-b pb-3 text-xs font-bold tracking-[0.2em] text-[var(--color-ocean-blue)] uppercase">
@@ -567,68 +572,6 @@ export function AddDirectoryEntryForm() {
               </div>
             </div>
 
-            {/* Submitter Information */}
-            <div className="space-y-8">
-              <div className="border-hairline flex items-center gap-3 border-b pb-3 text-xs font-bold tracking-[0.2em] text-[var(--color-ocean-blue)] uppercase">
-                <User size={16} /> 4. Your Information
-              </div>
-
-              <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-                <div>
-                  <label className="text-body mb-2 block text-sm font-bold">
-                    Your Name <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      required
-                      type="text"
-                      className="border-hairline bg-surface text-body w-full rounded-2xl border py-3 pr-4 pl-10 transition-all outline-none focus:border-[var(--color-ocean-blue)] focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
-                      placeholder="Enter your name"
-                      value={formData.submitterName}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          submitterName: e.target.value,
-                        })
-                      }
-                    />
-                    <User
-                      size={18}
-                      className="text-muted absolute top-3.5 left-3.5"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-body mb-2 block text-sm font-bold">
-                    Your Email <span className="text-muted">(optional)</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="email"
-                      className="border-hairline bg-surface text-body w-full rounded-2xl border py-3 pr-4 pl-10 transition-all outline-none focus:border-[var(--color-ocean-blue)] focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
-                      placeholder="your@email.com"
-                      value={formData.submitterEmail}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          submitterEmail: e.target.value,
-                        })
-                      }
-                    />
-                    <Mail
-                      size={18}
-                      className="text-muted absolute top-3.5 left-3.5"
-                    />
-                  </div>
-                  <p className="text-muted mt-1 text-xs">
-                    We may contact you if we have questions about your
-                    submission.
-                  </p>
-                </div>
-              </div>
-            </div>
-
             {/* Error Display */}
             {submitError && (
               <div className="border-accent-error/20 bg-accent-error/10 flex items-start gap-4 rounded-2xl border p-4">
@@ -660,11 +603,15 @@ export function AddDirectoryEntryForm() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || requiresAuth}
                   className="bg-ocean-blue hover:bg-ocean-blue/90 flex flex-1 items-center justify-center gap-3 rounded-2xl px-12 py-4 font-bold text-white shadow-xl transition-all active:scale-95 disabled:opacity-50 md:flex-none"
                 >
                   <Send size={18} />{" "}
-                  {isSubmitting ? "Submitting..." : "Submit Entry"}
+                  {isSubmitting
+                    ? "Submitting..."
+                    : requiresAuth
+                      ? "Sign in to Submit"
+                      : "Submit Entry"}
                 </button>
               </div>
             </div>

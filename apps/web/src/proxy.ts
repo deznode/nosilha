@@ -65,12 +65,8 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getSession();
 
   // Define paths requiring authentication
-  const authRequiredPaths = [
-    "/admin",
-    "/sandbox",
-    "/contribute/directory",
-    "/contribute/story",
-  ];
+  // Note: Contribution pages (/contribute/*) use inline auth prompts instead of redirects
+  const authRequiredPaths = ["/admin", "/sandbox"];
 
   // Define paths requiring ADMIN role
   const adminRequiredPaths = ["/admin"];
@@ -102,10 +98,6 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/admin/:path*",
-    "/sandbox/:path*",
-    "/contribute/directory",
-    "/contribute/story",
-  ],
+  // Note: Contribution pages use inline auth prompts instead of middleware redirects
+  matcher: ["/admin/:path*", "/sandbox/:path*"],
 };

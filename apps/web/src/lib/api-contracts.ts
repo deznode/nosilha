@@ -80,14 +80,11 @@ export interface ApiClient {
   ): Promise<DirectoryEntry>;
 
   /**
-   * Submit a directory entry for review (public, rate-limited).
-   * No authentication required.
-   * Rate limited to 3 submissions per hour per IP address.
+   * Submit a directory entry for review.
+   * Requires authentication - user info extracted from JWT token.
    */
   submitDirectoryEntry(
-    request: DirectorySubmissionRequest,
-    submittedBy: string,
-    submittedByEmail?: string
+    request: DirectorySubmissionRequest
   ): Promise<DirectorySubmissionConfirmation>;
 
   // Town Operations
