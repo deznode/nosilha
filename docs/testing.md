@@ -5,36 +5,35 @@ This document describes the testing strategy for the Nos Ilha platform, optimize
 ## Testing Strategy Overview
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#0e4c75', 'secondaryColor': '#3E7D5A', 'tertiaryColor': '#F7B801', 'primaryTextColor': '#1e293b', 'lineColor': '#64748b'}}}%%
 graph TB
-    subgraph pyramid["Testing Pyramid"]
-        direction TB
-
-        subgraph ci["CI/CD Layer (Automated)"]
-            style ci fill:#0e4c75,stroke:#0e4c75,color:#fff
-            TS["TypeScript + ESLint"]
-            BUILD["Next.js Build"]
-            BACKEND["Kotlin Tests + Testcontainers"]
-            SECURITY["Trivy + ktlint"]
-        end
-
-        subgraph local["Local Development (Manual)"]
-            style local fill:#3E7D5A,stroke:#3E7D5A,color:#fff
-            E2E["Playwright E2E"]
-            UNIT["Vitest Unit Tests"]
-        end
-
-        subgraph manual["Pre-Release (Manual)"]
-            style manual fill:#F7B801,stroke:#F7B801,color:#1e293b
-            MOBILE["Mobile Device Testing"]
-            LIGHTHOUSE["Lighthouse Audit"]
-        end
+    subgraph ci["CI/CD Layer — Automated"]
+        TS["TypeScript Check"]
+        LINT["ESLint"]
+        BUILD["Next.js Build"]
+        KOTLIN["Kotlin + Testcontainers"]
+        SEC["Trivy + ktlint"]
     end
 
-    TS --> BUILD
-    BACKEND --> SECURITY
-    E2E --> MOBILE
-    UNIT --> LIGHTHOUSE
+    subgraph local["Local Layer — Manual"]
+        E2E["Playwright E2E"]
+        UNIT["Vitest Unit"]
+    end
+
+    subgraph pre["Pre-Release — Manual"]
+        MOBILE["Mobile Testing"]
+        LH["Lighthouse Audit"]
+    end
+
+    ci -.->|"passes"| local
+    local -.->|"before deploy"| pre
+
+    classDef ciNode fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
+    classDef localNode fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef preNode fill:#fef9c3,stroke:#ca8a04,color:#713f12
+
+    class TS,LINT,BUILD,KOTLIN,SEC ciNode
+    class E2E,UNIT localNode
+    class MOBILE,LH preNode
 ```
 
 ### Two-Layer Approach

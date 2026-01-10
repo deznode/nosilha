@@ -421,7 +421,7 @@ export function ContactPageContent() {
               <p className="text-text-secondary ml-9">
                 Nos Ilha is fully open-source! Visit our{" "}
                 <a
-                  href="https://github.com/bravdigital/nosilha"
+                  href="https://github.com/deznode/nosilha"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-sobrado-ochre hover:underline"
@@ -459,7 +459,7 @@ export function ContactPageContent() {
               Contribute Content
             </Link>
             <a
-              href="https://github.com/bravdigital/nosilha"
+              href="https://github.com/deznode/nosilha"
               target="_blank"
               rel="noopener noreferrer"
               className="border-bougainvillea-pink text-bougainvillea-pink hover:bg-bougainvillea-pink rounded-md border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"

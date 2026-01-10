@@ -88,7 +88,7 @@ export function ContributePageContent() {
                 <li>• Respect privacy and property rights</li>
               </ul>
               <Link
-                href="/contribute/directory"
+                href="/contribute/media"
                 className="text-ocean-blue hover:text-ocean-blue/80 group inline-flex items-center"
               >
                 Start Contributing{" "}
@@ -117,7 +117,7 @@ export function ContributePageContent() {
                 <li>• Seasonal closures or changes</li>
               </ul>
               <Link
-                href="mailto:info@nosilha.com"
+                href="/contact"
                 className="text-valley-green hover:text-valley-green/80 group inline-flex items-center"
               >
                 Send Update{" "}
@@ -147,7 +147,7 @@ export function ContributePageContent() {
                 <li>• Personal experiences and tips</li>
               </ul>
               <Link
-                href="/history"
+                href="/contribute/story"
                 className="text-bougainvillea-pink hover:text-bougainvillea-pink/80 group inline-flex items-center"
               >
                 Explore Stories{" "}
@@ -216,7 +216,7 @@ export function ContributePageContent() {
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Link
-              href="mailto:info@nosilha.com"
+              href="/contact"
               className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105"
             >
               Contact Us

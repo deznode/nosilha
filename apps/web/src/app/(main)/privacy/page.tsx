@@ -8,7 +8,7 @@ export const dynamic = "force-static";
 export default function PrivacyPage() {
   return (
     <div className="bg-background-secondary font-sans">
-      <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader
           title="Privacy Policy"
           subtitle="Our commitment to protecting your privacy while preserving and celebrating Brava Island's cultural heritage together."
@@ -403,8 +403,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Contact Information */}
-        {/* TODO: Verify that privacy@nosilha.com is set up and monitored */}
-        <section className="from-ocean-blue/10 to-valley-green/10 mt-16 rounded-lg bg-gradient-to-r p-8">
+        <section className="from-ocean-blue/10 to-valley-green/10 mt-16 rounded-lg bg-linear-to-r p-8">
           <div className="text-center">
             <Mail className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
             <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
@@ -412,16 +411,15 @@ export default function PrivacyPage() {
             </h3>
             <p className="text-text-secondary mb-6 text-lg">
               If you have questions about this privacy policy or how we handle
-              your data, please contact us.
+              your data, please use our{" "}
+              <Link
+                href="/contact"
+                className="text-ocean-blue font-medium hover:underline"
+              >
+                contact form
+              </Link>{" "}
+              to reach us.
             </p>
-            <div className="space-y-2">
-              <p className="text-text-secondary">
-                <strong>Email:</strong> privacy@nosilha.com
-              </p>
-              <p className="text-text-secondary">
-                <strong>General Contact:</strong> info@nosilha.com
-              </p>
-            </div>
           </div>
         </section>
 

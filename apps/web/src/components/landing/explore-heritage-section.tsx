@@ -22,7 +22,7 @@ const defaultCategories: CategoryCardProps[] = [
     description:
       "Explore oral histories, articles, photos, and personal memories shared by the community.",
     colorClass: "bg-bougainvillea-pink",
-    href: "/history",
+    href: "/stories",
     actionText: "Read Stories",
   },
   {
@@ -31,7 +31,7 @@ const defaultCategories: CategoryCardProps[] = [
     description:
       "Discover Brava's villages, trails, viewpoints, and local businesses through curated maps and guides.",
     colorClass: "bg-valley-green",
-    href: "/directory/all",
+    href: "/directory",
     actionText: "Discover Places",
   },
   {
