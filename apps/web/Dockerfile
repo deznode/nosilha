@@ -81,18 +81,19 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001
 
-# Copy the standalone Next.js server output
-# Note: standalone preserves monorepo structure, so extract from apps/web/
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone/apps/web ./
+# Copy the entire standalone output preserving monorepo structure
+# This is required because pnpm uses symlinks in node_modules that reference
+# relative paths (../../../node_modules/.pnpm/...) which must be preserved
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 
-# Copy shared node_modules from standalone root (workspace dependencies)
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone/node_modules ./node_modules
+# Copy the public assets folder to the app directory
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
-# Copy the public assets folder
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./public
+# Copy the optimized static assets to the app directory
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 
-# Copy the optimized static assets
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./.next/static
+# Set working directory to the app location within monorepo structure
+WORKDIR /app/apps/web
 
 # Switch to the non-root user
 USER nextjs
