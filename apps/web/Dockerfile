@@ -82,7 +82,11 @@ RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001
 
 # Copy the standalone Next.js server output
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+# Note: standalone preserves monorepo structure, so extract from apps/web/
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone/apps/web ./
+
+# Copy shared node_modules from standalone root (workspace dependencies)
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone/node_modules ./node_modules
 
 # Copy the public assets folder
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./public
