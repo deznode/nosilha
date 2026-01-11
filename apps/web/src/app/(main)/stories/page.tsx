@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { StoryCard, FeaturedCTA } from "@/components/stories";
+import Link from "next/link";
+import { Plus } from "lucide-react";
+import { StoryCard } from "@/components/stories";
 import { getStories } from "@/lib/api";
 import type { StorySubmission } from "@/types/story";
 
@@ -55,26 +57,32 @@ export default function StoriesPage() {
     <div className="min-h-screen bg-slate-50 pb-12 dark:bg-slate-900">
       {/* Header */}
       <div className="border-b border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
-        <div className="mx-auto max-w-7xl px-4 py-12 text-center sm:px-6 lg:px-8">
-          <h1 className="mb-4 font-serif text-3xl font-bold text-[var(--color-ocean-blue)] md:text-4xl">
-            Voices of Brava
-          </h1>
-          <p className="mx-auto max-w-2xl text-lg text-slate-500 dark:text-slate-400">
-            A collection of memories, traditions, and histories shared by our
-            community. From the misty hills of Nova Sintra to the diaspora
-            worldwide.
-          </p>
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="text-center sm:text-left">
+              <h1 className="mb-4 font-serif text-3xl font-bold text-[var(--color-ocean-blue)] md:text-4xl">
+                Voices of Brava
+              </h1>
+              <p className="max-w-2xl text-lg text-slate-500 dark:text-slate-400">
+                A collection of memories, traditions, and histories shared by
+                our community. From the misty hills of Nova Sintra to the
+                diaspora worldwide.
+              </p>
+            </div>
+            <Link
+              href="/contribute/story"
+              className="flex shrink-0 items-center gap-2 rounded-xl bg-[var(--color-ocean-blue)] px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-blue-800 active:scale-95"
+            >
+              <Plus size={18} />
+              Share Your Story
+            </Link>
+          </div>
         </div>
       </div>
 
       {/* Content */}
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {/* Featured CTA Card */}
-          <div className="md:col-span-2 lg:col-span-1">
-            <FeaturedCTA />
-          </div>
-
           {/* Story Cards */}
           {isLoading ? (
             <>
@@ -85,7 +93,7 @@ export default function StoriesPage() {
               <StoryCardSkeleton />
             </>
           ) : stories.length === 0 ? (
-            <div className="flex items-center justify-center py-12 md:col-span-2 lg:col-span-2">
+            <div className="flex items-center justify-center py-12 md:col-span-2 lg:col-span-3">
               <div className="text-center">
                 <p className="text-lg text-slate-500 dark:text-slate-400">
                   No stories yet. Be the first to share your memory!
