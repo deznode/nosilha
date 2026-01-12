@@ -15,12 +15,12 @@ All responses use standard wrappers from `com.nosilha.core.shared.api`:
 config:
   theme: base
   themeVariables:
-    primaryColor: "#2563eb"
-    primaryTextColor: "#fff"
-    primaryBorderColor: "#1d4ed8"
-    lineColor: "#64748b"
-    secondaryColor: "#f1f5f9"
-    tertiaryColor: "#e2e8f0"
+    primaryColor: "#fef3c7"
+    primaryTextColor: "#92400e"
+    primaryBorderColor: "#d97706"
+    lineColor: "#d97706"
+    secondaryColor: "#ffedd5"
+    tertiaryColor: "#fef9c3"
 ---
 flowchart LR
     subgraph Success["Success Responses"]

@@ -75,13 +75,13 @@ flowchart TB
     feedback -.-> engagement
     feedback -.-> gallery
 
-    style shared fill:#6366f1,stroke:#4338ca,color:#fff
-    style places fill:#10b981,stroke:#047857,color:#fff
-    style gallery fill:#f59e0b,stroke:#d97706,color:#fff
-    style auth fill:#3b82f6,stroke:#1d4ed8,color:#fff
-    style stories fill:#8b5cf6,stroke:#6d28d9,color:#fff
-    style feedback fill:#ef4444,stroke:#b91c1c,color:#fff
-    style engagement fill:#14b8a6,stroke:#0d9488,color:#fff
+    style shared fill:#f5f5f4,stroke:#78716c,color:#44403c
+    style places fill:#dcfce7,stroke:#16a34a,color:#166534
+    style gallery fill:#fef3c7,stroke:#d97706,color:#92400e
+    style auth fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    style stories fill:#fce7f3,stroke:#db2777,color:#9d174d
+    style feedback fill:#ffedd5,stroke:#ea580c,color:#9a3412
+    style engagement fill:#e0f2fe,stroke:#0284c7,color:#075985
 ```
 
 ---

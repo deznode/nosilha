@@ -38,7 +38,7 @@ export const historyData: HistoryPageData = {
   },
 
   hero: {
-    imageSrc: "/images/history/banner1.jpeg",
+    imageSrc: "/images/history/banner1-opt.jpg",
     title: "Our Island, Our Story: The History of Brava",
     subtitle:
       "From Vila Nova Sintra's heights, discover the rich tapestry of Brava Island",

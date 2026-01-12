@@ -10,7 +10,7 @@ graph TB
         direction TB
 
         subgraph catalyst["Catalyst UI (28 components)"]
-            style catalyst fill:#0e4c75,stroke:#2a769e,color:#fff
+            style catalyst fill:#fef3c7,stroke:#d97706,color:#92400e
             C1[Button]
             C2[Input/Select/Checkbox]
             C3[Dialog/Dropdown]
@@ -20,7 +20,7 @@ graph TB
         end
 
         subgraph ui["UI Components"]
-            style ui fill:#2f6e4d,stroke:#3E7D5A,color:#fff
+            style ui fill:#ffedd5,stroke:#ea580c,color:#9a3412
             U1[DirectoryCard]
             U2[PageHeader]
             U3[ThemeToggle]
@@ -30,7 +30,7 @@ graph TB
         end
 
         subgraph features["Feature Components"]
-            style features fill:#c02669,stroke:#D90368,color:#fff
+            style features fill:#fce7f3,stroke:#db2777,color:#9d174d
             F1[Landing]
             F2[Directory]
             F3[Content/MDX]

@@ -27,9 +27,9 @@ graph TB
     ci -.->|"passes"| local
     local -.->|"before deploy"| pre
 
-    classDef ciNode fill:#e0f2fe,stroke:#0284c7,color:#0c4a6e
-    classDef localNode fill:#dcfce7,stroke:#16a34a,color:#14532d
-    classDef preNode fill:#fef9c3,stroke:#ca8a04,color:#713f12
+    classDef ciNode fill:#fef3c7,stroke:#d97706,color:#92400e
+    classDef localNode fill:#ffedd5,stroke:#ea580c,color:#9a3412
+    classDef preNode fill:#fef9c3,stroke:#ca8a04,color:#854d0e
 
     class TS,LINT,BUILD,KOTLIN,SEC ciNode
     class E2E,UNIT localNode

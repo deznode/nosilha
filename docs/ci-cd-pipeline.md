@@ -5,7 +5,7 @@ This document describes the Nos Ilha CI/CD pipeline architecture, workflow trigg
 ## Pipeline Overview
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#4F46E5', 'primaryTextColor': '#fff', 'primaryBorderColor': '#4338CA', 'lineColor': '#6366F1', 'secondaryColor': '#E0E7FF', 'tertiaryColor': '#EEF2FF'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#fef3c7', 'primaryTextColor': '#92400e', 'primaryBorderColor': '#d97706', 'lineColor': '#d97706', 'secondaryColor': '#ffedd5', 'tertiaryColor': '#fef9c3'}}}%%
 flowchart TB
     subgraph trigger["Triggers"]
         PR["Pull Request"]
@@ -52,16 +52,16 @@ flowchart TB
     DEPLOY_BE & DEPLOY_FE --> HEALTH
     HEALTH --> REPORT
 
-    style SEC fill:#EF4444,color:#fff
-    style TEST fill:#3B82F6,color:#fff
-    style BUNDLE fill:#8B5CF6,color:#fff
-    style BUILD_BE fill:#F59E0B,color:#fff
-    style BUILD_FE fill:#F59E0B,color:#fff
-    style BUILD_TF fill:#F59E0B,color:#fff
-    style DEPLOY_BE fill:#10B981,color:#fff
-    style DEPLOY_FE fill:#10B981,color:#fff
-    style DEPLOY_TF fill:#10B981,color:#fff
-    style HEALTH fill:#06B6D4,color:#fff
+    style SEC fill:#fee2e2,color:#991b1b
+    style TEST fill:#e0f2fe,color:#075985
+    style BUNDLE fill:#fce7f3,color:#9d174d
+    style BUILD_BE fill:#fef3c7,color:#92400e
+    style BUILD_FE fill:#fef3c7,color:#92400e
+    style BUILD_TF fill:#fef3c7,color:#92400e
+    style DEPLOY_BE fill:#dcfce7,color:#166534
+    style DEPLOY_FE fill:#dcfce7,color:#166534
+    style DEPLOY_TF fill:#dcfce7,color:#166534
+    style HEALTH fill:#e0f2fe,color:#075985
 ```
 
 ## Workflows
@@ -81,7 +81,7 @@ The pipeline uses five modular workflows with path-based triggering for cost opt
 ### Workflow Trigger Logic
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#4F46E5', 'primaryTextColor': '#fff', 'lineColor': '#6366F1'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#fef3c7', 'primaryTextColor': '#92400e', 'lineColor': '#d97706'}}}%%
 flowchart LR
     subgraph changes["Code Changes"]
         BE_CODE["apps/api/**"]
@@ -104,11 +104,11 @@ flowchart LR
     BE_CODE & FE_CODE & INFRA_CODE --> PR_WF
     BE_CODE & FE_CODE --> INT_WF
 
-    style BE_WF fill:#4F46E5,color:#fff
-    style FE_WF fill:#3B82F6,color:#fff
-    style INFRA_WF fill:#8B5CF6,color:#fff
-    style PR_WF fill:#F59E0B,color:#fff
-    style INT_WF fill:#10B981,color:#fff
+    style BE_WF fill:#ffedd5,color:#9a3412
+    style FE_WF fill:#fef3c7,color:#92400e
+    style INFRA_WF fill:#fce7f3,color:#9d174d
+    style PR_WF fill:#fef9c3,color:#854d0e
+    style INT_WF fill:#dcfce7,color:#166534
 ```
 
 ## Backend CI/CD

@@ -33,15 +33,15 @@ flowchart TB
     schemas --> |"Validates"| Server
     schemas --> |"Validates"| Client
 
-    style auth fill:#6366f1,stroke:#4338ca,color:#fff
-    style ui fill:#6366f1,stroke:#4338ca,color:#fff
-    style filter fill:#6366f1,stroke:#4338ca,color:#fff
-    style draft fill:#6366f1,stroke:#4338ca,color:#fff
-    style directory fill:#10b981,stroke:#047857,color:#fff
-    style media fill:#10b981,stroke:#047857,color:#fff
-    style user fill:#10b981,stroke:#047857,color:#fff
-    style admin fill:#10b981,stroke:#047857,color:#fff
-    style schemas fill:#f59e0b,stroke:#d97706,color:#fff
+    style auth fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    style ui fill:#fef3c7,stroke:#d97706,color:#92400e
+    style filter fill:#fef3c7,stroke:#d97706,color:#92400e
+    style draft fill:#fef3c7,stroke:#d97706,color:#92400e
+    style directory fill:#dcfce7,stroke:#16a34a,color:#166534
+    style media fill:#dcfce7,stroke:#16a34a,color:#166534
+    style user fill:#dcfce7,stroke:#16a34a,color:#166534
+    style admin fill:#dcfce7,stroke:#16a34a,color:#166534
+    style schemas fill:#ffedd5,stroke:#ea580c,color:#9a3412
 ```
 
 ### 1.2 File Structure
@@ -410,8 +410,8 @@ flowchart LR
     hook --> render
     render --> category
 
-    style Zustand fill:#6366f1,stroke:#4338ca,color:#fff
-    style Query fill:#10b981,stroke:#047857,color:#fff
+    style Zustand fill:#fef3c7,stroke:#d97706,color:#92400e
+    style Query fill:#dcfce7,stroke:#16a34a,color:#166534
 ```
 
 ```typescript

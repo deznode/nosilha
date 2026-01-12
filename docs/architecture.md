@@ -94,12 +94,12 @@ flowchart TB
     cloudrun --> artifacts
     cloudrun --> secrets
 
-    style frontend fill:#3b82f6,stroke:#1d4ed8,color:#fff
-    style backend fill:#10b981,stroke:#047857,color:#fff
-    style supabase fill:#6366f1,stroke:#4338ca,color:#fff
-    style mapbox fill:#f59e0b,stroke:#d97706,color:#fff
-    style r2 fill:#f97316,stroke:#c2410c,color:#fff
-    style cloudrun fill:#ef4444,stroke:#b91c1c,color:#fff
+    style frontend fill:#fef3c7,stroke:#d97706,color:#92400e
+    style backend fill:#ffedd5,stroke:#ea580c,color:#9a3412
+    style supabase fill:#fef9c3,stroke:#ca8a04,color:#854d0e
+    style mapbox fill:#e0f2fe,stroke:#0284c7,color:#075985
+    style r2 fill:#fef9c3,stroke:#ca8a04,color:#854d0e
+    style cloudrun fill:#dcfce7,stroke:#16a34a,color:#166534
 ```
 
 ### 3.2 External Interfaces
@@ -168,9 +168,9 @@ flowchart LR
     Backend --> supabase
     Backend --> r2
 
-    style app fill:#3b82f6,stroke:#1d4ed8,color:#fff
-    style modules fill:#10b981,stroke:#047857,color:#fff
-    style supabase fill:#6366f1,stroke:#4338ca,color:#fff
+    style app fill:#fef3c7,stroke:#d97706,color:#92400e
+    style modules fill:#ffedd5,stroke:#ea580c,color:#9a3412
+    style supabase fill:#fef9c3,stroke:#ca8a04,color:#854d0e
 ```
 
 ### 5.2 Frontend Structure
@@ -228,12 +228,12 @@ flowchart TB
     feedback -.-> stories
     feedback -.-> gallery
 
-    style shared fill:#6366f1,stroke:#4338ca,color:#fff
-    style places fill:#10b981,stroke:#047857,color:#fff
-    style gallery fill:#f59e0b,stroke:#d97706,color:#fff
-    style auth fill:#3b82f6,stroke:#1d4ed8,color:#fff
-    style stories fill:#8b5cf6,stroke:#6d28d9,color:#fff
-    style feedback fill:#ef4444,stroke:#b91c1c,color:#fff
+    style shared fill:#f5f5f4,stroke:#78716c,color:#44403c
+    style places fill:#dcfce7,stroke:#16a34a,color:#166534
+    style gallery fill:#fef3c7,stroke:#d97706,color:#92400e
+    style auth fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    style stories fill:#fce7f3,stroke:#db2777,color:#9d174d
+    style feedback fill:#ffedd5,stroke:#ea580c,color:#9a3412
 ```
 
 | Module | Purpose | Key Entities |
@@ -358,10 +358,10 @@ flowchart TB
     CloudRun -.-> secrets
     CloudRun -.-> Registry
 
-    style frontend fill:#3b82f6,stroke:#1d4ed8,color:#fff
-    style backend fill:#10b981,stroke:#047857,color:#fff
-    style db fill:#6366f1,stroke:#4338ca,color:#fff
-    style r2 fill:#f97316,stroke:#c2410c,color:#fff
+    style frontend fill:#fef3c7,stroke:#d97706,color:#92400e
+    style backend fill:#ffedd5,stroke:#ea580c,color:#9a3412
+    style db fill:#fef9c3,stroke:#ca8a04,color:#854d0e
+    style r2 fill:#fef9c3,stroke:#ca8a04,color:#854d0e
 ```
 
 ### 7.2 Deployment Configuration
