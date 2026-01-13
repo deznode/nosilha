@@ -2,13 +2,22 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { ImageUploader } from "./image-uploader";
+import { InlineAuthPrompt } from "./inline-auth-prompt";
 import { uploadImage } from "@/lib/api";
+import { useAuth } from "@/components/providers/auth-provider";
 import { CheckCircle, AlertCircle } from "lucide-react";
 
 type UploadStatus = "idle" | "uploading" | "success" | "error";
 
 export function ContributePhotosSection() {
+  const { user, loading: authLoading } = useAuth();
+  const pathname = usePathname();
+
+  // Check if user needs to authenticate
+  const requiresAuth = !authLoading && !user;
+
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle");
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
@@ -54,7 +63,14 @@ export function ContributePhotosSection() {
       </p>
 
       <div className="mt-8 flex justify-center">
-        {uploadStatus === "success" && uploadedUrl ? (
+        {/* Auth Prompt - shown when user is not authenticated */}
+        {requiresAuth ? (
+          <InlineAuthPrompt
+            title="Sign in to Contribute Photos"
+            description="Photo contributions require an account to ensure proper attribution and moderation."
+            returnUrl={pathname}
+          />
+        ) : uploadStatus === "success" && uploadedUrl ? (
           <div className="space-y-6 text-center">
             <div className="text-valley-green flex items-center justify-center space-x-2">
               <CheckCircle className="h-6 w-6" />
@@ -103,9 +119,6 @@ export function ContributePhotosSection() {
                   <span className="font-medium">Upload failed</span>
                 </div>
                 <p className="text-accent-error text-sm">{errorMessage}</p>
-                <p className="text-text-secondary text-xs">
-                  Please try again or check if you&apos;re logged in.
-                </p>
               </div>
             )}
           </div>
