@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
 import { motion } from "framer-motion";
+import clsx from "clsx";
 
 interface PageHeaderProps {
   title: string;
@@ -45,26 +45,27 @@ export function PageHeader({
   centered = true,
   size = "large",
 }: PageHeaderProps) {
-  const textSizeClasses =
-    size === "large" ? "text-4xl sm:text-5xl" : "text-3xl md:text-4xl";
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className={`mb-12 ${centered ? "text-center" : "text-left"}`}
+      className={clsx("mb-12", centered ? "text-center" : "text-left")}
     >
       <Heading
-        className={`text-ocean-blue mb-4 font-serif font-bold ${textSizeClasses}`}
+        className={clsx(
+          "text-ocean-blue mb-4 font-serif font-bold",
+          size === "large" ? "text-4xl sm:text-5xl" : "text-3xl md:text-4xl"
+        )}
       >
         {title}
       </Heading>
       {subtitle && (
         <p
-          className={`text-basalt-500 font-sans text-lg leading-relaxed ${
-            centered ? "mx-auto max-w-2xl" : "max-w-2xl"
-          }`}
+          className={clsx(
+            "text-basalt-500 max-w-2xl font-sans text-lg leading-relaxed",
+            centered && "mx-auto"
+          )}
         >
           {subtitle}
         </p>
@@ -74,9 +75,10 @@ export function PageHeader({
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className={`bg-bougainvillea-pink mt-4 h-1 w-24 rounded-full ${
-            centered ? "mx-auto" : ""
-          }`}
+          className={clsx(
+            "bg-bougainvillea-pink mt-4 h-1 w-24 rounded-full",
+            centered && "mx-auto"
+          )}
         />
       )}
     </motion.div>
