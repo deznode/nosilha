@@ -472,8 +472,11 @@ export class BackendApiClient implements ApiClient {
    */
   async uploadImage(
     file: File,
-    category?: string,
-    description?: string
+    options?: {
+      entryId?: string;
+      category?: string;
+      description?: string;
+    }
   ): Promise<string> {
     // Get presigned URL
     const presignResponse = await this.getPresignedUploadUrl({
@@ -495,14 +498,15 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`Failed to upload to storage: ${uploadResponse.status}`);
     }
 
-    // Confirm upload
+    // Confirm upload with entry association
     const mediaMetadata = await this.confirmUpload({
       key: presignResponse.key,
       originalName: file.name,
       contentType: file.type,
       fileSize: file.size,
-      category,
-      description,
+      entryId: options?.entryId,
+      category: options?.category,
+      description: options?.description,
     });
 
     return mediaMetadata.publicUrl ?? "";
@@ -2518,6 +2522,47 @@ export class BackendApiClient implements ApiClient {
 
     const payload = await response.json();
     return this.unwrapApiResponse<ExternalMedia>(payload);
+  }
+
+  /**
+   * Promotes a gallery image to become the hero image for a directory entry.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * This action updates the directory entry's imageUrl to the gallery media's
+   * publicUrl through event-driven communication. The frontend will need to
+   * refresh the directory entry to see the updated hero image.
+   *
+   * Prerequisites:
+   * - Media must be a user upload (not external media)
+   * - Media must have ACTIVE status (already approved)
+   * - Media must be linked to a directory entry (entryId not null)
+   * - Media must have a public URL
+   *
+   * @param mediaId UUID of the gallery media item to promote
+   * @throws Error if media not found (HTTP 404)
+   * @throws Error if validation fails (HTTP 400)
+   * @throws Error if authentication failed (HTTP 401/403)
+   */
+  async promoteToHeroImage(mediaId: string): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/${mediaId}/promote-hero`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PATCH",
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error("Gallery media not found");
+      }
+      if (response.status === 400) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || "Invalid promotion request. Check media requirements."
+        );
+      }
+      throw new Error(`Failed to promote to hero image: ${response.status}`);
+    }
   }
 
   // ================================

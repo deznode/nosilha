@@ -29,137 +29,128 @@ private val logger = KotlinLogging.logger {}
  * @throws IllegalStateException if the entity's ID is null, as DTOs are meant for persisted entities.
  */
 fun DirectoryEntry.toDto(): DirectoryEntryDto {
-    // A persisted entity must have an ID. Throw an exception if it's null, as this indicates a logical error.
-    val entityId =
-        this.id ?: throw IllegalStateException("Cannot map an entity with a null ID to a DTO.")
-
+    val entityId = this.id ?: throw IllegalStateException("Cannot map an entity with a null ID to a DTO.")
     val tagList = this.parseTags()
     val contentActionSettings = this.parseContentActions()
 
     return when (this) {
-        is Restaurant ->
-            RestaurantDto(
-                id = entityId,
-                name = this.name,
-                slug = this.slug,
-                description = this.description,
-                tags = tagList,
-                contentActions = contentActionSettings,
-                town = this.town,
-                latitude = this.latitude,
-                longitude = this.longitude,
-                imageUrl = this.imageUrl,
-                rating = this.rating,
-                reviewCount = this.reviewCount,
-                createdAt = this.createdAt,
-                updatedAt = this.updatedAt,
-                details =
-                    RestaurantDetailsDto(
-                        phoneNumber = this.phoneNumber ?: "",
-                        openingHours = this.openingHours ?: "",
-                        cuisine =
-                            this.cuisine
-                                ?.split(',')
-                                ?.map { it.trim() }
-                                ?.filter { it.isNotBlank() }
-                                ?: emptyList(),
-                    ),
-            )
+        is Restaurant -> RestaurantDto(
+            id = entityId,
+            name = name,
+            slug = slug,
+            description = description,
+            tags = tagList,
+            contentActions = contentActionSettings,
+            town = town,
+            latitude = latitude,
+            longitude = longitude,
+            imageUrl = imageUrl,
+            rating = rating,
+            reviewCount = reviewCount,
+            phoneNumber = phoneNumber,
+            email = email,
+            website = website,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+            details = RestaurantDetailsDto(
+                phoneNumber = phoneNumber ?: "",
+                openingHours = openingHours ?: "",
+                cuisine = cuisine.parseCommaSeparated(),
+            ),
+        )
 
-        is Hotel ->
-            HotelDto(
-                id = entityId,
-                name = this.name,
-                slug = this.slug,
-                description = this.description,
-                tags = tagList,
-                contentActions = contentActionSettings,
-                town = this.town,
-                latitude = this.latitude,
-                longitude = this.longitude,
-                imageUrl = this.imageUrl,
-                rating = this.rating,
-                reviewCount = this.reviewCount,
-                createdAt = this.createdAt,
-                updatedAt = this.updatedAt,
-                details =
-                    HotelDetailsDto(
-                        amenities =
-                            this.amenities
-                                ?.split(',')
-                                ?.map { it.trim() }
-                                ?.filter { it.isNotBlank() }
-                                ?: emptyList(),
-                    ),
-            )
+        is Hotel -> HotelDto(
+            id = entityId,
+            name = name,
+            slug = slug,
+            description = description,
+            tags = tagList,
+            contentActions = contentActionSettings,
+            town = town,
+            latitude = latitude,
+            longitude = longitude,
+            imageUrl = imageUrl,
+            rating = rating,
+            reviewCount = reviewCount,
+            phoneNumber = phoneNumber,
+            email = email,
+            website = website,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+            details = HotelDetailsDto(amenities = amenities.parseCommaSeparated()),
+        )
 
-        is Beach ->
-            BeachDto(
-                id = entityId,
-                name = this.name,
-                slug = this.slug,
-                description = this.description,
-                tags = tagList,
-                contentActions = contentActionSettings,
-                town = this.town,
-                latitude = this.latitude,
-                longitude = this.longitude,
-                imageUrl = this.imageUrl,
-                rating = this.rating,
-                reviewCount = this.reviewCount,
-                createdAt = this.createdAt,
-                updatedAt = this.updatedAt,
-                // The `details` field is null by default in the BeachDto constructor.
-            )
+        is Beach -> BeachDto(
+            id = entityId,
+            name = name,
+            slug = slug,
+            description = description,
+            tags = tagList,
+            contentActions = contentActionSettings,
+            town = town,
+            latitude = latitude,
+            longitude = longitude,
+            imageUrl = imageUrl,
+            rating = rating,
+            reviewCount = reviewCount,
+            phoneNumber = phoneNumber,
+            email = email,
+            website = website,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+        )
 
-        is Heritage ->
-            HeritageDto(
-                id = entityId,
-                name = this.name,
-                slug = this.slug,
-                description = this.description,
-                tags = tagList,
-                contentActions = contentActionSettings,
-                town = this.town,
-                latitude = this.latitude,
-                longitude = this.longitude,
-                imageUrl = this.imageUrl,
-                rating = this.rating,
-                reviewCount = this.reviewCount,
-                createdAt = this.createdAt,
-                updatedAt = this.updatedAt,
-                // The `details` field is null by default in the HeritageDto constructor.
-            )
+        is Heritage -> HeritageDto(
+            id = entityId,
+            name = name,
+            slug = slug,
+            description = description,
+            tags = tagList,
+            contentActions = contentActionSettings,
+            town = town,
+            latitude = latitude,
+            longitude = longitude,
+            imageUrl = imageUrl,
+            rating = rating,
+            reviewCount = reviewCount,
+            phoneNumber = phoneNumber,
+            email = email,
+            website = website,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+        )
 
-        is Nature ->
-            NatureDto(
-                id = entityId,
-                name = this.name,
-                slug = this.slug,
-                description = this.description,
-                tags = tagList,
-                contentActions = contentActionSettings,
-                town = this.town,
-                latitude = this.latitude,
-                longitude = this.longitude,
-                imageUrl = this.imageUrl,
-                rating = this.rating,
-                reviewCount = this.reviewCount,
-                createdAt = this.createdAt,
-                updatedAt = this.updatedAt,
-                // The `details` field is null by default in the NatureDto constructor.
-            )
+        is Nature -> NatureDto(
+            id = entityId,
+            name = name,
+            slug = slug,
+            description = description,
+            tags = tagList,
+            contentActions = contentActionSettings,
+            town = town,
+            latitude = latitude,
+            longitude = longitude,
+            imageUrl = imageUrl,
+            rating = rating,
+            reviewCount = reviewCount,
+            phoneNumber = phoneNumber,
+            email = email,
+            website = website,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+        )
 
         else -> throw IllegalStateException("Unsupported or unknown DirectoryEntry type: ${this::class.simpleName}")
     }
 }
 
-private fun DirectoryEntry.parseTags(): List<String> =
-    this.tags
-        ?.split(',')
-        ?.map { it.trim() }
-        ?.filter { it.isNotEmpty() }
-        ?: emptyList()
+/**
+ * Parses a comma-separated string into a trimmed list, filtering empty entries.
+ */
+private fun String?.parseCommaSeparated(): List<String> =
+    this?.split(',')?.map { it.trim() }?.filter { it.isNotBlank() } ?: emptyList()
+
+private fun DirectoryEntry.parseTags(): List<String> = this.tags.parseCommaSeparated()
 
 private fun DirectoryEntry.parseContentActions(): ContentActionSettingsDto? {
     val config = this.contentActions ?: return null

@@ -460,14 +460,18 @@ export class MockApiClient implements ApiClient {
    */
   async uploadImage(
     file: File,
-    category?: string,
-    description?: string
+    options?: {
+      entryId?: string;
+      category?: string;
+      description?: string;
+    }
   ): Promise<string> {
     console.log(`Mock API: Uploading image:`, {
       fileName: file.name,
       size: file.size,
-      category,
-      description,
+      entryId: options?.entryId,
+      category: options?.category,
+      description: options?.description,
     });
     await this.simulateDelay(1000); // Longer delay for file upload
 
@@ -1719,6 +1723,12 @@ ${story.content
   > {
     await this.simulateDelay(500);
     throw new Error("Not implemented");
+  }
+
+  async promoteToHeroImage(mediaId: string): Promise<void> {
+    console.log(`Mock API: Promoting media ${mediaId} to hero image`);
+    await this.simulateDelay(500);
+    // Mock implementation - just log and return
   }
 }
 

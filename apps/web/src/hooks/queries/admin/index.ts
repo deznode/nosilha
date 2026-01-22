@@ -32,4 +32,5 @@ export {
 export { useUpdateDirectoryStatus } from "./useUpdateDirectoryStatus";
 export { useUpdateMediaStatus } from "./useUpdateMediaStatus";
 export { useUpdateGalleryStatus } from "./useUpdateGalleryStatus";
+export { usePromoteToHeroImage } from "./usePromoteToHeroImage";
 export { useArchiveStory } from "./useArchiveStory";

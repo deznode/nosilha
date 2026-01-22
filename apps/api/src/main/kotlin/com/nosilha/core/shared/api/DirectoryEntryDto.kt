@@ -37,6 +37,11 @@ abstract class DirectoryEntryDto {
     abstract val rating: Double?
     abstract val reviewCount: Int
 
+    // Contact information (common across all entry types)
+    abstract val phoneNumber: String?
+    abstract val email: String?
+    abstract val website: String?
+
     @get:JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     abstract val createdAt: LocalDateTime
 
@@ -63,6 +68,9 @@ data class RestaurantDto(
     override val imageUrl: String?,
     override val rating: Double?,
     override val reviewCount: Int,
+    override val phoneNumber: String? = null,
+    override val email: String? = null,
+    override val website: String? = null,
     override val createdAt: LocalDateTime,
     override val updatedAt: LocalDateTime,
     val details: RestaurantDetailsDto,
@@ -86,6 +94,9 @@ data class HotelDto(
     override val imageUrl: String?,
     override val rating: Double?,
     override val reviewCount: Int,
+    override val phoneNumber: String? = null,
+    override val email: String? = null,
+    override val website: String? = null,
     override val createdAt: LocalDateTime,
     override val updatedAt: LocalDateTime,
     val details: HotelDetailsDto,
@@ -109,6 +120,9 @@ data class BeachDto(
     override val imageUrl: String?,
     override val rating: Double?,
     override val reviewCount: Int,
+    override val phoneNumber: String? = null,
+    override val email: String? = null,
+    override val website: String? = null,
     override val createdAt: LocalDateTime,
     override val updatedAt: LocalDateTime,
     val details: DetailsDto? = null,
@@ -132,6 +146,9 @@ data class HeritageDto(
     override val imageUrl: String?,
     override val rating: Double?,
     override val reviewCount: Int,
+    override val phoneNumber: String? = null,
+    override val email: String? = null,
+    override val website: String? = null,
     override val createdAt: LocalDateTime,
     override val updatedAt: LocalDateTime,
     val details: DetailsDto? = null,
@@ -155,6 +172,9 @@ data class NatureDto(
     override val imageUrl: String?,
     override val rating: Double?,
     override val reviewCount: Int,
+    override val phoneNumber: String? = null,
+    override val email: String? = null,
+    override val website: String? = null,
     override val createdAt: LocalDateTime,
     override val updatedAt: LocalDateTime,
     val details: DetailsDto? = null,

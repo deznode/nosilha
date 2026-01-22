@@ -86,8 +86,12 @@ abstract class DirectoryEntry : AuditableEntity() {
 
     // --- Subclass-specific fields, nullable in the base table ---
 
-    // Restaurant-specific fields
+    // Contact fields
     var phoneNumber: String? = null
+    var email: String? = null
+    var website: String? = null
+
+    // Restaurant-specific fields
     var openingHours: String? = null // e.g., "Mon-Fri 09:00-22:00; Sat 10:00-23:00"
     var cuisine: String? = null // e.g., "Cape Verdean,Seafood,International"
 

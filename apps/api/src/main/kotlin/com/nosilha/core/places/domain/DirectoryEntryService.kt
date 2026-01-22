@@ -8,15 +8,21 @@ import com.nosilha.core.shared.api.DirectoryEntryDto
 import com.nosilha.core.shared.events.DirectoryEntryCreatedEvent
 import com.nosilha.core.shared.events.DirectoryEntryDeletedEvent
 import com.nosilha.core.shared.events.DirectoryEntryUpdatedEvent
+import com.nosilha.core.shared.events.HeroImagePromotedEvent
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
+import com.nosilha.core.shared.service.FrontendRevalidationService
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.modulith.events.ApplicationModuleListener
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.util.*
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * Service class for handling business logic related to directory entries.
@@ -32,6 +38,7 @@ import java.util.*
 class DirectoryEntryService(
     private val repository: DirectoryEntryRepository,
     private val eventPublisher: ApplicationEventPublisher,
+    private val revalidationService: FrontendRevalidationService,
 ) {
     private val metadataObjectMapper = jacksonObjectMapper()
 
@@ -286,6 +293,44 @@ class DirectoryEntryService(
         // Publish DirectoryEntryDeletedEvent for other modules to react
         eventPublisher.publishEvent(
             DirectoryEntryDeletedEvent(entryId = id),
+        )
+    }
+
+    /**
+     * Handles HeroImagePromotedEvent from the Gallery module.
+     *
+     * <p>Updates the directory entry's imageUrl to the promoted gallery image.
+     * This listener maintains Spring Modulith module boundaries by consuming
+     * events from the Gallery module rather than accepting direct imports.</p>
+     *
+     * <p>If the directory entry is not found (race condition), the event is
+     * logged but no exception is thrown since the event has already been committed.</p>
+     *
+     * @param event The HeroImagePromotedEvent containing entryId and imageUrl
+     */
+    @ApplicationModuleListener
+    fun onHeroImagePromoted(event: HeroImagePromotedEvent) {
+        logger.info { "Received HeroImagePromotedEvent for entry ${event.entryId}, media ${event.mediaId}" }
+
+        val entry = repository.findById(event.entryId).orElse(null)
+        if (entry == null) {
+            logger.warn { "Directory entry not found for hero image promotion: ${event.entryId}" }
+            return
+        }
+
+        val previousImageUrl = entry.imageUrl
+        entry.imageUrl = event.imageUrl
+        repository.save(entry)
+
+        logger.info {
+            "Updated hero image for entry ${event.entryId} (${entry.name}): " +
+                "previous='$previousImageUrl', new='${event.imageUrl}'"
+        }
+
+        // Trigger frontend cache revalidation so users see the update immediately
+        revalidationService.revalidateDirectoryEntry(
+            category = entry.getCategoryValue(),
+            slug = entry.slug,
         )
     }
 }

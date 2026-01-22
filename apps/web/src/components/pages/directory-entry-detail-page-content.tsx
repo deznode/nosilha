@@ -9,6 +9,7 @@ import { ContentActionToolbar } from "@/components/ui/content-action-toolbar";
 import { ImageGallery } from "@/components/ui/image-gallery";
 import { RelatedEntries } from "@/components/ui/related-entries";
 import StarRating from "@/components/ui/start-rating";
+import { useMediaMetadata } from "@/hooks/queries/useMediaMetadata";
 import { getHotelDetails, getRestaurantDetails } from "@/lib/api-validation";
 import { getEntryUrl } from "@/lib/directory-utils";
 import { siteConfig } from "@/lib/metadata";
@@ -87,7 +88,13 @@ export function DirectoryEntryDetailPageContent({
     siteConfig.url
   ).toString();
 
-  const sampleImages: string[] = [];
+  // Fetch gallery images for this entry
+  const { data: mediaItems } = useMediaMetadata(entry.id);
+  const galleryImages =
+    mediaItems
+      ?.filter((item) => item.publicUrl)
+      .map((item) => item.publicUrl!) ?? [];
+
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -212,7 +219,7 @@ export function DirectoryEntryDetailPageContent({
               <h2 className="text-text-primary font-serif text-3xl font-bold">
                 Gallery
               </h2>
-              <ImageGallery imageUrls={sampleImages} />
+              <ImageGallery imageUrls={galleryImages} />
             </div>
 
             <div className="border-border-primary my-12 border-t" />
@@ -263,7 +270,7 @@ export function DirectoryEntryDetailPageContent({
 
         <div className="border-border-primary my-16 border-t" />
 
-        <ContributePhotosSection />
+        <ContributePhotosSection entryId={entry.id} />
       </div>
     </div>
   );

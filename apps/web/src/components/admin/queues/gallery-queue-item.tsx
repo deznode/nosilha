@@ -10,6 +10,7 @@ import {
   Music,
   ExternalLink,
   Upload,
+  Star,
 } from "lucide-react";
 import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
@@ -22,12 +23,20 @@ interface GalleryQueueItemProps {
     reason?: string,
     notes?: string
   ) => void;
+  onPromoteToHero?: (id: string) => void;
 }
 
 export function GalleryQueueItem({
   item,
   onStatusChange,
+  onPromoteToHero,
 }: GalleryQueueItemProps) {
+  // Check if this item can be promoted to hero image
+  const canPromoteToHero =
+    isUserUploadMedia(item) &&
+    item.entryId &&
+    item.publicUrl &&
+    item.status === "ACTIVE";
   const getMediaIcon = () => {
     if (isExternalMedia(item)) {
       if (item.mediaType === "VIDEO") return <Video size={14} />;
@@ -54,22 +63,16 @@ export function GalleryQueueItem({
   };
 
   const getThumbnail = () => {
-    if (isUserUploadMedia(item) && item.publicUrl) {
-      return (
-        <Image
-          src={item.publicUrl}
-          alt={item.title || "Gallery item"}
-          fill
-          className="object-cover"
-          unoptimized
-        />
-      );
-    }
+    const thumbnailUrl = isUserUploadMedia(item)
+      ? item.publicUrl
+      : isExternalMedia(item)
+        ? item.thumbnailUrl
+        : null;
 
-    if (isExternalMedia(item) && item.thumbnailUrl) {
+    if (thumbnailUrl) {
       return (
         <Image
-          src={item.thumbnailUrl}
+          src={thumbnailUrl}
           alt={item.title || "Gallery item"}
           fill
           className="object-cover"
@@ -152,7 +155,7 @@ export function GalleryQueueItem({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => onStatusChange(item.id, "APPROVE")}
             disabled={item.status === "ACTIVE"}
@@ -180,6 +183,15 @@ export function GalleryQueueItem({
           >
             <XCircle size={14} /> Reject
           </button>
+          {canPromoteToHero && onPromoteToHero && (
+            <button
+              onClick={() => onPromoteToHero(item.id)}
+              className="inline-flex items-center gap-1 rounded-lg bg-[var(--color-ocean-blue)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:opacity-90"
+              title="Set this image as the hero image for the directory entry"
+            >
+              <Star size={14} /> Set as Hero
+            </button>
+          )}
         </div>
       </div>
     </div>

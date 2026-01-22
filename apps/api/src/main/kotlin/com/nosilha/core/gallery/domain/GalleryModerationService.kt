@@ -3,12 +3,16 @@ package com.nosilha.core.gallery.domain
 import com.nosilha.core.gallery.api.dto.CreateExternalMediaRequest
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.GalleryModerationAction
+import com.nosilha.core.gallery.api.dto.toDto
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import com.nosilha.core.gallery.repository.MediaModerationAuditRepository
 import com.nosilha.core.shared.api.PageableInfo
 import com.nosilha.core.shared.api.PagedApiResult
+import com.nosilha.core.shared.events.HeroImagePromotedEvent
 import com.nosilha.core.shared.exception.BusinessException
+import com.nosilha.core.shared.exception.ResourceNotFoundException
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -39,6 +43,7 @@ private val logger = KotlinLogging.logger {}
 class GalleryModerationService(
     private val repository: GalleryMediaRepository,
     private val auditRepository: MediaModerationAuditRepository,
+    private val eventPublisher: ApplicationEventPublisher,
 ) {
     /**
      * Lists gallery media for moderation with optional status filtering and pagination.
@@ -70,13 +75,7 @@ class GalleryModerationService(
 
         logger.debug { "Retrieved ${mediaPage.numberOfElements} gallery media items (page $page, size $size, status: $status)" }
 
-        val dtos = mediaPage.content.map { media ->
-            when (media) {
-                is UserUploadedMedia -> GalleryMediaDto.from(media)
-                is ExternalMedia -> GalleryMediaDto.from(media)
-                else -> error("Unknown media type: ${media.javaClass.simpleName}")
-            }
-        }
+        val dtos = mediaPage.content.map { it.toDto() }
 
         return PagedApiResult(
             data = dtos,
@@ -108,11 +107,7 @@ class GalleryModerationService(
 
         logger.debug { "Retrieved media detail: id=$id, status=${media.status}, type=${media.mediaSource}" }
 
-        return when (media) {
-            is UserUploadedMedia -> GalleryMediaDto.from(media)
-            is ExternalMedia -> GalleryMediaDto.from(media)
-            else -> error("Unknown media type: ${media.javaClass.simpleName}")
-        }
+        return media.toDto()
     }
 
     /**
@@ -215,11 +210,7 @@ class GalleryModerationService(
 
         logger.debug { "Audit entry created for gallery media moderation: mediaId=$id, action=$action, performedBy=$performedBy" }
 
-        return when (savedMedia) {
-            is UserUploadedMedia -> GalleryMediaDto.from(savedMedia)
-            is ExternalMedia -> GalleryMediaDto.from(savedMedia)
-            else -> error("Unknown media type: ${savedMedia.javaClass.simpleName}")
-        }
+        return savedMedia.toDto()
     }
 
     /**
@@ -300,5 +291,59 @@ class GalleryModerationService(
         logger.info { "Created ExternalMedia as ACTIVE: id=${saved.id}" }
 
         return GalleryMediaDto.from(saved)
+    }
+
+    /**
+     * Promotes a gallery image to become the hero image for its associated directory entry.
+     *
+     * This action publishes a HeroImagePromotedEvent that the Places module will consume
+     * to update the directory entry's imageUrl field. This maintains Spring Modulith
+     * module boundaries by using event-driven communication.
+     *
+     * Prerequisites:
+     * - Media must be a UserUploadedMedia (not ExternalMedia)
+     * - Media must have ACTIVE status (approved)
+     * - Media must have an entryId (linked to a directory entry)
+     * - Media must have a publicUrl (accessible via CDN)
+     *
+     * @param mediaId UUID of the media item to promote
+     * @param adminId UUID of the admin user performing the promotion
+     * @throws NotFoundException if media not found
+     * @throws BusinessException if validation fails
+     */
+    @Transactional
+    fun promoteToHeroImage(
+        mediaId: UUID,
+        adminId: UUID,
+    ) {
+        val media = repository.findById(mediaId).orElseThrow {
+            ResourceNotFoundException("Media not found: $mediaId")
+        }
+
+        // Validations
+        if (media !is UserUploadedMedia) {
+            throw BusinessException("Only user uploads can be promoted to hero image")
+        }
+        if (media.status != GalleryMediaStatus.ACTIVE) {
+            throw BusinessException("Media must be ACTIVE to promote as hero image")
+        }
+        if (media.entryId == null) {
+            throw BusinessException("Media must be linked to a directory entry")
+        }
+        if (media.publicUrl.isNullOrBlank()) {
+            throw BusinessException("Media must have a public URL")
+        }
+
+        // Publish event - Places module will handle the update
+        eventPublisher.publishEvent(
+            HeroImagePromotedEvent(
+                entryId = media.entryId!!,
+                imageUrl = media.publicUrl!!,
+                mediaId = mediaId,
+                promotedBy = adminId,
+            ),
+        )
+
+        logger.info { "Published HeroImagePromotedEvent for entry ${media.entryId}, media $mediaId, by admin $adminId" }
     }
 }

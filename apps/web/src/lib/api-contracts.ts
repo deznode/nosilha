@@ -97,8 +97,11 @@ export interface ApiClient {
   // Media Operations
   uploadImage(
     file: File,
-    category?: string,
-    description?: string
+    options?: {
+      entryId?: string;
+      category?: string;
+      description?: string;
+    }
   ): Promise<string>;
 
   getMediaByEntry(entryId: string): Promise<MediaMetadataDto[]>;
@@ -393,6 +396,24 @@ export interface ApiClient {
   createExternalMedia(
     request: import("@/types/gallery").CreateExternalMediaRequest
   ): Promise<import("@/types/gallery").ExternalMedia>;
+
+  /**
+   * Promotes a gallery image to become the hero image for a directory entry.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * Prerequisites:
+   * - Media must be a user upload (not external media)
+   * - Media must have ACTIVE status (already approved)
+   * - Media must be linked to a directory entry (entryId not null)
+   * - Media must have a public URL
+   *
+   * @param mediaId UUID of the gallery media item to promote
+   * @throws Error if media not found (HTTP 404)
+   * @throws Error if validation fails (HTTP 400)
+   * @throws Error if authentication failed (HTTP 401/403)
+   */
+  promoteToHeroImage(mediaId: string): Promise<void>;
 
   // ================================
   // PROFILE OPERATIONS (User Story 1)

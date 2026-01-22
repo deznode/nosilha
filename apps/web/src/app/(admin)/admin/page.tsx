@@ -38,6 +38,7 @@ import {
   useDeleteMessage,
   useUpdateDirectoryStatus,
   useUpdateGalleryStatus,
+  usePromoteToHeroImage,
 } from "@/hooks/queries/admin";
 import type { AdminStats, ContactMessageStatus } from "@/types/admin";
 import type { GalleryModerationAction } from "@/types/gallery";
@@ -92,6 +93,7 @@ export default function AdminDashboardPage() {
   const deleteMessage = useDeleteMessage();
   const updateDirectory = useUpdateDirectoryStatus();
   const updateGallery = useUpdateGalleryStatus();
+  const promoteToHero = usePromoteToHeroImage();
 
   // Derived data with fallbacks
   const stats = statsQuery.data ?? defaultStats;
@@ -104,6 +106,20 @@ export default function AdminDashboardPage() {
 
   // Loading state - show loading for KPI cards
   const isLoading = statsQuery.isLoading;
+
+  // Pre-computed pending counts to avoid repeated filtering
+  const pendingSuggestions = suggestions.filter(
+    (s) => s.status === SubmissionStatus.PENDING
+  );
+  const pendingStories = stories.filter(
+    (s) => s.status === SubmissionStatus.PENDING
+  );
+  const pendingDirectorySubmissions = directorySubmissions.filter(
+    (s) => s.status === SubmissionStatus.PENDING
+  );
+  const pendingGalleryItems = galleryItems.filter(
+    (g) => g.status === "PENDING_REVIEW" || g.status === "FLAGGED"
+  );
 
   // Event handlers using mutation hooks
   const handleSuggestionStatusChange = (
@@ -181,12 +197,15 @@ export default function AdminDashboardPage() {
     });
   };
 
+  const handlePromoteToHero = (mediaId: string) => {
+    promoteToHero.mutate(mediaId);
+  };
+
   // Computed values
   const pendingCount =
-    suggestions.filter((s) => s.status === SubmissionStatus.PENDING).length +
-    stories.filter((s) => s.status === SubmissionStatus.PENDING).length +
-    directorySubmissions.filter((s) => s.status === SubmissionStatus.PENDING)
-      .length;
+    pendingSuggestions.length +
+    pendingStories.length +
+    pendingDirectorySubmissions.length;
 
   const unreadMessages = messages.filter((m) => m.status === "UNREAD").length;
 
@@ -245,14 +264,9 @@ export default function AdminDashboardPage() {
               } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
             >
               <MessageSquare size={16} /> Suggestions
-              {suggestions.filter((s) => s.status === SubmissionStatus.PENDING)
-                .length > 0 && (
+              {pendingSuggestions.length > 0 && (
                 <span className="ml-1 inline-flex items-center rounded-full bg-yellow-100 px-1.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                  {
-                    suggestions.filter(
-                      (s) => s.status === SubmissionStatus.PENDING
-                    ).length
-                  }
+                  {pendingSuggestions.length}
                 </span>
               )}
             </button>
@@ -265,13 +279,9 @@ export default function AdminDashboardPage() {
               } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
             >
               <FileText size={16} /> Stories
-              {stories.filter((s) => s.status === SubmissionStatus.PENDING)
-                .length > 0 && (
+              {pendingStories.length > 0 && (
                 <span className="ml-1 inline-flex items-center rounded-full bg-yellow-100 px-1.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                  {
-                    stories.filter((s) => s.status === SubmissionStatus.PENDING)
-                      .length
-                  }
+                  {pendingStories.length}
                 </span>
               )}
             </button>
@@ -299,15 +309,9 @@ export default function AdminDashboardPage() {
               } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
             >
               <MapPin size={16} /> Directory
-              {directorySubmissions.filter(
-                (s) => s.status === SubmissionStatus.PENDING
-              ).length > 0 && (
+              {pendingDirectorySubmissions.length > 0 && (
                 <span className="ml-1 inline-flex items-center rounded-full bg-yellow-100 px-1.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                  {
-                    directorySubmissions.filter(
-                      (s) => s.status === SubmissionStatus.PENDING
-                    ).length
-                  }
+                  {pendingDirectorySubmissions.length}
                 </span>
               )}
             </button>
@@ -320,16 +324,9 @@ export default function AdminDashboardPage() {
               } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
             >
               <ImageIcon size={16} /> Gallery
-              {galleryItems.filter(
-                (g) => g.status === "PENDING_REVIEW" || g.status === "FLAGGED"
-              ).length > 0 && (
+              {pendingGalleryItems.length > 0 && (
                 <span className="ml-1 inline-flex items-center rounded-full bg-yellow-100 px-1.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                  {
-                    galleryItems.filter(
-                      (g) =>
-                        g.status === "PENDING_REVIEW" || g.status === "FLAGGED"
-                    ).length
-                  }
+                  {pendingGalleryItems.length}
                 </span>
               )}
             </button>
@@ -373,6 +370,7 @@ export default function AdminDashboardPage() {
             items={galleryItems}
             isLoading={galleryQuery.isLoading}
             onStatusChange={handleGalleryStatusChange}
+            onPromoteToHero={handlePromoteToHero}
           />
         )}
       </main>
