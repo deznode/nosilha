@@ -20,6 +20,8 @@ interface ImageUploaderProps {
   description?: string;
   /** Whether to auto-upload on file selection (default: true) */
   autoUpload?: boolean;
+  /** Initial URL to display (for editing existing entries) */
+  initialUrl?: string;
 }
 
 /**
@@ -53,8 +55,11 @@ export function ImageUploader({
   category,
   description,
   autoUpload = true,
+  initialUrl,
 }: ImageUploaderProps) {
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    initialUrl || null
+  );
   const [activeDrag, setActiveDrag] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 

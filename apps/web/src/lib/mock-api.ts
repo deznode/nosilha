@@ -1416,6 +1416,61 @@ ${story.content
     return mockAdminApi.updateDirectorySubmissionStatus(id, status, notes);
   }
 
+  /**
+   * Updates an existing directory entry (mock implementation).
+   */
+  async updateDirectoryEntry(
+    id: string,
+    data: import("@/lib/api-contracts").UpdateDirectoryEntryRequest
+  ): Promise<DirectorySubmission> {
+    console.log(`Mock API: Updating directory entry ${id}`, data);
+    await this.simulateDelay(300);
+
+    // Find in mock directory submissions
+    const submission = MOCK_DIRECTORY_SUBMISSIONS.find((d) => d.id === id);
+    if (!submission) {
+      throw new Error("Directory entry not found");
+    }
+
+    // Update fields
+    if (data.name) submission.name = data.name;
+    if (data.category) {
+      // Convert uppercase category to title case
+      const categoryMap: Record<string, DirectorySubmission["category"]> = {
+        RESTAURANT: "Restaurant",
+        HOTEL: "Hotel",
+        BEACH: "Beach",
+        HERITAGE: "Heritage",
+        NATURE: "Nature",
+      };
+      submission.category = categoryMap[data.category] || submission.category;
+    }
+    if (data.town) submission.town = data.town;
+    if (data.description) submission.description = data.description;
+    if (data.tags) submission.tags = data.tags;
+    if (data.imageUrl !== undefined) submission.imageUrl = data.imageUrl;
+    if (data.priceLevel !== undefined) submission.priceLevel = data.priceLevel;
+    if (data.latitude !== undefined) submission.latitude = data.latitude;
+    if (data.longitude !== undefined) submission.longitude = data.longitude;
+
+    return submission;
+  }
+
+  /**
+   * Deletes a directory entry permanently (mock implementation).
+   */
+  async deleteDirectoryEntry(id: string): Promise<void> {
+    console.log(`Mock API: Deleting directory entry ${id}`);
+    await this.simulateDelay(200);
+
+    const index = MOCK_DIRECTORY_SUBMISSIONS.findIndex((d) => d.id === id);
+    if (index === -1) {
+      throw new Error("Directory entry not found");
+    }
+
+    MOCK_DIRECTORY_SUBMISSIONS.splice(index, 1);
+  }
+
   // ================================
   // ADMIN MEDIA MODERATION OPERATIONS - Mock Implementation
   // ================================

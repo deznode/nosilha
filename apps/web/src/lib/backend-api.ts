@@ -1766,6 +1766,79 @@ export class BackendApiClient implements ApiClient {
   }
 
   /**
+   * Updates an existing directory entry.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param id Directory entry ID
+   * @param data Update data
+   * @returns Updated DirectorySubmission
+   * @throws Error if entry not found (HTTP 404)
+   * @throws Error if validation fails (HTTP 400)
+   * @throws Error if authentication failed (HTTP 401/403)
+   */
+  async updateDirectoryEntry(
+    id: string,
+    data: import("@/lib/api-contracts").UpdateDirectoryEntryRequest
+  ): Promise<DirectorySubmission> {
+    const endpoint = `${env.apiUrl}/api/v1/directory/entries/${id}`;
+
+    // Transform category to uppercase for backend
+    const requestData = {
+      ...data,
+      category: data.category?.toUpperCase(),
+    };
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestData),
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error("Directory entry not found");
+      }
+      if (response.status === 400) {
+        const error = await response.json();
+        throw new Error(error.message || "Invalid update data");
+      }
+      throw new Error(`Failed to update directory entry: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.transformDirectorySubmission(
+      this.unwrapApiResponse<Record<string, unknown>>(payload)
+    );
+  }
+
+  /**
+   * Deletes a directory entry permanently.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param id Directory entry ID
+   * @throws Error if entry not found (HTTP 404)
+   * @throws Error if authentication failed (HTTP 401/403)
+   */
+  async deleteDirectoryEntry(id: string): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/directory/entries/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error("Directory entry not found");
+      }
+      throw new Error(`Failed to delete directory entry: ${response.status}`);
+    }
+  }
+
+  /**
    * Transforms backend directory submission to frontend format.
    * Backend sends uppercase enum values (RESTAURANT), frontend expects title case (Restaurant).
    */
@@ -2558,7 +2631,8 @@ export class BackendApiClient implements ApiClient {
       if (response.status === 400) {
         const errorData = await response.json();
         throw new Error(
-          errorData.message || "Invalid promotion request. Check media requirements."
+          errorData.message ||
+            "Invalid promotion request. Check media requirements."
         );
       }
       throw new Error(`Failed to promote to hero image: ${response.status}`);

@@ -17,6 +17,7 @@ import {
 import Markdown from "react-markdown";
 import { StoryType } from "@/types/story";
 import type { StoryTemplate } from "@/types/story";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import {
   polishStoryAction,
   translateStoryAction,
@@ -111,6 +112,10 @@ export function StoryEditor({
   const [originalContent, setOriginalContent] = useState<string>("");
   const [isTranslating, setIsTranslating] = useState(false);
   const [geminiAvailable, setGeminiAvailable] = useState(false);
+  const [pendingTemplate, setPendingTemplate] = useState<
+    keyof typeof TEMPLATES | null
+  >(null);
+  const [showTemplateConfirm, setShowTemplateConfirm] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Check Gemini availability on mount
@@ -168,13 +173,29 @@ export function StoryEditor({
   };
 
   const applyTemplate = (templateKey: keyof typeof TEMPLATES) => {
-    const confirmChange =
-      !content ||
-      window.confirm("This will replace your current content. Are you sure?");
-    if (confirmChange) {
+    if (content) {
+      // Show confirmation if there's existing content
+      setPendingTemplate(templateKey);
+      setShowTemplateConfirm(true);
+    } else {
+      // Apply directly if no content
       onContentChange(TEMPLATES[templateKey]);
       setShowTemplates(false);
     }
+  };
+
+  const handleTemplateConfirm = () => {
+    if (pendingTemplate) {
+      onContentChange(TEMPLATES[pendingTemplate]);
+      setShowTemplates(false);
+    }
+    setShowTemplateConfirm(false);
+    setPendingTemplate(null);
+  };
+
+  const handleTemplateCancel = () => {
+    setShowTemplateConfirm(false);
+    setPendingTemplate(null);
   };
 
   const insertFormatting = (format: "bold" | "italic" | "list" | "quote") => {
@@ -527,6 +548,17 @@ export function StoryEditor({
           )}
         </div>
       )}
+
+      {/* Template Replace Confirmation */}
+      <ConfirmationDialog
+        isOpen={showTemplateConfirm}
+        onClose={handleTemplateCancel}
+        onConfirm={handleTemplateConfirm}
+        title="Replace your content?"
+        description="This will replace your current content with the selected template. Any existing text will be lost."
+        confirmLabel="Replace Content"
+        variant="warning"
+      />
     </div>
   );
 }

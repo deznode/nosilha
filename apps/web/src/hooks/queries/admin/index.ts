@@ -30,6 +30,8 @@ export {
   useDeleteMessage,
 } from "./useUpdateMessageStatus";
 export { useUpdateDirectoryStatus } from "./useUpdateDirectoryStatus";
+export { useUpdateDirectoryEntry } from "./useUpdateDirectoryEntry";
+export { useDeleteDirectoryEntry } from "./useDeleteDirectoryEntry";
 export { useUpdateMediaStatus } from "./useUpdateMediaStatus";
 export { useUpdateGalleryStatus } from "./useUpdateGalleryStatus";
 export { usePromoteToHeroImage } from "./usePromoteToHeroImage";

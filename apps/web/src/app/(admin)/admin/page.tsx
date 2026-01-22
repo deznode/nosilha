@@ -23,6 +23,9 @@ import {
 } from "@/components/admin/queues";
 import { StoryDetailModal } from "@/components/admin/story-detail-modal";
 import { FlagReasonModal } from "@/components/admin/queues/flag-reason-modal";
+import { DirectoryEditModal } from "@/components/admin/queues/directory-edit-modal";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { useToast } from "@/hooks/use-toast";
 import { SystemStatusBadges } from "@/components/admin/system-status-badge";
 import {
   useAdminStats,
@@ -37,10 +40,16 @@ import {
   useUpdateMessageStatus,
   useDeleteMessage,
   useUpdateDirectoryStatus,
+  useUpdateDirectoryEntry,
+  useDeleteDirectoryEntry,
   useUpdateGalleryStatus,
   usePromoteToHeroImage,
 } from "@/hooks/queries/admin";
-import type { AdminStats, ContactMessageStatus } from "@/types/admin";
+import type {
+  AdminStats,
+  ContactMessageStatus,
+  DirectorySubmission,
+} from "@/types/admin";
 import type { GalleryModerationAction } from "@/types/gallery";
 import type { StorySubmission } from "@/types/story";
 import { SubmissionStatus } from "@/types/story";
@@ -77,6 +86,25 @@ export default function AdminDashboardPage() {
     title: string;
   } | null>(null);
 
+  // Directory CRUD modal state
+  const [isDirectoryEditModalOpen, setIsDirectoryEditModalOpen] =
+    useState(false);
+  const [directoryToEdit, setDirectoryToEdit] =
+    useState<DirectorySubmission | null>(null);
+  const [isDirectoryFlagModalOpen, setIsDirectoryFlagModalOpen] =
+    useState(false);
+  const [directoryToFlag, setDirectoryToFlag] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  // Directory deletion confirmation dialog state
+  const [directoryToDelete, setDirectoryToDelete] =
+    useState<DirectorySubmission | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  // Toast notifications
+  const toast = useToast();
+
   // TanStack Query hooks - each manages its own loading/error state independently
   const statsQuery = useAdminStats();
   const suggestionsQuery = useAdminSuggestions();
@@ -92,6 +120,9 @@ export default function AdminDashboardPage() {
   const updateMessage = useUpdateMessageStatus();
   const deleteMessage = useDeleteMessage();
   const updateDirectory = useUpdateDirectoryStatus();
+  // Note: updateDirectoryEntry available for future inline update features
+  const _updateDirectoryEntry = useUpdateDirectoryEntry();
+  const deleteDirectoryEntry = useDeleteDirectoryEntry();
   const updateGallery = useUpdateGalleryStatus();
   const promoteToHero = usePromoteToHeroImage();
 
@@ -182,7 +213,99 @@ export default function AdminDashboardPage() {
     id: string,
     status: SubmissionStatus
   ) => {
-    updateDirectory.mutate({ id, status });
+    const statusLabel =
+      status === SubmissionStatus.APPROVED
+        ? "approved"
+        : status === SubmissionStatus.REJECTED
+          ? "rejected"
+          : status === SubmissionStatus.ARCHIVED
+            ? "archived"
+            : "updated";
+    updateDirectory.mutate(
+      { id, status },
+      {
+        onSuccess: () => {
+          toast.showSuccess(`Entry ${statusLabel} successfully`);
+        },
+        onError: () => {
+          toast.showError(`Failed to ${statusLabel} entry. Please try again.`);
+        },
+      }
+    );
+  };
+
+  const handleDirectoryEdit = (submission: DirectorySubmission) => {
+    setDirectoryToEdit(submission);
+    setIsDirectoryEditModalOpen(true);
+  };
+
+  const handleDirectoryEditClose = () => {
+    setIsDirectoryEditModalOpen(false);
+    setDirectoryToEdit(null);
+  };
+
+  const handleDirectoryEditSuccess = () => {
+    // Query invalidation handled by the mutation hook
+    toast.showSuccess("Directory entry updated successfully");
+    setIsDirectoryEditModalOpen(false);
+    setDirectoryToEdit(null);
+  };
+
+  const handleDirectoryDelete = (submission: DirectorySubmission) => {
+    setDirectoryToDelete(submission);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (directoryToDelete) {
+      deleteDirectoryEntry.mutate(directoryToDelete.id, {
+        onSuccess: () => {
+          toast.showSuccess(`"${directoryToDelete.name}" has been deleted`);
+          setIsDeleteDialogOpen(false);
+          setDirectoryToDelete(null);
+        },
+        onError: () => {
+          toast.showError("Failed to delete entry. Please try again.");
+        },
+      });
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteDialogOpen(false);
+    setDirectoryToDelete(null);
+  };
+
+  const handleDirectoryFlag = (submission: DirectorySubmission) => {
+    setDirectoryToFlag({ id: submission.id, name: submission.name });
+    setIsDirectoryFlagModalOpen(true);
+  };
+
+  const handleDirectoryFlagConfirm = (reason: string) => {
+    if (directoryToFlag) {
+      updateDirectory.mutate(
+        {
+          id: directoryToFlag.id,
+          status: SubmissionStatus.FLAGGED,
+          notes: reason,
+        },
+        {
+          onSuccess: () => {
+            toast.showInfo(`"${directoryToFlag.name}" has been flagged`);
+          },
+          onError: () => {
+            toast.showError("Failed to flag entry. Please try again.");
+          },
+        }
+      );
+    }
+    setIsDirectoryFlagModalOpen(false);
+    setDirectoryToFlag(null);
+  };
+
+  const handleDirectoryFlagClose = () => {
+    setIsDirectoryFlagModalOpen(false);
+    setDirectoryToFlag(null);
   };
 
   const handleGalleryStatusChange = (
@@ -363,6 +486,9 @@ export default function AdminDashboardPage() {
             submissions={directorySubmissions}
             isLoading={directoryQuery.isLoading}
             onStatusChange={handleDirectoryStatusChange}
+            onEdit={handleDirectoryEdit}
+            onDelete={handleDirectoryDelete}
+            onFlag={handleDirectoryFlag}
           />
         )}
         {activeTab === "gallery" && (
@@ -395,6 +521,35 @@ export default function AdminDashboardPage() {
         itemTitle={storyToFlag?.title || ""}
         onClose={handleFlagClose}
         onConfirm={handleFlagConfirm}
+      />
+
+      {/* Directory Edit Modal */}
+      <DirectoryEditModal
+        isOpen={isDirectoryEditModalOpen}
+        entry={directoryToEdit}
+        onClose={handleDirectoryEditClose}
+        onSuccess={handleDirectoryEditSuccess}
+      />
+
+      {/* Directory Flag Modal */}
+      <FlagReasonModal
+        isOpen={isDirectoryFlagModalOpen}
+        itemType="Directory Entry"
+        itemTitle={directoryToFlag?.name || ""}
+        onClose={handleDirectoryFlagClose}
+        onConfirm={handleDirectoryFlagConfirm}
+      />
+
+      {/* Directory Delete Confirmation */}
+      <ConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title={`Delete "${directoryToDelete?.name}"?`}
+        description="This will permanently remove the directory entry. This action cannot be undone."
+        confirmLabel="Delete Entry"
+        variant="danger"
+        isLoading={deleteDirectoryEntry.isPending}
       />
     </div>
   );

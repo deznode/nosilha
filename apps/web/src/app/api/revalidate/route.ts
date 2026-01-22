@@ -40,10 +40,7 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: "Invalid JSON body" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
   const { path } = body;
@@ -59,10 +56,7 @@ export async function POST(request: NextRequest) {
   const safePathPattern = /^\/[a-zA-Z0-9\-_\/]+$/;
   if (!safePathPattern.test(path) || path.includes("..")) {
     console.warn(`Invalid revalidation path rejected: ${path}`);
-    return NextResponse.json(
-      { error: "Invalid path format" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Invalid path format" }, { status: 400 });
   }
 
   try {
@@ -76,9 +70,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error(`Failed to revalidate path ${path}:`, error);
-    return NextResponse.json(
-      { error: "Revalidation failed" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Revalidation failed" }, { status: 500 });
   }
 }

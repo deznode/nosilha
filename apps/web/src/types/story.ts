@@ -15,6 +15,8 @@ export enum SubmissionStatus {
   APPROVED = "APPROVED",
   REJECTED = "REJECTED",
   FLAGGED = "FLAGGED",
+  /** Soft-deleted entry - hidden from public but recoverable */
+  ARCHIVED = "ARCHIVED",
 }
 
 export interface StorySubmission {

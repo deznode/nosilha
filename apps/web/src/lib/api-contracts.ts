@@ -327,6 +327,29 @@ export interface ApiClient {
     notes?: string
   ): Promise<DirectorySubmission>;
 
+  /**
+   * Update an existing directory entry.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param id Directory entry ID
+   * @param data Update data
+   * @returns Updated directory submission
+   */
+  updateDirectoryEntry(
+    id: string,
+    data: UpdateDirectoryEntryRequest
+  ): Promise<DirectorySubmission>;
+
+  /**
+   * Delete a directory entry permanently.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param id Directory entry ID
+   */
+  deleteDirectoryEntry(id: string): Promise<void>;
+
   // ================================
   // ADMIN GALLERY MODERATION OPERATIONS
   // ================================
@@ -580,6 +603,21 @@ export interface DirectorySubmissionConfirmation {
   id: string;
   name: string;
   status: string;
+}
+
+/**
+ * Request payload for updating a directory entry
+ */
+export interface UpdateDirectoryEntryRequest {
+  name?: string;
+  category?: "RESTAURANT" | "HOTEL" | "BEACH" | "HERITAGE" | "NATURE";
+  town?: string;
+  description?: string;
+  tags?: string[];
+  imageUrl?: string;
+  priceLevel?: "$" | "$$" | "$$$";
+  latitude?: number;
+  longitude?: number;
 }
 
 /**

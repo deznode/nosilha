@@ -15,6 +15,9 @@ import {
   Umbrella,
   Castle,
   TreePine,
+  Pencil,
+  Trash2,
+  Flag,
 } from "lucide-react";
 import Image from "next/image";
 import type { DirectorySubmission } from "@/types/admin";
@@ -25,6 +28,9 @@ interface DirectoryQueueProps {
   isLoading?: boolean;
   onStatusChange?: (id: string, status: SubmissionStatus) => void;
   onViewFull?: (submission: DirectorySubmission) => void;
+  onEdit?: (submission: DirectorySubmission) => void;
+  onDelete?: (submission: DirectorySubmission) => void;
+  onFlag?: (submission: DirectorySubmission) => void;
 }
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -50,6 +56,9 @@ export function DirectoryQueue({
   isLoading,
   onStatusChange,
   onViewFull,
+  onEdit,
+  onDelete,
+  onFlag,
 }: DirectoryQueueProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<SubmissionStatus | "ALL">(
@@ -88,6 +97,12 @@ export function DirectoryQueue({
         return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
       case SubmissionStatus.REJECTED:
         return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
+      case SubmissionStatus.FLAGGED:
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300";
+      case SubmissionStatus.ARCHIVED:
+        return "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300";
+      default:
+        return "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300";
     }
   };
 
@@ -107,6 +122,7 @@ export function DirectoryQueue({
             <option value={SubmissionStatus.PENDING}>Pending</option>
             <option value={SubmissionStatus.APPROVED}>Approved</option>
             <option value={SubmissionStatus.REJECTED}>Rejected</option>
+            <option value={SubmissionStatus.FLAGGED}>Flagged</option>
           </select>
           <button className="border-hairline bg-surface text-muted hover:bg-surface-alt flex items-center rounded-md border px-3 py-1.5 text-sm font-medium">
             <Filter className="mr-2 h-4 w-4" /> Newest First
@@ -214,15 +230,29 @@ export function DirectoryQueue({
                     >
                       {submission.status}
                     </span>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      {/* View Full button */}
                       {onViewFull && (
                         <button
                           onClick={() => onViewFull(submission)}
                           className="border-hairline bg-surface hover:bg-surface-alt flex items-center gap-1 rounded-lg border px-3 py-1.5 text-[10px] font-bold transition-all"
                         >
-                          <ExternalLink size={12} /> View Full
+                          <ExternalLink size={12} /> View
                         </button>
                       )}
+
+                      {/* Edit button */}
+                      {onEdit && (
+                        <button
+                          onClick={() => onEdit(submission)}
+                          className="border-hairline bg-surface hover:bg-surface-alt flex items-center gap-1 rounded-lg border px-3 py-1.5 text-[10px] font-bold text-[var(--color-ocean-blue)] transition-all hover:border-[var(--color-ocean-blue)]"
+                          title="Edit entry"
+                        >
+                          <Pencil size={12} /> Edit
+                        </button>
+                      )}
+
+                      {/* Moderation actions for pending items */}
                       {submission.status === SubmissionStatus.PENDING && (
                         <>
                           <button
@@ -233,6 +263,7 @@ export function DirectoryQueue({
                               )
                             }
                             className="rounded-lg bg-[var(--color-valley-green)]/10 p-2 text-[var(--color-valley-green)] transition-all hover:bg-[var(--color-valley-green)] hover:text-white"
+                            title="Approve"
                           >
                             <CheckCircle size={14} />
                           </button>
@@ -244,10 +275,32 @@ export function DirectoryQueue({
                               )
                             }
                             className="rounded-lg bg-red-100/50 p-2 text-red-500 transition-all hover:bg-red-500 hover:text-white dark:bg-red-900/20"
+                            title="Reject"
                           >
                             <XCircle size={14} />
                           </button>
+                          {/* Flag button */}
+                          {onFlag && (
+                            <button
+                              onClick={() => onFlag(submission)}
+                              className="rounded-lg bg-orange-100/50 p-2 text-orange-500 transition-all hover:bg-orange-500 hover:text-white dark:bg-orange-900/20"
+                              title="Flag for review"
+                            >
+                              <Flag size={14} />
+                            </button>
+                          )}
                         </>
+                      )}
+
+                      {/* Delete button (available for all statuses) */}
+                      {onDelete && (
+                        <button
+                          onClick={() => onDelete(submission)}
+                          className="rounded-lg bg-red-50 p-2 text-red-400 transition-all hover:bg-red-500 hover:text-white dark:bg-red-900/10"
+                          title="Delete permanently"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       )}
                     </div>
                   </div>

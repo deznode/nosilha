@@ -586,6 +586,36 @@ export async function updateDirectorySubmissionStatus(
   return apiClient.updateDirectorySubmissionStatus(id, status, notes);
 }
 
+/**
+ * Updates an existing directory entry.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Directory entry ID
+ * @param data Update data (all fields optional)
+ * @returns A promise that resolves to updated directory submission
+ * @throws Error if entry not found (HTTP 404)
+ * @throws Error if validation fails (HTTP 400)
+ * @throws Error if authentication failed (HTTP 401/403)
+ */
+export async function updateDirectoryEntry(
+  id: string,
+  data: import("@/lib/api-contracts").UpdateDirectoryEntryRequest
+): Promise<DirectorySubmission> {
+  return apiClient.updateDirectoryEntry(id, data);
+}
+
+/**
+ * Deletes a directory entry permanently.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Directory entry ID
+ * @throws Error if entry not found (HTTP 404)
+ * @throws Error if authentication failed (HTTP 401/403)
+ */
+export async function deleteDirectoryEntry(id: string): Promise<void> {
+  return apiClient.deleteDirectoryEntry(id);
+}
+
 // ================================
 // PROFILE OPERATIONS (User Story 1)
 // ================================
