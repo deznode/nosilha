@@ -147,8 +147,7 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
 /**
  * Parses a comma-separated string into a trimmed list, filtering empty entries.
  */
-private fun String?.parseCommaSeparated(): List<String> =
-    this?.split(',')?.map { it.trim() }?.filter { it.isNotBlank() } ?: emptyList()
+private fun String?.parseCommaSeparated(): List<String> = this?.split(',')?.map { it.trim() }?.filter { it.isNotBlank() } ?: emptyList()
 
 private fun DirectoryEntry.parseTags(): List<String> = this.tags.parseCommaSeparated()
 
@@ -173,29 +172,7 @@ private fun DirectoryEntry.parseContentActions(): ContentActionSettingsDto? {
  * @throws IllegalStateException if the entity's ID is null, as DTOs are meant for persisted entities.
  */
 fun Town.toDto(): TownDto {
-    // A persisted entity must have an ID. Throw an exception if it's null, as this indicates a logical error.
     val entityId = this.id ?: throw IllegalStateException("Cannot map an entity with a null ID to a DTO.")
-
-    val objectMapper = jacksonObjectMapper()
-
-    // Parse JSON arrays safely, defaulting to empty lists if null or invalid
-    val highlightsList =
-        try {
-            this.highlights?.let { objectMapper.readValue<List<String>>(it) } ?: emptyList()
-        } catch (e: tools.jackson.core.JacksonException) {
-            // Log the error and return empty list as fallback
-            println("Failed to parse highlights JSON for town ${this.name}: ${e.message}")
-            emptyList<String>()
-        }
-
-    val galleryList =
-        try {
-            this.gallery?.let { objectMapper.readValue<List<String>>(it) } ?: emptyList()
-        } catch (e: tools.jackson.core.JacksonException) {
-            // Log the error and return empty list as fallback
-            println("Failed to parse gallery JSON for town ${this.name}: ${e.message}")
-            emptyList<String>()
-        }
 
     return TownDto(
         id = entityId,
@@ -207,12 +184,30 @@ fun Town.toDto(): TownDto {
         population = this.population,
         elevation = this.elevation,
         founded = this.founded,
-        highlights = highlightsList,
+        highlights = parseJsonList(this.highlights, "highlights", this.name),
         heroImage = this.heroImage,
-        gallery = galleryList,
+        gallery = parseJsonList(this.gallery, "gallery", this.name),
         createdAt = this.createdAt,
         updatedAt = this.updatedAt,
     )
+}
+
+/**
+ * Parses a JSON string containing a list of strings.
+ * Returns empty list if input is null or parsing fails.
+ */
+private fun parseJsonList(
+    json: String?,
+    fieldName: String,
+    entityName: String,
+): List<String> {
+    if (json == null) return emptyList()
+    return try {
+        directoryMetadataMapper.readValue<List<String>>(json)
+    } catch (e: tools.jackson.core.JacksonException) {
+        logger.warn { "Failed to parse $fieldName JSON for town $entityName: ${e.message}" }
+        emptyList()
+    }
 }
 
 /**

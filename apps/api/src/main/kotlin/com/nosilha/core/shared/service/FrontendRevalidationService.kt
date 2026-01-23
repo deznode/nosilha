@@ -32,7 +32,8 @@ class FrontendRevalidationService(
     @Value("\${nosilha.frontend.revalidate-secret:}")
     private val revalidateSecret: String,
 ) {
-    private val httpClient: HttpClient = HttpClient.newBuilder()
+    private val httpClient: HttpClient = HttpClient
+        .newBuilder()
         .connectTimeout(Duration.ofSeconds(5))
         .build()
 
@@ -45,7 +46,10 @@ class FrontendRevalidationService(
      * @param category The entry category (e.g., "Hotel", "Restaurant")
      * @param slug The entry slug (e.g., "pensao-paulo")
      */
-    fun revalidateDirectoryEntry(category: String, slug: String) {
+    fun revalidateDirectoryEntry(
+        category: String,
+        slug: String
+    ) {
         val categoryPath = category.lowercase() + "s" // Hotel -> hotels
         val path = "/directory/$categoryPath/$slug"
         revalidatePath(path)
@@ -69,7 +73,8 @@ class FrontendRevalidationService(
         val requestBody = """{"path": "$path"}"""
 
         try {
-            val request = HttpRequest.newBuilder()
+            val request = HttpRequest
+                .newBuilder()
                 .uri(URI.create(endpoint))
                 .header("Content-Type", "application/json")
                 .header("X-Revalidate-Secret", revalidateSecret)
@@ -78,7 +83,8 @@ class FrontendRevalidationService(
                 .build()
 
             // Fire-and-forget: use sendAsync to avoid blocking
-            httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+            httpClient
+                .sendAsync(request, HttpResponse.BodyHandlers.ofString())
                 .thenAccept { response ->
                     if (response.statusCode() == 200) {
                         logger.info { "Successfully revalidated path: $path" }
@@ -87,8 +93,7 @@ class FrontendRevalidationService(
                             "Revalidation returned non-200 status: ${response.statusCode()} for path: $path"
                         }
                     }
-                }
-                .exceptionally { throwable ->
+                }.exceptionally { throwable ->
                     logger.error(throwable) { "Failed to revalidate path: $path" }
                     null
                 }

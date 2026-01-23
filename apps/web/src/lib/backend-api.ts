@@ -763,7 +763,8 @@ export class BackendApiClient implements ApiClient {
   async submitDirectoryEntry(
     request: DirectorySubmissionRequest
   ): Promise<DirectorySubmissionConfirmation> {
-    const endpoint = `${env.apiUrl}/api/v1/directory-submissions`;
+    // Use new unified endpoint in places module
+    const endpoint = `${env.apiUrl}/api/v1/directory/submissions`;
 
     const response = await this.authenticatedFetch(endpoint, {
       method: "POST",
@@ -1687,11 +1688,14 @@ export class BackendApiClient implements ApiClient {
   // ================================
 
   /**
-   * Gets directory submissions for admin with optional status filtering.
+   * Gets directory entries for admin with optional status filtering.
    *
    * **Authentication Required**: Requires ADMIN role.
    *
-   * @param status Optional status filter (PENDING, APPROVED, REJECTED)
+   * Unified endpoint that returns all directory entries (both seeded and submitted).
+   * Filter by status: PENDING for moderation queue, PUBLISHED for live entries, etc.
+   *
+   * @param status Optional status filter (PENDING, APPROVED, PUBLISHED, ARCHIVED)
    * @param page Page number (0-indexed, default: 0)
    * @param size Page size (default: 20)
    * @returns AdminQueueResponse with DirectorySubmission items
@@ -1710,12 +1714,13 @@ export class BackendApiClient implements ApiClient {
       params.append("status", status);
     }
 
-    const endpoint = `${env.apiUrl}/api/v1/admin/directory-submissions?${params}`;
+    // Use unified endpoint in places module
+    const endpoint = `${env.apiUrl}/api/v1/admin/directory/entries?${params}`;
     const response = await this.authenticatedFetch(endpoint);
 
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch directory submissions: ${response.status}`
+        `Failed to fetch directory entries: ${response.status}`
       );
     }
 
@@ -1724,15 +1729,15 @@ export class BackendApiClient implements ApiClient {
   }
 
   /**
-   * Updates directory submission status.
+   * Updates directory entry status.
    *
    * **Authentication Required**: Requires ADMIN role.
    *
-   * @param id Directory submission ID
-   * @param status New status (PENDING, APPROVED, REJECTED)
+   * @param id Directory entry ID
+   * @param status New status (PENDING, APPROVED, PUBLISHED, ARCHIVED)
    * @param notes Optional admin notes explaining the decision
    * @returns Updated DirectorySubmission
-   * @throws Error if submission not found (HTTP 404)
+   * @throws Error if entry not found (HTTP 404)
    * @throws Error if authentication failed (HTTP 401/403)
    */
   async updateDirectorySubmissionStatus(
@@ -1740,7 +1745,8 @@ export class BackendApiClient implements ApiClient {
     status: SubmissionStatus,
     notes?: string
   ): Promise<DirectorySubmission> {
-    const endpoint = `${env.apiUrl}/api/v1/admin/directory-submissions/${id}`;
+    // Use unified endpoint in places module
+    const endpoint = `${env.apiUrl}/api/v1/admin/directory/entries/${id}/status`;
 
     const response = await this.authenticatedFetch(endpoint, {
       method: "PUT",
@@ -1752,10 +1758,10 @@ export class BackendApiClient implements ApiClient {
 
     if (!response.ok) {
       if (response.status === 404) {
-        throw new Error("Directory submission not found");
+        throw new Error("Directory entry not found");
       }
       throw new Error(
-        `Failed to update directory submission status: ${response.status}`
+        `Failed to update directory entry status: ${response.status}`
       );
     }
 

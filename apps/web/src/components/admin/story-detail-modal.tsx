@@ -80,6 +80,11 @@ const STATUS_CONFIG: Record<
   SubmissionStatus,
   { label: string; color: string }
 > = {
+  [SubmissionStatus.DRAFT]: {
+    label: "Draft",
+    color:
+      "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300",
+  },
   [SubmissionStatus.PENDING]: {
     label: "Pending Review",
     color:
@@ -98,6 +103,11 @@ const STATUS_CONFIG: Record<
     label: "Flagged",
     color:
       "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+  },
+  [SubmissionStatus.PUBLISHED]: {
+    label: "Published",
+    color:
+      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
   },
   [SubmissionStatus.ARCHIVED]: {
     label: "Archived",

@@ -85,8 +85,10 @@ class SecurityConfig(
                     // Allow public contact form submissions (anonymous visitors can submit)
                     .requestMatchers(HttpMethod.POST, "/api/v1/contact")
                     .permitAll()
-                    // Directory submissions require authentication
+                    // Directory submissions require authentication (both old and new endpoints)
                     .requestMatchers(HttpMethod.POST, "/api/v1/directory-submissions")
+                    .hasAnyRole("USER", "ADMIN", "authenticated")
+                    .requestMatchers(HttpMethod.POST, "/api/v1/directory/submissions")
                     .hasAnyRole("USER", "ADMIN", "authenticated")
                     // Allow public access to reaction counts (GET only, POST/DELETE require auth)
                     .requestMatchers(HttpMethod.GET, "/api/v1/reactions/content/**")

@@ -1,6 +1,7 @@
 package com.nosilha.core.places
 
 import com.nosilha.core.places.domain.DirectoryEntry
+import com.nosilha.core.places.domain.DirectoryEntryStatus
 import com.nosilha.core.places.repository.DirectoryEntryRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.data.domain.PageRequest
@@ -73,11 +74,12 @@ class RelatedContentService(
             logger.debug { "Found ${tagMatchedEntries.size} tag-based matches" }
         }
 
-        // Priority 2: Same category + town (geographic relevance)
+        // Priority 2: Same category + town (geographic relevance) - only PUBLISHED entries
         if (relatedEntries.size < limit) {
             val sameCategoryTown =
                 directoryEntryRepository
-                    .findByCategoryIgnoreCaseAndTownIgnoreCase(
+                    .findByStatusAndCategoryIgnoreCaseAndTownIgnoreCase(
+                        DirectoryEntryStatus.PUBLISHED,
                         currentEntry.category,
                         currentEntry.town,
                         PageRequest.of(0, limit + 1),
@@ -90,7 +92,7 @@ class RelatedContentService(
             logger.debug { "Added ${sameCategoryTown.size} same category + town matches (total: ${relatedEntries.size})" }
         }
 
-        // Priority 3: Cuisine affinity for restaurants
+        // Priority 3: Cuisine affinity for restaurants - only PUBLISHED entries
         if (currentEntry.category.equals("RESTAURANT", ignoreCase = true) &&
             !currentEntry.cuisine.isNullOrBlank() &&
             relatedEntries.size < limit
@@ -99,7 +101,8 @@ class RelatedContentService(
 
             val sameCategoryCuisine =
                 directoryEntryRepository
-                    .findByCategoryIgnoreCase(
+                    .findByStatusAndCategoryIgnoreCase(
+                        DirectoryEntryStatus.PUBLISHED,
                         currentEntry.category,
                         PageRequest.of(0, limit * 2),
                     ).content
@@ -114,11 +117,12 @@ class RelatedContentService(
             logger.debug { "Added ${sameCategoryCuisine.size} cuisine-based matches (total: ${relatedEntries.size})" }
         }
 
-        // Priority 4: Same category fallback
+        // Priority 4: Same category fallback - only PUBLISHED entries
         if (relatedEntries.size < limit) {
             val sameCategoryOnly =
                 directoryEntryRepository
-                    .findByCategoryIgnoreCase(
+                    .findByStatusAndCategoryIgnoreCase(
+                        DirectoryEntryStatus.PUBLISHED,
                         currentEntry.category,
                         PageRequest.of(0, limit * 2),
                     ).content
@@ -157,10 +161,14 @@ class RelatedContentService(
         currentTags: List<String>,
     ): List<DirectoryEntry> {
         val tagSet = currentTags.map { it.lowercase() }.toSet()
+        // Only search PUBLISHED entries to prevent exposing unpublished content
         val sameCategoryEntries =
-            directoryEntryRepository.findByCategoryIgnoreCase(
-                currentEntry.category,
-            )
+            directoryEntryRepository
+                .findByStatusAndCategoryIgnoreCase(
+                    DirectoryEntryStatus.PUBLISHED,
+                    currentEntry.category,
+                    PageRequest.of(0, 100), // Reasonable limit for tag matching
+                ).content
 
         return sameCategoryEntries
             .filter { it.id != currentEntry.id }
