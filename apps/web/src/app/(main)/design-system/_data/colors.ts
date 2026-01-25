@@ -192,27 +192,28 @@ export const semanticColors: ColorGroup = {
 
 export const statusColors: ColorGroup = {
   name: "Status Colors",
-  description: "Functional colors for feedback and state indication",
+  description:
+    "Functional colors for feedback and state indication (Phase 3: Brighter, more harmonious)",
   tokens: [
     {
       name: "Success",
       variable: "--color-status-success",
-      lightHex: "#15803d",
-      description: "Positive feedback",
+      lightHex: "#10b981",
+      description: "Positive feedback (Emerald 500)",
       usage: "Success messages, confirmations",
     },
     {
       name: "Error",
       variable: "--color-status-error",
-      lightHex: "#be123c",
-      description: "Error state",
+      lightHex: "#f43f5e",
+      description: "Error state (Rose 500)",
       usage: "Error messages, destructive actions",
     },
     {
       name: "Warning",
       variable: "--color-status-warning",
-      lightHex: "#b45309",
-      description: "Caution state",
+      lightHex: "#f59e0b",
+      description: "Caution state (Amber 500)",
       usage: "Warnings, important notices",
     },
   ],

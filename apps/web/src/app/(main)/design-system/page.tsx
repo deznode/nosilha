@@ -11,6 +11,17 @@ import { InputSpecimen } from "./_components/specimens/input-specimen";
 import { CheckboxSpecimen } from "./_components/specimens/checkbox-specimen";
 import { FeedbackSpecimen } from "./_components/specimens/feedback-specimen";
 import { CardSpecimen } from "./_components/specimens/card-specimen";
+import { ToastSpecimen } from "./_components/specimens/toast-specimen";
+import { BadgeSpecimen } from "./_components/specimens/badge-specimen";
+import { DialogSpecimen } from "./_components/specimens/dialog-specimen";
+import { SkeletonSpecimen } from "./_components/specimens/skeleton-specimen";
+import { PageHeaderSpecimen } from "./_components/specimens/page-header-specimen";
+import { NavigationSpecimen } from "./_components/specimens/navigation-specimen";
+import { ToolbarSpecimen } from "./_components/specimens/toolbar-specimen";
+import { AvatarSpecimen } from "./_components/specimens/avatar-specimen";
+import { OverlaySpecimen } from "./_components/specimens/overlay-specimen";
+import { TabsSpecimen } from "./_components/specimens/tabs-specimen";
+import { PaginationSpecimen } from "./_components/specimens/pagination-specimen";
 import { allColorGroups } from "./_data/colors";
 import { allTypographyGroups } from "./_data/typography";
 import { spacingScale, shadowTokens, radiusTokens } from "./_data/spacing";
@@ -32,6 +43,17 @@ import { spacingScale, shadowTokens, radiusTokens } from "./_data/spacing";
  * - Checkboxes (22 color variants, states)
  * - Feedback (Banner, LoadingSpinner, ConfirmationDialog)
  * - Cards (Card component patterns)
+ * - Badges (5 color variants, BadgeButton)
+ * - Toasts (4 semantic variants, fluent builder API)
+ * - Dialogs (HeadlessUI modal with size variants)
+ * - Skeletons (Loading state placeholders)
+ * - Avatars (User images with initials fallback, status, groups)
+ * - Overlays (Tooltips, Popovers, Dropdowns)
+ * - PageHeader (Animated page titles with accent bar)
+ * - Navigation (Mobile bottom nav pattern)
+ * - Toolbar (Content action toolbar - desktop/mobile)
+ * - Tabs (HeadlessUI Tab with underline, pill, vertical styles)
+ * - Pagination (Page navigation with ellipsis)
  */
 export default function DesignSystemPage() {
   // Dev-only gating: return 404 in production
@@ -143,6 +165,115 @@ export default function DesignSystemPage() {
         description="Card containers using Calm Premium design tokens. Supports hover lift animation."
       >
         <CardSpecimen />
+      </SectionWrapper>
+
+      {/* Badges Section */}
+      <SectionWrapper
+        id="badges"
+        title="Badges"
+        description="Inline status indicators from Catalyst UI with 5 color variants. Supports interactive BadgeButton."
+      >
+        <BadgeSpecimen />
+      </SectionWrapper>
+
+      {/* Toast Section */}
+      <SectionWrapper
+        id="toasts"
+        title="Toasts"
+        description="Toast notifications with fluent builder API. Four semantic variants with action button support."
+      >
+        <ToastSpecimen />
+      </SectionWrapper>
+
+      {/* Dialog Section */}
+      <SectionWrapper
+        id="dialogs"
+        title="Dialogs"
+        description="Modal dialogs from Catalyst UI with HeadlessUI. Focus trap, Esc to close, mobile-responsive bottom sheets."
+      >
+        <DialogSpecimen />
+      </SectionWrapper>
+
+      {/* Skeleton Section */}
+      <SectionWrapper
+        id="skeletons"
+        title="Skeletons"
+        description="Loading state placeholders that match content layout. Prevents layout shift during data fetching."
+      >
+        <SkeletonSpecimen />
+      </SectionWrapper>
+
+      {/* Avatar Section */}
+      <SectionWrapper
+        id="avatars"
+        title="Avatars"
+        description="User profile images with initials fallback, status indicators, and group stacking."
+      >
+        <AvatarSpecimen />
+      </SectionWrapper>
+
+      {/* Overlay Section */}
+      <SectionWrapper
+        id="overlays"
+        title="Overlays"
+        description="Tooltips, popovers, and dropdown menus using HeadlessUI with proper accessibility."
+      >
+        <OverlaySpecimen />
+      </SectionWrapper>
+
+      {/* Layout Section Divider */}
+      <div className="border-hairline border-t pt-12">
+        <h2 className="text-body mb-2 font-serif text-xl font-semibold">
+          Layout & Navigation
+        </h2>
+        <p className="text-muted text-sm">
+          Structural components for page layout and navigation patterns.
+        </p>
+      </div>
+
+      {/* PageHeader Section */}
+      <SectionWrapper
+        id="page-header"
+        title="Page Header"
+        description="Animated page header with title, subtitle, heading level, and bougainvillea accent bar."
+      >
+        <PageHeaderSpecimen />
+      </SectionWrapper>
+
+      {/* Navigation Section */}
+      <SectionWrapper
+        id="navigation"
+        title="Mobile Navigation"
+        description="Bottom navigation bar for mobile devices. Thumb-zone optimized with iOS safe area support."
+      >
+        <NavigationSpecimen />
+      </SectionWrapper>
+
+      {/* Toolbar Section */}
+      <SectionWrapper
+        id="toolbar"
+        title="Content Action Toolbar"
+        description="Responsive toolbar for content pages with sharing, reactions, and utility actions."
+      >
+        <ToolbarSpecimen />
+      </SectionWrapper>
+
+      {/* Tabs Section */}
+      <SectionWrapper
+        id="tabs"
+        title="Tabs"
+        description="HeadlessUI Tab component for switching between content sections. Supports underline, pill, and vertical layouts."
+      >
+        <TabsSpecimen />
+      </SectionWrapper>
+
+      {/* Pagination Section */}
+      <SectionWrapper
+        id="pagination"
+        title="Pagination"
+        description="Page navigation controls with page numbers, prev/next buttons, and ellipsis for large ranges."
+      >
+        <PaginationSpecimen />
       </SectionWrapper>
     </div>
   );

@@ -10,20 +10,46 @@ import {
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { AnimatedButton } from "@/components/ui/animated-button";
 
+type DialogVariant = "default" | "warning" | "danger";
+
+interface DialogConfig {
+  title: string;
+  description: string;
+  confirmLabel: string;
+}
+
+/** Dialog content configuration by variant */
+const DIALOG_CONFIG: Record<DialogVariant, DialogConfig> = {
+  danger: {
+    title: "Delete Item?",
+    description:
+      "This action cannot be undone. The item will be permanently removed.",
+    confirmLabel: "Delete",
+  },
+  warning: {
+    title: "Archive Entry?",
+    description: "This entry will be moved to the archive.",
+    confirmLabel: "Archive",
+  },
+  default: {
+    title: "Confirm Action",
+    description: "Are you sure you want to proceed with this action?",
+    confirmLabel: "Confirm",
+  },
+};
+
 /**
  * Feedback specimen for the design system gallery.
  * Showcases Banner, LoadingSpinner, LoadingDots, and ConfirmationDialog.
  */
 export function FeedbackSpecimen() {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogVariant, setDialogVariant] = useState<
-    "default" | "warning" | "danger"
-  >("default");
+  const [dialogVariant, setDialogVariant] = useState<DialogVariant>("default");
 
-  const openDialog = (variant: "default" | "warning" | "danger") => {
+  function openDialog(variant: DialogVariant): void {
     setDialogVariant(variant);
     setDialogOpen(true);
-  };
+  }
 
   return (
     <div className="space-y-10">
@@ -138,27 +164,9 @@ export function FeedbackSpecimen() {
         isOpen={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onConfirm={() => setDialogOpen(false)}
-        title={
-          dialogVariant === "danger"
-            ? "Delete Item?"
-            : dialogVariant === "warning"
-              ? "Archive Entry?"
-              : "Confirm Action"
-        }
-        description={
-          dialogVariant === "danger"
-            ? "This action cannot be undone. The item will be permanently removed."
-            : dialogVariant === "warning"
-              ? "This entry will be moved to the archive."
-              : "Are you sure you want to proceed with this action?"
-        }
-        confirmLabel={
-          dialogVariant === "danger"
-            ? "Delete"
-            : dialogVariant === "warning"
-              ? "Archive"
-              : "Confirm"
-        }
+        title={DIALOG_CONFIG[dialogVariant].title}
+        description={DIALOG_CONFIG[dialogVariant].description}
+        confirmLabel={DIALOG_CONFIG[dialogVariant].confirmLabel}
         variant={dialogVariant}
       />
 

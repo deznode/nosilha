@@ -77,10 +77,10 @@
   --color-basalt-800: #1e293b;
   --color-basalt-900: #0f172a;
 
-  /* -- Functional Status -- */
-  --color-status-error: #be123c;
-  --color-status-success: #15803d;
-  --color-status-warning: #b45309;
+  /* -- Functional Status (Phase 3: Brighter, more harmonious) -- */
+  --color-status-error: #f43f5e; /* Rose 500 - warmer, less alarming */
+  --color-status-success: #10b981; /* Emerald 500 - brighter, vibrant */
+  --color-status-warning: #f59e0b; /* Amber 500 - more visible */
 
   /* === SEMANTIC LAYER (Light Mode) === */
 
@@ -328,9 +328,9 @@
     }
   }
 
-  /* Focus ring for better accessibility */
+  /* Focus ring for better accessibility (Phase 3: Added glow effect) */
   .focus-ring {
-    @apply focus-visible:ring-ocean-blue focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+    @apply focus-visible:ring-ocean-blue focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:shadow-[0_0_0_4px_rgba(14,76,117,0.15)];
   }
 
   /* Semantic hover surface utilities
