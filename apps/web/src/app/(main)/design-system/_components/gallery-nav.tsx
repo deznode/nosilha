@@ -21,6 +21,18 @@ const navItems: NavItem[] = [
   { id: "checkboxes", label: "Checkboxes" },
   { id: "feedback", label: "Feedback" },
   { id: "cards", label: "Cards" },
+  { id: "badges", label: "Badges" },
+  { id: "toasts", label: "Toasts" },
+  { id: "dialogs", label: "Dialogs" },
+  { id: "skeletons", label: "Skeletons" },
+  { id: "avatars", label: "Avatars" },
+  { id: "overlays", label: "Overlays" },
+  // Layout & Navigation
+  { id: "page-header", label: "Page Header" },
+  { id: "navigation", label: "Navigation" },
+  { id: "toolbar", label: "Toolbar" },
+  { id: "tabs", label: "Tabs" },
+  { id: "pagination", label: "Pagination" },
 ];
 
 /**
@@ -79,7 +91,7 @@ export function GalleryNav() {
                   "rounded-button px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors",
                   activeSection === id
                     ? "bg-ocean-blue text-white"
-                    : "bg-surface-alt text-muted hover:text-body"
+                    : "bg-surface-alt text-basalt-600 dark:text-basalt-400 hover:text-body"
                 )}
               >
                 {label}
@@ -102,8 +114,8 @@ export function GalleryNav() {
                 className={clsx(
                   "ease-calm rounded-button block w-full px-4 py-2 text-left text-sm font-medium transition-all",
                   activeSection === id
-                    ? "bg-ocean-blue/10 text-ocean-blue dark:bg-ocean-blue/20 dark:text-ocean-blue"
-                    : "text-muted hover:bg-surface-alt hover:text-body"
+                    ? "bg-ocean-blue/10 text-ocean-blue dark:bg-ocean-blue/20 dark:text-ocean-blue-light"
+                    : "text-basalt-600 dark:text-basalt-400 hover:bg-surface-alt hover:text-body"
                 )}
               >
                 {label}
