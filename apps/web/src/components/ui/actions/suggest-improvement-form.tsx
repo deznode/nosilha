@@ -109,7 +109,7 @@ export function SuggestImprovementForm({
       setSubmitError(null);
 
       // Show success toast
-      toast.showSuccess("Thank you! Your suggestion has been submitted.");
+      toast.success("Thank you! Your suggestion has been submitted.").show();
 
       // Reset form
       setName("");
@@ -131,7 +131,7 @@ export function SuggestImprovementForm({
       setSubmitError(errorMsg);
 
       // Show error toast
-      toast.showError(errorMsg);
+      toast.error(errorMsg).show();
     } finally {
       setIsSubmitting(false);
     }

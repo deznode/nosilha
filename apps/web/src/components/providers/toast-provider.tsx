@@ -9,8 +9,8 @@ import {
   type ReactNode,
 } from "react";
 import { AnimatePresence } from "framer-motion";
-import type { Toast, ToastContextValue, ToastOptions } from "@/types/toast";
-import { ActionToast } from "@/components/ui/action-toast";
+import type { Toast as ToastType, ToastContextValue } from "@/types/toast";
+import { Toast } from "@/components/ui/toast";
 
 export const ToastContext = createContext<ToastContextValue | undefined>(
   undefined
@@ -20,25 +20,19 @@ interface ToastProviderProps {
   children: ReactNode;
 }
 
-/** Calm Premium durations - errors persist longer for important messages */
-const DEFAULT_DURATION: Record<Toast["variant"], number> = {
-  success: 4000,
-  error: 10000,
-  info: 4000,
-  warning: 6000,
-};
-
 /**
  * Toast Provider with Calm Premium enhancements:
  * - Single toast at a time (queued)
+ * - Deduplication by ID
  * - Timer pauses on hover
+ * - Keyboard accessibility (Esc to dismiss)
  * - Bottom-left (desktop) / bottom-center (mobile) positioning
  */
 export function ToastProvider({ children }: ToastProviderProps) {
   // Current visible toast
-  const [currentToast, setCurrentToast] = useState<Toast | null>(null);
+  const [currentToast, setCurrentToast] = useState<ToastType | null>(null);
   // Queue of pending toasts
-  const queueRef = useRef<Toast[]>([]);
+  const queueRef = useRef<ToastType[]>([]);
   // Timer management
   const timerRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
@@ -122,70 +116,56 @@ export function ToastProvider({ children }: ToastProviderProps) {
     [currentToast]
   );
 
-  const showToast = useCallback(
-    (message: string, options?: ToastOptions) => {
-      const id = `toast-${Date.now()}-${Math.random()}`;
-      const variant = options?.variant || "success";
-      const duration = options?.duration || DEFAULT_DURATION[variant];
+  /**
+   * Check if a toast with the given ID already exists (for deduplication).
+   */
+  const hasToast = useCallback(
+    (id: string): boolean => {
+      // Check current toast
+      if (currentToast?.id === id) {
+        return true;
+      }
+      // Check queue
+      return queueRef.current.some((t) => t.id === id);
+    },
+    [currentToast]
+  );
 
-      const newToast: Toast = {
-        id,
-        message,
-        variant,
-        duration,
-      };
-
+  /**
+   * Add a toast to display. If a toast is currently showing, queues it.
+   * Used by the ToastBuilder.show() method.
+   */
+  const addToast = useCallback(
+    (toast: ToastType) => {
       if (currentToast) {
         // Add to queue if a toast is already showing
-        queueRef.current.push(newToast);
+        queueRef.current.push(toast);
       } else {
         // Show immediately if no toast is visible
-        setCurrentToast(newToast);
-        remainingTimeRef.current = duration;
+        setCurrentToast(toast);
+        remainingTimeRef.current = toast.duration;
         startTimeRef.current = Date.now();
       }
     },
     [currentToast]
   );
 
-  const showSuccess = useCallback(
-    (message: string, duration?: number) => {
-      showToast(message, { variant: "success", duration });
-    },
-    [showToast]
-  );
-
-  const showError = useCallback(
-    (message: string, duration?: number) => {
-      showToast(message, { variant: "error", duration });
-    },
-    [showToast]
-  );
-
-  const showInfo = useCallback(
-    (message: string, duration?: number) => {
-      showToast(message, { variant: "info", duration });
-    },
-    [showToast]
-  );
-
-  const showWarning = useCallback(
-    (message: string, duration?: number) => {
-      showToast(message, { variant: "warning", duration });
-    },
-    [showToast]
-  );
+  /**
+   * Clear current toast and entire queue.
+   */
+  const clearAll = useCallback(() => {
+    clearTimer();
+    setCurrentToast(null);
+    queueRef.current = [];
+  }, [clearTimer]);
 
   const contextValue: ToastContextValue = {
-    toasts: currentToast ? [currentToast] : [],
-    showToast,
-    showSuccess,
-    showError,
-    showInfo,
-    showWarning,
+    addToast,
     dismissToast,
     pauseToast,
     resumeToast,
+    hasToast,
+    clearAll,
   };
 
   return (
@@ -195,11 +175,9 @@ export function ToastProvider({ children }: ToastProviderProps) {
       <div className="pointer-events-none fixed right-4 bottom-20 left-4 z-60 flex flex-col items-center md:right-auto md:bottom-6 md:left-6 md:items-start">
         <AnimatePresence mode="wait">
           {currentToast && (
-            <ActionToast
+            <Toast
               key={currentToast.id}
-              message={currentToast.message}
-              show={true}
-              variant={currentToast.variant}
+              toast={currentToast}
               onDismiss={() => dismissToast(currentToast.id)}
               onMouseEnter={() => pauseToast(currentToast.id)}
               onMouseLeave={() => resumeToast(currentToast.id)}

@@ -225,10 +225,12 @@ export default function AdminDashboardPage() {
       { id, status },
       {
         onSuccess: () => {
-          toast.showSuccess(`Entry ${statusLabel} successfully`);
+          toast.success(`Entry ${statusLabel} successfully`).show();
         },
         onError: () => {
-          toast.showError(`Failed to ${statusLabel} entry. Please try again.`);
+          toast
+            .error(`Failed to ${statusLabel} entry. Please try again.`)
+            .show();
         },
       }
     );
@@ -246,7 +248,7 @@ export default function AdminDashboardPage() {
 
   const handleDirectoryEditSuccess = () => {
     // Query invalidation handled by the mutation hook
-    toast.showSuccess("Directory entry updated successfully");
+    toast.success("Directory entry updated successfully").show();
     setIsDirectoryEditModalOpen(false);
     setDirectoryToEdit(null);
   };
@@ -260,12 +262,12 @@ export default function AdminDashboardPage() {
     if (directoryToDelete) {
       deleteDirectoryEntry.mutate(directoryToDelete.id, {
         onSuccess: () => {
-          toast.showSuccess(`"${directoryToDelete.name}" has been deleted`);
+          toast.success(`"${directoryToDelete.name}" has been deleted`).show();
           setIsDeleteDialogOpen(false);
           setDirectoryToDelete(null);
         },
         onError: () => {
-          toast.showError("Failed to delete entry. Please try again.");
+          toast.error("Failed to delete entry. Please try again.").show();
         },
       });
     }
@@ -291,10 +293,10 @@ export default function AdminDashboardPage() {
         },
         {
           onSuccess: () => {
-            toast.showInfo(`"${directoryToFlag.name}" has been flagged`);
+            toast.info(`"${directoryToFlag.name}" has been flagged`).show();
           },
           onError: () => {
-            toast.showError("Failed to flag entry. Please try again.");
+            toast.error("Failed to flag entry. Please try again.").show();
           },
         }
       );

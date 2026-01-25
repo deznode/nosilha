@@ -7,6 +7,7 @@ import type {
   UserNotificationPreferences,
   Language,
 } from "@/types/user-profile";
+import { useToast } from "@/hooks/use-toast";
 
 interface SettingsTabProps {
   profile: UserProfile;
@@ -33,6 +34,7 @@ export function SettingsTab({
   );
   const [notificationPrefs, setNotificationPrefs] = useState(notifications);
   const [isSaving, setIsSaving] = useState(false);
+  const toast = useToast();
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -43,6 +45,10 @@ export function SettingsTab({
         preferredLanguage,
         notifications: notificationPrefs,
       });
+      toast.success("Settings saved").show();
+    } catch (error) {
+      console.error("Failed to save settings:", error);
+      toast.error("Failed to save settings. Please try again.").show();
     } finally {
       setIsSaving(false);
     }

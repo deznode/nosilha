@@ -18,10 +18,10 @@ export function useCopy(): {
     try {
       await navigator.clipboard.writeText(value);
       setCopied(true);
-      toast.showSuccess(`Copied: ${value}`);
+      toast.success(`Copied: ${value}`).show();
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.showError("Failed to copy");
+      toast.error("Failed to copy").show();
     }
   }
 

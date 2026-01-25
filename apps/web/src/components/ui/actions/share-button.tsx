@@ -65,7 +65,7 @@ export function ShareButton({
       });
 
       // Show success toast
-      toast.showSuccess("Shared successfully!");
+      toast.success("Shared successfully!").show();
       onShareSuccess?.();
     } catch (error) {
       // User cancelled share or error occurred
@@ -92,12 +92,12 @@ export function ShareButton({
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(url);
-      toast.showSuccess("Link copied!");
+      toast.success("Link copied!").show();
       setIsFallbackMenuOpen(false);
       onShareSuccess?.();
     } catch (error) {
       console.error("Failed to copy link:", error);
-      toast.showError("Failed to copy link");
+      toast.error("Failed to copy link").show();
     }
   };
 
@@ -112,7 +112,7 @@ export function ShareButton({
       "noopener,noreferrer,width=600,height=400"
     );
     setIsFallbackMenuOpen(false);
-    toast.showSuccess("Shared to Facebook!");
+    toast.success("Shared to Facebook!").show();
     onShareSuccess?.();
   };
 
@@ -127,7 +127,7 @@ export function ShareButton({
       "noopener,noreferrer,width=600,height=400"
     );
     setIsFallbackMenuOpen(false);
-    toast.showSuccess("Shared to Twitter!");
+    toast.success("Shared to Twitter!").show();
     onShareSuccess?.();
   };
 

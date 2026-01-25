@@ -56,14 +56,16 @@ export function StoriesQueue({
     try {
       const slug = generateSlug(story.title);
       await updateStoryStatus(story.id, "PUBLISH", undefined, slug);
-      toast.showSuccess(`Story "${story.title}" published successfully!`);
+      toast.success(`Story "${story.title}" published successfully!`).show();
       // Trigger parent component to refresh the list
       window.location.reload();
     } catch (error) {
       console.error("Failed to publish story:", error);
-      toast.showError(
-        error instanceof Error ? error.message : "Failed to publish story"
-      );
+      toast
+        .error(
+          error instanceof Error ? error.message : "Failed to publish story"
+        )
+        .show();
     } finally {
       setPublishingStoryId(null);
     }
@@ -78,11 +80,13 @@ export function StoriesQueue({
       setMdxContent(content.mdxSource);
     } catch (error) {
       console.error("Failed to generate MDX:", error);
-      toast.showError(
-        error instanceof Error
-          ? error.message
-          : "Failed to generate MDX content"
-      );
+      toast
+        .error(
+          error instanceof Error
+            ? error.message
+            : "Failed to generate MDX content"
+        )
+        .show();
       setPreviewingStory(null);
     } finally {
       setIsGeneratingMdx(false);
@@ -103,21 +107,27 @@ export function StoriesQueue({
       );
 
       if (result.success) {
-        toast.showSuccess(
-          `Story archived successfully! Committed to GitHub: ${result.commitUrl || "repository"}`
-        );
+        toast
+          .success(
+            `Story archived successfully! Committed to GitHub: ${result.commitUrl || "repository"}`
+          )
+          .show();
         setPreviewingStory(null);
         setMdxContent("");
         // Trigger parent component to refresh the list
         window.location.reload();
       } else {
-        toast.showError(result.error || "Failed to commit MDX content");
+        toast.error(result.error || "Failed to commit MDX content").show();
       }
     } catch (error) {
       console.error("Failed to commit MDX:", error);
-      toast.showError(
-        error instanceof Error ? error.message : "Failed to commit MDX content"
-      );
+      toast
+        .error(
+          error instanceof Error
+            ? error.message
+            : "Failed to commit MDX content"
+        )
+        .show();
     } finally {
       setIsCommitting(false);
     }

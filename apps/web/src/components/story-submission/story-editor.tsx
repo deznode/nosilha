@@ -24,6 +24,7 @@ import {
   checkGeminiAvailableAction,
 } from "@/app/actions/gemini-actions";
 import { StoryPromptsPanel } from "./story-prompts-panel";
+import { useToast } from "@/hooks/use-toast";
 
 export const WORD_LIMITS: Record<StoryType, number> = {
   [StoryType.QUICK]: 500,
@@ -117,6 +118,7 @@ export function StoryEditor({
   >(null);
   const [showTemplateConfirm, setShowTemplateConfirm] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const toast = useToast();
 
   // Check Gemini availability on mount
   useEffect(() => {
@@ -129,8 +131,10 @@ export function StoryEditor({
     try {
       const polished = await polishStoryAction(content);
       onContentChange(polished);
+      toast.success("Content polished").show();
     } catch (error) {
       console.error("Failed to polish content:", error);
+      toast.error("Failed to polish content. Please try again.").show();
     } finally {
       setIsPolishing(false);
     }
@@ -152,8 +156,14 @@ export function StoryEditor({
       const translated = await translateStoryAction(content, targetLang);
       onContentChange(translated);
       setCurrentLanguage(targetLang);
+      toast
+        .success(
+          `Translated to ${targetLang === "PT" ? "Portuguese" : "English"}`
+        )
+        .show();
     } catch (error) {
       console.error("Translation failed:", error);
+      toast.error("Translation failed. Please try again.").show();
     } finally {
       setIsTranslating(false);
     }

@@ -56,7 +56,7 @@ export function CopyLinkButton({
       setIsActive(true);
 
       // Show success toast
-      toast.showSuccess("Link copied!");
+      toast.success("Link copied!").show();
 
       // Call success callback
       onCopySuccess?.();
@@ -67,7 +67,7 @@ export function CopyLinkButton({
       }, 300);
     } catch (error) {
       console.error("Failed to copy link:", error);
-      toast.showError("Failed to copy link");
+      toast.error("Failed to copy link").show();
     }
   };
 

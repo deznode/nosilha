@@ -14,6 +14,7 @@ import {
 } from "@/components/profile";
 import { getProfile } from "@/lib/api";
 import { useUpdateProfile } from "@/hooks/queries/use-update-profile";
+import { useToast } from "@/hooks/use-toast";
 import type {
   UserProfile,
   UserNotificationPreferences,
@@ -24,6 +25,7 @@ import type { PreferredLanguage } from "@/types/profile";
 
 export default function ProfilePage() {
   const { session, loading: authLoading } = useAuth();
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState<ProfileTabType>("activity");
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -60,6 +62,7 @@ export default function ProfilePage() {
         setNotifications(profileData.notificationPreferences);
       } catch (error) {
         console.error("Failed to load profile data:", error);
+        toast.error("Failed to load profile. Please refresh the page.").show();
       } finally {
         setIsLoading(false);
       }
@@ -70,7 +73,7 @@ export default function ProfilePage() {
     } else {
       setIsLoading(false);
     }
-  }, [session]);
+  }, [session, toast]);
 
   // Use the update profile mutation hook
   const { mutate: updateProfileMutation } = useUpdateProfile();

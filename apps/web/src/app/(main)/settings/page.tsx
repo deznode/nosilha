@@ -49,7 +49,7 @@ export default function SettingsPage() {
         setNotificationPrefs(profileData.notificationPreferences);
       } catch (error) {
         console.error("Failed to load profile:", error);
-        toast.showError("Failed to load your settings. Please try again.");
+        toast.error("Failed to load your settings. Please try again.").show();
       } finally {
         setIsLoading(false);
       }
@@ -71,10 +71,10 @@ export default function SettingsPage() {
 
       const updatedProfile = await updateProfile(updateRequest);
       setProfile(updatedProfile);
-      toast.showSuccess("Settings saved successfully!");
+      toast.success("Settings saved successfully!").show();
     } catch (error) {
       console.error("Failed to save settings:", error);
-      toast.showError("Failed to save settings. Please try again.");
+      toast.error("Failed to save settings. Please try again.").show();
     } finally {
       setIsSaving(false);
     }

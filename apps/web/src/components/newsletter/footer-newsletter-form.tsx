@@ -53,9 +53,9 @@ export function FooterNewsletterForm() {
       // (OWASP recommendation: consistent messages for existent/non-existent accounts)
       if (hasSubmittedEmail(normalizedEmail)) {
         // Clear any existing toasts before showing new one
-        toast.toasts.forEach((t) => toast.dismissToast(t.id));
+        toast.clearAll();
 
-        toast.showSuccess("Thank you for subscribing!", 5000);
+        toast.success("Thank you for subscribing!").duration(5000).show();
         reset();
         emailInputRef.current?.focus();
         return;
@@ -76,19 +76,19 @@ export function FooterNewsletterForm() {
       if (response.success) {
         recordSubmittedEmail(normalizedEmail);
         // Always show success toast (server no longer returns duplicate flag)
-        toast.showSuccess(response.message, 5000);
+        toast.success(response.message).duration(5000).show();
         reset(); // Clear form on success
         emailInputRef.current?.focus();
       } else {
         // Show error toast (8 seconds per tasks.md)
-        toast.showError(response.message, 8000);
+        toast.error(response.message).duration(8000).show();
       }
     } catch (_error) {
       // Show error toast for unexpected errors (8 seconds)
-      toast.showError(
-        "An unexpected error occurred. Please try again later.",
-        8000
-      );
+      toast
+        .error("An unexpected error occurred. Please try again later.")
+        .duration(8000)
+        .show();
     } finally {
       setIsProcessing(false);
     }
@@ -101,7 +101,7 @@ export function FooterNewsletterForm() {
    */
   const onInvalid = () => {
     // Clear all toasts when validation fails
-    toast.toasts.forEach((t) => toast.dismissToast(t.id));
+    toast.clearAll();
   };
 
   return (

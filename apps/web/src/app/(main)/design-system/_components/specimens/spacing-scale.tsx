@@ -21,10 +21,10 @@ export function SpacingScale({ tokens }: SpacingScaleProps) {
     try {
       await navigator.clipboard.writeText(token.tailwindClass);
       setCopiedName(token.name);
-      toast.showSuccess(`Copied: ${token.tailwindClass}`);
+      toast.success(`Copied: ${token.tailwindClass}`).show();
       setTimeout(() => setCopiedName(null), 2000);
     } catch {
-      toast.showError("Failed to copy");
+      toast.error("Failed to copy").show();
     }
   }
 
