@@ -17,7 +17,7 @@ export function FeaturedStoryCard({ item }: FeaturedStoryCardProps) {
   return (
     <Link
       href={item.link}
-      className="group relative block h-96 cursor-pointer overflow-hidden rounded-2xl shadow-lg transition-shadow duration-300 hover:shadow-2xl"
+      className="group rounded-container shadow-elevated ease-calm hover:shadow-floating relative block h-96 cursor-pointer overflow-hidden transition-shadow duration-200"
     >
       {/* Image Background */}
       <div className="bg-mist-200 absolute inset-0">

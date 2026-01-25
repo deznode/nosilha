@@ -1,6 +1,5 @@
 "use client";
 
-import { Fragment } from "react";
 import {
   Dialog,
   DialogBackdrop,
@@ -29,11 +28,8 @@ interface StoryDetailModalProps {
   onReject: (id: string) => void;
 }
 
-// Config keyed by backend enum names (QUICK, FULL, GUIDED)
-const STORY_TYPE_CONFIG: Record<
-  string,
-  { icon: typeof BookOpen; label: string; color: string }
-> = {
+// Story type configuration - supports both backend enum names and frontend display values
+const STORY_TYPE_CONFIGS = {
   QUICK: {
     icon: Clock,
     label: "Quick Memory",
@@ -50,24 +46,7 @@ const STORY_TYPE_CONFIG: Record<
     color:
       "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
   },
-  // Also support frontend enum values for backwards compatibility
-  [StoryType.QUICK]: {
-    icon: Clock,
-    label: "Quick Memory",
-    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-  },
-  [StoryType.FULL]: {
-    icon: BookOpen,
-    label: "Full Story",
-    color: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
-  },
-  [StoryType.GUIDED]: {
-    icon: BookOpen,
-    label: "Guided Template",
-    color:
-      "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
-  },
-};
+} as const;
 
 // Default config for unknown types
 const DEFAULT_TYPE_CONFIG = {
@@ -76,14 +55,34 @@ const DEFAULT_TYPE_CONFIG = {
   color: "bg-surface-alt text-body",
 };
 
+/**
+ * Resolves story type config from either backend enum or frontend display value.
+ */
+function getStoryTypeConfig(storyType: StoryType | string) {
+  // Handle backend enum names directly (QUICK, FULL, GUIDED)
+  if (storyType in STORY_TYPE_CONFIGS) {
+    return STORY_TYPE_CONFIGS[storyType as keyof typeof STORY_TYPE_CONFIGS];
+  }
+  // Handle frontend display values (Quick Memory, Full Story, Guided Template)
+  switch (storyType) {
+    case StoryType.QUICK:
+      return STORY_TYPE_CONFIGS.QUICK;
+    case StoryType.FULL:
+      return STORY_TYPE_CONFIGS.FULL;
+    case StoryType.GUIDED:
+      return STORY_TYPE_CONFIGS.GUIDED;
+    default:
+      return DEFAULT_TYPE_CONFIG;
+  }
+}
+
 const STATUS_CONFIG: Record<
   SubmissionStatus,
   { label: string; color: string }
 > = {
   [SubmissionStatus.DRAFT]: {
     label: "Draft",
-    color:
-      "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300",
+    color: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300",
   },
   [SubmissionStatus.PENDING]: {
     label: "Pending Review",
@@ -106,8 +105,7 @@ const STATUS_CONFIG: Record<
   },
   [SubmissionStatus.PUBLISHED]: {
     label: "Published",
-    color:
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
   },
   [SubmissionStatus.ARCHIVED]: {
     label: "Archived",
@@ -125,7 +123,7 @@ export function StoryDetailModal({
 }: StoryDetailModalProps) {
   if (!story) return null;
 
-  const typeConfig = STORY_TYPE_CONFIG[story.type] || DEFAULT_TYPE_CONFIG;
+  const typeConfig = getStoryTypeConfig(story.type);
   const statusConfig = STATUS_CONFIG[story.status];
   const TypeIcon = typeConfig.icon;
   const isPending = story.status === SubmissionStatus.PENDING;

@@ -89,11 +89,6 @@ export function ConfirmationDialog({
   const config = VARIANT_CONFIG[variant];
   const Icon = config.icon;
 
-  const handleConfirm = () => {
-    onConfirm();
-    // Don't close here - let the parent handle closing after async operation completes
-  };
-
   return (
     <Transition show={isOpen} as={Fragment}>
       <Dialog onClose={onClose} className="relative z-50">
@@ -119,9 +114,8 @@ export function ConfirmationDialog({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <DialogPanel className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-800">
+            <DialogPanel className="w-full max-w-md rounded-2xl bg-[var(--color-bg-primary)] p-6 shadow-xl dark:bg-[var(--color-bg-secondary)]">
               <div className="flex flex-col items-center text-center">
-                {/* Icon */}
                 <div
                   className={clsx(
                     "flex h-12 w-12 items-center justify-center rounded-full",
@@ -134,31 +128,28 @@ export function ConfirmationDialog({
                   />
                 </div>
 
-                {/* Title */}
-                <DialogTitle className="mt-4 font-serif text-lg font-semibold text-slate-900 dark:text-white">
+                <DialogTitle className="mt-4 font-serif text-lg font-semibold text-[var(--color-text-primary)]">
                   {title}
                 </DialogTitle>
 
-                {/* Description */}
                 {description && (
-                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                  <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
                     {description}
                   </p>
                 )}
 
-                {/* Actions */}
                 <div className="mt-6 flex w-full gap-3">
                   <button
                     type="button"
                     onClick={onClose}
                     disabled={isLoading}
-                    className="flex-1 rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+                    className="flex-1 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-primary)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-bg-secondary)] focus:ring-2 focus:ring-[var(--color-border-strong)] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {cancelLabel}
                   </button>
                   <button
                     type="button"
-                    onClick={handleConfirm}
+                    onClick={onConfirm}
                     disabled={isLoading}
                     className={clsx(
                       "flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",

@@ -23,7 +23,7 @@ interface KPICardProps {
 
 function KPICard({ label, value, icon, colorClass }: KPICardProps) {
   return (
-    <div className="border-hairline bg-surface overflow-hidden rounded-lg border p-5 shadow-sm">
+    <div className="border-hairline bg-surface rounded-card shadow-subtle overflow-hidden border p-5">
       <div className="flex items-center">
         <div className={`flex-shrink-0 rounded-md p-3 ${colorClass}`}>
           {icon}
@@ -41,7 +41,7 @@ function KPICard({ label, value, icon, colorClass }: KPICardProps) {
 
 function KPICardSkeleton() {
   return (
-    <div className="border-hairline bg-surface animate-pulse overflow-hidden rounded-lg border p-5 shadow-sm">
+    <div className="border-hairline bg-surface rounded-card shadow-subtle animate-pulse overflow-hidden border p-5">
       <div className="flex items-center">
         <div className="bg-surface-alt h-12 w-12 flex-shrink-0 rounded-md p-3" />
         <div className="ml-5 w-0 flex-1">

@@ -22,7 +22,7 @@ export function ListViewCard({
       href={getEntryUrl(entry.slug, entry.category)}
       className="group block"
     >
-      <div className="border-border-primary bg-background-primary flex h-48 flex-row overflow-hidden rounded-lg border shadow-sm transition-shadow hover:shadow-md">
+      <div className="border-hairline bg-surface rounded-card shadow-subtle ease-calm hover:shadow-medium flex h-48 flex-row overflow-hidden border transition-shadow duration-200">
         {/* Image */}
         <div className="relative w-1/3 overflow-hidden">
           {entry.imageUrl ? (

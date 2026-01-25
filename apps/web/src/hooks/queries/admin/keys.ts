@@ -35,11 +35,7 @@ export const adminKeys = {
     // Note: Uses unified directory/entries endpoint (not legacy directory-submissions)
     all: () => [...adminKeys.all, "directory-entries"] as const,
     list: (page: number, size: number, status?: SubmissionStatus | "ALL") =>
-      [
-        ...adminKeys.all,
-        "directory-entries",
-        { page, size, status },
-      ] as const,
+      [...adminKeys.all, "directory-entries", { page, size, status }] as const,
   },
   media: {
     all: () => [...adminKeys.all, "media"] as const,

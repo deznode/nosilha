@@ -37,7 +37,7 @@ export function DirectoryCard({
       aria-label={`View details for ${entry.name}`}
       className="group block h-full"
     >
-      <Card className="h-full overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+      <Card hoverable className="h-full overflow-hidden">
         {/* Image Section */}
         <div className="relative h-48 w-full overflow-hidden">
           {entry.imageUrl ? (

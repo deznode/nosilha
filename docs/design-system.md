@@ -2,89 +2,68 @@
 
 Frontend design system for the Nos Ilha cultural heritage platform. Built with Next.js 16, React 19, Tailwind CSS v4, and Catalyst UI components.
 
-## Component Architecture
+## Design Philosophy
 
-```mermaid
-graph TB
-    subgraph "Component Library"
-        direction TB
+**Brand Essence**: "Clean, inviting, authentic, and lush" — celebrating Brava Island's cultural heritage.
 
-        subgraph catalyst["Catalyst UI (28 components)"]
-            style catalyst fill:#fef3c7,stroke:#d97706,color:#92400e
-            C1[Button]
-            C2[Input/Select/Checkbox]
-            C3[Dialog/Dropdown]
-            C4[Table/Pagination]
-            C5[Navbar/Sidebar]
-            C6[Avatar/Badge]
-        end
+### Guiding Principles
 
-        subgraph ui["UI Components"]
-            style ui fill:#ffedd5,stroke:#ea580c,color:#9a3412
-            U1[DirectoryCard]
-            U2[PageHeader]
-            U3[ThemeToggle]
-            U4[Header/Footer]
-            U5[ImageGallery]
-            U6[LoadingSpinner]
-        end
+| Principle | Description |
+|-----------|-------------|
+| **Cultural Authenticity** | Fraunces serif evokes traditional storytelling; Ocean Blue reflects the Atlantic |
+| **Content Sovereignty** | UI recedes to let cultural content shine; minimal chrome |
+| **Calm Warmth** | Soft shadows, generous radii, breathing whitespace |
+| **Progressive Disclosure** | Essential info first; details on demand |
 
-        subgraph features["Feature Components"]
-            style features fill:#fce7f3,stroke:#db2777,color:#9d174d
-            F1[Landing]
-            F2[Directory]
-            F3[Content/MDX]
-            F4[Gallery]
-            F5[Stories]
-            F6[Admin]
-        end
-    end
+### Visual Language Summary
 
-    catalyst --> ui
-    ui --> features
-```
+- **Typography**: Fraunces for headings (cultural warmth), Outfit for body (modern clarity)
+- **Colors**: Ocean Blue primary, Slate neutrals, warm brand accents
+- **Motion**: Calm, confident transitions with `cubic-bezier(0.16, 1, 0.3, 1)`
+- **Shape**: Generous border radii (16-24px for cards), multi-layered shadows
 
-### Directory Structure
+## Quick Reference
 
-```
-apps/web/src/components/
-├── catalyst-ui/          # 28 Headless UI-based components
-│   ├── button.tsx        # Solid, outline, plain variants
-│   ├── input.tsx         # Form inputs with validation
-│   ├── dialog.tsx        # Modal dialogs
-│   ├── dropdown.tsx      # Dropdown menus
-│   ├── table.tsx         # Data tables
-│   ├── navbar.tsx        # Navigation bar
-│   └── ...
-├── ui/                   # Project-specific UI components
-│   ├── directory-card.tsx
-│   ├── page-header.tsx
-│   ├── theme-toggle.tsx
-│   ├── header.tsx
-│   ├── footer.tsx
-│   └── ...
-├── content/              # MDX content components
-├── directory/            # Directory feature components
-├── landing/              # Homepage components
-├── gallery/              # Gallery components
-├── stories/              # Stories feature components
-└── providers/            # React context providers
-```
+### Brand Colors
 
-## Color System
-
-The color system uses CSS custom properties defined in `globals.css` with automatic dark mode support via Tailwind CSS v4's `@variant dark`.
-
-### Brand Palette
-
-| Token | Light Mode | Dark Mode | Usage |
-|-------|------------|-----------|-------|
+| Token | Light | Dark | Usage |
+|-------|-------|------|-------|
 | `ocean-blue` | `#0e4c75` | `#38bdf8` | Primary CTAs, links, focus rings |
-| `ocean-blue-light` | `#2a769e` | - | Hover states, secondary accents |
 | `valley-green` | `#2f6e4d` | - | Success states, nature elements |
 | `bougainvillea-pink` | `#c02669` | `#f472b6` | Accent highlights, decorative |
 | `sobrado-ochre` | `#d97706` | - | Warnings, warm accents |
 | `sunny-yellow` | `#fbbf24` | - | Ratings, call-to-action |
+
+### Semantic Tokens (Preferred)
+
+Use these short aliases throughout the codebase:
+
+| Token | Maps To | Usage |
+|-------|---------|-------|
+| `canvas` | `bg-primary` | Page background |
+| `surface` | `bg-secondary` | Cards, sidebars |
+| `surface-alt` | `bg-tertiary` | Hover states |
+| `body` | `text-primary` | Main reading text |
+| `muted` | `text-secondary` | Metadata, captions |
+| `brand` | `text-brand` | Brand-colored text |
+| `hairline` | `border-subtle` | Light dividers |
+| `edge` | `border-strong` | Strong borders |
+
+### Base Tokens (Full Names)
+
+| Token | Light Mode | Dark Mode |
+|-------|------------|-----------|
+| `bg-primary` | white | `#0b1120` |
+| `bg-secondary` | `mist-50` | `#1e293b` |
+| `bg-tertiary` | `mist-100` | `#334155` |
+| `text-primary` | `basalt-900` | `#f1f5f9` |
+| `text-secondary` | `basalt-500` | `#94a3b8` |
+| `text-tertiary` | `basalt-500` | `basalt-500` |
+| `text-brand` | `ocean-blue` | `#7dd3fc` |
+| `border-subtle` | `mist-200` | `#334155` |
+| `border-strong` | `basalt-500` | `#475569` |
+
+## Color System
 
 ### Neutral Scale (Bruma)
 
@@ -97,49 +76,6 @@ The color system uses CSS custom properties defined in `globals.css` with automa
 | `basalt-800` | `#1e293b` | Dark surfaces |
 | `basalt-900` | `#0f172a` | Primary text (light mode) |
 
-### Semantic Tokens
-
-Use these tokens for automatic dark mode support:
-
-```css
-/* Backgrounds */
---color-canvas       /* Page background: white / #0b1120 */
---color-surface      /* Cards, panels: mist-50 / #1e293b */
---color-surface-alt  /* Hover states: mist-100 / #334155 */
-
-/* Text */
---color-body         /* Primary text: basalt-900 / #f1f5f9 */
---color-muted        /* Secondary text: basalt-500 / #94a3b8 */
---color-brand        /* Brand text: ocean-blue / #7dd3fc */
-
-/* Borders */
---color-hairline     /* Subtle borders: mist-200 / #334155 */
---color-edge         /* Strong borders: basalt-500 / #475569 */
-```
-
-### Usage Patterns
-
-```tsx
-// Semantic tokens (automatic dark mode)
-<div className="bg-canvas text-body border-hairline">
-  <h1 className="text-body">Heading</h1>
-  <p className="text-muted">Secondary text</p>
-</div>
-
-// Backward-compatible aliases
-<div className="bg-background-primary text-text-primary border-border-primary">
-
-// Brand colors for specific elements
-<button className="bg-ocean-blue hover:bg-ocean-blue/90 text-white">
-  Primary Action
-</button>
-
-// Status colors
-<div className="bg-status-error/10 text-status-error border-status-error/20">
-  Error message
-</div>
-```
-
 ### Status Colors
 
 | Token | Hex | Usage |
@@ -147,6 +83,119 @@ Use these tokens for automatic dark mode support:
 | `status-error` | `#be123c` | Error states, destructive actions |
 | `status-success` | `#15803d` | Success confirmations |
 | `status-warning` | `#b45309` | Warnings, caution |
+
+### Dark Mode
+
+Dark mode is automatic via Tailwind CSS v4's `@variant dark`. Theme is managed by `ThemeToggle` component with state persisted to localStorage. Theme class is applied to `<html>` element.
+
+```tsx
+// Cycles: system -> light -> dark -> system
+<ThemeToggle />
+<ThemeToggle variant="light" />  // For dark backgrounds
+```
+
+### Usage Patterns
+
+```tsx
+// Semantic aliases (preferred - used in 42+ components)
+<div className="bg-surface text-body border-hairline">
+  <h1>Heading</h1>
+  <p className="text-muted">Secondary text</p>
+</div>
+
+// Full token names (also valid)
+<div className="bg-bg-secondary text-text-primary border-border-subtle">
+
+// Brand colors for specific elements
+<button className="bg-ocean-blue hover:bg-ocean-blue/90 text-white">
+  Primary Action
+</button>
+
+// Status colors
+<div className="bg-status-error/10 text-status-error">
+  Error message
+</div>
+```
+
+## Shape & Elevation
+
+### Border Radius Scale
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `rounded-badge` | 8px | Tags, badges, toasts |
+| `rounded-button` | 12px | Buttons, inputs, chips |
+| `rounded-card` | 16px | Standard cards |
+| `rounded-container` | 24px | Featured cards, modals |
+
+```tsx
+// Examples
+<span className="rounded-badge px-2 py-1">Tag</span>
+<button className="rounded-button px-4 py-2">Button</button>
+<div className="rounded-card p-6">Card content</div>
+<div className="rounded-container p-8">Featured section</div>
+```
+
+### Shadow Scale
+
+Multi-layered shadows with Ocean Blue tint for brand warmth:
+
+| Token | Usage |
+|-------|-------|
+| `shadow-subtle` | Default cards, inputs |
+| `shadow-medium` | Hover states |
+| `shadow-elevated` | Dropdowns, popovers |
+| `shadow-floating` | Modals, toasts |
+| `shadow-lift` | Card hover lift effect |
+
+```tsx
+// Card with hover lift
+<div className="shadow-subtle hover:shadow-lift transition-shadow">
+  Card content
+</div>
+```
+
+## Transitions
+
+| Token | Duration | Curve | Usage |
+|-------|----------|-------|-------|
+| `duration-150` | 150ms | ease-calm | Buttons, toggles |
+| `duration-200` | 200ms | ease-calm | Cards, dropdowns |
+| `duration-300` | 300ms | ease-calm | Modals, page transitions |
+
+**Easing**: `ease-calm` = `cubic-bezier(0.16, 1, 0.3, 1)` (calm, confident motion)
+
+```tsx
+// Standard transition pattern
+<div className="transition-all duration-200 ease-calm hover:-translate-y-1">
+```
+
+## Interaction Patterns
+
+### Card Hover
+
+Standard card hover effect (all interactive cards):
+
+```tsx
+// Using Card component with hoverable prop
+<Card hoverable>Content</Card>
+
+// Manual application
+className="transition-all duration-200 ease-calm hover:-translate-y-1 hover:shadow-lift"
+```
+
+### Button Hover
+
+```tsx
+className="transition-colors duration-150 ease-calm hover:bg-ocean-blue/90"
+```
+
+### Focus States
+
+```tsx
+// Standard focus ring (use .focus-ring utility)
+className="focus:outline-none focus-visible:ring-2 focus-visible:ring-ocean-blue focus-visible:ring-offset-2"
+```
 
 ## Typography
 
@@ -157,9 +206,8 @@ Use these tokens for automatic dark mode support:
 --font-serif: "Fraunces", Georgia, serif;        /* Headings */
 ```
 
-**Outfit** (Sans-serif): Geometric, modern, brand-focused. Used for body text, UI elements, navigation, and forms. Weights: 400, 500, 600, 700.
-
-**Fraunces** (Serif): Variable font with SOFT, WONK, and opsz axes. Traditional, warm, captures Brava's literary heritage. Used for headings and storytelling. Weights: 400, 500, 700.
+- **Outfit** (Sans-serif): Geometric, modern, brand-focused. Body text, UI elements, navigation. Weights: 400, 500, 600, 700.
+- **Fraunces** (Serif): Variable font with SOFT, WONK axes. Headings and storytelling. Weights: 400, 500, 700.
 
 ### Typography Scale
 
@@ -172,20 +220,14 @@ Use these tokens for automatic dark mode support:
 | Caption | Outfit Regular | `text-sm` | `text-sm` |
 | Button | Outfit Semibold | `text-sm` | `text-base` |
 
-### Usage
-
 ```tsx
 <h1 className="font-serif text-4xl font-bold sm:text-5xl">Page Title</h1>
-<h2 className="font-serif text-3xl font-bold">Section</h2>
-<p className="font-sans text-base text-muted">Body text</p>
-<button className="font-sans text-sm font-semibold">Button</button>
+<p className="font-sans text-base text-text-secondary">Body text</p>
 ```
 
 ## Layout & Responsive Design
 
 ### Breakpoints
-
-Standard Tailwind CSS breakpoints:
 
 | Breakpoint | Width | Usage |
 |------------|-------|-------|
@@ -194,7 +236,6 @@ Standard Tailwind CSS breakpoints:
 | `lg` | 1024px | Desktop |
 | `xl` | 1280px | Large desktop |
 | `2xl` | 1536px | Extra large |
-| `print` | @media print | Print styles |
 
 ### Container Patterns
 
@@ -207,63 +248,86 @@ Standard Tailwind CSS breakpoints:
 
 // Section spacing
 <section className="py-20 sm:py-24">
-```
 
-### Grid Systems
-
-```tsx
 // 1-2-4 column responsive grid
 <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-
-// Feature grid
-<div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-3">
 ```
-
-## Dark Mode
-
-Three-mode theme system: System (default), Light, Dark.
-
-### Implementation
-
-The theme is managed by `ThemeToggle` component with state persisted to localStorage. Theme class is applied to `<html>` element.
-
-```tsx
-// Theme toggle cycles: system -> light -> dark -> system
-<ThemeToggle />
-
-// With light variant for dark backgrounds
-<ThemeToggle variant="light" />
-```
-
-### Color Mapping (Volcanic Night)
-
-| Element | Light Mode | Dark Mode |
-|---------|------------|-----------|
-| Page background | white | `#0b1120` |
-| Surface | `mist-50` | `#1e293b` |
-| Primary text | `basalt-900` | `#f1f5f9` |
-| Secondary text | `basalt-500` | `#94a3b8` |
-| Ocean blue | `#0e4c75` | `#38bdf8` |
-| Pink | `#c02669` | `#f472b6` |
 
 ## Key Components
 
-### Button (Catalyst UI)
+### Card
+
+Base card component with optional hover animation:
+
+```tsx
+import { Card } from "@/components/ui/card";
+
+// Static card
+<Card className="p-6">Content</Card>
+
+// Hoverable card with lift effect
+<Card hoverable className="p-6">Interactive content</Card>
+```
+
+### Catalyst UI Components
+
+The project uses a curated subset of Catalyst UI for complex interactive components. Only 6 components are retained, with simplified color variants aligned to the brand palette.
+
+| Component | File | Usage |
+|-----------|------|-------|
+| **Button** | `button.tsx` | Primary actions, form submissions |
+| **Dialog** | `dialog.tsx` | Modal dialogs with backdrop |
+| **Input** | `input.tsx` | Form text inputs |
+| **Fieldset** | `fieldset.tsx` | Form grouping with labels, errors |
+| **Checkbox** | `checkbox.tsx` | Boolean toggles |
+| **Badge** | `badge.tsx` | Status indicators |
+
+#### Button
 
 ```tsx
 import { Button } from "@/components/catalyst-ui/button";
 
-// Solid variants
-<Button color="blue">Primary</Button>
-<Button color="dark">Secondary</Button>
-<Button color="red">Destructive</Button>
+// Color variants (aligned to brand palette)
+<Button color="blue">Primary</Button>      {/* Ocean Blue - primary actions */}
+<Button color="dark">Secondary</Button>    {/* Basalt - secondary actions */}
+<Button color="red">Destructive</Button>   {/* Error red - destructive */}
+<Button color="green">Success</Button>     {/* Success green */}
+<Button color="yellow">Warning</Button>    {/* Sobrado ochre - warning */}
 
-// Outline and plain
+// Style variants
 <Button outline>Outline</Button>
-<Button plain>Plain</Button>
+<Button plain>Plain/Text</Button>
 
 // As link
 <Button href="/path" color="blue">Link Button</Button>
+```
+
+#### Badge
+
+```tsx
+import { Badge } from "@/components/catalyst-ui/badge";
+
+<Badge color="blue">Info</Badge>       {/* Ocean Blue */}
+<Badge color="green">Success</Badge>   {/* Green */}
+<Badge color="yellow">Warning</Badge>  {/* Sobrado ochre */}
+<Badge color="red">Error</Badge>       {/* Red */}
+<Badge color="zinc">Default</Badge>    {/* Neutral */}
+```
+
+#### Dialog
+
+```tsx
+import { Dialog, DialogTitle, DialogDescription, DialogBody, DialogActions } from "@/components/catalyst-ui/dialog";
+
+<Dialog open={isOpen} onClose={setIsOpen}>
+  <DialogTitle>Confirm Action</DialogTitle>
+  <DialogDescription>Are you sure you want to proceed?</DialogDescription>
+  <DialogBody>{/* Form content */}</DialogBody>
+  <DialogActions>
+    <Button plain onClick={() => setIsOpen(false)}>Cancel</Button>
+    <Button color="blue">Confirm</Button>
+  </DialogActions>
+</Dialog>
 ```
 
 ### PageHeader
@@ -274,10 +338,10 @@ import { PageHeader } from "@/components/ui/page-header";
 <PageHeader
   title="Directory"
   subtitle="Explore Brava's cultural sites"
-  as="h1"           // h1 or h2
-  showAccentBar     // Pink accent bar
-  centered          // Center alignment
-  size="large"      // large or default
+  as="h1"
+  showAccentBar
+  centered
+  size="large"
 />
 ```
 
@@ -286,33 +350,8 @@ import { PageHeader } from "@/components/ui/page-header";
 ```tsx
 import { DirectoryCard } from "@/components/ui/directory-card";
 
-<DirectoryCard
-  entry={directoryEntry}
-  showBookmark={true}
-/>
-
-// Features:
-// - Image with category badge and bookmark button
-// - Name, location, rating, description
-// - Tags as hashtag pills
-// - Hover animations
-```
-
-### Card (Base)
-
-```tsx
-import { Card } from "@/components/ui/card";
-
-<Card className="p-6">
-  {/* Card content */}
-</Card>
-
-// Content Card with title
-import { Card } from "@/components/content/card";
-
-<Card title="Section Title">
-  {/* Content */}
-</Card>
+<DirectoryCard entry={directoryEntry} showBookmark={true} />
+// Features: Image, category badge, bookmark, rating, tags, hover animations
 ```
 
 ### ThemeToggle
@@ -320,130 +359,98 @@ import { Card } from "@/components/content/card";
 ```tsx
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
-<ThemeToggle />                           // Default style
-<ThemeToggle variant="light" />           // For dark backgrounds
-<ThemeToggle showContainer={false} />     // Icon only
+<ThemeToggle />
+<ThemeToggle variant="light" />
+<ThemeToggle showContainer={false} />
 ```
 
-## Animation System
+## Feedback Components
 
-### Built-in Animations
+### Toast System
 
-```css
-/* Custom keyframes in globals.css */
-.animate-glow          /* Ocean blue glow effect */
-.animate-fog-flow      /* Mist flow animation */
-.animate-pulse-subtle  /* Subtle pulse */
-.animate-slide-up      /* Entrance animation */
-.animate-fade-in       /* Fade in */
+Position: Bottom-left (desktop), bottom-center (mobile)
 
-/* Content action toolbar */
-.animate-bounce-reaction
-.animate-scale-share
-.animate-fab-expand
-.animate-fab-collapse
-```
+| Variant | Duration | Color |
+|---------|----------|-------|
+| `success` | 4s | Valley Green |
+| `error` | 10s | Status Error |
+| `info` | 4s | Ocean Blue |
+| `warning` | 6s | Sobrado Ochre |
 
-### Motion Patterns
+Features:
+- Timer pauses on hover
+- Single toast at a time (queued)
+- Slide-from-bottom animation
 
 ```tsx
-// Framer Motion entrance
-<motion.div
-  initial={{ opacity: 0, y: 20 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.6 }}
->
+import { useToast } from "@/hooks/use-toast";
 
-// Hover effects with Tailwind
-className="transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-className="transition-transform duration-500 group-hover:scale-105"
-```
+function MyComponent() {
+  const { showSuccess, showError, showWarning, showInfo } = useToast();
 
-### Reduced Motion
-
-```css
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
+  return (
+    <>
+      <button onClick={() => showSuccess("Profile updated.")}>Save</button>
+      <button onClick={() => showError("Couldn't save changes.")}>Error</button>
+      <button onClick={() => showWarning("Storage almost full.")}>Warn</button>
+      <button onClick={() => showInfo("New features available.")}>Info</button>
+    </>
+  );
 }
 ```
 
-## Accessibility
+## Navigation
 
-### Focus States
+### Mobile Bottom Navigation
 
-```tsx
-// Standard focus ring
-className="focus:outline-none focus-visible:ring-2 focus-visible:ring-ocean-blue focus-visible:ring-offset-2"
+Persistent bottom bar for thumb-zone accessibility (mobile only, `md:hidden`).
 
-// Focus ring utility class
-className="focus-ring"
-```
+| Item | Icon | Route | Active Match |
+|------|------|-------|--------------|
+| Home | `Home` | `/` | Exact |
+| Directory | `Grid3X3` | `/directory` | Starts with `/directory` |
+| Culture | `BookOpen` | `/history` | `/history`, `/people` |
+| Map | `Map` | `/map` | Exact |
+| More | `Menu` | - | Opens popover menu |
 
-### Touch Targets
+**Behavior:**
+- Hidden on detail pages (`/directory/[cat]/[slug]`, `/stories/[slug]`, `/people/[slug]`)
+- Safe area padding for iOS home indicator: `pb-[env(safe-area-inset-bottom)]`
+- Height: 56px (h-14)
 
-```tsx
-// Minimum 44x44px touch target
-className="min-h-[44px] min-w-[44px]"
-className="touch-target"  // Utility class
-
-// TouchTarget component in Button
-<TouchTarget>{children}</TouchTarget>
-```
-
-### Screen Reader Support
-
-```tsx
-// Skip link
-<a href="#main-content" className="sr-only focus:not-sr-only ...">
-  Skip to main content
-</a>
-
-// Hidden text
-<span className="sr-only">Open menu</span>
-
-// ARIA labels
-aria-label={`View details for ${entry.name}`}
-aria-current={isActive ? "page" : undefined}
-```
-
-## Print Styles
-
-Print-specific styles in `globals.css`:
-
-```css
-@media print {
-  body { font-family: var(--font-serif); font-size: 12pt; }
-  a[href^="http"]::after { content: " (" attr(href) ")"; }
-  .no-print { display: none; }
-  @page { margin: 2cm; }
-}
-```
+**"More" Menu Contents:**
+- Stories, Media links
+- Profile/Login link
+- Theme toggle
 
 ```tsx
-// Print-only content
-<div className="print:block hidden">Print version</div>
-
-// Hide from print
-<nav className="no-print">...</nav>
+// Automatically included in (main) layout
+import { MobileBottomNav } from "@/components/ui/mobile-bottom-nav";
 ```
 
-## Utility Classes
+## Animation & Utility Classes
 
-### Hover Surfaces
+### Animations
 
-```css
-.hover-surface         /* Subtle hover: mist-50 / basalt-800/50 */
-.hover-surface-strong  /* Strong hover: mist-200 / basalt-800 */
-```
+| Class | Effect |
+|-------|--------|
+| `.animate-glow` | Ocean blue glow effect |
+| `.animate-fog-flow` | Mist flow animation |
+| `.animate-pulse-subtle` | Subtle pulse |
+| `.animate-slide-up` | Entrance animation |
+| `.animate-fade-in` | Fade in |
 
-### Glassmorphism
+All animations respect `prefers-reduced-motion`.
 
-```css
-.glass-panel  /* backdrop-blur-md, semi-transparent background */
-```
+### Utility Classes
+
+| Class | Effect |
+|-------|--------|
+| `.focus-ring` | Standard focus ring styling |
+| `.touch-target` | Minimum 44x44px touch target |
+| `.hover-surface` | Subtle hover background |
+| `.hover-surface-strong` | Strong hover background |
+| `.glass-panel` | Glassmorphism effect |
 
 ## Development Guidelines
 
@@ -455,12 +462,12 @@ import clsx from "clsx";
 const Component = ({ className, ...props }) => (
   <div
     className={clsx(
-      // Base layout
-      "rounded-lg p-4",
-      // Semantic colors (auto dark mode)
+      // Base layout with new tokens
+      "rounded-card p-4 shadow-subtle",
+      // Semantic aliases (auto dark mode)
       "bg-surface text-body border-hairline",
       // Interactive states
-      "hover:bg-surface-alt transition-colors",
+      "transition-all duration-200 ease-calm hover:shadow-medium",
       // Custom classes
       className
     )}
@@ -473,20 +480,23 @@ const Component = ({ className, ...props }) => (
 
 | Building... | Use | Example |
 |-------------|-----|---------|
-| Cards, sections | Semantic | `bg-surface` |
-| Text content | Semantic | `text-body`, `text-muted` |
-| Borders | Semantic | `border-hairline` |
+| Cards, sections | Semantic alias | `bg-surface`, `bg-canvas` |
+| Text content | Semantic alias | `text-body`, `text-muted` |
+| Borders | Semantic alias | `border-hairline`, `border-edge` |
 | CTAs, buttons | Brand | `bg-ocean-blue` |
 | Decorative | Brand | `text-bougainvillea-pink` |
 | Status feedback | Status | `text-status-error` |
 
-### Checklist for New Components
+### New Component Checklist
 
 - [ ] Uses semantic color tokens
+- [ ] Uses new shape tokens (`rounded-card`, etc.)
+- [ ] Uses new shadow tokens (`shadow-subtle`, etc.)
+- [ ] Uses `ease-calm` for transitions
 - [ ] Responsive (mobile-first)
 - [ ] Keyboard accessible
-- [ ] Focus states visible
-- [ ] Touch targets 44x44px minimum
+- [ ] Focus states visible (use `.focus-ring`)
+- [ ] Touch targets 44x44px minimum (use `.touch-target`)
 - [ ] Respects reduced motion
 - [ ] Works in light and dark modes
 
@@ -494,7 +504,11 @@ const Component = ({ className, ...props }) => (
 
 | File | Purpose |
 |------|---------|
-| `apps/web/src/app/globals.css` | Color tokens, animations |
+| `apps/web/src/app/globals.css` | Color tokens, shape tokens, animations |
 | `apps/web/src/app/layout.tsx` | Font loading, theme init |
-| `apps/web/tailwind.config.ts` | Tailwind configuration |
+| `apps/web/tailwind.config.ts` | Tailwind theme extensions |
 | `apps/web/src/stores/uiStore.ts` | Theme state management |
+| `apps/web/src/components/catalyst-ui/` | Catalyst UI components (6 retained) |
+| `apps/web/src/components/ui/card.tsx` | Base card with hoverable |
+| `apps/web/src/components/providers/toast-provider.tsx` | Toast system |
+| `apps/web/src/components/ui/mobile-bottom-nav.tsx` | Mobile navigation |

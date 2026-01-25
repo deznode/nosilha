@@ -1,7 +1,6 @@
 import * as Headless from "@headlessui/react";
 import clsx from "clsx";
 import type React from "react";
-import { Text } from "./text";
 
 const sizes = {
   xs: "sm:max-w-xs",
@@ -73,14 +72,17 @@ export function DialogDescription({
   className,
   ...props
 }: { className?: string } & Omit<
-  Headless.DescriptionProps<typeof Text>,
+  Headless.DescriptionProps<"p">,
   "as" | "className"
 >) {
   return (
     <Headless.Description
-      as={Text}
+      as="p"
       {...props}
-      className={clsx(className, "mt-2 text-pretty")}
+      className={clsx(
+        className,
+        "mt-2 text-pretty text-base/6 text-zinc-500 dark:text-zinc-400 sm:text-sm/6"
+      )}
     />
   );
 }

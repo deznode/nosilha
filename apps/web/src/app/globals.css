@@ -15,6 +15,41 @@
 
   /* Headings: Fraunces (Variable, Old-Style, Soft) */
   --font-serif: var(--font-serif), "Fraunces", Georgia, serif;
+  /* === SHAPE & ELEVATION TOKENS (Calm Premium) === */
+
+  /* Border Radii - "Radical Softness" principle */
+  --radius-container: 24px;    /* Large containers, featured cards */
+  --radius-card: 16px;         /* Standard cards */
+  --radius-button: 12px;       /* Buttons, inputs */
+  --radius-badge: 8px;         /* Tags, badges, toasts */
+
+  /* Shadows - Multi-layered with Ocean Blue tint */
+  --shadow-subtle:
+    0 1px 2px rgba(14, 76, 117, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.04);
+
+  --shadow-medium:
+    0 4px 6px -1px rgba(14, 76, 117, 0.06),
+    0 2px 4px -1px rgba(0, 0, 0, 0.04);
+
+  --shadow-elevated:
+    0 10px 15px -3px rgba(14, 76, 117, 0.08),
+    0 4px 6px -2px rgba(0, 0, 0, 0.04);
+
+  --shadow-floating:
+    0 20px 25px -5px rgba(14, 76, 117, 0.10),
+    0 10px 10px -5px rgba(0, 0, 0, 0.02);
+
+  --shadow-lift:
+    0 14px 20px -5px rgba(14, 76, 117, 0.12),
+    0 6px 8px -3px rgba(0, 0, 0, 0.04);
+
+  /* Transitions - "Calm, confident motion" */
+  --ease-calm: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 150ms var(--ease-calm);
+  --transition-standard: 200ms var(--ease-calm);
+  --transition-slow: 300ms var(--ease-calm);
+
   /* === Animation Tokens === */
   --animate-glow: glow 4s ease-in-out infinite;
   --animate-fog-flow: fog-flow 20s linear infinite;
@@ -63,12 +98,15 @@
   --color-border-subtle: var(--color-mist-200);
   --color-border-strong: var(--color-basalt-500);
 
+  /* Text - additional */
+  --color-text-tertiary: var(--color-basalt-500);
+
   /* Aliases for UI State colors (Backward Compatibility) */
   --color-accent-error: var(--color-status-error);
   --color-accent-success: var(--color-status-success);
   --color-accent-warning: var(--color-status-warning);
 
-  /* === SEMANTIC ALIASES ("Semantic Structure, Branded Soul") === */
+  /* === SEMANTIC ALIASES (Used in 42+ components) === */
   /* Use these for layouts - dark mode switches automatically */
 
   /* Backgrounds */
@@ -86,11 +124,11 @@
   --color-edge: var(--color-border-strong); /* Strong borders */
 
   /* === BACKWARD COMPATIBILITY ALIASES === */
-  /* These map old component class names to new tokens */
-  --color-background-primary: var(--color-canvas);
-  --color-background-secondary: var(--color-surface);
-  --color-background-tertiary: var(--color-surface-alt);
-  --color-border-primary: var(--color-edge);
+  /* These map old component class names to new semantic tokens */
+  --color-background-primary: var(--color-bg-primary);
+  --color-background-secondary: var(--color-bg-secondary);
+  --color-background-tertiary: var(--color-bg-tertiary);
+  --color-border-primary: var(--color-border-strong);
 }
 
 /* === DARK MODE OVERRIDES (Volcanic Night) === */

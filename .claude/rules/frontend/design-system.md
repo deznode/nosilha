@@ -18,7 +18,7 @@ See `docs/design-system.md` for comprehensive styling guide.
 |-------|-----|-------|
 | Ocean Blue | `#0e4c75` | Primary actions, links |
 | Ocean Blue Deep | `#0e4c75` | Hover states, dark accents (same as Ocean Blue in light mode) |
-| Valley Green | `#3E7D5A` | Success states, nature imagery |
+| Valley Green | `#2f6e4d` | Success states, nature imagery |
 | Bougainvillea Pink | `#D90368` | Accents, highlights |
 | Sunny Yellow | `#F7B801` | Warnings, call-to-action |
 | Mist (Neutrals) | `#f8fafc` to `#e2e8f0` | Backgrounds (Slate palette) |

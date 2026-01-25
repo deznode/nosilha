@@ -1719,9 +1719,7 @@ export class BackendApiClient implements ApiClient {
     const response = await this.authenticatedFetch(endpoint);
 
     if (!response.ok) {
-      throw new Error(
-        `Failed to fetch directory entries: ${response.status}`
-      );
+      throw new Error(`Failed to fetch directory entries: ${response.status}`);
     }
 
     const payload = await response.json();
