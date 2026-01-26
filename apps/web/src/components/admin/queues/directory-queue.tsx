@@ -102,9 +102,9 @@ export function DirectoryQueue({
       case SubmissionStatus.FLAGGED:
         return "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300";
       case SubmissionStatus.ARCHIVED:
-        return "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300";
+        return "bg-surface-alt text-muted";
       default:
-        return "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300";
+        return "bg-surface-alt text-muted";
     }
   };
 

@@ -16,7 +16,7 @@ const colors = {
   yellow:
     "bg-sobrado-ochre/20 text-sobrado-ochre group-data-hover:bg-sobrado-ochre/30 dark:bg-sobrado-ochre/10 dark:text-sobrado-ochre dark:group-data-hover:bg-sobrado-ochre/15",
   // Neutral (default)
-  zinc: "bg-zinc-600/10 text-zinc-700 group-data-hover:bg-zinc-600/20 dark:bg-background-primary/5 dark:text-text-secondary dark:group-data-hover:bg-background-primary/10",
+  zinc: "bg-basalt-600/10 text-basalt-800 group-data-hover:bg-basalt-600/20 dark:bg-background-primary/5 dark:text-text-secondary dark:group-data-hover:bg-background-primary/10",
 };
 
 type BadgeProps = { color?: keyof typeof colors };

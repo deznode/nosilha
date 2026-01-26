@@ -49,8 +49,8 @@ export function DirectoryCard({
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="bg-background-tertiary flex h-full w-full items-center justify-center transition-transform duration-500 group-hover:scale-105">
-              <span className="text-text-tertiary">No image available</span>
+            <div className="bg-surface-alt flex h-full w-full items-center justify-center transition-transform duration-500 group-hover:scale-105">
+              <span className="text-muted">No image available</span>
             </div>
           )}
 
@@ -73,12 +73,12 @@ export function DirectoryCard({
         <div className="flex flex-1 flex-col p-5">
           {/* Header with name and rating */}
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-text-primary text-lg font-semibold transition-colors group-hover:text-[var(--color-ocean-blue)]">
+            <h3 className="text-body text-lg font-semibold transition-colors group-hover:text-[var(--color-ocean-blue)]">
               {entry.name}
             </h3>
             {/* Compact rating badge */}
             {entry.rating != null && (
-              <div className="border-border-primary bg-background-secondary text-text-primary flex shrink-0 items-center rounded border px-1.5 py-0.5 text-xs font-medium">
+              <div className="border-edge bg-surface text-body flex shrink-0 items-center rounded border px-1.5 py-0.5 text-xs font-medium">
                 <Star
                   size={12}
                   className="mr-1 fill-current text-[var(--color-sunny)]"
@@ -89,14 +89,14 @@ export function DirectoryCard({
           </div>
 
           {/* Location */}
-          <div className="text-text-secondary mt-1 flex items-center text-sm">
+          <div className="text-muted mt-1 flex items-center text-sm">
             <MapPin size={14} className="mr-1 shrink-0" />
             <span>{entry.town}</span>
           </div>
 
           {/* Description */}
           {entry.description && (
-            <p className="text-text-secondary mt-2 line-clamp-3 text-sm leading-relaxed">
+            <p className="text-muted mt-2 line-clamp-3 text-sm leading-relaxed">
               {entry.description}
             </p>
           )}
@@ -107,13 +107,13 @@ export function DirectoryCard({
               {entry.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag}
-                  className="bg-background-tertiary text-text-secondary rounded-full px-2 py-0.5 text-xs"
+                  className="bg-surface-alt text-muted rounded-full px-2 py-0.5 text-xs"
                 >
                   #{tag}
                 </span>
               ))}
               {entry.tags.length > 3 && (
-                <span className="text-text-tertiary text-xs">
+                <span className="text-muted text-xs">
                   +{entry.tags.length - 3}
                 </span>
               )}
@@ -122,7 +122,7 @@ export function DirectoryCard({
 
           {/* Review count */}
           <div className="mt-auto pt-3">
-            <p className="text-text-tertiary text-xs">
+            <p className="text-muted text-xs">
               {entry.reviewCount}{" "}
               {entry.reviewCount === 1 ? "review" : "reviews"}
             </p>

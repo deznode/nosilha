@@ -126,16 +126,16 @@ export function TemplateSelector({ onSelect, onBack }: TemplateSelectorProps) {
     <div className="mx-auto max-w-4xl">
       <button
         onClick={onBack}
-        className="mb-6 flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+        className="text-muted hover:text-body mb-6 flex items-center gap-2 text-sm"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to story types
       </button>
 
-      <h2 className="mb-2 text-2xl font-bold text-slate-900 dark:text-white">
+      <h2 className="text-body mb-2 text-2xl font-bold">
         Choose Your Template
       </h2>
-      <p className="mb-8 text-slate-600 dark:text-slate-400">
+      <p className="text-muted mb-8">
         Select a template that best fits the story you want to tell. Each
         provides structured prompts to guide your writing.
       </p>
@@ -152,7 +152,7 @@ export function TemplateSelector({ onSelect, onBack }: TemplateSelectorProps) {
             <motion.button
               key={template.type}
               onClick={() => onSelect(template.type)}
-              className="group relative flex flex-col rounded-xl border border-slate-200 bg-white p-6 text-left hover:border-[var(--color-ocean-blue)] hover:shadow-lg dark:border-slate-700 dark:bg-slate-800 dark:hover:border-[var(--color-ocean-blue)]"
+              className="border-hairline bg-canvas group relative flex flex-col rounded-xl border p-6 text-left hover:border-[var(--color-ocean-blue)] hover:shadow-lg"
               variants={listItem}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
@@ -162,13 +162,11 @@ export function TemplateSelector({ onSelect, onBack }: TemplateSelectorProps) {
               >
                 <Icon className={`h-6 w-6 ${template.iconClass}`} />
               </div>
-              <h3 className="mb-2 font-semibold text-slate-900 dark:text-white">
-                {template.title}
-              </h3>
-              <p className="mb-4 flex-1 text-sm text-slate-600 dark:text-slate-400">
+              <h3 className="text-body mb-2 font-semibold">{template.title}</h3>
+              <p className="text-muted mb-4 flex-1 text-sm">
                 {template.description}
               </p>
-              <span className="text-xs text-slate-500 dark:text-slate-500">
+              <span className="text-muted text-xs">
                 {template.estimatedTime}
               </span>
               <div className="absolute top-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">

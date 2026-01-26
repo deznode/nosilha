@@ -63,14 +63,14 @@ export function StoryDetailContent({
   const TypeIcon = typeConfig.icon;
 
   return (
-    <div className="bg-background-secondary min-h-screen">
+    <div className="bg-surface min-h-screen">
       {/* Header */}
-      <div className="border-b border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+      <div className="border-hairline bg-canvas border-b">
         <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
           {/* Back Navigation */}
           <Link
             href="/stories"
-            className="mb-6 inline-flex items-center text-sm text-slate-500 transition-colors hover:text-[var(--color-ocean-blue)] dark:text-slate-400"
+            className="text-muted mb-6 inline-flex items-center text-sm transition-colors hover:text-[var(--color-ocean-blue)]"
           >
             <ArrowLeft size={16} className="mr-2" />
             Back to Stories
@@ -87,12 +87,12 @@ export function StoryDetailContent({
           </div>
 
           {/* Title */}
-          <h1 className="mb-4 font-serif text-3xl font-bold text-slate-900 sm:text-4xl dark:text-white">
+          <h1 className="text-body mb-4 font-serif text-3xl font-bold sm:text-4xl">
             {story.title}
           </h1>
 
           {/* Metadata */}
-          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+          <div className="text-muted flex flex-wrap items-center gap-4 text-sm">
             <div className="flex items-center gap-1.5">
               <User size={16} />
               <span>{story.author}</span>
@@ -117,12 +117,12 @@ export function StoryDetailContent({
         <StoryMarkdown content={story.content} />
 
         {/* Share CTA */}
-        <div className="mt-12 border-t border-slate-200 pt-8 dark:border-slate-700">
-          <div className="rounded-lg bg-slate-50 p-6 text-center dark:bg-slate-800/50">
-            <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-white">
+        <div className="border-hairline mt-12 border-t pt-8">
+          <div className="bg-surface rounded-lg p-6 text-center">
+            <h3 className="text-body mb-2 text-lg font-semibold">
               Do you have a story to share?
             </h3>
-            <p className="mb-4 text-slate-600 dark:text-slate-400">
+            <p className="text-muted mb-4">
               Help preserve Brava&apos;s cultural heritage by contributing your
               own memories and experiences.
             </p>
@@ -138,7 +138,7 @@ export function StoryDetailContent({
         {/* Related Stories */}
         {relatedStories.length > 0 && (
           <div className="mt-12">
-            <h2 className="mb-6 font-serif text-2xl font-bold text-slate-900 dark:text-white">
+            <h2 className="text-body mb-6 font-serif text-2xl font-bold">
               Related Stories
             </h2>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">

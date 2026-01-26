@@ -65,7 +65,7 @@ export function ContentActionDesktop({
       }
     >
       {/* Background card container with rounded corners and shadow */}
-      <div className="flex flex-col rounded-lg bg-[var(--color-background-primary)] p-4 shadow-md">
+      <div className="flex flex-col rounded-button bg-canvas p-4 shadow-elevated">
         {/* Group 1: Sharing Actions */}
         <div className="flex flex-col gap-2">
           {/* 1. Share Button (icon + label) */}
@@ -80,7 +80,7 @@ export function ContentActionDesktop({
         </div>
 
         {/* Visual Separator */}
-        <div className="border-border-primary my-3 border-t" />
+        <div className="border-hairline my-3 border-t" />
 
         {/* Group 2: Reactions (vertical orientation, ❤️ 🎉 💡 👏) */}
         <ReactionButtons
@@ -93,7 +93,7 @@ export function ContentActionDesktop({
         />
 
         {/* Visual Separator */}
-        <div className="border-border-primary my-3 border-t" />
+        <div className="border-hairline my-3 border-t" />
 
         {/* Group 3: Utility Actions */}
         <div className="flex flex-col gap-2">

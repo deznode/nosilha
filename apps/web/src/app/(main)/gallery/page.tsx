@@ -133,16 +133,16 @@ export default function GalleryPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-12 dark:bg-slate-900">
+    <div className="min-h-screen bg-canvas pb-12">
       {/* Header */}
-      <div className="bg-slate-900 text-white">
+      <div className="bg-body text-white">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h1 className="mb-4 font-serif text-3xl font-bold md:text-5xl">
                 Brava Media Center
               </h1>
-              <p className="max-w-2xl text-lg font-light text-slate-300">
+              <p className="max-w-2xl text-lg font-light text-mist-300">
                 A visual archive of our island. Explore historical photographs,
                 community moments, and videos celebrating the culture of Brava.
               </p>
@@ -159,7 +159,7 @@ export default function GalleryPage() {
       </div>
 
       {/* Tabs */}
-      <div className="sticky top-16 z-30 border-b border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <div className="sticky top-16 z-30 border-b border-hairline bg-canvas shadow-sm">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
             <button
@@ -167,7 +167,7 @@ export default function GalleryPage() {
               className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium ${
                 activeTab === "photos"
                   ? "border-[var(--color-ocean-blue)] text-[var(--color-ocean-blue)]"
-                  : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-white"
+                  : "border-transparent text-muted hover:border-hairline hover:text-body"
               }`}
             >
               <ImageIcon size={18} /> Photo Gallery
@@ -177,7 +177,7 @@ export default function GalleryPage() {
               className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium ${
                 activeTab === "videos"
                   ? "border-[var(--color-bougainvillea)] text-[var(--color-bougainvillea)]"
-                  : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-white"
+                  : "border-transparent text-muted hover:border-hairline hover:text-body"
               }`}
             >
               <Play size={18} /> Video & Podcasts

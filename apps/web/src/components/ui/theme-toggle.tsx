@@ -37,7 +37,7 @@ export function ThemeToggle({
   // Circular container styling (like ideate prototype)
   const containerClass = isLight
     ? "h-8 w-8 rounded-full bg-white/10 border border-white/30 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
-    : "h-8 w-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-ocean-blue hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors";
+    : "h-8 w-8 rounded-full bg-surface border border-hairline flex items-center justify-center text-ocean-blue hover:bg-surface-alt transition-colors";
   const theme = useTheme();
   const setTheme = useUiStore((state) => state.setTheme);
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -124,7 +124,7 @@ export function ThemeToggle({
             className={clsx(
               isLight
                 ? "text-white drop-shadow-md"
-                : "text-text-secondary hover:text-text-primary"
+                : "text-muted hover:text-body"
             )}
           >
             {getIcon()}

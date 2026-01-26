@@ -73,7 +73,7 @@ export function StoryPromptsPanel({
   }
 
   return (
-    <div className="mb-2 rounded-lg border border-slate-200 bg-blue-50/50 dark:border-slate-700 dark:bg-blue-900/10">
+    <div className="border-hairline mb-2 rounded-lg border bg-blue-50/50 dark:bg-blue-900/10">
       <button
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
@@ -84,21 +84,21 @@ export function StoryPromptsPanel({
           Writing Prompts
         </span>
         {isExpanded ? (
-          <ChevronUp className="h-4 w-4 text-slate-500" />
+          <ChevronUp className="text-muted h-4 w-4" />
         ) : (
-          <ChevronDown className="h-4 w-4 text-slate-500" />
+          <ChevronDown className="text-muted h-4 w-4" />
         )}
       </button>
 
       {isExpanded && (
-        <div className="border-t border-slate-200 px-3 py-2 dark:border-slate-700">
+        <div className="border-hairline border-t px-3 py-2">
           {isLoading ? (
-            <div className="flex items-center gap-2 text-sm text-slate-500">
+            <div className="text-muted flex items-center gap-2 text-sm">
               <RefreshCw className="h-4 w-4 animate-spin" />
               Generating prompts...
             </div>
           ) : error ? (
-            <p className="text-sm text-red-500">{error}</p>
+            <p className="text-accent-error text-sm">{error}</p>
           ) : (
             <ul className="space-y-2">
               {prompts.map((prompt, index) => (
@@ -111,9 +111,7 @@ export function StoryPromptsPanel({
                   >
                     <Plus className="h-3 w-3" />
                   </button>
-                  <span className="text-sm text-slate-700 dark:text-slate-300">
-                    {prompt}
-                  </span>
+                  <span className="text-body text-sm">{prompt}</span>
                 </li>
               ))}
             </ul>

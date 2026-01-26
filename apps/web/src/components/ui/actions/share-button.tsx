@@ -203,7 +203,7 @@ export function ShareButton({
           className={`focus-ring flex h-11 w-11 items-center justify-center rounded-full transition-all ${
             isActive || isFallbackMenuOpen
               ? "bg-[var(--color-ocean-blue)] text-white"
-              : "hover:bg-mist-200 dark:hover:bg-basalt-800 bg-[var(--color-background-secondary)] text-[var(--color-text-primary)]"
+              : "hover:bg-surface-alt bg-surface text-body"
           } `}
         >
           <Share2 className="h-5 w-5" />
@@ -211,7 +211,7 @@ export function ShareButton({
 
         {/* Label */}
         {variant === "icon-with-label" && (
-          <span className="mt-1 text-xs font-normal text-[var(--color-text-secondary)]">
+          <span className="mt-1 text-xs font-normal text-muted">
             Share
           </span>
         )}
@@ -224,7 +224,7 @@ export function ShareButton({
           initial="hidden"
           animate="visible"
           exit="exit"
-          className="absolute right-0 bottom-14 z-50 flex flex-col gap-2 rounded-lg bg-[var(--color-background-primary)] p-3 shadow-lg"
+          className="absolute right-0 bottom-14 z-50 flex flex-col gap-2 rounded-button bg-canvas p-3 shadow-elevated"
         >
           {shareOptions.map((option) => {
             const Icon = option.icon;
@@ -234,10 +234,10 @@ export function ShareButton({
                 type="button"
                 onClick={option.action}
                 aria-label={option.label}
-                className="focus-ring flex items-center gap-3 rounded-md px-4 py-2 text-left text-sm transition-colors hover:bg-[var(--color-background-secondary)]"
+                className="focus-ring flex items-center gap-3 rounded-md px-4 py-2 text-left text-sm transition-colors hover:bg-surface"
               >
                 <Icon className="h-5 w-5 text-[var(--color-ocean-blue)]" />
-                <span className="text-[var(--color-text-primary)]">
+                <span className="text-body">
                   {option.label}
                 </span>
               </button>

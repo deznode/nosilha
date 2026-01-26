@@ -19,7 +19,7 @@ interface MediaQueueItemProps {
 }
 
 function StatusBadge({ status }: { status: MediaStatus }) {
-  const styles = {
+  const styles: Record<MediaStatus, string> = {
     PENDING: "bg-surface-alt text-body",
     PROCESSING:
       "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",

@@ -152,7 +152,7 @@ Why is this memory important to you? How does it make you feel today?`;
   // Show confirmation screen
   if (submitted) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+      <div className="min-h-screen bg-canvas">
         <Confirmation onReset={handleReset} />
       </div>
     );
@@ -161,7 +161,7 @@ Why is this memory important to you? How does it make you feel today?`;
   // Show type selector
   if (!submissionType) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+      <div className="min-h-screen bg-canvas">
         <TypeSelector onSelect={handleTypeSelection} />
       </div>
     );
@@ -170,7 +170,7 @@ Why is this memory important to you? How does it make you feel today?`;
   // Show template selector for GUIDED story type
   if (submissionType === StoryType.GUIDED && !selectedTemplate) {
     return (
-      <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-8 dark:bg-slate-900">
+      <div className="min-h-screen bg-canvas px-4 py-8 sm:px-6 lg:px-8">
         <TemplateSelector
           onSelect={handleTemplateSelection}
           onBack={() => setSubmissionType(null)}
@@ -194,14 +194,14 @@ Why is this memory important to you? How does it make you feel today?`;
   const isOverLimit = wordCount > limit;
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-8 dark:bg-slate-900">
+    <div className="min-h-screen bg-canvas px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl">
         <button
           onClick={() => {
             setSubmissionType(null);
             setSelectedTemplate(null);
           }}
-          className="mb-6 flex items-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+          className="mb-6 flex items-center text-muted hover:text-body"
         >
           <ArrowLeft className="mr-2 h-4 w-4" /> Change Type
         </button>
@@ -213,11 +213,11 @@ Why is this memory important to you? How does it make you feel today?`;
               <div className="flex items-center gap-3">
                 <FileText className="h-5 w-5 text-[var(--color-ocean-blue)]" />
                 <div>
-                  <p className="font-medium text-slate-900 dark:text-white">
+                  <p className="font-medium text-body">
                     You have a saved draft
                   </p>
                   {lastSaved && (
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                    <p className="text-sm text-muted">
                       Last saved {new Date(lastSaved).toLocaleString()}
                     </p>
                   )}
@@ -227,7 +227,7 @@ Why is this memory important to you? How does it make you feel today?`;
                 <button
                   type="button"
                   onClick={clearDraft}
-                  className="rounded px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
+                  className="rounded px-3 py-1.5 text-sm text-muted hover:bg-surface"
                 >
                   Discard
                 </button>
@@ -243,7 +243,7 @@ Why is this memory important to you? How does it make you feel today?`;
           </div>
         )}
 
-        <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800">
+        <div className="overflow-hidden rounded-lg border border-hairline bg-canvas shadow-elevated">
           <div className={`px-6 py-4 ${headerColorClass}`}>
             <h2 className="flex items-center text-xl font-bold text-white">
               <HeaderIcon className="mr-2 h-5 w-5" />
@@ -265,7 +265,7 @@ Why is this memory important to you? How does it make you feel today?`;
             <div>
               <label
                 htmlFor="title"
-                className="block text-sm font-medium text-slate-900 dark:text-white"
+                className="block text-sm font-medium text-body"
               >
                 Title
               </label>
@@ -273,7 +273,7 @@ Why is this memory important to you? How does it make you feel today?`;
                 type="text"
                 id="title"
                 required
-                className="mt-1 block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)] focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                className="mt-1 block w-full rounded-md border border-hairline bg-canvas px-3 py-2 text-sm text-body shadow-sm focus:border-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)] focus:outline-none"
                 placeholder="e.g., Sunday Afternoons in Nova Sintra"
                 value={formData.title}
                 onChange={(e) =>
@@ -302,11 +302,11 @@ Why is this memory important to you? How does it make you feel today?`;
                 required
                 checked={agreedToTerms}
                 onChange={(e) => setAgreedToTerms(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)] dark:border-slate-600"
+                className="h-4 w-4 rounded border-hairline text-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)]"
               />
               <label
                 htmlFor="terms"
-                className="ml-2 block text-sm text-slate-900 dark:text-white"
+                className="ml-2 block text-sm text-body"
               >
                 I agree to the community guidelines and allow Nos Ilha to
                 publish this.
@@ -314,7 +314,7 @@ Why is this memory important to you? How does it make you feel today?`;
             </div>
 
             {/* Submit button */}
-            <div className="border-t border-slate-200 pt-4 dark:border-slate-700">
+            <div className="border-t border-hairline pt-4">
               {isOverLimit && (
                 <p className="mb-3 text-sm text-red-600 dark:text-red-400">
                   Your story exceeds the word limit. Please shorten it to{" "}

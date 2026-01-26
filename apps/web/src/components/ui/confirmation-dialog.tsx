@@ -114,7 +114,7 @@ export function ConfirmationDialog({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <DialogPanel className="w-full max-w-md rounded-2xl bg-[var(--color-bg-primary)] p-6 shadow-xl dark:bg-[var(--color-bg-secondary)]">
+            <DialogPanel className="w-full max-w-md rounded-card bg-canvas p-6 shadow-floating">
               <div className="flex flex-col items-center text-center">
                 <div
                   className={clsx(
@@ -128,12 +128,12 @@ export function ConfirmationDialog({
                   />
                 </div>
 
-                <DialogTitle className="mt-4 font-serif text-lg font-semibold text-[var(--color-text-primary)]">
+                <DialogTitle className="mt-4 font-serif text-lg font-semibold text-body">
                   {title}
                 </DialogTitle>
 
                 {description && (
-                  <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+                  <p className="mt-2 text-sm text-muted">
                     {description}
                   </p>
                 )}
@@ -143,7 +143,7 @@ export function ConfirmationDialog({
                     type="button"
                     onClick={onClose}
                     disabled={isLoading}
-                    className="flex-1 rounded-lg border border-[var(--color-border-subtle)] bg-[var(--color-bg-primary)] px-4 py-2.5 text-sm font-medium text-[var(--color-text-primary)] transition-colors hover:bg-[var(--color-bg-secondary)] focus:ring-2 focus:ring-[var(--color-border-strong)] focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex-1 rounded-button border border-hairline bg-canvas px-4 py-2.5 text-sm font-medium text-body transition-colors hover:bg-surface focus:ring-2 focus:ring-edge focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {cancelLabel}
                   </button>

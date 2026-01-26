@@ -33,7 +33,7 @@ export function StoryMarkdown({ content, className = "" }: StoryMarkdownProps) {
           ),
           h2: ({ children, ...props }) => (
             <h3
-              className="mt-6 mb-3 font-serif text-xl font-bold text-slate-900 dark:text-white"
+              className="text-body mt-6 mb-3 font-serif text-xl font-bold"
               {...props}
             >
               {children}
@@ -41,31 +41,25 @@ export function StoryMarkdown({ content, className = "" }: StoryMarkdownProps) {
           ),
           h3: ({ children, ...props }) => (
             <h4
-              className="mt-4 mb-2 font-serif text-lg font-semibold text-slate-800 dark:text-slate-200"
+              className="text-body mt-4 mb-2 font-serif text-lg font-semibold"
               {...props}
             >
               {children}
             </h4>
           ),
           p: ({ children, ...props }) => (
-            <p
-              className="mb-6 leading-relaxed text-slate-700 dark:text-slate-300"
-              {...props}
-            >
+            <p className="text-body mb-6 leading-relaxed" {...props}>
               {children}
             </p>
           ),
           ul: ({ children, ...props }) => (
-            <ul
-              className="mb-6 list-disc space-y-2 pl-6 text-slate-700 dark:text-slate-300"
-              {...props}
-            >
+            <ul className="text-body mb-6 list-disc space-y-2 pl-6" {...props}>
               {children}
             </ul>
           ),
           ol: ({ children, ...props }) => (
             <ol
-              className="mb-6 list-decimal space-y-2 pl-6 text-slate-700 dark:text-slate-300"
+              className="text-body mb-6 list-decimal space-y-2 pl-6"
               {...props}
             >
               {children}
@@ -73,17 +67,14 @@ export function StoryMarkdown({ content, className = "" }: StoryMarkdownProps) {
           ),
           blockquote: ({ children, ...props }) => (
             <blockquote
-              className="my-6 border-l-4 border-[var(--color-ocean-blue)]/30 bg-slate-50 py-3 pr-4 pl-4 text-slate-600 italic dark:border-slate-600 dark:bg-slate-800/50 dark:text-slate-400"
+              className="text-muted bg-surface my-6 border-l-4 border-[var(--color-ocean-blue)]/30 py-3 pr-4 pl-4 italic"
               {...props}
             >
               {children}
             </blockquote>
           ),
           strong: ({ children, ...props }) => (
-            <strong
-              className="font-semibold text-slate-900 dark:text-white"
-              {...props}
-            >
+            <strong className="text-body font-semibold" {...props}>
               {children}
             </strong>
           ),

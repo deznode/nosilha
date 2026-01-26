@@ -10,12 +10,12 @@ interface VideoSectionProps {
 
 function VideoCardSkeleton() {
   return (
-    <div className="border-border-primary bg-background-primary animate-pulse overflow-hidden rounded-lg border shadow-sm">
-      <div className="bg-background-tertiary relative pb-[56.25%]" />
+    <div className="border-hairline bg-canvas animate-pulse overflow-hidden rounded-lg border shadow-sm">
+      <div className="bg-surface-alt relative pb-[56.25%]" />
       <div className="p-5">
-        <div className="bg-background-tertiary mb-2 h-3 w-20 rounded" />
-        <div className="bg-background-tertiary mb-2 h-6 w-3/4 rounded" />
-        <div className="bg-background-tertiary h-4 w-full rounded" />
+        <div className="bg-surface-alt mb-2 h-3 w-20 rounded" />
+        <div className="bg-surface-alt mb-2 h-6 w-3/4 rounded" />
+        <div className="bg-surface-alt h-4 w-full rounded" />
       </div>
     </div>
   );
@@ -25,7 +25,7 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-        <div className="bg-background-tertiary h-24 animate-pulse rounded-lg md:col-span-2" />
+        <div className="bg-surface-alt h-24 animate-pulse rounded-lg md:col-span-2" />
         <VideoCardSkeleton />
         <VideoCardSkeleton />
       </div>
@@ -43,7 +43,7 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
           <h3 className="text-bougainvillea-pink text-lg font-bold">
             Nos Ilha Channel & Podcast
           </h3>
-          <p className="text-text-primary mt-1 text-sm">
+          <p className="text-body mt-1 text-sm">
             Watch cinematic views of Brava's landscapes and listen to our
             exclusive podcast series featuring interviews with elders about the
             "Sodade" of migration and life in the older times.
@@ -55,7 +55,7 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
       {videos.map((video) => (
         <div
           key={video.id}
-          className="border-border-primary bg-background-primary overflow-hidden rounded-lg border shadow-sm transition-shadow hover:shadow-md"
+          className="border-hairline bg-canvas overflow-hidden rounded-lg border shadow-sm transition-shadow hover:shadow-md"
         >
           <div className="relative bg-black pb-[56.25%]">
             <iframe
@@ -84,19 +84,19 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
                   video.category
                 )}
               </span>
-              <span className="text-text-tertiary text-xs">{video.date}</span>
+              <span className="text-muted text-xs">{video.date}</span>
             </div>
-            <h3 className="text-text-primary mb-2 text-xl font-bold">
+            <h3 className="text-body mb-2 text-xl font-bold">
               {video.title}
             </h3>
-            <p className="text-text-secondary text-sm">{video.description}</p>
+            <p className="text-muted text-sm">{video.description}</p>
           </div>
         </div>
       ))}
 
       {videos.length === 0 && (
-        <div className="border-border-primary bg-background-primary rounded-lg border py-20 text-center md:col-span-2">
-          <p className="text-text-secondary">No videos available yet.</p>
+        <div className="border-hairline bg-canvas rounded-lg border py-20 text-center md:col-span-2">
+          <p className="text-muted">No videos available yet.</p>
         </div>
       )}
     </div>

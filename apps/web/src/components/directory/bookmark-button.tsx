@@ -99,7 +99,7 @@ export function BookmarkButton({
       className={`rounded-full p-2 backdrop-blur-md transition-all ${
         displayIsBookmarked
           ? "bg-[var(--color-ocean-blue)] text-white"
-          : "bg-background-primary/70 text-text-primary hover:bg-background-primary"
+          : "bg-canvas/70 text-body hover:bg-canvas"
       } ${isLoading ? "cursor-wait opacity-70" : ""} ${className}`}
       aria-label={displayIsBookmarked ? "Remove bookmark" : "Add bookmark"}
       aria-busy={isLoading}

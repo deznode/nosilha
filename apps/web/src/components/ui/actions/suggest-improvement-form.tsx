@@ -238,7 +238,7 @@ export function SuggestImprovementForm({
                     placeholder="your.email@example.com"
                     disabled={isSubmitting}
                   />
-                  <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                  <p className="mt-1 text-sm text-muted">
                     We may contact you for clarification on your suggestion.
                   </p>
                 </Field>
@@ -246,7 +246,7 @@ export function SuggestImprovementForm({
 
               {/* Show email info for authenticated users */}
               {isAuthenticated && user?.email && (
-                <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                <div className="text-sm text-muted">
                   Submitting as: <strong>{user.email}</strong>
                 </div>
               )}
@@ -261,7 +261,7 @@ export function SuggestImprovementForm({
                     setSuggestionType(e.target.value as SuggestionType)
                   }
                   disabled={isSubmitting}
-                  className="focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-lg border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                  className="focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-button border-hairline bg-canvas px-3 py-2 text-sm text-body disabled:opacity-50"
                 >
                   <option value="CORRECTION">
                     Correction - Fix factual errors or inaccuracies
@@ -287,9 +287,9 @@ export function SuggestImprovementForm({
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Please provide details about your suggestion..."
                   disabled={isSubmitting}
-                  className="focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-lg border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                  className="focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-button border-hairline bg-canvas px-3 py-2 text-sm text-body disabled:opacity-50"
                 />
-                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                <p className="mt-1 text-sm text-muted">
                   {message.length}/5000 characters (minimum 10)
                 </p>
               </Field>

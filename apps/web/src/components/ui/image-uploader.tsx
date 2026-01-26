@@ -30,17 +30,17 @@ interface ImageUploaderProps {
 function UploadProgressBar({ progress }: { progress: UploadProgress }) {
   return (
     <div className="w-full px-4">
-      <div className="mb-1 flex justify-between text-sm text-slate-600">
+      <div className="mb-1 flex justify-between text-sm text-muted">
         <span>Uploading...</span>
         <span>{progress.percentage}%</span>
       </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
+      <div className="h-2 w-full overflow-hidden rounded-full bg-surface">
         <div
           className="h-full rounded-full bg-[var(--color-ocean-blue)] transition-all duration-300 ease-out"
           style={{ width: `${progress.percentage}%` }}
         />
       </div>
-      <p className="mt-1 text-center text-xs text-slate-500">
+      <p className="mt-1 text-center text-xs text-muted">
         {(progress.loaded / 1024 / 1024).toFixed(1)} MB /{" "}
         {(progress.total / 1024 / 1024).toFixed(1)} MB
       </p>
@@ -162,7 +162,7 @@ export function ImageUploader({
         return (
           <div className="flex items-center justify-center gap-2 py-4">
             <Loader2 className="h-5 w-5 animate-spin text-[var(--color-ocean-blue)]" />
-            <span className="text-sm text-slate-600">Preparing upload...</span>
+            <span className="text-sm text-muted">Preparing upload...</span>
           </div>
         );
 
@@ -182,7 +182,7 @@ export function ImageUploader({
         return (
           <div className="flex items-center justify-center gap-2 py-4">
             <Loader2 className="h-5 w-5 animate-spin text-[var(--color-ocean-blue)]" />
-            <span className="text-sm text-slate-600">Finalizing upload...</span>
+            <span className="text-sm text-muted">Finalizing upload...</span>
           </div>
         );
 
@@ -206,7 +206,7 @@ export function ImageUploader({
 
       case "completed":
         return (
-          <div className="border-t border-slate-200 p-2 text-center">
+          <div className="border-t border-hairline p-2 text-center">
             <div className="mb-2 flex items-center justify-center gap-2 text-green-600">
               <span className="text-sm font-medium">Upload complete!</span>
             </div>
@@ -218,7 +218,7 @@ export function ImageUploader({
 
       default:
         return (
-          <div className="border-t border-slate-200 p-2 text-center">
+          <div className="border-t border-hairline p-2 text-center">
             <Button type="button" plain onClick={handleRemoveImage}>
               Remove / Change File
             </Button>
@@ -231,7 +231,7 @@ export function ImageUploader({
     <div className="w-full">
       {previewUrl ? (
         // Image Preview State with Upload Progress
-        <div className="border-border-primary relative rounded-lg border">
+        <div className="border-edge relative rounded-button border">
           <div className="relative aspect-video">
             <Image
               src={previewUrl}
@@ -243,13 +243,13 @@ export function ImageUploader({
             {(state === "requesting-url" ||
               state === "uploading" ||
               state === "confirming") && (
-              <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-white/80">
+              <div className="absolute inset-0 flex items-center justify-center rounded-button bg-white/80">
                 {state === "uploading" ? (
                   <UploadProgressBar progress={progress} />
                 ) : (
                   <div className="flex items-center gap-2">
                     <Loader2 className="h-6 w-6 animate-spin text-[var(--color-ocean-blue)]" />
-                    <span className="text-slate-600">
+                    <span className="text-muted">
                       {state === "requesting-url"
                         ? "Preparing..."
                         : "Finalizing..."}
@@ -266,7 +266,7 @@ export function ImageUploader({
                 className="absolute top-2 right-2 rounded-full bg-white/90 p-1 shadow-sm transition-colors hover:bg-white"
                 aria-label="Cancel upload"
               >
-                <X className="h-5 w-5 text-slate-600" />
+                <X className="h-5 w-5 text-muted" />
               </button>
             )}
           </div>
@@ -282,15 +282,15 @@ export function ImageUploader({
             "flex justify-center rounded-lg border border-dashed px-6 py-10 transition-colors duration-200",
             activeDrag
               ? "border-[var(--color-ocean-blue)] bg-[var(--color-ocean-blue)]/10"
-              : "border-border-primary"
+              : "border-edge"
           )}
         >
           <div className="text-center">
             <ImageIcon
               aria-hidden="true"
-              className="text-text-tertiary mx-auto h-12 w-12"
+              className="text-muted mx-auto h-12 w-12"
             />
-            <div className="text-text-secondary mt-4 flex text-sm leading-6">
+            <div className="text-muted mt-4 flex text-sm leading-6">
               <label
                 htmlFor="file-upload"
                 className="relative cursor-pointer rounded-md bg-white font-semibold text-[var(--color-ocean-blue)] focus-within:ring-2 focus-within:ring-[var(--color-ocean-blue)] focus-within:ring-offset-2 focus-within:outline-none hover:text-[var(--color-ocean-blue)]/80"
@@ -307,7 +307,7 @@ export function ImageUploader({
               </label>
               <p className="pl-1">or drag and drop</p>
             </div>
-            <p className="text-text-secondary text-xs leading-5">
+            <p className="text-muted text-xs leading-5">
               JPEG, PNG, WebP, GIF or MP4 up to 50MB
             </p>
           </div>

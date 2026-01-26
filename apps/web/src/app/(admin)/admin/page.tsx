@@ -335,12 +335,12 @@ export default function AdminDashboardPage() {
   const unreadMessages = messages.filter((m) => m.status === "UNREAD").length;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-12 dark:bg-slate-900">
+    <div className="min-h-screen bg-canvas pb-12">
       {/* Header */}
-      <header className="border-b border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <header className="border-hairline border-b bg-surface shadow-sm">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h1 className="text-body text-2xl font-bold">
               Admin Dashboard
             </h1>
             <div className="flex items-center space-x-4">
@@ -375,7 +375,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="mb-6 border-b border-slate-200 dark:border-slate-700">
+        <div className="border-hairline mb-6 border-b">
           <nav
             className="-mb-px flex space-x-4 overflow-x-auto md:space-x-8"
             aria-label="Tabs"
@@ -385,7 +385,7 @@ export default function AdminDashboardPage() {
               className={`${
                 activeTab === "suggestions"
                   ? "border-[var(--color-ocean-blue)] text-[var(--color-ocean-blue)]"
-                  : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                  : "text-muted hover:text-body border-transparent hover:border-[var(--color-ocean-blue)]/30"
               } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
             >
               <MessageSquare size={16} /> Suggestions
@@ -400,7 +400,7 @@ export default function AdminDashboardPage() {
               className={`${
                 activeTab === "stories"
                   ? "border-[var(--color-bougainvillea)] text-[var(--color-bougainvillea)]"
-                  : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                  : "text-muted hover:text-body border-transparent hover:border-[var(--color-bougainvillea)]/30"
               } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
             >
               <FileText size={16} /> Stories
@@ -415,7 +415,7 @@ export default function AdminDashboardPage() {
               className={`${
                 activeTab === "messages"
                   ? "border-[var(--color-valley-green)] text-[var(--color-valley-green)]"
-                  : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                  : "text-muted hover:text-body border-transparent hover:border-[var(--color-valley-green)]/30"
               } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
             >
               <Mail size={16} /> Inquiries
@@ -430,7 +430,7 @@ export default function AdminDashboardPage() {
               className={`${
                 activeTab === "directory"
                   ? "border-[var(--color-sobrado-ochre)] text-[var(--color-sobrado-ochre)]"
-                  : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                  : "text-muted hover:text-body border-transparent hover:border-[var(--color-sobrado-ochre)]/30"
               } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
             >
               <MapPin size={16} /> Directory
@@ -445,7 +445,7 @@ export default function AdminDashboardPage() {
               className={`${
                 activeTab === "gallery"
                   ? "border-[var(--color-ocean-blue)] text-[var(--color-ocean-blue)]"
-                  : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+                  : "text-muted hover:text-body border-transparent hover:border-[var(--color-ocean-blue)]/30"
               } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
             >
               <ImageIcon size={16} /> Gallery

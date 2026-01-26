@@ -48,10 +48,10 @@ export function TypeSelector({ onSelect }: TypeSelectorProps) {
     <div className="min-h-[60vh] px-4 py-12 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
         <div className="mb-12 text-center">
-          <h2 className="mb-4 font-serif text-3xl font-bold text-slate-900 dark:text-white">
+          <h2 className="text-body mb-4 font-serif text-3xl font-bold">
             Share Your Story
           </h2>
-          <p className="text-lg text-slate-500 dark:text-slate-400">
+          <p className="text-muted text-lg">
             Every memory matters. Choose how you want to contribute to Brava's
             history.
           </p>
@@ -64,22 +64,20 @@ export function TypeSelector({ onSelect }: TypeSelectorProps) {
               <button
                 key={item.type}
                 onClick={() => onSelect(item.type)}
-                className={`rounded-xl border-2 border-transparent bg-white p-8 shadow-sm dark:bg-slate-800 ${item.hoverBorderClass} group flex flex-col items-center text-center text-left transition-all hover:shadow-md md:items-start md:text-left`}
+                className={`bg-canvas rounded-xl border-2 border-transparent p-8 shadow-sm ${item.hoverBorderClass} group flex flex-col items-center text-center text-left transition-all hover:shadow-md md:items-start md:text-left`}
               >
                 <div
                   className={`${item.iconBgClass} mb-6 flex h-14 w-14 items-center justify-center rounded-full transition-transform group-hover:scale-110`}
                 >
                   <Icon className={`${item.iconClass} h-7 w-7`} />
                 </div>
-                <h3 className="mb-2 text-xl font-bold text-slate-900 dark:text-white">
+                <h3 className="text-body mb-2 text-xl font-bold">
                   {item.title}
                 </h3>
-                <p className="mb-4 inline-block rounded bg-slate-100 px-2 py-1 text-sm font-medium text-slate-500 dark:bg-slate-700 dark:text-slate-400">
+                <p className="bg-surface text-muted mb-4 inline-block rounded px-2 py-1 text-sm font-medium">
                   {item.duration}
                 </p>
-                <p className="text-slate-500 dark:text-slate-400">
-                  {item.description}
-                </p>
+                <p className="text-muted">{item.description}</p>
               </button>
             );
           })}

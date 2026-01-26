@@ -126,7 +126,7 @@ export function ContentActionFAB({
         {isExpanded && (
           <motion.div
             {...menuAnimation}
-            className="mb-4 flex flex-col rounded-lg bg-[var(--color-background-primary)] p-4 shadow-lg"
+            className="mb-4 flex flex-col rounded-button bg-canvas p-4 shadow-elevated"
           >
             {/* Group 1: Sharing Actions */}
             <div className="flex flex-col gap-2">
@@ -146,7 +146,7 @@ export function ContentActionFAB({
             </div>
 
             {/* Visual Separator */}
-            <div className="border-border-primary my-3 border-t" />
+            <div className="border-hairline my-3 border-t" />
 
             {/* Group 2: Reactions (horizontal orientation, ❤️ 🎉 💡 👏) */}
             <motion.div {...menuItemAnimation} transition={{ delay: 0.15 }}>
@@ -161,7 +161,7 @@ export function ContentActionFAB({
             </motion.div>
 
             {/* Visual Separator */}
-            <div className="border-border-primary my-3 border-t" />
+            <div className="border-hairline my-3 border-t" />
 
             {/* Group 3: Utility Actions */}
             <div className="flex flex-col gap-2">

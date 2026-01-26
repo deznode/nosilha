@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import { Tooltip } from "@/components/ui/tooltip";
 import {
   Popover,
@@ -112,7 +113,7 @@ export function OverlaySpecimen() {
         </p>
         <div className="flex flex-wrap items-center gap-4">
           <Popover>
-            <PopoverButton>
+            <PopoverButton as={Fragment}>
               <AnimatedButton variant="secondary" size="sm">
                 <Info className="mr-2 h-4 w-4" />
                 More Info
@@ -138,7 +139,7 @@ export function OverlaySpecimen() {
           </Popover>
 
           <Popover>
-            <PopoverButton>
+            <PopoverButton as={Fragment}>
               <AnimatedButton variant="secondary" size="sm">
                 <Bell className="mr-2 h-4 w-4" />
                 Notifications
@@ -182,7 +183,7 @@ export function OverlaySpecimen() {
         <div className="flex flex-wrap items-center gap-4">
           {/* Basic Dropdown */}
           <Dropdown>
-            <DropdownButton>
+            <DropdownButton as={Fragment}>
               <AnimatedButton variant="secondary" size="sm">
                 Actions
                 <MoreVertical className="ml-2 h-4 w-4" />
@@ -214,7 +215,7 @@ export function OverlaySpecimen() {
 
           {/* Grouped Dropdown */}
           <Dropdown>
-            <DropdownButton>
+            <DropdownButton as={Fragment}>
               <AnimatedButton variant="secondary" size="sm">
                 <User className="mr-2 h-4 w-4" />
                 Account

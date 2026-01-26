@@ -129,7 +129,7 @@ export function ContactPageContent() {
           transition={{ delay: 0.2 }}
           className="mx-auto mt-12 max-w-2xl"
         >
-          <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800">
+          <div className="overflow-hidden rounded-lg border border-hairline bg-canvas shadow-xl">
             {/* Blue Header Bar */}
             <div className="bg-[var(--color-ocean-blue)] px-6 py-4">
               <h2 className="flex items-center gap-2 text-xl font-bold text-white">
@@ -285,7 +285,7 @@ export function ContactPageContent() {
                       required
                       checked={agreedToPrivacy}
                       onChange={(e) => setAgreedToPrivacy(e.target.checked)}
-                      className="mt-1 h-4 w-4 rounded border-slate-300 text-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)]"
+                      className="mt-1 h-4 w-4 rounded border-hairline text-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)]"
                     />
                     <label
                       htmlFor="privacy"

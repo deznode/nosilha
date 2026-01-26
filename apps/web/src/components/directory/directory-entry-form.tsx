@@ -303,7 +303,7 @@ export function DirectoryEntryForm({
   if (step === 3 && variant === "full-page") {
     return (
       <div className="bg-canvas flex min-h-screen items-center justify-center p-6">
-        <div className="border-hairline bg-surface w-full max-w-md rounded-[2rem] border p-12 text-center shadow-2xl">
+        <div className="border-hairline bg-surface w-full max-w-md rounded-container border p-12 text-center shadow-2xl">
           <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-[var(--color-valley-green)]/10 shadow-inner">
             <Check className="h-12 w-12 text-[var(--color-valley-green)]" />
           </div>
@@ -614,7 +614,7 @@ export function DirectoryEntryForm({
           Cancel & Return
         </button>
 
-        <div className="border-hairline bg-surface overflow-hidden rounded-[2.5rem] border shadow-2xl">
+        <div className="border-hairline bg-surface overflow-hidden rounded-container border shadow-2xl">
           {/* Header Branding */}
           <div className="relative overflow-hidden bg-[var(--color-ocean-blue)] px-12 py-12 text-white">
             <div className="absolute top-0 right-0 -mt-40 -mr-40 h-80 w-80 rounded-full bg-white/5 blur-3xl"></div>

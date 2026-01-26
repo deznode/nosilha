@@ -14,7 +14,7 @@ export function FeaturedCTA() {
       </p>
       <Link
         href="/contribute/story"
-        className="flex items-center gap-2 rounded-md bg-white px-6 py-2 font-bold text-[var(--color-ocean-blue)] transition-colors hover:bg-slate-100"
+        className="hover:bg-surface flex items-center gap-2 rounded-md bg-white px-6 py-2 font-bold text-[var(--color-ocean-blue)] transition-colors"
       >
         <PenTool size={16} /> Contribute
       </Link>

@@ -17,7 +17,7 @@ const TABS: { id: ProfileTabType; label: string; icon: React.ReactNode }[] = [
 
 export function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
   return (
-    <div className="border-b border-slate-200 dark:border-slate-700">
+    <div className="border-hairline border-b">
       <nav className="-mb-px flex">
         {TABS.map((tab) => (
           <button
@@ -26,7 +26,7 @@ export function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
             className={`flex flex-1 items-center justify-center gap-2 border-b-2 px-1 py-4 text-center text-sm font-medium transition-colors ${
               activeTab === tab.id
                 ? "border-[var(--color-ocean-blue)] text-[var(--color-ocean-blue)]"
-                : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-white"
+                : "text-muted hover:text-body border-transparent hover:border-surface-alt"
             }`}
           >
             {tab.icon} {tab.label}

@@ -82,7 +82,7 @@ const STATUS_CONFIG: Record<
 > = {
   [SubmissionStatus.DRAFT]: {
     label: "Draft",
-    color: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300",
+    color: "bg-surface-alt text-body",
   },
   [SubmissionStatus.PENDING]: {
     label: "Pending Review",
@@ -109,8 +109,7 @@ const STATUS_CONFIG: Record<
   },
   [SubmissionStatus.ARCHIVED]: {
     label: "Archived",
-    color:
-      "bg-slate-100 text-slate-800 dark:bg-slate-900/30 dark:text-slate-300",
+    color: "bg-surface-alt text-muted",
   },
 };
 

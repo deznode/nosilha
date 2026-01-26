@@ -98,7 +98,7 @@ export function RelatedEntries({
         aria-label="Loading related content"
       >
         <div className="container mx-auto px-4 py-8">
-          <h2 className="text-text-primary mb-6 text-2xl font-semibold">
+          <h2 className="text-body mb-6 text-2xl font-semibold">
             {heading}
           </h2>
           {/* Loading skeleton */}
@@ -106,7 +106,7 @@ export function RelatedEntries({
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="bg-background-secondary h-64 animate-pulse rounded-lg"
+                className="bg-surface h-64 animate-pulse rounded-button"
                 aria-hidden="true"
               />
             ))}
@@ -123,7 +123,7 @@ export function RelatedEntries({
         aria-label="Related content error"
       >
         <div className="container mx-auto px-4 py-8">
-          <p className="text-text-secondary text-center">{error}</p>
+          <p className="text-muted text-center">{error}</p>
         </div>
       </section>
     );
@@ -136,10 +136,10 @@ export function RelatedEntries({
         aria-label="No related content available"
       >
         <div className="container mx-auto px-4 py-8">
-          <h2 className="text-text-primary mb-6 text-2xl font-semibold">
+          <h2 className="text-body mb-6 text-2xl font-semibold">
             {heading}
           </h2>
-          <p className="text-text-secondary text-center">
+          <p className="text-muted text-center">
             No related heritage content available at this time.
           </p>
         </div>
@@ -153,7 +153,7 @@ export function RelatedEntries({
       aria-label="Related cultural heritage content"
     >
       <div className="container mx-auto px-4 py-8 lg:py-12">
-        <h2 className="text-text-primary mb-6 text-2xl font-semibold">
+        <h2 className="text-body mb-6 text-2xl font-semibold">
           {heading}
         </h2>
 
@@ -178,7 +178,7 @@ function RelatedCardsGrid({ entries }: { entries: DirectoryEntry[] }) {
             </div>
           ))}
         </div>
-        <p className="text-text-tertiary mt-2 text-center text-xs">
+        <p className="text-muted mt-2 text-center text-xs">
           Swipe to see more →
         </p>
       </div>
@@ -205,7 +205,7 @@ function RelatedEntryCard({ entry }: { entry: DirectoryEntry }) {
       aria-label={`View details for ${entry.name}`}
       className="block h-full"
     >
-      <article className="bg-background-primary border-border-primary flex h-full flex-col overflow-hidden rounded-xl border shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+      <article className="bg-canvas border-hairline flex h-full flex-col overflow-hidden rounded-button border shadow-subtle transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated">
         <div className="relative h-40 w-full">
           {entry.imageUrl ? (
             <Image
@@ -216,7 +216,7 @@ function RelatedEntryCard({ entry }: { entry: DirectoryEntry }) {
               sizes="(max-width: 640px) 280px, (max-width: 1024px) 50vw, 33vw"
             />
           ) : (
-            <div className="bg-background-secondary text-text-tertiary flex h-full w-full items-center justify-center text-sm">
+            <div className="bg-surface text-muted flex h-full w-full items-center justify-center text-sm">
               No image available
             </div>
           )}
@@ -225,11 +225,11 @@ function RelatedEntryCard({ entry }: { entry: DirectoryEntry }) {
           <span className="text-ocean-blue text-xs font-semibold tracking-wide uppercase">
             {entry.category}
           </span>
-          <h3 className="text-text-primary text-lg font-semibold">
+          <h3 className="text-body text-lg font-semibold">
             {entry.name}
           </h3>
-          <p className="text-text-secondary text-sm">{excerpt}</p>
-          <p className="text-text-tertiary mt-auto text-xs font-medium">
+          <p className="text-muted text-sm">{excerpt}</p>
+          <p className="text-muted mt-auto text-xs font-medium">
             {entry.town}
           </p>
         </div>
