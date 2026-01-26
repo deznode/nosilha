@@ -157,7 +157,7 @@ export function ImageWithCourtesy({
           <>
             {/* Info icon indicator */}
             <div
-              className={`absolute ${iconPositionClasses[iconPosition]} bg-canvas/90 flex h-5 w-5 items-center justify-center rounded-full shadow-subtle`}
+              className={`absolute ${iconPositionClasses[iconPosition]} bg-canvas/90 shadow-subtle flex h-5 w-5 items-center justify-center rounded-full`}
             >
               <Info className="text-muted h-3 w-3" />
             </div>
@@ -229,7 +229,7 @@ export function ImageWithCourtesy({
         />
       )}
       {courtesy && (
-        <div className="bg-surface-alt/90 text-body absolute right-0 bottom-0 rounded-tl-button px-2 py-1 backdrop-blur-sm">
+        <div className="bg-surface-alt/90 text-body rounded-tl-button absolute right-0 bottom-0 px-2 py-1 backdrop-blur-sm">
           <p className="font-sans text-xs">Courtesy of: {courtesy}</p>
         </div>
       )}

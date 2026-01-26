@@ -86,9 +86,7 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
               </span>
               <span className="text-muted text-xs">{video.date}</span>
             </div>
-            <h3 className="text-body mb-2 text-xl font-bold">
-              {video.title}
-            </h3>
+            <h3 className="text-body mb-2 text-xl font-bold">{video.title}</h3>
             <p className="text-muted text-sm">{video.description}</p>
           </div>
         </div>

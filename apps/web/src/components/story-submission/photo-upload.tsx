@@ -36,8 +36,8 @@ export function PhotoUpload({ imageUrl, onImageChange }: PhotoUploadProps) {
       <div
         className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
           imageUrl
-            ? "border-[var(--color-valley-green)] bg-green-50 dark:bg-green-900/20"
-            : "border-hairline hover:bg-surface hover:border-[var(--color-ocean-blue)]"
+            ? "border-valley-green bg-green-50 dark:bg-green-900/20"
+            : "border-hairline hover:bg-surface hover:border-ocean-blue"
         }`}
         onClick={() => fileInputRef.current?.click()}
       >
@@ -53,7 +53,7 @@ export function PhotoUpload({ imageUrl, onImageChange }: PhotoUploadProps) {
             />
             <button
               type="button"
-              className="text-body absolute top-2 right-2 rounded-full bg-white/80 p-1.5 shadow-sm hover:bg-white dark:bg-basalt-800/80 dark:hover:bg-basalt-700"
+              className="text-body dark:bg-basalt-800/80 dark:hover:bg-basalt-700 absolute top-2 right-2 rounded-full bg-white/80 p-1.5 shadow-sm hover:bg-white"
               onClick={handleClear}
             >
               <Edit2 size={16} />

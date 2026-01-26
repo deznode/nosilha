@@ -71,7 +71,7 @@ export function MdxPreviewModal({
             <div className="border-hairline flex items-start justify-between border-b p-4">
               <div className="flex-1 pr-4">
                 <div className="mb-2 flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-[var(--color-ocean-blue)]" />
+                  <FileText className="text-ocean-blue h-5 w-5" />
                   <DialogTitle className="text-body font-serif text-xl font-bold">
                     MDX Archival Engine
                   </DialogTitle>
@@ -232,7 +232,7 @@ export function MdxPreviewModal({
               <button
                 onClick={handleCommit}
                 disabled={isCommitting}
-                className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-ocean-blue)] px-4 py-2 text-white transition-colors hover:bg-[var(--color-ocean-blue-deep)] disabled:cursor-not-allowed disabled:opacity-50"
+                className="bg-ocean-blue hover:bg-ocean-blue-deep inline-flex items-center gap-2 rounded-lg px-4 py-2 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isCommitting ? (
                   <>

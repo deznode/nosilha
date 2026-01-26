@@ -36,7 +36,7 @@ const GUIDED_TEMPLATES: Record<string, TemplateConfig> = {
     description: "Share your family's connection to Brava across generations.",
     icon: Users,
     iconBgClass: "bg-pink-50 dark:bg-pink-900/30",
-    iconClass: "text-[var(--color-bougainvillea)]",
+    iconClass: "text-bougainvillea-pink",
     estimatedTime: "~15 minutes",
     starterPrompt: `## My Family's Roots
 When did your family first come to Brava? What stories were passed down?
@@ -53,7 +53,7 @@ What traditions does your family keep alive today?`,
     description: "Recall the sights, sounds, and adventures of growing up.",
     icon: Sparkles,
     iconBgClass: "bg-yellow-50 dark:bg-yellow-900/30",
-    iconClass: "text-[var(--color-sobrado-ochre)]",
+    iconClass: "text-sobrado-ochre",
     estimatedTime: "~15 minutes",
     starterPrompt: `## Where I Played
 Describe your favorite places as a child...
@@ -70,7 +70,7 @@ What events do you remember most vividly?`,
     description: "Tell the story of leaving, adapting, and staying connected.",
     icon: Plane,
     iconBgClass: "bg-blue-50 dark:bg-blue-900/30",
-    iconClass: "text-[var(--color-ocean-blue)]",
+    iconClass: "text-ocean-blue",
     estimatedTime: "~20 minutes",
     starterPrompt: `## Leaving Brava
 When did you leave? What do you remember about the departure?
@@ -88,7 +88,7 @@ How do you maintain your connection to Brava today?`,
       "Document the customs, celebrations, and practices you cherish.",
     icon: Music,
     iconBgClass: "bg-green-50 dark:bg-green-900/30",
-    iconClass: "text-[var(--color-valley-green)]",
+    iconClass: "text-valley-green",
     estimatedTime: "~15 minutes",
     starterPrompt: `## The Tradition
 What practice or celebration are you sharing?
@@ -105,7 +105,7 @@ What does this tradition mean to your community?`,
     description: "Share the flavors and recipes that taste like home.",
     icon: UtensilsCrossed,
     iconBgClass: "bg-orange-50 dark:bg-orange-900/30",
-    iconClass: "text-[var(--color-sobrado-ochre)]",
+    iconClass: "text-sobrado-ochre",
     estimatedTime: "~15 minutes",
     starterPrompt: `## The Dish
 What is this dish called? When is it traditionally eaten?
@@ -152,7 +152,7 @@ export function TemplateSelector({ onSelect, onBack }: TemplateSelectorProps) {
             <motion.button
               key={template.type}
               onClick={() => onSelect(template.type)}
-              className="border-hairline bg-canvas group relative flex flex-col rounded-xl border p-6 text-left hover:border-[var(--color-ocean-blue)] hover:shadow-lg"
+              className="border-hairline bg-canvas group hover:border-ocean-blue relative flex flex-col rounded-xl border p-6 text-left hover:shadow-lg"
               variants={listItem}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
@@ -170,7 +170,7 @@ export function TemplateSelector({ onSelect, onBack }: TemplateSelectorProps) {
                 {template.estimatedTime}
               </span>
               <div className="absolute top-4 right-4 opacity-0 transition-opacity group-hover:opacity-100">
-                <Check className="h-5 w-5 text-[var(--color-ocean-blue)]" />
+                <Check className="text-ocean-blue h-5 w-5" />
               </div>
             </motion.button>
           );

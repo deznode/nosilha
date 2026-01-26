@@ -81,15 +81,13 @@ export function SuggestImprovementButton({
           type="button"
           onClick={() => setIsOpen(true)}
           aria-label="Suggest improvement"
-          className="focus-ring hover:bg-surface-alt flex h-11 w-11 items-center justify-center rounded-full bg-surface text-body transition-colors"
+          className="focus-ring hover:bg-surface-alt bg-surface text-body flex h-11 w-11 items-center justify-center rounded-full transition-colors"
         >
           <Lightbulb className="h-5 w-5" />
         </motion.button>
 
         {variant === "icon-with-label" && (
-          <span className="mt-1 text-xs font-normal text-muted">
-            Suggest
-          </span>
+          <span className="text-muted mt-1 text-xs font-normal">Suggest</span>
         )}
       </div>
 

@@ -114,7 +114,7 @@ export function ConfirmationDialog({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <DialogPanel className="w-full max-w-md rounded-card bg-canvas p-6 shadow-floating">
+            <DialogPanel className="rounded-card bg-canvas shadow-floating w-full max-w-md p-6">
               <div className="flex flex-col items-center text-center">
                 <div
                   className={clsx(
@@ -128,14 +128,12 @@ export function ConfirmationDialog({
                   />
                 </div>
 
-                <DialogTitle className="mt-4 font-serif text-lg font-semibold text-body">
+                <DialogTitle className="text-body mt-4 font-serif text-lg font-semibold">
                   {title}
                 </DialogTitle>
 
                 {description && (
-                  <p className="mt-2 text-sm text-muted">
-                    {description}
-                  </p>
+                  <p className="text-muted mt-2 text-sm">{description}</p>
                 )}
 
                 <div className="mt-6 flex w-full gap-3">
@@ -143,7 +141,7 @@ export function ConfirmationDialog({
                     type="button"
                     onClick={onClose}
                     disabled={isLoading}
-                    className="flex-1 rounded-button border border-hairline bg-canvas px-4 py-2.5 text-sm font-medium text-body transition-colors hover:bg-surface focus:ring-2 focus:ring-edge focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-button border-hairline bg-canvas text-body hover:bg-surface focus:ring-edge flex-1 border px-4 py-2.5 text-sm font-medium transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {cancelLabel}
                   </button>

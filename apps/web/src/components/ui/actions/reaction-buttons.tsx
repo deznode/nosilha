@@ -199,7 +199,7 @@ export function ReactionButtons({
             className={clsx(
               "focus-ring flex h-11 min-w-[44px] items-center justify-center gap-1.5 rounded-full px-3 py-2 transition-all",
               isSelected
-                ? "scale-110 bg-[var(--color-ocean-blue)] text-white"
+                ? "bg-ocean-blue scale-110 text-white"
                 : "hover:bg-surface-alt bg-surface",
               isAuthenticated
                 ? "cursor-pointer"
@@ -215,9 +215,7 @@ export function ReactionButtons({
               <span
                 className={clsx(
                   "text-sm font-medium",
-                  isSelected
-                    ? "text-white"
-                    : "text-muted"
+                  isSelected ? "text-white" : "text-muted"
                 )}
               >
                 {reaction.count}

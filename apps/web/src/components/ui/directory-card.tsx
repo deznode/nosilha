@@ -73,7 +73,7 @@ export function DirectoryCard({
         <div className="flex flex-1 flex-col p-5">
           {/* Header with name and rating */}
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-body text-lg font-semibold transition-colors group-hover:text-[var(--color-ocean-blue)]">
+            <h3 className="text-body group-hover:text-ocean-blue text-lg font-semibold transition-colors">
               {entry.name}
             </h3>
             {/* Compact rating badge */}
@@ -81,7 +81,7 @@ export function DirectoryCard({
               <div className="border-edge bg-surface text-body flex shrink-0 items-center rounded border px-1.5 py-0.5 text-xs font-medium">
                 <Star
                   size={12}
-                  className="mr-1 fill-current text-[var(--color-sunny)]"
+                  className="text-sunny-yellow mr-1 fill-current"
                 />
                 {entry.rating.toFixed(1)}
               </div>

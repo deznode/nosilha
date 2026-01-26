@@ -33,7 +33,7 @@ export function GalleryImageGrid({ photos }: GalleryImageGridProps) {
         {photos.map((photo, index) => (
           <div
             key={index}
-            className="bg-canvas group break-inside-avoid overflow-hidden rounded-button shadow-subtle transition-shadow hover:shadow-elevated"
+            className="bg-canvas group rounded-button shadow-subtle hover:shadow-elevated break-inside-avoid overflow-hidden transition-shadow"
           >
             <div
               className="relative aspect-[4/3] cursor-pointer overflow-hidden"
@@ -52,7 +52,7 @@ export function GalleryImageGrid({ photos }: GalleryImageGridProps) {
                     e.stopPropagation();
                     openLightbox(index);
                   }}
-                  className="rounded-full bg-white/90 p-2 shadow-elevated hover:bg-white"
+                  className="shadow-elevated rounded-full bg-white/90 p-2 hover:bg-white"
                   aria-label="View full size"
                 >
                   <Eye className="text-body h-4 w-4" />
@@ -72,9 +72,7 @@ export function GalleryImageGrid({ photos }: GalleryImageGridProps) {
                 </span>
               </div>
 
-              <p className="text-muted mb-3 text-sm">
-                {photo.description}
-              </p>
+              <p className="text-muted mb-3 text-sm">{photo.description}</p>
 
               <button className="text-ocean-blue hover:text-ocean-blue/80 flex items-center text-xs font-medium">
                 <Share2 className="mr-1 h-3 w-3" />

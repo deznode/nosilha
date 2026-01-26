@@ -53,7 +53,7 @@ export function DirectoryEditModal({
             {/* Header */}
             <div className="border-hairline flex items-center justify-between border-b px-6 py-4">
               <div className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-[var(--color-ocean-blue)]" />
+                <MapPin className="text-ocean-blue h-5 w-5" />
                 <DialogTitle className="text-body text-lg font-semibold">
                   Edit Directory Entry
                 </DialogTitle>

@@ -44,23 +44,19 @@ export function InlineAuthPrompt({
       <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-800/30">
         <LogIn className="h-6 w-6 text-amber-600 dark:text-amber-400" />
       </div>
-      <h3 className="mb-2 font-medium text-body">
-        {title}
-      </h3>
-      <p className="mb-4 text-sm text-muted">
-        {description}
-      </p>
+      <h3 className="text-body mb-2 font-medium">{title}</h3>
+      <p className="text-muted mb-4 text-sm">{description}</p>
       <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
         <Link
           href={`/login?returnUrl=${encodedReturnUrl}`}
-          className="inline-flex items-center justify-center rounded-button bg-(--color-ocean-blue) px-4 py-2 text-sm font-medium text-white hover:bg-blue-800"
+          className="rounded-button inline-flex items-center justify-center bg-(--color-ocean-blue) px-4 py-2 text-sm font-medium text-white hover:bg-blue-800"
         >
           <LogIn className="mr-2 h-4 w-4" />
           Sign In
         </Link>
         <Link
           href={`/signup?returnUrl=${encodedReturnUrl}`}
-          className="inline-flex items-center justify-center rounded-button border border-hairline bg-canvas px-4 py-2 text-sm font-medium text-body hover:bg-surface"
+          className="rounded-button border-hairline bg-canvas text-body hover:bg-surface inline-flex items-center justify-center border px-4 py-2 text-sm font-medium"
         >
           Create Account
         </Link>

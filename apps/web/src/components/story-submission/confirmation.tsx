@@ -12,7 +12,7 @@ export function Confirmation({ onReset }: ConfirmationProps) {
     <div className="flex min-h-[60vh] flex-col items-center justify-center p-4">
       <div className="border-hairline bg-canvas w-full max-w-md rounded-lg border p-8 text-center shadow-lg">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-          <Send className="h-8 w-8 text-[var(--color-valley-green)]" />
+          <Send className="text-valley-green h-8 w-8" />
         </div>
         <h2 className="text-body mb-2 text-2xl font-bold">Obrigado!</h2>
         <p className="text-muted mb-6">
@@ -29,7 +29,7 @@ export function Confirmation({ onReset }: ConfirmationProps) {
           )}
           <Link
             href="/"
-            className="rounded-md bg-[var(--color-ocean-blue)] px-6 py-2 font-medium text-white transition hover:bg-blue-800"
+            className="bg-ocean-blue rounded-md px-6 py-2 font-medium text-white transition hover:bg-blue-800"
           >
             Return Home
           </Link>

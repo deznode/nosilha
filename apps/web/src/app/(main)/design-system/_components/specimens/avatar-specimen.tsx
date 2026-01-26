@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  Avatar,
-  AvatarButton,
-  AvatarGroup,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarButton, AvatarGroup } from "@/components/ui/avatar";
 
 const SIZES = ["xs", "sm", "md", "lg", "xl"] as const;
 

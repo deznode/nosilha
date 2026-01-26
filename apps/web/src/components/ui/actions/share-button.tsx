@@ -202,7 +202,7 @@ export function ShareButton({
           aria-expanded={isFallbackMenuOpen}
           className={`focus-ring flex h-11 w-11 items-center justify-center rounded-full transition-all ${
             isActive || isFallbackMenuOpen
-              ? "bg-[var(--color-ocean-blue)] text-white"
+              ? "bg-ocean-blue text-white"
               : "hover:bg-surface-alt bg-surface text-body"
           } `}
         >
@@ -211,9 +211,7 @@ export function ShareButton({
 
         {/* Label */}
         {variant === "icon-with-label" && (
-          <span className="mt-1 text-xs font-normal text-muted">
-            Share
-          </span>
+          <span className="text-muted mt-1 text-xs font-normal">Share</span>
         )}
       </div>
 
@@ -224,7 +222,7 @@ export function ShareButton({
           initial="hidden"
           animate="visible"
           exit="exit"
-          className="absolute right-0 bottom-14 z-50 flex flex-col gap-2 rounded-button bg-canvas p-3 shadow-elevated"
+          className="rounded-button bg-canvas shadow-elevated absolute right-0 bottom-14 z-50 flex flex-col gap-2 p-3"
         >
           {shareOptions.map((option) => {
             const Icon = option.icon;
@@ -234,12 +232,10 @@ export function ShareButton({
                 type="button"
                 onClick={option.action}
                 aria-label={option.label}
-                className="focus-ring flex items-center gap-3 rounded-md px-4 py-2 text-left text-sm transition-colors hover:bg-surface"
+                className="focus-ring hover:bg-surface flex items-center gap-3 rounded-md px-4 py-2 text-left text-sm transition-colors"
               >
-                <Icon className="h-5 w-5 text-[var(--color-ocean-blue)]" />
-                <span className="text-body">
-                  {option.label}
-                </span>
+                <Icon className="text-ocean-blue h-5 w-5" />
+                <span className="text-body">{option.label}</span>
               </button>
             );
           })}

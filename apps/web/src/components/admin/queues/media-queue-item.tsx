@@ -98,8 +98,8 @@ export function MediaQueueItem({
       <div className="px-4 py-4 sm:px-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <ImageIcon className="h-4 w-4 text-[var(--color-bougainvillea)]" />
-            <p className="truncate text-sm font-medium text-[var(--color-ocean-blue)]">
+            <ImageIcon className="text-bougainvillea-pink h-4 w-4" />
+            <p className="text-ocean-blue truncate text-sm font-medium">
               {media.title}
             </p>
           </div>

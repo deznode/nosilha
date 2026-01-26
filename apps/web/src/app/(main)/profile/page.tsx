@@ -132,28 +132,28 @@ export default function ProfilePage() {
   // Auth loading state - skeleton mimics actual profile layout (UX best practice)
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-canvas py-8">
+      <div className="bg-canvas min-h-screen py-8">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           {/* Profile header skeleton */}
-          <div className="animate-pulse rounded-xl bg-canvas p-6 shadow-sm">
-            <div className="h-24 rounded-lg bg-surface-alt" />
+          <div className="bg-canvas animate-pulse rounded-xl p-6 shadow-sm">
+            <div className="bg-surface-alt h-24 rounded-lg" />
             <div className="mt-4 flex items-center gap-4">
-              <div className="h-16 w-16 rounded-full bg-surface-alt" />
+              <div className="bg-surface-alt h-16 w-16 rounded-full" />
               <div className="flex-1">
-                <div className="h-6 w-48 rounded bg-surface-alt" />
-                <div className="mt-2 h-4 w-32 rounded bg-surface-alt" />
+                <div className="bg-surface-alt h-6 w-48 rounded" />
+                <div className="bg-surface-alt mt-2 h-4 w-32 rounded" />
               </div>
             </div>
           </div>
           {/* Tabs skeleton */}
-          <div className="mt-6 animate-pulse rounded-lg border border-hairline bg-canvas shadow-sm">
-            <div className="flex gap-4 border-b border-hairline p-4">
-              <div className="h-8 w-24 rounded bg-surface-alt" />
-              <div className="h-8 w-24 rounded bg-surface-alt" />
-              <div className="h-8 w-24 rounded bg-surface-alt" />
+          <div className="border-hairline bg-canvas mt-6 animate-pulse rounded-lg border shadow-sm">
+            <div className="border-hairline flex gap-4 border-b p-4">
+              <div className="bg-surface-alt h-8 w-24 rounded" />
+              <div className="bg-surface-alt h-8 w-24 rounded" />
+              <div className="bg-surface-alt h-8 w-24 rounded" />
             </div>
             <div className="p-6">
-              <div className="h-32 rounded bg-surface-alt" />
+              <div className="bg-surface-alt h-32 rounded" />
             </div>
           </div>
         </div>
@@ -164,27 +164,27 @@ export default function ProfilePage() {
   // Not logged in state
   if (!session) {
     return (
-      <div className="min-h-screen bg-canvas py-16">
+      <div className="bg-canvas min-h-screen py-16">
         <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-xl bg-canvas p-8 text-center shadow-sm">
-            <UserCircle className="mx-auto h-16 w-16 text-muted" />
-            <h2 className="mt-4 text-xl font-bold text-body">
+          <div className="bg-canvas rounded-xl p-8 text-center shadow-sm">
+            <UserCircle className="text-muted mx-auto h-16 w-16" />
+            <h2 className="text-body mt-4 text-xl font-bold">
               Sign in to view your profile
             </h2>
-            <p className="mt-2 text-muted">
+            <p className="text-muted mt-2">
               Create an account or sign in to access your profile and contribute
               to Nos Ilha.
             </p>
             <div className="mt-6 flex justify-center gap-4">
               <Link
                 href="/login"
-                className="rounded-md bg-[var(--color-ocean-blue)] px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-ocean-blue)]/90"
+                className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-6 py-2 text-sm font-semibold text-white transition-colors"
               >
                 Log in
               </Link>
               <Link
                 href="/signup"
-                className="rounded-md border border-[var(--color-ocean-blue)] px-6 py-2 text-sm font-semibold text-[var(--color-ocean-blue)] transition-colors hover:bg-[var(--color-ocean-blue)]/10"
+                className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue/10 rounded-md border px-6 py-2 text-sm font-semibold transition-colors"
               >
                 Sign up
               </Link>
@@ -210,7 +210,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-canvas py-8">
+    <div className="bg-canvas min-h-screen py-8">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         {/* Profile Header */}
         <ProfileHeader
@@ -220,7 +220,7 @@ export default function ProfilePage() {
         />
 
         {/* Tabs and Content */}
-        <div className="min-h-[400px] rounded-lg border border-hairline bg-canvas shadow-sm">
+        <div className="border-hairline bg-canvas min-h-[400px] rounded-lg border shadow-sm">
           <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
           <div className="p-6">

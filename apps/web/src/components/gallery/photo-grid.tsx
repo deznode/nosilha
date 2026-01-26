@@ -103,9 +103,7 @@ export function PhotoGrid({
                   <span className="text-ocean-blue text-xs font-bold tracking-wider uppercase">
                     {photo.category}
                   </span>
-                  <h3 className="text-body mt-1 font-bold">
-                    {photo.title}
-                  </h3>
+                  <h3 className="text-body mt-1 font-bold">{photo.title}</h3>
                 </div>
                 {photo.date && (
                   <span className="bg-surface-alt text-muted rounded px-2 py-1 text-xs">
@@ -128,9 +126,7 @@ export function PhotoGrid({
 
       {filteredPhotos.length === 0 && (
         <div className="border-hairline bg-canvas rounded-lg border py-20 text-center">
-          <p className="text-muted">
-            No photos found in this category.
-          </p>
+          <p className="text-muted">No photos found in this category.</p>
         </div>
       )}
     </>
@@ -143,10 +139,7 @@ export function PhotoGridSkeleton() {
       <div className="mb-8 flex flex-wrap items-center gap-2">
         <div className="bg-surface-alt h-5 w-16 rounded" />
         {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="bg-surface-alt h-6 w-16 rounded-full"
-          />
+          <div key={i} className="bg-surface-alt h-6 w-16 rounded-full" />
         ))}
       </div>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">

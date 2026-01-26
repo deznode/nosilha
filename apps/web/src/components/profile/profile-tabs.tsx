@@ -25,8 +25,8 @@ export function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
             onClick={() => onTabChange(tab.id)}
             className={`flex flex-1 items-center justify-center gap-2 border-b-2 px-1 py-4 text-center text-sm font-medium transition-colors ${
               activeTab === tab.id
-                ? "border-[var(--color-ocean-blue)] text-[var(--color-ocean-blue)]"
-                : "text-muted hover:text-body border-transparent hover:border-surface-alt"
+                ? "border-ocean-blue text-ocean-blue"
+                : "text-muted hover:text-body hover:border-surface-alt border-transparent"
             }`}
           >
             {tab.icon} {tab.label}

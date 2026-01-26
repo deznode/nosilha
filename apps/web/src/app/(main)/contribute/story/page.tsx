@@ -152,7 +152,7 @@ Why is this memory important to you? How does it make you feel today?`;
   // Show confirmation screen
   if (submitted) {
     return (
-      <div className="min-h-screen bg-canvas">
+      <div className="bg-canvas min-h-screen">
         <Confirmation onReset={handleReset} />
       </div>
     );
@@ -161,7 +161,7 @@ Why is this memory important to you? How does it make you feel today?`;
   // Show type selector
   if (!submissionType) {
     return (
-      <div className="min-h-screen bg-canvas">
+      <div className="bg-canvas min-h-screen">
         <TypeSelector onSelect={handleTypeSelection} />
       </div>
     );
@@ -170,7 +170,7 @@ Why is this memory important to you? How does it make you feel today?`;
   // Show template selector for GUIDED story type
   if (submissionType === StoryType.GUIDED && !selectedTemplate) {
     return (
-      <div className="min-h-screen bg-canvas px-4 py-8 sm:px-6 lg:px-8">
+      <div className="bg-canvas min-h-screen px-4 py-8 sm:px-6 lg:px-8">
         <TemplateSelector
           onSelect={handleTemplateSelection}
           onBack={() => setSubmissionType(null)}
@@ -180,11 +180,11 @@ Why is this memory important to you? How does it make you feel today?`;
   }
 
   // Determine header styles based on type
-  let headerColorClass = "bg-[var(--color-ocean-blue)]";
+  let headerColorClass = "bg-ocean-blue";
   let HeaderIcon = Clock;
 
   if (submissionType === StoryType.FULL) {
-    headerColorClass = "bg-[var(--color-bougainvillea)]";
+    headerColorClass = "bg-bougainvillea-pink";
     HeaderIcon = Book;
   }
 
@@ -194,14 +194,14 @@ Why is this memory important to you? How does it make you feel today?`;
   const isOverLimit = wordCount > limit;
 
   return (
-    <div className="min-h-screen bg-canvas px-4 py-8 sm:px-6 lg:px-8">
+    <div className="bg-canvas min-h-screen px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl">
         <button
           onClick={() => {
             setSubmissionType(null);
             setSelectedTemplate(null);
           }}
-          className="mb-6 flex items-center text-muted hover:text-body"
+          className="text-muted hover:text-body mb-6 flex items-center"
         >
           <ArrowLeft className="mr-2 h-4 w-4" /> Change Type
         </button>
@@ -211,13 +211,13 @@ Why is this memory important to you? How does it make you feel today?`;
           <div className="mb-6">
             <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-900/20">
               <div className="flex items-center gap-3">
-                <FileText className="h-5 w-5 text-[var(--color-ocean-blue)]" />
+                <FileText className="text-ocean-blue h-5 w-5" />
                 <div>
-                  <p className="font-medium text-body">
+                  <p className="text-body font-medium">
                     You have a saved draft
                   </p>
                   {lastSaved && (
-                    <p className="text-sm text-muted">
+                    <p className="text-muted text-sm">
                       Last saved {new Date(lastSaved).toLocaleString()}
                     </p>
                   )}
@@ -227,14 +227,14 @@ Why is this memory important to you? How does it make you feel today?`;
                 <button
                   type="button"
                   onClick={clearDraft}
-                  className="rounded px-3 py-1.5 text-sm text-muted hover:bg-surface"
+                  className="text-muted hover:bg-surface rounded px-3 py-1.5 text-sm"
                 >
                   Discard
                 </button>
                 <button
                   type="button"
                   onClick={handleLoadDraft}
-                  className="rounded bg-[var(--color-ocean-blue)] px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-800"
+                  className="bg-ocean-blue rounded px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-800"
                 >
                   Resume Draft
                 </button>
@@ -243,7 +243,7 @@ Why is this memory important to you? How does it make you feel today?`;
           </div>
         )}
 
-        <div className="overflow-hidden rounded-lg border border-hairline bg-canvas shadow-elevated">
+        <div className="border-hairline bg-canvas shadow-elevated overflow-hidden rounded-lg border">
           <div className={`px-6 py-4 ${headerColorClass}`}>
             <h2 className="flex items-center text-xl font-bold text-white">
               <HeaderIcon className="mr-2 h-5 w-5" />
@@ -265,7 +265,7 @@ Why is this memory important to you? How does it make you feel today?`;
             <div>
               <label
                 htmlFor="title"
-                className="block text-sm font-medium text-body"
+                className="text-body block text-sm font-medium"
               >
                 Title
               </label>
@@ -273,7 +273,7 @@ Why is this memory important to you? How does it make you feel today?`;
                 type="text"
                 id="title"
                 required
-                className="mt-1 block w-full rounded-md border border-hairline bg-canvas px-3 py-2 text-sm text-body shadow-sm focus:border-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)] focus:outline-none"
+                className="border-hairline bg-canvas text-body focus:border-ocean-blue focus:ring-ocean-blue mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none"
                 placeholder="e.g., Sunday Afternoons in Nova Sintra"
                 value={formData.title}
                 onChange={(e) =>
@@ -302,19 +302,16 @@ Why is this memory important to you? How does it make you feel today?`;
                 required
                 checked={agreedToTerms}
                 onChange={(e) => setAgreedToTerms(e.target.checked)}
-                className="h-4 w-4 rounded border-hairline text-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)]"
+                className="border-hairline text-ocean-blue focus:ring-ocean-blue h-4 w-4 rounded"
               />
-              <label
-                htmlFor="terms"
-                className="ml-2 block text-sm text-body"
-              >
+              <label htmlFor="terms" className="text-body ml-2 block text-sm">
                 I agree to the community guidelines and allow Nos Ilha to
                 publish this.
               </label>
             </div>
 
             {/* Submit button */}
-            <div className="border-t border-hairline pt-4">
+            <div className="border-hairline border-t pt-4">
               {isOverLimit && (
                 <p className="mb-3 text-sm text-red-600 dark:text-red-400">
                   Your story exceeds the word limit. Please shorten it to{" "}
@@ -330,7 +327,7 @@ Why is this memory important to you? How does it make you feel today?`;
                 <button
                   type="submit"
                   disabled={isSubmitting || isOverLimit || requiresAuth}
-                  className="flex items-center rounded-md bg-[var(--color-ocean-blue)] px-6 py-2 font-medium text-white hover:bg-blue-800 focus:ring-2 focus:ring-[var(--color-ocean-blue)] focus:ring-offset-2 focus:outline-none disabled:opacity-70"
+                  className="bg-ocean-blue focus:ring-ocean-blue flex items-center rounded-md px-6 py-2 font-medium text-white hover:bg-blue-800 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:opacity-70"
                 >
                   {isSubmitting
                     ? "Submitting..."

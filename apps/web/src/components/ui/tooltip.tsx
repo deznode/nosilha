@@ -60,19 +60,14 @@ export function Tooltip({
         <span
           role="tooltip"
           className={clsx(
-            "absolute z-50 whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs font-medium shadow-elevated",
-            "bg-basalt-900 text-white dark:bg-basalt-700",
+            "shadow-elevated absolute z-50 rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap",
+            "bg-basalt-900 dark:bg-basalt-700 text-white",
             positionStyles[position],
             className
           )}
         >
           {content}
-          <span
-            className={clsx(
-              "absolute border-4",
-              arrowStyles[position]
-            )}
-          />
+          <span className={clsx("absolute border-4", arrowStyles[position])} />
         </span>
       </Headless.Transition>
     </span>

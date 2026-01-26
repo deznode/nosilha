@@ -16,8 +16,8 @@ const STORY_TYPES = [
       "Share a fleeting moment, a specific event, or a simple thought about the island.",
     icon: Clock,
     iconBgClass: "bg-blue-50 dark:bg-blue-900/30",
-    iconClass: "text-[var(--color-ocean-blue)]",
-    hoverBorderClass: "hover:border-[var(--color-ocean-blue)]",
+    iconClass: "text-ocean-blue",
+    hoverBorderClass: "hover:border-ocean-blue",
   },
   {
     type: StoryType.FULL,
@@ -27,8 +27,8 @@ const STORY_TYPES = [
       "Write a detailed narrative. We provide templates for recipes, migration stories, and more.",
     icon: Book,
     iconBgClass: "bg-pink-50 dark:bg-pink-900/30",
-    iconClass: "text-[var(--color-bougainvillea)]",
-    hoverBorderClass: "hover:border-[var(--color-bougainvillea)]",
+    iconClass: "text-bougainvillea-pink",
+    hoverBorderClass: "hover:border-bougainvillea-pink",
   },
   {
     type: StoryType.GUIDED,

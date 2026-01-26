@@ -238,7 +238,7 @@ export function SuggestImprovementForm({
                     placeholder="your.email@example.com"
                     disabled={isSubmitting}
                   />
-                  <p className="mt-1 text-sm text-muted">
+                  <p className="text-muted mt-1 text-sm">
                     We may contact you for clarification on your suggestion.
                   </p>
                 </Field>
@@ -246,7 +246,7 @@ export function SuggestImprovementForm({
 
               {/* Show email info for authenticated users */}
               {isAuthenticated && user?.email && (
-                <div className="text-sm text-muted">
+                <div className="text-muted text-sm">
                   Submitting as: <strong>{user.email}</strong>
                 </div>
               )}
@@ -261,7 +261,7 @@ export function SuggestImprovementForm({
                     setSuggestionType(e.target.value as SuggestionType)
                   }
                   disabled={isSubmitting}
-                  className="focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-button border-hairline bg-canvas px-3 py-2 text-sm text-body disabled:opacity-50"
+                  className="focus:border-ocean-blue focus:ring-ocean-blue rounded-button border-hairline bg-canvas text-body block w-full px-3 py-2 text-sm disabled:opacity-50"
                 >
                   <option value="CORRECTION">
                     Correction - Fix factual errors or inaccuracies
@@ -287,9 +287,9 @@ export function SuggestImprovementForm({
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="Please provide details about your suggestion..."
                   disabled={isSubmitting}
-                  className="focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-button border-hairline bg-canvas px-3 py-2 text-sm text-body disabled:opacity-50"
+                  className="focus:border-ocean-blue focus:ring-ocean-blue rounded-button border-hairline bg-canvas text-body block w-full px-3 py-2 text-sm disabled:opacity-50"
                 />
-                <p className="mt-1 text-sm text-muted">
+                <p className="text-muted mt-1 text-sm">
                   {message.length}/5000 characters (minimum 10)
                 </p>
               </Field>

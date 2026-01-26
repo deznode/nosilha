@@ -166,21 +166,21 @@ export default function MediaContributionPage() {
   // Success confirmation screen
   if (submitted) {
     return (
-      <div className="flex min-h-[70vh] items-center justify-center bg-canvas p-6">
+      <div className="bg-canvas flex min-h-[70vh] items-center justify-center p-6">
         <div className="max-w-sm text-center">
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-valley-green)]/10">
-            <Check className="h-10 w-10 text-[var(--color-valley-green)]" />
+          <div className="bg-valley-green/10 mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full">
+            <Check className="text-valley-green h-10 w-10" />
           </div>
-          <h2 className="mb-3 font-serif text-3xl font-bold text-body">
+          <h2 className="text-body mb-3 font-serif text-3xl font-bold">
             Archive Updated
           </h2>
-          <p className="mb-8 leading-relaxed text-muted">
+          <p className="text-muted mb-8 leading-relaxed">
             Thank you for contributing to our visual history. Your item is
             pending verification by our team.
           </p>
           <Link
             href="/gallery"
-            className="block w-full rounded-2xl bg-[var(--color-ocean-blue)] py-4 font-bold text-white shadow-lg transition-colors hover:bg-[var(--color-ocean-blue-deep)]"
+            className="bg-ocean-blue hover:bg-ocean-blue-deep block w-full rounded-2xl py-4 font-bold text-white shadow-lg transition-colors"
           >
             Return to Gallery
           </Link>
@@ -190,18 +190,18 @@ export default function MediaContributionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-canvas px-4 py-20">
+    <div className="bg-canvas min-h-screen px-4 py-20">
       <div className="mx-auto max-w-xl">
         <Link
           href="/gallery"
-          className="mb-8 flex items-center gap-2 text-[10px] font-bold tracking-widest text-muted uppercase hover:text-body"
+          className="text-muted hover:text-body mb-8 flex items-center gap-2 text-[10px] font-bold tracking-widest uppercase"
         >
           <ArrowLeft size={14} /> Back to Gallery
         </Link>
 
-        <div className="overflow-hidden rounded-container border border-hairline bg-canvas shadow-floating">
+        <div className="rounded-container border-hairline bg-canvas shadow-floating overflow-hidden border">
           {/* Header */}
-          <div className="bg-[var(--color-bougainvillea-pink)] px-10 py-10 text-white">
+          <div className="bg-bougainvillea-pink px-10 py-10 text-white">
             <h1 className="font-serif text-2xl font-bold">Add to Archive</h1>
             <p className="mt-1 text-xs text-white/60">
               Expanding Brava&apos;s visual memory
@@ -210,13 +210,13 @@ export default function MediaContributionPage() {
 
           <form onSubmit={handleSubmit} className="space-y-8 p-10">
             {/* Type Switcher */}
-            <div className="flex rounded-card bg-surface p-1.5">
+            <div className="rounded-card bg-surface flex p-1.5">
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, type: "IMAGE" })}
                 className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold transition-all ${
                   formData.type === "IMAGE"
-                    ? "bg-canvas text-[var(--color-ocean-blue)] shadow-sm"
+                    ? "bg-canvas text-ocean-blue shadow-sm"
                     : "text-muted hover:text-body"
                 }`}
               >
@@ -227,7 +227,7 @@ export default function MediaContributionPage() {
                 onClick={() => setFormData({ ...formData, type: "VIDEO" })}
                 className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold transition-all ${
                   formData.type === "VIDEO"
-                    ? "bg-canvas text-[var(--color-bougainvillea-pink)] shadow-sm"
+                    ? "bg-canvas text-bougainvillea-pink shadow-sm"
                     : "text-muted hover:text-body"
                 }`}
               >
@@ -252,13 +252,13 @@ export default function MediaContributionPage() {
             <div className="space-y-6">
               {/* Title */}
               <div>
-                <label className="mb-2 block text-[10px] font-bold tracking-widest text-muted uppercase">
+                <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
                   Title of Item
                 </label>
                 <input
                   required
                   type="text"
-                  className="w-full rounded-xl border border-hairline bg-surface px-5 py-3 font-medium text-body transition-all outline-none focus:ring-2 focus:ring-[var(--color-ocean-blue)]/10"
+                  className="border-hairline bg-surface text-body focus:ring-ocean-blue/10 w-full rounded-xl border px-5 py-3 font-medium transition-all outline-none focus:ring-2"
                   placeholder="e.g., Festival of São João, 1984"
                   value={formData.title}
                   onChange={(e) =>
@@ -270,14 +270,14 @@ export default function MediaContributionPage() {
               {/* Image Upload or Video URL */}
               {formData.type === "IMAGE" ? (
                 <div>
-                  <label className="mb-2 block text-[10px] font-bold tracking-widest text-muted uppercase">
+                  <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
                     Image File
                   </label>
                   <div
-                    className={`flex cursor-pointer flex-col items-center justify-center rounded-card border-2 border-dashed p-8 text-center transition-all ${
+                    className={`rounded-card flex cursor-pointer flex-col items-center justify-center border-2 border-dashed p-8 text-center transition-all ${
                       formData.preview
-                        ? "border-[var(--color-valley-green)] bg-[var(--color-valley-green)]/5"
-                        : "border-hairline hover:border-[var(--color-ocean-blue)]/50 hover:bg-surface"
+                        ? "border-valley-green bg-valley-green/5"
+                        : "border-hairline hover:border-ocean-blue/50 hover:bg-surface"
                     }`}
                     onClick={() =>
                       document.getElementById("media-upload")?.click()
@@ -307,7 +307,7 @@ export default function MediaContributionPage() {
                     ) : (
                       <>
                         <Upload size={32} className="mx-auto opacity-20" />
-                        <p className="mt-2 text-sm text-muted">
+                        <p className="text-muted mt-2 text-sm">
                           Click to upload or drag and drop
                         </p>
                       </>
@@ -323,13 +323,13 @@ export default function MediaContributionPage() {
                 </div>
               ) : (
                 <div>
-                  <label className="mb-2 block text-[10px] font-bold tracking-widest text-muted uppercase">
+                  <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
                     Embed Link
                   </label>
                   <div className="relative">
                     <input
                       required
-                      className="w-full rounded-xl border border-hairline bg-surface py-3 pr-4 pl-10 text-body transition-all outline-none"
+                      className="border-hairline bg-surface text-body w-full rounded-xl border py-3 pr-4 pl-10 transition-all outline-none"
                       placeholder="YouTube or Vimeo URL"
                       value={formData.url}
                       onChange={(e) =>
@@ -337,7 +337,7 @@ export default function MediaContributionPage() {
                       }
                     />
                     <LinkIcon
-                      className="absolute top-3 left-3.5 text-[var(--color-bougainvillea-pink)] opacity-50"
+                      className="text-bougainvillea-pink absolute top-3 left-3.5 opacity-50"
                       size={16}
                     />
                   </div>
@@ -346,12 +346,12 @@ export default function MediaContributionPage() {
 
               {/* Description */}
               <div>
-                <label className="mb-2 block text-[10px] font-bold tracking-widest text-muted uppercase">
+                <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
                   Description
                 </label>
                 <textarea
                   rows={3}
-                  className="w-full rounded-xl border border-hairline bg-surface px-5 py-3 leading-relaxed text-body outline-none"
+                  className="border-hairline bg-surface text-body w-full rounded-xl border px-5 py-3 leading-relaxed outline-none"
                   placeholder="Additional context or story..."
                   value={formData.description}
                   onChange={(e) =>
@@ -362,12 +362,12 @@ export default function MediaContributionPage() {
 
               {/* Author/Credit */}
               <div>
-                <label className="mb-2 block text-[10px] font-bold tracking-widest text-muted uppercase">
+                <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
                   Archive Credit
                 </label>
                 <input
                   type="text"
-                  className="w-full rounded-xl border border-hairline bg-surface px-5 py-3 text-body outline-none"
+                  className="border-hairline bg-surface text-body w-full rounded-xl border px-5 py-3 outline-none"
                   placeholder="Name of owner or photographer"
                   value={formData.author}
                   onChange={(e) =>
@@ -388,13 +388,13 @@ export default function MediaContributionPage() {
             {/* Upload Progress */}
             {uploadState === "uploading" && (
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm text-muted">
+                <div className="text-muted flex items-center justify-between text-sm">
                   <span>Uploading...</span>
                   <span>{progress.percentage}%</span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-surface-alt">
+                <div className="bg-surface-alt h-2 overflow-hidden rounded-full">
                   <div
-                    className="h-full rounded-full bg-[var(--color-ocean-blue)] transition-all duration-300"
+                    className="bg-ocean-blue h-full rounded-full transition-all duration-300"
                     style={{ width: `${progress.percentage}%` }}
                   />
                 </div>
@@ -411,7 +411,7 @@ export default function MediaContributionPage() {
                   !formData.title ||
                   !formData.url
                 }
-                className="flex w-full items-center justify-center gap-3 rounded-card bg-body py-4 font-bold text-white shadow-elevated transition-all hover:bg-[var(--color-ocean-blue)] disabled:opacity-30"
+                className="rounded-card bg-body shadow-elevated hover:bg-ocean-blue flex w-full items-center justify-center gap-3 py-4 font-bold text-white transition-all disabled:opacity-30"
               >
                 {uploadState === "requesting-url" && "Preparing upload..."}
                 {uploadState === "uploading" &&

@@ -197,7 +197,7 @@ export default function SettingsPage() {
                                     storyPublished: e.target.checked,
                                   }))
                                 }
-                                className="text-ocean-blue focus:ring-ocean-blue rounded border-hairline"
+                                className="text-ocean-blue focus:ring-ocean-blue border-hairline rounded"
                               />
                               <span className="text-text-primary text-sm">
                                 When my story is published
@@ -213,7 +213,7 @@ export default function SettingsPage() {
                                     suggestionApproved: e.target.checked,
                                   }))
                                 }
-                                className="text-ocean-blue focus:ring-ocean-blue rounded border-hairline"
+                                className="text-ocean-blue focus:ring-ocean-blue border-hairline rounded"
                               />
                               <span className="text-text-primary text-sm">
                                 When my suggestion is approved
@@ -229,7 +229,7 @@ export default function SettingsPage() {
                                     weeklyDigest: e.target.checked,
                                   }))
                                 }
-                                className="text-ocean-blue focus:ring-ocean-blue rounded border-hairline"
+                                className="text-ocean-blue focus:ring-ocean-blue border-hairline rounded"
                               />
                               <span className="text-text-primary text-sm">
                                 Weekly community digest

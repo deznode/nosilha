@@ -25,7 +25,7 @@ export function StoryMarkdown({ content, className = "" }: StoryMarkdownProps) {
           // Demote headings: h1→h2, h2→h3 (page already has h1 title)
           h1: ({ children, ...props }) => (
             <h2
-              className="mt-8 mb-4 font-serif text-2xl font-bold text-[var(--color-ocean-blue)]"
+              className="text-ocean-blue mt-8 mb-4 font-serif text-2xl font-bold"
               {...props}
             >
               {children}
@@ -67,7 +67,7 @@ export function StoryMarkdown({ content, className = "" }: StoryMarkdownProps) {
           ),
           blockquote: ({ children, ...props }) => (
             <blockquote
-              className="text-muted bg-surface my-6 border-l-4 border-[var(--color-ocean-blue)]/30 py-3 pr-4 pl-4 italic"
+              className="text-muted bg-surface border-ocean-blue/30 my-6 border-l-4 py-3 pr-4 pl-4 italic"
               {...props}
             >
               {children}

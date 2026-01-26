@@ -70,7 +70,7 @@ export function StoryDetailContent({
           {/* Back Navigation */}
           <Link
             href="/stories"
-            className="text-muted mb-6 inline-flex items-center text-sm transition-colors hover:text-[var(--color-ocean-blue)]"
+            className="text-muted hover:text-ocean-blue mb-6 inline-flex items-center text-sm transition-colors"
           >
             <ArrowLeft size={16} className="mr-2" />
             Back to Stories
@@ -128,7 +128,7 @@ export function StoryDetailContent({
             </p>
             <Link
               href="/contribute/story"
-              className="inline-flex items-center rounded-lg bg-[var(--color-ocean-blue)] px-6 py-3 font-medium text-white transition-colors hover:bg-[var(--color-ocean-blue)]/90"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 inline-flex items-center rounded-lg px-6 py-3 font-medium text-white transition-colors"
             >
               Share Your Story
             </Link>

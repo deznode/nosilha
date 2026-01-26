@@ -57,12 +57,12 @@ export function SettingsTab({
   if (isLoading) {
     return (
       <div className="max-w-md animate-pulse">
-        <div className="mb-6 h-6 w-40 rounded bg-surface-alt" />
+        <div className="bg-surface-alt mb-6 h-6 w-40 rounded" />
         <div className="space-y-6">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i}>
-              <div className="mb-2 h-4 w-24 rounded bg-surface-alt" />
-              <div className="h-10 w-full rounded bg-surface-alt" />
+              <div className="bg-surface-alt mb-2 h-4 w-24 rounded" />
+              <div className="bg-surface-alt h-10 w-full rounded" />
             </div>
           ))}
         </div>
@@ -72,9 +72,7 @@ export function SettingsTab({
 
   return (
     <div className="max-w-md">
-      <h3 className="text-body mb-6 text-lg font-bold">
-        Account Preferences
-      </h3>
+      <h3 className="text-body mb-6 text-lg font-bold">Account Preferences</h3>
 
       <div className="space-y-6">
         {/* Display Name */}
@@ -86,7 +84,7 @@ export function SettingsTab({
             type="text"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            className="text-body border-hairline bg-canvas w-full rounded-md border px-3 py-2 focus:border-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)]"
+            className="text-body border-hairline bg-canvas focus:border-ocean-blue focus:ring-ocean-blue w-full rounded-md border px-3 py-2"
           />
         </div>
 
@@ -100,7 +98,7 @@ export function SettingsTab({
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="e.g., New Bedford, MA"
-            className="text-body placeholder-muted border-hairline bg-canvas w-full rounded-md border px-3 py-2 focus:border-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)]"
+            className="text-body placeholder-muted border-hairline bg-canvas focus:border-ocean-blue focus:ring-ocean-blue w-full rounded-md border px-3 py-2"
           />
         </div>
 
@@ -114,7 +112,7 @@ export function SettingsTab({
             <select
               value={preferredLanguage}
               onChange={(e) => setPreferredLanguage(e.target.value as Language)}
-              className="text-body border-hairline bg-canvas w-full appearance-none rounded-md border py-2 pr-3 pl-10 focus:border-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)]"
+              className="text-body border-hairline bg-canvas focus:border-ocean-blue focus:ring-ocean-blue w-full appearance-none rounded-md border py-2 pr-3 pl-10"
             >
               <option value="EN">English</option>
               <option value="PT">Português</option>
@@ -139,7 +137,7 @@ export function SettingsTab({
                     storyPublished: e.target.checked,
                   }))
                 }
-                className="border-hairline rounded text-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)]"
+                className="border-hairline text-ocean-blue focus:ring-ocean-blue rounded"
               />
               <span className="text-muted text-sm">
                 When my story is published
@@ -155,7 +153,7 @@ export function SettingsTab({
                     suggestionApproved: e.target.checked,
                   }))
                 }
-                className="border-hairline rounded text-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)]"
+                className="border-hairline text-ocean-blue focus:ring-ocean-blue rounded"
               />
               <span className="text-muted text-sm">
                 When my suggestion is approved
@@ -171,7 +169,7 @@ export function SettingsTab({
                     weeklyDigest: e.target.checked,
                   }))
                 }
-                className="border-hairline rounded text-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)]"
+                className="border-hairline text-ocean-blue focus:ring-ocean-blue rounded"
               />
               <span className="text-muted text-sm">
                 Weekly community digest
@@ -185,7 +183,7 @@ export function SettingsTab({
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="rounded-md bg-[var(--color-ocean-blue)] px-4 py-2 font-medium text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-ocean-blue rounded-md px-4 py-2 font-medium text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSaving ? "Saving..." : "Save Changes"}
           </button>

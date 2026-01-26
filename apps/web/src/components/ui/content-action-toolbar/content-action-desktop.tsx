@@ -65,7 +65,7 @@ export function ContentActionDesktop({
       }
     >
       {/* Background card container with rounded corners and shadow */}
-      <div className="flex flex-col rounded-button bg-canvas p-4 shadow-elevated">
+      <div className="rounded-button bg-canvas shadow-elevated flex flex-col p-4">
         {/* Group 1: Sharing Actions */}
         <div className="flex flex-col gap-2">
           {/* 1. Share Button (icon + label) */}

@@ -303,9 +303,9 @@ export function DirectoryEntryForm({
   if (step === 3 && variant === "full-page") {
     return (
       <div className="bg-canvas flex min-h-screen items-center justify-center p-6">
-        <div className="border-hairline bg-surface w-full max-w-md rounded-container border p-12 text-center shadow-2xl">
-          <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-[var(--color-valley-green)]/10 shadow-inner">
-            <Check className="h-12 w-12 text-[var(--color-valley-green)]" />
+        <div className="border-hairline bg-surface rounded-container w-full max-w-md border p-12 text-center shadow-2xl">
+          <div className="bg-valley-green/10 mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full border-4 border-white shadow-inner">
+            <Check className="text-valley-green h-12 w-12" />
           </div>
           <h2 className="text-body mb-4 font-serif text-3xl font-bold">
             Entry Submitted
@@ -317,7 +317,7 @@ export function DirectoryEntryForm({
           </p>
           <button
             onClick={handleBack}
-            className="w-full rounded-2xl bg-[var(--color-ocean-blue)] py-4 font-bold text-white shadow-xl transition hover:bg-blue-800 active:scale-[0.98]"
+            className="bg-ocean-blue w-full rounded-2xl py-4 font-bold text-white shadow-xl transition hover:bg-blue-800 active:scale-[0.98]"
           >
             Back to Directory
           </button>
@@ -348,7 +348,7 @@ export function DirectoryEntryForm({
               <input
                 required
                 type="text"
-                className="border-hairline bg-surface text-body w-full rounded-xl border px-4 py-3 transition-all outline-none focus:border-[var(--color-ocean-blue)] focus:ring-2 focus:ring-[var(--color-ocean-blue)]/10"
+                className="border-hairline bg-surface text-body focus:border-ocean-blue focus:ring-ocean-blue/10 w-full rounded-xl border px-4 py-3 transition-all outline-none focus:ring-2"
                 placeholder="e.g., Pensão Sodade"
                 value={formData.name}
                 onChange={(e) =>
@@ -360,7 +360,7 @@ export function DirectoryEntryForm({
                   type="button"
                   onClick={handleAIAutoFill}
                   disabled={isGenerating}
-                  className="absolute top-2 right-2 flex items-center gap-1 rounded-lg bg-[var(--color-bougainvillea-pink)] px-3 py-1.5 text-xs font-bold text-white transition-all hover:bg-pink-700 active:scale-95 disabled:opacity-50"
+                  className="bg-bougainvillea-pink absolute top-2 right-2 flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold text-white transition-all hover:bg-pink-700 active:scale-95 disabled:opacity-50"
                 >
                   <Sparkles
                     size={12}
@@ -411,7 +411,7 @@ export function DirectoryEntryForm({
               <button
                 type="button"
                 onClick={() => setUseCustomTown(!useCustomTown)}
-                className="flex items-center gap-1 text-xs font-bold text-[var(--color-ocean-blue)] hover:underline"
+                className="text-ocean-blue flex items-center gap-1 text-xs font-bold hover:underline"
               >
                 {useCustomTown ? (
                   <LayoutGrid size={10} />
@@ -427,7 +427,7 @@ export function DirectoryEntryForm({
                 <input
                   required
                   type="text"
-                  className="border-hairline bg-surface text-body w-full rounded-xl border py-3 pr-4 pl-9 transition-all outline-none focus:ring-2 focus:ring-[var(--color-ocean-blue)]/10"
+                  className="border-hairline bg-surface text-body focus:ring-ocean-blue/10 w-full rounded-xl border py-3 pr-4 pl-9 transition-all outline-none focus:ring-2"
                   placeholder="Enter town name..."
                   value={formData.customTown}
                   onChange={(e) =>
@@ -436,13 +436,13 @@ export function DirectoryEntryForm({
                 />
                 <MapPin
                   size={16}
-                  className="absolute top-3.5 left-3 text-[var(--color-ocean-blue)]"
+                  className="text-ocean-blue absolute top-3.5 left-3"
                 />
               </div>
             ) : (
               <div className="relative">
                 <select
-                  className="border-hairline bg-surface text-body w-full cursor-pointer appearance-none rounded-xl border px-4 py-3 transition-all outline-none focus:ring-2 focus:ring-[var(--color-ocean-blue)]/10"
+                  className="border-hairline bg-surface text-body focus:ring-ocean-blue/10 w-full cursor-pointer appearance-none rounded-xl border px-4 py-3 transition-all outline-none focus:ring-2"
                   value={formData.town}
                   onChange={(e) =>
                     setFormData({ ...formData, town: e.target.value })
@@ -467,7 +467,7 @@ export function DirectoryEntryForm({
             <textarea
               required
               rows={3}
-              className="border-hairline bg-surface text-body w-full rounded-xl border px-4 py-3 leading-relaxed transition-all outline-none focus:ring-2 focus:ring-[var(--color-ocean-blue)]/10"
+              className="border-hairline bg-surface text-body focus:ring-ocean-blue/10 w-full rounded-xl border px-4 py-3 leading-relaxed transition-all outline-none focus:ring-2"
               placeholder="Describe the location..."
               value={formData.description}
               onChange={(e) =>
@@ -485,7 +485,7 @@ export function DirectoryEntryForm({
               <div className="relative">
                 <input
                   type="text"
-                  className="border-hairline bg-surface text-body w-full rounded-xl border py-3 pr-4 pl-9 text-sm transition-all outline-none focus:ring-2 focus:ring-[var(--color-ocean-blue)]/10"
+                  className="border-hairline bg-surface text-body focus:ring-ocean-blue/10 w-full rounded-xl border py-3 pr-4 pl-9 text-sm transition-all outline-none focus:ring-2"
                   placeholder="ocean-view, historical"
                   value={formData.tags}
                   onChange={(e) =>
@@ -511,7 +511,7 @@ export function DirectoryEntryForm({
                       }
                       className={`flex-1 rounded-lg border py-3 text-xs font-bold transition-all ${
                         formData.priceLevel === p
-                          ? "border-[var(--color-valley-green)] bg-[var(--color-valley-green)] text-white"
+                          ? "border-valley-green bg-valley-green text-white"
                           : "border-hairline bg-surface text-muted"
                       }`}
                     >
@@ -548,7 +548,7 @@ export function DirectoryEntryForm({
               <input
                 type="number"
                 step="any"
-                className="border-hairline bg-surface text-body w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--color-ocean-blue)]/10"
+                className="border-hairline bg-surface text-body focus:ring-ocean-blue/10 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2"
                 placeholder="14.8687"
                 value={formData.latitude}
                 onChange={(e) =>
@@ -563,7 +563,7 @@ export function DirectoryEntryForm({
               <input
                 type="number"
                 step="any"
-                className="border-hairline bg-surface text-body w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[var(--color-ocean-blue)]/10"
+                className="border-hairline bg-surface text-body focus:ring-ocean-blue/10 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2"
                 placeholder="-24.7011"
                 value={formData.longitude}
                 onChange={(e) =>
@@ -614,9 +614,9 @@ export function DirectoryEntryForm({
           Cancel & Return
         </button>
 
-        <div className="border-hairline bg-surface overflow-hidden rounded-container border shadow-2xl">
+        <div className="border-hairline bg-surface rounded-container overflow-hidden border shadow-2xl">
           {/* Header Branding */}
-          <div className="relative overflow-hidden bg-[var(--color-ocean-blue)] px-12 py-12 text-white">
+          <div className="bg-ocean-blue relative overflow-hidden px-12 py-12 text-white">
             <div className="absolute top-0 right-0 -mt-40 -mr-40 h-80 w-80 rounded-full bg-white/5 blur-3xl"></div>
             <div className="relative z-10">
               <span className="mb-4 inline-block rounded-full bg-white/20 px-3 py-1 text-[10px] font-bold tracking-widest uppercase backdrop-blur-md">
@@ -644,7 +644,7 @@ export function DirectoryEntryForm({
 
             {/* Identity Section */}
             <div className="space-y-8">
-              <div className="border-hairline flex items-center gap-3 border-b pb-3 text-xs font-bold tracking-[0.2em] text-[var(--color-ocean-blue)] uppercase">
+              <div className="border-hairline text-ocean-blue flex items-center gap-3 border-b pb-3 text-xs font-bold tracking-[0.2em] uppercase">
                 <Info size={16} /> 1. Essential Details
               </div>
 
@@ -657,7 +657,7 @@ export function DirectoryEntryForm({
                     <input
                       required
                       type="text"
-                      className="border-hairline bg-surface text-body w-full rounded-2xl border px-5 py-4 text-lg font-medium transition-all outline-none focus:border-[var(--color-ocean-blue)] focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
+                      className="border-hairline bg-surface text-body focus:border-ocean-blue focus:ring-ocean-blue/10 w-full rounded-2xl border px-5 py-4 text-lg font-medium transition-all outline-none focus:ring-4"
                       placeholder="e.g., Pensão Sodade"
                       value={formData.name}
                       onChange={(e) =>
@@ -669,7 +669,7 @@ export function DirectoryEntryForm({
                         type="button"
                         onClick={handleAIAutoFill}
                         disabled={isGenerating}
-                        className="absolute top-3 right-3 flex items-center gap-2 rounded-xl bg-[var(--color-bougainvillea-pink)] px-5 py-2 text-xs font-bold text-white shadow-lg transition-all hover:bg-pink-700 active:scale-95 disabled:opacity-50"
+                        className="bg-bougainvillea-pink absolute top-3 right-3 flex items-center gap-2 rounded-xl px-5 py-2 text-xs font-bold text-white shadow-lg transition-all hover:bg-pink-700 active:scale-95 disabled:opacity-50"
                       >
                         <Sparkles
                           size={14}
@@ -730,7 +730,7 @@ export function DirectoryEntryForm({
                   <button
                     type="button"
                     onClick={() => setUseCustomTown(!useCustomTown)}
-                    className="flex items-center gap-1 text-xs font-bold text-[var(--color-ocean-blue)] hover:underline"
+                    className="text-ocean-blue flex items-center gap-1 text-xs font-bold hover:underline"
                   >
                     {useCustomTown ? (
                       <LayoutGrid size={12} />
@@ -746,7 +746,7 @@ export function DirectoryEntryForm({
                     <input
                       required
                       type="text"
-                      className="border-hairline bg-surface text-body w-full rounded-2xl border py-4 pr-4 pl-10 transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
+                      className="border-hairline bg-surface text-body focus:ring-ocean-blue/10 w-full rounded-2xl border py-4 pr-4 pl-10 transition-all outline-none focus:ring-4"
                       placeholder="Enter town name..."
                       value={formData.customTown}
                       onChange={(e) =>
@@ -755,13 +755,13 @@ export function DirectoryEntryForm({
                     />
                     <MapPin
                       size={18}
-                      className="absolute top-4 left-4 text-[var(--color-ocean-blue)]"
+                      className="text-ocean-blue absolute top-4 left-4"
                     />
                   </div>
                 ) : (
                   <div className="relative">
                     <select
-                      className="border-hairline bg-surface text-body w-full cursor-pointer appearance-none rounded-2xl border px-5 py-4 transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
+                      className="border-hairline bg-surface text-body focus:ring-ocean-blue/10 w-full cursor-pointer appearance-none rounded-2xl border px-5 py-4 transition-all outline-none focus:ring-4"
                       value={formData.town}
                       onChange={(e) =>
                         setFormData({ ...formData, town: e.target.value })
@@ -783,7 +783,7 @@ export function DirectoryEntryForm({
 
             {/* Cultural Context */}
             <div className="space-y-8">
-              <div className="border-hairline flex items-center gap-3 border-b pb-3 text-xs font-bold tracking-[0.2em] text-[var(--color-ocean-blue)] uppercase">
+              <div className="border-hairline text-ocean-blue flex items-center gap-3 border-b pb-3 text-xs font-bold tracking-[0.2em] uppercase">
                 <History size={16} /> 2. Context & Story
               </div>
 
@@ -795,7 +795,7 @@ export function DirectoryEntryForm({
                   <textarea
                     required
                     rows={5}
-                    className="border-hairline bg-surface text-body w-full rounded-2xl border px-5 py-4 leading-relaxed transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
+                    className="border-hairline bg-surface text-body focus:ring-ocean-blue/10 w-full rounded-2xl border px-5 py-4 leading-relaxed transition-all outline-none focus:ring-4"
                     placeholder="Describe the atmosphere, significance, or history of this location..."
                     value={formData.description}
                     onChange={(e) =>
@@ -812,7 +812,7 @@ export function DirectoryEntryForm({
                     <div className="relative">
                       <input
                         type="text"
-                        className="border-hairline bg-surface text-body w-full rounded-2xl border py-3 pr-4 pl-10 text-sm transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
+                        className="border-hairline bg-surface text-body focus:ring-ocean-blue/10 w-full rounded-2xl border py-3 pr-4 pl-10 text-sm transition-all outline-none focus:ring-4"
                         placeholder="ocean-view, historical, hidden-gem"
                         value={formData.tags}
                         onChange={(e) =>
@@ -841,7 +841,7 @@ export function DirectoryEntryForm({
                             }
                             className={`w-10 rounded-lg border py-1.5 text-xs font-bold transition-all ${
                               formData.priceLevel === p
-                                ? "border-[var(--color-valley-green)] bg-[var(--color-valley-green)] text-white"
+                                ? "border-valley-green bg-valley-green text-white"
                                 : "border-hairline bg-surface text-muted"
                             }`}
                           >
@@ -857,7 +857,7 @@ export function DirectoryEntryForm({
 
             {/* Media & Coordinates */}
             <div className="space-y-8">
-              <div className="border-hairline flex items-center gap-3 border-b pb-3 text-xs font-bold tracking-[0.2em] text-[var(--color-ocean-blue)] uppercase">
+              <div className="border-hairline text-ocean-blue flex items-center gap-3 border-b pb-3 text-xs font-bold tracking-[0.2em] uppercase">
                 <ImageIcon size={16} /> 3. Visuals & Location
               </div>
 
@@ -875,7 +875,7 @@ export function DirectoryEntryForm({
                   initialUrl={formData.imageUrl}
                 />
                 {formData.imageUrl && (
-                  <p className="mt-2 text-sm text-[var(--color-valley-green)]">
+                  <p className="text-valley-green mt-2 text-sm">
                     Photo uploaded successfully
                   </p>
                 )}
@@ -889,7 +889,7 @@ export function DirectoryEntryForm({
                   <input
                     type="number"
                     step="any"
-                    className="border-hairline bg-surface text-body w-full rounded-2xl border px-4 py-3 text-sm transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
+                    className="border-hairline bg-surface text-body focus:ring-ocean-blue/10 w-full rounded-2xl border px-4 py-3 text-sm transition-all outline-none focus:ring-4"
                     placeholder="14.8687"
                     value={formData.latitude}
                     onChange={(e) =>
@@ -904,7 +904,7 @@ export function DirectoryEntryForm({
                   <input
                     type="number"
                     step="any"
-                    className="border-hairline bg-surface text-body w-full rounded-2xl border px-4 py-3 text-sm transition-all outline-none focus:ring-4 focus:ring-[var(--color-ocean-blue)]/10"
+                    className="border-hairline bg-surface text-body focus:ring-ocean-blue/10 w-full rounded-2xl border px-4 py-3 text-sm transition-all outline-none focus:ring-4"
                     placeholder="-24.7011"
                     value={formData.longitude}
                     onChange={(e) =>
@@ -925,9 +925,9 @@ export function DirectoryEntryForm({
 
             {/* Submission Actions */}
             <div className="border-hairline flex flex-col items-center justify-between gap-6 border-t pt-10 md:flex-row">
-              <div className="flex max-w-md items-start gap-4 rounded-2xl border border-[var(--color-sobrado-ochre)]/20 bg-[var(--color-sobrado-ochre)]/10 p-4">
+              <div className="border-sobrado-ochre/20 bg-sobrado-ochre/10 flex max-w-md items-start gap-4 rounded-2xl border p-4">
                 <AlertCircle
-                  className="shrink-0 text-[var(--color-sobrado-ochre)]"
+                  className="text-sobrado-ochre shrink-0"
                   size={20}
                 />
                 <p className="text-muted text-[10px] leading-relaxed">

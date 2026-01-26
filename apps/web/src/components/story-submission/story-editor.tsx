@@ -281,7 +281,7 @@ export function StoryEditor({
             onClick={() => setActiveTab("preview")}
             className={`flex items-center rounded-md px-3 py-1 text-xs font-medium transition-all ${
               activeTab === "preview"
-                ? "bg-surface text-[var(--color-ocean-blue)] shadow-sm"
+                ? "bg-surface text-ocean-blue shadow-sm"
                 : "text-muted hover:text-body"
             }`}
           >
@@ -334,7 +334,7 @@ export function StoryEditor({
                 <button
                   type="button"
                   onClick={() => setShowTemplates(!showTemplates)}
-                  className="flex items-center gap-1 rounded bg-pink-50 px-2 py-1 text-xs font-medium text-[var(--color-bougainvillea)] transition-colors hover:bg-pink-100 dark:bg-pink-900/30 dark:hover:bg-pink-900/50"
+                  className="text-bougainvillea-pink flex items-center gap-1 rounded bg-pink-50 px-2 py-1 text-xs font-medium transition-colors hover:bg-pink-100 dark:bg-pink-900/30 dark:hover:bg-pink-900/50"
                 >
                   <LayoutTemplate className="h-3 w-3" /> Templates{" "}
                   <ChevronDown className="h-3 w-3" />
@@ -376,7 +376,7 @@ export function StoryEditor({
                   type="button"
                   onClick={handlePolish}
                   disabled={isPolishing || !content}
-                  className="flex items-center px-2 text-xs text-[var(--color-bougainvillea)] hover:text-pink-700 disabled:opacity-50"
+                  className="text-bougainvillea-pink flex items-center px-2 text-xs hover:text-pink-700 disabled:opacity-50"
                   title="Use Gemini AI to fix grammar and improve flow"
                 >
                   <Sparkles className="mr-1 h-3 w-3" />
@@ -388,7 +388,7 @@ export function StoryEditor({
                     type="button"
                     onClick={handleTranslate}
                     disabled={isTranslating || !content}
-                    className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-[var(--color-ocean-blue)] hover:bg-blue-50 disabled:opacity-50 dark:hover:bg-blue-900/30"
+                    className="text-ocean-blue flex items-center gap-1 rounded px-2 py-1 text-xs font-medium hover:bg-blue-50 disabled:opacity-50 dark:hover:bg-blue-900/30"
                     title={`Translate to ${currentLanguage === "EN" ? "Portuguese" : "English"}`}
                   >
                     <Languages className="h-3 w-3" />
@@ -426,7 +426,7 @@ export function StoryEditor({
             ref={textareaRef}
             rows={storyType === StoryType.QUICK ? 8 : 16}
             required
-            className="border-hairline bg-surface text-body block w-full rounded-b-md border px-3 py-2 font-mono text-sm shadow-sm focus:border-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)] focus:outline-none"
+            className="border-hairline bg-surface text-body focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-b-md border px-3 py-2 font-mono text-sm shadow-sm focus:outline-none"
             placeholder={
               storyType === StoryType.QUICK
                 ? "Share a quick memory... (e.g., 'I remember the sound of the ocean at night...')"
@@ -484,14 +484,14 @@ export function StoryEditor({
           )}
         </div>
       ) : (
-        <div className="prose prose-sm dark:prose-invert prose-headings:font-serif prose-headings:text-[var(--color-ocean-blue)] prose-a:text-[var(--color-ocean-blue)] border-hairline bg-surface min-h-[300px] max-w-none rounded-md border p-6">
+        <div className="prose prose-sm dark:prose-invert prose-headings:font-serif prose-headings:text-ocean-blue prose-a:text-ocean-blue border-hairline bg-surface min-h-[300px] max-w-none rounded-md border p-6">
           {/* Simulated Article Header for Preview */}
           <div className="border-hairline mb-6 border-b pb-4">
             <h1 className="text-body mb-2 font-serif text-2xl font-bold">
               {title || "Untitled Story"}
             </h1>
             <div className="text-muted flex items-center text-sm">
-              <span className="mr-2 font-medium text-[var(--color-bougainvillea)]">
+              <span className="text-bougainvillea-pink mr-2 font-medium">
                 {author || "Anonymous"}
               </span>
               {location && <span className="mr-2">• {location}</span>}
@@ -504,7 +504,7 @@ export function StoryEditor({
               components={{
                 h1: ({ children, ...props }) => (
                   <h2
-                    className="mt-6 mb-3 text-xl font-bold text-[var(--color-ocean-blue)]"
+                    className="text-ocean-blue mt-6 mb-3 text-xl font-bold"
                     {...props}
                   >
                     {children}

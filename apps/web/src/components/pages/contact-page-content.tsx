@@ -129,9 +129,9 @@ export function ContactPageContent() {
           transition={{ delay: 0.2 }}
           className="mx-auto mt-12 max-w-2xl"
         >
-          <div className="overflow-hidden rounded-lg border border-hairline bg-canvas shadow-xl">
+          <div className="border-hairline bg-canvas overflow-hidden rounded-lg border shadow-xl">
             {/* Blue Header Bar */}
-            <div className="bg-[var(--color-ocean-blue)] px-6 py-4">
+            <div className="bg-ocean-blue px-6 py-4">
               <h2 className="flex items-center gap-2 text-xl font-bold text-white">
                 <Send className="h-5 w-5" />
                 Send us a Message
@@ -285,7 +285,7 @@ export function ContactPageContent() {
                       required
                       checked={agreedToPrivacy}
                       onChange={(e) => setAgreedToPrivacy(e.target.checked)}
-                      className="mt-1 h-4 w-4 rounded border-hairline text-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)]"
+                      className="border-hairline text-ocean-blue focus:ring-ocean-blue mt-1 h-4 w-4 rounded"
                     />
                     <label
                       htmlFor="privacy"
@@ -294,7 +294,7 @@ export function ContactPageContent() {
                       I agree to the{" "}
                       <Link
                         href="/privacy"
-                        className="text-[var(--color-ocean-blue)] hover:underline"
+                        className="text-ocean-blue hover:underline"
                       >
                         privacy policy
                       </Link>

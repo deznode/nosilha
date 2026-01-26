@@ -29,7 +29,7 @@ export function CoverageChart({ data, isLoading }: CoverageChartProps) {
   return (
     <div className="border-hairline bg-surface rounded-lg border p-6 shadow-sm">
       <h3 className="text-body mb-4 flex items-center text-lg font-bold">
-        <Map size={20} className="mr-2 text-[var(--color-ocean-blue)]" />
+        <Map size={20} className="text-ocean-blue mr-2" />
         Coverage by Town
       </h3>
       <div className="h-40 w-full">

@@ -92,7 +92,7 @@ export function CopyLinkButton({
         aria-label="Copy link to clipboard"
         className={`focus-ring flex h-11 w-11 items-center justify-center rounded-full transition-all ${
           isActive
-            ? "bg-[var(--color-ocean-blue)] text-white"
+            ? "bg-ocean-blue text-white"
             : "hover:bg-surface-alt bg-surface text-body"
         } ${!isClipboardAvailable ? "cursor-not-allowed opacity-50" : "cursor-pointer"} `}
       >
@@ -100,9 +100,7 @@ export function CopyLinkButton({
       </motion.button>
 
       {variant === "icon-with-label" && (
-        <span className="mt-1 text-xs font-normal text-muted">
-          Copy Link
-        </span>
+        <span className="text-muted mt-1 text-xs font-normal">Copy Link</span>
       )}
     </div>
   );

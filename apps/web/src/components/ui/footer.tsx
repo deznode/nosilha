@@ -110,7 +110,7 @@ export function Footer({
         </div>
 
         {/* Newsletter Section */}
-        <div className="mt-12 border-t border-basalt-800 pt-8">
+        <div className="border-basalt-800 mt-12 border-t pt-8">
           <div className="md:flex md:items-start md:justify-between">
             <div className="max-w-md">
               <h3 className="text-base leading-6 font-semibold text-white">
@@ -128,9 +128,9 @@ export function Footer({
         </div>
 
         {/* Bottom Bar: Social + Copyright */}
-        <div className="mt-12 border-t border-basalt-800 pt-8 md:flex md:items-center md:justify-between">
+        <div className="border-basalt-800 mt-12 border-t pt-8 md:flex md:items-center md:justify-between">
           <SocialMediaLinks variant="compact" className="md:order-2" />
-          <p className="mt-8 text-xs leading-5 text-muted md:order-1 md:mt-0">
+          <p className="text-muted mt-8 text-xs leading-5 md:order-1 md:mt-0">
             &copy; {new Date().getFullYear()} Nos Ilha. {copy.copyright}
           </p>
         </div>

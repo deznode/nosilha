@@ -70,9 +70,7 @@ export function Lightbox({ image, onClose }: LightboxProps) {
         <div className="bg-canvas rounded-b-lg p-6">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-body text-xl font-bold">
-                {image.title}
-              </h2>
+              <h2 className="text-body text-xl font-bold">{image.title}</h2>
               <p className="text-muted mt-1">{image.description}</p>
             </div>
             <div className="text-right">

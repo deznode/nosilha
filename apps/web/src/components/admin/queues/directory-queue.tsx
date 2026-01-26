@@ -9,7 +9,6 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  ExternalLink,
   Utensils,
   Hotel,
   Umbrella,
@@ -44,13 +43,11 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Restaurant:
-    "bg-[var(--color-bougainvillea)]/10 text-[var(--color-bougainvillea)]",
-  Hotel: "bg-[var(--color-ocean-blue)]/10 text-[var(--color-ocean-blue)]",
-  Beach: "bg-[var(--color-sunny-yellow)]/10 text-[var(--color-sunny-yellow)]",
-  Heritage:
-    "bg-[var(--color-valley-green)]/10 text-[var(--color-valley-green)]",
-  Nature: "bg-[var(--color-valley-green)]/10 text-[var(--color-valley-green)]",
+  Restaurant: "bg-bougainvillea-pink/10 text-bougainvillea-pink",
+  Hotel: "bg-ocean-blue/10 text-ocean-blue",
+  Beach: "bg-sunny-yellow/10 text-sunny-yellow",
+  Heritage: "bg-valley-green/10 text-valley-green",
+  Nature: "bg-valley-green/10 text-valley-green",
 };
 
 export function DirectoryQueue({
@@ -137,7 +134,7 @@ export function DirectoryQueue({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search submissions..."
-            className="border-hairline bg-surface placeholder-muted block w-full rounded-md border py-2 pr-3 pl-10 leading-5 focus:border-[var(--color-ocean-blue)] focus:ring-1 focus:ring-[var(--color-ocean-blue)] focus:outline-none sm:text-sm"
+            className="border-hairline bg-surface placeholder-muted focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-md border py-2 pr-3 pl-10 leading-5 focus:ring-1 focus:outline-none sm:text-sm"
           />
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
             <Search className="text-muted h-4 w-4" />
@@ -176,7 +173,7 @@ export function DirectoryQueue({
                           {submission.category}
                         </span>
                         {submission.priceLevel && (
-                          <span className="rounded bg-[var(--color-valley-green)]/10 px-2 py-0.5 text-[10px] font-bold text-[var(--color-valley-green)]">
+                          <span className="bg-valley-green/10 text-valley-green rounded px-2 py-0.5 text-[10px] font-bold">
                             {submission.priceLevel}
                           </span>
                         )}

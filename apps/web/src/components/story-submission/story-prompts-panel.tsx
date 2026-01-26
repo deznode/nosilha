@@ -79,7 +79,7 @@ export function StoryPromptsPanel({
         onClick={() => setIsExpanded(!isExpanded)}
         className="flex w-full items-center justify-between px-3 py-2 text-sm"
       >
-        <span className="flex items-center gap-2 font-medium text-[var(--color-ocean-blue)]">
+        <span className="text-ocean-blue flex items-center gap-2 font-medium">
           <Lightbulb className="h-4 w-4" />
           Writing Prompts
         </span>
@@ -106,7 +106,7 @@ export function StoryPromptsPanel({
                   <button
                     type="button"
                     onClick={() => onInsertPrompt(prompt)}
-                    className="mt-0.5 rounded p-1 text-[var(--color-ocean-blue)] hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                    className="text-ocean-blue mt-0.5 rounded p-1 hover:bg-blue-100 dark:hover:bg-blue-900/30"
                     title="Insert this prompt"
                   >
                     <Plus className="h-3 w-3" />
@@ -121,7 +121,7 @@ export function StoryPromptsPanel({
             <button
               type="button"
               onClick={fetchPrompts}
-              className="mt-2 flex items-center gap-1 text-xs text-[var(--color-ocean-blue)] hover:underline"
+              className="text-ocean-blue mt-2 flex items-center gap-1 text-xs hover:underline"
             >
               <RefreshCw className="h-3 w-3" />
               Get new prompts

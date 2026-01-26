@@ -98,15 +98,13 @@ export function RelatedEntries({
         aria-label="Loading related content"
       >
         <div className="container mx-auto px-4 py-8">
-          <h2 className="text-body mb-6 text-2xl font-semibold">
-            {heading}
-          </h2>
+          <h2 className="text-body mb-6 text-2xl font-semibold">{heading}</h2>
           {/* Loading skeleton */}
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="bg-surface h-64 animate-pulse rounded-button"
+                className="bg-surface rounded-button h-64 animate-pulse"
                 aria-hidden="true"
               />
             ))}
@@ -136,9 +134,7 @@ export function RelatedEntries({
         aria-label="No related content available"
       >
         <div className="container mx-auto px-4 py-8">
-          <h2 className="text-body mb-6 text-2xl font-semibold">
-            {heading}
-          </h2>
+          <h2 className="text-body mb-6 text-2xl font-semibold">{heading}</h2>
           <p className="text-muted text-center">
             No related heritage content available at this time.
           </p>
@@ -153,9 +149,7 @@ export function RelatedEntries({
       aria-label="Related cultural heritage content"
     >
       <div className="container mx-auto px-4 py-8 lg:py-12">
-        <h2 className="text-body mb-6 text-2xl font-semibold">
-          {heading}
-        </h2>
+        <h2 className="text-body mb-6 text-2xl font-semibold">{heading}</h2>
 
         <RelatedCardsGrid entries={relatedEntries} />
       </div>
@@ -205,7 +199,7 @@ function RelatedEntryCard({ entry }: { entry: DirectoryEntry }) {
       aria-label={`View details for ${entry.name}`}
       className="block h-full"
     >
-      <article className="bg-canvas border-hairline flex h-full flex-col overflow-hidden rounded-button border shadow-subtle transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated">
+      <article className="bg-canvas border-hairline rounded-button shadow-subtle hover:shadow-elevated flex h-full flex-col overflow-hidden border transition-all duration-300 hover:-translate-y-1">
         <div className="relative h-40 w-full">
           {entry.imageUrl ? (
             <Image
@@ -225,13 +219,9 @@ function RelatedEntryCard({ entry }: { entry: DirectoryEntry }) {
           <span className="text-ocean-blue text-xs font-semibold tracking-wide uppercase">
             {entry.category}
           </span>
-          <h3 className="text-body text-lg font-semibold">
-            {entry.name}
-          </h3>
+          <h3 className="text-body text-lg font-semibold">{entry.name}</h3>
           <p className="text-muted text-sm">{excerpt}</p>
-          <p className="text-muted mt-auto text-xs font-medium">
-            {entry.town}
-          </p>
+          <p className="text-muted mt-auto text-xs font-medium">{entry.town}</p>
         </div>
       </article>
     </Link>

@@ -335,14 +335,12 @@ export default function AdminDashboardPage() {
   const unreadMessages = messages.filter((m) => m.status === "UNREAD").length;
 
   return (
-    <div className="min-h-screen bg-canvas pb-12">
+    <div className="bg-canvas min-h-screen pb-12">
       {/* Header */}
-      <header className="border-hairline border-b bg-surface shadow-sm">
+      <header className="border-hairline bg-surface border-b shadow-sm">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            <h1 className="text-body text-2xl font-bold">
-              Admin Dashboard
-            </h1>
+            <h1 className="text-body text-2xl font-bold">Admin Dashboard</h1>
             <div className="flex items-center space-x-4">
               <SystemStatusBadges />
               {pendingCount > 0 && (
@@ -384,8 +382,8 @@ export default function AdminDashboardPage() {
               onClick={() => setActiveTab("suggestions")}
               className={`${
                 activeTab === "suggestions"
-                  ? "border-[var(--color-ocean-blue)] text-[var(--color-ocean-blue)]"
-                  : "text-muted hover:text-body border-transparent hover:border-[var(--color-ocean-blue)]/30"
+                  ? "border-ocean-blue text-ocean-blue"
+                  : "text-muted hover:text-body hover:border-ocean-blue/30 border-transparent"
               } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
             >
               <MessageSquare size={16} /> Suggestions
@@ -399,8 +397,8 @@ export default function AdminDashboardPage() {
               onClick={() => setActiveTab("stories")}
               className={`${
                 activeTab === "stories"
-                  ? "border-[var(--color-bougainvillea)] text-[var(--color-bougainvillea)]"
-                  : "text-muted hover:text-body border-transparent hover:border-[var(--color-bougainvillea)]/30"
+                  ? "border-bougainvillea-pink text-bougainvillea-pink"
+                  : "text-muted hover:text-body hover:border-bougainvillea-pink/30 border-transparent"
               } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
             >
               <FileText size={16} /> Stories
@@ -414,13 +412,13 @@ export default function AdminDashboardPage() {
               onClick={() => setActiveTab("messages")}
               className={`${
                 activeTab === "messages"
-                  ? "border-[var(--color-valley-green)] text-[var(--color-valley-green)]"
-                  : "text-muted hover:text-body border-transparent hover:border-[var(--color-valley-green)]/30"
+                  ? "border-valley-green text-valley-green"
+                  : "text-muted hover:text-body hover:border-valley-green/30 border-transparent"
               } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
             >
               <Mail size={16} /> Inquiries
               {unreadMessages > 0 && (
-                <span className="ml-1 inline-flex animate-pulse items-center rounded-full bg-[var(--color-valley-green)]/20 px-1.5 py-0.5 text-xs font-medium text-[var(--color-valley-green)]">
+                <span className="bg-valley-green/20 text-valley-green ml-1 inline-flex animate-pulse items-center rounded-full px-1.5 py-0.5 text-xs font-medium">
                   {unreadMessages}
                 </span>
               )}
@@ -429,8 +427,8 @@ export default function AdminDashboardPage() {
               onClick={() => setActiveTab("directory")}
               className={`${
                 activeTab === "directory"
-                  ? "border-[var(--color-sobrado-ochre)] text-[var(--color-sobrado-ochre)]"
-                  : "text-muted hover:text-body border-transparent hover:border-[var(--color-sobrado-ochre)]/30"
+                  ? "border-sobrado-ochre text-sobrado-ochre"
+                  : "text-muted hover:text-body hover:border-sobrado-ochre/30 border-transparent"
               } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
             >
               <MapPin size={16} /> Directory
@@ -444,8 +442,8 @@ export default function AdminDashboardPage() {
               onClick={() => setActiveTab("gallery")}
               className={`${
                 activeTab === "gallery"
-                  ? "border-[var(--color-ocean-blue)] text-[var(--color-ocean-blue)]"
-                  : "text-muted hover:text-body border-transparent hover:border-[var(--color-ocean-blue)]/30"
+                  ? "border-ocean-blue text-ocean-blue"
+                  : "text-muted hover:text-body hover:border-ocean-blue/30 border-transparent"
               } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
             >
               <ImageIcon size={16} /> Gallery

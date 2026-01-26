@@ -94,7 +94,7 @@ export function MediaActionModal({
                 id="reason"
                 value={selectedReason}
                 onChange={(e) => setSelectedReason(e.target.value)}
-                className="border-hairline bg-surface text-body block w-full rounded-md border px-3 py-2 text-sm focus:border-[var(--color-ocean-blue)] focus:ring-1 focus:ring-[var(--color-ocean-blue)] focus:outline-none"
+                className="border-hairline bg-surface text-body focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-md border px-3 py-2 text-sm focus:ring-1 focus:outline-none"
               >
                 {FLAG_REASONS.map((reason) => (
                   <option key={reason} value={reason}>
@@ -118,7 +118,7 @@ export function MediaActionModal({
                 onChange={(e) => setAdditionalNotes(e.target.value)}
                 rows={3}
                 placeholder="Add any additional context or notes..."
-                className="border-hairline bg-surface text-body placeholder-muted block w-full rounded-md border px-3 py-2 text-sm focus:border-[var(--color-ocean-blue)] focus:ring-1 focus:ring-[var(--color-ocean-blue)] focus:outline-none"
+                className="border-hairline bg-surface text-body placeholder-muted focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-md border px-3 py-2 text-sm focus:ring-1 focus:outline-none"
               />
             </div>
           </div>

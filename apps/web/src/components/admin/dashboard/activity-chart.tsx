@@ -33,10 +33,7 @@ export function ActivityChart({ data, isLoading }: ActivityChartProps) {
     <div className="border-hairline bg-surface rounded-lg border p-6 shadow-sm lg:col-span-2">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-body flex items-center text-lg font-bold">
-          <TrendingUp
-            size={20}
-            className="mr-2 text-[var(--color-ocean-blue)]"
-          />
+          <TrendingUp size={20} className="text-ocean-blue mr-2" />
           Weekly Engagement
         </h3>
       </div>

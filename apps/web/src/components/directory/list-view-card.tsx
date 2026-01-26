@@ -53,13 +53,13 @@ export function ListViewCard({
         <div className="flex w-2/3 flex-col justify-between p-5">
           <div>
             <div className="mb-1 flex items-start justify-between">
-              <h3 className="text-body text-lg font-bold transition-colors group-hover:text-[var(--color-ocean-blue)]">
+              <h3 className="text-body group-hover:text-ocean-blue text-lg font-bold transition-colors">
                 {entry.name}
               </h3>
               <div className="border-hairline bg-surface text-body flex items-center rounded border px-1.5 py-0.5 text-xs font-medium">
                 <Star
                   size={12}
-                  className="mr-1 fill-current text-[var(--color-sunny)]"
+                  className="text-sunny-yellow mr-1 fill-current"
                 />
                 {entry.rating}
               </div>

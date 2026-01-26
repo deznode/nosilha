@@ -90,7 +90,7 @@ export function QueueItem(props: QueueItemProps) {
       <li className="hover:bg-surface-alt block transition duration-150 ease-in-out">
         <div className="px-4 py-4 sm:px-6">
           <div className="flex items-center justify-between">
-            <p className="truncate text-sm font-medium text-[var(--color-ocean-blue)]">
+            <p className="text-ocean-blue truncate text-sm font-medium">
               Target: {props.target}
             </p>
             <div className="ml-2 flex-shrink-0">
@@ -133,7 +133,7 @@ export function QueueItem(props: QueueItemProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <FileText className="text-muted h-4 w-4" />
-            <p className="truncate text-sm font-medium text-[var(--color-bougainvillea)]">
+            <p className="text-bougainvillea-pink truncate text-sm font-medium">
               {props.title}
             </p>
           </div>

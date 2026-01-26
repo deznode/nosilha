@@ -97,7 +97,7 @@ export function SocialMediaLinks({
             <li key={item.name}>
               <a
                 href={item.href}
-                className="group hover:bg-surface border-hairline hover:border-ocean-blue/30 hover:ring-ocean-blue/20 flex flex-col items-center rounded-button border p-6 text-center transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-elevated hover:ring-2"
+                className="group hover:bg-surface border-hairline hover:border-ocean-blue/30 hover:ring-ocean-blue/20 rounded-button hover:shadow-elevated flex flex-col items-center border p-6 text-center transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:ring-2"
                 aria-label={item.ariaLabel}
                 target="_blank"
                 rel="noopener noreferrer"

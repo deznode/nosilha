@@ -40,15 +40,7 @@ type AvatarProps = {
  * Supports image source, initials fallback, size variants, and status indicators.
  */
 export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
-  {
-    src,
-    alt = "",
-    initials,
-    size = "md",
-    status,
-    className,
-    square = false,
-  },
+  { src, alt = "", initials, size = "md", status, className, square = false },
   ref
 ) {
   return (
@@ -73,7 +65,7 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
       ) : initials ? (
         <span
           className={clsx(
-            "size-full flex items-center justify-center font-medium",
+            "flex size-full items-center justify-center font-medium",
             "bg-ocean-blue/10 text-ocean-blue dark:bg-ocean-blue/20 dark:text-ocean-blue-light",
             square ? "rounded-lg" : "rounded-full"
           )}
@@ -83,13 +75,13 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
       ) : (
         <span
           className={clsx(
-            "size-full flex items-center justify-center",
+            "flex size-full items-center justify-center",
             "bg-basalt-200 dark:bg-basalt-700",
             square ? "rounded-lg" : "rounded-full"
           )}
         >
           <svg
-            className="size-[60%] text-basalt-400 dark:text-basalt-500"
+            className="text-basalt-400 dark:text-basalt-500 size-[60%]"
             fill="currentColor"
             viewBox="0 0 24 24"
           >
@@ -100,7 +92,7 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
       {status && (
         <span
           className={clsx(
-            "absolute right-0 bottom-0 block border-white dark:border-basalt-900",
+            "dark:border-basalt-900 absolute right-0 bottom-0 block border-white",
             statusSizes[size],
             statusColors[status],
             square ? "rounded-sm" : "rounded-full"
@@ -145,10 +137,12 @@ export function AvatarGroup({
       {visible.map((avatar, index) => (
         <span
           key={index}
-          className="ring-2 ring-white dark:ring-basalt-900 rounded-full"
+          className="dark:ring-basalt-900 rounded-full ring-2 ring-white"
         >
           {React.isValidElement(avatar)
-            ? React.cloneElement(avatar as React.ReactElement<AvatarProps>, { size })
+            ? React.cloneElement(avatar as React.ReactElement<AvatarProps>, {
+                size,
+              })
             : avatar}
         </span>
       ))}
@@ -158,7 +152,7 @@ export function AvatarGroup({
             sizes[size],
             "inline-flex items-center justify-center rounded-full font-medium",
             "bg-basalt-100 text-basalt-600 dark:bg-basalt-800 dark:text-basalt-300",
-            "ring-2 ring-white dark:ring-basalt-900"
+            "dark:ring-basalt-900 ring-2 ring-white"
           )}
         >
           +{overflow}
@@ -183,7 +177,7 @@ export const AvatarButton = forwardRef<HTMLButtonElement, AvatarButtonProps>(
         type="button"
         onClick={onClick}
         className={clsx(
-          "relative inline-flex rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-ocean-blue focus-visible:ring-offset-2",
+          "focus-visible:ring-ocean-blue relative inline-flex rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
           className
         )}
       >

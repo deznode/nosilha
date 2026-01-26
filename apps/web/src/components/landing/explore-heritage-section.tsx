@@ -107,7 +107,7 @@ export function ExploreHeritageSection({
     : headerVariants;
 
   return (
-    <section className="bg-background-secondary relative z-20 -mt-20 rounded-t-3xl py-20 shadow-floating">
+    <section className="bg-background-secondary shadow-floating relative z-20 -mt-20 rounded-t-3xl py-20">
       <div className="container mx-auto px-4 md:px-6">
         <motion.div
           className="mx-auto max-w-5xl"
