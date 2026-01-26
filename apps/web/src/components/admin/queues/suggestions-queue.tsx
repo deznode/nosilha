@@ -5,6 +5,7 @@ import { Search, Filter } from "lucide-react";
 import { QueueItem } from "./queue-item";
 import type { Suggestion } from "@/types/admin";
 import { SubmissionStatus } from "@/types/story";
+import { Button } from "@/components/catalyst-ui/button";
 
 interface SuggestionsQueueProps {
   suggestions: Suggestion[];
@@ -62,9 +63,10 @@ export function SuggestionsQueue({
             <option value={SubmissionStatus.APPROVED}>Approved</option>
             <option value={SubmissionStatus.REJECTED}>Rejected</option>
           </select>
-          <button className="border-hairline bg-surface text-muted hover:bg-surface-alt flex items-center rounded-md border px-3 py-1.5 text-sm font-medium">
-            <Filter className="mr-2 h-4 w-4" /> Newest First
-          </button>
+          <Button plain>
+            <Filter data-slot="icon" />
+            Newest First
+          </Button>
         </div>
         <div className="relative w-full sm:w-64">
           <input

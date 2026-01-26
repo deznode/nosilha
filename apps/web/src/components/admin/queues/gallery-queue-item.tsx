@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
+import { Button } from "@/components/catalyst-ui/button";
 
 interface GalleryQueueItemProps {
   item: GalleryMedia;
@@ -156,21 +157,24 @@ export function GalleryQueueItem({
 
         {/* Actions */}
         <div className="flex flex-wrap gap-2">
-          <button
+          <Button
+            color="green"
             onClick={() => onStatusChange(item.id, "APPROVE")}
             disabled={item.status === "ACTIVE"}
-            className="inline-flex items-center gap-1 rounded-lg bg-[var(--color-valley-green)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-30"
           >
-            <CheckCircle size={14} /> Approve
-          </button>
-          <button
+            <CheckCircle data-slot="icon" />
+            Approve
+          </Button>
+          <Button
+            color="yellow"
             onClick={() => onStatusChange(item.id, "FLAG", "Needs review")}
             disabled={item.status === "FLAGGED"}
-            className="inline-flex items-center gap-1 rounded-lg bg-yellow-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-yellow-600 disabled:cursor-not-allowed disabled:opacity-30"
           >
-            <Flag size={14} /> Flag
-          </button>
-          <button
+            <Flag data-slot="icon" />
+            Flag
+          </Button>
+          <Button
+            color="red"
             onClick={() =>
               onStatusChange(
                 item.id,
@@ -179,18 +183,19 @@ export function GalleryQueueItem({
               )
             }
             disabled={item.status === "REJECTED"}
-            className="inline-flex items-center gap-1 rounded-lg bg-red-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-30"
           >
-            <XCircle size={14} /> Reject
-          </button>
+            <XCircle data-slot="icon" />
+            Reject
+          </Button>
           {canPromoteToHero && onPromoteToHero && (
-            <button
+            <Button
+              color="blue"
               onClick={() => onPromoteToHero(item.id)}
-              className="inline-flex items-center gap-1 rounded-lg bg-[var(--color-ocean-blue)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:opacity-90"
               title="Set this image as the hero image for the directory entry"
             >
-              <Star size={14} /> Set as Hero
-            </button>
+              <Star data-slot="icon" />
+              Set as Hero
+            </Button>
           )}
         </div>
       </div>

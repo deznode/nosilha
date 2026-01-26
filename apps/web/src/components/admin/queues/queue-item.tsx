@@ -9,10 +9,12 @@ import {
   Flag,
   Github,
   Code,
-  Loader2,
+  Eye,
 } from "lucide-react";
 import { SubmissionStatus, StoryType } from "@/types/story";
 import { Badge } from "@/components/catalyst-ui/badge";
+import { Button } from "@/components/catalyst-ui/button";
+import { AnimatedButton } from "@/components/ui/animated-button";
 
 interface BaseQueueItemProps {
   status: SubmissionStatus;
@@ -111,18 +113,14 @@ export function QueueItem(props: QueueItemProps) {
           </div>
           {isPending && (
             <div className="mt-4 flex justify-end space-x-3">
-              <button
-                onClick={props.onApprove}
-                className="inline-flex items-center rounded border border-transparent bg-green-100 px-3 py-1 text-xs font-medium text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50"
-              >
-                <CheckCircle className="mr-1 h-3 w-3" /> Approve
-              </button>
-              <button
-                onClick={props.onReject}
-                className="inline-flex items-center rounded border border-transparent bg-red-100 px-3 py-1 text-xs font-medium text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
-              >
-                <XCircle className="mr-1 h-3 w-3" /> Reject
-              </button>
+              <Button color="green" onClick={props.onApprove}>
+                <CheckCircle data-slot="icon" />
+                Approve
+              </Button>
+              <Button color="red" onClick={props.onReject}>
+                <XCircle data-slot="icon" />
+                Reject
+              </Button>
             </div>
           )}
         </div>
@@ -187,55 +185,38 @@ export function QueueItem(props: QueueItemProps) {
           {/* Archive Button - Only show for PUBLISHED stories that are not yet archived */}
           <div>
             {isPublished && !props.archivedAt && props.onArchive && (
-              <button
+              <AnimatedButton
+                variant="outline"
+                size="sm"
                 onClick={props.onArchive}
                 disabled={props.isArchiving}
-                className="bg-surface inline-flex items-center gap-1.5 rounded-md border border-[var(--color-ocean-blue)] px-3 py-1 text-xs font-medium text-[var(--color-ocean-blue)] transition-colors hover:bg-[var(--color-ocean-blue)] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                isLoading={props.isArchiving}
+                icon={<Code size={14} />}
                 title="Archive to MDX"
               >
-                {props.isArchiving ? (
-                  <>
-                    <Loader2 size={14} className="animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Code size={14} />
-                    MDX Archive
-                  </>
-                )}
-              </button>
+                {props.isArchiving ? "Generating..." : "MDX Archive"}
+              </AnimatedButton>
             )}
           </div>
 
           {/* Action Buttons */}
-          <div className="flex space-x-3">
-            <button
-              onClick={props.onViewFull}
-              className="text-xs font-medium text-[var(--color-ocean-blue)] hover:underline"
-            >
+          <div className="flex items-center gap-2">
+            <Button plain onClick={props.onViewFull}>
+              <Eye data-slot="icon" />
               View Full
-            </button>
-            <span className="text-border-hairline">|</span>
-            <button
-              onClick={props.onApprove}
-              className="text-xs font-medium text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
-            >
+            </Button>
+            <Button color="green" onClick={props.onApprove}>
+              <CheckCircle data-slot="icon" />
               Publish
-            </button>
-            <button
-              onClick={props.onReject}
-              className="text-xs font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-            >
+            </Button>
+            <Button color="red" onClick={props.onReject}>
+              <XCircle data-slot="icon" />
               Reject
-            </button>
-            <button
-              onClick={props.onFlag}
-              className="inline-flex items-center gap-1 text-xs font-medium text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300"
-            >
-              <Flag size={12} />
+            </Button>
+            <Button color="yellow" onClick={props.onFlag}>
+              <Flag data-slot="icon" />
               Flag
-            </button>
+            </Button>
           </div>
         </div>
       </div>

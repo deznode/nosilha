@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { Flag, X } from "lucide-react";
+import { Button } from "@/components/catalyst-ui/button";
 
 interface FlagReasonModalProps {
   isOpen: boolean;
@@ -104,20 +105,17 @@ export function FlagReasonModal({
 
             {/* Footer */}
             <div className="border-hairline bg-canvas flex justify-end gap-3 border-t px-6 py-4">
-              <button
-                onClick={handleCancel}
-                className="border-hairline bg-surface text-body hover:bg-surface-alt rounded-md border px-4 py-2 text-sm font-medium"
-              >
+              <Button outline onClick={handleCancel}>
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                color="yellow"
                 onClick={handleConfirm}
                 disabled={!isValid}
-                className="rounded-md border border-transparent bg-orange-600 px-4 py-2 text-sm font-medium text-white hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-orange-500 dark:hover:bg-orange-600"
               >
-                <Flag className="mr-1.5 inline-block h-4 w-4" />
+                <Flag data-slot="icon" />
                 Confirm Flag
-              </button>
+              </Button>
             </div>
           </DialogPanel>
         </div>

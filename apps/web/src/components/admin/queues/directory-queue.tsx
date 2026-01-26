@@ -18,10 +18,12 @@ import {
   Pencil,
   Trash2,
   Flag,
+  Eye,
 } from "lucide-react";
 import Image from "next/image";
 import type { DirectorySubmission } from "@/types/admin";
 import { SubmissionStatus } from "@/types/story";
+import { Button } from "@/components/catalyst-ui/button";
 
 interface DirectoryQueueProps {
   submissions: DirectorySubmission[];
@@ -124,9 +126,10 @@ export function DirectoryQueue({
             <option value={SubmissionStatus.REJECTED}>Rejected</option>
             <option value={SubmissionStatus.FLAGGED}>Flagged</option>
           </select>
-          <button className="border-hairline bg-surface text-muted hover:bg-surface-alt flex items-center rounded-md border px-3 py-1.5 text-sm font-medium">
-            <Filter className="mr-2 h-4 w-4" /> Newest First
-          </button>
+          <Button plain>
+            <Filter data-slot="icon" />
+            Newest First
+          </Button>
         </div>
         <div className="relative w-full sm:w-64">
           <input
@@ -233,74 +236,76 @@ export function DirectoryQueue({
                     <div className="flex flex-wrap items-center justify-end gap-2">
                       {/* View Full button */}
                       {onViewFull && (
-                        <button
-                          onClick={() => onViewFull(submission)}
-                          className="border-hairline bg-surface hover:bg-surface-alt flex items-center gap-1 rounded-lg border px-3 py-1.5 text-[10px] font-bold transition-all"
-                        >
-                          <ExternalLink size={12} /> View
-                        </button>
+                        <Button outline onClick={() => onViewFull(submission)}>
+                          <Eye data-slot="icon" />
+                          View
+                        </Button>
                       )}
 
                       {/* Edit button */}
                       {onEdit && (
-                        <button
+                        <Button
+                          outline
                           onClick={() => onEdit(submission)}
-                          className="border-hairline bg-surface hover:bg-surface-alt flex items-center gap-1 rounded-lg border px-3 py-1.5 text-[10px] font-bold text-[var(--color-ocean-blue)] transition-all hover:border-[var(--color-ocean-blue)]"
                           title="Edit entry"
                         >
-                          <Pencil size={12} /> Edit
-                        </button>
+                          <Pencil data-slot="icon" />
+                          Edit
+                        </Button>
                       )}
 
                       {/* Moderation actions for pending items */}
                       {submission.status === SubmissionStatus.PENDING && (
                         <>
-                          <button
+                          <Button
+                            color="green"
                             onClick={() =>
                               onStatusChange?.(
                                 submission.id,
                                 SubmissionStatus.APPROVED
                               )
                             }
-                            className="rounded-lg bg-[var(--color-valley-green)]/10 p-2 text-[var(--color-valley-green)] transition-all hover:bg-[var(--color-valley-green)] hover:text-white"
-                            title="Approve"
                           >
-                            <CheckCircle size={14} />
-                          </button>
-                          <button
+                            <CheckCircle data-slot="icon" />
+                            Approve
+                          </Button>
+                          <Button
+                            color="red"
                             onClick={() =>
                               onStatusChange?.(
                                 submission.id,
                                 SubmissionStatus.REJECTED
                               )
                             }
-                            className="rounded-lg bg-red-100/50 p-2 text-red-500 transition-all hover:bg-red-500 hover:text-white dark:bg-red-900/20"
-                            title="Reject"
                           >
-                            <XCircle size={14} />
-                          </button>
+                            <XCircle data-slot="icon" />
+                            Reject
+                          </Button>
                           {/* Flag button */}
                           {onFlag && (
-                            <button
+                            <Button
+                              color="yellow"
                               onClick={() => onFlag(submission)}
-                              className="rounded-lg bg-orange-100/50 p-2 text-orange-500 transition-all hover:bg-orange-500 hover:text-white dark:bg-orange-900/20"
                               title="Flag for review"
                             >
-                              <Flag size={14} />
-                            </button>
+                              <Flag data-slot="icon" />
+                              Flag
+                            </Button>
                           )}
                         </>
                       )}
 
                       {/* Delete button (available for all statuses) */}
                       {onDelete && (
-                        <button
+                        <Button
+                          outline
                           onClick={() => onDelete(submission)}
-                          className="rounded-lg bg-red-50 p-2 text-red-400 transition-all hover:bg-red-500 hover:text-white dark:bg-red-900/10"
                           title="Delete permanently"
+                          className="text-red-600 hover:text-red-700 dark:text-red-400"
                         >
-                          <Trash2 size={14} />
-                        </button>
+                          <Trash2 data-slot="icon" />
+                          Delete
+                        </Button>
                       )}
                     </div>
                   </div>

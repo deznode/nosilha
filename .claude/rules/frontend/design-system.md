@@ -37,22 +37,27 @@ See `docs/design-system.md` for comprehensive styling guide.
 
 ## Component Library
 
-### Catalyst UI (25+ components)
+### Catalyst UI (8 retained)
 
-Pre-built accessible components from Catalyst:
-- Button, Input, Select, Checkbox
-- Dialog, Dropdown, Popover
-- Table, Tabs, Badge
-- And more...
+Curated subset of Catalyst for complex interactive components:
+- Button, Input, Checkbox, Fieldset
+- Dialog, Dropdown, Popover, Badge
 
 ### Custom UI Components
+
+Key custom components in `components/ui/`:
 
 | Component | Purpose |
 |-----------|---------|
 | `DirectoryCard` | Display directory entry cards |
 | `PageHeader` | Page headers with breadcrumbs |
 | `ThemeToggle` | Dark/light mode switcher |
-| `MapComponent` | Mapbox GL integration |
+| `Avatar` | User images with initials fallback, status |
+| `Tooltip` | Hover hints with position variants |
+| `MobileBottomNav` | Thumb-zone mobile navigation |
+| `AnimatedButton` | Framer Motion button variants |
+
+See `docs/design-system.md` for complete component inventory.
 
 ### Design Principles
 
@@ -67,8 +72,8 @@ Pre-built accessible components from Catalyst:
 | `apps/web/src/app/globals.css` | Global styles and CSS variables |
 | `apps/web/tailwind.config.ts` | Tailwind configuration |
 | `apps/web/src/app/layout.tsx` | Root layout with fonts |
-| `apps/web/src/components/ui/theme-toggle.tsx` | Theme switcher |
-| `apps/web/src/components/ui/button.tsx` | Button component |
+| `apps/web/src/components/ui/` | Custom UI components (37+) |
+| `apps/web/src/components/catalyst-ui/` | Catalyst UI components (8 retained) |
 
 ## Tailwind Usage
 

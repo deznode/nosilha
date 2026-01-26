@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search, Mail, Check, Trash2, Clock } from "lucide-react";
 import type { ContactMessage, ContactMessageStatus } from "@/types/admin";
+import { Button } from "@/components/catalyst-ui/button";
 
 interface MessagesQueueProps {
   messages: ContactMessage[];
@@ -151,25 +152,29 @@ export function MessagesQueue({
                   </div>
                   <div className="flex gap-2">
                     {message.status === "UNREAD" && (
-                      <button
+                      <Button
+                        outline
                         onClick={() => onStatusChange?.(message.id, "READ")}
-                        className="border-hairline bg-surface hover:bg-surface-alt flex items-center gap-1 rounded-lg border px-3 py-1.5 text-[10px] font-bold shadow-sm transition-all"
                       >
-                        <Check size={12} /> Mark Read
-                      </button>
+                        <Check data-slot="icon" />
+                        Mark Read
+                      </Button>
                     )}
-                    <button
+                    <Button
+                      color="blue"
                       onClick={() => onStatusChange?.(message.id, "ARCHIVED")}
-                      className="flex items-center gap-1 rounded-lg bg-[var(--color-ocean-blue)] px-3 py-1.5 text-[10px] font-bold text-white shadow-sm transition-all hover:bg-blue-800"
                     >
-                      <Mail size={12} /> Archive
-                    </button>
-                    <button
+                      <Mail data-slot="icon" />
+                      Archive
+                    </Button>
+                    <Button
+                      outline
                       onClick={() => onDelete?.(message.id)}
-                      className="rounded-lg p-2 text-red-500 transition-all hover:bg-red-50 dark:hover:bg-red-900/20"
+                      className="text-red-600 hover:text-red-700 dark:text-red-400"
                     >
-                      <Trash2 size={16} />
-                    </button>
+                      <Trash2 data-slot="icon" />
+                      Delete
+                    </Button>
                   </div>
                 </div>
               </li>

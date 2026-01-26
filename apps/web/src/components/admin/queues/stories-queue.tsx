@@ -6,6 +6,7 @@ import { QueueItem } from "./queue-item";
 import { MdxPreviewModal } from "@/components/admin/mdx-preview-modal";
 import { generateMdx, updateStoryStatus } from "@/lib/api";
 import { archiveStoryToMDX } from "@/app/actions/archive-story";
+import { Button } from "@/components/catalyst-ui/button";
 
 /**
  * Generate a URL-friendly slug from a story title
@@ -188,9 +189,10 @@ export function StoriesQueue({
             <option value={SubmissionStatus.REJECTED}>Rejected</option>
             <option value={SubmissionStatus.FLAGGED}>Flagged</option>
           </select>
-          <button className="border-hairline bg-surface text-muted hover:bg-surface-alt flex items-center rounded-md border px-3 py-1.5 text-sm font-medium">
-            <Filter className="mr-2 h-4 w-4" /> Newest First
-          </button>
+          <Button plain>
+            <Filter data-slot="icon" />
+            Newest First
+          </Button>
         </div>
         <div className="relative w-full sm:w-64">
           <input
