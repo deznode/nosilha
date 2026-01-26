@@ -29,7 +29,7 @@ export function Confirmation({ onReset }: ConfirmationProps) {
           )}
           <Link
             href="/"
-            className="bg-ocean-blue rounded-md px-6 py-2 font-medium text-white transition hover:bg-blue-800"
+            className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-6 py-2 font-medium text-white transition"
           >
             Return Home
           </Link>

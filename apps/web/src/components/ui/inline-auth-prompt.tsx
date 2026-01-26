@@ -49,7 +49,7 @@ export function InlineAuthPrompt({
       <div className="flex flex-col gap-2 sm:flex-row sm:justify-center">
         <Link
           href={`/login?returnUrl=${encodedReturnUrl}`}
-          className="rounded-button inline-flex items-center justify-center bg-(--color-ocean-blue) px-4 py-2 text-sm font-medium text-white hover:bg-blue-800"
+          className="rounded-button bg-ocean-blue hover:bg-ocean-blue/90 inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-white"
         >
           <LogIn className="mr-2 h-4 w-4" />
           Sign In

@@ -317,7 +317,7 @@ export function DirectoryEntryForm({
           </p>
           <button
             onClick={handleBack}
-            className="bg-ocean-blue w-full rounded-2xl py-4 font-bold text-white shadow-xl transition hover:bg-blue-800 active:scale-[0.98]"
+            className="bg-ocean-blue hover:bg-ocean-blue/90 w-full rounded-2xl py-4 font-bold text-white shadow-xl transition active:scale-[0.98]"
           >
             Back to Directory
           </button>
@@ -360,7 +360,7 @@ export function DirectoryEntryForm({
                   type="button"
                   onClick={handleAIAutoFill}
                   disabled={isGenerating}
-                  className="bg-bougainvillea-pink absolute top-2 right-2 flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold text-white transition-all hover:bg-pink-700 active:scale-95 disabled:opacity-50"
+                  className="bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 absolute top-2 right-2 flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-bold text-white transition-all active:scale-95 disabled:opacity-50"
                 >
                   <Sparkles
                     size={12}
@@ -669,7 +669,7 @@ export function DirectoryEntryForm({
                         type="button"
                         onClick={handleAIAutoFill}
                         disabled={isGenerating}
-                        className="bg-bougainvillea-pink absolute top-3 right-3 flex items-center gap-2 rounded-xl px-5 py-2 text-xs font-bold text-white shadow-lg transition-all hover:bg-pink-700 active:scale-95 disabled:opacity-50"
+                        className="bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 absolute top-3 right-3 flex items-center gap-2 rounded-xl px-5 py-2 text-xs font-bold text-white shadow-lg transition-all active:scale-95 disabled:opacity-50"
                       >
                         <Sparkles
                           size={14}

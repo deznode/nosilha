@@ -183,7 +183,7 @@ export function SettingsTab({
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="bg-ocean-blue rounded-md px-4 py-2 font-medium text-white transition-colors hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-4 py-2 font-medium text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSaving ? "Saving..." : "Save Changes"}
           </button>

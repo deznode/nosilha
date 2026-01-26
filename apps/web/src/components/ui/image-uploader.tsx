@@ -243,7 +243,7 @@ export function ImageUploader({
             {(state === "requesting-url" ||
               state === "uploading" ||
               state === "confirming") && (
-              <div className="rounded-button absolute inset-0 flex items-center justify-center bg-white/80">
+              <div className="rounded-button bg-canvas/80 absolute inset-0 flex items-center justify-center">
                 {state === "uploading" ? (
                   <UploadProgressBar progress={progress} />
                 ) : (
@@ -263,7 +263,7 @@ export function ImageUploader({
               <button
                 type="button"
                 onClick={cancel}
-                className="absolute top-2 right-2 rounded-full bg-white/90 p-1 shadow-sm transition-colors hover:bg-white"
+                className="bg-canvas/90 hover:bg-canvas absolute top-2 right-2 rounded-full p-1 shadow-sm transition-colors"
                 aria-label="Cancel upload"
               >
                 <X className="text-muted h-5 w-5" />
@@ -291,7 +291,7 @@ export function ImageUploader({
             <div className="text-muted mt-4 flex text-sm leading-6">
               <label
                 htmlFor="file-upload"
-                className="text-ocean-blue focus-within:ring-ocean-blue hover:text-ocean-blue/80 relative cursor-pointer rounded-md bg-white font-semibold focus-within:ring-2 focus-within:ring-offset-2 focus-within:outline-none"
+                className="text-ocean-blue focus-within:ring-ocean-blue hover:text-ocean-blue/80 bg-canvas relative cursor-pointer rounded-md font-semibold focus-within:ring-2 focus-within:ring-offset-2 focus-within:outline-none"
               >
                 <span>Upload a file</span>
                 <input

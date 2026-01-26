@@ -56,6 +56,12 @@ export function CoverageChart({ data, isLoading }: CoverageChartProps) {
                 backgroundColor: "var(--color-bg-primary)",
                 border: "1px solid var(--color-border-subtle)",
               }}
+              labelStyle={{
+                color: "var(--color-text-primary)",
+              }}
+              itemStyle={{
+                color: "var(--color-text-secondary)",
+              }}
             />
           </PieChart>
         </ResponsiveContainer>

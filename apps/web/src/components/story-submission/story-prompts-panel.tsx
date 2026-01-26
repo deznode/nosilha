@@ -106,7 +106,7 @@ export function StoryPromptsPanel({
                   <button
                     type="button"
                     onClick={() => onInsertPrompt(prompt)}
-                    className="text-ocean-blue mt-0.5 rounded p-1 hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                    className="text-ocean-blue hover:bg-ocean-blue/10 mt-0.5 rounded p-1"
                     title="Insert this prompt"
                   >
                     <Plus className="h-3 w-3" />

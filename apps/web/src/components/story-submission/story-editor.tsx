@@ -334,7 +334,7 @@ export function StoryEditor({
                 <button
                   type="button"
                   onClick={() => setShowTemplates(!showTemplates)}
-                  className="text-bougainvillea-pink flex items-center gap-1 rounded bg-pink-50 px-2 py-1 text-xs font-medium transition-colors hover:bg-pink-100 dark:bg-pink-900/30 dark:hover:bg-pink-900/50"
+                  className="text-bougainvillea-pink bg-bougainvillea-pink/10 hover:bg-bougainvillea-pink/20 flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors"
                 >
                   <LayoutTemplate className="h-3 w-3" /> Templates{" "}
                   <ChevronDown className="h-3 w-3" />
@@ -388,7 +388,7 @@ export function StoryEditor({
                     type="button"
                     onClick={handleTranslate}
                     disabled={isTranslating || !content}
-                    className="text-ocean-blue flex items-center gap-1 rounded px-2 py-1 text-xs font-medium hover:bg-blue-50 disabled:opacity-50 dark:hover:bg-blue-900/30"
+                    className="text-ocean-blue hover:bg-ocean-blue/10 flex items-center gap-1 rounded px-2 py-1 text-xs font-medium disabled:opacity-50"
                     title={`Translate to ${currentLanguage === "EN" ? "Portuguese" : "English"}`}
                   >
                     <Languages className="h-3 w-3" />

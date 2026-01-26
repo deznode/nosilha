@@ -124,7 +124,7 @@ export function DirectoryCategoryPageContent({
             <PageHeader title={pageTitle} subtitle={subtitle} />
             <Link
               href="/contribute/directory"
-              className="bg-ocean-blue flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-blue-800 active:scale-95"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all active:scale-95"
             >
               <Plus size={18} />
               Add Location

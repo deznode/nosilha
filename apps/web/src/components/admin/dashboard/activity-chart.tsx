@@ -47,13 +47,13 @@ export function ActivityChart({ data, isLoading }: ActivityChartProps) {
             />
             <XAxis
               dataKey="day"
-              stroke="var(--color-text-muted)"
+              stroke="var(--muted-foreground)"
               fontSize={12}
               tickLine={false}
               axisLine={false}
             />
             <YAxis
-              stroke="var(--color-text-muted)"
+              stroke="var(--muted-foreground)"
               fontSize={12}
               tickLine={false}
               axisLine={false}
@@ -64,6 +64,12 @@ export function ActivityChart({ data, isLoading }: ActivityChartProps) {
                 borderRadius: "8px",
                 border: "1px solid var(--color-border-subtle)",
                 boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+              }}
+              labelStyle={{
+                color: "var(--color-text-primary)",
+              }}
+              itemStyle={{
+                color: "var(--color-text-secondary)",
               }}
             />
             <Bar

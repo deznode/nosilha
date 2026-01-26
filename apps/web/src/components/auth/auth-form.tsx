@@ -279,7 +279,7 @@ export default function NosIlhaAuth({
               }}
             >
               <div className="mb-8">
-                <h2 className="text-basalt-900 mb-2 font-serif text-3xl font-bold dark:text-white">
+                <h2 className="text-text-primary mb-2 font-serif text-3xl font-bold">
                   {isLogin ? "Sign in" : "Create an account"}
                 </h2>
                 <p className="text-basalt-500 dark:text-mist-200">

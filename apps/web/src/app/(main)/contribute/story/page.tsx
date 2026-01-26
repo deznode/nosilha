@@ -234,7 +234,7 @@ Why is this memory important to you? How does it make you feel today?`;
                 <button
                   type="button"
                   onClick={handleLoadDraft}
-                  className="bg-ocean-blue rounded px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-800"
+                  className="bg-ocean-blue hover:bg-ocean-blue/90 rounded px-3 py-1.5 text-sm font-medium text-white"
                 >
                   Resume Draft
                 </button>
@@ -327,7 +327,7 @@ Why is this memory important to you? How does it make you feel today?`;
                 <button
                   type="submit"
                   disabled={isSubmitting || isOverLimit || requiresAuth}
-                  className="bg-ocean-blue focus:ring-ocean-blue flex items-center rounded-md px-6 py-2 font-medium text-white hover:bg-blue-800 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:opacity-70"
+                  className="bg-ocean-blue hover:bg-ocean-blue/90 focus:ring-ocean-blue flex items-center rounded-md px-6 py-2 font-medium text-white focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:opacity-70"
                 >
                   {isSubmitting
                     ? "Submitting..."

@@ -135,21 +135,21 @@ export default function GalleryPage() {
   return (
     <div className="bg-canvas min-h-screen pb-12">
       {/* Header */}
-      <div className="bg-body text-white">
+      <div className="bg-basalt-900 text-white">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h1 className="mb-4 font-serif text-3xl font-bold md:text-5xl">
                 Brava Media Center
               </h1>
-              <p className="text-mist-300 max-w-2xl text-lg font-light">
+              <p className="max-w-2xl text-lg font-light text-white/70">
                 A visual archive of our island. Explore historical photographs,
                 community moments, and videos celebrating the culture of Brava.
               </p>
             </div>
             <Link
               href="/contribute/media"
-              className="bg-ocean-blue flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-blue-800 active:scale-95"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all active:scale-95"
             >
               <Plus size={18} />
               Add to Archive
