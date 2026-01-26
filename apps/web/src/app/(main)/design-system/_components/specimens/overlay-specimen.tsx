@@ -1,6 +1,6 @@
 "use client";
 
-import { Tooltip } from "@/components/catalyst-ui/tooltip";
+import { Tooltip } from "@/components/ui/tooltip";
 import {
   Popover,
   PopoverButton,
@@ -307,7 +307,7 @@ export function OverlaySpecimen() {
         <h3 className="text-body mb-2 text-sm font-semibold">Usage</h3>
         <div className="space-y-2">
           <code className="text-muted block text-sm">
-            {`import { Tooltip } from "@/components/catalyst-ui/tooltip";`}
+            {`import { Tooltip } from "@/components/ui/tooltip";`}
           </code>
           <code className="text-muted block text-sm">
             {`import { Dropdown, DropdownButton, DropdownMenu, DropdownItem } from "@/components/catalyst-ui/dropdown";`}

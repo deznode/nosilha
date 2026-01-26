@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import React, { forwardRef } from "react";
-import { TouchTarget } from "./button";
+import { TouchTarget } from "../catalyst-ui/button";
 
 const sizes = {
   xs: "size-6 text-[10px]",

@@ -22,6 +22,67 @@ Frontend design system for the Nos Ilha cultural heritage platform. Built with N
 - **Motion**: Calm, confident transitions with `cubic-bezier(0.16, 1, 0.3, 1)`
 - **Shape**: Generous border radii (16-24px for cards), multi-layered shadows
 
+## Implementation Status
+
+### Design System Gallery
+
+| Item | Status | Location | Notes |
+|------|--------|----------|-------|
+| Gallery Page | ✅ Complete | `/design-system` | Dev-only, 404 in production |
+| Section Navigation | ✅ Complete | Sticky sidebar | 10 sections with smooth scroll |
+| Copy-to-Clipboard | ✅ Complete | All tokens | CSS variables and Tailwind classes |
+| Dark Mode Preview | ✅ Complete | Color swatches | Toggle to preview dark variants |
+
+### Components Status
+
+| Component | Status | Source | Notes |
+|-----------|--------|--------|-------|
+| **AnimatedButton** | ✅ Complete | Custom | 4 variants, 3 sizes, icons, loading states, Framer Motion |
+| **Input** | ✅ Complete | Catalyst UI | Icons, validation, helper text |
+| **InputGroup** | ✅ Complete | Catalyst UI | Icon positioning |
+| **Checkbox** | ✅ Complete | Catalyst UI | 22 color variants, states |
+| **CheckboxField** | ✅ Complete | Catalyst UI | Labels and descriptions |
+| **Card** | ✅ Complete | Custom | Hoverable lift animation |
+| **DirectoryCard** | ✅ Complete | Custom | Heritage entry display |
+| **Banner** | ✅ Complete | Custom | Gradient promotional |
+| **LoadingSpinner** | ✅ Complete | Custom | 3 sizes, dots, pulse variants |
+| **ConfirmationDialog** | ✅ Complete | Custom | Default, warning, danger |
+| **Toast System** | ✅ Complete | Custom | Fluent builder API, 4 variants |
+| **PageHeader** | ✅ Complete | Custom | Breadcrumbs, accent bar |
+| **ThemeToggle** | ✅ Complete | Custom | System/light/dark cycle |
+| **MobileBottomNav** | ✅ Complete | Custom | 5-item thumb-zone navigation |
+| **Avatar** | ✅ Complete | Custom | Size variants, initials fallback, status |
+| **AvatarGroup** | ✅ Complete | Custom | Stacked display with overflow |
+| **Tooltip** | ✅ Complete | Custom | Position variants, HeadlessUI Transition |
+| **Popover** | ✅ Complete | Catalyst UI | HeadlessUI anchor positioning |
+| **Dropdown** | ✅ Complete | Catalyst UI | Items, dividers, icons, shortcuts |
+
+### Gallery Specimens
+
+| Specimen | Status | Interactive Features |
+|----------|--------|---------------------|
+| ColorSwatch | ✅ Complete | Dark mode toggle, copy variable/hex |
+| TypographySpecimen | ✅ Complete | Copy Tailwind classes, responsive preview |
+| SpacingScale | ✅ Complete | Visual bars, copy utility class |
+| ShadowCard | ✅ Complete | Elevation preview, copy class |
+| RadiusSpecimen | ✅ Complete | Shape preview, copy class |
+| ButtonSpecimen | ✅ Complete | All variants, sizes, states |
+| InputSpecimen | ✅ Complete | Types, icons, validation states |
+| CheckboxSpecimen | ✅ Complete | All 22 colors, states |
+| FeedbackSpecimen | ✅ Complete | Banner, spinners, dialogs |
+| CardSpecimen | ✅ Complete | Patterns, directory card |
+| ToastSpecimen | ✅ Complete | Trigger all 4 variants, action buttons, custom duration |
+| BadgeSpecimen | ✅ Complete | All 5 colors, BadgeButton interactive |
+| DialogSpecimen | ✅ Complete | Basic, form, and 5 size variants |
+| SkeletonSpecimen | ✅ Complete | DirectoryCard skeleton, loading patterns |
+| PageHeaderSpecimen | ✅ Complete | Size variants, heading levels, alignment |
+| NavigationSpecimen | ✅ Complete | Mobile bottom nav mockup, state logic |
+| ToolbarSpecimen | ✅ Complete | Desktop rail + mobile FAB, reactions system |
+| AvatarSpecimen | ✅ Complete | Size variants, initials, status, groups, interactive |
+| OverlaySpecimen | ✅ Complete | Tooltips, popovers, dropdowns with accessibility |
+| TabsSpecimen | ✅ Complete | Underline, pill, icon, vertical tab layouts |
+| PaginationSpecimen | ✅ Complete | Page numbers, ellipsis, size variants |
+
 ## Quick Reference
 
 ### Brand Colors
@@ -64,6 +125,44 @@ Use these short aliases throughout the codebase:
 | `border-strong` | `basalt-500` | `#475569` |
 
 ## Color System
+
+### Two-Tier Token Architecture (Tailwind CSS v4)
+
+The color system uses a two-tier architecture for optimal dark mode support and Tailwind integration:
+
+**Tier 1: Raw Values** (`:root` and `.dark` selectors)
+- CSS custom properties with OKLCH color values
+- Brand colors: `--brand-ocean-blue`, `--brand-valley-green`, etc.
+- Neutrals: `--neutral-mist-*`, `--neutral-basalt-*`
+- Semantic tokens: `--background`, `--foreground`, `--primary`, etc.
+
+**Tier 2: Tailwind Mappings** (`@theme inline`)
+- Exposes CSS variables to Tailwind's color system
+- Maps to `--color-*` namespace for utility classes
+- Preserves all backward compatibility aliases
+
+### Color Format: OKLCH
+
+All colors are defined in OKLCH format for perceptual uniformity:
+
+```css
+/* OKLCH: oklch(Lightness Chroma Hue) */
+--brand-ocean-blue: oklch(0.35 0.08 240);  /* Light mode */
+--brand-ocean-blue: oklch(0.73 0.15 200);  /* Dark mode */
+```
+
+**Why OKLCH?**
+- Perceptually uniform lightness (L=0.5 looks 50% bright regardless of hue)
+- Better color interpolation for animations and gradients
+- Industry standard for modern CSS color systems
+
+### WCAG AA Compliance
+
+The design system ensures WCAG AA color contrast compliance:
+
+- **`--muted-foreground`**: Uses `oklch(0.55 0 0)` in light mode (≥4.5:1 contrast ratio)
+- **`text-muted`**: Utility override maps to compliant muted foreground color
+- All text colors tested against their intended backgrounds
 
 ### Neutral Scale (Bruma)
 
@@ -271,7 +370,7 @@ import { Card } from "@/components/ui/card";
 
 ### Catalyst UI Components
 
-The project uses a curated subset of Catalyst UI for complex interactive components. Only 6 components are retained, with simplified color variants aligned to the brand palette.
+The project uses a curated subset of Catalyst UI for complex interactive components. 9 components are retained, with simplified color variants aligned to the brand palette.
 
 | Component | File | Usage |
 |-----------|------|-------|
@@ -281,6 +380,8 @@ The project uses a curated subset of Catalyst UI for complex interactive compone
 | **Fieldset** | `fieldset.tsx` | Form grouping with labels, errors |
 | **Checkbox** | `checkbox.tsx` | Boolean toggles |
 | **Badge** | `badge.tsx` | Status indicators |
+| **Popover** | `popover.tsx` | HeadlessUI anchor positioning |
+| **Dropdown** | `dropdown.tsx` | Menu items, dividers, icons, keyboard shortcuts |
 
 #### Button
 
@@ -508,7 +609,7 @@ const Component = ({ className, ...props }) => (
 | `apps/web/src/app/layout.tsx` | Font loading, theme init |
 | `apps/web/tailwind.config.ts` | Tailwind theme extensions |
 | `apps/web/src/stores/uiStore.ts` | Theme state management |
-| `apps/web/src/components/catalyst-ui/` | Catalyst UI components (6 retained) |
+| `apps/web/src/components/catalyst-ui/` | Catalyst UI components (9 retained) |
 | `apps/web/src/components/ui/card.tsx` | Base card with hoverable |
 | `apps/web/src/components/providers/toast-provider.tsx` | Toast system |
 | `apps/web/src/components/ui/mobile-bottom-nav.tsx` | Mobile navigation |

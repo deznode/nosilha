@@ -246,22 +246,22 @@ export const avatarComponents: ComponentExample[] = [
     name: "Avatar",
     description:
       "User profile image with initials fallback, size variants (xs-xl), and optional status indicator.",
-    importPath: "@/components/catalyst-ui/avatar",
-    source: "catalyst",
+    importPath: "@/components/ui/avatar",
+    source: "custom",
   },
   {
     name: "AvatarGroup",
     description:
       "Stacked avatar display with configurable max count and overflow indicator (+N).",
-    importPath: "@/components/catalyst-ui/avatar",
-    source: "catalyst",
+    importPath: "@/components/ui/avatar",
+    source: "custom",
   },
   {
     name: "AvatarButton",
     description:
       "Clickable avatar with expanded touch target (44×44px) and focus ring.",
-    importPath: "@/components/catalyst-ui/avatar",
-    source: "catalyst",
+    importPath: "@/components/ui/avatar",
+    source: "custom",
   },
 ];
 
@@ -270,8 +270,8 @@ export const overlayComponents: ComponentExample[] = [
     name: "Tooltip",
     description:
       "Simple text hint on hover/focus. Position variants: top, bottom, left, right.",
-    importPath: "@/components/catalyst-ui/tooltip",
-    source: "catalyst",
+    importPath: "@/components/ui/tooltip",
+    source: "custom",
   },
   {
     name: "Popover",

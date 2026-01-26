@@ -4,7 +4,7 @@ import {
   Avatar,
   AvatarButton,
   AvatarGroup,
-} from "@/components/catalyst-ui/avatar";
+} from "@/components/ui/avatar";
 
 const SIZES = ["xs", "sm", "md", "lg", "xl"] as const;
 
@@ -27,7 +27,7 @@ const SAMPLE_USERS = [
 
 /**
  * Avatar specimen for the design system gallery.
- * Showcases Avatar, AvatarGroup, and AvatarButton from Catalyst UI.
+ * Showcases Avatar, AvatarGroup, and AvatarButton custom components.
  */
 export function AvatarSpecimen() {
   return (
@@ -206,7 +206,7 @@ export function AvatarSpecimen() {
         <h3 className="text-body mb-2 text-sm font-semibold">Usage</h3>
         <div className="space-y-2">
           <code className="text-muted block text-sm">
-            {`import { Avatar, AvatarGroup, AvatarButton } from "@/components/catalyst-ui/avatar";`}
+            {`import { Avatar, AvatarGroup, AvatarButton } from "@/components/ui/avatar";`}
           </code>
           <div className="border-hairline my-2 border-t" />
           <code className="text-muted block text-sm">{`// Basic avatar with initials`}</code>
