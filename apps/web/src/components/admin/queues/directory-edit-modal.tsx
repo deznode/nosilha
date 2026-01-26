@@ -8,6 +8,7 @@ import {
 } from "@headlessui/react";
 import { MapPin, X } from "lucide-react";
 import { DirectoryEntryForm } from "@/components/directory/directory-entry-form";
+import { Button } from "@/components/catalyst-ui/button";
 import type { DirectorySubmission } from "@/types/admin";
 
 interface DirectoryEditModalProps {
@@ -57,12 +58,9 @@ export function DirectoryEditModal({
                   Edit Directory Entry
                 </DialogTitle>
               </div>
-              <button
-                onClick={onClose}
-                className="hover:bg-surface-alt rounded-full p-2 transition-colors"
-              >
-                <X size={20} className="text-muted" />
-              </button>
+              <Button plain onClick={onClose} aria-label="Close modal">
+                <X data-slot="icon" />
+              </Button>
             </div>
 
             {/* Form Content */}

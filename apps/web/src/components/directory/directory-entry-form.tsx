@@ -23,6 +23,7 @@ import {
   ChevronDown,
   Save,
 } from "lucide-react";
+import { AnimatedButton } from "@/components/ui/animated-button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { InlineAuthPrompt } from "@/components/ui/inline-auth-prompt";
 import {
@@ -583,18 +584,19 @@ export function DirectoryEntryForm({
 
         {/* Actions */}
         <div className="border-hairline flex justify-end gap-3 border-t pt-4">
-          <button
+          <AnimatedButton
             type="submit"
+            variant="primary"
             disabled={isSubmitting}
-            className="bg-ocean-blue hover:bg-ocean-blue/90 flex items-center gap-2 rounded-xl px-6 py-3 font-bold text-white shadow-lg transition-all active:scale-95 disabled:opacity-50"
+            isLoading={isSubmitting}
+            icon={<Save size={16} />}
           >
-            <Save size={16} />
             {isSubmitting
               ? "Saving..."
               : mode === "edit"
                 ? "Save Changes"
                 : "Submit Entry"}
-          </button>
+          </AnimatedButton>
         </div>
       </form>
     );
