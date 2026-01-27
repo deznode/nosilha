@@ -43,7 +43,7 @@ export function StoryCard({ story }: StoryCardProps) {
       <div className="border-hairline bg-surface-alt flex justify-end border-t px-6 py-3">
         <Link
           href={`/stories/${story.slug}`}
-          className="text-ocean-blue flex items-center text-sm font-medium transition-colors hover:text-blue-800"
+          className="text-ocean-blue hover:text-ocean-blue-deep flex items-center text-sm font-medium transition-colors"
         >
           Read Story <ArrowRight size={14} className="ml-1" />
         </Link>

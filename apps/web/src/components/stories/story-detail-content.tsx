@@ -74,7 +74,7 @@ export function StoryDetailContent({
           {/* Back Navigation */}
           <Link
             href="/stories"
-            className="text-muted hover:text-ocean-blue mb-6 inline-flex items-center text-sm transition-colors"
+            className="text-muted hover:text-ocean-blue ease-calm mb-6 inline-flex items-center text-sm transition-colors"
           >
             <ArrowLeft size={16} className="mr-2" />
             Back to Stories
@@ -120,7 +120,7 @@ export function StoryDetailContent({
 
         {/* Share CTA */}
         <div className="border-hairline mt-12 border-t pt-8">
-          <div className="bg-surface rounded-lg p-6 text-center">
+          <div className="bg-surface rounded-card p-6 text-center">
             <h3 className="text-body mb-2 text-lg font-semibold">
               Do you have a story to share?
             </h3>
@@ -130,7 +130,7 @@ export function StoryDetailContent({
             </p>
             <Link
               href="/contribute/story"
-              className="bg-ocean-blue hover:bg-ocean-blue/90 inline-flex items-center rounded-lg px-6 py-3 font-medium text-white transition-colors"
+              className="bg-ocean-blue hover:bg-ocean-blue-deep rounded-button shadow-subtle inline-flex items-center px-6 py-3 font-medium text-white transition-colors"
             >
               Share Your Story
             </Link>

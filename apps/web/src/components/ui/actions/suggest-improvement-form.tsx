@@ -239,7 +239,7 @@ export function SuggestImprovementForm({
                     disabled={isSubmitting}
                     data-invalid={errors.email ? "" : undefined}
                   />
-                  <p className="text-text-muted mt-1 text-sm">
+                  <p className="text-muted mt-1 text-sm">
                     We may contact you for clarification on your suggestion.
                   </p>
                   {errors.email && (
@@ -250,7 +250,7 @@ export function SuggestImprovementForm({
 
               {/* Show email info for authenticated users */}
               {isAuthenticated && user?.email && (
-                <div className="text-text-muted text-sm">
+                <div className="text-muted text-sm">
                   Submitting as: <strong>{user.email}</strong>
                 </div>
               )}
@@ -287,7 +287,7 @@ export function SuggestImprovementForm({
                   disabled={isSubmitting}
                   data-invalid={errors.message ? "" : undefined}
                 />
-                <p className="text-text-muted mt-1 text-sm">
+                <p className="text-muted mt-1 text-sm">
                   {(messageValue || "").length}/5000 characters (minimum 10)
                 </p>
                 {errors.message && (

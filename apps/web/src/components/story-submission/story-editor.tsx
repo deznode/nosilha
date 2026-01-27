@@ -15,7 +15,6 @@ import {
   Undo2,
 } from "lucide-react";
 import Markdown from "react-markdown";
-import { StoryType } from "@/types/story";
 import type { StoryTemplate } from "@/types/story";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,12 +26,8 @@ import {
 import { StoryPromptsPanel } from "./story-prompts-panel";
 import { useToast } from "@/hooks/use-toast";
 
-export const WORD_LIMITS: Record<StoryType, number> = {
-  [StoryType.QUICK]: 500,
-  [StoryType.FULL]: 5000,
-  [StoryType.GUIDED]: 5000,
-};
-
+// Single word limit for all story types
+const WORD_LIMIT = 5000;
 const WORDS_PER_MINUTE = 200;
 
 function getReadingTime(wordCount: number): string {
@@ -88,7 +83,6 @@ How do you stay connected to Brava today?`,
 };
 
 interface StoryEditorProps {
-  storyType: StoryType;
   content: string;
   title: string;
   author?: string;
@@ -98,7 +92,6 @@ interface StoryEditorProps {
 }
 
 export function StoryEditor({
-  storyType,
   content,
   title,
   author = "",
@@ -252,16 +245,15 @@ export function StoryEditor({
 
   const wordCount = content.split(/\s+/).filter(Boolean).length;
   const charCount = content.length;
-  const limit = WORD_LIMITS[storyType];
-  const warningLevel = getWarningLevel(wordCount, limit);
+  const warningLevel = getWarningLevel(wordCount, WORD_LIMIT);
   const readingTime = getReadingTime(wordCount);
-  const isOverLimit = wordCount > limit;
+  const isOverLimit = wordCount > WORD_LIMIT;
 
   return (
     <div>
       <div className="mb-2 flex items-end justify-between">
         <label className="text-body block text-sm font-medium">
-          Your Story {storyType === StoryType.QUICK ? "(Max 500 words)" : ""}
+          Your Story
         </label>
 
         {/* Tabs */}
@@ -329,45 +321,43 @@ export function StoryEditor({
               <Quote className="h-4 w-4" />
             </button>
 
-            {/* Template Dropdown (Only for Full Stories) */}
-            {storyType === StoryType.FULL && (
-              <div className="relative ml-2">
-                <button
-                  type="button"
-                  onClick={() => setShowTemplates(!showTemplates)}
-                  className="text-bougainvillea-pink bg-bougainvillea-pink/10 hover:bg-bougainvillea-pink/20 flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors"
-                >
-                  <LayoutTemplate className="h-3 w-3" /> Templates{" "}
-                  <ChevronDown className="h-3 w-3" />
-                </button>
+            {/* Template Dropdown (Additional templates) */}
+            <div className="relative ml-2">
+              <button
+                type="button"
+                onClick={() => setShowTemplates(!showTemplates)}
+                className="text-bougainvillea-pink bg-bougainvillea-pink/10 hover:bg-bougainvillea-pink/20 flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors"
+              >
+                <LayoutTemplate className="h-3 w-3" /> Templates{" "}
+                <ChevronDown className="h-3 w-3" />
+              </button>
 
-                {showTemplates && (
-                  <div className="border-hairline bg-surface rounded-button shadow-elevated absolute top-full left-0 z-10 mt-1 w-48 border py-1">
-                    <button
-                      type="button"
-                      onClick={() => applyTemplate("narrative")}
-                      className="text-body hover:bg-surface-alt block w-full px-4 py-2 text-left text-xs"
-                    >
-                      General Narrative
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => applyTemplate("migration")}
-                      className="text-body hover:bg-surface-alt block w-full px-4 py-2 text-left text-xs"
-                    >
-                      Migration Journey
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => applyTemplate("recipe")}
-                      className="text-body hover:bg-surface-alt block w-full px-4 py-2 text-left text-xs"
-                    >
-                      Family Recipe
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
+              {showTemplates && (
+                <div className="border-hairline bg-surface rounded-button shadow-elevated absolute top-full left-0 z-10 mt-1 w-48 border py-1">
+                  <button
+                    type="button"
+                    onClick={() => applyTemplate("narrative")}
+                    className="text-body hover:bg-surface-alt block w-full px-4 py-2 text-left text-xs"
+                  >
+                    General Narrative
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyTemplate("migration")}
+                    className="text-body hover:bg-surface-alt block w-full px-4 py-2 text-left text-xs"
+                  >
+                    Migration Journey
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyTemplate("recipe")}
+                    className="text-body hover:bg-surface-alt block w-full px-4 py-2 text-left text-xs"
+                  >
+                    Family Recipe
+                  </button>
+                </div>
+              )}
+            </div>
 
             <div className="flex-grow" />
 
@@ -415,7 +405,8 @@ export function StoryEditor({
             )}
           </div>
 
-          {storyType === StoryType.GUIDED && templateType && (
+          {/* Writing prompts panel - only shown when a guided template is selected */}
+          {templateType && (
             <StoryPromptsPanel
               templateType={templateType}
               existingContent={content}
@@ -425,13 +416,9 @@ export function StoryEditor({
 
           <Textarea
             ref={textareaRef}
-            rows={storyType === StoryType.QUICK ? 8 : 16}
+            rows={16}
             required
-            placeholder={
-              storyType === StoryType.QUICK
-                ? "Share a quick memory... (e.g., 'I remember the sound of the ocean at night...')"
-                : "Start typing your story here... Markdown headers (##) are helpful for structure."
-            }
+            placeholder="Start writing your story here... Share a memory, a tradition, or a moment that matters to you."
             value={content}
             onChange={(e) => onContentChange(e.target.value)}
             resize="vertical"
@@ -457,7 +444,8 @@ export function StoryEditor({
                   `${charCount.toLocaleString()} chars`
                 ) : (
                   <>
-                    {wordCount.toLocaleString()}/{limit.toLocaleString()} words
+                    {wordCount.toLocaleString()}/{WORD_LIMIT.toLocaleString()}{" "}
+                    words
                     {isOverLimit && (
                       <span className="ml-1 font-semibold">(over limit!)</span>
                     )}
@@ -480,8 +468,8 @@ export function StoryEditor({
 
           {warningLevel === "warning" && (
             <p className="text-accent-warning mt-1 text-xs">
-              Approaching word limit ({Math.round((wordCount / limit) * 100)}%
-              used)
+              Approaching word limit (
+              {Math.round((wordCount / WORD_LIMIT) * 100)}% used)
             </p>
           )}
         </div>

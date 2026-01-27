@@ -149,7 +149,7 @@ export function NewsletterCtaSection() {
                 errors.email ? "landing-email-error" : undefined
               }
               disabled={isProcessing}
-              className="focus:ring-bougainvillea-pink rounded-button w-full border border-white/30 bg-white/10 px-6 py-4 text-white placeholder-white/70 backdrop-blur-sm transition-all focus:bg-white/20 focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              className="focus:ring-bougainvillea-pink rounded-button w-full border border-white/30 bg-white/10 px-6 py-3 text-white placeholder-white/70 backdrop-blur-sm transition-all focus:bg-white/20 focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             />
 
             {/* Honeypot field (hidden from users and screen readers) */}
