@@ -50,9 +50,27 @@ class FrontendRevalidationService(
         category: String,
         slug: String
     ) {
-        val categoryPath = category.lowercase() + "s" // Hotel -> hotels
+        val categoryPath = CATEGORY_TO_SLUG[category]
+            ?: run {
+                logger.warn { "Unknown category '$category', skipping revalidation" }
+                return
+            }
         val path = "/directory/$categoryPath/$slug"
         revalidatePath(path)
+    }
+
+    companion object {
+        /**
+         * Maps backend category names to frontend URL slugs.
+         * Must stay in sync with apps/web/src/lib/directory-utils.ts CATEGORIES.
+         */
+        private val CATEGORY_TO_SLUG = mapOf(
+            "Restaurant" to "restaurants",
+            "Hotel" to "hotels",
+            "Beach" to "beaches",
+            "Heritage" to "heritage",
+            "Nature" to "nature",
+        )
     }
 
     /**
