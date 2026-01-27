@@ -212,14 +212,16 @@ export default function AdminDashboardPage() {
     id: string,
     status: SubmissionStatus
   ) => {
-    const statusLabel =
-      status === SubmissionStatus.APPROVED
-        ? "approved"
-        : status === SubmissionStatus.REJECTED
-          ? "rejected"
-          : status === SubmissionStatus.ARCHIVED
-            ? "archived"
-            : "updated";
+    const statusLabels: Record<SubmissionStatus, string> = {
+      [SubmissionStatus.APPROVED]: "approved",
+      [SubmissionStatus.REJECTED]: "rejected",
+      [SubmissionStatus.ARCHIVED]: "archived",
+      [SubmissionStatus.PENDING]: "updated",
+      [SubmissionStatus.DRAFT]: "updated",
+      [SubmissionStatus.FLAGGED]: "flagged",
+      [SubmissionStatus.PUBLISHED]: "published",
+    };
+    const statusLabel = statusLabels[status];
     updateDirectory.mutate(
       { id, status },
       {

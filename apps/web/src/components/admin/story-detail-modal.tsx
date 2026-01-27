@@ -60,21 +60,11 @@ const DEFAULT_TYPE_CONFIG = {
  * Resolves story type config from either backend enum or frontend display value.
  */
 function getStoryTypeConfig(storyType: StoryType | string) {
-  // Handle backend enum names directly (QUICK, FULL, GUIDED)
+  // Handle both backend enum names (QUICK, FULL, GUIDED) and StoryType enum values
   if (storyType in STORY_TYPE_CONFIGS) {
     return STORY_TYPE_CONFIGS[storyType as keyof typeof STORY_TYPE_CONFIGS];
   }
-  // Handle frontend display values (Quick Memory, Full Story, Guided Template)
-  switch (storyType) {
-    case StoryType.QUICK:
-      return STORY_TYPE_CONFIGS.QUICK;
-    case StoryType.FULL:
-      return STORY_TYPE_CONFIGS.FULL;
-    case StoryType.GUIDED:
-      return STORY_TYPE_CONFIGS.GUIDED;
-    default:
-      return DEFAULT_TYPE_CONFIG;
-  }
+  return DEFAULT_TYPE_CONFIG;
 }
 
 const STATUS_CONFIG: Record<

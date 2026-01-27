@@ -33,19 +33,20 @@ export function MediaActionModal({
 
   if (!isOpen) return null;
 
-  const handleConfirm = () => {
-    const reason =
-      action === "FLAG" || action === "REJECT" ? selectedReason : "";
-    onConfirm(reason, additionalNotes || undefined);
-    // Reset form
+  const resetForm = () => {
     setSelectedReason(FLAG_REASONS[0]);
     setAdditionalNotes("");
   };
 
+  const handleConfirm = () => {
+    const reason =
+      action === "FLAG" || action === "REJECT" ? selectedReason : "";
+    onConfirm(reason, additionalNotes || undefined);
+    resetForm();
+  };
+
   const handleCancel = () => {
-    // Reset form
-    setSelectedReason(FLAG_REASONS[0]);
-    setAdditionalNotes("");
+    resetForm();
     onClose();
   };
 

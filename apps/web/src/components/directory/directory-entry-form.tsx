@@ -127,6 +127,15 @@ const PRESET_TOWNS = [
 
 const townOptions = PRESET_TOWNS.map((town) => ({ value: town, label: town }));
 
+function getSubmitButtonText(
+  isSubmitting: boolean,
+  mode: "create" | "edit"
+): string {
+  if (isSubmitting) return "Saving...";
+  if (mode === "edit") return "Save Changes";
+  return "Submit Entry";
+}
+
 export interface DirectoryEntryFormProps {
   /** Form mode: 'create' for new entries, 'edit' for existing entries */
   mode?: "create" | "edit";
@@ -207,7 +216,6 @@ export function DirectoryEntryForm({
     formState: { errors },
     setValue,
     watch,
-    reset,
   } = useForm<DirectorySubmissionInput>({
     resolver: zodResolver(directorySubmissionSchema),
     defaultValues: getInitialFormData(),
@@ -595,11 +603,7 @@ export function DirectoryEntryForm({
         <div className="border-hairline flex justify-end gap-3 border-t pt-4">
           <Button type="submit" color="blue" disabled={isSubmitting}>
             <Save data-slot="icon" />
-            {isSubmitting
-              ? "Saving..."
-              : mode === "edit"
-                ? "Save Changes"
-                : "Submit Entry"}
+            {getSubmitButtonText(isSubmitting, mode)}
           </Button>
         </div>
       </form>
