@@ -1,29 +1,195 @@
 "use client";
 
-import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
+import {
+  Tab as HeadlessTab,
+  TabGroup as HeadlessTabGroup,
+  TabList as HeadlessTabList,
+  TabPanel as HeadlessTabPanel,
+  TabPanels as HeadlessTabPanels,
+} from "@headlessui/react";
 import clsx from "clsx";
-import { MapPin, Image, FileText, MessageSquare } from "lucide-react";
+import {
+  MapPin,
+  Image,
+  FileText,
+  MessageSquare,
+  Mail,
+  Camera,
+  Home,
+} from "lucide-react";
+import {
+  TabGroup,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+} from "@/components/ui/tab-group";
 
 /**
  * Tabs specimen for the design system gallery.
- * Showcases HeadlessUI Tab component with various styles and configurations.
+ * Showcases both the TabGroup wrapper component and raw HeadlessUI patterns.
  */
 export function TabsSpecimen() {
   return (
     <div className="space-y-10">
+      {/* TabGroup Component (Recommended) */}
+      <div>
+        <h3 className="text-body mb-4 text-sm font-semibold tracking-wide uppercase">
+          TabGroup Component (Recommended)
+        </h3>
+        <p className="text-muted mb-4 text-sm">
+          Reusable wrapper with built-in underline styling, icon support,
+          badges, and color variants. Use this for most tab implementations.
+        </p>
+        <TabGroup>
+          <TabList>
+            <Tab icon={Home} color="blue">
+              Overview
+            </Tab>
+            <Tab icon={FileText} badge={3} color="pink">
+              Stories
+            </Tab>
+            <Tab icon={Mail} badge={12} color="green">
+              Messages
+            </Tab>
+            <Tab icon={Camera} color="ochre">
+              Gallery
+            </Tab>
+          </TabList>
+          <TabPanels className="mt-4">
+            <TabPanel>
+              <div className="bg-surface-alt rounded-card p-4">
+                <p className="text-body text-sm">
+                  Overview content. The <strong>blue</strong> color is used for
+                  primary navigation.
+                </p>
+              </div>
+            </TabPanel>
+            <TabPanel>
+              <div className="bg-surface-alt rounded-card p-4">
+                <p className="text-body text-sm">
+                  Stories content with <strong>3 items</strong> badge. The{" "}
+                  <strong>pink</strong> color adds visual interest.
+                </p>
+              </div>
+            </TabPanel>
+            <TabPanel>
+              <div className="bg-surface-alt rounded-card p-4">
+                <p className="text-body text-sm">
+                  Messages with <strong>12 unread</strong> badge. The{" "}
+                  <strong>green</strong> color indicates success/active state.
+                </p>
+              </div>
+            </TabPanel>
+            <TabPanel>
+              <div className="bg-surface-alt rounded-card p-4">
+                <p className="text-body text-sm">
+                  Gallery content. The <strong>ochre</strong> color provides
+                  warm accent.
+                </p>
+              </div>
+            </TabPanel>
+          </TabPanels>
+        </TabGroup>
+      </div>
+
+      {/* Color Variants */}
+      <div>
+        <h3 className="text-body mb-4 text-sm font-semibold tracking-wide uppercase">
+          Color Variants
+        </h3>
+        <p className="text-muted mb-4 text-sm">
+          Four color options for tab underlines: blue, pink, green, ochre.
+        </p>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div className="space-y-2">
+            <TabGroup defaultIndex={0}>
+              <TabList>
+                <Tab color="blue">Blue</Tab>
+              </TabList>
+            </TabGroup>
+            <code className="text-muted text-xs">color=&quot;blue&quot;</code>
+          </div>
+          <div className="space-y-2">
+            <TabGroup defaultIndex={0}>
+              <TabList>
+                <Tab color="pink">Pink</Tab>
+              </TabList>
+            </TabGroup>
+            <code className="text-muted text-xs">color=&quot;pink&quot;</code>
+          </div>
+          <div className="space-y-2">
+            <TabGroup defaultIndex={0}>
+              <TabList>
+                <Tab color="green">Green</Tab>
+              </TabList>
+            </TabGroup>
+            <code className="text-muted text-xs">color=&quot;green&quot;</code>
+          </div>
+          <div className="space-y-2">
+            <TabGroup defaultIndex={0}>
+              <TabList>
+                <Tab color="ochre">Ochre</Tab>
+              </TabList>
+            </TabGroup>
+            <code className="text-muted text-xs">color=&quot;ochre&quot;</code>
+          </div>
+        </div>
+      </div>
+
+      {/* TabGroup Usage */}
+      <div className="border-hairline bg-surface rounded-card border p-4">
+        <h3 className="text-body mb-2 text-sm font-semibold">
+          TabGroup Component Usage
+        </h3>
+        <div className="space-y-2">
+          <code className="text-muted block text-sm">
+            {`import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@/components/ui/tab-group";`}
+          </code>
+          <div className="border-hairline my-2 border-t" />
+          <code className="text-muted block text-sm">{`<TabGroup>`}</code>
+          <code className="text-muted block pl-4 text-sm">{`<TabList>`}</code>
+          <code className="text-muted block pl-8 text-sm">
+            {`<Tab icon={Home} color="blue">Home</Tab>`}
+          </code>
+          <code className="text-muted block pl-8 text-sm">
+            {`<Tab icon={Mail} badge={5} color="green">Messages</Tab>`}
+          </code>
+          <code className="text-muted block pl-4 text-sm">{`</TabList>`}</code>
+          <code className="text-muted block pl-4 text-sm">{`<TabPanels>`}</code>
+          <code className="text-muted block pl-8 text-sm">
+            {`<TabPanel>Home content</TabPanel>`}
+          </code>
+          <code className="text-muted block pl-8 text-sm">
+            {`<TabPanel>Messages content</TabPanel>`}
+          </code>
+          <code className="text-muted block pl-4 text-sm">{`</TabPanels>`}</code>
+          <code className="text-muted block text-sm">{`</TabGroup>`}</code>
+        </div>
+      </div>
+
+      <div className="border-hairline border-t pt-10">
+        <h2 className="text-body mb-6 text-lg font-semibold">
+          Raw HeadlessUI Patterns
+        </h2>
+        <p className="text-muted mb-6 text-sm">
+          For custom styling needs, you can use HeadlessUI Tab directly.
+        </p>
+      </div>
+
       {/* Basic Tabs */}
       <div>
         <h3 className="text-body mb-4 text-sm font-semibold tracking-wide uppercase">
-          Underline Tabs (Default)
+          Underline Tabs (Raw)
         </h3>
         <p className="text-muted mb-4 text-sm">
           Clean underline indicator for section switching. Standard pattern for
           content organization.
         </p>
-        <TabGroup>
-          <TabList className="border-hairline flex gap-4 border-b">
+        <HeadlessTabGroup>
+          <HeadlessTabList className="border-hairline flex gap-4 border-b">
             {["Overview", "Details", "Reviews", "Photos"].map((tab) => (
-              <Tab
+              <HeadlessTab
                 key={tab}
                 className={clsx(
                   "relative px-1 pb-3 text-sm font-medium transition-colors",
@@ -35,22 +201,22 @@ export function TabsSpecimen() {
                 )}
               >
                 {tab}
-              </Tab>
+              </HeadlessTab>
             ))}
-          </TabList>
-          <TabPanels className="mt-4">
+          </HeadlessTabList>
+          <HeadlessTabPanels className="mt-4">
             {["Overview", "Details", "Reviews", "Photos"].map((tab) => (
-              <TabPanel key={tab} className="focus:outline-none">
+              <HeadlessTabPanel key={tab} className="focus:outline-none">
                 <div className="bg-surface-alt rounded-card p-4">
                   <p className="text-body text-sm">
                     Content for <strong>{tab}</strong> tab. This area can
                     contain any content including forms, lists, or rich media.
                   </p>
                 </div>
-              </TabPanel>
+              </HeadlessTabPanel>
             ))}
-          </TabPanels>
-        </TabGroup>
+          </HeadlessTabPanels>
+        </HeadlessTabGroup>
       </div>
 
       {/* Pill Tabs */}
@@ -61,10 +227,10 @@ export function TabsSpecimen() {
         <p className="text-muted mb-4 text-sm">
           Filled background style for more prominent tab navigation.
         </p>
-        <TabGroup>
-          <TabList className="bg-surface-alt inline-flex gap-1 rounded-lg p-1">
+        <HeadlessTabGroup>
+          <HeadlessTabList className="bg-surface-alt inline-flex gap-1 rounded-lg p-1">
             {["All", "Published", "Draft", "Archived"].map((tab) => (
-              <Tab
+              <HeadlessTab
                 key={tab}
                 className={clsx(
                   "rounded-button px-4 py-2 text-sm font-medium transition-all",
@@ -74,40 +240,40 @@ export function TabsSpecimen() {
                 )}
               >
                 {tab}
-              </Tab>
+              </HeadlessTab>
             ))}
-          </TabList>
-          <TabPanels className="mt-4">
+          </HeadlessTabList>
+          <HeadlessTabPanels className="mt-4">
             {["All", "Published", "Draft", "Archived"].map((tab) => (
-              <TabPanel key={tab} className="focus:outline-none">
+              <HeadlessTabPanel key={tab} className="focus:outline-none">
                 <div className="border-hairline rounded-card border p-4">
                   <p className="text-muted text-sm">
                     Showing <strong>{tab.toLowerCase()}</strong> items
                   </p>
                 </div>
-              </TabPanel>
+              </HeadlessTabPanel>
             ))}
-          </TabPanels>
-        </TabGroup>
+          </HeadlessTabPanels>
+        </HeadlessTabGroup>
       </div>
 
       {/* Tabs with Icons */}
       <div>
         <h3 className="text-body mb-4 text-sm font-semibold tracking-wide uppercase">
-          Tabs with Icons
+          Tabs with Icons (Raw)
         </h3>
         <p className="text-muted mb-4 text-sm">
           Icons provide visual cues for tab purpose.
         </p>
-        <TabGroup>
-          <TabList className="border-hairline flex gap-2 border-b">
+        <HeadlessTabGroup>
+          <HeadlessTabList className="border-hairline flex gap-2 border-b">
             {[
               { label: "Location", icon: MapPin },
               { label: "Gallery", icon: Image },
               { label: "Story", icon: FileText },
               { label: "Comments", icon: MessageSquare },
             ].map((tab) => (
-              <Tab
+              <HeadlessTab
                 key={tab.label}
                 className={clsx(
                   "relative flex items-center gap-2 px-3 pb-3 text-sm font-medium transition-colors",
@@ -120,24 +286,24 @@ export function TabsSpecimen() {
               >
                 <tab.icon className="h-4 w-4" />
                 {tab.label}
-              </Tab>
+              </HeadlessTab>
             ))}
-          </TabList>
-          <TabPanels className="mt-4">
+          </HeadlessTabList>
+          <HeadlessTabPanels className="mt-4">
             {[
               { label: "Location", content: "Map and address information" },
               { label: "Gallery", content: "Photo gallery and media" },
               { label: "Story", content: "Historical narrative and context" },
               { label: "Comments", content: "Community discussion" },
             ].map((tab) => (
-              <TabPanel key={tab.label} className="focus:outline-none">
+              <HeadlessTabPanel key={tab.label} className="focus:outline-none">
                 <div className="bg-surface-alt rounded-card p-4">
                   <p className="text-body text-sm">{tab.content}</p>
                 </div>
-              </TabPanel>
+              </HeadlessTabPanel>
             ))}
-          </TabPanels>
-        </TabGroup>
+          </HeadlessTabPanels>
+        </HeadlessTabGroup>
       </div>
 
       {/* Vertical Tabs */}
@@ -148,10 +314,10 @@ export function TabsSpecimen() {
         <p className="text-muted mb-4 text-sm">
           Vertical layout for settings pages or sidebars.
         </p>
-        <TabGroup vertical className="flex gap-6">
-          <TabList className="border-hairline flex w-48 flex-col gap-1 border-r pr-4">
+        <HeadlessTabGroup vertical className="flex gap-6">
+          <HeadlessTabList className="border-hairline flex w-48 flex-col gap-1 border-r pr-4">
             {["General", "Notifications", "Privacy", "Security"].map((tab) => (
-              <Tab
+              <HeadlessTab
                 key={tab}
                 className={clsx(
                   "rounded-button px-3 py-2 text-left text-sm font-medium transition-colors",
@@ -161,20 +327,20 @@ export function TabsSpecimen() {
                 )}
               >
                 {tab}
-              </Tab>
+              </HeadlessTab>
             ))}
-          </TabList>
-          <TabPanels className="flex-1">
+          </HeadlessTabList>
+          <HeadlessTabPanels className="flex-1">
             {["General", "Notifications", "Privacy", "Security"].map((tab) => (
-              <TabPanel key={tab} className="focus:outline-none">
+              <HeadlessTabPanel key={tab} className="focus:outline-none">
                 <h4 className="text-body mb-2 font-semibold">{tab} Settings</h4>
                 <p className="text-muted text-sm">
                   Configure your {tab.toLowerCase()} preferences here.
                 </p>
-              </TabPanel>
+              </HeadlessTabPanel>
             ))}
-          </TabPanels>
-        </TabGroup>
+          </HeadlessTabPanels>
+        </HeadlessTabGroup>
       </div>
 
       {/* Controlled Example Note */}
@@ -215,9 +381,11 @@ export function TabsSpecimen() {
         </div>
       </div>
 
-      {/* Code Example */}
+      {/* Raw HeadlessUI Code Example */}
       <div className="border-hairline bg-surface rounded-card border p-4">
-        <h3 className="text-body mb-2 text-sm font-semibold">Usage</h3>
+        <h3 className="text-body mb-2 text-sm font-semibold">
+          Raw HeadlessUI Usage
+        </h3>
         <div className="space-y-2">
           <code className="text-muted block text-sm">
             {`import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";`}

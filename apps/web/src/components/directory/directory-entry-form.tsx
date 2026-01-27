@@ -22,10 +22,9 @@ import {
   AlertCircle,
   PlusCircle,
   LayoutGrid,
-  ChevronDown,
   Save,
 } from "lucide-react";
-import { AnimatedButton } from "@/components/ui/animated-button";
+import { Button } from "@/components/catalyst-ui/button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { InlineAuthPrompt } from "@/components/ui/inline-auth-prompt";
 import {
@@ -594,19 +593,14 @@ export function DirectoryEntryForm({
 
         {/* Actions */}
         <div className="border-hairline flex justify-end gap-3 border-t pt-4">
-          <AnimatedButton
-            type="submit"
-            variant="primary"
-            disabled={isSubmitting}
-            isLoading={isSubmitting}
-            icon={<Save size={16} />}
-          >
+          <Button type="submit" color="blue" disabled={isSubmitting}>
+            <Save data-slot="icon" />
             {isSubmitting
               ? "Saving..."
               : mode === "edit"
                 ? "Save Changes"
                 : "Submit Entry"}
-          </AnimatedButton>
+          </Button>
         </div>
       </form>
     );

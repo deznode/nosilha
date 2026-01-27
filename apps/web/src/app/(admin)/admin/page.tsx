@@ -9,6 +9,13 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import {
+  TabGroup,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+} from "@/components/ui/tab-group";
+import {
   KPICards,
   ActivityChart,
   CoverageChart,
@@ -54,13 +61,6 @@ import type { GalleryModerationAction } from "@/types/gallery";
 import type { StorySubmission } from "@/types/story";
 import { SubmissionStatus } from "@/types/story";
 
-type ActiveTab =
-  | "suggestions"
-  | "stories"
-  | "messages"
-  | "directory"
-  | "gallery";
-
 // Default stats for loading state
 const defaultStats: AdminStats = {
   newSuggestions: 0,
@@ -75,7 +75,6 @@ const defaultStats: AdminStats = {
 };
 
 export default function AdminDashboardPage() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>("suggestions");
   const [selectedStory, setSelectedStory] = useState<StorySubmission | null>(
     null
   );
@@ -373,132 +372,82 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="border-hairline mb-6 border-b">
-          <nav
-            className="-mb-px flex space-x-4 overflow-x-auto md:space-x-8"
-            aria-label="Tabs"
-          >
-            <button
-              onClick={() => setActiveTab("suggestions")}
-              className={`${
-                activeTab === "suggestions"
-                  ? "border-ocean-blue text-ocean-blue"
-                  : "text-muted hover:text-body hover:border-ocean-blue/30 border-transparent"
-              } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
+        <TabGroup className="mb-6">
+          <TabList>
+            <Tab
+              icon={MessageSquare}
+              badge={pendingSuggestions.length}
+              color="blue"
             >
-              <MessageSquare size={16} /> Suggestions
-              {pendingSuggestions.length > 0 && (
-                <span className="ml-1 inline-flex items-center rounded-full bg-yellow-100 px-1.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                  {pendingSuggestions.length}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab("stories")}
-              className={`${
-                activeTab === "stories"
-                  ? "border-bougainvillea-pink text-bougainvillea-pink"
-                  : "text-muted hover:text-body hover:border-bougainvillea-pink/30 border-transparent"
-              } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
+              Suggestions
+            </Tab>
+            <Tab icon={FileText} badge={pendingStories.length} color="pink">
+              Stories
+            </Tab>
+            <Tab icon={Mail} badge={unreadMessages} color="green">
+              Inquiries
+            </Tab>
+            <Tab
+              icon={MapPin}
+              badge={pendingDirectorySubmissions.length}
+              color="ochre"
             >
-              <FileText size={16} /> Stories
-              {pendingStories.length > 0 && (
-                <span className="ml-1 inline-flex items-center rounded-full bg-yellow-100 px-1.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                  {pendingStories.length}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab("messages")}
-              className={`${
-                activeTab === "messages"
-                  ? "border-valley-green text-valley-green"
-                  : "text-muted hover:text-body hover:border-valley-green/30 border-transparent"
-              } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
+              Directory
+            </Tab>
+            <Tab
+              icon={ImageIcon}
+              badge={pendingGalleryItems.length}
+              color="blue"
             >
-              <Mail size={16} /> Inquiries
-              {unreadMessages > 0 && (
-                <span className="bg-valley-green/20 text-valley-green ml-1 inline-flex animate-pulse items-center rounded-full px-1.5 py-0.5 text-xs font-medium">
-                  {unreadMessages}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab("directory")}
-              className={`${
-                activeTab === "directory"
-                  ? "border-sobrado-ochre text-sobrado-ochre"
-                  : "text-muted hover:text-body hover:border-sobrado-ochre/30 border-transparent"
-              } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
-            >
-              <MapPin size={16} /> Directory
-              {pendingDirectorySubmissions.length > 0 && (
-                <span className="ml-1 inline-flex items-center rounded-full bg-yellow-100 px-1.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                  {pendingDirectorySubmissions.length}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab("gallery")}
-              className={`${
-                activeTab === "gallery"
-                  ? "border-ocean-blue text-ocean-blue"
-                  : "text-muted hover:text-body hover:border-ocean-blue/30 border-transparent"
-              } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
-            >
-              <ImageIcon size={16} /> Gallery
-              {pendingGalleryItems.length > 0 && (
-                <span className="ml-1 inline-flex items-center rounded-full bg-yellow-100 px-1.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                  {pendingGalleryItems.length}
-                </span>
-              )}
-            </button>
-          </nav>
-        </div>
+              Gallery
+            </Tab>
+          </TabList>
 
-        {/* Content based on active tab */}
-        {activeTab === "suggestions" && (
-          <SuggestionsQueue
-            suggestions={suggestions}
-            isLoading={suggestionsQuery.isLoading}
-            onStatusChange={handleSuggestionStatusChange}
-          />
-        )}
-        {activeTab === "stories" && (
-          <StoriesQueue
-            stories={stories}
-            isLoading={storiesQuery.isLoading}
-            onStatusChange={handleStoryStatusChange}
-            onViewFull={handleViewStory}
-            onFlag={handleStoryFlag}
-          />
-        )}
-        {activeTab === "messages" && (
-          <MessagesQueue
-            messages={messages}
-            isLoading={messagesQuery.isLoading}
-            onStatusChange={handleMessageStatusChange}
-            onDelete={handleMessageDelete}
-          />
-        )}
-        {activeTab === "directory" && (
-          <DirectoryQueue
-            submissions={directorySubmissions}
-            isLoading={directoryQuery.isLoading}
-            onStatusChange={handleDirectoryStatusChange}
-            onEdit={handleDirectoryEdit}
-            onDelete={handleDirectoryDelete}
-            onFlag={handleDirectoryFlag}
-          />
-        )}
-        {activeTab === "gallery" && (
-          <GalleryQueue
-            items={galleryItems}
-            isLoading={galleryQuery.isLoading}
-            onStatusChange={handleGalleryStatusChange}
-            onPromoteToHero={handlePromoteToHero}
-          />
-        )}
+          <TabPanels className="mt-6">
+            <TabPanel>
+              <SuggestionsQueue
+                suggestions={suggestions}
+                isLoading={suggestionsQuery.isLoading}
+                onStatusChange={handleSuggestionStatusChange}
+              />
+            </TabPanel>
+            <TabPanel>
+              <StoriesQueue
+                stories={stories}
+                isLoading={storiesQuery.isLoading}
+                onStatusChange={handleStoryStatusChange}
+                onViewFull={handleViewStory}
+                onFlag={handleStoryFlag}
+              />
+            </TabPanel>
+            <TabPanel>
+              <MessagesQueue
+                messages={messages}
+                isLoading={messagesQuery.isLoading}
+                onStatusChange={handleMessageStatusChange}
+                onDelete={handleMessageDelete}
+              />
+            </TabPanel>
+            <TabPanel>
+              <DirectoryQueue
+                submissions={directorySubmissions}
+                isLoading={directoryQuery.isLoading}
+                onStatusChange={handleDirectoryStatusChange}
+                onEdit={handleDirectoryEdit}
+                onDelete={handleDirectoryDelete}
+                onFlag={handleDirectoryFlag}
+              />
+            </TabPanel>
+            <TabPanel>
+              <GalleryQueue
+                items={galleryItems}
+                isLoading={galleryQuery.isLoading}
+                onStatusChange={handleGalleryStatusChange}
+                onPromoteToHero={handlePromoteToHero}
+              />
+            </TabPanel>
+          </TabPanels>
+        </TabGroup>
       </main>
 
       {/* Story Detail Modal */}

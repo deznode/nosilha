@@ -19,6 +19,7 @@ import {
 import type { StorySubmission } from "@/types/story";
 import { StoryType, SubmissionStatus } from "@/types/story";
 import { StoryMarkdown } from "../stories/story-markdown";
+import { Button } from "@/components/catalyst-ui/button";
 
 interface StoryDetailModalProps {
   story: StorySubmission | null;
@@ -160,12 +161,9 @@ export function StoryDetailModal({
                   {story.title}
                 </DialogTitle>
               </div>
-              <button
-                onClick={onClose}
-                className="hover:bg-surface-alt rounded-full p-2 transition-colors"
-              >
-                <X size={20} className="text-muted" />
-              </button>
+              <Button plain onClick={onClose}>
+                <X data-slot="icon" />
+              </Button>
             </div>
 
             {/* Content */}
@@ -206,34 +204,31 @@ export function StoryDetailModal({
             <div className="border-hairline bg-canvas flex items-center justify-end gap-3 border-t p-4">
               {isPending ? (
                 <>
-                  <button
+                  <Button
+                    color="red"
                     onClick={() => {
                       onReject(story.id);
                       onClose();
                     }}
-                    className="inline-flex items-center gap-2 rounded-lg border border-red-300 px-4 py-2 text-red-600 transition-colors hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20"
                   >
-                    <XCircle size={16} />
+                    <XCircle data-slot="icon" />
                     Reject
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    color="green"
                     onClick={() => {
                       onApprove(story.id);
                       onClose();
                     }}
-                    className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700"
                   >
-                    <Check size={16} />
+                    <Check data-slot="icon" />
                     Approve & Publish
-                  </button>
+                  </Button>
                 </>
               ) : (
-                <button
-                  onClick={onClose}
-                  className="bg-surface-alt text-body hover:bg-surface-alt/80 rounded-lg px-4 py-2 transition-colors"
-                >
+                <Button outline onClick={onClose}>
                   Close
-                </button>
+                </Button>
               )}
             </div>
           </DialogPanel>

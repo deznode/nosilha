@@ -14,7 +14,6 @@ import {
 import { SubmissionStatus, StoryType } from "@/types/story";
 import { Badge } from "@/components/catalyst-ui/badge";
 import { Button } from "@/components/catalyst-ui/button";
-import { AnimatedButton } from "@/components/ui/animated-button";
 
 interface BaseQueueItemProps {
   status: SubmissionStatus;
@@ -183,17 +182,15 @@ export function QueueItem(props: QueueItemProps) {
           {/* Archive Button - Only show for PUBLISHED stories that are not yet archived */}
           <div>
             {isPublished && !props.archivedAt && props.onArchive && (
-              <AnimatedButton
-                variant="outline"
-                size="sm"
+              <Button
+                outline
                 onClick={props.onArchive}
                 disabled={props.isArchiving}
-                isLoading={props.isArchiving}
-                icon={<Code size={14} />}
                 title="Archive to MDX"
               >
+                <Code data-slot="icon" />
                 {props.isArchiving ? "Generating..." : "MDX Archive"}
-              </AnimatedButton>
+              </Button>
             )}
           </div>
 

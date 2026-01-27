@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Flag, XCircle } from "lucide-react";
 import type { MediaModerationAction } from "@/types/admin";
+import { Button } from "@/components/catalyst-ui/button";
 
 interface MediaActionModalProps {
   isOpen: boolean;
@@ -66,12 +67,9 @@ export function MediaActionModal({
             <h3 className="text-body text-lg font-semibold">
               {actionText} Media
             </h3>
-            <button
-              onClick={handleCancel}
-              className="text-muted hover:text-body"
-            >
-              <X className="h-5 w-5" />
-            </button>
+            <Button plain onClick={handleCancel}>
+              <X data-slot="icon" />
+            </Button>
           </div>
 
           {/* Content */}
@@ -125,22 +123,20 @@ export function MediaActionModal({
 
           {/* Footer */}
           <div className="border-hairline flex justify-end gap-3 border-t px-6 py-4">
-            <button
-              onClick={handleCancel}
-              className="border-hairline bg-surface text-body hover:bg-surface-alt rounded-md border px-4 py-2 text-sm font-medium"
-            >
+            <Button outline onClick={handleCancel}>
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
+              color={action === "FLAG" ? "yellow" : "red"}
               onClick={handleConfirm}
-              className={
-                action === "FLAG"
-                  ? "rounded-md border border-transparent bg-yellow-100 px-4 py-2 text-sm font-medium text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:hover:bg-yellow-900/50"
-                  : "rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
-              }
             >
+              {action === "FLAG" ? (
+                <Flag data-slot="icon" />
+              ) : (
+                <XCircle data-slot="icon" />
+              )}
               Confirm {actionText}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
