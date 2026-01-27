@@ -149,7 +149,7 @@ export default function GalleryPage() {
             </div>
             <Link
               href="/contribute/media"
-              className="bg-ocean-blue hover:bg-ocean-blue/90 flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all active:scale-95"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-subtle flex shrink-0 items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95"
             >
               <Plus size={18} />
               Add to Archive
@@ -159,7 +159,7 @@ export default function GalleryPage() {
       </div>
 
       {/* Tabs */}
-      <div className="border-hairline bg-canvas sticky top-16 z-30 border-b shadow-sm">
+      <div className="border-hairline bg-canvas shadow-subtle sticky top-16 z-30 border-b">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
             <button

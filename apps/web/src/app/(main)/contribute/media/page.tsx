@@ -19,6 +19,7 @@ import { useR2Upload } from "@/hooks/useR2Upload";
 import { BackendApiClient } from "@/lib/backend-api";
 import { useAuth } from "@/components/providers/auth-provider";
 import { InlineAuthPrompt } from "@/components/ui/inline-auth-prompt";
+import { useToast } from "@/hooks/use-toast";
 
 interface FormData {
   title: string;
@@ -59,6 +60,7 @@ function parseVideoUrl(
 
 export default function MediaContributionPage() {
   const { user, loading: authLoading } = useAuth();
+  const toast = useToast();
   const [submitted, setSubmitted] = useState(false);
   const [videoSubmitting, setVideoSubmitting] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
@@ -121,9 +123,13 @@ export default function MediaContributionPage() {
       });
 
       if (result) {
+        toast.success("Media uploaded successfully").show();
         setSubmitted(true);
       }
       // Error handling is done by the hook (uploadError state)
+      if (!result) {
+        toast.error("Upload failed. Please try again.").show();
+      }
     } else if (formData.type === "VIDEO") {
       // Parse the URL to extract platform and video ID
       const parsed = parseVideoUrl(formData.url);
@@ -146,11 +152,13 @@ export default function MediaContributionPage() {
           author: formData.author || undefined,
           category: "Community", // Default category for user submissions
         });
+        toast.success("Video submitted successfully").show();
         setSubmitted(true);
       } catch (err) {
-        setVideoError(
-          err instanceof Error ? err.message : "Failed to submit video"
-        );
+        const errorMsg =
+          err instanceof Error ? err.message : "Failed to submit video";
+        setVideoError(errorMsg);
+        toast.error(errorMsg).show();
       } finally {
         setVideoSubmitting(false);
       }
@@ -180,7 +188,7 @@ export default function MediaContributionPage() {
           </p>
           <Link
             href="/gallery"
-            className="bg-ocean-blue hover:bg-ocean-blue-deep block w-full rounded-2xl py-4 font-bold text-white shadow-lg transition-colors"
+            className="bg-ocean-blue hover:bg-ocean-blue-deep rounded-button shadow-lift block w-full py-4 font-bold text-white transition-colors"
           >
             Return to Gallery
           </Link>
@@ -214,9 +222,9 @@ export default function MediaContributionPage() {
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, type: "IMAGE" })}
-                className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold transition-all ${
+                className={`rounded-card flex flex-1 items-center justify-center gap-2 py-3 text-xs font-bold transition-all ${
                   formData.type === "IMAGE"
-                    ? "bg-canvas text-ocean-blue shadow-sm"
+                    ? "bg-canvas text-ocean-blue shadow-subtle"
                     : "text-muted hover:text-body"
                 }`}
               >
@@ -225,9 +233,9 @@ export default function MediaContributionPage() {
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, type: "VIDEO" })}
-                className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold transition-all ${
+                className={`rounded-card flex flex-1 items-center justify-center gap-2 py-3 text-xs font-bold transition-all ${
                   formData.type === "VIDEO"
-                    ? "bg-canvas text-bougainvillea-pink shadow-sm"
+                    ? "bg-canvas text-bougainvillea-pink shadow-subtle"
                     : "text-muted hover:text-body"
                 }`}
               >
@@ -258,7 +266,7 @@ export default function MediaContributionPage() {
                 <input
                   required
                   type="text"
-                  className="border-hairline bg-surface text-body focus:ring-ocean-blue/10 w-full rounded-xl border px-5 py-3 font-medium transition-all outline-none focus:ring-2"
+                  className="border-hairline bg-surface text-body focus-visible:ring-ocean-blue rounded-card w-full border px-5 py-3 font-medium transition-all outline-none focus:ring-2 focus-visible:ring-offset-2"
                   placeholder="e.g., Festival of São João, 1984"
                   value={formData.title}
                   onChange={(e) =>
@@ -289,7 +297,7 @@ export default function MediaContributionPage() {
                           src={formData.preview}
                           width={160}
                           height={160}
-                          className="max-h-40 rounded-xl border-2 border-white object-contain shadow-lg"
+                          className="rounded-card shadow-elevated max-h-40 border-2 border-white object-contain"
                           alt="Preview"
                           unoptimized
                         />
@@ -299,7 +307,7 @@ export default function MediaContributionPage() {
                             e.stopPropagation();
                             clearFile();
                           }}
-                          className="absolute -top-3 -right-3 rounded-full bg-red-500 p-1.5 text-white shadow-lg"
+                          className="bg-status-error shadow-elevated absolute -top-3 -right-3 rounded-full p-1.5 text-white"
                         >
                           <X size={14} />
                         </button>
@@ -329,7 +337,7 @@ export default function MediaContributionPage() {
                   <div className="relative">
                     <input
                       required
-                      className="border-hairline bg-surface text-body w-full rounded-xl border py-3 pr-4 pl-10 transition-all outline-none"
+                      className="border-hairline bg-surface text-body rounded-card w-full border py-3 pr-4 pl-10 transition-all outline-none"
                       placeholder="YouTube or Vimeo URL"
                       value={formData.url}
                       onChange={(e) =>
@@ -351,7 +359,7 @@ export default function MediaContributionPage() {
                 </label>
                 <textarea
                   rows={3}
-                  className="border-hairline bg-surface text-body w-full rounded-xl border px-5 py-3 leading-relaxed outline-none"
+                  className="border-hairline bg-surface text-body rounded-card w-full border px-5 py-3 leading-relaxed outline-none"
                   placeholder="Additional context or story..."
                   value={formData.description}
                   onChange={(e) =>
@@ -367,7 +375,7 @@ export default function MediaContributionPage() {
                 </label>
                 <input
                   type="text"
-                  className="border-hairline bg-surface text-body w-full rounded-xl border px-5 py-3 outline-none"
+                  className="border-hairline bg-surface text-body rounded-card w-full border px-5 py-3 outline-none"
                   placeholder="Name of owner or photographer"
                   value={formData.author}
                   onChange={(e) =>
@@ -379,7 +387,7 @@ export default function MediaContributionPage() {
 
             {/* Error Display */}
             {(uploadError || videoError) && (
-              <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+              <div className="border-status-error/20 bg-status-error/10 text-status-error rounded-card flex items-center gap-3 border p-4 text-sm">
                 <AlertCircle size={18} className="flex-shrink-0" />
                 <span>{uploadError || videoError}</span>
               </div>

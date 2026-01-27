@@ -75,7 +75,7 @@ export function AnnouncementPill({
 
   const linkContent = (
     <>
-      <span className="bg-bougainvillea-pink flex items-center justify-center rounded-full px-3 py-1 text-[10px] font-bold tracking-wider text-white uppercase shadow-sm">
+      <span className="bg-bougainvillea-pink shadow-subtle flex items-center justify-center rounded-full px-3 py-1 text-[10px] font-bold tracking-wider text-white uppercase">
         {BadgeIcon && <BadgeIcon size={12} className="mr-1" />}
         {badge}
       </span>

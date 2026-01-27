@@ -15,7 +15,7 @@ const STORY_TYPES = [
     description:
       "Share a fleeting moment, a specific event, or a simple thought about the island.",
     icon: Clock,
-    iconBgClass: "bg-blue-50 dark:bg-blue-900/30",
+    iconBgClass: "bg-ocean-blue/10",
     iconClass: "text-ocean-blue",
     hoverBorderClass: "hover:border-ocean-blue",
   },
@@ -26,7 +26,7 @@ const STORY_TYPES = [
     description:
       "Write a detailed narrative. We provide templates for recipes, migration stories, and more.",
     icon: Book,
-    iconBgClass: "bg-pink-50 dark:bg-pink-900/30",
+    iconBgClass: "bg-bougainvillea-pink/10",
     iconClass: "text-bougainvillea-pink",
     hoverBorderClass: "hover:border-bougainvillea-pink",
   },
@@ -37,9 +37,9 @@ const STORY_TYPES = [
     description:
       "Choose from structured templates like Family History, Diaspora Journey, or Food & Recipes.",
     icon: FileText,
-    iconBgClass: "bg-purple-50 dark:bg-purple-900/30",
-    iconClass: "text-purple-600 dark:text-purple-400",
-    hoverBorderClass: "hover:border-purple-600",
+    iconBgClass: "bg-violet-500/10",
+    iconClass: "text-violet-600 dark:text-violet-400",
+    hoverBorderClass: "hover:border-violet-600",
   },
 ];
 
@@ -64,7 +64,7 @@ export function TypeSelector({ onSelect }: TypeSelectorProps) {
               <button
                 key={item.type}
                 onClick={() => onSelect(item.type)}
-                className={`bg-canvas rounded-xl border-2 border-transparent p-8 shadow-sm ${item.hoverBorderClass} group flex flex-col items-center text-center text-left transition-all hover:shadow-md md:items-start md:text-left`}
+                className={`bg-canvas rounded-card shadow-subtle border-2 border-transparent p-8 ${item.hoverBorderClass} hover:shadow-lift group flex flex-col items-center text-center text-left transition-all md:items-start md:text-left`}
               >
                 <div
                   className={`${item.iconBgClass} mb-6 flex h-14 w-14 items-center justify-center rounded-full transition-transform group-hover:scale-110`}

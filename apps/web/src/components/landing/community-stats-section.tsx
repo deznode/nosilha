@@ -114,8 +114,8 @@ export function CommunityStatsSection() {
                   : { y: -4, transition: springs.hover }
               }
               className={clsx(
-                "group relative flex flex-col items-center rounded-2xl p-8 text-center",
-                "bg-surface-alt/50 hover:bg-surface-alt hover:border-ocean-blue/30 border border-transparent hover:shadow-lg"
+                "group rounded-container relative flex flex-col items-center p-8 text-center",
+                "bg-surface-alt/50 hover:bg-surface-alt hover:border-ocean-blue/30 hover:shadow-lift border border-transparent"
               )}
             >
               {/* Icon Circle - Neutral background, colored icon */}

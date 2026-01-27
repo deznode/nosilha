@@ -4,6 +4,8 @@ import { clsx } from "clsx";
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Enable hover lift animation with shadow transition */
   hoverable?: boolean;
+  /** Optional card title rendered as h4 */
+  title?: string;
 }
 
 /**
@@ -15,9 +17,19 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
  * - rounded-card (16px) border radius
  * - shadow-subtle default, shadow-lift on hover (when hoverable)
  * - ease-calm transition timing
+ *
+ * @example
+ * // Basic card
+ * <Card className="p-6">Content</Card>
+ *
+ * // With title
+ * <Card title="Section Title" className="p-6">Content</Card>
+ *
+ * // Hoverable card
+ * <Card hoverable className="p-6">Interactive content</Card>
  */
 export const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, hoverable = false, ...props }, ref) => (
+  ({ className, hoverable = false, title, children, ...props }, ref) => (
     <div
       ref={ref}
       className={clsx(
@@ -29,7 +41,12 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
         className
       )}
       {...props}
-    />
+    >
+      {title && (
+        <h4 className="text-body mb-3 text-lg font-semibold">{title}</h4>
+      )}
+      {children}
+    </div>
   )
 );
 Card.displayName = "Card";

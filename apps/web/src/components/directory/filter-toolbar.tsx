@@ -66,7 +66,7 @@ export function FilterToolbar({
               placeholder="Search places..."
               value={searchTerm}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="border-border-primary bg-background-secondary text-text-primary placeholder-text-tertiary focus:border-ocean-blue focus:ring-ocean-blue w-full rounded-md border py-2 pr-4 pl-10 text-sm focus:ring-2"
+              className="border-border-primary bg-background-secondary text-text-primary placeholder-text-tertiary focus:border-ocean-blue focus:ring-ocean-blue rounded-button w-full border py-2 pr-4 pl-10 text-sm focus:ring-2"
             />
             <Search className="text-text-secondary absolute top-2.5 left-3 h-4 w-4" />
           </div>
@@ -81,7 +81,7 @@ export function FilterToolbar({
                   onCategoryChange(e.target.value as DirectoryCategory)
                 }
                 aria-label="Filter by category"
-                className="border-border-primary bg-background-primary text-text-primary focus:border-ocean-blue focus:ring-ocean-blue rounded-md border px-3 py-2 text-sm"
+                className="border-border-primary bg-background-primary text-text-primary focus:border-ocean-blue focus:ring-ocean-blue rounded-button border px-3 py-2 text-sm"
               >
                 {categories.map((cat) => (
                   <option key={cat} value={cat}>
@@ -96,7 +96,7 @@ export function FilterToolbar({
               value={selectedTown}
               onChange={(e) => onTownChange(e.target.value)}
               aria-label="Filter by town"
-              className="border-border-primary bg-background-primary text-text-primary focus:border-ocean-blue focus:ring-ocean-blue rounded-md border px-3 py-2 text-sm"
+              className="border-border-primary bg-background-primary text-text-primary focus:border-ocean-blue focus:ring-ocean-blue rounded-button border px-3 py-2 text-sm"
             >
               {towns.map((t) => (
                 <option key={t} value={t}>
@@ -110,7 +110,7 @@ export function FilterToolbar({
               value={sortBy}
               onChange={(e) => onSortChange(e.target.value as SortBy)}
               aria-label="Sort results by"
-              className="border-border-primary bg-background-primary text-text-primary focus:border-ocean-blue focus:ring-ocean-blue rounded-md border px-3 py-2 text-sm"
+              className="border-border-primary bg-background-primary text-text-primary focus:border-ocean-blue focus:ring-ocean-blue rounded-button border px-3 py-2 text-sm"
             >
               <option value="rating">Top Rated</option>
               <option value="name">A-Z</option>

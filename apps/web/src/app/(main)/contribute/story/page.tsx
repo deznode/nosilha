@@ -23,6 +23,9 @@ import {
 } from "@/stores/storyDraftStore";
 import { useAutoSaveDraft } from "@/hooks/useAutoSaveDraft";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useToast } from "@/hooks/use-toast";
+import { Checkbox, CheckboxField } from "@/components/catalyst-ui/checkbox";
+import { Label } from "@/components/catalyst-ui/fieldset";
 
 interface FormData {
   title: string;
@@ -32,6 +35,7 @@ interface FormData {
 
 export default function StorySubmissionPage() {
   const { user, loading: authLoading } = useAuth();
+  const toast = useToast();
   const [submissionType, setSubmissionType] = useState<StoryType | null>(null);
   const [selectedTemplate, setSelectedTemplate] =
     useState<StoryTemplate | null>(null);
@@ -125,6 +129,7 @@ Why is this memory important to you? How does it make you feel today?`;
 
       if (response.id || response.message) {
         clearDraft();
+        toast.success("Story submitted for review").show();
         setSubmitted(true);
       }
     } catch (error) {
@@ -132,6 +137,7 @@ Why is this memory important to you? How does it make you feel today?`;
       const errorMessage =
         error instanceof Error ? error.message : "Failed to submit story";
       setSubmitError(errorMessage);
+      toast.error(errorMessage).show();
     } finally {
       setIsSubmitting(false);
     }
@@ -209,7 +215,7 @@ Why is this memory important to you? How does it make you feel today?`;
         {/* Draft Resume Banner */}
         {hasDraft && !submitted && (
           <div className="mb-6">
-            <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-900/20">
+            <div className="rounded-card border-ocean-blue/20 bg-ocean-blue/5 flex items-center justify-between border p-4">
               <div className="flex items-center gap-3">
                 <FileText className="text-ocean-blue h-5 w-5" />
                 <div>
@@ -227,14 +233,14 @@ Why is this memory important to you? How does it make you feel today?`;
                 <button
                   type="button"
                   onClick={clearDraft}
-                  className="text-muted hover:bg-surface rounded px-3 py-1.5 text-sm"
+                  className="text-muted hover:bg-surface rounded-button px-3 py-1.5 text-sm"
                 >
                   Discard
                 </button>
                 <button
                   type="button"
                   onClick={handleLoadDraft}
-                  className="bg-ocean-blue hover:bg-ocean-blue/90 rounded px-3 py-1.5 text-sm font-medium text-white"
+                  className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button px-3 py-1.5 text-sm font-medium text-white"
                 >
                   Resume Draft
                 </button>
@@ -243,7 +249,7 @@ Why is this memory important to you? How does it make you feel today?`;
           </div>
         )}
 
-        <div className="border-hairline bg-canvas shadow-elevated overflow-hidden rounded-lg border">
+        <div className="border-hairline bg-canvas shadow-elevated rounded-card overflow-hidden border">
           <div className={`px-6 py-4 ${headerColorClass}`}>
             <h2 className="flex items-center text-xl font-bold text-white">
               <HeaderIcon className="mr-2 h-5 w-5" />
@@ -273,7 +279,7 @@ Why is this memory important to you? How does it make you feel today?`;
                 type="text"
                 id="title"
                 required
-                className="border-hairline bg-canvas text-body focus:border-ocean-blue focus:ring-ocean-blue mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:outline-none"
+                className="border-hairline bg-canvas text-body focus:border-ocean-blue focus:ring-ocean-blue rounded-button shadow-subtle mt-1 block w-full border px-3 py-2 text-sm focus:outline-none"
                 placeholder="e.g., Sunday Afternoons in Nova Sintra"
                 value={formData.title}
                 onChange={(e) =>
@@ -294,40 +300,35 @@ Why is this memory important to you? How does it make you feel today?`;
             />
 
             {/* Terms checkbox */}
-            <div className="flex items-center">
-              <input
-                id="terms"
+            <CheckboxField>
+              <Checkbox
                 name="terms"
-                type="checkbox"
-                required
+                color="blue"
                 checked={agreedToTerms}
-                onChange={(e) => setAgreedToTerms(e.target.checked)}
-                className="border-hairline text-ocean-blue focus:ring-ocean-blue h-4 w-4 rounded"
+                onChange={(checked) => setAgreedToTerms(checked)}
               />
-              <label htmlFor="terms" className="text-body ml-2 block text-sm">
+              <Label className="text-body text-sm">
                 I agree to the community guidelines and allow Nos Ilha to
                 publish this.
-              </label>
-            </div>
+              </Label>
+            </CheckboxField>
 
             {/* Submit button */}
             <div className="border-hairline border-t pt-4">
               {isOverLimit && (
-                <p className="mb-3 text-sm text-red-600 dark:text-red-400">
+                <p className="text-status-error mb-3 text-sm">
                   Your story exceeds the word limit. Please shorten it to{" "}
                   {limit.toLocaleString()} words or less before submitting.
                 </p>
               )}
               {submitError && (
-                <p className="mb-3 text-sm text-red-600 dark:text-red-400">
-                  {submitError}
-                </p>
+                <p className="text-status-error mb-3 text-sm">{submitError}</p>
               )}
               <div className="flex justify-end">
                 <button
                   type="submit"
                   disabled={isSubmitting || isOverLimit || requiresAuth}
-                  className="bg-ocean-blue hover:bg-ocean-blue/90 focus:ring-ocean-blue flex items-center rounded-md px-6 py-2 font-medium text-white focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:opacity-70"
+                  className="bg-ocean-blue hover:bg-ocean-blue/90 focus:ring-ocean-blue rounded-button flex items-center px-6 py-2 font-medium text-white focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:opacity-70"
                 >
                   {isSubmitting
                     ? "Submitting..."

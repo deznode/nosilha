@@ -73,7 +73,7 @@ export function StoryPromptsPanel({
   }
 
   return (
-    <div className="border-hairline mb-2 rounded-lg border bg-blue-50/50 dark:bg-blue-900/10">
+    <div className="border-hairline rounded-card bg-ocean-blue/5 mb-2 border">
       <button
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}

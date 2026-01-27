@@ -37,24 +37,23 @@ const VARIANT_CONFIG: Record<
 > = {
   danger: {
     icon: Trash2,
-    iconBg: "bg-red-100 dark:bg-red-900/30",
-    iconColor: "text-red-600 dark:text-red-400",
+    iconBg: "bg-status-error/10",
+    iconColor: "text-status-error",
     buttonClass:
-      "bg-red-600 hover:bg-red-700 focus:ring-red-500 dark:bg-red-700 dark:hover:bg-red-600",
+      "bg-status-error hover:bg-status-error/90 focus:ring-status-error",
   },
   warning: {
     icon: AlertTriangle,
-    iconBg: "bg-amber-100 dark:bg-amber-900/30",
-    iconColor: "text-amber-600 dark:text-amber-400",
+    iconBg: "bg-sobrado-ochre/10",
+    iconColor: "text-sobrado-ochre",
     buttonClass:
-      "bg-amber-600 hover:bg-amber-700 focus:ring-amber-500 dark:bg-amber-700 dark:hover:bg-amber-600",
+      "bg-sobrado-ochre hover:bg-sobrado-ochre/90 focus:ring-sobrado-ochre",
   },
   default: {
     icon: AlertCircle,
-    iconBg: "bg-ocean-blue/10 dark:bg-ocean-blue/20",
-    iconColor: "text-ocean-blue dark:text-ocean-blue-light",
-    buttonClass:
-      "bg-ocean-blue hover:bg-ocean-blue-deep focus:ring-ocean-blue dark:bg-ocean-blue dark:hover:bg-ocean-blue-deep",
+    iconBg: "bg-ocean-blue/10",
+    iconColor: "text-ocean-blue",
+    buttonClass: "bg-ocean-blue hover:bg-ocean-blue/90 focus:ring-ocean-blue",
   },
 };
 
@@ -150,7 +149,7 @@ export function ConfirmationDialog({
                     onClick={onConfirm}
                     disabled={isLoading}
                     className={clsx(
-                      "flex-1 rounded-lg px-4 py-2.5 text-sm font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+                      "rounded-button flex-1 px-4 py-2.5 text-sm font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
                       config.buttonClass
                     )}
                   >

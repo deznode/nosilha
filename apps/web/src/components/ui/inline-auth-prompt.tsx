@@ -37,12 +37,12 @@ export function InlineAuthPrompt({
   return (
     <div
       className={clsx(
-        "rounded-card border border-amber-200 bg-amber-50 p-6 text-center dark:border-amber-800 dark:bg-amber-900/20",
+        "rounded-card border-sobrado-ochre/20 bg-sobrado-ochre/10 dark:border-sobrado-ochre/20 dark:bg-sobrado-ochre/15 border p-6 text-center",
         className
       )}
     >
-      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-800/30">
-        <LogIn className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+      <div className="bg-sobrado-ochre/20 dark:bg-sobrado-ochre/30 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
+        <LogIn className="text-sobrado-ochre h-6 w-6" />
       </div>
       <h3 className="text-body mb-2 font-medium">{title}</h3>
       <p className="text-muted mb-4 text-sm">{description}</p>

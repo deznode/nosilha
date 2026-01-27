@@ -29,7 +29,7 @@ Frontend design system for the Nos Ilha cultural heritage platform. Built with N
 | Item | Status | Location | Notes |
 |------|--------|----------|-------|
 | Gallery Page | ✅ Complete | `/design-system` | Dev-only, 404 in production |
-| Section Navigation | ✅ Complete | Sticky sidebar | 10 sections with smooth scroll |
+| Section Navigation | ✅ Complete | Sticky sidebar | 21 sections with smooth scroll |
 | Copy-to-Clipboard | ✅ Complete | All tokens | CSS variables and Tailwind classes |
 | Dark Mode Preview | ✅ Complete | Color swatches | Toggle to preview dark variants |
 
@@ -40,6 +40,8 @@ Frontend design system for the Nos Ilha cultural heritage platform. Built with N
 | **AnimatedButton** | ✅ Complete | Custom | 4 variants, 3 sizes, icons, loading states, Framer Motion |
 | **Input** | ✅ Complete | Catalyst UI | Icons, validation, helper text |
 | **InputGroup** | ✅ Complete | Catalyst UI | Icon positioning |
+| **Textarea** | ✅ Complete | Custom (HeadlessUI) | Multi-line input, rows, resize options, RHF compatible |
+| **Select** | ✅ Complete | Custom (HeadlessUI) | Listbox-based, accessible, Controller pattern for RHF |
 | **Checkbox** | ✅ Complete | Catalyst UI | 22 color variants, states |
 | **CheckboxField** | ✅ Complete | Catalyst UI | Labels and descriptions |
 | **Card** | ✅ Complete | Custom | Hoverable lift animation |
@@ -68,6 +70,8 @@ Frontend design system for the Nos Ilha cultural heritage platform. Built with N
 | RadiusSpecimen | ✅ Complete | Shape preview, copy class |
 | ButtonSpecimen | ✅ Complete | All variants, sizes, states |
 | InputSpecimen | ✅ Complete | Types, icons, validation states |
+| TextareaSpecimen | ✅ Complete | Rows, resize options, disabled/invalid states |
+| SelectSpecimen | ✅ Complete | Options, placeholder, disabled/invalid states |
 | CheckboxSpecimen | ✅ Complete | All 22 colors, states |
 | FeedbackSpecimen | ✅ Complete | Banner, spinners, dialogs |
 | CardSpecimen | ✅ Complete | Patterns, directory card |
@@ -430,6 +434,111 @@ import { Dialog, DialogTitle, DialogDescription, DialogBody, DialogActions } fro
   </DialogActions>
 </Dialog>
 ```
+
+### Form Patterns
+
+The design system standardizes on **React Hook Form + Zod** for form validation. This pattern is used across all forms in the application.
+
+#### Core Components
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| `Input` | `catalyst-ui/input.tsx` | Text, email, number inputs |
+| `Textarea` | `ui/textarea.tsx` | Multi-line text input (HeadlessUI) |
+| `Select` | `ui/select.tsx` | Dropdown selection (HeadlessUI Listbox) |
+| `Checkbox` | `catalyst-ui/checkbox.tsx` | Boolean toggles |
+| `Field`, `Label`, `ErrorMessage` | `catalyst-ui/fieldset.tsx` | Form field wrappers |
+
+#### Basic Form Setup
+
+```tsx
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Input } from "@/components/catalyst-ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select } from "@/components/ui/select";
+import { Field, Label, ErrorMessage } from "@/components/catalyst-ui/fieldset";
+
+// 1. Define schema
+const formSchema = z.object({
+  name: z.string().min(2, "Name required"),
+  message: z.string().min(10, "Message too short"),
+  category: z.enum(["option1", "option2"]),
+});
+type FormData = z.infer<typeof formSchema>;
+
+// 2. Setup form
+const { register, handleSubmit, control, formState: { errors } } = useForm<FormData>({
+  resolver: zodResolver(formSchema),
+});
+
+// 3. Use components
+<Field>
+  <Label>Name</Label>
+  <Input {...register("name")} data-invalid={errors.name ? "" : undefined} />
+  {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
+</Field>
+
+<Field>
+  <Label>Message</Label>
+  <Textarea {...register("message")} rows={4} />
+  {errors.message && <ErrorMessage>{errors.message.message}</ErrorMessage>}
+</Field>
+
+// Select requires Controller (Listbox doesn't work with register)
+<Field>
+  <Label>Category</Label>
+  <Controller
+    name="category"
+    control={control}
+    render={({ field }) => (
+      <Select
+        options={[{ value: "option1", label: "Option 1" }, { value: "option2", label: "Option 2" }]}
+        value={field.value}
+        onChange={field.onChange}
+        invalid={!!errors.category}
+      />
+    )}
+  />
+</Field>
+```
+
+#### Textarea Props
+
+```tsx
+<Textarea
+  rows={4}              // Default: 4
+  resize="vertical"     // "none" | "vertical" | "horizontal" | "both"
+  disabled={false}
+  data-invalid=""       // Triggers invalid styling
+/>
+```
+
+#### Select Props
+
+```tsx
+<Select
+  options={[{ value: "a", label: "Option A" }, { value: "b", label: "Option B", disabled: true }]}
+  value={selectedValue}
+  onChange={(value) => handleChange(value)}
+  placeholder="Select an option"
+  disabled={false}
+  invalid={false}
+/>
+```
+
+#### Validation Schemas
+
+Schemas are located in `apps/web/src/schemas/`:
+
+| Schema | Purpose |
+|--------|---------|
+| `contactSchema.ts` | Contact form validation |
+| `suggestionSchema.ts` | Suggestion/feedback form |
+| `directorySubmissionSchema.ts` | Directory entry form |
+| `newsletterSchema.ts` | Newsletter subscription |
+| `authSchema.ts` | Authentication forms |
 
 ### PageHeader
 

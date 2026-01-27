@@ -9,7 +9,7 @@ import type { StorySubmission } from "@/types/story";
 
 function StoryCardSkeleton() {
   return (
-    <div className="border-hairline bg-canvas animate-pulse rounded-lg border shadow-sm">
+    <div className="border-hairline bg-canvas rounded-card shadow-subtle animate-pulse border">
       <div className="p-6">
         <div className="mb-4 flex items-center justify-between">
           <div className="bg-surface-alt h-5 w-16 rounded" />
@@ -56,7 +56,7 @@ export default function StoriesPage() {
   return (
     <div className="bg-canvas min-h-screen pb-12">
       {/* Header */}
-      <div className="border-hairline bg-canvas border-b shadow-sm">
+      <div className="border-hairline bg-canvas shadow-subtle border-b">
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="text-center sm:text-left">
@@ -71,7 +71,7 @@ export default function StoriesPage() {
             </div>
             <Link
               href="/contribute/story"
-              className="bg-ocean-blue hover:bg-ocean-blue/90 flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all active:scale-95"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-subtle flex shrink-0 items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95"
             >
               <Plus size={18} />
               Share Your Story

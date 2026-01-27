@@ -121,8 +121,8 @@ export function DialogSpecimen() {
           Size Variants
         </h3>
         <p className="text-muted mb-4 text-sm">
-          Dialog supports 9 size variants: xs, sm, md, lg (default), xl, 2xl,
-          3xl, 4xl, 5xl.
+          Dialog supports 9 size variants (xs through 5xl). This specimen
+          demonstrates the 5 most common: sm, md, lg (default), xl, 2xl.
         </p>
         <div className="flex flex-wrap gap-3">
           {(["sm", "md", "lg", "xl", "2xl"] as DialogSize[]).map((size) => (

@@ -227,7 +227,7 @@ export function DirectoryEntryDetailPageContent({
             <h2 className="text-text-primary font-serif text-3xl font-bold">
               User Reviews
             </h2>
-            <div className="border-border-primary bg-background-primary mt-6 flex flex-wrap items-center gap-x-6 gap-y-4 rounded-xl border p-6 shadow-sm">
+            <div className="border-border-primary bg-background-primary rounded-card shadow-subtle mt-6 flex flex-wrap items-center gap-x-6 gap-y-4 border p-6">
               <p className="text-text-primary text-5xl font-bold">
                 {entry.rating?.toFixed(1) || "N/A"}
               </p>
@@ -247,8 +247,8 @@ export function DirectoryEntryDetailPageContent({
             transition={{ duration: 0.6, delay: 0.2 }}
             className="lg:col-span-1"
           >
-            <div className="glass-panel sticky top-24 rounded-xl p-6">
-              <div className="bg-background-tertiary mb-6 aspect-video w-full overflow-hidden rounded-lg">
+            <div className="glass-panel rounded-card sticky top-24 p-6">
+              <div className="bg-background-tertiary rounded-card mb-6 aspect-video w-full overflow-hidden">
                 <div className="bg-background-tertiary flex h-full w-full items-center justify-center">
                   <MapPin className="text-text-secondary h-12 w-12" />
                 </div>

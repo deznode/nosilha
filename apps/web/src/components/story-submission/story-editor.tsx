@@ -18,6 +18,7 @@ import Markdown from "react-markdown";
 import { StoryType } from "@/types/story";
 import type { StoryTemplate } from "@/types/story";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { Textarea } from "@/components/ui/textarea";
 import {
   polishStoryAction,
   translateStoryAction,
@@ -264,13 +265,13 @@ export function StoryEditor({
         </label>
 
         {/* Tabs */}
-        <div className="bg-surface-alt flex space-x-1 rounded-lg p-0.5">
+        <div className="bg-surface-alt rounded-card flex space-x-1 p-0.5">
           <button
             type="button"
             onClick={() => setActiveTab("write")}
-            className={`flex items-center rounded-md px-3 py-1 text-xs font-medium transition-all ${
+            className={`rounded-button flex items-center px-3 py-1 text-xs font-medium transition-all ${
               activeTab === "write"
-                ? "bg-surface text-body shadow-sm"
+                ? "bg-surface text-body shadow-subtle"
                 : "text-muted hover:text-body"
             }`}
           >
@@ -279,9 +280,9 @@ export function StoryEditor({
           <button
             type="button"
             onClick={() => setActiveTab("preview")}
-            className={`flex items-center rounded-md px-3 py-1 text-xs font-medium transition-all ${
+            className={`rounded-button flex items-center px-3 py-1 text-xs font-medium transition-all ${
               activeTab === "preview"
-                ? "bg-surface text-ocean-blue shadow-sm"
+                ? "bg-surface text-ocean-blue shadow-subtle"
                 : "text-muted hover:text-body"
             }`}
           >
@@ -341,7 +342,7 @@ export function StoryEditor({
                 </button>
 
                 {showTemplates && (
-                  <div className="border-hairline bg-surface absolute top-full left-0 z-10 mt-1 w-48 rounded-md border py-1 shadow-lg">
+                  <div className="border-hairline bg-surface rounded-button shadow-elevated absolute top-full left-0 z-10 mt-1 w-48 border py-1">
                     <button
                       type="button"
                       onClick={() => applyTemplate("narrative")}
@@ -376,7 +377,7 @@ export function StoryEditor({
                   type="button"
                   onClick={handlePolish}
                   disabled={isPolishing || !content}
-                  className="text-bougainvillea-pink flex items-center px-2 text-xs hover:text-pink-700 disabled:opacity-50"
+                  className="text-bougainvillea-pink hover:text-bougainvillea-pink/80 flex items-center px-2 text-xs disabled:opacity-50"
                   title="Use Gemini AI to fix grammar and improve flow"
                 >
                   <Sparkles className="mr-1 h-3 w-3" />
@@ -422,11 +423,10 @@ export function StoryEditor({
             />
           )}
 
-          <textarea
+          <Textarea
             ref={textareaRef}
             rows={storyType === StoryType.QUICK ? 8 : 16}
             required
-            className="border-hairline bg-surface text-body focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-b-md border px-3 py-2 font-mono text-sm shadow-sm focus:outline-none"
             placeholder={
               storyType === StoryType.QUICK
                 ? "Share a quick memory... (e.g., 'I remember the sound of the ocean at night...')"
@@ -434,6 +434,8 @@ export function StoryEditor({
             }
             value={content}
             onChange={(e) => onContentChange(e.target.value)}
+            resize="vertical"
+            className="rounded-t-none font-mono text-sm"
           />
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
             <span className="text-muted text-xs">
@@ -484,7 +486,7 @@ export function StoryEditor({
           )}
         </div>
       ) : (
-        <div className="prose prose-sm dark:prose-invert prose-headings:font-serif prose-headings:text-ocean-blue prose-a:text-ocean-blue border-hairline bg-surface min-h-[300px] max-w-none rounded-md border p-6">
+        <div className="prose prose-sm dark:prose-invert prose-headings:font-serif prose-headings:text-ocean-blue prose-a:text-ocean-blue border-hairline bg-surface rounded-button min-h-[300px] max-w-none border p-6">
           {/* Simulated Article Header for Preview */}
           <div className="border-hairline mb-6 border-b pb-4">
             <h1 className="text-body mb-2 font-serif text-2xl font-bold">

@@ -124,7 +124,7 @@ export function DirectoryCategoryPageContent({
             <PageHeader title={pageTitle} subtitle={subtitle} />
             <Link
               href="/contribute/directory"
-              className="bg-ocean-blue hover:bg-ocean-blue/90 flex shrink-0 items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all active:scale-95"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-subtle flex shrink-0 items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95"
             >
               <Plus size={18} />
               Add Location
@@ -215,7 +215,7 @@ export function DirectoryCategoryPageContent({
             </p>
             <Link
               href="/"
-              className="bg-ocean-blue hover:bg-ocean-blue/90 focus:ring-ocean-blue mt-6 inline-block rounded-md px-6 py-3 text-sm font-medium text-white shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 focus:ring-ocean-blue rounded-button shadow-subtle mt-6 inline-block px-6 py-3 text-sm font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
             >
               Back to Home
             </Link>

@@ -34,9 +34,9 @@ export function PhotoUpload({ imageUrl, onImageChange }: PhotoUploadProps) {
         Upload Photo
       </label>
       <div
-        className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
+        className={`rounded-card flex cursor-pointer flex-col items-center justify-center border-2 border-dashed p-6 text-center transition-colors ${
           imageUrl
-            ? "border-valley-green bg-green-50 dark:bg-green-900/20"
+            ? "border-valley-green bg-valley-green/10"
             : "border-hairline hover:bg-surface hover:border-ocean-blue"
         }`}
         onClick={() => fileInputRef.current?.click()}
@@ -48,12 +48,12 @@ export function PhotoUpload({ imageUrl, onImageChange }: PhotoUploadProps) {
               alt="Preview"
               width={400}
               height={256}
-              className="mx-auto max-h-64 rounded-md object-contain shadow-sm"
+              className="rounded-card shadow-subtle mx-auto max-h-64 object-contain"
               unoptimized // For data URLs
             />
             <button
               type="button"
-              className="text-body dark:bg-basalt-800/80 dark:hover:bg-basalt-700 absolute top-2 right-2 rounded-full bg-white/80 p-1.5 shadow-sm hover:bg-white"
+              className="text-body dark:bg-basalt-800/80 dark:hover:bg-basalt-700 shadow-subtle absolute top-2 right-2 rounded-full bg-white/80 p-1.5 hover:bg-white"
               onClick={handleClear}
             >
               <Edit2 size={16} />

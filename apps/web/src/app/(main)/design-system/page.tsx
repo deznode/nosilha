@@ -8,6 +8,8 @@ import { ShadowGrid } from "./_components/specimens/shadow-card";
 import { RadiusGrid } from "./_components/specimens/radius-specimen";
 import { ButtonSpecimen } from "./_components/specimens/button-specimen";
 import { InputSpecimen } from "./_components/specimens/input-specimen";
+import { TextareaSpecimen } from "./_components/specimens/textarea-specimen";
+import { SelectSpecimen } from "./_components/specimens/select-specimen";
 import { CheckboxSpecimen } from "./_components/specimens/checkbox-specimen";
 import { FeedbackSpecimen } from "./_components/specimens/feedback-specimen";
 import { CardSpecimen } from "./_components/specimens/card-specimen";
@@ -138,6 +140,24 @@ export default function DesignSystemPage() {
         description="Form inputs from Catalyst UI with HeadlessUI. Supports icons, validation states, and helper text."
       >
         <InputSpecimen />
+      </SectionWrapper>
+
+      {/* Textarea Section */}
+      <SectionWrapper
+        id="textarea"
+        title="Textarea"
+        description="Multi-line text input following Catalyst patterns. Supports row variants, resize behavior, and Field integration."
+      >
+        <TextareaSpecimen />
+      </SectionWrapper>
+
+      {/* Select Section */}
+      <SectionWrapper
+        id="select"
+        title="Select"
+        description="Accessible dropdown using HeadlessUI Listbox. Works with React Hook Form Controller pattern."
+      >
+        <SelectSpecimen />
       </SectionWrapper>
 
       {/* Checkboxes Section */}

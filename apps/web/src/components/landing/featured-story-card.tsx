@@ -35,7 +35,7 @@ export function FeaturedStoryCard({ item }: FeaturedStoryCardProps) {
 
       {/* Content */}
       <div className="absolute bottom-0 left-0 w-full translate-y-2 transform p-6 text-white transition-transform duration-300 group-hover:translate-y-0 md:p-8">
-        <span className="bg-bougainvillea-pink mb-3 inline-block rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase shadow-md">
+        <span className="bg-bougainvillea-pink shadow-subtle mb-3 inline-block rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase">
           {item.category}
         </span>
         <h3 className="mb-2 font-serif text-2xl leading-tight font-bold">

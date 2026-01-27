@@ -35,7 +35,7 @@ const GUIDED_TEMPLATES: Record<string, TemplateConfig> = {
     title: "Family History",
     description: "Share your family's connection to Brava across generations.",
     icon: Users,
-    iconBgClass: "bg-pink-50 dark:bg-pink-900/30",
+    iconBgClass: "bg-bougainvillea-pink/10",
     iconClass: "text-bougainvillea-pink",
     estimatedTime: "~15 minutes",
     starterPrompt: `## My Family's Roots
@@ -52,7 +52,7 @@ What traditions does your family keep alive today?`,
     title: "Childhood Memories",
     description: "Recall the sights, sounds, and adventures of growing up.",
     icon: Sparkles,
-    iconBgClass: "bg-yellow-50 dark:bg-yellow-900/30",
+    iconBgClass: "bg-sobrado-ochre/10",
     iconClass: "text-sobrado-ochre",
     estimatedTime: "~15 minutes",
     starterPrompt: `## Where I Played
@@ -69,7 +69,7 @@ What events do you remember most vividly?`,
     title: "Diaspora Journey",
     description: "Tell the story of leaving, adapting, and staying connected.",
     icon: Plane,
-    iconBgClass: "bg-blue-50 dark:bg-blue-900/30",
+    iconBgClass: "bg-ocean-blue/10",
     iconClass: "text-ocean-blue",
     estimatedTime: "~20 minutes",
     starterPrompt: `## Leaving Brava
@@ -87,7 +87,7 @@ How do you maintain your connection to Brava today?`,
     description:
       "Document the customs, celebrations, and practices you cherish.",
     icon: Music,
-    iconBgClass: "bg-green-50 dark:bg-green-900/30",
+    iconBgClass: "bg-valley-green/10",
     iconClass: "text-valley-green",
     estimatedTime: "~15 minutes",
     starterPrompt: `## The Tradition
@@ -104,7 +104,7 @@ What does this tradition mean to your community?`,
     title: "Food & Recipes",
     description: "Share the flavors and recipes that taste like home.",
     icon: UtensilsCrossed,
-    iconBgClass: "bg-orange-50 dark:bg-orange-900/30",
+    iconBgClass: "bg-sobrado-ochre/10",
     iconClass: "text-sobrado-ochre",
     estimatedTime: "~15 minutes",
     starterPrompt: `## The Dish
@@ -152,13 +152,13 @@ export function TemplateSelector({ onSelect, onBack }: TemplateSelectorProps) {
             <motion.button
               key={template.type}
               onClick={() => onSelect(template.type)}
-              className="border-hairline bg-canvas group hover:border-ocean-blue relative flex flex-col rounded-xl border p-6 text-left hover:shadow-lg"
+              className="border-hairline bg-canvas rounded-card group hover:border-ocean-blue hover:shadow-lift relative flex flex-col border p-6 text-left"
               variants={listItem}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
             >
               <div
-                className={`mb-4 inline-flex rounded-lg p-3 ${template.iconBgClass}`}
+                className={`rounded-card mb-4 inline-flex p-3 ${template.iconBgClass}`}
               >
                 <Icon className={`h-6 w-6 ${template.iconClass}`} />
               </div>

@@ -13,6 +13,7 @@ import type { StorySubmission } from "@/types/story";
 import { StoryType } from "@/types/story";
 import { StoryCard } from "./story-card";
 import { StoryMarkdown } from "./story-markdown";
+import { Badge } from "@/components/catalyst-ui/badge";
 
 interface StoryDetailContentProps {
   story: StorySubmission;
@@ -21,23 +22,26 @@ interface StoryDetailContentProps {
 
 const STORY_TYPE_CONFIG: Record<
   StoryType,
-  { icon: typeof BookOpen; label: string; color: string }
+  {
+    icon: typeof BookOpen;
+    label: string;
+    badgeColor: "blue" | "red" | "green";
+  }
 > = {
   [StoryType.QUICK]: {
     icon: Clock,
     label: "Quick Memory",
-    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+    badgeColor: "blue",
   },
   [StoryType.FULL]: {
     icon: BookOpen,
     label: "Full Story",
-    color: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
+    badgeColor: "red",
   },
   [StoryType.GUIDED]: {
     icon: BookOpen,
     label: "Guided Template",
-    color:
-      "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
+    badgeColor: "green",
   },
 };
 
@@ -78,12 +82,10 @@ export function StoryDetailContent({
 
           {/* Story Type Badge */}
           <div className="mb-4">
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${typeConfig.color}`}
-            >
-              <TypeIcon size={14} />
+            <Badge color={typeConfig.badgeColor}>
+              <TypeIcon size={14} className="mr-1.5" />
               {typeConfig.label}
-            </span>
+            </Badge>
           </div>
 
           {/* Title */}
