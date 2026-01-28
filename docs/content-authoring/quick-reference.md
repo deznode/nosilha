@@ -34,6 +34,7 @@ publishDate: "2025-01-24" # YYYY-MM-DD
 category: "history" # history | music | people | traditions | places
 tags: ["tag1", "tag2", "tag3"]
 language: "en" # en | pt | kea | fr
+slug: "article-slug" # URL-friendly identifier
 ---
 ```
 
@@ -41,13 +42,14 @@ language: "en" # en | pt | kea | fr
 
 ```yaml
 updatedDate: "2025-01-25" # YYYY-MM-DD
-featuredImage: "/images/article.jpg"
-imageCredit: "Photo by John Doe"
-readingTime: 10 # Minutes
-isDraft: false # Hide from production
+coverImage: "/images/article.jpg"
+draft: false # Hide from production
 relatedArticles: ["slug1", "slug2"]
-ogImage: "/images/og-image.jpg"
-twitterHandle: "@nosilha"
+
+# Translation tracking
+sourceHash: "abc123"
+translationStatus: "complete" # complete | partial | outdated
+lastTranslated: "2025-01-25"
 ```
 
 ### Page with Hero Section
@@ -74,7 +76,16 @@ figures:
     role: "Role/Occupation"
     years: "1867-1930"
     description: "Short bio..."
-    imageSrc: "/images/people/photo.jpg"
+    slug: "person-slug" # Optional link to bio
+
+# Thematic Sections
+sections:
+  - title: "Section Title"
+    description: "Brief overview"
+    content: "Detailed content..."
+    image: "/images/photo.jpg"
+    imageCourtesy: "Photo credit"
+    icon: "musical-note"
 
 # Icon Grid
 iconGridItems:
@@ -337,7 +348,7 @@ publishDate: "2025-01-24" # Not "01/24/2025" or "24-01-2025"
 ## File Locations
 
 ```
-frontend/
+apps/web/
 ├── content/
 │   └── pages/             # All content (top-level & sub-pages)
 │       ├── history/       # /history + sub-pages
@@ -384,7 +395,7 @@ Common icon names for `icon` prop:
 
 | Problem                  | Solution                                       |
 | ------------------------ | ---------------------------------------------- |
-| Content not appearing    | Check `isDraft: false`, run `pnpm run build`   |
+| Content not appearing    | Check `draft: false`, run `pnpm run build`     |
 | Image not loading        | Verify path: `/images/...`, check file exists  |
 | Component not rendering  | Check `src/lib/content/mdx-components.tsx`     |
 | Build error              | Run `pnpm run validate:content` first          |
@@ -393,10 +404,10 @@ Common icon names for `icon` prop:
 
 ## Help Resources
 
-- **Full Contributor Guide**: [`docs/CONTRIBUTING_CONTENT.md`](./CONTRIBUTING_CONTENT.md)
-- **Translation Guide**: [`docs/TRANSLATION_GUIDE.md`](./TRANSLATION_GUIDE.md)
-- **Component Reference**: [`docs/MDX_COMPONENTS.md`](./MDX_COMPONENTS.md)
-- **Design System**: [`docs/DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md)
+- **Full Contributor Guide**: [README.md](./README.md)
+- **Translation Guide**: [translations.md](./translations.md)
+- **Component Reference**: [components.md](./components.md)
+- **Design System**: [../design-system.md](../design-system.md)
 - **GitHub Issues**: Report bugs or request features
 
 ## Submission Checklist

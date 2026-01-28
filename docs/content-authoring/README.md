@@ -21,7 +21,7 @@ Welcome! This guide will help you add articles, stories, and cultural heritage c
 1. **Install dependencies**:
 
    ```bash
-   cd frontend
+   cd apps/web
    pnpm install
    ```
 
@@ -126,6 +126,7 @@ publishDate: "2025-01-24"
 category: "history"
 tags: ["migration", "whaling", "diaspora"]
 language: "en"
+slug: "brava-migration"
 ---
 
 <PageHeader
@@ -176,8 +177,9 @@ description: "Brief description" # SEO description (max 200 chars)
 author: "Author Name" # Your name
 publishDate: "2025-01-24" # ISO format: YYYY-MM-DD
 category: "history" # history | music | people | traditions | places
-tags: ["tag1", "tag2"] # Array of tags
+tags: ["tag1", "tag2"] # Array of tags (1-10 tags, max 30 chars each)
 language: "en" # en | pt | kea | fr
+slug: "article-slug" # URL-friendly identifier
 ---
 ```
 
@@ -186,17 +188,14 @@ language: "en" # en | pt | kea | fr
 ```yaml
 # Additional metadata
 updatedDate: "2025-01-25" # ISO format: YYYY-MM-DD
-featuredImage: "/images/article.jpg" # Featured image path
-imageCredit: "Photo by John Doe" # Image attribution
-readingTime: 10 # Minutes (auto-calculated if omitted)
-isDraft: false # Set to true to hide from production
-
-# Related content
+coverImage: "/images/article.jpg" # Cover image path
+draft: false # Set to true to hide from production
 relatedArticles: ["slug1", "slug2"] # Related article slugs
 
-# SEO & Social
-ogImage: "/images/og-image.jpg" # Open Graph image
-twitterHandle: "@nosilha" # Twitter handle for author
+# Translation tracking
+sourceHash: "abc123" # Hash of source content
+translationStatus: "complete" # complete | partial | outdated
+lastTranslated: "2025-01-25" # ISO format: YYYY-MM-DD
 ```
 
 ### Structured Data Fields (Optional)
@@ -222,7 +221,16 @@ figures:
     role: "Poet & Composer"
     years: "1867-1930"
     description: "Renowned mornas composer..."
-    imageSrc: "/images/people/eugenio-tavares.jpg"
+    slug: "eugenio-tavares" # Optional link to bio page
+
+# Thematic sections
+sections:
+  - title: "Musical Heritage"
+    description: "Brief overview"
+    content: "Detailed content about the topic..."
+    image: "/images/music/morna.jpg"
+    imageCourtesy: "Photo Archive"
+    icon: "musical-note"
 
 # Icon grid items
 iconGridItems:
@@ -237,13 +245,20 @@ statisticsData:
     label: "Population Abroad"
     description: "Living in diaspora"
     color: "ocean-blue"
+
+# Citations
+citations:
+  - source: "Book Title"
+    author: "Author Name"
+    year: 2015
+    url: "https://example.com"
 ```
 
-**Note**: See [`docs/MDX_COMPONENTS.md`](./MDX_COMPONENTS.md) for complete reference on data-driven components.
+**Note**: See [components.md](./components.md) for complete reference on data-driven components.
 
 ## Using MDX Components
 
-MDX allows you to use React components directly in your Markdown. Nos Ilha provides 15+ custom components for rich layouts.
+MDX allows you to use React components directly in your Markdown. Nos Ilha provides 20+ custom components for rich layouts.
 
 ### Layout Components
 
@@ -392,26 +407,7 @@ figures:
 <HistoricalFigures figures={figures} />
 ```
 
-#### ThematicSections
-
-Alternating image layout for thematic content:
-
-```mdx
-{/* Define in frontmatter */}
-sections:
-
-- title: "Musical Heritage"
-  icon: "musical-note"
-  imageSrc: "/images/music/morna.jpg"
-  imagePosition: "left"
-  content: "Brava is the birthplace..."
-
-{/* Use in MDX */}
-
-<ThematicSections sections={sections} />
-```
-
-**Complete Reference**: See [`docs/MDX_COMPONENTS.md`](./MDX_COMPONENTS.md) for all components with props and examples.
+**Complete Reference**: See [components.md](./components.md) for all components with props and examples.
 
 ## Validation & Quality Checks
 
@@ -538,7 +534,7 @@ pnpm run dev
 open http://localhost:3000/history/my-article?lang=pt
 ```
 
-**Detailed Translation Guide**: See [`docs/TRANSLATION_GUIDE.md`](./TRANSLATION_GUIDE.md)
+**Detailed Translation Guide**: See [translations.md](./translations.md)
 
 ### Updating Existing Content
 
@@ -588,7 +584,7 @@ import { Section } from "@/components/content/section";
 
 **Checklist**:
 
-1. Is `isDraft: false` in frontmatter?
+1. Is `draft: false` in frontmatter?
 2. Is `publishDate` in the past?
 3. Did you run `pnpm run build` to process content?
 4. Did content pass validation?
@@ -628,11 +624,11 @@ import { Section } from "@/components/content/section";
 
 ## Need Help?
 
-- **Component Reference**: [`docs/MDX_COMPONENTS.md`](./MDX_COMPONENTS.md)
-- **Translation Guide**: [`docs/TRANSLATION_GUIDE.md`](./TRANSLATION_GUIDE.md)
-- **Quick Reference**: [`docs/MDX_QUICK_REFERENCE.md`](./MDX_QUICK_REFERENCE.md)
-- **Design System**: [`docs/DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md)
-- **GitHub Issues**: [Report a bug or request a feature](https://github.com/yourusername/nosilha/issues)
+- **Component Reference**: [components.md](./components.md)
+- **Translation Guide**: [translations.md](./translations.md)
+- **Quick Reference**: [quick-reference.md](./quick-reference.md)
+- **Design System**: [../design-system.md](../design-system.md)
+- **GitHub Issues**: [Report a bug or request a feature](https://github.com/bravdigital/nosilha/issues)
 
 ## Cultural Heritage Guidelines
 
@@ -644,7 +640,7 @@ When contributing content about Brava Island and Cape Verdean culture:
 4. **Community Voice**: Prioritize stories from Bravense people
 5. **Multilingual Support**: Consider translation to PT and KEA when possible
 
-**Detailed Guidelines**: See [`docs/CULTURAL_HERITAGE_VERIFICATION.md`](./CULTURAL_HERITAGE_VERIFICATION.md)
+**Detailed Guidelines**: See [../cultural-heritage-verification.md](../cultural-heritage-verification.md)
 
 ---
 

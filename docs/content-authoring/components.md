@@ -11,6 +11,7 @@ Comprehensive reference for all custom React components available in Nos Ilha MD
 - [Interactive Components](#interactive-components)
 - [Media Components](#media-components)
 - [Typography Components](#typography-components)
+- [Utility Components](#utility-components)
 - [Complete Examples](#complete-examples)
 
 ## Quick Reference
@@ -25,6 +26,7 @@ Comprehensive reference for all custom React components available in Nos Ilha MD
 | `<SectionTitle>`         | Section heading         | Consistent h3 titles            |
 | `<CalloutBox>`           | Highlighted content     | Important info/quotes           |
 | `<ImageWithCourtesy>`    | Image with credit       | Historical photos               |
+| `<ImageGallery>`         | Image gallery           | Multiple photos                 |
 | `<HistoricalTimeline>`   | Timeline events         | Historical chronology           |
 | `<HistoricalFigures>`    | People cards            | Biographical info               |
 | `<ThematicSections>`     | Alternating images      | Thematic content blocks         |
@@ -33,6 +35,10 @@ Comprehensive reference for all custom React components available in Nos Ilha MD
 | `<CitationSection>`      | Expandable citations    | References                      |
 | `<ContentActionToolbar>` | Share/reactions         | Engagement actions              |
 | `<PageHeader>`           | Page title/subtitle     | Page introduction               |
+| `<RelatedEntries>`       | Related content         | Cross-linking                   |
+| `<PrintPageWrapper>`     | Print layout            | Printable content               |
+| `<BackToTopButton>`      | Scroll to top           | Long pages                      |
+| `<PrintButton>`          | Print action            | Print functionality             |
 
 ## Layout Components
 
@@ -420,21 +426,6 @@ interface TimelineEvent {
 **Usage in MDX**:
 
 ```mdx
-## {/* Define data in frontmatter */}
-
-timeline:
-
-- date: "1680"
-  title: "The Great Migration"
-  description: "Following the eruption of Pico do Fogo..."
-- date: "1843"
-  title: "Whaling Era Begins"
-  description: "First Bravense sailors join American whaling ships..."
-
----
-
-{/* Use in content */}
-
 <Section variant="card">
 
 <SectionTitle>Key Historical Periods</SectionTitle>
@@ -450,7 +441,7 @@ timeline:
 
 ### HistoricalFigures
 
-Grid of historical figure cards with photos and biographies.
+Grid of historical figure cards with biographies.
 
 **Import**: Automatically available in MDX files
 
@@ -462,12 +453,11 @@ figures:
     role: "Poet & Composer"
     years: "1867-1930"
     description: "Renowned composer of mornas and chronicler of Brava's soul..."
-    imageSrc: "/images/people/eugenio-tavares.jpg"
+    slug: "eugenio-tavares" # Optional: links to bio page
   - name: "Marcelino 'Daddy' Grace"
     role: "Religious Leader"
     years: "1881-1960"
     description: "Founded the United House of Prayer for All People..."
-    imageSrc: "/images/people/daddy-grace.jpg"
 ```
 
 **Props**:
@@ -484,27 +474,13 @@ interface HistoricalFigure {
   role: string; // Role/occupation
   years: string; // Lifespan (e.g., "1867-1930")
   description: string; // Short biography/description
-  imageSrc?: string; // Optional photo path
+  slug?: string; // Optional slug for linking to bio page
 }
 ```
 
 **Usage in MDX**:
 
 ```mdx
-## {/* Define data in frontmatter */}
-
-figures:
-
-- name: "Eugénio Tavares"
-  role: "Poet & Composer"
-  years: "1867-1930"
-  description: "Renowned composer of mornas..."
-  imageSrc: "/images/people/eugenio-tavares.jpg"
-
----
-
-{/* Use in content */}
-
 <Section variant="card">
 
 <SectionTitle>Cultural Architects of Brava</SectionTitle>
@@ -529,17 +505,17 @@ Alternating image layout for thematic content blocks (image left/right alternati
 ```yaml
 sections:
   - title: "Portuguese Settlement & Governance"
-    icon: "globe-alt"
-    imageSrc: "/images/history/portuguese-settlement.jpg"
+    description: "Brief overview of the section"
+    content: "From its first permanent settlement in 1680, Brava developed..."
+    image: "/images/history/portuguese-settlement.jpg"
     imageCourtesy: "Arquivo Histórico Nacional"
-    imagePosition: "left"
-    content: "From its first permanent settlement in 1680..."
+    icon: "globe-alt"
   - title: "The Musical Soul of Brava"
-    icon: "musical-note"
-    imageSrc: "/images/music/morna-musicians.jpg"
+    description: "Brava's unique musical heritage"
+    content: "Brava Island holds a unique position in Cape Verdean music..."
+    image: "/images/music/morna-musicians.jpg"
     imageCourtesy: "Arquivo da Morna"
-    imagePosition: "right"
-    content: "Brava Island holds a unique position..."
+    icon: "musical-note"
 ```
 
 **Props**:
@@ -553,11 +529,11 @@ sections:
 ```typescript
 interface ThematicSection {
   title: string; // Section title
-  icon: string; // Heroicon name (e.g., "musical-note")
-  imageSrc: string; // Image path
+  description: string; // Brief overview
+  content: string; // Detailed content text
+  image: string; // Image path
   imageCourtesy: string; // Photo credit
-  imagePosition: "left" | "right"; // Image placement
-  content: string; // Section content (text)
+  icon?: string; // Heroicon name (e.g., "musical-note")
 }
 ```
 
@@ -568,21 +544,6 @@ interface ThematicSection {
 **Usage in MDX**:
 
 ```mdx
-## {/* Define data in frontmatter */}
-
-sections:
-
-- title: "Musical Heritage"
-  icon: "musical-note"
-  imageSrc: "/images/music/morna.jpg"
-  imageCourtesy: "Photo Archive"
-  imagePosition: "left"
-  content: "Brava is the birthplace of the morna..."
-
----
-
-{/* Use in content */}
-
 <Section variant="card">
 
 <SectionTitle>Chapters of Brava's Story</SectionTitle>
@@ -645,19 +606,6 @@ interface IconGridItem {
 **Usage in MDX**:
 
 ```mdx
-## {/* Define data in frontmatter */}
-
-iconGridItems:
-
-- icon: "musical-note"
-  title: "Musical Heritage"
-  description: "Home of the morna..."
-  iconColor: "text-bougainvillea-pink"
-
----
-
-{/* Use in content */}
-
 <IconGrid
   title="Living Traditions: The Cultural DNA of Brava"
   items={iconGridItems}
@@ -718,19 +666,6 @@ interface Statistic {
 **Usage in MDX**:
 
 ```mdx
-## {/* Define data in frontmatter */}
-
-statisticsData:
-
-- value: "70%"
-  label: "Population Abroad"
-  description: "Living in diaspora"
-  color: "ocean-blue"
-
----
-
-{/* Use in content */}
-
 <Section variant="card">
 
 ## Contemporary Brava: Heritage & Innovation
@@ -787,17 +722,7 @@ interface Citation {
 **Usage in MDX**:
 
 ```mdx
-## {/* Define data in frontmatter */}
-
-citations:
-
-- source: "Cape Verde: Crioulo Colony to Independent Nation"
-  author: "Richard Lobban & Marilyn Halter"
-  year: 1988
-
----
-
-{/* Use in content (typically at end of article) */}
+{/* Use at end of article */}
 
 <CitationSection citations={citations} />
 ```
@@ -889,6 +814,65 @@ hero:
 
 ---
 
+### ImageGallery
+
+Display a gallery of images with lightbox functionality.
+
+**Import**: Automatically available in MDX files
+
+**Props**:
+
+| Prop     | Type           | Description              |
+| -------- | -------------- | ------------------------ |
+| `images` | `GalleryImage[]` | Array of images to display |
+
+**TypeScript Interface**:
+
+```typescript
+interface GalleryImage {
+  src: string; // Image path
+  alt: string; // Alt text
+  caption?: string; // Optional caption
+}
+```
+
+**Usage in MDX**:
+
+```mdx
+<ImageGallery
+  images={[
+    { src: "/images/history/photo1.jpg", alt: "Historical photo 1", caption: "Vila Nova Sintra, 1920" },
+    { src: "/images/history/photo2.jpg", alt: "Historical photo 2", caption: "Harbor view, 1935" },
+  ]}
+/>
+```
+
+---
+
+### RelatedEntries
+
+Display related content entries (articles, pages).
+
+**Import**: Automatically available in MDX files
+
+**Props**:
+
+| Prop      | Type       | Description                    |
+| --------- | ---------- | ------------------------------ |
+| `entries` | `Entry[]`  | Array of related entries       |
+| `title`   | `string`   | Optional section title         |
+
+**Usage in MDX**:
+
+```mdx
+<RelatedEntries
+  title="Continue Exploring"
+  entries={relatedArticles}
+/>
+```
+
+---
+
 ## Typography Components
 
 ### PageHeader
@@ -923,6 +907,68 @@ Page title and subtitle component.
 
 ---
 
+## Utility Components
+
+### PrintPageWrapper
+
+Wrapper component for printable content with optimized print styling.
+
+**Import**: Automatically available in MDX files
+
+**Props**:
+
+| Prop       | Type        | Description     |
+| ---------- | ----------- | --------------- |
+| `children` | `ReactNode` | Content to wrap |
+
+**Usage in MDX**:
+
+```mdx
+<PrintPageWrapper>
+
+{/* Content that should be optimized for printing */}
+
+</PrintPageWrapper>
+```
+
+---
+
+### BackToTopButton
+
+Floating button that scrolls to the top of the page.
+
+**Import**: Automatically available in MDX files
+
+**Props**: None
+
+**Usage in MDX**:
+
+```mdx
+{/* Place at end of long content */}
+
+<BackToTopButton />
+```
+
+**Behavior**: Appears after scrolling down, smooth scrolls to top on click.
+
+---
+
+### PrintButton
+
+Button that triggers the browser's print dialog.
+
+**Import**: Automatically available in MDX files
+
+**Props**: None
+
+**Usage in MDX**:
+
+```mdx
+<PrintButton />
+```
+
+---
+
 ## Complete Examples
 
 ### Simple Article Layout
@@ -936,6 +982,12 @@ publishDate: "2025-01-24"
 category: "music"
 tags: ["morna", "music", "culture"]
 language: "en"
+slug: "morna-legacy"
+
+citations:
+  - source: "The Music of Cape Verde"
+    author: "João Silva"
+    year: 2010
 ---
 
 <PageHeader
@@ -1013,6 +1065,7 @@ publishDate: "2025-01-24"
 category: "people"
 tags: ["biography", "culture", "history"]
 language: "en"
+slug: "people"
 
 # Hero section
 hero:
@@ -1026,12 +1079,11 @@ figures:
     role: "Poet & Composer"
     years: "1867-1930"
     description: "Renowned composer of mornas and chronicler of Brava's soul"
-    imageSrc: "/images/people/eugenio-tavares.jpg"
+    slug: "eugenio-tavares"
   - name: "Marcelino 'Daddy' Grace"
     role: "Religious Leader"
     years: "1881-1960"
     description: "Founded the United House of Prayer for All People"
-    imageSrc: "/images/people/daddy-grace.jpg"
 
 # Timeline of key events
 timeline:
@@ -1162,11 +1214,11 @@ All components include accessibility features:
 
 ## Need Help?
 
-- **Main Contributor Guide**: [`docs/CONTRIBUTING_CONTENT.md`](./CONTRIBUTING_CONTENT.md)
-- **Translation Guide**: [`docs/TRANSLATION_GUIDE.md`](./TRANSLATION_GUIDE.md)
-- **Quick Reference**: [`docs/MDX_QUICK_REFERENCE.md`](./MDX_QUICK_REFERENCE.md)
-- **Design System**: [`docs/DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md)
-- **Component Source Code**: `frontend/src/components/content/`
+- **Main Contributor Guide**: [README.md](./README.md)
+- **Translation Guide**: [translations.md](./translations.md)
+- **Quick Reference**: [quick-reference.md](./quick-reference.md)
+- **Design System**: [../design-system.md](../design-system.md)
+- **Component Source Code**: `apps/web/src/components/content/`
 
 ---
 

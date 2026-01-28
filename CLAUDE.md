@@ -157,7 +157,6 @@ Custom workflow triggers in `.claude/commands/`. Use syntax: `/command-name [arg
 ### Additional Documentation
 - `docs/secret-management.md` - Secret management guide
 - `docs/cultural-heritage-verification.md` - Cultural heritage content verification protocols
-- `docs/sitemap.md` - Frontend route structure and navigation architecture
 - `SECURITY.md` - Security policy and vulnerability reporting procedures
 
 ## Troubleshooting

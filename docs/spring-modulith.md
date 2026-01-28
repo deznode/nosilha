@@ -1,17 +1,10 @@
 # Spring Modulith Guide
 
-This guide covers the Spring Modulith architecture implemented in the Nos Ilha backend. For high-level architecture, see [architecture.md](architecture.md).
-
----
+Spring Modulith architecture for the Nos Ilha backend. See [architecture.md](architecture.md) for system overview.
 
 ## Overview
 
-Spring Modulith structures the backend as a **modular monolith** with:
-- Enforced module boundaries (verified by tests)
-- Event-driven communication between modules
-- Auto-generated documentation (PlantUML diagrams)
-
----
+The backend is a **modular monolith** with enforced module boundaries, event-driven communication, and auto-generated PlantUML documentation.
 
 ## Module Structure
 
@@ -23,7 +16,7 @@ apps/api/src/main/kotlin/com/nosilha/core/
 ├── gallery/      # Media management
 ├── engagement/   # Reactions, bookmarks
 ├── stories/      # Community narratives
-├── feedback/     # Suggestions, submissions, dashboard
+├── feedback/     # Suggestions, dashboard
 └── config/       # Cache configuration
 ```
 
@@ -32,33 +25,31 @@ apps/api/src/main/kotlin/com/nosilha/core/
 ```mermaid
 flowchart TB
     subgraph Foundation["🏛️ Foundation"]
-        shared["shared\n<i>Base entities, events</i>"]
-        config["config\n<i>Caffeine cache</i>"]
+        shared["shared"]
+        config["config"]
     end
 
     subgraph Core["📦 Core Modules"]
-        places["places\n<i>Directory entries (STI)</i>"]
-        gallery["gallery\n<i>Media + R2 storage</i>"]
-        engagement["engagement\n<i>Reactions, bookmarks</i>"]
+        places["places"]
+        gallery["gallery"]
+        engagement["engagement"]
     end
 
     subgraph Content["📝 Content Modules"]
-        auth["auth\n<i>JWT + profiles</i>"]
-        stories["stories\n<i>Narratives, MDX</i>"]
+        auth["auth"]
+        stories["stories"]
     end
 
     subgraph Integration["🔗 Integration"]
-        feedback["feedback\n<i>Dashboard, suggestions</i>"]
+        feedback["feedback"]
     end
 
-    %% Core dependencies
     places --> shared
-    places -.-> engagement
+    places --> engagement
     gallery --> shared
     engagement --> shared
-    engagement -.-> places
+    engagement --> places
 
-    %% Content dependencies
     auth --> shared
     auth -.-> engagement
     auth -.-> stories
@@ -67,311 +58,91 @@ flowchart TB
     stories -.-> auth
     stories -.-> places
 
-    %% Integration dependencies
     feedback --> shared
     feedback -.-> auth
     feedback -.-> places
     feedback -.-> stories
     feedback -.-> engagement
     feedback -.-> gallery
-
-    style shared fill:#f5f5f4,stroke:#78716c,color:#44403c
-    style places fill:#dcfce7,stroke:#16a34a,color:#166534
-    style gallery fill:#fef3c7,stroke:#d97706,color:#92400e
-    style auth fill:#fee2e2,stroke:#dc2626,color:#991b1b
-    style stories fill:#fce7f3,stroke:#db2777,color:#9d174d
-    style feedback fill:#ffedd5,stroke:#ea580c,color:#9a3412
-    style engagement fill:#e0f2fe,stroke:#0284c7,color:#075985
 ```
+
+**Legend**: Solid lines = direct dependency, dashed = via query service/events
 
 ---
 
-## Module Details
+## Modules
 
-### 1. Shared Module
+| Module | Purpose | Dependencies | Events Published |
+|--------|---------|--------------|------------------|
+| **shared** | Base entities, events, exceptions, utils | None | — |
+| **auth** | JWT auth, profiles, Supabase integration | shared, engagement, stories, feedback | `UserLoggedInEvent`, `UserLoggedOutEvent` |
+| **places** | Directory entries (Restaurant, Hotel, Beach, Heritage, Nature) | shared, engagement | `DirectoryEntryCreatedEvent`, `DirectoryEntryUpdatedEvent`, `DirectoryEntryDeletedEvent` |
+| **gallery** | Media uploads, R2 storage, moderation | shared | `HeroImagePromotedEvent` |
+| **engagement** | Reactions, bookmarks, content registration | shared, places | — |
+| **stories** | Community narratives, MDX publishing | shared, auth, places | `StorySubmittedEvent`, `StoryStatusChangedEvent`, `StoryPublishedEvent`, `MdxCommittedEvent` |
+| **feedback** | Suggestions, submissions, dashboard | shared, auth, places, stories, engagement, gallery | — |
+| **config** | Caffeine cache configuration | None | — |
 
-**Package**: `com.nosilha.core.shared`
-**Purpose**: Foundation layer with common infrastructure
+### Shared Module Subpackages
 
 | Subpackage | Contents |
 |------------|----------|
-| `domain/` | `AuditableEntity` (createdAt, updatedAt) |
-| `events/` | `DomainEvent`, `ApplicationModuleEvent` |
 | `api/` | `ApiResult`, DTOs |
-| `exception/` | `GlobalExceptionHandler`, custom exceptions |
-| `util/` | `ContentSanitizer` |
 | `config/` | `JacksonConfig`, `PersistenceConfig` |
+| `domain/` | `AuditableEntity` |
+| `events/` | `DomainEvent`, `ApplicationModuleEvent`, `DirectoryEntry*Event`, `HeroImagePromotedEvent` |
+| `exception/` | `GlobalExceptionHandler`, custom exceptions |
+| `service/` | Shared services |
+| `util/` | `ContentSanitizer` |
 
-**Dependencies**: None (foundation layer)
+### Query Services
 
-### 2. Auth Module
+Cross-module read-only access via public interfaces in `api/` packages:
 
-**Package**: `com.nosilha.core.auth`
-**Purpose**: Authentication, authorization, and profile management
+| Service | Module | Purpose |
+|---------|--------|---------|
+| `UserProfileQueryService` | auth | Profile lookups |
+| `PlacesQueryService` | places | Directory entry queries |
+| `MediaQueryService` | gallery | Media metadata queries |
+| `StoriesQueryService` | stories | Story queries |
 
-| Component | Description |
-|-----------|-------------|
-| `ProfileController` | Profile management endpoints |
-| `UserProfileQueryService` | Cross-module profile queries |
-| `SecurityConfig` | Spring Security configuration |
-| `SupabaseJwtAuthenticationConverter` | JWT validation |
-
-**Dependencies**: `shared`, `engagement`, `stories`, `feedback`
-
-**Events Published**:
-- `UserLoggedInEvent`
-- `UserLoggedOutEvent`
-
-### 3. Places Module
-
-**Package**: `com.nosilha.core.places`
-**Purpose**: Directory entries with Single Table Inheritance
-
-| Entity Type | Discriminator |
-|-------------|---------------|
-| Restaurant | `RESTAURANT` |
-| Hotel | `HOTEL` |
-| Beach | `BEACH` |
-| Heritage | `HERITAGE` |
-| Nature | `NATURE` |
-
-**Dependencies**: `shared`, `engagement`
-
-**Events Published**:
-- `DirectoryEntryCreatedEvent`
-- `DirectoryEntryUpdatedEvent`
-- `DirectoryEntryDeletedEvent`
-
-**Single Table Inheritance Pattern**:
-```kotlin
-@Entity
-@Table(name = "directory_entries")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "category")
-abstract class DirectoryEntry : AuditableEntity()
-
-@Entity
-@DiscriminatorValue("RESTAURANT")
-class Restaurant : DirectoryEntry()
-```
-
-### 4. Gallery Module
-
-**Package**: `com.nosilha.core.gallery`
-**Purpose**: Media management (user uploads + external content)
-
-| Component | Description |
-|-----------|-------------|
-| `GalleryController` | User upload endpoints |
-| `AdminGalleryController` | Moderation endpoints |
-| `R2StorageService` | Cloudflare R2 integration |
-| `MediaQueryService` | Cross-module media queries |
-
-**Dependencies**: `shared`
-
-**Storage Strategy**:
-- User uploads → Cloudflare R2 (presigned PUT URLs)
-- External media → Platform-hosted (YouTube, Vimeo)
-- Metadata → PostgreSQL
-
-### 5. Engagement Module
-
-**Package**: `com.nosilha.core.engagement`
-**Purpose**: User interactions with content
-
-| Entity | Description |
-|--------|-------------|
-| `Reaction` | User reactions (love, celebrate, insightful, support) |
-| `Bookmark` | Saved content |
-| `Content` | Content registration |
-
-**Dependencies**: `shared`, `places`
-
-### 6. Stories Module
-
-**Package**: `com.nosilha.core.stories`
-**Purpose**: Community narratives and MDX publishing
-
-| Component | Description |
-|-----------|-------------|
-| `StoryController` | Story submission endpoints |
-| `AdminStoryController` | Moderation endpoints |
-| `MdxGenerationService` | MDX file generation |
-| `StoriesQueryService` | Cross-module story queries |
-
-**Dependencies**: `shared`, `auth`, `places`
-
-**Events Published**:
-- `StorySubmittedEvent`
-- `StoryStatusChangedEvent`
-- `StoryPublishedEvent`
-- `MdxCommittedEvent`
-
-### 7. Feedback Module
-
-**Package**: `com.nosilha.core.feedback`
-**Purpose**: Community feedback and admin dashboard
-
-| Channel | Description |
-|---------|-------------|
-| Suggestions | Corrections, additions, feedback |
-| Directory Submissions | User-proposed locations |
-| Contact Messages | General inquiries |
-| Dashboard | Aggregate statistics |
-
-**Dependencies**: `shared`, `auth`, `places`, `stories`, `engagement`, `gallery`
-
-### 8. Config Module
-
-**Package**: `com.nosilha.core.config`
-**Purpose**: Application-wide configuration
-
-```kotlin
-@Configuration
-@EnableCaching
-class CacheConfig {
-    @Bean
-    fun cacheManager(): CacheManager {
-        return CaffeineCacheManager().apply {
-            setCaffeine(
-                Caffeine.newBuilder()
-                    .maximumSize(500)
-                    .expireAfterWrite(Duration.ofMinutes(5))
-            )
-        }
-    }
-}
-```
-
-**Dependencies**: None
+**Pattern**: Interface in `module/api/` (public), implementation in `module/` (internal)
 
 ---
 
 ## Event-Driven Communication
 
-### Pattern
-
-Modules communicate via domain events instead of direct dependencies:
+Modules communicate via events instead of direct service dependencies:
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    participant PS as 📍 PlacesService
-    participant EP as 📤 EventPublisher
-    participant GS as 🖼️ GalleryService
-    participant FS as 💬 FeedbackService
+    participant PS as PlacesService
+    participant EP as EventPublisher
+    participant GS as GalleryService
 
-    rect rgb(139, 92, 246, 0.1)
-        Note over PS,FS: Event-Driven Communication
-        PS->>EP: publishEvent(DirectoryEntryCreatedEvent)
-        par Parallel Listeners
-            EP->>GS: @ApplicationModuleListener
-            GS->>GS: Create placeholder metadata
-        and
-            EP->>FS: @ApplicationModuleListener
-            FS->>FS: Log entry creation
-        end
-    end
+    PS->>EP: publishEvent(DirectoryEntryCreatedEvent)
+    EP->>GS: @ApplicationModuleListener
+    GS->>GS: Create placeholder metadata
 ```
 
-### Publishing Events
-
-```kotlin
-@Service
-class DirectoryEntryService(
-    private val repository: DirectoryEntryRepository,
-    private val eventPublisher: ApplicationEventPublisher
-) {
-    fun createEntry(entry: DirectoryEntry): DirectoryEntry {
-        val saved = repository.save(entry)
-        eventPublisher.publishEvent(
-            DirectoryEntryCreatedEvent(saved.id!!, saved.name)
-        )
-        return saved
-    }
-}
-```
-
-### Listening to Events
-
-```kotlin
-@Service
-class GalleryService {
-    @ApplicationModuleListener
-    fun onDirectoryEntryCreated(event: DirectoryEntryCreatedEvent) {
-        logger.info("Creating placeholder for: ${event.name}")
-    }
-}
-```
-
----
-
-## Query Service Pattern
-
-For cross-module data access, modules expose read-only query interfaces:
-
-```kotlin
-// stories/api/StoriesQueryService.kt (public interface)
-interface StoriesQueryService {
-    fun getStoryCount(): Long
-    fun getRecentStories(limit: Int): List<StoryDto>
-}
-
-// stories/services/StoriesQueryServiceImpl.kt (internal)
-@Service
-internal class StoriesQueryServiceImpl(
-    private val repository: StorySubmissionRepository
-) : StoriesQueryService {
-    override fun getStoryCount() = repository.count()
-}
-```
-
-**Query Services**:
-- `StoriesQueryService` - Stories module
-- `MediaQueryService` - Gallery module
-- `PlacesQueryService` - Places module
-- `UserProfileQueryService` - Auth module
+**Key listeners**:
+- `GalleryService.onDirectoryEntryCreated()` — creates placeholder metadata
+- `DirectoryEntryService.onHeroImagePromoted()` — updates entry's imageUrl
+- `MdxFileWriter.onMdxCommitted()` — writes MDX files
 
 ---
 
 ## Module Visibility Rules
 
-| Access Level | Location | Visibility |
-|--------------|----------|------------|
-| Public | `api/` controllers | Accessible from other modules |
-| Public | `events/` | Accessible from other modules |
-| Public | Query services | Accessible from other modules |
-| Internal | `domain/` services | Package-private |
-| Internal | `repository/` | Package-private |
-| Internal | Domain entities | Package-private |
+| Location | Visibility |
+|----------|------------|
+| `api/` controllers, query services | Public (cross-module) |
+| `events/` | Public (cross-module) |
+| `domain/` services, `repository/` | Internal (package-private) |
 
 ---
 
-## Verification Testing
-
-### Module Tests
-
-**Location**: `apps/api/src/test/kotlin/com/nosilha/core/ModularityTests.kt`
-
-```kotlin
-class ModularityTests {
-    private val modules = ApplicationModules.of("com.nosilha.core")
-
-    @Test
-    fun `verify module structure`() {
-        modules.verify()
-    }
-
-    @Test
-    fun `generate module documentation`() {
-        Documenter(modules)
-            .writeModulesAsPlantUml()
-            .writeIndividualModulesAsPlantUML()
-    }
-}
-```
-
-### Running Tests
+## Verification
 
 ```bash
 # Verify module boundaries
@@ -385,111 +156,36 @@ ls build/modulith/*.puml
 
 ## Adding New Modules
 
-### 1. Create Structure
-
-```bash
-mkdir -p src/main/kotlin/com/nosilha/core/newmodule/{api,domain,repository,events}
-```
-
-### 2. Add Module Metadata
-
-```kotlin
-// newmodule/NewModuleMetadata.kt
-@PackageInfo
-@ApplicationModule(
-    displayName = "New Module",
-    allowedDependencies = [
-        "shared :: api",
-        "shared :: domain",
-        "shared :: events",
-        "shared :: exception",
-    ],
-    type = ApplicationModule.Type.OPEN,
-)
-class NewModuleMetadata
-```
-
-### 3. Implement Components
-
-```kotlin
-// newmodule/api/NewController.kt
-@RestController
-@RequestMapping("/api/v1/new")
-class NewController(private val service: NewService)
-
-// newmodule/domain/NewService.kt
-@Service
-internal class NewService(
-    private val repository: NewRepository,
-    private val eventPublisher: ApplicationEventPublisher
-)
-
-// newmodule/events/NewCreatedEvent.kt
-data class NewCreatedEvent(val id: UUID) : ApplicationModuleEvent
-```
-
-### 4. Verify
-
-```bash
-./gradlew test --tests "ModularityTests"
-```
+1. Create structure: `mkdir -p src/main/kotlin/com/nosilha/core/newmodule/{api,domain,repository,events}`
+2. Add `NewModuleMetadata.kt` with `@ApplicationModule` annotation
+3. Declare `allowedDependencies` (e.g., `"shared :: api"`, `"shared :: domain"`)
+4. Implement controller in `api/`, services as `internal` in `domain/`
+5. Run `./gradlew test --tests "ModularityTests"` to verify
 
 ---
 
 ## Best Practices
 
-### Do
-
-- Keep modules focused on single responsibility
-- Use events for cross-module communication
-- Expose only controllers, events, and query services
-- Make services `internal` (package-private)
+- Use events for cross-module communication (not direct service imports)
+- Expose only controllers, events, and query services publicly
+- Make domain services `internal` (package-private)
 - Test module boundaries with `ModularityTests`
-
-### Don't
-
-- Import services from other modules directly
-- Create circular dependencies
-- Expose domain entities outside the module
-- Skip module boundary verification
+- Avoid circular dependencies — break cycles with events or query services
 
 ---
 
 ## Troubleshooting
 
-### Module Boundary Violation
-
-**Error**: `Module 'places' depends on 'gallery' but this is not allowed`
-
-**Solution**: Use events instead of direct dependencies
-```kotlin
-// Before (wrong)
-class DirectoryService(private val galleryService: GalleryService)
-
-// After (correct)
-class DirectoryService(private val eventPublisher: ApplicationEventPublisher)
-```
-
-### Event Not Received
-
-**Symptom**: `@ApplicationModuleListener` not triggering
-
-**Checklist**:
-1. Event is being published
-2. Listener method signature matches event type
-3. Listener class is a Spring-managed bean (`@Service`)
-4. Module allows dependency on the event source
-
-### Circular Dependency
-
-**Symptom**: Spring fails to start
-
-**Solution**: Break the cycle by introducing events or query services
+| Problem | Solution |
+|---------|----------|
+| Module boundary violation | Use events instead of direct service dependencies |
+| `@ApplicationModuleListener` not triggering | Verify: event published, signature matches, class is `@Service`, module allows dependency |
+| Circular dependency | Introduce events or query services to break the cycle |
 
 ---
 
 ## Related Documentation
 
-- [Architecture](architecture.md) - High-level system overview
-- [API Coding Standards](api-coding-standards.md) - Backend conventions
-- [Testing](testing.md) - Test strategy
+- [Architecture](architecture.md) — System overview
+- [API Coding Standards](api-coding-standards.md) — Backend conventions
+- [Testing](testing.md) — Test strategy

@@ -106,6 +106,7 @@ publishDate: "2025-01-24" # Keep same
 category: "history" # NEVER translate
 tags: ["migração", "baleação", "diáspora"] # Translate tags
 language: "pt" # CHANGE to target language
+slug: "brava-migration" # Keep same as English
 ---
 ```
 
@@ -113,6 +114,7 @@ language: "pt" # CHANGE to target language
 
 - `language`: **MUST** match the file's target language (`pt`, `kea`, `fr`)
 - `category`: **NEVER** translate (must stay `history`, `music`, `people`, `traditions`, or `places`)
+- `slug`: **Keep same** as English version
 - `publishDate`: Keep the same as original
 - `updatedDate`: Add when you update a translation
 - `tags`: Translate to target language
@@ -211,7 +213,7 @@ timeline:
 
 - Field names (`date`, `title`, `description`)
 - Dates and numbers
-- Image paths (`imageSrc`)
+- Image paths (`image`)
 - Structure and order
 
 ### Step 6: Validate Translation
@@ -563,9 +565,9 @@ Create project-specific glossaries for consistency:
 
 ## Need Help?
 
-- **Main Contributor Guide**: [`docs/CONTRIBUTING_CONTENT.md`](./CONTRIBUTING_CONTENT.md)
-- **Component Reference**: [`docs/MDX_COMPONENTS.md`](./MDX_COMPONENTS.md)
-- **Quick Reference**: [`docs/MDX_QUICK_REFERENCE.md`](./MDX_QUICK_REFERENCE.md)
+- **Main Contributor Guide**: [README.md](./README.md)
+- **Component Reference**: [components.md](./components.md)
+- **Quick Reference**: [quick-reference.md](./quick-reference.md)
 - **GitHub Discussions**: Ask translation questions in our community forum
 
 ---
