@@ -175,7 +175,7 @@ export function FooterNewsletterForm() {
       </form>
 
       {/* Privacy message */}
-      <p className="text-text-tertiary mt-4 text-sm">
+      <p className="mt-4 text-sm text-slate-500">
         We respect your privacy. Unsubscribe at any time.
       </p>
     </div>
