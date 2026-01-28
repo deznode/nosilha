@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PageHeader } from "@/components/ui/page-header";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/catalyst-ui/input";
 import { Field, Label, ErrorMessage } from "@/components/catalyst-ui/fieldset";
 import { Checkbox, CheckboxField } from "@/components/catalyst-ui/checkbox";
@@ -14,6 +15,7 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { submitContactMessage } from "@/lib/api";
 import { contactSchema, type ContactInput } from "@/schemas/contactSchema";
+import { pageStagger, pageItem } from "@/lib/animation";
 import type { ContactSubject } from "@/types/contact";
 
 const subjectOptions = [
@@ -102,21 +104,6 @@ export function ContactPageContent() {
     setIsSubmitted(false);
     setConfirmationMessage("");
     setErrorMessage("");
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
   };
 
   return (
@@ -288,7 +275,9 @@ export function ContactPageContent() {
                     )}
                   />
                   {errors.agreedToPrivacy && (
-                    <ErrorMessage>{errors.agreedToPrivacy.message}</ErrorMessage>
+                    <ErrorMessage>
+                      {errors.agreedToPrivacy.message}
+                    </ErrorMessage>
                   )}
 
                   {/* Submit Button */}
@@ -328,101 +317,97 @@ export function ContactPageContent() {
           </motion.h3>
 
           <motion.div
-            variants={containerVariants}
+            variants={pageStagger}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             className="grid gap-6 md:grid-cols-2"
           >
-            <motion.div
-              variants={itemVariants}
-              className="bg-canvas border-hairline rounded-card shadow-subtle hover:shadow-lift border p-6 transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="mb-3 flex items-start">
-                <HelpCircle className="text-ocean-blue mt-0.5 mr-3 h-6 w-6 shrink-0" />
-                <h4 className="text-body font-semibold">
-                  How can I add my business to the directory?
-                </h4>
-              </div>
-              <p className="text-muted ml-9">
-                Visit our{" "}
-                <Link
-                  href="/contribute"
-                  className="text-ocean-blue hover:underline"
-                >
-                  contribute page
-                </Link>{" "}
-                for detailed instructions. We need your business name, location,
-                contact details, description, and photos if possible. All
-                submissions are reviewed by our volunteer team within 1-2 weeks
-                to ensure accuracy and cultural authenticity.
-              </p>
+            <motion.div variants={pageItem}>
+              <Card hoverable className="h-full p-6">
+                <div className="mb-3 flex items-start">
+                  <HelpCircle className="text-ocean-blue mt-0.5 mr-3 h-6 w-6 shrink-0" />
+                  <h4 className="text-body font-semibold">
+                    How can I add my business to the directory?
+                  </h4>
+                </div>
+                <p className="text-muted ml-9">
+                  Visit our{" "}
+                  <Link
+                    href="/contribute"
+                    className="text-ocean-blue hover:underline"
+                  >
+                    contribute page
+                  </Link>{" "}
+                  for detailed instructions. We need your business name,
+                  location, contact details, description, and photos if
+                  possible. All submissions are reviewed by our volunteer team
+                  within 1-2 weeks to ensure accuracy and cultural authenticity.
+                </p>
+              </Card>
             </motion.div>
 
-            <motion.div
-              variants={itemVariants}
-              className="bg-canvas border-hairline rounded-card shadow-subtle hover:shadow-lift border p-6 transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="mb-3 flex items-start">
-                <HelpCircle className="text-valley-green mt-0.5 mr-3 h-6 w-6 shrink-0" />
-                <h4 className="text-body font-semibold">
-                  Can I contribute photos of Brava Island?
-                </h4>
-              </div>
-              <p className="text-muted ml-9">
-                Yes! We especially welcome high-quality photos of landscapes,
-                cultural events, local businesses, and daily life on Brava.
-                Please ensure you own the photos or have permission to share
-                them. Use the contact form above with &quot;Content
-                Contribution&quot; selected to submit your photos with location
-                details.
-              </p>
+            <motion.div variants={pageItem}>
+              <Card hoverable className="h-full p-6">
+                <div className="mb-3 flex items-start">
+                  <HelpCircle className="text-valley-green mt-0.5 mr-3 h-6 w-6 shrink-0" />
+                  <h4 className="text-body font-semibold">
+                    Can I contribute photos of Brava Island?
+                  </h4>
+                </div>
+                <p className="text-muted ml-9">
+                  Yes! We especially welcome high-quality photos of landscapes,
+                  cultural events, local businesses, and daily life on Brava.
+                  Please ensure you own the photos or have permission to share
+                  them. Use the contact form above with &quot;Content
+                  Contribution&quot; selected to submit your photos with
+                  location details.
+                </p>
+              </Card>
             </motion.div>
 
-            <motion.div
-              variants={itemVariants}
-              className="bg-canvas border-hairline rounded-card shadow-subtle hover:shadow-lift border p-6 transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="mb-3 flex items-start">
-                <HelpCircle className="text-bougainvillea-pink mt-0.5 mr-3 h-6 w-6 shrink-0" />
-                <h4 className="text-body font-semibold">
-                  Is the platform available in other languages?
-                </h4>
-              </div>
-              <p className="text-muted ml-9">
-                Currently available in English only. We&apos;re actively
-                planning Portuguese and Kriolu (Cape Verdean Crioulo) support
-                for 2026. If you&apos;re fluent in these languages and
-                interested in helping translate content, use the contact form
-                with &quot;Partnership Opportunity&quot; selected.
-              </p>
+            <motion.div variants={pageItem}>
+              <Card hoverable className="h-full p-6">
+                <div className="mb-3 flex items-start">
+                  <HelpCircle className="text-bougainvillea-pink mt-0.5 mr-3 h-6 w-6 shrink-0" />
+                  <h4 className="text-body font-semibold">
+                    Is the platform available in other languages?
+                  </h4>
+                </div>
+                <p className="text-muted ml-9">
+                  Currently available in English only. We&apos;re actively
+                  planning Portuguese and Kriolu (Cape Verdean Crioulo) support
+                  for 2026. If you&apos;re fluent in these languages and
+                  interested in helping translate content, use the contact form
+                  with &quot;Partnership Opportunity&quot; selected.
+                </p>
+              </Card>
             </motion.div>
 
-            <motion.div
-              variants={itemVariants}
-              className="bg-canvas border-hairline rounded-card shadow-subtle hover:shadow-lift border p-6 transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="mb-3 flex items-start">
-                <HelpCircle className="text-sobrado-ochre mt-0.5 mr-3 h-6 w-6 shrink-0" />
-                <h4 className="text-body font-semibold">
-                  How can I get involved in development?
-                </h4>
-              </div>
-              <p className="text-muted ml-9">
-                Nos Ilha is fully open-source! Visit our{" "}
-                <a
-                  href="https://github.com/deznode/nosilha"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sobrado-ochre hover:underline"
-                >
-                  GitHub repository
-                </a>{" "}
-                to see current issues, contribution guidelines, and the tech
-                stack (Next.js, React, Spring Boot, Kotlin). New developers can
-                start with &quot;good first issue&quot; labels, or use the
-                contact form with &quot;Technical Support&quot; for guidance.
-              </p>
+            <motion.div variants={pageItem}>
+              <Card hoverable className="h-full p-6">
+                <div className="mb-3 flex items-start">
+                  <HelpCircle className="text-sobrado-ochre mt-0.5 mr-3 h-6 w-6 shrink-0" />
+                  <h4 className="text-body font-semibold">
+                    How can I get involved in development?
+                  </h4>
+                </div>
+                <p className="text-muted ml-9">
+                  Nos Ilha is fully open-source! Visit our{" "}
+                  <a
+                    href="https://github.com/deznode/nosilha"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sobrado-ochre hover:underline"
+                  >
+                    GitHub repository
+                  </a>{" "}
+                  to see current issues, contribution guidelines, and the tech
+                  stack (Next.js, React, Spring Boot, Kotlin). New developers
+                  can start with &quot;good first issue&quot; labels, or use the
+                  contact form with &quot;Technical Support&quot; for guidance.
+                </p>
+              </Card>
             </motion.div>
           </motion.div>
         </section>

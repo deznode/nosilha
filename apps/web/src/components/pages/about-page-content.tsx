@@ -5,23 +5,10 @@ import Image from "next/image";
 import { Heart, Globe, Users, Code, Camera, Map } from "lucide-react";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/ui/page-header";
+import { FeatureCard } from "@/components/ui/feature-card";
+import { pageStagger, pageItem } from "@/lib/animation";
 
 export function AboutPageContent() {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
-
   return (
     <div className="bg-surface font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
@@ -81,55 +68,43 @@ export function AboutPageContent() {
           </motion.h3>
 
           <motion.div
-            variants={containerVariants}
+            variants={pageStagger}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
           >
-            <motion.div
-              variants={itemVariants}
-              className="bg-canvas border-hairline rounded-card shadow-subtle hover:shadow-lift border p-6 text-center transition-all duration-300 hover:-translate-y-1"
-            >
-              <Heart className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
-              <h4 className="text-body mb-2 text-lg font-semibold">
-                Community First
-              </h4>
-              <p className="text-muted">
-                Every feature we build serves the local community of Brava
-                Island, with input from residents, business owners, and cultural
-                experts.
-              </p>
+            <motion.div variants={pageItem}>
+              <FeatureCard
+                icon={Heart}
+                iconColor="text-ocean-blue"
+                title="Community First"
+                description="Every feature we build serves the local community of Brava Island, with input from residents, business owners, and cultural experts."
+                centered
+                className="h-full"
+              />
             </motion.div>
 
-            <motion.div
-              variants={itemVariants}
-              className="bg-canvas border-hairline rounded-card shadow-subtle hover:shadow-lift border p-6 text-center transition-all duration-300 hover:-translate-y-1"
-            >
-              <Globe className="text-valley-green mx-auto mb-4 h-12 w-12" />
-              <h4 className="text-body mb-2 font-semibold">
-                Cultural Preservation
-              </h4>
-              <p className="text-muted">
-                We document and preserve Brava&apos;s unique history,
-                traditions, and stories for future generations and global
-                audiences.
-              </p>
+            <motion.div variants={pageItem}>
+              <FeatureCard
+                icon={Globe}
+                iconColor="text-valley-green"
+                title="Cultural Preservation"
+                description="We document and preserve Brava's unique history, traditions, and stories for future generations and global audiences."
+                centered
+                className="h-full"
+              />
             </motion.div>
 
-            <motion.div
-              variants={itemVariants}
-              className="bg-canvas border-hairline rounded-card shadow-subtle hover:shadow-lift border p-6 text-center transition-all duration-300 hover:-translate-y-1"
-            >
-              <Users className="text-bougainvillea-pink mx-auto mb-4 h-12 w-12" />
-              <h4 className="text-body mb-2 font-semibold">
-                Open Collaboration
-              </h4>
-              <p className="text-muted">
-                As an open-source project, we welcome contributions from
-                developers, content creators, and cultural enthusiasts
-                worldwide.
-              </p>
+            <motion.div variants={pageItem}>
+              <FeatureCard
+                icon={Users}
+                iconColor="text-bougainvillea-pink"
+                title="Open Collaboration"
+                description="As an open-source project, we welcome contributions from developers, content creators, and cultural enthusiasts worldwide."
+                centered
+                className="h-full"
+              />
             </motion.div>
           </motion.div>
         </section>
@@ -195,46 +170,40 @@ export function AboutPageContent() {
           </motion.h3>
 
           <motion.div
-            variants={containerVariants}
+            variants={pageStagger}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
           >
-            <motion.div
-              variants={itemVariants}
-              className="bg-canvas border-hairline rounded-card shadow-subtle hover:shadow-lift border p-6 transition-all duration-300 hover:-translate-y-1"
-            >
-              <Map className="text-ocean-blue mb-3 h-8 w-8" />
-              <h4 className="text-body mb-2 font-semibold">Interactive Map</h4>
-              <p className="text-muted text-sm">
-                Navigate Brava Island with our detailed interactive map
-                featuring businesses, landmarks, and cultural sites.
-              </p>
+            <motion.div variants={pageItem}>
+              <FeatureCard
+                icon={Map}
+                iconColor="text-ocean-blue"
+                title="Interactive Map"
+                description="Navigate Brava Island with our detailed interactive map featuring businesses, landmarks, and cultural sites."
+                className="h-full"
+              />
             </motion.div>
 
-            <motion.div
-              variants={itemVariants}
-              className="bg-canvas border-hairline rounded-card shadow-subtle hover:shadow-lift border p-6 transition-all duration-300 hover:-translate-y-1"
-            >
-              <Camera className="text-valley-green mb-3 h-8 w-8" />
-              <h4 className="text-body mb-2 font-semibold">Photo Galleries</h4>
-              <p className="text-muted text-sm">
-                Community-contributed photo galleries showcase the island&apos;s
-                natural beauty and cultural events.
-              </p>
+            <motion.div variants={pageItem}>
+              <FeatureCard
+                icon={Camera}
+                iconColor="text-valley-green"
+                title="Photo Galleries"
+                description="Community-contributed photo galleries showcase the island's natural beauty and cultural events."
+                className="h-full"
+              />
             </motion.div>
 
-            <motion.div
-              variants={itemVariants}
-              className="bg-canvas border-hairline rounded-card shadow-subtle hover:shadow-lift border p-6 transition-all duration-300 hover:-translate-y-1"
-            >
-              <Code className="text-bougainvillea-pink mb-3 h-8 w-8" />
-              <h4 className="text-body mb-2 font-semibold">Directory System</h4>
-              <p className="text-muted text-sm">
-                Comprehensive directory of restaurants, hotels, landmarks, and
-                cultural sites with detailed information.
-              </p>
+            <motion.div variants={pageItem}>
+              <FeatureCard
+                icon={Code}
+                iconColor="text-bougainvillea-pink"
+                title="Directory System"
+                description="Comprehensive directory of restaurants, hotels, landmarks, and cultural sites with detailed information."
+                className="h-full"
+              />
             </motion.div>
           </motion.div>
         </section>

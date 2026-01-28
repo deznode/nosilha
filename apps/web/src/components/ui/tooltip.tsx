@@ -73,11 +73,3 @@ export function Tooltip({
     </span>
   );
 }
-
-/**
- * TooltipTrigger for custom trigger elements.
- * Wraps children and manages tooltip state via context.
- */
-export function TooltipProvider({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
-}
