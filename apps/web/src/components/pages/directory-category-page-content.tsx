@@ -19,6 +19,7 @@ import {
   type SortBy,
   type DirectoryCategory,
 } from "@/components/directory";
+import { useBookmarksPrefetch } from "@/hooks/queries/use-bookmarks";
 
 // All available categories for filtering
 const ALL_CATEGORIES: DirectoryCategory[] = [
@@ -45,14 +46,25 @@ export function DirectoryCategoryPageContent({
 }: DirectoryCategoryPageContentProps) {
   const router = useRouter();
 
+  // Prefetch all user bookmarks to populate cache so bookmark buttons show correct state
+  useBookmarksPrefetch();
+
   // Determine initial category from URL category prop
   // Use getCategoryFromSlug to properly convert URL slugs (e.g., "hotels" → "Hotel")
-  const initialCategory: DirectoryCategory =
-    category === "all"
-      ? "All"
-      : ((getCategoryFromSlug(category) ??
-          category.charAt(0).toUpperCase() +
-            category.slice(1)) as DirectoryCategory);
+  function getInitialCategory(): DirectoryCategory {
+    if (category === "all") {
+      return "All";
+    }
+    const fromSlug = getCategoryFromSlug(category);
+    if (fromSlug) {
+      return fromSlug as DirectoryCategory;
+    }
+    // Fallback: capitalize first letter
+    return (category.charAt(0).toUpperCase() +
+      category.slice(1)) as DirectoryCategory;
+  }
+
+  const initialCategory = getInitialCategory();
 
   const [selectedCategory, setSelectedCategory] =
     useState<DirectoryCategory>(initialCategory);

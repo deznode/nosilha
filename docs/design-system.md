@@ -22,70 +22,43 @@ Frontend design system for the Nos Ilha cultural heritage platform. Built with N
 - **Motion**: Calm, confident transitions with `cubic-bezier(0.16, 1, 0.3, 1)`
 - **Shape**: Generous border radii (16-24px for cards), multi-layered shadows
 
-## Implementation Status
+## Components
 
 ### Design System Gallery
 
-| Item | Status | Location | Notes |
-|------|--------|----------|-------|
-| Gallery Page | ✅ Complete | `/design-system` | Dev-only, 404 in production |
-| Section Navigation | ✅ Complete | Sticky sidebar | 21 sections with smooth scroll |
-| Copy-to-Clipboard | ✅ Complete | All tokens | CSS variables and Tailwind classes |
-| Dark Mode Preview | ✅ Complete | Color swatches | Toggle to preview dark variants |
+Interactive gallery showcasing all design tokens and components.
 
-### Components Status
+- **URL**: `http://localhost:3000/design-system` (development only)
+- **Route**: `apps/web/src/app/(main)/design-system/`
+- **Features**: Sticky sidebar navigation, copy-to-clipboard for all tokens, dark mode preview toggle
 
-| Component | Status | Source | Notes |
-|-----------|--------|--------|-------|
-| **AnimatedButton** | ✅ Complete | Custom | 4 variants, 3 sizes, icons, loading states, Framer Motion |
-| **Input** | ✅ Complete | Catalyst UI | Icons, validation, helper text |
-| **InputGroup** | ✅ Complete | Catalyst UI | Icon positioning |
-| **Textarea** | ✅ Complete | Custom (HeadlessUI) | Multi-line input, rows, resize options, RHF compatible |
-| **Select** | ✅ Complete | Custom (HeadlessUI) | Listbox-based, accessible, Controller pattern for RHF |
-| **Checkbox** | ✅ Complete | Catalyst UI | 22 color variants, states |
-| **CheckboxField** | ✅ Complete | Catalyst UI | Labels and descriptions |
-| **Card** | ✅ Complete | Custom | Hoverable lift animation |
-| **DirectoryCard** | ✅ Complete | Custom | Heritage entry display |
-| **Banner** | ✅ Complete | Custom | Gradient promotional |
-| **LoadingSpinner** | ✅ Complete | Custom | 3 sizes, dots, pulse variants |
-| **ConfirmationDialog** | ✅ Complete | Custom | Default, warning, danger |
-| **Toast System** | ✅ Complete | Custom | Fluent builder API, 4 variants |
-| **PageHeader** | ✅ Complete | Custom | Breadcrumbs, accent bar |
-| **ThemeToggle** | ✅ Complete | Custom | System/light/dark cycle |
-| **MobileBottomNav** | ✅ Complete | Custom | 5-item thumb-zone navigation |
-| **Avatar** | ✅ Complete | Custom | Size variants, initials fallback, status |
-| **AvatarGroup** | ✅ Complete | Custom | Stacked display with overflow |
-| **Tooltip** | ✅ Complete | Custom | Position variants, HeadlessUI Transition |
-| **Popover** | ✅ Complete | Catalyst UI | HeadlessUI anchor positioning |
-| **Dropdown** | ✅ Complete | Catalyst UI | Items, dividers, icons, shortcuts |
+> **Note**: Returns 404 in production builds.
 
-### Gallery Specimens
+### Component Library
 
-| Specimen | Status | Interactive Features |
-|----------|--------|---------------------|
-| ColorSwatch | ✅ Complete | Dark mode toggle, copy variable/hex |
-| TypographySpecimen | ✅ Complete | Copy Tailwind classes, responsive preview |
-| SpacingScale | ✅ Complete | Visual bars, copy utility class |
-| ShadowCard | ✅ Complete | Elevation preview, copy class |
-| RadiusSpecimen | ✅ Complete | Shape preview, copy class |
-| ButtonSpecimen | ✅ Complete | All variants, sizes, states |
-| InputSpecimen | ✅ Complete | Types, icons, validation states |
-| TextareaSpecimen | ✅ Complete | Rows, resize options, disabled/invalid states |
-| SelectSpecimen | ✅ Complete | Options, placeholder, disabled/invalid states |
-| CheckboxSpecimen | ✅ Complete | All 22 colors, states |
-| FeedbackSpecimen | ✅ Complete | Banner, spinners, dialogs |
-| CardSpecimen | ✅ Complete | Patterns, directory card |
-| ToastSpecimen | ✅ Complete | Trigger all 4 variants, action buttons, custom duration |
-| BadgeSpecimen | ✅ Complete | All 5 colors, BadgeButton interactive |
-| DialogSpecimen | ✅ Complete | Basic, form, and 5 size variants |
-| SkeletonSpecimen | ✅ Complete | DirectoryCard skeleton, loading patterns |
-| PageHeaderSpecimen | ✅ Complete | Size variants, heading levels, alignment |
-| NavigationSpecimen | ✅ Complete | Mobile bottom nav mockup, state logic |
-| ToolbarSpecimen | ✅ Complete | Desktop rail + mobile FAB, reactions system |
-| AvatarSpecimen | ✅ Complete | Size variants, initials, status, groups, interactive |
-| OverlaySpecimen | ✅ Complete | Tooltips, popovers, dropdowns with accessibility |
-| TabsSpecimen | ✅ Complete | Underline, pill, icon, vertical tab layouts |
-| PaginationSpecimen | ✅ Complete | Page numbers, ellipsis, size variants |
+| Component | Source | Description |
+|-----------|--------|-------------|
+| **AnimatedButton** | Custom | 4 variants, 3 sizes, icons, loading states, Framer Motion |
+| **Input** | Catalyst UI | Icons, validation, helper text |
+| **InputGroup** | Catalyst UI | Icon positioning |
+| **Textarea** | Custom (HeadlessUI) | Multi-line input, rows, resize options, RHF compatible |
+| **Select** | Custom (HeadlessUI) | Listbox-based, accessible, Controller pattern for RHF |
+| **Checkbox** | Catalyst UI | 22 color variants, states |
+| **CheckboxField** | Catalyst UI | Labels and descriptions |
+| **Card** | Custom | Hoverable lift animation |
+| **DirectoryCard** | Custom | Heritage entry display |
+| **Banner** | Custom | Gradient promotional |
+| **LoadingSpinner** | Custom | 3 sizes, dots, pulse variants |
+| **ConfirmationDialog** | Custom | Default, warning, danger |
+| **Toast System** | Custom | Fluent builder API, 4 variants |
+| **PageHeader** | Custom | Breadcrumbs, accent bar |
+| **ThemeToggle** | Custom | System/light/dark cycle |
+| **MobileBottomNav** | Custom | 5-item thumb-zone navigation |
+| **Avatar** | Custom | Size variants, initials fallback, status |
+| **AvatarGroup** | Custom | Stacked display with overflow |
+| **Tooltip** | Custom | Position variants, HeadlessUI Transition |
+| **Popover** | Catalyst UI | HeadlessUI anchor positioning |
+| **Dropdown** | Catalyst UI | Items, dividers, icons, shortcuts |
 
 ## Quick Reference
 
