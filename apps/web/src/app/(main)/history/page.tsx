@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { headers, cookies } from "next/headers";
-import Link from "next/link";
 
 // UI Components
+import Link from "next/link";
 import { PageHeader } from "@/components/ui/page-header";
 import { BackToTopButton } from "@/components/ui/back-to-top-button";
 import { ImageHeroSection } from "@/components/ui/image-hero-section";
@@ -133,7 +133,7 @@ export default async function HistoryPage({ searchParams }: PageProps) {
         />
 
         {/* Content section with background - starts below hero */}
-        <div className="bg-background-secondary">
+        <div className="bg-surface">
           <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
             <PageHeader
               title="History & Heritage"
@@ -533,13 +533,13 @@ export default async function HistoryPage({ searchParams }: PageProps) {
               <div className="flex flex-col justify-center gap-4 sm:flex-row">
                 <Link
                   href="/directory/landmark"
-                  className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105"
+                  className="inline-flex items-center justify-center rounded-lg bg-ocean-blue px-6 py-3 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:bg-ocean-blue/90 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-ocean-blue focus-visible:ring-offset-2"
                 >
                   Historical Landmarks
                 </Link>
                 <Link
                   href="/map"
-                  className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-md border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
+                  className="inline-flex items-center justify-center rounded-lg border border-basalt-300 px-6 py-3 text-base font-semibold text-basalt-700 transition-all duration-200 hover:bg-basalt-50 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-ocean-blue focus-visible:ring-offset-2 dark:border-basalt-600 dark:text-basalt-200 dark:hover:bg-basalt-800"
                 >
                   Explore the Map
                 </Link>

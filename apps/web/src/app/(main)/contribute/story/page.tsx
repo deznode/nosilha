@@ -1,17 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Clock, Book, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
 import { InlineAuthPrompt } from "@/components/ui/inline-auth-prompt";
 import {
-  TypeSelector,
-  TemplateSelector,
+  TemplateChips,
   GUIDED_TEMPLATES,
   StoryEditor,
   Confirmation,
 } from "@/components/story-submission";
-import { WORD_LIMITS } from "@/components/story-submission/story-editor";
-import { StoryType } from "@/types/story";
 import type { StoryTemplate } from "@/types/story";
 import { submitStory } from "@/lib/api";
 import type { StorySubmitRequest } from "@/lib/api-contracts";
@@ -23,16 +20,38 @@ import {
 } from "@/stores/storyDraftStore";
 import { useAutoSaveDraft } from "@/hooks/useAutoSaveDraft";
 import { useAuth } from "@/components/providers/auth-provider";
+import { useToast } from "@/hooks/use-toast";
+import { Checkbox, CheckboxField } from "@/components/catalyst-ui/checkbox";
+import { Label } from "@/components/catalyst-ui/fieldset";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 
 interface FormData {
   title: string;
   content: string;
-  templateType?: StoryTemplate;
+}
+
+// Word count threshold for Quick vs Full story type
+const QUICK_STORY_THRESHOLD = 500;
+const MAX_WORD_LIMIT = 5000;
+
+/**
+ * Determines the story type based on word count and template selection.
+ * - GUIDED: When a template is selected
+ * - QUICK: When no template and word count <= 500
+ * - FULL: When no template and word count > 500
+ */
+function determineStoryType(
+  wordCount: number,
+  templateSelected: StoryTemplate | null
+): StorySubmitRequest["storyType"] {
+  if (templateSelected) return "GUIDED";
+  if (wordCount <= QUICK_STORY_THRESHOLD) return "QUICK";
+  return "FULL";
 }
 
 export default function StorySubmissionPage() {
   const { user, loading: authLoading } = useAuth();
-  const [submissionType, setSubmissionType] = useState<StoryType | null>(null);
+  const toast = useToast();
   const [selectedTemplate, setSelectedTemplate] =
     useState<StoryTemplate | null>(null);
   const [formData, setFormData] = useState<FormData>({
@@ -43,6 +62,10 @@ export default function StorySubmissionPage() {
   const [submitted, setSubmitted] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showTemplateChangeConfirm, setShowTemplateChangeConfirm] =
+    useState(false);
+  const [pendingTemplateChange, setPendingTemplateChange] =
+    useState<StoryTemplate | null>(null);
 
   // Draft store
   const draft = useDraft();
@@ -50,81 +73,95 @@ export default function StorySubmissionPage() {
   const hasDraft = useHasDraft();
   const { clearDraft } = useStoryDraftStore();
 
-  // Auto-save draft as user types (debounced) - must be before conditional returns
+  // Auto-save draft as user types (debounced) - only for authenticated users
   useAutoSaveDraft({
     title: formData.title,
     content: formData.content,
-    storyType: submissionType ?? undefined,
-    enabled: !!submissionType && !!user, // Only auto-save if authenticated
+    storyType: undefined, // No longer tracking story type in drafts
+    enabled: !!user,
   });
 
   // Check if user needs to authenticate
   const requiresAuth = !authLoading && !user;
 
-  // Default template for full stories
-  const defaultTemplate = `## The Beginning
-Where does this story start? (e.g., Nova Sintra, 1980...)
+  const handleTemplateSelection = (template: StoryTemplate | null) => {
+    // If deselecting, just clear
+    if (template === null) {
+      if (formData.content) {
+        // Confirm before clearing content
+        setPendingTemplateChange(null);
+        setShowTemplateChangeConfirm(true);
+      } else {
+        setSelectedTemplate(null);
+      }
+      return;
+    }
 
-## The Event
-Describe what happened in detail. Who was there? What did you see, hear, and smell?
-
-## The Impact
-Why is this memory important to you? How does it make you feel today?`;
-
-  const handleTypeSelection = (type: StoryType) => {
-    setSubmissionType(type);
-    if (type === StoryType.FULL) {
-      setFormData((prev) => ({ ...prev, content: defaultTemplate }));
+    // If selecting a new template
+    if (formData.content) {
+      // Confirm before replacing content
+      setPendingTemplateChange(template);
+      setShowTemplateChangeConfirm(true);
     } else {
-      setFormData((prev) => ({ ...prev, content: "" }));
+      // Apply template directly
+      applyTemplate(template);
     }
   };
 
-  const handleTemplateSelection = (template: StoryTemplate) => {
-    setSelectedTemplate(template);
+  const applyTemplate = (template: StoryTemplate) => {
     const templateConfig = GUIDED_TEMPLATES[template];
     if (templateConfig) {
+      setSelectedTemplate(template);
       setFormData((prev) => ({
         ...prev,
         content: templateConfig.starterPrompt,
-        templateType: template,
       }));
     }
+  };
+
+  const handleTemplateChangeConfirm = () => {
+    if (pendingTemplateChange) {
+      applyTemplate(pendingTemplateChange);
+    } else {
+      // Deselecting template - clear content
+      setSelectedTemplate(null);
+      setFormData((prev) => ({ ...prev, content: "" }));
+    }
+    setShowTemplateChangeConfirm(false);
+    setPendingTemplateChange(null);
+  };
+
+  const handleTemplateChangeCancel = () => {
+    setShowTemplateChangeConfirm(false);
+    setPendingTemplateChange(null);
   };
 
   const handleLoadDraft = () => {
     if (draft) {
       setFormData({ title: draft.title, content: draft.content });
-      if (draft.storyType) {
-        setSubmissionType(draft.storyType);
-      }
       clearDraft();
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!submissionType) return;
 
     setIsSubmitting(true);
     setSubmitError(null);
     try {
-      // Map StoryType enum to backend API format
-      const storyTypeMap: Record<StoryType, StorySubmitRequest["storyType"]> = {
-        [StoryType.QUICK]: "QUICK",
-        [StoryType.FULL]: "FULL",
-        [StoryType.GUIDED]: "GUIDED",
-      };
+      const wordCount = formData.content.split(/\s+/).filter(Boolean).length;
+      const storyType = determineStoryType(wordCount, selectedTemplate);
 
       const response = await submitStory({
         title: formData.title,
         content: formData.content,
-        storyType: storyTypeMap[submissionType],
-        templateType: formData.templateType,
+        storyType,
+        templateType: selectedTemplate ?? undefined,
       });
 
       if (response.id || response.message) {
         clearDraft();
+        toast.success("Story submitted for review").show();
         setSubmitted(true);
       }
     } catch (error) {
@@ -132,13 +169,13 @@ Why is this memory important to you? How does it make you feel today?`;
       const errorMessage =
         error instanceof Error ? error.message : "Failed to submit story";
       setSubmitError(errorMessage);
+      toast.error(errorMessage).show();
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleReset = () => {
-    setSubmissionType(null);
     setSelectedTemplate(null);
     setFormData({
       title: "",
@@ -149,75 +186,42 @@ Why is this memory important to you? How does it make you feel today?`;
     setSubmitError(null);
   };
 
+  // Word limit validation
+  const wordCount = formData.content.split(/\s+/).filter(Boolean).length;
+  const isOverLimit = wordCount > MAX_WORD_LIMIT;
+
   // Show confirmation screen
   if (submitted) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+      <div className="bg-canvas min-h-screen">
         <Confirmation onReset={handleReset} />
       </div>
     );
   }
 
-  // Show type selector
-  if (!submissionType) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
-        <TypeSelector onSelect={handleTypeSelection} />
-      </div>
-    );
-  }
-
-  // Show template selector for GUIDED story type
-  if (submissionType === StoryType.GUIDED && !selectedTemplate) {
-    return (
-      <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-8 dark:bg-slate-900">
-        <TemplateSelector
-          onSelect={handleTemplateSelection}
-          onBack={() => setSubmissionType(null)}
-        />
-      </div>
-    );
-  }
-
-  // Determine header styles based on type
-  let headerColorClass = "bg-[var(--color-ocean-blue)]";
-  let HeaderIcon = Clock;
-
-  if (submissionType === StoryType.FULL) {
-    headerColorClass = "bg-[var(--color-bougainvillea)]";
-    HeaderIcon = Book;
-  }
-
-  // Word limit validation
-  const wordCount = formData.content.split(/\s+/).filter(Boolean).length;
-  const limit = submissionType ? WORD_LIMITS[submissionType] : Infinity;
-  const isOverLimit = wordCount > limit;
-
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8 sm:px-6 lg:px-8 dark:bg-slate-900">
+    <div className="bg-canvas min-h-screen px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-2xl">
-        <button
-          onClick={() => {
-            setSubmissionType(null);
-            setSelectedTemplate(null);
-          }}
-          className="mb-6 flex items-center text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Change Type
-        </button>
+        {/* Header */}
+        <div className="mb-8 text-center">
+          <h1 className="text-body mb-2 font-serif text-3xl font-bold">
+            Share Your Story
+          </h1>
+          <p className="text-muted text-lg">Every memory matters.</p>
+        </div>
 
         {/* Draft Resume Banner */}
         {hasDraft && !submitted && (
           <div className="mb-6">
-            <div className="flex items-center justify-between rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-900/20">
+            <div className="rounded-card border-ocean-blue/20 bg-ocean-blue/5 flex items-center justify-between border p-4">
               <div className="flex items-center gap-3">
-                <FileText className="h-5 w-5 text-[var(--color-ocean-blue)]" />
+                <FileText className="text-ocean-blue h-5 w-5" />
                 <div>
-                  <p className="font-medium text-slate-900 dark:text-white">
+                  <p className="text-body font-medium">
                     You have a saved draft
                   </p>
                   {lastSaved && (
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                    <p className="text-muted text-sm">
                       Last saved {new Date(lastSaved).toLocaleString()}
                     </p>
                   )}
@@ -227,14 +231,14 @@ Why is this memory important to you? How does it make you feel today?`;
                 <button
                   type="button"
                   onClick={clearDraft}
-                  className="rounded px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700"
+                  className="text-muted hover:bg-surface rounded-button px-3 py-1.5 text-sm"
                 >
                   Discard
                 </button>
                 <button
                   type="button"
                   onClick={handleLoadDraft}
-                  className="rounded bg-[var(--color-ocean-blue)] px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-800"
+                  className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button px-3 py-1.5 text-sm font-medium text-white"
                 >
                   Resume Draft
                 </button>
@@ -243,14 +247,7 @@ Why is this memory important to you? How does it make you feel today?`;
           </div>
         )}
 
-        <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-800">
-          <div className={`px-6 py-4 ${headerColorClass}`}>
-            <h2 className="flex items-center text-xl font-bold text-white">
-              <HeaderIcon className="mr-2 h-5 w-5" />
-              {submissionType} Submission
-            </h2>
-          </div>
-
+        <div className="border-hairline bg-canvas shadow-elevated rounded-card overflow-hidden border">
           <form onSubmit={handleSubmit} className="space-y-6 p-6">
             {/* Auth Prompt - shown when user is not authenticated */}
             {requiresAuth && (
@@ -261,11 +258,17 @@ Why is this memory important to you? How does it make you feel today?`;
               />
             )}
 
+            {/* Template Chips */}
+            <TemplateChips
+              selectedTemplate={selectedTemplate}
+              onSelect={handleTemplateSelection}
+            />
+
             {/* Title */}
             <div>
               <label
                 htmlFor="title"
-                className="block text-sm font-medium text-slate-900 dark:text-white"
+                className="text-body block text-sm font-medium"
               >
                 Title
               </label>
@@ -273,7 +276,7 @@ Why is this memory important to you? How does it make you feel today?`;
                 type="text"
                 id="title"
                 required
-                className="mt-1 block w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)] focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                className="border-hairline bg-canvas text-body focus:border-ocean-blue focus:ring-ocean-blue rounded-button shadow-subtle mt-1 block w-full border px-3 py-2 text-sm focus:outline-none"
                 placeholder="e.g., Sunday Afternoons in Nova Sintra"
                 value={formData.title}
                 onChange={(e) =>
@@ -284,7 +287,6 @@ Why is this memory important to you? How does it make you feel today?`;
 
             {/* Story Editor */}
             <StoryEditor
-              storyType={submissionType}
               content={formData.content}
               title={formData.title}
               onContentChange={(content) =>
@@ -294,43 +296,41 @@ Why is this memory important to you? How does it make you feel today?`;
             />
 
             {/* Terms checkbox */}
-            <div className="flex items-center">
-              <input
-                id="terms"
+            <CheckboxField>
+              <Checkbox
                 name="terms"
-                type="checkbox"
-                required
+                color="blue"
                 checked={agreedToTerms}
-                onChange={(e) => setAgreedToTerms(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)] dark:border-slate-600"
+                onChange={(checked) => setAgreedToTerms(checked)}
               />
-              <label
-                htmlFor="terms"
-                className="ml-2 block text-sm text-slate-900 dark:text-white"
-              >
+              <Label className="text-body text-sm">
                 I agree to the community guidelines and allow Nos Ilha to
                 publish this.
-              </label>
-            </div>
+              </Label>
+            </CheckboxField>
 
             {/* Submit button */}
-            <div className="border-t border-slate-200 pt-4 dark:border-slate-700">
+            <div className="border-hairline border-t pt-4">
               {isOverLimit && (
-                <p className="mb-3 text-sm text-red-600 dark:text-red-400">
+                <p className="text-status-error mb-3 text-sm">
                   Your story exceeds the word limit. Please shorten it to{" "}
-                  {limit.toLocaleString()} words or less before submitting.
+                  {MAX_WORD_LIMIT.toLocaleString()} words or less before
+                  submitting.
                 </p>
               )}
               {submitError && (
-                <p className="mb-3 text-sm text-red-600 dark:text-red-400">
-                  {submitError}
-                </p>
+                <p className="text-status-error mb-3 text-sm">{submitError}</p>
               )}
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  disabled={isSubmitting || isOverLimit || requiresAuth}
-                  className="flex items-center rounded-md bg-[var(--color-ocean-blue)] px-6 py-2 font-medium text-white hover:bg-blue-800 focus:ring-2 focus:ring-[var(--color-ocean-blue)] focus:ring-offset-2 focus:outline-none disabled:opacity-70"
+                  disabled={
+                    isSubmitting ||
+                    isOverLimit ||
+                    requiresAuth ||
+                    !agreedToTerms
+                  }
+                  className="bg-ocean-blue hover:bg-ocean-blue/90 focus:ring-ocean-blue rounded-button flex items-center px-6 py-2 font-medium text-white focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:opacity-70"
                 >
                   {isSubmitting
                     ? "Submitting..."
@@ -345,6 +345,27 @@ Why is this memory important to you? How does it make you feel today?`;
           </form>
         </div>
       </div>
+
+      {/* Template Change Confirmation */}
+      <ConfirmationDialog
+        isOpen={showTemplateChangeConfirm}
+        onClose={handleTemplateChangeCancel}
+        onConfirm={handleTemplateChangeConfirm}
+        title={
+          pendingTemplateChange
+            ? "Replace your content?"
+            : "Clear your content?"
+        }
+        description={
+          pendingTemplateChange
+            ? "This will replace your current content with the selected template. Any existing text will be lost."
+            : "This will clear your current content. Any existing text will be lost."
+        }
+        confirmLabel={
+          pendingTemplateChange ? "Replace Content" : "Clear Content"
+        }
+        variant="warning"
+      />
     </div>
   );
 }

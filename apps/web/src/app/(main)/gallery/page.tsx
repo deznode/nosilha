@@ -133,23 +133,23 @@ export default function GalleryPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-12 dark:bg-slate-900">
+    <div className="bg-canvas min-h-screen pb-12">
       {/* Header */}
-      <div className="bg-slate-900 text-white">
+      <div className="bg-basalt-900 text-white">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h1 className="mb-4 font-serif text-3xl font-bold md:text-5xl">
                 Brava Media Center
               </h1>
-              <p className="max-w-2xl text-lg font-light text-slate-300">
+              <p className="max-w-2xl text-lg font-light text-white/70">
                 A visual archive of our island. Explore historical photographs,
                 community moments, and videos celebrating the culture of Brava.
               </p>
             </div>
             <Link
               href="/contribute/media"
-              className="flex shrink-0 items-center gap-2 rounded-xl bg-[var(--color-ocean-blue)] px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-blue-800 active:scale-95"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-subtle flex shrink-0 items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95"
             >
               <Plus size={18} />
               Add to Archive
@@ -159,15 +159,15 @@ export default function GalleryPage() {
       </div>
 
       {/* Tabs */}
-      <div className="sticky top-16 z-30 border-b border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <div className="border-hairline bg-canvas shadow-subtle sticky top-16 z-30 border-b">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
             <button
               onClick={() => setActiveTab("photos")}
               className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium ${
                 activeTab === "photos"
-                  ? "border-[var(--color-ocean-blue)] text-[var(--color-ocean-blue)]"
-                  : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-white"
+                  ? "border-ocean-blue text-ocean-blue"
+                  : "text-muted hover:border-hairline hover:text-body border-transparent"
               }`}
             >
               <ImageIcon size={18} /> Photo Gallery
@@ -176,8 +176,8 @@ export default function GalleryPage() {
               onClick={() => setActiveTab("videos")}
               className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium ${
                 activeTab === "videos"
-                  ? "border-[var(--color-bougainvillea)] text-[var(--color-bougainvillea)]"
-                  : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:text-white"
+                  ? "border-bougainvillea-pink text-bougainvillea-pink"
+                  : "text-muted hover:border-hairline hover:text-body border-transparent"
               }`}
             >
               <Play size={18} /> Video & Podcasts

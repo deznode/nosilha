@@ -19,6 +19,7 @@ import { useR2Upload } from "@/hooks/useR2Upload";
 import { BackendApiClient } from "@/lib/backend-api";
 import { useAuth } from "@/components/providers/auth-provider";
 import { InlineAuthPrompt } from "@/components/ui/inline-auth-prompt";
+import { useToast } from "@/hooks/use-toast";
 
 interface FormData {
   title: string;
@@ -59,6 +60,7 @@ function parseVideoUrl(
 
 export default function MediaContributionPage() {
   const { user, loading: authLoading } = useAuth();
+  const toast = useToast();
   const [submitted, setSubmitted] = useState(false);
   const [videoSubmitting, setVideoSubmitting] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
@@ -121,9 +123,13 @@ export default function MediaContributionPage() {
       });
 
       if (result) {
+        toast.success("Media uploaded successfully").show();
         setSubmitted(true);
       }
       // Error handling is done by the hook (uploadError state)
+      if (!result) {
+        toast.error("Upload failed. Please try again.").show();
+      }
     } else if (formData.type === "VIDEO") {
       // Parse the URL to extract platform and video ID
       const parsed = parseVideoUrl(formData.url);
@@ -146,11 +152,13 @@ export default function MediaContributionPage() {
           author: formData.author || undefined,
           category: "Community", // Default category for user submissions
         });
+        toast.success("Video submitted successfully").show();
         setSubmitted(true);
       } catch (err) {
-        setVideoError(
-          err instanceof Error ? err.message : "Failed to submit video"
-        );
+        const errorMsg =
+          err instanceof Error ? err.message : "Failed to submit video";
+        setVideoError(errorMsg);
+        toast.error(errorMsg).show();
       } finally {
         setVideoSubmitting(false);
       }
@@ -166,21 +174,21 @@ export default function MediaContributionPage() {
   // Success confirmation screen
   if (submitted) {
     return (
-      <div className="flex min-h-[70vh] items-center justify-center bg-slate-50 p-6 dark:bg-slate-900">
+      <div className="bg-canvas flex min-h-[70vh] items-center justify-center p-6">
         <div className="max-w-sm text-center">
-          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-valley-green)]/10">
-            <Check className="h-10 w-10 text-[var(--color-valley-green)]" />
+          <div className="bg-valley-green/10 mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full">
+            <Check className="text-valley-green h-10 w-10" />
           </div>
-          <h2 className="mb-3 font-serif text-3xl font-bold text-slate-900 dark:text-white">
+          <h2 className="text-body mb-3 font-serif text-3xl font-bold">
             Archive Updated
           </h2>
-          <p className="mb-8 leading-relaxed text-slate-500 dark:text-slate-400">
+          <p className="text-muted mb-8 leading-relaxed">
             Thank you for contributing to our visual history. Your item is
             pending verification by our team.
           </p>
           <Link
             href="/gallery"
-            className="block w-full rounded-2xl bg-[var(--color-ocean-blue)] py-4 font-bold text-white shadow-lg transition-colors hover:bg-[var(--color-ocean-blue-deep)]"
+            className="bg-ocean-blue hover:bg-ocean-blue-deep rounded-button shadow-lift block w-full py-4 font-bold text-white transition-colors"
           >
             Return to Gallery
           </Link>
@@ -190,18 +198,18 @@ export default function MediaContributionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-20 dark:bg-slate-900">
+    <div className="bg-canvas min-h-screen px-4 py-20">
       <div className="mx-auto max-w-xl">
         <Link
           href="/gallery"
-          className="mb-8 flex items-center gap-2 text-[10px] font-bold tracking-widest text-slate-500 uppercase hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+          className="text-muted hover:text-body mb-8 flex items-center gap-2 text-[10px] font-bold tracking-widest uppercase"
         >
           <ArrowLeft size={14} /> Back to Gallery
         </Link>
 
-        <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-800">
+        <div className="rounded-container border-hairline bg-canvas shadow-floating overflow-hidden border">
           {/* Header */}
-          <div className="bg-[var(--color-bougainvillea-pink)] px-10 py-10 text-white">
+          <div className="bg-bougainvillea-pink px-10 py-10 text-white">
             <h1 className="font-serif text-2xl font-bold">Add to Archive</h1>
             <p className="mt-1 text-xs text-white/60">
               Expanding Brava&apos;s visual memory
@@ -210,14 +218,14 @@ export default function MediaContributionPage() {
 
           <form onSubmit={handleSubmit} className="space-y-8 p-10">
             {/* Type Switcher */}
-            <div className="flex rounded-2xl bg-slate-100 p-1.5 dark:bg-slate-700">
+            <div className="rounded-card bg-surface flex p-1.5">
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, type: "IMAGE" })}
-                className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold transition-all ${
+                className={`rounded-card flex flex-1 items-center justify-center gap-2 py-3 text-xs font-bold transition-all ${
                   formData.type === "IMAGE"
-                    ? "bg-white text-[var(--color-ocean-blue)] shadow-sm dark:bg-slate-600"
-                    : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                    ? "bg-canvas text-ocean-blue shadow-subtle"
+                    : "text-muted hover:text-body"
                 }`}
               >
                 <ImageIcon size={14} /> Photograph
@@ -225,10 +233,10 @@ export default function MediaContributionPage() {
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, type: "VIDEO" })}
-                className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold transition-all ${
+                className={`rounded-card flex flex-1 items-center justify-center gap-2 py-3 text-xs font-bold transition-all ${
                   formData.type === "VIDEO"
-                    ? "bg-white text-[var(--color-bougainvillea-pink)] shadow-sm dark:bg-slate-600"
-                    : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                    ? "bg-canvas text-bougainvillea-pink shadow-subtle"
+                    : "text-muted hover:text-body"
                 }`}
               >
                 <Play size={14} /> Video / Podcast
@@ -252,13 +260,13 @@ export default function MediaContributionPage() {
             <div className="space-y-6">
               {/* Title */}
               <div>
-                <label className="mb-2 block text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+                <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
                   Title of Item
                 </label>
                 <input
                   required
                   type="text"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-5 py-3 font-medium text-slate-900 transition-all outline-none focus:ring-2 focus:ring-[var(--color-ocean-blue)]/10 dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                  className="border-hairline bg-surface text-body focus-visible:ring-ocean-blue rounded-card w-full border px-5 py-3 font-medium transition-all outline-none focus:ring-2 focus-visible:ring-offset-2"
                   placeholder="e.g., Festival of São João, 1984"
                   value={formData.title}
                   onChange={(e) =>
@@ -270,14 +278,14 @@ export default function MediaContributionPage() {
               {/* Image Upload or Video URL */}
               {formData.type === "IMAGE" ? (
                 <div>
-                  <label className="mb-2 block text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+                  <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
                     Image File
                   </label>
                   <div
-                    className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center transition-all ${
+                    className={`rounded-card flex cursor-pointer flex-col items-center justify-center border-2 border-dashed p-8 text-center transition-all ${
                       formData.preview
-                        ? "border-[var(--color-valley-green)] bg-[var(--color-valley-green)]/5"
-                        : "border-slate-200 hover:border-[var(--color-ocean-blue)]/50 hover:bg-slate-50 dark:border-slate-600 dark:hover:bg-slate-700"
+                        ? "border-valley-green bg-valley-green/5"
+                        : "border-hairline hover:border-ocean-blue/50 hover:bg-surface"
                     }`}
                     onClick={() =>
                       document.getElementById("media-upload")?.click()
@@ -289,7 +297,7 @@ export default function MediaContributionPage() {
                           src={formData.preview}
                           width={160}
                           height={160}
-                          className="max-h-40 rounded-xl border-2 border-white object-contain shadow-lg"
+                          className="rounded-card shadow-elevated max-h-40 border-2 border-white object-contain"
                           alt="Preview"
                           unoptimized
                         />
@@ -299,7 +307,7 @@ export default function MediaContributionPage() {
                             e.stopPropagation();
                             clearFile();
                           }}
-                          className="absolute -top-3 -right-3 rounded-full bg-red-500 p-1.5 text-white shadow-lg"
+                          className="bg-status-error shadow-elevated absolute -top-3 -right-3 rounded-full p-1.5 text-white"
                         >
                           <X size={14} />
                         </button>
@@ -307,7 +315,7 @@ export default function MediaContributionPage() {
                     ) : (
                       <>
                         <Upload size={32} className="mx-auto opacity-20" />
-                        <p className="mt-2 text-sm text-slate-400">
+                        <p className="text-muted mt-2 text-sm">
                           Click to upload or drag and drop
                         </p>
                       </>
@@ -323,13 +331,13 @@ export default function MediaContributionPage() {
                 </div>
               ) : (
                 <div>
-                  <label className="mb-2 block text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+                  <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
                     Embed Link
                   </label>
                   <div className="relative">
                     <input
                       required
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pr-4 pl-10 transition-all outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                      className="border-hairline bg-surface text-body rounded-card w-full border py-3 pr-4 pl-10 transition-all outline-none"
                       placeholder="YouTube or Vimeo URL"
                       value={formData.url}
                       onChange={(e) =>
@@ -337,7 +345,7 @@ export default function MediaContributionPage() {
                       }
                     />
                     <LinkIcon
-                      className="absolute top-3 left-3.5 text-[var(--color-bougainvillea-pink)] opacity-50"
+                      className="text-bougainvillea-pink absolute top-3 left-3.5 opacity-50"
                       size={16}
                     />
                   </div>
@@ -346,12 +354,12 @@ export default function MediaContributionPage() {
 
               {/* Description */}
               <div>
-                <label className="mb-2 block text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+                <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
                   Description
                 </label>
                 <textarea
                   rows={3}
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-5 py-3 leading-relaxed text-slate-900 outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                  className="border-hairline bg-surface text-body rounded-card w-full border px-5 py-3 leading-relaxed outline-none"
                   placeholder="Additional context or story..."
                   value={formData.description}
                   onChange={(e) =>
@@ -362,12 +370,12 @@ export default function MediaContributionPage() {
 
               {/* Author/Credit */}
               <div>
-                <label className="mb-2 block text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+                <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
                   Archive Credit
                 </label>
                 <input
                   type="text"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-5 py-3 text-slate-900 outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-white"
+                  className="border-hairline bg-surface text-body rounded-card w-full border px-5 py-3 outline-none"
                   placeholder="Name of owner or photographer"
                   value={formData.author}
                   onChange={(e) =>
@@ -379,7 +387,7 @@ export default function MediaContributionPage() {
 
             {/* Error Display */}
             {(uploadError || videoError) && (
-              <div className="flex items-center gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+              <div className="border-status-error/20 bg-status-error/10 text-status-error rounded-card flex items-center gap-3 border p-4 text-sm">
                 <AlertCircle size={18} className="flex-shrink-0" />
                 <span>{uploadError || videoError}</span>
               </div>
@@ -388,13 +396,13 @@ export default function MediaContributionPage() {
             {/* Upload Progress */}
             {uploadState === "uploading" && (
               <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
+                <div className="text-muted flex items-center justify-between text-sm">
                   <span>Uploading...</span>
                   <span>{progress.percentage}%</span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                <div className="bg-surface-alt h-2 overflow-hidden rounded-full">
                   <div
-                    className="h-full rounded-full bg-[var(--color-ocean-blue)] transition-all duration-300"
+                    className="bg-ocean-blue h-full rounded-full transition-all duration-300"
                     style={{ width: `${progress.percentage}%` }}
                   />
                 </div>
@@ -411,7 +419,7 @@ export default function MediaContributionPage() {
                   !formData.title ||
                   !formData.url
                 }
-                className="flex w-full items-center justify-center gap-3 rounded-2xl bg-slate-900 py-4 font-bold text-white shadow-xl transition-all hover:bg-[var(--color-ocean-blue)] disabled:opacity-30 dark:bg-slate-700 dark:hover:bg-[var(--color-ocean-blue)]"
+                className="rounded-card bg-body shadow-elevated hover:bg-ocean-blue flex w-full items-center justify-center gap-3 py-4 font-bold text-white transition-all disabled:opacity-30"
               >
                 {uploadState === "requesting-url" && "Preparing upload..."}
                 {uploadState === "uploading" &&

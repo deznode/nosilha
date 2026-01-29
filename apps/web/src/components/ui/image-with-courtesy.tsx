@@ -16,12 +16,12 @@ function ImagePlaceholder({
 }) {
   return (
     <div
-      className={`bg-background-secondary flex items-center justify-center ${isCircular ? "rounded-full" : "rounded-lg"}`}
+      className={`bg-surface flex items-center justify-center ${isCircular ? "rounded-full" : "rounded-button"}`}
       style={{ width: width || "100%", height: height || "100%" }}
     >
       <div className="p-4 text-center">
-        <Info className="text-text-tertiary mx-auto mb-2 h-8 w-8" />
-        <p className="text-text-tertiary text-xs">Image not available</p>
+        <Info className="text-muted mx-auto mb-2 h-8 w-8" />
+        <p className="text-muted text-xs">Image not available</p>
       </div>
     </div>
   );
@@ -97,7 +97,7 @@ export function ImageWithCourtesy({
   // Smart tooltip positioning logic
   const getTooltipPositionClasses = (position: string, iconPos: string) => {
     const baseClasses =
-      "absolute px-2 py-1 bg-background-tertiary/95 text-text-primary text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap backdrop-blur-sm z-10 pointer-events-none";
+      "absolute px-2 py-1 bg-surface-alt/95 text-body text-xs rounded-button opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap backdrop-blur-sm z-10 pointer-events-none";
 
     // Auto-detect optimal position based on icon placement and context
     if (position === "auto") {
@@ -134,7 +134,7 @@ export function ImageWithCourtesy({
     return (
       <div className="group relative">
         <div
-          className={`bg-background-secondary relative overflow-hidden ${isCircular ? "rounded-full" : ""}`}
+          className={`bg-surface relative overflow-hidden ${isCircular ? "rounded-full" : ""}`}
           style={{ width: width || 112, height: height || 112 }}
         >
           {imageError ? (
@@ -157,9 +157,9 @@ export function ImageWithCourtesy({
           <>
             {/* Info icon indicator */}
             <div
-              className={`absolute ${iconPositionClasses[iconPosition]} bg-background-primary/90 flex h-5 w-5 items-center justify-center rounded-full shadow-sm`}
+              className={`absolute ${iconPositionClasses[iconPosition]} bg-canvas/90 shadow-subtle flex h-5 w-5 items-center justify-center rounded-full`}
             >
-              <Info className="text-text-secondary h-3 w-3" />
+              <Info className="text-muted h-3 w-3" />
             </div>
 
             {/* Tooltip on hover */}
@@ -184,7 +184,7 @@ export function ImageWithCourtesy({
     return (
       <div className="flex flex-col items-center">
         <div
-          className={`bg-background-secondary relative flex-shrink-0 overflow-hidden ${isCircular ? "rounded-full" : ""}`}
+          className={`bg-surface relative flex-shrink-0 overflow-hidden ${isCircular ? "rounded-full" : ""}`}
           style={{ width: width || 112, height: height || 112 }}
         >
           {imageError ? (
@@ -205,7 +205,7 @@ export function ImageWithCourtesy({
         </div>
         {courtesy && (
           <div className="mt-2 max-w-[120px] text-center">
-            <p className="text-text-secondary font-sans text-xs leading-tight">
+            <p className="text-muted font-sans text-xs leading-tight">
               Courtesy of: {courtesy}
             </p>
           </div>
@@ -229,7 +229,7 @@ export function ImageWithCourtesy({
         />
       )}
       {courtesy && (
-        <div className="bg-background-tertiary/90 text-text-primary absolute right-0 bottom-0 rounded-tl-lg px-2 py-1 backdrop-blur-sm">
+        <div className="bg-surface-alt/90 text-body rounded-tl-button absolute right-0 bottom-0 px-2 py-1 backdrop-blur-sm">
           <p className="font-sans text-xs">Courtesy of: {courtesy}</p>
         </div>
       )}

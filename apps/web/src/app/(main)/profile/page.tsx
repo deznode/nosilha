@@ -14,6 +14,7 @@ import {
 } from "@/components/profile";
 import { getProfile } from "@/lib/api";
 import { useUpdateProfile } from "@/hooks/queries/use-update-profile";
+import { useToast } from "@/hooks/use-toast";
 import type {
   UserProfile,
   UserNotificationPreferences,
@@ -24,6 +25,7 @@ import type { PreferredLanguage } from "@/types/profile";
 
 export default function ProfilePage() {
   const { session, loading: authLoading } = useAuth();
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState<ProfileTabType>("activity");
   const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -60,6 +62,7 @@ export default function ProfilePage() {
         setNotifications(profileData.notificationPreferences);
       } catch (error) {
         console.error("Failed to load profile data:", error);
+        toast.error("Failed to load profile. Please refresh the page.").show();
       } finally {
         setIsLoading(false);
       }
@@ -70,7 +73,7 @@ export default function ProfilePage() {
     } else {
       setIsLoading(false);
     }
-  }, [session]);
+  }, [session, toast]);
 
   // Use the update profile mutation hook
   const { mutate: updateProfileMutation } = useUpdateProfile();
@@ -129,28 +132,28 @@ export default function ProfilePage() {
   // Auth loading state - skeleton mimics actual profile layout (UX best practice)
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 py-8 dark:bg-slate-900">
+      <div className="bg-canvas min-h-screen py-8">
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           {/* Profile header skeleton */}
-          <div className="animate-pulse rounded-xl bg-white p-6 shadow-sm dark:bg-slate-800">
-            <div className="h-24 rounded-lg bg-slate-200 dark:bg-slate-700" />
+          <div className="bg-canvas rounded-card shadow-subtle animate-pulse p-6">
+            <div className="bg-surface-alt rounded-card h-24" />
             <div className="mt-4 flex items-center gap-4">
-              <div className="h-16 w-16 rounded-full bg-slate-200 dark:bg-slate-700" />
+              <div className="bg-surface-alt h-16 w-16 rounded-full" />
               <div className="flex-1">
-                <div className="h-6 w-48 rounded bg-slate-200 dark:bg-slate-700" />
-                <div className="mt-2 h-4 w-32 rounded bg-slate-200 dark:bg-slate-700" />
+                <div className="bg-surface-alt h-6 w-48 rounded" />
+                <div className="bg-surface-alt mt-2 h-4 w-32 rounded" />
               </div>
             </div>
           </div>
           {/* Tabs skeleton */}
-          <div className="mt-6 animate-pulse rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
-            <div className="flex gap-4 border-b border-slate-200 p-4 dark:border-slate-700">
-              <div className="h-8 w-24 rounded bg-slate-200 dark:bg-slate-700" />
-              <div className="h-8 w-24 rounded bg-slate-200 dark:bg-slate-700" />
-              <div className="h-8 w-24 rounded bg-slate-200 dark:bg-slate-700" />
+          <div className="border-hairline bg-canvas rounded-card shadow-subtle mt-6 animate-pulse border">
+            <div className="border-hairline flex gap-4 border-b p-4">
+              <div className="bg-surface-alt h-8 w-24 rounded" />
+              <div className="bg-surface-alt h-8 w-24 rounded" />
+              <div className="bg-surface-alt h-8 w-24 rounded" />
             </div>
             <div className="p-6">
-              <div className="h-32 rounded bg-slate-200 dark:bg-slate-700" />
+              <div className="bg-surface-alt h-32 rounded" />
             </div>
           </div>
         </div>
@@ -161,27 +164,27 @@ export default function ProfilePage() {
   // Not logged in state
   if (!session) {
     return (
-      <div className="min-h-screen bg-slate-50 py-16 dark:bg-slate-900">
+      <div className="bg-canvas min-h-screen py-16">
         <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-xl bg-white p-8 text-center shadow-sm dark:bg-slate-800">
-            <UserCircle className="mx-auto h-16 w-16 text-slate-400 dark:text-slate-500" />
-            <h2 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">
+          <div className="bg-canvas rounded-card shadow-subtle p-8 text-center">
+            <UserCircle className="text-muted mx-auto h-16 w-16" />
+            <h2 className="text-body mt-4 text-xl font-bold">
               Sign in to view your profile
             </h2>
-            <p className="mt-2 text-slate-500 dark:text-slate-400">
+            <p className="text-muted mt-2">
               Create an account or sign in to access your profile and contribute
               to Nos Ilha.
             </p>
             <div className="mt-6 flex justify-center gap-4">
               <Link
                 href="/login"
-                className="rounded-md bg-[var(--color-ocean-blue)] px-6 py-2 text-sm font-semibold text-white transition-colors hover:bg-[var(--color-ocean-blue)]/90"
+                className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button px-6 py-2 text-sm font-semibold text-white transition-colors"
               >
                 Log in
               </Link>
               <Link
                 href="/signup"
-                className="rounded-md border border-[var(--color-ocean-blue)] px-6 py-2 text-sm font-semibold text-[var(--color-ocean-blue)] transition-colors hover:bg-[var(--color-ocean-blue)]/10"
+                className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue/10 rounded-button border px-6 py-2 text-sm font-semibold transition-colors"
               >
                 Sign up
               </Link>
@@ -207,7 +210,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8 dark:bg-slate-900">
+    <div className="bg-canvas min-h-screen py-8">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         {/* Profile Header */}
         <ProfileHeader
@@ -217,7 +220,7 @@ export default function ProfilePage() {
         />
 
         {/* Tabs and Content */}
-        <div className="min-h-[400px] rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <div className="border-hairline bg-canvas rounded-card shadow-subtle min-h-[400px] border">
           <ProfileTabs activeTab={activeTab} onTabChange={setActiveTab} />
 
           <div className="p-6">

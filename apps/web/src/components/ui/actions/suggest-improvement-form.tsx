@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/catalyst-ui/button";
 import { Input } from "@/components/catalyst-ui/input";
-import { Field, Label } from "@/components/catalyst-ui/fieldset";
+import { Field, Label, ErrorMessage } from "@/components/catalyst-ui/fieldset";
 import {
   Dialog,
   DialogActions,
@@ -11,11 +13,26 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/catalyst-ui/dialog";
+import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { submitSuggestion } from "@/lib/api";
 import { useAuth } from "@/components/providers/auth-provider";
 import { useToast } from "@/hooks/use-toast";
+import {
+  suggestionSchema,
+  type SuggestionInput,
+} from "@/schemas/suggestionSchema";
 
 type SuggestionType = "CORRECTION" | "ADDITION" | "FEEDBACK";
+
+const suggestionTypeOptions = [
+  {
+    value: "CORRECTION",
+    label: "Correction - Fix factual errors or inaccuracies",
+  },
+  { value: "ADDITION", label: "Addition - Add missing information or context" },
+  { value: "FEEDBACK", label: "Feedback - General feedback on content quality" },
+];
 
 interface SuggestImprovementFormProps {
   contentId: string;
@@ -38,50 +55,44 @@ export function SuggestImprovementForm({
   const isAuthenticated = !!session;
   const toast = useToast();
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [suggestionType, setSuggestionType] =
-    useState<SuggestionType>("FEEDBACK");
-  const [message, setMessage] = useState("");
-  const [honeypot, setHoneypot] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+    reset,
+    setValue,
+    watch,
+  } = useForm<SuggestionInput>({
+    resolver: zodResolver(suggestionSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      suggestionType: "FEEDBACK",
+      message: "",
+      honeypot: "",
+    },
+  });
+
+  const messageValue = watch("message");
+
   // Auto-populate email for authenticated users
   useEffect(() => {
     if (isAuthenticated && user?.email) {
-      setEmail(user.email);
+      setValue("email", user.email);
     }
-  }, [isAuthenticated, user?.email]);
+  }, [isAuthenticated, user?.email, setValue]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: SuggestionInput) => {
     setIsSubmitting(true);
     setSubmitError(null);
 
-    // Client-side validation
-    if (!name || name.length < 2 || name.length > 255) {
-      setSubmitError("Name must be between 2 and 255 characters");
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Email validation - only for anonymous users
-    if (!isAuthenticated && (!email || !email.includes("@"))) {
-      setSubmitError("Please enter a valid email address");
-      setIsSubmitting(false);
-      return;
-    }
-
-    if (!message || message.length < 10 || message.length > 5000) {
-      setSubmitError("Message must be between 10 and 5000 characters");
-      setIsSubmitting(false);
-      return;
-    }
-
     // Honeypot check (client-side)
-    if (honeypot) {
+    if (data.honeypot) {
       // Silently fail for bots
       setSubmitSuccess(true);
       setIsSubmitting(false);
@@ -91,32 +102,28 @@ export function SuggestImprovementForm({
     try {
       // Use authenticated user's email if logged in, otherwise use form input
       const submissionEmail =
-        isAuthenticated && user?.email ? user.email : email.trim();
+        isAuthenticated && user?.email ? user.email : (data.email || "").trim();
 
       await submitSuggestion({
         contentId,
         pageTitle: contentTitle,
         pageUrl,
         contentType,
-        name: name.trim(),
+        name: data.name.trim(),
         email: submissionEmail.toLowerCase(),
-        suggestionType,
-        message: message.trim(),
-        honeypot: honeypot || undefined,
+        suggestionType: data.suggestionType,
+        message: data.message.trim(),
+        honeypot: data.honeypot || undefined,
       });
 
       setSubmitSuccess(true);
       setSubmitError(null);
 
       // Show success toast
-      toast.showSuccess("Thank you! Your suggestion has been submitted.");
+      toast.success("Thank you! Your suggestion has been submitted.").show();
 
       // Reset form
-      setName("");
-      setEmail("");
-      setSuggestionType("FEEDBACK");
-      setMessage("");
-      setHoneypot("");
+      reset();
 
       // Close dialog after a brief delay
       setTimeout(() => {
@@ -131,7 +138,7 @@ export function SuggestImprovementForm({
       setSubmitError(errorMsg);
 
       // Show error toast
-      toast.showError(errorMsg);
+      toast.error(errorMsg).show();
     } finally {
       setIsSubmitting(false);
     }
@@ -156,11 +163,11 @@ export function SuggestImprovementForm({
 
       {submitSuccess ? (
         <DialogBody>
-          <div className="rounded-md bg-green-50 p-4 dark:bg-green-900/20">
+          <div className="bg-valley-green/10 rounded-md p-4">
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg
-                  className="h-5 w-5 text-green-400"
+                  className="text-valley-green h-5 w-5"
                   viewBox="0 0 20 20"
                   fill="currentColor"
                   aria-hidden="true"
@@ -173,10 +180,10 @@ export function SuggestImprovementForm({
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm font-medium text-green-800 dark:text-green-200">
+                <p className="text-valley-green text-sm font-medium">
                   Thank you for helping preserve our cultural heritage!
                 </p>
-                <p className="mt-2 text-sm text-green-700 dark:text-green-300">
+                <p className="text-valley-green/90 mt-2 text-sm">
                   Your suggestion has been received and will be reviewed by our
                   team. We appreciate your contribution to maintaining the
                   accuracy of Brava Island's cultural content.
@@ -186,7 +193,7 @@ export function SuggestImprovementForm({
           </div>
         </DialogBody>
       ) : (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <DialogBody>
             {/* Hidden fields for context */}
             <input type="hidden" name="contentId" value={contentId} />
@@ -200,9 +207,7 @@ export function SuggestImprovementForm({
               <input
                 type="text"
                 id="website"
-                name="website"
-                value={honeypot}
-                onChange={(e) => setHoneypot(e.target.value)}
+                {...register("honeypot")}
                 tabIndex={-1}
                 autoComplete="off"
               />
@@ -212,16 +217,15 @@ export function SuggestImprovementForm({
               <Field>
                 <Label>Your Name *</Label>
                 <Input
+                  {...register("name")}
                   type="text"
-                  name="name"
-                  required
-                  minLength={2}
-                  maxLength={255}
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
                   placeholder="Enter your name"
                   disabled={isSubmitting}
+                  data-invalid={errors.name ? "" : undefined}
                 />
+                {errors.name && (
+                  <ErrorMessage>{errors.name.message}</ErrorMessage>
+                )}
               </Field>
 
               {/* Only show email input for anonymous users */}
@@ -229,76 +233,71 @@ export function SuggestImprovementForm({
                 <Field>
                   <Label>Your Email *</Label>
                   <Input
+                    {...register("email")}
                     type="email"
-                    name="email"
-                    required
-                    maxLength={255}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="your.email@example.com"
                     disabled={isSubmitting}
+                    data-invalid={errors.email ? "" : undefined}
                   />
-                  <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                  <p className="text-muted mt-1 text-sm">
                     We may contact you for clarification on your suggestion.
                   </p>
+                  {errors.email && (
+                    <ErrorMessage>{errors.email.message}</ErrorMessage>
+                  )}
                 </Field>
               )}
 
               {/* Show email info for authenticated users */}
               {isAuthenticated && user?.email && (
-                <div className="text-sm text-zinc-600 dark:text-zinc-400">
+                <div className="text-muted text-sm">
                   Submitting as: <strong>{user.email}</strong>
                 </div>
               )}
 
               <Field>
                 <Label>Suggestion Type *</Label>
-                <select
+                <Controller
                   name="suggestionType"
-                  required
-                  value={suggestionType}
-                  onChange={(e) =>
-                    setSuggestionType(e.target.value as SuggestionType)
-                  }
-                  disabled={isSubmitting}
-                  className="focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-lg border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
-                >
-                  <option value="CORRECTION">
-                    Correction - Fix factual errors or inaccuracies
-                  </option>
-                  <option value="ADDITION">
-                    Addition - Add missing information or context
-                  </option>
-                  <option value="FEEDBACK">
-                    Feedback - General feedback on content quality
-                  </option>
-                </select>
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      options={suggestionTypeOptions}
+                      value={field.value}
+                      onChange={(value) =>
+                        field.onChange(value as SuggestionType)
+                      }
+                      disabled={isSubmitting}
+                      invalid={!!errors.suggestionType}
+                      placeholder="Select suggestion type"
+                    />
+                  )}
+                />
+                {errors.suggestionType && (
+                  <ErrorMessage>{errors.suggestionType.message}</ErrorMessage>
+                )}
               </Field>
 
               <Field>
                 <Label>Your Suggestion *</Label>
-                <textarea
-                  name="message"
-                  required
-                  minLength={10}
-                  maxLength={5000}
+                <Textarea
+                  {...register("message")}
                   rows={6}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
                   placeholder="Please provide details about your suggestion..."
                   disabled={isSubmitting}
-                  className="focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-lg border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+                  data-invalid={errors.message ? "" : undefined}
                 />
-                <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                  {message.length}/5000 characters (minimum 10)
+                <p className="text-muted mt-1 text-sm">
+                  {(messageValue || "").length}/5000 characters (minimum 10)
                 </p>
+                {errors.message && (
+                  <ErrorMessage>{errors.message.message}</ErrorMessage>
+                )}
               </Field>
 
               {submitError && (
-                <div className="rounded-md bg-red-50 p-4 dark:bg-red-900/20">
-                  <p className="text-sm text-red-800 dark:text-red-200">
-                    {submitError}
-                  </p>
+                <div className="bg-status-error/10 rounded-md p-4">
+                  <p className="text-status-error text-sm">{submitError}</p>
                 </div>
               )}
             </div>

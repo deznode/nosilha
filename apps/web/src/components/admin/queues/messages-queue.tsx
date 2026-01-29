@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search, Mail, Check, Trash2, Clock } from "lucide-react";
 import type { ContactMessage, ContactMessageStatus } from "@/types/admin";
+import { Button } from "@/components/catalyst-ui/button";
 
 interface MessagesQueueProps {
   messages: ContactMessage[];
@@ -49,11 +50,11 @@ export function MessagesQueue({
   const getStatusBadge = (status: ContactMessageStatus) => {
     switch (status) {
       case "UNREAD":
-        return "bg-[var(--color-valley-green)]/10 text-[var(--color-valley-green)]";
+        return "bg-valley-green/10 text-valley-green";
       case "READ":
         return "bg-surface-alt text-muted";
       case "ARCHIVED":
-        return "bg-[var(--color-ocean-blue)]/10 text-[var(--color-ocean-blue)]";
+        return "bg-ocean-blue/10 text-ocean-blue";
     }
   };
 
@@ -81,7 +82,7 @@ export function MessagesQueue({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search messages..."
-            className="border-hairline bg-surface placeholder-muted block w-full rounded-md border py-2 pr-3 pl-10 leading-5 focus:border-[var(--color-ocean-blue)] focus:ring-1 focus:ring-[var(--color-ocean-blue)] focus:outline-none sm:text-sm"
+            className="border-hairline bg-surface placeholder-muted focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-md border py-2 pr-3 pl-10 leading-5 focus:ring-1 focus:outline-none sm:text-sm"
           />
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
             <Search className="text-muted h-4 w-4" />
@@ -100,7 +101,7 @@ export function MessagesQueue({
                 key={message.id}
                 className={`p-6 transition-colors ${
                   message.status === "UNREAD"
-                    ? "bg-[var(--color-valley-green)]/5"
+                    ? "bg-valley-green/5"
                     : "hover:bg-surface-alt"
                 }`}
               >
@@ -109,7 +110,7 @@ export function MessagesQueue({
                     <div
                       className={`mt-1 rounded-xl p-3 ${
                         message.status === "UNREAD"
-                          ? "bg-[var(--color-valley-green)] text-white shadow-lg"
+                          ? "bg-valley-green text-white shadow-lg"
                           : "bg-surface-alt text-muted"
                       }`}
                     >
@@ -151,25 +152,29 @@ export function MessagesQueue({
                   </div>
                   <div className="flex gap-2">
                     {message.status === "UNREAD" && (
-                      <button
+                      <Button
+                        outline
                         onClick={() => onStatusChange?.(message.id, "READ")}
-                        className="border-hairline bg-surface hover:bg-surface-alt flex items-center gap-1 rounded-lg border px-3 py-1.5 text-[10px] font-bold shadow-sm transition-all"
                       >
-                        <Check size={12} /> Mark Read
-                      </button>
+                        <Check data-slot="icon" />
+                        Mark Read
+                      </Button>
                     )}
-                    <button
+                    <Button
+                      color="blue"
                       onClick={() => onStatusChange?.(message.id, "ARCHIVED")}
-                      className="flex items-center gap-1 rounded-lg bg-[var(--color-ocean-blue)] px-3 py-1.5 text-[10px] font-bold text-white shadow-sm transition-all hover:bg-blue-800"
                     >
-                      <Mail size={12} /> Archive
-                    </button>
-                    <button
+                      <Mail data-slot="icon" />
+                      Archive
+                    </Button>
+                    <Button
+                      outline
                       onClick={() => onDelete?.(message.id)}
-                      className="rounded-lg p-2 text-red-500 transition-all hover:bg-red-50 dark:hover:bg-red-900/20"
+                      className="text-red-600 hover:text-red-700 dark:text-red-400"
                     >
-                      <Trash2 size={16} />
-                    </button>
+                      <Trash2 data-slot="icon" />
+                      Delete
+                    </Button>
                   </div>
                 </div>
               </li>

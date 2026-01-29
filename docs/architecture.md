@@ -4,6 +4,20 @@ This document provides a comprehensive technical overview of the Nos Ilha platfo
 
 ---
 
+## Quick Start for Contributors
+
+New to the codebase? Choose your role for an optimal reading path:
+
+| Role | Start Here | Then Read | Deep Dive |
+|------|-----------|-----------|-----------|
+| **Frontend Developer** | [§5.1](#51-level-1-system-decomposition), [§5.2](#52-frontend-structure) | [state-management.md](state-management.md) | [design-system.md](design-system.md) |
+| **Backend Developer** | [§5.1](#51-level-1-system-decomposition), [§5.3](#53-backend-modules) | [spring-modulith.md](spring-modulith.md) | [api-coding-standards.md](api-coding-standards.md) |
+| **DevOps/Infrastructure** | [§7](#7-deployment-view), [§8](#8-cross-cutting-concerns) | [ci-cd-pipeline.md](ci-cd-pipeline.md) | [secret-management.md](secret-management.md) |
+
+**Time to read this document**: ~15 minutes for system overview
+
+---
+
 ## 1. Introduction and Goals
 
 ### 1.1 Purpose
@@ -58,48 +72,27 @@ Nos Ilha is a community-driven cultural heritage hub for Brava Island, Cape Verd
 ### 3.1 System Context
 
 ```mermaid
-flowchart TB
-    subgraph Users["👥 Users"]
-        community["🏠 Community Member"]
-        admin["⚙️ Admin/Moderator"]
-        tourist["🌍 Tourist"]
-    end
+C4Context
+    title System Context - Nos Ilha
 
-    subgraph NosIlha["🏝️ Nos Ilha Platform"]
-        frontend["📱 Frontend\nNext.js 16 + React 19"]
-        backend["⚡ Backend API\nSpring Boot 4.0 + Kotlin"]
-    end
+    Person(community, "Community Member", "Local resident contributing cultural content")
+    Person(admin, "Admin/Moderator", "Reviews submissions and manages content")
+    Person(tourist, "Tourist", "Discovers Brava Island heritage")
 
-    subgraph External["☁️ External Services"]
-        supabase["🔐 Supabase\nAuth + PostgreSQL"]
-        mapbox["🗺️ Mapbox\nMapping"]
-        r2["📦 Cloudflare R2\nMedia Storage"]
-    end
+    System(nosilha, "Nos Ilha Platform", "Cultural heritage hub preserving Brava Island memory")
 
-    subgraph GCP["🌐 Google Cloud Platform"]
-        cloudrun["🚀 Cloud Run"]
-        artifacts["📋 Artifact Registry"]
-        secrets["🔑 Secret Manager"]
-    end
+    System_Ext(supabase, "Supabase", "Authentication + PostgreSQL database")
+    System_Ext(mapbox, "Mapbox", "Interactive mapping service")
+    System_Ext(r2, "Cloudflare R2", "Media file storage")
+    System_Ext(gcp, "Google Cloud Platform", "Container hosting, secrets, registry")
 
-    community --> frontend
-    admin --> frontend
-    tourist --> frontend
-    frontend <--> backend
-    frontend --> mapbox
-    backend --> supabase
-    backend --> r2
-    cloudrun -.-> frontend
-    cloudrun -.-> backend
-    cloudrun --> artifacts
-    cloudrun --> secrets
-
-    style frontend fill:#fef3c7,stroke:#d97706,color:#92400e
-    style backend fill:#ffedd5,stroke:#ea580c,color:#9a3412
-    style supabase fill:#fef9c3,stroke:#ca8a04,color:#854d0e
-    style mapbox fill:#e0f2fe,stroke:#0284c7,color:#075985
-    style r2 fill:#fef9c3,stroke:#ca8a04,color:#854d0e
-    style cloudrun fill:#dcfce7,stroke:#16a34a,color:#166534
+    Rel(community, nosilha, "Contributes stories, submits places")
+    Rel(admin, nosilha, "Moderates content")
+    Rel(tourist, nosilha, "Explores directory and map")
+    Rel(nosilha, supabase, "Authenticates users, stores data")
+    Rel(nosilha, mapbox, "Renders interactive maps")
+    Rel(nosilha, r2, "Stores uploaded media")
+    Rel(nosilha, gcp, "Deploys containers")
 ```
 
 ### 3.2 External Interfaces
@@ -144,33 +137,25 @@ flowchart TB
 ### 5.1 Level 1: System Decomposition
 
 ```mermaid
-flowchart LR
-    subgraph Frontend["📱 Frontend - Next.js 16"]
-        direction TB
-        app["🔀 App Router"]
-        components["🧩 Components"]
-        stores["💾 Zustand"]
-        queries["🔄 TanStack Query"]
-    end
+C4Container
+    title Container Diagram - Nos Ilha
 
-    subgraph Backend["⚡ Backend - Spring Boot 4.0"]
-        modules["🏗️ Spring Modulith\n8 Modules"]
-    end
+    Person(user, "User", "Community member, tourist, or admin")
 
-    subgraph External["☁️ External"]
-        supabase[("🔐 Supabase")]
-        r2[("📦 R2")]
-        mapbox["🗺️ Mapbox"]
-    end
+    System_Boundary(nosilha, "Nos Ilha Platform") {
+        Container(frontend, "Frontend", "Next.js 16, React 19, TypeScript", "Server-rendered web app with App Router, Zustand, TanStack Query")
+        Container(backend, "Backend API", "Spring Boot 4.0, Kotlin 2.3", "REST API with 8 Spring Modulith modules")
+    }
 
-    Frontend --> Backend
-    Frontend --> mapbox
-    Backend --> supabase
-    Backend --> r2
+    System_Ext(supabase, "Supabase", "Auth + PostgreSQL")
+    System_Ext(mapbox, "Mapbox", "GL JS mapping API")
+    System_Ext(r2, "Cloudflare R2", "S3-compatible storage")
 
-    style app fill:#fef3c7,stroke:#d97706,color:#92400e
-    style modules fill:#ffedd5,stroke:#ea580c,color:#9a3412
-    style supabase fill:#fef9c3,stroke:#ca8a04,color:#854d0e
+    Rel(user, frontend, "Uses", "HTTPS")
+    Rel(frontend, backend, "Calls", "REST/JSON")
+    Rel(frontend, mapbox, "Loads maps", "GL JS")
+    Rel(backend, supabase, "Authenticates, queries", "JDBC/JWT")
+    Rel(backend, r2, "Stores files", "S3 API")
 ```
 
 ### 5.2 Frontend Structure
@@ -181,12 +166,7 @@ flowchart LR
 | `(main)` | Public content | `/directory`, `/map`, `/stories`, `/gallery` |
 | `(admin)` | Administration | `/admin`, `/admin/sandbox` |
 
-**State Management:**
-- **Zustand** - Client state (auth, UI, filters)
-- **TanStack Query** - Server state with caching
-- **Zod** - Runtime validation
-
-See [docs/state-management.md](state-management.md) for details.
+For state management (Zustand, TanStack Query, Zod) and component patterns, see [state-management.md](state-management.md) and [design-system.md](design-system.md).
 
 ### 5.3 Backend Modules
 
@@ -247,12 +227,7 @@ flowchart TB
 | `feedback` | Community input | Suggestion, DirectorySubmission, ContactMessage |
 | `config` | Configuration | Caffeine cache manager |
 
-**Module Communication:**
-- Modules communicate via domain events (`@ApplicationModuleListener`)
-- No direct service dependencies between modules
-- Query services expose read-only interfaces for cross-module data access
-
-See [docs/spring-modulith.md](spring-modulith.md) for details.
+For module communication patterns (events, query services, boundaries), see [spring-modulith.md](spring-modulith.md).
 
 ---
 
@@ -313,12 +288,7 @@ sequenceDiagram
 
 ### 6.3 Content Caching Strategy
 
-| Layer | Cache Type | TTL | Use Case |
-|-------|-----------|-----|----------|
-| Frontend | ISR | 1 hour | Directory listings |
-| Frontend | ISR | 30 min | Individual entries |
-| Frontend | TanStack Query | 5 min | Client-side data |
-| Backend | Caffeine | 5 min | Reaction counts |
+See [§8.4 Caching Strategy](#84-caching-strategy) for cache configuration across all layers.
 
 ---
 
@@ -327,41 +297,36 @@ sequenceDiagram
 ### 7.1 Infrastructure Diagram
 
 ```mermaid
-flowchart TB
-    subgraph GCP["🌐 Google Cloud Platform (us-east1)"]
-        subgraph CloudRun["🚀 Cloud Run"]
-            frontend["📱 nosilha-frontend\nNext.js 16"]
-            backend["⚡ nosilha-backend-api\nSpring Boot 4.0"]
-        end
+C4Deployment
+    title Deployment Diagram - Nos Ilha (Production)
 
-        subgraph Registry["📋 Artifact Registry"]
-            fe_image["🐳 frontend:latest"]
-            be_image["🐳 backend:latest"]
-        end
+    Deployment_Node(gcp, "Google Cloud Platform", "us-east1") {
+        Deployment_Node(cloudrun, "Cloud Run", "Serverless containers") {
+            Container(frontend, "nosilha-frontend", "Next.js 16", "Server-rendered frontend")
+            Container(backend, "nosilha-backend-api", "Spring Boot 4.0", "REST API")
+        }
+        Deployment_Node(registry, "Artifact Registry", "Container images") {
+            Container(fe_image, "frontend:latest", "Docker")
+            Container(be_image, "backend:latest", "Docker")
+        }
+        Container(secrets, "Secret Manager", "GCP", "Environment configuration")
+    }
 
-        secrets["🔑 Secret Manager"]
-    end
+    Deployment_Node(supabase_cloud, "Supabase Cloud", "Managed services") {
+        Container(auth, "Auth Service", "Supabase Auth", "JWT authentication")
+        ContainerDb(db, "PostgreSQL", "Supabase DB", "Application data")
+    }
 
-    subgraph Supabase["🔐 Supabase"]
-        auth[("Auth Service")]
-        db[("PostgreSQL")]
-    end
+    Deployment_Node(cloudflare, "Cloudflare", "Edge services") {
+        Container(r2, "R2 Storage", "S3-compatible", "Media files")
+    }
 
-    subgraph Cloudflare["☁️ Cloudflare"]
-        r2[("📦 R2 Storage")]
-    end
-
-    frontend <--> backend
-    backend --> db
-    backend --> auth
-    backend --> r2
-    CloudRun -.-> secrets
-    CloudRun -.-> Registry
-
-    style frontend fill:#fef3c7,stroke:#d97706,color:#92400e
-    style backend fill:#ffedd5,stroke:#ea580c,color:#9a3412
-    style db fill:#fef9c3,stroke:#ca8a04,color:#854d0e
-    style r2 fill:#fef9c3,stroke:#ca8a04,color:#854d0e
+    Rel(frontend, backend, "Calls", "HTTPS")
+    Rel(backend, db, "Queries", "JDBC")
+    Rel(backend, auth, "Validates JWT", "HTTPS")
+    Rel(backend, r2, "Stores media", "S3 API")
+    Rel(cloudrun, secrets, "Reads")
+    Rel(cloudrun, registry, "Pulls images")
 ```
 
 ### 7.2 Deployment Configuration
@@ -391,32 +356,56 @@ See [docs/ci-cd-pipeline.md](ci-cd-pipeline.md) for CI/CD details.
 
 ### 8.2 Error Handling
 
-| Layer | Strategy |
-|-------|----------|
-| Frontend | Error boundaries, toast notifications, fallback to mock data |
-| Backend | GlobalExceptionHandler, structured error responses |
-| API | HTTP status codes with problem details |
+| Layer | Strategy | Failure Mode |
+|-------|----------|--------------|
+| Frontend | Error boundaries, toast notifications | Graceful degradation to mock data |
+| Backend | GlobalExceptionHandler | Structured error responses with problem details |
+| API | HTTP status codes (400, 404, 422, 500) | Consistent error envelope format |
 
-### 8.3 Logging and Monitoring
+**Exception Mapping** (Backend):
+- `ResourceNotFoundException` → 404 Not Found
+- `BusinessException` → 422 Unprocessable Entity
+- `MethodArgumentNotValidException` → 400 Bad Request
 
-| Component | Tool |
-|-----------|------|
-| Backend health | Spring Boot Actuator endpoints |
-| Application logs | Cloud Run logging |
-| Error tracking | Console errors, API error responses |
+For complete error handling patterns, see [api-coding-standards.md](api-coding-standards.md#6-error-handling).
+
+### 8.3 Observability
+
+| Component | Tool | Endpoints/Patterns |
+|-----------|------|-------------------|
+| Health checks | Spring Boot Actuator | `/actuator/health`, `/actuator/info` |
+| Metrics | Actuator + Micrometer | `/actuator/metrics` |
+| Application logs | Cloud Run logging | Structured JSON logs in production |
+| Request logging | kotlin-logging | Lambda syntax for lazy evaluation |
+
+**Logging Levels**:
+- `debug` - Query operations, detailed flow
+- `info` - Write operations, significant events
+- `warn` - Recoverable errors, rate limits
+- `error` - Unhandled exceptions, critical failures
+
+### 8.4 Caching Strategy
+
+| Layer | Tool | TTL | Use Case |
+|-------|------|-----|----------|
+| Frontend (ISR) | Next.js | 1 hour | Directory listings |
+| Frontend (client) | TanStack Query | 5 min | Client-side data |
+| Backend | Caffeine | 5 min | Reaction counts, frequently accessed data |
 
 ---
 
 ## 9. Architecture Decisions
 
-Key decisions are documented in `/docs/adr/`:
+Key decisions are documented in `/docs/adr/`. Each ADR explains the context, alternatives considered, and consequences.
 
-| ADR | Decision | Status |
-|-----|----------|--------|
-| [ADR-001](adr/0001-nx-monorepo.md) | Monorepo structure | Accepted |
-| [ADR-002](adr/0002-spring-modulith.md) | Spring Modulith over microservices | Accepted |
-| [ADR-003](adr/0003-supabase-auth.md) | Supabase for authentication | Accepted |
-| [ADR-004](adr/0004-es256-jwt-algorithm.md) | ES256 JWT algorithm | Accepted |
+| ADR | Decision | Summary | Status |
+|-----|----------|---------|--------|
+| [ADR-001](adr/0001-nx-monorepo.md) | Nx for polyglot monorepo | Chose Nx over Turborepo for unified orchestration of Next.js + Spring Boot with task caching and affected commands | Accepted |
+| [ADR-002](adr/0002-spring-modulith.md) | Modular monolith | Chose Spring Modulith over microservices for solo-maintainer operational simplicity with enforced module boundaries | Accepted |
+| [ADR-003](adr/0003-supabase-auth.md) | Supabase authentication | External auth provider to minimize security surface and maintenance burden (50K free MAU) | Accepted |
+| [ADR-004](adr/0004-es256-jwt-algorithm.md) | ES256 JWT algorithm | Custom JwtDecoder for Supabase's asymmetric keys (Spring Security defaults to RS256) | Accepted |
+
+**When to read ADRs**: If you're modifying authentication, module boundaries, or build tooling, read the relevant ADR first to understand constraints and rationale.
 
 ---
 
@@ -481,8 +470,12 @@ See [docs/testing.md](testing.md) for details.
 |------|------------|
 | ISR | Incremental Static Regeneration (Next.js caching strategy) |
 | STI | Single Table Inheritance (JPA pattern for polymorphism) |
-| Spring Modulith | Framework for modular monolith architecture |
+| Spring Modulith | Framework for modular monolith architecture with enforced boundaries |
+| TanStack Query | Server state management library for React (caching, background refetch) |
+| Testcontainers | Library for spinning up real dependencies (PostgreSQL) in integration tests |
 | RSC | React Server Components |
+| Zustand | Lightweight client state management for React |
+| Caffeine | High-performance Java caching library |
 
 ---
 

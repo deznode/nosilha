@@ -35,17 +35,15 @@ function getStatusStyles(status: string) {
     case "PUBLISHED":
       return {
         bg: "bg-green-100 dark:bg-green-900/30",
-        text: "text-[var(--color-valley-green)]",
-        badge:
-          "bg-green-100 text-[var(--color-valley-green)] dark:bg-green-900/30",
+        text: "text-valley-green",
+        badge: "bg-green-100 text-valley-green dark:bg-green-900/30",
       };
     case "PENDING":
     case "UNDER_REVIEW":
       return {
         bg: "bg-yellow-100 dark:bg-yellow-900/30",
-        text: "text-[var(--color-sobrado)]",
-        badge:
-          "bg-yellow-100 text-[var(--color-sobrado)] dark:bg-yellow-900/30",
+        text: "text-sobrado-ochre",
+        badge: "bg-yellow-100 text-sobrado-ochre dark:bg-yellow-900/30",
       };
     case "REJECTED":
       return {
@@ -172,9 +170,7 @@ export function ActivityTab() {
                   key={type}
                   className="bg-surface flex items-center gap-2 rounded-md p-3"
                 >
-                  <div className="text-[var(--color-ocean-blue)]">
-                    {getReactionIcon(type)}
-                  </div>
+                  <div className="text-ocean-blue">{getReactionIcon(type)}</div>
                   <div>
                     <div className="text-muted text-xs">
                       {type.charAt(0) + type.slice(1).toLowerCase()}

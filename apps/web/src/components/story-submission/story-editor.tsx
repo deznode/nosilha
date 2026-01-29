@@ -15,21 +15,19 @@ import {
   Undo2,
 } from "lucide-react";
 import Markdown from "react-markdown";
-import { StoryType } from "@/types/story";
 import type { StoryTemplate } from "@/types/story";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { Textarea } from "@/components/ui/textarea";
 import {
   polishStoryAction,
   translateStoryAction,
   checkGeminiAvailableAction,
 } from "@/app/actions/gemini-actions";
 import { StoryPromptsPanel } from "./story-prompts-panel";
+import { useToast } from "@/hooks/use-toast";
 
-export const WORD_LIMITS: Record<StoryType, number> = {
-  [StoryType.QUICK]: 500,
-  [StoryType.FULL]: 5000,
-  [StoryType.GUIDED]: 5000,
-};
-
+// Single word limit for all story types
+const WORD_LIMIT = 5000;
 const WORDS_PER_MINUTE = 200;
 
 function getReadingTime(wordCount: number): string {
@@ -85,7 +83,6 @@ How do you stay connected to Brava today?`,
 };
 
 interface StoryEditorProps {
-  storyType: StoryType;
   content: string;
   title: string;
   author?: string;
@@ -95,7 +92,6 @@ interface StoryEditorProps {
 }
 
 export function StoryEditor({
-  storyType,
   content,
   title,
   author = "",
@@ -111,7 +107,12 @@ export function StoryEditor({
   const [originalContent, setOriginalContent] = useState<string>("");
   const [isTranslating, setIsTranslating] = useState(false);
   const [geminiAvailable, setGeminiAvailable] = useState(false);
+  const [pendingTemplate, setPendingTemplate] = useState<
+    keyof typeof TEMPLATES | null
+  >(null);
+  const [showTemplateConfirm, setShowTemplateConfirm] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const toast = useToast();
 
   // Check Gemini availability on mount
   useEffect(() => {
@@ -124,8 +125,10 @@ export function StoryEditor({
     try {
       const polished = await polishStoryAction(content);
       onContentChange(polished);
+      toast.success("Content polished").show();
     } catch (error) {
       console.error("Failed to polish content:", error);
+      toast.error("Failed to polish content. Please try again.").show();
     } finally {
       setIsPolishing(false);
     }
@@ -147,8 +150,14 @@ export function StoryEditor({
       const translated = await translateStoryAction(content, targetLang);
       onContentChange(translated);
       setCurrentLanguage(targetLang);
+      toast
+        .success(
+          `Translated to ${targetLang === "PT" ? "Portuguese" : "English"}`
+        )
+        .show();
     } catch (error) {
       console.error("Translation failed:", error);
+      toast.error("Translation failed. Please try again.").show();
     } finally {
       setIsTranslating(false);
     }
@@ -168,13 +177,29 @@ export function StoryEditor({
   };
 
   const applyTemplate = (templateKey: keyof typeof TEMPLATES) => {
-    const confirmChange =
-      !content ||
-      window.confirm("This will replace your current content. Are you sure?");
-    if (confirmChange) {
+    if (content) {
+      // Show confirmation if there's existing content
+      setPendingTemplate(templateKey);
+      setShowTemplateConfirm(true);
+    } else {
+      // Apply directly if no content
       onContentChange(TEMPLATES[templateKey]);
       setShowTemplates(false);
     }
+  };
+
+  const handleTemplateConfirm = () => {
+    if (pendingTemplate) {
+      onContentChange(TEMPLATES[pendingTemplate]);
+      setShowTemplates(false);
+    }
+    setShowTemplateConfirm(false);
+    setPendingTemplate(null);
+  };
+
+  const handleTemplateCancel = () => {
+    setShowTemplateConfirm(false);
+    setPendingTemplate(null);
   };
 
   const insertFormatting = (format: "bold" | "italic" | "list" | "quote") => {
@@ -220,26 +245,25 @@ export function StoryEditor({
 
   const wordCount = content.split(/\s+/).filter(Boolean).length;
   const charCount = content.length;
-  const limit = WORD_LIMITS[storyType];
-  const warningLevel = getWarningLevel(wordCount, limit);
+  const warningLevel = getWarningLevel(wordCount, WORD_LIMIT);
   const readingTime = getReadingTime(wordCount);
-  const isOverLimit = wordCount > limit;
+  const isOverLimit = wordCount > WORD_LIMIT;
 
   return (
     <div>
       <div className="mb-2 flex items-end justify-between">
         <label className="text-body block text-sm font-medium">
-          Your Story {storyType === StoryType.QUICK ? "(Max 500 words)" : ""}
+          Your Story
         </label>
 
         {/* Tabs */}
-        <div className="bg-surface-alt flex space-x-1 rounded-lg p-0.5">
+        <div className="bg-surface-alt rounded-card flex space-x-1 p-0.5">
           <button
             type="button"
             onClick={() => setActiveTab("write")}
-            className={`flex items-center rounded-md px-3 py-1 text-xs font-medium transition-all ${
+            className={`rounded-button flex items-center px-3 py-1 text-xs font-medium transition-all ${
               activeTab === "write"
-                ? "bg-surface text-body shadow-sm"
+                ? "bg-surface text-body shadow-subtle"
                 : "text-muted hover:text-body"
             }`}
           >
@@ -248,9 +272,9 @@ export function StoryEditor({
           <button
             type="button"
             onClick={() => setActiveTab("preview")}
-            className={`flex items-center rounded-md px-3 py-1 text-xs font-medium transition-all ${
+            className={`rounded-button flex items-center px-3 py-1 text-xs font-medium transition-all ${
               activeTab === "preview"
-                ? "bg-surface text-[var(--color-ocean-blue)] shadow-sm"
+                ? "bg-surface text-ocean-blue shadow-subtle"
                 : "text-muted hover:text-body"
             }`}
           >
@@ -297,45 +321,43 @@ export function StoryEditor({
               <Quote className="h-4 w-4" />
             </button>
 
-            {/* Template Dropdown (Only for Full Stories) */}
-            {storyType === StoryType.FULL && (
-              <div className="relative ml-2">
-                <button
-                  type="button"
-                  onClick={() => setShowTemplates(!showTemplates)}
-                  className="flex items-center gap-1 rounded bg-pink-50 px-2 py-1 text-xs font-medium text-[var(--color-bougainvillea)] transition-colors hover:bg-pink-100 dark:bg-pink-900/30 dark:hover:bg-pink-900/50"
-                >
-                  <LayoutTemplate className="h-3 w-3" /> Templates{" "}
-                  <ChevronDown className="h-3 w-3" />
-                </button>
+            {/* Template Dropdown (Additional templates) */}
+            <div className="relative ml-2">
+              <button
+                type="button"
+                onClick={() => setShowTemplates(!showTemplates)}
+                className="text-bougainvillea-pink bg-bougainvillea-pink/10 hover:bg-bougainvillea-pink/20 flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors"
+              >
+                <LayoutTemplate className="h-3 w-3" /> Templates{" "}
+                <ChevronDown className="h-3 w-3" />
+              </button>
 
-                {showTemplates && (
-                  <div className="border-hairline bg-surface absolute top-full left-0 z-10 mt-1 w-48 rounded-md border py-1 shadow-lg">
-                    <button
-                      type="button"
-                      onClick={() => applyTemplate("narrative")}
-                      className="text-body hover:bg-surface-alt block w-full px-4 py-2 text-left text-xs"
-                    >
-                      General Narrative
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => applyTemplate("migration")}
-                      className="text-body hover:bg-surface-alt block w-full px-4 py-2 text-left text-xs"
-                    >
-                      Migration Journey
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => applyTemplate("recipe")}
-                      className="text-body hover:bg-surface-alt block w-full px-4 py-2 text-left text-xs"
-                    >
-                      Family Recipe
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
+              {showTemplates && (
+                <div className="border-hairline bg-surface rounded-button shadow-elevated absolute top-full left-0 z-10 mt-1 w-48 border py-1">
+                  <button
+                    type="button"
+                    onClick={() => applyTemplate("narrative")}
+                    className="text-body hover:bg-surface-alt block w-full px-4 py-2 text-left text-xs"
+                  >
+                    General Narrative
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyTemplate("migration")}
+                    className="text-body hover:bg-surface-alt block w-full px-4 py-2 text-left text-xs"
+                  >
+                    Migration Journey
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => applyTemplate("recipe")}
+                    className="text-body hover:bg-surface-alt block w-full px-4 py-2 text-left text-xs"
+                  >
+                    Family Recipe
+                  </button>
+                </div>
+              )}
+            </div>
 
             <div className="flex-grow" />
 
@@ -345,7 +367,7 @@ export function StoryEditor({
                   type="button"
                   onClick={handlePolish}
                   disabled={isPolishing || !content}
-                  className="flex items-center px-2 text-xs text-[var(--color-bougainvillea)] hover:text-pink-700 disabled:opacity-50"
+                  className="text-bougainvillea-pink hover:text-bougainvillea-pink/80 flex items-center px-2 text-xs disabled:opacity-50"
                   title="Use Gemini AI to fix grammar and improve flow"
                 >
                   <Sparkles className="mr-1 h-3 w-3" />
@@ -357,7 +379,7 @@ export function StoryEditor({
                     type="button"
                     onClick={handleTranslate}
                     disabled={isTranslating || !content}
-                    className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium text-[var(--color-ocean-blue)] hover:bg-blue-50 disabled:opacity-50 dark:hover:bg-blue-900/30"
+                    className="text-ocean-blue hover:bg-ocean-blue/10 flex items-center gap-1 rounded px-2 py-1 text-xs font-medium disabled:opacity-50"
                     title={`Translate to ${currentLanguage === "EN" ? "Portuguese" : "English"}`}
                   >
                     <Languages className="h-3 w-3" />
@@ -383,7 +405,8 @@ export function StoryEditor({
             )}
           </div>
 
-          {storyType === StoryType.GUIDED && templateType && (
+          {/* Writing prompts panel - only shown when a guided template is selected */}
+          {templateType && (
             <StoryPromptsPanel
               templateType={templateType}
               existingContent={content}
@@ -391,18 +414,15 @@ export function StoryEditor({
             />
           )}
 
-          <textarea
+          <Textarea
             ref={textareaRef}
-            rows={storyType === StoryType.QUICK ? 8 : 16}
+            rows={16}
             required
-            className="border-hairline bg-surface text-body block w-full rounded-b-md border px-3 py-2 font-mono text-sm shadow-sm focus:border-[var(--color-ocean-blue)] focus:ring-[var(--color-ocean-blue)] focus:outline-none"
-            placeholder={
-              storyType === StoryType.QUICK
-                ? "Share a quick memory... (e.g., 'I remember the sound of the ocean at night...')"
-                : "Start typing your story here... Markdown headers (##) are helpful for structure."
-            }
+            placeholder="Start writing your story here... Share a memory, a tradition, or a moment that matters to you."
             value={content}
             onChange={(e) => onContentChange(e.target.value)}
+            resize="vertical"
+            className="rounded-t-none font-mono text-sm"
           />
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
             <span className="text-muted text-xs">
@@ -424,7 +444,8 @@ export function StoryEditor({
                   `${charCount.toLocaleString()} chars`
                 ) : (
                   <>
-                    {wordCount.toLocaleString()}/{limit.toLocaleString()} words
+                    {wordCount.toLocaleString()}/{WORD_LIMIT.toLocaleString()}{" "}
+                    words
                     {isOverLimit && (
                       <span className="ml-1 font-semibold">(over limit!)</span>
                     )}
@@ -447,20 +468,20 @@ export function StoryEditor({
 
           {warningLevel === "warning" && (
             <p className="text-accent-warning mt-1 text-xs">
-              Approaching word limit ({Math.round((wordCount / limit) * 100)}%
-              used)
+              Approaching word limit (
+              {Math.round((wordCount / WORD_LIMIT) * 100)}% used)
             </p>
           )}
         </div>
       ) : (
-        <div className="prose prose-sm dark:prose-invert prose-headings:font-serif prose-headings:text-[var(--color-ocean-blue)] prose-a:text-[var(--color-ocean-blue)] border-hairline bg-surface min-h-[300px] max-w-none rounded-md border p-6">
+        <div className="prose prose-sm dark:prose-invert prose-headings:font-serif prose-headings:text-ocean-blue prose-a:text-ocean-blue border-hairline bg-surface rounded-button min-h-[300px] max-w-none border p-6">
           {/* Simulated Article Header for Preview */}
           <div className="border-hairline mb-6 border-b pb-4">
             <h1 className="text-body mb-2 font-serif text-2xl font-bold">
               {title || "Untitled Story"}
             </h1>
             <div className="text-muted flex items-center text-sm">
-              <span className="mr-2 font-medium text-[var(--color-bougainvillea)]">
+              <span className="text-bougainvillea-pink mr-2 font-medium">
                 {author || "Anonymous"}
               </span>
               {location && <span className="mr-2">• {location}</span>}
@@ -473,7 +494,7 @@ export function StoryEditor({
               components={{
                 h1: ({ children, ...props }) => (
                   <h2
-                    className="mt-6 mb-3 text-xl font-bold text-[var(--color-ocean-blue)]"
+                    className="text-ocean-blue mt-6 mb-3 text-xl font-bold"
                     {...props}
                   >
                     {children}
@@ -527,6 +548,17 @@ export function StoryEditor({
           )}
         </div>
       )}
+
+      {/* Template Replace Confirmation */}
+      <ConfirmationDialog
+        isOpen={showTemplateConfirm}
+        onClose={handleTemplateCancel}
+        onConfirm={handleTemplateConfirm}
+        title="Replace your content?"
+        description="This will replace your current content with the selected template. Any existing text will be lost."
+        confirmLabel="Replace Content"
+        variant="warning"
+      />
     </div>
   );
 }

@@ -102,7 +102,7 @@ export function MapTeaserSection() {
   return (
     <section className="bg-background-tertiary relative overflow-hidden py-24">
       <div className="relative z-10 container mx-auto px-4 md:px-6">
-        <div className="border-hairline bg-surface flex flex-col items-center gap-12 overflow-hidden rounded-3xl border p-8 shadow-2xl md:p-12 lg:flex-row">
+        <div className="border-hairline bg-surface rounded-container shadow-floating flex flex-col items-center gap-12 overflow-hidden border p-8 md:p-12 lg:flex-row">
           {/* Text Content */}
           <motion.div
             variants={activeTextVariants}
@@ -180,7 +180,7 @@ export function MapTeaserSection() {
 
             <Link
               href="/map"
-              className="group bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 focus-visible:ring-bougainvillea-pink inline-flex w-full items-center justify-center gap-2 rounded-lg px-8 py-3 font-bold text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:w-auto"
+              className="group bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 focus-visible:ring-bougainvillea-pink rounded-button shadow-lift hover:shadow-floating inline-flex w-full items-center justify-center gap-2 px-8 py-3 font-bold text-white transition-all duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:w-auto"
             >
               <Navigation className="h-5 w-5 transition-transform group-hover:rotate-45" />
               Open Interactive Map
@@ -199,7 +199,7 @@ export function MapTeaserSection() {
             className="order-1 w-full lg:order-2 lg:w-1/2"
           >
             {/* Map Container */}
-            <div className="group bg-ocean-blue/5 relative aspect-square w-full overflow-hidden rounded-2xl border-4 border-white shadow-2xl md:aspect-[4/3]">
+            <div className="group bg-ocean-blue/5 rounded-container shadow-floating relative aspect-square w-full overflow-hidden border-4 border-white md:aspect-[4/3]">
               <div className="pointer-events-none absolute inset-0 z-10 bg-stone-900/5 mix-blend-multiply" />
               <Image
                 src="/images/map.jpg"
@@ -242,10 +242,10 @@ export function MapTeaserSection() {
 
               {/* UI Overlay Controls */}
               <div className="absolute right-4 bottom-4 z-20 flex flex-col gap-2 opacity-80">
-                <div className="text-basalt-500 flex h-8 w-8 items-center justify-center rounded-md bg-white/90 shadow-md">
+                <div className="text-basalt-500 rounded-button flex h-8 w-8 items-center justify-center bg-white/90 shadow-md">
                   <Navigation size={16} />
                 </div>
-                <div className="text-basalt-500 flex h-8 w-8 items-center justify-center rounded-md bg-white/90 text-xs font-bold shadow-md">
+                <div className="text-basalt-500 rounded-button flex h-8 w-8 items-center justify-center bg-white/90 text-xs font-bold shadow-md">
                   3D
                 </div>
               </div>

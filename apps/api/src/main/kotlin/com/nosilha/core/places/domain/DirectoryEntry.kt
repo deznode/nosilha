@@ -5,6 +5,8 @@ import jakarta.persistence.Column
 import jakarta.persistence.DiscriminatorColumn
 import jakarta.persistence.DiscriminatorType
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.Inheritance
@@ -12,6 +14,7 @@ import jakarta.persistence.InheritanceType
 import jakarta.persistence.Table
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
+import java.time.Instant
 import java.util.UUID
 
 /**
@@ -86,13 +89,59 @@ abstract class DirectoryEntry : AuditableEntity() {
 
     // --- Subclass-specific fields, nullable in the base table ---
 
-    // Restaurant-specific fields
+    // Contact fields
     var phoneNumber: String? = null
+    var email: String? = null
+    var website: String? = null
+
+    // Restaurant-specific fields
     var openingHours: String? = null // e.g., "Mon-Fri 09:00-22:00; Sat 10:00-23:00"
     var cuisine: String? = null // e.g., "Cape Verdean,Seafood,International"
 
     // Hotel-specific fields
     var amenities: String? = null // e.g., "Wi-Fi,Pool,Air Conditioning"
+
+    // --- Moderation/Lifecycle fields (DDD Aggregate pattern) ---
+
+    /**
+     * Lifecycle status: DRAFT, PENDING, APPROVED, PUBLISHED, ARCHIVED.
+     * Default is PUBLISHED for backward compatibility with seeded data.
+     */
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    var status: DirectoryEntryStatus = DirectoryEntryStatus.PUBLISHED
+
+    /** User ID of the community member who submitted (null for seeded entries) */
+    @Column(name = "submitted_by")
+    var submittedBy: String? = null
+
+    /** Email of the submitter (optional, for contact) */
+    @Column(name = "submitted_by_email")
+    var submittedByEmail: String? = null
+
+    /** Submitter IP address for rate limiting (IPv4 or IPv6) */
+    @Column(name = "ip_address", length = 45)
+    var ipAddress: String? = null
+
+    /** Admin notes for moderation decisions */
+    @Column(name = "admin_notes", columnDefinition = "TEXT")
+    var adminNotes: String? = null
+
+    /** User ID of admin who reviewed the submission */
+    @Column(name = "reviewed_by")
+    var reviewedBy: String? = null
+
+    /** Timestamp when submission was reviewed */
+    @Column(name = "reviewed_at")
+    var reviewedAt: Instant? = null
+
+    /** Price level indicator: $, $$, or $$$ */
+    @Column(name = "price_level", length = 5)
+    var priceLevel: String? = null
+
+    /** Custom town name if not in predefined list */
+    @Column(name = "custom_town", length = 100)
+    var customTown: String? = null
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -1,6 +1,7 @@
 package com.nosilha.core.places
 
 import com.nosilha.core.places.api.PlacesQueryService
+import com.nosilha.core.places.domain.DirectoryEntryStatus
 import com.nosilha.core.places.repository.DirectoryEntryRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -51,16 +52,31 @@ class DirectoryEntryQueryServiceImpl(
     /**
      * Counts the number of distinct towns in the directory.
      *
-     * @return Number of distinct towns
+     * <p>Only counts PUBLISHED entries to avoid inflating geographic coverage
+     * statistics with pending submissions.</p>
+     *
+     * @return Number of distinct towns with published content
      */
     @Transactional(readOnly = true)
-    override fun countDistinctTowns(): Long = repository.countDistinctTowns()
+    override fun countDistinctTowns(): Long = repository.countDistinctTownsPublished()
 
     /**
      * Gets entry counts grouped by town.
      *
+     * <p>Only counts PUBLISHED entries to avoid inflating town coverage
+     * statistics with pending submissions.</p>
+     *
      * @return List of arrays where each array contains [townName: String, count: Long]
      */
     @Transactional(readOnly = true)
-    override fun getEntryCountsByTown(): List<Array<Any>> = repository.countByTownGroupByTown()
+    override fun getEntryCountsByTown(): List<Array<Any>> = repository.countByTownGroupByTownPublished()
+
+    /**
+     * Counts directory entries by status.
+     *
+     * @param status The status to count
+     * @return Number of entries with the specified status
+     */
+    @Transactional(readOnly = true)
+    override fun countByStatus(status: DirectoryEntryStatus): Long = repository.countByStatus(status)
 }

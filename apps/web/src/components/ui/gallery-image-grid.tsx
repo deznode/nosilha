@@ -33,7 +33,7 @@ export function GalleryImageGrid({ photos }: GalleryImageGridProps) {
         {photos.map((photo, index) => (
           <div
             key={index}
-            className="bg-background-primary group break-inside-avoid overflow-hidden rounded-lg shadow-sm transition-shadow hover:shadow-md"
+            className="bg-canvas group rounded-button shadow-subtle hover:shadow-elevated break-inside-avoid overflow-hidden transition-shadow"
           >
             <div
               className="relative aspect-[4/3] cursor-pointer overflow-hidden"
@@ -52,16 +52,16 @@ export function GalleryImageGrid({ photos }: GalleryImageGridProps) {
                     e.stopPropagation();
                     openLightbox(index);
                   }}
-                  className="rounded-full bg-white/90 p-2 shadow-lg hover:bg-white"
+                  className="shadow-elevated rounded-full bg-white/90 p-2 hover:bg-white"
                   aria-label="View full size"
                 >
-                  <Eye className="text-text-primary h-4 w-4" />
+                  <Eye className="text-body h-4 w-4" />
                 </button>
               </div>
             </div>
 
             <div className="p-4">
-              <div className="text-text-secondary mb-2 flex items-center gap-4 text-xs">
+              <div className="text-muted mb-2 flex items-center gap-4 text-xs">
                 <span className="flex items-center">
                   <MapPin className="mr-1 h-3 w-3" />
                   {photo.location}
@@ -72,9 +72,7 @@ export function GalleryImageGrid({ photos }: GalleryImageGridProps) {
                 </span>
               </div>
 
-              <p className="text-text-secondary mb-3 text-sm">
-                {photo.description}
-              </p>
+              <p className="text-muted mb-3 text-sm">{photo.description}</p>
 
               <button className="text-ocean-blue hover:text-ocean-blue/80 flex items-center text-xs font-medium">
                 <Share2 className="mr-1 h-3 w-3" />

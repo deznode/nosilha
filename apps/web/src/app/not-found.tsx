@@ -11,10 +11,10 @@ export default function NotFound() {
         </h1>
 
         {/* Error Message */}
-        <h2 className="mt-4 font-serif text-2xl font-semibold text-slate-900 md:text-3xl dark:text-slate-50">
+        <h2 className="text-body mt-4 font-serif text-2xl font-semibold md:text-3xl">
           Página não encontrada
         </h2>
-        <p className="mx-auto mt-3 max-w-md text-slate-600 dark:text-slate-400">
+        <p className="text-muted mx-auto mt-3 max-w-md">
           A página que procura não existe ou foi movida. Explore o nosso
           diretório ou volte à página inicial.
         </p>
@@ -30,14 +30,14 @@ export default function NotFound() {
           </Link>
           <Link
             href="/directory"
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-2.5 font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+            className="border-hairline bg-canvas text-body hover:bg-surface inline-flex items-center justify-center gap-2 rounded-lg border px-5 py-2.5 font-semibold transition-colors"
           >
             <Search className="h-4 w-4" />
             Explorar diretório
           </Link>
           <Link
             href="/map"
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-5 py-2.5 font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+            className="border-hairline bg-canvas text-body hover:bg-surface inline-flex items-center justify-center gap-2 rounded-lg border px-5 py-2.5 font-semibold transition-colors"
           >
             <Map className="h-4 w-4" />
             Ver mapa
@@ -46,7 +46,7 @@ export default function NotFound() {
 
         {/* Decorative Element */}
         <div className="mt-12">
-          <p className="text-sm text-slate-500 dark:text-slate-500">
+          <p className="text-muted text-sm">
             Precisa de ajuda?{" "}
             <Link href="/contact" className="text-ocean-blue hover:underline">
               Entre em contato

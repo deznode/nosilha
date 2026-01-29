@@ -106,7 +106,7 @@ export function Header({
     <Disclosure
       as="nav"
       className={clsx(
-        "border-border-primary bg-background-primary sticky top-0 z-50 border-b shadow-sm",
+        "border-edge bg-canvas shadow-subtle sticky top-0 z-50 border-b",
         className
       )}
       defaultOpen={defaultMobileMenuOpen}
@@ -179,7 +179,7 @@ export function Header({
                                 leaveTo="opacity-0 translate-y-1"
                               >
                                 <PopoverPanel className="absolute left-1/2 z-10 mt-3 w-screen max-w-xs -translate-x-1/2 transform px-2 sm:px-0">
-                                  <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black/5">
+                                  <div className="rounded-button shadow-elevated overflow-hidden ring-1 ring-black/5">
                                     <div className="bg-background-primary relative grid gap-6 px-5 py-6 sm:gap-8 sm:p-8">
                                       {item.items.map((subItem) => (
                                         <Link
@@ -260,7 +260,7 @@ export function Header({
                         {currentLang.code}
                       </span>
                     </MenuButton>
-                    <MenuItems className="bg-background-primary absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
+                    <MenuItems className="bg-canvas shadow-elevated absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 ring-1 ring-black/5 focus:outline-none">
                       {languages.map((lang) => (
                         <MenuItem key={lang.code} disabled={lang.disabled}>
                           {({ active }) => (
@@ -309,7 +309,7 @@ export function Header({
                           <UserCircle className="h-4 w-4" aria-hidden="true" />
                         </div>
                       </MenuButton>
-                      <MenuItems className="divide-border-secondary bg-background-primary absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y rounded-md py-1 shadow-lg ring-1 ring-black/5 focus:outline-none">
+                      <MenuItems className="divide-hairline bg-canvas shadow-elevated absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y rounded-md py-1 ring-1 ring-black/5 focus:outline-none">
                         <div className="px-4 py-3">
                           <p className="text-text-secondary text-xs">
                             Signed in as

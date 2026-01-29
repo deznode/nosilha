@@ -81,7 +81,7 @@ export function SavedPlacesTab() {
       {bookmarks.map((bookmark) => (
         <div
           key={bookmark.id}
-          className="group border-hairline bg-surface flex items-center justify-between rounded-lg border p-4 transition-colors hover:border-[var(--color-ocean-blue)]"
+          className="group border-hairline bg-surface hover:border-ocean-blue flex items-center justify-between rounded-lg border p-4 transition-colors"
         >
           <Link
             href={getEntryUrl(bookmark.entry.slug, bookmark.entry.category)}
@@ -104,14 +104,14 @@ export function SavedPlacesTab() {
             )}
             <div className="min-w-0 flex-1">
               <div className="flex items-start gap-2">
-                <h4 className="text-body truncate font-bold transition-colors group-hover:text-[var(--color-ocean-blue)]">
+                <h4 className="text-body group-hover:text-ocean-blue truncate font-bold transition-colors">
                   {bookmark.entry.name}
                 </h4>
                 {bookmark.entry.averageRating != null && (
                   <div className="border-hairline bg-surface text-body flex shrink-0 items-center rounded border px-1.5 py-0.5 text-xs font-medium">
                     <Star
                       size={12}
-                      className="mr-1 fill-current text-[var(--color-sunny)]"
+                      className="text-sunny-yellow mr-1 fill-current"
                     />
                     {bookmark.entry.averageRating.toFixed(1)}
                   </div>

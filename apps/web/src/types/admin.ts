@@ -76,22 +76,25 @@ export type DirectorySubmissionStatus = SubmissionStatus;
 export interface DirectorySubmission {
   id: string;
   name: string;
+  slug?: string; // Added for unified entries
   category: "Restaurant" | "Hotel" | "Beach" | "Heritage" | "Nature";
   town: string;
-  customTown?: string;
+  customTown?: string | null;
   description: string;
   tags: string[];
-  imageUrl?: string;
-  priceLevel?: "$" | "$$" | "$$$";
+  imageUrl?: string | null;
+  priceLevel?: string | null; // Changed to string for flexibility
   latitude?: number;
   longitude?: number;
   status: DirectorySubmissionStatus;
-  submittedBy: string;
-  submittedByEmail?: string;
-  submittedAt: string;
-  adminNotes?: string;
-  reviewedBy?: string;
-  reviewedAt?: string;
+  submittedBy?: string | null; // Can be null for seeded entries
+  submittedByEmail?: string | null;
+  submittedAt?: string | null; // Can be null for seeded entries
+  adminNotes?: string | null;
+  reviewedBy?: string | null;
+  reviewedAt?: string | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
 }
 
 export interface AdminQueueFilters {

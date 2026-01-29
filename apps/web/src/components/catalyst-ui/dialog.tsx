@@ -1,7 +1,6 @@
 import * as Headless from "@headlessui/react";
 import clsx from "clsx";
 import type React from "react";
-import { Text } from "./text";
 
 const sizes = {
   xs: "sm:max-w-xs",
@@ -39,7 +38,7 @@ export function Dialog({
             className={clsx(
               className,
               sizes[size],
-              "dark:bg-background-secondary dark:ring-border-primary/10 row-start-2 w-full min-w-0 rounded-t-3xl bg-white p-(--gutter) shadow-lg ring-1 ring-zinc-950/10 [--gutter:--spacing(8)] sm:mb-auto sm:rounded-2xl forced-colors:outline",
+              "dark:bg-background-secondary dark:ring-border-primary/10 row-start-2 w-full min-w-0 rounded-t-3xl bg-canvas p-(--gutter) shadow-lg ring-1 ring-hairline [--gutter:--spacing(8)] sm:mb-auto sm:rounded-2xl forced-colors:outline",
               "transition duration-100 will-change-transform data-closed:translate-y-12 data-closed:opacity-0 data-enter:ease-out data-leave:ease-in sm:data-closed:translate-y-0 sm:data-closed:data-enter:scale-95"
             )}
           >
@@ -63,7 +62,7 @@ export function DialogTitle({
       {...props}
       className={clsx(
         className,
-        "dark:text-text-primary text-lg/6 font-semibold text-balance text-zinc-950 sm:text-base/6"
+        "dark:text-text-primary text-lg/6 font-semibold text-balance text-body sm:text-base/6"
       )}
     />
   );
@@ -73,14 +72,17 @@ export function DialogDescription({
   className,
   ...props
 }: { className?: string } & Omit<
-  Headless.DescriptionProps<typeof Text>,
+  Headless.DescriptionProps<"p">,
   "as" | "className"
 >) {
   return (
     <Headless.Description
-      as={Text}
+      as="p"
       {...props}
-      className={clsx(className, "mt-2 text-pretty")}
+      className={clsx(
+        className,
+        "mt-2 text-pretty text-base/6 text-muted sm:text-sm/6"
+      )}
     />
   );
 }

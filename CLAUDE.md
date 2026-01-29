@@ -26,7 +26,7 @@ This is a **full-stack application** with four main components:
 
 The project follows a clear organizational structure:
 
-- **`plan/`** - Git submodule containing SpecKit specifications and planning documents (see plan repository README for details)
+- **`plan/`** - Git submodule containing specifications and planning documents (see plan repository README for details)
 - **`docs/`** - Static project documentation (architecture, design system, API reference, etc.)
 
 ### Key Integration Flows
@@ -126,8 +126,6 @@ Domain-specific executors located in `.claude/skills/`. Each skill has detailed 
 
 Custom workflow triggers in `.claude/commands/`. Use syntax: `/command-name [arguments]`
 
-**SpecKit Workflow**: `/speckit.specify`, `/speckit.plan`, `/speckit.tasks`, `/speckit.implement`, `/speckit.clarify`, `/speckit.analyze`, `/speckit.constitution`, `/speckit.checklist`
-
 **Project**: `/research <topic>` - Conduct cultural/historical research with web search
 
 ### Usage Guidelines
@@ -159,7 +157,6 @@ Custom workflow triggers in `.claude/commands/`. Use syntax: `/command-name [arg
 ### Additional Documentation
 - `docs/secret-management.md` - Secret management guide
 - `docs/cultural-heritage-verification.md` - Cultural heritage content verification protocols
-- `docs/sitemap.md` - Frontend route structure and navigation architecture
 - `SECURITY.md` - Security policy and vulnerability reporting procedures
 
 ## Troubleshooting

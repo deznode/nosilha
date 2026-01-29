@@ -22,7 +22,7 @@ export function WeatherWidget({
   const WeatherIcon = conditionIcons[condition] || CloudSun;
 
   return (
-    <div className="border-hairline bg-surface flex items-center justify-between rounded-2xl border p-6 shadow-sm">
+    <div className="border-hairline bg-surface rounded-container shadow-subtle flex items-center justify-between border p-6">
       <div>
         <div className="text-text-secondary mb-1 text-xs font-bold tracking-wider uppercase">
           Current Weather

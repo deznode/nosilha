@@ -292,20 +292,16 @@ class ProfileService(
     /**
      * Gets aggregated reaction counts for a user, grouped by reaction type.
      *
-     * <p>Uses the repository's query to efficiently retrieve counts in a single database call.
-     * Returns a map with all reaction types, even if the count is 0.</p>
+     * Uses the repository's query to efficiently retrieve counts in a single database call.
+     * Returns a map with all reaction types, even if the count is 0.
      *
      * @param userId User UUID
      * @return Map of reaction type to count
      */
     private fun getReactionCountsByUser(userId: UUID): Map<ReactionType, Int> {
         val counts = reactionRepository.countByUserIdGroupByReactionType(userId)
-
-        if (counts.isEmpty()) {
-            return ReactionType.entries.associateWith { 0 }
-        }
-
         val aggregated = counts.associate { it.type to it.count.toInt() }
+
         return ReactionType.entries.associateWith { type -> aggregated[type] ?: 0 }
     }
 }

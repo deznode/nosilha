@@ -9,6 +9,13 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import {
+  TabGroup,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+} from "@/components/ui/tab-group";
+import {
   KPICards,
   ActivityChart,
   CoverageChart,
@@ -23,6 +30,9 @@ import {
 } from "@/components/admin/queues";
 import { StoryDetailModal } from "@/components/admin/story-detail-modal";
 import { FlagReasonModal } from "@/components/admin/queues/flag-reason-modal";
+import { DirectoryEditModal } from "@/components/admin/queues/directory-edit-modal";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import { useToast } from "@/hooks/use-toast";
 import { SystemStatusBadges } from "@/components/admin/system-status-badge";
 import {
   useAdminStats,
@@ -37,19 +47,19 @@ import {
   useUpdateMessageStatus,
   useDeleteMessage,
   useUpdateDirectoryStatus,
+  useUpdateDirectoryEntry,
+  useDeleteDirectoryEntry,
   useUpdateGalleryStatus,
+  usePromoteToHeroImage,
 } from "@/hooks/queries/admin";
-import type { AdminStats, ContactMessageStatus } from "@/types/admin";
+import type {
+  AdminStats,
+  ContactMessageStatus,
+  DirectorySubmission,
+} from "@/types/admin";
 import type { GalleryModerationAction } from "@/types/gallery";
 import type { StorySubmission } from "@/types/story";
 import { SubmissionStatus } from "@/types/story";
-
-type ActiveTab =
-  | "suggestions"
-  | "stories"
-  | "messages"
-  | "directory"
-  | "gallery";
 
 // Default stats for loading state
 const defaultStats: AdminStats = {
@@ -65,7 +75,6 @@ const defaultStats: AdminStats = {
 };
 
 export default function AdminDashboardPage() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>("suggestions");
   const [selectedStory, setSelectedStory] = useState<StorySubmission | null>(
     null
   );
@@ -75,6 +84,25 @@ export default function AdminDashboardPage() {
     id: string;
     title: string;
   } | null>(null);
+
+  // Directory CRUD modal state
+  const [isDirectoryEditModalOpen, setIsDirectoryEditModalOpen] =
+    useState(false);
+  const [directoryToEdit, setDirectoryToEdit] =
+    useState<DirectorySubmission | null>(null);
+  const [isDirectoryFlagModalOpen, setIsDirectoryFlagModalOpen] =
+    useState(false);
+  const [directoryToFlag, setDirectoryToFlag] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  // Directory deletion confirmation dialog state
+  const [directoryToDelete, setDirectoryToDelete] =
+    useState<DirectorySubmission | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  // Toast notifications
+  const toast = useToast();
 
   // TanStack Query hooks - each manages its own loading/error state independently
   const statsQuery = useAdminStats();
@@ -91,7 +119,11 @@ export default function AdminDashboardPage() {
   const updateMessage = useUpdateMessageStatus();
   const deleteMessage = useDeleteMessage();
   const updateDirectory = useUpdateDirectoryStatus();
+  // Note: updateDirectoryEntry available for future inline update features
+  const _updateDirectoryEntry = useUpdateDirectoryEntry();
+  const deleteDirectoryEntry = useDeleteDirectoryEntry();
   const updateGallery = useUpdateGalleryStatus();
+  const promoteToHero = usePromoteToHeroImage();
 
   // Derived data with fallbacks
   const stats = statsQuery.data ?? defaultStats;
@@ -104,6 +136,20 @@ export default function AdminDashboardPage() {
 
   // Loading state - show loading for KPI cards
   const isLoading = statsQuery.isLoading;
+
+  // Pre-computed pending counts to avoid repeated filtering
+  const pendingSuggestions = suggestions.filter(
+    (s) => s.status === SubmissionStatus.PENDING
+  );
+  const pendingStories = stories.filter(
+    (s) => s.status === SubmissionStatus.PENDING
+  );
+  const pendingDirectorySubmissions = directorySubmissions.filter(
+    (s) => s.status === SubmissionStatus.PENDING
+  );
+  const pendingGalleryItems = galleryItems.filter(
+    (g) => g.status === "PENDING_REVIEW" || g.status === "FLAGGED"
+  );
 
   // Event handlers using mutation hooks
   const handleSuggestionStatusChange = (
@@ -166,7 +212,103 @@ export default function AdminDashboardPage() {
     id: string,
     status: SubmissionStatus
   ) => {
-    updateDirectory.mutate({ id, status });
+    const statusLabels: Record<SubmissionStatus, string> = {
+      [SubmissionStatus.APPROVED]: "approved",
+      [SubmissionStatus.REJECTED]: "rejected",
+      [SubmissionStatus.ARCHIVED]: "archived",
+      [SubmissionStatus.PENDING]: "updated",
+      [SubmissionStatus.DRAFT]: "updated",
+      [SubmissionStatus.FLAGGED]: "flagged",
+      [SubmissionStatus.PUBLISHED]: "published",
+    };
+    const statusLabel = statusLabels[status];
+    updateDirectory.mutate(
+      { id, status },
+      {
+        onSuccess: () => {
+          toast.success(`Entry ${statusLabel} successfully`).show();
+        },
+        onError: () => {
+          toast
+            .error(`Failed to ${statusLabel} entry. Please try again.`)
+            .show();
+        },
+      }
+    );
+  };
+
+  const handleDirectoryEdit = (submission: DirectorySubmission) => {
+    setDirectoryToEdit(submission);
+    setIsDirectoryEditModalOpen(true);
+  };
+
+  const handleDirectoryEditClose = () => {
+    setIsDirectoryEditModalOpen(false);
+    setDirectoryToEdit(null);
+  };
+
+  const handleDirectoryEditSuccess = () => {
+    // Query invalidation handled by the mutation hook
+    toast.success("Directory entry updated successfully").show();
+    setIsDirectoryEditModalOpen(false);
+    setDirectoryToEdit(null);
+  };
+
+  const handleDirectoryDelete = (submission: DirectorySubmission) => {
+    setDirectoryToDelete(submission);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (directoryToDelete) {
+      deleteDirectoryEntry.mutate(directoryToDelete.id, {
+        onSuccess: () => {
+          toast.success(`"${directoryToDelete.name}" has been deleted`).show();
+          setIsDeleteDialogOpen(false);
+          setDirectoryToDelete(null);
+        },
+        onError: () => {
+          toast.error("Failed to delete entry. Please try again.").show();
+        },
+      });
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteDialogOpen(false);
+    setDirectoryToDelete(null);
+  };
+
+  const handleDirectoryFlag = (submission: DirectorySubmission) => {
+    setDirectoryToFlag({ id: submission.id, name: submission.name });
+    setIsDirectoryFlagModalOpen(true);
+  };
+
+  const handleDirectoryFlagConfirm = (reason: string) => {
+    if (directoryToFlag) {
+      updateDirectory.mutate(
+        {
+          id: directoryToFlag.id,
+          status: SubmissionStatus.FLAGGED,
+          notes: reason,
+        },
+        {
+          onSuccess: () => {
+            toast.info(`"${directoryToFlag.name}" has been flagged`).show();
+          },
+          onError: () => {
+            toast.error("Failed to flag entry. Please try again.").show();
+          },
+        }
+      );
+    }
+    setIsDirectoryFlagModalOpen(false);
+    setDirectoryToFlag(null);
+  };
+
+  const handleDirectoryFlagClose = () => {
+    setIsDirectoryFlagModalOpen(false);
+    setDirectoryToFlag(null);
   };
 
   const handleGalleryStatusChange = (
@@ -181,24 +323,25 @@ export default function AdminDashboardPage() {
     });
   };
 
+  const handlePromoteToHero = (mediaId: string) => {
+    promoteToHero.mutate(mediaId);
+  };
+
   // Computed values
   const pendingCount =
-    suggestions.filter((s) => s.status === SubmissionStatus.PENDING).length +
-    stories.filter((s) => s.status === SubmissionStatus.PENDING).length +
-    directorySubmissions.filter((s) => s.status === SubmissionStatus.PENDING)
-      .length;
+    pendingSuggestions.length +
+    pendingStories.length +
+    pendingDirectorySubmissions.length;
 
   const unreadMessages = messages.filter((m) => m.status === "UNREAD").length;
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-12 dark:bg-slate-900">
+    <div className="bg-canvas min-h-screen pb-12">
       {/* Header */}
-      <header className="border-b border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <header className="border-hairline bg-surface border-b shadow-sm">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-              Admin Dashboard
-            </h1>
+            <h1 className="text-body text-2xl font-bold">Admin Dashboard</h1>
             <div className="flex items-center space-x-4">
               <SystemStatusBadges />
               {pendingCount > 0 && (
@@ -231,150 +374,82 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="mb-6 border-b border-slate-200 dark:border-slate-700">
-          <nav
-            className="-mb-px flex space-x-4 overflow-x-auto md:space-x-8"
-            aria-label="Tabs"
-          >
-            <button
-              onClick={() => setActiveTab("suggestions")}
-              className={`${
-                activeTab === "suggestions"
-                  ? "border-[var(--color-ocean-blue)] text-[var(--color-ocean-blue)]"
-                  : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-              } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
+        <TabGroup className="mb-6">
+          <TabList>
+            <Tab
+              icon={MessageSquare}
+              badge={pendingSuggestions.length}
+              color="blue"
             >
-              <MessageSquare size={16} /> Suggestions
-              {suggestions.filter((s) => s.status === SubmissionStatus.PENDING)
-                .length > 0 && (
-                <span className="ml-1 inline-flex items-center rounded-full bg-yellow-100 px-1.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                  {
-                    suggestions.filter(
-                      (s) => s.status === SubmissionStatus.PENDING
-                    ).length
-                  }
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab("stories")}
-              className={`${
-                activeTab === "stories"
-                  ? "border-[var(--color-bougainvillea)] text-[var(--color-bougainvillea)]"
-                  : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-              } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
+              Suggestions
+            </Tab>
+            <Tab icon={FileText} badge={pendingStories.length} color="pink">
+              Stories
+            </Tab>
+            <Tab icon={Mail} badge={unreadMessages} color="green">
+              Inquiries
+            </Tab>
+            <Tab
+              icon={MapPin}
+              badge={pendingDirectorySubmissions.length}
+              color="ochre"
             >
-              <FileText size={16} /> Stories
-              {stories.filter((s) => s.status === SubmissionStatus.PENDING)
-                .length > 0 && (
-                <span className="ml-1 inline-flex items-center rounded-full bg-yellow-100 px-1.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                  {
-                    stories.filter((s) => s.status === SubmissionStatus.PENDING)
-                      .length
-                  }
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab("messages")}
-              className={`${
-                activeTab === "messages"
-                  ? "border-[var(--color-valley-green)] text-[var(--color-valley-green)]"
-                  : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-              } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
+              Directory
+            </Tab>
+            <Tab
+              icon={ImageIcon}
+              badge={pendingGalleryItems.length}
+              color="blue"
             >
-              <Mail size={16} /> Inquiries
-              {unreadMessages > 0 && (
-                <span className="ml-1 inline-flex animate-pulse items-center rounded-full bg-[var(--color-valley-green)]/20 px-1.5 py-0.5 text-xs font-medium text-[var(--color-valley-green)]">
-                  {unreadMessages}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab("directory")}
-              className={`${
-                activeTab === "directory"
-                  ? "border-[var(--color-sobrado-ochre)] text-[var(--color-sobrado-ochre)]"
-                  : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-              } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
-            >
-              <MapPin size={16} /> Directory
-              {directorySubmissions.filter(
-                (s) => s.status === SubmissionStatus.PENDING
-              ).length > 0 && (
-                <span className="ml-1 inline-flex items-center rounded-full bg-yellow-100 px-1.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                  {
-                    directorySubmissions.filter(
-                      (s) => s.status === SubmissionStatus.PENDING
-                    ).length
-                  }
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab("gallery")}
-              className={`${
-                activeTab === "gallery"
-                  ? "border-[var(--color-ocean-blue)] text-[var(--color-ocean-blue)]"
-                  : "border-transparent text-slate-500 hover:border-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-              } flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap`}
-            >
-              <ImageIcon size={16} /> Gallery
-              {galleryItems.filter(
-                (g) => g.status === "PENDING_REVIEW" || g.status === "FLAGGED"
-              ).length > 0 && (
-                <span className="ml-1 inline-flex items-center rounded-full bg-yellow-100 px-1.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
-                  {
-                    galleryItems.filter(
-                      (g) =>
-                        g.status === "PENDING_REVIEW" || g.status === "FLAGGED"
-                    ).length
-                  }
-                </span>
-              )}
-            </button>
-          </nav>
-        </div>
+              Gallery
+            </Tab>
+          </TabList>
 
-        {/* Content based on active tab */}
-        {activeTab === "suggestions" && (
-          <SuggestionsQueue
-            suggestions={suggestions}
-            isLoading={suggestionsQuery.isLoading}
-            onStatusChange={handleSuggestionStatusChange}
-          />
-        )}
-        {activeTab === "stories" && (
-          <StoriesQueue
-            stories={stories}
-            isLoading={storiesQuery.isLoading}
-            onStatusChange={handleStoryStatusChange}
-            onViewFull={handleViewStory}
-            onFlag={handleStoryFlag}
-          />
-        )}
-        {activeTab === "messages" && (
-          <MessagesQueue
-            messages={messages}
-            isLoading={messagesQuery.isLoading}
-            onStatusChange={handleMessageStatusChange}
-            onDelete={handleMessageDelete}
-          />
-        )}
-        {activeTab === "directory" && (
-          <DirectoryQueue
-            submissions={directorySubmissions}
-            isLoading={directoryQuery.isLoading}
-            onStatusChange={handleDirectoryStatusChange}
-          />
-        )}
-        {activeTab === "gallery" && (
-          <GalleryQueue
-            items={galleryItems}
-            isLoading={galleryQuery.isLoading}
-            onStatusChange={handleGalleryStatusChange}
-          />
-        )}
+          <TabPanels className="mt-6">
+            <TabPanel>
+              <SuggestionsQueue
+                suggestions={suggestions}
+                isLoading={suggestionsQuery.isLoading}
+                onStatusChange={handleSuggestionStatusChange}
+              />
+            </TabPanel>
+            <TabPanel>
+              <StoriesQueue
+                stories={stories}
+                isLoading={storiesQuery.isLoading}
+                onStatusChange={handleStoryStatusChange}
+                onViewFull={handleViewStory}
+                onFlag={handleStoryFlag}
+              />
+            </TabPanel>
+            <TabPanel>
+              <MessagesQueue
+                messages={messages}
+                isLoading={messagesQuery.isLoading}
+                onStatusChange={handleMessageStatusChange}
+                onDelete={handleMessageDelete}
+              />
+            </TabPanel>
+            <TabPanel>
+              <DirectoryQueue
+                submissions={directorySubmissions}
+                isLoading={directoryQuery.isLoading}
+                onStatusChange={handleDirectoryStatusChange}
+                onEdit={handleDirectoryEdit}
+                onDelete={handleDirectoryDelete}
+                onFlag={handleDirectoryFlag}
+              />
+            </TabPanel>
+            <TabPanel>
+              <GalleryQueue
+                items={galleryItems}
+                isLoading={galleryQuery.isLoading}
+                onStatusChange={handleGalleryStatusChange}
+                onPromoteToHero={handlePromoteToHero}
+              />
+            </TabPanel>
+          </TabPanels>
+        </TabGroup>
       </main>
 
       {/* Story Detail Modal */}
@@ -397,6 +472,35 @@ export default function AdminDashboardPage() {
         itemTitle={storyToFlag?.title || ""}
         onClose={handleFlagClose}
         onConfirm={handleFlagConfirm}
+      />
+
+      {/* Directory Edit Modal */}
+      <DirectoryEditModal
+        isOpen={isDirectoryEditModalOpen}
+        entry={directoryToEdit}
+        onClose={handleDirectoryEditClose}
+        onSuccess={handleDirectoryEditSuccess}
+      />
+
+      {/* Directory Flag Modal */}
+      <FlagReasonModal
+        isOpen={isDirectoryFlagModalOpen}
+        itemType="Directory Entry"
+        itemTitle={directoryToFlag?.name || ""}
+        onClose={handleDirectoryFlagClose}
+        onConfirm={handleDirectoryFlagConfirm}
+      />
+
+      {/* Directory Delete Confirmation */}
+      <ConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title={`Delete "${directoryToDelete?.name}"?`}
+        description="This will permanently remove the directory entry. This action cannot be undone."
+        confirmLabel="Delete Entry"
+        variant="danger"
+        isLoading={deleteDirectoryEntry.isPending}
       />
     </div>
   );

@@ -7,65 +7,68 @@
 
 **[View Live Site](https://nosilha.com)**
 
-<!-- TODO: Add hero screenshot of nosilha.com homepage (recommended: 1200x630px) -->
-<!-- ![Nos Ilha Homepage](docs/images/hero-screenshot.png) -->
+![Nos Ilha - Brava Island Cultural Heritage Hub](.github/images/hero.png)
 
-**nosilha.com** is a community-driven cultural heritage hub for Brava Island, Cape Verde. This open-source, volunteer-supported project aims to preserve and celebrate the island's rich cultural memory while providing a comprehensive digital experience that connects the global Cape Verdean diaspora, local residents, business owners, and international visitors to the heart of Brava.
+**nosilha.com** is a community-driven cultural heritage hub for Brava Island, Cape Verde. This open-source, volunteer-supported project preserves and celebrates the island's rich cultural memory while connecting the global Cape Verdean diaspora, local residents, and international visitors to the heart of Brava.
 
-As a community-supported initiative, the platform focuses on showcasing the island's rich history, living culture, unique landmarks, and vibrant community through a modern and accessible web application.
+**Quick Links:** [Features](#core-features) | [Getting Started](#getting-started) | [Documentation](#documentation) | [Contributing](#contributing)
 
-## Table of Contents
+---
 
-- [Project Goal](#project-goal)
-- [Target Audience](#target-audience)
-- [Core Features](#core-features)
-- [Built With](#built-with)
-- [Getting Started](#getting-started)
-- [Version History](#version-history)
-- [Contributing](#contributing)
-- [Getting Help](#getting-help)
-- [License](#license)
+## Project Status
 
-## Project Goal
+🚧 **Pre-Release** (v0.0.2) — Actively developed. Core features functional, some areas under construction.
 
-To create a community-maintained, authoritative online resource for Brava that preserves cultural memory, celebrates the island's heritage, and connects the global diaspora to their roots, while supporting sustainable tourism and economic opportunity for the local community through volunteer contributions and collaborative development.
+[View Roadmap](../../issues) | [View Changelog](CHANGELOG.md)
+
+---
 
 ## Target Audience
 
-  * **Cape Verdean Diaspora:** Members of the diaspora community seeking to reconnect with their roots, explore their cultural heritage, and stay informed about life on Brava.
-  * **Local Residents:** Community members looking for a centralized platform to celebrate their shared heritage and directory of local services.
-  * **Cultural Researchers & Historians:** Scholars and enthusiasts studying Cape Verdean history, culture, and traditions.
-  * **International Visitors:** Travelers seeking authentic cultural experiences, planning trips, and looking for reliable information on the island's heritage sites, accommodations, and local businesses.
+| Audience | What They'll Find |
+|----------|-------------------|
+| Cape Verdean Diaspora | Cultural heritage, community connection, homeland updates |
+| Local Residents | Shared heritage celebration, local services directory |
+| Cultural Researchers | History, traditions, cultural documentation |
+| International Visitors | Trip planning, authentic experiences, heritage sites |
+
+---
 
 ## Core Features
 
-  * **Cultural Heritage Archive:** Rich documentation of Brava's history, traditions, and cultural practices, featuring significant historical figures, events, and community stories.
-  * **Town & Historical Pages:** Detailed pages for each town (`Vila Nova Sintra`, `Furna`, `Nossa Senhora do Monte`, etc.) with historical context and cultural significance.
-  * **Rich Media Galleries:** Stunning photo and video galleries showcasing Brava's landscapes, people, and culture.
-  * **Interactive Heritage Maps:** Multi-layered, responsive maps built with Mapbox, featuring custom markers for landmarks, historical sites, and cultural points of interest with rich storytelling.
-  * **Community Directory:** A curated database of local businesses, artisans, and services that contribute to Brava's cultural and economic vitality.
-  * **Multilingual Support:** Full content translation and localization for English, Portuguese, and French to serve the global Cape Verdean community.
+| Feature | Description |
+|---------|-------------|
+| 🏛️ Cultural Archive | History, traditions, and cultural practices with stories of significant figures |
+| 🏘️ Town Pages | Detailed pages for each town with historical context |
+| 📸 Media Galleries | Photo and video galleries of landscapes, people, and culture |
+| 🗺️ Interactive Maps | Mapbox-powered maps with landmarks and heritage sites |
+| 📒 Community Directory | Local businesses, artisans, and services |
+| 🌐 Multilingual | English, Portuguese, and French support |
+
+---
 
 ## Built With
 
 | Frontend | Backend | Infrastructure |
 |----------|---------|----------------|
-| Next.js 16 + React 19.2 | Spring Boot 4.0.0 + Kotlin 2.3.0 | Google Cloud Run |
-| TypeScript + Tailwind CSS | PostgreSQL 15 + Flyway | Terraform IaC |
-| Supabase Auth + Mapbox | Spring Modulith | GitHub Actions CI/CD |
+| Next.js 16 + React 19.2 (App Router) | Spring Boot 4.0.0 + Kotlin 2.3.0 | Google Cloud Run (serverless) |
+| TypeScript + Tailwind CSS | PostgreSQL 15 + Flyway migrations | Terraform IaC |
+| Supabase Auth + Mapbox GL | Spring Modulith 2.0.1 | GitHub Actions CI/CD |
 
-For detailed architecture documentation, see [docs/architecture.md](docs/architecture.md).
+---
 
 ## Getting Started
 
 ### Prerequisites
 
-- **Node.js 20.9+** and pnpm
+#### Local Development
+- **Node.js 20.9+** (see `.nvmrc`) and **pnpm** ([install](https://pnpm.io/installation))
 - **Java 25** (OpenJDK or Oracle JDK)
 - **Docker** and Docker Compose
-- **PostgreSQL** (or use Docker Compose setup)
-- **Google Cloud SDK** (for production deployment)
-- **Terraform** (for infrastructure management)
+
+#### Production Deployment
+- **Google Cloud SDK**
+- **Terraform**
 
 ### Local Development Setup
 
@@ -73,13 +76,11 @@ For detailed architecture documentation, see [docs/architecture.md](docs/archite
    ```bash
    cd infrastructure/docker && docker-compose up -d
    ```
-   This starts:
-   - PostgreSQL database (localhost:5432)
+   This starts PostgreSQL database (localhost:5432)
 
 2. **Backend setup**:
    ```bash
    cd apps/api
-   # Database will auto-migrate on startup via Flyway
    ./gradlew bootRun --args='--spring.profiles.active=local'
    ```
 
@@ -90,12 +91,24 @@ For detailed architecture documentation, see [docs/architecture.md](docs/archite
    pnpm run dev
    ```
 
+### Environment Variables
+
+Create `apps/web/.env.local` for frontend:
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:8080
+NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=your_token  # Required for maps
+NEXT_PUBLIC_SUPABASE_URL=your_url           # Required for auth
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key      # Required for auth
+```
+
 ### Application URLs
 
-- **Frontend**: http://localhost:3000 (Next.js with hot reload)
-- **Backend API**: http://localhost:8080/api/v1/ (Spring Boot with live reload)
-- **Health Check**: http://localhost:8080/actuator/health
-- **PostgreSQL**: localhost:5432 (database: `nosilha_db`, user: `nosilha`, password: `nosilha`)
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:3000 |
+| Backend API | http://localhost:8080/api/v1/ |
+| Health Check | http://localhost:8080/actuator/health |
+| PostgreSQL | localhost:5432 (`nosilha_db` / `nosilha` / `nosilha`) |
 
 ### Verification
 
@@ -110,24 +123,58 @@ curl http://localhost:8080/api/v1/directory/entries
 docker-compose exec db psql -U nosilha -d nosilha_db -c "SELECT version();"
 ```
 
+### Running Tests
+
+```bash
+# Backend tests
+cd apps/api && ./gradlew test
+
+# Frontend type checking and linting
+cd apps/web && pnpm run lint && npx tsc --noEmit
+
+# Frontend E2E tests (local only)
+cd apps/web && pnpm run test:e2e
+
+# Frontend unit tests
+cd apps/web && pnpm run test:unit
+```
+
 ### Production Deployment
 
-For production deployment to Google Cloud:
-
-1. **Review Setup**: See [`docs/ci-cd-pipeline.md`](docs/ci-cd-pipeline.md) for comprehensive deployment guide
+1. **Review Setup**: See [`docs/ci-cd-pipeline.md`](docs/ci-cd-pipeline.md)
 2. **Configure Secrets**: Set up GitHub secrets and Google Cloud credentials
 3. **Deploy Infrastructure**: Use Terraform to provision GCP resources
 4. **Automated Deployment**: Push to `main` branch triggers automatic deployment
 
-See [`docs/architecture.md`](docs/architecture.md) for detailed architecture documentation and [`docs/troubleshooting.md`](docs/troubleshooting.md) for troubleshooting guide.
+---
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Architecture](docs/architecture.md) | System design, components, data flow |
+| [Design System](docs/design-system.md) | UI components, styling, patterns |
+| [API Reference](docs/api-reference.md) | Backend endpoints and schemas |
+| [API Coding Standards](docs/api-coding-standards.md) | Backend coding conventions |
+| [Testing Guide](docs/testing.md) | E2E and unit testing approach |
+| [State Management](docs/state-management.md) | Zustand, TanStack Query patterns |
+| [Spring Modulith](docs/spring-modulith.md) | Backend module architecture |
+| [CI/CD Pipeline](docs/ci-cd-pipeline.md) | Deployment and automation |
+| [Troubleshooting](docs/troubleshooting.md) | Common issues and solutions |
+
+---
 
 ## Version History
 
-You can view all project releases, updates, and planned milestones in the [Nos Ilha Changelog](CHANGELOG.md).
+See the [Changelog](CHANGELOG.md) for releases, updates, and milestones.
+
+---
 
 ## Contributing
 
 This is an open project dedicated to the celebration of Brava. We welcome contributions from the community. Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+---
 
 ## Getting Help
 
@@ -135,11 +182,13 @@ This is an open project dedicated to the celebration of Brava. We welcome contri
 - **Bug Reports & Features**: [GitHub Issues](../../issues)
 - **Security Vulnerabilities**: See [SECURITY.md](SECURITY.md)
 
+---
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-**Why MIT?** This permissive license allows maximum flexibility for developers and organizations to use, modify, and build upon Nos Ilha while encouraging contributions back to the community. It ensures the platform can be freely adapted to serve cultural heritage preservation missions worldwide while maintaining the collaborative spirit of open source.
+**Why MIT?** This permissive license allows maximum flexibility for developers and organizations to use, modify, and build upon Nos Ilha while encouraging contributions back to the community.
 
 ---
 

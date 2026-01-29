@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import { Card as BaseCard } from "@/components/ui/card";
 
 interface CardProps {
   title?: string;
@@ -8,18 +9,17 @@ interface CardProps {
   className?: string;
 }
 
+/**
+ * Content Card - Wrapper around the base Card component for MDX content.
+ * Includes default padding suitable for article content.
+ *
+ * @deprecated Prefer using `@/components/ui/card` directly with className="p-6"
+ */
 export function Card({ title, children, className = "" }: CardProps) {
   return (
-    <div
-      className={`bg-surface border-border-primary rounded-lg border p-6 shadow-sm ${className}`}
-    >
-      {title && (
-        <h4 className="text-text-primary mb-3 text-lg font-semibold">
-          {title}
-        </h4>
-      )}
+    <BaseCard title={title} className={`p-6 ${className}`}>
       <div>{children}</div>
-    </div>
+    </BaseCard>
   );
 }
 

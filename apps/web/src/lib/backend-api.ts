@@ -472,8 +472,11 @@ export class BackendApiClient implements ApiClient {
    */
   async uploadImage(
     file: File,
-    category?: string,
-    description?: string
+    options?: {
+      entryId?: string;
+      category?: string;
+      description?: string;
+    }
   ): Promise<string> {
     // Get presigned URL
     const presignResponse = await this.getPresignedUploadUrl({
@@ -495,14 +498,15 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`Failed to upload to storage: ${uploadResponse.status}`);
     }
 
-    // Confirm upload
+    // Confirm upload with entry association
     const mediaMetadata = await this.confirmUpload({
       key: presignResponse.key,
       originalName: file.name,
       contentType: file.type,
       fileSize: file.size,
-      category,
-      description,
+      entryId: options?.entryId,
+      category: options?.category,
+      description: options?.description,
     });
 
     return mediaMetadata.publicUrl ?? "";
@@ -759,7 +763,8 @@ export class BackendApiClient implements ApiClient {
   async submitDirectoryEntry(
     request: DirectorySubmissionRequest
   ): Promise<DirectorySubmissionConfirmation> {
-    const endpoint = `${env.apiUrl}/api/v1/directory-submissions`;
+    // Use new unified endpoint in places module
+    const endpoint = `${env.apiUrl}/api/v1/directory/submissions`;
 
     const response = await this.authenticatedFetch(endpoint, {
       method: "POST",
@@ -1683,11 +1688,14 @@ export class BackendApiClient implements ApiClient {
   // ================================
 
   /**
-   * Gets directory submissions for admin with optional status filtering.
+   * Gets directory entries for admin with optional status filtering.
    *
    * **Authentication Required**: Requires ADMIN role.
    *
-   * @param status Optional status filter (PENDING, APPROVED, REJECTED)
+   * Unified endpoint that returns all directory entries (both seeded and submitted).
+   * Filter by status: PENDING for moderation queue, PUBLISHED for live entries, etc.
+   *
+   * @param status Optional status filter (PENDING, APPROVED, PUBLISHED, ARCHIVED)
    * @param page Page number (0-indexed, default: 0)
    * @param size Page size (default: 20)
    * @returns AdminQueueResponse with DirectorySubmission items
@@ -1706,13 +1714,12 @@ export class BackendApiClient implements ApiClient {
       params.append("status", status);
     }
 
-    const endpoint = `${env.apiUrl}/api/v1/admin/directory-submissions?${params}`;
+    // Use unified endpoint in places module
+    const endpoint = `${env.apiUrl}/api/v1/admin/directory/entries?${params}`;
     const response = await this.authenticatedFetch(endpoint);
 
     if (!response.ok) {
-      throw new Error(
-        `Failed to fetch directory submissions: ${response.status}`
-      );
+      throw new Error(`Failed to fetch directory entries: ${response.status}`);
     }
 
     const payload = await response.json();
@@ -1720,15 +1727,15 @@ export class BackendApiClient implements ApiClient {
   }
 
   /**
-   * Updates directory submission status.
+   * Updates directory entry status.
    *
    * **Authentication Required**: Requires ADMIN role.
    *
-   * @param id Directory submission ID
-   * @param status New status (PENDING, APPROVED, REJECTED)
+   * @param id Directory entry ID
+   * @param status New status (PENDING, APPROVED, PUBLISHED, ARCHIVED)
    * @param notes Optional admin notes explaining the decision
    * @returns Updated DirectorySubmission
-   * @throws Error if submission not found (HTTP 404)
+   * @throws Error if entry not found (HTTP 404)
    * @throws Error if authentication failed (HTTP 401/403)
    */
   async updateDirectorySubmissionStatus(
@@ -1736,7 +1743,8 @@ export class BackendApiClient implements ApiClient {
     status: SubmissionStatus,
     notes?: string
   ): Promise<DirectorySubmission> {
-    const endpoint = `${env.apiUrl}/api/v1/admin/directory-submissions/${id}`;
+    // Use unified endpoint in places module
+    const endpoint = `${env.apiUrl}/api/v1/admin/directory/entries/${id}/status`;
 
     const response = await this.authenticatedFetch(endpoint, {
       method: "PUT",
@@ -1748,10 +1756,10 @@ export class BackendApiClient implements ApiClient {
 
     if (!response.ok) {
       if (response.status === 404) {
-        throw new Error("Directory submission not found");
+        throw new Error("Directory entry not found");
       }
       throw new Error(
-        `Failed to update directory submission status: ${response.status}`
+        `Failed to update directory entry status: ${response.status}`
       );
     }
 
@@ -1759,6 +1767,79 @@ export class BackendApiClient implements ApiClient {
     return this.transformDirectorySubmission(
       this.unwrapApiResponse<Record<string, unknown>>(payload)
     );
+  }
+
+  /**
+   * Updates an existing directory entry.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param id Directory entry ID
+   * @param data Update data
+   * @returns Updated DirectorySubmission
+   * @throws Error if entry not found (HTTP 404)
+   * @throws Error if validation fails (HTTP 400)
+   * @throws Error if authentication failed (HTTP 401/403)
+   */
+  async updateDirectoryEntry(
+    id: string,
+    data: import("@/lib/api-contracts").UpdateDirectoryEntryRequest
+  ): Promise<DirectorySubmission> {
+    const endpoint = `${env.apiUrl}/api/v1/directory/entries/${id}`;
+
+    // Transform category to uppercase for backend
+    const requestData = {
+      ...data,
+      category: data.category?.toUpperCase(),
+    };
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestData),
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error("Directory entry not found");
+      }
+      if (response.status === 400) {
+        const error = await response.json();
+        throw new Error(error.message || "Invalid update data");
+      }
+      throw new Error(`Failed to update directory entry: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.transformDirectorySubmission(
+      this.unwrapApiResponse<Record<string, unknown>>(payload)
+    );
+  }
+
+  /**
+   * Deletes a directory entry permanently.
+   *
+   * **Authentication Required**: Requires ADMIN role.
+   *
+   * @param id Directory entry ID
+   * @throws Error if entry not found (HTTP 404)
+   * @throws Error if authentication failed (HTTP 401/403)
+   */
+  async deleteDirectoryEntry(id: string): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/directory/entries/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error("Directory entry not found");
+      }
+      throw new Error(`Failed to delete directory entry: ${response.status}`);
+    }
   }
 
   /**
@@ -2518,6 +2599,48 @@ export class BackendApiClient implements ApiClient {
 
     const payload = await response.json();
     return this.unwrapApiResponse<ExternalMedia>(payload);
+  }
+
+  /**
+   * Promotes a gallery image to become the hero image for a directory entry.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * This action updates the directory entry's imageUrl to the gallery media's
+   * publicUrl through event-driven communication. The frontend will need to
+   * refresh the directory entry to see the updated hero image.
+   *
+   * Prerequisites:
+   * - Media must be a user upload (not external media)
+   * - Media must have ACTIVE status (already approved)
+   * - Media must be linked to a directory entry (entryId not null)
+   * - Media must have a public URL
+   *
+   * @param mediaId UUID of the gallery media item to promote
+   * @throws Error if media not found (HTTP 404)
+   * @throws Error if validation fails (HTTP 400)
+   * @throws Error if authentication failed (HTTP 401/403)
+   */
+  async promoteToHeroImage(mediaId: string): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/${mediaId}/promote-hero`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PATCH",
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error("Gallery media not found");
+      }
+      if (response.status === 400) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message ||
+            "Invalid promotion request. Check media requirements."
+        );
+      }
+      throw new Error(`Failed to promote to hero image: ${response.status}`);
+    }
   }
 
   // ================================

@@ -174,3 +174,27 @@ export const formField: Variants = {
     },
   },
 };
+
+// ---- PAGE SECTION STAGGER (About, Contact page grids) ----
+export const pageStagger: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.2,
+    },
+  },
+};
+
+// ---- PAGE ITEM (individual section entrance) ----
+export const pageItem: Variants = {
+  hidden: { opacity: 0, y: motionDistance.medium },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: motionDuration.normal,
+      ease: motionEasing.out,
+    },
+  },
+};

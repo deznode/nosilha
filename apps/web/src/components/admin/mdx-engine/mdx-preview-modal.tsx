@@ -19,6 +19,7 @@ import {
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import type { MdxContent } from "@/types/admin";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 
 interface MdxPreviewModalProps {
   mdxContent: MdxContent | null;
@@ -36,16 +37,20 @@ export function MdxPreviewModal({
   isCommitting = false,
 }: MdxPreviewModalProps) {
   const [showValidationDetails, setShowValidationDetails] = useState(false);
+  const [showValidationConfirm, setShowValidationConfirm] = useState(false);
 
   if (!mdxContent) return null;
 
   const handleCommit = () => {
     if (!mdxContent.schemaValid) {
-      const confirmed = window.confirm(
-        "Schema validation has errors. Are you sure you want to commit this MDX? It will be committed but not merged until validation passes."
-      );
-      if (!confirmed) return;
+      setShowValidationConfirm(true);
+      return;
     }
+    onCommit(mdxContent.mdxSource);
+  };
+
+  const handleValidationConfirm = () => {
+    setShowValidationConfirm(false);
     onCommit(mdxContent.mdxSource);
   };
 
@@ -66,7 +71,7 @@ export function MdxPreviewModal({
             <div className="border-hairline flex items-start justify-between border-b p-4">
               <div className="flex-1 pr-4">
                 <div className="mb-2 flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-[var(--color-ocean-blue)]" />
+                  <FileText className="text-ocean-blue h-5 w-5" />
                   <DialogTitle className="text-body font-serif text-xl font-bold">
                     MDX Archival Engine
                   </DialogTitle>
@@ -227,7 +232,7 @@ export function MdxPreviewModal({
               <button
                 onClick={handleCommit}
                 disabled={isCommitting}
-                className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-ocean-blue)] px-4 py-2 text-white transition-colors hover:bg-[var(--color-ocean-blue-deep)] disabled:cursor-not-allowed disabled:opacity-50"
+                className="bg-ocean-blue hover:bg-ocean-blue-deep inline-flex items-center gap-2 rounded-lg px-4 py-2 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isCommitting ? (
                   <>
@@ -245,6 +250,17 @@ export function MdxPreviewModal({
           </DialogPanel>
         </div>
       </div>
+
+      {/* Validation Warning Confirmation */}
+      <ConfirmationDialog
+        isOpen={showValidationConfirm}
+        onClose={() => setShowValidationConfirm(false)}
+        onConfirm={handleValidationConfirm}
+        title="Commit with validation errors?"
+        description="Schema validation has errors. The MDX will be committed but not merged until validation passes."
+        confirmLabel="Commit Anyway"
+        variant="warning"
+      />
     </Dialog>
   );
 }
