@@ -201,35 +201,25 @@ class DashboardService(
     /**
      * Builds weekly activity data for the last 7 days.
      *
-     * <p>Returns a list of daily activity counts (suggestions and stories) for the
-     * past 7 days, with day names abbreviated (e.g., "Mon", "Tue").</p>
+     * Returns a list of daily activity counts (suggestions and stories) for the
+     * past 7 days, with day names abbreviated (e.g., "Mon", "Tue").
      *
      * @return List of WeeklyActivityData for the last 7 days
      */
     private fun buildWeeklyActivity(): List<WeeklyActivityData> {
         val today = LocalDate.now()
-        val weeklyData = mutableListOf<WeeklyActivityData>()
 
-        for (i in 6 downTo 0) {
-            val date = today.minusDays(i.toLong())
+        return (6 downTo 0).map { daysAgo ->
+            val date = today.minusDays(daysAgo.toLong())
             val dayStart = date.atStartOfDay().toInstant(ZoneOffset.UTC)
             val dayEnd = date.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC)
 
-            val suggestions = suggestionRepository.countByCreatedAtBetween(dayStart, dayEnd)
-            val stories = storiesQueryService.countByCreatedAtBetween(dayStart, dayEnd)
-
-            val dayName = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
-
-            weeklyData.add(
-                WeeklyActivityData(
-                    day = dayName,
-                    suggestions = suggestions,
-                    stories = stories,
-                ),
+            WeeklyActivityData(
+                day = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH),
+                suggestions = suggestionRepository.countByCreatedAtBetween(dayStart, dayEnd),
+                stories = storiesQueryService.countByCreatedAtBetween(dayStart, dayEnd),
             )
         }
-
-        return weeklyData
     }
 
     /**

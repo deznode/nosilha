@@ -125,12 +125,7 @@ class DirectoryEntryService(
                 request.contentActions?.let {
                     metadataObjectMapper.writeValueAsString(it)
                 }
-            // Generate a simple, URL-friendly slug
-            this.slug =
-                request.name
-                    .lowercase()
-                    .replace(Regex("\\s+"), "-") // Replace spaces with hyphens
-                    .replace(Regex("[^a-z0-9-]$"), "") // Remove non-alphanumeric characters (except hyphens)
+            this.slug = generateSlugFromName(request.name)
         }
 
         val savedEntry = repository.save(newEntry)
@@ -280,11 +275,7 @@ class DirectoryEntryService(
                 .orElseThrow { ResourceNotFoundException("Directory entry with ID '$id' not found.") }
 
         // Check if slug is being changed and if it would create a duplicate
-        val newSlug =
-            request.name
-                .lowercase()
-                .replace(Regex("\\s+"), "-")
-                .replace(Regex("[^a-z0-9-]$"), "")
+        val newSlug = generateSlugFromName(request.name)
 
         if (newSlug != existingEntry.slug && repository.findBySlug(newSlug) != null) {
             throw BusinessException("A directory entry with slug '$newSlug' already exists.")
@@ -446,11 +437,8 @@ class DirectoryEntryService(
             else -> throw IllegalArgumentException("Invalid category: ${request.category}")
         }
 
-        // Generate a unique slug
-        val baseSlug = sanitizedName
-            .lowercase()
-            .replace(Regex("[^a-z0-9\\s-]"), "")
-            .replace(Regex("\\s+"), "-")
+        // Generate a unique slug with random suffix for submissions
+        val baseSlug = generateSlugFromName(sanitizedName)
 
         newEntry.apply {
             this.name = sanitizedName
@@ -478,6 +466,18 @@ class DirectoryEntryService(
             status = savedEntry.status.name,
         )
     }
+
+    /**
+     * Generates a URL-friendly slug from a name.
+     *
+     * Converts to lowercase, replaces whitespace with hyphens, and removes
+     * non-alphanumeric characters (except hyphens).
+     */
+    private fun generateSlugFromName(name: String): String =
+        name
+            .lowercase()
+            .replace(Regex("\\s+"), "-")
+            .replace(Regex("[^a-z0-9-]"), "")
 
     /**
      * Gets or creates a rate limit bucket for the given IP address.

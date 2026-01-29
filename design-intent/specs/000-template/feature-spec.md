@@ -1,110 +1,128 @@
-# Feature Specification: [Feature Name]
+# Feature Specification Template
 
-> One-line description of what this feature enables
+---
+spec-id: XXX
+title: [Feature Title]
+status: draft | review | approved | implemented
+author: [Author Name]
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+---
 
-**Spec ID:** XXX-feature-name
-**Author:** [Name]
-**Created:** YYYY-MM-DD
-**Status:** Draft | In Review | Approved | In Progress | Complete
+## Overview
+
+[2-3 sentence summary of what this feature does and why it matters]
 
 ## Problem Statement
 
-### User Need
-What problem does this feature solve for users? Who specifically benefits?
-
 ### Current State
-How do users currently handle this? What's the pain point?
 
-### Cultural Heritage Context
-How does this feature serve the mission of preserving Brava's cultural memory?
+[Describe the current situation or pain point]
 
-## Proposed Solution
+### Desired State
 
-### Overview
-High-level description of the solution approach.
+[Describe what success looks like]
 
-### User Stories
+### User Impact
+
+[Who benefits and how]
+
+## Requirements
+
+### Functional Requirements
+
+1. **[Requirement ID]**: [Description]
+   - Acceptance criteria: [Testable condition]
+
+2. **[Requirement ID]**: [Description]
+   - Acceptance criteria: [Testable condition]
+
+### Non-Functional Requirements
+
+- **Performance**: [Specific metrics]
+- **Accessibility**: [WCAG requirements]
+- **Responsiveness**: [Breakpoint behavior]
+- **Browser Support**: [Target browsers]
+
+## User Stories
+
+### Primary Flow
 
 ```
-As a [user type],
-I want to [action],
-so that [benefit].
+As a [user type]
+I want to [action]
+So that [benefit]
 ```
 
-### Key Behaviors
-- [ ] Behavior 1
-- [ ] Behavior 2
-- [ ] Behavior 3
+**Acceptance Criteria:**
+- [ ] [Criteria 1]
+- [ ] [Criteria 2]
+
+### Alternative Flows
+
+[Document edge cases and alternative paths]
 
 ## Design
 
-### Visual Design
-Reference mockups, wireframes, or design system components.
+### Visual Reference
 
-| Component | Design System Reference |
-|-----------|------------------------|
-| [Component] | [Reference] |
+[Link to Figma, screenshots, or wireframes]
 
-### Responsive Considerations
-- Mobile (default): [Description]
-- Tablet (md:): [Description]
-- Desktop (lg:): [Description]
+### Component Breakdown
 
-### Accessibility Requirements
-- [ ] Keyboard navigation
-- [ ] Screen reader support
-- [ ] Color contrast (4.5:1 minimum)
-- [ ] Focus indicators
+| Component | Purpose | New/Existing |
+|-----------|---------|--------------|
+| [Name]    | [Role]  | [New/Modify] |
+
+### Interaction Patterns
+
+[Describe animations, transitions, hover states, etc.]
 
 ## Technical Approach
 
-### Architecture
-High-level technical approach and key decisions.
+### Proposed Solution
 
-### Files to Create/Modify
+[High-level technical approach]
 
-| File | Action | Purpose |
-|------|--------|---------|
-| `path/to/file.tsx` | Create/Modify | [Purpose] |
+### Data Model
 
-### API Requirements
+[Schema changes, new types, API contracts]
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/v1/...` | GET/POST | [Purpose] |
+### Dependencies
 
-### State Management
-- Client state: [What and where]
-- Server state: [TanStack Query patterns]
+- [Dependency 1]: [Why needed]
+- [Dependency 2]: [Why needed]
 
-## Edge Cases
+### Risks & Mitigations
 
-| Scenario | Expected Behavior |
-|----------|------------------|
-| [Edge case] | [Behavior] |
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| [Risk] | [High/Med/Low] | [Strategy] |
 
 ## Out of Scope
 
-Explicitly list what this feature does NOT include:
-- [ ] Not included 1
-- [ ] Not included 2
-
-## Success Criteria
-
-- [ ] Criterion 1 (measurable)
-- [ ] Criterion 2 (measurable)
-- [ ] Criterion 3 (measurable)
+[Explicitly list what this feature does NOT include]
 
 ## Open Questions
 
-1. [Question needing resolution]
-2. [Question needing resolution]
+- [ ] [Question 1]
+- [ ] [Question 2]
+
+## Success Metrics
+
+- [Metric 1]: [Target]
+- [Metric 2]: [Target]
+
+## References
+
+- [Link to related docs]
+- [Link to design files]
+- [Link to similar implementations]
 
 ---
 
 ## Approval
 
-- [ ] Product Owner approval
-- [ ] Technical review
-- [ ] Design review
-- [ ] Cultural heritage review (if applicable)
+- [ ] Product Owner: [Name] - [Date]
+- [ ] Technical Lead: [Name] - [Date]
+- [ ] Design: [Name] - [Date]
