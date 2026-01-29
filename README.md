@@ -7,8 +7,7 @@
 
 **[View Live Site](https://nosilha.com)**
 
-<!-- TODO: Add hero screenshot of nosilha.com homepage (recommended: 1200x630px) -->
-<!-- ![Nos Ilha Homepage](docs/images/hero-screenshot.png) -->
+![Nos Ilha - Brava Island Cultural Heritage Hub](.github/images/hero.png)
 
 **nosilha.com** is a community-driven cultural heritage hub for Brava Island, Cape Verde. This open-source, volunteer-supported project preserves and celebrates the island's rich cultural memory while connecting the global Cape Verdean diaspora, local residents, and international visitors to the heart of Brava.
 
