@@ -10,6 +10,8 @@ Architecture Decision Records (ADRs) document significant technical decisions ma
 | [0002](0002-spring-modulith.md) | Spring Modulith Architecture | Accepted | 2024-12-26 |
 | [0003](0003-supabase-auth.md) | Supabase Authentication | Accepted | 2024-12-26 |
 | [0004](0004-es256-jwt-algorithm.md) | ES256 JWT Algorithm Configuration | Accepted | 2026-01-08 |
+| [0005](0005-workload-identity-federation.md) | Workload Identity Federation | Accepted | 2026-01-29 |
+| [0006](0006-free-tier-cost-optimization.md) | Free Tier Cost Optimization | Accepted | 2026-01-29 |
 
 ## Creating New ADRs
 
