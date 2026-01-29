@@ -63,15 +63,13 @@ export function PrintButton({
         type="button"
         onClick={handlePrint}
         aria-label="Print page"
-        className="focus-ring hover:bg-mist-200 dark:hover:bg-basalt-800 flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-background-secondary)] text-[var(--color-text-primary)] transition-colors"
+        className="focus-ring hover:bg-surface-alt bg-surface text-body flex h-11 w-11 items-center justify-center rounded-full transition-colors"
       >
         <Printer className="h-5 w-5" />
       </motion.button>
 
       {variant === "icon-with-label" && (
-        <span className="mt-1 text-xs font-normal text-[var(--color-text-secondary)]">
-          Print
-        </span>
+        <span className="text-muted mt-1 text-xs font-normal">Print</span>
       )}
     </div>
   );

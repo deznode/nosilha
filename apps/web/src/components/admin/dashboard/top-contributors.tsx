@@ -41,7 +41,7 @@ export function TopContributors({
   return (
     <div className="border-hairline bg-surface rounded-lg border p-6 shadow-sm">
       <h3 className="text-body mb-4 flex items-center text-lg font-bold">
-        <Users size={20} className="mr-2 text-[var(--color-ocean-blue)]" />
+        <Users size={20} className="text-ocean-blue mr-2" />
         Top Contributors
       </h3>
       <ul className="space-y-3">
@@ -51,7 +51,7 @@ export function TopContributors({
             className="flex items-center justify-between text-sm"
           >
             <div className="flex items-center">
-              <div className="bg-surface-alt relative mr-3 flex h-8 w-8 items-center justify-center overflow-hidden rounded-full text-xs font-bold text-[var(--color-ocean-blue)]">
+              <div className="bg-surface-alt text-ocean-blue relative mr-3 flex h-8 w-8 items-center justify-center overflow-hidden rounded-full text-xs font-bold">
                 {user.avatar ? (
                   <Image
                     src={user.avatar}
@@ -69,7 +69,7 @@ export function TopContributors({
                 <p className="text-muted text-xs">{user.role}</p>
               </div>
             </div>
-            <span className="rounded-full bg-green-50 px-2 py-1 text-xs font-bold text-[var(--color-valley-green)] dark:bg-green-900/20">
+            <span className="text-valley-green rounded-full bg-green-50 px-2 py-1 text-xs font-bold dark:bg-green-900/20">
               {user.points} pts
             </span>
           </li>

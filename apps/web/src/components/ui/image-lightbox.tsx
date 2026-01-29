@@ -211,7 +211,7 @@ export function ImageLightbox({
                         onClick={() => setCurrentIndex(index)}
                         className={`relative aspect-square overflow-hidden rounded border-2 transition-all ${
                           index === currentIndex
-                            ? "scale-105 border-white shadow-lg"
+                            ? "shadow-elevated scale-105 border-white"
                             : "border-transparent opacity-60 hover:border-white/50 hover:opacity-100"
                         }`}
                       >

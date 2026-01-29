@@ -12,12 +12,14 @@ interface GalleryQueueProps {
     reason?: string,
     notes?: string
   ) => void;
+  onPromoteToHero?: (id: string) => void;
 }
 
 export function GalleryQueue({
   items,
   isLoading,
   onStatusChange,
+  onPromoteToHero,
 }: GalleryQueueProps) {
   if (isLoading) {
     return (
@@ -59,6 +61,7 @@ export function GalleryQueue({
           key={item.id}
           item={item}
           onStatusChange={onStatusChange}
+          onPromoteToHero={onPromoteToHero}
         />
       ))}
     </div>

@@ -22,7 +22,7 @@ export function ListViewCard({
       href={getEntryUrl(entry.slug, entry.category)}
       className="group block"
     >
-      <div className="border-border-primary bg-background-primary flex h-48 flex-row overflow-hidden rounded-lg border shadow-sm transition-shadow hover:shadow-md">
+      <div className="border-hairline bg-surface rounded-card shadow-subtle ease-calm hover:shadow-medium flex h-48 flex-row overflow-hidden border transition-shadow duration-200">
         {/* Image */}
         <div className="relative w-1/3 overflow-hidden">
           {entry.imageUrl ? (
@@ -33,8 +33,8 @@ export function ListViewCard({
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="bg-background-tertiary flex h-full w-full items-center justify-center">
-              <span className="text-text-tertiary">No image</span>
+            <div className="bg-surface-alt flex h-full w-full items-center justify-center">
+              <span className="text-muted">No image</span>
             </div>
           )}
           {showBookmark && (
@@ -53,24 +53,24 @@ export function ListViewCard({
         <div className="flex w-2/3 flex-col justify-between p-5">
           <div>
             <div className="mb-1 flex items-start justify-between">
-              <h3 className="text-text-primary text-lg font-bold transition-colors group-hover:text-[var(--color-ocean-blue)]">
+              <h3 className="text-body group-hover:text-ocean-blue text-lg font-bold transition-colors">
                 {entry.name}
               </h3>
-              <div className="border-border-primary bg-background-secondary text-text-primary flex items-center rounded border px-1.5 py-0.5 text-xs font-medium">
+              <div className="border-hairline bg-surface text-body flex items-center rounded border px-1.5 py-0.5 text-xs font-medium">
                 <Star
                   size={12}
-                  className="mr-1 fill-current text-[var(--color-sunny)]"
+                  className="text-sunny-yellow mr-1 fill-current"
                 />
                 {entry.rating}
               </div>
             </div>
 
-            <div className="text-text-secondary mb-3 flex items-center text-sm">
+            <div className="text-muted mb-3 flex items-center text-sm">
               <MapPin size={14} className="mr-1" />
               {entry.town}
             </div>
 
-            <p className="text-text-secondary line-clamp-2 text-sm leading-relaxed">
+            <p className="text-muted line-clamp-2 text-sm leading-relaxed">
               {entry.description}
             </p>
           </div>
@@ -80,7 +80,7 @@ export function ListViewCard({
               {entry.tags.slice(0, 4).map((tag) => (
                 <span
                   key={tag}
-                  className="border-border-primary bg-background-tertiary text-text-secondary rounded-full border px-2 py-1 text-xs"
+                  className="border-hairline bg-surface-alt text-muted rounded-full border px-2 py-1 text-xs"
                 >
                   #{tag}
                 </span>

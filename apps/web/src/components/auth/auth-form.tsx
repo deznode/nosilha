@@ -78,7 +78,7 @@ function PasswordInput({
     <div className="relative">
       <Input
         type={showPassword ? "text" : "password"}
-        className={error ? "border-red-500" : ""}
+        className={error ? "border-status-error" : ""}
         {...props}
       />
       <button
@@ -218,7 +218,7 @@ export default function NosIlhaAuth({
 
       <div className="z-10 mx-auto flex w-full max-w-6xl items-center justify-center p-4 lg:p-8">
         {/* Card Container */}
-        <div className="dark:bg-basalt-800 dark:shadow-ocean-blue/5 border-mist-200 dark:border-basalt-500 grid min-h-150 w-full overflow-hidden rounded-3xl border bg-white shadow-2xl transition-colors duration-300 lg:grid-cols-2">
+        <div className="dark:bg-basalt-800 dark:shadow-ocean-blue/5 border-mist-200 dark:border-basalt-500 rounded-container shadow-floating grid min-h-150 w-full overflow-hidden border bg-white transition-colors duration-300 lg:grid-cols-2">
           {/* Left Panel: Brand (Hidden on mobile) */}
           <div className="bg-ocean-blue relative hidden flex-col justify-between overflow-hidden p-12 text-white lg:flex">
             {/* Gradient Overlay for visual depth */}
@@ -279,7 +279,7 @@ export default function NosIlhaAuth({
               }}
             >
               <div className="mb-8">
-                <h2 className="text-basalt-900 mb-2 font-serif text-3xl font-bold dark:text-white">
+                <h2 className="text-text-primary mb-2 font-serif text-3xl font-bold">
                   {isLogin ? "Sign in" : "Create an account"}
                 </h2>
                 <p className="text-basalt-500 dark:text-mist-200">
@@ -296,7 +296,7 @@ export default function NosIlhaAuth({
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="mb-6 flex items-start rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-200"
+                    className="border-status-success/30 bg-status-success/10 text-status-success rounded-card mb-6 flex items-start border p-4 text-sm"
                   >
                     <AlertCircle className="mt-0.5 mr-2 h-5 w-5 shrink-0" />
                     <span>{successMsg}</span>
@@ -311,7 +311,7 @@ export default function NosIlhaAuth({
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="mb-6 flex items-start rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200"
+                    className="border-status-error/30 bg-status-error/10 text-status-error rounded-card mb-6 flex items-start border p-4 text-sm"
                   >
                     <AlertCircle className="mt-0.5 mr-2 h-5 w-5 shrink-0" />
                     <span>{errorMsg}</span>
@@ -366,7 +366,7 @@ export default function NosIlhaAuth({
                     autoComplete="email"
                     placeholder="you@example.com"
                     {...register("email")}
-                    className={errors.email ? "border-red-500" : ""}
+                    className={errors.email ? "border-status-error" : ""}
                   />
                   {errors.email && (
                     <ErrorMessage>{errors.email.message}</ErrorMessage>

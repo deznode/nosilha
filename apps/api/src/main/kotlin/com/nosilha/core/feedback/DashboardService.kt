@@ -7,14 +7,13 @@ import com.nosilha.core.feedback.api.DashboardCountsResponse
 import com.nosilha.core.feedback.api.TownCoverageData
 import com.nosilha.core.feedback.api.WeeklyActivityData
 import com.nosilha.core.feedback.domain.ContactStatus
-import com.nosilha.core.feedback.domain.DirectorySubmissionStatus
 import com.nosilha.core.feedback.domain.SuggestionStatus
 import com.nosilha.core.feedback.repository.ContactMessageRepository
-import com.nosilha.core.feedback.repository.DirectorySubmissionRepository
 import com.nosilha.core.feedback.repository.SuggestionRepository
 import com.nosilha.core.gallery.api.MediaQueryService
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.places.api.PlacesQueryService
+import com.nosilha.core.places.domain.DirectoryEntryStatus
 import com.nosilha.core.stories.api.StoriesQueryService
 import com.nosilha.core.stories.domain.StoryStatus
 import org.springframework.stereotype.Service
@@ -54,10 +53,9 @@ import java.util.Locale
  *
  * @property suggestionRepository Local repository for suggestion counts (feedback module)
  * @property contactMessageRepository Local repository for contact message counts (feedback module)
- * @property directorySubmissionRepository Local repository for directory submission counts (feedback module)
  * @property storiesQueryService Cross-module query service for story statistics
  * @property mediaQueryService Cross-module query service for media statistics
- * @property directoryEntryQueryService Cross-module query service for directory entry data
+ * @property directoryEntryQueryService Cross-module query service for directory entry data (includes pending submissions)
  * @property userProfileQueryService Cross-module query service for user profile information
  */
 @Service
@@ -65,7 +63,6 @@ class DashboardService(
     // Local repositories (feedback module)
     private val suggestionRepository: SuggestionRepository,
     private val contactMessageRepository: ContactMessageRepository,
-    private val directorySubmissionRepository: DirectorySubmissionRepository,
     // Cross-module query services
     private val storiesQueryService: StoriesQueryService,
     private val mediaQueryService: MediaQueryService,
@@ -95,7 +92,7 @@ class DashboardService(
         val pendingSuggestions = suggestionRepository.countByStatus(SuggestionStatus.PENDING)
         val pendingStories = storiesQueryService.countByStatus(StoryStatus.PENDING)
         val pendingMessages = contactMessageRepository.countByStatus(ContactStatus.UNREAD)
-        val pendingDirectory = directorySubmissionRepository.countByStatus(DirectorySubmissionStatus.PENDING)
+        val pendingDirectory = directoryEntryQueryService.countByStatus(DirectoryEntryStatus.PENDING)
         val totalPending = pendingSuggestions + pendingStories + pendingMessages + pendingDirectory
 
         return DashboardCountsResponse(
@@ -130,7 +127,7 @@ class DashboardService(
         val pendingSuggestions = suggestionRepository.countByStatus(SuggestionStatus.PENDING)
         val pendingStories = storiesQueryService.countByStatus(StoryStatus.PENDING)
         val pendingMessages = contactMessageRepository.countByStatus(ContactStatus.UNREAD)
-        val pendingDirectory = directorySubmissionRepository.countByStatus(DirectorySubmissionStatus.PENDING)
+        val pendingDirectory = directoryEntryQueryService.countByStatus(DirectoryEntryStatus.PENDING)
 
         // Media pending: count of PENDING_REVIEW and FLAGGED media
         val pendingReviewMedia = mediaQueryService.countByStatus(GalleryMediaStatus.PENDING_REVIEW)
@@ -204,35 +201,25 @@ class DashboardService(
     /**
      * Builds weekly activity data for the last 7 days.
      *
-     * <p>Returns a list of daily activity counts (suggestions and stories) for the
-     * past 7 days, with day names abbreviated (e.g., "Mon", "Tue").</p>
+     * Returns a list of daily activity counts (suggestions and stories) for the
+     * past 7 days, with day names abbreviated (e.g., "Mon", "Tue").
      *
      * @return List of WeeklyActivityData for the last 7 days
      */
     private fun buildWeeklyActivity(): List<WeeklyActivityData> {
         val today = LocalDate.now()
-        val weeklyData = mutableListOf<WeeklyActivityData>()
 
-        for (i in 6 downTo 0) {
-            val date = today.minusDays(i.toLong())
+        return (6 downTo 0).map { daysAgo ->
+            val date = today.minusDays(daysAgo.toLong())
             val dayStart = date.atStartOfDay().toInstant(ZoneOffset.UTC)
             val dayEnd = date.plusDays(1).atStartOfDay().toInstant(ZoneOffset.UTC)
 
-            val suggestions = suggestionRepository.countByCreatedAtBetween(dayStart, dayEnd)
-            val stories = storiesQueryService.countByCreatedAtBetween(dayStart, dayEnd)
-
-            val dayName = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH)
-
-            weeklyData.add(
-                WeeklyActivityData(
-                    day = dayName,
-                    suggestions = suggestions,
-                    stories = stories,
-                ),
+            WeeklyActivityData(
+                day = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.ENGLISH),
+                suggestions = suggestionRepository.countByCreatedAtBetween(dayStart, dayEnd),
+                stories = storiesQueryService.countByCreatedAtBetween(dayStart, dayEnd),
             )
         }
-
-        return weeklyData
     }
 
     /**

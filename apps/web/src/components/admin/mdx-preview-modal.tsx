@@ -47,7 +47,7 @@ export function MdxPreviewModal({
   return (
     <Dialog open={isOpen} onClose={onClose} size="5xl">
       <DialogTitle className="flex items-center gap-2">
-        <Code className="h-5 w-5 text-[var(--color-ocean-blue)]" />
+        <Code className="text-ocean-blue h-5 w-5" />
         Velite Content Preview
       </DialogTitle>
       <DialogDescription>

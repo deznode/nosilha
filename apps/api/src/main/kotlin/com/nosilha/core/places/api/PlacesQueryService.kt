@@ -1,5 +1,6 @@
 package com.nosilha.core.places.api
 
+import com.nosilha.core.places.domain.DirectoryEntryStatus
 import java.util.UUID
 
 /**
@@ -54,4 +55,14 @@ interface PlacesQueryService {
      * @return List of arrays where each array contains [townName: String, count: Long]
      */
     fun getEntryCountsByTown(): List<Array<Any>>
+
+    /**
+     * Counts directory entries by status.
+     *
+     * <p>Used for dashboard pending counts (e.g., PENDING submissions awaiting review).</p>
+     *
+     * @param status The status to count
+     * @return Number of entries with the specified status
+     */
+    fun countByStatus(status: DirectoryEntryStatus): Long
 }

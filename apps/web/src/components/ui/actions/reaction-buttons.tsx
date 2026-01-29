@@ -64,7 +64,7 @@ export function ReactionButtons({
   const handleReactionClick = async (reactionId: string) => {
     // Prevent interaction if not authenticated
     if (!isAuthenticated || !session?.access_token) {
-      toast.showError("Please sign in to react to content", 5000);
+      toast.error("Please sign in to react to content").duration(5000).show();
       return;
     }
 
@@ -75,7 +75,7 @@ export function ReactionButtons({
 
     // Prevent clicks during rate limit cooldown
     if (isRateLimited) {
-      toast.showError("Please wait a moment before reacting again");
+      toast.error("Please wait a moment before reacting again").show();
       return;
     }
 
@@ -131,23 +131,28 @@ export function ReactionButtons({
 
       // Handle specific error codes
       if (status === 401) {
-        toast.showError("Please sign in again to react", 5000);
+        toast.error("Please sign in again to react").duration(5000).show();
       } else if (status === 429) {
         // Rate limit exceeded - enforce cooldown period
         setIsRateLimited(true);
-        toast.showError(
-          "Too many reactions. Please wait 60 seconds before trying again",
-          60000
-        );
+        toast
+          .error(
+            "Too many reactions. Please wait 60 seconds before trying again"
+          )
+          .duration(60000)
+          .show();
 
         // Clear rate limit after 60 seconds (backend allows 10 per minute)
         setTimeout(() => {
           setIsRateLimited(false);
         }, 60000);
       } else if (status === 404) {
-        toast.showError("Content not found", 5000);
+        toast.error("Content not found").duration(5000).show();
       } else {
-        toast.showError("Failed to submit reaction. Please try again", 5000);
+        toast
+          .error("Failed to submit reaction. Please try again")
+          .duration(5000)
+          .show();
       }
 
       console.error("Failed to submit reaction:", {
@@ -194,8 +199,8 @@ export function ReactionButtons({
             className={clsx(
               "focus-ring flex h-11 min-w-[44px] items-center justify-center gap-1.5 rounded-full px-3 py-2 transition-all",
               isSelected
-                ? "scale-110 bg-[var(--color-ocean-blue)] text-white"
-                : "hover:bg-mist-200 dark:hover:bg-basalt-800 bg-[var(--color-background-secondary)]",
+                ? "bg-ocean-blue scale-110 text-white"
+                : "hover:bg-surface-alt bg-surface",
               isAuthenticated
                 ? "cursor-pointer"
                 : "cursor-not-allowed opacity-50",
@@ -210,9 +215,7 @@ export function ReactionButtons({
               <span
                 className={clsx(
                   "text-sm font-medium",
-                  isSelected
-                    ? "text-white"
-                    : "text-[var(--color-text-secondary)]"
+                  isSelected ? "text-white" : "text-muted"
                 )}
               >
                 {reaction.count}

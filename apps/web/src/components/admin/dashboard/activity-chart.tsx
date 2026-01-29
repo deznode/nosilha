@@ -33,10 +33,7 @@ export function ActivityChart({ data, isLoading }: ActivityChartProps) {
     <div className="border-hairline bg-surface rounded-lg border p-6 shadow-sm lg:col-span-2">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-body flex items-center text-lg font-bold">
-          <TrendingUp
-            size={20}
-            className="mr-2 text-[var(--color-ocean-blue)]"
-          />
+          <TrendingUp size={20} className="text-ocean-blue mr-2" />
           Weekly Engagement
         </h3>
       </div>
@@ -50,13 +47,13 @@ export function ActivityChart({ data, isLoading }: ActivityChartProps) {
             />
             <XAxis
               dataKey="day"
-              stroke="var(--color-text-muted)"
+              stroke="var(--muted-foreground)"
               fontSize={12}
               tickLine={false}
               axisLine={false}
             />
             <YAxis
-              stroke="var(--color-text-muted)"
+              stroke="var(--muted-foreground)"
               fontSize={12}
               tickLine={false}
               axisLine={false}
@@ -67,6 +64,12 @@ export function ActivityChart({ data, isLoading }: ActivityChartProps) {
                 borderRadius: "8px",
                 border: "1px solid var(--color-border-subtle)",
                 boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+              }}
+              labelStyle={{
+                color: "var(--color-text-primary)",
+              }}
+              itemStyle={{
+                color: "var(--color-text-secondary)",
               }}
             />
             <Bar

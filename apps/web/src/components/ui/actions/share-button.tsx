@@ -65,7 +65,7 @@ export function ShareButton({
       });
 
       // Show success toast
-      toast.showSuccess("Shared successfully!");
+      toast.success("Shared successfully!").show();
       onShareSuccess?.();
     } catch (error) {
       // User cancelled share or error occurred
@@ -92,12 +92,12 @@ export function ShareButton({
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(url);
-      toast.showSuccess("Link copied!");
+      toast.success("Link copied!").show();
       setIsFallbackMenuOpen(false);
       onShareSuccess?.();
     } catch (error) {
       console.error("Failed to copy link:", error);
-      toast.showError("Failed to copy link");
+      toast.error("Failed to copy link").show();
     }
   };
 
@@ -112,7 +112,7 @@ export function ShareButton({
       "noopener,noreferrer,width=600,height=400"
     );
     setIsFallbackMenuOpen(false);
-    toast.showSuccess("Shared to Facebook!");
+    toast.success("Shared to Facebook!").show();
     onShareSuccess?.();
   };
 
@@ -127,7 +127,7 @@ export function ShareButton({
       "noopener,noreferrer,width=600,height=400"
     );
     setIsFallbackMenuOpen(false);
-    toast.showSuccess("Shared to Twitter!");
+    toast.success("Shared to Twitter!").show();
     onShareSuccess?.();
   };
 
@@ -202,8 +202,8 @@ export function ShareButton({
           aria-expanded={isFallbackMenuOpen}
           className={`focus-ring flex h-11 w-11 items-center justify-center rounded-full transition-all ${
             isActive || isFallbackMenuOpen
-              ? "bg-[var(--color-ocean-blue)] text-white"
-              : "hover:bg-mist-200 dark:hover:bg-basalt-800 bg-[var(--color-background-secondary)] text-[var(--color-text-primary)]"
+              ? "bg-ocean-blue text-white"
+              : "hover:bg-surface-alt bg-surface text-body"
           } `}
         >
           <Share2 className="h-5 w-5" />
@@ -211,9 +211,7 @@ export function ShareButton({
 
         {/* Label */}
         {variant === "icon-with-label" && (
-          <span className="mt-1 text-xs font-normal text-[var(--color-text-secondary)]">
-            Share
-          </span>
+          <span className="text-muted mt-1 text-xs font-normal">Share</span>
         )}
       </div>
 
@@ -224,7 +222,7 @@ export function ShareButton({
           initial="hidden"
           animate="visible"
           exit="exit"
-          className="absolute right-0 bottom-14 z-50 flex flex-col gap-2 rounded-lg bg-[var(--color-background-primary)] p-3 shadow-lg"
+          className="rounded-button bg-canvas shadow-elevated absolute right-0 bottom-14 z-50 flex flex-col gap-2 p-3"
         >
           {shareOptions.map((option) => {
             const Icon = option.icon;
@@ -234,12 +232,10 @@ export function ShareButton({
                 type="button"
                 onClick={option.action}
                 aria-label={option.label}
-                className="focus-ring flex items-center gap-3 rounded-md px-4 py-2 text-left text-sm transition-colors hover:bg-[var(--color-background-secondary)]"
+                className="focus-ring hover:bg-surface flex items-center gap-3 rounded-md px-4 py-2 text-left text-sm transition-colors"
               >
-                <Icon className="h-5 w-5 text-[var(--color-ocean-blue)]" />
-                <span className="text-[var(--color-text-primary)]">
-                  {option.label}
-                </span>
+                <Icon className="text-ocean-blue h-5 w-5" />
+                <span className="text-body">{option.label}</span>
               </button>
             );
           })}

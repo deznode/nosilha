@@ -23,7 +23,7 @@ interface KPICardProps {
 
 function KPICard({ label, value, icon, colorClass }: KPICardProps) {
   return (
-    <div className="border-hairline bg-surface overflow-hidden rounded-lg border p-5 shadow-sm">
+    <div className="border-hairline bg-surface rounded-card shadow-subtle overflow-hidden border p-5">
       <div className="flex items-center">
         <div className={`flex-shrink-0 rounded-md p-3 ${colorClass}`}>
           {icon}
@@ -41,7 +41,7 @@ function KPICard({ label, value, icon, colorClass }: KPICardProps) {
 
 function KPICardSkeleton() {
   return (
-    <div className="border-hairline bg-surface animate-pulse overflow-hidden rounded-lg border p-5 shadow-sm">
+    <div className="border-hairline bg-surface rounded-card shadow-subtle animate-pulse overflow-hidden border p-5">
       <div className="flex items-center">
         <div className="bg-surface-alt h-12 w-12 flex-shrink-0 rounded-md p-3" />
         <div className="ml-5 w-0 flex-1">
@@ -69,38 +69,32 @@ export function KPICards({ stats, isLoading }: KPICardsProps) {
       <KPICard
         label="New Suggestions"
         value={stats.newSuggestions}
-        icon={
-          <MessageSquare className="h-6 w-6 text-[var(--color-ocean-blue)]" />
-        }
-        colorClass="bg-[var(--color-ocean-blue)]/10"
+        icon={<MessageSquare className="text-ocean-blue h-6 w-6" />}
+        colorClass="bg-ocean-blue/10"
       />
       <KPICard
         label="Story Submissions"
         value={stats.storySubmissions}
-        icon={
-          <FileText className="h-6 w-6 text-[var(--color-bougainvillea)]" />
-        }
-        colorClass="bg-[var(--color-bougainvillea)]/10"
+        icon={<FileText className="text-bougainvillea-pink h-6 w-6" />}
+        colorClass="bg-bougainvillea-pink/10"
       />
       <KPICard
         label="Media Pending"
         value={stats.mediaPending}
-        icon={
-          <ImageIcon className="h-6 w-6 text-[var(--color-sunny-yellow)]" />
-        }
-        colorClass="bg-[var(--color-sunny-yellow)]/10"
+        icon={<ImageIcon className="text-sunny-yellow h-6 w-6" />}
+        colorClass="bg-sunny-yellow/10"
       />
       <KPICard
         label="Active Users"
         value={stats.activeUsers}
-        icon={<Users className="h-6 w-6 text-[var(--color-valley-green)]" />}
-        colorClass="bg-[var(--color-valley-green)]/10"
+        icon={<Users className="text-valley-green h-6 w-6" />}
+        colorClass="bg-valley-green/10"
       />
       <KPICard
         label="Locations Covered"
         value={stats.locationsCovered}
-        icon={<Map className="h-6 w-6 text-[var(--color-sobrado)]" />}
-        colorClass="bg-[var(--color-sobrado)]/10"
+        icon={<Map className="text-sobrado-ochre h-6 w-6" />}
+        colorClass="bg-sobrado-ochre/10"
       />
     </div>
   );

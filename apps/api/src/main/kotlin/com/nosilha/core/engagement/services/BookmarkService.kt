@@ -48,20 +48,23 @@ class BookmarkService(
     }
 
     /**
-     * Creates a new bookmark for a user.
+     * Creates a new bookmark for a user, or returns existing if already bookmarked.
+     *
+     * <p>This operation is idempotent: calling it multiple times with the same
+     * parameters will return the same result without error. This handles race
+     * conditions and simplifies client-side logic.</p>
      *
      * <p><strong>Validation Rules:</strong>
      * <ul>
      *   <li>Directory entry must exist (throws ResourceNotFoundException)</li>
-     *   <li>User must not already have this entry bookmarked (throws BusinessException)</li>
      *   <li>User must be under 100 bookmark limit (throws BusinessException)</li>
      * </ul>
      *
      * @param userId User ID from authentication system (Supabase)
      * @param entryId UUID of the directory entry to bookmark
-     * @return BookmarkDto with created bookmark details
+     * @return BookmarkDto with created or existing bookmark details
      * @throws ResourceNotFoundException if directory entry doesn't exist
-     * @throws BusinessException if bookmark already exists or limit reached
+     * @throws BusinessException if bookmark limit reached
      */
     fun createBookmark(
         userId: String,
@@ -75,10 +78,11 @@ class BookmarkService(
             throw ResourceNotFoundException("Directory entry with ID $entryId not found")
         }
 
-        // Check if already bookmarked (prevent duplicates)
-        if (bookmarkRepository.existsByUserIdAndEntryId(userId, entryId)) {
-            logger.warn { "User $userId already bookmarked entry $entryId" }
-            throw BusinessException("Entry is already bookmarked")
+        // Check if already bookmarked - return existing instead of throwing (idempotent operation)
+        val existingBookmark = bookmarkRepository.findByUserIdAndEntryId(userId, entryId)
+        if (existingBookmark != null) {
+            logger.info { "Bookmark already exists for user $userId on entry $entryId, returning existing" }
+            return existingBookmark.toDto()
         }
 
         // Check bookmark limit (maximum 100 per user)

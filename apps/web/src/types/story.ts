@@ -11,10 +11,20 @@ export enum StoryType {
 }
 
 export enum SubmissionStatus {
+  /** User is still editing (future use for draft submissions) */
+  DRAFT = "DRAFT",
+  /** Awaiting admin review (default for community submissions) */
   PENDING = "PENDING",
+  /** Admin approved, ready to publish */
   APPROVED = "APPROVED",
+  /** Rejected by admin with optional feedback */
   REJECTED = "REJECTED",
+  /** Flagged for attention */
   FLAGGED = "FLAGGED",
+  /** Live on site (default for seeded directory entries) */
+  PUBLISHED = "PUBLISHED",
+  /** Soft-deleted entry - hidden from public but recoverable */
+  ARCHIVED = "ARCHIVED",
 }
 
 export interface StorySubmission {

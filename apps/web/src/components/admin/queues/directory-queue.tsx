@@ -9,22 +9,29 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  ExternalLink,
   Utensils,
   Hotel,
   Umbrella,
   Castle,
   TreePine,
+  Pencil,
+  Trash2,
+  Flag,
+  Eye,
 } from "lucide-react";
 import Image from "next/image";
 import type { DirectorySubmission } from "@/types/admin";
 import { SubmissionStatus } from "@/types/story";
+import { Button } from "@/components/catalyst-ui/button";
 
 interface DirectoryQueueProps {
   submissions: DirectorySubmission[];
   isLoading?: boolean;
   onStatusChange?: (id: string, status: SubmissionStatus) => void;
   onViewFull?: (submission: DirectorySubmission) => void;
+  onEdit?: (submission: DirectorySubmission) => void;
+  onDelete?: (submission: DirectorySubmission) => void;
+  onFlag?: (submission: DirectorySubmission) => void;
 }
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -36,13 +43,11 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Restaurant:
-    "bg-[var(--color-bougainvillea)]/10 text-[var(--color-bougainvillea)]",
-  Hotel: "bg-[var(--color-ocean-blue)]/10 text-[var(--color-ocean-blue)]",
-  Beach: "bg-[var(--color-sunny-yellow)]/10 text-[var(--color-sunny-yellow)]",
-  Heritage:
-    "bg-[var(--color-valley-green)]/10 text-[var(--color-valley-green)]",
-  Nature: "bg-[var(--color-valley-green)]/10 text-[var(--color-valley-green)]",
+  Restaurant: "bg-bougainvillea-pink/10 text-bougainvillea-pink",
+  Hotel: "bg-ocean-blue/10 text-ocean-blue",
+  Beach: "bg-sunny-yellow/10 text-sunny-yellow",
+  Heritage: "bg-valley-green/10 text-valley-green",
+  Nature: "bg-valley-green/10 text-valley-green",
 };
 
 export function DirectoryQueue({
@@ -50,6 +55,9 @@ export function DirectoryQueue({
   isLoading,
   onStatusChange,
   onViewFull,
+  onEdit,
+  onDelete,
+  onFlag,
 }: DirectoryQueueProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<SubmissionStatus | "ALL">(
@@ -88,6 +96,12 @@ export function DirectoryQueue({
         return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
       case SubmissionStatus.REJECTED:
         return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
+      case SubmissionStatus.FLAGGED:
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300";
+      case SubmissionStatus.ARCHIVED:
+        return "bg-surface-alt text-muted";
+      default:
+        return "bg-surface-alt text-muted";
     }
   };
 
@@ -107,10 +121,12 @@ export function DirectoryQueue({
             <option value={SubmissionStatus.PENDING}>Pending</option>
             <option value={SubmissionStatus.APPROVED}>Approved</option>
             <option value={SubmissionStatus.REJECTED}>Rejected</option>
+            <option value={SubmissionStatus.FLAGGED}>Flagged</option>
           </select>
-          <button className="border-hairline bg-surface text-muted hover:bg-surface-alt flex items-center rounded-md border px-3 py-1.5 text-sm font-medium">
-            <Filter className="mr-2 h-4 w-4" /> Newest First
-          </button>
+          <Button plain>
+            <Filter data-slot="icon" />
+            Newest First
+          </Button>
         </div>
         <div className="relative w-full sm:w-64">
           <input
@@ -118,7 +134,7 @@ export function DirectoryQueue({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search submissions..."
-            className="border-hairline bg-surface placeholder-muted block w-full rounded-md border py-2 pr-3 pl-10 leading-5 focus:border-[var(--color-ocean-blue)] focus:ring-1 focus:ring-[var(--color-ocean-blue)] focus:outline-none sm:text-sm"
+            className="border-hairline bg-surface placeholder-muted focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-md border py-2 pr-3 pl-10 leading-5 focus:ring-1 focus:outline-none sm:text-sm"
           />
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
             <Search className="text-muted h-4 w-4" />
@@ -157,7 +173,7 @@ export function DirectoryQueue({
                           {submission.category}
                         </span>
                         {submission.priceLevel && (
-                          <span className="rounded bg-[var(--color-valley-green)]/10 px-2 py-0.5 text-[10px] font-bold text-[var(--color-valley-green)]">
+                          <span className="bg-valley-green/10 text-valley-green rounded px-2 py-0.5 text-[10px] font-bold">
                             {submission.priceLevel}
                           </span>
                         )}
@@ -214,40 +230,79 @@ export function DirectoryQueue({
                     >
                       {submission.status}
                     </span>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
+                      {/* View Full button */}
                       {onViewFull && (
-                        <button
-                          onClick={() => onViewFull(submission)}
-                          className="border-hairline bg-surface hover:bg-surface-alt flex items-center gap-1 rounded-lg border px-3 py-1.5 text-[10px] font-bold transition-all"
-                        >
-                          <ExternalLink size={12} /> View Full
-                        </button>
+                        <Button outline onClick={() => onViewFull(submission)}>
+                          <Eye data-slot="icon" />
+                          View
+                        </Button>
                       )}
+
+                      {/* Edit button */}
+                      {onEdit && (
+                        <Button
+                          outline
+                          onClick={() => onEdit(submission)}
+                          title="Edit entry"
+                        >
+                          <Pencil data-slot="icon" />
+                          Edit
+                        </Button>
+                      )}
+
+                      {/* Moderation actions for pending items */}
                       {submission.status === SubmissionStatus.PENDING && (
                         <>
-                          <button
+                          <Button
+                            color="green"
                             onClick={() =>
                               onStatusChange?.(
                                 submission.id,
                                 SubmissionStatus.APPROVED
                               )
                             }
-                            className="rounded-lg bg-[var(--color-valley-green)]/10 p-2 text-[var(--color-valley-green)] transition-all hover:bg-[var(--color-valley-green)] hover:text-white"
                           >
-                            <CheckCircle size={14} />
-                          </button>
-                          <button
+                            <CheckCircle data-slot="icon" />
+                            Approve
+                          </Button>
+                          <Button
+                            color="red"
                             onClick={() =>
                               onStatusChange?.(
                                 submission.id,
                                 SubmissionStatus.REJECTED
                               )
                             }
-                            className="rounded-lg bg-red-100/50 p-2 text-red-500 transition-all hover:bg-red-500 hover:text-white dark:bg-red-900/20"
                           >
-                            <XCircle size={14} />
-                          </button>
+                            <XCircle data-slot="icon" />
+                            Reject
+                          </Button>
+                          {/* Flag button */}
+                          {onFlag && (
+                            <Button
+                              color="yellow"
+                              onClick={() => onFlag(submission)}
+                              title="Flag for review"
+                            >
+                              <Flag data-slot="icon" />
+                              Flag
+                            </Button>
+                          )}
                         </>
+                      )}
+
+                      {/* Delete button (available for all statuses) */}
+                      {onDelete && (
+                        <Button
+                          outline
+                          onClick={() => onDelete(submission)}
+                          title="Delete permanently"
+                          className="text-red-600 hover:text-red-700 dark:text-red-400"
+                        >
+                          <Trash2 data-slot="icon" />
+                          Delete
+                        </Button>
                       )}
                     </div>
                   </div>

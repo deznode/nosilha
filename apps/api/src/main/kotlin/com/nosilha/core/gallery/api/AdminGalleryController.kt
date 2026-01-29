@@ -210,4 +210,40 @@ class AdminGalleryController(
 
         moderationService.archiveMedia(id, adminId)
     }
+
+    /**
+     * Promote a gallery image to become the hero image for a directory entry.
+     *
+     * This endpoint allows admins to select an approved user-uploaded image
+     * to become the hero image displayed on the directory entry detail page.
+     *
+     * Prerequisites:
+     * - Media must be a user upload (not external media)
+     * - Media must have ACTIVE status (already approved)
+     * - Media must be linked to a directory entry (entryId not null)
+     * - Media must have a public URL
+     *
+     * The update is performed via event-driven communication: this endpoint
+     * publishes a HeroImagePromotedEvent that the Places module consumes
+     * to update the directory entry's imageUrl field.
+     *
+     * Example:
+     * PATCH /api/v1/admin/gallery/{mediaId}/promote-hero
+     *
+     * @param mediaId UUID of the media item to promote
+     * @param authentication Current admin user
+     * @return 200 OK on success
+     */
+    @PatchMapping("/{mediaId}/promote-hero")
+    fun promoteToHeroImage(
+        @PathVariable mediaId: UUID,
+        authentication: Authentication,
+    ): ResponseEntity<ApiResult<Unit>> {
+        val adminId = UUID.fromString(authentication.name)
+        logger.info { "Admin $adminId promoting media $mediaId to hero image" }
+
+        moderationService.promoteToHeroImage(mediaId, adminId)
+
+        return ResponseEntity.ok(ApiResult(data = Unit))
+    }
 }

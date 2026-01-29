@@ -1,6 +1,5 @@
 "use client";
 
-import { Fragment } from "react";
 import {
   Dialog,
   DialogBackdrop,
@@ -20,6 +19,7 @@ import {
 import type { StorySubmission } from "@/types/story";
 import { StoryType, SubmissionStatus } from "@/types/story";
 import { StoryMarkdown } from "../stories/story-markdown";
+import { Button } from "@/components/catalyst-ui/button";
 
 interface StoryDetailModalProps {
   story: StorySubmission | null;
@@ -29,11 +29,8 @@ interface StoryDetailModalProps {
   onReject: (id: string) => void;
 }
 
-// Config keyed by backend enum names (QUICK, FULL, GUIDED)
-const STORY_TYPE_CONFIG: Record<
-  string,
-  { icon: typeof BookOpen; label: string; color: string }
-> = {
+// Story type configuration - supports both backend enum names and frontend display values
+const STORY_TYPE_CONFIGS = {
   QUICK: {
     icon: Clock,
     label: "Quick Memory",
@@ -50,24 +47,7 @@ const STORY_TYPE_CONFIG: Record<
     color:
       "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
   },
-  // Also support frontend enum values for backwards compatibility
-  [StoryType.QUICK]: {
-    icon: Clock,
-    label: "Quick Memory",
-    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-  },
-  [StoryType.FULL]: {
-    icon: BookOpen,
-    label: "Full Story",
-    color: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
-  },
-  [StoryType.GUIDED]: {
-    icon: BookOpen,
-    label: "Guided Template",
-    color:
-      "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
-  },
-};
+} as const;
 
 // Default config for unknown types
 const DEFAULT_TYPE_CONFIG = {
@@ -76,10 +56,25 @@ const DEFAULT_TYPE_CONFIG = {
   color: "bg-surface-alt text-body",
 };
 
+/**
+ * Resolves story type config from either backend enum or frontend display value.
+ */
+function getStoryTypeConfig(storyType: StoryType | string) {
+  // Handle both backend enum names (QUICK, FULL, GUIDED) and StoryType enum values
+  if (storyType in STORY_TYPE_CONFIGS) {
+    return STORY_TYPE_CONFIGS[storyType as keyof typeof STORY_TYPE_CONFIGS];
+  }
+  return DEFAULT_TYPE_CONFIG;
+}
+
 const STATUS_CONFIG: Record<
   SubmissionStatus,
   { label: string; color: string }
 > = {
+  [SubmissionStatus.DRAFT]: {
+    label: "Draft",
+    color: "bg-surface-alt text-body",
+  },
   [SubmissionStatus.PENDING]: {
     label: "Pending Review",
     color:
@@ -99,6 +94,14 @@ const STATUS_CONFIG: Record<
     color:
       "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
   },
+  [SubmissionStatus.PUBLISHED]: {
+    label: "Published",
+    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+  },
+  [SubmissionStatus.ARCHIVED]: {
+    label: "Archived",
+    color: "bg-surface-alt text-muted",
+  },
 };
 
 export function StoryDetailModal({
@@ -110,7 +113,7 @@ export function StoryDetailModal({
 }: StoryDetailModalProps) {
   if (!story) return null;
 
-  const typeConfig = STORY_TYPE_CONFIG[story.type] || DEFAULT_TYPE_CONFIG;
+  const typeConfig = getStoryTypeConfig(story.type);
   const statusConfig = STATUS_CONFIG[story.status];
   const TypeIcon = typeConfig.icon;
   const isPending = story.status === SubmissionStatus.PENDING;
@@ -148,12 +151,9 @@ export function StoryDetailModal({
                   {story.title}
                 </DialogTitle>
               </div>
-              <button
-                onClick={onClose}
-                className="hover:bg-surface-alt rounded-full p-2 transition-colors"
-              >
-                <X size={20} className="text-muted" />
-              </button>
+              <Button plain onClick={onClose}>
+                <X data-slot="icon" />
+              </Button>
             </div>
 
             {/* Content */}
@@ -194,34 +194,31 @@ export function StoryDetailModal({
             <div className="border-hairline bg-canvas flex items-center justify-end gap-3 border-t p-4">
               {isPending ? (
                 <>
-                  <button
+                  <Button
+                    color="red"
                     onClick={() => {
                       onReject(story.id);
                       onClose();
                     }}
-                    className="inline-flex items-center gap-2 rounded-lg border border-red-300 px-4 py-2 text-red-600 transition-colors hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20"
                   >
-                    <XCircle size={16} />
+                    <XCircle data-slot="icon" />
                     Reject
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    color="green"
                     onClick={() => {
                       onApprove(story.id);
                       onClose();
                     }}
-                    className="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-white transition-colors hover:bg-green-700"
                   >
-                    <Check size={16} />
+                    <Check data-slot="icon" />
                     Approve & Publish
-                  </button>
+                  </Button>
                 </>
               ) : (
-                <button
-                  onClick={onClose}
-                  className="bg-surface-alt text-body hover:bg-surface-alt/80 rounded-lg px-4 py-2 transition-colors"
-                >
+                <Button outline onClick={onClose}>
                   Close
-                </button>
+                </Button>
               )}
             </div>
           </DialogPanel>

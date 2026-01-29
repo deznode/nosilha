@@ -1,118 +1,153 @@
-# Design Pattern: [Pattern Name]
+# Design Pattern Template
 
-> One-line description of what this pattern solves
+---
+pattern-id: [unique-identifier]
+title: [Pattern Name]
+category: component | layout | interaction | data | styling
+status: draft | active | deprecated
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+---
 
-**Pattern ID:** pattern-[name]
-**Category:** UI | Animation | State | Layout | Data | Accessibility
-**Created:** YYYY-MM-DD
-**Status:** Proposed | Approved | Deprecated
+## Intent
+
+[One sentence describing what this pattern solves]
 
 ## Problem
 
-Describe the recurring problem this pattern addresses.
-
-### Symptoms
-- When you see [symptom 1]
-- When you need [symptom 2]
-- When the codebase has [symptom 3]
+[Describe the recurring problem this pattern addresses]
 
 ## Solution
 
-### Pattern Overview
-High-level description of the pattern approach.
+[High-level description of the pattern approach]
 
-### Visual Example
+## When to Use
+
+- [Scenario 1]
+- [Scenario 2]
+- [Scenario 3]
+
+## When NOT to Use
+
+- [Anti-scenario 1]
+- [Anti-scenario 2]
+
+## Structure
+
+### Components
+
 ```
-[ASCII diagram or reference to screenshot]
+[Component Diagram or File Structure]
 ```
+
+### Relationships
+
+[Describe how components interact]
 
 ## Implementation
 
-### Core Code
+### Basic Example
 
 ```tsx
-// Primary implementation example
+// Minimal implementation showing core pattern
 ```
 
-### Variants
+### Full Example
 
-#### Variant A: [Name]
+```tsx
+// Complete implementation with all features
+```
+
+### With Tailwind CSS
+
+```tsx
+// Example showing styling approach
+```
+
+## Variants
+
+### Variant A: [Name]
+
+[When to use this variant]
+
 ```tsx
 // Variant implementation
 ```
 
-#### Variant B: [Name]
+### Variant B: [Name]
+
+[When to use this variant]
+
 ```tsx
 // Variant implementation
 ```
-
-## Design System Integration
-
-### Tokens Used
-| Token | Value | Purpose |
-|-------|-------|---------|
-| `--token-name` | value | [Purpose] |
-
-### Components Used
-- `ComponentName` from `path/to/component`
 
 ## Accessibility
 
 ### Requirements
-- [ ] Keyboard navigable
-- [ ] Screen reader announced
-- [ ] Focus visible
-- [ ] Motion respects `prefers-reduced-motion`
 
-### ARIA Attributes
+- [ARIA requirement 1]
+- [Keyboard navigation]
+- [Screen reader behavior]
+
+### Implementation
+
 ```tsx
-<element
-  role="[role]"
-  aria-label="[label]"
-  aria-describedby="[id]"
-/>
+// Accessibility-focused code
 ```
 
-## Usage Guidelines
+## Responsive Behavior
 
-### When to Use
-- [Scenario 1]
-- [Scenario 2]
+| Breakpoint | Behavior |
+|------------|----------|
+| Mobile (<640px) | [Description] |
+| Tablet (640-1024px) | [Description] |
+| Desktop (>1024px) | [Description] |
 
-### When NOT to Use
-- [Anti-scenario 1]
-- [Anti-scenario 2]
+## Animation & Transitions
 
-### Do
-- [Best practice 1]
-- [Best practice 2]
+[Describe any motion design]
 
-### Don't
-- [Anti-pattern 1]
-- [Anti-pattern 2]
+```css
+/* Transition definitions */
+```
 
-## Examples in Codebase
+## Testing
 
-| Location | Usage |
-|----------|-------|
-| `path/to/file.tsx:42` | [Description] |
-| `path/to/file.tsx:87` | [Description] |
+### Unit Test Example
+
+```tsx
+// Test implementation
+```
+
+### E2E Test Example
+
+```tsx
+// Playwright test
+```
+
+## Known Issues
+
+- [Issue 1]: [Workaround]
+- [Issue 2]: [Workaround]
 
 ## Related Patterns
 
-- [Pattern A](./pattern-a.md) - [Relationship]
-- [Pattern B](./pattern-b.md) - [Relationship]
+- [Pattern A]: [Relationship]
+- [Pattern B]: [Relationship]
 
-## Migration Notes
+## Examples in Codebase
 
-If replacing an older pattern:
-1. [Migration step 1]
-2. [Migration step 2]
+- `path/to/example1.tsx` - [Context]
+- `path/to/example2.tsx` - [Context]
 
----
+## References
+
+- [External resource 1]
+- [External resource 2]
 
 ## Changelog
 
 | Date | Change |
 |------|--------|
-| YYYY-MM-DD | Initial creation |
+| YYYY-MM-DD | Initial pattern documented |

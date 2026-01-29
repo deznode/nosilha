@@ -79,7 +79,7 @@ export function HeroSection({
           )}
 
           {/* Text Content Panel - Frosted glass for readability */}
-          <div className="mb-8 inline-block rounded-2xl bg-black/15 p-6 backdrop-blur-xs md:p-8 dark:bg-black/40">
+          <div className="rounded-container mb-8 inline-block bg-black/15 p-6 backdrop-blur-xs md:p-8 dark:bg-black/40">
             {/* Tagline */}
             <div className="text-sobrado-ochre mb-6 flex items-center space-x-3 font-bold tracking-widest uppercase">
               <span className="bg-sobrado-ochre h-[3px] w-12 rounded-full" />
@@ -113,7 +113,7 @@ export function HeroSection({
             </div>
             <input
               type="text"
-              className="focus:ring-ocean-blue/30 focus:border-ocean-blue text-basalt-900 placeholder-basalt-500 dark:bg-basalt-800/90 block w-full rounded-full border border-white/20 bg-white/95 py-5 pr-32 pl-14 text-base shadow-2xl backdrop-blur-md transition-all outline-none focus:ring-4 dark:border-white/10 dark:text-white dark:placeholder-white/60"
+              className="focus:ring-ocean-blue/30 focus:border-ocean-blue text-basalt-900 placeholder-basalt-500 dark:bg-basalt-800/90 shadow-floating block w-full rounded-full border border-white/20 bg-white/95 py-5 pr-32 pl-14 text-base backdrop-blur-md transition-all outline-none focus:ring-4 dark:border-white/10 dark:text-white dark:placeholder-white/60"
               placeholder="Search history, towns, or businesses..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}

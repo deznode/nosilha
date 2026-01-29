@@ -9,6 +9,7 @@ import { ContentActionToolbar } from "@/components/ui/content-action-toolbar";
 import { ImageGallery } from "@/components/ui/image-gallery";
 import { RelatedEntries } from "@/components/ui/related-entries";
 import StarRating from "@/components/ui/start-rating";
+import { useMediaMetadata } from "@/hooks/queries/useMediaMetadata";
 import { getHotelDetails, getRestaurantDetails } from "@/lib/api-validation";
 import { getEntryUrl } from "@/lib/directory-utils";
 import { siteConfig } from "@/lib/metadata";
@@ -87,7 +88,13 @@ export function DirectoryEntryDetailPageContent({
     siteConfig.url
   ).toString();
 
-  const sampleImages: string[] = [];
+  // Fetch gallery images for this entry
+  const { data: mediaItems } = useMediaMetadata(entry.id);
+  const galleryImages =
+    mediaItems
+      ?.filter((item) => item.publicUrl)
+      .map((item) => item.publicUrl!) ?? [];
+
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -212,7 +219,7 @@ export function DirectoryEntryDetailPageContent({
               <h2 className="text-text-primary font-serif text-3xl font-bold">
                 Gallery
               </h2>
-              <ImageGallery imageUrls={sampleImages} />
+              <ImageGallery imageUrls={galleryImages} />
             </div>
 
             <div className="border-border-primary my-12 border-t" />
@@ -220,7 +227,7 @@ export function DirectoryEntryDetailPageContent({
             <h2 className="text-text-primary font-serif text-3xl font-bold">
               User Reviews
             </h2>
-            <div className="border-border-primary bg-background-primary mt-6 flex flex-wrap items-center gap-x-6 gap-y-4 rounded-xl border p-6 shadow-sm">
+            <div className="border-border-primary bg-background-primary rounded-card shadow-subtle mt-6 flex flex-wrap items-center gap-x-6 gap-y-4 border p-6">
               <p className="text-text-primary text-5xl font-bold">
                 {entry.rating?.toFixed(1) || "N/A"}
               </p>
@@ -240,8 +247,8 @@ export function DirectoryEntryDetailPageContent({
             transition={{ duration: 0.6, delay: 0.2 }}
             className="lg:col-span-1"
           >
-            <div className="glass-panel sticky top-24 rounded-xl p-6">
-              <div className="bg-background-tertiary mb-6 aspect-video w-full overflow-hidden rounded-lg">
+            <div className="glass-panel rounded-card sticky top-24 p-6">
+              <div className="bg-background-tertiary rounded-card mb-6 aspect-video w-full overflow-hidden">
                 <div className="bg-background-tertiary flex h-full w-full items-center justify-center">
                   <MapPin className="text-text-secondary h-12 w-12" />
                 </div>
@@ -263,7 +270,7 @@ export function DirectoryEntryDetailPageContent({
 
         <div className="border-border-primary my-16 border-t" />
 
-        <ContributePhotosSection />
+        <ContributePhotosSection entryId={entry.id} />
       </div>
     </div>
   );

@@ -1,127 +1,125 @@
-# Team Roles & AI Collaboration
+# Team Roles & Collaboration
 
-> Defines expectations for human-AI collaboration on Nos Ilha
+Defining the collaboration model between AI assistant and human developer.
 
-## Human Role: Product Owner & Cultural Guardian
+## Human Developer: Joaquim Costa
 
 ### Responsibilities
-- Define feature requirements and priorities
-- Validate cultural heritage accuracy
-- Make architectural decisions
-- Review and approve implementations
-- Maintain community relationships
 
-### Expectations from AI
-- Propose solutions, don't assume approval
-- Ask clarifying questions upfront
-- Respect cultural sensitivity requirements
-- Provide options with trade-offs explained
-- Document decisions and rationale
+- **Vision & Direction** - Final decisions on product direction and priorities
+- **Cultural Authenticity** - Verification of Cape Verdean heritage content
+- **Code Review** - Final approval on all implementations
+- **Infrastructure** - Cloud deployment and DevOps decisions
+- **Community Relations** - Stakeholder communication and feedback
 
-## AI Role: Implementation Partner
+### Expertise Areas
 
-### Core Capabilities
-- Code generation following project patterns
-- Codebase exploration and analysis
-- Technical research and documentation
-- Testing and quality assurance
-- Refactoring and optimization
+- Full-stack development (Next.js, Spring Boot, PostgreSQL)
+- Cape Verdean culture and Brava Island heritage
+- Project architecture and technical decisions
+- User experience priorities
 
-### Available MCP Tools
+## AI Assistant: Claude
 
-#### Playwright Browser Automation
-Primary tool for visual testing and interaction verification.
+### Responsibilities
 
-| Tool | Purpose |
-|------|---------|
-| `mcp__playwright__browser_navigate` | Navigate to URLs |
-| `mcp__playwright__browser_click` | Click elements |
-| `mcp__playwright__browser_take_screenshot` | Visual testing |
-| `mcp__playwright__browser_snapshot` | DOM analysis |
-| `mcp__playwright__browser_evaluate` | Execute JavaScript |
+- **Implementation** - Writing code following established patterns
+- **Research** - Investigating technical solutions and best practices
+- **Documentation** - Maintaining clear, useful documentation
+- **Quality Assurance** - Catching bugs, suggesting improvements
+- **Pattern Recognition** - Identifying reusable patterns across codebase
 
-**Use Cases:**
-- Verify responsive layouts across viewports
-- Test interactive components
-- Capture screenshots for design review
-- Validate accessibility attributes
+### Available MCP Capabilities
 
-### Design System Expertise
+#### Playwright MCP
 
-The AI understands and applies the Nos Ilha design system:
+- **Browser automation** - Navigate, click, type, screenshot
+- **Visual testing** - Capture and compare UI states
+- **E2E verification** - Test user flows end-to-end
+- **Accessibility audits** - Run automated a11y checks
 
-**Color Tokens:**
-- `--color-ocean-blue`: `#0e4c75` (primary actions)
-- `--color-valley-green`: `#3E7D5A` (success, nature)
-- `--color-bougainvillea-pink`: `#D90368` (accents)
-- `--color-sunny-yellow`: `#F7B801` (warnings, CTAs)
+Usage: Verify implementations visually, test interactions, validate responsive behavior.
 
-**Typography:**
-- `.font-serif` (Fraunces): Headings, display text
-- `.font-sans` (Outfit): Body text, UI elements
+#### Sequential Thinking MCP
 
-**Animation Patterns:**
-- Motion tokens in `lib/animation`
-- Framer Motion for complex animations
-- CSS transitions for simple hover states
+- **Complex problem solving** - Break down multi-step challenges
+- **Architecture decisions** - Reason through design tradeoffs
+- **Debugging** - Systematic investigation of issues
+- **Planning** - Structure implementation approaches
 
-## Collaboration Patterns
+Usage: Work through complex features, debug tricky issues, plan architectural changes.
 
-### Feature Development Flow
+#### Next DevTools (Context)
 
-```
-1. Human: Describe feature need
-2. AI: Ask clarifying questions
-3. Human: Provide context and constraints
-4. AI: Propose implementation approach
-5. Human: Approve or redirect
-6. AI: Implement with incremental updates
-7. Human: Review and validate
-8. AI: Refine based on feedback
-```
+- **Codebase awareness** - Understanding of Next.js patterns
+- **Route analysis** - Knowledge of app structure
+- **Component inventory** - Awareness of existing components
 
-### Decision Making
+## Collaboration Protocols
 
-| Decision Type | Who Decides |
-|---------------|-------------|
-| Cultural content accuracy | Human (with community input) |
-| Technical implementation | AI proposes, Human approves |
-| Architecture changes | Human (AI provides options) |
-| Design system adherence | AI enforces, Human overrides |
-| Performance trade-offs | Human (AI provides data) |
+### Feature Development
 
-### Communication Guidelines
+1. **Specification** - Human provides requirements, AI drafts spec
+2. **Review** - Human approves or refines spec
+3. **Planning** - AI creates implementation plan
+4. **Implementation** - AI writes code, human reviews
+5. **Verification** - AI tests with Playwright, human validates
 
-**AI Should:**
-- Be concise and direct
-- Show code, not describe code
-- Explain trade-offs clearly
-- Admit uncertainty
-- Ask before large changes
+### Design Decisions
 
-**AI Should Not:**
-- Make cultural assumptions
-- Over-engineer solutions
-- Add unrequested features
-- Use excessive praise or validation
-- Guess user intent
+- AI proposes options with tradeoffs
+- Human makes final decision
+- AI documents decision rationale
+- Both follow established patterns
 
-## Quality Standards
+### Content Verification
 
-### Code Review Checklist
-- [ ] Follows existing patterns in codebase
-- [ ] Mobile-first responsive design
-- [ ] Accessibility attributes present
-- [ ] No dead code or unused imports
-- [ ] TypeScript types are correct
-- [ ] Error handling at boundaries
+For cultural heritage content:
 
-### Cultural Heritage Checklist
-- [ ] Content verified for accuracy
-- [ ] Respectful representation
-- [ ] Multilingual support considered
-- [ ] Community voice preserved
+1. AI flags content requiring verification
+2. Human verifies historical accuracy
+3. AI implements with verification notes
+4. Both maintain content authenticity
 
----
+## Communication Style
 
-*This document defines the working relationship. Adjust as collaboration patterns evolve.*
+### AI Should
+
+- Be direct and concise
+- Explain reasoning when asked
+- Flag uncertainties clearly
+- Suggest alternatives when appropriate
+- Ask clarifying questions early
+
+### Human Should
+
+- Provide clear requirements
+- Give feedback promptly
+- Share context and constraints
+- Indicate priority and urgency
+
+## Design System Expertise
+
+### Tailwind CSS v4
+
+AI maintains knowledge of:
+- Utility class conventions
+- Custom theme configuration
+- Responsive design patterns
+- Animation utilities
+
+### Catalyst UI Components
+
+AI understands:
+- Component API and props
+- Composition patterns
+- Customization approaches
+- Accessibility features
+
+### Cultural Heritage Design
+
+AI considers:
+- Respectful imagery treatment
+- Historical context presentation
+- Multilingual text handling
+- Community voice preservation

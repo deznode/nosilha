@@ -63,7 +63,7 @@ export function PageHeader({
       {subtitle && (
         <p
           className={clsx(
-            "text-basalt-500 max-w-2xl font-sans text-lg leading-relaxed",
+            "text-muted max-w-2xl font-sans text-lg leading-relaxed",
             centered && "mx-auto"
           )}
         >

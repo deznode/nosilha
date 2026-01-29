@@ -1,134 +1,159 @@
-# Implementation Plan: [Feature Name]
+# Implementation Plan Template
 
-> Detailed execution plan for implementing the approved feature spec
+---
+plan-id: XXX
+spec-ref: [Link to approved spec]
+title: [Feature Title] Implementation
+status: draft | in-progress | completed
+author: [Author Name]
+created: YYYY-MM-DD
+estimated-effort: [T-shirt size: XS/S/M/L/XL]
+---
 
-**Spec Reference:** XXX-feature-name
-**Author:** [Name]
-**Created:** YYYY-MM-DD
-**Status:** Draft | Approved | In Progress | Complete
+## Overview
+
+[Brief summary of what will be implemented, referencing the approved spec]
 
 ## Prerequisites
 
 ### Dependencies
-- [ ] Dependency 1 must be complete
-- [ ] Dependency 2 must be available
+
+- [ ] [Dependency 1] - [Status]
+- [ ] [Dependency 2] - [Status]
 
 ### Environment Setup
-```bash
-# Any setup commands needed
-```
+
+[Any setup required before starting]
 
 ## Implementation Phases
 
-### Phase 1: [Name]
+### Phase 1: [Foundation/Setup]
 
-**Goal:** [What this phase accomplishes]
-
-#### Tasks
-
-1. **Task 1.1: [Description]**
-   - File: `path/to/file.tsx`
-   - Action: Create/Modify
-   - Details: [Specific implementation notes]
-
-2. **Task 1.2: [Description]**
-   - File: `path/to/file.tsx`
-   - Action: Create/Modify
-   - Details: [Specific implementation notes]
-
-#### Validation
-- [ ] Tests pass
-- [ ] Mobile viewport works
-- [ ] Accessibility check
-
----
-
-### Phase 2: [Name]
-
-**Goal:** [What this phase accomplishes]
+**Goal**: [What this phase achieves]
 
 #### Tasks
 
-1. **Task 2.1: [Description]**
+1. [ ] **[Task 1.1]**
    - File: `path/to/file.tsx`
-   - Action: Create/Modify
-   - Details: [Specific implementation notes]
+   - Changes: [Description]
 
-#### Validation
-- [ ] Tests pass
-- [ ] Integration with Phase 1 works
+2. [ ] **[Task 1.2]**
+   - File: `path/to/file.tsx`
+   - Changes: [Description]
+
+#### Verification
+
+- [ ] [How to verify phase completion]
 
 ---
+
+### Phase 2: [Core Implementation]
+
+**Goal**: [What this phase achieves]
+
+#### Tasks
+
+1. [ ] **[Task 2.1]**
+   - File: `path/to/file.tsx`
+   - Changes: [Description]
+
+#### Verification
+
+- [ ] [How to verify phase completion]
+
+---
+
+### Phase 3: [Polish/Integration]
+
+**Goal**: [What this phase achieves]
+
+#### Tasks
+
+1. [ ] **[Task 3.1]**
+   - File: `path/to/file.tsx`
+   - Changes: [Description]
+
+#### Verification
+
+- [ ] [How to verify phase completion]
+
+## File Changes Summary
+
+### New Files
+
+| Path | Purpose |
+|------|---------|
+| `path/to/new-file.tsx` | [Description] |
+
+### Modified Files
+
+| Path | Changes |
+|------|---------|
+| `path/to/existing-file.tsx` | [What changes] |
+
+### Deleted Files
+
+| Path | Reason |
+|------|--------|
+| `path/to/old-file.tsx` | [Why removing] |
 
 ## Testing Strategy
 
 ### Unit Tests
-| Test | File | Purpose |
-|------|------|---------|
-| [Test name] | `__tests__/...` | [Purpose] |
+
+- [ ] [Component/Function]: [What to test]
 
 ### Integration Tests
-| Test | Coverage |
-|------|----------|
-| [Test name] | [What it validates] |
 
-### E2E Tests
-| Flow | Critical? |
-|------|-----------|
-| [User flow] | Yes/No |
+- [ ] [Flow]: [What to verify]
 
-### Manual Testing Checklist
-- [ ] Mobile (iOS Safari)
-- [ ] Mobile (Android Chrome)
-- [ ] Desktop (Chrome)
-- [ ] Desktop (Firefox)
-- [ ] Keyboard navigation
-- [ ] Screen reader
+### E2E Tests (Playwright)
+
+- [ ] [User journey]: [Steps to automate]
+
+### Manual Testing
+
+- [ ] [Scenario]: [Steps to verify]
 
 ## Rollout Plan
 
-### Feature Flag
-```typescript
-// If using feature flags
-const isFeatureEnabled = featureFlags.get('feature-name')
-```
+### Feature Flags
 
-### Deployment Steps
-1. Deploy to staging
-2. Validate in staging
-3. Deploy to production
-4. Monitor for issues
+[If using feature flags, describe configuration]
+
+### Migration Steps
+
+[If data migration needed]
 
 ### Rollback Plan
-If issues arise:
-1. [Rollback step 1]
-2. [Rollback step 2]
+
+[How to revert if issues arise]
 
 ## Documentation Updates
 
-| Document | Update Needed |
-|----------|--------------|
-| `README.md` | [Description if needed] |
-| `docs/...` | [Description if needed] |
+- [ ] Update [doc name] with [changes]
+- [ ] Add JSDoc to new components
+- [ ] Update Storybook stories
 
-## Risks & Mitigations
+## Definition of Done
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|------------|
-| [Risk] | Low/Med/High | Low/Med/High | [Mitigation] |
+- [ ] All tasks completed
+- [ ] Tests passing
+- [ ] Code reviewed
+- [ ] Documentation updated
+- [ ] Accessibility verified
+- [ ] Performance validated
+- [ ] Deployed to staging
+- [ ] Product owner sign-off
 
-## Timeline
+## Notes
 
-| Phase | Estimated Effort |
-|-------|-----------------|
-| Phase 1 | [Small/Medium/Large] |
-| Phase 2 | [Small/Medium/Large] |
-| Testing | [Small/Medium/Large] |
-| Total | [Small/Medium/Large] |
+[Any additional context, decisions made during implementation, or lessons learned]
 
 ---
 
-## Sign-off
+## Progress Log
 
-- [ ] Implementation plan approved
-- [ ] Ready to begin Phase 1
+| Date | Phase | Status | Notes |
+|------|-------|--------|-------|
+| YYYY-MM-DD | 1 | Started | [Notes] |

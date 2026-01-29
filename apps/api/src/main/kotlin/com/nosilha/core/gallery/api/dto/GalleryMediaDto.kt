@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.nosilha.core.gallery.domain.ExternalMedia
 import com.nosilha.core.gallery.domain.ExternalPlatform
+import com.nosilha.core.gallery.domain.GalleryMedia
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.MediaSource
 import com.nosilha.core.gallery.domain.MediaType
@@ -151,3 +152,18 @@ sealed class GalleryMediaDto {
             )
     }
 }
+
+/**
+ * Extension function to convert any GalleryMedia entity to its appropriate DTO.
+ *
+ * This provides a cleaner API than using companion object methods directly,
+ * enabling usage like `media.toDto()` instead of pattern matching on type.
+ *
+ * @throws IllegalStateException if the media type is not supported
+ */
+fun GalleryMedia.toDto(): GalleryMediaDto =
+    when (this) {
+        is UserUploadedMedia -> GalleryMediaDto.from(this)
+        is ExternalMedia -> GalleryMediaDto.from(this)
+        else -> error("Unknown GalleryMedia type: ${this.javaClass.simpleName}")
+    }

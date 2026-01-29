@@ -51,7 +51,7 @@ export function ProfileHeader({
   return (
     <div className="border-hairline bg-surface mb-6 overflow-hidden rounded-lg border shadow-sm">
       {/* Cover Image */}
-      <div className="relative h-32 bg-[var(--color-ocean-blue)]">
+      <div className="bg-ocean-blue relative h-32">
         <div className="absolute -bottom-12 left-8">
           <div className="bg-surface relative h-24 w-24 overflow-hidden rounded-full p-1 shadow-md">
             {profile.avatarUrl ? (
@@ -95,7 +95,7 @@ export function ProfileHeader({
           </div>
           <button
             onClick={onEditProfile}
-            className="border-hairline text-muted rounded-md border px-4 py-2 text-sm font-medium transition-colors hover:text-[var(--color-ocean-blue)]"
+            className="border-hairline text-muted hover:text-ocean-blue rounded-md border px-4 py-2 text-sm font-medium transition-colors"
           >
             Edit Profile
           </button>
@@ -104,7 +104,7 @@ export function ProfileHeader({
         {/* Stats */}
         <div className="border-hairline mt-8 grid grid-cols-3 gap-4 border-t pt-6">
           <div className="text-center">
-            <span className="block text-2xl font-bold text-[var(--color-ocean-blue)]">
+            <span className="text-ocean-blue block text-2xl font-bold">
               {profile.stats.storiesSubmitted}
             </span>
             <span className="text-muted text-xs tracking-wide uppercase">
@@ -112,7 +112,7 @@ export function ProfileHeader({
             </span>
           </div>
           <div className="border-hairline border-l text-center">
-            <span className="block text-2xl font-bold text-[var(--color-bougainvillea)]">
+            <span className="text-bougainvillea-pink block text-2xl font-bold">
               {profile.stats.suggestionsMade}
             </span>
             <span className="text-muted text-xs tracking-wide uppercase">
@@ -120,7 +120,7 @@ export function ProfileHeader({
             </span>
           </div>
           <div className="border-hairline border-l text-center">
-            <span className="block text-2xl font-bold text-[var(--color-valley-green)]">
+            <span className="text-valley-green block text-2xl font-bold">
               {profile.stats.reactionsGiven}
             </span>
             <span className="text-muted text-xs tracking-wide uppercase">

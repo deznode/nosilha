@@ -72,7 +72,7 @@ export function SocialMediaLinks({
           <a
             key={item.name}
             href={item.href}
-            className="text-text-tertiary hover:text-ocean-blue transition-colors duration-200"
+            className="text-muted hover:text-ocean-blue transition-colors duration-200"
             aria-label={item.ariaLabel}
             target="_blank"
             rel="noopener noreferrer"
@@ -89,7 +89,7 @@ export function SocialMediaLinks({
   return (
     <nav
       aria-label="Social media links"
-      className={`bg-background-primary py-12 sm:py-16 ${className}`}
+      className={`bg-canvas py-12 sm:py-16 ${className}`}
     >
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <ul className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
@@ -97,7 +97,7 @@ export function SocialMediaLinks({
             <li key={item.name}>
               <a
                 href={item.href}
-                className="group hover:bg-background-secondary border-border-primary hover:border-ocean-blue/30 hover:ring-ocean-blue/20 flex flex-col items-center rounded-lg border p-6 text-center transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:shadow-xl hover:ring-2"
+                className="group hover:bg-surface border-hairline hover:border-ocean-blue/30 hover:ring-ocean-blue/20 rounded-button hover:shadow-elevated flex flex-col items-center border p-6 text-center transition-all duration-300 hover:-translate-y-2 hover:scale-105 hover:ring-2"
                 aria-label={item.ariaLabel}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -111,12 +111,12 @@ export function SocialMediaLinks({
                 </div>
 
                 {/* Platform Name */}
-                <h3 className="text-text-primary group-hover:text-ocean-blue mt-4 text-lg font-semibold transition-colors duration-300">
+                <h3 className="text-body group-hover:text-ocean-blue mt-4 text-lg font-semibold transition-colors duration-300">
                   {item.name}
                 </h3>
 
                 {/* Description */}
-                <p className="text-text-secondary group-hover:text-text-primary mt-2 max-w-sm text-sm leading-6 transition-colors duration-300">
+                <p className="text-muted group-hover:text-body mt-2 max-w-sm text-sm leading-6 transition-colors duration-300">
                   {item.description}
                 </p>
               </a>

@@ -6,6 +6,7 @@ import { QueueItem } from "./queue-item";
 import { MdxPreviewModal } from "@/components/admin/mdx-preview-modal";
 import { generateMdx, updateStoryStatus } from "@/lib/api";
 import { archiveStoryToMDX } from "@/app/actions/archive-story";
+import { Button } from "@/components/catalyst-ui/button";
 
 /**
  * Generate a URL-friendly slug from a story title
@@ -56,14 +57,16 @@ export function StoriesQueue({
     try {
       const slug = generateSlug(story.title);
       await updateStoryStatus(story.id, "PUBLISH", undefined, slug);
-      toast.showSuccess(`Story "${story.title}" published successfully!`);
+      toast.success(`Story "${story.title}" published successfully!`).show();
       // Trigger parent component to refresh the list
       window.location.reload();
     } catch (error) {
       console.error("Failed to publish story:", error);
-      toast.showError(
-        error instanceof Error ? error.message : "Failed to publish story"
-      );
+      toast
+        .error(
+          error instanceof Error ? error.message : "Failed to publish story"
+        )
+        .show();
     } finally {
       setPublishingStoryId(null);
     }
@@ -78,11 +81,13 @@ export function StoriesQueue({
       setMdxContent(content.mdxSource);
     } catch (error) {
       console.error("Failed to generate MDX:", error);
-      toast.showError(
-        error instanceof Error
-          ? error.message
-          : "Failed to generate MDX content"
-      );
+      toast
+        .error(
+          error instanceof Error
+            ? error.message
+            : "Failed to generate MDX content"
+        )
+        .show();
       setPreviewingStory(null);
     } finally {
       setIsGeneratingMdx(false);
@@ -103,21 +108,27 @@ export function StoriesQueue({
       );
 
       if (result.success) {
-        toast.showSuccess(
-          `Story archived successfully! Committed to GitHub: ${result.commitUrl || "repository"}`
-        );
+        toast
+          .success(
+            `Story archived successfully! Committed to GitHub: ${result.commitUrl || "repository"}`
+          )
+          .show();
         setPreviewingStory(null);
         setMdxContent("");
         // Trigger parent component to refresh the list
         window.location.reload();
       } else {
-        toast.showError(result.error || "Failed to commit MDX content");
+        toast.error(result.error || "Failed to commit MDX content").show();
       }
     } catch (error) {
       console.error("Failed to commit MDX:", error);
-      toast.showError(
-        error instanceof Error ? error.message : "Failed to commit MDX content"
-      );
+      toast
+        .error(
+          error instanceof Error
+            ? error.message
+            : "Failed to commit MDX content"
+        )
+        .show();
     } finally {
       setIsCommitting(false);
     }
@@ -178,9 +189,10 @@ export function StoriesQueue({
             <option value={SubmissionStatus.REJECTED}>Rejected</option>
             <option value={SubmissionStatus.FLAGGED}>Flagged</option>
           </select>
-          <button className="border-hairline bg-surface text-muted hover:bg-surface-alt flex items-center rounded-md border px-3 py-1.5 text-sm font-medium">
-            <Filter className="mr-2 h-4 w-4" /> Newest First
-          </button>
+          <Button plain>
+            <Filter data-slot="icon" />
+            Newest First
+          </Button>
         </div>
         <div className="relative w-full sm:w-64">
           <input
@@ -188,7 +200,7 @@ export function StoriesQueue({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search stories..."
-            className="border-hairline bg-surface placeholder-muted block w-full rounded-md border py-2 pr-3 pl-10 leading-5 focus:border-[var(--color-ocean-blue)] focus:ring-1 focus:ring-[var(--color-ocean-blue)] focus:outline-none sm:text-sm"
+            className="border-hairline bg-surface placeholder-muted focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-md border py-2 pr-3 pl-10 leading-5 focus:ring-1 focus:outline-none sm:text-sm"
           />
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
             <Search className="text-muted h-4 w-4" />

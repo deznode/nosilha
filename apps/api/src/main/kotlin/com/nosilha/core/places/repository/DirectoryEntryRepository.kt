@@ -1,6 +1,7 @@
 package com.nosilha.core.places.repository
 
 import com.nosilha.core.places.domain.DirectoryEntry
+import com.nosilha.core.places.domain.DirectoryEntryStatus
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
@@ -149,4 +150,168 @@ interface DirectoryEntryRepository :
         """,
     )
     fun countByTownGroupByTown(): List<Array<Any>>
+
+    // =====================================================
+    // PUBLIC DIRECTORY QUERIES (PUBLISHED entries only)
+    // =====================================================
+
+    /**
+     * Finds all PUBLISHED DirectoryEntry instances with pagination.
+     *
+     * <p>Used for public directory listings to show only published entries.</p>
+     *
+     * @param status The status to filter by (typically PUBLISHED)
+     * @param pageable Pagination parameters
+     * @return A page of DirectoryEntry entities with the specified status
+     */
+    fun findByStatus(
+        status: DirectoryEntryStatus,
+        pageable: Pageable,
+    ): Page<DirectoryEntry>
+
+    /**
+     * Finds PUBLISHED DirectoryEntry instances by category with pagination.
+     *
+     * <p>Used for public directory listings filtered by category.</p>
+     *
+     * @param status The status to filter by (typically PUBLISHED)
+     * @param category The category name to filter by
+     * @param pageable Pagination parameters
+     * @return A page of DirectoryEntry entities matching the filters
+     */
+    fun findByStatusAndCategoryIgnoreCase(
+        status: DirectoryEntryStatus,
+        category: String,
+        pageable: Pageable,
+    ): Page<DirectoryEntry>
+
+    /**
+     * Finds PUBLISHED DirectoryEntry instances by town with pagination.
+     *
+     * @param status The status to filter by
+     * @param town The town name to filter by
+     * @param pageable Pagination parameters
+     * @return A page of DirectoryEntry entities matching the filters
+     */
+    fun findByStatusAndTownIgnoreCase(
+        status: DirectoryEntryStatus,
+        town: String,
+        pageable: Pageable,
+    ): Page<DirectoryEntry>
+
+    /**
+     * Finds PUBLISHED DirectoryEntry instances by category and town with pagination.
+     *
+     * @param status The status to filter by
+     * @param category The category name to filter by
+     * @param town The town name to filter by
+     * @param pageable Pagination parameters
+     * @return A page of DirectoryEntry entities matching the filters
+     */
+    fun findByStatusAndCategoryIgnoreCaseAndTownIgnoreCase(
+        status: DirectoryEntryStatus,
+        category: String,
+        town: String,
+        pageable: Pageable,
+    ): Page<DirectoryEntry>
+
+    /**
+     * Performs full-text search on PUBLISHED directory entries.
+     *
+     * @param query The search query string
+     * @param pageable Pagination parameters
+     * @return A page of PUBLISHED DirectoryEntry entities matching the search query
+     */
+    @Query(
+        value = """
+        SELECT * FROM directory_entries
+        WHERE search_vector @@ plainto_tsquery('english', :query)
+        AND status = 'PUBLISHED'
+        ORDER BY ts_rank(search_vector, plainto_tsquery('english', :query)) DESC
+        """,
+        countQuery = """
+        SELECT COUNT(*) FROM directory_entries
+        WHERE search_vector @@ plainto_tsquery('english', :query)
+        AND status = 'PUBLISHED'
+        """,
+        nativeQuery = true,
+    )
+    fun searchByQueryPublished(
+        @Param("query") query: String,
+        pageable: Pageable,
+    ): Page<DirectoryEntry>
+
+    // =====================================================
+    // ADMIN MODERATION QUERIES (all statuses)
+    // =====================================================
+
+    /**
+     * Finds all directory entries ordered by creation time (newest first).
+     *
+     * <p>Used for admin dashboards to display all entries across all statuses.</p>
+     *
+     * @param pageable Pagination parameters (page number, size, sort)
+     * @return Page of all directory entries ordered by creation date descending
+     */
+    fun findAllByOrderByCreatedAtDesc(pageable: Pageable): Page<DirectoryEntry>
+
+    /**
+     * Finds directory entries by status, ordered by creation time (newest first).
+     *
+     * <p>Used for admin moderation queue to show most recent entries first.</p>
+     *
+     * @param status Moderation status to filter by
+     * @param pageable Pagination parameters
+     * @return Page of entries with the specified status, ordered by creation date descending
+     */
+    fun findByStatusOrderByCreatedAtDesc(
+        status: DirectoryEntryStatus,
+        pageable: Pageable,
+    ): Page<DirectoryEntry>
+
+    /**
+     * Counts the number of directory entries with a specific status.
+     *
+     * <p>Used for admin statistics and dashboard metrics to show
+     * pending review count, published count, etc.</p>
+     *
+     * @param status Status to count
+     * @return Number of entries with the specified status
+     */
+    fun countByStatus(status: DirectoryEntryStatus): Long
+
+    /**
+     * Counts only PUBLISHED entries for public statistics.
+     *
+     * @return Number of published directory entries
+     */
+    @Query("SELECT COUNT(d) FROM DirectoryEntry d WHERE d.status = 'PUBLISHED'")
+    fun countPublished(): Long
+
+    /**
+     * Counts distinct towns for PUBLISHED entries only.
+     *
+     * @return Number of distinct towns with published content
+     */
+    @Query("SELECT COUNT(DISTINCT d.town) FROM DirectoryEntry d WHERE d.status = 'PUBLISHED'")
+    fun countDistinctTownsPublished(): Long
+
+    /**
+     * Counts PUBLISHED directory entries grouped by town, ordered by count descending.
+     *
+     * <p>Used for dashboard statistics to show which towns have the most published content.
+     * Only includes PUBLISHED entries to avoid inflating counts with pending submissions.</p>
+     *
+     * @return List of pairs (town, count) for PUBLISHED entries only, ordered by count descending
+     */
+    @Query(
+        """
+        SELECT d.town, COUNT(d)
+        FROM DirectoryEntry d
+        WHERE d.status = 'PUBLISHED'
+        GROUP BY d.town
+        ORDER BY COUNT(d) DESC
+        """,
+    )
+    fun countByTownGroupByTownPublished(): List<Array<Any>>
 }

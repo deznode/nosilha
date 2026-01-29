@@ -117,16 +117,18 @@ export async function getEntriesForMap(
  * Uploads an image file and returns the public URL.
  * Automatically uses the configured API implementation (backend or mock).
  * @param file The image file to upload.
- * @param category Optional category for file organization.
- * @param description Optional description of the file.
+ * @param options Optional upload options (entryId, category, description).
  * @returns A promise that resolves to the public URL of the uploaded image.
  */
 export async function uploadImage(
   file: File,
-  category?: string,
-  description?: string
+  options?: {
+    entryId?: string;
+    category?: string;
+    description?: string;
+  }
 ): Promise<string> {
-  return apiClient.uploadImage(file, category, description);
+  return apiClient.uploadImage(file, options);
 }
 
 /**
@@ -584,6 +586,36 @@ export async function updateDirectorySubmissionStatus(
   return apiClient.updateDirectorySubmissionStatus(id, status, notes);
 }
 
+/**
+ * Updates an existing directory entry.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Directory entry ID
+ * @param data Update data (all fields optional)
+ * @returns A promise that resolves to updated directory submission
+ * @throws Error if entry not found (HTTP 404)
+ * @throws Error if validation fails (HTTP 400)
+ * @throws Error if authentication failed (HTTP 401/403)
+ */
+export async function updateDirectoryEntry(
+  id: string,
+  data: import("@/lib/api-contracts").UpdateDirectoryEntryRequest
+): Promise<DirectorySubmission> {
+  return apiClient.updateDirectoryEntry(id, data);
+}
+
+/**
+ * Deletes a directory entry permanently.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Directory entry ID
+ * @throws Error if entry not found (HTTP 404)
+ * @throws Error if authentication failed (HTTP 401/403)
+ */
+export async function deleteDirectoryEntry(id: string): Promise<void> {
+  return apiClient.deleteDirectoryEntry(id);
+}
+
 // ================================
 // PROFILE OPERATIONS (User Story 1)
 // ================================
@@ -772,6 +804,26 @@ export async function createExternalMedia(
   request: import("@/types/gallery").CreateExternalMediaRequest
 ): Promise<import("@/types/gallery").ExternalMedia> {
   return apiClient.createExternalMedia(request);
+}
+
+/**
+ * Promotes a gallery image to become the hero image for a directory entry.
+ * Admin endpoint - requires ADMIN role.
+ * Automatically uses the configured API implementation (backend or mock).
+ *
+ * Prerequisites:
+ * - Media must be a user upload (not external media)
+ * - Media must have ACTIVE status (already approved)
+ * - Media must be linked to a directory entry (entryId not null)
+ * - Media must have a public URL
+ *
+ * @param mediaId UUID of the gallery media item to promote
+ * @throws Error if media not found (HTTP 404)
+ * @throws Error if validation fails (HTTP 400)
+ * @throws Error if authentication failed (HTTP 401/403)
+ */
+export async function promoteToHeroImage(mediaId: string): Promise<void> {
+  return apiClient.promoteToHeroImage(mediaId);
 }
 
 // ================================

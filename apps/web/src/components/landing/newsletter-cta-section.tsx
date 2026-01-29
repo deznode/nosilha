@@ -149,7 +149,7 @@ export function NewsletterCtaSection() {
                 errors.email ? "landing-email-error" : undefined
               }
               disabled={isProcessing}
-              className="focus:ring-bougainvillea-pink w-full rounded-lg border border-white/30 bg-white/10 px-6 py-4 text-white placeholder-white/70 backdrop-blur-sm transition-all focus:bg-white/20 focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              className="focus:ring-bougainvillea-pink rounded-button w-full border border-white/30 bg-white/10 px-6 py-3 text-white placeholder-white/70 backdrop-blur-sm transition-all focus:bg-white/20 focus:ring-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             />
 
             {/* Honeypot field (hidden from users and screen readers) */}
@@ -176,7 +176,7 @@ export function NewsletterCtaSection() {
           <button
             type="submit"
             disabled={isProcessing}
-            className="bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 focus-visible:ring-offset-ocean-blue-deep rounded-lg px-8 py-3 font-bold text-white shadow-lg transition-all duration-200 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 focus-visible:ring-offset-ocean-blue-deep rounded-button px-8 py-3 font-bold text-white shadow-lg transition-all duration-200 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isProcessing ? "Subscribing..." : "Subscribe"}
           </button>

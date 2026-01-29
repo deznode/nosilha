@@ -10,9 +10,11 @@ import {
   Music,
   ExternalLink,
   Upload,
+  Star,
 } from "lucide-react";
 import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
+import { Button } from "@/components/catalyst-ui/button";
 
 interface GalleryQueueItemProps {
   item: GalleryMedia;
@@ -22,12 +24,20 @@ interface GalleryQueueItemProps {
     reason?: string,
     notes?: string
   ) => void;
+  onPromoteToHero?: (id: string) => void;
 }
 
 export function GalleryQueueItem({
   item,
   onStatusChange,
+  onPromoteToHero,
 }: GalleryQueueItemProps) {
+  // Check if this item can be promoted to hero image
+  const canPromoteToHero =
+    isUserUploadMedia(item) &&
+    item.entryId &&
+    item.publicUrl &&
+    item.status === "ACTIVE";
   const getMediaIcon = () => {
     if (isExternalMedia(item)) {
       if (item.mediaType === "VIDEO") return <Video size={14} />;
@@ -54,22 +64,16 @@ export function GalleryQueueItem({
   };
 
   const getThumbnail = () => {
-    if (isUserUploadMedia(item) && item.publicUrl) {
-      return (
-        <Image
-          src={item.publicUrl}
-          alt={item.title || "Gallery item"}
-          fill
-          className="object-cover"
-          unoptimized
-        />
-      );
-    }
+    const thumbnailUrl = isUserUploadMedia(item)
+      ? item.publicUrl
+      : isExternalMedia(item)
+        ? item.thumbnailUrl
+        : null;
 
-    if (isExternalMedia(item) && item.thumbnailUrl) {
+    if (thumbnailUrl) {
       return (
         <Image
-          src={item.thumbnailUrl}
+          src={thumbnailUrl}
           alt={item.title || "Gallery item"}
           fill
           className="object-cover"
@@ -152,22 +156,25 @@ export function GalleryQueueItem({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2">
-          <button
+        <div className="flex flex-wrap gap-2">
+          <Button
+            color="green"
             onClick={() => onStatusChange(item.id, "APPROVE")}
             disabled={item.status === "ACTIVE"}
-            className="inline-flex items-center gap-1 rounded-lg bg-[var(--color-valley-green)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-30"
           >
-            <CheckCircle size={14} /> Approve
-          </button>
-          <button
+            <CheckCircle data-slot="icon" />
+            Approve
+          </Button>
+          <Button
+            color="yellow"
             onClick={() => onStatusChange(item.id, "FLAG", "Needs review")}
             disabled={item.status === "FLAGGED"}
-            className="inline-flex items-center gap-1 rounded-lg bg-yellow-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-yellow-600 disabled:cursor-not-allowed disabled:opacity-30"
           >
-            <Flag size={14} /> Flag
-          </button>
-          <button
+            <Flag data-slot="icon" />
+            Flag
+          </Button>
+          <Button
+            color="red"
             onClick={() =>
               onStatusChange(
                 item.id,
@@ -176,10 +183,20 @@ export function GalleryQueueItem({
               )
             }
             disabled={item.status === "REJECTED"}
-            className="inline-flex items-center gap-1 rounded-lg bg-red-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-30"
           >
-            <XCircle size={14} /> Reject
-          </button>
+            <XCircle data-slot="icon" />
+            Reject
+          </Button>
+          {canPromoteToHero && onPromoteToHero && (
+            <Button
+              color="blue"
+              onClick={() => onPromoteToHero(item.id)}
+              title="Set this image as the hero image for the directory entry"
+            >
+              <Star data-slot="icon" />
+              Set as Hero
+            </Button>
+          )}
         </div>
       </div>
     </div>
