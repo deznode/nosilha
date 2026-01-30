@@ -78,10 +78,10 @@
 /* === DARK MODE OVERRIDES (Volcanic Night) === */
 .dark {
   /* Brand Adjustments for Dark Mode (Lighter for contrast) */
-  --brand-ocean-blue: oklch(0.73 0.15 200);
-  --brand-ocean-blue-light: oklch(0.78 0.12 200);
+  --brand-ocean-blue: oklch(0.75 0.14 234);
+  --brand-ocean-blue-light: oklch(0.80 0.13 234);
   --brand-ocean-blue-deep: oklch(0.30 0.07 240);
-  --brand-bougainvillea-pink: oklch(0.70 0.15 340);
+  --brand-bougainvillea-pink: oklch(0.72 0.18 348);
   --brand-valley-green: oklch(0.65 0.12 160);
 
   /* Backgrounds - Deep Basalt */
@@ -92,7 +92,7 @@
   /* Foreground (Text) */
   --foreground: oklch(0.96 0.007 250);
   --foreground-secondary: oklch(0.78 0.02 250); /* WCAG AA compliant */
-  --foreground-brand: oklch(0.80 0.10 200);
+  --foreground-brand: oklch(0.83 0.10 228);
 
   /* Borders */
   --border-subtle: oklch(0.30 0.025 260);
@@ -114,10 +114,10 @@
   --popover: oklch(0.18 0.02 260);
   --popover-foreground: oklch(0.96 0.007 250);
   --input: oklch(0.30 0.025 260);
-  --ring: oklch(0.73 0.15 200);
+  --ring: oklch(0.75 0.14 234);
 
   /* Focus Ring */
-  --focus-glow: oklch(0.73 0.15 200 / 0.2);
+  --focus-glow: oklch(0.75 0.14 234 / 0.2);
 }
 
 /* ========================================

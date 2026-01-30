@@ -16,10 +16,10 @@ See `docs/design-system.md` for comprehensive styling guide.
 
 | Color | Usage |
 |-------|-------|
-| Ocean Blue (`#0e4c75`) | Primary actions, links |
-| Valley Green (`#2f6e4d`) | Success states |
-| Bougainvillea Pink (`#D90368`) | Accents |
-| Sunny Yellow (`#F7B801`) | Warnings, CTAs |
+| Ocean Blue (`#003f60`) | Primary actions, links |
+| Valley Green (`#236436`) | Success states |
+| Bougainvillea Pink (`#ae1173`) | Accents |
+| Sunny Yellow (`#f3ba26`) | Warnings, CTAs |
 
 ## Semantic Tokens (Preferred)
 

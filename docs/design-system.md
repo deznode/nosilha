@@ -66,11 +66,11 @@ Interactive gallery showcasing all design tokens and components.
 
 | Token | Light | Dark | Usage |
 |-------|-------|------|-------|
-| `ocean-blue` | `#0e4c75` | `#38bdf8` | Primary CTAs, links, focus rings |
-| `valley-green` | `#2f6e4d` | - | Success states, nature elements |
-| `bougainvillea-pink` | `#c02669` | `#f472b6` | Accent highlights, decorative |
-| `sobrado-ochre` | `#d97706` | - | Warnings, warm accents |
-| `sunny-yellow` | `#fbbf24` | - | Ratings, call-to-action |
+| `ocean-blue` | `#003f60` | `#39bbf8` | Primary CTAs, links, focus rings |
+| `valley-green` | `#236436` | - | Success states, nature elements |
+| `bougainvillea-pink` | `#ae1173` | `#f36fb8` | Accent highlights, decorative |
+| `sobrado-ochre` | `#cd6800` | - | Warnings, warm accents |
+| `sunny-yellow` | `#f3ba26` | - | Ratings, call-to-action |
 
 ### Semantic Tokens (Preferred)
 
@@ -95,9 +95,9 @@ Use these short aliases throughout the codebase:
 | `bg-secondary` | `mist-50` | `#1e293b` |
 | `bg-tertiary` | `mist-100` | `#334155` |
 | `text-primary` | `basalt-900` | `#f1f5f9` |
-| `text-secondary` | `basalt-500` | `#94a3b8` |
-| `text-tertiary` | `basalt-500` | `basalt-500` |
-| `text-brand` | `ocean-blue` | `#7dd3fc` |
+| `text-secondary` | `basalt-600` | `#94a3b8` |
+| `text-tertiary` | `basalt-600` | `basalt-600` |
+| `text-brand` | `ocean-blue` | `#7dd4fb` |
 | `border-subtle` | `mist-200` | `#334155` |
 | `border-strong` | `basalt-500` | `#475569` |
 
@@ -145,20 +145,21 @@ The design system ensures WCAG AA color contrast compliance:
 
 | Token | Hex | Usage |
 |-------|-----|-------|
-| `mist-50` | `#f8fafc` | Lightest backgrounds |
-| `mist-100` | `#f1f5f9` | Secondary backgrounds |
-| `mist-200` | `#e2e8f0` | Borders, dividers |
-| `basalt-500` | `#64748b` | Secondary text |
-| `basalt-800` | `#1e293b` | Dark surfaces |
-| `basalt-900` | `#0f172a` | Primary text (light mode) |
+| `mist-50` | `#f6f9fc` | Lightest backgrounds |
+| `mist-100` | `#eef2f6` | Secondary backgrounds |
+| `mist-200` | `#e0e5eb` | Borders, dividers |
+| `basalt-500` | `#677284` | Borders, icons, non-text elements |
+| `basalt-600` | `#4c5666` | Secondary text (WCAG AA compliant) |
+| `basalt-800` | `#202938` | Dark surfaces |
+| `basalt-900` | `#0e1624` | Primary text (light mode) |
 
 ### Status Colors
 
 | Token | Hex | Usage |
 |-------|-----|-------|
-| `status-error` | `#be123c` | Error states, destructive actions |
-| `status-success` | `#15803d` | Success confirmations |
-| `status-warning` | `#b45309` | Warnings, caution |
+| `status-error` | `#f0355d` | Error states, destructive actions |
+| `status-success` | `#00b47a` | Success confirmations |
+| `status-warning` | `#f49500` | Warnings, caution |
 
 ### Dark Mode
 
