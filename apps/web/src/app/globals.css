@@ -13,6 +13,10 @@
  * ======================================== */
 
 :root {
+  /* @brand-tokens:start */
+  /* AUTO-GENERATED from palette.json v2.0.0 */
+  /* Updated: 2026-02-03 */
+
   /* === BRAND PALETTE (The Brava Tones) in OKLCH === */
   /* Primary Brand */
   --brand-ocean-blue: oklch(0.35 0.08 240);
@@ -36,6 +40,7 @@
   --status-error: oklch(0.63 0.22 15);
   --status-success: oklch(0.67 0.17 165);
   --status-warning: oklch(0.75 0.18 70);
+  /* @brand-tokens:end */
 
   /* === SEMANTIC TOKENS (Light Mode) === */
 
@@ -77,12 +82,14 @@
 
 /* === DARK MODE OVERRIDES (Volcanic Night) === */
 .dark {
+  /* @brand-tokens-dark:start */
   /* Brand Adjustments for Dark Mode (Lighter for contrast) */
   --brand-ocean-blue: oklch(0.75 0.14 234);
   --brand-ocean-blue-light: oklch(0.80 0.13 234);
   --brand-ocean-blue-deep: oklch(0.30 0.07 240);
-  --brand-bougainvillea-pink: oklch(0.72 0.18 348);
   --brand-valley-green: oklch(0.65 0.12 160);
+  --brand-bougainvillea-pink: oklch(0.72 0.18 348);
+  /* @brand-tokens-dark:end */
 
   /* Backgrounds - Deep Basalt */
   --background: oklch(0.15 0.02 260);

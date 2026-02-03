@@ -1,31 +1,52 @@
 {
   "meta": {
     "source": "Nos Ilha Design System",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "codename": "Ilha das Flores",
-    "colorFormat": "HEX (sRGB approximation of OKLCH values in globals.css)"
+    "colorFormat": "OKLCH"
   },
   "brand": {
-    "oceanBlue": "#003F60",
-    "oceanBlueLight": "#17687D",
-    "oceanBlueDeep": "#003F60",
-    "valleyGreen": "#236436",
-    "bougainvilleaPink": "#AE1173",
-    "sobradoOchre": "#CD6800",
-    "sunnyYellow": "#F3BA26"
+    "oceanBlue": {
+      "light": "oklch(0.35 0.08 240)",
+      "dark": "oklch(0.75 0.14 234)"
+    },
+    "oceanBlueLight": {
+      "light": "oklch(0.48 0.08 220)",
+      "dark": "oklch(0.80 0.13 234)"
+    },
+    "oceanBlueDeep": {
+      "light": "oklch(0.35 0.08 240)",
+      "dark": "oklch(0.30 0.07 240)"
+    },
+    "valleyGreen": {
+      "light": "oklch(0.45 0.10 150)",
+      "dark": "oklch(0.65 0.12 160)"
+    },
+    "bougainvilleaPink": {
+      "light": "oklch(0.50 0.20 350)",
+      "dark": "oklch(0.72 0.18 348)"
+    },
+    "sobradoOchre": {
+      "light": "oklch(0.62 0.18 65)",
+      "dark": null
+    },
+    "sunnyYellow": {
+      "light": "oklch(0.82 0.16 85)",
+      "dark": null
+    }
   },
   "neutrals": {
-    "mist50": "#F6F9FC",
-    "mist100": "#EEF2F6",
-    "mist200": "#E0E5EB",
-    "basalt500": "#677284",
-    "basalt600": "#4C5666",
-    "basalt800": "#202938",
-    "basalt900": "#0E1624"
+    "mist50": { "light": "oklch(0.98 0.005 250)", "dark": null },
+    "mist100": { "light": "oklch(0.96 0.007 250)", "dark": null },
+    "mist200": { "light": "oklch(0.92 0.01 250)", "dark": null },
+    "basalt500": { "light": "oklch(0.55 0.03 260)", "dark": null },
+    "basalt600": { "light": "oklch(0.45 0.03 260)", "dark": null },
+    "basalt800": { "light": "oklch(0.28 0.03 260)", "dark": null },
+    "basalt900": { "light": "oklch(0.20 0.03 260)", "dark": null }
   },
   "status": {
-    "statusError": "#F0355D",
-    "statusSuccess": "#00B47A",
-    "statusWarning": "#F49500"
+    "error": { "light": "oklch(0.63 0.22 15)", "dark": null },
+    "success": { "light": "oklch(0.67 0.17 165)", "dark": null },
+    "warning": { "light": "oklch(0.75 0.18 70)", "dark": null }
   }
 }
