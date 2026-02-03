@@ -53,9 +53,9 @@ export function Select({
           // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
           "dark:before:hidden",
           // Focus ring
-          "after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-transparent after:ring-inset has-data-[open]:after:ring-2 has-data-[open]:after:ring-ocean-blue",
+          "has-data-[open]:after:ring-ocean-blue after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-transparent after:ring-inset has-data-[open]:after:ring-2",
           // Disabled state
-          "data-[disabled]:opacity-50 data-[disabled]:before:bg-basalt-900/5 data-[disabled]:before:shadow-none",
+          "data-[disabled]:before:bg-basalt-900/5 data-[disabled]:opacity-50 data-[disabled]:before:shadow-none",
           // Invalid state
           "data-[invalid]:before:shadow-red-500/10",
         ])}
@@ -66,9 +66,11 @@ export function Select({
             "relative flex w-full items-center justify-between rounded-lg px-[calc(--spacing(3.5)-1px)] py-[calc(--spacing(2.5)-1px)] sm:px-[calc(--spacing(3)-1px)] sm:py-[calc(--spacing(1.5)-1px)]",
             // Typography
             "text-left text-base/6 sm:text-sm/6",
-            selected ? "text-basalt-900 dark:text-text-primary" : "text-basalt-500",
+            selected
+              ? "text-basalt-900 dark:text-text-primary"
+              : "text-basalt-500",
             // Border
-            "border data-hover:border-basalt-900/20 dark:data-hover:border-white/20",
+            "data-hover:border-basalt-900/20 border dark:data-hover:border-white/20",
             invalid
               ? "border-red-500 data-hover:border-red-500 dark:border-red-500 dark:data-hover:border-red-500"
               : "border-basalt-900/10 dark:border-white/10",
@@ -99,8 +101,8 @@ export function Select({
           transition
           anchor="bottom start"
           className={clsx(
-            "z-50 mt-1 w-[var(--button-width)] origin-top rounded-card p-1",
-            "bg-surface border border-hairline shadow-floating",
+            "rounded-card z-50 mt-1 w-[var(--button-width)] origin-top p-1",
+            "bg-surface border-hairline shadow-floating border",
             "transition duration-100 ease-out data-closed:scale-95 data-closed:opacity-0",
             "[--anchor-gap:4px]"
           )}
@@ -111,16 +113,16 @@ export function Select({
               value={option.value}
               disabled={option.disabled}
               className={clsx(
-                "group flex w-full cursor-pointer items-center justify-between rounded-button px-3 py-2 text-sm",
+                "group rounded-button flex w-full cursor-pointer items-center justify-between px-3 py-2 text-sm",
                 "transition-colors duration-75",
                 "text-body data-focus:bg-surface-alt",
-                "data-disabled:cursor-not-allowed data-disabled:text-muted"
+                "data-disabled:text-muted data-disabled:cursor-not-allowed"
               )}
             >
               <span className="block truncate">{option.label}</span>
               <Check
                 className={clsx(
-                  "h-4 w-4 shrink-0 text-ocean-blue",
+                  "text-ocean-blue h-4 w-4 shrink-0",
                   "opacity-0 group-data-selected:opacity-100"
                 )}
                 aria-hidden="true"

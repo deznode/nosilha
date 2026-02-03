@@ -45,7 +45,7 @@ export function SelectSpecimen() {
     <div className="space-y-10">
       {/* Basic Select */}
       <div>
-        <h3 className="text-body mb-4 text-sm font-semibold uppercase tracking-wide">
+        <h3 className="text-body mb-4 text-sm font-semibold tracking-wide uppercase">
           Basic Select
         </h3>
         <div className="grid max-w-md gap-4">
@@ -71,15 +71,13 @@ export function SelectSpecimen() {
 
       {/* With Descriptions */}
       <div>
-        <h3 className="text-body mb-4 text-sm font-semibold uppercase tracking-wide">
+        <h3 className="text-body mb-4 text-sm font-semibold tracking-wide uppercase">
           With Field Integration
         </h3>
         <div className="grid max-w-md gap-4">
           <Field>
             <Label>Directory Category</Label>
-            <Description>
-              Choose the type of place you want to add.
-            </Description>
+            <Description>Choose the type of place you want to add.</Description>
             <Select
               options={categoryOptions}
               value={category}
@@ -92,7 +90,7 @@ export function SelectSpecimen() {
 
       {/* Disabled Options */}
       <div>
-        <h3 className="text-body mb-4 text-sm font-semibold uppercase tracking-wide">
+        <h3 className="text-body mb-4 text-sm font-semibold tracking-wide uppercase">
           With Disabled Options
         </h3>
         <div className="grid max-w-md gap-4">
@@ -111,7 +109,7 @@ export function SelectSpecimen() {
 
       {/* States */}
       <div>
-        <h3 className="text-body mb-4 text-sm font-semibold uppercase tracking-wide">
+        <h3 className="text-body mb-4 text-sm font-semibold tracking-wide uppercase">
           States
         </h3>
         <div className="grid max-w-md gap-4">

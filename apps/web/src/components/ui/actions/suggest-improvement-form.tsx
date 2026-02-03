@@ -31,7 +31,10 @@ const suggestionTypeOptions = [
     label: "Correction - Fix factual errors or inaccuracies",
   },
   { value: "ADDITION", label: "Addition - Add missing information or context" },
-  { value: "FEEDBACK", label: "Feedback - General feedback on content quality" },
+  {
+    value: "FEEDBACK",
+    label: "Feedback - General feedback on content quality",
+  },
 ];
 
 interface SuggestImprovementFormProps {

@@ -51,4 +51,6 @@ export const directorySubmissionSchema = z.object({
 });
 
 // Export inferred type
-export type DirectorySubmissionInput = z.infer<typeof directorySubmissionSchema>;
+export type DirectorySubmissionInput = z.infer<
+  typeof directorySubmissionSchema
+>;

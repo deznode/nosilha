@@ -21,11 +21,9 @@ export const contactSchema = z.object({
     .string()
     .min(10, "Message must be at least 10 characters")
     .max(5000, "Message is too long"),
-  agreedToPrivacy: z
-    .boolean()
-    .refine((val) => val === true, {
-      message: "You must agree to the privacy policy",
-    }),
+  agreedToPrivacy: z.boolean().refine((val) => val === true, {
+    message: "You must agree to the privacy policy",
+  }),
 });
 
 // Export inferred type

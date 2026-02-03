@@ -10,9 +10,7 @@ export const storySchema = z.object({
     .string()
     .min(3, "Title must be at least 3 characters")
     .max(200, "Title is too long"),
-  content: z
-    .string()
-    .min(50, "Story must be at least 50 characters"),
+  content: z.string().min(50, "Story must be at least 50 characters"),
   author: z
     .string()
     .min(2, "Author name must be at least 2 characters")

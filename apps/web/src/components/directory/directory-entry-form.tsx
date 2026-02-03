@@ -425,7 +425,9 @@ export function DirectoryEntryForm({
                       >
                         {cat.icon}
                       </div>
-                      <span className="text-[10px] font-medium">{cat.label}</span>
+                      <span className="text-[10px] font-medium">
+                        {cat.label}
+                      </span>
                     </button>
                   ))}
                 </div>

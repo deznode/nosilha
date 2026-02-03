@@ -36,9 +36,9 @@ export const Textarea = forwardRef(function Textarea(
         // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
         "dark:before:hidden",
         // Focus ring
-        "after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-transparent after:ring-inset sm:focus-within:after:ring-2 sm:focus-within:after:ring-ocean-blue",
+        "sm:focus-within:after:ring-ocean-blue after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-transparent after:ring-inset sm:focus-within:after:ring-2",
         // Disabled state
-        "has-data-disabled:opacity-50 has-data-disabled:before:bg-basalt-900/5 has-data-disabled:before:shadow-none",
+        "has-data-disabled:before:bg-basalt-900/5 has-data-disabled:opacity-50 has-data-disabled:before:shadow-none",
         // Invalid state
         "has-data-invalid:before:shadow-red-500/10",
       ])}
@@ -51,9 +51,9 @@ export const Textarea = forwardRef(function Textarea(
           // Basic layout
           "relative block w-full appearance-none rounded-lg px-[calc(--spacing(3.5)-1px)] py-[calc(--spacing(2.5)-1px)] sm:px-[calc(--spacing(3)-1px)] sm:py-[calc(--spacing(1.5)-1px)]",
           // Typography
-          "dark:text-text-primary text-base/6 text-basalt-900 placeholder:text-basalt-500 sm:text-sm/6",
+          "dark:text-text-primary text-basalt-900 placeholder:text-basalt-500 text-base/6 sm:text-sm/6",
           // Border
-          "border border-basalt-900/10 data-hover:border-basalt-900/20 dark:border-white/10 dark:data-hover:border-white/20",
+          "border-basalt-900/10 data-hover:border-basalt-900/20 border dark:border-white/10 dark:data-hover:border-white/20",
           // Background color
           "dark:bg-background-primary/5 bg-transparent",
           // Hide default focus styles

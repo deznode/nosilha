@@ -17,7 +17,7 @@ export function TextareaSpecimen() {
     <div className="space-y-10">
       {/* Basic Textareas */}
       <div>
-        <h3 className="text-body mb-4 text-sm font-semibold uppercase tracking-wide">
+        <h3 className="text-body mb-4 text-sm font-semibold tracking-wide uppercase">
           Basic Textareas
         </h3>
         <div className="grid max-w-md gap-4">
@@ -35,7 +35,7 @@ export function TextareaSpecimen() {
 
       {/* Row Variants */}
       <div>
-        <h3 className="text-body mb-4 text-sm font-semibold uppercase tracking-wide">
+        <h3 className="text-body mb-4 text-sm font-semibold tracking-wide uppercase">
           Row Variants
         </h3>
         <div className="grid max-w-md gap-4">
@@ -56,13 +56,16 @@ export function TextareaSpecimen() {
 
       {/* Resize Variants */}
       <div>
-        <h3 className="text-body mb-4 text-sm font-semibold uppercase tracking-wide">
+        <h3 className="text-body mb-4 text-sm font-semibold tracking-wide uppercase">
           Resize Behavior
         </h3>
         <div className="grid max-w-md gap-4">
           <Field>
             <Label>Vertical Resize (Default)</Label>
-            <Textarea placeholder="Can resize vertically..." resize="vertical" />
+            <Textarea
+              placeholder="Can resize vertically..."
+              resize="vertical"
+            />
           </Field>
           <Field>
             <Label>No Resize</Label>
@@ -77,7 +80,7 @@ export function TextareaSpecimen() {
 
       {/* States */}
       <div>
-        <h3 className="text-body mb-4 text-sm font-semibold uppercase tracking-wide">
+        <h3 className="text-body mb-4 text-sm font-semibold tracking-wide uppercase">
           States
         </h3>
         <div className="grid max-w-md gap-4">
@@ -99,7 +102,7 @@ export function TextareaSpecimen() {
 
       {/* With Field Integration */}
       <div>
-        <h3 className="text-body mb-4 text-sm font-semibold uppercase tracking-wide">
+        <h3 className="text-body mb-4 text-sm font-semibold tracking-wide uppercase">
           With Field Integration
         </h3>
         <div className="grid max-w-md gap-4">
