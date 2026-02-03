@@ -25,7 +25,7 @@
     "build": "run-s build:content build:next build:search",
     "start": "next start",
     "lint": "eslint .",
-    "sync:brand": "node ../scripts/sync-brand-tokens.mjs",
+    "sync:brand": "node ../../scripts/sync-brand-tokens.mjs",
     "clean": "rm -rf .next playwright-report test-results",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
