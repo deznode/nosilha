@@ -357,7 +357,7 @@ export default function MediaContributionPage() {
                       <PhotoTypeSelector
                         value={photoType}
                         onChange={setPhotoType}
-                        disabled={uploadState !== "idle"}
+                        disabled={isSubmitting}
                       />
 
                       {/* Manual metadata form for photos without EXIF */}

@@ -26,10 +26,13 @@ const EXIFR_OPTIONS = {
 
   // Only extract specific tags for performance
   pick: [
-    // GPS
-    "latitude",
-    "longitude",
+    // GPS - raw TIFF tags (exifr converts to lowercase latitude/longitude in output)
+    "GPSLatitude",
+    "GPSLatitudeRef",
+    "GPSLongitude",
+    "GPSLongitudeRef",
     "GPSAltitude",
+    "GPSAltitudeRef",
 
     // Date
     "DateTimeOriginal",
