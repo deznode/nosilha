@@ -27,6 +27,19 @@ import {
   formatCameraInfo,
 } from "@/lib/exif-utils";
 
+// Test fixtures
+function createMockFile(name = "photo.jpg", type = "image/jpeg"): File {
+  return new File([""], name, { type });
+}
+
+function mockExifrParse(data: Record<string, unknown> | null): void {
+  vi.mocked(exifr.parse).mockResolvedValueOnce(data);
+}
+
+function mockExifrParseError(error: Error): void {
+  vi.mocked(exifr.parse).mockRejectedValueOnce(error);
+}
+
 describe("exif-utils", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -34,7 +47,7 @@ describe("exif-utils", () => {
 
   describe("extractMetadata", () => {
     it("should extract and normalize EXIF data from file", async () => {
-      const mockExifData = {
+      mockExifrParse({
         latitude: 14.8672345,
         longitude: -24.7045678,
         GPSAltitude: 450.5,
@@ -44,12 +57,9 @@ describe("exif-utils", () => {
         Orientation: 6,
         ImageWidth: 4032,
         ImageHeight: 3024,
-      };
+      });
 
-      vi.mocked(exifr.parse).mockResolvedValueOnce(mockExifData);
-
-      const mockFile = new File([""], "photo.jpg", { type: "image/jpeg" });
-      const result = await extractMetadata(mockFile);
+      const result = await extractMetadata(createMockFile());
 
       expect(result).not.toBeNull();
       expect(result?.latitude).toBe(14.8672345);
@@ -64,90 +74,69 @@ describe("exif-utils", () => {
     });
 
     it("should return null when exifr returns null", async () => {
-      vi.mocked(exifr.parse).mockResolvedValueOnce(null);
+      mockExifrParse(null);
 
-      const mockFile = new File([""], "photo.jpg", { type: "image/jpeg" });
-      const result = await extractMetadata(mockFile);
+      const result = await extractMetadata(createMockFile());
 
       expect(result).toBeNull();
     });
 
     it("should return null and not throw on extraction failure", async () => {
-      vi.mocked(exifr.parse).mockRejectedValueOnce(new Error("Parse failed"));
+      mockExifrParseError(new Error("Parse failed"));
 
-      const mockFile = new File([""], "corrupted.jpg", { type: "image/jpeg" });
-      const result = await extractMetadata(mockFile);
+      const result = await extractMetadata(createMockFile("corrupted.jpg"));
 
       expect(result).toBeNull();
     });
 
     it("should prefer DateTimeOriginal over CreateDate", async () => {
-      const mockExifData = {
+      mockExifrParse({
         DateTimeOriginal: new Date("2024-06-15T10:30:00"),
         CreateDate: new Date("2024-06-16T12:00:00"),
-      };
+      });
 
-      vi.mocked(exifr.parse).mockResolvedValueOnce(mockExifData);
-
-      const mockFile = new File([""], "photo.jpg", { type: "image/jpeg" });
-      const result = await extractMetadata(mockFile);
+      const result = await extractMetadata(createMockFile());
 
       expect(result?.dateTimeOriginal).toEqual(new Date("2024-06-15T10:30:00"));
     });
 
     it("should fall back to CreateDate when DateTimeOriginal is missing", async () => {
-      const mockExifData = {
+      mockExifrParse({
         CreateDate: new Date("2024-06-16T12:00:00"),
-      };
+      });
 
-      vi.mocked(exifr.parse).mockResolvedValueOnce(mockExifData);
-
-      const mockFile = new File([""], "photo.jpg", { type: "image/jpeg" });
-      const result = await extractMetadata(mockFile);
+      const result = await extractMetadata(createMockFile());
 
       expect(result?.dateTimeOriginal).toEqual(new Date("2024-06-16T12:00:00"));
     });
 
     it("should default orientation to 1 when not present", async () => {
-      const mockExifData = {
-        Make: "Canon",
-      };
+      mockExifrParse({ Make: "Canon" });
 
-      vi.mocked(exifr.parse).mockResolvedValueOnce(mockExifData);
-
-      const mockFile = new File([""], "photo.jpg", { type: "image/jpeg" });
-      const result = await extractMetadata(mockFile);
+      const result = await extractMetadata(createMockFile());
 
       expect(result?.orientation).toBe(1);
     });
 
     it("should try ExifImageWidth/Height when ImageWidth/Height missing", async () => {
-      const mockExifData = {
+      mockExifrParse({
         ExifImageWidth: 4000,
         ExifImageHeight: 3000,
-      };
+      });
 
-      vi.mocked(exifr.parse).mockResolvedValueOnce(mockExifData);
-
-      const mockFile = new File([""], "photo.jpg", { type: "image/jpeg" });
-      const result = await extractMetadata(mockFile);
+      const result = await extractMetadata(createMockFile());
 
       expect(result?.width).toBe(4000);
       expect(result?.height).toBe(3000);
     });
 
     it("should handle partial metadata gracefully", async () => {
-      const mockExifData = {
+      mockExifrParse({
         latitude: 14.867,
-        // Missing longitude, so GPS is incomplete
         Make: "Samsung",
-        // Missing Model
-      };
+      });
 
-      vi.mocked(exifr.parse).mockResolvedValueOnce(mockExifData);
-
-      const mockFile = new File([""], "photo.jpg", { type: "image/jpeg" });
-      const result = await extractMetadata(mockFile);
+      const result = await extractMetadata(createMockFile());
 
       expect(result?.latitude).toBe(14.867);
       expect(result?.longitude).toBeUndefined();
@@ -264,38 +253,31 @@ describe("exif-utils", () => {
 
   describe("isHeicFile", () => {
     it("should detect HEIC by MIME type", () => {
-      const file = new File([""], "photo.jpg", { type: "image/heic" });
-      expect(isHeicFile(file)).toBe(true);
+      expect(isHeicFile(createMockFile("photo.jpg", "image/heic"))).toBe(true);
     });
 
     it("should detect HEIF by MIME type", () => {
-      const file = new File([""], "photo.jpg", { type: "image/heif" });
-      expect(isHeicFile(file)).toBe(true);
+      expect(isHeicFile(createMockFile("photo.jpg", "image/heif"))).toBe(true);
     });
 
     it("should detect HEIC by extension (case insensitive)", () => {
-      const file = new File([""], "IMG_1234.HEIC", { type: "" });
-      expect(isHeicFile(file)).toBe(true);
+      expect(isHeicFile(createMockFile("IMG_1234.HEIC", ""))).toBe(true);
     });
 
     it("should detect HEIF by extension", () => {
-      const file = new File([""], "photo.heif", { type: "" });
-      expect(isHeicFile(file)).toBe(true);
+      expect(isHeicFile(createMockFile("photo.heif", ""))).toBe(true);
     });
 
     it("should return false for JPEG", () => {
-      const file = new File([""], "photo.jpg", { type: "image/jpeg" });
-      expect(isHeicFile(file)).toBe(false);
+      expect(isHeicFile(createMockFile("photo.jpg", "image/jpeg"))).toBe(false);
     });
 
     it("should return false for PNG", () => {
-      const file = new File([""], "image.png", { type: "image/png" });
-      expect(isHeicFile(file)).toBe(false);
+      expect(isHeicFile(createMockFile("image.png", "image/png"))).toBe(false);
     });
 
-    it("should handle lowercase MIME types", () => {
-      const file = new File([""], "photo.jpg", { type: "IMAGE/HEIC" });
-      expect(isHeicFile(file)).toBe(true);
+    it("should handle uppercase MIME types", () => {
+      expect(isHeicFile(createMockFile("photo.jpg", "IMAGE/HEIC"))).toBe(true);
     });
   });
 

@@ -16,32 +16,39 @@ import {
 } from "@/lib/gps-privacy";
 import type { ExtractedExifData, PhotoType } from "@/types/media";
 
-describe("gps-privacy", () => {
-  // Sample coordinates for Brava Island (Vila Nova Sintra area)
-  const bravaCoordinates: ExtractedExifData = {
-    latitude: 14.8672345,
-    longitude: -24.7045678,
-    altitude: 450.5,
-  };
+// Test fixtures - Brava Island coordinates (Vila Nova Sintra area)
+const BRAVA_COORDS: ExtractedExifData = {
+  latitude: 14.8672345,
+  longitude: -24.7045678,
+  altitude: 450.5,
+};
 
+function createCoords(
+  lat?: number,
+  lon?: number,
+  alt?: number
+): ExtractedExifData {
+  const coords: ExtractedExifData = {};
+  if (lat !== undefined) coords.latitude = lat;
+  if (lon !== undefined) coords.longitude = lon;
+  if (alt !== undefined) coords.altitude = alt;
+  return coords;
+}
+
+describe("gps-privacy", () => {
   describe("applyGpsPrivacy", () => {
     describe("CULTURAL_SITE photo type", () => {
       it("should preserve full GPS precision (6 decimals)", () => {
-        const result = applyGpsPrivacy(bravaCoordinates, "CULTURAL_SITE");
+        const result = applyGpsPrivacy(BRAVA_COORDS, "CULTURAL_SITE");
 
-        expect(result.latitude).toBe(14.867235); // Rounded to 6 decimals
+        expect(result.latitude).toBe(14.867235);
         expect(result.longitude).toBe(-24.704568);
-        expect(result.altitude).toBe(450.5); // Altitude unchanged
+        expect(result.altitude).toBe(450.5);
         expect(result.gpsPrivacyLevel).toBe("FULL");
       });
 
       it("should handle coordinates with fewer decimals", () => {
-        const simpleCoords: ExtractedExifData = {
-          latitude: 14.86,
-          longitude: -24.7,
-        };
-
-        const result = applyGpsPrivacy(simpleCoords, "CULTURAL_SITE");
+        const result = applyGpsPrivacy(createCoords(14.86, -24.7), "CULTURAL_SITE");
 
         expect(result.latitude).toBe(14.86);
         expect(result.longitude).toBe(-24.7);
@@ -51,33 +58,28 @@ describe("gps-privacy", () => {
 
     describe("COMMUNITY_EVENT photo type", () => {
       it("should round GPS to 3 decimals (~100m accuracy)", () => {
-        const result = applyGpsPrivacy(bravaCoordinates, "COMMUNITY_EVENT");
+        const result = applyGpsPrivacy(BRAVA_COORDS, "COMMUNITY_EVENT");
 
-        expect(result.latitude).toBe(14.867); // Rounded to 3 decimals
+        expect(result.latitude).toBe(14.867);
         expect(result.longitude).toBe(-24.705);
-        expect(result.altitude).toBe(451); // Altitude rounded to integer
+        expect(result.altitude).toBe(451);
         expect(result.gpsPrivacyLevel).toBe("APPROXIMATE");
       });
 
       it("should round altitude to nearest meter", () => {
-        const coordsWithAltitude: ExtractedExifData = {
-          latitude: 14.8672345,
-          longitude: -24.7045678,
-          altitude: 123.789,
-        };
+        const result = applyGpsPrivacy(
+          createCoords(14.8672345, -24.7045678, 123.789),
+          "COMMUNITY_EVENT"
+        );
 
-        const result = applyGpsPrivacy(coordsWithAltitude, "COMMUNITY_EVENT");
-
-        expect(result.altitude).toBe(124); // Rounded to nearest meter
+        expect(result.altitude).toBe(124);
       });
 
       it("should handle undefined altitude", () => {
-        const coordsNoAltitude: ExtractedExifData = {
-          latitude: 14.8672345,
-          longitude: -24.7045678,
-        };
-
-        const result = applyGpsPrivacy(coordsNoAltitude, "COMMUNITY_EVENT");
+        const result = applyGpsPrivacy(
+          createCoords(14.8672345, -24.7045678),
+          "COMMUNITY_EVENT"
+        );
 
         expect(result.altitude).toBeUndefined();
       });
@@ -85,7 +87,7 @@ describe("gps-privacy", () => {
 
     describe("PERSONAL photo type", () => {
       it("should strip all GPS data", () => {
-        const result = applyGpsPrivacy(bravaCoordinates, "PERSONAL");
+        const result = applyGpsPrivacy(BRAVA_COORDS, "PERSONAL");
 
         expect(result.latitude).toBeUndefined();
         expect(result.longitude).toBeUndefined();
@@ -94,13 +96,10 @@ describe("gps-privacy", () => {
       });
 
       it("should return STRIPPED even with high-precision coordinates", () => {
-        const preciseCoords: ExtractedExifData = {
-          latitude: 14.867234567890123,
-          longitude: -24.704567890123456,
-          altitude: 450.123456,
-        };
-
-        const result = applyGpsPrivacy(preciseCoords, "PERSONAL");
+        const result = applyGpsPrivacy(
+          createCoords(14.867234567890123, -24.704567890123456, 450.123456),
+          "PERSONAL"
+        );
 
         expect(result.latitude).toBeUndefined();
         expect(result.longitude).toBeUndefined();
@@ -120,29 +119,25 @@ describe("gps-privacy", () => {
       });
 
       it("should return NONE when latitude is missing", () => {
-        const noLat: ExtractedExifData = {
-          longitude: -24.7045678,
-        };
-
-        const result = applyGpsPrivacy(noLat, "CULTURAL_SITE");
+        const result = applyGpsPrivacy(
+          createCoords(undefined, -24.7045678),
+          "CULTURAL_SITE"
+        );
 
         expect(result.gpsPrivacyLevel).toBe("NONE");
       });
 
       it("should return NONE when longitude is missing", () => {
-        const noLon: ExtractedExifData = {
-          latitude: 14.8672345,
-        };
-
-        const result = applyGpsPrivacy(noLon, "CULTURAL_SITE");
+        const result = applyGpsPrivacy(
+          createCoords(14.8672345, undefined),
+          "CULTURAL_SITE"
+        );
 
         expect(result.gpsPrivacyLevel).toBe("NONE");
       });
 
       it("should return NONE for empty metadata object", () => {
-        const empty: ExtractedExifData = {};
-
-        const result = applyGpsPrivacy(empty, "COMMUNITY_EVENT");
+        const result = applyGpsPrivacy({}, "COMMUNITY_EVENT");
 
         expect(result.gpsPrivacyLevel).toBe("NONE");
       });
@@ -150,49 +145,32 @@ describe("gps-privacy", () => {
 
     describe("Edge cases", () => {
       it("should handle negative coordinates correctly", () => {
-        // Southern hemisphere, Western hemisphere
-        const negativeCoords: ExtractedExifData = {
-          latitude: -33.9248685,
-          longitude: -18.4240553,
-        };
-
-        const result = applyGpsPrivacy(negativeCoords, "COMMUNITY_EVENT");
+        const result = applyGpsPrivacy(
+          createCoords(-33.9248685, -18.4240553),
+          "COMMUNITY_EVENT"
+        );
 
         expect(result.latitude).toBe(-33.925);
         expect(result.longitude).toBe(-18.424);
       });
 
       it("should treat zero coordinates as no GPS data", () => {
-        // Note: (0,0) is in the Atlantic Ocean and treated as "no data"
-        // This is acceptable since real photos won't have (0,0) coordinates
-        const zeroCoords: ExtractedExifData = {
-          latitude: 0,
-          longitude: 0,
-        };
+        const result = applyGpsPrivacy(createCoords(0, 0), "CULTURAL_SITE");
 
-        const result = applyGpsPrivacy(zeroCoords, "CULTURAL_SITE");
-
-        // Zero is falsy in JavaScript, so it's treated as missing
         expect(result.gpsPrivacyLevel).toBe("NONE");
       });
 
       it("should handle extreme precision values", () => {
-        const extremeCoords: ExtractedExifData = {
-          latitude: 14.8672345678901234567890,
-          longitude: -24.7045678901234567890,
-        };
+        const result = applyGpsPrivacy(
+          createCoords(14.8672345678901234567890, -24.7045678901234567890),
+          "CULTURAL_SITE"
+        );
 
-        const result = applyGpsPrivacy(extremeCoords, "CULTURAL_SITE");
-
-        // Should be truncated to 6 decimals
         expect(result.latitude?.toString().split(".")[1]?.length).toBeLessThanOrEqual(6);
       });
 
       it("should treat unknown photo type as PERSONAL (most restrictive)", () => {
-        const result = applyGpsPrivacy(
-          bravaCoordinates,
-          "UNKNOWN_TYPE" as PhotoType
-        );
+        const result = applyGpsPrivacy(BRAVA_COORDS, "UNKNOWN_TYPE" as PhotoType);
 
         expect(result.gpsPrivacyLevel).toBe("STRIPPED");
         expect(result.latitude).toBeUndefined();
