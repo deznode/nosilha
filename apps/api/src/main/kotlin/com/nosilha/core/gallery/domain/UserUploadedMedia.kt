@@ -7,6 +7,7 @@ import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.type.SqlTypes
+import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID
 
@@ -75,6 +76,64 @@ class UserUploadedMedia : GalleryMedia() {
     /** User who uploaded the media. */
     @Column(name = "uploaded_by")
     var uploadedBy: String? = null
+
+    // --- EXIF Metadata (Extracted from photos) ---
+
+    /** GPS latitude from EXIF (privacy-processed based on photoType). */
+    @Column(name = "latitude", precision = 10, scale = 7)
+    var latitude: BigDecimal? = null
+
+    /** GPS longitude from EXIF (privacy-processed based on photoType). */
+    @Column(name = "longitude", precision = 10, scale = 7)
+    var longitude: BigDecimal? = null
+
+    /** GPS altitude in meters from EXIF. */
+    @Column(name = "altitude", precision = 8, scale = 2)
+    var altitude: BigDecimal? = null
+
+    /** Original capture date from EXIF DateTimeOriginal. */
+    @Column(name = "date_taken")
+    var dateTaken: Instant? = null
+
+    /** Camera manufacturer from EXIF (e.g., "Apple", "Canon"). */
+    @Column(name = "camera_make", length = 100)
+    var cameraMake: String? = null
+
+    /** Camera model from EXIF (e.g., "iPhone 13 Pro"). */
+    @Column(name = "camera_model", length = 100)
+    var cameraModel: String? = null
+
+    /** EXIF orientation (1-8) for display rotation. Default 1 = normal. */
+    @Column(name = "orientation")
+    var orientation: Int? = 1
+
+    // --- Privacy Tracking ---
+
+    /** Photo type: CULTURAL_SITE, COMMUNITY_EVENT, or PERSONAL. Determines GPS handling. */
+    @Column(name = "photo_type", length = 20)
+    var photoType: String? = null
+
+    /** GPS privacy level applied: FULL, APPROXIMATE, STRIPPED, or NONE. */
+    @Column(name = "gps_privacy_level", length = 20)
+    var gpsPrivacyLevel: String? = null
+
+    // --- Manual Metadata (for historical photos without EXIF) ---
+
+    /** Manual date entry for historical photos (e.g., "circa 1960s"). */
+    @Column(name = "approximate_date", length = 100)
+    var approximateDate: String? = null
+
+    /** Manual location name for historical photos (e.g., "Vila Nova Sintra"). */
+    @Column(name = "location_name", length = 255)
+    var locationName: String? = null
+
+    /** Photographer name if known. */
+    @Column(name = "photographer_credit", length = 255)
+    var photographerCredit: String? = null
+
+    /** Source of historical photo (e.g., "Family collection"). */
+    @Column(name = "archive_source", length = 255)
+    var archiveSource: String? = null
 
     // --- AI-generated fields (Future Integration) ---
 

@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.modulith.events.ApplicationModuleListener
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
 import java.time.Duration
 import java.time.Instant
 import java.util.UUID
@@ -203,10 +204,24 @@ class GalleryService(
      * @param category Optional media category
      * @param description Optional description
      * @param userId User who uploaded
+     * @param latitude GPS latitude (privacy-processed)
+     * @param longitude GPS longitude (privacy-processed)
+     * @param altitude GPS altitude in meters
+     * @param dateTaken Original capture date from EXIF
+     * @param cameraMake Camera manufacturer
+     * @param cameraModel Camera model
+     * @param orientation EXIF orientation (1-8)
+     * @param photoType Photo type (CULTURAL_SITE, COMMUNITY_EVENT, PERSONAL)
+     * @param gpsPrivacyLevel Applied GPS privacy level
+     * @param approximateDate Manual date entry for historical photos
+     * @param locationName Manual location name
+     * @param photographerCredit Photographer name
+     * @param archiveSource Source of historical photo
      * @return Created UserUploadedMedia DTO
      * @throws IllegalStateException if file not found in R2
      */
     @Transactional
+    @Suppress("LongParameterList")
     fun confirmUpload(
         key: String,
         originalName: String,
@@ -216,6 +231,22 @@ class GalleryService(
         category: String?,
         description: String?,
         userId: String,
+        // EXIF metadata (privacy-processed)
+        latitude: Double? = null,
+        longitude: Double? = null,
+        altitude: Double? = null,
+        dateTaken: Instant? = null,
+        cameraMake: String? = null,
+        cameraModel: String? = null,
+        orientation: Int? = null,
+        // Privacy tracking
+        photoType: String? = null,
+        gpsPrivacyLevel: String? = null,
+        // Manual metadata
+        approximateDate: String? = null,
+        locationName: String? = null,
+        photographerCredit: String? = null,
+        archiveSource: String? = null,
     ): GalleryMediaDto.UserUpload {
         requireR2Enabled()
         logger.info { "Confirming upload for user $userId: key=$key" }
@@ -248,11 +279,27 @@ class GalleryService(
             this.source = MediaSource.LOCAL
             this.uploadedBy = userId
             this.displayOrder = 0
+            // EXIF metadata (privacy-processed)
+            this.latitude = latitude?.let { BigDecimal.valueOf(it) }
+            this.longitude = longitude?.let { BigDecimal.valueOf(it) }
+            this.altitude = altitude?.let { BigDecimal.valueOf(it) }
+            this.dateTaken = dateTaken
+            this.cameraMake = cameraMake
+            this.cameraModel = cameraModel
+            this.orientation = orientation ?: 1
+            // Privacy tracking
+            this.photoType = photoType
+            this.gpsPrivacyLevel = gpsPrivacyLevel
+            // Manual metadata
+            this.approximateDate = approximateDate
+            this.locationName = locationName
+            this.photographerCredit = photographerCredit
+            this.archiveSource = archiveSource
         }
 
         val saved = repository.save(media)
         uploadSuccessCounter.increment()
-        logger.info { "Created UserUploadedMedia record: id=${saved.id}, status=${saved.status}" }
+        logger.info { "Created UserUploadedMedia record: id=${saved.id}, status=${saved.status}, hasGps=${latitude != null}" }
 
         return GalleryMediaDto.from(saved)
     }

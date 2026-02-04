@@ -10,7 +10,9 @@ import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.MediaSource
 import com.nosilha.core.gallery.domain.MediaType
 import com.nosilha.core.gallery.domain.UserUploadedMedia
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.UUID
 
 /**
@@ -55,6 +57,9 @@ sealed class GalleryMediaDto {
      *
      * Includes storage-specific fields like fileName, storageKey, publicUrl,
      * contentType, and fileSize for user-uploaded files.
+     *
+     * Also includes EXIF metadata (GPS, date, camera info), privacy tracking,
+     * and manual metadata for historical photos without EXIF data.
      */
     data class UserUpload(
         override val id: UUID,
@@ -75,6 +80,23 @@ sealed class GalleryMediaDto {
         val entryId: UUID?,
         val source: MediaSource?,
         val uploadedBy: String?,
+        // EXIF metadata (privacy-processed)
+        val latitude: Double?,
+        val longitude: Double?,
+        val altitude: Double?,
+        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+        val dateTaken: LocalDateTime?,
+        val cameraMake: String?,
+        val cameraModel: String?,
+        val orientation: Int?,
+        // Privacy tracking
+        val photoType: String?,
+        val gpsPrivacyLevel: String?,
+        // Manual metadata for historical photos
+        val approximateDate: String?,
+        val locationName: String?,
+        val photographerCredit: String?,
+        val archiveSource: String?,
     ) : GalleryMediaDto()
 
     /**
@@ -126,6 +148,22 @@ sealed class GalleryMediaDto {
                 entryId = media.entryId,
                 source = media.source,
                 uploadedBy = media.uploadedBy,
+                // EXIF metadata
+                latitude = media.latitude?.toDouble(),
+                longitude = media.longitude?.toDouble(),
+                altitude = media.altitude?.toDouble(),
+                dateTaken = media.dateTaken?.let { LocalDateTime.ofInstant(it, ZoneOffset.UTC) },
+                cameraMake = media.cameraMake,
+                cameraModel = media.cameraModel,
+                orientation = media.orientation,
+                // Privacy tracking
+                photoType = media.photoType,
+                gpsPrivacyLevel = media.gpsPrivacyLevel,
+                // Manual metadata
+                approximateDate = media.approximateDate,
+                locationName = media.locationName,
+                photographerCredit = media.photographerCredit,
+                archiveSource = media.archiveSource,
             )
 
         /**

@@ -13,13 +13,16 @@ import {
   Link as LinkIcon,
   AlertCircle,
 } from "lucide-react";
-import type { MediaType } from "@/types/media";
+import type { MediaType, PhotoType, ManualMetadata } from "@/types/media";
 import type { ExternalPlatform } from "@/types/gallery";
-import { useR2Upload } from "@/hooks/useR2Upload";
+import { usePhotoUpload } from "@/hooks/usePhotoUpload";
 import { BackendApiClient } from "@/lib/backend-api";
 import { useAuth } from "@/components/providers/auth-provider";
 import { InlineAuthPrompt } from "@/components/ui/inline-auth-prompt";
 import { useToast } from "@/hooks/use-toast";
+import { PhotoTypeSelector } from "@/components/gallery/photo-type-selector";
+import { MetadataBadges } from "@/components/gallery/metadata-badges";
+import { ManualMetadataForm } from "@/components/gallery/manual-metadata-form";
 
 interface FormData {
   title: string;
@@ -72,21 +75,27 @@ export default function MediaContributionPage() {
     author: "",
     preview: "",
   });
-  // Store the actual file for R2 upload
-  const selectedFileRef = useRef<File | null>(null);
+  // Manual metadata for historical photos without EXIF
+  const [manualMetadata, setManualMetadata] = useState<ManualMetadata>({});
+  const [showManualForm, setShowManualForm] = useState(false);
   const apiClient = useRef(new BackendApiClient());
 
   // Check if user needs to authenticate (all media submissions require auth)
   const requiresAuth = !authLoading && !user;
 
-  // Use the R2 upload hook for actual file uploads
+  // Use the photo upload hook with EXIF extraction
   const {
     state: uploadState,
     progress,
     error: uploadError,
+    file: selectedFile,
+    metadata,
+    photoType,
+    setPhotoType,
+    selectFile,
     upload,
     reset: resetUpload,
-  } = useR2Upload();
+  } = usePhotoUpload();
 
   const isSubmitting =
     uploadState === "requesting-url" ||
@@ -94,11 +103,11 @@ export default function MediaContributionPage() {
     uploadState === "confirming" ||
     videoSubmitting;
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Store the file reference for later upload
-      selectedFileRef.current = file;
+      // Use the photo upload hook to select file and extract EXIF
+      await selectFile(file);
 
       // Create preview for display
       const reader = new FileReader();
@@ -115,9 +124,9 @@ export default function MediaContributionPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (formData.type === "IMAGE" && selectedFileRef.current) {
-      // Upload image to R2 storage
-      const result = await upload(selectedFileRef.current, {
+    if (formData.type === "IMAGE" && selectedFile) {
+      // Upload image to R2 storage with EXIF metadata
+      const result = await upload({
         category: "gallery",
         description: formData.description || formData.title,
       });
@@ -166,8 +175,9 @@ export default function MediaContributionPage() {
   };
 
   const clearFile = () => {
-    selectedFileRef.current = null;
     setFormData({ ...formData, preview: "", url: "" });
+    setManualMetadata({});
+    setShowManualForm(false);
     resetUpload();
   };
 
@@ -277,58 +287,93 @@ export default function MediaContributionPage() {
 
               {/* Image Upload or Video URL */}
               {formData.type === "IMAGE" ? (
-                <div>
-                  <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
-                    Image File
-                  </label>
-                  <div
-                    className={`rounded-card flex cursor-pointer flex-col items-center justify-center border-2 border-dashed p-8 text-center transition-all ${
-                      formData.preview
-                        ? "border-valley-green bg-valley-green/5"
-                        : "border-hairline hover:border-ocean-blue/50 hover:bg-surface"
-                    }`}
-                    onClick={() =>
-                      document.getElementById("media-upload")?.click()
-                    }
-                  >
-                    {formData.preview ? (
-                      <div className="relative">
-                        <Image
-                          src={formData.preview}
-                          width={160}
-                          height={160}
-                          className="rounded-card shadow-elevated max-h-40 border-2 border-white object-contain"
-                          alt="Preview"
-                          unoptimized
-                        />
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            clearFile();
-                          }}
-                          className="bg-status-error shadow-elevated absolute -top-3 -right-3 rounded-full p-1.5 text-white"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                    ) : (
-                      <>
-                        <Upload size={32} className="mx-auto opacity-20" />
-                        <p className="text-muted mt-2 text-sm">
-                          Click to upload or drag and drop
-                        </p>
-                      </>
-                    )}
-                    <input
-                      id="media-upload"
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleFileUpload}
-                    />
+                <>
+                  <div>
+                    <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
+                      Image File
+                    </label>
+                    <div
+                      className={`rounded-card flex cursor-pointer flex-col items-center justify-center border-2 border-dashed p-8 text-center transition-all ${
+                        formData.preview
+                          ? "border-valley-green bg-valley-green/5"
+                          : "border-hairline hover:border-ocean-blue/50 hover:bg-surface"
+                      }`}
+                      onClick={() =>
+                        document.getElementById("media-upload")?.click()
+                      }
+                    >
+                      {formData.preview ? (
+                        <div className="relative">
+                          <Image
+                            src={formData.preview}
+                            width={160}
+                            height={160}
+                            className="rounded-card shadow-elevated max-h-40 border-2 border-white object-contain"
+                            alt="Preview"
+                            unoptimized
+                          />
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              clearFile();
+                            }}
+                            className="bg-status-error shadow-elevated absolute -top-3 -right-3 rounded-full p-1.5 text-white"
+                          >
+                            <X size={14} />
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <Upload size={32} className="mx-auto opacity-20" />
+                          <p className="text-muted mt-2 text-sm">
+                            Click to upload or drag and drop
+                          </p>
+                          <p className="text-muted/60 mt-1 text-xs">
+                            Supports JPEG, PNG, HEIC
+                          </p>
+                        </>
+                      )}
+                      <input
+                        id="media-upload"
+                        type="file"
+                        accept="image/*,.heic,.heif"
+                        className="hidden"
+                        onChange={handleFileUpload}
+                      />
+                    </div>
                   </div>
-                </div>
+
+                  {/* Metadata display and controls - shown after file selected */}
+                  {selectedFile && metadata && (
+                    <div className="space-y-4">
+                      {/* Metadata badges showing extracted data */}
+                      <MetadataBadges
+                        metadata={metadata}
+                        showManualPrompt={!metadata.hasExifData}
+                      />
+
+                      {/* Photo type selector for GPS privacy */}
+                      <PhotoTypeSelector
+                        value={photoType}
+                        onChange={setPhotoType}
+                        disabled={uploadState !== "idle"}
+                      />
+
+                      {/* Manual metadata form for photos without EXIF */}
+                      {!metadata.hasExifData && (
+                        <ManualMetadataForm
+                          value={manualMetadata}
+                          onChange={(updates) =>
+                            setManualMetadata({ ...manualMetadata, ...updates })
+                          }
+                          expanded={showManualForm}
+                          onExpandedChange={setShowManualForm}
+                        />
+                      )}
+                    </div>
+                  )}
+                </>
               ) : (
                 <div>
                   <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
@@ -398,12 +443,12 @@ export default function MediaContributionPage() {
               <div className="space-y-2">
                 <div className="text-muted flex items-center justify-between text-sm">
                   <span>Uploading...</span>
-                  <span>{progress.percentage}%</span>
+                  <span>{progress}%</span>
                 </div>
                 <div className="bg-surface-alt h-2 overflow-hidden rounded-full">
                   <div
                     className="bg-ocean-blue h-full rounded-full transition-all duration-300"
-                    style={{ width: `${progress.percentage}%` }}
+                    style={{ width: `${progress}%` }}
                   />
                 </div>
               </div>
@@ -417,17 +462,18 @@ export default function MediaContributionPage() {
                   isSubmitting ||
                   requiresAuth ||
                   !formData.title ||
-                  !formData.url
+                  !formData.url ||
+                  uploadState === "extracting"
                 }
                 className="rounded-card bg-body shadow-elevated hover:bg-ocean-blue flex w-full items-center justify-center gap-3 py-4 font-bold text-white transition-all disabled:opacity-30"
               >
+                {uploadState === "extracting" && "Reading photo metadata..."}
                 {uploadState === "requesting-url" && "Preparing upload..."}
-                {uploadState === "uploading" &&
-                  `Uploading ${progress.percentage}%...`}
+                {uploadState === "uploading" && `Uploading ${progress}%...`}
                 {uploadState === "confirming" && "Finalizing..."}
                 {videoSubmitting && "Submitting video..."}
                 {requiresAuth && "Sign in to Submit"}
-                {!isSubmitting && !requiresAuth && "Add to Visual Record"}
+                {uploadState !== "extracting" && !isSubmitting && !requiresAuth && "Add to Visual Record"}
               </button>
             </div>
           </form>
