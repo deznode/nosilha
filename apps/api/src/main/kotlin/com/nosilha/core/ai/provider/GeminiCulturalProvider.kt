@@ -13,6 +13,8 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Component
+import tools.jackson.module.kotlin.jacksonObjectMapper
+import tools.jackson.module.kotlin.readValue
 
 private val logger = KotlinLogging.logger {}
 
@@ -72,24 +74,27 @@ class GeminiCulturalProvider(
         return parseGeminiResponse(responseText)
     }
 
+    private data class GeminiResponse(
+        val altText: String? = null,
+        val description: String? = null,
+        val tags: List<String> = emptyList(),
+    )
+
+    private val objectMapper = jacksonObjectMapper()
+
     private fun parseGeminiResponse(responseText: String): ImageAnalysisResult {
-        // Extract JSON from response (handle potential markdown code fences)
         val jsonText = responseText
             .replace("```json", "")
             .replace("```", "")
             .trim()
 
         return try {
-            // Simple JSON parsing without a full library dependency
-            val altText = extractJsonString(jsonText, "altText")
-            val description = extractJsonString(jsonText, "description")
-            val tags = extractJsonArray(jsonText, "tags")
-
+            val parsed = objectMapper.readValue<GeminiResponse>(jsonText)
             ImageAnalysisResult(
                 provider = name,
-                altText = altText,
-                description = description,
-                tags = tags,
+                altText = parsed.altText,
+                description = parsed.description,
+                tags = parsed.tags,
                 rawJson = responseText,
             )
         } catch (e: Exception) {
@@ -100,26 +105,5 @@ class GeminiCulturalProvider(
                 rawJson = responseText,
             )
         }
-    }
-
-    private fun extractJsonString(
-        json: String,
-        key: String
-    ): String? {
-        val pattern = """"$key"\s*:\s*"((?:[^"\\]|\\.)*)"""".toRegex()
-        return pattern
-            .find(json)
-            ?.groupValues
-            ?.get(1)
-            ?.replace("\\\"", "\"")
-    }
-
-    private fun extractJsonArray(
-        json: String,
-        key: String
-    ): List<String> {
-        val pattern = """"$key"\s*:\s*\[(.*?)]""".toRegex(RegexOption.DOT_MATCHES_ALL)
-        val arrayContent = pattern.find(json)?.groupValues?.get(1) ?: return emptyList()
-        return """"([^"]+)"""".toRegex().findAll(arrayContent).map { it.groupValues[1] }.toList()
     }
 }
