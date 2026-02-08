@@ -1,10 +1,14 @@
 package com.nosilha.core.ai.api
 
+import com.nosilha.core.ai.api.dto.AiHealthResponse
+import com.nosilha.core.ai.api.dto.AiStatusResponse
 import com.nosilha.core.ai.api.dto.AnalysisRunDetailDto
 import com.nosilha.core.ai.api.dto.AnalysisRunSummaryDto
 import com.nosilha.core.ai.api.dto.ApproveEditedRequest
 import com.nosilha.core.ai.api.dto.BatchSummaryDto
+import com.nosilha.core.ai.api.dto.ProviderHealthDto
 import com.nosilha.core.ai.api.dto.RejectRequest
+import com.nosilha.core.ai.api.dto.UsageDto
 import com.nosilha.core.ai.domain.AiModerationService
 import com.nosilha.core.ai.domain.ApiUsageService
 import com.nosilha.core.ai.domain.ImageAnalysisProvider
@@ -239,37 +243,13 @@ class AdminAiController(
             )
         }
 
-        val response = AiHealthResponse(
-            enabled = aiEnabled,
-            providers = providerInfos,
+        return ResponseEntity.ok(
+            ApiResult(
+                data = AiHealthResponse(
+                    enabled = aiEnabled,
+                    providers = providerInfos,
+                ),
+            ),
         )
-
-        return ResponseEntity.ok(ApiResult(data = response))
     }
 }
-
-data class AiHealthResponse(
-    val enabled: Boolean,
-    val providers: List<ProviderHealthDto>,
-)
-
-data class ProviderHealthDto(
-    val name: String,
-    val enabled: Boolean,
-    val capabilities: List<String>,
-    val usage: UsageDto,
-)
-
-data class UsageDto(
-    val count: Int,
-    val limit: Int,
-    val percentUsed: Double,
-)
-
-data class AiStatusResponse(
-    val mediaId: UUID,
-    val lastRunStatus: String?,
-    val moderationStatus: String?,
-    val aiProcessed: Boolean,
-    val aiProcessedAt: java.time.Instant?,
-)

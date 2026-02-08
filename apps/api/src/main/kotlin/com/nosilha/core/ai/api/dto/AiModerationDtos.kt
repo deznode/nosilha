@@ -137,3 +137,41 @@ data class BatchSummaryDto(
             )
     }
 }
+
+/**
+ * AI system health and provider status.
+ */
+data class AiHealthResponse(
+    val enabled: Boolean,
+    val providers: List<ProviderHealthDto>,
+)
+
+/**
+ * Health and usage stats for a single AI provider.
+ */
+data class ProviderHealthDto(
+    val name: String,
+    val enabled: Boolean,
+    val capabilities: List<String>,
+    val usage: UsageDto,
+)
+
+/**
+ * Current API usage stats for a provider.
+ */
+data class UsageDto(
+    val count: Int,
+    val limit: Int,
+    val percentUsed: Double,
+)
+
+/**
+ * AI processing status for a gallery media item.
+ */
+data class AiStatusResponse(
+    val mediaId: UUID,
+    val lastRunStatus: String?,
+    val moderationStatus: String?,
+    val aiProcessed: Boolean,
+    val aiProcessedAt: Instant?,
+)

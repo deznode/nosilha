@@ -370,7 +370,7 @@ class GalleryModerationService(
             ResourceNotFoundException("Media not found: $mediaId")
         }
 
-        validateMediaForAnalysis(media, mediaId)
+        validateMediaForAnalysis(media)
         val userMedia = media as UserUploadedMedia
 
         val runId = UUID.randomUUID()
@@ -474,10 +474,7 @@ class GalleryModerationService(
         )
     }
 
-    private fun validateMediaForAnalysis(
-        media: GalleryMedia,
-        mediaId: UUID
-    ) {
+    private fun validateMediaForAnalysis(media: GalleryMedia) {
         if (media !is UserUploadedMedia) {
             throw BusinessException("Only user uploads can be analyzed by AI")
         }
