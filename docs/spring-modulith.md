@@ -14,6 +14,7 @@ apps/api/src/main/kotlin/com/nosilha/core/
 ├── auth/         # Authentication + profiles
 ├── places/       # Directory entries (STI pattern)
 ├── gallery/      # Media management
+├── ai/           # AI image analysis + moderation
 ├── engagement/   # Reactions, bookmarks
 ├── stories/      # Community narratives
 ├── feedback/     # Suggestions, dashboard
@@ -42,6 +43,7 @@ flowchart TB
 
     subgraph Integration["🔗 Integration"]
         feedback["feedback"]
+        ai["ai"]
     end
 
     places --> shared
@@ -64,6 +66,8 @@ flowchart TB
     feedback -.-> stories
     feedback -.-> engagement
     feedback -.-> gallery
+    ai --> shared
+    gallery -.-> ai
 ```
 
 **Legend**: Solid lines = direct dependency, dashed = via query service/events
@@ -77,10 +81,11 @@ flowchart TB
 | **shared** | Base entities, events, exceptions, utils | None | — |
 | **auth** | JWT auth, profiles, Supabase integration | shared, engagement, stories, feedback | `UserLoggedInEvent`, `UserLoggedOutEvent` |
 | **places** | Directory entries (Restaurant, Hotel, Beach, Heritage, Nature) | shared, engagement | `DirectoryEntryCreatedEvent`, `DirectoryEntryUpdatedEvent`, `DirectoryEntryDeletedEvent` |
-| **gallery** | Media uploads, R2 storage, moderation | shared | `HeroImagePromotedEvent` |
+| **gallery** | Media uploads, R2 storage, moderation | shared | `HeroImagePromotedEvent`, `MediaAnalysisRequestedEvent`, `MediaAnalysisBatchRequestedEvent` |
 | **engagement** | Reactions, bookmarks, content registration | shared, places | — |
 | **stories** | Community narratives, MDX publishing | shared, auth, places | `StorySubmittedEvent`, `StoryStatusChangedEvent`, `StoryPublishedEvent`, `MdxCommittedEvent` |
 | **feedback** | Suggestions, submissions, dashboard | shared, auth, places, stories, engagement, gallery | — |
+| **ai** | AI image analysis, cultural context, moderation workflow | shared | `MediaAnalysisCompletedEvent`, `MediaAnalysisFailedEvent`, `AiResultsApprovedEvent` |
 | **config** | Caffeine cache configuration | None | — |
 
 ### Shared Module Subpackages
@@ -90,7 +95,7 @@ flowchart TB
 | `api/` | `ApiResult`, DTOs |
 | `config/` | `JacksonConfig`, `PersistenceConfig` |
 | `domain/` | `AuditableEntity` |
-| `events/` | `DomainEvent`, `ApplicationModuleEvent`, `DirectoryEntry*Event`, `HeroImagePromotedEvent` |
+| `events/` | `DomainEvent`, `ApplicationModuleEvent`, `DirectoryEntry*Event`, `HeroImagePromotedEvent`, `MediaAnalysis*Event`, `AiResultsApprovedEvent` |
 | `exception/` | `GlobalExceptionHandler`, custom exceptions |
 | `service/` | Shared services |
 | `util/` | `ContentSanitizer` |
@@ -125,10 +130,32 @@ sequenceDiagram
     GS->>GS: Create placeholder metadata
 ```
 
+#### AI Image Analysis Flow
+
+```mermaid
+sequenceDiagram
+    participant GS as GalleryModerationService
+    participant EP as EventPublisher
+    participant AO as ImageAnalysisOrchestrator
+    participant AM as AiModerationService
+    participant GL as GalleryService
+
+    GS->>EP: publishEvent(MediaAnalysisRequestedEvent)
+    EP->>AO: @ApplicationModuleListener
+    AO->>AO: Cloud Vision + Gemini analysis
+    AO->>EP: publishEvent(MediaAnalysisCompletedEvent)
+    Note over AO,GL: Admin reviews results in moderation queue
+    AM->>EP: publishEvent(AiResultsApprovedEvent)
+    EP->>GL: @ApplicationModuleListener
+    GL->>GL: Apply AI results to media
+```
+
 **Key listeners**:
 - `GalleryService.onDirectoryEntryCreated()` — creates placeholder metadata
 - `DirectoryEntryService.onHeroImagePromoted()` — updates entry's imageUrl
 - `MdxFileWriter.onMdxCommitted()` — writes MDX files
+- `ImageAnalysisOrchestrator.onMediaAnalysisRequested()` — runs Cloud Vision + Gemini analysis
+- `GalleryService.onAiResultsApproved()` — applies AI fields to media
 
 ---
 

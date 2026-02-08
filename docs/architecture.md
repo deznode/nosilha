@@ -85,6 +85,7 @@ C4Context
     System_Ext(mapbox, "Mapbox", "Interactive mapping service")
     System_Ext(r2, "Cloudflare R2", "Media file storage")
     System_Ext(gcp, "Google Cloud Platform", "Container hosting, secrets, registry")
+    System_Ext(google_ai, "Google AI APIs", "Cloud Vision + Gemini")
 
     Rel(community, nosilha, "Contributes stories, submits places")
     Rel(admin, nosilha, "Moderates content")
@@ -93,6 +94,7 @@ C4Context
     Rel(nosilha, mapbox, "Renders interactive maps")
     Rel(nosilha, r2, "Stores uploaded media")
     Rel(nosilha, gcp, "Deploys containers")
+    Rel(nosilha, google_ai, "Analyzes images")
 ```
 
 ### 3.2 External Interfaces
@@ -106,6 +108,8 @@ C4Context
 | GCP Cloud Run | Container hosting | HTTP/HTTPS |
 | GCP Artifact Registry | Docker images | Container Registry API |
 | GCP Secret Manager | Secrets storage | Secret Manager API |
+| Google Cloud Vision | Image label/OCR/landmark detection | REST API |
+| Google Gemini | Cultural context generation | REST API |
 
 ---
 
@@ -144,18 +148,20 @@ C4Container
 
     System_Boundary(nosilha, "Nos Ilha Platform") {
         Container(frontend, "Frontend", "Next.js 16, React 19, TypeScript", "Server-rendered web app with App Router, Zustand, TanStack Query")
-        Container(backend, "Backend API", "Spring Boot 4.0, Kotlin 2.3", "REST API with 8 Spring Modulith modules")
+        Container(backend, "Backend API", "Spring Boot 4.0, Kotlin 2.3", "REST API with 9 Spring Modulith modules")
     }
 
     System_Ext(supabase, "Supabase", "Auth + PostgreSQL")
     System_Ext(mapbox, "Mapbox", "GL JS mapping API")
     System_Ext(r2, "Cloudflare R2", "S3-compatible storage")
+    System_Ext(google_ai, "Google AI", "Vision + Gemini APIs")
 
     Rel(user, frontend, "Uses", "HTTPS")
     Rel(frontend, backend, "Calls", "REST/JSON")
     Rel(frontend, mapbox, "Loads maps", "GL JS")
     Rel(backend, supabase, "Authenticates, queries", "JDBC/JWT")
     Rel(backend, r2, "Stores files", "S3 API")
+    Rel(backend, google_ai, "Analyzes images", "REST")
 ```
 
 ### 5.2 Frontend Structure
@@ -191,6 +197,7 @@ flowchart TB
 
         subgraph Integration["🔗 Integration"]
             feedback["feedback\n<i>Dashboard, suggestions</i>"]
+            ai["ai\n<i>Image analysis, moderation</i>"]
         end
     end
 
@@ -207,6 +214,7 @@ flowchart TB
     feedback -.-> places
     feedback -.-> stories
     feedback -.-> gallery
+    ai --> shared
 
     style shared fill:#f5f5f4,stroke:#78716c,color:#44403c
     style places fill:#dcfce7,stroke:#16a34a,color:#166534
@@ -214,6 +222,7 @@ flowchart TB
     style auth fill:#fee2e2,stroke:#dc2626,color:#991b1b
     style stories fill:#fce7f3,stroke:#db2777,color:#9d174d
     style feedback fill:#ffedd5,stroke:#ea580c,color:#9a3412
+    style ai fill:#e0e7ff,stroke:#6366f1,color:#3730a3
 ```
 
 | Module | Purpose | Key Entities |
@@ -225,6 +234,7 @@ flowchart TB
 | `engagement` | User interactions | Reaction, Bookmark, Content |
 | `stories` | Community narratives | StorySubmission, MdxArchive |
 | `feedback` | Community input | Suggestion, DirectorySubmission, ContactMessage |
+| `ai` | AI-powered image analysis | AnalysisRun, AnalysisBatch, ApiUsageRecord, ImageAnalysisProvider |
 | `config` | Configuration | Caffeine cache manager |
 
 For module communication patterns (events, query services, boundaries), see [spring-modulith.md](spring-modulith.md).
@@ -404,6 +414,7 @@ Key decisions are documented in `/docs/adr/`. Each ADR explains the context, alt
 | [ADR-002](adr/0002-spring-modulith.md) | Modular monolith | Chose Spring Modulith over microservices for solo-maintainer operational simplicity with enforced module boundaries | Accepted |
 | [ADR-003](adr/0003-supabase-auth.md) | Supabase authentication | External auth provider to minimize security surface and maintenance burden (50K free MAU) | Accepted |
 | [ADR-004](adr/0004-es256-jwt-algorithm.md) | ES256 JWT algorithm | Custom JwtDecoder for Supabase's asymmetric keys (Spring Security defaults to RS256) | Accepted |
+| [ADR-007](adr/0007-ai-module-endpoint-ownership.md) | AI module endpoint ownership | Trigger endpoints in gallery, query/moderation endpoints in AI module | Accepted |
 
 **When to read ADRs**: If you're modifying authentication, module boundaries, or build tooling, read the relevant ADR first to understand constraints and rationale.
 
@@ -449,7 +460,7 @@ See [docs/testing.md](testing.md) for details.
 |------|--------|-------|
 | detekt code analysis | Disabled | Pending Kotlin 2.3.0 compatibility |
 | GCS bucket | Provisioned, unused | Using Cloudflare R2 instead |
-| Media processing | Not implemented | Future: image optimization, moderation |
+| Media processing | Partial (AI analysis) | AI analysis implemented; image optimization pending |
 
 ---
 
