@@ -1,5 +1,6 @@
 package com.nosilha.core.gallery.api
 
+import com.nosilha.core.gallery.api.dto.AnalyzeBatchRequest
 import com.nosilha.core.gallery.api.dto.CreateExternalMediaRequest
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.ModerationActionRequest
@@ -245,5 +246,56 @@ class AdminGalleryController(
         moderationService.promoteToHeroImage(mediaId, adminId)
 
         return ResponseEntity.ok(ApiResult(data = Unit))
+    }
+
+    /**
+     * Trigger AI analysis for a single media item.
+     *
+     * Returns 202 Accepted — analysis runs asynchronously via events.
+     */
+    @PostMapping("/{mediaId}/analyze")
+    fun triggerAnalysis(
+        @PathVariable mediaId: UUID,
+        authentication: Authentication,
+    ): ResponseEntity<ApiResult<Map<String, Any>>> {
+        val adminId = UUID.fromString(authentication.name)
+        logger.info { "Admin $adminId triggering AI analysis for media $mediaId" }
+
+        val runId = moderationService.triggerAnalysis(mediaId, adminId)
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(
+            ApiResult(
+                data = mapOf("mediaId" to mediaId, "analysisRunId" to runId, "status" to "PROCESSING"),
+                status = HttpStatus.ACCEPTED.value(),
+            ),
+        )
+    }
+
+    /**
+     * Trigger AI analysis for multiple media items.
+     *
+     * Returns 202 Accepted with batch progress info.
+     */
+    @PostMapping("/analyze-batch")
+    fun triggerBatchAnalysis(
+        @Valid @RequestBody request: AnalyzeBatchRequest,
+        authentication: Authentication,
+    ): ResponseEntity<ApiResult<Map<String, Any?>>> {
+        val adminId = UUID.fromString(authentication.name)
+        logger.info { "Admin $adminId triggering batch AI analysis for ${request.mediaIds.size} items" }
+
+        val result = moderationService.triggerBatchAnalysis(request.mediaIds, adminId)
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(
+            ApiResult(
+                data = mapOf(
+                    "batchId" to result.batchId,
+                    "accepted" to result.accepted,
+                    "rejected" to result.rejected,
+                    "errors" to result.errors.map { mapOf("mediaId" to it.mediaId, "reason" to it.reason) },
+                ),
+                status = HttpStatus.ACCEPTED.value(),
+            ),
+        )
     }
 }

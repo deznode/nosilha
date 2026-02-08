@@ -9,6 +9,8 @@ import com.nosilha.core.gallery.repository.MediaModerationAuditRepository
 import com.nosilha.core.shared.api.PageableInfo
 import com.nosilha.core.shared.api.PagedApiResult
 import com.nosilha.core.shared.events.HeroImagePromotedEvent
+import com.nosilha.core.shared.events.MediaAnalysisBatchRequestedEvent
+import com.nosilha.core.shared.events.MediaAnalysisRequestedEvent
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -346,4 +348,162 @@ class GalleryModerationService(
 
         logger.info { "Published HeroImagePromotedEvent for entry ${media.entryId}, media $mediaId, by admin $adminId" }
     }
+
+    /**
+     * Triggers AI analysis for a single media item.
+     *
+     * Creates an [AnalysisRun] tracking record and publishes a [MediaAnalysisRequestedEvent].
+     * Returns 202 Accepted semantics — analysis happens asynchronously.
+     *
+     * @param mediaId UUID of the media item to analyze
+     * @param adminId UUID of the admin triggering the analysis
+     * @return the created AnalysisRun ID
+     * @throws ResourceNotFoundException if media not found
+     * @throws BusinessException if media is not eligible for analysis
+     */
+    @Transactional
+    fun triggerAnalysis(
+        mediaId: UUID,
+        adminId: UUID,
+    ): UUID {
+        val media = repository.findById(mediaId).orElseThrow {
+            ResourceNotFoundException("Media not found: $mediaId")
+        }
+
+        validateMediaForAnalysis(media, mediaId)
+        val userMedia = media as UserUploadedMedia
+
+        val runId = UUID.randomUUID()
+
+        eventPublisher.publishEvent(
+            MediaAnalysisRequestedEvent(
+                mediaId = mediaId,
+                imageUrl = userMedia.publicUrl!!,
+                mediaTitle = userMedia.title,
+                requestedBy = adminId,
+                analysisRunId = runId,
+            ),
+        )
+
+        logger.info { "Triggered AI analysis for media $mediaId, run $runId, by admin $adminId" }
+        return runId
+    }
+
+    /**
+     * Triggers AI analysis for multiple media items in a batch.
+     *
+     * Creates an [AnalysisBatch] record plus individual [AnalysisRun] records.
+     * Items that fail validation are skipped and reported in the response.
+     *
+     * @param mediaIds list of media IDs to analyze
+     * @param adminId UUID of the admin triggering the batch
+     * @return batch result with accepted/rejected counts and errors
+     */
+    @Transactional
+    fun triggerBatchAnalysis(
+        mediaIds: List<UUID>,
+        adminId: UUID,
+    ): BatchAnalysisResult {
+        val errors = mutableListOf<BatchError>()
+        val validMedia = mutableListOf<UserUploadedMedia>()
+
+        for (id in mediaIds) {
+            val media = repository.findById(id).orElse(null)
+            if (media == null) {
+                errors.add(BatchError(id, "Media not found"))
+                continue
+            }
+            if (media !is UserUploadedMedia) {
+                errors.add(BatchError(id, "Only user uploads can be analyzed"))
+                continue
+            }
+            if (media.status != GalleryMediaStatus.ACTIVE) {
+                errors.add(BatchError(id, "Media is not ACTIVE"))
+                continue
+            }
+            if (media.publicUrl.isNullOrBlank()) {
+                errors.add(BatchError(id, "Media has no public URL"))
+                continue
+            }
+            validMedia.add(media)
+        }
+
+        if (validMedia.isEmpty()) {
+            return BatchAnalysisResult(
+                batchId = null,
+                accepted = 0,
+                rejected = errors.size,
+                errors = errors,
+            )
+        }
+
+        val batchId = UUID.randomUUID()
+
+        eventPublisher.publishEvent(
+            MediaAnalysisBatchRequestedEvent(
+                batchId = batchId,
+                totalItems = validMedia.size,
+                requestedBy = adminId,
+            ),
+        )
+
+        for (media in validMedia) {
+            val runId = UUID.randomUUID()
+            eventPublisher.publishEvent(
+                MediaAnalysisRequestedEvent(
+                    mediaId = media.id!!,
+                    imageUrl = media.publicUrl!!,
+                    mediaTitle = media.title,
+                    requestedBy = adminId,
+                    analysisRunId = runId,
+                    batchId = batchId,
+                ),
+            )
+        }
+
+        logger.info {
+            "Triggered batch AI analysis: batch $batchId, " +
+                "${validMedia.size} accepted, ${errors.size} rejected, by admin $adminId"
+        }
+
+        return BatchAnalysisResult(
+            batchId = batchId,
+            accepted = validMedia.size,
+            rejected = errors.size,
+            errors = errors,
+        )
+    }
+
+    private fun validateMediaForAnalysis(
+        media: GalleryMedia,
+        mediaId: UUID
+    ) {
+        if (media !is UserUploadedMedia) {
+            throw BusinessException("Only user uploads can be analyzed by AI")
+        }
+        if (media.status != GalleryMediaStatus.ACTIVE) {
+            throw BusinessException("Media must be ACTIVE for AI analysis (current: ${media.status})")
+        }
+        if (media.publicUrl.isNullOrBlank()) {
+            throw BusinessException("Media must have a public URL for AI analysis")
+        }
+    }
 }
+
+/**
+ * Result of a batch analysis trigger.
+ */
+data class BatchAnalysisResult(
+    val batchId: UUID?,
+    val accepted: Int,
+    val rejected: Int,
+    val errors: List<BatchError>,
+)
+
+/**
+ * Error detail for a rejected batch item.
+ */
+data class BatchError(
+    val mediaId: UUID,
+    val reason: String,
+)

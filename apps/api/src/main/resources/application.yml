@@ -61,6 +61,25 @@ cloudflare:
     bucket-name: ${R2_BUCKET_NAME:nosilha-media}
     public-url: ${R2_PUBLIC_URL:https://media.nosilha.com}
 
+# AI Image Analysis configuration
+nosilha:
+  ai:
+    enabled: ${AI_ENABLED:false}
+    cloud-vision:
+      enabled: ${AI_CLOUD_VISION_ENABLED:false}
+      max-labels: ${AI_CLOUD_VISION_MAX_LABELS:10}
+      max-text-results: ${AI_CLOUD_VISION_MAX_TEXT:5}
+      max-landmark-results: ${AI_CLOUD_VISION_MAX_LANDMARKS:5}
+      monthly-limit: ${AI_CLOUD_VISION_MONTHLY_LIMIT:1000}
+    gemini:
+      enabled: ${AI_GEMINI_ENABLED:false}
+      api-key: ${AI_GEMINI_API_KEY:}
+      model: ${AI_GEMINI_MODEL:gemini-2.5-flash}
+      max-output-tokens: ${AI_GEMINI_MAX_TOKENS:1024}
+      monthly-limit: ${AI_GEMINI_MONTHLY_LIMIT:500}
+    batch:
+      max-items: ${AI_BATCH_MAX_ITEMS:50}
+
 # Supabase JWT configuration using JWKS (asymmetric key verification)
 # Uses the public JWKS endpoint - no secret needed
 supabase:

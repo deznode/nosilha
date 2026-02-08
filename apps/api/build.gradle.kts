@@ -75,9 +75,16 @@ dependencies {
     // Bucket4j for efficient in-memory rate limiting (token bucket algorithm)
     implementation("com.bucket4j:bucket4j_jdk17-core:8.14.0")
 
+    // Google Cloud Vision SDK for image analysis (labels, OCR, landmarks)
+    implementation("com.google.cloud:google-cloud-vision:3.76.0")
+
+    // Google GenAI SDK for Gemini cultural context generation
+    implementation("com.google.genai:google-genai:1.37.0")
+
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
     testImplementation("org.springframework.boot:spring-boot-webmvc-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

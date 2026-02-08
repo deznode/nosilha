@@ -76,12 +76,25 @@ class UserUploadedMedia : GalleryMedia() {
     @Column(name = "uploaded_by")
     var uploadedBy: String? = null
 
-    // --- AI-generated fields (Future Integration) ---
+    // --- AI-generated fields (populated on moderation approval) ---
 
     /** AI-generated tags for image classification (PostgreSQL TEXT[] array). */
     @Column(name = "ai_tags", columnDefinition = "TEXT[]")
     @JdbcTypeCode(SqlTypes.ARRAY)
     var aiTags: Array<String>? = null
+
+    /** AI-generated structured labels with confidence scores (JSONB). */
+    @Column(name = "ai_labels", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    var aiLabels: String? = null
+
+    /** AI-generated accessible alt text for the image. */
+    @Column(name = "ai_alt_text", length = 1024)
+    var aiAltText: String? = null
+
+    /** AI-generated rich description of the image with cultural context. */
+    @Column(name = "ai_description", length = 2048)
+    var aiDescription: String? = null
 
     /** Timestamp when AI processing was completed. */
     @Column(name = "ai_processed_at")

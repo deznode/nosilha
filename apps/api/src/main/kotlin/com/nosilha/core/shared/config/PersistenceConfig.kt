@@ -16,6 +16,7 @@ import org.springframework.orm.jpa.JpaTransactionManager
 @Configuration
 @EnableJpaRepositories(
     basePackages = [
+        "com.nosilha.core.ai.repository",
         "com.nosilha.core.auth.repository",
         "com.nosilha.core.places.repository",
         "com.nosilha.core.engagement.repository",

@@ -10,6 +10,7 @@ import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.MediaSource
 import com.nosilha.core.gallery.domain.MediaType
 import com.nosilha.core.gallery.domain.UserUploadedMedia
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -75,6 +76,10 @@ sealed class GalleryMediaDto {
         val entryId: UUID?,
         val source: MediaSource?,
         val uploadedBy: String?,
+        val aiTags: List<String>? = null,
+        val aiAltText: String? = null,
+        val aiDescription: String? = null,
+        val aiProcessedAt: Instant? = null,
     ) : GalleryMediaDto()
 
     /**
@@ -126,6 +131,10 @@ sealed class GalleryMediaDto {
                 entryId = media.entryId,
                 source = media.source,
                 uploadedBy = media.uploadedBy,
+                aiTags = media.aiTags?.toList(),
+                aiAltText = media.aiAltText,
+                aiDescription = media.aiDescription,
+                aiProcessedAt = media.aiProcessedAt,
             )
 
         /**

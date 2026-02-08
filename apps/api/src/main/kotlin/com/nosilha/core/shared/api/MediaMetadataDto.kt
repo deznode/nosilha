@@ -25,12 +25,16 @@ data class MediaMetadataDto(
 
 /**
  * DTO representing AI processing metadata for media files.
- * Contains results from Google Cloud Vision API processing.
+ * Contains results from Cloud Vision and Gemini providers.
  */
 data class AIMetadataDto(
     val labels: List<String> = emptyList(),
     val textDetected: List<String> = emptyList(),
     val landmarks: List<String> = emptyList(),
+    val altText: String? = null,
+    val description: String? = null,
+    val tags: List<String> = emptyList(),
+    val providers: List<String> = emptyList(),
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     val processedAt: LocalDateTime? = null,
 )
