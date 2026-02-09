@@ -95,6 +95,25 @@ C4Context
     Rel(nosilha, r2, "Stores uploaded media")
     Rel(nosilha, gcp, "Deploys containers")
     Rel(nosilha, google_ai, "Analyzes images")
+
+    UpdateElementStyle(community, $fontColor="#ffffff", $bgColor="#4F46E5", $borderColor="#4338CA")
+    UpdateElementStyle(admin, $fontColor="#ffffff", $bgColor="#4F46E5", $borderColor="#4338CA")
+    UpdateElementStyle(tourist, $fontColor="#ffffff", $bgColor="#4F46E5", $borderColor="#4338CA")
+    UpdateElementStyle(nosilha, $fontColor="#ffffff", $bgColor="#2563EB", $borderColor="#1D4ED8")
+    UpdateElementStyle(supabase, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
+    UpdateElementStyle(mapbox, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
+    UpdateElementStyle(r2, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
+    UpdateElementStyle(gcp, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
+    UpdateElementStyle(google_ai, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
+
+    UpdateRelStyle(community, nosilha, $textColor="#6B7280", $lineColor="#9CA3AF")
+    UpdateRelStyle(admin, nosilha, $textColor="#6B7280", $lineColor="#9CA3AF")
+    UpdateRelStyle(tourist, nosilha, $textColor="#6B7280", $lineColor="#9CA3AF")
+    UpdateRelStyle(nosilha, supabase, $textColor="#6B7280", $lineColor="#9CA3AF")
+    UpdateRelStyle(nosilha, mapbox, $textColor="#6B7280", $lineColor="#9CA3AF")
+    UpdateRelStyle(nosilha, r2, $textColor="#6B7280", $lineColor="#9CA3AF")
+    UpdateRelStyle(nosilha, gcp, $textColor="#6B7280", $lineColor="#9CA3AF")
+    UpdateRelStyle(nosilha, google_ai, $textColor="#6B7280", $lineColor="#9CA3AF")
 ```
 
 ### 3.2 External Interfaces
@@ -162,6 +181,21 @@ C4Container
     Rel(backend, supabase, "Authenticates, queries", "JDBC/JWT")
     Rel(backend, r2, "Stores files", "S3 API")
     Rel(backend, google_ai, "Analyzes images", "REST")
+
+    UpdateElementStyle(user, $fontColor="#ffffff", $bgColor="#4F46E5", $borderColor="#4338CA")
+    UpdateElementStyle(frontend, $fontColor="#ffffff", $bgColor="#2563EB", $borderColor="#1D4ED8")
+    UpdateElementStyle(backend, $fontColor="#ffffff", $bgColor="#2563EB", $borderColor="#1D4ED8")
+    UpdateElementStyle(supabase, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
+    UpdateElementStyle(mapbox, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
+    UpdateElementStyle(r2, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
+    UpdateElementStyle(google_ai, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
+
+    UpdateRelStyle(user, frontend, $textColor="#6B7280", $lineColor="#9CA3AF")
+    UpdateRelStyle(frontend, backend, $textColor="#6B7280", $lineColor="#9CA3AF")
+    UpdateRelStyle(frontend, mapbox, $textColor="#6B7280", $lineColor="#9CA3AF")
+    UpdateRelStyle(backend, supabase, $textColor="#6B7280", $lineColor="#9CA3AF")
+    UpdateRelStyle(backend, r2, $textColor="#6B7280", $lineColor="#9CA3AF")
+    UpdateRelStyle(backend, google_ai, $textColor="#6B7280", $lineColor="#9CA3AF")
 ```
 
 ### 5.2 Frontend Structure
@@ -335,8 +369,20 @@ C4Deployment
     Rel(backend, db, "Queries", "JDBC")
     Rel(backend, auth, "Validates JWT", "HTTPS")
     Rel(backend, r2, "Stores media", "S3 API")
-    Rel(cloudrun, secrets, "Reads")
-    Rel(cloudrun, registry, "Pulls images")
+
+    UpdateElementStyle(frontend, $fontColor="#ffffff", $bgColor="#2563EB", $borderColor="#1D4ED8")
+    UpdateElementStyle(backend, $fontColor="#ffffff", $bgColor="#2563EB", $borderColor="#1D4ED8")
+    UpdateElementStyle(fe_image, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
+    UpdateElementStyle(be_image, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
+    UpdateElementStyle(secrets, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
+    UpdateElementStyle(auth, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
+    UpdateElementStyle(db, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
+    UpdateElementStyle(r2, $fontColor="#374151", $bgColor="#E5E7EB", $borderColor="#D1D5DB")
+
+    UpdateRelStyle(frontend, backend, $textColor="#6B7280", $lineColor="#9CA3AF")
+    UpdateRelStyle(backend, db, $textColor="#6B7280", $lineColor="#9CA3AF")
+    UpdateRelStyle(backend, auth, $textColor="#6B7280", $lineColor="#9CA3AF")
+    UpdateRelStyle(backend, r2, $textColor="#6B7280", $lineColor="#9CA3AF")
 ```
 
 ### 7.2 Deployment Configuration
