@@ -69,6 +69,8 @@ pnpm run test:unit  # Vitest unit tests (4 critical store/hook tests)
 
 ```tsx
 // app/directory/page.tsx
+export const revalidate = 3600; // 1 hour ISR
+
 export default async function DirectoryPage() {
   const entries = await fetchDirectoryEntries()
   return <DirectoryList entries={entries} />
@@ -86,6 +88,14 @@ export function InteractiveMap({ markers }: Props) {
 }
 ```
 
+### Static Export
+
+Force a page to be fully static at build time:
+
+```tsx
+export const dynamic = "force-static";
+```
+
 ### Dynamic Routes
 
 ```tsx
@@ -100,4 +110,3 @@ export default async function CategoryPage({ params }: { params: { category: str
 
 - See `docs/design-system.md` for comprehensive styling guide
 - See `docs/testing.md` for full testing documentation
-- See `docs/state-management.md` for state management patterns

@@ -59,10 +59,7 @@ class AiModerationService(
     ) {
         val run = getAndValidateRun(runId)
 
-        run.moderationStatus = ModerationStatus.APPROVED
-        run.moderatedBy = moderatorId
-        run.moderatedAt = Instant.now()
-        run.moderatorNotes = notes
+        applyModerationFields(run, ModerationStatus.APPROVED, moderatorId, notes)
         analysisRunRepository.save(run)
 
         eventPublisher.publishEvent(
@@ -89,10 +86,7 @@ class AiModerationService(
     ) {
         val run = getAndValidateRun(runId)
 
-        run.moderationStatus = ModerationStatus.REJECTED
-        run.moderatedBy = moderatorId
-        run.moderatedAt = Instant.now()
-        run.moderatorNotes = notes
+        applyModerationFields(run, ModerationStatus.REJECTED, moderatorId, notes)
         analysisRunRepository.save(run)
 
         logger.info { "AI results rejected for media ${run.mediaId}, run $runId, by moderator $moderatorId" }
@@ -122,10 +116,7 @@ class AiModerationService(
         run.resultAltText = finalAltText
         run.resultDescription = finalDescription
         run.resultTags = finalTags.toTypedArray().ifEmpty { null }
-        run.moderationStatus = ModerationStatus.APPROVED
-        run.moderatedBy = moderatorId
-        run.moderatedAt = Instant.now()
-        run.moderatorNotes = notes ?: "Approved with edits"
+        applyModerationFields(run, ModerationStatus.APPROVED, moderatorId, notes ?: "Approved with edits")
         analysisRunRepository.save(run)
 
         eventPublisher.publishEvent(
@@ -141,6 +132,18 @@ class AiModerationService(
         )
 
         logger.info { "AI results approved with edits for media ${run.mediaId}, run $runId, by moderator $moderatorId" }
+    }
+
+    private fun applyModerationFields(
+        run: AnalysisRun,
+        status: ModerationStatus,
+        moderatorId: UUID,
+        notes: String?,
+    ) {
+        run.moderationStatus = status
+        run.moderatedBy = moderatorId
+        run.moderatedAt = Instant.now()
+        run.moderatorNotes = notes
     }
 
     private fun getAndValidateRun(runId: UUID): AnalysisRun {

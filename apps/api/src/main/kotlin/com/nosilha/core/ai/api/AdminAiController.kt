@@ -194,12 +194,13 @@ class AdminAiController(
 
     @GetMapping("/health")
     fun getAiHealth(): ResponseEntity<ApiResult<AiHealthResponse>> {
+        val monthlyLimits = mapOf(
+            "cloud-vision" to cloudVisionMonthlyLimit,
+            "gemini-cultural" to geminiMonthlyLimit,
+        )
+
         val providerInfos = providers.map { provider ->
-            val monthlyLimit = when (provider.name) {
-                "cloud-vision" -> cloudVisionMonthlyLimit
-                "gemini-cultural" -> geminiMonthlyLimit
-                else -> 0
-            }
+            val monthlyLimit = monthlyLimits[provider.name] ?: 0
             val usage = apiUsageService.getUsage(provider.name, monthlyLimit)
 
             ProviderHealthDto(

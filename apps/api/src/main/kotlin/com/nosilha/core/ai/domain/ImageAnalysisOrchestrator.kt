@@ -71,51 +71,19 @@ class ImageAnalysisOrchestrator(
             culturalContext = event.mediaTitle,
         )
 
-        val results = mutableListOf<ImageAnalysisResult>()
-        val usedProviders = mutableListOf<String>()
-        var lastError: String? = null
+        val errors = mutableListOf<String>()
 
-        val visionProvider = providers.find { it.name == "cloud-vision" }
-        var visionResult: ImageAnalysisResult? = null
+        val visionResult = executeProvider("cloud-vision", request, cloudVisionMonthlyLimit, errors)
 
-        if (visionProvider != null && visionProvider.isEnabled()) {
-            if (apiUsageService.checkQuota(visionProvider.name, cloudVisionMonthlyLimit)) {
-                try {
-                    visionResult = visionProvider.analyze(request)
-                    results.add(visionResult)
-                    usedProviders.add(visionProvider.name)
-                    apiUsageService.incrementUsage(visionProvider.name, cloudVisionMonthlyLimit)
-                } catch (e: Exception) {
-                    logger.error(e) { "Cloud Vision failed for media ${event.mediaId}" }
-                    lastError = "Cloud Vision: ${e.message}"
-                }
-            } else {
-                logger.warn { "Cloud Vision quota exceeded, skipping" }
-            }
-        }
+        val geminiRequest = request.copy(priorResults = visionResult)
+        val geminiResult = executeProvider("gemini-cultural", geminiRequest, geminiMonthlyLimit, errors)
 
-        val geminiProvider = providers.find { it.name == "gemini-cultural" }
-
-        if (geminiProvider != null && geminiProvider.isEnabled()) {
-            if (apiUsageService.checkQuota(geminiProvider.name, geminiMonthlyLimit)) {
-                try {
-                    val geminiRequest = request.copy(priorResults = visionResult)
-                    val geminiResult = geminiProvider.analyze(geminiRequest)
-                    results.add(geminiResult)
-                    usedProviders.add(geminiProvider.name)
-                    apiUsageService.incrementUsage(geminiProvider.name, geminiMonthlyLimit)
-                } catch (e: Exception) {
-                    logger.error(e) { "Gemini failed for media ${event.mediaId}" }
-                    lastError = (lastError?.plus("; ") ?: "") + "Gemini: ${e.message}"
-                }
-            } else {
-                logger.warn { "Gemini quota exceeded, skipping" }
-            }
-        }
+        val results = listOfNotNull(visionResult, geminiResult)
+        val usedProviders = results.map { it.provider }
 
         if (results.isEmpty()) {
             run.status = AnalysisRunStatus.FAILED
-            run.errorMessage = lastError ?: "All providers failed or unavailable"
+            run.errorMessage = errors.joinToString("; ").ifEmpty { "All providers failed or unavailable" }
             run.completedAt = Instant.now()
             analysisRunRepository.save(run)
 
@@ -164,6 +132,31 @@ class ImageAnalysisOrchestrator(
             "Analysis completed for media ${event.mediaId}: " +
                 "${usedProviders.size} providers, ${merged.tags.size} tags, " +
                 "alt text: ${merged.altText != null}, description: ${merged.description != null}"
+        }
+    }
+
+    private fun executeProvider(
+        providerName: String,
+        request: ImageAnalysisRequest,
+        monthlyLimit: Int,
+        errors: MutableList<String>,
+    ): ImageAnalysisResult? {
+        val provider = providers.find { it.name == providerName } ?: return null
+        if (!provider.isEnabled()) return null
+
+        if (!apiUsageService.checkQuota(provider.name, monthlyLimit)) {
+            logger.warn { "${provider.name} quota exceeded, skipping" }
+            return null
+        }
+
+        return try {
+            val result = provider.analyze(request)
+            apiUsageService.incrementUsage(provider.name, monthlyLimit)
+            result
+        } catch (e: Exception) {
+            logger.error(e) { "${provider.name} failed for media ${request.mediaId}" }
+            errors.add("${provider.name}: ${e.message}")
+            null
         }
     }
 
