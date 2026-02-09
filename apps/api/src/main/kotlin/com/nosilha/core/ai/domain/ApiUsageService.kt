@@ -32,7 +32,7 @@ class ApiUsageService(
     ): Boolean {
         val yearMonth = currentYearMonth()
         val record = apiUsageRepository.findByProviderAndYearMonth(provider, yearMonth)
-        if (record == null) return true
+            ?: return true
         return record.requestCount < record.monthlyLimit
     }
 

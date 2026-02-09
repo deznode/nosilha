@@ -21,19 +21,11 @@ object CulturalPromptTemplates {
         mediaTitle: String? = null,
         locationContext: String? = null,
     ): String {
-        val contextParts = mutableListOf<String>()
-
-        if (priorLabels.isNotEmpty()) {
-            contextParts.add("Detected labels: ${priorLabels.joinToString(", ")}")
-        }
-        if (priorLandmarks.isNotEmpty()) {
-            contextParts.add("Detected landmarks: ${priorLandmarks.joinToString(", ")}")
-        }
-        if (mediaTitle != null) {
-            contextParts.add("Image title: $mediaTitle")
-        }
-        if (locationContext != null) {
-            contextParts.add("Location: $locationContext")
+        val contextParts = buildList {
+            if (priorLabels.isNotEmpty()) add("Detected labels: ${priorLabels.joinToString(", ")}")
+            if (priorLandmarks.isNotEmpty()) add("Detected landmarks: ${priorLandmarks.joinToString(", ")}")
+            if (mediaTitle != null) add("Image title: $mediaTitle")
+            if (locationContext != null) add("Location: $locationContext")
         }
 
         val priorContext = if (contextParts.isNotEmpty()) {
