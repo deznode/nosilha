@@ -86,6 +86,21 @@ resource "google_secret_manager_secret_iam_member" "grant_resend_api_key_access"
   member    = google_service_account.frontend_runner.member
 }
 
+# Grant Cloud Vision API access to backend service account (ADC auth — see ADR-0008)
+resource "google_project_iam_member" "backend_vision_user" {
+  project = var.gcp_project_id
+  role    = "roles/cloudvision.user"
+  member  = google_service_account.backend_runner.member
+}
+
+# Grant backend access to Gemini API key secret (Developer API auth — see ADR-0008)
+resource "google_secret_manager_secret_iam_member" "grant_gemini_api_key_access" {
+  project   = var.gcp_project_id
+  secret_id = "gemini_api_key"
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_service_account.backend_runner.member
+}
+
 # Grant backend service account access to GCS bucket
 resource "google_storage_bucket_iam_member" "grant_gcs_access" {
   bucket = google_storage_bucket.media_storage.name

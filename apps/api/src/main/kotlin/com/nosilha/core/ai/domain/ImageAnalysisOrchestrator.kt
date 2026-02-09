@@ -75,7 +75,6 @@ class ImageAnalysisOrchestrator(
         val usedProviders = mutableListOf<String>()
         var lastError: String? = null
 
-        // Run Cloud Vision first (provides context for Gemini)
         val visionProvider = providers.find { it.name == "cloud-vision" }
         var visionResult: ImageAnalysisResult? = null
 
@@ -95,7 +94,6 @@ class ImageAnalysisOrchestrator(
             }
         }
 
-        // Run Gemini with Cloud Vision results as context
         val geminiProvider = providers.find { it.name == "gemini-cultural" }
 
         if (geminiProvider != null && geminiProvider.isEnabled()) {
@@ -116,7 +114,6 @@ class ImageAnalysisOrchestrator(
         }
 
         if (results.isEmpty()) {
-            // Both providers failed
             run.status = AnalysisRunStatus.FAILED
             run.errorMessage = lastError ?: "All providers failed or unavailable"
             run.completedAt = Instant.now()
@@ -134,7 +131,6 @@ class ImageAnalysisOrchestrator(
             return
         }
 
-        // Merge results from all providers
         val merged = mergeResults(results)
 
         run.status = AnalysisRunStatus.COMPLETED
@@ -201,7 +197,7 @@ class ImageAnalysisOrchestrator(
 
     private fun updateBatchProgress(
         batchId: UUID?,
-        failed: Boolean
+        failed: Boolean,
     ) {
         if (batchId == null) return
         val batch = analysisBatchRepository.findById(batchId).orElse(null) ?: return

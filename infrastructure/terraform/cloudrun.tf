@@ -160,6 +160,33 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         }
       }
 
+      # AI feature toggles (disabled initially — flip to "true" when ready to activate)
+      env {
+        name  = "AI_ENABLED"
+        value = "false"
+      }
+
+      env {
+        name  = "AI_CLOUD_VISION_ENABLED"
+        value = "false"
+      }
+
+      env {
+        name  = "AI_GEMINI_ENABLED"
+        value = "false"
+      }
+
+      # Gemini API key from Secret Manager (Developer API authentication — see ADR-0008)
+      env {
+        name = "AI_GEMINI_API_KEY"
+        value_source {
+          secret_key_ref {
+            secret  = "gemini_api_key"
+            version = "1"
+          }
+        }
+      }
+
     }
   }
 

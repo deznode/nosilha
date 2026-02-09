@@ -62,9 +62,6 @@ class AdminAiController(
     @Value("\${nosilha.ai.gemini.monthly-limit:500}")
     private val geminiMonthlyLimit: Int,
 ) {
-    /**
-     * List analysis runs pending moderator review.
-     */
     @GetMapping("/review-queue")
     fun getReviewQueue(
         @RequestParam(defaultValue = "0") page: Int,
@@ -73,10 +70,8 @@ class AdminAiController(
         val pageable = PageRequest.of(page, minOf(size, 100))
         val runsPage = moderationService.getReviewQueue(pageable)
 
-        val dtos = runsPage.content.map { AnalysisRunSummaryDto.from(it) }
-
         return PagedApiResult(
-            data = dtos,
+            data = runsPage.content.map { AnalysisRunSummaryDto.from(it) },
             pageable = PageableInfo(
                 page = runsPage.number,
                 size = runsPage.size,
@@ -88,9 +83,6 @@ class AdminAiController(
         )
     }
 
-    /**
-     * Get detailed AI output for a specific analysis run.
-     */
     @GetMapping("/review/{runId}")
     fun getRunDetail(
         @PathVariable runId: UUID,
@@ -99,9 +91,6 @@ class AdminAiController(
         return ResponseEntity.ok(ApiResult(data = AnalysisRunDetailDto.from(run)))
     }
 
-    /**
-     * Approve AI results — applies them to the gallery media entity.
-     */
     @PostMapping("/review/{runId}/approve")
     fun approveRun(
         @PathVariable runId: UUID,
@@ -113,9 +102,6 @@ class AdminAiController(
         return ResponseEntity.ok(ApiResult(data = Unit))
     }
 
-    /**
-     * Reject AI results — discards them without applying.
-     */
     @PostMapping("/review/{runId}/reject")
     fun rejectRun(
         @PathVariable runId: UUID,
@@ -128,9 +114,6 @@ class AdminAiController(
         return ResponseEntity.ok(ApiResult(data = Unit))
     }
 
-    /**
-     * Approve with edits — applies admin-modified results to the entity.
-     */
     @PostMapping("/review/{runId}/approve-edited")
     fun approveEditedRun(
         @PathVariable runId: UUID,
@@ -150,9 +133,6 @@ class AdminAiController(
         return ResponseEntity.ok(ApiResult(data = Unit))
     }
 
-    /**
-     * Get AI processing status for given media items.
-     */
     @GetMapping("/status")
     fun getAiStatus(
         @RequestParam mediaIds: List<UUID>,
@@ -172,9 +152,6 @@ class AdminAiController(
         return ResponseEntity.ok(ApiResult(data = statuses))
     }
 
-    /**
-     * List all analysis batches with progress info.
-     */
     @GetMapping("/batches")
     fun listBatches(
         @RequestParam(defaultValue = "0") page: Int,
@@ -196,9 +173,6 @@ class AdminAiController(
         )
     }
 
-    /**
-     * Get batch detail with per-item status.
-     */
     @GetMapping("/batches/{batchId}")
     fun getBatchDetail(
         @PathVariable batchId: UUID,
@@ -218,9 +192,6 @@ class AdminAiController(
         )
     }
 
-    /**
-     * AI provider health and usage statistics.
-     */
     @GetMapping("/health")
     fun getAiHealth(): ResponseEntity<ApiResult<AiHealthResponse>> {
         val providerInfos = providers.map { provider ->

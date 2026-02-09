@@ -46,11 +46,10 @@ class AiModerationService(
         }
 
     /**
-     * Approves AI results and publishes an event for the gallery module to apply them.
+     * Approves AI results and publishes [AiResultsApprovedEvent] for the gallery module.
      *
-     * This is the critical safety gate — AI fields are only written to
-     * UserUploadedMedia after explicit moderator approval, via event-driven
-     * cross-module communication.
+     * This is the safety gate: AI fields are only written to UserUploadedMedia
+     * after explicit moderator approval via event-driven cross-module communication.
      */
     @Transactional
     fun approve(
@@ -60,14 +59,12 @@ class AiModerationService(
     ) {
         val run = getAndValidateRun(runId)
 
-        // Update moderation status
         run.moderationStatus = ModerationStatus.APPROVED
         run.moderatedBy = moderatorId
         run.moderatedAt = Instant.now()
         run.moderatorNotes = notes
         analysisRunRepository.save(run)
 
-        // Publish event for gallery module to apply results
         eventPublisher.publishEvent(
             AiResultsApprovedEvent(
                 mediaId = run.mediaId,
@@ -83,9 +80,7 @@ class AiModerationService(
         logger.info { "AI results approved for media ${run.mediaId}, run $runId, by moderator $moderatorId" }
     }
 
-    /**
-     * Rejects AI results — discards them without applying to the entity.
-     */
+    /** Rejects AI results without applying them. */
     @Transactional
     fun reject(
         runId: UUID,
@@ -104,9 +99,10 @@ class AiModerationService(
     }
 
     /**
-     * Approves AI results with admin edits — publishes modified results for the gallery module.
+     * Approves AI results with admin edits, publishing modified values for the gallery module.
      *
-     * Stores both the original AI output (rawResults) and the admin-modified values.
+     * Edited fields override original AI output; unedited fields fall back to originals.
+     * Both the original (rawResults) and final values are preserved.
      */
     @Transactional
     fun approveEdited(
@@ -119,12 +115,10 @@ class AiModerationService(
     ) {
         val run = getAndValidateRun(runId)
 
-        // Resolve final values (edited or original)
         val finalAltText = editedAltText ?: run.resultAltText
         val finalDescription = editedDescription ?: run.resultDescription
         val finalTags = editedTags ?: run.resultTags?.toList() ?: emptyList()
 
-        // Update run with edited values
         run.resultAltText = finalAltText
         run.resultDescription = finalDescription
         run.resultTags = finalTags.toTypedArray().ifEmpty { null }
@@ -134,7 +128,6 @@ class AiModerationService(
         run.moderatorNotes = notes ?: "Approved with edits"
         analysisRunRepository.save(run)
 
-        // Publish event for gallery module to apply results
         eventPublisher.publishEvent(
             AiResultsApprovedEvent(
                 mediaId = run.mediaId,
