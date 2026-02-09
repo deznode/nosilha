@@ -8,7 +8,7 @@ Nos Ilha is a community-driven cultural heritage hub for Brava Island, Cape Verd
 
 ## Architecture
 
-- **Frontend**: Next.js 16 (App Router) with React 19.2, TypeScript, Tailwind CSS, ISR, Supabase Auth
+- **Frontend**: Next.js 16.1 (App Router) with React 19.2, TypeScript, Tailwind CSS, ISR, Supabase Auth
 - **Backend**: Spring Boot 4.0.0 with Kotlin 2.3.0, Java 25, Spring Modulith 2.0.1, PostgreSQL
 - **Infrastructure**: Docker Compose (local), Terraform + GCP Cloud Run (prod)
 - **CI/CD**: 9 GitHub Actions workflows — security scanning, auto-deployment, health checks
@@ -17,7 +17,7 @@ Nos Ilha is a community-driven cultural heritage hub for Brava Island, Cape Verd
 
 ```
 nosilha/
-├── apps/web/          # Next.js 16 frontend
+├── apps/web/          # Next.js 16.1 frontend
 ├── apps/api/          # Spring Boot 4 backend (Kotlin)
 ├── infrastructure/    # Docker Compose, Terraform, GCP config
 ├── docs/              # Architecture, API reference, ADRs, design system
@@ -25,25 +25,18 @@ nosilha/
 └── .claude/           # Rules, skills, commands for Claude Code
 ```
 
-### Key Integration Flows
+See `docs/architecture.md` for detailed integration flows (auth, content management, media, CI/CD).
 
-**Authentication**: User → Frontend → Supabase Auth → JWT Token → Backend Validation → Database Access
-**Content Management**: Admin UI → Backend API → PostgreSQL → Cache Invalidation → Frontend Update
-**Media Upload**: File Upload → Local Storage (dev) → PostgreSQL Metadata → Frontend Display
-**CI/CD Deployment**: Git Push → GitHub Actions → Security Scan → Build → Deploy → Health Check
+## Development Setup
 
-## Development Environment Setup
+1. **Start infrastructure**: `cd infrastructure/docker && docker-compose up -d`
+2. **Backend**: `cd apps/api && ./gradlew bootRun --args='--spring.profiles.active=local'`
+3. **Frontend**: `cd apps/web && pnpm install && pnpm run dev`
 
-### Prerequisites
-- **Node.js 20.9+** and pnpm
-- **Java 25** (for backend)
-- **Docker** and Docker Compose
-- **PostgreSQL** (or use Docker Compose setup)
+**Environment files**: Copy templates before first run:
 
-### Local Development
-1. **Start infrastructure services**: `cd infrastructure/docker && docker-compose up -d`
-2. **Backend setup**: `cd apps/api && ./gradlew bootRun --args='--spring.profiles.active=local'`
-3. **Frontend setup**: `cd apps/web && pnpm install && pnpm run dev`
+- `infrastructure/docker/.env.example` → `.env`
+- `apps/web/.env.local.example` → `.env.local`
 
 ## Development Commands
 
@@ -56,44 +49,6 @@ For detailed commands by domain, see the modular rules:
 
 Additional convention rules auto-load based on file paths (see Modular Rules below).
 
-## Environment Configuration
-
-### Local Development URLs
-- **Frontend**: `http://localhost:3000` (Next.js with Turbopack)
-- **Backend API**: `http://localhost:8080/api/v1/` (Spring Boot)
-- **Database**: `localhost:5432` (PostgreSQL: database=`nosilha_db`, user=`nosilha`, password=`nosilha`)
-- **Media Storage**: `./uploads` (local filesystem)
-
-### Required Environment Variables
-
-#### Frontend (.env.local)
-```bash
-NEXT_PUBLIC_API_URL=http://localhost:8080
-NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=your_mapbox_token_here
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_your_key  # Publishable key format
-
-# Analytics Integration (optional for local development)
-NEXT_PUBLIC_GA_ID=your_ga_measurement_id
-NEXT_PUBLIC_CLARITY_PROJECT_ID=your_clarity_project_id
-```
-
-#### Backend (Environment Variables)
-```bash
-SPRING_PROFILES_ACTIVE=local
-DATABASE_URL=jdbc:postgresql://localhost:5432/nosilha_db
-DATABASE_USERNAME=nosilha
-DATABASE_PASSWORD=nosilha
-```
-
-### Production Environment
-- **Cloud Platform**: Google Cloud Platform (GCP)
-- **Region**: `us-east1`
-- **Services**: Cloud Run (auto-scaling serverless containers)
-- **Registry**: Google Artifact Registry (`us-east1-docker.pkg.dev`)
-- **Database**: Supabase PostgreSQL (external managed)
-- **Authentication**: Supabase Auth with JWT tokens
-
 ## Claude Code Memory
 
 Use `/memory` to view and edit all loaded memory files.
@@ -105,10 +60,17 @@ Domain-specific instructions loaded automatically based on file paths:
 | Rule File | Trigger Path | Purpose |
 |-----------|-------------|---------|
 | `frontend/app-router.md` | `apps/web/**` | Next.js App Router patterns and commands |
-| `frontend/design-system.md` | `apps/web/**` | Design system, Tailwind CSS conventions |
+| `frontend/design-system.md` | `apps/web/**` | Design system, OKLCH tokens, Tailwind CSS |
 | `frontend/mcp-playwright.md` | `apps/web/**` | Playwright MCP E2E testing |
-| `backend/spring-modulith.md` | `apps/api/**` | Spring Modulith architecture and commands |
-| `backend/api-patterns.md` | `apps/api/**` | REST API conventions and patterns |
+| `frontend/state-management.md` | `apps/web/**` | Zustand stores, TanStack Query, Zod schemas |
+| `frontend/api-client.md` | `apps/web/**` | API factory, contracts, caching, types |
+| `frontend/component-patterns.md` | `apps/web/**` | forwardRef, clsx, toast, loading states |
+| `backend/spring-modulith.md` | `apps/api/**` | Module boundaries, events, shared kernel |
+| `backend/api-patterns.md` | `apps/api/**` | ApiResult, controllers, module sub-packages |
+| `backend/kotlin-conventions.md` | `apps/api/**` | Jackson 3.x, logging, transactions, ktlint |
+| `backend/database-patterns.md` | `apps/api/**` | Flyway, entities, JSONB, full-text search |
+| `backend/testing-patterns.md` | `apps/api/**` | Integration tests, MockMvc, auth mocking |
+| `backend/security-auth.md` | `apps/api/**` | Exceptions, rate limiting, security config |
 | `content/mdx-platform.md` | `apps/web/content/**` | MDX content authoring platform |
 | `infrastructure/cicd-deployment.md` | `infrastructure/**, .github/**` | CI/CD, Docker, cloud deployment |
 
@@ -163,14 +125,10 @@ Custom workflow triggers in `.claude/commands/`. Use syntax: `/command-name [arg
 ### Additional Documentation
 - `docs/secret-management.md` - Secret management guide
 - `docs/cultural-heritage-verification.md` - Cultural heritage content verification protocols
+- `docs/supabase-admin-roles.md` - Supabase admin role setup and JWT-based access control
+- `docs/api-roadmap.md` - Planned backend improvements and migrations
+- `docs/nx-monorepo.md` - Nx monorepo commands and project graph
 - `SECURITY.md` - Security policy and vulnerability reporting procedures
-
-## Gotchas
-
-- **Jackson 3.x imports**: Use `tools.jackson.module.kotlin.jacksonObjectMapper` and `tools.jackson.module.kotlin.readValue` (not `com.fasterxml`)
-- **ktlint rules**: No blank line at start of class body; newline before `=` when params span multiple lines; MockMvc `.perform(...).andExpect(...)` dot on same line as closing paren
-- **Event testing**: `@ApplicationModuleListener` runs AFTER_COMMIT — use `awaitAnalysisRun()` polling pattern in integration tests
-- **Test cleanup**: FK-safe delete order in `@BeforeEach` — child tables first, then `event_publication`, then parent tables
 
 ## Troubleshooting
 

@@ -29,6 +29,10 @@ The project uses a **modular CI/CD architecture** with service-specific workflow
 | Infrastructure CI/CD | `.github/workflows/infrastructure-ci.yml` | Terraform infrastructure management |
 | PR Validation | `.github/workflows/pr-validation.yml` | Consolidated PR validation |
 | Integration Tests | `.github/workflows/integration-ci.yml` | Backend integration + security validation |
+| Content Validation | `.github/workflows/content-validation.yml` | MDX content validation |
+| Link Check | `.github/workflows/link-check.yml` | Documentation link validation |
+| Security Scan | `.github/workflows/reusable-security-scan.yml` | Reusable security scanning (Trivy, ktlint, ESLint) |
+| Budget Alerts | `.github/workflows/setup-budget-alerts.yml` | GCP budget alert configuration |
 
 ### Key Features
 
