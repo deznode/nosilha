@@ -6,28 +6,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Nos Ilha is a community-driven cultural heritage hub for Brava Island, Cape Verde. This volunteer-supported, open-source project is a full-stack web application that preserves and celebrates the island's rich cultural memory through an interactive directory of cultural sites, landmarks, and local businesses, with mapping functionality.
 
-### System Architecture Overview
-
-**Frontend** (Next.js 16): React 19.2, App Router, Tailwind CSS, ISR Caching, Supabase Auth
-**Backend** (Spring Boot): Kotlin/JVM, PostgreSQL, JWT Auth, Domain-Driven, RESTful APIs
-**Infrastructure** (GCP): Cloud Run, Artifact Registry, Secret Manager, IAM
-**CI/CD** (GitHub Actions): Modular workflows, security scanning, auto-deployment, health checks
-
 ## Architecture
 
-This is a **full-stack application** with four main components:
-
-- **Frontend**: Next.js 16 (App Router) with React 19.2, TypeScript, and Tailwind CSS
-- **Backend**: Spring Boot 4.0.0 with Kotlin 2.3.0, Java 25, PostgreSQL as the single database
-- **Infrastructure**: Docker Compose for local development, Terraform for cloud deployment
-- **CI/CD**: Modular GitHub Actions workflows with automated security scanning and deployment
+- **Frontend**: Next.js 16 (App Router) with React 19.2, TypeScript, Tailwind CSS, ISR, Supabase Auth
+- **Backend**: Spring Boot 4.0.0 with Kotlin 2.3.0, Java 25, Spring Modulith 2.0.1, PostgreSQL
+- **Infrastructure**: Docker Compose (local), Terraform + GCP Cloud Run (prod)
+- **CI/CD**: 9 GitHub Actions workflows — security scanning, auto-deployment, health checks
 
 ## Project Organization
 
-The project follows a clear organizational structure:
-
-- **`plan/`** - Git submodule containing specifications and planning documents (see plan repository README for details)
-- **`docs/`** - Static project documentation (architecture, design system, API reference, etc.)
+```
+nosilha/
+├── apps/web/          # Next.js 16 frontend
+├── apps/api/          # Spring Boot 4 backend (Kotlin)
+├── infrastructure/    # Docker Compose, Terraform, GCP config
+├── docs/              # Architecture, API reference, ADRs, design system
+├── plan/              # Git submodule — specs and planning documents
+└── .claude/           # Rules, skills, commands for Claude Code
+```
 
 ### Key Integration Flows
 
@@ -39,7 +35,7 @@ The project follows a clear organizational structure:
 ## Development Environment Setup
 
 ### Prerequisites
-- **Node.js 20.9+** and npm
+- **Node.js 20.9+** and pnpm
 - **Java 25** (for backend)
 - **Docker** and Docker Compose
 - **PostgreSQL** (or use Docker Compose setup)
@@ -53,8 +49,12 @@ The project follows a clear organizational structure:
 
 For detailed commands by domain, see the modular rules:
 - Frontend: @.claude/rules/frontend/app-router.md
+- Frontend E2E: @.claude/rules/frontend/mcp-playwright.md
 - Backend: @.claude/rules/backend/spring-modulith.md
+- Content: @.claude/rules/content/mdx-platform.md
 - Infrastructure: @.claude/rules/infrastructure/cicd-deployment.md
+
+Additional convention rules auto-load based on file paths (see Modular Rules below).
 
 ## Environment Configuration
 
@@ -91,6 +91,7 @@ DATABASE_PASSWORD=nosilha
 - **Region**: `us-east1`
 - **Services**: Cloud Run (auto-scaling serverless containers)
 - **Registry**: Google Artifact Registry (`us-east1-docker.pkg.dev`)
+- **Database**: Supabase PostgreSQL (external managed)
 - **Authentication**: Supabase Auth with JWT tokens
 
 ## Claude Code Memory
@@ -101,10 +102,15 @@ Use `/memory` to view and edit all loaded memory files.
 
 Domain-specific instructions loaded automatically based on file paths:
 
-- `apps/web/` - Next.js App Router, design system, Playwright MCP
-- `apps/api/` - Spring Modulith, API patterns
-- `content/` - MDX authoring platform
-- `infrastructure/` - CI/CD, Docker, cloud deployment
+| Rule File | Trigger Path | Purpose |
+|-----------|-------------|---------|
+| `frontend/app-router.md` | `apps/web/**` | Next.js App Router patterns and commands |
+| `frontend/design-system.md` | `apps/web/**` | Design system, Tailwind CSS conventions |
+| `frontend/mcp-playwright.md` | `apps/web/**` | Playwright MCP E2E testing |
+| `backend/spring-modulith.md` | `apps/api/**` | Spring Modulith architecture and commands |
+| `backend/api-patterns.md` | `apps/api/**` | REST API conventions and patterns |
+| `content/mdx-platform.md` | `apps/web/content/**` | MDX content authoring platform |
+| `infrastructure/cicd-deployment.md` | `infrastructure/**, .github/**` | CI/CD, Docker, cloud deployment |
 
 ## Skills and Commands
 
@@ -159,6 +165,13 @@ Custom workflow triggers in `.claude/commands/`. Use syntax: `/command-name [arg
 - `docs/cultural-heritage-verification.md` - Cultural heritage content verification protocols
 - `SECURITY.md` - Security policy and vulnerability reporting procedures
 
+## Gotchas
+
+- **Jackson 3.x imports**: Use `tools.jackson.module.kotlin.jacksonObjectMapper` and `tools.jackson.module.kotlin.readValue` (not `com.fasterxml`)
+- **ktlint rules**: No blank line at start of class body; newline before `=` when params span multiple lines; MockMvc `.perform(...).andExpect(...)` dot on same line as closing paren
+- **Event testing**: `@ApplicationModuleListener` runs AFTER_COMMIT — use `awaitAnalysisRun()` polling pattern in integration tests
+- **Test cleanup**: FK-safe delete order in `@BeforeEach` — child tables first, then `event_publication`, then parent tables
+
 ## Troubleshooting
 
 For common issues, see `docs/troubleshooting.md`.
@@ -168,16 +181,8 @@ For common issues, see `docs/troubleshooting.md`.
 - **Security Issues**: `SECURITY.md`
 - **Architecture Questions**: `docs/architecture.md`
 
-# important-instruction-reminders
+## Important Instruction Reminders
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
-
-## Active Technologies
-- Kotlin 2.3.0 / JVM 25 + Spring Boot 4.0.0, Spring Modulith 2.0.1, Spring Security 6.5, PostgreSQL
-- PostgreSQL (primary), Flyway migrations
-- Supabase for auth
-
-## Recent Changes
-- Updated to Kotlin 2.3.0 / Java 25 + Spring Boot 4.0.0, Spring Modulith 2.0.1
