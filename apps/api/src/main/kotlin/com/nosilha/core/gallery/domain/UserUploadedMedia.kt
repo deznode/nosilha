@@ -23,9 +23,10 @@ import java.util.UUID
  * Moderation Workflow:
  * PROCESSING → PENDING_REVIEW → ACTIVE/REJECTED → ARCHIVED
  *
- * AI Integration (Future):
- * The aiTags and aiProcessedAt fields are placeholder columns for future
- * Cloud Vision or similar AI integration.
+ * AI Integration:
+ * The aiTags, aiLabels, aiAltText, aiDescription, and aiProcessedAt fields are
+ * populated by the AI module's event-driven moderation workflow. When an admin
+ * approves AI analysis results, the AiModerationService writes these fields.
  *
  * @see GalleryMedia
  * @see GalleryMediaStatus

@@ -16,12 +16,11 @@ import com.nosilha.core.ai.domain.ModerationStatus
 import com.nosilha.core.ai.repository.AnalysisBatchRepository
 import com.nosilha.core.ai.repository.AnalysisRunRepository
 import com.nosilha.core.shared.api.ApiResult
-import com.nosilha.core.shared.api.PageableInfo
 import com.nosilha.core.shared.api.PagedApiResult
+import com.nosilha.core.shared.exception.ResourceNotFoundException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.PageRequest
-import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
@@ -69,37 +68,26 @@ class AdminAiController(
     ): PagedApiResult<AnalysisRunSummaryDto> {
         val pageable = PageRequest.of(page, minOf(size, 100))
         val runsPage = moderationService.getReviewQueue(pageable)
-
-        return PagedApiResult(
-            data = runsPage.content.map { AnalysisRunSummaryDto.from(it) },
-            pageable = PageableInfo(
-                page = runsPage.number,
-                size = runsPage.size,
-                totalElements = runsPage.totalElements,
-                totalPages = runsPage.totalPages,
-                first = runsPage.isFirst,
-                last = runsPage.isLast,
-            ),
-        )
+        return PagedApiResult.from(runsPage.map { AnalysisRunSummaryDto.from(it) })
     }
 
     @GetMapping("/review/{runId}")
     fun getRunDetail(
         @PathVariable runId: UUID,
-    ): ResponseEntity<ApiResult<AnalysisRunDetailDto>> {
+    ): ApiResult<AnalysisRunDetailDto> {
         val run = moderationService.getRunDetail(runId)
-        return ResponseEntity.ok(ApiResult(data = AnalysisRunDetailDto.from(run)))
+        return ApiResult(data = AnalysisRunDetailDto.from(run))
     }
 
     @PostMapping("/review/{runId}/approve")
     fun approveRun(
         @PathVariable runId: UUID,
         authentication: Authentication,
-    ): ResponseEntity<ApiResult<Unit>> {
+    ): ApiResult<Unit> {
         val adminId = UUID.fromString(authentication.name)
         logger.info { "Admin $adminId approving AI run $runId" }
         moderationService.approve(runId, adminId)
-        return ResponseEntity.ok(ApiResult(data = Unit))
+        return ApiResult(data = Unit)
     }
 
     @PostMapping("/review/{runId}/reject")
@@ -107,11 +95,11 @@ class AdminAiController(
         @PathVariable runId: UUID,
         @RequestBody(required = false) request: RejectRequest?,
         authentication: Authentication,
-    ): ResponseEntity<ApiResult<Unit>> {
+    ): ApiResult<Unit> {
         val adminId = UUID.fromString(authentication.name)
         logger.info { "Admin $adminId rejecting AI run $runId" }
         moderationService.reject(runId, adminId, request?.notes)
-        return ResponseEntity.ok(ApiResult(data = Unit))
+        return ApiResult(data = Unit)
     }
 
     @PostMapping("/review/{runId}/approve-edited")
@@ -119,7 +107,7 @@ class AdminAiController(
         @PathVariable runId: UUID,
         @RequestBody request: ApproveEditedRequest,
         authentication: Authentication,
-    ): ResponseEntity<ApiResult<Unit>> {
+    ): ApiResult<Unit> {
         val adminId = UUID.fromString(authentication.name)
         logger.info { "Admin $adminId approving AI run $runId with edits" }
         moderationService.approveEdited(
@@ -130,13 +118,13 @@ class AdminAiController(
             editedTags = request.tags,
             notes = request.notes,
         )
-        return ResponseEntity.ok(ApiResult(data = Unit))
+        return ApiResult(data = Unit)
     }
 
     @GetMapping("/status")
     fun getAiStatus(
         @RequestParam mediaIds: List<UUID>,
-    ): ResponseEntity<ApiResult<List<AiStatusResponse>>> {
+    ): ApiResult<List<AiStatusResponse>> {
         val statuses = mediaIds.map { mediaId ->
             val lastRun = analysisRunRepository.findTopByMediaIdOrderByCreatedAtDesc(mediaId)
 
@@ -149,7 +137,7 @@ class AdminAiController(
             )
         }
 
-        return ResponseEntity.ok(ApiResult(data = statuses))
+        return ApiResult(data = statuses)
     }
 
     @GetMapping("/batches")
@@ -159,41 +147,29 @@ class AdminAiController(
     ): PagedApiResult<BatchSummaryDto> {
         val pageable = PageRequest.of(page, minOf(size, 100))
         val batchPage = analysisBatchRepository.findAllByOrderByCreatedAtDesc(pageable)
-
-        return PagedApiResult(
-            data = batchPage.content.map { BatchSummaryDto.from(it) },
-            pageable = PageableInfo(
-                page = batchPage.number,
-                size = batchPage.size,
-                totalElements = batchPage.totalElements,
-                totalPages = batchPage.totalPages,
-                first = batchPage.isFirst,
-                last = batchPage.isLast,
-            ),
-        )
+        return PagedApiResult.from(batchPage.map { BatchSummaryDto.from(it) })
     }
 
     @GetMapping("/batches/{batchId}")
     fun getBatchDetail(
         @PathVariable batchId: UUID,
-    ): ResponseEntity<ApiResult<Map<String, Any>>> {
-        val batch = analysisBatchRepository.findById(batchId).orElse(null)
-            ?: return ResponseEntity.notFound().build()
+    ): ApiResult<Map<String, Any>> {
+        val batch = analysisBatchRepository.findById(batchId).orElseThrow {
+            ResourceNotFoundException("Analysis batch with ID '$batchId' not found.")
+        }
 
         val runs = analysisRunRepository.findByBatchId(batchId)
 
-        return ResponseEntity.ok(
-            ApiResult(
-                data = mapOf(
-                    "batch" to BatchSummaryDto.from(batch),
-                    "items" to runs.map { AnalysisRunSummaryDto.from(it) },
-                ),
+        return ApiResult(
+            data = mapOf(
+                "batch" to BatchSummaryDto.from(batch),
+                "items" to runs.map { AnalysisRunSummaryDto.from(it) },
             ),
         )
     }
 
     @GetMapping("/health")
-    fun getAiHealth(): ResponseEntity<ApiResult<AiHealthResponse>> {
+    fun getAiHealth(): ApiResult<AiHealthResponse> {
         val monthlyLimits = mapOf(
             "cloud-vision" to cloudVisionMonthlyLimit,
             "gemini-cultural" to geminiMonthlyLimit,
@@ -215,12 +191,10 @@ class AdminAiController(
             )
         }
 
-        return ResponseEntity.ok(
-            ApiResult(
-                data = AiHealthResponse(
-                    enabled = aiEnabled,
-                    providers = providerInfos,
-                ),
+        return ApiResult(
+            data = AiHealthResponse(
+                enabled = aiEnabled,
+                providers = providerInfos,
             ),
         )
     }

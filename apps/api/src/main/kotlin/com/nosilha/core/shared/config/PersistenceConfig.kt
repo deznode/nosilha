@@ -18,11 +18,11 @@ import org.springframework.orm.jpa.JpaTransactionManager
     basePackages = [
         "com.nosilha.core.ai.repository",
         "com.nosilha.core.auth.repository",
-        "com.nosilha.core.places.repository",
         "com.nosilha.core.engagement.repository",
-        "com.nosilha.core.stories.repository",
         "com.nosilha.core.feedback.repository",
         "com.nosilha.core.gallery.repository",
+        "com.nosilha.core.places.repository",
+        "com.nosilha.core.stories.repository",
     ],
 )
 class PersistenceConfig {

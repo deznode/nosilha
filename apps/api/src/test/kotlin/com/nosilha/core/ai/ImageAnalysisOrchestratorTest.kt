@@ -1,6 +1,5 @@
 package com.nosilha.core.ai
 
-import com.nosilha.core.ai.domain.AnalysisBatch
 import com.nosilha.core.ai.domain.AnalysisRun
 import com.nosilha.core.ai.domain.AnalysisRunStatus
 import com.nosilha.core.ai.domain.ApiUsageService
@@ -81,8 +80,8 @@ class ImageAnalysisOrchestratorTest {
         val run = createRun()
         whenever(analysisRunRepository.findById(runId)).thenReturn(Optional.of(run))
         whenever(analysisRunRepository.save(any<AnalysisRun>())).thenAnswer { it.arguments[0] }
-        whenever(apiUsageService.checkQuota(eq("cloud-vision"), eq(1000))).thenReturn(true)
-        whenever(apiUsageService.checkQuota(eq("gemini-cultural"), eq(500))).thenReturn(true)
+        whenever(apiUsageService.checkAndIncrementQuota(eq("cloud-vision"), eq(1000))).thenReturn(true)
+        whenever(apiUsageService.checkAndIncrementQuota(eq("gemini-cultural"), eq(500))).thenReturn(true)
 
         whenever(visionProvider.analyze(any())).thenReturn(
             ImageAnalysisResult(
@@ -109,9 +108,6 @@ class ImageAnalysisOrchestratorTest {
         assertNotNull(run.resultTags)
         assertEquals(2, run.providersUsed!!.size)
 
-        verify(apiUsageService).incrementUsage(eq("cloud-vision"), eq(1000))
-        verify(apiUsageService).incrementUsage(eq("gemini-cultural"), eq(500))
-
         val eventCaptor = ArgumentCaptor.forClass(MediaAnalysisCompletedEvent::class.java)
         verify(eventPublisher).publishEvent(capture(eventCaptor))
         assertEquals(mediaId, eventCaptor.value.mediaId)
@@ -122,8 +118,8 @@ class ImageAnalysisOrchestratorTest {
         val run = createRun()
         whenever(analysisRunRepository.findById(runId)).thenReturn(Optional.of(run))
         whenever(analysisRunRepository.save(any<AnalysisRun>())).thenAnswer { it.arguments[0] }
-        whenever(apiUsageService.checkQuota(eq("cloud-vision"), eq(1000))).thenReturn(true)
-        whenever(apiUsageService.checkQuota(eq("gemini-cultural"), eq(500))).thenReturn(true)
+        whenever(apiUsageService.checkAndIncrementQuota(eq("cloud-vision"), eq(1000))).thenReturn(true)
+        whenever(apiUsageService.checkAndIncrementQuota(eq("gemini-cultural"), eq(500))).thenReturn(true)
 
         whenever(visionProvider.analyze(any())).thenThrow(RuntimeException("Cloud Vision API error"))
         whenever(geminiProvider.analyze(any())).thenReturn(
@@ -141,8 +137,7 @@ class ImageAnalysisOrchestratorTest {
         assertEquals(1, run.providersUsed!!.size)
         assertEquals("gemini-cultural", run.providersUsed!![0])
 
-        verify(apiUsageService, never()).incrementUsage(eq("cloud-vision"), eq(1000))
-        verify(apiUsageService).incrementUsage(eq("gemini-cultural"), eq(500))
+        verify(visionProvider).analyze(any())
     }
 
     @Test
@@ -150,8 +145,8 @@ class ImageAnalysisOrchestratorTest {
         val run = createRun()
         whenever(analysisRunRepository.findById(runId)).thenReturn(Optional.of(run))
         whenever(analysisRunRepository.save(any<AnalysisRun>())).thenAnswer { it.arguments[0] }
-        whenever(apiUsageService.checkQuota(eq("cloud-vision"), eq(1000))).thenReturn(true)
-        whenever(apiUsageService.checkQuota(eq("gemini-cultural"), eq(500))).thenReturn(true)
+        whenever(apiUsageService.checkAndIncrementQuota(eq("cloud-vision"), eq(1000))).thenReturn(true)
+        whenever(apiUsageService.checkAndIncrementQuota(eq("gemini-cultural"), eq(500))).thenReturn(true)
 
         whenever(visionProvider.analyze(any())).thenThrow(RuntimeException("Vision error"))
         whenever(geminiProvider.analyze(any())).thenThrow(RuntimeException("Gemini error"))
@@ -171,8 +166,8 @@ class ImageAnalysisOrchestratorTest {
         val run = createRun()
         whenever(analysisRunRepository.findById(runId)).thenReturn(Optional.of(run))
         whenever(analysisRunRepository.save(any<AnalysisRun>())).thenAnswer { it.arguments[0] }
-        whenever(apiUsageService.checkQuota(eq("cloud-vision"), eq(1000))).thenReturn(false)
-        whenever(apiUsageService.checkQuota(eq("gemini-cultural"), eq(500))).thenReturn(true)
+        whenever(apiUsageService.checkAndIncrementQuota(eq("cloud-vision"), eq(1000))).thenReturn(false)
+        whenever(apiUsageService.checkAndIncrementQuota(eq("gemini-cultural"), eq(500))).thenReturn(true)
 
         whenever(geminiProvider.analyze(any())).thenReturn(
             ImageAnalysisResult(
@@ -188,23 +183,18 @@ class ImageAnalysisOrchestratorTest {
         assertEquals(1, run.providersUsed!!.size)
 
         verify(visionProvider, never()).analyze(any())
-        verify(apiUsageService, never()).incrementUsage(eq("cloud-vision"), eq(1000))
     }
 
     @Test
     fun `batch progress updated on completion`() {
         val batchId = UUID.randomUUID()
-        val batch = AnalysisBatch(totalItems = 3, requestedBy = adminId)
-        batch.id = batchId
-        batch.completedItems = 1
 
         val run = createRun()
         run.batchId = batchId
         whenever(analysisRunRepository.findById(runId)).thenReturn(Optional.of(run))
         whenever(analysisRunRepository.save(any<AnalysisRun>())).thenAnswer { it.arguments[0] }
-        whenever(analysisBatchRepository.findById(batchId)).thenReturn(Optional.of(batch))
-        whenever(analysisBatchRepository.save(any<AnalysisBatch>())).thenAnswer { it.arguments[0] }
-        whenever(apiUsageService.checkQuota(any(), any())).thenReturn(true)
+        whenever(analysisBatchRepository.incrementCompletedAndUpdateStatus(batchId)).thenReturn(1)
+        whenever(apiUsageService.checkAndIncrementQuota(any(), any())).thenReturn(true)
 
         whenever(visionProvider.analyze(any())).thenReturn(
             ImageAnalysisResult(provider = "cloud-vision", labels = listOf(LabelResult("test", 0.9f))),
@@ -216,8 +206,7 @@ class ImageAnalysisOrchestratorTest {
         val event = createEvent().copy(batchId = batchId)
         orchestrator.onMediaAnalysisRequested(event)
 
-        assertEquals(2, batch.completedItems)
-        verify(analysisBatchRepository).save(batch)
+        verify(analysisBatchRepository).incrementCompletedAndUpdateStatus(batchId)
     }
 
     @Test
@@ -225,7 +214,7 @@ class ImageAnalysisOrchestratorTest {
         val run = createRun()
         whenever(analysisRunRepository.findById(runId)).thenReturn(Optional.of(run))
         whenever(analysisRunRepository.save(any<AnalysisRun>())).thenAnswer { it.arguments[0] }
-        whenever(apiUsageService.checkQuota(any(), any())).thenReturn(true)
+        whenever(apiUsageService.checkAndIncrementQuota(any(), any())).thenReturn(true)
 
         whenever(visionProvider.analyze(any())).thenReturn(
             ImageAnalysisResult(provider = "cloud-vision"),

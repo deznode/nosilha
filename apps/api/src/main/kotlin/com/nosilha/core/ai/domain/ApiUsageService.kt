@@ -22,40 +22,39 @@ class ApiUsageService(
     }
 
     /**
-     * Check if the provider is within its monthly quota.
+     * Atomically check quota and increment usage in a single operation.
      *
-     * @return true if the provider has remaining quota
+     * Attempts to increment the request count for the provider's current month record
+     * only if the count is below the monthly limit. If no record exists, creates one
+     * with count=1 (first request this month).
+     *
+     * @return true if quota was available and usage was incremented
      */
-    fun checkQuota(
+    @Transactional
+    fun checkAndIncrementQuota(
         provider: String,
         monthlyLimit: Int,
     ): Boolean {
         val yearMonth = currentYearMonth()
-        val record = apiUsageRepository.findByProviderAndYearMonth(provider, yearMonth)
-            ?: return true
-        return record.requestCount < record.monthlyLimit
-    }
+        val rowsUpdated = apiUsageRepository.incrementIfUnderQuota(provider, yearMonth)
+        if (rowsUpdated == 1) return true
 
-    /**
-     * Atomically increment the usage counter for a provider.
-     * Creates a new record if none exists for the current month.
-     */
-    @Transactional
-    fun incrementUsage(
-        provider: String,
-        monthlyLimit: Int,
-    ) {
-        val yearMonth = currentYearMonth()
-        val record = apiUsageRepository.findByProviderAndYearMonth(provider, yearMonth)
-            ?: ApiUsageRecord(
+        // No row updated: either no record exists or quota exceeded
+        val existing = apiUsageRepository.findByProviderAndYearMonth(provider, yearMonth)
+        if (existing != null) return false // quota exceeded
+
+        // First request this month — create record with count=1
+        apiUsageRepository.save(
+            ApiUsageRecord(
                 provider = provider,
                 yearMonth = yearMonth,
                 monthlyLimit = monthlyLimit,
-            )
-        record.requestCount += 1
-        record.lastRequestAt = Instant.now()
-        apiUsageRepository.save(record)
-        logger.debug { "API usage for $provider ($yearMonth): ${record.requestCount}/${record.monthlyLimit}" }
+            ).apply {
+                requestCount = 1
+                lastRequestAt = Instant.now()
+            },
+        )
+        return true
     }
 
     /**

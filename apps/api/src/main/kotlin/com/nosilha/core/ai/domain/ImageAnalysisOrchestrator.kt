@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.modulith.events.ApplicationModuleListener
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
 import java.util.UUID
 
@@ -104,7 +105,7 @@ class ImageAnalysisOrchestrator(
         run.status = AnalysisRunStatus.COMPLETED
         run.providersUsed = usedProviders.toTypedArray()
         run.rawResults = buildRawResultsJson(results)
-        run.resultTags = merged.tags.toTypedArray().ifEmpty { null }
+        run.resultTags = merged.tags.takeIf { it.isNotEmpty() }?.toTypedArray()
         run.resultLabels = merged.labels.takeIf { it.isNotEmpty() }?.let { labels ->
             "[${labels.joinToString(",") { """{"label":"${it.label}","confidence":${it.confidence}}""" }}]"
         }
@@ -144,15 +145,13 @@ class ImageAnalysisOrchestrator(
         val provider = providers.find { it.name == providerName } ?: return null
         if (!provider.isEnabled()) return null
 
-        if (!apiUsageService.checkQuota(provider.name, monthlyLimit)) {
+        if (!apiUsageService.checkAndIncrementQuota(provider.name, monthlyLimit)) {
             logger.warn { "${provider.name} quota exceeded, skipping" }
             return null
         }
 
         return try {
-            val result = provider.analyze(request)
-            apiUsageService.incrementUsage(provider.name, monthlyLimit)
-            result
+            provider.analyze(request)
         } catch (e: Exception) {
             logger.error(e) { "${provider.name} failed for media ${request.mediaId}" }
             errors.add("${provider.name}: ${e.message}")
@@ -188,31 +187,19 @@ class ImageAnalysisOrchestrator(
         return "{$entries}"
     }
 
-    private fun updateBatchProgress(
+    @Transactional
+    fun updateBatchProgress(
         batchId: UUID?,
         failed: Boolean,
     ) {
         if (batchId == null) return
-        val batch = analysisBatchRepository.findById(batchId).orElse(null) ?: return
-
-        if (failed) {
-            batch.failedItems += 1
+        val rowsUpdated = if (failed) {
+            analysisBatchRepository.incrementFailedAndUpdateStatus(batchId)
         } else {
-            batch.completedItems += 1
+            analysisBatchRepository.incrementCompletedAndUpdateStatus(batchId)
         }
-
-        val totalProcessed = batch.completedItems + batch.failedItems
-        if (totalProcessed >= batch.totalItems) {
-            batch.completedAt = Instant.now()
-            batch.status = when {
-                batch.failedItems == 0 -> BatchStatus.COMPLETED
-                batch.completedItems == 0 -> BatchStatus.FAILED
-                else -> BatchStatus.PARTIALLY_COMPLETED
-            }
-        } else if (batch.status == BatchStatus.PENDING) {
-            batch.status = BatchStatus.PROCESSING
+        if (rowsUpdated == 0) {
+            logger.warn { "No batch found to update progress for $batchId" }
         }
-
-        analysisBatchRepository.save(batch)
     }
 }
