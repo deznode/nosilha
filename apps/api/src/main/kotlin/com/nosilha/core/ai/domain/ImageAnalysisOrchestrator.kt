@@ -7,6 +7,7 @@ import com.nosilha.core.shared.events.MediaAnalysisCompletedEvent
 import com.nosilha.core.shared.events.MediaAnalysisFailedEvent
 import com.nosilha.core.shared.events.MediaAnalysisRequestedEvent
 import io.github.oshai.kotlinlogging.KotlinLogging
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.modulith.events.ApplicationModuleListener
@@ -180,11 +181,13 @@ class ImageAnalysisOrchestrator(
         )
     }
 
+    private val objectMapper = jacksonObjectMapper()
+
     private fun buildRawResultsJson(results: List<ImageAnalysisResult>): String {
-        val entries = results.joinToString(",") { result ->
-            """"${result.provider}":${result.rawJson ?: "null"}"""
+        val map = results.associate { result ->
+            result.provider to (result.rawJson ?: "null")
         }
-        return "{$entries}"
+        return objectMapper.writeValueAsString(map)
     }
 
     @Transactional

@@ -119,6 +119,22 @@ springBoot {
     buildInfo {}
 }
 
+// Load environment variables from .env.local for local development
+tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+    doFirst {
+        val envFile = file(".env.local")
+        if (envFile.exists()) {
+            envFile.readLines()
+                .filter { it.isNotBlank() && !it.startsWith("#") && it.contains("=") }
+                .forEach { line ->
+                    val (key, value) = line.split("=", limit = 2)
+                    environment(key.trim(), value.trim())
+                }
+            println("Loaded environment from .env.local")
+        }
+    }
+}
+
 jacoco {
     toolVersion = "0.8.14"
 }

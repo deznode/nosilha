@@ -75,7 +75,7 @@ nosilha:
       enabled: ${AI_GEMINI_ENABLED:false}
       api-key: ${AI_GEMINI_API_KEY:}
       model: ${AI_GEMINI_MODEL:gemini-2.5-flash}
-      max-output-tokens: ${AI_GEMINI_MAX_TOKENS:1024}
+      max-output-tokens: ${AI_GEMINI_MAX_TOKENS:2048}
       monthly-limit: ${AI_GEMINI_MONTHLY_LIMIT:500}
     batch:
       max-items: ${AI_BATCH_MAX_ITEMS:50}

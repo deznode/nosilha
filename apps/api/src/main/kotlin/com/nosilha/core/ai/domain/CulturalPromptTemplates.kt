@@ -50,17 +50,10 @@ object CulturalPromptTemplates {
             |- Cuisine: cachupa, grogue, local coffee
             |$priorContext
             |
-            |Respond with ONLY a JSON object (no markdown, no code fences) with these fields:
-            |{
-            |  "altText": "A concise, accessible alt text for the image (max 150 chars)",
-            |  "description": "A rich description highlighting cultural significance (max 500 chars)",
-            |  "tags": ["tag1", "tag2", "tag3"]
-            |}
-            |
             |Guidelines:
-            |- Alt text should be factual and accessible (for screen readers)
-            |- Description should highlight cultural significance for Brava Island heritage
-            |- Tags should include cultural terms, locations, and themes (5-10 tags)
+            |- altText: factual, accessible for screen readers (max 150 chars)
+            |- description: highlight cultural significance for Brava Island heritage (max 500 chars)
+            |- tags: include cultural terms, locations, and themes (5-10 tags)
             |- Use English for all text
             |- If the image does not appear related to Cape Verde/Brava, still describe it accurately
             """.trimMargin()

@@ -4,6 +4,8 @@ import com.google.genai.Client
 import com.google.genai.types.Content
 import com.google.genai.types.GenerateContentConfig
 import com.google.genai.types.Part
+import com.google.genai.types.Schema
+import com.google.genai.types.Type
 import com.nosilha.core.ai.domain.AnalysisCapability
 import com.nosilha.core.ai.domain.CulturalPromptTemplates
 import com.nosilha.core.ai.domain.ImageAnalysisProvider
@@ -21,8 +23,10 @@ private val logger = KotlinLogging.logger {}
 /**
  * Google Gemini provider for culturally-aware image descriptions.
  *
- * Uses Brava Island cultural context prompts to generate
- * alt text, descriptions, and semantic tags.
+ * Uses Brava Island cultural context prompts and Gemini's native
+ * structured output (controlled generation) to produce guaranteed-valid
+ * JSON with alt text, descriptions, and semantic tags.
+ *
  * Activated conditionally via `nosilha.ai.gemini.enabled`.
  */
 @Component
@@ -32,7 +36,7 @@ class GeminiCulturalProvider(
     private val apiKey: String,
     @Value("\${nosilha.ai.gemini.model:gemini-2.5-flash}")
     private val model: String,
-    @Value("\${nosilha.ai.gemini.max-output-tokens:1024}")
+    @Value("\${nosilha.ai.gemini.max-output-tokens:2048}")
     private val maxOutputTokens: Int,
 ) : ImageAnalysisProvider {
     override val name: String = "gemini-cultural"
@@ -59,6 +63,9 @@ class GeminiCulturalProvider(
         val config = GenerateContentConfig
             .builder()
             .maxOutputTokens(maxOutputTokens)
+            .temperature(0.3f)
+            .responseMimeType("application/json")
+            .responseSchema(RESPONSE_SCHEMA)
             .build()
 
         val content = Content.fromParts(
@@ -75,21 +82,16 @@ class GeminiCulturalProvider(
     }
 
     private data class GeminiResponse(
-        val altText: String? = null,
-        val description: String? = null,
+        val altText: String = "",
+        val description: String = "",
         val tags: List<String> = emptyList(),
     )
 
     private val objectMapper = jacksonObjectMapper()
 
     private fun parseGeminiResponse(responseText: String): ImageAnalysisResult {
-        val jsonText = responseText
-            .replace("```json", "")
-            .replace("```", "")
-            .trim()
-
         return try {
-            val parsed = objectMapper.readValue<GeminiResponse>(jsonText)
+            val parsed = objectMapper.readValue<GeminiResponse>(responseText)
             ImageAnalysisResult(
                 provider = name,
                 altText = parsed.altText,
@@ -98,12 +100,45 @@ class GeminiCulturalProvider(
                 rawJson = responseText,
             )
         } catch (e: Exception) {
-            logger.warn(e) { "Failed to parse Gemini response, returning raw text" }
+            logger.error(e) { "Failed to parse Gemini structured response" }
             ImageAnalysisResult(
                 provider = name,
                 description = responseText.take(2048),
                 rawJson = responseText,
             )
         }
+    }
+
+    companion object {
+        /**
+         * JSON schema enforced by Gemini's controlled generation.
+         * Ensures the response is always valid JSON matching this structure.
+         */
+        private val RESPONSE_SCHEMA: Schema = Schema.builder()
+            .type(Type.Known.OBJECT)
+            .properties(
+                mapOf(
+                    "altText" to Schema.builder()
+                        .type(Type.Known.STRING)
+                        .description("Concise, accessible alt text for the image (max 150 chars)")
+                        .build(),
+                    "description" to Schema.builder()
+                        .type(Type.Known.STRING)
+                        .description("Rich description highlighting cultural significance (max 500 chars)")
+                        .build(),
+                    "tags" to Schema.builder()
+                        .type(Type.Known.ARRAY)
+                        .description("Cultural terms, locations, and themes (5-10 tags)")
+                        .items(
+                            Schema.builder()
+                                .type(Type.Known.STRING)
+                                .build(),
+                        )
+                        .build(),
+                ),
+            )
+            .required(listOf("altText", "description", "tags"))
+            .propertyOrdering(listOf("altText", "description", "tags"))
+            .build()
     }
 }
