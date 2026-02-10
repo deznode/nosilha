@@ -42,7 +42,6 @@ See `docs/architecture.md` for detailed integration flows (auth, content managem
 
 For detailed commands by domain, see the modular rules:
 - Frontend: @.claude/rules/frontend/app-router.md
-- Frontend E2E: @.claude/rules/frontend/mcp-playwright.md
 - Backend: @.claude/rules/backend/spring-modulith.md
 - Content: @.claude/rules/content/mdx-platform.md
 - Infrastructure: @.claude/rules/infrastructure/cicd-deployment.md
@@ -61,7 +60,6 @@ Domain-specific instructions loaded automatically based on file paths:
 |-----------|-------------|---------|
 | `frontend/app-router.md` | `apps/web/**` | Next.js App Router patterns and commands |
 | `frontend/design-system.md` | `apps/web/**` | Design system, OKLCH tokens, Tailwind CSS |
-| `frontend/mcp-playwright.md` | `apps/web/**` | Playwright MCP E2E testing |
 | `frontend/state-management.md` | `apps/web/**` | Zustand stores, TanStack Query, Zod schemas |
 | `frontend/api-client.md` | `apps/web/**` | API factory, contracts, caching, types |
 | `frontend/component-patterns.md` | `apps/web/**` | forwardRef, clsx, toast, loading states |

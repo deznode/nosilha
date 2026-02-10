@@ -5,25 +5,19 @@ plan-id: XXX
 spec-ref: [Link to approved spec]
 title: [Feature Title] Implementation
 status: draft | in-progress | completed
-author: [Author Name]
+author: Joaquim Costa
 created: YYYY-MM-DD
-estimated-effort: [T-shirt size: XS/S/M/L/XL]
+estimated-effort: XS | S | M | L | XL
 ---
 
 ## Overview
 
-[Brief summary of what will be implemented, referencing the approved spec]
+[Brief summary referencing the approved spec]
 
 ## Prerequisites
 
-### Dependencies
-
-- [ ] [Dependency 1] - [Status]
-- [ ] [Dependency 2] - [Status]
-
-### Environment Setup
-
-[Any setup required before starting]
+- [ ] [Dependency 1] — [Status]
+- [ ] [Dependency 2] — [Status]
 
 ## Implementation Phases
 
@@ -34,16 +28,19 @@ estimated-effort: [T-shirt size: XS/S/M/L/XL]
 #### Tasks
 
 1. [ ] **[Task 1.1]**
-   - File: `path/to/file.tsx`
+   - File: `apps/web/src/components/[path].tsx`
    - Changes: [Description]
 
 2. [ ] **[Task 1.2]**
-   - File: `path/to/file.tsx`
+   - File: `apps/web/src/app/[path]/page.tsx`
    - Changes: [Description]
 
 #### Verification
 
-- [ ] [How to verify phase completion]
+```bash
+cd apps/web && npx tsc --noEmit  # Type check
+pnpm run lint                     # Lint
+```
 
 ---
 
@@ -54,12 +51,19 @@ estimated-effort: [T-shirt size: XS/S/M/L/XL]
 #### Tasks
 
 1. [ ] **[Task 2.1]**
-   - File: `path/to/file.tsx`
+   - File: `apps/web/src/components/[path].tsx`
    - Changes: [Description]
 
 #### Verification
 
-- [ ] [How to verify phase completion]
+```bash
+pnpm run dev  # Visual check at http://localhost:3000
+```
+
+playwright-cli verification:
+- [ ] Navigate to page, take screenshot
+- [ ] Verify responsive at 375px, 768px, 1280px
+- [ ] Check dark mode toggle
 
 ---
 
@@ -70,12 +74,14 @@ estimated-effort: [T-shirt size: XS/S/M/L/XL]
 #### Tasks
 
 1. [ ] **[Task 3.1]**
-   - File: `path/to/file.tsx`
+   - File: `apps/web/src/components/[path].tsx`
    - Changes: [Description]
 
 #### Verification
 
-- [ ] [How to verify phase completion]
+- [ ] playwright-cli: Full page screenshot (light + dark)
+- [ ] Keyboard navigation test
+- [ ] Screen reader check (ARIA labels, roles)
 
 ## File Changes Summary
 
@@ -83,72 +89,60 @@ estimated-effort: [T-shirt size: XS/S/M/L/XL]
 
 | Path | Purpose |
 |------|---------|
-| `path/to/new-file.tsx` | [Description] |
+| `apps/web/src/components/[path].tsx` | [Description] |
 
 ### Modified Files
 
 | Path | Changes |
 |------|---------|
-| `path/to/existing-file.tsx` | [What changes] |
+| `apps/web/src/app/[path]/page.tsx` | [What changes] |
 
-### Deleted Files
+## Caching & ISR
 
-| Path | Reason |
-|------|--------|
-| `path/to/old-file.tsx` | [Why removing] |
+| Page/Route | Strategy | Revalidate |
+|------------|----------|------------|
+| [Route] | ISR / Static / Dynamic | [Duration] |
 
 ## Testing Strategy
 
-### Unit Tests
+### Type Check & Lint
 
-- [ ] [Component/Function]: [What to test]
-
-### Integration Tests
-
-- [ ] [Flow]: [What to verify]
+```bash
+cd apps/web && npx tsc --noEmit && pnpm run lint
+```
 
 ### E2E Tests (Playwright)
 
 - [ ] [User journey]: [Steps to automate]
 
+### playwright-cli Visual Verification
+
+- [ ] [Page/state]: Navigate → screenshot → verify layout
+- [ ] [Responsive]: Resize → screenshot at 375px, 768px, 1280px
+- [ ] [Dark mode]: Toggle theme → screenshot
+
 ### Manual Testing
 
 - [ ] [Scenario]: [Steps to verify]
 
-## Rollout Plan
+## Build Verification
 
-### Feature Flags
-
-[If using feature flags, describe configuration]
-
-### Migration Steps
-
-[If data migration needed]
-
-### Rollback Plan
-
-[How to revert if issues arise]
-
-## Documentation Updates
-
-- [ ] Update [doc name] with [changes]
-- [ ] Add JSDoc to new components
-- [ ] Update Storybook stories
+```bash
+pnpm run build  # Full production build (includes Velite content processing)
+```
 
 ## Definition of Done
 
 - [ ] All tasks completed
-- [ ] Tests passing
-- [ ] Code reviewed
-- [ ] Documentation updated
-- [ ] Accessibility verified
-- [ ] Performance validated
-- [ ] Deployed to staging
-- [ ] Product owner sign-off
+- [ ] TypeScript compiles without errors
+- [ ] ESLint passes
+- [ ] Production build succeeds
+- [ ] playwright-cli screenshots reviewed (light + dark, mobile + desktop)
+- [ ] Accessibility verified (keyboard nav, ARIA, contrast)
 
 ## Notes
 
-[Any additional context, decisions made during implementation, or lessons learned]
+[Decisions made during implementation, lessons learned]
 
 ---
 
