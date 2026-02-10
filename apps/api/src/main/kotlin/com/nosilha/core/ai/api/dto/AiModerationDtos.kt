@@ -139,6 +139,14 @@ data class BatchSummaryDto(
 }
 
 /**
+ * Detailed view of a batch including its analysis runs.
+ */
+data class BatchDetailDto(
+    val batch: BatchSummaryDto,
+    val items: List<AnalysisRunSummaryDto>,
+)
+
+/**
  * AI system health and provider status.
  */
 data class AiHealthResponse(

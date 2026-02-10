@@ -4,6 +4,7 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
+import com.nosilha.core.gallery.api.dto.toDto
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import com.nosilha.core.shared.api.PageableInfo
 import com.nosilha.core.shared.api.PagedApiResult
@@ -461,13 +462,7 @@ class GalleryService(
             repository.findByStatusOrderByDisplayOrderAsc(GalleryMediaStatus.ACTIVE, pageable)
         }
 
-        val dtos = mediaPage.content.map { media ->
-            when (media) {
-                is UserUploadedMedia -> GalleryMediaDto.from(media)
-                is ExternalMedia -> GalleryMediaDto.from(media)
-                else -> error("Unknown media type: ${media.javaClass.simpleName}")
-            }
-        }
+        val dtos = mediaPage.content.map { it.toDto() }
 
         return PagedApiResult(
             data = dtos,
@@ -501,11 +496,7 @@ class GalleryService(
             return null
         }
 
-        return when (media) {
-            is UserUploadedMedia -> GalleryMediaDto.from(media)
-            is ExternalMedia -> GalleryMediaDto.from(media)
-            else -> error("Unknown media type: ${media.javaClass.simpleName}")
-        }
+        return media.toDto()
     }
 
     /**

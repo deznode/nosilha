@@ -7,12 +7,12 @@ import com.nosilha.core.shared.events.MediaAnalysisCompletedEvent
 import com.nosilha.core.shared.events.MediaAnalysisFailedEvent
 import com.nosilha.core.shared.events.MediaAnalysisRequestedEvent
 import io.github.oshai.kotlinlogging.KotlinLogging
-import tools.jackson.module.kotlin.jacksonObjectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.modulith.events.ApplicationModuleListener
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import java.time.Instant
 import java.util.UUID
 
@@ -108,7 +108,7 @@ class ImageAnalysisOrchestrator(
         run.rawResults = buildRawResultsJson(results)
         run.resultTags = merged.tags.takeIf { it.isNotEmpty() }?.toTypedArray()
         run.resultLabels = merged.labels.takeIf { it.isNotEmpty() }?.let { labels ->
-            "[${labels.joinToString(",") { """{"label":"${it.label}","confidence":${it.confidence}}""" }}]"
+            objectMapper.writeValueAsString(labels.map { mapOf("label" to it.label, "confidence" to it.confidence) })
         }
         run.resultAltText = merged.altText
         run.resultDescription = merged.description

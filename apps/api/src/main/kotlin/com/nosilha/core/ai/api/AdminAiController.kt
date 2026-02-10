@@ -5,6 +5,7 @@ import com.nosilha.core.ai.api.dto.AiStatusResponse
 import com.nosilha.core.ai.api.dto.AnalysisRunDetailDto
 import com.nosilha.core.ai.api.dto.AnalysisRunSummaryDto
 import com.nosilha.core.ai.api.dto.ApproveEditedRequest
+import com.nosilha.core.ai.api.dto.BatchDetailDto
 import com.nosilha.core.ai.api.dto.BatchSummaryDto
 import com.nosilha.core.ai.api.dto.ProviderHealthDto
 import com.nosilha.core.ai.api.dto.RejectRequest
@@ -153,7 +154,7 @@ class AdminAiController(
     @GetMapping("/batches/{batchId}")
     fun getBatchDetail(
         @PathVariable batchId: UUID,
-    ): ApiResult<Map<String, Any>> {
+    ): ApiResult<BatchDetailDto> {
         val batch = analysisBatchRepository.findById(batchId).orElseThrow {
             ResourceNotFoundException("Analysis batch with ID '$batchId' not found.")
         }
@@ -161,9 +162,9 @@ class AdminAiController(
         val runs = analysisRunRepository.findByBatchId(batchId)
 
         return ApiResult(
-            data = mapOf(
-                "batch" to BatchSummaryDto.from(batch),
-                "items" to runs.map { AnalysisRunSummaryDto.from(it) },
+            data = BatchDetailDto(
+                batch = BatchSummaryDto.from(batch),
+                items = runs.map { AnalysisRunSummaryDto.from(it) },
             ),
         )
     }

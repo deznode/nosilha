@@ -89,8 +89,8 @@ class GeminiCulturalProvider(
 
     private val objectMapper = jacksonObjectMapper()
 
-    private fun parseGeminiResponse(responseText: String): ImageAnalysisResult {
-        return try {
+    private fun parseGeminiResponse(responseText: String): ImageAnalysisResult =
+        try {
             val parsed = objectMapper.readValue<GeminiResponse>(responseText)
             ImageAnalysisResult(
                 provider = name,
@@ -107,37 +107,39 @@ class GeminiCulturalProvider(
                 rawJson = responseText,
             )
         }
-    }
 
     companion object {
         /**
          * JSON schema enforced by Gemini's controlled generation.
          * Ensures the response is always valid JSON matching this structure.
          */
-        private val RESPONSE_SCHEMA: Schema = Schema.builder()
+        private val RESPONSE_SCHEMA: Schema = Schema
+            .builder()
             .type(Type.Known.OBJECT)
             .properties(
                 mapOf(
-                    "altText" to Schema.builder()
+                    "altText" to Schema
+                        .builder()
                         .type(Type.Known.STRING)
                         .description("Concise, accessible alt text for the image (max 150 chars)")
                         .build(),
-                    "description" to Schema.builder()
+                    "description" to Schema
+                        .builder()
                         .type(Type.Known.STRING)
                         .description("Rich description highlighting cultural significance (max 500 chars)")
                         .build(),
-                    "tags" to Schema.builder()
+                    "tags" to Schema
+                        .builder()
                         .type(Type.Known.ARRAY)
                         .description("Cultural terms, locations, and themes (5-10 tags)")
                         .items(
-                            Schema.builder()
+                            Schema
+                                .builder()
                                 .type(Type.Known.STRING)
                                 .build(),
-                        )
-                        .build(),
+                        ).build(),
                 ),
-            )
-            .required(listOf("altText", "description", "tags"))
+            ).required(listOf("altText", "description", "tags"))
             .propertyOrdering(listOf("altText", "description", "tags"))
             .build()
     }

@@ -1,6 +1,9 @@
 package com.nosilha.core.gallery.api
 
+import com.nosilha.core.gallery.api.dto.AnalysisTriggerResponse
 import com.nosilha.core.gallery.api.dto.AnalyzeBatchRequest
+import com.nosilha.core.gallery.api.dto.BatchAnalysisTriggerResponse
+import com.nosilha.core.gallery.api.dto.BatchErrorDto
 import com.nosilha.core.gallery.api.dto.CreateExternalMediaRequest
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.ModerationActionRequest
@@ -257,7 +260,7 @@ class AdminGalleryController(
     fun triggerAnalysis(
         @PathVariable mediaId: UUID,
         authentication: Authentication,
-    ): ResponseEntity<ApiResult<Map<String, Any>>> {
+    ): ResponseEntity<ApiResult<AnalysisTriggerResponse>> {
         val adminId = UUID.fromString(authentication.name)
         logger.info { "Admin $adminId triggering AI analysis for media $mediaId" }
 
@@ -265,7 +268,11 @@ class AdminGalleryController(
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(
             ApiResult(
-                data = mapOf("mediaId" to mediaId, "analysisRunId" to runId, "status" to "PROCESSING"),
+                data = AnalysisTriggerResponse(
+                    mediaId = mediaId,
+                    analysisRunId = runId,
+                    status = "PROCESSING",
+                ),
                 status = HttpStatus.ACCEPTED.value(),
             ),
         )
@@ -280,7 +287,7 @@ class AdminGalleryController(
     fun triggerBatchAnalysis(
         @Valid @RequestBody request: AnalyzeBatchRequest,
         authentication: Authentication,
-    ): ResponseEntity<ApiResult<Map<String, Any?>>> {
+    ): ResponseEntity<ApiResult<BatchAnalysisTriggerResponse>> {
         val adminId = UUID.fromString(authentication.name)
         logger.info { "Admin $adminId triggering batch AI analysis for ${request.mediaIds.size} items" }
 
@@ -288,11 +295,11 @@ class AdminGalleryController(
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(
             ApiResult(
-                data = mapOf(
-                    "batchId" to result.batchId,
-                    "accepted" to result.accepted,
-                    "rejected" to result.rejected,
-                    "errors" to result.errors.map { mapOf("mediaId" to it.mediaId, "reason" to it.reason) },
+                data = BatchAnalysisTriggerResponse(
+                    batchId = result.batchId,
+                    accepted = result.accepted,
+                    rejected = result.rejected,
+                    errors = result.errors.map { BatchErrorDto(mediaId = it.mediaId, reason = it.reason) },
                 ),
                 status = HttpStatus.ACCEPTED.value(),
             ),
