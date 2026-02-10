@@ -1,47 +1,61 @@
 package com.nosilha.core.ai.provider
 
-import com.google.genai.Client
-import com.google.genai.types.Content
-import com.google.genai.types.GenerateContentConfig
-import com.google.genai.types.Part
-import com.google.genai.types.Schema
-import com.google.genai.types.Type
+import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.nosilha.core.ai.domain.AnalysisCapability
 import com.nosilha.core.ai.domain.CulturalPromptTemplates
 import com.nosilha.core.ai.domain.ImageAnalysisProvider
 import com.nosilha.core.ai.domain.ImageAnalysisRequest
 import com.nosilha.core.ai.domain.ImageAnalysisResult
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.ai.chat.client.AdvisorParams
+import org.springframework.ai.chat.client.ChatClient
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.core.io.UrlResource
 import org.springframework.stereotype.Component
+import org.springframework.util.MimeTypeUtils
 import tools.jackson.module.kotlin.jacksonObjectMapper
-import tools.jackson.module.kotlin.readValue
+import java.net.URI
 
 private val logger = KotlinLogging.logger {}
 
 /**
+ * Structured output DTO for Gemini cultural analysis responses.
+ *
+ * Spring AI's [org.springframework.ai.structured.BeanOutputConverter] auto-generates
+ * a JSON Schema from this class and sends it to Gemini's controlled generation API,
+ * ensuring the response always matches this structure.
+ */
+@JsonPropertyOrder("altText", "description", "tags")
+data class GeminiCulturalResponse(
+    val altText: String,
+    val description: String,
+    val tags: List<String>,
+)
+
+/**
  * Google Gemini provider for culturally-aware image descriptions.
  *
- * Uses Brava Island cultural context prompts and Gemini's native
- * structured output (controlled generation) to produce guaranteed-valid
- * JSON with alt text, descriptions, and semantic tags.
+ * Uses Spring AI [ChatClient] with native structured output to call Gemini
+ * with Brava Island cultural context prompts and multimodal image input.
+ * The response is guaranteed to match [GeminiCulturalResponse] via Gemini's
+ * controlled generation (JSON schema enforcement at the token level).
  *
  * Activated conditionally via `nosilha.ai.gemini.enabled`.
  */
 @Component
 @ConditionalOnProperty("nosilha.ai.gemini.enabled", havingValue = "true")
 class GeminiCulturalProvider(
-    @Value("\${nosilha.ai.gemini.api-key}")
-    private val apiKey: String,
-    @Value("\${nosilha.ai.gemini.model:gemini-2.5-flash}")
-    private val model: String,
-    @Value("\${nosilha.ai.gemini.max-output-tokens:2048}")
-    private val maxOutputTokens: Int,
+    chatClientBuilder: ChatClient.Builder,
 ) : ImageAnalysisProvider {
+    private val chatClient = chatClientBuilder
+        .defaultAdvisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
+        .build()
+
+    private val objectMapper = jacksonObjectMapper()
+
     override val name: String = "gemini-cultural"
 
-    override fun isEnabled(): Boolean = apiKey.isNotBlank()
+    override fun isEnabled(): Boolean = true
 
     override fun supports(): Set<AnalysisCapability> =
         setOf(AnalysisCapability.CULTURAL_CONTEXT, AnalysisCapability.ALT_TEXT, AnalysisCapability.DESCRIPTION)
@@ -58,89 +72,28 @@ class GeminiCulturalProvider(
             mediaTitle = request.culturalContext,
         )
 
-        val client = Client.builder().apiKey(apiKey).build()
+        return try {
+            val response = chatClient
+                .prompt()
+                .user { user ->
+                    user
+                        .text(prompt)
+                        .media(MimeTypeUtils.IMAGE_JPEG, UrlResource(URI(request.imageUrl)))
+                }.call()
+                .entity(GeminiCulturalResponse::class.java)!!
 
-        val config = GenerateContentConfig
-            .builder()
-            .maxOutputTokens(maxOutputTokens)
-            .temperature(0.3f)
-            .responseMimeType("application/json")
-            .responseSchema(RESPONSE_SCHEMA)
-            .build()
+            logger.debug { "Gemini response for ${request.mediaId}: altText=${response.altText.take(50)}, tags=${response.tags}" }
 
-        val content = Content.fromParts(
-            Part.fromText(prompt),
-            Part.fromUri(request.imageUrl, "image/jpeg"),
-        )
-
-        val response = client.models.generateContent(model, content, config)
-
-        val responseText = response.text() ?: ""
-        logger.debug { "Gemini raw response for ${request.mediaId}: $responseText" }
-
-        return parseGeminiResponse(responseText)
-    }
-
-    private data class GeminiResponse(
-        val altText: String = "",
-        val description: String = "",
-        val tags: List<String> = emptyList(),
-    )
-
-    private val objectMapper = jacksonObjectMapper()
-
-    private fun parseGeminiResponse(responseText: String): ImageAnalysisResult =
-        try {
-            val parsed = objectMapper.readValue<GeminiResponse>(responseText)
             ImageAnalysisResult(
                 provider = name,
-                altText = parsed.altText,
-                description = parsed.description,
-                tags = parsed.tags,
-                rawJson = responseText,
+                altText = response.altText,
+                description = response.description,
+                tags = response.tags,
+                rawJson = objectMapper.writeValueAsString(response),
             )
         } catch (e: Exception) {
-            logger.error(e) { "Failed to parse Gemini structured response" }
-            ImageAnalysisResult(
-                provider = name,
-                description = responseText.take(2048),
-                rawJson = responseText,
-            )
+            logger.error(e) { "Gemini analysis failed for media ${request.mediaId}" }
+            throw e
         }
-
-    companion object {
-        /**
-         * JSON schema enforced by Gemini's controlled generation.
-         * Ensures the response is always valid JSON matching this structure.
-         */
-        private val RESPONSE_SCHEMA: Schema = Schema
-            .builder()
-            .type(Type.Known.OBJECT)
-            .properties(
-                mapOf(
-                    "altText" to Schema
-                        .builder()
-                        .type(Type.Known.STRING)
-                        .description("Concise, accessible alt text for the image (max 150 chars)")
-                        .build(),
-                    "description" to Schema
-                        .builder()
-                        .type(Type.Known.STRING)
-                        .description("Rich description highlighting cultural significance (max 500 chars)")
-                        .build(),
-                    "tags" to Schema
-                        .builder()
-                        .type(Type.Known.ARRAY)
-                        .description("Cultural terms, locations, and themes (5-10 tags)")
-                        .items(
-                            Schema
-                                .builder()
-                                .type(Type.Known.STRING)
-                                .build(),
-                        ).build(),
-                ),
-            ).required(listOf("altText", "description", "tags"))
-            .propertyOrdering(listOf("altText", "description", "tags"))
-            .build()
     }
 }

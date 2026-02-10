@@ -27,6 +27,7 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://repo.spring.io/milestone") }
 }
 
 extra["testcontainersVersion"] = "1.21.4"
@@ -35,9 +36,12 @@ extra["springdocOpenApiVersion"] = "2.8.9"
 extra["springModulithVersion"] = "2.0.1"
 
 // Override Spring Boot's testcontainers version for Docker 29+ compatibility
+extra["springAiVersion"] = "2.0.0-M2"
+
 dependencyManagement {
     imports {
         mavenBom("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}")
+        mavenBom("org.springframework.ai:spring-ai-bom:${property("springAiVersion")}")
     }
 }
 
@@ -78,8 +82,8 @@ dependencies {
     // Google Cloud Vision SDK for image analysis (labels, OCR, landmarks)
     implementation("com.google.cloud:google-cloud-vision:3.76.0")
 
-    // Google GenAI SDK for Gemini cultural context generation
-    implementation("com.google.genai:google-genai:1.37.0")
+    // Spring AI for Gemini cultural context generation (native structured output)
+    implementation("org.springframework.ai:spring-ai-starter-model-google-genai")
 
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:junit-jupiter")
@@ -124,7 +128,8 @@ tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
     doFirst {
         val envFile = file(".env.local")
         if (envFile.exists()) {
-            envFile.readLines()
+            envFile
+                .readLines()
                 .filter { it.isNotBlank() && !it.startsWith("#") && it.contains("=") }
                 .forEach { line ->
                     val (key, value) = line.split("=", limit = 2)

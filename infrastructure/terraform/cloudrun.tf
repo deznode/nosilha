@@ -176,6 +176,12 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value = "false"
       }
 
+      # Spring AI auto-configuration: "google-genai" to enable, "none" to disable
+      env {
+        name  = "SPRING_AI_MODEL_CHAT"
+        value = "none"
+      }
+
       # Gemini API key from Secret Manager (Developer API authentication — see ADR-0008)
       env {
         name = "AI_GEMINI_API_KEY"

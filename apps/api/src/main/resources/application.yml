@@ -49,6 +49,20 @@ spring:
       hibernate:
         format_sql: false
 
+  # Spring AI Configuration (Gemini via Google GenAI)
+  # spring.ai.model.chat controls auto-configuration: "google-genai" to enable, "none" to disable
+  ai:
+    model:
+      chat: ${SPRING_AI_MODEL_CHAT:none}
+    google:
+      genai:
+        api-key: ${AI_GEMINI_API_KEY:}
+        chat:
+          options:
+            model: ${AI_GEMINI_MODEL:gemini-2.5-flash}
+            temperature: 0.3
+            max-output-tokens: ${AI_GEMINI_MAX_TOKENS:2048}
+
 # Cloudflare R2 configuration (S3-compatible object storage)
 # To enable media uploads, set cloudflare.r2.enabled=true (via R2_ENABLED env var)
 # When enabled, all credentials MUST be provided or startup will fail (fail-fast)
@@ -73,12 +87,7 @@ nosilha:
       monthly-limit: ${AI_CLOUD_VISION_MONTHLY_LIMIT:1000}
     gemini:
       enabled: ${AI_GEMINI_ENABLED:false}
-      api-key: ${AI_GEMINI_API_KEY:}
-      model: ${AI_GEMINI_MODEL:gemini-2.5-flash}
-      max-output-tokens: ${AI_GEMINI_MAX_TOKENS:2048}
       monthly-limit: ${AI_GEMINI_MONTHLY_LIMIT:500}
-    batch:
-      max-items: ${AI_BATCH_MAX_ITEMS:50}
 
 # Supabase JWT configuration using JWKS (asymmetric key verification)
 # Uses the public JWKS endpoint - no secret needed
