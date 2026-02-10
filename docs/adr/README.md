@@ -12,6 +12,9 @@ Architecture Decision Records (ADRs) document significant technical decisions ma
 | [0004](0004-es256-jwt-algorithm.md) | ES256 JWT Algorithm Configuration | Accepted | 2026-01-08 |
 | [0005](0005-workload-identity-federation.md) | Workload Identity Federation | Accepted | 2026-01-29 |
 | [0006](0006-free-tier-cost-optimization.md) | Free Tier Cost Optimization | Accepted | 2026-01-29 |
+| [0007](0007-ai-module-endpoint-ownership.md) | AI Module Endpoint Ownership | Accepted | 2026-02-07 |
+| [0008](0008-ai-api-authentication-strategy.md) | AI API Authentication Strategy | Accepted | 2026-02-08 |
+| [0009](0009-spring-ai-gemini-integration.md) | Spring AI for Gemini Integration | Accepted | 2026-02-10 |
 
 ## Creating New ADRs
 

@@ -13,6 +13,7 @@ Each research document has two sections:
 | Slug | Title | Promoted | Tags |
 |------|-------|----------|------|
 | [tailwindcss-v4-color-tokens](./tailwindcss-v4-color-tokens.md) | Tailwind CSS v4 Color Token Systems and Design Patterns | 2026-01-23 | tailwindcss, design-tokens, dark-mode, oklch |
+| [ai-image-analysis-apis-2025](./ai-image-analysis-apis-2025.md) | AI Image Analysis APIs for Heritage Projects - Free/Low-Cost Options (2025) | 2026-02-06 | ai-vision, image-analysis, spring-boot, cultural-heritage |
 
 ## Commands
 

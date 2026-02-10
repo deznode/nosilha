@@ -14,69 +14,105 @@ cd apps/api
 ./gradlew ktlintCheck                # Run Kotlin style checking
 ./gradlew test jacocoTestReport      # Run tests with coverage reports
 ./gradlew bootBuildImage             # Build Docker image
-# Note: detekt temporarily disabled pending Kotlin 2.3.0 compatibility
 ```
 
-## Architecture Patterns
+## Module Boundaries
 
-- **Spring Modulith Architecture**: Modular monolith with enforced module boundaries (`shared`, `auth`, `places`, `gallery`, `engagement`, `stories`, `feedback`, `config`)
-- **Event-Driven Communication**: Modules communicate via `@ApplicationModuleListener` without direct dependencies
-- **Single Table Inheritance**: `DirectoryEntry` is the base class for `Restaurant`, `Hotel`, `Beach`, `Heritage`, `Nature`
-- **API Versioning**: All REST endpoints are prefixed with `/api/v1/`
-- **Authentication**: JWT-based authentication with Supabase token validation
-- **Database Strategy**: PostgreSQL primary with Flyway migrations, connection pooling via HikariCP
-
-## Testing
-
-```bash
-cd apps/api && ./gradlew test         # All tests with PostgreSQL
-./gradlew test jacocoTestReport      # With coverage
-./gradlew ktlintCheck                # Code style checking
-```
-
-### Testing Tools
-
-- **Testcontainers**: PostgreSQL integration testing
-- **JaCoCo**: Code coverage reports
-- **ktlint**: Kotlin code style (detekt temporarily disabled)
-
-## Module Structure
+Modular monolith with enforced boundaries. Modules communicate via events, not direct service calls.
 
 ```
 apps/api/src/main/kotlin/com/nosilha/core/
-├── shared/          # Common utilities and base classes
-├── auth/            # Authentication module (JWT, Supabase)
-├── places/          # Places entries (Restaurant, Hotel, Beach, Heritage, Nature)
+├── shared/          # Shared kernel (events, exceptions, base classes, API wrappers)
+├── auth/            # Authentication (JWT, Supabase, user profiles)
+├── places/          # Directory entries (Restaurant, Hotel, Beach, Heritage, Nature)
 ├── gallery/         # Gallery media (user uploads + curated external content)
+├── ai/              # AI image analysis and content moderation
 ├── engagement/      # User interactions (reactions, bookmarks)
 ├── stories/         # Community narratives, MDX publishing
 ├── feedback/        # Community feedback channels, dashboard
 └── config/          # Cache configuration (Caffeine)
 ```
 
-## Key Patterns
+## Shared Module Structure
 
-### Single Table Inheritance
+The `shared/` module is the shared kernel — other modules may depend on it:
 
-```kotlin
-@Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "entry_type")
-abstract class DirectoryEntry : BaseEntity()
-
-@Entity
-@DiscriminatorValue("RESTAURANT")
-class Restaurant : DirectoryEntry()
+```
+shared/
+├── api/             # ApiResult, PagedApiResult, ErrorResponse, shared DTOs
+├── domain/          # AuditableEntity base class
+├── events/          # DomainEvent, ApplicationModuleEvent interfaces
+├── exception/       # ResourceNotFoundException, GlobalExceptionHandler
+├── config/          # Cross-cutting config
+├── service/         # Shared services
+└── util/            # Utility functions
 ```
 
-### Event-Driven Communication
+## Event-Driven Communication
+
+### DomainEvent Interface
 
 ```kotlin
-@ApplicationModuleListener
-fun onDirectoryEntryCreated(event: DirectoryEntryCreatedEvent) {
-    // Handle cross-module communication
+// shared/events/DomainEvent.kt
+interface DomainEvent {
+    val occurredAt: Instant
+        get() = Instant.now()
+}
+
+// shared/events/ApplicationModuleEvent.kt
+interface ApplicationModuleEvent : DomainEvent
+```
+
+### Publishing Events
+
+```kotlin
+@Service
+class DirectoryEntryService(
+    private val eventPublisher: ApplicationEventPublisher,
+) {
+    fun createEntry(request: CreateEntryRequestDto): DirectoryEntryDto {
+        val saved = repository.save(entity)
+        eventPublisher.publishEvent(
+            DirectoryEntryCreatedEvent(saved.id!!, saved.category, saved.name)
+        )
+        return saved.toDto()
+    }
 }
 ```
+
+### Consuming Events
+
+```kotlin
+@Service
+class MediaService {
+    @ApplicationModuleListener
+    fun onDirectoryEntryCreated(event: DirectoryEntryCreatedEvent) {
+        // Cross-module reaction — runs AFTER publishing transaction commits
+        logger.info { "Directory entry created: ${event.entryId}" }
+    }
+}
+```
+
+### Event Data Classes
+
+Events are immutable data classes named in past tense:
+
+```kotlin
+data class DirectoryEntryCreatedEvent(
+    val entryId: UUID,
+    val category: String,
+    val name: String,
+    override val occurredAt: Instant = Instant.now(),
+) : ApplicationModuleEvent
+```
+
+## Architecture Rules
+
+- Prefer cross-module communication via `ApplicationModuleEvent` events over direct dependencies
+- Modules may depend on `shared/` freely; direct cross-module imports are acceptable for aggregation use cases (e.g., `auth.ProfileService` reads from engagement/feedback/stories)
+- Each module owns its own database tables
+- API versioning: all endpoints prefixed with `/api/v1/`
+- Single Table Inheritance for `DirectoryEntry` subclasses
 
 ## Reference
 

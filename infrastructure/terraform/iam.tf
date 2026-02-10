@@ -86,6 +86,27 @@ resource "google_secret_manager_secret_iam_member" "grant_resend_api_key_access"
   member    = google_service_account.frontend_runner.member
 }
 
+# Gemini API key secret (Developer API authentication — see ADR-0008)
+# After apply, set the value: echo -n "YOUR_KEY" | gcloud secrets versions add gemini_api_key --data-file=-
+resource "google_secret_manager_secret" "gemini_api_key" {
+  project   = var.gcp_project_id
+  secret_id = "gemini_api_key"
+
+  replication {
+    auto {}
+  }
+
+  depends_on = [google_project_service.secret_manager]
+}
+
+# Grant backend access to Gemini API key secret (Developer API auth — see ADR-0008)
+resource "google_secret_manager_secret_iam_member" "grant_gemini_api_key_access" {
+  project   = var.gcp_project_id
+  secret_id = google_secret_manager_secret.gemini_api_key.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_service_account.backend_runner.member
+}
+
 # Grant backend service account access to GCS bucket
 resource "google_storage_bucket_iam_member" "grant_gcs_access" {
   bucket = google_storage_bucket.media_storage.name

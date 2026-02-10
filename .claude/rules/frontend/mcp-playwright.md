@@ -42,7 +42,7 @@ See `apps/web/README-MCP.md` for complete tool list.
 
 ## Authentication
 
-The credentials for logging into the website can be provided using the following environment variables:
+The credentials for logging into the website are defined in `.env.local`:
 
 ```bash
 WEB_USERNAME=your_username

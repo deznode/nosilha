@@ -31,6 +31,11 @@ spring:
   flyway:
     enabled: true
 
+  # Disable Spring AI auto-configuration in tests (providers are mocked)
+  ai:
+    model:
+      chat: none
+
   # OAuth2 Resource Server Configuration for tests
   # Note: Tests use a mock JwtDecoder from TestSecurityConfig, not the actual JWKS endpoint
   security:
@@ -40,6 +45,11 @@ spring:
           # This URL is not used in tests (mock JwtDecoder is injected instead)
           jwk-set-uri: https://test-project.supabase.co/auth/v1/.well-known/jwks.json
           issuer-uri: https://test-project.supabase.co/auth/v1
+
+# AI configuration (disabled in tests)
+nosilha:
+  ai:
+    enabled: false
 
 # Test Supabase Configuration
 supabase:

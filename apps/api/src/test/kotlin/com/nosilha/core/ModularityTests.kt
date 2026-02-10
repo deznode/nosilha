@@ -231,6 +231,24 @@ class ModularityTests {
     }
 
     /**
+     * Contract Test: Verify AI module exists
+     *
+     * AI module should:
+     * - Depend only on shared kernel
+     * - Listen to MediaAnalysisRequestedEvent (from gallery)
+     * - Publish MediaAnalysisCompletedEvent, MediaAnalysisFailedEvent
+     */
+    @Test
+    fun `verify ai module exists`() {
+        val aiModule =
+            modules
+                .getModuleByName("ai")
+                .orElseThrow { AssertionError("AI module not found") }
+
+        println("AI module found: ${aiModule.name}")
+    }
+
+    /**
      * Contract Test: Verify gallery module exists
      *
      * Gallery module should:

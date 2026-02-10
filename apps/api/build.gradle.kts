@@ -27,6 +27,7 @@ java {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://repo.spring.io/milestone") }
 }
 
 extra["testcontainersVersion"] = "1.21.4"
@@ -35,9 +36,12 @@ extra["springdocOpenApiVersion"] = "2.8.9"
 extra["springModulithVersion"] = "2.0.1"
 
 // Override Spring Boot's testcontainers version for Docker 29+ compatibility
+extra["springAiVersion"] = "2.0.0-M2"
+
 dependencyManagement {
     imports {
         mavenBom("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}")
+        mavenBom("org.springframework.ai:spring-ai-bom:${property("springAiVersion")}")
     }
 }
 
@@ -75,9 +79,16 @@ dependencies {
     // Bucket4j for efficient in-memory rate limiting (token bucket algorithm)
     implementation("com.bucket4j:bucket4j_jdk17-core:8.14.0")
 
+    // Google Cloud Vision SDK for image analysis (labels, OCR, landmarks)
+    implementation("com.google.cloud:google-cloud-vision:3.76.0")
+
+    // Spring AI for Gemini cultural context generation (native structured output)
+    implementation("org.springframework.ai:spring-ai-starter-model-google-genai")
+
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
     testImplementation("org.springframework.boot:spring-boot-webmvc-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
@@ -110,6 +121,23 @@ tasks.getByName<BootBuildImage>("bootBuildImage") {
 // Configure Spring Boot to generate build info for actuator
 springBoot {
     buildInfo {}
+}
+
+// Load environment variables from .env.local for local development
+tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+    doFirst {
+        val envFile = file(".env.local")
+        if (envFile.exists()) {
+            envFile
+                .readLines()
+                .filter { it.isNotBlank() && !it.startsWith("#") && it.contains("=") }
+                .forEach { line ->
+                    val (key, value) = line.split("=", limit = 2)
+                    environment(key.trim(), value.trim())
+                }
+            println("Loaded environment from .env.local")
+        }
+    }
 }
 
 jacoco {

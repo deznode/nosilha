@@ -108,6 +108,25 @@ curl -X POST "/api/v1/gallery/upload/confirm" \
   -d '{"key": "uploads/...", "originalName": "photo.jpg", "entryId": "uuid", "category": "Nature"}'
 ```
 
+### Admin Gallery Endpoints
+
+**Reference**: `apps/api/src/main/kotlin/com/nosilha/core/gallery/api/AdminGalleryController.kt`
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/admin/gallery/{mediaId}/analyze` | Admin | Trigger AI analysis for single media (202) |
+| POST | `/admin/gallery/analyze-batch` | Admin | Trigger batch AI analysis (202) |
+
+**Batch Request Body**:
+```json
+{ "mediaIds": ["uuid-1", "uuid-2"] }
+```
+
+**Batch Response** (202):
+```json
+{ "batchId": "uuid", "accepted": 2, "rejected": 0, "errors": [] }
+```
+
 ---
 
 ## Engagement Module
@@ -185,6 +204,70 @@ curl -X POST "/api/v1/reactions" \
 
 ---
 
+## AI Module
+
+**Reference**: `apps/api/src/main/kotlin/com/nosilha/core/ai/api/AdminAiController.kt`
+
+All AI endpoints require `ADMIN` role.
+
+### Moderation Queue
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/admin/ai/review-queue` | Admin | List analysis runs pending review |
+| GET | `/admin/ai/review/{runId}` | Admin | Get detailed AI output for a run |
+
+**Query Parameters** (GET /review-queue):
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| page | int | 0 | Page number |
+| size | int | 20 | Page size (max 100) |
+
+### Moderation Actions
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/admin/ai/review/{runId}/approve` | Admin | Approve AI results (publishes to gallery) |
+| POST | `/admin/ai/review/{runId}/reject` | Admin | Reject AI results |
+| POST | `/admin/ai/review/{runId}/approve-edited` | Admin | Approve with admin-modified results |
+
+**Approve-Edited Request Body**:
+```json
+{
+  "altText": "Edited alt text",
+  "description": "Edited description",
+  "tags": ["tag1", "tag2"],
+  "notes": "Admin notes"
+}
+```
+
+### Status & Monitoring
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/admin/ai/status?mediaIds=` | Admin | AI processing status for media items |
+| GET | `/admin/ai/batches` | Admin | List all analysis batches |
+| GET | `/admin/ai/batches/{batchId}` | Admin | Get batch detail with per-item status |
+| GET | `/admin/ai/health` | Admin | AI provider health and usage statistics |
+
+**Health Response**:
+```json
+{
+  "enabled": true,
+  "providers": [
+    {
+      "name": "cloud-vision",
+      "enabled": true,
+      "capabilities": ["LABELS", "OCR", "LANDMARKS"],
+      "usage": { "count": 42, "limit": 1000, "percentUsed": 4.2 }
+    }
+  ]
+}
+```
+
+---
+
 ## Auth Module
 
 **Reference**: `apps/api/src/main/kotlin/com/nosilha/core/auth/api/`
@@ -215,6 +298,7 @@ curl -X POST "/api/v1/reactions" \
 |------|-------------|
 | 200 | OK (GET, PUT) |
 | 201 | Created (POST) |
+| 202 | Accepted (async processing initiated) |
 | 204 | No Content (DELETE) |
 | 400 | Validation error |
 | 401 | Missing/invalid token |

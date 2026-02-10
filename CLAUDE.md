@@ -6,92 +6,48 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Nos Ilha is a community-driven cultural heritage hub for Brava Island, Cape Verde. This volunteer-supported, open-source project is a full-stack web application that preserves and celebrates the island's rich cultural memory through an interactive directory of cultural sites, landmarks, and local businesses, with mapping functionality.
 
-### System Architecture Overview
-
-**Frontend** (Next.js 16): React 19.2, App Router, Tailwind CSS, ISR Caching, Supabase Auth
-**Backend** (Spring Boot): Kotlin/JVM, PostgreSQL, JWT Auth, Domain-Driven, RESTful APIs
-**Infrastructure** (GCP): Cloud Run, Artifact Registry, Secret Manager, IAM
-**CI/CD** (GitHub Actions): Modular workflows, security scanning, auto-deployment, health checks
-
 ## Architecture
 
-This is a **full-stack application** with four main components:
-
-- **Frontend**: Next.js 16 (App Router) with React 19.2, TypeScript, and Tailwind CSS
-- **Backend**: Spring Boot 4.0.0 with Kotlin 2.3.0, Java 25, PostgreSQL as the single database
-- **Infrastructure**: Docker Compose for local development, Terraform for cloud deployment
-- **CI/CD**: Modular GitHub Actions workflows with automated security scanning and deployment
+- **Frontend**: Next.js 16.1 (App Router) with React 19.2, TypeScript, Tailwind CSS, ISR, Supabase Auth
+- **Backend**: Spring Boot 4.0.0 with Kotlin 2.3.0, Java 25, Spring Modulith 2.0.1, PostgreSQL
+- **Infrastructure**: Docker Compose (local), Terraform + GCP Cloud Run (prod)
+- **CI/CD**: 9 GitHub Actions workflows — security scanning, auto-deployment, health checks
 
 ## Project Organization
 
-The project follows a clear organizational structure:
+```
+nosilha/
+├── apps/web/          # Next.js 16.1 frontend
+├── apps/api/          # Spring Boot 4 backend (Kotlin)
+├── infrastructure/    # Docker Compose, Terraform, GCP config
+├── docs/              # Architecture, API reference, ADRs, design system
+├── plan/              # Git submodule — specs and planning documents
+└── .claude/           # Rules, skills, commands for Claude Code
+```
 
-- **`plan/`** - Git submodule containing specifications and planning documents (see plan repository README for details)
-- **`docs/`** - Static project documentation (architecture, design system, API reference, etc.)
+See `docs/architecture.md` for detailed integration flows (auth, content management, media, CI/CD).
 
-### Key Integration Flows
+## Development Setup
 
-**Authentication**: User → Frontend → Supabase Auth → JWT Token → Backend Validation → Database Access
-**Content Management**: Admin UI → Backend API → PostgreSQL → Cache Invalidation → Frontend Update
-**Media Upload**: File Upload → Local Storage (dev) → PostgreSQL Metadata → Frontend Display
-**CI/CD Deployment**: Git Push → GitHub Actions → Security Scan → Build → Deploy → Health Check
+1. **Start infrastructure**: `cd infrastructure/docker && docker-compose up -d`
+2. **Backend**: `cd apps/api && ./gradlew bootRun --args='--spring.profiles.active=local'`
+3. **Frontend**: `cd apps/web && pnpm install && pnpm run dev`
 
-## Development Environment Setup
+**Environment files**: Copy templates before first run:
 
-### Prerequisites
-- **Node.js 20.9+** and npm
-- **Java 25** (for backend)
-- **Docker** and Docker Compose
-- **PostgreSQL** (or use Docker Compose setup)
-
-### Local Development
-1. **Start infrastructure services**: `cd infrastructure/docker && docker-compose up -d`
-2. **Backend setup**: `cd apps/api && ./gradlew bootRun --args='--spring.profiles.active=local'`
-3. **Frontend setup**: `cd apps/web && pnpm install && pnpm run dev`
+- `infrastructure/docker/.env.example` → `.env`
+- `apps/web/.env.local.example` → `.env.local`
 
 ## Development Commands
 
 For detailed commands by domain, see the modular rules:
 - Frontend: @.claude/rules/frontend/app-router.md
+- Frontend E2E: @.claude/rules/frontend/mcp-playwright.md
 - Backend: @.claude/rules/backend/spring-modulith.md
+- Content: @.claude/rules/content/mdx-platform.md
 - Infrastructure: @.claude/rules/infrastructure/cicd-deployment.md
 
-## Environment Configuration
-
-### Local Development URLs
-- **Frontend**: `http://localhost:3000` (Next.js with Turbopack)
-- **Backend API**: `http://localhost:8080/api/v1/` (Spring Boot)
-- **Database**: `localhost:5432` (PostgreSQL: database=`nosilha_db`, user=`nosilha`, password=`nosilha`)
-- **Media Storage**: `./uploads` (local filesystem)
-
-### Required Environment Variables
-
-#### Frontend (.env.local)
-```bash
-NEXT_PUBLIC_API_URL=http://localhost:8080
-NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=your_mapbox_token_here
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_your_key  # Publishable key format
-
-# Analytics Integration (optional for local development)
-NEXT_PUBLIC_GA_ID=your_ga_measurement_id
-NEXT_PUBLIC_CLARITY_PROJECT_ID=your_clarity_project_id
-```
-
-#### Backend (Environment Variables)
-```bash
-SPRING_PROFILES_ACTIVE=local
-DATABASE_URL=jdbc:postgresql://localhost:5432/nosilha_db
-DATABASE_USERNAME=nosilha
-DATABASE_PASSWORD=nosilha
-```
-
-### Production Environment
-- **Cloud Platform**: Google Cloud Platform (GCP)
-- **Region**: `us-east1`
-- **Services**: Cloud Run (auto-scaling serverless containers)
-- **Registry**: Google Artifact Registry (`us-east1-docker.pkg.dev`)
-- **Authentication**: Supabase Auth with JWT tokens
+Additional convention rules auto-load based on file paths (see Modular Rules below).
 
 ## Claude Code Memory
 
@@ -101,10 +57,22 @@ Use `/memory` to view and edit all loaded memory files.
 
 Domain-specific instructions loaded automatically based on file paths:
 
-- `apps/web/` - Next.js App Router, design system, Playwright MCP
-- `apps/api/` - Spring Modulith, API patterns
-- `content/` - MDX authoring platform
-- `infrastructure/` - CI/CD, Docker, cloud deployment
+| Rule File | Trigger Path | Purpose |
+|-----------|-------------|---------|
+| `frontend/app-router.md` | `apps/web/**` | Next.js App Router patterns and commands |
+| `frontend/design-system.md` | `apps/web/**` | Design system, OKLCH tokens, Tailwind CSS |
+| `frontend/mcp-playwright.md` | `apps/web/**` | Playwright MCP E2E testing |
+| `frontend/state-management.md` | `apps/web/**` | Zustand stores, TanStack Query, Zod schemas |
+| `frontend/api-client.md` | `apps/web/**` | API factory, contracts, caching, types |
+| `frontend/component-patterns.md` | `apps/web/**` | forwardRef, clsx, toast, loading states |
+| `backend/spring-modulith.md` | `apps/api/**` | Module boundaries, events, shared kernel |
+| `backend/api-patterns.md` | `apps/api/**` | ApiResult, controllers, module sub-packages |
+| `backend/kotlin-conventions.md` | `apps/api/**` | Jackson 3.x, logging, transactions, ktlint |
+| `backend/database-patterns.md` | `apps/api/**` | Flyway, entities, JSONB, full-text search |
+| `backend/testing-patterns.md` | `apps/api/**` | Integration tests, MockMvc, auth mocking |
+| `backend/security-auth.md` | `apps/api/**` | Exceptions, rate limiting, security config |
+| `content/mdx-platform.md` | `apps/web/content/**` | MDX content authoring platform |
+| `infrastructure/cicd-deployment.md` | `infrastructure/**, .github/**` | CI/CD, Docker, cloud deployment |
 
 ## Skills and Commands
 
@@ -157,6 +125,9 @@ Custom workflow triggers in `.claude/commands/`. Use syntax: `/command-name [arg
 ### Additional Documentation
 - `docs/secret-management.md` - Secret management guide
 - `docs/cultural-heritage-verification.md` - Cultural heritage content verification protocols
+- `docs/supabase-admin-roles.md` - Supabase admin role setup and JWT-based access control
+- `docs/api-roadmap.md` - Planned backend improvements and migrations
+- `docs/nx-monorepo.md` - Nx monorepo commands and project graph
 - `SECURITY.md` - Security policy and vulnerability reporting procedures
 
 ## Troubleshooting
@@ -168,16 +139,8 @@ For common issues, see `docs/troubleshooting.md`.
 - **Security Issues**: `SECURITY.md`
 - **Architecture Questions**: `docs/architecture.md`
 
-# important-instruction-reminders
+## Important Instruction Reminders
 Do what has been asked; nothing more, nothing less.
 NEVER create files unless they're absolutely necessary for achieving your goal.
 ALWAYS prefer editing an existing file to creating a new one.
 NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
-
-## Active Technologies
-- Kotlin 2.3.0 / JVM 25 + Spring Boot 4.0.0, Spring Modulith 2.0.1, Spring Security 6.5, PostgreSQL
-- PostgreSQL (primary), Flyway migrations
-- Supabase for auth
-
-## Recent Changes
-- Updated to Kotlin 2.3.0 / Java 25 + Spring Boot 4.0.0, Spring Modulith 2.0.1
