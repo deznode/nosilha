@@ -30,9 +30,9 @@ The AI image analysis module (spec 009) integrates two Google APIs: **Cloud Visi
 
 **Positive**:
 - No Vertex AI API enablement required — avoids `aiplatform.googleapis.com` and `roles/aiplatform.user`
-- Cloud Vision uses ADC natively — `ImageAnnotatorClient.create()` authenticates automatically, just needs `roles/cloudvision.user` on the service account
+- Cloud Vision uses ADC natively — `ImageAnnotatorClient.create()` authenticates automatically when `vision.googleapis.com` is enabled on the project (no project-level IAM role needed)
 - API key via Secret Manager is a proven pattern in this project (same approach as `resend_api_key` for the frontend)
-- Simpler Terraform — two API enablements + two IAM bindings vs. Vertex AI regional endpoint configuration
+- Simpler Terraform — two API enablements + one secret + one IAM binding vs. Vertex AI regional endpoint configuration
 - Matches the `google-genai` SDK's `Client.builder().apiKey()` pattern already implemented
 
 **Negative**:
@@ -44,7 +44,7 @@ The AI image analysis module (spec 009) integrates two Google APIs: **Cloud Visi
 
 ### Option 1: Developer API + API key for Gemini, ADC for Vision
 
-Uses `generativelanguage.googleapis.com` with an API key (stored in Secret Manager) for Gemini, and Application Default Credentials with `roles/cloudvision.user` for Cloud Vision.
+Uses `generativelanguage.googleapis.com` with an API key (stored in Secret Manager) for Gemini, and Application Default Credentials for Cloud Vision (API enablement only, no IAM role needed).
 
 - Good, because matches the current `google-genai` SDK implementation (`Client.builder().apiKey()`)
 - Good, because Cloud Vision ADC is zero-configuration on Cloud Run
@@ -81,7 +81,7 @@ Uses API keys stored in Secret Manager for both Gemini and Cloud Vision.
 
 | API | Endpoint | Auth Method | IAM Role | Secret |
 |-----|----------|-------------|----------|--------|
-| Cloud Vision | `vision.googleapis.com` | ADC (automatic) | `roles/cloudvision.user` | None |
+| Cloud Vision | `vision.googleapis.com` | ADC (automatic) | None (API-level) | None |
 | Gemini | `generativelanguage.googleapis.com` | API key | None (key-based) | `gemini_api_key` |
 
 ### Future migration path
@@ -95,6 +95,6 @@ If IAM audit compliance or organization policy requires it, Gemini can be migrat
 ### Related artifacts
 
 - Spec: `plan/arkhe/specs/009-ai-image-analysis/`
-- SDK usage: `core/ai/domain/provider/GeminiCulturalProvider.kt` (API key), `core/ai/domain/provider/CloudVisionProvider.kt` (ADC)
+- SDK usage: `core/ai/provider/GeminiCulturalProvider.kt` (API key), `core/ai/provider/CloudVisionProvider.kt` (ADC)
 - Infrastructure: ADR-0006 Free Tier Cost Optimization
 - Module architecture: [ADR-0007 AI Module Endpoint Ownership](0007-ai-module-endpoint-ownership.md)

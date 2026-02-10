@@ -181,7 +181,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         name = "AI_GEMINI_API_KEY"
         value_source {
           secret_key_ref {
-            secret  = "gemini_api_key"
+            secret  = google_secret_manager_secret.gemini_api_key.secret_id
             version = "1"
           }
         }
@@ -193,7 +193,9 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
   # Ensure the Cloud Run API is enabled before creating the service.
   # Service account and permissions are managed in iam.tf
   depends_on = [
-    google_project_service.cloud_run
+    google_project_service.cloud_run,
+    google_secret_manager_secret.gemini_api_key,
+    google_secret_manager_secret_iam_member.grant_gemini_api_key_access
   ]
 }
 
