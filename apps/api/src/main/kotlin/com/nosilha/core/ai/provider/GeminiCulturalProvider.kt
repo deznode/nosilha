@@ -72,28 +72,23 @@ class GeminiCulturalProvider(
             mediaTitle = request.culturalContext,
         )
 
-        return try {
-            val response = chatClient
-                .prompt()
-                .user { user ->
-                    user
-                        .text(prompt)
-                        .media(MimeTypeUtils.IMAGE_JPEG, UrlResource(URI(request.imageUrl)))
-                }.call()
-                .entity(GeminiCulturalResponse::class.java)!!
+        val response = chatClient
+            .prompt()
+            .user { user ->
+                user
+                    .text(prompt)
+                    .media(MimeTypeUtils.IMAGE_JPEG, UrlResource(URI(request.imageUrl)))
+            }.call()
+            .entity(GeminiCulturalResponse::class.java)!!
 
-            logger.debug { "Gemini response for ${request.mediaId}: altText=${response.altText.take(50)}, tags=${response.tags}" }
+        logger.debug { "Gemini response for ${request.mediaId}: altText=${response.altText.take(50)}, tags=${response.tags}" }
 
-            ImageAnalysisResult(
-                provider = name,
-                altText = response.altText,
-                description = response.description,
-                tags = response.tags,
-                rawJson = objectMapper.writeValueAsString(response),
-            )
-        } catch (e: Exception) {
-            logger.error(e) { "Gemini analysis failed for media ${request.mediaId}" }
-            throw e
-        }
+        return ImageAnalysisResult(
+            provider = name,
+            altText = response.altText,
+            description = response.description,
+            tags = response.tags,
+            rawJson = objectMapper.writeValueAsString(response),
+        )
     }
 }

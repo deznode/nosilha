@@ -40,6 +40,8 @@ class ImageAnalysisOrchestrator(
     @Value("\${nosilha.ai.gemini.monthly-limit:500}")
     private val geminiMonthlyLimit: Int,
 ) {
+    private val objectMapper = jacksonObjectMapper()
+
     @ApplicationModuleListener
     fun onMediaAnalysisBatchRequested(event: MediaAnalysisBatchRequestedEvent) {
         logger.info { "Creating analysis batch ${event.batchId} with ${event.totalItems} items" }
@@ -107,8 +109,8 @@ class ImageAnalysisOrchestrator(
         run.providersUsed = usedProviders.toTypedArray()
         run.rawResults = buildRawResultsJson(results)
         run.resultTags = merged.tags.takeIf { it.isNotEmpty() }?.toTypedArray()
-        run.resultLabels = merged.labels.takeIf { it.isNotEmpty() }?.let { labels ->
-            objectMapper.writeValueAsString(labels.map { mapOf("label" to it.label, "confidence" to it.confidence) })
+        run.resultLabels = merged.labels.takeIf { it.isNotEmpty() }?.let {
+            objectMapper.writeValueAsString(it)
         }
         run.resultAltText = merged.altText
         run.resultDescription = merged.description
@@ -180,8 +182,6 @@ class ImageAnalysisOrchestrator(
             tags = allTags,
         )
     }
-
-    private val objectMapper = jacksonObjectMapper()
 
     private fun buildRawResultsJson(results: List<ImageAnalysisResult>): String {
         val map = results.associate { result ->
