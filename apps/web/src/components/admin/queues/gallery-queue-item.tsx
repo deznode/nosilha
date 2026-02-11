@@ -13,8 +13,11 @@ import {
   Star,
 } from "lucide-react";
 import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
+import type { AiStatusResponse } from "@/types/ai";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
 import { Button } from "@/components/catalyst-ui/button";
+import { AiStatusBadge } from "./ai-status-badge";
+import type { AiModerationStatus } from "@/types/ai";
 
 interface GalleryQueueItemProps {
   item: GalleryMedia;
@@ -25,12 +28,16 @@ interface GalleryQueueItemProps {
     notes?: string
   ) => void;
   onPromoteToHero?: (id: string) => void;
+  aiStatus?: AiStatusResponse;
+  onViewAiReview?: (mediaId: string) => void;
 }
 
 export function GalleryQueueItem({
   item,
   onStatusChange,
   onPromoteToHero,
+  aiStatus,
+  onViewAiReview,
 }: GalleryQueueItemProps) {
   // Check if this item can be promoted to hero image
   const canPromoteToHero =
@@ -113,6 +120,16 @@ export function GalleryQueueItem({
               <span className="text-muted text-xs">
                 {new Date(item.createdAt).toLocaleDateString()}
               </span>
+              {aiStatus?.moderationStatus && (
+                <AiStatusBadge
+                  moderationStatus={aiStatus.moderationStatus as AiModerationStatus}
+                  onClick={
+                    onViewAiReview
+                      ? () => onViewAiReview(item.id)
+                      : undefined
+                  }
+                />
+              )}
             </div>
           </div>
         </div>

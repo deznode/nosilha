@@ -1,6 +1,7 @@
 "use client";
 
 import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
+import type { AiStatusResponse } from "@/types/ai";
 import { GalleryQueueItem } from "./gallery-queue-item";
 
 interface GalleryQueueProps {
@@ -13,6 +14,8 @@ interface GalleryQueueProps {
     notes?: string
   ) => void;
   onPromoteToHero?: (id: string) => void;
+  aiStatuses?: Map<string, AiStatusResponse>;
+  onViewAiReview?: (mediaId: string) => void;
 }
 
 export function GalleryQueue({
@@ -20,6 +23,8 @@ export function GalleryQueue({
   isLoading,
   onStatusChange,
   onPromoteToHero,
+  aiStatuses,
+  onViewAiReview,
 }: GalleryQueueProps) {
   if (isLoading) {
     return (
@@ -62,6 +67,8 @@ export function GalleryQueue({
           item={item}
           onStatusChange={onStatusChange}
           onPromoteToHero={onPromoteToHero}
+          aiStatus={aiStatuses?.get(item.id)}
+          onViewAiReview={onViewAiReview}
         />
       ))}
     </div>

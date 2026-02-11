@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   MessageSquare,
   FileText,
   Mail,
   MapPin,
   Image as ImageIcon,
+  Sparkles,
 } from "lucide-react";
 import {
   TabGroup,
@@ -27,8 +28,10 @@ import {
   MessagesQueue,
   DirectoryQueue,
   GalleryQueue,
+  AiReviewQueue,
 } from "@/components/admin/queues";
 import { StoryDetailModal } from "@/components/admin/story-detail-modal";
+import { AiReviewDetailModal } from "@/components/admin/ai-review-detail-modal";
 import { FlagReasonModal } from "@/components/admin/queues/flag-reason-modal";
 import { DirectoryEditModal } from "@/components/admin/queues/directory-edit-modal";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
@@ -51,6 +54,8 @@ import {
   useDeleteDirectoryEntry,
   useUpdateGalleryStatus,
   usePromoteToHeroImage,
+  useAiReviewQueue,
+  useAiStatus,
 } from "@/hooks/queries/admin";
 import type {
   AdminStats,
@@ -101,6 +106,10 @@ export default function AdminDashboardPage() {
     useState<DirectorySubmission | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
+  // AI Review modal state
+  const [selectedAiRunId, setSelectedAiRunId] = useState<string | null>(null);
+  const [isAiReviewModalOpen, setIsAiReviewModalOpen] = useState(false);
+
   // Toast notifications
   const toast = useToast();
 
@@ -111,6 +120,7 @@ export default function AdminDashboardPage() {
   const messagesQuery = useAdminMessages();
   const directoryQuery = useAdminDirectorySubmissions();
   const galleryQuery = useAdminGallery();
+  const aiReviewQuery = useAiReviewQueue();
   const contributorsQuery = useAdminContributors();
 
   // Mutation hooks
@@ -132,7 +142,22 @@ export default function AdminDashboardPage() {
   const messages = messagesQuery.data?.items ?? [];
   const directorySubmissions = directoryQuery.data?.items ?? [];
   const galleryItems = galleryQuery.data?.items ?? [];
+  const aiReviewItems = aiReviewQuery.data?.items ?? [];
   const contributors = contributorsQuery.data ?? [];
+
+  // Batch fetch AI status for gallery media items
+  const galleryMediaIds = useMemo(
+    () => galleryItems.map((item) => item.id),
+    [galleryItems]
+  );
+  const aiStatusQuery = useAiStatus(galleryMediaIds);
+  const aiStatusMap = useMemo(
+    () =>
+      new Map(
+        (aiStatusQuery.data ?? []).map((s) => [s.mediaId, s])
+      ),
+    [aiStatusQuery.data]
+  );
 
   // Loading state - show loading for KPI cards
   const isLoading = statsQuery.isLoading;
@@ -149,6 +174,9 @@ export default function AdminDashboardPage() {
   );
   const pendingGalleryItems = galleryItems.filter(
     (g) => g.status === "PENDING_REVIEW" || g.status === "FLAGGED"
+  );
+  const pendingAiReviews = aiReviewItems.filter(
+    (i) => i.moderationStatus === "PENDING_REVIEW"
   );
 
   // Event handlers using mutation hooks
@@ -327,11 +355,30 @@ export default function AdminDashboardPage() {
     promoteToHero.mutate(mediaId);
   };
 
+  const handleAiReview = (runId: string) => {
+    setSelectedAiRunId(runId);
+    setIsAiReviewModalOpen(true);
+  };
+
+  const handleAiReviewClose = () => {
+    setIsAiReviewModalOpen(false);
+    setSelectedAiRunId(null);
+  };
+
+  const handleViewAiReview = (mediaId: string) => {
+    // Find the AI review run for this media item from the queue
+    const run = aiReviewItems.find((item) => item.mediaId === mediaId);
+    if (run) {
+      handleAiReview(run.id);
+    }
+  };
+
   // Computed values
   const pendingCount =
     pendingSuggestions.length +
     pendingStories.length +
-    pendingDirectorySubmissions.length;
+    pendingDirectorySubmissions.length +
+    pendingAiReviews.length;
 
   const unreadMessages = messages.filter((m) => m.status === "UNREAD").length;
 
@@ -403,6 +450,13 @@ export default function AdminDashboardPage() {
             >
               Gallery
             </Tab>
+            <Tab
+              icon={Sparkles}
+              badge={pendingAiReviews.length}
+              color="ochre"
+            >
+              AI Review
+            </Tab>
           </TabList>
 
           <TabPanels className="mt-6">
@@ -446,6 +500,15 @@ export default function AdminDashboardPage() {
                 isLoading={galleryQuery.isLoading}
                 onStatusChange={handleGalleryStatusChange}
                 onPromoteToHero={handlePromoteToHero}
+                aiStatuses={aiStatusMap}
+                onViewAiReview={handleViewAiReview}
+              />
+            </TabPanel>
+            <TabPanel>
+              <AiReviewQueue
+                items={aiReviewItems}
+                isLoading={aiReviewQuery.isLoading}
+                onReview={handleAiReview}
               />
             </TabPanel>
           </TabPanels>
@@ -489,6 +552,13 @@ export default function AdminDashboardPage() {
         itemTitle={directoryToFlag?.name || ""}
         onClose={handleDirectoryFlagClose}
         onConfirm={handleDirectoryFlagConfirm}
+      />
+
+      {/* AI Review Detail Modal */}
+      <AiReviewDetailModal
+        runId={selectedAiRunId}
+        isOpen={isAiReviewModalOpen}
+        onClose={handleAiReviewClose}
       />
 
       {/* Directory Delete Confirmation */}
