@@ -1785,6 +1785,41 @@ ${story.content
     await this.simulateDelay(500);
     // Mock implementation - just log and return
   }
+
+  // ================================
+  // ADMIN AI REVIEW OPERATIONS
+  // ================================
+
+  async getAiReviewQueue(): Promise<
+    import("@/types/admin").AdminQueueResponse<
+      import("@/types/ai").AnalysisRunSummary
+    >
+  > {
+    await this.simulateDelay(300);
+    return { items: [], total: 0, page: 0, pageSize: 20, hasMore: false };
+  }
+
+  async getAiRunDetail(): Promise<import("@/types/ai").AnalysisRunDetail> {
+    await this.simulateDelay(200);
+    throw new Error("Not found");
+  }
+
+  async approveAiRun(): Promise<void> {
+    await this.simulateDelay(300);
+  }
+
+  async rejectAiRun(): Promise<void> {
+    await this.simulateDelay(300);
+  }
+
+  async approveEditedAiRun(): Promise<void> {
+    await this.simulateDelay(300);
+  }
+
+  async getAiStatus(): Promise<import("@/types/ai").AiStatusResponse[]> {
+    await this.simulateDelay(200);
+    return [];
+  }
 }
 
 // Legacy synchronous functions for backward compatibility and build-time use

@@ -20,6 +20,13 @@ import type {
   GenerateMdxOptions,
 } from "@/types/admin";
 import type {
+  AnalysisRunSummary,
+  AnalysisRunDetail,
+  ApproveEditedRequest,
+  RejectRequest,
+  AiStatusResponse,
+} from "@/types/ai";
+import type {
   ProfileDto,
   ContributionsDto,
   ProfileUpdateRequest,
@@ -483,6 +490,76 @@ export interface ApiClient {
   ): Promise<ContactConfirmationDto>;
 
   // ================================
+  // ADMIN AI REVIEW OPERATIONS
+  // ================================
+
+  /**
+   * Get AI analysis runs pending admin review.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param page Page number (default: 0)
+   * @param size Page size (default: 20)
+   * @returns Paginated list of analysis run summaries
+   */
+  getAiReviewQueue(
+    page?: number,
+    size?: number
+  ): Promise<AdminQueueResponse<AnalysisRunSummary>>;
+
+  /**
+   * Get detailed AI output for a single analysis run.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param runId Analysis run ID
+   * @returns Full analysis run detail
+   */
+  getAiRunDetail(runId: string): Promise<AnalysisRunDetail>;
+
+  /**
+   * Approve AI results as-is. Applies results to the media item.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param runId Analysis run ID
+   */
+  approveAiRun(runId: string): Promise<void>;
+
+  /**
+   * Reject AI results. Results are not applied to media.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param runId Analysis run ID
+   * @param request Optional rejection notes
+   */
+  rejectAiRun(runId: string, request?: RejectRequest): Promise<void>;
+
+  /**
+   * Approve AI results with admin edits. Modified results are applied to media.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param runId Analysis run ID
+   * @param request Edited fields to apply
+   */
+  approveEditedAiRun(
+    runId: string,
+    request: ApproveEditedRequest
+  ): Promise<void>;
+
+  /**
+   * Batch fetch AI processing status for multiple media items.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param mediaIds Array of media item IDs to check
+   * @returns AI status for each media item
+   */
+  getAiStatus(mediaIds: string[]): Promise<AiStatusResponse[]>;
+
+  // ================================
   // GALLERY OPERATIONS (UNIFIED MEDIA)
   // ================================
 
@@ -783,3 +860,11 @@ export type {
   DirectorySubmission,
   AdminQueueResponse,
 } from "@/types/admin";
+
+export type {
+  AnalysisRunSummary,
+  AnalysisRunDetail,
+  ApproveEditedRequest,
+  RejectRequest,
+  AiStatusResponse,
+} from "@/types/ai";
