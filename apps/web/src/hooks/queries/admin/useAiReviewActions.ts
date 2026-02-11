@@ -8,27 +8,31 @@
  */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import { approveAiRun, rejectAiRun, approveEditedAiRun } from "@/lib/api";
 import { adminKeys } from "./keys";
 import type { ApproveEditedRequest, RejectRequest } from "@/types/ai";
 
 /**
+ * Invalidates AI review, gallery, and system caches after a moderation action.
+ */
+function invalidateAiReviewCaches(queryClient: QueryClient): void {
+  queryClient.invalidateQueries({ queryKey: adminKeys.aiReview.all() });
+  queryClient.invalidateQueries({ queryKey: adminKeys.gallery.all() });
+  queryClient.invalidateQueries({ queryKey: adminKeys.system.all() });
+}
+
+/**
  * Hook for approving AI analysis results as-is.
  *
  * Invalidates AI review, gallery, and system caches on success.
- *
- * @returns TanStack Query mutation result
  */
 export function useApproveAiRun() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (runId: string) => approveAiRun(runId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: adminKeys.aiReview.all() });
-      queryClient.invalidateQueries({ queryKey: adminKeys.gallery.all() });
-      queryClient.invalidateQueries({ queryKey: adminKeys.system.all() });
-    },
+    onSuccess: () => invalidateAiReviewCaches(queryClient),
   });
 }
 
@@ -41,8 +45,6 @@ interface RejectAiRunVariables {
  * Hook for rejecting AI analysis results.
  *
  * Invalidates AI review, gallery, and system caches on success.
- *
- * @returns TanStack Query mutation result
  */
 export function useRejectAiRun() {
   const queryClient = useQueryClient();
@@ -50,11 +52,7 @@ export function useRejectAiRun() {
   return useMutation({
     mutationFn: ({ runId, request }: RejectAiRunVariables) =>
       rejectAiRun(runId, request),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: adminKeys.aiReview.all() });
-      queryClient.invalidateQueries({ queryKey: adminKeys.gallery.all() });
-      queryClient.invalidateQueries({ queryKey: adminKeys.system.all() });
-    },
+    onSuccess: () => invalidateAiReviewCaches(queryClient),
   });
 }
 
@@ -67,8 +65,6 @@ interface ApproveEditedAiRunVariables {
  * Hook for approving AI analysis results with admin edits.
  *
  * Invalidates AI review, gallery, and system caches on success.
- *
- * @returns TanStack Query mutation result
  */
 export function useApproveEditedAiRun() {
   const queryClient = useQueryClient();
@@ -76,10 +72,6 @@ export function useApproveEditedAiRun() {
   return useMutation({
     mutationFn: ({ runId, request }: ApproveEditedAiRunVariables) =>
       approveEditedAiRun(runId, request),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: adminKeys.aiReview.all() });
-      queryClient.invalidateQueries({ queryKey: adminKeys.gallery.all() });
-      queryClient.invalidateQueries({ queryKey: adminKeys.system.all() });
-    },
+    onSuccess: () => invalidateAiReviewCaches(queryClient),
   });
 }

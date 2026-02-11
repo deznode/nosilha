@@ -13,11 +13,10 @@ import {
   Star,
 } from "lucide-react";
 import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
-import type { AiStatusResponse } from "@/types/ai";
+import type { AiStatusResponse, AiModerationStatus } from "@/types/ai";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
 import { Button } from "@/components/catalyst-ui/button";
 import { AiStatusBadge } from "./ai-status-badge";
-import type { AiModerationStatus } from "@/types/ai";
 
 interface GalleryQueueItemProps {
   item: GalleryMedia;

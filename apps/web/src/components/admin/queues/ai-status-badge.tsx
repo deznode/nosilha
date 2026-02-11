@@ -1,5 +1,6 @@
 "use client";
 
+import { clsx } from "clsx";
 import { Sparkles, CheckCircle, XCircle } from "lucide-react";
 import type { AiModerationStatus } from "@/types/ai";
 
@@ -45,7 +46,10 @@ export function AiStatusBadge({
 
   const badge = (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${config.className}`}
+      className={clsx(
+        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
+        config.className
+      )}
     >
       <Icon size={10} />
       {config.label}

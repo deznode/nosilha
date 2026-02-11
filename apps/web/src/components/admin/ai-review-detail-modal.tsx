@@ -10,8 +10,8 @@ import {
 } from "@headlessui/react";
 import { X, Check, XCircle, Pencil, Sparkles } from "lucide-react";
 import { Button } from "@/components/catalyst-ui/button";
-import { useAiRunDetail } from "@/hooks/queries/admin";
 import {
+  useAiRunDetail,
   useApproveAiRun,
   useRejectAiRun,
   useApproveEditedAiRun,
@@ -19,6 +19,7 @@ import {
 import { getGalleryMediaById } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import type { GalleryMedia } from "@/types/gallery";
+import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
 
 interface AiReviewDetailModalProps {
   runId: string | null;
@@ -96,13 +97,21 @@ export function AiReviewDetailModal({
   }, [detail?.mediaId]);
 
   // Check if fields have been edited
-  const hasEdits = useMemo(() => {
-    return (
+  const hasEdits = useMemo(
+    () =>
       altText !== originalSnapshot.altText ||
       description !== originalSnapshot.description ||
-      tagsInput !== originalSnapshot.tags
-    );
-  }, [altText, description, tagsInput, originalSnapshot]);
+      tagsInput !== originalSnapshot.tags,
+    [altText, description, tagsInput, originalSnapshot]
+  );
+
+  // Resolve preview URL from the discriminated GalleryMedia union
+  const imageUrl = useMemo((): string | null => {
+    if (!mediaImage) return null;
+    if (isUserUploadMedia(mediaImage)) return mediaImage.publicUrl;
+    if (isExternalMedia(mediaImage)) return mediaImage.thumbnailUrl;
+    return null;
+  }, [mediaImage]);
 
   const isMutating =
     approveMutation.isPending ||
@@ -156,15 +165,6 @@ export function AiReviewDetailModal({
     }
   };
 
-  const getImageUrl = (): string | null => {
-    if (!mediaImage) return null;
-    if ("publicUrl" in mediaImage && mediaImage.publicUrl)
-      return mediaImage.publicUrl;
-    if ("thumbnailUrl" in mediaImage && mediaImage.thumbnailUrl)
-      return mediaImage.thumbnailUrl;
-    return null;
-  };
-
   return (
     <Dialog as="div" className="relative z-50" open={isOpen} onClose={onClose}>
       <DialogBackdrop
@@ -205,9 +205,9 @@ export function AiReviewDetailModal({
                   <div className="relative h-48 w-full overflow-hidden rounded-lg">
                     {isMediaLoading ? (
                       <div className="bg-surface-alt h-full w-full animate-pulse" />
-                    ) : getImageUrl() ? (
+                    ) : imageUrl ? (
                       <Image
-                        src={getImageUrl()!}
+                        src={imageUrl}
                         alt="Media preview"
                         fill
                         className="object-contain"
