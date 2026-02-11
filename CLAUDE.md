@@ -29,14 +29,20 @@ See `docs/architecture.md` for detailed integration flows (auth, content managem
 
 ## Development Setup
 
-1. **Start infrastructure**: `cd infrastructure/docker && docker-compose up -d`
-2. **Backend**: `cd apps/api && ./gradlew bootRun --args='--spring.profiles.active=local'`
-3. **Frontend**: `cd apps/web && pnpm install && pnpm run dev`
+Uses [Taskfile](https://taskfile.dev/) for orchestration. Install: `brew install go-task`
+
+```bash
+task check     # verify prerequisites (Docker, Node, pnpm, Java)
+task setup     # copy env templates, install web deps
+task dev       # start API (auto-starts postgres) + web in parallel
+```
 
 **Environment files**: Copy templates before first run:
 
-- `infrastructure/docker/.env.example` → `.env`
+- `apps/api/src/main/resources/application-local.yml.example` → `application-local.yml`
 - `apps/web/.env.local.example` → `.env.local`
+
+Or run `task setup` which handles the web env file automatically.
 
 ## Development Commands
 

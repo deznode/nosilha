@@ -6,9 +6,9 @@ Quick reference for resolving common issues in the Nos Ilha platform.
 
 | Issue Type | First Command |
 |------------|---------------|
-| Backend won't start | `cd infrastructure/docker && docker-compose ps` |
+| Backend won't start | `cd infrastructure/docker && docker compose ps` |
 | Frontend build fails | `cd apps/web && pnpm run lint && npx tsc --noEmit` |
-| Database connection | `docker-compose exec db psql -U nosilha -d nosilha_db -c "\dt"` |
+| Database connection | `docker compose exec db psql -U nosilha -d nosilha_db -c "\dt"` |
 | Cloud Run errors | `gcloud logging read 'resource.type="cloud_run_revision" AND severity>="ERROR"' --limit=20` |
 
 ---
@@ -22,13 +22,13 @@ Quick reference for resolving common issues in the Nos Ilha platform.
 cd infrastructure/docker
 
 # Check container status
-docker-compose ps
+docker compose ps
 
 # Restart database
-docker-compose down && docker-compose up -d
+docker compose down && docker compose up -d
 
 # Verify database is accepting connections
-docker-compose exec db psql -U nosilha -d nosilha_db -c "SELECT 1"
+docker compose exec db psql -U nosilha -d nosilha_db -c "SELECT 1"
 ```
 
 **Port 5432 already in use**
@@ -47,9 +47,9 @@ kill -9 <PID>
 ```bash
 # Reset database completely (WARNING: deletes all data)
 cd infrastructure/docker
-docker-compose down -v
+docker compose down -v
 rm -rf ./data
-docker-compose up -d
+docker compose up -d
 ```
 
 ### Backend (Spring Boot)
@@ -58,7 +58,7 @@ docker-compose up -d
 
 | Check | Command |
 |-------|---------|
-| Container running | `docker-compose ps` |
+| Container running | `docker compose ps` |
 | Connection string | Verify `DATABASE_URL` in environment |
 | Port mapping | Ensure `5432:5432` in docker-compose.yml |
 
@@ -87,6 +87,25 @@ ls apps/api/src/main/resources/db/migration/
 
 # Check Kotlin style
 ./gradlew ktlintCheck
+```
+
+**Docker Compose file not found when running from IntelliJ**
+
+Symptom: `IllegalArgumentException: 'files' content [../../infrastructure/docker/docker-compose.yml] must exist`
+
+The relative path in `application-local.yml` is relative to `apps/api/`, but IntelliJ defaults the working directory to the project root.
+
+Fix: In IntelliJ, go to **Run > Edit Configurations** and set **Working directory** to `$MODULE_DIR$` (or the absolute path to `apps/api`).
+
+**Docker container name conflict on startup**
+
+Symptom: `The container name "/nosilha-postgres-local" is already in use`
+
+This happens when Docker Compose derives a project name from the directory name (e.g., `docker`) that differs from the one used when the container was originally created (e.g., `nosilha`).
+
+Fix: Ensure `infrastructure/docker/docker-compose.yml` has `name: nosilha` at the top level. If the conflict persists, remove the orphaned container:
+```bash
+docker rm nosilha-postgres-local
 ```
 
 ### Frontend (Next.js)
@@ -176,7 +195,7 @@ NEXT_PUBLIC_SUPABASE_USE_STUB=true pnpm run storybook
 **Connection timeout**
 ```bash
 # Test database connectivity
-docker-compose exec db psql -U nosilha -d nosilha_db -c "\conninfo"
+docker compose exec db psql -U nosilha -d nosilha_db -c "\conninfo"
 
 # Check connection pool settings
 # apps/api/src/main/resources/application.yml (HikariCP config)
@@ -188,7 +207,7 @@ docker-compose exec db psql -U nosilha -d nosilha_db -c "\conninfo"
 ./gradlew flywayMigrate
 
 # Check if tables exist
-docker-compose exec db psql -U nosilha -d nosilha_db -c "\dt"
+docker compose exec db psql -U nosilha -d nosilha_db -c "\dt"
 ```
 
 ### Single Table Inheritance Issues
@@ -196,7 +215,7 @@ docker-compose exec db psql -U nosilha -d nosilha_db -c "\dt"
 **Entity mapping errors**
 ```bash
 # Verify discriminator values match database entries
-docker-compose exec db psql -U nosilha -d nosilha_db \
+docker compose exec db psql -U nosilha -d nosilha_db \
   -c "SELECT DISTINCT entry_type FROM directory_entries"
 
 # Check entity annotations in:
@@ -380,7 +399,7 @@ npx @next/bundle-analyzer
 
 ```bash
 # Check database query performance
-docker-compose exec db psql -U nosilha -d nosilha_db \
+docker compose exec db psql -U nosilha -d nosilha_db \
   -c "SELECT * FROM pg_stat_statements ORDER BY total_time DESC LIMIT 10"
 
 # Monitor connection pool
@@ -411,7 +430,7 @@ curl http://localhost:8080/actuator/metrics/hikaricp.connections.active
 
 ```bash
 # Start local development
-cd infrastructure/docker && docker-compose up -d
+cd infrastructure/docker && docker compose up -d
 cd apps/api && ./gradlew bootRun --args='--spring.profiles.active=local'
 cd apps/web && pnpm dev
 
