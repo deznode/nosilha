@@ -122,11 +122,11 @@ export function GalleryQueueItem({
               </span>
               {aiStatus?.moderationStatus && (
                 <AiStatusBadge
-                  moderationStatus={aiStatus.moderationStatus as AiModerationStatus}
+                  moderationStatus={
+                    aiStatus.moderationStatus as AiModerationStatus
+                  }
                   onClick={
-                    onViewAiReview
-                      ? () => onViewAiReview(item.id)
-                      : undefined
+                    onViewAiReview ? () => onViewAiReview(item.id) : undefined
                   }
                 />
               )}

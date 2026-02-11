@@ -152,10 +152,7 @@ export default function AdminDashboardPage() {
   );
   const aiStatusQuery = useAiStatus(galleryMediaIds);
   const aiStatusMap = useMemo(
-    () =>
-      new Map(
-        (aiStatusQuery.data ?? []).map((s) => [s.mediaId, s])
-      ),
+    () => new Map((aiStatusQuery.data ?? []).map((s) => [s.mediaId, s])),
     [aiStatusQuery.data]
   );
 
@@ -450,11 +447,7 @@ export default function AdminDashboardPage() {
             >
               Gallery
             </Tab>
-            <Tab
-              icon={Sparkles}
-              badge={pendingAiReviews.length}
-              color="ochre"
-            >
+            <Tab icon={Sparkles} badge={pendingAiReviews.length} color="ochre">
               AI Review
             </Tab>
           </TabList>

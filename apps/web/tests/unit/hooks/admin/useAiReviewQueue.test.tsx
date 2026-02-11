@@ -40,9 +40,10 @@ describe("useAiReviewQueue", () => {
   it("fetches AI review queue with default page/size", async () => {
     vi.mocked(api.getAiReviewQueue).mockResolvedValue({
       items: mockItems,
-      totalCount: 1,
+      total: 1,
       page: 0,
-      size: 20,
+      pageSize: 20,
+      hasMore: false,
     });
 
     const { result } = renderHook(() => useAiReviewQueue(), { wrapper });
@@ -59,9 +60,10 @@ describe("useAiReviewQueue", () => {
   it("fetches with custom page and size", async () => {
     vi.mocked(api.getAiReviewQueue).mockResolvedValue({
       items: [],
-      totalCount: 0,
+      total: 0,
       page: 1,
-      size: 10,
+      pageSize: 10,
+      hasMore: false,
     });
 
     const { result } = renderHook(

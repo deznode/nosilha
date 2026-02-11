@@ -71,13 +71,28 @@ export function AiReviewDetailModal({
 
   // Fetch gallery media image
   useEffect(() => {
-    if (detail?.mediaId) {
+    if (!detail?.mediaId) return;
+
+    let cancelled = false;
+    const loadMedia = async () => {
+      if (cancelled) return;
       setIsMediaLoading(true);
-      getGalleryMediaById(detail.mediaId)
-        .then((media) => setMediaImage(media ?? null))
-        .catch(() => setMediaImage(null))
-        .finally(() => setIsMediaLoading(false));
-    }
+
+      try {
+        const media = await getGalleryMediaById(detail.mediaId);
+        if (!cancelled) setMediaImage(media ?? null);
+      } catch {
+        if (!cancelled) setMediaImage(null);
+      } finally {
+        if (!cancelled) setIsMediaLoading(false);
+      }
+    };
+
+    loadMedia();
+
+    return () => {
+      cancelled = true;
+    };
   }, [detail?.mediaId]);
 
   // Check if fields have been edited

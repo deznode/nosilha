@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, waitFor, act } from "@testing-library/react";
+import { renderHook, act } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   useApproveAiRun,
@@ -76,9 +76,7 @@ describe("AI Review Action Hooks", () => {
 
       const { result } = renderHook(() => useRejectAiRun(), { wrapper });
 
-      await act(() =>
-        result.current.mutateAsync({ runId: "run-1" })
-      );
+      await act(() => result.current.mutateAsync({ runId: "run-1" }));
 
       expect(api.rejectAiRun).toHaveBeenCalledWith("run-1", undefined);
     });
@@ -97,9 +95,7 @@ describe("AI Review Action Hooks", () => {
         tags: ["tag1", "tag2"],
       };
 
-      await act(() =>
-        result.current.mutateAsync({ runId: "run-1", request })
-      );
+      await act(() => result.current.mutateAsync({ runId: "run-1", request }));
 
       expect(api.approveEditedAiRun).toHaveBeenCalledWith("run-1", request);
     });

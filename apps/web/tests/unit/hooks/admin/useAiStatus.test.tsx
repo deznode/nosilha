@@ -50,10 +50,9 @@ describe("useAiStatus", () => {
   it("fetches status for provided mediaIds", async () => {
     vi.mocked(api.getAiStatus).mockResolvedValue(mockStatuses);
 
-    const { result } = renderHook(
-      () => useAiStatus(["media-1", "media-2"]),
-      { wrapper }
-    );
+    const { result } = renderHook(() => useAiStatus(["media-1", "media-2"]), {
+      wrapper,
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
@@ -63,14 +62,8 @@ describe("useAiStatus", () => {
 
   it("uses stable query key regardless of mediaIds order", () => {
     // The query key sorts mediaIds, so different orders should produce the same key
-    const { result: result1 } = renderHook(
-      () => useAiStatus(["media-2", "media-1"]),
-      { wrapper }
-    );
-    const { result: result2 } = renderHook(
-      () => useAiStatus(["media-1", "media-2"]),
-      { wrapper }
-    );
+    renderHook(() => useAiStatus(["media-2", "media-1"]), { wrapper });
+    renderHook(() => useAiStatus(["media-1", "media-2"]), { wrapper });
 
     // Both hooks should share the same cache entry since sorted keys match
     // We can verify they use the same queryKey by checking the cache

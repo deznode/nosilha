@@ -55,7 +55,12 @@ export const adminKeys = {
       [...adminKeys.all, "ai-review", { page, size, status }] as const,
     detail: (runId: string) => [...adminKeys.all, "ai-review", runId] as const,
     status: (mediaIds: string[]) =>
-      [...adminKeys.all, "ai-review", "status", { mediaIds: [...mediaIds].sort() }] as const,
+      [
+        ...adminKeys.all,
+        "ai-review",
+        "status",
+        { mediaIds: [...mediaIds].sort() },
+      ] as const,
   },
   contributors: () => [...adminKeys.all, "contributors"] as const,
   system: {
