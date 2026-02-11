@@ -1,0 +1,134 @@
+version: "3"
+
+vars:
+  API_DIR: apps/api
+  WEB_DIR: apps/web
+  DOCKER_COMPOSE: infrastructure/docker/docker-compose.yml
+
+tasks:
+  check:
+    desc: Check prerequisites — detect missing tools with install instructions
+    silent: true
+    cmds:
+      - |
+        missing=0
+
+        check_tool() {
+          if command -v "$1" &> /dev/null; then
+            printf "  ✓ %-10s %s\n" "$1" "$(eval "$3")"
+          else
+            printf "  ✗ %-10s missing — install with: %s\n" "$1" "$2"
+            missing=$((missing + 1))
+          fi
+        }
+
+        echo "Checking prerequisites..."
+        echo ""
+        check_tool "docker"  "brew install --cask docker"       "docker --version | head -1"
+        check_tool "node"    "nvm install 20"                   "node --version"
+        check_tool "pnpm"    "npm install -g pnpm"              "pnpm --version"
+        check_tool "java"    "sdk install java 25-open"         "java --version 2>&1 | head -1"
+        echo ""
+
+        if [ "$missing" -gt 0 ]; then
+          echo "⚠ $missing tool(s) missing. Install them and re-run: task check"
+          exit 1
+        else
+          echo "All prerequisites installed."
+        fi
+
+  setup:
+    desc: Full-stack setup — copy env templates, install web dependencies
+    cmds:
+      - task: setup:web
+
+  setup:web:
+    desc: Web setup — copy .env.local template if missing, install dependencies
+    cmds:
+      - |
+        if [ ! -f {{.WEB_DIR}}/.env.local ]; then
+          cp {{.WEB_DIR}}/.env.local.example {{.WEB_DIR}}/.env.local
+          echo "Created {{.WEB_DIR}}/.env.local from template"
+        else
+          echo "{{.WEB_DIR}}/.env.local already exists, skipping"
+        fi
+      - cd {{.WEB_DIR}} && pnpm install
+
+  setup:mock:
+    desc: Mock-mode setup — copy mock env template, install dependencies
+    cmds:
+      - cp {{.WEB_DIR}}/.env.local.mock {{.WEB_DIR}}/.env.local
+      - echo "Created {{.WEB_DIR}}/.env.local for mock mode"
+      - cd {{.WEB_DIR}} && pnpm install
+
+  dev:
+    desc: Full-stack dev — start API (auto-starts postgres) + web in parallel
+    deps:
+      - dev:api
+      - dev:web
+
+  dev:api:
+    desc: Start API server — auto-starts postgres via spring-boot-docker-compose
+    dir: "{{.API_DIR}}"
+    cmds:
+      - ./gradlew bootRun --args='--spring.profiles.active=local'
+
+  dev:web:
+    desc: Start web dev server with Turbopack
+    dir: "{{.WEB_DIR}}"
+    cmds:
+      - pnpm run dev
+
+  dev:db:
+    desc: Start database only — useful when backend is not needed
+    cmds:
+      - docker compose -f {{.DOCKER_COMPOSE}} up -d
+
+  test:
+    desc: Run all tests — API + web
+    cmds:
+      - task: test:api
+      - task: test:web
+
+  test:api:
+    desc: Run API tests (uses Testcontainers, not Docker Compose)
+    dir: "{{.API_DIR}}"
+    cmds:
+      - ./gradlew test
+
+  test:web:
+    desc: Run web lint, typecheck, and unit tests
+    dir: "{{.WEB_DIR}}"
+    cmds:
+      - pnpm run lint
+      - npx tsc --noEmit
+      - pnpm run test:unit
+
+  lint:
+    desc: Run all linters — ktlint + ESLint
+    cmds:
+      - task: lint:api
+      - task: lint:web
+
+  lint:api:
+    desc: Run Kotlin linter (ktlint)
+    dir: "{{.API_DIR}}"
+    cmds:
+      - ./gradlew ktlintCheck
+
+  lint:web:
+    desc: Run ESLint
+    dir: "{{.WEB_DIR}}"
+    cmds:
+      - pnpm run lint
+
+  stop:
+    desc: Stop database container
+    cmds:
+      - docker compose -f {{.DOCKER_COMPOSE}} down
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - cd {{.API_DIR}} && ./gradlew clean
+      - cd {{.WEB_DIR}} && rm -rf .next .velite

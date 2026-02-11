@@ -2,15 +2,20 @@
 
 ## Quick Start
 
-**Start services:**
+Using [Taskfile](https://taskfile.dev/) from the project root:
+
 ```bash
-cd infrastructure/docker && docker-compose up -d
-cd apps/api && ./gradlew bootRun --args='--spring.profiles.active=local'
+task check     # verify prerequisites
+task setup     # copy env templates, install web deps
+task dev       # start API (auto-starts postgres) + web in parallel
+task stop      # stop database container
 ```
 
-**Stop services:**
+Or manually:
+
 ```bash
-cd infrastructure/docker && docker-compose down
+cd apps/api && ./gradlew bootRun --args='--spring.profiles.active=local'
+# Spring Boot auto-starts postgres via spring-boot-docker-compose
 ```
 
 **Verify:** API at http://localhost:8080/api/v1/directory/
@@ -76,39 +81,6 @@ cd apps/api
 java -Dspring.profiles.active=local -jar build/libs/*-SNAPSHOT.jar
 ```
 
-## Docker Profiles (Optional)
-
-For full-stack containerized testing, optional profiles are available.
-
-### Backend Profile
-
-**One-time setup:**
-```bash
-cd apps/api && ./gradlew bootBuildImage --imageName=nosilha-backend:local
-```
-
-**Start:**
-```bash
-cd infrastructure/docker && docker-compose --profile backend up -d
-```
-
-### Frontend Profile
-
-**Setup:**
-1. Copy `.env.example` to `.env`
-2. Fill in: `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-
-**Start:**
-```bash
-cd infrastructure/docker && docker-compose --profile frontend up -d
-```
-
-### Full Stack
-
-```bash
-cd infrastructure/docker && docker-compose --profile frontend --profile backend up -d
-```
-
 ## Database Management
 
 ### Connection Details
@@ -127,12 +99,11 @@ Database data is stored in `infrastructure/docker/data/` and persists between co
 
 | Action | Command |
 |--------|---------|
-| Start DB | `docker-compose up -d` |
-| Stop all | `docker-compose down` |
-| View DB logs | `docker-compose logs -f db` |
-| Reset DB (destructive) | `docker-compose down -v` |
-| Connect psql | `docker-compose exec db psql -U nosilha -d nosilha_db` |
-| Rebuild backend image | `cd apps/api && ./gradlew bootBuildImage --imageName=nosilha-backend:local` |
+| Start DB | `task dev:db` or `docker compose up -d` |
+| Stop all | `task stop` or `docker compose down` |
+| View DB logs | `docker compose logs -f db` |
+| Reset DB (destructive) | `docker compose down -v` |
+| Connect psql | `docker compose exec db psql -U nosilha -d nosilha_db` |
 
 ## Troubleshooting
 
@@ -150,8 +121,8 @@ Database data is stored in `infrastructure/docker/data/` and persists between co
 ### Spring Boot Can't Connect
 
 - Ensure you're using the `local` profile
-- Verify the database container is running
-- Check connection details in `application-local.properties`
+- Verify the database container is running (`docker ps`)
+- Check `application-local.yml` has the `spring.docker.compose` section
 
 ### Flyway Migration Failures
 
@@ -159,17 +130,10 @@ Database data is stored in `infrastructure/docker/data/` and persists between co
 - Ensure database is empty for first migration
 - Review Flyway logs in application output
 
-### Backend Docker Issues
-
-- Port 8080 in use: `lsof -i :8080`
-- Image doesn't exist: Rebuild with `./gradlew bootBuildImage --imageName=nosilha-backend:local`
-- Can't connect to DB: Use service name `db:5432` (not localhost) in Docker network
-
 ### Performance Tips
 
-- Keep database running between sessions to avoid startup time
-- Use `./gradlew bootRun` for active backend development (faster than Docker)
-- Use `docker-compose down -v` to completely reset if encountering persistent issues
+- `lifecycle-management: start-only` keeps postgres running after app stops
+- Use `docker compose down -v` to completely reset if encountering persistent issues
 
 ## Production Notes
 
