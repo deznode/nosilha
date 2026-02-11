@@ -22,6 +22,15 @@ export { useAdminContributors } from "./useAdminContributors";
 export { useSystemHealth } from "./useSystemHealth";
 export type { SystemStatus, SystemHealthResponse } from "./useSystemHealth";
 
+export { useAiReviewQueue } from "./useAiReviewQueue";
+export { useAiRunDetail } from "./useAiRunDetail";
+export {
+  useApproveAiRun,
+  useRejectAiRun,
+  useApproveEditedAiRun,
+} from "./useAiReviewActions";
+export { useAiStatus } from "./useAiStatus";
+
 // Mutation hooks
 export { useUpdateSuggestionStatus } from "./useUpdateSuggestionStatus";
 export { useUpdateStoryStatus } from "./useUpdateStoryStatus";

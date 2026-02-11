@@ -10,6 +10,7 @@
 import type { SubmissionStatus } from "@/types/story";
 import type { ContactMessageStatus, MediaStatus } from "@/types/admin";
 import type { GalleryMediaStatus } from "@/types/gallery";
+import type { AiModerationStatus } from "@/types/ai";
 
 export const adminKeys = {
   all: ["admin"] as const,
@@ -47,6 +48,14 @@ export const adminKeys = {
     list: (page: number, size: number, status?: GalleryMediaStatus | "ALL") =>
       [...adminKeys.all, "gallery", { page, size, status }] as const,
     detail: (id: string) => [...adminKeys.all, "gallery", id] as const,
+  },
+  aiReview: {
+    all: () => [...adminKeys.all, "ai-review"] as const,
+    list: (page: number, size: number, status?: AiModerationStatus | "ALL") =>
+      [...adminKeys.all, "ai-review", { page, size, status }] as const,
+    detail: (runId: string) => [...adminKeys.all, "ai-review", runId] as const,
+    status: (mediaIds: string[]) =>
+      [...adminKeys.all, "ai-review", "status", { mediaIds: [...mediaIds].sort() }] as const,
   },
   contributors: () => [...adminKeys.all, "contributors"] as const,
   system: {
