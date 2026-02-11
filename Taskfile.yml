@@ -130,5 +130,17 @@ tasks:
   clean:
     desc: Clean build artifacts
     cmds:
-      - cd {{.API_DIR}} && ./gradlew clean
-      - cd {{.WEB_DIR}} && rm -rf .next .velite
+      - task: clean:api
+      - task: clean:web
+
+  clean:api:
+    desc: Clean API build artifacts
+    dir: "{{.API_DIR}}"
+    cmds:
+      - ./gradlew clean
+
+  clean:web:
+    desc: Clean web build artifacts
+    dir: "{{.WEB_DIR}}"
+    cmds:
+      - rm -rf .next .velite

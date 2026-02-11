@@ -111,12 +111,12 @@ Database data is stored in `infrastructure/docker/data/` and persists between co
 
 - Check if port 5432 is in use: `lsof -i :5432`
 - Ensure Docker Desktop is running
-- Check logs: `docker-compose logs db`
+- Check logs: `docker compose logs db`
 
 ### Connection Refused
 
 - Verify container is running: `docker ps`
-- Check container health: `docker-compose ps`
+- Check container health: `docker compose ps`
 
 ### Spring Boot Can't Connect
 
