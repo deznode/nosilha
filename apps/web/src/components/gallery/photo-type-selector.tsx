@@ -83,7 +83,10 @@ export function PhotoTypeSelector({
               />
               <div className="min-w-0 flex-1">
                 <div
-                  className={`text-sm font-semibold ${isSelected ? type.color : "text-body"}`}
+                  className={clsx(
+                    "text-sm font-semibold",
+                    isSelected ? type.color : "text-body"
+                  )}
                 >
                   {type.label}
                 </div>

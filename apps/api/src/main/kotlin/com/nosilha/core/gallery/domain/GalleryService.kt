@@ -37,8 +37,7 @@ private val logger = KotlinLogging.logger {}
  *
  * User Upload Flow:
  * 1. generatePresignedUrl - Generates presigned URL for direct R2 upload
- * 2. confirmUpload - Confirms upload and creates UserUploadedMedia record with PROCESSING status
- * 3. System transitions to PENDING_REVIEW after processing
+ * 2. confirmUpload - Confirms upload and creates UserUploadedMedia record with PENDING_REVIEW status
  *
  * External Media Flow:
  * 1. submitExternal - User submits external media for review (PENDING_REVIEW status)

@@ -130,11 +130,10 @@ export function ManualMetadataForm({
               value={value.locationName || ""}
               onChange={(e) => handleLocationChange(e.target.value)}
               onFocus={() => {
-                if (value.locationName && value.locationName.length > 0) {
+                const name = value.locationName;
+                if (name && name.length > 0) {
                   const filtered = BRAVA_LOCATIONS.filter((loc) =>
-                    loc
-                      .toLowerCase()
-                      .includes(value.locationName!.toLowerCase())
+                    loc.toLowerCase().includes(name.toLowerCase())
                   );
                   setFilteredLocations(filtered);
                   setShowSuggestions(filtered.length > 0);
