@@ -25,6 +25,9 @@ import type {
   ApproveEditedRequest,
   RejectRequest,
   AiStatusResponse,
+  AnalysisTriggerResponse,
+  AnalyzeBatchRequest,
+  BatchAnalysisTriggerResponse,
 } from "@/types/ai";
 import type {
   ProfileDto,
@@ -559,6 +562,28 @@ export interface ApiClient {
    */
   getAiStatus(mediaIds: string[]): Promise<AiStatusResponse[]>;
 
+  /**
+   * Trigger AI analysis for a single media item.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param mediaId UUID of the gallery media item
+   * @returns Trigger response with analysis run ID
+   */
+  triggerAnalysis(mediaId: string): Promise<AnalysisTriggerResponse>;
+
+  /**
+   * Trigger AI analysis for multiple media items in batch.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param request Batch request with media IDs
+   * @returns Batch response with accepted/rejected counts
+   */
+  triggerBatchAnalysis(
+    request: AnalyzeBatchRequest
+  ): Promise<BatchAnalysisTriggerResponse>;
+
   // ================================
   // GALLERY OPERATIONS (UNIFIED MEDIA)
   // ================================
@@ -867,4 +892,7 @@ export type {
   ApproveEditedRequest,
   RejectRequest,
   AiStatusResponse,
+  AnalysisTriggerResponse,
+  AnalyzeBatchRequest,
+  BatchAnalysisTriggerResponse,
 } from "@/types/ai";

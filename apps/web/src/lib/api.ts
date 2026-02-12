@@ -907,6 +907,30 @@ export async function getAiStatus(
   return apiClient.getAiStatus(mediaIds);
 }
 
+/**
+ * Triggers AI analysis for a single media item.
+ * Requires ADMIN role authentication.
+ * @param mediaId UUID of the gallery media item
+ * @returns Trigger response with analysis run ID
+ */
+export async function triggerAnalysis(
+  mediaId: string
+): Promise<import("@/types/ai").AnalysisTriggerResponse> {
+  return apiClient.triggerAnalysis(mediaId);
+}
+
+/**
+ * Triggers AI analysis for multiple media items in batch.
+ * Requires ADMIN role authentication.
+ * @param request Batch request with media IDs
+ * @returns Batch response with accepted/rejected counts
+ */
+export async function triggerBatchAnalysis(
+  request: import("@/types/ai").AnalyzeBatchRequest
+): Promise<import("@/types/ai").BatchAnalysisTriggerResponse> {
+  return apiClient.triggerBatchAnalysis(request);
+}
+
 // ================================
 // ADMIN MEDIA MODERATION OPERATIONS
 // ================================

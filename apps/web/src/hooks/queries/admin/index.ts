@@ -24,12 +24,17 @@ export type { SystemStatus, SystemHealthResponse } from "./useSystemHealth";
 
 export { useAiReviewQueue } from "./useAiReviewQueue";
 export { useAiRunDetail } from "./useAiRunDetail";
+export { useGalleryMediaById } from "./useGalleryMediaById";
 export {
   useApproveAiRun,
   useRejectAiRun,
   useApproveEditedAiRun,
 } from "./useAiReviewActions";
 export { useAiStatus } from "./useAiStatus";
+export {
+  useTriggerAnalysis,
+  useTriggerBatchAnalysis,
+} from "./useTriggerAnalysis";
 
 // Mutation hooks
 export { useUpdateSuggestionStatus } from "./useUpdateSuggestionStatus";

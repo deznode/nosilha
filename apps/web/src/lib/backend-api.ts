@@ -68,6 +68,9 @@ import type {
   ApproveEditedRequest,
   RejectRequest,
   AiStatusResponse,
+  AnalysisTriggerResponse,
+  AnalyzeBatchRequest,
+  BatchAnalysisTriggerResponse,
 } from "@/types/ai";
 import { CacheConfig } from "@/lib/api-contracts";
 import { env } from "@/lib/env";
@@ -2784,6 +2787,52 @@ export class BackendApiClient implements ApiClient {
 
     const payload = await response.json();
     return this.unwrapApiResponse<AiStatusResponse[]>(payload);
+  }
+
+  /**
+   * Trigger AI analysis for a single media item.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async triggerAnalysis(mediaId: string): Promise<AnalysisTriggerResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/${mediaId}/analyze`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to trigger AI analysis: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<AnalysisTriggerResponse>(payload);
+  }
+
+  /**
+   * Trigger AI analysis for multiple media items in batch.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async triggerBatchAnalysis(
+    request: AnalyzeBatchRequest
+  ): Promise<BatchAnalysisTriggerResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/analyze-batch`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to trigger batch AI analysis: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<BatchAnalysisTriggerResponse>(payload);
   }
 
   // ================================

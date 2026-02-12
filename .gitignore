@@ -86,7 +86,9 @@ k6-*.json
 .github/artifacts/
 
 # Playwright MCP cache (738MB+ - must be excluded)
+.playwright-output/
 .playwright-mcp/
+.playwright-cli/
 
 # Ideation prototype (nested git repo - temporary reference)
 nosilha-ideate/

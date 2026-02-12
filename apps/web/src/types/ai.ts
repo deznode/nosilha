@@ -102,3 +102,45 @@ export interface AiStatusResponse {
   aiProcessed: boolean;
   aiProcessedAt: string | null;
 }
+
+// ================================
+// TRIGGER TYPES
+// ================================
+
+/**
+ * Response from triggering AI analysis on a single media item.
+ * Mirrors AnalysisTriggerResponse.
+ */
+export interface AnalysisTriggerResponse {
+  mediaId: string;
+  analysisRunId: string;
+  status: string;
+}
+
+/**
+ * Request body for batch AI analysis trigger.
+ * Mirrors AnalyzeBatchRequest.
+ */
+export interface AnalyzeBatchRequest {
+  mediaIds: string[];
+}
+
+/**
+ * Response from batch AI analysis trigger.
+ * Mirrors BatchAnalysisTriggerResponse.
+ */
+export interface BatchAnalysisTriggerResponse {
+  batchId: string | null;
+  accepted: number;
+  rejected: number;
+  errors: BatchErrorDto[];
+}
+
+/**
+ * Error detail for a single item in a batch trigger.
+ * Mirrors BatchErrorDto.
+ */
+export interface BatchErrorDto {
+  mediaId: string;
+  reason: string;
+}

@@ -1820,6 +1820,29 @@ ${story.content
     await this.simulateDelay(200);
     return [];
   }
+
+  async triggerAnalysis(
+    mediaId: string
+  ): Promise<import("@/types/ai").AnalysisTriggerResponse> {
+    await this.simulateDelay(300);
+    return {
+      mediaId,
+      analysisRunId: crypto.randomUUID(),
+      status: "PENDING",
+    };
+  }
+
+  async triggerBatchAnalysis(
+    request: import("@/types/ai").AnalyzeBatchRequest
+  ): Promise<import("@/types/ai").BatchAnalysisTriggerResponse> {
+    await this.simulateDelay(500);
+    return {
+      batchId: crypto.randomUUID(),
+      accepted: request.mediaIds.length,
+      rejected: 0,
+      errors: [],
+    };
+  }
 }
 
 // Legacy synchronous functions for backward compatibility and build-time use

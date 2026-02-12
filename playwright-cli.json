@@ -1,0 +1,5 @@
+{
+  "browserName": "chromium",
+  "headless": false,
+  "outputDir": ".playwright-output"
+}
