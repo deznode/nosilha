@@ -144,6 +144,7 @@ export function ImageLightbox({
                       fill
                       className="object-contain"
                       priority
+                      unoptimized
                     />
                   </motion.div>
                 </AnimatePresence>
@@ -220,6 +221,7 @@ export function ImageLightbox({
                           alt={photo.alt}
                           fill
                           className="object-cover"
+                          unoptimized
                         />
                       </button>
                     ))}
