@@ -82,23 +82,23 @@ export async function extractMetadata(
     // Normalize the extracted data
     return {
       // GPS - exifr normalizes to decimal degrees
-      latitude: data.latitude ?? undefined,
-      longitude: data.longitude ?? undefined,
-      altitude: data.GPSAltitude ?? undefined,
+      latitude: data.latitude,
+      longitude: data.longitude,
+      altitude: data.GPSAltitude,
 
       // Date - prefer DateTimeOriginal, fall back to CreateDate
-      dateTimeOriginal: data.DateTimeOriginal ?? data.CreateDate ?? undefined,
+      dateTimeOriginal: data.DateTimeOriginal ?? data.CreateDate,
 
       // Camera info
-      make: data.Make ?? undefined,
-      model: data.Model ?? undefined,
+      make: data.Make,
+      model: data.Model,
 
       // Orientation (1-8, default 1 = normal)
       orientation: data.Orientation ?? 1,
 
       // Image dimensions - try multiple sources
-      width: data.ImageWidth ?? data.ExifImageWidth ?? undefined,
-      height: data.ImageHeight ?? data.ExifImageHeight ?? undefined,
+      width: data.ImageWidth ?? data.ExifImageWidth,
+      height: data.ImageHeight ?? data.ExifImageHeight,
     };
   } catch (error) {
     // Log for debugging but don't throw

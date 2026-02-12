@@ -7,6 +7,7 @@
  * Mobile-friendly with large touch targets.
  */
 
+import { clsx } from "clsx";
 import { MapPin, Users, Lock } from "lucide-react";
 import type { PhotoType } from "@/types/media";
 
@@ -67,11 +68,13 @@ export function PhotoTypeSelector({
               type="button"
               onClick={() => onChange(type.value)}
               disabled={disabled}
-              className={`rounded-card flex items-center gap-3 border-2 p-4 text-left transition-all ${
+              className={clsx(
+                "rounded-card flex min-h-[60px] items-center gap-3 border-2 p-4 text-left transition-all",
                 isSelected
-                  ? `border-current ${type.color} bg-surface shadow-subtle`
-                  : "border-hairline hover:bg-surface/50 hover:border-current"
-              } ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"} min-h-[60px]`}
+                  ? ["bg-surface shadow-subtle border-current", type.color]
+                  : "border-hairline hover:bg-surface/50 hover:border-current",
+                disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+              )}
               aria-pressed={isSelected}
             >
               <Icon

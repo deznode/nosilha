@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { clsx } from "clsx";
 import {
   ArrowLeft,
   Image as ImageIcon,
@@ -102,6 +103,16 @@ export default function MediaContributionPage() {
     uploadState === "uploading" ||
     uploadState === "confirming" ||
     videoSubmitting;
+
+  function getSubmitButtonLabel(): string {
+    if (uploadState === "extracting") return "Reading photo metadata...";
+    if (uploadState === "requesting-url") return "Preparing upload...";
+    if (uploadState === "uploading") return `Uploading ${progress}%...`;
+    if (uploadState === "confirming") return "Finalizing...";
+    if (videoSubmitting) return "Submitting video...";
+    if (requiresAuth) return "Sign in to Submit";
+    return "Add to Visual Record";
+  }
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -232,22 +243,24 @@ export default function MediaContributionPage() {
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, type: "IMAGE" })}
-                className={`rounded-card flex flex-1 items-center justify-center gap-2 py-3 text-xs font-bold transition-all ${
+                className={clsx(
+                  "rounded-card flex flex-1 items-center justify-center gap-2 py-3 text-xs font-bold transition-all",
                   formData.type === "IMAGE"
                     ? "bg-canvas text-ocean-blue shadow-subtle"
                     : "text-muted hover:text-body"
-                }`}
+                )}
               >
                 <ImageIcon size={14} /> Photograph
               </button>
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, type: "VIDEO" })}
-                className={`rounded-card flex flex-1 items-center justify-center gap-2 py-3 text-xs font-bold transition-all ${
+                className={clsx(
+                  "rounded-card flex flex-1 items-center justify-center gap-2 py-3 text-xs font-bold transition-all",
                   formData.type === "VIDEO"
                     ? "bg-canvas text-bougainvillea-pink shadow-subtle"
                     : "text-muted hover:text-body"
-                }`}
+                )}
               >
                 <Play size={14} /> Video / Podcast
               </button>
@@ -293,11 +306,12 @@ export default function MediaContributionPage() {
                       Image File
                     </label>
                     <div
-                      className={`rounded-card flex cursor-pointer flex-col items-center justify-center border-2 border-dashed p-8 text-center transition-all ${
+                      className={clsx(
+                        "rounded-card flex cursor-pointer flex-col items-center justify-center border-2 border-dashed p-8 text-center transition-all",
                         formData.preview
                           ? "border-valley-green bg-valley-green/5"
                           : "border-hairline hover:border-ocean-blue/50 hover:bg-surface"
-                      }`}
+                      )}
                       onClick={() =>
                         document.getElementById("media-upload")?.click()
                       }
@@ -467,16 +481,7 @@ export default function MediaContributionPage() {
                 }
                 className="rounded-card bg-body shadow-elevated hover:bg-ocean-blue flex w-full items-center justify-center gap-3 py-4 font-bold text-white transition-all disabled:opacity-30"
               >
-                {uploadState === "extracting" && "Reading photo metadata..."}
-                {uploadState === "requesting-url" && "Preparing upload..."}
-                {uploadState === "uploading" && `Uploading ${progress}%...`}
-                {uploadState === "confirming" && "Finalizing..."}
-                {videoSubmitting && "Submitting video..."}
-                {requiresAuth && "Sign in to Submit"}
-                {uploadState !== "extracting" &&
-                  !isSubmitting &&
-                  !requiresAuth &&
-                  "Add to Visual Record"}
+                {getSubmitButtonLabel()}
               </button>
             </div>
           </form>

@@ -169,17 +169,20 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
       }
     : null;
 
-  // Map upload state to our state
-  const effectiveState: PhotoUploadState =
-    state === "ready"
-      ? uploadState === "idle"
-        ? "ready"
-        : uploadState === "completed"
-          ? "completed"
-          : uploadState === "error"
-            ? "error"
-            : uploadState
-      : state;
+  // Map upload state to our combined state
+  function resolveEffectiveState(): PhotoUploadState {
+    if (state !== "ready") {
+      return state;
+    }
+
+    if (uploadState === "idle") return "ready";
+    if (uploadState === "completed") return "completed";
+    if (uploadState === "error") return "error";
+
+    return uploadState;
+  }
+
+  const effectiveState = resolveEffectiveState();
 
   // Combine errors
   const effectiveError = error || uploadError;

@@ -7,6 +7,7 @@
  * Used in the upload preview to show what data is available.
  */
 
+import { clsx } from "clsx";
 import {
   Calendar,
   Camera,
@@ -40,7 +41,10 @@ function Badge({ icon: Icon, label, variant }: BadgeProps) {
 
   return (
     <div
-      className={`rounded-button inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium ${variantClasses[variant]}`}
+      className={clsx(
+        "rounded-button inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium",
+        variantClasses[variant]
+      )}
     >
       <Icon size={12} className="flex-shrink-0" />
       <span className="truncate">{label}</span>

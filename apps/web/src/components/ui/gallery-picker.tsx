@@ -8,6 +8,7 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/react";
+import { clsx } from "clsx";
 import { X, Search, Check, ImageIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/catalyst-ui/button";
 import { Input } from "@/components/catalyst-ui/input";
@@ -188,11 +189,12 @@ export function GalleryPicker({
                         key={item.id}
                         type="button"
                         onClick={() => setSelectedItem(item)}
-                        className={`group focus:ring-ocean-blue relative aspect-square overflow-hidden rounded-lg border-2 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none ${
+                        className={clsx(
+                          "group focus:ring-ocean-blue relative aspect-square overflow-hidden rounded-lg border-2 transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none",
                           isSelected
                             ? "border-ocean-blue ring-ocean-blue/30 ring-2"
                             : "hover:border-edge border-transparent"
-                        }`}
+                        )}
                       >
                         <Image
                           src={imageUrl}
