@@ -167,7 +167,10 @@ class GalleryController(
      * Confirms a completed upload and creates the media metadata record.
      *
      * Called after the client successfully uploads to R2 using the presigned URL.
-     * Creates a UserUploadedMedia record with PROCESSING status.
+     * Creates a UserUploadedMedia record with PENDING_REVIEW status.
+     *
+     * Accepts EXIF metadata (privacy-processed client-side) and manual metadata
+     * for historical photos without EXIF data.
      */
     @PostMapping("/upload/confirm")
     @ResponseStatus(HttpStatus.CREATED)
@@ -176,7 +179,7 @@ class GalleryController(
         authentication: Authentication,
     ): ApiResult<GalleryMediaDto.UserUpload> {
         val userId = extractUserId(authentication)
-        logger.info { "Confirm upload from user $userId: key=${request.key}" }
+        logger.info { "Confirm upload from user $userId: key=${request.key}, photoType=${request.photoType}" }
 
         val media = galleryService.confirmUpload(
             key = request.key,
@@ -187,6 +190,22 @@ class GalleryController(
             category = request.category,
             description = request.description,
             userId = userId,
+            // EXIF metadata (privacy-processed)
+            latitude = request.latitude,
+            longitude = request.longitude,
+            altitude = request.altitude,
+            dateTaken = request.dateTaken,
+            cameraMake = request.cameraMake,
+            cameraModel = request.cameraModel,
+            orientation = request.orientation,
+            // Privacy tracking
+            photoType = request.photoType,
+            gpsPrivacyLevel = request.gpsPrivacyLevel,
+            // Manual metadata
+            approximateDate = request.approximateDate,
+            locationName = request.locationName,
+            photographerCredit = request.photographerCredit,
+            archiveSource = request.archiveSource,
         )
 
         return ApiResult(

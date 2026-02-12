@@ -44,6 +44,22 @@ export interface UploadOptions {
   category?: string;
   description?: string;
   onProgress?: (progress: UploadProgress) => void;
+  // EXIF metadata (privacy-processed)
+  latitude?: number;
+  longitude?: number;
+  altitude?: number;
+  dateTaken?: string; // ISO 8601
+  cameraMake?: string;
+  cameraModel?: string;
+  orientation?: number;
+  // Privacy tracking
+  photoType?: string;
+  gpsPrivacyLevel?: string;
+  // Manual metadata
+  approximateDate?: string;
+  locationName?: string;
+  photographerCredit?: string;
+  archiveSource?: string;
 }
 
 /**
@@ -225,6 +241,22 @@ export function useR2Upload(): UseR2UploadReturn {
           entryId: options?.entryId,
           category: options?.category,
           description: options?.description,
+          // EXIF metadata (privacy-processed)
+          latitude: options?.latitude,
+          longitude: options?.longitude,
+          altitude: options?.altitude,
+          dateTaken: options?.dateTaken,
+          cameraMake: options?.cameraMake,
+          cameraModel: options?.cameraModel,
+          orientation: options?.orientation,
+          // Privacy tracking
+          photoType: options?.photoType,
+          gpsPrivacyLevel: options?.gpsPrivacyLevel,
+          // Manual metadata
+          approximateDate: options?.approximateDate,
+          locationName: options?.locationName,
+          photographerCredit: options?.photographerCredit,
+          archiveSource: options?.archiveSource,
         };
         const media = await apiClient.current.confirmUpload(confirmRequest);
 
