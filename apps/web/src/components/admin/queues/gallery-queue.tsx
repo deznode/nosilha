@@ -16,6 +16,9 @@ interface GalleryQueueProps {
   onPromoteToHero?: (id: string) => void;
   aiStatuses?: Map<string, AiStatusResponse>;
   onViewAiReview?: (mediaId: string) => void;
+  onTriggerAnalysis?: (mediaId: string) => void;
+  isTriggerPending?: boolean;
+  triggeringMediaId?: string;
 }
 
 export function GalleryQueue({
@@ -25,6 +28,9 @@ export function GalleryQueue({
   onPromoteToHero,
   aiStatuses,
   onViewAiReview,
+  onTriggerAnalysis,
+  isTriggerPending,
+  triggeringMediaId,
 }: GalleryQueueProps) {
   if (isLoading) {
     return (
@@ -69,6 +75,9 @@ export function GalleryQueue({
           onPromoteToHero={onPromoteToHero}
           aiStatus={aiStatuses?.get(item.id)}
           onViewAiReview={onViewAiReview}
+          onTriggerAnalysis={onTriggerAnalysis}
+          isTriggerPending={isTriggerPending}
+          triggeringMediaId={triggeringMediaId}
         />
       ))}
     </div>

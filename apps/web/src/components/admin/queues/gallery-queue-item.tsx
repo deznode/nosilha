@@ -11,6 +11,8 @@ import {
   ExternalLink,
   Upload,
   Star,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
 import type { AiStatusResponse, AiModerationStatus } from "@/types/ai";
@@ -29,6 +31,9 @@ interface GalleryQueueItemProps {
   onPromoteToHero?: (id: string) => void;
   aiStatus?: AiStatusResponse;
   onViewAiReview?: (mediaId: string) => void;
+  onTriggerAnalysis?: (mediaId: string) => void;
+  isTriggerPending?: boolean;
+  triggeringMediaId?: string;
 }
 
 export function GalleryQueueItem({
@@ -37,6 +42,9 @@ export function GalleryQueueItem({
   onPromoteToHero,
   aiStatus,
   onViewAiReview,
+  onTriggerAnalysis,
+  isTriggerPending,
+  triggeringMediaId,
 }: GalleryQueueItemProps) {
   // Check if this item can be promoted to hero image
   const canPromoteToHero =
@@ -44,6 +52,15 @@ export function GalleryQueueItem({
     item.entryId &&
     item.publicUrl &&
     item.status === "ACTIVE";
+
+  // Check if this item is eligible for AI analysis
+  const isEligibleForAi =
+    isUserUploadMedia(item) &&
+    item.status === "ACTIVE" &&
+    !!item.publicUrl &&
+    aiStatus?.lastRunStatus !== "PROCESSING";
+
+  const isThisItemTriggering = isTriggerPending && triggeringMediaId === item.id;
   const getMediaIcon = () => {
     if (isExternalMedia(item)) {
       if (item.mediaType === "VIDEO") return <Video size={14} />;
@@ -211,6 +228,21 @@ export function GalleryQueueItem({
             >
               <Star data-slot="icon" />
               Set as Hero
+            </Button>
+          )}
+          {isEligibleForAi && onTriggerAnalysis && (
+            <Button
+              color="dark"
+              onClick={() => onTriggerAnalysis(item.id)}
+              disabled={isThisItemTriggering}
+              title="Trigger AI image analysis"
+            >
+              {isThisItemTriggering ? (
+                <Loader2 data-slot="icon" className="animate-spin" />
+              ) : (
+                <Sparkles data-slot="icon" />
+              )}
+              Analyze with AI
             </Button>
           )}
         </div>

@@ -56,6 +56,7 @@ import {
   usePromoteToHeroImage,
   useAiReviewQueue,
   useAiStatus,
+  useTriggerAnalysis,
 } from "@/hooks/queries/admin";
 import type {
   AdminStats,
@@ -134,6 +135,7 @@ export default function AdminDashboardPage() {
   const deleteDirectoryEntry = useDeleteDirectoryEntry();
   const updateGallery = useUpdateGalleryStatus();
   const promoteToHero = usePromoteToHeroImage();
+  const triggerAnalysis = useTriggerAnalysis();
 
   // Derived data with fallbacks
   const stats = statsQuery.data ?? defaultStats;
@@ -352,6 +354,17 @@ export default function AdminDashboardPage() {
     promoteToHero.mutate(mediaId);
   };
 
+  const handleTriggerAnalysis = (mediaId: string) => {
+    triggerAnalysis.mutate(mediaId, {
+      onSuccess: () => {
+        toast.success("AI analysis triggered").show();
+      },
+      onError: () => {
+        toast.error("Failed to trigger AI analysis. Please try again.").show();
+      },
+    });
+  };
+
   const handleAiReview = (runId: string) => {
     setSelectedAiRunId(runId);
     setIsAiReviewModalOpen(true);
@@ -495,6 +508,9 @@ export default function AdminDashboardPage() {
                 onPromoteToHero={handlePromoteToHero}
                 aiStatuses={aiStatusMap}
                 onViewAiReview={handleViewAiReview}
+                onTriggerAnalysis={handleTriggerAnalysis}
+                isTriggerPending={triggerAnalysis.isPending}
+                triggeringMediaId={triggerAnalysis.variables}
               />
             </TabPanel>
             <TabPanel>
