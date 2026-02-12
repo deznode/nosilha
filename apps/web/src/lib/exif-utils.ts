@@ -17,6 +17,7 @@ const EXIFR_OPTIONS = {
   tiff: true,
   exif: true,
   gps: true,
+  translateValues: false,
 
   // Disable segments we don't need
   iptc: false,
