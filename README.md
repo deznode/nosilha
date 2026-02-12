@@ -59,47 +59,22 @@
 
 ## Getting Started
 
-### Prerequisites
+The project uses [Taskfile](https://taskfile.dev/) to orchestrate development workflows. Install it with `brew install go-task`.
 
-#### Local Development
-- **Node.js 20.9+** (see `.nvmrc`) and **pnpm** ([install](https://pnpm.io/installation))
-- **Java 25** (OpenJDK or Oracle JDK)
-- **Docker** and Docker Compose
+### Quick Start
 
-#### Production Deployment
-- **Google Cloud SDK**
-- **Terraform**
-
-### Local Development Setup
-
-1. **Start infrastructure services**:
-   ```bash
-   cd infrastructure/docker && docker-compose up -d
-   ```
-   This starts PostgreSQL database (localhost:5432)
-
-2. **Backend setup**:
-   ```bash
-   cd apps/api
-   ./gradlew bootRun --args='--spring.profiles.active=local'
-   ```
-
-3. **Frontend setup**:
-   ```bash
-   cd apps/web
-   pnpm install
-   pnpm run dev
-   ```
-
-### Environment Variables
-
-Create `apps/web/.env.local` for frontend:
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:8080
-NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=your_token  # Required for maps
-NEXT_PUBLIC_SUPABASE_URL=your_url           # Required for auth
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key      # Required for auth
+task check    # Verify prerequisites (Docker, Node, pnpm, Java)
+task setup    # Copy web env template, install web dependencies
+cp apps/api/src/main/resources/application-local.yml.example apps/api/src/main/resources/application-local.yml
+task dev      # Start API (auto-starts postgres) + web in parallel
 ```
+
+The API uses Spring Boot Docker Compose integration to auto-start and configure PostgreSQL — no manual `docker-compose up` needed.
+
+**Frontend-only (no backend)?** Use `task setup:mock && task dev:web` to run with mock data.
+
+> **Full guide:** See [`docs/getting-started.md`](docs/getting-started.md) for prerequisites, environment variables, daily workflows, and troubleshooting.
 
 ### Application URLs
 
@@ -107,36 +82,15 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key      # Required for auth
 |---------|-----|
 | Frontend | http://localhost:3000 |
 | Backend API | http://localhost:8080/api/v1/ |
+| Swagger UI | http://localhost:8080/swagger-ui.html |
 | Health Check | http://localhost:8080/actuator/health |
-| PostgreSQL | localhost:5432 (`nosilha_db` / `nosilha` / `nosilha`) |
-
-### Verification
-
-```bash
-# Test backend health
-curl http://localhost:8080/actuator/health
-
-# Test API endpoint
-curl http://localhost:8080/api/v1/directory/entries
-
-# Check database
-docker-compose exec db psql -U nosilha -d nosilha_db -c "SELECT version();"
-```
+| PostgreSQL | `localhost:5432` (db: `nosilha_db`, user: `nosilha`, password: `nosilha`) |
 
 ### Running Tests
 
 ```bash
-# Backend tests
-cd apps/api && ./gradlew test
-
-# Frontend type checking and linting
-cd apps/web && pnpm run lint && npx tsc --noEmit
-
-# Frontend E2E tests (local only)
-cd apps/web && pnpm run test:e2e
-
-# Frontend unit tests
-cd apps/web && pnpm run test:unit
+task test     # Run all tests (API + web)
+task lint     # Run all linters (ktlint + ESLint)
 ```
 
 ### Production Deployment
@@ -152,6 +106,7 @@ cd apps/web && pnpm run test:unit
 
 | Document | Description |
 |----------|-------------|
+| [Getting Started](docs/getting-started.md) | Developer setup, prerequisites, daily workflows |
 | [Architecture](docs/architecture.md) | System design, components, data flow |
 | [Design System](docs/design-system.md) | UI components, styling, patterns |
 | [API Reference](docs/api-reference.md) | Backend endpoints and schemas |

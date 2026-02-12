@@ -29,14 +29,20 @@ See `docs/architecture.md` for detailed integration flows (auth, content managem
 
 ## Development Setup
 
-1. **Start infrastructure**: `cd infrastructure/docker && docker-compose up -d`
-2. **Backend**: `cd apps/api && ./gradlew bootRun --args='--spring.profiles.active=local'`
-3. **Frontend**: `cd apps/web && pnpm install && pnpm run dev`
+Uses [Taskfile](https://taskfile.dev/) for orchestration. Install: `brew install go-task`
+
+```bash
+task check     # verify prerequisites (Docker, Node, pnpm, Java)
+task setup     # copy env templates, install web deps
+task dev       # start API (auto-starts postgres) + web in parallel
+```
 
 **Environment files**: Copy templates before first run:
 
-- `infrastructure/docker/.env.example` → `.env`
+- `apps/api/src/main/resources/application-local.yml.example` → `application-local.yml`
 - `apps/web/.env.local.example` → `.env.local`
+
+Or run `task setup` which handles the web env file automatically.
 
 ## Development Commands
 
@@ -87,6 +93,7 @@ Domain-specific executors located in `.claude/skills/`. Each skill has detailed 
 | **Content & Heritage** | `authoring-content`, `planning-content`, `verifying-content` |
 | **Infrastructure** | `mapping-sites` |
 | **Research** | `web-searching` |
+| **Browser Testing** | `playwright:playwright-cli` (Claude Code plugin) |
 
 ### Slash Commands
 
@@ -98,6 +105,17 @@ Custom workflow triggers in `.claude/commands/`. Use syntax: `/command-name [arg
 
 - **Skills**: Use for executing tasks (writing code, content, infrastructure changes)
 - **Commands**: Use to trigger workflows and specialized operations
+
+### Playwright Verification
+
+Two Playwright capabilities exist — use the right one for the task:
+
+| Tool | When to Use | How |
+|------|-------------|-----|
+| **`playwright:playwright-cli` skill** | Ad-hoc feature verification — browse pages, click through flows, take screenshots | Invoke via `/playwright-cli` or the skill system |
+| **E2E test suite** | Pre-release regression testing — run the full automated test suite | `cd apps/web && pnpm run test:e2e` |
+
+Config: `playwright-cli.json` (project root) configures the CLI skill. `apps/web/playwright.config.ts` configures the test suite.
 
 ### Documentation Compliance
 

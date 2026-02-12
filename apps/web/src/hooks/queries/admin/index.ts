@@ -7,8 +7,8 @@
  * @see docs/STATE_MANAGEMENT.md for TanStack Query patterns
  */
 
-// Query key factory
-export { adminKeys } from "./keys";
+// Query key factory and shared helpers
+export { adminKeys, invalidateAiCaches } from "./keys";
 
 // Query hooks
 export { useAdminStats } from "./useAdminStats";
@@ -21,6 +21,20 @@ export { useAdminGallery } from "./useAdminGallery";
 export { useAdminContributors } from "./useAdminContributors";
 export { useSystemHealth } from "./useSystemHealth";
 export type { SystemStatus, SystemHealthResponse } from "./useSystemHealth";
+
+export { useAiReviewQueue } from "./useAiReviewQueue";
+export { useAiRunDetail } from "./useAiRunDetail";
+export { useGalleryMediaById } from "./useGalleryMediaById";
+export {
+  useApproveAiRun,
+  useRejectAiRun,
+  useApproveEditedAiRun,
+} from "./useAiReviewActions";
+export { useAiStatus } from "./useAiStatus";
+export {
+  useTriggerAnalysis,
+  useTriggerBatchAnalysis,
+} from "./useTriggerAnalysis";
 
 // Mutation hooks
 export { useUpdateSuggestionStatus } from "./useUpdateSuggestionStatus";

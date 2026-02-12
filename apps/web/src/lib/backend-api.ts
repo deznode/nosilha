@@ -62,6 +62,16 @@ import type {
   UpdateGalleryStatusRequest,
   ExternalMedia,
 } from "@/types/gallery";
+import type {
+  AnalysisRunSummary,
+  AnalysisRunDetail,
+  ApproveEditedRequest,
+  RejectRequest,
+  AiStatusResponse,
+  AnalysisTriggerResponse,
+  AnalyzeBatchRequest,
+  BatchAnalysisTriggerResponse,
+} from "@/types/ai";
 import { CacheConfig } from "@/lib/api-contracts";
 import { env } from "@/lib/env";
 import { supabase } from "@/lib/supabase-client";
@@ -2641,6 +2651,190 @@ export class BackendApiClient implements ApiClient {
       }
       throw new Error(`Failed to promote to hero image: ${response.status}`);
     }
+  }
+
+  // ================================
+  // ADMIN AI REVIEW OPERATIONS
+  // ================================
+
+  /**
+   * Get AI analysis runs pending admin review.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async getAiReviewQueue(
+    page: number = 0,
+    size: number = 20
+  ): Promise<AdminQueueResponse<AnalysisRunSummary>> {
+    const params = new URLSearchParams();
+    params.append("page", String(page));
+    params.append("size", String(size));
+
+    const endpoint = `${env.apiUrl}/api/v1/admin/ai/review-queue?${params.toString()}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch AI review queue: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.transformAdminQueueResponse<AnalysisRunSummary>(payload);
+  }
+
+  /**
+   * Get detailed AI output for a single analysis run.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async getAiRunDetail(runId: string): Promise<AnalysisRunDetail> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/ai/review/${runId}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch AI run detail: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<AnalysisRunDetail>(payload);
+  }
+
+  /**
+   * Approve AI results as-is.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async approveAiRun(runId: string): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/ai/review/${runId}/approve`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to approve AI run: ${response.status}`);
+    }
+  }
+
+  /**
+   * Reject AI results.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async rejectAiRun(runId: string, request?: RejectRequest): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/ai/review/${runId}/reject`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: request ? JSON.stringify(request) : undefined,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to reject AI run: ${response.status}`);
+    }
+  }
+
+  /**
+   * Approve AI results with admin edits.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async approveEditedAiRun(
+    runId: string,
+    request: ApproveEditedRequest
+  ): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/ai/review/${runId}/approve-edited`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to approve edited AI run: ${response.status}`);
+    }
+  }
+
+  /**
+   * Batch fetch AI processing status for multiple media items.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async getAiStatus(mediaIds: string[]): Promise<AiStatusResponse[]> {
+    const params = new URLSearchParams();
+    mediaIds.forEach((id) => params.append("mediaIds", id));
+
+    const endpoint = `${env.apiUrl}/api/v1/admin/ai/status?${params.toString()}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch AI status: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<AiStatusResponse[]>(payload);
+  }
+
+  /**
+   * Trigger AI analysis for a single media item.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async triggerAnalysis(mediaId: string): Promise<AnalysisTriggerResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/${mediaId}/analyze`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to trigger AI analysis: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<AnalysisTriggerResponse>(payload);
+  }
+
+  /**
+   * Trigger AI analysis for multiple media items in batch.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async triggerBatchAnalysis(
+    request: AnalyzeBatchRequest
+  ): Promise<BatchAnalysisTriggerResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/analyze-batch`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to trigger batch AI analysis: ${response.status}`
+      );
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<BatchAnalysisTriggerResponse>(payload);
   }
 
   // ================================

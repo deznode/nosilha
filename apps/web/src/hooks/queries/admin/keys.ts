@@ -7,9 +7,11 @@
  * @see docs/STATE_MANAGEMENT.md for query key conventions
  */
 
+import type { QueryClient } from "@tanstack/react-query";
 import type { SubmissionStatus } from "@/types/story";
 import type { ContactMessageStatus, MediaStatus } from "@/types/admin";
 import type { GalleryMediaStatus } from "@/types/gallery";
+import type { AiModerationStatus } from "@/types/ai";
 
 export const adminKeys = {
   all: ["admin"] as const,
@@ -48,9 +50,32 @@ export const adminKeys = {
       [...adminKeys.all, "gallery", { page, size, status }] as const,
     detail: (id: string) => [...adminKeys.all, "gallery", id] as const,
   },
+  aiReview: {
+    all: () => [...adminKeys.all, "ai-review"] as const,
+    list: (page: number, size: number, status?: AiModerationStatus | "ALL") =>
+      [...adminKeys.all, "ai-review", { page, size, status }] as const,
+    detail: (runId: string) => [...adminKeys.all, "ai-review", runId] as const,
+    status: (mediaIds: string[]) =>
+      [
+        ...adminKeys.all,
+        "ai-review",
+        "status",
+        { mediaIds: [...mediaIds].sort() },
+      ] as const,
+  },
   contributors: () => [...adminKeys.all, "contributors"] as const,
   system: {
     all: () => [...adminKeys.all, "system"] as const,
     health: () => [...adminKeys.all, "system", "health"] as const,
   },
 };
+
+/**
+ * Invalidates AI review, gallery, and system caches after an AI moderation
+ * or trigger action. Shared by review action and trigger mutation hooks.
+ */
+export function invalidateAiCaches(queryClient: QueryClient): void {
+  queryClient.invalidateQueries({ queryKey: adminKeys.aiReview.all() });
+  queryClient.invalidateQueries({ queryKey: adminKeys.gallery.all() });
+  queryClient.invalidateQueries({ queryKey: adminKeys.system.all() });
+}

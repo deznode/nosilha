@@ -827,6 +827,111 @@ export async function promoteToHeroImage(mediaId: string): Promise<void> {
 }
 
 // ================================
+// ADMIN AI REVIEW OPERATIONS
+// ================================
+
+/**
+ * Gets AI analysis runs pending admin review.
+ * Requires ADMIN role authentication.
+ * @param page Page number (default: 0)
+ * @param size Page size (default: 20)
+ * @returns Paginated list of analysis run summaries
+ */
+export async function getAiReviewQueue(
+  page?: number,
+  size?: number
+): Promise<
+  import("@/types/admin").AdminQueueResponse<
+    import("@/types/ai").AnalysisRunSummary
+  >
+> {
+  return apiClient.getAiReviewQueue(page, size);
+}
+
+/**
+ * Gets detailed AI output for a single analysis run.
+ * Requires ADMIN role authentication.
+ * @param runId Analysis run ID
+ * @returns Full analysis run detail
+ */
+export async function getAiRunDetail(
+  runId: string
+): Promise<import("@/types/ai").AnalysisRunDetail> {
+  return apiClient.getAiRunDetail(runId);
+}
+
+/**
+ * Approves AI results as-is.
+ * Requires ADMIN role authentication.
+ * @param runId Analysis run ID
+ */
+export async function approveAiRun(runId: string): Promise<void> {
+  return apiClient.approveAiRun(runId);
+}
+
+/**
+ * Rejects AI results.
+ * Requires ADMIN role authentication.
+ * @param runId Analysis run ID
+ * @param request Optional rejection notes
+ */
+export async function rejectAiRun(
+  runId: string,
+  request?: import("@/types/ai").RejectRequest
+): Promise<void> {
+  return apiClient.rejectAiRun(runId, request);
+}
+
+/**
+ * Approves AI results with admin edits.
+ * Requires ADMIN role authentication.
+ * @param runId Analysis run ID
+ * @param request Edited fields to apply
+ */
+export async function approveEditedAiRun(
+  runId: string,
+  request: import("@/types/ai").ApproveEditedRequest
+): Promise<void> {
+  return apiClient.approveEditedAiRun(runId, request);
+}
+
+/**
+ * Batch fetches AI processing status for multiple media items.
+ * Requires ADMIN role authentication.
+ * @param mediaIds Array of media item IDs to check
+ * @returns AI status for each media item
+ */
+export async function getAiStatus(
+  mediaIds: string[]
+): Promise<import("@/types/ai").AiStatusResponse[]> {
+  return apiClient.getAiStatus(mediaIds);
+}
+
+/**
+ * Triggers AI analysis for a single media item.
+ * Requires ADMIN role authentication.
+ * @param mediaId UUID of the gallery media item
+ * @returns Trigger response with analysis run ID
+ */
+export async function triggerAnalysis(
+  mediaId: string
+): Promise<import("@/types/ai").AnalysisTriggerResponse> {
+  return apiClient.triggerAnalysis(mediaId);
+}
+
+/**
+ * Triggers AI analysis for multiple media items in batch.
+ * Requires ADMIN role authentication.
+ * @param request Batch request with media IDs
+ * @returns Batch response with accepted/rejected counts
+ */
+export async function triggerBatchAnalysis(
+  request: import("@/types/ai").AnalyzeBatchRequest
+): Promise<import("@/types/ai").BatchAnalysisTriggerResponse> {
+  return apiClient.triggerBatchAnalysis(request);
+}
+
+// ================================
 // ADMIN MEDIA MODERATION OPERATIONS
 // ================================
 // NOTE: Old admin media operations have been replaced by unified gallery
