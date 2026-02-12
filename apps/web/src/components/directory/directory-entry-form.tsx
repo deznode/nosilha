@@ -33,6 +33,7 @@ import {
 } from "@/app/actions/gemini-actions";
 import { submitDirectoryEntry, updateDirectoryEntry } from "@/lib/api";
 import { ImageUploader } from "@/components/ui/image-uploader";
+import { GalleryPicker } from "@/components/ui/gallery-picker";
 import { Input } from "@/components/catalyst-ui/input";
 import { Field, Label, ErrorMessage } from "@/components/catalyst-ui/fieldset";
 import { Textarea } from "@/components/ui/textarea";
@@ -168,6 +169,7 @@ export function DirectoryEntryForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [geminiAvailable, setGeminiAvailable] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isGalleryPickerOpen, setIsGalleryPickerOpen] = useState(false);
 
   // Only require auth for create mode (edit mode is already admin-only)
   const requiresAuth = mode === "create" && !authLoading && !user;
@@ -562,6 +564,19 @@ export function DirectoryEntryForm({
               autoUpload={true}
               initialUrl={formData.imageUrl}
             />
+            {mode === "edit" && (
+              <div className="mt-3">
+                <Button
+                  type="button"
+                  plain
+                  onClick={() => setIsGalleryPickerOpen(true)}
+                  className="text-ocean-blue"
+                >
+                  <ImageIcon data-slot="icon" />
+                  Select from Gallery
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Coordinates (collapsed) */}
@@ -608,6 +623,18 @@ export function DirectoryEntryForm({
             {getSubmitButtonText(isSubmitting, mode)}
           </Button>
         </div>
+
+        {/* Gallery Picker Modal */}
+        {mode === "edit" && (
+          <GalleryPicker
+            isOpen={isGalleryPickerOpen}
+            onClose={() => setIsGalleryPickerOpen(false)}
+            onSelect={(url) => {
+              setValue("imageUrl", url);
+              setIsGalleryPickerOpen(false);
+            }}
+          />
+        )}
       </form>
     );
   }
