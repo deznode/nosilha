@@ -93,6 +93,7 @@ Domain-specific executors located in `.claude/skills/`. Each skill has detailed 
 | **Content & Heritage** | `authoring-content`, `planning-content`, `verifying-content` |
 | **Infrastructure** | `mapping-sites` |
 | **Research** | `web-searching` |
+| **Browser Testing** | `playwright:playwright-cli` (Claude Code plugin) |
 
 ### Slash Commands
 
@@ -104,6 +105,17 @@ Custom workflow triggers in `.claude/commands/`. Use syntax: `/command-name [arg
 
 - **Skills**: Use for executing tasks (writing code, content, infrastructure changes)
 - **Commands**: Use to trigger workflows and specialized operations
+
+### Playwright Verification
+
+Two Playwright capabilities exist — use the right one for the task:
+
+| Tool | When to Use | How |
+|------|-------------|-----|
+| **`playwright:playwright-cli` skill** | Ad-hoc feature verification — browse pages, click through flows, take screenshots | Invoke via `/playwright-cli` or the skill system |
+| **E2E test suite** | Pre-release regression testing — run the full automated test suite | `cd apps/web && pnpm run test:e2e` |
+
+Config: `playwright-cli.json` (project root) configures the CLI skill. `apps/web/playwright.config.ts` configures the test suite.
 
 ### Documentation Compliance
 

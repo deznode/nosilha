@@ -87,6 +87,7 @@ k6-*.json
 
 # Playwright MCP cache (738MB+ - must be excluded)
 .playwright-output/
+playwright-output/
 .playwright-mcp/
 .playwright-cli/
 

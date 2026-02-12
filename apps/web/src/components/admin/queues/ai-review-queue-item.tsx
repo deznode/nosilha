@@ -1,8 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import { Sparkles, Clock } from "lucide-react";
 import type { AnalysisRunSummary } from "@/types/ai";
 import { Button } from "@/components/catalyst-ui/button";
+import { useGalleryMediaById } from "@/hooks/queries/admin";
 
 interface AiReviewQueueItemProps {
   item: AnalysisRunSummary;
@@ -13,12 +15,30 @@ export function AiReviewQueueItem({ item, onReview }: AiReviewQueueItemProps) {
   const maxTags = 5;
   const visibleTags = item.resultTags.slice(0, maxTags);
   const overflowCount = item.resultTags.length - maxTags;
+  const { imageUrl, isLoading: isMediaLoading } = useGalleryMediaById(
+    item.mediaId
+  );
 
   return (
     <div className="border-hairline bg-surface flex items-start gap-4 rounded-xl border p-4 transition-shadow hover:shadow-md">
-      {/* AI Icon */}
-      <div className="bg-surface-alt flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-lg">
-        <Sparkles size={24} className="text-muted" />
+      {/* Thumbnail */}
+      <div className="relative flex h-20 w-20 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg">
+        {isMediaLoading ? (
+          <div className="bg-surface-alt h-full w-full animate-pulse" />
+        ) : imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt={item.resultAltText ?? "Media preview"}
+            fill
+            className="object-cover"
+            sizes="80px"
+            unoptimized
+          />
+        ) : (
+          <div className="bg-surface-alt flex h-full w-full items-center justify-center">
+            <Sparkles size={24} className="text-muted" />
+          </div>
+        )}
       </div>
 
       {/* Content */}
