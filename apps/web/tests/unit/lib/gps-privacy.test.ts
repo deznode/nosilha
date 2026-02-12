@@ -48,7 +48,10 @@ describe("gps-privacy", () => {
       });
 
       it("should handle coordinates with fewer decimals", () => {
-        const result = applyGpsPrivacy(createCoords(14.86, -24.7), "CULTURAL_SITE");
+        const result = applyGpsPrivacy(
+          createCoords(14.86, -24.7),
+          "CULTURAL_SITE"
+        );
 
         expect(result.latitude).toBe(14.86);
         expect(result.longitude).toBe(-24.7);
@@ -162,15 +165,20 @@ describe("gps-privacy", () => {
 
       it("should handle extreme precision values", () => {
         const result = applyGpsPrivacy(
-          createCoords(14.8672345678901234567890, -24.7045678901234567890),
+          createCoords(14.867234567890123456789, -24.704567890123456789),
           "CULTURAL_SITE"
         );
 
-        expect(result.latitude?.toString().split(".")[1]?.length).toBeLessThanOrEqual(6);
+        expect(
+          result.latitude?.toString().split(".")[1]?.length
+        ).toBeLessThanOrEqual(6);
       });
 
       it("should treat unknown photo type as PERSONAL (most restrictive)", () => {
-        const result = applyGpsPrivacy(BRAVA_COORDS, "UNKNOWN_TYPE" as PhotoType);
+        const result = applyGpsPrivacy(
+          BRAVA_COORDS,
+          "UNKNOWN_TYPE" as PhotoType
+        );
 
         expect(result.gpsPrivacyLevel).toBe("STRIPPED");
         expect(result.latitude).toBeUndefined();
@@ -194,7 +202,9 @@ describe("gps-privacy", () => {
     });
 
     it("should return correct description for APPROXIMATE", () => {
-      expect(getPrivacyDescription("APPROXIMATE")).toBe("Location rounded to ~100m");
+      expect(getPrivacyDescription("APPROXIMATE")).toBe(
+        "Location rounded to ~100m"
+      );
     });
 
     it("should return correct description for STRIPPED", () => {
@@ -246,8 +256,12 @@ describe("gps-privacy", () => {
     });
 
     it("should return true for coordinates at bounds", () => {
-      expect(isWithinBravaIsland(BRAVA_BOUNDS.minLat, BRAVA_BOUNDS.minLon)).toBe(true);
-      expect(isWithinBravaIsland(BRAVA_BOUNDS.maxLat, BRAVA_BOUNDS.maxLon)).toBe(true);
+      expect(
+        isWithinBravaIsland(BRAVA_BOUNDS.minLat, BRAVA_BOUNDS.minLon)
+      ).toBe(true);
+      expect(
+        isWithinBravaIsland(BRAVA_BOUNDS.maxLat, BRAVA_BOUNDS.maxLon)
+      ).toBe(true);
     });
 
     it("should return false for coordinates outside Brava", () => {
@@ -259,8 +273,12 @@ describe("gps-privacy", () => {
     });
 
     it("should return false for coordinates just outside bounds", () => {
-      expect(isWithinBravaIsland(BRAVA_BOUNDS.minLat - 0.01, -24.7)).toBe(false);
-      expect(isWithinBravaIsland(14.85, BRAVA_BOUNDS.minLon - 0.01)).toBe(false);
+      expect(isWithinBravaIsland(BRAVA_BOUNDS.minLat - 0.01, -24.7)).toBe(
+        false
+      );
+      expect(isWithinBravaIsland(14.85, BRAVA_BOUNDS.minLon - 0.01)).toBe(
+        false
+      );
     });
   });
 });

@@ -7,7 +7,14 @@
  * Used in the upload preview to show what data is available.
  */
 
-import { Calendar, Camera, MapPin, MapPinOff, AlertCircle, FileEdit } from "lucide-react";
+import {
+  Calendar,
+  Camera,
+  MapPin,
+  MapPinOff,
+  AlertCircle,
+  FileEdit,
+} from "lucide-react";
 import type { PhotoMetadata, GpsPrivacyLevel } from "@/types/media";
 import { formatCameraInfo } from "@/lib/exif-utils";
 
@@ -102,7 +109,11 @@ export function MetadataBadges({
       <Badge
         icon={Calendar}
         label={dateLabel}
-        variant={metadata.dateTimeOriginal || metadata.approximateDate ? "neutral" : "muted"}
+        variant={
+          metadata.dateTimeOriginal || metadata.approximateDate
+            ? "neutral"
+            : "muted"
+        }
       />
 
       {/* Camera badge */}

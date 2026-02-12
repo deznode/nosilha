@@ -67,16 +67,11 @@ export function PhotoTypeSelector({
               type="button"
               onClick={() => onChange(type.value)}
               disabled={disabled}
-              className={`
-                rounded-card flex items-center gap-3 border-2 p-4 text-left transition-all
-                ${
-                  isSelected
-                    ? `border-current ${type.color} bg-surface shadow-subtle`
-                    : "border-hairline hover:border-current hover:bg-surface/50"
-                }
-                ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"}
-                min-h-[60px]
-              `}
+              className={`rounded-card flex items-center gap-3 border-2 p-4 text-left transition-all ${
+                isSelected
+                  ? `border-current ${type.color} bg-surface shadow-subtle`
+                  : "border-hairline hover:bg-surface/50 hover:border-current"
+              } ${disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"} min-h-[60px]`}
               aria-pressed={isSelected}
             >
               <Icon

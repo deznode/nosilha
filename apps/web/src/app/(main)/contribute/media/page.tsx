@@ -13,7 +13,7 @@ import {
   Link as LinkIcon,
   AlertCircle,
 } from "lucide-react";
-import type { MediaType, PhotoType, ManualMetadata } from "@/types/media";
+import type { MediaType, ManualMetadata } from "@/types/media";
 import type { ExternalPlatform } from "@/types/gallery";
 import { usePhotoUpload } from "@/hooks/usePhotoUpload";
 import { BackendApiClient } from "@/lib/backend-api";
@@ -473,7 +473,10 @@ export default function MediaContributionPage() {
                 {uploadState === "confirming" && "Finalizing..."}
                 {videoSubmitting && "Submitting video..."}
                 {requiresAuth && "Sign in to Submit"}
-                {uploadState !== "extracting" && !isSubmitting && !requiresAuth && "Add to Visual Record"}
+                {uploadState !== "extracting" &&
+                  !isSubmitting &&
+                  !requiresAuth &&
+                  "Add to Visual Record"}
               </button>
             </div>
           </form>

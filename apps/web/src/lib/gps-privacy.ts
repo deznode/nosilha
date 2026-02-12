@@ -93,9 +93,7 @@ export function applyGpsPrivacy(
           metadata.longitude,
           GPS_PRECISION.APPROXIMATE
         ),
-        altitude: metadata.altitude
-          ? Math.round(metadata.altitude)
-          : undefined,
+        altitude: metadata.altitude ? Math.round(metadata.altitude) : undefined,
         gpsPrivacyLevel: "APPROXIMATE",
       };
 

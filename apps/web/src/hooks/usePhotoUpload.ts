@@ -7,7 +7,7 @@
  * Handles GPS privacy transformation and manual metadata for historical photos.
  */
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { useR2Upload, type UploadResult } from "./useR2Upload";
 import { extractMetadata } from "@/lib/exif-utils";
 import { applyGpsPrivacy, type GpsPrivacyResult } from "@/lib/gps-privacy";
@@ -187,32 +187,35 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
   /**
    * Select a file and extract metadata
    */
-  const selectFile = useCallback(async (newFile: File) => {
-    // Cleanup previous preview
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
+  const selectFile = useCallback(
+    async (newFile: File) => {
+      // Cleanup previous preview
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
 
-    setFile(newFile);
-    setError(null);
-    setManualMetadataState({});
-    setState("extracting");
+      setFile(newFile);
+      setError(null);
+      setManualMetadataState({});
+      setState("extracting");
 
-    // Create preview URL
-    const preview = URL.createObjectURL(newFile);
-    setPreviewUrl(preview);
+      // Create preview URL
+      const preview = URL.createObjectURL(newFile);
+      setPreviewUrl(preview);
 
-    try {
-      // Extract EXIF metadata
-      const exif = await extractMetadata(newFile);
-      setExtractedExif(exif);
-      setState("ready");
-    } catch (err) {
-      console.warn("EXIF extraction failed:", err);
-      setExtractedExif(null);
-      setState("ready");
-    }
-  }, []);
+      try {
+        // Extract EXIF metadata
+        const exif = await extractMetadata(newFile);
+        setExtractedExif(exif);
+        setState("ready");
+      } catch (err) {
+        console.warn("EXIF extraction failed:", err);
+        setExtractedExif(null);
+        setState("ready");
+      }
+    },
+    [previewUrl]
+  );
 
   /**
    * Change photo type (updates GPS privacy)
@@ -289,7 +292,7 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
     setError(null);
     setState("idle");
     r2Reset();
-  }, [r2Reset]);
+  }, [previewUrl, r2Reset]);
 
   return {
     state: effectiveState,

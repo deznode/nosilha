@@ -8,7 +8,14 @@
  */
 
 import { useState } from "react";
-import { Calendar, MapPin, User, Archive, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  User,
+  Archive,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import type { ManualMetadata } from "@/types/media";
 
 interface ManualMetadataFormProps {
@@ -95,7 +102,7 @@ export function ManualMetadataForm({
 
       {/* Form fields */}
       {expanded && (
-        <div className="space-y-4 border-t border-hairline px-4 pb-4 pt-3">
+        <div className="border-hairline space-y-4 border-t px-4 pt-3 pb-4">
           {/* Approximate Date */}
           <div>
             <label className="text-muted mb-1.5 flex items-center gap-1.5 text-xs font-medium">
@@ -107,7 +114,7 @@ export function ManualMetadataForm({
               placeholder="e.g., circa 1960s, Summer 1985"
               value={value.approximateDate || ""}
               onChange={(e) => onChange({ approximateDate: e.target.value })}
-              className="border-hairline bg-canvas text-body rounded-card w-full border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ocean-blue/50"
+              className="border-hairline bg-canvas text-body rounded-card focus:ring-ocean-blue/50 w-full border px-3 py-2 text-sm outline-none focus:ring-2"
             />
           </div>
 
@@ -125,7 +132,9 @@ export function ManualMetadataForm({
               onFocus={() => {
                 if (value.locationName && value.locationName.length > 0) {
                   const filtered = BRAVA_LOCATIONS.filter((loc) =>
-                    loc.toLowerCase().includes(value.locationName!.toLowerCase())
+                    loc
+                      .toLowerCase()
+                      .includes(value.locationName!.toLowerCase())
                   );
                   setFilteredLocations(filtered);
                   setShowSuggestions(filtered.length > 0);
@@ -138,7 +147,7 @@ export function ManualMetadataForm({
                 // Delay to allow click on suggestion
                 setTimeout(() => setShowSuggestions(false), 200);
               }}
-              className="border-hairline bg-canvas text-body rounded-card w-full border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ocean-blue/50"
+              className="border-hairline bg-canvas text-body rounded-card focus:ring-ocean-blue/50 w-full border px-3 py-2 text-sm outline-none focus:ring-2"
             />
             {/* Location suggestions dropdown */}
             {showSuggestions && filteredLocations.length > 0 && (
@@ -168,7 +177,7 @@ export function ManualMetadataForm({
               placeholder="Name if known"
               value={value.photographerCredit || ""}
               onChange={(e) => onChange({ photographerCredit: e.target.value })}
-              className="border-hairline bg-canvas text-body rounded-card w-full border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ocean-blue/50"
+              className="border-hairline bg-canvas text-body rounded-card focus:ring-ocean-blue/50 w-full border px-3 py-2 text-sm outline-none focus:ring-2"
             />
           </div>
 
@@ -183,7 +192,7 @@ export function ManualMetadataForm({
               placeholder="e.g., Family collection, Municipal archive"
               value={value.archiveSource || ""}
               onChange={(e) => onChange({ archiveSource: e.target.value })}
-              className="border-hairline bg-canvas text-body rounded-card w-full border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ocean-blue/50"
+              className="border-hairline bg-canvas text-body rounded-card focus:ring-ocean-blue/50 w-full border px-3 py-2 text-sm outline-none focus:ring-2"
             />
           </div>
         </div>
