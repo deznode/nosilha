@@ -6,7 +6,8 @@ paths: apps/web/**
 
 ## Documentation
 
-See `docs/design-system.md` for comprehensive styling guide.
+- See `docs/design-system.md` for comprehensive styling guide
+- Interactive gallery: `http://localhost:3000/design-system` (dev-only, 404 in production)
 
 ## Brand Identity
 
@@ -14,7 +15,7 @@ See `docs/design-system.md` for comprehensive styling guide.
 
 ## Color System (OKLCH)
 
-Colors use the OKLCH color space via CSS custom properties — not hex values:
+Two-tier architecture: Tier 1 defines raw OKLCH values in `:root`/`.dark` selectors; Tier 2 maps them to Tailwind via `@theme inline` (`--color-*` namespace).
 
 ```css
 :root {
@@ -34,22 +35,66 @@ Colors use the OKLCH color space via CSS custom properties — not hex values:
 
 ## Semantic Tokens (Preferred)
 
+### Backgrounds
+
 | Token | Usage |
 |-------|-------|
+| `bg-canvas` | Page background |
 | `bg-surface` | Cards, sidebars |
-| `text-body` | Main text |
-| `text-muted` | Secondary text |
+| `bg-surface-alt` | Hover states, tertiary backgrounds |
+
+### Text
+
+| Token | Usage |
+|-------|-------|
+| `text-body` | Main reading text |
+| `text-muted` | Secondary text, metadata, captions |
+| `text-brand` | Brand-colored text (Ocean Blue) |
+
+### Borders
+
+| Token | Usage |
+|-------|-------|
 | `border-hairline` | Light dividers |
-| `shadow-subtle` | Default card shadow |
-| `shadow-lift` | Hover state shadow |
-| `rounded-card` | Card border radius |
-| `rounded-button` | Button border radius |
-| `ease-calm` | Transition timing |
+| `border-edge` | Strong borders |
+
+### Status Colors
+
+| Token | Usage |
+|-------|-------|
+| `status-error` | Error states, destructive actions |
+| `status-success` | Success confirmations |
+| `status-warning` | Warnings, caution |
+
+## Shape & Elevation
+
+### Border Radius (4 levels)
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `rounded-badge` | 8px | Tags, badges, toasts |
+| `rounded-button` | 12px | Buttons, inputs, chips |
+| `rounded-card` | 16px | Standard cards |
+| `rounded-container` | 24px | Featured cards, modals |
+
+### Shadows (5 levels)
+
+| Token | Usage |
+|-------|-------|
+| `shadow-subtle` | Default cards, inputs |
+| `shadow-medium` | Hover states |
+| `shadow-elevated` | Dropdowns, popovers |
+| `shadow-floating` | Modals, toasts |
+| `shadow-lift` | Card hover lift effect |
+
+### Transition Timing
+
+`ease-calm` = `cubic-bezier(0.16, 1, 0.3, 1)` — calm, confident motion.
 
 ## Typography
 
-- **Headings**: Fraunces (serif)
-- **Body**: Outfit (sans-serif)
+- **Headings**: Fraunces (serif) — variable font with SOFT, WONK axes
+- **Body**: Outfit (sans-serif) — geometric, modern
 
 ## Conditional Classes
 
@@ -65,15 +110,48 @@ className={clsx("bg-surface border", isActive && "ring-primary", className)}
 className={`bg-surface border ${isActive ? "ring-primary" : ""}`}
 ```
 
+## Utility Classes
+
+| Class | Effect |
+|-------|--------|
+| `.focus-ring` | Standard focus ring styling |
+| `.touch-target` | Minimum 44x44px touch target |
+| `.hover-surface` | Subtle hover background |
+| `.hover-surface-strong` | Strong hover background |
+| `.glass-panel` | Glassmorphism effect |
+
 ## Component Library
 
 ### Catalyst UI (9 components)
 
 Button, Input, InputGroup, Checkbox, Fieldset, Dialog, Dropdown, Popover, Badge
 
-### Custom UI Components
+### Custom UI Components (40+ in `components/ui/`)
 
-Key components in `components/ui/`: Card, DirectoryCard, PageHeader, ThemeToggle, Avatar, Tooltip, MobileBottomNav, Select, Textarea, Toast, TabGroup, LoadingSpinner, AnimatedButton
+| Category | Components |
+|----------|------------|
+| **Layout** | Card, PageHeader, Banner, Footer, Header |
+| **Navigation** | MobileBottomNav, BackToTopButton, ScrollIndicator, TabGroup |
+| **Media** | ImageGallery, ImageLightbox, ImageHeroSection, VideoHeroSection, GalleryImageGrid, ImageWithCourtesy |
+| **Forms** | Select, Textarea, ImageUploader |
+| **Feedback** | Toast system, LoadingSpinner, ConfirmationDialog |
+| **Identity** | Avatar, AvatarGroup, Logo variants, ThemeToggle |
+| **Interactive** | AnimatedButton, Tooltip, DirectoryCard, FeatureCard, StarRating |
+| **Actions** (`ui/actions/`) | CopyLink, Print, ReactionButtons, Share, SuggestImprovement |
+| **Content** | CitationSection, RelatedEntries, PrintPageWrapper, ContributePhotosSection |
+
+## New Component Checklist
+
+When building new components, ensure:
+
+- [ ] Uses semantic color tokens (not raw OKLCH or hex)
+- [ ] Uses shape tokens (`rounded-card`, etc.)
+- [ ] Uses shadow tokens (`shadow-subtle`, etc.)
+- [ ] Uses `ease-calm` for transitions
+- [ ] Mobile-first responsive
+- [ ] Focus states visible (use `.focus-ring`)
+- [ ] Touch targets 44x44px minimum (use `.touch-target`)
+- [ ] Works in light and dark modes
 
 ## Design Principles
 
@@ -85,12 +163,14 @@ Key components in `components/ui/`: Card, DirectoryCard, PageHeader, ThemeToggle
 
 | File | Purpose |
 |------|---------|
-| `apps/web/src/app/globals.css` | OKLCH CSS variables, semantic tokens |
-| `apps/web/tailwind.config.ts` | Tailwind config (custom border-radius, shadows, timing) |
-| `apps/web/src/components/ui/` | Custom UI components |
+| `apps/web/src/app/globals.css` | OKLCH CSS variables, semantic tokens, utility classes |
+| `apps/web/tailwind.config.ts` | Tailwind config (border-radius, shadows, timing, colors) |
+| `apps/web/src/app/layout.tsx` | Font loading (Fraunces, Outfit), theme init |
+| `apps/web/src/components/ui/` | Custom UI components (40+) |
 | `apps/web/src/components/catalyst-ui/` | Catalyst UI (9 retained) |
 
 ## Reference
 
 - See `docs/design-system.md` for complete design system documentation
 - See `docs/design-system.md#form-patterns` for React Hook Form + Zod patterns
+- See `docs/design-system.md#animation--utility-classes` for animations
