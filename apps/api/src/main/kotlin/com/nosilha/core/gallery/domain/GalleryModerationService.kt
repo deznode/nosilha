@@ -1,8 +1,10 @@
 package com.nosilha.core.gallery.domain
 
+import com.nosilha.core.auth.api.UserProfileQueryService
 import com.nosilha.core.gallery.api.dto.CreateExternalMediaRequest
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.GalleryModerationAction
+import com.nosilha.core.gallery.api.dto.contributorIds
 import com.nosilha.core.gallery.api.dto.toDto
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import com.nosilha.core.gallery.repository.MediaModerationAuditRepository
@@ -46,6 +48,7 @@ class GalleryModerationService(
     private val repository: GalleryMediaRepository,
     private val auditRepository: MediaModerationAuditRepository,
     private val eventPublisher: ApplicationEventPublisher,
+    private val userProfileQueryService: UserProfileQueryService,
 ) {
     /**
      * Lists gallery media for moderation with optional status filtering and pagination.
@@ -77,7 +80,8 @@ class GalleryModerationService(
 
         logger.debug { "Retrieved ${mediaPage.numberOfElements} gallery media items (page $page, size $size, status: $status)" }
 
-        val dtos = mediaPage.content.map { it.toDto() }
+        val displayNames = resolveDisplayNames(mediaPage.content)
+        val dtos = mediaPage.content.map { it.toDto(displayNames) }
 
         return PagedApiResult(
             data = dtos,
@@ -109,7 +113,8 @@ class GalleryModerationService(
 
         logger.debug { "Retrieved media detail: id=$id, status=${media.status}, type=${media.mediaSource}" }
 
-        return media.toDto()
+        val displayNames = resolveDisplayNames(listOf(media))
+        return media.toDto(displayNames)
     }
 
     /**
@@ -212,7 +217,8 @@ class GalleryModerationService(
 
         logger.debug { "Audit entry created for gallery media moderation: mediaId=$id, action=$action, performedBy=$performedBy" }
 
-        return savedMedia.toDto()
+        val displayNames = resolveDisplayNames(listOf(savedMedia))
+        return savedMedia.toDto(displayNames)
     }
 
     /**
@@ -292,7 +298,8 @@ class GalleryModerationService(
         val saved = repository.save(media)
         logger.info { "Created ExternalMedia as ACTIVE: id=${saved.id}" }
 
-        return GalleryMediaDto.from(saved)
+        val displayName = userProfileQueryService.findDisplayName(adminId)
+        return GalleryMediaDto.from(saved, displayName)
     }
 
     /**
@@ -472,6 +479,11 @@ class GalleryModerationService(
             rejected = errors.size,
             errors = errors,
         )
+    }
+
+    private fun resolveDisplayNames(mediaList: List<GalleryMedia>): Map<String, String> {
+        val userIds = mediaList.contributorIds()
+        return if (userIds.isNotEmpty()) userProfileQueryService.findDisplayNames(userIds) else emptyMap()
     }
 
     private fun validateMediaForAnalysis(media: GalleryMedia) {

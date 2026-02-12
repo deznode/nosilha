@@ -2,8 +2,10 @@ package com.nosilha.core.gallery.domain
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.nosilha.core.auth.api.UserProfileQueryService
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
+import com.nosilha.core.gallery.api.dto.contributorIds
 import com.nosilha.core.gallery.api.dto.toDto
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import com.nosilha.core.shared.api.PageableInfo
@@ -51,6 +53,7 @@ private val logger = KotlinLogging.logger {}
 class GalleryService(
     private val r2StorageService: R2StorageService?,
     private val repository: GalleryMediaRepository,
+    private val userProfileQueryService: UserProfileQueryService,
     meterRegistry: MeterRegistry,
 ) {
     companion object {
@@ -258,7 +261,8 @@ class GalleryService(
         uploadSuccessCounter.increment()
         logger.info { "Created UserUploadedMedia record: id=${saved.id}, status=${saved.status}" }
 
-        return GalleryMediaDto.from(saved)
+        val displayName = userProfileQueryService.findDisplayName(userId)
+        return GalleryMediaDto.from(saved, displayName)
     }
 
     // ================================
@@ -462,7 +466,8 @@ class GalleryService(
             repository.findByStatusOrderByDisplayOrderAsc(GalleryMediaStatus.ACTIVE, pageable)
         }
 
-        val dtos = mediaPage.content.map { it.toDto() }
+        val displayNames = resolveDisplayNames(mediaPage.content)
+        val dtos = mediaPage.content.map { it.toDto(displayNames) }
 
         return PagedApiResult(
             data = dtos,
@@ -496,7 +501,8 @@ class GalleryService(
             return null
         }
 
-        return media.toDto()
+        val displayNames = resolveDisplayNames(listOf(media))
+        return media.toDto(displayNames)
     }
 
     /**
@@ -506,10 +512,13 @@ class GalleryService(
      * @return List of user upload DTOs
      */
     @Transactional(readOnly = true)
-    fun getMediaByEntry(entryId: UUID): List<GalleryMediaDto.UserUpload> =
-        repository
+    fun getMediaByEntry(entryId: UUID): List<GalleryMediaDto.UserUpload> {
+        val mediaList = repository
             .findByEntryIdAndStatusOrderByDisplayOrderAsc(entryId, GalleryMediaStatus.ACTIVE)
-            .map { GalleryMediaDto.from(it) }
+        val userIds = mediaList.contributorIds()
+        val displayNames = if (userIds.isNotEmpty()) userProfileQueryService.findDisplayNames(userIds) else emptyMap()
+        return mediaList.map { GalleryMediaDto.from(it, it.uploadedBy?.let { id -> displayNames[id] }) }
+    }
 
     /**
      * Gets distinct list of categories from ACTIVE media.
@@ -559,7 +568,16 @@ class GalleryService(
         externalMediaCreatedCounter.increment()
         logger.info { "Created ExternalMedia for review: id=${saved.id}" }
 
-        return GalleryMediaDto.from(saved)
+        val displayName = userProfileQueryService.findDisplayName(userId)
+        return GalleryMediaDto.from(saved, displayName)
+    }
+
+    /**
+     * Batch-resolves display names for a list of gallery media items.
+     */
+    private fun resolveDisplayNames(mediaList: List<GalleryMedia>): Map<String, String> {
+        val userIds = mediaList.contributorIds()
+        return if (userIds.isNotEmpty()) userProfileQueryService.findDisplayNames(userIds) else emptyMap()
     }
 
     /**

@@ -76,6 +76,7 @@ sealed class GalleryMediaDto {
         val entryId: UUID?,
         val source: MediaSource?,
         val uploadedBy: String?,
+        val uploaderDisplayName: String? = null,
         val aiTags: List<String>? = null,
         val aiLabels: String? = null,
         val aiAltText: String? = null,
@@ -107,13 +108,17 @@ sealed class GalleryMediaDto {
         val embedUrl: String?,
         val author: String?,
         val curatedBy: String?,
+        val curatorDisplayName: String? = null,
     ) : GalleryMediaDto()
 
     companion object {
         /**
          * Converts a UserUploadedMedia entity to UserUpload DTO.
          */
-        fun from(media: UserUploadedMedia): UserUpload =
+        fun from(
+            media: UserUploadedMedia,
+            uploaderDisplayName: String? = null,
+        ): UserUpload =
             UserUpload(
                 id = media.id!!,
                 title = media.title,
@@ -132,6 +137,7 @@ sealed class GalleryMediaDto {
                 entryId = media.entryId,
                 source = media.source,
                 uploadedBy = media.uploadedBy,
+                uploaderDisplayName = uploaderDisplayName,
                 aiTags = media.aiTags?.toList(),
                 aiLabels = media.aiLabels,
                 aiAltText = media.aiAltText,
@@ -142,7 +148,10 @@ sealed class GalleryMediaDto {
         /**
          * Converts an ExternalMedia entity to External DTO.
          */
-        fun from(media: ExternalMedia): External =
+        fun from(
+            media: ExternalMedia,
+            curatorDisplayName: String? = null,
+        ): External =
             External(
                 id = media.id!!,
                 title = media.title,
@@ -160,6 +169,7 @@ sealed class GalleryMediaDto {
                 embedUrl = media.getEmbedUrl(),
                 author = media.author,
                 curatedBy = media.curatedBy,
+                curatorDisplayName = curatorDisplayName,
             )
     }
 }
@@ -170,11 +180,27 @@ sealed class GalleryMediaDto {
  * This provides a cleaner API than using companion object methods directly,
  * enabling usage like `media.toDto()` instead of pattern matching on type.
  *
+ * @param displayNames Map of user IDs to display names for resolving uploader/curator names
  * @throws IllegalStateException if the media type is not supported
  */
-fun GalleryMedia.toDto(): GalleryMediaDto =
+fun GalleryMedia.toDto(displayNames: Map<String, String> = emptyMap()): GalleryMediaDto =
     when (this) {
-        is UserUploadedMedia -> GalleryMediaDto.from(this)
-        is ExternalMedia -> GalleryMediaDto.from(this)
+        is UserUploadedMedia -> GalleryMediaDto.from(this, this.uploadedBy?.let { displayNames[it] })
+        is ExternalMedia -> GalleryMediaDto.from(this, this.curatedBy?.let { displayNames[it] })
         else -> error("Unknown GalleryMedia type: ${this.javaClass.simpleName}")
     }
+
+/**
+ * Extracts distinct contributor user IDs from a list of gallery media.
+ *
+ * Returns uploader IDs for user uploads and curator IDs for external media.
+ * Used for batch-resolving display names via [UserProfileQueryService].
+ */
+fun List<GalleryMedia>.contributorIds(): List<String> =
+    mapNotNull { media ->
+        when (media) {
+            is UserUploadedMedia -> media.uploadedBy
+            is ExternalMedia -> media.curatedBy
+            else -> null
+        }
+    }.distinct()
