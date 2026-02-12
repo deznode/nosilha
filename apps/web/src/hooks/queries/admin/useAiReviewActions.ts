@@ -8,19 +8,9 @@
  */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { QueryClient } from "@tanstack/react-query";
 import { approveAiRun, rejectAiRun, approveEditedAiRun } from "@/lib/api";
-import { adminKeys } from "./keys";
+import { invalidateAiCaches } from "./keys";
 import type { ApproveEditedRequest, RejectRequest } from "@/types/ai";
-
-/**
- * Invalidates AI review, gallery, and system caches after a moderation action.
- */
-function invalidateAiReviewCaches(queryClient: QueryClient): void {
-  queryClient.invalidateQueries({ queryKey: adminKeys.aiReview.all() });
-  queryClient.invalidateQueries({ queryKey: adminKeys.gallery.all() });
-  queryClient.invalidateQueries({ queryKey: adminKeys.system.all() });
-}
 
 /**
  * Hook for approving AI analysis results as-is.
@@ -32,7 +22,7 @@ export function useApproveAiRun() {
 
   return useMutation({
     mutationFn: (runId: string) => approveAiRun(runId),
-    onSuccess: () => invalidateAiReviewCaches(queryClient),
+    onSuccess: () => invalidateAiCaches(queryClient),
   });
 }
 
@@ -52,7 +42,7 @@ export function useRejectAiRun() {
   return useMutation({
     mutationFn: ({ runId, request }: RejectAiRunVariables) =>
       rejectAiRun(runId, request),
-    onSuccess: () => invalidateAiReviewCaches(queryClient),
+    onSuccess: () => invalidateAiCaches(queryClient),
   });
 }
 
@@ -72,6 +62,6 @@ export function useApproveEditedAiRun() {
   return useMutation({
     mutationFn: ({ runId, request }: ApproveEditedAiRunVariables) =>
       approveEditedAiRun(runId, request),
-    onSuccess: () => invalidateAiReviewCaches(queryClient),
+    onSuccess: () => invalidateAiCaches(queryClient),
   });
 }

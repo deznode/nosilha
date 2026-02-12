@@ -8,23 +8,13 @@
  */
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { QueryClient } from "@tanstack/react-query";
 import { triggerAnalysis, triggerBatchAnalysis } from "@/lib/api";
-import { adminKeys } from "./keys";
+import { invalidateAiCaches } from "./keys";
 import type {
   AnalysisTriggerResponse,
   AnalyzeBatchRequest,
   BatchAnalysisTriggerResponse,
 } from "@/types/ai";
-
-/**
- * Invalidates AI review, gallery, and system caches after a trigger action.
- */
-function invalidateAfterTrigger(queryClient: QueryClient): void {
-  queryClient.invalidateQueries({ queryKey: adminKeys.aiReview.all() });
-  queryClient.invalidateQueries({ queryKey: adminKeys.gallery.all() });
-  queryClient.invalidateQueries({ queryKey: adminKeys.system.all() });
-}
 
 /**
  * Hook for triggering AI analysis on a single media item.
@@ -36,7 +26,7 @@ export function useTriggerAnalysis() {
 
   return useMutation<AnalysisTriggerResponse, Error, string>({
     mutationFn: (mediaId: string) => triggerAnalysis(mediaId),
-    onSuccess: () => invalidateAfterTrigger(queryClient),
+    onSuccess: () => invalidateAiCaches(queryClient),
   });
 }
 
@@ -50,6 +40,6 @@ export function useTriggerBatchAnalysis() {
 
   return useMutation<BatchAnalysisTriggerResponse, Error, AnalyzeBatchRequest>({
     mutationFn: (request: AnalyzeBatchRequest) => triggerBatchAnalysis(request),
-    onSuccess: () => invalidateAfterTrigger(queryClient),
+    onSuccess: () => invalidateAiCaches(queryClient),
   });
 }

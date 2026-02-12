@@ -15,11 +15,9 @@ import {
   useApproveAiRun,
   useRejectAiRun,
   useApproveEditedAiRun,
+  useGalleryMediaById,
 } from "@/hooks/queries/admin";
-import { getGalleryMediaById } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
-import type { GalleryMedia } from "@/types/gallery";
-import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
 
 interface AiReviewDetailModalProps {
   runId: string | null;
@@ -37,9 +35,9 @@ export function AiReviewDetailModal({
   const approveMutation = useApproveAiRun();
   const rejectMutation = useRejectAiRun();
   const approveEditedMutation = useApproveEditedAiRun();
-
-  const [mediaImage, setMediaImage] = useState<GalleryMedia | null>(null);
-  const [isMediaLoading, setIsMediaLoading] = useState(false);
+  const { imageUrl, isLoading: isMediaLoading } = useGalleryMediaById(
+    detail?.mediaId
+  );
 
   // Editable fields
   const [altText, setAltText] = useState("");
@@ -70,32 +68,6 @@ export function AiReviewDetailModal({
     }
   }, [detail, originalSnapshot]);
 
-  // Fetch gallery media image
-  useEffect(() => {
-    if (!detail?.mediaId) return;
-
-    let cancelled = false;
-    const loadMedia = async () => {
-      if (cancelled) return;
-      setIsMediaLoading(true);
-
-      try {
-        const media = await getGalleryMediaById(detail.mediaId);
-        if (!cancelled) setMediaImage(media ?? null);
-      } catch {
-        if (!cancelled) setMediaImage(null);
-      } finally {
-        if (!cancelled) setIsMediaLoading(false);
-      }
-    };
-
-    loadMedia();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [detail?.mediaId]);
-
   // Check if fields have been edited
   const hasEdits = useMemo(
     () =>
@@ -104,14 +76,6 @@ export function AiReviewDetailModal({
       tagsInput !== originalSnapshot.tags,
     [altText, description, tagsInput, originalSnapshot]
   );
-
-  // Resolve preview URL from the discriminated GalleryMedia union
-  const imageUrl = useMemo((): string | null => {
-    if (!mediaImage) return null;
-    if (isUserUploadMedia(mediaImage)) return mediaImage.publicUrl;
-    if (isExternalMedia(mediaImage)) return mediaImage.thumbnailUrl;
-    return null;
-  }, [mediaImage]);
 
   const isMutating =
     approveMutation.isPending ||
@@ -203,9 +167,10 @@ export function AiReviewDetailModal({
                 <div className="space-y-5">
                   {/* Image Thumbnail */}
                   <div className="relative h-48 w-full overflow-hidden rounded-lg">
-                    {isMediaLoading ? (
+                    {isMediaLoading && (
                       <div className="bg-surface-alt h-full w-full animate-pulse" />
-                    ) : imageUrl ? (
+                    )}
+                    {!isMediaLoading && imageUrl && (
                       <Image
                         src={imageUrl}
                         alt="Media preview"
@@ -213,7 +178,8 @@ export function AiReviewDetailModal({
                         className="object-contain"
                         unoptimized
                       />
-                    ) : (
+                    )}
+                    {!isMediaLoading && !imageUrl && (
                       <div className="bg-surface-alt flex h-full w-full items-center justify-center">
                         <span className="text-muted text-sm">
                           No preview available

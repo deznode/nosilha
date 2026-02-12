@@ -50,7 +50,6 @@ import {
   useUpdateMessageStatus,
   useDeleteMessage,
   useUpdateDirectoryStatus,
-  useUpdateDirectoryEntry,
   useDeleteDirectoryEntry,
   useUpdateGalleryStatus,
   usePromoteToHeroImage,
@@ -131,8 +130,6 @@ export default function AdminDashboardPage() {
   const updateMessage = useUpdateMessageStatus();
   const deleteMessage = useDeleteMessage();
   const updateDirectory = useUpdateDirectoryStatus();
-  // Note: updateDirectoryEntry available for future inline update features
-  const _updateDirectoryEntry = useUpdateDirectoryEntry();
   const deleteDirectoryEntry = useDeleteDirectoryEntry();
   const updateGallery = useUpdateGalleryStatus();
   const promoteToHero = usePromoteToHeroImage();

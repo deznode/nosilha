@@ -89,11 +89,12 @@ export function GalleryQueueItem({
   };
 
   const getThumbnail = () => {
-    const thumbnailUrl = isUserUploadMedia(item)
-      ? item.publicUrl
-      : isExternalMedia(item)
-        ? item.thumbnailUrl
-        : null;
+    let thumbnailUrl: string | null = null;
+    if (isUserUploadMedia(item)) {
+      thumbnailUrl = item.publicUrl;
+    } else if (isExternalMedia(item)) {
+      thumbnailUrl = item.thumbnailUrl;
+    }
 
     if (thumbnailUrl) {
       return (

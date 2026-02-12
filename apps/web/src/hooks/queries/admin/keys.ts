@@ -7,6 +7,7 @@
  * @see docs/STATE_MANAGEMENT.md for query key conventions
  */
 
+import type { QueryClient } from "@tanstack/react-query";
 import type { SubmissionStatus } from "@/types/story";
 import type { ContactMessageStatus, MediaStatus } from "@/types/admin";
 import type { GalleryMediaStatus } from "@/types/gallery";
@@ -68,3 +69,13 @@ export const adminKeys = {
     health: () => [...adminKeys.all, "system", "health"] as const,
   },
 };
+
+/**
+ * Invalidates AI review, gallery, and system caches after an AI moderation
+ * or trigger action. Shared by review action and trigger mutation hooks.
+ */
+export function invalidateAiCaches(queryClient: QueryClient): void {
+  queryClient.invalidateQueries({ queryKey: adminKeys.aiReview.all() });
+  queryClient.invalidateQueries({ queryKey: adminKeys.gallery.all() });
+  queryClient.invalidateQueries({ queryKey: adminKeys.system.all() });
+}

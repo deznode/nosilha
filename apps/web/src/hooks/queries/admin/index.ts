@@ -7,8 +7,8 @@
  * @see docs/STATE_MANAGEMENT.md for TanStack Query patterns
  */
 
-// Query key factory
-export { adminKeys } from "./keys";
+// Query key factory and shared helpers
+export { adminKeys, invalidateAiCaches } from "./keys";
 
 // Query hooks
 export { useAdminStats } from "./useAdminStats";

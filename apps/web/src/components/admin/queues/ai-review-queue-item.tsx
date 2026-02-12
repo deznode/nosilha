@@ -23,9 +23,10 @@ export function AiReviewQueueItem({ item, onReview }: AiReviewQueueItemProps) {
     <div className="border-hairline bg-surface flex items-start gap-4 rounded-xl border p-4 transition-shadow hover:shadow-md">
       {/* Thumbnail */}
       <div className="relative flex h-20 w-20 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg">
-        {isMediaLoading ? (
+        {isMediaLoading && (
           <div className="bg-surface-alt h-full w-full animate-pulse" />
-        ) : imageUrl ? (
+        )}
+        {!isMediaLoading && imageUrl && (
           <Image
             src={imageUrl}
             alt={item.resultAltText ?? "Media preview"}
@@ -34,7 +35,8 @@ export function AiReviewQueueItem({ item, onReview }: AiReviewQueueItemProps) {
             sizes="80px"
             unoptimized
           />
-        ) : (
+        )}
+        {!isMediaLoading && !imageUrl && (
           <div className="bg-surface-alt flex h-full w-full items-center justify-center">
             <Sparkles size={24} className="text-muted" />
           </div>
