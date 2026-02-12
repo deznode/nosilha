@@ -18,6 +18,7 @@ import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
 import type { AiStatusResponse, AiModerationStatus } from "@/types/ai";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
 import { Button } from "@/components/catalyst-ui/button";
+import { Checkbox } from "@/components/catalyst-ui/checkbox";
 import { AiStatusBadge } from "./ai-status-badge";
 
 interface GalleryQueueItemProps {
@@ -34,6 +35,9 @@ interface GalleryQueueItemProps {
   onTriggerAnalysis?: (mediaId: string) => void;
   isTriggerPending?: boolean;
   triggeringMediaId?: string;
+  isEligibleForAi?: boolean;
+  isSelected?: boolean;
+  onToggleSelect?: (id: string) => void;
 }
 
 export function GalleryQueueItem({
@@ -45,6 +49,9 @@ export function GalleryQueueItem({
   onTriggerAnalysis,
   isTriggerPending,
   triggeringMediaId,
+  isEligibleForAi,
+  isSelected,
+  onToggleSelect,
 }: GalleryQueueItemProps) {
   // Check if this item can be promoted to hero image
   const canPromoteToHero =
@@ -53,14 +60,9 @@ export function GalleryQueueItem({
     item.publicUrl &&
     item.status === "ACTIVE";
 
-  // Check if this item is eligible for AI analysis
-  const isEligibleForAi =
-    isUserUploadMedia(item) &&
-    item.status === "ACTIVE" &&
-    !!item.publicUrl &&
-    aiStatus?.lastRunStatus !== "PROCESSING";
+  const isThisItemTriggering =
+    isTriggerPending && triggeringMediaId === item.id;
 
-  const isThisItemTriggering = isTriggerPending && triggeringMediaId === item.id;
   const getMediaIcon = () => {
     if (isExternalMedia(item)) {
       if (item.mediaType === "VIDEO") return <Video size={14} />;
@@ -114,6 +116,17 @@ export function GalleryQueueItem({
 
   return (
     <div className="border-hairline bg-surface flex items-start gap-4 rounded-xl border p-4 transition-shadow hover:shadow-md">
+      {/* Selection Checkbox */}
+      {onToggleSelect && (
+        <div className="flex flex-shrink-0 items-center pt-1">
+          <Checkbox
+            checked={isSelected ?? false}
+            onChange={() => onToggleSelect(item.id)}
+            color="blue"
+          />
+        </div>
+      )}
+
       {/* Thumbnail */}
       <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg">
         {getThumbnail()}

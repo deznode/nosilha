@@ -57,6 +57,7 @@ import {
   useAiReviewQueue,
   useAiStatus,
   useTriggerAnalysis,
+  useTriggerBatchAnalysis,
 } from "@/hooks/queries/admin";
 import type {
   AdminStats,
@@ -136,6 +137,7 @@ export default function AdminDashboardPage() {
   const updateGallery = useUpdateGalleryStatus();
   const promoteToHero = usePromoteToHeroImage();
   const triggerAnalysis = useTriggerAnalysis();
+  const triggerBatchAnalysis = useTriggerBatchAnalysis();
 
   // Derived data with fallbacks
   const stats = statsQuery.data ?? defaultStats;
@@ -365,6 +367,30 @@ export default function AdminDashboardPage() {
     });
   };
 
+  const handleTriggerBatchAnalysis = async (mediaIds: string[]) => {
+    return new Promise<void>((resolve, reject) => {
+      triggerBatchAnalysis.mutate(
+        { mediaIds },
+        {
+          onSuccess: (data) => {
+            const parts = [`AI analysis triggered for ${data.accepted} items`];
+            if (data.rejected > 0) {
+              parts.push(`(${data.rejected} rejected)`);
+            }
+            toast.success(parts.join(" ")).show();
+            resolve();
+          },
+          onError: () => {
+            toast
+              .error("Failed to trigger batch AI analysis. Please try again.")
+              .show();
+            reject();
+          },
+        }
+      );
+    });
+  };
+
   const handleAiReview = (runId: string) => {
     setSelectedAiRunId(runId);
     setIsAiReviewModalOpen(true);
@@ -511,6 +537,8 @@ export default function AdminDashboardPage() {
                 onTriggerAnalysis={handleTriggerAnalysis}
                 isTriggerPending={triggerAnalysis.isPending}
                 triggeringMediaId={triggerAnalysis.variables}
+                onTriggerBatchAnalysis={handleTriggerBatchAnalysis}
+                isBatchTriggerPending={triggerBatchAnalysis.isPending}
               />
             </TabPanel>
             <TabPanel>

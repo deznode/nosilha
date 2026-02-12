@@ -2828,7 +2828,9 @@ export class BackendApiClient implements ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to trigger batch AI analysis: ${response.status}`);
+      throw new Error(
+        `Failed to trigger batch AI analysis: ${response.status}`
+      );
     }
 
     const payload = await response.json();

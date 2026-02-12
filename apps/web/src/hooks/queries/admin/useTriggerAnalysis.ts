@@ -49,8 +49,7 @@ export function useTriggerBatchAnalysis() {
   const queryClient = useQueryClient();
 
   return useMutation<BatchAnalysisTriggerResponse, Error, AnalyzeBatchRequest>({
-    mutationFn: (request: AnalyzeBatchRequest) =>
-      triggerBatchAnalysis(request),
+    mutationFn: (request: AnalyzeBatchRequest) => triggerBatchAnalysis(request),
     onSuccess: () => invalidateAfterTrigger(queryClient),
   });
 }
