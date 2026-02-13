@@ -5,7 +5,6 @@ import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import java.time.Instant
-import java.time.LocalDateTime
 import java.util.UUID
 
 /**
@@ -35,7 +34,7 @@ data class AdminMediaListDto(
     val status: GalleryMediaStatus,
     val severity: Int,
     val uploadedBy: String?,
-    val createdAt: LocalDateTime?,
+    val createdAt: Instant?,
 )
 
 /**
@@ -82,8 +81,8 @@ data class AdminMediaDetailDto(
     val reviewedAt: Instant?,
     val rejectionReason: String?,
     val uploadedBy: String?,
-    val createdAt: LocalDateTime?,
-    val updatedAt: LocalDateTime?,
+    val createdAt: Instant?,
+    val updatedAt: Instant?,
 )
 
 /**

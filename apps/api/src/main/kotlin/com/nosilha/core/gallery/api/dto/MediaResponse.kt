@@ -1,10 +1,9 @@
 package com.nosilha.core.gallery.api.dto
 
-import com.fasterxml.jackson.annotation.JsonFormat
 import com.nosilha.core.gallery.domain.GalleryMedia
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.MediaSource
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.UUID
 
 /**
@@ -26,10 +25,8 @@ data class MediaResponse(
     val description: String?,
     val displayOrder: Int,
     val uploadedBy: String?,
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    val createdAt: LocalDateTime?,
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    val updatedAt: LocalDateTime?,
+    val createdAt: Instant?,
+    val updatedAt: Instant?,
 ) {
     companion object {
         /**

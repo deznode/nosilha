@@ -1,6 +1,5 @@
 package com.nosilha.core.gallery.api.dto
 
-import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.nosilha.core.gallery.domain.ExternalMedia
@@ -11,8 +10,6 @@ import com.nosilha.core.gallery.domain.MediaSource
 import com.nosilha.core.gallery.domain.MediaType
 import com.nosilha.core.gallery.domain.UserUploadedMedia
 import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.util.UUID
 
 /**
@@ -49,8 +46,7 @@ sealed class GalleryMediaDto {
     abstract val status: GalleryMediaStatus
     abstract val mediaSource: String
 
-    @get:JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    abstract val createdAt: LocalDateTime?
+    abstract val createdAt: Instant?
 
     /**
      * DTO for user-uploaded media stored in Cloudflare R2.
@@ -69,8 +65,7 @@ sealed class GalleryMediaDto {
         override val displayOrder: Int,
         override val status: GalleryMediaStatus,
         override val mediaSource: String = "USER_UPLOAD",
-        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-        override val createdAt: LocalDateTime?,
+        override val createdAt: Instant?,
         val fileName: String,
         val originalName: String,
         val storageKey: String,
@@ -84,8 +79,7 @@ sealed class GalleryMediaDto {
         val latitude: Double?,
         val longitude: Double?,
         val altitude: Double?,
-        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-        val dateTaken: LocalDateTime?,
+        val dateTaken: Instant?,
         val cameraMake: String?,
         val cameraModel: String?,
         val orientation: Int?,
@@ -121,8 +115,7 @@ sealed class GalleryMediaDto {
         override val displayOrder: Int,
         override val status: GalleryMediaStatus,
         override val mediaSource: String = "EXTERNAL",
-        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-        override val createdAt: LocalDateTime?,
+        override val createdAt: Instant?,
         val mediaType: MediaType,
         val platform: ExternalPlatform,
         val externalId: String?,
@@ -164,7 +157,7 @@ sealed class GalleryMediaDto {
                 latitude = media.latitude?.toDouble(),
                 longitude = media.longitude?.toDouble(),
                 altitude = media.altitude?.toDouble(),
-                dateTaken = media.dateTaken?.let { LocalDateTime.ofInstant(it, ZoneOffset.UTC) },
+                dateTaken = media.dateTaken,
                 cameraMake = media.cameraMake,
                 cameraModel = media.cameraModel,
                 orientation = media.orientation,

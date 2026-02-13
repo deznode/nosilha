@@ -265,9 +265,7 @@ class ProfileService(
                 title = story.title,
                 storyType = story.storyType,
                 status = story.status,
-                createdAt = story.createdAt!!.let { instant ->
-                    java.time.LocalDateTime.ofInstant(instant, java.time.ZoneOffset.UTC)
-                },
+                createdAt = story.createdAt!!,
             )
         }
 
