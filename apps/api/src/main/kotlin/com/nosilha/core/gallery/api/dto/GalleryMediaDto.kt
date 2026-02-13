@@ -74,7 +74,7 @@ sealed class GalleryMediaDto {
         val fileSize: Long,
         val entryId: UUID?,
         val source: MediaSource?,
-        val uploadedBy: String?,
+        val uploadedBy: UUID?,
         // EXIF metadata (privacy-processed)
         val latitude: Double?,
         val longitude: Double?,
@@ -123,7 +123,7 @@ sealed class GalleryMediaDto {
         val thumbnailUrl: String?,
         val embedUrl: String?,
         val author: String?,
-        val curatedBy: String?,
+        val curatedBy: UUID?,
         val curatorDisplayName: String? = null,
     ) : GalleryMediaDto()
 
@@ -217,7 +217,7 @@ sealed class GalleryMediaDto {
  * @param displayNames Map of user IDs to display names for resolving uploader/curator names
  * @throws IllegalStateException if the media type is not supported
  */
-fun GalleryMedia.toDto(displayNames: Map<String, String> = emptyMap()): GalleryMediaDto =
+fun GalleryMedia.toDto(displayNames: Map<UUID, String> = emptyMap()): GalleryMediaDto =
     when (this) {
         is UserUploadedMedia -> GalleryMediaDto.from(this, this.uploadedBy?.let { displayNames[it] })
         is ExternalMedia -> GalleryMediaDto.from(this, this.curatedBy?.let { displayNames[it] })
@@ -230,7 +230,7 @@ fun GalleryMedia.toDto(displayNames: Map<String, String> = emptyMap()): GalleryM
  * Returns uploader IDs for user uploads and curator IDs for external media.
  * Used for batch-resolving display names via [UserProfileQueryService].
  */
-fun List<GalleryMedia>.contributorIds(): List<String> =
+fun List<GalleryMedia>.contributorIds(): List<UUID> =
     mapNotNull { media ->
         when (media) {
             is UserUploadedMedia -> media.uploadedBy

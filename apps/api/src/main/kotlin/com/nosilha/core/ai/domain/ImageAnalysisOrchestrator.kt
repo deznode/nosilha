@@ -50,7 +50,7 @@ class ImageAnalysisOrchestrator(
             totalItems = event.totalItems,
             requestedBy = event.requestedBy,
         )
-        batch.id = event.batchId
+        batch.assignId(event.batchId)
         analysisBatchRepository.save(batch)
     }
 
@@ -63,7 +63,7 @@ class ImageAnalysisOrchestrator(
                 mediaId = event.mediaId,
                 requestedBy = event.requestedBy,
                 batchId = event.batchId,
-            ).also { it.id = event.analysisRunId }
+            ).also { it.assignId(event.analysisRunId) }
         }
         run.status = AnalysisRunStatus.PROCESSING
         run.startedAt = Instant.now()

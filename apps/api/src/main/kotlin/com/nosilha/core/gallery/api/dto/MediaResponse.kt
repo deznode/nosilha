@@ -24,7 +24,7 @@ data class MediaResponse(
     val category: String?,
     val description: String?,
     val displayOrder: Int,
-    val uploadedBy: String?,
+    val uploadedBy: UUID?,
     val createdAt: Instant?,
     val updatedAt: Instant?,
 ) {

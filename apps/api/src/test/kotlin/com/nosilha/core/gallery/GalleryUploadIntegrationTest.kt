@@ -55,9 +55,22 @@ class GalleryUploadIntegrationTest {
     @MockitoBean
     private lateinit var r2StorageService: R2StorageService
 
+    @Autowired
+    private lateinit var jdbcTemplate: org.springframework.jdbc.core.JdbcTemplate
+
     @BeforeEach
     fun setup() {
         galleryMediaRepository.deleteAll()
+        jdbcTemplate.execute("DELETE FROM users")
+        // Insert test users for FK constraints on created_by/updated_by
+        jdbcTemplate.execute(
+            """INSERT INTO users (id, email) VALUES
+                ('$testUserId', 'user@test.com'),
+                ('$testAdminId', 'admin@test.com'),
+                ('$uploaderUserId', 'uploader@test.com'),
+                ('$otherUserId', 'other@test.com')
+                ON CONFLICT DO NOTHING""",
+        )
         reset(r2StorageService)
     }
 
@@ -78,15 +91,20 @@ class GalleryUploadIntegrationTest {
         }
     }
 
+    private val testUserId = UUID.fromString("00000000-0000-0000-0000-000000000001")
+    private val testAdminId = UUID.fromString("00000000-0000-0000-0000-000000000002")
+    private val uploaderUserId = UUID.fromString("00000000-0000-0000-0000-000000000003")
+    private val otherUserId = UUID.fromString("00000000-0000-0000-0000-000000000004")
+
     /**
      * Creates an authentication with user ID as principal (matching controller expectation).
      */
     private fun userAuth(
-        userId: String = "test-user-123",
+        userId: UUID = testUserId,
         roles: List<String> = listOf("USER"),
     ) = authentication(
         UsernamePasswordAuthenticationToken(
-            userId,
+            userId.toString(),
             null,
             roles.map { SimpleGrantedAuthority("ROLE_$it") },
         ),
@@ -95,7 +113,7 @@ class GalleryUploadIntegrationTest {
     /**
      * Creates an admin authentication.
      */
-    private fun adminAuth(userId: String = "test-admin-456") = userAuth(userId, listOf("ADMIN"))
+    private fun adminAuth(userId: UUID = testAdminId) = userAuth(userId, listOf("ADMIN"))
 
     @Test
     @DisplayName("Should generate presigned URL for valid JPEG file")
@@ -187,7 +205,7 @@ class GalleryUploadIntegrationTest {
         val media = galleryMedia[0] as UserUploadedMedia
         assertThat(media.originalName).isEqualTo("my-photo.jpg")
         assertThat(media.status).isEqualTo(GalleryMediaStatus.PENDING_REVIEW)
-        assertThat(media.uploadedBy).isEqualTo("test-user-123")
+        assertThat(media.uploadedBy).isEqualTo(testUserId)
     }
 
     @Test
@@ -359,7 +377,7 @@ class GalleryUploadIntegrationTest {
         mockMvc
             .perform(
                 post("/api/v1/gallery/upload/confirm")
-                    .with(userAuth("uploader-user"))
+                    .with(userAuth(uploaderUserId))
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(jsonMapper.writeValueAsString(confirmRequest)),
             ).andExpect(status().isCreated)
@@ -370,7 +388,7 @@ class GalleryUploadIntegrationTest {
         mockMvc
             .perform(
                 get("/api/v1/gallery/${media.id}")
-                    .with(userAuth("other-user")),
+                    .with(userAuth(otherUserId)),
             ).andExpect(status().isNotFound)
     }
 

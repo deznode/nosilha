@@ -211,7 +211,6 @@ class GalleryModerationService(
                 previousStatus = previousStatus.name,
                 newStatus = savedMedia.status.name,
                 reason = reason,
-                performedBy = performedBy,
             )
         auditRepository.save(audit)
 
@@ -257,7 +256,6 @@ class GalleryModerationService(
                 previousStatus = previousStatus.name,
                 newStatus = GalleryMediaStatus.ARCHIVED.name,
                 reason = "Media archived by admin",
-                performedBy = performedBy,
             )
         auditRepository.save(audit)
 
@@ -276,7 +274,7 @@ class GalleryModerationService(
     @Transactional
     fun createExternalMedia(
         request: CreateExternalMediaRequest,
-        adminId: String,
+        adminId: UUID,
     ): GalleryMediaDto.External {
         logger.info { "Admin $adminId creating external media: ${request.title}" }
 
@@ -299,6 +297,7 @@ class GalleryModerationService(
         logger.info { "Created ExternalMedia as ACTIVE: id=${saved.id}" }
 
         val displayName = userProfileQueryService.findDisplayName(adminId)
+
         return GalleryMediaDto.from(saved, displayName)
     }
 
@@ -481,7 +480,7 @@ class GalleryModerationService(
         )
     }
 
-    private fun resolveDisplayNames(mediaList: List<GalleryMedia>): Map<String, String> {
+    private fun resolveDisplayNames(mediaList: List<GalleryMedia>): Map<UUID, String> {
         val userIds = mediaList.contributorIds()
         return if (userIds.isNotEmpty()) userProfileQueryService.findDisplayNames(userIds) else emptyMap()
     }

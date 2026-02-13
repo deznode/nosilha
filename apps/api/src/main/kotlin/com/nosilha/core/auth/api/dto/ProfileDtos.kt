@@ -29,7 +29,7 @@ import java.util.UUID
  */
 data class ProfileDto(
     val id: UUID,
-    val userId: String,
+    val userId: UUID,
     val displayName: String?,
     val location: String?,
     val preferredLanguage: PreferredLanguage,
@@ -47,7 +47,7 @@ data class ProfileDto(
         fun fromEntity(profile: UserProfile): ProfileDto =
             ProfileDto(
                 id = profile.id!!,
-                userId = profile.userId,
+                userId = profile.userId!!,
                 displayName = profile.displayName,
                 location = profile.location,
                 preferredLanguage = profile.preferredLanguage,

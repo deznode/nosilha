@@ -24,6 +24,7 @@ import java.time.ZoneOffset
 import java.time.format.TextStyle
 import java.time.temporal.ChronoUnit
 import java.util.Locale
+import java.util.UUID
 
 /**
  * Service for aggregating dashboard metrics and statistics.
@@ -181,7 +182,7 @@ class DashboardService(
         // Calculate points: stories=10, suggestions=5
         // For now, we'll use story count as the primary metric (simplified)
         val topContributors = storyContributions.take(5).map { row ->
-            val authorId = row[0] as String
+            val authorId = row[0] as UUID
             val storyCount = row[1] as Long
             val displayName = userProfileQueryService.findDisplayName(authorId) ?: "Anonymous"
             val points = storyCount * 10 // 10 points per story

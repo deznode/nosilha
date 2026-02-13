@@ -1,15 +1,17 @@
 package com.nosilha.core.ai.domain
 
+import com.nosilha.core.shared.domain.AuditableEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
-import jakarta.persistence.PrePersist
-import jakarta.persistence.PreUpdate
+import jakarta.persistence.PostLoad
+import jakarta.persistence.PostPersist
 import jakarta.persistence.Table
+import jakarta.persistence.Transient
+import org.springframework.data.domain.Persistable
 import java.time.Instant
-import java.time.LocalDateTime
 import java.util.UUID
 
 /**
@@ -37,9 +39,27 @@ class AnalysisBatch(
     val totalItems: Int,
     @Column(name = "requested_by", nullable = false)
     val requestedBy: UUID,
-) {
+) : AuditableEntity(),
+    Persistable<UUID> {
     @Id
-    var id: UUID? = null
+    private var id: UUID? = null
+
+    @Transient
+    private var isNew: Boolean = true
+
+    override fun getId(): UUID? = id
+
+    override fun isNew(): Boolean = isNew
+
+    fun assignId(newId: UUID) {
+        this.id = newId
+    }
+
+    @PostLoad
+    @PostPersist
+    private fun markNotNew() {
+        isNew = false
+    }
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 30)
@@ -56,23 +76,4 @@ class AnalysisBatch(
 
     @Column(name = "completed_at")
     var completedAt: Instant? = null
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    var createdAt: LocalDateTime = LocalDateTime.now()
-
-    @Column(name = "updated_at", nullable = false)
-    var updatedAt: LocalDateTime = LocalDateTime.now()
-
-    @PrePersist
-    protected fun onCreate() {
-        if (id == null) id = UUID.randomUUID()
-        val now = LocalDateTime.now()
-        createdAt = now
-        updatedAt = now
-    }
-
-    @PreUpdate
-    protected fun onUpdate() {
-        updatedAt = LocalDateTime.now()
-    }
 }

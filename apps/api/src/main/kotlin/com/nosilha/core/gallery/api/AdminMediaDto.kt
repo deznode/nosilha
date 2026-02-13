@@ -33,7 +33,7 @@ data class AdminMediaListDto(
     val publicUrl: String?,
     val status: GalleryMediaStatus,
     val severity: Int,
-    val uploadedBy: String?,
+    val uploadedBy: UUID?,
     val createdAt: Instant?,
 )
 
@@ -80,7 +80,7 @@ data class AdminMediaDetailDto(
     val reviewedBy: UUID?,
     val reviewedAt: Instant?,
     val rejectionReason: String?,
-    val uploadedBy: String?,
+    val uploadedBy: UUID?,
     val createdAt: Instant?,
     val updatedAt: Instant?,
 )

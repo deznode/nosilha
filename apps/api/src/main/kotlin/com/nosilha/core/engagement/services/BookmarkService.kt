@@ -67,7 +67,7 @@ class BookmarkService(
      * @throws BusinessException if bookmark limit reached
      */
     fun createBookmark(
-        userId: String,
+        userId: UUID,
         entryId: UUID,
     ): BookmarkDto {
         logger.debug { "Creating bookmark for user $userId on entry $entryId" }
@@ -118,7 +118,7 @@ class BookmarkService(
      * @throws ResourceNotFoundException if bookmark doesn't exist
      */
     fun deleteBookmark(
-        userId: String,
+        userId: UUID,
         entryId: UUID,
     ) {
         logger.debug { "Deleting bookmark for user $userId on entry $entryId" }
@@ -147,7 +147,7 @@ class BookmarkService(
      */
     @Transactional(readOnly = true)
     fun getBookmarks(
-        userId: String,
+        userId: UUID,
         pageable: Pageable,
     ): Page<BookmarkWithEntryDto> {
         logger.debug { "Fetching bookmarks for user $userId (page: ${pageable.pageNumber})" }
@@ -187,7 +187,7 @@ class BookmarkService(
      */
     @Transactional(readOnly = true)
     fun isBookmarked(
-        userId: String,
+        userId: UUID,
         entryId: UUID,
     ): BookmarkStatusDto {
         logger.debug { "Checking bookmark status for user $userId on entry $entryId" }

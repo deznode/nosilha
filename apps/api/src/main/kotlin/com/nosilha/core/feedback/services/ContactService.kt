@@ -209,8 +209,8 @@ class ContactService(
 
         logger.info { "Updating contact message $id status from ${message.status} to $status" }
 
-        val updatedMessage = message.copy(status = status)
-        val saved = contactMessageRepository.save(updatedMessage)
+        message.status = status
+        val saved = contactMessageRepository.save(message)
 
         return saved.toAdminDto()
     }

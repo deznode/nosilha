@@ -176,7 +176,7 @@ class AdminGalleryController(
         @Valid @RequestBody request: CreateExternalMediaRequest,
         authentication: Authentication,
     ): ApiResult<GalleryMediaDto.External> {
-        val adminId = authentication.name
+        val adminId = UUID.fromString(authentication.name)
         logger.info { "Admin $adminId creating external media: ${request.title}" }
 
         val media = moderationService.createExternalMedia(request, adminId)

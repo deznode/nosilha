@@ -40,7 +40,7 @@ interface BookmarkRepository : JpaRepository<Bookmark, UUID> {
      * @return Page of bookmarks for the user
      */
     fun findByUserId(
-        userId: String,
+        userId: UUID,
         pageable: Pageable,
     ): Page<Bookmark>
 
@@ -56,7 +56,7 @@ interface BookmarkRepository : JpaRepository<Bookmark, UUID> {
      * @return The bookmark if it exists, null otherwise
      */
     fun findByUserIdAndEntryId(
-        userId: String,
+        userId: UUID,
         entryId: UUID,
     ): Bookmark?
 
@@ -71,7 +71,7 @@ interface BookmarkRepository : JpaRepository<Bookmark, UUID> {
      * @return true if the user has bookmarked this entry, false otherwise
      */
     fun existsByUserIdAndEntryId(
-        userId: String,
+        userId: UUID,
         entryId: UUID,
     ): Boolean
 
@@ -84,7 +84,7 @@ interface BookmarkRepository : JpaRepository<Bookmark, UUID> {
      * @param userId User ID from authentication system (Supabase)
      * @return Total number of bookmarks for the user
      */
-    fun countByUserId(userId: String): Long
+    fun countByUserId(userId: UUID): Long
 
     /**
      * Deletes a user's bookmark for a specific directory entry.
@@ -96,7 +96,7 @@ interface BookmarkRepository : JpaRepository<Bookmark, UUID> {
      * @param entryId UUID of the directory entry to unbookmark
      */
     fun deleteByUserIdAndEntryId(
-        userId: String,
+        userId: UUID,
         entryId: UUID,
     )
 }

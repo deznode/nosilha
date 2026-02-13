@@ -256,9 +256,11 @@ class GalleryController(
      * is stored in the 'name' property (third constructor parameter), not in
      * the principal (which contains the Jwt object itself).
      */
-    private fun extractUserId(authentication: Authentication): String =
-        authentication.name
-            ?: error("Authentication name must be present (user ID)")
+    private fun extractUserId(authentication: Authentication): UUID =
+        UUID.fromString(
+            authentication.name
+                ?: error("Authentication name must be present (user ID)"),
+        )
 
     /**
      * Checks if authentication has a specific role.

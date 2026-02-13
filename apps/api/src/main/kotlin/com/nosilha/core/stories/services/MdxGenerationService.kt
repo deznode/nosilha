@@ -101,8 +101,8 @@ class MdxGenerationService(
             MdxFrontmatter(
                 title = story.title,
                 slug = slug,
-                author = story.authorId,
-                date = formatDate(story.createdAt ?: Instant.now()),
+                author = story.authorId.toString(),
+                date = formatDate(story.createdAt),
                 language = "pt", // Default to Portuguese for Brava Island stories
                 location = null, // Could be enhanced with related place name lookup
                 storyType = story.storyType.name,

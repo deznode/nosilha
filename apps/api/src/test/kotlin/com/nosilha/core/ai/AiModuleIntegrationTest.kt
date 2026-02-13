@@ -73,6 +73,11 @@ class AiModuleIntegrationTest {
         jdbcTemplate.execute("DELETE FROM ai_analysis_batch")
         jdbcTemplate.execute("DELETE FROM event_publication")
         galleryMediaRepository.deleteAll()
+        jdbcTemplate.execute("DELETE FROM users")
+        // Insert test users for FK constraints on created_by/updated_by
+        jdbcTemplate.execute(
+            "INSERT INTO users (id, email) VALUES ('$adminId', 'admin@test.com'), ('$testUserId', 'user@test.com') ON CONFLICT DO NOTHING",
+        )
         reset(mockProvider)
         whenever(mockProvider.name).thenReturn("cloud-vision")
         whenever(mockProvider.isEnabled()).thenReturn(true)
@@ -88,10 +93,12 @@ class AiModuleIntegrationTest {
             ),
         )
 
-    private fun userAuth(userId: String = "test-user-123") =
+    private val testUserId = UUID.randomUUID()
+
+    private fun userAuth(userId: UUID = testUserId) =
         authentication(
             UsernamePasswordAuthenticationToken(
-                userId,
+                userId.toString(),
                 null,
                 listOf(SimpleGrantedAuthority("ROLE_USER")),
             ),
@@ -103,7 +110,7 @@ class AiModuleIntegrationTest {
             this.status = GalleryMediaStatus.ACTIVE
             this.publicUrl = "https://media.example.com/test-image.jpg"
             this.source = MediaSource.LOCAL
-            this.uploadedBy = "test-user"
+            this.uploadedBy = testUserId
             this.displayOrder = 0
             this.fileName = "test-image.jpg"
             this.originalName = "heritage-photo.jpg"

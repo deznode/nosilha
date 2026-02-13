@@ -1,12 +1,12 @@
 package com.nosilha.core.auth.domain
 
+import com.nosilha.core.shared.domain.CreatableEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.time.Instant
 import java.util.UUID
 
 /**
@@ -27,7 +27,6 @@ import java.util.UUID
  * @property email User's email address from Supabase Auth (required, unique)
  * @property fullName User's full name (optional)
  * @property role User's role within the application (defaults to USER)
- * @property createdAt Timestamp when the user record was created
  * @see UserRole
  */
 @Entity
@@ -42,9 +41,7 @@ class User(
     @Column(name = "role", nullable = false)
     @Enumerated(EnumType.STRING)
     var role: UserRole = UserRole.USER,
-    @Column(name = "created_at")
-    var createdAt: Instant = Instant.now(),
-)
+) : CreatableEntity()
 
 /**
  * Application-specific user roles.

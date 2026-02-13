@@ -1,5 +1,6 @@
 package com.nosilha.core.stories.domain
 
+import com.nosilha.core.shared.domain.AuditableEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -11,8 +12,6 @@ import jakarta.persistence.Index
 import jakarta.persistence.Table
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
-import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.annotations.UpdateTimestamp
 import java.time.Instant
 import java.util.UUID
 
@@ -59,7 +58,7 @@ import java.util.UUID
         Index(name = "idx_story_submissions_ip", columnList = "ip_address, created_at"),
     ],
 )
-data class StorySubmission(
+class StorySubmission(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: UUID? = null,
@@ -78,34 +77,48 @@ data class StorySubmission(
     @Column(name = "template_type", length = 20)
     val templateType: TemplateType? = null,
     @Column(name = "author_id", nullable = false)
-    val authorId: String,
+    val authorId: UUID,
     @Column(name = "related_place_id")
     val relatedPlaceId: UUID? = null,
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    var status: StoryStatus = StoryStatus.PENDING,
-    @Column(name = "is_featured", nullable = false)
-    var isFeatured: Boolean = false,
-    @Column(name = "admin_notes", columnDefinition = "TEXT")
-    var adminNotes: String? = null,
-    @Column(name = "reviewed_by")
-    var reviewedBy: String? = null,
-    @Column(name = "reviewed_at")
-    var reviewedAt: Instant? = null,
-    @Column(name = "publication_slug", unique = true)
-    var publicationSlug: String? = null,
     @Column(name = "ip_address", length = 45)
     val ipAddress: String? = null,
+) : AuditableEntity() {
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    var status: StoryStatus = StoryStatus.PENDING
+
+    @Column(name = "is_featured", nullable = false)
+    var isFeatured: Boolean = false
+
+    @Column(name = "admin_notes", columnDefinition = "TEXT")
+    var adminNotes: String? = null
+
+    @Column(name = "reviewed_by")
+    var reviewedBy: UUID? = null
+
+    @Column(name = "reviewed_at")
+    var reviewedAt: Instant? = null
+
+    @Column(name = "publication_slug", unique = true)
+    var publicationSlug: String? = null
+
     @Column(name = "archived_at")
-    var archivedAt: Instant? = null,
+    var archivedAt: Instant? = null
+
     @Column(name = "archived_slug", length = 255)
-    var archivedSlug: String? = null,
-    @Column(name = "archived_by", length = 255)
-    var archivedBy: String? = null,
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    val createdAt: Instant? = null,
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
-    var updatedAt: Instant? = null,
-)
+    var archivedSlug: String? = null
+
+    @Column(name = "archived_by")
+    var archivedBy: UUID? = null
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as StorySubmission
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int = id?.hashCode() ?: 31
+
+    override fun toString(): String = "StorySubmission(id=$id, title='$title', status=$status)"
+}

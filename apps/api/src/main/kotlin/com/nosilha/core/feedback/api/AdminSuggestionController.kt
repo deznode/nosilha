@@ -126,7 +126,7 @@ class AdminSuggestionController(
         @Valid @RequestBody request: UpdateSuggestionStatusRequest,
         authentication: Authentication,
     ): ResponseEntity<ApiResult<SuggestionDetailDto>> {
-        val adminId = authentication.name
+        val adminId = UUID.fromString(authentication.name)
         val updated =
             suggestionService.updateSuggestionStatus(
                 id = id,
