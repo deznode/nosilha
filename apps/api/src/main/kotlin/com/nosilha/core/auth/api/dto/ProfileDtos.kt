@@ -1,6 +1,5 @@
 package com.nosilha.core.auth.api.dto
 
-import com.fasterxml.jackson.annotation.JsonFormat
 import com.nosilha.core.auth.domain.NotificationPreferences
 import com.nosilha.core.auth.domain.PreferredLanguage
 import com.nosilha.core.auth.domain.UserProfile
@@ -10,7 +9,7 @@ import com.nosilha.core.feedback.domain.SuggestionType
 import com.nosilha.core.stories.domain.StoryStatus
 import com.nosilha.core.stories.domain.StoryType
 import jakarta.validation.constraints.Size
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.UUID
 
 /**
@@ -30,15 +29,13 @@ import java.util.UUID
  */
 data class ProfileDto(
     val id: UUID,
-    val userId: String,
+    val userId: UUID,
     val displayName: String?,
     val location: String?,
     val preferredLanguage: PreferredLanguage,
     val notificationPreferences: NotificationPreferences,
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    val createdAt: LocalDateTime,
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    val updatedAt: LocalDateTime,
+    val createdAt: Instant,
+    val updatedAt: Instant,
 ) {
     companion object {
         /**
@@ -50,7 +47,7 @@ data class ProfileDto(
         fun fromEntity(profile: UserProfile): ProfileDto =
             ProfileDto(
                 id = profile.id!!,
-                userId = profile.userId,
+                userId = profile.userId!!,
                 displayName = profile.displayName,
                 location = profile.location,
                 preferredLanguage = profile.preferredLanguage,
@@ -101,8 +98,7 @@ data class SuggestionSummaryDto(
     val contentId: UUID,
     val suggestionType: SuggestionType,
     val status: SuggestionStatus,
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    val createdAt: LocalDateTime,
+    val createdAt: Instant,
 )
 
 /**
@@ -122,8 +118,7 @@ data class StorySummaryDto(
     val title: String,
     val storyType: StoryType,
     val status: StoryStatus,
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    val createdAt: LocalDateTime,
+    val createdAt: Instant,
 )
 
 /**

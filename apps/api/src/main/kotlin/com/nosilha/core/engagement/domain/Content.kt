@@ -1,5 +1,6 @@
 package com.nosilha.core.engagement.domain
 
+import com.nosilha.core.shared.domain.AuditableEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
@@ -12,9 +13,6 @@ import jakarta.persistence.Table
 import jakarta.persistence.UniqueConstraint
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
-import org.hibernate.annotations.CreationTimestamp
-import org.hibernate.annotations.UpdateTimestamp
-import java.time.Instant
 import java.util.UUID
 
 /**
@@ -44,7 +42,7 @@ import java.util.UUID
         Index(name = "idx_content_type", columnList = "content_type"),
     ],
 )
-data class Content(
+class Content(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: UUID? = null,
@@ -55,13 +53,18 @@ data class Content(
     @Enumerated(EnumType.STRING)
     @Column(name = "content_type", nullable = false, length = 20)
     val contentType: ContentType,
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    val createdAt: Instant? = null,
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
-    val updatedAt: Instant? = null,
-)
+) : AuditableEntity() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as Content
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int = id?.hashCode() ?: 31
+
+    override fun toString(): String = "Content(id=$id, slug='$slug', type=$contentType)"
+}
 
 /**
  * Enum representing the types of content that can be registered.

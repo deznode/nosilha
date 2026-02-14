@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import java.math.BigDecimal
 import java.time.Instant
-import java.time.ZoneOffset
 import java.util.UUID
 
 /**
@@ -31,11 +30,11 @@ data class AdminDirectoryEntryDto(
     val latitude: Double,
     val longitude: Double,
     val status: String,
-    val submittedBy: String?,
+    val submittedBy: UUID?,
     val submittedByEmail: String?,
     val submittedAt: Instant?,
     val adminNotes: String?,
-    val reviewedBy: String?,
+    val reviewedBy: UUID?,
     val reviewedAt: Instant?,
     val createdAt: Instant?,
     val updatedAt: Instant?,
@@ -44,11 +43,8 @@ data class AdminDirectoryEntryDto(
         /**
          * Maps a DirectoryEntry entity to AdminDirectoryEntryDto.
          */
-        fun fromEntity(entity: DirectoryEntry): AdminDirectoryEntryDto {
-            val createdAtInstant = entity.createdAt.toInstant(ZoneOffset.UTC)
-            val updatedAtInstant = entity.updatedAt.toInstant(ZoneOffset.UTC)
-
-            return AdminDirectoryEntryDto(
+        fun fromEntity(entity: DirectoryEntry): AdminDirectoryEntryDto =
+            AdminDirectoryEntryDto(
                 id = entity.id!!,
                 name = entity.name,
                 slug = entity.slug,
@@ -67,14 +63,13 @@ data class AdminDirectoryEntryDto(
                 status = entity.status.name,
                 submittedBy = entity.submittedBy,
                 submittedByEmail = entity.submittedByEmail,
-                submittedAt = createdAtInstant,
+                submittedAt = entity.createdAt,
                 adminNotes = entity.adminNotes,
                 reviewedBy = entity.reviewedBy,
                 reviewedAt = entity.reviewedAt,
-                createdAt = createdAtInstant,
-                updatedAt = updatedAtInstant,
+                createdAt = entity.createdAt,
+                updatedAt = entity.updatedAt,
             )
-        }
     }
 }
 

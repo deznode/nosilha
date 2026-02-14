@@ -7,7 +7,7 @@
  * Handles GPS privacy transformation and manual metadata for historical photos.
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useR2Upload, type UploadResult } from "./useR2Upload";
 import { extractMetadata } from "@/lib/exif-utils";
 import { applyGpsPrivacy, type GpsPrivacyResult } from "@/lib/gps-privacy";
@@ -147,27 +147,31 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
   const gpsResult: GpsPrivacyResult = applyGpsPrivacy(extractedExif, photoType);
 
   // Build complete metadata object
-  const metadata: PhotoMetadata | null = file
-    ? {
-        // EXIF data
-        latitude: gpsResult.latitude,
-        longitude: gpsResult.longitude,
-        altitude: gpsResult.altitude,
-        dateTimeOriginal: extractedExif?.dateTimeOriginal,
-        make: extractedExif?.make,
-        model: extractedExif?.model,
-        orientation: extractedExif?.orientation ?? 1,
-        width: extractedExif?.width,
-        height: extractedExif?.height,
-        // Privacy
-        photoType,
-        gpsPrivacyLevel: gpsResult.gpsPrivacyLevel,
-        // Manual
-        ...manualMetadata,
-        // Status
-        hasExifData,
-      }
-    : null;
+  const metadata: PhotoMetadata | null = useMemo(
+    () =>
+      file
+        ? {
+            // EXIF data
+            latitude: gpsResult.latitude,
+            longitude: gpsResult.longitude,
+            altitude: gpsResult.altitude,
+            dateTimeOriginal: extractedExif?.dateTimeOriginal,
+            make: extractedExif?.make,
+            model: extractedExif?.model,
+            orientation: extractedExif?.orientation ?? 1,
+            width: extractedExif?.width,
+            height: extractedExif?.height,
+            // Privacy
+            photoType,
+            gpsPrivacyLevel: gpsResult.gpsPrivacyLevel,
+            // Manual
+            ...manualMetadata,
+            // Status
+            hasExifData,
+          }
+        : null,
+    [file, gpsResult, extractedExif, photoType, manualMetadata, hasExifData]
+  );
 
   // Map upload state to our combined state
   function resolveEffectiveState(): PhotoUploadState {

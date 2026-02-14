@@ -76,7 +76,7 @@ class UserUploadedMedia : GalleryMedia() {
 
     /** User who uploaded the media. */
     @Column(name = "uploaded_by")
-    var uploadedBy: String? = null
+    var uploadedBy: UUID? = null
 
     // --- EXIF Metadata (Extracted from photos) ---
 

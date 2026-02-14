@@ -1,11 +1,11 @@
 package com.nosilha.core.gallery.domain
 
+import com.nosilha.core.shared.domain.CreatableEntity
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.Table
-import java.time.Instant
 import java.util.UUID
 
 /**
@@ -15,7 +15,9 @@ import java.util.UUID
  * tracking, and review purposes. Provides complete history of status changes,
  * reviewer actions, and reasons for moderation decisions.</p>
  *
- * <p>This entity is part of the gallery module since it's closely tied to media management.</p>
+ * <p>Extends CreatableEntity to inherit {@code createdAt} and {@code createdBy}
+ * which map to the former {@code performed_at} and {@code performed_by} columns
+ * (renamed in V16 migration).</p>
  *
  * @see com.nosilha.core.gallery.domain.GalleryMedia
  */
@@ -37,13 +39,7 @@ class MediaModerationAudit(
     /** Admin-provided reason for the action. */
     @Column(name = "reason", length = 1024)
     val reason: String? = null,
-    /** UUID of the admin user who performed the action. */
-    @Column(name = "performed_by", nullable = false)
-    val performedBy: UUID,
-    /** Timestamp when the action was performed. */
-    @Column(name = "performed_at", nullable = false)
-    val performedAt: Instant = Instant.now(),
-) {
+) : CreatableEntity() {
     /** Primary key (UUID, auto-generated). */
     @Id
     @GeneratedValue

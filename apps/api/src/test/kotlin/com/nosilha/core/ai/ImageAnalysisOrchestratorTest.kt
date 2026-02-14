@@ -63,7 +63,7 @@ class ImageAnalysisOrchestratorTest {
 
     private fun createRun(): AnalysisRun {
         val run = AnalysisRun(mediaId = mediaId, requestedBy = adminId)
-        run.id = runId
+        run.assignId(runId)
         return run
     }
 

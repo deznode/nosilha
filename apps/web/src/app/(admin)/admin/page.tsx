@@ -142,7 +142,10 @@ export default function AdminDashboardPage() {
   const stories = storiesQuery.data?.items ?? [];
   const messages = messagesQuery.data?.items ?? [];
   const directorySubmissions = directoryQuery.data?.items ?? [];
-  const galleryItems = galleryQuery.data?.items ?? [];
+  const galleryItems = useMemo(
+    () => galleryQuery.data?.items ?? [],
+    [galleryQuery.data]
+  );
   const aiReviewItems = aiReviewQuery.data?.items ?? [];
   const contributors = contributorsQuery.data ?? [];
 

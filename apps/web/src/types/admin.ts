@@ -138,6 +138,7 @@ export interface AdminMediaListItem {
   status: MediaStatus;
   severity: number;
   uploadedBy?: string;
+  uploaderDisplayName?: string;
   createdAt: string;
 }
 

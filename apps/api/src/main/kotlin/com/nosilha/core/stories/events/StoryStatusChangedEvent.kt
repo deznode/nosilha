@@ -23,7 +23,7 @@ data class StoryStatusChangedEvent(
     val storyId: UUID,
     val previousStatus: StoryStatus,
     val newStatus: StoryStatus,
-    val reviewedBy: String?,
+    val reviewedBy: UUID?,
     val adminNotes: String?,
     override val occurredAt: Instant = Instant.now(),
 ) : ApplicationModuleEvent

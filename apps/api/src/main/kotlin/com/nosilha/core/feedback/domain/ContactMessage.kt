@@ -48,7 +48,7 @@ import java.util.UUID
         Index(name = "idx_contact_messages_ip_address", columnList = "ip_address"),
     ],
 )
-data class ContactMessage(
+class ContactMessage(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: UUID? = null,
@@ -71,5 +71,16 @@ data class ContactMessage(
     val ipAddress: String,
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    val status: ContactStatus = ContactStatus.UNREAD,
-) : AuditableEntity()
+    var status: ContactStatus = ContactStatus.UNREAD,
+) : AuditableEntity() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as ContactMessage
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int = id?.hashCode() ?: 31
+
+    override fun toString(): String = "ContactMessage(id=$id, subjectCategory=$subjectCategory, status=$status)"
+}

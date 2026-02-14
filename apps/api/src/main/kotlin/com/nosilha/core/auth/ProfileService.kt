@@ -64,7 +64,7 @@ class ProfileService(
      * Uses Bucket4j's token bucket algorithm for atomic, race-condition-free
      * rate limiting. Each user gets a bucket that refills 10 tokens per minute.
      */
-    private val rateLimitBuckets: Cache<String, Bucket> = Caffeine
+    private val rateLimitBuckets: Cache<UUID, Bucket> = Caffeine
         .newBuilder()
         .maximumSize(10_000)
         .expireAfterAccess(1, TimeUnit.HOURS)
@@ -90,7 +90,7 @@ class ProfileService(
      * @param userId Supabase auth user ID from JWT token
      * @return ProfileDto containing the user's profile information
      */
-    fun getOrCreateProfile(userId: String): ProfileDto {
+    fun getOrCreateProfile(userId: UUID): ProfileDto {
         logger.debug { "Retrieving profile for user: $userId" }
 
         // Try to find existing profile first (most common case)
@@ -136,7 +136,7 @@ class ProfileService(
      * @throws RateLimitExceededException if user exceeds 10 updates/minute
      */
     fun updateProfile(
-        userId: String,
+        userId: UUID,
         request: ProfileUpdateRequest,
     ): ProfileDto {
         logger.debug { "Updating profile for user: $userId" }
@@ -174,7 +174,7 @@ class ProfileService(
      * @param userId String user ID to check
      * @return true if within rate limit (token consumed), false if exceeded
      */
-    private fun checkRateLimit(userId: String): Boolean = getBucketForUser(userId).tryConsume(1)
+    private fun checkRateLimit(userId: UUID): Boolean = getBucketForUser(userId).tryConsume(1)
 
     /**
      * Gets or creates a rate limit bucket for the given user ID.
@@ -182,7 +182,7 @@ class ProfileService(
      * @param userId User ID to get bucket for
      * @return Bucket configured for rate limiting (10 requests/minute)
      */
-    private fun getBucketForUser(userId: String): Bucket =
+    private fun getBucketForUser(userId: UUID): Bucket =
         rateLimitBuckets.get(userId) {
             logger.debug { "Creating rate limit bucket for user: $userId" }
             Bucket
@@ -208,34 +208,15 @@ class ProfileService(
      *       status (PENDING, APPROVED, REJECTED, NEEDS_REVISION, PUBLISHED)</li>
      * </ul>
      *
-     * <p>Note: The userId for reactions is a UUID, while for suggestions and stories it's a String.
-     * This method handles the conversion appropriately.</p>
-     *
-     * @param userId Supabase auth user ID (String format)
+     * @param userId Supabase auth user ID
      * @return ContributionsDto with aggregated counts and lists of contributions
      */
     @Transactional(readOnly = true)
-    fun getContributions(userId: String): ContributionsDto {
+    fun getContributions(userId: UUID): ContributionsDto {
         logger.debug { "Retrieving contributions for user: $userId" }
 
-        // Convert userId String to UUID for reaction queries
-        val userUuid = try {
-            UUID.fromString(userId)
-        } catch (e: IllegalArgumentException) {
-            logger.warn { "Invalid UUID format for userId: $userId" }
-            // If userId is not a valid UUID, return empty contributions
-            return ContributionsDto(
-                reactionCounts = emptyMap(),
-                suggestions = emptyList(),
-                stories = emptyList(),
-                totalReactions = 0,
-                totalSuggestions = 0,
-                totalStories = 0,
-            )
-        }
-
         // Get reaction counts grouped by type
-        val reactionCounts = getReactionCountsByUser(userUuid)
+        val reactionCounts = getReactionCountsByUser(userId)
 
         // Get suggestions submitted by user
         // TODO: Re-enable once Suggestion entity has userId field
@@ -265,9 +246,7 @@ class ProfileService(
                 title = story.title,
                 storyType = story.storyType,
                 status = story.status,
-                createdAt = story.createdAt!!.let { instant ->
-                    java.time.LocalDateTime.ofInstant(instant, java.time.ZoneOffset.UTC)
-                },
+                createdAt = story.createdAt,
             )
         }
 

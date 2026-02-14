@@ -1,9 +1,8 @@
 package com.nosilha.core.engagement.domain
 
+import com.nosilha.core.shared.domain.CreatableEntity
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
-import org.hibernate.annotations.CreationTimestamp
-import java.time.Instant
 import java.util.UUID
 
 /**
@@ -32,17 +31,25 @@ import java.util.UUID
         Index(name = "idx_bookmarks_created", columnList = "created_at"),
     ],
 )
-data class Bookmark(
+class Bookmark(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: UUID? = null,
     @NotNull
     @Column(name = "user_id", nullable = false)
-    val userId: String,
+    val userId: UUID,
     @NotNull
     @Column(name = "entry_id", nullable = false)
     val entryId: UUID,
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    val createdAt: Instant? = null,
-)
+) : CreatableEntity() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as Bookmark
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int = id?.hashCode() ?: 31
+
+    override fun toString(): String = "Bookmark(id=$id, userId=$userId, entryId=$entryId)"
+}

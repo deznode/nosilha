@@ -1,5 +1,7 @@
 package com.nosilha.core.auth.api
 
+import java.util.UUID
+
 /**
  * Public query service for user profile information.
  *
@@ -23,7 +25,7 @@ interface UserProfileQueryService {
      * @return Map of userId to displayName. Users without profiles or display names
      *         will not be included in the result.
      */
-    fun findDisplayNames(userIds: Collection<String>): Map<String, String>
+    fun findDisplayNames(userIds: Collection<UUID>): Map<UUID, String>
 
     /**
      * Finds the display name for a single user.
@@ -33,5 +35,5 @@ interface UserProfileQueryService {
      * @param userId User ID from authentication system (Supabase)
      * @return Display name if the user has a profile with a display name, null otherwise
      */
-    fun findDisplayName(userId: String): String?
+    fun findDisplayName(userId: UUID): String?
 }

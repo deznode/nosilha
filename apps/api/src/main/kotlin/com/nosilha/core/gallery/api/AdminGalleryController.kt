@@ -60,6 +60,8 @@ private val logger = KotlinLogging.logger {}
 class AdminGalleryController(
     private val moderationService: GalleryModerationService,
 ) {
+    private fun extractAdminId(authentication: Authentication): UUID = UUID.fromString(authentication.name)
+
     /**
      * Get unified moderation queue with optional status filtering.
      *
@@ -135,7 +137,7 @@ class AdminGalleryController(
         @Valid @RequestBody request: ModerationActionRequest,
         authentication: Authentication,
     ): ResponseEntity<ApiResult<GalleryMediaDto>> {
-        val adminId = UUID.fromString(authentication.name)
+        val adminId = extractAdminId(authentication)
         logger.info { "Admin $adminId moderating media $id: ${request.action}" }
 
         val updated = moderationService.updateStatus(
@@ -176,7 +178,7 @@ class AdminGalleryController(
         @Valid @RequestBody request: CreateExternalMediaRequest,
         authentication: Authentication,
     ): ApiResult<GalleryMediaDto.External> {
-        val adminId = authentication.name
+        val adminId = extractAdminId(authentication)
         logger.info { "Admin $adminId creating external media: ${request.title}" }
 
         val media = moderationService.createExternalMedia(request, adminId)
@@ -209,7 +211,7 @@ class AdminGalleryController(
         @PathVariable id: UUID,
         authentication: Authentication,
     ) {
-        val adminId = UUID.fromString(authentication.name)
+        val adminId = extractAdminId(authentication)
         logger.info { "Admin $adminId archiving media: $id" }
 
         moderationService.archiveMedia(id, adminId)
@@ -243,7 +245,7 @@ class AdminGalleryController(
         @PathVariable mediaId: UUID,
         authentication: Authentication,
     ): ResponseEntity<ApiResult<Unit>> {
-        val adminId = UUID.fromString(authentication.name)
+        val adminId = extractAdminId(authentication)
         logger.info { "Admin $adminId promoting media $mediaId to hero image" }
 
         moderationService.promoteToHeroImage(mediaId, adminId)
@@ -261,7 +263,7 @@ class AdminGalleryController(
         @PathVariable mediaId: UUID,
         authentication: Authentication,
     ): ResponseEntity<ApiResult<AnalysisTriggerResponse>> {
-        val adminId = UUID.fromString(authentication.name)
+        val adminId = extractAdminId(authentication)
         logger.info { "Admin $adminId triggering AI analysis for media $mediaId" }
 
         val runId = moderationService.triggerAnalysis(mediaId, adminId)
@@ -288,7 +290,7 @@ class AdminGalleryController(
         @Valid @RequestBody request: AnalyzeBatchRequest,
         authentication: Authentication,
     ): ResponseEntity<ApiResult<BatchAnalysisTriggerResponse>> {
-        val adminId = UUID.fromString(authentication.name)
+        val adminId = extractAdminId(authentication)
         logger.info { "Admin $adminId triggering batch AI analysis for ${request.mediaIds.size} items" }
 
         val result = moderationService.triggerBatchAnalysis(request.mediaIds, adminId)

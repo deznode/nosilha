@@ -2,8 +2,10 @@ package com.nosilha.core.gallery.domain
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.nosilha.core.auth.api.UserProfileQueryService
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
+import com.nosilha.core.gallery.api.dto.contributorIds
 import com.nosilha.core.gallery.api.dto.toDto
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import com.nosilha.core.shared.api.PageableInfo
@@ -51,6 +53,7 @@ private val logger = KotlinLogging.logger {}
 class GalleryService(
     private val r2StorageService: R2StorageService?,
     private val repository: GalleryMediaRepository,
+    private val userProfileQueryService: UserProfileQueryService,
     meterRegistry: MeterRegistry,
 ) {
     companion object {
@@ -91,7 +94,7 @@ class GalleryService(
      * - 20 uploads per hour (short-term burst protection)
      * - 100 uploads per day (long-term abuse prevention)
      */
-    private val rateLimitBuckets: Cache<String, Bucket> = Caffeine
+    private val rateLimitBuckets: Cache<UUID, Bucket> = Caffeine
         .newBuilder()
         .maximumSize(10_000)
         .expireAfterAccess(1, TimeUnit.DAYS)
@@ -132,7 +135,7 @@ class GalleryService(
         fileName: String,
         contentType: String,
         fileSize: Long,
-        userId: String,
+        userId: UUID,
     ): PresignedPutUrlResult {
         requireR2Enabled()
 
@@ -157,7 +160,7 @@ class GalleryService(
      * @param userId User to check
      * @throws RateLimitExceededException if either limit exceeded
      */
-    private fun checkRateLimit(userId: String) {
+    private fun checkRateLimit(userId: UUID) {
         val bucket = getBucketForUser(userId)
         if (!bucket.tryConsume(1)) {
             logger.warn { "Rate limit exceeded for user $userId" }
@@ -177,7 +180,7 @@ class GalleryService(
      * @param userId User ID to get bucket for
      * @return Bucket configured with dual rate limits
      */
-    private fun getBucketForUser(userId: String): Bucket =
+    private fun getBucketForUser(userId: UUID): Bucket =
         rateLimitBuckets.get(userId) {
             logger.debug { "Creating rate limit bucket for user: $userId" }
             Bucket
@@ -233,7 +236,7 @@ class GalleryService(
         entryId: UUID?,
         category: String?,
         description: String?,
-        userId: String,
+        userId: UUID,
         // EXIF metadata (privacy-processed)
         latitude: Double? = null,
         longitude: Double? = null,
@@ -304,7 +307,8 @@ class GalleryService(
         uploadSuccessCounter.increment()
         logger.info { "Created UserUploadedMedia record: id=${saved.id}, status=${saved.status}, hasGps=${latitude != null}" }
 
-        return GalleryMediaDto.from(saved)
+        val displayName = userProfileQueryService.findDisplayName(userId)
+        return GalleryMediaDto.from(saved, displayName)
     }
 
     // ================================
@@ -393,7 +397,7 @@ class GalleryService(
     @Suppress("ReturnCount")
     fun softDelete(
         mediaId: UUID,
-        userId: String,
+        userId: UUID,
         isAdmin: Boolean,
     ): Boolean {
         val media = repository.findById(mediaId).orElse(null)
@@ -508,7 +512,8 @@ class GalleryService(
             repository.findByStatusOrderByDisplayOrderAsc(GalleryMediaStatus.ACTIVE, pageable)
         }
 
-        val dtos = mediaPage.content.map { it.toDto() }
+        val displayNames = resolveDisplayNames(mediaPage.content)
+        val dtos = mediaPage.content.map { it.toDto(displayNames) }
 
         return PagedApiResult(
             data = dtos,
@@ -542,7 +547,8 @@ class GalleryService(
             return null
         }
 
-        return media.toDto()
+        val displayNames = resolveDisplayNames(listOf(media))
+        return media.toDto(displayNames)
     }
 
     /**
@@ -552,10 +558,12 @@ class GalleryService(
      * @return List of user upload DTOs
      */
     @Transactional(readOnly = true)
-    fun getMediaByEntry(entryId: UUID): List<GalleryMediaDto.UserUpload> =
-        repository
+    fun getMediaByEntry(entryId: UUID): List<GalleryMediaDto.UserUpload> {
+        val mediaList = repository
             .findByEntryIdAndStatusOrderByDisplayOrderAsc(entryId, GalleryMediaStatus.ACTIVE)
-            .map { GalleryMediaDto.from(it) }
+        val displayNames = resolveDisplayNames(mediaList)
+        return mediaList.map { GalleryMediaDto.from(it, it.uploadedBy?.let { id -> displayNames[id] }) }
+    }
 
     /**
      * Gets distinct list of categories from ACTIVE media.
@@ -582,7 +590,7 @@ class GalleryService(
     @Transactional
     fun submitExternalMedia(
         request: SubmitExternalMediaRequest,
-        userId: String,
+        userId: UUID,
     ): GalleryMediaDto.External {
         logger.info { "User $userId submitting external media: ${request.title} (${request.mediaType}, ${request.platform})" }
 
@@ -605,7 +613,16 @@ class GalleryService(
         externalMediaCreatedCounter.increment()
         logger.info { "Created ExternalMedia for review: id=${saved.id}" }
 
-        return GalleryMediaDto.from(saved)
+        val displayName = userProfileQueryService.findDisplayName(userId)
+        return GalleryMediaDto.from(saved, displayName)
+    }
+
+    /**
+     * Batch-resolves display names for a list of gallery media items.
+     */
+    private fun resolveDisplayNames(mediaList: List<GalleryMedia>): Map<UUID, String> {
+        val userIds = mediaList.contributorIds()
+        return if (userIds.isNotEmpty()) userProfileQueryService.findDisplayNames(userIds) else emptyMap()
     }
 
     /**

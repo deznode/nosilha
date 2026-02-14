@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import {
   Dialog,
@@ -58,15 +58,15 @@ export function AiReviewDetailModal({
     [detail]
   );
 
-  useEffect(() => {
-    if (detail) {
-      setAltText(originalSnapshot.altText);
-      setDescription(originalSnapshot.description);
-      setTagsInput(originalSnapshot.tags);
-      setIsRejecting(false);
-      setRejectNotes("");
-    }
-  }, [detail, originalSnapshot]);
+  const [prevDetail, setPrevDetail] = useState(detail);
+  if (detail !== prevDetail) {
+    setPrevDetail(detail);
+    setAltText(originalSnapshot.altText);
+    setDescription(originalSnapshot.description);
+    setTagsInput(originalSnapshot.tags);
+    setIsRejecting(false);
+    setRejectNotes("");
+  }
 
   // Check if fields have been edited
   const hasEdits = useMemo(

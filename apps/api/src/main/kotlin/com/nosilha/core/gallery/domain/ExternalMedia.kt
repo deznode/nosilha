@@ -5,6 +5,7 @@ import jakarta.persistence.DiscriminatorValue
 import jakarta.persistence.Entity
 import jakarta.persistence.EnumType
 import jakarta.persistence.Enumerated
+import java.util.UUID
 
 /**
  * Gallery media subclass for admin-curated external content.
@@ -77,8 +78,8 @@ class ExternalMedia : GalleryMedia() {
      * User ID of the admin who curated this media.
      * References Supabase auth user ID.
      */
-    @Column(name = "curated_by", length = 100)
-    var curatedBy: String? = null
+    @Column(name = "curated_by")
+    var curatedBy: UUID? = null
 
     /**
      * Generates platform-specific embed URL for video/audio content.

@@ -84,6 +84,12 @@ tasks:
     cmds:
       - docker compose -f {{.DOCKER_COMPOSE}} up -d
 
+  db:reset:
+    desc: Reset the database (WARNING — destroys all data)
+    cmds:
+      - docker compose -f {{.DOCKER_COMPOSE}} down -v
+      - docker compose -f {{.DOCKER_COMPOSE}} up -d db
+
   test:
     desc: Run all tests — API + web
     cmds:

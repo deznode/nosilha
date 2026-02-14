@@ -48,6 +48,8 @@ spring:
     properties:
       hibernate:
         format_sql: false
+        jdbc:
+          time_zone: UTC
 
   # Spring AI Configuration (Gemini via Google GenAI)
   # spring.ai.model.chat controls auto-configuration: "google-genai" to enable, "none" to disable

@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import Image from "next/image";
 import React, { forwardRef } from "react";
 import { TouchTarget } from "../catalyst-ui/button";
 
@@ -54,11 +55,13 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
       )}
     >
       {src ? (
-        <img
+        <Image
           src={src}
           alt={alt}
+          fill
+          unoptimized
           className={clsx(
-            "size-full object-cover",
+            "object-cover",
             square ? "rounded-lg" : "rounded-full"
           )}
         />
