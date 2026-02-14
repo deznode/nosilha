@@ -30,6 +30,7 @@ import {
   GalleryQueue,
   AiReviewQueue,
 } from "@/components/admin/queues";
+import { R2StoragePanel } from "@/components/admin/r2-storage/r2-storage-panel";
 import { StoryDetailModal } from "@/components/admin/story-detail-modal";
 import { AiReviewDetailModal } from "@/components/admin/ai-review-detail-modal";
 import { FlagReasonModal } from "@/components/admin/queues/flag-reason-modal";
@@ -527,19 +528,22 @@ export default function AdminDashboardPage() {
               />
             </TabPanel>
             <TabPanel>
-              <GalleryQueue
-                items={galleryItems}
-                isLoading={galleryQuery.isLoading}
-                onStatusChange={handleGalleryStatusChange}
-                onPromoteToHero={handlePromoteToHero}
-                aiStatuses={aiStatusMap}
-                onViewAiReview={handleViewAiReview}
-                onTriggerAnalysis={handleTriggerAnalysis}
-                isTriggerPending={triggerAnalysis.isPending}
-                triggeringMediaId={triggerAnalysis.variables}
-                onTriggerBatchAnalysis={handleTriggerBatchAnalysis}
-                isBatchTriggerPending={triggerBatchAnalysis.isPending}
-              />
+              <div className="space-y-8">
+                <GalleryQueue
+                  items={galleryItems}
+                  isLoading={galleryQuery.isLoading}
+                  onStatusChange={handleGalleryStatusChange}
+                  onPromoteToHero={handlePromoteToHero}
+                  aiStatuses={aiStatusMap}
+                  onViewAiReview={handleViewAiReview}
+                  onTriggerAnalysis={handleTriggerAnalysis}
+                  isTriggerPending={triggerAnalysis.isPending}
+                  triggeringMediaId={triggerAnalysis.variables}
+                  onTriggerBatchAnalysis={handleTriggerBatchAnalysis}
+                  isBatchTriggerPending={triggerBatchAnalysis.isPending}
+                />
+                <R2StoragePanel />
+              </div>
             </TabPanel>
             <TabPanel>
               <AiReviewQueue
