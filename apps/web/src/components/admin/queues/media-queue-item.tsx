@@ -141,7 +141,9 @@ export function MediaQueueItem({
             {media.uploadedBy && (
               <p className="text-muted mt-1 text-xs">
                 Uploaded by:{" "}
-                <span className="font-medium">{media.uploaderDisplayName || media.uploadedBy}</span>
+                <span className="font-medium">
+                  {media.uploaderDisplayName || media.uploadedBy}
+                </span>
               </p>
             )}
             <p className="text-muted mt-1 text-xs">
