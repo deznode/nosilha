@@ -112,10 +112,12 @@ Two Playwright capabilities exist — use the right one for the task:
 
 | Tool | When to Use | How |
 |------|-------------|-----|
-| **`playwright:playwright-cli` skill** | Ad-hoc feature verification — browse pages, click through flows, take screenshots | Invoke via `/playwright-cli` or the skill system |
+| **`playwright:playwright-cli` skill** | Ad-hoc feature verification — browse pages, click through flows, take screenshots | **Invoke skill first** via `/playwright-cli`, then use `playwright-cli` bash commands |
 | **E2E test suite** | Pre-release regression testing — run the full automated test suite | `cd apps/web && pnpm run test:e2e` |
 
-Config: `playwright-cli.json` (project root) configures the CLI skill. `apps/web/playwright.config.ts` configures the test suite.
+**Important**: The `playwright-cli` skill is a pre-installed plugin — do NOT install Playwright MCP via npx or npm. Always invoke the skill first to load instructions, then use `playwright-cli open <url>`, `playwright-cli snapshot`, etc.
+
+Config: `.playwright/cli.config.json` configures the CLI skill. `apps/web/playwright.config.ts` configures the test suite.
 
 ### Documentation Compliance
 

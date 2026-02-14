@@ -50,7 +50,7 @@ export function GalleryQueue({
         .filter(
           (item) =>
             isUserUploadMedia(item) &&
-            item.status === "ACTIVE" &&
+            (item.status === "ACTIVE" || item.status === "PENDING_REVIEW") &&
             !!item.publicUrl &&
             aiStatuses?.get(item.id)?.lastRunStatus !== "PROCESSING"
         )

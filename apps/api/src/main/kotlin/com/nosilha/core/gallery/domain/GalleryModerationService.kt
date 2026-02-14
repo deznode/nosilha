@@ -423,8 +423,9 @@ class GalleryModerationService(
                 errors.add(BatchError(id, "Only user uploads can be analyzed"))
                 continue
             }
-            if (media.status != GalleryMediaStatus.ACTIVE) {
-                errors.add(BatchError(id, "Media is not ACTIVE"))
+            val allowedStatuses = setOf(GalleryMediaStatus.ACTIVE, GalleryMediaStatus.PENDING_REVIEW)
+            if (media.status !in allowedStatuses) {
+                errors.add(BatchError(id, "Media is not ACTIVE or PENDING_REVIEW"))
                 continue
             }
             if (media.publicUrl.isNullOrBlank()) {
@@ -489,8 +490,9 @@ class GalleryModerationService(
         if (media !is UserUploadedMedia) {
             throw BusinessException("Only user uploads can be analyzed by AI")
         }
-        if (media.status != GalleryMediaStatus.ACTIVE) {
-            throw BusinessException("Media must be ACTIVE for AI analysis (current: ${media.status})")
+        val allowedStatuses = setOf(GalleryMediaStatus.ACTIVE, GalleryMediaStatus.PENDING_REVIEW)
+        if (media.status !in allowedStatuses) {
+            throw BusinessException("Media must be ACTIVE or PENDING_REVIEW for AI analysis (current: ${media.status})")
         }
         if (media.publicUrl.isNullOrBlank()) {
             throw BusinessException("Media must have a public URL for AI analysis")
