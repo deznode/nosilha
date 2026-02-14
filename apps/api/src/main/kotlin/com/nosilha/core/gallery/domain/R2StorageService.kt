@@ -11,6 +11,7 @@ import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException
 import software.amazon.awssdk.services.s3.presigner.S3Presigner
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest
@@ -35,6 +36,45 @@ data class PresignedPutUrlResult(
     val uploadUrl: String,
     val key: String,
     val expiresAt: Instant,
+)
+
+/**
+ * Result of listing objects in an R2 bucket.
+ *
+ * @property objects List of objects found
+ * @property continuationToken Token for fetching the next page, null if no more pages
+ * @property isTruncated Whether there are more objects beyond this page
+ */
+data class R2ListResult(
+    val objects: List<R2ObjectInfo>,
+    val continuationToken: String?,
+    val isTruncated: Boolean,
+)
+
+/**
+ * Metadata for a single R2 object from a list operation.
+ *
+ * @property key Storage key (path within bucket)
+ * @property size Object size in bytes
+ * @property lastModified When the object was last modified
+ */
+data class R2ObjectInfo(
+    val key: String,
+    val size: Long,
+    val lastModified: Instant,
+)
+
+/**
+ * Detailed metadata for a single R2 object from a head operation.
+ *
+ * @property contentType MIME content type
+ * @property contentLength File size in bytes
+ * @property lastModified When the object was last modified
+ */
+data class R2ObjectMetadata(
+    val contentType: String,
+    val contentLength: Long,
+    val lastModified: Instant,
 )
 
 /**
@@ -161,6 +201,77 @@ class R2StorageService(
      * @return Full public URL for accessing the object
      */
     fun getPublicUrl(key: String): String = "$publicUrl/$key"
+
+    /**
+     * Lists objects in the R2 bucket with optional prefix filtering and pagination.
+     *
+     * @param prefix Optional key prefix to filter by (e.g., "uploads/2025/")
+     * @param continuationToken Token from previous response for pagination
+     * @param maxKeys Maximum number of objects to return (clamped to 1000)
+     * @return R2ListResult with objects, continuation token, and truncation flag
+     * @throws IllegalStateException if R2 is not configured
+     */
+    fun listObjects(
+        prefix: String? = null,
+        continuationToken: String? = null,
+        maxKeys: Int = 100,
+    ): R2ListResult {
+        check(isConfigured) { "R2 storage is not configured" }
+
+        val clampedMaxKeys = maxKeys.coerceIn(1, 1000)
+        val requestBuilder = ListObjectsV2Request
+            .builder()
+            .bucket(bucketName)
+            .maxKeys(clampedMaxKeys)
+
+        prefix?.let { requestBuilder.prefix(it) }
+        continuationToken?.let { requestBuilder.continuationToken(it) }
+
+        val response = s3Client.listObjectsV2(requestBuilder.build())
+
+        val objects = response.contents().map { obj ->
+            R2ObjectInfo(
+                key = obj.key(),
+                size = obj.size(),
+                lastModified = obj.lastModified(),
+            )
+        }
+
+        logger.debug { "Listed ${objects.size} objects (prefix=$prefix, truncated=${response.isTruncated})" }
+
+        return R2ListResult(
+            objects = objects,
+            continuationToken = if (response.isTruncated) response.nextContinuationToken() else null,
+            isTruncated = response.isTruncated,
+        )
+    }
+
+    /**
+     * Fetches metadata for a single R2 object via HeadObject.
+     *
+     * @param key The storage key to inspect
+     * @return R2ObjectMetadata with contentType, contentLength, lastModified, or null if not found
+     * @throws IllegalStateException if R2 is not configured
+     */
+    fun headObject(key: String): R2ObjectMetadata? {
+        check(isConfigured) { "R2 storage is not configured" }
+
+        return try {
+            val request = HeadObjectRequest
+                .builder()
+                .bucket(bucketName)
+                .key(key)
+                .build()
+            val response = s3Client.headObject(request)
+            R2ObjectMetadata(
+                contentType = response.contentType() ?: "application/octet-stream",
+                contentLength = response.contentLength(),
+                lastModified = response.lastModified(),
+            )
+        } catch (_: NoSuchKeyException) {
+            null
+        }
+    }
 
     /**
      * Verifies that an object exists in R2 storage.
