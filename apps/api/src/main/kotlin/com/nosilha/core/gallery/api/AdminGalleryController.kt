@@ -4,11 +4,20 @@ import com.nosilha.core.gallery.api.dto.AnalysisTriggerResponse
 import com.nosilha.core.gallery.api.dto.AnalyzeBatchRequest
 import com.nosilha.core.gallery.api.dto.BatchAnalysisTriggerResponse
 import com.nosilha.core.gallery.api.dto.BatchErrorDto
+import com.nosilha.core.gallery.api.dto.BulkConfirmRequest
+import com.nosilha.core.gallery.api.dto.BulkConfirmResponse
+import com.nosilha.core.gallery.api.dto.BulkPresignRequest
+import com.nosilha.core.gallery.api.dto.BulkPresignResponse
 import com.nosilha.core.gallery.api.dto.CreateExternalMediaRequest
+import com.nosilha.core.gallery.api.dto.DeleteOrphanRequest
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
+import com.nosilha.core.gallery.api.dto.LinkOrphanRequest
 import com.nosilha.core.gallery.api.dto.ModerationActionRequest
+import com.nosilha.core.gallery.api.dto.OrphanDetectionResponse
+import com.nosilha.core.gallery.api.dto.R2BucketListResponse
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.GalleryModerationService
+import com.nosilha.core.gallery.domain.R2AdminService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -59,7 +68,10 @@ private val logger = KotlinLogging.logger {}
 @PreAuthorize("hasRole('ADMIN')")
 class AdminGalleryController(
     private val moderationService: GalleryModerationService,
+    private val r2AdminService: R2AdminService?,
 ) {
+    private fun requireR2Admin(): R2AdminService = requireNotNull(r2AdminService) { "R2 storage is not configured" }
+
     private fun extractAdminId(authentication: Authentication): UUID = UUID.fromString(authentication.name)
 
     /**
@@ -306,5 +318,126 @@ class AdminGalleryController(
                 status = HttpStatus.ACCEPTED.value(),
             ),
         )
+    }
+
+    // --- R2 Admin Endpoints ---
+
+    /**
+     * List objects in the R2 bucket with optional prefix filtering.
+     *
+     * Uses continuation token pagination for efficient scanning of large buckets.
+     *
+     * @param prefix Optional key prefix to filter by (e.g., "uploads/2025/")
+     * @param continuationToken Pagination token from a previous response
+     * @param maxKeys Maximum objects per page (default 100, max 1000)
+     */
+    @GetMapping("/r2/list")
+    fun listR2Bucket(
+        @RequestParam(required = false) prefix: String?,
+        @RequestParam(required = false) continuationToken: String?,
+        @RequestParam(defaultValue = "100") maxKeys: Int,
+        authentication: Authentication,
+    ): ResponseEntity<ApiResult<R2BucketListResponse>> {
+        val adminId = extractAdminId(authentication)
+        logger.info { "Admin $adminId listing R2 bucket (prefix=$prefix, maxKeys=$maxKeys)" }
+        val result = requireR2Admin().listBucket(prefix, continuationToken, maxKeys)
+        return ResponseEntity.ok(ApiResult(data = result))
+    }
+
+    /**
+     * Generate batch presigned PUT URLs for direct R2 upload.
+     *
+     * Admin uploads use 30-minute expiry. Max 20 files per batch.
+     */
+    @PostMapping("/r2/bulk-presign")
+    fun bulkPresignR2(
+        @Valid @RequestBody request: BulkPresignRequest,
+        authentication: Authentication,
+    ): ResponseEntity<ApiResult<BulkPresignResponse>> {
+        val adminId = extractAdminId(authentication)
+        logger.info { "Admin $adminId requesting bulk presign for ${request.files.size} files" }
+        val result = requireR2Admin().generateBulkPresignUrls(request, adminId)
+        return ResponseEntity.ok(ApiResult(data = result))
+    }
+
+    /**
+     * Confirm batch upload and create media records with ACTIVE status.
+     *
+     * Admin uploads bypass the moderation queue. Records are auto-approved
+     * with reviewedBy = adminId. Max 20 uploads per batch.
+     */
+    @PostMapping("/r2/bulk-confirm")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun bulkConfirmR2(
+        @Valid @RequestBody request: BulkConfirmRequest,
+        authentication: Authentication,
+    ): ResponseEntity<ApiResult<BulkConfirmResponse>> {
+        val adminId = extractAdminId(authentication)
+        logger.info { "Admin $adminId confirming batch upload of ${request.uploads.size} files" }
+        val result = requireR2Admin().confirmBatchUpload(request, adminId)
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            ApiResult(data = result, status = HttpStatus.CREATED.value()),
+        )
+    }
+
+    /**
+     * Detect orphaned R2 objects with no corresponding database record.
+     *
+     * Scans R2 bucket and compares against stored storage keys.
+     * Uses continuation token pagination for large buckets.
+     */
+    @GetMapping("/r2/orphans")
+    fun detectR2Orphans(
+        @RequestParam(required = false) prefix: String?,
+        @RequestParam(required = false) continuationToken: String?,
+        @RequestParam(defaultValue = "1000") maxKeys: Int,
+        authentication: Authentication,
+    ): ResponseEntity<ApiResult<OrphanDetectionResponse>> {
+        val adminId = extractAdminId(authentication)
+        logger.info { "Admin $adminId scanning for R2 orphans (prefix=$prefix, maxKeys=$maxKeys)" }
+        val result = requireR2Admin().detectOrphans(prefix, continuationToken, maxKeys)
+        return ResponseEntity.ok(ApiResult(data = result))
+    }
+
+    /**
+     * Create a database record for an orphaned R2 object.
+     *
+     * Fetches metadata from R2 via HeadObject and creates a UserUploadedMedia
+     * record with ACTIVE status. Returns 400 if the key is already linked.
+     */
+    @PostMapping("/r2/orphans/link")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun linkR2Orphan(
+        @Valid @RequestBody request: LinkOrphanRequest,
+        authentication: Authentication,
+    ): ResponseEntity<ApiResult<GalleryMediaDto.UserUpload>> {
+        val adminId = extractAdminId(authentication)
+        logger.info { "Admin $adminId linking orphan: ${request.storageKey}" }
+        val media = requireR2Admin().linkOrphan(
+            storageKey = request.storageKey,
+            category = request.category,
+            description = request.description,
+            adminId = adminId,
+        )
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+            ApiResult(data = GalleryMediaDto.from(media), status = HttpStatus.CREATED.value()),
+        )
+    }
+
+    /**
+     * Permanently delete an orphaned R2 object.
+     *
+     * Safety check: verifies the key has no corresponding DB record before deletion.
+     * Returns 422 if the key is linked to a media record.
+     */
+    @DeleteMapping("/r2/orphans")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteR2Orphan(
+        @Valid @RequestBody request: DeleteOrphanRequest,
+        authentication: Authentication,
+    ) {
+        val adminId = extractAdminId(authentication)
+        logger.info { "Admin $adminId deleting orphan: ${request.storageKey}" }
+        requireR2Admin().deleteOrphan(request.storageKey)
     }
 }
