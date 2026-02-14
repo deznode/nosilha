@@ -1,7 +1,9 @@
 package com.nosilha.core.gallery.api
 
+import com.nosilha.core.gallery.domain.ExternalMedia
 import com.nosilha.core.gallery.domain.GalleryMedia
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
+import com.nosilha.core.gallery.domain.UserUploadedMedia
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import java.time.Instant
@@ -126,31 +128,34 @@ data class UpdateGalleryMediaStatusRequest(
  *
  * @return AdminMediaListDto with essential fields for list display
  */
-fun GalleryMedia.toAdminListDto() =
-    AdminMediaListDto(
-        id = this.id!!,
-        fileName = if (this is com.nosilha.core.gallery.domain.UserUploadedMedia) this.fileName ?: "" else "",
-        originalName = if (this is com.nosilha.core.gallery.domain.UserUploadedMedia) this.originalName ?: "" else this.title,
-        contentType = if (this is com.nosilha.core.gallery.domain.UserUploadedMedia) this.contentType ?: "" else "",
-        fileSize = if (this is com.nosilha.core.gallery.domain.UserUploadedMedia) this.fileSize ?: 0L else 0L,
-        publicUrl = if (this is com.nosilha.core.gallery.domain.UserUploadedMedia) {
-            this.publicUrl
-        } else if (this is com.nosilha.core.gallery.domain.ExternalMedia) {
-            this.resolvedThumbnailUrl()
-        } else {
-            null
-        },
-        status = this.status,
-        severity = this.severity ?: 0,
-        uploadedBy = if (this is com.nosilha.core.gallery.domain.UserUploadedMedia) {
-            this.uploadedBy
-        } else if (this is com.nosilha.core.gallery.domain.ExternalMedia) {
-            this.curatedBy
-        } else {
-            null
-        },
-        createdAt = this.createdAt,
-    )
+fun GalleryMedia.toAdminListDto(): AdminMediaListDto =
+    when (this) {
+        is UserUploadedMedia -> AdminMediaListDto(
+            id = id!!,
+            fileName = fileName ?: "",
+            originalName = originalName ?: "",
+            contentType = contentType ?: "",
+            fileSize = fileSize ?: 0L,
+            publicUrl = publicUrl,
+            status = status,
+            severity = severity ?: 0,
+            uploadedBy = uploadedBy,
+            createdAt = createdAt,
+        )
+        is ExternalMedia -> AdminMediaListDto(
+            id = id!!,
+            fileName = "",
+            originalName = title,
+            contentType = "",
+            fileSize = 0L,
+            publicUrl = resolvedThumbnailUrl(),
+            status = status,
+            severity = severity ?: 0,
+            uploadedBy = curatedBy,
+            createdAt = createdAt,
+        )
+        else -> error("Unknown GalleryMedia type: ${this.javaClass.simpleName}")
+    }
 
 /**
  * Extension function to convert Media entity to detail DTO.
@@ -159,37 +164,49 @@ fun GalleryMedia.toAdminListDto() =
  *
  * @return AdminMediaDetailDto with all fields for detailed review
  */
-fun GalleryMedia.toAdminDetailDto() =
-    AdminMediaDetailDto(
-        id = this.id!!,
-        fileName = if (this is com.nosilha.core.gallery.domain.UserUploadedMedia) this.fileName ?: "" else "",
-        originalName = if (this is com.nosilha.core.gallery.domain.UserUploadedMedia) this.originalName ?: "" else this.title,
-        contentType = if (this is com.nosilha.core.gallery.domain.UserUploadedMedia) this.contentType ?: "" else "",
-        fileSize = if (this is com.nosilha.core.gallery.domain.UserUploadedMedia) this.fileSize ?: 0L else 0L,
-        storageKey = if (this is com.nosilha.core.gallery.domain.UserUploadedMedia) this.storageKey ?: "" else "",
-        publicUrl = if (this is com.nosilha.core.gallery.domain.UserUploadedMedia) {
-            this.publicUrl
-        } else if (this is com.nosilha.core.gallery.domain.ExternalMedia) {
-            this.resolvedThumbnailUrl()
-        } else {
-            null
-        },
-        entryId = if (this is com.nosilha.core.gallery.domain.UserUploadedMedia) this.entryId else null,
-        category = this.category,
-        description = this.description,
-        displayOrder = this.displayOrder,
-        status = this.status,
-        severity = this.severity ?: 0,
-        reviewedBy = this.reviewedBy,
-        reviewedAt = this.reviewedAt,
-        rejectionReason = this.rejectionReason,
-        uploadedBy = if (this is com.nosilha.core.gallery.domain.UserUploadedMedia) {
-            this.uploadedBy
-        } else if (this is com.nosilha.core.gallery.domain.ExternalMedia) {
-            this.curatedBy
-        } else {
-            null
-        },
-        createdAt = this.createdAt,
-        updatedAt = this.updatedAt,
-    )
+fun GalleryMedia.toAdminDetailDto(): AdminMediaDetailDto =
+    when (this) {
+        is UserUploadedMedia -> AdminMediaDetailDto(
+            id = id!!,
+            fileName = fileName ?: "",
+            originalName = originalName ?: "",
+            contentType = contentType ?: "",
+            fileSize = fileSize ?: 0L,
+            storageKey = storageKey ?: "",
+            publicUrl = publicUrl,
+            entryId = entryId,
+            category = category,
+            description = description,
+            displayOrder = displayOrder,
+            status = status,
+            severity = severity ?: 0,
+            reviewedBy = reviewedBy,
+            reviewedAt = reviewedAt,
+            rejectionReason = rejectionReason,
+            uploadedBy = uploadedBy,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+        )
+        is ExternalMedia -> AdminMediaDetailDto(
+            id = id!!,
+            fileName = "",
+            originalName = title,
+            contentType = "",
+            fileSize = 0L,
+            storageKey = "",
+            publicUrl = resolvedThumbnailUrl(),
+            entryId = null,
+            category = category,
+            description = description,
+            displayOrder = displayOrder,
+            status = status,
+            severity = severity ?: 0,
+            reviewedBy = reviewedBy,
+            reviewedAt = reviewedAt,
+            rejectionReason = rejectionReason,
+            uploadedBy = curatedBy,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+        )
+        else -> error("Unknown GalleryMedia type: ${this.javaClass.simpleName}")
+    }

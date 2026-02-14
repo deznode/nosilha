@@ -561,8 +561,7 @@ class GalleryService(
     fun getMediaByEntry(entryId: UUID): List<GalleryMediaDto.UserUpload> {
         val mediaList = repository
             .findByEntryIdAndStatusOrderByDisplayOrderAsc(entryId, GalleryMediaStatus.ACTIVE)
-        val userIds = mediaList.contributorIds()
-        val displayNames = if (userIds.isNotEmpty()) userProfileQueryService.findDisplayNames(userIds) else emptyMap()
+        val displayNames = resolveDisplayNames(mediaList)
         return mediaList.map { GalleryMediaDto.from(it, it.uploadedBy?.let { id -> displayNames[id] }) }
     }
 

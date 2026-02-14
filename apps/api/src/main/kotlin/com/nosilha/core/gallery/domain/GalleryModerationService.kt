@@ -50,6 +50,14 @@ class GalleryModerationService(
     private val eventPublisher: ApplicationEventPublisher,
     private val userProfileQueryService: UserProfileQueryService,
 ) {
+    companion object {
+        /** Statuses eligible for AI analysis trigger. */
+        private val ANALYSIS_ELIGIBLE_STATUSES = setOf(
+            GalleryMediaStatus.ACTIVE,
+            GalleryMediaStatus.PENDING_REVIEW,
+        )
+    }
+
     /**
      * Lists gallery media for moderation with optional status filtering and pagination.
      *
@@ -423,8 +431,7 @@ class GalleryModerationService(
                 errors.add(BatchError(id, "Only user uploads can be analyzed"))
                 continue
             }
-            val allowedStatuses = setOf(GalleryMediaStatus.ACTIVE, GalleryMediaStatus.PENDING_REVIEW)
-            if (media.status !in allowedStatuses) {
+            if (media.status !in ANALYSIS_ELIGIBLE_STATUSES) {
                 errors.add(BatchError(id, "Media is not ACTIVE or PENDING_REVIEW"))
                 continue
             }
@@ -490,8 +497,7 @@ class GalleryModerationService(
         if (media !is UserUploadedMedia) {
             throw BusinessException("Only user uploads can be analyzed by AI")
         }
-        val allowedStatuses = setOf(GalleryMediaStatus.ACTIVE, GalleryMediaStatus.PENDING_REVIEW)
-        if (media.status !in allowedStatuses) {
+        if (media.status !in ANALYSIS_ELIGIBLE_STATUSES) {
             throw BusinessException("Media must be ACTIVE or PENDING_REVIEW for AI analysis (current: ${media.status})")
         }
         if (media.publicUrl.isNullOrBlank()) {
