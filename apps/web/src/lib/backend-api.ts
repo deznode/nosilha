@@ -72,6 +72,16 @@ import type {
   AnalyzeBatchRequest,
   BatchAnalysisTriggerResponse,
 } from "@/types/ai";
+import type {
+  R2BucketListResponse,
+  BulkPresignRequest,
+  BulkPresignResponse,
+  BulkConfirmRequest,
+  BulkConfirmResponse,
+  OrphanDetectionResponse,
+  LinkOrphanRequest,
+  DeleteOrphanRequest,
+} from "@/types/r2-admin";
 import { CacheConfig } from "@/lib/api-contracts";
 import { env } from "@/lib/env";
 import { supabase } from "@/lib/supabase-client";
@@ -2835,6 +2845,128 @@ export class BackendApiClient implements ApiClient {
 
     const payload = await response.json();
     return this.unwrapApiResponse<BatchAnalysisTriggerResponse>(payload);
+  }
+
+  // ================================
+  // ADMIN R2 STORAGE OPERATIONS
+  // ================================
+
+  async listR2Bucket(
+    prefix?: string,
+    continuationToken?: string,
+    maxKeys: number = 100
+  ): Promise<R2BucketListResponse> {
+    const params = new URLSearchParams();
+    if (prefix) params.append("prefix", prefix);
+    if (continuationToken)
+      params.append("continuationToken", continuationToken);
+    params.append("maxKeys", String(maxKeys));
+
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/r2/list?${params.toString()}`;
+    const response = await this.authenticatedFetch(endpoint);
+
+    if (!response.ok) {
+      throw new Error(`Failed to list R2 bucket: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<R2BucketListResponse>(payload);
+  }
+
+  async bulkPresignR2(
+    request: BulkPresignRequest
+  ): Promise<BulkPresignResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/r2/bulk-presign`;
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to generate bulk presign URLs: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<BulkPresignResponse>(payload);
+  }
+
+  async bulkConfirmR2(
+    request: BulkConfirmRequest
+  ): Promise<BulkConfirmResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/r2/bulk-confirm`;
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to confirm bulk upload: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<BulkConfirmResponse>(payload);
+  }
+
+  async detectR2Orphans(
+    prefix?: string,
+    continuationToken?: string,
+    maxKeys: number = 1000
+  ): Promise<OrphanDetectionResponse> {
+    const params = new URLSearchParams();
+    if (prefix) params.append("prefix", prefix);
+    if (continuationToken)
+      params.append("continuationToken", continuationToken);
+    params.append("maxKeys", String(maxKeys));
+
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/r2/orphans?${params.toString()}`;
+    const response = await this.authenticatedFetch(endpoint);
+
+    if (!response.ok) {
+      throw new Error(`Failed to detect R2 orphans: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<OrphanDetectionResponse>(payload);
+  }
+
+  async linkR2Orphan(
+    request: LinkOrphanRequest
+  ): Promise<import("@/types/gallery").UserUploadMedia> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/r2/orphans/link`;
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to link R2 orphan: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<
+      import("@/types/gallery").UserUploadMedia
+    >(payload);
+  }
+
+  async deleteR2Orphan(request: DeleteOrphanRequest): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/r2/orphans`;
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      if (response.status === 422) {
+        throw new Error(
+          "Cannot delete: this R2 object is linked to a database record"
+        );
+      }
+      throw new Error(`Failed to delete R2 orphan: ${response.status}`);
+    }
   }
 
   // ================================

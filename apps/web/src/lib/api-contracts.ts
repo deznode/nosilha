@@ -30,6 +30,16 @@ import type {
   BatchAnalysisTriggerResponse,
 } from "@/types/ai";
 import type {
+  R2BucketListResponse,
+  BulkPresignRequest,
+  BulkPresignResponse,
+  BulkConfirmRequest,
+  BulkConfirmResponse,
+  OrphanDetectionResponse,
+  LinkOrphanRequest,
+  DeleteOrphanRequest,
+} from "@/types/r2-admin";
+import type {
   ProfileDto,
   ContributionsDto,
   ProfileUpdateRequest,
@@ -640,6 +650,62 @@ export interface ApiClient {
   submitExternalMedia(
     request: import("@/types/gallery").SubmitExternalMediaRequest
   ): Promise<{ id: string; message: string }>;
+
+  // ================================
+  // ADMIN R2 STORAGE OPERATIONS
+  // ================================
+
+  /**
+   * List objects in R2 bucket with optional prefix filter and pagination.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  listR2Bucket(
+    prefix?: string,
+    continuationToken?: string,
+    maxKeys?: number
+  ): Promise<R2BucketListResponse>;
+
+  /**
+   * Generate presigned upload URLs for a batch of files.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  bulkPresignR2(request: BulkPresignRequest): Promise<BulkPresignResponse>;
+
+  /**
+   * Confirm batch upload — creates ACTIVE media records with admin as reviewer.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  bulkConfirmR2(request: BulkConfirmRequest): Promise<BulkConfirmResponse>;
+
+  /**
+   * Detect orphan objects in R2 that have no corresponding DB record.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  detectR2Orphans(
+    prefix?: string,
+    continuationToken?: string,
+    maxKeys?: number
+  ): Promise<OrphanDetectionResponse>;
+
+  /**
+   * Link an orphan R2 object to a new DB media record.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  linkR2Orphan(
+    request: LinkOrphanRequest
+  ): Promise<import("@/types/gallery").UserUploadMedia>;
+
+  /**
+   * Delete an orphan R2 object (must not be linked to a DB record).
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  deleteR2Orphan(request: DeleteOrphanRequest): Promise<void>;
 }
 
 export interface PaginationMetadata {

@@ -50,3 +50,13 @@ export { useUpdateMediaStatus } from "./useUpdateMediaStatus";
 export { useUpdateGalleryStatus } from "./useUpdateGalleryStatus";
 export { usePromoteToHeroImage } from "./usePromoteToHeroImage";
 export { useArchiveStory } from "./useArchiveStory";
+
+// R2 admin hooks
+export { useR2Objects } from "./useR2Objects";
+export { useR2Orphans } from "./useR2Orphans";
+export {
+  useBulkPresignR2,
+  useBulkConfirmR2,
+  useLinkR2Orphan,
+  useDeleteR2Orphan,
+} from "./useR2AdminMutations";

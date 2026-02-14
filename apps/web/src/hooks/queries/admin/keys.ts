@@ -63,6 +63,13 @@ export const adminKeys = {
         { mediaIds: [...mediaIds].sort() },
       ] as const,
   },
+  r2: {
+    all: () => [...adminKeys.all, "r2"] as const,
+    objects: (prefix?: string, continuationToken?: string) =>
+      [...adminKeys.all, "r2", "objects", { prefix, continuationToken }] as const,
+    orphans: (prefix?: string, continuationToken?: string) =>
+      [...adminKeys.all, "r2", "orphans", { prefix, continuationToken }] as const,
+  },
   contributors: () => [...adminKeys.all, "contributors"] as const,
   system: {
     all: () => [...adminKeys.all, "system"] as const,

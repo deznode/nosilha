@@ -980,6 +980,74 @@ export async function commitMdx(
 }
 
 // ================================
+// ADMIN R2 STORAGE OPERATIONS
+// ================================
+
+/**
+ * Lists objects in the R2 bucket with optional prefix filter and pagination.
+ * Requires ADMIN role authentication.
+ */
+export async function listR2Bucket(
+  prefix?: string,
+  continuationToken?: string,
+  maxKeys?: number
+): Promise<import("@/types/r2-admin").R2BucketListResponse> {
+  return apiClient.listR2Bucket(prefix, continuationToken, maxKeys);
+}
+
+/**
+ * Generates presigned upload URLs for a batch of files.
+ * Requires ADMIN role authentication.
+ */
+export async function bulkPresignR2(
+  request: import("@/types/r2-admin").BulkPresignRequest
+): Promise<import("@/types/r2-admin").BulkPresignResponse> {
+  return apiClient.bulkPresignR2(request);
+}
+
+/**
+ * Confirms batch upload — creates ACTIVE media records with admin as reviewer.
+ * Requires ADMIN role authentication.
+ */
+export async function bulkConfirmR2(
+  request: import("@/types/r2-admin").BulkConfirmRequest
+): Promise<import("@/types/r2-admin").BulkConfirmResponse> {
+  return apiClient.bulkConfirmR2(request);
+}
+
+/**
+ * Detects orphan objects in R2 that have no corresponding DB record.
+ * Requires ADMIN role authentication.
+ */
+export async function detectR2Orphans(
+  prefix?: string,
+  continuationToken?: string,
+  maxKeys?: number
+): Promise<import("@/types/r2-admin").OrphanDetectionResponse> {
+  return apiClient.detectR2Orphans(prefix, continuationToken, maxKeys);
+}
+
+/**
+ * Links an orphan R2 object to a new DB media record.
+ * Requires ADMIN role authentication.
+ */
+export async function linkR2Orphan(
+  request: import("@/types/r2-admin").LinkOrphanRequest
+): Promise<import("@/types/gallery").UserUploadMedia> {
+  return apiClient.linkR2Orphan(request);
+}
+
+/**
+ * Deletes an orphan R2 object (must not be linked to a DB record).
+ * Requires ADMIN role authentication.
+ */
+export async function deleteR2Orphan(
+  request: import("@/types/r2-admin").DeleteOrphanRequest
+): Promise<void> {
+  return apiClient.deleteR2Orphan(request);
+}
+
+// ================================
 // UTILITY EXPORTS
 // ================================
 

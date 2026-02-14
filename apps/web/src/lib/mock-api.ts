@@ -1843,6 +1843,52 @@ ${story.content
       errors: [],
     };
   }
+
+  // ================================
+  // ADMIN R2 STORAGE - Mock Stubs
+  // ================================
+
+  async listR2Bucket(): Promise<
+    import("@/types/r2-admin").R2BucketListResponse
+  > {
+    await this.simulateDelay(300);
+    return { objects: [], continuationToken: null, isTruncated: false };
+  }
+
+  async bulkPresignR2(): Promise<
+    import("@/types/r2-admin").BulkPresignResponse
+  > {
+    await this.simulateDelay(300);
+    return { presigns: [] };
+  }
+
+  async bulkConfirmR2(): Promise<
+    import("@/types/r2-admin").BulkConfirmResponse
+  > {
+    await this.simulateDelay(300);
+    return { accepted: 0, rejected: 0, created: [], errors: [] };
+  }
+
+  async detectR2Orphans(): Promise<
+    import("@/types/r2-admin").OrphanDetectionResponse
+  > {
+    await this.simulateDelay(300);
+    return {
+      orphans: [],
+      totalScanned: 0,
+      continuationToken: null,
+      isTruncated: false,
+    };
+  }
+
+  async linkR2Orphan(): Promise<import("@/types/gallery").UserUploadMedia> {
+    await this.simulateDelay(300);
+    throw new Error("Mock: linkR2Orphan not implemented");
+  }
+
+  async deleteR2Orphan(): Promise<void> {
+    await this.simulateDelay(300);
+  }
 }
 
 // Legacy synchronous functions for backward compatibility and build-time use
