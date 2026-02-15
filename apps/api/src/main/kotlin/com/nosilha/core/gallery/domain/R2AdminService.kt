@@ -14,6 +14,7 @@ import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -254,7 +255,11 @@ class R2AdminService(
             reviewedAt = Instant.now()
         }
 
-        val saved = repository.save(media)
+        val saved = try {
+            repository.save(media)
+        } catch (ex: DataIntegrityViolationException) {
+            throw BusinessException("Object $storageKey is already linked to another media record")
+        }
         logger.info { "Admin $adminId linked orphan $storageKey as media ${saved.id}" }
         return saved
     }
@@ -268,6 +273,7 @@ class R2AdminService(
      * @param storageKey R2 object key to delete
      * @throws BusinessException if the key is linked to a DB record
      */
+    @Transactional
     fun deleteOrphan(storageKey: String) {
         val r2 = requireR2()
 
