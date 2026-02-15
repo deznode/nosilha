@@ -102,12 +102,7 @@ data class BatchUploadError(
 
 // --- Orphan Detection ---
 
-data class OrphanObjectDto(
-    val key: String,
-    val size: Long,
-    val lastModified: Instant,
-    val publicUrl: String,
-)
+typealias OrphanObjectDto = R2ObjectDto
 
 data class OrphanDetectionResponse(
     val orphans: List<OrphanObjectDto>,

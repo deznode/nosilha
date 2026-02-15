@@ -258,6 +258,7 @@ class R2AdminService(
         val saved = try {
             repository.save(media)
         } catch (ex: DataIntegrityViolationException) {
+            logger.warn(ex) { "Race condition linking orphan $storageKey by admin $adminId" }
             throw BusinessException("Object $storageKey is already linked to another media record")
         }
         logger.info { "Admin $adminId linked orphan $storageKey as media ${saved.id}" }
