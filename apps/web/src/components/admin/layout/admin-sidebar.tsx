@@ -38,15 +38,11 @@ export function AdminSidebar() {
           collapsed ? "justify-center px-2" : "px-4"
         )}
       >
-        {collapsed ? (
-          <NosilhaLogo
-            size="compact"
-            instanceId="admin-sidebar"
-            className="scale-75"
-          />
-        ) : (
-          <NosilhaLogo size="compact" instanceId="admin-sidebar" />
-        )}
+        <NosilhaLogo
+          size="compact"
+          instanceId="admin-sidebar"
+          className={collapsed ? "scale-75" : undefined}
+        />
       </div>
 
       {/* Nav Sections */}
@@ -60,14 +56,14 @@ export function AdminSidebar() {
           return (
             <div key={section.id} className="mb-1">
               {/* Section Header */}
-              {section.label && !collapsed && (
-                <div className="text-muted px-4 py-2 text-xs font-semibold tracking-wider uppercase">
-                  {section.label}
-                </div>
-              )}
-              {section.label && collapsed && (
-                <div className="border-hairline mx-3 my-2 border-t" />
-              )}
+              {section.label &&
+                (collapsed ? (
+                  <div className="border-hairline mx-3 my-2 border-t" />
+                ) : (
+                  <div className="text-muted px-4 py-2 text-xs font-semibold tracking-wider uppercase">
+                    {section.label}
+                  </div>
+                ))}
 
               {/* Nav Items */}
               {sectionItems.map((item) => {
@@ -92,32 +88,32 @@ export function AdminSidebar() {
                   </div>
                 );
 
-                if (item.disabled) {
-                  return (
-                    <div key={item.href} className="mx-2">
+                function renderNavItem(): React.ReactNode {
+                  if (item.disabled) {
+                    return (
                       <Tooltip
                         content="Coming soon"
                         position={collapsed ? "right" : "top"}
                       >
                         <span>{itemContent}</span>
                       </Tooltip>
-                    </div>
-                  );
-                }
+                    );
+                  }
 
-                if (collapsed) {
-                  return (
-                    <div key={item.href} className="mx-2">
+                  if (collapsed) {
+                    return (
                       <Tooltip content={item.label} position="right">
                         <Link href={item.href}>{itemContent}</Link>
                       </Tooltip>
-                    </div>
-                  );
+                    );
+                  }
+
+                  return <Link href={item.href}>{itemContent}</Link>;
                 }
 
                 return (
                   <div key={item.href} className="mx-2">
-                    <Link href={item.href}>{itemContent}</Link>
+                    {renderNavItem()}
                   </div>
                 );
               })}

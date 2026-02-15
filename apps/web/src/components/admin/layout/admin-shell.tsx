@@ -1,12 +1,12 @@
 "use client";
 
 import clsx from "clsx";
-import { useUiStore } from "@/stores/uiStore";
+import { useSidebarOpen, useUiStore } from "@/stores/uiStore";
 import { AdminSidebar } from "./admin-sidebar";
 import { AdminTopBar } from "./admin-top-bar";
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
-  const sidebarOpen = useUiStore((state) => state.sidebarOpen);
+  const sidebarOpen = useSidebarOpen();
   const setSidebarOpen = useUiStore((state) => state.setSidebarOpen);
 
   return (

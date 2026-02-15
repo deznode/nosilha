@@ -1,6 +1,5 @@
 "use client";
 
-import clsx from "clsx";
 import { Menu } from "lucide-react";
 import { useUiStore } from "@/stores/uiStore";
 import { useUser } from "@/stores/authStore";
@@ -15,11 +14,7 @@ export function AdminTopBar() {
   const initials = user?.email?.[0]?.toUpperCase() ?? "?";
 
   return (
-    <header
-      className={clsx(
-        "border-hairline bg-surface flex h-14 shrink-0 items-center justify-between border-b px-4"
-      )}
-    >
+    <header className="border-hairline bg-surface flex h-14 shrink-0 items-center justify-between border-b px-4">
       {/* Left: Hamburger (mobile only) */}
       <div className="flex items-center">
         <button
