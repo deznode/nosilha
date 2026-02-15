@@ -2884,7 +2884,9 @@ export class BackendApiClient implements ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to generate bulk presign URLs: ${response.status}`);
+      throw new Error(
+        `Failed to generate bulk presign URLs: ${response.status}`
+      );
     }
 
     const payload = await response.json();
@@ -2946,9 +2948,9 @@ export class BackendApiClient implements ApiClient {
     }
 
     const payload = await response.json();
-    return this.unwrapApiResponse<
-      import("@/types/gallery").UserUploadMedia
-    >(payload);
+    return this.unwrapApiResponse<import("@/types/gallery").UserUploadMedia>(
+      payload
+    );
   }
 
   async deleteR2Orphan(request: DeleteOrphanRequest): Promise<void> {

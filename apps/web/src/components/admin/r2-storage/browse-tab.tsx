@@ -134,11 +134,7 @@ export function BrowseTab() {
           {/* Load More */}
           {data.isTruncated && (
             <div className="flex justify-center pt-2">
-              <Button
-                outline
-                onClick={handleLoadMore}
-                disabled={isFetching}
-              >
+              <Button outline onClick={handleLoadMore} disabled={isFetching}>
                 <ChevronDown data-slot="icon" />
                 {isFetching ? "Loading..." : "Load More"}
               </Button>

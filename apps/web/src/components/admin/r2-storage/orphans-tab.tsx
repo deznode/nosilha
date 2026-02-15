@@ -82,11 +82,7 @@ export function OrphansTab() {
         },
         onError: (err) => {
           toast
-            .error(
-              err instanceof Error
-                ? err.message
-                : "Failed to link orphan"
-            )
+            .error(err instanceof Error ? err.message : "Failed to link orphan")
             .show();
         },
       }
@@ -105,9 +101,7 @@ export function OrphansTab() {
         onError: (err) => {
           toast
             .error(
-              err instanceof Error
-                ? err.message
-                : "Failed to delete orphan"
+              err instanceof Error ? err.message : "Failed to delete orphan"
             )
             .show();
           setDeleteTarget(null);
@@ -128,11 +122,7 @@ export function OrphansTab() {
             ? `${data.orphans.length} orphan${data.orphans.length !== 1 ? "s" : ""} found (${data.totalScanned} scanned)`
             : "Scan the R2 bucket for objects without a database record."}
         </p>
-        <Button
-          color="blue"
-          onClick={handleScan}
-          disabled={isScanning}
-        >
+        <Button color="blue" onClick={handleScan} disabled={isScanning}>
           {isScanning ? (
             <>
               <Loader2 data-slot="icon" className="animate-spin" />
@@ -251,11 +241,7 @@ export function OrphansTab() {
           {/* Load More */}
           {data.isTruncated && (
             <div className="flex justify-center pt-2">
-              <Button
-                outline
-                onClick={handleLoadMore}
-                disabled={isScanning}
-              >
+              <Button outline onClick={handleLoadMore} disabled={isScanning}>
                 <ChevronDown data-slot="icon" />
                 {isScanning ? "Loading..." : "Load More"}
               </Button>

@@ -13,10 +13,7 @@ import {
 import clsx from "clsx";
 import { Button } from "@/components/catalyst-ui/button";
 import { useToast } from "@/hooks/use-toast";
-import {
-  useBulkPresignR2,
-  useBulkConfirmR2,
-} from "@/hooks/queries/admin";
+import { useBulkPresignR2, useBulkConfirmR2 } from "@/hooks/queries/admin";
 import type {
   BulkPresignFileRequest,
   BulkConfirmUploadDto,
@@ -88,7 +85,9 @@ export function BulkUploadTab() {
       const totalAfterAdd = queue.length + acceptedFiles.length;
       if (totalAfterAdd > MAX_FILES) {
         toast
-          .error(`Maximum ${MAX_FILES} files per batch. You have ${queue.length}, tried to add ${acceptedFiles.length}.`)
+          .error(
+            `Maximum ${MAX_FILES} files per batch. You have ${queue.length}, tried to add ${acceptedFiles.length}.`
+          )
           .show();
         return;
       }
@@ -219,10 +218,19 @@ export function BulkUploadTab() {
       // Map presign results back to queue items
       const itemsWithUrls: FileQueueItem[] = [];
       for (const presign of presignResult.presigns) {
-        const match = pending.find((item) => item.file.name === presign.fileName);
+        const match = pending.find(
+          (item) => item.file.name === presign.fileName
+        );
         if (match) {
-          const updated = { ...match, uploadUrl: presign.uploadUrl, key: presign.key };
-          updateItem(match.id, { uploadUrl: presign.uploadUrl, key: presign.key });
+          const updated = {
+            ...match,
+            uploadUrl: presign.uploadUrl,
+            key: presign.key,
+          };
+          updateItem(match.id, {
+            uploadUrl: presign.uploadUrl,
+            key: presign.key,
+          });
           itemsWithUrls.push(updated);
         }
       }
@@ -337,8 +345,7 @@ export function BulkUploadTab() {
               Drag & drop files here, or click to select
             </p>
             <p className="text-muted mt-1 text-xs">
-              JPEG, PNG, WebP, GIF, MP4 — max 50MB each, up to {MAX_FILES}{" "}
-              files
+              JPEG, PNG, WebP, GIF, MP4 — max 50MB each, up to {MAX_FILES} files
             </p>
           </>
         )}
@@ -452,11 +459,7 @@ export function BulkUploadTab() {
       {/* Actions */}
       {queue.length > 0 && (
         <div className="flex justify-end gap-3">
-          <Button
-            outline
-            onClick={clearAll}
-            disabled={isUploading}
-          >
+          <Button outline onClick={clearAll} disabled={isUploading}>
             <Trash2 data-slot="icon" />
             Clear
           </Button>

@@ -75,8 +75,16 @@ describe("Bulk Upload Orchestration", () => {
       const presigns = await act(() =>
         presignResult.current.mutateAsync({
           files: [
-            { fileName: "photo1.jpg", contentType: "image/jpeg", fileSize: 1024 },
-            { fileName: "photo2.png", contentType: "image/png", fileSize: 2048 },
+            {
+              fileName: "photo1.jpg",
+              contentType: "image/jpeg",
+              fileSize: 1024,
+            },
+            {
+              fileName: "photo2.png",
+              contentType: "image/png",
+              fileSize: 2048,
+            },
           ],
         })
       );
@@ -147,8 +155,16 @@ describe("Bulk Upload Orchestration", () => {
       await act(() =>
         presignResult.current.mutateAsync({
           files: [
-            { fileName: "photo1.jpg", contentType: "image/jpeg", fileSize: 1024 },
-            { fileName: "photo2.jpg", contentType: "image/jpeg", fileSize: 2048 },
+            {
+              fileName: "photo1.jpg",
+              contentType: "image/jpeg",
+              fileSize: 1024,
+            },
+            {
+              fileName: "photo2.jpg",
+              contentType: "image/jpeg",
+              fileSize: 2048,
+            },
           ],
         })
       );
@@ -257,9 +273,7 @@ describe("Bulk Upload Orchestration", () => {
 
       const { result } = renderHook(() => useBulkPresignR2(), { wrapper });
 
-      const response = await act(() =>
-        result.current.mutateAsync({ files })
-      );
+      const response = await act(() => result.current.mutateAsync({ files }));
 
       expect(response.presigns).toHaveLength(20);
       expect(api.bulkPresignR2).toHaveBeenCalledWith({ files });

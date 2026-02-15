@@ -52,7 +52,11 @@ describe("useR2Objects", () => {
 
     expect(result.current.data).toEqual(mockResponse);
     expect(result.current.data?.objects).toHaveLength(2);
-    expect(api.listR2Bucket).toHaveBeenCalledWith(undefined, undefined, undefined);
+    expect(api.listR2Bucket).toHaveBeenCalledWith(
+      undefined,
+      undefined,
+      undefined
+    );
   });
 
   it("passes prefix and continuationToken parameters", async () => {
