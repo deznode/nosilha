@@ -1,16 +1,16 @@
 "use client";
 
 import clsx from "clsx";
-import { useUiStore } from "@/stores/uiStore";
+import { useSidebarOpen, useUiStore } from "@/stores/uiStore";
 import { AdminSidebar } from "./admin-sidebar";
 import { AdminTopBar } from "./admin-top-bar";
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
-  const sidebarOpen = useUiStore((state) => state.sidebarOpen);
+  const sidebarOpen = useSidebarOpen();
   const setSidebarOpen = useUiStore((state) => state.setSidebarOpen);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-canvas">
+    <div className="bg-canvas flex h-screen overflow-hidden">
       {/* Mobile backdrop */}
       {sidebarOpen && (
         <div
@@ -23,7 +23,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <div
         className={clsx(
-          "fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-calm lg:static lg:translate-x-0",
+          "ease-calm fixed inset-y-0 left-0 z-50 transition-transform duration-300 lg:static lg:translate-x-0",
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >

@@ -27,22 +27,22 @@ export function AdminSidebar() {
     <nav
       aria-label="Admin navigation"
       className={clsx(
-        "flex h-full flex-col bg-surface border-r border-hairline transition-[width] duration-300 ease-calm",
+        "bg-surface border-hairline ease-calm flex h-full flex-col border-r transition-[width] duration-300",
         collapsed ? "w-16" : "w-64"
       )}
     >
       {/* Logo / Branding */}
       <div
         className={clsx(
-          "flex h-14 shrink-0 items-center border-b border-hairline",
+          "border-hairline flex h-14 shrink-0 items-center border-b",
           collapsed ? "justify-center px-2" : "px-4"
         )}
       >
-        {collapsed ? (
-          <NosilhaLogo size="compact" instanceId="admin-sidebar" className="scale-75" />
-        ) : (
-          <NosilhaLogo size="compact" instanceId="admin-sidebar" />
-        )}
+        <NosilhaLogo
+          size="compact"
+          instanceId="admin-sidebar"
+          className={collapsed ? "scale-75" : undefined}
+        />
       </div>
 
       {/* Nav Sections */}
@@ -56,14 +56,14 @@ export function AdminSidebar() {
           return (
             <div key={section.id} className="mb-1">
               {/* Section Header */}
-              {section.label && !collapsed && (
-                <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted">
-                  {section.label}
-                </div>
-              )}
-              {section.label && collapsed && (
-                <div className="mx-3 my-2 border-t border-hairline" />
-              )}
+              {section.label &&
+                (collapsed ? (
+                  <div className="border-hairline mx-3 my-2 border-t" />
+                ) : (
+                  <div className="text-muted px-4 py-2 text-xs font-semibold tracking-wider uppercase">
+                    {section.label}
+                  </div>
+                ))}
 
               {/* Nav Items */}
               {sectionItems.map((item) => {
@@ -73,13 +73,14 @@ export function AdminSidebar() {
                 const itemContent = (
                   <div
                     className={clsx(
-                      "flex items-center gap-3 rounded-button px-3 py-2 text-sm font-medium transition-colors",
+                      "rounded-button flex items-center gap-3 px-3 py-2 text-sm font-medium transition-colors",
                       collapsed && "justify-center px-2",
                       active && "bg-ocean-blue/10 text-ocean-blue",
                       !active &&
                         !item.disabled &&
                         "text-body hover:bg-surface-alt",
-                      item.disabled && "opacity-50 cursor-not-allowed text-muted"
+                      item.disabled &&
+                        "text-muted cursor-not-allowed opacity-50"
                     )}
                   >
                     <Icon className="h-5 w-5 shrink-0" />
@@ -87,32 +88,32 @@ export function AdminSidebar() {
                   </div>
                 );
 
-                if (item.disabled) {
-                  return (
-                    <div key={item.href} className="mx-2">
+                function renderNavItem(): React.ReactNode {
+                  if (item.disabled) {
+                    return (
                       <Tooltip
                         content="Coming soon"
                         position={collapsed ? "right" : "top"}
                       >
                         <span>{itemContent}</span>
                       </Tooltip>
-                    </div>
-                  );
-                }
+                    );
+                  }
 
-                if (collapsed) {
-                  return (
-                    <div key={item.href} className="mx-2">
+                  if (collapsed) {
+                    return (
                       <Tooltip content={item.label} position="right">
                         <Link href={item.href}>{itemContent}</Link>
                       </Tooltip>
-                    </div>
-                  );
+                    );
+                  }
+
+                  return <Link href={item.href}>{itemContent}</Link>;
                 }
 
                 return (
                   <div key={item.href} className="mx-2">
-                    <Link href={item.href}>{itemContent}</Link>
+                    {renderNavItem()}
                   </div>
                 );
               })}
@@ -122,11 +123,11 @@ export function AdminSidebar() {
       </div>
 
       {/* Collapse Toggle */}
-      <div className="shrink-0 border-t border-hairline p-2">
+      <div className="border-hairline shrink-0 border-t p-2">
         <button
           onClick={toggleSidebarCollapsed}
           className={clsx(
-            "flex w-full items-center gap-3 rounded-button px-3 py-2 text-sm font-medium text-muted transition-colors hover:bg-surface-alt hover:text-body",
+            "rounded-button text-muted hover:bg-surface-alt hover:text-body flex w-full items-center gap-3 px-3 py-2 text-sm font-medium transition-colors",
             collapsed && "justify-center px-2"
           )}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
