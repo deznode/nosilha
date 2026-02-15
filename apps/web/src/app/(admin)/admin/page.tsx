@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import {
   MessageSquare,
   FileText,
@@ -8,6 +9,7 @@ import {
   MapPin,
   Image as ImageIcon,
   Sparkles,
+  HardDrive,
 } from "lucide-react";
 import {
   TabGroup,
@@ -30,7 +32,6 @@ import {
   GalleryQueue,
   AiReviewQueue,
 } from "@/components/admin/queues";
-import { R2StoragePanel } from "@/components/admin/r2-storage/r2-storage-panel";
 import { StoryDetailModal } from "@/components/admin/story-detail-modal";
 import { AiReviewDetailModal } from "@/components/admin/ai-review-detail-modal";
 import { FlagReasonModal } from "@/components/admin/queues/flag-reason-modal";
@@ -428,6 +429,13 @@ export default function AdminDashboardPage() {
             <h1 className="text-body text-2xl font-bold">Admin Dashboard</h1>
             <div className="flex items-center space-x-4">
               <SystemStatusBadges />
+              <Link
+                href="/admin/storage"
+                className="text-muted hover:text-body rounded-button inline-flex items-center gap-1.5 px-3 py-1.5 text-sm transition-colors"
+              >
+                <HardDrive className="h-4 w-4" />
+                Storage
+              </Link>
               {pendingCount > 0 && (
                 <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-300">
                   {pendingCount} Pending Items
@@ -528,22 +536,19 @@ export default function AdminDashboardPage() {
               />
             </TabPanel>
             <TabPanel>
-              <div className="space-y-8">
-                <GalleryQueue
-                  items={galleryItems}
-                  isLoading={galleryQuery.isLoading}
-                  onStatusChange={handleGalleryStatusChange}
-                  onPromoteToHero={handlePromoteToHero}
-                  aiStatuses={aiStatusMap}
-                  onViewAiReview={handleViewAiReview}
-                  onTriggerAnalysis={handleTriggerAnalysis}
-                  isTriggerPending={triggerAnalysis.isPending}
-                  triggeringMediaId={triggerAnalysis.variables}
-                  onTriggerBatchAnalysis={handleTriggerBatchAnalysis}
-                  isBatchTriggerPending={triggerBatchAnalysis.isPending}
-                />
-                <R2StoragePanel />
-              </div>
+              <GalleryQueue
+                items={galleryItems}
+                isLoading={galleryQuery.isLoading}
+                onStatusChange={handleGalleryStatusChange}
+                onPromoteToHero={handlePromoteToHero}
+                aiStatuses={aiStatusMap}
+                onViewAiReview={handleViewAiReview}
+                onTriggerAnalysis={handleTriggerAnalysis}
+                isTriggerPending={triggerAnalysis.isPending}
+                triggeringMediaId={triggerAnalysis.variables}
+                onTriggerBatchAnalysis={handleTriggerBatchAnalysis}
+                isBatchTriggerPending={triggerBatchAnalysis.isPending}
+              />
             </TabPanel>
             <TabPanel>
               <AiReviewQueue
