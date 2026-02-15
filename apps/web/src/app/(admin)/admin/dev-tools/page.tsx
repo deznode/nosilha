@@ -33,7 +33,8 @@ const devTools: DevToolCard[] = [
   },
   {
     title: "Map Style Switcher",
-    description: "Mapbox style switcher component for streets, outdoors, and satellite views",
+    description:
+      "Mapbox style switcher component for streets, outdoors, and satellite views",
     href: "/admin/dev-tools/map",
     icon: Map,
   },
