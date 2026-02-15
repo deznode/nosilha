@@ -16,6 +16,7 @@ interface UiState {
   activeModal: ModalType;
   filterPanelOpen: boolean;
   sidebarOpen: boolean;
+  sidebarCollapsed: boolean;
   mobileMenuOpen: boolean;
 
   // Actions
@@ -27,6 +28,8 @@ interface UiState {
   setFilterPanelOpen: (open: boolean) => void;
   toggleSidebar: () => void;
   setSidebarOpen: (open: boolean) => void;
+  toggleSidebarCollapsed: () => void;
+  setSidebarCollapsed: (collapsed: boolean) => void;
   toggleMobileMenu: () => void;
   setMobileMenuOpen: (open: boolean) => void;
 }
@@ -40,6 +43,7 @@ export const useUiStore = create<UiState>()(
         activeModal: null,
         filterPanelOpen: false,
         sidebarOpen: false,
+        sidebarCollapsed: false,
         mobileMenuOpen: false,
 
         // Actions
@@ -60,6 +64,11 @@ export const useUiStore = create<UiState>()(
             sidebarOpen: !state.sidebarOpen,
           })),
         setSidebarOpen: (open) => set({ sidebarOpen: open }),
+        toggleSidebarCollapsed: () =>
+          set((state) => ({
+            sidebarCollapsed: !state.sidebarCollapsed,
+          })),
+        setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
         toggleMobileMenu: () =>
           set((state) => ({
             mobileMenuOpen: !state.mobileMenuOpen,
@@ -69,8 +78,8 @@ export const useUiStore = create<UiState>()(
       {
         name: "ui-storage",
         partialize: (state) => ({
-          // Only persist theme preference
           theme: state.theme,
+          sidebarCollapsed: state.sidebarCollapsed,
         }),
       }
     ),
@@ -86,3 +95,5 @@ export const useActiveModal = () => useUiStore((state) => state.activeModal);
 export const useFilterPanelOpen = () =>
   useUiStore((state) => state.filterPanelOpen);
 export const useSidebarOpen = () => useUiStore((state) => state.sidebarOpen);
+export const useSidebarCollapsed = () =>
+  useUiStore((state) => state.sidebarCollapsed);
