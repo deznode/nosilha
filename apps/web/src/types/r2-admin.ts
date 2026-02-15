@@ -72,12 +72,8 @@ export interface BatchUploadError {
 
 // --- Orphan Detection ---
 
-export interface OrphanObjectDto {
-  key: string;
-  size: number;
-  lastModified: string;
-  publicUrl: string;
-}
+/** Structurally identical to R2ObjectDto; aliased to match backend naming. */
+export type OrphanObjectDto = R2ObjectDto;
 
 export interface OrphanDetectionResponse {
   orphans: OrphanObjectDto[];
