@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Link from "next/link";
 import {
   MessageSquare,
   FileText,
@@ -9,7 +8,6 @@ import {
   MapPin,
   Image as ImageIcon,
   Sparkles,
-  HardDrive,
 } from "lucide-react";
 import {
   TabGroup,
@@ -38,7 +36,6 @@ import { FlagReasonModal } from "@/components/admin/queues/flag-reason-modal";
 import { DirectoryEditModal } from "@/components/admin/queues/directory-edit-modal";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { SystemStatusBadges } from "@/components/admin/system-status-badge";
 import {
   useAdminStats,
   useAdminSuggestions,
@@ -411,42 +408,11 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Computed values
-  const pendingCount =
-    pendingSuggestions.length +
-    pendingStories.length +
-    pendingDirectorySubmissions.length +
-    pendingAiReviews.length;
-
   const unreadMessages = messages.filter((m) => m.status === "UNREAD").length;
 
   return (
-    <div className="bg-canvas min-h-screen pb-12">
-      {/* Header */}
-      <header className="border-hairline bg-surface border-b shadow-sm">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <h1 className="text-body text-2xl font-bold">Admin Dashboard</h1>
-            <div className="flex items-center space-x-4">
-              <SystemStatusBadges />
-              <Link
-                href="/admin/storage"
-                className="text-muted hover:text-body rounded-button inline-flex items-center gap-1.5 px-3 py-1.5 text-sm transition-colors"
-              >
-                <HardDrive className="h-4 w-4" />
-                Storage
-              </Link>
-              {pendingCount > 0 && (
-                <span className="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                  {pendingCount} Pending Items
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div className="px-4 py-8 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl">
         {/* KPI Cards */}
         <KPICards stats={stats} isLoading={isLoading} />
 
@@ -559,7 +525,7 @@ export default function AdminDashboardPage() {
             </TabPanel>
           </TabPanels>
         </TabGroup>
-      </main>
+      </div>
 
       {/* Story Detail Modal */}
       <StoryDetailModal

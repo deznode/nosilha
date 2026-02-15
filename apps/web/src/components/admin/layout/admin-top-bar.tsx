@@ -17,14 +17,14 @@ export function AdminTopBar() {
   return (
     <header
       className={clsx(
-        "flex h-14 shrink-0 items-center justify-between border-b border-hairline bg-surface px-4"
+        "border-hairline bg-surface flex h-14 shrink-0 items-center justify-between border-b px-4"
       )}
     >
       {/* Left: Hamburger (mobile only) */}
       <div className="flex items-center">
         <button
           onClick={toggleSidebar}
-          className="flex items-center justify-center rounded-button p-2 text-muted transition-colors hover:bg-surface-alt hover:text-body lg:hidden"
+          className="rounded-button text-muted hover:bg-surface-alt hover:text-body flex items-center justify-center p-2 transition-colors lg:hidden"
           aria-label="Toggle navigation menu"
         >
           <Menu className="h-5 w-5" />
@@ -37,11 +37,7 @@ export function AdminTopBar() {
           <SystemStatusBadges />
         </div>
         <ThemeToggle showContainer />
-        <Avatar
-          size="sm"
-          initials={initials}
-          alt={user?.email ?? "User"}
-        />
+        <Avatar size="sm" initials={initials} alt={user?.email ?? "User"} />
       </div>
     </header>
   );

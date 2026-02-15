@@ -68,7 +68,8 @@ export const useUiStore = create<UiState>()(
           set((state) => ({
             sidebarCollapsed: !state.sidebarCollapsed,
           })),
-        setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
+        setSidebarCollapsed: (collapsed) =>
+          set({ sidebarCollapsed: collapsed }),
         toggleMobileMenu: () =>
           set((state) => ({
             mobileMenuOpen: !state.mobileMenuOpen,
