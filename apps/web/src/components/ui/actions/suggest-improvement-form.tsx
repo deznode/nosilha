@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/catalyst-ui/button";
 import { Input } from "@/components/catalyst-ui/input";
@@ -69,7 +69,6 @@ export function SuggestImprovementForm({
     formState: { errors },
     reset,
     setValue,
-    watch,
   } = useForm<SuggestionInput>({
     resolver: zodResolver(suggestionSchema),
     defaultValues: {
@@ -81,7 +80,7 @@ export function SuggestImprovementForm({
     },
   });
 
-  const messageValue = watch("message");
+  const messageValue = useWatch({ control, name: "message" });
 
   // Auto-populate email for authenticated users
   useEffect(() => {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowLeft,
@@ -215,13 +215,12 @@ export function DirectoryEntryForm({
     control,
     formState: { errors },
     setValue,
-    watch,
   } = useForm<DirectorySubmissionInput>({
     resolver: zodResolver(directorySubmissionSchema),
     defaultValues: getInitialFormData(),
   });
 
-  const formData = watch();
+  const formData = useWatch({ control }) as DirectorySubmissionInput;
 
   // Set custom town mode if initial data has a non-preset town
   useEffect(() => {
