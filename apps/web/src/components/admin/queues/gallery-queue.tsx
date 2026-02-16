@@ -22,11 +22,9 @@ import { useToast } from "@/hooks/use-toast";
 export function GalleryQueue() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  // AI Review modal state
   const [selectedAiRunId, setSelectedAiRunId] = useState<string | null>(null);
   const [isAiReviewModalOpen, setIsAiReviewModalOpen] = useState(false);
 
-  // Query hooks
   const galleryQuery = useAdminGallery();
   const aiReviewQuery = useAiReviewQueue();
   const updateGallery = useUpdateGalleryStatus();
@@ -42,7 +40,6 @@ export function GalleryQueue() {
   const isLoading = galleryQuery.isLoading;
   const aiReviewItems = aiReviewQuery.data?.items ?? [];
 
-  // Batch fetch AI status for gallery media items
   const galleryMediaIds = useMemo(
     () => items.map((item) => item.id),
     [items]
@@ -53,7 +50,6 @@ export function GalleryQueue() {
     [aiStatusQuery.data]
   );
 
-  // Handlers
   const handleStatusChange = (
     id: string,
     action: GalleryModerationAction,
@@ -82,27 +78,12 @@ export function GalleryQueue() {
   };
 
   const handleTriggerBatchAnalysis = async (mediaIds: string[]) => {
-    return new Promise<void>((resolve, reject) => {
-      triggerBatchAnalysis.mutate(
-        { mediaIds },
-        {
-          onSuccess: (data) => {
-            const parts = [`AI analysis triggered for ${data.accepted} items`];
-            if (data.rejected > 0) {
-              parts.push(`(${data.rejected} rejected)`);
-            }
-            toast.success(parts.join(" ")).show();
-            resolve();
-          },
-          onError: () => {
-            toast
-              .error("Failed to trigger batch AI analysis. Please try again.")
-              .show();
-            reject();
-          },
-        }
-      );
-    });
+    const data = await triggerBatchAnalysis.mutateAsync({ mediaIds });
+    const parts = [`AI analysis triggered for ${data.accepted} items`];
+    if (data.rejected > 0) {
+      parts.push(`(${data.rejected} rejected)`);
+    }
+    toast.success(parts.join(" ")).show();
   };
 
   const handleViewAiReview = (mediaId: string) => {
@@ -118,7 +99,6 @@ export function GalleryQueue() {
     setSelectedAiRunId(null);
   };
 
-  // Compute eligible IDs for "Select All Eligible"
   const eligibleIds = useMemo(
     () =>
       items
@@ -156,9 +136,14 @@ export function GalleryQueue() {
   }, [eligibleIds]);
 
   const handleBatchTrigger = useCallback(async () => {
-    if (selectedIds.size > 0) {
+    if (selectedIds.size === 0) return;
+    try {
       await handleTriggerBatchAnalysis(Array.from(selectedIds));
       setSelectedIds(new Set());
+    } catch {
+      toast
+        .error("Failed to trigger batch AI analysis. Please try again.")
+        .show();
     }
   }, [selectedIds]);
 
@@ -201,7 +186,6 @@ export function GalleryQueue() {
         </p>
       </div>
 
-      {/* Batch Action Bar */}
       {selectedIds.size > 0 && (
         <div className="border-hairline bg-surface flex items-center gap-4 rounded-xl border p-3 shadow-sm">
           <span className="text-body text-sm font-medium">
@@ -250,7 +234,6 @@ export function GalleryQueue() {
         );
       })}
 
-      {/* AI Review Detail Modal */}
       <AiReviewDetailModal
         runId={selectedAiRunId}
         isOpen={isAiReviewModalOpen}

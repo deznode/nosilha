@@ -19,6 +19,7 @@ import {
   Flag,
 } from "lucide-react";
 import Image from "next/image";
+import { clsx } from "clsx";
 import type { DirectorySubmission } from "@/types/admin";
 import { SubmissionStatus } from "@/types/story";
 import { Button } from "@/components/catalyst-ui/button";
@@ -48,25 +49,34 @@ const CATEGORY_COLORS: Record<string, string> = {
   Nature: "bg-valley-green/10 text-valley-green",
 };
 
+const STATUS_BADGE_CLASSES: Record<string, string> = {
+  [SubmissionStatus.PENDING]:
+    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
+  [SubmissionStatus.APPROVED]:
+    "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+  [SubmissionStatus.REJECTED]:
+    "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+  [SubmissionStatus.FLAGGED]:
+    "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+  [SubmissionStatus.ARCHIVED]: "bg-surface-alt text-muted",
+};
+
 export function DirectoryQueue() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<SubmissionStatus | "ALL">(
     "ALL"
   );
 
-  // Edit modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [directoryToEdit, setDirectoryToEdit] =
     useState<DirectorySubmission | null>(null);
 
-  // Flag modal state
   const [isFlagModalOpen, setIsFlagModalOpen] = useState(false);
   const [directoryToFlag, setDirectoryToFlag] = useState<{
     id: string;
     name: string;
   } | null>(null);
 
-  // Delete confirmation dialog state
   const [directoryToDelete, setDirectoryToDelete] =
     useState<DirectorySubmission | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -202,26 +212,8 @@ export function DirectoryQueue() {
     );
   }
 
-  const getStatusBadge = (status: SubmissionStatus) => {
-    switch (status) {
-      case SubmissionStatus.PENDING:
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300";
-      case SubmissionStatus.APPROVED:
-        return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-      case SubmissionStatus.REJECTED:
-        return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
-      case SubmissionStatus.FLAGGED:
-        return "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300";
-      case SubmissionStatus.ARCHIVED:
-        return "bg-surface-alt text-muted";
-      default:
-        return "bg-surface-alt text-muted";
-    }
-  };
-
   return (
     <div>
-      {/* Filters and Search */}
       <div className="mb-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
         <div className="flex space-x-2">
           <select
@@ -256,7 +248,6 @@ export function DirectoryQueue() {
         </div>
       </div>
 
-      {/* Submissions List */}
       <div className="border-hairline bg-surface overflow-hidden border shadow sm:rounded-md">
         {filteredSubmissions.length === 0 ? (
           <div className="text-muted p-8 text-center">
@@ -272,7 +263,10 @@ export function DirectoryQueue() {
                 <div className="flex items-start justify-between">
                   <div className="flex gap-4">
                     <div
-                      className={`mt-1 rounded-xl p-3 ${CATEGORY_COLORS[submission.category]}`}
+                      className={clsx(
+                        "mt-1 rounded-xl p-3",
+                        CATEGORY_COLORS[submission.category]
+                      )}
                     >
                       {CATEGORY_ICONS[submission.category]}
                     </div>
@@ -281,9 +275,7 @@ export function DirectoryQueue() {
                         <h4 className="text-body font-bold">
                           {submission.name}
                         </h4>
-                        <span
-                          className={`bg-surface-alt text-muted rounded px-2 py-0.5 text-[10px] font-bold`}
-                        >
+                        <span className="bg-surface-alt text-muted rounded px-2 py-0.5 text-[10px] font-bold">
                           {submission.category}
                         </span>
                         {submission.priceLevel && (
@@ -338,14 +330,15 @@ export function DirectoryQueue() {
                   </div>
                   <div className="flex flex-col items-end gap-3">
                     <span
-                      className={`rounded-full border px-3 py-1 text-[10px] font-bold ${getStatusBadge(
-                        submission.status
-                      )}`}
+                      className={clsx(
+                        "rounded-full border px-3 py-1 text-[10px] font-bold",
+                        STATUS_BADGE_CLASSES[submission.status] ??
+                          "bg-surface-alt text-muted"
+                      )}
                     >
                       {submission.status}
                     </span>
                     <div className="flex flex-wrap items-center justify-end gap-2">
-                      {/* Edit button */}
                       <Button
                         outline
                         onClick={() => handleEdit(submission)}
@@ -355,7 +348,6 @@ export function DirectoryQueue() {
                         Edit
                       </Button>
 
-                      {/* Moderation actions for pending items */}
                       {submission.status === SubmissionStatus.PENDING && (
                         <>
                           <Button
@@ -393,7 +385,6 @@ export function DirectoryQueue() {
                         </>
                       )}
 
-                      {/* Delete button (available for all statuses) */}
                       <Button
                         outline
                         onClick={() => handleDelete(submission)}
@@ -412,7 +403,6 @@ export function DirectoryQueue() {
         )}
       </div>
 
-      {/* Directory Edit Modal */}
       <DirectoryEditModal
         isOpen={isEditModalOpen}
         entry={directoryToEdit}
@@ -420,7 +410,6 @@ export function DirectoryQueue() {
         onSuccess={handleEditSuccess}
       />
 
-      {/* Directory Flag Modal */}
       <FlagReasonModal
         isOpen={isFlagModalOpen}
         itemType="Directory Entry"
@@ -429,7 +418,6 @@ export function DirectoryQueue() {
         onConfirm={handleFlagConfirm}
       />
 
-      {/* Directory Delete Confirmation */}
       <ConfirmationDialog
         isOpen={isDeleteDialogOpen}
         onClose={handleDeleteCancel}

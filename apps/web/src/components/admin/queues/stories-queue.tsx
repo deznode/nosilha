@@ -38,17 +38,12 @@ export function StoriesQueue() {
   const [mdxContent, setMdxContent] = useState<string>("");
   const [isGeneratingMdx, setIsGeneratingMdx] = useState(false);
   const [isCommitting, setIsCommitting] = useState(false);
-  const [_publishingStoryId, setPublishingStoryId] = useState<string | null>(
-    null
-  );
 
-  // Story detail modal state
   const [selectedStory, setSelectedStory] = useState<StorySubmission | null>(
     null
   );
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-  // Flag modal state
   const [isFlagModalOpen, setIsFlagModalOpen] = useState(false);
   const [storyToFlag, setStoryToFlag] = useState<{
     id: string;
@@ -100,13 +95,10 @@ export function StoriesQueue() {
   };
 
   const handlePublish = async (story: StorySubmission) => {
-    setPublishingStoryId(story.id);
-
     try {
       const slug = generateSlug(story.title);
       await updateStoryStatus(story.id, "PUBLISH", undefined, slug);
       toast.success(`Story "${story.title}" published successfully!`).show();
-      // Trigger parent component to refresh the list
       window.location.reload();
     } catch (error) {
       console.error("Failed to publish story:", error);
@@ -115,8 +107,6 @@ export function StoriesQueue() {
           error instanceof Error ? error.message : "Failed to publish story"
         )
         .show();
-    } finally {
-      setPublishingStoryId(null);
     }
   };
 
@@ -163,7 +153,6 @@ export function StoriesQueue() {
           .show();
         setPreviewingStory(null);
         setMdxContent("");
-        // Trigger parent component to refresh the list
         window.location.reload();
       } else {
         toast.error(result.error || "Failed to commit MDX content").show();
@@ -221,7 +210,6 @@ export function StoriesQueue() {
 
   return (
     <div>
-      {/* Filters and Search */}
       <div className="mb-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
         <div className="flex space-x-2">
           <select
@@ -256,7 +244,6 @@ export function StoriesQueue() {
         </div>
       </div>
 
-      {/* Stories List */}
       <div className="border-hairline bg-surface overflow-hidden border shadow sm:rounded-md">
         {filteredStories.length === 0 ? (
           <div className="text-muted p-8 text-center">No stories found</div>
@@ -293,7 +280,6 @@ export function StoriesQueue() {
         )}
       </div>
 
-      {/* MDX Preview Modal */}
       {previewingStory && (
         <MdxPreviewModal
           isOpen={!!previewingStory}
@@ -307,7 +293,6 @@ export function StoriesQueue() {
         />
       )}
 
-      {/* Story Detail Modal */}
       <StoryDetailModal
         story={selectedStory}
         isOpen={isDetailModalOpen}
@@ -320,7 +305,6 @@ export function StoriesQueue() {
         }
       />
 
-      {/* Flag Reason Modal */}
       <FlagReasonModal
         isOpen={isFlagModalOpen}
         itemType="Story"
