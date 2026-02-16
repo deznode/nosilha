@@ -1845,6 +1845,56 @@ ${story.content
   }
 
   // ================================
+  // TEXT AI OPERATIONS - Mock Stubs
+  // ================================
+
+  async checkAiAvailable(): Promise<import("@/types/ai").AiAvailableResponse> {
+    await this.simulateDelay(100);
+    return { available: true };
+  }
+
+  async polishContent(
+    request: import("@/types/ai").PolishContentRequest
+  ): Promise<import("@/types/ai").PolishContentResponse> {
+    console.log(`Mock API: Polishing content`);
+    await this.simulateDelay(500);
+    return { content: request.content };
+  }
+
+  async translateContent(
+    request: import("@/types/ai").TranslateContentRequest
+  ): Promise<import("@/types/ai").TranslateContentResponse> {
+    console.log(`Mock API: Translating content to ${request.targetLang}`);
+    await this.simulateDelay(500);
+    return { content: request.content };
+  }
+
+  async generatePrompts(
+    _request: import("@/types/ai").GeneratePromptsRequest
+  ): Promise<import("@/types/ai").GeneratePromptsResponse> {
+    console.log(`Mock API: Generating prompts`);
+    await this.simulateDelay(500);
+    return {
+      prompts: [
+        "What sounds do you remember from your childhood?",
+        "Can you describe the view from your favorite spot?",
+        "Who taught you about the traditions?",
+      ],
+    };
+  }
+
+  async generateDirectoryContent(
+    _request: import("@/types/ai").GenerateDirectoryContentRequest
+  ): Promise<import("@/types/ai").DirectoryContentResponse> {
+    console.log(`Mock API: Generating directory content`);
+    await this.simulateDelay(500);
+    return {
+      description: "A charming place in Brava Island.",
+      tags: ["traditional", "local", "heritage"],
+    };
+  }
+
+  // ================================
   // ADMIN R2 STORAGE - Mock Stubs
   // ================================
 

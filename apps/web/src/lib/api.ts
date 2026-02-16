@@ -827,6 +827,60 @@ export async function promoteToHeroImage(mediaId: string): Promise<void> {
 }
 
 // ================================
+// TEXT AI OPERATIONS
+// ================================
+
+/**
+ * Check if text AI is available.
+ * Requires authentication.
+ */
+export async function checkAiAvailable(): Promise<
+  import("@/types/ai").AiAvailableResponse
+> {
+  return apiClient.checkAiAvailable();
+}
+
+/**
+ * Polish/improve content text using AI.
+ * Requires authentication.
+ */
+export async function polishContent(
+  request: import("@/types/ai").PolishContentRequest
+): Promise<import("@/types/ai").PolishContentResponse> {
+  return apiClient.polishContent(request);
+}
+
+/**
+ * Translate content to a target language using AI.
+ * Requires authentication.
+ */
+export async function translateContent(
+  request: import("@/types/ai").TranslateContentRequest
+): Promise<import("@/types/ai").TranslateContentResponse> {
+  return apiClient.translateContent(request);
+}
+
+/**
+ * Generate writing prompts for a story template type.
+ * Requires authentication.
+ */
+export async function generatePrompts(
+  request: import("@/types/ai").GeneratePromptsRequest
+): Promise<import("@/types/ai").GeneratePromptsResponse> {
+  return apiClient.generatePrompts(request);
+}
+
+/**
+ * Generate AI description and tags for a directory entry.
+ * Requires authentication.
+ */
+export async function generateDirectoryContent(
+  request: import("@/types/ai").GenerateDirectoryContentRequest
+): Promise<import("@/types/ai").DirectoryContentResponse> {
+  return apiClient.generateDirectoryContent(request);
+}
+
+// ================================
 // ADMIN AI REVIEW OPERATIONS
 // ================================
 

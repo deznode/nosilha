@@ -28,6 +28,15 @@ import type {
   AnalysisTriggerResponse,
   AnalyzeBatchRequest,
   BatchAnalysisTriggerResponse,
+  PolishContentRequest,
+  PolishContentResponse,
+  TranslateContentRequest,
+  TranslateContentResponse,
+  GeneratePromptsRequest,
+  GeneratePromptsResponse,
+  GenerateDirectoryContentRequest,
+  DirectoryContentResponse,
+  AiAvailableResponse,
 } from "@/types/ai";
 import type {
   R2BucketListResponse,
@@ -650,6 +659,65 @@ export interface ApiClient {
   submitExternalMedia(
     request: import("@/types/gallery").SubmitExternalMediaRequest
   ): Promise<{ id: string; message: string }>;
+
+  // ================================
+  // TEXT AI OPERATIONS
+  // ================================
+
+  /**
+   * Check if text AI is available.
+   *
+   * **Authenticated Endpoint**: Requires USER or ADMIN role.
+   *
+   * @returns AiAvailableResponse with availability status
+   */
+  checkAiAvailable(): Promise<AiAvailableResponse>;
+
+  /**
+   * Polish/improve content text using AI.
+   *
+   * **Authenticated Endpoint**: Requires USER or ADMIN role.
+   *
+   * @param request Content to polish
+   * @returns Polished content
+   */
+  polishContent(request: PolishContentRequest): Promise<PolishContentResponse>;
+
+  /**
+   * Translate content to a target language using AI.
+   *
+   * **Authenticated Endpoint**: Requires USER or ADMIN role.
+   *
+   * @param request Content and target language
+   * @returns Translated content
+   */
+  translateContent(
+    request: TranslateContentRequest
+  ): Promise<TranslateContentResponse>;
+
+  /**
+   * Generate writing prompts for a story template type.
+   *
+   * **Authenticated Endpoint**: Requires USER or ADMIN role.
+   *
+   * @param request Template type and optional existing content
+   * @returns List of generated prompts
+   */
+  generatePrompts(
+    request: GeneratePromptsRequest
+  ): Promise<GeneratePromptsResponse>;
+
+  /**
+   * Generate AI description and tags for a directory entry.
+   *
+   * **Authenticated Endpoint**: Requires USER or ADMIN role.
+   *
+   * @param request Entry name and category
+   * @returns Generated description and tags
+   */
+  generateDirectoryContent(
+    request: GenerateDirectoryContentRequest
+  ): Promise<DirectoryContentResponse>;
 
   // ================================
   // ADMIN R2 STORAGE OPERATIONS
