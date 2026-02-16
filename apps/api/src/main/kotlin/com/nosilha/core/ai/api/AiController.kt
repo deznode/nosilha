@@ -42,52 +42,54 @@ class AiController(
     @PostMapping("/polish")
     fun polishContent(
         @Valid @RequestBody request: PolishContentRequest,
-    ): ApiResult<PolishContentResponse> {
-        if (textAiProvider == null) {
-            logger.debug { "Text AI unavailable, returning original content for polish" }
-            return ApiResult(data = PolishContentResponse(content = request.content))
+    ): ApiResult<PolishContentResponse> =
+        withProviderOrFallback(PolishContentResponse(content = request.content)) { provider ->
+            val polished = provider.polishContent(request.content)
+            PolishContentResponse(content = polished)
         }
-        val polished = textAiProvider.polishContent(request.content)
-        return ApiResult(data = PolishContentResponse(content = polished))
-    }
 
     @PostMapping("/translate")
     fun translateContent(
         @Valid @RequestBody request: TranslateContentRequest,
-    ): ApiResult<TranslateContentResponse> {
-        if (textAiProvider == null) {
-            logger.debug { "Text AI unavailable, returning original content for translate" }
-            return ApiResult(data = TranslateContentResponse(content = request.content))
+    ): ApiResult<TranslateContentResponse> =
+        withProviderOrFallback(TranslateContentResponse(content = request.content)) { provider ->
+            val translated = provider.translateContent(request.content, request.targetLang)
+            TranslateContentResponse(content = translated)
         }
-        val translated = textAiProvider.translateContent(request.content, request.targetLang)
-        return ApiResult(data = TranslateContentResponse(content = translated))
-    }
 
     @PostMapping("/prompts")
     fun generatePrompts(
         @Valid @RequestBody request: GeneratePromptsRequest,
-    ): ApiResult<GeneratePromptsResponse> {
-        if (textAiProvider == null) {
-            logger.debug { "Text AI unavailable, returning empty prompts" }
-            return ApiResult(data = GeneratePromptsResponse(prompts = emptyList()))
+    ): ApiResult<GeneratePromptsResponse> =
+        withProviderOrFallback(GeneratePromptsResponse(prompts = emptyList())) { provider ->
+            val prompts = provider.generatePrompts(request.templateType, request.existingContent)
+            GeneratePromptsResponse(prompts = prompts)
         }
-        val prompts = textAiProvider.generatePrompts(request.templateType, request.existingContent)
-        return ApiResult(data = GeneratePromptsResponse(prompts = prompts))
-    }
 
     @PostMapping("/directory-content")
     fun generateDirectoryContent(
         @Valid @RequestBody request: GenerateDirectoryContentRequest,
     ): ApiResult<DirectoryContentResponse> {
-        if (textAiProvider == null) {
-            logger.debug { "Text AI unavailable, returning empty directory content" }
-            return ApiResult(data = DirectoryContentResponse(description = "", tags = emptyList()))
+        val emptyResponse = DirectoryContentResponse(description = "", tags = emptyList())
+        return withProviderOrFallback(emptyResponse) { provider ->
+            val result = provider.generateDirectoryContent(request.name, request.category)
+            result?.let { DirectoryContentResponse(description = it.description, tags = it.tags) } ?: emptyResponse
         }
-        val result = textAiProvider.generateDirectoryContent(request.name, request.category)
-        return if (result != null) {
-            ApiResult(data = DirectoryContentResponse(description = result.description, tags = result.tags))
-        } else {
-            ApiResult(data = DirectoryContentResponse(description = "", tags = emptyList()))
+    }
+
+    /**
+     * Executes an action with the text AI provider, returning [fallback] wrapped
+     * in [ApiResult] when the provider is unavailable (Gemini disabled).
+     */
+    private fun <T> withProviderOrFallback(
+        fallback: T,
+        action: (TextAiProvider) -> T,
+    ): ApiResult<T> {
+        val provider = textAiProvider
+        if (provider == null) {
+            logger.debug { "Text AI unavailable, returning fallback response" }
+            return ApiResult(data = fallback)
         }
+        return ApiResult(data = action(provider))
     }
 }

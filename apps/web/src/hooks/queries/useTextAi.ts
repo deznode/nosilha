@@ -14,8 +14,7 @@ import type {
 } from "@/types/ai";
 
 /**
- * TanStack Query hook for checking text AI availability.
- * Only fetches when user is authenticated.
+ * Checks text AI availability. Only fetches when user is authenticated.
  */
 export function useAiAvailable() {
   const { session } = useAuth();
@@ -23,53 +22,41 @@ export function useAiAvailable() {
 
   return useQuery<AiAvailableResponse, Error>({
     queryKey: ["ai", "available"],
-    queryFn: async () => apiClient.checkAiAvailable(),
+    queryFn: () => apiClient.checkAiAvailable(),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000,
     enabled: !!session,
   });
 }
 
-/**
- * TanStack Query mutation hook for polishing content via AI.
- * Returns polished text on success.
- */
+/** Polishes content text via AI. */
 export function usePolishContent() {
   const apiClient = getApiClient();
 
   return useMutation<PolishContentResponse, Error, PolishContentRequest>({
-    mutationFn: async (request) => apiClient.polishContent(request),
+    mutationFn: (request) => apiClient.polishContent(request),
   });
 }
 
-/**
- * TanStack Query mutation hook for translating content via AI.
- * Returns translated text on success.
- */
+/** Translates content to a target language via AI. */
 export function useTranslateContent() {
   const apiClient = getApiClient();
 
   return useMutation<TranslateContentResponse, Error, TranslateContentRequest>({
-    mutationFn: async (request) => apiClient.translateContent(request),
+    mutationFn: (request) => apiClient.translateContent(request),
   });
 }
 
-/**
- * TanStack Query mutation hook for generating story writing prompts.
- * Returns a list of prompts on success.
- */
+/** Generates story writing prompts via AI. */
 export function useGeneratePrompts() {
   const apiClient = getApiClient();
 
   return useMutation<GeneratePromptsResponse, Error, GeneratePromptsRequest>({
-    mutationFn: async (request) => apiClient.generatePrompts(request),
+    mutationFn: (request) => apiClient.generatePrompts(request),
   });
 }
 
-/**
- * TanStack Query mutation hook for generating directory entry content.
- * Returns AI-generated description and tags on success.
- */
+/** Generates AI description and tags for a directory entry. */
 export function useGenerateDirectoryContent() {
   const apiClient = getApiClient();
 
@@ -78,6 +65,6 @@ export function useGenerateDirectoryContent() {
     Error,
     GenerateDirectoryContentRequest
   >({
-    mutationFn: async (request) => apiClient.generateDirectoryContent(request),
+    mutationFn: (request) => apiClient.generateDirectoryContent(request),
   });
 }

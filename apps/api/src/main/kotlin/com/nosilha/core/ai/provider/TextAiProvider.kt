@@ -53,89 +53,71 @@ class TextAiProvider(
 
     fun isAvailable(): Boolean = true
 
-    fun polishContent(content: String): String {
-        if (!checkQuota()) {
-            logger.warn { "Text AI quota exceeded for polish operation" }
-            return content
-        }
-        return try {
+    fun polishContent(content: String): String =
+        withQuotaAndFallback("polish content", content) {
             val prompt = TextPromptTemplates.polishPrompt(content)
-            val result = chatClient
-                .prompt()
-                .user(prompt)
-                .call()
-                .content()
-            result ?: content
-        } catch (e: Exception) {
-            logger.error(e) { "Failed to polish content" }
-            content
+            callText(prompt) ?: content
         }
-    }
 
     fun translateContent(
         content: String,
         targetLang: String,
-    ): String {
-        if (!checkQuota()) {
-            logger.warn { "Text AI quota exceeded for translate operation" }
-            return content
-        }
-        return try {
+    ): String =
+        withQuotaAndFallback("translate content", content) {
             val prompt = TextPromptTemplates.translatePrompt(content, targetLang)
-            val result = chatClient
-                .prompt()
-                .user(prompt)
-                .call()
-                .content()
-            result ?: content
-        } catch (e: Exception) {
-            logger.error(e) { "Failed to translate content" }
-            content
+            callText(prompt) ?: content
         }
-    }
 
     fun generatePrompts(
         templateType: String,
         existingContent: String?,
-    ): List<String> {
-        if (!checkQuota()) {
-            logger.warn { "Text AI quota exceeded for prompts operation" }
-            return emptyList()
-        }
-        return try {
+    ): List<String> =
+        withQuotaAndFallback("generate prompts", emptyList()) {
             val prompt = TextPromptTemplates.generatePromptsPrompt(templateType, existingContent)
-            val result = chatClient
-                .prompt()
-                .user(prompt)
-                .call()
-                .entity(GeminiPromptsOutput::class.java)
-            result?.prompts ?: emptyList()
-        } catch (e: Exception) {
-            logger.error(e) { "Failed to generate prompts" }
-            emptyList()
+            callEntity<GeminiPromptsOutput>(prompt)?.prompts ?: emptyList()
         }
-    }
 
     fun generateDirectoryContent(
         name: String,
         category: String,
-    ): GeminiDirectoryContentOutput? {
-        if (!checkQuota()) {
-            logger.warn { "Text AI quota exceeded for directory content operation" }
-            return null
+    ): GeminiDirectoryContentOutput? =
+        withQuotaAndFallback("generate directory content", null) {
+            val prompt = TextPromptTemplates.directoryContentPrompt(name, category)
+            callEntity<GeminiDirectoryContentOutput>(prompt)
+        }
+
+    private fun callText(prompt: String): String? =
+        chatClient
+            .prompt()
+            .user(prompt)
+            .call()
+            .content()
+
+    private inline fun <reified T : Any> callEntity(prompt: String): T? =
+        chatClient
+            .prompt()
+            .user(prompt)
+            .call()
+            .entity(T::class.java)
+
+    /**
+     * Executes a text AI operation with quota enforcement and graceful fallback.
+     * Returns [fallback] if quota is exceeded or an exception occurs.
+     */
+    private fun <T> withQuotaAndFallback(
+        operation: String,
+        fallback: T,
+        block: () -> T,
+    ): T {
+        if (!apiUsageService.checkAndIncrementQuota("gemini-text", textMonthlyLimit)) {
+            logger.warn { "Text AI quota exceeded for $operation" }
+            return fallback
         }
         return try {
-            val prompt = TextPromptTemplates.directoryContentPrompt(name, category)
-            chatClient
-                .prompt()
-                .user(prompt)
-                .call()
-                .entity(GeminiDirectoryContentOutput::class.java)
+            block()
         } catch (e: Exception) {
-            logger.error(e) { "Failed to generate directory content" }
-            null
+            logger.error(e) { "Failed to $operation" }
+            fallback
         }
     }
-
-    private fun checkQuota(): Boolean = apiUsageService.checkAndIncrementQuota("gemini-text", textMonthlyLimit)
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Lightbulb,
   RefreshCw,
@@ -29,21 +29,24 @@ export function StoryPromptsPanel({
   const generatePromptsMutation = useGeneratePrompts();
   const geminiAvailable = aiAvailability?.available ?? false;
 
-  const fetchPrompts = useCallback(async () => {
+  // Use ref to access latest existingContent without triggering re-fetches
+  const existingContentRef = useRef(existingContent);
+  existingContentRef.current = existingContent;
+
+  const fetchPrompts = async () => {
     if (!geminiAvailable) return;
     try {
       const result = await generatePromptsMutation.mutateAsync({
         templateType,
-        existingContent,
+        existingContent: existingContentRef.current,
       });
       setPrompts(result.prompts);
     } catch (err) {
       console.error("Failed to generate prompts", err);
     }
-  }, [templateType, existingContent, geminiAvailable, generatePromptsMutation]);
+  };
 
-  // Fetch on mount and template change only (intentionally excluding fetchPrompts
-  // to avoid refetching on every content keystroke)
+  // Fetch on mount and template change only
   useEffect(() => {
     if (geminiAvailable) {
       fetchPrompts();
