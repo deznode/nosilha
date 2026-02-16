@@ -1,19 +1,28 @@
 "use client";
 
-import type { AnalysisRunSummary } from "@/types/ai";
+import { useState } from "react";
 import { AiReviewQueueItem } from "./ai-review-queue-item";
+import { AiReviewDetailModal } from "@/components/admin/ai-review-detail-modal";
+import { useAiReviewQueue } from "@/hooks/queries/admin";
 
-interface AiReviewQueueProps {
-  items: AnalysisRunSummary[];
-  isLoading: boolean;
-  onReview: (runId: string) => void;
-}
+export function AiReviewQueue() {
+  const [selectedAiRunId, setSelectedAiRunId] = useState<string | null>(null);
+  const [isAiReviewModalOpen, setIsAiReviewModalOpen] = useState(false);
 
-export function AiReviewQueue({
-  items,
-  isLoading,
-  onReview,
-}: AiReviewQueueProps) {
+  const aiReviewQuery = useAiReviewQueue();
+  const items = aiReviewQuery.data?.items ?? [];
+  const isLoading = aiReviewQuery.isLoading;
+
+  const handleReview = (runId: string) => {
+    setSelectedAiRunId(runId);
+    setIsAiReviewModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsAiReviewModalOpen(false);
+    setSelectedAiRunId(null);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -50,8 +59,14 @@ export function AiReviewQueue({
         </p>
       </div>
       {items.map((item) => (
-        <AiReviewQueueItem key={item.id} item={item} onReview={onReview} />
+        <AiReviewQueueItem key={item.id} item={item} onReview={handleReview} />
       ))}
+
+      <AiReviewDetailModal
+        runId={selectedAiRunId}
+        isOpen={isAiReviewModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }
