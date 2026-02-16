@@ -2,26 +2,54 @@
 
 import { useState } from "react";
 import { Search, Mail, Check, Trash2, Clock } from "lucide-react";
-import type { ContactMessage, ContactMessageStatus } from "@/types/admin";
+import type { ContactMessageStatus } from "@/types/admin";
 import { Button } from "@/components/catalyst-ui/button";
+import {
+  useAdminMessages,
+  useUpdateMessageStatus,
+  useDeleteMessage,
+} from "@/hooks/queries/admin";
+import { useToast } from "@/hooks/use-toast";
 
-interface MessagesQueueProps {
-  messages: ContactMessage[];
-  isLoading?: boolean;
-  onStatusChange?: (id: string, status: ContactMessageStatus) => void;
-  onDelete?: (id: string) => void;
-}
-
-export function MessagesQueue({
-  messages,
-  isLoading,
-  onStatusChange,
-  onDelete,
-}: MessagesQueueProps) {
+export function MessagesQueue() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<
     ContactMessageStatus | "ALL"
   >("ALL");
+
+  const messagesQuery = useAdminMessages();
+  const updateMessage = useUpdateMessageStatus();
+  const deleteMessageMutation = useDeleteMessage();
+  const toast = useToast();
+
+  const messages = messagesQuery.data?.items ?? [];
+  const isLoading = messagesQuery.isLoading;
+
+  const handleStatusChange = (id: string, status: ContactMessageStatus) => {
+    const label = status === "READ" ? "marked as read" : "archived";
+    updateMessage.mutate(
+      { id, status },
+      {
+        onSuccess: () => {
+          toast.success(`Message ${label} successfully`).show();
+        },
+        onError: () => {
+          toast.error(`Failed to update message. Please try again.`).show();
+        },
+      }
+    );
+  };
+
+  const handleDelete = (id: string) => {
+    deleteMessageMutation.mutate(id, {
+      onSuccess: () => {
+        toast.success("Message deleted successfully").show();
+      },
+      onError: () => {
+        toast.error("Failed to delete message. Please try again.").show();
+      },
+    });
+  };
 
   const filteredMessages = messages.filter((m) => {
     const matchesSearch =
@@ -154,7 +182,7 @@ export function MessagesQueue({
                     {message.status === "UNREAD" && (
                       <Button
                         outline
-                        onClick={() => onStatusChange?.(message.id, "READ")}
+                        onClick={() => handleStatusChange(message.id, "READ")}
                       >
                         <Check data-slot="icon" />
                         Mark Read
@@ -162,14 +190,14 @@ export function MessagesQueue({
                     )}
                     <Button
                       color="blue"
-                      onClick={() => onStatusChange?.(message.id, "ARCHIVED")}
+                      onClick={() => handleStatusChange(message.id, "ARCHIVED")}
                     >
                       <Mail data-slot="icon" />
                       Archive
                     </Button>
                     <Button
                       outline
-                      onClick={() => onDelete?.(message.id)}
+                      onClick={() => handleDelete(message.id)}
                       className="text-red-600 hover:text-red-700 dark:text-red-400"
                     >
                       <Trash2 data-slot="icon" />
