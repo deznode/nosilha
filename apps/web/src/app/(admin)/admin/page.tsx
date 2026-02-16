@@ -477,14 +477,7 @@ export default function AdminDashboardPage() {
               <MessagesQueue />
             </TabPanel>
             <TabPanel>
-              <DirectoryQueue
-                submissions={directorySubmissions}
-                isLoading={directoryQuery.isLoading}
-                onStatusChange={handleDirectoryStatusChange}
-                onEdit={handleDirectoryEdit}
-                onDelete={handleDirectoryDelete}
-                onFlag={handleDirectoryFlag}
-              />
+              <DirectoryQueue />
             </TabPanel>
             <TabPanel>
               <GalleryQueue
