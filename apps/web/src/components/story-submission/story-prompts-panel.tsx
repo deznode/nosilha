@@ -8,10 +8,7 @@ import {
   ChevronUp,
   Plus,
 } from "lucide-react";
-import {
-  generatePromptsAction,
-  checkGeminiAvailableAction,
-} from "@/app/actions/gemini-actions";
+import { useAiAvailable, useGeneratePrompts } from "@/hooks/queries/useTextAi";
 import type { StoryTemplate } from "@/types/story";
 
 interface StoryPromptsPanelProps {
@@ -26,37 +23,24 @@ export function StoryPromptsPanel({
   onInsertPrompt,
 }: StoryPromptsPanelProps) {
   const [prompts, setPrompts] = useState<string[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [geminiAvailable, setGeminiAvailable] = useState<boolean | null>(null);
 
-  // Check Gemini availability on mount
-  useEffect(() => {
-    checkGeminiAvailableAction().then(setGeminiAvailable);
-  }, []);
+  const { data: aiAvailability } = useAiAvailable();
+  const generatePromptsMutation = useGeneratePrompts();
+  const geminiAvailable = aiAvailability?.available ?? false;
 
   const fetchPrompts = useCallback(async () => {
-    if (!geminiAvailable) {
-      setError("AI prompts unavailable");
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
+    if (!geminiAvailable) return;
     try {
-      const newPrompts = await generatePromptsAction(
+      const result = await generatePromptsMutation.mutateAsync({
         templateType,
-        existingContent
-      );
-      setPrompts(newPrompts);
+        existingContent,
+      });
+      setPrompts(result.prompts);
     } catch (err) {
-      setError("Failed to generate prompts");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
+      console.error("Failed to generate prompts", err);
     }
-  }, [templateType, existingContent, geminiAvailable]);
+  }, [templateType, existingContent, geminiAvailable, generatePromptsMutation]);
 
   // Fetch on mount and template change only (intentionally excluding fetchPrompts
   // to avoid refetching on every content keystroke)
@@ -67,8 +51,8 @@ export function StoryPromptsPanel({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateType, geminiAvailable]);
 
-  // Don't show panel if Gemini not configured (or still loading)
-  if (geminiAvailable !== true) {
+  // Don't show panel if AI not configured (or still loading)
+  if (!geminiAvailable) {
     return null;
   }
 
@@ -92,13 +76,15 @@ export function StoryPromptsPanel({
 
       {isExpanded && (
         <div className="border-hairline border-t px-3 py-2">
-          {isLoading ? (
+          {generatePromptsMutation.isPending ? (
             <div className="text-muted flex items-center gap-2 text-sm">
               <RefreshCw className="h-4 w-4 animate-spin" />
               Generating prompts...
             </div>
-          ) : error ? (
-            <p className="text-accent-error text-sm">{error}</p>
+          ) : generatePromptsMutation.error ? (
+            <p className="text-accent-error text-sm">
+              Failed to generate prompts
+            </p>
           ) : (
             <ul className="space-y-2">
               {prompts.map((prompt, index) => (
@@ -117,16 +103,17 @@ export function StoryPromptsPanel({
             </ul>
           )}
 
-          {!isLoading && !error && (
-            <button
-              type="button"
-              onClick={fetchPrompts}
-              className="text-ocean-blue mt-2 flex items-center gap-1 text-xs hover:underline"
-            >
-              <RefreshCw className="h-3 w-3" />
-              Get new prompts
-            </button>
-          )}
+          {!generatePromptsMutation.isPending &&
+            !generatePromptsMutation.error && (
+              <button
+                type="button"
+                onClick={fetchPrompts}
+                className="text-ocean-blue mt-2 flex items-center gap-1 text-xs hover:underline"
+              >
+                <RefreshCw className="h-3 w-3" />
+                Get new prompts
+              </button>
+            )}
         </div>
       )}
     </div>
