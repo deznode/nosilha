@@ -40,10 +40,7 @@ export function GalleryQueue() {
   const isLoading = galleryQuery.isLoading;
   const aiReviewItems = aiReviewQuery.data?.items ?? [];
 
-  const galleryMediaIds = useMemo(
-    () => items.map((item) => item.id),
-    [items]
-  );
+  const galleryMediaIds = useMemo(() => items.map((item) => item.id), [items]);
   const aiStatusQuery = useAiStatus(galleryMediaIds);
   const aiStatuses = useMemo(
     () => new Map((aiStatusQuery.data ?? []).map((s) => [s.mediaId, s])),
@@ -135,7 +132,7 @@ export function GalleryQueue() {
     });
   }, [eligibleIds]);
 
-  const handleBatchTrigger = useCallback(async () => {
+  const handleBatchTrigger = async () => {
     if (selectedIds.size === 0) return;
     try {
       await handleTriggerBatchAnalysis(Array.from(selectedIds));
@@ -145,7 +142,7 @@ export function GalleryQueue() {
         .error("Failed to trigger batch AI analysis. Please try again.")
         .show();
     }
-  }, [selectedIds]);
+  };
 
   const allEligibleSelected =
     eligibleIds.length > 0 && eligibleIds.every((id) => selectedIds.has(id));

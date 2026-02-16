@@ -160,26 +160,26 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         }
       }
 
-      # AI feature toggles (disabled initially — flip to "true" when ready to activate)
+      # AI feature toggles (enabled — Gemini uses API key from Secret Manager, Cloud Vision uses ADC)
       env {
         name  = "AI_ENABLED"
-        value = "false"
+        value = "true"
       }
 
       env {
         name  = "AI_CLOUD_VISION_ENABLED"
-        value = "false"
+        value = "true"
       }
 
       env {
         name  = "AI_GEMINI_ENABLED"
-        value = "false"
+        value = "true"
       }
 
-      # Spring AI auto-configuration: "google-genai" to enable, "none" to disable
+      # Spring AI auto-configuration: "google-genai" enables ChatClient.Builder for Gemini
       env {
         name  = "SPRING_AI_MODEL_CHAT"
-        value = "none"
+        value = "google-genai"
       }
 
       # Gemini API key from Secret Manager (Developer API authentication — see ADR-0008)
@@ -193,6 +193,53 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         }
       }
 
+      # Cloudflare R2 media storage configuration
+      env {
+        name  = "R2_ENABLED"
+        value = "true"
+      }
+
+      env {
+        name  = "R2_BUCKET_NAME"
+        value = "nosilha-media"
+      }
+
+      env {
+        name  = "R2_PUBLIC_URL"
+        value = "https://media.nosilha.com"
+      }
+
+      # R2 credentials from Secret Manager
+      env {
+        name = "R2_ACCOUNT_ID"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.r2_account_id.secret_id
+            version = "1"
+          }
+        }
+      }
+
+      env {
+        name = "R2_ACCESS_KEY_ID"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.r2_access_key_id.secret_id
+            version = "1"
+          }
+        }
+      }
+
+      env {
+        name = "R2_SECRET_ACCESS_KEY"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.r2_secret_access_key.secret_id
+            version = "1"
+          }
+        }
+      }
+
     }
   }
 
@@ -201,7 +248,13 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
   depends_on = [
     google_project_service.cloud_run,
     google_secret_manager_secret.gemini_api_key,
-    google_secret_manager_secret_iam_member.grant_gemini_api_key_access
+    google_secret_manager_secret_iam_member.grant_gemini_api_key_access,
+    google_secret_manager_secret.r2_account_id,
+    google_secret_manager_secret.r2_access_key_id,
+    google_secret_manager_secret.r2_secret_access_key,
+    google_secret_manager_secret_iam_member.grant_r2_account_id_access,
+    google_secret_manager_secret_iam_member.grant_r2_access_key_id_access,
+    google_secret_manager_secret_iam_member.grant_r2_secret_access_key_access,
   ]
 }
 

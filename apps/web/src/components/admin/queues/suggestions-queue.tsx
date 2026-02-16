@@ -26,7 +26,8 @@ export function SuggestionsQueue() {
 
   const handleStatusChange = (id: string, status: SubmissionStatus) => {
     const action = status === SubmissionStatus.APPROVED ? "APPROVE" : "REJECT";
-    const label = status === SubmissionStatus.APPROVED ? "approved" : "rejected";
+    const label =
+      status === SubmissionStatus.APPROVED ? "approved" : "rejected";
     updateSuggestion.mutate(
       { id, action },
       {
@@ -34,7 +35,9 @@ export function SuggestionsQueue() {
           toast.success(`Suggestion ${label} successfully`).show();
         },
         onError: () => {
-          toast.error(`Failed to ${label} suggestion. Please try again.`).show();
+          toast
+            .error(`Failed to ${label} suggestion. Please try again.`)
+            .show();
         },
       }
     );

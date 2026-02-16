@@ -107,6 +107,66 @@ resource "google_secret_manager_secret_iam_member" "grant_gemini_api_key_access"
   member    = google_service_account.backend_runner.member
 }
 
+# Cloudflare R2 storage credentials (media uploads)
+# After apply, set values via:
+#   echo -n "VALUE" | gcloud secrets versions add r2_account_id --data-file=-
+#   echo -n "VALUE" | gcloud secrets versions add r2_access_key_id --data-file=-
+#   echo -n "VALUE" | gcloud secrets versions add r2_secret_access_key --data-file=-
+resource "google_secret_manager_secret" "r2_account_id" {
+  project   = var.gcp_project_id
+  secret_id = "r2_account_id"
+
+  replication {
+    auto {}
+  }
+
+  depends_on = [google_project_service.secret_manager]
+}
+
+resource "google_secret_manager_secret" "r2_access_key_id" {
+  project   = var.gcp_project_id
+  secret_id = "r2_access_key_id"
+
+  replication {
+    auto {}
+  }
+
+  depends_on = [google_project_service.secret_manager]
+}
+
+resource "google_secret_manager_secret" "r2_secret_access_key" {
+  project   = var.gcp_project_id
+  secret_id = "r2_secret_access_key"
+
+  replication {
+    auto {}
+  }
+
+  depends_on = [google_project_service.secret_manager]
+}
+
+# Grant backend access to R2 credentials
+resource "google_secret_manager_secret_iam_member" "grant_r2_account_id_access" {
+  project   = var.gcp_project_id
+  secret_id = google_secret_manager_secret.r2_account_id.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_service_account.backend_runner.member
+}
+
+resource "google_secret_manager_secret_iam_member" "grant_r2_access_key_id_access" {
+  project   = var.gcp_project_id
+  secret_id = google_secret_manager_secret.r2_access_key_id.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_service_account.backend_runner.member
+}
+
+resource "google_secret_manager_secret_iam_member" "grant_r2_secret_access_key_access" {
+  project   = var.gcp_project_id
+  secret_id = google_secret_manager_secret.r2_secret_access_key.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_service_account.backend_runner.member
+}
+
 # Grant backend service account access to GCS bucket
 resource "google_storage_bucket_iam_member" "grant_gcs_access" {
   bucket = google_storage_bucket.media_storage.name

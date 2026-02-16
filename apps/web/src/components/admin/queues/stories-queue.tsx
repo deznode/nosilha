@@ -9,10 +9,7 @@ import { FlagReasonModal } from "@/components/admin/queues/flag-reason-modal";
 import { generateMdx, updateStoryStatus } from "@/lib/api";
 import { archiveStoryToMDX } from "@/app/actions/archive-story";
 import { Button } from "@/components/catalyst-ui/button";
-import {
-  useAdminStories,
-  useUpdateStoryStatus,
-} from "@/hooks/queries/admin";
+import { useAdminStories, useUpdateStoryStatus } from "@/hooks/queries/admin";
 import { useToast } from "@/hooks/use-toast";
 import type { StorySubmission } from "@/types/story";
 import { SubmissionStatus } from "@/types/story";
@@ -297,12 +294,8 @@ export function StoriesQueue() {
         story={selectedStory}
         isOpen={isDetailModalOpen}
         onClose={handleCloseDetailModal}
-        onApprove={(id) =>
-          handleStatusChange(id, SubmissionStatus.APPROVED)
-        }
-        onReject={(id) =>
-          handleStatusChange(id, SubmissionStatus.REJECTED)
-        }
+        onApprove={(id) => handleStatusChange(id, SubmissionStatus.APPROVED)}
+        onReject={(id) => handleStatusChange(id, SubmissionStatus.REJECTED)}
       />
 
       <FlagReasonModal
