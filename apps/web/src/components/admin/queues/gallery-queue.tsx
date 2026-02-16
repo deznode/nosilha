@@ -2,46 +2,121 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { Sparkles, Loader2 } from "lucide-react";
-import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
+import type { GalleryModerationAction } from "@/types/gallery";
 import { isUserUploadMedia } from "@/types/gallery";
-import type { AiStatusResponse } from "@/types/ai";
 import { Button } from "@/components/catalyst-ui/button";
 import { Checkbox } from "@/components/catalyst-ui/checkbox";
 import { GalleryQueueItem } from "./gallery-queue-item";
+import { AiReviewDetailModal } from "@/components/admin/ai-review-detail-modal";
+import {
+  useAdminGallery,
+  useAiStatus,
+  useUpdateGalleryStatus,
+  usePromoteToHeroImage,
+  useTriggerAnalysis,
+  useTriggerBatchAnalysis,
+  useAiReviewQueue,
+} from "@/hooks/queries/admin";
+import { useToast } from "@/hooks/use-toast";
 
-interface GalleryQueueProps {
-  items: GalleryMedia[];
-  isLoading: boolean;
-  onStatusChange: (
+export function GalleryQueue() {
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  // AI Review modal state
+  const [selectedAiRunId, setSelectedAiRunId] = useState<string | null>(null);
+  const [isAiReviewModalOpen, setIsAiReviewModalOpen] = useState(false);
+
+  // Query hooks
+  const galleryQuery = useAdminGallery();
+  const aiReviewQuery = useAiReviewQueue();
+  const updateGallery = useUpdateGalleryStatus();
+  const promoteToHero = usePromoteToHeroImage();
+  const triggerAnalysis = useTriggerAnalysis();
+  const triggerBatchAnalysis = useTriggerBatchAnalysis();
+  const toast = useToast();
+
+  const items = useMemo(
+    () => galleryQuery.data?.items ?? [],
+    [galleryQuery.data]
+  );
+  const isLoading = galleryQuery.isLoading;
+  const aiReviewItems = aiReviewQuery.data?.items ?? [];
+
+  // Batch fetch AI status for gallery media items
+  const galleryMediaIds = useMemo(
+    () => items.map((item) => item.id),
+    [items]
+  );
+  const aiStatusQuery = useAiStatus(galleryMediaIds);
+  const aiStatuses = useMemo(
+    () => new Map((aiStatusQuery.data ?? []).map((s) => [s.mediaId, s])),
+    [aiStatusQuery.data]
+  );
+
+  // Handlers
+  const handleStatusChange = (
     id: string,
     action: GalleryModerationAction,
     reason?: string,
     notes?: string
-  ) => void;
-  onPromoteToHero?: (id: string) => void;
-  aiStatuses?: Map<string, AiStatusResponse>;
-  onViewAiReview?: (mediaId: string) => void;
-  onTriggerAnalysis?: (mediaId: string) => void;
-  isTriggerPending?: boolean;
-  triggeringMediaId?: string;
-  onTriggerBatchAnalysis?: (mediaIds: string[]) => Promise<void> | void;
-  isBatchTriggerPending?: boolean;
-}
+  ) => {
+    updateGallery.mutate({
+      id,
+      request: { action, reason, adminNotes: notes },
+    });
+  };
 
-export function GalleryQueue({
-  items,
-  isLoading,
-  onStatusChange,
-  onPromoteToHero,
-  aiStatuses,
-  onViewAiReview,
-  onTriggerAnalysis,
-  isTriggerPending,
-  triggeringMediaId,
-  onTriggerBatchAnalysis,
-  isBatchTriggerPending,
-}: GalleryQueueProps) {
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const handlePromoteToHero = (mediaId: string) => {
+    promoteToHero.mutate(mediaId);
+  };
+
+  const handleTriggerAnalysis = (mediaId: string) => {
+    triggerAnalysis.mutate(mediaId, {
+      onSuccess: () => {
+        toast.success("AI analysis triggered").show();
+      },
+      onError: () => {
+        toast.error("Failed to trigger AI analysis. Please try again.").show();
+      },
+    });
+  };
+
+  const handleTriggerBatchAnalysis = async (mediaIds: string[]) => {
+    return new Promise<void>((resolve, reject) => {
+      triggerBatchAnalysis.mutate(
+        { mediaIds },
+        {
+          onSuccess: (data) => {
+            const parts = [`AI analysis triggered for ${data.accepted} items`];
+            if (data.rejected > 0) {
+              parts.push(`(${data.rejected} rejected)`);
+            }
+            toast.success(parts.join(" ")).show();
+            resolve();
+          },
+          onError: () => {
+            toast
+              .error("Failed to trigger batch AI analysis. Please try again.")
+              .show();
+            reject();
+          },
+        }
+      );
+    });
+  };
+
+  const handleViewAiReview = (mediaId: string) => {
+    const run = aiReviewItems.find((item) => item.mediaId === mediaId);
+    if (run) {
+      setSelectedAiRunId(run.id);
+      setIsAiReviewModalOpen(true);
+    }
+  };
+
+  const handleAiReviewClose = () => {
+    setIsAiReviewModalOpen(false);
+    setSelectedAiRunId(null);
+  };
 
   // Compute eligible IDs for "Select All Eligible"
   const eligibleIds = useMemo(
@@ -81,11 +156,11 @@ export function GalleryQueue({
   }, [eligibleIds]);
 
   const handleBatchTrigger = useCallback(async () => {
-    if (onTriggerBatchAnalysis && selectedIds.size > 0) {
-      await onTriggerBatchAnalysis(Array.from(selectedIds));
+    if (selectedIds.size > 0) {
+      await handleTriggerBatchAnalysis(Array.from(selectedIds));
       setSelectedIds(new Set());
     }
-  }, [onTriggerBatchAnalysis, selectedIds]);
+  }, [selectedIds]);
 
   const allEligibleSelected =
     eligibleIds.length > 0 && eligibleIds.every((id) => selectedIds.has(id));
@@ -127,7 +202,7 @@ export function GalleryQueue({
       </div>
 
       {/* Batch Action Bar */}
-      {selectedIds.size > 0 && onTriggerBatchAnalysis && (
+      {selectedIds.size > 0 && (
         <div className="border-hairline bg-surface flex items-center gap-4 rounded-xl border p-3 shadow-sm">
           <span className="text-body text-sm font-medium">
             {selectedIds.size} selected
@@ -143,9 +218,9 @@ export function GalleryQueue({
           <Button
             color="dark"
             onClick={handleBatchTrigger}
-            disabled={isBatchTriggerPending}
+            disabled={triggerBatchAnalysis.isPending}
           >
-            {isBatchTriggerPending ? (
+            {triggerBatchAnalysis.isPending ? (
               <Loader2 data-slot="icon" className="animate-spin" />
             ) : (
               <Sparkles data-slot="icon" />
@@ -161,19 +236,26 @@ export function GalleryQueue({
           <GalleryQueueItem
             key={item.id}
             item={item}
-            onStatusChange={onStatusChange}
-            onPromoteToHero={onPromoteToHero}
-            aiStatus={aiStatuses?.get(item.id)}
-            onViewAiReview={onViewAiReview}
-            onTriggerAnalysis={onTriggerAnalysis}
-            isTriggerPending={isTriggerPending}
-            triggeringMediaId={triggeringMediaId}
+            onStatusChange={handleStatusChange}
+            onPromoteToHero={handlePromoteToHero}
+            aiStatus={aiStatuses.get(item.id)}
+            onViewAiReview={handleViewAiReview}
+            onTriggerAnalysis={handleTriggerAnalysis}
+            isTriggerPending={triggerAnalysis.isPending}
+            triggeringMediaId={triggerAnalysis.variables}
             isEligibleForAi={isEligible}
             isSelected={selectedIds.has(item.id)}
             onToggleSelect={isEligible ? toggleSelect : undefined}
           />
         );
       })}
+
+      {/* AI Review Detail Modal */}
+      <AiReviewDetailModal
+        runId={selectedAiRunId}
+        isOpen={isAiReviewModalOpen}
+        onClose={handleAiReviewClose}
+      />
     </div>
   );
 }

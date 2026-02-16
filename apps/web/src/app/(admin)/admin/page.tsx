@@ -480,19 +480,7 @@ export default function AdminDashboardPage() {
               <DirectoryQueue />
             </TabPanel>
             <TabPanel>
-              <GalleryQueue
-                items={galleryItems}
-                isLoading={galleryQuery.isLoading}
-                onStatusChange={handleGalleryStatusChange}
-                onPromoteToHero={handlePromoteToHero}
-                aiStatuses={aiStatusMap}
-                onViewAiReview={handleViewAiReview}
-                onTriggerAnalysis={handleTriggerAnalysis}
-                isTriggerPending={triggerAnalysis.isPending}
-                triggeringMediaId={triggerAnalysis.variables}
-                onTriggerBatchAnalysis={handleTriggerBatchAnalysis}
-                isBatchTriggerPending={triggerBatchAnalysis.isPending}
-              />
+              <GalleryQueue />
             </TabPanel>
             <TabPanel>
               <AiReviewQueue />
