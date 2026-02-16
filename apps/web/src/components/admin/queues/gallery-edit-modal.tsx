@@ -21,6 +21,16 @@ import {
 import type { GalleryMedia, UpdateGalleryMediaRequest } from "@/types/gallery";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
 
+function getAttribution(item: GalleryMedia): string {
+  if (isUserUploadMedia(item)) {
+    return item.photographerCredit ?? "";
+  }
+  if (isExternalMedia(item)) {
+    return item.author ?? "";
+  }
+  return "";
+}
+
 interface GalleryEditModalProps {
   isOpen: boolean;
   item: GalleryMedia | null;
@@ -66,11 +76,7 @@ export function GalleryEditModal({
         title: item.title ?? "",
         description: item.description ?? "",
         category: item.category ?? "",
-        attribution: isUserUploadMedia(item)
-          ? (item.photographerCredit ?? "")
-          : isExternalMedia(item)
-            ? (item.author ?? "")
-            : "",
+        attribution: getAttribution(item),
       });
     }
   }, [item, reset]);
@@ -109,15 +115,13 @@ export function GalleryEditModal({
   };
 
   const handleApplyAiDescription = () => {
-    if (isUserUploadMedia(item!) && item!.aiDescription) {
-      setValue("description", item!.aiDescription, { shouldDirty: true });
-    }
+    if (!item || !isUserUploadMedia(item) || !item.aiDescription) return;
+    setValue("description", item.aiDescription, { shouldDirty: true });
   };
 
   const handleApplyAiTitle = () => {
-    if (isUserUploadMedia(item!) && item!.aiAltText) {
-      setValue("title", item!.aiAltText, { shouldDirty: true });
-    }
+    if (!item || !isUserUploadMedia(item) || !item.aiAltText) return;
+    setValue("title", item.aiAltText, { shouldDirty: true });
   };
 
   const handlePolishDescription = () => {

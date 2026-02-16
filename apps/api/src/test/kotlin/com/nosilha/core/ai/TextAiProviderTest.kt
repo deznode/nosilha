@@ -4,6 +4,7 @@ import com.nosilha.core.ai.domain.ApiUsageService
 import com.nosilha.core.ai.provider.GeminiDirectoryContentOutput
 import com.nosilha.core.ai.provider.GeminiPromptsOutput
 import com.nosilha.core.ai.provider.TextAiProvider
+import com.nosilha.core.shared.exception.RateLimitExceededException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -14,7 +15,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.springframework.ai.chat.client.AdvisorParams
 import org.springframework.ai.chat.client.ChatClient
-import com.nosilha.core.shared.exception.RateLimitExceededException
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
