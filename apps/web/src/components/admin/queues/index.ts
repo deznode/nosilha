@@ -9,6 +9,7 @@ export { MediaQueueItem } from "./media-queue-item";
 export { MediaActionModal } from "./media-action-modal";
 export { GalleryQueue } from "./gallery-queue";
 export { GalleryQueueItem } from "./gallery-queue-item";
+export { GalleryEditModal } from "./gallery-edit-modal";
 export { AiStatusBadge } from "./ai-status-badge";
 export { AiReviewQueue } from "./ai-review-queue";
 export { AiReviewQueueItem } from "./ai-review-queue-item";

@@ -4,6 +4,7 @@ import com.nosilha.core.auth.api.UserProfileQueryService
 import com.nosilha.core.gallery.api.dto.CreateExternalMediaRequest
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.GalleryModerationAction
+import com.nosilha.core.gallery.api.dto.UpdateGalleryMediaRequest
 import com.nosilha.core.gallery.api.dto.contributorIds
 import com.nosilha.core.gallery.api.dto.toDto
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
@@ -226,6 +227,42 @@ class GalleryModerationService(
 
         val displayNames = resolveDisplayNames(listOf(savedMedia))
         return savedMedia.toDto(displayNames)
+    }
+
+    /**
+     * Updates gallery media metadata with PATCH semantics.
+     *
+     * Only non-null fields in the request are applied. Type-specific fields
+     * (author, photographerCredit) are applied only to the matching entity subclass.
+     *
+     * @param id UUID of the media item
+     * @param request Update request with optional fields
+     * @return Updated media DTO, or null if not found
+     */
+    @Transactional
+    fun updateMediaMetadata(
+        id: UUID,
+        request: UpdateGalleryMediaRequest,
+    ): GalleryMediaDto? {
+        val media = repository.findById(id).orElse(null) ?: return null
+
+        request.title?.let { media.title = it }
+        request.description?.let { media.description = it }
+        request.category?.let { media.category = it }
+
+        if (request.author != null && media is ExternalMedia) {
+            media.author = request.author
+        }
+        if (request.photographerCredit != null && media is UserUploadedMedia) {
+            media.photographerCredit = request.photographerCredit
+        }
+
+        val saved = repository.save(media)
+
+        logger.info { "Gallery media metadata updated: id=$id, type=${media.mediaSource}" }
+
+        val displayNames = resolveDisplayNames(listOf(saved))
+        return saved.toDto(displayNames)
     }
 
     /**

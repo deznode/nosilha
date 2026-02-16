@@ -15,6 +15,7 @@ import com.nosilha.core.gallery.api.dto.LinkOrphanRequest
 import com.nosilha.core.gallery.api.dto.ModerationActionRequest
 import com.nosilha.core.gallery.api.dto.OrphanDetectionResponse
 import com.nosilha.core.gallery.api.dto.R2BucketListResponse
+import com.nosilha.core.gallery.api.dto.UpdateGalleryMediaRequest
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.GalleryModerationService
 import com.nosilha.core.gallery.domain.R2AdminService
@@ -117,6 +118,35 @@ class AdminGalleryController(
             ?: return ResponseEntity.notFound().build()
 
         return ResponseEntity.ok(ApiResult(data = media))
+    }
+
+    /**
+     * Update gallery media metadata.
+     *
+     * PATCH semantics — only non-null fields in the request body are applied.
+     * Type-specific fields (author for ExternalMedia, photographerCredit for
+     * UserUploadedMedia) are applied only when the media matches that type.
+     *
+     * Example:
+     * PATCH /api/v1/admin/gallery/{id}
+     * {
+     *   "title": "Updated Title",
+     *   "description": "Updated description"
+     * }
+     */
+    @PatchMapping("/{id}")
+    fun updateMediaMetadata(
+        @PathVariable id: UUID,
+        @Valid @RequestBody request: UpdateGalleryMediaRequest,
+        authentication: Authentication,
+    ): ResponseEntity<ApiResult<GalleryMediaDto>> {
+        val adminId = extractAdminId(authentication)
+        logger.info { "Admin $adminId updating media metadata: $id" }
+
+        val updated = moderationService.updateMediaMetadata(id, request)
+            ?: return ResponseEntity.notFound().build()
+
+        return ResponseEntity.ok(ApiResult(data = updated))
     }
 
     /**

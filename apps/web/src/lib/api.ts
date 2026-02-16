@@ -784,6 +784,21 @@ export async function updateGalleryStatus(
 }
 
 /**
+ * Update gallery media metadata (PATCH semantics).
+ * Admin endpoint - requires ADMIN role.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Gallery media item ID
+ * @param request Update request with optional fields
+ * @returns A promise that resolves to updated gallery media item
+ */
+export async function updateGalleryMedia(
+  id: string,
+  request: import("@/types/gallery").UpdateGalleryMediaRequest
+): Promise<import("@/types/gallery").GalleryMedia> {
+  return apiClient.updateGalleryMedia(id, request);
+}
+
+/**
  * Archive (soft delete) a gallery media item.
  * Admin endpoint - requires ADMIN role.
  * Automatically uses the configured API implementation (backend or mock).

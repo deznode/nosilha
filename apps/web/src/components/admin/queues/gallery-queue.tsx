@@ -2,11 +2,12 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { Sparkles, Loader2 } from "lucide-react";
-import type { GalleryModerationAction } from "@/types/gallery";
+import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
 import { isUserUploadMedia } from "@/types/gallery";
 import { Button } from "@/components/catalyst-ui/button";
 import { Checkbox } from "@/components/catalyst-ui/checkbox";
 import { GalleryQueueItem } from "./gallery-queue-item";
+import { GalleryEditModal } from "./gallery-edit-modal";
 import { AiReviewDetailModal } from "@/components/admin/ai-review-detail-modal";
 import {
   useAdminGallery,
@@ -24,6 +25,8 @@ export function GalleryQueue() {
 
   const [selectedAiRunId, setSelectedAiRunId] = useState<string | null>(null);
   const [isAiReviewModalOpen, setIsAiReviewModalOpen] = useState(false);
+  const [mediaToEdit, setMediaToEdit] = useState<GalleryMedia | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const galleryQuery = useAdminGallery();
   const aiReviewQuery = useAiReviewQueue();
@@ -94,6 +97,16 @@ export function GalleryQueue() {
   const handleAiReviewClose = () => {
     setIsAiReviewModalOpen(false);
     setSelectedAiRunId(null);
+  };
+
+  const handleEdit = (item: GalleryMedia) => {
+    setMediaToEdit(item);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setIsEditModalOpen(false);
+    setMediaToEdit(null);
   };
 
   const eligibleIds = useMemo(
@@ -218,6 +231,7 @@ export function GalleryQueue() {
             key={item.id}
             item={item}
             onStatusChange={handleStatusChange}
+            onEdit={handleEdit}
             onPromoteToHero={handlePromoteToHero}
             aiStatus={aiStatuses.get(item.id)}
             onViewAiReview={handleViewAiReview}
@@ -230,6 +244,12 @@ export function GalleryQueue() {
           />
         );
       })}
+
+      <GalleryEditModal
+        isOpen={isEditModalOpen}
+        item={mediaToEdit}
+        onClose={handleEditClose}
+      />
 
       <AiReviewDetailModal
         runId={selectedAiRunId}

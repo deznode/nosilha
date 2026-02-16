@@ -1769,6 +1769,15 @@ ${story.content
     throw new Error("Not implemented");
   }
 
+  async updateGalleryMedia(
+    id: string,
+    request: import("@/types/gallery").UpdateGalleryMediaRequest
+  ): Promise<import("@/types/gallery").GalleryMedia> {
+    console.log(`Mock API: Update gallery media ${id}:`, request);
+    await this.simulateDelay(500);
+    throw new Error("Not implemented");
+  }
+
   async archiveGalleryMedia(): Promise<void> {
     await this.simulateDelay(300);
   }

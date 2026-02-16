@@ -429,6 +429,20 @@ export interface ApiClient {
   ): Promise<import("@/types/gallery").GalleryMedia>;
 
   /**
+   * Update gallery media metadata (PATCH semantics).
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param id Gallery media item ID
+   * @param request Update request with optional fields
+   * @returns Updated gallery media item
+   */
+  updateGalleryMedia(
+    id: string,
+    request: import("@/types/gallery").UpdateGalleryMediaRequest
+  ): Promise<import("@/types/gallery").GalleryMedia>;
+
+  /**
    * Archive (soft delete) a gallery media item.
    *
    * **Admin Endpoint**: Requires ADMIN role.

@@ -48,6 +48,7 @@ export { useUpdateDirectoryEntry } from "./useUpdateDirectoryEntry";
 export { useDeleteDirectoryEntry } from "./useDeleteDirectoryEntry";
 export { useUpdateMediaStatus } from "./useUpdateMediaStatus";
 export { useUpdateGalleryStatus } from "./useUpdateGalleryStatus";
+export { useUpdateGalleryMedia } from "./useUpdateGalleryMedia";
 export { usePromoteToHeroImage } from "./usePromoteToHeroImage";
 export { useArchiveStory } from "./useArchiveStory";
 

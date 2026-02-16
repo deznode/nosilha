@@ -60,6 +60,7 @@ import type {
   SubmitExternalMediaRequest,
   CreateExternalMediaRequest,
   UpdateGalleryStatusRequest,
+  UpdateGalleryMediaRequest,
   ExternalMedia,
 } from "@/types/gallery";
 import type {
@@ -2576,6 +2577,37 @@ export class BackendApiClient implements ApiClient {
 
     if (!response.ok) {
       throw new Error(`Failed to update gallery status: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<GalleryMedia>(payload);
+  }
+
+  /**
+   * Update gallery media metadata (PATCH semantics).
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param id Gallery media item ID
+   * @param request Update request with optional fields
+   * @returns Updated gallery media item
+   */
+  async updateGalleryMedia(
+    id: string,
+    request: UpdateGalleryMediaRequest
+  ): Promise<GalleryMedia> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update gallery media: ${response.status}`);
     }
 
     const payload = await response.json();

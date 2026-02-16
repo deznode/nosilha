@@ -14,6 +14,7 @@ import {
   Star,
   Sparkles,
   Loader2,
+  Pencil,
 } from "lucide-react";
 import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
 import type { AiStatusResponse, AiModerationStatus } from "@/types/ai";
@@ -31,6 +32,7 @@ interface GalleryQueueItemProps {
     reason?: string,
     notes?: string
   ) => void;
+  onEdit?: (item: GalleryMedia) => void;
   onPromoteToHero?: (id: string) => void;
   aiStatus?: AiStatusResponse;
   onViewAiReview?: (mediaId: string) => void;
@@ -45,6 +47,7 @@ interface GalleryQueueItemProps {
 export function GalleryQueueItem({
   item,
   onStatusChange,
+  onEdit,
   onPromoteToHero,
   aiStatus,
   onViewAiReview,
@@ -230,6 +233,12 @@ export function GalleryQueueItem({
 
         {/* Actions */}
         <div className="flex flex-wrap gap-2">
+          {onEdit && (
+            <Button outline onClick={() => onEdit(item)}>
+              <Pencil data-slot="icon" />
+              Edit
+            </Button>
+          )}
           <Button
             color="green"
             onClick={() => onStatusChange(item.id, "APPROVE")}
