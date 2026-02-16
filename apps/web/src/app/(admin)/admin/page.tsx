@@ -471,13 +471,7 @@ export default function AdminDashboardPage() {
               <SuggestionsQueue />
             </TabPanel>
             <TabPanel>
-              <StoriesQueue
-                stories={stories}
-                isLoading={storiesQuery.isLoading}
-                onStatusChange={handleStoryStatusChange}
-                onViewFull={handleViewStory}
-                onFlag={handleStoryFlag}
-              />
+              <StoriesQueue />
             </TabPanel>
             <TabPanel>
               <MessagesQueue />
