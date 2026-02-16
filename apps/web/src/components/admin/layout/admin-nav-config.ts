@@ -45,48 +45,42 @@ export const adminNavItems: AdminNavItem[] = [
     exact: true,
   },
 
-  // Content (disabled until Phase 2)
+  // Content
   {
     label: "Suggestions",
     href: "/admin/suggestions",
     icon: MessageSquare,
     section: "content",
-    disabled: true,
   },
   {
     label: "Stories",
     href: "/admin/stories",
     icon: FileText,
     section: "content",
-    disabled: true,
   },
   {
     label: "Inquiries",
     href: "/admin/inquiries",
     icon: Mail,
     section: "content",
-    disabled: true,
   },
   {
     label: "Directory Queue",
     href: "/admin/directory-queue",
     icon: MapPin,
     section: "content",
-    disabled: true,
   },
   {
     label: "Gallery Queue",
     href: "/admin/gallery-queue",
     icon: Image,
     section: "content",
-    disabled: true,
   },
   {
     label: "AI Review",
     href: "/admin/ai-review",
     icon: Sparkles,
     section: "content",
-    disabled: true,
   },
 
   // Tools
