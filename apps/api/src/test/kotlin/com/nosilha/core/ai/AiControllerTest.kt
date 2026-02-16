@@ -6,6 +6,7 @@ import com.nosilha.core.ai.api.dto.PolishContentRequest
 import com.nosilha.core.ai.api.dto.TranslateContentRequest
 import com.nosilha.core.ai.provider.GeminiDirectoryContentOutput
 import com.nosilha.core.ai.provider.TextAiProvider
+import com.nosilha.core.shared.exception.RateLimitExceededException
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -96,6 +97,23 @@ class AiControllerTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(jsonMapper.writeValueAsString(PolishContentRequest(content = ""))),
             ).andExpect(status().isBadRequest)
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/ai/polish - quota exceeded returns 429")
+    fun `polish quota exceeded returns 429`() {
+        whenever(textAiProvider.polishContent(any())).thenThrow(
+            RateLimitExceededException("Text AI monthly quota exceeded. Please try again next month."),
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/ai/polish")
+                    .with(authAs("user-123"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(PolishContentRequest(content = "Original text"))),
+            ).andExpect(status().isTooManyRequests)
+            .andExpect(jsonPath("$.message").value("Text AI monthly quota exceeded. Please try again next month."))
     }
 
     @Test

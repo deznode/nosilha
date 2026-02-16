@@ -242,6 +242,7 @@ export function DirectoryEntryForm({
       setValue("tags", result.tags.join(", "));
     } catch (e) {
       console.error("AI generation failed:", e);
+      toast.error("Failed to generate content. Please try again.").show();
     }
   };
 

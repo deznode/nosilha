@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.nosilha.core.ai.domain.ApiUsageService
 import com.nosilha.core.ai.domain.TextPromptTemplates
+import com.nosilha.core.shared.exception.RateLimitExceededException
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.springframework.ai.chat.client.AdvisorParams
 import org.springframework.ai.chat.client.ChatClient
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -49,7 +51,9 @@ class TextAiProvider(
     @Value("\${nosilha.ai.gemini.text-monthly-limit:1000}")
     private val textMonthlyLimit: Int,
 ) {
-    private val chatClient = chatClientBuilder.build()
+    private val chatClient = chatClientBuilder
+        .defaultAdvisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
+        .build()
 
     fun isAvailable(): Boolean = true
 
@@ -111,7 +115,7 @@ class TextAiProvider(
     ): T {
         if (!apiUsageService.checkAndIncrementQuota("gemini-text", textMonthlyLimit)) {
             logger.warn { "Text AI quota exceeded for $operation" }
-            return fallback
+            throw RateLimitExceededException("Text AI monthly quota exceeded. Please try again next month.")
         }
         return try {
             block()

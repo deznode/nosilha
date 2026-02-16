@@ -12,8 +12,11 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import org.springframework.ai.chat.client.AdvisorParams
 import org.springframework.ai.chat.client.ChatClient
+import com.nosilha.core.shared.exception.RateLimitExceededException
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -26,7 +29,7 @@ class TextAiProviderTest {
 
     @BeforeEach
     fun setup() {
-        whenever(chatClientBuilder.build()).thenReturn(chatClient)
+        whenever(chatClientBuilder.defaultAdvisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT).build()).thenReturn(chatClient)
         whenever(apiUsageService.checkAndIncrementQuota(eq("gemini-text"), eq(1000))).thenReturn(true)
 
         provider = TextAiProvider(
@@ -52,12 +55,13 @@ class TextAiProviderTest {
     }
 
     @Test
-    @DisplayName("polishContent - quota exceeded returns original content")
-    fun `polishContent quota exceeded returns original content`() {
+    @DisplayName("polishContent - quota exceeded throws RateLimitExceededException")
+    fun `polishContent quota exceeded throws RateLimitExceededException`() {
         whenever(apiUsageService.checkAndIncrementQuota(eq("gemini-text"), eq(1000))).thenReturn(false)
 
-        val result = provider.polishContent("Original text")
-        assertEquals("Original text", result)
+        assertFailsWith<RateLimitExceededException> {
+            provider.polishContent("Original text")
+        }
     }
 
     @Test
@@ -91,12 +95,13 @@ class TextAiProviderTest {
     }
 
     @Test
-    @DisplayName("translateContent - quota exceeded returns original content")
-    fun `translateContent quota exceeded returns original content`() {
+    @DisplayName("translateContent - quota exceeded throws RateLimitExceededException")
+    fun `translateContent quota exceeded throws RateLimitExceededException`() {
         whenever(apiUsageService.checkAndIncrementQuota(eq("gemini-text"), eq(1000))).thenReturn(false)
 
-        val result = provider.translateContent("Text to translate", "EN")
-        assertEquals("Text to translate", result)
+        assertFailsWith<RateLimitExceededException> {
+            provider.translateContent("Text to translate", "EN")
+        }
     }
 
     @Test
