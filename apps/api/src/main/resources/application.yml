@@ -90,6 +90,7 @@ nosilha:
     gemini:
       enabled: ${AI_GEMINI_ENABLED:false}
       monthly-limit: ${AI_GEMINI_MONTHLY_LIMIT:500}
+      text-monthly-limit: ${AI_GEMINI_TEXT_MONTHLY_LIMIT:1000}
 
 # Supabase JWT configuration using JWKS (asymmetric key verification)
 # Uses the public JWKS endpoint - no secret needed

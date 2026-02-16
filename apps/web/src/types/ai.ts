@@ -1,9 +1,53 @@
 /**
- * AI Image Analysis & Moderation Types
+ * AI Types
  *
- * Mirrors backend DTOs from AiModerationDtos.kt.
- * Used by the admin AI review queue UI.
+ * Mirrors backend DTOs from AiModerationDtos.kt and TextAiDtos.kt.
+ * Used by the admin AI review queue UI and text AI operations.
  */
+
+// ================================
+// TEXT AI TYPES (mirrors TextAiDtos.kt)
+// ================================
+
+export interface PolishContentRequest {
+  content: string;
+}
+
+export interface PolishContentResponse {
+  content: string;
+}
+
+export interface TranslateContentRequest {
+  content: string;
+  targetLang: string;
+}
+
+export interface TranslateContentResponse {
+  content: string;
+}
+
+export interface GeneratePromptsRequest {
+  templateType: string;
+  existingContent?: string;
+}
+
+export interface GeneratePromptsResponse {
+  prompts: string[];
+}
+
+export interface GenerateDirectoryContentRequest {
+  name: string;
+  category: string;
+}
+
+export interface DirectoryContentResponse {
+  description: string;
+  tags: string[];
+}
+
+export interface AiAvailableResponse {
+  available: boolean;
+}
 
 // ================================
 // ENUMS

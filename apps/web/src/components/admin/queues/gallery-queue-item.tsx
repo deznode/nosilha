@@ -12,8 +12,7 @@ import {
   ExternalLink,
   Upload,
   Star,
-  Sparkles,
-  Loader2,
+  Pencil,
 } from "lucide-react";
 import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
 import type { AiStatusResponse, AiModerationStatus } from "@/types/ai";
@@ -31,13 +30,10 @@ interface GalleryQueueItemProps {
     reason?: string,
     notes?: string
   ) => void;
+  onEdit?: (item: GalleryMedia) => void;
   onPromoteToHero?: (id: string) => void;
   aiStatus?: AiStatusResponse;
   onViewAiReview?: (mediaId: string) => void;
-  onTriggerAnalysis?: (mediaId: string) => void;
-  isTriggerPending?: boolean;
-  triggeringMediaId?: string;
-  isEligibleForAi?: boolean;
   isSelected?: boolean;
   onToggleSelect?: (id: string) => void;
 }
@@ -45,29 +41,21 @@ interface GalleryQueueItemProps {
 export function GalleryQueueItem({
   item,
   onStatusChange,
+  onEdit,
   onPromoteToHero,
   aiStatus,
   onViewAiReview,
-  onTriggerAnalysis,
-  isTriggerPending,
-  triggeringMediaId,
-  isEligibleForAi,
   isSelected,
   onToggleSelect,
 }: GalleryQueueItemProps) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
-  // Check if this item can be promoted to hero image
   const canPromoteToHero =
     isUserUploadMedia(item) &&
     item.entryId &&
     item.publicUrl &&
     item.status === "ACTIVE";
 
-  const isThisItemTriggering =
-    isTriggerPending && triggeringMediaId === item.id;
-
-  // Get the full-size image URL for lightbox
   const getFullImageUrl = (): string | null => {
     if (isUserUploadMedia(item)) {
       return item.publicUrl;
@@ -230,6 +218,12 @@ export function GalleryQueueItem({
 
         {/* Actions */}
         <div className="flex flex-wrap gap-2">
+          {onEdit && (
+            <Button outline onClick={() => onEdit(item)}>
+              <Pencil data-slot="icon" />
+              Edit
+            </Button>
+          )}
           <Button
             color="green"
             onClick={() => onStatusChange(item.id, "APPROVE")}
@@ -268,21 +262,6 @@ export function GalleryQueueItem({
             >
               <Star data-slot="icon" />
               Set as Hero
-            </Button>
-          )}
-          {isEligibleForAi && onTriggerAnalysis && (
-            <Button
-              color="dark"
-              onClick={() => onTriggerAnalysis(item.id)}
-              disabled={isThisItemTriggering}
-              title="Trigger AI image analysis"
-            >
-              {isThisItemTriggering ? (
-                <Loader2 data-slot="icon" className="animate-spin" />
-              ) : (
-                <Sparkles data-slot="icon" />
-              )}
-              Analyze with AI
             </Button>
           )}
         </div>

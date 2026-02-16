@@ -60,6 +60,7 @@ import type {
   SubmitExternalMediaRequest,
   CreateExternalMediaRequest,
   UpdateGalleryStatusRequest,
+  UpdateGalleryMediaRequest,
   ExternalMedia,
 } from "@/types/gallery";
 import type {
@@ -71,6 +72,15 @@ import type {
   AnalysisTriggerResponse,
   AnalyzeBatchRequest,
   BatchAnalysisTriggerResponse,
+  PolishContentRequest,
+  PolishContentResponse,
+  TranslateContentRequest,
+  TranslateContentResponse,
+  GeneratePromptsRequest,
+  GeneratePromptsResponse,
+  GenerateDirectoryContentRequest,
+  DirectoryContentResponse,
+  AiAvailableResponse,
 } from "@/types/ai";
 import type {
   R2BucketListResponse,
@@ -2574,6 +2584,37 @@ export class BackendApiClient implements ApiClient {
   }
 
   /**
+   * Update gallery media metadata (PATCH semantics).
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param id Gallery media item ID
+   * @param request Update request with optional fields
+   * @returns Updated gallery media item
+   */
+  async updateGalleryMedia(
+    id: string,
+    request: UpdateGalleryMediaRequest
+  ): Promise<GalleryMedia> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update gallery media: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<GalleryMedia>(payload);
+  }
+
+  /**
    * Archive (soft delete) a gallery media item.
    *
    * **Admin Endpoint**: Requires ADMIN role.
@@ -2845,6 +2886,107 @@ export class BackendApiClient implements ApiClient {
 
     const payload = await response.json();
     return this.unwrapApiResponse<BatchAnalysisTriggerResponse>(payload);
+  }
+
+  // ================================
+  // TEXT AI OPERATIONS
+  // ================================
+
+  async checkAiAvailable(): Promise<AiAvailableResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/ai/available`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to check AI availability: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<AiAvailableResponse>(payload);
+  }
+
+  async polishContent(
+    request: PolishContentRequest
+  ): Promise<PolishContentResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/ai/polish`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to polish content: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<PolishContentResponse>(payload);
+  }
+
+  async translateContent(
+    request: TranslateContentRequest
+  ): Promise<TranslateContentResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/ai/translate`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to translate content: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<TranslateContentResponse>(payload);
+  }
+
+  async generatePrompts(
+    request: GeneratePromptsRequest
+  ): Promise<GeneratePromptsResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/ai/prompts`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to generate prompts: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<GeneratePromptsResponse>(payload);
+  }
+
+  async generateDirectoryContent(
+    request: GenerateDirectoryContentRequest
+  ): Promise<DirectoryContentResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/ai/directory-content`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to generate directory content: ${response.status}`
+      );
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<DirectoryContentResponse>(payload);
   }
 
   // ================================

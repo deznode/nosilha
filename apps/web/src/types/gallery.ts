@@ -57,6 +57,11 @@ export interface UserUploadMedia extends GalleryMediaBase {
   source?: MediaSource;
   uploadedBy?: string;
   uploaderDisplayName?: string;
+  photographerCredit?: string;
+  aiTags?: string[];
+  aiAltText?: string;
+  aiDescription?: string;
+  aiProcessedAt?: string;
 }
 
 /**
@@ -159,4 +164,16 @@ export interface UpdateGalleryStatusRequest {
   action: GalleryModerationAction;
   reason?: string; // Required for FLAG
   adminNotes?: string;
+}
+
+/**
+ * Request to update gallery media metadata (admin only)
+ * PATCH semantics — only provided fields are updated
+ */
+export interface UpdateGalleryMediaRequest {
+  title?: string;
+  description?: string;
+  category?: string;
+  author?: string;
+  photographerCredit?: string;
 }

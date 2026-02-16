@@ -114,6 +114,9 @@ class SecurityConfig(
                     .hasAnyRole("USER", "ADMIN", "authenticated")
                     .requestMatchers(HttpMethod.DELETE, "/api/v1/directory/**")
                     .hasAnyRole("USER", "ADMIN", "authenticated")
+                    // Text AI endpoints - require authentication
+                    .requestMatchers("/api/v1/ai/**")
+                    .hasAnyRole("USER", "ADMIN", "authenticated")
                     // Admin endpoints - require ADMIN role
                     .requestMatchers("/api/v1/admin/**")
                     .hasRole("ADMIN")

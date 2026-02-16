@@ -20,3 +20,6 @@ export * from "./use-update-profile";
 
 // Search hooks
 export * from "./useUnifiedSearch";
+
+// Text AI hooks
+export * from "./useTextAi";

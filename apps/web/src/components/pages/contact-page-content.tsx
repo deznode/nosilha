@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { HelpCircle, CheckCircle, Loader2, Send } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
@@ -37,7 +37,6 @@ export function ContactPageContent() {
     control,
     formState: { errors },
     reset,
-    watch,
   } = useForm<ContactInput>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
@@ -49,7 +48,7 @@ export function ContactPageContent() {
     },
   });
 
-  const agreedToPrivacy = watch("agreedToPrivacy");
+  const agreedToPrivacy = useWatch({ control, name: "agreedToPrivacy" });
 
   const onSubmit = async (data: ContactInput) => {
     setIsSubmitting(true);

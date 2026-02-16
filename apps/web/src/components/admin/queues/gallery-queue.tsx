@@ -2,11 +2,12 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { Sparkles, Loader2 } from "lucide-react";
-import type { GalleryModerationAction } from "@/types/gallery";
+import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
 import { isUserUploadMedia } from "@/types/gallery";
 import { Button } from "@/components/catalyst-ui/button";
 import { Checkbox } from "@/components/catalyst-ui/checkbox";
 import { GalleryQueueItem } from "./gallery-queue-item";
+import { GalleryEditModal } from "./gallery-edit-modal";
 import { AiReviewDetailModal } from "@/components/admin/ai-review-detail-modal";
 import {
   useAdminGallery,
@@ -24,6 +25,8 @@ export function GalleryQueue() {
 
   const [selectedAiRunId, setSelectedAiRunId] = useState<string | null>(null);
   const [isAiReviewModalOpen, setIsAiReviewModalOpen] = useState(false);
+  const [mediaToEdit, setMediaToEdit] = useState<GalleryMedia | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const galleryQuery = useAdminGallery();
   const aiReviewQuery = useAiReviewQueue();
@@ -76,11 +79,10 @@ export function GalleryQueue() {
 
   const handleTriggerBatchAnalysis = async (mediaIds: string[]) => {
     const data = await triggerBatchAnalysis.mutateAsync({ mediaIds });
-    const parts = [`AI analysis triggered for ${data.accepted} items`];
-    if (data.rejected > 0) {
-      parts.push(`(${data.rejected} rejected)`);
-    }
-    toast.success(parts.join(" ")).show();
+    const rejected = data.rejected > 0 ? ` (${data.rejected} rejected)` : "";
+    toast
+      .success(`AI analysis triggered for ${data.accepted} items${rejected}`)
+      .show();
   };
 
   const handleViewAiReview = (mediaId: string) => {
@@ -94,6 +96,16 @@ export function GalleryQueue() {
   const handleAiReviewClose = () => {
     setIsAiReviewModalOpen(false);
     setSelectedAiRunId(null);
+  };
+
+  const handleEdit = (item: GalleryMedia) => {
+    setMediaToEdit(item);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setIsEditModalOpen(false);
+    setMediaToEdit(null);
   };
 
   const eligibleIds = useMemo(
@@ -218,18 +230,25 @@ export function GalleryQueue() {
             key={item.id}
             item={item}
             onStatusChange={handleStatusChange}
+            onEdit={handleEdit}
             onPromoteToHero={handlePromoteToHero}
             aiStatus={aiStatuses.get(item.id)}
             onViewAiReview={handleViewAiReview}
-            onTriggerAnalysis={handleTriggerAnalysis}
-            isTriggerPending={triggerAnalysis.isPending}
-            triggeringMediaId={triggerAnalysis.variables}
-            isEligibleForAi={isEligible}
             isSelected={selectedIds.has(item.id)}
             onToggleSelect={isEligible ? toggleSelect : undefined}
           />
         );
       })}
+
+      <GalleryEditModal
+        isOpen={isEditModalOpen}
+        item={mediaToEdit}
+        onClose={handleEditClose}
+        aiStatus={mediaToEdit ? aiStatuses.get(mediaToEdit.id) : undefined}
+        onTriggerAnalysis={handleTriggerAnalysis}
+        isTriggerPending={triggerAnalysis.isPending}
+        isEligibleForAi={!!mediaToEdit && eligibleIds.includes(mediaToEdit.id)}
+      />
 
       <AiReviewDetailModal
         runId={selectedAiRunId}
