@@ -468,11 +468,7 @@ export default function AdminDashboardPage() {
 
           <TabPanels className="mt-6">
             <TabPanel>
-              <SuggestionsQueue
-                suggestions={suggestions}
-                isLoading={suggestionsQuery.isLoading}
-                onStatusChange={handleSuggestionStatusChange}
-              />
+              <SuggestionsQueue />
             </TabPanel>
             <TabPanel>
               <StoriesQueue
@@ -484,12 +480,7 @@ export default function AdminDashboardPage() {
               />
             </TabPanel>
             <TabPanel>
-              <MessagesQueue
-                messages={messages}
-                isLoading={messagesQuery.isLoading}
-                onStatusChange={handleMessageStatusChange}
-                onDelete={handleMessageDelete}
-              />
+              <MessagesQueue />
             </TabPanel>
             <TabPanel>
               <DirectoryQueue
@@ -517,11 +508,7 @@ export default function AdminDashboardPage() {
               />
             </TabPanel>
             <TabPanel>
-              <AiReviewQueue
-                items={aiReviewItems}
-                isLoading={aiReviewQuery.isLoading}
-                onReview={handleAiReview}
-              />
+              <AiReviewQueue />
             </TabPanel>
           </TabPanels>
         </TabGroup>
