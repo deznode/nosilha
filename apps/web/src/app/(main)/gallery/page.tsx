@@ -11,13 +11,13 @@ import {
 } from "@/components/gallery";
 import { getGalleryMedia } from "@/lib/api";
 import type { MediaItem, MediaCategory } from "@/types/media";
-import type { GalleryMedia } from "@/types/gallery";
+import type { PublicGalleryMedia } from "@/types/gallery";
 
 /**
- * Maps unified GalleryMedia to MediaItem expected by gallery components.
+ * Maps public GalleryMedia to MediaItem expected by gallery components.
  * Handles both user uploads and external media in a type-safe way.
  */
-function mapGalleryMediaToMediaItem(media: GalleryMedia): MediaItem {
+function mapGalleryMediaToMediaItem(media: PublicGalleryMedia): MediaItem {
   // Map category to MediaCategory type (using first available or fallback)
   const categoryMap: Record<string, MediaCategory> = {
     Heritage: "Heritage",
@@ -61,17 +61,13 @@ function mapGalleryMediaToMediaItem(media: GalleryMedia): MediaItem {
       }),
     };
   } else {
-    // User-uploaded media
-    // Determine type based on content type
-    const isVideo = media.contentType?.startsWith("video/");
-    const type: "IMAGE" | "VIDEO" = isVideo ? "VIDEO" : "IMAGE";
-
+    // User-uploaded media (always images — upload flow only accepts images)
     return {
       id: media.id,
-      type,
+      type: "IMAGE",
       url: media.publicUrl || "",
       thumbnailUrl: undefined, // User uploads don't have separate thumbnails
-      title: media.title || media.originalName || media.fileName,
+      title: media.title || "Untitled",
       description: media.description || undefined,
       category,
       author: media.uploaderDisplayName || "Community Contributor",

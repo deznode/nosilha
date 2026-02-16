@@ -4,9 +4,11 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.nosilha.core.auth.api.UserProfileQueryService
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
+import com.nosilha.core.gallery.api.dto.PublicGalleryMediaDto
 import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
 import com.nosilha.core.gallery.api.dto.contributorIds
 import com.nosilha.core.gallery.api.dto.toDto
+import com.nosilha.core.gallery.api.dto.toPublicDto
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import com.nosilha.core.shared.api.PageableInfo
 import com.nosilha.core.shared.api.PagedApiResult
@@ -19,6 +21,8 @@ import io.github.bucket4j.Bucket
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.modulith.events.ApplicationModuleListener
 import org.springframework.stereotype.Service
@@ -470,19 +474,99 @@ class GalleryService(
     }
 
     // ================================
-    // Public Query Operations
+    // Query Operations
     // ================================
+
+    // -- Private query methods (shared logic) --
+
+    private fun queryActiveMedia(
+        category: String?,
+        page: Int,
+        size: Int,
+    ): Page<GalleryMedia> {
+        val pageable = PageRequest.of(page, minOf(size, 100))
+        return if (category != null) {
+            val allActive = repository
+                .findByStatus(GalleryMediaStatus.ACTIVE)
+                .filter { it.category == category }
+                .sortedBy { it.displayOrder }
+
+            val start = page * size
+            val end = minOf(start + size, allActive.size)
+            val pageContent = if (start < allActive.size) allActive.subList(start, end) else emptyList()
+
+            PageImpl(pageContent, pageable, allActive.size.toLong())
+        } else {
+            repository.findByStatusOrderByDisplayOrderAsc(GalleryMediaStatus.ACTIVE, pageable)
+        }
+    }
+
+    private fun queryActiveById(id: UUID): GalleryMedia? {
+        val media = repository.findById(id).orElse(null) ?: return null
+        return if (media.status == GalleryMediaStatus.ACTIVE) media else null
+    }
+
+    private fun queryMediaByEntry(entryId: UUID): List<UserUploadedMedia> =
+        repository.findByEntryIdAndStatusOrderByDisplayOrderAsc(entryId, GalleryMediaStatus.ACTIVE)
+
+    // -- Public API methods (lean DTO) --
+
+    /**
+     * Lists active gallery media for public API consumption.
+     *
+     * Returns a lean DTO that excludes AI fields, storage internals,
+     * and internal user IDs.
+     */
+    @Transactional(readOnly = true)
+    fun listActiveMediaPublic(
+        category: String?,
+        page: Int,
+        size: Int,
+    ): PagedApiResult<PublicGalleryMediaDto> {
+        val mediaPage = queryActiveMedia(category, page, size)
+        val displayNames = resolveDisplayNames(mediaPage.content)
+        val dtos = mediaPage.content.map { it.toPublicDto(displayNames) }
+
+        return PagedApiResult(
+            data = dtos,
+            pageable = PageableInfo(
+                page = mediaPage.number,
+                size = mediaPage.size,
+                totalElements = mediaPage.totalElements,
+                totalPages = mediaPage.totalPages,
+                first = mediaPage.isFirst,
+                last = mediaPage.isLast,
+            ),
+        )
+    }
+
+    /**
+     * Gets a single ACTIVE gallery media item by ID for public API consumption.
+     */
+    @Transactional(readOnly = true)
+    fun getByIdPublic(id: UUID): PublicGalleryMediaDto? {
+        val media = queryActiveById(id) ?: return null
+        val displayNames = resolveDisplayNames(listOf(media))
+        return media.toPublicDto(displayNames)
+    }
+
+    /**
+     * Gets all ACTIVE user-uploaded media for a directory entry (public API).
+     */
+    @Transactional(readOnly = true)
+    fun getMediaByEntryPublic(entryId: UUID): List<PublicGalleryMediaDto.UserUpload> {
+        val mediaList = queryMediaByEntry(entryId)
+        val displayNames = resolveDisplayNames(mediaList)
+        return mediaList.map { PublicGalleryMediaDto.from(it, it.uploadedBy?.let { id -> displayNames[id] }) }
+    }
+
+    // -- Admin API methods (full DTO) --
 
     /**
      * Lists active gallery media with optional category filtering and pagination.
      *
-     * Returns both UserUploadedMedia and ExternalMedia with ACTIVE status,
-     * ordered by display order ascending.
-     *
-     * @param category Optional category filter
-     * @param page Zero-based page number
-     * @param size Items per page (max 100)
-     * @return Paginated API result of active gallery media
+     * Returns the full DTO including AI fields and storage internals.
+     * Used by admin endpoints.
      */
     @Transactional(readOnly = true)
     fun listActiveMedia(
@@ -490,28 +574,7 @@ class GalleryService(
         page: Int,
         size: Int,
     ): PagedApiResult<GalleryMediaDto> {
-        val pageable = PageRequest.of(page, minOf(size, 100))
-        val mediaPage = if (category != null) {
-            // Filter by category - need to fetch and filter manually
-            val allActive = repository
-                .findByStatus(GalleryMediaStatus.ACTIVE)
-                .filter { it.category == category }
-                .sortedBy { it.displayOrder }
-
-            // Manual pagination
-            val start = page * size
-            val end = minOf(start + size, allActive.size)
-            val pageContent = if (start < allActive.size) allActive.subList(start, end) else emptyList()
-
-            org.springframework.data.domain.PageImpl(
-                pageContent,
-                pageable,
-                allActive.size.toLong()
-            )
-        } else {
-            repository.findByStatusOrderByDisplayOrderAsc(GalleryMediaStatus.ACTIVE, pageable)
-        }
-
+        val mediaPage = queryActiveMedia(category, page, size)
         val displayNames = resolveDisplayNames(mediaPage.content)
         val dtos = mediaPage.content.map { it.toDto(displayNames) }
 
@@ -523,8 +586,8 @@ class GalleryService(
                 totalElements = mediaPage.totalElements,
                 totalPages = mediaPage.totalPages,
                 first = mediaPage.isFirst,
-                last = mediaPage.isLast
-            )
+                last = mediaPage.isLast,
+            ),
         )
     }
 
@@ -538,7 +601,7 @@ class GalleryService(
     @Transactional(readOnly = true)
     fun getById(
         id: UUID,
-        isAdmin: Boolean = false
+        isAdmin: Boolean = false,
     ): GalleryMediaDto? {
         val media = repository.findById(id).orElse(null) ?: return null
 
@@ -553,14 +616,10 @@ class GalleryService(
 
     /**
      * Gets all ACTIVE user-uploaded media for a directory entry.
-     *
-     * @param entryId Directory entry ID
-     * @return List of user upload DTOs
      */
     @Transactional(readOnly = true)
     fun getMediaByEntry(entryId: UUID): List<GalleryMediaDto.UserUpload> {
-        val mediaList = repository
-            .findByEntryIdAndStatusOrderByDisplayOrderAsc(entryId, GalleryMediaStatus.ACTIVE)
+        val mediaList = queryMediaByEntry(entryId)
         val displayNames = resolveDisplayNames(mediaList)
         return mediaList.map { GalleryMediaDto.from(it, it.uploadedBy?.let { id -> displayNames[id] }) }
     }

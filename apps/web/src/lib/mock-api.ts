@@ -1713,7 +1713,7 @@ ${story.content
   // ================================
 
   async getGalleryMedia(): Promise<
-    import("@/types/gallery").GalleryMediaPageResponse
+    import("@/types/gallery").PublicGalleryMediaPageResponse
   > {
     console.log(`Mock API: Gallery methods not implemented yet`);
     await this.simulateDelay(300);
@@ -1721,7 +1721,7 @@ ${story.content
   }
 
   async getGalleryMediaById(): Promise<
-    import("@/types/gallery").GalleryMedia | undefined
+    import("@/types/gallery").PublicGalleryMedia | undefined
   > {
     await this.simulateDelay(200);
     return undefined;

@@ -112,6 +112,85 @@ export interface GalleryMediaPageResponse {
   currentPage: number;
 }
 
+// ========================================
+// PUBLIC API TYPES (GET /api/v1/gallery/**)
+// ========================================
+
+/**
+ * Base interface for public gallery media items.
+ * Excludes: status (always ACTIVE), AI fields, storage internals, internal UUIDs.
+ */
+export interface PublicGalleryMediaBase {
+  id: string;
+  title: string | null;
+  description: string | null;
+  category: string | null;
+  displayOrder: number;
+  mediaSource: GalleryMediaSource;
+  createdAt: string;
+}
+
+/**
+ * Public view of user-uploaded media.
+ * Excludes storage internals, AI fields, and internal UUIDs.
+ */
+export interface PublicUserUploadMedia extends PublicGalleryMediaBase {
+  mediaSource: "USER_UPLOAD";
+  publicUrl: string | null;
+  entryId?: string;
+  uploaderDisplayName?: string;
+  latitude?: number;
+  longitude?: number;
+  dateTaken?: string;
+  cameraMake?: string;
+  cameraModel?: string;
+  approximateDate?: string;
+  locationName?: string;
+  photographerCredit?: string;
+  archiveSource?: string;
+}
+
+/**
+ * Public view of external media.
+ * Excludes curatedBy UUID (keeps curatorDisplayName for attribution).
+ */
+export interface PublicExternalMedia extends PublicGalleryMediaBase {
+  mediaSource: "EXTERNAL";
+  mediaType: MediaType;
+  platform: ExternalPlatform;
+  externalId: string | null;
+  url: string | null;
+  thumbnailUrl: string | null;
+  embedUrl: string | null;
+  author: string | null;
+  curatorDisplayName?: string;
+}
+
+/** Discriminated union for public gallery media */
+export type PublicGalleryMedia = PublicUserUploadMedia | PublicExternalMedia;
+
+/** Type guard for public user upload media */
+export function isPublicUserUploadMedia(
+  media: PublicGalleryMedia
+): media is PublicUserUploadMedia {
+  return media.mediaSource === "USER_UPLOAD";
+}
+
+/** Type guard for public external media */
+export function isPublicExternalMedia(
+  media: PublicGalleryMedia
+): media is PublicExternalMedia {
+  return media.mediaSource === "EXTERNAL";
+}
+
+/** Paginated response for public gallery queries */
+export interface PublicGalleryMediaPageResponse {
+  items: PublicGalleryMedia[];
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+}
+
 /**
  * Query parameters for gallery API calls
  */

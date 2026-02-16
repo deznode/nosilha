@@ -4,6 +4,7 @@ import com.nosilha.core.gallery.api.dto.ConfirmRequest
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.PresignRequest
 import com.nosilha.core.gallery.api.dto.PresignResponse
+import com.nosilha.core.gallery.api.dto.PublicGalleryMediaDto
 import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
 import com.nosilha.core.gallery.domain.GalleryService
 import com.nosilha.core.shared.api.ApiResult
@@ -75,9 +76,9 @@ class GalleryController(
         @RequestParam(required = false) category: String? = null,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "50") size: Int,
-    ): PagedApiResult<GalleryMediaDto> {
+    ): PagedApiResult<PublicGalleryMediaDto> {
         logger.debug { "Listing gallery media - category: $category, page: $page, size: $size" }
-        return galleryService.listActiveMedia(category, page, size)
+        return galleryService.listActiveMediaPublic(category, page, size)
     }
 
     /**
@@ -91,10 +92,8 @@ class GalleryController(
     @GetMapping("/{id}")
     fun getGalleryMedia(
         @PathVariable id: UUID,
-        authentication: Authentication?,
-    ): ResponseEntity<ApiResult<GalleryMediaDto>> {
-        val isAdmin = authentication?.hasRole("ADMIN") ?: false
-        val media = galleryService.getById(id, isAdmin)
+    ): ResponseEntity<ApiResult<PublicGalleryMediaDto>> {
+        val media = galleryService.getByIdPublic(id)
             ?: return ResponseEntity.notFound().build()
 
         return ResponseEntity.ok(ApiResult(data = media))
@@ -109,9 +108,9 @@ class GalleryController(
     @GetMapping("/entry/{entryId}")
     fun getMediaByEntry(
         @PathVariable entryId: UUID,
-    ): ApiResult<List<GalleryMediaDto.UserUpload>> {
+    ): ApiResult<List<PublicGalleryMediaDto.UserUpload>> {
         logger.debug { "Fetching media for entry: $entryId" }
-        return ApiResult(data = galleryService.getMediaByEntry(entryId))
+        return ApiResult(data = galleryService.getMediaByEntryPublic(entryId))
     }
 
     /**
@@ -261,9 +260,4 @@ class GalleryController(
             authentication.name
                 ?: error("Authentication name must be present (user ID)"),
         )
-
-    /**
-     * Checks if authentication has a specific role.
-     */
-    private fun Authentication.hasRole(role: String): Boolean = authorities.any { it.authority == "ROLE_$role" }
 }
