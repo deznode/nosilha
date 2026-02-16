@@ -79,11 +79,10 @@ export function GalleryQueue() {
 
   const handleTriggerBatchAnalysis = async (mediaIds: string[]) => {
     const data = await triggerBatchAnalysis.mutateAsync({ mediaIds });
-    const parts = [`AI analysis triggered for ${data.accepted} items`];
-    if (data.rejected > 0) {
-      parts.push(`(${data.rejected} rejected)`);
-    }
-    toast.success(parts.join(" ")).show();
+    const rejected = data.rejected > 0 ? ` (${data.rejected} rejected)` : "";
+    toast
+      .success(`AI analysis triggered for ${data.accepted} items${rejected}`)
+      .show();
   };
 
   const handleViewAiReview = (mediaId: string) => {
@@ -235,10 +234,6 @@ export function GalleryQueue() {
             onPromoteToHero={handlePromoteToHero}
             aiStatus={aiStatuses.get(item.id)}
             onViewAiReview={handleViewAiReview}
-            onTriggerAnalysis={handleTriggerAnalysis}
-            isTriggerPending={triggerAnalysis.isPending}
-            triggeringMediaId={triggerAnalysis.variables}
-            isEligibleForAi={isEligible}
             isSelected={selectedIds.has(item.id)}
             onToggleSelect={isEligible ? toggleSelect : undefined}
           />
@@ -249,6 +244,10 @@ export function GalleryQueue() {
         isOpen={isEditModalOpen}
         item={mediaToEdit}
         onClose={handleEditClose}
+        aiStatus={mediaToEdit ? aiStatuses.get(mediaToEdit.id) : undefined}
+        onTriggerAnalysis={handleTriggerAnalysis}
+        isTriggerPending={triggerAnalysis.isPending}
+        isEligibleForAi={!!mediaToEdit && eligibleIds.includes(mediaToEdit.id)}
       />
 
       <AiReviewDetailModal
