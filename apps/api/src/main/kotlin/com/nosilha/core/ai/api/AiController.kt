@@ -11,6 +11,7 @@ import com.nosilha.core.ai.api.dto.TranslateContentRequest
 import com.nosilha.core.ai.api.dto.TranslateContentResponse
 import com.nosilha.core.ai.provider.TextAiProvider
 import com.nosilha.core.shared.api.ApiResult
+import com.nosilha.core.shared.exception.BusinessException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.GetMapping
@@ -73,7 +74,7 @@ class AiController(
         @Valid @RequestBody request: GeneratePromptsRequest,
     ): ApiResult<GeneratePromptsResponse> {
         val provider = textAiProvider
-            ?: throw IllegalStateException("Text AI is not available. Enable Gemini to use this feature.")
+            ?: throw BusinessException("Text AI is not available. Enable Gemini to use this feature.")
         val prompts = provider.generatePrompts(request.templateType, request.existingContent)
         return ApiResult(data = GeneratePromptsResponse(prompts = prompts))
     }
@@ -83,7 +84,7 @@ class AiController(
         @Valid @RequestBody request: GenerateDirectoryContentRequest,
     ): ApiResult<DirectoryContentResponse> {
         val provider = textAiProvider
-            ?: throw IllegalStateException("Text AI is not available. Enable Gemini to use this feature.")
+            ?: throw BusinessException("Text AI is not available. Enable Gemini to use this feature.")
         val result = provider.generateDirectoryContent(request.name, request.category)
         return ApiResult(data = DirectoryContentResponse(description = result.description, tags = result.tags))
     }

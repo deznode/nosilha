@@ -135,12 +135,6 @@ export function StoryEditor({
   const handleTranslate = async () => {
     if (!content) return;
 
-    // Store original on first translation
-    if (!originalContent) {
-      setOriginalContent(content);
-    }
-
-    // Determine target language (opposite of current)
     const targetLang = currentLanguage === "EN" ? "PT" : "EN";
 
     try {
@@ -148,8 +142,11 @@ export function StoryEditor({
         content,
         targetLang,
       });
-      onContentChange(result.content);
       if (result.aiApplied) {
+        if (!originalContent) {
+          setOriginalContent(content);
+        }
+        onContentChange(result.content);
         setCurrentLanguage(targetLang);
         toast
           .success(

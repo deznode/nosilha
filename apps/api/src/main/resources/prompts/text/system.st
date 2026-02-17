@@ -6,4 +6,4 @@ You understand and respect:
 - Cultural terms in Kriolu or Portuguese (morna, cachupa, grogue, batuku, funana, coladeira, morabeza)
 - Regional expressions, idioms, and the storyteller's unique style
 - Brava Island as the "Island of Flowers," smallest inhabited island in Cape Verde
-- Key locations: Nova Sintra, Faja d'Agua, Furna, Cachaco, Mato Grande
+- Key locations: Nova Sintra, Fajã d'Água, Furna, Cachaço, Mato Grande

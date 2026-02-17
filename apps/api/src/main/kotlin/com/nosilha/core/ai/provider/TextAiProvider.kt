@@ -4,6 +4,7 @@ import com.nosilha.core.ai.domain.ApiUsageService
 import com.nosilha.core.ai.domain.GeminiDirectoryContentOutput
 import com.nosilha.core.ai.domain.GeminiPromptsOutput
 import com.nosilha.core.ai.domain.TextAiResult
+import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.ai.chat.client.AdvisorParams
@@ -82,6 +83,8 @@ class TextAiProvider(
                 .call()
                 .content()
             TextAiResult(content = result ?: content, aiApplied = result != null)
+        } catch (e: RateLimitExceededException) {
+            throw e
         } catch (e: Exception) {
             logger.error(e) { "Failed to polish content, returning original" }
             TextAiResult(content = content, aiApplied = false)
@@ -110,6 +113,8 @@ class TextAiProvider(
                 }.call()
                 .content()
             TextAiResult(content = result ?: content, aiApplied = result != null)
+        } catch (e: RateLimitExceededException) {
+            throw e
         } catch (e: Exception) {
             logger.error(e) { "Failed to translate content, returning original" }
             TextAiResult(content = content, aiApplied = false)
@@ -139,7 +144,8 @@ class TextAiProvider(
                     .param("existingContentSection", existingSection)
             }.call()
             .entity(GeminiPromptsOutput::class.java)
-        return result?.prompts ?: emptyList()
+        return result?.prompts
+            ?: throw BusinessException("AI returned null prompts for template '$templateType'")
     }
 
     /**
@@ -160,7 +166,7 @@ class TextAiProvider(
                     .param("category", category)
             }.call()
             .entity(GeminiDirectoryContentOutput::class.java)
-            ?: throw IllegalStateException("AI returned null directory content for '$name'")
+            ?: throw BusinessException("AI returned null directory content for '$name'")
     }
 
     private fun checkQuota(operation: String) {

@@ -7,6 +7,7 @@ import com.nosilha.core.ai.api.dto.TranslateContentRequest
 import com.nosilha.core.ai.domain.GeminiDirectoryContentOutput
 import com.nosilha.core.ai.domain.TextAiResult
 import com.nosilha.core.ai.provider.TextAiProvider
+import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -263,6 +264,27 @@ class AiControllerTest {
     }
 
     @Test
+    @DisplayName("POST /api/v1/ai/prompts - BusinessException returns 422")
+    fun `prompts with BusinessException returns 422`() {
+        whenever(textAiProvider.generatePrompts(any(), anyOrNull())).thenThrow(
+            BusinessException("Text AI is not available. Enable Gemini to use this feature."),
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/ai/prompts")
+                    .with(authAs("user-123"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        jsonMapper.writeValueAsString(
+                            GeneratePromptsRequest(templateType = "personal-memory"),
+                        ),
+                    ),
+            ).andExpect(status().isUnprocessableEntity)
+            .andExpect(jsonPath("$.error").value("Business Rule Violation"))
+    }
+
+    @Test
     @DisplayName("POST /api/v1/ai/directory-content - success returns description and tags")
     fun `directory-content with valid request returns 200`() {
         whenever(textAiProvider.generateDirectoryContent(any(), any())).thenReturn(
@@ -302,6 +324,27 @@ class AiControllerTest {
                         ),
                     ),
             ).andExpect(status().isBadRequest)
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/ai/directory-content - BusinessException returns 422")
+    fun `directory-content with BusinessException returns 422`() {
+        whenever(textAiProvider.generateDirectoryContent(any(), any())).thenThrow(
+            BusinessException("Text AI is not available. Enable Gemini to use this feature."),
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/ai/directory-content")
+                    .with(authAs("user-123"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        jsonMapper.writeValueAsString(
+                            GenerateDirectoryContentRequest(name = "Casa da Morna", category = "Restaurant"),
+                        ),
+                    ),
+            ).andExpect(status().isUnprocessableEntity)
+            .andExpect(jsonPath("$.error").value("Business Rule Violation"))
     }
 
     @Test

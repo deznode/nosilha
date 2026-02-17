@@ -4,6 +4,7 @@ import com.nosilha.core.ai.domain.ApiUsageService
 import com.nosilha.core.ai.domain.GeminiDirectoryContentOutput
 import com.nosilha.core.ai.domain.GeminiPromptsOutput
 import com.nosilha.core.ai.provider.TextAiProvider
+import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -152,6 +153,22 @@ class TextAiProviderTest {
     }
 
     @Test
+    @DisplayName("generatePrompts - null entity response throws BusinessException")
+    fun `generatePrompts null entity throws BusinessException`() {
+        whenever(
+            chatClient
+                .prompt()
+                .user(any<Consumer<ChatClient.PromptUserSpec>>())
+                .call()
+                .entity(GeminiPromptsOutput::class.java),
+        ).thenReturn(null)
+
+        assertFailsWith<BusinessException> {
+            provider.generatePrompts("personal-memory", null)
+        }
+    }
+
+    @Test
     @DisplayName("generatePrompts - ChatClient failure throws exception")
     fun `generatePrompts failure throws exception`() {
         whenever(
@@ -186,6 +203,22 @@ class TextAiProviderTest {
         assertNotNull(result)
         assertEquals("A charming family-owned restaurant in Nova Sintra.", result.description)
         assertEquals(5, result.tags.size)
+    }
+
+    @Test
+    @DisplayName("generateDirectoryContent - null entity response throws BusinessException")
+    fun `generateDirectoryContent null entity throws BusinessException`() {
+        whenever(
+            chatClient
+                .prompt()
+                .user(any<Consumer<ChatClient.PromptUserSpec>>())
+                .call()
+                .entity(GeminiDirectoryContentOutput::class.java),
+        ).thenReturn(null)
+
+        assertFailsWith<BusinessException> {
+            provider.generateDirectoryContent("Test Place", "Heritage")
+        }
     }
 
     @Test
