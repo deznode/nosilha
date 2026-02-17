@@ -83,21 +83,27 @@ export default function DirectoryFilterDevPage() {
         />
       </section>
 
-      {loading ? (
+      {loading && (
         <p className="text-muted py-12 text-center">
           Loading entries from mock API...
         </p>
-      ) : filtered.length === 0 ? (
+      )}
+
+      {!loading && filtered.length === 0 && (
         <p className="text-muted py-12 text-center">
           No entries match your filters.
         </p>
-      ) : viewMode === "grid" ? (
+      )}
+
+      {!loading && filtered.length > 0 && viewMode === "grid" && (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((entry) => (
             <DirectoryCard key={entry.id} entry={entry} />
           ))}
         </div>
-      ) : (
+      )}
+
+      {!loading && filtered.length > 0 && viewMode === "list" && (
         <div className="space-y-4">
           {filtered.map((entry) => (
             <ListViewCard key={entry.id} entry={entry} />

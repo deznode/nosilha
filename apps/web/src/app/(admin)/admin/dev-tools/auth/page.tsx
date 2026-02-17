@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { clsx } from "clsx";
 import { ArrowLeft } from "lucide-react";
 import NosIlhaAuth from "@/components/auth/auth-form";
 
@@ -25,21 +26,23 @@ export default function AuthDevPage() {
       <div className="mb-6 flex gap-2">
         <button
           onClick={() => setView("login")}
-          className={`rounded-button px-4 py-2 text-sm font-medium transition-colors ${
+          className={clsx(
+            "rounded-button px-4 py-2 text-sm font-medium transition-colors",
             view === "login"
               ? "bg-ocean-blue text-white"
               : "bg-surface-alt text-muted hover:text-body"
-          }`}
+          )}
         >
           Login View
         </button>
         <button
           onClick={() => setView("signup")}
-          className={`rounded-button px-4 py-2 text-sm font-medium transition-colors ${
+          className={clsx(
+            "rounded-button px-4 py-2 text-sm font-medium transition-colors",
             view === "signup"
               ? "bg-ocean-blue text-white"
               : "bg-surface-alt text-muted hover:text-body"
-          }`}
+          )}
         >
           Signup View
         </button>

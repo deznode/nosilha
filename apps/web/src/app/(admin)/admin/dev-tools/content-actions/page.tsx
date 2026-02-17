@@ -36,6 +36,37 @@ const mockReactions: Reaction[] = [
   },
 ];
 
+const scrollSectionReactions: Reaction[] = [
+  {
+    id: "LOVE",
+    emoji: "\u2764\uFE0F",
+    count: 42,
+    isSelected: true,
+    ariaLabel: "React with love",
+  },
+  {
+    id: "CELEBRATE",
+    emoji: "\uD83C\uDF89",
+    count: 18,
+    isSelected: false,
+    ariaLabel: "React to celebrate",
+  },
+  {
+    id: "INSIGHTFUL",
+    emoji: "\uD83D\uDCA1",
+    count: 15,
+    isSelected: false,
+    ariaLabel: "Mark as insightful",
+  },
+  {
+    id: "SUPPORT",
+    emoji: "\uD83D\uDC4F",
+    count: 7,
+    isSelected: false,
+    ariaLabel: "Show support",
+  },
+];
+
 export default function ContentActionsDevPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -89,36 +120,7 @@ export default function ContentActionsDevPage() {
             contentTitle="Monte Fontainhas Trail"
             contentUrl="https://nosilha.com/directory/nature/monte-fontainhas"
             contentType="NATURE"
-            reactions={[
-              {
-                id: "LOVE",
-                emoji: "\u2764\uFE0F",
-                count: 42,
-                isSelected: true,
-                ariaLabel: "React with love",
-              },
-              {
-                id: "CELEBRATE",
-                emoji: "\uD83C\uDF89",
-                count: 18,
-                isSelected: false,
-                ariaLabel: "React to celebrate",
-              },
-              {
-                id: "INSIGHTFUL",
-                emoji: "\uD83D\uDCA1",
-                count: 15,
-                isSelected: false,
-                ariaLabel: "Mark as insightful",
-              },
-              {
-                id: "SUPPORT",
-                emoji: "\uD83D\uDC4F",
-                count: 7,
-                isSelected: false,
-                ariaLabel: "Show support",
-              },
-            ]}
+            reactions={scrollSectionReactions}
             isAuthenticated={false}
             showOnScroll
             scrollThreshold={200}
