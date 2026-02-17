@@ -58,6 +58,7 @@ export interface UserUploadMedia extends GalleryMediaBase {
   uploadedBy?: string;
   uploaderDisplayName?: string;
   photographerCredit?: string;
+  aiTitle?: string;
   aiTags?: string[];
   aiAltText?: string;
   aiDescription?: string;

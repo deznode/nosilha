@@ -66,14 +66,14 @@ export function AiMediaItem({
   const getSourceBadge = () => {
     if (isUserUploadMedia(item)) {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+        <span className="bg-surface-alt text-brand inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
           <Upload size={10} /> User Upload
         </span>
       );
     }
 
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+      <span className="bg-surface-alt text-muted inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
         <ExternalLink size={10} /> {item.platform}
       </span>
     );
@@ -93,6 +93,7 @@ export function AiMediaItem({
           src={thumbnailUrl}
           alt={item.title || "Gallery item"}
           fill
+          sizes="80px"
           className="object-cover"
           unoptimized
         />
@@ -109,7 +110,7 @@ export function AiMediaItem({
   const hasPendingReview = aiStatus?.moderationStatus === "PENDING_REVIEW";
 
   return (
-    <div className="border-hairline bg-surface flex items-start gap-4 rounded-xl border p-4 transition-shadow hover:shadow-md">
+    <div className="border-hairline bg-surface flex items-start gap-4 rounded-card border p-4 transition-shadow hover:shadow-medium">
       {/* Selection Checkbox */}
       {onToggleSelect && (
         <div className="flex flex-shrink-0 items-center pt-1">
@@ -126,7 +127,7 @@ export function AiMediaItem({
         type="button"
         onClick={() => fullImageUrl && setIsLightboxOpen(true)}
         disabled={!fullImageUrl}
-        className="focus:ring-ocean-blue relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg transition-transform hover:scale-105 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-default disabled:hover:scale-100"
+        className="focus-ring relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-button transition-transform hover:scale-105 disabled:cursor-default disabled:hover:scale-100"
         aria-label={
           fullImageUrl ? "View full-size image" : "No image available"
         }
@@ -192,7 +193,7 @@ export function AiMediaItem({
                     href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline dark:text-blue-400"
+                    className="text-brand hover:underline"
                   >
                     View source
                   </a>

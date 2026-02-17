@@ -18,6 +18,9 @@ import { useToast } from "@/hooks/use-toast";
 
 export function AiReviewQueue() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [pendingAnalysisIds, setPendingAnalysisIds] = useState<Set<string>>(
+    new Set()
+  );
   const [selectedAiRunId, setSelectedAiRunId] = useState<string | null>(null);
   const [isAiReviewModalOpen, setIsAiReviewModalOpen] = useState(false);
 
@@ -42,12 +45,20 @@ export function AiReviewQueue() {
   );
 
   const handleTriggerAnalysis = (mediaId: string) => {
+    setPendingAnalysisIds((prev) => new Set(prev).add(mediaId));
     triggerAnalysis.mutate(mediaId, {
       onSuccess: () => {
         toast.success("AI analysis triggered").show();
       },
       onError: () => {
         toast.error("Failed to trigger AI analysis. Please try again.").show();
+      },
+      onSettled: () => {
+        setPendingAnalysisIds((prev) => {
+          const next = new Set(prev);
+          next.delete(mediaId);
+          return next;
+        });
       },
     });
   };
@@ -65,6 +76,8 @@ export function AiReviewQueue() {
     if (run) {
       setSelectedAiRunId(run.id);
       setIsAiReviewModalOpen(true);
+    } else {
+      toast.error("Unable to load review details. Please refresh.").show();
     }
   };
 
@@ -130,7 +143,7 @@ export function AiReviewQueue() {
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="bg-surface-alt h-32 animate-pulse rounded-xl"
+            className="bg-surface-alt h-32 animate-pulse rounded-card"
           />
         ))}
       </div>
@@ -139,7 +152,7 @@ export function AiReviewQueue() {
 
   if (items.length === 0) {
     return (
-      <div className="border-hairline bg-canvas flex min-h-[400px] items-center justify-center rounded-xl border-2 border-dashed">
+      <div className="border-hairline bg-canvas flex min-h-[400px] items-center justify-center rounded-card border-2 border-dashed">
         <div className="text-center">
           <p className="text-muted text-lg font-medium">
             No gallery items available
@@ -161,7 +174,7 @@ export function AiReviewQueue() {
       </div>
 
       {selectedIds.size > 0 && (
-        <div className="border-hairline bg-surface flex items-center gap-4 rounded-xl border p-3 shadow-sm">
+        <div className="border-hairline bg-surface flex items-center gap-4 rounded-card border p-3 shadow-subtle">
           <span className="text-body text-sm font-medium">
             {selectedIds.size} selected
           </span>
@@ -200,7 +213,7 @@ export function AiReviewQueue() {
             isSelected={selectedIds.has(item.id)}
             onToggleSelect={isEligible ? toggleSelect : undefined}
             isEligibleForAi={isEligible}
-            isTriggerPending={triggerAnalysis.isPending}
+            isTriggerPending={pendingAnalysisIds.has(item.id)}
           />
         );
       })}

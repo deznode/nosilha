@@ -742,7 +742,7 @@ class GalleryService(
             return
         }
 
-        if (event.title != null) media.title = event.title
+        media.aiTitle = event.title
         media.aiAltText = event.altText
         media.aiDescription = event.description
         media.aiTags = event.tags.toTypedArray().ifEmpty { null }

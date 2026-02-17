@@ -33,7 +33,7 @@ private val logger = KotlinLogging.logger {}
 data class GeminiCulturalResponse
     @JsonCreator
     constructor(
-        @param:JsonProperty("title") val title: String,
+        @param:JsonProperty("title") val title: String? = null,
         @param:JsonProperty("altText") val altText: String,
         @param:JsonProperty("description") val description: String,
         @param:JsonProperty("tags") val tags: List<String>,
