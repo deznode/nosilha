@@ -143,7 +143,7 @@ export function AiReviewQueue() {
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="bg-surface-alt h-32 animate-pulse rounded-card"
+            className="bg-surface-alt rounded-card h-32 animate-pulse"
           />
         ))}
       </div>
@@ -152,7 +152,7 @@ export function AiReviewQueue() {
 
   if (items.length === 0) {
     return (
-      <div className="border-hairline bg-canvas flex min-h-[400px] items-center justify-center rounded-card border-2 border-dashed">
+      <div className="border-hairline bg-canvas rounded-card flex min-h-[400px] items-center justify-center border-2 border-dashed">
         <div className="text-center">
           <p className="text-muted text-lg font-medium">
             No gallery items available
@@ -174,7 +174,7 @@ export function AiReviewQueue() {
       </div>
 
       {selectedIds.size > 0 && (
-        <div className="border-hairline bg-surface flex items-center gap-4 rounded-card border p-3 shadow-subtle">
+        <div className="border-hairline bg-surface rounded-card shadow-subtle flex items-center gap-4 border p-3">
           <span className="text-body text-sm font-medium">
             {selectedIds.size} selected
           </span>

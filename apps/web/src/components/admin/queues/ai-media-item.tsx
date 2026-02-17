@@ -110,7 +110,7 @@ export function AiMediaItem({
   const hasPendingReview = aiStatus?.moderationStatus === "PENDING_REVIEW";
 
   return (
-    <div className="border-hairline bg-surface flex items-start gap-4 rounded-card border p-4 transition-shadow hover:shadow-medium">
+    <div className="border-hairline bg-surface rounded-card hover:shadow-medium flex items-start gap-4 border p-4 transition-shadow">
       {/* Selection Checkbox */}
       {onToggleSelect && (
         <div className="flex flex-shrink-0 items-center pt-1">
@@ -127,7 +127,7 @@ export function AiMediaItem({
         type="button"
         onClick={() => fullImageUrl && setIsLightboxOpen(true)}
         disabled={!fullImageUrl}
-        className="focus-ring relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-button transition-transform hover:scale-105 disabled:cursor-default disabled:hover:scale-100"
+        className="focus-ring rounded-button relative h-20 w-20 flex-shrink-0 overflow-hidden transition-transform hover:scale-105 disabled:cursor-default disabled:hover:scale-100"
         aria-label={
           fullImageUrl ? "View full-size image" : "No image available"
         }
