@@ -1867,7 +1867,7 @@ ${story.content
   ): Promise<import("@/types/ai").PolishContentResponse> {
     console.log(`Mock API: Polishing content`);
     await this.simulateDelay(500);
-    return { content: request.content };
+    return { content: request.content, aiApplied: false };
   }
 
   async translateContent(
@@ -1875,7 +1875,7 @@ ${story.content
   ): Promise<import("@/types/ai").TranslateContentResponse> {
     console.log(`Mock API: Translating content to ${request.targetLang}`);
     await this.simulateDelay(500);
-    return { content: request.content };
+    return { content: request.content, aiApplied: false };
   }
 
   async generatePrompts(

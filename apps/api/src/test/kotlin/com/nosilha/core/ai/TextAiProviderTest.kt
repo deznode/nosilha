@@ -1,9 +1,10 @@
 package com.nosilha.core.ai
 
 import com.nosilha.core.ai.domain.ApiUsageService
-import com.nosilha.core.ai.provider.GeminiDirectoryContentOutput
-import com.nosilha.core.ai.provider.GeminiPromptsOutput
+import com.nosilha.core.ai.domain.GeminiDirectoryContentOutput
+import com.nosilha.core.ai.domain.GeminiPromptsOutput
 import com.nosilha.core.ai.provider.TextAiProvider
+import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -15,10 +16,13 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.springframework.ai.chat.client.AdvisorParams
 import org.springframework.ai.chat.client.ChatClient
+import org.springframework.core.io.ClassPathResource
+import java.util.function.Consumer
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class TextAiProviderTest {
     private val chatClientBuilder = mock<ChatClient.Builder>(defaultAnswer = Answers.RETURNS_DEEP_STUBS)
@@ -29,29 +33,40 @@ class TextAiProviderTest {
 
     @BeforeEach
     fun setup() {
-        whenever(chatClientBuilder.defaultAdvisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT).build()).thenReturn(chatClient)
+        whenever(
+            chatClientBuilder
+                .defaultSystem(any<String>())
+                .defaultAdvisors(AdvisorParams.ENABLE_NATIVE_STRUCTURED_OUTPUT)
+                .build(),
+        ).thenReturn(chatClient)
         whenever(apiUsageService.checkAndIncrementQuota(eq("gemini-text"), eq(1000))).thenReturn(true)
 
         provider = TextAiProvider(
             chatClientBuilder = chatClientBuilder,
             apiUsageService = apiUsageService,
             textMonthlyLimit = 1000,
+            systemPromptResource = ClassPathResource("prompts/text/system.st"),
+            polishPromptResource = ClassPathResource("prompts/text/polish-user.st"),
+            translatePromptResource = ClassPathResource("prompts/text/translate-user.st"),
+            generatePromptsPromptResource = ClassPathResource("prompts/text/generate-prompts-user.st"),
+            directoryContentPromptResource = ClassPathResource("prompts/text/directory-content-user.st"),
         )
     }
 
     @Test
-    @DisplayName("polishContent - success returns polished text")
-    fun `polishContent success returns polished text`() {
+    @DisplayName("polishContent - success returns TextAiResult with aiApplied=true")
+    fun `polishContent success returns aiApplied true`() {
         whenever(
             chatClient
                 .prompt()
-                .user(any<String>())
+                .user(any<Consumer<ChatClient.PromptUserSpec>>())
                 .call()
                 .content(),
         ).thenReturn("Polished story text")
 
         val result = provider.polishContent("Original story text")
-        assertEquals("Polished story text", result)
+        assertEquals("Polished story text", result.content)
+        assertTrue(result.aiApplied)
     }
 
     @Test
@@ -65,33 +80,35 @@ class TextAiProviderTest {
     }
 
     @Test
-    @DisplayName("polishContent - ChatClient failure returns original content")
-    fun `polishContent ChatClient failure returns original content`() {
+    @DisplayName("polishContent - ChatClient failure returns TextAiResult with aiApplied=false")
+    fun `polishContent ChatClient failure returns aiApplied false`() {
         whenever(
             chatClient
                 .prompt()
-                .user(any<String>())
+                .user(any<Consumer<ChatClient.PromptUserSpec>>())
                 .call()
                 .content(),
         ).thenThrow(RuntimeException("Gemini API error"))
 
         val result = provider.polishContent("Original text")
-        assertEquals("Original text", result)
+        assertEquals("Original text", result.content)
+        assertFalse(result.aiApplied)
     }
 
     @Test
-    @DisplayName("translateContent - success returns translated text")
-    fun `translateContent success returns translated text`() {
+    @DisplayName("translateContent - success returns TextAiResult with aiApplied=true")
+    fun `translateContent success returns aiApplied true`() {
         whenever(
             chatClient
                 .prompt()
-                .user(any<String>())
+                .user(any<Consumer<ChatClient.PromptUserSpec>>())
                 .call()
                 .content(),
         ).thenReturn("Texto traduzido")
 
         val result = provider.translateContent("Original text", "PT")
-        assertEquals("Texto traduzido", result)
+        assertEquals("Texto traduzido", result.content)
+        assertTrue(result.aiApplied)
     }
 
     @Test
@@ -101,6 +118,14 @@ class TextAiProviderTest {
 
         assertFailsWith<RateLimitExceededException> {
             provider.translateContent("Text to translate", "EN")
+        }
+    }
+
+    @Test
+    @DisplayName("translateContent - unsupported language throws IllegalArgumentException")
+    fun `translateContent unsupported language throws IllegalArgumentException`() {
+        assertFailsWith<IllegalArgumentException> {
+            provider.translateContent("Text", "ZH")
         }
     }
 
@@ -117,7 +142,7 @@ class TextAiProviderTest {
         whenever(
             chatClient
                 .prompt()
-                .user(any<String>())
+                .user(any<Consumer<ChatClient.PromptUserSpec>>())
                 .call()
                 .entity(GeminiPromptsOutput::class.java),
         ).thenReturn(expectedOutput)
@@ -128,18 +153,35 @@ class TextAiProviderTest {
     }
 
     @Test
-    @DisplayName("generatePrompts - failure returns empty list")
-    fun `generatePrompts failure returns empty list`() {
+    @DisplayName("generatePrompts - null entity response throws BusinessException")
+    fun `generatePrompts null entity throws BusinessException`() {
         whenever(
             chatClient
                 .prompt()
-                .user(any<String>())
+                .user(any<Consumer<ChatClient.PromptUserSpec>>())
+                .call()
+                .entity(GeminiPromptsOutput::class.java),
+        ).thenReturn(null)
+
+        assertFailsWith<BusinessException> {
+            provider.generatePrompts("personal-memory", null)
+        }
+    }
+
+    @Test
+    @DisplayName("generatePrompts - ChatClient failure throws exception")
+    fun `generatePrompts failure throws exception`() {
+        whenever(
+            chatClient
+                .prompt()
+                .user(any<Consumer<ChatClient.PromptUserSpec>>())
                 .call()
                 .entity(GeminiPromptsOutput::class.java),
         ).thenThrow(RuntimeException("Gemini API error"))
 
-        val result = provider.generatePrompts("personal-memory", null)
-        assertEquals(emptyList(), result)
+        assertFailsWith<RuntimeException> {
+            provider.generatePrompts("personal-memory", null)
+        }
     }
 
     @Test
@@ -152,7 +194,7 @@ class TextAiProviderTest {
         whenever(
             chatClient
                 .prompt()
-                .user(any<String>())
+                .user(any<Consumer<ChatClient.PromptUserSpec>>())
                 .call()
                 .entity(GeminiDirectoryContentOutput::class.java),
         ).thenReturn(expectedOutput)
@@ -164,17 +206,34 @@ class TextAiProviderTest {
     }
 
     @Test
-    @DisplayName("generateDirectoryContent - failure returns null")
-    fun `generateDirectoryContent failure returns null`() {
+    @DisplayName("generateDirectoryContent - null entity response throws BusinessException")
+    fun `generateDirectoryContent null entity throws BusinessException`() {
         whenever(
             chatClient
                 .prompt()
-                .user(any<String>())
+                .user(any<Consumer<ChatClient.PromptUserSpec>>())
+                .call()
+                .entity(GeminiDirectoryContentOutput::class.java),
+        ).thenReturn(null)
+
+        assertFailsWith<BusinessException> {
+            provider.generateDirectoryContent("Test Place", "Heritage")
+        }
+    }
+
+    @Test
+    @DisplayName("generateDirectoryContent - ChatClient failure throws exception")
+    fun `generateDirectoryContent failure throws exception`() {
+        whenever(
+            chatClient
+                .prompt()
+                .user(any<Consumer<ChatClient.PromptUserSpec>>())
                 .call()
                 .entity(GeminiDirectoryContentOutput::class.java),
         ).thenThrow(RuntimeException("Gemini API error"))
 
-        val result = provider.generateDirectoryContent("Test Place", "Heritage")
-        assertNull(result)
+        assertFailsWith<RuntimeException> {
+            provider.generateDirectoryContent("Test Place", "Heritage")
+        }
     }
 }
