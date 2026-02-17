@@ -18,6 +18,7 @@ const mockDetail: AnalysisRunDetail = {
   rawResults: null,
   resultTags: ["landscape"],
   resultLabels: null,
+  resultTitle: "Sandy Beach on Brava",
   resultAltText: "A sandy beach",
   resultDescription: "Beautiful sandy beach",
   moderatedBy: null,

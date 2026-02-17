@@ -16,6 +16,7 @@ const mockItems: AnalysisRunSummary[] = [
     moderationStatus: "PENDING_REVIEW",
     providersUsed: ["gemini"],
     resultTags: ["landscape", "beach"],
+    resultTitle: "Sandy Beach on Brava",
     resultAltText: "A sandy beach",
     resultDescription: "Beautiful sandy beach on Brava",
     createdAt: "2026-02-01T00:00:00Z",

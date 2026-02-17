@@ -29,10 +29,11 @@ private val logger = KotlinLogging.logger {}
  * a JSON Schema from this class and sends it to Gemini's controlled generation API,
  * ensuring the response always matches this structure.</p>
  */
-@JsonPropertyOrder("altText", "description", "tags")
+@JsonPropertyOrder("title", "altText", "description", "tags")
 data class GeminiCulturalResponse
     @JsonCreator
     constructor(
+        @param:JsonProperty("title") val title: String,
         @param:JsonProperty("altText") val altText: String,
         @param:JsonProperty("description") val description: String,
         @param:JsonProperty("tags") val tags: List<String>,
@@ -91,6 +92,7 @@ class GeminiCulturalProvider(
 
         return ImageAnalysisResult(
             provider = name,
+            title = response.title,
             altText = response.altText,
             description = response.description,
             tags = response.tags,

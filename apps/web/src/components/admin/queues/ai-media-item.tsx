@@ -216,7 +216,7 @@ export function AiMediaItem({
               ) : (
                 <Sparkles data-slot="icon" />
               )}
-              Analyze with AI
+              {aiStatus?.aiProcessed ? "Re-analyze" : "Analyze with AI"}
             </Button>
           )}
           {hasPendingReview && onViewAiReview && (

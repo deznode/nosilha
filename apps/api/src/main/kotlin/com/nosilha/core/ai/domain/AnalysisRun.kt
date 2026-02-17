@@ -94,6 +94,9 @@ class AnalysisRun(
     @JdbcTypeCode(SqlTypes.JSON)
     var resultLabels: String? = null
 
+    @Column(name = "result_title", length = 256)
+    var resultTitle: String? = null
+
     @Column(name = "result_alt_text", length = 1024)
     var resultAltText: String? = null
 
