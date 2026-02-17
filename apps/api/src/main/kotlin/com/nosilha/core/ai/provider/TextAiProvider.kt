@@ -96,14 +96,15 @@ class TextAiProvider(
         content: String,
         targetLang: String,
     ): TextAiResult {
-        checkQuota("translate content")
         val targetLanguage = SUPPORTED_LANGUAGES[targetLang]
             ?: throw IllegalArgumentException("Unsupported language: $targetLang. Supported: ${SUPPORTED_LANGUAGES.keys}")
+        checkQuota("translate content")
         return try {
             val result = chatClient
                 .prompt()
                 .user { u ->
-                    u.text(translatePrompt)
+                    u
+                        .text(translatePrompt)
                         .param("content", content)
                         .param("targetLanguage", targetLanguage)
                 }.call()
@@ -132,7 +133,8 @@ class TextAiProvider(
         val result = chatClient
             .prompt()
             .user { u ->
-                u.text(generatePromptsPrompt)
+                u
+                    .text(generatePromptsPrompt)
                     .param("templateType", templateType)
                     .param("existingContentSection", existingSection)
             }.call()
@@ -152,7 +154,8 @@ class TextAiProvider(
         return chatClient
             .prompt()
             .user { u ->
-                u.text(directoryContentPrompt)
+                u
+                    .text(directoryContentPrompt)
                     .param("name", name)
                     .param("category", category)
             }.call()

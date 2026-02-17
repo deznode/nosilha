@@ -11,6 +11,7 @@ import com.nosilha.core.shared.exception.RateLimitExceededException
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
@@ -206,7 +207,7 @@ class AiControllerTest {
     @Test
     @DisplayName("POST /api/v1/ai/prompts - success returns prompts list")
     fun `prompts with valid request returns 200`() {
-        whenever(textAiProvider.generatePrompts(any(), any())).thenReturn(
+        whenever(textAiProvider.generatePrompts(any(), anyOrNull())).thenReturn(
             listOf("Prompt 1", "Prompt 2", "Prompt 3"),
         )
 
@@ -244,7 +245,7 @@ class AiControllerTest {
     @Test
     @DisplayName("POST /api/v1/ai/prompts - AI failure returns 500")
     fun `prompts with AI failure returns 500`() {
-        whenever(textAiProvider.generatePrompts(any(), any())).thenThrow(
+        whenever(textAiProvider.generatePrompts(any(), anyOrNull())).thenThrow(
             RuntimeException("Gemini API error"),
         )
 
