@@ -3,7 +3,6 @@ import {
   Blocks,
   Monitor,
   Map,
-  Layout,
   Image,
   PenTool,
   Search,
@@ -34,7 +33,7 @@ interface DevToolSection {
 
 const sections: DevToolSection[] = [
   {
-    title: "Current",
+    title: "UI Components",
     cards: [
       {
         title: "Components",
@@ -44,30 +43,30 @@ const sections: DevToolSection[] = [
         icon: Blocks,
       },
       {
-        title: "Hero & Sticky Nav",
+        title: "Widgets",
         description:
-          "Hero section prototype with sticky navigation bar that transforms on scroll",
-        href: "/admin/dev-tools/hero",
-        icon: Monitor,
+          "WeatherWidget, KrioluProverbCard, FooterNewsletterForm, and TabGroup color variants",
+        href: "/admin/dev-tools/widgets",
+        icon: Puzzle,
       },
       {
-        title: "Landing Page",
+        title: "Story Cards",
         description:
-          "Full landing page prototype with hero, navigation grid, featured stories, and CTA",
-        href: "/admin/dev-tools/land",
-        icon: Layout,
+          "StoryCard grid display with StoryDetailContent for community narrative previews",
+        href: "/admin/dev-tools/story-cards",
+        icon: BookOpen,
       },
       {
-        title: "Map Style Switcher",
+        title: "Gallery Metadata",
         description:
-          "Mapbox style switcher component for streets, outdoors, and satellite views",
-        href: "/admin/dev-tools/map",
-        icon: Map,
+          "ManualMetadataForm, MetadataBadges, PhotoTypeSelector, and VideoSection components",
+        href: "/admin/dev-tools/gallery-metadata",
+        icon: Camera,
       },
     ],
   },
   {
-    title: "Feature Prototypes",
+    title: "Content & Media",
     cards: [
       {
         title: "Photo Gallery",
@@ -77,25 +76,25 @@ const sections: DevToolSection[] = [
         icon: Image,
       },
       {
-        title: "Story Editor",
+        title: "Image Lightbox",
         description:
-          "StoryEditor with TemplateChips, StoryPromptsPanel, and PhotoUpload for community stories",
-        href: "/admin/dev-tools/story-editor",
-        icon: PenTool,
+          "GalleryImageGrid masonry layout with fullscreen ImageLightbox navigation and thumbnails",
+        href: "/admin/dev-tools/lightbox",
+        icon: Maximize,
       },
       {
-        title: "Unified Search",
+        title: "Content Blocks",
         description:
-          "UnifiedSearch component in both default and hero variants with search functionality",
-        href: "/admin/dev-tools/search",
-        icon: Search,
+          "HistoricalTimeline, HistoricalFigures, and ThematicSections for heritage pages",
+        href: "/admin/dev-tools/content-blocks",
+        icon: Landmark,
       },
       {
-        title: "Auth Form",
+        title: "Content Actions",
         description:
-          "NosIlhaAuth form with login/signup toggle and OAuth provider buttons",
-        href: "/admin/dev-tools/auth",
-        icon: Lock,
+          "ContentActionToolbar with desktop rail and mobile FAB, reactions, share, and bookmark",
+        href: "/admin/dev-tools/content-actions",
+        icon: MousePointerClick,
       },
       {
         title: "Image Upload",
@@ -107,21 +106,14 @@ const sections: DevToolSection[] = [
     ],
   },
   {
-    title: "Composed Layouts",
+    title: "Pages & Layouts",
     cards: [
       {
-        title: "Image Lightbox",
+        title: "Hero Sections",
         description:
-          "GalleryImageGrid masonry layout with fullscreen ImageLightbox navigation and thumbnails",
-        href: "/admin/dev-tools/lightbox",
-        icon: Maximize,
-      },
-      {
-        title: "Content Actions",
-        description:
-          "ContentActionToolbar with desktop rail and mobile FAB, reactions, share, and bookmark",
-        href: "/admin/dev-tools/content-actions",
-        icon: MousePointerClick,
+          "Hero section prototype with sticky navigation bar that transforms on scroll",
+        href: "/admin/dev-tools/hero",
+        icon: Monitor,
       },
       {
         title: "User Profile",
@@ -131,44 +123,44 @@ const sections: DevToolSection[] = [
         icon: User,
       },
       {
+        title: "Auth Forms",
+        description:
+          "NosIlhaAuth form with login/signup toggle and OAuth provider buttons",
+        href: "/admin/dev-tools/auth",
+        icon: Lock,
+      },
+      {
+        title: "Search",
+        description:
+          "UnifiedSearch component in both default and hero variants with search functionality",
+        href: "/admin/dev-tools/search",
+        icon: Search,
+      },
+      {
         title: "Directory Filter",
         description:
           "FilterToolbar with DirectoryCard grid, ListViewCard list, and ViewToggle switcher",
         href: "/admin/dev-tools/directory-filter",
         icon: Filter,
       },
-      {
-        title: "Content Blocks",
-        description:
-          "HistoricalTimeline, HistoricalFigures, and ThematicSections for heritage pages",
-        href: "/admin/dev-tools/content-blocks",
-        icon: Landmark,
-      },
     ],
   },
   {
-    title: "Small Components",
+    title: "Interactive Tools",
     cards: [
       {
-        title: "Story Cards",
+        title: "Map Viewer",
         description:
-          "StoryCard grid display with StoryDetailContent for community narrative previews",
-        href: "/admin/dev-tools/story-cards",
-        icon: BookOpen,
+          "Mapbox style switcher component for streets, outdoors, and satellite views",
+        href: "/admin/dev-tools/map",
+        icon: Map,
       },
       {
-        title: "Widgets",
+        title: "Story Editor",
         description:
-          "WeatherWidget, KrioluProverbCard, FooterNewsletterForm, and TabGroup color variants",
-        href: "/admin/dev-tools/widgets",
-        icon: Puzzle,
-      },
-      {
-        title: "Gallery Metadata",
-        description:
-          "ManualMetadataForm, MetadataBadges, PhotoTypeSelector, and VideoSection components",
-        href: "/admin/dev-tools/gallery-metadata",
-        icon: Camera,
+          "StoryEditor with TemplateChips, StoryPromptsPanel, and PhotoUpload for community stories",
+        href: "/admin/dev-tools/story-editor",
+        icon: PenTool,
       },
     ],
   },
@@ -177,28 +169,28 @@ const sections: DevToolSection[] = [
 export default function DevToolsPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="text-body mb-2 text-2xl font-bold">Dev Tools</h1>
-      <p className="text-muted mb-8">
+      <h1 className="text-body mb-1 text-xl font-bold">Dev Tools</h1>
+      <p className="text-muted mb-6">
         Development sandboxes and component prototypes.
       </p>
 
       {sections.map((section) => (
-        <div key={section.title} className="mb-10">
-          <h2 className="text-muted mb-4 text-sm font-semibold tracking-wider uppercase">
+        <div key={section.title} className="mb-6">
+          <h2 className="text-muted mb-3 text-sm font-semibold tracking-wider uppercase">
             {section.title}
           </h2>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {section.cards.map((tool) => (
               <Link
                 key={tool.href}
                 href={tool.href}
-                className="bg-surface border-hairline hover:shadow-medium rounded-card group border p-6 transition-all hover:-translate-y-0.5"
+                className="bg-surface border-hairline hover:shadow-medium rounded-badge group border p-3 transition-all hover:-translate-y-0.5"
               >
-                <tool.icon className="text-ocean-blue mb-3 h-6 w-6" />
-                <h3 className="text-body group-hover:text-ocean-blue mb-1 text-lg font-semibold transition-colors">
+                <tool.icon className="text-ocean-blue mb-2 h-5 w-5" />
+                <h3 className="text-body group-hover:text-ocean-blue mb-0.5 text-sm font-semibold transition-colors">
                   {tool.title}
                 </h3>
-                <p className="text-muted text-sm">{tool.description}</p>
+                <p className="text-muted text-xs">{tool.description}</p>
               </Link>
             ))}
           </div>

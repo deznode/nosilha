@@ -39,9 +39,9 @@ export function AdminSidebar() {
         )}
       >
         <NosilhaLogo
-          size="compact"
+          size="sidebar"
+          iconOnly={collapsed}
           instanceId="admin-sidebar"
-          className={collapsed ? "scale-75" : undefined}
         />
       </div>
 
