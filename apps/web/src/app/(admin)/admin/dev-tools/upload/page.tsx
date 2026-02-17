@@ -40,7 +40,7 @@ export default function UploadDevPage() {
           <ImageUploader
             onUploadComplete={(url) => setUploadedUrl(url)}
             onFileSelect={(file) => setSelectedFile(file)}
-            entryId="demo-entry-123"
+            entryId="a1b2c3d4-0010-4000-8000-000000000010"
             category="Heritage"
             description="Upload a photo of a heritage site"
             autoUpload={false}
@@ -86,7 +86,7 @@ export default function UploadDevPage() {
         <h2 className="text-body mb-4 text-lg font-semibold">
           ContributePhotosSection
         </h2>
-        <ContributePhotosSection entryId="demo-entry-123" />
+        <ContributePhotosSection entryId="a1b2c3d4-0010-4000-8000-000000000010" />
       </section>
     </div>
   );

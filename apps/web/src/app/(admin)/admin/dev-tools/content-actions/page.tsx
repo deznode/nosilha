@@ -58,7 +58,7 @@ export default function ContentActionsDevPage() {
         </h2>
         <div className="relative min-h-[200px]">
           <ContentActionToolbar
-            contentId="demo-content-1"
+            contentId="a1b2c3d4-0001-4000-8000-000000000001"
             contentSlug="demo-heritage-entry"
             contentTitle="Eugénio Tavares Monument"
             contentUrl="https://nosilha.com/directory/heritage/eugenio-tavares"
@@ -84,7 +84,7 @@ export default function ContentActionsDevPage() {
         </h2>
         <div className="relative min-h-[600px]">
           <ContentActionToolbar
-            contentId="demo-content-2"
+            contentId="a1b2c3d4-0002-4000-8000-000000000002"
             contentSlug="demo-nature-entry"
             contentTitle="Monte Fontainhas Trail"
             contentUrl="https://nosilha.com/directory/nature/monte-fontainhas"
@@ -156,7 +156,7 @@ export default function ContentActionsDevPage() {
         </p>
         <div className="relative min-h-[200px]">
           <ContentActionToolbar
-            contentId="demo-content-3"
+            contentId="a1b2c3d4-0003-4000-8000-000000000003"
             contentSlug="demo-restaurant"
             contentTitle="Par d'Mar Restaurant"
             contentUrl="https://nosilha.com/directory/restaurant/par-dmar"

@@ -44,7 +44,7 @@ const mockVideos: MediaItem[] = [
   {
     id: "vid-1",
     type: "VIDEO",
-    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     thumbnailUrl:
       "https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=400",
     title: "Traditional Morna Performance in Nova Sintra",
@@ -58,7 +58,7 @@ const mockVideos: MediaItem[] = [
   {
     id: "vid-2",
     type: "VIDEO",
-    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     thumbnailUrl:
       "https://images.unsplash.com/photo-1534234828563-02597283995f?w=400",
     title: "Hiking Monte Fontainhas — Full Trail Guide",
