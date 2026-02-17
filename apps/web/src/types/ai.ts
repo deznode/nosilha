@@ -15,6 +15,7 @@ export interface PolishContentRequest {
 
 export interface PolishContentResponse {
   content: string;
+  aiApplied: boolean;
 }
 
 export interface TranslateContentRequest {
@@ -24,6 +25,7 @@ export interface TranslateContentRequest {
 
 export interface TranslateContentResponse {
   content: string;
+  aiApplied: boolean;
 }
 
 export interface GeneratePromptsRequest {

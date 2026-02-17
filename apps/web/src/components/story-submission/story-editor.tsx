@@ -121,7 +121,11 @@ export function StoryEditor({
     try {
       const result = await polishMutation.mutateAsync({ content });
       onContentChange(result.content);
-      toast.success("Content polished").show();
+      if (result.aiApplied) {
+        toast.success("Content polished").show();
+      } else {
+        toast.warning("AI unavailable. Content returned unchanged.").show();
+      }
     } catch (error) {
       console.error("Failed to polish content:", error);
       toast.error("Failed to polish content. Please try again.").show();
@@ -145,12 +149,16 @@ export function StoryEditor({
         targetLang,
       });
       onContentChange(result.content);
-      setCurrentLanguage(targetLang);
-      toast
-        .success(
-          `Translated to ${targetLang === "PT" ? "Portuguese" : "English"}`
-        )
-        .show();
+      if (result.aiApplied) {
+        setCurrentLanguage(targetLang);
+        toast
+          .success(
+            `Translated to ${targetLang === "PT" ? "Portuguese" : "English"}`
+          )
+          .show();
+      } else {
+        toast.warning("AI unavailable. Content returned unchanged.").show();
+      }
     } catch (error) {
       console.error("Translation failed:", error);
       toast.error("Translation failed. Please try again.").show();

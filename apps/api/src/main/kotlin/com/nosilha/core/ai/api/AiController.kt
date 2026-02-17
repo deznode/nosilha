@@ -24,9 +24,12 @@ private val logger = KotlinLogging.logger {}
 /**
  * User-facing REST controller for text AI operations.
  *
- * Provides content polishing, translation, story prompt generation, and
- * directory content generation. All endpoints require authenticated user.
- * When Gemini is disabled, returns unavailable/fallback responses.
+ * <p>Provides content polishing, translation, story prompt generation, and
+ * directory content generation. All endpoints require authenticated user.</p>
+ *
+ * <p>Enhancement operations (polish, translate) return {@code aiApplied} flag
+ * to indicate whether AI processing was applied. Generative operations
+ * (prompts, directory-content) propagate errors when AI is unavailable.</p>
  */
 @RestController
 @RequestMapping("/api/v1/ai")
@@ -42,54 +45,46 @@ class AiController(
     @PostMapping("/polish")
     fun polishContent(
         @Valid @RequestBody request: PolishContentRequest,
-    ): ApiResult<PolishContentResponse> =
-        withProviderOrFallback(PolishContentResponse(content = request.content)) { provider ->
-            val polished = provider.polishContent(request.content)
-            PolishContentResponse(content = polished)
+    ): ApiResult<PolishContentResponse> {
+        val provider = textAiProvider
+        if (provider == null) {
+            logger.debug { "Text AI unavailable, returning original content" }
+            return ApiResult(data = PolishContentResponse(content = request.content, aiApplied = false))
         }
+        val result = provider.polishContent(request.content)
+        return ApiResult(data = PolishContentResponse(content = result.content, aiApplied = result.aiApplied))
+    }
 
     @PostMapping("/translate")
     fun translateContent(
         @Valid @RequestBody request: TranslateContentRequest,
-    ): ApiResult<TranslateContentResponse> =
-        withProviderOrFallback(TranslateContentResponse(content = request.content)) { provider ->
-            val translated = provider.translateContent(request.content, request.targetLang)
-            TranslateContentResponse(content = translated)
+    ): ApiResult<TranslateContentResponse> {
+        val provider = textAiProvider
+        if (provider == null) {
+            logger.debug { "Text AI unavailable, returning original content" }
+            return ApiResult(data = TranslateContentResponse(content = request.content, aiApplied = false))
         }
+        val result = provider.translateContent(request.content, request.targetLang)
+        return ApiResult(data = TranslateContentResponse(content = result.content, aiApplied = result.aiApplied))
+    }
 
     @PostMapping("/prompts")
     fun generatePrompts(
         @Valid @RequestBody request: GeneratePromptsRequest,
-    ): ApiResult<GeneratePromptsResponse> =
-        withProviderOrFallback(GeneratePromptsResponse(prompts = emptyList())) { provider ->
-            val prompts = provider.generatePrompts(request.templateType, request.existingContent)
-            GeneratePromptsResponse(prompts = prompts)
-        }
+    ): ApiResult<GeneratePromptsResponse> {
+        val provider = textAiProvider
+            ?: throw IllegalStateException("Text AI is not available. Enable Gemini to use this feature.")
+        val prompts = provider.generatePrompts(request.templateType, request.existingContent)
+        return ApiResult(data = GeneratePromptsResponse(prompts = prompts))
+    }
 
     @PostMapping("/directory-content")
     fun generateDirectoryContent(
         @Valid @RequestBody request: GenerateDirectoryContentRequest,
     ): ApiResult<DirectoryContentResponse> {
-        val emptyResponse = DirectoryContentResponse(description = "", tags = emptyList())
-        return withProviderOrFallback(emptyResponse) { provider ->
-            val result = provider.generateDirectoryContent(request.name, request.category)
-            result?.let { DirectoryContentResponse(description = it.description, tags = it.tags) } ?: emptyResponse
-        }
-    }
-
-    /**
-     * Executes an action with the text AI provider, returning [fallback] wrapped
-     * in [ApiResult] when the provider is unavailable (Gemini disabled).
-     */
-    private fun <T> withProviderOrFallback(
-        fallback: T,
-        action: (TextAiProvider) -> T,
-    ): ApiResult<T> {
         val provider = textAiProvider
-        if (provider == null) {
-            logger.debug { "Text AI unavailable, returning fallback response" }
-            return ApiResult(data = fallback)
-        }
-        return ApiResult(data = action(provider))
+            ?: throw IllegalStateException("Text AI is not available. Enable Gemini to use this feature.")
+        val result = provider.generateDirectoryContent(request.name, request.category)
+        return ApiResult(data = DirectoryContentResponse(description = result.description, tags = result.tags))
     }
 }

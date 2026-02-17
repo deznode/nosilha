@@ -149,7 +149,11 @@ export function GalleryEditModal({
       {
         onSuccess: (result) => {
           setValue(field, result.content, { shouldDirty: true });
-          toast.success(`${label} polished`).show();
+          if (result.aiApplied) {
+            toast.success(`${label} polished`).show();
+          } else {
+            toast.warning("AI unavailable. Text returned unchanged.").show();
+          }
         },
         onError: (error) => {
           toast.error(error.message || "Failed to polish text").show();

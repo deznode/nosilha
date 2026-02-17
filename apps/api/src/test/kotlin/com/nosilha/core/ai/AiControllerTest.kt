@@ -4,7 +4,8 @@ import com.nosilha.core.ai.api.dto.GenerateDirectoryContentRequest
 import com.nosilha.core.ai.api.dto.GeneratePromptsRequest
 import com.nosilha.core.ai.api.dto.PolishContentRequest
 import com.nosilha.core.ai.api.dto.TranslateContentRequest
-import com.nosilha.core.ai.provider.GeminiDirectoryContentOutput
+import com.nosilha.core.ai.domain.GeminiDirectoryContentOutput
+import com.nosilha.core.ai.domain.TextAiResult
 import com.nosilha.core.ai.provider.TextAiProvider
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import org.junit.jupiter.api.DisplayName
@@ -73,9 +74,11 @@ class AiControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/v1/ai/polish - success returns polished content")
+    @DisplayName("POST /api/v1/ai/polish - success returns polished content with aiApplied=true")
     fun `polish with valid content returns 200`() {
-        whenever(textAiProvider.polishContent(any())).thenReturn("Polished story text")
+        whenever(textAiProvider.polishContent(any())).thenReturn(
+            TextAiResult(content = "Polished story text", aiApplied = true),
+        )
 
         mockMvc
             .perform(
@@ -85,6 +88,25 @@ class AiControllerTest {
                     .content(jsonMapper.writeValueAsString(PolishContentRequest(content = "Original text"))),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.data.content").value("Polished story text"))
+            .andExpect(jsonPath("$.data.aiApplied").value(true))
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/ai/polish - AI failure returns original content with aiApplied=false")
+    fun `polish with AI failure returns aiApplied false`() {
+        whenever(textAiProvider.polishContent(any())).thenReturn(
+            TextAiResult(content = "Original text", aiApplied = false),
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/ai/polish")
+                    .with(authAs("user-123"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(PolishContentRequest(content = "Original text"))),
+            ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.data.content").value("Original text"))
+            .andExpect(jsonPath("$.data.aiApplied").value(false))
     }
 
     @Test
@@ -128,9 +150,11 @@ class AiControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/v1/ai/translate - success returns translated content")
+    @DisplayName("POST /api/v1/ai/translate - success returns translated content with aiApplied=true")
     fun `translate with valid content returns 200`() {
-        whenever(textAiProvider.translateContent(any(), eq("PT"))).thenReturn("Texto traduzido")
+        whenever(textAiProvider.translateContent(any(), eq("PT"))).thenReturn(
+            TextAiResult(content = "Texto traduzido", aiApplied = true),
+        )
 
         mockMvc
             .perform(
@@ -144,6 +168,7 @@ class AiControllerTest {
                     ),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.data.content").value("Texto traduzido"))
+            .andExpect(jsonPath("$.data.aiApplied").value(true))
     }
 
     @Test
@@ -157,6 +182,22 @@ class AiControllerTest {
                     .content(
                         jsonMapper.writeValueAsString(
                             TranslateContentRequest(content = "Text", targetLang = ""),
+                        ),
+                    ),
+            ).andExpect(status().isBadRequest)
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/ai/translate - unsupported language returns 400")
+    fun `translate with unsupported language returns 400`() {
+        mockMvc
+            .perform(
+                post("/api/v1/ai/translate")
+                    .with(authAs("user-123"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        jsonMapper.writeValueAsString(
+                            TranslateContentRequest(content = "Text", targetLang = "ZH"),
                         ),
                     ),
             ).andExpect(status().isBadRequest)
@@ -201,6 +242,26 @@ class AiControllerTest {
     }
 
     @Test
+    @DisplayName("POST /api/v1/ai/prompts - AI failure returns 500")
+    fun `prompts with AI failure returns 500`() {
+        whenever(textAiProvider.generatePrompts(any(), any())).thenThrow(
+            RuntimeException("Gemini API error"),
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/ai/prompts")
+                    .with(authAs("user-123"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        jsonMapper.writeValueAsString(
+                            GeneratePromptsRequest(templateType = "personal-memory"),
+                        ),
+                    ),
+            ).andExpect(status().isInternalServerError)
+    }
+
+    @Test
     @DisplayName("POST /api/v1/ai/directory-content - success returns description and tags")
     fun `directory-content with valid request returns 200`() {
         whenever(textAiProvider.generateDirectoryContent(any(), any())).thenReturn(
@@ -240,5 +301,25 @@ class AiControllerTest {
                         ),
                     ),
             ).andExpect(status().isBadRequest)
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/ai/directory-content - AI failure returns 500")
+    fun `directory-content with AI failure returns 500`() {
+        whenever(textAiProvider.generateDirectoryContent(any(), any())).thenThrow(
+            RuntimeException("Gemini API error"),
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/ai/directory-content")
+                    .with(authAs("user-123"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(
+                        jsonMapper.writeValueAsString(
+                            GenerateDirectoryContentRequest(name = "Casa da Morna", category = "Restaurant"),
+                        ),
+                    ),
+            ).andExpect(status().isInternalServerError)
     }
 }
