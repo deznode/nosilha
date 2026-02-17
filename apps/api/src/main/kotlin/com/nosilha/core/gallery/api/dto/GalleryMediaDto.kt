@@ -94,6 +94,7 @@ sealed class GalleryMediaDto {
         // Display name
         val uploaderDisplayName: String? = null,
         // AI-generated fields
+        val aiTitle: String? = null,
         val aiTags: List<String>? = null,
         val aiLabels: String? = null,
         val aiAltText: String? = null,
@@ -172,6 +173,7 @@ sealed class GalleryMediaDto {
                 // Display name
                 uploaderDisplayName = uploaderDisplayName,
                 // AI-generated fields
+                aiTitle = media.aiTitle,
                 aiTags = media.aiTags?.toList(),
                 aiLabels = media.aiLabels,
                 aiAltText = media.aiAltText,

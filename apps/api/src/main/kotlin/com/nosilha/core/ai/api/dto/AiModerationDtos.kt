@@ -18,6 +18,7 @@ data class AnalysisRunSummaryDto(
     val moderationStatus: ModerationStatus,
     val providersUsed: List<String>,
     val resultTags: List<String>,
+    val resultTitle: String?,
     val resultAltText: String?,
     val resultDescription: String?,
     val createdAt: Instant,
@@ -32,6 +33,7 @@ data class AnalysisRunSummaryDto(
                 moderationStatus = run.moderationStatus,
                 providersUsed = run.providersUsed?.toList() ?: emptyList(),
                 resultTags = run.resultTags?.toList() ?: emptyList(),
+                resultTitle = run.resultTitle,
                 resultAltText = run.resultAltText,
                 resultDescription = run.resultDescription,
                 createdAt = run.createdAt,
@@ -53,6 +55,7 @@ data class AnalysisRunDetailDto(
     val rawResults: String?,
     val resultTags: List<String>,
     val resultLabels: String?,
+    val resultTitle: String?,
     val resultAltText: String?,
     val resultDescription: String?,
     val moderatedBy: UUID?,
@@ -76,6 +79,7 @@ data class AnalysisRunDetailDto(
                 rawResults = run.rawResults,
                 resultTags = run.resultTags?.toList() ?: emptyList(),
                 resultLabels = run.resultLabels,
+                resultTitle = run.resultTitle,
                 resultAltText = run.resultAltText,
                 resultDescription = run.resultDescription,
                 moderatedBy = run.moderatedBy,
@@ -94,6 +98,7 @@ data class AnalysisRunDetailDto(
  * Request body for approving AI results with admin edits.
  */
 data class ApproveEditedRequest(
+    val title: String? = null,
     val altText: String? = null,
     val description: String? = null,
     val tags: List<String>? = null,

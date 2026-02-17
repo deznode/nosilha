@@ -103,3 +103,5 @@ arkhe-claude-plugins
 
 # Nx cache
 .nx/
+
+.worktrees

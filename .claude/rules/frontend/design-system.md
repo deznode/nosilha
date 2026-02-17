@@ -8,6 +8,7 @@ paths: apps/web/**
 
 - See `docs/design-system.md` for comprehensive styling guide
 - Interactive gallery: `http://localhost:3000/design-system` (dev-only, 404 in production)
+- Component sandboxes: `http://localhost:3000/admin/dev-tools` (dev-only, admin route)
 
 ## Brand Identity
 

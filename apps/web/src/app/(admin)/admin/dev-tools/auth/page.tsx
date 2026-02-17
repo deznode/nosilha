@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { clsx } from "clsx";
 import { ArrowLeft } from "lucide-react";
@@ -49,7 +49,9 @@ export default function AuthDevPage() {
       </div>
 
       <div className="mx-auto max-w-md">
-        <NosIlhaAuth key={view} initialView={view} />
+        <Suspense fallback={null}>
+          <NosIlhaAuth key={view} initialView={view} />
+        </Suspense>
       </div>
     </div>
   );

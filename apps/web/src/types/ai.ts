@@ -78,6 +78,7 @@ export interface AnalysisRunSummary {
   moderationStatus: AiModerationStatus;
   providersUsed: string[];
   resultTags: string[];
+  resultTitle: string | null;
   resultAltText: string | null;
   resultDescription: string | null;
   createdAt: string;
@@ -98,6 +99,7 @@ export interface AnalysisRunDetail {
   rawResults: string | null;
   resultTags: string[];
   resultLabels: string | null;
+  resultTitle: string | null;
   resultAltText: string | null;
   resultDescription: string | null;
   moderatedBy: string | null;
@@ -119,6 +121,7 @@ export interface AnalysisRunDetail {
  * Mirrors ApproveEditedRequest.
  */
 export interface ApproveEditedRequest {
+  title?: string;
   altText?: string;
   description?: string;
   tags?: string[];

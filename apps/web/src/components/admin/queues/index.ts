@@ -13,3 +13,4 @@ export { GalleryEditModal } from "./gallery-edit-modal";
 export { AiStatusBadge } from "./ai-status-badge";
 export { AiReviewQueue } from "./ai-review-queue";
 export { AiReviewQueueItem } from "./ai-review-queue-item";
+export { AiMediaItem } from "./ai-media-item";

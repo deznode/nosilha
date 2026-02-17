@@ -114,6 +114,7 @@ class AdminAiController(
         moderationService.approveEdited(
             runId = runId,
             moderatorId = adminId,
+            editedTitle = request.title,
             editedAltText = request.altText,
             editedDescription = request.description,
             editedTags = request.tags,

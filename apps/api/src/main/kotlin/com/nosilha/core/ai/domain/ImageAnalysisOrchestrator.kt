@@ -112,6 +112,7 @@ class ImageAnalysisOrchestrator(
         run.resultLabels = merged.labels.takeIf { it.isNotEmpty() }?.let {
             objectMapper.writeValueAsString(it)
         }
+        run.resultTitle = merged.title
         run.resultAltText = merged.altText
         run.resultDescription = merged.description
         run.moderationStatus = ModerationStatus.PENDING_REVIEW
@@ -126,6 +127,7 @@ class ImageAnalysisOrchestrator(
                 analysisRunId = event.analysisRunId,
                 tags = merged.tags,
                 labels = run.resultLabels,
+                title = merged.title,
                 altText = merged.altText,
                 description = merged.description,
                 providers = usedProviders,
@@ -168,7 +170,8 @@ class ImageAnalysisOrchestrator(
         val allLandmarks = results.flatMap { it.landmarks }.distinct()
         val allTags = results.flatMap { it.tags }.distinct()
 
-        // Prefer Gemini's alt text and description (culturally enriched)
+        // Prefer Gemini's results (culturally enriched)
+        val title = results.lastOrNull { it.title != null }?.title
         val altText = results.lastOrNull { it.altText != null }?.altText
         val description = results.lastOrNull { it.description != null }?.description
 
@@ -177,6 +180,7 @@ class ImageAnalysisOrchestrator(
             labels = allLabels,
             textDetected = allText,
             landmarks = allLandmarks,
+            title = title,
             altText = altText,
             description = description,
             tags = allTags,
