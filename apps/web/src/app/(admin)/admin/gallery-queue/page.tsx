@@ -12,7 +12,7 @@ export default function GalleryQueuePage() {
       <div className="mb-8">
         <h1 className="text-body text-2xl font-bold">Gallery Queue</h1>
         <p className="text-muted mt-1 text-sm">
-          Review, moderate, and trigger AI analysis on gallery media
+          Review and moderate gallery media submissions
         </p>
       </div>
       <GalleryQueue />

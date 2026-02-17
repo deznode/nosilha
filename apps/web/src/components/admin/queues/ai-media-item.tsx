@@ -3,58 +3,50 @@
 import { useState } from "react";
 import Image from "next/image";
 import {
-  CheckCircle,
-  Flag,
-  XCircle,
+  Sparkles,
+  Loader2,
   Image as ImageIcon,
   Video,
   Music,
   ExternalLink,
   Upload,
-  Star,
-  Pencil,
 } from "lucide-react";
-import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
+import type { GalleryMedia } from "@/types/gallery";
 import type { AiStatusResponse, AiModerationStatus } from "@/types/ai";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
 import { Button } from "@/components/catalyst-ui/button";
+import { Checkbox } from "@/components/catalyst-ui/checkbox";
 import { AiStatusBadge } from "./ai-status-badge";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 
-interface GalleryQueueItemProps {
+interface AiMediaItemProps {
   item: GalleryMedia;
-  onStatusChange: (
-    id: string,
-    action: GalleryModerationAction,
-    reason?: string,
-    notes?: string
-  ) => void;
-  onEdit?: (item: GalleryMedia) => void;
-  onPromoteToHero?: (id: string) => void;
   aiStatus?: AiStatusResponse;
+  onTriggerAnalysis?: (mediaId: string) => void;
+  onViewAiReview?: (mediaId: string) => void;
+  isSelected?: boolean;
+  onToggleSelect?: (id: string) => void;
+  isEligibleForAi?: boolean;
+  isTriggerPending?: boolean;
 }
 
-export function GalleryQueueItem({
+export function AiMediaItem({
   item,
-  onStatusChange,
-  onEdit,
-  onPromoteToHero,
   aiStatus,
-}: GalleryQueueItemProps) {
+  onTriggerAnalysis,
+  onViewAiReview,
+  isSelected,
+  onToggleSelect,
+  isEligibleForAi,
+  isTriggerPending,
+}: AiMediaItemProps) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-
-  const canPromoteToHero =
-    isUserUploadMedia(item) &&
-    item.entryId &&
-    item.publicUrl &&
-    item.status === "ACTIVE";
 
   const getFullImageUrl = (): string | null => {
     if (isUserUploadMedia(item)) {
       return item.publicUrl;
     }
     if (isExternalMedia(item)) {
-      // For external media, prefer full URL over thumbnail
       return item.url || item.thumbnailUrl;
     }
     return null;
@@ -114,9 +106,22 @@ export function GalleryQueueItem({
     );
   };
 
+  const hasPendingReview = aiStatus?.moderationStatus === "PENDING_REVIEW";
+
   return (
     <div className="border-hairline bg-surface flex items-start gap-4 rounded-xl border p-4 transition-shadow hover:shadow-md">
-      {/* Thumbnail - clickable to open lightbox */}
+      {/* Selection Checkbox */}
+      {onToggleSelect && (
+        <div className="flex flex-shrink-0 items-center pt-1">
+          <Checkbox
+            checked={isSelected ?? false}
+            onChange={() => onToggleSelect(item.id)}
+            color="blue"
+          />
+        </div>
+      )}
+
+      {/* Thumbnail */}
       <button
         type="button"
         onClick={() => fullImageUrl && setIsLightboxOpen(true)}
@@ -150,6 +155,9 @@ export function GalleryQueueItem({
                 <AiStatusBadge
                   moderationStatus={
                     aiStatus.moderationStatus as AiModerationStatus
+                  }
+                  onClick={
+                    onViewAiReview ? () => onViewAiReview(item.id) : undefined
                   }
                 />
               )}
@@ -195,52 +203,26 @@ export function GalleryQueueItem({
           )}
         </div>
 
-        {/* Actions */}
+        {/* AI Actions */}
         <div className="flex flex-wrap gap-2">
-          {onEdit && (
-            <Button outline onClick={() => onEdit(item)}>
-              <Pencil data-slot="icon" />
-              Edit
+          {isEligibleForAi && onTriggerAnalysis && (
+            <Button
+              color="dark"
+              onClick={() => onTriggerAnalysis(item.id)}
+              disabled={isTriggerPending}
+            >
+              {isTriggerPending ? (
+                <Loader2 data-slot="icon" className="animate-spin" />
+              ) : (
+                <Sparkles data-slot="icon" />
+              )}
+              Analyze with AI
             </Button>
           )}
-          <Button
-            color="green"
-            onClick={() => onStatusChange(item.id, "APPROVE")}
-            disabled={item.status === "ACTIVE"}
-          >
-            <CheckCircle data-slot="icon" />
-            Approve
-          </Button>
-          <Button
-            color="yellow"
-            onClick={() => onStatusChange(item.id, "FLAG", "Needs review")}
-            disabled={item.status === "FLAGGED"}
-          >
-            <Flag data-slot="icon" />
-            Flag
-          </Button>
-          <Button
-            color="red"
-            onClick={() =>
-              onStatusChange(
-                item.id,
-                "REJECT",
-                "Does not meet quality standards"
-              )
-            }
-            disabled={item.status === "REJECTED"}
-          >
-            <XCircle data-slot="icon" />
-            Reject
-          </Button>
-          {canPromoteToHero && onPromoteToHero && (
-            <Button
-              color="blue"
-              onClick={() => onPromoteToHero(item.id)}
-              title="Set this image as the hero image for the directory entry"
-            >
-              <Star data-slot="icon" />
-              Set as Hero
+          {hasPendingReview && onViewAiReview && (
+            <Button color="blue" onClick={() => onViewAiReview(item.id)}>
+              <Sparkles data-slot="icon" />
+              Review
             </Button>
           )}
         </div>

@@ -6,13 +6,12 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/react";
-import { ImageIcon, X, Sparkles, Loader2 } from "lucide-react";
-import { useForm, useWatch } from "react-hook-form";
+import { ImageIcon, X } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { Button } from "@/components/catalyst-ui/button";
 import { useUpdateGalleryMedia } from "@/hooks/queries/admin";
-import { usePolishContent } from "@/hooks/queries/useTextAi";
 import { useToast } from "@/hooks/use-toast";
 import {
   galleryEditSchema,
@@ -20,8 +19,6 @@ import {
 } from "@/schemas/galleryEditSchema";
 import type { GalleryMedia, UpdateGalleryMediaRequest } from "@/types/gallery";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
-import type { AiStatusResponse, AiModerationStatus } from "@/types/ai";
-import { AiStatusBadge } from "./ai-status-badge";
 
 function getAttribution(item: GalleryMedia): string {
   if (isUserUploadMedia(item)) {
@@ -38,10 +35,6 @@ interface GalleryEditModalProps {
   item: GalleryMedia | null;
   onClose: () => void;
   onSuccess?: () => void;
-  aiStatus?: AiStatusResponse;
-  onTriggerAnalysis?: (mediaId: string) => void;
-  isTriggerPending?: boolean;
-  isEligibleForAi?: boolean;
 }
 
 /**
@@ -49,38 +42,24 @@ interface GalleryEditModalProps {
  *
  * Features:
  * - Title, description, category, and contextual attribution fields
- * - AI status badge and "Analyze with AI" trigger in the header
- * - "Use AI suggestion" buttons for fields with existing AI analysis data
- * - Independent "Polish text" buttons for title and description
  */
 export function GalleryEditModal({
   isOpen,
   item,
   onClose,
   onSuccess,
-  aiStatus,
-  onTriggerAnalysis,
-  isTriggerPending,
-  isEligibleForAi,
 }: GalleryEditModalProps) {
   const toast = useToast();
   const updateMutation = useUpdateGalleryMedia();
-  const polishTitleMutation = usePolishContent();
-  const polishDescriptionMutation = usePolishContent();
 
   const {
     register,
     handleSubmit,
     reset,
-    setValue,
-    control,
     formState: { errors, isSubmitting },
   } = useForm<GalleryEditInput>({
     resolver: zodResolver(galleryEditSchema),
   });
-
-  const titleValue = useWatch({ control, name: "title" });
-  const descriptionValue = useWatch({ control, name: "description" });
 
   useEffect(() => {
     if (item) {
@@ -126,47 +105,6 @@ export function GalleryEditModal({
     );
   };
 
-  const handleApplyAiDescription = () => {
-    if (!item || !isUserUploadMedia(item) || !item.aiDescription) return;
-    setValue("description", item.aiDescription, { shouldDirty: true });
-  };
-
-  const handleApplyAiTitle = () => {
-    if (!item || !isUserUploadMedia(item) || !item.aiAltText) return;
-    setValue("title", item.aiAltText, { shouldDirty: true });
-  };
-
-  const handlePolish = (
-    field: "title" | "description",
-    value: string | undefined,
-    mutation: typeof polishTitleMutation,
-    label: string
-  ) => {
-    if (!value) return;
-
-    mutation.mutate(
-      { content: value },
-      {
-        onSuccess: (result) => {
-          setValue(field, result.content, { shouldDirty: true });
-          if (result.aiApplied) {
-            toast.success(`${label} polished`).show();
-          } else {
-            toast.warning("AI unavailable. Text returned unchanged.").show();
-          }
-        },
-        onError: (error) => {
-          toast.error(error.message || "Failed to polish text").show();
-        },
-      }
-    );
-  };
-
-  const handleTriggerAnalysis = () => {
-    if (!item || !onTriggerAnalysis) return;
-    onTriggerAnalysis(item.id);
-  };
-
   if (!item) return null;
 
   const isUserUpload = isUserUploadMedia(item);
@@ -191,31 +129,6 @@ export function GalleryEditModal({
                 <DialogTitle className="text-body text-lg font-semibold">
                   Edit Media
                 </DialogTitle>
-                {aiStatus?.moderationStatus && (
-                  <AiStatusBadge
-                    moderationStatus={
-                      aiStatus.moderationStatus as AiModerationStatus
-                    }
-                  />
-                )}
-                {isEligibleForAi && onTriggerAnalysis && (
-                  <Button
-                    plain
-                    onClick={handleTriggerAnalysis}
-                    disabled={isTriggerPending}
-                    className="!text-xs !text-violet-600 hover:!text-violet-700 dark:!text-violet-400"
-                  >
-                    {isTriggerPending ? (
-                      <Loader2
-                        data-slot="icon"
-                        className="!h-3.5 !w-3.5 animate-spin"
-                      />
-                    ) : (
-                      <Sparkles data-slot="icon" className="!h-3.5 !w-3.5" />
-                    )}
-                    Analyze with AI
-                  </Button>
-                )}
               </div>
               <Button plain onClick={onClose} aria-label="Close modal">
                 <X data-slot="icon" />
@@ -244,40 +157,6 @@ export function GalleryEditModal({
                       {errors.title.message}
                     </p>
                   )}
-                  <div className="mt-1 flex flex-wrap gap-2">
-                    {isUserUpload && item.aiAltText && (
-                      <button
-                        type="button"
-                        onClick={handleApplyAiTitle}
-                        className="inline-flex items-center gap-1 text-xs text-violet-600 hover:text-violet-700 dark:text-violet-400"
-                      >
-                        <Sparkles className="h-3 w-3" />
-                        Use AI suggestion
-                      </button>
-                    )}
-                    {titleValue && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handlePolish(
-                            "title",
-                            titleValue,
-                            polishTitleMutation,
-                            "Title"
-                          )
-                        }
-                        disabled={polishTitleMutation.isPending}
-                        className="inline-flex items-center gap-1 text-xs text-violet-600 hover:text-violet-700 disabled:opacity-50 dark:text-violet-400"
-                      >
-                        {polishTitleMutation.isPending ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <Sparkles className="h-3 w-3" />
-                        )}
-                        Polish text
-                      </button>
-                    )}
-                  </div>
                 </div>
 
                 {/* Description */}
@@ -299,40 +178,6 @@ export function GalleryEditModal({
                       {errors.description.message}
                     </p>
                   )}
-                  <div className="mt-1 flex flex-wrap gap-2">
-                    {isUserUpload && item.aiDescription && (
-                      <button
-                        type="button"
-                        onClick={handleApplyAiDescription}
-                        className="inline-flex items-center gap-1 text-xs text-violet-600 hover:text-violet-700 dark:text-violet-400"
-                      >
-                        <Sparkles className="h-3 w-3" />
-                        Use AI suggestion
-                      </button>
-                    )}
-                    {descriptionValue && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handlePolish(
-                            "description",
-                            descriptionValue,
-                            polishDescriptionMutation,
-                            "Description"
-                          )
-                        }
-                        disabled={polishDescriptionMutation.isPending}
-                        className="inline-flex items-center gap-1 text-xs text-violet-600 hover:text-violet-700 disabled:opacity-50 dark:text-violet-400"
-                      >
-                        {polishDescriptionMutation.isPending ? (
-                          <Loader2 className="h-3 w-3 animate-spin" />
-                        ) : (
-                          <Sparkles className="h-3 w-3" />
-                        )}
-                        Polish text
-                      </button>
-                    )}
-                  </div>
                 </div>
 
                 {/* Category */}
