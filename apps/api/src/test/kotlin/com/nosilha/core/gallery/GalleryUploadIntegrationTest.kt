@@ -311,11 +311,12 @@ class GalleryUploadIntegrationTest {
         media.status = GalleryMediaStatus.ACTIVE
         galleryMediaRepository.save(media)
 
-        // Unauthenticated user can access ACTIVE media
+        // Unauthenticated user can access ACTIVE media (public DTO, no status field)
         mockMvc
             .perform(get("/api/v1/gallery/${media.id}"))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.data.status").value("ACTIVE"))
+            .andExpect(jsonPath("$.data.id").value(media.id.toString()))
+            .andExpect(jsonPath("$.data.mediaSource").value("USER_UPLOAD"))
     }
 
     @Test
@@ -421,10 +422,17 @@ class GalleryUploadIntegrationTest {
 
         val media = galleryMediaRepository.findAll().first() as UserUploadedMedia
 
-        // Admin CAN access PENDING_REVIEW media
+        // Public endpoint returns 404 for PENDING_REVIEW media (even for admins)
         mockMvc
             .perform(
                 get("/api/v1/gallery/${media.id}")
+                    .with(adminAuth()),
+            ).andExpect(status().isNotFound)
+
+        // Admin CAN access PENDING_REVIEW media via admin endpoint
+        mockMvc
+            .perform(
+                get("/api/v1/admin/gallery/${media.id}")
                     .with(adminAuth()),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.data.status").value("PENDING_REVIEW"))
@@ -467,10 +475,17 @@ class GalleryUploadIntegrationTest {
             .perform(get("/api/v1/gallery/${media.id}"))
             .andExpect(status().isNotFound)
 
-        // Admin CAN access ARCHIVED media for moderation purposes
+        // Public endpoint returns 404 for ARCHIVED media (even for admins)
         mockMvc
             .perform(
                 get("/api/v1/gallery/${media.id}")
+                    .with(adminAuth()),
+            ).andExpect(status().isNotFound)
+
+        // Admin CAN access ARCHIVED media via admin endpoint
+        mockMvc
+            .perform(
+                get("/api/v1/admin/gallery/${media.id}")
                     .with(adminAuth()),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.data.status").value("ARCHIVED"))

@@ -630,13 +630,13 @@ export interface ApiClient {
    * content in a unified, discriminated union response.
    *
    * @param options Query parameters (category, page, size)
-   * @returns GalleryMediaPageResponse with paginated gallery items
+   * @returns PublicGalleryMediaPageResponse with paginated gallery items
    */
   getGalleryMedia(options?: {
     category?: string;
     page?: number;
     size?: number;
-  }): Promise<import("@/types/gallery").GalleryMediaPageResponse>;
+  }): Promise<import("@/types/gallery").PublicGalleryMediaPageResponse>;
 
   /**
    * Get a single gallery media item by ID.
@@ -644,11 +644,11 @@ export interface ApiClient {
    * **Public Endpoint**: No authentication required.
    *
    * @param id UUID of the gallery media item
-   * @returns GalleryMedia (UserUpload or External) or undefined if not found
+   * @returns PublicGalleryMedia (UserUpload or External) or undefined if not found
    */
   getGalleryMediaById(
     id: string
-  ): Promise<import("@/types/gallery").GalleryMedia | undefined>;
+  ): Promise<import("@/types/gallery").PublicGalleryMedia | undefined>;
 
   /**
    * Get available gallery categories.

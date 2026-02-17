@@ -55,8 +55,9 @@ import type {
 import type { ContactRequest, ContactConfirmationDto } from "@/types/contact";
 import type {
   GalleryMedia,
-  GalleryMediaPageResponse,
   GalleryMediaStatus,
+  PublicGalleryMedia,
+  PublicGalleryMediaPageResponse,
   SubmitExternalMediaRequest,
   CreateExternalMediaRequest,
   UpdateGalleryStatusRequest,
@@ -2332,14 +2333,14 @@ export class BackendApiClient implements ApiClient {
    * content in a unified, discriminated union response.
    *
    * @param options Query parameters (category, page, size)
-   * @returns GalleryMediaPageResponse with paginated gallery items
+   * @returns PublicGalleryMediaPageResponse with paginated gallery items
    * @throws Error if API call fails
    */
   async getGalleryMedia(options?: {
     category?: string;
     page?: number;
     size?: number;
-  }): Promise<GalleryMediaPageResponse> {
+  }): Promise<PublicGalleryMediaPageResponse> {
     const params = new URLSearchParams();
 
     if (options?.category) {
@@ -2367,7 +2368,7 @@ export class BackendApiClient implements ApiClient {
 
     // PagedApiResult has data as array and pageable for pagination
     const response_data = payload as {
-      data: GalleryMedia[];
+      data: PublicGalleryMedia[];
       pageable: {
         page: number;
         size: number;
@@ -2402,10 +2403,12 @@ export class BackendApiClient implements ApiClient {
    * **Caching**: Uses ISR with 30 minute cache for individual media items.
    *
    * @param id UUID of the gallery media item
-   * @returns GalleryMedia (UserUpload or External) or undefined if not found
+   * @returns PublicGalleryMedia (UserUpload or External) or undefined if not found
    * @throws Error if API call fails
    */
-  async getGalleryMediaById(id: string): Promise<GalleryMedia | undefined> {
+  async getGalleryMediaById(
+    id: string
+  ): Promise<PublicGalleryMedia | undefined> {
     const endpoint = `${env.apiUrl}/api/v1/gallery/${id}`;
 
     // Use ISR with 30 minute cache for individual media items
@@ -2423,7 +2426,7 @@ export class BackendApiClient implements ApiClient {
     }
 
     const payload = await response.json();
-    return this.unwrapApiResponse<GalleryMedia>(payload);
+    return this.unwrapApiResponse<PublicGalleryMedia>(payload);
   }
 
   /**

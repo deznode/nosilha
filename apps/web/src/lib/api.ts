@@ -683,7 +683,7 @@ export async function getGalleryMedia(options?: {
   category?: string;
   page?: number;
   size?: number;
-}): Promise<import("@/types/gallery").GalleryMediaPageResponse> {
+}): Promise<import("@/types/gallery").PublicGalleryMediaPageResponse> {
   return apiClient.getGalleryMedia(options);
 }
 
@@ -693,12 +693,12 @@ export async function getGalleryMedia(options?: {
  * Uses ISR with 30 minute cache for individual media items.
  * Automatically uses the configured API implementation (backend or mock).
  * @param id UUID of the gallery media item
- * @returns A promise that resolves to gallery media (UserUpload or External) or undefined if not found
+ * @returns A promise that resolves to public gallery media (UserUpload or External) or undefined if not found
  * @throws Error if API call fails
  */
 export async function getGalleryMediaById(
   id: string
-): Promise<import("@/types/gallery").GalleryMedia | undefined> {
+): Promise<import("@/types/gallery").PublicGalleryMedia | undefined> {
   return apiClient.getGalleryMediaById(id);
 }
 
