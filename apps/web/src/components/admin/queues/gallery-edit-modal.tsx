@@ -19,7 +19,8 @@ import {
 } from "@/schemas/galleryEditSchema";
 import type { GalleryMedia, UpdateGalleryMediaRequest } from "@/types/gallery";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
-import { detectCreditPlatform, PLATFORM_LABELS } from "@/lib/credit-utils";
+import { detectCreditPlatform } from "@/lib/credit-utils";
+import { CreditPreviewBadge } from "@/components/ui/credit-display";
 
 function getAttribution(item: GalleryMedia): string {
   if (isUserUploadMedia(item)) {
@@ -227,19 +228,10 @@ export function GalleryEditModal({
                     </p>
                   )}
                   {detectedCredit && (
-                    <div className="mt-1.5 flex items-center gap-2 text-xs">
-                      <span className="bg-ocean-blue/10 text-ocean-blue rounded-full px-2 py-0.5 font-medium">
-                        {PLATFORM_LABELS[detectedCredit.platform]}
-                      </span>
-                      <a
-                        href={detectedCredit.profileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-ocean-blue hover:underline"
-                      >
-                        @{detectedCredit.handle}
-                      </a>
-                    </div>
+                    <CreditPreviewBadge
+                      detected={detectedCredit}
+                      className="mt-1.5"
+                    />
                   )}
                 </div>
               </div>

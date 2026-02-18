@@ -7,6 +7,7 @@ import {
   PLATFORM_PROFILE_URLS,
   PLATFORM_LABELS,
   type CreditPlatform,
+  type DetectedCredit,
 } from "@/lib/credit-utils";
 
 interface CreditDisplayProps {
@@ -32,18 +33,13 @@ export const CreditDisplay = React.forwardRef<
   CreditDisplayProps
 >(
   (
-    {
-      credit,
-      creditPlatform,
-      creditHandle,
-      variant = "card",
-      className,
-    },
+    { credit, creditPlatform, creditHandle, variant = "card", className },
     ref
   ) => {
     if (!credit) return null;
 
-    const isCompact = variant === "card";
+    const textSizeClass = variant === "card" ? "text-xs" : "text-sm";
+    const iconSize = variant === "card" ? 10 : 12;
     const platform = creditPlatform as CreditPlatform | undefined;
 
     // Social link mode
@@ -52,26 +48,26 @@ export const CreditDisplay = React.forwardRef<
       const platformLabel = PLATFORM_LABELS[platform] || platform;
 
       return (
-        <span ref={ref} className={clsx("inline-flex items-center gap-1", className)}>
+        <span
+          ref={ref}
+          className={clsx("inline-flex items-center gap-1", className)}
+        >
           <a
             href={profileUrl}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`${credit} on ${platformLabel} (opens in new tab)`}
             className={clsx(
-              "inline-flex items-center gap-1 transition-colors",
-              isCompact
-                ? "text-ocean-blue hover:text-ocean-blue-deep text-xs font-medium"
-                : "text-ocean-blue hover:text-ocean-blue-deep text-sm font-medium"
+              "text-ocean-blue hover:text-ocean-blue-deep inline-flex items-center gap-1 font-medium transition-colors",
+              textSizeClass
             )}
           >
             <span>{credit}</span>
             <ExternalLink
-              size={isCompact ? 10 : 12}
+              size={iconSize}
               className="flex-shrink-0 opacity-60"
               aria-hidden="true"
             />
-            <span className="sr-only">(opens in new tab)</span>
           </a>
         </span>
       );
@@ -79,16 +75,40 @@ export const CreditDisplay = React.forwardRef<
 
     // Plain text mode
     return (
-      <span
-        ref={ref}
-        className={clsx(
-          isCompact ? "text-muted text-xs" : "text-muted text-sm",
-          className
-        )}
-      >
+      <span ref={ref} className={clsx("text-muted", textSizeClass, className)}>
         {credit}
       </span>
     );
   }
 );
 CreditDisplay.displayName = "CreditDisplay";
+
+interface CreditPreviewBadgeProps {
+  detected: DetectedCredit;
+  className?: string;
+}
+
+/**
+ * Inline preview badge for detected social platform credit.
+ * Used in forms to give instant feedback when a user types a social handle or URL.
+ */
+export function CreditPreviewBadge({
+  detected,
+  className,
+}: CreditPreviewBadgeProps) {
+  return (
+    <div className={clsx("flex items-center gap-2 text-xs", className)}>
+      <span className="bg-ocean-blue/10 text-ocean-blue rounded-full px-2.5 py-0.5 font-medium">
+        {PLATFORM_LABELS[detected.platform]}
+      </span>
+      <a
+        href={detected.profileUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-ocean-blue hover:underline"
+      >
+        @{detected.handle}
+      </a>
+    </div>
+  );
+}

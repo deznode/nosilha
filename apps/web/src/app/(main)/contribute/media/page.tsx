@@ -24,11 +24,8 @@ import { useToast } from "@/hooks/use-toast";
 import { PhotoTypeSelector } from "@/components/gallery/photo-type-selector";
 import { MetadataBadges } from "@/components/gallery/metadata-badges";
 import { ManualMetadataForm } from "@/components/gallery/manual-metadata-form";
-import {
-  detectCreditPlatform,
-  PLATFORM_LABELS,
-  type DetectedCredit,
-} from "@/lib/credit-utils";
+import { detectCreditPlatform, type DetectedCredit } from "@/lib/credit-utils";
+import { CreditPreviewBadge } from "@/components/ui/credit-display";
 
 interface FormData {
   title: string;
@@ -454,19 +451,10 @@ export default function MediaContributionPage() {
                   }
                 />
                 {detectedCredit && (
-                  <div className="mt-2 flex items-center gap-2 text-xs">
-                    <span className="bg-ocean-blue/10 text-ocean-blue rounded-full px-2.5 py-0.5 font-medium">
-                      {PLATFORM_LABELS[detectedCredit.platform]}
-                    </span>
-                    <a
-                      href={detectedCredit.profileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-ocean-blue hover:underline"
-                    >
-                      @{detectedCredit.handle}
-                    </a>
-                  </div>
+                  <CreditPreviewBadge
+                    detected={detectedCredit}
+                    className="mt-2"
+                  />
                 )}
               </div>
             </div>
