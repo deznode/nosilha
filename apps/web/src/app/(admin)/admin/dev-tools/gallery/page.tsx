@@ -112,7 +112,6 @@ const mockMetadata: PhotoMetadata = {
   width: 6000,
   height: 4000,
   locationName: "Fajã d'Água, Brava",
-  photographerCredit: "Maria Silva",
 };
 
 export default function GalleryDevPage() {

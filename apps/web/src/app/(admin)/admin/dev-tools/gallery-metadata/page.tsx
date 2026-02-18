@@ -26,7 +26,7 @@ const mockMetadataWithExif: PhotoMetadata = {
   width: 6000,
   height: 4000,
   locationName: "Fajã d'Água, Brava",
-  photographerCredit: "Maria Silva",
+
   archiveSource: "Nos Ilha Community Archive",
 };
 
@@ -36,7 +36,7 @@ const mockMetadataNoExif: PhotoMetadata = {
   hasExifData: false,
   approximateDate: "1960s",
   locationName: "Nova Sintra, Brava",
-  photographerCredit: "Unknown",
+
   archiveSource: "Family collection of the Tavares family",
 };
 
@@ -76,7 +76,7 @@ export default function GalleryMetadataDevPage() {
   const [manualMetadata, setManualMetadata] = useState<ManualMetadata>({
     approximateDate: "1970s",
     locationName: "Cachaço, Brava",
-    photographerCredit: "Família Gomes",
+
     archiveSource: "Personal family archive",
   });
   const [expanded, setExpanded] = useState(true);

@@ -136,10 +136,11 @@ export default function MediaContributionPage() {
     e.preventDefault();
 
     if (formData.type === "IMAGE" && selectedFile) {
-      // Upload image to R2 storage with EXIF metadata
+      // Upload image to R2 storage with EXIF metadata and credit
       const result = await upload({
         category: "gallery",
         description: formData.description || formData.title,
+        photographerCredit: formData.author || undefined,
       });
 
       if (result) {
@@ -430,12 +431,12 @@ export default function MediaContributionPage() {
               {/* Author/Credit */}
               <div>
                 <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
-                  Archive Credit
+                  Creator Credit
                 </label>
                 <input
                   type="text"
                   className="border-hairline bg-surface text-body rounded-card w-full border px-5 py-3 outline-none"
-                  placeholder="Name of owner or photographer"
+                  placeholder="Name, @handle, or profile URL"
                   value={formData.author}
                   onChange={(e) =>
                     setFormData({ ...formData, author: e.target.value })

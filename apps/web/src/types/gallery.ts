@@ -58,6 +58,8 @@ export interface UserUploadMedia extends GalleryMediaBase {
   uploadedBy?: string;
   uploaderDisplayName?: string;
   photographerCredit?: string;
+  creditPlatform?: string;
+  creditHandle?: string;
   aiTitle?: string;
   aiTags?: string[];
   aiAltText?: string;
@@ -79,6 +81,8 @@ export interface ExternalMedia extends GalleryMediaBase {
   author: string | null;
   curatedBy?: string;
   curatorDisplayName?: string;
+  creditPlatform?: string;
+  creditHandle?: string;
 }
 
 /**
@@ -149,6 +153,8 @@ export interface PublicUserUploadMedia extends PublicGalleryMediaBase {
   locationName?: string;
   photographerCredit?: string;
   archiveSource?: string;
+  creditPlatform?: string;
+  creditHandle?: string;
 }
 
 /**
@@ -165,6 +171,8 @@ export interface PublicExternalMedia extends PublicGalleryMediaBase {
   embedUrl: string | null;
   author: string | null;
   curatorDisplayName?: string;
+  creditPlatform?: string;
+  creditHandle?: string;
 }
 
 /** Discriminated union for public gallery media */

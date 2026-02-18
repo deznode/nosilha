@@ -2,6 +2,7 @@ package com.nosilha.core.gallery.api.dto
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.nosilha.core.gallery.domain.CreditPlatform
 import com.nosilha.core.gallery.domain.ExternalMedia
 import com.nosilha.core.gallery.domain.ExternalPlatform
 import com.nosilha.core.gallery.domain.GalleryMedia
@@ -93,6 +94,9 @@ sealed class GalleryMediaDto {
         val archiveSource: String?,
         // Display name
         val uploaderDisplayName: String? = null,
+        // Smart credit attribution
+        val creditPlatform: CreditPlatform? = null,
+        val creditHandle: String? = null,
         // AI-generated fields
         val aiTitle: String? = null,
         val aiTags: List<String>? = null,
@@ -126,6 +130,9 @@ sealed class GalleryMediaDto {
         val author: String?,
         val curatedBy: UUID?,
         val curatorDisplayName: String? = null,
+        // Smart credit attribution
+        val creditPlatform: CreditPlatform? = null,
+        val creditHandle: String? = null,
     ) : GalleryMediaDto()
 
     companion object {
@@ -172,6 +179,9 @@ sealed class GalleryMediaDto {
                 archiveSource = media.archiveSource,
                 // Display name
                 uploaderDisplayName = uploaderDisplayName,
+                // Smart credit attribution
+                creditPlatform = media.creditPlatform,
+                creditHandle = media.creditHandle,
                 // AI-generated fields
                 aiTitle = media.aiTitle,
                 aiTags = media.aiTags?.toList(),
@@ -206,6 +216,9 @@ sealed class GalleryMediaDto {
                 author = media.author,
                 curatedBy = media.curatedBy,
                 curatorDisplayName = curatorDisplayName,
+                // Smart credit attribution
+                creditPlatform = media.creditPlatform,
+                creditHandle = media.creditHandle,
             )
     }
 }
