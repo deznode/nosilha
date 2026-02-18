@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { clsx } from "clsx";
@@ -24,6 +24,11 @@ import { useToast } from "@/hooks/use-toast";
 import { PhotoTypeSelector } from "@/components/gallery/photo-type-selector";
 import { MetadataBadges } from "@/components/gallery/metadata-badges";
 import { ManualMetadataForm } from "@/components/gallery/manual-metadata-form";
+import {
+  detectCreditPlatform,
+  PLATFORM_LABELS,
+  type DetectedCredit,
+} from "@/lib/credit-utils";
 
 interface FormData {
   title: string;
@@ -97,6 +102,12 @@ export default function MediaContributionPage() {
     upload,
     reset: resetUpload,
   } = usePhotoUpload();
+
+  // Detect social platform from credit input for instant preview
+  const detectedCredit: DetectedCredit | null = useMemo(
+    () => detectCreditPlatform(formData.author),
+    [formData.author]
+  );
 
   const isSubmitting =
     uploadState === "requesting-url" ||
@@ -442,6 +453,21 @@ export default function MediaContributionPage() {
                     setFormData({ ...formData, author: e.target.value })
                   }
                 />
+                {detectedCredit && (
+                  <div className="mt-2 flex items-center gap-2 text-xs">
+                    <span className="bg-ocean-blue/10 text-ocean-blue rounded-full px-2.5 py-0.5 font-medium">
+                      {PLATFORM_LABELS[detectedCredit.platform]}
+                    </span>
+                    <a
+                      href={detectedCredit.profileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-ocean-blue hover:underline"
+                    >
+                      @{detectedCredit.handle}
+                    </a>
+                  </div>
+                )}
               </div>
             </div>
 
