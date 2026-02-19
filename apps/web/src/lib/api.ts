@@ -1001,6 +1001,34 @@ export async function triggerBatchAnalysis(
 }
 
 // ================================
+// ADMIN AI DASHBOARD OPERATIONS
+// ================================
+
+/**
+ * Get AI system health including provider stats and domain configs.
+ * Requires ADMIN role authentication.
+ */
+export async function getAiHealth(): Promise<
+  import("@/types/ai").AiHealthResponse
+> {
+  return apiClient.getAiHealth();
+}
+
+/**
+ * Update a domain's AI feature toggle.
+ * Requires ADMIN role authentication.
+ * @param domain Domain name (gallery, stories, directory)
+ * @param request Toggle state
+ * @returns Updated domain config
+ */
+export async function updateAiDomainConfig(
+  domain: string,
+  request: import("@/types/ai").UpdateDomainConfigRequest
+): Promise<import("@/types/ai").AiDomainConfig> {
+  return apiClient.updateAiDomainConfig(domain, request);
+}
+
+// ================================
 // ADMIN MEDIA MODERATION OPERATIONS
 // ================================
 // NOTE: Old admin media operations have been replaced by unified gallery
