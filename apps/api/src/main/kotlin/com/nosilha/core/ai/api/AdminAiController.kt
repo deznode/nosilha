@@ -7,9 +7,12 @@ import com.nosilha.core.ai.api.dto.AnalysisRunSummaryDto
 import com.nosilha.core.ai.api.dto.ApproveEditedRequest
 import com.nosilha.core.ai.api.dto.BatchDetailDto
 import com.nosilha.core.ai.api.dto.BatchSummaryDto
+import com.nosilha.core.ai.api.dto.DomainConfigDto
 import com.nosilha.core.ai.api.dto.ProviderHealthDto
 import com.nosilha.core.ai.api.dto.RejectRequest
+import com.nosilha.core.ai.api.dto.UpdateDomainConfigRequest
 import com.nosilha.core.ai.api.dto.UsageDto
+import com.nosilha.core.ai.domain.AiFeatureConfigService
 import com.nosilha.core.ai.domain.AiModerationService
 import com.nosilha.core.ai.domain.ApiUsageService
 import com.nosilha.core.ai.domain.ImageAnalysisProvider
@@ -27,6 +30,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -51,6 +55,7 @@ private val logger = KotlinLogging.logger {}
 @PreAuthorize("hasRole('ADMIN')")
 class AdminAiController(
     private val moderationService: AiModerationService,
+    private val configService: AiFeatureConfigService,
     private val providers: List<ImageAnalysisProvider>,
     private val apiUsageService: ApiUsageService,
     private val analysisRunRepository: AnalysisRunRepository,
@@ -193,11 +198,31 @@ class AdminAiController(
             )
         }
 
+        val domains = configService.getAllConfigs().map { DomainConfigDto.from(it) }
+
         return ApiResult(
             data = AiHealthResponse(
                 enabled = aiEnabled,
                 providers = providerInfos,
+                domains = domains,
             ),
         )
+    }
+
+    @GetMapping("/config")
+    fun getConfigs(): ApiResult<List<DomainConfigDto>> {
+        val configs = configService.getAllConfigs().map { DomainConfigDto.from(it) }
+        return ApiResult(data = configs)
+    }
+
+    @PutMapping("/config/{domain}")
+    fun updateConfig(
+        @PathVariable domain: String,
+        @RequestBody request: UpdateDomainConfigRequest,
+        authentication: Authentication,
+    ): ApiResult<DomainConfigDto> {
+        val adminId = UUID.fromString(authentication.name)
+        val updated = configService.updateConfig(domain, request.enabled, adminId)
+        return ApiResult(data = DomainConfigDto.from(updated))
     }
 }

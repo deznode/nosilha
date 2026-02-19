@@ -9,6 +9,7 @@ import com.nosilha.core.ai.api.dto.PolishContentRequest
 import com.nosilha.core.ai.api.dto.PolishContentResponse
 import com.nosilha.core.ai.api.dto.TranslateContentRequest
 import com.nosilha.core.ai.api.dto.TranslateContentResponse
+import com.nosilha.core.ai.domain.AiFeatureConfigService
 import com.nosilha.core.ai.provider.TextAiProvider
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.exception.BusinessException
@@ -36,17 +37,23 @@ private val logger = KotlinLogging.logger {}
 @RequestMapping("/api/v1/ai")
 class AiController(
     private val textAiProvider: TextAiProvider?,
+    private val configService: AiFeatureConfigService,
 ) {
     @GetMapping("/available")
     fun checkAvailable(): ApiResult<AiAvailableResponse> {
-        val available = textAiProvider?.isAvailable() ?: false
-        return ApiResult(data = AiAvailableResponse(available = available))
+        val providerAvailable = textAiProvider?.isAvailable() ?: false
+        val storiesEnabled = configService.isEnabled("stories")
+        return ApiResult(data = AiAvailableResponse(available = providerAvailable && storiesEnabled))
     }
 
     @PostMapping("/polish")
     fun polishContent(
         @Valid @RequestBody request: PolishContentRequest,
     ): ApiResult<PolishContentResponse> {
+        if (!configService.isEnabled("stories")) {
+            logger.debug { "Stories AI domain disabled, returning original content" }
+            return ApiResult(data = PolishContentResponse(content = request.content, aiApplied = false))
+        }
         val provider = textAiProvider
         if (provider == null) {
             logger.debug { "Text AI unavailable, returning original content" }
@@ -60,6 +67,10 @@ class AiController(
     fun translateContent(
         @Valid @RequestBody request: TranslateContentRequest,
     ): ApiResult<TranslateContentResponse> {
+        if (!configService.isEnabled("stories")) {
+            logger.debug { "Stories AI domain disabled, returning original content" }
+            return ApiResult(data = TranslateContentResponse(content = request.content, aiApplied = false))
+        }
         val provider = textAiProvider
         if (provider == null) {
             logger.debug { "Text AI unavailable, returning original content" }
@@ -73,6 +84,9 @@ class AiController(
     fun generatePrompts(
         @Valid @RequestBody request: GeneratePromptsRequest,
     ): ApiResult<GeneratePromptsResponse> {
+        if (!configService.isEnabled("stories")) {
+            throw BusinessException("AI content generation is disabled for stories")
+        }
         val provider = textAiProvider
             ?: throw BusinessException("Text AI is not available. Enable Gemini to use this feature.")
         val prompts = provider.generatePrompts(request.templateType, request.existingContent)
@@ -83,6 +97,9 @@ class AiController(
     fun generateDirectoryContent(
         @Valid @RequestBody request: GenerateDirectoryContentRequest,
     ): ApiResult<DirectoryContentResponse> {
+        if (!configService.isEnabled("directory")) {
+            throw BusinessException("AI content generation is disabled for directory")
+        }
         val provider = textAiProvider
             ?: throw BusinessException("Text AI is not available. Enable Gemini to use this feature.")
         val result = provider.generateDirectoryContent(request.name, request.category)

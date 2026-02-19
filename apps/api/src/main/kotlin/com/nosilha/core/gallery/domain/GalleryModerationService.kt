@@ -1,5 +1,6 @@
 package com.nosilha.core.gallery.domain
 
+import com.nosilha.core.ai.domain.AiFeatureConfigService
 import com.nosilha.core.auth.api.UserProfileQueryService
 import com.nosilha.core.gallery.api.dto.CreateExternalMediaRequest
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
@@ -50,6 +51,7 @@ class GalleryModerationService(
     private val auditRepository: MediaModerationAuditRepository,
     private val eventPublisher: ApplicationEventPublisher,
     private val userProfileQueryService: UserProfileQueryService,
+    private val aiFeatureConfigService: AiFeatureConfigService,
 ) {
     companion object {
         /** Statuses eligible for AI analysis trigger. */
@@ -430,6 +432,9 @@ class GalleryModerationService(
         mediaId: UUID,
         adminId: UUID,
     ): UUID {
+        if (!aiFeatureConfigService.isEnabled("gallery")) {
+            throw BusinessException("AI image analysis is disabled for gallery")
+        }
         val media = repository.findById(mediaId).orElseThrow {
             ResourceNotFoundException("Media not found: $mediaId")
         }
@@ -468,6 +473,9 @@ class GalleryModerationService(
         mediaIds: List<UUID>,
         adminId: UUID,
     ): BatchAnalysisResult {
+        if (!aiFeatureConfigService.isEnabled("gallery")) {
+            throw BusinessException("AI image analysis is disabled for gallery")
+        }
         val errors = mutableListOf<BatchError>()
         val validMedia = mutableListOf<UserUploadedMedia>()
 
