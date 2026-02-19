@@ -75,11 +75,14 @@ class AiFeatureConfigIntegrationTest {
 
     @BeforeEach
     fun setup() {
+        // Wait briefly for any pending async events to complete
+        Thread.sleep(200)
+
         // Clean up in FK-safe order
         jdbcTemplate.execute("DELETE FROM ai_api_usage")
+        jdbcTemplate.execute("DELETE FROM event_publication")
         jdbcTemplate.execute("DELETE FROM ai_analysis_log")
         jdbcTemplate.execute("DELETE FROM ai_analysis_batch")
-        jdbcTemplate.execute("DELETE FROM event_publication")
         galleryMediaRepository.deleteAll()
         jdbcTemplate.execute("DELETE FROM users")
 

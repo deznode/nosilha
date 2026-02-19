@@ -5,6 +5,7 @@ import com.nosilha.core.ai.domain.ImageAnalysisProvider
 import com.nosilha.core.ai.domain.ImageAnalysisResult
 import com.nosilha.core.ai.domain.LabelResult
 import com.nosilha.core.ai.domain.ModerationStatus
+import com.nosilha.core.ai.repository.AiFeatureConfigRepository
 import com.nosilha.core.ai.repository.AnalysisRunRepository
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.MediaSource
@@ -60,6 +61,9 @@ class AiModuleIntegrationTest {
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
 
+    @Autowired
+    private lateinit var configRepository: AiFeatureConfigRepository
+
     @MockitoBean
     private lateinit var mockProvider: ImageAnalysisProvider
 
@@ -78,6 +82,12 @@ class AiModuleIntegrationTest {
         jdbcTemplate.execute(
             "INSERT INTO users (id, email) VALUES ('$adminId', 'admin@test.com'), ('$testUserId', 'user@test.com') ON CONFLICT DO NOTHING",
         )
+        // Enable gallery domain for AI analysis tests
+        configRepository.findByDomain("gallery")?.let {
+            it.enabled = true
+            configRepository.save(it)
+        }
+
         reset(mockProvider)
         whenever(mockProvider.name).thenReturn("cloud-vision")
         whenever(mockProvider.isEnabled()).thenReturn(true)
