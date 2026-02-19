@@ -3,6 +3,7 @@
 import { Filter, ZoomIn } from "lucide-react";
 import Image from "next/image";
 import type { MediaItem, MediaCategory } from "@/types/media";
+import { CreditDisplay } from "@/components/ui/credit-display";
 
 interface PhotoGridProps {
   photos: MediaItem[];
@@ -116,8 +117,13 @@ export function PhotoGrid({
                   {photo.description}
                 </p>
               )}
-              <div className="border-hairline text-muted mt-3 border-t pt-3 text-xs">
-                Shared by {photo.author || "Anonymous"}
+              <div className="border-hairline mt-3 border-t pt-3">
+                <CreditDisplay
+                  credit={photo.author || "Anonymous"}
+                  creditPlatform={photo.creditPlatform}
+                  creditHandle={photo.creditHandle}
+                  variant="card"
+                />
               </div>
             </div>
           </div>

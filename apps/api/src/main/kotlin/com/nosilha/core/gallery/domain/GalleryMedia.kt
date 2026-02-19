@@ -102,6 +102,17 @@ abstract class GalleryMedia : AuditableEntity() {
     @Column(name = "severity")
     var severity: Int? = 0
 
+    // --- Smart credit attribution (shared across all media types) ---
+
+    /** Detected social platform for creator credit (e.g., YOUTUBE, INSTAGRAM). */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "credit_platform", length = 30)
+    var creditPlatform: CreditPlatform? = null
+
+    /** Normalized social media handle (without @ prefix). */
+    @Column(name = "credit_handle", length = 100)
+    var creditHandle: String? = null
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

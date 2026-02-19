@@ -251,10 +251,16 @@ class GalleryModerationService(
         request.category?.let { media.category = it }
 
         if (request.author != null && media is ExternalMedia) {
-            media.author = request.author
+            val parsed = CreditParser.parseCredit(request.author)
+            media.author = parsed.displayName
+            media.creditPlatform = parsed.platform
+            media.creditHandle = parsed.handle
         }
         if (request.photographerCredit != null && media is UserUploadedMedia) {
-            media.photographerCredit = request.photographerCredit
+            val parsed = CreditParser.parseCredit(request.photographerCredit)
+            media.photographerCredit = parsed.displayName
+            media.creditPlatform = parsed.platform
+            media.creditHandle = parsed.handle
         }
 
         val saved = repository.save(media)
@@ -336,6 +342,13 @@ class GalleryModerationService(
             this.displayOrder = request.displayOrder ?: 0
             this.status = GalleryMediaStatus.ACTIVE
             this.curatedBy = adminId
+            // Smart credit attribution
+            if (!request.author.isNullOrBlank()) {
+                val parsed = CreditParser.parseCredit(request.author)
+                this.creditPlatform = parsed.platform
+                this.creditHandle = parsed.handle
+                this.author = parsed.displayName
+            }
         }
 
         val saved = repository.save(media)

@@ -11,6 +11,7 @@ import {
   Calendar,
   Download,
 } from "lucide-react";
+import { CreditDisplay } from "@/components/ui/credit-display";
 
 interface Photo {
   src: string;
@@ -20,6 +21,8 @@ interface Photo {
   description: string;
   highResSrc?: string;
   author?: string;
+  creditPlatform?: string;
+  creditHandle?: string;
 }
 
 interface ImageLightboxProps {
@@ -196,9 +199,15 @@ export function ImageLightbox({
                   Download High-Res
                 </a>
                 {photos[currentIndex].author && (
-                  <p className="mt-2 text-center text-xs text-white/60">
-                    Photo by {photos[currentIndex].author}
-                  </p>
+                  <div className="mt-2 text-center">
+                    <CreditDisplay
+                      credit={photos[currentIndex].author!}
+                      creditPlatform={photos[currentIndex].creditPlatform}
+                      creditHandle={photos[currentIndex].creditHandle}
+                      variant="lightbox"
+                      className="justify-center text-white/60"
+                    />
+                  </div>
                 )}
               </div>
 

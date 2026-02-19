@@ -305,6 +305,13 @@ class GalleryService(
             this.locationName = locationName
             this.photographerCredit = photographerCredit
             this.archiveSource = archiveSource
+            // Smart credit attribution
+            if (!photographerCredit.isNullOrBlank()) {
+                val parsed = CreditParser.parseCredit(photographerCredit)
+                this.creditPlatform = parsed.platform
+                this.creditHandle = parsed.handle
+                this.photographerCredit = parsed.displayName
+            }
         }
 
         val saved = repository.save(media)
@@ -666,6 +673,13 @@ class GalleryService(
             this.displayOrder = request.displayOrder
             this.status = GalleryMediaStatus.PENDING_REVIEW
             this.curatedBy = userId
+            // Smart credit attribution
+            if (!request.author.isNullOrBlank()) {
+                val parsed = CreditParser.parseCredit(request.author)
+                this.creditPlatform = parsed.platform
+                this.creditHandle = parsed.handle
+                this.author = parsed.displayName
+            }
         }
 
         val saved = repository.save(media)

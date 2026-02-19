@@ -4,6 +4,7 @@ import { useEffect, useCallback } from "react";
 import { X, Download } from "lucide-react";
 import Image from "next/image";
 import type { MediaItem } from "@/types/media";
+import { CreditDisplay } from "@/components/ui/credit-display";
 
 interface LightboxProps {
   image: MediaItem;
@@ -82,7 +83,13 @@ export function Lightbox({ image, onClose }: LightboxProps) {
               </span>
             </div>
           </div>
-          <div className="mt-4 flex justify-end">
+          <div className="mt-4 flex items-center justify-between">
+            <CreditDisplay
+              credit={image.author || "Anonymous"}
+              creditPlatform={image.creditPlatform}
+              creditHandle={image.creditHandle}
+              variant="lightbox"
+            />
             <button
               onClick={handleDownload}
               className="bg-basalt-800 hover:bg-basalt-500 focus:ring-ocean-blue inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors focus:ring-2 focus:outline-none"
