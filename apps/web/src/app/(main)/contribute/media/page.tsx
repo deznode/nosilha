@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { clsx } from "clsx";
@@ -24,6 +24,8 @@ import { useToast } from "@/hooks/use-toast";
 import { PhotoTypeSelector } from "@/components/gallery/photo-type-selector";
 import { MetadataBadges } from "@/components/gallery/metadata-badges";
 import { ManualMetadataForm } from "@/components/gallery/manual-metadata-form";
+import { detectCreditPlatform, type DetectedCredit } from "@/lib/credit-utils";
+import { CreditPreviewBadge } from "@/components/ui/credit-display";
 
 interface FormData {
   title: string;
@@ -97,6 +99,12 @@ export default function MediaContributionPage() {
     upload,
     reset: resetUpload,
   } = usePhotoUpload();
+
+  // Detect social platform from credit input for instant preview
+  const detectedCredit: DetectedCredit | null = useMemo(
+    () => detectCreditPlatform(formData.author),
+    [formData.author]
+  );
 
   const isSubmitting =
     uploadState === "requesting-url" ||
@@ -442,6 +450,12 @@ export default function MediaContributionPage() {
                     setFormData({ ...formData, author: e.target.value })
                   }
                 />
+                {detectedCredit && (
+                  <CreditPreviewBadge
+                    detected={detectedCredit}
+                    className="mt-2"
+                  />
+                )}
               </div>
             </div>
 

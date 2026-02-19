@@ -9,7 +9,7 @@ import {
 import { ImageIcon, X } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Button } from "@/components/catalyst-ui/button";
 import { useUpdateGalleryMedia } from "@/hooks/queries/admin";
 import { useToast } from "@/hooks/use-toast";
@@ -19,6 +19,8 @@ import {
 } from "@/schemas/galleryEditSchema";
 import type { GalleryMedia, UpdateGalleryMediaRequest } from "@/types/gallery";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
+import { detectCreditPlatform } from "@/lib/credit-utils";
+import { CreditPreviewBadge } from "@/components/ui/credit-display";
 
 function getAttribution(item: GalleryMedia): string {
   if (isUserUploadMedia(item)) {
@@ -56,10 +58,17 @@ export function GalleryEditModal({
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<GalleryEditInput>({
     resolver: zodResolver(galleryEditSchema),
   });
+
+  const attributionValue = watch("attribution");
+  const detectedCredit = useMemo(
+    () => detectCreditPlatform(attributionValue || ""),
+    [attributionValue]
+  );
 
   useEffect(() => {
     if (item) {
@@ -106,8 +115,6 @@ export function GalleryEditModal({
   };
 
   if (!item) return null;
-
-  const isUserUpload = isUserUploadMedia(item);
 
   return (
     <Dialog as="div" className="relative z-50" open={isOpen} onClose={onClose}>
@@ -207,7 +214,7 @@ export function GalleryEditModal({
                     htmlFor="gallery-attribution"
                     className="text-body mb-1 block text-sm font-medium"
                   >
-                    {isUserUpload ? "Photographer Credit" : "Author / Credit"}
+                    Creator Credit
                   </label>
                   <input
                     id="gallery-attribution"
@@ -219,6 +226,12 @@ export function GalleryEditModal({
                     <p className="text-status-error mt-1 text-xs">
                       {errors.attribution.message}
                     </p>
+                  )}
+                  {detectedCredit && (
+                    <CreditPreviewBadge
+                      detected={detectedCredit}
+                      className="mt-1.5"
+                    />
                   )}
                 </div>
               </div>

@@ -55,6 +55,8 @@ function mapGalleryMediaToMediaItem(media: PublicGalleryMedia): MediaItem {
       description: media.description || undefined,
       category,
       author: media.author || media.curatorDisplayName || undefined,
+      creditPlatform: media.creditPlatform,
+      creditHandle: media.creditHandle,
       date: new Date(media.createdAt).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
@@ -70,7 +72,12 @@ function mapGalleryMediaToMediaItem(media: PublicGalleryMedia): MediaItem {
       title: media.title || "Untitled",
       description: media.description || undefined,
       category,
-      author: media.uploaderDisplayName || "Community Contributor",
+      author:
+        media.photographerCredit ||
+        media.uploaderDisplayName ||
+        "Community Contributor",
+      creditPlatform: media.creditPlatform,
+      creditHandle: media.creditHandle,
       date: new Date(media.createdAt).toLocaleDateString("en-US", {
         year: "numeric",
         month: "short",
