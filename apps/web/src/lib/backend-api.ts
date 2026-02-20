@@ -3027,9 +3027,7 @@ export class BackendApiClient implements ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(
-        `Failed to update AI domain config: ${response.status}`
-      );
+      throw new Error(`Failed to update AI domain config: ${response.status}`);
     }
 
     const payload = await response.json();
