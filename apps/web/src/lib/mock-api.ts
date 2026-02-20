@@ -1904,6 +1904,64 @@ ${story.content
   }
 
   // ================================
+  // ADMIN AI DASHBOARD - Mock Stubs
+  // ================================
+
+  async getAiHealth(): Promise<import("@/types/ai").AiHealthResponse> {
+    await this.simulateDelay(300);
+    return {
+      enabled: true,
+      providers: [
+        {
+          name: "cloud-vision",
+          enabled: true,
+          capabilities: ["LABELS", "OCR", "LANDMARKS"],
+          usage: { count: 42, limit: 1000, percentUsed: 4.2 },
+        },
+        {
+          name: "gemini-cultural",
+          enabled: true,
+          capabilities: ["CULTURAL_CONTEXT"],
+          usage: { count: 15, limit: 500, percentUsed: 3.0 },
+        },
+      ],
+      domains: [
+        {
+          domain: "gallery",
+          enabled: false,
+          updatedAt: new Date().toISOString(),
+          updatedBy: null,
+        },
+        {
+          domain: "stories",
+          enabled: false,
+          updatedAt: new Date().toISOString(),
+          updatedBy: null,
+        },
+        {
+          domain: "directory",
+          enabled: false,
+          updatedAt: new Date().toISOString(),
+          updatedBy: null,
+        },
+      ],
+    };
+  }
+
+  async updateAiDomainConfig(
+    domain: string,
+    request: import("@/types/ai").UpdateDomainConfigRequest
+  ): Promise<import("@/types/ai").AiDomainConfig> {
+    await this.simulateDelay(300);
+    return {
+      domain,
+      enabled: request.enabled,
+      updatedAt: new Date().toISOString(),
+      updatedBy: "mock-admin-uuid",
+    };
+  }
+
+  // ================================
   // ADMIN R2 STORAGE - Mock Stubs
   // ================================
 

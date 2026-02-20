@@ -5,6 +5,7 @@ import com.nosilha.core.ai.domain.ImageAnalysisProvider
 import com.nosilha.core.ai.domain.ImageAnalysisResult
 import com.nosilha.core.ai.domain.LabelResult
 import com.nosilha.core.ai.domain.ModerationStatus
+import com.nosilha.core.ai.repository.AiFeatureConfigRepository
 import com.nosilha.core.ai.repository.AnalysisRunRepository
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.MediaSource
@@ -60,10 +61,14 @@ class AiModuleIntegrationTest {
     @Autowired
     private lateinit var jdbcTemplate: JdbcTemplate
 
+    @Autowired
+    private lateinit var configRepository: AiFeatureConfigRepository
+
     @MockitoBean
     private lateinit var mockProvider: ImageAnalysisProvider
 
     private val adminId = UUID.randomUUID()
+    private val testUserId = UUID.randomUUID()
 
     @BeforeEach
     fun setup() {
@@ -78,10 +83,22 @@ class AiModuleIntegrationTest {
         jdbcTemplate.execute(
             "INSERT INTO users (id, email) VALUES ('$adminId', 'admin@test.com'), ('$testUserId', 'user@test.com') ON CONFLICT DO NOTHING",
         )
+        // Enable global + gallery domain for AI analysis tests
+        configRepository.findByDomain("global")?.let {
+            it.enabled = true
+            configRepository.save(it)
+        }
+        configRepository.findByDomain("gallery")?.let {
+            it.enabled = true
+            configRepository.save(it)
+        }
+
         reset(mockProvider)
         whenever(mockProvider.name).thenReturn("cloud-vision")
         whenever(mockProvider.isEnabled()).thenReturn(true)
         whenever(mockProvider.supports()).thenReturn(emptySet())
+        whenever(mockProvider.capabilities()).thenReturn(emptySet())
+        whenever(mockProvider.monthlyLimit).thenReturn(1000)
     }
 
     private fun adminAuth(userId: UUID = adminId) =
@@ -92,8 +109,6 @@ class AiModuleIntegrationTest {
                 listOf(SimpleGrantedAuthority("ROLE_ADMIN")),
             ),
         )
-
-    private val testUserId = UUID.randomUUID()
 
     private fun userAuth(userId: UUID = testUserId) =
         authentication(
@@ -118,7 +133,7 @@ class AiModuleIntegrationTest {
             this.fileSize = 1024L
             this.storageKey = "uploads/test-image.jpg"
         }
-        return galleryMediaRepository.save(media) as UserUploadedMedia
+        return galleryMediaRepository.save(media)
     }
 
     /**

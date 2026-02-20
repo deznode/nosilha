@@ -82,6 +82,9 @@ import type {
   GenerateDirectoryContentRequest,
   DirectoryContentResponse,
   AiAvailableResponse,
+  AiHealthResponse,
+  AiDomainConfig,
+  UpdateDomainConfigRequest,
 } from "@/types/ai";
 import type {
   R2BucketListResponse,
@@ -2990,6 +2993,47 @@ export class BackendApiClient implements ApiClient {
 
     const payload = await response.json();
     return this.unwrapApiResponse<DirectoryContentResponse>(payload);
+  }
+
+  // ================================
+  // ADMIN AI DASHBOARD OPERATIONS
+  // ================================
+
+  async getAiHealth(): Promise<AiHealthResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/ai/health`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch AI health: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<AiHealthResponse>(payload);
+  }
+
+  async updateAiDomainConfig(
+    domain: string,
+    request: UpdateDomainConfigRequest
+  ): Promise<AiDomainConfig> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/ai/config/${domain}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to update AI domain config: ${response.status}`
+      );
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<AiDomainConfig>(payload);
   }
 
   // ================================

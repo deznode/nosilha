@@ -1,5 +1,6 @@
 package com.nosilha.core.ai.provider
 
+import com.nosilha.core.ai.domain.AiProvider
 import com.nosilha.core.ai.domain.ApiUsageService
 import com.nosilha.core.ai.domain.GeminiDirectoryContentOutput
 import com.nosilha.core.ai.domain.GeminiPromptsOutput
@@ -48,7 +49,14 @@ class TextAiProvider(
     generatePromptsPromptResource: Resource,
     @Value("classpath:/prompts/text/directory-content-user.st")
     directoryContentPromptResource: Resource,
-) {
+) : AiProvider {
+    override val name: String = "gemini-text"
+    override val monthlyLimit: Int get() = textMonthlyLimit
+
+    override fun isEnabled(): Boolean = true
+
+    override fun capabilities(): Set<String> = setOf("POLISH", "TRANSLATE", "PROMPTS", "DIRECTORY_CONTENT")
+
     private val polishPrompt = polishPromptResource.getContentAsString(StandardCharsets.UTF_8)
     private val translatePrompt = translatePromptResource.getContentAsString(StandardCharsets.UTF_8)
     private val generatePromptsPrompt = generatePromptsPromptResource.getContentAsString(StandardCharsets.UTF_8)
@@ -67,8 +75,6 @@ class TextAiProvider(
             "FR" to "French",
         )
     }
-
-    fun isAvailable(): Boolean = true
 
     /**
      * Enhancement operation: polishes content with graceful fallback.

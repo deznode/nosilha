@@ -80,6 +80,10 @@ export const adminKeys = {
         { prefix, continuationToken },
       ] as const,
   },
+  aiDashboard: {
+    all: () => [...adminKeys.all, "ai-dashboard"] as const,
+    health: () => [...adminKeys.all, "ai-dashboard", "health"] as const,
+  },
   contributors: () => [...adminKeys.all, "contributors"] as const,
   system: {
     all: () => [...adminKeys.all, "system"] as const,

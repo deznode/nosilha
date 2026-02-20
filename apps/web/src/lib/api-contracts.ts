@@ -37,6 +37,9 @@ import type {
   GenerateDirectoryContentRequest,
   DirectoryContentResponse,
   AiAvailableResponse,
+  AiHealthResponse,
+  AiDomainConfig,
+  UpdateDomainConfigRequest,
 } from "@/types/ai";
 import type {
   R2BucketListResponse,
@@ -734,6 +737,33 @@ export interface ApiClient {
   ): Promise<DirectoryContentResponse>;
 
   // ================================
+  // ADMIN AI DASHBOARD OPERATIONS
+  // ================================
+
+  /**
+   * Get AI system health including provider stats and domain configs.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @returns AiHealthResponse with providers and domain configs
+   */
+  getAiHealth(): Promise<AiHealthResponse>;
+
+  /**
+   * Update a domain's AI feature toggle.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param domain Domain name (gallery, stories, directory)
+   * @param request Toggle state
+   * @returns Updated domain config
+   */
+  updateAiDomainConfig(
+    domain: string,
+    request: UpdateDomainConfigRequest
+  ): Promise<AiDomainConfig>;
+
+  // ================================
   // ADMIN R2 STORAGE OPERATIONS
   // ================================
 
@@ -1043,4 +1073,7 @@ export type {
   AnalysisTriggerResponse,
   AnalyzeBatchRequest,
   BatchAnalysisTriggerResponse,
+  AiHealthResponse,
+  AiDomainConfig,
+  UpdateDomainConfigRequest,
 } from "@/types/ai";

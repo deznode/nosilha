@@ -7,8 +7,10 @@ import com.nosilha.core.ai.api.dto.TranslateContentRequest
 import com.nosilha.core.ai.domain.GeminiDirectoryContentOutput
 import com.nosilha.core.ai.domain.TextAiResult
 import com.nosilha.core.ai.provider.TextAiProvider
+import com.nosilha.core.ai.repository.AiFeatureConfigRepository
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.RateLimitExceededException
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -41,8 +43,20 @@ class AiControllerTest {
     @Autowired
     private lateinit var jsonMapper: JsonMapper
 
+    @Autowired
+    private lateinit var configRepository: AiFeatureConfigRepository
+
     @MockitoBean
     private lateinit var textAiProvider: TextAiProvider
+
+    @BeforeEach
+    fun setup() {
+        // Enable all domain configs so tests exercise the provider layer
+        configRepository.findAll().forEach {
+            it.enabled = true
+            configRepository.save(it)
+        }
+    }
 
     private fun authAs(userId: String) =
         authentication(
@@ -56,7 +70,7 @@ class AiControllerTest {
     @Test
     @DisplayName("GET /api/v1/ai/available - returns 200 with availability status")
     fun `available check returns 200`() {
-        whenever(textAiProvider.isAvailable()).thenReturn(true)
+        whenever(textAiProvider.isEnabled()).thenReturn(true)
 
         mockMvc
             .perform(

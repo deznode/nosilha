@@ -52,6 +52,40 @@ export interface AiAvailableResponse {
 }
 
 // ================================
+// AI HEALTH / DASHBOARD TYPES
+// ================================
+
+export interface AiHealthResponse {
+  enabled: boolean;
+  providers: AiProviderHealth[];
+  domains: AiDomainConfig[];
+}
+
+export interface AiProviderHealth {
+  name: string;
+  enabled: boolean;
+  capabilities: string[];
+  usage: AiUsageDto;
+}
+
+export interface AiUsageDto {
+  count: number;
+  limit: number;
+  percentUsed: number;
+}
+
+export interface AiDomainConfig {
+  domain: string;
+  enabled: boolean;
+  updatedAt: string;
+  updatedBy: string | null;
+}
+
+export interface UpdateDomainConfigRequest {
+  enabled: boolean;
+}
+
+// ================================
 // ENUMS
 // ================================
 

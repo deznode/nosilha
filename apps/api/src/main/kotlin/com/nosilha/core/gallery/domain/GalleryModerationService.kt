@@ -1,5 +1,6 @@
 package com.nosilha.core.gallery.domain
 
+import com.nosilha.core.ai.domain.AiFeatureConfigService
 import com.nosilha.core.auth.api.UserProfileQueryService
 import com.nosilha.core.gallery.api.dto.CreateExternalMediaRequest
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
@@ -50,6 +51,7 @@ class GalleryModerationService(
     private val auditRepository: MediaModerationAuditRepository,
     private val eventPublisher: ApplicationEventPublisher,
     private val userProfileQueryService: UserProfileQueryService,
+    private val aiFeatureConfigService: AiFeatureConfigService,
 ) {
     companion object {
         /** Statuses eligible for AI analysis trigger. */
@@ -162,7 +164,6 @@ class GalleryModerationService(
     ): GalleryMediaDto? {
         val media = repository.findById(id).orElse(null) ?: return null
 
-        // Validate action-specific requirements
         when (action) {
             GalleryModerationAction.FLAG -> {
                 if (reason.isNullOrBlank()) {
@@ -177,26 +178,23 @@ class GalleryModerationService(
                     throw BusinessException("Reason is required when rejecting media")
                 }
             }
-            GalleryModerationAction.APPROVE -> {
-                // No additional validation needed for approve
-            }
+            GalleryModerationAction.APPROVE -> { }
         }
 
         val previousStatus = media.status
 
-        // Update media entity based on action
         when (action) {
             GalleryModerationAction.APPROVE -> {
                 media.status = GalleryMediaStatus.ACTIVE
                 media.reviewedBy = performedBy
                 media.reviewedAt = Instant.now()
-                media.rejectionReason = null // Clear any previous rejection reason
+                media.rejectionReason = null
                 logger.info { "Gallery media approved: id=$id, type=${media.mediaSource}, performedBy=$performedBy" }
             }
             GalleryModerationAction.FLAG -> {
                 media.status = GalleryMediaStatus.FLAGGED
                 media.severity = severity ?: 0
-                media.rejectionReason = reason // Store flag reason in rejection_reason field
+                media.rejectionReason = reason
                 media.reviewedBy = performedBy
                 media.reviewedAt = Instant.now()
                 logger.info { "Gallery media flagged: id=$id, type=${media.mediaSource}, severity=$severity, performedBy=$performedBy" }
@@ -212,7 +210,6 @@ class GalleryModerationService(
 
         val savedMedia = repository.save(media)
 
-        // Create audit entry
         val audit =
             MediaModerationAudit(
                 mediaId = id,
@@ -299,7 +296,6 @@ class GalleryModerationService(
 
         repository.save(media)
 
-        // Create audit entry
         val audit =
             MediaModerationAudit(
                 mediaId = id,
@@ -339,10 +335,9 @@ class GalleryModerationService(
             this.description = request.description
             this.author = request.author
             this.category = request.category
-            this.displayOrder = request.displayOrder ?: 0
+            this.displayOrder = request.displayOrder
             this.status = GalleryMediaStatus.ACTIVE
             this.curatedBy = adminId
-            // Smart credit attribution
             if (!request.author.isNullOrBlank()) {
                 val parsed = CreditParser.parseCredit(request.author)
                 this.creditPlatform = parsed.platform
@@ -400,7 +395,6 @@ class GalleryModerationService(
             throw BusinessException("Media must have a public URL")
         }
 
-        // Publish event - Places module will handle the update
         eventPublisher.publishEvent(
             HeroImagePromotedEvent(
                 entryId = media.entryId!!,
@@ -430,6 +424,9 @@ class GalleryModerationService(
         mediaId: UUID,
         adminId: UUID,
     ): UUID {
+        if (!aiFeatureConfigService.isOperational("gallery")) {
+            throw BusinessException("AI image analysis is disabled for gallery")
+        }
         val media = repository.findById(mediaId).orElseThrow {
             ResourceNotFoundException("Media not found: $mediaId")
         }
@@ -468,6 +465,9 @@ class GalleryModerationService(
         mediaIds: List<UUID>,
         adminId: UUID,
     ): BatchAnalysisResult {
+        if (!aiFeatureConfigService.isOperational("gallery")) {
+            throw BusinessException("AI image analysis is disabled for gallery")
+        }
         val errors = mutableListOf<BatchError>()
         val validMedia = mutableListOf<UserUploadedMedia>()
 
