@@ -36,7 +36,6 @@ const DOMAIN_META: Record<
 
 export function AiDashboardPanel() {
   const { data, isLoading, error } = useAiHealth();
-  const toast = useToast();
 
   if (isLoading) {
     return <DashboardSkeleton />;
@@ -57,7 +56,7 @@ export function AiDashboardPanel() {
   return (
     <div className="space-y-8">
       {/* Global AI Toggle */}
-      <GlobalToggleCard enabled={data.enabled} toast={toast} />
+      <GlobalToggleCard enabled={data.enabled} />
 
       {/* Provider Cards */}
       <section>
@@ -71,16 +70,13 @@ export function AiDashboardPanel() {
 
       {/* Domain Toggle Cards */}
       <section>
-        <h2 className="text-body mb-4 text-lg font-semibold">
-          Domain Toggles
-        </h2>
+        <h2 className="text-body mb-4 text-lg font-semibold">Domain Toggles</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {data.domains.map((domain) => (
             <DomainCard
               key={domain.domain}
               config={domain}
               globalEnabled={data.enabled}
-              toast={toast}
             />
           ))}
         </div>
@@ -89,13 +85,12 @@ export function AiDashboardPanel() {
   );
 }
 
-function GlobalToggleCard({
-  enabled,
-  toast,
-}: {
+interface GlobalToggleCardProps {
   enabled: boolean;
-  toast: ReturnType<typeof useToast>;
-}) {
+}
+
+function GlobalToggleCard({ enabled }: GlobalToggleCardProps) {
+  const toast = useToast();
   const mutation = useUpdateAiDomainConfig();
 
   const handleToggle = () => {
@@ -104,9 +99,7 @@ function GlobalToggleCard({
       {
         onSuccess: (updated) => {
           toast
-            .success(
-              `AI globally ${updated.enabled ? "enabled" : "disabled"}`
-            )
+            .success(`AI globally ${updated.enabled ? "enabled" : "disabled"}`)
             .show();
         },
         onError: (err) => {
@@ -147,10 +140,11 @@ function GlobalToggleCard({
           type="button"
           role="switch"
           aria-checked={enabled}
+          aria-label={`${enabled ? "Disable" : "Enable"} global AI`}
           disabled={mutation.isPending}
           onClick={handleToggle}
           className={clsx(
-            "relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2",
+            "focus:ring-ocean-blue relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-offset-2 focus:outline-none",
             enabled ? "bg-valley-green" : "bg-status-error/60",
             mutation.isPending && "cursor-not-allowed opacity-50"
           )}
@@ -236,15 +230,13 @@ function ProviderCard({ provider }: { provider: AiProviderHealth }) {
   );
 }
 
-function DomainCard({
-  config,
-  globalEnabled,
-  toast,
-}: {
+interface DomainCardProps {
   config: AiDomainConfig;
   globalEnabled: boolean;
-  toast: ReturnType<typeof useToast>;
-}) {
+}
+
+function DomainCard({ config, globalEnabled }: DomainCardProps) {
+  const toast = useToast();
   const mutation = useUpdateAiDomainConfig();
   const meta = DOMAIN_META[config.domain];
   const Icon = meta?.icon ?? FileText;
@@ -298,12 +290,13 @@ function DomainCard({
           type="button"
           role="switch"
           aria-checked={config.enabled}
+          aria-label={`${config.enabled ? "Disable" : "Enable"} AI for ${meta?.label ?? config.domain}`}
           disabled={mutation.isPending}
           onClick={handleToggle}
           className={clsx(
-            "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2",
+            "focus:ring-ocean-blue relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:ring-2 focus:ring-offset-2 focus:outline-none",
             config.enabled ? "bg-valley-green" : "bg-surface-alt",
-            mutation.isPending && "opacity-50 cursor-not-allowed"
+            mutation.isPending && "cursor-not-allowed opacity-50"
           )}
         >
           <span
@@ -323,7 +316,7 @@ function DomainCard({
 
 function DashboardSkeleton() {
   return (
-    <div className="space-y-8 animate-pulse">
+    <div className="animate-pulse space-y-8">
       {/* Status banner skeleton */}
       <div className="bg-surface-alt rounded-card h-14" />
 
@@ -334,7 +327,7 @@ function DashboardSkeleton() {
           {[1, 2].map((i) => (
             <div
               key={i}
-              className="bg-surface rounded-card border-hairline border h-40"
+              className="bg-surface rounded-card border-hairline h-40 border"
             />
           ))}
         </div>
@@ -347,7 +340,7 @@ function DashboardSkeleton() {
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="bg-surface rounded-card border-hairline border h-36"
+              className="bg-surface rounded-card border-hairline h-36 border"
             />
           ))}
         </div>

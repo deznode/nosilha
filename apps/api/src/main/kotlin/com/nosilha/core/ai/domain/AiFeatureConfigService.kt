@@ -39,7 +39,7 @@ class AiFeatureConfigService(
     /**
      * Returns domain-level configs only (excludes global), for domain toggle display.
      */
-    fun getDomainConfigs(): List<AiFeatureConfig> = repository.findAllByOrderByDomain().filter { it.domain != GLOBAL_DOMAIN }
+    fun getDomainConfigs(): List<AiFeatureConfig> = getAllConfigs().filter { it.domain != GLOBAL_DOMAIN }
 
     /**
      * Whether AI is globally enabled. Falls back to property if DB row is missing.

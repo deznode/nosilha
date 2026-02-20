@@ -89,7 +89,11 @@ class AiFeatureConfigIntegrationTest {
         jdbcTemplate.execute("DELETE FROM users")
 
         // Enable global, disable domain configs
-        configRepository.findAll().forEach {
+        val configs = configRepository.findAll()
+        check(configs.size == 4) {
+            "Expected 4 ai_feature_config rows from Flyway seeds, found ${configs.size}"
+        }
+        configs.forEach {
             it.enabled = (it.domain == "global")
             configRepository.save(it)
         }
@@ -131,19 +135,31 @@ class AiFeatureConfigIntegrationTest {
             ),
         )
 
+    private fun enableDomain(domain: String) {
+        val config = configRepository.findByDomain(domain)!!
+        config.enabled = true
+        configRepository.save(config)
+    }
+
+    private fun disableDomain(domain: String) {
+        val config = configRepository.findByDomain(domain)!!
+        config.enabled = false
+        configRepository.save(config)
+    }
+
     private fun createActiveMedia(): UserUploadedMedia {
         val media = UserUploadedMedia().apply {
-            this.title = "Test Heritage Photo"
-            this.status = GalleryMediaStatus.ACTIVE
-            this.publicUrl = "https://media.example.com/test-image.jpg"
-            this.source = MediaSource.LOCAL
-            this.uploadedBy = testUserId
-            this.displayOrder = 0
-            this.fileName = "test-image.jpg"
-            this.originalName = "heritage-photo.jpg"
-            this.contentType = "image/jpeg"
-            this.fileSize = 1024L
-            this.storageKey = "uploads/test-image.jpg"
+            title = "Test Heritage Photo"
+            status = GalleryMediaStatus.ACTIVE
+            publicUrl = "https://media.example.com/test-image.jpg"
+            source = MediaSource.LOCAL
+            uploadedBy = testUserId
+            displayOrder = 0
+            fileName = "test-image.jpg"
+            originalName = "heritage-photo.jpg"
+            contentType = "image/jpeg"
+            fileSize = 1024L
+            storageKey = "uploads/test-image.jpg"
         }
         return galleryMediaRepository.save(media) as UserUploadedMedia
     }
@@ -205,10 +221,7 @@ class AiFeatureConfigIntegrationTest {
         @Test
         @DisplayName("disables a domain successfully")
         fun `should disable domain and return updated config`() {
-            // First enable it
-            val config = configRepository.findByDomain("stories")!!
-            config.enabled = true
-            configRepository.save(config)
+            enableDomain("stories")
 
             mockMvc
                 .perform(
@@ -270,10 +283,7 @@ class AiFeatureConfigIntegrationTest {
         @Test
         @DisplayName("health domains reflect toggle state")
         fun `should reflect current toggle state in domains`() {
-            // Enable gallery
-            val config = configRepository.findByDomain("gallery")!!
-            config.enabled = true
-            configRepository.save(config)
+            enableDomain("gallery")
 
             mockMvc
                 .perform(
@@ -308,10 +318,7 @@ class AiFeatureConfigIntegrationTest {
         @Test
         @DisplayName("trigger analysis allowed when gallery AI enabled")
         fun `should allow analysis trigger when gallery enabled`() {
-            // Enable gallery domain
-            val config = configRepository.findByDomain("gallery")!!
-            config.enabled = true
-            configRepository.save(config)
+            enableDomain("gallery")
 
             val media = createActiveMedia()
 
@@ -383,9 +390,7 @@ class AiFeatureConfigIntegrationTest {
         @Test
         @DisplayName("polish calls provider when stories enabled")
         fun `polish should call provider when stories enabled`() {
-            val config = configRepository.findByDomain("stories")!!
-            config.enabled = true
-            configRepository.save(config)
+            enableDomain("stories")
 
             whenever(textAiProvider.polishContent(any())).thenReturn(
                 TextAiResult(content = "Polished text", aiApplied = true),
@@ -424,9 +429,7 @@ class AiFeatureConfigIntegrationTest {
         @Test
         @DisplayName("health enabled reflects disabled global")
         fun `toggle global to disabled updates health enabled`() {
-            val global = configRepository.findByDomain("global")!!
-            global.enabled = false
-            configRepository.save(global)
+            disableDomain("global")
 
             mockMvc
                 .perform(
@@ -439,15 +442,8 @@ class AiFeatureConfigIntegrationTest {
         @Test
         @DisplayName("global disabled blocks stories even when domain enabled")
         fun `global disabled blocks stories even when enabled`() {
-            // Disable global
-            val global = configRepository.findByDomain("global")!!
-            global.enabled = false
-            configRepository.save(global)
-
-            // Enable stories
-            val stories = configRepository.findByDomain("stories")!!
-            stories.enabled = true
-            configRepository.save(stories)
+            disableDomain("global")
+            enableDomain("stories")
 
             // Polish should return aiApplied=false
             mockMvc
@@ -463,15 +459,8 @@ class AiFeatureConfigIntegrationTest {
         @Test
         @DisplayName("global disabled blocks gallery even when gallery enabled")
         fun `global disabled blocks gallery analysis`() {
-            // Disable global
-            val global = configRepository.findByDomain("global")!!
-            global.enabled = false
-            configRepository.save(global)
-
-            // Enable gallery
-            val gallery = configRepository.findByDomain("gallery")!!
-            gallery.enabled = true
-            configRepository.save(gallery)
+            disableDomain("global")
+            enableDomain("gallery")
 
             val media = createActiveMedia()
 
@@ -539,9 +528,7 @@ class AiFeatureConfigIntegrationTest {
         @Test
         @DisplayName("directory-content works when directory enabled")
         fun `directory-content should succeed when directory enabled`() {
-            val config = configRepository.findByDomain("directory")!!
-            config.enabled = true
-            configRepository.save(config)
+            enableDomain("directory")
 
             whenever(textAiProvider.generateDirectoryContent(any(), any())).thenReturn(
                 GeminiDirectoryContentOutput(
