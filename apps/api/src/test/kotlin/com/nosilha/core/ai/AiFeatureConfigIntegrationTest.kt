@@ -40,6 +40,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import tools.jackson.databind.json.JsonMapper
+import java.time.Duration
+import java.time.Instant
 import java.util.UUID
 
 /**
@@ -76,8 +78,7 @@ class AiFeatureConfigIntegrationTest {
 
     @BeforeEach
     fun setup() {
-        // Wait briefly for any pending async events to complete
-        Thread.sleep(200)
+        awaitPendingEvents()
 
         // Clean up in FK-safe order
         jdbcTemplate.execute("DELETE FROM ai_api_usage")
@@ -561,6 +562,18 @@ class AiFeatureConfigIntegrationTest {
                         ),
                 ).andExpect(status().isOk)
                 .andExpect(jsonPath("$.data.description").value("A charming restaurant."))
+        }
+    }
+
+    private fun awaitPendingEvents(timeout: Duration = Duration.ofSeconds(5)) {
+        val deadline = Instant.now().plus(timeout)
+        while (Instant.now().isBefore(deadline)) {
+            val pending = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM event_publication WHERE completion_date IS NULL",
+                Long::class.java,
+            ) ?: 0
+            if (pending == 0L) return
+            Thread.sleep(50)
         }
     }
 }
