@@ -23,6 +23,7 @@ import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
 import com.nosilha.core.shared.exception.ResourceNotFoundException
 import io.github.oshai.kotlinlogging.KotlinLogging
+import jakarta.validation.Valid
 import org.springframework.data.domain.PageRequest
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
@@ -207,7 +208,7 @@ class AdminAiController(
     @PutMapping("/config/{domain}")
     fun updateConfig(
         @PathVariable domain: String,
-        @RequestBody request: UpdateDomainConfigRequest,
+        @Valid @RequestBody request: UpdateDomainConfigRequest,
         authentication: Authentication,
     ): ApiResult<DomainConfigDto> {
         val adminId = authentication.adminId()
