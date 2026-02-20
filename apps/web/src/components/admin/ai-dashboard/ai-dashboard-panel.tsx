@@ -4,7 +4,6 @@ import { clsx } from "clsx";
 import {
   AlertTriangle,
   CheckCircle2,
-  XCircle,
   Loader2,
   Image,
   FileText,
@@ -57,29 +56,13 @@ export function AiDashboardPanel() {
 
   return (
     <div className="space-y-8">
-      {/* Global Status Banner */}
-      <div
-        className={clsx(
-          "rounded-card flex items-center gap-3 px-5 py-4",
-          data.enabled
-            ? "bg-valley-green/10 text-valley-green"
-            : "bg-status-error/10 text-status-error"
-        )}
-      >
-        {data.enabled ? (
-          <CheckCircle2 className="h-5 w-5 shrink-0" />
-        ) : (
-          <XCircle className="h-5 w-5 shrink-0" />
-        )}
-        <span className="font-medium">
-          AI is globally {data.enabled ? "enabled" : "disabled"}
-        </span>
-      </div>
+      {/* Global AI Toggle */}
+      <GlobalToggleCard enabled={data.enabled} toast={toast} />
 
       {/* Provider Cards */}
       <section>
         <h2 className="text-body mb-4 text-lg font-semibold">Providers</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {data.providers.map((provider) => (
             <ProviderCard key={provider.name} provider={provider} />
           ))}
@@ -93,7 +76,12 @@ export function AiDashboardPanel() {
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {data.domains.map((domain) => (
-            <DomainCard key={domain.domain} config={domain} toast={toast} />
+            <DomainCard
+              key={domain.domain}
+              config={domain}
+              globalEnabled={data.enabled}
+              toast={toast}
+            />
           ))}
         </div>
       </section>
@@ -101,13 +89,101 @@ export function AiDashboardPanel() {
   );
 }
 
+function GlobalToggleCard({
+  enabled,
+  toast,
+}: {
+  enabled: boolean;
+  toast: ReturnType<typeof useToast>;
+}) {
+  const mutation = useUpdateAiDomainConfig();
+
+  const handleToggle = () => {
+    mutation.mutate(
+      { domain: "global", request: { enabled: !enabled } },
+      {
+        onSuccess: (updated) => {
+          toast
+            .success(
+              `AI globally ${updated.enabled ? "enabled" : "disabled"}`
+            )
+            .show();
+        },
+        onError: (err) => {
+          toast.error(`Failed to toggle: ${err.message}`).show();
+        },
+      }
+    );
+  };
+
+  return (
+    <div
+      className={clsx(
+        "rounded-card border-2 p-6",
+        enabled
+          ? "border-valley-green/30 bg-valley-green/5"
+          : "border-status-error/30 bg-status-error/5"
+      )}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {enabled ? (
+            <CheckCircle2 className="text-valley-green h-6 w-6 shrink-0" />
+          ) : (
+            <AlertTriangle className="text-status-error h-6 w-6 shrink-0" />
+          )}
+          <div>
+            <h2 className="text-body text-lg font-semibold">
+              Global AI {enabled ? "Enabled" : "Disabled"}
+            </h2>
+            <p className="text-muted text-sm">
+              {enabled
+                ? "All AI features are operational"
+                : "All AI operations are disabled across all domains"}
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={enabled}
+          disabled={mutation.isPending}
+          onClick={handleToggle}
+          className={clsx(
+            "relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2",
+            enabled ? "bg-valley-green" : "bg-status-error/60",
+            mutation.isPending && "cursor-not-allowed opacity-50"
+          )}
+        >
+          <span
+            className={clsx(
+              "pointer-events-none inline-block h-6 w-6 rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out",
+              enabled ? "translate-x-7" : "translate-x-0"
+            )}
+          />
+          {mutation.isPending && (
+            <Loader2 className="absolute inset-0 m-auto h-3.5 w-3.5 animate-spin text-white" />
+          )}
+        </button>
+      </div>
+      {!enabled && (
+        <p className="text-status-error/80 mt-3 text-xs font-medium">
+          Warning: Domain-level toggles below have no effect while global AI is
+          disabled.
+        </p>
+      )}
+    </div>
+  );
+}
+
+function usageBarColor(percentUsed: number): string {
+  if (percentUsed >= 90) return "bg-status-error";
+  if (percentUsed >= 70) return "bg-status-warning";
+  return "bg-valley-green";
+}
+
 function ProviderCard({ provider }: { provider: AiProviderHealth }) {
-  const usageColor =
-    provider.usage.percentUsed >= 90
-      ? "bg-status-error"
-      : provider.usage.percentUsed >= 70
-        ? "bg-status-warning"
-        : "bg-valley-green";
+  const usageColor = usageBarColor(provider.usage.percentUsed);
 
   return (
     <div className="bg-surface rounded-card border-hairline shadow-subtle border p-5">
@@ -162,9 +238,11 @@ function ProviderCard({ provider }: { provider: AiProviderHealth }) {
 
 function DomainCard({
   config,
+  globalEnabled,
   toast,
 }: {
   config: AiDomainConfig;
+  globalEnabled: boolean;
   toast: ReturnType<typeof useToast>;
 }) {
   const mutation = useUpdateAiDomainConfig();
@@ -201,14 +279,21 @@ function DomainCard({
         {meta?.description ?? `AI features for ${config.domain}`}
       </p>
       <div className="flex items-center justify-between">
-        <span
-          className={clsx(
-            "text-xs font-medium",
-            config.enabled ? "text-valley-green" : "text-muted"
+        <div>
+          <span
+            className={clsx(
+              "text-xs font-medium",
+              config.enabled ? "text-valley-green" : "text-muted"
+            )}
+          >
+            {config.enabled ? "Enabled" : "Disabled"}
+          </span>
+          {!globalEnabled && (
+            <span className="text-status-error/70 ml-2 text-xs italic">
+              Overridden — global AI is off
+            </span>
           )}
-        >
-          {config.enabled ? "Enabled" : "Disabled"}
-        </span>
+        </div>
         <button
           type="button"
           role="switch"

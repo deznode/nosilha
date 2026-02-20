@@ -41,16 +41,16 @@ class AiController(
 ) {
     @GetMapping("/available")
     fun checkAvailable(): ApiResult<AiAvailableResponse> {
-        val providerAvailable = textAiProvider?.isAvailable() ?: false
-        val storiesEnabled = configService.isEnabled("stories")
-        return ApiResult(data = AiAvailableResponse(available = providerAvailable && storiesEnabled))
+        val providerAvailable = textAiProvider?.isEnabled() ?: false
+        val storiesOperational = configService.isOperational("stories")
+        return ApiResult(data = AiAvailableResponse(available = providerAvailable && storiesOperational))
     }
 
     @PostMapping("/polish")
     fun polishContent(
         @Valid @RequestBody request: PolishContentRequest,
     ): ApiResult<PolishContentResponse> {
-        if (!configService.isEnabled("stories")) {
+        if (!configService.isOperational("stories")) {
             logger.debug { "Stories AI domain disabled, returning original content" }
             return ApiResult(data = PolishContentResponse(content = request.content, aiApplied = false))
         }
@@ -67,7 +67,7 @@ class AiController(
     fun translateContent(
         @Valid @RequestBody request: TranslateContentRequest,
     ): ApiResult<TranslateContentResponse> {
-        if (!configService.isEnabled("stories")) {
+        if (!configService.isOperational("stories")) {
             logger.debug { "Stories AI domain disabled, returning original content" }
             return ApiResult(data = TranslateContentResponse(content = request.content, aiApplied = false))
         }
@@ -84,7 +84,7 @@ class AiController(
     fun generatePrompts(
         @Valid @RequestBody request: GeneratePromptsRequest,
     ): ApiResult<GeneratePromptsResponse> {
-        if (!configService.isEnabled("stories")) {
+        if (!configService.isOperational("stories")) {
             throw BusinessException("AI content generation is disabled for stories")
         }
         val provider = textAiProvider
@@ -97,7 +97,7 @@ class AiController(
     fun generateDirectoryContent(
         @Valid @RequestBody request: GenerateDirectoryContentRequest,
     ): ApiResult<DirectoryContentResponse> {
-        if (!configService.isEnabled("directory")) {
+        if (!configService.isOperational("directory")) {
             throw BusinessException("AI content generation is disabled for directory")
         }
         val provider = textAiProvider

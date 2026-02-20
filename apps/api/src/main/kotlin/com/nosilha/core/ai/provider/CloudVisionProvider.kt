@@ -32,8 +32,11 @@ class CloudVisionProvider(
     private val maxTextResults: Int,
     @Value("\${nosilha.ai.cloud-vision.max-landmark-results:5}")
     private val maxLandmarkResults: Int,
+    @Value("\${nosilha.ai.cloud-vision.monthly-limit:1000}")
+    private val providerMonthlyLimit: Int,
 ) : ImageAnalysisProvider {
     override val name: String = "cloud-vision"
+    override val monthlyLimit: Int get() = providerMonthlyLimit
 
     override fun isEnabled(): Boolean = true
 

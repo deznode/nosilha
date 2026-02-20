@@ -14,8 +14,8 @@ import com.nosilha.core.ai.api.dto.UpdateDomainConfigRequest
 import com.nosilha.core.ai.api.dto.UsageDto
 import com.nosilha.core.ai.domain.AiFeatureConfigService
 import com.nosilha.core.ai.domain.AiModerationService
+import com.nosilha.core.ai.domain.AiProvider
 import com.nosilha.core.ai.domain.ApiUsageService
-import com.nosilha.core.ai.domain.ImageAnalysisProvider
 import com.nosilha.core.ai.domain.ModerationStatus
 import com.nosilha.core.ai.repository.AnalysisBatchRepository
 import com.nosilha.core.ai.repository.AnalysisRunRepository
@@ -23,7 +23,6 @@ import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
 import com.nosilha.core.shared.exception.ResourceNotFoundException
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.PageRequest
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
@@ -38,6 +37,8 @@ import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
+
+private fun Authentication.adminId(): UUID = UUID.fromString(name)
 
 /**
  * Admin REST controller for AI moderation and health monitoring.
@@ -56,16 +57,10 @@ private val logger = KotlinLogging.logger {}
 class AdminAiController(
     private val moderationService: AiModerationService,
     private val configService: AiFeatureConfigService,
-    private val providers: List<ImageAnalysisProvider>,
+    private val providers: List<AiProvider>,
     private val apiUsageService: ApiUsageService,
     private val analysisRunRepository: AnalysisRunRepository,
     private val analysisBatchRepository: AnalysisBatchRepository,
-    @Value("\${nosilha.ai.enabled:false}")
-    private val aiEnabled: Boolean,
-    @Value("\${nosilha.ai.cloud-vision.monthly-limit:1000}")
-    private val cloudVisionMonthlyLimit: Int,
-    @Value("\${nosilha.ai.gemini.monthly-limit:500}")
-    private val geminiMonthlyLimit: Int,
 ) {
     @GetMapping("/review-queue")
     fun getReviewQueue(
@@ -90,7 +85,7 @@ class AdminAiController(
         @PathVariable runId: UUID,
         authentication: Authentication,
     ): ApiResult<Unit> {
-        val adminId = UUID.fromString(authentication.name)
+        val adminId = authentication.adminId()
         logger.info { "Admin $adminId approving AI run $runId" }
         moderationService.approve(runId, adminId)
         return ApiResult(data = Unit)
@@ -102,7 +97,7 @@ class AdminAiController(
         @RequestBody(required = false) request: RejectRequest?,
         authentication: Authentication,
     ): ApiResult<Unit> {
-        val adminId = UUID.fromString(authentication.name)
+        val adminId = authentication.adminId()
         logger.info { "Admin $adminId rejecting AI run $runId" }
         moderationService.reject(runId, adminId, request?.notes)
         return ApiResult(data = Unit)
@@ -114,7 +109,7 @@ class AdminAiController(
         @RequestBody request: ApproveEditedRequest,
         authentication: Authentication,
     ): ApiResult<Unit> {
-        val adminId = UUID.fromString(authentication.name)
+        val adminId = authentication.adminId()
         logger.info { "Admin $adminId approving AI run $runId with edits" }
         moderationService.approveEdited(
             runId = runId,
@@ -177,19 +172,13 @@ class AdminAiController(
 
     @GetMapping("/health")
     fun getAiHealth(): ApiResult<AiHealthResponse> {
-        val monthlyLimits = mapOf(
-            "cloud-vision" to cloudVisionMonthlyLimit,
-            "gemini-cultural" to geminiMonthlyLimit,
-        )
-
         val providerInfos = providers.map { provider ->
-            val monthlyLimit = monthlyLimits[provider.name] ?: 0
-            val usage = apiUsageService.getUsage(provider.name, monthlyLimit)
+            val usage = apiUsageService.getUsage(provider.name, provider.monthlyLimit)
 
             ProviderHealthDto(
                 name = provider.name,
                 enabled = provider.isEnabled(),
-                capabilities = provider.supports().map { it.name },
+                capabilities = provider.capabilities().toList(),
                 usage = UsageDto(
                     count = usage.count,
                     limit = usage.limit,
@@ -198,11 +187,11 @@ class AdminAiController(
             )
         }
 
-        val domains = configService.getAllConfigs().map { DomainConfigDto.from(it) }
+        val domains = configService.getDomainConfigs().map { DomainConfigDto.from(it) }
 
         return ApiResult(
             data = AiHealthResponse(
-                enabled = aiEnabled,
+                enabled = configService.isGloballyEnabled(),
                 providers = providerInfos,
                 domains = domains,
             ),
@@ -221,7 +210,7 @@ class AdminAiController(
         @RequestBody request: UpdateDomainConfigRequest,
         authentication: Authentication,
     ): ApiResult<DomainConfigDto> {
-        val adminId = UUID.fromString(authentication.name)
+        val adminId = authentication.adminId()
         val updated = configService.updateConfig(domain, request.enabled, adminId)
         return ApiResult(data = DomainConfigDto.from(updated))
     }

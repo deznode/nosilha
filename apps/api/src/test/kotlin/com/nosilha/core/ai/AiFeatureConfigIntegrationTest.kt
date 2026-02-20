@@ -6,6 +6,8 @@ import com.nosilha.core.ai.api.dto.PolishContentRequest
 import com.nosilha.core.ai.api.dto.UpdateDomainConfigRequest
 import com.nosilha.core.ai.domain.GeminiDirectoryContentOutput
 import com.nosilha.core.ai.domain.ImageAnalysisProvider
+import com.nosilha.core.ai.domain.ImageAnalysisResult
+import com.nosilha.core.ai.domain.LabelResult
 import com.nosilha.core.ai.domain.TextAiResult
 import com.nosilha.core.ai.provider.TextAiProvider
 import com.nosilha.core.ai.repository.AiFeatureConfigRepository
@@ -19,7 +21,6 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
-import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.reset
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
@@ -86,9 +87,9 @@ class AiFeatureConfigIntegrationTest {
         galleryMediaRepository.deleteAll()
         jdbcTemplate.execute("DELETE FROM users")
 
-        // Reset all domain configs to disabled
+        // Enable global, disable domain configs
         configRepository.findAll().forEach {
-            it.enabled = false
+            it.enabled = (it.domain == "global")
             configRepository.save(it)
         }
 
@@ -101,6 +102,14 @@ class AiFeatureConfigIntegrationTest {
         whenever(mockProvider.name).thenReturn("cloud-vision")
         whenever(mockProvider.isEnabled()).thenReturn(true)
         whenever(mockProvider.supports()).thenReturn(emptySet())
+        whenever(mockProvider.capabilities()).thenReturn(emptySet())
+        whenever(mockProvider.monthlyLimit).thenReturn(1000)
+
+        reset(textAiProvider)
+        whenever(textAiProvider.name).thenReturn("gemini-text")
+        whenever(textAiProvider.isEnabled()).thenReturn(true)
+        whenever(textAiProvider.capabilities()).thenReturn(setOf("POLISH", "TRANSLATE", "PROMPTS", "DIRECTORY_CONTENT"))
+        whenever(textAiProvider.monthlyLimit).thenReturn(1000)
     }
 
     private fun adminAuth() =
@@ -154,7 +163,7 @@ class AiFeatureConfigIntegrationTest {
                         .with(adminAuth()),
                 ).andExpect(status().isOk)
                 .andExpect(jsonPath("$.data").isArray)
-                .andExpect(jsonPath("$.data.length()").value(3))
+                .andExpect(jsonPath("$.data.length()").value(4))
                 .andExpect(jsonPath("$.data[0].domain").exists())
                 .andExpect(jsonPath("$.data[0].enabled").exists())
         }
@@ -306,9 +315,9 @@ class AiFeatureConfigIntegrationTest {
             val media = createActiveMedia()
 
             whenever(mockProvider.analyze(any())).thenReturn(
-                com.nosilha.core.ai.domain.ImageAnalysisResult(
+                ImageAnalysisResult(
                     provider = "cloud-vision",
-                    labels = listOf(com.nosilha.core.ai.domain.LabelResult("church", 0.95f)),
+                    labels = listOf(LabelResult("church", 0.95f)),
                 ),
             )
 
@@ -360,7 +369,7 @@ class AiFeatureConfigIntegrationTest {
         @Test
         @DisplayName("available returns false when stories disabled")
         fun `available should return false when stories disabled`() {
-            whenever(textAiProvider.isAvailable()).thenReturn(true)
+            whenever(textAiProvider.isEnabled()).thenReturn(true)
 
             mockMvc
                 .perform(
@@ -390,6 +399,116 @@ class AiFeatureConfigIntegrationTest {
                 ).andExpect(status().isOk)
                 .andExpect(jsonPath("$.data.content").value("Polished text"))
                 .andExpect(jsonPath("$.data.aiApplied").value(true))
+        }
+    }
+
+    // =========================================================================
+    // Global AI Toggle
+    // =========================================================================
+
+    @Nested
+    @DisplayName("Global AI toggle")
+    inner class GlobalToggle {
+        @Test
+        @DisplayName("health enabled reflects global config state")
+        fun `health enabled should reflect global config`() {
+            mockMvc
+                .perform(
+                    get("/api/v1/admin/ai/health")
+                        .with(adminAuth()),
+                ).andExpect(status().isOk)
+                .andExpect(jsonPath("$.data.enabled").value(true))
+        }
+
+        @Test
+        @DisplayName("health enabled reflects disabled global")
+        fun `toggle global to disabled updates health enabled`() {
+            val global = configRepository.findByDomain("global")!!
+            global.enabled = false
+            configRepository.save(global)
+
+            mockMvc
+                .perform(
+                    get("/api/v1/admin/ai/health")
+                        .with(adminAuth()),
+                ).andExpect(status().isOk)
+                .andExpect(jsonPath("$.data.enabled").value(false))
+        }
+
+        @Test
+        @DisplayName("global disabled blocks stories even when domain enabled")
+        fun `global disabled blocks stories even when enabled`() {
+            // Disable global
+            val global = configRepository.findByDomain("global")!!
+            global.enabled = false
+            configRepository.save(global)
+
+            // Enable stories
+            val stories = configRepository.findByDomain("stories")!!
+            stories.enabled = true
+            configRepository.save(stories)
+
+            // Polish should return aiApplied=false
+            mockMvc
+                .perform(
+                    post("/api/v1/ai/polish")
+                        .with(userAuth())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(PolishContentRequest(content = "Hello"))),
+                ).andExpect(status().isOk)
+                .andExpect(jsonPath("$.data.aiApplied").value(false))
+        }
+
+        @Test
+        @DisplayName("global disabled blocks gallery even when gallery enabled")
+        fun `global disabled blocks gallery analysis`() {
+            // Disable global
+            val global = configRepository.findByDomain("global")!!
+            global.enabled = false
+            configRepository.save(global)
+
+            // Enable gallery
+            val gallery = configRepository.findByDomain("gallery")!!
+            gallery.enabled = true
+            configRepository.save(gallery)
+
+            val media = createActiveMedia()
+
+            mockMvc
+                .perform(
+                    post("/api/v1/admin/gallery/${media.id}/analyze")
+                        .with(adminAuth()),
+                ).andExpect(status().isUnprocessableEntity)
+        }
+
+        @Test
+        @DisplayName("global toggle via PUT config endpoint")
+        fun `should toggle global via config endpoint`() {
+            mockMvc
+                .perform(
+                    put("/api/v1/admin/ai/config/global")
+                        .with(adminAuth())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(UpdateDomainConfigRequest(enabled = false))),
+                ).andExpect(status().isOk)
+                .andExpect(jsonPath("$.data.domain").value("global"))
+                .andExpect(jsonPath("$.data.enabled").value(false))
+
+            val config = configRepository.findByDomain("global")
+            assertThat(config).isNotNull
+            assertThat(config!!.enabled).isFalse()
+        }
+
+        @Test
+        @DisplayName("health excludes global from domains array")
+        fun `health domains should not include global`() {
+            mockMvc
+                .perform(
+                    get("/api/v1/admin/ai/health")
+                        .with(adminAuth()),
+                ).andExpect(status().isOk)
+                .andExpect(jsonPath("$.data.domains.length()").value(3))
+                .andExpect(jsonPath("$.data.domains[?(@.domain == 'global')]").doesNotExist())
         }
     }
 

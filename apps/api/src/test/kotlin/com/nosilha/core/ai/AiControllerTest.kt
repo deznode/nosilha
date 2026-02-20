@@ -70,7 +70,7 @@ class AiControllerTest {
     @Test
     @DisplayName("GET /api/v1/ai/available - returns 200 with availability status")
     fun `available check returns 200`() {
-        whenever(textAiProvider.isAvailable()).thenReturn(true)
+        whenever(textAiProvider.isEnabled()).thenReturn(true)
 
         mockMvc
             .perform(

@@ -56,6 +56,8 @@ class GeminiCulturalProvider(
     systemPromptResource: Resource,
     @Value("classpath:/prompts/image/analyze-user.st")
     analyzePromptResource: Resource,
+    @Value("\${nosilha.ai.gemini.monthly-limit:500}")
+    private val providerMonthlyLimit: Int,
 ) : ImageAnalysisProvider {
     private val analyzePrompt = analyzePromptResource.getContentAsString(StandardCharsets.UTF_8)
 
@@ -67,6 +69,7 @@ class GeminiCulturalProvider(
     private val objectMapper = jacksonObjectMapper()
 
     override val name: String = "gemini-cultural"
+    override val monthlyLimit: Int get() = providerMonthlyLimit
 
     override fun isEnabled(): Boolean = true
 
