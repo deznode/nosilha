@@ -173,5 +173,5 @@ CREATE INDEX idx_directory_entries_search ON directory_entries USING GIN(search_
 
 ## Reference
 
-- See `docs/api-coding-standards.md` for comprehensive standards
+- See `docs/20-architecture/api-coding-standards.md` for comprehensive standards
 - Migration files: `apps/api/src/main/resources/db/migration/`

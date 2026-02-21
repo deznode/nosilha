@@ -155,5 +155,5 @@ class SecurityConfig(
 
 ## Reference
 
-- See `docs/api-coding-standards.md` for comprehensive standards
+- See `docs/20-architecture/api-coding-standards.md` for comprehensive standards
 - Security config: `apps/api/src/main/kotlin/com/nosilha/core/auth/security/SecurityConfig.kt`

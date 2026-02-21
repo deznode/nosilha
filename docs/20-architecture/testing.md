@@ -170,6 +170,6 @@ Common causes: Docker not running, port conflicts, missing `application-test.yml
 
 ## Related Documentation
 
-- [CI/CD Pipeline](./ci-cd-pipeline.md)
+- [CI/CD Pipeline](../40-operations/ci-cd-pipeline.md)
 - [Architecture](./architecture.md)
 - [Spring Modulith](./spring-modulith.md)

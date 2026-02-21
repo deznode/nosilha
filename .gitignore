@@ -44,6 +44,9 @@ lerna-debug.log*
 *.backup
 *~
 
+# Security scan reports (may contain detected secrets)
+gitleaks-report.json
+
 # Security
 *.pem
 *.key

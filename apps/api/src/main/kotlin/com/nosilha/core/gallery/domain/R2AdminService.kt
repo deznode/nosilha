@@ -148,6 +148,7 @@ class R2AdminService(
                 source = MediaSource.LOCAL
                 reviewedBy = adminId
                 reviewedAt = Instant.now()
+                showInGallery = true
             }
 
             val saved = repository.save(media)
@@ -253,6 +254,7 @@ class R2AdminService(
             source = MediaSource.LOCAL
             reviewedBy = adminId
             reviewedAt = Instant.now()
+            showInGallery = true
         }
 
         val saved = try {

@@ -24,3 +24,53 @@ cc70d144cbdecea63c65496c4e654350c9abbb01:docs/API_REFERENCE.md:curl-auth-header:
 cc70d144cbdecea63c65496c4e654350c9abbb01:docs/API_REFERENCE.md:curl-auth-header:675
 4a979a2badf1f21297b4f4a46bb4f3651b44c7a5:docs/API_REFERENCE.md:curl-auth-header:659
 4a979a2badf1f21297b4f4a46bb4f3651b44c7a5:docs/API_REFERENCE.md:curl-auth-header:675
+
+# ============================================================
+# HISTORICAL FINDINGS - Credentials rotated, file removed
+# ============================================================
+# The gitleaks-report.json file was accidentally committed to git
+# containing detected secrets. File has been removed (git rm) and
+# added to .gitignore. Credentials should be rotated in Supabase.
+
+# Documentation placeholder "YOUR_JWT" in supabase-admin-roles.md (renamed file)
+cb2c1209354062735b226e1d66be5bbad6517407:docs/supabase-admin-roles.md:curl-auth-header:84
+ee79f43254bb6663ff73029ad6f3685e66cce206:docs/supabase-admin-roles.md:curl-auth-header:84
+
+# Secrets found inside the committed gitleaks-report.json (now removed)
+# Supabase service_role JWT tokens
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:jwt:303
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:jwt:304
+
+# SUPABASE_JWT_SECRET values in gitleaks-report.json
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:30
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:31
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:51
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:52
+
+# Test secret values echoed in gitleaks-report.json
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:73
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:93
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:94
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:114
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:115
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:135
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:136
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:156
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:157
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:177
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:178
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:198
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:199
+
+# Truncated JWT examples in gitleaks-report.json
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:220
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:241
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:262
+2a61fa8b3dc54b8523227183638db4f3814a01a6:gitleaks-report.json:generic-api-key:283
+
+# SUPABASE_JWT_SECRET in historical .env.example (file removed)
+79021c91b2d72e749fcd6c359f908961f8061ad8:infrastructure/docker/.env.example:generic-api-key:18
+0af5f66d06c49de075e0f80ecef805ee418e94ef:infrastructure/docker/.env.example:generic-api-key:18
+
+# Supabase service_role JWT in historical application-local.yml
+7acc061a7c2b8e4b9fb592bf304ce2b313732934:backend/src/main/resources/application-local.yml:jwt:36

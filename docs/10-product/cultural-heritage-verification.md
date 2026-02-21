@@ -326,6 +326,6 @@ This systematic approach ensures that all platform content maintains the highest
 
 ## Related Documentation
 
-- [API Coding Standards](api-coding-standards.md) - Backend validation patterns
-- [Security Policy](../SECURITY.md) - Data protection and privacy
-- [Architecture](architecture.md) - Platform technical overview
+- [API Coding Standards](../20-architecture/api-coding-standards.md) - Backend validation patterns
+- [Security Policy](../../SECURITY.md) - Data protection and privacy
+- [Architecture](../20-architecture/architecture.md) - Platform technical overview

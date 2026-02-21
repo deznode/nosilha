@@ -124,7 +124,7 @@ When in doubt, start with `task`. It wraps the underlying tools with sensible de
 
 ## Troubleshooting
 
-See [docs/troubleshooting.md](troubleshooting.md) for the full list. Common issues:
+See [troubleshooting.md](troubleshooting.md) for the full list. Common issues:
 
 **Port already in use (3000 or 8080)**
 Kill the process using the port: `lsof -ti:3000 | xargs kill -9`
@@ -137,9 +137,9 @@ Run `task setup` to copy environment templates. For mock-only mode, run `task se
 
 ## Next Steps
 
-- [Architecture](architecture.md) — System design and module boundaries
-- [Design System](design-system.md) — UI components, colors, typography
-- [API Reference](api-reference.md) — Backend endpoints and schemas
-- [API Coding Standards](api-coding-standards.md) — Backend conventions
-- [Testing Guide](testing.md) — E2E and unit testing
-- [CI/CD Pipeline](ci-cd-pipeline.md) — Deployment and automation
+- [Architecture](../20-architecture/architecture.md) — System design and module boundaries
+- [Design System](../10-product/design-system.md) — UI components, colors, typography
+- [API Reference](../20-architecture/api-reference.md) — Backend endpoints and schemas
+- [API Coding Standards](../20-architecture/api-coding-standards.md) — Backend conventions
+- [Testing Guide](../20-architecture/testing.md) — E2E and unit testing
+- [CI/CD Pipeline](../40-operations/ci-cd-pipeline.md) — Deployment and automation

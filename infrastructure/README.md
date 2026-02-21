@@ -75,6 +75,5 @@ terraform apply
 
 - [Docker Setup Guide](docker/README.md) - Detailed local development environment setup
 - [Terraform Infrastructure Guide](terraform/README.md) - Comprehensive GCP infrastructure documentation
-- [CI/CD Pipeline](../docs/ci-cd-pipeline.md) - Deployment workflows and troubleshooting
-- [Architecture](../docs/architecture.md) - System architecture and component overview
-- [GCP Troubleshooting](../docs/gcloud-cloud-run-troubleshooting.md) - Cloud Run operational guide
+- [CI/CD Pipeline](../docs/40-operations/ci-cd-pipeline.md) - Deployment workflows and troubleshooting
+- [Architecture](../docs/20-architecture/architecture.md) - System architecture and component overview

@@ -129,14 +129,14 @@ cd apps/api
 
 ### Frontend (TypeScript/React)
 
-- Follow the patterns in [`docs/design-system.md`](docs/design-system.md)
+- Follow the patterns in [`docs/10-product/design-system.md`](docs/10-product/design-system.md)
 - Use TypeScript strict mode
 - Prefer React Server Components when possible
 - Follow mobile-first responsive design
 
 ### Backend (Kotlin/Spring Boot)
 
-- Follow the patterns in [`docs/api-coding-standards.md`](docs/api-coding-standards.md)
+- Follow the patterns in [`docs/20-architecture/api-coding-standards.md`](docs/20-architecture/api-coding-standards.md)
 - Use ktlint for code formatting
 - Follow Spring Modulith boundaries
 - Write tests for new functionality
@@ -182,7 +182,7 @@ This project preserves and celebrates the cultural heritage of Brava Island. Whe
 
 - Verify historical accuracy with reliable sources
 - Respect local traditions and customs
-- Consult [`docs/cultural-heritage-verification.md`](docs/cultural-heritage-verification.md) for content guidelines
+- Consult [`docs/10-product/cultural-heritage-verification.md`](docs/10-product/cultural-heritage-verification.md) for content guidelines
 - When in doubt, ask the community for guidance
 
 ## Questions?

@@ -153,4 +153,4 @@ service.getEntriesPage(pageable).map { it.toDto() }
 
 ## Reference
 
-- See `docs/api-coding-standards.md` for comprehensive standards
+- See `docs/20-architecture/api-coding-standards.md` for comprehensive standards
