@@ -447,7 +447,7 @@ gh workflow run frontend-ci.yml --ref main -f deploy=true
 
 ## Related Documentation
 
-- [CI/CD Pipeline](ci-cd-pipeline.md) - Detailed workflow configuration
-- [Secret Management](secret-management.md) - GCP Secret Manager guide
-- [Architecture](architecture.md) - System design and module structure
-- [SECURITY.md](../SECURITY.md) - Security policy and vulnerability reporting
+- [CI/CD Pipeline](../40-operations/ci-cd-pipeline.md) - Detailed workflow configuration
+- [Secret Management](../40-operations/secret-management.md) - GCP Secret Manager guide
+- [Architecture](../20-architecture/architecture.md) - System design and module structure
+- [SECURITY.md](../../SECURITY.md) - Security policy and vulnerability reporting

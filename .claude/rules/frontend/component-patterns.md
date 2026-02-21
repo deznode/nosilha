@@ -164,4 +164,4 @@ const handleAction = async () => {
 
 - UI components: `apps/web/src/components/ui/`
 - Catalyst UI: `apps/web/src/components/catalyst-ui/`
-- See `docs/design-system.md` for design system guide
+- See `docs/10-product/design-system.md` for design system guide

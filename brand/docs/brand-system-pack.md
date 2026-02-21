@@ -2,7 +2,7 @@
 
 **Version:** 1.0.0 (Codename: *Ilha das Flores*)
 
-Unified reference for the visual identity, tone, and brand standards of the Nos Ilha ecosystem. For frontend implementation details (tokens, components, code patterns), see [`docs/design-system.md`](../../docs/design-system.md).
+Unified reference for the visual identity, tone, and brand standards of the Nos Ilha ecosystem. For frontend implementation details (tokens, components, code patterns), see [`docs/10-product/design-system.md`](../../docs/10-product/design-system.md).
 
 ---
 
@@ -157,7 +157,7 @@ Dark mode uses custom-tuned values rather than simple inversions. Background col
 | **Bougainvillea Pink** | `#AE1173` | `#F36FB8` | Lighter, desaturated pink for reduced eye strain |
 | **Brand Text** | `#003F60` | `#7DD4FB` | Light blue for readable brand-colored text |
 
-For the full semantic token mapping (backgrounds, text, borders), see the [Dark Mode section in `docs/design-system.md`](../../docs/design-system.md#dark-mode).
+For the full semantic token mapping (backgrounds, text, borders), see the [Dark Mode section in `docs/10-product/design-system.md`](../../docs/10-product/design-system.md#dark-mode).
 
 ---
 
@@ -182,9 +182,9 @@ The frontend design system implements all brand tokens, components, and patterns
 
 | Topic | Reference |
 |-------|-----------|
-| **Design tokens, components, code patterns** | [`docs/design-system.md`](../../docs/design-system.md) |
-| **Color token architecture (OKLCH, Tailwind v4)** | [`docs/design-system.md` - Color System](../../docs/design-system.md#color-system) |
-| **Component library (22+ components)** | [`docs/design-system.md` - Components](../../docs/design-system.md#components) |
+| **Design tokens, components, code patterns** | [`docs/10-product/design-system.md`](../../docs/10-product/design-system.md) |
+| **Color token architecture (OKLCH, Tailwind v4)** | [`docs/10-product/design-system.md` - Color System](../../docs/10-product/design-system.md#color-system) |
+| **Component library (22+ components)** | [`docs/10-product/design-system.md` - Components](../../docs/10-product/design-system.md#components) |
 | **Interactive gallery (dev only)** | `http://localhost:3000/design-system` |
 
 ---

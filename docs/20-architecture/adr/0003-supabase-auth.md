@@ -100,6 +100,6 @@ Spring Security enforces access -> /api/v1/admin/** requires ADMIN role
 ## References
 
 - [Supabase Auth Documentation](https://supabase.com/docs/guides/auth)
-- `/docs/supabase-admin-roles.md` - Role configuration guide
+- `/docs/20-architecture/supabase-admin-roles.md` - Role configuration guide
 - `/apps/web/src/components/providers/auth-provider.tsx` - Frontend auth implementation
 - `/apps/api/src/main/kotlin/com/nosilha/core/auth/security/JwtAuthenticationFilter.kt` - Backend JWT validation

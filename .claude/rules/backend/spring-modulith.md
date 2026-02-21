@@ -116,6 +116,6 @@ data class DirectoryEntryCreatedEvent(
 
 ## Reference
 
-- See `docs/architecture.md` for detailed technical architecture
-- See `docs/spring-modulith.md` for complete module architecture guide
-- See `docs/api-coding-standards.md` for coding standards
+- See `docs/20-architecture/architecture.md` for detailed technical architecture
+- See `docs/20-architecture/spring-modulith.md` for complete module architecture guide
+- See `docs/20-architecture/api-coding-standards.md` for coding standards

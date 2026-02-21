@@ -18,7 +18,7 @@ docker-compose exec db pg_dump -U nosilha nosilha_db > backup.sql  # Create back
 
 ## CI/CD Pipeline
 
-The project uses a **modular CI/CD architecture** with service-specific workflows. See `docs/ci-cd-pipeline.md` for comprehensive details.
+The project uses a **modular CI/CD architecture** with service-specific workflows. See `docs/40-operations/ci-cd-pipeline.md` for comprehensive details.
 
 ### Key Workflows
 
@@ -70,5 +70,5 @@ Solo-maintained project using lean, budget-conscious CI/CD:
 
 ## Reference
 
-- See `docs/ci-cd-pipeline.md` for detailed CI/CD setup and troubleshooting
-- See `docs/secret-management.md` for secret management guide
+- See `docs/40-operations/ci-cd-pipeline.md` for detailed CI/CD setup and troubleshooting
+- See `docs/40-operations/secret-management.md` for secret management guide

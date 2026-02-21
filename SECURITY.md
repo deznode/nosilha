@@ -91,4 +91,4 @@ For security-related questions or concerns:
 
 - **Security Issues**: Use [GitHub's private vulnerability reporting](../../security/advisories/new)
 - **General Questions**: Create an issue in the repository with the `security` label
-- **CI/CD Security**: Refer to the [CI/CD Pipeline Documentation](docs/ci-cd-pipeline.md) for deployment security details
+- **CI/CD Security**: Refer to the [CI/CD Pipeline Documentation](docs/40-operations/ci-cd-pipeline.md) for deployment security details

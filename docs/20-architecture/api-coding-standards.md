@@ -282,4 +282,4 @@ class DirectoryEntryService {
 | [spring-modulith.md](spring-modulith.md) | Module architecture and boundaries |
 | [api-reference.md](api-reference.md) | API endpoints and examples |
 | [testing.md](testing.md) | Testing strategy and tools |
-| [api-roadmap.md](api-roadmap.md) | Planned improvements |
+| [api-roadmap.md](../10-product/api-roadmap.md) | Planned improvements |

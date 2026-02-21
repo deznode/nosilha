@@ -25,7 +25,7 @@ nosilha/
 └── .claude/           # Rules, skills, commands for Claude Code
 ```
 
-See `docs/architecture.md` for detailed integration flows (auth, content management, media, CI/CD).
+See `docs/20-architecture/architecture.md` for detailed integration flows (auth, content management, media, CI/CD).
 
 ## Development Setup
 
@@ -121,41 +121,49 @@ Config: `.playwright/cli.config.json` configures the CLI skill. `apps/web/playwr
 
 ### Documentation Compliance
 
-- **Frontend work** → Reference `docs/design-system.md`
-- **Backend work** → Reference `docs/api-coding-standards.md`
-- **Content verification** → Reference `docs/cultural-heritage-verification.md`
+- **Frontend work** → Reference `docs/10-product/design-system.md`
+- **Backend work** → Reference `docs/20-architecture/api-coding-standards.md`
+- **Content verification** → Reference `docs/10-product/cultural-heritage-verification.md`
 
 ## Key Documentation Files
 
-### Core Documentation
-- `docs/architecture.md` - Detailed technical architecture with system flows and diagrams
-- `docs/design-system.md` - Complete frontend design system and component library guide
-- `docs/api-reference.md` - Backend API documentation with endpoints and examples
-- `docs/api-coding-standards.md` - Comprehensive backend coding standards
-- `docs/ci-cd-pipeline.md` - Detailed CI/CD setup and troubleshooting guide
-- `docs/troubleshooting.md` - Common issues and solutions
+### 00 Getting Started
+- `docs/00-getting-started/getting-started.md` - Development environment setup
+- `docs/00-getting-started/troubleshooting.md` - Common issues and solutions
 
-### Module Architecture Documentation
-- `docs/testing.md` - Comprehensive testing guide (Playwright E2E, Vitest unit tests)
-- `docs/state-management.md` - State management patterns guide (Zustand, TanStack Query, Zod)
-- `docs/spring-modulith.md` - Backend module architecture guide
+### 10 Product
+- `docs/10-product/design-system.md` - Complete frontend design system and component library guide
+- `docs/10-product/cultural-heritage-verification.md` - Cultural heritage content verification protocols
+- `docs/10-product/api-roadmap.md` - Planned backend improvements and migrations
+- `docs/10-product/content-authoring/` - Content authoring platform guides
 
-### Additional Documentation
-- `docs/secret-management.md` - Secret management guide
-- `docs/cultural-heritage-verification.md` - Cultural heritage content verification protocols
-- `docs/supabase-admin-roles.md` - Supabase admin role setup and JWT-based access control
-- `docs/api-roadmap.md` - Planned backend improvements and migrations
-- `docs/nx-monorepo.md` - Nx monorepo commands and project graph
+### 20 Architecture
+- `docs/20-architecture/architecture.md` - Detailed technical architecture with system flows and diagrams
+- `docs/20-architecture/api-reference.md` - Backend API documentation with endpoints and examples
+- `docs/20-architecture/api-coding-standards.md` - Comprehensive backend coding standards
+- `docs/20-architecture/spring-modulith.md` - Backend module architecture guide
+- `docs/20-architecture/state-management.md` - State management patterns guide (Zustand, TanStack Query, Zod)
+- `docs/20-architecture/testing.md` - Comprehensive testing guide (Playwright E2E, Vitest unit tests)
+- `docs/20-architecture/supabase-admin-roles.md` - Supabase admin role setup and JWT-based access control
+- `docs/20-architecture/nx-monorepo.md` - Nx monorepo commands and project graph
+- `docs/20-architecture/ai-provider-orchestration.md` - AI provider orchestration
+- `docs/20-architecture/adr/` - Architecture Decision Records
+
+### 40 Operations
+- `docs/40-operations/ci-cd-pipeline.md` - Detailed CI/CD setup and troubleshooting guide
+- `docs/40-operations/secret-management.md` - Secret management guide
+
+### Other
 - `SECURITY.md` - Security policy and vulnerability reporting procedures
 
 ## Troubleshooting
 
-For common issues, see `docs/troubleshooting.md`.
+For common issues, see `docs/00-getting-started/troubleshooting.md`.
 
 **Quick Help**:
-- **CI/CD Issues**: `docs/ci-cd-pipeline.md`
+- **CI/CD Issues**: `docs/40-operations/ci-cd-pipeline.md`
 - **Security Issues**: `SECURITY.md`
-- **Architecture Questions**: `docs/architecture.md`
+- **Architecture Questions**: `docs/20-architecture/architecture.md`
 
 ## Important Instruction Reminders
 Do what has been asked; nothing more, nothing less.

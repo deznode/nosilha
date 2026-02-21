@@ -10,9 +10,9 @@ New to the codebase? Choose your role for an optimal reading path:
 
 | Role | Start Here | Then Read | Deep Dive |
 |------|-----------|-----------|-----------|
-| **Frontend Developer** | [§5.1](#51-level-1-system-decomposition), [§5.2](#52-frontend-structure) | [state-management.md](state-management.md) | [design-system.md](design-system.md) |
+| **Frontend Developer** | [§5.1](#51-level-1-system-decomposition), [§5.2](#52-frontend-structure) | [state-management.md](state-management.md) | [design-system.md](../10-product/design-system.md) |
 | **Backend Developer** | [§5.1](#51-level-1-system-decomposition), [§5.3](#53-backend-modules) | [spring-modulith.md](spring-modulith.md) | [api-coding-standards.md](api-coding-standards.md) |
-| **DevOps/Infrastructure** | [§7](#7-deployment-view), [§8](#8-cross-cutting-concerns) | [ci-cd-pipeline.md](ci-cd-pipeline.md) | [secret-management.md](secret-management.md) |
+| **DevOps/Infrastructure** | [§7](#7-deployment-view), [§8](#8-cross-cutting-concerns) | [ci-cd-pipeline.md](../40-operations/ci-cd-pipeline.md) | [secret-management.md](../40-operations/secret-management.md) |
 
 **Time to read this document**: ~15 minutes for system overview
 
@@ -206,7 +206,7 @@ C4Container
 | `(main)` | Public content | `/directory`, `/map`, `/stories`, `/gallery` |
 | `(admin)` | Administration | `/admin`, `/admin/sandbox` |
 
-For state management (Zustand, TanStack Query, Zod) and component patterns, see [state-management.md](state-management.md) and [design-system.md](design-system.md).
+For state management (Zustand, TanStack Query, Zod) and component patterns, see [state-management.md](state-management.md) and [design-system.md](../10-product/design-system.md).
 
 ### 5.3 Backend Modules
 
@@ -394,7 +394,7 @@ C4Deployment
 
 **Infrastructure as Code:** Terraform configurations in `/infrastructure/terraform/`
 
-See [docs/ci-cd-pipeline.md](ci-cd-pipeline.md) for CI/CD details.
+See [docs/40-operations/ci-cd-pipeline.md](../40-operations/ci-cd-pipeline.md) for CI/CD details.
 
 ---
 
@@ -452,7 +452,7 @@ For complete error handling patterns, see [api-coding-standards.md](api-coding-s
 
 ## 9. Architecture Decisions
 
-Key decisions are documented in `/docs/adr/`. Each ADR explains the context, alternatives considered, and consequences.
+Key decisions are documented in `/docs/20-architecture/adr/`. Each ADR explains the context, alternatives considered, and consequences.
 
 | ADR | Decision | Summary | Status |
 |-----|----------|---------|--------|
@@ -486,7 +486,7 @@ Key decisions are documented in `/docs/adr/`. Each ADR explains the context, alt
 | Integration tests | Testcontainers | Backend API with PostgreSQL |
 | Module tests | Spring Modulith | Module boundary verification |
 
-See [docs/testing.md](testing.md) for details.
+See [docs/20-architecture/testing.md](testing.md) for details.
 
 ---
 
@@ -540,7 +540,7 @@ See [docs/testing.md](testing.md) for details.
 
 - [Spring Modulith Architecture](spring-modulith.md) - Backend module details
 - [State Management](state-management.md) - Frontend state patterns
-- [Design System](design-system.md) - UI components and styling
+- [Design System](../10-product/design-system.md) - UI components and styling
 - [API Reference](api-reference.md) - REST API documentation
-- [CI/CD Pipeline](ci-cd-pipeline.md) - Build and deployment
+- [CI/CD Pipeline](../40-operations/ci-cd-pipeline.md) - Build and deployment
 - [Testing](testing.md) - Test strategy and execution

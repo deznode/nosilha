@@ -26,7 +26,7 @@ Creates content for Nos Ilha that combines authentic Cape Verdean cultural repre
 | Geography Validation | Coordinates within Brava Island bounds (lat: 14.80-14.90, lng: -24.75 to -24.65) |
 | Cultural Boundaries | Maintain sensitivity around sacred practices and private cultural knowledge |
 
-Reference `docs/design-system.md` for brand voice. Reference `docs/cultural-heritage-verification.md` for accuracy standards.
+Reference `docs/10-product/design-system.md` for brand voice. Reference `docs/10-product/cultural-heritage-verification.md` for accuracy standards.
 
 ### SEO & Content Quality
 
@@ -87,8 +87,8 @@ Reference `docs/design-system.md` for brand voice. Reference `docs/cultural-heri
 - [references/cultural-glossary.md](references/cultural-glossary.md) - Cultural terms and usage
 
 **Project docs**:
-- `docs/design-system.md` - Brand voice and cultural values
-- `docs/cultural-heritage-verification.md` - Cultural accuracy standards
+- `docs/10-product/design-system.md` - Brand voice and cultural values
+- `docs/10-product/cultural-heritage-verification.md` - Cultural accuracy standards
 
 ## Best Practices
 
