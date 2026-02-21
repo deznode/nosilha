@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { CreditDisplay } from "@/components/ui/credit-display";
 
-interface Photo {
+export interface Photo {
   src: string;
   alt: string;
   location: string;
