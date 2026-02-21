@@ -20,4 +20,5 @@ data class UpdateGalleryMediaRequest(
     val author: String? = null,
     @field:Size(max = 255, message = "Photographer credit cannot exceed 255 characters")
     val photographerCredit: String? = null,
+    val showInGallery: Boolean? = null,
 )

@@ -1,6 +1,6 @@
 # API Roadmap
 
-Planned backend improvements and migrations. For current standards, see [api-coding-standards.md](api-coding-standards.md).
+Planned backend improvements and migrations. For current standards, see [api-coding-standards.md](../20-architecture/api-coding-standards.md).
 
 ---
 
@@ -200,6 +200,6 @@ src/test/kotlin/
 
 ## Related Documentation
 
-- [api-coding-standards.md](api-coding-standards.md) - Current standards
-- [spring-modulith.md](spring-modulith.md) - Module architecture
-- [architecture.md](architecture.md) - System overview
+- [api-coding-standards.md](../20-architecture/api-coding-standards.md) - Current standards
+- [spring-modulith.md](../20-architecture/spring-modulith.md) - Module architecture
+- [architecture.md](../20-architecture/architecture.md) - System overview

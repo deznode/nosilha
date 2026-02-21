@@ -143,6 +143,11 @@ export function GalleryQueueItem({
                   {getMediaIcon()} {item.category}
                 </span>
               )}
+              {!item.showInGallery && (
+                <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                  Hidden from gallery
+                </span>
+              )}
               <span className="text-muted text-xs">
                 {new Date(item.createdAt).toLocaleDateString()}
               </span>

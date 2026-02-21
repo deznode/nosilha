@@ -110,9 +110,9 @@ terraform output
 
 This infrastructure follows two key architectural decisions documented in ADRs:
 
-**[ADR 0005: Workload Identity Federation](../../docs/adr/0005-workload-identity-federation.md)** — CI/CD authentication uses OIDC tokens from GitHub Actions instead of long-lived service account keys. This eliminates credential management overhead and follows zero-trust principles.
+**[ADR 0005: Workload Identity Federation](../../docs/20-architecture/adr/0005-workload-identity-federation.md)** — CI/CD authentication uses OIDC tokens from GitHub Actions instead of long-lived service account keys. This eliminates credential management overhead and follows zero-trust principles.
 
-**[ADR 0006: Free Tier Cost Optimization](../../docs/adr/0006-free-tier-cost-optimization.md)** — Infrastructure is architected to stay within GCP's free tier limits (~$0-5/month) using `cpu_idle = true`, scale-to-zero, and budget alerting.
+**[ADR 0006: Free Tier Cost Optimization](../../docs/20-architecture/adr/0006-free-tier-cost-optimization.md)** — Infrastructure is architected to stay within GCP's free tier limits (~$0-5/month) using `cpu_idle = true`, scale-to-zero, and budget alerting.
 
 ## Updating Resources
 
@@ -149,5 +149,4 @@ terraform refresh
 
 - [Terraform Google Provider Docs](https://registry.terraform.io/providers/hashicorp/google/latest/docs)
 - [Cloud Run Documentation](https://cloud.google.com/run/docs)
-- [Project CI/CD Pipeline](../../docs/ci-cd-pipeline.md)
-- [GCP Troubleshooting Guide](../../docs/gcloud-cloud-run-troubleshooting.md)
+- [Project CI/CD Pipeline](../../docs/40-operations/ci-cd-pipeline.md)

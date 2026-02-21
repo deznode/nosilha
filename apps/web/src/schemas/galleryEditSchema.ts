@@ -24,6 +24,7 @@ export const galleryEditSchema = z.object({
     .max(255, "Attribution cannot exceed 255 characters")
     .optional()
     .or(z.literal("")),
+  showInGallery: z.boolean().optional(),
 });
 
 export type GalleryEditInput = z.infer<typeof galleryEditSchema>;

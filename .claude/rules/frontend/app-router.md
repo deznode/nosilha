@@ -108,5 +108,5 @@ export default async function CategoryPage({ params }: { params: { category: str
 
 ## Reference
 
-- See `docs/design-system.md` for comprehensive styling guide
-- See `docs/testing.md` for full testing documentation
+- See `docs/10-product/design-system.md` for comprehensive styling guide
+- See `docs/20-architecture/testing.md` for full testing documentation

@@ -77,6 +77,7 @@ export function GalleryEditModal({
         description: item.description ?? "",
         category: item.category ?? "",
         attribution: getAttribution(item),
+        showInGallery: item.showInGallery,
       });
     }
   }, [item, reset]);
@@ -88,6 +89,7 @@ export function GalleryEditModal({
       title: data.title,
       description: data.description || undefined,
       category: data.category || undefined,
+      showInGallery: data.showInGallery,
     };
 
     // Map attribution to the correct field based on media type
@@ -233,6 +235,22 @@ export function GalleryEditModal({
                       className="mt-1.5"
                     />
                   )}
+                </div>
+
+                {/* Show in Gallery */}
+                <div className="flex items-center gap-3">
+                  <input
+                    id="gallery-show-in-gallery"
+                    type="checkbox"
+                    {...register("showInGallery")}
+                    className="text-ocean-blue focus:ring-ocean-blue border-hairline h-4 w-4 rounded"
+                  />
+                  <label
+                    htmlFor="gallery-show-in-gallery"
+                    className="text-body text-sm font-medium"
+                  >
+                    Show in public gallery
+                  </label>
                 </div>
               </div>
 

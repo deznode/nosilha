@@ -176,4 +176,4 @@ cd apps/web && pnpm build && npx @next/bundle-analyzer
 
 ---
 
-For secrets, see [secret-management.md](./secret-management.md). For security policy, see [SECURITY.md](../SECURITY.md).
+For secrets, see [secret-management.md](./secret-management.md). For security policy, see [SECURITY.md](../../SECURITY.md).

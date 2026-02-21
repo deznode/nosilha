@@ -250,4 +250,4 @@ See [`testing.md`](testing.md) for complete testing documentation.
 
 - [`architecture.md`](architecture.md) - System overview
 - [`testing.md`](testing.md) - Testing patterns
-- [`design-system.md`](design-system.md) - Component patterns
+- [`design-system.md`](../10-product/design-system.md) - Component patterns

@@ -60,6 +60,30 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     ): Page<GalleryMedia>
 
     /**
+     * Finds media by status where showInGallery is true, with pagination and display order.
+     *
+     * Used for public gallery display (ACTIVE + gallery-visible only).
+     *
+     * @param status The media status to filter by
+     * @param pageable Pagination parameters
+     * @return Page of gallery-visible media entities
+     */
+    fun findByStatusAndShowInGalleryTrueOrderByDisplayOrderAsc(
+        status: GalleryMediaStatus,
+        pageable: Pageable,
+    ): Page<GalleryMedia>
+
+    /**
+     * Finds all media by status where showInGallery is true.
+     *
+     * Used for category extraction from gallery-visible items.
+     *
+     * @param status The media status to filter by
+     * @return List of gallery-visible media entities
+     */
+    fun findByStatusAndShowInGalleryTrue(status: GalleryMediaStatus): List<GalleryMedia>
+
+    /**
      * Finds all media in a specific category.
      *
      * @param category The media category (e.g., "hero", "gallery")

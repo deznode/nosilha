@@ -153,5 +153,5 @@ private fun awaitAnalysisRun(mediaId: UUID, timeout: Duration = Duration.ofSecon
 
 ## Reference
 
-- See `docs/testing.md` for comprehensive testing guide
-- See `docs/api-coding-standards.md` for coding standards
+- See `docs/20-architecture/testing.md` for comprehensive testing guide
+- See `docs/20-architecture/api-coding-standards.md` for coding standards

@@ -246,6 +246,7 @@ class GalleryModerationService(
         request.title?.let { media.title = it }
         request.description?.let { media.description = it }
         request.category?.let { media.category = it }
+        request.showInGallery?.let { media.showInGallery = it }
 
         if (request.author != null && media is ExternalMedia) {
             val parsed = CreditParser.parseCredit(request.author)

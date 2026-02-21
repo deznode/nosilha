@@ -289,6 +289,7 @@ class GalleryService(
             this.source = MediaSource.LOCAL
             this.uploadedBy = userId
             this.displayOrder = 0
+            this.showInGallery = (entryId == null)
             // EXIF metadata (privacy-processed)
             this.latitude = latitude?.let { BigDecimal.valueOf(it) }
             this.longitude = longitude?.let { BigDecimal.valueOf(it) }
@@ -494,7 +495,7 @@ class GalleryService(
         val pageable = PageRequest.of(page, minOf(size, 100))
         return if (category != null) {
             val allActive = repository
-                .findByStatus(GalleryMediaStatus.ACTIVE)
+                .findByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
                 .filter { it.category == category }
                 .sortedBy { it.displayOrder }
 
@@ -504,7 +505,7 @@ class GalleryService(
 
             PageImpl(pageContent, pageable, allActive.size.toLong())
         } else {
-            repository.findByStatusOrderByDisplayOrderAsc(GalleryMediaStatus.ACTIVE, pageable)
+            repository.findByStatusAndShowInGalleryTrueOrderByDisplayOrderAsc(GalleryMediaStatus.ACTIVE, pageable)
         }
     }
 
@@ -639,7 +640,7 @@ class GalleryService(
     @Transactional(readOnly = true)
     fun getCategories(): List<String> =
         repository
-            .findByStatus(GalleryMediaStatus.ACTIVE)
+            .findByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
             .mapNotNull { it.category }
             .distinct()
             .sorted()

@@ -39,6 +39,7 @@ export interface GalleryMediaBase {
   displayOrder: number;
   status: GalleryMediaStatus;
   mediaSource: GalleryMediaSource;
+  showInGallery: boolean;
   createdAt: string;
 }
 
@@ -264,4 +265,5 @@ export interface UpdateGalleryMediaRequest {
   category?: string;
   author?: string;
   photographerCredit?: string;
+  showInGallery?: boolean;
 }
