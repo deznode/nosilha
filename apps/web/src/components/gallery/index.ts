@@ -1,3 +1,5 @@
-export { PhotoGrid, PhotoGridSkeleton } from "./photo-grid";
+export {
+  MasonryPhotoGrid,
+  MasonryPhotoGridSkeleton,
+} from "./masonry-photo-grid";
 export { VideoSection } from "./video-section";
-export { Lightbox } from "./lightbox";

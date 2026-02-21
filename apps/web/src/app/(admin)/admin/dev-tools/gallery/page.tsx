@@ -3,8 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { PhotoGrid } from "@/components/gallery/photo-grid";
-import { Lightbox } from "@/components/gallery/lightbox";
+import { MasonryPhotoGrid } from "@/components/gallery/masonry-photo-grid";
 import { MetadataBadges } from "@/components/gallery/metadata-badges";
 import { PhotoTypeSelector } from "@/components/gallery/photo-type-selector";
 import type {
@@ -118,7 +117,6 @@ export default function GalleryDevPage() {
   const [categoryFilter, setCategoryFilter] = useState<MediaCategory | "All">(
     "All"
   );
-  const [selectedPhoto, setSelectedPhoto] = useState<MediaItem | null>(null);
   const [photoType, setPhotoType] = useState<PhotoType>("CULTURAL_SITE");
 
   return (
@@ -132,8 +130,8 @@ export default function GalleryDevPage() {
       </Link>
       <h1 className="text-body mb-2 text-2xl font-bold">Photo Gallery</h1>
       <p className="text-muted mb-8">
-        PhotoGrid with category filtering, Lightbox overlay, MetadataBadges, and
-        PhotoTypeSelector.
+        MasonryPhotoGrid with category filtering, integrated lightbox,
+        MetadataBadges, and PhotoTypeSelector.
       </p>
 
       <section className="mb-10">
@@ -149,21 +147,15 @@ export default function GalleryDevPage() {
       </section>
 
       <section>
-        <h2 className="text-body mb-4 text-lg font-semibold">PhotoGrid</h2>
-        <PhotoGrid
+        <h2 className="text-body mb-4 text-lg font-semibold">
+          MasonryPhotoGrid
+        </h2>
+        <MasonryPhotoGrid
           photos={mockPhotos}
           categoryFilter={categoryFilter}
           onCategoryChange={setCategoryFilter}
-          onPhotoClick={setSelectedPhoto}
         />
       </section>
-
-      {selectedPhoto && (
-        <Lightbox
-          image={selectedPhoto}
-          onClose={() => setSelectedPhoto(null)}
-        />
-      )}
     </div>
   );
 }

@@ -1,6 +1,10 @@
 "use client";
 
+import { motion, useReducedMotion } from "framer-motion";
 import { Play, Mic } from "lucide-react";
+import { clsx } from "clsx";
+import { pageStagger, pageItem } from "@/lib/animation/variants";
+import { YouTubeFacade } from "@/components/gallery/youtube-facade";
 import type { MediaItem } from "@/types/media";
 
 interface VideoSectionProps {
@@ -22,6 +26,8 @@ function VideoCardSkeleton() {
 }
 
 export function VideoSection({ videos, isLoading }: VideoSectionProps) {
+  const shouldReduceMotion = useReducedMotion();
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
@@ -33,9 +39,17 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+    <motion.div
+      variants={shouldReduceMotion ? undefined : pageStagger}
+      initial={shouldReduceMotion ? undefined : "hidden"}
+      animate={shouldReduceMotion ? undefined : "visible"}
+      className="grid grid-cols-1 gap-8 md:grid-cols-2"
+    >
       {/* Featured banner */}
-      <div className="border-bougainvillea-pink/20 bg-bougainvillea-pink/10 mb-4 flex items-start gap-4 rounded-lg border p-6 md:col-span-2">
+      <motion.div
+        variants={shouldReduceMotion ? undefined : pageItem}
+        className="border-bougainvillea-pink/20 bg-bougainvillea-pink/10 mb-4 flex items-start gap-4 rounded-lg border p-6 md:col-span-2"
+      >
         <div className="bg-bougainvillea-pink flex-shrink-0 rounded-full p-2 text-white">
           <Play size={24} />
         </div>
@@ -44,36 +58,33 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
             Nos Ilha Channel & Podcast
           </h3>
           <p className="text-body mt-1 text-sm">
-            Watch cinematic views of Brava's landscapes and listen to our
+            Watch cinematic views of Brava&apos;s landscapes and listen to our
             exclusive podcast series featuring interviews with elders about the
-            "Sodade" of migration and life in the older times.
+            &quot;Sodade&quot; of migration and life in the older times.
           </p>
         </div>
-      </div>
+      </motion.div>
 
       {/* Video Cards */}
       {videos.map((video) => (
-        <div
+        <motion.div
           key={video.id}
-          className="border-hairline bg-canvas overflow-hidden rounded-lg border shadow-sm transition-shadow hover:shadow-md"
+          variants={shouldReduceMotion ? undefined : pageItem}
+          className={clsx(
+            "border-hairline bg-canvas overflow-hidden rounded-lg border shadow-sm",
+            "hover:shadow-elevated transition-shadow"
+          )}
         >
-          <div className="relative bg-black pb-[56.25%]">
-            <iframe
-              className="absolute top-0 left-0 h-full w-full"
-              src={video.url}
-              title={video.title || "Video player"}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
+          <YouTubeFacade video={video} />
           <div className="p-5">
             <div className="mb-2 flex items-start justify-between">
               <span
-                className={`text-xs font-bold tracking-wider uppercase ${
+                className={clsx(
+                  "text-xs font-bold tracking-wider uppercase",
                   video.category === "Interview"
-                    ? "text-purple-600"
+                    ? "text-valley-green"
                     : "text-bougainvillea-pink"
-                }`}
+                )}
               >
                 {video.category === "Interview" ? (
                   <>
@@ -89,7 +100,7 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
             <h3 className="text-body mb-2 text-xl font-bold">{video.title}</h3>
             <p className="text-muted text-sm">{video.description}</p>
           </div>
-        </div>
+        </motion.div>
       ))}
 
       {videos.length === 0 && (
@@ -97,6 +108,6 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
           <p className="text-muted">No videos available yet.</p>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
