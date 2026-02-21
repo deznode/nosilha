@@ -3,88 +3,75 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Image as ImageIcon, Play, Plus } from "lucide-react";
+import { clsx } from "clsx";
 import {
-  PhotoGrid,
-  PhotoGridSkeleton,
+  MasonryPhotoGrid,
+  MasonryPhotoGridSkeleton,
   VideoSection,
-  Lightbox,
 } from "@/components/gallery";
 import { getGalleryMedia } from "@/lib/api";
 import type { MediaItem, MediaCategory } from "@/types/media";
 import type { PublicGalleryMedia } from "@/types/gallery";
 
-/**
- * Maps public GalleryMedia to MediaItem expected by gallery components.
- * Handles both user uploads and external media in a type-safe way.
- */
-function mapGalleryMediaToMediaItem(media: PublicGalleryMedia): MediaItem {
-  // Map category to MediaCategory type (using first available or fallback)
-  const categoryMap: Record<string, MediaCategory> = {
-    Heritage: "Heritage",
-    Landmark: "Heritage", // Backward compatibility
-    Historical: "Historical",
-    Nature: "Nature",
-    Culture: "Culture",
-    Event: "Event",
-    Interview: "Interview",
-  };
-  const category = categoryMap[media.category || ""] || "Culture";
+const CATEGORY_MAP: Record<string, MediaCategory> = {
+  Heritage: "Heritage",
+  Landmark: "Heritage",
+  Historical: "Historical",
+  Nature: "Nature",
+  Culture: "Culture",
+  Event: "Event",
+  Interview: "Interview",
+};
 
-  // Use discriminated union to handle different media sources
+/** Maps public GalleryMedia to the MediaItem shape used by gallery components. */
+function mapGalleryMediaToMediaItem(media: PublicGalleryMedia): MediaItem {
+  const category = CATEGORY_MAP[media.category || ""] || "Culture";
+  const date = new Date(media.createdAt).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+  });
+  const base = {
+    id: media.id,
+    title: media.title || "Untitled",
+    description: media.description || undefined,
+    category,
+    date,
+  };
+
   if (media.mediaSource === "EXTERNAL") {
-    // External media (YouTube, Vimeo, etc.)
-    // For YouTube videos, generate thumbnail URL if not provided
     let thumbnailUrl = media.thumbnailUrl;
     if (!thumbnailUrl && media.platform === "YOUTUBE" && media.externalId) {
       thumbnailUrl = `https://img.youtube.com/vi/${media.externalId}/maxresdefault.jpg`;
     }
 
-    // For video content, use embedUrl from API (already resolved by backend)
-    // For images, use the direct url
     const url =
       media.mediaType === "VIDEO"
         ? media.embedUrl || media.url || ""
         : media.url || "";
 
     return {
-      id: media.id,
+      ...base,
       type: media.mediaType as "IMAGE" | "VIDEO",
       url,
       thumbnailUrl: thumbnailUrl || undefined,
-      title: media.title || "Untitled",
-      description: media.description || undefined,
-      category,
       author: media.author || media.curatorDisplayName || undefined,
       creditPlatform: media.creditPlatform,
       creditHandle: media.creditHandle,
-      date: new Date(media.createdAt).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-      }),
-    };
-  } else {
-    // User-uploaded media (always images — upload flow only accepts images)
-    return {
-      id: media.id,
-      type: "IMAGE",
-      url: media.publicUrl || "",
-      thumbnailUrl: undefined, // User uploads don't have separate thumbnails
-      title: media.title || "Untitled",
-      description: media.description || undefined,
-      category,
-      author:
-        media.photographerCredit ||
-        media.uploaderDisplayName ||
-        "Community Contributor",
-      creditPlatform: media.creditPlatform,
-      creditHandle: media.creditHandle,
-      date: new Date(media.createdAt).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-      }),
-      source: "user" as const, // Mark source for potential UI differentiation
     };
   }
+
+  return {
+    ...base,
+    type: "IMAGE",
+    url: media.publicUrl || "",
+    author:
+      media.photographerCredit ||
+      media.uploaderDisplayName ||
+      "Community Contributor",
+    creditPlatform: media.creditPlatform,
+    creditHandle: media.creditHandle,
+    source: "user" as const,
+  };
 }
 
 export default function GalleryPage() {
@@ -95,36 +82,18 @@ export default function GalleryPage() {
   const [categoryFilter, setCategoryFilter] = useState<MediaCategory | "All">(
     "All"
   );
-  const [selectedImage, setSelectedImage] = useState<MediaItem | null>(null);
 
   useEffect(() => {
     async function loadMedia() {
       setIsLoading(true);
       try {
-        // Fetch unified gallery media (includes both user uploads and external content)
-        // Gallery API automatically returns only ACTIVE items
         const galleryResponse = await getGalleryMedia({ size: 100 });
+        const allItems = galleryResponse.items.map(mapGalleryMediaToMediaItem);
 
-        // Separate photos and videos based on media type
-        const photoItems: MediaItem[] = [];
-        const videoItems: MediaItem[] = [];
-
-        galleryResponse.items.forEach((media) => {
-          const mappedItem = mapGalleryMediaToMediaItem(media);
-
-          // Separate by type
-          if (mappedItem.type === "IMAGE") {
-            photoItems.push(mappedItem);
-          } else if (mappedItem.type === "VIDEO") {
-            videoItems.push(mappedItem);
-          }
-        });
-
-        setPhotos(photoItems);
-        setVideos(videoItems);
+        setPhotos(allItems.filter((item) => item.type === "IMAGE"));
+        setVideos(allItems.filter((item) => item.type === "VIDEO"));
       } catch (error) {
         console.error("Failed to load media:", error);
-        // Set empty arrays on error to show "no content" message
         setPhotos([]);
         setVideos([]);
       } finally {
@@ -167,21 +136,23 @@ export default function GalleryPage() {
           <div className="flex space-x-8">
             <button
               onClick={() => setActiveTab("photos")}
-              className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium ${
+              className={clsx(
+                "flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium",
                 activeTab === "photos"
                   ? "border-ocean-blue text-ocean-blue"
                   : "text-muted hover:border-hairline hover:text-body border-transparent"
-              }`}
+              )}
             >
               <ImageIcon size={18} /> Photo Gallery
             </button>
             <button
               onClick={() => setActiveTab("videos")}
-              className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium ${
+              className={clsx(
+                "flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium",
                 activeTab === "videos"
                   ? "border-bougainvillea-pink text-bougainvillea-pink"
                   : "text-muted hover:border-hairline hover:text-body border-transparent"
-              }`}
+              )}
             >
               <Play size={18} /> Video & Podcasts
             </button>
@@ -193,13 +164,12 @@ export default function GalleryPage() {
         {/* Photo Gallery */}
         {activeTab === "photos" &&
           (isLoading ? (
-            <PhotoGridSkeleton />
+            <MasonryPhotoGridSkeleton />
           ) : (
-            <PhotoGrid
+            <MasonryPhotoGrid
               photos={photos}
               categoryFilter={categoryFilter}
               onCategoryChange={setCategoryFilter}
-              onPhotoClick={setSelectedImage}
             />
           ))}
 
@@ -208,14 +178,6 @@ export default function GalleryPage() {
           <VideoSection videos={videos} isLoading={isLoading} />
         )}
       </div>
-
-      {/* Lightbox Modal */}
-      {selectedImage && (
-        <Lightbox
-          image={selectedImage}
-          onClose={() => setSelectedImage(null)}
-        />
-      )}
     </div>
   );
 }
