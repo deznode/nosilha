@@ -16,7 +16,7 @@ import { clsx } from "clsx";
 import { MasonryPhotoGrid, VideoSection } from "@/components/gallery";
 import { Select } from "@/components/ui/select";
 import { useGalleryInfiniteQuery } from "@/hooks/queries/useGalleryInfiniteQuery";
-import type { MediaItem, MediaCategory } from "@/types/media";
+import type { MediaCategory } from "@/types/media";
 
 const FALLBACK_CATEGORIES: MediaCategory[] = [
   "Heritage",
@@ -50,29 +50,19 @@ const ERA_OPTIONS: { value: DecadeFilter; label: string }[] = [
 ];
 
 interface GalleryContentProps {
-  photos: MediaItem[];
-  videos: MediaItem[];
   categories: string[];
   initialTab: "photos" | "videos";
   initialCategory: MediaCategory | "All";
   initialDecade: DecadeFilter;
   initialQuery: string;
-  pagination: {
-    totalItems: number;
-    totalPages: number;
-    currentPage: number;
-  };
 }
 
 export function GalleryContent({
-  photos: initialPhotos,
-  videos: initialVideos,
   categories,
   initialTab,
   initialCategory,
   initialDecade,
   initialQuery,
-  pagination,
 }: GalleryContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -96,25 +86,15 @@ export function GalleryContent({
     };
   }, [searchInput]);
 
-  const initialItems = useMemo(
-    () => [...initialPhotos, ...initialVideos],
-    [initialPhotos, initialVideos]
-  );
-
   const {
     items: allItems,
     totalItems,
+    isPlaceholderData,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
     isLoading,
   } = useGalleryInfiniteQuery({
-    initialData: {
-      items: initialItems,
-      totalItems: pagination.totalItems,
-      totalPages: pagination.totalPages,
-      currentPage: pagination.currentPage,
-    },
     filters: {
       category: categoryFilter !== "All" ? categoryFilter : undefined,
       decade: decadeFilter !== "all" ? decadeFilter : undefined,
@@ -352,7 +332,7 @@ export function GalleryContent({
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search photos, videos, locations..."
-            className="border-hairline bg-surface text-body placeholder:text-muted focus:border-ocean-blue focus:ring-ocean-blue/20 rounded-button w-full border py-3 pr-10 pl-10 text-sm transition-colors focus:ring-2 focus:outline-none"
+            className="border-hairline bg-surface text-body placeholder:text-muted-foreground focus:border-ocean-blue focus:ring-ocean-blue/20 dark:border-white/15 dark:bg-white/5 rounded-button w-full border py-3 pr-10 pl-10 text-sm transition-colors focus:ring-2 focus:outline-none"
           />
           {searchInput && (
             <button
@@ -366,7 +346,10 @@ export function GalleryContent({
         </div>
         {debouncedQuery && (
           <p className="text-muted -mt-4 mb-4 text-sm" role="status">
-            {formatSearchStatus(debouncedQuery, totalItems)}
+            {formatSearchStatus(
+              debouncedQuery,
+              activeTab === "photos" ? photos.length : videos.length
+            )}
           </p>
         )}
 
@@ -422,6 +405,7 @@ export function GalleryContent({
               totalItems={totalItems}
               hasNextPage={hasNextPage}
               isFetchingNextPage={isFetchingNextPage || isLoading}
+              isPlaceholderData={isPlaceholderData}
               onLoadMore={() => fetchNextPage()}
               searchQuery={debouncedQuery}
             />

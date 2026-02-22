@@ -9,7 +9,6 @@ import { clsx } from "clsx";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import type { Photo } from "@/components/ui/image-lightbox";
 import { CreditDisplay } from "@/components/ui/credit-display";
-import { listStagger, listItem } from "@/lib/animation/variants";
 import type { MediaItem, MediaCategory } from "@/types/media";
 
 /** Returns the heading text for the empty state based on active filters. */
@@ -59,6 +58,7 @@ interface MasonryPhotoGridProps extends React.HTMLAttributes<HTMLDivElement> {
   totalItems?: number;
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
+  isPlaceholderData?: boolean;
   onLoadMore?: () => void;
   searchQuery?: string;
 }
@@ -74,6 +74,7 @@ export const MasonryPhotoGrid = React.forwardRef<
       totalItems,
       hasNextPage,
       isFetchingNextPage,
+      isPlaceholderData,
       onLoadMore,
       searchQuery,
       className,
@@ -94,21 +95,25 @@ export const MasonryPhotoGrid = React.forwardRef<
 
     return (
       <div ref={ref} className={className} {...props}>
-        {/* Masonry Photo Grid */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={categoryFilter}
-            variants={shouldReduceMotion ? undefined : listStagger}
-            initial={shouldReduceMotion ? undefined : "hidden"}
-            animate={shouldReduceMotion ? undefined : "show"}
-            exit={shouldReduceMotion ? undefined : { opacity: 0 }}
+        {/* Masonry Photo Grid — always in DOM, overlay signals loading */}
+        <div className="relative">
+          <div
             role="list"
-            className="columns-1 gap-6 space-y-6 md:columns-2 lg:columns-3"
+            className={clsx(
+              "columns-1 gap-6 space-y-6 md:columns-2 lg:columns-3",
+              isPlaceholderData && "pointer-events-none"
+            )}
           >
             {photos.map((photo, index) => (
               <motion.div
                 key={photo.id}
-                variants={shouldReduceMotion ? undefined : listItem}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={
+                  shouldReduceMotion
+                    ? { duration: 0 }
+                    : { duration: 0.18, delay: Math.min(index * 0.04, 0.5), ease: [0.16, 1, 0.3, 1] }
+                }
                 role="listitem"
                 className="group break-inside-avoid"
               >
@@ -180,8 +185,28 @@ export const MasonryPhotoGrid = React.forwardRef<
                 </div>
               </motion.div>
             ))}
-          </motion.div>
-        </AnimatePresence>
+          </div>
+
+          {/* Loading overlay — shown while previous data is displayed */}
+          <AnimatePresence>
+            {isPlaceholderData && (
+              <motion.div
+                key="loading-overlay"
+                className="bg-canvas/50 absolute inset-0 flex items-center justify-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+              >
+                <Loader2
+                  size={24}
+                  className="text-ocean-blue animate-spin"
+                  aria-hidden="true"
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Empty state */}
         {photos.length === 0 && (

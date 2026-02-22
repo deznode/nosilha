@@ -1,64 +1,73 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, keepPreviousData } from "@tanstack/react-query";
 import { getGalleryMedia } from "@/lib/api";
 import { mapGalleryMediaToMediaItem } from "@/lib/gallery-mappers";
 import type { MediaItem } from "@/types/media";
 
 export const GALLERY_PAGE_SIZE = 24;
 
-interface GalleryPage {
+export interface GalleryPage {
   items: MediaItem[];
   totalItems: number;
   totalPages: number;
   currentPage: number;
 }
 
-interface GalleryFilters {
+export interface GalleryFilters {
   category?: string;
   decade?: string;
   q?: string;
 }
 
+/** Builds the query key used for gallery infinite queries. */
+export function galleryQueryKey(filters?: GalleryFilters) {
+  return [
+    "gallery",
+    "infinite",
+    GALLERY_PAGE_SIZE,
+    filters?.category ?? null,
+    filters?.decade ?? null,
+    filters?.q ?? null,
+  ] as const;
+}
+
+/** Shared getNextPageParam for both prefetch and client-side use. */
+export function galleryGetNextPageParam(lastPage: GalleryPage) {
+  if (lastPage.currentPage + 1 >= lastPage.totalPages) return undefined;
+  return lastPage.currentPage + 1;
+}
+
+/** Shared queryFn factory for both prefetch and client-side use. */
+export function galleryQueryFn(filters?: GalleryFilters) {
+  return async ({ pageParam }: { pageParam: unknown }) => {
+    const response = await getGalleryMedia({
+      page: pageParam as number,
+      size: GALLERY_PAGE_SIZE,
+      category: filters?.category,
+      decade: filters?.decade,
+      q: filters?.q,
+    });
+    return {
+      items: response.items.map(mapGalleryMediaToMediaItem),
+      totalItems: response.totalItems,
+      totalPages: response.totalPages,
+      currentPage: response.currentPage,
+    };
+  };
+}
+
 interface UseGalleryInfiniteQueryOptions {
-  initialData?: GalleryPage;
   filters?: GalleryFilters;
 }
 
 export function useGalleryInfiniteQuery({
-  initialData,
   filters,
 }: UseGalleryInfiniteQueryOptions = {}) {
   const query = useInfiniteQuery<GalleryPage>({
-    queryKey: [
-      "gallery",
-      "infinite",
-      GALLERY_PAGE_SIZE,
-      filters?.category ?? null,
-      filters?.decade ?? null,
-      filters?.q ?? null,
-    ],
-    queryFn: async ({ pageParam }) => {
-      const response = await getGalleryMedia({
-        page: pageParam as number,
-        size: GALLERY_PAGE_SIZE,
-        category: filters?.category,
-        decade: filters?.decade,
-        q: filters?.q,
-      });
-      return {
-        items: response.items.map(mapGalleryMediaToMediaItem),
-        totalItems: response.totalItems,
-        totalPages: response.totalPages,
-        currentPage: response.currentPage,
-      };
-    },
+    queryKey: galleryQueryKey(filters),
+    queryFn: galleryQueryFn(filters),
     initialPageParam: 0,
-    getNextPageParam: (lastPage) => {
-      if (lastPage.currentPage + 1 >= lastPage.totalPages) return undefined;
-      return lastPage.currentPage + 1;
-    },
-    initialData: initialData
-      ? { pages: [initialData], pageParams: [0] }
-      : undefined,
+    getNextPageParam: galleryGetNextPageParam,
+    placeholderData: keepPreviousData,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   });
@@ -70,6 +79,7 @@ export function useGalleryInfiniteQuery({
     items: allItems,
     totalItems,
     isLoading: query.isLoading,
+    isPlaceholderData: query.isPlaceholderData,
     isFetchingNextPage: query.isFetchingNextPage,
     hasNextPage: query.hasNextPage ?? false,
     fetchNextPage: query.fetchNextPage,

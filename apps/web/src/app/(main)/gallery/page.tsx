@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { getGalleryMedia, getGalleryCategories } from "@/lib/api";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
-import { mapGalleryMediaToMediaItem } from "@/lib/gallery-mappers";
-import { GALLERY_PAGE_SIZE } from "@/hooks/queries/useGalleryInfiniteQuery";
+import { getQueryClient } from "@/lib/query-client";
+import {
+  GALLERY_PAGE_SIZE,
+  galleryQueryKey,
+  galleryQueryFn,
+  galleryGetNextPageParam,
+} from "@/hooks/queries/useGalleryInfiniteQuery";
 import { GalleryContent } from "./gallery-content";
 import type { MediaCategory } from "@/types/media";
 import type {
@@ -10,10 +16,7 @@ import type {
   ImageGallerySchema,
   ImageObjectSchema,
 } from "@/types/metadata";
-import type {
-  PublicGalleryMedia,
-  PublicUserUploadMedia,
-} from "@/types/gallery";
+import type { PublicUserUploadMedia } from "@/types/gallery";
 
 export const revalidate = 1800; // 30 minutes ISR matching CacheConfig.GALLERY
 
@@ -116,18 +119,31 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
     decade && VALID_DECADES.has(decade) ? (decade as DecadeFilter) : "all";
   const initialQuery = q?.trim() || "";
 
-  const [galleryResponse, apiCategories] = await Promise.all([
-    getGalleryMedia({
-      size: GALLERY_PAGE_SIZE,
-      decade: initialDecade !== "all" ? initialDecade : undefined,
-      q: initialQuery || undefined,
+  const filters = {
+    category: category || undefined,
+    decade: initialDecade !== "all" ? initialDecade : undefined,
+    q: initialQuery || undefined,
+  };
+
+  // Prefetch gallery data into a per-request QueryClient so
+  // HydrationBoundary seeds the cache for the exact SSR query key.
+  const queryClient = getQueryClient();
+
+  const [, apiCategories, galleryResponse] = await Promise.all([
+    queryClient.prefetchInfiniteQuery({
+      queryKey: galleryQueryKey(filters),
+      queryFn: galleryQueryFn(filters),
+      initialPageParam: 0,
+      getNextPageParam: galleryGetNextPageParam,
+      pages: 1,
     }),
     getGalleryCategories().catch(() => [] as string[]),
+    getGalleryMedia({
+      size: GALLERY_PAGE_SIZE,
+      decade: filters.decade,
+      q: filters.q,
+    }),
   ]);
-
-  const allItems = galleryResponse.items.map(mapGalleryMediaToMediaItem);
-  const photos = allItems.filter((item) => item.type === "IMAGE");
-  const videos = allItems.filter((item) => item.type === "VIDEO");
 
   const initialTab: "photos" | "videos" =
     tab === "videos" ? "videos" : "photos";
@@ -153,27 +169,24 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
       .map((item) => buildListingImageObject(item)),
   };
 
+  // JSON-LD: JSON.stringify escapes all content; data is server-fetched from DB
+  const jsonLdHtml = JSON.stringify(galleryJsonLd);
+
   return (
     <>
-      {/* Safe: JSON.stringify escapes all content; data is server-fetched from DB */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(galleryJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml }}
       />
-      <GalleryContent
-        photos={photos}
-        videos={videos}
-        categories={apiCategories}
-        initialTab={initialTab}
-        initialCategory={initialCategory}
-        initialDecade={initialDecade}
-        initialQuery={initialQuery}
-        pagination={{
-          totalItems: galleryResponse.totalItems,
-          totalPages: galleryResponse.totalPages,
-          currentPage: galleryResponse.currentPage,
-        }}
-      />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <GalleryContent
+          categories={apiCategories}
+          initialTab={initialTab}
+          initialCategory={initialCategory}
+          initialDecade={initialDecade}
+          initialQuery={initialQuery}
+        />
+      </HydrationBoundary>
     </>
   );
 }
