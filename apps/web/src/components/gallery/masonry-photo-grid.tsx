@@ -16,8 +16,7 @@ import type { MediaItem, MediaCategory } from "@/types/media";
 const SHIMMER_BLUR_DATA_URL =
   "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iMzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZTJlOGYwIi8+PHN0b3Agb2Zmc2V0PSI1MCUiIHN0b3AtY29sb3I9IiNmMWY1ZjkiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlMmU4ZjAiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2cpIi8+PC9zdmc+";
 
-const CATEGORIES: (MediaCategory | "All")[] = [
-  "All",
+const FALLBACK_CATEGORIES: MediaCategory[] = [
   "Heritage",
   "Historical",
   "Nature",
@@ -52,15 +51,30 @@ interface MasonryPhotoGridProps extends React.HTMLAttributes<HTMLDivElement> {
   photos: MediaItem[];
   categoryFilter: MediaCategory | "All";
   onCategoryChange: (category: MediaCategory | "All") => void;
+  categories?: string[];
 }
 
 export const MasonryPhotoGrid = React.forwardRef<
   HTMLDivElement,
   MasonryPhotoGridProps
->(({ photos, categoryFilter, onCategoryChange, className, ...props }, ref) => {
+>(({ photos, categoryFilter, onCategoryChange, categories: apiCategories, className, ...props }, ref) => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const shouldReduceMotion = useReducedMotion();
+
+  const resolvedCategories: MediaCategory[] =
+    apiCategories && apiCategories.length > 0
+      ? (apiCategories as MediaCategory[])
+      : FALLBACK_CATEGORIES;
+
+  const categoryCounts = React.useMemo(() => {
+    const counts = new Map<string, number>();
+    counts.set("All", photos.length);
+    for (const cat of resolvedCategories) {
+      counts.set(cat, photos.filter((p) => p.category === cat).length);
+    }
+    return counts;
+  }, [photos, resolvedCategories]);
 
   const filteredPhotos =
     categoryFilter === "All"
@@ -81,21 +95,26 @@ export const MasonryPhotoGrid = React.forwardRef<
         <span className="text-muted mr-2 flex items-center text-sm font-medium">
           <Filter size={14} className="mr-1" /> Filter:
         </span>
-        {CATEGORIES.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => onCategoryChange(cat)}
-            aria-pressed={categoryFilter === cat}
-            className={clsx(
-              "min-h-[44px] rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-              categoryFilter === cat
-                ? "border-ocean-blue bg-ocean-blue dark:text-canvas text-white"
-                : "border-hairline bg-canvas text-muted hover:bg-surface"
-            )}
-          >
-            {cat}
-          </button>
-        ))}
+        {(["All", ...resolvedCategories] as (MediaCategory | "All")[]).map((cat) => {
+          const count = categoryCounts.get(cat) ?? 0;
+          const isEmpty = cat !== "All" && count === 0;
+          return (
+            <button
+              key={cat}
+              onClick={() => onCategoryChange(cat)}
+              aria-pressed={categoryFilter === cat}
+              className={clsx(
+                "min-h-[44px] rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                categoryFilter === cat
+                  ? "border-ocean-blue bg-ocean-blue dark:text-canvas text-white"
+                  : "border-hairline bg-canvas text-muted hover:bg-surface",
+                isEmpty && "opacity-40"
+              )}
+            >
+              {cat} ({count})
+            </button>
+          );
+        })}
       </div>
 
       {/* Masonry Photo Grid */}

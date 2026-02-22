@@ -9,7 +9,7 @@ import {
   MasonryPhotoGridSkeleton,
   VideoSection,
 } from "@/components/gallery";
-import { getGalleryMedia } from "@/lib/api";
+import { getGalleryMedia, getGalleryCategories } from "@/lib/api";
 import type { MediaItem, MediaCategory } from "@/types/media";
 import type { PublicGalleryMedia } from "@/types/gallery";
 
@@ -121,16 +121,21 @@ export default function GalleryPage() {
   const [categoryFilter, setCategoryFilter] = useState<MediaCategory | "All">(
     "All"
   );
+  const [categories, setCategories] = useState<string[]>([]);
 
   useEffect(() => {
     async function loadMedia() {
       setIsLoading(true);
       try {
-        const galleryResponse = await getGalleryMedia({ size: 100 });
+        const [galleryResponse, apiCategories] = await Promise.all([
+          getGalleryMedia({ size: 100 }),
+          getGalleryCategories().catch(() => [] as string[]),
+        ]);
         const allItems = galleryResponse.items.map(mapGalleryMediaToMediaItem);
 
         setPhotos(allItems.filter((item) => item.type === "IMAGE"));
         setVideos(allItems.filter((item) => item.type === "VIDEO"));
+        setCategories(apiCategories);
       } catch (error) {
         console.error("Failed to load media:", error);
         setPhotos([]);
@@ -227,6 +232,7 @@ export default function GalleryPage() {
               photos={photos}
               categoryFilter={categoryFilter}
               onCategoryChange={setCategoryFilter}
+              categories={categories}
             />
           ))}
 
