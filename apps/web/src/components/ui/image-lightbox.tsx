@@ -10,8 +10,13 @@ import {
   MapPin,
   Calendar,
   Download,
+  Camera,
+  User,
+  Archive,
+  Clock,
 } from "lucide-react";
 import { CreditDisplay } from "@/components/ui/credit-display";
+import { ShareButton } from "@/components/ui/actions/share-button";
 
 export interface Photo {
   id?: string;
@@ -176,39 +181,109 @@ export function ImageLightbox({
                 </span>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <p className="mb-2 text-lg font-medium">
-                    {photos[currentIndex].description}
-                  </p>
-                </div>
+              {/* Description */}
+              {photos[currentIndex].description && (
+                <p className="mb-4 text-lg font-medium">
+                  {photos[currentIndex].description}
+                </p>
+              )}
 
-                <div className="flex items-center gap-4 text-sm text-white/80">
-                  <span className="flex items-center">
-                    <MapPin className="mr-1 h-4 w-4" />
-                    {photos[currentIndex].location}
-                  </span>
-                  <span className="flex items-center">
-                    <Calendar className="mr-1 h-4 w-4" />
-                    {photos[currentIndex].date}
-                  </span>
-                </div>
+              {/* Metadata grid */}
+              <div className="space-y-3 text-sm text-white/80">
+                {/* Location */}
+                {(photos[currentIndex].locationName ||
+                  photos[currentIndex].location) && (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 shrink-0 text-white/60" />
+                    <span>
+                      {photos[currentIndex].locationName ||
+                        photos[currentIndex].location}
+                    </span>
+                  </div>
+                )}
+
+                {/* Date */}
+                {(photos[currentIndex].dateTaken ||
+                  photos[currentIndex].approximateDate ||
+                  photos[currentIndex].date) && (
+                  <div className="flex items-center gap-2">
+                    {photos[currentIndex].approximateDate &&
+                    !photos[currentIndex].dateTaken ? (
+                      <Clock className="h-4 w-4 shrink-0 text-white/60" />
+                    ) : (
+                      <Calendar className="h-4 w-4 shrink-0 text-white/60" />
+                    )}
+                    <span>
+                      {photos[currentIndex].dateTaken ||
+                        photos[currentIndex].approximateDate ||
+                        photos[currentIndex].date}
+                      {photos[currentIndex].approximateDate &&
+                        !photos[currentIndex].dateTaken &&
+                        " (approx.)"}
+                    </span>
+                  </div>
+                )}
+
+                {/* Camera info */}
+                {(photos[currentIndex].cameraMake ||
+                  photos[currentIndex].cameraModel) && (
+                  <div className="flex items-center gap-2">
+                    <Camera className="h-4 w-4 shrink-0 text-white/60" />
+                    <span>
+                      {[
+                        photos[currentIndex].cameraMake,
+                        photos[currentIndex].cameraModel,
+                      ]
+                        .filter(Boolean)
+                        .join(" ")}
+                    </span>
+                  </div>
+                )}
+
+                {/* Photographer credit */}
+                {photos[currentIndex].photographerCredit && (
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 shrink-0 text-white/60" />
+                    <span>{photos[currentIndex].photographerCredit}</span>
+                  </div>
+                )}
+
+                {/* Archive source / provenance */}
+                {photos[currentIndex].archiveSource && (
+                  <div className="flex items-center gap-2">
+                    <Archive className="h-4 w-4 shrink-0 text-white/60" />
+                    <span>{photos[currentIndex].archiveSource}</span>
+                  </div>
+                )}
               </div>
 
-              {/* Download Button */}
+              {/* Actions: Download + Share */}
               <div className="mt-6 border-t border-white/20 pt-6">
-                <a
-                  href={
-                    photos[currentIndex].highResSrc || photos[currentIndex].src
-                  }
-                  download={`brava-${photos[currentIndex].alt.replace(/\s+/g, "-").toLowerCase()}.jpg`}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-white/20"
-                >
-                  <Download className="h-4 w-4" />
-                  Download High-Res
-                </a>
+                <div className="flex gap-3">
+                  <a
+                    href={
+                      photos[currentIndex].highResSrc ||
+                      photos[currentIndex].src
+                    }
+                    download={`brava-${photos[currentIndex].alt.replace(/\s+/g, "-").toLowerCase()}.jpg`}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-white/20"
+                  >
+                    <Download className="h-4 w-4" />
+                    Download
+                  </a>
+                  <ShareButton
+                    title={photos[currentIndex].alt}
+                    url={
+                      typeof window !== "undefined"
+                        ? `${window.location.origin}/gallery?photo=${photos[currentIndex].id || ""}`
+                        : `/gallery?photo=${photos[currentIndex].id || ""}`
+                    }
+                    description={photos[currentIndex].description}
+                    variant="icon-only"
+                  />
+                </div>
                 {photos[currentIndex].author && (
-                  <div className="mt-2 text-center">
+                  <div className="mt-3 text-center">
                     <CreditDisplay
                       credit={photos[currentIndex].author!}
                       creditPlatform={photos[currentIndex].creditPlatform}
