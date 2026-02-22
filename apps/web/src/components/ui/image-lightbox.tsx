@@ -51,6 +51,14 @@ interface ImageLightboxProps {
 const SWIPE_THRESHOLD = 50;
 const DISMISS_THRESHOLD = 100;
 
+function getShareUrl(photo: Photo): string {
+  const path = `/gallery/photo/${photo.id || ""}`;
+  if (typeof window !== "undefined") {
+    return `${window.location.origin}${path}`;
+  }
+  return path;
+}
+
 export function ImageLightbox({
   photos,
   initialIndex,
@@ -373,11 +381,7 @@ function ActionsPanel({ photo }: { photo: Photo }) {
         </a>
         <ShareButton
           title={photo.alt}
-          url={
-            typeof window !== "undefined"
-              ? `${window.location.origin}/gallery/photo/${photo.id || ""}`
-              : `/gallery/photo/${photo.id || ""}`
-          }
+          url={getShareUrl(photo)}
           description={photo.description}
           variant="icon-only"
         />
@@ -526,11 +530,7 @@ function MobileBottomSheet({
             </a>
             <ShareButton
               title={photo.alt}
-              url={
-                typeof window !== "undefined"
-                  ? `${window.location.origin}/gallery/photo/${photo.id || ""}`
-                  : `/gallery/photo/${photo.id || ""}`
-              }
+              url={getShareUrl(photo)}
               description={photo.description}
               variant="icon-only"
             />

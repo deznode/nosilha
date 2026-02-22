@@ -12,6 +12,20 @@ import { CreditDisplay } from "@/components/ui/credit-display";
 import { listStagger, listItem } from "@/lib/animation/variants";
 import type { MediaItem, MediaCategory } from "@/types/media";
 
+/** Returns the heading text for the empty state based on active filters. */
+function getEmptyStateHeading(
+  searchQuery?: string,
+  categoryFilter?: string
+): string {
+  if (searchQuery) {
+    return `No results for \u201c${searchQuery}\u201d`;
+  }
+  if (categoryFilter === "All" || !categoryFilter) {
+    return "No photos yet";
+  }
+  return `No ${categoryFilter} photos yet`;
+}
+
 /** Static shimmer gradient used as blur placeholder while images load. */
 const SHIMMER_BLUR_DATA_URL =
   "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iMzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZTJlOGYwIi8+PHN0b3Agb2Zmc2V0PSI1MCUiIHN0b3AtY29sb3I9IiNmMWY1ZjkiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlMmU4ZjAiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2cpIi8+PC9zdmc+";
@@ -238,11 +252,7 @@ export const MasonryPhotoGrid = React.forwardRef<
               aria-hidden="true"
             />
             <h3 className="text-body mb-2 text-lg font-semibold">
-              {searchQuery
-                ? `No results for \u201c${searchQuery}\u201d`
-                : categoryFilter === "All"
-                  ? "No photos yet"
-                  : `No ${categoryFilter} photos yet`}
+              {getEmptyStateHeading(searchQuery, categoryFilter)}
             </h3>
             <p className="text-muted mb-6 max-w-sm text-sm">
               {searchQuery

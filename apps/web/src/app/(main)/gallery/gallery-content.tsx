@@ -16,6 +16,14 @@ type DecadeFilter =
   | "1990-2010"
   | "2010-plus";
 
+function formatSearchStatus(query: string, totalItems: number): string {
+  if (totalItems === 0) {
+    return `No results for \u201c${query}\u201d`;
+  }
+  const plural = totalItems !== 1 ? "s" : "";
+  return `${totalItems} result${plural} for \u201c${query}\u201d`;
+}
+
 const ERA_OPTIONS: { value: DecadeFilter; label: string }[] = [
   { value: "all", label: "All Eras" },
   { value: "pre-1975", label: "Pre-1975" },
@@ -196,14 +204,15 @@ export function GalleryContent({
           ? parseInt(photo.approximateDate.match(/(\d{4})/)?.[1] ?? "0", 10)
           : null;
       if (year && year > 0) {
-        if (year < 1975)
+        if (year < 1975) {
           counts.set("pre-1975", (counts.get("pre-1975") ?? 0) + 1);
-        if (year >= 1975 && year <= 1989)
+        } else if (year < 1990) {
           counts.set("1975-1990", (counts.get("1975-1990") ?? 0) + 1);
-        if (year >= 1990 && year <= 2009)
+        } else if (year < 2010) {
           counts.set("1990-2010", (counts.get("1990-2010") ?? 0) + 1);
-        if (year >= 2010)
+        } else {
           counts.set("2010-plus", (counts.get("2010-plus") ?? 0) + 1);
+        }
       }
     }
     return counts;
@@ -305,9 +314,7 @@ export function GalleryContent({
         </div>
         {debouncedQuery && (
           <p className="text-muted -mt-4 mb-4 text-sm" role="status">
-            {totalItems === 0
-              ? `No results for \u201c${debouncedQuery}\u201d`
-              : `${totalItems} result${totalItems !== 1 ? "s" : ""} for \u201c${debouncedQuery}\u201d`}
+            {formatSearchStatus(debouncedQuery, totalItems)}
           </p>
         )}
 

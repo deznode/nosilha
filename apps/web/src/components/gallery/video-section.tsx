@@ -27,10 +27,8 @@ function VideoCardSkeleton() {
 }
 
 function isPodcast(video: MediaItem): boolean {
-  const cat = video.category as string;
   return (
-    cat === "Interview" ||
-    cat === "Podcast" ||
+    video.category === "Interview" ||
     (video.title?.toLowerCase().includes("podcast") ?? false) ||
     (video.title?.toLowerCase().includes("interview") ?? false)
   );

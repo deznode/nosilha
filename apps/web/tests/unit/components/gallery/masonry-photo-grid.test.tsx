@@ -181,7 +181,7 @@ describe("MasonryPhotoGrid", () => {
       );
 
       expect(
-        screen.getByText("No photos found in this category.")
+        screen.getByText("No Event photos yet")
       ).toBeInTheDocument();
     });
 
