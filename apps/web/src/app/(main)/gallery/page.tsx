@@ -147,7 +147,7 @@ export default function GalleryPage() {
     <div className="bg-canvas min-h-screen pb-12">
       {/* Header */}
       <div className="bg-basalt-900 text-white">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:py-16 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h1 className="mb-4 font-serif text-3xl font-bold md:text-5xl">
@@ -157,6 +157,22 @@ export default function GalleryPage() {
                 A visual archive of our island. Explore historical photographs,
                 community moments, and videos celebrating the culture of Brava.
               </p>
+              {!isLoading && (photos.length > 0 || videos.length > 0) && (
+                <p className="mt-2 text-sm text-white/50">
+                  Exploring {photos.length + videos.length} items
+                  {(() => {
+                    const contributors = new Set(
+                      [...photos, ...videos]
+                        .map((item) => item.author)
+                        .filter(Boolean)
+                    );
+                    return contributors.size > 1
+                      ? ` from ${contributors.size} contributors`
+                      : "";
+                  })()}{" "}
+                  in the Brava visual archive
+                </p>
+              )}
             </div>
             <Link
               href="/contribute/media"
@@ -183,6 +199,7 @@ export default function GalleryPage() {
               )}
             >
               <ImageIcon size={18} /> Photo Gallery
+                {!isLoading && ` (${photos.length})`}
             </button>
             <button
               onClick={() => setActiveTab("videos")}
@@ -194,6 +211,7 @@ export default function GalleryPage() {
               )}
             >
               <Play size={18} /> Video & Podcasts
+                {!isLoading && ` (${videos.length})`}
             </button>
           </div>
         </div>
