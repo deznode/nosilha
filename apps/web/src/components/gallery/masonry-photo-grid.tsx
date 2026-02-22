@@ -125,12 +125,14 @@ export const MasonryPhotoGrid = React.forwardRef<
           initial={shouldReduceMotion ? undefined : "hidden"}
           animate={shouldReduceMotion ? undefined : "show"}
           exit={shouldReduceMotion ? undefined : { opacity: 0 }}
+          role="list"
           className="columns-1 gap-6 space-y-6 md:columns-2 lg:columns-3"
         >
           {filteredPhotos.map((photo, index) => (
             <motion.div
               key={photo.id}
               variants={shouldReduceMotion ? undefined : listItem}
+              role="listitem"
               className="group break-inside-avoid"
             >
               <div
