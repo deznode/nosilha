@@ -638,6 +638,7 @@ export interface ApiClient {
   getGalleryMedia(options?: {
     category?: string;
     decade?: string;
+    q?: string;
     page?: number;
     size?: number;
   }): Promise<import("@/types/gallery").PublicGalleryMediaPageResponse>;

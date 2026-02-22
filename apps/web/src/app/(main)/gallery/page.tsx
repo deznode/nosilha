@@ -23,6 +23,7 @@ interface GalleryPageProps {
     tab?: string;
     category?: string;
     decade?: string;
+    q?: string;
   }>;
 }
 
@@ -83,15 +84,17 @@ export async function generateMetadata({
 }
 
 export default async function GalleryPage({ searchParams }: GalleryPageProps) {
-  const { tab, category, decade } = await searchParams;
+  const { tab, category, decade, q } = await searchParams;
 
   const initialDecade: DecadeFilter =
     decade && VALID_DECADES.has(decade) ? (decade as DecadeFilter) : "all";
+  const initialQuery = q?.trim() || "";
 
   const [galleryResponse, apiCategories] = await Promise.all([
     getGalleryMedia({
       size: GALLERY_PAGE_SIZE,
       decade: initialDecade !== "all" ? initialDecade : undefined,
+      q: initialQuery || undefined,
     }),
     getGalleryCategories().catch(() => [] as string[]),
   ]);
@@ -113,6 +116,7 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
       initialTab={initialTab}
       initialCategory={initialCategory}
       initialDecade={initialDecade}
+      initialQuery={initialQuery}
       pagination={{
         totalItems: galleryResponse.totalItems,
         totalPages: galleryResponse.totalPages,

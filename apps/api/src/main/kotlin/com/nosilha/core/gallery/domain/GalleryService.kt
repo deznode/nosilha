@@ -553,6 +553,37 @@ class GalleryService(
             else -> null
         }
 
+    /**
+     * Full-text search across active gallery media.
+     * Uses the search_vector GIN index for Portuguese text search.
+     * Optionally applies category and decade post-filters.
+     */
+    private fun searchActiveMedia(
+        query: String,
+        category: String?,
+        decade: String?,
+        page: Int,
+        size: Int,
+    ): Page<GalleryMedia> {
+        val pageable = PageRequest.of(page, minOf(size, 100))
+        val results = repository.searchGallery(query, pageable)
+
+        val needsPostFilter = category != null || decade != null
+        if (!needsPostFilter) return results
+
+        var filtered = results.content.toList()
+        if (category != null) {
+            filtered = filtered.filter { it.category == category }
+        }
+        if (decade != null) {
+            val yearRange = parseDecadeRange(decade)
+            if (yearRange != null) {
+                filtered = filtered.filter { resolveYear(it) in yearRange }
+            }
+        }
+        return PageImpl(filtered, pageable, filtered.size.toLong())
+    }
+
     private val yearPattern = Regex("""(\d{4})""")
 
     /**
@@ -589,10 +620,15 @@ class GalleryService(
     fun listActiveMediaPublic(
         category: String?,
         decade: String?,
+        query: String?,
         page: Int,
         size: Int,
     ): PagedApiResult<PublicGalleryMediaDto> {
-        val mediaPage = queryActiveMedia(category, decade, page, size)
+        val mediaPage = if (!query.isNullOrBlank()) {
+            searchActiveMedia(query.trim(), category, decade, page, size)
+        } else {
+            queryActiveMedia(category, decade, page, size)
+        }
         val displayNames = resolveDisplayNames(mediaPage.content)
         val dtos = mediaPage.content.map { it.toPublicDto(displayNames) }
 

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
@@ -209,4 +210,29 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
      */
     @Query("SELECT m FROM ExternalMedia m")
     fun findAllExternalMedia(): List<ExternalMedia>
+
+    /**
+     * Full-text search across gallery media using Portuguese text search config.
+     * Searches title (weight A), description (B), and location_name (C).
+     * Results ranked by ts_rank relevance score.
+     * Only returns ACTIVE, gallery-visible items.
+     */
+    @Query(
+        value = """
+        SELECT * FROM gallery_media
+        WHERE search_vector @@ plainto_tsquery('portuguese', :query)
+        AND status = 'ACTIVE' AND show_in_gallery = true
+        ORDER BY ts_rank(search_vector, plainto_tsquery('portuguese', :query)) DESC
+        """,
+        countQuery = """
+        SELECT COUNT(*) FROM gallery_media
+        WHERE search_vector @@ plainto_tsquery('portuguese', :query)
+        AND status = 'ACTIVE' AND show_in_gallery = true
+        """,
+        nativeQuery = true,
+    )
+    fun searchGallery(
+        @Param("query") query: String,
+        pageable: Pageable,
+    ): Page<GalleryMedia>
 }

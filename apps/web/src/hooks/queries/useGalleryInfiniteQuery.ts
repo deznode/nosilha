@@ -14,6 +14,7 @@ interface GalleryPage {
 
 interface GalleryFilters {
   decade?: string;
+  q?: string;
 }
 
 interface UseGalleryInfiniteQueryOptions {
@@ -25,15 +26,22 @@ export function useGalleryInfiniteQuery({
   initialData,
   filters,
 }: UseGalleryInfiniteQueryOptions = {}) {
-  const hasFilters = !!filters?.decade;
+  const hasFilters = !!filters?.decade || !!filters?.q;
 
   const query = useInfiniteQuery<GalleryPage>({
-    queryKey: ["gallery", "infinite", GALLERY_PAGE_SIZE, filters?.decade ?? null],
+    queryKey: [
+      "gallery",
+      "infinite",
+      GALLERY_PAGE_SIZE,
+      filters?.decade ?? null,
+      filters?.q ?? null,
+    ],
     queryFn: async ({ pageParam }) => {
       const response = await getGalleryMedia({
         page: pageParam as number,
         size: GALLERY_PAGE_SIZE,
         decade: filters?.decade,
+        q: filters?.q,
       });
       return {
         items: response.items.map(mapGalleryMediaToMediaItem),

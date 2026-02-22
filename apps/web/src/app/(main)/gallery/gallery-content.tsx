@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Image as ImageIcon, Play, Plus, Clock } from "lucide-react";
+import { Image as ImageIcon, Play, Plus, Clock, Search, X } from "lucide-react";
 import { clsx } from "clsx";
 import {
   MasonryPhotoGrid,
@@ -29,6 +29,7 @@ interface GalleryContentProps {
   initialTab: "photos" | "videos";
   initialCategory: MediaCategory | "All";
   initialDecade: DecadeFilter;
+  initialQuery: string;
   pagination: {
     totalItems: number;
     totalPages: number;
@@ -43,6 +44,7 @@ export function GalleryContent({
   initialTab,
   initialCategory,
   initialDecade,
+  initialQuery,
   pagination,
 }: GalleryContentProps) {
   const router = useRouter();
@@ -52,6 +54,20 @@ export function GalleryContent({
     initialCategory
   );
   const [decadeFilter, setDecadeFilter] = useState<DecadeFilter>(initialDecade);
+  const [searchInput, setSearchInput] = useState(initialQuery);
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Debounce search input (400ms)
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setDebouncedQuery(searchInput.trim());
+    }, 400);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [searchInput]);
 
   const initialItems = useMemo(
     () => [...initialPhotos, ...initialVideos],
@@ -74,6 +90,7 @@ export function GalleryContent({
     },
     filters: {
       decade: decadeFilter !== "all" ? decadeFilter : undefined,
+      q: debouncedQuery || undefined,
     },
   });
 
@@ -91,6 +108,7 @@ export function GalleryContent({
       tab: "photos" | "videos",
       category: MediaCategory | "All",
       decade: DecadeFilter,
+      query?: string,
     ) => {
       const params = new URLSearchParams(searchParams.toString());
       if (tab !== "photos") {
@@ -108,11 +126,23 @@ export function GalleryContent({
       } else {
         params.delete("decade");
       }
+      const q = query !== undefined ? query : debouncedQuery;
+      if (q) {
+        params.set("q", q);
+      } else {
+        params.delete("q");
+      }
       const qs = params.toString();
       router.replace(`/gallery${qs ? `?${qs}` : ""}`, { scroll: false });
     },
-    [router, searchParams]
+    [router, searchParams, debouncedQuery]
   );
+
+  // Sync URL when debounced query changes
+  useEffect(() => {
+    updateUrl(activeTab, categoryFilter, decadeFilter, debouncedQuery);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedQuery]);
 
   const handleTabChange = (tab: "photos" | "videos") => {
     setActiveTab(tab);
@@ -127,6 +157,11 @@ export function GalleryContent({
   const handleDecadeChange = (decade: DecadeFilter) => {
     setDecadeFilter(decade);
     updateUrl(activeTab, categoryFilter, decade);
+  };
+
+  const clearSearch = () => {
+    setSearchInput("");
+    setDebouncedQuery("");
   };
 
   const contributors = new Set(
@@ -199,6 +234,30 @@ export function GalleryContent({
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Search Bar */}
+        <div className="relative mb-6">
+          <Search
+            size={18}
+            className="text-muted pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+          />
+          <input
+            type="search"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            placeholder="Search photos, videos, locations..."
+            className="border-hairline bg-surface text-body placeholder:text-muted focus:border-ocean-blue focus:ring-ocean-blue/20 w-full rounded-button border py-3 pr-10 pl-10 text-sm transition-colors focus:ring-2 focus:outline-none"
+          />
+          {searchInput && (
+            <button
+              onClick={clearSearch}
+              className="text-muted hover:text-body absolute top-1/2 right-3 -translate-y-1/2"
+              aria-label="Clear search"
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
+
         {/* Photo Gallery */}
         {activeTab === "photos" && (
           <>
