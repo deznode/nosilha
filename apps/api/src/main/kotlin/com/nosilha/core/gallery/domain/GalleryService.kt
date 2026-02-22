@@ -63,6 +63,24 @@ class GalleryService(
     companion object {
         private const val MAX_UPLOADS_PER_HOUR = 20L
         private const val MAX_UPLOADS_PER_DAY = 100L
+
+        private val RAW_FILENAME_PATTERNS = listOf(
+            // UUID prefix (e.g., "a1b2c3d4-e5f6-...")
+            Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-"),
+            // Camera filename prefixes
+            Regex("^(DJI|IMG|DSC|DCIM|DSCN|P)_", RegexOption.IGNORE_CASE),
+            // File extensions (title shouldn't contain these)
+            Regex("\\.(jpe?g|png|webp|heic|mp4|mov)$", RegexOption.IGNORE_CASE),
+        )
+
+        /**
+         * Detects raw camera filenames and UUID-based strings that should be
+         * replaced with AI-generated titles.
+         */
+        fun isRawFilename(title: String): Boolean {
+            if (title.isBlank()) return true
+            return RAW_FILENAME_PATTERNS.any { it.containsMatchIn(title) }
+        }
     }
 
     // Metrics counters for media operations
@@ -763,11 +781,43 @@ class GalleryService(
         media.aiTags = event.tags.toTypedArray().ifEmpty { null }
         media.aiLabels = event.labels
         media.aiProcessedAt = Instant.now()
+
+        // Promote AI content into canonical fields
+        promoteAiContent(media, event)
+
         repository.save(media)
 
         logger.info {
             "Applied approved AI results to media ${event.mediaId} " +
                 "(run: ${event.analysisRunId}, moderator: ${event.moderatorId})"
+        }
+    }
+
+    /**
+     * Promotes approved AI-generated content into canonical fields.
+     *
+     * Promotion rules (conservative — preserves human-authored content):
+     * - aiTitle → title: only when current title looks like a raw camera filename
+     * - aiDescription → description: only when description is null or blank
+     * - aiAltText → altText: always (canonical alt text for WCAG compliance)
+     */
+    private fun promoteAiContent(
+        media: UserUploadedMedia,
+        event: AiResultsApprovedEvent,
+    ) {
+        if (!event.title.isNullOrBlank() && isRawFilename(media.title)) {
+            media.title = event.title
+            logger.debug { "Promoted AI title for media ${media.id}: '${event.title}'" }
+        }
+
+        if (!event.description.isNullOrBlank() && media.description.isNullOrBlank()) {
+            media.description = event.description
+            logger.debug { "Promoted AI description for media ${media.id}" }
+        }
+
+        if (!event.altText.isNullOrBlank()) {
+            media.altText = event.altText
+            logger.debug { "Promoted AI alt text for media ${media.id}" }
         }
     }
 }
