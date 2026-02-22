@@ -1,0 +1,291 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowLeft, Calendar, Camera, MapPin, User, Archive } from "lucide-react";
+import { notFound } from "next/navigation";
+import { getGalleryMediaById } from "@/lib/api";
+import { generatePageMetadata, siteConfig } from "@/lib/metadata";
+import { ShareButton } from "@/components/ui/actions/share-button";
+import { CreditDisplay } from "@/components/ui/credit-display";
+import type { PublicGalleryMedia } from "@/types/gallery";
+import type { BreadcrumbListSchema } from "@/types/metadata";
+
+export const revalidate = 1800;
+
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+interface PhotoDetailPageProps {
+  params: Promise<{ id: string }>;
+}
+
+function getPhotoUrl(media: PublicGalleryMedia): string | null {
+  if (media.mediaSource === "USER_UPLOAD") {
+    return media.publicUrl || null;
+  }
+  return media.url || media.thumbnailUrl || null;
+}
+
+function getPhotoTitle(media: PublicGalleryMedia): string {
+  return media.title || "Untitled Photo";
+}
+
+function getPhotoDescription(media: PublicGalleryMedia): string {
+  return (
+    media.description ||
+    `A photo from the Brava Island visual archive${media.category ? ` in the ${media.category} category` : ""}.`
+  );
+}
+
+export async function generateMetadata({
+  params,
+}: PhotoDetailPageProps): Promise<Metadata> {
+  const { id } = await params;
+
+  if (!UUID_REGEX.test(id)) {
+    return { title: "Photo Not Found" };
+  }
+
+  const media = await getGalleryMediaById(id);
+  if (!media) {
+    return { title: "Photo Not Found" };
+  }
+
+  const title = getPhotoTitle(media);
+  const description = getPhotoDescription(media);
+  const imageUrl = getPhotoUrl(media);
+
+  const breadcrumbSchema: BreadcrumbListSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteConfig.url,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Gallery",
+        item: `${siteConfig.url}/gallery`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: title,
+        item: `${siteConfig.url}/gallery/photo/${id}`,
+      },
+    ],
+  };
+
+  return generatePageMetadata({
+    title: `${title} - Brava Media Center`,
+    description,
+    path: `/gallery/photo/${id}`,
+    keywords: [
+      "Brava Island photo",
+      "Cape Verde heritage",
+      media.category || "culture",
+    ],
+    images: imageUrl
+      ? [
+          {
+            url: imageUrl,
+            width: 1200,
+            height: 630,
+            alt: title,
+            type: "image/jpeg",
+          },
+        ]
+      : [],
+    structuredData: [breadcrumbSchema],
+    baseUrl: siteConfig.url,
+    siteName: siteConfig.name,
+    defaultImage: siteConfig.ogImage,
+  });
+}
+
+export default async function PhotoDetailPage({
+  params,
+}: PhotoDetailPageProps) {
+  const { id } = await params;
+
+  if (!UUID_REGEX.test(id)) {
+    notFound();
+  }
+
+  const media = await getGalleryMediaById(id);
+  if (!media) {
+    notFound();
+  }
+
+  const imageUrl = getPhotoUrl(media);
+  const title = getPhotoTitle(media);
+  const description = media.description || null;
+  const shareUrl = `${siteConfig.url}/gallery/photo/${id}`;
+
+  // Extract metadata fields from user uploads
+  const locationName =
+    media.mediaSource === "USER_UPLOAD" ? media.locationName : null;
+  const dateTaken =
+    media.mediaSource === "USER_UPLOAD" ? media.dateTaken : null;
+  const approximateDate =
+    media.mediaSource === "USER_UPLOAD" ? media.approximateDate : null;
+  const cameraMake =
+    media.mediaSource === "USER_UPLOAD" ? media.cameraMake : null;
+  const cameraModel =
+    media.mediaSource === "USER_UPLOAD" ? media.cameraModel : null;
+  const photographerCredit =
+    media.mediaSource === "USER_UPLOAD" ? media.photographerCredit : null;
+  const archiveSource =
+    media.mediaSource === "USER_UPLOAD" ? media.archiveSource : null;
+  const uploaderDisplayName =
+    media.mediaSource === "USER_UPLOAD" ? media.uploaderDisplayName : null;
+
+  const author =
+    photographerCredit ||
+    uploaderDisplayName ||
+    (media.mediaSource === "EXTERNAL" ? media.author : null);
+
+  const dateDisplay = dateTaken
+    ? new Date(dateTaken).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : approximateDate || null;
+
+  return (
+    <div className="bg-canvas min-h-screen">
+      {/* Navigation */}
+      <div className="bg-basalt-900 text-white">
+        <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-4 sm:px-6 lg:px-8">
+          <Link
+            href="/gallery"
+            className="text-muted flex items-center gap-2 text-sm transition-colors hover:text-white"
+          >
+            <ArrowLeft size={16} />
+            Back to Gallery
+          </Link>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          {/* Photo */}
+          <div className="lg:col-span-2">
+            {imageUrl ? (
+              <div className="bg-surface rounded-card shadow-subtle relative overflow-hidden">
+                <Image
+                  src={imageUrl}
+                  alt={media.altText || title}
+                  width={1200}
+                  height={800}
+                  sizes="(max-width: 1024px) 100vw, 66vw"
+                  className="h-auto w-full object-contain"
+                  priority
+                />
+              </div>
+            ) : (
+              <div className="bg-surface-alt rounded-card flex aspect-video items-center justify-center">
+                <span className="text-muted">Image not available</span>
+              </div>
+            )}
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Title & Description */}
+            <div>
+              {media.category && (
+                <span className="text-ocean-blue text-xs font-bold tracking-wider uppercase">
+                  {media.category}
+                </span>
+              )}
+              <h1 className="text-body mt-1 font-serif text-2xl font-bold">
+                {title}
+              </h1>
+              {description && (
+                <p className="text-muted mt-3 text-sm leading-relaxed">
+                  {description}
+                </p>
+              )}
+            </div>
+
+            {/* Metadata */}
+            <div className="border-hairline space-y-3 border-t pt-4">
+              {author && (
+                <div className="flex items-center gap-3 text-sm">
+                  <User size={16} className="text-muted shrink-0" />
+                  <CreditDisplay
+                    credit={author}
+                    creditPlatform={media.creditPlatform}
+                    creditHandle={media.creditHandle}
+                    variant="card"
+                  />
+                </div>
+              )}
+
+              {(locationName || !dateTaken) && locationName && (
+                <div className="flex items-center gap-3 text-sm">
+                  <MapPin size={16} className="text-muted shrink-0" />
+                  <span className="text-body">{locationName}</span>
+                </div>
+              )}
+
+              {dateDisplay && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Calendar size={16} className="text-muted shrink-0" />
+                  <span className="text-body">
+                    {dateDisplay}
+                    {approximateDate && !dateTaken && (
+                      <span className="text-muted ml-1">(approximate)</span>
+                    )}
+                  </span>
+                </div>
+              )}
+
+              {cameraMake && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Camera size={16} className="text-muted shrink-0" />
+                  <span className="text-body">
+                    {cameraMake}
+                    {cameraModel ? ` ${cameraModel}` : ""}
+                  </span>
+                </div>
+              )}
+
+              {archiveSource && (
+                <div className="flex items-center gap-3 text-sm">
+                  <Archive size={16} className="text-muted shrink-0" />
+                  <span className="text-body">{archiveSource}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="border-hairline flex items-center gap-3 border-t pt-4">
+              <ShareButton
+                title={title}
+                url={shareUrl}
+                description={description || undefined}
+              />
+              {imageUrl && (
+                <a
+                  href={imageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="border-hairline text-body hover:bg-surface-alt rounded-button inline-flex items-center gap-2 border px-4 py-2 text-sm font-medium transition-colors"
+                >
+                  View Full Size
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

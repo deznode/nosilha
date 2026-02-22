@@ -275,8 +275,8 @@ export function ImageLightbox({
                     title={photos[currentIndex].alt}
                     url={
                       typeof window !== "undefined"
-                        ? `${window.location.origin}/gallery?photo=${photos[currentIndex].id || ""}`
-                        : `/gallery?photo=${photos[currentIndex].id || ""}`
+                        ? `${window.location.origin}/gallery/photo/${photos[currentIndex].id || ""}`
+                        : `/gallery/photo/${photos[currentIndex].id || ""}`
                     }
                     description={photos[currentIndex].description}
                     variant="icon-only"
