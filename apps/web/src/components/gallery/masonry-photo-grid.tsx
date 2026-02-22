@@ -112,7 +112,11 @@ export const MasonryPhotoGrid = React.forwardRef<
                 transition={
                   shouldReduceMotion
                     ? { duration: 0 }
-                    : { duration: 0.18, delay: Math.min(index * 0.04, 0.5), ease: [0.16, 1, 0.3, 1] }
+                    : {
+                        duration: 0.18,
+                        delay: Math.min(index * 0.04, 0.5),
+                        ease: [0.16, 1, 0.3, 1],
+                      }
                 }
                 role="listitem"
                 className="group break-inside-avoid"

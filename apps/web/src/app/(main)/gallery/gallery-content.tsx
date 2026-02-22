@@ -332,7 +332,7 @@ export function GalleryContent({
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search photos, videos, locations..."
-            className="border-hairline bg-surface text-body placeholder:text-muted-foreground focus:border-ocean-blue focus:ring-ocean-blue/20 dark:border-white/15 dark:bg-white/5 rounded-button w-full border py-3 pr-10 pl-10 text-sm transition-colors focus:ring-2 focus:outline-none"
+            className="border-hairline bg-surface text-body placeholder:text-muted-foreground focus:border-ocean-blue focus:ring-ocean-blue/20 rounded-button w-full border py-3 pr-10 pl-10 text-sm transition-colors focus:ring-2 focus:outline-none dark:border-white/15 dark:bg-white/5"
           />
           {searchInput && (
             <button

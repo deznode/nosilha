@@ -20,7 +20,12 @@ import type { PublicUserUploadMedia } from "@/types/gallery";
 
 export const revalidate = 1800; // 30 minutes ISR matching CacheConfig.GALLERY
 
-type DecadeFilter = "all" | "pre-1975" | "1975-1990" | "1990-2010" | "2010-plus";
+type DecadeFilter =
+  | "all"
+  | "pre-1975"
+  | "1975-1990"
+  | "1990-2010"
+  | "2010-plus";
 
 const VALID_DECADES = new Set<string>([
   "pre-1975",
@@ -163,7 +168,7 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
       .filter(
         (item): item is PublicUserUploadMedia & { publicUrl: string } =>
           item.mediaSource === "USER_UPLOAD" &&
-          !!(item as PublicUserUploadMedia).publicUrl,
+          !!(item as PublicUserUploadMedia).publicUrl
       )
       .slice(0, 10)
       .map((item) => buildListingImageObject(item)),
@@ -192,7 +197,7 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
 }
 
 function buildListingImageObject(
-  upload: PublicUserUploadMedia,
+  upload: PublicUserUploadMedia
 ): ImageObjectSchema {
   const schema: ImageObjectSchema = {
     "@context": "https://schema.org",

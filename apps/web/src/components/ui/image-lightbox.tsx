@@ -66,11 +66,20 @@ export function ImageLightbox({
   onClose,
 }: ImageLightboxProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [prevInitialIndex, setPrevInitialIndex] = useState(initialIndex);
   const [isZoomed, setIsZoomed] = useState(false);
   const [sheetExpanded, setSheetExpanded] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
   const shouldReduceMotion = useReducedMotion();
+
+  // Sync current index when the caller selects a different photo
+  if (prevInitialIndex !== initialIndex) {
+    setPrevInitialIndex(initialIndex);
+    setCurrentIndex(initialIndex);
+    setIsZoomed(false);
+    setSheetExpanded(false);
+  }
 
   const photo = photos[currentIndex];
 
@@ -116,13 +125,6 @@ export function ImageLightbox({
     dialog.addEventListener("close", handleClose);
     return () => dialog.removeEventListener("close", handleClose);
   }, [onClose]);
-
-  // Update current index when initial index changes
-  useEffect(() => {
-    setCurrentIndex(initialIndex);
-    setIsZoomed(false);
-    setSheetExpanded(false);
-  }, [initialIndex]);
 
   const goToNext = useCallback(() => {
     if (isZoomed) return;
