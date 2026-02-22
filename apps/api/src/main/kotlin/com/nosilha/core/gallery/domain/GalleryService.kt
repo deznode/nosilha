@@ -603,7 +603,12 @@ class GalleryService(
         if (media is UserUploadedMedia) {
             media.dateTaken?.let { return it.atZone(ZoneOffset.UTC).year }
             media.approximateDate?.let { approx ->
-                yearPattern.find(approx)?.groupValues?.get(1)?.toIntOrNull()?.let { return it }
+                yearPattern
+                    .find(approx)
+                    ?.groupValues
+                    ?.get(1)
+                    ?.toIntOrNull()
+                    ?.let { return it }
             }
         }
         return media.createdAt.atZone(ZoneOffset.UTC).year

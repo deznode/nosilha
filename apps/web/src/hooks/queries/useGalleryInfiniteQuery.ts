@@ -13,6 +13,7 @@ interface GalleryPage {
 }
 
 interface GalleryFilters {
+  category?: string;
   decade?: string;
   q?: string;
 }
@@ -31,6 +32,7 @@ export function useGalleryInfiniteQuery({
       "gallery",
       "infinite",
       GALLERY_PAGE_SIZE,
+      filters?.category ?? null,
       filters?.decade ?? null,
       filters?.q ?? null,
     ],
@@ -38,6 +40,7 @@ export function useGalleryInfiniteQuery({
       const response = await getGalleryMedia({
         page: pageParam as number,
         size: GALLERY_PAGE_SIZE,
+        category: filters?.category,
         decade: filters?.decade,
         q: filters?.q,
       });

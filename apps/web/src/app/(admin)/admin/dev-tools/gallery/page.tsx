@@ -6,12 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { MasonryPhotoGrid } from "@/components/gallery/masonry-photo-grid";
 import { MetadataBadges } from "@/components/gallery/metadata-badges";
 import { PhotoTypeSelector } from "@/components/gallery/photo-type-selector";
-import type {
-  MediaItem,
-  MediaCategory,
-  PhotoType,
-  PhotoMetadata,
-} from "@/types/media";
+import type { MediaItem, PhotoType, PhotoMetadata } from "@/types/media";
 
 const mockPhotos: MediaItem[] = [
   {
@@ -114,9 +109,6 @@ const mockMetadata: PhotoMetadata = {
 };
 
 export default function GalleryDevPage() {
-  const [categoryFilter, setCategoryFilter] = useState<MediaCategory | "All">(
-    "All"
-  );
   const [photoType, setPhotoType] = useState<PhotoType>("CULTURAL_SITE");
 
   return (
@@ -150,11 +142,7 @@ export default function GalleryDevPage() {
         <h2 className="text-body mb-4 text-lg font-semibold">
           MasonryPhotoGrid
         </h2>
-        <MasonryPhotoGrid
-          photos={mockPhotos}
-          categoryFilter={categoryFilter}
-          onCategoryChange={setCategoryFilter}
-        />
+        <MasonryPhotoGrid photos={mockPhotos} categoryFilter="All" />
       </section>
     </div>
   );

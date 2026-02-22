@@ -3,11 +3,28 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Image as ImageIcon, Play, Plus, Clock, Search, X } from "lucide-react";
+import {
+  Image as ImageIcon,
+  Play,
+  Plus,
+  Clock,
+  Search,
+  X,
+  Filter,
+} from "lucide-react";
 import { clsx } from "clsx";
 import { MasonryPhotoGrid, VideoSection } from "@/components/gallery";
+import { Select } from "@/components/ui/select";
 import { useGalleryInfiniteQuery } from "@/hooks/queries/useGalleryInfiniteQuery";
 import type { MediaItem, MediaCategory } from "@/types/media";
+
+const FALLBACK_CATEGORIES: MediaCategory[] = [
+  "Heritage",
+  "Historical",
+  "Nature",
+  "Event",
+  "Culture",
+];
 
 type DecadeFilter =
   | "all"
@@ -99,6 +116,7 @@ export function GalleryContent({
       currentPage: pagination.currentPage,
     },
     filters: {
+      category: categoryFilter !== "All" ? categoryFilter : undefined,
       decade: decadeFilter !== "all" ? decadeFilter : undefined,
       q: debouncedQuery || undefined,
     },
@@ -218,6 +236,40 @@ export function GalleryContent({
     return counts;
   }, [photos]);
 
+  const resolvedCategories: MediaCategory[] =
+    categories.length > 0
+      ? (categories as MediaCategory[])
+      : FALLBACK_CATEGORIES;
+
+  const eraOptions = useMemo(
+    () =>
+      ERA_OPTIONS.map((era) => ({
+        value: era.value,
+        label:
+          era.value !== "all" && eraCounts.has(era.value)
+            ? `${era.label} (${eraCounts.get(era.value)})`
+            : era.label,
+      })),
+    [eraCounts]
+  );
+
+  const categoryOptions = useMemo(
+    () =>
+      (["All", ...resolvedCategories] as string[]).map((cat) => ({
+        value: cat,
+        label: cat === "All" ? "All Categories" : cat,
+      })),
+    [resolvedCategories]
+  );
+
+  const hasActiveFilters = decadeFilter !== "all" || categoryFilter !== "All";
+
+  const clearAllFilters = () => {
+    setDecadeFilter("all");
+    setCategoryFilter("All");
+    updateUrl(activeTab, "All", "all");
+  };
+
   const contributors = useMemo(
     () => new Set(allItems.map((item) => item.author).filter(Boolean)),
     [allItems]
@@ -321,38 +373,52 @@ export function GalleryContent({
         {/* Photo Gallery */}
         {activeTab === "photos" && (
           <>
-            {/* Era Filter */}
-            <div className="mb-4 flex flex-wrap items-center gap-2">
-              <span className="text-muted mr-2 flex items-center text-sm font-medium">
-                <Clock size={14} className="mr-1" /> Era:
-              </span>
-              {ERA_OPTIONS.map((era) => (
+            {/* Filter Bar */}
+            <div className="mb-6 flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-1.5">
+                <span className="text-muted flex items-center text-sm font-medium whitespace-nowrap">
+                  <Clock size={14} className="mr-1" />
+                  Era:
+                </span>
+                <div className="w-52">
+                  <Select
+                    options={eraOptions}
+                    value={decadeFilter}
+                    onChange={(val) => handleDecadeChange(val as DecadeFilter)}
+                    name="era-filter"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-muted flex items-center text-sm font-medium whitespace-nowrap">
+                  <Filter size={14} className="mr-1" />
+                  Category:
+                </span>
+                <div className="w-52">
+                  <Select
+                    options={categoryOptions}
+                    value={categoryFilter}
+                    onChange={(val) =>
+                      handleCategoryChange(val as MediaCategory | "All")
+                    }
+                    name="category-filter"
+                  />
+                </div>
+              </div>
+              {hasActiveFilters && (
                 <button
-                  key={era.value}
-                  onClick={() => handleDecadeChange(era.value)}
-                  aria-pressed={decadeFilter === era.value}
-                  className={clsx(
-                    "min-h-[44px] rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-                    decadeFilter === era.value
-                      ? "border-valley-green bg-valley-green dark:text-canvas text-white"
-                      : "border-hairline bg-canvas text-muted hover:bg-surface"
-                  )}
+                  onClick={clearAllFilters}
+                  className="text-muted hover:text-body flex items-center gap-1 text-sm transition-colors"
                 >
-                  {era.label}
-                  {era.value !== "all" && eraCounts.has(era.value) && (
-                    <span className="ml-1 opacity-70">
-                      ({eraCounts.get(era.value)})
-                    </span>
-                  )}
+                  <X size={14} />
+                  Clear filters
                 </button>
-              ))}
+              )}
             </div>
 
             <MasonryPhotoGrid
               photos={photos}
               categoryFilter={categoryFilter}
-              onCategoryChange={handleCategoryChange}
-              categories={categories}
               totalItems={totalItems}
               hasNextPage={hasNextPage}
               isFetchingNextPage={isFetchingNextPage || isLoading}

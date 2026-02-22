@@ -4,7 +4,7 @@ import * as React from "react";
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Filter, ZoomIn, Camera, Loader2 } from "lucide-react";
+import { ZoomIn, Camera, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import type { Photo } from "@/components/ui/image-lightbox";
@@ -29,14 +29,6 @@ function getEmptyStateHeading(
 /** Static shimmer gradient used as blur placeholder while images load. */
 const SHIMMER_BLUR_DATA_URL =
   "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iMzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZTJlOGYwIi8+PHN0b3Agb2Zmc2V0PSI1MCUiIHN0b3AtY29sb3I9IiNmMWY1ZjkiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlMmU4ZjAiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2cpIi8+PC9zdmc+";
-
-const FALLBACK_CATEGORIES: MediaCategory[] = [
-  "Heritage",
-  "Historical",
-  "Nature",
-  "Event",
-  "Culture",
-];
 
 /** Maps a MediaItem to the Photo shape expected by ImageLightbox. */
 export function mediaItemToPhoto(item: MediaItem): Photo {
@@ -64,8 +56,6 @@ export function mediaItemToPhoto(item: MediaItem): Photo {
 interface MasonryPhotoGridProps extends React.HTMLAttributes<HTMLDivElement> {
   photos: MediaItem[];
   categoryFilter: MediaCategory | "All";
-  onCategoryChange: (category: MediaCategory | "All") => void;
-  categories?: string[];
   totalItems?: number;
   hasNextPage?: boolean;
   isFetchingNextPage?: boolean;
@@ -81,8 +71,6 @@ export const MasonryPhotoGrid = React.forwardRef<
     {
       photos,
       categoryFilter,
-      onCategoryChange,
-      categories: apiCategories,
       totalItems,
       hasNextPage,
       isFetchingNextPage,
@@ -97,26 +85,7 @@ export const MasonryPhotoGrid = React.forwardRef<
     const [lightboxIndex, setLightboxIndex] = useState(0);
     const shouldReduceMotion = useReducedMotion();
 
-    const resolvedCategories: MediaCategory[] =
-      apiCategories && apiCategories.length > 0
-        ? (apiCategories as MediaCategory[])
-        : FALLBACK_CATEGORIES;
-
-    const categoryCounts = React.useMemo(() => {
-      const counts = new Map<string, number>();
-      counts.set("All", photos.length);
-      for (const cat of resolvedCategories) {
-        counts.set(cat, photos.filter((p) => p.category === cat).length);
-      }
-      return counts;
-    }, [photos, resolvedCategories]);
-
-    const filteredPhotos =
-      categoryFilter === "All"
-        ? photos
-        : photos.filter((p) => p.category === categoryFilter);
-
-    const lightboxPhotos = filteredPhotos.map(mediaItemToPhoto);
+    const lightboxPhotos = photos.map(mediaItemToPhoto);
 
     const openLightbox = (index: number) => {
       setLightboxIndex(index);
@@ -125,35 +94,6 @@ export const MasonryPhotoGrid = React.forwardRef<
 
     return (
       <div ref={ref} className={className} {...props}>
-        {/* Filter Bar */}
-        <div className="mb-8 flex flex-wrap items-center gap-2">
-          <span className="text-muted mr-2 flex items-center text-sm font-medium">
-            <Filter size={14} className="mr-1" /> Filter:
-          </span>
-          {(["All", ...resolvedCategories] as (MediaCategory | "All")[]).map(
-            (cat) => {
-              const count = categoryCounts.get(cat) ?? 0;
-              const isEmpty = cat !== "All" && count === 0;
-              return (
-                <button
-                  key={cat}
-                  onClick={() => onCategoryChange(cat)}
-                  aria-pressed={categoryFilter === cat}
-                  className={clsx(
-                    "min-h-[44px] rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-                    categoryFilter === cat
-                      ? "border-ocean-blue bg-ocean-blue dark:text-canvas text-white"
-                      : "border-hairline bg-canvas text-muted hover:bg-surface",
-                    isEmpty && "opacity-40"
-                  )}
-                >
-                  {cat} ({count})
-                </button>
-              );
-            }
-          )}
-        </div>
-
         {/* Masonry Photo Grid */}
         <AnimatePresence mode="wait">
           <motion.div
@@ -165,7 +105,7 @@ export const MasonryPhotoGrid = React.forwardRef<
             role="list"
             className="columns-1 gap-6 space-y-6 md:columns-2 lg:columns-3"
           >
-            {filteredPhotos.map((photo, index) => (
+            {photos.map((photo, index) => (
               <motion.div
                 key={photo.id}
                 variants={shouldReduceMotion ? undefined : listItem}
@@ -244,7 +184,7 @@ export const MasonryPhotoGrid = React.forwardRef<
         </AnimatePresence>
 
         {/* Empty state */}
-        {filteredPhotos.length === 0 && (
+        {photos.length === 0 && (
           <div className="border-hairline bg-canvas flex flex-col items-center rounded-lg border py-20 text-center">
             <Camera
               size={48}
@@ -271,7 +211,7 @@ export const MasonryPhotoGrid = React.forwardRef<
         )}
 
         {/* Load More */}
-        {hasNextPage && onLoadMore && filteredPhotos.length > 0 && (
+        {hasNextPage && onLoadMore && photos.length > 0 && (
           <div className="mt-10 flex flex-col items-center gap-2">
             <button
               onClick={onLoadMore}
@@ -291,13 +231,13 @@ export const MasonryPhotoGrid = React.forwardRef<
                   Loading more photos...
                 </span>
               ) : (
-                `Load More Photos (showing ${filteredPhotos.length}${categoryFilter === "All" ? ` of ${totalItems ?? filteredPhotos.length}` : ""})`
+                `Load More Photos (showing ${photos.length} of ${totalItems ?? photos.length})`
               )}
             </button>
             <div role="status" aria-live="polite" className="sr-only">
               {isFetchingNextPage
                 ? "Loading more photos..."
-                : `Showing ${filteredPhotos.length}${categoryFilter === "All" ? ` of ${totalItems ?? filteredPhotos.length}` : ""} photos`}
+                : `Showing ${photos.length} of ${totalItems ?? photos.length} photos`}
             </div>
           </div>
         )}
@@ -347,20 +287,10 @@ const SKELETON_HEIGHTS = [
 
 export function MasonryPhotoGridSkeleton() {
   return (
-    <>
-      {/* Filter bar skeleton */}
-      <div className="mb-8 flex flex-wrap items-center gap-2">
-        <div className="bg-surface-alt h-5 w-16 rounded" />
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="bg-surface-alt h-10 w-20 rounded-full" />
-        ))}
-      </div>
-      {/* Masonry skeleton */}
-      <div className="columns-1 gap-6 space-y-6 md:columns-2 lg:columns-3">
-        {SKELETON_HEIGHTS.map((height, i) => (
-          <SkeletonCard key={i} height={height} />
-        ))}
-      </div>
-    </>
+    <div className="columns-1 gap-6 space-y-6 md:columns-2 lg:columns-3">
+      {SKELETON_HEIGHTS.map((height, i) => (
+        <SkeletonCard key={i} height={height} />
+      ))}
+    </div>
   );
 }
