@@ -4,7 +4,7 @@ import * as React from "react";
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Filter, ZoomIn, Camera } from "lucide-react";
+import { Filter, ZoomIn, Camera, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import type { Photo } from "@/components/ui/image-lightbox";
@@ -52,12 +52,16 @@ interface MasonryPhotoGridProps extends React.HTMLAttributes<HTMLDivElement> {
   categoryFilter: MediaCategory | "All";
   onCategoryChange: (category: MediaCategory | "All") => void;
   categories?: string[];
+  totalItems?: number;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
+  onLoadMore?: () => void;
 }
 
 export const MasonryPhotoGrid = React.forwardRef<
   HTMLDivElement,
   MasonryPhotoGridProps
->(({ photos, categoryFilter, onCategoryChange, categories: apiCategories, className, ...props }, ref) => {
+>(({ photos, categoryFilter, onCategoryChange, categories: apiCategories, totalItems, hasNextPage, isFetchingNextPage, onLoadMore, className, ...props }, ref) => {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const shouldReduceMotion = useReducedMotion();
@@ -229,6 +233,30 @@ export const MasonryPhotoGrid = React.forwardRef<
           >
             Be the first to share
           </a>
+        </div>
+      )}
+
+      {/* Load More */}
+      {hasNextPage && onLoadMore && filteredPhotos.length > 0 && (
+        <div className="mt-10 flex justify-center">
+          <button
+            onClick={onLoadMore}
+            disabled={isFetchingNextPage}
+            aria-live="polite"
+            className={clsx(
+              "rounded-button border-hairline bg-canvas hover:bg-surface min-h-[44px] border px-8 py-3 text-sm font-medium transition-colors",
+              isFetchingNextPage && "cursor-wait opacity-70"
+            )}
+          >
+            {isFetchingNextPage ? (
+              <span className="flex items-center gap-2">
+                <Loader2 size={16} className="animate-spin" aria-hidden="true" />
+                Loading more photos...
+              </span>
+            ) : (
+              `Load More Photos (showing ${filteredPhotos.length} of ${totalItems ?? filteredPhotos.length})`
+            )}
+          </button>
         </div>
       )}
 

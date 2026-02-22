@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Image as ImageIcon, Play, Plus } from "lucide-react";
@@ -9,6 +9,7 @@ import {
   MasonryPhotoGrid,
   VideoSection,
 } from "@/components/gallery";
+import { useGalleryInfiniteQuery } from "@/hooks/queries/useGalleryInfiniteQuery";
 import type { MediaItem, MediaCategory } from "@/types/media";
 
 interface GalleryContentProps {
@@ -17,20 +18,55 @@ interface GalleryContentProps {
   categories: string[];
   initialTab: "photos" | "videos";
   initialCategory: MediaCategory | "All";
+  pagination: {
+    totalItems: number;
+    totalPages: number;
+    currentPage: number;
+  };
 }
 
 export function GalleryContent({
-  photos,
-  videos,
+  photos: initialPhotos,
+  videos: initialVideos,
   categories,
   initialTab,
   initialCategory,
+  pagination,
 }: GalleryContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<"photos" | "videos">(initialTab);
   const [categoryFilter, setCategoryFilter] = useState<MediaCategory | "All">(
     initialCategory
+  );
+
+  const initialItems = useMemo(
+    () => [...initialPhotos, ...initialVideos],
+    [initialPhotos, initialVideos]
+  );
+
+  const {
+    items: allItems,
+    totalItems,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useGalleryInfiniteQuery({
+    initialData: {
+      items: initialItems,
+      totalItems: pagination.totalItems,
+      totalPages: pagination.totalPages,
+      currentPage: pagination.currentPage,
+    },
+  });
+
+  const photos = useMemo(
+    () => allItems.filter((item) => item.type === "IMAGE"),
+    [allItems]
+  );
+  const videos = useMemo(
+    () => allItems.filter((item) => item.type === "VIDEO"),
+    [allItems]
   );
 
   const updateUrl = useCallback(
@@ -63,7 +99,7 @@ export function GalleryContent({
   };
 
   const contributors = new Set(
-    [...photos, ...videos].map((item) => item.author).filter(Boolean)
+    allItems.map((item) => item.author).filter(Boolean)
   );
 
   return (
@@ -80,9 +116,9 @@ export function GalleryContent({
                 A visual archive of our island. Explore historical photographs,
                 community moments, and videos celebrating the culture of Brava.
               </p>
-              {(photos.length > 0 || videos.length > 0) && (
+              {totalItems > 0 && (
                 <p className="mt-2 text-sm text-white/50">
-                  Exploring {photos.length + videos.length} items
+                  Exploring {totalItems} items
                   {contributors.size > 1
                     ? ` from ${contributors.size} contributors`
                     : ""}{" "}
@@ -139,6 +175,10 @@ export function GalleryContent({
             categoryFilter={categoryFilter}
             onCategoryChange={handleCategoryChange}
             categories={categories}
+            totalItems={totalItems}
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            onLoadMore={() => fetchNextPage()}
           />
         )}
 
