@@ -106,6 +106,10 @@ abstract class GalleryMedia : AuditableEntity() {
     @Column(name = "show_in_gallery", nullable = false)
     var showInGallery: Boolean = true
 
+    /** Canonical alt text for WCAG 1.1.1 compliance. Editable by admins, backfilled from AI. */
+    @Column(name = "alt_text", length = 1024)
+    var altText: String? = null
+
     // --- Smart credit attribution (shared across all media types) ---
 
     /** Detected social platform for creator credit (e.g., YOUTUBE, INSTAGRAM). */

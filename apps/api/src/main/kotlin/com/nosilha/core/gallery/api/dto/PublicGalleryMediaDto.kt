@@ -38,6 +38,7 @@ sealed class PublicGalleryMediaDto {
     abstract val category: String?
     abstract val displayOrder: Int
     abstract val mediaSource: String
+    abstract val altText: String?
     abstract val createdAt: Instant?
 
     /**
@@ -54,6 +55,7 @@ sealed class PublicGalleryMediaDto {
         override val category: String?,
         override val displayOrder: Int,
         override val mediaSource: String = "USER_UPLOAD",
+        override val altText: String?,
         override val createdAt: Instant?,
         val publicUrl: String?,
         val entryId: UUID?,
@@ -86,6 +88,7 @@ sealed class PublicGalleryMediaDto {
         override val category: String?,
         override val displayOrder: Int,
         override val mediaSource: String = "EXTERNAL",
+        override val altText: String?,
         override val createdAt: Instant?,
         val mediaType: MediaType,
         val platform: ExternalPlatform,
@@ -111,6 +114,7 @@ sealed class PublicGalleryMediaDto {
                 description = media.description,
                 category = media.category,
                 displayOrder = media.displayOrder,
+                altText = media.altText,
                 createdAt = media.createdAt,
                 publicUrl = media.publicUrl,
                 entryId = media.entryId,
@@ -138,6 +142,7 @@ sealed class PublicGalleryMediaDto {
                 description = media.description,
                 category = media.category,
                 displayOrder = media.displayOrder,
+                altText = media.altText,
                 createdAt = media.createdAt,
                 mediaType = media.mediaType,
                 platform = media.platform,
