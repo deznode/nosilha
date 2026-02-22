@@ -40,6 +40,7 @@ export interface GalleryMediaBase {
   status: GalleryMediaStatus;
   mediaSource: GalleryMediaSource;
   showInGallery: boolean;
+  altText: string | null;
   createdAt: string;
 }
 
@@ -133,6 +134,7 @@ export interface PublicGalleryMediaBase {
   category: string | null;
   displayOrder: number;
   mediaSource: GalleryMediaSource;
+  altText: string | null;
   createdAt: string;
 }
 

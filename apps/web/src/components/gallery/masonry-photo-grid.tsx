@@ -24,14 +24,23 @@ const CATEGORIES: (MediaCategory | "All")[] = [
 /** Maps a MediaItem to the Photo shape expected by ImageLightbox. */
 function mediaItemToPhoto(item: MediaItem): Photo {
   return {
+    id: item.id,
     src: item.url,
-    alt: item.title,
+    alt: item.altText || item.title,
     location: item.locationName || "Brava Island",
     date: item.date || "",
     description: item.description || "",
     author: item.author,
     creditPlatform: item.creditPlatform,
     creditHandle: item.creditHandle,
+    altText: item.altText,
+    cameraMake: item.cameraMake,
+    cameraModel: item.cameraModel,
+    dateTaken: item.dateTaken,
+    approximateDate: item.approximateDate,
+    locationName: item.locationName,
+    photographerCredit: item.photographerCredit,
+    archiveSource: item.archiveSource,
   };
 }
 
@@ -121,7 +130,7 @@ export const MasonryPhotoGrid = React.forwardRef<
                 <div className="relative overflow-hidden">
                   <Image
                     src={photo.url}
-                    alt={photo.title}
+                    alt={photo.altText || photo.title}
                     width={800}
                     height={600}
                     className="h-auto w-full object-cover transition-transform duration-500 group-hover:scale-105"

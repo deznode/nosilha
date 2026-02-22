@@ -14,6 +14,7 @@ import {
 import { CreditDisplay } from "@/components/ui/credit-display";
 
 export interface Photo {
+  id?: string;
   src: string;
   alt: string;
   location: string;
@@ -23,6 +24,14 @@ export interface Photo {
   author?: string;
   creditPlatform?: string;
   creditHandle?: string;
+  altText?: string;
+  cameraMake?: string;
+  cameraModel?: string;
+  dateTaken?: string;
+  approximateDate?: string;
+  locationName?: string;
+  photographerCredit?: string;
+  archiveSource?: string;
 }
 
 interface ImageLightboxProps {

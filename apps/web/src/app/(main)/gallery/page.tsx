@@ -23,6 +23,29 @@ const CATEGORY_MAP: Record<string, MediaCategory> = {
   Interview: "Interview",
 };
 
+const RAW_FILENAME_PATTERNS = [
+  /^[0-9a-f]{8}-[0-9a-f]{4}-/i, // UUID prefix
+  /^(DJI|IMG|DSC|DCIM|DSCN|P)_/i, // Camera filename prefixes
+  /\.(jpe?g|png|webp|heic|mp4|mov)$/i, // File extensions
+];
+
+/** Detects raw camera filenames that should be humanized. */
+function isRawFilename(title: string): boolean {
+  if (!title || title.trim() === "") return true;
+  return RAW_FILENAME_PATTERNS.some((pattern) => pattern.test(title));
+}
+
+/** Humanizes a raw filename into "Category — Month Year" format. */
+function humanizeTitle(
+  category: MediaCategory,
+  createdAt: string
+): string {
+  const date = new Date(createdAt);
+  const month = date.toLocaleDateString("en-US", { month: "long" });
+  const year = date.getFullYear();
+  return `${category} — ${month} ${year}`;
+}
+
 /** Maps public GalleryMedia to the MediaItem shape used by gallery components. */
 function mapGalleryMediaToMediaItem(media: PublicGalleryMedia): MediaItem {
   const category = CATEGORY_MAP[media.category || ""] || "Culture";
@@ -30,12 +53,19 @@ function mapGalleryMediaToMediaItem(media: PublicGalleryMedia): MediaItem {
     year: "numeric",
     month: "short",
   });
+
+  const rawTitle = media.title || "";
+  const title = isRawFilename(rawTitle)
+    ? humanizeTitle(category, media.createdAt)
+    : rawTitle || "Untitled";
+
   const base = {
     id: media.id,
-    title: media.title || "Untitled",
+    title,
     description: media.description || undefined,
     category,
     date,
+    altText: media.altText || undefined,
   };
 
   if (media.mediaSource === "EXTERNAL") {
@@ -71,6 +101,15 @@ function mapGalleryMediaToMediaItem(media: PublicGalleryMedia): MediaItem {
     creditPlatform: media.creditPlatform,
     creditHandle: media.creditHandle,
     source: "user" as const,
+    locationName: media.locationName,
+    dateTaken: media.dateTaken,
+    cameraMake: media.cameraMake,
+    cameraModel: media.cameraModel,
+    approximateDate: media.approximateDate,
+    photographerCredit: media.photographerCredit,
+    archiveSource: media.archiveSource,
+    latitude: media.latitude,
+    longitude: media.longitude,
   };
 }
 
