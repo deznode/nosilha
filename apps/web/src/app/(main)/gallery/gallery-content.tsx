@@ -198,9 +198,9 @@ export function GalleryContent({
       if (year && year > 0) {
         if (year < 1975)
           counts.set("pre-1975", (counts.get("pre-1975") ?? 0) + 1);
-        if (year >= 1975 && year <= 1990)
+        if (year >= 1975 && year <= 1989)
           counts.set("1975-1990", (counts.get("1975-1990") ?? 0) + 1);
-        if (year >= 1990 && year <= 2010)
+        if (year >= 1990 && year <= 2009)
           counts.set("1990-2010", (counts.get("1990-2010") ?? 0) + 1);
         if (year >= 2010)
           counts.set("2010-plus", (counts.get("2010-plus") ?? 0) + 1);

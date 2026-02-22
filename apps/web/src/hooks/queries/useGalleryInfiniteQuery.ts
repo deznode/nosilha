@@ -26,8 +26,6 @@ export function useGalleryInfiniteQuery({
   initialData,
   filters,
 }: UseGalleryInfiniteQueryOptions = {}) {
-  const hasFilters = !!filters?.decade || !!filters?.q;
-
   const query = useInfiniteQuery<GalleryPage>({
     queryKey: [
       "gallery",
@@ -55,11 +53,9 @@ export function useGalleryInfiniteQuery({
       if (lastPage.currentPage + 1 >= lastPage.totalPages) return undefined;
       return lastPage.currentPage + 1;
     },
-    // Only use initial data when no filters are active (server data was unfiltered)
-    initialData:
-      initialData && !hasFilters
-        ? { pages: [initialData], pageParams: [0] }
-        : undefined,
+    initialData: initialData
+      ? { pages: [initialData], pageParams: [0] }
+      : undefined,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   });

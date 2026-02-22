@@ -73,6 +73,18 @@ export function ImageLightbox({
     }
   }, [isOpen]);
 
+  // Prevent background scroll (iOS Safari doesn't block it with dialog.showModal())
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   // Open/close native dialog
   useEffect(() => {
     const dialog = dialogRef.current;

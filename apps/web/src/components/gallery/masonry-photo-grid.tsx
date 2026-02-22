@@ -281,13 +281,13 @@ export const MasonryPhotoGrid = React.forwardRef<
                   Loading more photos...
                 </span>
               ) : (
-                `Load More Photos (showing ${filteredPhotos.length} of ${totalItems ?? filteredPhotos.length})`
+                `Load More Photos (showing ${filteredPhotos.length}${categoryFilter === "All" ? ` of ${totalItems ?? filteredPhotos.length}` : ""})`
               )}
             </button>
             <div role="status" aria-live="polite" className="sr-only">
               {isFetchingNextPage
                 ? "Loading more photos..."
-                : `Showing ${filteredPhotos.length} of ${totalItems ?? filteredPhotos.length} photos`}
+                : `Showing ${filteredPhotos.length}${categoryFilter === "All" ? ` of ${totalItems ?? filteredPhotos.length}` : ""} photos`}
             </div>
           </div>
         )}

@@ -667,7 +667,7 @@ export interface ApiClient {
   /**
    * Submit external media for admin review.
    *
-   * **Public Endpoint**: No authentication required.
+   * **Authenticated Endpoint**: Requires authentication.
    *
    * Allows community members to submit external media (YouTube videos, etc.)
    * for review and potential inclusion in the gallery.

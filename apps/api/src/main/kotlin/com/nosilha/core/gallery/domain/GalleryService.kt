@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.Duration
 import java.time.Instant
+import java.time.ZoneOffset
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -547,8 +548,8 @@ class GalleryService(
     private fun parseDecadeRange(decade: String): IntRange? =
         when (decade) {
             "pre-1975" -> Int.MIN_VALUE..1974
-            "1975-1990" -> 1975..1990
-            "1990-2010" -> 1990..2010
+            "1975-1990" -> 1975..1989
+            "1990-2010" -> 1990..2009
             "2010-plus" -> 2010..Int.MAX_VALUE
             else -> null
         }
@@ -565,13 +566,16 @@ class GalleryService(
         page: Int,
         size: Int,
     ): Page<GalleryMedia> {
-        val pageable = PageRequest.of(page, minOf(size, 100))
-        val results = repository.searchGallery(query, pageable)
+        val cappedSize = minOf(size, 100)
+        val pageable = PageRequest.of(page, cappedSize)
 
         val needsPostFilter = category != null || decade != null
-        if (!needsPostFilter) return results
+        if (!needsPostFilter) return repository.searchGallery(query, pageable)
 
-        var filtered = results.content.toList()
+        // Fetch all search results then filter in-memory for accurate totalElements
+        val allResults = repository.searchGallery(query, PageRequest.of(0, Int.MAX_VALUE))
+        var filtered = allResults.content.toList()
+
         if (category != null) {
             filtered = filtered.filter { it.category == category }
         }
@@ -581,7 +585,12 @@ class GalleryService(
                 filtered = filtered.filter { resolveYear(it) in yearRange }
             }
         }
-        return PageImpl(filtered, pageable, filtered.size.toLong())
+
+        val start = page * cappedSize
+        val end = minOf(start + cappedSize, filtered.size)
+        val pageContent = if (start < filtered.size) filtered.subList(start, end) else emptyList()
+
+        return PageImpl(pageContent, pageable, filtered.size.toLong())
     }
 
     private val yearPattern = Regex("""(\d{4})""")
@@ -592,12 +601,12 @@ class GalleryService(
      */
     private fun resolveYear(media: GalleryMedia): Int {
         if (media is UserUploadedMedia) {
-            media.dateTaken?.let { return it.atZone(java.time.ZoneOffset.UTC).year }
+            media.dateTaken?.let { return it.atZone(ZoneOffset.UTC).year }
             media.approximateDate?.let { approx ->
                 yearPattern.find(approx)?.groupValues?.get(1)?.toIntOrNull()?.let { return it }
             }
         }
-        return media.createdAt.atZone(java.time.ZoneOffset.UTC).year
+        return media.createdAt.atZone(ZoneOffset.UTC).year
     }
 
     private fun queryActiveById(id: UUID): GalleryMedia? {
