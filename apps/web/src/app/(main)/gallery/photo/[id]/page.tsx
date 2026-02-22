@@ -14,7 +14,11 @@ import { getGalleryMediaById } from "@/lib/api";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import { ShareButton } from "@/components/ui/actions/share-button";
 import { CreditDisplay } from "@/components/ui/credit-display";
-import type { PublicGalleryMedia } from "@/types/gallery";
+import type {
+  PublicGalleryMedia,
+  PublicUserUploadMedia,
+} from "@/types/gallery";
+import { isPublicUserUploadMedia } from "@/types/gallery";
 import type { BreadcrumbListSchema, ImageObjectSchema } from "@/types/metadata";
 
 export const revalidate = 1800;
@@ -233,36 +237,23 @@ export default async function PhotoDetailPage({
     ? buildImageObjectSchema(media, imageUrl, title)
     : null;
 
-  // Extract metadata fields from user uploads
-  const locationName =
-    media.mediaSource === "USER_UPLOAD" ? media.locationName : null;
-  const dateTaken =
-    media.mediaSource === "USER_UPLOAD" ? media.dateTaken : null;
-  const approximateDate =
-    media.mediaSource === "USER_UPLOAD" ? media.approximateDate : null;
-  const cameraMake =
-    media.mediaSource === "USER_UPLOAD" ? media.cameraMake : null;
-  const cameraModel =
-    media.mediaSource === "USER_UPLOAD" ? media.cameraModel : null;
-  const photographerCredit =
-    media.mediaSource === "USER_UPLOAD" ? media.photographerCredit : null;
-  const archiveSource =
-    media.mediaSource === "USER_UPLOAD" ? media.archiveSource : null;
-  const uploaderDisplayName =
-    media.mediaSource === "USER_UPLOAD" ? media.uploaderDisplayName : null;
+  // Extract user-upload metadata (null for external media)
+  const upload: PublicUserUploadMedia | null = isPublicUserUploadMedia(media)
+    ? media
+    : null;
 
   const author =
-    photographerCredit ||
-    uploaderDisplayName ||
-    (media.mediaSource === "EXTERNAL" ? media.author : null);
+    upload?.photographerCredit ||
+    upload?.uploaderDisplayName ||
+    (!upload && media.mediaSource === "EXTERNAL" ? media.author : null);
 
-  const dateDisplay = dateTaken
-    ? new Date(dateTaken).toLocaleDateString("en-US", {
+  const dateDisplay = upload?.dateTaken
+    ? new Date(upload.dateTaken).toLocaleDateString("en-US", {
         year: "numeric",
         month: "long",
         day: "numeric",
       })
-    : approximateDate || null;
+    : upload?.approximateDate || null;
 
   return (
     <div className="bg-canvas min-h-screen">
@@ -345,10 +336,10 @@ export default async function PhotoDetailPage({
                 </div>
               )}
 
-              {(locationName || !dateTaken) && locationName && (
+              {upload?.locationName && (
                 <div className="flex items-center gap-3 text-sm">
                   <MapPin size={16} className="text-muted shrink-0" />
-                  <span className="text-body">{locationName}</span>
+                  <span className="text-body">{upload.locationName}</span>
                 </div>
               )}
 
@@ -357,27 +348,27 @@ export default async function PhotoDetailPage({
                   <Calendar size={16} className="text-muted shrink-0" />
                   <span className="text-body">
                     {dateDisplay}
-                    {approximateDate && !dateTaken && (
+                    {upload?.approximateDate && !upload.dateTaken && (
                       <span className="text-muted ml-1">(approximate)</span>
                     )}
                   </span>
                 </div>
               )}
 
-              {cameraMake && (
+              {upload?.cameraMake && (
                 <div className="flex items-center gap-3 text-sm">
                   <Camera size={16} className="text-muted shrink-0" />
                   <span className="text-body">
-                    {cameraMake}
-                    {cameraModel ? ` ${cameraModel}` : ""}
+                    {upload.cameraMake}
+                    {upload.cameraModel ? ` ${upload.cameraModel}` : ""}
                   </span>
                 </div>
               )}
 
-              {archiveSource && (
+              {upload?.archiveSource && (
                 <div className="flex items-center gap-3 text-sm">
                   <Archive size={16} className="text-muted shrink-0" />
-                  <span className="text-body">{archiveSource}</span>
+                  <span className="text-body">{upload.archiveSource}</span>
                 </div>
               )}
             </div>

@@ -10,7 +10,10 @@ import type {
   ImageGallerySchema,
   ImageObjectSchema,
 } from "@/types/metadata";
-import type { PublicGalleryMedia } from "@/types/gallery";
+import type {
+  PublicGalleryMedia,
+  PublicUserUploadMedia,
+} from "@/types/gallery";
 
 export const revalidate = 1800; // 30 minutes ISR matching CacheConfig.GALLERY
 
@@ -142,9 +145,9 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
     numberOfItems: galleryResponse.totalItems,
     image: galleryResponse.items
       .filter(
-        (item): item is PublicGalleryMedia & { mediaSource: "USER_UPLOAD" } =>
+        (item): item is PublicUserUploadMedia & { publicUrl: string } =>
           item.mediaSource === "USER_UPLOAD" &&
-          !!(item as { publicUrl?: string | null }).publicUrl,
+          !!(item as PublicUserUploadMedia).publicUrl,
       )
       .slice(0, 10)
       .map((item) => buildListingImageObject(item)),
@@ -158,27 +161,26 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(galleryJsonLd) }}
       />
       <GalleryContent
-      photos={photos}
-      videos={videos}
-      categories={apiCategories}
-      initialTab={initialTab}
-      initialCategory={initialCategory}
-      initialDecade={initialDecade}
-      initialQuery={initialQuery}
-      pagination={{
-        totalItems: galleryResponse.totalItems,
-        totalPages: galleryResponse.totalPages,
-        currentPage: galleryResponse.currentPage,
-      }}
-    />
+        photos={photos}
+        videos={videos}
+        categories={apiCategories}
+        initialTab={initialTab}
+        initialCategory={initialCategory}
+        initialDecade={initialDecade}
+        initialQuery={initialQuery}
+        pagination={{
+          totalItems: galleryResponse.totalItems,
+          totalPages: galleryResponse.totalPages,
+          currentPage: galleryResponse.currentPage,
+        }}
+      />
     </>
   );
 }
 
 function buildListingImageObject(
-  item: PublicGalleryMedia & { mediaSource: "USER_UPLOAD" },
+  upload: PublicUserUploadMedia,
 ): ImageObjectSchema {
-  const upload = item as import("@/types/gallery").PublicUserUploadMedia;
   const schema: ImageObjectSchema = {
     "@context": "https://schema.org",
     "@type": "ImageObject",

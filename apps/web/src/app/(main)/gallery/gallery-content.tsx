@@ -209,8 +209,9 @@ export function GalleryContent({
     return counts;
   }, [photos]);
 
-  const contributors = new Set(
-    allItems.map((item) => item.author).filter(Boolean)
+  const contributors = useMemo(
+    () => new Set(allItems.map((item) => item.author).filter(Boolean)),
+    [allItems]
   );
 
   return (

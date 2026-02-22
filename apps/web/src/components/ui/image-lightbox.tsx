@@ -241,7 +241,7 @@ export function ImageLightbox({
                   shouldReduceMotion ? undefined : { opacity: 0, scale: 0.95 }
                 }
                 transition={{ duration: 0.2 }}
-                drag={isZoomed ? false : true}
+                drag={!isZoomed}
                 dragDirectionLock
                 dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
                 dragElastic={0.3}
@@ -279,8 +279,6 @@ export function ImageLightbox({
           {/* Mobile bottom sheet */}
           <MobileBottomSheet
             photo={photo}
-            photos={photos}
-            currentIndex={currentIndex}
             expanded={sheetExpanded}
             onToggle={() => setSheetExpanded((e) => !e)}
             shouldReduceMotion={shouldReduceMotion ?? false}
@@ -428,15 +426,11 @@ function ThumbnailNav({
 
 function MobileBottomSheet({
   photo,
-  photos: _photos,
-  currentIndex: _currentIndex,
   expanded,
   onToggle,
   shouldReduceMotion,
 }: {
   photo: Photo;
-  photos: Photo[];
-  currentIndex: number;
   expanded: boolean;
   onToggle: () => void;
   shouldReduceMotion: boolean;
