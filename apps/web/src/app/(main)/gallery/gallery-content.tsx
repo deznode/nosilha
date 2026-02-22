@@ -5,14 +5,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Image as ImageIcon, Play, Plus, Clock, Search, X } from "lucide-react";
 import { clsx } from "clsx";
-import {
-  MasonryPhotoGrid,
-  VideoSection,
-} from "@/components/gallery";
+import { MasonryPhotoGrid, VideoSection } from "@/components/gallery";
 import { useGalleryInfiniteQuery } from "@/hooks/queries/useGalleryInfiniteQuery";
 import type { MediaItem, MediaCategory } from "@/types/media";
 
-type DecadeFilter = "all" | "pre-1975" | "1975-1990" | "1990-2010" | "2010-plus";
+type DecadeFilter =
+  | "all"
+  | "pre-1975"
+  | "1975-1990"
+  | "1990-2010"
+  | "2010-plus";
 
 const ERA_OPTIONS: { value: DecadeFilter; label: string }[] = [
   { value: "all", label: "All Eras" },
@@ -58,12 +60,12 @@ export function GalleryContent({
   const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Debounce search input (400ms)
+  // Debounce search input (300ms)
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setDebouncedQuery(searchInput.trim());
-    }, 400);
+    }, 300);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
@@ -103,12 +105,19 @@ export function GalleryContent({
     [allItems]
   );
 
+  // Track loaded page count for URL sync
+  const loadedPages = useMemo(() => {
+    if (!allItems.length) return 0;
+    return Math.ceil(allItems.length / 24) - 1;
+  }, [allItems.length]);
+
   const updateUrl = useCallback(
     (
       tab: "photos" | "videos",
       category: MediaCategory | "All",
       decade: DecadeFilter,
       query?: string,
+      page?: number
     ) => {
       const params = new URLSearchParams(searchParams.toString());
       if (tab !== "photos") {
@@ -132,17 +141,29 @@ export function GalleryContent({
       } else {
         params.delete("q");
       }
+      const p = page !== undefined ? page : loadedPages;
+      if (p > 0) {
+        params.set("page", String(p));
+      } else {
+        params.delete("page");
+      }
       const qs = params.toString();
       router.replace(`/gallery${qs ? `?${qs}` : ""}`, { scroll: false });
     },
-    [router, searchParams, debouncedQuery]
+    [router, searchParams, debouncedQuery, loadedPages]
   );
 
-  // Sync URL when debounced query changes
+  // Sync URL when debounced query or loaded pages change
   useEffect(() => {
-    updateUrl(activeTab, categoryFilter, decadeFilter, debouncedQuery);
+    updateUrl(
+      activeTab,
+      categoryFilter,
+      decadeFilter,
+      debouncedQuery,
+      loadedPages
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery]);
+  }, [debouncedQuery, loadedPages]);
 
   const handleTabChange = (tab: "photos" | "videos") => {
     setActiveTab(tab);
@@ -164,6 +185,30 @@ export function GalleryContent({
     setDebouncedQuery("");
   };
 
+  // Compute era counts from loaded photos
+  const eraCounts = useMemo(() => {
+    const counts = new Map<DecadeFilter, number>();
+    counts.set("all", photos.length);
+    for (const photo of photos) {
+      const year = photo.dateTaken
+        ? new Date(photo.dateTaken).getFullYear()
+        : photo.approximateDate
+          ? parseInt(photo.approximateDate.match(/(\d{4})/)?.[1] ?? "0", 10)
+          : null;
+      if (year && year > 0) {
+        if (year < 1975)
+          counts.set("pre-1975", (counts.get("pre-1975") ?? 0) + 1);
+        if (year >= 1975 && year <= 1990)
+          counts.set("1975-1990", (counts.get("1975-1990") ?? 0) + 1);
+        if (year >= 1990 && year <= 2010)
+          counts.set("1990-2010", (counts.get("1990-2010") ?? 0) + 1);
+        if (year >= 2010)
+          counts.set("2010-plus", (counts.get("2010-plus") ?? 0) + 1);
+      }
+    }
+    return counts;
+  }, [photos]);
+
   const contributors = new Set(
     allItems.map((item) => item.author).filter(Boolean)
   );
@@ -172,7 +217,7 @@ export function GalleryContent({
     <div className="bg-canvas min-h-screen pb-12">
       {/* Header */}
       <div className="bg-basalt-900 text-white">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-16 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h1 className="mb-4 font-serif text-3xl font-bold md:text-5xl">
@@ -245,7 +290,7 @@ export function GalleryContent({
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             placeholder="Search photos, videos, locations..."
-            className="border-hairline bg-surface text-body placeholder:text-muted focus:border-ocean-blue focus:ring-ocean-blue/20 w-full rounded-button border py-3 pr-10 pl-10 text-sm transition-colors focus:ring-2 focus:outline-none"
+            className="border-hairline bg-surface text-body placeholder:text-muted focus:border-ocean-blue focus:ring-ocean-blue/20 rounded-button w-full border py-3 pr-10 pl-10 text-sm transition-colors focus:ring-2 focus:outline-none"
           />
           {searchInput && (
             <button
@@ -257,6 +302,13 @@ export function GalleryContent({
             </button>
           )}
         </div>
+        {debouncedQuery && (
+          <p className="text-muted -mt-4 mb-4 text-sm" role="status">
+            {totalItems === 0
+              ? `No results for \u201c${debouncedQuery}\u201d`
+              : `${totalItems} result${totalItems !== 1 ? "s" : ""} for \u201c${debouncedQuery}\u201d`}
+          </p>
+        )}
 
         {/* Photo Gallery */}
         {activeTab === "photos" && (
@@ -279,6 +331,11 @@ export function GalleryContent({
                   )}
                 >
                   {era.label}
+                  {era.value !== "all" && eraCounts.has(era.value) && (
+                    <span className="ml-1 opacity-70">
+                      ({eraCounts.get(era.value)})
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
@@ -292,14 +349,13 @@ export function GalleryContent({
               hasNextPage={hasNextPage}
               isFetchingNextPage={isFetchingNextPage || isLoading}
               onLoadMore={() => fetchNextPage()}
+              searchQuery={debouncedQuery}
             />
           </>
         )}
 
         {/* Video Archive */}
-        {activeTab === "videos" && (
-          <VideoSection videos={videos} />
-        )}
+        {activeTab === "videos" && <VideoSection videos={videos} />}
       </div>
     </div>
   );

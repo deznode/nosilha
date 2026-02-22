@@ -52,7 +52,7 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
 
   const categories = useMemo(
     () => Array.from(categoryCounts.keys()).sort(),
-    [categoryCounts],
+    [categoryCounts]
   );
 
   // Filter by category
@@ -60,12 +60,17 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
     () =>
       categoryFilter === "All"
         ? videos
-        : videos.filter((v) => (v.category || "Uncategorized") === categoryFilter),
-    [videos, categoryFilter],
+        : videos.filter(
+            (v) => (v.category || "Uncategorized") === categoryFilter
+          ),
+    [videos, categoryFilter]
   );
 
   // Split into videos vs podcasts
-  const videoItems = useMemo(() => filtered.filter((v) => !isPodcast(v)), [filtered]);
+  const videoItems = useMemo(
+    () => filtered.filter((v) => !isPodcast(v)),
+    [filtered]
+  );
   const podcastItems = useMemo(() => filtered.filter(isPodcast), [filtered]);
 
   if (isLoading) {
@@ -90,7 +95,7 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
               "min-h-[44px] rounded-full border px-4 py-2 text-sm font-medium transition-colors",
               categoryFilter === "All"
                 ? "border-bougainvillea-pink bg-bougainvillea-pink text-white"
-                : "border-hairline bg-canvas text-muted hover:bg-surface",
+                : "border-hairline bg-canvas text-muted hover:bg-surface"
             )}
           >
             All ({videos.length})
@@ -104,7 +109,7 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
                 "min-h-[44px] rounded-full border px-4 py-2 text-sm font-medium transition-colors",
                 categoryFilter === cat
                   ? "border-bougainvillea-pink bg-bougainvillea-pink text-white"
-                  : "border-hairline bg-canvas text-muted hover:bg-surface",
+                  : "border-hairline bg-canvas text-muted hover:bg-surface"
               )}
             >
               {cat} ({categoryCounts.get(cat) || 0})
@@ -131,87 +136,99 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
       </div>
 
       {/* Videos Section */}
-      {videoItems.length > 0 && (
+      {filtered.length > 0 && (
         <div>
           <h3 className="text-body mb-4 flex items-center gap-2 text-lg font-bold">
             <Film size={20} className="text-bougainvillea-pink" />
             Videos ({videoItems.length})
           </h3>
-          <motion.div
-            variants={shouldReduceMotion ? undefined : pageStagger}
-            initial={shouldReduceMotion ? undefined : "hidden"}
-            animate={shouldReduceMotion ? undefined : "visible"}
-            className="grid grid-cols-1 gap-8 md:grid-cols-2"
-          >
-            {videoItems.map((video, idx) => (
-              <motion.div
-                key={video.id}
-                variants={shouldReduceMotion ? undefined : pageItem}
-                className={clsx(
-                  "border-hairline bg-canvas overflow-hidden rounded-lg border shadow-sm",
-                  "hover:shadow-elevated transition-shadow",
-                  idx === 0 && "md:col-span-2",
-                )}
-              >
-                <YouTubeFacade video={video} />
-                <div className="p-5">
-                  <div className="mb-2 flex items-start justify-between">
-                    <span className="text-bougainvillea-pink text-xs font-bold tracking-wider uppercase">
-                      {video.category}
-                    </span>
-                    <span className="text-muted text-xs">{video.date}</span>
+          {videoItems.length > 0 ? (
+            <motion.div
+              variants={shouldReduceMotion ? undefined : pageStagger}
+              initial={shouldReduceMotion ? undefined : "hidden"}
+              animate={shouldReduceMotion ? undefined : "visible"}
+              className="grid grid-cols-1 gap-8 md:grid-cols-2"
+            >
+              {videoItems.map((video, idx) => (
+                <motion.div
+                  key={video.id}
+                  variants={shouldReduceMotion ? undefined : pageItem}
+                  className={clsx(
+                    "border-hairline bg-canvas overflow-hidden rounded-lg border shadow-sm",
+                    "hover:shadow-elevated transition-shadow",
+                    idx === 0 && "md:col-span-2"
+                  )}
+                >
+                  <YouTubeFacade video={video} />
+                  <div className="p-5">
+                    <div className="mb-2 flex items-start justify-between">
+                      <span className="text-bougainvillea-pink text-xs font-bold tracking-wider uppercase">
+                        {video.category}
+                      </span>
+                      <span className="text-muted text-xs">{video.date}</span>
+                    </div>
+                    <h3 className="text-body mb-2 text-xl font-bold">
+                      {video.title}
+                    </h3>
+                    <p className="text-muted text-sm">{video.description}</p>
                   </div>
-                  <h3 className="text-body mb-2 text-xl font-bold">
-                    {video.title}
-                  </h3>
-                  <p className="text-muted text-sm">{video.description}</p>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <p className="text-muted py-6 text-center text-sm">
+              No videos in this category.
+            </p>
+          )}
         </div>
       )}
 
       {/* Podcasts & Interviews Section */}
-      {podcastItems.length > 0 && (
+      {filtered.length > 0 && (
         <div>
           <h3 className="text-body mb-4 flex items-center gap-2 text-lg font-bold">
             <Mic size={20} className="text-valley-green" />
             Podcasts & Interviews ({podcastItems.length})
           </h3>
-          <motion.div
-            variants={shouldReduceMotion ? undefined : pageStagger}
-            initial={shouldReduceMotion ? undefined : "hidden"}
-            animate={shouldReduceMotion ? undefined : "visible"}
-            className="grid grid-cols-1 gap-8 md:grid-cols-2"
-          >
-            {podcastItems.map((video, idx) => (
-              <motion.div
-                key={video.id}
-                variants={shouldReduceMotion ? undefined : pageItem}
-                className={clsx(
-                  "border-hairline bg-canvas overflow-hidden rounded-lg border shadow-sm",
-                  "hover:shadow-elevated transition-shadow",
-                  idx === 0 && "md:col-span-2",
-                )}
-              >
-                <YouTubeFacade video={video} />
-                <div className="p-5">
-                  <div className="mb-2 flex items-start justify-between">
-                    <span className="text-valley-green text-xs font-bold tracking-wider uppercase">
-                      <Mic size={10} className="mr-1 inline" />
-                      PODCAST
-                    </span>
-                    <span className="text-muted text-xs">{video.date}</span>
+          {podcastItems.length > 0 ? (
+            <motion.div
+              variants={shouldReduceMotion ? undefined : pageStagger}
+              initial={shouldReduceMotion ? undefined : "hidden"}
+              animate={shouldReduceMotion ? undefined : "visible"}
+              className="grid grid-cols-1 gap-8 md:grid-cols-2"
+            >
+              {podcastItems.map((video, idx) => (
+                <motion.div
+                  key={video.id}
+                  variants={shouldReduceMotion ? undefined : pageItem}
+                  className={clsx(
+                    "border-hairline bg-canvas overflow-hidden rounded-lg border shadow-sm",
+                    "hover:shadow-elevated transition-shadow",
+                    idx === 0 && "md:col-span-2"
+                  )}
+                >
+                  <YouTubeFacade video={video} />
+                  <div className="p-5">
+                    <div className="mb-2 flex items-start justify-between">
+                      <span className="text-valley-green text-xs font-bold tracking-wider uppercase">
+                        <Mic size={10} className="mr-1 inline" />
+                        PODCAST
+                      </span>
+                      <span className="text-muted text-xs">{video.date}</span>
+                    </div>
+                    <h3 className="text-body mb-2 text-xl font-bold">
+                      {video.title}
+                    </h3>
+                    <p className="text-muted text-sm">{video.description}</p>
                   </div>
-                  <h3 className="text-body mb-2 text-xl font-bold">
-                    {video.title}
-                  </h3>
-                  <p className="text-muted text-sm">{video.description}</p>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <p className="text-muted py-6 text-center text-sm">
+              No podcasts or interviews in this category.
+            </p>
+          )}
         </div>
       )}
 

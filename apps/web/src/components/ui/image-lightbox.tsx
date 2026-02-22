@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useState,
-  useEffect,
-  useCallback,
-  useRef,
-} from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import {
@@ -139,7 +134,13 @@ export function ImageLightbox({
 
   // Handle horizontal swipe
   const handleDragEnd = useCallback(
-    (_: unknown, info: { offset: { x: number; y: number }; velocity: { x: number; y: number } }) => {
+    (
+      _: unknown,
+      info: {
+        offset: { x: number; y: number };
+        velocity: { x: number; y: number };
+      }
+    ) => {
       if (isZoomed) return;
 
       // Swipe down to dismiss
@@ -157,7 +158,7 @@ export function ImageLightbox({
         }
       }
     },
-    [goToNext, goToPrevious, onClose, isZoomed],
+    [goToNext, goToPrevious, onClose, isZoomed]
   );
 
   // Double tap to zoom
@@ -190,7 +191,7 @@ export function ImageLightbox({
 
       <div className="flex h-full w-full flex-col">
         {/* Top bar */}
-        <div className="bg-black/40 flex items-center justify-between px-4 py-3 backdrop-blur-sm">
+        <div className="flex items-center justify-between bg-black/40 px-4 py-3 backdrop-blur-sm">
           <span className="text-sm text-white/70">
             {currentIndex + 1} of {photos.length}
           </span>
@@ -210,14 +211,14 @@ export function ImageLightbox({
             <>
               <button
                 onClick={goToPrevious}
-                className="focus-ring touch-target pointer-coarse:hidden absolute top-1/2 left-3 z-10 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white transition-colors hover:bg-black/70"
+                className="focus-ring touch-target absolute top-1/2 left-3 z-10 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white transition-colors hover:bg-black/70 pointer-coarse:hidden"
                 aria-label="Previous image"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
               <button
                 onClick={goToNext}
-                className="focus-ring touch-target pointer-coarse:hidden absolute top-1/2 right-3 z-10 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white transition-colors hover:bg-black/70 lg:right-[21rem]"
+                className="focus-ring touch-target absolute top-1/2 right-3 z-10 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white transition-colors hover:bg-black/70 lg:right-[21rem] pointer-coarse:hidden"
                 aria-label="Next image"
               >
                 <ChevronRight className="h-5 w-5" />
@@ -230,11 +231,18 @@ export function ImageLightbox({
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentIndex}
-                initial={shouldReduceMotion ? undefined : { opacity: 0, scale: 0.95 }}
-                animate={shouldReduceMotion ? undefined : { opacity: 1, scale: 1 }}
-                exit={shouldReduceMotion ? undefined : { opacity: 0, scale: 0.95 }}
+                initial={
+                  shouldReduceMotion ? undefined : { opacity: 0, scale: 0.95 }
+                }
+                animate={
+                  shouldReduceMotion ? undefined : { opacity: 1, scale: 1 }
+                }
+                exit={
+                  shouldReduceMotion ? undefined : { opacity: 0, scale: 0.95 }
+                }
                 transition={{ duration: 0.2 }}
                 drag={isZoomed ? false : true}
+                dragDirectionLock
                 dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
                 dragElastic={0.3}
                 onDragEnd={handleDragEnd}
@@ -401,7 +409,7 @@ function ThumbnailNav({
               "focus-ring relative aspect-square overflow-hidden rounded border-2 transition-all",
               index === currentIndex
                 ? "shadow-elevated scale-105 border-white"
-                : "border-transparent opacity-60 hover:border-white/50 hover:opacity-100",
+                : "border-transparent opacity-60 hover:border-white/50 hover:opacity-100"
             )}
           >
             <Image
@@ -433,11 +441,29 @@ function MobileBottomSheet({
   onToggle: () => void;
   shouldReduceMotion: boolean;
 }) {
+  const handleSheetDragEnd = useCallback(
+    (_: unknown, info: { offset: { y: number } }) => {
+      // Drag up to expand, drag down to collapse
+      if (info.offset.y < -50 && !expanded) {
+        onToggle();
+      } else if (info.offset.y > 50 && expanded) {
+        onToggle();
+      }
+    },
+    [expanded, onToggle]
+  );
+
   return (
     <motion.div
       className="bg-black/60 backdrop-blur-md lg:hidden"
-      animate={shouldReduceMotion ? undefined : { height: expanded ? "70vh" : "auto" }}
+      animate={
+        shouldReduceMotion ? undefined : { height: expanded ? "70vh" : "auto" }
+      }
       transition={{ type: "spring", damping: 25, stiffness: 200 }}
+      drag="y"
+      dragConstraints={{ top: 0, bottom: 0 }}
+      dragElastic={0.2}
+      onDragEnd={handleSheetDragEnd}
     >
       {/* Drag handle */}
       <button
@@ -450,12 +476,17 @@ function MobileBottomSheet({
           size={16}
           className={clsx(
             "ml-2 text-white/60 transition-transform",
-            expanded && "rotate-180",
+            expanded && "rotate-180"
           )}
         />
       </button>
 
-      <div className={clsx("overflow-y-auto px-4 pb-4 text-white", expanded ? "max-h-[calc(70vh-48px)]" : "max-h-32")}>
+      <div
+        className={clsx(
+          "overflow-y-auto px-4 pb-4 text-white",
+          expanded ? "max-h-[calc(70vh-48px)]" : "max-h-[30vh]"
+        )}
+      >
         {/* Collapsed: title, location, date, actions */}
         <div className="space-y-2">
           {photo.description && (

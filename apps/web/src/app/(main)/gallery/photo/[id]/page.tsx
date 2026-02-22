@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Camera, MapPin, User, Archive } from "lucide-react";
+import {
+  ArrowLeft,
+  Calendar,
+  Camera,
+  MapPin,
+  User,
+  Archive,
+} from "lucide-react";
 import { notFound } from "next/navigation";
 import { getGalleryMediaById } from "@/lib/api";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
@@ -129,13 +136,17 @@ export async function generateMetadata({
 function buildImageObjectSchema(
   media: PublicGalleryMedia,
   contentUrl: string,
-  title: string,
+  title: string
 ): ImageObjectSchema {
   const schema: ImageObjectSchema = {
     "@context": "https://schema.org",
     "@type": "ImageObject",
     name: title,
     contentUrl,
+    thumbnailUrl:
+      media.mediaSource === "EXTERNAL" && media.thumbnailUrl
+        ? media.thumbnailUrl
+        : contentUrl,
     license: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
     acquireLicensePage: `${siteConfig.url}/gallery/photo/${media.id}`,
   };
