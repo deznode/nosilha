@@ -9,10 +9,20 @@ import type { BreadcrumbListSchema } from "@/types/metadata";
 
 export const revalidate = 1800; // 30 minutes ISR matching CacheConfig.GALLERY
 
+type DecadeFilter = "all" | "pre-1975" | "1975-1990" | "1990-2010" | "2010-plus";
+
+const VALID_DECADES = new Set<string>([
+  "pre-1975",
+  "1975-1990",
+  "1990-2010",
+  "2010-plus",
+]);
+
 interface GalleryPageProps {
   searchParams: Promise<{
     tab?: string;
     category?: string;
+    decade?: string;
   }>;
 }
 
@@ -73,10 +83,16 @@ export async function generateMetadata({
 }
 
 export default async function GalleryPage({ searchParams }: GalleryPageProps) {
-  const { tab, category } = await searchParams;
+  const { tab, category, decade } = await searchParams;
+
+  const initialDecade: DecadeFilter =
+    decade && VALID_DECADES.has(decade) ? (decade as DecadeFilter) : "all";
 
   const [galleryResponse, apiCategories] = await Promise.all([
-    getGalleryMedia({ size: GALLERY_PAGE_SIZE }),
+    getGalleryMedia({
+      size: GALLERY_PAGE_SIZE,
+      decade: initialDecade !== "all" ? initialDecade : undefined,
+    }),
     getGalleryCategories().catch(() => [] as string[]),
   ]);
 
@@ -96,6 +112,7 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
       categories={apiCategories}
       initialTab={initialTab}
       initialCategory={initialCategory}
+      initialDecade={initialDecade}
       pagination={{
         totalItems: galleryResponse.totalItems,
         totalPages: galleryResponse.totalPages,

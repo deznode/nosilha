@@ -12,19 +12,28 @@ interface GalleryPage {
   currentPage: number;
 }
 
+interface GalleryFilters {
+  decade?: string;
+}
+
 interface UseGalleryInfiniteQueryOptions {
   initialData?: GalleryPage;
+  filters?: GalleryFilters;
 }
 
 export function useGalleryInfiniteQuery({
   initialData,
+  filters,
 }: UseGalleryInfiniteQueryOptions = {}) {
+  const hasFilters = !!filters?.decade;
+
   const query = useInfiniteQuery<GalleryPage>({
-    queryKey: ["gallery", "infinite", GALLERY_PAGE_SIZE],
+    queryKey: ["gallery", "infinite", GALLERY_PAGE_SIZE, filters?.decade ?? null],
     queryFn: async ({ pageParam }) => {
       const response = await getGalleryMedia({
         page: pageParam as number,
         size: GALLERY_PAGE_SIZE,
+        decade: filters?.decade,
       });
       return {
         items: response.items.map(mapGalleryMediaToMediaItem),
@@ -38,9 +47,11 @@ export function useGalleryInfiniteQuery({
       if (lastPage.currentPage + 1 >= lastPage.totalPages) return undefined;
       return lastPage.currentPage + 1;
     },
-    initialData: initialData
-      ? { pages: [initialData], pageParams: [0] }
-      : undefined,
+    // Only use initial data when no filters are active (server data was unfiltered)
+    initialData:
+      initialData && !hasFilters
+        ? { pages: [initialData], pageParams: [0] }
+        : undefined,
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   });

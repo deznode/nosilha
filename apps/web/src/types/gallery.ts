@@ -208,6 +208,7 @@ export interface PublicGalleryMediaPageResponse {
  */
 export interface GalleryMediaQueryParams {
   category?: string;
+  decade?: string;
   page?: number;
   size?: number;
 }

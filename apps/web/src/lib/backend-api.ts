@@ -2341,6 +2341,7 @@ export class BackendApiClient implements ApiClient {
    */
   async getGalleryMedia(options?: {
     category?: string;
+    decade?: string;
     page?: number;
     size?: number;
   }): Promise<PublicGalleryMediaPageResponse> {
@@ -2348,6 +2349,9 @@ export class BackendApiClient implements ApiClient {
 
     if (options?.category) {
       params.append("category", options.category);
+    }
+    if (options?.decade) {
+      params.append("decade", options.decade);
     }
     if (options?.page !== undefined) {
       params.append("page", String(options.page));

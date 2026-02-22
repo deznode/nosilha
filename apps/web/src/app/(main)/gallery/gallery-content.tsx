@@ -3,7 +3,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Image as ImageIcon, Play, Plus } from "lucide-react";
+import { Image as ImageIcon, Play, Plus, Clock } from "lucide-react";
 import { clsx } from "clsx";
 import {
   MasonryPhotoGrid,
@@ -12,12 +12,23 @@ import {
 import { useGalleryInfiniteQuery } from "@/hooks/queries/useGalleryInfiniteQuery";
 import type { MediaItem, MediaCategory } from "@/types/media";
 
+type DecadeFilter = "all" | "pre-1975" | "1975-1990" | "1990-2010" | "2010-plus";
+
+const ERA_OPTIONS: { value: DecadeFilter; label: string }[] = [
+  { value: "all", label: "All Eras" },
+  { value: "pre-1975", label: "Pre-1975" },
+  { value: "1975-1990", label: "1975\u20131990" },
+  { value: "1990-2010", label: "1990\u20132010" },
+  { value: "2010-plus", label: "2010+" },
+];
+
 interface GalleryContentProps {
   photos: MediaItem[];
   videos: MediaItem[];
   categories: string[];
   initialTab: "photos" | "videos";
   initialCategory: MediaCategory | "All";
+  initialDecade: DecadeFilter;
   pagination: {
     totalItems: number;
     totalPages: number;
@@ -31,6 +42,7 @@ export function GalleryContent({
   categories,
   initialTab,
   initialCategory,
+  initialDecade,
   pagination,
 }: GalleryContentProps) {
   const router = useRouter();
@@ -39,6 +51,7 @@ export function GalleryContent({
   const [categoryFilter, setCategoryFilter] = useState<MediaCategory | "All">(
     initialCategory
   );
+  const [decadeFilter, setDecadeFilter] = useState<DecadeFilter>(initialDecade);
 
   const initialItems = useMemo(
     () => [...initialPhotos, ...initialVideos],
@@ -51,12 +64,16 @@ export function GalleryContent({
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
+    isLoading,
   } = useGalleryInfiniteQuery({
     initialData: {
       items: initialItems,
       totalItems: pagination.totalItems,
       totalPages: pagination.totalPages,
       currentPage: pagination.currentPage,
+    },
+    filters: {
+      decade: decadeFilter !== "all" ? decadeFilter : undefined,
     },
   });
 
@@ -70,7 +87,11 @@ export function GalleryContent({
   );
 
   const updateUrl = useCallback(
-    (tab: "photos" | "videos", category: MediaCategory | "All") => {
+    (
+      tab: "photos" | "videos",
+      category: MediaCategory | "All",
+      decade: DecadeFilter,
+    ) => {
       const params = new URLSearchParams(searchParams.toString());
       if (tab !== "photos") {
         params.set("tab", tab);
@@ -82,6 +103,11 @@ export function GalleryContent({
       } else {
         params.delete("category");
       }
+      if (decade !== "all") {
+        params.set("decade", decade);
+      } else {
+        params.delete("decade");
+      }
       const qs = params.toString();
       router.replace(`/gallery${qs ? `?${qs}` : ""}`, { scroll: false });
     },
@@ -90,12 +116,17 @@ export function GalleryContent({
 
   const handleTabChange = (tab: "photos" | "videos") => {
     setActiveTab(tab);
-    updateUrl(tab, categoryFilter);
+    updateUrl(tab, categoryFilter, decadeFilter);
   };
 
   const handleCategoryChange = (category: MediaCategory | "All") => {
     setCategoryFilter(category);
-    updateUrl(activeTab, category);
+    updateUrl(activeTab, category, decadeFilter);
+  };
+
+  const handleDecadeChange = (decade: DecadeFilter) => {
+    setDecadeFilter(decade);
+    updateUrl(activeTab, categoryFilter, decade);
   };
 
   const contributors = new Set(
@@ -170,16 +201,40 @@ export function GalleryContent({
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Photo Gallery */}
         {activeTab === "photos" && (
-          <MasonryPhotoGrid
-            photos={photos}
-            categoryFilter={categoryFilter}
-            onCategoryChange={handleCategoryChange}
-            categories={categories}
-            totalItems={totalItems}
-            hasNextPage={hasNextPage}
-            isFetchingNextPage={isFetchingNextPage}
-            onLoadMore={() => fetchNextPage()}
-          />
+          <>
+            {/* Era Filter */}
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <span className="text-muted mr-2 flex items-center text-sm font-medium">
+                <Clock size={14} className="mr-1" /> Era:
+              </span>
+              {ERA_OPTIONS.map((era) => (
+                <button
+                  key={era.value}
+                  onClick={() => handleDecadeChange(era.value)}
+                  aria-pressed={decadeFilter === era.value}
+                  className={clsx(
+                    "min-h-[44px] rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                    decadeFilter === era.value
+                      ? "border-valley-green bg-valley-green dark:text-canvas text-white"
+                      : "border-hairline bg-canvas text-muted hover:bg-surface"
+                  )}
+                >
+                  {era.label}
+                </button>
+              ))}
+            </div>
+
+            <MasonryPhotoGrid
+              photos={photos}
+              categoryFilter={categoryFilter}
+              onCategoryChange={handleCategoryChange}
+              categories={categories}
+              totalItems={totalItems}
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage || isLoading}
+              onLoadMore={() => fetchNextPage()}
+            />
+          </>
         )}
 
         {/* Video Archive */}

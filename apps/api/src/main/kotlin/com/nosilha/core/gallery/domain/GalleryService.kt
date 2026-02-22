@@ -507,24 +507,66 @@ class GalleryService(
 
     private fun queryActiveMedia(
         category: String?,
+        decade: String?,
         page: Int,
         size: Int,
     ): Page<GalleryMedia> {
         val pageable = PageRequest.of(page, minOf(size, 100))
-        return if (category != null) {
-            val allActive = repository
+        val needsInMemoryFilter = category != null || decade != null
+
+        return if (needsInMemoryFilter) {
+            var filtered: List<GalleryMedia> = repository
                 .findByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
-                .filter { it.category == category }
-                .sortedBy { it.displayOrder }
 
+            if (category != null) {
+                filtered = filtered.filter { it.category == category }
+            }
+
+            if (decade != null) {
+                val yearRange = parseDecadeRange(decade)
+                if (yearRange != null) {
+                    filtered = filtered.filter { media -> resolveYear(media) in yearRange }
+                }
+            }
+
+            filtered = filtered.sortedBy { it.displayOrder }
             val start = page * size
-            val end = minOf(start + size, allActive.size)
-            val pageContent = if (start < allActive.size) allActive.subList(start, end) else emptyList()
+            val end = minOf(start + size, filtered.size)
+            val pageContent = if (start < filtered.size) filtered.subList(start, end) else emptyList()
 
-            PageImpl(pageContent, pageable, allActive.size.toLong())
+            PageImpl(pageContent, pageable, filtered.size.toLong())
         } else {
             repository.findByStatusAndShowInGalleryTrueOrderByDisplayOrderAsc(GalleryMediaStatus.ACTIVE, pageable)
         }
+    }
+
+    /**
+     * Parses a decade string into an IntRange of years.
+     * Supported values: pre-1975, 1975-1990, 1990-2010, 2010-plus
+     */
+    private fun parseDecadeRange(decade: String): IntRange? =
+        when (decade) {
+            "pre-1975" -> Int.MIN_VALUE..1974
+            "1975-1990" -> 1975..1990
+            "1990-2010" -> 1990..2010
+            "2010-plus" -> 2010..Int.MAX_VALUE
+            else -> null
+        }
+
+    private val yearPattern = Regex("""(\d{4})""")
+
+    /**
+     * Resolves the best available year for a gallery media item.
+     * Priority: dateTaken (EXIF) > approximateDate (parsed) > createdAt
+     */
+    private fun resolveYear(media: GalleryMedia): Int {
+        if (media is UserUploadedMedia) {
+            media.dateTaken?.let { return it.atZone(java.time.ZoneOffset.UTC).year }
+            media.approximateDate?.let { approx ->
+                yearPattern.find(approx)?.groupValues?.get(1)?.toIntOrNull()?.let { return it }
+            }
+        }
+        return media.createdAt.atZone(java.time.ZoneOffset.UTC).year
     }
 
     private fun queryActiveById(id: UUID): GalleryMedia? {
@@ -546,10 +588,11 @@ class GalleryService(
     @Transactional(readOnly = true)
     fun listActiveMediaPublic(
         category: String?,
+        decade: String?,
         page: Int,
         size: Int,
     ): PagedApiResult<PublicGalleryMediaDto> {
-        val mediaPage = queryActiveMedia(category, page, size)
+        val mediaPage = queryActiveMedia(category, decade, page, size)
         val displayNames = resolveDisplayNames(mediaPage.content)
         val dtos = mediaPage.content.map { it.toPublicDto(displayNames) }
 
@@ -600,7 +643,7 @@ class GalleryService(
         page: Int,
         size: Int,
     ): PagedApiResult<GalleryMediaDto> {
-        val mediaPage = queryActiveMedia(category, page, size)
+        val mediaPage = queryActiveMedia(category, null, page, size)
         val displayNames = resolveDisplayNames(mediaPage.content)
         val dtos = mediaPage.content.map { it.toDto(displayNames) }
 
