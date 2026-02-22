@@ -37,8 +37,8 @@ export function YouTubeFacade({ video }: YouTubeFacadeProps) {
         src={thumbnailUrl}
         alt={video.title || "Video thumbnail"}
         fill
+        sizes="(max-width: 768px) 100vw, 50vw"
         className="object-cover transition-transform duration-500 group-hover/facade:scale-105"
-        unoptimized
       />
       <div className="absolute inset-0 bg-black/20 transition-colors duration-300 group-hover/facade:bg-black/40" />
       <button

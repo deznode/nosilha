@@ -154,9 +154,9 @@ export function ImageLightbox({
                       src={photos[currentIndex].src}
                       alt={photos[currentIndex].alt}
                       fill
+                      sizes="100vw"
                       className="object-contain"
                       priority
-                      unoptimized
                     />
                   </motion.div>
                 </AnimatePresence>
@@ -238,8 +238,8 @@ export function ImageLightbox({
                           src={photo.src}
                           alt={photo.alt}
                           fill
+                          sizes="80px"
                           className="object-cover"
-                          unoptimized
                         />
                       </button>
                     ))}

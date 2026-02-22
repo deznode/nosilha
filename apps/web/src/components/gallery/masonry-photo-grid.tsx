@@ -12,6 +12,10 @@ import { CreditDisplay } from "@/components/ui/credit-display";
 import { listStagger, listItem } from "@/lib/animation/variants";
 import type { MediaItem, MediaCategory } from "@/types/media";
 
+/** Static shimmer gradient used as blur placeholder while images load. */
+const SHIMMER_BLUR_DATA_URL =
+  "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iMzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PGxpbmVhckdyYWRpZW50IGlkPSJnIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj48c3RvcCBvZmZzZXQ9IjAlIiBzdG9wLWNvbG9yPSIjZTJlOGYwIi8+PHN0b3Agb2Zmc2V0PSI1MCUiIHN0b3AtY29sb3I9IiNmMWY1ZjkiLz48c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiNlMmU4ZjAiLz48L2xpbmVhckdyYWRpZW50PjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2cpIi8+PC9zdmc+";
+
 const CATEGORIES: (MediaCategory | "All")[] = [
   "All",
   "Heritage",
@@ -133,8 +137,10 @@ export const MasonryPhotoGrid = React.forwardRef<
                     alt={photo.altText || photo.title}
                     width={800}
                     height={600}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    placeholder="blur"
+                    blurDataURL={SHIMMER_BLUR_DATA_URL}
                     className="h-auto w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    unoptimized
                   />
                   {/* Hover overlay */}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/20 group-hover:opacity-100">
