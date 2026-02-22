@@ -5,7 +5,12 @@ import { mapGalleryMediaToMediaItem } from "@/lib/gallery-mappers";
 import { GALLERY_PAGE_SIZE } from "@/hooks/queries/useGalleryInfiniteQuery";
 import { GalleryContent } from "./gallery-content";
 import type { MediaCategory } from "@/types/media";
-import type { BreadcrumbListSchema } from "@/types/metadata";
+import type {
+  BreadcrumbListSchema,
+  ImageGallerySchema,
+  ImageObjectSchema,
+} from "@/types/metadata";
+import type { PublicGalleryMedia } from "@/types/gallery";
 
 export const revalidate = 1800; // 30 minutes ISR matching CacheConfig.GALLERY
 
@@ -65,7 +70,16 @@ export async function generateMetadata({
     ],
   };
 
-  return generatePageMetadata({
+  const imageGallerySchema: ImageGallerySchema = {
+    "@context": "https://schema.org",
+    "@type": "ImageGallery",
+    name: "Brava Media Center",
+    description:
+      "A visual archive of Brava Island, Cape Verde. Historical photographs, community moments, and videos celebrating the culture of Brava.",
+    url: `${siteConfig.url}/gallery`,
+  };
+
+  const metadata = generatePageMetadata({
     title,
     description,
     path: "/gallery",
@@ -76,11 +90,20 @@ export async function generateMetadata({
       "historical photographs",
       "Brava visual archive",
     ],
-    structuredData: [breadcrumbSchema],
+    structuredData: [breadcrumbSchema, imageGallerySchema],
     baseUrl: siteConfig.url,
     siteName: siteConfig.name,
     defaultImage: siteConfig.ogImage,
   });
+
+  return {
+    ...metadata,
+    openGraph: {
+      ...metadata.openGraph,
+      locale: "pt_CV",
+      alternateLocale: ["en_US"],
+    },
+  };
 }
 
 export default async function GalleryPage({ searchParams }: GalleryPageProps) {
@@ -108,8 +131,33 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
   const initialCategory: MediaCategory | "All" =
     (category as MediaCategory) || "All";
 
+  // Build ImageGallery JSON-LD with first page of items
+  const galleryJsonLd: ImageGallerySchema = {
+    "@context": "https://schema.org",
+    "@type": "ImageGallery",
+    name: "Brava Media Center",
+    description:
+      "A visual archive of Brava Island, Cape Verde. Historical photographs, community moments, and videos celebrating the culture of Brava.",
+    url: `${siteConfig.url}/gallery`,
+    numberOfItems: galleryResponse.totalItems,
+    image: galleryResponse.items
+      .filter(
+        (item): item is PublicGalleryMedia & { mediaSource: "USER_UPLOAD" } =>
+          item.mediaSource === "USER_UPLOAD" &&
+          !!(item as { publicUrl?: string | null }).publicUrl,
+      )
+      .slice(0, 10)
+      .map((item) => buildListingImageObject(item)),
+  };
+
   return (
-    <GalleryContent
+    <>
+      {/* Safe: JSON.stringify escapes all content; data is server-fetched from DB */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(galleryJsonLd) }}
+      />
+      <GalleryContent
       photos={photos}
       videos={videos}
       categories={apiCategories}
@@ -123,5 +171,44 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
         currentPage: galleryResponse.currentPage,
       }}
     />
+    </>
   );
+}
+
+function buildListingImageObject(
+  item: PublicGalleryMedia & { mediaSource: "USER_UPLOAD" },
+): ImageObjectSchema {
+  const upload = item as import("@/types/gallery").PublicUserUploadMedia;
+  const schema: ImageObjectSchema = {
+    "@context": "https://schema.org",
+    "@type": "ImageObject",
+    name: upload.title || "Brava Island Photo",
+    contentUrl: upload.publicUrl!,
+    license: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  };
+
+  if (upload.description) schema.description = upload.description;
+  if (upload.altText) schema.accessibilityFeature = ["alternativeText"];
+
+  const credit = upload.photographerCredit || upload.uploaderDisplayName;
+  if (credit) {
+    schema.author = { "@type": "Person", name: credit };
+    schema.creditText = credit;
+  }
+
+  if (upload.dateTaken) {
+    schema.dateCreated = upload.dateTaken;
+  } else if (upload.approximateDate) {
+    schema.dateCreated = upload.approximateDate;
+  }
+
+  if (upload.locationName) {
+    schema.locationCreated = {
+      "@type": "Place",
+      name: upload.locationName,
+      containedInPlace: { "@type": "Place", name: "Brava Island, Cape Verde" },
+    };
+  }
+
+  return schema;
 }

@@ -8,7 +8,7 @@ import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import { ShareButton } from "@/components/ui/actions/share-button";
 import { CreditDisplay } from "@/components/ui/credit-display";
 import type { PublicGalleryMedia } from "@/types/gallery";
-import type { BreadcrumbListSchema } from "@/types/metadata";
+import type { BreadcrumbListSchema, ImageObjectSchema } from "@/types/metadata";
 
 export const revalidate = 1800;
 
@@ -80,7 +80,17 @@ export async function generateMetadata({
     ],
   };
 
-  return generatePageMetadata({
+  // Build ImageObject JSON-LD
+  const imageObjectSchema: ImageObjectSchema | null = imageUrl
+    ? buildImageObjectSchema(media, imageUrl, title)
+    : null;
+
+  const structuredData = [
+    breadcrumbSchema,
+    ...(imageObjectSchema ? [imageObjectSchema] : []),
+  ];
+
+  const metadata = generatePageMetadata({
     title: `${title} - Brava Media Center`,
     description,
     path: `/gallery/photo/${id}`,
@@ -100,11 +110,92 @@ export async function generateMetadata({
           },
         ]
       : [],
-    structuredData: [breadcrumbSchema],
+    structuredData,
     baseUrl: siteConfig.url,
     siteName: siteConfig.name,
     defaultImage: siteConfig.ogImage,
   });
+
+  return {
+    ...metadata,
+    openGraph: {
+      ...metadata.openGraph,
+      locale: "pt_CV",
+      alternateLocale: ["en_US"],
+    },
+  };
+}
+
+function buildImageObjectSchema(
+  media: PublicGalleryMedia,
+  contentUrl: string,
+  title: string,
+): ImageObjectSchema {
+  const schema: ImageObjectSchema = {
+    "@context": "https://schema.org",
+    "@type": "ImageObject",
+    name: title,
+    contentUrl,
+    license: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+    acquireLicensePage: `${siteConfig.url}/gallery/photo/${media.id}`,
+  };
+
+  if (media.description) {
+    schema.description = media.description;
+  }
+
+  if (media.altText) {
+    schema.accessibilityFeature = ["alternativeText"];
+  }
+
+  // Author / credit
+  if (media.mediaSource === "USER_UPLOAD") {
+    const credit = media.photographerCredit || media.uploaderDisplayName;
+    if (credit) {
+      schema.author = { "@type": "Person", name: credit };
+      schema.creditText = credit;
+    }
+
+    // Date
+    if (media.dateTaken) {
+      schema.dateCreated = media.dateTaken;
+    } else if (media.approximateDate) {
+      schema.dateCreated = media.approximateDate;
+    }
+
+    // Location
+    const locName = media.locationName;
+    if (locName) {
+      schema.locationCreated = {
+        "@type": "Place",
+        name: locName,
+        containedInPlace: {
+          "@type": "Place",
+          name: "Brava Island, Cape Verde",
+        },
+      };
+    } else {
+      schema.locationCreated = {
+        "@type": "Place",
+        name: "Brava Island, Cape Verde",
+      };
+    }
+  } else {
+    if (media.author) {
+      schema.author = { "@type": "Person", name: media.author };
+      schema.creditText = media.author;
+    }
+    schema.locationCreated = {
+      "@type": "Place",
+      name: "Brava Island, Cape Verde",
+    };
+  }
+
+  if (media.createdAt) {
+    schema.dateCreated = schema.dateCreated || media.createdAt;
+  }
+
+  return schema;
 }
 
 export default async function PhotoDetailPage({
@@ -125,6 +216,11 @@ export default async function PhotoDetailPage({
   const title = getPhotoTitle(media);
   const description = media.description || null;
   const shareUrl = `${siteConfig.url}/gallery/photo/${id}`;
+
+  // Build JSON-LD for page body
+  const imageObjectJsonLd = imageUrl
+    ? buildImageObjectSchema(media, imageUrl, title)
+    : null;
 
   // Extract metadata fields from user uploads
   const locationName =
@@ -159,6 +255,16 @@ export default async function PhotoDetailPage({
 
   return (
     <div className="bg-canvas min-h-screen">
+      {/* Schema.org ImageObject JSON-LD — safe: content is server-generated from DB fields */}
+      {imageObjectJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(imageObjectJsonLd),
+          }}
+        />
+      )}
+
       {/* Navigation */}
       <div className="bg-basalt-900 text-white">
         <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-4 sm:px-6 lg:px-8">
