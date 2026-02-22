@@ -4,7 +4,7 @@ import * as React from "react";
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Filter, ZoomIn } from "lucide-react";
+import { Filter, ZoomIn, Camera } from "lucide-react";
 import { clsx } from "clsx";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import type { Photo } from "@/components/ui/image-lightbox";
@@ -206,8 +206,27 @@ export const MasonryPhotoGrid = React.forwardRef<
 
       {/* Empty state */}
       {filteredPhotos.length === 0 && (
-        <div className="border-hairline bg-canvas rounded-lg border py-20 text-center">
-          <p className="text-muted">No photos found in this category.</p>
+        <div className="border-hairline bg-canvas flex flex-col items-center rounded-lg border py-20 text-center">
+          <Camera
+            size={48}
+            className="text-ocean-blue mb-4 opacity-60"
+            aria-hidden="true"
+          />
+          <h3 className="text-body mb-2 text-lg font-semibold">
+            {categoryFilter === "All"
+              ? "No photos yet"
+              : `No ${categoryFilter} photos yet`}
+          </h3>
+          <p className="text-muted mb-6 max-w-sm text-sm">
+            Help preserve Brava&apos;s visual heritage by sharing your
+            photographs with the community.
+          </p>
+          <a
+            href="/contribute/media"
+            className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95"
+          >
+            Be the first to share
+          </a>
         </div>
       )}
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { Play, Mic } from "lucide-react";
+import { Play, Mic, Film } from "lucide-react";
 import { clsx } from "clsx";
 import { pageStagger, pageItem } from "@/lib/animation/variants";
 import { YouTubeFacade } from "@/components/gallery/youtube-facade";
@@ -104,8 +104,25 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
       ))}
 
       {videos.length === 0 && (
-        <div className="border-hairline bg-canvas rounded-lg border py-20 text-center md:col-span-2">
-          <p className="text-muted">No videos available yet.</p>
+        <div className="border-hairline bg-canvas flex flex-col items-center rounded-lg border py-20 text-center md:col-span-2">
+          <Film
+            size={48}
+            className="text-bougainvillea-pink mb-4 opacity-60"
+            aria-hidden="true"
+          />
+          <h3 className="text-body mb-2 text-lg font-semibold">
+            No videos available yet
+          </h3>
+          <p className="text-muted mb-6 max-w-sm text-sm">
+            Share videos celebrating Brava&apos;s culture, landscapes, and
+            community stories.
+          </p>
+          <a
+            href="/contribute/media"
+            className="bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 rounded-button inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95"
+          >
+            Be the first to share
+          </a>
         </div>
       )}
     </motion.div>
