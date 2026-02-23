@@ -111,20 +111,7 @@ describe("transformEntries", () => {
     expect(result[0].id).toBe("a1b2c3d4-e5f6-7890-abcd-000000000001");
   });
 
-  it("resolves category from map: tag", () => {
-    const entries = [
-      entryFixture({
-        category: "Nature",
-        tags: ["map:Viewpoint", "scenic"],
-        details: null,
-      } as Partial<DirectoryEntry> as DirectoryEntry),
-    ];
-    const result = transformEntries(entries);
-
-    expect(result[0].category).toBe("Viewpoint");
-  });
-
-  it("maps new native categories directly", () => {
+  it("maps native categories directly", () => {
     const entries = [
       entryFixture({
         category: "Town",
@@ -136,7 +123,7 @@ describe("transformEntries", () => {
     expect(result[0].category).toBe("Town");
   });
 
-  it("falls back to BACKEND_TO_MAP_FALLBACK when no map: tag", () => {
+  it("maps Hotel to Accommodation via BACKEND_TO_MAP_CATEGORY", () => {
     const entries = [
       entryFixture({
         category: "Hotel",

@@ -1,6 +1,5 @@
 import type { DirectoryEntry } from "@/types/directory";
 import {
-  getCategoryById,
   getCategoryColor,
   getCategoryIcon,
   type CategoryType,
@@ -12,7 +11,7 @@ import type { Location } from "./types";
  * Most map 1:1, but Hotel -> "Accommodation" and Heritage -> "Historic"
  * to match the BravaMap category system defined in categories.ts.
  */
-const BACKEND_TO_MAP_FALLBACK: Record<string, CategoryType> = {
+const BACKEND_TO_MAP_CATEGORY: Record<string, CategoryType> = {
   Restaurant: "Restaurant",
   Hotel: "Accommodation",
   Beach: "Beach",
@@ -64,26 +63,6 @@ function seededRandom(seed: string): number {
 }
 
 /**
- * Resolves the BravaMap category for a DirectoryEntry.
- * Uses BACKEND_TO_MAP_FALLBACK for the standard mapping.
- * Legacy `map:` prefixed tags are checked as a fallback for any
- * pre-migration data that may not yet have native category values.
- */
-function resolveCategory(entry: DirectoryEntry): Exclude<CategoryType, "All"> {
-  const mapTag = entry.tags?.find((tag) => tag.startsWith("map:"));
-  if (mapTag) {
-    const mapCategory = mapTag.slice(4) as CategoryType;
-    if (getCategoryById(mapCategory)) {
-      return mapCategory as Exclude<CategoryType, "All">;
-    }
-  }
-  return (
-    (BACKEND_TO_MAP_FALLBACK[entry.category] as Exclude<CategoryType, "All">) ??
-    "Nature"
-  );
-}
-
-/**
  * Transforms an array of DirectoryEntry objects from the Spring Boot API
  * into Location objects that BravaMap expects.
  */
@@ -91,7 +70,7 @@ export function transformEntries(entries: DirectoryEntry[]): Location[] {
   return entries
     .filter((entry) => entry.latitude != null && entry.longitude != null)
     .map((entry) => {
-      const category = resolveCategory(entry);
+      const category = (BACKEND_TO_MAP_CATEGORY[entry.category] ?? "Nature") as Exclude<CategoryType, "All">;
       const icon = getCategoryIcon(category);
       const color = getCategoryColor(category);
       const rand = seededRandom(entry.id);
