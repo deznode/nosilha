@@ -8,9 +8,9 @@ import {
 import type { Location } from "./types";
 
 /**
- * Maps 5 backend STI categories to the original 10-category BravaMap system.
- * Uses `map:` prefixed tags to restore the original category.
- * Falls back to a simple 5→5 mapping when no `map:` tag is present.
+ * Maps backend API category names to BravaMap category IDs.
+ * Most map 1:1, but Hotel -> "Accommodation" and Heritage -> "Historic"
+ * to match the BravaMap category system defined in categories.ts.
  */
 const BACKEND_TO_MAP_FALLBACK: Record<string, CategoryType> = {
   Restaurant: "Restaurant",
@@ -18,6 +18,11 @@ const BACKEND_TO_MAP_FALLBACK: Record<string, CategoryType> = {
   Beach: "Beach",
   Heritage: "Historic",
   Nature: "Nature",
+  Town: "Town",
+  Viewpoint: "Viewpoint",
+  Trail: "Trail",
+  Church: "Church",
+  Port: "Port",
 };
 
 /**
@@ -59,8 +64,10 @@ function seededRandom(seed: string): number {
 }
 
 /**
- * Extracts the BravaMap category from a DirectoryEntry's tags.
- * Looks for `map:` prefixed tags (e.g., "map:Town", "map:Viewpoint").
+ * Resolves the BravaMap category for a DirectoryEntry.
+ * Uses BACKEND_TO_MAP_FALLBACK for the standard mapping.
+ * Legacy `map:` prefixed tags are checked as a fallback for any
+ * pre-migration data that may not yet have native category values.
  */
 function resolveCategory(entry: DirectoryEntry): Exclude<CategoryType, "All"> {
   const mapTag = entry.tags?.find((tag) => tag.startsWith("map:"));

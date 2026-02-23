@@ -5,6 +5,7 @@ import {
 } from "@/features/map/data/locations-adapter";
 import type { DirectoryEntry } from "@/types/directory";
 import type { Location } from "@/features/map/data/types";
+import { Sun } from "lucide-react";
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
@@ -44,7 +45,7 @@ function locationFixture(overrides: Partial<Location> = {}): Location {
     reviews: 10,
     image: "https://example.com/img.jpg",
     tags: ["beach"],
-    icon: "Waves",
+    icon: Sun,
     color: "#0EA5E9",
     ...overrides,
   };
@@ -123,6 +124,18 @@ describe("transformEntries", () => {
     expect(result[0].category).toBe("Viewpoint");
   });
 
+  it("maps new native categories directly", () => {
+    const entries = [
+      entryFixture({
+        category: "Town",
+        tags: ["capital"],
+        details: null,
+      } as Partial<DirectoryEntry> as DirectoryEntry),
+    ];
+    const result = transformEntries(entries);
+    expect(result[0].category).toBe("Town");
+  });
+
   it("falls back to BACKEND_TO_MAP_FALLBACK when no map: tag", () => {
     const entries = [
       entryFixture({
@@ -136,18 +149,6 @@ describe("transformEntries", () => {
     expect(result[0].category).toBe("Accommodation");
   });
 
-  it("falls back to Nature for unknown categories", () => {
-    const entries = [
-      entryFixture({
-        category: "Unknown" as DirectoryEntry["category"],
-        tags: [],
-        details: null,
-      } as DirectoryEntry),
-    ];
-    const result = transformEntries(entries);
-
-    expect(result[0].category).toBe("Nature");
-  });
 
   it("uses entry imageUrl when available", () => {
     const entries = [

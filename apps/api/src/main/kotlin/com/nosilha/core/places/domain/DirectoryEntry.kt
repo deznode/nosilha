@@ -21,19 +21,17 @@ import java.util.UUID
  * Abstract base class for all directory entries on the Nos Ilha platform.
  *
  * <p>This entity uses a SINGLE_TABLE inheritance strategy, where all subclasses
- * (e.g., Restaurant, Hotel, Heritage, Nature, Beach) are stored in the `directory_entries` table.
- * The `category` column is used as the discriminator to determine the specific
- * subtype of each row.</p>
+ * are stored in the `directory_entries` table. The `category` column is used
+ * as the discriminator to determine the specific subtype of each row.</p>
  *
- * <p><strong>Inheritance Hierarchy:</strong></p>
+ * <p><strong>Inheritance Hierarchy (10 categories):</strong></p>
  * <pre>
  * AuditableEntity (shared kernel - provides createdAt, updatedAt)
  * └── DirectoryEntry (directory module - base directory entry)
- *     ├── Restaurant (@DiscriminatorValue("Restaurant"))
- *     ├── Hotel (@DiscriminatorValue("Hotel"))
- *     ├── Beach (@DiscriminatorValue("Beach"))
- *     ├── Heritage (@DiscriminatorValue("Heritage"))
- *     └── Nature (@DiscriminatorValue("Nature"))
+ *     ├── Restaurant  ├── Hotel      ├── Beach
+ *     ├── Heritage    ├── Nature     ├── TownPoi ("Town")
+ *     ├── Viewpoint   ├── Trail      ├── Church
+ *     └── Port
  * </pre>
  *
  * @see com.nosilha.core.shared.domain.AuditableEntity

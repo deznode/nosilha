@@ -107,7 +107,7 @@ export const directorySubmissionSchema = z.object({
   id: z.string(),
   name: z.string(),
   slug: z.string().optional(), // Added for unified entries
-  category: z.enum(["Restaurant", "Hotel", "Beach", "Heritage", "Nature"]),
+  category: z.enum(["Restaurant", "Hotel", "Beach", "Heritage", "Nature", "Town", "Viewpoint", "Trail", "Church", "Port"]),
   town: z.string(),
   customTown: z.string().nullish(),
   description: z.string(),

@@ -15,7 +15,7 @@ export interface BaseDirectoryEntry {
   id: string;
   slug: string; // Slugs are essential for all public entries
   name: string;
-  category: "Restaurant" | "Hotel" | "Beach" | "Heritage" | "Nature";
+  category: "Restaurant" | "Hotel" | "Beach" | "Heritage" | "Nature" | "Town" | "Viewpoint" | "Trail" | "Church" | "Port";
   imageUrl: string | null;
   town: string;
   latitude: number;
@@ -69,4 +69,24 @@ export type DirectoryEntry =
   | (BaseDirectoryEntry & {
       category: "Nature";
       details: null; // Nature sites have no specific details yet
+    })
+  | (BaseDirectoryEntry & {
+      category: "Town";
+      details: null;
+    })
+  | (BaseDirectoryEntry & {
+      category: "Viewpoint";
+      details: null;
+    })
+  | (BaseDirectoryEntry & {
+      category: "Trail";
+      details: null;
+    })
+  | (BaseDirectoryEntry & {
+      category: "Church";
+      details: null;
+    })
+  | (BaseDirectoryEntry & {
+      category: "Port";
+      details: null;
     });

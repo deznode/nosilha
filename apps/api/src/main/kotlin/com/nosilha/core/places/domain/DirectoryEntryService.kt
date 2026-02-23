@@ -88,30 +88,22 @@ class DirectoryEntryService(
      */
     @Transactional
     fun createEntry(request: CreateEntryRequestDto): DirectoryEntryDto {
-        val newEntry =
-            when (request.category) {
-                "Restaurant" -> {
-                    val restaurantDetails = request.details as? CreateRestaurantDetailsDto
-                    Restaurant().apply {
-                        this.phoneNumber = restaurantDetails?.phoneNumber
-                        this.openingHours = restaurantDetails?.openingHours
-                        this.cuisine = restaurantDetails?.cuisine?.joinToString(",")
-                    }
-                }
+        val newEntry = createEntityForCategory(request.category)
 
-                "Hotel" -> {
-                    val hotelDetails = request.details as? CreateHotelDetailsDto
-                    Hotel().apply {
-                        this.phoneNumber = hotelDetails?.phoneNumber
-                        this.amenities = hotelDetails?.amenities?.joinToString(",")
-                    }
-                }
-
-                "Beach" -> Beach()
-                "Heritage" -> Heritage()
-                "Nature" -> Nature()
-                else -> throw IllegalArgumentException("Invalid category provided: ${request.category}")
+        // Apply category-specific details
+        when (newEntry) {
+            is Restaurant -> {
+                val restaurantDetails = request.details as? CreateRestaurantDetailsDto
+                newEntry.phoneNumber = restaurantDetails?.phoneNumber
+                newEntry.openingHours = restaurantDetails?.openingHours
+                newEntry.cuisine = restaurantDetails?.cuisine?.joinToString(",")
             }
+            is Hotel -> {
+                val hotelDetails = request.details as? CreateHotelDetailsDto
+                newEntry.phoneNumber = hotelDetails?.phoneNumber
+                newEntry.amenities = hotelDetails?.amenities?.joinToString(",")
+            }
+        }
 
         newEntry.apply {
             this.name = request.name
@@ -130,7 +122,6 @@ class DirectoryEntryService(
 
         val savedEntry = repository.save(newEntry)
 
-        // Publish DirectoryEntryCreatedEvent for other modules to react
         eventPublisher.publishEvent(
             DirectoryEntryCreatedEvent(
                 entryId = savedEntry.id!!,
@@ -274,14 +265,12 @@ class DirectoryEntryService(
                 .findById(id)
                 .orElseThrow { ResourceNotFoundException("Directory entry with ID '$id' not found.") }
 
-        // Check if slug is being changed and if it would create a duplicate
         val newSlug = generateSlugFromName(request.name)
 
         if (newSlug != existingEntry.slug && repository.findBySlug(newSlug) != null) {
             throw BusinessException("A directory entry with slug '$newSlug' already exists.")
         }
 
-        // Update basic fields
         existingEntry.apply {
             name = request.name
             slug = newSlug
@@ -297,7 +286,6 @@ class DirectoryEntryService(
                 }
         }
 
-        // Update type-specific fields based on the existing entity type
         when (existingEntry) {
             is Restaurant -> {
                 val restaurantDetails = request.details as? CreateRestaurantDetailsDto
@@ -310,12 +298,10 @@ class DirectoryEntryService(
                 existingEntry.phoneNumber = hotelDetails?.phoneNumber
                 existingEntry.amenities = hotelDetails?.amenities?.joinToString(",")
             }
-            // Beach, Heritage, and Nature don't have specific fields to update
         }
 
         val updatedEntry = repository.save(existingEntry)
 
-        // Publish DirectoryEntryUpdatedEvent for other modules to react
         eventPublisher.publishEvent(
             DirectoryEntryUpdatedEvent(
                 entryId = updatedEntry.id!!,
@@ -342,7 +328,6 @@ class DirectoryEntryService(
 
         repository.deleteById(id)
 
-        // Publish DirectoryEntryDeletedEvent for other modules to react
         eventPublisher.publishEvent(
             DirectoryEntryDeletedEvent(entryId = id),
         )
@@ -410,7 +395,6 @@ class DirectoryEntryService(
     ): DirectoryEntrySubmissionConfirmationDto {
         logger.info { "Processing directory submission from user: $userId, IP: $ipAddress" }
 
-        // Atomic rate limiting using Bucket4j token bucket algorithm
         if (ipAddress != null) {
             val bucket = getBucketForIp(ipAddress)
             if (!bucket.tryConsume(1)) {
@@ -422,22 +406,12 @@ class DirectoryEntryService(
             }
         }
 
-        // Sanitize user input to prevent XSS
         val sanitizedName = ContentSanitizer.sanitizeStrict(request.name.trim())
         val sanitizedDescription = ContentSanitizer.sanitize(request.description.trim())
         val sanitizedTags = request.tags.map { ContentSanitizer.sanitizeStrict(it.trim()) }
 
-        // Create the appropriate entry type based on category
-        val newEntry = when (request.category.uppercase()) {
-            "RESTAURANT" -> Restaurant()
-            "HOTEL" -> Hotel()
-            "BEACH" -> Beach()
-            "HERITAGE" -> Heritage()
-            "NATURE" -> Nature()
-            else -> throw IllegalArgumentException("Invalid category: ${request.category}")
-        }
+        val newEntry = createEntityForCategory(request.category)
 
-        // Generate a unique slug with random suffix for submissions
         val baseSlug = generateSlugFromName(sanitizedName)
 
         newEntry.apply {
@@ -466,6 +440,25 @@ class DirectoryEntryService(
             status = savedEntry.status.name,
         )
     }
+
+    /**
+     * Creates the correct DirectoryEntry subclass for a given category name.
+     * Accepts any case (e.g., "Restaurant", "RESTAURANT", "restaurant").
+     */
+    private fun createEntityForCategory(category: String): DirectoryEntry =
+        when (category.lowercase()) {
+            "restaurant" -> Restaurant()
+            "hotel" -> Hotel()
+            "beach" -> Beach()
+            "heritage" -> Heritage()
+            "nature" -> Nature()
+            "town" -> TownPoi()
+            "viewpoint" -> Viewpoint()
+            "trail" -> Trail()
+            "church" -> Church()
+            "port" -> Port()
+            else -> throw IllegalArgumentException("Invalid category: $category")
+        }
 
     /**
      * Generates a URL-friendly slug from a name.
@@ -573,7 +566,6 @@ class DirectoryEntryService(
 
         val saved = repository.save(entry)
 
-        // If entry is being published, trigger cache revalidation
         if (status == DirectoryEntryStatus.PUBLISHED) {
             revalidationService.revalidateDirectoryEntry(
                 category = saved.getCategoryValue(),
