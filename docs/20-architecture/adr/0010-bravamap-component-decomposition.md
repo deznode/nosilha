@@ -4,6 +4,10 @@
 - **Date**: 2026-02-23
 - **Decision-makers**: @jcosta
 
+## Prerequisites
+
+The legacy `InteractiveMap.tsx` component and its dependencies (`MapFilterControl.tsx`, `CategoryMarkerIcon.tsx`, `features/map/types/index.ts`) were removed prior to this work. The map-specific state in `filterStore.ts` (`selectedCategories`, `toggleCategory`, `setSelectedCategories`) was also removed since it was only consumed by InteractiveMap.
+
 ## Context and Problem Statement
 
 `BravaMap.tsx` is a 1,454-line client component containing 17 `useState` hooks, 12 `useCallback` handlers, 5 `useEffect` hooks, 4 `useMemo` computations, and 7 distinct JSX sections rendered in one function. All state lives in a single scope, making individual sections impossible to test in isolation, making render performance analysis opaque, and making the file increasingly difficult to navigate as new map features land.
@@ -100,7 +104,6 @@ Cross-cutting handlers become store actions (`setSelectedLocation`, `setActiveCa
 ### Out of Scope
 
 - Converting `getEntriesForMap()` to a TanStack Query hook — separate, low-priority improvement
-- Migrating `filterStore.selectedCategories` (old InteractiveMap) to `mapStore` — stores can coexist
 - E2E test updates — revisited in a follow-up PR once the component structure is stable
 - Permissions-Policy geolocation header fix — separate infrastructure task
 
