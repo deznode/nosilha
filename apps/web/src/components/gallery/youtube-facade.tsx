@@ -32,7 +32,7 @@ export function YouTubeFacade({ video }: YouTubeFacadeProps) {
   }
 
   return (
-    <div className="group/facade relative bg-black pb-[56.25%]">
+    <div className="group/facade relative overflow-hidden bg-black pb-[56.25%]">
       <Image
         src={thumbnailUrl}
         alt={video.title || "Video thumbnail"}
@@ -40,7 +40,7 @@ export function YouTubeFacade({ video }: YouTubeFacadeProps) {
         sizes="(max-width: 768px) 100vw, 50vw"
         className="object-cover transition-transform duration-500 group-hover/facade:scale-105"
       />
-      <div className="absolute inset-0 bg-black/20 transition-colors duration-300 group-hover/facade:bg-black/40" />
+      <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover/facade:bg-black/40" />
       <button
         onClick={() => setActivated(true)}
         aria-label={`Play ${video.title || "video"}`}
