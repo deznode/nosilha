@@ -17,7 +17,7 @@ import { iconButtonTap, makeFadeInUp } from "@/lib/animation";
  * Shows ocean blue fill and white icon/text when active, scale animation on tap.
  *
  * Behavior:
- * - Mobile: Triggers navigator.share() with title, url, description
+ * - Mobile: Triggers navigator.share() with title and url
  * - Desktop: Shows fallback menu with Facebook, Twitter, Copy Link options
  * - Success: Displays toast with green checkmark for 3 seconds
  *
@@ -30,13 +30,12 @@ import { iconButtonTap, makeFadeInUp } from "@/lib/animation";
  * Phase: 6 - User Story 4 (Enhanced Share Button)
  * Reference: data-model.md § ShareButton
  *
- * @param props - Component props including content title, url, description
+ * @param props - Component props including content title and url
  * @returns Share button component with native share or fallback menu
  */
 export function ShareButton({
   title,
   url,
-  description,
   variant = "icon-with-label",
   onShareSuccess,
 }: ShareButtonProps) {
@@ -61,7 +60,6 @@ export function ShareButton({
       await navigator.share({
         title,
         url,
-        text: description,
       });
 
       // Show success toast

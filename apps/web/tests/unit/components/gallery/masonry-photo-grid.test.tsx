@@ -1,11 +1,15 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import {
   MasonryPhotoGrid,
   MasonryPhotoGridSkeleton,
 } from "@/components/gallery/masonry-photo-grid";
 import type { MediaItem } from "@/types/media";
+
+// Mock ImageLightbox to avoid deep dependency chain (ShareButton → useToast → ToastProvider)
+vi.mock("@/components/ui/image-lightbox", () => ({
+  ImageLightbox: () => null,
+}));
 
 // Mock framer-motion to avoid animation complexity in tests
 vi.mock("framer-motion", async () => {
@@ -86,13 +90,7 @@ const mockPhotos: MediaItem[] = [
 describe("MasonryPhotoGrid", () => {
   describe("mediaItemToPhoto bridge (tested via rendering)", () => {
     it("renders photo titles from MediaItem data", () => {
-      render(
-        <MasonryPhotoGrid
-          photos={mockPhotos}
-          categoryFilter="All"
-          onCategoryChange={() => {}}
-        />
-      );
+      render(<MasonryPhotoGrid photos={mockPhotos} categoryFilter="All" />);
 
       expect(screen.getByText("Heritage Building")).toBeInTheDocument();
       expect(screen.getByText("Mountain Trail")).toBeInTheDocument();
@@ -100,13 +98,7 @@ describe("MasonryPhotoGrid", () => {
     });
 
     it("renders author credit, falling back to Anonymous", () => {
-      render(
-        <MasonryPhotoGrid
-          photos={mockPhotos}
-          categoryFilter="All"
-          onCategoryChange={() => {}}
-        />
-      );
+      render(<MasonryPhotoGrid photos={mockPhotos} categoryFilter="All" />);
 
       // Photos with authors show credit
       expect(screen.getByText("Maria Silva")).toBeInTheDocument();
@@ -116,54 +108,33 @@ describe("MasonryPhotoGrid", () => {
     });
 
     it("renders descriptions when present", () => {
-      render(
-        <MasonryPhotoGrid
-          photos={mockPhotos}
-          categoryFilter="All"
-          onCategoryChange={() => {}}
-        />
-      );
+      render(<MasonryPhotoGrid photos={mockPhotos} categoryFilter="All" />);
 
       expect(screen.getByText("An old colonial building")).toBeInTheDocument();
       expect(screen.getByText("Hiking in the highlands")).toBeInTheDocument();
     });
 
     it("renders date badges when present", () => {
-      render(
-        <MasonryPhotoGrid
-          photos={mockPhotos}
-          categoryFilter="All"
-          onCategoryChange={() => {}}
-        />
-      );
+      render(<MasonryPhotoGrid photos={mockPhotos} categoryFilter="All" />);
 
       expect(screen.getByText("Jan 2025")).toBeInTheDocument();
       expect(screen.getByText("Feb 2025")).toBeInTheDocument();
     });
   });
 
-  describe("category filtering", () => {
-    it("shows all photos when filter is 'All'", () => {
-      render(
-        <MasonryPhotoGrid
-          photos={mockPhotos}
-          categoryFilter="All"
-          onCategoryChange={() => {}}
-        />
-      );
+  describe("rendering with server-side filtered data", () => {
+    it("renders all provided photos (server returns unfiltered)", () => {
+      render(<MasonryPhotoGrid photos={mockPhotos} categoryFilter="All" />);
 
       expect(screen.getByText("Heritage Building")).toBeInTheDocument();
       expect(screen.getByText("Mountain Trail")).toBeInTheDocument();
       expect(screen.getByText("Festival Dance")).toBeInTheDocument();
     });
 
-    it("shows only matching photos when category is selected", () => {
+    it("renders only the photos passed in (server pre-filters by category)", () => {
+      const heritageOnly = mockPhotos.filter((p) => p.category === "Heritage");
       render(
-        <MasonryPhotoGrid
-          photos={mockPhotos}
-          categoryFilter="Heritage"
-          onCategoryChange={() => {}}
-        />
+        <MasonryPhotoGrid photos={heritageOnly} categoryFilter="Heritage" />
       );
 
       expect(screen.getByText("Heritage Building")).toBeInTheDocument();
@@ -171,64 +142,17 @@ describe("MasonryPhotoGrid", () => {
       expect(screen.queryByText("Festival Dance")).not.toBeInTheDocument();
     });
 
-    it("renders empty state when no photos match filter", () => {
-      render(
-        <MasonryPhotoGrid
-          photos={mockPhotos}
-          categoryFilter="Event"
-          onCategoryChange={() => {}}
-        />
-      );
+    it("renders empty state with category heading when no photos provided", () => {
+      render(<MasonryPhotoGrid photos={[]} categoryFilter="Event" />);
 
-      expect(
-        screen.getByText("No photos found in this category.")
-      ).toBeInTheDocument();
-    });
-
-    it("calls onCategoryChange when filter button is clicked", async () => {
-      const user = userEvent.setup();
-      const onCategoryChange = vi.fn();
-
-      render(
-        <MasonryPhotoGrid
-          photos={mockPhotos}
-          categoryFilter="All"
-          onCategoryChange={onCategoryChange}
-        />
-      );
-
-      await user.click(screen.getByRole("button", { name: "Nature" }));
-      expect(onCategoryChange).toHaveBeenCalledWith("Nature");
-    });
-
-    it("sets aria-pressed on active filter button", () => {
-      render(
-        <MasonryPhotoGrid
-          photos={mockPhotos}
-          categoryFilter="Heritage"
-          onCategoryChange={() => {}}
-        />
-      );
-
-      expect(screen.getByRole("button", { name: "Heritage" })).toHaveAttribute(
-        "aria-pressed",
-        "true"
-      );
-      expect(screen.getByRole("button", { name: "All" })).toHaveAttribute(
-        "aria-pressed",
-        "false"
-      );
+      expect(screen.getByText("No Event photos yet")).toBeInTheDocument();
     });
   });
 });
 
 describe("MasonryPhotoGridSkeleton", () => {
-  it("renders filter bar and card skeletons", () => {
+  it("renders card skeletons", () => {
     const { container } = render(<MasonryPhotoGridSkeleton />);
-
-    // Should render skeleton pill placeholders for filter bar
-    const filterPills = container.querySelectorAll(".rounded-full");
-    expect(filterPills.length).toBe(6);
 
     // Should render skeleton cards with varying heights
     const pulseElements = container.querySelectorAll(".animate-pulse");

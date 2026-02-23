@@ -24,6 +24,11 @@ const nextConfig: NextConfig = {
         hostname: "media.nosilha.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "img.youtube.com",
+        pathname: "/vi/**",
+      },
     ],
   },
   async redirects() {

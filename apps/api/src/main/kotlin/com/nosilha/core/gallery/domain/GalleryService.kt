@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.Duration
 import java.time.Instant
+import java.time.ZoneOffset
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -63,6 +64,24 @@ class GalleryService(
     companion object {
         private const val MAX_UPLOADS_PER_HOUR = 20L
         private const val MAX_UPLOADS_PER_DAY = 100L
+
+        private val RAW_FILENAME_PATTERNS = listOf(
+            // UUID prefix (e.g., "a1b2c3d4-e5f6-...")
+            Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-"),
+            // Camera filename prefixes
+            Regex("^(DJI|IMG|DSC|DCIM|DSCN|P)_", RegexOption.IGNORE_CASE),
+            // File extensions (title shouldn't contain these)
+            Regex("\\.(jpe?g|png|webp|heic|mp4|mov)$", RegexOption.IGNORE_CASE),
+        )
+
+        /**
+         * Detects raw camera filenames and UUID-based strings that should be
+         * replaced with AI-generated titles.
+         */
+        fun isRawFilename(title: String): Boolean {
+            if (title.isBlank()) return true
+            return RAW_FILENAME_PATTERNS.any { it.containsMatchIn(title) }
+        }
     }
 
     // Metrics counters for media operations
@@ -489,24 +508,110 @@ class GalleryService(
 
     private fun queryActiveMedia(
         category: String?,
+        decade: String?,
         page: Int,
         size: Int,
     ): Page<GalleryMedia> {
         val pageable = PageRequest.of(page, minOf(size, 100))
-        return if (category != null) {
-            val allActive = repository
+        val needsInMemoryFilter = category != null || decade != null
+
+        return if (needsInMemoryFilter) {
+            var filtered: List<GalleryMedia> = repository
                 .findByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
-                .filter { it.category == category }
-                .sortedBy { it.displayOrder }
 
+            if (category != null) {
+                filtered = filtered.filter { it.category == category }
+            }
+
+            if (decade != null) {
+                val yearRange = parseDecadeRange(decade)
+                if (yearRange != null) {
+                    filtered = filtered.filter { media -> resolveYear(media) in yearRange }
+                }
+            }
+
+            filtered = filtered.sortedBy { it.displayOrder }
             val start = page * size
-            val end = minOf(start + size, allActive.size)
-            val pageContent = if (start < allActive.size) allActive.subList(start, end) else emptyList()
+            val end = minOf(start + size, filtered.size)
+            val pageContent = if (start < filtered.size) filtered.subList(start, end) else emptyList()
 
-            PageImpl(pageContent, pageable, allActive.size.toLong())
+            PageImpl(pageContent, pageable, filtered.size.toLong())
         } else {
             repository.findByStatusAndShowInGalleryTrueOrderByDisplayOrderAsc(GalleryMediaStatus.ACTIVE, pageable)
         }
+    }
+
+    /**
+     * Parses a decade string into an IntRange of years.
+     * Supported values: pre-1975, 1975-1990, 1990-2010, 2010-plus
+     */
+    private fun parseDecadeRange(decade: String): IntRange? =
+        when (decade) {
+            "pre-1975" -> Int.MIN_VALUE..1974
+            "1975-1990" -> 1975..1989
+            "1990-2010" -> 1990..2009
+            "2010-plus" -> 2010..Int.MAX_VALUE
+            else -> null
+        }
+
+    /**
+     * Full-text search across active gallery media.
+     * Uses the search_vector GIN index for Portuguese text search.
+     * Optionally applies category and decade post-filters.
+     */
+    private fun searchActiveMedia(
+        query: String,
+        category: String?,
+        decade: String?,
+        page: Int,
+        size: Int,
+    ): Page<GalleryMedia> {
+        val cappedSize = minOf(size, 100)
+        val pageable = PageRequest.of(page, cappedSize)
+
+        val needsPostFilter = category != null || decade != null
+        if (!needsPostFilter) return repository.searchGallery(query, pageable)
+
+        // Fetch all search results then filter in-memory for accurate totalElements
+        val allResults = repository.searchGallery(query, PageRequest.of(0, Int.MAX_VALUE))
+        var filtered = allResults.content.toList()
+
+        if (category != null) {
+            filtered = filtered.filter { it.category == category }
+        }
+        if (decade != null) {
+            val yearRange = parseDecadeRange(decade)
+            if (yearRange != null) {
+                filtered = filtered.filter { resolveYear(it) in yearRange }
+            }
+        }
+
+        val start = page * cappedSize
+        val end = minOf(start + cappedSize, filtered.size)
+        val pageContent = if (start < filtered.size) filtered.subList(start, end) else emptyList()
+
+        return PageImpl(pageContent, pageable, filtered.size.toLong())
+    }
+
+    private val yearPattern = Regex("""(\d{4})""")
+
+    /**
+     * Resolves the best available year for a gallery media item.
+     * Priority: dateTaken (EXIF) > approximateDate (parsed) > createdAt
+     */
+    private fun resolveYear(media: GalleryMedia): Int {
+        if (media is UserUploadedMedia) {
+            media.dateTaken?.let { return it.atZone(ZoneOffset.UTC).year }
+            media.approximateDate?.let { approx ->
+                yearPattern
+                    .find(approx)
+                    ?.groupValues
+                    ?.get(1)
+                    ?.toIntOrNull()
+                    ?.let { return it }
+            }
+        }
+        return media.createdAt.atZone(ZoneOffset.UTC).year
     }
 
     private fun queryActiveById(id: UUID): GalleryMedia? {
@@ -528,10 +633,16 @@ class GalleryService(
     @Transactional(readOnly = true)
     fun listActiveMediaPublic(
         category: String?,
+        decade: String?,
+        query: String?,
         page: Int,
         size: Int,
     ): PagedApiResult<PublicGalleryMediaDto> {
-        val mediaPage = queryActiveMedia(category, page, size)
+        val mediaPage = if (!query.isNullOrBlank()) {
+            searchActiveMedia(query.trim(), category, decade, page, size)
+        } else {
+            queryActiveMedia(category, decade, page, size)
+        }
         val displayNames = resolveDisplayNames(mediaPage.content)
         val dtos = mediaPage.content.map { it.toPublicDto(displayNames) }
 
@@ -582,7 +693,7 @@ class GalleryService(
         page: Int,
         size: Int,
     ): PagedApiResult<GalleryMediaDto> {
-        val mediaPage = queryActiveMedia(category, page, size)
+        val mediaPage = queryActiveMedia(category, null, page, size)
         val displayNames = resolveDisplayNames(mediaPage.content)
         val dtos = mediaPage.content.map { it.toDto(displayNames) }
 
@@ -763,11 +874,43 @@ class GalleryService(
         media.aiTags = event.tags.toTypedArray().ifEmpty { null }
         media.aiLabels = event.labels
         media.aiProcessedAt = Instant.now()
+
+        // Promote AI content into canonical fields
+        promoteAiContent(media, event)
+
         repository.save(media)
 
         logger.info {
             "Applied approved AI results to media ${event.mediaId} " +
                 "(run: ${event.analysisRunId}, moderator: ${event.moderatorId})"
+        }
+    }
+
+    /**
+     * Promotes approved AI-generated content into canonical fields.
+     *
+     * Promotion rules (conservative — preserves human-authored content):
+     * - aiTitle → title: only when current title looks like a raw camera filename
+     * - aiDescription → description: only when description is null or blank
+     * - aiAltText → altText: always (canonical alt text for WCAG compliance)
+     */
+    private fun promoteAiContent(
+        media: UserUploadedMedia,
+        event: AiResultsApprovedEvent,
+    ) {
+        if (!event.title.isNullOrBlank() && isRawFilename(media.title)) {
+            media.title = event.title
+            logger.debug { "Promoted AI title for media ${media.id}: '${event.title}'" }
+        }
+
+        if (!event.description.isNullOrBlank() && media.description.isNullOrBlank()) {
+            media.description = event.description
+            logger.debug { "Promoted AI description for media ${media.id}" }
+        }
+
+        if (!event.altText.isNullOrBlank()) {
+            media.altText = event.altText
+            logger.debug { "Promoted AI alt text for media ${media.id}" }
         }
     }
 }

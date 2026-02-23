@@ -2341,6 +2341,8 @@ export class BackendApiClient implements ApiClient {
    */
   async getGalleryMedia(options?: {
     category?: string;
+    decade?: string;
+    q?: string;
     page?: number;
     size?: number;
   }): Promise<PublicGalleryMediaPageResponse> {
@@ -2348,6 +2350,12 @@ export class BackendApiClient implements ApiClient {
 
     if (options?.category) {
       params.append("category", options.category);
+    }
+    if (options?.decade) {
+      params.append("decade", options.decade);
+    }
+    if (options?.q) {
+      params.append("q", options.q);
     }
     if (options?.page !== undefined) {
       params.append("page", String(options.page));
@@ -2461,7 +2469,7 @@ export class BackendApiClient implements ApiClient {
   /**
    * Submit external media for admin review.
    *
-   * **Public Endpoint**: No authentication required.
+   * **Authenticated Endpoint**: Requires authentication.
    *
    * Allows community members to submit external media (YouTube videos, etc.)
    * for review and potential inclusion in the gallery.

@@ -681,6 +681,8 @@ export async function updateProfile(
  */
 export async function getGalleryMedia(options?: {
   category?: string;
+  decade?: string;
+  q?: string;
   page?: number;
   size?: number;
 }): Promise<import("@/types/gallery").PublicGalleryMediaPageResponse> {

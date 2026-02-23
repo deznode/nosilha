@@ -48,6 +48,7 @@ sealed class GalleryMediaDto {
     abstract val mediaSource: String
     abstract val showInGallery: Boolean
 
+    abstract val altText: String?
     abstract val createdAt: Instant?
 
     /**
@@ -68,6 +69,7 @@ sealed class GalleryMediaDto {
         override val status: GalleryMediaStatus,
         override val mediaSource: String = "USER_UPLOAD",
         override val showInGallery: Boolean,
+        override val altText: String?,
         override val createdAt: Instant?,
         val fileName: String,
         val originalName: String,
@@ -123,6 +125,7 @@ sealed class GalleryMediaDto {
         override val status: GalleryMediaStatus,
         override val mediaSource: String = "EXTERNAL",
         override val showInGallery: Boolean,
+        override val altText: String?,
         override val createdAt: Instant?,
         val mediaType: MediaType,
         val platform: ExternalPlatform,
@@ -155,6 +158,7 @@ sealed class GalleryMediaDto {
                 status = media.status,
                 mediaSource = "USER_UPLOAD",
                 showInGallery = media.showInGallery,
+                altText = media.altText,
                 createdAt = media.createdAt,
                 fileName = media.fileName ?: "",
                 originalName = media.originalName ?: "",
@@ -211,6 +215,7 @@ sealed class GalleryMediaDto {
                 status = media.status,
                 mediaSource = "EXTERNAL",
                 showInGallery = media.showInGallery,
+                altText = media.altText,
                 createdAt = media.createdAt,
                 mediaType = media.mediaType,
                 platform = media.platform,

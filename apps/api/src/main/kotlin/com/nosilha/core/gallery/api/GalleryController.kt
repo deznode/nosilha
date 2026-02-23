@@ -74,11 +74,13 @@ class GalleryController(
     @GetMapping
     fun listGalleryMedia(
         @RequestParam(required = false) category: String? = null,
+        @RequestParam(required = false) decade: String? = null,
+        @RequestParam(name = "q", required = false) query: String? = null,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "50") size: Int,
     ): PagedApiResult<PublicGalleryMediaDto> {
-        logger.debug { "Listing gallery media - category: $category, page: $page, size: $size" }
-        return galleryService.listActiveMediaPublic(category, page, size)
+        logger.debug { "Listing gallery media - category: $category, decade: $decade, q: $query, page: $page, size: $size" }
+        return galleryService.listActiveMediaPublic(category, decade, query, page, size)
     }
 
     /**
