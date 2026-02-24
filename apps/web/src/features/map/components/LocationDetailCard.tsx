@@ -38,10 +38,7 @@ export function LocationDetailCard() {
             {selectedLocation.name}
           </h3>
           <div className="flex items-center gap-1 font-sans text-xs font-medium opacity-90">
-            <Star
-              size={12}
-              className="text-sunny-yellow fill-sunny-yellow"
-            />
+            <Star size={12} className="text-sunny-yellow fill-sunny-yellow" />
             {selectedLocation.reviews} reviews
           </div>
         </div>

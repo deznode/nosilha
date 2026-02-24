@@ -20,7 +20,7 @@ import {
   useMapStore,
 } from "@/stores/mapStore";
 import { ENABLE_ILLUSTRATION_MODE } from "../data/constants";
-import type { ViewMode, LayerVisibility } from "../data/types";
+import type { ViewMode } from "../data/types";
 
 interface MapControlsProps {
   onRandomFlyTo: () => void;
