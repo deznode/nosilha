@@ -21,6 +21,7 @@ import java.util.*
     JsonSubTypes.Type(value = BeachDto::class, name = "Beach"),
     JsonSubTypes.Type(value = HeritageDto::class, name = "Heritage"),
     JsonSubTypes.Type(value = NatureDto::class, name = "Nature"),
+    JsonSubTypes.Type(value = TownEntryDto::class, name = "Town"),
 )
 abstract class DirectoryEntryDto {
     abstract val id: UUID
@@ -176,6 +177,32 @@ data class NatureDto(
     override val updatedAt: Instant,
     val details: DetailsDto? = null,
     override val category: String = "Nature",
+) : DirectoryEntryDto()
+
+/**
+ * DTO for a Town entry. Does not contain any specific details.
+ */
+@JsonTypeName("Town")
+data class TownEntryDto(
+    override val id: UUID,
+    override val name: String,
+    override val slug: String,
+    override val description: String,
+    override val tags: List<String> = emptyList(),
+    override val contentActions: ContentActionSettingsDto? = null,
+    override val town: String,
+    override val latitude: Double,
+    override val longitude: Double,
+    override val imageUrl: String?,
+    override val rating: Double?,
+    override val reviewCount: Int,
+    override val phoneNumber: String? = null,
+    override val email: String? = null,
+    override val website: String? = null,
+    override val createdAt: Instant,
+    override val updatedAt: Instant,
+    val details: DetailsDto? = null,
+    override val category: String = "Town",
 ) : DirectoryEntryDto()
 
 /**

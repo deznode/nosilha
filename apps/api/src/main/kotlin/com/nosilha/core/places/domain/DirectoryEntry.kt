@@ -33,7 +33,8 @@ import java.util.UUID
  *     ├── Hotel (@DiscriminatorValue("Hotel"))
  *     ├── Beach (@DiscriminatorValue("Beach"))
  *     ├── Heritage (@DiscriminatorValue("Heritage"))
- *     └── Nature (@DiscriminatorValue("Nature"))
+ *     ├── Nature (@DiscriminatorValue("Nature"))
+ *     └── TownEntry (@DiscriminatorValue("Town"))
  * </pre>
  *
  * @see com.nosilha.core.shared.domain.AuditableEntity

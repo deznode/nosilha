@@ -10,6 +10,7 @@ import com.nosilha.core.shared.api.NatureDto
 import com.nosilha.core.shared.api.RestaurantDetailsDto
 import com.nosilha.core.shared.api.RestaurantDto
 import com.nosilha.core.shared.api.TownDto
+import com.nosilha.core.shared.api.TownEntryDto
 import io.github.oshai.kotlinlogging.KotlinLogging
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.readValue
@@ -140,6 +141,26 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
             updatedAt = updatedAt,
         )
 
+        is TownEntry -> TownEntryDto(
+            id = entityId,
+            name = name,
+            slug = slug,
+            description = description,
+            tags = tagList,
+            contentActions = contentActionSettings,
+            town = town,
+            latitude = latitude,
+            longitude = longitude,
+            imageUrl = imageUrl,
+            rating = rating,
+            reviewCount = reviewCount,
+            phoneNumber = phoneNumber,
+            email = email,
+            website = website,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+        )
+
         else -> throw IllegalStateException("Unsupported or unknown DirectoryEntry type: ${this::class.simpleName}")
     }
 }
@@ -230,5 +251,6 @@ fun DirectoryEntry.getCategoryValue(): String =
         is Beach -> "Beach"
         is Heritage -> "Heritage"
         is Nature -> "Nature"
+        is TownEntry -> "Town"
         else -> throw IllegalStateException("Unknown DirectoryEntry type: ${this::class.simpleName}")
     }

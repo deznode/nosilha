@@ -434,6 +434,7 @@ class DirectoryEntryService(
             "BEACH" -> Beach()
             "HERITAGE" -> Heritage()
             "NATURE" -> Nature()
+            "TOWN" -> TownEntry()
             else -> throw IllegalArgumentException("Invalid category: ${request.category}")
         }
 
