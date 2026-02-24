@@ -44,7 +44,7 @@ export function LocationCard({ location, active, onClick }: LocationCardProps) {
           <span className="tracking-wider uppercase">{location.category}</span>
           <span>&bull;</span>
           <span className="text-sunny-yellow flex items-center gap-0.5">
-            <Star size={10} fill="currentColor" /> {location.rating}
+            <Star size={10} fill="currentColor" /> {location.rating.toFixed(1)}
           </span>
         </div>
         <p className="text-text-secondary mb-2 line-clamp-2 font-sans text-xs leading-relaxed">
@@ -59,7 +59,7 @@ export function LocationCard({ location, active, onClick }: LocationCardProps) {
             "flex w-fit items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-bold tracking-wider uppercase transition-colors",
             active
               ? "bg-ocean-blue shadow-ocean-blue/20 text-white shadow-md"
-              : "bg-background-tertiary text-text-secondary hover:bg-ocean-blue hover:text-white"
+              : "bg-background-tertiary text-text-secondary hover:bg-ocean-blue hover:text-white dark:bg-white/10"
           )}
         >
           <Navigation

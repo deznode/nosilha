@@ -9,9 +9,7 @@ import { Sun } from "lucide-react";
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
-function entryFixture(
-  overrides: Partial<DirectoryEntry> = {}
-): DirectoryEntry {
+function entryFixture(overrides: Partial<DirectoryEntry> = {}): DirectoryEntry {
   return {
     id: "a1b2c3d4-e5f6-7890-abcd-000000000001",
     slug: "test-beach",
@@ -136,7 +134,6 @@ describe("transformEntries", () => {
     expect(result[0].category).toBe("Accommodation");
   });
 
-
   it("uses entry imageUrl when available", () => {
     const entries = [
       entryFixture({ imageUrl: "https://example.com/custom.jpg" }),
@@ -179,9 +176,24 @@ describe("transformEntries", () => {
 
 describe("searchLocations", () => {
   const locations: Location[] = [
-    locationFixture({ id: "1", name: "Praia Faja d'Agua", description: "Famous beach", tags: ["beach", "swimming"] }),
-    locationFixture({ id: "2", name: "Monte Fontainhas", description: "Scenic viewpoint", tags: ["viewpoint", "hiking"] }),
-    locationFixture({ id: "3", name: "Nossa Senhora do Monte", description: "Historic church", tags: ["church", "heritage"] }),
+    locationFixture({
+      id: "1",
+      name: "Praia Faja d'Agua",
+      description: "Famous beach",
+      tags: ["beach", "swimming"],
+    }),
+    locationFixture({
+      id: "2",
+      name: "Monte Fontainhas",
+      description: "Scenic viewpoint",
+      tags: ["viewpoint", "hiking"],
+    }),
+    locationFixture({
+      id: "3",
+      name: "Nossa Senhora do Monte",
+      description: "Historic church",
+      tags: ["church", "heritage"],
+    }),
   ];
 
   it("returns all locations for empty query", () => {

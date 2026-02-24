@@ -1,6 +1,10 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import type { Location, ViewMode, LayerVisibility } from "@/features/map/data/types";
+import type {
+  Location,
+  ViewMode,
+  LayerVisibility,
+} from "@/features/map/data/types";
 import type { CategoryType } from "@/features/map/data/categories";
 import { getEntriesForMap } from "@/lib/api";
 import { transformEntries } from "@/features/map/data/locations-adapter";
@@ -75,14 +79,18 @@ export const useMapStore = create<MapState>()(
       setShowSidebar: (show) => set({ showSidebar: show }),
 
       // Convenience actions
-      toggleSidebar: () => set((state) => ({ showSidebar: !state.showSidebar })),
+      toggleSidebar: () =>
+        set((state) => ({ showSidebar: !state.showSidebar })),
       clearSelection: () => set({ selectedLocation: null }),
       toggleOrbit: () => set((state) => ({ isOrbiting: !state.isOrbiting })),
 
       fetchLocations: async () => {
         try {
           const { items } = await getEntriesForMap("all");
-          set({ locations: transformEntries(items), isLoadingLocations: false });
+          set({
+            locations: transformEntries(items),
+            isLoadingLocations: false,
+          });
         } catch (err) {
           console.error("Failed to fetch map locations:", err);
           set({ isLoadingLocations: false });

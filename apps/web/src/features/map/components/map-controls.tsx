@@ -17,6 +17,7 @@ import {
   useLayerVisibility,
   useIsOrbiting,
   useIs3D,
+  useShowSidebar,
   useMapStore,
 } from "@/stores/mapStore";
 import { ENABLE_ILLUSTRATION_MODE } from "../data/constants";
@@ -39,15 +40,21 @@ export function MapControls({
   const layerVisibility = useLayerVisibility();
   const isOrbiting = useIsOrbiting();
   const is3D = useIs3D();
+  const showSidebar = useShowSidebar();
   const setLayerVisibility = useMapStore((s) => s.setLayerVisibility);
   const toggleOrbit = useMapStore((s) => s.toggleOrbit);
 
   return (
-    <div className="pointer-events-auto absolute top-24 right-6 z-30 flex flex-col gap-3">
+    <div
+      className={cn(
+        "pointer-events-auto absolute top-24 right-6 z-30 flex flex-col gap-3",
+        showSidebar && "hidden md:flex"
+      )}
+    >
       {/* Random Fly To */}
       <button
         onClick={onRandomFlyTo}
-        className="hover:bg-ocean-blue group rounded-xl border border-white/50 bg-white/90 p-3 text-slate-600 shadow-lg backdrop-blur-md transition-all hover:text-white"
+        className="hover:bg-ocean-blue group rounded-xl border border-white/50 bg-white/90 p-3 text-text-secondary shadow-lg backdrop-blur-md transition-all hover:text-white dark:border-white/15 dark:bg-white/10"
         title="Fly to Random Location"
       >
         <Shuffle
@@ -57,14 +64,14 @@ export function MapControls({
       </button>
 
       {/* View Mode Toggle */}
-      <div className="border-border-primary flex flex-col gap-1 overflow-hidden rounded-2xl border bg-white/80 p-1 shadow-lg backdrop-blur-md">
+      <div className="border-border-primary flex flex-col gap-1 overflow-hidden rounded-2xl border bg-white/80 p-1 shadow-lg backdrop-blur-md dark:border-white/15 dark:bg-white/10">
         <button
           onClick={() => onViewModeToggle("satellite")}
           className={cn(
             "rounded-xl p-2 transition-all",
             viewMode === "satellite"
               ? "bg-ocean-blue text-white shadow-sm"
-              : "text-volcanic-gray hover:bg-background-secondary"
+              : "text-text-secondary hover:bg-background-secondary"
           )}
           title="Satellite View"
           aria-label="Switch to satellite view"
@@ -79,7 +86,7 @@ export function MapControls({
               "rounded-xl p-2 transition-all",
               viewMode === "illustration"
                 ? "bg-ocean-blue text-white shadow-sm"
-                : "text-volcanic-gray hover:bg-background-secondary"
+                : "text-text-secondary hover:bg-background-secondary"
             )}
             title="Illustrated Map"
             aria-label="Switch to illustrated map view"
@@ -91,7 +98,7 @@ export function MapControls({
       </div>
 
       {/* Layer Visibility Toggle */}
-      <div className="border-border-primary flex flex-col gap-1 overflow-hidden rounded-2xl border bg-white/80 p-1 shadow-lg backdrop-blur-md">
+      <div className="border-border-primary flex flex-col gap-1 overflow-hidden rounded-2xl border bg-white/80 p-1 shadow-lg backdrop-blur-md dark:border-white/15 dark:bg-white/10">
         <LayerButton
           active={layerVisibility === "all"}
           onClick={() => setLayerVisibility("all")}
@@ -130,7 +137,7 @@ export function MapControls({
             "hidden items-center justify-center rounded-2xl border p-3 shadow-lg backdrop-blur-md transition-all duration-300 md:flex",
             isOrbiting
               ? "bg-ocean-blue border-ocean-blue animate-pulse text-white"
-              : "text-volcanic-gray border-white/50 bg-white/90 hover:bg-white"
+              : "text-text-secondary border-white/50 bg-white/90 hover:bg-white dark:border-white/15 dark:bg-white/10 dark:hover:bg-white/20"
           )}
           aria-label={
             isOrbiting ? "Stop orbit animation" : "Start orbit animation"
@@ -149,7 +156,7 @@ export function MapControls({
             "min-w-[44px] rounded-2xl border p-3 text-xs font-bold shadow-lg backdrop-blur-md transition-all duration-300",
             is3D
               ? "bg-ocean-blue border-ocean-blue text-white"
-              : "text-volcanic-gray border-white/50 bg-white/90 hover:bg-white"
+              : "text-text-secondary border-white/50 bg-white/90 hover:bg-white dark:border-white/15 dark:bg-white/10 dark:hover:bg-white/20"
           )}
           aria-label={is3D ? "Switch to 2D view" : "Switch to 3D view"}
           aria-pressed={is3D}
@@ -161,7 +168,7 @@ export function MapControls({
       {/* Reset / Home */}
       <button
         onClick={onReset}
-        className="text-volcanic-gray rounded-2xl border border-white/50 bg-white/80 p-3 shadow-lg backdrop-blur-md transition-colors hover:bg-white"
+        className="text-text-secondary rounded-2xl border border-white/50 bg-white/80 p-3 shadow-lg backdrop-blur-md transition-colors hover:bg-white dark:border-white/15 dark:bg-white/10 dark:hover:bg-white/20"
         aria-label="Reset map to home view"
       >
         <Home size={20} />
@@ -192,7 +199,7 @@ function LayerButton({
         "rounded-xl p-2 transition-all",
         active
           ? "bg-ocean-blue text-white shadow-sm"
-          : "text-volcanic-gray hover:bg-background-secondary"
+          : "text-text-secondary hover:bg-background-secondary"
       )}
       title={title}
       aria-label={ariaLabel}

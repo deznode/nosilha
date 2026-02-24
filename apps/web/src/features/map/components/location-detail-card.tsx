@@ -16,7 +16,7 @@ export function LocationDetailCard() {
       initial={{ opacity: 0, x: 50, scale: 0.95 }}
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 20, scale: 0.95 }}
-      className="absolute bottom-10 left-[450px] z-30 hidden w-[350px] overflow-hidden rounded-3xl border border-white/20 bg-white/80 shadow-xl backdrop-blur-md md:block"
+      className="absolute bottom-10 left-[450px] z-30 hidden w-[350px] overflow-hidden rounded-3xl border border-white/20 bg-white/80 shadow-xl backdrop-blur-md dark:border-white/10 dark:bg-black/60 md:block"
     >
       <div className="group relative h-48">
         <Image
@@ -39,7 +39,7 @@ export function LocationDetailCard() {
           </h3>
           <div className="flex items-center gap-1 font-sans text-xs font-medium opacity-90">
             <Star size={12} className="text-sunny-yellow fill-sunny-yellow" />
-            {selectedLocation.reviews} reviews
+            {selectedLocation.rating.toFixed(1)} &bull; {selectedLocation.reviews} reviews
           </div>
         </div>
       </div>
@@ -51,7 +51,7 @@ export function LocationDetailCard() {
           <button className="bg-ocean-blue hover:bg-ocean-blue/90 shadow-ocean-blue/20 col-span-1 flex items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold text-white shadow-lg transition-colors">
             <Navigation size={14} /> Directions
           </button>
-          <button className="border-border-primary text-text-secondary hover:bg-background-secondary col-span-1 flex items-center justify-center gap-2 rounded-xl border bg-white py-3 text-xs font-bold transition-colors">
+          <button className="border-border-primary text-text-secondary hover:bg-background-secondary col-span-1 flex items-center justify-center gap-2 rounded-xl border bg-white py-3 text-xs font-bold transition-colors dark:bg-white/10">
             <Info size={14} /> More Info
           </button>
         </div>

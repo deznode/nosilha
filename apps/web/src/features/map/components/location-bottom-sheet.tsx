@@ -26,7 +26,7 @@ export function LocationBottomSheet() {
       style={{ touchAction: "pan-y" }}
     >
       <motion.div
-        className="sticky top-0 z-20 flex w-full cursor-pointer justify-center bg-white/95 pt-4 pb-2 backdrop-blur-sm"
+        className="sticky top-0 z-20 flex w-full cursor-pointer justify-center bg-white/95 pt-4 pb-2 backdrop-blur-sm dark:bg-black/80"
         onClick={clearSelection}
         whileTap={{ scale: 0.98 }}
       >
