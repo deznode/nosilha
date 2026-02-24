@@ -147,21 +147,19 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
     introAnimationRef.current = 1;
   }, [isIntroComplete, mapRef]);
 
-  // --- Skip intro handler ---
-  const handleSkipIntro = useCallback(() => {
+  // --- Cancel intro animation and fly to default position ---
+  const cancelIntro = useCallback(() => {
     introTimersRef.current.forEach(clearTimeout);
     introTimersRef.current = [];
     introAnimationRef.current = 0;
 
-    if (mapRef.current) {
-      mapRef.current.flyTo({
-        center: [MAP_CONFIG.DEFAULT_CENTER.lng, MAP_CONFIG.DEFAULT_CENTER.lat],
-        zoom: MAP_CONFIG.DEFAULT_ZOOM,
-        pitch: MAP_CONFIG.PITCH_2D,
-        bearing: MAP_CONFIG.DEFAULT_BEARING,
-        duration: 800,
-      });
-    }
+    mapRef.current?.flyTo({
+      center: [MAP_CONFIG.DEFAULT_CENTER.lng, MAP_CONFIG.DEFAULT_CENTER.lat],
+      zoom: MAP_CONFIG.DEFAULT_ZOOM,
+      pitch: MAP_CONFIG.PITCH_2D,
+      bearing: MAP_CONFIG.DEFAULT_BEARING,
+      duration: 800,
+    });
 
     setIsIntroPlaying(false);
     setIsIntroComplete(true);
@@ -179,13 +177,13 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isIntroPlaying && !isIntroComplete) {
-        handleSkipIntro();
+        cancelIntro();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isIntroPlaying, isIntroComplete, handleSkipIntro]);
+  }, [isIntroPlaying, isIntroComplete, cancelIntro]);
 
   // --- Desktop-only orbit animation ---
   useEffect(() => {
@@ -245,27 +243,9 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
 
     setIsOrbiting(false);
     if (isIntroPlaying && !isIntroComplete) {
-      introTimersRef.current.forEach(clearTimeout);
-      introTimersRef.current = [];
-      introAnimationRef.current = 0;
-
-      if (mapRef.current) {
-        mapRef.current.flyTo({
-          center: [
-            MAP_CONFIG.DEFAULT_CENTER.lng,
-            MAP_CONFIG.DEFAULT_CENTER.lat,
-          ],
-          zoom: MAP_CONFIG.DEFAULT_ZOOM,
-          pitch: MAP_CONFIG.PITCH_2D,
-          bearing: MAP_CONFIG.DEFAULT_BEARING,
-          duration: 800,
-        });
-      }
-
-      setIsIntroPlaying(false);
-      setIsIntroComplete(true);
+      cancelIntro();
     }
-  }, [isIntroPlaying, isIntroComplete, setIsOrbiting, mapRef]);
+  }, [isIntroPlaying, isIntroComplete, setIsOrbiting, cancelIntro]);
 
   // --- Handle zone clicks ---
   const handleMapClick = useCallback(
@@ -273,7 +253,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
       if (event.defaultPrevented) return;
 
       const feature = event.features?.[0];
-      if (feature && feature.layer && feature.layer.id === "zone-fills") {
+      if (feature?.layer?.id === "zone-fills") {
         const geometry = feature.geometry as GeoJSON.Polygon;
         if (geometry.type === "Polygon") {
           setIsOrbiting(false);
@@ -551,7 +531,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ delay: 0.5, duration: 0.3 }}
-            onClick={handleSkipIntro}
+            onClick={cancelIntro}
             className="absolute bottom-8 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/20 bg-black/30 px-6 py-3 text-sm font-bold text-white backdrop-blur-md transition-all hover:scale-105 hover:bg-black/50"
           >
             Skip Intro

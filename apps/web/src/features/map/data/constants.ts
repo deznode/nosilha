@@ -5,12 +5,9 @@ import trailsData from "./trails.json";
 // --- Cinematic Intro Configuration ---
 export const INTRO_CONFIG = {
   PEAK_POSITION: { lng: -24.708, lat: 14.851 }, // Monte Fontainhas
-  START_ALTITUDE: 4000,
-  END_ALTITUDE: 2000,
   HOLD_DURATION: 1500,
   SWEEP_DURATION: 4000,
   SETTLE_DURATION: 1000,
-  ORBIT_RADIUS: 0.025,
 } as const;
 
 // --- Map Configuration Constants ---
@@ -21,7 +18,6 @@ export const MAP_CONFIG = {
   PITCH_3D: 60,
   PITCH_2D: 0,
   DEFAULT_BEARING: 0,
-  LOCATION_BEARING: -10,
   TERRAIN_EXAGGERATION: 1.5,
   ANIMATION_DURATION: 2000,
   RESET_DURATION: 1500,

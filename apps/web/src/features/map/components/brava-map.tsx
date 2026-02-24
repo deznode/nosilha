@@ -19,7 +19,6 @@ export default function BravaMap() {
 
   const selectedLocation = useSelectedLocation();
 
-  // Fetch locations on mount
   useEffect(() => {
     useMapStore.getState().fetchLocations();
   }, []);
@@ -27,22 +26,22 @@ export default function BravaMap() {
   // --- Cross-cutting callbacks (require mapRef) ---
 
   const handleFlyTo = useCallback((loc: Location) => {
-    const { showSidebar, is3D, viewMode } = useMapStore.getState();
-    useMapStore.getState().setIsOrbiting(false);
-    useMapStore.getState().setSelectedLocation(loc);
+    const state = useMapStore.getState();
+    state.setIsOrbiting(false);
+    state.setSelectedLocation(loc);
 
     if (pulseTimeoutRef.current) {
       clearTimeout(pulseTimeoutRef.current);
     }
-    useMapStore.getState().setIsPulsing(false);
+    state.setIsPulsing(false);
 
     if (mapRef.current) {
       const isDesktop = window.innerWidth > 768;
       const offset: [number, number] =
-        isDesktop && showSidebar ? [150, 0] : [0, 0];
+        isDesktop && state.showSidebar ? [150, 0] : [0, 0];
 
       const pitch =
-        viewMode === "satellite" && is3D
+        state.viewMode === "satellite" && state.is3D
           ? MAP_CONFIG.PITCH_3D
           : MAP_CONFIG.PITCH_2D;
 
@@ -79,7 +78,7 @@ export default function BravaMap() {
   }, [handleFlyTo]);
 
   const handleReset = useCallback(() => {
-    useMapStore.getState().setSelectedLocation(null);
+    useMapStore.getState().clearSelection();
     mapRef.current?.flyTo({
       center: [MAP_CONFIG.DEFAULT_CENTER.lng, MAP_CONFIG.DEFAULT_CENTER.lat],
       zoom: MAP_CONFIG.DEFAULT_ZOOM,
@@ -90,8 +89,9 @@ export default function BravaMap() {
   }, []);
 
   const handle3DToggle = useCallback(() => {
-    const newIs3D = !useMapStore.getState().is3D;
-    useMapStore.getState().setIs3D(newIs3D);
+    const state = useMapStore.getState();
+    const newIs3D = !state.is3D;
+    state.setIs3D(newIs3D);
     mapRef.current?.easeTo({
       pitch: newIs3D ? MAP_CONFIG.PITCH_3D : MAP_CONFIG.PITCH_2D,
       duration: MAP_CONFIG.EASE_DURATION,
@@ -99,11 +99,11 @@ export default function BravaMap() {
   }, []);
 
   const handleViewModeToggle = useCallback((mode: ViewMode) => {
-    const { isOrbiting } = useMapStore.getState();
-    if (mode === "illustration" && isOrbiting) {
-      useMapStore.getState().setIsOrbiting(false);
+    const state = useMapStore.getState();
+    if (mode === "illustration" && state.isOrbiting) {
+      state.setIsOrbiting(false);
     }
-    useMapStore.getState().setViewMode(mode);
+    state.setViewMode(mode);
 
     if (mode === "illustration" && mapRef.current) {
       mapRef.current.easeTo({

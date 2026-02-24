@@ -117,27 +117,14 @@ export const CATEGORIES: CategoryDefinition[] = [
   },
 ];
 
-// Helper to get category by ID
-export const getCategoryById = (
-  id: CategoryType
-): CategoryDefinition | undefined => {
+function findCategory(id: CategoryType): CategoryDefinition | undefined {
   return CATEGORIES.find((cat) => cat.id === id);
-};
+}
 
-// Helper to get icon component for a category
-export const getCategoryIcon = (id: CategoryType): LucideIcon | null => {
-  const category = getCategoryById(id);
-  return category?.icon || null;
-};
+export function getCategoryIcon(id: CategoryType): LucideIcon | null {
+  return findCategory(id)?.icon ?? null;
+}
 
-// Helper to get color for a category
-export const getCategoryColor = (id: CategoryType): string => {
-  const category = getCategoryById(id);
-  return category?.color || "#666666";
-};
-
-// All category IDs for filtering (excluding "All")
-export const CATEGORY_IDS = CATEGORIES.map((cat) => cat.id);
-
-// Category IDs including "All" for filter UI
-export const FILTER_OPTIONS: CategoryType[] = ["All", ...CATEGORY_IDS];
+export function getCategoryColor(id: CategoryType): string {
+  return findCategory(id)?.color ?? "#666666";
+}

@@ -1,3 +1,4 @@
+import { MapPin } from "lucide-react";
 import type { DirectoryEntry } from "@/types/directory";
 import {
   getCategoryColor,
@@ -71,14 +72,14 @@ export function transformEntries(entries: DirectoryEntry[]): Location[] {
     .filter((entry) => entry.latitude != null && entry.longitude != null)
     .map((entry) => {
       const category = (BACKEND_TO_MAP_CATEGORY[entry.category] ?? "Nature") as Exclude<CategoryType, "All">;
-      const icon = getCategoryIcon(category);
+      const icon = getCategoryIcon(category) ?? MapPin;
       const color = getCategoryColor(category);
       const rand = seededRandom(entry.id);
 
       return {
         id: entry.id,
         name: entry.name,
-        namePortuguese: entry.name, // Backend doesn't have separate Portuguese name
+        namePortuguese: entry.name,
         category,
         description: entry.description || "",
         coordinates: {
@@ -91,7 +92,7 @@ export function transformEntries(entries: DirectoryEntry[]): Location[] {
         image:
           entry.imageUrl || CATEGORY_IMAGES[category] || CATEGORY_IMAGES.Nature,
         tags: entry.tags || [],
-        icon: icon!,
+        icon,
         color,
       };
     });
