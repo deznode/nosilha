@@ -54,7 +54,13 @@ export function GalleryQueueItem({
       return item.publicUrl;
     }
     if (isExternalMedia(item)) {
-      // For external media, prefer full URL over thumbnail
+      if (item.mediaType === "VIDEO") {
+        if (item.thumbnailUrl) return item.thumbnailUrl;
+        if (item.platform === "YOUTUBE" && item.externalId) {
+          return `https://img.youtube.com/vi/${item.externalId}/maxresdefault.jpg`;
+        }
+        return null;
+      }
       return item.url || item.thumbnailUrl;
     }
     return null;
@@ -93,6 +99,9 @@ export function GalleryQueueItem({
       thumbnailUrl = item.publicUrl;
     } else if (isExternalMedia(item)) {
       thumbnailUrl = item.thumbnailUrl;
+      if (!thumbnailUrl && item.platform === "YOUTUBE" && item.externalId) {
+        thumbnailUrl = `https://img.youtube.com/vi/${item.externalId}/maxresdefault.jpg`;
+      }
     }
 
     if (thumbnailUrl) {

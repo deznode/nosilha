@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Filter } from "lucide-react";
+import { Search } from "lucide-react";
 import { QueueItem } from "./queue-item";
 import { SubmissionStatus } from "@/types/story";
-import { Button } from "@/components/catalyst-ui/button";
 import {
   useAdminSuggestions,
   useUpdateSuggestionStatus,
@@ -93,10 +92,6 @@ export function SuggestionsQueue() {
             <option value={SubmissionStatus.APPROVED}>Approved</option>
             <option value={SubmissionStatus.REJECTED}>Rejected</option>
           </select>
-          <Button plain>
-            <Filter data-slot="icon" />
-            Newest First
-          </Button>
         </div>
         <div className="relative w-full sm:w-64">
           <input
@@ -115,7 +110,11 @@ export function SuggestionsQueue() {
       {/* Suggestions List */}
       <div className="border-hairline bg-surface overflow-hidden border shadow sm:rounded-md">
         {filteredSuggestions.length === 0 ? (
-          <div className="text-muted p-8 text-center">No suggestions found</div>
+          <div className="text-muted p-8 text-center">
+            {searchQuery && suggestions.length > 0
+              ? "No results match your search"
+              : "No suggestions found"}
+          </div>
         ) : (
           <ul className="divide-hairline divide-y">
             {filteredSuggestions.map((suggestion) => (
@@ -139,7 +138,7 @@ export function SuggestionsQueue() {
         )}
       </div>
 
-      {paginationData && (
+      {paginationData && !searchQuery && (
         <Pagination
           {...paginationData}
           onPageChange={setPage}

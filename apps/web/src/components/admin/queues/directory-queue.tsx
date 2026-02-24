@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import {
   Search,
-  Filter,
   MapPin,
   Tag,
   Clock,
@@ -234,15 +233,13 @@ export function DirectoryQueue() {
             className="border-hairline bg-surface text-muted hover:bg-surface-alt rounded-md border px-3 py-1.5 text-sm font-medium"
           >
             <option value="ALL">All Status</option>
+            <option value={SubmissionStatus.DRAFT}>Draft</option>
             <option value={SubmissionStatus.PENDING}>Pending</option>
             <option value={SubmissionStatus.APPROVED}>Approved</option>
+            <option value={SubmissionStatus.PUBLISHED}>Published</option>
             <option value={SubmissionStatus.REJECTED}>Rejected</option>
             <option value={SubmissionStatus.FLAGGED}>Flagged</option>
           </select>
-          <Button plain>
-            <Filter data-slot="icon" />
-            Newest First
-          </Button>
         </div>
         <div className="relative w-full sm:w-64">
           <input
@@ -261,7 +258,9 @@ export function DirectoryQueue() {
       <div className="border-hairline bg-surface overflow-hidden border shadow sm:rounded-md">
         {filteredSubmissions.length === 0 ? (
           <div className="text-muted p-8 text-center">
-            No directory submissions found
+            {searchQuery && submissions.length > 0
+              ? "No results match your search"
+              : "No directory submissions found"}
           </div>
         ) : (
           <ul className="divide-hairline divide-y">
@@ -413,7 +412,7 @@ export function DirectoryQueue() {
         )}
       </div>
 
-      {paginationData && (
+      {paginationData && !searchQuery && (
         <Pagination
           {...paginationData}
           onPageChange={setPage}

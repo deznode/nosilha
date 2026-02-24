@@ -131,7 +131,11 @@ export function MessagesQueue() {
       {/* Messages List */}
       <div className="border-hairline bg-surface overflow-hidden border shadow sm:rounded-md">
         {filteredMessages.length === 0 ? (
-          <div className="text-muted p-8 text-center">No messages found</div>
+          <div className="text-muted p-8 text-center">
+            {searchQuery && messages.length > 0
+              ? "No results match your search"
+              : "No messages found"}
+          </div>
         ) : (
           <ul className="divide-hairline divide-y">
             {filteredMessages.map((message) => (
@@ -221,7 +225,7 @@ export function MessagesQueue() {
         )}
       </div>
 
-      {paginationData && (
+      {paginationData && !searchQuery && (
         <Pagination
           {...paginationData}
           onPageChange={setPage}
