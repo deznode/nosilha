@@ -7,6 +7,15 @@ import type { BreadcrumbListSchema } from "@/types/metadata";
 // Enable ISR with 1 hour revalidation for directory content
 export const revalidate = 3600;
 
+interface DirectoryPageProps {
+  searchParams: Promise<{
+    page?: string;
+    q?: string;
+    town?: string;
+    sort?: string;
+  }>;
+}
+
 // Generate metadata for the unified directory page
 export async function generateMetadata(): Promise<Metadata> {
   const title = "Directory - Discover Brava Island";
@@ -55,14 +64,21 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function DirectoryPage() {
-  // Fetch all entries for the unified directory
-  const { items: entries } = await getEntriesByCategory("all");
+export default async function DirectoryPage({
+  searchParams,
+}: DirectoryPageProps) {
+  const { page: pageParam, q, town, sort } = await searchParams;
+  const page = Math.max(0, parseInt(pageParam || "0", 10) || 0);
+  const size = 20;
+
+  const result = await getEntriesByCategory("all", page, size, q, town, sort);
 
   return (
     <DirectoryCategoryPageContent
       category="all"
-      entries={entries}
+      entries={result.items}
+      pagination={result.pagination}
+      initialFilters={{ page, q, town, sort }}
       showCategoryFilter={true}
     />
   );

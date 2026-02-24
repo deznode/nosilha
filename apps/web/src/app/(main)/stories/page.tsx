@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { StoryCard } from "@/components/stories";
 import { getStories } from "@/lib/api";
-import type { StorySubmission } from "@/types/story";
+import { Pagination, fromPaginatedResult } from "@/components/ui/pagination";
 
 function StoryCardSkeleton() {
   return (
@@ -34,24 +35,17 @@ function StoryCardSkeleton() {
 }
 
 export default function StoriesPage() {
-  const [stories, setStories] = useState<StorySubmission[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(0);
 
-  useEffect(() => {
-    async function loadStories() {
-      setIsLoading(true);
-      try {
-        const result = await getStories();
-        setStories(result.items);
-      } catch (error) {
-        console.error("Failed to load stories:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+  const { data, isLoading } = useQuery({
+    queryKey: ["stories", "list", page, 12],
+    queryFn: () => getStories(page, 12),
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (previousData) => previousData,
+  });
 
-    loadStories();
-  }, []);
+  const stories = data?.items ?? [];
+  const paginationData = fromPaginatedResult(data?.pagination ?? null);
 
   return (
     <div className="bg-canvas min-h-screen pb-12">
@@ -104,6 +98,14 @@ export default function StoriesPage() {
             stories.map((story) => <StoryCard key={story.id} story={story} />)
           )}
         </div>
+
+        {paginationData && (
+          <Pagination
+            {...paginationData}
+            onPageChange={setPage}
+            className="mt-8"
+          />
+        )}
       </div>
     </div>
   );

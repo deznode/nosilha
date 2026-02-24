@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Filter } from "lucide-react";
 import { QueueItem } from "./queue-item";
 import { MdxPreviewModal } from "@/components/admin/mdx-preview-modal";
@@ -11,6 +11,7 @@ import { archiveStoryToMDX } from "@/app/actions/archive-story";
 import { Button } from "@/components/catalyst-ui/button";
 import { useAdminStories, useUpdateStoryStatus } from "@/hooks/queries/admin";
 import { useToast } from "@/hooks/use-toast";
+import { Pagination, fromAdminQueueResponse } from "@/components/ui/pagination";
 import type { StorySubmission } from "@/types/story";
 import { SubmissionStatus } from "@/types/story";
 
@@ -30,6 +31,10 @@ export function StoriesQueue() {
   const [filterStatus, setFilterStatus] = useState<SubmissionStatus | "ALL">(
     "ALL"
   );
+  const [page, setPage] = useState(0);
+
+  useEffect(() => setPage(0), [filterStatus]);
+
   const [previewingStory, setPreviewingStory] =
     useState<StorySubmission | null>(null);
   const [mdxContent, setMdxContent] = useState<string>("");
@@ -47,7 +52,11 @@ export function StoriesQueue() {
     title: string;
   } | null>(null);
 
-  const storiesQuery = useAdminStories();
+  const storiesQuery = useAdminStories(
+    page,
+    20,
+    filterStatus === "ALL" ? undefined : filterStatus
+  );
   const updateStory = useUpdateStoryStatus();
   const toast = useToast();
 
@@ -180,9 +189,10 @@ export function StoriesQueue() {
       s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.author.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = filterStatus === "ALL" || s.status === filterStatus;
-    return matchesSearch && matchesStatus;
+    return matchesSearch;
   });
+
+  const paginationData = fromAdminQueueResponse(storiesQuery.data);
 
   if (isLoading) {
     return (
@@ -276,6 +286,14 @@ export function StoriesQueue() {
           </ul>
         )}
       </div>
+
+      {paginationData && (
+        <Pagination
+          {...paginationData}
+          onPageChange={setPage}
+          className="mt-4"
+        />
+      )}
 
       {previewingStory && (
         <MdxPreviewModal

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Mail, Check, Trash2, Clock } from "lucide-react";
 import type { ContactMessageStatus } from "@/types/admin";
 import { Button } from "@/components/catalyst-ui/button";
@@ -10,14 +10,23 @@ import {
   useDeleteMessage,
 } from "@/hooks/queries/admin";
 import { useToast } from "@/hooks/use-toast";
+import { Pagination, fromAdminQueueResponse } from "@/components/ui/pagination";
 
 export function MessagesQueue() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<
     ContactMessageStatus | "ALL"
   >("ALL");
+  const [page, setPage] = useState(0);
 
-  const messagesQuery = useAdminMessages();
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- Reset page on filter change
+  useEffect(() => setPage(0), [filterStatus]);
+
+  const messagesQuery = useAdminMessages(
+    page,
+    20,
+    filterStatus === "ALL" ? undefined : filterStatus
+  );
   const updateMessage = useUpdateMessageStatus();
   const deleteMessageMutation = useDeleteMessage();
   const toast = useToast();
@@ -56,9 +65,10 @@ export function MessagesQueue() {
       m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       m.subject.toLowerCase().includes(searchQuery.toLowerCase()) ||
       m.message.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = filterStatus === "ALL" || m.status === filterStatus;
-    return matchesSearch && matchesStatus;
+    return matchesSearch;
   });
+
+  const paginationData = fromAdminQueueResponse(messagesQuery.data);
 
   if (isLoading) {
     return (
@@ -210,6 +220,14 @@ export function MessagesQueue() {
           </ul>
         )}
       </div>
+
+      {paginationData && (
+        <Pagination
+          {...paginationData}
+          onPageChange={setPage}
+          className="mt-4"
+        />
+      )}
     </div>
   );
 }

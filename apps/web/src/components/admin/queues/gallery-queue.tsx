@@ -10,12 +10,14 @@ import {
   useUpdateGalleryStatus,
   usePromoteToHeroImage,
 } from "@/hooks/queries/admin";
+import { Pagination, fromAdminQueueResponse } from "@/components/ui/pagination";
 
 export function GalleryQueue() {
   const [mediaToEdit, setMediaToEdit] = useState<GalleryMedia | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [page, setPage] = useState(0);
 
-  const galleryQuery = useAdminGallery();
+  const galleryQuery = useAdminGallery({ page, size: 20 });
   const updateGallery = useUpdateGalleryStatus();
   const promoteToHero = usePromoteToHeroImage();
 
@@ -24,6 +26,7 @@ export function GalleryQueue() {
     [galleryQuery.data]
   );
   const isLoading = galleryQuery.isLoading;
+  const paginationData = fromAdminQueueResponse(galleryQuery.data);
 
   const galleryMediaIds = useMemo(() => items.map((item) => item.id), [items]);
   const aiStatusQuery = useAiStatus(galleryMediaIds);
@@ -104,6 +107,14 @@ export function GalleryQueue() {
           aiStatus={aiStatuses.get(item.id)}
         />
       ))}
+
+      {paginationData && (
+        <Pagination
+          {...paginationData}
+          onPageChange={setPage}
+          className="mt-4"
+        />
+      )}
 
       <GalleryEditModal
         isOpen={isEditModalOpen}

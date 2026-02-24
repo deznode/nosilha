@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Filter } from "lucide-react";
 import { QueueItem } from "./queue-item";
 import { SubmissionStatus } from "@/types/story";
@@ -10,14 +10,23 @@ import {
   useUpdateSuggestionStatus,
 } from "@/hooks/queries/admin";
 import { useToast } from "@/hooks/use-toast";
+import { Pagination, fromAdminQueueResponse } from "@/components/ui/pagination";
 
 export function SuggestionsQueue() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<SubmissionStatus | "ALL">(
     "ALL"
   );
+  const [page, setPage] = useState(0);
 
-  const suggestionsQuery = useAdminSuggestions();
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- Reset page on filter change
+  useEffect(() => setPage(0), [filterStatus]);
+
+  const suggestionsQuery = useAdminSuggestions(
+    page,
+    20,
+    filterStatus === "ALL" ? undefined : filterStatus
+  );
   const updateSuggestion = useUpdateSuggestionStatus();
   const toast = useToast();
 
@@ -47,9 +56,10 @@ export function SuggestionsQueue() {
     const matchesSearch =
       s.target.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = filterStatus === "ALL" || s.status === filterStatus;
-    return matchesSearch && matchesStatus;
+    return matchesSearch;
   });
+
+  const paginationData = fromAdminQueueResponse(suggestionsQuery.data);
 
   if (isLoading) {
     return (
@@ -128,6 +138,14 @@ export function SuggestionsQueue() {
           </ul>
         )}
       </div>
+
+      {paginationData && (
+        <Pagination
+          {...paginationData}
+          onPageChange={setPage}
+          className="mt-4"
+        />
+      )}
     </div>
   );
 }
