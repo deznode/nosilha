@@ -161,13 +161,8 @@ describe("mapStore", () => {
       );
 
       vi.mocked(getEntriesForMap).mockResolvedValueOnce({
-        items: [mockLocation],
-        page: 0,
-        size: 10,
-        totalElements: 1,
-        totalPages: 1,
-        first: true,
-        last: true,
+        items: [mockLocation as never],
+        pagination: null,
       });
       vi.mocked(transformEntries).mockReturnValueOnce([mockLocation]);
 
