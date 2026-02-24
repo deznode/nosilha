@@ -67,9 +67,14 @@ export function LocationBottomSheet() {
         <p className="text-text-secondary text-sm leading-relaxed">
           {selectedLocation.description}
         </p>
-        <button className="bg-ocean-blue shadow-ocean-blue/30 flex w-full items-center justify-center gap-2 rounded-2xl py-4 font-bold text-white shadow-lg transition-transform active:scale-[0.98]">
+        <a
+          href={`https://www.google.com/maps/dir/?api=1&destination=${selectedLocation.coordinates.lat},${selectedLocation.coordinates.lng}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-ocean-blue shadow-ocean-blue/30 flex w-full items-center justify-center gap-2 rounded-2xl py-4 font-bold text-white shadow-lg transition-transform active:scale-[0.98]"
+        >
           <Navigation size={18} /> Navigate Here
-        </button>
+        </a>
       </div>
     </motion.div>
   );

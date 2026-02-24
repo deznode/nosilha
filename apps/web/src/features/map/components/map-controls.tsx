@@ -11,7 +11,7 @@ import {
   RotateCcw,
   Home,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 import {
   useViewMode,
   useLayerVisibility,
@@ -46,7 +46,7 @@ export function MapControls({
 
   return (
     <div
-      className={cn(
+      className={clsx(
         "pointer-events-auto absolute top-24 right-6 z-30 flex flex-col gap-3",
         showSidebar && "hidden md:flex"
       )}
@@ -67,7 +67,7 @@ export function MapControls({
       <div className="border-border-primary flex flex-col gap-1 overflow-hidden rounded-2xl border bg-white/80 p-1 shadow-lg backdrop-blur-md dark:border-white/15 dark:bg-white/10">
         <button
           onClick={() => onViewModeToggle("satellite")}
-          className={cn(
+          className={clsx(
             "rounded-xl p-2 transition-all",
             viewMode === "satellite"
               ? "bg-ocean-blue text-white shadow-sm"
@@ -82,7 +82,7 @@ export function MapControls({
         {ENABLE_ILLUSTRATION_MODE && (
           <button
             onClick={() => onViewModeToggle("illustration")}
-            className={cn(
+            className={clsx(
               "rounded-xl p-2 transition-all",
               viewMode === "illustration"
                 ? "bg-ocean-blue text-white shadow-sm"
@@ -133,7 +133,7 @@ export function MapControls({
       {viewMode === "satellite" && (
         <button
           onClick={toggleOrbit}
-          className={cn(
+          className={clsx(
             "hidden items-center justify-center rounded-2xl border p-3 shadow-lg backdrop-blur-md transition-all duration-300 md:flex",
             isOrbiting
               ? "bg-ocean-blue border-ocean-blue animate-pulse text-white"
@@ -152,7 +152,7 @@ export function MapControls({
       {viewMode === "satellite" && (
         <button
           onClick={on3DToggle}
-          className={cn(
+          className={clsx(
             "min-w-[44px] rounded-2xl border p-3 text-xs font-bold shadow-lg backdrop-blur-md transition-all duration-300",
             is3D
               ? "bg-ocean-blue border-ocean-blue text-white"
@@ -195,7 +195,7 @@ function LayerButton({
   return (
     <button
       onClick={onClick}
-      className={cn(
+      className={clsx(
         "rounded-xl p-2 transition-all",
         active
           ? "bg-ocean-blue text-white shadow-sm"

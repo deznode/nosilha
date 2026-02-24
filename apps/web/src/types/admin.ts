@@ -77,7 +77,17 @@ export interface DirectorySubmission {
   id: string;
   name: string;
   slug?: string; // Added for unified entries
-  category: "Restaurant" | "Hotel" | "Beach" | "Heritage" | "Nature";
+  category:
+    | "Restaurant"
+    | "Hotel"
+    | "Beach"
+    | "Heritage"
+    | "Nature"
+    | "Town"
+    | "Viewpoint"
+    | "Trail"
+    | "Church"
+    | "Port";
   town: string;
   customTown?: string | null;
   description: string;

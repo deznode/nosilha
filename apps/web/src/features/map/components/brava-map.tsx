@@ -20,7 +20,18 @@ export default function BravaMap() {
   const selectedLocation = useSelectedLocation();
 
   useEffect(() => {
+    // Prevent iOS Safari body bounce scrolling behind the full-screen map
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     useMapStore.getState().fetchLocations();
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      if (pulseTimeoutRef.current) {
+        clearTimeout(pulseTimeoutRef.current);
+      }
+    };
   }, []);
 
   // --- Cross-cutting callbacks (require mapRef) ---

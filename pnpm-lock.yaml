@@ -115,9 +115,6 @@ importers:
       supercluster:
         specifier: ^8.0.1
         version: 8.0.1
-      tailwind-merge:
-        specifier: ^3.4.0
-        version: 3.5.0
       use-supercluster:
         specifier: ^1.2.0
         version: 1.2.0(react@19.2.0)(supercluster@8.0.1)
@@ -7904,9 +7901,6 @@ packages:
 
   tabbable@6.3.0:
     resolution: {integrity: sha512-EIHvdY5bPLuWForiR/AN2Bxngzpuwn1is4asboytXtpTgsArc+WmSJKVLlhdh71u7jFcryDqB2A8lQvj78MkyQ==}
-
-  tailwind-merge@3.5.0:
-    resolution: {integrity: sha512-I8K9wewnVDkL1NTGoqWmVEIlUcB9gFriAEkXkfCjX5ib8ezGxtR3xD7iZIxrfArjEsH7F1CHD4RFUtxefdqV/A==}
 
   tailwindcss@4.1.18:
     resolution: {integrity: sha512-4+Z+0yiYyEtUVCScyfHCxOYP06L5Ne+JiHhY2IjR2KWMIWhJOYZKLSGZaP5HkZ8+bY0cxfzwDE5uOmzFXyIwxw==}
@@ -17473,8 +17467,6 @@ snapshots:
       '@pkgr/core': 0.2.9
 
   tabbable@6.3.0: {}
-
-  tailwind-merge@3.5.0: {}
 
   tailwindcss@4.1.18: {}
 

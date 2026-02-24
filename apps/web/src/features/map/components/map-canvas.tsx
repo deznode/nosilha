@@ -25,7 +25,7 @@ import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle, Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 import { env } from "@/lib/env";
 import {
   useViewMode,
@@ -463,7 +463,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
             >
               {/* 1. The Sticker Body */}
               <div
-                className={cn(
+                className={clsx(
                   "relative flex h-11 w-11 items-center justify-center rounded-full border-[3px] border-white shadow-[0_8px_16px_rgba(0,0,0,0.3)] transition-shadow duration-300",
                   isSelected && "shadow-[0_12px_24px_rgba(0,0,0,0.5)]"
                 )}
@@ -496,7 +496,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
 
               {/* 3. Floating Label */}
               <motion.div
-                className={cn(
+                className={clsx(
                   "pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold tracking-wider whitespace-nowrap text-slate-800 uppercase shadow-xl backdrop-blur",
                   isSelected
                     ? "opacity-100"
@@ -545,11 +545,11 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
           <motion.div
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-40 flex items-center justify-center bg-[#e6e4e0]"
+            className="bg-surface-alt absolute inset-0 z-40 flex items-center justify-center"
           >
             <div className="flex flex-col items-center gap-4">
-              <Loader2 className="text-ocean-blue h-10 w-10 animate-spin" />
-              <p className="text-ocean-blue animate-pulse font-serif text-lg font-bold">
+              <Loader2 className="text-brand h-10 w-10 animate-spin" />
+              <p className="text-brand animate-pulse font-serif text-lg font-bold">
                 Loading Brava...
               </p>
             </div>

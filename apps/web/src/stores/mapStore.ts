@@ -19,6 +19,7 @@ interface MapState {
   // State
   locations: Location[];
   isLoadingLocations: boolean;
+  locationsFetchError: string | null;
   activeCategory: CategoryType;
   searchQuery: string;
   layerVisibility: LayerVisibility;
@@ -55,6 +56,7 @@ export const useMapStore = create<MapState>()(
       // Initial state
       locations: [],
       isLoadingLocations: true,
+      locationsFetchError: null,
       activeCategory: "All",
       searchQuery: "",
       layerVisibility: "all",
@@ -86,14 +88,24 @@ export const useMapStore = create<MapState>()(
 
       fetchLocations: async () => {
         try {
-          const { items } = await getEntriesForMap("all");
+          const result = await getEntriesForMap("all");
+          if (result.pagination && result.pagination.totalPages > 1) {
+            console.warn(
+              `[MapStore] Only fetched page 1 of ${result.pagination.totalPages} — ${result.pagination.totalElements} total entries exist. Increase page size.`
+            );
+          }
           set({
-            locations: transformEntries(items),
+            locations: transformEntries(result.items),
             isLoadingLocations: false,
+            locationsFetchError: null,
           });
         } catch (err) {
           console.error("Failed to fetch map locations:", err);
-          set({ isLoadingLocations: false });
+          set({
+            isLoadingLocations: false,
+            locationsFetchError:
+              "Failed to load map data. Please try refreshing the page.",
+          });
         }
       },
     }),
@@ -105,6 +117,8 @@ export const useMapStore = create<MapState>()(
 export const useLocations = () => useMapStore((state) => state.locations);
 export const useIsLoadingLocations = () =>
   useMapStore((state) => state.isLoadingLocations);
+export const useLocationsFetchError = () =>
+  useMapStore((state) => state.locationsFetchError);
 export const useActiveCategory = () =>
   useMapStore((state) => state.activeCategory);
 export const useMapSearchQuery = () =>

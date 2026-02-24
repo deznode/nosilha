@@ -68,7 +68,6 @@
     "resend": "^6.5.0",
     "shiki": "^3.15.0",
     "supercluster": "^8.0.1",
-    "tailwind-merge": "^3.4.0",
     "use-supercluster": "^1.2.0",
     "velite": "^0.3.0",
     "zod": "^4.1.12",

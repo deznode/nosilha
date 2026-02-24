@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Navigation, Star } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 import type { Location } from "../data/types";
 
 interface LocationCardProps {
@@ -15,7 +15,7 @@ export function LocationCard({ location, active, onClick }: LocationCardProps) {
   return (
     <div
       onClick={onClick}
-      className={cn(
+      className={clsx(
         "group flex cursor-pointer gap-4 rounded-2xl border p-3 transition-all duration-300",
         active
           ? "bg-ocean-blue/5 border-ocean-blue/30 shadow-sm"
@@ -33,7 +33,7 @@ export function LocationCard({ location, active, onClick }: LocationCardProps) {
       </div>
       <div className="flex min-w-0 flex-col justify-center">
         <h3
-          className={cn(
+          className={clsx(
             "truncate font-serif text-sm font-bold",
             active ? "text-ocean-blue" : "text-text-primary"
           )}
@@ -55,7 +55,7 @@ export function LocationCard({ location, active, onClick }: LocationCardProps) {
             e.stopPropagation();
             onClick();
           }}
-          className={cn(
+          className={clsx(
             "flex w-fit items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-bold tracking-wider uppercase transition-colors",
             active
               ? "bg-ocean-blue shadow-ocean-blue/20 text-white shadow-md"

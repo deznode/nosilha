@@ -1,12 +1,13 @@
 "use client";
 
 import { Search, X, Layers } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 import {
   useMapSearchQuery,
   useActiveCategory,
   useSelectedLocation,
   useShowSidebar,
+  useLocationsFetchError,
   useMapStore,
 } from "@/stores/mapStore";
 import { useFilteredLocations } from "../hooks/useFilteredLocations";
@@ -28,10 +29,11 @@ export function MapSidebar({ onFlyTo }: MapSidebarProps) {
   const setActiveCategory = useMapStore((s) => s.setActiveCategory);
   const toggleSidebar = useMapStore((s) => s.toggleSidebar);
   const filteredLocations = useFilteredLocations();
+  const fetchError = useLocationsFetchError();
 
   return (
     <div
-      className={cn(
+      className={clsx(
         "border-border-primary absolute top-0 bottom-0 left-0 z-30 flex w-full flex-col border-r bg-white/95 font-sans shadow-2xl backdrop-blur-xl transition-transform duration-500 ease-in-out dark:border-white/10 dark:bg-black/40 md:w-[420px]",
         !showSidebar && "-translate-x-full"
       )}
@@ -87,6 +89,9 @@ export function MapSidebar({ onFlyTo }: MapSidebarProps) {
             {filteredLocations.length}
           </span>
         </div>
+        {fetchError && (
+          <p className="text-status-error px-1 text-sm">{fetchError}</p>
+        )}
         {filteredLocations.map((loc) => (
           <LocationCard
             key={loc.id}

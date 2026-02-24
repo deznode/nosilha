@@ -1,7 +1,7 @@
 "use client";
 
 import type { LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { clsx } from "clsx";
 
 interface CategoryPillProps {
   label: string;
@@ -19,7 +19,7 @@ export function CategoryPill({
   return (
     <button
       onClick={onClick}
-      className={cn(
+      className={clsx(
         "flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold whitespace-nowrap shadow-sm backdrop-blur-md transition-all duration-300",
         active
           ? "bg-ocean-blue border-ocean-blue shadow-ocean-blue/20 text-white"
