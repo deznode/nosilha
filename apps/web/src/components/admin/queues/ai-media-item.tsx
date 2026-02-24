@@ -14,6 +14,7 @@ import {
 import type { GalleryMedia } from "@/types/gallery";
 import type { AiStatusResponse, AiModerationStatus } from "@/types/ai";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
+import { resolveExternalThumbnail } from "@/lib/gallery-mappers";
 import { Button } from "@/components/catalyst-ui/button";
 import { Checkbox } from "@/components/catalyst-ui/checkbox";
 import { AiStatusBadge } from "./ai-status-badge";
@@ -47,7 +48,15 @@ export function AiMediaItem({
       return item.publicUrl;
     }
     if (isExternalMedia(item)) {
-      return item.url || item.thumbnailUrl;
+      if (item.mediaType === "IMAGE") {
+        return item.url || item.thumbnailUrl;
+      }
+      // VIDEO/AUDIO: no full-size image, use resolved thumbnail
+      return resolveExternalThumbnail(
+        item.thumbnailUrl,
+        item.platform,
+        item.externalId
+      );
     }
     return null;
   };
@@ -84,7 +93,11 @@ export function AiMediaItem({
     if (isUserUploadMedia(item)) {
       thumbnailUrl = item.publicUrl;
     } else if (isExternalMedia(item)) {
-      thumbnailUrl = item.thumbnailUrl;
+      thumbnailUrl = resolveExternalThumbnail(
+        item.thumbnailUrl,
+        item.platform,
+        item.externalId
+      );
     }
 
     if (thumbnailUrl) {
