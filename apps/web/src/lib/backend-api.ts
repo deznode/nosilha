@@ -1192,7 +1192,7 @@ export class BackendApiClient implements ApiClient {
     return {
       items,
       total: pagination.totalElements,
-      page: pagination.number + 1,
+      page: pagination.number,
       pageSize: pagination.size,
       hasMore:
         pagination.number <
@@ -1479,7 +1479,7 @@ export class BackendApiClient implements ApiClient {
     return {
       items,
       total: pagination.totalElements,
-      page: pagination.number + 1,
+      page: pagination.number,
       pageSize: pagination.size,
       hasMore:
         pagination.number <
@@ -1971,7 +1971,7 @@ export class BackendApiClient implements ApiClient {
     return {
       items,
       total: pageable.totalElements,
-      page: pageable.page + 1, // Convert 0-indexed to 1-indexed
+      page: pageable.page,
       pageSize: pageable.size,
       hasMore: !pageable.last,
     };
@@ -2144,7 +2144,7 @@ export class BackendApiClient implements ApiClient {
     return {
       items,
       total: pageable.totalElements,
-      page: pageable.page + 1, // Convert 0-indexed to 1-indexed
+      page: pageable.page,
       pageSize: pageable.size,
       hasMore: !pageable.last,
     };
@@ -3216,7 +3216,7 @@ export class BackendApiClient implements ApiClient {
     return {
       items,
       total: pagination.totalElements,
-      page: pagination.number + 1, // Convert 0-indexed to 1-indexed
+      page: pagination.number,
       pageSize: pagination.size,
       hasMore:
         pagination.number <

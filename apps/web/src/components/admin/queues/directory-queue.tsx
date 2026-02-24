@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Search,
-  Filter,
   MapPin,
   Tag,
   Clock,
@@ -32,6 +31,7 @@ import {
   useDeleteDirectoryEntry,
 } from "@/hooks/queries/admin";
 import { useToast } from "@/hooks/use-toast";
+import { Pagination, fromAdminQueueResponse } from "@/components/ui/pagination";
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   Restaurant: <Utensils size={18} />,
@@ -66,6 +66,10 @@ export function DirectoryQueue() {
   const [filterStatus, setFilterStatus] = useState<SubmissionStatus | "ALL">(
     "ALL"
   );
+  const [page, setPage] = useState(0);
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- Reset page on filter change
+  useEffect(() => setPage(0), [filterStatus]);
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [directoryToEdit, setDirectoryToEdit] =
@@ -81,7 +85,11 @@ export function DirectoryQueue() {
     useState<DirectorySubmission | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  const directoryQuery = useAdminDirectorySubmissions();
+  const directoryQuery = useAdminDirectorySubmissions(
+    page,
+    20,
+    filterStatus === "ALL" ? undefined : filterStatus
+  );
   const updateDirectory = useUpdateDirectoryStatus();
   const deleteDirectoryEntry = useDeleteDirectoryEntry();
   const toast = useToast();
@@ -193,9 +201,10 @@ export function DirectoryQueue() {
       s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.town.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = filterStatus === "ALL" || s.status === filterStatus;
-    return matchesSearch && matchesStatus;
+    return matchesSearch;
   });
+
+  const paginationData = fromAdminQueueResponse(directoryQuery.data);
 
   if (isLoading) {
     return (
@@ -224,15 +233,13 @@ export function DirectoryQueue() {
             className="border-hairline bg-surface text-muted hover:bg-surface-alt rounded-md border px-3 py-1.5 text-sm font-medium"
           >
             <option value="ALL">All Status</option>
+            <option value={SubmissionStatus.DRAFT}>Draft</option>
             <option value={SubmissionStatus.PENDING}>Pending</option>
             <option value={SubmissionStatus.APPROVED}>Approved</option>
+            <option value={SubmissionStatus.PUBLISHED}>Published</option>
             <option value={SubmissionStatus.REJECTED}>Rejected</option>
             <option value={SubmissionStatus.FLAGGED}>Flagged</option>
           </select>
-          <Button plain>
-            <Filter data-slot="icon" />
-            Newest First
-          </Button>
         </div>
         <div className="relative w-full sm:w-64">
           <input
@@ -251,7 +258,9 @@ export function DirectoryQueue() {
       <div className="border-hairline bg-surface overflow-hidden border shadow sm:rounded-md">
         {filteredSubmissions.length === 0 ? (
           <div className="text-muted p-8 text-center">
-            No directory submissions found
+            {searchQuery && submissions.length > 0
+              ? "No results match your search"
+              : "No directory submissions found"}
           </div>
         ) : (
           <ul className="divide-hairline divide-y">
@@ -402,6 +411,14 @@ export function DirectoryQueue() {
           </ul>
         )}
       </div>
+
+      {paginationData && !searchQuery && (
+        <Pagination
+          {...paginationData}
+          onPageChange={setPage}
+          className="mt-4"
+        />
+      )}
 
       <DirectoryEditModal
         isOpen={isEditModalOpen}

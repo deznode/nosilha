@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Search, Plus } from "lucide-react";
 import { DirectoryCard } from "@/components/ui/directory-card";
@@ -10,8 +10,9 @@ import {
   getCategoryDisplayName,
 } from "@/lib/directory-utils";
 import type { DirectoryEntry } from "@/types/directory";
+import type { PaginationMetadata } from "@/lib/api-contracts";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   FilterToolbar,
   ListViewCard,
@@ -20,6 +21,7 @@ import {
   type DirectoryCategory,
 } from "@/components/directory";
 import { useBookmarksPrefetch } from "@/hooks/queries/use-bookmarks";
+import { Pagination, fromPaginatedResult } from "@/components/ui/pagination";
 
 // All available categories for filtering
 const ALL_CATEGORIES: DirectoryCategory[] = [
@@ -35,6 +37,15 @@ export interface DirectoryCategoryPageContentProps {
   /** Category slug from URL, or 'all' for unified directory page */
   category: string;
   entries: DirectoryEntry[];
+  /** Pagination metadata from server response */
+  pagination?: PaginationMetadata | null;
+  /** Initial filter values from URL searchParams */
+  initialFilters?: {
+    page?: number;
+    q?: string;
+    town?: string;
+    sort?: string;
+  };
   /** When true, shows category filter in toolbar (for unified /directory page) */
   showCategoryFilter?: boolean;
 }
@@ -42,9 +53,12 @@ export interface DirectoryCategoryPageContentProps {
 export function DirectoryCategoryPageContent({
   category,
   entries,
+  pagination = null,
+  initialFilters,
   showCategoryFilter = false,
 }: DirectoryCategoryPageContentProps) {
   const router = useRouter();
+  const pathname = usePathname();
 
   // Prefetch all user bookmarks to populate cache so bookmark buttons show correct state
   useBookmarksPrefetch();
@@ -68,19 +82,75 @@ export function DirectoryCategoryPageContent({
 
   const [selectedCategory, setSelectedCategory] =
     useState<DirectoryCategory>(initialCategory);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTown, setSelectedTown] = useState("All");
-  const [sortBy, setSortBy] = useState<SortBy>("rating");
+  const [searchQuery, setSearchQuery] = useState(initialFilters?.q ?? "");
+  const [selectedTown, setSelectedTown] = useState(
+    initialFilters?.town ?? "All"
+  );
+  const [sortBy, setSortBy] = useState<SortBy>(
+    (initialFilters?.sort as SortBy) || "rating"
+  );
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
   // Track client-side mount to fix Framer Motion SSR hydration issue
   // Without this, animations get stuck at opacity: 0 on initial page load
   // This is a valid SSR hydration pattern - see https://react.dev/learn/you-might-not-need-an-effect
   const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => setHasMounted(true), []);
+
+  // Debounce search to avoid rapid URL updates
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Valid hydration pattern: intentional re-render needed after SSR
-    setHasMounted(true);
-  }, []);
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Build URL with filters and navigate (server-side filtering)
+  const navigateWithFilters = useCallback(
+    (overrides: {
+      page?: number;
+      q?: string;
+      town?: string;
+      sort?: string;
+    }) => {
+      const params = new URLSearchParams();
+      const page = overrides.page ?? 0;
+      const q = overrides.q ?? debouncedSearch;
+      const town = overrides.town ?? selectedTown;
+      const sort = overrides.sort ?? sortBy;
+
+      if (page > 0) params.set("page", page.toString());
+      if (q) params.set("q", q);
+      if (town && town !== "All") params.set("town", town);
+      if (sort && sort !== "rating") params.set("sort", sort);
+
+      const queryString = params.toString();
+      router.push(queryString ? `${pathname}?${queryString}` : pathname);
+    },
+    [debouncedSearch, selectedTown, sortBy, pathname, router]
+  );
+
+  // Navigate when debounced search changes (reset to page 0)
+  useEffect(() => {
+    if (!hasMounted) return;
+    navigateWithFilters({ page: 0, q: debouncedSearch });
+    // Only trigger on debouncedSearch changes after mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
+
+  const handleTownChange = (town: string) => {
+    setSelectedTown(town);
+    navigateWithFilters({ page: 0, town });
+  };
+
+  const handleSortChange = (sort: SortBy) => {
+    setSortBy(sort);
+    navigateWithFilters({ page: 0, sort });
+  };
+
+  const handlePageChange = (page: number) => {
+    navigateWithFilters({ page });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   // Page title based on selected category (uses friendly display names like "Hotels", "Heritage Sites")
   const pageTitle =
@@ -88,7 +158,8 @@ export function DirectoryCategoryPageContent({
       ? "Directory"
       : getCategoryDisplayName(selectedCategory);
 
-  // Extract unique towns for filter
+  // Extract unique towns for filter from current page entries
+  // Note: with server-side filtering, this only shows towns from the current page
   const towns = useMemo(() => {
     const uniqueTowns = Array.from(new Set(entries.map((e) => e.town)));
     return ["All", ...uniqueTowns.sort()];
@@ -98,34 +169,23 @@ export function DirectoryCategoryPageContent({
     router.push("/map");
   };
 
+  // With server-side filtering, we only need client-side category filter (if applicable)
   const filteredEntries = useMemo(() => {
-    return entries
-      .filter((entry) => {
-        const matchesSearch =
-          entry.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          entry.town.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          entry.description.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesTown =
-          selectedTown === "All" || entry.town === selectedTown;
-        // Category filter: match entry.category against selectedCategory
-        const matchesCategory =
-          selectedCategory === "All" ||
-          entry.category.toLowerCase() === selectedCategory.toLowerCase();
-        return matchesSearch && matchesTown && matchesCategory;
-      })
-      .sort((a, b) => {
-        if (sortBy === "rating") {
-          return (b.rating ?? 0) - (a.rating ?? 0);
-        }
-        return a.name.localeCompare(b.name);
-      });
-  }, [entries, searchQuery, selectedTown, sortBy, selectedCategory]);
+    if (!showCategoryFilter || selectedCategory === "All") {
+      return entries;
+    }
+    return entries.filter(
+      (entry) => entry.category.toLowerCase() === selectedCategory.toLowerCase()
+    );
+  }, [entries, showCategoryFilter, selectedCategory]);
 
   // Dynamic subtitle based on context
   const subtitle =
     selectedCategory === "All"
       ? "Discover restaurants, hotels, beaches, heritage sites, and nature trails on Brava Island."
       : `Browse all ${pageTitle.toLowerCase()} listings on Brava Island.`;
+
+  const paginationData = fromPaginatedResult(pagination);
 
   return (
     <div className="bg-background-secondary min-h-screen font-sans">
@@ -155,9 +215,9 @@ export function DirectoryCategoryPageContent({
         onCategoryChange={showCategoryFilter ? setSelectedCategory : undefined}
         towns={towns}
         selectedTown={selectedTown}
-        onTownChange={setSelectedTown}
+        onTownChange={handleTownChange}
         sortBy={sortBy}
-        onSortChange={setSortBy}
+        onSortChange={handleSortChange}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         resultCount={filteredEntries.length}
@@ -232,6 +292,14 @@ export function DirectoryCategoryPageContent({
               Back to Home
             </Link>
           </motion.div>
+        )}
+
+        {paginationData && (
+          <Pagination
+            {...paginationData}
+            onPageChange={handlePageChange}
+            className="mt-8"
+          />
         )}
       </div>
     </div>
