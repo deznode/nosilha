@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import { Loader2 } from "lucide-react";
 
 const BravaMap = dynamic(
-  () => import("@/features/map/components/BravaMap").then((mod) => mod.default),
+  () => import("@/features/map/components/brava-map").then((mod) => mod.default),
   {
     ssr: false,
     loading: () => (

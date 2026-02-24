@@ -12,8 +12,8 @@ import {
 import { useFilteredLocations } from "../hooks/useFilteredLocations";
 import { CATEGORIES } from "../data/categories";
 import type { Location } from "../data/types";
-import { CategoryPill } from "./CategoryPill";
-import { LocationCard } from "./LocationCard";
+import { CategoryPill } from "./category-pill";
+import { LocationCard } from "./location-card";
 
 interface MapSidebarProps {
   onFlyTo: (location: Location) => void;

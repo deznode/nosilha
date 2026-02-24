@@ -6,12 +6,12 @@ import { AnimatePresence } from "framer-motion";
 import { useMapStore, useSelectedLocation } from "@/stores/mapStore";
 import { calculateBearing, MAP_CONFIG } from "../data/constants";
 import type { Location, ViewMode } from "../data/types";
-import { MapHeader } from "./MapHeader";
-import { MapSidebar } from "./MapSidebar";
-import { MapCanvas } from "./MapCanvas";
-import { MapControls } from "./MapControls";
-import { LocationBottomSheet } from "./LocationBottomSheet";
-import { LocationDetailCard } from "./LocationDetailCard";
+import { MapHeader } from "./map-header";
+import { MapSidebar } from "./map-sidebar";
+import { MapCanvas } from "./map-canvas";
+import { MapControls } from "./map-controls";
+import { LocationBottomSheet } from "./location-bottom-sheet";
+import { LocationDetailCard } from "./location-detail-card";
 
 export default function BravaMap() {
   const mapRef = useRef<MapRef>(null);
