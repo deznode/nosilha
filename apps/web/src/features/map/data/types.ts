@@ -57,3 +57,13 @@ export interface LocationsData {
   locations: RawLocation[];
   metadata: LocationsMetadata;
 }
+
+/**
+ * Map view mode toggle (satellite imagery vs illustrated overlay)
+ */
+export type ViewMode = "satellite" | "illustration";
+
+/**
+ * Controls which map layers are visible
+ */
+export type LayerVisibility = "all" | "pois" | "zones" | "none";
