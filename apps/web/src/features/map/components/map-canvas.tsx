@@ -6,6 +6,7 @@ import {
   useMemo,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useDeferredValue,
   type RefObject,
 } from "react";
@@ -18,6 +19,7 @@ import Map, {
   Layer,
   type MapRef,
   type MarkerEvent,
+  type ViewStateChangeEvent,
 } from "react-map-gl/mapbox";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -81,13 +83,28 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
   // --- Filtered locations for markers ---
   const filteredLocations = useFilteredLocations();
 
-  // --- Cleanup map on unmount ---
+  // --- Clear terrain before Source cleanup removes the DEM source ---
+  // useLayoutEffect cleanup runs synchronously during commit, BEFORE any
+  // useEffect (passive) cleanups. This ensures terrain is cleared before
+  // <Source id="mapbox-dem"> tries to call map.removeSource().
+  // See: https://github.com/visgl/react-map-gl/issues/2553
+  useLayoutEffect(() => {
+    return () => {
+      const map = mapRef.current?.getMap();
+      if (map) {
+        try {
+          map.setTerrain(null);
+        } catch {
+          // Suppress — map may already be recycled
+        }
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // --- Cleanup timers on unmount ---
   useEffect(() => {
     return () => {
-      if (mapRef.current) {
-        const map = mapRef.current.getMap();
-        map.remove();
-      }
       introTimersRef.current.forEach(clearTimeout);
       introAnimationRef.current = 0;
     };
@@ -238,14 +255,20 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
   }, [isOrbiting, mapRef]);
 
   // --- Stop orbiting on map interaction ---
-  const handleStopOrbit = useCallback(() => {
-    if (isOrbitMovingRef.current) return;
+  const handleStopOrbit = useCallback(
+    (e: ViewStateChangeEvent) => {
+      // originalEvent is undefined for programmatic moves (flyTo/easeTo)
+      const original = (e as unknown as { originalEvent?: Event }).originalEvent;
+      if (!original) return;
+      if (isOrbitMovingRef.current) return;
 
-    setIsOrbiting(false);
-    if (isIntroPlaying && !isIntroComplete) {
-      cancelIntro();
-    }
-  }, [isIntroPlaying, isIntroComplete, setIsOrbiting, cancelIntro]);
+      setIsOrbiting(false);
+      if (isIntroPlaying && !isIntroComplete) {
+        cancelIntro();
+      }
+    },
+    [isIntroPlaying, isIntroComplete, setIsOrbiting, cancelIntro]
+  );
 
   // --- Handle zone clicks ---
   const handleMapClick = useCallback(
@@ -287,13 +310,17 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
   // --- Map viewport tracking ---
   const onMove = useCallback(
     (evt: { viewState: { zoom: number }; target: mapboxgl.Map }) => {
+      // Skip viewport tracking during intro to avoid rapid state updates
+      // from continuous flyTo move events causing "Maximum update depth"
+      if (isIntroPlaying) return;
+
       setZoom(evt.viewState.zoom);
       const b = evt.target.getBounds();
       if (b) {
         setBounds([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
       }
     },
-    []
+    [isIntroPlaying]
   );
 
   // --- Clustering ---
@@ -344,12 +371,19 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
     setIsMapLoaded(true);
   }, []);
 
-  const handleMapError = useCallback((event: mapboxgl.ErrorEvent) => {
-    console.error("Map error:", event.error);
-    setMapError(
-      "Failed to load map. Please check your connection and try again."
-    );
-  }, []);
+  const handleMapError = useCallback(
+    (event: mapboxgl.ErrorEvent) => {
+      console.error("Map error:", event.error);
+      // Only show error screen for failures during initial load.
+      // Post-load errors (e.g. source cleanup during unmount) are harmless.
+      if (!isMapLoaded) {
+        setMapError(
+          "Failed to load map. Please check your connection and try again."
+        );
+      }
+    },
+    [isMapLoaded]
+  );
 
   // --- Sticker Markers & Clusters ---
   const markers = useMemo(
