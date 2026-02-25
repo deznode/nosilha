@@ -1,7 +1,7 @@
 # Project Status
 
 **Last Updated:** 2026-02-25
-**Branch:** main | **Commits:** 1,008
+**Branch:** main | **Commits:** 700
 
 ---
 
@@ -23,7 +23,7 @@
 
 **Maturity scale:** Stub > Domain Started > Service Layer > API Ready > Tested > Production Ready
 
-### Frontend (apps/web/ — 171 components, 18 pages)
+### Frontend (apps/web/ — 186 components, 53 pages)
 
 | Area | Count | Maturity |
 |------|-------|----------|
@@ -33,8 +33,8 @@
 | Gallery components | 6 | Production Ready |
 | Landing components | 14 | Production Ready |
 | Zustand stores | 5 | Tested |
-| E2E tests (Playwright) | 4 specs | Tested |
-| Unit tests (Vitest) | 20 files | Tested |
+| E2E tests (Playwright) | 6 specs | Tested |
+| Unit tests (Vitest) | 0 files | — |
 | MDX articles | 5 | Domain Started |
 
 ### Infrastructure
@@ -50,16 +50,18 @@
 
 ## Specification Pipeline
 
-**Source:** `plan/arkhe/specs/` (26 specs)
+**Source:** `plan/arkhe/specs/` (25 specs)
 
-### Complete (19)
+### Complete (23)
 
 | Spec | Title |
 |------|-------|
+| 001 | AI Admin Dashboard |
 | 01 | Directory Admin CRUD |
 | 04 | Token Migration Phase 2 |
 | 05 | Form Components |
 | 06 | Button/Tab Consistency |
+| 07 | EXIF Metadata Extraction |
 | 08 | Directory Image Management |
 | 009 | AI Image Analysis |
 | 010 | Spring AI Refactor |
@@ -68,21 +70,21 @@
 | 013 | Admin Panel Redesign |
 | 014 | Admin Queue Pages |
 | 015 | Centralize Text AI |
+| 016 | Gallery Media Edit |
 | 017 | AI Module Refactoring |
 | 018 | AI Review Separation |
 | 019 | Smart Credit Attribution |
 | 020 | Gallery Masonry Lightbox |
 | 021 | Gallery Enhancements |
 | 023 | BravaMap Migration |
+| 024 | BravaMap Component Decomposition |
 | 025 | Admin Queue Filter Fixes |
 
-### In Progress (3)
+### In Progress (1)
 
 | Spec | Title | Remaining Work |
 |------|-------|----------------|
-| 03 | Design System Compliance | 56-72 files need legacy color-to-token migration |
-| 07 | EXIF Metadata Extraction | Client-side exifr + GPS privacy + manual entry form |
-| 016 | Gallery Media Edit | Needs status verification |
+| 03 | Design System Compliance | ~40 files need token migration (down from 56-72); `bg-white` context review needed |
 
 ### Approved / Ready to Start (2)
 
@@ -99,9 +101,9 @@
 Design System:  04 done -> 03 in progress -> 02 approved
                            05 done + 06 done
 Directory:      01 done -> 08 done
-AI Pipeline:    010 done -> 009 done -> 011 done
+AI Pipeline:    010 done -> 009 done -> 011 done -> 001 done
 Gallery:        012 done -> 020 done -> 021 done -> 022 approved
-Map:            023 done -> 024 unknown
+Map:            023 done -> 024 done
 ```
 
 No critical blockers. Design System chain (03 -> 02) is the longest active dependency.
@@ -114,7 +116,7 @@ No critical blockers. Design System chain (03 -> 02) is the longest active depen
 
 | Domain | Coverage | Gap |
 |--------|----------|-----|
-| Gallery & Media | 50% | EXIF extraction, media editing, Phase 3 discovery |
+| Gallery & Media | 80% | Phase 3 discovery (Spec 022) |
 | Directory & Listings | 100% | — |
 | Frontend & UI/UX | ~60% | Design system compliance sweep (Spec 03) |
 | Content & Heritage | 0% | No specs for cultural verification workflow |
@@ -136,15 +138,17 @@ No critical blockers. Design System chain (03 -> 02) is the longest active depen
 
 - Full-stack platform operational: Spring Boot 4 + Next.js 16.1
 - Gallery system mature: masonry layout, lightbox, video facade, AI analysis, credit attribution
+- AI admin dashboard with domain-level feature toggles
 - Admin dashboard redesigned with sidebar navigation and moderation queues
-- Interactive map of Brava Island with zones, trails, 3D terrain
+- Interactive map of Brava Island with zones, trails, 3D terrain, decomposed into clean component architecture
 - MDX content platform with Velite processing, Pagefind search, multilingual support
 - CI/CD pipeline with 9 workflows covering security, testing, deployment
 - Event-driven backend with Spring Modulith enforced boundaries
 
 ## What's Planned
 
-- Spec 02: Admin UI standardization (blocked on design compliance)
+- Spec 03: Design System Compliance — ~40 files remaining
+- Spec 02: Admin UI standardization (blocked on Spec 03)
 - Spec 022: Gallery Phase 3 — random photo discovery + crowdsourced metadata
 - API Roadmap: RBAC, i18n, enhanced validation, 80%+ test coverage target
 - Content expansion: platform ready, 5 articles seeded, framework for scale
@@ -152,8 +156,7 @@ No critical blockers. Design System chain (03 -> 02) is the longest active depen
 ## Recommended Next Actions
 
 1. Complete Spec 03 (Design System Compliance) — unblocks Spec 02
-2. Verify Specs 015/016/017/018 — status may need correction
-3. Start Spec 022 (Gallery Phase 3) — approved, no blockers
-4. Add backend tests for auth, engagement, stories modules
+2. Start Spec 022 (Gallery Phase 3) — approved, no blockers
+3. Add backend tests for auth, engagement, stories modules
+4. Investigate missing frontend unit tests (removed from codebase)
 5. Seed more MDX content — platform architecture ready, only 5 articles exist
-6. Update plan/spec-status.md — stale since Feb 14, missing 14 specs
