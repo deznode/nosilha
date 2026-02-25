@@ -179,13 +179,6 @@ echo $TOKEN | cut -d'.' -f2 | base64 -d | jq
 # Ensure allowed origins include http://localhost:3000
 ```
 
-**Storybook/Chromatic builds fail without Supabase**
-```bash
-# Set environment variable to use stub client
-NEXT_PUBLIC_SUPABASE_USE_STUB=true pnpm run storybook
-# Or set STORYBOOK=true
-```
-
 ---
 
 ## Database

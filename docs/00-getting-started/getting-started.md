@@ -58,7 +58,6 @@ Copied from `.env.local.example` by `task setup`. Key variables:
 | `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` | For maps | [Get a token](https://account.mapbox.com/) |
 | `NEXT_PUBLIC_SUPABASE_URL` | For auth | Your Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | For auth | Your Supabase anon key |
-| `GEMINI_API_KEY` | For AI features | [Get a key](https://aistudio.google.com/app/apikey) |
 
 ### Backend: `apps/api/src/main/resources/application-local.yml`
 

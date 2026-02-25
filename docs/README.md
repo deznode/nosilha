@@ -47,11 +47,6 @@ docs/
 ### [30 Research](30-research/)
 | Document | Description |
 |----------|-------------|
-| [ai-image-analysis-apis-2025.md](30-research/ai-image-analysis-apis-2025.md) | AI image analysis API comparison |
-| [ai-research.md](30-research/ai-research.md) | AI research notes |
-| [audit-timestamp-fields.md](30-research/audit-timestamp-fields.md) | Timestamp field audit |
-| [audit-user-id-fields.md](30-research/audit-user-id-fields.md) | User ID field audit |
-| [spring-ai-structured-output.md](30-research/spring-ai-structured-output.md) | Spring AI structured output |
 | [spring-modulith-event-testing.md](30-research/spring-modulith-event-testing.md) | Event testing patterns |
 | [tailwindcss-v4-color-tokens.md](30-research/tailwindcss-v4-color-tokens.md) | Tailwind CSS v4 color tokens |
 
@@ -62,4 +57,9 @@ docs/
 | [secret-management.md](40-operations/secret-management.md) | Secret management guide |
 
 ### [90 Archive](90-archive/)
-Empty — reserved for deprecated documentation.
+| Document | Description |
+|----------|-------------|
+| [audit-timestamp-fields.md](90-archive/audit-timestamp-fields.md) | Timestamp field audit (completed) |
+| [audit-user-id-fields.md](90-archive/audit-user-id-fields.md) | User ID field audit (completed) |
+| [ai-research.md](90-archive/ai-research.md) | AI module implementation plan (shipped) |
+| [ai-image-analysis-apis-2025.md](90-archive/ai-image-analysis-apis-2025.md) | AI image analysis API comparison (decided) |

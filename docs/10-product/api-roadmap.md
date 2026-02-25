@@ -4,62 +4,9 @@ Planned backend improvements and migrations. For current standards, see [api-cod
 
 ---
 
-## 1. Spring Data JPA Auditing Migration
+## ~~1. Spring Data JPA Auditing Migration~~ (Completed)
 
-### Current State
-
-Manual audit timestamps using JPA lifecycle callbacks (`@PrePersist`, `@PreUpdate`) in `AuditableEntity`.
-
-### Target State
-
-Spring Data JPA Auditing with `@CreatedDate`, `@LastModifiedDate`, `@CreatedBy`, `@LastModifiedBy`.
-
-### Migration Steps
-
-1. **Add configuration**:
-   ```kotlin
-   @Configuration
-   @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
-   class JpaAuditingConfiguration {
-       @Bean
-       fun auditorProvider(): AuditorAware<String> = AuditorAware {
-           Optional.ofNullable(SecurityContextHolder.getContext().authentication?.name ?: "system")
-       }
-   }
-   ```
-
-2. **Update AuditableEntity**:
-   ```kotlin
-   @MappedSuperclass
-   @EntityListeners(AuditingEntityListener::class)
-   abstract class AuditableEntity {
-       @CreatedDate
-       @Column(name = "created_at", nullable = false, updatable = false)
-       lateinit var createdAt: LocalDateTime
-
-       @LastModifiedDate
-       @Column(name = "updated_at", nullable = false)
-       lateinit var updatedAt: LocalDateTime
-
-       @CreatedBy
-       @Column(name = "created_by", updatable = false)
-       var createdBy: String? = null
-
-       @LastModifiedBy
-       @Column(name = "updated_by")
-       var lastModifiedBy: String? = null
-   }
-   ```
-
-3. **Database migration**: Add `created_by` and `updated_by` columns to existing tables
-
-4. **Remove manual callbacks**: Delete `@PrePersist`/`@PreUpdate` methods
-
-### Benefits
-
-- Automatic user tracking from security context
-- Consistent audit trail across all entities
-- Reduced boilerplate in entity classes
+Shipped via migrations V12-V17. `AuditableEntity` and `CreatableEntity` now use Spring Data JPA Auditing (`@CreatedDate`, `@LastModifiedDate`, `@CreatedBy`, `@LastModifiedBy`) with `Instant`/`TIMESTAMPTZ`. All manual `@PrePersist`/`@PreUpdate` callbacks removed. See `api-coding-standards.md` for current patterns.
 
 ---
 
