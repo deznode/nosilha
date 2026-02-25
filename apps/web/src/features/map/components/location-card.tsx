@@ -23,13 +23,22 @@ export function LocationCard({ location, active, onClick }: LocationCardProps) {
       )}
     >
       <div className="bg-background-tertiary relative h-20 w-20 shrink-0 overflow-hidden rounded-xl">
-        <Image
-          src={location.image}
-          alt={location.name}
-          fill
-          sizes="80px"
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
-        />
+        {location.image ? (
+          <Image
+            src={location.image}
+            alt={location.name}
+            fill
+            sizes="80px"
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+        ) : (
+          <div
+            className="flex h-full w-full items-center justify-center"
+            style={{ backgroundColor: `${location.color}18` }}
+          >
+            <location.icon size={28} style={{ color: location.color }} />
+          </div>
+        )}
       </div>
       <div className="flex min-w-0 flex-col justify-center">
         <h3

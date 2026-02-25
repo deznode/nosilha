@@ -15,10 +15,11 @@ export interface Location {
   elevation: number;
   rating: number;
   reviews: number;
-  image: string;
+  image?: string;
   tags: string[];
   icon: LucideIcon;
   color: string;
+  detailUrl?: string;
 }
 
 /**

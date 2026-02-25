@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { X, Navigation } from "lucide-react";
+import { X, ArrowRight } from "lucide-react";
 import { useSelectedLocation, useMapStore } from "@/stores/mapStore";
 
 export function LocationBottomSheet() {
@@ -38,21 +39,35 @@ export function LocationBottomSheet() {
         />
       </motion.div>
       <div className="relative h-52 w-full overflow-hidden">
-        <motion.div
-          className="relative h-full w-full"
-          initial={{ scale: 1.1 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Image
-            src={selectedLocation.image}
-            alt={selectedLocation.name}
-            fill
-            sizes="100vw"
-            className="object-cover"
-          />
-        </motion.div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+        {selectedLocation.image ? (
+          <>
+            <motion.div
+              className="relative h-full w-full"
+              initial={{ scale: 1.1 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Image
+                src={selectedLocation.image}
+                alt={selectedLocation.name}
+                fill
+                sizes="100vw"
+                className="object-cover"
+              />
+            </motion.div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+          </>
+        ) : (
+          <div
+            className="flex h-full w-full items-center justify-center"
+            style={{ backgroundColor: `${selectedLocation.color}20` }}
+          >
+            <selectedLocation.icon
+              size={48}
+              style={{ color: selectedLocation.color }}
+            />
+          </div>
+        )}
         <button
           onClick={clearSelection}
           className="absolute top-4 right-4 rounded-full bg-black/30 p-2.5 text-white backdrop-blur-md transition-all hover:scale-105 hover:bg-black/50"
@@ -67,14 +82,14 @@ export function LocationBottomSheet() {
         <p className="text-text-secondary text-sm leading-relaxed">
           {selectedLocation.description}
         </p>
-        <a
-          href={`https://www.google.com/maps/dir/?api=1&destination=${selectedLocation.coordinates.lat},${selectedLocation.coordinates.lng}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bg-ocean-blue shadow-ocean-blue/30 flex w-full items-center justify-center gap-2 rounded-2xl py-4 font-bold text-white shadow-lg transition-transform active:scale-[0.98]"
-        >
-          <Navigation size={18} /> Navigate Here
-        </a>
+        {selectedLocation.detailUrl && (
+          <Link
+            href={selectedLocation.detailUrl}
+            className="bg-ocean-blue shadow-ocean-blue/30 flex w-full items-center justify-center gap-2 rounded-2xl py-4 font-bold text-white shadow-lg transition-transform active:scale-[0.98]"
+          >
+            View Details <ArrowRight size={18} />
+          </Link>
+        )}
       </div>
     </motion.div>
   );

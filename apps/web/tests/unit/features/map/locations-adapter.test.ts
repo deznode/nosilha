@@ -115,7 +115,7 @@ describe("transformEntries", () => {
         category: "Town",
         tags: ["capital"],
         details: null,
-      } as Partial<DirectoryEntry> as DirectoryEntry),
+      } as Partial<DirectoryEntry>),
     ];
     const result = transformEntries(entries);
     expect(result[0].category).toBe("Town");
@@ -127,7 +127,7 @@ describe("transformEntries", () => {
         category: "Hotel",
         tags: ["luxury"],
         details: { amenities: ["pool"] },
-      } as Partial<DirectoryEntry> as DirectoryEntry),
+      } as Partial<DirectoryEntry>),
     ];
     const result = transformEntries(entries);
 
@@ -143,12 +143,11 @@ describe("transformEntries", () => {
     expect(result[0].image).toBe("https://example.com/custom.jpg");
   });
 
-  it("uses category placeholder image when no imageUrl", () => {
+  it("returns undefined image when no imageUrl", () => {
     const entries = [entryFixture({ imageUrl: null })];
     const result = transformEntries(entries);
 
-    // Beach category should get the Beach placeholder
-    expect(result[0].image).toContain("unsplash.com");
+    expect(result[0].image).toBeUndefined();
   });
 
   it("transforms multiple entries", () => {
@@ -169,6 +168,24 @@ describe("transformEntries", () => {
 
   it("returns empty array for empty input", () => {
     expect(transformEntries([])).toEqual([]);
+  });
+
+  it("computes detailUrl from slug and category", () => {
+    const entries = [
+      entryFixture({ slug: "igreja-nossa-senhora", category: "Heritage" }),
+    ];
+    const result = transformEntries(entries);
+
+    expect(result[0].detailUrl).toBe(
+      "/directory/heritage/igreja-nossa-senhora"
+    );
+  });
+
+  it("sets detailUrl to undefined when slug is empty", () => {
+    const entries = [entryFixture({ slug: "" })];
+    const result = transformEntries(entries);
+
+    expect(result[0].detailUrl).toBeUndefined();
   });
 });
 

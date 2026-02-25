@@ -113,6 +113,7 @@ export function GalleryQueueItem({
           src={thumbnailUrl}
           alt={item.title || "Gallery item"}
           fill
+          sizes="80px"
           className="object-cover"
           unoptimized
         />

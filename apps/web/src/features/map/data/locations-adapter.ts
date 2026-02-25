@@ -1,5 +1,6 @@
 import { MapPin } from "lucide-react";
 import type { DirectoryEntry } from "@/types/directory";
+import { getEntryUrl } from "@/lib/directory-utils";
 import {
   getCategoryColor,
   getCategoryIcon,
@@ -26,30 +27,6 @@ const BACKEND_TO_MAP_CATEGORY: Record<string, CategoryType> = {
 };
 
 /**
- * Unsplash placeholder images per category.
- */
-const CATEGORY_IMAGES: Record<string, string> = {
-  Town: "https://images.unsplash.com/photo-1518005020951-eccb494ad742?w=400&h=300&fit=crop",
-  Nature:
-    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&h=300&fit=crop",
-  Beach:
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=300&fit=crop",
-  Viewpoint:
-    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
-  Trail:
-    "https://images.unsplash.com/photo-1551632811-561732d1e306?w=400&h=300&fit=crop",
-  Church:
-    "https://images.unsplash.com/photo-1548625149-fc4a29cf7092?w=400&h=300&fit=crop",
-  Historic:
-    "https://images.unsplash.com/photo-1564507592333-c60657eea523?w=400&h=300&fit=crop",
-  Restaurant:
-    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=300&fit=crop",
-  Port: "https://images.unsplash.com/photo-1500930287596-c1ecaa210c15?w=400&h=300&fit=crop",
-  Accommodation:
-    "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=300&fit=crop",
-};
-
-/**
  * Generates a deterministic pseudo-random number from a string seed.
  * Used for consistent rating/review values across renders.
  */
@@ -71,7 +48,8 @@ export function transformEntries(entries: DirectoryEntry[]): Location[] {
   return entries
     .filter((entry) => entry.latitude != null && entry.longitude != null)
     .map((entry) => {
-      const category = (BACKEND_TO_MAP_CATEGORY[entry.category] ?? "Nature") as Exclude<CategoryType, "All">;
+      const category = (BACKEND_TO_MAP_CATEGORY[entry.category] ??
+        "Nature") as Exclude<CategoryType, "All">;
       const icon = getCategoryIcon(category) ?? MapPin;
       const color = getCategoryColor(category);
       const rand = seededRandom(entry.id);
@@ -89,11 +67,13 @@ export function transformEntries(entries: DirectoryEntry[]): Location[] {
         elevation: 0,
         rating: entry.rating ?? 4.2 + rand * 0.8, // 4.2–5.0
         reviews: entry.reviewCount || Math.floor(20 + rand * 130), // 20–149
-        image:
-          entry.imageUrl || CATEGORY_IMAGES[category] || CATEGORY_IMAGES.Nature,
+        image: entry.imageUrl || undefined,
         tags: entry.tags || [],
         icon,
         color,
+        detailUrl: entry.slug
+          ? getEntryUrl(entry.slug, entry.category)
+          : undefined,
       };
     });
 }
