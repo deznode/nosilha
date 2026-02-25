@@ -1,12 +1,15 @@
 {
+  "version": 1,
   "root": "docs",
-  "areas": [
-    { "prefix": "00", "name": "getting-started", "description": "Onboarding, setup, troubleshooting" },
-    { "prefix": "10", "name": "product", "description": "Design system, cultural heritage verification, content authoring, roadmap" },
-    { "prefix": "20", "name": "architecture", "description": "System design, ADRs, API standards, module architecture, testing" },
-    { "prefix": "30", "name": "research", "description": "Spikes, audits, investigations" },
-    { "prefix": "40", "name": "operations", "description": "CI/CD, secrets, deployment" },
-    { "prefix": "90", "name": "archive", "description": "Historical and deprecated documentation" }
-  ],
-  "ignore": ["adr", "content-authoring"]
+  "areas": {
+    "00": "getting-started",
+    "10": "product",
+    "20": "architecture",
+    "30": "research",
+    "40": "operations",
+    "90": "archive"
+  },
+  "products": [],
+  "ignore": ["adr", "content-authoring", "PROJECT-STATUS.md"],
+  "readme_format": "table"
 }
