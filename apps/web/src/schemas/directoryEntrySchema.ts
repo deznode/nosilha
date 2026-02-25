@@ -59,6 +59,26 @@ export const directoryEntrySchema = z.discriminatedUnion("category", [
     category: z.literal("Nature"),
     details: z.null(),
   }),
+  baseDirectoryEntrySchema.extend({
+    category: z.literal("Town"),
+    details: z.null(),
+  }),
+  baseDirectoryEntrySchema.extend({
+    category: z.literal("Viewpoint"),
+    details: z.null(),
+  }),
+  baseDirectoryEntrySchema.extend({
+    category: z.literal("Trail"),
+    details: z.null(),
+  }),
+  baseDirectoryEntrySchema.extend({
+    category: z.literal("Church"),
+    details: z.null(),
+  }),
+  baseDirectoryEntrySchema.extend({
+    category: z.literal("Port"),
+    details: z.null(),
+  }),
 ]);
 
 // Array schema for validating lists of directory entries

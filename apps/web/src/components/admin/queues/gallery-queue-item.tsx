@@ -17,6 +17,7 @@ import {
 import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
 import type { AiStatusResponse, AiModerationStatus } from "@/types/ai";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
+import { resolveExternalThumbnail } from "@/lib/gallery-mappers";
 import { Button } from "@/components/catalyst-ui/button";
 import { AiStatusBadge } from "./ai-status-badge";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
@@ -54,8 +55,15 @@ export function GalleryQueueItem({
       return item.publicUrl;
     }
     if (isExternalMedia(item)) {
-      // For external media, prefer full URL over thumbnail
-      return item.url || item.thumbnailUrl;
+      if (item.mediaType === "IMAGE") {
+        return item.url || item.thumbnailUrl;
+      }
+      // VIDEO/AUDIO: no full-size image, use resolved thumbnail
+      return resolveExternalThumbnail(
+        item.thumbnailUrl,
+        item.platform,
+        item.externalId
+      );
     }
     return null;
   };
@@ -92,7 +100,11 @@ export function GalleryQueueItem({
     if (isUserUploadMedia(item)) {
       thumbnailUrl = item.publicUrl;
     } else if (isExternalMedia(item)) {
-      thumbnailUrl = item.thumbnailUrl;
+      thumbnailUrl = resolveExternalThumbnail(
+        item.thumbnailUrl,
+        item.platform,
+        item.externalId
+      );
     }
 
     if (thumbnailUrl) {
@@ -101,6 +113,7 @@ export function GalleryQueueItem({
           src={thumbnailUrl}
           alt={item.title || "Gallery item"}
           fill
+          sizes="80px"
           className="object-cover"
           unoptimized
         />

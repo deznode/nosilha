@@ -8,6 +8,11 @@ import {
   Umbrella,
   Castle,
   TreePine,
+  Building,
+  Eye,
+  Footprints,
+  Church,
+  Anchor,
   FileText,
   type LucideIcon,
 } from "lucide-react";
@@ -25,6 +30,11 @@ const CATEGORY_ICONS: Record<DirectoryCategory, LucideIcon> = {
   Beach: Umbrella,
   Heritage: Castle,
   Nature: TreePine,
+  Town: Building,
+  Viewpoint: Eye,
+  Trail: Footprints,
+  Church: Church,
+  Port: Anchor,
 };
 
 /** Get display label for category */

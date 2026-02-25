@@ -1,0 +1,204 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "highland-reserve",
+        "name": "Highland Reserve",
+        "namePt": "Reserva do Planalto",
+        "description": "The central highlands featuring Monte Fontainhas and lush mountain valleys",
+        "color": "#3e7d5a",
+        "zoomTo": 14
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-24.7150, 14.8450],
+          [-24.6900, 14.8450],
+          [-24.6850, 14.8550],
+          [-24.6850, 14.8650],
+          [-24.6900, 14.8750],
+          [-24.7100, 14.8750],
+          [-24.7150, 14.8650],
+          [-24.7150, 14.8550],
+          [-24.7150, 14.8450]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "faja-coast",
+        "name": "Faja Coastal Zone",
+        "namePt": "Zona Costeira de Faja",
+        "description": "The western coast featuring Faja de Agua bay, natural pools, and beaches",
+        "color": "#005a85",
+        "zoomTo": 15
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-24.7450, 14.8600],
+          [-24.7200, 14.8600],
+          [-24.7150, 14.8680],
+          [-24.7200, 14.8780],
+          [-24.7350, 14.8780],
+          [-24.7450, 14.8720],
+          [-24.7450, 14.8600]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "furna-harbor",
+        "name": "Furna Harbor District",
+        "namePt": "Distrito do Porto de Furna",
+        "description": "The main port area of Brava with ferry connections and fishing harbor",
+        "color": "#f97316",
+        "zoomTo": 15
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-24.6900, 14.8800],
+          [-24.6700, 14.8800],
+          [-24.6650, 14.8870],
+          [-24.6700, 14.8950],
+          [-24.6850, 14.8950],
+          [-24.6900, 14.8900],
+          [-24.6900, 14.8800]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "nossa-senhora-monte",
+        "name": "Nossa Senhora do Monte",
+        "namePt": "Nossa Senhora do Monte",
+        "description": "Mountain pilgrimage area with historic church and panoramic viewpoints",
+        "color": "#8b5cf6",
+        "zoomTo": 15
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-24.7280, 14.8520],
+          [-24.7100, 14.8520],
+          [-24.7080, 14.8580],
+          [-24.7100, 14.8650],
+          [-24.7200, 14.8680],
+          [-24.7280, 14.8650],
+          [-24.7300, 14.8580],
+          [-24.7280, 14.8520]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "nova-sintra",
+        "name": "Nova Sintra Historic Center",
+        "namePt": "Centro Historico de Nova Sintra",
+        "description": "The charming capital town with colonial architecture and cultural landmarks",
+        "color": "#d90368",
+        "zoomTo": 16
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-24.7000, 14.8680],
+          [-24.6900, 14.8680],
+          [-24.6880, 14.8710],
+          [-24.6900, 14.8760],
+          [-24.7000, 14.8760],
+          [-24.7020, 14.8720],
+          [-24.7000, 14.8680]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "southern-highlands",
+        "name": "Southern Highlands",
+        "namePt": "Planalto Sul",
+        "description": "The dramatic southern mountain region featuring Cachaço village, traditional cheese-making, and the extinct Monte Miranda volcano",
+        "color": "#059669",
+        "zoomTo": 15
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-24.7050, 14.8280],
+          [-24.6850, 14.8280],
+          [-24.6850, 14.8420],
+          [-24.7050, 14.8420],
+          [-24.7050, 14.8280]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "eastern-terrace",
+        "name": "Eastern Terrace",
+        "namePt": "Terraço Leste",
+        "description": "Eastern hillside villages with spectacular views across the channel to Fogo volcano",
+        "color": "#0891b2",
+        "zoomTo": 15
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-24.6920, 14.8580],
+          [-24.6780, 14.8580],
+          [-24.6780, 14.8780],
+          [-24.6920, 14.8780],
+          [-24.6920, 14.8580]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "northern-coast",
+        "name": "Northern Coast",
+        "namePt": "Costa Norte",
+        "description": "Northwestern coastal slopes featuring the dragon tree village of Cova Rodela and panoramic views from Monte Gambia",
+        "color": "#7c3aed",
+        "zoomTo": 14
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-24.7250, 14.8700],
+          [-24.6950, 14.8700],
+          [-24.6950, 14.8900],
+          [-24.7250, 14.8900],
+          [-24.7250, 14.8700]
+        ]]
+      }
+    }
+  ],
+  "metadata": {
+    "island": "Brava",
+    "country": "Cape Verde",
+    "totalZones": 8,
+    "notes": "Zones are defined for visual representation and navigation. Boundaries aligned with OSM-verified location coordinates from locations.json. Expanded from 5 to 8 zones for comprehensive island coverage.",
+    "sources": [
+      "OpenStreetMap verified locations",
+      "Geographic features of Brava Island",
+      "caboverde-info.com settlement list",
+      "Wikiloc hiking trail routes",
+      "visit-caboverde.com tourism guide"
+    ],
+    "compiled": "2025-12-01",
+    "verification": {
+      "method": "Zone boundaries drawn to encompass verified POI coordinates from locations.json and cross-referenced with tourism sources",
+      "date": "2025-12-01"
+    }
+  }
+}

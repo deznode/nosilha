@@ -203,6 +203,11 @@
   --color-hairline: var(--border-subtle);
   --color-edge: var(--border-strong);
 
+  /* BravaMap compat aliases */
+  --color-volcanic-gray: var(--neutral-basalt-500);
+  --color-volcanic-gray-dark: var(--neutral-basalt-800);
+  --color-border-secondary: var(--border-subtle);
+
   /* Backward compat aliases */
   --color-background-primary: var(--background);
   --color-background-secondary: var(--background-secondary);
@@ -325,6 +330,15 @@
       text-shadow:
         0 0 12px var(--brand-ocean-blue),
         0 0 20px var(--brand-ocean-blue);
+    }
+  }
+
+  /* BravaMap: Selected marker pulse ring */
+  @keyframes marker-ping {
+    75%,
+    100% {
+      transform: scale(2);
+      opacity: 0;
     }
   }
 
@@ -486,6 +500,15 @@
 @layer utilities {
   .touch-target {
     @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* BravaMap: Hide scrollbar on category pills overflow */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 
   /* ========================================

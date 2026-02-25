@@ -319,8 +319,9 @@ export class BackendApiClient implements ApiClient {
     if (category.toLowerCase() !== "all") {
       params.append("category", category);
     }
-    // Use larger page size for map view to get more entries
-    params.append("size", "100");
+    // Fetch all map entries in a single request (no pagination loop needed
+    // for the foreseeable dataset size; warn in dev if truncated)
+    params.append("size", "500");
 
     const endpoint = `${env.apiUrl}/api/v1/directory/entries?${params.toString()}`;
 
@@ -1191,7 +1192,7 @@ export class BackendApiClient implements ApiClient {
     return {
       items,
       total: pagination.totalElements,
-      page: pagination.number + 1,
+      page: pagination.number,
       pageSize: pagination.size,
       hasMore:
         pagination.number <
@@ -1478,7 +1479,7 @@ export class BackendApiClient implements ApiClient {
     return {
       items,
       total: pagination.totalElements,
-      page: pagination.number + 1,
+      page: pagination.number,
       pageSize: pagination.size,
       hasMore:
         pagination.number <
@@ -1884,21 +1885,28 @@ export class BackendApiClient implements ApiClient {
     dto: Record<string, unknown>
   ): DirectorySubmission {
     // Convert uppercase category to title case (RESTAURANT → Restaurant)
-    const categoryMap: Record<
-      string,
-      "Restaurant" | "Hotel" | "Beach" | "Heritage" | "Nature"
-    > = {
+    const categoryMap: Record<string, DirectorySubmission["category"]> = {
       RESTAURANT: "Restaurant",
       HOTEL: "Hotel",
       BEACH: "Beach",
       HERITAGE: "Heritage",
       NATURE: "Nature",
+      TOWN: "Town",
+      VIEWPOINT: "Viewpoint",
+      TRAIL: "Trail",
+      CHURCH: "Church",
+      PORT: "Port",
       // Also support already title-case values for backwards compatibility
       Restaurant: "Restaurant",
       Hotel: "Hotel",
       Beach: "Beach",
       Heritage: "Heritage",
       Nature: "Nature",
+      Town: "Town",
+      Viewpoint: "Viewpoint",
+      Trail: "Trail",
+      Church: "Church",
+      Port: "Port",
       // Support legacy values for backward compatibility
       LANDMARK: "Heritage",
       Landmark: "Heritage",
@@ -1963,7 +1971,7 @@ export class BackendApiClient implements ApiClient {
     return {
       items,
       total: pageable.totalElements,
-      page: pageable.page + 1, // Convert 0-indexed to 1-indexed
+      page: pageable.page,
       pageSize: pageable.size,
       hasMore: !pageable.last,
     };
@@ -2136,7 +2144,7 @@ export class BackendApiClient implements ApiClient {
     return {
       items,
       total: pageable.totalElements,
-      page: pageable.page + 1, // Convert 0-indexed to 1-indexed
+      page: pageable.page,
       pageSize: pageable.size,
       hasMore: !pageable.last,
     };
@@ -3208,7 +3216,7 @@ export class BackendApiClient implements ApiClient {
     return {
       items,
       total: pagination.totalElements,
-      page: pagination.number + 1, // Convert 0-indexed to 1-indexed
+      page: pagination.number,
       pageSize: pagination.size,
       hasMore:
         pagination.number <

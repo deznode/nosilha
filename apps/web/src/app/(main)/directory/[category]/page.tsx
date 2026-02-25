@@ -16,6 +16,12 @@ interface DirectoryCategoryPageProps {
   params: Promise<{
     category: string;
   }>;
+  searchParams: Promise<{
+    page?: string;
+    q?: string;
+    town?: string;
+    sort?: string;
+  }>;
 }
 
 // Generate dynamic metadata for directory category pages
@@ -94,12 +100,34 @@ export async function generateMetadata({
 
 export default async function DirectoryCategoryPage({
   params,
+  searchParams,
 }: DirectoryCategoryPageProps) {
   const { category } = await params;
+  const { page: pageParam, q, town, sort } = await searchParams;
+
   // Convert URL slug (e.g., "hotels") to API category format (e.g., "Hotel")
   // For "all", keep as-is since the API handles it specially
   const apiCategory =
     category === "all" ? category : (getCategoryFromSlug(category) ?? category);
-  const { items: entries } = await getEntriesByCategory(apiCategory);
-  return <DirectoryCategoryPageContent category={category} entries={entries} />;
+
+  const page = Math.max(0, parseInt(pageParam || "0", 10) || 0);
+  const size = 20;
+
+  const result = await getEntriesByCategory(
+    apiCategory,
+    page,
+    size,
+    q,
+    town,
+    sort
+  );
+
+  return (
+    <DirectoryCategoryPageContent
+      category={category}
+      entries={result.items}
+      pagination={result.pagination}
+      initialFilters={{ page, q, town, sort }}
+    />
+  );
 }

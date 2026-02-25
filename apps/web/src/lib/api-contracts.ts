@@ -867,7 +867,7 @@ export interface StorySubmittedResponse {
  */
 export interface DirectorySubmissionRequest {
   name: string;
-  category: "RESTAURANT" | "HOTEL" | "BEACH" | "HERITAGE" | "NATURE";
+  category: "RESTAURANT" | "HOTEL" | "BEACH" | "HERITAGE" | "NATURE" | "TOWN" | "VIEWPOINT" | "TRAIL" | "CHURCH" | "PORT";
   town: string;
   customTown?: string;
   description: string;
@@ -892,7 +892,7 @@ export interface DirectorySubmissionConfirmation {
  */
 export interface UpdateDirectoryEntryRequest {
   name?: string;
-  category?: "RESTAURANT" | "HOTEL" | "BEACH" | "HERITAGE" | "NATURE";
+  category?: "RESTAURANT" | "HOTEL" | "BEACH" | "HERITAGE" | "NATURE" | "TOWN" | "VIEWPOINT" | "TRAIL" | "CHURCH" | "PORT";
   town?: string;
   description?: string;
   tags?: string[];

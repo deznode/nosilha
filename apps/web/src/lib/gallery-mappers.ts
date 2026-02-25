@@ -9,6 +9,40 @@
 import type { PublicGalleryMedia } from "@/types/gallery";
 import type { MediaItem, MediaCategory } from "@/types/media";
 
+const NON_IMAGE_URL_PATTERNS = [
+  "youtube.com/watch",
+  "youtube.com/embed",
+  "youtu.be/",
+  "vimeo.com/",
+  "soundcloud.com/",
+];
+
+/**
+ * Resolves a thumbnail URL for external media, handling bad data where
+ * a video page URL (e.g. YouTube watch URL) was stored instead of an
+ * actual image URL. Falls back to YouTube's thumbnail API when possible.
+ */
+export function resolveExternalThumbnail(
+  thumbnailUrl: string | null | undefined,
+  platform: string | null | undefined,
+  externalId: string | null | undefined
+): string | null {
+  if (
+    thumbnailUrl &&
+    !NON_IMAGE_URL_PATTERNS.some((p) =>
+      thumbnailUrl.toLowerCase().includes(p)
+    )
+  ) {
+    return thumbnailUrl;
+  }
+
+  if (platform === "YOUTUBE" && externalId) {
+    return `https://img.youtube.com/vi/${externalId}/hqdefault.jpg`;
+  }
+
+  return null;
+}
+
 const CATEGORY_MAP: Record<string, MediaCategory> = {
   Heritage: "Heritage",
   Landmark: "Heritage",
@@ -61,10 +95,11 @@ export function mapGalleryMediaToMediaItem(
   };
 
   if (media.mediaSource === "EXTERNAL") {
-    let thumbnailUrl = media.thumbnailUrl;
-    if (!thumbnailUrl && media.platform === "YOUTUBE" && media.externalId) {
-      thumbnailUrl = `https://img.youtube.com/vi/${media.externalId}/maxresdefault.jpg`;
-    }
+    const thumbnailUrl = resolveExternalThumbnail(
+      media.thumbnailUrl,
+      media.platform,
+      media.externalId
+    );
 
     const url =
       media.mediaType === "VIDEO"

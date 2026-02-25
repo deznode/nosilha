@@ -331,7 +331,7 @@ class GalleryModerationService(
             this.platform = request.platform
             this.externalId = request.externalId
             this.url = request.url
-            this.thumbnailUrl = request.thumbnailUrl
+            this.thumbnailUrl = ExternalMedia.normalizeThumbnailUrl(request.thumbnailUrl)
             this.title = request.title
             this.description = request.description
             this.author = request.author

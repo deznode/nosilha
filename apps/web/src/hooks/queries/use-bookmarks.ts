@@ -69,7 +69,12 @@ export function useToggleBookmark() {
     BookmarkDto | void,
     Error,
     { entryId: string; isBookmarked: boolean },
-    { previousBookmarks?: PaginatedResult<BookmarkWithEntryDto> }
+    {
+      previousQueries?: [
+        queryKey: readonly unknown[],
+        data: PaginatedResult<BookmarkWithEntryDto> | undefined,
+      ][];
+    }
   >({
     mutationFn: async ({ entryId, isBookmarked }) => {
       if (isBookmarked) {
@@ -84,40 +89,42 @@ export function useToggleBookmark() {
       // Cancel outgoing refetches to prevent optimistic update from being overwritten
       await queryClient.cancelQueries({ queryKey: ["bookmarks"] });
 
-      // Snapshot previous value for rollback on error
-      const previousBookmarks = queryClient.getQueryData<
+      // Snapshot all bookmark query caches for rollback on error
+      const previousQueries = queryClient.getQueriesData<
         PaginatedResult<BookmarkWithEntryDto>
-      >(["bookmarks", "list", 0, 20]);
+      >({ queryKey: ["bookmarks", "list"] });
 
-      // Optimistically update bookmark list
-      if (isBookmarked && previousBookmarks) {
-        // Remove bookmark from list
-        queryClient.setQueryData<PaginatedResult<BookmarkWithEntryDto>>(
-          ["bookmarks", "list", 0, 20],
-          {
-            ...previousBookmarks,
-            items: previousBookmarks.items.filter(
-              (bookmark) => bookmark.entry.id !== entryId
-            ),
-            pagination: previousBookmarks.pagination
-              ? {
-                  ...previousBookmarks.pagination,
-                  totalElements: previousBookmarks.pagination.totalElements - 1,
-                }
-              : null,
+      // Optimistically update all cached bookmark pages
+      if (isBookmarked) {
+        for (const [queryKey, data] of previousQueries) {
+          if (data) {
+            queryClient.setQueryData<PaginatedResult<BookmarkWithEntryDto>>(
+              queryKey,
+              {
+                ...data,
+                items: data.items.filter(
+                  (bookmark) => bookmark.entry.id !== entryId
+                ),
+                pagination: data.pagination
+                  ? {
+                      ...data.pagination,
+                      totalElements: data.pagination.totalElements - 1,
+                    }
+                  : null,
+              }
+            );
           }
-        );
+        }
       }
 
-      return { previousBookmarks };
+      return { previousQueries };
     },
     onError: (_error, _variables, context) => {
       // Rollback optimistic update on error
-      if (context?.previousBookmarks) {
-        queryClient.setQueryData(
-          ["bookmarks", "list", 0, 20],
-          context.previousBookmarks
-        );
+      if (context?.previousQueries) {
+        for (const [queryKey, data] of context.previousQueries) {
+          queryClient.setQueryData(queryKey, data);
+        }
       }
     },
     onSettled: () => {

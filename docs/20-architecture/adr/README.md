@@ -15,6 +15,8 @@ Architecture Decision Records (ADRs) document significant technical decisions ma
 | [0007](0007-ai-module-endpoint-ownership.md) | AI Module Endpoint Ownership | Accepted | 2026-02-07 |
 | [0008](0008-ai-api-authentication-strategy.md) | AI API Authentication Strategy | Accepted | 2026-02-08 |
 | [0009](0009-spring-ai-gemini-integration.md) | Spring AI for Gemini Integration | Accepted | 2026-02-10 |
+| [0010](0010-bravamap-component-decomposition.md) | BravaMap Component Decomposition and State Management | Proposed | 2026-02-23 |
+| [0011](0011-native-10-category-directory-system.md) | Native 10-Category Directory System | Accepted | 2026-02-23 |
 
 ## Creating New ADRs
 

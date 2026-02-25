@@ -54,9 +54,18 @@ export async function getEntriesByCategory(
   category: string,
   page: number = 0,
   size: number = 20,
-  searchQuery?: string
+  searchQuery?: string,
+  town?: string,
+  sort?: string
 ): Promise<PaginatedResult<DirectoryEntry>> {
-  return apiClient.getEntriesByCategory(category, page, size, searchQuery);
+  return apiClient.getEntriesByCategory(
+    category,
+    page,
+    size,
+    searchQuery,
+    town,
+    sort
+  );
 }
 
 /**

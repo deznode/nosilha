@@ -20,8 +20,9 @@ export {
   type AnnouncementIconName,
 } from "./announcement-pill";
 
-// Section Components
 export { HeroSection } from "./hero-section";
+
+// Section Components
 export { ExploreHeritageSection } from "./explore-heritage-section";
 export { FeaturedStoriesSection } from "./featured-stories-section";
 export { CommunityStatsSection } from "./community-stats-section";

@@ -51,7 +51,12 @@ type DirectoryCategory =
   | "Hotel"
   | "Beach"
   | "Heritage"
-  | "Nature";
+  | "Nature"
+  | "Town"
+  | "Viewpoint"
+  | "Trail"
+  | "Church"
+  | "Port";
 
 interface CategoryOption {
   id: DirectoryCategory;
@@ -250,21 +255,10 @@ export function DirectoryEntryForm({
     setSubmitError(null);
 
     try {
-      // Build the API request with uppercase category
-      const categoryMap: Record<
-        DirectoryCategory,
-        DirectorySubmissionRequest["category"]
-      > = {
-        Restaurant: "RESTAURANT",
-        Hotel: "HOTEL",
-        Beach: "BEACH",
-        Heritage: "HERITAGE",
-        Nature: "NATURE",
-      };
-
       const requestData = {
         name: data.name,
-        category: categoryMap[data.category],
+        category:
+          data.category.toUpperCase() as DirectorySubmissionRequest["category"],
         town: useCustomTown ? data.customTown || "" : data.town,
         customTown: useCustomTown ? data.customTown : undefined,
         description: data.description,

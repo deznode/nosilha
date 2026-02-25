@@ -6,7 +6,7 @@ import clsx from "clsx";
 
 // --- Static Hibiscus Icon (sidebar / compact contexts) ---
 
-function StaticHibiscus({ className }: { className?: string }) {
+export function StaticHibiscus({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 100 100"

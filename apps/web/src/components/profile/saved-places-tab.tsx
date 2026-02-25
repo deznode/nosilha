@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { MapPin, Trash2, Bookmark, AlertCircle, Star } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { getEntryUrl } from "@/lib/directory-utils";
 import { useBookmarks, useToggleBookmark } from "@/hooks/queries/use-bookmarks";
+import { Pagination, fromPaginatedResult } from "@/components/ui/pagination";
 
 function SavedPlaceSkeleton() {
   return (
@@ -22,7 +24,8 @@ function SavedPlaceSkeleton() {
 }
 
 export function SavedPlacesTab() {
-  const { data: bookmarksData, isLoading, error } = useBookmarks(0, 20);
+  const [page, setPage] = useState(0);
+  const { data: bookmarksData, isLoading, error } = useBookmarks(page, 20);
   const toggleBookmark = useToggleBookmark();
 
   const handleRemoveBookmark = (entryId: string) => {
@@ -73,10 +76,14 @@ export function SavedPlacesTab() {
     );
   }
 
+  const paginationData = fromPaginatedResult(bookmarksData?.pagination ?? null);
+  const totalCount =
+    bookmarksData?.pagination?.totalElements ?? bookmarks.length;
+
   return (
     <div className="space-y-4">
       <h3 className="text-body mb-4 text-lg font-bold">
-        Saved Places ({bookmarks.length})
+        Saved Places ({totalCount})
       </h3>
       {bookmarks.map((bookmark) => (
         <div
@@ -139,6 +146,9 @@ export function SavedPlacesTab() {
           </button>
         </div>
       ))}
+      {paginationData && (
+        <Pagination {...paginationData} onPageChange={setPage} />
+      )}
     </div>
   );
 }

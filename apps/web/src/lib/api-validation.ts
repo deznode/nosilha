@@ -39,7 +39,7 @@ export function isDirectoryEntry(obj: unknown): obj is DirectoryEntry {
       typeof entry.imageUrl === "string") &&
     (entry.createdAt === undefined || typeof entry.createdAt === "string") &&
     (entry.updatedAt === undefined || typeof entry.updatedAt === "string") &&
-    ["Restaurant", "Hotel", "Beach", "Heritage", "Nature"].includes(
+    ["Restaurant", "Hotel", "Beach", "Heritage", "Nature", "Town", "Viewpoint", "Trail", "Church", "Port"].includes(
       entry.category as string
     );
 
