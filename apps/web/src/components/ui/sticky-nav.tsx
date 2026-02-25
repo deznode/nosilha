@@ -161,7 +161,7 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
             <NosilhaLogo
               showSubtitle={true}
               variant={isHeroTransparent ? "light" : "default"}
-              size="compact"
+              size={isHeroTransparent ? "compact" : "default"}
               instanceId="sticky-nav-logo"
             />
           </Link>
@@ -657,13 +657,20 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
         >
           <div
             className={clsx(
-              "ease-calm mx-auto flex h-16 items-center justify-between backdrop-blur-xl transition-all duration-500",
+              "ease-calm backdrop-blur-xl transition-all duration-500",
               isHeroTransparent
-                ? "bg-ocean-blue-deep/80 max-w-6xl rounded-full border border-white/20 px-4 shadow-2xl shadow-black/40"
-                : "border-edge bg-canvas shadow-subtle max-w-full rounded-none border-b px-4 sm:px-6 lg:px-8"
+                ? "bg-ocean-blue-deep/80 mx-auto h-16 max-w-6xl rounded-full border border-white/20 shadow-2xl shadow-black/40"
+                : "border-edge bg-canvas shadow-subtle border-b"
             )}
           >
-            {navBarContent}
+            <div
+              className={clsx(
+                "mx-auto flex h-16 items-center justify-between",
+                isHeroTransparent ? "px-4" : "max-w-7xl px-4 sm:px-6 lg:px-8"
+              )}
+            >
+              {navBarContent}
+            </div>
           </div>
         </div>
 
@@ -680,7 +687,7 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
         className
       )}
     >
-      <div className="mx-auto flex h-16 max-w-full items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {navBarContent}
       </div>
 

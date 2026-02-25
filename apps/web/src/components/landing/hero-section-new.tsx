@@ -30,7 +30,7 @@ function FixedBackground() {
   };
 
   return (
-    <div className="bg-ocean-blue-deep fixed inset-0 z-0 h-full w-full overflow-hidden">
+    <div className="bg-ocean-blue-deep absolute inset-0 z-0 overflow-hidden">
       {/* Ken Burns animated image */}
       <motion.div
         variants={shouldReduceMotion ? undefined : backgroundVariants}
@@ -222,7 +222,7 @@ interface HeroSectionNewProps {
 
 export function HeroSectionNew({ className }: HeroSectionNewProps) {
   return (
-    <div className={clsx("h-[calc(100svh-5rem)]", className)}>
+    <div className={clsx("relative h-[calc(100svh-5rem)]", className)}>
       <FixedBackground />
       <div className="relative z-10 h-full overflow-hidden">
         <HeroContent />
