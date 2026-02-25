@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, Fragment } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Menu,
   MenuButton,
@@ -10,7 +10,6 @@ import {
   PopoverButton,
   PopoverPanel,
   PopoverGroup,
-  Transition,
 } from "@headlessui/react";
 import {
   Menu as MenuIcon,
@@ -200,43 +199,46 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
                         />
                       </PopoverButton>
 
-                      <Transition
-                        as={Fragment}
-                        enter="transition ease-out duration-200"
-                        enterFrom="opacity-0 translate-y-1"
-                        enterTo="opacity-100 translate-y-0"
-                        leave="transition ease-in duration-150"
-                        leaveFrom="opacity-100 translate-y-0"
-                        leaveTo="opacity-0 translate-y-1"
+                      <PopoverPanel
+                        anchor={{
+                          to: isHeroTransparent ? "top" : "bottom",
+                          gap: 12,
+                        }}
+                        transition
+                        className={clsx(
+                          "z-10 w-screen max-w-xs px-2 sm:px-0",
+                          "transition duration-200 ease-out data-[closed]:opacity-0",
+                          isHeroTransparent
+                            ? "data-[closed]:translate-y-2"
+                            : "data-[closed]:-translate-y-2"
+                        )}
                       >
-                        <PopoverPanel className="absolute left-1/2 z-10 mt-3 w-screen max-w-xs -translate-x-1/2 transform px-2 sm:px-0">
-                          <div className="rounded-button shadow-elevated overflow-hidden ring-1 ring-black/5">
-                            <div className="bg-background-primary relative grid gap-6 px-5 py-6 sm:gap-8 sm:p-8">
-                              {item.items.map((subItem) => (
-                                <Link
-                                  key={subItem.name}
-                                  href={subItem.href}
-                                  onClick={() => close()}
-                                  className="hover:bg-background-secondary -m-3 flex items-start rounded-lg p-3 transition duration-150 ease-in-out"
-                                >
-                                  <subItem.icon
-                                    className="text-ocean-blue h-6 w-6 shrink-0"
-                                    aria-hidden="true"
-                                  />
-                                  <div className="ml-4">
-                                    <p className="text-text-primary text-sm font-medium">
-                                      {subItem.name}
-                                    </p>
-                                    <p className="text-text-secondary mt-1 text-xs">
-                                      {subItem.description}
-                                    </p>
-                                  </div>
-                                </Link>
-                              ))}
-                            </div>
+                        <div className="rounded-button shadow-elevated overflow-hidden ring-1 ring-black/5">
+                          <div className="bg-background-primary relative grid gap-6 px-5 py-6 sm:gap-8 sm:p-8">
+                            {item.items.map((subItem) => (
+                              <Link
+                                key={subItem.name}
+                                href={subItem.href}
+                                onClick={() => close()}
+                                className="hover:bg-background-secondary -m-3 flex items-start rounded-lg p-3 transition duration-150 ease-in-out"
+                              >
+                                <subItem.icon
+                                  className="text-ocean-blue h-6 w-6 shrink-0"
+                                  aria-hidden="true"
+                                />
+                                <div className="ml-4">
+                                  <p className="text-text-primary text-sm font-medium">
+                                    {subItem.name}
+                                  </p>
+                                  <p className="text-text-secondary mt-1 text-xs">
+                                    {subItem.description}
+                                  </p>
+                                </div>
+                              </Link>
+                            ))}
                           </div>
-                        </PopoverPanel>
-                      </Transition>
+                        </div>
+                      </PopoverPanel>
                     </>
                   )}
                 </Popover>
@@ -311,7 +313,13 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
               </div>
               <span className="hidden lg:inline">{currentLang.code}</span>
             </MenuButton>
-            <MenuItems className="bg-canvas shadow-elevated absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 ring-1 ring-black/5 focus:outline-none">
+            <MenuItems
+              anchor={{
+                to: isHeroTransparent ? "top end" : "bottom end",
+                gap: 8,
+              }}
+              className="bg-canvas shadow-elevated z-10 w-48 rounded-md py-1 ring-1 ring-black/5 focus:outline-none"
+            >
               {languages.map((lang) => (
                 <MenuItem key={lang.code} disabled={lang.disabled}>
                   {({ active }) => (
@@ -370,7 +378,13 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
                   <UserCircle className="h-4 w-4" aria-hidden="true" />
                 </div>
               </MenuButton>
-              <MenuItems className="divide-hairline bg-canvas shadow-elevated absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y rounded-md py-1 ring-1 ring-black/5 focus:outline-none">
+              <MenuItems
+                anchor={{
+                  to: isHeroTransparent ? "top end" : "bottom end",
+                  gap: 8,
+                }}
+                className="divide-hairline bg-canvas shadow-elevated z-10 w-56 divide-y rounded-md py-1 ring-1 ring-black/5 focus:outline-none"
+              >
                 <div className="px-4 py-3">
                   <p className="text-text-secondary text-xs">Signed in as</p>
                   <p className="text-text-primary mt-0.5 truncate text-sm font-bold">
@@ -484,11 +498,16 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
     <AnimatePresence>
       {mobileMenuOpen && (
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: isHeroTransparent ? 10 : -10 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
+          exit={{ opacity: 0, y: isHeroTransparent ? 10 : -10 }}
           transition={{ duration: 0.2 }}
-          className="border-border-primary bg-canvas fixed inset-x-0 top-16 z-40 max-h-[85vh] overflow-y-auto border-t md:hidden"
+          className={clsx(
+            "border-border-primary bg-canvas fixed inset-x-0 z-40 max-h-[85vh] overflow-y-auto md:hidden",
+            isHeroTransparent
+              ? "rounded-t-card bottom-20 border-b"
+              : "top-16 border-t"
+          )}
         >
           <div className="space-y-1 pt-2 pb-3">
             {navigation.map((item) => {
