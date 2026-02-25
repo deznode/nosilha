@@ -1,4 +1,4 @@
-import { Header } from "@/components/ui/header";
+import { StickyNav } from "@/components/ui/sticky-nav";
 import { Footer } from "@/components/ui/footer";
 import { MobileBottomNav } from "@/components/ui/mobile-bottom-nav";
 
@@ -21,7 +21,7 @@ export default function MainLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <Header className="print:hidden" />
+      <StickyNav className="print:hidden" />
       <main
         id="main-content"
         className="animate-fade-in flex-grow pt-16 pb-16 md:pb-0"

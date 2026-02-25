@@ -21,6 +21,7 @@ export {
 } from "./announcement-pill";
 
 export { HeroSection } from "./hero-section";
+export { HeroSectionNew } from "./hero-section-new";
 
 // Section Components
 export { ExploreHeritageSection } from "./explore-heritage-section";

@@ -2,11 +2,12 @@
 
 import {
   ExploreHeritageSection,
+  HeroSectionNew,
   MapTeaserSection,
   NewsletterCtaSection,
 } from "@/components/landing";
+import { StickyNav } from "@/components/ui/sticky-nav";
 import type { DirectoryEntry } from "@/types/directory";
-import { HeroSectionAtmospheric } from "../landing/hero-section-atmospheric";
 
 export interface HomePageContentProps {
   featuredEntries?: DirectoryEntry[];
@@ -15,10 +16,11 @@ export interface HomePageContentProps {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function HomePageContent({ featuredEntries }: HomePageContentProps) {
   return (
-    <main className="bg-canvas text-body relative -mt-16 overflow-hidden transition-colors duration-700">
+    <div className="bg-canvas text-body relative -mt-16 transition-colors duration-700">
       {/* === Content Layer === */}
       <div className="bg-background-secondary relative">
-        <HeroSectionAtmospheric />
+        <HeroSectionNew />
+        <StickyNav heroMode />
 
         {/* Unified onboarding + navigation: "What is NosIlha?" with 3 clickable pillars */}
         <ExploreHeritageSection />
@@ -28,6 +30,6 @@ export function HomePageContent({ featuredEntries }: HomePageContentProps) {
 
         <NewsletterCtaSection />
       </div>
-    </main>
+    </div>
   );
 }
