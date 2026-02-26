@@ -147,6 +147,32 @@ export function GalleryMapCanvas({
     });
   }, [flyToCoords, photoById]);
 
+  // Auto-fit bounds when few markers exist (1-3) so all are visible
+  useEffect(() => {
+    if (!mapReady || !mapRef.current || geoFeatures.length === 0 || geoFeatures.length > 3) return;
+    // Don't override a flyToCoords that's pending
+    if (flyToCoords && flyToCoords.photoId !== lastFlyToRef.current) return;
+
+    const lngs = geoFeatures.map((f) => f.geometry.coordinates[0]);
+    const lats = geoFeatures.map((f) => f.geometry.coordinates[1]);
+
+    if (geoFeatures.length === 1) {
+      mapRef.current.flyTo({
+        center: [lngs[0], lats[0]],
+        zoom: MAP_CONFIG.LOCATION_ZOOM,
+        duration: MAP_CONFIG.EASE_DURATION,
+      });
+    } else {
+      mapRef.current.fitBounds(
+        [
+          [Math.min(...lngs), Math.min(...lats)],
+          [Math.max(...lngs), Math.max(...lats)],
+        ],
+        { padding: 80, maxZoom: MAP_CONFIG.LOCATION_ZOOM, duration: MAP_CONFIG.EASE_DURATION }
+      );
+    }
+  }, [mapReady, geoFeatures, flyToCoords]);
+
   // Empty state: no geo-tagged photos
   if (geoFeatures.length === 0) {
     const isFiltered = hasActiveFilters && photos.length > 0;
@@ -203,10 +229,10 @@ export function GalleryMapCanvas({
       <div className="bg-surface-alt flex h-[60vh] min-h-[400px] flex-col items-center justify-center rounded-card p-8 text-center">
         <MapPin className="text-muted mb-4 h-10 w-10" />
         <h3 className="text-body text-lg font-medium">
-          Map failed to load
+          Map unavailable
         </h3>
         <p className="text-muted mt-2 max-w-sm text-sm">
-          Please check your connection and try again.
+          Try refreshing the page.
         </p>
       </div>
     );

@@ -161,6 +161,7 @@ export function GalleryContent({
       category: categoryFilter !== "All" ? categoryFilter : undefined,
       decade: decadeFilter !== "all" ? decadeFilter : undefined,
       q: debouncedQuery || undefined,
+      hasGeo: activeView === "map" ? true : undefined,
     },
   });
 

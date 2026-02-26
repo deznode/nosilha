@@ -127,7 +127,8 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
   const initialDecade: DecadeFilter =
     decade && VALID_DECADES.has(decade) ? (decade as DecadeFilter) : "all";
   const initialQuery = q?.trim() || "";
-  const initialView: GalleryView = view === "timeline" ? "timeline" : "grid";
+  const initialView: GalleryView =
+    view === "map" ? "map" : view === "timeline" ? "timeline" : "grid";
 
   const filters = {
     category: category || undefined,
