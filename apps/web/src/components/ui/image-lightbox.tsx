@@ -30,6 +30,7 @@ export interface Photo {
   location: string;
   date: string;
   description: string;
+  title?: string;
   highResSrc?: string;
   author?: string;
   creditPlatform?: string;
@@ -63,8 +64,7 @@ function getShareUrl(photo: Photo): string {
 }
 
 function isNeedsIdentification(photo: Photo): boolean {
-  const hasRawTitle =
-    !photo.description || isRawFilename(photo.description || "");
+  const hasRawTitle = !photo.title || isRawFilename(photo.title);
   const missingLocation = !photo.locationName;
   const missingDates = !photo.dateTaken && !photo.approximateDate;
   return hasRawTitle || missingLocation || missingDates;
@@ -331,7 +331,7 @@ export function ImageLightbox({
       {photo.id && identifyOpen && (
         <PhotoIdentificationForm
           mediaId={photo.id}
-          photoTitle={photo.description || photo.alt}
+          photoTitle={photo.title || photo.description || photo.alt}
           pageUrl={getShareUrl(photo)}
           isOpen={identifyOpen}
           onClose={() => setIdentifyOpen(false)}

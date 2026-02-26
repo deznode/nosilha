@@ -38,6 +38,7 @@ export function mediaItemToPhoto(item: MediaItem): Photo {
     location: item.locationName || "Brava Island",
     date: item.date || "",
     description: item.description || "",
+    title: item.title,
     author: item.author,
     creditPlatform: item.creditPlatform,
     creditHandle: item.creditHandle,
