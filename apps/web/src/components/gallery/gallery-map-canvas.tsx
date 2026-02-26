@@ -132,6 +132,7 @@ export function GalleryMapCanvas({
     if (
       !flyToCoords ||
       flyToCoords.photoId === lastFlyToRef.current ||
+      !mapReady ||
       !mapRef.current
     ) {
       return;
@@ -145,7 +146,7 @@ export function GalleryMapCanvas({
       zoom: MAP_CONFIG.LOCATION_ZOOM,
       duration: MAP_CONFIG.ANIMATION_DURATION,
     });
-  }, [flyToCoords, photoById]);
+  }, [flyToCoords, photoById, mapReady]);
 
   // Auto-fit bounds when few markers exist (1-3) so all are visible
   useEffect(() => {

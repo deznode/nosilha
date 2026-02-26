@@ -19,7 +19,7 @@ export function GalleryMapPopup({
   onOpenInGallery,
   onClose,
 }: GalleryMapPopupProps) {
-  const imageUrl = photo.thumbnailUrl ?? photo.url;
+  const imageUrl = photo.thumbnailUrl ?? null;
 
   return (
     <div className="bg-surface border-hairline w-56 overflow-hidden rounded-card border shadow-elevated">

@@ -257,6 +257,9 @@ export function GalleryContent({
   };
 
   const handleViewChange = (view: GalleryView) => {
+    if (activeView === "map" && view !== "map") {
+      setFlyToCoords(null);
+    }
     setActiveView(view);
     updateUrl(activeTab, categoryFilter, decadeFilter, undefined, undefined, view);
   };

@@ -2383,9 +2383,14 @@ export class BackendApiClient implements ApiClient {
 
     const endpoint = `${env.apiUrl}/api/v1/gallery${params.toString() ? `?${params.toString()}` : ""}`;
 
-    // Use ISR with 30 minute cache for gallery content
+    // Map data needs fresh results; gallery content uses 30-minute ISR
+    const cacheOptions = options?.hasGeo
+      ? CacheConfig.MAP_DATA
+      : CacheConfig.GALLERY;
     const response = await fetch(endpoint, {
-      next: { revalidate: 1800 }, // 30 minutes
+      ...("cache" in cacheOptions
+        ? { cache: cacheOptions.cache }
+        : { next: cacheOptions }),
     });
 
     if (!response.ok) {

@@ -539,7 +539,8 @@ class GalleryService(
         page: Int,
         size: Int,
     ): Page<GalleryMedia> {
-        val pageable = PageRequest.of(page, minOf(size, 100))
+        val cappedSize = minOf(size, 100)
+        val pageable = PageRequest.of(page, cappedSize)
         val needsInMemoryFilter = category != null || decade != null || hasGeo == true
 
         return if (needsInMemoryFilter) {
@@ -564,8 +565,8 @@ class GalleryService(
             }
 
             filtered = filtered.sortedBy { it.displayOrder }
-            val start = page * size
-            val end = minOf(start + size, filtered.size)
+            val start = page * cappedSize
+            val end = minOf(start + cappedSize, filtered.size)
             val pageContent = if (start < filtered.size) filtered.subList(start, end) else emptyList()
 
             PageImpl(pageContent, pageable, filtered.size.toLong())
