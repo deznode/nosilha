@@ -665,6 +665,36 @@ export interface ApiClient {
   getGalleryCategories(): Promise<string[]>;
 
   /**
+   * Fetches N random gallery photos (unseeded — different each call).
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @param count Number of random photos (default 1, max 10)
+   * @returns Array of random gallery media items
+   */
+  getRandomGalleryMedia(
+    count?: number
+  ): Promise<import("@/types/gallery").PublicGalleryMedia[]>;
+
+  /**
+   * Fetches the daily featured photo (same for all users per day).
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @returns Featured photo or null if gallery is empty
+   */
+  getFeaturedPhoto(): Promise<import("@/types/gallery").PublicGalleryMedia | null>;
+
+  /**
+   * Fetches this week's discovery photos (same for all users per ISO week).
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @returns Array of up to 5 weekly discovery photos
+   */
+  getWeeklyDiscovery(): Promise<import("@/types/gallery").PublicGalleryMedia[]>;
+
+  /**
    * Submit external media for admin review.
    *
    * **Authenticated Endpoint**: Requires authentication.

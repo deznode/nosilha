@@ -11,11 +11,20 @@ import {
   Search,
   X,
   Filter,
+  Shuffle,
+  Loader2,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { MasonryPhotoGrid, VideoSection } from "@/components/gallery";
+import { FeaturedPhotoCard } from "@/components/gallery/featured-photo-card";
+import { WeeklyDiscoverySection } from "@/components/gallery/weekly-discovery-section";
 import { Select } from "@/components/ui/select";
+import { ImageLightbox } from "@/components/ui/image-lightbox";
+import { mediaItemToPhoto } from "@/components/gallery/masonry-photo-grid";
 import { useGalleryInfiniteQuery } from "@/hooks/queries/useGalleryInfiniteQuery";
+import { getRandomGalleryMedia } from "@/lib/api";
+import { mapGalleryMediaToMediaItem } from "@/lib/gallery-mappers";
+import type { PublicGalleryMedia } from "@/types/gallery";
 import type { MediaCategory } from "@/types/media";
 
 const FALLBACK_CATEGORIES: MediaCategory[] = [
@@ -55,6 +64,8 @@ interface GalleryContentProps {
   initialCategory: MediaCategory | "All";
   initialDecade: DecadeFilter;
   initialQuery: string;
+  featuredPhoto?: PublicGalleryMedia | null;
+  weeklyPhotos?: PublicGalleryMedia[];
 }
 
 export function GalleryContent({
@@ -63,6 +74,8 @@ export function GalleryContent({
   initialCategory,
   initialDecade,
   initialQuery,
+  featuredPhoto,
+  weeklyPhotos,
 }: GalleryContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -74,6 +87,23 @@ export function GalleryContent({
   const [searchInput, setSearchInput] = useState(initialQuery);
   const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [surpriseLoading, setSurpriseLoading] = useState(false);
+  const [surprisePhoto, setSurprisePhoto] = useState<
+    import("@/components/ui/image-lightbox").Photo | null
+  >(null);
+
+  const handleSurpriseMe = async () => {
+    setSurpriseLoading(true);
+    try {
+      const items = await getRandomGalleryMedia(1);
+      if (items.length > 0) {
+        const mediaItem = mapGalleryMediaToMediaItem(items[0]);
+        setSurprisePhoto(mediaItemToPhoto(mediaItem));
+      }
+    } finally {
+      setSurpriseLoading(false);
+    }
+  };
 
   // Debounce search input (300ms)
   useEffect(() => {
@@ -279,13 +309,27 @@ export function GalleryContent({
                 </p>
               )}
             </div>
-            <Link
-              href="/contribute/media"
-              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-subtle flex shrink-0 items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95"
-            >
-              <Plus size={18} />
-              Add to Archive
-            </Link>
+            <div className="flex shrink-0 items-center gap-3">
+              <button
+                onClick={handleSurpriseMe}
+                disabled={surpriseLoading || totalItems === 0}
+                className="rounded-button flex items-center gap-2 border border-white/30 px-4 py-2.5 text-sm font-medium text-white transition-all hover:border-white/60 hover:bg-white/10 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {surpriseLoading ? (
+                  <Loader2 size={18} className="animate-spin" />
+                ) : (
+                  <Shuffle size={18} />
+                )}
+                <span className="hidden sm:inline">Surprise Me</span>
+              </button>
+              <Link
+                href="/contribute/media"
+                className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-subtle flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95"
+              >
+                <Plus size={18} />
+                Add to Archive
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -356,6 +400,18 @@ export function GalleryContent({
         {/* Photo Gallery */}
         {activeTab === "photos" && (
           <>
+            {/* Featured Photo of the Day */}
+            {featuredPhoto && (
+              <div className="mb-6">
+                <FeaturedPhotoCard photo={featuredPhoto} />
+              </div>
+            )}
+
+            {/* Weekly Discovery */}
+            {weeklyPhotos && weeklyPhotos.length >= 3 && (
+              <WeeklyDiscoverySection photos={weeklyPhotos} />
+            )}
+
             {/* Filter Bar */}
             <div className="mb-6 flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-1.5">
@@ -415,6 +471,16 @@ export function GalleryContent({
         {/* Video Archive */}
         {activeTab === "videos" && <VideoSection videos={videos} />}
       </div>
+
+      {/* Surprise Me Lightbox */}
+      {surprisePhoto && (
+        <ImageLightbox
+          photos={[surprisePhoto]}
+          initialIndex={0}
+          isOpen={true}
+          onClose={() => setSurprisePhoto(null)}
+        />
+      )}
     </div>
   );
 }

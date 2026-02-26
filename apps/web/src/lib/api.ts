@@ -725,6 +725,22 @@ export async function getGalleryCategories(): Promise<string[]> {
   return apiClient.getGalleryCategories();
 }
 
+export async function getRandomGalleryMedia(
+  count?: number
+): Promise<import("@/types/gallery").PublicGalleryMedia[]> {
+  return apiClient.getRandomGalleryMedia(count);
+}
+
+export async function getFeaturedPhoto(): Promise<import("@/types/gallery").PublicGalleryMedia | null> {
+  return apiClient.getFeaturedPhoto();
+}
+
+export async function getWeeklyDiscovery(): Promise<
+  import("@/types/gallery").PublicGalleryMedia[]
+> {
+  return apiClient.getWeeklyDiscovery();
+}
+
 /**
  * Submit external media for admin review.
  * Public endpoint - no authentication required.

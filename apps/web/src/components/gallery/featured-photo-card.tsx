@@ -1,0 +1,72 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { Star } from "lucide-react";
+import type { PublicGalleryMedia } from "@/types/gallery";
+
+interface FeaturedPhotoCardProps {
+  photo: PublicGalleryMedia;
+}
+
+function resolveImageUrl(photo: PublicGalleryMedia): string | null {
+  if (photo.mediaSource === "USER_UPLOAD" && "publicUrl" in photo) {
+    return photo.publicUrl ?? null;
+  }
+  if (photo.mediaSource === "EXTERNAL" && "thumbnailUrl" in photo) {
+    return photo.thumbnailUrl ?? null;
+  }
+  return null;
+}
+
+function resolveLocationName(photo: PublicGalleryMedia): string | null {
+  if ("locationName" in photo) return photo.locationName ?? null;
+  return null;
+}
+
+export function FeaturedPhotoCard({ photo }: FeaturedPhotoCardProps) {
+  const imageUrl = resolveImageUrl(photo);
+  if (!imageUrl) return null;
+
+  const altText = photo.altText ?? photo.title ?? "Gallery photo";
+  const location = resolveLocationName(photo);
+  const formattedDate = photo.createdAt
+    ? new Date(photo.createdAt).toLocaleDateString("en-US", {
+        month: "long",
+        year: "numeric",
+      })
+    : null;
+
+  return (
+    <Link
+      href={`/gallery/photo/${photo.id}`}
+      className="group relative block h-48 overflow-hidden rounded-card sm:h-64 lg:h-72"
+    >
+      <Image
+        src={imageUrl}
+        alt={altText}
+        fill
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1280px"
+        className="object-cover transition-transform duration-500 ease-calm group-hover:scale-105"
+        priority
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 p-4 sm:p-6">
+        <div className="mb-2 flex items-center gap-1.5">
+          <Star size={14} className="fill-sunny-yellow text-sunny-yellow" />
+          <span className="text-sunny-yellow text-xs font-bold uppercase tracking-wider">
+            Photo of the Day
+          </span>
+        </div>
+        <h2 className="text-lg font-bold text-white sm:text-xl">
+          {photo.title}
+        </h2>
+        {(location || formattedDate) && (
+          <p className="mt-1 text-sm text-white/70">
+            {[location, formattedDate].filter(Boolean).join(" \u2022 ")}
+          </p>
+        )}
+      </div>
+    </Link>
+  );
+}

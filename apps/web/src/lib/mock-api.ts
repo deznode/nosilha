@@ -1732,6 +1732,27 @@ ${story.content
     return ["Heritage", "Culture", "Nature"];
   }
 
+  async getRandomGalleryMedia(): Promise<
+    import("@/types/gallery").PublicGalleryMedia[]
+  > {
+    await this.simulateDelay(200);
+    return [];
+  }
+
+  async getFeaturedPhoto(): Promise<
+    import("@/types/gallery").PublicGalleryMedia | null
+  > {
+    await this.simulateDelay(200);
+    return null;
+  }
+
+  async getWeeklyDiscovery(): Promise<
+    import("@/types/gallery").PublicGalleryMedia[]
+  > {
+    await this.simulateDelay(200);
+    return [];
+  }
+
   async submitExternalMedia(): Promise<{ id: string; message: string }> {
     await this.simulateDelay(500);
     return {

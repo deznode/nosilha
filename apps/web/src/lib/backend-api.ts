@@ -2474,6 +2474,41 @@ export class BackendApiClient implements ApiClient {
     return this.unwrapApiResponse<string[]>(payload);
   }
 
+  async getRandomGalleryMedia(count: number = 1): Promise<PublicGalleryMedia[]> {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/random?count=${count}`;
+    const response = await fetch(endpoint, { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch random gallery media: ${response.status}`);
+    }
+    const payload = await response.json();
+    return this.unwrapApiResponse<PublicGalleryMedia[]>(payload);
+  }
+
+  async getFeaturedPhoto(): Promise<PublicGalleryMedia | null> {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/featured`;
+    const response = await fetch(endpoint, {
+      next: CacheConfig.GALLERY,
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch featured photo: ${response.status}`);
+    }
+    const payload = await response.json();
+    const items = this.unwrapApiResponse<PublicGalleryMedia[]>(payload);
+    return items[0] ?? null;
+  }
+
+  async getWeeklyDiscovery(): Promise<PublicGalleryMedia[]> {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/weekly`;
+    const response = await fetch(endpoint, {
+      next: CacheConfig.GALLERY,
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch weekly discovery: ${response.status}`);
+    }
+    const payload = await response.json();
+    return this.unwrapApiResponse<PublicGalleryMedia[]>(payload);
+  }
+
   /**
    * Submit external media for admin review.
    *

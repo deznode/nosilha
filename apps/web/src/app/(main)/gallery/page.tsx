@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
-import { getGalleryMedia, getGalleryCategories } from "@/lib/api";
+import {
+  getGalleryMedia,
+  getGalleryCategories,
+  getFeaturedPhoto,
+  getWeeklyDiscovery,
+} from "@/lib/api";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import { getQueryClient } from "@/lib/query-client";
 import {
@@ -134,21 +139,24 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
   // HydrationBoundary seeds the cache for the exact SSR query key.
   const queryClient = getQueryClient();
 
-  const [, apiCategories, galleryResponse] = await Promise.all([
-    queryClient.prefetchInfiniteQuery({
-      queryKey: galleryQueryKey(filters),
-      queryFn: galleryQueryFn(filters),
-      initialPageParam: 0,
-      getNextPageParam: galleryGetNextPageParam,
-      pages: 1,
-    }),
-    getGalleryCategories().catch(() => [] as string[]),
-    getGalleryMedia({
-      size: GALLERY_PAGE_SIZE,
-      decade: filters.decade,
-      q: filters.q,
-    }),
-  ]);
+  const [, apiCategories, galleryResponse, featuredPhoto, weeklyPhotos] =
+    await Promise.all([
+      queryClient.prefetchInfiniteQuery({
+        queryKey: galleryQueryKey(filters),
+        queryFn: galleryQueryFn(filters),
+        initialPageParam: 0,
+        getNextPageParam: galleryGetNextPageParam,
+        pages: 1,
+      }),
+      getGalleryCategories().catch(() => [] as string[]),
+      getGalleryMedia({
+        size: GALLERY_PAGE_SIZE,
+        decade: filters.decade,
+        q: filters.q,
+      }),
+      getFeaturedPhoto().catch(() => null),
+      getWeeklyDiscovery().catch(() => []),
+    ]);
 
   const initialTab: "photos" | "videos" =
     tab === "videos" ? "videos" : "photos";
@@ -190,6 +198,8 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
           initialCategory={initialCategory}
           initialDecade={initialDecade}
           initialQuery={initialQuery}
+          featuredPhoto={featuredPhoto}
+          weeklyPhotos={weeklyPhotos}
         />
       </HydrationBoundary>
     </>
