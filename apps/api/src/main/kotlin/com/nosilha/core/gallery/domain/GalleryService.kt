@@ -3,9 +3,11 @@ package com.nosilha.core.gallery.domain
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.nosilha.core.auth.api.UserProfileQueryService
+import com.nosilha.core.gallery.api.dto.DecadeGroupDto
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.PublicGalleryMediaDto
 import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
+import com.nosilha.core.gallery.api.dto.TimelineDto
 import com.nosilha.core.gallery.api.dto.contributorIds
 import com.nosilha.core.gallery.api.dto.toDto
 import com.nosilha.core.gallery.api.dto.toPublicDto
@@ -138,6 +140,13 @@ class GalleryService(
         .newBuilder()
         .maximumSize(1)
         .expireAfterWrite(4, TimeUnit.HOURS)
+        .build()
+
+    /** Cache for timeline aggregation — single entry, 30-minute TTL. */
+    private val timelineCache: Cache<String, TimelineDto> = Caffeine
+        .newBuilder()
+        .maximumSize(1)
+        .expireAfterWrite(30, TimeUnit.MINUTES)
         .build()
 
     /** Whether R2 storage is enabled and available. */
@@ -774,6 +783,59 @@ class GalleryService(
         val displayNames = resolveDisplayNames(media)
         return media.map { it.toPublicDto(displayNames) }
     }
+
+    /**
+     * Aggregates gallery media into decade groups for the timeline view.
+     *
+     * Groups: pre-1975, 1975-1990, 1990-2010, 2010-plus.
+     * Each group includes a count and up to 3 sample photos.
+     * Cached for 30 minutes.
+     */
+    @Transactional(readOnly = true)
+    fun getTimelineAggregation(): TimelineDto =
+        timelineCache.get("timeline") {
+            val allMedia = repository.findByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
+            if (allMedia.isEmpty()) return@get TimelineDto(groups = emptyList(), totalCount = 0)
+
+            val displayNames = resolveDisplayNames(allMedia)
+
+            data class DecadeConfig(
+                val key: String,
+                val label: String,
+            )
+
+            val decades = listOf(
+                DecadeConfig("pre-1975", "Pre-1975"),
+                DecadeConfig("1975-1990", "1975\u20131990"),
+                DecadeConfig("1990-2010", "1990\u20132010"),
+                DecadeConfig("2010-plus", "2010+"),
+            )
+
+            val grouped = allMedia.groupBy { media ->
+                val year = resolveYear(media)
+                when {
+                    year < 1975 -> "pre-1975"
+                    year < 1990 -> "1975-1990"
+                    year < 2010 -> "1990-2010"
+                    else -> "2010-plus"
+                }
+            }
+
+            val groups = decades.map { config ->
+                val items = grouped[config.key] ?: emptyList()
+                DecadeGroupDto(
+                    decade = config.key,
+                    label = config.label,
+                    count = items.size,
+                    samplePhotos = items
+                        .sortedBy { it.displayOrder }
+                        .take(3)
+                        .map { it.toPublicDto(displayNames) },
+                )
+            }
+
+            TimelineDto(groups = groups, totalCount = allMedia.size)
+        }
 
     // -- Admin API methods (full DTO) --
 

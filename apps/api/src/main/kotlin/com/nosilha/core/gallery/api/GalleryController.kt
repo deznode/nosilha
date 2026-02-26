@@ -6,6 +6,7 @@ import com.nosilha.core.gallery.api.dto.PresignRequest
 import com.nosilha.core.gallery.api.dto.PresignResponse
 import com.nosilha.core.gallery.api.dto.PublicGalleryMediaDto
 import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
+import com.nosilha.core.gallery.api.dto.TimelineDto
 import com.nosilha.core.gallery.domain.GalleryService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
@@ -174,6 +175,21 @@ class GalleryController(
     fun getWeeklyDiscovery(): ApiResult<List<PublicGalleryMediaDto>> {
         logger.debug { "Weekly discovery request" }
         return ApiResult(data = galleryService.getWeeklyDiscovery())
+    }
+
+    /**
+     * Get gallery timeline aggregated by decade.
+     *
+     * Groups all gallery-visible media into decade buckets with counts
+     * and up to 3 sample photos per decade for preview thumbnails.
+     * Cached for 30 minutes.
+     *
+     * @return ApiResult with timeline data grouped by decade
+     */
+    @GetMapping("/timeline")
+    fun getTimeline(): ApiResult<TimelineDto> {
+        logger.debug { "Timeline aggregation request" }
+        return ApiResult(data = galleryService.getTimelineAggregation())
     }
 
     /**
