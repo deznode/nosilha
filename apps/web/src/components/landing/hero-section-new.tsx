@@ -11,23 +11,45 @@ import clsx from "clsx";
 import { UnifiedSearch } from "@/components/search";
 import { ScrollIndicator } from "@/components/ui/scroll-indicator";
 
+// --- Motion Variants (static, hoisted to module scope) ---
+
+const backgroundVariants = {
+  animate: {
+    scale: [1, 1.1, 1],
+    x: ["0%", "-3%", "0%"],
+    transition: {
+      duration: 25,
+      repeat: Infinity,
+      repeatType: "mirror" as const,
+      ease: "easeInOut" as const,
+    },
+  },
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.2,
+    },
+  },
+} as const;
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: { duration: 0.4, ease: "easeOut" as const },
+  },
+} as const;
+
 // --- Fixed Background with Ken Burns animation ---
 
 function FixedBackground() {
   const shouldReduceMotion = useReducedMotion();
-
-  const backgroundVariants = {
-    animate: {
-      scale: [1, 1.1, 1],
-      x: ["0%", "-3%", "0%"],
-      transition: {
-        duration: 25,
-        repeat: Infinity,
-        repeatType: "mirror" as const,
-        ease: "easeInOut" as const,
-      },
-    },
-  };
 
   return (
     <div className="bg-ocean-blue-deep absolute inset-0 z-0 overflow-hidden">
@@ -76,26 +98,6 @@ function HeroContent() {
   const router = useRouter();
   const [searchFocused, setSearchFocused] = useState(false);
   const shouldReduceMotion = useReducedMotion();
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.2,
-      },
-    },
-  } as const;
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: { duration: 0.4, ease: "easeOut" as const },
-    },
-  } as const;
 
   const handleScrollDown = () => {
     const sections = document.querySelectorAll("section");
@@ -213,8 +215,6 @@ function HeroContent() {
     </section>
   );
 }
-
-// --- Exported Component ---
 
 interface HeroSectionNewProps {
   className?: string;

@@ -14,6 +14,19 @@ export interface HomePageContentProps {
   featuredEntries?: DirectoryEntry[];
 }
 
+const NAV_OFFSET_PX = 60;
+
+function scrollToNextSection(): void {
+  const sections = document.querySelectorAll("section");
+  const target = sections[1];
+  if (target) {
+    window.scrollTo({
+      top: window.scrollY + target.getBoundingClientRect().top - NAV_OFFSET_PX,
+      behavior: "smooth",
+    });
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function HomePageContent({ featuredEntries }: HomePageContentProps) {
   return (
@@ -26,21 +39,7 @@ export function HomePageContent({ featuredEntries }: HomePageContentProps) {
         <div className="hidden bg-stone-950 lg:block">
           <StickyNav heroMode />
           <div className="relative h-36">
-            <ScrollIndicator
-              onClick={() => {
-                const sections = document.querySelectorAll("section");
-                const target = sections[1];
-                if (target) {
-                  window.scrollTo({
-                    top:
-                      window.scrollY +
-                      target.getBoundingClientRect().top -
-                      60,
-                    behavior: "smooth",
-                  });
-                }
-              }}
-            />
+            <ScrollIndicator onClick={scrollToNextSection} />
           </div>
         </div>
 

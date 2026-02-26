@@ -22,6 +22,7 @@ import {
   BookOpen,
   Users,
   Shield,
+  type LucideIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -33,8 +34,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { supabase } from "@/lib/supabase-client";
 import { ThemeToggle } from "./theme-toggle";
 
-// --- Navigation Config (shared with header.tsx) ---
-import type { LucideIcon } from "lucide-react";
+// --- Navigation Config ---
 
 type DropdownItem = {
   name: string;
@@ -78,6 +78,21 @@ const languages = [
   { code: "PT", label: "Português", flag: "🇵🇹", disabled: true },
   { code: "CV", label: "Kriolu", flag: "🇨🇻", disabled: true },
 ];
+
+/** Returns border + text classes for nav links based on active state and hero transparency. */
+function navLinkClasses(
+  isActive: boolean,
+  isHeroTransparent: boolean
+): string {
+  if (isHeroTransparent) {
+    return isActive
+      ? "border-white text-white"
+      : "border-transparent text-white/70 hover:text-white";
+  }
+  return isActive
+    ? "border-ocean-blue text-ocean-blue"
+    : "text-text-secondary hover:border-border-primary hover:text-ocean-blue border-transparent";
+}
 
 export interface StickyNavProps {
   className?: string;
@@ -158,7 +173,7 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
             className="group relative flex items-center transition-opacity hover:opacity-95"
           >
             <NosilhaLogo
-              showSubtitle={true}
+              showSubtitle
               variant={isHeroTransparent ? "light" : "default"}
               size={isHeroTransparent ? "compact" : "default"}
               instanceId="sticky-nav-logo"
@@ -180,13 +195,10 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
                       <PopoverButton
                         className={clsx(
                           "inline-flex h-16 items-center gap-1 border-b-2 px-3 text-sm font-medium transition-colors outline-none",
-                          isHeroTransparent
-                            ? isChildActive || open
-                              ? "border-white text-white"
-                              : "border-transparent text-white/70 hover:text-white"
-                            : isChildActive || open
-                              ? "border-ocean-blue text-ocean-blue"
-                              : "text-text-secondary hover:border-border-primary hover:text-ocean-blue border-transparent"
+                          navLinkClasses(
+                            isChildActive || open,
+                            isHeroTransparent
+                          )
                         )}
                       >
                         {item.name}
@@ -206,7 +218,7 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
                         }}
                         transition
                         className={clsx(
-                          "z-10 w-screen max-w-xs px-2 sm:px-0",
+                          "z-50 w-80 px-2 sm:px-0",
                           "transition duration-200 ease-out data-[closed]:opacity-0",
                           isHeroTransparent
                             ? "data-[closed]:translate-y-2"
@@ -252,13 +264,7 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
                 href={item.href}
                 className={clsx(
                   "inline-flex h-16 items-center border-b-2 px-3 text-sm font-medium transition-colors",
-                  isHeroTransparent
-                    ? isCurrent
-                      ? "border-white text-white"
-                      : "border-transparent text-white/70 hover:text-white"
-                    : isCurrent
-                      ? "border-ocean-blue text-ocean-blue"
-                      : "text-text-secondary hover:border-border-primary hover:text-ocean-blue border-transparent"
+                  navLinkClasses(isCurrent, isHeroTransparent)
                 )}
               >
                 {item.name}
@@ -273,13 +279,10 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
             href="/admin"
             className={clsx(
               "hidden h-16 items-center gap-1.5 border-b-2 px-3 text-sm font-medium transition-colors lg:inline-flex",
-              isHeroTransparent
-                ? pathname.startsWith("/admin")
-                  ? "border-white text-white"
-                  : "border-transparent text-white/70 hover:text-white"
-                : pathname.startsWith("/admin")
-                  ? "border-ocean-blue text-ocean-blue"
-                  : "text-text-secondary hover:border-border-primary hover:text-ocean-blue border-transparent"
+              navLinkClasses(
+                pathname.startsWith("/admin"),
+                isHeroTransparent
+              )
             )}
           >
             <Shield className="h-4 w-4" />
@@ -363,7 +366,7 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
               <MenuButton
                 className={clsx(
                   "focus-visible:ring-ocean-blue flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2",
-                  isHeroTransparent ? "text-white/70 hover:text-white" : ""
+                  isHeroTransparent && "text-white/70 hover:text-white"
                 )}
               >
                 <span className="sr-only">Open user menu</span>
