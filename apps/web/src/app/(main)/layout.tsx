@@ -24,11 +24,11 @@ export default function MainLayout({
       <StickyNav className="print:hidden" />
       <main
         id="main-content"
-        className="animate-fade-in flex-grow pt-16 pb-16 md:pb-0"
+        className="animate-fade-in flex-grow pt-16 pb-16 lg:pb-0"
       >
         {children}
       </main>
-      <div className="hidden md:block print:hidden">
+      <div className="hidden lg:block print:hidden">
         <Footer />
       </div>
       <MobileBottomNav />

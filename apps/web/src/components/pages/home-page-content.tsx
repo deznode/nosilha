@@ -20,7 +20,11 @@ export function HomePageContent({ featuredEntries }: HomePageContentProps) {
       {/* === Content Layer === */}
       <div className="bg-background-secondary relative">
         <HeroSectionNew />
-        <StickyNav heroMode />
+        {/* Hero sticky nav: negative margin pulls it into the hero area.
+            Hidden on mobile where MobileBottomNav handles navigation. */}
+        <div className="-mt-16 hidden lg:block">
+          <StickyNav heroMode />
+        </div>
 
         {/* Unified onboarding + navigation: "What is NosIlha?" with 3 clickable pillars */}
         <ExploreHeritageSection />

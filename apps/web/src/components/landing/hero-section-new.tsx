@@ -222,7 +222,7 @@ interface HeroSectionNewProps {
 
 export function HeroSectionNew({ className }: HeroSectionNewProps) {
   return (
-    <div className={clsx("relative h-[calc(100svh-5rem)]", className)}>
+    <div className={clsx("relative h-[calc(100svh-5rem)] lg:h-svh", className)}>
       <FixedBackground />
       <div className="relative z-10 h-full overflow-hidden">
         <HeroContent />
