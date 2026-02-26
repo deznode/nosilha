@@ -7,11 +7,9 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
-  useDeferredValue,
   type RefObject,
 } from "react";
-import useSupercluster from "use-supercluster";
-import Map, {
+import {
   Marker,
   NavigationControl,
   GeolocateControl,
@@ -22,11 +20,10 @@ import Map, {
   type ViewStateChangeEvent,
 } from "react-map-gl/mapbox";
 import mapboxgl from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
+import { BaseMap, useMapClustering } from "../shared";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
-import { env } from "@/lib/env";
 import {
   useViewMode,
   useLayerVisibility,
@@ -341,22 +338,16 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
     [filteredLocations]
   );
 
-  const { clusters: rawClusters, supercluster } = useSupercluster({
+  const { clusters, expandCluster } = useMapClustering({
     points,
-    bounds,
     zoom,
-    options: { radius: 50, maxZoom: 14 },
+    bounds,
   });
-
-  const clusters = useDeferredValue(rawClusters);
 
   const handleClusterClick = useCallback(
     (clusterId: number, latitude: number, longitude: number) => {
-      if (supercluster) {
-        const expansionZoom = Math.min(
-          supercluster.getClusterExpansionZoom(clusterId),
-          20
-        );
+      const expansionZoom = expandCluster(clusterId);
+      if (expansionZoom != null) {
         mapRef.current?.flyTo({
           center: [longitude, latitude],
           zoom: expansionZoom,
@@ -364,7 +355,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
         });
       }
     },
-    [supercluster, mapRef]
+    [expandCluster, mapRef]
   );
 
   const handleMapLoad = useCallback(() => {
@@ -390,11 +381,11 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
     () =>
       clusters.map((cluster) => {
         const [longitude, latitude] = cluster.geometry.coordinates;
-        const { cluster: isCluster } = cluster.properties;
+        const props = cluster.properties as Record<string, unknown>;
+        const isCluster = props.cluster as boolean;
 
         if (isCluster) {
-          const pointCount = (cluster.properties as Record<string, unknown>)
-            .point_count as number;
+          const pointCount = props.point_count as number;
           return (
             <Marker
               key={`cluster-${cluster.id}`}
@@ -418,10 +409,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
           );
         }
 
-        const loc = locations.find(
-          (l) =>
-            l.id === (cluster.properties as Record<string, unknown>).locationId
-        );
+        const loc = locations.find((l) => l.id === props.locationId);
         if (!loc) return null;
 
         const isSelected = selectedLocation?.id === loc.id;
@@ -575,60 +563,52 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
       </AnimatePresence>
 
       {/* Mapbox GL Map */}
-      <Map
+      <BaseMap
         ref={mapRef}
-        initialViewState={{
-          longitude: MAP_CONFIG.DEFAULT_CENTER.lng,
-          latitude: MAP_CONFIG.DEFAULT_CENTER.lat,
-          zoom: MAP_CONFIG.DEFAULT_ZOOM,
-          pitch: MAP_CONFIG.PITCH_2D,
-          bearing: MAP_CONFIG.DEFAULT_BEARING,
-        }}
-        mapStyle={
+        style={
           viewMode === "satellite"
             ? "mapbox://styles/mapbox/satellite-streets-v12"
             : "mapbox://styles/mapbox/light-v11"
         }
-        mapboxAccessToken={env.mapboxAccessToken}
-        terrain={
-          viewMode === "satellite"
-            ? {
-                source: "mapbox-dem",
-                exaggeration: MAP_CONFIG.TERRAIN_EXAGGERATION,
-              }
-            : undefined
-        }
-        fog={
-          viewMode === "satellite"
-            ? {
-                range: [0.8, 8],
-                color: "#e8e4e0",
-                "horizon-blend": 0.15,
-                "high-color": "#4a90a4",
-                "space-color": "#1a1a2e",
-                "star-intensity": 0.15,
-              }
-            : undefined
-        }
-        maxPitch={MAP_CONFIG.MAX_PITCH}
-        reuseMaps
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          cursor,
-        }}
         onClick={handleMapClick}
         onMove={onMove}
-        onDragStart={handleStopOrbit}
-        onZoomStart={handleStopOrbit}
         onLoad={handleMapLoad}
         onError={handleMapError}
         interactiveLayerIds={["zone-fills"]}
-        onMouseEnter={onMouseEnterZone}
-        onMouseLeave={onMouseLeaveZone}
-        aria-label="Interactive map of Brava Island showing tourist destinations"
+        mapProps={{
+          terrain:
+            viewMode === "satellite"
+              ? {
+                  source: "mapbox-dem",
+                  exaggeration: MAP_CONFIG.TERRAIN_EXAGGERATION,
+                }
+              : undefined,
+          fog:
+            viewMode === "satellite"
+              ? {
+                  range: [0.8, 8],
+                  color: "#e8e4e0",
+                  "horizon-blend": 0.15,
+                  "high-color": "#4a90a4",
+                  "space-color": "#1a1a2e",
+                  "star-intensity": 0.15,
+                }
+              : undefined,
+          maxPitch: MAP_CONFIG.MAX_PITCH,
+          style: {
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            cursor,
+          },
+          onDragStart: handleStopOrbit,
+          onZoomStart: handleStopOrbit,
+          onMouseEnter: onMouseEnterZone,
+          onMouseLeave: onMouseLeaveZone,
+          "aria-label":
+            "Interactive map of Brava Island showing tourist destinations",
+        }}
       >
         <Source
           id="mapbox-dem"
@@ -748,7 +728,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
         {markers}
         <NavigationControl position="bottom-right" />
         <GeolocateControl position="bottom-right" />
-      </Map>
+      </BaseMap>
 
       {/* Screen reader announcements */}
       <div aria-live="polite" aria-atomic="true" className="sr-only">
