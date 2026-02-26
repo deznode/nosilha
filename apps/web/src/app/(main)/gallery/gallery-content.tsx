@@ -512,6 +512,7 @@ export function GalleryContent({
                   const idx = photos.findIndex((p) => p.id === photo.id);
                   if (idx >= 0) setMapLightboxIndex(idx);
                 }}
+                selectedPhotoId={mapLightboxIndex !== null ? photos[mapLightboxIndex]?.id : undefined}
                 flyToCoords={flyToCoords}
                 onViewChange={(v) => handleViewChange(v)}
                 hasActiveFilters={hasActiveFilters || !!debouncedQuery}

@@ -3,6 +3,7 @@
 import {
   useState,
   useCallback,
+  useEffect,
   useMemo,
   useRef,
 } from "react";
@@ -127,20 +128,24 @@ export function GalleryMapCanvas({
   );
 
   // Handle flyTo from external source (e.g., "Show on Map" button)
-  if (
-    flyToCoords &&
-    flyToCoords.photoId !== lastFlyToRef.current &&
-    mapRef.current
-  ) {
+  useEffect(() => {
+    if (
+      !flyToCoords ||
+      flyToCoords.photoId === lastFlyToRef.current ||
+      !mapRef.current
+    ) {
+      return;
+    }
     lastFlyToRef.current = flyToCoords.photoId;
     const photo = photoById.get(flyToCoords.photoId);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- popup must sync with flyTo animation trigger
     if (photo) setPopupPhoto(photo);
     mapRef.current.flyTo({
       center: [flyToCoords.lng, flyToCoords.lat],
       zoom: MAP_CONFIG.LOCATION_ZOOM,
       duration: MAP_CONFIG.ANIMATION_DURATION,
     });
-  }
+  }, [flyToCoords, photoById]);
 
   // Empty state: no geo-tagged photos
   if (geoFeatures.length === 0) {
