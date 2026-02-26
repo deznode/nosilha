@@ -6,6 +6,7 @@ import {
   MapTeaserSection,
   NewsletterCtaSection,
 } from "@/components/landing";
+import { ScrollIndicator } from "@/components/ui/scroll-indicator";
 import { StickyNav } from "@/components/ui/sticky-nav";
 import type { DirectoryEntry } from "@/types/directory";
 
@@ -20,13 +21,28 @@ export function HomePageContent({ featuredEntries }: HomePageContentProps) {
       {/* === Content Layer === */}
       <div className="bg-background-secondary relative">
         <HeroSectionNew />
-        {/* Hero sticky nav: negative margin pulls it into the hero area.
-            Hidden on mobile where MobileBottomNav handles navigation. */}
-        <div className="-mt-28 hidden lg:block">
+        {/* Dark wrapper: bg matches hero's bottom gradient for seamless transition.
+            StickyNav is at this DOM level so sticky top-0 works across the page. */}
+        <div className="hidden bg-stone-950 lg:block">
           <StickyNav heroMode />
+          <div className="relative h-36">
+            <ScrollIndicator
+              onClick={() => {
+                const sections = document.querySelectorAll("section");
+                const target = sections[1];
+                if (target) {
+                  window.scrollTo({
+                    top:
+                      window.scrollY +
+                      target.getBoundingClientRect().top -
+                      60,
+                    behavior: "smooth",
+                  });
+                }
+              }}
+            />
+          </div>
         </div>
-        {/* Dark spacer prevents white background from bleeding into viewport */}
-        <div className="hidden h-12 bg-stone-950 lg:block" aria-hidden="true" />
 
         {/* Unified onboarding + navigation: "What is NosIlha?" with 3 clickable pillars */}
         <ExploreHeritageSection />

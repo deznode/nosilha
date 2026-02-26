@@ -208,8 +208,8 @@ function HeroContent() {
         </motion.div>
       </motion.div>
 
-      {/* Scroll Indicator */}
-      <ScrollIndicator onClick={handleScrollDown} />
+      {/* Scroll Indicator — visible on mobile; desktop version rendered via children */}
+      <ScrollIndicator onClick={handleScrollDown} className="lg:hidden" />
     </section>
   );
 }
@@ -218,14 +218,18 @@ function HeroContent() {
 
 interface HeroSectionNewProps {
   className?: string;
+  children?: React.ReactNode;
 }
 
-export function HeroSectionNew({ className }: HeroSectionNewProps) {
+export function HeroSectionNew({ className, children }: HeroSectionNewProps) {
   return (
-    <div className={clsx("relative h-[calc(100svh-5rem)] lg:h-svh", className)}>
+    <div className={clsx("relative", className)}>
       <FixedBackground />
-      <div className="relative z-10 h-full overflow-hidden">
-        <HeroContent />
+      <div className="relative z-10">
+        <div className="flex h-[calc(100svh-5rem)] items-center justify-center overflow-hidden lg:h-[calc(100svh-12rem)]">
+          <HeroContent />
+        </div>
+        {children}
       </div>
     </div>
   );
