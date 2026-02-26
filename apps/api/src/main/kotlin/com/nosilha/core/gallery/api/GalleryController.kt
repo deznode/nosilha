@@ -130,6 +130,53 @@ class GalleryController(
     }
 
     /**
+     * Returns N randomly selected gallery photos.
+     *
+     * <p>Each call returns different results (unseeded random).
+     * Count is capped at 10 to prevent abuse.</p>
+     *
+     * @param count Number of random photos (default 1, max 10)
+     * @return ApiResult with list of random gallery media items
+     */
+    @GetMapping("/random")
+    fun getRandomMedia(
+        @RequestParam(name = "count", defaultValue = "1") count: Int,
+    ): ApiResult<List<PublicGalleryMediaDto>> {
+        val cappedCount = count.coerceIn(1, 10)
+        logger.debug { "Random media request: count=$cappedCount" }
+        return ApiResult(data = galleryService.getRandomMedia(cappedCount))
+    }
+
+    /**
+     * Returns the daily featured photo.
+     *
+     * <p>Same photo returned for all users on the same calendar day.
+     * Returns an empty list when the gallery has no photos.</p>
+     *
+     * @return ApiResult with a single-element list (or empty)
+     */
+    @GetMapping("/featured")
+    fun getDailyFeatured(): ApiResult<List<PublicGalleryMediaDto>> {
+        logger.debug { "Daily featured photo request" }
+        val featured = galleryService.getDailyFeatured()
+        return ApiResult(data = listOfNotNull(featured))
+    }
+
+    /**
+     * Returns this week's discovery photos (up to 5).
+     *
+     * <p>Same photos returned for the same ISO week.
+     * Returns an empty list when the gallery has no photos.</p>
+     *
+     * @return ApiResult with list of weekly discovery photos
+     */
+    @GetMapping("/weekly")
+    fun getWeeklyDiscovery(): ApiResult<List<PublicGalleryMediaDto>> {
+        logger.debug { "Weekly discovery request" }
+        return ApiResult(data = galleryService.getWeeklyDiscovery())
+    }
+
+    /**
      * Generates a presigned URL for direct browser-to-R2 upload.
      *
      * The URL expires in 10 minutes. After successful upload to R2,
