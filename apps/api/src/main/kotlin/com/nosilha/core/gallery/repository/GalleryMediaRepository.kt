@@ -212,6 +212,20 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     fun findAllExternalMedia(): List<ExternalMedia>
 
     /**
+     * Returns IDs of all active gallery-visible media.
+     *
+     * Lightweight projection query for random selection — avoids loading
+     * full entity graphs into memory. Only returns the UUID primary key.
+     *
+     * @param status The media status to filter by (typically ACTIVE)
+     * @return List of media UUIDs matching the criteria
+     */
+    @Query("SELECT gm.id FROM GalleryMedia gm WHERE gm.status = :status AND gm.showInGallery = true")
+    fun findIdsByStatusAndShowInGalleryTrue(
+        @Param("status") status: GalleryMediaStatus,
+    ): List<UUID>
+
+    /**
      * Full-text search across gallery media using Portuguese text search config.
      * Searches title (weight A), description (B), and location_name (C).
      * Results ranked by ts_rank relevance score.

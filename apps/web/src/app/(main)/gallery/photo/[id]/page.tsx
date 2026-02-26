@@ -14,6 +14,9 @@ import { getGalleryMediaById } from "@/lib/api";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import { ShareButton } from "@/components/ui/actions/share-button";
 import { CreditDisplay } from "@/components/ui/credit-display";
+import { IdentifyPhotoButton } from "@/components/gallery/identify-photo-button";
+import { isRawFilename, resolvePublicImageUrl } from "@/lib/gallery-mappers";
+import { YouTubeFacade } from "@/components/gallery/youtube-facade";
 import type {
   PublicGalleryMedia,
   PublicUserUploadMedia,
@@ -28,13 +31,6 @@ const UUID_REGEX =
 
 interface PhotoDetailPageProps {
   params: Promise<{ id: string }>;
-}
-
-function getPhotoUrl(media: PublicGalleryMedia): string | null {
-  if (media.mediaSource === "USER_UPLOAD") {
-    return media.publicUrl || null;
-  }
-  return media.url || media.thumbnailUrl || null;
 }
 
 function getPhotoTitle(media: PublicGalleryMedia): string {
@@ -64,7 +60,7 @@ export async function generateMetadata({
 
   const title = getPhotoTitle(media);
   const description = getPhotoDescription(media);
-  const imageUrl = getPhotoUrl(media);
+  const imageUrl = resolvePublicImageUrl(media);
 
   const breadcrumbSchema: BreadcrumbListSchema = {
     "@context": "https://schema.org",
@@ -227,7 +223,7 @@ export default async function PhotoDetailPage({
     notFound();
   }
 
-  const imageUrl = getPhotoUrl(media);
+  const imageUrl = resolvePublicImageUrl(media);
   const title = getPhotoTitle(media);
   const description = media.description || null;
   const shareUrl = `${siteConfig.url}/gallery/photo/${id}`;
@@ -254,6 +250,11 @@ export default async function PhotoDetailPage({
         day: "numeric",
       })
     : upload?.approximateDate || null;
+
+  const needsIdentification =
+    isRawFilename(media.title || "") ||
+    !upload?.locationName ||
+    (!upload?.dateTaken && !upload?.approximateDate);
 
   return (
     <div className="bg-canvas min-h-screen">
@@ -284,7 +285,20 @@ export default async function PhotoDetailPage({
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Photo */}
           <div className="lg:col-span-2">
-            {imageUrl ? (
+            {media.mediaSource === "EXTERNAL" && media.mediaType === "VIDEO" ? (
+              <div className="bg-surface rounded-card shadow-subtle relative overflow-hidden">
+                <YouTubeFacade
+                  video={{
+                    id: media.id,
+                    type: "VIDEO",
+                    url: media.embedUrl || media.url || "",
+                    thumbnailUrl: imageUrl || "/images/video-placeholder.jpg",
+                    title,
+                    category: "Culture",
+                  }}
+                />
+              </div>
+            ) : imageUrl ? (
               <div className="bg-surface rounded-card shadow-subtle relative overflow-hidden">
                 <Image
                   src={imageUrl}
@@ -374,7 +388,7 @@ export default async function PhotoDetailPage({
             </div>
 
             {/* Actions */}
-            <div className="border-hairline flex items-center gap-3 border-t pt-4">
+            <div className="border-hairline flex flex-wrap items-center gap-3 border-t pt-4">
               <ShareButton
                 title={title}
                 url={shareUrl}
@@ -389,6 +403,13 @@ export default async function PhotoDetailPage({
                 >
                   View Full Size
                 </a>
+              )}
+              {needsIdentification && (
+                <IdentifyPhotoButton
+                  mediaId={id}
+                  photoTitle={title}
+                  pageUrl={shareUrl}
+                />
               )}
             </div>
           </div>

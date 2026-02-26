@@ -3,9 +3,11 @@ package com.nosilha.core.gallery.domain
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.nosilha.core.auth.api.UserProfileQueryService
+import com.nosilha.core.gallery.api.dto.DecadeGroupDto
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.PublicGalleryMediaDto
 import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
+import com.nosilha.core.gallery.api.dto.TimelineDto
 import com.nosilha.core.gallery.api.dto.contributorIds
 import com.nosilha.core.gallery.api.dto.toDto
 import com.nosilha.core.gallery.api.dto.toPublicDto
@@ -30,9 +32,12 @@ import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneOffset
+import java.time.temporal.WeekFields
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 
 private val logger = KotlinLogging.logger {}
 
@@ -121,6 +126,27 @@ class GalleryService(
         .newBuilder()
         .maximumSize(10_000)
         .expireAfterAccess(1, TimeUnit.DAYS)
+        .build()
+
+    /** Cache for daily featured photo — single entry, 1-hour TTL. Wraps in list to handle empty gallery. */
+    private val dailyFeaturedCache: Cache<String, List<PublicGalleryMediaDto>> = Caffeine
+        .newBuilder()
+        .maximumSize(1)
+        .expireAfterWrite(1, TimeUnit.HOURS)
+        .build()
+
+    /** Cache for weekly discovery photos — single entry, 4-hour TTL. */
+    private val weeklyDiscoveryCache: Cache<String, List<PublicGalleryMediaDto>> = Caffeine
+        .newBuilder()
+        .maximumSize(1)
+        .expireAfterWrite(4, TimeUnit.HOURS)
+        .build()
+
+    /** Cache for timeline aggregation — single entry, 30-minute TTL. */
+    private val timelineCache: Cache<String, TimelineDto> = Caffeine
+        .newBuilder()
+        .maximumSize(1)
+        .expireAfterWrite(30, TimeUnit.MINUTES)
         .build()
 
     /** Whether R2 storage is enabled and available. */
@@ -678,6 +704,138 @@ class GalleryService(
         val displayNames = resolveDisplayNames(mediaList)
         return mediaList.map { PublicGalleryMediaDto.from(it, it.uploadedBy?.let { id -> displayNames[id] }) }
     }
+
+    // -- Random Discovery methods --
+
+    /**
+     * Returns N randomly selected active gallery-visible media items.
+     *
+     * Fetches all active gallery-visible IDs via a lightweight projection query,
+     * selects [count] random IDs, then batch-fetches the full entities.
+     * Uses unseeded random — different results on each call.
+     *
+     * @param count Number of random items to return (caller should cap this)
+     * @return List of randomly selected public gallery media DTOs
+     */
+    @Transactional(readOnly = true)
+    fun getRandomMedia(count: Int): List<PublicGalleryMediaDto> {
+        val ids = repository.findIdsByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
+        if (ids.isEmpty()) return emptyList()
+
+        val selectedIds = ids.shuffled().take(count)
+        return fetchAndMapPublicDtos(selectedIds)
+    }
+
+    /**
+     * Returns the daily featured photo, consistent for all users on the same day.
+     *
+     * <p>Uses the day-of-year as a seed for deterministic selection:
+     * same photo for all requests on the same calendar day.
+     * Results are cached for 1 hour to reduce DB load.</p>
+     *
+     * @return Single featured photo DTO, or null if gallery is empty
+     */
+    @Transactional(readOnly = true)
+    fun getDailyFeatured(): PublicGalleryMediaDto? {
+        val cached = dailyFeaturedCache.get("daily") {
+            val ids = repository.findIdsByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
+            if (ids.isEmpty()) return@get emptyList()
+
+            val today = LocalDate.now()
+            val seed = today.dayOfYear.toLong() * 1000 + today.year.toLong()
+            val index = Random(seed).nextInt(ids.size)
+            fetchAndMapPublicDtos(listOf(ids[index]))
+        }
+        return cached.firstOrNull()
+    }
+
+    /**
+     * Returns weekly discovery photos, consistent for the same ISO week.
+     *
+     * <p>Uses the ISO week number as a seed for deterministic selection:
+     * same photos for all requests within the same ISO week.
+     * Results are cached for 4 hours to reduce DB load.</p>
+     *
+     * @param count Number of weekly discovery items (default 5)
+     * @return List of weekly discovery photo DTOs
+     */
+    @Transactional(readOnly = true)
+    fun getWeeklyDiscovery(count: Int = 5): List<PublicGalleryMediaDto> =
+        weeklyDiscoveryCache.get("weekly") {
+            val ids = repository.findIdsByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
+            if (ids.isEmpty()) return@get emptyList()
+
+            val today = LocalDate.now()
+            val weekOfYear = today.get(WeekFields.ISO.weekOfWeekBasedYear())
+            val seed = weekOfYear.toLong() * 1000 + today.year.toLong()
+            val random = Random(seed)
+
+            // TODO: Consider TABLESAMPLE optimization for datasets > 1000 items
+            val selectedIds = ids.shuffled(random).take(count)
+            fetchAndMapPublicDtos(selectedIds)
+        }
+
+    /**
+     * Batch-fetches media by IDs and maps to public DTOs with display names.
+     */
+    private fun fetchAndMapPublicDtos(ids: List<UUID>): List<PublicGalleryMediaDto> {
+        val media = repository.findAllById(ids)
+        val displayNames = resolveDisplayNames(media)
+        return media.map { it.toPublicDto(displayNames) }
+    }
+
+    /**
+     * Aggregates gallery media into decade groups for the timeline view.
+     *
+     * Groups: pre-1975, 1975-1990, 1990-2010, 2010-plus.
+     * Each group includes a count and up to 3 sample photos.
+     * Cached for 30 minutes.
+     */
+    @Transactional(readOnly = true)
+    fun getTimelineAggregation(): TimelineDto =
+        timelineCache.get("timeline") {
+            val allMedia = repository.findByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
+            if (allMedia.isEmpty()) return@get TimelineDto(groups = emptyList(), totalCount = 0)
+
+            val displayNames = resolveDisplayNames(allMedia)
+
+            data class DecadeConfig(
+                val key: String,
+                val label: String,
+            )
+
+            val decades = listOf(
+                DecadeConfig("pre-1975", "Pre-1975"),
+                DecadeConfig("1975-1990", "1975\u20131990"),
+                DecadeConfig("1990-2010", "1990\u20132010"),
+                DecadeConfig("2010-plus", "2010+"),
+            )
+
+            val grouped = allMedia.groupBy { media ->
+                val year = resolveYear(media)
+                when {
+                    year < 1975 -> "pre-1975"
+                    year < 1990 -> "1975-1990"
+                    year < 2010 -> "1990-2010"
+                    else -> "2010-plus"
+                }
+            }
+
+            val groups = decades.map { config ->
+                val items = grouped[config.key] ?: emptyList()
+                DecadeGroupDto(
+                    decade = config.key,
+                    label = config.label,
+                    count = items.size,
+                    samplePhotos = items
+                        .sortedBy { it.displayOrder }
+                        .take(3)
+                        .map { it.toPublicDto(displayNames) },
+                )
+            }
+
+            TimelineDto(groups = groups, totalCount = allMedia.size)
+        }
 
     // -- Admin API methods (full DTO) --
 

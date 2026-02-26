@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
-import { getGalleryMedia, getGalleryCategories } from "@/lib/api";
+import {
+  getGalleryMedia,
+  getGalleryCategories,
+  getFeaturedPhoto,
+  getWeeklyDiscovery,
+  getGalleryTimeline,
+} from "@/lib/api";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import { getQueryClient } from "@/lib/query-client";
 import {
@@ -16,16 +22,13 @@ import type {
   ImageGallerySchema,
   ImageObjectSchema,
 } from "@/types/metadata";
-import type { PublicUserUploadMedia } from "@/types/gallery";
+import type {
+  PublicUserUploadMedia,
+  DecadeFilter,
+  GalleryView,
+} from "@/types/gallery";
 
 export const revalidate = 1800; // 30 minutes ISR matching CacheConfig.GALLERY
-
-type DecadeFilter =
-  | "all"
-  | "pre-1975"
-  | "1975-1990"
-  | "1990-2010"
-  | "2010-plus";
 
 const VALID_DECADES = new Set<string>([
   "pre-1975",
@@ -40,6 +43,7 @@ interface GalleryPageProps {
     category?: string;
     decade?: string;
     q?: string;
+    view?: string;
   }>;
 }
 
@@ -118,11 +122,12 @@ export async function generateMetadata({
 }
 
 export default async function GalleryPage({ searchParams }: GalleryPageProps) {
-  const { tab, category, decade, q } = await searchParams;
+  const { tab, category, decade, q, view } = await searchParams;
 
   const initialDecade: DecadeFilter =
     decade && VALID_DECADES.has(decade) ? (decade as DecadeFilter) : "all";
   const initialQuery = q?.trim() || "";
+  const initialView: GalleryView = view === "timeline" ? "timeline" : "grid";
 
   const filters = {
     category: category || undefined,
@@ -134,21 +139,27 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
   // HydrationBoundary seeds the cache for the exact SSR query key.
   const queryClient = getQueryClient();
 
-  const [, apiCategories, galleryResponse] = await Promise.all([
-    queryClient.prefetchInfiniteQuery({
-      queryKey: galleryQueryKey(filters),
-      queryFn: galleryQueryFn(filters),
-      initialPageParam: 0,
-      getNextPageParam: galleryGetNextPageParam,
-      pages: 1,
-    }),
-    getGalleryCategories().catch(() => [] as string[]),
-    getGalleryMedia({
-      size: GALLERY_PAGE_SIZE,
-      decade: filters.decade,
-      q: filters.q,
-    }),
-  ]);
+  const [, apiCategories, galleryResponse, featuredPhoto, weeklyPhotos, timelineData] =
+    await Promise.all([
+      queryClient.prefetchInfiniteQuery({
+        queryKey: galleryQueryKey(filters),
+        queryFn: galleryQueryFn(filters),
+        initialPageParam: 0,
+        getNextPageParam: galleryGetNextPageParam,
+        pages: 1,
+      }),
+      getGalleryCategories().catch(() => [] as string[]),
+      getGalleryMedia({
+        size: GALLERY_PAGE_SIZE,
+        decade: filters.decade,
+        q: filters.q,
+      }),
+      getFeaturedPhoto().catch(() => null),
+      getWeeklyDiscovery().catch(() => []),
+      initialView === "timeline"
+        ? getGalleryTimeline().catch(() => null)
+        : Promise.resolve(null),
+    ]);
 
   const initialTab: "photos" | "videos" =
     tab === "videos" ? "videos" : "photos";
@@ -190,6 +201,10 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
           initialCategory={initialCategory}
           initialDecade={initialDecade}
           initialQuery={initialQuery}
+          initialView={initialView}
+          featuredPhoto={featuredPhoto}
+          weeklyPhotos={weeklyPhotos}
+          timelineData={timelineData}
         />
       </HydrationBoundary>
     </>

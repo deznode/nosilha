@@ -27,6 +27,7 @@ data class SuggestionListDto(
     val email: String,
     val suggestionType: SuggestionType,
     val status: SuggestionStatus,
+    val mediaId: UUID?,
     val createdAt: Instant?,
 )
 
@@ -61,6 +62,7 @@ data class SuggestionDetailDto(
     val pageTitle: String?,
     val pageUrl: String?,
     val contentType: String?,
+    val mediaId: UUID?,
     val status: SuggestionStatus,
     val adminNotes: String?,
     val reviewedBy: UUID?,
@@ -111,6 +113,7 @@ fun Suggestion.toListDto() =
         email = this.email,
         suggestionType = this.suggestionType,
         status = this.status,
+        mediaId = this.mediaId,
         createdAt = this.createdAt,
     )
 
@@ -132,6 +135,7 @@ fun Suggestion.toDetailDto() =
         pageTitle = this.pageTitle,
         pageUrl = this.pageUrl,
         contentType = this.contentType,
+        mediaId = this.mediaId,
         status = this.status,
         adminNotes = this.adminNotes,
         reviewedBy = this.reviewedBy,

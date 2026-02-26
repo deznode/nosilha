@@ -33,11 +33,12 @@ const SHIMMER_BLUR_DATA_URL =
 export function mediaItemToPhoto(item: MediaItem): Photo {
   return {
     id: item.id,
-    src: item.url,
+    src: item.type === "VIDEO" && item.thumbnailUrl ? item.thumbnailUrl : item.url,
     alt: item.altText || item.title,
     location: item.locationName || "Brava Island",
     date: item.date || "",
     description: item.description || "",
+    title: item.title,
     author: item.author,
     creditPlatform: item.creditPlatform,
     creditHandle: item.creditHandle,
@@ -140,7 +141,7 @@ export const MasonryPhotoGrid = React.forwardRef<
                   {/* Photo with natural aspect ratio */}
                   <div className="relative overflow-hidden">
                     <Image
-                      src={photo.url}
+                      src={photo.type === "VIDEO" && photo.thumbnailUrl ? photo.thumbnailUrl : photo.url}
                       alt={photo.altText || photo.title}
                       width={800}
                       height={600}

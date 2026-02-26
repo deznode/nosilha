@@ -11,8 +11,11 @@ import com.nosilha.core.feedback.api.toDetailDto
 import com.nosilha.core.feedback.api.toListDto
 import com.nosilha.core.feedback.domain.Suggestion
 import com.nosilha.core.feedback.domain.SuggestionStatus
+import com.nosilha.core.feedback.domain.SuggestionType
 import com.nosilha.core.feedback.events.SuggestionStatusChangedEvent
 import com.nosilha.core.feedback.repository.SuggestionRepository
+import com.nosilha.core.gallery.domain.GalleryService
+import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
 import com.nosilha.core.shared.util.ContentSanitizer
@@ -33,15 +36,19 @@ private val logger = KotlinLogging.logger {}
 /**
  * Service for managing content improvement suggestions from community members.
  *
- * Implements rate limiting (5 submissions per hour per IP address) and honeypot
- * spam protection to maintain content quality while allowing unauthenticated contributions.
+ * Implements rate limiting (5 submissions per hour per IP address), honeypot
+ * spam protection, and gallery media validation for PHOTO_IDENTIFICATION suggestions
+ * to maintain content quality while allowing unauthenticated contributions.
  *
  * @property suggestionRepository Repository for persisting suggestions
+ * @property galleryService Gallery service for media existence validation (cross-module dependency
+ *   accepted for simple existence check — event-based validation would be over-engineered here)
  */
 @Service
 class SuggestionService(
     private val suggestionRepository: SuggestionRepository,
     private val eventPublisher: ApplicationEventPublisher,
+    private val galleryService: GalleryService,
 ) {
     companion object {
         const val MAX_SUBMISSIONS_PER_HOUR = 5L
@@ -72,6 +79,8 @@ class SuggestionService(
      * @return Response DTO with confirmation message
      * @throws RateLimitExceededException if user has exceeded submission limit
      * @throws HoneypotSpamDetectedException if honeypot field is filled
+     * @throws BusinessException if mediaId is missing for PHOTO_IDENTIFICATION suggestions
+     * @throws ResourceNotFoundException if referenced gallery media does not exist
      */
     @Transactional
     fun submitSuggestion(
@@ -84,6 +93,17 @@ class SuggestionService(
         if (!dto.honeypot.isNullOrBlank()) {
             logger.warn { "Honeypot field detected - potential spam from IP: $ipAddress" }
             throw HoneypotSpamDetectedException("Spam submission detected")
+        }
+
+        // Validate mediaId for PHOTO_IDENTIFICATION suggestions
+        if (dto.suggestionType == SuggestionType.PHOTO_IDENTIFICATION) {
+            if (dto.mediaId == null) {
+                throw BusinessException("mediaId is required for PHOTO_IDENTIFICATION suggestions")
+            }
+            val media = galleryService.getByIdPublic(dto.mediaId)
+            if (media == null) {
+                throw ResourceNotFoundException("Gallery media with id ${dto.mediaId} not found")
+            }
         }
 
         // Atomic rate limiting using Bucket4j token bucket algorithm
@@ -115,6 +135,7 @@ class SuggestionService(
                 suggestionType = dto.suggestionType,
                 message = sanitizedMessage,
                 ipAddress = ipAddress,
+                mediaId = dto.mediaId,
             )
 
         val savedSuggestion = suggestionRepository.save(suggestion)

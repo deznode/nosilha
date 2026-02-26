@@ -204,6 +204,36 @@ export interface PublicGalleryMediaPageResponse {
 }
 
 /**
+ * A single decade group in the timeline aggregation.
+ */
+export interface DecadeGroup {
+  decade: string;
+  label: string;
+  count: number;
+  samplePhotos: PublicGalleryMedia[];
+}
+
+/**
+ * Response for the gallery timeline aggregation endpoint.
+ */
+export interface TimelineResponse {
+  groups: DecadeGroup[];
+  totalCount: number;
+}
+
+/**
+ * Gallery filter types shared between server and client components.
+ */
+export type DecadeFilter =
+  | "all"
+  | "pre-1975"
+  | "1975-1990"
+  | "1990-2010"
+  | "2010-plus";
+
+export type GalleryView = "grid" | "timeline";
+
+/**
  * Query parameters for gallery API calls
  */
 export interface GalleryMediaQueryParams {

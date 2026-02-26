@@ -717,8 +717,13 @@ export class MockApiClient implements ApiClient {
     contentType: string;
     name: string;
     email: string;
-    suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";
+    suggestionType:
+      | "CORRECTION"
+      | "ADDITION"
+      | "FEEDBACK"
+      | "PHOTO_IDENTIFICATION";
     message: string;
+    mediaId?: string;
     honeypot?: string;
   }): Promise<{ id: string | null; message: string }> {
     console.log(`Mock API: Submitting suggestion`, suggestionDto);
@@ -1730,6 +1735,34 @@ ${story.content
   async getGalleryCategories(): Promise<string[]> {
     await this.simulateDelay(150);
     return ["Heritage", "Culture", "Nature"];
+  }
+
+  async getRandomGalleryMedia(): Promise<
+    import("@/types/gallery").PublicGalleryMedia[]
+  > {
+    await this.simulateDelay(200);
+    return [];
+  }
+
+  async getFeaturedPhoto(): Promise<
+    import("@/types/gallery").PublicGalleryMedia | null
+  > {
+    await this.simulateDelay(200);
+    return null;
+  }
+
+  async getWeeklyDiscovery(): Promise<
+    import("@/types/gallery").PublicGalleryMedia[]
+  > {
+    await this.simulateDelay(200);
+    return [];
+  }
+
+  async getGalleryTimeline(): Promise<
+    import("@/types/gallery").TimelineResponse
+  > {
+    await this.simulateDelay(200);
+    return { groups: [], totalCount: 0 };
   }
 
   async submitExternalMedia(): Promise<{ id: string; message: string }> {

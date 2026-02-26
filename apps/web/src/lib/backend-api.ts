@@ -745,8 +745,13 @@ export class BackendApiClient implements ApiClient {
     contentType: string;
     name: string;
     email: string;
-    suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";
+    suggestionType:
+      | "CORRECTION"
+      | "ADDITION"
+      | "FEEDBACK"
+      | "PHOTO_IDENTIFICATION";
     message: string;
+    mediaId?: string;
     honeypot?: string;
   }): Promise<{ id: string | null; message: string }> {
     const endpoint = `${env.apiUrl}/api/v1/suggestions`;
@@ -2472,6 +2477,57 @@ export class BackendApiClient implements ApiClient {
 
     const payload = await response.json();
     return this.unwrapApiResponse<string[]>(payload);
+  }
+
+  async getRandomGalleryMedia(count: number = 1): Promise<PublicGalleryMedia[]> {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/random?count=${count}`;
+    const response = await fetch(endpoint, { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch random gallery media: ${response.status}`);
+    }
+    const payload = await response.json();
+    return this.unwrapApiResponse<PublicGalleryMedia[]>(payload);
+  }
+
+  async getFeaturedPhoto(): Promise<PublicGalleryMedia | null> {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/featured`;
+    const response = await fetch(endpoint, {
+      next: CacheConfig.GALLERY,
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch featured photo: ${response.status}`);
+    }
+    const payload = await response.json();
+    const items = this.unwrapApiResponse<PublicGalleryMedia[]>(payload);
+    return items[0] ?? null;
+  }
+
+  async getWeeklyDiscovery(): Promise<PublicGalleryMedia[]> {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/weekly`;
+    const response = await fetch(endpoint, {
+      next: CacheConfig.GALLERY,
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch weekly discovery: ${response.status}`);
+    }
+    const payload = await response.json();
+    return this.unwrapApiResponse<PublicGalleryMedia[]>(payload);
+  }
+
+  async getGalleryTimeline(): Promise<
+    import("@/types/gallery").TimelineResponse
+  > {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/timeline`;
+    const response = await fetch(endpoint, {
+      next: CacheConfig.GALLERY,
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch gallery timeline: ${response.status}`);
+    }
+    const payload = await response.json();
+    return this.unwrapApiResponse<import("@/types/gallery").TimelineResponse>(
+      payload
+    );
   }
 
   /**

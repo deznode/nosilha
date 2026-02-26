@@ -6,6 +6,7 @@ import com.nosilha.core.gallery.api.dto.PresignRequest
 import com.nosilha.core.gallery.api.dto.PresignResponse
 import com.nosilha.core.gallery.api.dto.PublicGalleryMediaDto
 import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
+import com.nosilha.core.gallery.api.dto.TimelineDto
 import com.nosilha.core.gallery.domain.GalleryService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
@@ -37,6 +38,10 @@ private val logger = KotlinLogging.logger {}
  * - GET /{id} - Get single gallery item
  * - GET /entry/{entryId} - Media for directory entry (UserUploadedMedia only)
  * - GET /categories - Distinct categories across all media
+ * - GET /random - Random gallery photos (unseeded)
+ * - GET /featured - Daily featured photo (seeded by day)
+ * - GET /weekly - Weekly discovery photos (seeded by ISO week)
+ * - GET /timeline - Decade-grouped timeline aggregation
  * - POST /upload/presign - Presigned URL for user upload
  * - POST /upload/confirm - Confirm user upload
  * - POST /submit - Submit external media for review
@@ -127,6 +132,68 @@ class GalleryController(
     fun getCategories(): ApiResult<List<String>> {
         logger.debug { "Fetching gallery categories" }
         return ApiResult(data = galleryService.getCategories())
+    }
+
+    /**
+     * Returns N randomly selected gallery photos.
+     *
+     * <p>Each call returns different results (unseeded random).
+     * Count is capped at 10 to prevent abuse.</p>
+     *
+     * @param count Number of random photos (default 1, max 10)
+     * @return ApiResult with list of random gallery media items
+     */
+    @GetMapping("/random")
+    fun getRandomMedia(
+        @RequestParam(name = "count", defaultValue = "1") count: Int,
+    ): ApiResult<List<PublicGalleryMediaDto>> {
+        val cappedCount = count.coerceIn(1, 10)
+        logger.debug { "Random media request: count=$cappedCount" }
+        return ApiResult(data = galleryService.getRandomMedia(cappedCount))
+    }
+
+    /**
+     * Returns the daily featured photo.
+     *
+     * <p>Same photo returned for all users on the same calendar day.
+     * Returns an empty list when the gallery has no photos.</p>
+     *
+     * @return ApiResult with a single-element list (or empty)
+     */
+    @GetMapping("/featured")
+    fun getDailyFeatured(): ApiResult<List<PublicGalleryMediaDto>> {
+        logger.debug { "Daily featured photo request" }
+        val featured = galleryService.getDailyFeatured()
+        return ApiResult(data = listOfNotNull(featured))
+    }
+
+    /**
+     * Returns this week's discovery photos (up to 5).
+     *
+     * <p>Same photos returned for the same ISO week.
+     * Returns an empty list when the gallery has no photos.</p>
+     *
+     * @return ApiResult with list of weekly discovery photos
+     */
+    @GetMapping("/weekly")
+    fun getWeeklyDiscovery(): ApiResult<List<PublicGalleryMediaDto>> {
+        logger.debug { "Weekly discovery request" }
+        return ApiResult(data = galleryService.getWeeklyDiscovery())
+    }
+
+    /**
+     * Get gallery timeline aggregated by decade.
+     *
+     * Groups all gallery-visible media into decade buckets with counts
+     * and up to 3 sample photos per decade for preview thumbnails.
+     * Cached for 30 minutes.
+     *
+     * @return ApiResult with timeline data grouped by decade
+     */
+    @GetMapping("/timeline")
+    fun getTimeline(): ApiResult<TimelineDto> {
+        logger.debug { "Timeline aggregation request" }
+        return ApiResult(data = galleryService.getTimelineAggregation())
     }
 
     /**
