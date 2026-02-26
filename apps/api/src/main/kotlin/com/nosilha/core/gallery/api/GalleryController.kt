@@ -71,21 +71,26 @@ class GalleryController(
      *
      * Query Parameters:
      * - category: Optional category filter
+     * - hasGeo: Optional geo-filter (true = only items with GPS coordinates)
      * - page: Page number (default: 0)
      * - size: Items per page (default: 50, max: 100)
      *
-     * Example: GET /api/v1/gallery?category=Nature&page=0&size=20
+     * Example: GET /api/v1/gallery?category=Nature&hasGeo=true&page=0&size=20
      */
     @GetMapping
     fun listGalleryMedia(
         @RequestParam(required = false) category: String? = null,
         @RequestParam(required = false) decade: String? = null,
         @RequestParam(name = "q", required = false) query: String? = null,
+        @RequestParam(required = false) hasGeo: Boolean? = null,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "50") size: Int,
     ): PagedApiResult<PublicGalleryMediaDto> {
-        logger.debug { "Listing gallery media - category: $category, decade: $decade, q: $query, page: $page, size: $size" }
-        return galleryService.listActiveMediaPublic(category, decade, query, page, size)
+        logger.debug {
+            "Listing gallery media - category: $category, decade: $decade, " +
+                "q: $query, hasGeo: $hasGeo, page: $page, size: $size"
+        }
+        return galleryService.listActiveMediaPublic(category, decade, query, hasGeo, page, size)
     }
 
     /**
