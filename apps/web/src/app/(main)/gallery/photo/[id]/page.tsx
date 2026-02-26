@@ -15,7 +15,8 @@ import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import { ShareButton } from "@/components/ui/actions/share-button";
 import { CreditDisplay } from "@/components/ui/credit-display";
 import { IdentifyPhotoButton } from "@/components/gallery/identify-photo-button";
-import { isRawFilename } from "@/lib/gallery-mappers";
+import { isRawFilename, resolveExternalThumbnail } from "@/lib/gallery-mappers";
+import { YouTubeFacade } from "@/components/gallery/youtube-facade";
 import type {
   PublicGalleryMedia,
   PublicUserUploadMedia,
@@ -36,7 +37,12 @@ function getPhotoUrl(media: PublicGalleryMedia): string | null {
   if (media.mediaSource === "USER_UPLOAD") {
     return media.publicUrl || null;
   }
-  return media.url || media.thumbnailUrl || null;
+  // External IMAGE: url should be a valid image URL
+  if (media.mediaType === "IMAGE") {
+    return media.url || media.thumbnailUrl || null;
+  }
+  // External VIDEO/AUDIO: use resolved thumbnail, never the embed/watch URL
+  return resolveExternalThumbnail(media.thumbnailUrl, media.platform, media.externalId);
 }
 
 function getPhotoTitle(media: PublicGalleryMedia): string {
@@ -291,7 +297,20 @@ export default async function PhotoDetailPage({
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Photo */}
           <div className="lg:col-span-2">
-            {imageUrl ? (
+            {media.mediaSource === "EXTERNAL" && media.mediaType === "VIDEO" ? (
+              <div className="bg-surface rounded-card shadow-subtle relative overflow-hidden">
+                <YouTubeFacade
+                  video={{
+                    id: media.id,
+                    type: "VIDEO",
+                    url: media.embedUrl || media.url || "",
+                    thumbnailUrl: imageUrl || "/images/video-placeholder.jpg",
+                    title,
+                    category: "Culture",
+                  }}
+                />
+              </div>
+            ) : imageUrl ? (
               <div className="bg-surface rounded-card shadow-subtle relative overflow-hidden">
                 <Image
                   src={imageUrl}

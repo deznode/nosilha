@@ -69,6 +69,7 @@ Domain-specific instructions loaded automatically based on file paths:
 | `frontend/state-management.md` | `apps/web/**` | Zustand stores, TanStack Query, Zod schemas |
 | `frontend/api-client.md` | `apps/web/**` | API factory, contracts, caching, types |
 | `frontend/component-patterns.md` | `apps/web/**` | forwardRef, clsx, toast, loading states |
+| `frontend/gallery-media.md` | `apps/web/**` | Gallery media URL handling, external video/image patterns |
 | `backend/spring-modulith.md` | `apps/api/**` | Module boundaries, events, shared kernel |
 | `backend/api-patterns.md` | `apps/api/**` | ApiResult, controllers, module sub-packages |
 | `backend/kotlin-conventions.md` | `apps/api/**` | Jackson 3.x, logging, transactions, ktlint |

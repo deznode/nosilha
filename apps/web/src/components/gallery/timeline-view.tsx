@@ -4,6 +4,7 @@ import { useRef, useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { clsx } from "clsx";
 import type { TimelineResponse, DecadeGroup } from "@/types/gallery";
+import { resolveExternalThumbnail } from "@/lib/gallery-mappers";
 
 interface TimelineViewProps {
   timeline: TimelineResponse;
@@ -16,11 +17,13 @@ function getPhotoUrl(
   if (photo.mediaSource === "USER_UPLOAD") {
     return (photo as import("@/types/gallery").PublicUserUploadMedia).publicUrl || null;
   }
-  return (
-    (photo as import("@/types/gallery").PublicExternalMedia).url ||
-    (photo as import("@/types/gallery").PublicExternalMedia).thumbnailUrl ||
-    null
-  );
+  const ext = photo as import("@/types/gallery").PublicExternalMedia;
+  // External IMAGE: url should be a valid image URL
+  if (ext.mediaType === "IMAGE") {
+    return ext.url || ext.thumbnailUrl || null;
+  }
+  // External VIDEO/AUDIO: use resolved thumbnail, never the embed/watch URL
+  return resolveExternalThumbnail(ext.thumbnailUrl, ext.platform, ext.externalId);
 }
 
 function DecadeCard({
