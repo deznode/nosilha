@@ -1758,6 +1758,13 @@ ${story.content
     return [];
   }
 
+  async getGalleryTimeline(): Promise<
+    import("@/types/gallery").TimelineResponse
+  > {
+    await this.simulateDelay(200);
+    return { groups: [], totalCount: 0 };
+  }
+
   async submitExternalMedia(): Promise<{ id: string; message: string }> {
     await this.simulateDelay(500);
     return {

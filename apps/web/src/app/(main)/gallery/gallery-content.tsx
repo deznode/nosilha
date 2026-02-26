@@ -13,19 +13,24 @@ import {
   Filter,
   Shuffle,
   Loader2,
+  LayoutGrid,
+  CalendarDays,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { MasonryPhotoGrid, VideoSection } from "@/components/gallery";
 import { FeaturedPhotoCard } from "@/components/gallery/featured-photo-card";
 import { WeeklyDiscoverySection } from "@/components/gallery/weekly-discovery-section";
+import { TimelineView } from "@/components/gallery/timeline-view";
 import { Select } from "@/components/ui/select";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import { mediaItemToPhoto } from "@/components/gallery/masonry-photo-grid";
 import { useGalleryInfiniteQuery } from "@/hooks/queries/useGalleryInfiniteQuery";
 import { getRandomGalleryMedia } from "@/lib/api";
 import { mapGalleryMediaToMediaItem } from "@/lib/gallery-mappers";
-import type { PublicGalleryMedia } from "@/types/gallery";
+import type { PublicGalleryMedia, TimelineResponse } from "@/types/gallery";
 import type { MediaCategory } from "@/types/media";
+
+type GalleryView = "grid" | "timeline";
 
 const FALLBACK_CATEGORIES: MediaCategory[] = [
   "Heritage",
@@ -64,8 +69,10 @@ interface GalleryContentProps {
   initialCategory: MediaCategory | "All";
   initialDecade: DecadeFilter;
   initialQuery: string;
+  initialView?: GalleryView;
   featuredPhoto?: PublicGalleryMedia | null;
   weeklyPhotos?: PublicGalleryMedia[];
+  timelineData?: TimelineResponse | null;
 }
 
 export function GalleryContent({
@@ -74,8 +81,10 @@ export function GalleryContent({
   initialCategory,
   initialDecade,
   initialQuery,
+  initialView = "grid",
   featuredPhoto,
   weeklyPhotos,
+  timelineData,
 }: GalleryContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -87,6 +96,7 @@ export function GalleryContent({
   const [searchInput, setSearchInput] = useState(initialQuery);
   const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [activeView, setActiveView] = useState<GalleryView>(initialView);
   const [surpriseLoading, setSurpriseLoading] = useState(false);
   const [surprisePhoto, setSurprisePhoto] = useState<
     import("@/components/ui/image-lightbox").Photo | null
@@ -153,7 +163,8 @@ export function GalleryContent({
       category: MediaCategory | "All",
       decade: DecadeFilter,
       query?: string,
-      page?: number
+      page?: number,
+      view?: GalleryView
     ) => {
       const params = new URLSearchParams(searchParams.toString());
       if (tab !== "photos") {
@@ -183,10 +194,16 @@ export function GalleryContent({
       } else {
         params.delete("page");
       }
+      const v = view !== undefined ? view : activeView;
+      if (v !== "grid") {
+        params.set("view", v);
+      } else {
+        params.delete("view");
+      }
       const qs = params.toString();
       router.replace(`/gallery${qs ? `?${qs}` : ""}`, { scroll: false });
     },
-    [router, searchParams, debouncedQuery, loadedPages]
+    [router, searchParams, debouncedQuery, loadedPages, activeView]
   );
 
   // Sync URL when debounced query or loaded pages change
@@ -214,6 +231,18 @@ export function GalleryContent({
   const handleDecadeChange = (decade: DecadeFilter) => {
     setDecadeFilter(decade);
     updateUrl(activeTab, categoryFilter, decade);
+  };
+
+  const handleViewChange = (view: GalleryView) => {
+    setActiveView(view);
+    updateUrl(activeTab, categoryFilter, decadeFilter, undefined, undefined, view);
+  };
+
+  const handleTimelineDecadeSelect = (decade: string) => {
+    const decadeVal = decade as DecadeFilter;
+    setDecadeFilter(decadeVal);
+    setActiveView("grid");
+    updateUrl(activeTab, categoryFilter, decadeVal, undefined, undefined, "grid");
   };
 
   const clearSearch = () => {
@@ -337,29 +366,61 @@ export function GalleryContent({
       {/* Tabs */}
       <div className="border-hairline bg-canvas shadow-subtle sticky top-16 z-30 border-b">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
-            <button
-              onClick={() => handleTabChange("photos")}
-              className={clsx(
-                "flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium",
-                activeTab === "photos"
-                  ? "border-ocean-blue text-ocean-blue"
-                  : "text-muted hover:border-hairline hover:text-body border-transparent"
-              )}
-            >
-              <ImageIcon size={18} /> Photo Gallery ({photos.length})
-            </button>
-            <button
-              onClick={() => handleTabChange("videos")}
-              className={clsx(
-                "flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium",
-                activeTab === "videos"
-                  ? "border-bougainvillea-pink text-bougainvillea-pink"
-                  : "text-muted hover:border-hairline hover:text-body border-transparent"
-              )}
-            >
-              <Play size={18} /> Video & Podcasts ({videos.length})
-            </button>
+          <div className="flex items-center justify-between">
+            <div className="flex space-x-8">
+              <button
+                onClick={() => handleTabChange("photos")}
+                className={clsx(
+                  "flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium",
+                  activeTab === "photos"
+                    ? "border-ocean-blue text-ocean-blue"
+                    : "text-muted hover:border-hairline hover:text-body border-transparent"
+                )}
+              >
+                <ImageIcon size={18} /> Photo Gallery ({photos.length})
+              </button>
+              <button
+                onClick={() => handleTabChange("videos")}
+                className={clsx(
+                  "flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium",
+                  activeTab === "videos"
+                    ? "border-bougainvillea-pink text-bougainvillea-pink"
+                    : "text-muted hover:border-hairline hover:text-body border-transparent"
+                )}
+              >
+                <Play size={18} /> Video & Podcasts ({videos.length})
+              </button>
+            </div>
+
+            {/* View Toggle (photos tab only) */}
+            {activeTab === "photos" && (
+              <div className="border-hairline flex items-center gap-0.5 rounded-lg border p-0.5">
+                <button
+                  onClick={() => handleViewChange("grid")}
+                  aria-label="Grid view"
+                  className={clsx(
+                    "rounded-md p-1.5 transition-colors",
+                    activeView === "grid"
+                      ? "bg-ocean-blue text-white"
+                      : "text-muted hover:text-body"
+                  )}
+                >
+                  <LayoutGrid size={16} />
+                </button>
+                <button
+                  onClick={() => handleViewChange("timeline")}
+                  aria-label="Timeline view"
+                  className={clsx(
+                    "rounded-md p-1.5 transition-colors",
+                    activeView === "timeline"
+                      ? "bg-ocean-blue text-white"
+                      : "text-muted hover:text-body"
+                  )}
+                >
+                  <CalendarDays size={16} />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -400,71 +461,82 @@ export function GalleryContent({
         {/* Photo Gallery */}
         {activeTab === "photos" && (
           <>
-            {/* Featured Photo of the Day */}
-            {featuredPhoto && (
-              <div className="mb-6">
-                <FeaturedPhotoCard photo={featuredPhoto} />
-              </div>
-            )}
+            {activeView === "timeline" && timelineData ? (
+              <TimelineView
+                timeline={timelineData}
+                onDecadeSelect={handleTimelineDecadeSelect}
+              />
+            ) : (
+              <>
+                {/* Featured Photo of the Day */}
+                {featuredPhoto && (
+                  <div className="mb-6">
+                    <FeaturedPhotoCard photo={featuredPhoto} />
+                  </div>
+                )}
 
-            {/* Weekly Discovery */}
-            {weeklyPhotos && weeklyPhotos.length >= 3 && (
-              <WeeklyDiscoverySection photos={weeklyPhotos} />
-            )}
+                {/* Weekly Discovery */}
+                {weeklyPhotos && weeklyPhotos.length >= 3 && (
+                  <WeeklyDiscoverySection photos={weeklyPhotos} />
+                )}
 
-            {/* Filter Bar */}
-            <div className="mb-6 flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-1.5">
-                <span className="text-muted flex items-center text-sm font-medium whitespace-nowrap">
-                  <Clock size={14} className="mr-1" />
-                  Era:
-                </span>
-                <div className="w-52">
-                  <Select
-                    options={eraOptions}
-                    value={decadeFilter}
-                    onChange={(val) => handleDecadeChange(val as DecadeFilter)}
-                    name="era-filter"
-                  />
+                {/* Filter Bar */}
+                <div className="mb-6 flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-muted flex items-center text-sm font-medium whitespace-nowrap">
+                      <Clock size={14} className="mr-1" />
+                      Era:
+                    </span>
+                    <div className="w-52">
+                      <Select
+                        options={eraOptions}
+                        value={decadeFilter}
+                        onChange={(val) =>
+                          handleDecadeChange(val as DecadeFilter)
+                        }
+                        name="era-filter"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-muted flex items-center text-sm font-medium whitespace-nowrap">
+                      <Filter size={14} className="mr-1" />
+                      Category:
+                    </span>
+                    <div className="w-52">
+                      <Select
+                        options={categoryOptions}
+                        value={categoryFilter}
+                        onChange={(val) =>
+                          handleCategoryChange(val as MediaCategory | "All")
+                        }
+                        name="category-filter"
+                      />
+                    </div>
+                  </div>
+                  {hasActiveFilters && (
+                    <button
+                      onClick={clearAllFilters}
+                      className="text-muted hover:text-body flex items-center gap-1 text-sm transition-colors"
+                    >
+                      <X size={14} />
+                      Clear filters
+                    </button>
+                  )}
                 </div>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-muted flex items-center text-sm font-medium whitespace-nowrap">
-                  <Filter size={14} className="mr-1" />
-                  Category:
-                </span>
-                <div className="w-52">
-                  <Select
-                    options={categoryOptions}
-                    value={categoryFilter}
-                    onChange={(val) =>
-                      handleCategoryChange(val as MediaCategory | "All")
-                    }
-                    name="category-filter"
-                  />
-                </div>
-              </div>
-              {hasActiveFilters && (
-                <button
-                  onClick={clearAllFilters}
-                  className="text-muted hover:text-body flex items-center gap-1 text-sm transition-colors"
-                >
-                  <X size={14} />
-                  Clear filters
-                </button>
-              )}
-            </div>
 
-            <MasonryPhotoGrid
-              photos={photos}
-              categoryFilter={categoryFilter}
-              totalItems={totalItems}
-              hasNextPage={hasNextPage}
-              isFetchingNextPage={isFetchingNextPage || isLoading}
-              isPlaceholderData={isPlaceholderData}
-              onLoadMore={() => fetchNextPage()}
-              searchQuery={debouncedQuery}
-            />
+                <MasonryPhotoGrid
+                  photos={photos}
+                  categoryFilter={categoryFilter}
+                  totalItems={totalItems}
+                  hasNextPage={hasNextPage}
+                  isFetchingNextPage={isFetchingNextPage || isLoading}
+                  isPlaceholderData={isPlaceholderData}
+                  onLoadMore={() => fetchNextPage()}
+                  searchQuery={debouncedQuery}
+                />
+              </>
+            )}
           </>
         )}
 

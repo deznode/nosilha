@@ -746,6 +746,12 @@ export async function getWeeklyDiscovery(): Promise<
   return apiClient.getWeeklyDiscovery();
 }
 
+export async function getGalleryTimeline(): Promise<
+  import("@/types/gallery").TimelineResponse
+> {
+  return apiClient.getGalleryTimeline();
+}
+
 /**
  * Submit external media for admin review.
  * Public endpoint - no authentication required.

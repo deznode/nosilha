@@ -2514,6 +2514,22 @@ export class BackendApiClient implements ApiClient {
     return this.unwrapApiResponse<PublicGalleryMedia[]>(payload);
   }
 
+  async getGalleryTimeline(): Promise<
+    import("@/types/gallery").TimelineResponse
+  > {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/timeline`;
+    const response = await fetch(endpoint, {
+      next: CacheConfig.GALLERY,
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch gallery timeline: ${response.status}`);
+    }
+    const payload = await response.json();
+    return this.unwrapApiResponse<import("@/types/gallery").TimelineResponse>(
+      payload
+    );
+  }
+
   /**
    * Submit external media for admin review.
    *

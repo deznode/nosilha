@@ -700,6 +700,15 @@ export interface ApiClient {
   getWeeklyDiscovery(): Promise<import("@/types/gallery").PublicGalleryMedia[]>;
 
   /**
+   * Fetches the gallery timeline aggregated by decade.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @returns Timeline data with decade groups and sample photos
+   */
+  getGalleryTimeline(): Promise<import("@/types/gallery").TimelineResponse>;
+
+  /**
    * Submit external media for admin review.
    *
    * **Authenticated Endpoint**: Requires authentication.

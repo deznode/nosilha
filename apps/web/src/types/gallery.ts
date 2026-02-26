@@ -204,6 +204,24 @@ export interface PublicGalleryMediaPageResponse {
 }
 
 /**
+ * A single decade group in the timeline aggregation.
+ */
+export interface DecadeGroup {
+  decade: string;
+  label: string;
+  count: number;
+  samplePhotos: PublicGalleryMedia[];
+}
+
+/**
+ * Response for the gallery timeline aggregation endpoint.
+ */
+export interface TimelineResponse {
+  groups: DecadeGroup[];
+  totalCount: number;
+}
+
+/**
  * Query parameters for gallery API calls
  */
 export interface GalleryMediaQueryParams {

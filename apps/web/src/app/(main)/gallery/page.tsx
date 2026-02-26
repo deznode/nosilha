@@ -5,6 +5,7 @@ import {
   getGalleryCategories,
   getFeaturedPhoto,
   getWeeklyDiscovery,
+  getGalleryTimeline,
 } from "@/lib/api";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import { getQueryClient } from "@/lib/query-client";
@@ -39,12 +40,15 @@ const VALID_DECADES = new Set<string>([
   "2010-plus",
 ]);
 
+type GalleryView = "grid" | "timeline";
+
 interface GalleryPageProps {
   searchParams: Promise<{
     tab?: string;
     category?: string;
     decade?: string;
     q?: string;
+    view?: string;
   }>;
 }
 
@@ -123,11 +127,12 @@ export async function generateMetadata({
 }
 
 export default async function GalleryPage({ searchParams }: GalleryPageProps) {
-  const { tab, category, decade, q } = await searchParams;
+  const { tab, category, decade, q, view } = await searchParams;
 
   const initialDecade: DecadeFilter =
     decade && VALID_DECADES.has(decade) ? (decade as DecadeFilter) : "all";
   const initialQuery = q?.trim() || "";
+  const initialView: GalleryView = view === "timeline" ? "timeline" : "grid";
 
   const filters = {
     category: category || undefined,
@@ -139,7 +144,7 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
   // HydrationBoundary seeds the cache for the exact SSR query key.
   const queryClient = getQueryClient();
 
-  const [, apiCategories, galleryResponse, featuredPhoto, weeklyPhotos] =
+  const [, apiCategories, galleryResponse, featuredPhoto, weeklyPhotos, timelineData] =
     await Promise.all([
       queryClient.prefetchInfiniteQuery({
         queryKey: galleryQueryKey(filters),
@@ -156,6 +161,9 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
       }),
       getFeaturedPhoto().catch(() => null),
       getWeeklyDiscovery().catch(() => []),
+      initialView === "timeline"
+        ? getGalleryTimeline().catch(() => null)
+        : Promise.resolve(null),
     ]);
 
   const initialTab: "photos" | "videos" =
@@ -198,8 +206,10 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
           initialCategory={initialCategory}
           initialDecade={initialDecade}
           initialQuery={initialQuery}
+          initialView={initialView}
           featuredPhoto={featuredPhoto}
           weeklyPhotos={weeklyPhotos}
+          timelineData={timelineData}
         />
       </HydrationBoundary>
     </>
