@@ -23,8 +23,9 @@ import java.util.UUID
  * @property contentId UUID of the heritage page/content to improve
  * @property name Submitter's name
  * @property email Submitter's email (for follow-up)
- * @property suggestionType Type of suggestion (CORRECTION, ADDITION, FEEDBACK)
+ * @property suggestionType Type of suggestion (CORRECTION, ADDITION, FEEDBACK, PHOTO_IDENTIFICATION)
  * @property message Detailed suggestion message
+ * @property mediaId Optional gallery media UUID (required for PHOTO_IDENTIFICATION)
  * @property honeypot Honeypot field for spam protection (should be empty)
  */
 data class SuggestionCreateDto(
@@ -51,6 +52,7 @@ data class SuggestionCreateDto(
     @field:NotBlank(message = "Message is required")
     @field:Size(min = 10, max = 5000, message = "Message must be between 10 and 5000 characters")
     val message: String,
+    val mediaId: UUID? = null,
     // Honeypot field for spam protection (should be empty)
     val honeypot: String? = null,
 )
