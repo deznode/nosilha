@@ -53,14 +53,11 @@ export function GalleryMapCanvas({
   const [popupPhoto, setPopupPhoto] = useState<MediaItem | null>(null);
   const lastFlyToRef = useRef<string | null>(null);
 
-  // Convert photos to GeoJSON features
   const geoFeatures = useMemo(
     () =>
       photos
         .map(mediaItemToGeoFeature)
-        .filter(
-          (f): f is NonNullable<typeof f> => f !== null
-        ),
+        .filter((f): f is NonNullable<typeof f> => f !== null),
     [photos]
   );
 
@@ -79,21 +76,25 @@ export function GalleryMapCanvas({
     return map;
   }, [photos]);
 
-  const handleMove = useCallback((evt: ViewStateChangeEvent) => {
-    setZoom(evt.viewState.zoom);
+  const syncBounds = useCallback(() => {
     const b = mapRef.current?.getMap().getBounds();
     if (b) {
       setBounds([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
     }
   }, []);
 
+  const handleMove = useCallback(
+    (evt: ViewStateChangeEvent) => {
+      setZoom(evt.viewState.zoom);
+      syncBounds();
+    },
+    [syncBounds]
+  );
+
   const handleMapLoad = useCallback(() => {
     setMapReady(true);
-    const b = mapRef.current?.getMap().getBounds();
-    if (b) {
-      setBounds([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
-    }
-  }, []);
+    syncBounds();
+  }, [syncBounds]);
 
   const handleMapError = useCallback(() => {
     setMapError(true);
@@ -263,11 +264,10 @@ export function GalleryMapCanvas({
       >
         {clusters.map((cluster) => {
           const [longitude, latitude] = cluster.geometry.coordinates;
-          const props = cluster.properties as Record<string, unknown>;
-          const isCluster = props.cluster as boolean;
+          const { properties } = cluster;
 
-          if (isCluster) {
-            const pointCount = props.point_count as number;
+          if (properties.cluster) {
+            const pointCount = (properties as { point_count: number }).point_count;
             return (
               <Marker
                 key={`cluster-${cluster.id}`}
@@ -297,7 +297,7 @@ export function GalleryMapCanvas({
             );
           }
 
-          const geoProps = props as unknown as GalleryGeoProperties;
+          const geoProps = properties as GalleryGeoProperties;
           const isSelected = geoProps.mediaId === selectedPhotoId;
 
           return (

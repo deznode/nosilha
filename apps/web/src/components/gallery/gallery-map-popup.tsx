@@ -19,15 +19,13 @@ export function GalleryMapPopup({
   onOpenInGallery,
   onClose,
 }: GalleryMapPopupProps) {
-  const imageUrl = photo.thumbnailUrl ?? null;
-
   return (
     <div className="bg-surface border-hairline w-56 overflow-hidden rounded-card border shadow-elevated">
       {/* Photo preview */}
       <div className="relative h-32 w-full">
-        {imageUrl ? (
+        {photo.thumbnailUrl ? (
           <Image
-            src={imageUrl}
+            src={photo.thumbnailUrl}
             alt={photo.title}
             fill
             sizes="224px"

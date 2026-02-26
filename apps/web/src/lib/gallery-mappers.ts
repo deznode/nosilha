@@ -195,7 +195,7 @@ export function mediaItemToGeoFeature(
       mediaId: item.id,
       category: item.category,
       title: item.title,
-      thumbnailUrl: item.thumbnailUrl ?? item.url ?? null,
+      thumbnailUrl: item.thumbnailUrl ?? item.url,
     },
     geometry: {
       type: "Point",

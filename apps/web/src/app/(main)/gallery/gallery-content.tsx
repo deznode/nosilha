@@ -29,6 +29,13 @@ import { mediaItemToPhoto } from "@/components/gallery/masonry-photo-grid";
 import { useGalleryInfiniteQuery } from "@/hooks/queries/useGalleryInfiniteQuery";
 import { getRandomGalleryMedia } from "@/lib/api";
 import { mapGalleryMediaToMediaItem } from "@/lib/gallery-mappers";
+import type {
+  PublicGalleryMedia,
+  TimelineResponse,
+  DecadeFilter,
+  GalleryView,
+} from "@/types/gallery";
+import type { MediaCategory } from "@/types/media";
 
 const GalleryMapCanvas = dynamic(
   () =>
@@ -47,13 +54,6 @@ const GalleryMapCanvas = dynamic(
     ),
   }
 );
-import type {
-  PublicGalleryMedia,
-  TimelineResponse,
-  DecadeFilter,
-  GalleryView,
-} from "@/types/gallery";
-import type { MediaCategory } from "@/types/media";
 
 const FALLBACK_CATEGORIES: MediaCategory[] = [
   "Heritage",
@@ -518,7 +518,7 @@ export function GalleryContent({
                 }}
                 selectedPhotoId={mapLightboxIndex !== null ? photos[mapLightboxIndex]?.id : undefined}
                 flyToCoords={flyToCoords}
-                onViewChange={(v) => handleViewChange(v)}
+                onViewChange={handleViewChange}
                 hasActiveFilters={hasActiveFilters || !!debouncedQuery}
                 onClearFilters={clearAllFilters}
               />

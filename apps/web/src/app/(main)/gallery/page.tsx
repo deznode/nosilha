@@ -37,6 +37,13 @@ const VALID_DECADES = new Set<string>([
   "2010-plus",
 ]);
 
+const VALID_VIEWS = new Set<string>(["map", "timeline"]);
+
+function parseView(view: string | undefined): GalleryView {
+  if (view && VALID_VIEWS.has(view)) return view as GalleryView;
+  return "grid";
+}
+
 interface GalleryPageProps {
   searchParams: Promise<{
     tab?: string;
@@ -127,8 +134,7 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
   const initialDecade: DecadeFilter =
     decade && VALID_DECADES.has(decade) ? (decade as DecadeFilter) : "all";
   const initialQuery = q?.trim() || "";
-  const initialView: GalleryView =
-    view === "map" ? "map" : view === "timeline" ? "timeline" : "grid";
+  const initialView = parseView(view);
 
   const filters = {
     category: category || undefined,
