@@ -3,7 +3,7 @@
 import { useRef, useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { clsx } from "clsx";
-import type { TimelineResponse, DecadeGroup } from "@/types/gallery";
+import type { TimelineResponse, DecadeGroup, PublicGalleryMedia, PublicUserUploadMedia, PublicExternalMedia } from "@/types/gallery";
 import { resolveExternalThumbnail } from "@/lib/gallery-mappers";
 
 interface TimelineViewProps {
@@ -12,12 +12,12 @@ interface TimelineViewProps {
 }
 
 function getPhotoUrl(
-  photo: import("@/types/gallery").PublicGalleryMedia
+  photo: PublicGalleryMedia
 ): string | null {
   if (photo.mediaSource === "USER_UPLOAD") {
-    return (photo as import("@/types/gallery").PublicUserUploadMedia).publicUrl || null;
+    return (photo as PublicUserUploadMedia).publicUrl || null;
   }
-  const ext = photo as import("@/types/gallery").PublicExternalMedia;
+  const ext = photo as PublicExternalMedia;
   // External IMAGE: url should be a valid image URL
   if (ext.mediaType === "IMAGE") {
     return ext.url || ext.thumbnailUrl || null;

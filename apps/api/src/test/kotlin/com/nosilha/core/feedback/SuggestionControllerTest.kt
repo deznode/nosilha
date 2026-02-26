@@ -47,8 +47,9 @@ class SuggestionControllerTest {
 
     @BeforeEach
     fun setup() {
-        // Clean up database before each test (FK-safe order)
+        // Clean up database before each test (FK-safe order: children first)
         suggestionRepository.deleteAll()
+        galleryMediaRepository.deleteAll()
     }
 
     @Test
@@ -496,9 +497,6 @@ class SuggestionControllerTest {
             assertThat(suggestions).hasSize(1)
             assertThat(suggestions[0].suggestionType).isEqualTo(SuggestionType.PHOTO_IDENTIFICATION)
             assertThat(suggestions[0].mediaId).isEqualTo(savedMedia.id)
-
-            // Cleanup test media
-            galleryMediaRepository.delete(savedMedia)
         }
     }
 }

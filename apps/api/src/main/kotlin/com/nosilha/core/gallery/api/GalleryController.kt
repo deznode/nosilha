@@ -38,6 +38,10 @@ private val logger = KotlinLogging.logger {}
  * - GET /{id} - Get single gallery item
  * - GET /entry/{entryId} - Media for directory entry (UserUploadedMedia only)
  * - GET /categories - Distinct categories across all media
+ * - GET /random - Random gallery photos (unseeded)
+ * - GET /featured - Daily featured photo (seeded by day)
+ * - GET /weekly - Weekly discovery photos (seeded by ISO week)
+ * - GET /timeline - Decade-grouped timeline aggregation
  * - POST /upload/presign - Presigned URL for user upload
  * - POST /upload/confirm - Confirm user upload
  * - POST /submit - Submit external media for review

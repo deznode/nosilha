@@ -1,24 +1,28 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import { Sparkles } from "lucide-react";
-import { mapGalleryMediaToMediaItem } from "@/lib/gallery-mappers";
+import { mapGalleryMediaToMediaItem, resolveExternalThumbnail } from "@/lib/gallery-mappers";
 import { mediaItemToPhoto } from "@/components/gallery/masonry-photo-grid";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import type { Photo } from "@/components/ui/image-lightbox";
 import type { PublicGalleryMedia } from "@/types/gallery";
-import { useState, useMemo } from "react";
+import { isPublicUserUploadMedia, isPublicExternalMedia } from "@/types/gallery";
 
 interface WeeklyDiscoverySectionProps {
   photos: PublicGalleryMedia[];
 }
 
 function resolveThumbUrl(photo: PublicGalleryMedia): string | null {
-  if (photo.mediaSource === "USER_UPLOAD" && "publicUrl" in photo) {
+  if (isPublicUserUploadMedia(photo)) {
     return photo.publicUrl ?? null;
   }
-  if (photo.mediaSource === "EXTERNAL" && "thumbnailUrl" in photo) {
-    return photo.thumbnailUrl ?? null;
+  if (isPublicExternalMedia(photo)) {
+    if (photo.mediaType === "IMAGE") {
+      return photo.url || photo.thumbnailUrl || null;
+    }
+    return resolveExternalThumbnail(photo.thumbnailUrl, photo.platform, photo.externalId);
   }
   return null;
 }

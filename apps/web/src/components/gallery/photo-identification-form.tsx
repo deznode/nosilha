@@ -26,9 +26,8 @@ const photoIdentificationSchema = z.object({
     .max(255, "Name is too long"),
   email: z
     .string()
-    .email("Please enter a valid email address")
-    .optional()
-    .or(z.literal("")),
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
   suggestedTitle: z
     .string()
     .max(255, "Title is too long")
@@ -86,7 +85,7 @@ export function PhotoIdentificationForm({
     resolver: zodResolver(photoIdentificationSchema),
     defaultValues: {
       name: "",
-      email: "",
+      email: isAuthenticated && user?.email ? user.email : "",
       suggestedTitle: "",
       suggestedLocation: "",
       approximateDate: "",

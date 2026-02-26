@@ -91,6 +91,7 @@ export function ImageLightbox({
     setCurrentIndex(initialIndex);
     setIsZoomed(false);
     setSheetExpanded(false);
+    setIdentifyOpen(false);
   }
 
   const photo = photos[currentIndex];

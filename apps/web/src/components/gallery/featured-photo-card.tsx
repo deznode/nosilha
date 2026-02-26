@@ -3,18 +3,23 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
+import { resolveExternalThumbnail } from "@/lib/gallery-mappers";
 import type { PublicGalleryMedia } from "@/types/gallery";
+import { isPublicUserUploadMedia, isPublicExternalMedia } from "@/types/gallery";
 
 interface FeaturedPhotoCardProps {
   photo: PublicGalleryMedia;
 }
 
 function resolveImageUrl(photo: PublicGalleryMedia): string | null {
-  if (photo.mediaSource === "USER_UPLOAD" && "publicUrl" in photo) {
+  if (isPublicUserUploadMedia(photo)) {
     return photo.publicUrl ?? null;
   }
-  if (photo.mediaSource === "EXTERNAL" && "thumbnailUrl" in photo) {
-    return photo.thumbnailUrl ?? null;
+  if (isPublicExternalMedia(photo)) {
+    if (photo.mediaType === "IMAGE") {
+      return photo.url || photo.thumbnailUrl || null;
+    }
+    return resolveExternalThumbnail(photo.thumbnailUrl, photo.platform, photo.externalId);
   }
   return null;
 }

@@ -36,10 +36,13 @@ private val logger = KotlinLogging.logger {}
 /**
  * Service for managing content improvement suggestions from community members.
  *
- * Implements rate limiting (5 submissions per hour per IP address) and honeypot
- * spam protection to maintain content quality while allowing unauthenticated contributions.
+ * Implements rate limiting (5 submissions per hour per IP address), honeypot
+ * spam protection, and gallery media validation for PHOTO_IDENTIFICATION suggestions
+ * to maintain content quality while allowing unauthenticated contributions.
  *
  * @property suggestionRepository Repository for persisting suggestions
+ * @property galleryService Gallery service for media existence validation (cross-module dependency
+ *   accepted for simple existence check — event-based validation would be over-engineered here)
  */
 @Service
 class SuggestionService(
@@ -76,6 +79,8 @@ class SuggestionService(
      * @return Response DTO with confirmation message
      * @throws RateLimitExceededException if user has exceeded submission limit
      * @throws HoneypotSpamDetectedException if honeypot field is filled
+     * @throws BusinessException if mediaId is missing for PHOTO_IDENTIFICATION suggestions
+     * @throws ResourceNotFoundException if referenced gallery media does not exist
      */
     @Transactional
     fun submitSuggestion(
