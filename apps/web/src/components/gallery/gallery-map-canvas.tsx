@@ -27,6 +27,8 @@ interface GalleryMapCanvasProps {
   selectedPhotoId?: string;
   flyToCoords?: { lat: number; lng: number; photoId: string } | null;
   onViewChange?: (view: "grid") => void;
+  hasActiveFilters?: boolean;
+  onClearFilters?: () => void;
 }
 
 /**
@@ -39,6 +41,8 @@ export function GalleryMapCanvas({
   selectedPhotoId,
   flyToCoords,
   onViewChange,
+  hasActiveFilters,
+  onClearFilters,
 }: GalleryMapCanvasProps) {
   const mapRef = useRef<MapRef>(null);
   const [zoom, setZoom] = useState<number>(MAP_CONFIG.DEFAULT_ZOOM);
@@ -140,6 +144,7 @@ export function GalleryMapCanvas({
 
   // Empty state: no geo-tagged photos
   if (geoFeatures.length === 0) {
+    const isFiltered = hasActiveFilters && photos.length > 0;
     return (
       <div className="bg-surface-alt flex h-[60vh] min-h-[400px] flex-col items-center justify-center rounded-card p-8 text-center">
         <div className="bg-surface mb-4 rounded-full p-4">
@@ -149,20 +154,40 @@ export function GalleryMapCanvas({
           </div>
         </div>
         <h3 className="text-body text-lg font-medium">
-          No photos with location data yet
+          {isFiltered
+            ? "No photos with locations match your filters"
+            : "No photos with location data yet"}
         </h3>
         <p className="text-muted mt-2 max-w-sm text-sm">
-          Photos taken with GPS-enabled cameras will appear on this map.
+          {isFiltered
+            ? "Try adjusting your filters to see more results."
+            : "Photos taken with GPS-enabled cameras will appear on this map."}
         </p>
-        {onViewChange && (
-          <button
-            type="button"
-            onClick={() => onViewChange("grid")}
-            className="bg-brand text-white hover:bg-brand/90 mt-6 rounded-button px-4 py-2 text-sm font-medium transition-colors"
-          >
-            Switch to Grid View
-          </button>
-        )}
+        <div className="mt-6 flex gap-3">
+          {isFiltered && onClearFilters && (
+            <button
+              type="button"
+              onClick={onClearFilters}
+              className="bg-brand text-white hover:bg-brand/90 rounded-button px-4 py-2 text-sm font-medium transition-colors"
+            >
+              Clear Filters
+            </button>
+          )}
+          {onViewChange && (
+            <button
+              type="button"
+              onClick={() => onViewChange("grid")}
+              className={clsx(
+                "rounded-button px-4 py-2 text-sm font-medium transition-colors",
+                isFiltered
+                  ? "border-hairline text-body hover:bg-surface border"
+                  : "bg-brand text-white hover:bg-brand/90"
+              )}
+            >
+              Switch to Grid View
+            </button>
+          )}
+        </div>
       </div>
     );
   }

@@ -43,6 +43,8 @@ export interface Photo {
   locationName?: string;
   photographerCredit?: string;
   archiveSource?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface ImageLightboxProps {
@@ -50,6 +52,7 @@ interface ImageLightboxProps {
   initialIndex: number;
   isOpen: boolean;
   onClose: () => void;
+  onShowOnMap?: (lat: number, lng: number, photoId: string) => void;
 }
 
 const SWIPE_THRESHOLD = 50;
@@ -75,6 +78,7 @@ export function ImageLightbox({
   initialIndex,
   isOpen,
   onClose,
+  onShowOnMap,
 }: ImageLightboxProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [prevInitialIndex, setPrevInitialIndex] = useState(initialIndex);
@@ -303,6 +307,27 @@ export function ImageLightbox({
           {/* Desktop sidebar */}
           <div className="hidden bg-black/40 p-6 text-white backdrop-blur-sm lg:block lg:w-80 lg:overflow-y-auto">
             <MetadataPanel photo={photo} />
+            {onShowOnMap &&
+              photo.latitude != null &&
+              photo.longitude != null &&
+              photo.id && (
+                <div className="mt-4 border-t border-white/20 pt-4">
+                  <button
+                    onClick={() =>
+                      onShowOnMap(
+                        photo.latitude!,
+                        photo.longitude!,
+                        photo.id!
+                      )
+                    }
+                    aria-label="Show photo location on map"
+                    className="focus-ring touch-target flex w-full items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-white/20"
+                  >
+                    <MapPin className="h-4 w-4" />
+                    Show on Map
+                  </button>
+                </div>
+              )}
             {isNeedsIdentification(photo) && (
               <IdentifyButton onClick={() => setIdentifyOpen(true)} />
             )}
@@ -325,6 +350,7 @@ export function ImageLightbox({
                 ? () => setIdentifyOpen(true)
                 : undefined
             }
+            onShowOnMap={onShowOnMap}
           />
         </div>
       </div>
@@ -494,12 +520,14 @@ function MobileBottomSheet({
   onToggle,
   shouldReduceMotion,
   onIdentify,
+  onShowOnMap,
 }: {
   photo: Photo;
   expanded: boolean;
   onToggle: () => void;
   shouldReduceMotion: boolean;
   onIdentify?: () => void;
+  onShowOnMap?: (lat: number, lng: number, photoId: string) => void;
 }) {
   const handleSheetDragEnd = useCallback(
     (_: unknown, info: { offset: { y: number } }) => {
@@ -593,6 +621,21 @@ function MobileBottomSheet({
                 Identify
               </button>
             )}
+            {onShowOnMap &&
+              photo.latitude != null &&
+              photo.longitude != null &&
+              photo.id && (
+                <button
+                  onClick={() =>
+                    onShowOnMap(photo.latitude!, photo.longitude!, photo.id!)
+                  }
+                  aria-label="Show photo location on map"
+                  className="focus-ring touch-target flex items-center gap-1 rounded-lg bg-white/10 px-3 py-2 text-xs font-medium text-white"
+                >
+                  <MapPin className="h-3.5 w-3.5" />
+                  Map
+                </button>
+              )}
           </div>
         </div>
 

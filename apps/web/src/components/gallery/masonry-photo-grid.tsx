@@ -50,6 +50,8 @@ export function mediaItemToPhoto(item: MediaItem): Photo {
     locationName: item.locationName,
     photographerCredit: item.photographerCredit,
     archiveSource: item.archiveSource,
+    latitude: item.latitude,
+    longitude: item.longitude,
   };
 }
 
