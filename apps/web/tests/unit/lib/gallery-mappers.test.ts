@@ -243,7 +243,7 @@ describe("mapGalleryMediaToMediaItem", () => {
       const result = mapGalleryMediaToMediaItem(media);
 
       expect(result.thumbnailUrl).toBe(
-        "https://img.youtube.com/vi/abc123xyz/maxresdefault.jpg"
+        "https://img.youtube.com/vi/abc123xyz/hqdefault.jpg"
       );
     });
 
