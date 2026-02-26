@@ -2356,6 +2356,7 @@ export class BackendApiClient implements ApiClient {
     category?: string;
     decade?: string;
     q?: string;
+    hasGeo?: boolean;
     page?: number;
     size?: number;
   }): Promise<PublicGalleryMediaPageResponse> {
@@ -2369,6 +2370,9 @@ export class BackendApiClient implements ApiClient {
     }
     if (options?.q) {
       params.append("q", options.q);
+    }
+    if (options?.hasGeo !== undefined) {
+      params.append("hasGeo", String(options.hasGeo));
     }
     if (options?.page !== undefined) {
       params.append("page", String(options.page));

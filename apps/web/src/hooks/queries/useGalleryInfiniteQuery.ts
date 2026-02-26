@@ -16,6 +16,7 @@ export interface GalleryFilters {
   category?: string;
   decade?: string;
   q?: string;
+  hasGeo?: boolean;
 }
 
 /** Builds the query key used for gallery infinite queries. */
@@ -27,6 +28,7 @@ export function galleryQueryKey(filters?: GalleryFilters) {
     filters?.category ?? null,
     filters?.decade ?? null,
     filters?.q ?? null,
+    filters?.hasGeo ?? null,
   ] as const;
 }
 
@@ -45,6 +47,7 @@ export function galleryQueryFn(filters?: GalleryFilters) {
       category: filters?.category,
       decade: filters?.decade,
       q: filters?.q,
+      hasGeo: filters?.hasGeo,
     });
     return {
       items: response.items.map(mapGalleryMediaToMediaItem),
