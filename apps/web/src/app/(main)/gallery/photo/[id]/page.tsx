@@ -15,7 +15,7 @@ import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import { ShareButton } from "@/components/ui/actions/share-button";
 import { CreditDisplay } from "@/components/ui/credit-display";
 import { IdentifyPhotoButton } from "@/components/gallery/identify-photo-button";
-import { isRawFilename, resolveExternalThumbnail } from "@/lib/gallery-mappers";
+import { isRawFilename, resolvePublicImageUrl } from "@/lib/gallery-mappers";
 import { YouTubeFacade } from "@/components/gallery/youtube-facade";
 import type {
   PublicGalleryMedia,
@@ -31,18 +31,6 @@ const UUID_REGEX =
 
 interface PhotoDetailPageProps {
   params: Promise<{ id: string }>;
-}
-
-function getPhotoUrl(media: PublicGalleryMedia): string | null {
-  if (media.mediaSource === "USER_UPLOAD") {
-    return media.publicUrl || null;
-  }
-  // External IMAGE: url should be a valid image URL
-  if (media.mediaType === "IMAGE") {
-    return media.url || media.thumbnailUrl || null;
-  }
-  // External VIDEO/AUDIO: use resolved thumbnail, never the embed/watch URL
-  return resolveExternalThumbnail(media.thumbnailUrl, media.platform, media.externalId);
 }
 
 function getPhotoTitle(media: PublicGalleryMedia): string {
@@ -72,7 +60,7 @@ export async function generateMetadata({
 
   const title = getPhotoTitle(media);
   const description = getPhotoDescription(media);
-  const imageUrl = getPhotoUrl(media);
+  const imageUrl = resolvePublicImageUrl(media);
 
   const breadcrumbSchema: BreadcrumbListSchema = {
     "@context": "https://schema.org",
@@ -235,7 +223,7 @@ export default async function PhotoDetailPage({
     notFound();
   }
 
-  const imageUrl = getPhotoUrl(media);
+  const imageUrl = resolvePublicImageUrl(media);
   const title = getPhotoTitle(media);
   const description = media.description || null;
   const shareUrl = `${siteConfig.url}/gallery/photo/${id}`;

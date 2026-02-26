@@ -3,27 +3,12 @@
 import { useRef, useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 import { clsx } from "clsx";
-import type { TimelineResponse, DecadeGroup, PublicGalleryMedia, PublicUserUploadMedia, PublicExternalMedia } from "@/types/gallery";
-import { resolveExternalThumbnail } from "@/lib/gallery-mappers";
+import type { TimelineResponse, DecadeGroup } from "@/types/gallery";
+import { resolvePublicImageUrl } from "@/lib/gallery-mappers";
 
 interface TimelineViewProps {
   timeline: TimelineResponse;
   onDecadeSelect: (decade: string) => void;
-}
-
-function getPhotoUrl(
-  photo: PublicGalleryMedia
-): string | null {
-  if (photo.mediaSource === "USER_UPLOAD") {
-    return (photo as PublicUserUploadMedia).publicUrl || null;
-  }
-  const ext = photo as PublicExternalMedia;
-  // External IMAGE: url should be a valid image URL
-  if (ext.mediaType === "IMAGE") {
-    return ext.url || ext.thumbnailUrl || null;
-  }
-  // External VIDEO/AUDIO: use resolved thumbnail, never the embed/watch URL
-  return resolveExternalThumbnail(ext.thumbnailUrl, ext.platform, ext.externalId);
 }
 
 function DecadeCard({
@@ -55,7 +40,7 @@ function DecadeCard({
       {/* Thumbnail grid */}
       <div className="bg-surface-alt grid h-32 grid-cols-3 gap-0.5 overflow-hidden">
         {photos.slice(0, 3).map((photo, i) => {
-          const url = getPhotoUrl(photo);
+          const url = resolvePublicImageUrl(photo);
           return url ? (
             <div key={photo.id} className="relative overflow-hidden">
               <Image
@@ -229,7 +214,7 @@ function MobileDecadeCard({
       {photos.length > 0 && (
         <div className="grid h-24 grid-cols-3 gap-0.5 overflow-hidden">
           {photos.slice(0, 3).map((photo, i) => {
-            const url = getPhotoUrl(photo);
+            const url = resolvePublicImageUrl(photo);
             return url ? (
               <div key={photo.id} className="relative overflow-hidden">
                 <Image

@@ -27,10 +27,13 @@ import { mediaItemToPhoto } from "@/components/gallery/masonry-photo-grid";
 import { useGalleryInfiniteQuery } from "@/hooks/queries/useGalleryInfiniteQuery";
 import { getRandomGalleryMedia } from "@/lib/api";
 import { mapGalleryMediaToMediaItem } from "@/lib/gallery-mappers";
-import type { PublicGalleryMedia, TimelineResponse } from "@/types/gallery";
+import type {
+  PublicGalleryMedia,
+  TimelineResponse,
+  DecadeFilter,
+  GalleryView,
+} from "@/types/gallery";
 import type { MediaCategory } from "@/types/media";
-
-type GalleryView = "grid" | "timeline";
 
 const FALLBACK_CATEGORIES: MediaCategory[] = [
   "Heritage",
@@ -39,13 +42,6 @@ const FALLBACK_CATEGORIES: MediaCategory[] = [
   "Event",
   "Culture",
 ];
-
-type DecadeFilter =
-  | "all"
-  | "pre-1975"
-  | "1975-1990"
-  | "1990-2010"
-  | "2010-plus";
 
 function formatSearchStatus(query: string, totalItems: number): string {
   if (totalItems === 0) {

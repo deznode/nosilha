@@ -3,38 +3,22 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
-import { resolveExternalThumbnail } from "@/lib/gallery-mappers";
+import { resolvePublicImageUrl } from "@/lib/gallery-mappers";
 import type { PublicGalleryMedia } from "@/types/gallery";
-import { isPublicUserUploadMedia, isPublicExternalMedia } from "@/types/gallery";
+import { isPublicUserUploadMedia } from "@/types/gallery";
 
 interface FeaturedPhotoCardProps {
   photo: PublicGalleryMedia;
 }
 
-function resolveImageUrl(photo: PublicGalleryMedia): string | null {
-  if (isPublicUserUploadMedia(photo)) {
-    return photo.publicUrl ?? null;
-  }
-  if (isPublicExternalMedia(photo)) {
-    if (photo.mediaType === "IMAGE") {
-      return photo.url || photo.thumbnailUrl || null;
-    }
-    return resolveExternalThumbnail(photo.thumbnailUrl, photo.platform, photo.externalId);
-  }
-  return null;
-}
-
-function resolveLocationName(photo: PublicGalleryMedia): string | null {
-  if ("locationName" in photo) return photo.locationName ?? null;
-  return null;
-}
-
 export function FeaturedPhotoCard({ photo }: FeaturedPhotoCardProps) {
-  const imageUrl = resolveImageUrl(photo);
+  const imageUrl = resolvePublicImageUrl(photo);
   if (!imageUrl) return null;
 
   const altText = photo.altText ?? photo.title ?? "Gallery photo";
-  const location = resolveLocationName(photo);
+  const location = isPublicUserUploadMedia(photo)
+    ? (photo.locationName ?? null)
+    : null;
   const formattedDate = photo.createdAt
     ? new Date(photo.createdAt).toLocaleDateString("en-US", {
         month: "long",

@@ -3,28 +3,17 @@
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import { Sparkles } from "lucide-react";
-import { mapGalleryMediaToMediaItem, resolveExternalThumbnail } from "@/lib/gallery-mappers";
+import {
+  mapGalleryMediaToMediaItem,
+  resolvePublicImageUrl,
+} from "@/lib/gallery-mappers";
 import { mediaItemToPhoto } from "@/components/gallery/masonry-photo-grid";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import type { Photo } from "@/components/ui/image-lightbox";
 import type { PublicGalleryMedia } from "@/types/gallery";
-import { isPublicUserUploadMedia, isPublicExternalMedia } from "@/types/gallery";
 
 interface WeeklyDiscoverySectionProps {
   photos: PublicGalleryMedia[];
-}
-
-function resolveThumbUrl(photo: PublicGalleryMedia): string | null {
-  if (isPublicUserUploadMedia(photo)) {
-    return photo.publicUrl ?? null;
-  }
-  if (isPublicExternalMedia(photo)) {
-    if (photo.mediaType === "IMAGE") {
-      return photo.url || photo.thumbnailUrl || null;
-    }
-    return resolveExternalThumbnail(photo.thumbnailUrl, photo.platform, photo.externalId);
-  }
-  return null;
 }
 
 export function WeeklyDiscoverySection({
@@ -54,7 +43,7 @@ export function WeeklyDiscoverySection({
         </div>
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:-mx-0 sm:px-0">
           {photos.map((photo, index) => {
-            const thumbUrl = resolveThumbUrl(photo);
+            const thumbUrl = resolvePublicImageUrl(photo);
             if (!thumbUrl) return null;
 
             return (

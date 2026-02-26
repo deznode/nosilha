@@ -7,6 +7,10 @@
  */
 
 import type { PublicGalleryMedia } from "@/types/gallery";
+import {
+  isPublicUserUploadMedia,
+  isPublicExternalMedia,
+} from "@/types/gallery";
 import type { MediaItem, MediaCategory } from "@/types/media";
 
 const NON_IMAGE_URL_PATTERNS = [
@@ -29,9 +33,7 @@ export function resolveExternalThumbnail(
 ): string | null {
   if (
     thumbnailUrl &&
-    !NON_IMAGE_URL_PATTERNS.some((p) =>
-      thumbnailUrl.toLowerCase().includes(p)
-    )
+    !NON_IMAGE_URL_PATTERNS.some((p) => thumbnailUrl.toLowerCase().includes(p))
   ) {
     return thumbnailUrl;
   }
@@ -40,6 +42,33 @@ export function resolveExternalThumbnail(
     return `https://img.youtube.com/vi/${externalId}/hqdefault.jpg`;
   }
 
+  return null;
+}
+
+/**
+ * Resolves the best available image URL for any PublicGalleryMedia item.
+ *
+ * Handles all media source + type combinations:
+ * - USER_UPLOAD → publicUrl
+ * - EXTERNAL IMAGE → url or thumbnailUrl
+ * - EXTERNAL VIDEO/AUDIO → resolved thumbnail (never the embed/watch URL)
+ */
+export function resolvePublicImageUrl(
+  media: PublicGalleryMedia
+): string | null {
+  if (isPublicUserUploadMedia(media)) {
+    return media.publicUrl ?? null;
+  }
+  if (isPublicExternalMedia(media)) {
+    if (media.mediaType === "IMAGE") {
+      return media.url || media.thumbnailUrl || null;
+    }
+    return resolveExternalThumbnail(
+      media.thumbnailUrl,
+      media.platform,
+      media.externalId
+    );
+  }
   return null;
 }
 

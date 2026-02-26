@@ -22,16 +22,13 @@ import type {
   ImageGallerySchema,
   ImageObjectSchema,
 } from "@/types/metadata";
-import type { PublicUserUploadMedia } from "@/types/gallery";
+import type {
+  PublicUserUploadMedia,
+  DecadeFilter,
+  GalleryView,
+} from "@/types/gallery";
 
 export const revalidate = 1800; // 30 minutes ISR matching CacheConfig.GALLERY
-
-type DecadeFilter =
-  | "all"
-  | "pre-1975"
-  | "1975-1990"
-  | "1990-2010"
-  | "2010-plus";
 
 const VALID_DECADES = new Set<string>([
   "pre-1975",
@@ -39,8 +36,6 @@ const VALID_DECADES = new Set<string>([
   "1990-2010",
   "2010-plus",
 ]);
-
-type GalleryView = "grid" | "timeline";
 
 interface GalleryPageProps {
   searchParams: Promise<{
