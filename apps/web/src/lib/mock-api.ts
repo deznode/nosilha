@@ -717,8 +717,13 @@ export class MockApiClient implements ApiClient {
     contentType: string;
     name: string;
     email: string;
-    suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";
+    suggestionType:
+      | "CORRECTION"
+      | "ADDITION"
+      | "FEEDBACK"
+      | "PHOTO_IDENTIFICATION";
     message: string;
+    mediaId?: string;
     honeypot?: string;
   }): Promise<{ id: string | null; message: string }> {
     console.log(`Mock API: Submitting suggestion`, suggestionDto);

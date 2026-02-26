@@ -15,10 +15,13 @@ import {
   Archive,
   Clock,
   ChevronUp,
+  HelpCircle,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { CreditDisplay } from "@/components/ui/credit-display";
 import { ShareButton } from "@/components/ui/actions/share-button";
+import { PhotoIdentificationForm } from "@/components/gallery/photo-identification-form";
+import { isRawFilename } from "@/lib/gallery-mappers";
 
 export interface Photo {
   id?: string;
@@ -59,6 +62,14 @@ function getShareUrl(photo: Photo): string {
   return path;
 }
 
+function isNeedsIdentification(photo: Photo): boolean {
+  const hasRawTitle =
+    !photo.description || isRawFilename(photo.description || "");
+  const missingLocation = !photo.locationName;
+  const missingDates = !photo.dateTaken && !photo.approximateDate;
+  return hasRawTitle || missingLocation || missingDates;
+}
+
 export function ImageLightbox({
   photos,
   initialIndex,
@@ -69,6 +80,7 @@ export function ImageLightbox({
   const [prevInitialIndex, setPrevInitialIndex] = useState(initialIndex);
   const [isZoomed, setIsZoomed] = useState(false);
   const [sheetExpanded, setSheetExpanded] = useState(false);
+  const [identifyOpen, setIdentifyOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
   const shouldReduceMotion = useReducedMotion();
@@ -290,6 +302,9 @@ export function ImageLightbox({
           {/* Desktop sidebar */}
           <div className="hidden bg-black/40 p-6 text-white backdrop-blur-sm lg:block lg:w-80 lg:overflow-y-auto">
             <MetadataPanel photo={photo} />
+            {isNeedsIdentification(photo) && (
+              <IdentifyButton onClick={() => setIdentifyOpen(true)} />
+            )}
             <ActionsPanel photo={photo} />
             <ThumbnailNav
               photos={photos}
@@ -304,9 +319,24 @@ export function ImageLightbox({
             expanded={sheetExpanded}
             onToggle={() => setSheetExpanded((e) => !e)}
             shouldReduceMotion={shouldReduceMotion ?? false}
+            onIdentify={
+              isNeedsIdentification(photo)
+                ? () => setIdentifyOpen(true)
+                : undefined
+            }
           />
         </div>
       </div>
+
+      {photo.id && identifyOpen && (
+        <PhotoIdentificationForm
+          mediaId={photo.id}
+          photoTitle={photo.description || photo.alt}
+          pageUrl={getShareUrl(photo)}
+          isOpen={identifyOpen}
+          onClose={() => setIdentifyOpen(false)}
+        />
+      )}
     </dialog>
   );
 }
@@ -365,6 +395,20 @@ function MetadataPanel({ photo }: { photo: Photo }) {
           <span>{photo.archiveSource}</span>
         </div>
       )}
+    </div>
+  );
+}
+
+function IdentifyButton({ onClick }: { onClick: () => void }) {
+  return (
+    <div className="mt-4 border-t border-white/20 pt-4">
+      <button
+        onClick={onClick}
+        className="focus-ring touch-target flex w-full items-center justify-center gap-2 rounded-lg border border-white/20 px-4 py-3 text-sm font-medium text-white transition-colors hover:border-white/40 hover:bg-white/10"
+      >
+        <HelpCircle className="h-4 w-4" />
+        Help identify this photo
+      </button>
     </div>
   );
 }
@@ -447,11 +491,13 @@ function MobileBottomSheet({
   expanded,
   onToggle,
   shouldReduceMotion,
+  onIdentify,
 }: {
   photo: Photo;
   expanded: boolean;
   onToggle: () => void;
   shouldReduceMotion: boolean;
+  onIdentify?: () => void;
 }) {
   const handleSheetDragEnd = useCallback(
     (_: unknown, info: { offset: { y: number } }) => {
@@ -536,6 +582,15 @@ function MobileBottomSheet({
               description={photo.description}
               variant="icon-only"
             />
+            {onIdentify && (
+              <button
+                onClick={onIdentify}
+                className="focus-ring touch-target flex items-center gap-1 rounded-lg bg-white/10 px-3 py-2 text-xs font-medium text-white"
+              >
+                <HelpCircle className="h-3.5 w-3.5" />
+                Identify
+              </button>
+            )}
           </div>
         </div>
 

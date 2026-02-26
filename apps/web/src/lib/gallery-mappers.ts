@@ -59,7 +59,7 @@ const RAW_FILENAME_PATTERNS = [
   /\.(jpe?g|png|webp|heic|mp4|mov)$/i,
 ];
 
-function isRawFilename(title: string): boolean {
+export function isRawFilename(title: string): boolean {
   if (!title || title.trim() === "") return true;
   return RAW_FILENAME_PATTERNS.some((pattern) => pattern.test(title));
 }

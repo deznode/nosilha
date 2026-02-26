@@ -14,6 +14,8 @@ import { getGalleryMediaById } from "@/lib/api";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import { ShareButton } from "@/components/ui/actions/share-button";
 import { CreditDisplay } from "@/components/ui/credit-display";
+import { IdentifyPhotoButton } from "@/components/gallery/identify-photo-button";
+import { isRawFilename } from "@/lib/gallery-mappers";
 import type {
   PublicGalleryMedia,
   PublicUserUploadMedia,
@@ -255,6 +257,11 @@ export default async function PhotoDetailPage({
       })
     : upload?.approximateDate || null;
 
+  const needsIdentification =
+    isRawFilename(media.title || "") ||
+    !upload?.locationName ||
+    (!upload?.dateTaken && !upload?.approximateDate);
+
   return (
     <div className="bg-canvas min-h-screen">
       {/* Schema.org ImageObject JSON-LD — safe: content is server-generated from DB fields */}
@@ -374,7 +381,7 @@ export default async function PhotoDetailPage({
             </div>
 
             {/* Actions */}
-            <div className="border-hairline flex items-center gap-3 border-t pt-4">
+            <div className="border-hairline flex flex-wrap items-center gap-3 border-t pt-4">
               <ShareButton
                 title={title}
                 url={shareUrl}
@@ -389,6 +396,13 @@ export default async function PhotoDetailPage({
                 >
                   View Full Size
                 </a>
+              )}
+              {needsIdentification && (
+                <IdentifyPhotoButton
+                  mediaId={id}
+                  photoTitle={title}
+                  pageUrl={shareUrl}
+                />
               )}
             </div>
           </div>

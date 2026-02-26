@@ -266,8 +266,13 @@ export async function submitSuggestion(suggestionDto: {
   contentType: string;
   name: string;
   email: string;
-  suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";
+  suggestionType:
+    | "CORRECTION"
+    | "ADDITION"
+    | "FEEDBACK"
+    | "PHOTO_IDENTIFICATION";
   message: string;
+  mediaId?: string;
   honeypot?: string;
 }): Promise<{ id: string | null; message: string }> {
   return apiClient.submitSuggestion(suggestionDto);

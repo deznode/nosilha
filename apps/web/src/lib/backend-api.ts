@@ -745,8 +745,13 @@ export class BackendApiClient implements ApiClient {
     contentType: string;
     name: string;
     email: string;
-    suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";
+    suggestionType:
+      | "CORRECTION"
+      | "ADDITION"
+      | "FEEDBACK"
+      | "PHOTO_IDENTIFICATION";
     message: string;
+    mediaId?: string;
     honeypot?: string;
   }): Promise<{ id: string | null; message: string }> {
     const endpoint = `${env.apiUrl}/api/v1/suggestions`;
