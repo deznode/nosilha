@@ -336,6 +336,7 @@ export function ImageLightbox({
           pageUrl={getShareUrl(photo)}
           isOpen={identifyOpen}
           onClose={() => setIdentifyOpen(false)}
+          inline
         />
       )}
     </dialog>
