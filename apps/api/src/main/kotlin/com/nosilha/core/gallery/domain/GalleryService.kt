@@ -535,11 +535,13 @@ class GalleryService(
     private fun queryActiveMedia(
         category: String?,
         decade: String?,
+        hasGeo: Boolean?,
         page: Int,
         size: Int,
     ): Page<GalleryMedia> {
-        val pageable = PageRequest.of(page, minOf(size, 100))
-        val needsInMemoryFilter = category != null || decade != null
+        val cappedSize = minOf(size, 100)
+        val pageable = PageRequest.of(page, cappedSize)
+        val needsInMemoryFilter = category != null || decade != null || hasGeo == true
 
         return if (needsInMemoryFilter) {
             var filtered: List<GalleryMedia> = repository
@@ -556,9 +558,15 @@ class GalleryService(
                 }
             }
 
+            if (hasGeo == true) {
+                filtered = filtered.filter { media ->
+                    media is UserUploadedMedia && media.latitude != null && media.longitude != null
+                }
+            }
+
             filtered = filtered.sortedBy { it.displayOrder }
-            val start = page * size
-            val end = minOf(start + size, filtered.size)
+            val start = page * cappedSize
+            val end = minOf(start + cappedSize, filtered.size)
             val pageContent = if (start < filtered.size) filtered.subList(start, end) else emptyList()
 
             PageImpl(pageContent, pageable, filtered.size.toLong())
@@ -589,13 +597,14 @@ class GalleryService(
         query: String,
         category: String?,
         decade: String?,
+        hasGeo: Boolean?,
         page: Int,
         size: Int,
     ): Page<GalleryMedia> {
         val cappedSize = minOf(size, 100)
         val pageable = PageRequest.of(page, cappedSize)
 
-        val needsPostFilter = category != null || decade != null
+        val needsPostFilter = category != null || decade != null || hasGeo == true
         if (!needsPostFilter) return repository.searchGallery(query, pageable)
 
         // Fetch all search results then filter in-memory for accurate totalElements
@@ -609,6 +618,11 @@ class GalleryService(
             val yearRange = parseDecadeRange(decade)
             if (yearRange != null) {
                 filtered = filtered.filter { resolveYear(it) in yearRange }
+            }
+        }
+        if (hasGeo == true) {
+            filtered = filtered.filter { media ->
+                media is UserUploadedMedia && media.latitude != null && media.longitude != null
             }
         }
 
@@ -661,13 +675,14 @@ class GalleryService(
         category: String?,
         decade: String?,
         query: String?,
+        hasGeo: Boolean?,
         page: Int,
         size: Int,
     ): PagedApiResult<PublicGalleryMediaDto> {
         val mediaPage = if (!query.isNullOrBlank()) {
-            searchActiveMedia(query.trim(), category, decade, page, size)
+            searchActiveMedia(query.trim(), category, decade, hasGeo, page, size)
         } else {
-            queryActiveMedia(category, decade, page, size)
+            queryActiveMedia(category, decade, hasGeo, page, size)
         }
         val displayNames = resolveDisplayNames(mediaPage.content)
         val dtos = mediaPage.content.map { it.toPublicDto(displayNames) }
@@ -851,7 +866,7 @@ class GalleryService(
         page: Int,
         size: Int,
     ): PagedApiResult<GalleryMediaDto> {
-        val mediaPage = queryActiveMedia(category, null, page, size)
+        val mediaPage = queryActiveMedia(category, null, null, page, size)
         val displayNames = resolveDisplayNames(mediaPage.content)
         val dtos = mediaPage.content.map { it.toDto(displayNames) }
 

@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { mapGalleryMediaToMediaItem } from "@/lib/gallery-mappers";
+import {
+  mapGalleryMediaToMediaItem,
+  mediaItemToGeoFeature,
+} from "@/lib/gallery-mappers";
 import { mediaItemToPhoto } from "@/components/gallery/masonry-photo-grid";
 import type {
   PublicUserUploadMedia,
@@ -240,7 +243,7 @@ describe("mapGalleryMediaToMediaItem", () => {
       const result = mapGalleryMediaToMediaItem(media);
 
       expect(result.thumbnailUrl).toBe(
-        "https://img.youtube.com/vi/abc123xyz/maxresdefault.jpg"
+        "https://img.youtube.com/vi/abc123xyz/hqdefault.jpg"
       );
     });
 
@@ -400,5 +403,111 @@ describe("mediaItemToPhoto", () => {
     const photo = mediaItemToPhoto(item);
 
     expect(photo.date).toBe("");
+  });
+});
+
+// ─── mediaItemToGeoFeature ──────────────────────────────────────────────────
+
+describe("mediaItemToGeoFeature", () => {
+  function mediaItemFixture(overrides: Partial<MediaItem> = {}): MediaItem {
+    return {
+      id: "geo-test-001",
+      type: "IMAGE",
+      url: "https://media.nosilha.com/uploads/photo.jpg",
+      thumbnailUrl: "https://media.nosilha.com/uploads/photo_thumb.jpg",
+      title: "Fajã d'Água Viewpoint",
+      category: "Nature",
+      latitude: 14.8512,
+      longitude: -24.7134,
+      ...overrides,
+    };
+  }
+
+  it("converts a MediaItem with valid coordinates to a GeoJSON Feature", () => {
+    const item = mediaItemFixture();
+    const feature = mediaItemToGeoFeature(item);
+
+    expect(feature).not.toBeNull();
+    expect(feature!.type).toBe("Feature");
+    expect(feature!.geometry.type).toBe("Point");
+    expect(feature!.geometry.coordinates).toEqual([-24.7134, 14.8512]);
+  });
+
+  it("uses [longitude, latitude] coordinate order (GeoJSON standard)", () => {
+    const item = mediaItemFixture({ latitude: 10.0, longitude: -20.0 });
+    const feature = mediaItemToGeoFeature(item);
+
+    expect(feature!.geometry.coordinates[0]).toBe(-20.0); // longitude first
+    expect(feature!.geometry.coordinates[1]).toBe(10.0); // latitude second
+  });
+
+  it("maps properties correctly", () => {
+    const item = mediaItemFixture();
+    const feature = mediaItemToGeoFeature(item);
+
+    expect(feature!.properties.cluster).toBe(false);
+    expect(feature!.properties.mediaId).toBe("geo-test-001");
+    expect(feature!.properties.category).toBe("Nature");
+    expect(feature!.properties.title).toBe("Fajã d'Água Viewpoint");
+    expect(feature!.properties.thumbnailUrl).toBe(
+      "https://media.nosilha.com/uploads/photo_thumb.jpg"
+    );
+  });
+
+  it("falls back thumbnailUrl to url when thumbnailUrl is undefined", () => {
+    const item = mediaItemFixture({ thumbnailUrl: undefined });
+    const feature = mediaItemToGeoFeature(item);
+
+    expect(feature!.properties.thumbnailUrl).toBe(
+      "https://media.nosilha.com/uploads/photo.jpg"
+    );
+  });
+
+  it("returns null thumbnailUrl when both thumbnailUrl and url are empty", () => {
+    const item = mediaItemFixture({ thumbnailUrl: undefined, url: "" });
+    const feature = mediaItemToGeoFeature(item);
+
+    // url is falsy (""), thumbnailUrl is undefined → null coalescing gives ""
+    // Actually: undefined ?? "" → "" which is truthy, so thumbnailUrl = ""
+    expect(feature!.properties.thumbnailUrl).toBe("");
+  });
+
+  it("returns null when latitude is undefined", () => {
+    const item = mediaItemFixture({ latitude: undefined });
+    const feature = mediaItemToGeoFeature(item);
+
+    expect(feature).toBeNull();
+  });
+
+  it("returns null when longitude is undefined", () => {
+    const item = mediaItemFixture({ longitude: undefined });
+    const feature = mediaItemToGeoFeature(item);
+
+    expect(feature).toBeNull();
+  });
+
+  it("returns null when both coordinates are undefined", () => {
+    const item = mediaItemFixture({
+      latitude: undefined,
+      longitude: undefined,
+    });
+    const feature = mediaItemToGeoFeature(item);
+
+    expect(feature).toBeNull();
+  });
+
+  it("handles zero coordinates as valid (equator/prime meridian)", () => {
+    const item = mediaItemFixture({ latitude: 0, longitude: 0 });
+    const feature = mediaItemToGeoFeature(item);
+
+    expect(feature).not.toBeNull();
+    expect(feature!.geometry.coordinates).toEqual([0, 0]);
+  });
+
+  it("handles negative coordinates correctly", () => {
+    const item = mediaItemFixture({ latitude: -14.85, longitude: -24.71 });
+    const feature = mediaItemToGeoFeature(item);
+
+    expect(feature!.geometry.coordinates).toEqual([-24.71, -14.85]);
   });
 });

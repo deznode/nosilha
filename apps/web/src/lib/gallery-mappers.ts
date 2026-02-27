@@ -12,6 +12,7 @@ import {
   isPublicExternalMedia,
 } from "@/types/gallery";
 import type { MediaItem, MediaCategory } from "@/types/media";
+import type { GeoPointFeature } from "@/features/map/shared";
 
 const NON_IMAGE_URL_PATTERNS = [
   "youtube.com/watch",
@@ -166,5 +167,39 @@ export function mapGalleryMediaToMediaItem(
     archiveSource: media.archiveSource,
     latitude: media.latitude,
     longitude: media.longitude,
+  };
+}
+
+/** Properties attached to each gallery GeoJSON point feature. */
+export interface GalleryGeoProperties {
+  cluster: false;
+  mediaId: string;
+  category: string;
+  title: string;
+  thumbnailUrl: string | null;
+}
+
+/**
+ * Converts a MediaItem with GPS coordinates to a GeoJSON point feature.
+ * Returns `null` when lat/lng are missing — callers should filter nulls.
+ */
+export function mediaItemToGeoFeature(
+  item: MediaItem
+): GeoPointFeature<GalleryGeoProperties> | null {
+  if (item.latitude == null || item.longitude == null) return null;
+
+  return {
+    type: "Feature",
+    properties: {
+      cluster: false,
+      mediaId: item.id,
+      category: item.category,
+      title: item.title,
+      thumbnailUrl: item.thumbnailUrl ?? item.url,
+    },
+    geometry: {
+      type: "Point",
+      coordinates: [item.longitude, item.latitude],
+    },
   };
 }

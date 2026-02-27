@@ -231,7 +231,7 @@ export type DecadeFilter =
   | "1990-2010"
   | "2010-plus";
 
-export type GalleryView = "grid" | "timeline";
+export type GalleryView = "grid" | "timeline" | "map";
 
 /**
  * Query parameters for gallery API calls

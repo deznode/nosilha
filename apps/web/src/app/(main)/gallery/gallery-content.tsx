@@ -3,6 +3,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   Image as ImageIcon,
   Play,
@@ -15,6 +16,7 @@ import {
   Loader2,
   LayoutGrid,
   CalendarDays,
+  MapPin,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { MasonryPhotoGrid, VideoSection } from "@/components/gallery";
@@ -34,6 +36,24 @@ import type {
   GalleryView,
 } from "@/types/gallery";
 import type { MediaCategory } from "@/types/media";
+
+const GalleryMapCanvas = dynamic(
+  () =>
+    import("@/components/gallery/gallery-map-canvas").then(
+      (mod) => mod.GalleryMapCanvas
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-surface-alt flex h-[60vh] min-h-[400px] items-center justify-center rounded-card">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="text-brand h-8 w-8 animate-spin" />
+          <p className="text-muted text-sm">Loading map...</p>
+        </div>
+      </div>
+    ),
+  }
+);
 
 const FALLBACK_CATEGORIES: MediaCategory[] = [
   "Heritage",
@@ -97,6 +117,12 @@ export function GalleryContent({
   const [surprisePhoto, setSurprisePhoto] = useState<
     import("@/components/ui/image-lightbox").Photo | null
   >(null);
+  const [mapLightboxIndex, setMapLightboxIndex] = useState<number | null>(null);
+  const [flyToCoords, setFlyToCoords] = useState<{
+    lat: number;
+    lng: number;
+    photoId: string;
+  } | null>(null);
 
   const handleSurpriseMe = async () => {
     setSurpriseLoading(true);
@@ -135,6 +161,7 @@ export function GalleryContent({
       category: categoryFilter !== "All" ? categoryFilter : undefined,
       decade: decadeFilter !== "all" ? decadeFilter : undefined,
       q: debouncedQuery || undefined,
+      hasGeo: activeView === "map" ? true : undefined,
     },
   });
 
@@ -230,6 +257,9 @@ export function GalleryContent({
   };
 
   const handleViewChange = (view: GalleryView) => {
+    if (activeView === "map" && view !== "map") {
+      setFlyToCoords(null);
+    }
     setActiveView(view);
     updateUrl(activeTab, categoryFilter, decadeFilter, undefined, undefined, view);
   };
@@ -270,6 +300,12 @@ export function GalleryContent({
     }
     return counts;
   }, [photos]);
+
+  const geoTaggedCount = useMemo(
+    () =>
+      photos.filter((p) => p.latitude != null && p.longitude != null).length,
+    [photos]
+  );
 
   const resolvedCategories: MediaCategory[] =
     categories.length > 0
@@ -394,6 +430,7 @@ export function GalleryContent({
                 <button
                   onClick={() => handleViewChange("grid")}
                   aria-label="Grid view"
+                  aria-pressed={activeView === "grid"}
                   className={clsx(
                     "rounded-md p-1.5 transition-colors",
                     activeView === "grid"
@@ -406,6 +443,7 @@ export function GalleryContent({
                 <button
                   onClick={() => handleViewChange("timeline")}
                   aria-label="Timeline view"
+                  aria-pressed={activeView === "timeline"}
                   className={clsx(
                     "rounded-md p-1.5 transition-colors",
                     activeView === "timeline"
@@ -414,6 +452,20 @@ export function GalleryContent({
                   )}
                 >
                   <CalendarDays size={16} />
+                </button>
+                <button
+                  onClick={() => handleViewChange("map")}
+                  aria-label="Map view"
+                  aria-pressed={activeView === "map"}
+                  title={`Map (${geoTaggedCount} photo${geoTaggedCount !== 1 ? "s" : ""} with locations)`}
+                  className={clsx(
+                    "rounded-md p-1.5 transition-colors",
+                    activeView === "map"
+                      ? "bg-ocean-blue text-white"
+                      : "text-muted hover:text-body"
+                  )}
+                >
+                  <MapPin size={16} />
                 </button>
               </div>
             )}
@@ -457,7 +509,20 @@ export function GalleryContent({
         {/* Photo Gallery */}
         {activeTab === "photos" && (
           <>
-            {activeView === "timeline" && timelineData ? (
+            {activeView === "map" ? (
+              <GalleryMapCanvas
+                photos={photos}
+                onPhotoSelect={(photo) => {
+                  const idx = photos.findIndex((p) => p.id === photo.id);
+                  if (idx >= 0) setMapLightboxIndex(idx);
+                }}
+                selectedPhotoId={mapLightboxIndex !== null ? photos[mapLightboxIndex]?.id : undefined}
+                flyToCoords={flyToCoords}
+                onViewChange={handleViewChange}
+                hasActiveFilters={hasActiveFilters || !!debouncedQuery}
+                onClearFilters={clearAllFilters}
+              />
+            ) : activeView === "timeline" && timelineData ? (
               <TimelineView
                 timeline={timelineData}
                 onDecadeSelect={handleTimelineDecadeSelect}
@@ -547,6 +612,21 @@ export function GalleryContent({
           initialIndex={0}
           isOpen={true}
           onClose={() => setSurprisePhoto(null)}
+        />
+      )}
+
+      {/* Map Photo Lightbox */}
+      {mapLightboxIndex !== null && (
+        <ImageLightbox
+          photos={photos.map(mediaItemToPhoto)}
+          initialIndex={mapLightboxIndex}
+          isOpen={true}
+          onClose={() => setMapLightboxIndex(null)}
+          onShowOnMap={(lat, lng, photoId) => {
+            setMapLightboxIndex(null);
+            handleViewChange("map");
+            setFlyToCoords({ lat, lng, photoId });
+          }}
         />
       )}
     </div>
