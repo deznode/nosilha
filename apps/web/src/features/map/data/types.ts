@@ -13,8 +13,6 @@ export interface Location {
   description: string;
   coordinates: { lat: number; lng: number };
   elevation: number;
-  rating: number;
-  reviews: number;
   image?: string;
   tags: string[];
   icon: LucideIcon;

@@ -34,8 +34,6 @@ const mockLocation: Location = {
   description: "Highest peak on Brava Island",
   coordinates: { lat: 14.851, lng: -24.708 },
   elevation: 976,
-  rating: 4.8,
-  reviews: 24,
   image: "/images/fontainhas.jpg",
   tags: ["hiking"],
   icon: Mountain,

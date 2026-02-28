@@ -20,8 +20,6 @@ function entryFixture(overrides: Partial<DirectoryEntry> = {}): DirectoryEntry {
     latitude: 14.85,
     longitude: -24.7,
     description: "A beautiful test beach",
-    rating: 4.5,
-    reviewCount: 42,
     createdAt: "2024-01-01T00:00:00Z",
     updatedAt: "2024-01-01T00:00:00Z",
     tags: [],
@@ -39,8 +37,6 @@ function locationFixture(overrides: Partial<Location> = {}): Location {
     description: "A test location",
     coordinates: { lat: 14.85, lng: -24.7 },
     elevation: 0,
-    rating: 4.5,
-    reviews: 10,
     image: "https://example.com/img.jpg",
     tags: ["beach"],
     icon: Sun,
@@ -62,36 +58,6 @@ describe("transformEntries", () => {
     expect(result[0].coordinates).toEqual({ lat: 14.85, lng: -24.7 });
     expect(result[0].category).toBe("Beach");
     expect(result[0].description).toBe("A beautiful test beach");
-  });
-
-  it("uses provided rating and reviewCount", () => {
-    const entries = [entryFixture({ rating: 4.8, reviewCount: 99 })];
-    const result = transformEntries(entries);
-
-    expect(result[0].rating).toBe(4.8);
-    expect(result[0].reviews).toBe(99);
-  });
-
-  it("generates deterministic fallback rating when rating is null", () => {
-    const entries = [entryFixture({ rating: null })];
-    const result1 = transformEntries(entries);
-    const result2 = transformEntries(entries);
-
-    // Seeded random should produce the same value
-    expect(result1[0].rating).toBe(result2[0].rating);
-    // Rating should be in 4.2–5.0 range
-    expect(result1[0].rating).toBeGreaterThanOrEqual(4.2);
-    expect(result1[0].rating).toBeLessThanOrEqual(5.0);
-  });
-
-  it("generates deterministic fallback reviews when reviewCount is 0", () => {
-    const entries = [entryFixture({ reviewCount: 0 })];
-    const result1 = transformEntries(entries);
-    const result2 = transformEntries(entries);
-
-    expect(result1[0].reviews).toBe(result2[0].reviews);
-    expect(result1[0].reviews).toBeGreaterThanOrEqual(20);
-    expect(result1[0].reviews).toBeLessThanOrEqual(149);
   });
 
   it("filters out entries without coordinates", () => {

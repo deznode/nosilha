@@ -27,20 +27,6 @@ const BACKEND_TO_MAP_CATEGORY: Record<string, CategoryType> = {
 };
 
 /**
- * Generates a deterministic pseudo-random number from a string seed.
- * Used for consistent rating/review values across renders.
- */
-function seededRandom(seed: string): number {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) {
-    const char = seed.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash |= 0; // Convert to 32-bit integer
-  }
-  return Math.abs(hash % 1000) / 1000;
-}
-
-/**
  * Transforms an array of DirectoryEntry objects from the Spring Boot API
  * into Location objects that BravaMap expects.
  */
@@ -52,7 +38,6 @@ export function transformEntries(entries: DirectoryEntry[]): Location[] {
         "Nature") as Exclude<CategoryType, "All">;
       const icon = getCategoryIcon(category) ?? MapPin;
       const color = getCategoryColor(category);
-      const rand = seededRandom(entry.id);
 
       return {
         id: entry.id,
@@ -65,8 +50,6 @@ export function transformEntries(entries: DirectoryEntry[]): Location[] {
           lng: entry.longitude,
         },
         elevation: 0,
-        rating: entry.rating ?? 4.2 + rand * 0.8, // 4.2–5.0
-        reviews: entry.reviewCount || Math.floor(20 + rand * 130), // 20–149
         image: entry.imageUrl || undefined,
         tags: entry.tags || [],
         icon,

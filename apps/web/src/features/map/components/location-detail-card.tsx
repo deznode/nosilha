@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { X, ArrowRight, Star } from "lucide-react";
+import { X, ArrowRight } from "lucide-react";
 import { useSelectedLocation, useMapStore } from "@/stores/mapStore";
 
 export function LocationDetailCard() {
@@ -58,14 +58,12 @@ export function LocationDetailCard() {
             {selectedLocation.name}
           </h3>
           <div
-            className="flex items-center gap-1 font-sans text-xs font-medium opacity-90"
+            className="font-sans text-xs font-medium tracking-wider uppercase opacity-90"
             style={{
               color: selectedLocation.image ? "white" : selectedLocation.color,
             }}
           >
-            <Star size={12} className="text-sunny-yellow fill-sunny-yellow" />
-            {selectedLocation.rating.toFixed(1)} &bull;{" "}
-            {selectedLocation.reviews} reviews
+            {selectedLocation.category}
           </div>
         </div>
       </div>

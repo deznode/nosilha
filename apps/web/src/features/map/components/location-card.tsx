@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Navigation, Star } from "lucide-react";
+import { Navigation } from "lucide-react";
 import { clsx } from "clsx";
 import type { Location } from "../data/types";
 
@@ -51,10 +51,6 @@ export function LocationCard({ location, active, onClick }: LocationCardProps) {
         </h3>
         <div className="text-text-secondary mb-1 flex items-center gap-1 font-sans text-[11px] font-medium">
           <span className="tracking-wider uppercase">{location.category}</span>
-          <span>&bull;</span>
-          <span className="text-sunny-yellow flex items-center gap-0.5">
-            <Star size={10} fill="currentColor" /> {location.rating.toFixed(1)}
-          </span>
         </div>
         <p className="text-text-secondary mb-2 line-clamp-2 font-sans text-xs leading-relaxed">
           {location.description}
