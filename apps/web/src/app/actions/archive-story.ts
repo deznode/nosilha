@@ -96,12 +96,12 @@ export async function archiveStoryToMDX(
     const repoName = process.env.GITHUB_REPO_NAME || "nosilha";
     const branch = process.env.GITHUB_CONTENT_BRANCH || "content";
 
-    // 2. Initialize Octokit client
+    // 3. Initialize Octokit client
     const octokit = new Octokit({
       auth: githubToken,
     });
 
-    // 3. Get current branch SHA
+    // 4. Get current branch SHA
     console.log(
       `[Archive Story] Fetching branch reference: ${repoOwner}/${repoName}@${branch}`
     );
@@ -112,7 +112,7 @@ export async function archiveStoryToMDX(
     });
     const currentSha = refData.object.sha;
 
-    // 4. Get the current tree
+    // 5. Get the current tree
     console.log(`[Archive Story] Fetching tree for SHA: ${currentSha}`);
     const { data: treeData } = await octokit.rest.git.getTree({
       owner: repoOwner,
@@ -120,7 +120,7 @@ export async function archiveStoryToMDX(
       tree_sha: currentSha,
     });
 
-    // 5. Create a blob with the MDX content
+    // 6. Create a blob with the MDX content
     console.log(`[Archive Story] Creating blob for story: ${slug}`);
     const { data: blobData } = await octokit.rest.git.createBlob({
       owner: repoOwner,
@@ -129,7 +129,7 @@ export async function archiveStoryToMDX(
       encoding: "base64",
     });
 
-    // 6. Create a new tree with the MDX file
+    // 7. Create a new tree with the MDX file
     const filePath = `apps/web/content/stories/${slug}.mdx`;
     console.log(`[Archive Story] Creating tree with file: ${filePath}`);
     const { data: newTreeData } = await octokit.rest.git.createTree({
@@ -146,7 +146,7 @@ export async function archiveStoryToMDX(
       ],
     });
 
-    // 7. Create a commit
+    // 8. Create a commit
     const commitMessage = `feat(stories): archive story "${title}" to MDX
 
 Story ID: ${storyId}
@@ -166,7 +166,7 @@ as static MDX content in the repository.`;
       parents: [currentSha],
     });
 
-    // 8. Update the branch reference
+    // 9. Update the branch reference
     console.log(
       `[Archive Story] Updating branch reference to: ${commitData.sha}`
     );
@@ -177,7 +177,7 @@ as static MDX content in the repository.`;
       sha: commitData.sha,
     });
 
-    // 9. Mark the story as archived in the backend
+    // 10. Mark the story as archived in the backend
     const commitUrl = commitData.html_url;
     console.log(`[Archive Story] Commit successful: ${commitUrl}`);
 
@@ -203,7 +203,7 @@ as static MDX content in the repository.`;
       );
     }
 
-    // 10. Return success with commit URL
+    // 11. Return success with commit URL
     return {
       success: true,
       commitUrl,

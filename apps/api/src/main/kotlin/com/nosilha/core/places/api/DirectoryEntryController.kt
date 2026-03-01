@@ -76,8 +76,9 @@ class DirectoryEntryController(
      */
     @PostMapping("/entries")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     fun createNewEntry(
-        @RequestBody request: CreateEntryRequestDto,
+        @Valid @RequestBody request: CreateEntryRequestDto,
     ): ApiResult<DirectoryEntryDto> {
         val createdEntry = service.createEntry(request)
         return ApiResult(data = createdEntry, status = HttpStatus.CREATED.value())
