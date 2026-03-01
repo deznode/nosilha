@@ -6,7 +6,7 @@ import { AdminShell } from "@/components/admin/layout";
  * This layout wraps all routes in the (admin) route group
  * with the AdminShell (sidebar + top bar + content area).
  *
- * Authentication is handled by middleware.ts at the edge,
+ * Authentication is handled by proxy.ts at the edge,
  * so this layout can be a simple Server Component.
  */
 export default function AdminLayout({

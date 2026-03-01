@@ -80,18 +80,15 @@ fun submitEntry(
     httpRequest: HttpServletRequest,
 ): ApiResult<ConfirmationDto> {
     val userId = authentication.name  // Supabase user ID from JWT
-    val ipAddress = extractIpAddress(httpRequest)
+    val ipAddress = extractClientIp(httpRequest)  // shared/util/RequestUtils.kt
     // ...
 }
+```
 
-// IP extraction helper
-private fun extractIpAddress(request: HttpServletRequest): String? {
-    val xForwardedFor = request.getHeader("X-Forwarded-For")
-    if (!xForwardedFor.isNullOrBlank()) {
-        return xForwardedFor.split(",").firstOrNull()?.trim()
-    }
-    return request.remoteAddr
-}
+IP extraction is centralized in `shared/util/RequestUtils.kt`:
+
+```kotlin
+import com.nosilha.core.shared.util.extractClientIp
 ```
 
 ## Security Config

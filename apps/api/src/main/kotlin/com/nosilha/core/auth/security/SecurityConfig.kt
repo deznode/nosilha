@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -16,6 +17,7 @@ import org.springframework.web.cors.CorsConfiguration
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 class SecurityConfig(
     private val supabaseJwtConverter: SupabaseJwtAuthenticationConverter,
     @Value("\${app.cors.allowed-origins}")
@@ -108,12 +110,14 @@ class SecurityConfig(
                     .hasAnyRole("USER", "ADMIN", "authenticated")
                     .requestMatchers(HttpMethod.POST, "/api/v1/gallery/submit")
                     .hasAnyRole("USER", "ADMIN", "authenticated")
+                    // Direct CRUD on directory entries is admin-only
+                    // (users contribute via the moderated /directory/submissions endpoint)
                     .requestMatchers(HttpMethod.POST, "/api/v1/directory/entries")
-                    .hasAnyRole("USER", "ADMIN", "authenticated")
+                    .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/api/v1/directory/**")
-                    .hasAnyRole("USER", "ADMIN", "authenticated")
+                    .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/api/v1/directory/**")
-                    .hasAnyRole("USER", "ADMIN", "authenticated")
+                    .hasRole("ADMIN")
                     // Text AI endpoints - require authentication
                     .requestMatchers("/api/v1/ai/**")
                     .hasAnyRole("USER", "ADMIN", "authenticated")

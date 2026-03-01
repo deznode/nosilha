@@ -2,6 +2,7 @@ package com.nosilha.core.feedback.api
 
 import com.nosilha.core.feedback.services.ContactService
 import com.nosilha.core.shared.api.ApiResult
+import com.nosilha.core.shared.util.extractClientIp
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponses
@@ -92,33 +93,12 @@ class ContactController(
         @Valid @RequestBody request: ContactCreateRequest,
         httpRequest: HttpServletRequest,
     ): ApiResult<ContactConfirmationDto> {
-        val ipAddress = extractIpAddress(httpRequest)
+        val ipAddress = extractClientIp(httpRequest)
         logger.info { "Received contact form submission from IP: $ipAddress" }
 
         val response = contactService.submitContact(request, ipAddress)
         logger.info { "Contact message ${response.id} created successfully" }
 
         return ApiResult(data = response, status = HttpStatus.CREATED.value())
-    }
-
-    /**
-     * Extracts the client IP address from the HTTP request.
-     *
-     * <p>Checks X-Forwarded-For header first (for proxied requests),
-     * then falls back to remote address.</p>
-     *
-     * @param request HTTP request
-     * @return IP address or null if not available
-     */
-    private fun extractIpAddress(request: HttpServletRequest): String? {
-        // Check X-Forwarded-For header (for proxied requests)
-        val xForwardedFor = request.getHeader("X-Forwarded-For")
-        if (!xForwardedFor.isNullOrBlank()) {
-            // Take the first IP if multiple are present
-            return xForwardedFor.split(",").firstOrNull()?.trim()
-        }
-
-        // Fall back to remote address
-        return request.remoteAddr
     }
 }

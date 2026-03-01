@@ -43,13 +43,6 @@ resource "google_service_account" "frontend_runner" {
 # ------------------------------------------------------------------------------
 
 # Grant backend service account access to secrets
-resource "google_secret_manager_secret_iam_member" "grant_jwt_secret_access" {
-  project   = var.gcp_project_id
-  secret_id = "supabase_jwt_secret"
-  role      = "roles/secretmanager.secretAccessor"
-  member    = google_service_account.backend_runner.member
-}
-
 resource "google_secret_manager_secret_iam_member" "grant_db_url_access" {
   project   = var.gcp_project_id
   secret_id = "supabase_db_url"
