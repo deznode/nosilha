@@ -737,7 +737,9 @@ export async function getRandomGalleryMedia(
   return apiClient.getRandomGalleryMedia(count);
 }
 
-export async function getFeaturedPhoto(): Promise<import("@/types/gallery").PublicGalleryMedia | null> {
+export async function getFeaturedPhoto(): Promise<
+  import("@/types/gallery").PublicGalleryMedia | null
+> {
   return apiClient.getFeaturedPhoto();
 }
 

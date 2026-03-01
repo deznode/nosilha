@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useState,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { Marker, Popup, type ViewStateChangeEvent } from "react-map-gl/mapbox";
 import type { MapRef } from "react-map-gl/mapbox";
 import { Loader2, Camera, MapPin } from "lucide-react";
@@ -151,7 +145,13 @@ export function GalleryMapCanvas({
 
   // Auto-fit bounds when few markers exist (1-3) so all are visible
   useEffect(() => {
-    if (!mapReady || !mapRef.current || geoFeatures.length === 0 || geoFeatures.length > 3) return;
+    if (
+      !mapReady ||
+      !mapRef.current ||
+      geoFeatures.length === 0 ||
+      geoFeatures.length > 3
+    )
+      return;
     // Don't override a flyToCoords that's pending
     if (flyToCoords && flyToCoords.photoId !== lastFlyToRef.current) return;
 
@@ -170,7 +170,11 @@ export function GalleryMapCanvas({
           [Math.min(...lngs), Math.min(...lats)],
           [Math.max(...lngs), Math.max(...lats)],
         ],
-        { padding: 80, maxZoom: MAP_CONFIG.LOCATION_ZOOM, duration: MAP_CONFIG.EASE_DURATION }
+        {
+          padding: 80,
+          maxZoom: MAP_CONFIG.LOCATION_ZOOM,
+          duration: MAP_CONFIG.EASE_DURATION,
+        }
       );
     }
   }, [mapReady, geoFeatures, flyToCoords]);
@@ -179,11 +183,11 @@ export function GalleryMapCanvas({
   if (geoFeatures.length === 0) {
     const isFiltered = hasActiveFilters && photos.length > 0;
     return (
-      <div className="bg-surface-alt flex h-[60vh] min-h-[400px] flex-col items-center justify-center rounded-card p-8 text-center">
+      <div className="bg-surface-alt rounded-card flex h-[60vh] min-h-[400px] flex-col items-center justify-center p-8 text-center">
         <div className="bg-surface mb-4 rounded-full p-4">
           <div className="relative">
             <MapPin className="text-muted h-10 w-10" />
-            <Camera className="text-muted absolute -bottom-1 -right-1 h-5 w-5" />
+            <Camera className="text-muted absolute -right-1 -bottom-1 h-5 w-5" />
           </div>
         </div>
         <h3 className="text-body text-lg font-medium">
@@ -201,7 +205,7 @@ export function GalleryMapCanvas({
             <button
               type="button"
               onClick={onClearFilters}
-              className="bg-brand text-white hover:bg-brand/90 rounded-button px-4 py-2 text-sm font-medium transition-colors"
+              className="bg-brand hover:bg-brand/90 rounded-button px-4 py-2 text-sm font-medium text-white transition-colors"
             >
               Clear Filters
             </button>
@@ -214,7 +218,7 @@ export function GalleryMapCanvas({
                 "rounded-button px-4 py-2 text-sm font-medium transition-colors",
                 isFiltered
                   ? "border-hairline text-body hover:bg-surface border"
-                  : "bg-brand text-white hover:bg-brand/90"
+                  : "bg-brand hover:bg-brand/90 text-white"
               )}
             >
               Switch to Grid View
@@ -228,11 +232,9 @@ export function GalleryMapCanvas({
   // Error state
   if (mapError) {
     return (
-      <div className="bg-surface-alt flex h-[60vh] min-h-[400px] flex-col items-center justify-center rounded-card p-8 text-center">
+      <div className="bg-surface-alt rounded-card flex h-[60vh] min-h-[400px] flex-col items-center justify-center p-8 text-center">
         <MapPin className="text-muted mb-4 h-10 w-10" />
-        <h3 className="text-body text-lg font-medium">
-          Map unavailable
-        </h3>
+        <h3 className="text-body text-lg font-medium">Map unavailable</h3>
         <p className="text-muted mt-2 max-w-sm text-sm">
           Try refreshing the page.
         </p>
@@ -242,7 +244,7 @@ export function GalleryMapCanvas({
 
   return (
     <div
-      className="relative h-[60vh] min-h-[400px] overflow-hidden rounded-card"
+      className="rounded-card relative h-[60vh] min-h-[400px] overflow-hidden"
       role="application"
       aria-label="Gallery photo map of Brava Island"
     >
@@ -267,7 +269,8 @@ export function GalleryMapCanvas({
           const { properties } = cluster;
 
           if (properties.cluster) {
-            const pointCount = (properties as { point_count: number }).point_count;
+            const pointCount = (properties as { point_count: number })
+              .point_count;
             return (
               <Marker
                 key={`cluster-${cluster.id}`}
@@ -286,7 +289,7 @@ export function GalleryMapCanvas({
                   }}
                   className={clsx(
                     "bg-brand z-30 flex h-10 w-10 cursor-pointer items-center justify-center",
-                    "rounded-full border-[3px] border-white text-sm font-bold text-white shadow-medium",
+                    "shadow-medium rounded-full border-[3px] border-white text-sm font-bold text-white",
                     "transition-transform duration-200 hover:scale-110"
                   )}
                   aria-label={`Cluster of ${pointCount} photos. Click to expand.`}
@@ -343,7 +346,7 @@ export function GalleryMapCanvas({
 
       {/* Photo count badge */}
       <div className="absolute bottom-4 left-4 z-10">
-        <span className="bg-surface/90 text-muted border-hairline rounded-badge border px-3 py-1.5 text-xs font-medium shadow-subtle backdrop-blur-sm">
+        <span className="bg-surface/90 text-muted border-hairline rounded-badge shadow-subtle border px-3 py-1.5 text-xs font-medium backdrop-blur-sm">
           {geoFeatures.length} photo{geoFeatures.length !== 1 ? "s" : ""} with
           locations
         </span>

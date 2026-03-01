@@ -234,4 +234,3 @@ export function HeroSectionNew({ className, children }: HeroSectionNewProps) {
     </div>
   );
 }
-

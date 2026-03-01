@@ -146,27 +146,33 @@ export default async function GalleryPage({ searchParams }: GalleryPageProps) {
   // HydrationBoundary seeds the cache for the exact SSR query key.
   const queryClient = getQueryClient();
 
-  const [, apiCategories, galleryResponse, featuredPhoto, weeklyPhotos, timelineData] =
-    await Promise.all([
-      queryClient.prefetchInfiniteQuery({
-        queryKey: galleryQueryKey(filters),
-        queryFn: galleryQueryFn(filters),
-        initialPageParam: 0,
-        getNextPageParam: galleryGetNextPageParam,
-        pages: 1,
-      }),
-      getGalleryCategories().catch(() => [] as string[]),
-      getGalleryMedia({
-        size: GALLERY_PAGE_SIZE,
-        decade: filters.decade,
-        q: filters.q,
-      }),
-      getFeaturedPhoto().catch(() => null),
-      getWeeklyDiscovery().catch(() => []),
-      initialView === "timeline"
-        ? getGalleryTimeline().catch(() => null)
-        : Promise.resolve(null),
-    ]);
+  const [
+    ,
+    apiCategories,
+    galleryResponse,
+    featuredPhoto,
+    weeklyPhotos,
+    timelineData,
+  ] = await Promise.all([
+    queryClient.prefetchInfiniteQuery({
+      queryKey: galleryQueryKey(filters),
+      queryFn: galleryQueryFn(filters),
+      initialPageParam: 0,
+      getNextPageParam: galleryGetNextPageParam,
+      pages: 1,
+    }),
+    getGalleryCategories().catch(() => [] as string[]),
+    getGalleryMedia({
+      size: GALLERY_PAGE_SIZE,
+      decade: filters.decade,
+      q: filters.q,
+    }),
+    getFeaturedPhoto().catch(() => null),
+    getWeeklyDiscovery().catch(() => []),
+    initialView === "timeline"
+      ? getGalleryTimeline().catch(() => null)
+      : Promise.resolve(null),
+  ]);
 
   const initialTab: "photos" | "videos" =
     tab === "videos" ? "videos" : "photos";

@@ -689,7 +689,9 @@ export interface ApiClient {
    *
    * @returns Featured photo or null if gallery is empty
    */
-  getFeaturedPhoto(): Promise<import("@/types/gallery").PublicGalleryMedia | null>;
+  getFeaturedPhoto(): Promise<
+    import("@/types/gallery").PublicGalleryMedia | null
+  >;
 
   /**
    * Fetches this week's discovery photos (same for all users per ISO week).
@@ -912,7 +914,17 @@ export interface StorySubmittedResponse {
  */
 export interface DirectorySubmissionRequest {
   name: string;
-  category: "RESTAURANT" | "HOTEL" | "BEACH" | "HERITAGE" | "NATURE" | "TOWN" | "VIEWPOINT" | "TRAIL" | "CHURCH" | "PORT";
+  category:
+    | "RESTAURANT"
+    | "HOTEL"
+    | "BEACH"
+    | "HERITAGE"
+    | "NATURE"
+    | "TOWN"
+    | "VIEWPOINT"
+    | "TRAIL"
+    | "CHURCH"
+    | "PORT";
   town: string;
   customTown?: string;
   description: string;
@@ -937,7 +949,17 @@ export interface DirectorySubmissionConfirmation {
  */
 export interface UpdateDirectoryEntryRequest {
   name?: string;
-  category?: "RESTAURANT" | "HOTEL" | "BEACH" | "HERITAGE" | "NATURE" | "TOWN" | "VIEWPOINT" | "TRAIL" | "CHURCH" | "PORT";
+  category?:
+    | "RESTAURANT"
+    | "HOTEL"
+    | "BEACH"
+    | "HERITAGE"
+    | "NATURE"
+    | "TOWN"
+    | "VIEWPOINT"
+    | "TRAIL"
+    | "CHURCH"
+    | "PORT";
   town?: string;
   description?: string;
   tags?: string[];

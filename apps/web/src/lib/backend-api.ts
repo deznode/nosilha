@@ -2488,11 +2488,15 @@ export class BackendApiClient implements ApiClient {
     return this.unwrapApiResponse<string[]>(payload);
   }
 
-  async getRandomGalleryMedia(count: number = 1): Promise<PublicGalleryMedia[]> {
+  async getRandomGalleryMedia(
+    count: number = 1
+  ): Promise<PublicGalleryMedia[]> {
     const endpoint = `${env.apiUrl}/api/v1/gallery/random?count=${count}`;
     const response = await fetch(endpoint, { cache: "no-store" });
     if (!response.ok) {
-      throw new Error(`Failed to fetch random gallery media: ${response.status}`);
+      throw new Error(
+        `Failed to fetch random gallery media: ${response.status}`
+      );
     }
     const payload = await response.json();
     return this.unwrapApiResponse<PublicGalleryMedia[]>(payload);

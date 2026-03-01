@@ -86,8 +86,9 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
   // <Source id="mapbox-dem"> tries to call map.removeSource().
   // See: https://github.com/visgl/react-map-gl/issues/2553
   useLayoutEffect(() => {
+    const ref = mapRef.current;
     return () => {
-      const map = mapRef.current?.getMap();
+      const map = ref?.getMap();
       if (map) {
         try {
           map.setTerrain(null);
@@ -96,7 +97,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
         }
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mapRef is a stable ref, no need to track
   }, []);
 
   // --- Cleanup timers on unmount ---
@@ -255,7 +256,8 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
   const handleStopOrbit = useCallback(
     (e: ViewStateChangeEvent) => {
       // originalEvent is undefined for programmatic moves (flyTo/easeTo)
-      const original = (e as unknown as { originalEvent?: Event }).originalEvent;
+      const original = (e as unknown as { originalEvent?: Event })
+        .originalEvent;
       if (!original) return;
       if (isOrbitMovingRef.current) return;
 

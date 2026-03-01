@@ -154,9 +154,8 @@ describe("mapStore", () => {
   describe("fetchLocations", () => {
     it("calls API and sets locations on success", async () => {
       const { getEntriesForMap } = await import("@/lib/api");
-      const { transformEntries } = await import(
-        "@/features/map/data/locations-adapter"
-      );
+      const { transformEntries } =
+        await import("@/features/map/data/locations-adapter");
 
       vi.mocked(getEntriesForMap).mockResolvedValueOnce({
         items: [mockLocation as never],

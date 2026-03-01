@@ -314,11 +314,7 @@ export function ImageLightbox({
                 <div className="mt-4 border-t border-white/20 pt-4">
                   <button
                     onClick={() =>
-                      onShowOnMap(
-                        photo.latitude!,
-                        photo.longitude!,
-                        photo.id!
-                      )
+                      onShowOnMap(photo.latitude!, photo.longitude!, photo.id!)
                     }
                     aria-label="Show photo location on map"
                     className="focus-ring touch-target flex w-full items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-white/20"

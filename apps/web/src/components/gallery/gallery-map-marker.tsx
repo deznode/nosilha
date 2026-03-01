@@ -30,7 +30,7 @@ export function GalleryMapMarker({
       }}
       className={clsx(
         "relative flex cursor-pointer flex-col items-center",
-        "transition-transform duration-200 ease-calm",
+        "ease-calm transition-transform duration-200",
         isSelected ? "z-50 scale-110" : "z-10 hover:z-40 hover:scale-105"
       )}
       aria-label={`View photo: ${title}`}
@@ -38,7 +38,7 @@ export function GalleryMapMarker({
       {/* Thumbnail circle */}
       <div
         className={clsx(
-          "h-12 w-12 overflow-hidden rounded-full border-2 shadow-medium",
+          "shadow-medium h-12 w-12 overflow-hidden rounded-full border-2",
           isSelected ? "border-brand ring-brand/30 ring-2" : "border-white"
         )}
       >
@@ -60,7 +60,7 @@ export function GalleryMapMarker({
       {/* Pin nub */}
       <div
         className={clsx(
-          "h-0 w-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent",
+          "h-0 w-0 border-t-[8px] border-r-[6px] border-l-[6px] border-r-transparent border-l-transparent",
           isSelected ? "border-t-brand" : "border-t-white"
         )}
       />

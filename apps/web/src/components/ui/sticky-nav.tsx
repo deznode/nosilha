@@ -80,10 +80,7 @@ const languages = [
 ];
 
 /** Returns border + text classes for nav links based on active state and hero transparency. */
-function navLinkClasses(
-  isActive: boolean,
-  isHeroTransparent: boolean
-): string {
+function navLinkClasses(isActive: boolean, isHeroTransparent: boolean): string {
   if (isHeroTransparent) {
     return isActive
       ? "border-white text-white"
@@ -279,10 +276,7 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
             href="/admin"
             className={clsx(
               "hidden h-16 items-center gap-1.5 border-b-2 px-3 text-sm font-medium transition-colors lg:inline-flex",
-              navLinkClasses(
-                pathname.startsWith("/admin"),
-                isHeroTransparent
-              )
+              navLinkClasses(pathname.startsWith("/admin"), isHeroTransparent)
             )}
           >
             <Shield className="h-4 w-4" />

@@ -52,10 +52,7 @@ function DecadeCard({
               />
             </div>
           ) : (
-            <div
-              key={`placeholder-${i}`}
-              className="bg-surface-alt"
-            />
+            <div key={`placeholder-${i}`} className="bg-surface-alt" />
           );
         })}
         {/* Fill empty slots */}
@@ -66,7 +63,9 @@ function DecadeCard({
 
       {/* Label & count */}
       <div className="p-3">
-        <p className="text-body font-serif text-base font-bold">{group.label}</p>
+        <p className="text-body font-serif text-base font-bold">
+          {group.label}
+        </p>
         <p className="text-muted text-xs">
           {group.count} {group.count === 1 ? "photo" : "photos"}
         </p>
@@ -77,35 +76,35 @@ function DecadeCard({
 
 export function TimelineView({ timeline, onDecadeSelect }: TimelineViewProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [reducedMotion, setReducedMotion] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
 
   useEffect(() => {
     const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mql.matches);
     const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
     mql.addEventListener("change", handler);
     return () => mql.removeEventListener("change", handler);
   }, []);
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      const container = scrollRef.current;
-      if (!container) return;
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const container = scrollRef.current;
+    if (!container) return;
 
-      // Arrow keys: navigate between decades
-      if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-        e.preventDefault();
-        const next = (e.target as HTMLElement).nextElementSibling as HTMLElement;
-        next?.focus();
-      } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-        e.preventDefault();
-        const prev = (e.target as HTMLElement)
-          .previousElementSibling as HTMLElement;
-        prev?.focus();
-      }
-    },
-    []
-  );
+    // Arrow keys: navigate between decades
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      e.preventDefault();
+      const next = (e.target as HTMLElement).nextElementSibling as HTMLElement;
+      next?.focus();
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const prev = (e.target as HTMLElement)
+        .previousElementSibling as HTMLElement;
+      prev?.focus();
+    }
+  }, []);
 
   if (!timeline || timeline.groups.length === 0) {
     return (
@@ -128,7 +127,7 @@ export function TimelineView({ timeline, onDecadeSelect }: TimelineViewProps) {
           aria-label="Decade navigation"
           onKeyDown={handleKeyDown}
           className={clsx(
-            "flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-thin",
+            "scrollbar-thin flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4",
             !reducedMotion && "scroll-smooth"
           )}
         >
@@ -155,11 +154,14 @@ export function TimelineView({ timeline, onDecadeSelect }: TimelineViewProps) {
           className="space-y-6"
         >
           {timeline.groups.map((group) => (
-            <div key={group.decade} className="relative flex items-start gap-4 pl-10">
+            <div
+              key={group.decade}
+              className="relative flex items-start gap-4 pl-10"
+            >
               {/* Marker dot */}
               <div
                 className={clsx(
-                  "absolute left-2.5 top-2 h-3 w-3 rounded-full border-2",
+                  "absolute top-2 left-2.5 h-3 w-3 rounded-full border-2",
                   group.count > 0
                     ? "bg-ocean-blue border-ocean-blue"
                     : "border-hairline bg-surface"
@@ -204,9 +206,7 @@ function MobileDecadeCard({
       role="group"
       className={clsx(
         "rounded-card border-hairline focus-ring flex w-full flex-col overflow-hidden border text-left transition-all",
-        isEmpty
-          ? "cursor-default opacity-40"
-          : "bg-surface shadow-subtle",
+        isEmpty ? "cursor-default opacity-40" : "bg-surface shadow-subtle",
         !isEmpty && !reducedMotion && "active:scale-[0.98]"
       )}
     >
@@ -238,7 +238,9 @@ function MobileDecadeCard({
       )}
 
       <div className="flex items-center justify-between p-3">
-        <p className="text-body font-serif text-base font-bold">{group.label}</p>
+        <p className="text-body font-serif text-base font-bold">
+          {group.label}
+        </p>
         <span className="text-muted text-xs">
           {group.count} {group.count === 1 ? "photo" : "photos"}
         </span>

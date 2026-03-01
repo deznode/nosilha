@@ -45,7 +45,7 @@ const GalleryMapCanvas = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="bg-surface-alt flex h-[60vh] min-h-[400px] items-center justify-center rounded-card">
+      <div className="bg-surface-alt rounded-card flex h-[60vh] min-h-[400px] items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="text-brand h-8 w-8 animate-spin" />
           <p className="text-muted text-sm">Loading map...</p>
@@ -261,14 +261,28 @@ export function GalleryContent({
       setFlyToCoords(null);
     }
     setActiveView(view);
-    updateUrl(activeTab, categoryFilter, decadeFilter, undefined, undefined, view);
+    updateUrl(
+      activeTab,
+      categoryFilter,
+      decadeFilter,
+      undefined,
+      undefined,
+      view
+    );
   };
 
   const handleTimelineDecadeSelect = (decade: string) => {
     const decadeVal = decade as DecadeFilter;
     setDecadeFilter(decadeVal);
     setActiveView("grid");
-    updateUrl(activeTab, categoryFilter, decadeVal, undefined, undefined, "grid");
+    updateUrl(
+      activeTab,
+      categoryFilter,
+      decadeVal,
+      undefined,
+      undefined,
+      "grid"
+    );
   };
 
   const clearSearch = () => {
@@ -516,7 +530,11 @@ export function GalleryContent({
                   const idx = photos.findIndex((p) => p.id === photo.id);
                   if (idx >= 0) setMapLightboxIndex(idx);
                 }}
-                selectedPhotoId={mapLightboxIndex !== null ? photos[mapLightboxIndex]?.id : undefined}
+                selectedPhotoId={
+                  mapLightboxIndex !== null
+                    ? photos[mapLightboxIndex]?.id
+                    : undefined
+                }
                 flyToCoords={flyToCoords}
                 onViewChange={handleViewChange}
                 hasActiveFilters={hasActiveFilters || !!debouncedQuery}

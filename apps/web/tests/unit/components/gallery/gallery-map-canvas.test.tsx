@@ -111,9 +111,7 @@ describe("GalleryMapCanvas", () => {
     it("shows photo count badge with correct count", () => {
       render(<GalleryMapCanvas photos={geoPhotos} onPhotoSelect={vi.fn()} />);
 
-      expect(
-        screen.getByText("2 photos with locations")
-      ).toBeInTheDocument();
+      expect(screen.getByText("2 photos with locations")).toBeInTheDocument();
     });
 
     it("shows singular 'photo' for single geo-tagged item", () => {
@@ -121,9 +119,7 @@ describe("GalleryMapCanvas", () => {
         <GalleryMapCanvas photos={[geoPhotos[0]]} onPhotoSelect={vi.fn()} />
       );
 
-      expect(
-        screen.getByText("1 photo with locations")
-      ).toBeInTheDocument();
+      expect(screen.getByText("1 photo with locations")).toBeInTheDocument();
     });
 
     it("renders map container with correct ARIA attributes", () => {
@@ -152,9 +148,7 @@ describe("GalleryMapCanvas", () => {
     });
 
     it("renders empty message when no photos have coordinates", () => {
-      render(
-        <GalleryMapCanvas photos={noGeoPhotos} onPhotoSelect={vi.fn()} />
-      );
+      render(<GalleryMapCanvas photos={noGeoPhotos} onPhotoSelect={vi.fn()} />);
 
       expect(
         screen.getByText("No photos with location data yet")
@@ -257,9 +251,7 @@ describe("GalleryMapCanvas", () => {
         />
       );
 
-      await user.click(
-        screen.getByRole("button", { name: "Clear Filters" })
-      );
+      await user.click(screen.getByRole("button", { name: "Clear Filters" }));
 
       expect(onClearFilters).toHaveBeenCalledOnce();
     });

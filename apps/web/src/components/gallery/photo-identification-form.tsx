@@ -9,8 +9,6 @@ import { Input } from "@/components/catalyst-ui/input";
 import { Field, Label, ErrorMessage } from "@/components/catalyst-ui/fieldset";
 import {
   Dialog,
-  DialogActions,
-  DialogBody,
   DialogDescription,
   DialogTitle,
 } from "@/components/catalyst-ui/dialog";
@@ -120,9 +118,7 @@ export function PhotoIdentificationForm({
 
     try {
       const submissionEmail =
-        isAuthenticated && user?.email
-          ? user.email
-          : (data.email || "").trim();
+        isAuthenticated && user?.email ? user.email : (data.email || "").trim();
 
       // Build message from structured fields
       const messageParts: string[] = [];
@@ -152,7 +148,9 @@ export function PhotoIdentificationForm({
       });
 
       setSubmitSuccess(true);
-      toast.success("Thank you! Your identification has been submitted.").show();
+      toast
+        .success("Thank you! Your identification has been submitted.")
+        .show();
       reset();
       setTimeout(() => onClose(), 1500);
     } catch (error) {
@@ -179,8 +177,8 @@ export function PhotoIdentificationForm({
             Thank you for helping identify this photo!
           </p>
           <p className="text-valley-green/90 mt-2 text-sm">
-            Your contribution will be reviewed by our team and used to
-            enrich the archive.
+            Your contribution will be reviewed by our team and used to enrich
+            the archive.
           </p>
         </div>
       </div>
@@ -213,9 +211,7 @@ export function PhotoIdentificationForm({
               disabled={isSubmitting}
               data-invalid={errors.name ? "" : undefined}
             />
-            {errors.name && (
-              <ErrorMessage>{errors.name.message}</ErrorMessage>
-            )}
+            {errors.name && <ErrorMessage>{errors.name.message}</ErrorMessage>}
           </Field>
 
           {!isAuthenticated && (
@@ -319,9 +315,9 @@ export function PhotoIdentificationForm({
         aria-modal="true"
         aria-label={title}
       >
-        <div className="bg-canvas max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl p-8 shadow-lg ring-1 ring-hairline">
-          <h2 className="text-lg/6 font-semibold text-body">{title}</h2>
-          <p className="mt-2 text-sm text-muted">{description}</p>
+        <div className="bg-canvas ring-hairline max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl p-8 shadow-lg ring-1">
+          <h2 className="text-body text-lg/6 font-semibold">{title}</h2>
+          <p className="text-muted mt-2 text-sm">{description}</p>
           {formContent}
         </div>
       </div>

@@ -37,7 +37,7 @@ export function WeeklyDiscoverySection({
       <section className="mb-6">
         <div className="mb-3 flex items-center gap-2">
           <Sparkles size={18} className="text-sunny-yellow" />
-          <h2 className="text-body text-sm font-bold uppercase tracking-wider">
+          <h2 className="text-body text-sm font-bold tracking-wider uppercase">
             This Week&apos;s Discoveries
           </h2>
         </div>
@@ -50,7 +50,7 @@ export function WeeklyDiscoverySection({
               <button
                 key={photo.id}
                 onClick={() => setLightboxIndex(index)}
-                className="group relative w-48 flex-shrink-0 snap-start overflow-hidden rounded-card sm:w-56"
+                className="group rounded-card relative w-48 flex-shrink-0 snap-start overflow-hidden sm:w-56"
               >
                 <div className="relative h-32 w-full sm:h-40">
                   <Image
@@ -58,7 +58,7 @@ export function WeeklyDiscoverySection({
                     alt={photo.altText ?? photo.title ?? "Gallery photo"}
                     fill
                     sizes="224px"
-                    className="object-cover transition-transform duration-300 ease-calm group-hover:scale-105"
+                    className="ease-calm object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>
                 <div className="bg-surface border-hairline border-x border-b p-2">
@@ -66,7 +66,7 @@ export function WeeklyDiscoverySection({
                     {photo.title}
                   </p>
                   {photo.category && (
-                    <span className="bg-surface-alt text-muted mt-1 inline-block rounded-badge px-2 py-0.5 text-xs">
+                    <span className="bg-surface-alt text-muted rounded-badge mt-1 inline-block px-2 py-0.5 text-xs">
                       {photo.category}
                     </span>
                   )}

@@ -20,7 +20,7 @@ export function GalleryMapPopup({
   onClose,
 }: GalleryMapPopupProps) {
   return (
-    <div className="bg-surface border-hairline w-56 overflow-hidden rounded-card border shadow-elevated">
+    <div className="bg-surface border-hairline rounded-card shadow-elevated w-56 overflow-hidden border">
       {/* Photo preview */}
       <div className="relative h-32 w-full">
         {photo.thumbnailUrl ? (
@@ -56,7 +56,7 @@ export function GalleryMapPopup({
           <button
             type="button"
             onClick={() => onOpenInGallery(photo)}
-            className="bg-brand/10 text-brand hover:bg-brand/20 flex flex-1 items-center justify-center gap-1 rounded-button px-2 py-1.5 text-xs font-medium transition-colors"
+            className="bg-brand/10 text-brand hover:bg-brand/20 rounded-button flex flex-1 items-center justify-center gap-1 px-2 py-1.5 text-xs font-medium transition-colors"
           >
             <ExternalLink className="h-3 w-3" />
             Open in Gallery

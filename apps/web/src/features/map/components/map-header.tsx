@@ -31,7 +31,7 @@ export function MapHeader() {
       </Link>
       <button
         onClick={toggleSidebar}
-        className="pointer-events-auto rounded-xl border border-white/40 bg-white/80 p-3 text-text-primary shadow-xl backdrop-blur-md dark:border-white/20 dark:bg-white/10 dark:text-white md:hidden"
+        className="text-text-primary pointer-events-auto rounded-xl border border-white/40 bg-white/80 p-3 shadow-xl backdrop-blur-md md:hidden dark:border-white/20 dark:bg-white/10 dark:text-white"
       >
         {showSidebar ? <X size={20} /> : <List size={20} />}
       </button>
