@@ -1,6 +1,5 @@
 "use client";
 
-import DOMPurify from "isomorphic-dompurify";
 import Link from "next/link";
 import {
   MapPin,
@@ -22,6 +21,15 @@ import type { UnifiedSearchResult, DirectoryCategory } from "@/types/search";
 interface UnifiedSearchItemProps {
   result: UnifiedSearchResult;
   onSelect?: () => void;
+}
+
+/**
+ * Sanitizes Pagefind search excerpts by stripping all HTML tags except <mark>.
+ * Pagefind only uses <mark> tags for search term highlighting, so this strict
+ * allowlist approach is safer than a general-purpose sanitizer for this use case.
+ */
+function sanitizeExcerpt(html: string): string {
+  return html.replace(/<(?!\/?mark\b)[^>]*>/gi, "");
 }
 
 /** Category icon mapping */
@@ -107,7 +115,7 @@ export function UnifiedSearchItem({
             <p
               className="mt-1 line-clamp-2 text-sm text-stone-400"
               dangerouslySetInnerHTML={{
-                __html: DOMPurify.sanitize(result.highlightedExcerpt),
+                __html: sanitizeExcerpt(result.highlightedExcerpt),
               }}
             />
           )}
