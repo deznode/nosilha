@@ -24,17 +24,7 @@ export async function POST(
     const { id } = await params;
 
     // Validate admin authentication using request-scoped Supabase client
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-      return NextResponse.json(
-        { error: "Authentication not configured" },
-        { status: 500 }
-      );
-    }
-
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    const supabase = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
       cookies: {
         getAll() {
           return request.cookies.getAll();

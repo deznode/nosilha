@@ -36,15 +36,8 @@ export async function archiveStoryToMDX(
 ): Promise<{ success: boolean; commitUrl?: string; error?: string }> {
   try {
     // 1. Verify caller is an authenticated admin
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-    if (!supabaseUrl || !supabaseAnonKey) {
-      return { success: false, error: "Authentication not configured." };
-    }
-
     const cookieStore = await cookies();
-    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+    const supabase = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
       cookies: {
         getAll() {
           return cookieStore.getAll();
@@ -74,6 +67,12 @@ export async function archiveStoryToMDX(
     if (role?.toUpperCase() !== "ADMIN") {
       return { success: false, error: "Admin access required." };
     }
+
+    // Capture session token now, before long-running GitHub operations
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    const accessToken = session?.access_token;
 
     // 2. Validate slug to prevent path traversal
     if (!VALID_SLUG_PATTERN.test(slug)) {
@@ -181,13 +180,8 @@ as static MDX content in the repository.`;
     const commitUrl = commitData.html_url;
     console.log(`[Archive Story] Commit successful: ${commitUrl}`);
 
-    // Get session token for backend API call
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-
     try {
-      await markStoryAsArchived(storyId, commitUrl, session?.access_token);
+      await markStoryAsArchived(storyId, commitUrl, accessToken);
       console.log(
         `[Archive Story] Story marked as archived in backend: ${storyId}`
       );

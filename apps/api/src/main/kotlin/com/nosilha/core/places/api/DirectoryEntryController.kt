@@ -49,9 +49,9 @@ private val logger = KotlinLogging.logger {}
  *   <li>GET /api/v1/directory/entries/{id} - Get entry by UUID</li>
  *   <li>GET /api/v1/directory/entries/{id}/bookmark-status - Check if entry is bookmarked</li>
  *   <li>GET /api/v1/directory/slug/{slug} - Get entry by slug</li>
- *   <li>POST /api/v1/directory/entries - Create new entry (authenticated)</li>
- *   <li>PUT /api/v1/directory/entries/{id} - Update entry (authenticated)</li>
- *   <li>DELETE /api/v1/directory/entries/{id} - Delete entry (authenticated)</li>
+ *   <li>POST /api/v1/directory/entries - Create new entry (ADMIN only)</li>
+ *   <li>PUT /api/v1/directory/entries/{id} - Update entry (ADMIN only)</li>
+ *   <li>DELETE /api/v1/directory/entries/{id} - Delete entry (ADMIN only)</li>
  * </ul>
  *
  * @param service The business logic layer for directory entries.
