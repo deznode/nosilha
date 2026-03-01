@@ -215,7 +215,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.r2_account_id.secret_id
-            version = "1"
+            version = "2"
           }
         }
       }
@@ -225,7 +225,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.r2_access_key_id.secret_id
-            version = "1"
+            version = "2"
           }
         }
       }
@@ -235,7 +235,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.r2_secret_access_key.secret_id
-            version = "1"
+            version = "2"
           }
         }
       }
