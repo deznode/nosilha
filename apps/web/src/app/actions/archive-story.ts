@@ -1,13 +1,19 @@
 "use server";
 
 import { Octokit } from "@octokit/rest";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import { env } from "@/lib/env";
-import { supabase } from "@/lib/supabase-client";
+
+/** Strict slug pattern: lowercase alphanumeric segments separated by hyphens */
+const VALID_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 /**
  * Archive Story to MDX Server Action
  *
  * Handles archiving approved stories as MDX files in the GitHub repository by:
+ * - Verifying the caller is an authenticated ADMIN user
+ * - Validating the slug to prevent path traversal attacks
  * - Authenticating with GitHub using a Personal Access Token (PAT)
  * - Creating a commit with the MDX content in the stories directory
  * - Calling the backend API to mark the story as archived
@@ -29,7 +35,51 @@ export async function archiveStoryToMDX(
   title: string
 ): Promise<{ success: boolean; commitUrl?: string; error?: string }> {
   try {
-    // 1. Validate environment variables
+    // 1. Verify caller is an authenticated admin
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return { success: false, error: "Authentication not configured." };
+    }
+
+    const cookieStore = await cookies();
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Ignored in server actions
+          }
+        },
+      },
+    });
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return { success: false, error: "Authentication required." };
+    }
+
+    const role = user.app_metadata?.role;
+    if (role?.toUpperCase() !== "ADMIN") {
+      return { success: false, error: "Admin access required." };
+    }
+
+    // 2. Validate slug to prevent path traversal
+    if (!VALID_SLUG_PATTERN.test(slug)) {
+      return { success: false, error: "Invalid slug format." };
+    }
+
     const githubToken = process.env.GITHUB_TOKEN;
     if (!githubToken) {
       console.error(
@@ -131,8 +181,13 @@ as static MDX content in the repository.`;
     const commitUrl = commitData.html_url;
     console.log(`[Archive Story] Commit successful: ${commitUrl}`);
 
+    // Get session token for backend API call
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
     try {
-      await markStoryAsArchived(storyId, commitUrl);
+      await markStoryAsArchived(storyId, commitUrl, session?.access_token);
       console.log(
         `[Archive Story] Story marked as archived in backend: ${storyId}`
       );
@@ -212,18 +267,15 @@ as static MDX content in the repository.`;
  *
  * @param storyId - UUID of the story to mark as archived
  * @param commitUrl - GitHub commit URL for reference
+ * @param accessToken - JWT access token from the authenticated session
  * @throws Error if the API call fails
  */
 async function markStoryAsArchived(
   storyId: string,
-  commitUrl: string
+  commitUrl: string,
+  accessToken: string | undefined
 ): Promise<void> {
-  // Get JWT token from Supabase session
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (!session?.access_token) {
+  if (!accessToken) {
     throw new Error("Authentication required to mark story as archived");
   }
 
@@ -234,7 +286,7 @@ async function markStoryAsArchived(
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${session.access_token}`,
+      Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify({
       commitUrl,
@@ -246,7 +298,6 @@ async function markStoryAsArchived(
   if (!response.ok) {
     // Handle authentication errors
     if (response.status === 401) {
-      await supabase.auth.signOut();
       throw new Error("Authentication expired. Please log in again.");
     }
 

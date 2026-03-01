@@ -1,5 +1,6 @@
 "use client";
 
+import DOMPurify from "isomorphic-dompurify";
 import Link from "next/link";
 import {
   MapPin,
@@ -105,7 +106,9 @@ export function UnifiedSearchItem({
           {result.highlightedExcerpt && (
             <p
               className="mt-1 line-clamp-2 text-sm text-stone-400"
-              dangerouslySetInnerHTML={{ __html: result.highlightedExcerpt }}
+              dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(result.highlightedExcerpt),
+              }}
             />
           )}
         </div>

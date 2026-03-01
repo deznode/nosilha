@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 import { env } from "@/lib/env";
-import { supabase } from "@/lib/supabase-client";
 import type { MdxContent } from "@/types/admin";
 
 /**
@@ -8,7 +8,7 @@ import type { MdxContent } from "@/types/admin";
  *
  * Generates MDX preview from an approved story submission.
  *
- * Authentication: Required (ADMIN role)
+ * Authentication: Required (ADMIN role, verified via request-scoped Supabase client)
  * Rate Limiting: Standard API rate limiting applies
  *
  * @param request - Next.js request object
@@ -23,7 +23,46 @@ export async function POST(
     // Resolve params (Next.js 15+ async params)
     const { id } = await params;
 
-    // Validate admin authentication
+    // Validate admin authentication using request-scoped Supabase client
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json(
+        { error: "Authentication not configured" },
+        { status: 500 }
+      );
+    }
+
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll() {
+          // Route handlers cannot set cookies on the response directly here
+        },
+      },
+    });
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    const role = user.app_metadata?.role;
+    if (role?.toUpperCase() !== "ADMIN") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    // Get session for the access token to forward to the backend
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -121,11 +160,7 @@ export async function POST(
     console.error("Error generating MDX:", error);
 
     return NextResponse.json(
-      {
-        error: "Internal server error while generating MDX",
-        details:
-          error instanceof Error ? error.message : "Unknown error occurred",
-      },
+      { error: "Internal server error while generating MDX" },
       { status: 500 }
     );
   }

@@ -120,9 +120,9 @@ springdoc:
     enabled: false
 logging:
   level:
-    web: debug
-    com.nosilha: debug
+    web: warn
+    com.nosilha: info
     tools:
       jackson:
         module:
-          kotlin: debug
+          kotlin: warn

@@ -108,12 +108,14 @@ class SecurityConfig(
                     .hasAnyRole("USER", "ADMIN", "authenticated")
                     .requestMatchers(HttpMethod.POST, "/api/v1/gallery/submit")
                     .hasAnyRole("USER", "ADMIN", "authenticated")
+                    // Direct CRUD on directory entries is admin-only
+                    // (users contribute via the moderated /directory/submissions endpoint)
                     .requestMatchers(HttpMethod.POST, "/api/v1/directory/entries")
-                    .hasAnyRole("USER", "ADMIN", "authenticated")
+                    .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.PUT, "/api/v1/directory/**")
-                    .hasAnyRole("USER", "ADMIN", "authenticated")
+                    .hasRole("ADMIN")
                     .requestMatchers(HttpMethod.DELETE, "/api/v1/directory/**")
-                    .hasAnyRole("USER", "ADMIN", "authenticated")
+                    .hasRole("ADMIN")
                     // Text AI endpoints - require authentication
                     .requestMatchers("/api/v1/ai/**")
                     .hasAnyRole("USER", "ADMIN", "authenticated")

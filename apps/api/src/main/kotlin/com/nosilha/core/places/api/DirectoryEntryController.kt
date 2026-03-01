@@ -9,6 +9,7 @@ import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.CreateEntryRequestDto
 import com.nosilha.core.shared.api.DirectoryEntryDto
 import com.nosilha.core.shared.api.PagedApiResult
+import com.nosilha.core.shared.util.extractClientIp
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -20,6 +21,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -197,9 +199,10 @@ class DirectoryEntryController(
      * @throws BusinessException if the update violates business rules.
      */
     @PutMapping("/entries/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     fun updateEntry(
         @PathVariable id: UUID,
-        @RequestBody request: CreateEntryRequestDto,
+        @Valid @RequestBody request: CreateEntryRequestDto,
     ): ApiResult<DirectoryEntryDto> {
         val updatedEntry = service.updateEntry(id, request)
         return ApiResult(data = updatedEntry)
@@ -213,6 +216,7 @@ class DirectoryEntryController(
      */
     @DeleteMapping("/entries/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
     fun deleteEntry(
         @PathVariable id: UUID,
     ) {
@@ -269,7 +273,7 @@ class DirectoryEntryController(
         httpRequest: HttpServletRequest,
     ): ApiResult<DirectoryEntrySubmissionConfirmationDto> {
         val userId = extractUserId(authentication)
-        val ipAddress = extractIpAddress(httpRequest)
+        val ipAddress = extractClientIp(httpRequest)
         logger.info { "Received directory submission from user: $userId, IP: $ipAddress" }
 
         val response = service.submitDirectoryEntry(
@@ -294,20 +298,6 @@ class DirectoryEntryController(
             authentication.name
                 ?: throw IllegalStateException("Authentication name must be present (user ID)"),
         )
-
-    /**
-     * Extracts the client IP address from the HTTP request.
-     *
-     * <p>Checks X-Forwarded-For header first (for proxied requests),
-     * then falls back to remote address.</p>
-     */
-    private fun extractIpAddress(request: HttpServletRequest): String? {
-        val xForwardedFor = request.getHeader("X-Forwarded-For")
-        if (!xForwardedFor.isNullOrBlank()) {
-            return xForwardedFor.split(",").firstOrNull()?.trim()
-        }
-        return request.remoteAddr
-    }
 
     /**
      * Check if a directory entry is bookmarked by the current user.

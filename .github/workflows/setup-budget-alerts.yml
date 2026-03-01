@@ -26,9 +26,10 @@ jobs:
 
       - name: Configure budget alerts setup
         id: budget-setup
+        env:
+          BUDGET_LIMIT: ${{ github.event.inputs.budget_limit }}
+          NOTIFICATION_EMAIL: ${{ github.event.inputs.notification_email }}
         run: |
-          BUDGET_LIMIT="${{ github.event.inputs.budget_limit }}"
-          NOTIFICATION_EMAIL="${{ github.event.inputs.notification_email }}"
 
           echo "🎯 Setting up budget alerts with limit: ${BUDGET_LIMIT} minutes/month"
 
