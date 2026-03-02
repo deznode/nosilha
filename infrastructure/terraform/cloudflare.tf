@@ -118,8 +118,8 @@ resource "cloudflare_dns_record" "domainconnect_cname" {
   name    = "_domainconnect.nosilha.com"
   type    = "CNAME"
   content = "_domainconnect.gd.domaincontrol.com"
-  proxied = true
-  ttl     = 1
+  proxied = false
+  ttl     = 3600
 }
 
 resource "cloudflare_dns_record" "www_cname" {

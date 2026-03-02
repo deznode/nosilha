@@ -23,6 +23,11 @@ interface PageProps {
 // Get pages for this category
 const categoryPages = pages.filter((p) => p.category === "history");
 
+export async function generateStaticParams() {
+  const slugs = [...new Set(categoryPages.map((page) => page.slug))];
+  return slugs.map((slug) => ({ slug }));
+}
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {

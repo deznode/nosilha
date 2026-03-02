@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { cacheLife } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -214,6 +214,7 @@ export default async function PhotoDetailPage({
   "use cache";
   cacheLife("entry");
   const { id } = await params;
+  cacheTag(`photo:${id}`);
 
   if (!UUID_REGEX.test(id)) {
     notFound();
