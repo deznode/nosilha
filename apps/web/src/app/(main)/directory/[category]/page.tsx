@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cacheLife, cacheTag } from "next/cache";
 import { getEntriesByCategory } from "@/lib/api";
 import { DirectoryCategoryPageContent } from "@/components/pages/directory-category-page-content";
 import {
@@ -7,9 +8,6 @@ import {
 } from "@/lib/directory-utils";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import type { BreadcrumbListSchema } from "@/types/metadata";
-
-// Enable ISR with 1 hour revalidation for directory content
-export const revalidate = 3600;
 
 // Define the props for a dynamic page component in Next.js
 interface DirectoryCategoryPageProps {
@@ -104,6 +102,19 @@ export default async function DirectoryCategoryPage({
 }: DirectoryCategoryPageProps) {
   const { category } = await params;
   const { page: pageParam, q, town, sort } = await searchParams;
+  return cachedCategoryContent(category, pageParam, q, town, sort);
+}
+
+async function cachedCategoryContent(
+  category: string,
+  pageParam?: string,
+  q?: string,
+  town?: string,
+  sort?: string
+) {
+  "use cache";
+  cacheLife("content");
+  cacheTag(`category:${category}`);
 
   // Convert URL slug (e.g., "hotels") to API category format (e.g., "Hotel")
   // For "all", keep as-is since the API handles it specially

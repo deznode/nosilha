@@ -3,6 +3,9 @@
 import Link from "next/link";
 import clsx from "clsx";
 import { SocialMediaLinks } from "@/components/ui/social-media-links";
+
+// Build-time constant for copyright year (evaluated once at module load)
+const COPYRIGHT_YEAR = new Date().getFullYear();
 import { NosilhaLogo } from "@/components/ui/logo";
 import { FooterNewsletterForm } from "@/components/newsletter/footer-newsletter-form";
 
@@ -131,7 +134,7 @@ export function Footer({
         <div className="mt-12 border-t border-slate-700 pt-8 md:flex md:items-center md:justify-between">
           <SocialMediaLinks variant="compact" className="md:order-2" />
           <p className="mt-8 text-xs leading-5 text-slate-400 md:order-1 md:mt-0">
-            &copy; {new Date().getFullYear()} Nos Ilha. {copy.copyright}
+            &copy; {COPYRIGHT_YEAR} Nos Ilha. {copy.copyright}
           </p>
         </div>
       </div>

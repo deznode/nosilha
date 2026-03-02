@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cacheLife, cacheTag } from "next/cache";
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import {
   getGalleryMedia,
@@ -27,8 +28,6 @@ import type {
   DecadeFilter,
   GalleryView,
 } from "@/types/gallery";
-
-export const revalidate = 1800; // 30 minutes ISR matching CacheConfig.GALLERY
 
 const VALID_DECADES = new Set<string>([
   "pre-1975",
@@ -130,6 +129,19 @@ export async function generateMetadata({
 
 export default async function GalleryPage({ searchParams }: GalleryPageProps) {
   const { tab, category, decade, q, view } = await searchParams;
+  return cachedGalleryContent(tab, category, decade, q, view);
+}
+
+async function cachedGalleryContent(
+  tab?: string,
+  category?: string,
+  decade?: string,
+  q?: string,
+  view?: string
+) {
+  "use cache";
+  cacheLife("entry");
+  cacheTag("gallery");
 
   const initialDecade: DecadeFilter =
     decade && VALID_DECADES.has(decade) ? (decade as DecadeFilter) : "all";

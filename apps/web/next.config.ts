@@ -3,6 +3,24 @@ import type { NextConfig } from "next";
 const isDev = process.env.NODE_ENV === "development";
 
 const nextConfig: NextConfig = {
+  cacheComponents: true,
+  cacheLife: {
+    content: {
+      stale: 300,
+      revalidate: 3600,
+      expire: 86400,
+    },
+    entry: {
+      stale: 60,
+      revalidate: 1800,
+      expire: 86400,
+    },
+    longLived: {
+      stale: 600,
+      revalidate: 7200,
+      expire: 604800,
+    },
+  },
   reactCompiler: true,
   output: "standalone",
   images: {

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cacheLife } from "next/cache";
 import { getEntriesByCategory } from "@/lib/api";
 import { HomePageContent } from "@/components/pages/home-page-content";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
@@ -55,9 +56,9 @@ export const metadata: Metadata = generatePageMetadata({
   defaultImage: siteConfig.ogImage,
 });
 
-export const revalidate = 1800;
-
 export default async function HomePage() {
+  "use cache";
+  cacheLife("entry");
   const { items: featuredEntries } = await getEntriesByCategory("all");
   return <HomePageContent featuredEntries={featuredEntries} />;
 }
