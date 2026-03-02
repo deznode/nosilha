@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { StickyNav } from "@/components/ui/sticky-nav";
 import { Footer } from "@/components/ui/footer";
 import { MobileBottomNav } from "@/components/ui/mobile-bottom-nav";
@@ -13,6 +14,9 @@ import { MobileBottomNav } from "@/components/ui/mobile-bottom-nav";
  *
  * Mobile: Includes MobileBottomNav for thumb-zone accessibility,
  * with padding to prevent content overlap.
+ *
+ * Suspense boundaries around nav components allow usePathname()
+ * to create dynamic holes in cached pages (PPR).
  */
 export default function MainLayout({
   children,
@@ -21,7 +25,9 @@ export default function MainLayout({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <StickyNav className="print:hidden" />
+      <Suspense>
+        <StickyNav className="print:hidden" />
+      </Suspense>
       <main
         id="main-content"
         className="animate-fade-in flex-grow pt-16 pb-16 lg:pb-0"
@@ -31,7 +37,9 @@ export default function MainLayout({
       <div className="hidden lg:block print:hidden">
         <Footer />
       </div>
-      <MobileBottomNav />
+      <Suspense>
+        <MobileBottomNav />
+      </Suspense>
     </div>
   );
 }

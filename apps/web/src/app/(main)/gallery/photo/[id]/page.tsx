@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cacheLife, cacheTag } from "next/cache";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -23,8 +24,6 @@ import type {
 } from "@/types/gallery";
 import { isPublicUserUploadMedia } from "@/types/gallery";
 import type { BreadcrumbListSchema, ImageObjectSchema } from "@/types/metadata";
-
-export const revalidate = 1800;
 
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -212,7 +211,10 @@ function buildImageObjectSchema(
 export default async function PhotoDetailPage({
   params,
 }: PhotoDetailPageProps) {
+  "use cache";
+  cacheLife("entry");
   const { id } = await params;
+  cacheTag(`photo:${id}`);
 
   if (!UUID_REGEX.test(id)) {
     notFound();

@@ -160,6 +160,35 @@ resource "google_secret_manager_secret_iam_member" "grant_r2_secret_access_key_a
   member    = google_service_account.backend_runner.member
 }
 
+# Revalidation secret (shared between frontend and backend for cache invalidation)
+# After apply, set the value: openssl rand -hex 32 | tr -d '\n' | gcloud secrets versions add revalidate_secret --data-file=-
+resource "google_secret_manager_secret" "revalidate_secret" {
+  project   = var.gcp_project_id
+  secret_id = "revalidate_secret"
+
+  replication {
+    auto {}
+  }
+
+  depends_on = [google_project_service.secret_manager]
+}
+
+# Grant backend access to revalidation secret (calls frontend revalidation endpoint)
+resource "google_secret_manager_secret_iam_member" "grant_revalidate_secret_backend" {
+  project   = var.gcp_project_id
+  secret_id = google_secret_manager_secret.revalidate_secret.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_service_account.backend_runner.member
+}
+
+# Grant frontend access to revalidation secret (validates incoming revalidation requests)
+resource "google_secret_manager_secret_iam_member" "grant_revalidate_secret_frontend" {
+  project   = var.gcp_project_id
+  secret_id = google_secret_manager_secret.revalidate_secret.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_service_account.frontend_runner.member
+}
+
 # Grant backend service account access to GCS bucket
 resource "google_storage_bucket_iam_member" "grant_gcs_access" {
   bucket = google_storage_bucket.media_storage.name

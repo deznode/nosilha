@@ -3,8 +3,28 @@ import type { NextConfig } from "next";
 const isDev = process.env.NODE_ENV === "development";
 
 const nextConfig: NextConfig = {
+  cacheComponents: true,
+  cacheLife: {
+    content: {
+      stale: 300,
+      revalidate: 3600,
+      expire: 86400,
+    },
+    entry: {
+      stale: 60,
+      revalidate: 1800,
+      expire: 86400,
+    },
+    longLived: {
+      stale: 600,
+      revalidate: 7200,
+      expire: 604800,
+    },
+  },
+  reactCompiler: true,
   output: "standalone",
   images: {
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
         protocol: "https",
@@ -49,6 +69,15 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      {
+        source: "/_next/static/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
       {
         source: "/(.*)",
         headers: [

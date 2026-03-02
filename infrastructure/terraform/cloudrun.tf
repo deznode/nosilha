@@ -240,6 +240,23 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         }
       }
 
+      # Frontend revalidation URL (production frontend)
+      env {
+        name  = "NOSILHA_FRONTEND_URL"
+        value = "https://nosilha.com"
+      }
+
+      # Shared secret for frontend cache revalidation
+      env {
+        name = "NOSILHA_FRONTEND_REVALIDATE_SECRET"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.revalidate_secret.secret_id
+            version = "1"
+          }
+        }
+      }
+
     }
   }
 
@@ -255,6 +272,8 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
     google_secret_manager_secret_iam_member.grant_r2_account_id_access,
     google_secret_manager_secret_iam_member.grant_r2_access_key_id_access,
     google_secret_manager_secret_iam_member.grant_r2_secret_access_key_access,
+    google_secret_manager_secret.revalidate_secret,
+    google_secret_manager_secret_iam_member.grant_revalidate_secret_backend,
   ]
 }
 
@@ -279,8 +298,13 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
   location            = var.gcp_region
   deletion_protection = true
 
-  # Ensure Cloud Run API is enabled before creating service
-  depends_on = [google_project_service.cloud_run]
+  # Ensure Cloud Run API and secret IAM bindings are ready before creating service
+  depends_on = [
+    google_project_service.cloud_run,
+    google_secret_manager_secret.revalidate_secret,
+    google_secret_manager_secret_iam_member.grant_revalidate_secret_frontend,
+    google_secret_manager_secret_iam_member.grant_resend_api_key_access,
+  ]
 
   template {
     # Run the container using the dedicated frontend service account
@@ -339,6 +363,17 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
           secret_key_ref {
             secret  = "resend_api_key"
             version = "1" # Pin to specific version for cost predictability
+          }
+        }
+      }
+
+      # Shared secret for cache revalidation authentication
+      env {
+        name = "REVALIDATE_SECRET"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.revalidate_secret.secret_id
+            version = "1"
           }
         }
       }
