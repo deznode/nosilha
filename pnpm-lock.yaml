@@ -203,6 +203,9 @@ importers:
       jsdom:
         specifier: ^27.0.0
         version: 27.4.0
+      lightningcss-darwin-x64:
+        specifier: ^1.31.1
+        version: 1.31.1
       lightningcss-linux-x64-gnu:
         specifier: 1.30.2
         version: 1.30.2
@@ -5675,6 +5678,12 @@ packages:
 
   lightningcss-darwin-x64@1.30.2:
     resolution: {integrity: sha512-oBZgKchomuDYxr7ilwLcyms6BCyLn0z8J0+ZZmfpjwg9fRVZIR5/GMXd7r9RH94iDhld3UmSjBM6nXWM2TfZTQ==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [x64]
+    os: [darwin]
+
+  lightningcss-darwin-x64@1.31.1:
+    resolution: {integrity: sha512-1ObhyoCY+tGxtsz1lSx5NXCj3nirk0Y0kB/g8B8DT+sSx4G9djitg9ejFnjb3gJNWo7qXH4DIy2SUHvpoFwfTA==}
     engines: {node: '>= 12.0.0'}
     cpu: [x64]
     os: [darwin]
@@ -15043,6 +15052,8 @@ snapshots:
 
   lightningcss-darwin-x64@1.30.2:
     optional: true
+
+  lightningcss-darwin-x64@1.31.1: {}
 
   lightningcss-freebsd-x64@1.30.2:
     optional: true

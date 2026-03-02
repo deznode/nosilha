@@ -55,7 +55,7 @@ export const metadata: Metadata = generatePageMetadata({
   defaultImage: siteConfig.ogImage,
 });
 
-export const dynamic = "force-dynamic";
+export const revalidate = 1800;
 
 export default async function HomePage() {
   const { items: featuredEntries } = await getEntriesByCategory("all");
