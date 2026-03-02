@@ -38,3 +38,23 @@ variable "budget_pubsub_topic" {
   default     = null
 }
 
+# ------------------------------------------------------------------------------
+# Cloudflare Variables
+# ------------------------------------------------------------------------------
+
+variable "cloudflare_api_token" {
+  type        = string
+  description = "Cloudflare API token with Zone:Read, DNS:Edit, Workers R2 Storage:Edit permissions."
+  sensitive   = true
+}
+
+variable "cloudflare_account_id" {
+  type        = string
+  description = "Cloudflare account ID."
+}
+
+variable "cloudflare_zone_id" {
+  type        = string
+  description = "Cloudflare zone ID for nosilha.com."
+}
+
