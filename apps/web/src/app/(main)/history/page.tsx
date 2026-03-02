@@ -536,7 +536,7 @@ async function cachedHistoryContent(bestLang: Language) {
               </p>
               <div className="flex flex-col justify-center gap-4 sm:flex-row">
                 <Link
-                  href="/directory/landmark"
+                  href="/directory/heritage"
                   className="bg-ocean-blue hover:bg-ocean-blue/90 focus-visible:ring-ocean-blue inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
                   Historical Landmarks

@@ -5,7 +5,6 @@ import {
   ContentActionToolbarProps,
   Reaction,
 } from "@/types/content-action-toolbar/component-props";
-import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import { useScrollTrigger } from "@/lib/hooks/use-scroll-trigger";
 import { ContentActionDesktop } from "./content-action-desktop";
 import { ContentActionFAB } from "./content-action-fab";
@@ -19,8 +18,8 @@ import { getReactionCounts } from "@/lib/api";
  * - Mobile/Tablet (<1024px): Floating Action Button (ContentActionFAB)
  *
  * Responsibilities:
- * - Detect viewport width using useMediaQuery hook (1024px breakpoint)
- * - Conditionally render layout variant based on screen size
+ * - Render both layout variants with CSS visibility (lg: breakpoint)
+ * - Avoids hydration mismatch by not using JS-based viewport detection for rendering
  * - Pass content context (slug, title, URL) to child components
  *
  * Feature: 005-action-toolbar-refactor
@@ -57,10 +56,6 @@ export function ContentActionToolbar({
 }: ContentActionToolbarProps) {
   // Manage local reaction state for optimistic updates
   const [reactions, setReactions] = useState<Reaction[]>(initialReactions);
-
-  // Detect viewport width using media query hook
-  // Desktop rail only at >=1024px to avoid crowding tablet layouts
-  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   // Calculate scroll threshold (default: window.innerHeight - 81px header height)
   const defaultThreshold =
@@ -157,11 +152,15 @@ export function ContentActionToolbar({
 
   return (
     <div className={className}>
-      {/* Desktop Layout: Fixed right-rail with vertical stack */}
-      {isDesktop && <ContentActionDesktop {...commonProps} />}
+      {/* Desktop Layout: Fixed right-rail with vertical stack (≥1024px) */}
+      <div className="hidden lg:block">
+        <ContentActionDesktop {...commonProps} />
+      </div>
 
-      {/* Mobile Layout: Floating action button with expandable menu */}
-      {!isDesktop && <ContentActionFAB {...commonProps} />}
+      {/* Mobile Layout: Floating action button with expandable menu (<1024px) */}
+      <div className="block lg:hidden">
+        <ContentActionFAB {...commonProps} />
+      </div>
     </div>
   );
 }
