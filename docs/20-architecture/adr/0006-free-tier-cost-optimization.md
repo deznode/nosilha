@@ -102,6 +102,10 @@ CPU only allocated during active request handling.
 4. **Budget alert at $5**—early warning before free tier breach
 5. **No monitoring dashboard**—uses free alerting instead of paid dashboards
 
+## Implementation Notes
+
+> **Infrastructure drift (as of 2026-03):** The free tier table above reflects all provisioned GCP resources. The application primarily uses Supabase PostgreSQL for data and Cloudflare R2 for media storage. The GCS bucket and Firestore entries remain provisioned but are not actively used by application code. Frontend memory was increased from 256Mi to 512Mi after the initial deployment.
+
 ## More Information
 
 - [Cloud Run Free Tier Details](https://cloud.google.com/run/pricing#tables)

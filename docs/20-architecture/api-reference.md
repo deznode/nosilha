@@ -57,7 +57,7 @@ Authorization: Bearer <supabase_jwt_token>
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | q | string | - | Full-text search (min 2 chars) |
-| category | string | - | Restaurant, Hotel, Beach, Heritage, Nature |
+| category | string | - | Restaurant, Hotel, Beach, Heritage, Nature, Town, Viewpoint, Trail, Church, Port |
 | town | string | - | Filter by town |
 | sort | string | created_at_desc | name_asc, name_desc, rating_desc, relevance |
 | page | int | 0 | Page number |

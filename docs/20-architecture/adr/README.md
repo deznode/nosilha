@@ -6,7 +6,7 @@ Architecture Decision Records (ADRs) document significant technical decisions ma
 
 | ID | Title | Status | Date |
 |----|-------|--------|------|
-| [0001](0001-nx-monorepo.md) | Nx Monorepo | Proposed | 2024-12-26 |
+| [0001](0001-nx-monorepo.md) | Nx Monorepo | Accepted | 2025-12-26 |
 | [0002](0002-spring-modulith.md) | Spring Modulith Architecture | Accepted | 2024-12-26 |
 | [0003](0003-supabase-auth.md) | Supabase Authentication | Accepted | 2024-12-26 |
 | [0004](0004-es256-jwt-algorithm.md) | ES256 JWT Algorithm Configuration | Accepted | 2026-01-08 |

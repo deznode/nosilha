@@ -80,7 +80,7 @@ flowchart TB
 |--------|---------|--------------|------------------|
 | **shared** | Base entities, events, exceptions, utils | None | — |
 | **auth** | JWT auth, profiles, Supabase integration | shared, engagement, stories, feedback | `UserLoggedInEvent`, `UserLoggedOutEvent` |
-| **places** | Directory entries (Restaurant, Hotel, Beach, Heritage, Nature) | shared, engagement | `DirectoryEntryCreatedEvent`, `DirectoryEntryUpdatedEvent`, `DirectoryEntryDeletedEvent` |
+| **places** | Directory entries (Restaurant, Hotel, Beach, Heritage, Nature, Town, Viewpoint, Trail, Church, Port) | shared, engagement | `DirectoryEntryCreatedEvent`, `DirectoryEntryUpdatedEvent`, `DirectoryEntryDeletedEvent` |
 | **gallery** | Media uploads, R2 storage, moderation | shared | `HeroImagePromotedEvent`, `MediaAnalysisRequestedEvent`, `MediaAnalysisBatchRequestedEvent` |
 | **engagement** | Reactions, bookmarks, content registration | shared, places | — |
 | **stories** | Community narratives, MDX publishing | shared, auth, places | `StorySubmittedEvent`, `StoryStatusChangedEvent`, `StoryPublishedEvent`, `MdxCommittedEvent` |

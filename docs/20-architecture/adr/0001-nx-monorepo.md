@@ -161,3 +161,7 @@ Backend targets use `nx:run-commands` executor with caching:
 - [Nx Blog: Journey of the Nx Plugin for Gradle](https://nx.dev/blog/journey-of-the-nx-plugin-for-gradle)
 - [Building a Kotlin + React TypeScript Monorepo with Nx](https://blog.ardikapras.com/building-a-kotlin-react-typescript-monorepo-with-nx-2e9fc71f82f7)
 - [Internal: project-structure-review.md](../../project-structure-review.md)
+
+## Implementation Notes
+
+> **Version drift (as of 2026-03):** The backend now runs Spring Boot 4.0.0 (not 4.0.1), Kotlin 2.3.0 (not 2.2), and Java 25 (not JVM 21). The decision rationale remains unchanged.
