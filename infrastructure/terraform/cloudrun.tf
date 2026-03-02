@@ -298,8 +298,13 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
   location            = var.gcp_region
   deletion_protection = true
 
-  # Ensure Cloud Run API is enabled before creating service
-  depends_on = [google_project_service.cloud_run]
+  # Ensure Cloud Run API and secret IAM bindings are ready before creating service
+  depends_on = [
+    google_project_service.cloud_run,
+    google_secret_manager_secret.revalidate_secret,
+    google_secret_manager_secret_iam_member.grant_revalidate_secret_frontend,
+    google_secret_manager_secret_iam_member.grant_resend_api_key_access,
+  ]
 
   template {
     # Run the container using the dedicated frontend service account

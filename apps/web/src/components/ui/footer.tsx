@@ -3,11 +3,11 @@
 import Link from "next/link";
 import clsx from "clsx";
 import { SocialMediaLinks } from "@/components/ui/social-media-links";
-
-// Build-time constant for copyright year (evaluated once at module load)
-const COPYRIGHT_YEAR = new Date().getFullYear();
 import { NosilhaLogo } from "@/components/ui/logo";
 import { FooterNewsletterForm } from "@/components/newsletter/footer-newsletter-form";
+
+// Module-level constant for copyright year (evaluated once at module load)
+const COPYRIGHT_YEAR = new Date().getFullYear();
 
 // Navigation links - Ideate-style grouping
 const defaultNavigation = {
