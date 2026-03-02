@@ -5,6 +5,7 @@ const isDev = process.env.NODE_ENV === "development";
 const nextConfig: NextConfig = {
   output: "standalone",
   images: {
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
         protocol: "https",
