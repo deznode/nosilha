@@ -51,8 +51,8 @@
 
 | Frontend | Backend | Infrastructure |
 |----------|---------|----------------|
-| Next.js 16 + React 19.2 (App Router) | Spring Boot 4.0.0 + Kotlin 2.3.0 | Google Cloud Run (serverless) |
-| TypeScript + Tailwind CSS | PostgreSQL 15 + Flyway migrations | Terraform IaC |
+| Next.js 16 + React 19.2 (App Router) | Spring Boot 4.0 + Kotlin 2.3.0 | Google Cloud Run (serverless) |
+| TypeScript + Tailwind CSS | PostgreSQL 16 + Flyway migrations | Terraform IaC |
 | Supabase Auth + Mapbox GL | Spring Modulith 2.0.1 | GitHub Actions CI/CD |
 
 ---
@@ -65,8 +65,7 @@ The project uses [Taskfile](https://taskfile.dev/) to orchestrate development wo
 
 ```bash
 task check    # Verify prerequisites (Docker, Node, pnpm, Java)
-task setup    # Copy web env template, install web dependencies
-cp apps/api/src/main/resources/application-local.yml.example apps/api/src/main/resources/application-local.yml
+task setup    # Copy env templates (API, web, infra), install web dependencies
 task dev      # Start API (auto-starts postgres) + web in parallel
 ```
 

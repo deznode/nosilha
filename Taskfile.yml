@@ -4,6 +4,7 @@ vars:
   API_DIR: apps/api
   WEB_DIR: apps/web
   DOCKER_COMPOSE: infrastructure/docker/docker-compose.yml
+  INFRA_DIR: infrastructure/terraform
 
 tasks:
   check:
@@ -40,7 +41,38 @@ tasks:
   setup:
     desc: Full-stack setup — copy env templates, install web dependencies
     cmds:
+      - task: setup:api
+      - task: setup:infra
       - task: setup:web
+
+  setup:api:
+    desc: API setup — copy env and config templates if missing
+    cmds:
+      - |
+        if [ ! -f {{.API_DIR}}/.env.local ]; then
+          cp {{.API_DIR}}/.env.local.example {{.API_DIR}}/.env.local
+          echo "Created {{.API_DIR}}/.env.local from template"
+        else
+          echo "{{.API_DIR}}/.env.local already exists, skipping"
+        fi
+      - |
+        if [ ! -f {{.API_DIR}}/src/main/resources/application-local.yml ]; then
+          cp {{.API_DIR}}/src/main/resources/application-local.yml.example {{.API_DIR}}/src/main/resources/application-local.yml
+          echo "Created {{.API_DIR}}/src/main/resources/application-local.yml from template"
+        else
+          echo "{{.API_DIR}}/src/main/resources/application-local.yml already exists, skipping"
+        fi
+
+  setup:infra:
+    desc: Infrastructure setup — copy Terraform tfvars template if missing
+    cmds:
+      - |
+        if [ ! -f {{.INFRA_DIR}}/terraform.tfvars ]; then
+          cp {{.INFRA_DIR}}/terraform.tfvars.example {{.INFRA_DIR}}/terraform.tfvars
+          echo "Created {{.INFRA_DIR}}/terraform.tfvars from template"
+        else
+          echo "{{.INFRA_DIR}}/terraform.tfvars already exists, skipping"
+        fi
 
   setup:web:
     desc: Web setup — copy .env.local template if missing, install dependencies
