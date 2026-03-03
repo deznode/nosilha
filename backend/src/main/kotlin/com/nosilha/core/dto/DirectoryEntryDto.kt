@@ -3,7 +3,7 @@ package com.nosilha.core.dto
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
-import java.util.UUID
+import java.util.*
 
 /**
  * The base DTO for any entry in the directory.
@@ -26,6 +26,8 @@ abstract class DirectoryEntryDto {
   abstract val slug: String
   abstract val description: String
   abstract val town: String
+  abstract val latitude: Double
+  abstract val longitude: Double
   abstract val imageUrl: String?
   abstract val rating: Double?
   abstract val reviewCount: Int
@@ -41,10 +43,12 @@ data class RestaurantDto(
   override val slug: String,
   override val description: String,
   override val town: String,
+  override val latitude: Double,
+  override val longitude: Double,
   override val imageUrl: String?,
   override val rating: Double?,
   override val reviewCount: Int,
-  val details: RestaurantDetailsDto
+  val details: RestaurantDetailsDto,
 ) : DirectoryEntryDto()
 
 /**
@@ -57,6 +61,8 @@ data class HotelDto(
   override val slug: String,
   override val description: String,
   override val town: String,
+  override val latitude: Double,
+  override val longitude: Double,
   override val imageUrl: String?,
   override val rating: Double?,
   override val reviewCount: Int,
@@ -73,6 +79,8 @@ data class BeachDto(
   override val slug: String,
   override val description: String,
   override val town: String,
+  override val latitude: Double,
+  override val longitude: Double,
   override val imageUrl: String?,
   override val rating: Double?,
   override val reviewCount: Int,
@@ -89,6 +97,8 @@ data class LandmarkDto(
   override val slug: String,
   override val description: String,
   override val town: String,
+  override val latitude: Double,
+  override val longitude: Double,
   override val imageUrl: String?,
   override val rating: Double?,
   override val reviewCount: Int,

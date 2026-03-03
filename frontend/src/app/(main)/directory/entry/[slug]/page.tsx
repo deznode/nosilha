@@ -2,7 +2,6 @@ import { getEntryBySlug } from "@/lib/api";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import {
-  StarIcon,
   MapPinIcon,
   PhoneIcon,
   ClockIcon,
@@ -10,26 +9,13 @@ import {
   SparklesIcon,
 } from "@heroicons/react/24/solid";
 import { DirectoryEntry } from "@/types/directory";
+import StarRating from "@/components/ui/start-rating";
 
 interface DetailPageProps {
   params: { slug: string };
 }
 
 // A helper component to render the star rating display
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <div className="flex items-center">
-      {[...Array(5)].map((_, i) => (
-        <StarIcon
-          key={i}
-          className={`h-5 w-5 ${
-            rating > i ? "text-sunny-yellow" : "text-gray-300"
-          }`}
-        />
-      ))}
-    </div>
-  );
-}
 
 // A helper to display category-specific details
 function CategorySpecificDetails({ entry }: { entry: DirectoryEntry }) {
@@ -83,7 +69,8 @@ function CategorySpecificDetails({ entry }: { entry: DirectoryEntry }) {
 export default async function DirectoryEntryDetailPage({
   params,
 }: DetailPageProps) {
-  const entry = await getEntryBySlug(params.slug);
+  const { slug } = await params;
+  const entry = await getEntryBySlug(slug);
 
   if (!entry) {
     notFound();
@@ -141,9 +128,11 @@ export default async function DirectoryEntryDetailPage({
               User Reviews
             </h2>
             <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-              <p className="text-4xl font-bold text-volcanic-gray-dark">
-                {entry.rating.toFixed(1)}
-              </p>
+              {entry.rating && (
+                <p className="text-4xl font-bold text-volcanic-gray-dark">
+                  {entry.rating.toFixed(1)}
+                </p>
+              )}
               <div className="flex flex-col">
                 <StarRating rating={entry.rating} />
                 <p className="text-sm text-volcanic-gray">

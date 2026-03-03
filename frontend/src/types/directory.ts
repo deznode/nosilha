@@ -6,6 +6,8 @@ export interface BaseDirectoryEntry {
   category: "Restaurant" | "Hotel" | "Beach" | "Landmark";
   imageUrl: string;
   town: string;
+  latitude: number;
+  longitude: number;
   description: string; // A description is general enough for all types
   rating: number | undefined;
   reviewCount: number;
