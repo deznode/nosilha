@@ -1,8 +1,7 @@
--- V9: Seed Reference Data
--- Seeds towns (16) and directory_entries (8) with research-corrected data.
--- Uses fixed UUIDs for idempotency.
+-- Repeatable migration: Brava Island reference towns (16 settlements)
+-- Re-runs automatically when file content changes (checksum-based).
+-- Uses upsert pattern so edits to descriptions, coordinates, etc. propagate on next deployment.
 
--- Towns (16 settlements)
 INSERT INTO towns (slug, name, description, latitude, longitude, population, elevation, founded, highlights, hero_image, gallery) VALUES
 ('nova-sintra', 'Nova Sintra',
     'Our mountain capital where cobblestone streets wind between flower-filled gardens and colonial sobrados tell stories of diaspora dreams realized',
@@ -93,47 +92,14 @@ INSERT INTO towns (slug, name, description, latitude, longitude, population, ele
     14.85, -24.71, 'Small settlement', '450m', '19th century',
     '["Traditional lifestyle", "Interior settlement", "Rural community", "Mountain location"]',
     '/images/towns/tome-barraz-hero.jpg', '[]')
-ON CONFLICT (slug) DO NOTHING;
-
--- Directory Entries (8 entries with fixed UUIDs)
-INSERT INTO directory_entries (id, slug, name, description, category, town, latitude, longitude,
-    phone_number, email, website, amenities, opening_hours, image_url, status) VALUES
-('11111111-1111-1111-1111-111111111111', 'djababas-eco-lodge', 'Djabraba''s Eco-Lodge',
-    'An eco-lodge offering sustainable mountain accommodation with traditional Cape Verdean hospitality and stunning views of the volcanic landscape.',
-    'Hotel', 'Nova Sintra', 14.870500, -24.695535,
-    '+238 285 26 94', 'marcogiandinoto@gmail.com', 'https://www.djabrabaeco-lodge.cv/',
-    'Eco-Tourism,Mountain Views,Traditional Architecture,Cultural Immersion,Sustainable Practices',
-    NULL, NULL, 'PUBLISHED'),
-('22222222-2222-2222-2222-222222222222', 'faja-dagua', 'Faja d''Agua',
-    'Historic fishing village famous for crystal-clear natural swimming pools carved from black volcanic rock. Site of the 1943 Matilde tragedy memorial and starting point of Cape Verdean emigration to America.',
-    'Nature', 'Faja d''Agua', 14.873, -24.732,
-    NULL, NULL, NULL, NULL, NULL, NULL, 'PUBLISHED'),
-('33333333-3333-3333-3333-333333333333', 'igreja-nossa-senhora-do-monte', 'Igreja Nossa Senhora do Monte',
-    'Historic pilgrimage church established c. 1826, representing Brava''s Madeiran devotional heritage. Currently under reconstruction (2023-present) with diaspora support. Annual festival: second weekend of August.',
-    'Heritage', 'Nossa Senhora do Monte', 14.858, -24.718,
-    NULL, NULL, NULL, NULL, NULL, '/images/directory/heritage/igreja-nossa-senhora-do-monte.jpg', 'PUBLISHED'),
-('44444444-4444-4444-4444-444444444444', 'casa-eugenio-tavares', 'Casa Eugenio Tavares',
-    'The preserved home of Cape Verde''s greatest poet, where morna was perfected and sodade given voice, connecting our island soul to hearts across the world.',
-    'Heritage', 'Nova Sintra', 14.8699988107245, -24.698636386530936,
-    '+238 2623385', 'nospatrimonio@gmail.com', 'http://www.eugeniotavares.org', NULL,
-    'Mon-Fri 08:00-13:00, 14:00-16:00; Sat-Sun by appointment', NULL, 'PUBLISHED'),
-('55555555-5555-5555-5555-555555555555', 'praca-eugenio-tavares', 'Praca Eugenio Tavares',
-    'The cultural heart of Nova Sintra, this historic square honors poet Eugenio Tavares (1867-1930) with a bronze statue inaugurated June 24, 2002. Features a traditional music pavilion and Portuguese pavement mosaics. Part of the UNESCO-nominated Nova Sintra Historic Centre.',
-    'Heritage', 'Nova Sintra', 14.871352344591463, -24.695556421325776,
-    NULL, NULL, NULL, NULL, NULL, NULL, 'PUBLISHED'),
-('66666666-6666-6666-6666-666666666666', 'pousada-nova-sintra', 'Pousada Nova Sintra',
-    'An authentic family-run pousada in the heart of Nova Sintra, offering traditional Cape Verdean hospitality with views of the surrounding mountains and cultural immersion experiences.',
-    'Hotel', 'Nova Sintra', 14.86868289, -24.6942991,
-    '+238 262 0444', NULL, NULL, 'Family-Run,Cultural Immersion,Mountain Views,Traditional Breakfast,Local Guides',
-    NULL, NULL, 'PUBLISHED'),
-('77777777-7777-7777-7777-777777777777', 'pensao-paulo', 'Pensao Paulo',
-    'A welcoming pensao offering comfortable accommodation and authentic local experience in Nova Sintra, where guests become part of the Brava Island community.',
-    'Hotel', 'Nova Sintra', 14.870085, -24.695388,
-    '+238 285 13 12', 'pensaopaulo@hotmail.com', 'https://pgbspensao.cv',
-    'Community Experience,Local Hospitality,Central Location,Traditional Architecture',
-    NULL, NULL, 'PUBLISHED'),
-('88888888-8888-8888-8888-888888888888', 'nos-raiz', 'Nos Raiz',
-    'A multi-service residence in the coastal village of Faja d''Agua, offering cozy accommodation with bar and restaurant services. The name means "Our Roots," reflecting authentic Cape Verdean hospitality.',
-    'Hotel', 'Faja d''Agua', 14.873, -24.732,
-    '+238 977 9998', 'nosraizcv@gmail.com', NULL, NULL, NULL, NULL, 'PUBLISHED')
-ON CONFLICT (slug) DO NOTHING;
+ON CONFLICT (slug) DO UPDATE SET
+    name = EXCLUDED.name,
+    description = EXCLUDED.description,
+    latitude = EXCLUDED.latitude,
+    longitude = EXCLUDED.longitude,
+    population = EXCLUDED.population,
+    elevation = EXCLUDED.elevation,
+    founded = EXCLUDED.founded,
+    highlights = EXCLUDED.highlights,
+    hero_image = EXCLUDED.hero_image,
+    gallery = EXCLUDED.gallery;

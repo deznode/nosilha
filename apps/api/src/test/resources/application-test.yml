@@ -31,6 +31,7 @@ spring:
 
   flyway:
     enabled: true
+    locations: classpath:db/migration,classpath:db/seed
 
   # Disable Spring AI auto-configuration in tests (providers are mocked)
   ai:
