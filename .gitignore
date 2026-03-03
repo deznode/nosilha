@@ -107,4 +107,5 @@ arkhe-claude-plugins
 # Nx cache
 .nx/
 
-.worktreescredentials.json
+.worktrees
+credentials.json
