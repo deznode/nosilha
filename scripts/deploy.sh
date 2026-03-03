@@ -44,8 +44,7 @@ if [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ $# -eq 0 ]; then
         echo "  $0 frontend v1.0.0                    # Deploy frontend with specific tag"
         echo ""
         echo "Documentation:"
-        echo "  Governance: plan/active/cloud-run-configuration-governance.md"
-        echo "  CI/CD Guide: docs/CI_CD_PIPELINE.md"
+        echo "  CI/CD Guide: docs/40-operations/ci-cd-pipeline.md"
         echo ""
     }
 

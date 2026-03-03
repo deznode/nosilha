@@ -485,10 +485,9 @@ async function validateContent(): Promise<void> {
   console.log("🔍 Validating MDX content...\n");
 
   // Find all MDX files
-  const articlesDir = path.join(CONTENT_DIR, "articles");
   const pagesDir = path.join(CONTENT_DIR, "pages");
 
-  let mdxFiles = [...findMdxFiles(articlesDir), ...findMdxFiles(pagesDir)];
+  let mdxFiles = [...findMdxFiles(pagesDir)];
 
   // Filter to specific files if provided
   if (specificFiles.length > 0) {
