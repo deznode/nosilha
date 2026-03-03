@@ -1,9 +1,5 @@
 import type { ImageLoaderProps } from "next/image";
 
-const normalizeSrc = (src: string) => {
-  return src.startsWith("/") ? src.slice(1) : src;
-};
-
 /**
  * Cloudflare Image Resizing loader for Next.js.
  *
@@ -20,17 +16,22 @@ export default function cloudflareLoader({
   src,
   width,
   quality,
-}: ImageLoaderProps) {
+}: ImageLoaderProps): string {
+  const q = quality || 75;
+
   if (process.env.NODE_ENV === "development") {
-    return src;
+    // Serve images directly but include width/quality to satisfy Next.js loader contract
+    const sep = src.includes("?") ? "&" : "?";
+    return `${src}${sep}w=${width}&q=${q}`;
   }
 
   // Local images (e.g., /images/hero.jpg) — serve directly, no CF transform
+  // Query params are ignored by static file servers but enable proper srcset generation
   if (src.startsWith("/")) {
-    return src;
+    return `${src}?w=${width}&q=${q}`;
   }
 
   // External images (R2, Unsplash, etc.) — route through Cloudflare Image Resizing
-  const params = [`width=${width}`, `quality=${quality || 75}`, "format=auto"];
-  return `/cdn-cgi/image/${params.join(",")}/${normalizeSrc(src)}`;
+  const params = [`width=${width}`, `quality=${q}`, "format=auto"];
+  return `/cdn-cgi/image/${params.join(",")}/${src}`;
 }
