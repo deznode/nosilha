@@ -40,7 +40,10 @@ interface DirectoryEntryRepository : JpaRepository<DirectoryEntry, UUID> {
      * @param pageable Pagination parameters.
      * @return A page of DirectoryEntry entities matching the specified category.
      */
-    fun findByCategoryIgnoreCase(category: String, pageable: Pageable): Page<DirectoryEntry>
+    fun findByCategoryIgnoreCase(
+        category: String,
+        pageable: Pageable,
+    ): Page<DirectoryEntry>
 
     /**
      * Finds all DirectoryEntry instances that match the given town with pagination.
@@ -49,7 +52,10 @@ interface DirectoryEntryRepository : JpaRepository<DirectoryEntry, UUID> {
      * @param pageable Pagination parameters.
      * @return A page of DirectoryEntry entities matching the specified town.
      */
-    fun findByTownIgnoreCase(town: String, pageable: Pageable): Page<DirectoryEntry>
+    fun findByTownIgnoreCase(
+        town: String,
+        pageable: Pageable,
+    ): Page<DirectoryEntry>
 
     /**
      * Finds all DirectoryEntry instances that match both category and town with pagination.
@@ -62,7 +68,7 @@ interface DirectoryEntryRepository : JpaRepository<DirectoryEntry, UUID> {
     fun findByCategoryIgnoreCaseAndTownIgnoreCase(
         category: String,
         town: String,
-        pageable: Pageable
+        pageable: Pageable,
     ): Page<DirectoryEntry>
 
     /**

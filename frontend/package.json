@@ -2,95 +2,109 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bravdigital/nosilha.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bravdigital/nosilha/issues"
+  },
+  "homepage": "https://github.com/bravdigital/nosilha#readme",
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
+    "dev:content": "velite --watch",
+    "build:content": "velite --clean",
+    "dev:next": "next dev",
+    "build:next": "next build",
+    "build:search": "pagefind --site .next/server/app --output-path public/pagefind",
+    "validate:content": "npx tsx scripts/validate-content.ts",
+    "validate:content:full": "npx tsx scripts/validate-content.ts --full",
+    "scaffold:article": "npx tsx scripts/scaffold-article.ts",
+    "check:translations": "npx tsx scripts/check-translations.ts",
+    "dev": "run-p dev:*",
+    "build": "run-s build:content build:next build:search",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
+    "sync:brand": "node ../scripts/sync-brand-tokens.mjs",
+    "clean": "rm -rf .next playwright-report test-results",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
-    "test:performance": "playwright test --project=performance",
-    "test:mobile": "playwright test --project=mobile-chrome --project=mobile-safari",
-    "test:api": "playwright test --project=api-contracts",
-    "test:critical": "playwright test tests/shared/",
-    "lighthouse:audit": "lhci autorun",
-    "lighthouse:upload": "lhci upload",
-    "lighthouse:assert": "lhci assert",
-    "k6:directory": "k6 run tests/k6/directory-api-load.js",
-    "k6:towns": "k6 run tests/k6/towns-api-load.js",
-    "k6:journey": "k6 run tests/k6/integrated-user-journey.js",
-    "k6:all": "npm run k6:directory && npm run k6:towns && npm run k6:journey",
-    "test:setup": "node tests/setup/pre-test-setup.js",
-    "test:teardown": "node tests/setup/post-test-cleanup.js",
-    "test:ci": "npm run test:setup && npm run test:e2e && npm run lighthouse:audit && npm run test:teardown",
-    "test:ci:mobile": "npm run test:mobile && npm run lighthouse:audit",
-    "test:ci:performance": "npm run test:performance && npm run k6:all",
-    "test:ci:contracts": "npm run test:api",
+    "test:unit": "vitest --project unit",
     "mcp:server": "npx @playwright/mcp@latest --config .mcp/server-config.json",
     "mcp:server:headless": "npx @playwright/mcp@latest --config .mcp/server-config.json --headless",
     "mcp:server:port": "npx @playwright/mcp@latest --config .mcp/server-config.json --port 8931",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint:fix": "next lint --fix && prettier --write .",
-    "lint:all": "next lint && prettier --check .",
+    "lint:fix": "eslint . --fix && prettier --write .",
+    "lint:all": "eslint . && prettier --check .",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "prepare": "husky"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.2.2",
+    "@next/third-parties": "16.0.3",
     "@supabase/supabase-js": "^2.50.0",
     "@tanstack/react-query": "^5.90.3",
     "@tanstack/react-query-devtools": "^5.90.2",
     "clsx": "^2.1.1",
-    "framer-motion": "^12.18.1",
+    "framer-motion": "^12.23.24",
+    "lucide-react": "^0.553.0",
     "mapbox-gl": "^3.12.0",
-    "next": "15.3.3",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "msw-storybook-addon": "^2.0.6",
+    "next": "16.0.3",
+    "next-router-mock": "^1.0.4",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
     "react-hook-form": "^7.65.0",
     "react-map-gl": "^8.0.4",
+    "rehype-pretty-code": "^0.14.1",
+    "resend": "^6.5.0",
+    "shiki": "^3.15.0",
     "supercluster": "^8.0.1",
     "use-supercluster": "^1.2.0",
+    "velite": "^0.3.0",
     "zod": "^4.1.12",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
-    "@chromatic-com/storybook": "^4.1.1",
     "@eslint/eslintrc": "^3",
-    "@lhci/cli": "^0.15.0",
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
+    "@next/bundle-analyzer": "16.0.3",
     "@playwright/test": "^1.56.0",
     "@storybook/addon-a11y": "^9.1.10",
     "@storybook/addon-docs": "^9.1.10",
-    "@storybook/addon-onboarding": "^9.1.10",
-    "@storybook/addon-vitest": "^9.1.10",
     "@storybook/nextjs-vite": "^9.1.10",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/geojson": "^7946.0.16",
     "@types/mapbox-gl": "^3.4.1",
+    "@types/mdx": "^2.0.13",
     "@types/node": "^20.19.0",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "19.2.6",
+    "@types/react-dom": "19.2.3",
+    "@types/supercluster": "^7.1.3",
     "@vitejs/plugin-react": "^4.7.0",
-    "@vitest/browser": "3.2.4",
-    "@vitest/coverage-v8": "3.2.4",
-    "@vitest/ui": "^3.2.4",
     "dotenv": "^16.3.1",
     "eslint": "^9",
-    "eslint-config-next": "15.3.3",
+    "eslint-config-next": "16.0.3",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-storybook": "^9.1.10",
+    "husky": "^9.1.7",
     "jsdom": "^27.0.0",
+    "lint-staged": "^16.2.7",
+    "npm-run-all": "^4.1.5",
+    "pagefind": "^1.4.0",
     "playwright": "^1.56.0",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
@@ -98,5 +112,91 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^3.2.4"
+  },
+  "bundlesize": [
+    {
+      "path": ".next/static/chunks/649d7ee0*.js",
+      "maxSize": "450 KB",
+      "compression": "gzip",
+      "comment": "Mapbox GL JS - lazy loaded only on /map page"
+    },
+    {
+      "path": ".next/static/chunks/framework*.js",
+      "maxSize": "60 KB",
+      "compression": "gzip",
+      "comment": "React framework bundle"
+    },
+    {
+      "path": ".next/static/chunks/main*.js",
+      "maxSize": "40 KB",
+      "compression": "gzip",
+      "comment": "Main application bundle"
+    },
+    {
+      "path": ".next/static/chunks/polyfills*.js",
+      "maxSize": "40 KB",
+      "compression": "gzip",
+      "comment": "Browser polyfills"
+    },
+    {
+      "path": ".next/static/chunks/b24cf191*.js",
+      "maxSize": "55 KB",
+      "compression": "gzip",
+      "comment": "Shared vendor chunk"
+    },
+    {
+      "path": ".next/static/chunks/7029*.js",
+      "maxSize": "50 KB",
+      "compression": "gzip",
+      "comment": "Route-specific chunk"
+    },
+    {
+      "path": ".next/static/chunks/7034*.js",
+      "maxSize": "40 KB",
+      "compression": "gzip",
+      "comment": "Route-specific chunk"
+    },
+    {
+      "path": ".next/static/chunks/6203*.js",
+      "maxSize": "50 KB",
+      "compression": "gzip",
+      "comment": "Route-specific chunk"
+    },
+    {
+      "path": ".next/static/chunks/5615*.js",
+      "maxSize": "30 KB",
+      "compression": "gzip",
+      "comment": "Route-specific chunk"
+    },
+    {
+      "path": ".next/static/chunks/2309*.js",
+      "maxSize": "25 KB",
+      "compression": "gzip",
+      "comment": "Route-specific chunk"
+    },
+    {
+      "path": ".next/static/chunks/1609*.js",
+      "maxSize": "20 KB",
+      "compression": "gzip",
+      "comment": "Route-specific chunk"
+    }
+  ],
+  "pnpm": {
+    "overrides": {
+      "@types/react": "19.2.6",
+      "@types/react-dom": "19.2.3"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --max-warnings=0 --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,yml,yaml}": [
+      "prettier --write"
+    ],
+    "content/**/*.mdx": [
+      "npx tsx scripts/validate-content.ts"
+    ]
   }
 }

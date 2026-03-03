@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { ThemeToggle } from '@/components/ui/theme-toggle';
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 /**
  * ThemeToggle allows users to cycle between system, light, and dark themes.
@@ -9,12 +9,12 @@ import { ThemeToggle } from '@/components/ui/theme-toggle';
  * when browsing Brava Island's cultural heritage content.
  */
 const meta = {
-  title: 'Nos Ilha/ThemeToggle',
+  title: "Nos Ilha/ThemeToggle",
   component: ThemeToggle,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 } satisfies Meta<typeof ThemeToggle>;
 
 export default meta;
@@ -33,7 +33,7 @@ export const Default: Story = {};
 export const InHeader: Story = {
   decorators: [
     (Story) => (
-      <div className="flex items-center gap-4 rounded-lg bg-background-primary p-4 shadow-sm">
+      <div className="bg-background-primary flex items-center gap-4 rounded-lg p-4 shadow-sm">
         <span className="text-text-primary text-sm font-medium">Theme:</span>
         <Story />
       </div>
@@ -48,7 +48,7 @@ export const InHeader: Story = {
 export const InSidebar: Story = {
   decorators: [
     (Story) => (
-      <div className="flex w-48 flex-col gap-2 rounded-lg bg-background-primary p-4 shadow-sm">
+      <div className="bg-background-primary flex w-48 flex-col gap-2 rounded-lg p-4 shadow-sm">
         <div className="text-text-primary text-sm font-semibold">Settings</div>
         <div className="flex items-center justify-between">
           <span className="text-text-secondary text-sm">Theme</span>
@@ -65,13 +65,13 @@ export const InSidebar: Story = {
  */
 export const LightMode: Story = {
   parameters: {
-    backgrounds: { default: 'light' },
+    backgrounds: { default: "light" },
   },
   decorators: [
     (Story) => {
       // Set initial theme to light for this story
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('theme', 'light');
+      if (typeof window !== "undefined") {
+        localStorage.setItem("theme", "light");
       }
       return <Story />;
     },
@@ -84,13 +84,13 @@ export const LightMode: Story = {
  */
 export const DarkMode: Story = {
   parameters: {
-    backgrounds: { default: 'dark' },
+    backgrounds: { default: "dark" },
   },
   decorators: [
     (Story) => {
       // Set initial theme to dark for this story
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('theme', 'dark');
+      if (typeof window !== "undefined") {
+        localStorage.setItem("theme", "dark");
       }
       return <Story />;
     },
@@ -105,8 +105,8 @@ export const SystemMode: Story = {
   decorators: [
     (Story) => {
       // Set initial theme to system for this story
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('theme', 'system');
+      if (typeof window !== "undefined") {
+        localStorage.setItem("theme", "system");
       }
       return <Story />;
     },
@@ -137,12 +137,12 @@ export const WithLabel: Story = {
 export const MobileView: Story = {
   parameters: {
     viewport: {
-      defaultViewport: 'mobile1',
+      defaultViewport: "mobile1",
     },
   },
   decorators: [
     (Story) => (
-      <div className="flex w-full items-center justify-between bg-background-primary p-4 shadow-sm">
+      <div className="bg-background-primary flex w-full items-center justify-between p-4 shadow-sm">
         <span className="text-text-primary text-sm font-medium">Nos Ilha</span>
         <Story />
       </div>

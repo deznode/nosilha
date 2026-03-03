@@ -21,24 +21,7 @@ class SecurityConfig(
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         if (allowedOrigins.isNotEmpty()) {
-            http.cors { cors ->
-                cors.configurationSource {
-                    CorsConfiguration()
-                        .apply {
-                            allowedOriginPatterns = this@SecurityConfig.allowedOrigins
-                            allowedMethods =
-                                listOf(
-                                    "GET",
-                                    "POST",
-                                    "PUT",
-                                    "DELETE",
-                                    "OPTIONS",
-                                )
-                            allowedHeaders = listOf("*")
-                            allowCredentials = true
-                        }
-                }
-            }
+            http.cors { cors -> cors.configurationSource { createCorsConfiguration() } }
         }
 
         http
@@ -59,6 +42,15 @@ class SecurityConfig(
                     .requestMatchers(HttpMethod.GET, "/api/v1/directory/**")
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/towns/**")
+                    .permitAll()
+                    // Allow public suggestions (community contributions without authentication)
+                    .requestMatchers(HttpMethod.POST, "/api/v1/suggestions")
+                    .permitAll()
+                    // Allow public access to reaction counts (GET only, POST/DELETE require auth)
+                    .requestMatchers(HttpMethod.GET, "/api/v1/reactions/content/**")
+                    .permitAll()
+                    // Allow public access to content registration (needed for SSR, idempotent)
+                    .requestMatchers(HttpMethod.POST, "/api/v1/content/register")
                     .permitAll()
                     // Require authentication for POST/PUT/DELETE operations
                     .requestMatchers(HttpMethod.POST, "/api/v1/media/upload")
@@ -85,4 +77,12 @@ class SecurityConfig(
 
         return http.build()
     }
+
+    private fun createCorsConfiguration() =
+        CorsConfiguration().apply {
+            allowedOriginPatterns = this@SecurityConfig.allowedOrigins
+            allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            allowedHeaders = listOf("*")
+            allowCredentials = true
+        }
 }

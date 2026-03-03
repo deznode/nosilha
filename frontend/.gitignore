@@ -10,6 +10,9 @@
 !.yarn/releases
 !.yarn/versions
 
+# pnpm
+.pnpm-store
+
 # testing
 /coverage
 
@@ -89,3 +92,11 @@ storybook-static/
 .netlify
 
 *storybook.log
+# Pagefind search index
+public/pagefind/
+
+# Content validation cache
+.cache/
+
+# Velite output
+.velite/

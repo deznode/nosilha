@@ -32,7 +32,7 @@ This project is built with a modern, scalable, and robust technology stack desig
 
 | Layer                 | Technology                                                              | Purpose                                                                |
  | --------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| **Frontend** | [React](https://react.dev/) 19 + [Next.js](https://nextjs.org/) 15 (App Router) | UI, Server-Side Rendering (SSR), Incremental Static Regeneration (ISR) |
+| **Frontend** | [React](https://react.dev/) 19.2 + [Next.js](https://nextjs.org/) 16 (App Router) | UI, Server-Side Rendering (SSR), Incremental Static Regeneration (ISR) |
 |                       | [TypeScript](https://www.typescriptlang.org/)                           | Type safety and developer experience                                   |
 |                       | [Tailwind CSS](https://tailwindcss.com/) + [Catalyst UI](https://catalyst.tailwindui.com/) | Utility-first styling with professional component library             |
 |                       | [Supabase Auth](https://supabase.com/auth)                             | Authentication with JWT token management                               |
@@ -62,7 +62,7 @@ This project adheres to clean architecture principles to ensure separation of co
 │   Frontend      │    │    Backend      │    │  Infrastructure │
 │   (Next.js)     │    │ (Spring Boot)   │    │     (GCP)       │
 ├─────────────────┤    ├─────────────────┤    ├─────────────────┤
-│ • React 19      │◄──►│ • Kotlin/JVM    │◄──►│ • Cloud Run     │
+│ • React 19.2    │◄──►│ • Kotlin/JVM    │◄──►│ • Cloud Run     │
 │ • App Router    │    │ • PostgreSQL    │    │ • Artifact Reg. │
 │ • Tailwind CSS  │    │ • Firestore     │    │ • Cloud Storage │
 │ • ISR Caching   │    │ • JWT Auth      │    │ • Secret Mgr.   │
@@ -115,30 +115,34 @@ This project adheres to clean architecture principles to ensure separation of co
   * **Security:** Comprehensive security scanning, least-privilege IAM, and encrypted secrets management.
   * **GDPR Compliance:** User data privacy is paramount. AI features involving facial recognition will have strict privacy controls and consent mechanisms.
 
-## 🔮 Future Enhancements
+## ✅ Modern Architecture & Implementation
 
-The following architectural improvements and feature additions are planned to enhance the platform's scalability, maintainability, and developer experience:
+The Nos Ilha platform has been built with a sophisticated, production-ready architecture that prioritizes scalability, maintainability, and developer experience:
 
 ### Backend Modularity
-  * **Spring Modulith Integration:** Refactoring the backend service into a modular architecture using [Spring Modulith](https://spring.io/projects/spring-modulith) to improve domain separation, enforce module boundaries, and enable independent module evolution while maintaining a single deployable monolith.
+  * **Spring Modulith Architecture:** Fully modular backend with enforced module boundaries (`shared`, `auth`, `directory`, `media`), event-driven communication, and verified zero circular dependencies. See [`docs/SPRING_MODULITH.md`](docs/SPRING_MODULITH.md) for comprehensive module architecture guide.
 
 ### Frontend State Management
-  * **Zustand:** Implementing [Zustand](https://zustand-demo.pmnd.rs/) for lightweight, flexible client-side state management with minimal boilerplate and excellent TypeScript support.
-  * **TanStack Query:** Integrating [TanStack Query](https://tanstack.com/query) (React Query) for server state management, providing powerful caching, synchronization, and background data fetching capabilities.
-  * **Zod:** Adopting [Zod](https://zod.dev/) for TypeScript-first schema validation, enabling runtime type safety for forms, API requests/responses, and data parsing with seamless TypeScript integration.
+  * **Zustand:** Lightweight client state management with persistence middleware and Redux DevTools integration for UI preferences, authentication, and filter state.
+  * **TanStack Query:** Server state management with automatic caching, background refetching, optimistic updates, and cache invalidation for directory entries, user profiles, and media metadata.
+  * **Zod:** TypeScript-first schema validation enabling runtime type safety for forms (React Hook Form integration), API responses, and data parsing across the platform.
+
+  See [`docs/STATE_MANAGEMENT.md`](docs/STATE_MANAGEMENT.md) for detailed patterns, integration examples, and best practices.
 
 ### Testing Infrastructure
-  * **Playwright:** Adding comprehensive end-to-end testing with [Playwright](https://playwright.dev/) for cross-browser testing, visual regression testing, and user flow validation.
-  * **Vitest:** Implementing [Vitest](https://vitest.dev/) as the unit testing framework for fast, modern testing with native TypeScript and ESM support.
-  * **Storybook:** Establishing [Storybook](https://storybook.js.org/) for component documentation, isolated component development, and visual testing to maintain design system consistency.
+  * **Playwright:** Comprehensive E2E testing with 6 critical user flows, mobile viewport testing, and <5-minute execution time target. Includes Playwright MCP server for browser automation.
+  * **Vitest:** Fast unit testing with jsdom environment, >70% coverage threshold enforcement, and Testing Library integration for components and hooks.
+  * **Storybook:** Living component documentation with 20+ components, accessibility testing (addon-a11y), and visual testing for design system consistency.
 
-These enhancements align with the project's commitment to modern development practices while maintaining the cultural heritage mission at the platform's core.
+  See [`docs/TESTING.md`](docs/TESTING.md) for complete testing guide, patterns, and CI/CD integration.
+
+This modern architecture demonstrates the project's commitment to engineering excellence while serving the cultural heritage preservation mission at its core.
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- **Node.js 18+** and npm
+- **Node.js 20.9+** and npm
 - **Java 21** (OpenJDK or Oracle JDK)
 - **Docker** and Docker Compose
 - **PostgreSQL** (or use Docker Compose setup)
@@ -166,8 +170,8 @@ These enhancements align with the project's commitment to modern development pra
 3. **Frontend setup**:
    ```bash
    cd frontend
-   npm install
-   npm run dev
+   pnpm install
+   pnpm run dev
    ```
 
 ### Application URLs
@@ -203,13 +207,20 @@ For production deployment to Google Cloud:
 
 See [`CLAUDE.md`](CLAUDE.md) for detailed architecture documentation and troubleshooting guide.
 
+## 🧾 Version History
+
+You can view all project releases, updates, and planned milestones in the  
+➡️ [**Nos Ilha Changelog**](CHANGELOG.md)
+
 ## 🤝 Contribution Guidelines
 
 This is an open project dedicated to the celebration of Brava. We welcome contributions from the community. Please read our `CONTRIBUTING.md` file for details on our code of conduct and the process for submitting pull requests.
 
 ## 📜 License
 
-This project is licensed under the MIT License - see the `LICENSE.md` file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+**Why MIT?** This permissive license allows maximum flexibility for developers and organizations to use, modify, and build upon Nos Ilha while encouraging contributions back to the community. It ensures the platform can be freely adapted to serve cultural heritage preservation missions worldwide while maintaining the collaborative spirit of open source.
 
 ## ✉️ Contact
 

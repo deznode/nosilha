@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Basic health checks
     const healthData = {
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     };
 
     return NextResponse.json(healthData, { status: 200 });
-  } catch (error) {
+  } catch (_error) {
     return NextResponse.json(
       {
         status: "error",

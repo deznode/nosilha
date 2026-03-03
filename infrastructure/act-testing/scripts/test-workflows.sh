@@ -135,7 +135,7 @@ fi
 # Start services if requested
 if [[ "$START_SERVICES" == "true" ]]; then
     echo -e "${YELLOW}🔧 Starting test services...${NC}"
-    docker-compose -f infrastructure/act-testing/docker/docker-compose.act.yml up -d
+    docker-compose -f infrastructure/act-testing/docker/docker-compose.yaml up -d
     echo -e "${GREEN}✅ Services started${NC}"
     sleep 5  # Wait for services to be ready
 fi

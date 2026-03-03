@@ -10,6 +10,8 @@ import jakarta.persistence.Id
 import jakarta.persistence.Inheritance
 import jakarta.persistence.InheritanceType
 import jakarta.persistence.Table
+import org.hibernate.annotations.JdbcTypeCode
+import org.hibernate.type.SqlTypes
 import java.util.UUID
 
 /**
@@ -37,7 +39,6 @@ import java.util.UUID
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "category", discriminatorType = DiscriminatorType.STRING)
 abstract class DirectoryEntry : AuditableEntity() {
-
     @Id
     @GeneratedValue
     var id: UUID? = null
@@ -75,6 +76,13 @@ abstract class DirectoryEntry : AuditableEntity() {
 
     var reviewCount: Int = 0
 
+    @Column(name = "tags")
+    var tags: String? = null
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "content_actions", columnDefinition = "jsonb")
+    var contentActions: String? = null
+
     // --- Subclass-specific fields, nullable in the base table ---
 
     // Restaurant-specific fields
@@ -104,6 +112,6 @@ abstract class DirectoryEntry : AuditableEntity() {
 
     override fun toString(): String {
         // Dynamically includes the concrete class name (e.g., "Restaurant")
-        return "${this.javaClass.simpleName}(id=$id, name='$name', category='$category')"
+        return "${this.javaClass.simpleName}(id=$id, name='$name', category='${getCategoryValue()}')"
     }
 }

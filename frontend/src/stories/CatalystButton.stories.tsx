@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { Button } from '@/components/catalyst-ui/button';
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { Button } from "@/components/catalyst-ui/button";
 
 /**
  * Catalyst UI Button - versatile button component from the Catalyst design system.
@@ -8,29 +8,48 @@ import { Button } from '@/components/catalyst-ui/button';
  * and link functionality. Used throughout Nos Ilha for actions and navigation.
  */
 const meta = {
-  title: 'Catalyst UI/Button',
+  title: "Catalyst UI/Button",
   component: Button,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     color: {
-      control: 'select',
+      control: "select",
       options: [
-        'dark/zinc', 'light', 'dark/white', 'dark', 'white', 'zinc',
-        'indigo', 'cyan', 'red', 'orange', 'amber', 'yellow', 'lime',
-        'green', 'emerald', 'teal', 'sky', 'blue', 'violet', 'purple',
-        'fuchsia', 'pink', 'rose',
+        "dark/zinc",
+        "light",
+        "dark/white",
+        "dark",
+        "white",
+        "zinc",
+        "indigo",
+        "cyan",
+        "red",
+        "orange",
+        "amber",
+        "yellow",
+        "lime",
+        "green",
+        "emerald",
+        "teal",
+        "sky",
+        "blue",
+        "violet",
+        "purple",
+        "fuchsia",
+        "pink",
+        "rose",
       ],
     },
     outline: {
-      control: 'boolean',
-      description: 'Outline variant (border only)',
+      control: "boolean",
+      description: "Outline variant (border only)",
     },
     plain: {
-      control: 'boolean',
-      description: 'Plain variant (no background)',
+      control: "boolean",
+      description: "Plain variant (no background)",
     },
   },
 } satisfies Meta<typeof Button>;
@@ -44,7 +63,7 @@ type Story = StoryObj<typeof meta>;
  */
 export const Primary: Story = {
   args: {
-    children: 'Explore Brava',
+    children: "Explore Brava",
   },
 };
 
@@ -54,8 +73,8 @@ export const Primary: Story = {
  */
 export const OceanBlue: Story = {
   args: {
-    children: 'View Directory',
-    color: 'blue',
+    children: "View Directory",
+    color: "blue",
   },
 };
 
@@ -65,8 +84,8 @@ export const OceanBlue: Story = {
  */
 export const ValleyGreen: Story = {
   args: {
-    children: 'Explore Nature',
-    color: 'green',
+    children: "Explore Nature",
+    color: "green",
   },
 };
 
@@ -76,7 +95,7 @@ export const ValleyGreen: Story = {
  */
 export const Outline: Story = {
   args: {
-    children: 'Learn More',
+    children: "Learn More",
     outline: true,
   },
 };
@@ -87,7 +106,7 @@ export const Outline: Story = {
  */
 export const Plain: Story = {
   args: {
-    children: 'Cancel',
+    children: "Cancel",
     plain: true,
   },
 };
@@ -98,9 +117,9 @@ export const Plain: Story = {
  */
 export const AsLink: Story = {
   args: {
-    children: 'Visit Homepage',
-    href: '/',
-    color: 'blue',
+    children: "Visit Homepage",
+    href: "/",
+    color: "blue",
   },
 };
 
@@ -110,7 +129,7 @@ export const AsLink: Story = {
  */
 export const Disabled: Story = {
   args: {
-    children: 'Submit',
+    children: "Submit",
     disabled: true,
   },
 };
@@ -121,8 +140,8 @@ export const Disabled: Story = {
  */
 export const Success: Story = {
   args: {
-    children: 'Confirm',
-    color: 'green',
+    children: "Confirm",
+    color: "green",
   },
 };
 
@@ -132,8 +151,8 @@ export const Success: Story = {
  */
 export const Danger: Story = {
   args: {
-    children: 'Delete Entry',
-    color: 'red',
+    children: "Delete Entry",
+    color: "red",
   },
 };
 
@@ -143,8 +162,8 @@ export const Danger: Story = {
  */
 export const Warning: Story = {
   args: {
-    children: 'Proceed with Caution',
-    color: 'amber',
+    children: "Proceed with Caution",
+    color: "amber",
   },
 };
 
@@ -156,7 +175,10 @@ export const InForm: Story = {
     (Story) => (
       <form className="flex max-w-sm flex-col gap-4">
         <div>
-          <label htmlFor="email" className="text-text-primary mb-1 block text-sm">
+          <label
+            htmlFor="email"
+            className="text-text-primary mb-1 block text-sm"
+          >
             Email
           </label>
           <input
@@ -171,8 +193,8 @@ export const InForm: Story = {
     ),
   ],
   args: {
-    children: 'Subscribe to Newsletter',
-    color: 'blue',
+    children: "Subscribe to Newsletter",
+    color: "blue",
   },
 };
 
@@ -182,7 +204,7 @@ export const InForm: Story = {
  */
 export const ButtonGroup: Story = {
   decorators: [
-    (Story) => (
+    () => (
       <div className="flex gap-2">
         <Button outline>Cancel</Button>
         <Button plain>Save Draft</Button>
@@ -191,7 +213,7 @@ export const ButtonGroup: Story = {
     ),
   ],
   args: {
-    children: 'Primary Action',
+    children: "Primary Action",
   },
 };
 
@@ -202,12 +224,12 @@ export const ButtonGroup: Story = {
 export const MobileView: Story = {
   parameters: {
     viewport: {
-      defaultViewport: 'mobile1',
+      defaultViewport: "mobile1",
     },
   },
   args: {
-    children: 'Tap to Continue',
-    color: 'blue',
+    children: "Tap to Continue",
+    color: "blue",
   },
   decorators: [
     (Story) => (
@@ -223,6 +245,9 @@ export const MobileView: Story = {
  * Demonstrates visual consistency across brand colors.
  */
 export const AllColors: Story = {
+  args: {
+    children: "Button",
+  },
   render: () => (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
       <Button color="dark/zinc">Dark Zinc</Button>
@@ -271,6 +296,6 @@ export const WithIcon: Story = {
         <span>Add New Entry</span>
       </>
     ),
-    color: 'blue',
+    color: "blue",
   },
 };

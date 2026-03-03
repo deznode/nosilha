@@ -1,261 +1,151 @@
-# Nos Ilha Platform Constitution
-
 <!--
-Sync Impact Report
+SYNC IMPACT REPORT
 ==================
-Version: 1.0.0 → Initial ratification
-Modified principles: N/A (initial version)
-Added sections: All sections (initial constitution)
-Removed sections: N/A
-Templates requiring updates:
-  ✅ plan-template.md - Constitution Check section ready
-  ✅ spec-template.md - Aligned with principles
-  ✅ tasks-template.md - Task categorization supports all principles
-Follow-up TODOs: None
+Version Change: Initial → 1.0.0
+Modified Principles: N/A (Initial constitution creation)
+Added Sections: All sections (initial creation)
+Removed Sections: None
+
+Templates Status:
+✅ plan-template.md - Reviewed; aligned with constitution principles
+✅ spec-template.md - Reviewed; aligned with constitution principles
+✅ tasks-template.md - Reviewed; aligned with constitution principles
+✅ checklist-template.md - Present; aligned with constitution principles
+✅ agent-file-template.md - Present; aligned with constitution principles
+
+Follow-up Actions:
+- None; all templates align with established principles
+- Constitution ready for project governance
 -->
+
+# Nos Ilha Constitution
 
 ## Core Principles
 
-### I. Community-First Development
+### I. Cultural Authenticity First
+Every feature, content piece, and design decision MUST prioritize authentic representation of Cape Verdean cultural heritage over all other considerations. Community validation and elder consultation are mandatory for cultural content. Sacred knowledge and cultural intellectual property MUST be protected. No feature ships without cultural verification when heritage content is involved.
 
-Every feature and decision must serve the community's needs—local residents, business owners, tourists, and the global Cape Verdean diaspora. The platform is volunteer-supported and open-source, prioritizing:
+**Rationale**: As a community-driven cultural heritage platform, maintaining authenticity and respectful representation is the foundation of trust with the Cape Verdean diaspora, local community, and international visitors.
 
-- Authentic cultural representation and respectful heritage preservation
-- Accessibility for users with limited connectivity and diverse technical capabilities
-- Sustainable, low-cost infrastructure appropriate for community resources
-- Open collaboration and transparent development practices
+### II. Community-Driven Development
+All development decisions MUST consider the volunteer-supported, open-source nature of the project. Solutions MUST be maintainable by contributors with varying skill levels. Code complexity MUST be justified and documented. The platform serves the community first, technology second.
 
-**Rationale**: As a community-driven cultural heritage platform, the project's legitimacy and value come from serving real community needs, not from technical complexity. Every line of code should justify its existence by directly supporting community goals.
+**Rationale**: Sustainability depends on enabling community contributions and ensuring long-term maintainability without requiring enterprise-level resources.
 
-### II. Documentation-Driven Architecture
+### III. Mobile-First Experience
+All user interfaces MUST be designed and tested for mobile devices first, then progressively enhanced for larger screens. Performance on limited connectivity and lower-end devices is non-negotiable. The platform MUST serve diaspora users worldwide with varying network conditions.
 
-All architectural decisions, API contracts, and design patterns MUST be documented before implementation. Documentation is not an afterthought but a first-class deliverable that includes:
+**Rationale**: The primary audience includes diaspora members accessing the platform from mobile devices globally, often with constrained bandwidth.
 
-- Comprehensive architecture documentation (ARCHITECTURE.md, API_REFERENCE.md)
-- Clear coding standards for backend (API_CODING_STANDARDS.md) and frontend (DESIGN_SYSTEM.md)
-- Agent-specific guidance files (CLAUDE.md) updated incrementally as systems evolve
-- Planning documents that capture research, design decisions, and implementation strategies
+### IV. Documentation-Driven Architecture
+Every architectural decision, API contract, and design pattern MUST be documented before implementation. Specialized agents MUST reference established documentation (ARCHITECTURE.md, API_CODING_STANDARDS.md, DESIGN_SYSTEM.md, etc.) before making changes. Documentation lives in `docs/` for static guides and `plan/` for dynamic feature planning.
 
-**Rationale**: Documentation enables volunteer contributors to understand context quickly, ensures consistency across development cycles, and preserves institutional knowledge when contributors rotate. For an open-source community project, documentation IS the interface.
+**Rationale**: Clear documentation ensures consistency, enables new contributors to onboard effectively, and prevents architectural drift in a community-maintained project.
 
-### III. Modular Service Architecture
+### V. Modular Architecture with Enforced Boundaries
+Backend modules (shared, auth, directory, media) MUST maintain independence through Spring Modulith architecture. Modules communicate via events, never direct dependencies. Frontend components follow clear separation: providers, Catalyst UI, custom UI, admin. Circular dependencies are forbidden and verified through automated testing.
 
-The platform consists of three independently deployable, loosely coupled services with clear boundaries:
-
-- **Frontend Service**: Next.js 15 + React 19 (UI, SSR, ISR caching, authentication)
-- **Backend Service**: Spring Boot 3.4.7 + Kotlin (REST APIs, business logic, data management)
-- **Infrastructure Layer**: Terraform + GCP (Cloud Run, databases, storage, CI/CD)
-
-Each service MUST:
-
-- Have independent deployment pipelines with path-based triggering
-- Define clear API contracts and integration points
-- Support local development via Docker Compose emulation
-- Include comprehensive health checks and monitoring
-
-**Rationale**: Modular architecture enables independent scaling, deployment, and maintenance. Community volunteers can contribute to one service without understanding the entire stack. Service isolation reduces blast radius during failures and simplifies troubleshooting.
-
-### IV. Domain-Driven Design & Type Safety
-
-Backend code MUST follow domain-driven design principles with strong type safety:
-
-- **Entities**: Domain models with clear inheritance patterns (Single Table Inheritance for DirectoryEntry hierarchy)
-- **DTOs**: Explicit data transfer objects for API boundaries (never expose entities directly)
-- **Services**: Business logic encapsulation with clear separation of concerns
-- **Repositories**: Data access abstraction with Spring Data JPA
-- **Validation**: Bean Validation annotations for compile-time and runtime safety
-
-Frontend code MUST leverage TypeScript for type safety:
-
-- Explicit interfaces for all API responses and component props
-- Type-safe API client with error handling
-- Server Components first, Client Components only when necessary
-
-**Rationale**: Type safety prevents runtime errors, improves code maintainability, and provides IDE support that accelerates volunteer onboarding. Domain-driven patterns ensure business logic clarity and testability.
-
-### V. Test-First Development (NON-NEGOTIABLE)
-
-Testing is mandatory but pragmatic, proportional to the project's community nature:
-
-**MUST have:**
-
-- **Contract Tests**: API endpoint contracts verified before implementation
-- **Integration Tests**: Critical user flows (authentication, content management, search)
-- **CI/CD Testing**: Automated lint, type-check, security scan, build verification
-- **Manual Testing**: Quickstart validation for major features
-
-**Future considerations:**
-
-- Unit tests for complex business logic (not required for simple CRUD operations)
-- E2E tests for critical user journeys (when resources permit)
-- Performance testing for high-traffic endpoints
-
-**Rationale**: Community projects have limited testing resources. Focus testing effort on highest-risk areas: API contracts (prevent breaking changes), integration flows (ensure core features work), and security (protect user data). Automated CI/CD testing provides quality gates without manual overhead.
+**Rationale**: Modular architecture enables parallel development, simplifies testing, reduces coupling, and allows features to be developed and deployed independently.
 
 ### VI. Security & Privacy by Design
+All security practices MUST follow least-privilege principles. Secrets management through Google Secret Manager only. No credentials in code or environment files checked into version control. JWT-based authentication with proper token validation. GDPR compliance for user data, especially AI features involving personal information.
 
-Security is non-negotiable for a community platform handling user data and cultural heritage content:
+**Rationale**: Protecting community data and maintaining trust is paramount. Security breaches would undermine the platform's mission and harm the community it serves.
 
-- **Authentication**: JWT-based authentication via Supabase with token validation
-- **Authorization**: Role-based access control for admin operations
-- **Data Protection**: Encrypted secrets (Google Secret Manager), secure environment variables
-- **Vulnerability Scanning**: Automated security scanning (Trivy, detekt, ESLint, tfsec) in CI/CD
-- **Least Privilege**: IAM roles with minimal necessary permissions
-- **Privacy Controls**: GDPR-compliant data handling with explicit user consent
+### VII. Incremental Testing & Validation
+Testing is mandatory for complex features but pragmatic based on risk. Backend MUST have integration tests with PostgreSQL. Frontend MUST pass TypeScript checking, ESLint, and build validation. E2E tests using Playwright for critical user flows. All tests MUST pass before merging to main branch.
 
-**Rationale**: Security breaches erode community trust and can destroy volunteer projects. Automated security scanning and secure-by-default patterns prevent vulnerabilities without requiring security expertise from every contributor.
+**Rationale**: Balanced testing strategy ensures quality without overwhelming volunteer contributors. Focus testing efforts on high-risk areas and critical user journeys.
 
-### VII. Performance & Scalability
+### VIII. Infrastructure as Code & Automation
+All infrastructure MUST be defined in Terraform with remote state management. CI/CD pipelines MUST be modular and path-based (backend, frontend, infrastructure). Security scanning (Trivy, detekt, ESLint, tfsec) is mandatory. Deployments to production MUST include automated health checks.
 
-The platform MUST be performant for global users with varying connectivity:
+**Rationale**: Reproducible infrastructure and automated deployments reduce operational burden on volunteer maintainers and prevent configuration drift.
 
-- **Frontend**: ISR caching (1hr for directories, 30min for entries), CDN asset delivery, WebP images, lazy loading
-- **Backend**: Connection pooling (HikariCP), database indexing, efficient queries
-- **Infrastructure**: Auto-scaling Cloud Run services, serverless architecture
-- **Mobile-First**: All components optimized for mobile devices and slow connections
+## Technical Standards
 
-**Performance Targets**:
+### API Development
+- All REST endpoints MUST use `/api/v1/` prefix
+- HTTP status codes MUST follow RESTful conventions (see API_CODING_STANDARDS.md)
+- Bean Validation MUST be used for input validation
+- DTOs MUST be used for API contracts, never expose domain entities directly
+- JPA repositories for database access, Flyway for migrations
+- Single Table Inheritance pattern for DirectoryEntry and subclasses
 
-- Page load: <3s on 3G connection
-- API response: <200ms p95 latency
-- Time to Interactive: <5s on mobile
+### Frontend Development
+- React Server Components by default; Client Components only when interactivity required
+- Tailwind CSS with design system tokens from DESIGN_SYSTEM.md
+- ISR caching (1hr for directories, 30min for entries)
+- Centralized API client (`lib/api.ts`) with error handling
+- Supabase Auth for authentication with JWT token management
+- Dark/light theme support mandatory for all components
 
-**Rationale**: Many Cape Verdean users and diaspora members access the platform from areas with limited connectivity. Performance is not a luxury but a requirement for equitable access.
+### State Management
+- Zustand for client state (UI preferences, auth, filters)
+- TanStack Query for server state (directory entries, profiles, metadata)
+- Zod schemas for runtime validation (forms, API responses, parsing)
+- Avoid prop drilling; use context appropriately
 
-### VIII. Incremental Complexity
-
-Start simple. Add complexity only when justified by specific community needs:
-
-- **Default to simple**: Single-table design before normalization, monolithic deployment before microservices
-- **Complexity requires justification**: Document in plan.md Complexity Tracking section with alternatives considered
-- **YAGNI principle**: Don't build features for hypothetical future needs
-- **Refactor when needed**: Technical debt is acceptable if serving community needs; refactor when pain exceeds benefit
-
-**Examples of acceptable complexity**:
-
-- Single Table Inheritance for DirectoryEntry (justified: polymorphic queries, shared behavior)
-- Modular CI/CD workflows (justified: independent deployment cycles, path-based efficiency)
-- ISR caching strategy (justified: performance for users with limited connectivity)
-
-**Rationale**: Volunteer projects have limited maintenance capacity. Unnecessary complexity increases cognitive load, slows contributions, and creates technical debt. Every architectural decision should be reversible and justified by current needs.
+### Database & Storage
+- PostgreSQL primary database with Flyway migrations
+- Google Firestore for AI-processed metadata
+- Google Cloud Storage for media assets with CDN
+- UUID primary keys for all entities
+- Auditing fields (created_at, updated_at) on all entities
 
 ## Development Workflow
 
-### Planning & Implementation Process
-Complex features (3+ hours of work) MUST follow the structured planning workflow:
+### Feature Development Process
+1. **Specification**: Create feature spec using spec-template.md in `specs/###-feature-name/`
+2. **Planning**: Generate implementation plan using plan-template.md
+3. **Constitution Check**: Verify compliance with all principles before proceeding
+4. **Design Artifacts**: Create research.md, data-model.md, contracts/, quickstart.md
+5. **Task Generation**: Generate tasks.md from design artifacts
+6. **Implementation**: Execute tasks with continuous testing and validation
+7. **Review**: Code review, design review, cultural verification (if applicable)
+8. **Deployment**: Merge to main triggers automated CI/CD pipeline
 
-1. **Specification** (`/specify` command): Define WHAT users need, not HOW to build it
-   - User scenarios and acceptance criteria
-   - Functional requirements (testable, unambiguous)
-   - Key entities without implementation details
-   - Output: `.specify/specs/[feature]/spec.md`
+### Branch Strategy
+- `main`: Production branch, protected, requires PR approval
+- Feature branches: `###-feature-name` format
+- Hotfix branches: `hotfix/description` format
+- All PRs MUST pass CI/CD validation before merge
 
-2. **Planning** (`/plan` command): Research and design HOW to implement
-   - Technical context and architecture decisions
-   - Constitution compliance check (validate against principles)
-   - Phase 0: Research unknowns and best practices
-   - Phase 1: Design contracts, data models, tests
-   - Output: `plan.md`, `research.md`, `data-model.md`, `contracts/`, agent file updates
+### Agent Usage Requirements
+Specialized agents (frontend-engineer, backend-engineer, devops-engineer, content-creator, content-verifier, content-planner, search-specialist, mapbox-specialist, design-review) MUST:
+- Reference their designated documentation before making changes
+- Validate work against established standards
+- Cross-reference related documentation when work spans domains
+- Adapt approach when standards change
 
-3. **Task Generation** (`/tasks` command): Break design into actionable tasks
-   - TDD order: Tests before implementation
-   - Dependency order: Models → Services → Endpoints → Polish
-   - Mark [P] for parallel execution (different files)
-   - Output: `tasks.md` with numbered, ordered tasks
-
-4. **Implementation** (`/implement` command or manual): Execute tasks
-   - Commit after each completed task
-   - Update todo list to track progress
-   - Run tests to verify correctness
-   - Update documentation as needed
-
-5. **Review & Validation** (`/analyze` command): Cross-artifact consistency check
-   - Verify spec, plan, tasks alignment
-   - Check for incomplete implementations
-   - Validate constitution compliance
-   - Generate improvement recommendations
-
-### Code Review Standards
-
-All pull requests MUST:
-
-- Pass automated CI/CD checks (lint, type-check, security scan, build)
-- Include relevant documentation updates
-- Reference related specification/plan documents
-- Verify constitution compliance for architectural changes
-- Include manual testing evidence for user-facing features
-
-## Technology Standards
-
-### Backend Technology Standards
-
-- **Language**: Kotlin with Spring Boot 3.4.7
-- **Database**: PostgreSQL 15 (primary), Firestore (metadata), Cloud Storage (media)
-- **Migrations**: Flyway for versioned schema evolution
-- **Security**: JWT validation, Bean Validation, CORS configuration
-- **Monitoring**: Spring Boot Actuator for health checks and metrics
-- **Testing**: JUnit for tests, Jacoco for coverage reporting
-
-### Frontend Technology Standards
-
-- **Language**: TypeScript with Next.js 15, React 19
-- **Styling**: Tailwind CSS with Catalyst UI component library
-- **Authentication**: Supabase Auth with JWT token management
-- **Caching**: ISR (Incremental Static Regeneration) for static content
-- **Mapping**: Mapbox GL JS for interactive maps
-- **Testing**: ESLint for linting, TypeScript for type checking
-
-### Infrastructure Technology Standards
-
-- **Cloud Platform**: Google Cloud Platform (GCP)
-- **Deployment**: Cloud Run for serverless auto-scaling containers
-- **Infrastructure as Code**: Terraform for reproducible infrastructure
-- **Container Registry**: Google Artifact Registry
-- **CI/CD**: GitHub Actions with modular, path-based workflows
-- **Security Scanning**: Trivy, detekt, ESLint, tfsec with SARIF reporting
+### Complexity Justification
+When violating simplicity principles (e.g., adding new third-party services, introducing design patterns beyond established conventions), developers MUST:
+- Document the specific problem being solved
+- Explain why simpler alternatives are insufficient
+- Include justification in implementation plan
+- Get approval before proceeding with implementation
 
 ## Governance
 
-### Constitution Authority
+### Amendment Procedure
+1. Propose amendment with clear rationale and impact analysis
+2. Document affected templates, docs, and code areas
+3. Update constitution with version bump (semantic versioning)
+4. Propagate changes across all dependent artifacts
+5. Sync Impact Report at top of constitution file
 
-This constitution supersedes all other practices and conventions. When conflicts arise:
-
-1. Constitution principles take precedence
-2. Document specific reasoning in implementation plans
-3. Propose constitution amendments if principles are blocking progress
-
-### Amendment Process
-
-Constitution amendments require:
-
-1. **Proposal**: Document proposed change with rationale and impact analysis
-2. **Review**: Community review period (minimum 7 days for major changes)
-3. **Approval**: Consensus from active maintainers
-4. **Migration**: Update dependent templates, documentation, and code
-5. **Version**: Increment version per semantic versioning (MAJOR.MINOR.PATCH)
-
-**Version Rules**:
-
-- **MAJOR**: Backward incompatible governance changes or principle removals
-- **MINOR**: New principles added or materially expanded guidance
-- **PATCH**: Clarifications, wording improvements, typo fixes
+### Versioning Policy
+- **MAJOR**: Backward incompatible governance changes, principle removals/redefinitions
+- **MINOR**: New principles added, materially expanded guidance
+- **PATCH**: Clarifications, wording improvements, non-semantic refinements
 
 ### Compliance Review
+- All PRs MUST verify constitution compliance during review
+- Constitution violations MUST be explicitly justified and documented
+- Unjustified violations result in PR rejection
+- CI/CD pipelines enforce automated compliance checks where possible
 
-All feature implementations MUST:
+### Living Document
+This constitution is a living document that evolves with the project. Community feedback is encouraged. Amendments follow the procedure above to maintain consistency and traceability.
 
-- Reference constitution compliance in plan.md Constitution Check section
-- Document complexity deviations in Complexity Tracking
-- Justify architectural decisions against core principles
-- Update agent guidance files incrementally (not wholesale rewrites)
-
-### Agent-Specific Guidance
-
-This constitution provides universal principles. Agent-specific guidance files (e.g., CLAUDE.md for Claude Code) provide tactical implementation guidance and project-specific context:
-
-- **Universal principles**: Defined in this constitution
-- **Agent-specific tactics**: Defined in agent guidance files
-- **Incremental updates**: Agent files updated per `.specify/scripts/bash/update-agent-context.sh`
-- **Token efficiency**: Agent files kept under 150 lines for optimal context usage
-
-**Version**: 1.0.0 | **Ratified**: 2025-09-29 | **Last Amended**: 2025-09-29
+**Version**: 1.0.0 | **Ratified**: 2025-01-29 | **Last Amended**: 2025-01-29

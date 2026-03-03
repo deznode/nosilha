@@ -1,6 +1,9 @@
 /**
  * Lighthouse CI configuration for Nos Ilha Tourism Platform
  *
+ * ⚠️ NOTE: This configuration is for LOCAL USE ONLY (not run in CI/CD)
+ * Run manually before major releases: `npx @lhci/cli@latest autorun`
+ *
  * Optimized for:
  * - Tourism platform performance (mobile-first for visiting tourists)
  * - Cape Verde connectivity conditions (slower networks)

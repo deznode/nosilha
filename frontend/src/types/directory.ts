@@ -1,4 +1,16 @@
 // 1. A base interface with all COMMON properties
+export type ContentActionType =
+  | "SHARE"
+  | "COPY_LINK"
+  | "PRINT"
+  | "REACTIONS"
+  | "SUGGEST";
+
+export interface ContentActionSettings {
+  order?: ContentActionType[];
+  disabled?: ContentActionType[];
+}
+
 export interface BaseDirectoryEntry {
   id: string;
   slug: string; // Slugs are essential for all public entries
@@ -13,6 +25,8 @@ export interface BaseDirectoryEntry {
   reviewCount: number;
   createdAt: string; // ISO 8601 timestamp
   updatedAt: string; // ISO 8601 timestamp
+  tags: string[];
+  contentActions?: ContentActionSettings | null;
 }
 
 // 2. Interfaces for CATEGORY-SPECIFIC details (no redundant discriminator)

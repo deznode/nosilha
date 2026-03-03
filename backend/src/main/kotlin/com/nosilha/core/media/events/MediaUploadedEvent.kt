@@ -19,5 +19,5 @@ data class MediaUploadedEvent(
     val mediaId: UUID,
     val entryId: UUID,
     val mediaUrl: String,
-    override val occurredAt: Instant = Instant.now()
+    override val occurredAt: Instant = Instant.now(),
 ) : ApplicationModuleEvent

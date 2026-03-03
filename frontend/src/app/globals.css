@@ -1,3 +1,10 @@
+/* ========================================
+ * NOS ILHA BRAND SYSTEM — SYNC SOURCE
+ * Tokens derived from /brand/assets/palette.json
+ * To update: edit palette.json then update values here.
+ * pnpm run sync:brand 
+ * ======================================== */
+
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -10,13 +17,16 @@
   --animate-glow: glow 4s ease-in-out infinite;
 
   /* Brand Color Palette */
-  --color-ocean-blue: #005a8d;
+  --color-ocean-blue: #005a85;
   --color-valley-green: #3e7d5a;
   --color-bougainvillea-pink: #d90368;
   --color-sunny-yellow: #f7b801;
   --color-off-white: #f8f9fa;
   --color-volcanic-gray: #6c757d;
   --color-volcanic-gray-dark: #343a40;
+  --color-accent-error: #dc2626;
+  --color-accent-success: #059669;
+  --color-accent-warning: #d97706;
 
   /* Accent Colors for UI States */
   --color-accent-error: #dc2626;
@@ -139,6 +149,49 @@
     }
   }
 
+  /* Content Action Toolbar Animations */
+  @keyframes bounce-reaction {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+  }
+
+  @keyframes scale-share {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes fab-expand {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fab-collapse {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+
   /* Loading animation utilities */
   .animate-pulse-subtle {
     animation: pulse-subtle 2s ease-in-out infinite;
@@ -152,8 +205,156 @@
     animation: fade-in 0.4s ease-out;
   }
 
+  /* Content Action Toolbar animation utilities */
+  .animate-bounce-reaction {
+    animation: bounce-reaction 0.3s ease-in-out;
+    /* Performance optimization: GPU acceleration */
+    will-change: transform;
+  }
+
+  .animate-scale-share {
+    animation: scale-share 0.1s ease-in-out;
+    /* Performance optimization: GPU acceleration */
+    will-change: transform;
+  }
+
+  .animate-fab-expand {
+    animation: fab-expand 0.2s ease-out;
+    /* Performance optimization: GPU acceleration */
+    will-change: transform, opacity;
+  }
+
+  .animate-fab-collapse {
+    animation: fab-collapse 0.2s ease-in;
+    /* Performance optimization: GPU acceleration */
+    will-change: transform, opacity;
+  }
+
+  /* Performance degradation strategy for low-end devices */
+  @media (prefers-reduced-motion: no-preference) {
+    /* Only apply will-change on capable devices */
+    .animate-bounce-reaction,
+    .animate-scale-share,
+    .animate-fab-expand,
+    .animate-fab-collapse {
+      /* will-change is already set above */
+    }
+  }
+
   /* Focus ring for better accessibility */
   .focus-ring {
     @apply focus-visible:ring-ocean-blue focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+  }
+}
+
+@layer utilities {
+  /* ========================================
+   * PRINT MEDIA UTILITIES
+   * ======================================== */
+  @media print {
+    /* === Typography Optimization === */
+    body {
+      color: black;
+      background-color: white;
+      font-size: 12pt; /* WCAG 2.1 AA minimum */
+      line-height: 1.5;
+      font-family: var(--font-serif); /* Merriweather for print readability */
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      color: black;
+      page-break-after: avoid; /* Keep headings with following content */
+    }
+
+    /* === Link URL Display (Footnote Style) === */
+
+    /* Show URLs for absolute links */
+    a[href^="http"]::after {
+      content: " (" attr(href) ")";
+      font-size: 0.875rem; /* 14px - smaller than body text */
+      color: #555; /* Subtle gray to differentiate from main text */
+      word-wrap: break-word; /* Prevent URL overflow */
+    }
+
+    /* Prepend domain for relative links */
+    a[href^="/"]::after {
+      content: " (https://nosilha.com" attr(href) ")";
+      font-size: 0.875rem;
+      color: #555;
+      word-wrap: break-word;
+    }
+
+    /* Don't show URLs for anchor links (same page) */
+    a[href^="#"]::after {
+      content: none;
+    }
+
+    /* === Background & Shadow Removal === */
+
+    /* Remove all decorative backgrounds (conserve ink) */
+    *:not(img) {
+      background-color: white !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+    }
+
+    /* === Image Optimization === */
+
+    img {
+      max-width: 100%;
+      page-break-inside: avoid; /* Don't split images across pages */
+    }
+
+    /* Figures (image + caption) - keep together */
+    figure {
+      page-break-inside: avoid;
+    }
+
+    figcaption {
+      color: black;
+      font-size: 0.875rem;
+    }
+
+    /* === Page Break Management === */
+
+    /* Prevent orphaned headings */
+    h1,
+    h2,
+    h3 {
+      page-break-after: avoid;
+    }
+
+    /* Keep related elements together */
+    .break-inside-avoid,
+    blockquote,
+    pre,
+    table {
+      page-break-inside: avoid;
+    }
+
+    /* === Margins for Print === */
+
+    @page {
+      margin: 2cm; /* Standard print margins */
+    }
+
+    /* === Video Elements === */
+
+    /* Hide video players (can't play videos on paper) */
+    video,
+    iframe[src*="youtube"],
+    iframe[src*="vimeo"] {
+      display: none;
+    }
+
+    /* Show video captions/descriptions if they exist */
+    .video-description {
+      display: block !important;
+    }
   }
 }

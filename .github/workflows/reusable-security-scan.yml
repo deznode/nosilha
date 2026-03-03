@@ -161,18 +161,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          node-version: '20'
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Run ESLint with SARIF output
-        run: npm run lint -- --format=@microsoft/eslint-formatter-sarif --output-file=eslint-frontend-results.sarif
+        run: pnpm run lint -- --format=@microsoft/eslint-formatter-sarif --output-file=eslint-frontend-results.sarif
         continue-on-error: true
 
       - name: Upload ESLint SARIF results
@@ -187,8 +190,11 @@ jobs:
   scan-summary:
     name: Security Scan Summary
     runs-on: ubuntu-latest
+    # Don't fail if individual jobs are skipped, only if they failed
     needs: [backend-security, frontend-security, infrastructure-security, backend-lint, frontend-lint]
-    if: always()
+    if: |
+      always() &&
+      !contains(needs.*.result, 'cancelled')
 
     steps:
       - name: Generate scan summary

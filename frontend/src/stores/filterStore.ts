@@ -73,7 +73,8 @@ export const useFilterStore = create<FilterState>()(
         }),
 
       // Multi-category actions
-      setSelectedCategories: (categories) => set({ selectedCategories: categories }),
+      setSelectedCategories: (categories) =>
+        set({ selectedCategories: categories }),
 
       toggleCategory: (category, isChecked) =>
         set((state) => ({
@@ -100,13 +101,15 @@ export const useFilterStore = create<FilterState>()(
 );
 
 // Selectors for optimized re-renders
-export const useSearchQuery = () => useFilterStore((state) => state.searchQuery);
+export const useSearchQuery = () =>
+  useFilterStore((state) => state.searchQuery);
 export const useSelectedCategory = () =>
   useFilterStore((state) => state.selectedCategory);
 export const useSelectedTown = () =>
   useFilterStore((state) => state.selectedTown);
 export const useMinRating = () => useFilterStore((state) => state.minRating);
-export const useHasImageFilter = () => useFilterStore((state) => state.hasImage);
+export const useHasImageFilter = () =>
+  useFilterStore((state) => state.hasImage);
 export const useHasActiveFilters = () =>
   useFilterStore((state) => state.hasActiveFilters());
 
