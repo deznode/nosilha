@@ -1,0 +1,38 @@
+# Metadata for Brava Island History page
+# Multi-language support with co-located translations
+
+title:
+  en: "History & Heritage"
+  pt: "História e Património"
+  kea: "Istória y Patrimóniu"
+
+description:
+  en: "Discover the rich cultural tapestry and fascinating history of Brava Island, from its volcanic origins to its vibrant musical traditions."
+  pt: "Descubra a rica tapeçaria cultural e a fascinante história da Ilha Brava, desde suas origens vulcânicas até suas vibrantes tradições musicais."
+  kea: "Diskobrí kes tapeçaria kultural riku y istória fassinanti di Ilha Brava, di se orijem vulkániku até se tradisom musical vibranti."
+
+keywords:
+  - Brava Island history
+  - Cape Verde cultural heritage
+  - Eugénio Tavares
+  - morna music
+  - sodade
+  - volcanic stratovolcano
+  - transnational community
+
+category: heritage
+series: null
+# Content metadata
+contentType: page
+slug: history
+contentId: "11111111-2222-4333-8444-555555555555"
+
+# SEO and social media
+ogImage: "/images/history/brava-overview.jpg"
+twitterCard: "summary_large_image"
+
+# Page-specific configuration
+enableComments: false
+enableReactions: true
+showTOC: true
+printable: true

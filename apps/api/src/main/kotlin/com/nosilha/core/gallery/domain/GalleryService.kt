@@ -1,0 +1,583 @@
+package com.nosilha.core.gallery.domain
+
+import com.github.benmanes.caffeine.cache.Cache
+import com.github.benmanes.caffeine.cache.Caffeine
+import com.nosilha.core.gallery.api.dto.GalleryMediaDto
+import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
+import com.nosilha.core.gallery.repository.GalleryMediaRepository
+import com.nosilha.core.shared.api.PageableInfo
+import com.nosilha.core.shared.api.PagedApiResult
+import com.nosilha.core.shared.events.DirectoryEntryCreatedEvent
+import com.nosilha.core.shared.exception.RateLimitExceededException
+import io.github.bucket4j.Bucket
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.micrometer.core.instrument.Counter
+import io.micrometer.core.instrument.MeterRegistry
+import org.springframework.data.domain.PageRequest
+import org.springframework.modulith.events.ApplicationModuleListener
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.time.Duration
+import java.time.Instant
+import java.util.UUID
+import java.util.concurrent.TimeUnit
+
+private val logger = KotlinLogging.logger {}
+
+/**
+ * Gallery Service for unified media asset management and storage orchestration.
+ *
+ * Manages both user-uploaded media and admin-curated external content through
+ * a single service interface with polymorphic handling.
+ *
+ * User Upload Flow:
+ * 1. generatePresignedUrl - Generates presigned URL for direct R2 upload
+ * 2. confirmUpload - Confirms upload and creates UserUploadedMedia record with PROCESSING status
+ * 3. System transitions to PENDING_REVIEW after processing
+ *
+ * External Media Flow:
+ * 1. submitExternal - User submits external media for review (PENDING_REVIEW status)
+ * 2. createExternal - Admin directly creates external media (ACTIVE status)
+ *
+ * Moderation Flow:
+ * - Handled by GalleryModerationService
+ * - Supports both UserUploadedMedia and ExternalMedia in unified queue
+ */
+@Service
+class GalleryService(
+    private val r2StorageService: R2StorageService?,
+    private val repository: GalleryMediaRepository,
+    meterRegistry: MeterRegistry,
+) {
+    companion object {
+        private const val MAX_UPLOADS_PER_HOUR = 20L
+        private const val MAX_UPLOADS_PER_DAY = 100L
+    }
+
+    // Metrics counters for media operations
+    private val uploadSuccessCounter: Counter = Counter
+        .builder("media.upload.success")
+        .description("Number of successful media upload confirmations")
+        .register(meterRegistry)
+
+    private val uploadFailureCounter: Counter = Counter
+        .builder("media.upload.failure")
+        .description("Number of failed media upload attempts")
+        .register(meterRegistry)
+
+    private val externalMediaCreatedCounter: Counter = Counter
+        .builder("media.external.created")
+        .description("Number of external media items created")
+        .register(meterRegistry)
+
+    private val moderationApprovedCounter: Counter = Counter
+        .builder("media.moderation.approved")
+        .description("Number of media items approved by admins")
+        .register(meterRegistry)
+
+    private val moderationRejectedCounter: Counter = Counter
+        .builder("media.moderation.rejected")
+        .description("Number of media items rejected by admins")
+        .register(meterRegistry)
+
+    /**
+     * Caffeine cache for rate limiting by user ID.
+     *
+     * Uses Bucket4j's token bucket algorithm with dual bandwidth limits:
+     * - 20 uploads per hour (short-term burst protection)
+     * - 100 uploads per day (long-term abuse prevention)
+     */
+    private val rateLimitBuckets: Cache<String, Bucket> = Caffeine
+        .newBuilder()
+        .maximumSize(10_000)
+        .expireAfterAccess(1, TimeUnit.DAYS)
+        .build()
+
+    /** Whether R2 storage is enabled and available. */
+    val isR2Enabled: Boolean
+        get() = r2StorageService != null
+
+    /**
+     * Throws if R2 storage is not enabled.
+     * Call this before any operation that requires R2.
+     */
+    private fun requireR2Enabled() {
+        check(r2StorageService != null) {
+            "R2 storage is not enabled. Set cloudflare.r2.enabled=true to enable media uploads."
+        }
+    }
+
+    // ================================
+    // User Upload Operations
+    // ================================
+
+    /**
+     * Generates a presigned PUT URL for direct browser-to-R2 upload.
+     *
+     * Validates file metadata and rate limits before generating URL.
+     *
+     * @param fileName Original filename
+     * @param contentType MIME type (must be allowed type)
+     * @param fileSize File size in bytes (must be ≤ 50MB)
+     * @param userId User requesting the upload
+     * @return PresignedPutUrlResult with uploadUrl, key, and expiration
+     * @throws IllegalArgumentException if validation fails
+     * @throws RateLimitExceededException if rate limit exceeded
+     */
+    fun generatePresignedUrl(
+        fileName: String,
+        contentType: String,
+        fileSize: Long,
+        userId: String,
+    ): PresignedPutUrlResult {
+        requireR2Enabled()
+
+        // Check rate limits before proceeding
+        checkRateLimit(userId)
+
+        logger.info { "Generating presigned URL for user $userId: $fileName ($contentType, $fileSize bytes)" }
+
+        val result = r2StorageService!!.generatePresignedPutUrl(fileName, contentType)
+
+        logger.info { "Generated presigned URL for key: ${result.key} (expires: ${result.expiresAt})" }
+        return result
+    }
+
+    /**
+     * Checks if user is within upload rate limits and consumes a token.
+     *
+     * Uses Bucket4j's token bucket algorithm with dual bandwidth limits:
+     * - Maximum 20 uploads per hour (refills hourly)
+     * - Maximum 100 uploads per day (refills daily)
+     *
+     * @param userId User to check
+     * @throws RateLimitExceededException if either limit exceeded
+     */
+    private fun checkRateLimit(userId: String) {
+        val bucket = getBucketForUser(userId)
+        if (!bucket.tryConsume(1)) {
+            logger.warn { "Rate limit exceeded for user $userId" }
+            throw RateLimitExceededException(
+                "Upload rate limit exceeded. Please try again later.",
+            )
+        }
+    }
+
+    /**
+     * Gets or creates a rate limit bucket for the given user ID.
+     *
+     * Creates a bucket with two bandwidth limits:
+     * - 20 tokens refilling every hour (burst protection)
+     * - 100 tokens refilling every day (abuse prevention)
+     *
+     * @param userId User ID to get bucket for
+     * @return Bucket configured with dual rate limits
+     */
+    private fun getBucketForUser(userId: String): Bucket =
+        rateLimitBuckets.get(userId) {
+            logger.debug { "Creating rate limit bucket for user: $userId" }
+            Bucket
+                .builder()
+                .addLimit { limit ->
+                    limit
+                        .capacity(MAX_UPLOADS_PER_HOUR)
+                        .refillIntervally(MAX_UPLOADS_PER_HOUR, Duration.ofHours(1))
+                }.addLimit { limit ->
+                    limit
+                        .capacity(MAX_UPLOADS_PER_DAY)
+                        .refillIntervally(MAX_UPLOADS_PER_DAY, Duration.ofDays(1))
+                }.build()
+        }
+
+    /**
+     * Confirms a completed upload and creates the UserUploadedMedia metadata record.
+     *
+     * Verifies the file exists in R2 before creating the record.
+     * Sets initial status to PENDING_REVIEW for MVP (no async processing).
+     *
+     * @param key Storage key from presign response
+     * @param originalName Original filename
+     * @param contentType MIME type
+     * @param fileSize File size in bytes
+     * @param entryId Optional directory entry association
+     * @param category Optional media category
+     * @param description Optional description
+     * @param userId User who uploaded
+     * @return Created UserUploadedMedia DTO
+     * @throws IllegalStateException if file not found in R2
+     */
+    @Transactional
+    fun confirmUpload(
+        key: String,
+        originalName: String,
+        contentType: String,
+        fileSize: Long,
+        entryId: UUID?,
+        category: String?,
+        description: String?,
+        userId: String,
+    ): GalleryMediaDto.UserUpload {
+        requireR2Enabled()
+        logger.info { "Confirming upload for user $userId: key=$key" }
+
+        // Verify the file was actually uploaded to R2
+        if (!r2StorageService!!.objectExists(key)) {
+            uploadFailureCounter.increment()
+            logger.warn { "Upload confirmation failed - object not found in R2: $key" }
+            error("Upload not found. Please retry the upload.")
+        }
+
+        // Generate unique filename from the key
+        val fileName = key.substringAfterLast("/")
+        val publicUrl = r2StorageService.getPublicUrl(key)
+
+        // Create UserUploadedMedia record with PENDING_REVIEW status
+        // For MVP, we skip PROCESSING since there's no async processing
+        val media = UserUploadedMedia().apply {
+            this.fileName = fileName
+            this.originalName = originalName
+            this.contentType = contentType
+            this.fileSize = fileSize
+            this.storageKey = key
+            this.publicUrl = publicUrl
+            this.entryId = entryId
+            this.category = category
+            this.description = description
+            this.title = description ?: originalName // Use description as title, fallback to filename
+            this.status = GalleryMediaStatus.PENDING_REVIEW
+            this.source = MediaSource.LOCAL
+            this.uploadedBy = userId
+            this.displayOrder = 0
+        }
+
+        val saved = repository.save(media)
+        uploadSuccessCounter.increment()
+        logger.info { "Created UserUploadedMedia record: id=${saved.id}, status=${saved.status}" }
+
+        return GalleryMediaDto.from(saved)
+    }
+
+    // ================================
+    // External Media Operations (Legacy - kept for backward compatibility)
+    // ================================
+    // Note: New code should use submitExternalMedia() and GalleryModerationService.createExternalMedia()
+
+    // ================================
+    // Moderation Operations (Legacy - migrating to GalleryModerationService)
+    // ================================
+
+    /**
+     * Approves media (admin action) - transitions PENDING_REVIEW → ACTIVE.
+     *
+     * @param mediaId Media to approve
+     * @param adminId Admin performing the action
+     * @return Updated GalleryMedia or null if not found or invalid state
+     */
+    @Transactional
+    fun approveMedia(
+        mediaId: UUID,
+        adminId: UUID,
+    ): GalleryMedia? {
+        val media = repository.findById(mediaId).orElse(null)
+            ?: return null
+
+        check(media.status == GalleryMediaStatus.PENDING_REVIEW) {
+            logger.warn { "Cannot approve media $mediaId - current status: ${media.status}" }
+            "Can only approve media in PENDING_REVIEW status"
+        }
+
+        media.status = GalleryMediaStatus.ACTIVE
+        media.reviewedBy = adminId
+        media.reviewedAt = Instant.now()
+
+        val saved = repository.save(media)
+        moderationApprovedCounter.increment()
+        logger.info { "Media approved: id=$mediaId by admin $adminId" }
+
+        return saved
+    }
+
+    /**
+     * Rejects media (admin action) - transitions PENDING_REVIEW → REJECTED.
+     *
+     * @param mediaId Media to reject
+     * @param adminId Admin performing the action
+     * @param reason Rejection reason
+     * @return Updated GalleryMedia or null if not found
+     */
+    @Transactional
+    fun rejectMedia(
+        mediaId: UUID,
+        adminId: UUID,
+        reason: String,
+    ): GalleryMedia? {
+        val media = repository.findById(mediaId).orElse(null)
+            ?: return null
+
+        check(media.status == GalleryMediaStatus.PENDING_REVIEW) {
+            logger.warn { "Cannot reject media $mediaId - current status: ${media.status}" }
+            "Can only reject media in PENDING_REVIEW status"
+        }
+
+        media.status = GalleryMediaStatus.REJECTED
+        media.reviewedBy = adminId
+        media.reviewedAt = Instant.now()
+        media.rejectionReason = reason
+
+        val saved = repository.save(media)
+        moderationRejectedCounter.increment()
+        logger.info { "Media rejected: id=$mediaId by admin $adminId, reason: $reason" }
+
+        return saved
+    }
+
+    /**
+     * Soft deletes media (owner or admin action) - transitions ACTIVE → ARCHIVED.
+     *
+     * @param mediaId Media to delete
+     * @param userId User requesting deletion
+     * @param isAdmin Whether user is admin
+     * @return true if deleted, false if not found or unauthorized
+     */
+    @Transactional
+    @Suppress("ReturnCount")
+    fun softDelete(
+        mediaId: UUID,
+        userId: String,
+        isAdmin: Boolean,
+    ): Boolean {
+        val media = repository.findById(mediaId).orElse(null)
+            ?: return false
+
+        // Check authorization: owner (for user uploads) or admin
+        if (!isAdmin) {
+            if (media is UserUploadedMedia && media.uploadedBy != userId) {
+                logger.warn { "Unauthorized delete attempt: user $userId for media $mediaId" }
+                return false
+            }
+            if (media is ExternalMedia) {
+                logger.warn { "Non-admin cannot delete external media: $mediaId" }
+                return false
+            }
+        }
+
+        if (media.status == GalleryMediaStatus.ARCHIVED) {
+            logger.debug { "Media already archived: $mediaId" }
+            return true
+        }
+
+        check(media.status == GalleryMediaStatus.ACTIVE) {
+            logger.warn { "Cannot delete media $mediaId - current status: ${media.status}" }
+            "Can only delete ACTIVE media"
+        }
+
+        media.status = GalleryMediaStatus.ARCHIVED
+        repository.save(media)
+
+        logger.info { "Media soft deleted: id=$mediaId by user $userId (admin=$isAdmin)" }
+        return true
+    }
+
+    /**
+     * Permanently deletes media from R2 and database (admin only).
+     *
+     * Only works on media in ARCHIVED status. For UserUploadedMedia, also deletes from R2.
+     *
+     * @param mediaId Media to purge
+     * @return true if purged, false if not found or invalid state
+     */
+    @Transactional
+    fun purge(mediaId: UUID): Boolean {
+        val media = repository.findById(mediaId).orElse(null)
+            ?: return false
+
+        check(media.status == GalleryMediaStatus.ARCHIVED) {
+            logger.warn { "Cannot purge media $mediaId - must be in ARCHIVED status, current: ${media.status}" }
+            "Can only purge media in ARCHIVED status"
+        }
+
+        // Delete from R2 if it's UserUploadedMedia and R2 is enabled
+        if (media is UserUploadedMedia && media.storageKey != null) {
+            @Suppress("TooGenericExceptionCaught")
+            try {
+                r2StorageService?.deleteObject(media.storageKey!!)
+                logger.info { "Deleted object from R2: ${media.storageKey}" }
+            } catch (e: Exception) {
+                logger.error(e) { "Failed to delete object from R2: ${media.storageKey}" }
+                // Continue with database deletion even if R2 fails
+            }
+        }
+
+        // Delete from database
+        repository.delete(media)
+
+        logger.info { "Media purged: id=$mediaId" }
+        return true
+    }
+
+    // ================================
+    // Public Query Operations
+    // ================================
+
+    /**
+     * Lists active gallery media with optional category filtering and pagination.
+     *
+     * Returns both UserUploadedMedia and ExternalMedia with ACTIVE status,
+     * ordered by display order ascending.
+     *
+     * @param category Optional category filter
+     * @param page Zero-based page number
+     * @param size Items per page (max 100)
+     * @return Paginated API result of active gallery media
+     */
+    @Transactional(readOnly = true)
+    fun listActiveMedia(
+        category: String?,
+        page: Int,
+        size: Int,
+    ): PagedApiResult<GalleryMediaDto> {
+        val pageable = PageRequest.of(page, minOf(size, 100))
+        val mediaPage = if (category != null) {
+            // Filter by category - need to fetch and filter manually
+            val allActive = repository
+                .findByStatus(GalleryMediaStatus.ACTIVE)
+                .filter { it.category == category }
+                .sortedBy { it.displayOrder }
+
+            // Manual pagination
+            val start = page * size
+            val end = minOf(start + size, allActive.size)
+            val pageContent = if (start < allActive.size) allActive.subList(start, end) else emptyList()
+
+            org.springframework.data.domain.PageImpl(
+                pageContent,
+                pageable,
+                allActive.size.toLong()
+            )
+        } else {
+            repository.findByStatusOrderByDisplayOrderAsc(GalleryMediaStatus.ACTIVE, pageable)
+        }
+
+        val dtos = mediaPage.content.map { media ->
+            when (media) {
+                is UserUploadedMedia -> GalleryMediaDto.from(media)
+                is ExternalMedia -> GalleryMediaDto.from(media)
+                else -> error("Unknown media type: ${media.javaClass.simpleName}")
+            }
+        }
+
+        return PagedApiResult(
+            data = dtos,
+            pageable = PageableInfo(
+                page = mediaPage.number,
+                size = mediaPage.size,
+                totalElements = mediaPage.totalElements,
+                totalPages = mediaPage.totalPages,
+                first = mediaPage.isFirst,
+                last = mediaPage.isLast
+            )
+        )
+    }
+
+    /**
+     * Gets a single gallery media item by ID.
+     *
+     * @param id Media ID
+     * @param isAdmin Whether the requester is an admin (admins can view any status)
+     * @return Media DTO or null if not found or not accessible
+     */
+    @Transactional(readOnly = true)
+    fun getById(
+        id: UUID,
+        isAdmin: Boolean = false
+    ): GalleryMediaDto? {
+        val media = repository.findById(id).orElse(null) ?: return null
+
+        // Non-admin users can only view ACTIVE media
+        if (!isAdmin && media.status != GalleryMediaStatus.ACTIVE) {
+            return null
+        }
+
+        return when (media) {
+            is UserUploadedMedia -> GalleryMediaDto.from(media)
+            is ExternalMedia -> GalleryMediaDto.from(media)
+            else -> error("Unknown media type: ${media.javaClass.simpleName}")
+        }
+    }
+
+    /**
+     * Gets all ACTIVE user-uploaded media for a directory entry.
+     *
+     * @param entryId Directory entry ID
+     * @return List of user upload DTOs
+     */
+    @Transactional(readOnly = true)
+    fun getMediaByEntry(entryId: UUID): List<GalleryMediaDto.UserUpload> =
+        repository
+            .findByEntryIdAndStatusOrderByDisplayOrderAsc(entryId, GalleryMediaStatus.ACTIVE)
+            .map { GalleryMediaDto.from(it) }
+
+    /**
+     * Gets distinct list of categories from ACTIVE media.
+     *
+     * @return Sorted list of unique categories
+     */
+    @Transactional(readOnly = true)
+    fun getCategories(): List<String> =
+        repository
+            .findByStatus(GalleryMediaStatus.ACTIVE)
+            .mapNotNull { it.category }
+            .distinct()
+            .sorted()
+
+    /**
+     * User submits external media for admin review.
+     *
+     * Creates ExternalMedia with PENDING_REVIEW status.
+     *
+     * @param request External media submission request
+     * @param userId User submitting the media
+     * @return Created external media DTO
+     */
+    @Transactional
+    fun submitExternalMedia(
+        request: SubmitExternalMediaRequest,
+        userId: String,
+    ): GalleryMediaDto.External {
+        logger.info { "User $userId submitting external media: ${request.title} (${request.mediaType}, ${request.platform})" }
+
+        val media = ExternalMedia().apply {
+            this.mediaType = request.mediaType
+            this.platform = request.platform
+            this.externalId = request.externalId
+            this.url = request.url
+            this.thumbnailUrl = request.thumbnailUrl
+            this.title = request.title
+            this.description = request.description
+            this.author = request.author
+            this.category = request.category
+            this.displayOrder = request.displayOrder
+            this.status = GalleryMediaStatus.PENDING_REVIEW
+            this.curatedBy = userId
+        }
+
+        val saved = repository.save(media)
+        externalMediaCreatedCounter.increment()
+        logger.info { "Created ExternalMedia for review: id=${saved.id}" }
+
+        return GalleryMediaDto.from(saved)
+    }
+
+    /**
+     * Listens to DirectoryEntryCreatedEvent for cross-module awareness.
+     * UserUploadedMedia can be associated with directory entries via the entry_id field.
+     */
+    @ApplicationModuleListener
+    fun onDirectoryEntryCreated(event: DirectoryEntryCreatedEvent) {
+        logger.info {
+            "Received DirectoryEntryCreatedEvent for entry: ${event.entryId} " +
+                "(category: ${event.category}, name: ${event.name})"
+        }
+        logger.debug { "Directory entry created - media association via entry_id: ${event.entryId}" }
+    }
+}

@@ -76,7 +76,7 @@ From [Cloud Run Environment Variables documentation](https://cloud.google.com/ru
 ### 1. Copy Environment Template
 
 ```bash
-cd frontend
+cd apps/web
 cp .env.local.example .env.local
 ```
 
@@ -146,7 +146,7 @@ Before deploying, you need:
 
 The following files are already configured (no changes needed):
 
-**✅ `frontend/Dockerfile`** (lines 24-25, 32-33):
+**✅ `apps/web/Dockerfile`** (lines 24-25, 32-33):
 ```dockerfile
 ARG NEXT_PUBLIC_GA_ID
 ARG NEXT_PUBLIC_CLARITY_PROJECT_ID

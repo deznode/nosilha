@@ -10,31 +10,29 @@ on:
   push:
     branches: [main]
     paths:
-      - 'frontend/**'
+      - 'apps/web/**'
       - '.github/workflows/frontend-ci.yml'
       - '.github/workflows/reusable-security-scan.yml'
       # Exclude documentation and non-functional changes to save costs
-      - '!frontend/**/*.md'
-      - '!frontend/**/*.txt'
-      - '!frontend/**/*.gitignore'
-      - '!frontend/**/README*'
-      - '!frontend/**/.editorconfig'
-      - '!frontend/**/*.stories.*'  # Storybook files
-      - '!frontend/**/*.test.*'     # Test files (tests run locally only, not in CI)
+      - '!apps/web/**/*.md'
+      - '!apps/web/**/*.txt'
+      - '!apps/web/**/*.gitignore'
+      - '!apps/web/**/README*'
+      - '!apps/web/**/.editorconfig'
+      - '!apps/web/**/*.test.*'     # Test files (tests run locally only, not in CI)
   pull_request:
     branches: [main]
     paths:
-      - 'frontend/**'
+      - 'apps/web/**'
       - '.github/workflows/frontend-ci.yml'
       - '.github/workflows/reusable-security-scan.yml'
       # Exclude documentation and non-functional changes to save costs
-      - '!frontend/**/*.md'
-      - '!frontend/**/*.txt'
-      - '!frontend/**/*.gitignore'
-      - '!frontend/**/README*'
-      - '!frontend/**/.editorconfig'
-      - '!frontend/**/*.stories.*'  # Storybook files
-      - '!frontend/**/*.test.*'     # Test files (tests run locally only, not in CI)
+      - '!apps/web/**/*.md'
+      - '!apps/web/**/*.txt'
+      - '!apps/web/**/*.gitignore'
+      - '!apps/web/**/README*'
+      - '!apps/web/**/.editorconfig'
+      - '!apps/web/**/*.test.*'     # Test files (tests run locally only, not in CI)
   workflow_call:
     inputs:
       skip-deploy:
@@ -80,23 +78,17 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: ./apps/web
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
+      - name: Setup Node & pnpm
+        uses: ./.github/actions/setup-node-pnpm
 
-      - name: Setup Node.js 20.9+
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.9'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      # Generate Velite content types before type checking
+      - name: Generate content types
+        run: pnpm build:content
 
       # Run linting and type checking
       # Note: ESLint with SARIF output is handled by reusable-security-scan.yml to avoid duplication
@@ -126,7 +118,7 @@ jobs:
     if: github.event_name == 'pull_request' && !github.event.pull_request.draft
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: ./apps/web
 
     steps:
       - uses: actions/checkout@v4
@@ -137,16 +129,14 @@ jobs:
         with:
           filters: |
             bundle:
-              - 'frontend/package.json'
-              - 'frontend/pnpm-lock.yaml'
-              - 'frontend/src/**'
-              - 'frontend/next.config.ts'
+              - 'apps/web/package.json'
+              - 'apps/web/pnpm-lock.yaml'
+              - 'apps/web/src/**'
+              - 'apps/web/next.config.ts'
 
       - name: Setup pnpm
         if: ${{ steps.changes.outputs.bundle == 'true' }}
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Setup Node.js 20.9+
         if: ${{ steps.changes.outputs.bundle == 'true' }}
@@ -210,7 +200,7 @@ jobs:
       image-digest: ${{ steps.build.outputs.digest }}
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: ./apps/web
 
     # Add OIDC permissions
     permissions:
@@ -220,28 +210,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+      - name: Setup Node & pnpm
+        uses: ./.github/actions/setup-node-pnpm
         with:
-          version: 10
+          install-dependencies: 'false'
 
-      - name: Setup Node.js 20.9+
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.9'
+      - name: GCP Authentication
+        uses: ./.github/actions/gcp-auth
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
-          service_account: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-
-      - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker ${{ env.REGISTRY }}
-        
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         
@@ -259,8 +235,8 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
+          context: ./apps/web
+          file: ./apps/web/Dockerfile
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-frontend/nosilha-web-ui:${{ github.sha }}
@@ -293,15 +269,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+      - name: GCP Authentication
+        uses: ./.github/actions/gcp-auth
         with:
-          workload_identity_provider: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
-          service_account: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
-          
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-        
+          configure-docker: 'false'
+
       - name: Deploy to Cloud Run (Production)
         run: |
           gcloud run deploy ${{ env.SERVICE_NAME }} \
@@ -309,7 +281,7 @@ jobs:
             --platform=managed \
             --region=${{ env.REGION }} \
             --service-account=nosilha-frontend-runner@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
-            --memory=256Mi \
+            --memory=512Mi \
             --cpu=1 \
             --min-instances=0 \
             --max-instances=2 \

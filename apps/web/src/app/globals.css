@@ -1,0 +1,418 @@
+/* ========================================
+ * NOS ILHA BRAND SYSTEM — SYNC SOURCE
+ * Tokens derived from /brand/assets/palette.json
+ * To update: edit palette.json then run:
+ * node scripts/sync-brand-tokens.mjs
+ * ======================================== */
+
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* === Font Tokens === */
+  /* UI/Body: Outfit (Geometric, Brand-focused, Clean) */
+  --font-sans: var(--font-sans), "Outfit", system-ui, sans-serif;
+
+  /* Headings: Fraunces (Variable, Old-Style, Soft) */
+  --font-serif: var(--font-serif), "Fraunces", Georgia, serif;
+  /* === Animation Tokens === */
+  --animate-glow: glow 4s ease-in-out infinite;
+  --animate-fog-flow: fog-flow 20s linear infinite;
+
+  /* === BRAND PALETTE (The Brava Tones) === */
+  /* * AUTO-GENERATED from Nos Ilha Design System
+   * Version: 1.0.0 (Ilha das Flores)
+   * Updated: 2025-12-06
+   */
+
+  /* -- Primary Brand -- */
+  --color-ocean-blue: #0e4c75;
+  --color-ocean-blue-light: #2a769e;
+  --color-ocean-blue-deep: #0e4c75;
+  --color-valley-green: #2f6e4d;
+  --color-bougainvillea-pink: #c02669;
+  --color-sobrado-ochre: #d97706;
+  --color-sunny-yellow: #fbbf24;
+
+  /* -- Mist & Basalt (Neutrals) -- */
+  --color-mist-50: #f8fafc;
+  --color-mist-100: #f1f5f9;
+  --color-mist-200: #e2e8f0;
+  --color-basalt-500: #64748b;
+  --color-basalt-800: #1e293b;
+  --color-basalt-900: #0f172a;
+
+  /* -- Functional Status -- */
+  --color-status-error: #be123c;
+  --color-status-success: #15803d;
+  --color-status-warning: #b45309;
+
+  /* === SEMANTIC LAYER (Light Mode) === */
+
+  /* Backgrounds */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: var(--color-mist-50);
+  --color-bg-tertiary: var(--color-mist-100);
+
+  /* Text */
+  --color-text-primary: var(--color-basalt-900);
+  --color-text-secondary: var(--color-basalt-500);
+  --color-text-brand: var(--color-ocean-blue);
+
+  /* Borders */
+  --color-border-subtle: var(--color-mist-200);
+  --color-border-strong: var(--color-basalt-500);
+
+  /* Aliases for UI State colors (Backward Compatibility) */
+  --color-accent-error: var(--color-status-error);
+  --color-accent-success: var(--color-status-success);
+  --color-accent-warning: var(--color-status-warning);
+
+  /* === SEMANTIC ALIASES ("Semantic Structure, Branded Soul") === */
+  /* Use these for layouts - dark mode switches automatically */
+
+  /* Backgrounds */
+  --color-canvas: var(--color-bg-primary); /* Page background */
+  --color-surface: var(--color-bg-secondary); /* Cards, sidebars */
+  --color-surface-alt: var(--color-bg-tertiary); /* Hover states, alternates */
+
+  /* Text */
+  --color-body: var(--color-text-primary); /* Main reading text */
+  --color-muted: var(--color-text-secondary); /* Metadata, captions */
+  --color-brand: var(--color-text-brand); /* Brand-colored text */
+
+  /* Borders */
+  --color-hairline: var(--color-border-subtle); /* Light dividers */
+  --color-edge: var(--color-border-strong); /* Strong borders */
+
+  /* === BACKWARD COMPATIBILITY ALIASES === */
+  /* These map old component class names to new tokens */
+  --color-background-primary: var(--color-canvas);
+  --color-background-secondary: var(--color-surface);
+  --color-background-tertiary: var(--color-surface-alt);
+  --color-border-primary: var(--color-edge);
+}
+
+/* === DARK MODE OVERRIDES (Volcanic Night) === */
+@variant dark {
+  /* Brand Adjustments for Dark Mode (Desaturated for eye comfort) */
+  --color-ocean-blue: #38bdf8; /* Sky blue for contrast */
+  --color-ocean-blue-deep: #0c3d5e; /* Deeper ocean for dark mode backgrounds */
+  --color-bougainvillea-pink: #f472b6; /* Lighter pink */
+
+  /* Backgrounds - Deep Basalt */
+  --color-bg-primary: #0b1120; /* Deepest basalt */
+  --color-bg-secondary: #1e293b;
+  --color-bg-tertiary: #334155;
+
+  /* Text */
+  --color-text-primary: #f1f5f9; /* Mist white */
+  --color-text-secondary: #94a3b8;
+  --color-text-brand: #7dd3fc;
+
+  /* Borders */
+  --color-border-subtle: #334155;
+  --color-border-strong: #475569;
+}
+
+@layer base {
+  /* Enhanced Global Scroll Behavior */
+  html {
+    scroll-behavior: smooth;
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-primary);
+  }
+
+  /* Respect reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* === Keyframes for Animations === */
+
+  /* New: Mist Flow Animation */
+  @keyframes fog-flow {
+    0% {
+      transform: translateX(0);
+      opacity: 0.3;
+    }
+    50% {
+      transform: translateX(-20px);
+      opacity: 0.5;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 0.3;
+    }
+  }
+
+  @keyframes glow {
+    from,
+    to {
+      opacity: 0.8;
+      text-shadow:
+        0 0 8px var(--color-ocean-blue),
+        0 0 10px var(--color-ocean-blue);
+    }
+    50% {
+      opacity: 1;
+      text-shadow:
+        0 0 12px var(--color-ocean-blue),
+        0 0 20px var(--color-ocean-blue);
+    }
+  }
+
+  @keyframes pulse-subtle {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.02);
+    }
+  }
+
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Content Action Toolbar Animations */
+  @keyframes bounce-reaction {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+  }
+
+  @keyframes scale-share {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes fab-expand {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fab-collapse {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+  }
+
+  /* === Animation Utilities === */
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s ease-in-out infinite;
+  }
+  .animate-slide-up {
+    animation: slide-up 0.6s ease-out;
+  }
+  .animate-fade-in {
+    animation: fade-in 0.4s ease-out;
+  }
+
+  /* Content Action Toolbar animation utilities */
+  .animate-bounce-reaction {
+    animation: bounce-reaction 0.3s ease-in-out;
+    will-change: transform;
+  }
+
+  .animate-scale-share {
+    animation: scale-share 0.1s ease-in-out;
+    will-change: transform;
+  }
+
+  .animate-fab-expand {
+    animation: fab-expand 0.2s ease-out;
+    will-change: transform, opacity;
+  }
+
+  .animate-fab-collapse {
+    animation: fab-collapse 0.2s ease-in;
+    will-change: transform, opacity;
+  }
+
+  /* Performance degradation strategy */
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-bounce-reaction,
+    .animate-scale-share,
+    .animate-fab-expand,
+    .animate-fab-collapse {
+      /* will-change is set above */
+    }
+  }
+
+  /* Focus ring for better accessibility */
+  .focus-ring {
+    @apply focus-visible:ring-ocean-blue focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+  }
+
+  /* Semantic hover surface utilities
+   * Based on Material Design elevation model:
+   * - Light mode: darker surface on hover (shadow metaphor)
+   * - Dark mode: lighter surface on hover (elevation = closer to light source)
+   */
+  .hover-surface {
+    @apply hover:bg-mist-50 dark:hover:bg-basalt-800/50;
+  }
+
+  .hover-surface-strong {
+    @apply hover:bg-mist-200 dark:hover:bg-basalt-800;
+  }
+
+  /* Glassmorphism Utilities */
+  .glass-panel {
+    @apply border border-white/20 bg-white/10 shadow-xl backdrop-blur-md;
+  }
+
+  .dark .glass-panel {
+    @apply border-white/10 bg-black/30;
+  }
+}
+
+@layer utilities {
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* ========================================
+   * PRINT MEDIA UTILITIES
+   * ======================================== */
+  @media print {
+    body {
+      color: black;
+      background-color: white;
+      font-size: 12pt;
+      line-height: 1.5;
+      font-family: var(--font-serif);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      color: black;
+      page-break-after: avoid;
+    }
+
+    /* URL Display */
+    a[href^="http"]::after {
+      content: " (" attr(href) ")";
+      font-size: 0.875rem;
+      color: #555;
+      word-wrap: break-word;
+    }
+
+    a[href^="/"]::after {
+      content: " (https://nosilha.com" attr(href) ")";
+      font-size: 0.875rem;
+      color: #555;
+      word-wrap: break-word;
+    }
+
+    a[href^="#"]::after {
+      content: none;
+    }
+
+    /* Cleanup */
+    *:not(img) {
+      background-color: white !important;
+      box-shadow: none !important;
+      text-shadow: none !important;
+    }
+
+    img {
+      max-width: 100%;
+      page-break-inside: avoid;
+    }
+
+    figure {
+      page-break-inside: avoid;
+    }
+    figcaption {
+      color: black;
+      font-size: 0.875rem;
+    }
+
+    /* Breaks */
+    h1,
+    h2,
+    h3 {
+      page-break-after: avoid;
+    }
+    .break-inside-avoid,
+    blockquote,
+    pre,
+    table {
+      page-break-inside: avoid;
+    }
+
+    @page {
+      margin: 2cm;
+    }
+
+    /* Video Hiding */
+    video,
+    iframe[src*="youtube"],
+    iframe[src*="vimeo"] {
+      display: none;
+    }
+    .video-description {
+      display: block !important;
+    }
+
+    .no-print {
+      display: none;
+    }
+  }
+}

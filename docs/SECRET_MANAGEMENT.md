@@ -528,7 +528,7 @@ While our current environment variable approach is adequate, Spring Cloud GCP Se
 
 #### 1. Add Dependency
 ```kotlin
-// backend/build.gradle.kts
+// apps/api/build.gradle.kts
 implementation("com.google.cloud:spring-cloud-gcp-starter-secretmanager")
 ```
 

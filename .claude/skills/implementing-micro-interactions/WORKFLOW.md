@@ -116,3 +116,51 @@ Copy this checklist and track progress for each task:
 3. If necessary, lazy-load animation-heavy components with `next/dynamic`.
 
 ---
+
+## Implementation Rules Reference
+
+Apply these rules when implementing or modifying animations:
+
+### 1. Always Use Tokens
+
+Import durations, easing, and distances from `lib/animation/tokens.ts`. Never hardcode values like `duration: 0.37` or `y: 37`.
+
+```typescript
+// ✅ Correct
+import { motionDuration, motionEasing } from "@/lib/animation"
+transition={{ duration: motionDuration.micro, ease: motionEasing.easeOut }}
+
+// ❌ Incorrect
+transition={{ duration: 0.37, ease: "easeOut" }}
+```
+
+### 2. Prefer Factories and Shared Variants
+
+Use `makeFadeInUp`, `makeScaleIn`, and variants like `buttonMicro`, `listStagger`, `listItem` for repeated patterns instead of defining new variants.
+
+### 3. Respect Reduced Motion
+
+Use `useMotionConfig()` to read `reducedMotion`. In reduced-motion mode, fall back to instant or simple opacity transitions.
+
+```typescript
+const { reducedMotion } = useMotionConfig()
+const variants = reducedMotion ? reducedVariants : fullVariants
+```
+
+### 4. Animate Transform + Opacity
+
+Prefer `x`, `y`, `scale`, `rotate`, and `opacity` (GPU-friendly). Use `layout` and `layoutId` sparingly for layout transitions.
+
+### 5. Encapsulate Micro-Interactions
+
+Keep button/card/accordion interactions inside dedicated components under `lib/animation/components` rather than scattered through the codebase.
+
+### 6. Route Transitions
+
+Use `PageTransitionProvider` (from `lib/animation/components`) with `AnimatePresence` and `key={pathname}` for App Router transitions.
+
+### 7. Accessibility
+
+Ensure ARIA and visual states are aligned with animations. Never rely solely on motion to convey state.
+
+---

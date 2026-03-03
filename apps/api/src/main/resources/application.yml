@@ -1,0 +1,104 @@
+# ===================================================================
+# PRODUCTION CONFIGURATION (Default Profile)
+# For Google Cloud Run
+# ===================================================================
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:https://nosilha.com,https://www.nosilha.com}
+
+spring:
+  application:
+    name: nosilha-core-api
+
+  # Multipart file upload configuration
+  servlet:
+    multipart:
+      max-file-size: 10MB        # Allow up to 10MB per file
+      max-request-size: 15MB     # Allow up to 15MB per request
+
+  # Database Configuration for Production (Supabase Session Mode Pooler)
+  # NOTE: The url, username, and password properties are intentionally omitted.
+  # Spring Boot will automatically bind them from the Cloud Run environment variables:
+  # SPRING_DATASOURCE_URL, SPRING_DATASOURCE_USERNAME, SPRING_DATASOURCE_PASSWORD
+  # Using Session Mode (port 5432) for prepared statement support (required by Flyway)
+  datasource:
+    hikari:
+      maximum-pool-size: 10             # Session Mode optimized (3 instances × 10 = 30 connections max)
+      minimum-idle: 0                   # CRITICAL: Allows pool to scale to zero during idle periods
+      connection-timeout: 20000         # 20 seconds connection timeout
+      idle-timeout: 300000              # 5 minutes idle timeout (longer for Session Mode persistence)
+      max-lifetime: 1800000             # 30 minutes max connection lifetime (Session Mode supports longer)
+      leak-detection-threshold: 30000   # 30 seconds leak detection (earlier detection)
+      validation-timeout: 3000          # 3 seconds validation timeout
+      connection-test-query: "SELECT 1" # Simple validation query for connection health checks
+
+  # Flyway Configuration
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+    validate-on-migrate: true
+
+  # JPA/Hibernate Configuration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+# Media storage configuration for production
+# NOTE: Production cloud storage is deferred; local filesystem used for development
+media:
+  storage:
+    path: ${MEDIA_STORAGE_PATH:/app/uploads}
+    base-url: ${MEDIA_BASE_URL:https://api.nosilha.com/api/v1/media/files}
+
+# Cloudflare R2 configuration (S3-compatible object storage)
+# To enable media uploads, set cloudflare.r2.enabled=true (via R2_ENABLED env var)
+# When enabled, all credentials MUST be provided or startup will fail (fail-fast)
+cloudflare:
+  r2:
+    enabled: ${R2_ENABLED:false}
+    account-id: ${R2_ACCOUNT_ID:}
+    access-key-id: ${R2_ACCESS_KEY_ID:}
+    secret-access-key: ${R2_SECRET_ACCESS_KEY:}
+    bucket-name: ${R2_BUCKET_NAME:nosilha-media}
+    public-url: ${R2_PUBLIC_URL:https://media.nosilha.com}
+
+# The production Supabase JWT secret, sourced from Google Secret Manager
+# and provided as an environment variable.
+supabase:
+  jwt-secret: ${SUPABASE_JWT_SECRET}
+
+# Spring Boot Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never               # Public endpoint shows basic status only for monitoring
+      show-components: never
+  info:
+    defaults:
+      enabled: false
+    build:
+      enabled: true
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+logging:
+  level:
+    web: debug
+    com.nosilha: debug
+    tools:
+      jackson:
+        module:
+          kotlin: debug

@@ -1,10 +1,45 @@
 # Animation System
 
-This document describes the centralized animation library located in `frontend/src/lib/animation/`.
+This document describes the centralized animation library located in `apps/web/src/lib/animation/`, including design principles and implementation guidelines.
 
 ## Overview
 
 The animation library provides a token-based motion system for Framer Motion, ensuring consistent animations across the application with built-in accessibility support.
+
+## Design Principles
+
+### What Makes a High-Quality Micro-Interaction?
+
+A micro-interaction is a small, focused animation tied to a single user intent (hovering a button, opening a dropdown, navigating between views). High-quality micro-interactions are:
+
+1. **Purposeful** - Communicate feedback, status change, or navigation
+2. **Subtle** - Small distances, short durations, no large camera-like pans
+3. **Predictable** - Same component type uses same animation grammar
+4. **Fast** - Most live in the 150–250ms range
+5. **Reversible** - Animations reverse smoothly when state is undone
+6. **Accessible** - Respect `prefers-reduced-motion`
+
+### When to Use Animation
+
+**Use animation when:**
+- Signaling state change (on/off, open/closed, success/failure)
+- Providing continuity of context (shared-element transitions)
+- Guiding attention to new or important content
+- Representing spatial relationships (drag-and-drop, reordering)
+
+**Avoid animation when:**
+- It's purely decorative and appears frequently
+- It blocks interaction (long intros, blocking splash transitions)
+- It causes large movement without functional justification
+- It violates user preference for reduced motion
+
+### Timing Guidelines
+
+| Animation Type | Duration Range | Optimal |
+|---------------|----------------|---------|
+| Micro feedback (hover/press) | 100–180ms | 120–150ms |
+| Small state changes (accordion, dropdown) | 180–300ms | 200–240ms |
+| Route/page transitions | 220–400ms | 280–350ms |
 
 ## Architecture
 
@@ -24,7 +59,7 @@ flowchart TD
 ## File Structure
 
 ```
-frontend/src/lib/animation/
+apps/web/src/lib/animation/
 ├── index.ts      # Re-exports all modules
 ├── tokens.ts     # Core motion design tokens
 ├── variants.ts   # Preset Framer Motion variants
@@ -38,7 +73,7 @@ frontend/src/lib/animation/
 
 ### 1. Motion Tokens (`tokens.ts`)
 
-Canonical timing and distance values referenced in MICRO_INTERACTION.md:
+Canonical timing and distance values (see Design Principles section above):
 
 ```typescript
 // Duration tokens (in seconds)
@@ -460,6 +495,5 @@ These migrations are optional but would improve consistency across the codebase.
 ## Related Documentation
 
 - [DESIGN_SYSTEM.md](./DESIGN_SYSTEM.md) - Overall design system
-- [MICRO_INTERACTION.md](../plan/design/MICRO_INTERACTION.md) - Animation design specifications
 - [Motion.dev Docs](https://motion.dev/) - Official Motion (Framer Motion) documentation
 - [Motion Accessibility Guide](https://motion.dev/docs/react-accessibility) - Reduced motion best practices

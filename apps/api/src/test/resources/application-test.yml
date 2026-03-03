@@ -1,0 +1,58 @@
+# ===================================================================
+# TEST CONFIGURATION
+# For running tests in CI/CD pipeline
+# ===================================================================
+
+app:
+  cors:
+    allowed-origins: http://localhost:3000
+
+spring:
+  # Test Database Configuration (PostgreSQL with Testcontainers)
+  datasource:
+    url: jdbc:tc:postgresql:16.0:///?TC_DAEMON=true
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+    username: test
+    password: test
+
+  # JPA/Hibernate Configuration for tests
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 10
+
+  flyway:
+    enabled: true
+
+# Media storage configuration for tests
+# Uses temp directory for test isolation
+media:
+  storage:
+    path: ${java.io.tmpdir}/nosilha-test-uploads
+    base-url: http://localhost:8080/api/v1/media/files
+
+# Test JWT Configuration
+supabase:
+  jwt-secret: test-secret-key-that-is-at-least-32-characters-long
+
+# Logging for tests
+logging:
+  level:
+    com.nosilha: DEBUG
+    org.springframework.test: DEBUG
+    org.springframework.web: DEBUG
+    root: WARN
+
+# Management endpoints for tests
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

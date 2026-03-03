@@ -4,11 +4,9 @@ This directory contains the infrastructure configuration files for the Nosilha p
 
 ## Local Development Environment
 
-The local development setup uses Docker Compose to run multiple services that match the Google Cloud Platform production environment:
+The local development setup uses Docker Compose to run PostgreSQL, matching the production database environment.
 
-- **PostgreSQL 16**: Primary database for structured data
-- **Firestore Emulator**: Flexible metadata storage for AI-processed content
-- **Google Cloud Storage Emulator**: Media asset storage emulation
+- **PostgreSQL 16**: Primary database for all structured data including media metadata
 
 ### Prerequisites
 
@@ -21,8 +19,8 @@ The local development setup uses Docker Compose to run multiple services that ma
 ```
 infrastructure/
 ├── docker/
-│   ├── docker-compose.yml    # Multi-service container configuration
-│   └── data/                # Database persistent storage (auto-created)
+│   ├── docker-compose.yml    # Container configuration
+│   └── data/                 # Database persistent storage (auto-created)
 └── terraform/
     ├── main.tf              # Core GCP infrastructure
     ├── cloudrun.tf          # Cloud Run deployment configuration
@@ -33,12 +31,10 @@ infrastructure/
 
 ### Default Services (Always Running)
 - **PostgreSQL 16** - Port 5432 - Primary database
-- **Firestore Emulator** - Port 8081 - Metadata storage
-- **GCS Emulator** - Port 8082 - Media asset storage
 
 ### Profile-Based Services (Optional)
 - **Backend** (`backend`) - Port 8080 - Spring Boot + Kotlin API
-- **Frontend** (`frontend`) - Port 3000 - Next.js 15 with pnpm
+- **Frontend** (`frontend`) - Port 3000 - Next.js 16 with pnpm
 
 ## Getting Started
 
@@ -52,11 +48,8 @@ cd infrastructure/docker && docker-compose up -d
 
 **What this command does:**
 
-- Downloads required Docker images (PostgreSQL, Google Cloud SDK, fake-gcs-server)
-- Starts all services in detached mode:
-  - PostgreSQL database on `localhost:5432`
-  - Firestore emulator on `localhost:8081`
-  - Google Cloud Storage emulator on `localhost:8082`
+- Downloads required Docker images (PostgreSQL)
+- Starts PostgreSQL database on `localhost:5432`
 - Creates persistent storage in `infrastructure/docker/data/`
 
 ### 1b. (Optional) Start with Frontend
@@ -108,7 +101,7 @@ To run both frontend and backend in Docker:
 cd infrastructure/docker && docker-compose --profile frontend --profile backend up -d
 ```
 
-This starts all services: database, emulators, backend API, and frontend app. Services communicate via Docker network using service names.
+This starts all services: database, backend API, and frontend app. Services communicate via Docker network using service names.
 
 ### 2. Run the Spring Boot Application (Traditional Method)
 
@@ -165,16 +158,15 @@ When everything is working correctly, you should see:
    ```
    The following 1 profile is active: "local"
    Started NosIlhaCoreApplication in X.XXX seconds
-   Flyway successfully applied 1 migration(s)
+   Flyway successfully applied migrations
    ```
 
 3. **API available at:** `http://localhost:8080/api/v1/directory/`
 
 ## Database Management
 
-### Connecting to Services
+### Connecting to PostgreSQL
 
-#### PostgreSQL Database
 Connect using any database client with these credentials:
 - **Host:** `localhost`
 - **Port:** `5432`
@@ -182,18 +174,10 @@ Connect using any database client with these credentials:
 - **Username:** `nosilha`
 - **Password:** `nosilha`
 
-#### Firestore Emulator
-- **URL:** `http://localhost:8081`
-- **Project ID:** Configure in your application as needed
-
-#### Google Cloud Storage Emulator
-- **URL:** `http://localhost:8082`
-- **Access:** Configure your application to use this endpoint for local development
-
 ### Useful Docker Commands
 
 ```bash
-# Start default services (db + emulators only)
+# Start default services (database only)
 cd infrastructure/docker && docker-compose up -d
 
 # Start with specific profiles
@@ -208,8 +192,6 @@ cd infrastructure/docker && docker-compose down
 cd infrastructure/docker && docker-compose logs -f db
 cd infrastructure/docker && docker-compose logs -f backend
 cd infrastructure/docker && docker-compose logs -f frontend
-cd infrastructure/docker && docker-compose logs -f firestore-emulator
-cd infrastructure/docker && docker-compose logs -f gcs-emulator
 
 # Restart specific services
 cd infrastructure/docker && docker-compose restart db
@@ -228,6 +210,13 @@ cd infrastructure/docker && docker-compose down -v
 - Database data is stored in `infrastructure/docker/data/`
 - Data persists between container restarts
 - To completely reset the database, stop the container and delete the `data` folder
+
+## Media Storage
+
+- **Development**: Media files are stored on the local filesystem in the `./uploads` directory
+- **Production**: Cloud storage integration (deferred)
+
+The backend automatically creates the uploads directory on startup. Uploaded files are served via the `/api/v1/media/files/{fileName}` endpoint.
 
 ## Development Workflow
 
@@ -284,26 +273,6 @@ cd infrastructure/docker && docker-compose down
 - Ensure the database is empty for the first migration
 - Check Flyway logs in the application output
 
-### Emulator Issues
-
-**If Firestore emulator won't start:**
-
-- Check if port 8081 is already in use: `lsof -i :8081`
-- Ensure Google Cloud SDK image is available
-- Check emulator logs: `docker-compose logs firestore-emulator`
-
-**If GCS emulator won't start:**
-
-- Check if port 8082 is already in use: `lsof -i :8082`
-- Verify fake-gcs-server image is available
-- Check emulator logs: `docker-compose logs gcs-emulator`
-
-**If your application can't connect to emulators:**
-
-- Verify emulator URLs in your application configuration
-- For Firestore: Set `FIRESTORE_EMULATOR_HOST=localhost:8081`
-- For GCS: Configure your client to use `http://localhost:8082`
-
 ### Backend Docker Issues
 
 **If backend image doesn't exist:**
@@ -323,7 +292,7 @@ cd backend
 **If backend can't connect to services:**
 
 - Ensure services are on the same Docker network
-- Use service names (not localhost): `db:5432`, `gcs-emulator:8082`, `firestore-emulator:8081`
+- Use service names (not localhost): `db:5432`
 - Check health status: `docker-compose ps`
 
 **If you need to rebuild after code changes:**

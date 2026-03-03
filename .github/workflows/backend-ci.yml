@@ -9,27 +9,27 @@ on:
   push:
     branches: [main]
     paths:
-      - 'backend/**'
+      - 'apps/api/**'
       - '.github/workflows/backend-ci.yml'
       - '.github/workflows/reusable-security-scan.yml'
       # Exclude documentation and non-functional changes to save costs
-      - '!backend/**/*.md'
-      - '!backend/**/*.txt'
-      - '!backend/**/*.gitignore'
-      - '!backend/**/README*'
-      - '!backend/**/.editorconfig'
+      - '!apps/api/**/*.md'
+      - '!apps/api/**/*.txt'
+      - '!apps/api/**/*.gitignore'
+      - '!apps/api/**/README*'
+      - '!apps/api/**/.editorconfig'
   pull_request:
     branches: [main]
     paths:
-      - 'backend/**'
+      - 'apps/api/**'
       - '.github/workflows/backend-ci.yml'
       - '.github/workflows/reusable-security-scan.yml'
       # Exclude documentation and non-functional changes to save costs
-      - '!backend/**/*.md'
-      - '!backend/**/*.txt'
-      - '!backend/**/*.gitignore'
-      - '!backend/**/README*'
-      - '!backend/**/.editorconfig'
+      - '!apps/api/**/*.md'
+      - '!apps/api/**/*.txt'
+      - '!apps/api/**/*.gitignore'
+      - '!apps/api/**/README*'
+      - '!apps/api/**/.editorconfig'
   workflow_call:
     inputs:
       skip-deploy:
@@ -75,66 +75,37 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./apps/api
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - name: Setup Java & Gradle
+        uses: ./.github/actions/setup-java-gradle
         with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-home-cache-cleanup: true
           cache-read-only: ${{ github.event_name == 'pull_request' }}
-          dependency-graph: 'generate-and-submit'
-        continue-on-error: true
-        id: gradle-setup
-
-      - name: Setup Gradle (fallback without cache)
-        if: failure() && steps.gradle-setup.outcome == 'failure'
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          cache-disabled: true
-          dependency-graph: 'generate-and-submit'
 
       # Configure Testcontainers for optimal CI performance
       - name: Configure Testcontainers
         run: |
           echo "TESTCONTAINERS_REUSE_ENABLE=true" >> $GITHUB_ENV
-          # ACT uses sibling PostgreSQL container (no Docker-in-Docker)
-          if [ "$ACT" = "true" ]; then
-            echo "TESTCONTAINERS_RYUK_DISABLED=true" >> $GITHUB_ENV
-            echo "SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/nosilha_test" >> $GITHUB_ENV
-            echo "SPRING_DATASOURCE_USERNAME=test" >> $GITHUB_ENV
-            echo "SPRING_DATASOURCE_PASSWORD=test" >> $GITHUB_ENV
-            echo "ℹ️ Running in ACT - using sibling PostgreSQL container"
-          else
-            echo "TESTCONTAINERS_RYUK_DISABLED=false" >> $GITHUB_ENV
-            echo "ℹ️ Running in GitHub Actions - using Testcontainers"
-          fi
+          echo "TESTCONTAINERS_RYUK_DISABLED=false" >> $GITHUB_ENV
 
       # Run comprehensive tests with production Java version
+      # Note: detekt temporarily disabled pending 2.0.0 stable release (Java 25 compatibility)
       - name: Run tests and code quality
         run: |
           # Run in parallel but capture exit codes
           ./gradlew ktlintCheck --no-daemon &
           pid1=$!
-          ./gradlew detekt --no-daemon &
-          pid2=$!
           ./gradlew test --no-daemon &
-          pid3=$!
+          pid2=$!
           # ./gradlew integrationTest --no-daemon &
 
           # Wait for all processes and accumulate failures
           exit_code=0
           wait $pid1 || exit_code=1
           wait $pid2 || exit_code=1
-          wait $pid3 || exit_code=1
 
           # Exit with error if any process failed
           exit $exit_code
@@ -146,17 +117,18 @@ jobs:
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: backend/build/reports/ktlint/ktlintMainSourceSetCheck/ktlintMainSourceSetCheck.sarif
+          sarif_file: apps/api/build/reports/ktlint/ktlintMainSourceSetCheck/ktlintMainSourceSetCheck.sarif
           category: 'code-quality-ktlint'
         continue-on-error: true
 
-      - name: Upload detekt SARIF report
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: backend/build/reports/detekt/detekt.sarif
-          category: 'code-quality-detekt'
-        continue-on-error: true
+      # detekt SARIF upload disabled - re-enable when detekt 2.0.0 stable is released
+      # - name: Upload detekt SARIF report
+      #   if: always()
+      #   uses: github/codeql-action/upload-sarif@v3
+      #   with:
+      #     sarif_file: apps/api/build/reports/detekt/detekt.sarif
+      #     category: 'code-quality-detekt'
+      #   continue-on-error: true
 
       # Generate Jacoco coverage report
       - name: Generate coverage report
@@ -178,7 +150,7 @@ jobs:
         uses: codecov/codecov-action@v4
         if: always()
         with:
-          files: ./backend/build/reports/jacoco/test/jacocoTestReport.xml
+          files: ./apps/api/build/reports/jacoco/test/jacocoTestReport.xml
           flags: backend-unit
           name: backend-unit-tests
           fail_ci_if_error: false
@@ -213,7 +185,7 @@ jobs:
         if: always()
         with:
           name: spring-modulith-diagrams
-          path: backend/build/modulith/
+          path: apps/api/build/modulith/
           retention-days: 30
 
       - name: Report test results
@@ -247,7 +219,7 @@ jobs:
       image-digest: ${{ steps.build.outputs.digest }}
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./apps/api
 
     # Add OIDC permissions
     permissions:
@@ -257,45 +229,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - name: Setup Java & Gradle
+        uses: ./.github/actions/setup-java-gradle
         with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-home-cache-cleanup: true
           cache-read-only: ${{ github.event_name == 'pull_request' }}
-          dependency-graph: generate-and-submit
-        continue-on-error: true
-        id: gradle-setup-deploy
 
-      - name: Setup Gradle (fallback without cache)
-        if: failure() && steps.gradle-setup-deploy.outcome == 'failure'
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          cache-disabled: true
-          dependency-graph: generate-and-submit
-
-      # Configure Testcontainers for build-time tests
-      - name: Configure Testcontainers for Build
-        run: |
-          echo "TESTCONTAINERS_REUSE_ENABLE=true" >> $GITHUB_ENV
-          echo "TESTCONTAINERS_RYUK_DISABLED=false" >> $GITHUB_ENV
-
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
-          service_account: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
-
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-
-      - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker ${{ env.REGISTRY }}
+      - name: GCP Authentication
+        uses: ./.github/actions/gcp-auth
 
       # Set up Docker layer caching for faster builds
       - name: Set up Docker Buildx
@@ -352,15 +292,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+      - name: GCP Authentication
+        uses: ./.github/actions/gcp-auth
         with:
-          workload_identity_provider: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
-          service_account: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
-          
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-        
+          configure-docker: 'false'
+
       - name: Deploy to Cloud Run (Production)
         run: |
           # Deploy container image to Cloud Run

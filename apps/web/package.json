@@ -1,0 +1,133 @@
+{
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bravdigital/nosilha.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bravdigital/nosilha/issues"
+  },
+  "homepage": "https://github.com/bravdigital/nosilha#readme",
+  "scripts": {
+    "dev:content": "velite --watch",
+    "build:content": "velite --clean",
+    "dev:next": "next dev",
+    "build:next": "next build",
+    "build:search": "pagefind --site .next/server/app --output-path public/pagefind",
+    "validate:content": "npx tsx scripts/validate-content.ts",
+    "validate:content:full": "npx tsx scripts/validate-content.ts --full",
+    "scaffold:article": "npx tsx scripts/scaffold-article.ts",
+    "check:translations": "npx tsx scripts/check-translations.ts",
+    "dev": "run-p dev:*",
+    "build": "run-s build:content build:next build:search",
+    "start": "next start",
+    "lint": "eslint .",
+    "sync:brand": "node ../scripts/sync-brand-tokens.mjs",
+    "clean": "rm -rf .next playwright-report test-results",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:report": "playwright show-report",
+    "test:unit": "vitest --project unit",
+    "mcp:server": "npx @playwright/mcp@latest --config .mcp/server-config.json",
+    "mcp:server:headless": "npx @playwright/mcp@latest --config .mcp/server-config.json --headless",
+    "mcp:server:port": "npx @playwright/mcp@latest --config .mcp/server-config.json --port 8931",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint:fix": "eslint . --fix && prettier --write .",
+    "lint:all": "eslint . && prettier --check .",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@headlessui/react": "^2.2.4",
+    "@hookform/resolvers": "^5.2.2",
+    "@next/third-parties": "16.0.3",
+    "@octokit/rest": "^21.1.1",
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.50.0",
+    "@tanstack/react-query": "^5.90.3",
+    "@tanstack/react-query-devtools": "^5.90.2",
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.23.24",
+    "lucide-react": "^0.553.0",
+    "mapbox-gl": "^3.12.0",
+    "next": "16.0.7",
+    "next-router-mock": "^1.0.4",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "react-hook-form": "^7.65.0",
+    "react-map-gl": "^8.0.4",
+    "react-markdown": "^10.1.0",
+    "react-syntax-highlighter": "^16.1.0",
+    "recharts": "^3.6.0",
+    "rehype-pretty-code": "^0.14.1",
+    "resend": "^6.5.0",
+    "shiki": "^3.15.0",
+    "supercluster": "^8.0.1",
+    "use-supercluster": "^1.2.0",
+    "velite": "^0.3.0",
+    "zod": "^4.1.12",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "lightningcss-linux-x64-gnu": "1.30.2",
+    "@microsoft/eslint-formatter-sarif": "^3.1.0",
+    "@next/bundle-analyzer": "16.0.3",
+    "@playwright/test": "^1.56.0",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/postcss": "^4",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/geojson": "^7946.0.16",
+    "@types/mapbox-gl": "^3.4.1",
+    "@types/mdx": "^2.0.13",
+    "@types/node": "^20.19.0",
+    "@types/react": "19.2.6",
+    "@types/react-dom": "19.2.3",
+    "@types/supercluster": "^7.1.3",
+    "@vitejs/plugin-react": "^4.7.0",
+    "dotenv": "^16.3.1",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.3",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
+    "jsdom": "^27.0.0",
+    "lint-staged": "^16.2.7",
+    "npm-run-all": "^4.1.5",
+    "pagefind": "^1.4.0",
+    "playwright": "^1.56.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.6.14",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "^3.2.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "19.2.6",
+      "@types/react-dom": "19.2.3"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --max-warnings=0 --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,yml,yaml}": [
+      "prettier --write"
+    ],
+    "content/**/*.mdx": [
+      "npx tsx scripts/validate-content.ts"
+    ]
+  }
+}

@@ -111,35 +111,18 @@ jobs:
         env:
           TF_PLUGIN_CACHE_DIR: ~/.terraform.d/plugin-cache
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+      - name: GCP Authentication
+        uses: ./.github/actions/gcp-auth
         with:
-          workload_identity_provider: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
-          service_account: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
+          configure-docker: 'false'
 
       - name: Terraform Init
         run: terraform init -reconfigure
-        
+
       - name: Handle existing state locks
-        run: |
-          echo "Checking for existing Terraform locks..."
-          # Force unlock the specific problematic lock if it exists
-          terraform force-unlock -force 1752177952260121 || true
-          # General lock cleanup - extract any lock ID and unlock
-          LOCK_OUTPUT=$(terraform plan 2>&1 || true)
-          if echo "$LOCK_OUTPUT" | grep -q "Error acquiring the state lock"; then
-            echo "Lock detected, attempting cleanup..."
-            LOCK_ID=$(echo "$LOCK_OUTPUT" | grep -A 10 "Lock Info:" | grep "ID:" | awk '{print $2}' | head -n1)
-            if [ -n "$LOCK_ID" ]; then
-              echo "Unlocking state with ID: $LOCK_ID"
-              terraform force-unlock -force "$LOCK_ID" || true
-              sleep 5
-            fi
-          else
-            echo "No lock detected, proceeding..."
-          fi
+        run: ${{ github.workspace }}/.github/scripts/terraform-lock-cleanup.sh
         continue-on-error: true
-        
+
       - name: Terraform Plan
         id: plan
         run: terraform plan -no-color -out=tfplan
@@ -156,17 +139,7 @@ jobs:
           
       - name: Cleanup locks on failure
         if: failure()
-        run: |
-          echo "Workflow failed, cleaning up any remaining locks..."
-          # Try to extract and unlock any remaining lock IDs
-          LOCK_OUTPUT=$(terraform plan 2>&1 || true)
-          if echo "$LOCK_OUTPUT" | grep -q "Lock Info:"; then
-            LOCK_ID=$(echo "$LOCK_OUTPUT" | grep -A 10 "Lock Info:" | grep "ID:" | awk '{print $2}' | head -n1)
-            if [ -n "$LOCK_ID" ]; then
-              echo "Force unlocking state with ID: $LOCK_ID"
-              terraform force-unlock -force "$LOCK_ID" || true
-            fi
-          fi
+        run: ${{ github.workspace }}/.github/scripts/terraform-lock-cleanup.sh
         continue-on-error: true
 
   plan-comment:
@@ -237,35 +210,18 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+      - name: GCP Authentication
+        uses: ./.github/actions/gcp-auth
         with:
-          workload_identity_provider: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
-          service_account: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
+          configure-docker: 'false'
 
       - name: Terraform Init
         run: terraform init -reconfigure
-        
+
       - name: Handle existing state locks
-        run: |
-          echo "Checking for existing Terraform locks..."
-          # Force unlock the specific problematic lock if it exists
-          terraform force-unlock -force 1752177952260121 || true
-          # General lock cleanup - extract any lock ID and unlock
-          LOCK_OUTPUT=$(terraform plan 2>&1 || true)
-          if echo "$LOCK_OUTPUT" | grep -q "Error acquiring the state lock"; then
-            echo "Lock detected, attempting cleanup..."
-            LOCK_ID=$(echo "$LOCK_OUTPUT" | grep -A 10 "Lock Info:" | grep "ID:" | awk '{print $2}' | head -n1)
-            if [ -n "$LOCK_ID" ]; then
-              echo "Unlocking state with ID: $LOCK_ID"
-              terraform force-unlock -force "$LOCK_ID" || true
-              sleep 5
-            fi
-          else
-            echo "No lock detected, proceeding..."
-          fi
+        run: ${{ github.workspace }}/.github/scripts/terraform-lock-cleanup.sh
         continue-on-error: true
-        
+
       - name: Terraform Plan with retry
         run: |
           MAX_RETRIES=3
@@ -304,17 +260,7 @@ jobs:
           
       - name: Cleanup locks on failure
         if: failure()
-        run: |
-          echo "Workflow failed, cleaning up any remaining locks..."
-          # Try to extract and unlock any remaining lock IDs
-          LOCK_OUTPUT=$(terraform plan 2>&1 || true)
-          if echo "$LOCK_OUTPUT" | grep -q "Lock Info:"; then
-            LOCK_ID=$(echo "$LOCK_OUTPUT" | grep -A 10 "Lock Info:" | grep "ID:" | awk '{print $2}' | head -n1)
-            if [ -n "$LOCK_ID" ]; then
-              echo "Force unlocking state with ID: $LOCK_ID"
-              terraform force-unlock -force "$LOCK_ID" || true
-            fi
-          fi
+        run: ${{ github.workspace }}/.github/scripts/terraform-lock-cleanup.sh
         continue-on-error: true
 
   drift-detection:
@@ -339,35 +285,18 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
           terraform_wrapper: false
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+      - name: GCP Authentication
+        uses: ./.github/actions/gcp-auth
         with:
-          workload_identity_provider: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
-          service_account: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
+          configure-docker: 'false'
 
       - name: Terraform Init
         run: terraform init -reconfigure
-        
+
       - name: Handle existing state locks
-        run: |
-          echo "Checking for existing Terraform locks..."
-          # Force unlock the specific problematic lock if it exists
-          terraform force-unlock -force 1752177952260121 || true
-          # General lock cleanup - extract any lock ID and unlock
-          LOCK_OUTPUT=$(terraform plan 2>&1 || true)
-          if echo "$LOCK_OUTPUT" | grep -q "Error acquiring the state lock"; then
-            echo "Lock detected, attempting cleanup..."
-            LOCK_ID=$(echo "$LOCK_OUTPUT" | grep -A 10 "Lock Info:" | grep "ID:" | awk '{print $2}' | head -n1)
-            if [ -n "$LOCK_ID" ]; then
-              echo "Unlocking state with ID: $LOCK_ID"
-              terraform force-unlock -force "$LOCK_ID" || true
-              sleep 5
-            fi
-          else
-            echo "No lock detected, proceeding..."
-          fi
+        run: ${{ github.workspace }}/.github/scripts/terraform-lock-cleanup.sh
         continue-on-error: true
-        
+
       - name: Check for Configuration Drift
         id: drift
         run: |
@@ -412,15 +341,5 @@ jobs:
         
       - name: Cleanup locks on failure
         if: failure()
-        run: |
-          echo "Workflow failed, cleaning up any remaining locks..."
-          # Try to extract and unlock any remaining lock IDs
-          LOCK_OUTPUT=$(terraform plan 2>&1 || true)
-          if echo "$LOCK_OUTPUT" | grep -q "Lock Info:"; then
-            LOCK_ID=$(echo "$LOCK_OUTPUT" | grep -A 10 "Lock Info:" | grep "ID:" | awk '{print $2}' | head -n1)
-            if [ -n "$LOCK_ID" ]; then
-              echo "Force unlocking state with ID: $LOCK_ID"
-              terraform force-unlock -force "$LOCK_ID" || true
-            fi
-          fi
+        run: ${{ github.workspace }}/.github/scripts/terraform-lock-cleanup.sh
         continue-on-error: true

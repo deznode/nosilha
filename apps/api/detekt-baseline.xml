@@ -1,0 +1,34 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LongMethod:Mapper.kt$fun DirectoryEntry.toDto(): DirectoryEntryDto</ID>
+    <ID>LongMethod:ProfileService.kt$ProfileService$@Transactional(readOnly = true) fun getContributions(userId: String): ContributionsDto</ID>
+    <ID>LongMethod:RelatedContentService.kt$RelatedContentService$fun findRelatedContent( contentId: UUID, limit: Int = 5, ): List&lt;DirectoryEntry&gt;</ID>
+    <ID>MagicNumber:JwtAuthenticationFilter.kt$JwtAuthenticationFilter$7</ID>
+    <ID>MagicNumber:RelatedContentController.kt$RelatedContentController$3</ID>
+    <ID>MagicNumber:RelatedContentController.kt$RelatedContentController$5</ID>
+    <ID>MagicNumber:RelatedContentService.kt$RelatedContentService$3</ID>
+    <ID>MagicNumber:RelatedContentService.kt$RelatedContentService$5</ID>
+    <ID>MaxLineLength:ProfileController.kt$ProfileController$description = "Retrieves a paginated list of the user's bookmarks with full directory entry details, ordered by creation date (newest first)."</ID>
+    <ID>SpreadOperator:NosIlhaCoreApplication.kt$(*args)</ID>
+    <ID>SwallowedException:ProfileService.kt$ProfileService$e: IllegalArgumentException</ID>
+    <ID>SwallowedException:SuggestionController.kt$SuggestionController$e: HoneypotSpamDetectedException</ID>
+    <ID>ThrowsCount:BookmarkService.kt$BookmarkService$fun createBookmark( userId: String, entryId: UUID, ): BookmarkDto</ID>
+    <ID>TooGenericExceptionCaught:JwtAuthenticationFilter.kt$JwtAuthenticationFilter$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ProfileService.kt$ProfileService$e: Exception</ID>
+    <ID>UnusedPrivateProperty:ReactionService.kt$ReactionService.Companion$private const val CACHE_TTL_MINUTES = 5</ID>
+    <ID>UseCheckOrError:Mapper.kt$throw IllegalStateException("Cannot map an entity with a null ID to a DTO.")</ID>
+    <ID>UseCheckOrError:Mapper.kt$throw IllegalStateException("Unknown DirectoryEntry type: ${this::class.simpleName}")</ID>
+    <ID>UseCheckOrError:Mapper.kt$throw IllegalStateException("Unsupported or unknown DirectoryEntry type: ${this::class.simpleName}")</ID>
+    <ID>UseCheckOrError:ProfileController.kt$ProfileController$throw IllegalStateException("Authentication name must be present (user ID)")</ID>
+    <ID>UseCheckOrError:ReactionController.kt$ReactionController$throw IllegalStateException("Authentication principal must be a string (user ID)")</ID>
+    <ID>WildcardImport:Bookmark.kt$import jakarta.persistence.*</ID>
+    <ID>WildcardImport:ContactMessage.kt$import jakarta.persistence.*</ID>
+    <ID>WildcardImport:Reaction.kt$import jakarta.persistence.*</ID>
+    <ID>WildcardImport:RelatedContentControllerTest.kt$import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*</ID>
+    <ID>WildcardImport:Suggestion.kt$import jakarta.persistence.*</ID>
+    <ID>WildcardImport:SuggestionControllerTest.kt$import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*</ID>
+    <ID>WildcardImport:UserProfile.kt$import jakarta.persistence.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

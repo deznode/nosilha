@@ -1,5 +1,9 @@
 settings.local.json
 
+# Dependencies
+node_modules/
+.pnpm-store/
+
 # IDE and Editor files
 .vscode/
 .idea/
@@ -78,12 +82,18 @@ k6-*.json
 # Local CI/CD artifacts
 .github/artifacts/
 
-.playwright-mcp
+# Playwright MCP cache (738MB+ - must be excluded)
+.playwright-mcp/
+
+# Ideation prototype (nested git repo - temporary reference)
+nosilha-ideate/
 
 # Velite build output
-frontend/.velite
+apps/web/.velite
 
 /CHANGELOG.md
 
-# Symbolic link to external plugin repository
-/arkhe-claude-plugins
+arkhe-claude-plugins
+
+# Nx cache
+.nx/

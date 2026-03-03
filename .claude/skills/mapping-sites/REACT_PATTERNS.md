@@ -9,7 +9,7 @@ Use this pattern for the main interactive map component with cultural heritage s
 ### Complete Component Implementation
 
 ```typescript
-// frontend/src/components/ui/interactive-map.tsx
+// apps/web/src/components/ui/interactive-map.tsx
 import { useRef, useEffect, useCallback, useState } from 'react'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
@@ -324,7 +324,7 @@ Use this pattern for reusable map state management and lifecycle handling.
 ### Custom Hook Implementation
 
 ```typescript
-// frontend/src/hooks/useMapbox.ts
+// apps/web/src/hooks/useMapbox.ts
 import { useRef, useEffect, useState, useCallback } from 'react'
 import mapboxgl from 'mapbox-gl'
 
@@ -491,7 +491,7 @@ Use this pattern to transform cultural heritage directory data into GeoJSON form
 ### Transformation Function
 
 ```typescript
-// frontend/src/lib/geojson-utils.ts
+// apps/web/src/lib/geojson-utils.ts
 import type { CulturalSite, CulturalCategory } from '@/types/directory'
 
 export const transformToGeoJSON = (
@@ -582,7 +582,7 @@ Use these interfaces for type-safe map development.
 ### Map Data Interfaces
 
 ```typescript
-// frontend/src/types/mapbox.ts
+// apps/web/src/types/mapbox.ts
 import type { CulturalCategory } from './directory'
 
 export interface MapboxConfig {
