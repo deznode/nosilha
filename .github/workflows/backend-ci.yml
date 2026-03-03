@@ -170,9 +170,9 @@ jobs:
         run: |
           echo "📊 Generating Spring Modulith PlantUML diagrams..."
           ./gradlew generateModulithDocs --no-daemon
-          if [ -d "build/modulith" ]; then
+          if [ -d "build/spring-modulith-docs" ]; then
             echo "✅ Module documentation generated successfully!"
-            ls -la build/modulith/
+            ls -la build/spring-modulith-docs/
           else
             echo "⚠️  Module documentation directory not found"
           fi
@@ -185,7 +185,7 @@ jobs:
         if: always()
         with:
           name: spring-modulith-diagrams
-          path: apps/api/build/modulith/
+          path: apps/api/build/spring-modulith-docs/
           retention-days: 30
 
       - name: Report test results

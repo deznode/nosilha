@@ -177,7 +177,7 @@ tasks.register("generateModulithDocs") {
     dependsOn(tasks.test)
     doLast {
         println("Spring Modulith documentation will be generated during test execution")
-        println("See build/modulith/ for generated PlantUML diagrams")
+        println("See build/spring-modulith-docs/ for generated PlantUML diagrams")
     }
 }
 

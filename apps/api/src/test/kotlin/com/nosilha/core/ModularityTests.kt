@@ -95,7 +95,7 @@ class ModularityTests {
                 .writeIndividualModulesAsPlantUml() // Individual module details
 
             println("✅ Module documentation generated successfully!")
-            println("Check build/modulith/ directory for PlantUML diagrams")
+            println("Check build/spring-modulith-docs/ directory for PlantUML diagrams")
         } catch (e: Exception) {
             println("❌ Module documentation generation failed (expected in TDD approach)")
             println("Error: ${e.message}")

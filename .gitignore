@@ -107,3 +107,10 @@ arkhe-claude-plugins
 
 .worktrees
 credentials.json
+
+# Large media files (use external storage/CDN instead)
+*.mp4
+*.mov
+*.avi
+*.webm
+*.mkv
