@@ -241,3 +241,23 @@ If the project grows to require independent scaling or technology heterogeneity,
 - Communicate via events (no direct method calls)
 - Have no shared state beyond the database
 - Have clearly defined public APIs (controllers and events)
+
+## Implementation Notes
+
+> **Module name drift (as of 2026-03):** Since this ADR was written, the following modules were renamed:
+> - `directory/` → `places/`
+> - `media/` → `gallery/`
+> - `curatedmedia/` was removed (functionality merged into `gallery/`)
+>
+> Two modules were added: `ai/` (image analysis, moderation) and `config/` (Caffeine cache).
+>
+> **Class name drift:**
+> - `DirectoryService` → `DirectoryEntryService`
+> - `MediaService` → `GalleryService`
+>
+> **Schema drift:**
+> - STI discriminator column: `entry_type` → `category`
+> - `Landmark` subclass was never implemented; `Heritage` serves this role
+> - Five additional STI subclasses added per [ADR-0011](0011-native-10-category-directory-system.md): Town, Viewpoint, Trail, Church, Port
+>
+> The architectural decision (modular monolith with event-driven communication) remains unchanged.

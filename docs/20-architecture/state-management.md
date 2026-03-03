@@ -185,6 +185,11 @@ export const directoryEntrySchema = z.discriminatedUnion("category", [
   baseSchema.extend({ category: z.literal("Beach"), details: z.null() }),
   baseSchema.extend({ category: z.literal("Heritage"), details: z.null() }),
   baseSchema.extend({ category: z.literal("Nature"), details: z.null() }),
+  baseSchema.extend({ category: z.literal("Town"), details: z.null() }),
+  baseSchema.extend({ category: z.literal("Viewpoint"), details: z.null() }),
+  baseSchema.extend({ category: z.literal("Trail"), details: z.null() }),
+  baseSchema.extend({ category: z.literal("Church"), details: z.null() }),
+  baseSchema.extend({ category: z.literal("Port"), details: z.null() }),
 ]);
 ```
 

@@ -282,7 +282,7 @@ Consistent styling for section titles (h3 elements).
 
 **Styling**:
 
-- Font: Serif (Merriweather)
+- Font: Serif (Fraunces)
 - Size: 2xl
 - Weight: Bold
 - Spacing: mb-8 (bottom margin)

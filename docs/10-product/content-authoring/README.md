@@ -628,7 +628,7 @@ import { Section } from "@/components/content/section";
 - **Translation Guide**: [translations.md](./translations.md)
 - **Quick Reference**: [quick-reference.md](./quick-reference.md)
 - **Design System**: [../design-system.md](../design-system.md)
-- **GitHub Issues**: [Report a bug or request a feature](https://github.com/bravdigital/nosilha/issues)
+- **GitHub Issues**: [Report a bug or request a feature](https://github.com/deznode/nosilha/issues)
 
 ## Cultural Heritage Guidelines
 

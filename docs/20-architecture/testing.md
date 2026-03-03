@@ -49,11 +49,15 @@ pnpm run test:unit           # Run once
 pnpm run test:unit --watch   # Watch mode
 ```
 
-**Test files** (`apps/web/tests/unit/`):
-- `stores/authStore.test.ts` - Zustand auth state
-- `stores/filterStore.test.ts` - Directory filter state
-- `stores/uiStore.test.ts` - UI state management
-- `hooks/useDirectoryEntries.test.tsx` - TanStack Query hook
+**Test files** (`apps/web/tests/unit/`) — 22 tests across 5 categories:
+
+| Directory | Tests | Purpose |
+|-----------|-------|---------|
+| `stores/` | authStore, filterStore, uiStore, mapStore | Zustand store state transitions |
+| `hooks/` | useDirectoryEntries + 9 admin hooks | TanStack Query hooks |
+| `components/gallery/` | gallery-map-canvas, masonry-photo-grid, youtube-facade | Gallery UI components |
+| `features/map/` | locations-adapter, useFilteredLocations | Map feature logic |
+| `lib/` | exif-utils, gallery-mappers, gps-privacy | Utility functions |
 
 ---
 

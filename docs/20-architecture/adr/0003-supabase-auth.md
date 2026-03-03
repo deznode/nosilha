@@ -103,3 +103,10 @@ Spring Security enforces access -> /api/v1/admin/** requires ADMIN role
 - `/docs/20-architecture/supabase-admin-roles.md` - Role configuration guide
 - `/apps/web/src/components/providers/auth-provider.tsx` - Frontend auth implementation
 - `/apps/api/src/main/kotlin/com/nosilha/core/auth/security/JwtAuthenticationFilter.kt` - Backend JWT validation
+
+## Implementation Notes
+
+> **Class rename (as of 2026-01):** `JwtAuthenticationFilter.kt` was replaced by `SupabaseJwtAuthenticationConverter.kt` when the implementation migrated from a custom servlet filter to Spring Security's OAuth2 Resource Server with `JwtAuthenticationConverter`. References to `JwtAuthenticationFilter` in this ADR reflect the original design. The file path is now:
+> `apps/api/src/main/kotlin/com/nosilha/core/auth/security/SupabaseJwtAuthenticationConverter.kt`
+>
+> The decision to use Supabase Auth remains unchanged.

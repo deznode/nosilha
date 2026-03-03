@@ -14,6 +14,7 @@ Each research document has two sections:
 |------|-------|----------|------|
 | [tailwindcss-v4-color-tokens](./tailwindcss-v4-color-tokens.md) | Tailwind CSS v4 Color Token Systems and Design Patterns | 2026-01-23 | tailwindcss, design-tokens, dark-mode, oklch |
 | [spring-modulith-event-testing](./spring-modulith-event-testing.md) | Spring Modulith Event Testing Patterns | 2026-02-07 | spring-modulith, testing, events |
+| [mobile-first-performance-nextjs16](./mobile-first-performance-nextjs16.md) | Mobile-First Frontend Performance with Next.js 16 | 2026-02-26 | nextjs, performance, mobile, ppr, mapbox |
 
 ## Commands
 

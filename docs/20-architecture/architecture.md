@@ -263,7 +263,7 @@ flowchart TB
 |--------|---------|--------------|
 | `shared` | Foundation layer | AuditableEntity, DomainEvent, exceptions |
 | `auth` | Authentication | User, UserProfile, JWT validation |
-| `places` | Directory entries | DirectoryEntry (STI: Restaurant, Hotel, Beach, Heritage, Nature) |
+| `places` | Directory entries | DirectoryEntry (STI: Restaurant, Hotel, Beach, Heritage, Nature, Town, Viewpoint, Trail, Church, Port) |
 | `gallery` | Media management | GalleryMedia, UserUploadedMedia, R2 storage |
 | `engagement` | User interactions | Reaction, Bookmark, Content |
 | `stories` | Community narratives | StorySubmission, MdxArchive |
@@ -460,7 +460,13 @@ Key decisions are documented in `/docs/20-architecture/adr/`. Each ADR explains 
 | [ADR-002](adr/0002-spring-modulith.md) | Modular monolith | Chose Spring Modulith over microservices for solo-maintainer operational simplicity with enforced module boundaries | Accepted |
 | [ADR-003](adr/0003-supabase-auth.md) | Supabase authentication | External auth provider to minimize security surface and maintenance burden (50K free MAU) | Accepted |
 | [ADR-004](adr/0004-es256-jwt-algorithm.md) | ES256 JWT algorithm | Custom JwtDecoder for Supabase's asymmetric keys (Spring Security defaults to RS256) | Accepted |
+| [ADR-005](adr/0005-workload-identity-federation.md) | Workload Identity Federation | Keyless CI/CD authentication for GitHub Actions to GCP via OIDC | Accepted |
+| [ADR-006](adr/0006-free-tier-cost-optimization.md) | Free tier cost optimization | Auto-scaling with cpu_idle=true to maximize GCP free tier utilization | Accepted |
 | [ADR-007](adr/0007-ai-module-endpoint-ownership.md) | AI module endpoint ownership | Trigger endpoints in gallery, query/moderation endpoints in AI module | Accepted |
+| [ADR-008](adr/0008-ai-api-authentication-strategy.md) | AI API authentication strategy | Developer API key for Gemini, Application Default Credentials for Cloud Vision | Accepted |
+| [ADR-009](adr/0009-spring-ai-gemini-integration.md) | Spring AI for Gemini | Migrated from Google GenAI SDK to Spring AI ChatClient for structured output and testability | Accepted |
+| [ADR-010](adr/0010-bravamap-component-decomposition.md) | BravaMap decomposition | State-driven architecture decomposing monolithic map component into 9 focused components | Proposed |
+| [ADR-011](adr/0011-native-10-category-directory-system.md) | Native 10-category directory | Five new STI subclasses (Town, Viewpoint, Trail, Church, Port) replacing tag-based workaround | Accepted |
 
 **When to read ADRs**: If you're modifying authentication, module boundaries, or build tooling, read the relevant ADR first to understand constraints and rationale.
 
