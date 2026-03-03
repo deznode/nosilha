@@ -54,13 +54,18 @@ on:
         required: false
         default: false
         type: boolean
+      deploy_ref:
+        description: 'Git SHA or tag to deploy (for rollbacks). Leave empty for current main.'
+        required: false
+        default: ''
+        type: string
 
 env:
   REGISTRY: us-east1-docker.pkg.dev
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   REGION: us-east1
   SERVICE_NAME: nosilha-frontend
-  IMAGE_TAG: ${{ github.sha }}
+  IMAGE_TAG: ${{ inputs.deploy_ref || github.sha }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -211,6 +216,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.deploy_ref || github.sha }}
 
       - name: Setup Node & pnpm
         uses: ./.github/actions/setup-node-pnpm

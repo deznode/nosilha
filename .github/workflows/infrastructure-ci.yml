@@ -11,6 +11,8 @@ on:
     paths:
       - 'infrastructure/**'
       - '.github/workflows/infrastructure-ci.yml'
+  schedule:
+    - cron: '0 6 * * 1'  # Every Monday at 06:00 UTC — runs drift detection
   workflow_call:
     inputs:
       skip-deploy:
@@ -190,6 +192,9 @@ jobs:
               body: output
             });
 
+  # NOTE: Consider configuring GitHub environment protection rules for "production":
+  # Settings → Environments → production → Required reviewers
+  # This adds a manual approval gate before Terraform applies infrastructure changes.
   apply:
     name: Terraform Apply
     runs-on: ubuntu-latest
