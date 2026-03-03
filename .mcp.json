@@ -2,50 +2,34 @@
   "mcpServers": {
     "sequential-thinking": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
-      ]
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
     },
     "next-devtools": {
       "command": "npx",
-      "args": [
-        "-y",
-        "next-devtools-mcp@latest"
-      ]
+      "args": ["-y", "next-devtools-mcp@latest"]
     },
     "supabase": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@supabase/mcp-server-supabase"
-      ],
+      "args": ["-y", "@supabase/mcp-server-supabase"],
       "env": {
         "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}"
       }
     },
     "stitch": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@_davideast/stitch-mcp",
-        "proxy"
-      ],
+      "args": ["-y", "@_davideast/stitch-mcp", "proxy"],
       "env": {
         "STITCH_PROJECT_ID": "nosilha",
         "STITCH_USE_SYSTEM_GCLOUD": "1"
       }
     },
-        "mapbox": {
-          "type": "stdio",
-          "command": "npx",
-          "args": [
-            "-y",
-            "@mapbox/mcp-server"
-          ],
-          "env": {
-            "MAPBOX_ACCESS_TOKEN": "${MAPBOX_ACCESS_TOKEN}"
-          }
-        }
+    "mapbox": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@mapbox/mcp-server"],
+      "env": {
+        "MAPBOX_ACCESS_TOKEN": "${MAPBOX_ACCESS_TOKEN}"
+      }
+    }
   }
 }
