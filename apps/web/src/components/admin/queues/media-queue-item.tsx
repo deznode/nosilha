@@ -43,7 +43,7 @@ function StatusBadge({ status }: { status: MediaStatus }) {
   );
 }
 
-const getSeverityLabel = (severity: number): string | null => {
+function getSeverityLabel(severity: number): string | null {
   switch (severity) {
     case 1:
       return "Low";
@@ -54,9 +54,9 @@ const getSeverityLabel = (severity: number): string | null => {
     default:
       return null;
   }
-};
+}
 
-const getSeverityColor = (severity: number): string => {
+function getSeverityColor(severity: number): string {
   switch (severity) {
     case 1:
       return "text-yellow-600 dark:text-yellow-400";
@@ -67,7 +67,7 @@ const getSeverityColor = (severity: number): string => {
     default:
       return "text-muted";
   }
-};
+}
 
 export function MediaQueueItem({
   media,
@@ -103,7 +103,7 @@ export function MediaQueueItem({
               {media.title}
             </p>
           </div>
-          <div className="ml-2 flex-shrink-0">
+          <div className="ml-2 shrink-0">
             <StatusBadge status={media.status} />
           </div>
         </div>
@@ -114,7 +114,7 @@ export function MediaQueueItem({
             <button
               onClick={isImage && onPreview ? onPreview : undefined}
               disabled={!isImage || !onPreview}
-              className="group border-hairline bg-surface-alt relative h-20 w-28 flex-shrink-0 overflow-hidden rounded border disabled:cursor-default"
+              className="group border-hairline bg-surface-alt relative h-20 w-28 shrink-0 overflow-hidden rounded border disabled:cursor-default"
             >
               <Image
                 src={media.thumbnailUrl}
@@ -130,7 +130,7 @@ export function MediaQueueItem({
               )}
             </button>
           ) : (
-            <div className="border-hairline bg-surface-alt flex h-20 w-28 flex-shrink-0 items-center justify-center rounded border">
+            <div className="border-hairline bg-surface-alt flex h-20 w-28 shrink-0 items-center justify-center rounded border">
               <ImageIcon className="text-muted h-8 w-8" />
             </div>
           )}
@@ -141,7 +141,9 @@ export function MediaQueueItem({
             {media.uploadedBy && (
               <p className="text-muted mt-1 text-xs">
                 Uploaded by:{" "}
-                <span className="font-medium">{media.uploadedBy}</span>
+                <span className="font-medium">
+                  {media.uploaderDisplayName || media.uploadedBy}
+                </span>
               </p>
             )}
             <p className="text-muted mt-1 text-xs">

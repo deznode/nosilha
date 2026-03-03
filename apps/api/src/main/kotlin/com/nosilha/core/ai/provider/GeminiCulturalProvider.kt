@@ -1,5 +1,7 @@
 package com.nosilha.core.ai.provider
 
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.nosilha.core.ai.domain.AnalysisCapability
 import com.nosilha.core.ai.domain.CulturalPromptTemplates
@@ -26,11 +28,13 @@ private val logger = KotlinLogging.logger {}
  * ensuring the response always matches this structure.
  */
 @JsonPropertyOrder("altText", "description", "tags")
-data class GeminiCulturalResponse(
-    val altText: String,
-    val description: String,
-    val tags: List<String>,
-)
+data class GeminiCulturalResponse
+    @JsonCreator
+    constructor(
+        @param:JsonProperty("altText") val altText: String,
+        @param:JsonProperty("description") val description: String,
+        @param:JsonProperty("tags") val tags: List<String>,
+    )
 
 /**
  * Google Gemini provider for culturally-aware image descriptions.

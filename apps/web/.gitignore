@@ -21,7 +21,6 @@
 /playwright-report/
 /blob-report/
 /playwright/.cache/
-/playwright-mcp-output/
 
 # Lighthouse CI
 /.lighthouseci/
@@ -48,6 +47,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.local.mock
+!.env.local.example
 
 # vercel
 .vercel

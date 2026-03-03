@@ -155,7 +155,7 @@ class AdminStoryController(
         @Valid @RequestBody request: UpdateStoryStatusRequest,
         authentication: Authentication,
     ): ResponseEntity<ApiResult<StoryDetailDto>> {
-        val adminId = authentication.name
+        val adminId = UUID.fromString(authentication.name)
         val updated =
             storyService.updateStoryStatus(
                 id = id,
@@ -241,7 +241,7 @@ class AdminStoryController(
         @Valid @RequestBody request: MarkArchivedRequest,
         authentication: Authentication,
     ): ResponseEntity<ApiResult<StoryDetailDto>> {
-        val adminId = authentication.name
+        val adminId = UUID.fromString(authentication.name)
         val updated =
             storyService.markAsArchived(
                 id = id,

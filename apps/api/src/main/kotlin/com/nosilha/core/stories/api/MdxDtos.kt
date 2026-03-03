@@ -104,5 +104,5 @@ data class MdxCommitResultDto(
     val slug: String,
     val mdxPath: String,
     val committedAt: Instant,
-    val committedBy: String,
+    val committedBy: UUID,
 )

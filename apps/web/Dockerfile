@@ -18,8 +18,8 @@ RUN corepack enable && corepack prepare pnpm@10 --activate
 # This stage is dedicated to installing production dependencies with BuildKit cache mount.
 FROM base AS deps
 
-# Copy workspace configuration files from repo root
-COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copy workspace configuration files from repo root (including root package.json for pnpm overrides)
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 
 # Copy package.json files for the web app
 COPY apps/web/package.json apps/web/.npmrc* ./apps/web/
@@ -48,8 +48,8 @@ ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_GA_ID=$NEXT_PUBLIC_GA_ID
 ENV NEXT_PUBLIC_CLARITY_PROJECT_ID=$NEXT_PUBLIC_CLARITY_PROJECT_ID
 
-# Copy workspace configuration files from repo root
-COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copy workspace configuration files from repo root (including root package.json for pnpm overrides)
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 
 # Copy package.json files for the web app
 COPY apps/web/package.json apps/web/.npmrc* ./apps/web/

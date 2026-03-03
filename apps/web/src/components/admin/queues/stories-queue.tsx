@@ -4,9 +4,18 @@ import { useState } from "react";
 import { Search, Filter } from "lucide-react";
 import { QueueItem } from "./queue-item";
 import { MdxPreviewModal } from "@/components/admin/mdx-preview-modal";
+import { StoryDetailModal } from "@/components/admin/story-detail-modal";
+import { FlagReasonModal } from "@/components/admin/queues/flag-reason-modal";
 import { generateMdx, updateStoryStatus } from "@/lib/api";
 import { archiveStoryToMDX } from "@/app/actions/archive-story";
 import { Button } from "@/components/catalyst-ui/button";
+import {
+  useAdminStories,
+  useUpdateStoryStatus,
+} from "@/hooks/queries/admin";
+import { useToast } from "@/hooks/use-toast";
+import type { StorySubmission } from "@/types/story";
+import { SubmissionStatus } from "@/types/story";
 
 /**
  * Generate a URL-friendly slug from a story title
@@ -18,25 +27,8 @@ function generateSlug(title: string): string {
     .replace(/^-|-$/g, "")
     .slice(0, 100);
 }
-import { useToast } from "@/hooks/use-toast";
-import type { StorySubmission } from "@/types/story";
-import { SubmissionStatus } from "@/types/story";
 
-interface StoriesQueueProps {
-  stories: StorySubmission[];
-  isLoading?: boolean;
-  onStatusChange?: (id: string, status: SubmissionStatus) => void;
-  onViewFull?: (story: StorySubmission) => void;
-  onFlag?: (id: string, title: string) => void;
-}
-
-export function StoriesQueue({
-  stories,
-  isLoading,
-  onStatusChange,
-  onViewFull,
-  onFlag,
-}: StoriesQueueProps) {
+export function StoriesQueue() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<SubmissionStatus | "ALL">(
     "ALL"
@@ -49,7 +41,63 @@ export function StoriesQueue({
   const [_publishingStoryId, setPublishingStoryId] = useState<string | null>(
     null
   );
+
+  // Story detail modal state
+  const [selectedStory, setSelectedStory] = useState<StorySubmission | null>(
+    null
+  );
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
+  // Flag modal state
+  const [isFlagModalOpen, setIsFlagModalOpen] = useState(false);
+  const [storyToFlag, setStoryToFlag] = useState<{
+    id: string;
+    title: string;
+  } | null>(null);
+
+  const storiesQuery = useAdminStories();
+  const updateStory = useUpdateStoryStatus();
   const toast = useToast();
+
+  const stories = storiesQuery.data?.items ?? [];
+  const isLoading = storiesQuery.isLoading;
+
+  const handleStatusChange = (id: string, status: SubmissionStatus) => {
+    const action = status === SubmissionStatus.APPROVED ? "APPROVE" : "REJECT";
+    updateStory.mutate({ id, action });
+  };
+
+  const handleViewStory = (story: StorySubmission) => {
+    setSelectedStory(story);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setIsDetailModalOpen(false);
+    setSelectedStory(null);
+  };
+
+  const handleFlag = (id: string, title: string) => {
+    setStoryToFlag({ id, title });
+    setIsFlagModalOpen(true);
+  };
+
+  const handleFlagConfirm = (reason: string) => {
+    if (storyToFlag) {
+      updateStory.mutate({
+        id: storyToFlag.id,
+        action: "FLAG",
+        notes: reason,
+      });
+    }
+    setIsFlagModalOpen(false);
+    setStoryToFlag(null);
+  };
+
+  const handleFlagClose = () => {
+    setIsFlagModalOpen(false);
+    setStoryToFlag(null);
+  };
 
   const handlePublish = async (story: StorySubmission) => {
     setPublishingStoryId(story.id);
@@ -231,10 +279,10 @@ export function StoriesQueue({
                 commitUrl={story.commitUrl}
                 onApprove={() => handlePublish(story)}
                 onReject={() =>
-                  onStatusChange?.(story.id, SubmissionStatus.REJECTED)
+                  handleStatusChange(story.id, SubmissionStatus.REJECTED)
                 }
-                onViewFull={() => onViewFull?.(story)}
-                onFlag={() => onFlag?.(story.id, story.title)}
+                onViewFull={() => handleViewStory(story)}
+                onFlag={() => handleFlag(story.id, story.title)}
                 onArchive={() => handleArchive(story)}
                 isArchiving={
                   isGeneratingMdx && previewingStory?.id === story.id
@@ -258,6 +306,28 @@ export function StoriesQueue({
           isCommitting={isCommitting}
         />
       )}
+
+      {/* Story Detail Modal */}
+      <StoryDetailModal
+        story={selectedStory}
+        isOpen={isDetailModalOpen}
+        onClose={handleCloseDetailModal}
+        onApprove={(id) =>
+          handleStatusChange(id, SubmissionStatus.APPROVED)
+        }
+        onReject={(id) =>
+          handleStatusChange(id, SubmissionStatus.REJECTED)
+        }
+      />
+
+      {/* Flag Reason Modal */}
+      <FlagReasonModal
+        isOpen={isFlagModalOpen}
+        itemType="Story"
+        itemTitle={storyToFlag?.title || ""}
+        onClose={handleFlagClose}
+        onConfirm={handleFlagConfirm}
+      />
     </div>
   );
 }

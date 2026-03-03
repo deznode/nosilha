@@ -160,7 +160,7 @@ jobs:
 
       - name: Run ESLint with SARIF output
         run: |
-          pnpm run lint -- --format=@microsoft/eslint-formatter-sarif --output-file=eslint-frontend-results.sarif || true
+          pnpm exec eslint . --format=@microsoft/eslint-formatter-sarif --output-file=eslint-frontend-results.sarif || true
         continue-on-error: true
 
       - name: Upload ESLint SARIF results

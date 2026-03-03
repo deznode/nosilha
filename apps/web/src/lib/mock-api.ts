@@ -1785,6 +1785,110 @@ ${story.content
     await this.simulateDelay(500);
     // Mock implementation - just log and return
   }
+
+  // ================================
+  // ADMIN AI REVIEW OPERATIONS
+  // ================================
+
+  async getAiReviewQueue(): Promise<
+    import("@/types/admin").AdminQueueResponse<
+      import("@/types/ai").AnalysisRunSummary
+    >
+  > {
+    await this.simulateDelay(300);
+    return { items: [], total: 0, page: 0, pageSize: 20, hasMore: false };
+  }
+
+  async getAiRunDetail(): Promise<import("@/types/ai").AnalysisRunDetail> {
+    await this.simulateDelay(200);
+    throw new Error("Not found");
+  }
+
+  async approveAiRun(): Promise<void> {
+    await this.simulateDelay(300);
+  }
+
+  async rejectAiRun(): Promise<void> {
+    await this.simulateDelay(300);
+  }
+
+  async approveEditedAiRun(): Promise<void> {
+    await this.simulateDelay(300);
+  }
+
+  async getAiStatus(): Promise<import("@/types/ai").AiStatusResponse[]> {
+    await this.simulateDelay(200);
+    return [];
+  }
+
+  async triggerAnalysis(
+    mediaId: string
+  ): Promise<import("@/types/ai").AnalysisTriggerResponse> {
+    await this.simulateDelay(300);
+    return {
+      mediaId,
+      analysisRunId: crypto.randomUUID(),
+      status: "PENDING",
+    };
+  }
+
+  async triggerBatchAnalysis(
+    request: import("@/types/ai").AnalyzeBatchRequest
+  ): Promise<import("@/types/ai").BatchAnalysisTriggerResponse> {
+    await this.simulateDelay(500);
+    return {
+      batchId: crypto.randomUUID(),
+      accepted: request.mediaIds.length,
+      rejected: 0,
+      errors: [],
+    };
+  }
+
+  // ================================
+  // ADMIN R2 STORAGE - Mock Stubs
+  // ================================
+
+  async listR2Bucket(): Promise<
+    import("@/types/r2-admin").R2BucketListResponse
+  > {
+    await this.simulateDelay(300);
+    return { objects: [], continuationToken: null, isTruncated: false };
+  }
+
+  async bulkPresignR2(): Promise<
+    import("@/types/r2-admin").BulkPresignResponse
+  > {
+    await this.simulateDelay(300);
+    return { presigns: [] };
+  }
+
+  async bulkConfirmR2(): Promise<
+    import("@/types/r2-admin").BulkConfirmResponse
+  > {
+    await this.simulateDelay(300);
+    return { accepted: 0, rejected: 0, created: [], errors: [] };
+  }
+
+  async detectR2Orphans(): Promise<
+    import("@/types/r2-admin").OrphanDetectionResponse
+  > {
+    await this.simulateDelay(300);
+    return {
+      orphans: [],
+      totalScanned: 0,
+      continuationToken: null,
+      isTruncated: false,
+    };
+  }
+
+  async linkR2Orphan(): Promise<import("@/types/gallery").UserUploadMedia> {
+    await this.simulateDelay(300);
+    throw new Error("Mock: linkR2Orphan not implemented");
+  }
+
+  async deleteR2Orphan(): Promise<void> {
+    await this.simulateDelay(300);
+  }
 }
 
 // Legacy synchronous functions for backward compatibility and build-time use

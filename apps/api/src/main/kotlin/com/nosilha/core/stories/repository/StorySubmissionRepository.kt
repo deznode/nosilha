@@ -38,7 +38,7 @@ interface StorySubmissionRepository : JpaRepository<StorySubmission, UUID> {
      * @param authorId User ID from authentication system (Supabase)
      * @return List of stories by the author
      */
-    fun findByAuthorId(authorId: String): List<StorySubmission>
+    fun findByAuthorId(authorId: UUID): List<StorySubmission>
 
     /**
      * Finds all story submissions by a specific author, ordered by creation time.
@@ -49,7 +49,7 @@ interface StorySubmissionRepository : JpaRepository<StorySubmission, UUID> {
      * @param authorId User ID from authentication system (Supabase)
      * @return List of stories ordered by creation time (newest first)
      */
-    fun findByAuthorIdOrderByCreatedAtDesc(authorId: String): List<StorySubmission>
+    fun findByAuthorIdOrderByCreatedAtDesc(authorId: UUID): List<StorySubmission>
 
     /**
      * Finds all story submissions with a specific status (paginated).

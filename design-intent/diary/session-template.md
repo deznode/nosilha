@@ -5,6 +5,7 @@ session-id: YYYY-MM-DD-[sequence]
 date: YYYY-MM-DD
 duration: [approximate time]
 focus: [main topic/feature]
+spec-ref: [Link to feature spec, if applicable]
 status: in-progress | completed | paused
 ---
 
@@ -16,7 +17,7 @@ status: in-progress | completed | paused
 
 ### Starting Point
 
-[State of the codebase/feature at session start]
+[State of the feature/component at session start]
 
 ### Relevant Background
 
@@ -29,7 +30,8 @@ status: in-progress | completed | paused
 **What**: [Description of work done]
 
 **Files Changed**:
-- `path/to/file.tsx` - [What changed]
+- `apps/web/src/components/[path].tsx` — [What changed]
+- `apps/web/src/app/[path]/page.tsx` — [What changed]
 
 **Decisions Made**:
 - [Decision]: [Rationale]
@@ -41,7 +43,7 @@ status: in-progress | completed | paused
 
 [Same structure as above]
 
-## Technical Decisions
+## Design Decisions
 
 ### Decision: [Title]
 
@@ -55,45 +57,47 @@ status: in-progress | completed | paused
 
 **Rationale**: [Why this option]
 
+## Design Token Changes
+
+| Token | Action | Value |
+|-------|--------|-------|
+| [Token name] | Added / Modified | [OKLCH value or semantic reference] |
+
+Reference: `apps/web/src/app/globals.css`
+
 ## Discoveries
 
 ### Codebase Insights
 
-- [Something learned about existing code]
+- [Something learned about existing components or patterns]
 
 ### Technical Learnings
 
-- [Something learned about tools/libraries]
+- [Something learned about Next.js, Tailwind, Catalyst UI, etc.]
 
 ### Pattern Observations
 
-- [Patterns that emerged or should be documented]
+- [Patterns that emerged or should be documented in `design-intent/patterns/`]
 
 ## Issues Encountered
 
 ### Issue: [Title]
 
 **Symptom**: [What was observed]
-
 **Cause**: [Root cause if found]
-
 **Resolution**: [How it was fixed]
 
-**Prevention**: [How to avoid in future]
+## Visual Verification
 
-## Testing Performed
+### playwright-cli Screenshots
+
+- [ ] [Page/state] — light mode, mobile (375px)
+- [ ] [Page/state] — light mode, desktop (1280px)
+- [ ] [Page/state] — dark mode
 
 ### Manual Testing
 
-- [ ] [Scenario tested] - [Result]
-
-### Automated Testing
-
-- [ ] [Test added/run] - [Result]
-
-### Playwright Verification
-
-- [ ] [Visual check performed] - [Result]
+- [ ] [Scenario]: [Result]
 
 ## Incomplete Work
 
@@ -105,17 +109,19 @@ status: in-progress | completed | paused
 
 - [ ] [Issue]: [Priority, next steps]
 
+## Memory Updates
+
+[Things worth saving to auto-memory (`/Users/jcosta/.claude/projects/` memory files) for future sessions:]
+
+- [Pattern/convention discovered]
+- [Gotcha to remember]
+
 ## Next Session
 
 ### Priorities
 
 1. [Most important next task]
 2. [Second priority]
-3. [Third priority]
-
-### Blockers to Address
-
-- [Blocker]: [What's needed]
 
 ### Questions to Resolve
 
@@ -123,17 +129,18 @@ status: in-progress | completed | paused
 
 ## Handoff Notes
 
-[Anything the next session (or another developer) needs to know to continue effectively]
+[Anything needed to continue effectively]
 
-### Quick Start Commands
+### Quick Start
 
 ```bash
-# Commands to get started quickly
+cd apps/web && pnpm run dev    # Start dev server
+# Visit http://localhost:3000/[route]
 ```
 
 ### Key Files to Review
 
-- `path/to/file.tsx` - [Why important]
+- `apps/web/src/components/[path].tsx` — [Why important]
 
 ### Current State
 
@@ -143,7 +150,6 @@ status: in-progress | completed | paused
 
 ## Session Metrics
 
-- Files created: [N]
-- Files modified: [N]
-- Tests added: [N]
-- Commits made: [N]
+- Components created/modified: [N]
+- Design tokens added: [N]
+- Playwright verifications: [N]

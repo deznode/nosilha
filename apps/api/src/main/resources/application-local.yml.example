@@ -9,6 +9,19 @@ app:
     allowed-origins: http://localhost:3000,https://localhost:3000
 
 spring:
+  # Docker Compose integration — auto-starts postgres and configures datasource
+  # When you run ./gradlew bootRun, Spring Boot automatically:
+  #   1. Detects this Docker Compose file
+  #   2. Runs docker compose up for the DB
+  #   3. Waits for the healthcheck to pass
+  #   4. Auto-configures the datasource (URL, user, password) from the running container
+  docker:
+    compose:
+      file: ../../infrastructure/docker/docker-compose.yml
+      lifecycle-management: start-only
+      skip:
+        in-tests: true
+
   # Multipart file upload configuration
   servlet:
     multipart:
@@ -16,11 +29,8 @@ spring:
       max-request-size: 15MB     # Allow up to 15MB per request
 
   # Database Configuration for Local Development
-  # Uses local PostgreSQL via Docker Compose
+  # URL, username, password auto-configured from Docker Compose container
   datasource:
-    url: jdbc:postgresql://localhost:5432/nosilha_db
-    password: nosilha
-    username: nosilha
     hikari:
       maximum-pool-size: 5
       minimum-idle: 2

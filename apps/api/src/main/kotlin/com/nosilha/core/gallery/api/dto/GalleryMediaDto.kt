@@ -1,6 +1,5 @@
 package com.nosilha.core.gallery.api.dto
 
-import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.nosilha.core.gallery.domain.ExternalMedia
@@ -11,7 +10,6 @@ import com.nosilha.core.gallery.domain.MediaSource
 import com.nosilha.core.gallery.domain.MediaType
 import com.nosilha.core.gallery.domain.UserUploadedMedia
 import java.time.Instant
-import java.time.LocalDateTime
 import java.util.UUID
 
 /**
@@ -48,14 +46,16 @@ sealed class GalleryMediaDto {
     abstract val status: GalleryMediaStatus
     abstract val mediaSource: String
 
-    @get:JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    abstract val createdAt: LocalDateTime?
+    abstract val createdAt: Instant?
 
     /**
      * DTO for user-uploaded media stored in Cloudflare R2.
      *
      * Includes storage-specific fields like fileName, storageKey, publicUrl,
      * contentType, and fileSize for user-uploaded files.
+     *
+     * Also includes EXIF metadata (GPS, date, camera info), privacy tracking,
+     * and manual metadata for historical photos without EXIF data.
      */
     data class UserUpload(
         override val id: UUID,
@@ -65,8 +65,7 @@ sealed class GalleryMediaDto {
         override val displayOrder: Int,
         override val status: GalleryMediaStatus,
         override val mediaSource: String = "USER_UPLOAD",
-        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-        override val createdAt: LocalDateTime?,
+        override val createdAt: Instant?,
         val fileName: String,
         val originalName: String,
         val storageKey: String,
@@ -75,7 +74,26 @@ sealed class GalleryMediaDto {
         val fileSize: Long,
         val entryId: UUID?,
         val source: MediaSource?,
-        val uploadedBy: String?,
+        val uploadedBy: UUID?,
+        // EXIF metadata (privacy-processed)
+        val latitude: Double?,
+        val longitude: Double?,
+        val altitude: Double?,
+        val dateTaken: Instant?,
+        val cameraMake: String?,
+        val cameraModel: String?,
+        val orientation: Int?,
+        // Privacy tracking
+        val photoType: String?,
+        val gpsPrivacyLevel: String?,
+        // Manual metadata for historical photos
+        val approximateDate: String?,
+        val locationName: String?,
+        val photographerCredit: String?,
+        val archiveSource: String?,
+        // Display name
+        val uploaderDisplayName: String? = null,
+        // AI-generated fields
         val aiTags: List<String>? = null,
         val aiLabels: String? = null,
         val aiAltText: String? = null,
@@ -97,8 +115,7 @@ sealed class GalleryMediaDto {
         override val displayOrder: Int,
         override val status: GalleryMediaStatus,
         override val mediaSource: String = "EXTERNAL",
-        @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-        override val createdAt: LocalDateTime?,
+        override val createdAt: Instant?,
         val mediaType: MediaType,
         val platform: ExternalPlatform,
         val externalId: String?,
@@ -106,14 +123,18 @@ sealed class GalleryMediaDto {
         val thumbnailUrl: String?,
         val embedUrl: String?,
         val author: String?,
-        val curatedBy: String?,
+        val curatedBy: UUID?,
+        val curatorDisplayName: String? = null,
     ) : GalleryMediaDto()
 
     companion object {
         /**
          * Converts a UserUploadedMedia entity to UserUpload DTO.
          */
-        fun from(media: UserUploadedMedia): UserUpload =
+        fun from(
+            media: UserUploadedMedia,
+            uploaderDisplayName: String? = null,
+        ): UserUpload =
             UserUpload(
                 id = media.id!!,
                 title = media.title,
@@ -132,6 +153,25 @@ sealed class GalleryMediaDto {
                 entryId = media.entryId,
                 source = media.source,
                 uploadedBy = media.uploadedBy,
+                // EXIF metadata
+                latitude = media.latitude?.toDouble(),
+                longitude = media.longitude?.toDouble(),
+                altitude = media.altitude?.toDouble(),
+                dateTaken = media.dateTaken,
+                cameraMake = media.cameraMake,
+                cameraModel = media.cameraModel,
+                orientation = media.orientation,
+                // Privacy tracking
+                photoType = media.photoType,
+                gpsPrivacyLevel = media.gpsPrivacyLevel,
+                // Manual metadata
+                approximateDate = media.approximateDate,
+                locationName = media.locationName,
+                photographerCredit = media.photographerCredit,
+                archiveSource = media.archiveSource,
+                // Display name
+                uploaderDisplayName = uploaderDisplayName,
+                // AI-generated fields
                 aiTags = media.aiTags?.toList(),
                 aiLabels = media.aiLabels,
                 aiAltText = media.aiAltText,
@@ -142,7 +182,10 @@ sealed class GalleryMediaDto {
         /**
          * Converts an ExternalMedia entity to External DTO.
          */
-        fun from(media: ExternalMedia): External =
+        fun from(
+            media: ExternalMedia,
+            curatorDisplayName: String? = null,
+        ): External =
             External(
                 id = media.id!!,
                 title = media.title,
@@ -160,6 +203,7 @@ sealed class GalleryMediaDto {
                 embedUrl = media.getEmbedUrl(),
                 author = media.author,
                 curatedBy = media.curatedBy,
+                curatorDisplayName = curatorDisplayName,
             )
     }
 }
@@ -170,11 +214,27 @@ sealed class GalleryMediaDto {
  * This provides a cleaner API than using companion object methods directly,
  * enabling usage like `media.toDto()` instead of pattern matching on type.
  *
+ * @param displayNames Map of user IDs to display names for resolving uploader/curator names
  * @throws IllegalStateException if the media type is not supported
  */
-fun GalleryMedia.toDto(): GalleryMediaDto =
+fun GalleryMedia.toDto(displayNames: Map<UUID, String> = emptyMap()): GalleryMediaDto =
     when (this) {
-        is UserUploadedMedia -> GalleryMediaDto.from(this)
-        is ExternalMedia -> GalleryMediaDto.from(this)
+        is UserUploadedMedia -> GalleryMediaDto.from(this, this.uploadedBy?.let { displayNames[it] })
+        is ExternalMedia -> GalleryMediaDto.from(this, this.curatedBy?.let { displayNames[it] })
         else -> error("Unknown GalleryMedia type: ${this.javaClass.simpleName}")
     }
+
+/**
+ * Extracts distinct contributor user IDs from a list of gallery media.
+ *
+ * Returns uploader IDs for user uploads and curator IDs for external media.
+ * Used for batch-resolving display names via [UserProfileQueryService].
+ */
+fun List<GalleryMedia>.contributorIds(): List<UUID> =
+    mapNotNull { media ->
+        when (media) {
+            is UserUploadedMedia -> media.uploadedBy
+            is ExternalMedia -> media.curatedBy
+            else -> null
+        }
+    }.distinct()

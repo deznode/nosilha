@@ -6,6 +6,41 @@ import { cleanup } from "@testing-library/react";
 import { afterEach, vi } from "vitest";
 import "@testing-library/jest-dom/vitest";
 
+// Mock localStorage/sessionStorage for Zustand persist middleware
+// jsdom's localStorage doesn't fully support Zustand's persist interface
+class LocalStorageMock implements Storage {
+  private store: Record<string, string> = {};
+
+  get length(): number {
+    return Object.keys(this.store).length;
+  }
+
+  clear(): void {
+    this.store = {};
+  }
+
+  getItem(key: string): string | null {
+    return this.store[key] ?? null;
+  }
+
+  key(index: number): string | null {
+    const keys = Object.keys(this.store);
+    return keys[index] ?? null;
+  }
+
+  removeItem(key: string): void {
+    delete this.store[key];
+  }
+
+  setItem(key: string, value: string): void {
+    this.store[key] = value;
+  }
+}
+
+// Set up storage mocks globally
+global.localStorage = new LocalStorageMock();
+global.sessionStorage = new LocalStorageMock();
+
 // Set up required environment variables for testing
 process.env.NEXT_PUBLIC_API_URL = "http://localhost:8080";
 process.env.NEXT_PUBLIC_USE_MOCK_API = "false";
@@ -16,6 +51,9 @@ process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test_supabase_anon_key";
 // Cleanup after each test to ensure test isolation
 afterEach(() => {
   cleanup();
+  // Clear storage between tests to prevent state leakage
+  localStorage.clear();
+  sessionStorage.clear();
 });
 
 // Mock Next.js router for component testing

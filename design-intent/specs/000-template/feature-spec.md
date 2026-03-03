@@ -4,9 +4,10 @@
 spec-id: XXX
 title: [Feature Title]
 status: draft | review | approved | implemented
-author: [Author Name]
+author: Joaquim Costa
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
+scope: component | page | layout | interaction
 ---
 
 ## Overview
@@ -25,7 +26,7 @@ updated: YYYY-MM-DD
 
 ### User Impact
 
-[Who benefits and how]
+[Who benefits and how — diaspora, residents, visitors, researchers]
 
 ## Requirements
 
@@ -39,17 +40,17 @@ updated: YYYY-MM-DD
 
 ### Non-Functional Requirements
 
-- **Performance**: [Specific metrics]
-- **Accessibility**: [WCAG requirements]
-- **Responsiveness**: [Breakpoint behavior]
-- **Browser Support**: [Target browsers]
+- **Performance**: LCP < 2.5s, CLS < 0.1
+- **Accessibility**: WCAG 2.1 AA — keyboard navigation, screen reader, color contrast
+- **Responsiveness**: Mobile-first, tested at 375px / 768px / 1280px
+- **Dark Mode**: Verified in both light and dark themes
 
 ## User Stories
 
 ### Primary Flow
 
 ```
-As a [user type]
+As a [diaspora member / resident / visitor / researcher]
 I want to [action]
 So that [benefit]
 ```
@@ -60,44 +61,62 @@ So that [benefit]
 
 ### Alternative Flows
 
-[Document edge cases and alternative paths]
+[Edge cases and alternative paths]
 
 ## Design
 
 ### Visual Reference
 
-[Link to Figma, screenshots, or wireframes]
+[Link to Figma, Google Stitch wireframes (`design-intent/google-stitch/`), or screenshots]
 
 ### Component Breakdown
 
-| Component | Purpose | New/Existing |
-|-----------|---------|--------------|
-| [Name]    | [Role]  | [New/Modify] |
+| Component | Purpose | Source |
+|-----------|---------|--------|
+| [Name] | [Role] | Catalyst UI / Custom UI / New |
+
+### Design Tokens
+
+| Token | Usage |
+|-------|-------|
+| `bg-surface` | [Where used] |
+| `text-body` | [Where used] |
+| [Custom token] | [Where used] |
+
+Reference: `apps/web/src/app/globals.css` for OKLCH token definitions.
 
 ### Interaction Patterns
 
-[Describe animations, transitions, hover states, etc.]
+[Animations, transitions, hover states — use Framer Motion for complex animations, Tailwind transitions for simple ones]
 
 ## Technical Approach
 
 ### Proposed Solution
 
-[High-level technical approach]
+[High-level approach — Server Component vs Client Component, ISR strategy, state management]
 
-### Data Model
+### Component Architecture
 
-[Schema changes, new types, API contracts]
+```
+[Component tree / file structure]
+```
 
 ### Dependencies
 
-- [Dependency 1]: [Why needed]
-- [Dependency 2]: [Why needed]
+- [Dependency]: [Why needed]
 
 ### Risks & Mitigations
 
 | Risk | Impact | Mitigation |
 |------|--------|------------|
-| [Risk] | [High/Med/Low] | [Strategy] |
+| [Risk] | High/Med/Low | [Strategy] |
+
+## Cultural Heritage Considerations
+
+- **Multilingual**: [Portuguese/Kriolu/English/French support needed?]
+- **Imagery**: [Historical photos? Attribution needed? Respectful handling?]
+- **Content Authenticity**: [Verification required? Community review?]
+- **Accessibility**: [Diacritics support, RTL considerations]
 
 ## Out of Scope
 
@@ -115,14 +134,12 @@ So that [benefit]
 
 ## References
 
-- [Link to related docs]
-- [Link to design files]
-- [Link to similar implementations]
+- [Design files or wireframes]
+- [Related feature specs]
+- [External inspiration]
 
 ---
 
-## Approval
+## Sign-off
 
-- [ ] Product Owner: [Name] - [Date]
-- [ ] Technical Lead: [Name] - [Date]
-- [ ] Design: [Name] - [Date]
+- [ ] Reviewed and approved — [Date]

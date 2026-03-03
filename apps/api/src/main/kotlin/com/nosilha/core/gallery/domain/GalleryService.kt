@@ -2,8 +2,10 @@ package com.nosilha.core.gallery.domain
 
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.nosilha.core.auth.api.UserProfileQueryService
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
+import com.nosilha.core.gallery.api.dto.contributorIds
 import com.nosilha.core.gallery.api.dto.toDto
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import com.nosilha.core.shared.api.PageableInfo
@@ -21,6 +23,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.modulith.events.ApplicationModuleListener
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
 import java.time.Duration
 import java.time.Instant
 import java.util.UUID
@@ -36,8 +39,7 @@ private val logger = KotlinLogging.logger {}
  *
  * User Upload Flow:
  * 1. generatePresignedUrl - Generates presigned URL for direct R2 upload
- * 2. confirmUpload - Confirms upload and creates UserUploadedMedia record with PROCESSING status
- * 3. System transitions to PENDING_REVIEW after processing
+ * 2. confirmUpload - Confirms upload and creates UserUploadedMedia record with PENDING_REVIEW status
  *
  * External Media Flow:
  * 1. submitExternal - User submits external media for review (PENDING_REVIEW status)
@@ -51,6 +53,7 @@ private val logger = KotlinLogging.logger {}
 class GalleryService(
     private val r2StorageService: R2StorageService?,
     private val repository: GalleryMediaRepository,
+    private val userProfileQueryService: UserProfileQueryService,
     meterRegistry: MeterRegistry,
 ) {
     companion object {
@@ -91,7 +94,7 @@ class GalleryService(
      * - 20 uploads per hour (short-term burst protection)
      * - 100 uploads per day (long-term abuse prevention)
      */
-    private val rateLimitBuckets: Cache<String, Bucket> = Caffeine
+    private val rateLimitBuckets: Cache<UUID, Bucket> = Caffeine
         .newBuilder()
         .maximumSize(10_000)
         .expireAfterAccess(1, TimeUnit.DAYS)
@@ -132,7 +135,7 @@ class GalleryService(
         fileName: String,
         contentType: String,
         fileSize: Long,
-        userId: String,
+        userId: UUID,
     ): PresignedPutUrlResult {
         requireR2Enabled()
 
@@ -157,7 +160,7 @@ class GalleryService(
      * @param userId User to check
      * @throws RateLimitExceededException if either limit exceeded
      */
-    private fun checkRateLimit(userId: String) {
+    private fun checkRateLimit(userId: UUID) {
         val bucket = getBucketForUser(userId)
         if (!bucket.tryConsume(1)) {
             logger.warn { "Rate limit exceeded for user $userId" }
@@ -177,7 +180,7 @@ class GalleryService(
      * @param userId User ID to get bucket for
      * @return Bucket configured with dual rate limits
      */
-    private fun getBucketForUser(userId: String): Bucket =
+    private fun getBucketForUser(userId: UUID): Bucket =
         rateLimitBuckets.get(userId) {
             logger.debug { "Creating rate limit bucket for user: $userId" }
             Bucket
@@ -207,10 +210,24 @@ class GalleryService(
      * @param category Optional media category
      * @param description Optional description
      * @param userId User who uploaded
+     * @param latitude GPS latitude (privacy-processed)
+     * @param longitude GPS longitude (privacy-processed)
+     * @param altitude GPS altitude in meters
+     * @param dateTaken Original capture date from EXIF
+     * @param cameraMake Camera manufacturer
+     * @param cameraModel Camera model
+     * @param orientation EXIF orientation (1-8)
+     * @param photoType Photo type (CULTURAL_SITE, COMMUNITY_EVENT, PERSONAL)
+     * @param gpsPrivacyLevel Applied GPS privacy level
+     * @param approximateDate Manual date entry for historical photos
+     * @param locationName Manual location name
+     * @param photographerCredit Photographer name
+     * @param archiveSource Source of historical photo
      * @return Created UserUploadedMedia DTO
      * @throws IllegalStateException if file not found in R2
      */
     @Transactional
+    @Suppress("LongParameterList")
     fun confirmUpload(
         key: String,
         originalName: String,
@@ -219,7 +236,23 @@ class GalleryService(
         entryId: UUID?,
         category: String?,
         description: String?,
-        userId: String,
+        userId: UUID,
+        // EXIF metadata (privacy-processed)
+        latitude: Double? = null,
+        longitude: Double? = null,
+        altitude: Double? = null,
+        dateTaken: Instant? = null,
+        cameraMake: String? = null,
+        cameraModel: String? = null,
+        orientation: Int? = null,
+        // Privacy tracking
+        photoType: String? = null,
+        gpsPrivacyLevel: String? = null,
+        // Manual metadata
+        approximateDate: String? = null,
+        locationName: String? = null,
+        photographerCredit: String? = null,
+        archiveSource: String? = null,
     ): GalleryMediaDto.UserUpload {
         requireR2Enabled()
         logger.info { "Confirming upload for user $userId: key=$key" }
@@ -252,13 +285,30 @@ class GalleryService(
             this.source = MediaSource.LOCAL
             this.uploadedBy = userId
             this.displayOrder = 0
+            // EXIF metadata (privacy-processed)
+            this.latitude = latitude?.let { BigDecimal.valueOf(it) }
+            this.longitude = longitude?.let { BigDecimal.valueOf(it) }
+            this.altitude = altitude?.let { BigDecimal.valueOf(it) }
+            this.dateTaken = dateTaken
+            this.cameraMake = cameraMake
+            this.cameraModel = cameraModel
+            this.orientation = orientation ?: 1
+            // Privacy tracking
+            this.photoType = photoType
+            this.gpsPrivacyLevel = gpsPrivacyLevel
+            // Manual metadata
+            this.approximateDate = approximateDate
+            this.locationName = locationName
+            this.photographerCredit = photographerCredit
+            this.archiveSource = archiveSource
         }
 
         val saved = repository.save(media)
         uploadSuccessCounter.increment()
-        logger.info { "Created UserUploadedMedia record: id=${saved.id}, status=${saved.status}" }
+        logger.info { "Created UserUploadedMedia record: id=${saved.id}, status=${saved.status}, hasGps=${latitude != null}" }
 
-        return GalleryMediaDto.from(saved)
+        val displayName = userProfileQueryService.findDisplayName(userId)
+        return GalleryMediaDto.from(saved, displayName)
     }
 
     // ================================
@@ -347,7 +397,7 @@ class GalleryService(
     @Suppress("ReturnCount")
     fun softDelete(
         mediaId: UUID,
-        userId: String,
+        userId: UUID,
         isAdmin: Boolean,
     ): Boolean {
         val media = repository.findById(mediaId).orElse(null)
@@ -462,7 +512,8 @@ class GalleryService(
             repository.findByStatusOrderByDisplayOrderAsc(GalleryMediaStatus.ACTIVE, pageable)
         }
 
-        val dtos = mediaPage.content.map { it.toDto() }
+        val displayNames = resolveDisplayNames(mediaPage.content)
+        val dtos = mediaPage.content.map { it.toDto(displayNames) }
 
         return PagedApiResult(
             data = dtos,
@@ -496,7 +547,8 @@ class GalleryService(
             return null
         }
 
-        return media.toDto()
+        val displayNames = resolveDisplayNames(listOf(media))
+        return media.toDto(displayNames)
     }
 
     /**
@@ -506,10 +558,12 @@ class GalleryService(
      * @return List of user upload DTOs
      */
     @Transactional(readOnly = true)
-    fun getMediaByEntry(entryId: UUID): List<GalleryMediaDto.UserUpload> =
-        repository
+    fun getMediaByEntry(entryId: UUID): List<GalleryMediaDto.UserUpload> {
+        val mediaList = repository
             .findByEntryIdAndStatusOrderByDisplayOrderAsc(entryId, GalleryMediaStatus.ACTIVE)
-            .map { GalleryMediaDto.from(it) }
+        val displayNames = resolveDisplayNames(mediaList)
+        return mediaList.map { GalleryMediaDto.from(it, it.uploadedBy?.let { id -> displayNames[id] }) }
+    }
 
     /**
      * Gets distinct list of categories from ACTIVE media.
@@ -536,7 +590,7 @@ class GalleryService(
     @Transactional
     fun submitExternalMedia(
         request: SubmitExternalMediaRequest,
-        userId: String,
+        userId: UUID,
     ): GalleryMediaDto.External {
         logger.info { "User $userId submitting external media: ${request.title} (${request.mediaType}, ${request.platform})" }
 
@@ -559,7 +613,16 @@ class GalleryService(
         externalMediaCreatedCounter.increment()
         logger.info { "Created ExternalMedia for review: id=${saved.id}" }
 
-        return GalleryMediaDto.from(saved)
+        val displayName = userProfileQueryService.findDisplayName(userId)
+        return GalleryMediaDto.from(saved, displayName)
+    }
+
+    /**
+     * Batch-resolves display names for a list of gallery media items.
+     */
+    private fun resolveDisplayNames(mediaList: List<GalleryMedia>): Map<UUID, String> {
+        val userIds = mediaList.contributorIds()
+        return if (userIds.isNotEmpty()) userProfileQueryService.findDisplayNames(userIds) else emptyMap()
     }
 
     /**

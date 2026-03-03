@@ -224,6 +224,22 @@ export interface ConfirmRequest {
   entryId?: string;
   category?: string;
   description?: string;
+  // EXIF metadata (privacy-processed)
+  latitude?: number;
+  longitude?: number;
+  altitude?: number;
+  dateTaken?: string; // ISO 8601
+  cameraMake?: string;
+  cameraModel?: string;
+  orientation?: number;
+  // Privacy tracking
+  photoType?: string;
+  gpsPrivacyLevel?: string;
+  // Manual metadata
+  approximateDate?: string;
+  locationName?: string;
+  photographerCredit?: string;
+  archiveSource?: string;
 }
 
 /**

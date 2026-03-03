@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 import io.swagger.v3.oas.annotations.responses.ApiResponse as SwaggerApiResponse
 
 private val logger = KotlinLogging.logger {}
@@ -383,13 +384,13 @@ class ProfileController(
      * @return User ID as String (Supabase auth user ID)
      * @throws IllegalStateException if principal is not a string
      */
-    private fun extractUserId(authentication: Authentication): String {
-        val userId =
+    private fun extractUserId(authentication: Authentication): UUID {
+        val name =
             authentication.name
                 ?: throw IllegalStateException("Authentication name must be present (user ID)")
 
-        logger.trace { "Extracted user ID from authentication: $userId" }
+        logger.trace { "Extracted user ID from authentication: $name" }
 
-        return userId
+        return UUID.fromString(name)
     }
 }

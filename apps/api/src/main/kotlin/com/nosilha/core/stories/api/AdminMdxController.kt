@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController
 import org.yaml.snakeyaml.LoaderOptions
 import org.yaml.snakeyaml.Yaml
 import org.yaml.snakeyaml.constructor.SafeConstructor
-import java.time.Instant
 import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
@@ -224,19 +223,17 @@ class AdminMdxController(
         // Check if archive already exists (update scenario)
         val existingArchive = mdxArchiveRepository.findByStoryId(id)
         val mdxPath = "content/stories/$slug.mdx"
-        val adminId = authentication.name
+        val adminId = UUID.fromString(authentication.name)
 
         val archive =
             if (existingArchive != null) {
                 // Update existing archive
                 logger.info { "Updating existing MDX archive for story $id" }
-                existingArchive.copy(
-                    slug = slug,
-                    mdxPath = mdxPath,
-                    frontmatter = frontmatter,
-                    schemaValid = true, // Mock service always generates valid schema
-                    committedBy = adminId,
-                )
+                existingArchive.slug = slug
+                existingArchive.mdxPath = mdxPath
+                existingArchive.frontmatter = frontmatter
+                existingArchive.schemaValid = true
+                existingArchive
             } else {
                 // Create new archive
                 MdxArchive(
@@ -245,7 +242,6 @@ class AdminMdxController(
                     mdxPath = mdxPath,
                     frontmatter = frontmatter,
                     schemaValid = true,
-                    committedBy = adminId,
                 )
             }
 
@@ -269,7 +265,7 @@ class AdminMdxController(
                 storyId = id,
                 slug = slug,
                 mdxPath = mdxPath,
-                committedAt = savedArchive.committedAt ?: Instant.now(),
+                committedAt = savedArchive.createdAt,
                 committedBy = adminId,
             )
 

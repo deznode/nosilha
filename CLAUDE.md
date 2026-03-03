@@ -29,20 +29,25 @@ See `docs/architecture.md` for detailed integration flows (auth, content managem
 
 ## Development Setup
 
-1. **Start infrastructure**: `cd infrastructure/docker && docker-compose up -d`
-2. **Backend**: `cd apps/api && ./gradlew bootRun --args='--spring.profiles.active=local'`
-3. **Frontend**: `cd apps/web && pnpm install && pnpm run dev`
+Uses [Taskfile](https://taskfile.dev/) for orchestration. Install: `brew install go-task`
+
+```bash
+task check     # verify prerequisites (Docker, Node, pnpm, Java)
+task setup     # copy env templates, install web deps
+task dev       # start API (auto-starts postgres) + web in parallel
+```
 
 **Environment files**: Copy templates before first run:
 
-- `infrastructure/docker/.env.example` → `.env`
+- `apps/api/src/main/resources/application-local.yml.example` → `application-local.yml`
 - `apps/web/.env.local.example` → `.env.local`
+
+Or run `task setup` which handles the web env file automatically.
 
 ## Development Commands
 
 For detailed commands by domain, see the modular rules:
 - Frontend: @.claude/rules/frontend/app-router.md
-- Frontend E2E: @.claude/rules/frontend/mcp-playwright.md
 - Backend: @.claude/rules/backend/spring-modulith.md
 - Content: @.claude/rules/content/mdx-platform.md
 - Infrastructure: @.claude/rules/infrastructure/cicd-deployment.md
@@ -61,7 +66,6 @@ Domain-specific instructions loaded automatically based on file paths:
 |-----------|-------------|---------|
 | `frontend/app-router.md` | `apps/web/**` | Next.js App Router patterns and commands |
 | `frontend/design-system.md` | `apps/web/**` | Design system, OKLCH tokens, Tailwind CSS |
-| `frontend/mcp-playwright.md` | `apps/web/**` | Playwright MCP E2E testing |
 | `frontend/state-management.md` | `apps/web/**` | Zustand stores, TanStack Query, Zod schemas |
 | `frontend/api-client.md` | `apps/web/**` | API factory, contracts, caching, types |
 | `frontend/component-patterns.md` | `apps/web/**` | forwardRef, clsx, toast, loading states |
@@ -89,6 +93,7 @@ Domain-specific executors located in `.claude/skills/`. Each skill has detailed 
 | **Content & Heritage** | `authoring-content`, `planning-content`, `verifying-content` |
 | **Infrastructure** | `mapping-sites` |
 | **Research** | `web-searching` |
+| **Browser Testing** | `playwright:playwright-cli` (Claude Code plugin) |
 
 ### Slash Commands
 
@@ -100,6 +105,19 @@ Custom workflow triggers in `.claude/commands/`. Use syntax: `/command-name [arg
 
 - **Skills**: Use for executing tasks (writing code, content, infrastructure changes)
 - **Commands**: Use to trigger workflows and specialized operations
+
+### Playwright Verification
+
+Two Playwright capabilities exist — use the right one for the task:
+
+| Tool | When to Use | How |
+|------|-------------|-----|
+| **`playwright:playwright-cli` skill** | Ad-hoc feature verification — browse pages, click through flows, take screenshots | **Invoke skill first** via `/playwright-cli`, then use `playwright-cli` bash commands |
+| **E2E test suite** | Pre-release regression testing — run the full automated test suite | `cd apps/web && pnpm run test:e2e` |
+
+**Important**: The `playwright-cli` skill is a pre-installed plugin — do NOT install Playwright MCP via npx or npm. Always invoke the skill first to load instructions, then use `playwright-cli open <url>`, `playwright-cli snapshot`, etc.
+
+Config: `.playwright/cli.config.json` configures the CLI skill. `apps/web/playwright.config.ts` configures the test suite.
 
 ### Documentation Compliance
 

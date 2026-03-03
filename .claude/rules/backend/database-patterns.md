@@ -20,36 +20,51 @@ apps/api/src/main/resources/db/migration/
 ├── V8__create_event_publication.sql
 ├── V9__seed_reference_data.sql
 ├── V10__create_ai_analysis_tables.sql
+├── V11__add_content_table.sql
+├── V12__standardize_timestamps_to_timestamptz.sql
+├── V13__cleanup_orphaned_columns_and_defaults.sql
+├── V14__standardize_user_ids_and_audit_columns.sql
+├── V15__add_user_reference_fk_constraints.sql
 ```
 
 Sequential numbering — check existing files before creating a new one.
 
-## Entity Base Class
+## Entity Base Classes
 
-All entities extend `AuditableEntity` for automatic timestamp management:
+Two-level hierarchy with Spring Data JPA Auditing (`@EnableJpaAuditing` in `JpaAuditingConfig`):
+
+**CreatableEntity** — for immutable entities (creation-only audit):
 
 ```kotlin
 @MappedSuperclass
-abstract class AuditableEntity {
+@EntityListeners(AuditingEntityListener::class)
+abstract class CreatableEntity {
+    @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
-    var createdAt: LocalDateTime = LocalDateTime.now()
+    var createdAt: Instant = Instant.now()
 
-    @Column(name = "updated_at", nullable = false)
-    var updatedAt: LocalDateTime = LocalDateTime.now()
-
-    @PrePersist
-    protected fun onCreate() {
-        val now = LocalDateTime.now()
-        createdAt = now
-        updatedAt = now
-    }
-
-    @PreUpdate
-    protected fun onUpdate() {
-        updatedAt = LocalDateTime.now()
-    }
+    @CreatedBy
+    @Column(name = "created_by", updatable = false)
+    var createdBy: UUID? = null
 }
 ```
+
+**AuditableEntity** — for mutable entities (full audit trail):
+
+```kotlin
+@MappedSuperclass
+abstract class AuditableEntity : CreatableEntity() {
+    @LastModifiedDate
+    @Column(name = "updated_at", nullable = false)
+    var updatedAt: Instant = Instant.now()
+
+    @LastModifiedBy
+    @Column(name = "updated_by")
+    var updatedBy: UUID? = null
+}
+```
+
+All timestamps use `Instant` (TIMESTAMPTZ in DB). `AuditorAware<UUID>` resolves from `SecurityContextHolder`.
 
 ## UUID Primary Keys
 

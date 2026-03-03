@@ -3,25 +3,42 @@
 import { useState } from "react";
 import { Search, Filter } from "lucide-react";
 import { QueueItem } from "./queue-item";
-import type { Suggestion } from "@/types/admin";
 import { SubmissionStatus } from "@/types/story";
 import { Button } from "@/components/catalyst-ui/button";
+import {
+  useAdminSuggestions,
+  useUpdateSuggestionStatus,
+} from "@/hooks/queries/admin";
+import { useToast } from "@/hooks/use-toast";
 
-interface SuggestionsQueueProps {
-  suggestions: Suggestion[];
-  isLoading?: boolean;
-  onStatusChange?: (id: string, status: SubmissionStatus) => void;
-}
-
-export function SuggestionsQueue({
-  suggestions,
-  isLoading,
-  onStatusChange,
-}: SuggestionsQueueProps) {
+export function SuggestionsQueue() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<SubmissionStatus | "ALL">(
     "ALL"
   );
+
+  const suggestionsQuery = useAdminSuggestions();
+  const updateSuggestion = useUpdateSuggestionStatus();
+  const toast = useToast();
+
+  const suggestions = suggestionsQuery.data?.items ?? [];
+  const isLoading = suggestionsQuery.isLoading;
+
+  const handleStatusChange = (id: string, status: SubmissionStatus) => {
+    const action = status === SubmissionStatus.APPROVED ? "APPROVE" : "REJECT";
+    const label = status === SubmissionStatus.APPROVED ? "approved" : "rejected";
+    updateSuggestion.mutate(
+      { id, action },
+      {
+        onSuccess: () => {
+          toast.success(`Suggestion ${label} successfully`).show();
+        },
+        onError: () => {
+          toast.error(`Failed to ${label} suggestion. Please try again.`).show();
+        },
+      }
+    );
+  };
 
   const filteredSuggestions = suggestions.filter((s) => {
     const matchesSearch =
@@ -98,10 +115,10 @@ export function SuggestionsQueue({
                 submittedBy={suggestion.submittedBy}
                 timestamp={suggestion.timestamp}
                 onApprove={() =>
-                  onStatusChange?.(suggestion.id, SubmissionStatus.APPROVED)
+                  handleStatusChange(suggestion.id, SubmissionStatus.APPROVED)
                 }
                 onReject={() =>
-                  onStatusChange?.(suggestion.id, SubmissionStatus.REJECTED)
+                  handleStatusChange(suggestion.id, SubmissionStatus.REJECTED)
                 }
               />
             ))}

@@ -1,11 +1,10 @@
-import { Header } from "@/components/ui/header";
-import { Footer } from "@/components/ui/footer";
+import { AdminShell } from "@/components/admin/layout";
 
 /**
- * Admin Layout - Admin/Sandbox pages with Header and Footer
+ * Admin Layout - Dedicated admin shell with sidebar navigation
  *
- * This layout wraps all routes in the (admin) route group,
- * providing the standard site chrome for admin and sandbox pages.
+ * This layout wraps all routes in the (admin) route group
+ * with the AdminShell (sidebar + top bar + content area).
  *
  * Authentication is handled by middleware.ts at the edge,
  * so this layout can be a simple Server Component.
@@ -15,15 +14,5 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="flex min-h-screen flex-col">
-      <Header className="print:hidden" />
-      <main id="main-content" className="animate-fade-in flex-grow pt-16">
-        {children}
-      </main>
-      <div className="print:hidden">
-        <Footer />
-      </div>
-    </div>
-  );
+  return <AdminShell>{children}</AdminShell>;
 }

@@ -74,7 +74,7 @@ data class AdminContactMessageDto(
     val subject: String,
     val message: String,
     val status: String,
-    val createdAt: java.time.LocalDateTime,
+    val createdAt: java.time.Instant,
 )
 
 /**

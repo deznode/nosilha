@@ -1,5 +1,7 @@
 package com.nosilha.core.feedback.api
 
+import java.util.UUID
+
 /**
  * Response DTO containing comprehensive admin dashboard statistics.
  *
@@ -87,7 +89,7 @@ data class TownCoverageData(
  * @property avatar URL to user's avatar image (nullable if not set)
  */
 data class ContributorResponse(
-    val id: String,
+    val id: UUID,
     val name: String,
     val role: String,
     val points: Long,

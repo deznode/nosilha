@@ -131,7 +131,7 @@ class BookmarkController(
         @Valid @RequestBody request: BookmarkCreateRequest,
         authentication: Authentication,
     ): ResponseEntity<ApiResult<BookmarkDto>> {
-        val userId = authentication.name
+        val userId = UUID.fromString(authentication.name)
 
         logger.info { "Creating bookmark for user $userId on entry ${request.entryId}" }
 
@@ -192,7 +192,7 @@ class BookmarkController(
         @PathVariable entryId: UUID,
         authentication: Authentication,
     ) {
-        val userId = authentication.name
+        val userId = UUID.fromString(authentication.name)
 
         logger.info { "Deleting bookmark for user $userId on entry $entryId" }
 

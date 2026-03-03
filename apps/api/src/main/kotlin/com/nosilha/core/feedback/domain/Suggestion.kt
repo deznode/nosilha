@@ -1,19 +1,18 @@
 package com.nosilha.core.feedback.domain
 
+import com.nosilha.core.shared.domain.CreatableEntity
 import jakarta.persistence.*
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
-import org.hibernate.annotations.CreationTimestamp
 import java.time.Instant
 import java.util.UUID
 
 /**
  * Represents a community contribution for content improvement (corrections, additions, feedback).
  *
- * <p>Suggestions are immutable once created to maintain an audit trail. They are never
- * updated or deleted, but may be marked as reviewed in the future.</p>
+ * <p>Suggestions are submitted by visitors and tracked with moderation status for admin review.</p>
  *
  * <p><strong>Validation Rules:</strong></p>
  * <ul>
@@ -36,7 +35,7 @@ import java.util.UUID
         Index(name = "idx_suggestions_ip", columnList = "ip_address, created_at"),
     ],
 )
-data class Suggestion(
+class Suggestion(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: UUID? = null,
@@ -69,22 +68,33 @@ data class Suggestion(
     @Size(max = 45)
     @Column(name = "ip_address", length = 45)
     val ipAddress: String? = null,
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    val createdAt: Instant? = null,
+) : CreatableEntity() {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    val status: SuggestionStatus = SuggestionStatus.PENDING,
+    var status: SuggestionStatus = SuggestionStatus.PENDING
+
     @Size(max = 5000)
     @Column(name = "admin_notes", columnDefinition = "TEXT")
-    val adminNotes: String? = null,
-    @Size(max = 255)
-    @Column(name = "reviewed_by", length = 255)
-    val reviewedBy: String? = null,
+    var adminNotes: String? = null
+
+    @Column(name = "reviewed_by")
+    var reviewedBy: UUID? = null
+
     @Column(name = "reviewed_at")
-    val reviewedAt: Instant? = null,
-)
+    var reviewedAt: Instant? = null
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as Suggestion
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int = id?.hashCode() ?: 31
+
+    override fun toString(): String = "Suggestion(id=$id, type=$suggestionType, status=$status)"
+}
 
 /**
  * Enum representing the types of community suggestions for content improvement.

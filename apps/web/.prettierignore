@@ -4,6 +4,7 @@ node_modules
 build
 dist
 out
+.pnpm-store
 
 # Lock files
 package-lock.json
@@ -17,7 +18,9 @@ pnpm-lock.yaml
 **/*.min.js
 **/*.min.css
 *.d.ts
+*.tsbuildinfo
 next-env.d.ts
+.velite
 
 # Third-party code
 src/components/catalyst-ui
@@ -27,6 +30,10 @@ src/components/catalyst-ui
 .vercel
 .cache
 .nyc_output
+
+# Tool artifacts
+.analysis
+.playwright-cli
 
 # Logs
 *.log
@@ -46,6 +53,7 @@ public/**/*.jpg
 public/**/*.jpeg
 public/**/*.gif
 public/**/*.ico
+public/pagefind/
 
 # Documentation
 README.md

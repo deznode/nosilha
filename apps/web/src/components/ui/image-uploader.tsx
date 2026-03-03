@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useCallback, DragEvent, ChangeEvent } from "react";
+import {
+  useState,
+  useCallback,
+  useEffect,
+  DragEvent,
+  ChangeEvent,
+} from "react";
 import { ImageIcon, Loader2, X, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/catalyst-ui/button";
@@ -64,6 +70,15 @@ export function ImageUploader({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const { state, progress, error, upload, cancel, reset } = useR2Upload();
+
+  // Sync previewUrl when initialUrl prop changes (e.g., from GalleryPicker)
+  // This is a valid pattern for controlled components that respond to prop changes
+  useEffect(() => {
+    if (initialUrl) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setPreviewUrl(initialUrl);
+    }
+  }, [initialUrl]);
 
   const handleFile = useCallback(
     async (file: File | undefined) => {

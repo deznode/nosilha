@@ -63,7 +63,7 @@ data class SuggestionDetailDto(
     val contentType: String?,
     val status: SuggestionStatus,
     val adminNotes: String?,
-    val reviewedBy: String?,
+    val reviewedBy: UUID?,
     val reviewedAt: Instant?,
     val createdAt: Instant?,
 )
