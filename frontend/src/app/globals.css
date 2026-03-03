@@ -30,4 +30,17 @@
   /* Font Tokens */
   --font-sans: var(--font-family-sans);
   --font-serif: var(--font-family-serif);
-}
+
+  --animate-glow: glow 4s ease-in-out infinite;
+  @keyframes glow {
+    from, to {
+      opacity: 0.8;
+      text-shadow: 0 0 8px var(--color-ocean-blue), 0 0 10px var(--color-ocean-blue);
+    }
+    50% {
+      opacity: 1;
+      text-shadow: 0 0 12px var(--color-ocean-blue), 0 0 20px var(--color-ocean-blue);
+    }
+  }
+
+  }

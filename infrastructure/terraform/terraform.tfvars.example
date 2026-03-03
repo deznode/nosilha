@@ -1,0 +1,6 @@
+# terraform.tfvars.example
+#
+# Rename this file to 'terraform.tfvars' and fill in your GCP Project ID.
+# Do not commit the actual terraform.tfvars file to version control.
+
+gcp_project_id = "your-gcp-project-id-goes-here"

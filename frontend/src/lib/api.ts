@@ -62,3 +62,29 @@ export async function getEntryBySlug(
     return undefined;
   }
 }
+
+/**
+ * Creates a new directory entry by sending a POST request to the backend API.
+ * @param entryData The data for the new entry, excluding id and slug.
+ * @returns A promise that resolves to the newly created directory entry.
+ */
+export async function createDirectoryEntry(
+  entryData: Omit<DirectoryEntry, "id" | "slug" | "rating" | "reviewCount">
+): Promise<DirectoryEntry> {
+  const endpoint = `${API_BASE_URL}/entries`;
+
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(entryData),
+  });
+
+  if (!response.ok) {
+    const errorResult = await response.json();
+    throw new Error(errorResult.message || "Failed to create directory entry.");
+  }
+
+  return await response.json();
+}
