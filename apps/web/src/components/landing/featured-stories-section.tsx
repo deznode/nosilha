@@ -35,8 +35,7 @@ const defaultStories: FeaturedItem[] = [
     id: "3",
     title: "Fontainhas",
     category: "Landmarks",
-    image:
-      "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&q=80&w=800",
+    image: "/images/history/brava-culture.webp",
     description:
       "Discover the architectural beauty of Nova Sintra's historic gardens.",
     link: "/directory/heritage",

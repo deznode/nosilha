@@ -1,9 +1,89 @@
 /**
- * AI Image Analysis & Moderation Types
+ * AI Types
  *
- * Mirrors backend DTOs from AiModerationDtos.kt.
- * Used by the admin AI review queue UI.
+ * Mirrors backend DTOs from AiModerationDtos.kt and TextAiDtos.kt.
+ * Used by the admin AI review queue UI and text AI operations.
  */
+
+// ================================
+// TEXT AI TYPES (mirrors TextAiDtos.kt)
+// ================================
+
+export interface PolishContentRequest {
+  content: string;
+}
+
+export interface PolishContentResponse {
+  content: string;
+  aiApplied: boolean;
+}
+
+export interface TranslateContentRequest {
+  content: string;
+  targetLang: string;
+}
+
+export interface TranslateContentResponse {
+  content: string;
+  aiApplied: boolean;
+}
+
+export interface GeneratePromptsRequest {
+  templateType: string;
+  existingContent?: string;
+}
+
+export interface GeneratePromptsResponse {
+  prompts: string[];
+}
+
+export interface GenerateDirectoryContentRequest {
+  name: string;
+  category: string;
+}
+
+export interface DirectoryContentResponse {
+  description: string;
+  tags: string[];
+}
+
+export interface AiAvailableResponse {
+  available: boolean;
+}
+
+// ================================
+// AI HEALTH / DASHBOARD TYPES
+// ================================
+
+export interface AiHealthResponse {
+  enabled: boolean;
+  providers: AiProviderHealth[];
+  domains: AiDomainConfig[];
+}
+
+export interface AiProviderHealth {
+  name: string;
+  enabled: boolean;
+  capabilities: string[];
+  usage: AiUsageDto;
+}
+
+export interface AiUsageDto {
+  count: number;
+  limit: number;
+  percentUsed: number;
+}
+
+export interface AiDomainConfig {
+  domain: string;
+  enabled: boolean;
+  updatedAt: string;
+  updatedBy: string | null;
+}
+
+export interface UpdateDomainConfigRequest {
+  enabled: boolean;
+}
 
 // ================================
 // ENUMS
@@ -32,6 +112,7 @@ export interface AnalysisRunSummary {
   moderationStatus: AiModerationStatus;
   providersUsed: string[];
   resultTags: string[];
+  resultTitle: string | null;
   resultAltText: string | null;
   resultDescription: string | null;
   createdAt: string;
@@ -52,6 +133,7 @@ export interface AnalysisRunDetail {
   rawResults: string | null;
   resultTags: string[];
   resultLabels: string | null;
+  resultTitle: string | null;
   resultAltText: string | null;
   resultDescription: string | null;
   moderatedBy: string | null;
@@ -73,6 +155,7 @@ export interface AnalysisRunDetail {
  * Mirrors ApproveEditedRequest.
  */
 export interface ApproveEditedRequest {
+  title?: string;
   altText?: string;
   description?: string;
   tags?: string[];

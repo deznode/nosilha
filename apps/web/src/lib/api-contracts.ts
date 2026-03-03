@@ -28,6 +28,18 @@ import type {
   AnalysisTriggerResponse,
   AnalyzeBatchRequest,
   BatchAnalysisTriggerResponse,
+  PolishContentRequest,
+  PolishContentResponse,
+  TranslateContentRequest,
+  TranslateContentResponse,
+  GeneratePromptsRequest,
+  GeneratePromptsResponse,
+  GenerateDirectoryContentRequest,
+  DirectoryContentResponse,
+  AiAvailableResponse,
+  AiHealthResponse,
+  AiDomainConfig,
+  UpdateDomainConfigRequest,
 } from "@/types/ai";
 import type {
   R2BucketListResponse,
@@ -155,8 +167,13 @@ export interface ApiClient {
     contentType: string;
     name: string;
     email: string;
-    suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";
+    suggestionType:
+      | "CORRECTION"
+      | "ADDITION"
+      | "FEEDBACK"
+      | "PHOTO_IDENTIFICATION";
     message: string;
+    mediaId?: string;
     honeypot?: string;
   }): Promise<{ id: string | null; message: string }>;
 
@@ -420,6 +437,20 @@ export interface ApiClient {
   ): Promise<import("@/types/gallery").GalleryMedia>;
 
   /**
+   * Update gallery media metadata (PATCH semantics).
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param id Gallery media item ID
+   * @param request Update request with optional fields
+   * @returns Updated gallery media item
+   */
+  updateGalleryMedia(
+    id: string,
+    request: import("@/types/gallery").UpdateGalleryMediaRequest
+  ): Promise<import("@/types/gallery").GalleryMedia>;
+
+  /**
    * Archive (soft delete) a gallery media item.
    *
    * **Admin Endpoint**: Requires ADMIN role.
@@ -607,13 +638,16 @@ export interface ApiClient {
    * content in a unified, discriminated union response.
    *
    * @param options Query parameters (category, page, size)
-   * @returns GalleryMediaPageResponse with paginated gallery items
+   * @returns PublicGalleryMediaPageResponse with paginated gallery items
    */
   getGalleryMedia(options?: {
     category?: string;
+    decade?: string;
+    q?: string;
+    hasGeo?: boolean;
     page?: number;
     size?: number;
-  }): Promise<import("@/types/gallery").GalleryMediaPageResponse>;
+  }): Promise<import("@/types/gallery").PublicGalleryMediaPageResponse>;
 
   /**
    * Get a single gallery media item by ID.
@@ -621,11 +655,11 @@ export interface ApiClient {
    * **Public Endpoint**: No authentication required.
    *
    * @param id UUID of the gallery media item
-   * @returns GalleryMedia (UserUpload or External) or undefined if not found
+   * @returns PublicGalleryMedia (UserUpload or External) or undefined if not found
    */
   getGalleryMediaById(
     id: string
-  ): Promise<import("@/types/gallery").GalleryMedia | undefined>;
+  ): Promise<import("@/types/gallery").PublicGalleryMedia | undefined>;
 
   /**
    * Get available gallery categories.
@@ -637,9 +671,50 @@ export interface ApiClient {
   getGalleryCategories(): Promise<string[]>;
 
   /**
-   * Submit external media for admin review.
+   * Fetches N random gallery photos (unseeded — different each call).
    *
    * **Public Endpoint**: No authentication required.
+   *
+   * @param count Number of random photos (default 1, max 10)
+   * @returns Array of random gallery media items
+   */
+  getRandomGalleryMedia(
+    count?: number
+  ): Promise<import("@/types/gallery").PublicGalleryMedia[]>;
+
+  /**
+   * Fetches the daily featured photo (same for all users per day).
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @returns Featured photo or null if gallery is empty
+   */
+  getFeaturedPhoto(): Promise<
+    import("@/types/gallery").PublicGalleryMedia | null
+  >;
+
+  /**
+   * Fetches this week's discovery photos (same for all users per ISO week).
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @returns Array of up to 5 weekly discovery photos
+   */
+  getWeeklyDiscovery(): Promise<import("@/types/gallery").PublicGalleryMedia[]>;
+
+  /**
+   * Fetches the gallery timeline aggregated by decade.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @returns Timeline data with decade groups and sample photos
+   */
+  getGalleryTimeline(): Promise<import("@/types/gallery").TimelineResponse>;
+
+  /**
+   * Submit external media for admin review.
+   *
+   * **Authenticated Endpoint**: Requires authentication.
    *
    * Allows community members to submit external media (YouTube videos, etc.)
    * for review and potential inclusion in the gallery.
@@ -650,6 +725,92 @@ export interface ApiClient {
   submitExternalMedia(
     request: import("@/types/gallery").SubmitExternalMediaRequest
   ): Promise<{ id: string; message: string }>;
+
+  // ================================
+  // TEXT AI OPERATIONS
+  // ================================
+
+  /**
+   * Check if text AI is available.
+   *
+   * **Authenticated Endpoint**: Requires USER or ADMIN role.
+   *
+   * @returns AiAvailableResponse with availability status
+   */
+  checkAiAvailable(): Promise<AiAvailableResponse>;
+
+  /**
+   * Polish/improve content text using AI.
+   *
+   * **Authenticated Endpoint**: Requires USER or ADMIN role.
+   *
+   * @param request Content to polish
+   * @returns Polished content
+   */
+  polishContent(request: PolishContentRequest): Promise<PolishContentResponse>;
+
+  /**
+   * Translate content to a target language using AI.
+   *
+   * **Authenticated Endpoint**: Requires USER or ADMIN role.
+   *
+   * @param request Content and target language
+   * @returns Translated content
+   */
+  translateContent(
+    request: TranslateContentRequest
+  ): Promise<TranslateContentResponse>;
+
+  /**
+   * Generate writing prompts for a story template type.
+   *
+   * **Authenticated Endpoint**: Requires USER or ADMIN role.
+   *
+   * @param request Template type and optional existing content
+   * @returns List of generated prompts
+   */
+  generatePrompts(
+    request: GeneratePromptsRequest
+  ): Promise<GeneratePromptsResponse>;
+
+  /**
+   * Generate AI description and tags for a directory entry.
+   *
+   * **Authenticated Endpoint**: Requires USER or ADMIN role.
+   *
+   * @param request Entry name and category
+   * @returns Generated description and tags
+   */
+  generateDirectoryContent(
+    request: GenerateDirectoryContentRequest
+  ): Promise<DirectoryContentResponse>;
+
+  // ================================
+  // ADMIN AI DASHBOARD OPERATIONS
+  // ================================
+
+  /**
+   * Get AI system health including provider stats and domain configs.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @returns AiHealthResponse with providers and domain configs
+   */
+  getAiHealth(): Promise<AiHealthResponse>;
+
+  /**
+   * Update a domain's AI feature toggle.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param domain Domain name (gallery, stories, directory)
+   * @param request Toggle state
+   * @returns Updated domain config
+   */
+  updateAiDomainConfig(
+    domain: string,
+    request: UpdateDomainConfigRequest
+  ): Promise<AiDomainConfig>;
 
   // ================================
   // ADMIN R2 STORAGE OPERATIONS
@@ -753,7 +914,17 @@ export interface StorySubmittedResponse {
  */
 export interface DirectorySubmissionRequest {
   name: string;
-  category: "RESTAURANT" | "HOTEL" | "BEACH" | "HERITAGE" | "NATURE";
+  category:
+    | "RESTAURANT"
+    | "HOTEL"
+    | "BEACH"
+    | "HERITAGE"
+    | "NATURE"
+    | "TOWN"
+    | "VIEWPOINT"
+    | "TRAIL"
+    | "CHURCH"
+    | "PORT";
   town: string;
   customTown?: string;
   description: string;
@@ -778,7 +949,17 @@ export interface DirectorySubmissionConfirmation {
  */
 export interface UpdateDirectoryEntryRequest {
   name?: string;
-  category?: "RESTAURANT" | "HOTEL" | "BEACH" | "HERITAGE" | "NATURE";
+  category?:
+    | "RESTAURANT"
+    | "HOTEL"
+    | "BEACH"
+    | "HERITAGE"
+    | "NATURE"
+    | "TOWN"
+    | "VIEWPOINT"
+    | "TRAIL"
+    | "CHURCH"
+    | "PORT";
   town?: string;
   description?: string;
   tags?: string[];
@@ -961,4 +1142,7 @@ export type {
   AnalysisTriggerResponse,
   AnalyzeBatchRequest,
   BatchAnalysisTriggerResponse,
+  AiHealthResponse,
+  AiDomainConfig,
+  UpdateDomainConfigRequest,
 } from "@/types/ai";

@@ -94,3 +94,22 @@ output "gcs_media_bucket_name_only" {
   description = "The name of the GCS bucket for media storage (bucket name only)"
   value       = google_storage_bucket.media_storage.name
 }
+
+# ------------------------------------------------------------------------------
+# Cloudflare Outputs
+# ------------------------------------------------------------------------------
+
+output "cloudflare_zone_id" {
+  description = "The Cloudflare zone ID for nosilha.com"
+  value       = data.cloudflare_zone.nosilha.zone_id
+}
+
+output "r2_bucket_name" {
+  description = "The name of the Cloudflare R2 bucket for media storage"
+  value       = cloudflare_r2_bucket.media.name
+}
+
+output "r2_public_url" {
+  description = "The public URL for the R2 media bucket (via custom domain)"
+  value       = "https://media.nosilha.com"
+}

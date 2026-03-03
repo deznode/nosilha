@@ -38,11 +38,13 @@ export function AdminSidebar() {
           collapsed ? "justify-center px-2" : "px-4"
         )}
       >
-        <NosilhaLogo
-          size="compact"
-          instanceId="admin-sidebar"
-          className={collapsed ? "scale-75" : undefined}
-        />
+        <Link href="/">
+          <NosilhaLogo
+            size="sidebar"
+            iconOnly={collapsed}
+            instanceId="admin-sidebar"
+          />
+        </Link>
       </div>
 
       {/* Nav Sections */}

@@ -1,13 +1,19 @@
 "use server";
 
 import { Octokit } from "@octokit/rest";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 import { env } from "@/lib/env";
-import { supabase } from "@/lib/supabase-client";
+
+/** Strict slug pattern: lowercase alphanumeric segments separated by hyphens */
+const VALID_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 /**
  * Archive Story to MDX Server Action
  *
  * Handles archiving approved stories as MDX files in the GitHub repository by:
+ * - Verifying the caller is an authenticated ADMIN user
+ * - Validating the slug to prevent path traversal attacks
  * - Authenticating with GitHub using a Personal Access Token (PAT)
  * - Creating a commit with the MDX content in the stories directory
  * - Calling the backend API to mark the story as archived
@@ -29,7 +35,50 @@ export async function archiveStoryToMDX(
   title: string
 ): Promise<{ success: boolean; commitUrl?: string; error?: string }> {
   try {
-    // 1. Validate environment variables
+    // 1. Verify caller is an authenticated admin
+    const cookieStore = await cookies();
+    const supabase = createServerClient(env.supabaseUrl, env.supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // Ignored in server actions
+          }
+        },
+      },
+    });
+
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return { success: false, error: "Authentication required." };
+    }
+
+    const role = user.app_metadata?.role;
+    if (role?.toUpperCase() !== "ADMIN") {
+      return { success: false, error: "Admin access required." };
+    }
+
+    // Capture session token now, before long-running GitHub operations
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    const accessToken = session?.access_token;
+
+    // 2. Validate slug to prevent path traversal
+    if (!VALID_SLUG_PATTERN.test(slug)) {
+      return { success: false, error: "Invalid slug format." };
+    }
+
     const githubToken = process.env.GITHUB_TOKEN;
     if (!githubToken) {
       console.error(
@@ -46,12 +95,12 @@ export async function archiveStoryToMDX(
     const repoName = process.env.GITHUB_REPO_NAME || "nosilha";
     const branch = process.env.GITHUB_CONTENT_BRANCH || "content";
 
-    // 2. Initialize Octokit client
+    // 3. Initialize Octokit client
     const octokit = new Octokit({
       auth: githubToken,
     });
 
-    // 3. Get current branch SHA
+    // 4. Get current branch SHA
     console.log(
       `[Archive Story] Fetching branch reference: ${repoOwner}/${repoName}@${branch}`
     );
@@ -62,7 +111,7 @@ export async function archiveStoryToMDX(
     });
     const currentSha = refData.object.sha;
 
-    // 4. Get the current tree
+    // 5. Get the current tree
     console.log(`[Archive Story] Fetching tree for SHA: ${currentSha}`);
     const { data: treeData } = await octokit.rest.git.getTree({
       owner: repoOwner,
@@ -70,7 +119,7 @@ export async function archiveStoryToMDX(
       tree_sha: currentSha,
     });
 
-    // 5. Create a blob with the MDX content
+    // 6. Create a blob with the MDX content
     console.log(`[Archive Story] Creating blob for story: ${slug}`);
     const { data: blobData } = await octokit.rest.git.createBlob({
       owner: repoOwner,
@@ -79,7 +128,7 @@ export async function archiveStoryToMDX(
       encoding: "base64",
     });
 
-    // 6. Create a new tree with the MDX file
+    // 7. Create a new tree with the MDX file
     const filePath = `apps/web/content/stories/${slug}.mdx`;
     console.log(`[Archive Story] Creating tree with file: ${filePath}`);
     const { data: newTreeData } = await octokit.rest.git.createTree({
@@ -96,7 +145,7 @@ export async function archiveStoryToMDX(
       ],
     });
 
-    // 7. Create a commit
+    // 8. Create a commit
     const commitMessage = `feat(stories): archive story "${title}" to MDX
 
 Story ID: ${storyId}
@@ -116,7 +165,7 @@ as static MDX content in the repository.`;
       parents: [currentSha],
     });
 
-    // 8. Update the branch reference
+    // 9. Update the branch reference
     console.log(
       `[Archive Story] Updating branch reference to: ${commitData.sha}`
     );
@@ -127,12 +176,12 @@ as static MDX content in the repository.`;
       sha: commitData.sha,
     });
 
-    // 9. Mark the story as archived in the backend
+    // 10. Mark the story as archived in the backend
     const commitUrl = commitData.html_url;
     console.log(`[Archive Story] Commit successful: ${commitUrl}`);
 
     try {
-      await markStoryAsArchived(storyId, commitUrl);
+      await markStoryAsArchived(storyId, commitUrl, accessToken);
       console.log(
         `[Archive Story] Story marked as archived in backend: ${storyId}`
       );
@@ -148,7 +197,7 @@ as static MDX content in the repository.`;
       );
     }
 
-    // 10. Return success with commit URL
+    // 11. Return success with commit URL
     return {
       success: true,
       commitUrl,
@@ -212,18 +261,15 @@ as static MDX content in the repository.`;
  *
  * @param storyId - UUID of the story to mark as archived
  * @param commitUrl - GitHub commit URL for reference
+ * @param accessToken - JWT access token from the authenticated session
  * @throws Error if the API call fails
  */
 async function markStoryAsArchived(
   storyId: string,
-  commitUrl: string
+  commitUrl: string,
+  accessToken: string | undefined
 ): Promise<void> {
-  // Get JWT token from Supabase session
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (!session?.access_token) {
+  if (!accessToken) {
     throw new Error("Authentication required to mark story as archived");
   }
 
@@ -234,7 +280,7 @@ async function markStoryAsArchived(
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${session.access_token}`,
+      Authorization: `Bearer ${accessToken}`,
     },
     body: JSON.stringify({
       commitUrl,
@@ -246,7 +292,6 @@ async function markStoryAsArchived(
   if (!response.ok) {
     // Handle authentication errors
     if (response.status === 401) {
-      await supabase.auth.signOut();
       throw new Error("Authentication expired. Please log in again.");
     }
 

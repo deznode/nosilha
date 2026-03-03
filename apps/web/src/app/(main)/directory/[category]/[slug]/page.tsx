@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
+import { cacheLife, cacheTag } from "next/cache";
 import { getEntryBySlug } from "@/lib/api";
 import { generateDirectoryEntryMetadata, siteConfig } from "@/lib/metadata";
 import { notFound, redirect } from "next/navigation";
 import { DirectoryEntryDetailPageContent } from "@/components/pages/directory-entry-detail-page-content";
 import { getCategorySlug, getCategoryFromSlug } from "@/lib/directory-utils";
-
-// Enable ISR with 30 minute revalidation for individual entries
-export const revalidate = 1800;
 
 interface DetailPageProps {
   params: Promise<{ category: string; slug: string }>;
@@ -37,7 +35,10 @@ export async function generateMetadata({
 export default async function DirectoryEntryDetailPage({
   params,
 }: DetailPageProps) {
+  "use cache";
+  cacheLife("entry");
   const { category, slug } = await params;
+  cacheTag(`entry:${category}:${slug}`, `category:${category}`);
   const entry = await getEntryBySlug(slug);
 
   if (!entry) {

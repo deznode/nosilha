@@ -1,11 +1,11 @@
+import { cacheLife } from "next/cache";
 import { PageHeader } from "@/components/ui/page-header";
 import { pages } from "@/.velite";
 import { PeopleGrid } from "@/components/pages/people-grid";
 
-// Enable ISR with 2 hour revalidation for people content
-export const revalidate = 7200;
-
-export default function PeoplePage() {
+export default async function PeoplePage() {
+  "use cache";
+  cacheLife("longLived");
   // Filter to people category, English only, exclude drafts
   const peoplePages = pages
     .filter((p) => p.category === "people" && p.language === "en" && !p.draft)

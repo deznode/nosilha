@@ -18,7 +18,7 @@ import java.util.UUID
  * <ul>
  *   <li>Name: 2-255 characters</li>
  *   <li>Email: Valid email format (RFC 5322)</li>
- *   <li>Suggestion type: CORRECTION, ADDITION, or FEEDBACK</li>
+ *   <li>Suggestion type: CORRECTION, ADDITION, FEEDBACK, or PHOTO_IDENTIFICATION</li>
  *   <li>Message: 10-5000 characters (minimum substance, maximum prevent abuse)</li>
  *   <li>Rate limiting: Maximum 5 submissions per hour per IP address (enforced in service layer)</li>
  *   <li>Honeypot validation: Client-side field must be empty (enforced in controller)</li>
@@ -68,6 +68,8 @@ class Suggestion(
     @Size(max = 45)
     @Column(name = "ip_address", length = 45)
     val ipAddress: String? = null,
+    @Column(name = "media_id")
+    val mediaId: UUID? = null,
 ) : CreatableEntity() {
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -115,4 +117,7 @@ enum class SuggestionType {
 
     /** General feedback on content quality */
     FEEDBACK,
+
+    /** Request to identify an unknown photo (location, date, subject) */
+    PHOTO_IDENTIFICATION,
 }

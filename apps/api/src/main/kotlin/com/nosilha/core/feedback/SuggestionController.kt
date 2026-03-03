@@ -3,6 +3,7 @@ package com.nosilha.core.feedback
 import com.nosilha.core.feedback.api.SuggestionCreateDto
 import com.nosilha.core.feedback.api.SuggestionResponseDto
 import com.nosilha.core.shared.api.ApiResult
+import com.nosilha.core.shared.util.extractClientIp
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.Valid
@@ -73,7 +74,7 @@ class SuggestionController(
         @Valid @RequestBody dto: SuggestionCreateDto,
         request: HttpServletRequest,
     ): ApiResult<SuggestionResponseDto> {
-        val ipAddress = extractIpAddress(request)
+        val ipAddress = extractClientIp(request)
         logger.info { "Received suggestion submission from IP: $ipAddress for content ${dto.contentId}" }
 
         return try {
@@ -91,26 +92,5 @@ class SuggestionController(
                 status = HttpStatus.CREATED.value(),
             )
         }
-    }
-
-    /**
-     * Extracts the client IP address from the HTTP request.
-     *
-     * <p>Checks X-Forwarded-For header first (for proxied requests),
-     * then falls back to remote address.</p>
-     *
-     * @param request HTTP request
-     * @return IP address or null if not available
-     */
-    private fun extractIpAddress(request: HttpServletRequest): String? {
-        // Check X-Forwarded-For header (for proxied requests)
-        val xForwardedFor = request.getHeader("X-Forwarded-For")
-        if (!xForwardedFor.isNullOrBlank()) {
-            // Take the first IP if multiple are present
-            return xForwardedFor.split(",").firstOrNull()?.trim()
-        }
-
-        // Fall back to remote address
-        return request.remoteAddr
     }
 }

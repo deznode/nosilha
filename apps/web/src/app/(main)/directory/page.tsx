@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
+import { cacheLife } from "next/cache";
 import { getEntriesByCategory } from "@/lib/api";
 import { DirectoryCategoryPageContent } from "@/components/pages/directory-category-page-content";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import type { BreadcrumbListSchema } from "@/types/metadata";
 
-// Enable ISR with 1 hour revalidation for directory content
-export const revalidate = 3600;
+interface DirectoryPageProps {
+  searchParams: Promise<{
+    page?: string;
+    q?: string;
+    town?: string;
+    sort?: string;
+  }>;
+}
 
 // Generate metadata for the unified directory page
 export async function generateMetadata(): Promise<Metadata> {
@@ -55,14 +62,32 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default async function DirectoryPage() {
-  // Fetch all entries for the unified directory
-  const { items: entries } = await getEntriesByCategory("all");
+export default async function DirectoryPage({
+  searchParams,
+}: DirectoryPageProps) {
+  const { page: pageParam, q, town, sort } = await searchParams;
+  return cachedDirectoryContent(pageParam, q, town, sort);
+}
+
+async function cachedDirectoryContent(
+  pageParam?: string,
+  q?: string,
+  town?: string,
+  sort?: string
+) {
+  "use cache";
+  cacheLife("content");
+  const page = Math.max(0, parseInt(pageParam || "0", 10) || 0);
+  const size = 20;
+
+  const result = await getEntriesByCategory("all", page, size, q, town, sort);
 
   return (
     <DirectoryCategoryPageContent
       category="all"
-      entries={entries}
+      entries={result.items}
+      pagination={result.pagination}
+      initialFilters={{ page, q, town, sort }}
       showCategoryFilter={true}
     />
   );

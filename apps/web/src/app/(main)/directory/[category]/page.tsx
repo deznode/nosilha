@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cacheLife, cacheTag } from "next/cache";
 import { getEntriesByCategory } from "@/lib/api";
 import { DirectoryCategoryPageContent } from "@/components/pages/directory-category-page-content";
 import {
@@ -8,13 +9,16 @@ import {
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import type { BreadcrumbListSchema } from "@/types/metadata";
 
-// Enable ISR with 1 hour revalidation for directory content
-export const revalidate = 3600;
-
 // Define the props for a dynamic page component in Next.js
 interface DirectoryCategoryPageProps {
   params: Promise<{
     category: string;
+  }>;
+  searchParams: Promise<{
+    page?: string;
+    q?: string;
+    town?: string;
+    sort?: string;
   }>;
 }
 
@@ -94,12 +98,47 @@ export async function generateMetadata({
 
 export default async function DirectoryCategoryPage({
   params,
+  searchParams,
 }: DirectoryCategoryPageProps) {
   const { category } = await params;
+  const { page: pageParam, q, town, sort } = await searchParams;
+  return cachedCategoryContent(category, pageParam, q, town, sort);
+}
+
+async function cachedCategoryContent(
+  category: string,
+  pageParam?: string,
+  q?: string,
+  town?: string,
+  sort?: string
+) {
+  "use cache";
+  cacheLife("content");
+  cacheTag(`category:${category}`);
+
   // Convert URL slug (e.g., "hotels") to API category format (e.g., "Hotel")
   // For "all", keep as-is since the API handles it specially
   const apiCategory =
     category === "all" ? category : (getCategoryFromSlug(category) ?? category);
-  const { items: entries } = await getEntriesByCategory(apiCategory);
-  return <DirectoryCategoryPageContent category={category} entries={entries} />;
+
+  const page = Math.max(0, parseInt(pageParam || "0", 10) || 0);
+  const size = 20;
+
+  const result = await getEntriesByCategory(
+    apiCategory,
+    page,
+    size,
+    q,
+    town,
+    sort
+  );
+
+  return (
+    <DirectoryCategoryPageContent
+      category={category}
+      entries={result.items}
+      pagination={result.pagination}
+      initialFilters={{ page, q, town, sort }}
+    />
+  );
 }

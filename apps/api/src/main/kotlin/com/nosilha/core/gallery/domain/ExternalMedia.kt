@@ -103,15 +103,41 @@ class ExternalMedia : GalleryMedia() {
     /**
      * Returns thumbnail URL or auto-generates for YouTube videos.
      *
-     * If thumbnailUrl is set, returns it directly. Otherwise, for YouTube
-     * platform, auto-generates high-quality thumbnail from externalId using
+     * If thumbnailUrl is a valid image URL, returns it directly. If it contains
+     * a non-image URL (e.g. a YouTube watch or embed URL), it is treated as
+     * missing and the auto-generation fallback is used instead.
+     *
+     * For YouTube, auto-generates high-quality thumbnail from externalId using
      * YouTube's thumbnail API: https://img.youtube.com/vi/{id}/hqdefault.jpg
      *
      * @return Thumbnail URL string or null if not available
      */
     fun resolvedThumbnailUrl(): String? =
-        thumbnailUrl ?: when (platform) {
-            ExternalPlatform.YOUTUBE -> externalId?.let { "https://img.youtube.com/vi/$it/hqdefault.jpg" }
-            else -> null
-        }
+        thumbnailUrl?.takeUnless { isNonImageUrl(it) }
+            ?: when (platform) {
+                ExternalPlatform.YOUTUBE -> externalId?.let { "https://img.youtube.com/vi/$it/hqdefault.jpg" }
+                else -> null
+            }
+
+    companion object {
+        private val NON_IMAGE_URL_PATTERNS = listOf(
+            "youtube.com/watch",
+            "youtube.com/embed",
+            "youtu.be/",
+            "vimeo.com/",
+            "soundcloud.com/",
+        )
+
+        /**
+         * Detects URLs that are video/audio page URLs rather than image URLs.
+         */
+        private fun isNonImageUrl(url: String): Boolean = NON_IMAGE_URL_PATTERNS.any { url.contains(it, ignoreCase = true) }
+
+        /**
+         * Normalizes a thumbnail URL before persistence.
+         * Returns null for non-image URLs (e.g. YouTube watch URLs) so that
+         * [resolvedThumbnailUrl] can auto-generate the correct thumbnail.
+         */
+        fun normalizeThumbnailUrl(url: String?): String? = url?.takeUnless { isNonImageUrl(it) }
+    }
 }

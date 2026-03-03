@@ -1,59 +1,40 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
-import { Sparkles, Loader2 } from "lucide-react";
-import type { GalleryModerationAction } from "@/types/gallery";
-import { isUserUploadMedia } from "@/types/gallery";
-import { Button } from "@/components/catalyst-ui/button";
-import { Checkbox } from "@/components/catalyst-ui/checkbox";
+import { useState, useMemo } from "react";
+import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
 import { GalleryQueueItem } from "./gallery-queue-item";
-import { AiReviewDetailModal } from "@/components/admin/ai-review-detail-modal";
+import { GalleryEditModal } from "./gallery-edit-modal";
 import {
   useAdminGallery,
   useAiStatus,
   useUpdateGalleryStatus,
   usePromoteToHeroImage,
-  useTriggerAnalysis,
-  useTriggerBatchAnalysis,
-  useAiReviewQueue,
 } from "@/hooks/queries/admin";
-import { useToast } from "@/hooks/use-toast";
+import { Pagination, fromAdminQueueResponse } from "@/components/ui/pagination";
 
 export function GalleryQueue() {
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [mediaToEdit, setMediaToEdit] = useState<GalleryMedia | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [page, setPage] = useState(0);
 
-  // AI Review modal state
-  const [selectedAiRunId, setSelectedAiRunId] = useState<string | null>(null);
-  const [isAiReviewModalOpen, setIsAiReviewModalOpen] = useState(false);
-
-  // Query hooks
-  const galleryQuery = useAdminGallery();
-  const aiReviewQuery = useAiReviewQueue();
+  const galleryQuery = useAdminGallery({ page, size: 20 });
   const updateGallery = useUpdateGalleryStatus();
   const promoteToHero = usePromoteToHeroImage();
-  const triggerAnalysis = useTriggerAnalysis();
-  const triggerBatchAnalysis = useTriggerBatchAnalysis();
-  const toast = useToast();
 
   const items = useMemo(
     () => galleryQuery.data?.items ?? [],
     [galleryQuery.data]
   );
   const isLoading = galleryQuery.isLoading;
-  const aiReviewItems = aiReviewQuery.data?.items ?? [];
+  const paginationData = fromAdminQueueResponse(galleryQuery.data);
 
-  // Batch fetch AI status for gallery media items
-  const galleryMediaIds = useMemo(
-    () => items.map((item) => item.id),
-    [items]
-  );
+  const galleryMediaIds = useMemo(() => items.map((item) => item.id), [items]);
   const aiStatusQuery = useAiStatus(galleryMediaIds);
   const aiStatuses = useMemo(
     () => new Map((aiStatusQuery.data ?? []).map((s) => [s.mediaId, s])),
     [aiStatusQuery.data]
   );
 
-  // Handlers
   const handleStatusChange = (
     id: string,
     action: GalleryModerationAction,
@@ -70,100 +51,15 @@ export function GalleryQueue() {
     promoteToHero.mutate(mediaId);
   };
 
-  const handleTriggerAnalysis = (mediaId: string) => {
-    triggerAnalysis.mutate(mediaId, {
-      onSuccess: () => {
-        toast.success("AI analysis triggered").show();
-      },
-      onError: () => {
-        toast.error("Failed to trigger AI analysis. Please try again.").show();
-      },
-    });
+  const handleEdit = (item: GalleryMedia) => {
+    setMediaToEdit(item);
+    setIsEditModalOpen(true);
   };
 
-  const handleTriggerBatchAnalysis = async (mediaIds: string[]) => {
-    return new Promise<void>((resolve, reject) => {
-      triggerBatchAnalysis.mutate(
-        { mediaIds },
-        {
-          onSuccess: (data) => {
-            const parts = [`AI analysis triggered for ${data.accepted} items`];
-            if (data.rejected > 0) {
-              parts.push(`(${data.rejected} rejected)`);
-            }
-            toast.success(parts.join(" ")).show();
-            resolve();
-          },
-          onError: () => {
-            toast
-              .error("Failed to trigger batch AI analysis. Please try again.")
-              .show();
-            reject();
-          },
-        }
-      );
-    });
+  const handleEditClose = () => {
+    setIsEditModalOpen(false);
+    setMediaToEdit(null);
   };
-
-  const handleViewAiReview = (mediaId: string) => {
-    const run = aiReviewItems.find((item) => item.mediaId === mediaId);
-    if (run) {
-      setSelectedAiRunId(run.id);
-      setIsAiReviewModalOpen(true);
-    }
-  };
-
-  const handleAiReviewClose = () => {
-    setIsAiReviewModalOpen(false);
-    setSelectedAiRunId(null);
-  };
-
-  // Compute eligible IDs for "Select All Eligible"
-  const eligibleIds = useMemo(
-    () =>
-      items
-        .filter(
-          (item) =>
-            isUserUploadMedia(item) &&
-            (item.status === "ACTIVE" || item.status === "PENDING_REVIEW") &&
-            !!item.publicUrl &&
-            aiStatuses?.get(item.id)?.lastRunStatus !== "PROCESSING"
-        )
-        .map((item) => item.id),
-    [items, aiStatuses]
-  );
-
-  const toggleSelect = useCallback((id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  }, []);
-
-  const toggleSelectAll = useCallback(() => {
-    setSelectedIds((prev) => {
-      const allSelected = eligibleIds.every((id) => prev.has(id));
-      if (allSelected) {
-        return new Set();
-      }
-      return new Set(eligibleIds);
-    });
-  }, [eligibleIds]);
-
-  const handleBatchTrigger = useCallback(async () => {
-    if (selectedIds.size > 0) {
-      await handleTriggerBatchAnalysis(Array.from(selectedIds));
-      setSelectedIds(new Set());
-    }
-  }, [selectedIds]);
-
-  const allEligibleSelected =
-    eligibleIds.length > 0 && eligibleIds.every((id) => selectedIds.has(id));
 
   if (isLoading) {
     return (
@@ -201,60 +97,29 @@ export function GalleryQueue() {
         </p>
       </div>
 
-      {/* Batch Action Bar */}
-      {selectedIds.size > 0 && (
-        <div className="border-hairline bg-surface flex items-center gap-4 rounded-xl border p-3 shadow-sm">
-          <span className="text-body text-sm font-medium">
-            {selectedIds.size} selected
-          </span>
-          <label className="text-muted flex items-center gap-2 text-sm">
-            <Checkbox
-              checked={allEligibleSelected}
-              onChange={toggleSelectAll}
-              color="blue"
-            />
-            Select All Eligible ({eligibleIds.length})
-          </label>
-          <Button
-            color="dark"
-            onClick={handleBatchTrigger}
-            disabled={triggerBatchAnalysis.isPending}
-          >
-            {triggerBatchAnalysis.isPending ? (
-              <Loader2 data-slot="icon" className="animate-spin" />
-            ) : (
-              <Sparkles data-slot="icon" />
-            )}
-            Analyze Selected
-          </Button>
-        </div>
+      {items.map((item) => (
+        <GalleryQueueItem
+          key={item.id}
+          item={item}
+          onStatusChange={handleStatusChange}
+          onEdit={handleEdit}
+          onPromoteToHero={handlePromoteToHero}
+          aiStatus={aiStatuses.get(item.id)}
+        />
+      ))}
+
+      {paginationData && (
+        <Pagination
+          {...paginationData}
+          onPageChange={setPage}
+          className="mt-4"
+        />
       )}
 
-      {items.map((item) => {
-        const isEligible = eligibleIds.includes(item.id);
-        return (
-          <GalleryQueueItem
-            key={item.id}
-            item={item}
-            onStatusChange={handleStatusChange}
-            onPromoteToHero={handlePromoteToHero}
-            aiStatus={aiStatuses.get(item.id)}
-            onViewAiReview={handleViewAiReview}
-            onTriggerAnalysis={handleTriggerAnalysis}
-            isTriggerPending={triggerAnalysis.isPending}
-            triggeringMediaId={triggerAnalysis.variables}
-            isEligibleForAi={isEligible}
-            isSelected={selectedIds.has(item.id)}
-            onToggleSelect={isEligible ? toggleSelect : undefined}
-          />
-        );
-      })}
-
-      {/* AI Review Detail Modal */}
-      <AiReviewDetailModal
-        runId={selectedAiRunId}
-        isOpen={isAiReviewModalOpen}
-        onClose={handleAiReviewClose}
+      <GalleryEditModal
+        isOpen={isEditModalOpen}
+        item={mediaToEdit}
+        onClose={handleEditClose}
       />
     </div>
   );

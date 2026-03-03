@@ -12,7 +12,7 @@ export default function AiReviewPage() {
       <div className="mb-8">
         <h1 className="text-body text-2xl font-bold">AI Review</h1>
         <p className="text-muted mt-1 text-sm">
-          Review and moderate AI-generated analysis results
+          Trigger AI analysis and review results for gallery media
         </p>
       </div>
       <AiReviewQueue />

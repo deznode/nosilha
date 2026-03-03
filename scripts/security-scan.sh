@@ -182,6 +182,9 @@ echo ""
 echo -e "  ${BOLD}Scanning frontend (apps/web)...${NC}"
 if trivy fs apps/web \
     --severity "$SEVERITY" \
+    --skip-dirs ".next" \
+    --skip-dirs ".pnpm-store" \
+    --skip-dirs "node_modules" \
     --format json \
     --output "$REPORTS_DIR/trivy-frontend.json" \
     --ignorefile .trivyignore \

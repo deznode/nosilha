@@ -1,218 +1,274 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { Image as ImageIcon, Play, Plus } from "lucide-react";
+import type { Metadata } from "next";
+import { cacheLife, cacheTag } from "next/cache";
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import {
-  PhotoGrid,
-  PhotoGridSkeleton,
-  VideoSection,
-  Lightbox,
-} from "@/components/gallery";
-import { getGalleryMedia } from "@/lib/api";
-import type { MediaItem, MediaCategory } from "@/types/media";
-import type { GalleryMedia } from "@/types/gallery";
+  getGalleryMedia,
+  getGalleryCategories,
+  getFeaturedPhoto,
+  getWeeklyDiscovery,
+  getGalleryTimeline,
+} from "@/lib/api";
+import { generatePageMetadata, siteConfig } from "@/lib/metadata";
+import { getQueryClient } from "@/lib/query-client";
+import {
+  GALLERY_PAGE_SIZE,
+  galleryQueryKey,
+  galleryQueryFn,
+  galleryGetNextPageParam,
+} from "@/hooks/queries/useGalleryInfiniteQuery";
+import { GalleryContent } from "./gallery-content";
+import type { MediaCategory } from "@/types/media";
+import type {
+  BreadcrumbListSchema,
+  ImageGallerySchema,
+  ImageObjectSchema,
+} from "@/types/metadata";
+import type {
+  PublicUserUploadMedia,
+  DecadeFilter,
+  GalleryView,
+} from "@/types/gallery";
 
-/**
- * Maps unified GalleryMedia to MediaItem expected by gallery components.
- * Handles both user uploads and external media in a type-safe way.
- */
-function mapGalleryMediaToMediaItem(media: GalleryMedia): MediaItem {
-  // Map category to MediaCategory type (using first available or fallback)
-  const categoryMap: Record<string, MediaCategory> = {
-    Heritage: "Heritage",
-    Landmark: "Heritage", // Backward compatibility
-    Historical: "Historical",
-    Nature: "Nature",
-    Culture: "Culture",
-    Event: "Event",
-    Interview: "Interview",
-  };
-  const category = categoryMap[media.category || ""] || "Culture";
+const VALID_DECADES = new Set<string>([
+  "pre-1975",
+  "1975-1990",
+  "1990-2010",
+  "2010-plus",
+]);
 
-  // Use discriminated union to handle different media sources
-  if (media.mediaSource === "EXTERNAL") {
-    // External media (YouTube, Vimeo, etc.)
-    // For YouTube videos, generate thumbnail URL if not provided
-    let thumbnailUrl = media.thumbnailUrl;
-    if (!thumbnailUrl && media.platform === "YOUTUBE" && media.externalId) {
-      thumbnailUrl = `https://img.youtube.com/vi/${media.externalId}/maxresdefault.jpg`;
-    }
+const VALID_VIEWS = new Set<string>(["map", "timeline"]);
 
-    // For video content, use embedUrl from API (already resolved by backend)
-    // For images, use the direct url
-    const url =
-      media.mediaType === "VIDEO"
-        ? media.embedUrl || media.url || ""
-        : media.url || "";
-
-    return {
-      id: media.id,
-      type: media.mediaType as "IMAGE" | "VIDEO",
-      url,
-      thumbnailUrl: thumbnailUrl || undefined,
-      title: media.title || "Untitled",
-      description: media.description || undefined,
-      category,
-      author: media.author || media.curatorDisplayName || undefined,
-      date: new Date(media.createdAt).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-      }),
-    };
-  } else {
-    // User-uploaded media
-    // Determine type based on content type
-    const isVideo = media.contentType?.startsWith("video/");
-    const type: "IMAGE" | "VIDEO" = isVideo ? "VIDEO" : "IMAGE";
-
-    return {
-      id: media.id,
-      type,
-      url: media.publicUrl || "",
-      thumbnailUrl: undefined, // User uploads don't have separate thumbnails
-      title: media.title || media.originalName || media.fileName,
-      description: media.description || undefined,
-      category,
-      author: media.uploaderDisplayName || "Community Contributor",
-      date: new Date(media.createdAt).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-      }),
-      source: "user" as const, // Mark source for potential UI differentiation
-    };
-  }
+function parseView(view: string | undefined): GalleryView {
+  if (view && VALID_VIEWS.has(view)) return view as GalleryView;
+  return "grid";
 }
 
-export default function GalleryPage() {
-  const [activeTab, setActiveTab] = useState<"photos" | "videos">("photos");
-  const [photos, setPhotos] = useState<MediaItem[]>([]);
-  const [videos, setVideos] = useState<MediaItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [categoryFilter, setCategoryFilter] = useState<MediaCategory | "All">(
-    "All"
-  );
-  const [selectedImage, setSelectedImage] = useState<MediaItem | null>(null);
+interface GalleryPageProps {
+  searchParams: Promise<{
+    tab?: string;
+    category?: string;
+    decade?: string;
+    q?: string;
+    view?: string;
+  }>;
+}
 
-  useEffect(() => {
-    async function loadMedia() {
-      setIsLoading(true);
-      try {
-        // Fetch unified gallery media (includes both user uploads and external content)
-        // Gallery API automatically returns only ACTIVE items
-        const galleryResponse = await getGalleryMedia({ size: 100 });
+export async function generateMetadata({
+  searchParams,
+}: GalleryPageProps): Promise<Metadata> {
+  const { tab, category } = await searchParams;
 
-        // Separate photos and videos based on media type
-        const photoItems: MediaItem[] = [];
-        const videoItems: MediaItem[] = [];
+  const isVideos = tab === "videos";
+  const activeCategory = category || null;
 
-        galleryResponse.items.forEach((media) => {
-          const mappedItem = mapGalleryMediaToMediaItem(media);
+  let title = "Brava Media Center";
+  if (isVideos) {
+    title = "Videos & Podcasts - Brava Media Center";
+  } else if (activeCategory && activeCategory !== "All") {
+    title = `${activeCategory} Photos - Brava Media Center`;
+  }
 
-          // Separate by type
-          if (mappedItem.type === "IMAGE") {
-            photoItems.push(mappedItem);
-          } else if (mappedItem.type === "VIDEO") {
-            videoItems.push(mappedItem);
-          }
-        });
+  const description = isVideos
+    ? "Watch cinematic views of Brava's landscapes and listen to interviews with elders about Cape Verdean heritage and migration stories."
+    : "Explore historical photographs, community moments, and cultural heritage images from Brava Island, Cape Verde.";
 
-        setPhotos(photoItems);
-        setVideos(videoItems);
-      } catch (error) {
-        console.error("Failed to load media:", error);
-        // Set empty arrays on error to show "no content" message
-        setPhotos([]);
-        setVideos([]);
-      } finally {
-        setIsLoading(false);
-      }
-    }
+  const breadcrumbSchema: BreadcrumbListSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteConfig.url,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Gallery",
+        item: `${siteConfig.url}/gallery`,
+      },
+    ],
+  };
 
-    loadMedia();
-  }, []);
+  const imageGallerySchema: ImageGallerySchema = {
+    "@context": "https://schema.org",
+    "@type": "ImageGallery",
+    name: "Brava Media Center",
+    description:
+      "A visual archive of Brava Island, Cape Verde. Historical photographs, community moments, and videos celebrating the culture of Brava.",
+    url: `${siteConfig.url}/gallery`,
+  };
+
+  const metadata = generatePageMetadata({
+    title,
+    description,
+    path: "/gallery",
+    keywords: [
+      "Brava Island photos",
+      "Cape Verde gallery",
+      "cultural heritage images",
+      "historical photographs",
+      "Brava visual archive",
+    ],
+    structuredData: [breadcrumbSchema, imageGallerySchema],
+    baseUrl: siteConfig.url,
+    siteName: siteConfig.name,
+    defaultImage: siteConfig.ogImage,
+  });
+
+  return {
+    ...metadata,
+    openGraph: {
+      ...metadata.openGraph,
+      locale: "pt_CV",
+      alternateLocale: ["en_US"],
+    },
+  };
+}
+
+export default async function GalleryPage({ searchParams }: GalleryPageProps) {
+  const { tab, category, decade, q, view } = await searchParams;
+  return cachedGalleryContent(tab, category, decade, q, view);
+}
+
+async function cachedGalleryContent(
+  tab?: string,
+  category?: string,
+  decade?: string,
+  q?: string,
+  view?: string
+) {
+  "use cache";
+  cacheLife("entry");
+  cacheTag("gallery");
+
+  const initialDecade: DecadeFilter =
+    decade && VALID_DECADES.has(decade) ? (decade as DecadeFilter) : "all";
+  const initialQuery = q?.trim() || "";
+  const initialView = parseView(view);
+
+  const filters = {
+    category: category || undefined,
+    decade: initialDecade !== "all" ? initialDecade : undefined,
+    q: initialQuery || undefined,
+  };
+
+  // Prefetch gallery data into a per-request QueryClient so
+  // HydrationBoundary seeds the cache for the exact SSR query key.
+  const queryClient = getQueryClient();
+
+  const [
+    ,
+    apiCategories,
+    galleryResponse,
+    featuredPhoto,
+    weeklyPhotos,
+    timelineData,
+  ] = await Promise.all([
+    queryClient.prefetchInfiniteQuery({
+      queryKey: galleryQueryKey(filters),
+      queryFn: galleryQueryFn(filters),
+      initialPageParam: 0,
+      getNextPageParam: galleryGetNextPageParam,
+      pages: 1,
+    }),
+    getGalleryCategories().catch(() => [] as string[]),
+    getGalleryMedia({
+      size: GALLERY_PAGE_SIZE,
+      decade: filters.decade,
+      q: filters.q,
+    }),
+    getFeaturedPhoto().catch(() => null),
+    getWeeklyDiscovery().catch(() => []),
+    initialView === "timeline"
+      ? getGalleryTimeline().catch(() => null)
+      : Promise.resolve(null),
+  ]);
+
+  const initialTab: "photos" | "videos" =
+    tab === "videos" ? "videos" : "photos";
+  const initialCategory: MediaCategory | "All" =
+    (category as MediaCategory) || "All";
+
+  // Build ImageGallery JSON-LD with first page of items
+  const galleryJsonLd: ImageGallerySchema = {
+    "@context": "https://schema.org",
+    "@type": "ImageGallery",
+    name: "Brava Media Center",
+    description:
+      "A visual archive of Brava Island, Cape Verde. Historical photographs, community moments, and videos celebrating the culture of Brava.",
+    url: `${siteConfig.url}/gallery`,
+    numberOfItems: galleryResponse.totalItems,
+    image: galleryResponse.items
+      .filter(
+        (item): item is PublicUserUploadMedia & { publicUrl: string } =>
+          item.mediaSource === "USER_UPLOAD" &&
+          !!(item as PublicUserUploadMedia).publicUrl
+      )
+      .slice(0, 10)
+      .map((item) => buildListingImageObject(item)),
+  };
+
+  // JSON-LD: JSON.stringify escapes all content; data is server-fetched from DB
+  const jsonLdHtml = JSON.stringify(galleryJsonLd);
 
   return (
-    <div className="bg-canvas min-h-screen pb-12">
-      {/* Header */}
-      <div className="bg-basalt-900 text-white">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div>
-              <h1 className="mb-4 font-serif text-3xl font-bold md:text-5xl">
-                Brava Media Center
-              </h1>
-              <p className="max-w-2xl text-lg font-light text-white/70">
-                A visual archive of our island. Explore historical photographs,
-                community moments, and videos celebrating the culture of Brava.
-              </p>
-            </div>
-            <Link
-              href="/contribute/media"
-              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-subtle flex shrink-0 items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95"
-            >
-              <Plus size={18} />
-              Add to Archive
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="border-hairline bg-canvas shadow-subtle sticky top-16 z-30 border-b">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
-            <button
-              onClick={() => setActiveTab("photos")}
-              className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium ${
-                activeTab === "photos"
-                  ? "border-ocean-blue text-ocean-blue"
-                  : "text-muted hover:border-hairline hover:text-body border-transparent"
-              }`}
-            >
-              <ImageIcon size={18} /> Photo Gallery
-            </button>
-            <button
-              onClick={() => setActiveTab("videos")}
-              className={`flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium ${
-                activeTab === "videos"
-                  ? "border-bougainvillea-pink text-bougainvillea-pink"
-                  : "text-muted hover:border-hairline hover:text-body border-transparent"
-              }`}
-            >
-              <Play size={18} /> Video & Podcasts
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Photo Gallery */}
-        {activeTab === "photos" &&
-          (isLoading ? (
-            <PhotoGridSkeleton />
-          ) : (
-            <PhotoGrid
-              photos={photos}
-              categoryFilter={categoryFilter}
-              onCategoryChange={setCategoryFilter}
-              onPhotoClick={setSelectedImage}
-            />
-          ))}
-
-        {/* Video Archive */}
-        {activeTab === "videos" && (
-          <VideoSection videos={videos} isLoading={isLoading} />
-        )}
-      </div>
-
-      {/* Lightbox Modal */}
-      {selectedImage && (
-        <Lightbox
-          image={selectedImage}
-          onClose={() => setSelectedImage(null)}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLdHtml }}
+      />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <GalleryContent
+          categories={apiCategories}
+          initialTab={initialTab}
+          initialCategory={initialCategory}
+          initialDecade={initialDecade}
+          initialQuery={initialQuery}
+          initialView={initialView}
+          featuredPhoto={featuredPhoto}
+          weeklyPhotos={weeklyPhotos}
+          timelineData={timelineData}
         />
-      )}
-    </div>
+      </HydrationBoundary>
+    </>
   );
+}
+
+function buildListingImageObject(
+  upload: PublicUserUploadMedia
+): ImageObjectSchema {
+  const schema: ImageObjectSchema = {
+    "@context": "https://schema.org",
+    "@type": "ImageObject",
+    name: upload.title || "Brava Island Photo",
+    contentUrl: upload.publicUrl!,
+    license: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+  };
+
+  if (upload.description) schema.description = upload.description;
+  if (upload.altText) schema.accessibilityFeature = ["alternativeText"];
+
+  const credit = upload.photographerCredit || upload.uploaderDisplayName;
+  if (credit) {
+    schema.author = { "@type": "Person", name: credit };
+    schema.creditText = credit;
+  }
+
+  if (upload.dateTaken) {
+    schema.dateCreated = upload.dateTaken;
+  } else if (upload.approximateDate) {
+    schema.dateCreated = upload.approximateDate;
+  }
+
+  if (upload.locationName) {
+    schema.locationCreated = {
+      "@type": "Place",
+      name: upload.locationName,
+      containedInPlace: { "@type": "Place", name: "Brava Island, Cape Verde" },
+    };
+  }
+
+  return schema;
 }

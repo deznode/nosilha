@@ -102,6 +102,25 @@ abstract class GalleryMedia : AuditableEntity() {
     @Column(name = "severity")
     var severity: Int? = 0
 
+    /** Whether this media item appears in the public gallery page. */
+    @Column(name = "show_in_gallery", nullable = false)
+    var showInGallery: Boolean = true
+
+    /** Canonical alt text for WCAG 1.1.1 compliance. Editable by admins, backfilled from AI. */
+    @Column(name = "alt_text", length = 1024)
+    var altText: String? = null
+
+    // --- Smart credit attribution (shared across all media types) ---
+
+    /** Detected social platform for creator credit (e.g., YOUTUBE, INSTAGRAM). */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "credit_platform", length = 30)
+    var creditPlatform: CreditPlatform? = null
+
+    /** Normalized social media handle (without @ prefix). */
+    @Column(name = "credit_handle", length = 100)
+    var creditHandle: String? = null
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

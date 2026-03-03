@@ -1,9 +1,9 @@
+import { cacheLife } from "next/cache";
 import { ContributePageContent } from "@/components/pages/contribute-page-content";
 
-// Static page - no revalidation needed
-export const dynamic = "force-static";
-
-export default function ContributePage() {
+export default async function ContributePage() {
+  "use cache";
+  cacheLife("max");
   return <ContributePageContent />;
 }
 

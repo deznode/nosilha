@@ -1,7 +1,11 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getGalleryMediaById } from "@/lib/api";
-import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
+import {
+  isPublicUserUploadMedia,
+  isPublicExternalMedia,
+} from "@/types/gallery";
+import { resolveExternalThumbnail } from "@/lib/gallery-mappers";
 import { adminKeys } from "./keys";
 
 /**
@@ -23,8 +27,14 @@ export function useGalleryMediaById(mediaId: string | null | undefined) {
 
   const imageUrl = useMemo((): string | null => {
     if (!query.data) return null;
-    if (isUserUploadMedia(query.data)) return query.data.publicUrl;
-    if (isExternalMedia(query.data)) return query.data.thumbnailUrl;
+    if (isPublicUserUploadMedia(query.data)) return query.data.publicUrl;
+    if (isPublicExternalMedia(query.data)) {
+      return resolveExternalThumbnail(
+        query.data.thumbnailUrl,
+        query.data.platform,
+        query.data.externalId
+      );
+    }
     return null;
   }, [query.data]);
 

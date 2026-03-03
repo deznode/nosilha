@@ -24,9 +24,6 @@ interface FilterState {
   hasImage: boolean | undefined;
   sortBy: SortByValue;
 
-  // Multi-select for map filtering
-  selectedCategories: string[];
-
   // Actions
   setSearchQuery: (query: string) => void;
   setCategory: (category: CategoryValue | undefined) => void;
@@ -36,10 +33,6 @@ interface FilterState {
   setSortBy: (sortBy: SortByValue) => void;
   setFilters: (filters: Partial<FilterInput>) => void;
   clearFilters: () => void;
-
-  // Multi-category actions for map filtering
-  setSelectedCategories: (categories: string[]) => void;
-  toggleCategory: (category: string, isChecked: boolean) => void;
 
   // Utility
   hasActiveFilters: () => boolean;
@@ -55,7 +48,6 @@ export const useFilterStore = create<FilterState>()(
       minRating: undefined,
       hasImage: undefined,
       sortBy: "rating_desc",
-      selectedCategories: ["Restaurant", "Hotel", "Heritage", "Nature"], // Default: all categories
 
       // Actions
       setSearchQuery: (query) => set({ searchQuery: query }),
@@ -83,17 +75,6 @@ export const useFilterStore = create<FilterState>()(
           hasImage: undefined,
           sortBy: "rating_desc",
         }),
-
-      // Multi-category actions
-      setSelectedCategories: (categories) =>
-        set({ selectedCategories: categories }),
-
-      toggleCategory: (category, isChecked) =>
-        set((state) => ({
-          selectedCategories: isChecked
-            ? [...state.selectedCategories, category]
-            : state.selectedCategories.filter((c) => c !== category),
-        })),
 
       hasActiveFilters: () => {
         const state = get();
@@ -125,7 +106,3 @@ export const useHasImageFilter = () =>
 export const useSortBy = () => useFilterStore((state) => state.sortBy);
 export const useHasActiveFilters = () =>
   useFilterStore((state) => state.hasActiveFilters());
-
-// Multi-category selectors for map filtering
-export const useSelectedCategories = () =>
-  useFilterStore((state) => state.selectedCategories);

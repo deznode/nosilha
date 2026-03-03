@@ -1,10 +1,70 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useId } from "react";
+import { useId } from "react";
 import clsx from "clsx";
 
-// --- Blooming Hibiscus Icon ---
+// --- Static Hibiscus Icon (sidebar / compact contexts) ---
+
+export function StaticHibiscus({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden="true"
+    >
+      {/* Outer Petals — uses bougainvillea-pink via currentColor */}
+      <g className="text-bougainvillea-pink" fill="currentColor" opacity={0.9}>
+        {[0, 72, 144, 216, 288].map((rotation, i) => (
+          <path
+            key={i}
+            d="M50 20 C60 5, 80 20, 80 40 C80 60, 60 70, 50 50"
+            transform={`rotate(${rotation} 50 50)`}
+          />
+        ))}
+      </g>
+
+      {/* Inner Petals — lighter pink */}
+      <g className="text-bougainvillea-pink" fill="currentColor" opacity={0.5}>
+        {[36, 108, 180, 252, 324].map((rotation, i) => (
+          <path
+            key={i}
+            d="M50 35 C55 25, 70 35, 70 45 C70 55, 60 60, 50 50"
+            transform={`rotate(${rotation} 50 50)`}
+          />
+        ))}
+      </g>
+
+      {/* Center Pistil */}
+      <circle
+        cx="50"
+        cy="50"
+        r="6"
+        className="text-sunny-yellow"
+        fill="currentColor"
+      />
+      {/* Pistil Stamen */}
+      <path
+        d="M50 50 L65 35"
+        className="text-sunny-yellow"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <circle
+        cx="65"
+        cy="35"
+        r="2"
+        className="text-sunny-yellow"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
+// --- Blooming Hibiscus Icon (animated, for hero/header contexts) ---
 
 const centerVariants = {
   hidden: { scale: 0 },
@@ -51,9 +111,6 @@ function BloomingHibiscus({
   className?: string;
   instanceId?: string;
 }) {
-  // IMPROVEMENT 1: Generate unique IDs for gradients/filters
-  // This prevents conflicts when the logo appears multiple times (Header + Footer)
-  // Using instanceId prop for stable SSR hydration, falling back to useId for dynamic usage
   const reactId = useId();
   const uniqueId = instanceId || reactId;
   const gradientId = `petalGradient-${uniqueId}`;
@@ -71,8 +128,8 @@ function BloomingHibiscus({
     >
       <defs>
         <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#E91E63" /> {/* Bougainvillea Pink */}
-          <stop offset="100%" stopColor="#9C27B0" /> {/* Deep Purple */}
+          <stop offset="0%" stopColor="#E91E63" />
+          <stop offset="100%" stopColor="#9C27B0" />
         </linearGradient>
         <filter id={glowId} x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur stdDeviation="2" result="blur" />
@@ -99,7 +156,7 @@ function BloomingHibiscus({
           <path
             key={i}
             d="M50 35 C55 25, 70 35, 70 45 C70 55, 60 60, 50 50"
-            fill="#FF80AB" // Lighter pink
+            fill="#FF80AB"
             transform={`rotate(${rotation} 50 50)`}
           />
         ))}
@@ -110,7 +167,7 @@ function BloomingHibiscus({
         cx="50"
         cy="50"
         r="6"
-        fill="#FFD740" // Sunny Yellow
+        fill="#FFD740"
         variants={centerVariants}
       />
       {/* Pistil Stamen */}
@@ -161,8 +218,10 @@ const textVariants = {
 export interface NosilhaLogoProps {
   showSubtitle?: boolean;
   className?: string;
-  variant?: "default" | "light"; // IMPROVEMENT 2: Native Light/Dark Mode support
-  size?: "default" | "compact"; // Size variant for different contexts
+  variant?: "default" | "light";
+  size?: "default" | "compact" | "sidebar";
+  /** Hide text and show icon only (used by sidebar collapsed state) */
+  iconOnly?: boolean;
   /** Stable ID for SSR hydration - use unique values when multiple logos on same page */
   instanceId?: string;
 }
@@ -172,26 +231,57 @@ export function NosilhaLogo({
   className = "",
   variant = "default",
   size = "default",
+  iconOnly = false,
   instanceId,
 }: NosilhaLogoProps) {
-  const [_isHovered, setIsHovered] = useState(false);
-
-  // Determine text colors based on variant
-  // "light" variant is for dark backgrounds (like the Hero image)
   const textColor = variant === "light" ? "text-white" : "text-text-primary";
-  // On dark backgrounds, standard Ocean Blue is too dark. We use Sky-400 (Brighter Blue) for contrast.
   const brandColor =
     variant === "light" ? "text-sky-400 drop-shadow-sm" : "text-ocean-blue";
-
-  // IMPROVEMENT 3: Enhanced Subtitle Contrast
-  // Light mode: Uses warm Amber-50 with shadow for readability on dark mountain images.
-  // Default mode: Uses branded Ocean Blue Light instead of generic gray.
   const subtitleColor =
     variant === "light"
       ? "text-amber-50 drop-shadow-md font-medium"
       : "text-ocean-blue-light font-medium";
 
-  // Size-based classes
+  // Sidebar variant: static icon, smaller text, no animations
+  if (size === "sidebar") {
+    const sidebarIconSize = iconOnly ? "h-7 w-7" : "h-6 w-6";
+
+    return (
+      <div
+        className={clsx(
+          "flex items-center",
+          iconOnly ? "justify-center" : "gap-2",
+          className
+        )}
+      >
+        <div className={clsx("shrink-0", sidebarIconSize)}>
+          <StaticHibiscus className="h-full w-full" />
+        </div>
+        {!iconOnly && (
+          <div className="flex items-baseline leading-none">
+            <span
+              className={clsx(
+                "font-serif text-base font-bold tracking-tight",
+                textColor
+              )}
+            >
+              Nos
+            </span>
+            <span
+              className={clsx(
+                "font-serif text-base font-bold tracking-tight",
+                brandColor
+              )}
+            >
+              Ilha
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Size-based classes for default/compact
   const iconSize = size === "compact" ? "h-8 w-8" : "h-14 w-14 md:h-16 md:w-16";
   const textSize =
     size === "compact"
@@ -201,12 +291,10 @@ export function NosilhaLogo({
 
   return (
     <motion.div
-      className={`flex items-center ${gapSize} ${className}`}
+      className={clsx("flex items-center", gapSize, className)}
       initial="hidden"
       animate="visible"
       whileHover="hover"
-      onHoverStart={() => setIsHovered(true)}
-      onHoverEnd={() => setIsHovered(false)}
       variants={containerVariants}
     >
       {/* Icon */}

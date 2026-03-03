@@ -1,9 +1,9 @@
+import { cacheLife } from "next/cache";
 import { AboutPageContent } from "@/components/pages/about-page-content";
 
-// Static page - no revalidation needed
-export const dynamic = "force-static";
-
-export default function AboutPage() {
+export default async function AboutPage() {
+  "use cache";
+  cacheLife("max");
   return <AboutPageContent />;
 }
 

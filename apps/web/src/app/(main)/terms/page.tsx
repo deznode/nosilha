@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cacheLife } from "next/cache";
 import { PageHeader } from "@/components/ui/page-header";
 import {
   FileText,
@@ -9,10 +10,9 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-// Static page - no revalidation needed
-export const dynamic = "force-static";
-
-export default function TermsPage() {
+export default async function TermsPage() {
+  "use cache";
+  cacheLife("max");
   return (
     <div className="bg-background-secondary font-sans">
       <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">

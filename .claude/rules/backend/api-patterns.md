@@ -165,5 +165,5 @@ fun submit(
 
 ## Reference
 
-- See `docs/api-coding-standards.md` for comprehensive standards
-- See `docs/api-reference.md` for API documentation with endpoints
+- See `docs/20-architecture/api-coding-standards.md` for comprehensive standards
+- See `docs/20-architecture/api-reference.md` for API documentation with endpoints

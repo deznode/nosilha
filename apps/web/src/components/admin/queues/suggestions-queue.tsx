@@ -1,23 +1,31 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Filter } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search } from "lucide-react";
 import { QueueItem } from "./queue-item";
 import { SubmissionStatus } from "@/types/story";
-import { Button } from "@/components/catalyst-ui/button";
 import {
   useAdminSuggestions,
   useUpdateSuggestionStatus,
 } from "@/hooks/queries/admin";
 import { useToast } from "@/hooks/use-toast";
+import { Pagination, fromAdminQueueResponse } from "@/components/ui/pagination";
 
 export function SuggestionsQueue() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<SubmissionStatus | "ALL">(
     "ALL"
   );
+  const [page, setPage] = useState(0);
 
-  const suggestionsQuery = useAdminSuggestions();
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- Reset page on filter change
+  useEffect(() => setPage(0), [filterStatus]);
+
+  const suggestionsQuery = useAdminSuggestions(
+    page,
+    20,
+    filterStatus === "ALL" ? undefined : filterStatus
+  );
   const updateSuggestion = useUpdateSuggestionStatus();
   const toast = useToast();
 
@@ -26,7 +34,8 @@ export function SuggestionsQueue() {
 
   const handleStatusChange = (id: string, status: SubmissionStatus) => {
     const action = status === SubmissionStatus.APPROVED ? "APPROVE" : "REJECT";
-    const label = status === SubmissionStatus.APPROVED ? "approved" : "rejected";
+    const label =
+      status === SubmissionStatus.APPROVED ? "approved" : "rejected";
     updateSuggestion.mutate(
       { id, action },
       {
@@ -34,7 +43,9 @@ export function SuggestionsQueue() {
           toast.success(`Suggestion ${label} successfully`).show();
         },
         onError: () => {
-          toast.error(`Failed to ${label} suggestion. Please try again.`).show();
+          toast
+            .error(`Failed to ${label} suggestion. Please try again.`)
+            .show();
         },
       }
     );
@@ -44,9 +55,10 @@ export function SuggestionsQueue() {
     const matchesSearch =
       s.target.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = filterStatus === "ALL" || s.status === filterStatus;
-    return matchesSearch && matchesStatus;
+    return matchesSearch;
   });
+
+  const paginationData = fromAdminQueueResponse(suggestionsQuery.data);
 
   if (isLoading) {
     return (
@@ -80,10 +92,6 @@ export function SuggestionsQueue() {
             <option value={SubmissionStatus.APPROVED}>Approved</option>
             <option value={SubmissionStatus.REJECTED}>Rejected</option>
           </select>
-          <Button plain>
-            <Filter data-slot="icon" />
-            Newest First
-          </Button>
         </div>
         <div className="relative w-full sm:w-64">
           <input
@@ -102,7 +110,11 @@ export function SuggestionsQueue() {
       {/* Suggestions List */}
       <div className="border-hairline bg-surface overflow-hidden border shadow sm:rounded-md">
         {filteredSuggestions.length === 0 ? (
-          <div className="text-muted p-8 text-center">No suggestions found</div>
+          <div className="text-muted p-8 text-center">
+            {searchQuery && suggestions.length > 0
+              ? "No results match your search"
+              : "No suggestions found"}
+          </div>
         ) : (
           <ul className="divide-hairline divide-y">
             {filteredSuggestions.map((suggestion) => (
@@ -125,6 +137,14 @@ export function SuggestionsQueue() {
           </ul>
         )}
       </div>
+
+      {paginationData && !searchQuery && (
+        <Pagination
+          {...paginationData}
+          onPageChange={setPage}
+          className="mt-4"
+        />
+      )}
     </div>
   );
 }

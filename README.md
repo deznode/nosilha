@@ -74,7 +74,7 @@ The API uses Spring Boot Docker Compose integration to auto-start and configure 
 
 **Frontend-only (no backend)?** Use `task setup:mock && task dev:web` to run with mock data.
 
-> **Full guide:** See [`docs/getting-started.md`](docs/getting-started.md) for prerequisites, environment variables, daily workflows, and troubleshooting.
+> **Full guide:** See [`docs/00-getting-started/getting-started.md`](docs/00-getting-started/getting-started.md) for prerequisites, environment variables, daily workflows, and troubleshooting.
 
 ### Application URLs
 
@@ -95,7 +95,7 @@ task lint     # Run all linters (ktlint + ESLint)
 
 ### Production Deployment
 
-1. **Review Setup**: See [`docs/ci-cd-pipeline.md`](docs/ci-cd-pipeline.md)
+1. **Review Setup**: See [`docs/40-operations/ci-cd-pipeline.md`](docs/40-operations/ci-cd-pipeline.md)
 2. **Configure Secrets**: Set up GitHub secrets and Google Cloud credentials
 3. **Deploy Infrastructure**: Use Terraform to provision GCP resources
 4. **Automated Deployment**: Push to `main` branch triggers automatic deployment
@@ -106,16 +106,16 @@ task lint     # Run all linters (ktlint + ESLint)
 
 | Document | Description |
 |----------|-------------|
-| [Getting Started](docs/getting-started.md) | Developer setup, prerequisites, daily workflows |
-| [Architecture](docs/architecture.md) | System design, components, data flow |
-| [Design System](docs/design-system.md) | UI components, styling, patterns |
-| [API Reference](docs/api-reference.md) | Backend endpoints and schemas |
-| [API Coding Standards](docs/api-coding-standards.md) | Backend coding conventions |
-| [Testing Guide](docs/testing.md) | E2E and unit testing approach |
-| [State Management](docs/state-management.md) | Zustand, TanStack Query patterns |
-| [Spring Modulith](docs/spring-modulith.md) | Backend module architecture |
-| [CI/CD Pipeline](docs/ci-cd-pipeline.md) | Deployment and automation |
-| [Troubleshooting](docs/troubleshooting.md) | Common issues and solutions |
+| [Getting Started](docs/00-getting-started/getting-started.md) | Developer setup, prerequisites, daily workflows |
+| [Architecture](docs/20-architecture/architecture.md) | System design, components, data flow |
+| [Design System](docs/10-product/design-system.md) | UI components, styling, patterns |
+| [API Reference](docs/20-architecture/api-reference.md) | Backend endpoints and schemas |
+| [API Coding Standards](docs/20-architecture/api-coding-standards.md) | Backend coding conventions |
+| [Testing Guide](docs/20-architecture/testing.md) | E2E and unit testing approach |
+| [State Management](docs/20-architecture/state-management.md) | Zustand, TanStack Query patterns |
+| [Spring Modulith](docs/20-architecture/spring-modulith.md) | Backend module architecture |
+| [CI/CD Pipeline](docs/40-operations/ci-cd-pipeline.md) | Deployment and automation |
+| [Troubleshooting](docs/00-getting-started/troubleshooting.md) | Common issues and solutions |
 
 ---
 

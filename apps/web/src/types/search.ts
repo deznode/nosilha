@@ -15,7 +15,12 @@ export type DirectoryCategory =
   | "Hotel"
   | "Beach"
   | "Heritage"
-  | "Nature";
+  | "Nature"
+  | "Town"
+  | "Viewpoint"
+  | "Trail"
+  | "Church"
+  | "Port";
 
 /** Article categories from MDX content */
 export type ArticleCategory =

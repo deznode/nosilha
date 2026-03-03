@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, useWatch, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ArrowLeft,
@@ -28,9 +28,9 @@ import { Button } from "@/components/catalyst-ui/button";
 import { useAuth } from "@/components/providers/auth-provider";
 import { InlineAuthPrompt } from "@/components/ui/inline-auth-prompt";
 import {
-  generateDirectoryContentAction,
-  checkGeminiAvailableAction,
-} from "@/app/actions/gemini-actions";
+  useAiAvailable,
+  useGenerateDirectoryContent,
+} from "@/hooks/queries/useTextAi";
 import { submitDirectoryEntry, updateDirectoryEntry } from "@/lib/api";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { GalleryPicker } from "@/components/ui/gallery-picker";
@@ -51,7 +51,12 @@ type DirectoryCategory =
   | "Hotel"
   | "Beach"
   | "Heritage"
-  | "Nature";
+  | "Nature"
+  | "Town"
+  | "Viewpoint"
+  | "Trail"
+  | "Church"
+  | "Port";
 
 interface CategoryOption {
   id: DirectoryCategory;
@@ -164,20 +169,18 @@ export function DirectoryEntryForm({
   const { user, loading: authLoading } = useAuth();
   const toast = useToast();
   const [step, setStep] = useState(1);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [useCustomTown, setUseCustomTown] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [geminiAvailable, setGeminiAvailable] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [isGalleryPickerOpen, setIsGalleryPickerOpen] = useState(false);
 
+  const { data: aiAvailability } = useAiAvailable();
+  const generateContentMutation = useGenerateDirectoryContent();
+  const geminiAvailable = aiAvailability?.available ?? false;
+  const isGenerating = generateContentMutation.isPending;
+
   // Only require auth for create mode (edit mode is already admin-only)
   const requiresAuth = mode === "create" && !authLoading && !user;
-
-  // Check Gemini availability on mount
-  useEffect(() => {
-    checkGeminiAvailableAction().then(setGeminiAvailable);
-  }, []);
 
   // Initialize form data from initialData for edit mode
   const getInitialFormData = (): DirectorySubmissionInput => {
@@ -217,13 +220,12 @@ export function DirectoryEntryForm({
     control,
     formState: { errors },
     setValue,
-    watch,
   } = useForm<DirectorySubmissionInput>({
     resolver: zodResolver(directorySubmissionSchema),
     defaultValues: getInitialFormData(),
   });
 
-  const formData = watch();
+  const formData = useWatch({ control }) as DirectorySubmissionInput;
 
   // Set custom town mode if initial data has a non-preset town
   useEffect(() => {
@@ -235,20 +237,16 @@ export function DirectoryEntryForm({
 
   const handleAIAutoFill = async () => {
     if (!formData.name || !geminiAvailable) return;
-    setIsGenerating(true);
     try {
-      const result = await generateDirectoryContentAction(
-        formData.name,
-        formData.category
-      );
-      if (result) {
-        setValue("description", result.description);
-        setValue("tags", result.tags.join(", "));
-      }
+      const result = await generateContentMutation.mutateAsync({
+        name: formData.name,
+        category: formData.category,
+      });
+      setValue("description", result.description);
+      setValue("tags", result.tags.join(", "));
     } catch (e) {
       console.error("AI generation failed:", e);
-    } finally {
-      setIsGenerating(false);
+      toast.error("Failed to generate content. Please try again.").show();
     }
   };
 
@@ -257,21 +255,10 @@ export function DirectoryEntryForm({
     setSubmitError(null);
 
     try {
-      // Build the API request with uppercase category
-      const categoryMap: Record<
-        DirectoryCategory,
-        DirectorySubmissionRequest["category"]
-      > = {
-        Restaurant: "RESTAURANT",
-        Hotel: "HOTEL",
-        Beach: "BEACH",
-        Heritage: "HERITAGE",
-        Nature: "NATURE",
-      };
-
       const requestData = {
         name: data.name,
-        category: categoryMap[data.category],
+        category:
+          data.category.toUpperCase() as DirectorySubmissionRequest["category"],
         town: useCustomTown ? data.customTown || "" : data.town,
         customTown: useCustomTown ? data.customTown : undefined,
         description: data.description,

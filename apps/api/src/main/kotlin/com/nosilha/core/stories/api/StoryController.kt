@@ -2,6 +2,7 @@ package com.nosilha.core.stories.api
 
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
+import com.nosilha.core.shared.util.extractClientIp
 import com.nosilha.core.stories.services.StoryService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.servlet.http.HttpServletRequest
@@ -198,7 +199,7 @@ class StoryController(
         httpRequest: HttpServletRequest,
     ): ResponseEntity<ApiResult<StorySubmittedResponse>> {
         val authorId = UUID.fromString(authentication.name)
-        val ipAddress = extractIpAddress(httpRequest)
+        val ipAddress = extractClientIp(httpRequest)
 
         logger.info { "Received story submission from user: $authorId (IP: $ipAddress) - type: ${request.storyType}" }
 
@@ -209,26 +210,5 @@ class StoryController(
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(ApiResult(data = response, status = HttpStatus.CREATED.value()))
-    }
-
-    /**
-     * Extracts the client IP address from the HTTP request.
-     *
-     * <p>Checks X-Forwarded-For header first (for proxied requests),
-     * then falls back to remote address.</p>
-     *
-     * @param request HTTP request
-     * @return IP address or null if not available
-     */
-    private fun extractIpAddress(request: HttpServletRequest): String? {
-        // Check X-Forwarded-For header (for proxied requests)
-        val xForwardedFor = request.getHeader("X-Forwarded-For")
-        if (!xForwardedFor.isNullOrBlank()) {
-            // Take the first IP if multiple are present
-            return xForwardedFor.split(",").firstOrNull()?.trim()
-        }
-
-        // Fall back to remote address
-        return request.remoteAddr
     }
 }

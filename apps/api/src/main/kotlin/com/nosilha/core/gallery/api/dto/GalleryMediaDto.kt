@@ -2,6 +2,7 @@ package com.nosilha.core.gallery.api.dto
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.nosilha.core.gallery.domain.CreditPlatform
 import com.nosilha.core.gallery.domain.ExternalMedia
 import com.nosilha.core.gallery.domain.ExternalPlatform
 import com.nosilha.core.gallery.domain.GalleryMedia
@@ -45,7 +46,9 @@ sealed class GalleryMediaDto {
     abstract val displayOrder: Int
     abstract val status: GalleryMediaStatus
     abstract val mediaSource: String
+    abstract val showInGallery: Boolean
 
+    abstract val altText: String?
     abstract val createdAt: Instant?
 
     /**
@@ -65,6 +68,8 @@ sealed class GalleryMediaDto {
         override val displayOrder: Int,
         override val status: GalleryMediaStatus,
         override val mediaSource: String = "USER_UPLOAD",
+        override val showInGallery: Boolean,
+        override val altText: String?,
         override val createdAt: Instant?,
         val fileName: String,
         val originalName: String,
@@ -93,7 +98,11 @@ sealed class GalleryMediaDto {
         val archiveSource: String?,
         // Display name
         val uploaderDisplayName: String? = null,
+        // Smart credit attribution
+        val creditPlatform: CreditPlatform? = null,
+        val creditHandle: String? = null,
         // AI-generated fields
+        val aiTitle: String? = null,
         val aiTags: List<String>? = null,
         val aiLabels: String? = null,
         val aiAltText: String? = null,
@@ -115,6 +124,8 @@ sealed class GalleryMediaDto {
         override val displayOrder: Int,
         override val status: GalleryMediaStatus,
         override val mediaSource: String = "EXTERNAL",
+        override val showInGallery: Boolean,
+        override val altText: String?,
         override val createdAt: Instant?,
         val mediaType: MediaType,
         val platform: ExternalPlatform,
@@ -125,6 +136,9 @@ sealed class GalleryMediaDto {
         val author: String?,
         val curatedBy: UUID?,
         val curatorDisplayName: String? = null,
+        // Smart credit attribution
+        val creditPlatform: CreditPlatform? = null,
+        val creditHandle: String? = null,
     ) : GalleryMediaDto()
 
     companion object {
@@ -143,6 +157,8 @@ sealed class GalleryMediaDto {
                 displayOrder = media.displayOrder,
                 status = media.status,
                 mediaSource = "USER_UPLOAD",
+                showInGallery = media.showInGallery,
+                altText = media.altText,
                 createdAt = media.createdAt,
                 fileName = media.fileName ?: "",
                 originalName = media.originalName ?: "",
@@ -171,7 +187,11 @@ sealed class GalleryMediaDto {
                 archiveSource = media.archiveSource,
                 // Display name
                 uploaderDisplayName = uploaderDisplayName,
+                // Smart credit attribution
+                creditPlatform = media.creditPlatform,
+                creditHandle = media.creditHandle,
                 // AI-generated fields
+                aiTitle = media.aiTitle,
                 aiTags = media.aiTags?.toList(),
                 aiLabels = media.aiLabels,
                 aiAltText = media.aiAltText,
@@ -194,6 +214,8 @@ sealed class GalleryMediaDto {
                 displayOrder = media.displayOrder,
                 status = media.status,
                 mediaSource = "EXTERNAL",
+                showInGallery = media.showInGallery,
+                altText = media.altText,
                 createdAt = media.createdAt,
                 mediaType = media.mediaType,
                 platform = media.platform,
@@ -204,6 +226,9 @@ sealed class GalleryMediaDto {
                 author = media.author,
                 curatedBy = media.curatedBy,
                 curatorDisplayName = curatorDisplayName,
+                // Smart credit attribution
+                creditPlatform = media.creditPlatform,
+                creditHandle = media.creditHandle,
             )
     }
 }

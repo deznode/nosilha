@@ -1,5 +1,6 @@
 package com.nosilha.core.ai.api.dto
 
+import com.nosilha.core.ai.domain.AiFeatureConfig
 import com.nosilha.core.ai.domain.AnalysisBatch
 import com.nosilha.core.ai.domain.AnalysisRun
 import com.nosilha.core.ai.domain.AnalysisRunStatus
@@ -18,6 +19,7 @@ data class AnalysisRunSummaryDto(
     val moderationStatus: ModerationStatus,
     val providersUsed: List<String>,
     val resultTags: List<String>,
+    val resultTitle: String?,
     val resultAltText: String?,
     val resultDescription: String?,
     val createdAt: Instant,
@@ -32,6 +34,7 @@ data class AnalysisRunSummaryDto(
                 moderationStatus = run.moderationStatus,
                 providersUsed = run.providersUsed?.toList() ?: emptyList(),
                 resultTags = run.resultTags?.toList() ?: emptyList(),
+                resultTitle = run.resultTitle,
                 resultAltText = run.resultAltText,
                 resultDescription = run.resultDescription,
                 createdAt = run.createdAt,
@@ -53,6 +56,7 @@ data class AnalysisRunDetailDto(
     val rawResults: String?,
     val resultTags: List<String>,
     val resultLabels: String?,
+    val resultTitle: String?,
     val resultAltText: String?,
     val resultDescription: String?,
     val moderatedBy: UUID?,
@@ -76,6 +80,7 @@ data class AnalysisRunDetailDto(
                 rawResults = run.rawResults,
                 resultTags = run.resultTags?.toList() ?: emptyList(),
                 resultLabels = run.resultLabels,
+                resultTitle = run.resultTitle,
                 resultAltText = run.resultAltText,
                 resultDescription = run.resultDescription,
                 moderatedBy = run.moderatedBy,
@@ -94,6 +99,7 @@ data class AnalysisRunDetailDto(
  * Request body for approving AI results with admin edits.
  */
 data class ApproveEditedRequest(
+    val title: String? = null,
     val altText: String? = null,
     val description: String? = null,
     val tags: List<String>? = null,
@@ -146,11 +152,12 @@ data class BatchDetailDto(
 )
 
 /**
- * AI system health and provider status.
+ * AI system health, provider status, and domain configs.
  */
 data class AiHealthResponse(
     val enabled: Boolean,
     val providers: List<ProviderHealthDto>,
+    val domains: List<DomainConfigDto> = emptyList(),
 )
 
 /**
@@ -181,4 +188,31 @@ data class AiStatusResponse(
     val moderationStatus: String?,
     val aiProcessed: Boolean,
     val aiProcessedAt: Instant?,
+)
+
+/**
+ * Domain-level AI feature config for admin dashboard.
+ */
+data class DomainConfigDto(
+    val domain: String,
+    val enabled: Boolean,
+    val updatedAt: Instant,
+    val updatedBy: UUID?,
+) {
+    companion object {
+        fun from(config: AiFeatureConfig) =
+            DomainConfigDto(
+                domain = config.domain,
+                enabled = config.enabled,
+                updatedAt = config.updatedAt,
+                updatedBy = config.updatedBy,
+            )
+    }
+}
+
+/**
+ * Request body for updating a domain's AI feature toggle.
+ */
+data class UpdateDomainConfigRequest(
+    val enabled: Boolean,
 )

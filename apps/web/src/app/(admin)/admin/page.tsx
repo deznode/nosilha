@@ -32,10 +32,8 @@ export default function AdminDashboardPage() {
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        {/* KPI Cards */}
         <KPICards stats={stats} isLoading={isLoading} />
 
-        {/* Analytics Section */}
         <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
           <ActivityChart data={stats.weeklyActivity} isLoading={isLoading} />
 

@@ -20,3 +20,9 @@ export * from "./use-update-profile";
 
 // Search hooks
 export * from "./useUnifiedSearch";
+
+// Gallery hooks
+export * from "./useGalleryInfiniteQuery";
+
+// Text AI hooks
+export * from "./useTextAi";

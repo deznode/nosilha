@@ -1,0 +1,224 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "nova-sintra-faja",
+        "name": "Nova Sintra to Faja de Agua",
+        "namePt": "Trilho Nova Sintra - Faja de Agua",
+        "description": "Spectacular serpentine descent from the capital to the coast through lush oases with palm and mango trees",
+        "difficulty": "moderate",
+        "distance": 5.2,
+        "duration": 180,
+        "elevationGain": 50,
+        "elevationLoss": 500,
+        "color": "#10b981"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-24.6956, 14.8711],
+          [-24.7000, 14.8700],
+          [-24.7053, 14.8705],
+          [-24.7100, 14.8690],
+          [-24.7148, 14.8662],
+          [-24.7200, 14.8680],
+          [-24.7250, 14.8700],
+          [-24.7290, 14.8710],
+          [-24.7315, 14.8715]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "fontainhas-summit",
+        "name": "Monte Fontainhas Summit Trail",
+        "namePt": "Trilho do Pico das Fontainhas",
+        "description": "Scenic climb to Brava's highest peak at 976m with spectacular views of Fogo Island on clear days",
+        "difficulty": "moderate",
+        "distance": 4.0,
+        "duration": 240,
+        "elevationGain": 476,
+        "elevationLoss": 476,
+        "color": "#10b981"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-24.6956, 14.8711],
+          [-24.6989, 14.8670],
+          [-24.7000, 14.8627],
+          [-24.7030, 14.8570],
+          [-24.7047, 14.8514]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "nova-sintra-cachaco",
+        "name": "Nova Sintra to Cachaco Trail",
+        "namePt": "Trilho Nova Sintra - Cachaco",
+        "description": "Challenging route through southern highlands with breathtaking views and traditional villages",
+        "difficulty": "hard",
+        "distance": 7.0,
+        "duration": 300,
+        "elevationGain": 250,
+        "elevationLoss": 150,
+        "color": "#ef4444"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-24.6956, 14.8711],
+          [-24.6960, 14.8650],
+          [-24.6970, 14.8580],
+          [-24.6960, 14.8500],
+          [-24.6950, 14.8430],
+          [-24.6944, 14.8371]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "furna-nova-sintra",
+        "name": "Furna to Nova Sintra Trail",
+        "namePt": "Trilho Furna - Nova Sintra",
+        "description": "Mountain path winding up from the port to the capital through beautiful landscapes",
+        "difficulty": "moderate",
+        "distance": 4.5,
+        "duration": 150,
+        "elevationGain": 500,
+        "elevationLoss": 10,
+        "color": "#10b981"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-24.6806, 14.8877],
+          [-24.6830, 14.8850],
+          [-24.6860, 14.8820],
+          [-24.6890, 14.8790],
+          [-24.6920, 14.8760],
+          [-24.6940, 14.8735],
+          [-24.6956, 14.8711]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "circular-nossa-senhora",
+        "name": "Nossa Senhora do Monte Circuit",
+        "namePt": "Circuito Nossa Senhora do Monte",
+        "description": "Scenic loop trail passing the historic pilgrimage church with magnificent coastal and valley views",
+        "difficulty": "easy",
+        "distance": 3.0,
+        "duration": 90,
+        "elevationGain": 150,
+        "elevationLoss": 150,
+        "color": "#4a90a4"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-24.7155, 14.8597],
+          [-24.7180, 14.8610],
+          [-24.7200, 14.8630],
+          [-24.7190, 14.8650],
+          [-24.7170, 14.8640],
+          [-24.7150, 14.8620],
+          [-24.7155, 14.8597]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "cova-rodela-loop",
+        "name": "Dragon Tree Village Loop",
+        "namePt": "Circuito da Arvore Dragao",
+        "description": "Easy loop through Cova Rodela village famous for its dragon tree, with scenic mountain views",
+        "difficulty": "easy",
+        "distance": 2.5,
+        "duration": 60,
+        "elevationGain": 80,
+        "elevationLoss": 80,
+        "color": "#4a90a4"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-24.7053, 14.8705],
+          [-24.7080, 14.8720],
+          [-24.7100, 14.8735],
+          [-24.7080, 14.8750],
+          [-24.7050, 14.8740],
+          [-24.7030, 14.8720],
+          [-24.7053, 14.8705]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "cachaco-faja",
+        "name": "Cachaço to Fajã de Água",
+        "namePt": "Trilho Cachaço - Fajã de Água",
+        "description": "Scenic descent from the southern highlands to the coast, passing through traditional mountain villages",
+        "difficulty": "moderate",
+        "distance": 5.0,
+        "duration": 180,
+        "elevationGain": 50,
+        "elevationLoss": 590,
+        "color": "#10b981"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [-24.6944, 14.8371],
+          [-24.6980, 14.8420],
+          [-24.7050, 14.8500],
+          [-24.7150, 14.8580],
+          [-24.7250, 14.8650],
+          [-24.7315, 14.8715]
+        ]
+      }
+    }
+  ],
+  "metadata": {
+    "island": "Brava",
+    "country": "Cape Verde",
+    "totalTrails": 7,
+    "difficultyLevels": {
+      "easy": "Suitable for all fitness levels, well-marked paths",
+      "moderate": "Requires reasonable fitness, some steep sections",
+      "hard": "Challenging terrain, requires good fitness and hiking experience"
+    },
+    "units": {
+      "distance": "kilometers",
+      "duration": "minutes",
+      "elevation": "meters"
+    },
+    "colors": {
+      "easy": "#4a90a4",
+      "moderate": "#10b981",
+      "hard": "#ef4444"
+    },
+    "sources": [
+      "OpenStreetMap verified location endpoints",
+      "Interpolated waypoints based on terrain",
+      "Local hiking guides",
+      "Cape Verde tourism resources"
+    ],
+    "compiled": "2025-12-01",
+    "verification": {
+      "method": "Trail start/end points aligned with OSM-verified locations from locations.json",
+      "date": "2025-12-01",
+      "note": "Intermediate waypoints interpolated based on terrain between verified endpoints"
+    }
+  }
+}

@@ -40,6 +40,7 @@ export function AiReviewDetailModal({
   );
 
   // Editable fields
+  const [title, setTitle] = useState("");
   const [altText, setAltText] = useState("");
   const [description, setDescription] = useState("");
   const [tagsInput, setTagsInput] = useState("");
@@ -51,6 +52,7 @@ export function AiReviewDetailModal({
   // Initialize form when detail loads
   const originalSnapshot = useMemo(
     () => ({
+      title: detail?.resultTitle ?? "",
       altText: detail?.resultAltText ?? "",
       description: detail?.resultDescription ?? "",
       tags: (detail?.resultTags ?? []).join(", "),
@@ -61,6 +63,7 @@ export function AiReviewDetailModal({
   const [prevDetail, setPrevDetail] = useState(detail);
   if (detail !== prevDetail) {
     setPrevDetail(detail);
+    setTitle(originalSnapshot.title);
     setAltText(originalSnapshot.altText);
     setDescription(originalSnapshot.description);
     setTagsInput(originalSnapshot.tags);
@@ -71,10 +74,11 @@ export function AiReviewDetailModal({
   // Check if fields have been edited
   const hasEdits = useMemo(
     () =>
+      title !== originalSnapshot.title ||
       altText !== originalSnapshot.altText ||
       description !== originalSnapshot.description ||
       tagsInput !== originalSnapshot.tags,
-    [altText, description, tagsInput, originalSnapshot]
+    [title, altText, description, tagsInput, originalSnapshot]
   );
 
   const isMutating =
@@ -117,6 +121,7 @@ export function AiReviewDetailModal({
       await approveEditedMutation.mutateAsync({
         runId,
         request: {
+          title: title || undefined,
           altText: altText || undefined,
           description: description || undefined,
           tags: parsedTags.length > 0 ? parsedTags : undefined,
@@ -198,6 +203,21 @@ export function AiReviewDetailModal({
                         {provider}
                       </span>
                     ))}
+                  </div>
+
+                  {/* Title */}
+                  <div>
+                    <label className="text-body mb-1 block text-sm font-medium">
+                      Title
+                    </label>
+                    <input
+                      type="text"
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      maxLength={100}
+                      className="border-hairline bg-canvas text-body w-full rounded-lg border p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      placeholder="AI-generated title..."
+                    />
                   </div>
 
                   {/* Alt Text */}
