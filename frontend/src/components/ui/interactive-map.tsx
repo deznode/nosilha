@@ -5,6 +5,7 @@ import Map, { Marker, Popup, MapRef } from "react-map-gl/mapbox";
 import useSupercluster from "use-supercluster";
 import Link from "next/link";
 import "mapbox-gl/dist/mapbox-gl.css";
+import type { MapboxErrorEvent } from "mapbox-gl";
 
 import type { Feature, Point, BBox } from "geojson";
 import type {
@@ -50,6 +51,8 @@ export function InteractiveMap() {
   const [selectedEntry, setSelectedEntry] = useState<DirectoryEntry | null>(
     null
   );
+  const [mapLoadError, setMapLoadError] = useState<string | null>(null);
+  const [isStyleLoaded, setIsStyleLoaded] = useState(false);
   const selectedCategories = useSelectedCategories();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +65,8 @@ export function InteractiveMap() {
     try {
       setIsLoading(true);
       setError(null);
-      const allEntries = await getEntriesForMap("all");
+      setMapLoadError(null);
+      const { items: allEntries } = await getEntriesForMap("all");
       setEntries(allEntries);
     } catch (err) {
       console.error("Failed to fetch map entries:", err);
@@ -79,6 +83,20 @@ export function InteractiveMap() {
   useEffect(() => {
     fetchEntries().catch(console.error);
   }, [fetchEntries]);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => {
+      if (!isStyleLoaded && !mapLoadError) {
+        setMapLoadError(
+          "The map is taking longer than expected to load. Please check your connection or try again."
+        );
+      }
+    }, 5500);
+
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [isStyleLoaded, mapLoadError]);
 
   const filteredEntries = useMemo(() => {
     return entries.filter((entry) =>
@@ -235,6 +253,19 @@ export function InteractiveMap() {
         }}
         style={{ width: "100%", height: "100%" }}
         mapStyle="mapbox://styles/mapbox/streets-v12"
+        onError={(event: MapboxErrorEvent) => {
+          const message =
+            event?.error?.message ??
+            "We couldn't load the map tiles right now. Please try again.";
+          // Avoid spamming the UI for transient warnings by only setting once
+          if (!mapLoadError) {
+            setMapLoadError(message);
+          }
+        }}
+        onLoad={() => {
+          setIsStyleLoaded(true);
+          setMapLoadError(null);
+        }}
         onMove={(e) => {
           setZoom(e.viewState.zoom);
           if (e.target && e.target.getBounds) {
@@ -356,6 +387,45 @@ export function InteractiveMap() {
           </Popup>
         )}
       </Map>
+      {filteredEntries.length === 0 && !mapLoadError && (
+        <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center px-6 text-center">
+          <div className="bg-background-primary/80 rounded-lg px-4 py-3 shadow-md backdrop-blur-sm">
+            <p className="text-text-primary font-semibold">
+              No locations match your filters
+            </p>
+            <p className="text-text-secondary text-sm">
+              Try enabling more categories to see markers on the map.
+            </p>
+          </div>
+        </div>
+      )}
+      {mapLoadError && (
+        <div className="bg-background-primary/80 text-text-primary absolute inset-0 z-20 flex flex-col items-center justify-center px-6 text-center backdrop-blur-sm">
+          <div className="bg-accent-error/10 mb-3 flex h-12 w-12 items-center justify-center rounded-full">
+            <svg
+              className="text-accent-error h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.924-.833-2.598 0L3.732 14.5c-.77.833.192 2.5 1.732 2.5z"
+              />
+            </svg>
+          </div>
+          <p className="text-lg font-semibold">We couldn't load the map</p>
+          <p className="text-text-secondary mt-1 text-sm">{mapLoadError}</p>
+          <button
+            onClick={handleRetry}
+            className="bg-ocean-blue hover:bg-ocean-blue/90 focus:ring-ocean-blue mt-4 inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm focus:ring-2 focus:ring-offset-2 focus:outline-none"
+          >
+            Try again
+          </button>
+        </div>
+      )}
     </div>
   );
 }

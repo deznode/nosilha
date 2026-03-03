@@ -1,0 +1,87 @@
+{
+  "ref": "refs/heads/main",
+  "before": "0000000000000000000000000000000000000000",
+  "after": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "repository": {
+    "id": 1,
+    "name": "nosilha",
+    "full_name": "nos-ilha/nosilha",
+    "owner": {
+      "name": "nos-ilha",
+      "email": "team@nosilha.com"
+    },
+    "html_url": "https://github.com/nos-ilha/nosilha",
+    "description": "Community-driven cultural heritage hub for Brava Island, Cape Verde",
+    "private": false,
+    "fork": false,
+    "default_branch": "main"
+  },
+  "pusher": {
+    "name": "developer",
+    "email": "developer@nosilha.com"
+  },
+  "sender": {
+    "login": "developer",
+    "id": 1,
+    "type": "User"
+  },
+  "created": false,
+  "deleted": false,
+  "forced": false,
+  "base_ref": null,
+  "compare": "https://github.com/nos-ilha/nosilha/compare/000000000000...aaaaaaaaaaaaaaaa",
+  "commits": [
+    {
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "tree_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "distinct": true,
+      "message": "feat(backend): add new directory entry API endpoint\n\nImplements restaurant filtering by cuisine type and location.\nIncludes comprehensive test coverage.",
+      "timestamp": "2025-10-18T00:00:00Z",
+      "url": "https://github.com/nos-ilha/nosilha/commit/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "author": {
+        "name": "Developer",
+        "email": "developer@nosilha.com",
+        "username": "developer"
+      },
+      "committer": {
+        "name": "Developer",
+        "email": "developer@nosilha.com",
+        "username": "developer"
+      },
+      "added": [
+        "backend/src/main/kotlin/com/nosilha/core/api/DirectoryController.kt"
+      ],
+      "removed": [],
+      "modified": [
+        "backend/build.gradle.kts",
+        "backend/src/main/resources/application.yml"
+      ]
+    }
+  ],
+  "head_commit": {
+    "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "tree_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "distinct": true,
+    "message": "feat(backend): add new directory entry API endpoint",
+    "timestamp": "2025-10-18T00:00:00Z",
+    "url": "https://github.com/nos-ilha/nosilha/commit/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "author": {
+      "name": "Developer",
+      "email": "developer@nosilha.com",
+      "username": "developer"
+    },
+    "committer": {
+      "name": "Developer",
+      "email": "developer@nosilha.com",
+      "username": "developer"
+    },
+    "added": [
+      "backend/src/main/kotlin/com/nosilha/core/api/DirectoryController.kt"
+    ],
+    "removed": [],
+    "modified": [
+      "backend/build.gradle.kts",
+      "backend/src/main/resources/application.yml"
+    ]
+  }
+}

@@ -1,5 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import { PhotoGalleryFilter } from '@/components/ui/photo-gallery-filter';
+import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { PhotoGalleryFilter } from "@/components/ui/photo-gallery-filter";
+import { userEvent } from "@storybook/testing-library";
+import { within } from "@storybook/testing-library";
 
 /**
  * PhotoGalleryFilter provides category-based filtering for Brava Island photo galleries.
@@ -8,12 +10,12 @@ import { PhotoGalleryFilter } from '@/components/ui/photo-gallery-filter';
  * with features for filtering, featured galleries, and responsive grid layouts.
  */
 const meta = {
-  title: 'Nos Ilha/PhotoGalleryFilter',
+  title: "Nos Ilha/PhotoGalleryFilter",
   component: PhotoGalleryFilter,
   parameters: {
-    layout: 'fullscreen',
+    layout: "fullscreen",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
 } satisfies Meta<typeof PhotoGalleryFilter>;
 
 export default meta;
@@ -21,108 +23,113 @@ type Story = StoryObj<typeof meta>;
 
 // Mock data for galleries and categories
 const mockCategories = [
-  { name: 'All Photos', value: 'all', count: 248 },
-  { name: 'Landscapes', value: 'landscapes', count: 87 },
-  { name: 'Architecture', value: 'architecture', count: 52 },
-  { name: 'People & Culture', value: 'culture', count: 63 },
-  { name: 'Events', value: 'events', count: 46 },
+  { name: "All Photos", value: "all", count: 248 },
+  { name: "Landscapes", value: "landscapes", count: 87 },
+  { name: "Architecture", value: "architecture", count: 52 },
+  { name: "People & Culture", value: "culture", count: 63 },
+  { name: "Events", value: "events", count: 46 },
 ];
 
 const mockPhotos = [
   {
-    src: '/api/placeholder/300/300',
-    alt: 'Sample photo 1',
-    location: 'Nova Sintra',
-    date: '2024-08-15',
-    description: 'Photo description',
+    src: "/api/placeholder/300/300",
+    alt: "Sample photo 1",
+    location: "Nova Sintra",
+    date: "2024-08-15",
+    description: "Photo description",
   },
   {
-    src: '/api/placeholder/300/300',
-    alt: 'Sample photo 2',
-    location: 'Fajã d\'Água',
-    date: '2024-08-16',
-    description: 'Photo description',
+    src: "/api/placeholder/300/300",
+    alt: "Sample photo 2",
+    location: "Fajã d'Água",
+    date: "2024-08-16",
+    description: "Photo description",
   },
   {
-    src: '/api/placeholder/300/300',
-    alt: 'Sample photo 3',
-    location: 'Mato',
-    date: '2024-08-17',
-    description: 'Photo description',
+    src: "/api/placeholder/300/300",
+    alt: "Sample photo 3",
+    location: "Mato",
+    date: "2024-08-17",
+    description: "Photo description",
   },
 ];
 
 const mockGalleries = [
   {
-    id: 'gallery-1',
-    title: 'Volcanic Peaks of Brava',
-    description: 'Stunning views of Brava\'s volcanic landscape and dramatic mountain scenery.',
-    category: 'Landscapes',
+    id: "gallery-1",
+    title: "Volcanic Peaks of Brava",
+    description:
+      "Stunning views of Brava's volcanic landscape and dramatic mountain scenery.",
+    category: "Landscapes",
     imageCount: 24,
-    coverImage: '/api/placeholder/400/300',
+    coverImage: "/api/placeholder/400/300",
     featured: true,
-    culturalContext: 'Natural Heritage',
-    location: 'Throughout Brava',
+    culturalContext: "Natural Heritage",
+    location: "Throughout Brava",
     photos: mockPhotos,
   },
   {
-    id: 'gallery-2',
-    title: 'Nossa Senhora do Monte',
-    description: 'Architectural details of Brava\'s historic churches and religious heritage sites.',
-    category: 'Architecture',
+    id: "gallery-2",
+    title: "Nossa Senhora do Monte",
+    description:
+      "Architectural details of Brava's historic churches and religious heritage sites.",
+    category: "Architecture",
     imageCount: 18,
-    coverImage: '/api/placeholder/400/300',
+    coverImage: "/api/placeholder/400/300",
     featured: true,
-    culturalContext: 'Religious Heritage',
-    location: 'Nova Sintra',
+    culturalContext: "Religious Heritage",
+    location: "Nova Sintra",
     photos: mockPhotos,
   },
   {
-    id: 'gallery-3',
-    title: 'Morna Music Traditions',
-    description: 'Capturing the soul of Cape Verde through traditional morna performances.',
-    category: 'Culture',
+    id: "gallery-3",
+    title: "Morna Music Traditions",
+    description:
+      "Capturing the soul of Cape Verde through traditional morna performances.",
+    category: "Culture",
     imageCount: 32,
-    coverImage: '/api/placeholder/400/300',
+    coverImage: "/api/placeholder/400/300",
     featured: true,
-    culturalContext: 'Musical Heritage',
-    location: 'Various Locations',
+    culturalContext: "Musical Heritage",
+    location: "Various Locations",
     photos: mockPhotos,
   },
   {
-    id: 'gallery-4',
-    title: 'Festas Juninas 2024',
-    description: 'Community celebrations of São João and Santo António festivals.',
-    category: 'Events',
+    id: "gallery-4",
+    title: "Festas Juninas 2024",
+    description:
+      "Community celebrations of São João and Santo António festivals.",
+    category: "Events",
     imageCount: 45,
-    coverImage: '/api/placeholder/400/300',
+    coverImage: "/api/placeholder/400/300",
     featured: false,
-    culturalContext: 'Cultural Events',
-    location: 'Nova Sintra',
+    culturalContext: "Cultural Events",
+    location: "Nova Sintra",
     photos: mockPhotos,
   },
   {
-    id: 'gallery-5',
-    title: 'Coastal Villages',
-    description: 'Daily life in Brava\'s picturesque coastal settlements.',
-    category: 'Landscapes',
+    id: "gallery-5",
+    title: "Coastal Villages",
+    description: "Daily life in Brava's picturesque coastal settlements.",
+    category: "Landscapes",
     imageCount: 29,
-    coverImage: '/api/placeholder/400/300',
+    coverImage: "/api/placeholder/400/300",
     featured: false,
-    culturalContext: 'Daily Life',
-    location: 'Fajã d\'Água',
+    culturalContext: "Daily Life",
+    location: "Fajã d'Água",
     photos: mockPhotos,
   },
   {
-    id: 'gallery-6',
-    title: 'Traditional Crafts',
-    description: 'Artisans preserving Brava\'s cultural heritage through traditional craftsmanship.',
-    category: 'Culture',
+    id: "gallery-6",
+    title: "Traditional Crafts",
+    description:
+      "Artisans preserving Brava's cultural heritage through traditional craftsmanship.",
+    category: "Culture",
     imageCount: 21,
-    coverImage: '/api/placeholder/400/300',
+    coverImage: "/api/placeholder/400/300",
     featured: false,
-    culturalContext: 'Crafts & Artisans',
-    location: 'Various Locations',
+    culturalContext: "Crafts & Artisans",
+    location: "Various Locations",
     photos: mockPhotos,
   },
 ];
@@ -187,7 +194,7 @@ export const EmptyCategory: Story = {
  */
 export const LandscapesOnly: Story = {
   args: {
-    galleries: mockGalleries.filter((g) => g.category === 'Landscapes'),
+    galleries: mockGalleries.filter((g) => g.category === "Landscapes"),
     categories: mockCategories,
   },
   decorators: [
@@ -199,13 +206,44 @@ export const LandscapesOnly: Story = {
   ],
 };
 
+export const SelectedFilters: Story = {
+  args: {
+    galleries: mockGalleries,
+    categories: mockCategories.map((category) => ({
+      ...category,
+      isSelected: ["Landscapes", "Culture"].includes(category.name),
+    })),
+  },
+  decorators: [
+    (Story) => (
+      <div className="container mx-auto p-6">
+        <Story />
+      </div>
+    ),
+  ],
+};
+
+export const KeyboardNavigation: Story = {
+  ...Default,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const firstButton = await canvas.findByRole("button", {
+      name: /landscapes/i,
+    });
+    const user = userEvent.setup();
+    await user.click(firstButton);
+    await user.tab();
+    await user.keyboard(" ");
+  },
+};
+
 /**
  * Architecture Galleries - focuses on built heritage.
  * Demonstrates cultural heritage preservation through architecture.
  */
 export const ArchitectureGalleries: Story = {
   args: {
-    galleries: mockGalleries.filter((g) => g.category === 'Architecture'),
+    galleries: mockGalleries.filter((g) => g.category === "Architecture"),
     categories: mockCategories,
   },
   decorators: [
@@ -224,7 +262,7 @@ export const ArchitectureGalleries: Story = {
 export const MobileView: Story = {
   parameters: {
     viewport: {
-      defaultViewport: 'mobile1',
+      defaultViewport: "mobile1",
     },
   },
   args: {
@@ -247,7 +285,7 @@ export const MobileView: Story = {
 export const TabletView: Story = {
   parameters: {
     viewport: {
-      defaultViewport: 'tablet',
+      defaultViewport: "tablet",
     },
   },
   args: {
@@ -297,9 +335,9 @@ export const FewCategories: Story = {
   args: {
     galleries: mockGalleries,
     categories: [
-      { name: 'All Photos', value: 'all', count: 72 },
-      { name: 'Landscapes', value: 'landscapes', count: 42 },
-      { name: 'Culture', value: 'culture', count: 30 },
+      { name: "All Photos", value: "all", count: 72 },
+      { name: "Landscapes", value: "landscapes", count: 42 },
+      { name: "Culture", value: "culture", count: 30 },
     ],
   },
   decorators: [
@@ -317,7 +355,7 @@ export const FewCategories: Story = {
  */
 export const DarkMode: Story = {
   parameters: {
-    backgrounds: { default: 'dark' },
+    backgrounds: { default: "dark" },
   },
   args: {
     galleries: mockGalleries,
@@ -325,7 +363,7 @@ export const DarkMode: Story = {
   },
   decorators: [
     (Story) => (
-      <div className="container mx-auto p-6 dark">
+      <div className="dark container mx-auto p-6">
         <Story />
       </div>
     ),

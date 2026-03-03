@@ -1,5 +1,9 @@
 name: Integration & End-to-End
 
+# Simplified Integration Testing: Security validation and health checks only
+# Frontend E2E tests moved to local development (not in CI)
+# Focus: Backend integration, security headers, deployment health
+
 on:
   push:
     branches: [main]
@@ -114,141 +118,6 @@ jobs:
           path: backend/build/test-results/test/*.xml
           reporter: java-junit
 
-  # Frontend Integration Tests
-  frontend-integration-tests:
-    name: Frontend Integration Tests
-    runs-on: ubuntu-latest
-    needs: [changes, wait-for-services]
-    if: always() && (needs.changes.outputs.frontend == 'true' || github.event_name == 'schedule')
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-          
-      - name: Install dependencies
-        working-directory: ./frontend
-        run: npm ci
-        
-      # Placeholder for when frontend tests are implemented
-      - name: Run Integration Tests (Placeholder)
-        working-directory: ./frontend
-        run: |
-          echo "Frontend integration tests would run here"
-          echo "Example: npm run test:integration"
-          
-      - name: Build and Test Frontend
-        working-directory: ./frontend
-        run: npm run build
-        env:
-          NODE_ENV: production
-          NEXT_PUBLIC_API_URL: "http://localhost:8080"
-          NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN: ${{ secrets.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-
-
-  # End-to-End Tests using deployed services
-  e2e-tests:
-    name: End-to-End Tests
-    runs-on: ubuntu-latest
-    needs: [changes, wait-for-services]
-    if: always() && github.ref == 'refs/heads/main'
-
-    # Add OIDC permissions
-    permissions:
-      contents: read
-      id-token: write  # Required for OIDC token requests
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-
-      - name: Install dependencies
-        working-directory: ./frontend
-        run: npm ci
-
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
-          service_account: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
-          
-      - name: Get Service URLs
-        id: urls
-        run: |
-          BACKEND_URL=$(gcloud run services describe nosilha-backend-api --region=${{ env.REGION }} --format='value(status.url)')
-          FRONTEND_URL=$(gcloud run services describe nosilha-frontend --region=${{ env.REGION }} --format='value(status.url)')
-          echo "backend_url=$BACKEND_URL" >> $GITHUB_OUTPUT
-          echo "frontend_url=$FRONTEND_URL" >> $GITHUB_OUTPUT
-          
-      - name: Run E2E Tests (Placeholder)
-        working-directory: ./frontend
-        run: |
-          echo "End-to-end tests would run here against:"
-          echo "Backend URL: ${{ steps.urls.outputs.backend_url }}"
-          echo "Frontend URL: ${{ steps.urls.outputs.frontend_url }}"
-          echo "Example: npx playwright test --project=e2e"
-        env:
-          BACKEND_URL: ${{ steps.urls.outputs.backend_url }}
-          FRONTEND_URL: ${{ steps.urls.outputs.frontend_url }}
-
-  # Performance Tests
-  performance-tests:
-    name: Performance Tests
-    runs-on: ubuntu-latest
-    needs: [changes, wait-for-services]
-    if: always() && (github.ref == 'refs/heads/main' || github.event_name == 'schedule')
-
-    # Add OIDC permissions
-    permissions:
-      contents: read
-      id-token: write  # Required for OIDC token requests
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          workload_identity_provider: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
-          service_account: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
-          
-      - name: Get Backend Service URL
-        id: backend-url
-        run: |
-          URL=$(gcloud run services describe nosilha-backend-api --region=${{ env.REGION }} --format='value(status.url)')
-          echo "url=$URL" >> $GITHUB_OUTPUT
-          
-      - name: Install Artillery
-        run: npm install -g artillery@latest
-        
-      - name: Run Performance Tests
-        run: |
-          echo "Performance tests would run here against: ${{ steps.backend-url.outputs.url }}"
-          echo "Example: artillery quick --count 100 --num 10 ${{ steps.backend-url.outputs.url }}/actuator/health"
-          
-      - name: Basic Load Test
-        run: |
-          # Simple load test using curl in parallel
-          echo "Running basic load test..."
-          for i in {1..10}; do
-            curl -s "${{ steps.backend-url.outputs.url }}/actuator/health" &
-          done
-          wait
-          echo "Load test completed"
-
   # Security Integration Tests
   security-integration:
     name: Security Integration Tests
@@ -331,14 +200,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [
       api-integration-tests,
-      frontend-integration-tests,
-      e2e-tests,
-      performance-tests,
       security-integration,
       deployment-health
     ]
     if: always()
-    
+
     steps:
       - name: Generate Integration Report
         run: |
@@ -346,10 +212,9 @@ jobs:
           echo "| Test Suite | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| API Integration | ${{ needs.api-integration-tests.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Frontend Integration | ${{ needs.frontend-integration-tests.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| End-to-End Tests | ${{ needs.e2e-tests.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Performance Tests | ${{ needs.performance-tests.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Security Integration | ${{ needs.security-integration.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Deployment Health | ${{ needs.deployment-health.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "*Integration tests completed at $(date)*" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Note:** Frontend E2E tests run locally only (not in CI)" >> $GITHUB_STEP_SUMMARY

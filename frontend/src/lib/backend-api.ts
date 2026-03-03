@@ -1,11 +1,18 @@
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town } from "@/types/town";
-import type { ErrorDetail } from "@/types/api";
+import type { ErrorDetail, MediaMetadataDto } from "@/types/api";
 import type {
   ApiClient,
   ApiResponse,
   PagedApiResponse,
+  PaginatedResult,
+  PaginationMetadata,
 } from "@/lib/api-contracts";
+import type {
+  ReactionCreateDto,
+  ReactionResponseDto,
+  ReactionCountsDto,
+} from "@/types/reaction";
 import { CacheConfig } from "@/lib/api-contracts";
 import { env } from "@/lib/env";
 import { supabase } from "@/lib/supabase-client";
@@ -73,7 +80,7 @@ export class BackendApiClient implements ApiClient {
     category: string,
     page: number = 0,
     size: number = 20
-  ): Promise<DirectoryEntry[]> {
+  ): Promise<PaginatedResult<DirectoryEntry>> {
     const params = new URLSearchParams();
 
     if (category.toLowerCase() !== "all") {
@@ -93,10 +100,13 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`API call failed with status: ${response.status}`);
     }
 
-    const apiResponse: PagedApiResponse<DirectoryEntry> = await response.json();
-    // Extract and validate data from PagedApiResponse
-    const rawData = apiResponse.data || [];
-    return validateDirectoryEntries(rawData);
+    const payload = (await response.json()) as unknown;
+    const { items, pagination } =
+      this.unwrapPagedResult<DirectoryEntry>(payload);
+    return {
+      items: validateDirectoryEntries(items),
+      pagination,
+    };
   }
 
   /**
@@ -118,9 +128,9 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`API call failed with status: ${response.status}`);
     }
 
-    const apiResponse: ApiResponse<DirectoryEntry> = await response.json();
-    // Extract and validate data from ApiResponse
-    return validateDirectoryEntry(apiResponse.data) || undefined;
+    const payload = (await response.json()) as unknown;
+    const entry = this.unwrapApiResponse<DirectoryEntry>(payload);
+    return validateDirectoryEntry(entry) || undefined;
   }
 
   /**
@@ -168,16 +178,17 @@ export class BackendApiClient implements ApiClient {
       }
     }
 
-    const apiResponse: ApiResponse<DirectoryEntry> = await response.json();
-    // Extract data from ApiResponse
-    return apiResponse.data;
+    const payload = (await response.json()) as unknown;
+    return this.unwrapApiResponse<DirectoryEntry>(payload);
   }
 
   /**
    * Fetches entries for real-time interactive features like maps.
    * Uses no-store cache to ensure fresh data for dynamic interactions.
    */
-  async getEntriesForMap(category: string = "all"): Promise<DirectoryEntry[]> {
+  async getEntriesForMap(
+    category: string = "all"
+  ): Promise<PaginatedResult<DirectoryEntry>> {
     const params = new URLSearchParams();
 
     if (category.toLowerCase() !== "all") {
@@ -195,10 +206,13 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`API call failed with status: ${response.status}`);
     }
 
-    const apiResponse: PagedApiResponse<DirectoryEntry> = await response.json();
-    // Extract and validate data from PagedApiResponse
-    const rawData = apiResponse.data || [];
-    return validateDirectoryEntries(rawData);
+    const payload = (await response.json()) as unknown;
+    const { items, pagination } =
+      this.unwrapPagedResult<DirectoryEntry>(payload);
+    return {
+      items: validateDirectoryEntries(items),
+      pagination,
+    };
   }
 
   /**
@@ -237,9 +251,9 @@ export class BackendApiClient implements ApiClient {
       }
     }
 
-    const apiResponse = await response.json();
-    // Extract URL from MediaMetadataDto in ApiResponse
-    return apiResponse.data.url;
+    const payload = (await response.json()) as unknown;
+    const mediaMetadata = this.unwrapApiResponse<MediaMetadataDto>(payload);
+    return mediaMetadata.url;
   }
 
   /**
@@ -258,9 +272,8 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`API call failed with status: ${response.status}`);
     }
 
-    const apiResponse: ApiResponse<Town[]> = await response.json();
-    // Extract and validate data from ApiResponse
-    const rawData = apiResponse.data || [];
+    const payload = (await response.json()) as unknown;
+    const rawData = this.unwrapApiResponse<Town[]>(payload) ?? [];
     return validateTowns(rawData);
   }
 
@@ -283,9 +296,9 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`API call failed with status: ${response.status}`);
     }
 
-    const apiResponse: ApiResponse<Town> = await response.json();
-    // Extract and validate data from ApiResponse
-    return validateTown(apiResponse.data) || undefined;
+    const payload = (await response.json()) as unknown;
+    const town = this.unwrapApiResponse<Town>(payload);
+    return validateTown(town) || undefined;
   }
 
   /**
@@ -302,9 +315,328 @@ export class BackendApiClient implements ApiClient {
       throw new Error(`API call failed with status: ${response.status}`);
     }
 
-    const apiResponse: ApiResponse<Town[]> = await response.json();
-    // Extract and validate data from ApiResponse
-    const rawData = apiResponse.data || [];
+    const payload = (await response.json()) as unknown;
+    const rawData = this.unwrapApiResponse<Town[]>(payload) ?? [];
     return validateTowns(rawData);
+  }
+
+  // ================================
+  // REACTION OPERATIONS (User Story 2)
+  // ================================
+
+  /**
+   * Submits a new reaction or updates an existing reaction.
+   *
+   * **Authentication Required**: Uses JWT token from Supabase session.
+   *
+   * **Business Rules**:
+   * - If user has no reaction: creates new reaction
+   * - If user clicks same reaction type: removes reaction (toggle off)
+   * - If user clicks different type: replaces old with new reaction
+   *
+   * **Rate Limiting**: Maximum 10 reactions per minute per user.
+   * Backend returns HTTP 429 if exceeded.
+   *
+   * @param createDto Contains contentId and reactionType
+   * @returns ReactionResponseDto with reaction details and updated count
+   * @throws Error if rate limit exceeded (HTTP 429)
+   * @throws Error if authentication failed (HTTP 401)
+   */
+  async submitReaction(
+    createDto: ReactionCreateDto
+  ): Promise<ReactionResponseDto> {
+    const endpoint = `${env.apiUrl}/api/v1/reactions`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(createDto),
+      cache: "no-store", // Never cache POST requests
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        throw new Error("Too many reactions. Please wait a moment.");
+      }
+      throw new Error(`Failed to submit reaction: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<ReactionResponseDto>(payload);
+  }
+
+  /**
+   * Removes user's reaction to content.
+   *
+   * **Authentication Required**: Uses JWT token from Supabase session.
+   *
+   * @param contentId UUID of the heritage page/content
+   * @throws Error if reaction doesn't exist (HTTP 404)
+   * @throws Error if authentication failed (HTTP 401)
+   */
+  async deleteReaction(contentId: string): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/reactions/content/${contentId}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "DELETE",
+      cache: "no-store", // Never cache DELETE requests
+    });
+
+    if (!response.ok && response.status !== 204) {
+      if (response.status === 404) {
+        throw new Error("Reaction not found");
+      }
+      throw new Error(`Failed to delete reaction: ${response.status}`);
+    }
+  }
+
+  /**
+   * Gets aggregated reaction counts for a specific content page.
+   *
+   * **Public Endpoint**: No authentication required to view counts.
+   * If user is authenticated, response includes their current reaction.
+   *
+   * **Caching**: Results cached for 5 minutes (ISR).
+   *
+   * @param contentId UUID of the heritage page/content
+   * @returns ReactionCountsDto with counts map and user's reaction (if authenticated)
+   */
+  async getReactionCounts(contentId: string): Promise<ReactionCountsDto> {
+    const endpoint = `${env.apiUrl}/api/v1/reactions/content/${contentId}`;
+
+    // Use authenticatedFetch to include JWT if available, but don't fail if not authenticated
+    const processResponse = async (
+      response: Response
+    ): Promise<ReactionCountsDto> => {
+      if (!response.ok) {
+        throw new Error(`Failed to fetch reaction counts: ${response.status}`);
+      }
+      const payload = await response.json();
+      return this.unwrapApiResponse<ReactionCountsDto>(payload);
+    };
+
+    try {
+      const response = await this.authenticatedFetch(endpoint, {
+        method: "GET",
+        next: CacheConfig.REACTION_COUNTS,
+      });
+      return await processResponse(response);
+    } catch (_error) {
+      // If authentication failed but we're just viewing counts, try unauthenticated
+      const response = await fetch(endpoint, {
+        method: "GET",
+        next: CacheConfig.REACTION_COUNTS,
+      });
+      return await processResponse(response);
+    }
+  }
+
+  /**
+   * Submits a content improvement suggestion.
+   *
+   * **Public Endpoint**: No authentication required - allows community contributions.
+   *
+   * **Rate Limiting**: 5 submissions per hour per IP address.
+   *
+   * **Spam Protection**: Honeypot field validation on server side.
+   *
+   * @param suggestionDto Contains contentId, name, email, suggestionType, message, and honeypot
+   * @returns Promise resolving to suggestion response with confirmation message
+   * @throws Error if rate limit exceeded (HTTP 429)
+   * @throws Error if validation fails (HTTP 400)
+   */
+  async submitSuggestion(suggestionDto: {
+    contentId: string;
+    pageTitle: string;
+    pageUrl: string;
+    contentType: string;
+    name: string;
+    email: string;
+    suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";
+    message: string;
+    honeypot?: string;
+  }): Promise<{ id: string | null; message: string }> {
+    const endpoint = `${env.apiUrl}/api/v1/suggestions`;
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(suggestionDto),
+      cache: "no-store", // Never cache POST requests
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || "Rate limit exceeded. Please try again later."
+        );
+      }
+      if (response.status === 400) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message ||
+            "Invalid suggestion data. Please check your input."
+        );
+      }
+      throw new Error(`Failed to submit suggestion: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<{ id: string | null; message: string }>(
+      payload
+    );
+  }
+
+  /**
+   * Fetches 3-5 related content items for a given heritage page.
+   * Uses content discovery algorithm matching by category, town, and cuisine.
+   * Cached for 5 minutes using ISR (per spec.md Phase 9).
+   *
+   * **User Story 5 - Phase 9**: Discovering Related Cultural Content
+   *
+   * @param contentId UUID of the current heritage page
+   * @param limit Number of results to return (3-5, default: 5)
+   * @returns Promise resolving to array of related directory entries
+   */
+  async getRelatedContent(
+    contentId: string,
+    limit: number = 5
+  ): Promise<DirectoryEntry[]> {
+    const endpoint = `${env.apiUrl}/api/v1/directory/entries/${contentId}/related?limit=${limit}`;
+
+    const response = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      next: CacheConfig.RELATED_CONTENT, // 5-minute ISR cache
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        // Content not found, return empty array
+        console.warn(`Content ${contentId} not found for related content`);
+        return [];
+      }
+      throw new Error(`Failed to fetch related content: ${response.status}`);
+    }
+
+    const payload = (await response.json()) as unknown;
+    return this.unwrapApiResponse<DirectoryEntry[]>(payload);
+  }
+
+  /**
+   * Determines whether a payload follows the ApiResponse envelope structure.
+   */
+  private isApiResponsePayload<T>(payload: unknown): payload is ApiResponse<T> {
+    return typeof payload === "object" && payload !== null && "data" in payload;
+  }
+
+  private isPagedApiResponsePayload<T>(
+    payload: unknown
+  ): payload is PagedApiResponse<T> {
+    return (
+      typeof payload === "object" &&
+      payload !== null &&
+      "data" in payload &&
+      ("pageable" in payload || "pagination" in payload)
+    );
+  }
+
+  /**
+   * Extracts the data portion from ApiResponse envelopes, enforcing the shared contract.
+   */
+  private unwrapApiResponse<T>(payload: unknown): T {
+    if (!this.isApiResponsePayload<T>(payload)) {
+      throw new Error("Unexpected API response format: missing data wrapper");
+    }
+    return payload.data as T;
+  }
+
+  private isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null;
+  }
+
+  private getNumber(value: unknown): number | undefined {
+    return typeof value === "number" ? value : undefined;
+  }
+
+  private getBoolean(value: unknown): boolean | undefined {
+    return typeof value === "boolean" ? value : undefined;
+  }
+
+  /**
+   * Extracts paginated results (items + metadata) from payloads.
+   */
+  private unwrapPagedResult<T>(payload: unknown): PaginatedResult<T> {
+    if (this.isPagedApiResponsePayload<T>(payload)) {
+      return {
+        items: ((payload as PagedApiResponse<T>).data ?? []) as T[],
+        pagination: this.extractPaginationMetadata(payload),
+      };
+    }
+
+    if (this.isApiResponsePayload<T[]>(payload)) {
+      return {
+        items: (payload.data ?? []) as T[],
+        pagination: null,
+      };
+    }
+
+    throw new Error("Unexpected API response format: expected paged data");
+  }
+
+  private extractPaginationMetadata(
+    payload: PagedApiResponse<unknown> | Record<string, unknown>
+  ): PaginationMetadata | null {
+    const payloadRecord = payload as Record<string, unknown>;
+    const sourceCandidate =
+      ("pageable" in payloadRecord ? payloadRecord.pageable : undefined) ??
+      ("pagination" in payloadRecord ? payloadRecord.pagination : undefined);
+
+    if (!this.isRecord(sourceCandidate)) {
+      return null;
+    }
+
+    const page =
+      this.getNumber(sourceCandidate.page) ??
+      this.getNumber(sourceCandidate.currentPage) ??
+      this.getNumber(sourceCandidate.number) ??
+      this.getNumber(sourceCandidate.index) ??
+      0;
+    const size =
+      this.getNumber(sourceCandidate.size) ??
+      this.getNumber(sourceCandidate.pageSize) ??
+      this.getNumber(sourceCandidate.limit) ??
+      0;
+    const totalElements =
+      this.getNumber(sourceCandidate.totalElements) ??
+      this.getNumber(sourceCandidate.total) ??
+      this.getNumber(sourceCandidate.count) ??
+      0;
+    const totalPages =
+      this.getNumber(sourceCandidate.totalPages) ??
+      this.getNumber(sourceCandidate.pages) ??
+      (size > 0 ? Math.max(1, Math.ceil(totalElements / size)) : 1);
+
+    return {
+      page,
+      size,
+      totalElements,
+      totalPages,
+      first:
+        this.getBoolean(sourceCandidate.first) ??
+        this.getBoolean(sourceCandidate.isFirst) ??
+        page <= 0,
+      last:
+        this.getBoolean(sourceCandidate.last) ??
+        this.getBoolean(sourceCandidate.isLast) ??
+        page >= totalPages - 1,
+    };
   }
 }

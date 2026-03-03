@@ -2,13 +2,14 @@
 
 import { motion, useInView } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
 
 interface VideoHeroSectionProps {
   videoSrc: string;
   posterSrc?: string;
   title: string;
   subtitle?: string;
-  overlayContent: {
+  overlayContent?: {
     text: string;
     delay: number;
   }[];
@@ -31,17 +32,7 @@ export function VideoHeroSection({
   });
 
   const [isVideoReady, setIsVideoReady] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
-
-  // Check for reduced motion preference
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mediaQuery.matches);
-
-    const handleChange = () => setReducedMotion(mediaQuery.matches);
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  const reducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
 
   // Handle video play/pause based on intersection
   useEffect(() => {
@@ -151,20 +142,22 @@ export function VideoHeroSection({
           </motion.div>
 
           {/* Progressive Text Overlays */}
-          <div className="space-y-4">
-            {overlayContent.map((content, index) => (
-              <motion.div
-                key={index}
-                variants={overlayVariants}
-                custom={content.delay}
-                className="font-serif text-lg text-white/95 sm:text-xl"
-              >
-                <span className="from-ocean-blue/60 to-valley-green/60 inline-block rounded-lg border border-white/20 bg-gradient-to-r px-6 py-3 shadow-lg backdrop-blur-sm">
-                  {content.text}
-                </span>
-              </motion.div>
-            ))}
-          </div>
+          {overlayContent && overlayContent.length > 0 && (
+            <div className="space-y-4">
+              {overlayContent.map((content, index) => (
+                <motion.div
+                  key={index}
+                  variants={overlayVariants}
+                  custom={content.delay}
+                  className="font-serif text-lg text-white/95 sm:text-xl"
+                >
+                  <span className="from-ocean-blue/60 to-valley-green/60 inline-block rounded-lg border border-white/20 bg-gradient-to-r px-6 py-3 shadow-lg backdrop-blur-sm">
+                    {content.text}
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

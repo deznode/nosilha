@@ -27,6 +27,8 @@ abstract class DirectoryEntryDto {
     abstract val name: String
     abstract val slug: String
     abstract val description: String
+    abstract val tags: List<String>
+    abstract val contentActions: ContentActionSettingsDto?
     abstract val town: String
     abstract val latitude: Double
     abstract val longitude: Double
@@ -52,6 +54,8 @@ data class RestaurantDto(
     override val name: String,
     override val slug: String,
     override val description: String,
+    override val tags: List<String> = emptyList(),
+    override val contentActions: ContentActionSettingsDto? = null,
     override val town: String,
     override val latitude: Double,
     override val longitude: Double,
@@ -73,6 +77,8 @@ data class HotelDto(
     override val name: String,
     override val slug: String,
     override val description: String,
+    override val tags: List<String> = emptyList(),
+    override val contentActions: ContentActionSettingsDto? = null,
     override val town: String,
     override val latitude: Double,
     override val longitude: Double,
@@ -94,6 +100,8 @@ data class BeachDto(
     override val name: String,
     override val slug: String,
     override val description: String,
+    override val tags: List<String> = emptyList(),
+    override val contentActions: ContentActionSettingsDto? = null,
     override val town: String,
     override val latitude: Double,
     override val longitude: Double,
@@ -115,6 +123,8 @@ data class LandmarkDto(
     override val name: String,
     override val slug: String,
     override val description: String,
+    override val tags: List<String> = emptyList(),
+    override val contentActions: ContentActionSettingsDto? = null,
     override val town: String,
     override val latitude: Double,
     override val longitude: Double,
@@ -126,3 +136,26 @@ data class LandmarkDto(
     val details: DetailsDto? = null,
     override val category: String = "Landmark",
 ) : DirectoryEntryDto()
+
+/**
+ * Configuration for overriding the default Content Action Toolbar behavior.
+ *
+ * @property order List describing the desired action ordering.
+ * @property disabled Set of actions to hide for a specific page.
+ */
+data class ContentActionSettingsDto(
+    val order: List<ContentActionTypeDto> = ContentActionTypeDto.defaultOrder(),
+    val disabled: List<ContentActionTypeDto> = emptyList(),
+)
+
+enum class ContentActionTypeDto {
+    SHARE,
+    COPY_LINK,
+    PRINT,
+    REACTIONS,
+    SUGGEST;
+
+    companion object {
+        fun defaultOrder(): List<ContentActionTypeDto> = listOf(SHARE, COPY_LINK, PRINT, REACTIONS, SUGGEST)
+    }
+}

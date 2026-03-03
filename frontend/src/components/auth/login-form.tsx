@@ -70,7 +70,9 @@ export function LoginForm() {
               className="focus:ring-ocean-blue transition-all duration-200 focus:border-transparent focus:ring-2"
             />
             {errors.email && (
-              <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+              <p className="mt-1 text-sm text-red-600">
+                {errors.email.message}
+              </p>
             )}
           </Field>
         </motion.div>

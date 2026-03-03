@@ -12,5 +12,7 @@ data class CreateEntryRequestDto(
     val latitude: Double,
     val longitude: Double,
     val imageUrl: String?,
+    val tags: List<String>? = null,
+    val contentActions: ContentActionSettingsDto? = null,
     val details: DetailsDto?, // Category-specific details object
 )

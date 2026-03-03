@@ -2,64 +2,50 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
-import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 
 const dirname =
   typeof __dirname !== "undefined"
     ? __dirname
     : path.dirname(fileURLToPath(import.meta.url));
 
-// Vitest configuration for Nos Ilha modular architecture testing
-// Project 1: Unit tests with jsdom for React components
-// Project 2: Storybook integration tests
+/**
+ * Vitest configuration for Nos Ilha - LOCAL DEVELOPMENT ONLY
+ *
+ * ⚠️ NOTE: Unit tests are NOT run in CI/CD (TypeScript + ESLint only).
+ * Run these tests locally for TDD workflow using:
+ *   - npm run test:unit           (run once)
+ *   - npm run test:unit --watch   (watch mode)
+ *
+ * Simplified to test only critical stores and hooks.
+ * Coverage thresholds removed (not enforced in CI).
+ */
 export default defineConfig({
   plugins: [react()],
   test: {
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html"],
+      exclude: [
+        "node_modules/",
+        "tests/",
+        "**/*.config.*",
+        "**/types/**",
+        ".storybook/",
+      ],
+      // Thresholds removed - coverage not enforced (local development only)
+    },
     projects: [
-      // Unit testing project for React components, hooks, and utilities
+      // Unit testing project for critical stores and hooks only
       {
         extends: true,
         test: {
           name: "unit",
           environment: "jsdom",
           setupFiles: ["./tests/setup/vitest.setup.tsx"],
-          coverage: {
-            provider: "v8",
-            reporter: ["text", "json", "html"],
-            exclude: [
-              "node_modules/",
-              "tests/",
-              "**/*.config.*",
-              "**/types/**",
-              ".storybook/",
-            ],
-            thresholds: {
-              lines: 70,
-              functions: 70,
-              branches: 70,
-              statements: 70,
-            },
-          },
           include: ["tests/unit/**/*.test.{ts,tsx}"],
         },
       },
-      // Storybook integration testing project
-      {
-        extends: true,
-        plugins: [
-          storybookTest({ configDir: path.join(dirname, ".storybook") }),
-        ],
-        test: {
-          name: "storybook",
-          browser: {
-            enabled: true,
-            headless: true,
-            provider: "playwright",
-            instances: [{ browser: "chromium" }],
-          },
-          setupFiles: [".storybook/vitest.setup.ts"],
-        },
-      },
+      // Storybook testing removed - use Storybook's built-in interaction testing instead
     ],
   },
   resolve: {

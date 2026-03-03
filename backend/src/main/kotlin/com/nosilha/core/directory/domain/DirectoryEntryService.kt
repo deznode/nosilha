@@ -1,14 +1,14 @@
 package com.nosilha.core.directory.domain
 
-import com.nosilha.core.directory.events.DirectoryEntryCreatedEvent
-import com.nosilha.core.directory.events.DirectoryEntryDeletedEvent
-import com.nosilha.core.directory.events.DirectoryEntryUpdatedEvent
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.nosilha.core.directory.repository.DirectoryEntryRepository
 import com.nosilha.core.shared.api.CreateEntryRequestDto
-import com.nosilha.core.shared.api.CreateRestaurantDetailsDto
 import com.nosilha.core.shared.api.CreateHotelDetailsDto
+import com.nosilha.core.shared.api.CreateRestaurantDetailsDto
 import com.nosilha.core.shared.api.DirectoryEntryDto
-import com.nosilha.core.directory.domain.toDto
+import com.nosilha.core.shared.events.DirectoryEntryCreatedEvent
+import com.nosilha.core.shared.events.DirectoryEntryDeletedEvent
+import com.nosilha.core.shared.events.DirectoryEntryUpdatedEvent
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
 import org.springframework.context.ApplicationEventPublisher
@@ -31,8 +31,10 @@ import java.util.*
 @Service
 class DirectoryEntryService(
     private val repository: DirectoryEntryRepository,
-    private val eventPublisher: ApplicationEventPublisher
+    private val eventPublisher: ApplicationEventPublisher,
 ) {
+    private val metadataObjectMapper = jacksonObjectMapper()
+
     /**
      * Creates a new directory entry based on the provided request data.
      *
@@ -75,6 +77,11 @@ class DirectoryEntryService(
             this.latitude = request.latitude
             this.longitude = request.longitude
             this.imageUrl = request.imageUrl
+            this.tags = request.tags?.joinToString(",")
+            this.contentActions =
+                request.contentActions?.let {
+                    metadataObjectMapper.writeValueAsString(it)
+                }
             // Generate a simple, URL-friendly slug
             this.slug =
                 request.name.lowercase()
@@ -88,9 +95,9 @@ class DirectoryEntryService(
         eventPublisher.publishEvent(
             DirectoryEntryCreatedEvent(
                 entryId = savedEntry.id!!,
-                category = savedEntry.category,
-                name = savedEntry.name
-            )
+                category = savedEntry.getCategoryValue(),
+                name = savedEntry.name,
+            ),
         )
 
         return savedEntry.toDto()
@@ -122,7 +129,10 @@ class DirectoryEntryService(
      * @param pageable Pagination parameters (page, size, sort)
      * @return A page of [DirectoryEntryDto] for the given category.
      */
-    fun getEntriesByCategoryPage(category: String, pageable: Pageable): Page<DirectoryEntryDto> {
+    fun getEntriesByCategoryPage(
+        category: String,
+        pageable: Pageable,
+    ): Page<DirectoryEntryDto> {
         return repository.findByCategoryIgnoreCase(category, pageable).map { it.toDto() }
     }
 
@@ -133,7 +143,10 @@ class DirectoryEntryService(
      * @param pageable Pagination parameters (page, size, sort)
      * @return A page of [DirectoryEntryDto] for the given town.
      */
-    fun getEntriesByTownPage(town: String, pageable: Pageable): Page<DirectoryEntryDto> {
+    fun getEntriesByTownPage(
+        town: String,
+        pageable: Pageable,
+    ): Page<DirectoryEntryDto> {
         return repository.findByTownIgnoreCase(town, pageable).map { it.toDto() }
     }
 
@@ -145,7 +158,11 @@ class DirectoryEntryService(
      * @param pageable Pagination parameters (page, size, sort)
      * @return A page of [DirectoryEntryDto] for the given filters.
      */
-    fun getEntriesByCategoryAndTownPage(category: String, town: String, pageable: Pageable): Page<DirectoryEntryDto> {
+    fun getEntriesByCategoryAndTownPage(
+        category: String,
+        town: String,
+        pageable: Pageable,
+    ): Page<DirectoryEntryDto> {
         return repository.findByCategoryIgnoreCaseAndTownIgnoreCase(category, town, pageable).map { it.toDto() }
     }
 
@@ -196,14 +213,19 @@ class DirectoryEntryService(
      * @throws BusinessException if the update violates business rules.
      */
     @Transactional
-    fun updateEntry(id: UUID, request: CreateEntryRequestDto): DirectoryEntryDto {
-        val existingEntry = repository.findById(id)
-            .orElseThrow { ResourceNotFoundException("Directory entry with ID '$id' not found.") }
+    fun updateEntry(
+        id: UUID,
+        request: CreateEntryRequestDto,
+    ): DirectoryEntryDto {
+        val existingEntry =
+            repository.findById(id)
+                .orElseThrow { ResourceNotFoundException("Directory entry with ID '$id' not found.") }
 
         // Check if slug is being changed and if it would create a duplicate
-        val newSlug = request.name.lowercase()
-            .replace(Regex("\\s+"), "-")
-            .replace(Regex("[^a-z0-9-]$"), "")
+        val newSlug =
+            request.name.lowercase()
+                .replace(Regex("\\s+"), "-")
+                .replace(Regex("[^a-z0-9-]$"), "")
 
         if (newSlug != existingEntry.slug && repository.findBySlug(newSlug) != null) {
             throw BusinessException("A directory entry with slug '$newSlug' already exists.")
@@ -218,6 +240,11 @@ class DirectoryEntryService(
             latitude = request.latitude
             longitude = request.longitude
             imageUrl = request.imageUrl
+            tags = request.tags?.joinToString(",")
+            contentActions =
+                request.contentActions?.let {
+                    metadataObjectMapper.writeValueAsString(it)
+                }
         }
 
         // Update type-specific fields based on the existing entity type
@@ -242,8 +269,8 @@ class DirectoryEntryService(
         eventPublisher.publishEvent(
             DirectoryEntryUpdatedEvent(
                 entryId = updatedEntry.id!!,
-                category = updatedEntry.category
-            )
+                category = updatedEntry.getCategoryValue(),
+            ),
         )
 
         return updatedEntry.toDto()
@@ -267,7 +294,7 @@ class DirectoryEntryService(
 
         // Publish DirectoryEntryDeletedEvent for other modules to react
         eventPublisher.publishEvent(
-            DirectoryEntryDeletedEvent(entryId = id)
+            DirectoryEntryDeletedEvent(entryId = id),
         )
     }
 }

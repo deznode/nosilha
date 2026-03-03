@@ -17,7 +17,7 @@ data class ApiResponse<T>(
     val data: T,
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     val timestamp: LocalDateTime = LocalDateTime.now(),
-    val status: Int = 200
+    val status: Int = 200,
 )
 
 /**
@@ -35,7 +35,7 @@ data class PagedApiResponse<T>(
     val pageable: PageableInfo,
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     val timestamp: LocalDateTime = LocalDateTime.now(),
-    val status: Int = 200
+    val status: Int = 200,
 ) {
     companion object {
         /**
@@ -44,14 +44,15 @@ data class PagedApiResponse<T>(
         fun <T> from(page: Page<T>): PagedApiResponse<T> {
             return PagedApiResponse(
                 data = page.content,
-                pageable = PageableInfo(
-                    page = page.number,
-                    size = page.size,
-                    totalElements = page.totalElements,
-                    totalPages = page.totalPages,
-                    first = page.isFirst,
-                    last = page.isLast
-                )
+                pageable =
+                    PageableInfo(
+                        page = page.number,
+                        size = page.size,
+                        totalElements = page.totalElements,
+                        totalPages = page.totalPages,
+                        first = page.isFirst,
+                        last = page.isLast,
+                    ),
             )
         }
     }
@@ -66,7 +67,7 @@ data class PageableInfo(
     val totalElements: Long,
     val totalPages: Int,
     val first: Boolean,
-    val last: Boolean
+    val last: Boolean,
 )
 
 /**
@@ -84,7 +85,7 @@ data class ErrorResponse(
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     val timestamp: LocalDateTime = LocalDateTime.now(),
     val path: String? = null,
-    val status: Int
+    val status: Int,
 )
 
 /**
@@ -102,7 +103,7 @@ data class ValidationErrorResponse(
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     val timestamp: LocalDateTime = LocalDateTime.now(),
     val path: String? = null,
-    val status: Int = 400
+    val status: Int = 400,
 ) {
     /**
      * Represents a validation error for a specific field.
@@ -110,6 +111,6 @@ data class ValidationErrorResponse(
     data class FieldError(
         val field: String,
         val rejectedValue: Any?,
-        val message: String
+        val message: String,
     )
 }

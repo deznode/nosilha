@@ -112,7 +112,7 @@ export default function AboutPage() {
                 Modern Architecture
               </h4>
               <p className="text-text-secondary mb-4">
-                Built with Next.js 15, React 19, and Spring Boot, our platform
+                Built with Next.js 16, React 19, and Spring Boot, our platform
                 combines cutting-edge web technology with robust backend
                 services to deliver a fast, accessible experience for all users.
               </p>
@@ -206,13 +206,15 @@ export default function AboutPage() {
             </div>
 
             <div className="text-center">
-              <div className="text-valley-green mb-2 text-3xl font-bold">0</div>
+              <div className="text-valley-green mb-2 text-3xl font-bold">
+                <HeartIcon className="mx-auto h-12 w-12" />
+              </div>
               <div className="text-text-primary mb-1 text-sm font-medium">
-                Commercial Interests
+                Volunteer-Powered
               </div>
               <p className="text-text-secondary text-xs">
-                No commercial backing—purely community-driven and
-                volunteer-supported.
+                Driven by passionate volunteers dedicated to preserving Brava
+                Island&apos;s cultural heritage.
               </p>
             </div>
           </div>
@@ -263,7 +265,7 @@ export default function AboutPage() {
 // Generate metadata for SEO
 export async function generateMetadata() {
   return {
-    title: "About Nos Ilha | Community-Driven Platform for Brava Island",
+    title: "About Nos Ilha - Community-Driven Platform for Brava Island",
     description:
       "Learn about Nos Ilha, a volunteer-driven, open-source platform celebrating the cultural heritage and natural beauty of Brava Island, Cape Verde.",
     openGraph: {

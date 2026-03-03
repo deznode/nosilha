@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
 
 interface PageTransitionProps {
   children: React.ReactNode;
@@ -11,19 +11,9 @@ interface PageTransitionProps {
 
 export function PageTransition({ children, className }: PageTransitionProps) {
   const pathname = usePathname();
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setPrefersReducedMotion(mediaQuery.matches);
-
-    const handleChange = (e: MediaQueryListEvent) => {
-      setPrefersReducedMotion(e.matches);
-    };
-
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  const prefersReducedMotion = useMediaQuery(
+    "(prefers-reduced-motion: reduce)"
+  );
 
   // If reduced motion is preferred, return children without animation
   if (prefersReducedMotion) {
@@ -49,19 +39,9 @@ export function AnimatedSection({
   className,
   delay = 0,
 }: PageTransitionProps & { delay?: number }) {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setPrefersReducedMotion(mediaQuery.matches);
-
-    const handleChange = (e: MediaQueryListEvent) => {
-      setPrefersReducedMotion(e.matches);
-    };
-
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  const prefersReducedMotion = useMediaQuery(
+    "(prefers-reduced-motion: reduce)"
+  );
 
   if (prefersReducedMotion) {
     return <div className={className}>{children}</div>;

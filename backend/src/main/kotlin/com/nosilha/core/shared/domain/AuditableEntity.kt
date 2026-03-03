@@ -36,7 +36,6 @@ import java.time.LocalDateTime
  */
 @MappedSuperclass
 abstract class AuditableEntity {
-
     /**
      * Timestamp when the entity was first persisted to the database.
      * Automatically set on entity creation via @PrePersist callback.

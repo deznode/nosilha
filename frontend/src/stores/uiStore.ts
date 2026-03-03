@@ -31,7 +31,7 @@ interface UiState {
 export const useUiStore = create<UiState>()(
   devtools(
     persist(
-      (set, get) => ({
+      (set, _get) => ({
         // Initial state
         theme: "system",
         activeModal: null,

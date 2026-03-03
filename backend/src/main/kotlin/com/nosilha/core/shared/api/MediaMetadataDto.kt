@@ -20,7 +20,7 @@ data class MediaMetadataDto(
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
     val uploadedAt: LocalDateTime,
     val uploadedBy: String? = null,
-    val aiMetadata: AIMetadataDto? = null
+    val aiMetadata: AIMetadataDto? = null,
 )
 
 /**
@@ -32,5 +32,5 @@ data class AIMetadataDto(
     val textDetected: List<String> = emptyList(),
     val landmarks: List<String> = emptyList(),
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    val processedAt: LocalDateTime? = null
+    val processedAt: LocalDateTime? = null,
 )

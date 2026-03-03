@@ -1,0 +1,126 @@
+# Docker Compose Override Example for ACT Testing
+#
+# This file provides examples for local environment overrides.
+# Copy this file to docker-compose.override.yml and customize for your needs.
+#
+# IMPORTANT: docker-compose.override.yml is gitignored for security reasons.
+#
+# Usage:
+#   cp docker-compose.override.yml.example docker-compose.override.yml
+#   # Edit docker-compose.override.yml with your custom settings
+#   docker-compose -f docker-compose.yaml -f docker-compose.override.yml up -d
+
+version: '3.9'
+
+services:
+  # PostgreSQL Overrides
+  postgres:
+    # Example: Change port mapping for local conflicts
+    # ports:
+    #   - "15432:5432"  # Use different host port if 5432 is in use
+
+    # Example: Use persistent volumes for debugging
+    # volumes:
+    #   - ./postgres-data:/var/lib/postgresql/data  # Persistent data
+    #   - ./postgres-logs:/var/log/postgresql       # Debug logs
+
+    # Example: Adjust resource limits for your machine
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 1G       # Increase from default 512M
+    #       cpus: '1.0'      # Increase from default 0.5
+
+    # Example: Override environment variables
+    # environment:
+    #   POSTGRES_DB: my_custom_db
+    #   POSTGRES_USER: my_user
+    #   POSTGRES_PASSWORD: my_password
+
+  # Redis Overrides
+  redis:
+    # Example: Change port mapping
+    # ports:
+    #   - "16379:6379"
+
+    # Example: Mount custom redis.conf
+    # volumes:
+    #   - ./redis.conf:/usr/local/etc/redis/redis.conf:ro
+    # command: redis-server /usr/local/etc/redis/redis.conf
+
+    # Example: Adjust memory limits
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 256M   # Increase from default 128M
+
+  # Firestore Emulator Overrides
+  firestore:
+    # Example: Change port mapping
+    # ports:
+    #   - "18081:8081"
+
+    # Example: Add volume for persistent data
+    # volumes:
+    #   - ./firestore-data:/data
+
+    # Example: Adjust resource limits for large datasets
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 1G     # Increase from default 512M
+    #       cpus: '1.0'    # Increase from default 0.5
+
+  # GCS Emulator Overrides
+  gcs:
+    # Example: Change port mapping
+    # ports:
+    #   - "18082:8082"
+
+    # Example: Mount local directory for persistent storage
+    # volumes:
+    #   - ./gcs-storage:/data
+
+    # Example: Adjust resource limits
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 512M   # Increase from default 256M
+
+# Example: Add additional services for testing
+#   mailhog:
+#     image: mailhog/mailhog:latest
+#     container_name: act-mailhog
+#     ports:
+#       - "1025:1025"  # SMTP
+#       - "8025:8025"  # Web UI
+#     networks:
+#       - act-testing
+#     labels:
+#       - "project=act-testing"
+
+#   localstack:
+#     image: localstack/localstack:latest
+#     container_name: act-localstack
+#     ports:
+#       - "4566:4566"  # LocalStack edge port
+#     environment:
+#       - SERVICES=s3,sqs,sns,dynamodb
+#       - DEBUG=1
+#     networks:
+#       - act-testing
+#     labels:
+#       - "project=act-testing"
+
+# Example: Override network configuration
+# networks:
+#   act-testing:
+#     driver: bridge
+#     ipam:
+#       config:
+#         - subnet: 172.25.0.0/16
+
+# Example: Add named volumes
+# volumes:
+#   my-custom-volume:
+#     driver: local

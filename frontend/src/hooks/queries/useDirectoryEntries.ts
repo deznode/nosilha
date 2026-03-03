@@ -1,10 +1,8 @@
-import { useQuery, UseQueryOptions } from "@tanstack/react-query";
+import { useQuery, UseQueryOptions, QueryClient } from "@tanstack/react-query";
 import { getEntriesByCategory } from "@/lib/api";
-import {
-  directoryEntriesSchema,
-  type DirectoryEntryInput,
-} from "@/schemas/directoryEntrySchema";
+import { directoryEntriesSchema } from "@/schemas/directoryEntrySchema";
 import type { DirectoryEntry } from "@/types/directory";
+import type { PaginatedResult } from "@/lib/api-contracts";
 
 /**
  * TanStack Query hook for fetching directory entries with runtime validation.
@@ -21,29 +19,30 @@ export function useDirectoryEntries(
   page: number = 0,
   size: number = 20,
   options?: Omit<
-    UseQueryOptions<DirectoryEntry[], Error>,
+    UseQueryOptions<PaginatedResult<DirectoryEntry>, Error>,
     "queryKey" | "queryFn"
   >
 ) {
-  return useQuery<DirectoryEntry[], Error>({
+  return useQuery<PaginatedResult<DirectoryEntry>, Error>({
     queryKey: ["directory", "entries", category, page, size],
     queryFn: async () => {
-      const data = await getEntriesByCategory(category, page, size);
+      const result = await getEntriesByCategory(category, page, size);
 
       // Runtime validation with Zod
-      const validated = directoryEntriesSchema.safeParse(data);
+      const validated = directoryEntriesSchema.safeParse(result.items);
 
       if (!validated.success) {
         console.error(
           "Directory entries validation failed:",
           validated.error.format()
         );
-        // Return data even if validation fails (graceful degradation)
-        // In production, you might want to throw or handle differently
-        return data;
+        return result;
       }
 
-      return validated.data as DirectoryEntry[];
+      return {
+        items: validated.data as DirectoryEntry[],
+        pagination: result.pagination,
+      };
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 30 * 60 * 1000, // 30 minutes (formerly cacheTime)
@@ -56,7 +55,7 @@ export function useDirectoryEntries(
  * Useful for pre-loading data on hover or navigation hints.
  */
 export function usePrefetchDirectoryEntries(
-  queryClient: any,
+  queryClient: QueryClient,
   category: string = "all",
   page: number = 0,
   size: number = 20

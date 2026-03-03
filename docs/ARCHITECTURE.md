@@ -6,7 +6,7 @@ This document provides a comprehensive technical overview of the Nos Ilha platfo
 
 Nos Ilha is a modern, full-stack web application built with a microservices-inspired architecture, featuring:
 
-- **Frontend**: Next.js 15 with React 19 (Server Components + Client Components)
+- **Frontend**: Next.js 16 with React 19.2 (Server Components + Client Components)
 - **Backend**: Spring Boot 3.4.7 with Kotlin and domain-driven design
 - **Infrastructure**: Google Cloud Platform with Terraform Infrastructure as Code
 - **CI/CD**: Modular GitHub Actions workflows with comprehensive security scanning
@@ -87,7 +87,7 @@ User Request ──► Frontend (Next.js) ──► Supabase Auth ──► JWT 
 **Implementation Details:**
 - **Frontend**: `components/auth/login-form.tsx` handles user input
 - **Auth Provider**: `components/providers/auth-provider.tsx` manages session state
-- **Middleware**: `middleware.ts` protects routes and redirects unauthorized users
+- **Middleware**: `proxy.ts` protects routes and redirects unauthorized users
 - **Backend Filter**: `JwtAuthenticationFilter` validates tokens and extracts user claims
 - **API Client**: `lib/api.ts` automatically includes JWT headers in requests
 
@@ -144,7 +144,7 @@ File Upload ──► GCS Storage ──► Vision API ──► Metadata Extrac
 
 ## 🛠️ Component Architecture
 
-### Frontend Architecture (Next.js 15)
+### Frontend Architecture (Next.js 16)
 
 ```
 frontend/
@@ -182,7 +182,7 @@ frontend/
 │   │   └── mock-api.ts              # Fallback data
 │   ├── types/
 │   │   └── directory.ts             # TypeScript interfaces
-│   └── middleware.ts                # Route protection
+│   └── proxy.ts                     # Route protection
 └── Dockerfile                       # Production container build
 ```
 
@@ -197,99 +197,109 @@ frontend/
    - Interactive features: no-cache for real-time updates
 5. **Error Boundaries**: Graceful fallback to mock data when API fails
 
-### Backend Architecture (Spring Boot + Kotlin)
+### Backend Architecture (Spring Boot + Kotlin + Spring Modulith)
+
+**Module Organization:**
 
 ```
-backend/
-├── src/main/kotlin/com/nosilha/
-│   ├── core/
-│   │   ├── domain/                  # Domain entities
-│   │   │   ├── DirectoryEntry.kt    # Base entity (single-table inheritance)
-│   │   │   ├── Restaurant.kt        # Restaurant-specific fields
-│   │   │   ├── Hotel.kt            # Hotel-specific fields
-│   │   │   └── Landmark.kt         # Landmark-specific fields
-│   │   ├── dto/                    # Data transfer objects
-│   │   │   ├── DirectoryEntryDto.kt # API response format
-│   │   │   └── CreateEntryDto.kt   # API request format
-│   │   ├── repository/             # Data access layer
-│   │   │   ├── DirectoryEntryRepository.kt
-│   │   │   ├── RestaurantRepository.kt
-│   │   │   └── HotelRepository.kt
-│   │   ├── service/                # Business logic layer
-│   │   │   ├── DirectoryService.kt # CRUD operations
-│   │   │   ├── AuthService.kt      # JWT validation
-│   │   │   ├── MediaService.kt     # GCS operations
-│   │   │   └── AIService.kt        # Vision API integration
-│   │   └── controller/             # Web layer
-│   │       ├── DirectoryController.kt # REST endpoints
-│   │       ├── AuthController.kt   # Authentication endpoints
-│   │       └── MediaController.kt  # File upload endpoints
-│   ├── config/                     # Configuration classes
-│   │   ├── SecurityConfig.kt       # JWT security configuration
-│   │   ├── CorsConfig.kt          # Cross-origin request setup
-│   │   └── GcpConfig.kt           # Google Cloud configuration
-│   └── NosilhaApplication.kt       # Spring Boot main class
-├── src/main/resources/
-│   ├── application.yml             # Production configuration
-│   ├── application-local.yml       # Development configuration
-│   └── db/migration/               # Flyway database migrations
-│       └── V1__Create_directory_entries.sql
-└── build.gradle.kts                # Build configuration
+backend/src/main/kotlin/com/nosilha/core/
+├── shared/      # Shared Kernel - Common infrastructure (events, audit, exceptions)
+├── auth/        # Authentication Module - JWT auth and user management
+├── directory/   # Directory Module - Cultural heritage entries (STI pattern)
+└── media/       # Media Module - GCS storage and AI processing
 ```
+
+**Standard Module Structure:**
+
+Each module follows a consistent pattern with these internal layers:
+- `PackageInfo.kt` - Declares module API and dependencies
+- `api/` - REST controllers (public, exposed to other modules)
+- `domain/` - Business entities and services (internal)
+- `repository/` - Data access layer (internal)
+- `events/` - Domain events (public, exposed to other modules)
+
+**Key Points:**
+- See `docs/SPRING_MODULITH.md` for detailed module architecture
+- Database migrations: `backend/src/main/resources/db/migration/`
+- Configuration: `backend/src/main/resources/application*.yml`
 
 **Key Architectural Decisions:**
 
-1. **Single Table Inheritance**: All directory entries in one table with discriminator column
-2. **Clean Architecture**: Clear separation between controllers, services, and repositories
-3. **Domain-Driven Design**: Rich domain models with behavior, not just data
-4. **JWT Authentication**: Stateless authentication with Supabase token validation
-5. **Actuator Integration**: Health checks and metrics for production monitoring
+1. **Spring Modulith Architecture**: Modular monolith with enforced module boundaries and event-driven communication
+2. **Single Table Inheritance**: All directory entries in one table with discriminator column (Directory module)
+3. **Event-Driven Communication**: Modules communicate via `@ApplicationModuleListener` without direct dependencies
+4. **Module Isolation**: Each module (auth, directory, media) has independent domain, API, and repository layers
+5. **Shared Kernel**: Common infrastructure (AuditableEntity, events, exceptions) in dedicated shared module
+6. **JWT Authentication**: Stateless authentication with Supabase token validation (Auth module)
+7. **Actuator Integration**: Health checks and metrics for production monitoring
 
-#### Backend Service Layer Diagram
+#### Backend Module Architecture Diagram (Spring Modulith)
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Backend API (Spring Boot)                   │
-├─────────────────────────────────────────────────────────────────┤
-│  Controllers (Web Layer)                                        │
-│  ├─ DirectoryController.kt (/api/v1/directory/*)               │
-│  ├─ AuthController.kt      (/api/v1/auth/*)                    │
-│  └─ MediaController.kt     (/api/v1/media/*)                   │
-├─────────────────────────────────────────────────────────────────┤
-│  Services (Business Logic)                                      │
-│  ├─ DirectoryService.kt    (CRUD operations)                   │
-│  ├─ AuthService.kt         (JWT validation)                    │
-│  ├─ MediaService.kt        (GCS operations)                    │
-│  └─ AIService.kt           (Vision API integration)            │
-├─────────────────────────────────────────────────────────────────┤
-│  Repositories (Data Access)                                     │
-│  ├─ DirectoryEntryRepository.kt                                 │
-│  ├─ RestaurantRepository.kt                                     │
-│  └─ HotelRepository.kt                                          │
-├─────────────────────────────────────────────────────────────────┤
-│  Domain Entities                                                │
-│  ├─ DirectoryEntry.kt (Base class)                             │
-│  ├─ Restaurant.kt (@DiscriminatorValue("RESTAURANT"))           │
-│  ├─ Hotel.kt (@DiscriminatorValue("HOTEL"))                     │
-│  └─ Landmark.kt (@DiscriminatorValue("LANDMARK"))               │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     PostgreSQL Database                        │
-│  ┌─────────────────────────────────────────────────────────┐   │
-│  │             directory_entries table                     │   │
-│  │  ┌─────────┬──────────┬──────────┬─────────────────┐   │   │
-│  │  │   id    │   name   │category  │ type-specific   │   │   │
-│  │  │ (UUID)  │ (string) │(ENUM)    │    fields       │   │   │
-│  │  ├─────────┼──────────┼──────────┼─────────────────┤   │   │
-│  │  │abc-123  │Casa Nova │RESTAURANT│cuisine, hours   │   │   │
-│  │  │def-456  │Hotel Mar │HOTEL     │amenities        │   │   │
-│  │  │ghi-789  │Lighthouse│LANDMARK  │historical_info  │   │   │
-│  │  └─────────┴──────────┴──────────┴─────────────────┘   │   │
-│  └─────────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│               Backend API (Spring Boot + Spring Modulith)                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │  Shared Kernel (com.nosilha.core.shared)                          │    │
+│  │  ├─ domain/AuditableEntity.kt                                     │    │
+│  │  ├─ events/ApplicationModuleEvent.kt                              │    │
+│  │  ├─ api/ (shared API components)                                  │    │
+│  │  └─ exception/ (global exception handling)                        │    │
+│  └────────────────────────────────────────────────────────────────────┘    │
+│                         ▲           ▲           ▲                           │
+│                         │           │           │                           │
+│        ┌────────────────┘           │           └────────────────┐          │
+│        │                            │                            │          │
+│  ┌─────┴─────────┐       ┌──────────┴─────────┐       ┌─────────┴─────┐    │
+│  │ Auth Module   │       │ Directory Module   │       │ Media Module  │    │
+│  │ (auth)        │       │ (directory)        │       │ (media)       │    │
+│  ├───────────────┤       ├────────────────────┤       ├───────────────┤    │
+│  │ API:          │       │ API:               │       │ API:          │    │
+│  │ • AuthController│     │ • DirectoryController│     │ • MediaController│  │
+│  ├───────────────┤       ├────────────────────┤       ├───────────────┤    │
+│  │ Domain:       │       │ Domain:            │       │ Domain:       │    │
+│  │ • UserService │       │ • DirectoryService │       │ • MediaService│    │
+│  │ • JwtAuth     │       │ • DirectoryEntry   │       │               │    │
+│  │   Service     │       │ • Restaurant       │       │               │    │
+│  ├───────────────┤       │ • Hotel, etc.      │       ├───────────────┤    │
+│  │ Security:     │       ├────────────────────┤       │ Repository:   │    │
+│  │ • JwtFilter   │       │ Repository:        │       │ • FirestoreRepo│   │
+│  │ • SecurityCfg │       │ • DirectoryRepo    │       ├───────────────┤    │
+│  ├───────────────┤       ├────────────────────┤       │ Events:       │    │
+│  │ Events:       │       │ Events:            │       │ • MediaUploaded│   │
+│  │ • UserLoggedIn│       │ • EntryCreated ────┼──────►│ • MediaProcessed│ │
+│  └───────────────┘       │ • EntryUpdated     │       └───────────────┘    │
+│                          │ • EntryDeleted     │                            │
+│                          └────────────────────┘                            │
+│                                     │                                       │
+└─────────────────────────────────────┼───────────────────────────────────────┘
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            PostgreSQL Database                              │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │  directory_entries (Single Table Inheritance)                         │  │
+│  │  ┌─────────┬──────────┬────────────┬─────────────────┐               │  │
+│  │  │   id    │   name   │entry_type  │ type-specific   │               │  │
+│  │  │ (UUID)  │ (string) │(discriminator)│    fields    │               │  │
+│  │  ├─────────┼──────────┼────────────┼─────────────────┤               │  │
+│  │  │abc-123  │Casa Nova │RESTAURANT  │cuisine, hours   │               │  │
+│  │  │def-456  │Hotel Mar │HOTEL       │amenities        │               │  │
+│  │  │ghi-789  │Lighthouse│LANDMARK    │historical_info  │               │  │
+│  │  └─────────┴──────────┴────────────┴─────────────────┘               │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │  event_publication (Spring Modulith Event Store)                      │  │
+│  │  Tracks published events for event replay and debugging               │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+**Module Communication:**
+- ✅ **Event-Driven**: Modules communicate via `@ApplicationModuleListener` (e.g., `MediaService` listens to `DirectoryEntryCreatedEvent`)
+- ✅ **No Direct Dependencies**: Modules never import services from other modules
+- ✅ **Enforced Boundaries**: `ModularityTests` verify zero circular dependencies
+- ✅ **Public API Only**: Controllers and events are public; services and repositories are internal
 
 ### Database Schema Design
 
@@ -575,133 +585,234 @@ Form     State      Provider     Filter       Logic      Access
 
 ## 🔮 Future Architecture Considerations
 
-### Near-Term Architectural Evolution
+### Current Architectural Implementation
 
-The following architectural improvements are actively planned for implementation to enhance modularity, maintainability, and developer experience:
+The following architectural improvements have been **successfully implemented** to enhance modularity, maintainability, and developer experience:
 
 #### Backend: Spring Modulith Integration
 
-**Current State**: Monolithic Spring Boot application with layered architecture
-**Target State**: Modular monolith with well-defined module boundaries using Spring Modulith
+**Architecture**: Modular monolith with well-defined module boundaries using Spring Modulith
 
 ```
-Current Backend Architecture           →    Planned Spring Modulith Architecture
-┌─────────────────────────┐                 ┌─────────────────────────────────────┐
-│   Monolithic Backend    │                 │      Modular Backend                │
-│   (Spring Boot)         │                 │      (Spring Modulith)              │
-├─────────────────────────┤                 ├─────────────────────────────────────┤
-│ • Controllers           │                 │ ┌─────────────────────────────────┐ │
-│ • Services              │                 │ │  Directory Module               │ │
-│ • Repositories          │                 │ │  • DirectoryController          │ │
-│ • Domain Entities       │                 │ │  • DirectoryService             │ │
-│ • All in one package    │                 │ │  • DirectoryRepository          │ │
-└─────────────────────────┘                 │ └─────────────────────────────────┘ │
-                                            │ ┌─────────────────────────────────┐ │
-                                            │ │  Media Module                   │ │
-                                            │ │  • MediaController              │ │
-                                            │ │  • MediaService                 │ │
-                                            │ │  • AIService                    │ │
-                                            │ └─────────────────────────────────┘ │
-                                            │ ┌─────────────────────────────────┐ │
-                                            │ │  Auth Module                    │ │
-                                            │ │  • AuthController               │ │
-                                            │ │  • AuthService                  │ │
-                                            │ │  • JwtAuthenticationFilter      │ │
-                                            │ └─────────────────────────────────┘ │
-                                            └─────────────────────────────────────┘
+Backend Architecture: Spring Modulith
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      Modular Backend (Spring Modulith)                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ ┌─────────────────────────────────────────────────────────────────────────┐ │
+│ │  Shared Kernel Module (com.nosilha.core.shared)                        │ │
+│ │  • AuditableEntity (base domain class)                                 │ │
+│ │  • DomainEvent, ApplicationModuleEvent (event infrastructure)          │ │
+│ │  • Common utilities and base types                                     │ │
+│ │  Dependencies: NONE (foundation layer)                                 │ │
+│ └─────────────────────────────────────────────────────────────────────────┘ │
+│                                                                             │
+│ ┌─────────────────────────────────────────────────────────────────────────┐ │
+│ │  Directory Module (com.nosilha.core.directory)                         │ │
+│ │  • API: DirectoryController (public REST endpoints)                    │ │
+│ │  • Domain: DirectoryEntry, Restaurant, Hotel, Landmark, Beach (STI)    │ │
+│ │  • Service: DirectoryService (business logic, event publishing)        │ │
+│ │  • Repository: DirectoryEntryRepository (JPA data access)              │ │
+│ │  • Events: DirectoryEntryCreatedEvent, UpdatedEvent, DeletedEvent      │ │
+│ │  Dependencies: shared                                                   │ │
+│ └─────────────────────────────────────────────────────────────────────────┘ │
+│                                      │ Events                               │
+│                                      ▼                                       │
+│ ┌─────────────────────────────────────────────────────────────────────────┐ │
+│ │  Media Module (com.nosilha.core.media)                                 │ │
+│ │  • API: MediaController (file upload endpoints)                        │ │
+│ │  • Service: MediaService (GCS, AI processing, event listeners)         │ │
+│ │  • Repository: FirestoreMediaRepository (metadata storage)             │ │
+│ │  • Events: MediaUploadedEvent, MediaProcessedEvent                     │ │
+│ │  • Listeners: @ApplicationModuleListener for DirectoryEntryCreated     │ │
+│ │  Dependencies: shared                                                   │ │
+│ └─────────────────────────────────────────────────────────────────────────┘ │
+│                                                                             │
+│ ┌─────────────────────────────────────────────────────────────────────────┐ │
+│ │  Auth Module (com.nosilha.core.auth)                                   │ │
+│ │  • API: AuthController (login, logout, token refresh)                  │ │
+│ │  • Security: JwtAuthenticationFilter, SecurityConfig                   │ │
+│ │  • Service: JwtAuthenticationService, UserService                      │ │
+│ │  • Events: UserLoggedInEvent, UserLoggedOutEvent                       │ │
+│ │  Dependencies: shared                                                   │ │
+│ └─────────────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 **Benefits:**
-- **Enforced Module Boundaries**: Prevent unwanted dependencies between modules
-- **Independent Evolution**: Modules can evolve independently within clear boundaries
-- **Better Testability**: Test modules in isolation with module-specific test slices
-- **Documentation**: Auto-generated module documentation and dependency visualization
-- **Event-Driven Communication**: Asynchronous module communication via application events
+- **Enforced Module Boundaries**: ModularityTests.kt verifies zero circular dependencies
+- **Independent Evolution**: Modules evolve independently via event-driven communication
+- **Better Testability**: Modules tested in isolation with Spring Modulith test support
+- **Auto-Generated Documentation**: PlantUML diagrams generated in build/modulith/
+- **Event-Driven Communication**: @ApplicationModuleListener for async module interactions
+
+**Verification:**
+- **Tests**: `backend/src/test/kotlin/com/nosilha/core/ModularityTests.kt`
+- **CI/CD**: Module boundary verification in backend CI workflow
+- **Dependencies**: Spring Modulith 1.2.5 configured in `build.gradle.kts`
 
 #### Frontend: State Management Architecture
 
-**Current State**: Component-level state with prop drilling and direct API calls
-**Target State**: Centralized state management with Zustand and TanStack Query
+**Architecture**: Centralized state management with Zustand, TanStack Query, and Zod validation
 
 ```
-Current State Management              →    Planned State Management Architecture
-┌─────────────────────────┐                 ┌─────────────────────────────────────┐
-│   Component State       │                 │      Zustand + TanStack Query       │
-├─────────────────────────┤                 ├─────────────────────────────────────┤
-│ • useState hooks        │                 │ ┌─────────────────────────────────┐ │
-│ • Prop drilling         │                 │ │  Zustand Stores                 │ │
-│ • Direct API calls      │                 │ │  • authStore (user, session)    │ │
-│ • No global state       │                 │ │  • uiStore (theme, modals)      │ │
-│ • Manual caching        │                 │ │  • filterStore (search params)  │ │
-└─────────────────────────┘                 │ └─────────────────────────────────┘ │
-                                            │ ┌─────────────────────────────────┐ │
-                                            │ │  TanStack Query                 │ │
-                                            │ │  • Automatic caching            │ │
-                                            │ │  • Background refetching        │ │
-                                            │ │  • Optimistic updates           │ │
-                                            │ │  • Infinite queries             │ │
-                                            │ └─────────────────────────────────┘ │
-                                            └─────────────────────────────────────┘
+Frontend State Management: Zustand + TanStack Query + Zod
+┌───────────────────────────────────────────────────────────────────────────┐
+│                 Modern State Management Architecture                      │
+├───────────────────────────────────────────────────────────────────────────┤
+│ ┌───────────────────────────────────────────────────────────────────────┐ │
+│ │  Zustand Stores (Client State) - src/stores/                         │ │
+│ │  ┌─────────────────────────────────────────────────────────────────┐ │ │
+│ │  │ authStore.ts                                                    │ │ │
+│ │  │  • State: user, session, isLoading                              │ │ │
+│ │  │  • Actions: setUser, setSession, logout                         │ │ │
+│ │  │  • Persistence: LocalStorage via zustand/persist                │ │ │
+│ │  │  • DevTools: Redux DevTools integration                         │ │ │
+│ │  ├─────────────────────────────────────────────────────────────────┤ │ │
+│ │  │ uiStore.ts                                                      │ │ │
+│ │  │  • State: theme (light/dark), activeModal, filterPanelOpen      │ │ │
+│ │  │  • Actions: toggleTheme, openModal, closeModal                  │ │ │
+│ │  │  • Persistence: LocalStorage (theme preference)                 │ │ │
+│ │  ├─────────────────────────────────────────────────────────────────┤ │ │
+│ │  │ filterStore.ts                                                  │ │ │
+│ │  │  • State: searchQuery, selectedCategory, selectedLocation       │ │ │
+│ │  │  • Actions: setSearch, setCategory, setLocation, clearFilters   │ │ │
+│ │  │  • Sync: URL query parameters for shareable views               │ │ │
+│ │  └─────────────────────────────────────────────────────────────────┘ │ │
+│ └───────────────────────────────────────────────────────────────────────┘ │
+│                                                                           │
+│ ┌───────────────────────────────────────────────────────────────────────┐ │
+│ │  TanStack Query Hooks (Server State) - src/hooks/queries/            │ │
+│ │  ┌─────────────────────────────────────────────────────────────────┐ │ │
+│ │  │ useDirectoryEntries.ts: ['directory', category] | 5min stale    │ │ │
+│ │  │ useDirectoryEntry.ts: ['directory', 'entry', slug] | 10min      │ │ │
+│ │  │ useUserProfile.ts: ['user', 'profile', userId] | 5min           │ │ │
+│ │  │ useMediaMetadata.ts: ['media', 'metadata', entryId] | 15min     │ │ │
+│ │  ├─────────────────────────────────────────────────────────────────┤ │ │
+│ │  │ Features: Automatic caching, background refetching,             │ │ │
+│ │  │           optimistic updates, cache invalidation                │ │ │
+│ │  └─────────────────────────────────────────────────────────────────┘ │ │
+│ └───────────────────────────────────────────────────────────────────────┘ │
+│                                                                           │
+│ ┌───────────────────────────────────────────────────────────────────────┐ │
+│ │  Zod Schemas (Runtime Validation) - src/schemas/                     │ │
+│ │  ┌─────────────────────────────────────────────────────────────────┐ │ │
+│ │  │ directoryEntrySchema.ts: Directory entry validation with STI    │ │ │
+│ │  │ authSchema.ts: Login/signup form validation                     │ │ │
+│ │  │ filterSchema.ts: Search parameter validation                    │ │ │
+│ │  │ userProfileSchema.ts: User profile data validation              │ │ │
+│ │  │ mediaMetadataSchema.ts: Media metadata validation               │ │ │
+│ │  ├─────────────────────────────────────────────────────────────────┤ │ │
+│ │  │ Features: TypeScript type inference, runtime safety,            │ │ │
+│ │  │           React Hook Form integration via zodResolver           │ │ │
+│ │  └─────────────────────────────────────────────────────────────────┘ │ │
+│ └───────────────────────────────────────────────────────────────────────┘ │
+└───────────────────────────────────────────────────────────────────────────┘
 ```
 
 **Implementation Details:**
 - **Zustand for Client State**: Theme preferences, UI state, authentication state, filter selections
-- **TanStack Query for Server State**: Directory entries, media metadata, user profiles, API data caching
-- **Zod for Schema Validation**: Runtime type safety for forms, API requests/responses, and data parsing with TypeScript inference
+- **TanStack Query for Server State**: Directory entries, media metadata, user profiles with smart caching
+- **Zod for Runtime Validation**: Type-safe forms, API requests/responses, data parsing with TypeScript inference
 - **TypeScript Integration**: Fully typed stores, queries, and schemas for compile-time safety
 - **DevTools Support**: Redux DevTools (Zustand) and React Query DevTools for debugging
+- **Component Migration**: MapFilterControl, InteractiveMap, LoginForm, ThemeToggle use centralized state
 
 **Benefits:**
-- **Simplified State Management**: Minimal boilerplate with excellent TypeScript support
+- **Eliminated Prop Drilling**: Migrated components use Zustand stores directly
 - **Automatic Caching**: TanStack Query handles caching, invalidation, and background updates
-- **Better Performance**: Reduced re-renders and optimized data fetching
+- **Better Performance**: Selective re-renders via Zustand subscriptions
 - **Developer Experience**: Clear separation between client and server state
+
+**Verification:**
+- **Stores**: `frontend/src/stores/{authStore,uiStore,filterStore}.ts`
+- **Hooks**: `frontend/src/hooks/queries/{useDirectoryEntries,useDirectoryEntry,useUserProfile,useMediaMetadata}.ts`
+- **Schemas**: `frontend/src/schemas/{authSchema,directoryEntrySchema,filterSchema,userProfileSchema,mediaMetadataSchema}.ts`
+- **Tests**: `frontend/tests/unit/stores/` and `frontend/tests/unit/hooks/`
 
 #### Testing Infrastructure
 
-**Current State**: Limited testing with basic ESLint validation
-**Target State**: Comprehensive testing across all layers
+**Architecture**: Comprehensive testing across all layers with Playwright, Vitest, and Storybook
 
 ```
-Current Testing                       →    Planned Testing Infrastructure
-┌─────────────────────────┐                 ┌─────────────────────────────────────┐
-│   Minimal Testing       │                 │      Comprehensive Testing          │
-├─────────────────────────┤                 ├─────────────────────────────────────┤
-│ • ESLint                │                 │ ┌─────────────────────────────────┐ │
-│ • TypeScript checking   │                 │ │  Playwright (E2E Testing)       │ │
-│ • Build validation      │                 │ │  • Cross-browser testing        │ │
-│ • No unit tests         │                 │ │  • User flow validation         │ │
-│ • No E2E tests          │                 │ │  • Visual regression tests      │ │
-└─────────────────────────┘                 │ │  • Accessibility testing        │ │
-                                            │ └─────────────────────────────────┘ │
-                                            │ ┌─────────────────────────────────┐ │
-                                            │ │  Vitest (Unit Testing)          │ │
-                                            │ │  • Component tests              │ │
-                                            │ │  • Hook tests                   │ │
-                                            │ │  • Utility function tests       │ │
-                                            │ │  • Fast, native TypeScript      │ │
-                                            │ └─────────────────────────────────┘ │
-                                            │ ┌─────────────────────────────────┐ │
-                                            │ │  Storybook (Component Docs)     │ │
-                                            │ │  • Component library catalog    │ │
-                                            │ │  • Visual testing               │ │
-                                            │ │  • Design system documentation  │ │
-                                            │ │  • Interaction testing          │ │
-                                            │ └─────────────────────────────────┘ │
-                                            └─────────────────────────────────────┘
+Testing Infrastructure: Comprehensive Multi-Layer Testing
+┌───────────────────────────────────────────────────────────────────────────┐
+│                    Complete Testing Architecture                          │
+├───────────────────────────────────────────────────────────────────────────┤
+│ ┌───────────────────────────────────────────────────────────────────────┐ │
+│ │  Playwright (E2E Testing) - tests/e2e/                               │ │
+│ │  ┌─────────────────────────────────────────────────────────────────┐ │ │
+│ │  │ Configuration: playwright.config.ts                             │ │ │
+│ │  │  • Base URL: http://localhost:3000                              │ │ │
+│ │  │  • Browsers: Chromium, Mobile Chrome                            │ │ │
+│ │  │  • Retries: 2 in CI, 0 locally                                  │ │ │
+│ │  │  • Execution: <5 minutes target (FR-001)                        │ │ │
+│ │  ├─────────────────────────────────────────────────────────────────┤ │ │
+│ │  │ Test Files (6 E2E tests):                                       │ │ │
+│ │  │  • auth-login.spec.ts: User authentication flow                 │ │ │
+│ │  │  • auth-logout.spec.ts: Session cleanup                         │ │ │
+│ │  │  • directory-browsing.spec.ts: Server-rendered content          │ │ │
+│ │  │  • directory-filtering.spec.ts: Client-side filtering           │ │ │
+│ │  │  • content-creation.spec.ts: Admin form validation              │ │ │
+│ │  │  • map-interaction.spec.ts: Mapbox GL integration               │ │ │
+│ │  └─────────────────────────────────────────────────────────────────┘ │ │
+│ └───────────────────────────────────────────────────────────────────────┘ │
+│                                                                           │
+│ ┌───────────────────────────────────────────────────────────────────────┐ │
+│ │  Vitest (Unit Testing) - tests/unit/                                 │ │
+│ │  ┌─────────────────────────────────────────────────────────────────┐ │ │
+│ │  │ Configuration: vitest.config.ts                                 │ │ │
+│ │  │  • Environment: jsdom for React components                      │ │ │
+│ │  │  • Coverage Provider: v8                                        │ │ │
+│ │  │  • Thresholds: 70% (lines, functions, branches, statements)    │ │ │
+│ │  │  • Projects: unit tests + Storybook integration tests           │ │ │
+│ │  ├─────────────────────────────────────────────────────────────────┤ │ │
+│ │  │ Test Files (4 unit tests):                                      │ │ │
+│ │  │  • stores/authStore.test.ts: Client state management            │ │ │
+│ │  │  • stores/uiStore.test.ts: UI state transitions                 │ │ │
+│ │  │  • stores/filterStore.test.ts: Filter state with URL sync       │ │ │
+│ │  │  • hooks/useDirectoryEntries.test.tsx: Server state caching     │ │ │
+│ │  └─────────────────────────────────────────────────────────────────┘ │ │
+│ └───────────────────────────────────────────────────────────────────────┘ │
+│                                                                           │
+│ ┌───────────────────────────────────────────────────────────────────────┐ │
+│ │  Storybook 9 (Component Documentation) - src/stories/                │ │
+│ │  ┌─────────────────────────────────────────────────────────────────┐ │ │
+│ │  │ Configuration: .storybook/main.ts                               │ │ │
+│ │  │  • Framework: @storybook/nextjs (Next.js 16 support)            │ │ │
+│ │  │  • Addons: chromatic, docs, a11y, vitest                        │ │ │
+│ │  │  • Deployment: GitHub Pages (automated)                         │ │ │
+│ │  ├─────────────────────────────────────────────────────────────────┤ │ │
+│ │  │ Story Files (5 component stories):                              │ │ │
+│ │  │  • CatalystButton.stories.tsx: Design system button variants    │ │ │
+│ │  │  • DirectoryCard.stories.tsx: Business listing card variants    │ │ │
+│ │  │  • PageHeader.stories.tsx: Page navigation patterns             │ │ │
+│ │  │  • PhotoGalleryFilter.stories.tsx: Gallery filtering UI         │ │ │
+│ │  │  • ThemeToggle.stories.tsx: Dark/light mode switching           │ │ │
+│ │  └─────────────────────────────────────────────────────────────────┘ │ │
+│ └───────────────────────────────────────────────────────────────────────┘ │
+└───────────────────────────────────────────────────────────────────────────┘
 ```
 
-**Testing Strategy:**
-- **Playwright**: Critical user flows (authentication, directory browsing, content creation)
-- **Vitest**: Unit tests for components, hooks, utilities, and business logic
-- **Storybook**: Component documentation, visual regression, and isolated development
-- **CI Integration**: Automated testing in GitHub Actions before deployment
+**Implementation Details:**
+- **Playwright**: 6 E2E tests covering critical user flows (authentication, browsing, filtering, map, content creation)
+- **Vitest**: 4 unit tests with >70% coverage threshold enforcement via vitest.config.ts
+- **Storybook**: 5 component stories with auto-generated documentation (target: 20+ components ongoing)
+- **CI Integration**: Automated E2E and unit tests in GitHub Actions workflows
+- **Contract Tests**: 6 contract tests validating Playwright execution time, Vitest coverage, Zustand stores, TanStack Query hooks, Zod schemas, Spring Modulith boundaries
 
 **Benefits:**
-- **Confidence in Changes**: Comprehensive test coverage reduces regression risk
-- **Better Documentation**: Storybook provides living documentation for components
-- **Faster Development**: Isolated component development and visual testing
-- **Quality Gates**: Automated testing prevents broken code from reaching production
+- **Confidence in Changes**: E2E tests catch regressions before deployment
+- **Living Documentation**: Storybook provides interactive component catalog
+- **Fast Feedback**: Unit tests execute <2 min, E2E tests <5 min (FR-001)
+- **Quality Gates**: 70% coverage threshold blocks low-quality PRs (FR-002)
+
+**Verification:**
+- **Playwright Config**: `frontend/playwright.config.ts`
+- **Vitest Config**: `frontend/vitest.config.ts` (lines 36-41 for thresholds)
+- **Storybook Config**: `frontend/.storybook/main.ts`
+- **E2E Tests**: `frontend/tests/e2e/*.spec.ts` (6 test files)
+- **Unit Tests**: `frontend/tests/unit/**/*.test.ts*` (4 test files)
+- **Stories**: `frontend/src/stories/*.stories.tsx` (5 story files)
 
 ### Long-Term Planned Enhancements
 

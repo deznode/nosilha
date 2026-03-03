@@ -17,5 +17,5 @@ import java.util.UUID
 data class MediaProcessedEvent(
     val mediaId: UUID,
     val visionApiLabels: List<String>,
-    override val occurredAt: Instant = Instant.now()
+    override val occurredAt: Instant = Instant.now(),
 ) : ApplicationModuleEvent

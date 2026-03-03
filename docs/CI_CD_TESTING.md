@@ -2,6 +2,8 @@
 
 This guide provides comprehensive testing strategies and validation procedures for the Nos Ilha CI/CD pipeline architecture.
 
+> **📝 Frontend Testing Update (2025)**: Frontend CI/CD has been simplified to TypeScript + ESLint only. E2E and unit tests run locally only (not in CI). See `docs/TESTING.md` for complete details on the TypeScript-first approach for solo maintainers.
+
 ## 🎯 Testing Objectives
 
 1. **Pipeline Validation**: Verify automated build, test, and deployment workflows
@@ -307,7 +309,143 @@ docker run -p 3000:3000 -e NEXT_PUBLIC_API_URL=http://localhost:8080/api/v1 nosi
 curl -f http://localhost:3000
 ```
 
-### 4. Security Tests
+### 4. Quality Gate Tests (Phase 4 Modular Architecture)
+
+#### A. Coverage Quality Gates
+
+**Frontend Coverage (Vitest)**
+- [ ] **Threshold Enforcement**: Build fails if coverage drops below 70%
+- [ ] **Configuration**: Vitest config enforces thresholds (frontend/vitest.config.ts:36-41)
+- [ ] **Reporting**: Coverage reports uploaded to Codecov
+- [ ] **Metrics**: Lines, functions, branches, statements all ≥70%
+
+**Backend Coverage (Jacoco)**
+- [ ] **Threshold Enforcement**: `jacocoTestCoverageVerification` task enforces 70% minimum
+- [ ] **Configuration**: Jacoco threshold set in backend/build.gradle.kts:123
+- [ ] **Reporting**: Coverage XML reports generated and uploaded to Codecov
+- [ ] **Build Failure**: Build fails if coverage below 70%
+
+**Test Commands**:
+```bash
+# Frontend coverage verification
+cd frontend
+npm run test:unit -- --coverage --run
+# Vitest will fail if coverage < 70%
+
+# Backend coverage verification
+cd backend
+./gradlew test jacocoTestReport
+./gradlew jacocoTestCoverageVerification
+# Gradle task fails if coverage < 70%
+```
+
+#### B. Module Boundary Quality Gates (Spring Modulith)
+
+- [ ] **Modularity Tests**: `ModularityTests.kt` verifies module structure
+- [ ] **Zero Circular Dependencies**: No circular dependencies between modules
+- [ ] **Allowed Dependencies**: Modules only depend on `shared` and authorized modules
+- [ ] **Event-Driven Communication**: Cross-module interactions use events
+- [ ] **PlantUML Diagrams**: Module documentation auto-generated
+
+**Test Commands**:
+```bash
+# Run Spring Modulith verification tests
+cd backend
+./gradlew test --tests "com.nosilha.core.ModularityTests"
+
+# Generate module documentation
+./gradlew generateModulithDocs
+
+# View generated diagrams
+ls -la build/modulith/
+# Expected files: *.puml (PlantUML diagrams)
+```
+
+**Expected Output**:
+```bash
+ModularityTests > verifyModuleStructure() PASSED
+ModularityTests > verifySharedModuleHasNoDependencies() PASSED
+ModularityTests > verifyDirectoryModuleAllowedDependencies() PASSED
+ModularityTests > verifyMediaModuleAllowedDependencies() PASSED
+ModularityTests > generateModuleDocumentation() PASSED
+```
+
+#### C. Bundle Size Quality Gates
+
+- [ ] **Threshold**: Frontend bundle must be <500KB compressed
+- [ ] **Enforcement**: PR builds fail if bundle exceeds limit
+- [ ] **Tool**: @next/bundle-analyzer + custom size check
+- [ ] **Trigger**: Only runs on PRs with frontend changes
+
+**Test Commands**:
+```bash
+# Frontend bundle size analysis
+cd frontend
+npm run build
+
+# Check bundle size manually
+du -sh .next/static/chunks | awk '{print $1}'
+# Expected: <500KB
+
+# Bundle size check script (from CI/CD)
+BUNDLE_SIZE_KB=$(du -sk .next/static/chunks | cut -f1)
+BUNDLE_SIZE_MB=$(echo "scale=2; $BUNDLE_SIZE_KB / 1024" | bc)
+
+echo "Total bundle size: ${BUNDLE_SIZE_MB}MB (${BUNDLE_SIZE_KB}KB)"
+
+if [ $BUNDLE_SIZE_KB -gt 512000 ]; then
+  echo "❌ Bundle size exceeds 500KB limit!"
+  exit 1
+else
+  echo "✅ Bundle size within limits (max 500KB)"
+fi
+```
+
+#### D. Test Execution Quality Gates
+
+**Playwright E2E Tests**
+- [ ] **Execution Time**: Must complete within 5 minutes (FR-001)
+- [ ] **Test Coverage**: Authentication, directory browsing, content creation, map interaction
+- [ ] **Browser**: Headless Chromium with mobile viewport testing
+- [ ] **Enforcement**: Timeout failures block PR merge
+
+**Vitest Unit Tests**
+- [ ] **Execution**: All unit tests must pass
+- [ ] **Coverage**: ≥70% for components, hooks, and utilities
+- [ ] **Isolation**: Tests must be independent and parallelizable
+- [ ] **Enforcement**: Any test failure blocks PR merge
+
+**Test Commands**:
+```bash
+# Frontend E2E tests
+cd frontend
+npx playwright test
+# Must complete in <5 minutes
+
+# Frontend unit tests with coverage
+npm run test:unit -- --coverage --run
+# Must pass with ≥70% coverage
+
+# Backend unit tests
+cd backend
+./gradlew test
+# All tests must pass
+```
+
+**Expected CI/CD Flow**:
+```
+PR Created → Quality Gates Run in Parallel:
+  1. Coverage Gates (Frontend + Backend)
+  2. Module Boundary Verification (Backend)
+  3. Bundle Size Analysis (Frontend)
+  4. E2E Tests (Frontend)
+  5. Unit Tests (Frontend + Backend)
+
+All Gates Pass → ✅ PR Ready for Merge
+Any Gate Fails → ❌ PR Blocked, Detailed Error Messages Provided
+```
+
+### 5. Security Tests
 
 #### A. Vulnerability Scanning
 - [ ] **Container Images**: Trivy scans pass for all images

@@ -1,5 +1,8 @@
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
-import { userProfileSchema, type UserProfile } from "@/schemas/userProfileSchema";
+import {
+  userProfileSchema,
+  type UserProfile,
+} from "@/schemas/userProfileSchema";
 
 /**
  * TanStack Query hook for fetching user profile data.

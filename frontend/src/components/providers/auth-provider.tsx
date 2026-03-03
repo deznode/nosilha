@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, ReactNode } from "react";
 import { supabase } from "@/lib/supabase-client";
 import type { Session } from "@supabase/supabase-js";
 import { useAuthStore } from "@/stores/authStore";
@@ -82,8 +77,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 // 6. Create the custom hook to access the context
 export function useAuth() {
   const context = useContext(AuthContext);
+  const storeState = useAuthStore();
+
   if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
+    return {
+      session: storeState.session,
+      user: storeState.user,
+      loading: storeState.isLoading,
+    };
   }
+
   return context;
 }

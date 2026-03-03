@@ -9,6 +9,7 @@ export interface BannerProps {
   linkUrl?: string;
   onDismiss?: () => void;
   showDismissButton?: boolean;
+  tone?: "default" | "high-contrast";
 }
 
 export default function Banner({
@@ -17,6 +18,7 @@ export default function Banner({
   linkUrl,
   onDismiss,
   showDismissButton = true,
+  tone = "default",
 }: BannerProps) {
   const [isVisible, setIsVisible] = useState(true);
 
@@ -41,13 +43,30 @@ export default function Banner({
         <circle r={1} cx={1} cy={1} />
       </svg>
       {message}&nbsp;
-      {linkUrl && <span aria-hidden="true">&rarr;</span>}
-      {" "}<span aria-hidden="true">✨</span>
+      {linkUrl && <span aria-hidden="true">&rarr;</span>}{" "}
+      <span aria-hidden="true">✨</span>
     </>
   );
 
+  const baseClasses =
+    tone === "high-contrast"
+      ? "bg-black text-white"
+      : "bg-gray-50 text-gray-900 dark:bg-gray-800/50 dark:text-gray-100";
+
+  const linkClasses =
+    tone === "high-contrast"
+      ? "text-white underline-offset-2 hover:text-valley-green focus-visible:outline-white focus-visible:outline-2 focus-visible:outline-offset-2"
+      : "hover:text-gray-600 dark:hover:text-white";
+
+  const dismissIconClasses =
+    tone === "high-contrast"
+      ? "text-white hover:text-valley-green"
+      : "text-gray-900 dark:text-gray-400 dark:hover:text-gray-300";
+
   return (
-    <div className="relative isolate flex items-center gap-x-6 overflow-hidden bg-gray-50 px-6 py-2.5 sm:px-3.5 sm:before:flex-1 dark:bg-gray-800/50 dark:after:pointer-events-none dark:after:absolute dark:after:inset-x-0 dark:after:bottom-0 dark:after:h-px dark:after:bg-white/10">
+    <div
+      className={`relative isolate flex items-center gap-x-4 overflow-hidden px-3.5 py-2 sm:px-4 sm:py-2.5 sm:before:flex-1 lg:px-6 lg:py-3 ${baseClasses}`}
+    >
       <div
         aria-hidden="true"
         className="absolute top-1/2 left-[max(-7rem,calc(50%-52rem))] -z-10 -translate-y-1/2 transform-gpu blur-2xl"
@@ -57,7 +76,11 @@ export default function Banner({
             clipPath:
               "polygon(74.8% 41.9%, 97.2% 73.2%, 100% 34.9%, 92.5% 0.4%, 87.5% 0%, 75% 28.6%, 58.5% 54.6%, 50.1% 56.8%, 46.9% 44%, 48.3% 17.4%, 24.7% 53.9%, 0% 27.9%, 11.9% 74.2%, 24.9% 54.1%, 68.6% 100%, 74.8% 41.9%)",
           }}
-          className="aspect-[577/310] w-[36.0625rem] bg-gradient-to-r from-[#D90368] to-[#005A8D] opacity-50 dark:opacity-60"
+          className={`aspect-[577/310] w-[36.0625rem] bg-gradient-to-r from-[#D90368] to-[#005A8D] ${
+            tone === "high-contrast"
+              ? "opacity-80"
+              : "opacity-50 dark:opacity-60"
+          }`}
         />
       </div>
       <div
@@ -72,9 +95,14 @@ export default function Banner({
           className="aspect-[577/310] w-[36.0625rem] bg-gradient-to-r from-[#D90368] to-[#005A8D] opacity-50 dark:opacity-60"
         />
       </div>
-      <p className="text-sm/6 text-gray-900 dark:text-gray-100">
+      <p className="text-xs/5 sm:text-sm/6">
         {linkUrl ? (
-          <a href={linkUrl} className="hover:text-gray-600 dark:hover:text-white">
+          <a
+            href={linkUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={linkClasses}
+          >
             {content}
           </a>
         ) : (
@@ -86,13 +114,13 @@ export default function Banner({
           <button
             type="button"
             onClick={handleDismiss}
-            className="-m-3 p-3 focus-visible:outline-offset-4"
+            className="-m-3 p-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
             aria-label="Dismiss banner"
           >
             <span className="sr-only">Dismiss</span>
             <XMarkIcon
               aria-hidden="true"
-              className="size-5 text-gray-900 dark:text-gray-400 dark:hover:text-gray-300"
+              className={`size-5 ${dismissIconClasses}`}
             />
           </button>
         </div>

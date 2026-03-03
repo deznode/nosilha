@@ -24,5 +24,5 @@ import java.time.Instant
  */
 data class UserLoggedOutEvent(
     val userId: String,
-    override val occurredAt: Instant = Instant.now()
+    override val occurredAt: Instant = Instant.now(),
 ) : ApplicationModuleEvent

@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "brand": {
+    "oceanBlue": "#005A8D",
+    "valleyGreen": "#3E7D5A",
+    "bougainvilleaPink": "#D90368",
+    "sunnyYellow": "#F7B801",
+    "offWhite": "#F8F9FA",
+    "volcanicGray": "#6C757D",
+    "volcanicGrayDark": "#343A40"
+  },
+  "accents": {
+    "error": "#DC2626",
+    "success": "#059669",
+    "warning": "#D97706"
+  },
+  "meta": {
+    "description": "Nos Ilha Brand Color Palette v1.0.0",
+    "source": "brand-system-pack.md",
+    "license": "MIT"
+  }
+}

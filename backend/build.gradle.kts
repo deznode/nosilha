@@ -10,10 +10,12 @@ plugins {
     kotlin("plugin.jpa") version "1.9.25"
     jacoco
     id("io.gitlab.arturbosch.detekt") version "1.23.8"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.0"
 }
 
 group = "com.nosilha"
 version = "0.0.2-SNAPSHOT"
+description = "Nos Ilha - Community-driven cultural heritage hub for Brava Island, Cape Verde"
 
 java {
     toolchain {
@@ -27,17 +29,15 @@ repositories {
 
 extra["springCloudGcpVersion"] = "6.2.2"
 extra["testcontainersVersion"] = "1.21.3"
-extra["detektVersion"] = "1.23.8"
 extra["kotlinLogging"] = "7.0.3"
 extra["springdocOpenApiVersion"] = "2.8.9"
 extra["springModulithVersion"] = "1.2.5"
 
 dependencies {
-
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:${property("detektVersion")}")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${property("springdocOpenApiVersion")}")
@@ -62,10 +62,13 @@ dependencies {
     implementation("org.springframework.modulith:spring-modulith-starter-jpa:${property("springModulithVersion")}")
     testImplementation("org.springframework.modulith:spring-modulith-starter-test:${property("springModulithVersion")}")
 
+    implementation("com.github.ben-manes.caffeine:caffeine")
     testImplementation("org.testcontainers:postgresql")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("org.springframework.security:spring-security-oauth2-jose")
+    testImplementation("org.springframework.security:spring-security-oauth2-resource-server")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
@@ -98,7 +101,7 @@ tasks.getByName<BootBuildImage>("bootBuildImage") {
 
 // Configure Spring Boot to generate build info for actuator
 springBoot {
-    buildInfo{}
+    buildInfo {}
 }
 
 jacoco {
@@ -120,6 +123,8 @@ tasks.jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
+//              minimum = "0.70".toBigDecimal()
+                // TODO: by JC, 10/16/25, set to 0.05 for now just to test the CI/CD. we will add more test coverage later
                 minimum = "0.05".toBigDecimal()
             }
         }
@@ -152,18 +157,40 @@ dependencyManagement {
 
 detekt {
     buildUponDefaultConfig = true // preconfigure defaults
-    autoCorrect = true // enable auto-correction for formatting rules
+    autoCorrect = false // formatting handled by ktlint
     baseline = file("detekt-baseline.xml")
     config.setFrom(file("detekt.yml"))
 }
 
 tasks.withType<Detekt>().configureEach {
     jvmTarget = "21"
+    parallel = true // Enable parallel execution for better performance
     reports {
         sarif.required.set(true)
         md.required.set(true)
+        html.required.set(true) // Add HTML report for better local viewing
     }
 }
 tasks.withType<DetektCreateBaselineTask>().configureEach {
     jvmTarget = "21"
+}
+
+// Ktlint configuration for code formatting
+configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    version.set("1.2.1")
+    android.set(false)
+    ignoreFailures.set(false)
+    reporters {
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.SARIF)
+    }
+    filter {
+        exclude("**/generated/**")
+        include("**/kotlin/**")
+    }
+}
+
+tasks.named("check") {
+    dependsOn("detekt", "ktlintCheck")
 }

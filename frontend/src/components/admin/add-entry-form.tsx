@@ -46,7 +46,9 @@ const initialFormData: FormData = {
   category: "",
   latitude: 0,
   longitude: 0,
+  tags: [],
   details: {},
+  contentActions: null,
 };
 const categories: Exclude<DirectoryEntry["category"], "">[] = [
   "Restaurant",
@@ -67,6 +69,16 @@ export function AddEntryForm() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleTagsChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const tags = e.target.value
+      .split(",")
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+    setFormData((prev) => ({ ...prev, tags }));
   };
 
   const handleDetailsChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -99,6 +111,8 @@ export function AddEntryForm() {
       imageUrl: "",
       category: formData.category,
       details: null, // Will be set below based on category
+      tags: formData.tags,
+      contentActions: formData.contentActions ?? null,
     };
 
     // Create category-specific details matching backend DTOs
@@ -221,6 +235,22 @@ export function AddEntryForm() {
                     disabled={isSubmitting}
                     rows={4}
                   />
+                </Field>
+              </div>
+              <div className="sm:col-span-6">
+                <Field>
+                  <Label>Tags (comma separated)</Label>
+                  <Input
+                    name="tags"
+                    value={formData.tags.join(", ")}
+                    onChange={handleTagsChange}
+                    placeholder="heritage, nova-sintra, eco-tourism"
+                    disabled={isSubmitting}
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Tags help power related-content discovery (3-5 keywords
+                    recommended).
+                  </p>
                 </Field>
               </div>
             </div>
