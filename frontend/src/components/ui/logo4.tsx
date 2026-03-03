@@ -30,8 +30,17 @@ export function Logo() {
     };
     setCanvasSize();
 
-    // Our brand colors for the particles
-    const colors = ["#005A8D", "#3E7D5A", "#F7B801", "#6C757D"];
+    // Get brand colors from CSS variables
+    const getColors = () => {
+      const style = getComputedStyle(document.documentElement);
+      return [
+        style.getPropertyValue("--color-ocean-blue").trim(),
+        style.getPropertyValue("--color-valley-green").trim(),
+        style.getPropertyValue("--color-sunny-yellow").trim(),
+        style.getPropertyValue("--color-volcanic-gray").trim(),
+      ];
+    };
+    const colors = getColors();
     let particles: Particle[] = [];
 
     // Function to create the initial set of particles
@@ -96,9 +105,9 @@ export function Logo() {
   }, []);
 
   return (
-    <div className="relative flex h-48 w-full items-center justify-center rounded-lg bg-volcanic-gray-dark">
+    <div className="bg-volcanic-gray-dark relative flex h-48 w-full items-center justify-center rounded-lg">
       <canvas ref={canvasRef} className="absolute inset-0 z-0 h-full w-full" />
-      <h1 className="relative z-10 font-serif text-6xl font-bold text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.5)]">
+      <h1 className="relative z-10 font-serif text-6xl font-bold text-white drop-shadow-lg">
         Nosilha
       </h1>
     </div>

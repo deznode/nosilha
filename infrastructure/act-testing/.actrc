@@ -1,0 +1,35 @@
+# Act Configuration for Nos Ilha Project
+# This file configures the act tool for local GitHub Actions testing
+
+# Use medium-size image (500MB) - good balance between size and compatibility
+--container-architecture=linux/amd64
+
+# Use medium image by default (contains essential tools)
+-P=ubuntu-22.04=catthehacker/ubuntu:act-22.04
+
+# Enable action offline mode for faster execution
+--action-offline-mode
+
+# Enable verbose logging by default
+--verbose
+
+# Use bind mounts for better performance
+--bind
+
+# Reuse containers to maintain state between runs
+--reuse
+
+# Set default network for service communication
+--network=act-testing
+
+# Set default environment files
+--env-file=infrastructure/act-testing/config/variables.env
+
+# Set default secrets file (will be created during setup)
+--secret-file=infrastructure/act-testing/config/secrets.env
+
+# Artifact server (for job outputs)
+--artifact-server-path=/tmp/act-artifacts
+
+# Increase timeout for complex workflows
+--container-timeout=60m

@@ -17,17 +17,17 @@ import org.springframework.orm.jpa.JpaTransactionManager
 @Configuration
 @EnableJpaRepositories(basePackages = ["com.nosilha.core.repository.jpa"])
 @EnableReactiveFirestoreRepositories(basePackages = ["com.nosilha.core.repository.firestore"])
-class PersistenceConfig{
+class PersistenceConfig {
 
-  /**
-   * Defines the primary transaction manager for the application.
-   * By annotating this with @Primary, we tell Spring to use the JPA transaction
-   * manager by default for any @Transactional method that doesn't specify one.
-   * This resolves the conflict with the reactive Firestore transaction manager.
-   */
-  @Bean
-  @Primary
-  fun transactionManager(entityManagerFactory: EntityManagerFactory): JpaTransactionManager {
-    return JpaTransactionManager(entityManagerFactory)
-  }
+    /**
+     * Defines the primary transaction manager for the application.
+     * By annotating this with @Primary, we tell Spring to use the JPA transaction
+     * manager by default for any @Transactional method that doesn't specify one.
+     * This resolves the conflict with the reactive Firestore transaction manager.
+     */
+    @Bean
+    @Primary
+    fun transactionManager(entityManagerFactory: EntityManagerFactory): JpaTransactionManager {
+        return JpaTransactionManager(entityManagerFactory)
+    }
 }

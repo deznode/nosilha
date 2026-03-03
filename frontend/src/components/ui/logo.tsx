@@ -26,7 +26,7 @@ const letterVariants = {
     opacity: 1,
     y: 0, // Animate to final position
     transition: {
-      type: "spring",
+      type: "spring" as const,
       damping: 12,
       stiffness: 200,
     },
@@ -46,23 +46,27 @@ export function NosilhaLogo({
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="flex overflow-hidden" // overflow-hidden to contain the slide-up animation
+        className="flex overflow-hidden"
         aria-label={logoText}
       >
         {letters.map((letter, index) => (
           <motion.span
             key={index}
             variants={letterVariants}
-            className="text-4xl font-bold text-ocean-blue"
+            className="text-ocean-blue text-5xl font-bold"
           >
             {letter}
           </motion.span>
         ))}
       </motion.div>
       {showSubtitle && (
-        <p className="mt-1 text-sm text-volcanic-gray tracking-widest">
+        <motion.p
+          className="text-text-secondary mt-1 text-sm tracking-widest"
+          whileHover={{ color: "var(--color-ocean-blue)" }}
+          transition={{ duration: 0.2 }}
+        >
           BRAVA, CAPE VERDE
-        </p>
+        </motion.p>
       )}
     </div>
   );

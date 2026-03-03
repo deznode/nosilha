@@ -1,13 +1,65 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { getEntriesByCategory } from "@/lib/api";
 import { DirectoryCard } from "@/components/ui/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
+import NewsletterSignup from "@/components/ui/newsletter";
+import { SocialMediaLinks } from "@/components/ui/social-media-links";
+import { generatePageMetadata, siteConfig } from "@/lib/metadata";
+import type { PlaceSchema } from "@/types/metadata";
 import {
   MapIcon,
   ListBulletIcon,
   BookOpenIcon,
+  UserGroupIcon,
+  // CameraIcon, // TODO: Re-enable when photo galleries feature is ready
+  // BuildingOfficeIcon, // TODO: Re-enable when towns & villages feature is ready
 } from "@heroicons/react/24/outline";
+
+// Generate metadata for homepage with cultural heritage focus
+export const metadata: Metadata = generatePageMetadata({
+  title: "Discover the Soul of Brava Island",
+  description:
+    "Preserve and celebrate authentic Cape Verdean culture and heritage on Brava Island. Connect with the global diaspora, explore cultural sites, discover local heritage, and honor the traditions that define our island community.",
+  path: "/",
+  keywords: [
+    "Brava Island cultural heritage",
+    "Cape Verdean culture",
+    "heritage preservation",
+    "Cape Verdean diaspora",
+    "island cultural hub",
+    "cultural heritage platform",
+    "Brava Island traditions",
+    "Cape Verde heritage",
+    "Atlantic islands culture",
+    "authentic Cape Verdean experiences",
+  ],
+  structuredData: [
+    {
+      "@context": "https://schema.org",
+      "@type": "Place",
+      additionalType: "https://schema.org/LandmarksOrHistoricalBuildings",
+      name: "Brava Island, Cape Verde",
+      description:
+        "The flower island of Cape Verde, a cultural heritage hub preserving Cape Verdean traditions, known for its lush landscapes, rich cultural memory, and authentic heritage experiences.",
+      image: [`${siteConfig.url}/images/hero.jpg`],
+      address: {
+        "@type": "PostalAddress",
+        addressCountry: "CV",
+        addressLocality: "Brava Island",
+      },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: 14.8676,
+        longitude: -24.7098,
+      },
+    } as PlaceSchema,
+  ],
+  baseUrl: siteConfig.url,
+  siteName: siteConfig.name,
+  defaultImage: siteConfig.ogImage,
+});
 
 // Data for the new "Island Guide" (features) section
 const nosilhaFeatures = [
@@ -28,11 +80,53 @@ const nosilhaFeatures = [
   {
     name: "Rich History & Culture",
     description:
-      "Dive into the stories, figures, and traditions that make Brava unique. Explore historical articles, photo galleries, and more.",
+      "Dive into the stories, figures, and traditions that make Brava unique. Explore historical articles and more.",
     href: "/history",
     icon: BookOpenIcon,
   },
 ];
+
+// Data for popular pages widget - surfacing important footer links
+const popularPages = [
+  /* TODO: Enable when towns & villages feature is ready
+  {
+    name: "Towns & Villages",
+    description:
+      "Explore the charming settlements and communities across Brava",
+    href: "/towns",
+    icon: BuildingOfficeIcon,
+    category: "Explore",
+  },
+  */
+  {
+    name: "History of Brava",
+    description:
+      "Discover the fascinating stories and events that shaped this remarkable island",
+    href: "/history",
+    icon: BookOpenIcon,
+    category: "Culture",
+  },
+  /* TODO: Enable when photo galleries feature is ready
+  {
+    name: "Photo Galleries",
+    description:
+      "Browse stunning visual stories of Brava's landscapes and culture",
+    href: "/media/photos",
+    icon: CameraIcon,
+    category: "Culture",
+  },
+  */
+  {
+    name: "Historical Figures",
+    description: "Meet the remarkable people who shaped Brava's rich heritage",
+    href: "/people",
+    icon: UserGroupIcon,
+    category: "Culture",
+  },
+].filter(Boolean); // Remove any undefined entries
+
+// Force dynamic rendering for real-time featured content
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const featuredEntries = await getEntriesByCategory("all");
@@ -43,7 +137,7 @@ export default async function HomePage() {
       <section className="relative flex h-[calc(100vh-81px)] items-center justify-center text-center text-white">
         {/* ... existing hero section code ... */}
         <Image
-          src="https://picsum.photos/1600/900?random=10"
+          src="/images/hero.jpg"
           alt="A scenic, panoramic view of Brava, Cape Verde's coastline"
           fill
           className="object-cover"
@@ -55,13 +149,13 @@ export default async function HomePage() {
             Discover the Soul of Brava
           </h1>
           <p className="mt-6 text-lg leading-8 sm:text-xl">
-            Your journey into the heart of Cape Verde's most enchanting and
-            untouched island begins here.
+            Your journey into the heart of Cape Verde&apos;s most enchanting
+            hidden gem begins here.
           </p>
           <div className="mt-10">
             <Link
               href="/map"
-              className="rounded-md bg-ocean-blue px-6 py-3.5 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 hover:bg-ocean-blue/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocean-blue"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 focus-visible:outline-ocean-blue rounded-md px-6 py-3.5 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2"
             >
               Explore the Interactive Map
             </Link>
@@ -70,13 +164,13 @@ export default async function HomePage() {
       </section>
 
       {/* Featured Highlights Section */}
-      <section className="bg-white py-20 sm:py-24">
+      <section className="bg-background-primary py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <PageHeader
             title="Featured Highlights"
             subtitle="Get a glimpse of the unique places and experiences Brava has to offer."
           />
-          <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 lg:mx-0 lg:max-w-none lg:grid-cols-4 md:grid-cols-2">
+          <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 md:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-4">
             {featuredEntries.slice(0, 4).map((entry) => (
               <DirectoryCard key={entry.id} entry={entry} />
             ))}
@@ -85,16 +179,16 @@ export default async function HomePage() {
       </section>
 
       {/* Newly Added Section: Island Guide */}
-      <div className="bg-off-white py-24 sm:py-32">
+      <div className="bg-background-secondary py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="mx-auto max-w-2xl lg:text-center">
-            <h2 className="text-base font-semibold leading-7 text-ocean-blue">
+            <h2 className="text-ocean-blue text-base leading-7 font-semibold">
               An Island of Treasures
             </h2>
-            <p className="mt-2 font-serif text-3xl font-bold tracking-tight text-volcanic-gray-dark sm:text-4xl">
+            <p className="text-text-primary mt-2 font-serif text-3xl font-bold tracking-tight sm:text-4xl">
               Your Comprehensive Guide to Brava
             </p>
-            <p className="mt-6 text-lg leading-8 text-volcanic-gray">
+            <p className="text-text-secondary mt-6 text-lg leading-8">
               Our platform is designed to help you explore every facet of the
               island, from its stunning geography to its rich cultural tapestry.
             </p>
@@ -102,9 +196,13 @@ export default async function HomePage() {
           <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
             <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-3">
               {nosilhaFeatures.map((feature) => (
-                <div key={feature.name} className="relative pl-16">
-                  <dt className="text-base font-semibold leading-7 text-volcanic-gray-dark">
-                    <div className="absolute left-0 top-0 flex h-10 w-10 items-center justify-center rounded-lg bg-ocean-blue">
+                <Link
+                  key={feature.name}
+                  href={feature.href}
+                  className="group hover:bg-background-primary focus:ring-ocean-blue relative block rounded-lg p-4 pl-16 transition-all duration-300 hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:outline-none"
+                >
+                  <dt className="text-text-primary group-hover:text-ocean-blue text-base leading-7 font-semibold transition-colors duration-300">
+                    <div className="bg-ocean-blue group-hover:bg-ocean-blue/90 absolute top-4 left-4 flex h-10 w-10 items-center justify-center rounded-lg transition-colors duration-300">
                       <feature.icon
                         className="h-6 w-6 text-white"
                         aria-hidden="true"
@@ -112,15 +210,68 @@ export default async function HomePage() {
                     </div>
                     {feature.name}
                   </dt>
-                  <dd className="mt-2 text-base leading-7 text-volcanic-gray">
+                  <dd className="text-text-secondary group-hover:text-text-primary mt-2 text-base leading-7 transition-colors duration-300">
                     {feature.description}
                   </dd>
-                </div>
+                </Link>
               ))}
             </dl>
           </div>
         </div>
       </div>
+
+      {/* Popular Pages Section - Surfacing Important Links */}
+      <section className="bg-background-primary py-20 sm:py-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-2xl lg:text-center">
+            <h2 className="text-ocean-blue text-base leading-7 font-semibold">
+              Discover More
+            </h2>
+            <p className="text-text-primary mt-2 font-serif text-3xl font-bold tracking-tight sm:text-4xl">
+              Popular Destinations & Stories
+            </p>
+            <p className="text-text-secondary mt-6 text-lg leading-8">
+              Don&apos;t miss these essential pages that showcase the depth and
+              beauty of Brava&apos;s culture and communities.
+            </p>
+          </div>
+          <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-2">
+            {popularPages.map((page) => (
+              <Link
+                key={page.name}
+                href={page.href}
+                className="group hover:bg-background-secondary border-border-primary hover:border-ocean-blue/30 relative flex gap-x-6 rounded-lg border p-6 text-sm leading-6 transition-all duration-300 hover:shadow-md"
+              >
+                <div className="bg-ocean-blue/10 group-hover:bg-ocean-blue/20 flex h-12 w-12 flex-none items-center justify-center rounded-lg transition-colors duration-300">
+                  <page.icon
+                    className="text-ocean-blue group-hover:text-ocean-blue/90 h-6 w-6"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div className="flex-auto">
+                  <div className="flex items-center gap-x-2">
+                    <span className="text-ocean-blue bg-ocean-blue/10 rounded-md px-2 py-1 text-xs font-medium">
+                      {page.category}
+                    </span>
+                  </div>
+                  <div className="text-text-primary group-hover:text-ocean-blue mt-2 font-semibold transition-colors duration-300">
+                    {page.name}
+                  </div>
+                  <p className="text-text-secondary group-hover:text-text-primary mt-1 transition-colors duration-300">
+                    {page.description}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter Signup Section */}
+      <NewsletterSignup />
+
+      {/* Social Media Links Section */}
+      <SocialMediaLinks />
     </>
   );
 }

@@ -1,28 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { 
-  SunIcon, 
-  MoonIcon, 
-  ComputerDesktopIcon 
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  SunIcon,
+  MoonIcon,
+  ComputerDesktopIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
-
-type Theme = "system" | "light" | "dark";
+import { useTheme, useUiStore } from "@/stores/uiStore";
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("system");
+  const theme = useTheme();
+  const setTheme = useUiStore((state) => state.setTheme);
   const [systemTheme, setSystemTheme] = useState<"light" | "dark">("light");
 
   useEffect(() => {
-    // Get stored theme preference or default to system
-    const stored = localStorage.getItem("theme") as Theme;
-    const initialTheme = stored || "system";
-    setTheme(initialTheme);
-
     // Function to update system theme
     const updateSystemTheme = () => {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
       setSystemTheme(prefersDark ? "dark" : "light");
     };
 
@@ -34,12 +32,14 @@ export function ThemeToggle() {
     mediaQuery.addEventListener("change", updateSystemTheme);
 
     // Apply initial theme
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    applyTheme(initialTheme, prefersDark);
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+    applyTheme(theme, prefersDark);
 
     // Cleanup listener
     return () => mediaQuery.removeEventListener("change", updateSystemTheme);
-  }, []);
+  }, [theme]);
 
   // Update theme when systemTheme changes (for system mode)
   useEffect(() => {
@@ -48,10 +48,12 @@ export function ThemeToggle() {
     }
   }, [systemTheme, theme]);
 
-  const applyTheme = (newTheme: Theme, systemPrefersDark: boolean) => {
-    const shouldBeDark = 
-      newTheme === "dark" || 
-      (newTheme === "system" && systemPrefersDark);
+  const applyTheme = (
+    newTheme: "system" | "light" | "dark",
+    systemPrefersDark: boolean
+  ) => {
+    const shouldBeDark =
+      newTheme === "dark" || (newTheme === "system" && systemPrefersDark);
 
     if (shouldBeDark) {
       document.documentElement.classList.add("dark");
@@ -61,25 +63,28 @@ export function ThemeToggle() {
   };
 
   const cycleTheme = () => {
-    const themes: Theme[] = ["system", "light", "dark"];
+    const themes: ("system" | "light" | "dark")[] = ["system", "light", "dark"];
     const currentIndex = themes.indexOf(theme);
     const nextIndex = (currentIndex + 1) % themes.length;
     const nextTheme = themes[nextIndex];
 
     setTheme(nextTheme);
-    localStorage.setItem("theme", nextTheme);
     applyTheme(nextTheme, systemTheme === "dark");
   };
 
   const getIcon = () => {
+    const iconProps = {
+      className: "h-5 w-5",
+    };
+
     switch (theme) {
       case "light":
-        return <SunIcon className="h-5 w-5" />;
+        return <SunIcon {...iconProps} />;
       case "dark":
-        return <MoonIcon className="h-5 w-5" />;
+        return <MoonIcon {...iconProps} />;
       case "system":
       default:
-        return <ComputerDesktopIcon className="h-5 w-5" />;
+        return <ComputerDesktopIcon {...iconProps} />;
     }
   };
 
@@ -96,19 +101,49 @@ export function ThemeToggle() {
   };
 
   return (
-    <button
+    <motion.button
       onClick={cycleTheme}
       className={clsx(
         "relative inline-flex items-center justify-center rounded-md p-2",
-        "text-gray-500 dark:text-gray-300",
-        "hover:bg-gray-100 dark:hover:bg-gray-700",
-        "focus:outline-none focus:ring-2 focus:ring-inset focus:ring-ocean-blue",
-        "transition-colors duration-200"
+        "text-text-secondary",
+        "hover:bg-background-secondary hover:text-text-primary",
+        "focus:ring-ocean-blue focus:ring-2 focus:outline-none focus:ring-inset",
+        "transition-all duration-200"
       )}
+      whileHover={{
+        scale: 1.1,
+        backgroundColor: "var(--color-background-secondary)",
+      }}
+      whileTap={{ scale: 0.95 }}
       title={`${getLabel()}. Click to cycle themes.`}
       aria-label={`Current theme: ${getLabel()}. Click to cycle themes.`}
     >
-      {getIcon()}
-    </button>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={theme}
+          initial={{
+            rotateY: -90,
+            opacity: 0,
+            scale: 0.8,
+          }}
+          animate={{
+            rotateY: 0,
+            opacity: 1,
+            scale: 1,
+          }}
+          exit={{
+            rotateY: 90,
+            opacity: 0,
+            scale: 0.8,
+          }}
+          transition={{
+            duration: 0.2,
+            ease: "easeInOut",
+          }}
+        >
+          {getIcon()}
+        </motion.div>
+      </AnimatePresence>
+    </motion.button>
   );
 }

@@ -18,10 +18,7 @@ import java.time.Instant
 data class ImageMetadata(
     @DocumentId
     var id: String? = null,
-
     var gcsUrl: String = "",
-
     var tags: List<String> = emptyList(),
-
-    var createdAt: Instant = Instant.now()
+    var createdAt: Instant = Instant.now(),
 )

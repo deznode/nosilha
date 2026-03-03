@@ -2,22 +2,26 @@
 
 import { Checkbox } from "@/components/catalyst-ui/checkbox";
 import { Field, Label } from "@/components/catalyst-ui/fieldset";
+import { useSelectedCategories, useFilterStore } from "@/stores/filterStore";
 
 interface MapFilterControlProps {
   categories: string[];
-  selectedCategories: string[];
-  onFilterChange: (category: string, isChecked: boolean) => void;
 }
 
-export function MapFilterControl({
-  categories,
-  selectedCategories,
-  onFilterChange,
-}: MapFilterControlProps) {
+/**
+ * MapFilterControl component for filtering map markers by category.
+ * Uses Zustand filterStore for state management (eliminates prop drilling).
+ *
+ * Phase 2 Migration (T051): Migrated from prop drilling to filterStore.
+ */
+export function MapFilterControl({ categories }: MapFilterControlProps) {
+  const selectedCategories = useSelectedCategories();
+  const toggleCategory = useFilterStore((state) => state.toggleCategory);
+
   return (
-    <div className="rounded-lg bg-white/80 p-4 shadow-lg backdrop-blur-sm">
+    <div className="bg-background-primary/80 border-border-primary rounded-lg border p-4 shadow-lg backdrop-blur-sm">
       <fieldset>
-        <legend className="text-base font-semibold text-volcanic-gray-dark">
+        <legend className="text-text-primary text-base font-semibold">
           Filter by Category
         </legend>
         <div className="mt-4 space-y-3">
@@ -28,13 +32,12 @@ export function MapFilterControl({
                 name="category-filter"
                 value={category}
                 checked={selectedCategories.includes(category)}
-                // CORRECTED: The 'onChange' handler now directly receives the boolean 'checked' state.
-                onChange={(checked) => onFilterChange(category, checked)}
-                className="h-4 w-4 rounded border-gray-300 text-ocean-blue focus:ring-ocean-blue"
+                onChange={(checked) => toggleCategory(category, checked)}
+                className="border-border-primary text-ocean-blue focus:ring-ocean-blue h-4 w-4 rounded"
               />
               <Label
                 htmlFor={category}
-                className="ml-3 block text-sm font-medium leading-6 text-gray-900"
+                className="text-text-primary ml-3 block text-sm leading-6 font-medium"
               >
                 {category}
               </Label>

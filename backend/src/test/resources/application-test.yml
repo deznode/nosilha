@@ -1,0 +1,65 @@
+# ===================================================================
+# TEST CONFIGURATION
+# For running tests in CI/CD pipeline
+# ===================================================================
+
+app:
+  cors:
+    allowed-origins: http://localhost:3000
+
+spring:
+  # Test Database Configuration (PostgreSQL)
+  datasource:
+    url: jdbc:tc:postgresql:16.0:///
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 1
+    username: test
+    password: test
+
+  # JPA/Hibernate Configuration for tests
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          batch_size: 10
+
+  flyway:
+    enabled: true
+
+  # Disable GCP services for tests
+  cloud:
+    gcp:
+      project-id: test-project
+      firestore:
+        emulator-host: localhost:8081
+      storage:
+        emulator-host: http://localhost:8082
+
+# Test GCS Configuration
+gcp:
+  serverUrl: http://localhost:8082
+  gcs-bucket-name: test-bucket
+
+# Test JWT Configuration
+supabase:
+  jwt-secret: test-secret-key-that-is-at-least-32-characters-long
+
+# Logging for tests
+logging:
+  level:
+    com.nosilha: DEBUG
+    org.springframework.test: DEBUG
+    org.springframework.web: DEBUG
+    root: WARN
+
+# Management endpoints for tests
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

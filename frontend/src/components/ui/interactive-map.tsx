@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import Map, { Marker, Popup, MapRef } from "react-map-gl/mapbox";
 import useSupercluster from "use-supercluster";
 import Link from "next/link";
@@ -13,9 +13,10 @@ import type {
 } from "supercluster";
 
 import type { DirectoryEntry } from "@/types/directory";
-import { getEntriesByCategory } from "@/lib/api";
+import { getEntriesForMap } from "@/lib/api";
 import { CategoryMarkerIcon } from "./category-marker-icon";
 import { MapFilterControl } from "./map-filter-control";
+import { useSelectedCategories } from "@/stores/filterStore";
 
 const ALL_CATEGORIES = ["Restaurant", "Hotel", "Beach", "Landmark"];
 
@@ -31,36 +32,53 @@ type PointProperties = {
 type PointFeature = Feature<Point, PointProperties>;
 
 // Define the shape of a cluster feature, inheriting the library's base properties.
-type ClusterFeatureWithProps = ClusterFeature<{
-  // We don't need to redefine cluster: true etc. The library handles this.
-}>;
+type ClusterFeatureWithProps = ClusterFeature<Record<string, unknown>>;
 
 // The type guard now correctly distinguishes between the two feature types.
 function isClusterFeature(
-  feature: SuperclusterPointFeature<PointProperties>
+  feature: SuperclusterPointFeature<PointProperties> | ClusterFeatureWithProps
 ): feature is ClusterFeatureWithProps {
-  return !!feature.properties.cluster;
+  return !!(feature.properties as { cluster?: boolean }).cluster;
 }
 
+/**
+ * InteractiveMap component displays directory entries on a Mapbox map with clustering.
+ * Phase 2 Migration: Uses filterStore for category filtering (eliminates prop drilling).
+ */
 export function InteractiveMap() {
   const [entries, setEntries] = useState<DirectoryEntry[]>([]);
   const [selectedEntry, setSelectedEntry] = useState<DirectoryEntry | null>(
     null
   );
-  const [selectedCategories, setSelectedCategories] =
-    useState<string[]>(ALL_CATEGORIES);
+  const selectedCategories = useSelectedCategories();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [bounds, setBounds] = useState<BBox | undefined>(undefined);
   const [zoom, setZoom] = useState(13);
   const mapRef = useRef<MapRef>(null);
 
-  useEffect(() => {
-    async function fetchEntries() {
-      const allEntries = await getEntriesByCategory("all");
+  const fetchEntries = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const allEntries = await getEntriesForMap("all");
       setEntries(allEntries);
+    } catch (err) {
+      console.error("Failed to fetch map entries:", err);
+      setError("Failed to load map data. Please try refreshing the page.");
+    } finally {
+      setIsLoading(false);
     }
-    fetchEntries();
   }, []);
+
+  const handleRetry = () => {
+    fetchEntries().catch(console.error);
+  };
+
+  useEffect(() => {
+    fetchEntries().catch(console.error);
+  }, [fetchEntries]);
 
   const filteredEntries = useMemo(() => {
     return entries.filter((entry) =>
@@ -94,17 +112,115 @@ export function InteractiveMap() {
     options: { radius: 75, maxZoom: 20 },
   });
 
-  const handleFilterChange = (category: string, isChecked: boolean) => {
-    setSelectedCategories((prev) =>
-      isChecked ? [...prev, category] : prev.filter((c) => c !== category)
-    );
-  };
-
   const mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
   if (!mapboxAccessToken) {
     console.error("Mapbox Access Token is not set!");
-    return <div>Map cannot be loaded. Missing configuration.</div>;
+    return (
+      <div className="bg-background-secondary flex h-full w-full items-center justify-center">
+        <div className="text-center">
+          <p className="text-text-secondary text-lg font-semibold">
+            Map cannot be loaded
+          </p>
+          <p className="text-text-tertiary text-sm">Missing configuration</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="bg-background-secondary flex h-full w-full items-center justify-center">
+        <div className="text-center">
+          <div className="border-border-primary border-t-ocean-blue mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-4"></div>
+          <p className="text-text-secondary text-lg font-semibold">
+            Loading map...
+          </p>
+          <p className="text-text-tertiary text-sm">
+            Please wait while we load the locations
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="bg-background-secondary flex h-full w-full items-center justify-center">
+        <div className="text-center">
+          <div className="bg-accent-error/10 mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
+            <svg
+              className="text-accent-error h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.924-.833-2.598 0L3.732 14.5c-.77.833.192 2.5 1.732 2.5z"
+              />
+            </svg>
+          </div>
+          <p className="text-text-secondary mb-2 text-lg font-semibold">
+            Unable to load map
+          </p>
+          <p className="text-text-tertiary mb-4 text-sm">{error}</p>
+          <button
+            onClick={handleRetry}
+            className="bg-ocean-blue hover:bg-ocean-blue/90 focus:ring-ocean-blue rounded-md px-4 py-2 text-sm font-medium text-white focus:ring-2 focus:ring-offset-2 focus:outline-none"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Empty state
+  if (entries.length === 0) {
+    return (
+      <div className="bg-background-secondary flex h-full w-full items-center justify-center">
+        <div className="text-center">
+          <div className="bg-background-tertiary mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full">
+            <svg
+              className="text-text-tertiary h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+              />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+              />
+            </svg>
+          </div>
+          <p className="text-text-secondary mb-2 text-lg font-semibold">
+            No locations found
+          </p>
+          <p className="text-text-tertiary mb-4 text-sm">
+            There are currently no locations to display on the map
+          </p>
+          <button
+            onClick={handleRetry}
+            className="bg-ocean-blue hover:bg-ocean-blue/90 focus:ring-ocean-blue rounded-md px-4 py-2 text-sm font-medium text-white focus:ring-2 focus:ring-offset-2 focus:outline-none"
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -121,17 +237,39 @@ export function InteractiveMap() {
         mapStyle="mapbox://styles/mapbox/streets-v12"
         onMove={(e) => {
           setZoom(e.viewState.zoom);
-          if (e.target) {
-            setBounds(e.target.getBounds().toArray().flat() as BBox);
+          if (e.target && e.target.getBounds) {
+            const bounds = e.target.getBounds();
+            if (bounds) {
+              setBounds(bounds.toArray().flat() as BBox);
+            }
           }
         }}
       >
-        <div className="absolute right-4 top-4 z-10">
-          <MapFilterControl
-            categories={ALL_CATEGORIES}
-            selectedCategories={selectedCategories}
-            onFilterChange={handleFilterChange}
-          />
+        <div className="absolute top-4 right-4 z-10 space-y-2">
+          <MapFilterControl categories={ALL_CATEGORIES} />
+          <button
+            onClick={handleRetry}
+            className="bg-ocean-blue hover:bg-ocean-blue/90 focus:ring-ocean-blue flex w-full items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-white shadow-lg focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
+            disabled={isLoading}
+            title="Refresh map data"
+          >
+            <svg
+              className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            <span className="ml-2">
+              {isLoading ? "Refreshing..." : "Refresh"}
+            </span>
+          </button>
         </div>
 
         {clusters.map((cluster) => {
@@ -146,7 +284,7 @@ export function InteractiveMap() {
                 longitude={longitude}
               >
                 <div
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-ocean-blue font-bold text-white"
+                  className="bg-ocean-blue flex h-8 w-8 cursor-pointer items-center justify-center rounded-full font-bold text-white"
                   onClick={() => {
                     const expansionZoom = Math.min(
                       supercluster?.getClusterExpansionZoom(
@@ -167,7 +305,7 @@ export function InteractiveMap() {
             );
           }
 
-          const entryId = cluster.properties.entryId;
+          const entryId = (cluster as PointFeature).properties.entryId;
           const entry = filteredEntries.find((e) => e.id === entryId);
 
           if (!entry) return null;
@@ -202,15 +340,15 @@ export function InteractiveMap() {
             closeOnClick={false}
           >
             <div className="p-1">
-              <h3 className="font-bold text-volcanic-gray-dark">
+              <h3 className="text-text-primary font-bold">
                 {selectedEntry.name}
               </h3>
-              <p className="text-sm text-volcanic-gray">
+              <p className="text-text-secondary text-sm">
                 {selectedEntry.category}
               </p>
               <Link
                 href={`/directory/entry/${selectedEntry.slug}`}
-                className="text-sm font-semibold text-ocean-blue hover:underline"
+                className="text-ocean-blue text-sm font-semibold hover:underline"
               >
                 View Details &rarr;
               </Link>

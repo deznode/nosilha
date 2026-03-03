@@ -1,10 +1,57 @@
 #!/bin/bash
 
 # Deployment script for Nos Ilha platform
-# Usage: ./scripts/deploy.sh [environment] [service] [image_tag]
-# Example: ./scripts/deploy.sh staging backend develop-abc123
+# Usage: ./scripts/deploy.sh [service] [image_tag]
+# Example: ./scripts/deploy.sh backend v1.0.0
 
 set -e
+
+# Check for help flag or no arguments
+if [ "$1" = "-h" ] || [ "$1" = "--help" ] || [ $# -eq 0 ]; then
+    # Colors for output
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[1;33m'
+    NC='\033[0m' # No Color
+
+    # Help function
+    show_help() {
+        echo "Nos Ilha Manual Deployment Script"
+        echo ""
+        echo "⚠️  IMPORTANT: This script is for EMERGENCY deployments only."
+        echo "    Prefer CI/CD workflows (.github/workflows/) for routine deployments."
+        echo ""
+        echo "Usage: $0 [service] [image_tag]"
+        echo ""
+        echo "Arguments:"
+        echo "  service        Service to deploy (backend|frontend|all) [default: all]"
+        echo "  image_tag      Docker image tag to deploy [default: latest]"
+        echo ""
+        echo "Cost-Optimized Resource Limits (aligned with Terraform):"
+        echo "  Backend:  256Mi memory, 3 max instances, cpu-idle enabled"
+        echo "  Frontend: 256Mi memory, 2 max instances, cpu-idle enabled"
+        echo ""
+        echo "Environment Variables:"
+        echo "  GCP_PROJECT_ID      Google Cloud project ID [default: nosilha]"
+        echo "  GCP_REGION          Google Cloud region [default: us-east1]"
+        echo "  REGISTRY            Container registry [default: us-east1-docker.pkg.dev]"
+        echo "  PRODUCTION_API_URL  API URL for production environment"
+        echo ""
+        echo "Examples:"
+        echo "  $0                                    # Show this help"
+        echo "  $0 all                                # Deploy all services with latest tag"
+        echo "  $0 backend                            # Deploy backend with latest tag"
+        echo "  $0 frontend v1.0.0                    # Deploy frontend with specific tag"
+        echo ""
+        echo "Documentation:"
+        echo "  Governance: plan/active/cloud-run-configuration-governance.md"
+        echo "  CI/CD Guide: docs/CI_CD_PIPELINE.md"
+        echo ""
+    }
+
+    show_help
+    exit 0
+fi
 
 # Colors for output
 RED='\033[0;31m'
@@ -12,22 +59,29 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Default values
-ENVIRONMENT=${1:-staging}
-SERVICE=${2:-all}
-IMAGE_TAG=${3:-latest}
-PROJECT_ID=${GCP_PROJECT_ID}
-REGION=${GCP_REGION:-europe-west1}
-REGISTRY=${REGISTRY:-gcr.io}
+# Configuration
+PROJECT_ID=${GCP_PROJECT_ID:-nosilha}
+REGION=${GCP_REGION:-us-east1}
+REGISTRY=${REGISTRY:-us-east1-docker.pkg.dev}
+
+# Service configuration (cost-optimized, aligned with Terraform)
+BACKEND_SERVICE_NAME="nosilha-backend-api"
+FRONTEND_SERVICE_NAME="nosilha-frontend"
+BACKEND_MEMORY="256Mi"
+FRONTEND_MEMORY="256Mi"
+BACKEND_MAX_INSTANCES="3"
+FRONTEND_MAX_INSTANCES="2"
+CPU="1"
+MIN_INSTANCES="0"
+TIMEOUT="300"
+
+# Arguments
+SERVICE=${1:-all}
+IMAGE_TAG=${2:-latest}
 
 # Validate inputs
 if [ -z "$PROJECT_ID" ]; then
     echo -e "${RED}Error: GCP_PROJECT_ID environment variable is required${NC}"
-    exit 1
-fi
-
-if [ "$ENVIRONMENT" != "staging" ] && [ "$ENVIRONMENT" != "production" ]; then
-    echo -e "${RED}Error: Environment must be 'staging' or 'production'${NC}"
     exit 1
 fi
 
@@ -36,105 +90,73 @@ if [ "$SERVICE" != "backend" ] && [ "$SERVICE" != "frontend" ] && [ "$SERVICE" !
     exit 1
 fi
 
-echo -e "${GREEN}🚀 Deploying Nos Ilha to ${ENVIRONMENT} environment${NC}"
+echo -e "${GREEN}🚀 Deploying Nos Ilha to production${NC}"
 echo -e "${YELLOW}Service: ${SERVICE}${NC}"
 echo -e "${YELLOW}Image tag: ${IMAGE_TAG}${NC}"
 echo -e "${YELLOW}Project: ${PROJECT_ID}${NC}"
 echo -e "${YELLOW}Region: ${REGION}${NC}"
 echo ""
+echo -e "${YELLOW}⚠️  EMERGENCY USE ONLY - Prefer CI/CD workflows for routine deployments${NC}"
+echo -e "${YELLOW}Cost-optimized: Backend 256Mi/3, Frontend 256Mi/2 instances${NC}"
+echo ""
 
 # Function to deploy backend
 deploy_backend() {
-    local env=$1
-    local tag=$2
-    
+    local tag=$1
+
     echo -e "${GREEN}Deploying backend service...${NC}"
     
-    # Set environment-specific configurations
-    if [ "$env" = "staging" ]; then
-        SERVICE_NAME="nosilha-backend-staging"
-        MEMORY="1Gi"
-        CPU="1"
-        MIN_INSTANCES="0"
-        MAX_INSTANCES="10"
-        SPRING_PROFILE="staging"
-    else
-        SERVICE_NAME="nosilha-backend"
-        MEMORY="2Gi"
-        CPU="2"
-        MIN_INSTANCES="1"
-        MAX_INSTANCES="100"
-        SPRING_PROFILE="production"
-    fi
-    
     # Deploy to Cloud Run
-    gcloud run deploy "$SERVICE_NAME" \
+    gcloud run deploy "$BACKEND_SERVICE_NAME" \
         --image="$REGISTRY/$PROJECT_ID/nosilha-backend:$tag" \
-        --platform=managed \
         --region="$REGION" \
         --allow-unauthenticated \
-        --set-env-vars="SPRING_PROFILES_ACTIVE=$SPRING_PROFILE" \
-        --memory="$MEMORY" \
+        --service-account="nosilha-backend-runner@$PROJECT_ID.iam.gserviceaccount.com" \
+        --set-env-vars="SPRING_PROFILES_ACTIVE=production" \
+        --memory="$BACKEND_MEMORY" \
         --cpu="$CPU" \
+        --cpu-idle \
         --min-instances="$MIN_INSTANCES" \
-        --max-instances="$MAX_INSTANCES" \
-        --timeout=300 \
+        --max-instances="$BACKEND_MAX_INSTANCES" \
+        --timeout="$TIMEOUT" \
         --port=8080 \
         --quiet
-        
+
     # Get service URL
-    BACKEND_URL=$(gcloud run services describe "$SERVICE_NAME" --region="$REGION" --format="value(status.url)")
+    BACKEND_URL=$(gcloud run services describe "$BACKEND_SERVICE_NAME" --region="$REGION" --format="value(status.url)")
     echo -e "${GREEN}✅ Backend deployed successfully: $BACKEND_URL${NC}"
 }
 
 # Function to deploy frontend
 deploy_frontend() {
-    local env=$1
-    local tag=$2
-    
+    local tag=$1
+
     echo -e "${GREEN}Deploying frontend service...${NC}"
     
-    # Set environment-specific configurations
-    if [ "$env" = "staging" ]; then
-        SERVICE_NAME="nosilha-frontend-staging"
-        MEMORY="512Mi"
-        CPU="1"
-        MIN_INSTANCES="0"
-        MAX_INSTANCES="5"
-        API_URL_VAR="STAGING_API_URL"
-    else
-        SERVICE_NAME="nosilha-frontend"
-        MEMORY="1Gi"
-        CPU="1"
-        MIN_INSTANCES="1"
-        MAX_INSTANCES="50"
-        API_URL_VAR="PRODUCTION_API_URL"
-    fi
-    
     # Get API URL from environment variable
-    API_URL=$(eval echo "\$$API_URL_VAR")
-    if [ -z "$API_URL" ]; then
-        echo -e "${YELLOW}Warning: $API_URL_VAR not set, using default${NC}"
-        API_URL="http://localhost:8080/api/v1"
+    API_URL=${PRODUCTION_API_URL:-"http://localhost:8080/api/v1"}
+    if [ "$API_URL" = "http://localhost:8080/api/v1" ]; then
+        echo -e "${YELLOW}Warning: PRODUCTION_API_URL not set, using default${NC}"
     fi
     
     # Deploy to Cloud Run
-    gcloud run deploy "$SERVICE_NAME" \
+    gcloud run deploy "$FRONTEND_SERVICE_NAME" \
         --image="$REGISTRY/$PROJECT_ID/nosilha-frontend:$tag" \
-        --platform=managed \
         --region="$REGION" \
         --allow-unauthenticated \
+        --service-account="nosilha-frontend-runner@$PROJECT_ID.iam.gserviceaccount.com" \
         --set-env-vars="NODE_ENV=production,API_URL=$API_URL" \
-        --memory="$MEMORY" \
+        --memory="$FRONTEND_MEMORY" \
         --cpu="$CPU" \
+        --cpu-idle \
         --min-instances="$MIN_INSTANCES" \
-        --max-instances="$MAX_INSTANCES" \
-        --timeout=300 \
+        --max-instances="$FRONTEND_MAX_INSTANCES" \
+        --timeout="$TIMEOUT" \
         --port=3000 \
         --quiet
-        
+
     # Get service URL
-    FRONTEND_URL=$(gcloud run services describe "$SERVICE_NAME" --region="$REGION" --format="value(status.url)")
+    FRONTEND_URL=$(gcloud run services describe "$FRONTEND_SERVICE_NAME" --region="$REGION" --format="value(status.url)")
     echo -e "${GREEN}✅ Frontend deployed successfully: $FRONTEND_URL${NC}"
 }
 
@@ -142,7 +164,7 @@ deploy_frontend() {
 check_image_exists() {
     local image_name=$1
     echo -e "${YELLOW}Checking if image exists: $image_name${NC}"
-    
+
     if gcloud container images describe "$image_name" --quiet > /dev/null 2>&1; then
         echo -e "${GREEN}✅ Image found${NC}"
         return 0
@@ -156,25 +178,19 @@ check_image_exists() {
 health_check() {
     local url=$1
     local service_name=$2
-    
+
     echo -e "${YELLOW}Running health check for $service_name...${NC}"
-    
-    # Wait for service to be ready
-    local max_attempts=30
-    local attempt=1
-    
-    while [ $attempt -le $max_attempts ]; do
+
+    for attempt in $(seq 1 30); do
         if curl -s -f "$url/health" > /dev/null 2>&1 || curl -s -f "$url" > /dev/null 2>&1; then
             echo -e "${GREEN}✅ $service_name is healthy${NC}"
             return 0
         fi
-        
-        echo -e "${YELLOW}Attempt $attempt/$max_attempts: $service_name not ready yet...${NC}"
+        echo -e "${YELLOW}Attempt $attempt/30: $service_name not ready yet...${NC}"
         sleep 10
-        ((attempt++))
     done
-    
-    echo -e "${RED}❌ $service_name health check failed after $max_attempts attempts${NC}"
+
+    echo -e "${RED}❌ $service_name health check failed after 30 attempts${NC}"
     return 1
 }
 
@@ -193,15 +209,11 @@ main() {
     if [ "$SERVICE" = "backend" ] || [ "$SERVICE" = "all" ]; then
         BACKEND_IMAGE="$REGISTRY/$PROJECT_ID/nosilha-backend:$IMAGE_TAG"
         if check_image_exists "$BACKEND_IMAGE"; then
-            deploy_backend "$ENVIRONMENT" "$IMAGE_TAG"
-            
+            deploy_backend "$IMAGE_TAG"
+
             # Health check for backend
-            if [ "$ENVIRONMENT" = "staging" ]; then
-                BACKEND_URL=$(gcloud run services describe "nosilha-backend-staging" --region="$REGION" --format="value(status.url)")
-            else
-                BACKEND_URL=$(gcloud run services describe "nosilha-backend" --region="$REGION" --format="value(status.url)")
-            fi
-            
+            BACKEND_URL=$(gcloud run services describe "$BACKEND_SERVICE_NAME" --region="$REGION" --format="value(status.url)")
+
             health_check "$BACKEND_URL" "backend"
         else
             echo -e "${RED}Skipping backend deployment - image not found${NC}"
@@ -211,15 +223,11 @@ main() {
     if [ "$SERVICE" = "frontend" ] || [ "$SERVICE" = "all" ]; then
         FRONTEND_IMAGE="$REGISTRY/$PROJECT_ID/nosilha-frontend:$IMAGE_TAG"
         if check_image_exists "$FRONTEND_IMAGE"; then
-            deploy_frontend "$ENVIRONMENT" "$IMAGE_TAG"
-            
+            deploy_frontend "$IMAGE_TAG"
+
             # Health check for frontend
-            if [ "$ENVIRONMENT" = "staging" ]; then
-                FRONTEND_URL=$(gcloud run services describe "nosilha-frontend-staging" --region="$REGION" --format="value(status.url)")
-            else
-                FRONTEND_URL=$(gcloud run services describe "nosilha-frontend" --region="$REGION" --format="value(status.url)")
-            fi
-            
+            FRONTEND_URL=$(gcloud run services describe "$FRONTEND_SERVICE_NAME" --region="$REGION" --format="value(status.url)")
+
             health_check "$FRONTEND_URL" "frontend"
         else
             echo -e "${RED}Skipping frontend deployment - image not found${NC}"
@@ -231,58 +239,17 @@ main() {
     # Show final URLs
     echo ""
     echo -e "${GREEN}📋 Deployment Summary:${NC}"
-    echo -e "${YELLOW}Environment: $ENVIRONMENT${NC}"
     echo -e "${YELLOW}Services deployed: $SERVICE${NC}"
     echo -e "${YELLOW}Image tag: $IMAGE_TAG${NC}"
-    
+
     if [ "$SERVICE" = "backend" ] || [ "$SERVICE" = "all" ]; then
-        if [ "$ENVIRONMENT" = "staging" ]; then
-            echo -e "${GREEN}Backend URL: $(gcloud run services describe "nosilha-backend-staging" --region="$REGION" --format="value(status.url)")${NC}"
-        else
-            echo -e "${GREEN}Backend URL: $(gcloud run services describe "nosilha-backend" --region="$REGION" --format="value(status.url)")${NC}"
-        fi
+        echo -e "${GREEN}Backend URL: $(gcloud run services describe "$BACKEND_SERVICE_NAME" --region="$REGION" --format="value(status.url)")${NC}"
     fi
-    
+
     if [ "$SERVICE" = "frontend" ] || [ "$SERVICE" = "all" ]; then
-        if [ "$ENVIRONMENT" = "staging" ]; then
-            echo -e "${GREEN}Frontend URL: $(gcloud run services describe "nosilha-frontend-staging" --region="$REGION" --format="value(status.url)")${NC}"
-        else
-            echo -e "${GREEN}Frontend URL: $(gcloud run services describe "nosilha-frontend" --region="$REGION" --format="value(status.url)")${NC}"
-        fi
+        echo -e "${GREEN}Frontend URL: $(gcloud run services describe "$FRONTEND_SERVICE_NAME" --region="$REGION" --format="value(status.url)")${NC}"
     fi
 }
-
-# Help function
-show_help() {
-    echo "Nos Ilha Deployment Script"
-    echo ""
-    echo "Usage: $0 [environment] [service] [image_tag]"
-    echo ""
-    echo "Arguments:"
-    echo "  environment    Target environment (staging|production) [default: staging]"
-    echo "  service        Service to deploy (backend|frontend|all) [default: all]"
-    echo "  image_tag      Docker image tag to deploy [default: latest]"
-    echo ""
-    echo "Environment Variables:"
-    echo "  GCP_PROJECT_ID      Google Cloud project ID (required)"
-    echo "  GCP_REGION          Google Cloud region [default: europe-west1]"
-    echo "  REGISTRY            Container registry [default: gcr.io]"
-    echo "  STAGING_API_URL     API URL for staging environment"
-    echo "  PRODUCTION_API_URL  API URL for production environment"
-    echo ""
-    echo "Examples:"
-    echo "  $0                                    # Deploy all services to staging with latest tag"
-    echo "  $0 production                         # Deploy all services to production with latest tag"
-    echo "  $0 staging backend develop-abc123     # Deploy backend to staging with specific tag"
-    echo "  $0 production frontend v1.0.0         # Deploy frontend to production with version tag"
-    echo ""
-}
-
-# Check for help flag
-if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
-    show_help
-    exit 0
-fi
 
 # Run main function
 main
