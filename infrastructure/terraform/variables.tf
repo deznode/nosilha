@@ -18,3 +18,15 @@ variable "bucket_name_suffix" {
   description = "A suffix to create a unique GCS bucket name."
   default     = "media-storage-useast1"
 }
+
+variable "api_image_tag" {
+  type        = string
+  description = "The tag of the nosilha-core-api image to deploy (e.g., '0.0.1-SNAPSHOT')."
+  default     = "latest"
+}
+
+variable "frontend_image_tag" {
+  type        = string
+  description = "The tag of the nosilha-web-ui image to deploy (e.g., 'latest')."
+  default     = "latest"
+}

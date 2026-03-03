@@ -83,3 +83,46 @@ resource "google_storage_bucket_iam_member" "sa_uploader_permissions" {
 # account directly to the Cloud Run service instead of using a key file.
 #
 # ------------------------------------------------------------------------------
+
+
+# ------------------------------------------------------------------------------
+# Google Artifact Registry for Container Images
+# ------------------------------------------------------------------------------
+
+resource "google_artifact_registry_repository" "api_repository" {
+  # The user-friendly name for the repository.
+  repository_id = "nosilha-backend"
+
+  # Specifies that this repository will store Docker images.
+  format = "DOCKER"
+
+  # The GCP region where the repository will be located.
+  location = var.gcp_region # This uses the existing "us-east1" variable.
+
+  description = "Docker repository for Nosilha.com backend API images."
+
+  # Optional: Add labels for organization and cost tracking.
+  labels = {
+    "service" = "nosilha-backend"
+    "env"     = "shared"
+  }
+}
+
+resource "google_artifact_registry_repository" "frontend_repository" {
+  # The user-friendly name for the repository.
+  repository_id = "nosilha-frontend"
+
+  # Specifies that this repository will store Docker images.
+  format = "DOCKER"
+
+  # The GCP region where the repository will be located.
+  location = var.gcp_region # This uses the existing "us-east1" variable.
+
+  description = "Docker repository for Nosilha.com frontend UI images."
+
+  # Optional: Add labels for organization and cost tracking.
+  labels = {
+    "service" = "nosilha-frontend"
+    "env"     = "shared"
+  }
+}
