@@ -8,9 +8,7 @@ Infrastructure configuration and deployment for the Nos Ilha cultural heritage p
 Local development environment using Docker Compose.
 
 **Services:**
-- PostgreSQL 16 (primary database)
-- Firestore Emulator (AI metadata storage)
-- Google Cloud Storage Emulator (media assets)
+- PostgreSQL 16 (primary database for all data including media metadata)
 
 **Quick Start:**
 ```bash
@@ -25,7 +23,7 @@ Google Cloud Platform infrastructure as code.
 **Resources:**
 - Cloud Run services (backend API, frontend)
 - Artifact Registry (container images)
-- Cloud Storage (media storage)
+- Cloud Storage (media storage - production)
 - IAM service accounts and permissions
 - Secret Manager configuration
 - Monitoring and alerting
@@ -36,11 +34,6 @@ cd terraform && terraform init && terraform plan
 ```
 
 See [terraform/README.md](terraform/README.md) for comprehensive infrastructure documentation including deployment workflows, security best practices, and troubleshooting.
-
-### [`act-testing/`](act-testing/)
-Local GitHub Actions workflow testing using [act](https://github.com/nektos/act).
-
-Used for validating CI/CD workflows locally before pushing to GitHub.
 
 ## Quick Reference
 
@@ -72,12 +65,11 @@ terraform apply
 
 **Local Development:**
 - PostgreSQL: `localhost:5432` (database: `nosilha_db`, user/pass: `nosilha`)
-- Firestore Emulator: `http://localhost:8081`
-- GCS Emulator: `http://localhost:8082`
+- Media Storage: Local filesystem (`./uploads` directory)
 
 **Production:**
-- Backend API: `https://nosilha-backend-api-[random].a.run.app`
-- Frontend: `https://nosilha-frontend-[random].a.run.app`
+- Backend API: `https://api.nosilha.com`
+- Frontend: `https://nosilha.com`
 
 ## Documentation
 

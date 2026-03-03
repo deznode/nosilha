@@ -49,7 +49,7 @@ The Nos Ilha platform uses a **modern, layered state management architecture** t
 ### File Structure
 
 ```
-frontend/src/
+apps/web/src/
 ├── stores/                    # Zustand stores (client state)
 │   ├── authStore.ts          # Authentication state
 │   ├── uiStore.ts            # UI preferences and modal state

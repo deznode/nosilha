@@ -202,16 +202,15 @@ The Nos Ilha CI/CD pipeline enforces comprehensive quality gates to ensure code 
 
 ### Coverage Quality Gates
 
-**Frontend Coverage (Vitest)**
-- **Threshold**: Minimum 70% code coverage (lines, functions, branches, statements)
-- **Enforcement**: Build fails if coverage drops below threshold
-- **Configuration**: `frontend/vitest.config.ts` (lines 36-41)
-- **Reporting**: Coverage reports uploaded to Codecov with `frontend-unit` flag
+**Frontend Coverage (Vitest)** - *Local only*
+- **Note**: Frontend unit tests and coverage run locally, not in CI
+- **Configuration**: `apps/web/vitest.config.ts`
+- **Local Command**: `pnpm run test:unit`
 
 **Backend Coverage (Jacoco)**
 - **Threshold**: Minimum 70% code coverage
 - **Enforcement**: `jacocoTestCoverageVerification` task fails build if below threshold
-- **Configuration**: `backend/build.gradle.kts` (line 123)
+- **Configuration**: `apps/api/build.gradle.kts` (line 123)
 - **Reporting**: Coverage reports uploaded to Codecov with `backend-unit` flag
 
 ### Module Boundary Quality Gates (Backend)
@@ -245,26 +244,23 @@ Total bundle size: 423KB (within 500KB limit) ✅
 
 ### Test Execution Quality Gates
 
-**End-to-End Tests (Playwright)**
-- **Execution Time**: Must complete within 5 minutes (FR-001)
+**End-to-End Tests (Playwright)** - *Local only*
+- **Note**: E2E tests run locally, not in CI (see `docs/TESTING.md`)
 - **Coverage**: Critical user flows (authentication, directory browsing, content creation, map interaction)
 - **Environment**: Headless Chromium browser with mobile viewport testing
-- **Enforcement**: Timeout failures block PR merge
+- **Local Command**: `pnpm run test:e2e`
 
-**Unit Tests (Vitest + JUnit)**
-- **Frontend**: React components, hooks, and utilities
-- **Backend**: Services, repositories, domain logic with PostgreSQL integration
-- **Isolation**: Tests must be independent and parallelizable
-- **Enforcement**: Any test failure blocks PR merge
+**Unit Tests**
+- **Frontend**: Vitest for React components, hooks, and utilities - *local only*
+- **Backend (CI)**: JUnit for services, repositories, domain logic with PostgreSQL integration
+- **Enforcement**: Backend test failures block PR merge
 
 ### Branch Protection Rules
 
 **Main Branch Protection** (Recommended Configuration):
 1. **Require status checks to pass before merging**:
    - `security-scan` (frontend & backend)
-   - `test-and-lint` (frontend & backend)
-   - `unit-tests` (frontend)
-   - `e2e-tests` (frontend)
+   - `test-and-lint` (frontend TypeScript + ESLint, backend tests)
    - `bundle-analysis` (frontend on PRs)
 2. **Require branches to be up to date before merging**
 3. **Require linear history**
@@ -277,18 +273,18 @@ Total bundle size: 423KB (within 500KB limit) ✅
 # OR via GitHub API (requires admin permissions):
 gh api repos/:owner/:repo/branches/main/protection \
   -X PUT \
-  -f required_status_checks='{"strict":true,"contexts":["security-scan","test-and-lint","unit-tests","e2e-tests"]}'
+  -f required_status_checks='{"strict":true,"contexts":["security-scan","test-and-lint"]}'
 ```
 
 ### Quality Gate Metrics
 
-**Quantitative Targets** (Phase 4 Success Criteria):
-- ✅ Frontend coverage: >70%
-- ✅ Backend coverage: >70%
-- ✅ E2E test execution: <5 minutes
-- ✅ Bundle size: <500KB
-- ✅ Module boundary violations: 0
+**Quantitative Targets**:
+- ✅ Backend coverage: >70% (CI enforced)
+- ✅ Frontend TypeScript + ESLint: pass (CI enforced)
+- ✅ Bundle size: <500KB (CI enforced)
+- ✅ Module boundary violations: 0 (CI enforced)
 - ✅ Total CI/CD time: <10 minutes
+- ℹ️ Frontend unit tests and E2E tests: local validation only
 
 **Enforcement Strategy**:
 - **PR Stage**: All quality gates must pass for PR approval

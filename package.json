@@ -1,0 +1,40 @@
+{
+  "name": "nosilha-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Nos Ilha - Community-driven cultural heritage hub for Brava Island, Cape Verde",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bravdigital/nosilha.git"
+  },
+  "license": "MIT",
+  "packageManager": "pnpm@10.0.0",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "dev": "nx run-many -t dev",
+    "build": "nx run-many -t build",
+    "test": "nx run-many -t test",
+    "lint": "nx run-many -t lint",
+    "affected:build": "nx affected -t build",
+    "affected:test": "nx affected -t test",
+    "affected:lint": "nx affected -t lint",
+    "graph": "nx graph",
+    "web:dev": "nx run web:dev",
+    "web:build": "nx run web:build",
+    "api:dev": "nx run api:dev",
+    "api:build": "nx run api:build",
+    "api:test": "nx run api:test",
+    "api:serve": "nx run api:serve"
+  },
+  "devDependencies": {
+    "@nx/eslint": "^22.3.3",
+    "@nx/next": "^22.3.3",
+    "nx": "^22.3.3"
+  },
+  "dependencies": {
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "react-syntax-highlighter": "^16.1.0"
+  }
+}

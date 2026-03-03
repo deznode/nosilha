@@ -78,6 +78,14 @@ resource "google_secret_manager_secret_iam_member" "grant_session_db_url_access"
   member    = google_service_account.backend_runner.member
 }
 
+# Grant frontend service account access to Resend API key for newsletter email functionality
+resource "google_secret_manager_secret_iam_member" "grant_resend_api_key_access" {
+  project   = var.gcp_project_id
+  secret_id = "resend_api_key"
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_service_account.frontend_runner.member
+}
+
 # Grant backend service account access to GCS bucket
 resource "google_storage_bucket_iam_member" "grant_gcs_access" {
   bucket = google_storage_bucket.media_storage.name
@@ -228,7 +236,7 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
   workload_identity_pool_id          = google_iam_workload_identity_pool.github_actions_pool.workload_identity_pool_id
   workload_identity_pool_provider_id = "github-provider"
   display_name                       = "GitHub Actions OIDC Provider"
-  description                        = "OIDC provider for bravdigital/nosilha repository"
+  description                        = "OIDC provider for deznode/nosilha repository"
 
   # Map GitHub OIDC token claims to Google Cloud attributes
   attribute_mapping = {
@@ -239,7 +247,7 @@ resource "google_iam_workload_identity_pool_provider" "github_provider" {
   }
 
   # Security: Only allow authentication from our specific repository
-  attribute_condition = "assertion.repository == 'bravdigital/nosilha'"
+  attribute_condition = "assertion.repository == 'deznode/nosilha'"
 
   oidc {
     issuer_uri = "https://token.actions.githubusercontent.com"
@@ -252,7 +260,7 @@ resource "google_service_account_iam_binding" "github_workload_identity_user" {
   role               = "roles/iam.workloadIdentityUser"
 
   members = [
-    "principalSet://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github_actions_pool.workload_identity_pool_id}/attribute.repository/bravdigital/nosilha"
+    "principalSet://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github_actions_pool.workload_identity_pool_id}/attribute.repository/deznode/nosilha"
   ]
 }
 

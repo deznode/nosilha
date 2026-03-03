@@ -104,7 +104,7 @@ This document provides a comprehensive overview of the frontend application's ro
 
 #### Explore Brava Section
 - **Interactive Map** → `/map`
-- **Towns & Villages** → `/towns`
+- **Towns** → `/towns`
 - **Restaurants & Cafes** → `/directory/restaurant`
 - **Landmarks** → `/directory/landmark`
 - **Beaches & Bays** → `/directory/beach`
@@ -112,8 +112,6 @@ This document provides a comprehensive overview of the frontend application's ro
 #### Culture & History Section
 - **History of Brava** → `/history`
 - **Historical Figures** → `/people`
-- **Music & Arts** → `/media/music`
-- **Photo Galleries** → `/media/photos`
 
 #### Connect Section
 - **About Us** → `/about`
@@ -139,75 +137,102 @@ This document provides a comprehensive overview of the frontend application's ro
 
 ### High Priority Pages
 
-#### 1. Towns Landing Page
-- **Route**: `/towns`
-- **File**: `frontend/src/app/(main)/towns/page.tsx`
-- **Purpose**: Overview of all towns and villages on Brava Island with navigation to individual town pages
-- **Features**: Featured towns, community listings, map integration, responsive design
-
-#### 2. History Section
+#### 1. History Section
 - **Route**: `/history`
-- **File**: `frontend/src/app/(main)/history/page.tsx`
+- **File**: `apps/web/src/app/(main)/history/page.tsx`
 - **Purpose**: Historical articles and cultural heritage content
 - **Features**: Timeline, cultural traditions, notable figures, visual storytelling
 
-#### 3. Individual Towns Pages
-- **Route**: `/towns/[slug]`
-- **File**: `frontend/src/app/(main)/towns/[slug]/page.tsx`
-- **Purpose**: Individual town information and local guides
-- **Features**: Dynamic routing, town details, photo galleries, local directory integration
+#### 2. Individual History Articles
+- **Route**: `/history/[slug]`
+- **File**: `apps/web/src/app/(main)/history/[slug]/page.tsx`
+- **Purpose**: Individual historical article pages
+- **Features**: Dynamic routing, article content, related entries
 
-#### 4. About Us Page
+#### 3. About Us Page
 - **Route**: `/about`
-- **File**: `frontend/src/app/(main)/about/page.tsx`
+- **File**: `apps/web/src/app/(main)/about/page.tsx`
 - **Purpose**: Information about the Nos Ilha platform, mission, and team
 - **Features**: Mission statement, technical approach, community focus, contribution opportunities
 
-#### 5. Contact Us Page
+#### 4. Contact Us Page
 - **Route**: `/contact`
-- **File**: `frontend/src/app/(main)/contact/page.tsx`
+- **File**: `apps/web/src/app/(main)/contact/page.tsx`
 - **Purpose**: Contact information, support forms, and communication channels
 - **Features**: Contact forms, multiple communication methods, FAQ section
 
-#### 6. Contribute Page
+#### 5. Contribute Page
 - **Route**: `/contribute`
-- **File**: `frontend/src/app/(main)/contribute/page.tsx`
+- **File**: `apps/web/src/app/(main)/contribute/page.tsx`
 - **Purpose**: Community contribution guidelines, photo submission forms, and volunteer opportunities
 - **Features**: Contribution types, guidelines, community engagement, clear CTAs
 
 ### Medium Priority Pages
 
-#### 7. Historical Figures Page
+#### 6. Historical Figures Page
 - **Route**: `/people`
-- **File**: `frontend/src/app/(main)/people/page.tsx`
+- **File**: `apps/web/src/app/(main)/people/page.tsx`
 - **Purpose**: Profiles of notable historical figures from Brava Island
 - **Features**: Featured figures, biographical information, cultural contributions, categorized displays
 
-#### 8. Music & Arts Page
-- **Route**: `/media/music`
-- **File**: `frontend/src/app/(main)/media/music/page.tsx`
-- **Purpose**: Showcase of Brava's musical heritage, traditional arts, and cultural expressions
-- **Features**: Musical traditions, famous musicians, cultural events, instrument showcase
+#### 7. Individual People Profiles
+- **Route**: `/people/[slug]`
+- **File**: `apps/web/src/app/(main)/people/[slug]/page.tsx`
+- **Purpose**: Detailed profile pages for individual historical figures
+- **Features**: Dynamic routing, biographical content, cultural contributions, related history
 
-#### 9. Photo Galleries Page
-- **Route**: `/media/photos`
-- **File**: `frontend/src/app/(main)/media/photos/page.tsx`
-- **Purpose**: Curated photo collections showcasing Brava's landscapes, culture, and community
-- **Features**: Gallery categories, photo statistics, contribution guidelines, visual storytelling
+### Geographic Pages
+
+#### 8. Towns Index Page
+- **Route**: `/towns`
+- **File**: `apps/web/src/app/(main)/towns/page.tsx`
+- **Purpose**: Overview of all towns and settlements on Brava Island
+- **Features**: Town listings, geographic information, quick navigation to individual towns
+
+#### 9. Individual Town Pages
+- **Route**: `/towns/[slug]`
+- **File**: `apps/web/src/app/(main)/towns/[slug]/page.tsx`
+- **Purpose**: Detailed information about individual towns
+- **Features**: Dynamic routing, town history, points of interest, local businesses, geographic details
+
+### User Account Pages
+
+#### 10. User Profile Page
+- **Route**: `/profile`
+- **File**: `apps/web/src/app/(main)/profile/page.tsx`
+- **Purpose**: User profile and account information
+- **Features**: Profile display, contribution history, account management
+- **Access**: Requires authentication
+
+#### 11. User Settings Page
+- **Route**: `/settings`
+- **File**: `apps/web/src/app/(main)/settings/page.tsx`
+- **Purpose**: User account settings and preferences
+- **Features**: Account settings, notification preferences, privacy controls
+- **Access**: Requires authentication
 
 ### Legal/Compliance Pages
 
-#### 10. Privacy Policy Page
+#### 12. Privacy Policy Page
 - **Route**: `/privacy`
-- **File**: `frontend/src/app/(main)/privacy/page.tsx`
+- **File**: `apps/web/src/app/(main)/privacy/page.tsx`
 - **Purpose**: Privacy policy and data protection information
 - **Features**: Comprehensive privacy policy, user rights, data protection, third-party services
 
-#### 11. Terms of Service Page
+#### 13. Terms of Service Page
 - **Route**: `/terms`
-- **File**: `frontend/src/app/(main)/terms/page.tsx`
+- **File**: `apps/web/src/app/(main)/terms/page.tsx`
 - **Purpose**: Terms of service and usage agreements
 - **Features**: Legal document structure, community guidelines, user responsibilities, platform rules
+
+### Admin Routes
+
+#### 14. Admin Translations
+- **Route**: `/admin/translations`
+- **File**: `apps/web/src/app/(admin)/admin/translations/page.tsx`
+- **Purpose**: Admin interface for managing translations
+- **Features**: Translation management, language content editing
+- **Access**: Requires admin authentication
 
 ## Route Protection Analysis
 
@@ -236,16 +261,14 @@ This document provides a comprehensive overview of the frontend application's ro
 | Entry detail pages | ISR | 30 minutes |
 | Map page | Client-side only | No SSR |
 | Auth pages | Static | None |
-| **New Content Pages** | **ISR** | **1-2 hours** |
-| Towns pages | ISR | 2 hours |
 | History/People pages | ISR | 2 hours |
-| Media pages | ISR | 1 hour |
 | About/Contact pages | Static | None |
 | Legal pages | Static | None |
+| Profile/Settings | Dynamic | Real-time |
 
 ### Dynamic Routing Patterns
 - **`[category]`**: Supports any category name for directory browsing
-- **`[slug]`**: Supports any slug for individual entries and town pages
+- **`[slug]`**: Supports any slug for individual entries, history articles, and people profiles
 
 ### Route Groups Benefits
 - Clean URL structure (parentheses don't affect URLs)
@@ -254,14 +277,15 @@ This document provides a comprehensive overview of the frontend application's ro
 - Independent loading and error boundaries
 
 ### Route Groups Structure
-- **`/media/`**: Route group for cultural content
-  - `/media/music` - Music and arts heritage
-  - `/media/photos` - Photo galleries and visual content
 - **`(main)/`**: Main site route group with comprehensive pages
-  - Towns section with dynamic routing
-  - Cultural heritage pages (history, people)
+  - Cultural heritage pages (history, people with dynamic [slug] routes)
+  - User account pages (profile, settings)
   - Legal and compliance pages
   - Community engagement pages
+- **`(auth)/`**: Authentication route group
+  - Login and signup pages
+- **`(admin)/`**: Admin route group
+  - Add entry, translations, sandbox pages
 
 ## API Integration
 
@@ -297,14 +321,17 @@ This document provides a comprehensive overview of the frontend application's ro
 The Nos Ilha frontend implements a comprehensive route structure with:
 
 ### Route Overview
-- **Total Routes**: 20 pages covering all site functionality
-- **Core Routes**: 9 pages (Homepage, Map, Directory categories, Entry details, Auth pages, Add entry, Test page)
-- **Extended Routes**: 11 pages (Towns, History, People, Music, Photos, About, Contact, Contribute, Privacy, Terms)
+- **Total Routes**: 21 production pages (plus 1 development test page)
+- **Core Routes**: 7 pages (Homepage, Map, Directory/[category], Directory/entry/[slug], Login, Signup, Add entry)
+- **Extended Routes**: 14 pages (Towns, Towns/[slug], History, History/[slug], People, People/[slug], About, Contact, Contribute, Profile, Settings, Privacy, Terms, Admin translations)
 
 ### Route Categories
-- **High Priority**: 6 pages (Towns landing, History, Individual towns, About, Contact, Contribute)
-- **Medium Priority**: 3 pages (People, Music & Arts, Photo galleries)
+- **High Priority**: 5 pages (History, History/[slug], About, Contact, Contribute)
+- **Medium Priority**: 2 pages (People, People/[slug])
+- **Geographic**: 2 pages (Towns, Towns/[slug])
+- **User Account**: 2 pages (Profile, Settings)
 - **Legal/Compliance**: 2 pages (Privacy, Terms)
+- **Admin**: 2 pages (Add entry, Translations)
 
 ### Platform Capabilities
 The platform provides:

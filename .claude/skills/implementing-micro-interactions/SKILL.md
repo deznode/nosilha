@@ -5,149 +5,68 @@ description: Implements production-grade micro-interactions in React/Next.js app
 
 # Implementing Micro-Interactions
 
-This Skill implements micro-interactions and motion patterns in React/Next.js applications using a reusable `lib/animation` system aligned with the Micro-Interactions blueprint and Motion best practices.
+Implements micro-interactions and motion patterns in React/Next.js using a reusable `lib/animation` system.
 
-The focus is on:
-- Consistent animation tokens (durations, easing, distances)
-- Shared variants and factories
-- Accessible and performant Framer Motion usage
-- Integration with TailwindCSS, Next.js App Router, and React Server/Client Components
+> **Related Skill**: Use `generating-micro-interactions` to quickly generate animated components that leverage this systematic infrastructure.
 
-Refer to `references/MICRO_INTERACTIONS_BLUEPRINT.md` for the full research and conceptual foundations.
+## When to Use
 
----
-
-> **💡 Related Skill:** Once you've set up `lib/animation/` using this skill, you can use the **`generating-micro-interactions`**
-> skill to quickly generate individual animated components that leverage this systematic animation infrastructure.
-> This skill (`implementing-micro-interactions`) handles strategic architecture setup, while `generating-micro-interactions`
-> provides tactical component generation from natural language prompts. Use them together for maximum productivity.
-
----
-
-## When to Use This Skill
-
-Use this Skill when:
-- Implementing or refactoring micro-interactions in a React/Next.js codebase
-- Adding or updating Framer Motion animations (`motion`, `variants`, `layout`, `layoutId`)
-- Introducing a shared `lib/animation` directory (tokens, variants, factories, config)
-- Ensuring animations follow consistent durations, easings, and accessibility rules
-- Auditing existing motion code for anti-patterns (layout thrash, mixed CSS/JS transitions)
-
----
+- Implementing or refactoring micro-interactions in React/Next.js
+- Adding Framer Motion animations (motion, variants, layout, layoutId)
+- Introducing shared `lib/animation` directory (tokens, variants, factories)
+- Ensuring consistent durations, easings, and accessibility
+- Auditing motion code for anti-patterns
 
 ## Core Principles
 
-To implement micro-interactions:
-
-1. Use micro-interactions to provide feedback, status, context, or guidance—not decoration.
-2. Prefer durations between `0.12–0.30s` for micro-interactions and `<=0.40s` for page transitions.
-3. Animate `transform` + `opacity` first (GPU-friendly), avoid layout-affecting properties when possible.
-4. Use shared tokens and factories from `lib/animation` rather than hardcoded numbers.
-5. Always provide a reduced-motion path using `prefers-reduced-motion` and `MotionConfigProvider`.
-6. Keep global transitions in a small wrapper (like `PageTransitionProvider`), keep micro-interactions local to components.
-
-These principles are derived from the Micro-Interactions research blueprint and Motion docs. Reference the blueprint for detailed rationale and examples.
-
----
+1. Use micro-interactions for feedback, status, context—not decoration
+2. Prefer durations 0.12–0.30s for micro, ≤0.40s for page transitions
+3. Animate `transform` + `opacity` first (GPU-friendly)
+4. Use shared tokens from `lib/animation`, never hardcode values
+5. Provide reduced-motion path via `prefers-reduced-motion`
+6. Keep global transitions in wrapper, micro-interactions local
 
 ## Quick Start
 
-To use this Skill in a project:
-
-1. Create or update the `lib/animation` directory using the templates in:
-   - `.claude/skills/implementing-micro-interactions/assets/lib/animation/`
-
-2. Copy the `lib/animation` folder into your project, typically as:
-   - `src/lib/animation/` or `app/lib/animation/`
-
-3. Wire up the motion config provider and page transition provider:
-   - Wrap your root layout with `MotionConfigProvider` and `PageTransitionProvider`.
-
-4. Replace ad-hoc motion usage with shared tokens and variants:
-   - Use `motionDuration`, `motionEasing`, `motionDistance`.
-   - Use factories like `makeFadeInUp` and variants like `buttonMicro`.
-
-5. Run through the implementation workflow in `WORKFLOW.md` whenever adding or refactoring animations.
-
----
+1. Copy `assets/lib/animation/` to `src/lib/animation/`
+2. Wrap root layout with `MotionConfigProvider` and `PageTransitionProvider`
+3. Replace ad-hoc motion with shared tokens and variants
+4. Use `motionDuration`, `motionEasing`, `motionDistance` from tokens
+5. Run through [WORKFLOW.md](WORKFLOW.md) for each refactor
 
 ## Output Structure
-
-When this Skill is used correctly, the project should have:
 
 ```text
 src/
   lib/
     animation/
       tokens.ts        # Durations, easing, distances
-      variants.ts      # Common Variants (buttons, lists, modals, toasts)
-      factories.ts     # Parametric factories like makeFadeInUp, makeScaleIn
+      variants.ts      # Common variants (buttons, lists, modals)
+      factories.ts     # Parametric factories (makeFadeInUp, makeScaleIn)
       config.tsx       # MotionConfigProvider + useMotionConfig hook
-      index.ts         # Re-exports for convenience
+      index.ts         # Re-exports
 ```
 
-Animated components (e.g., `AnimatedButton`, `HoverCard`) live in `src/components/ui/` and import from `lib/animation`.
+Animated components (`AnimatedButton`, `HoverCard`) live in `src/components/ui/` and import from `lib/animation`.
 
-Components in `app/` or `src/app/` should import from `lib/animation` instead of defining custom ad-hoc motion values.
+## Documentation References
 
----
+**Skill docs**:
+- [WORKFLOW.md](WORKFLOW.md) - Step-by-step implementation workflow
+- [EXAMPLES.md](EXAMPLES.md) - Input/output usage examples
+- [TROUBLESHOOTING.md](TROUBLESHOOTING.md) - Common issues and fixes
+- [references/MICRO_INTERACTIONS_BLUEPRINT.md](references/MICRO_INTERACTIONS_BLUEPRINT.md) - Research blueprint
+- [references/MOTION_DEV_API.md](references/MOTION_DEV_API.md) - Motion.dev best practices
 
-## Implementation Rules
+**Project docs**:
+- `docs/MICRO_INTERACTION.md` - Foundational research and theory
+- `docs/ANIMATION_SYSTEM.md` - Implementation guide with API reference
 
-When implementing or modifying animations with this Skill:
+## Best Practices
 
-1. **Always use tokens**
-   Import durations, easing, and distances from `lib/animation/tokens.ts`.
-   Do not hardcode random numbers like `duration: 0.37` or `y: 37`.
-
-2. **Prefer factories and shared variants**
-   Use `makeFadeInUp`, `makeScaleIn`, and variants like `buttonMicro`, `listStagger`, `listItem` for repeated patterns.
-
-3. **Respect reduced motion**
-   Use `useMotionConfig()` to read `reducedMotion`.
-   In reduced-motion mode, fall back to instant or simple opacity transitions.
-
-4. **Animate transform + opacity**
-   Prefer `x`, `y`, `scale`, `rotate`, and `opacity`.
-   Use `layout` and `layoutId` sparingly for layout transitions.
-
-5. **Encapsulate micro-interactions**
-   Keep button/card/accordion interactions inside dedicated components under `lib/animation/components`.
-
-6. **Route transitions**
-   Use `PageTransitionProvider` (from `lib/animation/components`) with `AnimatePresence` and `key={pathname}` for App Router transitions.
-
-7. **Accessibility**
-   Do not rely solely on motion to convey state; ensure ARIA and visual states are aligned with animations.
-
----
-
-## Related Files
-
-* `WORKFLOW.md` – Step-by-step implementation workflow for using this Skill.
-* `EXAMPLES.md` – Input → output examples of typical usage.
-* `TROUBLESHOOTING.md` – Common issues and how to fix them.
-* `references/MICRO_INTERACTIONS_BLUEPRINT.md` – Full research blueprint for micro-interactions and motion system design.
-* `assets/lib/animation/` – Production-ready code templates for the animation system.
-
-## Project Documentation
-
-* `docs/MICRO_INTERACTION.md` – Foundational research, theory, timing, and best practices
-* `docs/ANIMATION_SYSTEM.md` – Implementation guide with code examples and API reference
-
-## Modern Motion.dev Best Practices
-
-Motion.dev (formerly Framer Motion) now provides native reduced motion support:
-
-```tsx
-import { MotionConfig } from "framer-motion";
-
-// In root layout - automatically handles reduced motion
-<MotionConfig reducedMotion="user">
-  {children}
-</MotionConfig>
-```
-
-This can be used instead of or alongside the custom `MotionConfigProvider`. The native hook `useReducedMotion` from framer-motion is also available.
-
----
+1. Always use tokens: Import from `lib/animation/tokens.ts`
+2. Prefer factories: Use `makeFadeInUp`, `buttonMicro`, `listStagger`
+3. Respect reduced motion: Use `useMotionConfig()` for accessibility
+4. Encapsulate interactions: Dedicated components in `lib/animation/components`
+5. Route transitions: `PageTransitionProvider` with `AnimatePresence`
+6. Accessibility: Align ARIA states with animations

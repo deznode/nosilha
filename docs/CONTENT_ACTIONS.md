@@ -8,7 +8,7 @@ The Content Action Section provides cultural heritage engagement features for sh
 
 ## Architecture
 
-- **Location**: `frontend/src/components/content-actions/`
+- **Location**: `apps/web/src/components/content-actions/`
 - **Backend API**: `/api/v1/reactions`, `/api/v1/suggestions`, `/api/v1/directory/entries/{id}/related`
 - **Database**: PostgreSQL tables (`reactions`, `suggestions`)
 - **Authentication**: Supabase Auth with JWT validation (reactions only)
@@ -20,45 +20,45 @@ The Content Action Section provides cultural heritage engagement features for sh
 - ARIA toolbar pattern for accessibility (role="toolbar")
 - Hybrid placement: fixed left rail (desktop lg+), horizontal in-flow (mobile/tablet)
 - Integrates all action buttons with proper keyboard navigation
-- File: `frontend/src/components/content-actions/ContentActionToolbar.tsx`
+- File: `apps/web/src/components/content-actions/ContentActionToolbar.tsx`
 
 ### 2. ShareButton (`ShareButton.tsx`)
 - Web Share API with clipboard fallback
 - Native share dialog on supported devices
 - Copy link confirmation with visual feedback (2-second CheckIcon)
 - ARIA live region for screen reader announcements
-- File: `frontend/src/components/content-actions/ShareButton.tsx`
+- File: `apps/web/src/components/content-actions/ShareButton.tsx`
 
 ### 3. ReactionButton (`ReactionButton.tsx`)
 - Authenticated user reactions (❤️ Love, 👍 Helpful, 🤔 Interesting, 🙏 Thank You)
 - Optimistic UI updates with rollback on error
 - Public reaction counts for all users
 - Rate limiting: 10 reactions/minute per user
-- File: `frontend/src/components/content-actions/ReactionButton.tsx`
+- File: `apps/web/src/components/content-actions/ReactionButton.tsx`
 
 ### 4. SuggestImprovementForm (`SuggestImprovementForm.tsx`)
 - Community contribution modal form
 - Three suggestion types: CORRECTION, ADDITION, FEEDBACK
 - Honeypot spam protection
 - Rate limiting: 5 submissions/hour per IP
-- File: `frontend/src/components/content-actions/SuggestImprovementForm.tsx`
+- File: `apps/web/src/components/content-actions/SuggestImprovementForm.tsx`
 
 ### 5. PrintButton (`print-button.tsx`)
 - Browser-native print dialog (window.print())
 - Print stylesheet for clean layout
 - Citation URL in footer
-- File: `frontend/src/components/ui/print-button.tsx`
-- Stylesheet: `frontend/src/styles/print.css`
+- File: `apps/web/src/components/ui/print-button.tsx`
+- Stylesheet: `apps/web/src/styles/print.css`
 
 ### 6. RelatedContent (`RelatedContent.tsx`)
 - Content discovery algorithm (category + town + cuisine matching)
 - Responsive layout: horizontal scroll (mobile), 2-col (tablet), 3-col (desktop)
 - Displays 3-5 related heritage items
-- File: `frontend/src/components/content-actions/RelatedContent.tsx`
+- File: `apps/web/src/components/content-actions/RelatedContent.tsx`
 
 ## Backend Services
 
-Located in `backend/src/main/kotlin/com/nosilha/core/`:
+Located in `apps/api/src/main/kotlin/com/nosilha/core/`:
 
 - **ReactionService**: Business logic with rate limiting
 - **ReactionController**: REST API endpoints (POST, DELETE, GET)
@@ -111,8 +111,8 @@ import { ContentActionToolbar } from '@/components/content-actions/ContentAction
 ## Testing
 
 - Backend integration tests: `ReactionControllerTest.kt`, `SuggestionControllerTest.kt`, `RelatedContentControllerTest.kt`
-- Frontend E2E tests: `frontend/tests/e2e/content-actions.spec.ts`
-- Accessibility tests: `frontend/tests/e2e/accessibility.spec.ts`
+- Frontend E2E tests: `apps/web/tests/e2e/content-actions.spec.ts`
+- Accessibility tests: `apps/web/tests/e2e/accessibility.spec.ts`
 
 ## Documentation
 

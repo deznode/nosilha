@@ -47,47 +47,78 @@ Spring Modulith is a framework that helps structure Spring Boot applications as 
 
 ### Current Modules
 
-The Nos Ilha backend is organized into **4 modules**:
+The Nos Ilha backend is organized into **8 modules**:
 
 ```
-backend/src/main/kotlin/com/nosilha/core/
+apps/api/src/main/kotlin/com/nosilha/core/
 ├── shared/           # Shared Kernel (foundation layer)
 ├── auth/             # Authentication Module
 ├── directory/        # Directory Management Module
-└── media/            # Media Processing Module
+├── media/            # Media Processing Module
+├── curatedmedia/     # Admin-Curated External Content Module
+├── engagement/       # User Engagement Module (reactions, bookmarks)
+├── stories/          # Community Stories Module
+└── feedback/         # Community Feedback Module (suggestions, submissions, dashboard)
 ```
 
 ### Module Dependency Graph
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     Module Dependencies                     │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │           Shared Kernel (com.nosilha.core.shared)    │  │
-│  │  • AuditableEntity                                   │  │
-│  │  • DomainEvent, ApplicationModuleEvent               │  │
-│  │  • Common utilities                                  │  │
-│  │  Dependencies: NONE                                  │  │
-│  └───────────────────────────────────────────────────────┘  │
-│                         ▲      ▲      ▲                     │
-│                         │      │      │                     │
-│          ┌──────────────┘      │      └──────────────┐      │
-│          │                     │                     │      │
-│  ┌───────┴─────┐      ┌────────┴──────┐      ┌──────┴──────┐  │
-│  │Auth Module  │      │Directory      │      │Media Module │  │
-│  │             │      │Module         │      │             │  │
-│  │• Security   │      │• DirectoryEntry│     │• MediaService│  │
-│  │• JWT        │      │• CRUD API      │     │• GCS, Vision │  │
-│  │             │      │               │      │  API        │  │
-│  │Depends:     │      │Depends:       │      │Depends:     │  │
-│  │  shared     │      │  shared       │      │  shared     │  │
-│  └─────────────┘      └───────┬───────┘      └──────▲──────┘  │
-│                               │ Events              │         │
-│                               └─────────────────────┘         │
-│                       DirectoryEntryCreatedEvent              │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         Module Dependencies                             │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │           Shared Kernel (com.nosilha.core.shared)              │   │
+│  │  • AuditableEntity                                             │   │
+│  │  • DomainEvent, ApplicationModuleEvent                         │   │
+│  │  • Common utilities                                            │   │
+│  │  Dependencies: NONE                                            │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                    │                                    │
+│        ┌───────────────────────────┼───────────────────────────┐        │
+│        │                           │                           │        │
+│        ▼                           ▼                           ▼        │
+│  ┌─────────────┐           ┌──────────────┐           ┌──────────────┐ │
+│  │Auth Module  │           │Directory     │           │Media Module  │ │
+│  │• JWT        │           │Module        │           │• MediaQuery  │ │
+│  │• UserProfile│           │• Entries     │           │  Service     │ │
+│  │  Query      │           │• DirectoryQuery│         │• GCS Storage │ │
+│  │Depends:     │           │Depends:      │           │Depends:      │ │
+│  │  shared     │           │  shared      │           │  shared      │ │
+│  └─────────────┘           └──────┬───────┘           └──────────────┘ │
+│                                   │                                    │
+│        ┌──────────────────────────┼──────────────────────────┐         │
+│        │                          │                          │         │
+│        ▼                          ▼                          ▼         │
+│  ┌─────────────┐           ┌──────────────┐           ┌──────────────┐ │
+│  │Engagement   │           │Stories       │           │Curated Media │ │
+│  │Module       │           │Module        │           │Module        │ │
+│  │• Content    │           │• Story       │           │• CuratedMedia│ │
+│  │• Reaction   │           │• MdxArchive  │           │Depends:      │ │
+│  │• Bookmark   │           │• StoriesQuery│           │  shared      │ │
+│  │Depends:     │           │Depends:      │           └──────────────┘ │
+│  │  shared,    │           │  shared,     │                            │
+│  │  directory  │           │  auth,       │                            │
+│  └─────────────┘           │  directory   │                            │
+│                            └──────┬───────┘                            │
+│                                   │                                    │
+│                                   ▼                                    │
+│                            ┌──────────────┐                            │
+│                            │Feedback      │                            │
+│                            │Module        │                            │
+│                            │• Suggestion  │                            │
+│                            │• DirSubmission│                           │
+│                            │• Contact     │                            │
+│                            │• Dashboard   │                            │
+│                            │Depends:      │                            │
+│                            │  shared,     │                            │
+│                            │  auth,       │                            │
+│                            │  directory,  │                            │
+│                            │  stories,    │                            │
+│                            │  media       │                            │
+│                            └──────────────┘                            │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -263,7 +294,7 @@ media/
 ├── domain/
 │   └── MediaService.kt     # GCS operations, AI processing, event listeners - internal
 ├── repository/
-│   └── FirestoreMediaRepository.kt  # Metadata storage - internal
+│   └── MediaRepository.kt           # Metadata storage - internal
 └── events/
     ├── MediaUploadedEvent.kt    # Published after file upload
     └── MediaProcessedEvent.kt   # Published after AI processing
@@ -287,6 +318,170 @@ class MediaService {
 - `Media*Event` (domain events)
 
 **Dependencies**: `shared`
+
+### 5. Curated Media Module
+
+**Package**: `com.nosilha.core.curatedmedia`
+**Purpose**: Manage admin-curated external content (YouTube videos, Instagram posts, etc.)
+
+**Module Detection**: Spring Modulith auto-detects this module by directory structure
+
+**Structure:**
+```
+curatedmedia/
+├── api/
+│   └── CuratedMediaController.kt  # Public REST endpoints (CRUD for curated content)
+├── domain/
+│   ├── CuratedMediaService.kt  # Business logic for curated content - internal
+│   └── CuratedMedia.kt         # Curated media entity - internal
+├── repository/
+│   └── CuratedMediaRepository.kt  # JPA data access - internal
+└── events/
+    └── CuratedMediaEvent.kt  # Published when curated content is added/updated
+```
+
+**Public API:**
+- `CuratedMediaController` (REST endpoints)
+- `CuratedMediaEvent` (domain events)
+
+**Dependencies**: `shared`
+
+### 6. Engagement Module
+
+**Package**: `com.nosilha.core.engagement`
+**Purpose**: Manage user interactions with published content (reactions, bookmarks)
+
+**Module Detection**: Spring Modulith auto-detects this module by directory structure
+
+**Structure:**
+```
+engagement/
+├── api/
+│   ├── ReactionController.kt   # Public REST endpoints (reactions)
+│   ├── BookmarkController.kt   # Public REST endpoints (bookmarks)
+│   └── ContentController.kt    # Public REST endpoints (content registration)
+├── domain/
+│   ├── ReactionService.kt    # Business logic for reactions - internal
+│   ├── BookmarkService.kt    # Business logic for bookmarks - internal
+│   ├── ContentService.kt     # Business logic for content registration - internal
+│   ├── Reaction.kt           # Reaction entity - internal
+│   ├── Bookmark.kt           # Bookmark entity - internal
+│   └── Content.kt            # Content entity - internal
+├── repository/
+│   ├── ReactionRepository.kt   # JPA data access - internal
+│   ├── BookmarkRepository.kt   # JPA data access - internal
+│   └── ContentRepository.kt    # JPA data access - internal
+└── events/
+    ├── ReactionCreatedEvent.kt  # Published when user reacts to content
+    └── BookmarkCreatedEvent.kt  # Published when user bookmarks content
+```
+
+**Public API:**
+- `ReactionController`, `BookmarkController`, `ContentController` (REST endpoints)
+- `ReactionCreatedEvent`, `BookmarkCreatedEvent` (domain events)
+
+**Dependencies**: `shared`, `directory`
+
+### 7. Stories Module
+
+**Package**: `com.nosilha.core.stories`
+**Purpose**: Manage community-submitted cultural heritage narratives and MDX publishing
+
+**Module Detection**: Spring Modulith auto-detects this module by directory structure
+
+**Structure:**
+```
+stories/
+├── api/
+│   └── StoryController.kt  # Public REST endpoints (story submissions, moderation)
+├── domain/
+│   ├── StoryService.kt         # Business logic for stories - internal
+│   ├── MdxArchivalService.kt   # MDX generation and archival - internal
+│   ├── Story.kt                # Story entity - internal
+│   └── MdxArchive.kt           # MDX archive entity - internal
+├── repository/
+│   ├── StoryRepository.kt      # JPA data access - internal
+│   └── MdxArchiveRepository.kt # JPA data access - internal
+├── events/
+│   ├── StorySubmittedEvent.kt  # Published when story is submitted
+│   └── StoryPublishedEvent.kt  # Published when story is published
+└── query/
+    └── StoriesQueryService.kt  # Read-only query interface for cross-module access
+```
+
+**Public API:**
+- `StoryController` (REST endpoints)
+- `StorySubmittedEvent`, `StoryPublishedEvent` (domain events)
+- `StoriesQueryService` (read-only query interface for dashboard and other modules)
+
+**Dependencies**: `shared`, `auth`, `directory`
+
+**Query Service Pattern:**
+```kotlin
+// stories/query/StoriesQueryService.kt
+interface StoriesQueryService {
+    fun getStoryCount(): Long
+    fun getRecentStories(limit: Int): List<StoryDto>
+    fun getStoryStats(): StoryStatsDto
+}
+```
+
+### 8. Feedback Module
+
+**Package**: `com.nosilha.core.feedback`
+**Purpose**: Manage community feedback channels (suggestions, directory submissions, contact messages) and admin dashboard
+
+**Module Detection**: Spring Modulith auto-detects this module by directory structure
+
+**Structure:**
+```
+feedback/
+├── api/
+│   ├── SuggestionController.kt             # Public REST endpoints (suggestions)
+│   ├── DirectorySubmissionController.kt    # Public REST endpoints (directory submissions)
+│   ├── ContactMessageController.kt         # Public REST endpoints (contact messages)
+│   └── DashboardController.kt              # Public REST endpoints (admin dashboard)
+├── domain/
+│   ├── SuggestionService.kt            # Business logic for suggestions - internal
+│   ├── DirectorySubmissionService.kt   # Business logic for directory submissions - internal
+│   ├── ContactMessageService.kt        # Business logic for contact messages - internal
+│   ├── DashboardService.kt             # Aggregate stats service - internal
+│   ├── Suggestion.kt                   # Suggestion entity - internal
+│   ├── DirectorySubmission.kt          # Directory submission entity - internal
+│   └── ContactMessage.kt               # Contact message entity - internal
+├── repository/
+│   ├── SuggestionRepository.kt             # JPA data access - internal
+│   ├── DirectorySubmissionRepository.kt    # JPA data access - internal
+│   └── ContactMessageRepository.kt         # JPA data access - internal
+└── events/
+    ├── SuggestionCreatedEvent.kt           # Published when suggestion is created
+    └── DirectorySubmissionCreatedEvent.kt  # Published when directory submission is created
+```
+
+**Public API:**
+- `SuggestionController`, `DirectorySubmissionController`, `ContactMessageController`, `DashboardController` (REST endpoints)
+- `SuggestionCreatedEvent`, `DirectorySubmissionCreatedEvent` (domain events)
+
+**Dependencies**: `shared`, `auth`, `directory`, `stories`, `media`
+
+**Cross-Module Query Pattern:**
+```kotlin
+// feedback/domain/DashboardService.kt
+@Service
+class DashboardService(
+    private val storiesQueryService: StoriesQueryService,  // From stories module
+    private val mediaQueryService: MediaQueryService,      // From media module
+    private val suggestionRepository: SuggestionRepository
+) {
+    fun getAggregateStats(): DashboardStatsDto {
+        return DashboardStatsDto(
+            storyCount = storiesQueryService.getStoryCount(),
+            mediaCount = mediaQueryService.getMediaCount(),
+            suggestionCount = suggestionRepository.count()
+        )
+    }
+}
+```
 
 ---
 
@@ -375,6 +570,69 @@ class MediaService {
 - **Asynchronous**: Use `@Async` for background processing
 - **Transactional**: Event listeners can participate in transactions
 
+### Query Service Pattern for Cross-Module Reads
+
+While events handle write operations and side effects, modules expose **read-only query services** for cross-module data access. This maintains module boundaries while allowing safe data retrieval.
+
+**Pattern:**
+1. **Define Query Interface**: Module exposes a read-only interface in its public API
+2. **Implement in Service**: Module implements the interface internally
+3. **Inject via Constructor**: Other modules inject the query service
+
+**Example: Stories Module Exposes Query Service**
+```kotlin
+// stories/query/StoriesQueryService.kt (public API)
+interface StoriesQueryService {
+    fun getStoryCount(): Long
+    fun getRecentStories(limit: Int): List<StoryDto>
+    fun getStoryStats(): StoryStatsDto
+}
+
+// stories/domain/StoryService.kt (internal implementation)
+@Service
+internal class StoryService(
+    private val repository: StoryRepository
+) : StoriesQueryService {
+    override fun getStoryCount(): Long = repository.count()
+    override fun getRecentStories(limit: Int): List<StoryDto> {
+        return repository.findTopByOrderByCreatedAtDesc(limit)
+            .map { it.toDto() }
+    }
+    // ... business logic methods
+}
+```
+
+**Example: Feedback Module Consumes Query Service**
+```kotlin
+// feedback/domain/DashboardService.kt
+@Service
+class DashboardService(
+    private val storiesQueryService: StoriesQueryService,  // Injected from stories module
+    private val mediaQueryService: MediaQueryService,      // Injected from media module
+    private val suggestionRepository: SuggestionRepository
+) {
+    fun getAggregateStats(): DashboardStatsDto {
+        return DashboardStatsDto(
+            storyCount = storiesQueryService.getStoryCount(),
+            mediaCount = mediaQueryService.getMediaCount(),
+            suggestionCount = suggestionRepository.count()
+        )
+    }
+}
+```
+
+**Query Services in the System:**
+- `StoriesQueryService` - Stories module exposes query interface for dashboard
+- `MediaQueryService` - Media module exposes query interface for dashboard
+- `DirectoryEntryQueryService` - Directory module exposes query interface
+- `UserProfileQueryService` - Auth module exposes query interface
+
+**Benefits:**
+- ✅ **Maintains Encapsulation**: Internal implementation details remain hidden
+- ✅ **Type-Safe Contracts**: Query interfaces define clear contracts
+- ✅ **Read-Only Guarantee**: Query services cannot mutate state
+- ✅ **No Circular Dependencies**: Query services are one-way dependencies
+
 ---
 
 ## Module Boundaries & Rules
@@ -414,7 +672,7 @@ Spring Modulith automatically verifies:
 
 ### ModularityTests
 
-**Location**: `backend/src/test/kotlin/com/nosilha/core/ModularityTests.kt`
+**Location**: `apps/api/src/test/kotlin/com/nosilha/core/ModularityTests.kt`
 
 ```kotlin
 class ModularityTests {
@@ -466,7 +724,7 @@ ls build/modulith/*.puml
   uses: actions/upload-artifact@v4
   with:
     name: modulith-diagrams
-    path: backend/build/modulith/
+    path: apps/api/build/modulith/
 ```
 
 ---

@@ -1,0 +1,98 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# pnpm
+.pnpm-store
+
+# testing
+/coverage
+
+# Playwright testing artifacts
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright-mcp-output/
+
+# Lighthouse CI
+/.lighthouseci/
+
+# Test mock data (temporary files)
+/src/lib/__test_mocks__/*.json
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Editor directories and files
+.vscode/settings.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Sentry Config File
+.sentryclirc
+
+# Turborepo
+.turbo/
+
+# PWA files
+**/public/sw.js
+**/public/workbox-*.js
+**/public/worker-*.js
+**/public/sw.js.map
+**/public/workbox-*.js.map
+**/public/worker-*.js.map
+
+# Local Netlify folder
+.netlify
+
+# Pagefind search index
+public/pagefind/
+
+# Content validation cache
+.cache/
+
+# Velite output
+.velite/

@@ -45,10 +45,10 @@ Nos Ilha is a modern, full-stack web application built with a microservices-insp
 │  │ ┌─────────────┐ │                            │ │ PostgreSQL  │ │                    │
 │  │ │Controllers  │ │◄──────────────────────────►│ │ (Primary)   │ │                    │
 │  │ │Services     │ │                            │ └─────────────┘ │                    │
-│  │ │Repositories │ │                            │ ┌─────────────┐ │                    │
-│  │ │JWT Auth     │ │                            │ │ Firestore   │ │                    │
-│  │ │Domain Model │ │◄──────────────────────────►│ │ (Metadata)  │ │                    │
-│  │ └─────────────┘ │                            │ └─────────────┘ │                    │
+│  │ │Repositories │ │                            │                 │                    │
+│  │ │JWT Auth     │ │                            │                 │                    │
+│  │ │Domain Model │ │                            │                 │                    │
+│  │ └─────────────┘ │                            │                 │                    │
 │  └─────────┬───────┘                            │ ┌─────────────┐ │                    │
 │            │                                    │ │ Cloud       │ │                    │
 │            ▼                                    │ │ Storage     │ │                    │
@@ -58,7 +58,7 @@ Nos Ilha is a modern, full-stack web application built with a microservices-insp
 │  │ ┌─────────────┐ │                                                                   │
 │  │ │ Vision API  │ │                                                                   │
 │  │ │ OCR         │ │                                                                   │
-│  │ │ Landmark    │ │                                                                   │
+│  │ │ Heritage    │ │                                                                   │
 │  │ │ Recognition │ │                                                                   │
 │  │ └─────────────┘ │                                                                   │
 │  └─────────────────┘                                                                   │
@@ -119,10 +119,10 @@ Admin Action ──► Frontend Form ──► Backend API ──► Database �
 ### 3. Media Processing & AI Integration Flow
 
 ```
-File Upload ──► GCS Storage ──► Vision API ──► Metadata Extraction ──► Firestore ──► Frontend Display
+File Upload ──► GCS Storage ──► Vision API ──► Metadata Extraction ──► PostgreSQL ──► Frontend Display
 
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│    User     │    │   Google    │    │   Vision    │    │  Firestore  │    │  Frontend   │
+│    User     │    │   Google    │    │   Vision    │    │ PostgreSQL  │    │  Frontend   │
 │   Upload    │    │   Cloud     │    │     API     │    │  Database   │    │   Display   │
 │             │    │   Storage   │    │             │    │             │    │             │
 └──────┬──────┘    └──────┬──────┘    └──────┬──────┘    └──────┬──────┘    └──────┬──────┘
@@ -139,7 +139,7 @@ File Upload ──► GCS Storage ──► Vision API ──► Metadata Extrac
 - **Upload Component**: `components/ui/image-uploader.tsx` with validation
 - **Backend Service**: `MediaService.kt` handles GCS operations
 - **AI Processing**: `AIService.kt` integrates with Cloud Vision API
-- **Metadata Storage**: Firestore collections for flexible schema
+- **Metadata Storage**: PostgreSQL tables for structured storage
 - **Frontend Integration**: Image galleries with AI-enhanced metadata
 
 ## 🛠️ Component Architecture
@@ -147,7 +147,7 @@ File Upload ──► GCS Storage ──► Vision API ──► Metadata Extrac
 ### Frontend Architecture (Next.js 16)
 
 ```
-frontend/
+apps/web/
 ├── src/
 │   ├── app/                          # App Router Structure
 │   │   ├── layout.tsx               # Root layout with providers
@@ -202,11 +202,15 @@ frontend/
 **Module Organization:**
 
 ```
-backend/src/main/kotlin/com/nosilha/core/
-├── shared/      # Shared Kernel - Common infrastructure (events, audit, exceptions)
-├── auth/        # Authentication Module - JWT auth and user management
-├── directory/   # Directory Module - Cultural heritage entries (STI pattern)
-└── media/       # Media Module - GCS storage and AI processing
+apps/api/src/main/kotlin/com/nosilha/core/
+├── shared/         # Shared Kernel - Common infrastructure (events, audit, exceptions)
+├── auth/           # Authentication Module - JWT auth and user management
+├── places/         # Places Module - Cultural heritage entries (STI pattern)
+├── media/          # Media Module - Media assets & storage, provides MediaQueryService
+├── curatedmedia/   # Curated Media Module - Admin-curated external content
+├── engagement/     # Engagement Module - User interactions (Content, Reaction, Bookmark)
+├── stories/        # Stories Module - Community narratives & MDX publishing
+└── feedback/       # Feedback Module - Community feedback channels & dashboard
 ```
 
 **Standard Module Structure:**
@@ -220,15 +224,15 @@ Each module follows a consistent pattern with these internal layers:
 
 **Key Points:**
 - See `docs/SPRING_MODULITH.md` for detailed module architecture
-- Database migrations: `backend/src/main/resources/db/migration/`
-- Configuration: `backend/src/main/resources/application*.yml`
+- Database migrations: `apps/api/src/main/resources/db/migration/`
+- Configuration: `apps/api/src/main/resources/application*.yml`
 
 **Key Architectural Decisions:**
 
 1. **Spring Modulith Architecture**: Modular monolith with enforced module boundaries and event-driven communication
-2. **Single Table Inheritance**: All directory entries in one table with discriminator column (Directory module)
+2. **Single Table Inheritance**: All place entries in one table with discriminator column (Places module)
 3. **Event-Driven Communication**: Modules communicate via `@ApplicationModuleListener` without direct dependencies
-4. **Module Isolation**: Each module (auth, directory, media) has independent domain, API, and repository layers
+4. **Module Isolation**: Each module (auth, places, media, curatedmedia, engagement, stories, feedback) has independent domain, API, and repository layers
 5. **Shared Kernel**: Common infrastructure (AuditableEntity, events, exceptions) in dedicated shared module
 6. **JWT Authentication**: Stateless authentication with Supabase token validation (Auth module)
 7. **Actuator Integration**: Health checks and metrics for production monitoring
@@ -264,7 +268,7 @@ Each module follows a consistent pattern with these internal layers:
 │  │   Service     │       │ • Restaurant       │       │               │    │
 │  ├───────────────┤       │ • Hotel, etc.      │       ├───────────────┤    │
 │  │ Security:     │       ├────────────────────┤       │ Repository:   │    │
-│  │ • JwtFilter   │       │ Repository:        │       │ • FirestoreRepo│   │
+│  │ • JwtFilter   │       │ Repository:        │       │ • MediaRepo    │   │
 │  │ • SecurityCfg │       │ • DirectoryRepo    │       ├───────────────┤    │
 │  ├───────────────┤       ├────────────────────┤       │ Events:       │    │
 │  │ Events:       │       │ Events:            │       │ • MediaUploaded│   │
@@ -285,7 +289,8 @@ Each module follows a consistent pattern with these internal layers:
 │  │  ├─────────┼──────────┼────────────┼─────────────────┤               │  │
 │  │  │abc-123  │Casa Nova │RESTAURANT  │cuisine, hours   │               │  │
 │  │  │def-456  │Hotel Mar │HOTEL       │amenities        │               │  │
-│  │  │ghi-789  │Lighthouse│LANDMARK    │historical_info  │               │  │
+│  │  │ghi-789  │Fajã Água │HERITAGE    │historical_info  │               │  │
+│  │  │jkl-012  │Ribeira   │NATURE      │ecological_info  │               │  │
 │  │  └─────────┴──────────┴────────────┴─────────────────┘               │  │
 │  └───────────────────────────────────────────────────────────────────────┘  │
 │  ┌───────────────────────────────────────────────────────────────────────┐  │
@@ -295,11 +300,49 @@ Each module follows a consistent pattern with these internal layers:
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
+**Additional Modules:**
+
+The backend also includes specialized domain modules:
+
+**Engagement Module** (`engagement/`):
+- Manages user interactions with published content
+- Controllers: `ReactionController`, `BookmarkController`, `ContentController`
+- Services: `ReactionService`, `BookmarkService`, `ContentService`
+- Domain entities: `Reaction`, `Bookmark`, `Content`
+- Dependencies: shared, places
+
+**Stories Module** (`stories/`):
+- Manages community-submitted cultural heritage narratives
+- Controllers: `StoryController`
+- Services: `StoryService`, `MdxArchivalService`
+- Query: `StoriesQueryService` (exposes read-only interface for cross-module access)
+- Domain entities: `Story`, `MdxArchive`
+- Dependencies: shared, auth, places
+
+**Feedback Module** (`feedback/`):
+- Manages community feedback channels and admin dashboard
+- Controllers: `SuggestionController`, `DirectorySubmissionController`, `ContactMessageController`, `DashboardController`
+- Services: `SuggestionService`, `DirectorySubmissionService`, `ContactMessageService`, `DashboardService`
+- Domain entities: `Suggestion`, `DirectorySubmission`, `ContactMessage`
+- Dependencies: shared, auth, places, stories, media
+
+**Curated Media Module** (`curatedmedia/`):
+- Manages admin-curated external content
+- Controllers: `CuratedMediaController`
+- Services: `CuratedMediaService`
+- Domain entities: `CuratedMedia`
+- Dependencies: shared
+
 **Module Communication:**
 - ✅ **Event-Driven**: Modules communicate via `@ApplicationModuleListener` (e.g., `MediaService` listens to `DirectoryEntryCreatedEvent`)
 - ✅ **No Direct Dependencies**: Modules never import services from other modules
+- ✅ **Query Service Pattern**: Modules expose read-only query interfaces for cross-module data access
+  - `StoriesQueryService` - Stories module exposes query interface for dashboard
+  - `MediaQueryService` - Media module exposes query interface for dashboard
+  - `PlacesQueryService` - Places module exposes query interface
+  - `UserProfileQueryService` - Auth module exposes query interface
 - ✅ **Enforced Boundaries**: `ModularityTests` verify zero circular dependencies
-- ✅ **Public API Only**: Controllers and events are public; services and repositories are internal
+- ✅ **Public API Only**: Controllers, events, and query services are public; services and repositories are internal
 
 ### Database Schema Design
 
@@ -368,16 +411,16 @@ CREATE INDEX idx_directory_entries_location ON directory_entries(latitude, longi
 │  └─────────────────┘                           │ └─────────────┘ │                    │
 │            │                                   └─────────────────┘                    │
 │            ▼                                                                          │
-│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐                    │
-│  │   IAM & Security│    │  Secret Manager │    │    Firestore    │                    │
-│  │                 │    │                 │    │                 │                    │
-│  │ ┌─────────────┐ │    │ ┌─────────────┐ │    │ ┌─────────────┐ │                    │
-│  │ │Service      │ │    │ │DB Credentials│ │    │ │AI Metadata  │ │                    │
-│  │ │Accounts     │ │    │ │JWT Secrets  │ │    │ │Collections  │ │                    │
-│  │ │- Backend    │ │    │ │API Keys     │ │    │ │- Images     │ │                    │
-│  │ │- Frontend   │ │    │ └─────────────┘ │    │ │- Documents  │ │                    │
-│  │ │- CI/CD      │ │    └─────────────────┘    │ └─────────────┘ │                    │
-│  │ └─────────────┘ │                           └─────────────────┘                    │
+│  ┌─────────────────┐    ┌─────────────────┐                                          │
+│  │   IAM & Security│    │  Secret Manager │                                          │
+│  │                 │    │                 │                                          │
+│  │ ┌─────────────┐ │    │ ┌─────────────┐ │                                          │
+│  │ │Service      │ │    │ │DB Credentials│ │                                          │
+│  │ │Accounts     │ │    │ │JWT Secrets  │ │                                          │
+│  │ │- Backend    │ │    │ │API Keys     │ │                                          │
+│  │ │- Frontend   │ │    │ └─────────────┘ │                                          │
+│  │ │- CI/CD      │ │    └─────────────────┘                                          │
+│  │ └─────────────┘ │                                                                  │
 │  └─────────────────┘                                                                  │
 │                                                                                         │
 └─────────────────────────────────────────────────────────────────────────────────────────┘
@@ -429,7 +472,6 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
 - **Cloud Storage**: Media files with CDN distribution
 - **Secret Manager**: Encrypted configuration and credentials
 - **IAM**: Least-privilege service accounts and role bindings
-- **Firestore**: NoSQL database for AI metadata
 
 ## 🔄 CI/CD Pipeline Architecture
 
@@ -444,8 +486,8 @@ GitHub Repository ──► Path Detection ──► Service-Specific Workflows 
 └─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘
           │                      │                      │                      │
       ┌───▼────┐             ┌───▼────┐             ┌───▼────┐             ┌───▼────┐
-      │Push to │            │backend/│            │Backend │            │Cloud   │
-      │main or │            │frontend/│            │Frontend│            │Run     │
+      │Push to │            │apps/   │            │Backend │            │Cloud   │
+      │main or │            │api/web/│            │Frontend│            │Run     │
       │PR      │            │infra/  │            │Infra   │            │Deploy  │
       └────────┘            └────────┘            │Workflows│            └────────┘
                                                   └────────┘
@@ -453,15 +495,11 @@ GitHub Repository ──► Path Detection ──► Service-Specific Workflows 
 
 ### Workflow Structure
 
-1. **Path-Based Triggering** (`dorny/paths-filter@v2`)
+1. **Nx Affected Detection** (replaces dorny/paths-filter)
    ```yaml
-   filters: |
-     backend:
-       - 'backend/**'
-     frontend:
-       - 'frontend/**'
-     infrastructure:
-       - 'infrastructure/**'
+   # Uses nx affected to detect changed projects
+   - run: pnpm nx show projects --affected --base=origin/main
+   # Triggers appropriate workflows for: api, web, infrastructure
    ```
 
 2. **Security Scanning Integration**
@@ -609,7 +647,7 @@ Backend Architecture: Spring Modulith
 │ ┌─────────────────────────────────────────────────────────────────────────┐ │
 │ │  Directory Module (com.nosilha.core.directory)                         │ │
 │ │  • API: DirectoryController (public REST endpoints)                    │ │
-│ │  • Domain: DirectoryEntry, Restaurant, Hotel, Landmark, Beach (STI)    │ │
+│ │  • Domain: DirectoryEntry, Restaurant, Hotel, Heritage, Nature, Beach (STI)    │ │
 │ │  • Service: DirectoryService (business logic, event publishing)        │ │
 │ │  • Repository: DirectoryEntryRepository (JPA data access)              │ │
 │ │  • Events: DirectoryEntryCreatedEvent, UpdatedEvent, DeletedEvent      │ │
@@ -621,7 +659,7 @@ Backend Architecture: Spring Modulith
 │ │  Media Module (com.nosilha.core.media)                                 │ │
 │ │  • API: MediaController (file upload endpoints)                        │ │
 │ │  • Service: MediaService (GCS, AI processing, event listeners)         │ │
-│ │  • Repository: FirestoreMediaRepository (metadata storage)             │ │
+│ │  • Repository: MediaRepository (metadata storage)                      │ │
 │ │  • Events: MediaUploadedEvent, MediaProcessedEvent                     │ │
 │ │  • Listeners: @ApplicationModuleListener for DirectoryEntryCreated     │ │
 │ │  Dependencies: shared                                                   │ │
@@ -646,7 +684,7 @@ Backend Architecture: Spring Modulith
 - **Event-Driven Communication**: @ApplicationModuleListener for async module interactions
 
 **Verification:**
-- **Tests**: `backend/src/test/kotlin/com/nosilha/core/ModularityTests.kt`
+- **Tests**: `apps/api/src/test/kotlin/com/nosilha/core/ModularityTests.kt`
 - **CI/CD**: Module boundary verification in backend CI workflow
 - **Dependencies**: Spring Modulith 1.2.5 configured in `build.gradle.kts`
 
@@ -724,10 +762,10 @@ Frontend State Management: Zustand + TanStack Query + Zod
 - **Developer Experience**: Clear separation between client and server state
 
 **Verification:**
-- **Stores**: `frontend/src/stores/{authStore,uiStore,filterStore}.ts`
-- **Hooks**: `frontend/src/hooks/queries/{useDirectoryEntries,useDirectoryEntry,useUserProfile,useMediaMetadata}.ts`
-- **Schemas**: `frontend/src/schemas/{authSchema,directoryEntrySchema,filterSchema,userProfileSchema,mediaMetadataSchema}.ts`
-- **Tests**: `frontend/tests/unit/stores/` and `frontend/tests/unit/hooks/`
+- **Stores**: `apps/web/src/stores/{authStore,uiStore,filterStore}.ts`
+- **Hooks**: `apps/web/src/hooks/queries/{useDirectoryEntries,useDirectoryEntry,useUserProfile,useMediaMetadata}.ts`
+- **Schemas**: `apps/web/src/schemas/{authSchema,directoryEntrySchema,filterSchema,userProfileSchema,mediaMetadataSchema}.ts`
+- **Tests**: `apps/web/tests/unit/stores/` and `apps/web/tests/unit/hooks/`
 
 #### Testing Infrastructure
 
@@ -807,12 +845,12 @@ Testing Infrastructure: Comprehensive Multi-Layer Testing
 - **Quality Gates**: 70% coverage threshold blocks low-quality PRs (FR-002)
 
 **Verification:**
-- **Playwright Config**: `frontend/playwright.config.ts`
-- **Vitest Config**: `frontend/vitest.config.ts` (lines 36-41 for thresholds)
-- **Storybook Config**: `frontend/.storybook/main.ts`
-- **E2E Tests**: `frontend/tests/e2e/*.spec.ts` (6 test files)
-- **Unit Tests**: `frontend/tests/unit/**/*.test.ts*` (4 test files)
-- **Stories**: `frontend/src/stories/*.stories.tsx` (5 story files)
+- **Playwright Config**: `apps/web/playwright.config.ts`
+- **Vitest Config**: `apps/web/vitest.config.ts` (lines 36-41 for thresholds)
+- **Storybook Config**: `apps/web/.storybook/main.ts`
+- **E2E Tests**: `apps/web/tests/e2e/*.spec.ts` (6 test files)
+- **Unit Tests**: `apps/web/tests/unit/**/*.test.ts*` (4 test files)
+- **Stories**: `apps/web/src/stories/*.stories.tsx` (5 story files)
 
 ### Long-Term Planned Enhancements
 

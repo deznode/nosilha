@@ -35,7 +35,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: 'fs'
-          scan-ref: './backend'
+          scan-ref: './apps/api'
           format: 'sarif'
           output: 'trivy-backend-results.sarif'
           severity: 'HIGH,CRITICAL'
@@ -65,7 +65,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: 'fs'
-          scan-ref: './frontend'
+          scan-ref: './apps/web'
           format: 'sarif'
           output: 'trivy-frontend-results.sarif'
           severity: 'HIGH,CRITICAL'
@@ -117,35 +117,29 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./backend
+        working-directory: ./apps/api
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - name: Setup Java & Gradle
+        uses: ./.github/actions/setup-java-gradle
         with:
-          java-version: '21'
-          distribution: 'temurin'
+          cache-read-only: 'true'
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-home-cache-cleanup: true
-          cache-read-only: true
+      # detekt temporarily disabled pending 2.0.0 stable release (Java 25 compatibility)
+      # - name: Run detekt analysis
+      #   run: ./gradlew detekt
+      #   continue-on-error: true
 
-      - name: Run detekt analysis
-        run: ./gradlew detekt
-        continue-on-error: true
-
-      - name: Upload detekt results
-        if: always()
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: 'backend/build/reports/detekt/detekt.sarif'
-          category: 'detekt-backend'
-        continue-on-error: true
+      # - name: Upload detekt results
+      #   if: always()
+      #   uses: github/codeql-action/upload-sarif@v3
+      #   with:
+      #     sarif_file: 'apps/api/build/reports/detekt/detekt.sarif'
+      #     category: 'detekt-backend'
+      #   continue-on-error: true
 
   # Frontend lint analysis
   frontend-lint:
@@ -155,24 +149,14 @@ jobs:
 
     defaults:
       run:
-        working-directory: ./frontend
+        working-directory: ./apps/web
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Setup Node & pnpm
+        uses: ./.github/actions/setup-node-pnpm
 
       - name: Run ESLint with SARIF output
         run: pnpm run lint -- --format=@microsoft/eslint-formatter-sarif --output-file=eslint-frontend-results.sarif
@@ -182,7 +166,7 @@ jobs:
         if: always()
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: 'frontend/eslint-frontend-results.sarif'
+          sarif_file: 'apps/web/eslint-frontend-results.sarif'
           category: 'eslint-frontend'
         continue-on-error: true
 

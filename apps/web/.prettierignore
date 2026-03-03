@@ -1,0 +1,52 @@
+# Dependencies
+node_modules
+.next
+build
+dist
+out
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment
+.env*
+
+# Generated files
+**/*.min.js
+**/*.min.css
+*.d.ts
+next-env.d.ts
+
+# Third-party code
+src/components/catalyst-ui
+
+# Cache directories
+.turbo
+.vercel
+.cache
+.nyc_output
+
+# Logs
+*.log
+
+# Test coverage
+coverage
+
+# Playwright
+test-results
+playwright-report
+playwright/.cache
+
+# Assets that shouldn't be formatted
+public/**/*.svg
+public/**/*.png
+public/**/*.jpg
+public/**/*.jpeg
+public/**/*.gif
+public/**/*.ico
+
+# Documentation
+README.md
+CHANGELOG.md

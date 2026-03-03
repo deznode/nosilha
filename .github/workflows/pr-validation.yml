@@ -1,16 +1,12 @@
 name: PR Validation
 
-# NOTE: SARIF upload steps, CodeQL analysis, and Dependency Review use continue-on-error: true
-# to handle repositories without GitHub Advanced Security enabled. This prevents workflow failures
-# while still attempting to run security analysis when available.
-# 
-# For private repositories, these jobs require GitHub Advanced Security license:
-# - CodeQL Analysis (security scanning)
-# - Dependency Review (vulnerability checking)
-# - SARIF uploads (security results)
-# 
-# These jobs will run but fail gracefully if Advanced Security is not available,
-# allowing the PR validation to complete successfully.
+# Simplified PR validation workflow for solo-maintained open-source project
+# The service-specific workflows (backend-ci, frontend-ci, infrastructure-ci) run
+# independently via their path-based triggers. This workflow provides:
+# - Nx-based change detection (for PR status reporting)
+# - Global security scan (full repository)
+# - PR status comment with validation results
+# - Dependabot auto-merge functionality
 
 on:
   pull_request:
@@ -18,65 +14,57 @@ on:
   pull_request_target:
     branches: [main]
 
-env:
-  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  # Detect what changed using Nx (for status reporting)
   changes:
-    name: Detect Changes
+    name: Detect Changes (Nx Affected)
     runs-on: ubuntu-latest
     outputs:
-      backend: ${{ steps.changes.outputs.backend }}
-      frontend: ${{ steps.changes.outputs.frontend }}
-      infrastructure: ${{ steps.changes.outputs.infrastructure }}
+      backend: ${{ steps.affected.outputs.api }}
+      frontend: ${{ steps.affected.outputs.web }}
+      infrastructure: ${{ steps.infra.outputs.infrastructure }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: dorny/paths-filter@v2
-        id: changes
+
+      - name: Setup Node & pnpm
+        uses: ./.github/actions/setup-node-pnpm
         with:
-          filters: |
-            backend:
-              - 'backend/**'
-            frontend:
-              - 'frontend/**'
-            infrastructure:
-              - 'infrastructure/**'
+          working-directory: '.'
 
-  # Call the individual service workflows for PR validation
-  backend-validation:
-    name: Backend Validation
-    needs: changes
-    if: needs.changes.outputs.backend == 'true'
-    uses: ./.github/workflows/backend-ci.yml
-    secrets: inherit
-    with:
-      skip-deploy: true
+      - name: Detect affected Nx projects
+        id: affected
+        run: |
+          AFFECTED=$(pnpm nx show projects --affected --base=origin/main --head=HEAD 2>/dev/null || echo "")
+          echo "Affected projects: $AFFECTED"
 
-  frontend-validation:
-    name: Frontend Validation  
-    needs: changes
-    if: needs.changes.outputs.frontend == 'true'
-    uses: ./.github/workflows/frontend-ci.yml
-    secrets: inherit
-    with:
-      skip-deploy: true
+          if echo "$AFFECTED" | grep -qxF "api"; then
+            echo "api=true" >> $GITHUB_OUTPUT
+          else
+            echo "api=false" >> $GITHUB_OUTPUT
+          fi
 
-  infrastructure-validation:
-    name: Infrastructure Validation
-    needs: changes
-    if: needs.changes.outputs.infrastructure == 'true'
-    uses: ./.github/workflows/infrastructure-ci.yml
-    secrets: inherit
-    with:
-      skip-deploy: true
+          if echo "$AFFECTED" | grep -qxF "web"; then
+            echo "web=true" >> $GITHUB_OUTPUT
+          else
+            echo "web=false" >> $GITHUB_OUTPUT
+          fi
 
-  # Global security scan for the entire repository
+      - name: Detect infrastructure changes
+        id: infra
+        run: |
+          if git diff --name-only origin/main...HEAD | grep -q "^infrastructure/"; then
+            echo "infrastructure=true" >> $GITHUB_OUTPUT
+          else
+            echo "infrastructure=false" >> $GITHUB_OUTPUT
+          fi
+
+  # Global security scan (full repository) - unique value not in service CIs
   global-security-scan:
     name: Global Security Scan
     runs-on: ubuntu-latest
@@ -84,128 +72,170 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
+
       - name: Run Trivy vulnerability scanner (full repository)
         uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: 'fs'
           format: 'sarif'
           output: 'trivy-global-results.sarif'
-          
 
-
-
-  # Comprehensive PR status reporting
+  # PR status comment - queries GitHub API for service CI results
   pr-status-report:
     name: PR Status Report
     runs-on: ubuntu-latest
-    needs: [
-      changes,
-      backend-validation,
-      frontend-validation, 
-      infrastructure-validation,
-      global-security-scan
-    ]
+    needs: [changes, global-security-scan]
     if: always() && github.event_name == 'pull_request'
-    
+
     steps:
+      - name: Wait for service CIs to complete
+        uses: actions/github-script@v7
+        id: check-status
+        with:
+          script: |
+            // Wait up to 10 minutes for checks to complete
+            const maxWait = 10 * 60 * 1000;
+            const pollInterval = 30 * 1000;
+            const start = Date.now();
+
+            const targetChecks = ['Backend CI/CD', 'Frontend CI/CD', 'Infrastructure CI/CD'];
+
+            while (Date.now() - start < maxWait) {
+              const { data: checks } = await github.rest.checks.listForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: context.payload.pull_request.head.sha,
+              });
+
+              const relevantChecks = checks.check_runs.filter(c =>
+                targetChecks.some(t => c.name.includes(t) || c.name.includes('Tests') || c.name.includes('Lint'))
+              );
+
+              const pendingChecks = relevantChecks.filter(c =>
+                c.status !== 'completed'
+              );
+
+              if (pendingChecks.length === 0 && relevantChecks.length > 0) {
+                console.log('All relevant checks completed');
+                break;
+              }
+
+              console.log(`Waiting for ${pendingChecks.length} checks to complete...`);
+              await new Promise(r => setTimeout(r, pollInterval));
+            }
+
+            // Get final check results
+            const { data: finalChecks } = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: context.payload.pull_request.head.sha,
+            });
+
+            const results = {
+              backend: 'skipped',
+              frontend: 'skipped',
+              infrastructure: 'skipped',
+              security: '${{ needs.global-security-scan.result }}'
+            };
+
+            for (const check of finalChecks.check_runs) {
+              if (check.name.includes('Backend') || check.name.includes('api')) {
+                results.backend = check.conclusion || check.status;
+              }
+              if (check.name.includes('Frontend') || check.name.includes('web')) {
+                results.frontend = check.conclusion || check.status;
+              }
+              if (check.name.includes('Infrastructure') || check.name.includes('Terraform')) {
+                results.infrastructure = check.conclusion || check.status;
+              }
+            }
+
+            core.setOutput('backend', results.backend);
+            core.setOutput('frontend', results.frontend);
+            core.setOutput('infrastructure', results.infrastructure);
+            core.setOutput('security', results.security);
+
       - name: Generate PR Status Report
         uses: actions/github-script@v7
         with:
           script: |
             const results = {
-              'Backend Validation': '${{ needs.backend-validation.result }}',
-              'Frontend Validation': '${{ needs.frontend-validation.result }}',
-              'Infrastructure Validation': '${{ needs.infrastructure-validation.result }}',
-              'Global Security Scan': '${{ needs.global-security-scan.result }}'
+              'Backend CI': '${{ steps.check-status.outputs.backend }}',
+              'Frontend CI': '${{ steps.check-status.outputs.frontend }}',
+              'Infrastructure CI': '${{ steps.check-status.outputs.infrastructure }}',
+              'Global Security Scan': '${{ steps.check-status.outputs.security }}'
             };
-            
+
             const changes = {
               backend: '${{ needs.changes.outputs.backend }}' === 'true',
               frontend: '${{ needs.changes.outputs.frontend }}' === 'true',
               infrastructure: '${{ needs.changes.outputs.infrastructure }}' === 'true'
             };
-            
+
             let comment = '## 🚀 PR Validation Results\n\n';
 
             // Changes summary
             comment += '### 📁 Components Changed:\n';
             if (changes.backend) comment += '- ✅ **Backend** (Spring Boot/Kotlin)\n';
-            if (changes.frontend) comment += '- ✅ **Frontend** (Next.js/React - TypeScript + ESLint only)\n';
+            if (changes.frontend) comment += '- ✅ **Frontend** (Next.js/React)\n';
             if (changes.infrastructure) comment += '- ✅ **Infrastructure** (Terraform)\n';
             if (!changes.backend && !changes.frontend && !changes.infrastructure) {
               comment += '- ℹ️ No core component changes detected\n';
             }
             comment += '\n';
-            
+
             // Validation results
             comment += '### 🔍 Validation Results:\n';
             let allPassed = true;
             let hasFailures = false;
-            
+
             for (const [check, result] of Object.entries(results)) {
-              if (result === 'skipped') {
+              if (result === 'skipped' || result === 'null') {
                 comment += `⏭️ **${check}**: Skipped (no relevant changes)\n`;
                 continue;
               }
-              
-              
+
               const icon = result === 'success' ? '✅' : '❌';
               comment += `${icon} **${check}**: ${result}\n`;
-              
+
               if (result === 'failure') {
                 allPassed = false;
                 hasFailures = true;
-              } else if (result !== 'success' && result !== 'failure') {
+              } else if (result !== 'success') {
                 allPassed = false;
               }
             }
-            
+
             comment += '\n';
-            
-            // Summary and next steps
+
+            // Summary
             if (allPassed) {
               comment += '### 🎉 Status: READY FOR REVIEW\n';
-              comment += 'All validation checks have passed successfully! This PR is ready for code review and merge.\n\n';
-              comment += '**Next Steps:**\n';
-              comment += '- 👀 Request code review from team members\n';
-              comment += '- 🔄 Merge when approved (will trigger deployment)\n';
-              if (changes.frontend) {
-                comment += '\n**Frontend Testing Note:** E2E tests (Playwright) available locally: `pnpm run test:e2e`\n';
-              }
+              comment += 'All validation checks have passed! This PR is ready for code review.\n';
             } else if (hasFailures) {
               comment += '### ⚠️ Status: CHANGES REQUIRED\n';
-              comment += 'Some validation checks have failed. Please review and fix the issues above.\n\n';
-              comment += '**Action Required:**\n';
-              comment += '- 🔧 Fix the failing validation checks\n';
-              comment += '- 🔄 Push changes to re-trigger validation\n';
-              comment += '- ✅ Ensure all checks pass before requesting review\n';
+              comment += 'Some checks failed. Please review and fix the issues.\n';
             } else {
               comment += '### ⏳ Status: IN PROGRESS\n';
-              comment += 'Some validation checks are still running or were cancelled.\n\n';
-              comment += '**Please wait for:**\n';
-              comment += '- ⏱️ All checks to complete\n';
-              comment += '- ✅ Successful validation results\n';
+              comment += 'Some checks are still running.\n';
             }
 
             comment += '\n---\n';
             comment += `*Updated: ${new Date().toISOString()} | PR: #${context.issue.number}*`;
-            comment += '\n*Simplified CI: Frontend runs TypeScript + ESLint only. E2E tests available locally.*';
-            
-            // Find existing comment to update or create new one
+
+            // Find existing comment or create new
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
             });
-            
-            const botComment = comments.find(comment => 
-              comment.user.type === 'Bot' && 
-              comment.body.includes('🚀 PR Validation Results')
+
+            const botComment = comments.find(c =>
+              c.user.type === 'Bot' &&
+              c.body.includes('🚀 PR Validation Results')
             );
-            
+
             if (botComment) {
-              // Update existing comment
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -213,7 +243,6 @@ jobs:
                 body: comment
               });
             } else {
-              // Create new comment
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -222,31 +251,73 @@ jobs:
               });
             }
 
-  # Auto-merge for Dependabot PRs
+  # Dependabot auto-merge - waits for all PR checks to pass
   dependabot-auto-merge:
     name: Dependabot Auto-merge
     runs-on: ubuntu-latest
-    needs: [
-      backend-validation,
-      frontend-validation,
-      infrastructure-validation,
-      global-security-scan
-    ]
+    needs: [global-security-scan]
     if: |
-      always() && 
+      always() &&
       github.event_name == 'pull_request' &&
-      github.actor == 'dependabot[bot]' &&
-      !contains(needs.*.result, 'failure') &&
-      !contains(needs.*.result, 'cancelled')
-      
+      github.actor == 'dependabot[bot]'
+
     steps:
+      - name: Wait for all checks to pass
+        uses: actions/github-script@v7
+        id: wait-checks
+        with:
+          script: |
+            // Wait up to 15 minutes for all checks
+            const maxWait = 15 * 60 * 1000;
+            const pollInterval = 30 * 1000;
+            const start = Date.now();
+
+            while (Date.now() - start < maxWait) {
+              const { data: checks } = await github.rest.checks.listForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: context.payload.pull_request.head.sha,
+              });
+
+              const pendingChecks = checks.check_runs.filter(c =>
+                c.status !== 'completed' &&
+                !c.name.includes('Dependabot Auto-merge')
+              );
+
+              const failedChecks = checks.check_runs.filter(c =>
+                c.status === 'completed' &&
+                c.conclusion !== 'success' &&
+                c.conclusion !== 'skipped'
+              );
+
+              if (failedChecks.length > 0) {
+                console.log('Some checks failed, not auto-merging');
+                core.setOutput('should_merge', 'false');
+                return;
+              }
+
+              if (pendingChecks.length === 0) {
+                console.log('All checks passed');
+                core.setOutput('should_merge', 'true');
+                return;
+              }
+
+              console.log(`Waiting for ${pendingChecks.length} checks...`);
+              await new Promise(r => setTimeout(r, pollInterval));
+            }
+
+            console.log('Timeout waiting for checks');
+            core.setOutput('should_merge', 'false');
+
       - name: Enable auto-merge for Dependabot PRs
+        if: steps.wait-checks.outputs.should_merge == 'true'
         run: gh pr merge --auto --merge "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Approve Dependabot PR
+        if: steps.wait-checks.outputs.should_merge == 'true'
         run: gh pr review --approve "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}

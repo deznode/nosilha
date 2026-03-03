@@ -14,7 +14,7 @@ This guide provides patterns and examples for creating Flyway migrations followi
 - `V001__create_directory_entries.sql` - Initial table creation
 - `V023__add_cultural_significance.sql` - Add new field
 - `V024__add_heritage_search_indexes.sql` - Performance optimization
-- `V025__add_firestore_integration.sql` - External system integration
+- `V025__add_media_metadata.sql` - Media storage support
 
 ## Single Table Inheritance (STI) Migration Patterns
 
@@ -496,4 +496,4 @@ ADD COLUMN latitude DECIMAL(10, 8)
 
 **Reference Before Migration**:
 - `docs/API_CODING_STANDARDS.md` - STI patterns and standards
-- `backend/src/main/resources/db/migration/` - Existing migrations for consistency
+- `apps/api/src/main/resources/db/migration/` - Existing migrations for consistency

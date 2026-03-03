@@ -6,7 +6,7 @@ This document provides complete, working examples of Mapbox integration for Nos 
 
 Complete map component showing all restaurants on Brava Island with category filtering.
 
-See `frontend/src/components/ui/interactive-map.tsx` for full implementation.
+See `apps/web/src/components/ui/interactive-map.tsx` for full implementation.
 
 **Key Features**:
 - Cultural category filtering (restaurants only)
