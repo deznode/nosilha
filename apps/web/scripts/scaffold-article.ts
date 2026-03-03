@@ -17,7 +17,7 @@ import * as readline from "readline";
 // Constants
 const CONTENT_DIR = path.join(process.cwd(), "content");
 const TEMPLATES_DIR = path.join(CONTENT_DIR, "templates");
-const ARTICLES_DIR = path.join(CONTENT_DIR, "articles");
+const ARTICLES_DIR = path.join(CONTENT_DIR, "pages");
 
 const VALID_CATEGORIES = ["music", "history", "traditions", "places", "people"];
 const TEMPLATES = ["default", "heritage"];
@@ -184,8 +184,8 @@ async function scaffoldArticle(): Promise<void> {
       date,
     });
 
-    // Create article directory
-    const articleDir = path.join(ARTICLES_DIR, finalSlug);
+    // Create article directory under category
+    const articleDir = path.join(ARTICLES_DIR, category, finalSlug);
     if (fs.existsSync(articleDir)) {
       const overwrite = await prompt(
         rl,

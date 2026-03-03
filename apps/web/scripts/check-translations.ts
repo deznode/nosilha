@@ -34,7 +34,7 @@ interface TranslationStats {
 
 // Constants
 const CONTENT_DIR = path.join(process.cwd(), "content");
-const ARTICLES_DIR = path.join(CONTENT_DIR, "articles");
+const ARTICLES_DIR = path.join(CONTENT_DIR, "pages");
 const SUPPORTED_LANGUAGES = ["en", "pt", "kea", "fr"];
 const LANGUAGE_NAMES: Record<string, string> = {
   en: "English",
@@ -47,7 +47,7 @@ const LANGUAGE_NAMES: Record<string, string> = {
 const isVerbose = process.argv.includes("--verbose");
 const showOutdated = process.argv.includes("--outdated");
 
-// Find all article directories
+// Find all article directories (content/pages/{category}/{slug}/)
 function findArticleDirectories(dir: string): string[] {
   const directories: string[] = [];
 
@@ -55,10 +55,17 @@ function findArticleDirectories(dir: string): string[] {
     return directories;
   }
 
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    if (entry.isDirectory() && !entry.name.startsWith("_")) {
-      directories.push(path.join(dir, entry.name));
+  // Scan category directories, then slug directories within each
+  const categories = fs.readdirSync(dir, { withFileTypes: true });
+  for (const category of categories) {
+    if (category.isDirectory() && !category.name.startsWith("_")) {
+      const categoryPath = path.join(dir, category.name);
+      const slugDirs = fs.readdirSync(categoryPath, { withFileTypes: true });
+      for (const slug of slugDirs) {
+        if (slug.isDirectory() && !slug.name.startsWith("_")) {
+          directories.push(path.join(categoryPath, slug.name));
+        }
+      }
     }
   }
 
@@ -104,7 +111,7 @@ function analyzeArticle(articleDir: string): ArticleTranslations | null {
   const slug = path.basename(articleDir);
   const languages = new Set<string>();
   const outdated: string[] = [];
-  let category = "";
+  let category = path.basename(path.dirname(articleDir));
   const sourceLanguage = "en";
 
   // Find all MDX files in the directory
