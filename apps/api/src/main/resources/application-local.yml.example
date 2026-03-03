@@ -29,6 +29,10 @@ spring:
       max-file-size: 10MB        # Allow up to 10MB per file
       max-request-size: 15MB     # Allow up to 15MB per request
 
+  # Flyway: include dev-only sample data for local development
+  flyway:
+    locations: classpath:db/migration,classpath:db/seed,classpath:db/devdata
+
   # Database Configuration for Local Development
   # URL, username, password auto-configured from Docker Compose container
   datasource:

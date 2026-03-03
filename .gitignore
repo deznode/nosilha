@@ -100,8 +100,6 @@ nosilha-ideate/
 # Velite build output
 apps/web/.velite
 
-/CHANGELOG.md
-
 arkhe-claude-plugins
 
 # Nx cache
