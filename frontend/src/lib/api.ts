@@ -1,138 +1,140 @@
 import type { DirectoryEntry } from "@/types/directory";
-import { supabase } from "@/lib/supabase-client";
-
-// 1. Read the base URL from environment variables.
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-
-// 2. Add a check to ensure the variable is defined.
-if (!API_BASE_URL) {
-  throw new Error(
-    "NEXT_PUBLIC_API_URL is not defined. Please check your .env.local file."
-  );
-}
+import type { Town } from "@/types/town";
+import { getApiClient } from "@/lib/api-factory";
 
 /**
- * Creates an authenticated fetch request with JWT token from Supabase session
- * @param url - The URL to fetch
- * @param options - Fetch options
- * @returns Promise with the fetch response
+ * Unified API Export Point
+ *
+ * This module provides a single point of access to API functionality,
+ * abstracting away the underlying implementation (backend vs mock).
+ * All components should import API functions from this module.
  */
-async function authenticatedFetch(
-  url: string,
-  options: RequestInit = {}
-): Promise<Response> {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
 
-  const headers = {
-    ...options.headers,
-  };
+// Get the configured API client instance
+const apiClient = getApiClient();
 
-  // Add Authorization header if user is authenticated
-  if (session?.access_token) {
-    Object.assign(headers, {
-      Authorization: `Bearer ${session.access_token}`,
-    });
-  }
-
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
-
-  // Handle authentication errors
-  if (response.status === 401) {
-    // Token expired or invalid - sign out user
-    await supabase.auth.signOut();
-    window.location.href = "/login";
-    throw new Error("Authentication expired. Please log in again.");
-  }
-
-  if (response.status === 403) {
-    throw new Error(
-      "Access denied. You do not have permission to perform this action."
-    );
-  }
-
-  return response;
-}
+// ================================
+// DIRECTORY ENTRY OPERATIONS
+// ================================
 
 /**
- * Fetches all directory entries or entries for a specific category from the backend API.
+ * Fetches all directory entries or entries for a specific category.
+ * Automatically uses the configured API implementation (backend or mock).
  * @param category The category to fetch, or 'all' to fetch all entries.
+ * @param page The page number (default: 0).
+ * @param size The page size (default: 20).
  * @returns A promise that resolves to an array of directory entries.
  */
 export async function getEntriesByCategory(
-  category: string
+  category: string,
+  page: number = 0,
+  size: number = 20
 ): Promise<DirectoryEntry[]> {
-  const endpoint =
-    category.toLowerCase() === "all"
-      ? `${API_BASE_URL}/api/v1/directory/entries`
-      : `${API_BASE_URL}/api/v1/directory/entries?category=${category}`;
-
-  try {
-    const response = await fetch(endpoint, { cache: "no-store" });
-    if (!response.ok) {
-      throw new Error(`API call failed with status: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Failed to fetch entries by category:", error);
-    return [];
-  }
+  return apiClient.getEntriesByCategory(category, page, size);
 }
 
 /**
- * Fetches a single directory entry by its slug from the backend API.
+ * Fetches a single directory entry by its slug.
+ * Automatically uses the configured API implementation (backend or mock).
  * @param slug The slug of the entry to fetch.
  * @returns A promise that resolves to a single directory entry or undefined if not found.
  */
 export async function getEntryBySlug(
   slug: string
 ): Promise<DirectoryEntry | undefined> {
-  const endpoint = `${API_BASE_URL}/api/v1/directory/slug/${slug}`;
-
-  try {
-    const response = await fetch(endpoint, { cache: "no-store" });
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        return undefined;
-      }
-      throw new Error(`API call failed with status: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error(`Failed to fetch entry by slug "${slug}":`, error);
-    return undefined;
-  }
+  return apiClient.getEntryBySlug(slug);
 }
 
 /**
- * Creates a new directory entry by sending a POST request to the backend API.
+ * Creates a new directory entry.
+ * Automatically uses the configured API implementation (backend or mock).
  * @param entryData The data for the new entry, excluding id and slug.
  * @returns A promise that resolves to the newly created directory entry.
  */
 export async function createDirectoryEntry(
-  entryData: Omit<DirectoryEntry, "id" | "slug" | "rating" | "reviewCount">
+  entryData: Omit<
+    DirectoryEntry,
+    "id" | "slug" | "rating" | "reviewCount" | "createdAt" | "updatedAt"
+  >
 ): Promise<DirectoryEntry> {
-  const endpoint = `${API_BASE_URL}/api/v1/directory/entries`;
-
-  const response = await authenticatedFetch(endpoint, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(entryData),
-  });
-
-  if (!response.ok) {
-    const errorResult = await response.json();
-    throw new Error(errorResult.message || "Failed to create directory entry.");
-  }
-
-  return await response.json();
+  return apiClient.createDirectoryEntry(entryData);
 }
+
+/**
+ * Fetches entries for real-time interactive features like maps.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param category The category to fetch, or 'all' to fetch all entries.
+ * @returns A promise that resolves to an array of directory entries.
+ */
+export async function getEntriesForMap(
+  category: string = "all"
+): Promise<DirectoryEntry[]> {
+  return apiClient.getEntriesForMap(category);
+}
+
+/**
+ * Uploads an image file and returns the public URL.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param file The image file to upload.
+ * @param category Optional category for file organization.
+ * @param description Optional description of the file.
+ * @returns A promise that resolves to the public URL of the uploaded image.
+ */
+export async function uploadImage(
+  file: File,
+  category?: string,
+  description?: string
+): Promise<string> {
+  return apiClient.uploadImage(file, category, description);
+}
+
+// ================================
+// TOWN OPERATIONS
+// ================================
+
+/**
+ * Fetches all towns.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @returns A promise that resolves to an array of towns.
+ */
+export async function getTowns(): Promise<Town[]> {
+  return apiClient.getTowns();
+}
+
+/**
+ * Fetches a single town by its slug.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param slug The slug of the town to fetch.
+ * @returns A promise that resolves to a single town or undefined if not found.
+ */
+export async function getTownBySlug(slug: string): Promise<Town | undefined> {
+  return apiClient.getTownBySlug(slug);
+}
+
+/**
+ * Fetches towns for real-time interactive features like maps.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @returns A promise that resolves to an array of towns.
+ */
+export async function getTownsForMap(): Promise<Town[]> {
+  return apiClient.getTownsForMap();
+}
+
+// All components should use the unified API functions above that automatically
+// switch between mock and backend implementations based on environment configuration.
+
+// ================================
+// UTILITY EXPORTS
+// ================================
+
+// Export API factory utilities for advanced use cases
+export {
+  getApiClient,
+  getApiImplementationType,
+  isUsingMockApi,
+  logApiConfiguration,
+  resetApiClient,
+} from "@/lib/api-factory";
+
+// Export types for TypeScript support
+export type { ApiClient } from "@/lib/api-contracts";

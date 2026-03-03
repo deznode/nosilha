@@ -26,5 +26,7 @@ services:
   gcs-emulator:
     image: fsouza/fake-gcs-server:latest
     command: -scheme http -host 0.0.0.0 -port 8082 -public-host localhost
+    volumes:
+      - ./gcs-storage/data:/storage
     ports:
       - "8082:8082"

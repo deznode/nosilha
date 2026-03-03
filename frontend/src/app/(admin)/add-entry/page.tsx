@@ -10,11 +10,10 @@ export default function AddEntryPage() {
   const { session, loading } = useAuth();
   const router = useRouter();
 
-
   useEffect(() => {
     // Only redirect if not loading and no session
     if (!loading && !session) {
-      router.push('/login?redirect=/add-entry');
+      router.push("/login?redirect=/add-entry");
     }
   }, [session, loading, router]);
 
@@ -24,10 +23,10 @@ export default function AddEntryPage() {
       <div className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+            <h2 className="text-text-primary text-3xl font-bold tracking-tight">
               Loading...
             </h2>
-            <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+            <p className="text-text-secondary mt-2 text-lg">
               Checking authentication status.
             </p>
           </div>
@@ -41,10 +40,10 @@ export default function AddEntryPage() {
       <div className="py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+            <h2 className="text-text-primary text-3xl font-bold tracking-tight">
               Authentication Required
             </h2>
-            <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
+            <p className="text-text-secondary mt-2 text-lg">
               Please log in to access this page.
             </p>
           </div>

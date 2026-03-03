@@ -1,0 +1,103 @@
+# Docker Compose for Act Testing Services
+# This provides the same services as the main docker-compose.yml but optimized for testing
+version: '3.9'
+
+networks:
+  act-testing:
+    driver: bridge
+    name: act-testing
+
+services:
+  # PostgreSQL Database for Backend Testing
+  postgres:
+    image: postgres:15
+    container_name: act-postgres
+    environment:
+      POSTGRES_DB: nosilha_test
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d
+    networks:
+      - act-testing
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test -d nosilha_test"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  # Firestore Emulator for Metadata Storage
+  firestore:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:latest
+    container_name: act-firestore
+    command: >
+      bash -c "
+        gcloud components install cloud-firestore-emulator --quiet &&
+        gcloud beta emulators firestore start --host-port=0.0.0.0:8080 --project=nosilha-test
+      "
+    ports:
+      - "8080:8080"
+    networks:
+      - act-testing
+    environment:
+      - FIRESTORE_EMULATOR_HOST=0.0.0.0:8080
+
+  # Google Cloud Storage Emulator
+  gcs:
+    image: fsouza/fake-gcs-server:1.44.0
+    container_name: act-gcs
+    command: -scheme http -host 0.0.0.0 -port 4443
+    ports:
+      - "4443:4443"
+    networks:
+      - act-testing
+    volumes:
+      - gcs_test_data:/data
+
+  # Redis (if needed for caching tests)
+  redis:
+    image: redis:7-alpine
+    container_name: act-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - act-testing
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Test Runner Service (for complex scenarios)
+  test-runner:
+    image: catthehacker/ubuntu:act-22.04
+    container_name: act-test-runner
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../../../:/workspace
+    working_dir: /workspace
+    networks:
+      - act-testing
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - FIRESTORE_EMULATOR_HOST=firestore:8080
+      - STORAGE_EMULATOR_HOST=gcs:4443
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    profiles:
+      - testing
+
+volumes:
+  postgres_test_data:
+    name: act_postgres_test_data
+  gcs_test_data:
+    name: act_gcs_test_data

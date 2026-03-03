@@ -21,45 +21,46 @@ import java.util.UUID
  */
 @Service
 class FileStorageService(
-  private val storage: Storage,
-  @Value("\${gcp.gcs-bucket-name}") private val bucketName: String,
-  private val aiService: AIService,
-  private val imageMetadataRepository: ImageMetadataRepository
+    private val storage: Storage,
+    @Value("\${gcp.gcs-bucket-name}") private val bucketName: String,
+    private val aiService: AIService,
+    private val imageMetadataRepository: ImageMetadataRepository,
 ) {
+    /**
+     * Uploads a file to GCS, triggers AI analysis, and saves the metadata to Firestore.
+     *
+     * @param file The file to upload.
+     * @return The public URL string of the newly uploaded file.
+     */
+    fun uploadFile(file: MultipartFile): String {
+        // 1. Generate a unique filename and upload the object to GCS.
+        val originalFileName = file.originalFilename ?: "file"
+        val extension = originalFileName.substringAfterLast('.', "")
+        val uniqueFileName = "${UUID.randomUUID()}.$extension"
 
-  /**
-   * Uploads a file to GCS, triggers AI analysis, and saves the metadata to Firestore.
-   *
-   * @param file The file to upload.
-   * @return The public URL string of the newly uploaded file.
-   */
-  fun uploadFile(file: MultipartFile): String {
-    // 1. Generate a unique filename and upload the object to GCS.
-    val originalFileName = file.originalFilename ?: "file"
-    val extension = originalFileName.substringAfterLast('.', "")
-    val uniqueFileName = "${UUID.randomUUID()}.$extension"
+        val blobId = BlobId.of(bucketName, uniqueFileName)
+        val blobInfo =
+            BlobInfo
+                .newBuilder(blobId)
+                .setContentType(file.contentType)
+                .build()
+        storage.create(blobInfo, file.bytes)
 
-    val blobId = BlobId.of(bucketName, uniqueFileName)
-    val blobInfo = BlobInfo.newBuilder(blobId)
-      .setContentType(file.contentType)
-      .build()
-    storage.create(blobInfo, file.bytes)
+        // 2. After successful upload, trigger the AI analysis and metadata persistence.
+        val gcsPath = "gs://$bucketName/$uniqueFileName"
+        val publicUrl = "https://storage.googleapis.com/$bucketName/$uniqueFileName"
 
-    // 2. After successful upload, trigger the AI analysis and metadata persistence.
-    val gcsPath = "gs://$bucketName/$uniqueFileName"
-    val publicUrl = "https://storage.googleapis.com/$bucketName/$uniqueFileName"
+        // Generate tags using the AI service.
+        val tags = aiService.generateTagsForImage(gcsPath)
 
-    // Generate tags using the AI service.
-    val tags = aiService.generateTagsForImage(gcsPath)
+        // Create the metadata object if tags were found.
+        if (tags.isNotEmpty()) {
+            val metadata = ImageMetadata(gcsUrl = publicUrl, tags = tags)
+            // Save to Firestore reactively. .subscribe() triggers the non-blocking operation.
+            imageMetadataRepository.save(metadata).subscribe()
+        }
 
-    // Create the metadata object.
-    if (tags.isNotEmpty()) {
-      val metadata = ImageMetadata(gcsUrl = publicUrl, tags = tags)
-      // Save to Firestore reactively. .subscribe() triggers the non-blocking operation.
-      imageMetadataRepository.save(metadata).subscribe()
+        // 3. Return the public URL immediately to the client.
+        return publicUrl
     }
-
-    // 3. Return the public URL immediately to the client.
-    return publicUrl
-  }
 }

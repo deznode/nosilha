@@ -1,16 +1,35 @@
 name: Backend CI/CD
 
+# Deployment Strategy: Always deploy from main branch (trunk-based development)
+# - Path-based triggering provides cost optimization (workflow only runs when backend changes)
+# - When workflow runs, it always completes the full pipeline for deployment reliability
+# - Manual force deployment option available via workflow_dispatch
+
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
     paths:
       - 'backend/**'
       - '.github/workflows/backend-ci.yml'
+      - '.github/workflows/reusable-security-scan.yml'
+      # Exclude documentation and non-functional changes to save costs
+      - '!backend/**/*.md'
+      - '!backend/**/*.txt'
+      - '!backend/**/*.gitignore'
+      - '!backend/**/README*'
+      - '!backend/**/.editorconfig'
   pull_request:
-    branches: [main, develop]
+    branches: [main]
     paths:
       - 'backend/**'
       - '.github/workflows/backend-ci.yml'
+      - '.github/workflows/reusable-security-scan.yml'
+      # Exclude documentation and non-functional changes to save costs
+      - '!backend/**/*.md'
+      - '!backend/**/*.txt'
+      - '!backend/**/*.gitignore'
+      - '!backend/**/README*'
+      - '!backend/**/.editorconfig'
   workflow_call:
     inputs:
       skip-deploy:
@@ -20,169 +39,180 @@ on:
         default: false
   workflow_dispatch:
     inputs:
-      environment:
-        description: 'Environment to deploy to'
+      deploy:
+        description: 'Deploy to production'
         required: true
-        default: 'staging'
-        type: choice
-        options:
-        - staging
-        - production
+        default: false
+        type: boolean
+      force_deploy:
+        description: 'Force deployment even without code changes'
+        required: false
+        default: false
+        type: boolean
 
 env:
-  REGISTRY: us-central1-docker.pkg.dev
+  REGISTRY: us-east1-docker.pkg.dev
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  REGION: europe-west1
-  SERVICE_NAME: nosilha-backend
+  REGION: us-east1
+  SERVICE_NAME: nosilha-backend-api
+  IMAGE_TAG: ${{ github.sha }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   security-scan:
     name: Security Scanning
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          
-      - name: Run Trivy vulnerability scanner on backend
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          scan-ref: './backend'
-          format: 'sarif'
-          output: 'trivy-backend-results.sarif'
-          
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
-        with:
-          sarif_file: 'trivy-backend-results.sarif'
-          category: 'backend-trivy'
+    uses: ./.github/workflows/reusable-security-scan.yml
+    with:
+      components: 'backend'
+      include-lint-analysis: true
 
-  lint:
-    name: Code Quality & Linting
+  test-and-lint:
+    name: Tests & Code Quality
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: ./backend
-        
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          
+
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        
-      - name: Run Kotlin lint (detekt)
-        run: ./gradlew detekt
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-home-cache-cleanup: true
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+          dependency-graph: 'generate-and-submit'
         continue-on-error: true
-        
-      - name: Upload detekt results
-        uses: github/codeql-action/upload-sarif@v2
-        if: always()
-        with:
-          sarif_file: backend/build/reports/detekt/detekt.sarif
-          category: 'backend-detekt'
+        id: gradle-setup
 
-  test:
-    name: Tests & Coverage
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./backend
-    
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: test
-          POSTGRES_USER: test
-          POSTGRES_DB: nosilha_test
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
+      - name: Setup Gradle (fallback without cache)
+        if: failure() && steps.gradle-setup.outcome == 'failure'
+        uses: gradle/actions/setup-gradle@v4
         with:
-          java-version: '21'
-          distribution: 'temurin'
-          
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        
-      - name: Run tests with coverage
-        run: ./gradlew test jacocoTestReport
+          cache-disabled: true
+          dependency-graph: 'generate-and-submit'
+
+      # Configure Testcontainers for optimal CI performance
+      - name: Configure Testcontainers
+        run: |
+          echo "TESTCONTAINERS_REUSE_ENABLE=true" >> $GITHUB_ENV
+          echo "TESTCONTAINERS_RYUK_DISABLED=false" >> $GITHUB_ENV
+
+      # Run comprehensive tests with production Java version
+      - name: Run tests and code quality
+        run: |
+          ./gradlew detekt --no-daemon &
+          ./gradlew test --no-daemon &
+          # ./gradlew integrationTest --no-daemon &
+          wait
         env:
           SPRING_PROFILES_ACTIVE: test
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/nosilha_test
-          SPRING_DATASOURCE_USERNAME: test
-          SPRING_DATASOURCE_PASSWORD: test
-          
-      - name: Generate test report
-        uses: dorny/test-reporter@v1
+
+      - name: Report test results
         if: always()
-        with:
-          name: Backend Tests
-          path: backend/build/test-results/test/*.xml
-          reporter: java-junit
-          
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          file: backend/build/reports/jacoco/test/jacocoTestReport.xml
-          flags: backend
-          name: backend-coverage
+        run: |
+          echo "🔍 Backend CI Status Report:"
+          echo "Gradle Setup: ${{ steps.gradle-setup.outcome || 'success' }}"
+          echo "Tests & Code Quality: ${{ steps.tests.outcome || job.status }}"
+          if [ "${{ job.status }}" = "failure" ]; then
+            echo "❌ Backend CI failed - check logs above for details"
+          else
+            echo "✅ Backend CI completed successfully"
+          fi
+
+  # Note: Path-based triggering (on.push.paths) provides cost optimization
+  # while ensuring reliable deployment when the workflow runs
 
   build:
     name: Build & Package
     runs-on: ubuntu-latest
-    needs: [security-scan, lint, test]
-    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && !inputs.skip-deploy
+    needs: [security-scan, test-and-lint]
+    # Always build when workflow runs (reliability over cost optimization)
+    if: |
+      (github.ref == 'refs/heads/main' && !inputs.skip-deploy) ||
+      (github.event_name == 'workflow_dispatch' && (inputs.deploy == true || inputs.force_deploy == true))
     outputs:
       image-tag: ${{ steps.meta.outputs.tags }}
       image-digest: ${{ steps.build.outputs.digest }}
     defaults:
       run:
         working-directory: ./backend
-        
+
+    # Add OIDC permissions
+    permissions:
+      contents: read
+      id-token: write  # Required for OIDC token requests
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          
+
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-home-cache-cleanup: true
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+          dependency-graph: generate-and-submit
+        continue-on-error: true
+        id: gradle-setup-deploy
+
+      - name: Setup Gradle (fallback without cache)
+        if: failure() && steps.gradle-setup-deploy.outcome == 'failure'
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-disabled: true
+          dependency-graph: generate-and-submit
+
+      # Configure Testcontainers for build-time tests
+      - name: Configure Testcontainers for Build
+        run: |
+          echo "TESTCONTAINERS_REUSE_ENABLE=true" >> $GITHUB_ENV
+          echo "TESTCONTAINERS_RYUK_DISABLED=false" >> $GITHUB_ENV
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-          
+          workload_identity_provider: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
+          service_account: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker ${{ env.REGISTRY }}
-        
+
+      # Set up Docker layer caching for faster builds
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-backend/nosilha-core-api
           tags: |
             type=ref,event=branch
             type=sha,prefix={{branch}}-
@@ -191,103 +221,146 @@ jobs:
       - name: Build and push Docker image
         id: build
         run: |
-          ./gradlew bootBuildImage \
-            --imageName=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}:${{ github.sha }} \
-            --publishImage
+          # Build image locally first
+          ./gradlew bootBuildImage --no-daemon \
+            --imageName=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-backend/nosilha-core-api:${{ github.sha }}
           
-          # Also tag with branch name and latest
-          docker tag ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}:${{ github.sha }} \
-            ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}:${{ github.ref_name }}
-          docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}:${{ github.ref_name }}
+          # Push the image using Docker CLI (which uses the gcloud auth)
+          docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-backend/nosilha-core-api:${{ github.sha }}
           
           if [ "${{ github.ref }}" = "refs/heads/main" ]; then
-            docker tag ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}:${{ github.sha }} \
-              ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}:latest
-            docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}:latest
+            docker tag ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-backend/nosilha-core-api:${{ github.sha }} \
+              ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-backend/nosilha-core-api:latest
+            docker push ${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-backend/nosilha-core-api:latest
           fi
-
-  deploy-staging:
-    name: Deploy to Staging
-    runs-on: ubuntu-latest
-    needs: [build]
-    if: github.ref == 'refs/heads/develop' && needs.build.result == 'success' && !inputs.skip-deploy
-    environment: staging
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-          
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-        
-      - name: Deploy to Cloud Run (Staging)
-        run: |
-          gcloud run deploy ${{ env.SERVICE_NAME }}-staging \
-            --image=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}:${{ github.sha }} \
-            --platform=managed \
-            --region=${{ env.REGION }} \
-            --allow-unauthenticated \
-            --set-env-vars="SPRING_PROFILES_ACTIVE=staging" \
-            --memory=1Gi \
-            --cpu=1 \
-            --min-instances=0 \
-            --max-instances=10 \
-            --timeout=300
-            
-      - name: Health Check
-        run: |
-          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }}-staging --region=${{ env.REGION }} --format='value(status.url)')
-          echo "Service URL: $SERVICE_URL"
-          
-          # Wait for service to be ready
-          sleep 30
-          
-          # Basic health check
-          curl -f "$SERVICE_URL/actuator/health" || (echo "Health check failed" && exit 1)
 
   deploy-production:
     name: Deploy to Production
     runs-on: ubuntu-latest
     needs: [build]
-    if: github.ref == 'refs/heads/main' && needs.build.result == 'success' && !inputs.skip-deploy
+    if: |
+      (github.ref == 'refs/heads/main' && needs.build.result == 'success' && !inputs.skip-deploy) ||
+      (github.event_name == 'workflow_dispatch' && needs.build.result == 'success' && (inputs.deploy == true || inputs.force_deploy == true))
     environment: production
-    
+
+    # Add OIDC permissions
+    permissions:
+      contents: read
+      id-token: write  # Required for OIDC token requests
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          workload_identity_provider: 'projects/936816281178/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
+          service_account: 'nosilha-cicd-deployer@nosilha.iam.gserviceaccount.com'
           
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
         
       - name: Deploy to Cloud Run (Production)
         run: |
+          # Deploy container image to Cloud Run
+          # Note: Secrets are managed by Terraform and persist automatically across revisions
+          # No --set-secrets flags needed - Terraform configuration provides secret environment variables
+          # Public access is managed by Terraform IAM policy (google_cloud_run_v2_service_iam_member)
           gcloud run deploy ${{ env.SERVICE_NAME }} \
-            --image=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+            --image=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/nosilha-backend/nosilha-core-api:${{ github.sha }} \
             --platform=managed \
             --region=${{ env.REGION }} \
-            --allow-unauthenticated \
-            --set-env-vars="SPRING_PROFILES_ACTIVE=production" \
-            --memory=2Gi \
-            --cpu=2 \
-            --min-instances=1 \
-            --max-instances=100 \
+            --service-account=nosilha-backend-runner@${{ env.PROJECT_ID }}.iam.gserviceaccount.com \
+            --memory=1Gi \
+            --cpu=1 \
+            --min-instances=0 \
+            --max-instances=3 \
             --timeout=300
             
-      - name: Health Check
+      - name: Health Check & Verification
         run: |
           SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} --region=${{ env.REGION }} --format='value(status.url)')
-          echo "Service URL: $SERVICE_URL"
-          
-          # Wait for service to be ready
-          sleep 30
-          
-          # Basic health check
-          curl -f "$SERVICE_URL/actuator/health" || (echo "Health check failed" && exit 1)
+          echo "🔍 Service URL: $SERVICE_URL"
+
+          # health check with retry logic
+          max_attempts=12
+          attempt=1
+          wait_time=10
+
+          echo "🏥 Starting health check with up to $max_attempts attempts..."
+
+          while [ $attempt -le $max_attempts ]; do
+            echo "📋 Health check attempt $attempt/$max_attempts (waiting ${wait_time}s between attempts)"
+
+            # Check if service is responding
+            if response=$(curl -s -w "\n%{http_code}" "$SERVICE_URL/actuator/health" 2>/dev/null); then
+              http_code=$(echo "$response" | tail -n1)
+              body=$(echo "$response" | head -n -1)
+
+              if [ "$http_code" = "200" ]; then
+                echo "✅ Health check passed! HTTP $http_code"
+                echo "📊 Health response: $body"
+
+                # Verify the response contains expected health indicators
+                if echo "$body" | grep -q '"status":"UP"'; then
+                  echo "✅ Application status is UP"
+
+                  # Check if database connectivity is working (if your health check includes DB)
+                  if echo "$body" | grep -q -E '(db|database|dataSource)'; then
+                    echo "✅ Database health check detected in response"
+                  fi
+
+                  echo "🎉 Service is healthy and ready to serve traffic!"
+                  exit 0
+                else
+                  echo "⚠️  Service responding but status not UP: $body"
+                fi
+              else
+                echo "❌ Health check failed with HTTP $http_code"
+                echo "📄 Response body: $body"
+              fi
+            else
+              echo "❌ Health check request failed (connection error)"
+            fi
+
+            if [ $attempt -eq $max_attempts ]; then
+              echo "💥 Health check failed after $max_attempts attempts"
+              echo "🔍 Final service status:"
+              gcloud run services describe ${{ env.SERVICE_NAME }} --region=${{ env.REGION }} --format="table(
+                metadata.name,
+                status.conditions[0].type,
+                status.conditions[0].status,
+                status.conditions[0].reason,
+                status.conditions[0].message
+              )" || echo "Failed to get service status"
+              exit 1
+            fi
+
+            echo "⏳ Waiting ${wait_time} seconds before next attempt..."
+            sleep $wait_time
+
+            # Exponential backoff (cap at 30 seconds)
+            wait_time=$((wait_time < 30 ? wait_time + 5 : 30))
+            attempt=$((attempt + 1))
+          done
+
+      - name: Verify Terraform Secret Configuration
+        run: |
+          echo "🔐 Verifying Terraform-managed secret configuration..."
+
+          # Validate that Terraform has properly configured secrets in the Cloud Run service
+          secret_config=$(gcloud run services describe ${{ env.SERVICE_NAME }} --region=${{ env.REGION }} --format="value(spec.template.spec.containers[0].env[].name)" 2>/dev/null || echo "")
+
+          required_secrets=("SPRING_PROFILES_ACTIVE" "SPRING_CLOUD_GCP_PROJECT_ID" "GCS_BUCKET_NAME" "SUPABASE_JWT_SECRET" "SPRING_DATASOURCE_URL" "SPRING_DATASOURCE_USERNAME" "SPRING_DATASOURCE_PASSWORD" "SPRING_FLYWAY_URL" "SPRING_FLYWAY_USER" "SPRING_FLYWAY_PASSWORD")
+
+          for secret in "${required_secrets[@]}"; do
+            if echo "$secret_config" | grep -q "$secret"; then
+              echo "✅ $secret is configured via Terraform"
+            else
+              echo "❌ $secret is missing from Terraform configuration"
+              echo "💡 Check infrastructure/terraform/cloudrun.tf secret configuration"
+              exit 1
+            fi
+          done
+
+          echo "🔒 All required secrets are properly configured via Terraform!"

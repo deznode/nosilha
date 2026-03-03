@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { getEntryBySlug } from "@/lib/api";
+import { generateDirectoryEntryMetadata, siteConfig } from "@/lib/metadata";
 import { notFound } from "next/navigation";
+
+// Enable ISR with 30 minute revalidation for individual entries
+export const revalidate = 1800;
 import {
   StarIcon,
   MapPinIcon,
@@ -12,10 +17,33 @@ import {
 
 import type { DirectoryEntry } from "@/types/directory";
 import { ImageGallery } from "@/components/ui/image-gallery";
-import { ImageUploader } from "@/components/ui/image-uploader";
+import { ContributePhotosSection } from "@/components/ui/contribute-photos-section";
+import { getRestaurantDetails, getHotelDetails } from "@/lib/api-validation";
 
 interface DetailPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
+}
+
+// Generate dynamic metadata for directory entries
+export async function generateMetadata({
+  params,
+}: DetailPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const entry = await getEntryBySlug(slug);
+
+  if (!entry) {
+    return {
+      title: "Entry Not Found",
+      description: "The requested directory entry could not be found.",
+    };
+  }
+
+  return generateDirectoryEntryMetadata({
+    entry,
+    baseUrl: siteConfig.url,
+    siteName: siteConfig.name,
+    defaultImage: siteConfig.ogImage,
+  });
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -25,7 +53,7 @@ function StarRating({ rating }: { rating: number }) {
         <StarIcon
           key={i}
           className={`h-5 w-5 ${
-            rating > i ? "text-sunny-yellow" : "text-gray-300"
+            rating > i ? "text-sunny-yellow" : "text-text-tertiary"
           }`}
         />
       ))}
@@ -34,48 +62,62 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 function CategorySpecificDetails({ entry }: { entry: DirectoryEntry }) {
-  // Logic for displaying details based on category (Restaurant, Hotel, etc.)
+  // Logic for displaying details based on category using safe accessors
   switch (entry.category) {
-    case "Restaurant":
+    case "Restaurant": {
+      const restaurantDetails = getRestaurantDetails(entry);
       return (
         <>
-          <div className="flex items-start">
-            <PhoneIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
-            <p className="ml-3 text-base text-volcanic-gray">
-              {entry.details.phoneNumber}
-            </p>
-          </div>
-          <div className="flex items-start">
-            <ClockIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
-            <p className="ml-3 text-base text-volcanic-gray">
-              {entry.details.openingHours}
-            </p>
-          </div>
-          <div className="flex items-start">
-            <SparklesIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
-            <p className="ml-3 text-base text-volcanic-gray">
-              Cuisine: {entry.details.cuisine.join(", ")}
-            </p>
-          </div>
+          {restaurantDetails.phoneNumber && (
+            <div className="flex items-start">
+              <PhoneIcon className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
+              <p className="text-text-secondary ml-3 text-base">
+                {restaurantDetails.phoneNumber}
+              </p>
+            </div>
+          )}
+          {restaurantDetails.openingHours && (
+            <div className="flex items-start">
+              <ClockIcon className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
+              <p className="text-text-secondary ml-3 text-base">
+                {restaurantDetails.openingHours}
+              </p>
+            </div>
+          )}
+          {restaurantDetails.cuisine.length > 0 && (
+            <div className="flex items-start">
+              <SparklesIcon className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
+              <p className="text-text-secondary ml-3 text-base">
+                Cuisine: {restaurantDetails.cuisine.join(", ")}
+              </p>
+            </div>
+          )}
         </>
       );
-    case "Hotel":
+    }
+    case "Hotel": {
+      const hotelDetails = getHotelDetails(entry);
       return (
         <>
-          <div className="flex items-start">
-            <PhoneIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
-            <p className="ml-3 text-base text-volcanic-gray">
-              {entry.details.phoneNumber}
-            </p>
-          </div>
-          <div className="flex items-start">
-            <BuildingOffice2Icon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
-            <p className="ml-3 text-base text-volcanic-gray">
-              Amenities: {entry.details.amenities.join(", ")}
-            </p>
-          </div>
+          {hotelDetails.phoneNumber && (
+            <div className="flex items-start">
+              <PhoneIcon className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
+              <p className="text-text-secondary ml-3 text-base">
+                {hotelDetails.phoneNumber}
+              </p>
+            </div>
+          )}
+          {hotelDetails.amenities.length > 0 && (
+            <div className="flex items-start">
+              <BuildingOffice2Icon className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
+              <p className="text-text-secondary ml-3 text-base">
+                Amenities: {hotelDetails.amenities.join(", ")}
+              </p>
+            </div>
+          )}
         </>
       );
+    }
     default:
       return null;
   }
@@ -91,62 +133,63 @@ export default async function DirectoryEntryDetailPage({
     notFound();
   }
 
-  // Simulate image data with a static array
-  const sampleImages = [
-    "https://picsum.photos/800/600?random=11",
-    "https://picsum.photos/800/600?random=12",
-    "https://picsum.photos/800/600?random=13",
-    "https://picsum.photos/800/600?random=14",
-    "https://picsum.photos/800/600?random=15",
-    "https://picsum.photos/800/600?random=16",
-  ];
+  // Gallery images - will be populated from actual entry data or fallback to empty array
+  const sampleImages: string[] = [];
 
   return (
     <div className="bg-off-white font-sans">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         {/* Main hero image */}
         <div className="relative h-[400px] w-full overflow-hidden rounded-xl shadow-lg">
-          <Image
-            src={entry.imageUrl}
-            alt={`Main photo of ${entry.name}`}
-            fill
-            className="object-cover"
-            priority
-          />
+          {entry.imageUrl ? (
+            <Image
+              src={entry.imageUrl}
+              alt={`Main photo of ${entry.name}`}
+              fill
+              className="object-cover"
+              priority
+            />
+          ) : (
+            <div className="bg-background-tertiary flex h-full w-full items-center justify-center">
+              <span className="text-text-tertiary text-xl">
+                No image available
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="mt-8 grid grid-cols-1 gap-x-12 gap-y-10 lg:grid-cols-3">
           {/* Left Column: Details & Reviews */}
           <div className="lg:col-span-2">
-            <h1 className="font-serif text-4xl font-bold text-volcanic-gray-dark sm:text-5xl">
+            <h1 className="text-text-primary font-serif text-4xl font-bold sm:text-5xl">
               {entry.name}
             </h1>
-            <p className="mt-4 text-lg leading-relaxed text-volcanic-gray">
+            <p className="text-text-secondary mt-4 text-lg leading-relaxed">
               {entry.description}
             </p>
 
-            <div className="my-8 border-t border-gray-200" />
+            <div className="border-border-primary my-8 border-t" />
 
             {/* --- NEW: Image Gallery Section --- */}
             <div className="space-y-4">
-              <h2 className="font-serif text-3xl font-bold text-volcanic-gray-dark">
+              <h2 className="text-text-primary font-serif text-3xl font-bold">
                 Gallery
               </h2>
               <ImageGallery imageUrls={sampleImages} />
             </div>
 
-            <div className="my-8 border-t border-gray-200" />
+            <div className="border-border-primary my-8 border-t" />
 
-            <h2 className="font-serif text-3xl font-bold text-volcanic-gray-dark">
+            <h2 className="text-text-primary font-serif text-3xl font-bold">
               User Reviews
             </h2>
             <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-              <p className="text-4xl font-bold text-volcanic-gray-dark">
-                {entry.rating.toFixed(1)}
+              <p className="text-text-primary text-4xl font-bold">
+                {entry.rating?.toFixed(1) || "N/A"}
               </p>
               <div className="flex flex-col">
-                <StarRating rating={entry.rating} />
-                <p className="text-sm text-volcanic-gray">
+                <StarRating rating={entry.rating || 0} />
+                <p className="text-text-secondary text-sm">
                   Based on {entry.reviewCount} reviews
                 </p>
               </div>
@@ -155,16 +198,16 @@ export default async function DirectoryEntryDetailPage({
 
           {/* Right Column (Sidebar): Map & Info */}
           <div className="lg:col-span-1">
-            <div className="rounded-lg bg-white p-6 shadow-md">
-              <div className="aspect-video w-full rounded-md bg-gray-200">
+            <div className="bg-background-primary rounded-lg p-6 shadow-md">
+              <div className="bg-background-tertiary aspect-video w-full rounded-md">
                 <div className="flex h-full w-full items-center justify-center">
-                  <MapPinIcon className="h-12 w-12 text-volcanic-gray" />
+                  <MapPinIcon className="text-text-secondary h-12 w-12" />
                 </div>
               </div>
               <div className="mt-6 space-y-4">
                 <div className="flex items-start">
-                  <MapPinIcon className="mt-1 h-5 w-5 flex-shrink-0 text-ocean-blue" />
-                  <p className="ml-3 text-base text-volcanic-gray">
+                  <MapPinIcon className="text-ocean-blue mt-1 h-5 w-5 flex-shrink-0" />
+                  <p className="text-text-secondary ml-3 text-base">
                     {entry.town}, Brava, Cape Verde
                   </p>
                 </div>
@@ -174,20 +217,10 @@ export default async function DirectoryEntryDetailPage({
           </div>
         </div>
 
-        <div className="my-16 border-t border-gray-200" />
+        <div className="border-border-primary my-16 border-t" />
 
         {/* --- NEW: Image Uploader Section --- */}
-        <div className="mx-auto max-w-2xl">
-          <h2 className="font-serif text-3xl font-bold text-volcanic-gray-dark text-center">
-            Contribute Photos
-          </h2>
-          <p className="mt-2 text-center text-lg leading-8 text-volcanic-gray">
-            Have a photo of this location? Share it with the community!
-          </p>
-          <div className="mt-8 flex justify-center">
-            <ImageUploader />
-          </div>
-        </div>
+        <ContributePhotosSection />
       </div>
     </div>
   );

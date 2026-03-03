@@ -16,7 +16,6 @@ interface DirectoryCardProps {
  * @param {DirectoryEntry} props.entry The directory entry data to display.
  */
 export function DirectoryCard({ entry }: DirectoryCardProps) {
-  console.log("entry=", entry);
   return (
     <Link
       href={`/directory/entry/${entry.slug}`}
@@ -26,22 +25,28 @@ export function DirectoryCard({ entry }: DirectoryCardProps) {
       <Card className="h-full overflow-hidden transition-shadow duration-200 ease-in-out hover:shadow-lg">
         {/* Image Section */}
         <div className="relative aspect-[16/10] w-full">
-          <Image
-            src={entry.imageUrl}
-            alt={`Photo of ${entry.name}`}
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover"
-          />
+          {entry.imageUrl ? (
+            <Image
+              src={entry.imageUrl}
+              alt={`Photo of ${entry.name}`}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover"
+            />
+          ) : (
+            <div className="bg-background-tertiary flex h-full w-full items-center justify-center">
+              <span className="text-text-tertiary">No image available</span>
+            </div>
+          )}
         </div>
 
         {/* Content Section */}
         <div className="flex flex-1 flex-col p-4">
           <div className="flex-1">
-            <p className="text-sm text-volcanic-gray">
+            <p className="text-text-secondary text-sm">
               {entry.category} &middot; {entry.town}
             </p>
-            <h3 className="mt-1 font-semibold text-lg text-volcanic-gray-dark">
+            <h3 className="text-text-primary mt-1 text-lg font-semibold">
               {entry.name}
             </h3>
           </div>
@@ -49,7 +54,7 @@ export function DirectoryCard({ entry }: DirectoryCardProps) {
           {/* Rating Section */}
           <div className="mt-3 flex items-center gap-2">
             <StarRating rating={entry.rating} />
-            <p className="text-sm text-volcanic-gray">
+            <p className="text-text-secondary text-sm">
               ({entry.reviewCount} reviews)
             </p>
           </div>

@@ -93,6 +93,8 @@ Thumbs.db
 .jacoco/
 jacoco.exec
 coverage/
+/build/reports/
+/build/test-results/
 
 ### Kotlin/JVM ###
 .kotlin/
@@ -113,6 +115,7 @@ buildNumber.properties
 
 ### Application specific ###
 application-*.yml
+!application-test.yml
 !application.yml
 !application-*.yml.example
 

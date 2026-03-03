@@ -4,21 +4,29 @@ This directory contains the infrastructure configuration files for the Nosilha p
 
 ## Local Development Environment
 
-The local development setup uses Docker Compose to run a PostgreSQL database container that matches the production Supabase environment.
+The local development setup uses Docker Compose to run multiple services that match the Google Cloud Platform production environment:
+
+- **PostgreSQL 16**: Primary database for structured data
+- **Firestore Emulator**: Flexible metadata storage for AI-processed content
+- **Google Cloud Storage Emulator**: Media asset storage emulation
 
 ### Prerequisites
 
 - Docker Desktop installed and running on your Mac
-- Java 17+ installed
+- Java 21 installed
 - The backend Spring Boot application configured with Flyway migrations
 
 ### Project Structure
 
 ```
 infrastructure/
-└── docker/
-    ├── docker-compose.yml    # PostgreSQL container configuration
-    └── data/                # Database persistent storage (auto-created)
+├── docker/
+│   ├── docker-compose.yml    # Multi-service container configuration
+│   └── data/                # Database persistent storage (auto-created)
+└── terraform/
+    ├── main.tf              # Core GCP infrastructure
+    ├── cloudrun.tf          # Cloud Run deployment configuration
+    └── variables.tf         # Terraform variables
 ```
 
 ## Getting Started
@@ -32,14 +40,18 @@ cd infrastructure/docker && docker-compose up -d
 ```
 
 **What this command does:**
-- Downloads PostgreSQL 16 Alpine image (first time only)
-- Starts the database container in detached mode
+
+- Downloads required Docker images (PostgreSQL, Google Cloud SDK, fake-gcs-server)
+- Starts all services in detached mode:
+  - PostgreSQL database on `localhost:5432`
+  - Firestore emulator on `localhost:8081`
+  - Google Cloud Storage emulator on `localhost:8082`
 - Creates persistent storage in `infrastructure/docker/data/`
-- Makes the database available on `localhost:5432`
 
 ### 2. Run the Spring Boot Application
 
 #### Option A: Using IntelliJ IDEA
+
 1. Open the `NosIlhaCoreApplication.kt` file in your IDE
 2. Click the green play button next to the main method
 3. Edit the run configuration:
@@ -49,14 +61,17 @@ cd infrastructure/docker && docker-compose up -d
 4. Run the application
 
 #### Option B: Using VS Code
+
 1. Open the integrated terminal in VS Code
 2. Navigate to the backend directory and run:
+
 ```bash
 cd backend
 ./gradlew bootRun --args='--spring.profiles.active=local'
 ```
 
 #### Option C: Command Line (from project root)
+
 ```bash
 # Navigate to backend and run with Gradle
 cd backend
@@ -68,6 +83,7 @@ java -Dspring.profiles.active=local -jar build/libs/*-SNAPSHOT.jar
 ```
 
 #### Option D: Using Environment Variable
+
 ```bash
 cd backend
 export SPRING_PROFILES_ACTIVE=local
@@ -94,32 +110,43 @@ When everything is working correctly, you should see:
 
 ## Database Management
 
-### Connecting to the Database
+### Connecting to Services
 
-You can connect directly to the PostgreSQL database using any database client with these credentials:
-
+#### PostgreSQL Database
+Connect using any database client with these credentials:
 - **Host:** `localhost`
 - **Port:** `5432`
 - **Database:** `nosilha_db`
 - **Username:** `nosilha`
-- **Password:** `nosilha-pass`
+- **Password:** `nosilha`
+
+#### Firestore Emulator
+- **URL:** `http://localhost:8081`
+- **Project ID:** Configure in your application as needed
+
+#### Google Cloud Storage Emulator
+- **URL:** `http://localhost:8082`
+- **Access:** Configure your application to use this endpoint for local development
 
 ### Useful Docker Commands
 
 ```bash
-# Start the database
+# Start all services
 cd infrastructure/docker && docker-compose up -d
 
-# Stop the database (keeps data)
+# Stop all services (keeps data)
 cd infrastructure/docker && docker-compose down
 
-# View database logs
+# View logs for specific services
 cd infrastructure/docker && docker-compose logs -f db
+cd infrastructure/docker && docker-compose logs -f firestore-emulator
+cd infrastructure/docker && docker-compose logs -f gcs-emulator
 
-# Restart the database
+# Restart specific services
 cd infrastructure/docker && docker-compose restart db
+cd infrastructure/docker && docker-compose restart firestore-emulator
 
-# Stop and remove database with all data (⚠️ destructive!)
+# Stop and remove all services with data (⚠️ destructive!)
 cd infrastructure/docker && docker-compose down -v
 ```
 
@@ -160,25 +187,49 @@ cd infrastructure/docker && docker-compose down
 ### Database Issues
 
 **If the database won't start:**
+
 - Check if port 5432 is already in use: `lsof -i :5432`
 - Ensure Docker Desktop is running
 - Check Docker logs: `docker-compose logs db`
 
 **If you get connection refused errors:**
+
 - Verify the container is running: `docker ps`
 - Check if the container is healthy: `docker-compose ps`
 
 ### Spring Boot Issues
 
 **If the app can't connect to the database:**
+
 - Ensure you're using the `local` profile
 - Check that the database container is running
 - Verify the connection details in `application-local.properties`
 
 **If Flyway migrations fail:**
+
 - Check the SQL syntax in migration files
 - Ensure the database is empty for the first migration
 - Check Flyway logs in the application output
+
+### Emulator Issues
+
+**If Firestore emulator won't start:**
+
+- Check if port 8081 is already in use: `lsof -i :8081`
+- Ensure Google Cloud SDK image is available
+- Check emulator logs: `docker-compose logs firestore-emulator`
+
+**If GCS emulator won't start:**
+
+- Check if port 8082 is already in use: `lsof -i :8082`
+- Verify fake-gcs-server image is available
+- Check emulator logs: `docker-compose logs gcs-emulator`
+
+**If your application can't connect to emulators:**
+
+- Verify emulator URLs in your application configuration
+- For Firestore: Set `FIRESTORE_EMULATOR_HOST=localhost:8081`
+- For GCS: Configure your client to use `http://localhost:8082`
 
 ### Performance Tips
 
@@ -189,6 +240,7 @@ cd infrastructure/docker && docker-compose down
 ## Production Notes
 
 This local setup mirrors the production environment structure:
+
 - Same PostgreSQL version as used in Supabase
 - Same database schema via Flyway migrations
 - Same Spring Boot configuration patterns

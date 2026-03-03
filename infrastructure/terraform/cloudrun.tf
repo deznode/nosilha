@@ -3,56 +3,10 @@
 # Nosilha.com backend API on Google Cloud Run.
 # ------------------------------------------------------------------------------
 
-# --- Service Account for Cloud Run Execution ---
-#
-# A dedicated service account for the Cloud Run service to run as.
-# This follows the principle of least privilege.
-#
-resource "google_service_account" "backend_runner" {
-  account_id   = "nosilha-backend-runner"
-  display_name = "Nosilha.com Backend Runner"
-  description  = "Service Account for the Nosilha Backend Cloud Run service."
-}
-
-
-# --- Secret Manager IAM Permissions ---
-#
-# Grant the Cloud Run service account the 'Secret Accessor' role
-# for each secret the application needs at runtime.
-#
-resource "google_secret_manager_secret_iam_member" "grant_jwt_secret_access" {
-  project   = var.gcp_project_id
-  secret_id = "supabase_jwt_secret"
-  role      = "roles/secretmanager.secretAccessor"
-  member    = google_service_account.backend_runner.member
-}
-
-resource "google_storage_bucket_iam_member" "grant_gcs_access" {
-  bucket = "nosilha-com-media-storage-useast1"
-  role   = "roles/storage.objectAdmin"
-  member = google_service_account.backend_runner.member
-}
-
-resource "google_secret_manager_secret_iam_member" "grant_db_url_access" {
-  project   = var.gcp_project_id
-  secret_id = "supabase_db_url"
-  role      = "roles/secretmanager.secretAccessor"
-  member    = google_service_account.backend_runner.member
-}
-
-resource "google_secret_manager_secret_iam_member" "grant_db_user_access" {
-  project   = var.gcp_project_id
-  secret_id = "supabase_db_username"
-  role      = "roles/secretmanager.secretAccessor"
-  member    = google_service_account.backend_runner.member
-}
-
-resource "google_secret_manager_secret_iam_member" "grant_db_password_access" {
-  project   = var.gcp_project_id
-  secret_id = "supabase_db_password"
-  role      = "roles/secretmanager.secretAccessor"
-  member    = google_service_account.backend_runner.member
-}
+# ------------------------------------------------------------------------------
+# Cloud Run Services
+# ------------------------------------------------------------------------------
+# Note: Service accounts and their permissions are defined in iam.tf
 
 
 # --- Google Cloud Run Service Definition ---
@@ -63,30 +17,56 @@ resource "google_secret_manager_secret_iam_member" "grant_db_password_access" {
 resource "google_cloud_run_v2_service" "nosilha_backend_api" {
   name                = "nosilha-backend-api"
   location            = var.gcp_region
-  deletion_protection = false
+  deletion_protection = true
 
   template {
     # Run the container using the dedicated service account
     service_account = google_service_account.backend_runner.email
 
+    # Set CPU to be allocated only during request processing (critical for free tier)
+    # This is configured via cpu_idle in the resources block
+
+    # Optimize scaling for free tier usage
+    # Configuration aligns with CI/CD deployment: --min-instances=0 --max-instances=3
+    scaling {
+      min_instance_count = 0 # Scale to zero when not in use
+      max_instance_count = 3 # Limit maximum instances (matches CI/CD config)
+    }
+
     containers {
       # The full path to the container image in Artifact Registry.
-      # The tag is controlled by a variable for easy updates.
-      image = "us-east1-docker.pkg.dev/${var.gcp_project_id}/nosilha-backend/nosilha-core-api:${var.api_image_tag}"
+      # Uses latest tag - actual deployments handled by CI/CD
+      image = "us-east1-docker.pkg.dev/${var.gcp_project_id}/nosilha-backend/nosilha-core-api:latest"
 
-      # Configure memory and CPU resources
+      # Configure memory and CPU resources optimized for free tier
+      # These limits align with CI/CD deployment configuration for consistency
       resources {
         limits = {
-          cpu    = "1000m"
-          memory = "1Gi"
+          cpu    = "1000m" # 1 vCPU max for free tier
+          memory = "1Gi"   # Increased from 512Mi to accommodate JVM memory requirements (693MB needed)
         }
+        cpu_idle = true # CPU only allocated during request processing
+      }
+
+      # Request timeout for backend API calls
+      # HTTP health check using Spring Boot Actuator endpoint
+      # Optimized settings: 20s delay + 3s period × 20 failures = 80s total startup window
+      startup_probe {
+        http_get {
+          path = "/actuator/health"
+          port = 8080
+        }
+        initial_delay_seconds = 20 # Allow JVM bootstrap time + production overhead
+        period_seconds        = 3  # Check every 3s for faster scaling
+        timeout_seconds       = 2  # Must be < period_seconds (fixed validation error)
+        failure_threshold     = 20 # Increased to provide 80s total startup window
       }
 
       # Inject environment variables into the container.
       # Secrets are sourced securely from Secret Manager.
       env {
         name  = "SPRING_PROFILES_ACTIVE"
-        value = "prod"
+        value = "production"
       }
 
       # Provides the application with the GCP Project ID for Spring Cloud GCP auto-configuration.
@@ -102,12 +82,15 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value = google_storage_bucket.media_storage.name
       }
 
+      # Secret injection via environment variables (cost-optimized approach)
+      # Using pinned versions instead of "latest" for predictable costs and better control
+      # Each secret access during container startup counts as 1 operation toward free tier limit
       env {
         name = "SUPABASE_JWT_SECRET"
         value_source {
           secret_key_ref {
             secret  = "supabase_jwt_secret"
-            version = "latest"
+            version = "1" # Pin to specific version for cost predictability
           }
         }
       }
@@ -117,7 +100,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = "supabase_db_url"
-            version = "latest"
+            version = "1" # Updated to current enabled version
           }
         }
       }
@@ -127,7 +110,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = "supabase_db_username"
-            version = "latest"
+            version = "3" # Updated to current enabled version
           }
         }
       }
@@ -137,19 +120,49 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = "supabase_db_password"
-            version = "latest"
+            version = "4" # Updated to current enabled version
           }
         }
       }
+
+
+      env {
+        name = "SPRING_FLYWAY_URL"
+        value_source {
+          secret_key_ref {
+            secret  = "supabase_session_db_url"
+            version = "1" # Updated to current enabled version
+          }
+        }
+      }
+
+      env {
+        name = "SPRING_FLYWAY_USER"
+        value_source {
+          secret_key_ref {
+            secret  = "supabase_db_username"
+            version = "3" # Updated to current enabled version
+          }
+        }
+      }
+
+      env {
+        name = "SPRING_FLYWAY_PASSWORD"
+        value_source {
+          secret_key_ref {
+            secret  = "supabase_db_password"
+            version = "4" # Updated to current enabled version
+          }
+        }
+      }
+
     }
   }
 
-  # Ensure the Secret Manager permissions are in place before creating the service.
+  # Ensure the Cloud Run API is enabled before creating the service.
+  # Service account and permissions are managed in iam.tf
   depends_on = [
-    google_secret_manager_secret_iam_member.grant_jwt_secret_access,
-    google_secret_manager_secret_iam_member.grant_db_url_access,
-    google_secret_manager_secret_iam_member.grant_db_user_access,
-    google_secret_manager_secret_iam_member.grant_db_password_access
+    google_project_service.cloud_run
   ]
 }
 
@@ -171,13 +184,30 @@ resource "google_cloud_run_v2_service_iam_member" "allow_public_access" {
 #
 resource "google_cloud_run_v2_service" "nosilha_frontend" {
   name                = "nosilha-frontend"
-  location            = var.gcp_region # Deploys to us-east1
-  deletion_protection = false
+  location            = var.gcp_region
+  deletion_protection = true
+
+  # Ensure Cloud Run API is enabled before creating service
+  depends_on = [google_project_service.cloud_run]
 
   template {
+    # Run the container using the dedicated frontend service account
+    service_account = google_service_account.frontend_runner.email
+
+    # Set CPU to be allocated only during request processing (critical for free tier)
+    # This is configured via cpu_idle in the resources block
+
+    # Optimize scaling for free tier usage
+    # Configuration aligns with CI/CD deployment: --min-instances=0 --max-instances=2
+    scaling {
+      min_instance_count = 0 # Scale to zero when not in use
+      max_instance_count = 2 # Lower limit for frontend (matches CI/CD config)
+    }
+
     containers {
       # The full path to the frontend container image in its Artifact Registry.
-      image = "us-east1-docker.pkg.dev/${var.gcp_project_id}/nosilha-frontend/nosilha-web-ui:${var.frontend_image_tag}"
+      # Uses latest tag - actual deployments handled by CI/CD
+      image = "us-east1-docker.pkg.dev/${var.gcp_project_id}/nosilha-frontend/nosilha-web-ui:latest"
 
       # Configure container port for Next.js
       ports {
@@ -185,24 +215,28 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
         container_port = 3000
       }
 
-      # Configure memory and CPU resources for free tier
+      # Configure memory and CPU resources optimized for free tier
+      # These limits align with CI/CD deployment configuration for consistency
       resources {
         limits = {
-          cpu    = "1000m"
-          memory = "512Mi"
+          cpu    = "1000m" # 1 vCPU for Next.js frontend
+          memory = "256Mi" # Optimized for Next.js apps (matches CI/CD: 256Mi)
         }
+        cpu_idle = true # CPU only allocated during request processing
       }
 
-      # --- CRITICAL: Provide the Backend URL to the Frontend ---
-      # This environment variable tells the Next.js app where to find the live backend API.
-      # It dynamically uses the URI of the backend service we already deployed.
-      env {
-        name  = "NEXT_PUBLIC_API_URL"
-        value = google_cloud_run_v2_service.nosilha_backend_api.uri
-      }
-      env {
-        name  = "API_URL"
-        value = google_cloud_run_v2_service.nosilha_backend_api.uri
+      # Request timeout for frontend requests
+      # HTTP health check using custom Next.js health endpoint
+      # Optimized settings: 5s delay + 3s period × 8 failures = 29s total startup window
+      startup_probe {
+        http_get {
+          path = "/api/health"
+          port = 3000
+        }
+        initial_delay_seconds = 5 # Next.js starts faster than JVM
+        period_seconds        = 3 # Check every 3s for faster scaling
+        timeout_seconds       = 2 # Must be < period_seconds (fixed validation error)
+        failure_threshold     = 8 # Appropriate for Next.js startup
       }
     }
   }
@@ -221,7 +255,3 @@ resource "google_cloud_run_v2_service_iam_member" "allow_frontend_public_access"
   role     = "roles/run.invoker"
   member   = "allUsers"
 }
-
-
-
-

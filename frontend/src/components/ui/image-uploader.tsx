@@ -62,16 +62,16 @@ export function ImageUploader({ onFileSelect }: ImageUploaderProps) {
     <div className="w-full">
       {previewUrl ? (
         // Image Preview State
-        <div className="relative rounded-lg border border-gray-300">
-          <div className="aspect-video relative">
+        <div className="border-border-primary relative rounded-lg border">
+          <div className="relative aspect-video">
             <Image
               src={previewUrl}
               alt="Selected image preview"
               fill
-              className="object-contain rounded-lg"
+              className="rounded-lg object-contain"
             />
           </div>
-          <div className="p-2 border-t border-gray-200 text-center">
+          <div className="border-border-secondary border-t p-2 text-center">
             <Button type="button" plain onClick={handleRemoveImage}>
               Remove / Change File
             </Button>
@@ -85,18 +85,20 @@ export function ImageUploader({ onFileSelect }: ImageUploaderProps) {
           onDrop={handleDrop}
           className={clsx(
             "flex justify-center rounded-lg border border-dashed px-6 py-10 transition-colors duration-200",
-            activeDrag ? "border-ocean-blue bg-blue-50" : "border-gray-900/25"
+            activeDrag
+              ? "border-ocean-blue bg-ocean-blue/10"
+              : "border-border-primary"
           )}
         >
           <div className="text-center">
             <PhotoIcon
               aria-hidden="true"
-              className="mx-auto h-12 w-12 text-gray-300"
+              className="text-text-tertiary mx-auto h-12 w-12"
             />
-            <div className="mt-4 flex text-sm leading-6 text-gray-600">
+            <div className="text-text-secondary mt-4 flex text-sm leading-6">
               <label
                 htmlFor="file-upload"
-                className="relative cursor-pointer rounded-md bg-white font-semibold text-ocean-blue focus-within:outline-none focus-within:ring-2 focus-within:ring-ocean-blue focus-within:ring-offset-2 hover:text-ocean-blue/80"
+                className="text-ocean-blue focus-within:ring-ocean-blue hover:text-ocean-blue/80 relative cursor-pointer rounded-md bg-white font-semibold focus-within:ring-2 focus-within:ring-offset-2 focus-within:outline-none"
               >
                 <span>Upload a file</span>
                 <input
@@ -110,7 +112,7 @@ export function ImageUploader({ onFileSelect }: ImageUploaderProps) {
               </label>
               <p className="pl-1">or drag and drop</p>
             </div>
-            <p className="text-xs leading-5 text-gray-600">
+            <p className="text-text-secondary text-xs leading-5">
               PNG, JPG, GIF up to 10MB
             </p>
           </div>

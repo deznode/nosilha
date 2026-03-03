@@ -10,6 +10,7 @@ docker-compose.override.yml
 *.tfstate.*
 *.tfplan
 *.tfplan.*
+tfplan
 crash.log
 crash.*.log
 override.tf
@@ -48,3 +49,7 @@ Thumbs.db
 # Editor
 .vscode/
 .idea/
+
+# volumes
+docker/data/
+docker/gcs-storage

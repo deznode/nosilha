@@ -4,16 +4,18 @@ export interface BaseDirectoryEntry {
   slug: string; // Slugs are essential for all public entries
   name: string;
   category: "Restaurant" | "Hotel" | "Beach" | "Landmark";
-  imageUrl: string;
+  imageUrl: string | null;
   town: string;
   latitude: number;
   longitude: number;
   description: string; // A description is general enough for all types
   rating: number | undefined;
   reviewCount: number;
+  createdAt: string; // ISO 8601 timestamp
+  updatedAt: string; // ISO 8601 timestamp
 }
 
-// 2. Interfaces for CATEGORY-SPECIFIC details
+// 2. Interfaces for CATEGORY-SPECIFIC details (no redundant discriminator)
 export interface RestaurantDetails {
   phoneNumber: string;
   openingHours: string; // For simplicity this is a string, but could be a structured object
@@ -21,8 +23,8 @@ export interface RestaurantDetails {
 }
 
 export interface HotelDetails {
-  phoneNumber: string;
-  amenities: ("Wi-Fi" | "Pool" | "Parking")[];
+  phoneNumber?: string; // Backend may not always provide this for hotels
+  amenities: string[]; // Backend uses generic string array, not restricted values
 }
 
 // A beach or landmark might not have any unique details yet

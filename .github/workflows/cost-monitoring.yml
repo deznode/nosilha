@@ -1,0 +1,413 @@
+name: GitHub Actions Cost Monitoring
+
+# Run monthly on the 1st at 9 AM UTC, and allow manual triggering
+on:
+  schedule:
+    - cron: '0 9 1 * *'  # Monthly on 1st at 9 AM UTC
+  workflow_dispatch:
+    inputs:
+      report_period:
+        description: 'Report period (days)'
+        required: false
+        default: '30'
+        type: string
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false  # Let monitoring complete
+
+jobs:
+  cost-monitoring:
+    name: GitHub Actions Usage Analysis
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      actions: read
+      issues: write  # For creating monitoring reports as issues
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up monitoring period
+        id: period
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            DAYS="${{ github.event.inputs.report_period }}"
+          else
+            DAYS="30"
+          fi
+
+          END_DATE=$(date -u +"%Y-%m-%d")
+          START_DATE=$(date -u -d "${DAYS} days ago" +"%Y-%m-%d")
+
+          echo "start_date=${START_DATE}" >> $GITHUB_OUTPUT
+          echo "end_date=${END_DATE}" >> $GITHUB_OUTPUT
+          echo "period_days=${DAYS}" >> $GITHUB_OUTPUT
+
+          echo "📊 Monitoring period: ${START_DATE} to ${END_DATE} (${DAYS} days)"
+
+      - name: Fetch GitHub Actions usage data
+        id: usage
+        run: |
+          echo "🔍 Fetching GitHub Actions usage data..."
+
+          # Get workflow runs from the last period
+          gh api repos/${{ github.repository }}/actions/runs \
+            --paginate \
+            --jq '.workflow_runs[] | select(.created_at >= "${{ steps.period.outputs.start_date }}T00:00:00Z") | {
+              id: .id,
+              name: .name,
+              status: .status,
+              conclusion: .conclusion,
+              created_at: .created_at,
+              updated_at: .updated_at,
+              run_number: .run_number,
+              event: .event,
+              actor: .actor.login,
+              head_branch: .head_branch
+            }' > workflow_runs.json
+
+          # Debug: Check API response structure and validate data
+          echo "🔍 API Response validation:"
+          if [ ! -s workflow_runs.json ]; then
+            echo "⚠️ workflow_runs.json is empty or doesn't exist"
+            echo "[]" > workflow_runs.json
+          fi
+
+          # Count and validate workflow runs
+          run_count=$(jq -s 'length' workflow_runs.json 2>/dev/null || echo "0")
+          echo "📊 Found ${run_count} workflow runs for analysis"
+
+          if [ "$run_count" -eq 0 ]; then
+            echo "ℹ️ No workflow runs found in the specified period. This might be normal for a quiet period."
+          fi
+
+          # Get detailed job information for each workflow run
+          echo "🔍 Fetching job details for workflow runs..."
+
+          # Initialize summary files
+          echo "# GitHub Actions Usage Summary" > usage_summary.md
+          echo "" >> usage_summary.md
+          echo "**Period:** ${{ steps.period.outputs.start_date }} to ${{ steps.period.outputs.end_date }} (${{ steps.period.outputs.period_days }} days)" >> usage_summary.md
+          echo "**Generated:** $(date -u)" >> usage_summary.md
+          echo "" >> usage_summary.md
+
+          total_minutes=0
+          total_runs=0
+          successful_runs=0
+          failed_runs=0
+
+          # Track workflow statistics
+          declare -A workflow_minutes
+          declare -A workflow_runs
+          declare -A workflow_success
+
+          # Process each workflow run with error handling
+          while IFS= read -r run || [ -n "$run" ]; do
+            # Skip empty lines and null values
+            if [ -z "$run" ] || [ "$run" = "null" ] || [ "$run" = "" ]; then
+              continue
+            fi
+
+            # Validate run data structure before processing
+            run_id=$(echo "$run" | jq -r '.id // empty' 2>/dev/null)
+            workflow_name=$(echo "$run" | jq -r '.name // empty' 2>/dev/null)
+            conclusion=$(echo "$run" | jq -r '.conclusion // empty' 2>/dev/null)
+
+            # Skip if essential fields are missing
+            if [ -z "$run_id" ] || [ "$run_id" = "null" ] || [ -z "$workflow_name" ] || [ "$workflow_name" = "null" ]; then
+              echo "⚠️ Skipping malformed workflow run data: $run"
+              continue
+            fi
+
+            echo "Processing run $run_id for workflow: $workflow_name"
+
+            # Get jobs for this run with error handling
+            if ! gh api repos/${{ github.repository }}/actions/runs/$run_id/jobs \
+              --jq '.jobs[]? | {
+                name: .name,
+                status: .status,
+                conclusion: .conclusion,
+                started_at: .started_at,
+                completed_at: .completed_at,
+                runner_name: .runner_name,
+                steps: [.steps[]? | {name: .name, status: .status, conclusion: .conclusion}]
+              }' > "jobs_${run_id}.json" 2>/dev/null; then
+              echo "⚠️ Failed to fetch jobs for run $run_id, skipping"
+              continue
+            fi
+
+            # Calculate runtime for this workflow run
+            run_minutes=0
+            while IFS= read -r job || [ -n "$job" ]; do
+              # Skip empty lines and null values
+              if [ -z "$job" ] || [ "$job" = "null" ] || [ "$job" = "" ]; then
+                continue
+              fi
+
+              started_at=$(echo "$job" | jq -r '.started_at // empty' 2>/dev/null)
+              completed_at=$(echo "$job" | jq -r '.completed_at // empty' 2>/dev/null)
+
+              if [ "$started_at" != "null" ] && [ "$completed_at" != "null" ]; then
+                start_epoch=$(date -d "$started_at" +%s)
+                end_epoch=$(date -d "$completed_at" +%s)
+                duration_seconds=$((end_epoch - start_epoch))
+                duration_minutes=$((duration_seconds / 60))
+
+                # GitHub rounds up to nearest minute
+                if [ $((duration_seconds % 60)) -gt 0 ]; then
+                  duration_minutes=$((duration_minutes + 1))
+                fi
+
+                run_minutes=$((run_minutes + duration_minutes))
+              fi
+            done < "jobs_${run_id}.json"
+
+            # Update totals
+            total_minutes=$((total_minutes + run_minutes))
+            total_runs=$((total_runs + 1))
+
+            # Update workflow statistics
+            workflow_minutes["$workflow_name"]=$((${workflow_minutes["$workflow_name"]:-0} + run_minutes))
+            workflow_runs["$workflow_name"]=$((${workflow_runs["$workflow_name"]:-0} + 1))
+
+            if [ "$conclusion" = "success" ]; then
+              successful_runs=$((successful_runs + 1))
+              workflow_success["$workflow_name"]=$((${workflow_success["$workflow_name"]:-0} + 1))
+            elif [ "$conclusion" = "failure" ]; then
+              failed_runs=$((failed_runs + 1))
+            fi
+
+            # Clean up job file
+            rm -f "jobs_${run_id}.json"
+
+          done < <(jq -c '.[]?' workflow_runs.json 2>/dev/null || echo "")
+
+          # Special handling for empty results
+          if [ $total_runs -eq 0 ]; then
+            echo "📝 No workflow runs found in the specified period - generating empty report"
+            echo "" >> usage_summary.md
+            echo "## ℹ️ No Activity Found" >> usage_summary.md
+            echo "" >> usage_summary.md
+            echo "No GitHub Actions workflow runs were found in the specified time period." >> usage_summary.md
+            echo "This could indicate:" >> usage_summary.md
+            echo "- Very quiet development period" >> usage_summary.md
+            echo "- All activity outside the monitoring window" >> usage_summary.md
+            echo "- Possible API filtering issues (check date range)" >> usage_summary.md
+            echo "" >> usage_summary.md
+          fi
+
+          # Generate summary report
+          echo "## 📊 Usage Summary" >> usage_summary.md
+          echo "" >> usage_summary.md
+          echo "| Metric | Value |" >> usage_summary.md
+          echo "|--------|-------|" >> usage_summary.md
+          echo "| **Total Minutes Used** | ${total_minutes} |" >> usage_summary.md
+          echo "| **Total Workflow Runs** | ${total_runs} |" >> usage_summary.md
+          echo "| **Successful Runs** | ${successful_runs} |" >> usage_summary.md
+          echo "| **Failed Runs** | ${failed_runs} |" >> usage_summary.md
+
+          if [ $total_runs -gt 0 ]; then
+            success_rate=$(( (successful_runs * 100) / total_runs ))
+            echo "| **Success Rate** | ${success_rate}% |" >> usage_summary.md
+          fi
+
+          echo "" >> usage_summary.md
+
+          # GitHub Free Tier Analysis (for private repos)
+          free_tier_limit=2000
+          usage_percentage=$(( (total_minutes * 100) / free_tier_limit ))
+          remaining_minutes=$((free_tier_limit - total_minutes))
+
+          echo "## 💰 Cost Analysis (Private Repository)" >> usage_summary.md
+          echo "" >> usage_summary.md
+          echo "| Metric | Value |" >> usage_summary.md
+          echo "|--------|-------|" >> usage_summary.md
+          echo "| **Free Tier Limit** | 2,000 minutes/month |" >> usage_summary.md
+          echo "| **Current Usage** | ${total_minutes} minutes |" >> usage_summary.md
+          echo "| **Usage Percentage** | ${usage_percentage}% |" >> usage_summary.md
+          echo "| **Remaining Minutes** | ${remaining_minutes} |" >> usage_summary.md
+
+          if [ $total_minutes -gt $free_tier_limit ]; then
+            overage_minutes=$((total_minutes - free_tier_limit))
+            overage_cost=$(echo "scale=2; $overage_minutes * 0.008" | bc)
+            echo "| **⚠️ Overage Minutes** | ${overage_minutes} |" >> usage_summary.md
+            echo "| **💸 Estimated Overage Cost** | \$${overage_cost} |" >> usage_summary.md
+          else
+            echo "| **✅ Overage Cost** | \$0.00 |" >> usage_summary.md
+          fi
+
+          echo "" >> usage_summary.md
+
+          # Workflow breakdown
+          echo "## 🔧 Workflow Breakdown" >> usage_summary.md
+          echo "" >> usage_summary.md
+          echo "| Workflow | Runs | Minutes | Success Rate | Avg Minutes/Run |" >> usage_summary.md
+          echo "|----------|------|---------|--------------|-----------------|" >> usage_summary.md
+
+          for workflow in "${!workflow_minutes[@]}"; do
+            w_minutes=${workflow_minutes[$workflow]}
+            w_runs=${workflow_runs[$workflow]}
+            w_success=${workflow_success[$workflow]:-0}
+            w_success_rate=$(( (w_success * 100) / w_runs ))
+            w_avg_minutes=$(( w_minutes / w_runs ))
+
+            echo "| $workflow | $w_runs | $w_minutes | ${w_success_rate}% | $w_avg_minutes |" >> usage_summary.md
+          done
+
+          echo "" >> usage_summary.md
+
+          # Recommendations
+          echo "## 💡 Recommendations" >> usage_summary.md
+          echo "" >> usage_summary.md
+
+          if [ $usage_percentage -gt 75 ]; then
+            echo "- ⚠️ **High Usage Alert**: Currently using ${usage_percentage}% of free tier" >> usage_summary.md
+            echo "- 🔍 **Review Required**: Consider optimizing workflows to reduce minute consumption" >> usage_summary.md
+          elif [ $usage_percentage -gt 50 ]; then
+            echo "- 📊 **Moderate Usage**: Currently using ${usage_percentage}% of free tier" >> usage_summary.md
+            echo "- 👀 **Monitor Closely**: Keep an eye on usage trends" >> usage_summary.md
+          else
+            echo "- ✅ **Good Usage**: Currently using ${usage_percentage}% of free tier" >> usage_summary.md
+            echo "- 📈 **Room for Growth**: Plenty of free tier remaining" >> usage_summary.md
+          fi
+
+          if [ $failed_runs -gt 0 ]; then
+            echo "- 🔧 **Failed Runs**: ${failed_runs} failed runs are wasting minutes" >> usage_summary.md
+            echo "- 🐛 **Action Required**: Investigate and fix failing workflows" >> usage_summary.md
+          fi
+
+          echo "" >> usage_summary.md
+          echo "---" >> usage_summary.md
+          echo "*Report generated by GitHub Actions Cost Monitoring*" >> usage_summary.md
+
+          # Output summary for GitHub Actions
+          echo "total_minutes=${total_minutes}" >> $GITHUB_OUTPUT
+          echo "total_runs=${total_runs}" >> $GITHUB_OUTPUT
+          echo "usage_percentage=${usage_percentage}" >> $GITHUB_OUTPUT
+          echo "remaining_minutes=${remaining_minutes}" >> $GITHUB_OUTPUT
+
+          # Create alert status
+          if [ $usage_percentage -gt 90 ]; then
+            echo "alert_level=critical" >> $GITHUB_OUTPUT
+            echo "alert_message=⚠️ CRITICAL: Using ${usage_percentage}% of free tier!" >> $GITHUB_OUTPUT
+          elif [ $usage_percentage -gt 75 ]; then
+            echo "alert_level=warning" >> $GITHUB_OUTPUT
+            echo "alert_message=⚠️ WARNING: Using ${usage_percentage}% of free tier" >> $GITHUB_OUTPUT
+          else
+            echo "alert_level=info" >> $GITHUB_OUTPUT
+            echo "alert_message=✅ Usage within normal limits (${usage_percentage}%)" >> $GITHUB_OUTPUT
+          fi
+
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create monitoring report directory
+        run: |
+          mkdir -p docs/monitoring
+
+      - name: Save monitoring report
+        run: |
+          # Create timestamped report
+          report_date=$(date -u +"%Y-%m")
+          cp usage_summary.md "docs/monitoring/usage-report-${report_date}.md"
+
+          # Update latest report
+          cp usage_summary.md "docs/monitoring/latest-usage-report.md"
+
+          echo "📁 Saved usage report to docs/monitoring/"
+
+      - name: Create GitHub Issue for High Usage
+        if: steps.usage.outputs.alert_level == 'warning' || steps.usage.outputs.alert_level == 'critical'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const alertLevel = '${{ steps.usage.outputs.alert_level }}';
+            const totalMinutes = '${{ steps.usage.outputs.total_minutes }}';
+            const usagePercentage = '${{ steps.usage.outputs.usage_percentage }}';
+            const remainingMinutes = '${{ steps.usage.outputs.remaining_minutes }}';
+
+            const title = `${alertLevel.toUpperCase()}: GitHub Actions Usage Alert - ${usagePercentage}% of free tier used`;
+
+            const body = `## ${{ steps.usage.outputs.alert_message }}
+
+            **Usage Summary:**
+            - Total Minutes Used: ${totalMinutes}
+            - Free Tier Usage: ${usagePercentage}%
+            - Remaining Minutes: ${remainingMinutes}
+            - Alert Level: ${alertLevel.toUpperCase()}
+
+            **Action Required:**
+            ${alertLevel === 'critical' ?
+              '- 🚨 **IMMEDIATE ACTION NEEDED**: Review and optimize workflows to prevent overage charges\n- 🔍 Investigate high-usage workflows and implement optimizations' :
+              '- 👀 **MONITOR CLOSELY**: Usage is approaching free tier limits\n- 📊 Consider reviewing workflow efficiency'
+            }
+
+            **Next Steps:**
+            1. Review the detailed usage report in docs/monitoring/latest-usage-report.md
+            2. Identify workflows consuming the most minutes
+            3. Implement optimization strategies from Phase 1 & 2 of the GitHub Actions optimization roadmap
+            4. Consider moving to public repository for unlimited free minutes
+
+            **Monitoring Period:** ${{ steps.period.outputs.start_date }} to ${{ steps.period.outputs.end_date }}
+
+            ---
+            *This issue was automatically created by the GitHub Actions Cost Monitoring workflow*`;
+
+            // Check if similar issue already exists
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'monitoring,github-actions'
+            });
+
+            const existingIssue = issues.find(issue =>
+              issue.title.includes('GitHub Actions Usage Alert')
+            );
+
+            if (existingIssue) {
+              // Update existing issue
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                title: title,
+                body: body
+              });
+              console.log(`Updated existing issue #${existingIssue.number}`);
+            } else {
+              // Create new issue
+              const { data: newIssue } = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['monitoring', 'github-actions', alertLevel === 'critical' ? 'urgent' : 'enhancement']
+              });
+              console.log(`Created new issue #${newIssue.number}`);
+            }
+
+      - name: Performance metrics summary
+        run: |
+          echo "📈 Performance Summary for ${{ steps.period.outputs.period_days }} days:"
+          echo "- Total minutes: ${{ steps.usage.outputs.total_minutes }}"
+          echo "- Total runs: ${{ steps.usage.outputs.total_runs }}"
+          echo "- Free tier usage: ${{ steps.usage.outputs.usage_percentage }}%"
+          echo "- ${{ steps.usage.outputs.alert_message }}"
+          echo ""
+          echo "📄 Detailed report saved to docs/monitoring/latest-usage-report.md"
+
+      - name: Clean up temporary files
+        if: always()
+        run: |
+          rm -f workflow_runs.json
+          rm -f usage_summary.md
+          rm -f jobs_*.json

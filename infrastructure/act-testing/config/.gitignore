@@ -1,0 +1,13 @@
+# Ignore actual secrets file
+secrets.env
+
+# Ignore any backup or temporary files
+*.backup
+*.tmp
+*.log
+
+# Ignore any generated keys or certificates
+*.key
+*.pem
+*.json
+!*.example.json

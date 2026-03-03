@@ -1,0 +1,79 @@
+# ===================================================================
+# LOCAL DEVELOPMENT CONFIGURATION EXAMPLE
+# Copy this file to application-local.yml and fill in your values
+# ===================================================================
+
+app:
+  cors:
+    # Comma-separated list of allowed origins for CORS
+    allowed-origins: http://localhost:3000,https://localhost:3000
+
+spring:
+  # Multipart file upload configuration
+  servlet:
+    multipart:
+      max-file-size: 10MB        # Allow up to 10MB per file
+      max-request-size: 15MB     # Allow up to 15MB per request
+
+  # Database Configuration for Local Development
+  # Uses local PostgreSQL via Docker Compose
+  datasource:
+    url: jdbc:postgresql://localhost:5432/nosilha_db
+    password: nosilha
+    username: nosilha
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      leak-detection-threshold: 60000
+
+  # JPA/Hibernate Configuration
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        jdbc:
+          batch_size: 20
+
+# Google Cloud Storage Configuration
+# For local development - uses GCS emulator or live GCS bucket
+gcp:
+  # GCS emulator URL (when using Docker Compose)
+  serverUrl: http://localhost:8082
+  # Your GCS bucket name
+  gcs-bucket-name: your-gcs-bucket-name
+
+# Supabase JWT Configuration
+# Use dummy secret for local development or your actual Supabase JWT secret
+supabase:
+  jwt-secret: your-supabase-jwt-secret
+
+# Management endpoints for health checks and debugging
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Logging configuration for debugging
+logging:
+  level:
+    com:
+      nosilha: DEBUG
+      google:
+        cloud: debug
+    org.springframework.security: DEBUG
+    root: INFO
+
+# Swagger/OpenAPI documentation (enabled for local development)
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+  api-docs:
+    enabled: true
