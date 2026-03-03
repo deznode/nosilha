@@ -23,6 +23,7 @@ import java.util.UUID
 abstract class DirectoryEntryDto {
   abstract val id: UUID
   abstract val name: String
+  abstract val slug: String
   abstract val description: String
   abstract val town: String
   abstract val imageUrl: String?
@@ -37,6 +38,7 @@ abstract class DirectoryEntryDto {
 data class RestaurantDto(
   override val id: UUID,
   override val name: String,
+  override val slug: String,
   override val description: String,
   override val town: String,
   override val imageUrl: String?,
@@ -52,6 +54,7 @@ data class RestaurantDto(
 data class HotelDto(
   override val id: UUID,
   override val name: String,
+  override val slug: String,
   override val description: String,
   override val town: String,
   override val imageUrl: String?,
@@ -67,6 +70,7 @@ data class HotelDto(
 data class BeachDto(
   override val id: UUID,
   override val name: String,
+  override val slug: String,
   override val description: String,
   override val town: String,
   override val imageUrl: String?,
@@ -82,6 +86,7 @@ data class BeachDto(
 data class LandmarkDto(
   override val id: UUID,
   override val name: String,
+  override val slug: String,
   override val description: String,
   override val town: String,
   override val imageUrl: String?,

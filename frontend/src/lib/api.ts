@@ -1,87 +1,64 @@
-import { DirectoryEntry } from "../types/directory";
+import type { DirectoryEntry } from "@/types/directory";
 
-const MOCK_ENTRIES: DirectoryEntry[] = [
-  {
-    id: "1",
-    slug: "nha-kasa-restaurante",
-    name: "Nha Kasa Restaurante",
-    category: "Restaurant",
-    imageUrl: "https://picsum.photos/800/600?random=1", // <-- Updated
-    town: "Nova Sintra",
-    description:
-      "A beloved local spot known for its fresh seafood and traditional Cape Verdean dishes, offering an authentic taste of Brava.",
-    rating: 4.5,
-    reviewCount: 88,
-    details: {
-      phoneNumber: "+238 285 1234",
-      openingHours: "12:00 PM - 10:00 PM Daily",
-      cuisine: ["Cape Verdean", "Seafood", "Traditional"],
-    },
-  },
-  {
-    id: "2",
-    slug: "pousada-djabraba",
-    name: "Pousada Djabraba",
-    category: "Hotel",
-    imageUrl: "https://picsum.photos/800/600?random=2", // <-- Updated
-    town: "Nova Sintra",
-    description:
-      "A charming and comfortable hotel offering stunning panoramic views of the island and the ocean.",
-    rating: 4.8,
-    reviewCount: 120,
-    details: {
-      phoneNumber: "+238 285 5678",
-      amenities: ["Wi-Fi", "Pool", "Parking"],
-    },
-  },
-  {
-    id: "3",
-    slug: "praia-de-faja-d-agua",
-    name: "Praia de Fajã d'Água",
-    category: "Beach",
-    imageUrl: "https://picsum.photos/800/600?random=3", // <-- Updated
-    town: "Fajã d'Água",
-    description:
-      "A beautiful natural swimming bay with volcanic black sand and clear waters, surrounded by dramatic green cliffs.",
-    rating: 5.0,
-    reviewCount: 250,
-    details: null,
-  },
-  {
-    id: "4",
-    slug: "miradouro-eugenio-tavares",
-    name: "Miradouro Eugénio Tavares",
-    category: "Landmark",
-    imageUrl: "https://picsum.photos/800/600?random=4", // <-- Updated
-    town: "Nova Sintra",
-    description:
-      "A scenic viewpoint dedicated to the famous poet Eugénio Tavares, offering breathtaking views of the coastline.",
-    rating: 4.9,
-    reviewCount: 150,
-    details: null,
-  },
-];
+// 1. Read the base URL from environment variables.
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-export async function getEntriesByCategory(
-  category: string
-): Promise<DirectoryEntry[]> {
-  console.log(`Fetching entries for category: ${category}`);
-  if (category.toLowerCase() === "all") return MOCK_ENTRIES;
-  return MOCK_ENTRIES.filter(
-    (entry) => entry.category.toLowerCase() === category.toLowerCase()
+// 2. Add a check to ensure the variable is defined.
+if (!API_BASE_URL) {
+  throw new Error(
+    "NEXT_PUBLIC_API_BASE_URL is not defined. Please check your .env.local file."
   );
 }
 
-export async function getEntryById(
-  id: string
-): Promise<DirectoryEntry | undefined> {
-  console.log(`Fetching entry with id: ${id}`);
-  return MOCK_ENTRIES.find((entry) => entry.id === id);
+/**
+ * Fetches all directory entries or entries for a specific category from the backend API.
+ * @param category The category to fetch, or 'all' to fetch all entries.
+ * @returns A promise that resolves to an array of directory entries.
+ */
+export async function getEntriesByCategory(
+  category: string
+): Promise<DirectoryEntry[]> {
+  const endpoint =
+    category.toLowerCase() === "all"
+      ? `${API_BASE_URL}/entries`
+      : `${API_BASE_URL}/entries?category=${category}`;
+
+  try {
+    const response = await fetch(endpoint, { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`API call failed with status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to fetch entries by category:", error);
+    return [];
+  }
 }
 
+/**
+ * Fetches a single directory entry by its slug from the backend API.
+ * @param slug The slug of the entry to fetch.
+ * @returns A promise that resolves to a single directory entry or undefined if not found.
+ */
 export async function getEntryBySlug(
   slug: string
 ): Promise<DirectoryEntry | undefined> {
-  console.log(`Fetching entry with slug: ${slug}`);
-  return MOCK_ENTRIES.find((entry) => entry.slug === slug);
+  const endpoint = `${API_BASE_URL}/slug/${slug}`;
+
+  try {
+    const response = await fetch(endpoint, { cache: "no-store" });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return undefined;
+      }
+      throw new Error(`API call failed with status: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Failed to fetch entry by slug "${slug}":`, error);
+    return undefined;
+  }
 }

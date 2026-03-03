@@ -1,9 +1,12 @@
-HELP.md
+# Gradle files
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+
+# Generated files
+HELP.md
 
 ### STS ###
 .apt_generated
@@ -36,5 +39,57 @@ out/
 ### VS Code ###
 .vscode/
 
+### Eclipse ###
+.metadata
+.settings
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+
 ### Kotlin ###
 .kotlin
+*.kotlin_module
+
+### Spring Boot ###
+/target/
+application-local.properties
+application-*.properties
+!application.properties
+*.log
+logs/
+
+### Database ###
+*.db
+*.sqlite
+*.sqlite3
+h2/
+
+### OS specific ###
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+### Temporary files ###
+*.tmp
+*.temp
+*~
+
+### Environment variables ###
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+### Coverage reports ###
+.jacoco/
+jacoco.exec
+coverage/

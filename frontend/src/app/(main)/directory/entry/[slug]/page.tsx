@@ -31,9 +31,8 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-// A helper to display category-specific details, demonstrating the power of the new type
+// A helper to display category-specific details
 function CategorySpecificDetails({ entry }: { entry: DirectoryEntry }) {
-  // The 'details' object is now type-safe based on the category
   switch (entry.category) {
     case "Restaurant":
       return (

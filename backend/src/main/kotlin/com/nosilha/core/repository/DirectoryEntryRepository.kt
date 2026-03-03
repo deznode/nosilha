@@ -26,5 +26,16 @@ interface DirectoryEntryRepository : JpaRepository<DirectoryEntry, UUID> {
    * @param category The category name to filter by (e.g., "Restaurant", "Hotel").
    * @return A list of DirectoryEntry entities matching the specified category.
    */
-  fun findByCategory(category: String): List<DirectoryEntry>
+  fun findByCategoryIgnoreCase(category: String): List<DirectoryEntry>
+
+  /**
+   * Finds a single DirectoryEntry by its unique slug.
+   *
+   * Since slugs are unique across all directory entries, this method will
+   * return at most one entry matching the given slug.
+   *
+   * @param slug The unique slug to search for.
+   * @return An Optional containing the DirectoryEntry if found, empty otherwise.
+   */
+  fun findBySlug(slug: String): DirectoryEntry?
 }

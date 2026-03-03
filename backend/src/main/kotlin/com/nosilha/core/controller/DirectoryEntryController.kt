@@ -2,7 +2,6 @@ package com.nosilha.core.controller
 
 import com.nosilha.core.dto.DirectoryEntryDto
 import com.nosilha.core.service.DirectoryEntryService
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
@@ -35,7 +34,7 @@ class DirectoryEntryController(
    * @return A list of [DirectoryEntryDto] objects.
    */
   @GetMapping("/entries")
-  fun getEntries(@RequestParam(required = false) category: String?): List<DirectoryEntryDto> {
+  fun getEntries(@RequestParam(name = "category", required = false) category: String?): List<DirectoryEntryDto> {
     return category?.let {
       service.getEntriesByCategory(it)
     } ?: service.getAllEntries()
@@ -52,5 +51,22 @@ class DirectoryEntryController(
   @GetMapping("/{id}")
   fun getEntryById(@PathVariable id: UUID): DirectoryEntryDto {
     return service.getEntryById(id)
+  }
+
+  /**
+   * Retrieves a single directory entry by its unique slug.
+   *
+   * This endpoint provides a user-friendly way to access directory entries
+   * using human-readable slugs instead of UUIDs. For example:
+   * GET /api/v1/directory/slug/marias-restaurant-nova-sintra
+   *
+   * @param slug The unique slug of the directory entry to retrieve.
+   * @return The [DirectoryEntryDto] with a 200 OK status.
+   * If the entry is not found, the service will throw an exception that results
+   * in a 404 Not Found status.
+   */
+  @GetMapping("/slug/{slug}")
+  fun getEntryBySlug(@PathVariable slug: String): DirectoryEntryDto {
+    return service.getEntryBySlug(slug)
   }
 }

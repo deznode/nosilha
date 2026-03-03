@@ -32,6 +32,9 @@ abstract class DirectoryEntry {
   @Column(nullable = false)
   lateinit var name: String
 
+  @Column(unique = true, nullable = false)
+  lateinit var slug: String
+
   @Column(length = 2048)
   lateinit var description: String
 
