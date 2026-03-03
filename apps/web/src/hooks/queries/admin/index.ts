@@ -22,6 +22,8 @@ export { useAdminContributors } from "./useAdminContributors";
 export { useSystemHealth } from "./useSystemHealth";
 export type { SystemStatus, SystemHealthResponse } from "./useSystemHealth";
 
+export { useAiHealth } from "./useAiHealth";
+export { useUpdateAiDomainConfig } from "./useUpdateAiDomainConfig";
 export { useAiReviewQueue } from "./useAiReviewQueue";
 export { useAiRunDetail } from "./useAiRunDetail";
 export { useGalleryMediaById } from "./useGalleryMediaById";
@@ -48,6 +50,7 @@ export { useUpdateDirectoryEntry } from "./useUpdateDirectoryEntry";
 export { useDeleteDirectoryEntry } from "./useDeleteDirectoryEntry";
 export { useUpdateMediaStatus } from "./useUpdateMediaStatus";
 export { useUpdateGalleryStatus } from "./useUpdateGalleryStatus";
+export { useUpdateGalleryMedia } from "./useUpdateGalleryMedia";
 export { usePromoteToHeroImage } from "./usePromoteToHeroImage";
 export { useArchiveStory } from "./useArchiveStory";
 

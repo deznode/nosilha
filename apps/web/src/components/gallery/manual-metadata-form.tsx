@@ -11,7 +11,6 @@ import { useState } from "react";
 import {
   Calendar,
   MapPin,
-  User,
   Archive,
   ChevronDown,
   ChevronUp,
@@ -163,21 +162,6 @@ export function ManualMetadataForm({
                 ))}
               </div>
             )}
-          </div>
-
-          {/* Photographer */}
-          <div>
-            <label className="text-muted mb-1.5 flex items-center gap-1.5 text-xs font-medium">
-              <User size={12} />
-              Photographer
-            </label>
-            <input
-              type="text"
-              placeholder="Name if known"
-              value={value.photographerCredit || ""}
-              onChange={(e) => onChange({ photographerCredit: e.target.value })}
-              className="border-hairline bg-canvas text-body rounded-card focus:ring-ocean-blue/50 w-full border px-3 py-2 text-sm outline-none focus:ring-2"
-            />
           </div>
 
           {/* Archive Source */}

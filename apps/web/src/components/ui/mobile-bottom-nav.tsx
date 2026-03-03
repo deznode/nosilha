@@ -104,7 +104,7 @@ export function MobileBottomNav() {
       {/* More menu overlay */}
       {moreMenuOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm md:hidden"
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm lg:hidden"
           onClick={() => setMoreMenuOpen(false)}
           aria-hidden="true"
         />
@@ -112,7 +112,7 @@ export function MobileBottomNav() {
 
       {/* More menu popover */}
       {moreMenuOpen && (
-        <div className="bg-surface border-hairline rounded-card shadow-floating fixed right-4 bottom-20 z-50 w-56 border p-2 md:hidden">
+        <div className="bg-surface border-hairline rounded-card shadow-floating fixed right-4 bottom-20 z-50 w-56 border p-2 lg:hidden">
           <nav aria-label="More navigation options">
             {moreMenuItems.map((item) => (
               <Link
@@ -163,7 +163,7 @@ export function MobileBottomNav() {
 
       {/* Bottom navigation bar */}
       <nav
-        className="bg-surface border-hairline fixed right-0 bottom-0 left-0 z-50 border-t pb-[env(safe-area-inset-bottom)] md:hidden"
+        className="bg-surface border-hairline fixed right-0 bottom-0 left-0 z-50 border-t pb-[env(safe-area-inset-bottom)] lg:hidden"
         aria-label="Mobile navigation"
       >
         <div className="flex h-14 items-center justify-around">

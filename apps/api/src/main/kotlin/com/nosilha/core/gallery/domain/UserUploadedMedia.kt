@@ -138,6 +138,10 @@ class UserUploadedMedia : GalleryMedia() {
 
     // --- AI-generated fields (populated on moderation approval) ---
 
+    /** AI-generated concise title for display. */
+    @Column(name = "ai_title", length = 256)
+    var aiTitle: String? = null
+
     /** AI-generated tags for image classification (PostgreSQL TEXT[] array). */
     @Column(name = "ai_tags", columnDefinition = "TEXT[]")
     @JdbcTypeCode(SqlTypes.ARRAY)

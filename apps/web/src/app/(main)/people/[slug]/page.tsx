@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { cacheLife } from "next/cache";
 import { headers, cookies } from "next/headers";
 import { Article } from "@/components/content/article";
 import { pages } from "@/.velite";
@@ -18,9 +19,6 @@ interface PageProps {
     lang?: string;
   }>;
 }
-
-// ISR revalidation
-export const revalidate = 3600;
 
 // Get pages for this category
 const categoryPages = pages.filter((p) => p.category === "people");
@@ -68,7 +66,7 @@ export default async function PeoplePage({ params, searchParams }: PageProps) {
   const { slug } = await params;
   const { lang } = await searchParams;
 
-  // Get available languages for this page
+  // Resolve language outside cache boundary (uses headers/cookies)
   const availableLanguages = categoryPages
     .filter((p) => p.slug === slug)
     .map((p) => p.language as Language);
@@ -77,7 +75,6 @@ export default async function PeoplePage({ params, searchParams }: PageProps) {
     notFound();
   }
 
-  // Auto-detect language from URL param, cookie, or Accept-Language header
   const headersList = await headers();
   const cookieStore = await cookies();
   const acceptLanguage = headersList.get("accept-language");
@@ -90,7 +87,23 @@ export default async function PeoplePage({ params, searchParams }: PageProps) {
     notFound();
   }
 
-  // Find the page in the best available language
+  return cachedPeopleSlugContent(
+    slug,
+    bestLang,
+    requestedLang,
+    availableLanguages
+  );
+}
+
+async function cachedPeopleSlugContent(
+  slug: string,
+  bestLang: Language,
+  requestedLang: Language,
+  availableLanguages: Language[]
+) {
+  "use cache";
+  cacheLife("content");
+
   const page = categoryPages.find(
     (p) => p.slug === slug && p.language === bestLang
   );
@@ -103,8 +116,8 @@ export default async function PeoplePage({ params, searchParams }: PageProps) {
 
   // Get related articles
   const relatedArticles = (page.relatedArticles || [])
-    .map((slug) => {
-      const articleVersions = pages.filter((p) => p.slug === slug);
+    .map((relatedSlug) => {
+      const articleVersions = pages.filter((p) => p.slug === relatedSlug);
       if (articleVersions.length === 0) return null;
 
       const availableLangs = articleVersions.map((p) => p.language as Language);

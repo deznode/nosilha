@@ -1,15 +1,20 @@
 package com.nosilha.core.places.domain
 
 import com.nosilha.core.shared.api.BeachDto
+import com.nosilha.core.shared.api.ChurchDto
 import com.nosilha.core.shared.api.ContentActionSettingsDto
 import com.nosilha.core.shared.api.DirectoryEntryDto
 import com.nosilha.core.shared.api.HeritageDto
 import com.nosilha.core.shared.api.HotelDetailsDto
 import com.nosilha.core.shared.api.HotelDto
 import com.nosilha.core.shared.api.NatureDto
+import com.nosilha.core.shared.api.PortDto
 import com.nosilha.core.shared.api.RestaurantDetailsDto
 import com.nosilha.core.shared.api.RestaurantDto
 import com.nosilha.core.shared.api.TownDto
+import com.nosilha.core.shared.api.TownPoiDto
+import com.nosilha.core.shared.api.TrailDto
+import com.nosilha.core.shared.api.ViewpointDto
 import io.github.oshai.kotlinlogging.KotlinLogging
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import tools.jackson.module.kotlin.readValue
@@ -140,6 +145,106 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
             updatedAt = updatedAt,
         )
 
+        is TownPoi -> TownPoiDto(
+            id = entityId,
+            name = name,
+            slug = slug,
+            description = description,
+            tags = tagList,
+            contentActions = contentActionSettings,
+            town = town,
+            latitude = latitude,
+            longitude = longitude,
+            imageUrl = imageUrl,
+            rating = rating,
+            reviewCount = reviewCount,
+            phoneNumber = phoneNumber,
+            email = email,
+            website = website,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+        )
+
+        is Viewpoint -> ViewpointDto(
+            id = entityId,
+            name = name,
+            slug = slug,
+            description = description,
+            tags = tagList,
+            contentActions = contentActionSettings,
+            town = town,
+            latitude = latitude,
+            longitude = longitude,
+            imageUrl = imageUrl,
+            rating = rating,
+            reviewCount = reviewCount,
+            phoneNumber = phoneNumber,
+            email = email,
+            website = website,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+        )
+
+        is Trail -> TrailDto(
+            id = entityId,
+            name = name,
+            slug = slug,
+            description = description,
+            tags = tagList,
+            contentActions = contentActionSettings,
+            town = town,
+            latitude = latitude,
+            longitude = longitude,
+            imageUrl = imageUrl,
+            rating = rating,
+            reviewCount = reviewCount,
+            phoneNumber = phoneNumber,
+            email = email,
+            website = website,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+        )
+
+        is Church -> ChurchDto(
+            id = entityId,
+            name = name,
+            slug = slug,
+            description = description,
+            tags = tagList,
+            contentActions = contentActionSettings,
+            town = town,
+            latitude = latitude,
+            longitude = longitude,
+            imageUrl = imageUrl,
+            rating = rating,
+            reviewCount = reviewCount,
+            phoneNumber = phoneNumber,
+            email = email,
+            website = website,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+        )
+
+        is Port -> PortDto(
+            id = entityId,
+            name = name,
+            slug = slug,
+            description = description,
+            tags = tagList,
+            contentActions = contentActionSettings,
+            town = town,
+            latitude = latitude,
+            longitude = longitude,
+            imageUrl = imageUrl,
+            rating = rating,
+            reviewCount = reviewCount,
+            phoneNumber = phoneNumber,
+            email = email,
+            website = website,
+            createdAt = createdAt,
+            updatedAt = updatedAt,
+        )
+
         else -> throw IllegalStateException("Unsupported or unknown DirectoryEntry type: ${this::class.simpleName}")
     }
 }
@@ -230,5 +335,10 @@ fun DirectoryEntry.getCategoryValue(): String =
         is Beach -> "Beach"
         is Heritage -> "Heritage"
         is Nature -> "Nature"
+        is TownPoi -> "Town"
+        is Viewpoint -> "Viewpoint"
+        is Trail -> "Trail"
+        is Church -> "Church"
+        is Port -> "Port"
         else -> throw IllegalStateException("Unknown DirectoryEntry type: ${this::class.simpleName}")
     }

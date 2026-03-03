@@ -1,8 +1,32 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV === "development";
+
 const nextConfig: NextConfig = {
+  cacheComponents: true,
+  cacheLife: {
+    content: {
+      stale: 300,
+      revalidate: 3600,
+      expire: 86400,
+    },
+    entry: {
+      stale: 60,
+      revalidate: 1800,
+      expire: 86400,
+    },
+    longLived: {
+      stale: 600,
+      revalidate: 7200,
+      expire: 604800,
+    },
+  },
+  reactCompiler: true,
   output: "standalone",
   images: {
+    loader: "custom",
+    loaderFile: "./src/lib/cloudflare-image-loader.ts",
+    // remotePatterns retained for development mode (custom loader bypasses in dev)
     remotePatterns: [
       {
         protocol: "https",
@@ -24,6 +48,11 @@ const nextConfig: NextConfig = {
         hostname: "media.nosilha.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "img.youtube.com",
+        pathname: "/vi/**",
+      },
     ],
   },
   async redirects() {
@@ -42,6 +71,15 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     return [
+      {
+        source: "/_next/static/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
       {
         source: "/(.*)",
         headers: [
@@ -71,11 +109,11 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.mapbox.com https://www.googletagmanager.com https://www.google-analytics.com https://www.clarity.ms",
+              "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://api.mapbox.com https://www.googletagmanager.com https://www.google-analytics.com https://www.clarity.ms https://static.cloudflareinsights.com",
               "style-src 'self' 'unsafe-inline' https://api.mapbox.com https://fonts.googleapis.com",
               "img-src 'self' data: blob: https: https://*.mapbox.com https://*.supabase.co",
               "font-src 'self' https://fonts.gstatic.com",
-              "connect-src 'self' http://localhost:8080 https://api.nosilha.com https://*.nosilha.com https://api.mapbox.com https://*.mapbox.com https://www.google-analytics.com https://analytics.google.com https://*.supabase.co wss://*.supabase.co https://www.clarity.ms https://*.clarity.ms https://*.r2.cloudflarestorage.com",
+              `connect-src 'self' ${isDev ? "http://localhost:8080 " : ""}https://api.nosilha.com https://*.nosilha.com https://api.mapbox.com https://*.mapbox.com https://www.google-analytics.com https://analytics.google.com https://*.supabase.co wss://*.supabase.co https://www.clarity.ms https://*.clarity.ms https://*.r2.cloudflarestorage.com https://cloudflareinsights.com`,
               "worker-src 'self' blob:",
               "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com",
               "frame-ancestors 'none'",

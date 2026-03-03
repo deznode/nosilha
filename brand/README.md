@@ -35,7 +35,7 @@ brand/
 - Accessibility & WCAG compliance
 - Dark mode (Volcanic Night) adjustments
 
-For frontend implementation (design tokens, components, code patterns), see [`docs/design-system.md`](../docs/design-system.md).
+For frontend implementation (design tokens, components, code patterns), see [`docs/10-product/design-system.md`](../docs/10-product/design-system.md).
 
 ## Versioning
 

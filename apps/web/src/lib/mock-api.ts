@@ -717,8 +717,13 @@ export class MockApiClient implements ApiClient {
     contentType: string;
     name: string;
     email: string;
-    suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";
+    suggestionType:
+      | "CORRECTION"
+      | "ADDITION"
+      | "FEEDBACK"
+      | "PHOTO_IDENTIFICATION";
     message: string;
+    mediaId?: string;
     honeypot?: string;
   }): Promise<{ id: string | null; message: string }> {
     console.log(`Mock API: Submitting suggestion`, suggestionDto);
@@ -1713,7 +1718,7 @@ ${story.content
   // ================================
 
   async getGalleryMedia(): Promise<
-    import("@/types/gallery").GalleryMediaPageResponse
+    import("@/types/gallery").PublicGalleryMediaPageResponse
   > {
     console.log(`Mock API: Gallery methods not implemented yet`);
     await this.simulateDelay(300);
@@ -1721,7 +1726,7 @@ ${story.content
   }
 
   async getGalleryMediaById(): Promise<
-    import("@/types/gallery").GalleryMedia | undefined
+    import("@/types/gallery").PublicGalleryMedia | undefined
   > {
     await this.simulateDelay(200);
     return undefined;
@@ -1730,6 +1735,34 @@ ${story.content
   async getGalleryCategories(): Promise<string[]> {
     await this.simulateDelay(150);
     return ["Heritage", "Culture", "Nature"];
+  }
+
+  async getRandomGalleryMedia(): Promise<
+    import("@/types/gallery").PublicGalleryMedia[]
+  > {
+    await this.simulateDelay(200);
+    return [];
+  }
+
+  async getFeaturedPhoto(): Promise<
+    import("@/types/gallery").PublicGalleryMedia | null
+  > {
+    await this.simulateDelay(200);
+    return null;
+  }
+
+  async getWeeklyDiscovery(): Promise<
+    import("@/types/gallery").PublicGalleryMedia[]
+  > {
+    await this.simulateDelay(200);
+    return [];
+  }
+
+  async getGalleryTimeline(): Promise<
+    import("@/types/gallery").TimelineResponse
+  > {
+    await this.simulateDelay(200);
+    return { groups: [], totalCount: 0 };
   }
 
   async submitExternalMedia(): Promise<{ id: string; message: string }> {
@@ -1765,6 +1798,15 @@ ${story.content
     request: import("@/types/gallery").UpdateGalleryStatusRequest
   ): Promise<import("@/types/gallery").GalleryMedia> {
     console.log(`Mock API: Update gallery status ${id}:`, request);
+    await this.simulateDelay(500);
+    throw new Error("Not implemented");
+  }
+
+  async updateGalleryMedia(
+    id: string,
+    request: import("@/types/gallery").UpdateGalleryMediaRequest
+  ): Promise<import("@/types/gallery").GalleryMedia> {
+    console.log(`Mock API: Update gallery media ${id}:`, request);
     await this.simulateDelay(500);
     throw new Error("Not implemented");
   }
@@ -1841,6 +1883,114 @@ ${story.content
       accepted: request.mediaIds.length,
       rejected: 0,
       errors: [],
+    };
+  }
+
+  // ================================
+  // TEXT AI OPERATIONS - Mock Stubs
+  // ================================
+
+  async checkAiAvailable(): Promise<import("@/types/ai").AiAvailableResponse> {
+    await this.simulateDelay(100);
+    return { available: true };
+  }
+
+  async polishContent(
+    request: import("@/types/ai").PolishContentRequest
+  ): Promise<import("@/types/ai").PolishContentResponse> {
+    console.log(`Mock API: Polishing content`);
+    await this.simulateDelay(500);
+    return { content: request.content, aiApplied: false };
+  }
+
+  async translateContent(
+    request: import("@/types/ai").TranslateContentRequest
+  ): Promise<import("@/types/ai").TranslateContentResponse> {
+    console.log(`Mock API: Translating content to ${request.targetLang}`);
+    await this.simulateDelay(500);
+    return { content: request.content, aiApplied: false };
+  }
+
+  async generatePrompts(
+    _request: import("@/types/ai").GeneratePromptsRequest
+  ): Promise<import("@/types/ai").GeneratePromptsResponse> {
+    console.log(`Mock API: Generating prompts`);
+    await this.simulateDelay(500);
+    return {
+      prompts: [
+        "What sounds do you remember from your childhood?",
+        "Can you describe the view from your favorite spot?",
+        "Who taught you about the traditions?",
+      ],
+    };
+  }
+
+  async generateDirectoryContent(
+    _request: import("@/types/ai").GenerateDirectoryContentRequest
+  ): Promise<import("@/types/ai").DirectoryContentResponse> {
+    console.log(`Mock API: Generating directory content`);
+    await this.simulateDelay(500);
+    return {
+      description: "A charming place in Brava Island.",
+      tags: ["traditional", "local", "heritage"],
+    };
+  }
+
+  // ================================
+  // ADMIN AI DASHBOARD - Mock Stubs
+  // ================================
+
+  async getAiHealth(): Promise<import("@/types/ai").AiHealthResponse> {
+    await this.simulateDelay(300);
+    return {
+      enabled: true,
+      providers: [
+        {
+          name: "cloud-vision",
+          enabled: true,
+          capabilities: ["LABELS", "OCR", "LANDMARKS"],
+          usage: { count: 42, limit: 1000, percentUsed: 4.2 },
+        },
+        {
+          name: "gemini-cultural",
+          enabled: true,
+          capabilities: ["CULTURAL_CONTEXT"],
+          usage: { count: 15, limit: 500, percentUsed: 3.0 },
+        },
+      ],
+      domains: [
+        {
+          domain: "gallery",
+          enabled: false,
+          updatedAt: new Date().toISOString(),
+          updatedBy: null,
+        },
+        {
+          domain: "stories",
+          enabled: false,
+          updatedAt: new Date().toISOString(),
+          updatedBy: null,
+        },
+        {
+          domain: "directory",
+          enabled: false,
+          updatedAt: new Date().toISOString(),
+          updatedBy: null,
+        },
+      ],
+    };
+  }
+
+  async updateAiDomainConfig(
+    domain: string,
+    request: import("@/types/ai").UpdateDomainConfigRequest
+  ): Promise<import("@/types/ai").AiDomainConfig> {
+    await this.simulateDelay(300);
+    return {
+      domain,
+      enabled: request.enabled,
+      updatedAt: new Date().toISOString(),
+      updatedBy: "mock-admin-uuid",
     };
   }
 

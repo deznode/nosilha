@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { clsx } from "clsx";
@@ -24,6 +24,8 @@ import { useToast } from "@/hooks/use-toast";
 import { PhotoTypeSelector } from "@/components/gallery/photo-type-selector";
 import { MetadataBadges } from "@/components/gallery/metadata-badges";
 import { ManualMetadataForm } from "@/components/gallery/manual-metadata-form";
+import { detectCreditPlatform, type DetectedCredit } from "@/lib/credit-utils";
+import { CreditPreviewBadge } from "@/components/ui/credit-display";
 
 interface FormData {
   title: string;
@@ -98,6 +100,12 @@ export default function MediaContributionPage() {
     reset: resetUpload,
   } = usePhotoUpload();
 
+  // Detect social platform from credit input for instant preview
+  const detectedCredit: DetectedCredit | null = useMemo(
+    () => detectCreditPlatform(formData.author),
+    [formData.author]
+  );
+
   const isSubmitting =
     uploadState === "requesting-url" ||
     uploadState === "uploading" ||
@@ -136,10 +144,11 @@ export default function MediaContributionPage() {
     e.preventDefault();
 
     if (formData.type === "IMAGE" && selectedFile) {
-      // Upload image to R2 storage with EXIF metadata
+      // Upload image to R2 storage with EXIF metadata and credit
       const result = await upload({
         category: "gallery",
         description: formData.description || formData.title,
+        photographerCredit: formData.author || undefined,
       });
 
       if (result) {
@@ -430,17 +439,23 @@ export default function MediaContributionPage() {
               {/* Author/Credit */}
               <div>
                 <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
-                  Archive Credit
+                  Creator Credit
                 </label>
                 <input
                   type="text"
                   className="border-hairline bg-surface text-body rounded-card w-full border px-5 py-3 outline-none"
-                  placeholder="Name of owner or photographer"
+                  placeholder="Name, @handle, or profile URL"
                   value={formData.author}
                   onChange={(e) =>
                     setFormData({ ...formData, author: e.target.value })
                   }
                 />
+                {detectedCredit && (
+                  <CreditPreviewBadge
+                    detected={detectedCredit}
+                    className="mt-2"
+                  />
+                )}
               </div>
             </div>
 

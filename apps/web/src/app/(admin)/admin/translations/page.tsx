@@ -1,11 +1,12 @@
+import { cacheLife } from "next/cache";
 import { TranslationDashboard } from "@/components/content/translation-dashboard";
 import { PageHeader } from "@/components/ui/page-header";
 import { pages } from "@/.velite";
 import { type Language } from "@/lib/content/translations";
 
-export const revalidate = 3600;
-
-export default function TranslationsPage() {
+export default async function TranslationsPage() {
+  "use cache";
+  cacheLife("content");
   // Transform pages for the dashboard
   const pageData = pages.map((page) => ({
     slug: page.slug,

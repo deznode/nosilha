@@ -21,6 +21,7 @@ import java.util.UUID
  * @property analysisRunId ID of the AnalysisRun tracking record
  * @property tags generated semantic tags
  * @property labels JSON string of detected labels with confidence scores
+ * @property title generated concise title for the image
  * @property altText generated accessible alt text
  * @property description generated rich description
  * @property providers list of providers that contributed results
@@ -31,6 +32,7 @@ data class MediaAnalysisCompletedEvent(
     val analysisRunId: UUID,
     val tags: List<String> = emptyList(),
     val labels: String? = null,
+    val title: String? = null,
     val altText: String? = null,
     val description: String? = null,
     val providers: List<String> = emptyList(),

@@ -1,9 +1,11 @@
 package com.nosilha.core.gallery.domain
 
+import com.nosilha.core.ai.domain.AiFeatureConfigService
 import com.nosilha.core.auth.api.UserProfileQueryService
 import com.nosilha.core.gallery.api.dto.CreateExternalMediaRequest
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.GalleryModerationAction
+import com.nosilha.core.gallery.api.dto.UpdateGalleryMediaRequest
 import com.nosilha.core.gallery.api.dto.contributorIds
 import com.nosilha.core.gallery.api.dto.toDto
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
@@ -49,6 +51,7 @@ class GalleryModerationService(
     private val auditRepository: MediaModerationAuditRepository,
     private val eventPublisher: ApplicationEventPublisher,
     private val userProfileQueryService: UserProfileQueryService,
+    private val aiFeatureConfigService: AiFeatureConfigService,
 ) {
     companion object {
         /** Statuses eligible for AI analysis trigger. */
@@ -161,7 +164,6 @@ class GalleryModerationService(
     ): GalleryMediaDto? {
         val media = repository.findById(id).orElse(null) ?: return null
 
-        // Validate action-specific requirements
         when (action) {
             GalleryModerationAction.FLAG -> {
                 if (reason.isNullOrBlank()) {
@@ -176,26 +178,23 @@ class GalleryModerationService(
                     throw BusinessException("Reason is required when rejecting media")
                 }
             }
-            GalleryModerationAction.APPROVE -> {
-                // No additional validation needed for approve
-            }
+            GalleryModerationAction.APPROVE -> { }
         }
 
         val previousStatus = media.status
 
-        // Update media entity based on action
         when (action) {
             GalleryModerationAction.APPROVE -> {
                 media.status = GalleryMediaStatus.ACTIVE
                 media.reviewedBy = performedBy
                 media.reviewedAt = Instant.now()
-                media.rejectionReason = null // Clear any previous rejection reason
+                media.rejectionReason = null
                 logger.info { "Gallery media approved: id=$id, type=${media.mediaSource}, performedBy=$performedBy" }
             }
             GalleryModerationAction.FLAG -> {
                 media.status = GalleryMediaStatus.FLAGGED
                 media.severity = severity ?: 0
-                media.rejectionReason = reason // Store flag reason in rejection_reason field
+                media.rejectionReason = reason
                 media.reviewedBy = performedBy
                 media.reviewedAt = Instant.now()
                 logger.info { "Gallery media flagged: id=$id, type=${media.mediaSource}, severity=$severity, performedBy=$performedBy" }
@@ -211,7 +210,6 @@ class GalleryModerationService(
 
         val savedMedia = repository.save(media)
 
-        // Create audit entry
         val audit =
             MediaModerationAudit(
                 mediaId = id,
@@ -226,6 +224,49 @@ class GalleryModerationService(
 
         val displayNames = resolveDisplayNames(listOf(savedMedia))
         return savedMedia.toDto(displayNames)
+    }
+
+    /**
+     * Updates gallery media metadata with PATCH semantics.
+     *
+     * Only non-null fields in the request are applied. Type-specific fields
+     * (author, photographerCredit) are applied only to the matching entity subclass.
+     *
+     * @param id UUID of the media item
+     * @param request Update request with optional fields
+     * @return Updated media DTO, or null if not found
+     */
+    @Transactional
+    fun updateMediaMetadata(
+        id: UUID,
+        request: UpdateGalleryMediaRequest,
+    ): GalleryMediaDto? {
+        val media = repository.findById(id).orElse(null) ?: return null
+
+        request.title?.let { media.title = it }
+        request.description?.let { media.description = it }
+        request.category?.let { media.category = it }
+        request.showInGallery?.let { media.showInGallery = it }
+
+        if (request.author != null && media is ExternalMedia) {
+            val parsed = CreditParser.parseCredit(request.author)
+            media.author = parsed.displayName
+            media.creditPlatform = parsed.platform
+            media.creditHandle = parsed.handle
+        }
+        if (request.photographerCredit != null && media is UserUploadedMedia) {
+            val parsed = CreditParser.parseCredit(request.photographerCredit)
+            media.photographerCredit = parsed.displayName
+            media.creditPlatform = parsed.platform
+            media.creditHandle = parsed.handle
+        }
+
+        val saved = repository.save(media)
+
+        logger.info { "Gallery media metadata updated: id=$id, type=${media.mediaSource}" }
+
+        val displayNames = resolveDisplayNames(listOf(saved))
+        return saved.toDto(displayNames)
     }
 
     /**
@@ -256,7 +297,6 @@ class GalleryModerationService(
 
         repository.save(media)
 
-        // Create audit entry
         val audit =
             MediaModerationAudit(
                 mediaId = id,
@@ -291,14 +331,20 @@ class GalleryModerationService(
             this.platform = request.platform
             this.externalId = request.externalId
             this.url = request.url
-            this.thumbnailUrl = request.thumbnailUrl
+            this.thumbnailUrl = ExternalMedia.normalizeThumbnailUrl(request.thumbnailUrl)
             this.title = request.title
             this.description = request.description
             this.author = request.author
             this.category = request.category
-            this.displayOrder = request.displayOrder ?: 0
+            this.displayOrder = request.displayOrder
             this.status = GalleryMediaStatus.ACTIVE
             this.curatedBy = adminId
+            if (!request.author.isNullOrBlank()) {
+                val parsed = CreditParser.parseCredit(request.author)
+                this.creditPlatform = parsed.platform
+                this.creditHandle = parsed.handle
+                this.author = parsed.displayName
+            }
         }
 
         val saved = repository.save(media)
@@ -350,7 +396,6 @@ class GalleryModerationService(
             throw BusinessException("Media must have a public URL")
         }
 
-        // Publish event - Places module will handle the update
         eventPublisher.publishEvent(
             HeroImagePromotedEvent(
                 entryId = media.entryId!!,
@@ -380,6 +425,9 @@ class GalleryModerationService(
         mediaId: UUID,
         adminId: UUID,
     ): UUID {
+        if (!aiFeatureConfigService.isOperational("gallery")) {
+            throw BusinessException("AI image analysis is disabled for gallery")
+        }
         val media = repository.findById(mediaId).orElseThrow {
             ResourceNotFoundException("Media not found: $mediaId")
         }
@@ -418,6 +466,9 @@ class GalleryModerationService(
         mediaIds: List<UUID>,
         adminId: UUID,
     ): BatchAnalysisResult {
+        if (!aiFeatureConfigService.isOperational("gallery")) {
+            throw BusinessException("AI image analysis is disabled for gallery")
+        }
         val errors = mutableListOf<BatchError>()
         val validMedia = mutableListOf<UserUploadedMedia>()
 

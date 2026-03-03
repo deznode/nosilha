@@ -21,6 +21,11 @@ import java.util.*
     JsonSubTypes.Type(value = BeachDto::class, name = "Beach"),
     JsonSubTypes.Type(value = HeritageDto::class, name = "Heritage"),
     JsonSubTypes.Type(value = NatureDto::class, name = "Nature"),
+    JsonSubTypes.Type(value = TownPoiDto::class, name = "Town"),
+    JsonSubTypes.Type(value = ViewpointDto::class, name = "Viewpoint"),
+    JsonSubTypes.Type(value = TrailDto::class, name = "Trail"),
+    JsonSubTypes.Type(value = ChurchDto::class, name = "Church"),
+    JsonSubTypes.Type(value = PortDto::class, name = "Port"),
 )
 abstract class DirectoryEntryDto {
     abstract val id: UUID
@@ -176,6 +181,136 @@ data class NatureDto(
     override val updatedAt: Instant,
     val details: DetailsDto? = null,
     override val category: String = "Nature",
+) : DirectoryEntryDto()
+
+/**
+ * DTO for a Town POI entry. Does not contain any specific details.
+ */
+@JsonTypeName("Town")
+data class TownPoiDto(
+    override val id: UUID,
+    override val name: String,
+    override val slug: String,
+    override val description: String,
+    override val tags: List<String> = emptyList(),
+    override val contentActions: ContentActionSettingsDto? = null,
+    override val town: String,
+    override val latitude: Double,
+    override val longitude: Double,
+    override val imageUrl: String?,
+    override val rating: Double?,
+    override val reviewCount: Int,
+    override val phoneNumber: String? = null,
+    override val email: String? = null,
+    override val website: String? = null,
+    override val createdAt: Instant,
+    override val updatedAt: Instant,
+    val details: DetailsDto? = null,
+    override val category: String = "Town",
+) : DirectoryEntryDto()
+
+/**
+ * DTO for a Viewpoint entry. Does not contain any specific details.
+ */
+@JsonTypeName("Viewpoint")
+data class ViewpointDto(
+    override val id: UUID,
+    override val name: String,
+    override val slug: String,
+    override val description: String,
+    override val tags: List<String> = emptyList(),
+    override val contentActions: ContentActionSettingsDto? = null,
+    override val town: String,
+    override val latitude: Double,
+    override val longitude: Double,
+    override val imageUrl: String?,
+    override val rating: Double?,
+    override val reviewCount: Int,
+    override val phoneNumber: String? = null,
+    override val email: String? = null,
+    override val website: String? = null,
+    override val createdAt: Instant,
+    override val updatedAt: Instant,
+    val details: DetailsDto? = null,
+    override val category: String = "Viewpoint",
+) : DirectoryEntryDto()
+
+/**
+ * DTO for a Trail entry. Does not contain any specific details.
+ */
+@JsonTypeName("Trail")
+data class TrailDto(
+    override val id: UUID,
+    override val name: String,
+    override val slug: String,
+    override val description: String,
+    override val tags: List<String> = emptyList(),
+    override val contentActions: ContentActionSettingsDto? = null,
+    override val town: String,
+    override val latitude: Double,
+    override val longitude: Double,
+    override val imageUrl: String?,
+    override val rating: Double?,
+    override val reviewCount: Int,
+    override val phoneNumber: String? = null,
+    override val email: String? = null,
+    override val website: String? = null,
+    override val createdAt: Instant,
+    override val updatedAt: Instant,
+    val details: DetailsDto? = null,
+    override val category: String = "Trail",
+) : DirectoryEntryDto()
+
+/**
+ * DTO for a Church entry. Does not contain any specific details.
+ */
+@JsonTypeName("Church")
+data class ChurchDto(
+    override val id: UUID,
+    override val name: String,
+    override val slug: String,
+    override val description: String,
+    override val tags: List<String> = emptyList(),
+    override val contentActions: ContentActionSettingsDto? = null,
+    override val town: String,
+    override val latitude: Double,
+    override val longitude: Double,
+    override val imageUrl: String?,
+    override val rating: Double?,
+    override val reviewCount: Int,
+    override val phoneNumber: String? = null,
+    override val email: String? = null,
+    override val website: String? = null,
+    override val createdAt: Instant,
+    override val updatedAt: Instant,
+    val details: DetailsDto? = null,
+    override val category: String = "Church",
+) : DirectoryEntryDto()
+
+/**
+ * DTO for a Port entry. Does not contain any specific details.
+ */
+@JsonTypeName("Port")
+data class PortDto(
+    override val id: UUID,
+    override val name: String,
+    override val slug: String,
+    override val description: String,
+    override val tags: List<String> = emptyList(),
+    override val contentActions: ContentActionSettingsDto? = null,
+    override val town: String,
+    override val latitude: Double,
+    override val longitude: Double,
+    override val imageUrl: String?,
+    override val rating: Double?,
+    override val reviewCount: Int,
+    override val phoneNumber: String? = null,
+    override val email: String? = null,
+    override val website: String? = null,
+    override val createdAt: Instant,
+    override val updatedAt: Instant,
+    val details: DetailsDto? = null,
+    override val category: String = "Port",
 ) : DirectoryEntryDto()
 
 /**

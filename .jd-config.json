@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "root": "docs",
+  "areas": {
+    "00": "getting-started",
+    "10": "product",
+    "20": "architecture",
+    "30": "research",
+    "40": "operations",
+    "90": "archive"
+  },
+  "products": [],
+  "ignore": ["adr", "content-authoring", "PROJECT-STATUS.md"],
+  "readme_format": "table"
+}

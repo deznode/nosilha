@@ -32,6 +32,18 @@ export interface MediaItem {
   status?: SubmissionStatus;
   /** Source of media: 'curated' for admin-curated content, 'user' for user uploads */
   source?: "curated" | "user";
+  creditPlatform?: string;
+  creditHandle?: string;
+  // Metadata fields (from gallery API)
+  altText?: string;
+  dateTaken?: string;
+  cameraMake?: string;
+  cameraModel?: string;
+  approximateDate?: string;
+  photographerCredit?: string;
+  archiveSource?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface PhotoUploadData {
@@ -100,7 +112,6 @@ export interface ExtractedExifData {
 export interface ManualMetadata {
   approximateDate?: string;
   locationName?: string;
-  photographerCredit?: string;
   archiveSource?: string;
 }
 

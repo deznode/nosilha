@@ -8,6 +8,10 @@ terraform {
       source  = "hashicorp/google"
       version = "6.39.0"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 5.0"
+    }
   }
 
   # Remote backend for state management
@@ -21,6 +25,10 @@ terraform {
 provider "google" {
   project = var.gcp_project_id
   region  = var.gcp_region
+}
+
+provider "cloudflare" {
+  api_token = var.cloudflare_api_token
 }
 
 # Data source for project information

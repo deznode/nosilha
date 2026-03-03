@@ -7,12 +7,13 @@ import {
   MapPin,
   Image,
   Sparkles,
+  BrainCircuit,
   HardDrive,
   Languages,
   Wrench,
 } from "lucide-react";
 
-export type NavSection = "main" | "content" | "tools" | "dev";
+export type NavSection = "main" | "content" | "ai" | "tools" | "dev";
 
 export interface AdminNavItem {
   label: string;
@@ -31,6 +32,7 @@ export interface AdminNavSectionConfig {
 export const adminNavSections: AdminNavSectionConfig[] = [
   { id: "main", label: "" },
   { id: "content", label: "Content" },
+  { id: "ai", label: "AI" },
   { id: "tools", label: "Tools" },
   { id: "dev", label: "Development" },
 ];
@@ -76,11 +78,19 @@ export const adminNavItems: AdminNavItem[] = [
     icon: Image,
     section: "content",
   },
+
+  // AI
+  {
+    label: "AI Dashboard",
+    href: "/admin/ai-dashboard",
+    icon: BrainCircuit,
+    section: "ai",
+  },
   {
     label: "AI Review",
     href: "/admin/ai-review",
     icon: Sparkles,
-    section: "content",
+    section: "ai",
   },
 
   // Tools

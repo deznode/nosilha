@@ -66,6 +66,7 @@ class AiModerationService(
             AiResultsApprovedEvent(
                 mediaId = run.mediaId,
                 analysisRunId = run.id!!,
+                title = run.resultTitle,
                 altText = run.resultAltText,
                 description = run.resultDescription,
                 tags = run.resultTags?.toList() ?: emptyList(),
@@ -102,6 +103,7 @@ class AiModerationService(
     fun approveEdited(
         runId: UUID,
         moderatorId: UUID,
+        editedTitle: String?,
         editedAltText: String?,
         editedDescription: String?,
         editedTags: List<String>?,
@@ -109,10 +111,12 @@ class AiModerationService(
     ) {
         val run = getAndValidateRun(runId)
 
+        val finalTitle = editedTitle ?: run.resultTitle
         val finalAltText = editedAltText ?: run.resultAltText
         val finalDescription = editedDescription ?: run.resultDescription
         val finalTags = editedTags ?: run.resultTags?.toList() ?: emptyList()
 
+        run.resultTitle = finalTitle
         run.resultAltText = finalAltText
         run.resultDescription = finalDescription
         run.resultTags = finalTags.toTypedArray().ifEmpty { null }
@@ -123,6 +127,7 @@ class AiModerationService(
             AiResultsApprovedEvent(
                 mediaId = run.mediaId,
                 analysisRunId = run.id!!,
+                title = finalTitle,
                 altText = finalAltText,
                 description = finalDescription,
                 tags = finalTags,

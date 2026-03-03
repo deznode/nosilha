@@ -1,21 +1,28 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Filter } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search } from "lucide-react";
 import { QueueItem } from "./queue-item";
 import { MdxPreviewModal } from "@/components/admin/mdx-preview-modal";
 import { StoryDetailModal } from "@/components/admin/story-detail-modal";
 import { FlagReasonModal } from "@/components/admin/queues/flag-reason-modal";
 import { generateMdx, updateStoryStatus } from "@/lib/api";
 import { archiveStoryToMDX } from "@/app/actions/archive-story";
-import { Button } from "@/components/catalyst-ui/button";
-import {
-  useAdminStories,
-  useUpdateStoryStatus,
-} from "@/hooks/queries/admin";
+import { useAdminStories, useUpdateStoryStatus } from "@/hooks/queries/admin";
 import { useToast } from "@/hooks/use-toast";
+import { Pagination, fromAdminQueueResponse } from "@/components/ui/pagination";
 import type { StorySubmission } from "@/types/story";
 import { SubmissionStatus } from "@/types/story";
+
+/** Backend-native StoryStatus values for accurate filtering */
+type StoryStatusFilter =
+  | "ALL"
+  | "PENDING"
+  | "APPROVED"
+  | "REJECTED"
+  | "NEEDS_REVISION"
+  | "FLAGGED"
+  | "PUBLISHED";
 
 /**
  * Generate a URL-friendly slug from a story title
@@ -30,32 +37,35 @@ function generateSlug(title: string): string {
 
 export function StoriesQueue() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState<SubmissionStatus | "ALL">(
-    "ALL"
-  );
+  const [filterStatus, setFilterStatus] = useState<StoryStatusFilter>("ALL");
+  const [page, setPage] = useState(0);
+
+  useEffect(() => setPage(0), [filterStatus]);
+
   const [previewingStory, setPreviewingStory] =
     useState<StorySubmission | null>(null);
   const [mdxContent, setMdxContent] = useState<string>("");
   const [isGeneratingMdx, setIsGeneratingMdx] = useState(false);
   const [isCommitting, setIsCommitting] = useState(false);
-  const [_publishingStoryId, setPublishingStoryId] = useState<string | null>(
-    null
-  );
 
-  // Story detail modal state
   const [selectedStory, setSelectedStory] = useState<StorySubmission | null>(
     null
   );
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
-  // Flag modal state
   const [isFlagModalOpen, setIsFlagModalOpen] = useState(false);
   const [storyToFlag, setStoryToFlag] = useState<{
     id: string;
     title: string;
   } | null>(null);
 
-  const storiesQuery = useAdminStories();
+  const storiesQuery = useAdminStories(
+    page,
+    20,
+    filterStatus === "ALL"
+      ? undefined
+      : (filterStatus as unknown as SubmissionStatus)
+  );
   const updateStory = useUpdateStoryStatus();
   const toast = useToast();
 
@@ -100,13 +110,10 @@ export function StoriesQueue() {
   };
 
   const handlePublish = async (story: StorySubmission) => {
-    setPublishingStoryId(story.id);
-
     try {
       const slug = generateSlug(story.title);
       await updateStoryStatus(story.id, "PUBLISH", undefined, slug);
       toast.success(`Story "${story.title}" published successfully!`).show();
-      // Trigger parent component to refresh the list
       window.location.reload();
     } catch (error) {
       console.error("Failed to publish story:", error);
@@ -115,8 +122,6 @@ export function StoriesQueue() {
           error instanceof Error ? error.message : "Failed to publish story"
         )
         .show();
-    } finally {
-      setPublishingStoryId(null);
     }
   };
 
@@ -163,7 +168,6 @@ export function StoriesQueue() {
           .show();
         setPreviewingStory(null);
         setMdxContent("");
-        // Trigger parent component to refresh the list
         window.location.reload();
       } else {
         toast.error(result.error || "Failed to commit MDX content").show();
@@ -194,9 +198,10 @@ export function StoriesQueue() {
       s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.author.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = filterStatus === "ALL" || s.status === filterStatus;
-    return matchesSearch && matchesStatus;
+    return matchesSearch;
   });
+
+  const paginationData = fromAdminQueueResponse(storiesQuery.data);
 
   if (isLoading) {
     return (
@@ -221,26 +226,23 @@ export function StoriesQueue() {
 
   return (
     <div>
-      {/* Filters and Search */}
       <div className="mb-6 flex flex-col items-center justify-between gap-4 sm:flex-row">
         <div className="flex space-x-2">
           <select
             value={filterStatus}
             onChange={(e) =>
-              setFilterStatus(e.target.value as SubmissionStatus | "ALL")
+              setFilterStatus(e.target.value as StoryStatusFilter)
             }
             className="border-hairline bg-surface text-muted hover:bg-surface-alt rounded-md border px-3 py-1.5 text-sm font-medium"
           >
             <option value="ALL">All Status</option>
-            <option value={SubmissionStatus.PENDING}>Pending</option>
-            <option value={SubmissionStatus.APPROVED}>Approved</option>
-            <option value={SubmissionStatus.REJECTED}>Rejected</option>
-            <option value={SubmissionStatus.FLAGGED}>Flagged</option>
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+            <option value="REJECTED">Rejected</option>
+            <option value="NEEDS_REVISION">Needs Revision</option>
+            <option value="FLAGGED">Flagged</option>
+            <option value="PUBLISHED">Published</option>
           </select>
-          <Button plain>
-            <Filter data-slot="icon" />
-            Newest First
-          </Button>
         </div>
         <div className="relative w-full sm:w-64">
           <input
@@ -256,10 +258,13 @@ export function StoriesQueue() {
         </div>
       </div>
 
-      {/* Stories List */}
       <div className="border-hairline bg-surface overflow-hidden border shadow sm:rounded-md">
         {filteredStories.length === 0 ? (
-          <div className="text-muted p-8 text-center">No stories found</div>
+          <div className="text-muted p-8 text-center">
+            {searchQuery && stories.length > 0
+              ? "No results match your search"
+              : "No stories found"}
+          </div>
         ) : (
           <ul className="divide-hairline divide-y">
             {filteredStories.map((story) => (
@@ -293,7 +298,14 @@ export function StoriesQueue() {
         )}
       </div>
 
-      {/* MDX Preview Modal */}
+      {paginationData && !searchQuery && (
+        <Pagination
+          {...paginationData}
+          onPageChange={setPage}
+          className="mt-4"
+        />
+      )}
+
       {previewingStory && (
         <MdxPreviewModal
           isOpen={!!previewingStory}
@@ -307,20 +319,14 @@ export function StoriesQueue() {
         />
       )}
 
-      {/* Story Detail Modal */}
       <StoryDetailModal
         story={selectedStory}
         isOpen={isDetailModalOpen}
         onClose={handleCloseDetailModal}
-        onApprove={(id) =>
-          handleStatusChange(id, SubmissionStatus.APPROVED)
-        }
-        onReject={(id) =>
-          handleStatusChange(id, SubmissionStatus.REJECTED)
-        }
+        onApprove={(id) => handleStatusChange(id, SubmissionStatus.APPROVED)}
+        onReject={(id) => handleStatusChange(id, SubmissionStatus.REJECTED)}
       />
 
-      {/* Flag Reason Modal */}
       <FlagReasonModal
         isOpen={isFlagModalOpen}
         itemType="Story"

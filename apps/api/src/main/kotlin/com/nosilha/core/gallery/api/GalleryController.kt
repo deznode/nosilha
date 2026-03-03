@@ -4,7 +4,9 @@ import com.nosilha.core.gallery.api.dto.ConfirmRequest
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.PresignRequest
 import com.nosilha.core.gallery.api.dto.PresignResponse
+import com.nosilha.core.gallery.api.dto.PublicGalleryMediaDto
 import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
+import com.nosilha.core.gallery.api.dto.TimelineDto
 import com.nosilha.core.gallery.domain.GalleryService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
@@ -36,6 +38,10 @@ private val logger = KotlinLogging.logger {}
  * - GET /{id} - Get single gallery item
  * - GET /entry/{entryId} - Media for directory entry (UserUploadedMedia only)
  * - GET /categories - Distinct categories across all media
+ * - GET /random - Random gallery photos (unseeded)
+ * - GET /featured - Daily featured photo (seeded by day)
+ * - GET /weekly - Weekly discovery photos (seeded by ISO week)
+ * - GET /timeline - Decade-grouped timeline aggregation
  * - POST /upload/presign - Presigned URL for user upload
  * - POST /upload/confirm - Confirm user upload
  * - POST /submit - Submit external media for review
@@ -65,19 +71,26 @@ class GalleryController(
      *
      * Query Parameters:
      * - category: Optional category filter
+     * - hasGeo: Optional geo-filter (true = only items with GPS coordinates)
      * - page: Page number (default: 0)
      * - size: Items per page (default: 50, max: 100)
      *
-     * Example: GET /api/v1/gallery?category=Nature&page=0&size=20
+     * Example: GET /api/v1/gallery?category=Nature&hasGeo=true&page=0&size=20
      */
     @GetMapping
     fun listGalleryMedia(
         @RequestParam(required = false) category: String? = null,
+        @RequestParam(required = false) decade: String? = null,
+        @RequestParam(name = "q", required = false) query: String? = null,
+        @RequestParam(required = false) hasGeo: Boolean? = null,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "50") size: Int,
-    ): PagedApiResult<GalleryMediaDto> {
-        logger.debug { "Listing gallery media - category: $category, page: $page, size: $size" }
-        return galleryService.listActiveMedia(category, page, size)
+    ): PagedApiResult<PublicGalleryMediaDto> {
+        logger.debug {
+            "Listing gallery media - category: $category, decade: $decade, " +
+                "q: $query, hasGeo: $hasGeo, page: $page, size: $size"
+        }
+        return galleryService.listActiveMediaPublic(category, decade, query, hasGeo, page, size)
     }
 
     /**
@@ -91,10 +104,8 @@ class GalleryController(
     @GetMapping("/{id}")
     fun getGalleryMedia(
         @PathVariable id: UUID,
-        authentication: Authentication?,
-    ): ResponseEntity<ApiResult<GalleryMediaDto>> {
-        val isAdmin = authentication?.hasRole("ADMIN") ?: false
-        val media = galleryService.getById(id, isAdmin)
+    ): ResponseEntity<ApiResult<PublicGalleryMediaDto>> {
+        val media = galleryService.getByIdPublic(id)
             ?: return ResponseEntity.notFound().build()
 
         return ResponseEntity.ok(ApiResult(data = media))
@@ -109,9 +120,9 @@ class GalleryController(
     @GetMapping("/entry/{entryId}")
     fun getMediaByEntry(
         @PathVariable entryId: UUID,
-    ): ApiResult<List<GalleryMediaDto.UserUpload>> {
+    ): ApiResult<List<PublicGalleryMediaDto.UserUpload>> {
         logger.debug { "Fetching media for entry: $entryId" }
-        return ApiResult(data = galleryService.getMediaByEntry(entryId))
+        return ApiResult(data = galleryService.getMediaByEntryPublic(entryId))
     }
 
     /**
@@ -126,6 +137,68 @@ class GalleryController(
     fun getCategories(): ApiResult<List<String>> {
         logger.debug { "Fetching gallery categories" }
         return ApiResult(data = galleryService.getCategories())
+    }
+
+    /**
+     * Returns N randomly selected gallery photos.
+     *
+     * <p>Each call returns different results (unseeded random).
+     * Count is capped at 10 to prevent abuse.</p>
+     *
+     * @param count Number of random photos (default 1, max 10)
+     * @return ApiResult with list of random gallery media items
+     */
+    @GetMapping("/random")
+    fun getRandomMedia(
+        @RequestParam(name = "count", defaultValue = "1") count: Int,
+    ): ApiResult<List<PublicGalleryMediaDto>> {
+        val cappedCount = count.coerceIn(1, 10)
+        logger.debug { "Random media request: count=$cappedCount" }
+        return ApiResult(data = galleryService.getRandomMedia(cappedCount))
+    }
+
+    /**
+     * Returns the daily featured photo.
+     *
+     * <p>Same photo returned for all users on the same calendar day.
+     * Returns an empty list when the gallery has no photos.</p>
+     *
+     * @return ApiResult with a single-element list (or empty)
+     */
+    @GetMapping("/featured")
+    fun getDailyFeatured(): ApiResult<List<PublicGalleryMediaDto>> {
+        logger.debug { "Daily featured photo request" }
+        val featured = galleryService.getDailyFeatured()
+        return ApiResult(data = listOfNotNull(featured))
+    }
+
+    /**
+     * Returns this week's discovery photos (up to 5).
+     *
+     * <p>Same photos returned for the same ISO week.
+     * Returns an empty list when the gallery has no photos.</p>
+     *
+     * @return ApiResult with list of weekly discovery photos
+     */
+    @GetMapping("/weekly")
+    fun getWeeklyDiscovery(): ApiResult<List<PublicGalleryMediaDto>> {
+        logger.debug { "Weekly discovery request" }
+        return ApiResult(data = galleryService.getWeeklyDiscovery())
+    }
+
+    /**
+     * Get gallery timeline aggregated by decade.
+     *
+     * Groups all gallery-visible media into decade buckets with counts
+     * and up to 3 sample photos per decade for preview thumbnails.
+     * Cached for 30 minutes.
+     *
+     * @return ApiResult with timeline data grouped by decade
+     */
+    @GetMapping("/timeline")
+    fun getTimeline(): ApiResult<TimelineDto> {
+        logger.debug { "Timeline aggregation request" }
+        return ApiResult(data = galleryService.getTimelineAggregation())
     }
 
     /**
@@ -261,9 +334,4 @@ class GalleryController(
             authentication.name
                 ?: error("Authentication name must be present (user ID)"),
         )
-
-    /**
-     * Checks if authentication has a specific role.
-     */
-    private fun Authentication.hasRole(role: String): Boolean = authorities.any { it.authority == "ROLE_$role" }
 }

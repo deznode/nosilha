@@ -1,9 +1,9 @@
+import { cacheLife } from "next/cache";
 import { ContactPageContent } from "@/components/pages/contact-page-content";
 
-// Static page - no revalidation needed
-export const dynamic = "force-static";
-
-export default function ContactPage() {
+export default async function ContactPage() {
+  "use cache";
+  cacheLife("max");
   return <ContactPageContent />;
 }
 

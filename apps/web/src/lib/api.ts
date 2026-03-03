@@ -54,9 +54,18 @@ export async function getEntriesByCategory(
   category: string,
   page: number = 0,
   size: number = 20,
-  searchQuery?: string
+  searchQuery?: string,
+  town?: string,
+  sort?: string
 ): Promise<PaginatedResult<DirectoryEntry>> {
-  return apiClient.getEntriesByCategory(category, page, size, searchQuery);
+  return apiClient.getEntriesByCategory(
+    category,
+    page,
+    size,
+    searchQuery,
+    town,
+    sort
+  );
 }
 
 /**
@@ -257,8 +266,13 @@ export async function submitSuggestion(suggestionDto: {
   contentType: string;
   name: string;
   email: string;
-  suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";
+  suggestionType:
+    | "CORRECTION"
+    | "ADDITION"
+    | "FEEDBACK"
+    | "PHOTO_IDENTIFICATION";
   message: string;
+  mediaId?: string;
   honeypot?: string;
 }): Promise<{ id: string | null; message: string }> {
   return apiClient.submitSuggestion(suggestionDto);
@@ -681,9 +695,12 @@ export async function updateProfile(
  */
 export async function getGalleryMedia(options?: {
   category?: string;
+  decade?: string;
+  q?: string;
+  hasGeo?: boolean;
   page?: number;
   size?: number;
-}): Promise<import("@/types/gallery").GalleryMediaPageResponse> {
+}): Promise<import("@/types/gallery").PublicGalleryMediaPageResponse> {
   return apiClient.getGalleryMedia(options);
 }
 
@@ -693,12 +710,12 @@ export async function getGalleryMedia(options?: {
  * Uses ISR with 30 minute cache for individual media items.
  * Automatically uses the configured API implementation (backend or mock).
  * @param id UUID of the gallery media item
- * @returns A promise that resolves to gallery media (UserUpload or External) or undefined if not found
+ * @returns A promise that resolves to public gallery media (UserUpload or External) or undefined if not found
  * @throws Error if API call fails
  */
 export async function getGalleryMediaById(
   id: string
-): Promise<import("@/types/gallery").GalleryMedia | undefined> {
+): Promise<import("@/types/gallery").PublicGalleryMedia | undefined> {
   return apiClient.getGalleryMediaById(id);
 }
 
@@ -712,6 +729,30 @@ export async function getGalleryMediaById(
  */
 export async function getGalleryCategories(): Promise<string[]> {
   return apiClient.getGalleryCategories();
+}
+
+export async function getRandomGalleryMedia(
+  count?: number
+): Promise<import("@/types/gallery").PublicGalleryMedia[]> {
+  return apiClient.getRandomGalleryMedia(count);
+}
+
+export async function getFeaturedPhoto(): Promise<
+  import("@/types/gallery").PublicGalleryMedia | null
+> {
+  return apiClient.getFeaturedPhoto();
+}
+
+export async function getWeeklyDiscovery(): Promise<
+  import("@/types/gallery").PublicGalleryMedia[]
+> {
+  return apiClient.getWeeklyDiscovery();
+}
+
+export async function getGalleryTimeline(): Promise<
+  import("@/types/gallery").TimelineResponse
+> {
+  return apiClient.getGalleryTimeline();
 }
 
 /**
@@ -784,6 +825,21 @@ export async function updateGalleryStatus(
 }
 
 /**
+ * Update gallery media metadata (PATCH semantics).
+ * Admin endpoint - requires ADMIN role.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Gallery media item ID
+ * @param request Update request with optional fields
+ * @returns A promise that resolves to updated gallery media item
+ */
+export async function updateGalleryMedia(
+  id: string,
+  request: import("@/types/gallery").UpdateGalleryMediaRequest
+): Promise<import("@/types/gallery").GalleryMedia> {
+  return apiClient.updateGalleryMedia(id, request);
+}
+
+/**
  * Archive (soft delete) a gallery media item.
  * Admin endpoint - requires ADMIN role.
  * Automatically uses the configured API implementation (backend or mock).
@@ -824,6 +880,60 @@ export async function createExternalMedia(
  */
 export async function promoteToHeroImage(mediaId: string): Promise<void> {
   return apiClient.promoteToHeroImage(mediaId);
+}
+
+// ================================
+// TEXT AI OPERATIONS
+// ================================
+
+/**
+ * Check if text AI is available.
+ * Requires authentication.
+ */
+export async function checkAiAvailable(): Promise<
+  import("@/types/ai").AiAvailableResponse
+> {
+  return apiClient.checkAiAvailable();
+}
+
+/**
+ * Polish/improve content text using AI.
+ * Requires authentication.
+ */
+export async function polishContent(
+  request: import("@/types/ai").PolishContentRequest
+): Promise<import("@/types/ai").PolishContentResponse> {
+  return apiClient.polishContent(request);
+}
+
+/**
+ * Translate content to a target language using AI.
+ * Requires authentication.
+ */
+export async function translateContent(
+  request: import("@/types/ai").TranslateContentRequest
+): Promise<import("@/types/ai").TranslateContentResponse> {
+  return apiClient.translateContent(request);
+}
+
+/**
+ * Generate writing prompts for a story template type.
+ * Requires authentication.
+ */
+export async function generatePrompts(
+  request: import("@/types/ai").GeneratePromptsRequest
+): Promise<import("@/types/ai").GeneratePromptsResponse> {
+  return apiClient.generatePrompts(request);
+}
+
+/**
+ * Generate AI description and tags for a directory entry.
+ * Requires authentication.
+ */
+export async function generateDirectoryContent(
+  request: import("@/types/ai").GenerateDirectoryContentRequest
+): Promise<import("@/types/ai").DirectoryContentResponse> {
+  return apiClient.generateDirectoryContent(request);
 }
 
 // ================================
@@ -929,6 +1039,34 @@ export async function triggerBatchAnalysis(
   request: import("@/types/ai").AnalyzeBatchRequest
 ): Promise<import("@/types/ai").BatchAnalysisTriggerResponse> {
   return apiClient.triggerBatchAnalysis(request);
+}
+
+// ================================
+// ADMIN AI DASHBOARD OPERATIONS
+// ================================
+
+/**
+ * Get AI system health including provider stats and domain configs.
+ * Requires ADMIN role authentication.
+ */
+export async function getAiHealth(): Promise<
+  import("@/types/ai").AiHealthResponse
+> {
+  return apiClient.getAiHealth();
+}
+
+/**
+ * Update a domain's AI feature toggle.
+ * Requires ADMIN role authentication.
+ * @param domain Domain name (gallery, stories, directory)
+ * @param request Toggle state
+ * @returns Updated domain config
+ */
+export async function updateAiDomainConfig(
+  domain: string,
+  request: import("@/types/ai").UpdateDomainConfigRequest
+): Promise<import("@/types/ai").AiDomainConfig> {
+  return apiClient.updateAiDomainConfig(domain, request);
 }
 
 // ================================

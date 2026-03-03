@@ -23,7 +23,7 @@ npx tsc --noEmit        # TypeScript type checking
 - **Dynamic Routing**: `/directory/[category]`, `/directory/[category]/[slug]`
 - **Mobile-First Design**: All components are responsive and mobile-optimized
 - **Authentication**: Supabase Auth provider with JWT token management
-- **Caching Strategy**: ISR (Incremental Static Regeneration) for content
+- **Caching Strategy**: `"use cache"` + `cacheLife()` with custom profiles (content, entry, longLived) and built-in `"max"` for static pages
 - **API Integration**: Centralized API client with error handling and fallback to mock data
 
 ## Route Structure
@@ -65,17 +65,22 @@ pnpm run test:unit  # Vitest unit tests (4 critical store/hook tests)
 
 ## Key Patterns
 
-### Server Component (Default)
+### Server Component with Cache (Default)
 
 ```tsx
 // app/directory/page.tsx
-export const revalidate = 3600; // 1 hour ISR
+import { cacheLife, cacheTag } from "next/cache";
 
 export default async function DirectoryPage() {
+  "use cache";
+  cacheLife("content");
+  cacheTag("directory");
   const entries = await fetchDirectoryEntries()
   return <DirectoryList entries={entries} />
 }
 ```
+
+Custom profiles defined in `next.config.ts`: `content` (1h revalidate), `entry` (30m), `longLived` (2h). Built-in `"max"` (30d) for static pages.
 
 ### Client Component (Interactive)
 
@@ -88,12 +93,16 @@ export function InteractiveMap({ markers }: Props) {
 }
 ```
 
-### Static Export
+### Static Pages (Rarely Change)
 
-Force a page to be fully static at build time:
+Use the built-in `"max"` cache profile for pages like about, contact, privacy:
 
 ```tsx
-export const dynamic = "force-static";
+export default async function AboutPage() {
+  "use cache";
+  cacheLife("max");
+  // ...
+}
 ```
 
 ### Dynamic Routes
@@ -108,5 +117,5 @@ export default async function CategoryPage({ params }: { params: { category: str
 
 ## Reference
 
-- See `docs/design-system.md` for comprehensive styling guide
-- See `docs/testing.md` for full testing documentation
+- See `docs/10-product/design-system.md` for comprehensive styling guide
+- See `docs/20-architecture/testing.md` for full testing documentation

@@ -84,6 +84,7 @@ export interface UsePhotoUploadReturn {
   upload: (options?: {
     category?: string;
     description?: string;
+    photographerCredit?: string;
   }) => Promise<UploadResult | null>;
 
   /**
@@ -245,6 +246,7 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
     async (options?: {
       category?: string;
       description?: string;
+      photographerCredit?: string;
     }): Promise<UploadResult | null> => {
       if (!file || !metadata) {
         setError("No file selected");
@@ -252,6 +254,7 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
       }
 
       // Build metadata for confirm request
+      // photographerCredit from upload options takes precedence over manual metadata
       const confirmMetadata: ConfirmRequestMetadata = {
         // EXIF (privacy-processed)
         latitude: metadata.latitude,
@@ -267,7 +270,7 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
         // Manual
         approximateDate: metadata.approximateDate,
         locationName: metadata.locationName,
-        photographerCredit: metadata.photographerCredit,
+        photographerCredit: options?.photographerCredit,
         archiveSource: metadata.archiveSource,
       };
 

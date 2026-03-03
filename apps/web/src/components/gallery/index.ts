@@ -1,3 +1,8 @@
-export { PhotoGrid, PhotoGridSkeleton } from "./photo-grid";
+export {
+  MasonryPhotoGrid,
+  MasonryPhotoGridSkeleton,
+} from "./masonry-photo-grid";
 export { VideoSection } from "./video-section";
-export { Lightbox } from "./lightbox";
+export { GalleryMapCanvas } from "./gallery-map-canvas";
+export { GalleryMapMarker } from "./gallery-map-marker";
+export { GalleryMapPopup } from "./gallery-map-popup";

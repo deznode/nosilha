@@ -76,6 +76,9 @@ tasks:
   dev:web:
     desc: Start web dev server with Turbopack
     dir: "{{.WEB_DIR}}"
+    env:
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
     cmds:
       - pnpm run dev
 

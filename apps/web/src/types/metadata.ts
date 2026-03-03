@@ -54,7 +54,9 @@ export type StructuredData =
   | LodgingBusinessSchema
   | RestaurantSchema
   | OrganizationSchema
-  | BreadcrumbListSchema;
+  | BreadcrumbListSchema
+  | ImageGallerySchema
+  | ImageObjectSchema;
 
 export interface BaseSchema {
   "@context": "https://schema.org";
@@ -231,6 +233,40 @@ export interface BreadcrumbListSchema extends BaseSchema {
     name: string;
     item: string;
   }[];
+}
+
+export interface ImageGallerySchema extends BaseSchema {
+  "@type": "ImageGallery";
+  name: string;
+  description: string;
+  url: string;
+  numberOfItems?: number;
+  image?: ImageObjectSchema[];
+}
+
+export interface ImageObjectSchema extends BaseSchema {
+  "@type": "ImageObject";
+  name: string;
+  description?: string;
+  contentUrl: string;
+  thumbnailUrl?: string;
+  dateCreated?: string;
+  author?: {
+    "@type": "Person";
+    name: string;
+  };
+  creditText?: string;
+  license?: string;
+  acquireLicensePage?: string;
+  locationCreated?: {
+    "@type": "Place";
+    name: string;
+    containedInPlace?: {
+      "@type": "Place";
+      name: string;
+    };
+  };
+  accessibilityFeature?: string[];
 }
 
 /**

@@ -6,8 +6,9 @@ paths: apps/web/**
 
 ## Documentation
 
-- See `docs/design-system.md` for comprehensive styling guide
+- See `docs/10-product/design-system.md` for comprehensive styling guide
 - Interactive gallery: `http://localhost:3000/design-system` (dev-only, 404 in production)
+- Component sandboxes: `http://localhost:3000/admin/dev-tools` (dev-only, admin route)
 
 ## Brand Identity
 
@@ -171,6 +172,6 @@ When building new components, ensure:
 
 ## Reference
 
-- See `docs/design-system.md` for complete design system documentation
-- See `docs/design-system.md#form-patterns` for React Hook Form + Zod patterns
-- See `docs/design-system.md#animation--utility-classes` for animations
+- See `docs/10-product/design-system.md` for complete design system documentation
+- See `docs/10-product/design-system.md#form-patterns` for React Hook Form + Zod patterns
+- See `docs/10-product/design-system.md#animation--utility-classes` for animations

@@ -3,10 +3,14 @@ package com.nosilha.core.gallery.domain
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.nosilha.core.auth.api.UserProfileQueryService
+import com.nosilha.core.gallery.api.dto.DecadeGroupDto
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
+import com.nosilha.core.gallery.api.dto.PublicGalleryMediaDto
 import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
+import com.nosilha.core.gallery.api.dto.TimelineDto
 import com.nosilha.core.gallery.api.dto.contributorIds
 import com.nosilha.core.gallery.api.dto.toDto
+import com.nosilha.core.gallery.api.dto.toPublicDto
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import com.nosilha.core.shared.api.PageableInfo
 import com.nosilha.core.shared.api.PagedApiResult
@@ -19,6 +23,8 @@ import io.github.bucket4j.Bucket
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.modulith.events.ApplicationModuleListener
 import org.springframework.stereotype.Service
@@ -26,8 +32,12 @@ import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 import java.time.Duration
 import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
+import java.time.temporal.WeekFields
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 
 private val logger = KotlinLogging.logger {}
 
@@ -59,6 +69,24 @@ class GalleryService(
     companion object {
         private const val MAX_UPLOADS_PER_HOUR = 20L
         private const val MAX_UPLOADS_PER_DAY = 100L
+
+        private val RAW_FILENAME_PATTERNS = listOf(
+            // UUID prefix (e.g., "a1b2c3d4-e5f6-...")
+            Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-"),
+            // Camera filename prefixes
+            Regex("^(DJI|IMG|DSC|DCIM|DSCN|P)_", RegexOption.IGNORE_CASE),
+            // File extensions (title shouldn't contain these)
+            Regex("\\.(jpe?g|png|webp|heic|mp4|mov)$", RegexOption.IGNORE_CASE),
+        )
+
+        /**
+         * Detects raw camera filenames and UUID-based strings that should be
+         * replaced with AI-generated titles.
+         */
+        fun isRawFilename(title: String): Boolean {
+            if (title.isBlank()) return true
+            return RAW_FILENAME_PATTERNS.any { it.containsMatchIn(title) }
+        }
     }
 
     // Metrics counters for media operations
@@ -98,6 +126,27 @@ class GalleryService(
         .newBuilder()
         .maximumSize(10_000)
         .expireAfterAccess(1, TimeUnit.DAYS)
+        .build()
+
+    /** Cache for daily featured photo — single entry, 1-hour TTL. Wraps in list to handle empty gallery. */
+    private val dailyFeaturedCache: Cache<String, List<PublicGalleryMediaDto>> = Caffeine
+        .newBuilder()
+        .maximumSize(1)
+        .expireAfterWrite(1, TimeUnit.HOURS)
+        .build()
+
+    /** Cache for weekly discovery photos — single entry, 4-hour TTL. */
+    private val weeklyDiscoveryCache: Cache<String, List<PublicGalleryMediaDto>> = Caffeine
+        .newBuilder()
+        .maximumSize(1)
+        .expireAfterWrite(4, TimeUnit.HOURS)
+        .build()
+
+    /** Cache for timeline aggregation — single entry, 30-minute TTL. */
+    private val timelineCache: Cache<String, TimelineDto> = Caffeine
+        .newBuilder()
+        .maximumSize(1)
+        .expireAfterWrite(30, TimeUnit.MINUTES)
         .build()
 
     /** Whether R2 storage is enabled and available. */
@@ -285,6 +334,7 @@ class GalleryService(
             this.source = MediaSource.LOCAL
             this.uploadedBy = userId
             this.displayOrder = 0
+            this.showInGallery = (entryId == null)
             // EXIF metadata (privacy-processed)
             this.latitude = latitude?.let { BigDecimal.valueOf(it) }
             this.longitude = longitude?.let { BigDecimal.valueOf(it) }
@@ -301,6 +351,13 @@ class GalleryService(
             this.locationName = locationName
             this.photographerCredit = photographerCredit
             this.archiveSource = archiveSource
+            // Smart credit attribution
+            if (!photographerCredit.isNullOrBlank()) {
+                val parsed = CreditParser.parseCredit(photographerCredit)
+                this.creditPlatform = parsed.platform
+                this.creditHandle = parsed.handle
+                this.photographerCredit = parsed.displayName
+            }
         }
 
         val saved = repository.save(media)
@@ -470,19 +527,338 @@ class GalleryService(
     }
 
     // ================================
-    // Public Query Operations
+    // Query Operations
     // ================================
+
+    // -- Private query methods (shared logic) --
+
+    private fun queryActiveMedia(
+        category: String?,
+        decade: String?,
+        hasGeo: Boolean?,
+        page: Int,
+        size: Int,
+    ): Page<GalleryMedia> {
+        val cappedSize = minOf(size, 100)
+        val pageable = PageRequest.of(page, cappedSize)
+        val needsInMemoryFilter = category != null || decade != null || hasGeo == true
+
+        return if (needsInMemoryFilter) {
+            var filtered: List<GalleryMedia> = repository
+                .findByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
+
+            if (category != null) {
+                filtered = filtered.filter { it.category == category }
+            }
+
+            if (decade != null) {
+                val yearRange = parseDecadeRange(decade)
+                if (yearRange != null) {
+                    filtered = filtered.filter { media -> resolveYear(media) in yearRange }
+                }
+            }
+
+            if (hasGeo == true) {
+                filtered = filtered.filter { media ->
+                    media is UserUploadedMedia && media.latitude != null && media.longitude != null
+                }
+            }
+
+            filtered = filtered.sortedBy { it.displayOrder }
+            val start = page * cappedSize
+            val end = minOf(start + cappedSize, filtered.size)
+            val pageContent = if (start < filtered.size) filtered.subList(start, end) else emptyList()
+
+            PageImpl(pageContent, pageable, filtered.size.toLong())
+        } else {
+            repository.findByStatusAndShowInGalleryTrueOrderByDisplayOrderAsc(GalleryMediaStatus.ACTIVE, pageable)
+        }
+    }
+
+    /**
+     * Parses a decade string into an IntRange of years.
+     * Supported values: pre-1975, 1975-1990, 1990-2010, 2010-plus
+     */
+    private fun parseDecadeRange(decade: String): IntRange? =
+        when (decade) {
+            "pre-1975" -> Int.MIN_VALUE..1974
+            "1975-1990" -> 1975..1989
+            "1990-2010" -> 1990..2009
+            "2010-plus" -> 2010..Int.MAX_VALUE
+            else -> null
+        }
+
+    /**
+     * Full-text search across active gallery media.
+     * Uses the search_vector GIN index for Portuguese text search.
+     * Optionally applies category and decade post-filters.
+     */
+    private fun searchActiveMedia(
+        query: String,
+        category: String?,
+        decade: String?,
+        hasGeo: Boolean?,
+        page: Int,
+        size: Int,
+    ): Page<GalleryMedia> {
+        val cappedSize = minOf(size, 100)
+        val pageable = PageRequest.of(page, cappedSize)
+
+        val needsPostFilter = category != null || decade != null || hasGeo == true
+        if (!needsPostFilter) return repository.searchGallery(query, pageable)
+
+        // Fetch all search results then filter in-memory for accurate totalElements
+        val allResults = repository.searchGallery(query, PageRequest.of(0, Int.MAX_VALUE))
+        var filtered = allResults.content.toList()
+
+        if (category != null) {
+            filtered = filtered.filter { it.category == category }
+        }
+        if (decade != null) {
+            val yearRange = parseDecadeRange(decade)
+            if (yearRange != null) {
+                filtered = filtered.filter { resolveYear(it) in yearRange }
+            }
+        }
+        if (hasGeo == true) {
+            filtered = filtered.filter { media ->
+                media is UserUploadedMedia && media.latitude != null && media.longitude != null
+            }
+        }
+
+        val start = page * cappedSize
+        val end = minOf(start + cappedSize, filtered.size)
+        val pageContent = if (start < filtered.size) filtered.subList(start, end) else emptyList()
+
+        return PageImpl(pageContent, pageable, filtered.size.toLong())
+    }
+
+    private val yearPattern = Regex("""(\d{4})""")
+
+    /**
+     * Resolves the best available year for a gallery media item.
+     * Priority: dateTaken (EXIF) > approximateDate (parsed) > createdAt
+     */
+    private fun resolveYear(media: GalleryMedia): Int {
+        if (media is UserUploadedMedia) {
+            media.dateTaken?.let { return it.atZone(ZoneOffset.UTC).year }
+            media.approximateDate?.let { approx ->
+                yearPattern
+                    .find(approx)
+                    ?.groupValues
+                    ?.get(1)
+                    ?.toIntOrNull()
+                    ?.let { return it }
+            }
+        }
+        return media.createdAt.atZone(ZoneOffset.UTC).year
+    }
+
+    private fun queryActiveById(id: UUID): GalleryMedia? {
+        val media = repository.findById(id).orElse(null) ?: return null
+        return if (media.status == GalleryMediaStatus.ACTIVE) media else null
+    }
+
+    private fun queryMediaByEntry(entryId: UUID): List<UserUploadedMedia> =
+        repository.findByEntryIdAndStatusOrderByDisplayOrderAsc(entryId, GalleryMediaStatus.ACTIVE)
+
+    // -- Public API methods (lean DTO) --
+
+    /**
+     * Lists active gallery media for public API consumption.
+     *
+     * Returns a lean DTO that excludes AI fields, storage internals,
+     * and internal user IDs.
+     */
+    @Transactional(readOnly = true)
+    fun listActiveMediaPublic(
+        category: String?,
+        decade: String?,
+        query: String?,
+        hasGeo: Boolean?,
+        page: Int,
+        size: Int,
+    ): PagedApiResult<PublicGalleryMediaDto> {
+        val mediaPage = if (!query.isNullOrBlank()) {
+            searchActiveMedia(query.trim(), category, decade, hasGeo, page, size)
+        } else {
+            queryActiveMedia(category, decade, hasGeo, page, size)
+        }
+        val displayNames = resolveDisplayNames(mediaPage.content)
+        val dtos = mediaPage.content.map { it.toPublicDto(displayNames) }
+
+        return PagedApiResult(
+            data = dtos,
+            pageable = PageableInfo(
+                page = mediaPage.number,
+                size = mediaPage.size,
+                totalElements = mediaPage.totalElements,
+                totalPages = mediaPage.totalPages,
+                first = mediaPage.isFirst,
+                last = mediaPage.isLast,
+            ),
+        )
+    }
+
+    /**
+     * Gets a single ACTIVE gallery media item by ID for public API consumption.
+     */
+    @Transactional(readOnly = true)
+    fun getByIdPublic(id: UUID): PublicGalleryMediaDto? {
+        val media = queryActiveById(id) ?: return null
+        val displayNames = resolveDisplayNames(listOf(media))
+        return media.toPublicDto(displayNames)
+    }
+
+    /**
+     * Gets all ACTIVE user-uploaded media for a directory entry (public API).
+     */
+    @Transactional(readOnly = true)
+    fun getMediaByEntryPublic(entryId: UUID): List<PublicGalleryMediaDto.UserUpload> {
+        val mediaList = queryMediaByEntry(entryId)
+        val displayNames = resolveDisplayNames(mediaList)
+        return mediaList.map { PublicGalleryMediaDto.from(it, it.uploadedBy?.let { id -> displayNames[id] }) }
+    }
+
+    // -- Random Discovery methods --
+
+    /**
+     * Returns N randomly selected active gallery-visible media items.
+     *
+     * Fetches all active gallery-visible IDs via a lightweight projection query,
+     * selects [count] random IDs, then batch-fetches the full entities.
+     * Uses unseeded random — different results on each call.
+     *
+     * @param count Number of random items to return (caller should cap this)
+     * @return List of randomly selected public gallery media DTOs
+     */
+    @Transactional(readOnly = true)
+    fun getRandomMedia(count: Int): List<PublicGalleryMediaDto> {
+        val ids = repository.findIdsByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
+        if (ids.isEmpty()) return emptyList()
+
+        val selectedIds = ids.shuffled().take(count)
+        return fetchAndMapPublicDtos(selectedIds)
+    }
+
+    /**
+     * Returns the daily featured photo, consistent for all users on the same day.
+     *
+     * <p>Uses the day-of-year as a seed for deterministic selection:
+     * same photo for all requests on the same calendar day.
+     * Results are cached for 1 hour to reduce DB load.</p>
+     *
+     * @return Single featured photo DTO, or null if gallery is empty
+     */
+    @Transactional(readOnly = true)
+    fun getDailyFeatured(): PublicGalleryMediaDto? {
+        val cached = dailyFeaturedCache.get("daily") {
+            val ids = repository.findIdsByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
+            if (ids.isEmpty()) return@get emptyList()
+
+            val today = LocalDate.now()
+            val seed = today.dayOfYear.toLong() * 1000 + today.year.toLong()
+            val index = Random(seed).nextInt(ids.size)
+            fetchAndMapPublicDtos(listOf(ids[index]))
+        }
+        return cached.firstOrNull()
+    }
+
+    /**
+     * Returns weekly discovery photos, consistent for the same ISO week.
+     *
+     * <p>Uses the ISO week number as a seed for deterministic selection:
+     * same photos for all requests within the same ISO week.
+     * Results are cached for 4 hours to reduce DB load.</p>
+     *
+     * @param count Number of weekly discovery items (default 5)
+     * @return List of weekly discovery photo DTOs
+     */
+    @Transactional(readOnly = true)
+    fun getWeeklyDiscovery(count: Int = 5): List<PublicGalleryMediaDto> =
+        weeklyDiscoveryCache.get("weekly") {
+            val ids = repository.findIdsByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
+            if (ids.isEmpty()) return@get emptyList()
+
+            val today = LocalDate.now()
+            val weekOfYear = today.get(WeekFields.ISO.weekOfWeekBasedYear())
+            val seed = weekOfYear.toLong() * 1000 + today.year.toLong()
+            val random = Random(seed)
+
+            // TODO: Consider TABLESAMPLE optimization for datasets > 1000 items
+            val selectedIds = ids.shuffled(random).take(count)
+            fetchAndMapPublicDtos(selectedIds)
+        }
+
+    /**
+     * Batch-fetches media by IDs and maps to public DTOs with display names.
+     */
+    private fun fetchAndMapPublicDtos(ids: List<UUID>): List<PublicGalleryMediaDto> {
+        val media = repository.findAllById(ids)
+        val displayNames = resolveDisplayNames(media)
+        return media.map { it.toPublicDto(displayNames) }
+    }
+
+    /**
+     * Aggregates gallery media into decade groups for the timeline view.
+     *
+     * Groups: pre-1975, 1975-1990, 1990-2010, 2010-plus.
+     * Each group includes a count and up to 3 sample photos.
+     * Cached for 30 minutes.
+     */
+    @Transactional(readOnly = true)
+    fun getTimelineAggregation(): TimelineDto =
+        timelineCache.get("timeline") {
+            val allMedia = repository.findByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
+            if (allMedia.isEmpty()) return@get TimelineDto(groups = emptyList(), totalCount = 0)
+
+            val displayNames = resolveDisplayNames(allMedia)
+
+            data class DecadeConfig(
+                val key: String,
+                val label: String,
+            )
+
+            val decades = listOf(
+                DecadeConfig("pre-1975", "Pre-1975"),
+                DecadeConfig("1975-1990", "1975\u20131990"),
+                DecadeConfig("1990-2010", "1990\u20132010"),
+                DecadeConfig("2010-plus", "2010+"),
+            )
+
+            val grouped = allMedia.groupBy { media ->
+                val year = resolveYear(media)
+                when {
+                    year < 1975 -> "pre-1975"
+                    year < 1990 -> "1975-1990"
+                    year < 2010 -> "1990-2010"
+                    else -> "2010-plus"
+                }
+            }
+
+            val groups = decades.map { config ->
+                val items = grouped[config.key] ?: emptyList()
+                DecadeGroupDto(
+                    decade = config.key,
+                    label = config.label,
+                    count = items.size,
+                    samplePhotos = items
+                        .sortedBy { it.displayOrder }
+                        .take(3)
+                        .map { it.toPublicDto(displayNames) },
+                )
+            }
+
+            TimelineDto(groups = groups, totalCount = allMedia.size)
+        }
+
+    // -- Admin API methods (full DTO) --
 
     /**
      * Lists active gallery media with optional category filtering and pagination.
      *
-     * Returns both UserUploadedMedia and ExternalMedia with ACTIVE status,
-     * ordered by display order ascending.
-     *
-     * @param category Optional category filter
-     * @param page Zero-based page number
-     * @param size Items per page (max 100)
-     * @return Paginated API result of active gallery media
+     * Returns the full DTO including AI fields and storage internals.
+     * Used by admin endpoints.
      */
     @Transactional(readOnly = true)
     fun listActiveMedia(
@@ -490,28 +866,7 @@ class GalleryService(
         page: Int,
         size: Int,
     ): PagedApiResult<GalleryMediaDto> {
-        val pageable = PageRequest.of(page, minOf(size, 100))
-        val mediaPage = if (category != null) {
-            // Filter by category - need to fetch and filter manually
-            val allActive = repository
-                .findByStatus(GalleryMediaStatus.ACTIVE)
-                .filter { it.category == category }
-                .sortedBy { it.displayOrder }
-
-            // Manual pagination
-            val start = page * size
-            val end = minOf(start + size, allActive.size)
-            val pageContent = if (start < allActive.size) allActive.subList(start, end) else emptyList()
-
-            org.springframework.data.domain.PageImpl(
-                pageContent,
-                pageable,
-                allActive.size.toLong()
-            )
-        } else {
-            repository.findByStatusOrderByDisplayOrderAsc(GalleryMediaStatus.ACTIVE, pageable)
-        }
-
+        val mediaPage = queryActiveMedia(category, null, null, page, size)
         val displayNames = resolveDisplayNames(mediaPage.content)
         val dtos = mediaPage.content.map { it.toDto(displayNames) }
 
@@ -523,8 +878,8 @@ class GalleryService(
                 totalElements = mediaPage.totalElements,
                 totalPages = mediaPage.totalPages,
                 first = mediaPage.isFirst,
-                last = mediaPage.isLast
-            )
+                last = mediaPage.isLast,
+            ),
         )
     }
 
@@ -538,7 +893,7 @@ class GalleryService(
     @Transactional(readOnly = true)
     fun getById(
         id: UUID,
-        isAdmin: Boolean = false
+        isAdmin: Boolean = false,
     ): GalleryMediaDto? {
         val media = repository.findById(id).orElse(null) ?: return null
 
@@ -553,14 +908,10 @@ class GalleryService(
 
     /**
      * Gets all ACTIVE user-uploaded media for a directory entry.
-     *
-     * @param entryId Directory entry ID
-     * @return List of user upload DTOs
      */
     @Transactional(readOnly = true)
     fun getMediaByEntry(entryId: UUID): List<GalleryMediaDto.UserUpload> {
-        val mediaList = repository
-            .findByEntryIdAndStatusOrderByDisplayOrderAsc(entryId, GalleryMediaStatus.ACTIVE)
+        val mediaList = queryMediaByEntry(entryId)
         val displayNames = resolveDisplayNames(mediaList)
         return mediaList.map { GalleryMediaDto.from(it, it.uploadedBy?.let { id -> displayNames[id] }) }
     }
@@ -573,7 +924,7 @@ class GalleryService(
     @Transactional(readOnly = true)
     fun getCategories(): List<String> =
         repository
-            .findByStatus(GalleryMediaStatus.ACTIVE)
+            .findByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
             .mapNotNull { it.category }
             .distinct()
             .sorted()
@@ -599,7 +950,7 @@ class GalleryService(
             this.platform = request.platform
             this.externalId = request.externalId
             this.url = request.url
-            this.thumbnailUrl = request.thumbnailUrl
+            this.thumbnailUrl = ExternalMedia.normalizeThumbnailUrl(request.thumbnailUrl)
             this.title = request.title
             this.description = request.description
             this.author = request.author
@@ -607,6 +958,13 @@ class GalleryService(
             this.displayOrder = request.displayOrder
             this.status = GalleryMediaStatus.PENDING_REVIEW
             this.curatedBy = userId
+            // Smart credit attribution
+            if (!request.author.isNullOrBlank()) {
+                val parsed = CreditParser.parseCredit(request.author)
+                this.creditPlatform = parsed.platform
+                this.creditHandle = parsed.handle
+                this.author = parsed.displayName
+            }
         }
 
         val saved = repository.save(media)
@@ -683,16 +1041,49 @@ class GalleryService(
             return
         }
 
+        media.aiTitle = event.title
         media.aiAltText = event.altText
         media.aiDescription = event.description
         media.aiTags = event.tags.toTypedArray().ifEmpty { null }
         media.aiLabels = event.labels
         media.aiProcessedAt = Instant.now()
+
+        // Promote AI content into canonical fields
+        promoteAiContent(media, event)
+
         repository.save(media)
 
         logger.info {
             "Applied approved AI results to media ${event.mediaId} " +
                 "(run: ${event.analysisRunId}, moderator: ${event.moderatorId})"
+        }
+    }
+
+    /**
+     * Promotes approved AI-generated content into canonical fields.
+     *
+     * Promotion rules (conservative — preserves human-authored content):
+     * - aiTitle → title: only when current title looks like a raw camera filename
+     * - aiDescription → description: only when description is null or blank
+     * - aiAltText → altText: always (canonical alt text for WCAG compliance)
+     */
+    private fun promoteAiContent(
+        media: UserUploadedMedia,
+        event: AiResultsApprovedEvent,
+    ) {
+        if (!event.title.isNullOrBlank() && isRawFilename(media.title)) {
+            media.title = event.title
+            logger.debug { "Promoted AI title for media ${media.id}: '${event.title}'" }
+        }
+
+        if (!event.description.isNullOrBlank() && media.description.isNullOrBlank()) {
+            media.description = event.description
+            logger.debug { "Promoted AI description for media ${media.id}" }
+        }
+
+        if (!event.altText.isNullOrBlank()) {
+            media.altText = event.altText
+            logger.debug { "Promoted AI alt text for media ${media.id}" }
         }
     }
 }

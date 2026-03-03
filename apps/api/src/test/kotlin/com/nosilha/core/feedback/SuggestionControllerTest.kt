@@ -3,9 +3,14 @@ package com.nosilha.core.feedback
 import com.nosilha.core.feedback.api.SuggestionCreateDto
 import com.nosilha.core.feedback.domain.SuggestionType
 import com.nosilha.core.feedback.repository.SuggestionRepository
+import com.nosilha.core.gallery.domain.ExternalMedia
+import com.nosilha.core.gallery.domain.ExternalPlatform
+import com.nosilha.core.gallery.domain.GalleryMediaStatus
+import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -37,10 +42,14 @@ class SuggestionControllerTest {
     @Autowired
     private lateinit var suggestionRepository: SuggestionRepository
 
+    @Autowired
+    private lateinit var galleryMediaRepository: GalleryMediaRepository
+
     @BeforeEach
     fun setup() {
-        // Clean up database before each test
+        // Clean up database before each test (FK-safe order: children first)
         suggestionRepository.deleteAll()
+        galleryMediaRepository.deleteAll()
     }
 
     @Test
@@ -382,4 +391,112 @@ class SuggestionControllerTest {
                 ),
             ).header("X-Forwarded-For", ipAddress),
     )
+
+    @Nested
+    @DisplayName("PHOTO_IDENTIFICATION suggestion type")
+    inner class PhotoIdentificationTests {
+        @Test
+        @DisplayName("POST /api/v1/suggestions - PHOTO_IDENTIFICATION without mediaId returns 422")
+        fun `submitSuggestion PHOTO_IDENTIFICATION without mediaId should return 422`() {
+            val dto =
+                SuggestionCreateDto(
+                    contentId = UUID.randomUUID(),
+                    pageTitle = "Unknown Photo",
+                    pageUrl = "https://nosilha.local/gallery/photo/unknown",
+                    contentType = "gallery_media",
+                    name = "Community Member",
+                    email = "member@example.com",
+                    suggestionType = SuggestionType.PHOTO_IDENTIFICATION,
+                    message = "I think this photo was taken near Nova Sintra main square in the 1960s",
+                    mediaId = null,
+                )
+
+            mockMvc
+                .perform(
+                    post("/api/v1/suggestions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(dto))
+                        .header("X-Forwarded-For", "10.0.1.1"),
+                ).andExpect(status().isUnprocessableEntity)
+                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("mediaId is required")))
+
+            assertThat(suggestionRepository.findAll()).isEmpty()
+        }
+
+        @Test
+        @DisplayName("POST /api/v1/suggestions - PHOTO_IDENTIFICATION with non-existent mediaId returns 404")
+        fun `submitSuggestion PHOTO_IDENTIFICATION with non-existent mediaId should return 404`() {
+            val dto =
+                SuggestionCreateDto(
+                    contentId = UUID.randomUUID(),
+                    pageTitle = "Missing Photo",
+                    pageUrl = "https://nosilha.local/gallery/photo/missing",
+                    contentType = "gallery_media",
+                    name = "Community Member",
+                    email = "member@example.com",
+                    suggestionType = SuggestionType.PHOTO_IDENTIFICATION,
+                    message = "I recognize this location - it looks like Fajã d'Água beach area",
+                    mediaId = UUID.randomUUID(),
+                )
+
+            mockMvc
+                .perform(
+                    post("/api/v1/suggestions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(dto))
+                        .header("X-Forwarded-For", "10.0.1.2"),
+                ).andExpect(status().isNotFound)
+                .andExpect(jsonPath("$.message").value(org.hamcrest.Matchers.containsString("not found")))
+
+            assertThat(suggestionRepository.findAll()).isEmpty()
+        }
+
+        @Test
+        @DisplayName("POST /api/v1/suggestions - PHOTO_IDENTIFICATION with valid mediaId returns 201")
+        fun `submitSuggestion PHOTO_IDENTIFICATION with valid mediaId should return 201`() {
+            // Setup: insert an ACTIVE gallery media record
+            val testMedia = ExternalMedia().apply {
+                title = "Unknown historical photo"
+                description = "Unidentified photo from Brava archives"
+                category = "Historical"
+                status = GalleryMediaStatus.ACTIVE
+                showInGallery = true
+                mediaType = com.nosilha.core.gallery.domain.MediaType.IMAGE
+                platform = ExternalPlatform.SELF_HOSTED
+                url = "https://example.com/photos/unknown-brava.jpg"
+                thumbnailUrl = "https://example.com/photos/unknown-brava-thumb.jpg"
+            }
+            val savedMedia = galleryMediaRepository.save(testMedia)
+
+            val dto =
+                SuggestionCreateDto(
+                    contentId = savedMedia.id!!,
+                    pageTitle = "Unknown Historical Photo",
+                    pageUrl = "https://nosilha.local/gallery/photo/${savedMedia.id}",
+                    contentType = "gallery_media",
+                    name = "Community Elder",
+                    email = "elder@example.com",
+                    suggestionType = SuggestionType.PHOTO_IDENTIFICATION,
+                    message = "This photo shows the old church in Nova Sintra, taken around 1955 during the Festa de São João",
+                    mediaId = savedMedia.id,
+                )
+
+            mockMvc
+                .perform(
+                    post("/api/v1/suggestions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonMapper.writeValueAsString(dto))
+                        .header("X-Forwarded-For", "10.0.1.3"),
+                ).andExpect(status().isCreated)
+                .andExpect(jsonPath("$.status").value(201))
+                .andExpect(jsonPath("$.data.id").isNotEmpty)
+                .andExpect(jsonPath("$.data.message").value(org.hamcrest.Matchers.containsString("Thank you")))
+
+            // Verify suggestion persisted with correct mediaId and type
+            val suggestions = suggestionRepository.findAll()
+            assertThat(suggestions).hasSize(1)
+            assertThat(suggestions[0].suggestionType).isEqualTo(SuggestionType.PHOTO_IDENTIFICATION)
+            assertThat(suggestions[0].mediaId).isEqualTo(savedMedia.id)
+        }
+    }
 }

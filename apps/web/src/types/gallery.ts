@@ -39,6 +39,8 @@ export interface GalleryMediaBase {
   displayOrder: number;
   status: GalleryMediaStatus;
   mediaSource: GalleryMediaSource;
+  showInGallery: boolean;
+  altText: string | null;
   createdAt: string;
 }
 
@@ -57,6 +59,14 @@ export interface UserUploadMedia extends GalleryMediaBase {
   source?: MediaSource;
   uploadedBy?: string;
   uploaderDisplayName?: string;
+  photographerCredit?: string;
+  creditPlatform?: string;
+  creditHandle?: string;
+  aiTitle?: string;
+  aiTags?: string[];
+  aiAltText?: string;
+  aiDescription?: string;
+  aiProcessedAt?: string;
 }
 
 /**
@@ -73,6 +83,8 @@ export interface ExternalMedia extends GalleryMediaBase {
   author: string | null;
   curatedBy?: string;
   curatorDisplayName?: string;
+  creditPlatform?: string;
+  creditHandle?: string;
 }
 
 /**
@@ -107,11 +119,127 @@ export interface GalleryMediaPageResponse {
   currentPage: number;
 }
 
+// ========================================
+// PUBLIC API TYPES (GET /api/v1/gallery/**)
+// ========================================
+
+/**
+ * Base interface for public gallery media items.
+ * Excludes: status (always ACTIVE), AI fields, storage internals, internal UUIDs.
+ */
+export interface PublicGalleryMediaBase {
+  id: string;
+  title: string | null;
+  description: string | null;
+  category: string | null;
+  displayOrder: number;
+  mediaSource: GalleryMediaSource;
+  altText: string | null;
+  createdAt: string;
+}
+
+/**
+ * Public view of user-uploaded media.
+ * Excludes storage internals, AI fields, and internal UUIDs.
+ */
+export interface PublicUserUploadMedia extends PublicGalleryMediaBase {
+  mediaSource: "USER_UPLOAD";
+  publicUrl: string | null;
+  entryId?: string;
+  uploaderDisplayName?: string;
+  latitude?: number;
+  longitude?: number;
+  dateTaken?: string;
+  cameraMake?: string;
+  cameraModel?: string;
+  approximateDate?: string;
+  locationName?: string;
+  photographerCredit?: string;
+  archiveSource?: string;
+  creditPlatform?: string;
+  creditHandle?: string;
+}
+
+/**
+ * Public view of external media.
+ * Excludes curatedBy UUID (keeps curatorDisplayName for attribution).
+ */
+export interface PublicExternalMedia extends PublicGalleryMediaBase {
+  mediaSource: "EXTERNAL";
+  mediaType: MediaType;
+  platform: ExternalPlatform;
+  externalId: string | null;
+  url: string | null;
+  thumbnailUrl: string | null;
+  embedUrl: string | null;
+  author: string | null;
+  curatorDisplayName?: string;
+  creditPlatform?: string;
+  creditHandle?: string;
+}
+
+/** Discriminated union for public gallery media */
+export type PublicGalleryMedia = PublicUserUploadMedia | PublicExternalMedia;
+
+/** Type guard for public user upload media */
+export function isPublicUserUploadMedia(
+  media: PublicGalleryMedia
+): media is PublicUserUploadMedia {
+  return media.mediaSource === "USER_UPLOAD";
+}
+
+/** Type guard for public external media */
+export function isPublicExternalMedia(
+  media: PublicGalleryMedia
+): media is PublicExternalMedia {
+  return media.mediaSource === "EXTERNAL";
+}
+
+/** Paginated response for public gallery queries */
+export interface PublicGalleryMediaPageResponse {
+  items: PublicGalleryMedia[];
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+}
+
+/**
+ * A single decade group in the timeline aggregation.
+ */
+export interface DecadeGroup {
+  decade: string;
+  label: string;
+  count: number;
+  samplePhotos: PublicGalleryMedia[];
+}
+
+/**
+ * Response for the gallery timeline aggregation endpoint.
+ */
+export interface TimelineResponse {
+  groups: DecadeGroup[];
+  totalCount: number;
+}
+
+/**
+ * Gallery filter types shared between server and client components.
+ */
+export type DecadeFilter =
+  | "all"
+  | "pre-1975"
+  | "1975-1990"
+  | "1990-2010"
+  | "2010-plus";
+
+export type GalleryView = "grid" | "timeline" | "map";
+
 /**
  * Query parameters for gallery API calls
  */
 export interface GalleryMediaQueryParams {
   category?: string;
+  decade?: string;
+  q?: string;
   page?: number;
   size?: number;
 }
@@ -159,4 +287,17 @@ export interface UpdateGalleryStatusRequest {
   action: GalleryModerationAction;
   reason?: string; // Required for FLAG
   adminNotes?: string;
+}
+
+/**
+ * Request to update gallery media metadata (admin only)
+ * PATCH semantics — only provided fields are updated
+ */
+export interface UpdateGalleryMediaRequest {
+  title?: string;
+  description?: string;
+  category?: string;
+  author?: string;
+  photographerCredit?: string;
+  showInGallery?: boolean;
 }

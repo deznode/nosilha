@@ -7,6 +7,7 @@ import {
   useReducedMotion,
 } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import clsx from "clsx";
 
 interface ScrollIndicatorProps {
   /** Whether to fade out the indicator as the user scrolls. Default: true */
@@ -30,7 +31,7 @@ interface ScrollIndicatorProps {
 export function ScrollIndicator({
   fadeOnScroll = true,
   onClick,
-  className = "",
+  className,
 }: ScrollIndicatorProps) {
   const shouldReduceMotion = useReducedMotion();
 
@@ -59,7 +60,10 @@ export function ScrollIndicator({
     <motion.button
       style={fadeOnScroll ? { opacity: scrollOpacity } : undefined}
       onClick={onClick}
-      className={`group absolute bottom-24 left-1/2 z-30 flex -translate-x-1/2 transform cursor-pointer flex-col items-center gap-2 transition-colors hover:text-white ${className}`}
+      className={clsx(
+        "group absolute bottom-6 left-1/2 z-30 flex -translate-x-1/2 transform cursor-pointer flex-col items-center gap-2 transition-colors hover:text-white",
+        className
+      )}
       aria-label="Scroll down to content"
     >
       <span className="text-[10px] tracking-[0.2em] text-white/90 uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-colors group-hover:text-white">
@@ -77,5 +81,3 @@ export function ScrollIndicator({
     </motion.button>
   );
 }
-
-export default ScrollIndicator;

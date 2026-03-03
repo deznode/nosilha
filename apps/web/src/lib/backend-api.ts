@@ -55,11 +55,13 @@ import type {
 import type { ContactRequest, ContactConfirmationDto } from "@/types/contact";
 import type {
   GalleryMedia,
-  GalleryMediaPageResponse,
   GalleryMediaStatus,
+  PublicGalleryMedia,
+  PublicGalleryMediaPageResponse,
   SubmitExternalMediaRequest,
   CreateExternalMediaRequest,
   UpdateGalleryStatusRequest,
+  UpdateGalleryMediaRequest,
   ExternalMedia,
 } from "@/types/gallery";
 import type {
@@ -71,6 +73,18 @@ import type {
   AnalysisTriggerResponse,
   AnalyzeBatchRequest,
   BatchAnalysisTriggerResponse,
+  PolishContentRequest,
+  PolishContentResponse,
+  TranslateContentRequest,
+  TranslateContentResponse,
+  GeneratePromptsRequest,
+  GeneratePromptsResponse,
+  GenerateDirectoryContentRequest,
+  DirectoryContentResponse,
+  AiAvailableResponse,
+  AiHealthResponse,
+  AiDomainConfig,
+  UpdateDomainConfigRequest,
 } from "@/types/ai";
 import type {
   R2BucketListResponse,
@@ -305,8 +319,9 @@ export class BackendApiClient implements ApiClient {
     if (category.toLowerCase() !== "all") {
       params.append("category", category);
     }
-    // Use larger page size for map view to get more entries
-    params.append("size", "100");
+    // Fetch all map entries in a single request (no pagination loop needed
+    // for the foreseeable dataset size; warn in dev if truncated)
+    params.append("size", "500");
 
     const endpoint = `${env.apiUrl}/api/v1/directory/entries?${params.toString()}`;
 
@@ -730,8 +745,13 @@ export class BackendApiClient implements ApiClient {
     contentType: string;
     name: string;
     email: string;
-    suggestionType: "CORRECTION" | "ADDITION" | "FEEDBACK";
+    suggestionType:
+      | "CORRECTION"
+      | "ADDITION"
+      | "FEEDBACK"
+      | "PHOTO_IDENTIFICATION";
     message: string;
+    mediaId?: string;
     honeypot?: string;
   }): Promise<{ id: string | null; message: string }> {
     const endpoint = `${env.apiUrl}/api/v1/suggestions`;
@@ -1177,7 +1197,7 @@ export class BackendApiClient implements ApiClient {
     return {
       items,
       total: pagination.totalElements,
-      page: pagination.number + 1,
+      page: pagination.number,
       pageSize: pagination.size,
       hasMore:
         pagination.number <
@@ -1464,7 +1484,7 @@ export class BackendApiClient implements ApiClient {
     return {
       items,
       total: pagination.totalElements,
-      page: pagination.number + 1,
+      page: pagination.number,
       pageSize: pagination.size,
       hasMore:
         pagination.number <
@@ -1870,21 +1890,28 @@ export class BackendApiClient implements ApiClient {
     dto: Record<string, unknown>
   ): DirectorySubmission {
     // Convert uppercase category to title case (RESTAURANT → Restaurant)
-    const categoryMap: Record<
-      string,
-      "Restaurant" | "Hotel" | "Beach" | "Heritage" | "Nature"
-    > = {
+    const categoryMap: Record<string, DirectorySubmission["category"]> = {
       RESTAURANT: "Restaurant",
       HOTEL: "Hotel",
       BEACH: "Beach",
       HERITAGE: "Heritage",
       NATURE: "Nature",
+      TOWN: "Town",
+      VIEWPOINT: "Viewpoint",
+      TRAIL: "Trail",
+      CHURCH: "Church",
+      PORT: "Port",
       // Also support already title-case values for backwards compatibility
       Restaurant: "Restaurant",
       Hotel: "Hotel",
       Beach: "Beach",
       Heritage: "Heritage",
       Nature: "Nature",
+      Town: "Town",
+      Viewpoint: "Viewpoint",
+      Trail: "Trail",
+      Church: "Church",
+      Port: "Port",
       // Support legacy values for backward compatibility
       LANDMARK: "Heritage",
       Landmark: "Heritage",
@@ -1949,7 +1976,7 @@ export class BackendApiClient implements ApiClient {
     return {
       items,
       total: pageable.totalElements,
-      page: pageable.page + 1, // Convert 0-indexed to 1-indexed
+      page: pageable.page,
       pageSize: pageable.size,
       hasMore: !pageable.last,
     };
@@ -2122,7 +2149,7 @@ export class BackendApiClient implements ApiClient {
     return {
       items,
       total: pageable.totalElements,
-      page: pageable.page + 1, // Convert 0-indexed to 1-indexed
+      page: pageable.page,
       pageSize: pageable.size,
       hasMore: !pageable.last,
     };
@@ -2322,18 +2349,30 @@ export class BackendApiClient implements ApiClient {
    * content in a unified, discriminated union response.
    *
    * @param options Query parameters (category, page, size)
-   * @returns GalleryMediaPageResponse with paginated gallery items
+   * @returns PublicGalleryMediaPageResponse with paginated gallery items
    * @throws Error if API call fails
    */
   async getGalleryMedia(options?: {
     category?: string;
+    decade?: string;
+    q?: string;
+    hasGeo?: boolean;
     page?: number;
     size?: number;
-  }): Promise<GalleryMediaPageResponse> {
+  }): Promise<PublicGalleryMediaPageResponse> {
     const params = new URLSearchParams();
 
     if (options?.category) {
       params.append("category", options.category);
+    }
+    if (options?.decade) {
+      params.append("decade", options.decade);
+    }
+    if (options?.q) {
+      params.append("q", options.q);
+    }
+    if (options?.hasGeo !== undefined) {
+      params.append("hasGeo", String(options.hasGeo));
     }
     if (options?.page !== undefined) {
       params.append("page", String(options.page));
@@ -2344,9 +2383,14 @@ export class BackendApiClient implements ApiClient {
 
     const endpoint = `${env.apiUrl}/api/v1/gallery${params.toString() ? `?${params.toString()}` : ""}`;
 
-    // Use ISR with 30 minute cache for gallery content
+    // Map data needs fresh results; gallery content uses 30-minute ISR
+    const cacheOptions = options?.hasGeo
+      ? CacheConfig.MAP_DATA
+      : CacheConfig.GALLERY;
     const response = await fetch(endpoint, {
-      next: { revalidate: 1800 }, // 30 minutes
+      ...("cache" in cacheOptions
+        ? { cache: cacheOptions.cache }
+        : { next: cacheOptions }),
     });
 
     if (!response.ok) {
@@ -2357,7 +2401,7 @@ export class BackendApiClient implements ApiClient {
 
     // PagedApiResult has data as array and pageable for pagination
     const response_data = payload as {
-      data: GalleryMedia[];
+      data: PublicGalleryMedia[];
       pageable: {
         page: number;
         size: number;
@@ -2392,10 +2436,12 @@ export class BackendApiClient implements ApiClient {
    * **Caching**: Uses ISR with 30 minute cache for individual media items.
    *
    * @param id UUID of the gallery media item
-   * @returns GalleryMedia (UserUpload or External) or undefined if not found
+   * @returns PublicGalleryMedia (UserUpload or External) or undefined if not found
    * @throws Error if API call fails
    */
-  async getGalleryMediaById(id: string): Promise<GalleryMedia | undefined> {
+  async getGalleryMediaById(
+    id: string
+  ): Promise<PublicGalleryMedia | undefined> {
     const endpoint = `${env.apiUrl}/api/v1/gallery/${id}`;
 
     // Use ISR with 30 minute cache for individual media items
@@ -2413,7 +2459,7 @@ export class BackendApiClient implements ApiClient {
     }
 
     const payload = await response.json();
-    return this.unwrapApiResponse<GalleryMedia>(payload);
+    return this.unwrapApiResponse<PublicGalleryMedia>(payload);
   }
 
   /**
@@ -2442,10 +2488,65 @@ export class BackendApiClient implements ApiClient {
     return this.unwrapApiResponse<string[]>(payload);
   }
 
+  async getRandomGalleryMedia(
+    count: number = 1
+  ): Promise<PublicGalleryMedia[]> {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/random?count=${count}`;
+    const response = await fetch(endpoint, { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch random gallery media: ${response.status}`
+      );
+    }
+    const payload = await response.json();
+    return this.unwrapApiResponse<PublicGalleryMedia[]>(payload);
+  }
+
+  async getFeaturedPhoto(): Promise<PublicGalleryMedia | null> {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/featured`;
+    const response = await fetch(endpoint, {
+      next: CacheConfig.GALLERY,
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch featured photo: ${response.status}`);
+    }
+    const payload = await response.json();
+    const items = this.unwrapApiResponse<PublicGalleryMedia[]>(payload);
+    return items[0] ?? null;
+  }
+
+  async getWeeklyDiscovery(): Promise<PublicGalleryMedia[]> {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/weekly`;
+    const response = await fetch(endpoint, {
+      next: CacheConfig.GALLERY,
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch weekly discovery: ${response.status}`);
+    }
+    const payload = await response.json();
+    return this.unwrapApiResponse<PublicGalleryMedia[]>(payload);
+  }
+
+  async getGalleryTimeline(): Promise<
+    import("@/types/gallery").TimelineResponse
+  > {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/timeline`;
+    const response = await fetch(endpoint, {
+      next: CacheConfig.GALLERY,
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch gallery timeline: ${response.status}`);
+    }
+    const payload = await response.json();
+    return this.unwrapApiResponse<import("@/types/gallery").TimelineResponse>(
+      payload
+    );
+  }
+
   /**
    * Submit external media for admin review.
    *
-   * **Public Endpoint**: No authentication required.
+   * **Authenticated Endpoint**: Requires authentication.
    *
    * Allows community members to submit external media (YouTube videos, etc.)
    * for review and potential inclusion in the gallery.
@@ -2567,6 +2668,37 @@ export class BackendApiClient implements ApiClient {
 
     if (!response.ok) {
       throw new Error(`Failed to update gallery status: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<GalleryMedia>(payload);
+  }
+
+  /**
+   * Update gallery media metadata (PATCH semantics).
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param id Gallery media item ID
+   * @param request Update request with optional fields
+   * @returns Updated gallery media item
+   */
+  async updateGalleryMedia(
+    id: string,
+    request: UpdateGalleryMediaRequest
+  ): Promise<GalleryMedia> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update gallery media: ${response.status}`);
     }
 
     const payload = await response.json();
@@ -2848,6 +2980,146 @@ export class BackendApiClient implements ApiClient {
   }
 
   // ================================
+  // TEXT AI OPERATIONS
+  // ================================
+
+  async checkAiAvailable(): Promise<AiAvailableResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/ai/available`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to check AI availability: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<AiAvailableResponse>(payload);
+  }
+
+  async polishContent(
+    request: PolishContentRequest
+  ): Promise<PolishContentResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/ai/polish`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to polish content: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<PolishContentResponse>(payload);
+  }
+
+  async translateContent(
+    request: TranslateContentRequest
+  ): Promise<TranslateContentResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/ai/translate`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to translate content: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<TranslateContentResponse>(payload);
+  }
+
+  async generatePrompts(
+    request: GeneratePromptsRequest
+  ): Promise<GeneratePromptsResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/ai/prompts`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to generate prompts: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<GeneratePromptsResponse>(payload);
+  }
+
+  async generateDirectoryContent(
+    request: GenerateDirectoryContentRequest
+  ): Promise<DirectoryContentResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/ai/directory-content`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to generate directory content: ${response.status}`
+      );
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<DirectoryContentResponse>(payload);
+  }
+
+  // ================================
+  // ADMIN AI DASHBOARD OPERATIONS
+  // ================================
+
+  async getAiHealth(): Promise<AiHealthResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/ai/health`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch AI health: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<AiHealthResponse>(payload);
+  }
+
+  async updateAiDomainConfig(
+    domain: string,
+    request: UpdateDomainConfigRequest
+  ): Promise<AiDomainConfig> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/ai/config/${domain}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to update AI domain config: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<AiDomainConfig>(payload);
+  }
+
+  // ================================
   // ADMIN R2 STORAGE OPERATIONS
   // ================================
 
@@ -3013,7 +3285,7 @@ export class BackendApiClient implements ApiClient {
     return {
       items,
       total: pagination.totalElements,
-      page: pagination.number + 1, // Convert 0-indexed to 1-indexed
+      page: pagination.number,
       pageSize: pagination.size,
       hasMore:
         pagination.number <

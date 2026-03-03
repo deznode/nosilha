@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import {
   Bold,
   Italic,
@@ -19,10 +19,10 @@ import type { StoryTemplate } from "@/types/story";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  polishStoryAction,
-  translateStoryAction,
-  checkGeminiAvailableAction,
-} from "@/app/actions/gemini-actions";
+  useAiAvailable,
+  usePolishContent,
+  useTranslateContent,
+} from "@/hooks/queries/useTextAi";
 import { StoryPromptsPanel } from "./story-prompts-panel";
 import { useToast } from "@/hooks/use-toast";
 
@@ -100,13 +100,10 @@ export function StoryEditor({
   templateType,
 }: StoryEditorProps) {
   const [activeTab, setActiveTab] = useState<"write" | "preview">("write");
-  const [isPolishing, setIsPolishing] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showCharCount, setShowCharCount] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState<"EN" | "PT">("EN");
   const [originalContent, setOriginalContent] = useState<string>("");
-  const [isTranslating, setIsTranslating] = useState(false);
-  const [geminiAvailable, setGeminiAvailable] = useState(false);
   const [pendingTemplate, setPendingTemplate] = useState<
     keyof typeof TEMPLATES | null
   >(null);
@@ -114,52 +111,54 @@ export function StoryEditor({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const toast = useToast();
 
-  // Check Gemini availability on mount
-  useEffect(() => {
-    checkGeminiAvailableAction().then(setGeminiAvailable);
-  }, []);
+  const { data: aiAvailability } = useAiAvailable();
+  const polishMutation = usePolishContent();
+  const translateMutation = useTranslateContent();
+  const geminiAvailable = aiAvailability?.available ?? false;
 
   const handlePolish = async () => {
     if (!content) return;
-    setIsPolishing(true);
     try {
-      const polished = await polishStoryAction(content);
-      onContentChange(polished);
-      toast.success("Content polished").show();
+      const result = await polishMutation.mutateAsync({ content });
+      onContentChange(result.content);
+      if (result.aiApplied) {
+        toast.success("Content polished").show();
+      } else {
+        toast.warning("AI unavailable. Content returned unchanged.").show();
+      }
     } catch (error) {
       console.error("Failed to polish content:", error);
       toast.error("Failed to polish content. Please try again.").show();
-    } finally {
-      setIsPolishing(false);
     }
   };
 
   const handleTranslate = async () => {
     if (!content) return;
 
-    // Store original on first translation
-    if (!originalContent) {
-      setOriginalContent(content);
-    }
-
-    setIsTranslating(true);
-    // Determine target language (opposite of current)
     const targetLang = currentLanguage === "EN" ? "PT" : "EN";
 
     try {
-      const translated = await translateStoryAction(content, targetLang);
-      onContentChange(translated);
-      setCurrentLanguage(targetLang);
-      toast
-        .success(
-          `Translated to ${targetLang === "PT" ? "Portuguese" : "English"}`
-        )
-        .show();
+      const result = await translateMutation.mutateAsync({
+        content,
+        targetLang,
+      });
+      if (result.aiApplied) {
+        if (!originalContent) {
+          setOriginalContent(content);
+        }
+        onContentChange(result.content);
+        setCurrentLanguage(targetLang);
+        toast
+          .success(
+            `Translated to ${targetLang === "PT" ? "Portuguese" : "English"}`
+          )
+          .show();
+      } else {
+        toast.warning("AI unavailable. Content returned unchanged.").show();
+      }
     } catch (error) {
       console.error("Translation failed:", error);
       toast.error("Translation failed. Please try again.").show();
-    } finally {
-      setIsTranslating(false);
     }
   };
 
@@ -366,24 +365,24 @@ export function StoryEditor({
                 <button
                   type="button"
                   onClick={handlePolish}
-                  disabled={isPolishing || !content}
+                  disabled={polishMutation.isPending || !content}
                   className="text-bougainvillea-pink hover:text-bougainvillea-pink/80 flex items-center px-2 text-xs disabled:opacity-50"
-                  title="Use Gemini AI to fix grammar and improve flow"
+                  title="Use AI to fix grammar and improve flow"
                 >
                   <Sparkles className="mr-1 h-3 w-3" />
-                  {isPolishing ? "Polishing..." : "AI Polish"}
+                  {polishMutation.isPending ? "Polishing..." : "AI Polish"}
                 </button>
 
                 <div className="border-hairline ml-2 flex items-center gap-1 border-l pl-2">
                   <button
                     type="button"
                     onClick={handleTranslate}
-                    disabled={isTranslating || !content}
+                    disabled={translateMutation.isPending || !content}
                     className="text-ocean-blue hover:bg-ocean-blue/10 flex items-center gap-1 rounded px-2 py-1 text-xs font-medium disabled:opacity-50"
                     title={`Translate to ${currentLanguage === "EN" ? "Portuguese" : "English"}`}
                   >
                     <Languages className="h-3 w-3" />
-                    {isTranslating
+                    {translateMutation.isPending
                       ? "..."
                       : currentLanguage === "EN"
                         ? "→PT"

@@ -4,7 +4,7 @@
 # NOTE: Build context must be the repository root (not apps/web).
 
 # --- Stage 1: Base - Install pnpm ---
-FROM node:20-alpine AS base
+FROM node:22-slim AS base
 WORKDIR /app
 
 # Configure pnpm
@@ -69,7 +69,7 @@ RUN pnpm build
 # --- Stage 4: Production Runner ---
 # This stage creates the final, minimal image by copying only the necessary
 # production artifacts from the builder stage.
-FROM node:20-alpine AS runner
+FROM node:22-slim AS runner
 WORKDIR /app
 
 # Set the environment to production
@@ -78,8 +78,8 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Create a non-root user for security purposes
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001
+RUN groupadd --gid 1001 nodejs && \
+    useradd --uid 1001 --gid nodejs nextjs
 
 # Copy the entire standalone output preserving monorepo structure
 # This is required because pnpm uses symlinks in node_modules that reference

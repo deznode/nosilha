@@ -18,6 +18,7 @@ import java.util.UUID
  *
  * @property mediaId the gallery media ID to update
  * @property analysisRunId ID of the approved AnalysisRun
+ * @property title approved title for the image (possibly admin-edited)
  * @property altText approved alt text (possibly admin-edited)
  * @property description approved description (possibly admin-edited)
  * @property tags approved semantic tags (possibly admin-edited)
@@ -28,6 +29,7 @@ import java.util.UUID
 data class AiResultsApprovedEvent(
     val mediaId: UUID,
     val analysisRunId: UUID,
+    val title: String? = null,
     val altText: String? = null,
     val description: String? = null,
     val tags: List<String> = emptyList(),

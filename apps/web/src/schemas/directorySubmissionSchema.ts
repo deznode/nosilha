@@ -10,9 +10,23 @@ export const directorySubmissionSchema = z.object({
     .string()
     .min(2, "Name must be at least 2 characters")
     .max(255, "Name is too long"),
-  category: z.enum(["Restaurant", "Hotel", "Beach", "Heritage", "Nature"], {
-    message: "Please select a category",
-  }),
+  category: z.enum(
+    [
+      "Restaurant",
+      "Hotel",
+      "Beach",
+      "Heritage",
+      "Nature",
+      "Town",
+      "Viewpoint",
+      "Trail",
+      "Church",
+      "Port",
+    ],
+    {
+      message: "Please select a category",
+    }
+  ),
   town: z.string().min(1, "Please select a town"),
   customTown: z.string().optional(),
   description: z

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
@@ -58,6 +59,30 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
         status: GalleryMediaStatus,
         pageable: Pageable,
     ): Page<GalleryMedia>
+
+    /**
+     * Finds media by status where showInGallery is true, with pagination and display order.
+     *
+     * Used for public gallery display (ACTIVE + gallery-visible only).
+     *
+     * @param status The media status to filter by
+     * @param pageable Pagination parameters
+     * @return Page of gallery-visible media entities
+     */
+    fun findByStatusAndShowInGalleryTrueOrderByDisplayOrderAsc(
+        status: GalleryMediaStatus,
+        pageable: Pageable,
+    ): Page<GalleryMedia>
+
+    /**
+     * Finds all media by status where showInGallery is true.
+     *
+     * Used for category extraction from gallery-visible items.
+     *
+     * @param status The media status to filter by
+     * @return List of gallery-visible media entities
+     */
+    fun findByStatusAndShowInGalleryTrue(status: GalleryMediaStatus): List<GalleryMedia>
 
     /**
      * Finds all media in a specific category.
@@ -185,4 +210,43 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
      */
     @Query("SELECT m FROM ExternalMedia m")
     fun findAllExternalMedia(): List<ExternalMedia>
+
+    /**
+     * Returns IDs of all active gallery-visible media.
+     *
+     * Lightweight projection query for random selection — avoids loading
+     * full entity graphs into memory. Only returns the UUID primary key.
+     *
+     * @param status The media status to filter by (typically ACTIVE)
+     * @return List of media UUIDs matching the criteria
+     */
+    @Query("SELECT gm.id FROM GalleryMedia gm WHERE gm.status = :status AND gm.showInGallery = true")
+    fun findIdsByStatusAndShowInGalleryTrue(
+        @Param("status") status: GalleryMediaStatus,
+    ): List<UUID>
+
+    /**
+     * Full-text search across gallery media using Portuguese text search config.
+     * Searches title (weight A), description (B), and location_name (C).
+     * Results ranked by ts_rank relevance score.
+     * Only returns ACTIVE, gallery-visible items.
+     */
+    @Query(
+        value = """
+        SELECT * FROM gallery_media
+        WHERE search_vector @@ plainto_tsquery('portuguese', :query)
+        AND status = 'ACTIVE' AND show_in_gallery = true
+        ORDER BY ts_rank(search_vector, plainto_tsquery('portuguese', :query)) DESC
+        """,
+        countQuery = """
+        SELECT COUNT(*) FROM gallery_media
+        WHERE search_vector @@ plainto_tsquery('portuguese', :query)
+        AND status = 'ACTIVE' AND show_in_gallery = true
+        """,
+        nativeQuery = true,
+    )
+    fun searchGallery(
+        @Param("query") query: String,
+        pageable: Pageable,
+    ): Page<GalleryMedia>
 }

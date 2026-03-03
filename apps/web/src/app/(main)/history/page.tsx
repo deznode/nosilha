@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { cacheLife } from "next/cache";
 import { headers, cookies } from "next/headers";
 
 // UI Components
@@ -32,11 +33,9 @@ import {
 import {
   getBestLanguage,
   detectLanguage,
+  type Language,
   LANGUAGE_COOKIE_NAME,
 } from "@/lib/content/translations";
-
-// Enable ISR with 2 hour revalidation for historical content
-export const revalidate = 7200;
 
 // Content ID for reactions
 const HISTORY_PAGE_CONTENT_ID = "11111111-2222-4333-8444-555555555555";
@@ -81,14 +80,13 @@ interface PageProps {
 export default async function HistoryPage({ searchParams }: PageProps) {
   const { lang } = await searchParams;
 
-  // Get available languages for history page
+  // Resolve language outside cache boundary (uses headers/cookies)
   const availableLanguages = getAvailableHistoryLanguages();
 
   if (availableLanguages.length === 0) {
     notFound();
   }
 
-  // Auto-detect language from URL param, cookie, or Accept-Language header
   const headersList = await headers();
   const cookieStore = await cookies();
   const acceptLanguage = headersList.get("accept-language");
@@ -101,7 +99,13 @@ export default async function HistoryPage({ searchParams }: PageProps) {
     notFound();
   }
 
-  // Load content for the best available language
+  return cachedHistoryContent(bestLang);
+}
+
+async function cachedHistoryContent(bestLang: Language) {
+  "use cache";
+  cacheLife("longLived");
+
   const data = await getHistoryData(bestLang);
 
   if (!data) {
@@ -532,7 +536,7 @@ export default async function HistoryPage({ searchParams }: PageProps) {
               </p>
               <div className="flex flex-col justify-center gap-4 sm:flex-row">
                 <Link
-                  href="/directory/landmark"
+                  href="/directory/heritage"
                   className="bg-ocean-blue hover:bg-ocean-blue/90 focus-visible:ring-ocean-blue inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
                   Historical Landmarks

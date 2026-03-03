@@ -9,6 +9,11 @@ const CATEGORIES = {
   Beach: { slug: "beaches", display: "Beaches" },
   Heritage: { slug: "heritage", display: "Heritage Sites" },
   Nature: { slug: "nature", display: "Nature & Hiking" },
+  Town: { slug: "towns", display: "Towns" },
+  Viewpoint: { slug: "viewpoints", display: "Viewpoints" },
+  Trail: { slug: "trails", display: "Trails" },
+  Church: { slug: "churches", display: "Churches" },
+  Port: { slug: "ports", display: "Ports" },
 } as const;
 
 type CategoryName = keyof typeof CATEGORIES;

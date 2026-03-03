@@ -134,6 +134,6 @@ export const ArticleSchema = BaseContentSchema.extend({
 
 ## Reference
 
-- See `docs/state-management.md` for comprehensive state management guide
+- See `docs/20-architecture/state-management.md` for comprehensive state management guide
 - Store files: `apps/web/src/stores/`
 - Query hooks: `apps/web/src/hooks/queries/`
