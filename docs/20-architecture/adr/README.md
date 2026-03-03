@@ -17,6 +17,7 @@ Architecture Decision Records (ADRs) document significant technical decisions ma
 | [0009](0009-spring-ai-gemini-integration.md) | Spring AI for Gemini Integration | Accepted | 2026-02-10 |
 | [0010](0010-bravamap-component-decomposition.md) | BravaMap Component Decomposition and State Management | Proposed | 2026-02-23 |
 | [0011](0011-native-10-category-directory-system.md) | Native 10-Category Directory System | Accepted | 2026-02-23 |
+| [0012](0012-spring-boot-dependency-override-strategy.md) | Spring Boot Dependency Override Strategy | Accepted | 2026-03-02 |
 
 ## Creating New ADRs
 

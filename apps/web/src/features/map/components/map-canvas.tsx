@@ -86,9 +86,11 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
   // <Source id="mapbox-dem"> tries to call map.removeSource().
   // See: https://github.com/visgl/react-map-gl/issues/2553
   useLayoutEffect(() => {
-    const ref = mapRef.current;
     return () => {
-      const map = ref?.getMap();
+      // Must read mapRef.current at cleanup time (not captured at mount time)
+      // because the MapRef wrapper's getMap() returns null on a stale capture
+      // when reuseMaps is enabled.
+      const map = mapRef.current?.getMap();
       if (map) {
         try {
           map.setTerrain(null);
@@ -97,7 +99,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
         }
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mapRef is a stable ref, no need to track
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- mapRef is a stable ref object, must read .current at cleanup time
   }, []);
 
   // --- Cleanup timers on unmount ---
