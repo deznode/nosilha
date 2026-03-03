@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import clsx from "clsx";
 import { motion } from "framer-motion";
+import { Button } from "@/components/catalyst-ui/button";
 
 /**
  * HistoricalFigures Component
@@ -15,7 +17,7 @@ export interface HistoricalFigure {
   role: string;
   years: string;
   description: string;
-  slug?: string; // Optional link to dedicated page
+  slug?: string;
 }
 
 interface HistoricalFiguresProps {
@@ -33,11 +35,14 @@ export function HistoricalFigures({
   subtitle,
   exploreLink,
   exploreLinkText = "Explore All Historical Figures",
-  className = "",
+  className,
 }: HistoricalFiguresProps) {
   return (
     <section
-      className={`bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm ${className}`}
+      className={clsx(
+        "bg-surface border-hairline mt-16 rounded-lg border p-8 shadow-sm",
+        className
+      )}
     >
       <div className="mb-8 text-center">
         <motion.h3
@@ -50,16 +55,14 @@ export function HistoricalFigures({
         </motion.h3>
         {subtitle && <p className="text-text-secondary mb-6">{subtitle}</p>}
         {exploreLink && (
-          <Link
-            href={exploreLink}
-            className="bg-ocean-blue hover:bg-ocean-blue/90 inline-flex items-center rounded-md px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105"
-          >
+          <Button href={exploreLink} color="blue">
             {exploreLinkText}
             <svg
               className="ml-2 h-4 w-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              data-slot="icon"
             >
               <path
                 strokeLinecap="round"
@@ -68,7 +71,7 @@ export function HistoricalFigures({
                 d="M9 5l7 7-7 7"
               />
             </svg>
-          </Link>
+          </Button>
         )}
       </div>
 

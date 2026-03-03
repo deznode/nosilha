@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import clsx from "clsx";
 
 export interface SectionTitleProps {
   children: ReactNode;
@@ -12,13 +13,15 @@ export interface SectionTitleProps {
 export function SectionTitle({
   children,
   centered = false,
-  className = "",
+  className,
 }: SectionTitleProps) {
   return (
     <h3
-      className={`text-text-primary mb-8 font-serif text-2xl font-bold ${
-        centered ? "text-center" : ""
-      } ${className}`}
+      className={clsx(
+        "text-text-primary mb-8 font-serif text-2xl font-bold",
+        centered && "text-center",
+        className
+      )}
     >
       {children}
     </h3>

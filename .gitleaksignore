@@ -1,0 +1,26 @@
+# Gitleaks Ignore File
+# https://github.com/gitleaks/gitleaks#gitleaksignore
+
+# ============================================================
+# FALSE POSITIVES - Intentional test/documentation values
+# ============================================================
+
+# Documentation placeholder "YOUR_JWT_HERE" in SUPABASE_ADMIN_ROLES.md
+55ea900d7a32ba2c63a6a96f3d1badc4f36507e6:docs/SUPABASE_ADMIN_ROLES.md:curl-auth-header:300
+
+# Intentional test secret "test-secret-key-that-is-at-least-32-characters-long"
+# Used in test configurations and CI workflows - not a real secret
+23c000000e2c1828dd051bcdb9cbc918b0fb4bcf:backend/src/test/kotlin/com/nosilha/core/config/TestSecurityConfig.kt:generic-api-key:103
+51177cb7015a07c06c750a47a5fbede9def7c63e:.github/workflows/integration-testing.yml:generic-api-key:105
+51177cb7015a07c06c750a47a5fbede9def7c63e:.github/workflows/integration-testing.yml:generic-api-key:258
+51177cb7015a07c06c750a47a5fbede9def7c63e:.github/workflows/integration-testing.yml:generic-api-key:387
+51177cb7015a07c06c750a47a5fbede9def7c63e:.github/workflows/integration-testing.yml:generic-api-key:491
+b1e96e07252b2fb02a25a0d528900d4d558be416:backend/src/test/resources/application-test.yml:generic-api-key:47
+0483b7a62f08709078d9f688870f9e646727ad75:backend/src/test/resources/application-test.yml:generic-api-key:47
+
+# Truncated JWT examples in API documentation "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+# These are intentionally incomplete examples showing JWT format
+cc70d144cbdecea63c65496c4e654350c9abbb01:docs/API_REFERENCE.md:curl-auth-header:659
+cc70d144cbdecea63c65496c4e654350c9abbb01:docs/API_REFERENCE.md:curl-auth-header:675
+4a979a2badf1f21297b4f4a46bb4f3651b44c7a5:docs/API_REFERENCE.md:curl-auth-header:659
+4a979a2badf1f21297b4f4a46bb4f3651b44c7a5:docs/API_REFERENCE.md:curl-auth-header:675

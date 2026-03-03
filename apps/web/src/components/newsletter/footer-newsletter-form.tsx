@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -9,6 +9,7 @@ import {
 } from "@/lib/validation/newsletter-schema";
 import { subscribeToNewsletter } from "@/app/actions/newsletter";
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/catalyst-ui/input";
 import {
   hasSubmittedEmail,
   recordSubmittedEmail,
@@ -45,6 +46,16 @@ export function FooterNewsletterForm() {
     resolver: zodResolver(newsletterSchema),
   });
 
+  // Combine RHF ref with our own ref for focus management
+  const { ref: registerRef, ...emailRegister } = register("email");
+  const setEmailRef = useCallback(
+    (el: HTMLInputElement | null) => {
+      registerRef(el);
+      emailInputRef.current = el;
+    },
+    [registerRef]
+  );
+
   const onSubmit = async (data: NewsletterInput) => {
     try {
       const normalizedEmail = data.email.trim().toLowerCase();
@@ -53,9 +64,9 @@ export function FooterNewsletterForm() {
       // (OWASP recommendation: consistent messages for existent/non-existent accounts)
       if (hasSubmittedEmail(normalizedEmail)) {
         // Clear any existing toasts before showing new one
-        toast.toasts.forEach((t) => toast.dismissToast(t.id));
+        toast.clearAll();
 
-        toast.showSuccess("Thank you for subscribing!", 5000);
+        toast.success("Thank you for subscribing!").duration(5000).show();
         reset();
         emailInputRef.current?.focus();
         return;
@@ -76,19 +87,19 @@ export function FooterNewsletterForm() {
       if (response.success) {
         recordSubmittedEmail(normalizedEmail);
         // Always show success toast (server no longer returns duplicate flag)
-        toast.showSuccess(response.message, 5000);
+        toast.success(response.message).duration(5000).show();
         reset(); // Clear form on success
         emailInputRef.current?.focus();
       } else {
         // Show error toast (8 seconds per tasks.md)
-        toast.showError(response.message, 8000);
+        toast.error(response.message).duration(8000).show();
       }
     } catch (_error) {
       // Show error toast for unexpected errors (8 seconds)
-      toast.showError(
-        "An unexpected error occurred. Please try again later.",
-        8000
-      );
+      toast
+        .error("An unexpected error occurred. Please try again later.")
+        .duration(8000)
+        .show();
     } finally {
       setIsProcessing(false);
     }
@@ -101,7 +112,7 @@ export function FooterNewsletterForm() {
    */
   const onInvalid = () => {
     // Clear all toasts when validation fails
-    toast.toasts.forEach((t) => toast.dismissToast(t.id));
+    toast.clearAll();
   };
 
   return (
@@ -115,14 +126,9 @@ export function FooterNewsletterForm() {
           <label htmlFor="footer-email-address" className="sr-only">
             Email address
           </label>
-          <input
-            {...register("email", {
-              setValueAs: (value) => value,
-            })}
-            ref={(e) => {
-              register("email").ref(e);
-              emailInputRef.current = e;
-            }}
+          <Input
+            {...emailRegister}
+            ref={setEmailRef}
             id="footer-email-address"
             type="email"
             autoComplete="email"
@@ -131,7 +137,8 @@ export function FooterNewsletterForm() {
             aria-invalid={errors.email ? "true" : "false"}
             aria-describedby={errors.email ? "footer-email-error" : undefined}
             disabled={isProcessing}
-            className="bg-background-primary text-text-primary ring-border-primary placeholder:text-text-tertiary focus:ring-ocean-blue w-full min-w-0 appearance-none rounded-md border-0 px-3 py-1.5 text-base shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset disabled:cursor-not-allowed disabled:opacity-60 sm:w-64 sm:text-sm sm:leading-6 xl:w-full"
+            data-invalid={errors.email ? "" : undefined}
+            className="sm:w-64 xl:w-full"
           />
 
           {/* Honeypot field (hidden from users and screen readers) */}
@@ -149,7 +156,7 @@ export function FooterNewsletterForm() {
             <p
               id="footer-email-error"
               role="alert"
-              className="text-destructive mt-2 text-sm font-medium"
+              className="text-status-error mt-2 text-sm font-medium"
             >
               {errors.email.message}
             </p>
@@ -160,7 +167,7 @@ export function FooterNewsletterForm() {
           <button
             type="submit"
             disabled={isProcessing}
-            className="bg-ocean-blue hover:bg-ocean-blue/90 focus-visible:outline-ocean-blue disabled:hover:bg-ocean-blue flex w-full items-center justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
+            className="bg-ocean-blue hover:bg-ocean-blue/90 focus-visible:outline-ocean-blue disabled:hover:bg-ocean-blue rounded-button flex w-full items-center justify-center px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
           >
             {isProcessing ? "..." : "Subscribe"}
           </button>
@@ -168,7 +175,7 @@ export function FooterNewsletterForm() {
       </form>
 
       {/* Privacy message */}
-      <p className="text-text-tertiary mt-4 text-sm">
+      <p className="mt-4 text-sm text-slate-500">
         We respect your privacy. Unsubscribe at any time.
       </p>
     </div>

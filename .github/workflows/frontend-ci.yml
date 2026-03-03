@@ -130,7 +130,7 @@ jobs:
           filters: |
             bundle:
               - 'apps/web/package.json'
-              - 'apps/web/pnpm-lock.yaml'
+              - 'pnpm-lock.yaml'
               - 'apps/web/src/**'
               - 'apps/web/next.config.ts'
 
@@ -235,7 +235,7 @@ jobs:
         id: build
         uses: docker/build-push-action@v6
         with:
-          context: ./apps/web
+          context: .
           file: ./apps/web/Dockerfile
           push: true
           tags: |

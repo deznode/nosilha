@@ -20,10 +20,8 @@ export function SystemStatusBadges() {
   if (isLoading) {
     return (
       <div className="flex items-center gap-3">
-        <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
-        <span className="text-xs text-slate-500 dark:text-slate-400">
-          Checking status...
-        </span>
+        <Loader2 className="text-muted h-4 w-4 animate-spin" />
+        <span className="text-muted text-xs">Checking status...</span>
       </div>
     );
   }
@@ -55,12 +53,12 @@ function StatusBadge({ icon, label, status }: StatusBadgeProps) {
   const statusConfig = {
     connected: {
       dotColor: "bg-green-500",
-      textColor: "text-slate-700 dark:text-slate-300",
+      textColor: "text-body",
       ariaLabel: `${label} connected`,
     },
     active: {
       dotColor: "bg-green-500",
-      textColor: "text-slate-700 dark:text-slate-300",
+      textColor: "text-body",
       ariaLabel: `${label} active`,
     },
     disconnected: {
@@ -74,8 +72,8 @@ function StatusBadge({ icon, label, status }: StatusBadgeProps) {
       ariaLabel: `${label} inactive`,
     },
     unknown: {
-      dotColor: "bg-slate-400",
-      textColor: "text-slate-500 dark:text-slate-400",
+      dotColor: "bg-basalt-500",
+      textColor: "text-muted",
       ariaLabel: `${label} status unknown`,
     },
   };

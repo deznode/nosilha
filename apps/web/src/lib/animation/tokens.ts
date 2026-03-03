@@ -1,6 +1,4 @@
 // lib/animation/tokens.ts
-// Canonical motion tokens defined in MICRO_INTERACTION.md
-
 export const motionDuration = {
   instant: 0,
   micro: 0.12,

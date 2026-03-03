@@ -47,7 +47,7 @@ export function MdxPreviewModal({
   return (
     <Dialog open={isOpen} onClose={onClose} size="5xl">
       <DialogTitle className="flex items-center gap-2">
-        <Code className="h-5 w-5 text-[var(--color-ocean-blue)]" />
+        <Code className="text-ocean-blue h-5 w-5" />
         Velite Content Preview
       </DialogTitle>
       <DialogDescription>
@@ -88,9 +88,9 @@ export function MdxPreviewModal({
         </div>
 
         {/* MDX Preview with Syntax Highlighting */}
-        <div className="overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700">
-          <div className="border-b border-slate-200 bg-slate-100 px-4 py-2 dark:border-slate-700 dark:bg-slate-800">
-            <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+        <div className="border-hairline overflow-hidden rounded-lg border">
+          <div className="border-hairline bg-surface-alt border-b px-4 py-2">
+            <h3 className="text-body flex items-center gap-2 text-sm font-semibold">
               <Code size={16} />
               MDX Source Code
             </h3>
@@ -114,7 +114,7 @@ export function MdxPreviewModal({
         </div>
 
         {/* Metadata Info */}
-        <div className="mt-4 rounded-lg bg-slate-50 px-4 py-3 text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+        <div className="bg-canvas text-muted mt-4 rounded-lg px-4 py-3 text-xs">
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
             <div>
               <span className="font-medium">Story ID:</span> {storyId}

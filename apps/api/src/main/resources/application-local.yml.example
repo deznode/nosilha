@@ -37,18 +37,18 @@ spring:
         jdbc:
           batch_size: 20
 
-# Google Cloud Storage Configuration
-# For local development - uses GCS emulator or live GCS bucket
-gcp:
-  # GCS emulator URL (when using Docker Compose)
-  serverUrl: http://localhost:8082
-  # Your GCS bucket name
-  gcs-bucket-name: your-gcs-bucket-name
+  # OAuth2 Resource Server Configuration (JWKS-based JWT verification)
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${supabase.project-url}/auth/v1/.well-known/jwks.json
+          issuer-uri: ${supabase.project-url}/auth/v1
 
-# Supabase JWT Configuration
-# Use dummy secret for local development or your actual Supabase JWT secret
+# Supabase Configuration
+# Uses public JWKS endpoint for JWT verification (no secret needed)
 supabase:
-  jwt-secret: your-supabase-jwt-secret
+  project-url: https://your-project.supabase.co
 
 # Management endpoints for health checks and debugging
 management:

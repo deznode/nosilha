@@ -1,97 +1,149 @@
-# Session Diary: YYYY-MM-DD
+# Session Diary Template
 
-> Brief summary of what was accomplished this session
+---
+session-id: YYYY-MM-DD-[sequence]
+date: YYYY-MM-DD
+duration: [approximate time]
+focus: [main topic/feature]
+status: in-progress | completed | paused
+---
 
-**Session ID:** diary-YYYY-MM-DD-[sequence]
-**Duration:** ~X hours
-**Focus:** [Feature/Bug/Refactor/Research]
+## Session Goal
+
+[What we set out to accomplish this session]
 
 ## Context
 
 ### Starting Point
-What state was the codebase in when this session began?
 
-### Goals
-- [ ] Goal 1
-- [ ] Goal 2
-- [ ] Goal 3
+[State of the codebase/feature at session start]
+
+### Relevant Background
+
+[Any context needed to understand this session's work]
 
 ## Work Completed
 
-### Summary
-Brief narrative of what was done.
+### [Task/Feature 1]
 
-### Changes Made
+**What**: [Description of work done]
 
-| File | Change Type | Description |
-|------|-------------|-------------|
-| `path/to/file.tsx` | Created/Modified/Deleted | [Description] |
+**Files Changed**:
+- `path/to/file.tsx` - [What changed]
 
-### Commits
-```
-abc1234 - Commit message 1
-def5678 - Commit message 2
-```
+**Decisions Made**:
+- [Decision]: [Rationale]
 
-## Decisions Made
+**Challenges**:
+- [Challenge]: [How resolved]
 
-### Decision 1: [Title]
-**Context:** [What prompted this decision]
-**Options Considered:**
-1. [Option A] - [Pros/Cons]
-2. [Option B] - [Pros/Cons]
+### [Task/Feature 2]
 
-**Decision:** [What was chosen]
-**Rationale:** [Why this choice]
+[Same structure as above]
 
-## Challenges Encountered
+## Technical Decisions
 
-### Challenge 1: [Title]
-**Problem:** [Description]
-**Resolution:** [How it was solved]
-**Learning:** [What to remember for next time]
+### Decision: [Title]
 
-## Open Items
+**Context**: [Why this decision was needed]
 
-### Blocked
-- [ ] [Item] - Blocked by [reason]
+**Options Considered**:
+1. [Option A]: [Pros/Cons]
+2. [Option B]: [Pros/Cons]
 
-### In Progress
-- [ ] [Item] - [Status]
+**Chosen**: [Option X]
 
-### Next Session
-- [ ] [Item to tackle next]
-- [ ] [Item to tackle next]
+**Rationale**: [Why this option]
 
-## Technical Notes
+## Discoveries
 
-### Code Patterns Discovered
-```tsx
-// Useful pattern to remember
-```
+### Codebase Insights
 
-### Performance Observations
-[Any performance-related findings]
+- [Something learned about existing code]
 
-### Bug Fixes
-| Bug | Fix | Root Cause |
-|-----|-----|-----------|
-| [Bug description] | [Fix description] | [Why it happened] |
+### Technical Learnings
 
-## Cultural Heritage Notes
+- [Something learned about tools/libraries]
 
-Any observations relevant to the cultural preservation mission:
-- [Observation]
+### Pattern Observations
+
+- [Patterns that emerged or should be documented]
+
+## Issues Encountered
+
+### Issue: [Title]
+
+**Symptom**: [What was observed]
+
+**Cause**: [Root cause if found]
+
+**Resolution**: [How it was fixed]
+
+**Prevention**: [How to avoid in future]
+
+## Testing Performed
+
+### Manual Testing
+
+- [ ] [Scenario tested] - [Result]
+
+### Automated Testing
+
+- [ ] [Test added/run] - [Result]
+
+### Playwright Verification
+
+- [ ] [Visual check performed] - [Result]
+
+## Incomplete Work
+
+### Paused Items
+
+- [ ] [Item]: [Why paused, what's needed to continue]
+
+### Known Issues
+
+- [ ] [Issue]: [Priority, next steps]
+
+## Next Session
+
+### Priorities
+
+1. [Most important next task]
+2. [Second priority]
+3. [Third priority]
+
+### Blockers to Address
+
+- [Blocker]: [What's needed]
+
+### Questions to Resolve
+
+- [Question]: [Who/what can answer]
 
 ## Handoff Notes
 
-Information for the next session or collaborator:
-1. [Key context point]
-2. [Key context point]
-3. [Key context point]
+[Anything the next session (or another developer) needs to know to continue effectively]
+
+### Quick Start Commands
+
+```bash
+# Commands to get started quickly
+```
+
+### Key Files to Review
+
+- `path/to/file.tsx` - [Why important]
+
+### Current State
+
+[Brief description of where things stand]
 
 ---
 
-**End of Session:** HH:MM
-**Build Status:** Passing | Failing
-**Tests Status:** All passing | X failing
+## Session Metrics
+
+- Files created: [N]
+- Files modified: [N]
+- Tests added: [N]
+- Commits made: [N]

@@ -50,7 +50,7 @@ export function BookmarkButton({
 
     // Check authentication first
     if (!session?.access_token) {
-      toast.showError("Please sign in to bookmark places", 5000);
+      toast.error("Please sign in to bookmark places").duration(5000).show();
       // Optionally redirect to login
       router.push("/login");
       return;
@@ -72,10 +72,12 @@ export function BookmarkButton({
       });
 
       // Show success message
-      toast.showSuccess(
-        newState ? "Place saved to your bookmarks" : "Bookmark removed",
-        3000
-      );
+      toast
+        .success(
+          newState ? "Place saved to your bookmarks" : "Bookmark removed"
+        )
+        .duration(3000)
+        .show();
 
       // Clear optimistic state after successful mutation
       setOptimisticState(null);
@@ -86,7 +88,7 @@ export function BookmarkButton({
       // Show error message
       const errorMessage =
         error instanceof Error ? error.message : "Failed to update bookmark";
-      toast.showError(errorMessage, 5000);
+      toast.error(errorMessage).duration(5000).show();
     }
   };
 
@@ -96,8 +98,8 @@ export function BookmarkButton({
       disabled={isLoading}
       className={`rounded-full p-2 backdrop-blur-md transition-all ${
         displayIsBookmarked
-          ? "bg-[var(--color-ocean-blue)] text-white"
-          : "bg-white/70 text-slate-900 hover:bg-white dark:bg-slate-800/70 dark:text-white dark:hover:bg-slate-700"
+          ? "bg-ocean-blue text-white"
+          : "bg-canvas/70 text-body hover:bg-canvas"
       } ${isLoading ? "cursor-wait opacity-70" : ""} ${className}`}
       aria-label={displayIsBookmarked ? "Remove bookmark" : "Add bookmark"}
       aria-busy={isLoading}

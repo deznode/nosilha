@@ -143,7 +143,7 @@ export function HeroSectionAtmospheric({
             {/* Primary CTA - Share Your Story */}
             <Link
               href="/contribute/story"
-              className="bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 group relative flex items-center justify-center gap-2.5 rounded-lg px-8 py-3 text-base font-semibold whitespace-nowrap text-white shadow-lg transition-all duration-200 hover:scale-[1.02] hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
+              className="bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 group rounded-button shadow-subtle hover:shadow-lift relative flex items-center justify-center gap-2.5 px-8 py-3 text-base font-semibold whitespace-nowrap text-white transition-all duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
             >
               Share Your Story
               <ArrowRight
@@ -156,7 +156,7 @@ export function HeroSectionAtmospheric({
             {/* Secondary CTA - Explore Directory */}
             <Link
               href="/directory"
-              className="flex items-center justify-center rounded-lg border border-white/30 bg-white/10 px-8 py-3 text-base font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:scale-[1.02] hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
+              className="rounded-button flex items-center justify-center border border-white/30 bg-white/10 px-8 py-3 text-base font-semibold text-white backdrop-blur-sm transition-all duration-200 hover:scale-[1.02] hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
             >
               Explore Directory
             </Link>

@@ -27,6 +27,10 @@ export interface BaseDirectoryEntry {
   updatedAt: string; // ISO 8601 timestamp
   tags: string[];
   contentActions?: ContentActionSettings | null;
+  // Contact information (common across all entry types)
+  phoneNumber?: string | null;
+  email?: string | null;
+  website?: string | null;
 }
 
 // 2. Interfaces for CATEGORY-SPECIFIC details (no redundant discriminator)

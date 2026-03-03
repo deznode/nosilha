@@ -16,11 +16,9 @@ interface ArticleLayoutProps {
   title: string;
   description: string;
   publishDate: string;
-  updatedDate?: string;
   author: string;
   category: string;
   tags: string[];
-  coverImage?: string;
   children: ReactNode;
   // Language switcher props
   slug: string;

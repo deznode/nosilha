@@ -23,12 +23,13 @@ function extractUserRole(session: Session | null): string | undefined {
   try {
     // Decode JWT payload (simple base64 decode)
     const payload = JSON.parse(atob(session.access_token.split(".")[1]));
-    // Check multiple locations for role (Supabase uses app_metadata pattern)
+    // Extract app role from JWT claims
+    // Note: payload.role is Supabase's system role ("authenticated"), not app role
+    // See: https://supabase.com/docs/guides/auth/jwt-fields
     return (
-      payload.user_role ||
-      payload.role ||
-      payload.app_metadata?.role ||
-      payload.app_metadata?.roles?.[0]
+      payload.user_role || // Custom hook claim (if configured)
+      payload.app_metadata?.role || // App role from user metadata
+      payload.app_metadata?.roles?.[0] // Fallback for roles array
     );
   } catch (error) {
     console.warn("Failed to extract role from JWT:", error);

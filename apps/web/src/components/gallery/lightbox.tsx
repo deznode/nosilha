@@ -45,7 +45,7 @@ export function Lightbox({ image, onClose }: LightboxProps) {
       onClick={onClose}
     >
       <button
-        className="absolute top-4 right-4 z-10 p-2 text-white hover:text-slate-200"
+        className="hover:text-mist-200 absolute top-4 right-4 z-10 rounded-full p-2 text-white transition-colors hover:bg-white/10 focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black/90 focus:outline-none"
         onClick={onClose}
         aria-label="Close lightbox"
       >
@@ -67,21 +67,17 @@ export function Lightbox({ image, onClose }: LightboxProps) {
             />
           </div>
         </div>
-        <div className="rounded-b-lg bg-white p-6 dark:bg-slate-800">
+        <div className="bg-canvas rounded-b-lg p-6">
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                {image.title}
-              </h2>
-              <p className="mt-1 text-slate-500 dark:text-slate-400">
-                {image.description}
-              </p>
+              <h2 className="text-body text-xl font-bold">{image.title}</h2>
+              <p className="text-muted mt-1">{image.description}</p>
             </div>
             <div className="text-right">
-              <span className="block text-sm font-medium text-[var(--color-ocean-blue)]">
+              <span className="text-ocean-blue block text-sm font-medium">
                 {image.category}
               </span>
-              <span className="mt-1 block text-xs text-slate-400 dark:text-slate-500">
+              <span className="text-muted mt-1 block text-xs">
                 {image.date}
               </span>
             </div>
@@ -89,7 +85,7 @@ export function Lightbox({ image, onClose }: LightboxProps) {
           <div className="mt-4 flex justify-end">
             <button
               onClick={handleDownload}
-              className="inline-flex items-center gap-2 rounded-lg bg-slate-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-600 focus:ring-2 focus:ring-slate-500 focus:outline-none"
+              className="bg-basalt-800 hover:bg-basalt-500 focus:ring-ocean-blue inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors focus:ring-2 focus:outline-none"
               aria-label="Download image"
             >
               <Download size={16} />

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { FeaturedStoryCard } from "./featured-story-card";
+import { getEntryUrl } from "@/lib/directory-utils";
 import type { FeaturedItem } from "@/types/landing";
 import type { DirectoryEntry } from "@/types/directory";
 
@@ -28,7 +29,7 @@ const defaultStories: FeaturedItem[] = [
       "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Faj%C3%A3_de_%C3%81gua_02.jpg/1280px-Faj%C3%A3_de_%C3%81gua_02.jpg",
     description:
       "A stunning natural bay known for its crystal clear pools and lush mango trees.",
-    link: "/towns/faja-dagua",
+    link: "/directory/nature",
   },
   {
     id: "3",
@@ -38,7 +39,7 @@ const defaultStories: FeaturedItem[] = [
       "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&q=80&w=800",
     description:
       "Discover the architectural beauty of Nova Sintra's historic gardens.",
-    link: "/towns/nova-sintra",
+    link: "/directory/heritage",
   },
 ];
 
@@ -73,7 +74,7 @@ function directoryEntryToFeaturedItem(entry: DirectoryEntry): FeaturedItem {
     category: entry.category,
     image: entry.imageUrl || getFallbackImage(entry.category),
     description: entry.description || "",
-    link: `/directory/entry/${entry.slug}`,
+    link: getEntryUrl(entry.slug, entry.category),
   };
 }
 

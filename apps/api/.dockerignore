@@ -1,0 +1,47 @@
+# Build artifacts
+build/
+target/
+.gradle/
+*.jar
+*.war
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+docs/
+
+# Test files
+src/test/
+**/test/**
+
+# Gradle wrapper (keep gradlew for container builds)
+# .gradle/wrapper/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Docker
+Dockerfile*
+.dockerignore
+
+# CI/CD
+.github/

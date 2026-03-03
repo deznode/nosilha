@@ -1,0 +1,11 @@
+# Trivy Ignore Rules
+# https://aquasecurity.github.io/trivy/latest/docs/configuration/filtering/#by-finding-ids
+
+# AVD-GCP-0001: GCS media bucket is intentionally public for serving static media files
+# The nosilha-com-media-storage bucket requires public read access for:
+# - User-uploaded images displayed on the site
+# - Static media assets served directly to browsers
+# Security is maintained through:
+# - Uniform bucket-level access (no ACLs)
+# - Write access restricted to authenticated backend service account only
+AVD-GCP-0001

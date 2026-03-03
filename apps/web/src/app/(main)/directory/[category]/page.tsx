@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { getEntriesByCategory } from "@/lib/api";
 import { DirectoryCategoryPageContent } from "@/components/pages/directory-category-page-content";
-import { formatCategoryTitle } from "@/lib/directory-utils";
+import {
+  formatCategoryTitle,
+  getCategoryFromSlug,
+} from "@/lib/directory-utils";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import type { BreadcrumbListSchema } from "@/types/metadata";
 
@@ -93,6 +96,10 @@ export default async function DirectoryCategoryPage({
   params,
 }: DirectoryCategoryPageProps) {
   const { category } = await params;
-  const { items: entries } = await getEntriesByCategory(category);
+  // Convert URL slug (e.g., "hotels") to API category format (e.g., "Hotel")
+  // For "all", keep as-is since the API handles it specially
+  const apiCategory =
+    category === "all" ? category : (getCategoryFromSlug(category) ?? category);
+  const { items: entries } = await getEntriesByCategory(apiCategory);
   return <DirectoryCategoryPageContent category={category} entries={entries} />;
 }

@@ -236,22 +236,23 @@ class ReactionController(
     /**
      * Extracts user ID from Spring Security authentication.
      *
-     * <p>JWT filter sets authentication principal to user ID (UUID string).
-     * This method parses it back to UUID.</p>
+     * For Supabase JWT authentication via JwtAuthenticationToken, the user ID
+     * is stored in the 'name' property (third constructor parameter), not in
+     * the principal (which contains the Jwt object itself).
      *
      * @param authentication Spring Security authentication object
      * @return User ID as UUID
-     * @throws IllegalStateException if principal is not a valid UUID
+     * @throws IllegalStateException if name is not present or not a valid UUID
      */
     private fun extractUserId(authentication: Authentication): UUID {
-        val principal =
-            authentication.principal as? String
-                ?: throw IllegalStateException("Authentication principal must be a string (user ID)")
+        val userId =
+            authentication.name
+                ?: throw IllegalStateException("Authentication name must be present (user ID)")
 
         return try {
-            UUID.fromString(principal)
+            UUID.fromString(userId)
         } catch (e: IllegalArgumentException) {
-            throw IllegalStateException("Authentication principal must be a valid UUID: $principal", e)
+            throw IllegalStateException("Authentication name must be a valid UUID: $userId", e)
         }
     }
 }

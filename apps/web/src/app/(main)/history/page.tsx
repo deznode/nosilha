@@ -1,12 +1,12 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { headers, cookies } from "next/headers";
-import Link from "next/link";
 
 // UI Components
+import Link from "next/link";
 import { PageHeader } from "@/components/ui/page-header";
 import { BackToTopButton } from "@/components/ui/back-to-top-button";
-import { VideoHeroSection } from "@/components/ui/video-hero-section";
+import { ImageHeroSection } from "@/components/ui/image-hero-section";
 import { CitationSection } from "@/components/ui/citation-section";
 import { ImageWithCourtesy } from "@/components/ui/image-with-courtesy";
 import { PrintPageWrapper } from "@/components/ui/print-page-wrapper";
@@ -122,17 +122,18 @@ export default async function HistoryPage({ searchParams }: PageProps) {
     <PrintPageWrapper>
       {/* Outer wrapper: -mt-16 pulls content up behind fixed header for transparent navbar effect */}
       <div className="relative -mt-16 font-sans">
-        {/* Full-Screen Video Hero - extends behind transparent header */}
-        <VideoHeroSection
-          videoSrc={hero.videoSrc}
+        {/* Image Hero - extends behind transparent header */}
+        <ImageHeroSection
+          imageSrc={hero.imageSrc}
+          imageAlt="Historical timeline of Brava Island from discovery to present day"
           title={hero.title}
           subtitle={hero.subtitle}
-          overlayContent={[]}
-          className="min-h-screen"
+          heightClass="h-[65vh]"
+          maxHeightClass="max-h-[600px]"
         />
 
         {/* Content section with background - starts below hero */}
-        <div className="bg-background-secondary">
+        <div className="bg-surface">
           <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
             <PageHeader
               title="History & Heritage"
@@ -146,6 +147,8 @@ export default async function HistoryPage({ searchParams }: PageProps) {
               contentTitle="History & Heritage"
               contentUrl="https://nosilha.com/history"
               contentType="Page"
+              showOnScroll={true}
+              scrollThreshold={250}
               reactions={[
                 {
                   id: "LOVE",
@@ -186,8 +189,8 @@ export default async function HistoryPage({ searchParams }: PageProps) {
                   Brava Island occupies a unique position in Cape Verdean
                   history—a place where geography and circumstance converged to
                   create something extraordinary. Known by the Portuguese name
-                  &quot;Brava&quot; (wild or brave) for its formidable volcanic
-                  terrain, it earned the gentler title{" "}
+                  &quot;Brava&quot; (wild) for its formidable volcanic terrain,
+                  it earned the gentler title{" "}
                   <em className="mx-1">Ilha das Flores</em> (Island of Flowers)
                   for the relative abundance of its mist-fed valleys compared to
                   the more arid neighboring islands.
@@ -530,13 +533,13 @@ export default async function HistoryPage({ searchParams }: PageProps) {
               <div className="flex flex-col justify-center gap-4 sm:flex-row">
                 <Link
                   href="/directory/landmark"
-                  className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105"
+                  className="bg-ocean-blue hover:bg-ocean-blue/90 focus-visible:ring-ocean-blue inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
                   Historical Landmarks
                 </Link>
                 <Link
                   href="/map"
-                  className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-md border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
+                  className="border-basalt-300 text-basalt-700 hover:bg-basalt-50 focus-visible:ring-ocean-blue dark:border-basalt-600 dark:text-basalt-200 dark:hover:bg-basalt-800 inline-flex items-center justify-center rounded-lg border px-6 py-3 text-base font-semibold transition-all duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
                   Explore the Map
                 </Link>

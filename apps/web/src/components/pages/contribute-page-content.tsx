@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Camera, FileText, Map, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { PageHeader } from "@/components/ui/page-header";
+import { FeatureCard } from "@/components/ui/feature-card";
 
 export function ContributePageContent() {
   const containerVariants = {
@@ -35,7 +36,7 @@ export function ContributePageContent() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="bg-background-primary mt-16 rounded-lg p-8 shadow-sm"
+          className="bg-background-primary rounded-card shadow-subtle mt-16 p-8"
         >
           <div className="text-center">
             <Heart className="text-ocean-blue mx-auto h-16 w-16" />
@@ -69,92 +70,78 @@ export function ContributePageContent() {
             className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
           >
             {/* Photo Contributions */}
-            <motion.div
-              variants={itemVariants}
-              className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-            >
-              <Camera className="text-ocean-blue mb-4 h-10 w-10" />
-              <h4 className="text-text-primary mb-2 text-lg font-semibold">
-                Share Your Photos
-              </h4>
-              <p className="text-text-secondary mb-4">
-                Help us showcase the beauty of Brava by contributing your
-                photographs of landscapes, businesses, landmarks, and cultural
-                events.
-              </p>
-              <ul className="text-text-secondary mb-4 space-y-1 text-sm">
-                <li>• High-resolution images preferred</li>
-                <li>• Include location and date information</li>
-                <li>• Respect privacy and property rights</li>
-              </ul>
-              <Link
-                href="/contribute/directory"
-                className="text-ocean-blue hover:text-ocean-blue/80 group inline-flex items-center"
+            <motion.div variants={itemVariants}>
+              <FeatureCard
+                icon={Camera}
+                iconColor="text-ocean-blue"
+                title="Share Your Photos"
+                description="Help us showcase the beauty of Brava by contributing your photographs of landscapes, businesses, landmarks, and cultural events."
               >
-                Start Contributing{" "}
-                <span className="ml-1 transition-transform group-hover:translate-x-1">
-                  →
-                </span>
-              </Link>
+                <ul className="text-muted mt-4 mb-4 space-y-1 text-sm">
+                  <li>• High-resolution images preferred</li>
+                  <li>• Include location and date information</li>
+                  <li>• Respect privacy and property rights</li>
+                </ul>
+                <Link
+                  href="/contribute/media"
+                  className="text-ocean-blue hover:text-ocean-blue/80 group inline-flex items-center"
+                >
+                  Start Contributing{" "}
+                  <span className="ml-1 transition-transform group-hover:translate-x-1">
+                    →
+                  </span>
+                </Link>
+              </FeatureCard>
             </motion.div>
 
             {/* Information Updates */}
-            <motion.div
-              variants={itemVariants}
-              className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-            >
-              <FileText className="text-valley-green mb-4 h-10 w-10" />
-              <h4 className="text-text-primary mb-2 text-lg font-semibold">
-                Update Information
-              </h4>
-              <p className="text-text-secondary mb-4">
-                Know about a new business, updated hours, or changes to a
-                landmark? Help keep our directory accurate and current.
-              </p>
-              <ul className="text-text-secondary mb-4 space-y-1 text-sm">
-                <li>• Business hours and contact info</li>
-                <li>• New restaurants or accommodations</li>
-                <li>• Seasonal closures or changes</li>
-              </ul>
-              <Link
-                href="mailto:info@nosilha.com"
-                className="text-valley-green hover:text-valley-green/80 group inline-flex items-center"
+            <motion.div variants={itemVariants}>
+              <FeatureCard
+                icon={FileText}
+                iconColor="text-valley-green"
+                title="Update Information"
+                description="Know about a new business, updated hours, or changes to a landmark? Help keep our directory accurate and current."
               >
-                Send Update{" "}
-                <span className="ml-1 transition-transform group-hover:translate-x-1">
-                  →
-                </span>
-              </Link>
+                <ul className="text-muted mt-4 mb-4 space-y-1 text-sm">
+                  <li>• Business hours and contact info</li>
+                  <li>• New restaurants or accommodations</li>
+                  <li>• Seasonal closures or changes</li>
+                </ul>
+                <Link
+                  href="/contact"
+                  className="text-valley-green hover:text-valley-green/80 group inline-flex items-center"
+                >
+                  Send Update{" "}
+                  <span className="ml-1 transition-transform group-hover:translate-x-1">
+                    →
+                  </span>
+                </Link>
+              </FeatureCard>
             </motion.div>
 
             {/* Local Stories */}
-            <motion.div
-              variants={itemVariants}
-              className="bg-background-primary border-border-primary rounded-xl border p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-            >
-              <Map className="text-bougainvillea-pink mb-4 h-10 w-10" />
-              <h4 className="text-text-primary mb-2 text-lg font-semibold">
-                Share Local Stories
-              </h4>
-              <p className="text-text-secondary mb-4">
-                Contribute historical information, cultural insights, or
-                personal stories that help visitors understand Brava&apos;s rich
-                heritage.
-              </p>
-              <ul className="text-text-secondary mb-4 space-y-1 text-sm">
-                <li>• Historical accounts and legends</li>
-                <li>• Cultural traditions and customs</li>
-                <li>• Personal experiences and tips</li>
-              </ul>
-              <Link
-                href="/history"
-                className="text-bougainvillea-pink hover:text-bougainvillea-pink/80 group inline-flex items-center"
+            <motion.div variants={itemVariants}>
+              <FeatureCard
+                icon={Map}
+                iconColor="text-bougainvillea-pink"
+                title="Share Local Stories"
+                description="Contribute historical information, cultural insights, or personal stories that help visitors understand Brava's rich heritage."
               >
-                Explore Stories{" "}
-                <span className="ml-1 transition-transform group-hover:translate-x-1">
-                  →
-                </span>
-              </Link>
+                <ul className="text-muted mt-4 mb-4 space-y-1 text-sm">
+                  <li>• Historical accounts and legends</li>
+                  <li>• Cultural traditions and customs</li>
+                  <li>• Personal experiences and tips</li>
+                </ul>
+                <Link
+                  href="/contribute/story"
+                  className="text-bougainvillea-pink hover:text-bougainvillea-pink/80 group inline-flex items-center"
+                >
+                  Explore Stories{" "}
+                  <span className="ml-1 transition-transform group-hover:translate-x-1">
+                    →
+                  </span>
+                </Link>
+              </FeatureCard>
             </motion.div>
           </motion.div>
         </section>
@@ -165,7 +152,7 @@ export function ContributePageContent() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
-          className="bg-background-primary mt-16 rounded-lg p-8 shadow-sm"
+          className="bg-background-primary rounded-card shadow-subtle mt-16 p-8"
         >
           <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
             Contribution Guidelines
@@ -216,14 +203,14 @@ export function ContributePageContent() {
           </p>
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Link
-              href="mailto:info@nosilha.com"
-              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105"
+              href="/contact"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-subtle px-6 py-3 text-base font-semibold text-white transition-transform duration-300 hover:scale-105"
             >
               Contact Us
             </Link>
             <Link
               href="/"
-              className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-md border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
+              className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-button border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
             >
               Back to Home
             </Link>

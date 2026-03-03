@@ -9,6 +9,12 @@ import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.CreateEntryRequestDto
 import com.nosilha.core.shared.api.DirectoryEntryDto
 import com.nosilha.core.shared.api.PagedApiResult
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.validation.Valid
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -26,6 +32,8 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import java.util.UUID
+
+private val logger = KotlinLogging.logger {}
 
 /**
  * REST controller for accessing the Nos Ilha directory entries.
@@ -209,6 +217,94 @@ class DirectoryEntryController(
         @PathVariable id: UUID,
     ) {
         service.deleteEntry(id)
+    }
+
+    // =====================================================
+    // PUBLIC SUBMISSION ENDPOINT
+    // =====================================================
+
+    /**
+     * Submits a new directory entry for review.
+     *
+     * <p>Requires authentication. Validates the submission, checks rate limits,
+     * and persists the entry with PENDING status for admin review.</p>
+     *
+     * <h4>Validation Rules:</h4>
+     * <ul>
+     *   <li>Name: 1-255 characters</li>
+     *   <li>Category: RESTAURANT, HOTEL, BEACH, HERITAGE, or NATURE</li>
+     *   <li>Town: 1-100 characters</li>
+     *   <li>Description: 10-2000 characters</li>
+     * </ul>
+     *
+     * <h4>Rate Limiting:</h4>
+     * <ul>
+     *   <li>Maximum 3 submissions per hour per IP address</li>
+     *   <li>HTTP 429 Too Many Requests returned if limit exceeded</li>
+     * </ul>
+     *
+     * @param request Directory submission data
+     * @param authentication Spring Security authentication (contains user ID)
+     * @param httpRequest HTTP request (used to extract IP address)
+     * @return ApiResult with DirectoryEntrySubmissionConfirmationDto (201 Created)
+     */
+    @PostMapping("/submissions")
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+        summary = "Submit directory entry",
+        description = """Submit a new directory entry for review. Requires authentication.
+            Rate limited to 3 submissions per hour per IP address.""",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "201", description = "Directory entry submitted successfully"),
+            ApiResponse(responseCode = "400", description = "Invalid request data"),
+            ApiResponse(responseCode = "401", description = "Unauthorized - authentication required"),
+            ApiResponse(responseCode = "429", description = "Rate limit exceeded"),
+        ],
+    )
+    fun submitDirectoryEntry(
+        @Valid @RequestBody request: CreateDirectoryEntrySubmissionRequest,
+        authentication: Authentication,
+        httpRequest: HttpServletRequest,
+    ): ApiResult<DirectoryEntrySubmissionConfirmationDto> {
+        val userId = extractUserId(authentication)
+        val ipAddress = extractIpAddress(httpRequest)
+        logger.info { "Received directory submission from user: $userId, IP: $ipAddress" }
+
+        val response = service.submitDirectoryEntry(
+            request = request,
+            userId = userId,
+            ipAddress = ipAddress,
+        )
+
+        logger.info { "Directory submission ${response.id} created successfully" }
+
+        return ApiResult(
+            data = response,
+            status = HttpStatus.CREATED.value(),
+        )
+    }
+
+    /**
+     * Extracts user ID from Spring Security authentication.
+     */
+    private fun extractUserId(authentication: Authentication): String =
+        authentication.name
+            ?: throw IllegalStateException("Authentication name must be present (user ID)")
+
+    /**
+     * Extracts the client IP address from the HTTP request.
+     *
+     * <p>Checks X-Forwarded-For header first (for proxied requests),
+     * then falls back to remote address.</p>
+     */
+    private fun extractIpAddress(request: HttpServletRequest): String? {
+        val xForwardedFor = request.getHeader("X-Forwarded-For")
+        if (!xForwardedFor.isNullOrBlank()) {
+            return xForwardedFor.split(",").firstOrNull()?.trim()
+        }
+        return request.remoteAddr
     }
 
     /**

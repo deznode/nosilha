@@ -84,6 +84,22 @@ resource "google_project_service" "logging" {
   disable_on_destroy = false
 }
 
+# Enable Cloud Vision API for AI image analysis (label/landmark detection)
+resource "google_project_service" "cloud_vision" {
+  project = var.gcp_project_id
+  service = "vision.googleapis.com"
+
+  disable_on_destroy = false
+}
+
+# Enable Generative Language API for Gemini cultural context generation
+resource "google_project_service" "generative_language" {
+  project = var.gcp_project_id
+  service = "generativelanguage.googleapis.com"
+
+  disable_on_destroy = false
+}
+
 # ------------------------------------------------------------------------------
 # API Dependencies
 # ------------------------------------------------------------------------------
@@ -100,6 +116,8 @@ locals {
     google_project_service.monitoring,
     google_project_service.billing,
     google_project_service.billing_budgets,
-    google_project_service.logging
+    google_project_service.logging,
+    google_project_service.cloud_vision,
+    google_project_service.generative_language
   ]
 }

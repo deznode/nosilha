@@ -7,9 +7,6 @@ import com.nosilha.core.auth.api.dto.ProfileDto
 import com.nosilha.core.auth.api.dto.ProfileUpdateRequest
 import com.nosilha.core.auth.api.dto.StorySummaryDto
 import com.nosilha.core.auth.api.dto.SuggestionSummaryDto
-import com.nosilha.core.auth.domain.NotificationPreferences
-import com.nosilha.core.auth.domain.PreferredLanguage
-import com.nosilha.core.auth.domain.UserProfile
 import com.nosilha.core.auth.repository.UserProfileRepository
 import com.nosilha.core.engagement.domain.ReactionType
 import com.nosilha.core.engagement.repository.ReactionRepository
@@ -86,38 +83,32 @@ class ProfileService(
      *   <li>Location: null</li>
      * </ul>
      *
+     * <p><strong>Race Condition Handling</strong>: Uses PostgreSQL's ON CONFLICT DO NOTHING
+     * via {@link UserProfileRepository#insertIfNotExists} to atomically handle concurrent
+     * profile creation requests. This is a single database operation with no race window.</p>
+     *
      * @param userId Supabase auth user ID from JWT token
      * @return ProfileDto containing the user's profile information
      */
     fun getOrCreateProfile(userId: String): ProfileDto {
         logger.debug { "Retrieving profile for user: $userId" }
 
-        val profile = userProfileRepository.findByUserId(userId)
-            ?: createDefaultProfile(userId)
-
-        return ProfileDto.fromEntity(profile)
-    }
-
-    /**
-     * Creates a default profile for a new user.
-     *
-     * <p>Called internally when a user doesn't have an existing profile.
-     * Uses default values for all fields to ensure a consistent initial state.</p>
-     *
-     * @param userId Supabase auth user ID
-     * @return The newly created UserProfile entity
-     */
-    private fun createDefaultProfile(userId: String): UserProfile {
-        logger.info { "Creating default profile for user: $userId" }
-
-        val newProfile = UserProfile().apply {
-            this.userId = userId
-            this.preferredLanguage = PreferredLanguage.EN
-            this.notificationPreferences = NotificationPreferences()
-            // displayName and location remain null by default
+        // Try to find existing profile first (most common case)
+        userProfileRepository.findByUserId(userId)?.let {
+            return ProfileDto.fromEntity(it)
         }
 
-        return userProfileRepository.save(newProfile)
+        // Atomically insert if not exists (handles race condition at database level)
+        val rowsInserted = userProfileRepository.insertIfNotExists(userId)
+        if (rowsInserted > 0) {
+            logger.info { "Created default profile for user: $userId" }
+        }
+
+        // Fetch the profile (either we created it, or another thread did)
+        val profile = userProfileRepository.findByUserId(userId)
+            ?: throw IllegalStateException("Profile should exist after upsert for user: $userId")
+
+        return ProfileDto.fromEntity(profile)
     }
 
     /**
@@ -301,20 +292,16 @@ class ProfileService(
     /**
      * Gets aggregated reaction counts for a user, grouped by reaction type.
      *
-     * <p>Uses the repository's query to efficiently retrieve counts in a single database call.
-     * Returns a map with all reaction types, even if the count is 0.</p>
+     * Uses the repository's query to efficiently retrieve counts in a single database call.
+     * Returns a map with all reaction types, even if the count is 0.
      *
      * @param userId User UUID
      * @return Map of reaction type to count
      */
     private fun getReactionCountsByUser(userId: UUID): Map<ReactionType, Int> {
         val counts = reactionRepository.countByUserIdGroupByReactionType(userId)
-
-        if (counts.isEmpty()) {
-            return ReactionType.entries.associateWith { 0 }
-        }
-
         val aggregated = counts.associate { it.type to it.count.toInt() }
+
         return ReactionType.entries.associateWith { type -> aggregated[type] ?: 0 }
     }
 }

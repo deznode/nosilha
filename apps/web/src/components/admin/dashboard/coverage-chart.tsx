@@ -19,17 +19,17 @@ const CHART_COLORS = [
 export function CoverageChart({ data, isLoading }: CoverageChartProps) {
   if (isLoading) {
     return (
-      <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-        <div className="mb-4 h-6 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
-        <div className="h-40 animate-pulse rounded bg-slate-100 dark:bg-slate-700" />
+      <div className="border-hairline bg-surface rounded-lg border p-6 shadow-sm">
+        <div className="bg-surface-alt mb-4 h-6 w-32 animate-pulse rounded" />
+        <div className="bg-surface-alt h-40 animate-pulse rounded" />
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-      <h3 className="mb-4 flex items-center text-lg font-bold text-slate-900 dark:text-white">
-        <Map size={20} className="mr-2 text-[var(--color-ocean-blue)]" />
+    <div className="border-hairline bg-surface rounded-lg border p-6 shadow-sm">
+      <h3 className="text-body mb-4 flex items-center text-lg font-bold">
+        <Map size={20} className="text-ocean-blue mr-2" />
         Coverage by Town
       </h3>
       <div className="h-40 w-full">
@@ -51,7 +51,18 @@ export function CoverageChart({ data, isLoading }: CoverageChartProps) {
                 />
               ))}
             </Pie>
-            <Tooltip />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "var(--color-bg-primary)",
+                border: "1px solid var(--color-border-subtle)",
+              }}
+              labelStyle={{
+                color: "var(--color-text-primary)",
+              }}
+              itemStyle={{
+                color: "var(--color-text-secondary)",
+              }}
+            />
           </PieChart>
         </ResponsiveContainer>
       </div>
@@ -59,7 +70,7 @@ export function CoverageChart({ data, isLoading }: CoverageChartProps) {
         {data.map((entry, index) => (
           <div
             key={entry.name}
-            className="flex items-center text-xs text-slate-500 dark:text-slate-400"
+            className="text-muted flex items-center text-xs"
           >
             <div
               className="mr-1 h-2 w-2 rounded-full"

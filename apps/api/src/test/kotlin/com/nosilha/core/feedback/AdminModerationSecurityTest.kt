@@ -182,9 +182,8 @@ class AdminModerationSecurityTest {
         @Test
         @DisplayName("POST /api/v1/stories should be rejected without authentication")
         fun `story submission should be rejected for unauthenticated`() {
-            // Spring Security returns 403 Forbidden for unauthenticated requests
-            // to endpoints requiring authentication (not 401) when anonymous access
-            // is not explicitly configured. This is standard Spring Security behavior.
+            // OAuth2 Resource Server returns 401 Unauthorized for unauthenticated requests
+            // to endpoints requiring authentication. This is the correct REST API behavior.
             mockMvc
                 .perform(
                     post("/api/v1/stories")
@@ -198,7 +197,7 @@ class AdminModerationSecurityTest {
                             }
                             """.trimIndent(),
                         ),
-                ).andExpect(status().isForbidden)
+                ).andExpect(status().isUnauthorized)
         }
     }
 

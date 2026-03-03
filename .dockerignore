@@ -1,0 +1,125 @@
+# Root .dockerignore for monorepo Docker builds
+# Context: Repository root, building apps/web
+
+# ====================
+# Backend (exclude entirely)
+# ====================
+apps/api/
+
+# ====================
+# Infrastructure (exclude entirely)
+# ====================
+infrastructure/
+
+# ====================
+# Plan submodule
+# ====================
+plan/
+
+# ====================
+# Documentation
+# ====================
+docs/
+*.md
+!apps/web/content/**/*.md
+!apps/web/content/**/*.mdx
+
+# ====================
+# Git
+# ====================
+.git/
+.gitignore
+.gitmodules
+.github/
+
+# ====================
+# IDE and Editor
+# ====================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ====================
+# OS files
+# ====================
+.DS_Store
+Thumbs.db
+
+# ====================
+# Node modules (will be installed fresh)
+# ====================
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# ====================
+# Build artifacts (will be built fresh)
+# ====================
+apps/web/.next/
+apps/web/out/
+apps/web/dist/
+apps/web/build/
+
+# ====================
+# Environment files
+# ====================
+**/.env*
+!**/.env.example
+!**/.env.local.example
+
+# ====================
+# Testing
+# ====================
+**/coverage/
+**/.nyc_output/
+**/*.test.*
+**/*.spec.*
+**/__tests__/
+**/tests/
+**/test-results/
+**/playwright-report/
+**/playwright/.cache/
+
+# ====================
+# Cache directories
+# ====================
+**/.turbo/
+**/.cache/
+**/.velite/
+
+# ====================
+# Logs
+# ====================
+*.log
+
+# ====================
+# Docker files
+# ====================
+**/Dockerfile*
+**/.dockerignore
+
+# ====================
+# TypeScript build info
+# ====================
+*.tsbuildinfo
+
+# ====================
+# ESLint/Lint
+# ====================
+.eslintcache
+**/eslint-results.sarif
+**/*-results.sarif
+
+# ====================
+# Misc
+# ====================
+*.tgz
+*.tar.gz
+.vercel/
+.analysis/
+CLAUDE.md
+SECURITY.md

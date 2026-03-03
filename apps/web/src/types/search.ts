@@ -4,6 +4,7 @@
  */
 
 import type { DirectoryEntry } from "./directory";
+import { getEntryUrl } from "@/lib/directory-utils";
 
 /** Result types for unified search */
 export type SearchResultType = "directory" | "article";
@@ -89,7 +90,7 @@ export function toDirectorySearchResult(
     id: entry.id,
     type: "directory",
     title: entry.name,
-    url: `/directory/entry/${entry.slug}`,
+    url: getEntryUrl(entry.slug, entry.category),
     excerpt: entry.description,
     category: entry.category,
     town: entry.town,

@@ -55,8 +55,11 @@ lerna-debug.log*
 *.csr
 *.der
 
+# Reviews (generated artifacts, not source-controlled)
+reviews/
+
 # Docker
-.dockerignore
+# Note: Root .dockerignore is tracked for CI builds
 
 # Terraform state files (CRITICAL - contains sensitive data)
 infrastructure/terraform/terraform.tfstate

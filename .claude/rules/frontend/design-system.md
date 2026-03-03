@@ -6,88 +6,91 @@ paths: apps/web/**
 
 ## Documentation
 
-See `docs/DESIGN_SYSTEM.md` for comprehensive styling guide.
+See `docs/design-system.md` for comprehensive styling guide.
 
 ## Brand Identity
 
 **"Clean, inviting, authentic, and lush"** - digital extension of Brava Island
 
-## Color Palette
+## Color System (OKLCH)
 
-| Color | Hex | Usage |
-|-------|-----|-------|
-| Ocean Blue | `#0e4c75` | Primary actions, links |
-| Ocean Blue Deep | `#0e4c75` | Hover states, dark accents (same as Ocean Blue in light mode) |
-| Valley Green | `#3E7D5A` | Success states, nature imagery |
-| Bougainvillea Pink | `#D90368` | Accents, highlights |
-| Sunny Yellow | `#F7B801` | Warnings, call-to-action |
-| Mist (Neutrals) | `#f8fafc` to `#e2e8f0` | Backgrounds (Slate palette) |
-| Basalt (Neutrals) | `#64748b` to `#0f172a` | Text, dark backgrounds (Slate palette) |
+Colors use the OKLCH color space via CSS custom properties — not hex values:
+
+```css
+:root {
+  --brand-ocean-blue: oklch(0.35 0.08 240);
+  --brand-valley-green: oklch(0.45 0.10 150);
+  --brand-bougainvillea-pink: oklch(0.50 0.20 350);
+  --brand-sunny-yellow: oklch(0.82 0.16 85);
+}
+
+.dark {
+  --brand-ocean-blue: oklch(0.75 0.14 234);
+}
+```
+
+**DO**: Use semantic tokens (`bg-surface`, `text-body`, `border-hairline`).
+**DON'T**: Use raw OKLCH values or hex colors directly in components.
+
+## Semantic Tokens (Preferred)
+
+| Token | Usage |
+|-------|-------|
+| `bg-surface` | Cards, sidebars |
+| `text-body` | Main text |
+| `text-muted` | Secondary text |
+| `border-hairline` | Light dividers |
+| `shadow-subtle` | Default card shadow |
+| `shadow-lift` | Hover state shadow |
+| `rounded-card` | Card border radius |
+| `rounded-button` | Button border radius |
+| `ease-calm` | Transition timing |
 
 ## Typography
 
-- **Headings**: Fraunces (serif) - variable, old-style, soft
-- **Body text**: Outfit (sans-serif) - geometric, brand-focused, clean
-- **Implementation**: Google Fonts with CSS variables
+- **Headings**: Fraunces (serif)
+- **Body**: Outfit (sans-serif)
 
-```css
---font-sans: 'Outfit', sans-serif;
---font-serif: 'Fraunces', serif;
+## Conditional Classes
+
+Use `clsx()` — never template literals:
+
+```tsx
+import { clsx } from "clsx";
+
+// GOOD
+className={clsx("bg-surface border", isActive && "ring-primary", className)}
+
+// BAD
+className={`bg-surface border ${isActive ? "ring-primary" : ""}`}
 ```
 
 ## Component Library
 
-### Catalyst UI (25+ components)
+### Catalyst UI (9 components)
 
-Pre-built accessible components from Catalyst:
-- Button, Input, Select, Checkbox
-- Dialog, Dropdown, Popover
-- Table, Tabs, Badge
-- And more...
+Button, Input, InputGroup, Checkbox, Fieldset, Dialog, Dropdown, Popover, Badge
 
 ### Custom UI Components
 
-| Component | Purpose |
-|-----------|---------|
-| `DirectoryCard` | Display directory entry cards |
-| `PageHeader` | Page headers with breadcrumbs |
-| `ThemeToggle` | Dark/light mode switcher |
-| `MapComponent` | Mapbox GL integration |
+Key components in `components/ui/`: Card, DirectoryCard, PageHeader, ThemeToggle, Avatar, Tooltip, MobileBottomNav, Select, Textarea, Toast, TabGroup, LoadingSpinner, AnimatedButton
 
-### Design Principles
+## Design Principles
 
-- **Mobile-first**: All components responsive
-- **Dark mode support**: CSS variables for theming
-- **Accessibility**: WCAG 2.1 AA compliance
+- Mobile-first responsive
+- Dark mode via CSS variables (light/dark themes)
+- WCAG 2.1 AA accessibility
 
 ## Key Files
 
 | File | Purpose |
 |------|---------|
-| `apps/web/src/app/globals.css` | Global styles and CSS variables |
-| `apps/web/tailwind.config.ts` | Tailwind configuration |
-| `apps/web/src/app/layout.tsx` | Root layout with fonts |
-| `apps/web/src/components/ui/theme-toggle.tsx` | Theme switcher |
-| `apps/web/src/components/ui/button.tsx` | Button component |
-
-## Tailwind Usage
-
-```tsx
-// Use semantic CSS variable tokens
-<div className="text-[var(--color-ocean-blue)] bg-[var(--color-valley-green)]/10">
-  Content
-</div>
-
-// Mobile-first responsive
-<div className="p-4 md:p-6 lg:p-8">
-  Content
-</div>
-
-// Font usage
-<h1 className="font-serif">Heading with Fraunces</h1>
-<p className="font-sans">Body text with Outfit</p>
-```
+| `apps/web/src/app/globals.css` | OKLCH CSS variables, semantic tokens |
+| `apps/web/tailwind.config.ts` | Tailwind config (custom border-radius, shadows, timing) |
+| `apps/web/src/components/ui/` | Custom UI components |
+| `apps/web/src/components/catalyst-ui/` | Catalyst UI (9 retained) |
 
 ## Reference
 
-- See `docs/DESIGN_SYSTEM.md` for complete design system documentation
+- See `docs/design-system.md` for complete design system documentation
+- See `docs/design-system.md#form-patterns` for React Hook Form + Zod patterns

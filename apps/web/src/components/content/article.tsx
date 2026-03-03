@@ -26,8 +26,6 @@ interface ArticleProps {
   requestedLanguage?: Language;
   // Related content
   relatedArticles?: RelatedArticleData[];
-  series?: string;
-  seriesOrder?: number;
 }
 
 // Helper to render Velite MDX content
@@ -56,11 +54,9 @@ export function Article({
   title,
   description,
   publishDate,
-  updatedDate,
   author,
   category,
   tags,
-  coverImage,
   code,
   language,
   availableLanguages = [],
@@ -74,11 +70,9 @@ export function Article({
       title={title}
       description={description}
       publishDate={publishDate}
-      updatedDate={updatedDate}
       author={author}
       category={category}
       tags={tags}
-      coverImage={coverImage}
       availableLanguages={availableLanguages}
       currentLanguage={language}
       isFallback={isFallback}

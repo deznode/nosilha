@@ -7,17 +7,43 @@ import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm
+import org.springframework.security.oauth2.jwt.JwtDecoder
+import org.springframework.security.oauth2.jwt.JwtValidators
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
 import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.web.cors.CorsConfiguration
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    private val jwtAuthFilter: JwtAuthenticationFilter,
+    private val supabaseJwtConverter: SupabaseJwtAuthenticationConverter,
     @Value("\${app.cors.allowed-origins}")
     private var allowedOrigins: List<String>,
+    @Value("\${supabase.project-url}")
+    private val supabaseProjectUrl: String,
 ) {
+    /**
+     * Custom JwtDecoder that explicitly supports ES256 algorithm for Supabase JWKS.
+     * Spring Security defaults to RS256, but Supabase uses ES256 for asymmetric JWT signing.
+     * Includes issuer validation to ensure tokens originate from the expected Supabase project.
+     */
+    @Bean
+    fun jwtDecoder(): JwtDecoder {
+        val jwksUrl = "$supabaseProjectUrl/auth/v1/.well-known/jwks.json"
+        val issuerUri = "$supabaseProjectUrl/auth/v1"
+
+        val jwtDecoder = NimbusJwtDecoder
+            .withJwkSetUri(jwksUrl)
+            .jwsAlgorithm(SignatureAlgorithm.ES256)
+            .build()
+
+        // Add issuer validation to ensure JWTs originate from the expected Supabase project
+        jwtDecoder.setJwtValidator(JwtValidators.createDefaultWithIssuer(issuerUri))
+
+        return jwtDecoder
+    }
+
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         if (allowedOrigins.isNotEmpty()) {
@@ -59,9 +85,11 @@ class SecurityConfig(
                     // Allow public contact form submissions (anonymous visitors can submit)
                     .requestMatchers(HttpMethod.POST, "/api/v1/contact")
                     .permitAll()
-                    // Allow public directory submissions (community contributions, rate limited)
+                    // Directory submissions require authentication (both old and new endpoints)
                     .requestMatchers(HttpMethod.POST, "/api/v1/directory-submissions")
-                    .permitAll()
+                    .hasAnyRole("USER", "ADMIN", "authenticated")
+                    .requestMatchers(HttpMethod.POST, "/api/v1/directory/submissions")
+                    .hasAnyRole("USER", "ADMIN", "authenticated")
                     // Allow public access to reaction counts (GET only, POST/DELETE require auth)
                     .requestMatchers(HttpMethod.GET, "/api/v1/reactions/content/**")
                     .permitAll()
@@ -106,8 +134,12 @@ class SecurityConfig(
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
-            // 4. Add the custom JWT filter before the standard username/password filter
-            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
+            // 4. Enable OAuth2 Resource Server with JWT support (JWKS-based verification)
+            .oauth2ResourceServer { oauth2 ->
+                oauth2.jwt { jwt ->
+                    jwt.jwtAuthenticationConverter(supabaseJwtConverter)
+                }
+            }
         return http.build()
     }
 

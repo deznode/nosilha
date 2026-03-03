@@ -11,6 +11,7 @@ import type {
   OrganizationSchema,
 } from "@/types/metadata";
 import type { DirectoryEntry } from "@/types/directory";
+import { getEntryUrl } from "@/lib/directory-utils";
 
 /**
  * SEO Metadata Generation Utilities for Nos Ilha Cultural Heritage Platform
@@ -155,7 +156,7 @@ export function generateDirectoryEntryMetadata(
     entry.description ||
     `Discover ${entry.name}, a wonderful ${entry.category.toLowerCase()} located in ${entry.town}, Brava Island, Cape Verde.`;
 
-  const _url = `${baseUrl}/directory/entry/${entry.slug}`;
+  const _url = `${baseUrl}${getEntryUrl(entry.slug, entry.category)}`;
 
   // Use entry image if available, fallback to default
   const entryImages: OpenGraphImage[] = [];
@@ -227,7 +228,7 @@ export function generateDirectoryEntryMetadata(
   return generatePageMetadata({
     title,
     description,
-    path: `/directory/entry/${entry.slug}`,
+    path: `${getEntryUrl(entry.slug, entry.category)}`,
     keywords,
     images: entryImages,
     structuredData,
@@ -260,7 +261,7 @@ function generateRestaurantSchema(
       latitude: entry.latitude,
       longitude: entry.longitude,
     },
-    url: `${baseUrl}/directory/entry/${entry.slug}`,
+    url: `${baseUrl}${getEntryUrl(entry.slug, entry.category)}`,
   };
 
   if (
@@ -317,7 +318,7 @@ function generateLodgingSchema(
       latitude: entry.latitude,
       longitude: entry.longitude,
     },
-    url: `${baseUrl}/directory/entry/${entry.slug}`,
+    url: `${baseUrl}${getEntryUrl(entry.slug, entry.category)}`,
   };
 
   if (
@@ -370,7 +371,7 @@ function generateTouristAttractionSchema(
       latitude: entry.latitude,
       longitude: entry.longitude,
     },
-    url: `${baseUrl}/directory/entry/${entry.slug}`,
+    url: `${baseUrl}${getEntryUrl(entry.slug, entry.category)}`,
     touristType: [entry.category.toLowerCase()],
     isAccessibleForFree: true,
   };
@@ -409,7 +410,7 @@ function generateBreadcrumbSchema(
         "@type": "ListItem",
         position: 4,
         name: entry.name,
-        item: `${baseUrl}/directory/entry/${entry.slug}`,
+        item: `${baseUrl}${getEntryUrl(entry.slug, entry.category)}`,
       },
     ],
   };

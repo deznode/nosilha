@@ -11,6 +11,7 @@ import type { BBox } from "geojson";
 
 import type { DirectoryEntry } from "@/types/directory";
 import { getEntriesForMap } from "@/lib/api";
+import { getEntryUrl } from "@/lib/directory-utils";
 import { useSelectedCategories } from "@/stores/filterStore";
 import { X, MapPin, Star, ArrowRight } from "lucide-react";
 
@@ -420,7 +421,7 @@ export function InteractiveMap() {
               </div>
 
               <Link
-                href={`/directory/entry/${selectedEntry.slug}`}
+                href={getEntryUrl(selectedEntry.slug, selectedEntry.category)}
                 className="bg-ocean-blue hover:bg-ocean-blue/90 flex w-full items-center justify-center rounded-md px-4 py-2 text-sm font-medium text-white transition-colors"
               >
                 View Details

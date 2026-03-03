@@ -47,16 +47,15 @@ function requireEnvVar(name: string, value: string | undefined): string {
 function validateNodeEnv(
   nodeEnv?: string
 ): "development" | "production" | "test" {
-  const env = nodeEnv?.toLowerCase();
-
-  if (env === "production" || env === "prod") {
-    return "production";
+  switch (nodeEnv?.toLowerCase()) {
+    case "production":
+    case "prod":
+      return "production";
+    case "test":
+      return "test";
+    default:
+      return "development";
   }
-  if (env === "test") {
-    return "test";
-  }
-  // Default to development for any other value (including undefined)
-  return "development";
 }
 
 // ================================

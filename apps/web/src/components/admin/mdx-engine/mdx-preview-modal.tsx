@@ -19,6 +19,7 @@ import {
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { dark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import type { MdxContent } from "@/types/admin";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 
 interface MdxPreviewModalProps {
   mdxContent: MdxContent | null;
@@ -36,16 +37,20 @@ export function MdxPreviewModal({
   isCommitting = false,
 }: MdxPreviewModalProps) {
   const [showValidationDetails, setShowValidationDetails] = useState(false);
+  const [showValidationConfirm, setShowValidationConfirm] = useState(false);
 
   if (!mdxContent) return null;
 
   const handleCommit = () => {
     if (!mdxContent.schemaValid) {
-      const confirmed = window.confirm(
-        "Schema validation has errors. Are you sure you want to commit this MDX? It will be committed but not merged until validation passes."
-      );
-      if (!confirmed) return;
+      setShowValidationConfirm(true);
+      return;
     }
+    onCommit(mdxContent.mdxSource);
+  };
+
+  const handleValidationConfirm = () => {
+    setShowValidationConfirm(false);
     onCommit(mdxContent.mdxSource);
   };
 
@@ -60,26 +65,26 @@ export function MdxPreviewModal({
         <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
           <DialogPanel
             transition
-            className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[enter]:ease-out data-[leave]:duration-200 data-[leave]:ease-in sm:my-8 sm:w-full sm:max-w-4xl data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95 dark:bg-slate-800"
+            className="bg-surface relative transform overflow-hidden rounded-lg text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[enter]:ease-out data-[leave]:duration-200 data-[leave]:ease-in sm:my-8 sm:w-full sm:max-w-4xl data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
             {/* Header */}
-            <div className="flex items-start justify-between border-b border-slate-200 p-4 dark:border-slate-700">
+            <div className="border-hairline flex items-start justify-between border-b p-4">
               <div className="flex-1 pr-4">
                 <div className="mb-2 flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-[var(--color-ocean-blue)]" />
-                  <DialogTitle className="font-serif text-xl font-bold text-slate-900 dark:text-white">
+                  <FileText className="text-ocean-blue h-5 w-5" />
+                  <DialogTitle className="text-body font-serif text-xl font-bold">
                     MDX Archival Engine
                   </DialogTitle>
                 </div>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-muted text-sm">
                   Preview and commit generated MDX content
                 </p>
               </div>
               <button
                 onClick={onClose}
-                className="rounded-full p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
+                className="hover:bg-surface-alt rounded-full p-2 transition-colors"
               >
-                <X size={20} className="text-slate-500 dark:text-slate-400" />
+                <X size={20} className="text-muted" />
               </button>
             </div>
 
@@ -138,30 +143,30 @@ export function MdxPreviewModal({
               </div>
 
               {/* Frontmatter Preview */}
-              <div className="mb-6 rounded-lg bg-slate-50 p-4 dark:bg-slate-700/50">
-                <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300">
+              <div className="bg-canvas mb-6 rounded-lg p-4">
+                <h3 className="text-muted mb-3 flex items-center gap-2 text-sm font-semibold">
                   <FileText size={16} />
                   Frontmatter Preview
                 </h3>
                 <div className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-                  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                  <div className="text-muted flex items-center gap-2">
                     <User size={14} />
                     <span className="font-medium">Author:</span>
                     <span>{mdxContent.frontmatter.author}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                  <div className="text-muted flex items-center gap-2">
                     <Calendar size={14} />
                     <span className="font-medium">Date:</span>
                     <span>{mdxContent.frontmatter.date}</span>
                   </div>
                   {mdxContent.frontmatter.location && (
-                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                    <div className="text-muted flex items-center gap-2">
                       <MapPin size={14} />
                       <span className="font-medium">Location:</span>
                       <span>{mdxContent.frontmatter.location}</span>
                     </div>
                   )}
-                  <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                  <div className="text-muted flex items-center gap-2">
                     <FileText size={14} />
                     <span className="font-medium">Type:</span>
                     <span>{mdxContent.frontmatter.storyType}</span>
@@ -173,7 +178,7 @@ export function MdxPreviewModal({
                       {mdxContent.frontmatter.tags.map((tag, index) => (
                         <span
                           key={index}
-                          className="rounded-full bg-slate-200 px-2 py-0.5 text-xs text-slate-700 dark:bg-slate-600 dark:text-slate-300"
+                          className="bg-surface-alt text-muted rounded-full px-2 py-0.5 text-xs"
                         >
                           {tag}
                         </span>
@@ -183,9 +188,9 @@ export function MdxPreviewModal({
               </div>
 
               {/* MDX Source Code Preview */}
-              <div className="rounded-lg border border-slate-200 dark:border-slate-700">
-                <div className="border-b border-slate-200 bg-slate-100 px-4 py-2 dark:border-slate-700 dark:bg-slate-700">
-                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+              <div className="border-hairline rounded-lg border">
+                <div className="border-hairline bg-surface-alt border-b px-4 py-2">
+                  <h3 className="text-body text-sm font-semibold">
                     MDX Source
                   </h3>
                 </div>
@@ -206,7 +211,7 @@ export function MdxPreviewModal({
               </div>
 
               {/* Metadata */}
-              <div className="mt-4 text-xs text-slate-500 dark:text-slate-400">
+              <div className="text-muted mt-4 text-xs">
                 <p>
                   Generated at:{" "}
                   {new Date(mdxContent.generatedAt).toLocaleString()}
@@ -216,18 +221,18 @@ export function MdxPreviewModal({
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-3 border-t border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-700/30">
+            <div className="border-hairline bg-canvas flex items-center justify-end gap-3 border-t p-4">
               <button
                 onClick={onClose}
                 disabled={isCommitting}
-                className="rounded-lg border border-slate-300 px-4 py-2 text-slate-700 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-600"
+                className="border-hairline text-body hover:bg-surface-alt rounded-lg border px-4 py-2 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Discard
               </button>
               <button
                 onClick={handleCommit}
                 disabled={isCommitting}
-                className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-ocean-blue)] px-4 py-2 text-white transition-colors hover:bg-[var(--color-ocean-blue-deep)] disabled:cursor-not-allowed disabled:opacity-50"
+                className="bg-ocean-blue hover:bg-ocean-blue-deep inline-flex items-center gap-2 rounded-lg px-4 py-2 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isCommitting ? (
                   <>
@@ -245,6 +250,17 @@ export function MdxPreviewModal({
           </DialogPanel>
         </div>
       </div>
+
+      {/* Validation Warning Confirmation */}
+      <ConfirmationDialog
+        isOpen={showValidationConfirm}
+        onClose={() => setShowValidationConfirm(false)}
+        onConfirm={handleValidationConfirm}
+        title="Commit with validation errors?"
+        description="Schema validation has errors. The MDX will be committed but not merged until validation passes."
+        confirmLabel="Commit Anyway"
+        variant="warning"
+      />
     </Dialog>
   );
 }

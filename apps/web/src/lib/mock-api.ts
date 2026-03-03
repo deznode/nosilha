@@ -399,18 +399,12 @@ export class MockApiClient implements ApiClient {
 
   /**
    * Mock implementation for submitting a directory entry for review.
-   * Simulates the public submission flow with rate limiting.
+   * Simulates authenticated submission flow.
    */
   async submitDirectoryEntry(
-    request: DirectorySubmissionRequest,
-    submittedBy: string,
-    _submittedByEmail?: string
+    request: DirectorySubmissionRequest
   ): Promise<DirectorySubmissionConfirmation> {
-    console.log(
-      `Mock API: Submitting directory entry for review:`,
-      request,
-      submittedBy
-    );
+    console.log(`Mock API: Submitting directory entry for review:`, request);
     await this.simulateDelay(300);
 
     // Simulate validation
@@ -420,11 +414,6 @@ export class MockApiClient implements ApiClient {
     if (!request.description || request.description.trim().length < 10) {
       throw new Error(
         "Validation failed: description: Description must be at least 10 characters"
-      );
-    }
-    if (!submittedBy || submittedBy.trim().length === 0) {
-      throw new Error(
-        "Validation failed: submittedBy: Submitter name is required"
       );
     }
 
@@ -471,14 +460,18 @@ export class MockApiClient implements ApiClient {
    */
   async uploadImage(
     file: File,
-    category?: string,
-    description?: string
+    options?: {
+      entryId?: string;
+      category?: string;
+      description?: string;
+    }
   ): Promise<string> {
     console.log(`Mock API: Uploading image:`, {
       fileName: file.name,
       size: file.size,
-      category,
-      description,
+      entryId: options?.entryId,
+      category: options?.category,
+      description: options?.description,
     });
     await this.simulateDelay(1000); // Longer delay for file upload
 
@@ -1084,9 +1077,14 @@ export class MockApiClient implements ApiClient {
   async updateStoryStatus(
     id: string,
     action: StoryModerationAction,
-    notes?: string
+    notes?: string,
+    slug?: string
   ): Promise<void> {
-    console.log(`Mock API: Updating story ${id} with action: ${action}`, notes);
+    console.log(
+      `Mock API: Updating story ${id} with action: ${action}`,
+      notes,
+      slug
+    );
     await this.simulateDelay(300);
 
     // Map action to status
@@ -1094,7 +1092,7 @@ export class MockApiClient implements ApiClient {
       APPROVE: "APPROVED" as SubmissionStatus,
       REJECT: "REJECTED" as SubmissionStatus,
       FLAG: "FLAGGED" as SubmissionStatus,
-      PUBLISH: "APPROVED" as SubmissionStatus,
+      PUBLISH: "PUBLISHED" as SubmissionStatus,
       UNPUBLISH: "PENDING" as SubmissionStatus,
     };
 
@@ -1107,6 +1105,9 @@ export class MockApiClient implements ApiClient {
     story.status = statusMap[action];
     if (notes) {
       story.adminNotes = notes;
+    }
+    if (slug && action === "PUBLISH") {
+      story.slug = slug;
     }
     story.reviewedBy = "admin";
     story.reviewedAt = new Date().toISOString();
@@ -1413,6 +1414,61 @@ ${story.content
       notes
     );
     return mockAdminApi.updateDirectorySubmissionStatus(id, status, notes);
+  }
+
+  /**
+   * Updates an existing directory entry (mock implementation).
+   */
+  async updateDirectoryEntry(
+    id: string,
+    data: import("@/lib/api-contracts").UpdateDirectoryEntryRequest
+  ): Promise<DirectorySubmission> {
+    console.log(`Mock API: Updating directory entry ${id}`, data);
+    await this.simulateDelay(300);
+
+    // Find in mock directory submissions
+    const submission = MOCK_DIRECTORY_SUBMISSIONS.find((d) => d.id === id);
+    if (!submission) {
+      throw new Error("Directory entry not found");
+    }
+
+    // Update fields
+    if (data.name) submission.name = data.name;
+    if (data.category) {
+      // Convert uppercase category to title case
+      const categoryMap: Record<string, DirectorySubmission["category"]> = {
+        RESTAURANT: "Restaurant",
+        HOTEL: "Hotel",
+        BEACH: "Beach",
+        HERITAGE: "Heritage",
+        NATURE: "Nature",
+      };
+      submission.category = categoryMap[data.category] || submission.category;
+    }
+    if (data.town) submission.town = data.town;
+    if (data.description) submission.description = data.description;
+    if (data.tags) submission.tags = data.tags;
+    if (data.imageUrl !== undefined) submission.imageUrl = data.imageUrl;
+    if (data.priceLevel !== undefined) submission.priceLevel = data.priceLevel;
+    if (data.latitude !== undefined) submission.latitude = data.latitude;
+    if (data.longitude !== undefined) submission.longitude = data.longitude;
+
+    return submission;
+  }
+
+  /**
+   * Deletes a directory entry permanently (mock implementation).
+   */
+  async deleteDirectoryEntry(id: string): Promise<void> {
+    console.log(`Mock API: Deleting directory entry ${id}`);
+    await this.simulateDelay(200);
+
+    const index = MOCK_DIRECTORY_SUBMISSIONS.findIndex((d) => d.id === id);
+    if (index === -1) {
+      throw new Error("Directory entry not found");
+    }
+
+    MOCK_DIRECTORY_SUBMISSIONS.splice(index, 1);
   }
 
   // ================================
@@ -1722,6 +1778,12 @@ ${story.content
   > {
     await this.simulateDelay(500);
     throw new Error("Not implemented");
+  }
+
+  async promoteToHeroImage(mediaId: string): Promise<void> {
+    console.log(`Mock API: Promoting media ${mediaId} to hero image`);
+    await this.simulateDelay(500);
+    // Mock implementation - just log and return
   }
 }
 

@@ -49,12 +49,19 @@ spring:
       hibernate:
         format_sql: false
 
-# Media storage configuration for production
-# NOTE: Production cloud storage is deferred; local filesystem used for development
-media:
-  storage:
-    path: ${MEDIA_STORAGE_PATH:/app/uploads}
-    base-url: ${MEDIA_BASE_URL:https://api.nosilha.com/api/v1/media/files}
+  # Spring AI Configuration (Gemini via Google GenAI)
+  # spring.ai.model.chat controls auto-configuration: "google-genai" to enable, "none" to disable
+  ai:
+    model:
+      chat: ${SPRING_AI_MODEL_CHAT:none}
+    google:
+      genai:
+        api-key: ${AI_GEMINI_API_KEY:}
+        chat:
+          options:
+            model: ${AI_GEMINI_MODEL:gemini-2.5-flash}
+            temperature: 0.3
+            max-output-tokens: ${AI_GEMINI_MAX_TOKENS:2048}
 
 # Cloudflare R2 configuration (S3-compatible object storage)
 # To enable media uploads, set cloudflare.r2.enabled=true (via R2_ENABLED env var)
@@ -68,10 +75,24 @@ cloudflare:
     bucket-name: ${R2_BUCKET_NAME:nosilha-media}
     public-url: ${R2_PUBLIC_URL:https://media.nosilha.com}
 
-# The production Supabase JWT secret, sourced from Google Secret Manager
-# and provided as an environment variable.
+# AI Image Analysis configuration
+nosilha:
+  ai:
+    enabled: ${AI_ENABLED:false}
+    cloud-vision:
+      enabled: ${AI_CLOUD_VISION_ENABLED:false}
+      max-labels: ${AI_CLOUD_VISION_MAX_LABELS:10}
+      max-text-results: ${AI_CLOUD_VISION_MAX_TEXT:5}
+      max-landmark-results: ${AI_CLOUD_VISION_MAX_LANDMARKS:5}
+      monthly-limit: ${AI_CLOUD_VISION_MONTHLY_LIMIT:1000}
+    gemini:
+      enabled: ${AI_GEMINI_ENABLED:false}
+      monthly-limit: ${AI_GEMINI_MONTHLY_LIMIT:500}
+
+# Supabase JWT configuration using JWKS (asymmetric key verification)
+# Uses the public JWKS endpoint - no secret needed
 supabase:
-  jwt-secret: ${SUPABASE_JWT_SECRET}
+  project-url: ${SUPABASE_PROJECT_URL:https://wqpgbmrgwbexxldeokiu.supabase.co}
 
 # Spring Boot Actuator Configuration
 management:

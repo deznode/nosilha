@@ -40,13 +40,13 @@ export function PeopleGrid({ people }: PeopleGridProps) {
         animate={{ opacity: 1, y: 0 }}
         className="py-16 text-center"
       >
-        <div className="border-hairline bg-surface mx-auto max-w-2xl rounded-lg border p-8 shadow-sm">
+        <div className="border-hairline bg-surface rounded-card shadow-subtle mx-auto max-w-2xl border p-8">
           <div className="mb-6">
-            <span className="inline-block rounded-full bg-amber-100 px-4 py-2 text-sm font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+            <span className="bg-sobrado-ochre/10 text-sobrado-ochre dark:bg-sobrado-ochre/20 inline-block rounded-full px-4 py-2 text-sm font-medium">
               Coming Soon
             </span>
           </div>
-          <h2 className="font-merriweather text-body mb-4 text-2xl font-bold">
+          <h2 className="text-body mb-4 font-serif text-2xl font-bold">
             Research in Progress
           </h2>
           <p className="text-muted mb-6">
@@ -88,20 +88,20 @@ export function PeopleGrid({ people }: PeopleGridProps) {
           key={page.slug}
           href={`/people/${page.slug}`}
           variants={itemVariants}
-          className="group bg-surface block overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+          className="group bg-surface rounded-card shadow-subtle hover:shadow-lift block overflow-hidden transition-all duration-300 hover:-translate-y-1"
         >
           <div className="p-4">
-            <span className="text-text-secondary text-xs">
+            <span className="text-muted text-xs">
               {new Date(page.publishDate).toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
                 year: "numeric",
               })}
             </span>
-            <h3 className="font-merriweather text-body group-hover:text-ocean-blue mt-2 line-clamp-2 font-semibold transition-colors">
+            <h3 className="text-body group-hover:text-ocean-blue mt-2 line-clamp-2 font-serif font-semibold transition-colors">
               {page.title}
             </h3>
-            <p className="text-text-secondary mt-2 line-clamp-3 text-sm">
+            <p className="text-muted mt-2 line-clamp-3 text-sm">
               {page.description}
             </p>
             <div className="mt-3 flex flex-wrap gap-1">

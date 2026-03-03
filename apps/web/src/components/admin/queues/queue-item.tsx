@@ -1,18 +1,19 @@
 "use client";
 
+import Image from "next/image";
 import {
   CheckCircle,
   XCircle,
   FileText,
-  Image as ImageIcon,
   MapPin,
   Flag,
   Github,
   Code,
-  Loader2,
+  Eye,
 } from "lucide-react";
 import { SubmissionStatus, StoryType } from "@/types/story";
 import { Badge } from "@/components/catalyst-ui/badge";
+import { Button } from "@/components/catalyst-ui/button";
 
 interface BaseQueueItemProps {
   status: SubmissionStatus;
@@ -47,7 +48,8 @@ interface StoryQueueItemProps extends BaseQueueItemProps {
 type QueueItemProps = SuggestionQueueItemProps | StoryQueueItemProps;
 
 function StatusBadge({ status }: { status: SubmissionStatus }) {
-  const styles = {
+  const styles: Record<SubmissionStatus, string> = {
+    [SubmissionStatus.DRAFT]: "bg-surface-alt text-body",
     [SubmissionStatus.PENDING]:
       "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
     [SubmissionStatus.APPROVED]:
@@ -56,6 +58,9 @@ function StatusBadge({ status }: { status: SubmissionStatus }) {
       "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
     [SubmissionStatus.FLAGGED]:
       "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+    [SubmissionStatus.PUBLISHED]:
+      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+    [SubmissionStatus.ARCHIVED]: "bg-surface-alt text-muted",
   };
 
   return (
@@ -69,7 +74,7 @@ function StatusBadge({ status }: { status: SubmissionStatus }) {
 
 function StoryTypeBadge({ storyType }: { storyType: StoryType }) {
   return (
-    <span className="inline-flex rounded-full bg-slate-100 px-2 text-xs leading-5 font-semibold text-slate-800 dark:bg-slate-700 dark:text-slate-300">
+    <span className="bg-surface-alt text-body inline-flex rounded-full px-2 text-xs leading-5 font-semibold">
       {storyType}
     </span>
   );
@@ -81,10 +86,10 @@ export function QueueItem(props: QueueItemProps) {
 
   if (props.type === "suggestion") {
     return (
-      <li className="block transition duration-150 ease-in-out hover:bg-slate-50 dark:hover:bg-slate-700/50">
+      <li className="hover:bg-surface-alt block transition duration-150 ease-in-out">
         <div className="px-4 py-4 sm:px-6">
           <div className="flex items-center justify-between">
-            <p className="truncate text-sm font-medium text-[var(--color-ocean-blue)]">
+            <p className="text-ocean-blue truncate text-sm font-medium">
               Target: {props.target}
             </p>
             <div className="ml-2 flex-shrink-0">
@@ -93,11 +98,11 @@ export function QueueItem(props: QueueItemProps) {
           </div>
           <div className="mt-2 sm:flex sm:justify-between">
             <div className="sm:flex">
-              <p className="flex items-center text-sm text-slate-500 dark:text-slate-400">
+              <p className="text-muted flex items-center text-sm">
                 {props.description}
               </p>
             </div>
-            <div className="mt-2 flex items-center text-sm text-slate-500 sm:mt-0 dark:text-slate-400">
+            <div className="text-muted mt-2 flex items-center text-sm sm:mt-0">
               <p>
                 By {props.submittedBy} &bull; {props.timestamp}
               </p>
@@ -105,18 +110,14 @@ export function QueueItem(props: QueueItemProps) {
           </div>
           {isPending && (
             <div className="mt-4 flex justify-end space-x-3">
-              <button
-                onClick={props.onApprove}
-                className="inline-flex items-center rounded border border-transparent bg-green-100 px-3 py-1 text-xs font-medium text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50"
-              >
-                <CheckCircle className="mr-1 h-3 w-3" /> Approve
-              </button>
-              <button
-                onClick={props.onReject}
-                className="inline-flex items-center rounded border border-transparent bg-red-100 px-3 py-1 text-xs font-medium text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
-              >
-                <XCircle className="mr-1 h-3 w-3" /> Reject
-              </button>
+              <Button color="green" onClick={props.onApprove}>
+                <CheckCircle data-slot="icon" />
+                Approve
+              </Button>
+              <Button color="red" onClick={props.onReject}>
+                <XCircle data-slot="icon" />
+                Reject
+              </Button>
             </div>
           )}
         </div>
@@ -126,16 +127,12 @@ export function QueueItem(props: QueueItemProps) {
 
   // Story type
   return (
-    <li className="block transition duration-150 ease-in-out hover:bg-slate-50 dark:hover:bg-slate-700/50">
+    <li className="hover:bg-surface-alt block transition duration-150 ease-in-out">
       <div className="px-4 py-4 sm:px-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {props.storyType === StoryType.PHOTO ? (
-              <ImageIcon className="h-4 w-4 text-[var(--color-valley-green)]" />
-            ) : (
-              <FileText className="h-4 w-4 text-slate-500 dark:text-slate-400" />
-            )}
-            <p className="truncate text-sm font-medium text-[var(--color-bougainvillea)]">
+            <FileText className="text-muted h-4 w-4" />
+            <p className="text-bougainvillea-pink truncate text-sm font-medium">
               {props.title}
             </p>
           </div>
@@ -154,20 +151,20 @@ export function QueueItem(props: QueueItemProps) {
         {/* Content Preview */}
         <div className="mt-2 flex gap-4">
           {props.imageUrl && (
-            <div className="h-16 w-24 flex-shrink-0 overflow-hidden rounded border border-slate-200 bg-slate-100 dark:border-slate-600 dark:bg-slate-700">
-              <img
+            <div className="border-hairline bg-surface-alt relative h-16 w-24 flex-shrink-0 overflow-hidden rounded border">
+              <Image
                 src={props.imageUrl}
                 alt={props.title}
-                className="h-full w-full object-cover"
+                fill
+                className="object-cover"
+                unoptimized
               />
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <p className="line-clamp-2 text-sm text-slate-500 dark:text-slate-400">
-              {props.content}
-            </p>
+            <p className="text-muted line-clamp-2 text-sm">{props.content}</p>
             {props.location && (
-              <p className="mt-1 flex items-center text-xs text-slate-400 dark:text-slate-500">
+              <p className="text-muted mt-1 flex items-center text-xs">
                 <MapPin size={10} className="mr-1" />
                 {props.location}
               </p>
@@ -175,7 +172,7 @@ export function QueueItem(props: QueueItemProps) {
           </div>
         </div>
 
-        <div className="mt-2 flex items-center text-xs text-slate-500 dark:text-slate-400">
+        <div className="text-muted mt-2 flex items-center text-xs">
           <p>
             Submitted by {props.submittedBy} &bull; {props.timestamp}
           </p>
@@ -185,55 +182,36 @@ export function QueueItem(props: QueueItemProps) {
           {/* Archive Button - Only show for PUBLISHED stories that are not yet archived */}
           <div>
             {isPublished && !props.archivedAt && props.onArchive && (
-              <button
+              <Button
+                outline
                 onClick={props.onArchive}
                 disabled={props.isArchiving}
-                className="inline-flex items-center gap-1.5 rounded-md border border-[var(--color-ocean-blue)] bg-white px-3 py-1 text-xs font-medium text-[var(--color-ocean-blue)] transition-colors hover:bg-[var(--color-ocean-blue)] hover:text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-800 dark:hover:bg-[var(--color-ocean-blue)]"
                 title="Archive to MDX"
               >
-                {props.isArchiving ? (
-                  <>
-                    <Loader2 size={14} className="animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Code size={14} />
-                    MDX Archive
-                  </>
-                )}
-              </button>
+                <Code data-slot="icon" />
+                {props.isArchiving ? "Generating..." : "MDX Archive"}
+              </Button>
             )}
           </div>
 
           {/* Action Buttons */}
-          <div className="flex space-x-3">
-            <button
-              onClick={props.onViewFull}
-              className="text-xs font-medium text-[var(--color-ocean-blue)] hover:underline"
-            >
+          <div className="flex items-center gap-2">
+            <Button plain onClick={props.onViewFull}>
+              <Eye data-slot="icon" />
               View Full
-            </button>
-            <span className="text-slate-200 dark:text-slate-600">|</span>
-            <button
-              onClick={props.onApprove}
-              className="text-xs font-medium text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
-            >
+            </Button>
+            <Button color="green" onClick={props.onApprove}>
+              <CheckCircle data-slot="icon" />
               Publish
-            </button>
-            <button
-              onClick={props.onReject}
-              className="text-xs font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-            >
+            </Button>
+            <Button color="red" onClick={props.onReject}>
+              <XCircle data-slot="icon" />
               Reject
-            </button>
-            <button
-              onClick={props.onFlag}
-              className="inline-flex items-center gap-1 text-xs font-medium text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300"
-            >
-              <Flag size={12} />
+            </Button>
+            <Button color="yellow" onClick={props.onFlag}>
+              <Flag data-slot="icon" />
               Flag
-            </button>
+            </Button>
           </div>
         </div>
       </div>

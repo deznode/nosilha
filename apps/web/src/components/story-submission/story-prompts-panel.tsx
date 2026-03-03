@@ -73,32 +73,32 @@ export function StoryPromptsPanel({
   }
 
   return (
-    <div className="mb-2 rounded-lg border border-slate-200 bg-blue-50/50 dark:border-slate-700 dark:bg-blue-900/10">
+    <div className="border-hairline rounded-card bg-ocean-blue/5 mb-2 border">
       <button
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
         className="flex w-full items-center justify-between px-3 py-2 text-sm"
       >
-        <span className="flex items-center gap-2 font-medium text-[var(--color-ocean-blue)]">
+        <span className="text-ocean-blue flex items-center gap-2 font-medium">
           <Lightbulb className="h-4 w-4" />
           Writing Prompts
         </span>
         {isExpanded ? (
-          <ChevronUp className="h-4 w-4 text-slate-500" />
+          <ChevronUp className="text-muted h-4 w-4" />
         ) : (
-          <ChevronDown className="h-4 w-4 text-slate-500" />
+          <ChevronDown className="text-muted h-4 w-4" />
         )}
       </button>
 
       {isExpanded && (
-        <div className="border-t border-slate-200 px-3 py-2 dark:border-slate-700">
+        <div className="border-hairline border-t px-3 py-2">
           {isLoading ? (
-            <div className="flex items-center gap-2 text-sm text-slate-500">
+            <div className="text-muted flex items-center gap-2 text-sm">
               <RefreshCw className="h-4 w-4 animate-spin" />
               Generating prompts...
             </div>
           ) : error ? (
-            <p className="text-sm text-red-500">{error}</p>
+            <p className="text-accent-error text-sm">{error}</p>
           ) : (
             <ul className="space-y-2">
               {prompts.map((prompt, index) => (
@@ -106,14 +106,12 @@ export function StoryPromptsPanel({
                   <button
                     type="button"
                     onClick={() => onInsertPrompt(prompt)}
-                    className="mt-0.5 rounded p-1 text-[var(--color-ocean-blue)] hover:bg-blue-100 dark:hover:bg-blue-900/30"
+                    className="text-ocean-blue hover:bg-ocean-blue/10 mt-0.5 rounded p-1"
                     title="Insert this prompt"
                   >
                     <Plus className="h-3 w-3" />
                   </button>
-                  <span className="text-sm text-slate-700 dark:text-slate-300">
-                    {prompt}
-                  </span>
+                  <span className="text-body text-sm">{prompt}</span>
                 </li>
               ))}
             </ul>
@@ -123,7 +121,7 @@ export function StoryPromptsPanel({
             <button
               type="button"
               onClick={fetchPrompts}
-              className="mt-2 flex items-center gap-1 text-xs text-[var(--color-ocean-blue)] hover:underline"
+              className="text-ocean-blue mt-2 flex items-center gap-1 text-xs hover:underline"
             >
               <RefreshCw className="h-3 w-3" />
               Get new prompts

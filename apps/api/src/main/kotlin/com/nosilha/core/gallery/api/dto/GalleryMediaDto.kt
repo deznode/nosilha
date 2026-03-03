@@ -5,10 +5,12 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.nosilha.core.gallery.domain.ExternalMedia
 import com.nosilha.core.gallery.domain.ExternalPlatform
+import com.nosilha.core.gallery.domain.GalleryMedia
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.MediaSource
 import com.nosilha.core.gallery.domain.MediaType
 import com.nosilha.core.gallery.domain.UserUploadedMedia
+import java.time.Instant
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -74,6 +76,11 @@ sealed class GalleryMediaDto {
         val entryId: UUID?,
         val source: MediaSource?,
         val uploadedBy: String?,
+        val aiTags: List<String>? = null,
+        val aiLabels: String? = null,
+        val aiAltText: String? = null,
+        val aiDescription: String? = null,
+        val aiProcessedAt: Instant? = null,
     ) : GalleryMediaDto()
 
     /**
@@ -125,6 +132,11 @@ sealed class GalleryMediaDto {
                 entryId = media.entryId,
                 source = media.source,
                 uploadedBy = media.uploadedBy,
+                aiTags = media.aiTags?.toList(),
+                aiLabels = media.aiLabels,
+                aiAltText = media.aiAltText,
+                aiDescription = media.aiDescription,
+                aiProcessedAt = media.aiProcessedAt,
             )
 
         /**
@@ -151,3 +163,18 @@ sealed class GalleryMediaDto {
             )
     }
 }
+
+/**
+ * Extension function to convert any GalleryMedia entity to its appropriate DTO.
+ *
+ * This provides a cleaner API than using companion object methods directly,
+ * enabling usage like `media.toDto()` instead of pattern matching on type.
+ *
+ * @throws IllegalStateException if the media type is not supported
+ */
+fun GalleryMedia.toDto(): GalleryMediaDto =
+    when (this) {
+        is UserUploadedMedia -> GalleryMediaDto.from(this)
+        is ExternalMedia -> GalleryMediaDto.from(this)
+        else -> error("Unknown GalleryMedia type: ${this.javaClass.simpleName}")
+    }
