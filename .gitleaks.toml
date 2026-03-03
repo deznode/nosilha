@@ -1,0 +1,18 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known false positives"
+
+# Documentation placeholder tokens (YOUR_JWT, YOUR_JWT_HERE, truncated example JWTs)
+paths = [
+  '''docs/API_REFERENCE\.md''',
+  '''docs/api-reference\.md''',
+]
+
+# Placeholder JWT tokens in docs, truncated example JWTs, and intentional test secrets
+regexes = [
+  '''YOUR_JWT(_HERE)?''',
+  '''eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.\.\.''',
+  '''test-secret-key-that-is-at-least-32-characters-long''',
+]
