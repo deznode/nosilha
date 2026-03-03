@@ -1,11 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, Plus } from "lucide-react";
 import { DirectoryCard } from "@/components/ui/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
-import { formatCategoryTitle } from "@/lib/directory-utils";
+import {
+  getCategoryFromSlug,
+  getCategoryDisplayName,
+} from "@/lib/directory-utils";
 import type { DirectoryEntry } from "@/types/directory";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,6 +19,7 @@ import {
   type SortBy,
   type DirectoryCategory,
 } from "@/components/directory";
+import { useBookmarksPrefetch } from "@/hooks/queries/use-bookmarks";
 
 // All available categories for filtering
 const ALL_CATEGORIES: DirectoryCategory[] = [
@@ -42,12 +46,25 @@ export function DirectoryCategoryPageContent({
 }: DirectoryCategoryPageContentProps) {
   const router = useRouter();
 
+  // Prefetch all user bookmarks to populate cache so bookmark buttons show correct state
+  useBookmarksPrefetch();
+
   // Determine initial category from URL category prop
-  const initialCategory: DirectoryCategory =
-    category === "all"
-      ? "All"
-      : ((category.charAt(0).toUpperCase() +
-          category.slice(1)) as DirectoryCategory);
+  // Use getCategoryFromSlug to properly convert URL slugs (e.g., "hotels" → "Hotel")
+  function getInitialCategory(): DirectoryCategory {
+    if (category === "all") {
+      return "All";
+    }
+    const fromSlug = getCategoryFromSlug(category);
+    if (fromSlug) {
+      return fromSlug as DirectoryCategory;
+    }
+    // Fallback: capitalize first letter
+    return (category.charAt(0).toUpperCase() +
+      category.slice(1)) as DirectoryCategory;
+  }
+
+  const initialCategory = getInitialCategory();
 
   const [selectedCategory, setSelectedCategory] =
     useState<DirectoryCategory>(initialCategory);
@@ -56,11 +73,20 @@ export function DirectoryCategoryPageContent({
   const [sortBy, setSortBy] = useState<SortBy>("rating");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
-  // Page title based on selected category
+  // Track client-side mount to fix Framer Motion SSR hydration issue
+  // Without this, animations get stuck at opacity: 0 on initial page load
+  // This is a valid SSR hydration pattern - see https://react.dev/learn/you-might-not-need-an-effect
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Valid hydration pattern: intentional re-render needed after SSR
+    setHasMounted(true);
+  }, []);
+
+  // Page title based on selected category (uses friendly display names like "Hotels", "Heritage Sites")
   const pageTitle =
     selectedCategory === "All"
       ? "Directory"
-      : formatCategoryTitle(selectedCategory.toLowerCase());
+      : getCategoryDisplayName(selectedCategory);
 
   // Extract unique towns for filter
   const towns = useMemo(() => {
@@ -104,13 +130,13 @@ export function DirectoryCategoryPageContent({
   return (
     <div className="bg-background-secondary min-h-screen font-sans">
       {/* Header */}
-      <div className="border-b border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <div className="border-border-primary bg-background-primary border-b shadow-sm">
         <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <PageHeader title={pageTitle} subtitle={subtitle} />
             <Link
               href="/contribute/directory"
-              className="flex shrink-0 items-center gap-2 rounded-xl bg-[var(--color-ocean-blue)] px-5 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-blue-800 active:scale-95"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-subtle flex shrink-0 items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95"
             >
               <Plus size={18} />
               Add Location
@@ -142,6 +168,13 @@ export function DirectoryCategoryPageContent({
       <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 lg:px-8">
         {filteredEntries.length > 0 ? (
           <motion.div
+            // Key forces re-mount when filters change to re-trigger stagger animation
+            // Also handles SSR hydration by changing from "ssr" to filter-based key
+            key={
+              hasMounted
+                ? `${selectedCategory}-${selectedTown}-${searchQuery}`
+                : "ssr"
+            }
             initial="hidden"
             animate="show"
             variants={{
@@ -181,8 +214,8 @@ export function DirectoryCategoryPageContent({
             animate={{ opacity: 1 }}
             className="mt-16 text-center"
           >
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700">
-              <Search className="h-8 w-8 text-slate-500 dark:text-slate-400" />
+            <div className="bg-background-tertiary mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+              <Search className="text-text-secondary h-8 w-8" />
             </div>
             <p className="text-text-secondary text-xl">
               {entries.length === 0
@@ -194,7 +227,7 @@ export function DirectoryCategoryPageContent({
             </p>
             <Link
               href="/"
-              className="bg-ocean-blue hover:bg-ocean-blue/90 focus:ring-ocean-blue mt-6 inline-block rounded-md px-6 py-3 text-sm font-medium text-white shadow-sm transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 focus:ring-ocean-blue rounded-button shadow-subtle mt-6 inline-block px-6 py-3 text-sm font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
             >
               Back to Home
             </Link>

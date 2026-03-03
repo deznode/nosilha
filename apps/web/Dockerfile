@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 # This Dockerfile creates a production-ready container for the Next.js app with pnpm.
 # It uses a multi-stage build for a small, secure, and optimized final image.
+# NOTE: Build context must be the repository root (not apps/web).
 
 # --- Stage 1: Base - Install pnpm ---
 FROM node:20-alpine AS base
@@ -17,13 +18,16 @@ RUN corepack enable && corepack prepare pnpm@10 --activate
 # This stage is dedicated to installing production dependencies with BuildKit cache mount.
 FROM base AS deps
 
-# Copy package manager files
-COPY package.json pnpm-lock.yaml .npmrc* ./
+# Copy workspace configuration files from repo root
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Copy package.json files for the web app
+COPY apps/web/package.json apps/web/.npmrc* ./apps/web/
 
 # Install production dependencies with BuildKit cache mount
-# Research: Cache mount provides 90%+ cache hit rate
+# Using --filter to only install deps for the web app
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm install --prod --frozen-lockfile
+    pnpm install --prod --frozen-lockfile --filter=frontend
 
 # --- Stage 3: Build - Install all deps and build application ---
 FROM base AS builder
@@ -44,18 +48,22 @@ ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_GA_ID=$NEXT_PUBLIC_GA_ID
 ENV NEXT_PUBLIC_CLARITY_PROJECT_ID=$NEXT_PUBLIC_CLARITY_PROJECT_ID
 
-# Copy package files
-COPY package.json pnpm-lock.yaml .npmrc* ./
+# Copy workspace configuration files from repo root
+COPY pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Copy package.json files for the web app
+COPY apps/web/package.json apps/web/.npmrc* ./apps/web/
 
 # Install all dependencies (including devDependencies) with cache mount
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm install --frozen-lockfile
+    pnpm install --frozen-lockfile --filter=frontend
 
-# Copy source files
-COPY . .
+# Copy source files for the web app
+COPY apps/web ./apps/web
 
 # Build the Next.js application for production.
 # This generates the `.next` directory with standalone output.
+WORKDIR /app/apps/web
 RUN pnpm build
 
 # --- Stage 4: Production Runner ---
@@ -73,14 +81,19 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001
 
-# Copy the standalone Next.js server output
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+# Copy the entire standalone output preserving monorepo structure
+# This is required because pnpm uses symlinks in node_modules that reference
+# relative paths (../../../node_modules/.pnpm/...) which must be preserved
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 
-# Copy the public assets folder
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+# Copy the public assets folder to the app directory
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
-# Copy the optimized static assets
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# Copy the optimized static assets to the app directory
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+
+# Set working directory to the app location within monorepo structure
+WORKDIR /app/apps/web
 
 # Switch to the non-root user
 USER nextjs

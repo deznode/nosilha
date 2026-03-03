@@ -115,7 +115,7 @@ jobs:
       # Upload code quality SARIF reports to GitHub Security
       - name: Upload ktlint SARIF report
         if: always()
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: apps/api/build/reports/ktlint/ktlintMainSourceSetCheck/ktlintMainSourceSetCheck.sarif
           category: 'code-quality-ktlint'
@@ -124,7 +124,7 @@ jobs:
       # detekt SARIF upload disabled - re-enable when detekt 2.0.0 stable is released
       # - name: Upload detekt SARIF report
       #   if: always()
-      #   uses: github/codeql-action/upload-sarif@v3
+      #   uses: github/codeql-action/upload-sarif@v4
       #   with:
       #     sarif_file: apps/api/build/reports/detekt/detekt.sarif
       #     category: 'code-quality-detekt'
@@ -388,7 +388,7 @@ jobs:
           # Validate that Terraform has properly configured secrets in the Cloud Run service
           secret_config=$(gcloud run services describe ${{ env.SERVICE_NAME }} --region=${{ env.REGION }} --format="value(spec.template.spec.containers[0].env[].name)" 2>/dev/null || echo "")
 
-          required_secrets=("SPRING_PROFILES_ACTIVE" "SPRING_CLOUD_GCP_PROJECT_ID" "GCS_BUCKET_NAME" "SUPABASE_JWT_SECRET" "SPRING_DATASOURCE_URL" "SPRING_DATASOURCE_USERNAME" "SPRING_DATASOURCE_PASSWORD" "SPRING_FLYWAY_URL" "SPRING_FLYWAY_USER" "SPRING_FLYWAY_PASSWORD")
+          required_secrets=("SPRING_PROFILES_ACTIVE" "SPRING_CLOUD_GCP_PROJECT_ID" "GCS_BUCKET_NAME" "SUPABASE_PROJECT_URL" "SPRING_DATASOURCE_URL" "SPRING_DATASOURCE_USERNAME" "SPRING_DATASOURCE_PASSWORD" "SPRING_FLYWAY_URL" "SPRING_FLYWAY_USER" "SPRING_FLYWAY_PASSWORD")
 
           for secret in "${required_secrets[@]}"; do
             if echo "$secret_config" | grep -q "$secret"; then

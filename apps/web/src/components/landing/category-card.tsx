@@ -18,7 +18,7 @@ export function CategoryCard({
   return (
     <Link
       href={href}
-      className={`group bg-surface relative block h-full overflow-hidden rounded-lg border-t-4 p-6 shadow-sm transition-shadow duration-200 hover:shadow-md ${colorClass.replace("bg-", "border-")} ${className || ""}`}
+      className={`group bg-surface rounded-card shadow-subtle ease-calm hover:shadow-medium relative block h-full overflow-hidden border-t-4 p-6 transition-shadow duration-200 ${colorClass.replace("bg-", "border-")} ${className || ""}`}
     >
       {/* Icon container */}
       <div

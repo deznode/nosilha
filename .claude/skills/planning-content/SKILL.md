@@ -31,7 +31,7 @@ Creates detailed content strategy plans for Brava Island cultural heritage that 
 3. **Multilingual Strategy**: English (primary) with adaptation notes for Portuguese/French
 4. **Verification Planning**: Include accuracy checkpoints and community validation
 
-Reference `docs/DESIGN_SYSTEM.md` and `docs/CULTURAL_HERITAGE_VERIFICATION.md`.
+Reference `docs/design-system.md` and `docs/cultural-heritage-verification.md`.
 
 ## Five-Phase Framework
 
@@ -40,7 +40,7 @@ Reference `docs/DESIGN_SYSTEM.md` and `docs/CULTURAL_HERITAGE_VERIFICATION.md`.
 2. Identify authentic resident voices and perspectives
 3. Plan morabeza spirit integration
 4. Map diaspora connections and homeland links
-5. Identify verification checkpoints per `docs/CULTURAL_HERITAGE_VERIFICATION.md`
+5. Identify verification checkpoints per `docs/cultural-heritage-verification.md`
 
 ### Phase 2: SEO Strategy
 1. Research diaspora discovery keywords
@@ -89,7 +89,7 @@ Example: `plan/content/morna-music-brava-heritage.md`
 - [CONTENT_PLAN_TEMPLATE.md](CONTENT_PLAN_TEMPLATE.md) - Complete plan template
 - [SEO_KEYWORD_GUIDE.md](SEO_KEYWORD_GUIDE.md) - Diaspora discovery keywords
 - [EXAMPLES.md](EXAMPLES.md) - Sample content plans
-- `docs/CULTURAL_HERITAGE_VERIFICATION.md` - Verification protocols
+- `docs/cultural-heritage-verification.md` - Verification protocols
 
 ## Best Practices
 

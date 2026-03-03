@@ -1,246 +1,217 @@
-# **Nos Ilha Brand System**
+# Nos Ilha Brand System
 
 **Version:** 1.0.0 (Codename: *Ilha das Flores*)
 
-**Location:** /brand/docs/brand-system-pack.md
+Unified reference for the visual identity, tone, and brand standards of the Nos Ilha ecosystem. For frontend implementation details (tokens, components, code patterns), see [`docs/design-system.md`](../../docs/design-system.md).
 
-**Purpose:** Unified, developer-friendly reference for the visual identity, tone, and accessibility standards of the Nos Ilha ecosystem.
+---
 
-## **🌍 Overview**
-
-**Nos Ilha** is a community-driven digital platform preserving and celebrating **Brava Island’s cultural heritage**.
-
-This Brand System (v2.0) shifts away from generic digital colors to a palette rooted in the island's unique atmospheric reality: **volcanic basalt**, **Atlantic mist**, **lush valleys**, and **vibrant hibiscus**.
-
-For implementation details, refer to [`DESIGN_SYSTEM.md`](../../docs/DESIGN_SYSTEM.md).
-
-## **🎯 Mission & Brand Essence**
+## Mission & Brand Essence
 
 | Element | Description |
-| :---- | :---- |
-| **Mission** | Preserve Brava’s cultural memory and connect the global Cape Verdean diaspora through accessible digital storytelling. |
-| **Core Values** | Authenticity · Community · Accessibility · Heritage · Sustainability |
+|---------|-------------|
+| **Mission** | Preserve Brava's cultural memory and connect the global Cape Verdean diaspora through accessible digital storytelling. |
+| **Core Values** | Authenticity, Community, Accessibility, Heritage, Sustainability |
 | **Tone** | Warm, human, and immersive — educational without formality. |
 | **Languages** | English (primary), Portuguese, French. Kriolu planned for future localization. |
 
-**Tagline:** “Preserving the soul of Brava through design, code, and community.”
+**Tagline:** *"Preserving the soul of Brava through design, code, and community."*
 
-## **🎨 Visual Identity System**
+---
 
-### **Primary Color Palette (The Brava Tones)**
+## Visual Identity
 
-These primitives are defined in palette.json and synced to globals.css.
+### Design Philosophy
 
-| Name | Token | HEX | Inspiration |
-| :---- | :---- | :---- | :---- |
-| **Atlantic Blue** | \--color-ocean-blue | \#0E4C75 | The deep, cold Atlantic waters surrounding the steep cliffs. |
-| **Ocean Light** | \--color-ocean-blue-light | \#2A769E | Shallow waters and atmospheric perspective. |
-| **Ocean Deep** | \--color-ocean-blue-deep | \#0E4C75 | Solid ocean blue for dark section backgrounds (newsletter CTA, hero sections). Unlike ocean-blue, darkens slightly in dark mode rather than switching to sky blue. |
-| **Verde Fajã** | \--color-valley-green | \#2F6E4D | The lush, damp vegetation of Fajã d'Água. |
-| **Hibiscus** | \--color-bougainvillea-pink | \#C02669 | The vibrant, velvety flowers found in Nova Sintra (replacing neon pink). |
-| **Sobrado Ochre** | \--color-sobrado-ochre | \#D97706 | The warm yellow-orange walls of colonial *Sobrado* houses. |
-| **Sunny Yellow** | \--color-sunny-yellow | \#FBBF24 | Warm accent, decorative highlights, call-to-action buttons. |
+**Brand Essence:** "Clean, inviting, authentic, and lush" — celebrating Brava Island's cultural heritage.
 
-### **The "Bruma" Neutral Scale**
+| Principle | Description |
+|-----------|-------------|
+| **Cultural Authenticity** | Fraunces serif evokes traditional storytelling; Ocean Blue reflects the Atlantic |
+| **Content Sovereignty** | UI recedes to let cultural content shine; minimal chrome |
+| **Calm Warmth** | Soft shadows, generous radii, breathing whitespace |
+| **Progressive Disclosure** | Essential info first; details on demand |
 
-Instead of standard grays, we use **cool, blue-tinted slates** to mimic the constant mist (*bruma*) and volcanic rock (*basalt*).
+### Primary Color Palette (The Brava Tones)
 
-| Name | Token | HEX | Usage |
-| :---- | :---- | :---- | :---- |
-| **Mist 50** | \--color-mist-50 | \#F8FAFC | Page backgrounds (Light Mode). |
-| **Mist 100** | \--color-mist-100 | \#F1F5F9 | Secondary backgrounds, card surfaces. |
-| **Mist 200** | \--color-mist-200 | \#E2E8F0 | Borders, dividers, hover backgrounds. |
-| **Basalt 500** | \--color-basalt-500 | \#64748B | Secondary text, borders, icons. |
-| **Basalt 800** | \--color-basalt-800 | \#1E293B | Dark mode backgrounds, strong contrast text. |
-| **Basalt 900** | \--color-basalt-900 | \#0F172A | Primary text, deep contrast. |
+Primitives are defined in `brand/assets/palette.json` and implemented in `apps/web/src/app/globals.css`.
 
-### **Semantic Status Colors**
+| Name | HEX | Inspiration |
+|------|-----|-------------|
+| **Ocean Blue** | `#003F60` | The deep, cold Atlantic waters surrounding the steep cliffs. |
+| **Ocean Blue Light** | `#17687D` | Shallow waters and atmospheric perspective. |
+| **Ocean Blue Deep** | `#003F60` | Solid ocean blue for dark section backgrounds (newsletter CTA, hero sections). |
+| **Valley Green** | `#236436` | The lush, damp vegetation of Faja d'Agua. |
+| **Bougainvillea Pink** | `#AE1173` | The vibrant, velvety flowers found in Nova Sintra. |
+| **Sobrado Ochre** | `#CD6800` | The warm yellow-orange walls of colonial *Sobrado* houses. |
+| **Sunny Yellow** | `#F3BA26` | Warm accent, decorative highlights, call-to-action buttons. |
 
-| Name | Token | HEX | Use Case |
-| :---- | :---- | :---- | :---- |
-| **Error** | \--color-status-error | \#BE123C | Destructive actions (Rose-red). |
-| **Success** | \--color-status-success | \#15803D | Confirmation (Forest green). |
-| **Warning** | \--color-status-warning | \#B45309 | Alerts, warning text (Ochre). |
+### The "Bruma" Neutral Scale
 
-### **Accessibility Compliance (WCAG 2.1)**
+Cool, blue-tinted slates that mimic the constant mist (*bruma*) and volcanic rock (*basalt*) instead of generic grays.
 
-All brand colors have been audited for WCAG 2.1 compliance. See `/brand/docs/accessibility-audit-report.md` for full details.
+| Name | HEX | Usage |
+|------|-----|-------|
+| **Mist 50** | `#F6F9FC` | Page backgrounds (light mode) |
+| **Mist 100** | `#EEF2F6` | Secondary backgrounds, card surfaces |
+| **Mist 200** | `#E0E5EB` | Borders, dividers, hover backgrounds |
+| **Basalt 500** | `#677284` | Borders, icons, non-text secondary elements |
+| **Basalt 600** | `#4C5666` | Secondary text (WCAG AA compliant on light backgrounds) |
+| **Basalt 800** | `#202938` | Dark mode backgrounds, strong contrast text |
+| **Basalt 900** | `#0E1624` | Primary text, deep contrast |
+
+### Semantic Status Colors
+
+| Name | HEX | Use Case |
+|------|-----|----------|
+| **Error** | `#F0355D` | Destructive actions (vivid rose) |
+| **Success** | `#00B47A` | Confirmation (bright green) |
+| **Warning** | `#F49500` | Alerts, warning indicators (bright amber) |
+
+### Accessibility Compliance (WCAG 2.1)
+
+All brand colors are audited for WCAG 2.1 compliance.
 
 #### Text Color Contrast (on Mist 50 background)
 
 | Color | Ratio | AA (4.5:1) | AAA (7:1) | Use For |
-| :---- | :---- | :---- | :---- | :---- |
-| **Basalt 900** | 17.06:1 | PASS | PASS | Primary body text |
-| **Atlantic Blue** | 8.69:1 | PASS | PASS | Headings, brand text, links |
-| **Basalt 500** | 4.55:1 | PASS | FAIL | Secondary text (Mist 50/White only) |
-| **Status Warning** | 4.80:1 | PASS | FAIL | Warning text messages |
-| **Hibiscus** | 5.39:1 | PASS | FAIL | Accent text (large text preferred) |
-| **Sobrado Ochre** | 3.04:1 | FAIL | FAIL | Icons/graphical objects ONLY |
+|-------|-------|------------|-----------|---------|
+| **Basalt 900** | 17.15:1 | PASS | PASS | Primary body text |
+| **Ocean Blue** | 10.57:1 | PASS | PASS | Headings, brand text, links |
+| **Basalt 600** | 7.02:1 | PASS | PASS | Secondary text (default for UI text) |
+| **Bougainvillea Pink** | 6.35:1 | PASS | FAIL | Accent text (large text preferred) |
+| **Basalt 500** | 4.60:1 | PASS | FAIL | Borders, icons, non-text elements |
+| **Sobrado Ochre** | 3.56:1 | FAIL | FAIL | Icons/graphical objects ONLY |
+| **Status Error** | 3.70:1 | FAIL | FAIL | Error icons, non-text indicators |
+| **Status Warning** | 2.17:1 | FAIL | FAIL | Warning icons, non-text indicators |
+| **Status Success** | 2.54:1 | FAIL | FAIL | Success icons, non-text indicators |
 
 #### Usage Guidelines
 
-- **Sobrado Ochre (#D97706)**: Use for star ratings, icons, and decorative elements only. Meets WCAG 2.1 SC 1.4.11 (Non-text Contrast: 3:1).
-- **Status Warning (#B45309)**: Use for warning text messages. Meets WCAG 2.1 AA (4.5:1).
-- **Basalt 500 (#64748B)**: Use for secondary text on Mist 50 or White backgrounds only. Fails on Mist 100 (4.34:1).
+- **Basalt 600 (#4C5666):** Default secondary text color. Passes WCAG AA and AAA on Mist 50 and White backgrounds.
+- **Basalt 500 (#677284):** Use for borders, icons, and non-text elements. Passes AA for text on Mist 50 only.
+- **Sobrado Ochre (#CD6800):** Use for star ratings, icons, and decorative elements only. Meets WCAG 2.1 SC 1.4.11 (Non-text Contrast: 3:1).
+- **Status colors:** Use for icons and non-text indicators. For error/warning/success *text*, pair with a darker background or use Basalt 900 text with a colored icon.
 
-## **✍️ Typography**
+---
+
+## Typography
 
 | Role | Font | Weights | Usage |
-| :---- | :---- | :---- | :---- |
+|------|------|---------|-------|
 | **Primary** | Outfit (Sans-serif) | 400, 500, 600, 700 | Body, UI, navigation. Geometric, brand-focused, clean. |
-| **Secondary** | Fraunces (Serif) | 400, 500, 700 | Headings. Variable, old-style, soft. Reflects the literary history of Brava (Eugénio Tavares). |
+| **Secondary** | Fraunces (Serif) | 400, 500, 700 | Headings. Variable, old-style, soft. Reflects the literary history of Brava (Eugenio Tavares). |
 
-### **Type Scale**
+### Type Scale
 
-| Class | Size | Example |
-| :---- | :---- | :---- |
-| text-base | 1rem / 16px | Body text |
-| text-lg | 1.125rem | Subheadings |
-| text-2xl | 1.5rem | Section titles |
-| text-4xl | 2.25rem | Hero headings |
+| Element | Font | Mobile | Desktop |
+|---------|------|--------|---------|
+| H1 | Fraunces Bold | `text-4xl` | `text-5xl` / `text-6xl` |
+| H2 | Fraunces Bold | `text-3xl` | `text-4xl` |
+| H3 | Fraunces Medium | `text-2xl` | `text-3xl` |
+| Body | Outfit Regular | `text-base` | `text-lg` |
+| Caption | Outfit Regular | `text-sm` | `text-sm` |
+| Button | Outfit Semibold | `text-sm` | `text-base` |
 
-Use generous line height (1.6–1.8) and adequate spacing for readability.
+Use generous line height (1.6-1.8) and adequate spacing for readability.
 
-## **🌺 Logo System**
+---
+
+## Logo System
 
 | Version | Description |
-| :---- | :---- |
-| **v1 (Current)** | Logotype with hibiscus motif. Use on Mist 50 or Ocean Blue backgrounds. Maintain clear space equal to height of “N”. |
-| **v2 (Planned)** | Integrate Brava Island silhouette beneath or within the “O” to represent the island’s geography. |
+|---------|-------------|
+| **v1 (Current)** | Logotype with hibiscus motif. Use on Mist 50 or Ocean Blue backgrounds. Maintain clear space equal to height of "N". |
+| **v2 (Planned)** | Integrate Brava Island silhouette beneath or within the "O" to represent the island's geography. |
 
-**Rules:** \- Minimum display height: 24px.
+**Rules:**
+- Minimum display height: 24px
+- Never distort or apply drop shadows
+- For dark backgrounds (Basalt), use the white logotype variant
 
-* Never distort or apply drop shadows.  
-* For dark backgrounds (Basalt), use the white logotype variant.
+---
 
-## **📸 Imagery & Visual Style**
+## Imagery & Visual Style
 
 | Element | Guideline |
-| :---- | :---- |
-| **Atmosphere** | Embrace the *fog* (Bruma). Don't over-brighten images. Let the moodiness of the island shine. |
+|---------|-----------|
+| **Atmosphere** | Embrace the fog (*Bruma*). Don't over-brighten images. Let the moodiness of the island shine. |
 | **Contrast** | High contrast between the dark volcanic rock and the white/pastel houses. |
 | **Texture** | Use subtle noise or grain in UI backgrounds to simulate the organic feel of stone/mist. |
 | **Framing** | Centered compositions with breathing room. |
 
 Imagery should feel real and emotionally grounded — storytelling through authenticity.
 
-## **🧱 Tailwind & Design Tokens Summary**
+---
 
-The Nos Ilha frontend uses **Tailwind CSS v4** with semantic tokens defined in globals.css.
+## Dark Mode (Volcanic Night)
 
-**Note:** Tailwind CSS v4 automatically detects `@theme` variables in globals.css via `@import "tailwindcss"`. No explicit color extension is needed in tailwind.config.ts.
+Dark mode uses custom-tuned values rather than simple inversions. Background colors are deeper than the named basalt palette for true "volcanic night" immersion, while text and border colors are optimized for readability and reduced eye strain.
 
-Example token usage in components:
-
-```tsx
-// Direct class usage
-<h1 className="text-ocean-blue">Heading</h1>
-<p className="text-basalt-900">Body text</p>
-<span className="bg-sobrado-ochre">Icon badge</span>
-
-// With opacity modifier
-<div className="bg-ocean-blue/20">Transparent background</div>
-
-// Semantic tokens (dark mode auto-switches)
-<p className="text-text-primary">Primary text</p>
-<div className="bg-surface">Card surface</div>
-```
-
-**Breakpoints:** sm 640px · md 768px · lg 1024px · xl 1280px
-
-Spacing and typography scale align with Tailwind defaults.
-
-For implementation details, refer to [`DESIGN_SYSTEM.md`](../../docs/DESIGN_SYSTEM.md).
-
-## **♿ Accessibility & Dark Mode**
-
-| Principle | Standard |
-| :---- | :---- |
-| **Contrast Ratio** | Minimum 4.5:1 for text on backgrounds |
-| **Motion Preference** | Respect prefers-reduced-motion media query |
-| **Keyboard Navigation** | All interactive components must support tab focus |
-| **Alt Text** | Required for all media assets |
-| **Dark Mode** | Uses **Volcanic Night** palette with adjusted brand colors for eye comfort |
-
-### **Dark Mode Color Overrides (Volcanic Night)**
-
-In dark mode, certain brand colors are adjusted for eye comfort while maintaining brand recognition:
-
-#### Brand Color Adjustments
+### Brand Color Adjustments
 
 | Color | Light Mode | Dark Mode | Rationale |
-| :---- | :---- | :---- | :---- |
-| **Ocean Blue** | \#0E4C75 | \#38BDF8 | Sky blue for better contrast on dark backgrounds |
-| **Ocean Blue Deep** | \#0E4C75 | \#0C3D5E | Deeper ocean for dark mode section backgrounds |
-| **Bougainvillea Pink** | \#C02669 | \#F472B6 | Lighter, desaturated pink for reduced eye strain |
-| **Brand Text** | \#0E4C75 | \#7DD3FC | Light cyan for readable brand-colored text |
+|-------|------------|-----------|-----------|
+| **Ocean Blue** | `#003F60` | `#39BBF8` | Sky blue for better contrast on dark backgrounds |
+| **Ocean Blue Deep** | `#003F60` | `#00314D` | Deeper ocean for dark section backgrounds |
+| **Bougainvillea Pink** | `#AE1173` | `#F36FB8` | Lighter, desaturated pink for reduced eye strain |
+| **Brand Text** | `#003F60` | `#7DD4FB` | Light blue for readable brand-colored text |
 
-#### Semantic Token Mapping
+For the full semantic token mapping (backgrounds, text, borders), see the [Dark Mode section in `docs/design-system.md`](../../docs/design-system.md#dark-mode).
 
-| Token | Light Mode | Dark Mode |
-| :---- | :---- | :---- |
-| **bg-primary** | \#FFFFFF | \#0B1120 (deepest basalt) |
-| **bg-secondary** | \#F8FAFC (mist-50) | \#1E293B |
-| **bg-tertiary** | \#F1F5F9 (mist-100) | \#334155 |
-| **text-primary** | \#0F172A (basalt-900) | \#F1F5F9 (mist white) |
-| **text-secondary** | \#64748B (basalt-500) | \#94A3B8 |
-| **border-subtle** | \#E2E8F0 (mist-200) | \#334155 |
-| **border-strong** | \#64748B (basalt-500) | \#475569 |
+---
 
-**Design Philosophy**: Dark mode uses custom-tuned values rather than simple inversions. Background colors are deeper than the named basalt palette for true "volcanic night" immersion, while text and border colors are optimized for readability and reduced eye strain during extended use.
+## Accessibility & Interaction
 
-## **💫 Motion & Interaction**
-
-| Animation | Purpose |
-| :---- | :---- |
-| fog-flow | Background atmospheric drift (Mist effect) |
-| glow | Subtle hover highlight for buttons and links |
-| slide-up | Section or card reveal on scroll |
-| fade-in | Page load or image reveal |
+| Principle | Standard |
+|-----------|----------|
+| **Contrast Ratio** | Minimum 4.5:1 for text on backgrounds |
+| **Motion Preference** | Respect `prefers-reduced-motion` media query |
+| **Keyboard Navigation** | All interactive components must support tab focus |
+| **Alt Text** | Required for all media assets |
+| **Touch Targets** | Minimum 44x44px for mobile interactions |
+| **Easing** | Calm, confident motion: `cubic-bezier(0.16, 1, 0.3, 1)` |
 
 Motion is gentle, contextual, and respects user preferences.
 
-## **🧩 Components & Layout**
+---
 
-| Component | Description |
-| :---- | :---- |
-| DirectoryCard | Displays cultural or business directory entries |
-| PageHeader | Hero and section headers with responsive scaling |
-| ThemeToggle | Manages light/dark mode switching |
-| StarRating | Displays review ratings using **Sobrado Ochre** |
+## Implementation Reference
 
-All components inherit brand color tokens, typography, and spacing rules from Tailwind.
+The frontend design system implements all brand tokens, components, and patterns:
 
-## **🪶 Versioning & Maintenance**
+| Topic | Reference |
+|-------|-----------|
+| **Design tokens, components, code patterns** | [`docs/design-system.md`](../../docs/design-system.md) |
+| **Color token architecture (OKLCH, Tailwind v4)** | [`docs/design-system.md` - Color System](../../docs/design-system.md#color-system) |
+| **Component library (22+ components)** | [`docs/design-system.md` - Components](../../docs/design-system.md#components) |
+| **Interactive gallery (dev only)** | `http://localhost:3000/design-system` |
 
-| Item | Rule | Example |
-| :---- | :---- | :---- |
-| **Logo** | nos-ilha-logo-vX.svg | nos-ilha-logo-v1.svg |
-| **Template** | \[platform\]-\[layout\]-vX | instagram-carousel-v1 |
-| **Brand Release** | brand-vX.Y.Z | brand-v1.0.0 |
+---
 
-Track updates in /docs/changelog.md and tag releases using GitHub’s versioning tools.
+## Versioning & Maintenance
 
-## **🚀 Future Roadmap**
+| Item | Convention | Example |
+|------|------------|---------|
+| **Logo** | `nos-ilha-logo-vX.svg` | `nos-ilha-logo-v1.svg` |
+| **Brand Release** | `brand-vX.Y.Z` | `brand-v1.0.0` |
 
-| Area | Planned Update |
-| :---- | :---- |
-| **Logo v2** | Add Brava Island silhouette integration |
-| **Typography** | Explore variable fonts for performance |
-| **Creative Brand Pack** | Build storytelling/social version for outreach |
-| **Localization** | Introduce Kriolu tone and translation guidelines |
-| **Design Token Automation** | ✅ Completed (v2.0 Sync Script) |
+---
 
-## **📬 Maintainers**
+## Roadmap
 
-**Nos Ilha Design & Development Team** 📧 [hello@nosilha.com](mailto:hello@nosilha.com)
+| Area | Status |
+|------|--------|
+| **Logo v2** | Planned — Add Brava Island silhouette integration |
+| **Creative Brand Pack** | Planned — Build storytelling/social version for outreach |
+| **Localization** | Planned — Introduce Kriolu tone and translation guidelines |
 
-🌐 [nosilha.com](https://nosilha.com)
+---
 
-🔗 [GitHub: Nos Ilha Repository](https://github.com/nosilha)
+## Maintainers
 
-For version history and release notes, see
+**Nos Ilha Design & Development Team**
 
-[CHANGELOG.md](https://www.google.com/search?q=../CHANGELOG.md)
-
-*“Preserving the soul of Brava through design, code, and community.”*
+- hello@nosilha.com
+- [nosilha.com](https://nosilha.com)
+- [GitHub](https://github.com/deznode/nosilha)

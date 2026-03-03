@@ -14,9 +14,13 @@ import { z } from "zod";
 // ================================
 
 export const submissionStatusSchema = z.enum([
+  "DRAFT",
   "PENDING",
   "APPROVED",
   "REJECTED",
+  "FLAGGED",
+  "PUBLISHED",
+  "ARCHIVED",
 ]);
 
 export const contactMessageStatusSchema = z.enum([
@@ -86,7 +90,7 @@ export const contributorSchema = z.object({
   name: z.string(),
   role: z.enum(["Contributor", "Moderator", "Admin"]),
   points: z.number(),
-  avatar: z.string().optional(),
+  avatar: z.string().nullish(), // Backend returns null, not undefined
 });
 
 export const contactMessageSchema = z.object({
@@ -102,22 +106,25 @@ export const contactMessageSchema = z.object({
 export const directorySubmissionSchema = z.object({
   id: z.string(),
   name: z.string(),
-  category: z.enum(["Restaurant", "Heritage", "Nature", "Culture"]),
+  slug: z.string().optional(), // Added for unified entries
+  category: z.enum(["Restaurant", "Hotel", "Beach", "Heritage", "Nature"]),
   town: z.string(),
-  customTown: z.string().optional(),
+  customTown: z.string().nullish(),
   description: z.string(),
   tags: z.array(z.string()),
-  imageUrl: z.string().optional(),
-  priceLevel: z.enum(["$", "$$", "$$$"]).optional(),
+  imageUrl: z.string().nullish(),
+  priceLevel: z.string().nullish(),
   latitude: z.number().optional(),
   longitude: z.number().optional(),
   status: submissionStatusSchema,
-  submittedBy: z.string(),
-  submittedByEmail: z.string().optional(),
-  submittedAt: z.string(),
-  adminNotes: z.string().optional(),
-  reviewedBy: z.string().optional(),
-  reviewedAt: z.string().optional(),
+  submittedBy: z.string().nullish(), // Can be null for seeded entries
+  submittedByEmail: z.string().nullish(),
+  submittedAt: z.string().nullish(), // Can be null for seeded entries
+  adminNotes: z.string().nullish(),
+  reviewedBy: z.string().nullish(),
+  reviewedAt: z.string().nullish(),
+  createdAt: z.string().nullish(),
+  updatedAt: z.string().nullish(),
 });
 
 export const adminMediaListItemSchema = z.object({

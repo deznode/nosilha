@@ -30,7 +30,7 @@ import org.springframework.modulith.PackageInfo
         "places",
         "stories",
         "engagement",
-        "media",
+        "gallery",
     ],
     type = ApplicationModule.Type.OPEN,
 )

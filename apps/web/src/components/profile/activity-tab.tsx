@@ -14,15 +14,15 @@ import type { SuggestionSummaryDto, StorySummaryDto } from "@/types/profile";
 
 function ActivityItemSkeleton() {
   return (
-    <div className="flex animate-pulse gap-4 rounded-lg border border-slate-200 p-4 dark:border-slate-700">
-      <div className="h-10 w-10 flex-shrink-0 rounded-full bg-slate-200 dark:bg-slate-700" />
+    <div className="border-hairline flex animate-pulse gap-4 rounded-lg border p-4">
+      <div className="bg-surface-alt h-10 w-10 flex-shrink-0 rounded-full" />
       <div className="flex-grow">
         <div className="flex items-start justify-between">
-          <div className="mb-2 h-5 w-48 rounded bg-slate-200 dark:bg-slate-700" />
-          <div className="h-5 w-20 rounded bg-slate-200 dark:bg-slate-700" />
+          <div className="bg-surface-alt mb-2 h-5 w-48 rounded" />
+          <div className="bg-surface-alt h-5 w-20 rounded" />
         </div>
-        <div className="mb-2 h-4 w-full rounded bg-slate-200 dark:bg-slate-700" />
-        <div className="h-3 w-32 rounded bg-slate-200 dark:bg-slate-700" />
+        <div className="bg-surface-alt mb-2 h-4 w-full rounded" />
+        <div className="bg-surface-alt h-3 w-32 rounded" />
       </div>
     </div>
   );
@@ -35,30 +35,27 @@ function getStatusStyles(status: string) {
     case "PUBLISHED":
       return {
         bg: "bg-green-100 dark:bg-green-900/30",
-        text: "text-[var(--color-valley-green)]",
-        badge:
-          "bg-green-100 text-[var(--color-valley-green)] dark:bg-green-900/30",
+        text: "text-valley-green",
+        badge: "bg-green-100 text-valley-green dark:bg-green-900/30",
       };
     case "PENDING":
     case "UNDER_REVIEW":
       return {
         bg: "bg-yellow-100 dark:bg-yellow-900/30",
-        text: "text-[var(--color-sobrado)]",
-        badge:
-          "bg-yellow-100 text-[var(--color-sobrado)] dark:bg-yellow-900/30",
+        text: "text-sobrado-ochre",
+        badge: "bg-yellow-100 text-sobrado-ochre dark:bg-yellow-900/30",
       };
     case "REJECTED":
       return {
-        bg: "bg-red-100 dark:bg-red-900/30",
-        text: "text-red-600 dark:text-red-400",
-        badge: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
+        bg: "bg-accent-error/10",
+        text: "text-accent-error",
+        badge: "bg-accent-error/10 text-accent-error",
       };
     default:
       return {
-        bg: "bg-slate-100 dark:bg-slate-900/30",
-        text: "text-slate-600 dark:text-slate-400",
-        badge:
-          "bg-slate-100 text-slate-600 dark:bg-slate-900/30 dark:text-slate-400",
+        bg: "bg-surface-alt",
+        text: "text-muted",
+        badge: "bg-surface-alt text-muted",
       };
   }
 }
@@ -98,7 +95,7 @@ export function ActivityTab() {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <h3 className="mb-4 text-lg font-bold text-slate-900 dark:text-white">
+        <h3 className="text-body mb-4 text-lg font-bold">
           Recent Contributions
         </h3>
         {Array.from({ length: 3 }).map((_, i) => (
@@ -111,11 +108,11 @@ export function ActivityTab() {
   if (error) {
     return (
       <div className="py-12 text-center">
-        <AlertCircle className="mx-auto h-12 w-12 text-red-400 dark:text-red-500" />
-        <h3 className="mt-2 text-sm font-medium text-slate-900 dark:text-white">
+        <AlertCircle className="text-accent-error mx-auto h-12 w-12" />
+        <h3 className="text-body mt-2 text-sm font-medium">
           Failed to load contributions
         </h3>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <p className="text-muted mt-1 text-sm">
           {error.message || "Please try again later."}
         </p>
       </div>
@@ -125,11 +122,11 @@ export function ActivityTab() {
   if (!contributions) {
     return (
       <div className="py-12 text-center">
-        <FileText className="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500" />
-        <h3 className="mt-2 text-sm font-medium text-slate-900 dark:text-white">
+        <FileText className="text-muted mx-auto h-12 w-12" />
+        <h3 className="text-body mt-2 text-sm font-medium">
           No contributions yet
         </h3>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <p className="text-muted mt-1 text-sm">
           Start contributing to see your activity here.
         </p>
       </div>
@@ -144,11 +141,11 @@ export function ActivityTab() {
   if (!hasAnyContributions) {
     return (
       <div className="py-12 text-center">
-        <FileText className="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500" />
-        <h3 className="mt-2 text-sm font-medium text-slate-900 dark:text-white">
+        <FileText className="text-muted mx-auto h-12 w-12" />
+        <h3 className="text-body mt-2 text-sm font-medium">
           No contributions yet
         </h3>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        <p className="text-muted mt-1 text-sm">
           Share your stories, suggest improvements, or react to content to get
           started!
         </p>
@@ -158,14 +155,12 @@ export function ActivityTab() {
 
   return (
     <div className="space-y-6">
-      <h3 className="mb-4 text-lg font-bold text-slate-900 dark:text-white">
-        Your Contributions
-      </h3>
+      <h3 className="text-body mb-4 text-lg font-bold">Your Contributions</h3>
 
       {/* Reactions Summary */}
       {contributions.totalReactions > 0 && (
-        <div className="rounded-lg border border-slate-200 p-4 dark:border-slate-700">
-          <h4 className="mb-3 font-bold text-slate-900 dark:text-white">
+        <div className="border-hairline rounded-lg border p-4">
+          <h4 className="text-body mb-3 font-bold">
             Reactions ({contributions.totalReactions})
           </h4>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -173,18 +168,14 @@ export function ActivityTab() {
               ([type, count]) => (
                 <div
                   key={type}
-                  className="flex items-center gap-2 rounded-md bg-slate-50 p-3 dark:bg-slate-800"
+                  className="bg-surface flex items-center gap-2 rounded-md p-3"
                 >
-                  <div className="text-[var(--color-ocean-blue)]">
-                    {getReactionIcon(type)}
-                  </div>
+                  <div className="text-ocean-blue">{getReactionIcon(type)}</div>
                   <div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                    <div className="text-muted text-xs">
                       {type.charAt(0) + type.slice(1).toLowerCase()}
                     </div>
-                    <div className="font-bold text-slate-900 dark:text-white">
-                      {count}
-                    </div>
+                    <div className="text-body font-bold">{count}</div>
                   </div>
                 </div>
               )
@@ -196,7 +187,7 @@ export function ActivityTab() {
       {/* Suggestions List */}
       {contributions.suggestions.length > 0 && (
         <div>
-          <h4 className="mb-3 font-bold text-slate-900 dark:text-white">
+          <h4 className="text-body mb-3 font-bold">
             Suggestions ({contributions.totalSuggestions})
           </h4>
           <div className="space-y-3">
@@ -206,7 +197,7 @@ export function ActivityTab() {
                 return (
                   <div
                     key={suggestion.id}
-                    className="flex gap-4 rounded-lg border border-slate-200 p-4 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-700/50"
+                    className="border-hairline hover:bg-surface-alt flex gap-4 rounded-lg border p-4 transition-colors"
                   >
                     <div
                       className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${styles.bg} ${styles.text}`}
@@ -215,7 +206,7 @@ export function ActivityTab() {
                     </div>
                     <div className="min-w-0 flex-grow">
                       <div className="flex items-start justify-between gap-2">
-                        <h5 className="truncate font-bold text-slate-900 dark:text-white">
+                        <h5 className="text-body truncate font-bold">
                           {suggestion.suggestionType.replace(/_/g, " ")}
                         </h5>
                         <span
@@ -224,7 +215,7 @@ export function ActivityTab() {
                           {suggestion.status}
                         </span>
                       </div>
-                      <div className="mt-2 flex items-center gap-3 text-xs text-slate-400 dark:text-slate-500">
+                      <div className="text-muted mt-2 flex items-center gap-3 text-xs">
                         <span className="flex items-center">
                           <Clock size={12} className="mr-1" /> Submitted{" "}
                           {formatDate(suggestion.createdAt)}
@@ -242,7 +233,7 @@ export function ActivityTab() {
       {/* Stories List */}
       {contributions.stories.length > 0 && (
         <div>
-          <h4 className="mb-3 font-bold text-slate-900 dark:text-white">
+          <h4 className="text-body mb-3 font-bold">
             Stories ({contributions.totalStories})
           </h4>
           <div className="space-y-3">
@@ -251,7 +242,7 @@ export function ActivityTab() {
               return (
                 <div
                   key={story.id}
-                  className="flex gap-4 rounded-lg border border-slate-200 p-4 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-700/50"
+                  className="border-hairline hover:bg-surface-alt flex gap-4 rounded-lg border p-4 transition-colors"
                 >
                   <div
                     className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${styles.bg} ${styles.text}`}
@@ -260,7 +251,7 @@ export function ActivityTab() {
                   </div>
                   <div className="min-w-0 flex-grow">
                     <div className="flex items-start justify-between gap-2">
-                      <h5 className="truncate font-bold text-slate-900 dark:text-white">
+                      <h5 className="text-body truncate font-bold">
                         {story.title}
                       </h5>
                       <span
@@ -269,10 +260,10 @@ export function ActivityTab() {
                         {story.status}
                       </span>
                     </div>
-                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-muted mt-1 text-xs">
                       {story.storyType.replace(/_/g, " ")}
                     </p>
-                    <div className="mt-2 flex items-center gap-3 text-xs text-slate-400 dark:text-slate-500">
+                    <div className="text-muted mt-2 flex items-center gap-3 text-xs">
                       <span className="flex items-center">
                         <Clock size={12} className="mr-1" /> Submitted{" "}
                         {formatDate(story.createdAt)}

@@ -14,7 +14,7 @@ export function KrioluProverbCard({
   href = "/language",
 }: KrioluProverb) {
   return (
-    <div className="bg-ocean-blue-light dark:bg-ocean-blue-deep relative overflow-hidden rounded-2xl p-8 text-white shadow-lg">
+    <div className="bg-ocean-blue-light dark:bg-ocean-blue-deep rounded-container shadow-lift relative overflow-hidden p-8 text-white">
       {/* Decorative blur circle */}
       <div className="bg-sobrado-ochre absolute top-0 right-0 -mt-4 -mr-4 h-24 w-24 rounded-full opacity-20 blur-xl" />
 

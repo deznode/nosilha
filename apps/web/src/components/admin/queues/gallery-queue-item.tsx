@@ -1,17 +1,20 @@
 "use client";
 
+import Image from "next/image";
 import {
   CheckCircle,
   Flag,
   XCircle,
-  Image,
+  Image as ImageIcon,
   Video,
   Music,
   ExternalLink,
   Upload,
+  Star,
 } from "lucide-react";
 import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
+import { Button } from "@/components/catalyst-ui/button";
 
 interface GalleryQueueItemProps {
   item: GalleryMedia;
@@ -21,17 +24,25 @@ interface GalleryQueueItemProps {
     reason?: string,
     notes?: string
   ) => void;
+  onPromoteToHero?: (id: string) => void;
 }
 
 export function GalleryQueueItem({
   item,
   onStatusChange,
+  onPromoteToHero,
 }: GalleryQueueItemProps) {
+  // Check if this item can be promoted to hero image
+  const canPromoteToHero =
+    isUserUploadMedia(item) &&
+    item.entryId &&
+    item.publicUrl &&
+    item.status === "ACTIVE";
   const getMediaIcon = () => {
     if (isExternalMedia(item)) {
       if (item.mediaType === "VIDEO") return <Video size={14} />;
       if (item.mediaType === "AUDIO") return <Music size={14} />;
-      return <Image size={14} />;
+      return <ImageIcon size={14} />;
     }
     return <Upload size={14} />;
   };
@@ -53,37 +64,35 @@ export function GalleryQueueItem({
   };
 
   const getThumbnail = () => {
-    if (isUserUploadMedia(item) && item.publicUrl) {
-      return (
-        <img
-          src={item.publicUrl}
-          alt={item.title || "Gallery item"}
-          className="h-full w-full object-cover"
-        />
-      );
-    }
+    const thumbnailUrl = isUserUploadMedia(item)
+      ? item.publicUrl
+      : isExternalMedia(item)
+        ? item.thumbnailUrl
+        : null;
 
-    if (isExternalMedia(item) && item.thumbnailUrl) {
+    if (thumbnailUrl) {
       return (
-        <img
-          src={item.thumbnailUrl}
+        <Image
+          src={thumbnailUrl}
           alt={item.title || "Gallery item"}
-          className="h-full w-full object-cover"
+          fill
+          className="object-cover"
+          unoptimized
         />
       );
     }
 
     return (
-      <div className="flex h-full w-full items-center justify-center bg-slate-100 dark:bg-slate-700">
+      <div className="bg-surface-alt flex h-full w-full items-center justify-center">
         {getMediaIcon()}
       </div>
     );
   };
 
   return (
-    <div className="flex items-start gap-4 rounded-xl border border-slate-200 bg-white p-4 transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
+    <div className="border-hairline bg-surface flex items-start gap-4 rounded-xl border p-4 transition-shadow hover:shadow-md">
       {/* Thumbnail */}
-      <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg">
+      <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg">
         {getThumbnail()}
       </div>
 
@@ -91,17 +100,17 @@ export function GalleryQueueItem({
       <div className="min-w-0 flex-1">
         <div className="mb-2 flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <h3 className="truncate font-semibold text-slate-900 dark:text-white">
+            <h3 className="text-body truncate font-semibold">
               {item.title || "Untitled"}
             </h3>
             <div className="mt-1 flex flex-wrap items-center gap-2">
               {getSourceBadge()}
               {item.category && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-600 dark:bg-slate-700 dark:text-slate-400">
+                <span className="bg-surface-alt text-muted inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs">
                   {getMediaIcon()} {item.category}
                 </span>
               )}
-              <span className="text-xs text-slate-500">
+              <span className="text-muted text-xs">
                 {new Date(item.createdAt).toLocaleDateString()}
               </span>
             </div>
@@ -109,13 +118,13 @@ export function GalleryQueueItem({
         </div>
 
         {item.description && (
-          <p className="mb-3 line-clamp-2 text-sm text-slate-600 dark:text-slate-400">
+          <p className="text-muted mb-3 line-clamp-2 text-sm">
             {item.description}
           </p>
         )}
 
         {/* Metadata */}
-        <div className="mb-3 space-y-1 text-xs text-slate-500">
+        <div className="text-muted mb-3 space-y-1 text-xs">
           {isUserUploadMedia(item) && (
             <>
               {item.uploadedBy && <div>Uploaded by: {item.uploadedBy}</div>}
@@ -147,22 +156,25 @@ export function GalleryQueueItem({
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2">
-          <button
+        <div className="flex flex-wrap gap-2">
+          <Button
+            color="green"
             onClick={() => onStatusChange(item.id, "APPROVE")}
             disabled={item.status === "ACTIVE"}
-            className="inline-flex items-center gap-1 rounded-lg bg-[var(--color-valley-green)] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-30"
           >
-            <CheckCircle size={14} /> Approve
-          </button>
-          <button
+            <CheckCircle data-slot="icon" />
+            Approve
+          </Button>
+          <Button
+            color="yellow"
             onClick={() => onStatusChange(item.id, "FLAG", "Needs review")}
             disabled={item.status === "FLAGGED"}
-            className="inline-flex items-center gap-1 rounded-lg bg-yellow-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-yellow-600 disabled:cursor-not-allowed disabled:opacity-30"
           >
-            <Flag size={14} /> Flag
-          </button>
-          <button
+            <Flag data-slot="icon" />
+            Flag
+          </Button>
+          <Button
+            color="red"
             onClick={() =>
               onStatusChange(
                 item.id,
@@ -171,10 +183,20 @@ export function GalleryQueueItem({
               )
             }
             disabled={item.status === "REJECTED"}
-            className="inline-flex items-center gap-1 rounded-lg bg-red-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-30"
           >
-            <XCircle size={14} /> Reject
-          </button>
+            <XCircle data-slot="icon" />
+            Reject
+          </Button>
+          {canPromoteToHero && onPromoteToHero && (
+            <Button
+              color="blue"
+              onClick={() => onPromoteToHero(item.id)}
+              title="Set this image as the hero image for the directory entry"
+            >
+              <Star data-slot="icon" />
+              Set as Hero
+            </Button>
+          )}
         </div>
       </div>
     </div>

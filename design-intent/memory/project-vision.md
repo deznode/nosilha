@@ -1,90 +1,154 @@
 # Project Vision
 
-> Nos Ilha - Brava Island Cultural Heritage Hub
+## Nos Ilha - Brava Island Cultural Heritage Hub
 
-**Author:** Joaquim Costa
-**Created:** 2025-12-20
-**Status:** Active Development
-
-## Overview
-
-**nosilha.com** is a community-driven cultural heritage hub for Brava Island, Cape Verde. This open-source, volunteer-supported project aims to preserve and celebrate the island's rich cultural memory while providing a comprehensive digital experience that connects the global Cape Verdean diaspora, local residents, business owners, and international visitors to the heart of Brava.
+A community-driven platform preserving and celebrating the cultural heritage of Brava Island, Cape Verde.
 
 ## Mission
 
-To create a community-maintained, authoritative online resource for Brava that preserves cultural memory, celebrates the island's heritage, and connects the global diaspora to their roots, while supporting sustainable tourism and economic opportunity for the local community through volunteer contributions and collaborative development.
+To create a living digital archive that connects the Cape Verdean diaspora with their ancestral home, preserves cultural memory for future generations, and welcomes visitors to discover Brava's unique heritage.
 
 ## Target Users
 
-### Cape Verdean Diaspora
-Members of the diaspora community seeking to reconnect with their roots, explore their cultural heritage, and stay informed about life on Brava.
+### Primary Audiences
 
-### Local Residents
-Community members looking for a centralized platform to celebrate their shared heritage and directory of local services.
+1. **Cape Verdean Diaspora**
+   - Connecting with homeland heritage
+   - Sharing family histories and memories
+   - Discovering ancestral locations
 
-### Cultural Researchers & Historians
-Scholars and enthusiasts studying Cape Verdean history, culture, and traditions.
+2. **Local Residents**
+   - Contributing local knowledge
+   - Promoting community businesses
+   - Preserving oral histories
 
-### International Visitors
-Travelers seeking authentic cultural experiences, planning trips, and looking for reliable information on the island's heritage sites, accommodations, and local businesses.
+3. **Researchers & Historians**
+   - Accessing historical archives
+   - Documenting cultural practices
+   - Academic study of Cape Verdean culture
+
+4. **Visitors & Tourists**
+   - Planning trips to Brava
+   - Understanding local culture
+   - Finding authentic experiences
 
 ## Core Features
 
-| Feature | Description |
-|---------|-------------|
-| **Cultural Heritage Archive** | Rich documentation of Brava's history, traditions, and cultural practices |
-| **Town & Historical Pages** | Detailed pages for each town with historical context |
-| **Rich Media Galleries** | Photo and video galleries with AI-enhanced organization |
-| **Interactive Heritage Maps** | Multi-layered Mapbox maps with cultural points of interest |
-| **Community Directory** | Curated database of local businesses and artisans |
-| **AI-Enhanced Discovery** | Automated tagging, location inference, OCR for historical documents |
-| **Multilingual Support** | English, Portuguese, and French localization |
+### Heritage Archive
 
-## Technical Foundation
+- Historical photographs and documents
+- Oral history recordings
+- Cultural artifact documentation
+- Timeline of significant events
 
-| Layer | Technology |
-|-------|------------|
-| **Frontend** | Next.js 16, React 19.2, TypeScript, Tailwind CSS, Framer Motion |
-| **Backend** | Spring Boot 3.4.7, Kotlin, PostgreSQL, Firestore |
-| **Infrastructure** | GCP Cloud Run, Artifact Registry, Cloud Storage |
-| **Authentication** | Supabase Auth with JWT tokens |
-| **Mapping** | Mapbox GL JS with custom cultural markers |
-| **AI Services** | Google Cloud Vision API for image analysis |
+### Town Pages
 
-## Design Philosophy
+- Vila Nova Sintra (capital)
+- Nova Sintra neighborhoods
+- Rural communities
+- Historical sites
 
-### Brand Identity
-"Clean, inviting, authentic, and lush" - a digital extension of Brava Island's natural beauty and warm community spirit (morabeza).
+### Community Galleries
 
-### Visual Language
-- Ocean Blue for the sea surrounding Brava
-- Valley Green for the island's verdant landscapes
-- Bougainvillea Pink for the vibrant flowers
-- Warm typography (Fraunces) for cultural authenticity
+- User-contributed photos
+- Curated collections
+- Family albums
+- Event documentation
 
-### User Experience
-- Mobile-first for diaspora accessibility
-- Performance-optimized for varying internet conditions
-- Accessible to all users (WCAG 2.1 AA)
+### Interactive Maps
+
+- Cultural landmarks
+- Historical sites
+- Walking tours
+- Points of interest
+
+### Business Directory
+
+- Local restaurants and hotels
+- Services and shops
+- Cultural venues
+- Tourism operators
+
+## Design Principles
+
+### Cultural Authenticity
+
+- Respect for local traditions
+- Accurate historical representation
+- Community voice preservation
+- Multilingual support (Portuguese, Kriolu, English)
+
+### Accessibility
+
+- Mobile-first design (diaspora access)
+- Low-bandwidth optimization
+- Screen reader compatibility
+- Keyboard navigation
+
+### Community-Driven
+
+- User contributions welcomed
+- Moderation by local experts
+- Transparent attribution
+- Open-source development
+
+## Technical Vision
+
+### Performance
+
+- Fast loading worldwide
+- Offline capability for key content
+- Optimized images and media
+- Progressive enhancement
+
+### Scalability
+
+- Growing content archive
+- Expanding user base
+- Additional island coverage (future)
+- API for external integrations
+
+### Sustainability
+
+- Volunteer-maintained
+- Low operational costs
+- Open-source stack
+- Community governance
 
 ## Success Metrics
 
-- [ ] Cultural content engagement (time on heritage pages)
-- [ ] Diaspora connection (return visits, saved locations)
-- [ ] Local business visibility (directory interactions)
-- [ ] Community contributions (submissions, corrections)
-- [ ] Global reach (multilingual usage)
+- Active community contributors
+- Content archive growth
+- Diaspora engagement
+- Cultural preservation impact
+- Visitor conversion to travelers
 
-## Roadmap Context
+## Future Roadmap
 
-Current focus: Media Ingestion feature (branch: `008-media-ingestion`)
+### Phase 1: Foundation (Current)
 
-Future priorities:
-1. AI-enhanced media organization
-2. Community contribution workflows
-3. Enhanced mapping experiences
-4. Historical document digitization
+- Core directory functionality
+- Basic heritage pages
+- User authentication
+- Admin content management
 
----
+### Phase 2: Community
 
-*This vision guides all development decisions. Features that don't serve this vision should be questioned.*
+- User contributions
+- Gallery system
+- Comments and reactions
+- Newsletter integration
+
+### Phase 3: Archive
+
+- Historical document scanning
+- Oral history recordings
+- Interactive timelines
+- Advanced search
+
+### Phase 4: Expansion
+
+- Additional islands
+- Mobile applications
+- API platform
+- Educational resources

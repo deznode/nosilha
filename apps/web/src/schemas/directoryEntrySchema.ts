@@ -19,6 +19,10 @@ const baseDirectoryEntrySchema = z.object({
   reviewCount: z.number().int().nonnegative(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+  // Contact information (common across all entry types)
+  phoneNumber: z.string().nullable().optional(),
+  email: z.string().email().nullable().optional(),
+  website: z.string().url().nullable().optional(),
 });
 
 // Category-specific detail schemas

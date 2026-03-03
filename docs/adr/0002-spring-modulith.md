@@ -229,9 +229,9 @@ class Landmark : DirectoryEntry()
 ## References
 
 - [Spring Modulith Documentation](https://docs.spring.io/spring-modulith/reference/)
-- [Project Module Architecture](../SPRING_MODULITH.md)
-- [System Architecture](../ARCHITECTURE.md)
-- [API Coding Standards](../API_CODING_STANDARDS.md)
+- [Project Module Architecture](../spring-modulith.md)
+- [System Architecture](../architecture.md)
+- [API Coding Standards](../api-coding-standards.md)
 
 ## Notes
 

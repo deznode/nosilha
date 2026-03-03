@@ -1,70 +1,45 @@
-# 🎨 Nos Ilha — Brand & Design System
+# Nos Ilha — Brand System
 
-> **Version:** 1.0.0  
-> **Maintainers:** Nos Ilha Design & Development Team  
->  
-> Centralized home for all visual identity assets, brand documentation, and design templates used across the Nos Ilha ecosystem.
+> **Version:** 1.0.0
+>
+> Centralized home for all visual identity assets and brand documentation used across the Nos Ilha ecosystem.
 
----
-
-## 🌍 Purpose
+## Purpose
 
 The **Nos Ilha Brand System** defines how our cultural heritage mission translates into consistent visual and tonal design across all platforms.
 
 It ensures:
-- A unified brand presence on web, social, and print  
-- Consistency between designers, developers, and contributors  
+- A unified brand presence on web, social, and print
+- Consistency between designers, developers, and contributors
 - Easy scalability for future updates and localization
 
----
+## Directory Structure
 
-## 🧭 Directory Structure
-
+```
 brand/
-├── assets/ # Logos, color palettes, fonts
-├── docs/ # Main brand system documentation
-│ └── brand-system-pack.md
-├── templates/ # Layouts for social, web, and print media
-├── prompts/ # Optional messaging or tone guides
-└── README.md # This file
+├── assets/                        # Logos, color palette
+│   ├── nos-ilha-logo-v1.svg       # Current logo
+│   └── palette.json               # Brand color primitives
+├── docs/
+│   └── brand-system-pack.md       # Brand identity guide
+└── README.md                      # This file
+```
 
+## Core Documentation
 
----
+**[Nos Ilha Brand System Pack](./docs/brand-system-pack.md)** — The identity reference covering:
+- Brand mission, values & tone
+- Color palette (The Brava Tones + Bruma neutrals)
+- Typography (Outfit + Fraunces)
+- Logo and imagery guidelines
+- Accessibility & WCAG compliance
+- Dark mode (Volcanic Night) adjustments
 
-## 📘 Core Documentation
+For frontend implementation (design tokens, components, code patterns), see [`docs/design-system.md`](../docs/design-system.md).
 
-📄 **[Nos Ilha Brand System Pack →](./docs/brand-system-pack.md)**  
-The unified reference for:
-- Brand identity & tone  
-- Color & typography system  
-- Logo and imagery guidelines  
-- Accessibility & motion  
-- Tailwind and implementation summary  
-- Versioning & roadmap  
-
-For detailed frontend integration, see  
-[`DESIGN_SYSTEM.md`](../docs/DESIGN_SYSTEM.md).
-
----
-
-## 🪶 Maintenance & Versioning
+## Versioning
 
 | Type | Convention | Example |
-|------|-------------|----------|
+|------|------------|---------|
 | **Brand Release** | `brand-vX.Y.Z` | `brand-v1.0.0` |
-| **Logo Update** | `logo-vX` | `logo-v2` |
-| **Template** | `[platform]-[type]-vX` | `instagram-carousel-v1` |
-
-Track updates in [`/docs/changelog.md`](../docs/changelog.md).
-
----
-
-## 🚀 Future Roadmap
-- **Logo v2** → Incorporate Brava Island silhouette  
-- **Creative Brand Pack** → For social & storytelling content  
-- **Localization** → Add Kriolu tone and translation rules  
-- **Token Automation** → Sync Tailwind with brand palette  
-
----
-
-> _“Preserving the soul of Brava through design, code, and community.”_
+| **Logo Update** | `nos-ilha-logo-vX.svg` | `nos-ilha-logo-v1.svg` |

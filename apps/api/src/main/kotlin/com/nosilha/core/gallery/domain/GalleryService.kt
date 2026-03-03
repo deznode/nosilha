@@ -4,10 +4,14 @@ import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.SubmitExternalMediaRequest
+import com.nosilha.core.gallery.api.dto.toDto
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import com.nosilha.core.shared.api.PageableInfo
 import com.nosilha.core.shared.api.PagedApiResult
+import com.nosilha.core.shared.events.AiResultsApprovedEvent
 import com.nosilha.core.shared.events.DirectoryEntryCreatedEvent
+import com.nosilha.core.shared.events.MediaAnalysisCompletedEvent
+import com.nosilha.core.shared.events.MediaAnalysisFailedEvent
 import com.nosilha.core.shared.exception.RateLimitExceededException
 import io.github.bucket4j.Bucket
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -458,13 +462,7 @@ class GalleryService(
             repository.findByStatusOrderByDisplayOrderAsc(GalleryMediaStatus.ACTIVE, pageable)
         }
 
-        val dtos = mediaPage.content.map { media ->
-            when (media) {
-                is UserUploadedMedia -> GalleryMediaDto.from(media)
-                is ExternalMedia -> GalleryMediaDto.from(media)
-                else -> error("Unknown media type: ${media.javaClass.simpleName}")
-            }
-        }
+        val dtos = mediaPage.content.map { it.toDto() }
 
         return PagedApiResult(
             data = dtos,
@@ -498,11 +496,7 @@ class GalleryService(
             return null
         }
 
-        return when (media) {
-            is UserUploadedMedia -> GalleryMediaDto.from(media)
-            is ExternalMedia -> GalleryMediaDto.from(media)
-            else -> error("Unknown media type: ${media.javaClass.simpleName}")
-        }
+        return media.toDto()
     }
 
     /**
@@ -579,5 +573,63 @@ class GalleryService(
                 "(category: ${event.category}, name: ${event.name})"
         }
         logger.debug { "Directory entry created - media association via entry_id: ${event.entryId}" }
+    }
+
+    /**
+     * Listens to MediaAnalysisCompletedEvent for logging purposes.
+     * Results are NOT auto-applied; they require moderator approval via the AI module.
+     */
+    @ApplicationModuleListener
+    fun onMediaAnalysisCompleted(event: MediaAnalysisCompletedEvent) {
+        logger.info {
+            "AI analysis completed for media ${event.mediaId}: " +
+                "${event.providers.size} providers, ${event.tags.size} tags, " +
+                "alt text: ${event.altText != null}, description: ${event.description != null}"
+        }
+    }
+
+    /**
+     * Listens to MediaAnalysisFailedEvent for logging purposes.
+     * Admin can view failed analysis runs and retry via the admin endpoints.
+     */
+    @ApplicationModuleListener
+    fun onMediaAnalysisFailed(event: MediaAnalysisFailedEvent) {
+        logger.warn {
+            "AI analysis failed for media ${event.mediaId}: ${event.errorMessage}" +
+                (event.provider?.let { " (provider: $it)" } ?: "")
+        }
+    }
+
+    /**
+     * Applies moderator-approved AI results to the UserUploadedMedia entity.
+     *
+     * This is the final step in the AI moderation workflow:
+     * AI analysis → moderator review → approval event → entity update.
+     */
+    @ApplicationModuleListener
+    fun onAiResultsApproved(event: AiResultsApprovedEvent) {
+        val media = repository.findById(event.mediaId).orElse(null)
+
+        if (media == null) {
+            logger.warn { "Media not found for AI results approval: ${event.mediaId}" }
+            return
+        }
+
+        if (media !is UserUploadedMedia) {
+            logger.warn { "Cannot apply AI results to non-upload media: ${event.mediaId}" }
+            return
+        }
+
+        media.aiAltText = event.altText
+        media.aiDescription = event.description
+        media.aiTags = event.tags.toTypedArray().ifEmpty { null }
+        media.aiLabels = event.labels
+        media.aiProcessedAt = Instant.now()
+        repository.save(media)
+
+        logger.info {
+            "Applied approved AI results to media ${event.mediaId} " +
+                "(run: ${event.analysisRunId}, moderator: ${event.moderatorId})"
+        }
     }
 }

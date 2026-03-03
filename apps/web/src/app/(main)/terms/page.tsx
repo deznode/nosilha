@@ -15,14 +15,14 @@ export const dynamic = "force-static";
 export default function TermsPage() {
   return (
     <div className="bg-background-secondary font-sans">
-      <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader
           title="Community Guidelines"
           subtitle="Welcome to our community dedicated to preserving and celebrating Brava Island's cultural heritage. These guidelines help us create a respectful and welcoming space for everyone who shares our passion for the island's history and traditions."
         />
 
         {/* Last Updated */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-6 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-6">
           <div className="flex items-center justify-center text-center">
             <Calendar className="text-ocean-blue mr-2 h-6 w-6" />
             <span className="text-text-secondary">
@@ -37,7 +37,7 @@ export default function TermsPage() {
         </section>
 
         {/* Introduction */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <div className="mb-4 flex items-start">
             <FileText className="text-ocean-blue mt-1 mr-3 h-8 w-8" />
             <div>
@@ -65,7 +65,7 @@ export default function TermsPage() {
         </section>
 
         {/* Acceptance and Community Guidelines */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
             1. Welcome to Our Community
           </h3>
@@ -98,7 +98,7 @@ export default function TermsPage() {
         </section>
 
         {/* Platform Description */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
             2. Platform Description
           </h3>
@@ -146,7 +146,7 @@ export default function TermsPage() {
         </section>
 
         {/* User Accounts */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
             3. User Accounts
           </h3>
@@ -188,7 +188,7 @@ export default function TermsPage() {
         </section>
 
         {/* Community Contributions */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <div className="mb-4 flex items-start">
             <Users className="text-valley-green mt-1 mr-3 h-8 w-8" />
             <div>
@@ -264,7 +264,7 @@ export default function TermsPage() {
         </section>
 
         {/* Intellectual Property */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
             5. Intellectual Property
           </h3>
@@ -306,7 +306,7 @@ export default function TermsPage() {
         </section>
 
         {/* Privacy and Data Protection */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <div className="mb-4 flex items-start">
             <ShieldCheck className="text-bougainvillea-pink mt-1 mr-3 h-8 w-8" />
             <div>
@@ -327,7 +327,7 @@ export default function TermsPage() {
         </section>
 
         {/* Important Notices */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <div className="mb-4 flex items-start">
             <AlertTriangle className="text-sobrado-ochre mt-1 mr-3 h-8 w-8" />
             <div>
@@ -377,7 +377,7 @@ export default function TermsPage() {
         </section>
 
         {/* Account Management */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
             8. Account Management
           </h3>
@@ -421,7 +421,7 @@ export default function TermsPage() {
         </section>
 
         {/* Changes to Terms */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
             9. Changes to These Terms
           </h3>
@@ -448,7 +448,7 @@ export default function TermsPage() {
         </section>
 
         {/* Governing Law */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <div className="mb-4 flex items-start">
             <Scale className="text-text-secondary mt-1 mr-3 h-8 w-8" />
             <div>
@@ -483,23 +483,22 @@ export default function TermsPage() {
         </section>
 
         {/* Contact Information */}
-        <section className="from-ocean-blue/10 to-valley-green/10 mt-16 rounded-lg bg-gradient-to-r p-8">
+        <section className="from-ocean-blue/10 to-valley-green/10 rounded-card mt-16 bg-linear-to-r p-8">
           <div className="text-center">
             <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
               Questions About Our Community?
             </h3>
             <p className="text-text-secondary mb-6 text-lg">
               We&apos;re here to help! If you have any questions about our
-              community guidelines or need assistance, please reach out to us.
+              community guidelines or need assistance, please use our{" "}
+              <Link
+                href="/contact"
+                className="text-ocean-blue font-medium hover:underline"
+              >
+                contact form
+              </Link>{" "}
+              to reach us.
             </p>
-            <div className="space-y-2">
-              <p className="text-text-secondary">
-                <strong>Community Support:</strong> info@nosilha.com
-              </p>
-              <p className="text-text-secondary">
-                <strong>Legal Questions:</strong> legal@nosilha.com
-              </p>
-            </div>
           </div>
         </section>
 
@@ -511,19 +510,19 @@ export default function TermsPage() {
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Link
               href="/privacy"
-              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-lift px-6 py-3 text-base font-semibold text-white transition-transform duration-300 hover:scale-105"
             >
               Privacy Policy
             </Link>
             <Link
               href="/contact"
-              className="border-valley-green text-valley-green hover:bg-valley-green rounded-md border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
+              className="border-valley-green text-valley-green hover:bg-valley-green rounded-button border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
             >
               Contact Us
             </Link>
             <Link
               href="/about"
-              className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-md border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
+              className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-button border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
             >
               About Us
             </Link>

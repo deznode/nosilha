@@ -128,6 +128,33 @@ export function useToggleBookmark() {
 }
 
 /**
+ * Prefetches all user bookmarks to populate the TanStack Query cache.
+ * This ensures `useIsBookmarked()` works correctly on pages that display
+ * multiple directory entries (like the directory listing page).
+ *
+ * **Usage**: Call this hook at the top level of any page that displays
+ * directory cards with bookmark buttons.
+ *
+ * @example
+ * ```tsx
+ * function DirectoryPage() {
+ *   useBookmarksPrefetch(); // Prefetch bookmarks for authenticated users
+ *   return <DirectoryList entries={entries} />;
+ * }
+ * ```
+ */
+export function useBookmarksPrefetch() {
+  const { session } = useAuth();
+
+  // Fetch all bookmarks to populate cache (max 100 per user)
+  // Uses longer staleTime since bookmarks don't change frequently
+  useBookmarks(0, 100, {
+    enabled: !!session,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+/**
  * Hook to check if a specific entry is bookmarked.
  * Checks the cached bookmark list without making an API call.
  *
@@ -142,29 +169,19 @@ export function useIsBookmarked(entryId: string): boolean | undefined {
     return false;
   }
 
-  // Check all cached bookmark queries
   const bookmarkQueries = queryClient.getQueriesData<
     PaginatedResult<BookmarkWithEntryDto>
   >({
     queryKey: ["bookmarks", "list"],
   });
 
-  for (const [, data] of bookmarkQueries) {
-    if (data?.items) {
-      const isBookmarked = data.items.some(
-        (bookmark) => bookmark.entry.id === entryId
-      );
-      if (isBookmarked) {
-        return true;
-      }
-    }
-  }
-
-  // If we have any bookmark data cached, and the entry wasn't found, it's not bookmarked
-  if (bookmarkQueries.length > 0) {
-    return false;
-  }
-
   // No data cached yet - return undefined to indicate unknown state
-  return undefined;
+  if (bookmarkQueries.length === 0) {
+    return undefined;
+  }
+
+  // Check if entry exists in any cached bookmark query
+  return bookmarkQueries.some(([, data]) =>
+    data?.items?.some((bookmark) => bookmark.entry.id === entryId)
+  );
 }

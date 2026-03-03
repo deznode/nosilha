@@ -96,7 +96,7 @@ export const mdxComponents: MDXComponents = {
   // Typography enhancements
   h1: ({ children, ...props }) => (
     <h1
-      className="font-merriweather text-nosihla-text-primary mt-12 mb-6 text-4xl font-bold first:mt-0 dark:text-white"
+      className="font-merriweather text-text-primary mt-12 mb-6 text-4xl font-bold first:mt-0"
       {...props}
     >
       {children}
@@ -104,7 +104,7 @@ export const mdxComponents: MDXComponents = {
   ),
   h2: ({ children, ...props }) => (
     <h2
-      className="font-merriweather text-nosihla-text-primary mt-10 mb-4 text-3xl font-bold dark:text-white"
+      className="font-merriweather text-text-primary mt-10 mb-4 text-3xl font-bold"
       {...props}
     >
       {children}
@@ -112,7 +112,7 @@ export const mdxComponents: MDXComponents = {
   ),
   h3: ({ children, ...props }) => (
     <h3
-      className="font-merriweather text-nosihla-text-primary mt-8 mb-3 text-2xl font-semibold dark:text-white"
+      className="font-merriweather text-text-primary mt-8 mb-3 text-2xl font-semibold"
       {...props}
     >
       {children}

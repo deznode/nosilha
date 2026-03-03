@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import {
   ArrowLeft,
   MapPin,
@@ -9,11 +8,12 @@ import {
   User,
   BookOpen,
   Clock,
-  Camera,
 } from "lucide-react";
 import type { StorySubmission } from "@/types/story";
 import { StoryType } from "@/types/story";
 import { StoryCard } from "./story-card";
+import { StoryMarkdown } from "./story-markdown";
+import { Badge } from "@/components/catalyst-ui/badge";
 
 interface StoryDetailContentProps {
   story: StorySubmission;
@@ -22,48 +22,59 @@ interface StoryDetailContentProps {
 
 const STORY_TYPE_CONFIG: Record<
   StoryType,
-  { icon: typeof BookOpen; label: string; color: string }
+  {
+    icon: typeof BookOpen;
+    label: string;
+    badgeColor: "blue" | "red" | "green";
+  }
 > = {
   [StoryType.QUICK]: {
     icon: Clock,
     label: "Quick Memory",
-    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+    badgeColor: "blue",
   },
   [StoryType.FULL]: {
     icon: BookOpen,
     label: "Full Story",
-    color: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300",
+    badgeColor: "red",
   },
   [StoryType.GUIDED]: {
     icon: BookOpen,
     label: "Guided Template",
-    color:
-      "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300",
-  },
-  [StoryType.PHOTO]: {
-    icon: Camera,
-    label: "Photo Moment",
-    color:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+    badgeColor: "green",
   },
 };
+
+/**
+ * Map API story type string to StoryType enum value.
+ * API returns keys like "FULL", enum values are labels like "Full Story".
+ */
+function getStoryTypeFromApi(apiType: string): StoryType {
+  const typeMap: Record<string, StoryType> = {
+    QUICK: StoryType.QUICK,
+    FULL: StoryType.FULL,
+    GUIDED: StoryType.GUIDED,
+  };
+  return typeMap[apiType] || StoryType.FULL;
+}
 
 export function StoryDetailContent({
   story,
   relatedStories = [],
 }: StoryDetailContentProps) {
-  const typeConfig = STORY_TYPE_CONFIG[story.type];
+  const storyType = getStoryTypeFromApi(story.type);
+  const typeConfig = STORY_TYPE_CONFIG[storyType];
   const TypeIcon = typeConfig.icon;
 
   return (
-    <div className="bg-background-secondary min-h-screen">
+    <div className="bg-surface min-h-screen">
       {/* Header */}
-      <div className="border-b border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+      <div className="border-hairline bg-canvas border-b">
         <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
           {/* Back Navigation */}
           <Link
             href="/stories"
-            className="mb-6 inline-flex items-center text-sm text-slate-500 transition-colors hover:text-[var(--color-ocean-blue)] dark:text-slate-400"
+            className="text-muted hover:text-ocean-blue ease-calm mb-6 inline-flex items-center text-sm transition-colors"
           >
             <ArrowLeft size={16} className="mr-2" />
             Back to Stories
@@ -71,21 +82,19 @@ export function StoryDetailContent({
 
           {/* Story Type Badge */}
           <div className="mb-4">
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${typeConfig.color}`}
-            >
-              <TypeIcon size={14} />
+            <Badge color={typeConfig.badgeColor}>
+              <TypeIcon size={14} className="mr-1.5" />
               {typeConfig.label}
-            </span>
+            </Badge>
           </div>
 
           {/* Title */}
-          <h1 className="mb-4 font-serif text-3xl font-bold text-slate-900 sm:text-4xl dark:text-white">
+          <h1 className="text-body mb-4 font-serif text-3xl font-bold sm:text-4xl">
             {story.title}
           </h1>
 
           {/* Metadata */}
-          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+          <div className="text-muted flex flex-wrap items-center gap-4 text-sm">
             <div className="flex items-center gap-1.5">
               <User size={16} />
               <span>{story.author}</span>
@@ -106,44 +115,22 @@ export function StoryDetailContent({
 
       {/* Content */}
       <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
-        {/* Photo Story Image */}
-        {story.type === StoryType.PHOTO && story.imageUrl && (
-          <div className="relative mb-8 aspect-video w-full overflow-hidden rounded-lg">
-            <Image
-              src={story.imageUrl}
-              alt={story.title}
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
-        )}
-
         {/* Story Content */}
-        <div className="prose prose-lg dark:prose-invert max-w-none">
-          {story.content.split("\n\n").map((paragraph, index) => (
-            <p
-              key={index}
-              className="mb-6 leading-relaxed text-slate-700 dark:text-slate-300"
-            >
-              {paragraph}
-            </p>
-          ))}
-        </div>
+        <StoryMarkdown content={story.content} />
 
         {/* Share CTA */}
-        <div className="mt-12 border-t border-slate-200 pt-8 dark:border-slate-700">
-          <div className="rounded-lg bg-slate-50 p-6 text-center dark:bg-slate-800/50">
-            <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-white">
+        <div className="border-hairline mt-12 border-t pt-8">
+          <div className="bg-surface rounded-card p-6 text-center">
+            <h3 className="text-body mb-2 text-lg font-semibold">
               Do you have a story to share?
             </h3>
-            <p className="mb-4 text-slate-600 dark:text-slate-400">
+            <p className="text-muted mb-4">
               Help preserve Brava&apos;s cultural heritage by contributing your
               own memories and experiences.
             </p>
             <Link
               href="/contribute/story"
-              className="inline-flex items-center rounded-lg bg-[var(--color-ocean-blue)] px-6 py-3 font-medium text-white transition-colors hover:bg-[var(--color-ocean-blue)]/90"
+              className="bg-ocean-blue hover:bg-ocean-blue-deep rounded-button shadow-subtle inline-flex items-center px-6 py-3 font-medium text-white transition-colors"
             >
               Share Your Story
             </Link>
@@ -153,7 +140,7 @@ export function StoryDetailContent({
         {/* Related Stories */}
         {relatedStories.length > 0 && (
           <div className="mt-12">
-            <h2 className="mb-6 font-serif text-2xl font-bold text-slate-900 dark:text-white">
+            <h2 className="text-body mb-6 font-serif text-2xl font-bold">
               Related Stories
             </h2>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">

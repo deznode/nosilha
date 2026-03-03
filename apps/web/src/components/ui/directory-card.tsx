@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { DirectoryEntry } from "@/types/directory";
 import { BookmarkButton } from "@/components/directory/bookmark-button";
+import { getEntryUrl } from "@/lib/directory-utils";
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
@@ -32,11 +33,11 @@ export function DirectoryCard({
 }: DirectoryCardProps) {
   return (
     <Link
-      href={`/directory/entry/${entry.slug}`}
+      href={getEntryUrl(entry.slug, entry.category)}
       aria-label={`View details for ${entry.name}`}
       className="group block h-full"
     >
-      <Card className="h-full overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+      <Card hoverable className="h-full overflow-hidden">
         {/* Image Section */}
         <div className="relative h-48 w-full overflow-hidden">
           {entry.imageUrl ? (
@@ -48,14 +49,14 @@ export function DirectoryCard({
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="bg-background-tertiary flex h-full w-full items-center justify-center transition-transform duration-500 group-hover:scale-105">
-              <span className="text-text-tertiary">No image available</span>
+            <div className="bg-surface-alt flex h-full w-full items-center justify-center transition-transform duration-500 group-hover:scale-105">
+              <span className="text-muted">No image available</span>
             </div>
           )}
 
           {/* Category Badge - Top Left */}
           <div className="absolute top-2 left-2">
-            <span className="rounded bg-slate-900/80 px-2 py-1 text-xs text-white backdrop-blur-sm">
+            <span className="bg-basalt-900/80 rounded px-2 py-1 text-xs text-white backdrop-blur-sm">
               {entry.category}
             </span>
           </div>
@@ -72,15 +73,15 @@ export function DirectoryCard({
         <div className="flex flex-1 flex-col p-5">
           {/* Header with name and rating */}
           <div className="flex items-start justify-between gap-2">
-            <h3 className="text-text-primary text-lg font-semibold transition-colors group-hover:text-[var(--color-ocean-blue)]">
+            <h3 className="text-body group-hover:text-ocean-blue text-lg font-semibold transition-colors">
               {entry.name}
             </h3>
             {/* Compact rating badge */}
             {entry.rating != null && (
-              <div className="flex shrink-0 items-center rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-xs font-medium text-slate-900 dark:border-slate-600 dark:bg-slate-700 dark:text-white">
+              <div className="border-edge bg-surface text-body flex shrink-0 items-center rounded border px-1.5 py-0.5 text-xs font-medium">
                 <Star
                   size={12}
-                  className="mr-1 fill-current text-[var(--color-sunny)]"
+                  className="text-sunny-yellow mr-1 fill-current"
                 />
                 {entry.rating.toFixed(1)}
               </div>
@@ -88,14 +89,14 @@ export function DirectoryCard({
           </div>
 
           {/* Location */}
-          <div className="text-text-secondary mt-1 flex items-center text-sm">
+          <div className="text-muted mt-1 flex items-center text-sm">
             <MapPin size={14} className="mr-1 shrink-0" />
             <span>{entry.town}</span>
           </div>
 
           {/* Description */}
           {entry.description && (
-            <p className="text-text-secondary mt-2 line-clamp-3 text-sm leading-relaxed">
+            <p className="text-muted mt-2 line-clamp-3 text-sm leading-relaxed">
               {entry.description}
             </p>
           )}
@@ -106,13 +107,13 @@ export function DirectoryCard({
               {entry.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-500 dark:bg-slate-700 dark:text-slate-400"
+                  className="bg-surface-alt text-muted rounded-full px-2 py-0.5 text-xs"
                 >
                   #{tag}
                 </span>
               ))}
               {entry.tags.length > 3 && (
-                <span className="text-xs text-slate-400 dark:text-slate-500">
+                <span className="text-muted text-xs">
                   +{entry.tags.length - 3}
                 </span>
               )}
@@ -121,7 +122,7 @@ export function DirectoryCard({
 
           {/* Review count */}
           <div className="mt-auto pt-3">
-            <p className="text-text-tertiary text-xs">
+            <p className="text-muted text-xs">
               {entry.reviewCount}{" "}
               {entry.reviewCount === 1 ? "review" : "reviews"}
             </p>

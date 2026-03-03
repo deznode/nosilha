@@ -22,7 +22,7 @@ const defaultCategories: CategoryCardProps[] = [
     description:
       "Explore oral histories, articles, photos, and personal memories shared by the community.",
     colorClass: "bg-bougainvillea-pink",
-    href: "/history",
+    href: "/stories",
     actionText: "Read Stories",
   },
   {
@@ -31,7 +31,7 @@ const defaultCategories: CategoryCardProps[] = [
     description:
       "Discover Brava's villages, trails, viewpoints, and local businesses through curated maps and guides.",
     colorClass: "bg-valley-green",
-    href: "/directory/all",
+    href: "/directory",
     actionText: "Discover Places",
   },
   {
@@ -107,7 +107,7 @@ export function ExploreHeritageSection({
     : headerVariants;
 
   return (
-    <section className="bg-background-secondary relative z-20 -mt-20 rounded-t-[3rem] py-20 shadow-[0_-30px_60px_-15px_rgba(0,0,0,0.5)]">
+    <section className="bg-background-secondary shadow-floating relative z-20 -mt-20 rounded-t-3xl py-20">
       <div className="container mx-auto px-4 md:px-6">
         <motion.div
           className="mx-auto max-w-5xl"

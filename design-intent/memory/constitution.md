@@ -1,128 +1,110 @@
 # Development Constitution
 
-> Core principles governing all development decisions for Nos Ilha Cultural Heritage Platform
+Core principles governing all development decisions for Nos Ilha.
 
-## Article I: Simplicity First
+## Application Type: Consumer Application
 
-### 1.1 Content Over Complexity
-Cultural heritage content is sacred. Every technical decision must serve the mission of preserving and celebrating Brava Island's cultural memory. Avoid over-engineering that obscures the content.
+This is a **consumer-facing cultural heritage hub** where user experience and visual appeal are paramount.
 
-### 1.2 Minimal Viable Implementation
-- Implement the simplest solution that works
-- Add complexity only when proven necessary
-- Delete code before adding workarounds
+### Consumer Application Priorities
 
-### 1.3 Three-Line Rule
-Three similar lines of code are better than a premature abstraction. Create utilities only when a pattern repeats more than three times across different contexts.
+1. **Visual Appeal First** - Every interaction should feel crafted and intentional
+2. **Microinteractions Matter** - Subtle animations provide feedback and delight
+3. **Progressive Disclosure** - Reveal complexity gradually, never overwhelm
+4. **Emotional Connection** - Design for cultural pride and community belonging
+5. **Accessibility Always** - WCAG 2.1 AA compliance, inclusive by default
 
-## Article II: Framework Guidance
+## Technical Stack Principles
 
-### 2.1 Next.js 16 + React 19.2
-- **Server Components First**: Default to React Server Components for data fetching and static content
-- **Client Components**: Use `'use client'` only when interactivity (`useState`, `useEffect`) is required
-- **App Router**: Use route groups `(auth)`, `(main)`, `(admin)` for logical organization
-- **Dynamic Routes**: Follow existing patterns: `/directory/[category]/[slug]`, `/towns/[name]`
+### React 19 + TypeScript
 
-### 2.2 TypeScript Standards
-- Strict mode enabled
-- No `any` types without explicit justification
-- Use Zod for runtime validation at system boundaries
-- Type inference over explicit annotations when clear
+- **Server Components by default** - Use `'use client'` only when necessary
+- **Strict TypeScript** - No `any` types, explicit interfaces for all props
+- **Composition over inheritance** - Small, focused components
+- **Colocation** - Keep related code together (component, styles, tests, types)
 
-### 2.3 State Management
-- **Zustand**: Client-side UI state, preferences, filter state
-- **TanStack Query**: Server state with caching, background refetch
-- **URL State**: Search params for shareable/bookmarkable state
+### Tailwind CSS v4
 
-## Article III: Cultural Heritage Integrity
+- **Design tokens first** - Use CSS variables for theming
+- **Utility classes preferred** - Extract components only for repeated patterns
+- **Responsive mobile-first** - Start with mobile, add breakpoint modifiers
+- **Dark mode support** - Use `dark:` variants consistently
 
-### 3.1 Content Authenticity
-- All cultural content must be verified through proper channels (see `docs/CULTURAL_HERITAGE_VERIFICATION.md`)
-- Prioritize community voices and local perspectives
-- Respect the "morabeza" spirit in all content
+### Next.js 16 App Router
 
-### 3.2 Accessibility & Inclusion
-- WCAG 2.1 AA compliance minimum
-- Mobile-first design (diaspora accesses primarily on mobile)
-- Support for Portuguese, English, and French
+- **File-based routing** - Leverage route groups for organization
+- **Streaming and Suspense** - Progressive loading for better UX
+- **ISR for content** - Incremental Static Regeneration for dynamic freshness
+- **Edge-ready** - Design for serverless deployment
 
-### 3.3 Performance for Global Access
-- Target sub-3 second load times on 3G connections
-- Optimize images for Cape Verdean internet infrastructure
-- Use ISR caching strategically
+## Design System Integration
 
-## Article IV: Code Quality
+### Catalyst UI Foundation
 
-### 4.1 No Dead Code
-- Remove unused imports, variables, and functions
-- No backwards-compatibility shims for internal code
-- No `// TODO` comments without linked issues
+- Extend Catalyst components rather than replacing them
+- Maintain consistent spacing scale (4px base unit)
+- Follow established color palette with semantic naming
+- Respect component API conventions
 
-### 4.2 Self-Documenting Code
-- Clear naming over comments
-- Comments explain "why", not "what"
-- Type definitions serve as documentation
+### Cultural Heritage Considerations
 
-### 4.3 Error Handling
-- Handle errors at system boundaries (API calls, user input)
-- Trust internal code and framework guarantees
-- Fail fast with meaningful messages
+- **Typography** - Support Portuguese diacritics and special characters
+- **Imagery** - Handle historical photos with care and context
+- **Content** - Preserve authenticity while ensuring accessibility
+- **Localization** - Design for future multilingual support
 
-## Article V: Testing Philosophy
+## Code Quality Standards
 
-### 5.1 Testing Pyramid
-- Unit tests: Critical business logic, utilities, hooks
-- Integration tests: API routes, data flows
-- E2E tests: Critical user journeys only
+### Component Guidelines
 
-### 5.2 Test What Matters
-- Don't test framework behavior
-- Don't test implementation details
-- Focus on user-observable behavior
+```tsx
+// Preferred: Clear, typed, documented
+interface HeroSectionProps {
+  title: string
+  subtitle?: string
+  backgroundImage: ImageData
+  className?: string
+}
 
-## Article VI: UI Quality
+export function HeroSection({
+  title,
+  subtitle,
+  backgroundImage,
+  className
+}: HeroSectionProps) {
+  // Implementation
+}
+```
 
-### 6.1 Nos Ilha Design System
-- **Primary**: Ocean Blue (`#0e4c75`) for actions and links
-- **Success**: Valley Green (`#3E7D5A`) for nature imagery
-- **Accent**: Bougainvillea Pink (`#D90368`) for highlights
-- **Warning**: Sunny Yellow (`#F7B801`) for CTAs
+### State Management
 
-### 6.2 Typography
-- **Headings**: Fraunces (serif) - warm, cultural, authentic
-- **Body**: Outfit (sans-serif) - clean, modern, readable
+- **Server state** - TanStack Query for API data
+- **Client state** - Zustand for UI state
+- **Form state** - React Hook Form with Zod validation
+- **URL state** - nuqs for shareable state
 
-### 6.3 Animation (Framer Motion)
-- Use motion tokens from `lib/animation` system
-- Respect `prefers-reduced-motion`
-- Animations should enhance, not distract from content
-- Keep durations under 300ms for UI feedback
+### Performance Budgets
 
-### 6.4 Responsive Design
-- Mobile-first breakpoints: `sm:640px`, `md:768px`, `lg:1024px`, `xl:1280px`
-- Touch-friendly tap targets (minimum 44x44px)
-- Test on real devices, not just browser devtools
+- **LCP** < 2.5s (Largest Contentful Paint)
+- **FID** < 100ms (First Input Delay)
+- **CLS** < 0.1 (Cumulative Layout Shift)
+- **Bundle size** - Monitor and optimize aggressively
 
-## Article VII: Workflow
+## Decision Framework
 
-### 7.1 Before Writing Code
-1. Understand the user need
-2. Check existing patterns in codebase
-3. Consider cultural heritage implications
-4. Plan the minimal implementation
+When making technical decisions, prioritize in this order:
 
-### 7.2 During Development
-1. Work incrementally with small commits
-2. Keep the build passing
-3. Test on mobile viewports
-4. Validate against design system
+1. **User Experience** - Does it improve the user's journey?
+2. **Accessibility** - Is it usable by everyone?
+3. **Performance** - Does it maintain our speed standards?
+4. **Maintainability** - Can we sustain this long-term?
+5. **Developer Experience** - Is it pleasant to work with?
 
-### 7.3 Before Merging
-1. Self-review the diff
-2. Ensure accessibility compliance
-3. Verify mobile experience
-4. Check for dead code
+## Anti-Patterns to Avoid
 
----
-
-*This constitution is a living document. Updates require discussion and consensus.*
+- Over-engineering simple features
+- Premature optimization
+- Inconsistent naming conventions
+- Skipping accessibility testing
+- Ignoring mobile experience
+- Adding dependencies without justification

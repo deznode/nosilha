@@ -56,7 +56,7 @@ export function CopyLinkButton({
       setIsActive(true);
 
       // Show success toast
-      toast.showSuccess("Link copied!");
+      toast.success("Link copied!").show();
 
       // Call success callback
       onCopySuccess?.();
@@ -67,7 +67,7 @@ export function CopyLinkButton({
       }, 300);
     } catch (error) {
       console.error("Failed to copy link:", error);
-      toast.showError("Failed to copy link");
+      toast.error("Failed to copy link").show();
     }
   };
 
@@ -92,17 +92,15 @@ export function CopyLinkButton({
         aria-label="Copy link to clipboard"
         className={`focus-ring flex h-11 w-11 items-center justify-center rounded-full transition-all ${
           isActive
-            ? "bg-[var(--color-ocean-blue)] text-white"
-            : "hover:bg-mist-200 dark:hover:bg-basalt-800 bg-[var(--color-background-secondary)] text-[var(--color-text-primary)]"
+            ? "bg-ocean-blue text-white"
+            : "hover:bg-surface-alt bg-surface text-body"
         } ${!isClipboardAvailable ? "cursor-not-allowed opacity-50" : "cursor-pointer"} `}
       >
         <LinkIcon className="h-5 w-5" />
       </motion.button>
 
       {variant === "icon-with-label" && (
-        <span className="mt-1 text-xs font-normal text-[var(--color-text-secondary)]">
-          Copy Link
-        </span>
+        <span className="text-muted mt-1 text-xs font-normal">Copy Link</span>
       )}
     </div>
   );

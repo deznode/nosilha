@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import { motion } from "framer-motion";
 
 /**
@@ -22,10 +23,10 @@ interface HistoricalTimelineProps {
 
 export function HistoricalTimeline({
   events,
-  className = "",
+  className,
 }: HistoricalTimelineProps) {
   return (
-    <section className={`mt-16 ${className}`}>
+    <section className={clsx("mt-16", className)}>
       <motion.h3
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -43,7 +44,7 @@ export function HistoricalTimeline({
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ delay: index * 0.1 }}
-            className="bg-background-primary border-border-primary flex items-start space-x-4 rounded-lg border p-6 shadow-sm transition-shadow duration-300 hover:shadow-md"
+            className="bg-surface border-hairline flex items-start space-x-4 rounded-lg border p-6 shadow-sm transition-shadow duration-300 hover:shadow-md"
           >
             <div className="w-16 flex-shrink-0 text-center">
               <span className="text-ocean-blue font-bold">{event.date}</span>

@@ -87,23 +87,18 @@ export async function createDirectoryEntry(
 }
 
 /**
- * Submits a directory entry for review (public contribution).
- * No authentication required - open to community contributions.
- * Rate limited to 3 submissions per hour per IP address.
+ * Submits a directory entry for review.
+ * Requires authentication - user info is extracted from JWT token.
  * Automatically uses the configured API implementation (backend or mock).
  * @param request Contains name, category, town, description, and optional fields
- * @param submittedBy Display name of the submitter (required)
- * @param submittedByEmail Optional email of the submitter
  * @returns A promise that resolves to confirmation with id, name, and status
  * @throws Error if rate limit exceeded (HTTP 429)
  * @throws Error if validation fails (HTTP 400)
  */
 export async function submitDirectoryEntry(
-  request: import("@/lib/api-contracts").DirectorySubmissionRequest,
-  submittedBy: string,
-  submittedByEmail?: string
+  request: import("@/lib/api-contracts").DirectorySubmissionRequest
 ): Promise<import("@/lib/api-contracts").DirectorySubmissionConfirmation> {
-  return apiClient.submitDirectoryEntry(request, submittedBy, submittedByEmail);
+  return apiClient.submitDirectoryEntry(request);
 }
 
 /**
@@ -122,16 +117,18 @@ export async function getEntriesForMap(
  * Uploads an image file and returns the public URL.
  * Automatically uses the configured API implementation (backend or mock).
  * @param file The image file to upload.
- * @param category Optional category for file organization.
- * @param description Optional description of the file.
+ * @param options Optional upload options (entryId, category, description).
  * @returns A promise that resolves to the public URL of the uploaded image.
  */
 export async function uploadImage(
   file: File,
-  category?: string,
-  description?: string
+  options?: {
+    entryId?: string;
+    category?: string;
+    description?: string;
+  }
 ): Promise<string> {
-  return apiClient.uploadImage(file, category, description);
+  return apiClient.uploadImage(file, options);
 }
 
 /**
@@ -370,13 +367,15 @@ export async function getStoriesForAdmin(
  * @param id Story submission ID
  * @param action Moderation action (APPROVE, REJECT, PUBLISH, UNPUBLISH)
  * @param notes Optional admin notes
+ * @param slug Required when action is PUBLISH - the URL-friendly publication slug
  */
 export async function updateStoryStatus(
   id: string,
   action: StoryModerationAction,
-  notes?: string
+  notes?: string,
+  slug?: string
 ): Promise<void> {
-  return apiClient.updateStoryStatus(id, action, notes);
+  return apiClient.updateStoryStatus(id, action, notes, slug);
 }
 
 /**
@@ -511,7 +510,6 @@ export async function submitContactMessage(
  * Gets contact messages for admin.
  * Requires ADMIN role authentication.
  * Automatically uses the configured API implementation (backend or mock).
- * Note: Backend endpoint not yet implemented - uses mock data.
  * @param status Filter by message status (optional)
  * @param page Page number (default: 0)
  * @param size Page size (default: 20)
@@ -529,7 +527,6 @@ export async function getContactMessages(
  * Updates contact message status.
  * Requires ADMIN role authentication.
  * Automatically uses the configured API implementation (backend or mock).
- * Note: Backend endpoint not yet implemented - uses mock data.
  * @param id Contact message ID
  * @param status New status
  * @returns A promise that resolves to updated contact message
@@ -545,7 +542,6 @@ export async function updateContactMessageStatus(
  * Deletes a contact message.
  * Requires ADMIN role authentication.
  * Automatically uses the configured API implementation (backend or mock).
- * Note: Backend endpoint not yet implemented - uses mock data.
  * @param id Contact message ID
  */
 export async function deleteContactMessage(id: string): Promise<void> {
@@ -560,7 +556,6 @@ export async function deleteContactMessage(id: string): Promise<void> {
  * Gets directory submissions for admin.
  * Requires ADMIN role authentication.
  * Automatically uses the configured API implementation (backend or mock).
- * Note: Backend endpoint not yet implemented - uses mock data.
  * @param status Filter by submission status (optional)
  * @param page Page number (default: 0)
  * @param size Page size (default: 20)
@@ -578,7 +573,6 @@ export async function getDirectorySubmissions(
  * Updates directory submission status.
  * Requires ADMIN role authentication.
  * Automatically uses the configured API implementation (backend or mock).
- * Note: Backend endpoint not yet implemented - uses mock data.
  * @param id Directory submission ID
  * @param status New submission status
  * @param notes Optional admin notes
@@ -590,6 +584,36 @@ export async function updateDirectorySubmissionStatus(
   notes?: string
 ): Promise<DirectorySubmission> {
   return apiClient.updateDirectorySubmissionStatus(id, status, notes);
+}
+
+/**
+ * Updates an existing directory entry.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Directory entry ID
+ * @param data Update data (all fields optional)
+ * @returns A promise that resolves to updated directory submission
+ * @throws Error if entry not found (HTTP 404)
+ * @throws Error if validation fails (HTTP 400)
+ * @throws Error if authentication failed (HTTP 401/403)
+ */
+export async function updateDirectoryEntry(
+  id: string,
+  data: import("@/lib/api-contracts").UpdateDirectoryEntryRequest
+): Promise<DirectorySubmission> {
+  return apiClient.updateDirectoryEntry(id, data);
+}
+
+/**
+ * Deletes a directory entry permanently.
+ * Requires ADMIN role authentication.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @param id Directory entry ID
+ * @throws Error if entry not found (HTTP 404)
+ * @throws Error if authentication failed (HTTP 401/403)
+ */
+export async function deleteDirectoryEntry(id: string): Promise<void> {
+  return apiClient.deleteDirectoryEntry(id);
 }
 
 // ================================
@@ -780,6 +804,26 @@ export async function createExternalMedia(
   request: import("@/types/gallery").CreateExternalMediaRequest
 ): Promise<import("@/types/gallery").ExternalMedia> {
   return apiClient.createExternalMedia(request);
+}
+
+/**
+ * Promotes a gallery image to become the hero image for a directory entry.
+ * Admin endpoint - requires ADMIN role.
+ * Automatically uses the configured API implementation (backend or mock).
+ *
+ * Prerequisites:
+ * - Media must be a user upload (not external media)
+ * - Media must have ACTIVE status (already approved)
+ * - Media must be linked to a directory entry (entryId not null)
+ * - Media must have a public URL
+ *
+ * @param mediaId UUID of the gallery media item to promote
+ * @throws Error if media not found (HTTP 404)
+ * @throws Error if validation fails (HTTP 400)
+ * @throws Error if authentication failed (HTTP 401/403)
+ */
+export async function promoteToHeroImage(mediaId: string): Promise<void> {
+  return apiClient.promoteToHeroImage(mediaId);
 }
 
 // ================================

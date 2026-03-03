@@ -4,8 +4,20 @@ import { useState } from "react";
 import { Search, Filter } from "lucide-react";
 import { QueueItem } from "./queue-item";
 import { MdxPreviewModal } from "@/components/admin/mdx-preview-modal";
-import { generateMdx } from "@/lib/api";
+import { generateMdx, updateStoryStatus } from "@/lib/api";
 import { archiveStoryToMDX } from "@/app/actions/archive-story";
+import { Button } from "@/components/catalyst-ui/button";
+
+/**
+ * Generate a URL-friendly slug from a story title
+ */
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 100);
+}
 import { useToast } from "@/hooks/use-toast";
 import type { StorySubmission } from "@/types/story";
 import { SubmissionStatus } from "@/types/story";
@@ -34,7 +46,31 @@ export function StoriesQueue({
   const [mdxContent, setMdxContent] = useState<string>("");
   const [isGeneratingMdx, setIsGeneratingMdx] = useState(false);
   const [isCommitting, setIsCommitting] = useState(false);
+  const [_publishingStoryId, setPublishingStoryId] = useState<string | null>(
+    null
+  );
   const toast = useToast();
+
+  const handlePublish = async (story: StorySubmission) => {
+    setPublishingStoryId(story.id);
+
+    try {
+      const slug = generateSlug(story.title);
+      await updateStoryStatus(story.id, "PUBLISH", undefined, slug);
+      toast.success(`Story "${story.title}" published successfully!`).show();
+      // Trigger parent component to refresh the list
+      window.location.reload();
+    } catch (error) {
+      console.error("Failed to publish story:", error);
+      toast
+        .error(
+          error instanceof Error ? error.message : "Failed to publish story"
+        )
+        .show();
+    } finally {
+      setPublishingStoryId(null);
+    }
+  };
 
   const handleArchive = async (story: StorySubmission) => {
     setIsGeneratingMdx(true);
@@ -45,11 +81,13 @@ export function StoriesQueue({
       setMdxContent(content.mdxSource);
     } catch (error) {
       console.error("Failed to generate MDX:", error);
-      toast.showError(
-        error instanceof Error
-          ? error.message
-          : "Failed to generate MDX content"
-      );
+      toast
+        .error(
+          error instanceof Error
+            ? error.message
+            : "Failed to generate MDX content"
+        )
+        .show();
       setPreviewingStory(null);
     } finally {
       setIsGeneratingMdx(false);
@@ -70,21 +108,27 @@ export function StoriesQueue({
       );
 
       if (result.success) {
-        toast.showSuccess(
-          `Story archived successfully! Committed to GitHub: ${result.commitUrl || "repository"}`
-        );
+        toast
+          .success(
+            `Story archived successfully! Committed to GitHub: ${result.commitUrl || "repository"}`
+          )
+          .show();
         setPreviewingStory(null);
         setMdxContent("");
         // Trigger parent component to refresh the list
         window.location.reload();
       } else {
-        toast.showError(result.error || "Failed to commit MDX content");
+        toast.error(result.error || "Failed to commit MDX content").show();
       }
     } catch (error) {
       console.error("Failed to commit MDX:", error);
-      toast.showError(
-        error instanceof Error ? error.message : "Failed to commit MDX content"
-      );
+      toast
+        .error(
+          error instanceof Error
+            ? error.message
+            : "Failed to commit MDX content"
+        )
+        .show();
     } finally {
       setIsCommitting(false);
     }
@@ -108,16 +152,16 @@ export function StoriesQueue({
 
   if (isLoading) {
     return (
-      <div className="overflow-hidden border border-slate-200 bg-white shadow sm:rounded-md dark:border-slate-700 dark:bg-slate-800">
+      <div className="border-hairline bg-surface overflow-hidden border shadow sm:rounded-md">
         <div className="space-y-4 p-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="animate-pulse">
-              <div className="mb-2 h-4 w-1/3 rounded bg-slate-200 dark:bg-slate-700" />
+              <div className="bg-surface-alt mb-2 h-4 w-1/3 rounded" />
               <div className="flex gap-4">
-                <div className="h-16 w-24 rounded bg-slate-200 dark:bg-slate-700" />
+                <div className="bg-surface-alt h-16 w-24 rounded" />
                 <div className="flex-1">
-                  <div className="mb-2 h-3 w-full rounded bg-slate-200 dark:bg-slate-700" />
-                  <div className="h-3 w-2/3 rounded bg-slate-200 dark:bg-slate-700" />
+                  <div className="bg-surface-alt mb-2 h-3 w-full rounded" />
+                  <div className="bg-surface-alt h-3 w-2/3 rounded" />
                 </div>
               </div>
             </div>
@@ -137,7 +181,7 @@ export function StoriesQueue({
             onChange={(e) =>
               setFilterStatus(e.target.value as SubmissionStatus | "ALL")
             }
-            className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
+            className="border-hairline bg-surface text-muted hover:bg-surface-alt rounded-md border px-3 py-1.5 text-sm font-medium"
           >
             <option value="ALL">All Status</option>
             <option value={SubmissionStatus.PENDING}>Pending</option>
@@ -145,9 +189,10 @@ export function StoriesQueue({
             <option value={SubmissionStatus.REJECTED}>Rejected</option>
             <option value={SubmissionStatus.FLAGGED}>Flagged</option>
           </select>
-          <button className="flex items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
-            <Filter className="mr-2 h-4 w-4" /> Newest First
-          </button>
+          <Button plain>
+            <Filter data-slot="icon" />
+            Newest First
+          </Button>
         </div>
         <div className="relative w-full sm:w-64">
           <input
@@ -155,22 +200,20 @@ export function StoriesQueue({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search stories..."
-            className="block w-full rounded-md border border-slate-200 bg-white py-2 pr-3 pl-10 leading-5 placeholder-slate-400 focus:border-[var(--color-ocean-blue)] focus:ring-1 focus:ring-[var(--color-ocean-blue)] focus:outline-none sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:placeholder-slate-500"
+            className="border-hairline bg-surface placeholder-muted focus:border-ocean-blue focus:ring-ocean-blue block w-full rounded-md border py-2 pr-3 pl-10 leading-5 focus:ring-1 focus:outline-none sm:text-sm"
           />
           <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-            <Search className="h-4 w-4 text-slate-400" />
+            <Search className="text-muted h-4 w-4" />
           </div>
         </div>
       </div>
 
       {/* Stories List */}
-      <div className="overflow-hidden border border-slate-200 bg-white shadow sm:rounded-md dark:border-slate-700 dark:bg-slate-800">
+      <div className="border-hairline bg-surface overflow-hidden border shadow sm:rounded-md">
         {filteredStories.length === 0 ? (
-          <div className="p-8 text-center text-slate-500 dark:text-slate-400">
-            No stories found
-          </div>
+          <div className="text-muted p-8 text-center">No stories found</div>
         ) : (
-          <ul className="divide-y divide-slate-200 dark:divide-slate-700">
+          <ul className="divide-hairline divide-y">
             {filteredStories.map((story) => (
               <QueueItem
                 key={story.id}
@@ -186,9 +229,7 @@ export function StoriesQueue({
                 imageUrl={story.imageUrl}
                 archivedAt={story.archivedAt}
                 commitUrl={story.commitUrl}
-                onApprove={() =>
-                  onStatusChange?.(story.id, SubmissionStatus.APPROVED)
-                }
+                onApprove={() => handlePublish(story)}
                 onReject={() =>
                   onStatusChange?.(story.id, SubmissionStatus.REJECTED)
                 }

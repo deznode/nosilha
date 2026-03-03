@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import type { SectionHeaderProps } from "@/types/landing";
 
 /**
@@ -12,7 +13,7 @@ export function SectionHeader({
   centered = false,
 }: SectionHeaderProps) {
   return (
-    <div className={`mb-12 ${centered ? "text-center" : "text-left"}`}>
+    <div className={clsx("mb-12", centered ? "text-center" : "text-left")}>
       <h2 className="text-ocean-blue mb-4 font-serif text-3xl font-bold md:text-4xl">
         {title}
       </h2>
@@ -22,7 +23,10 @@ export function SectionHeader({
         </p>
       )}
       <div
-        className={`bg-bougainvillea-pink mt-4 h-1 w-24 rounded-full ${centered ? "mx-auto" : ""}`}
+        className={clsx(
+          "bg-bougainvillea-pink mt-4 h-1 w-24 rounded-full",
+          centered && "mx-auto"
+        )}
       />
     </div>
   );

@@ -6,7 +6,220 @@
  * ======================================== */
 
 @import "tailwindcss";
-@custom-variant dark (&:where(.dark, .dark *));
+
+/* ========================================
+ * TIER 1: Raw Values (CSS Custom Properties)
+ * Light/dark mode values in :root and .dark
+ * ======================================== */
+
+:root {
+  /* @brand-tokens:start */
+  /* AUTO-GENERATED from palette.json v2.0.0 */
+  /* Updated: 2026-02-03 */
+
+  /* === BRAND PALETTE (The Brava Tones) in OKLCH === */
+  /* Primary Brand */
+  --brand-ocean-blue: oklch(0.35 0.08 240);
+  --brand-ocean-blue-light: oklch(0.48 0.08 220);
+  --brand-ocean-blue-deep: oklch(0.35 0.08 240);
+  --brand-valley-green: oklch(0.45 0.10 150);
+  --brand-bougainvillea-pink: oklch(0.50 0.20 350);
+  --brand-sobrado-ochre: oklch(0.62 0.18 65);
+  --brand-sunny-yellow: oklch(0.82 0.16 85);
+
+  /* Mist & Basalt (Neutrals) in OKLCH */
+  --neutral-mist-50: oklch(0.98 0.005 250);
+  --neutral-mist-100: oklch(0.96 0.007 250);
+  --neutral-mist-200: oklch(0.92 0.01 250);
+  --neutral-basalt-500: oklch(0.55 0.03 260);
+  --neutral-basalt-600: oklch(0.45 0.03 260); /* WCAG AA compliant for muted text */
+  --neutral-basalt-800: oklch(0.28 0.03 260);
+  --neutral-basalt-900: oklch(0.20 0.03 260);
+
+  /* Status Colors in OKLCH */
+  --status-error: oklch(0.63 0.22 15);
+  --status-success: oklch(0.67 0.17 165);
+  --status-warning: oklch(0.75 0.18 70);
+  /* @brand-tokens:end */
+
+  /* === SEMANTIC TOKENS (Light Mode) === */
+
+  /* Backgrounds */
+  --background: oklch(1 0 0);
+  --background-secondary: var(--neutral-mist-50);
+  --background-tertiary: var(--neutral-mist-100);
+
+  /* Foreground (Text) */
+  --foreground: var(--neutral-basalt-900);
+  --foreground-secondary: var(--neutral-basalt-600); /* WCAG AA compliant */
+  --foreground-brand: var(--brand-ocean-blue);
+
+  /* Borders */
+  --border-subtle: var(--neutral-mist-200);
+  --border-strong: var(--neutral-basalt-500);
+
+  /* shadcn/ui Compatible Semantic Tokens */
+  --primary: var(--brand-ocean-blue);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: var(--neutral-mist-100);
+  --secondary-foreground: var(--neutral-basalt-900);
+  --destructive: var(--status-error);
+  --destructive-foreground: oklch(1 0 0);
+  --muted: var(--neutral-mist-100);
+  --muted-foreground: var(--neutral-basalt-600); /* WCAG AA: 4.5:1 on white */
+  --accent: var(--neutral-mist-100);
+  --accent-foreground: var(--neutral-basalt-900);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--neutral-basalt-900);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--neutral-basalt-900);
+  --input: var(--neutral-mist-200);
+  --ring: var(--brand-ocean-blue);
+
+  /* Focus Ring */
+  --focus-glow: oklch(0.35 0.08 240 / 0.15);
+}
+
+/* === DARK MODE OVERRIDES (Volcanic Night) === */
+.dark {
+  /* @brand-tokens-dark:start */
+  /* Brand Adjustments for Dark Mode (Lighter for contrast) */
+  --brand-ocean-blue: oklch(0.75 0.14 234);
+  --brand-ocean-blue-light: oklch(0.80 0.13 234);
+  --brand-ocean-blue-deep: oklch(0.30 0.07 240);
+  --brand-valley-green: oklch(0.65 0.12 160);
+  --brand-bougainvillea-pink: oklch(0.72 0.18 348);
+  /* @brand-tokens-dark:end */
+
+  /* Backgrounds - Deep Basalt */
+  --background: oklch(0.15 0.02 260);
+  --background-secondary: oklch(0.22 0.025 260);
+  --background-tertiary: oklch(0.30 0.025 260);
+
+  /* Foreground (Text) */
+  --foreground: oklch(0.96 0.007 250);
+  --foreground-secondary: oklch(0.78 0.02 250); /* WCAG AA compliant */
+  --foreground-brand: oklch(0.83 0.10 228);
+
+  /* Borders */
+  --border-subtle: oklch(0.30 0.025 260);
+  --border-strong: oklch(0.42 0.025 260);
+
+  /* shadcn/ui Semantic Tokens - Dark */
+  --primary: var(--brand-ocean-blue);
+  --primary-foreground: oklch(0.15 0.02 260);
+  --secondary: oklch(0.22 0.025 260);
+  --secondary-foreground: oklch(0.96 0.007 250);
+  --destructive: oklch(0.55 0.20 15);
+  --destructive-foreground: oklch(1 0 0);
+  --muted: oklch(0.22 0.025 260);
+  --muted-foreground: oklch(0.78 0.02 250); /* WCAG AA: 4.5:1 on dark bg */
+  --accent: oklch(0.22 0.025 260);
+  --accent-foreground: oklch(0.96 0.007 250);
+  --card: oklch(0.18 0.02 260);
+  --card-foreground: oklch(0.96 0.007 250);
+  --popover: oklch(0.18 0.02 260);
+  --popover-foreground: oklch(0.96 0.007 250);
+  --input: oklch(0.30 0.025 260);
+  --ring: oklch(0.75 0.14 234);
+
+  /* Focus Ring */
+  --focus-glow: oklch(0.75 0.14 234 / 0.2);
+}
+
+/* ========================================
+ * TIER 2: Tailwind Theme Mappings
+ * @theme inline exposes CSS vars to Tailwind
+ * ======================================== */
+
+@theme inline {
+  /* === Brand Colors (Backward Compatibility) === */
+  --color-ocean-blue: var(--brand-ocean-blue);
+  --color-ocean-blue-light: var(--brand-ocean-blue-light);
+  --color-ocean-blue-deep: var(--brand-ocean-blue-deep);
+  --color-valley-green: var(--brand-valley-green);
+  --color-bougainvillea-pink: var(--brand-bougainvillea-pink);
+  --color-sobrado-ochre: var(--brand-sobrado-ochre);
+  --color-sunny-yellow: var(--brand-sunny-yellow);
+
+  /* === Neutrals (Backward Compatibility) === */
+  --color-mist-50: var(--neutral-mist-50);
+  --color-mist-100: var(--neutral-mist-100);
+  --color-mist-200: var(--neutral-mist-200);
+  --color-basalt-500: var(--neutral-basalt-500);
+  --color-basalt-600: var(--neutral-basalt-600);
+  --color-basalt-800: var(--neutral-basalt-800);
+  --color-basalt-900: var(--neutral-basalt-900);
+
+  /* === Status Colors === */
+  --color-status-error: var(--status-error);
+  --color-status-success: var(--status-success);
+  --color-status-warning: var(--status-warning);
+
+  /* === shadcn/ui Semantic Tokens === */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* === BACKWARD COMPATIBILITY ALIASES === */
+  /* bg-*, text-*, border-* patterns in existing components */
+
+  /* Backgrounds (1,028+ usages) */
+  --color-bg-primary: var(--background);
+  --color-bg-secondary: var(--background-secondary);
+  --color-bg-tertiary: var(--background-tertiary);
+  --color-canvas: var(--background);
+  --color-surface: var(--background-secondary);
+  --color-surface-alt: var(--background-tertiary);
+
+  /* Text (591+ usages) */
+  --color-text-primary: var(--foreground);
+  --color-text-secondary: var(--foreground-secondary);
+  --color-text-brand: var(--foreground-brand);
+  --color-text-tertiary: var(--foreground-secondary);
+  --color-body: var(--foreground);
+  --color-brand: var(--foreground-brand);
+
+  /* Borders */
+  --color-border-subtle: var(--border-subtle);
+  --color-border-strong: var(--border-strong);
+  --color-hairline: var(--border-subtle);
+  --color-edge: var(--border-strong);
+
+  /* Backward compat aliases */
+  --color-background-primary: var(--background);
+  --color-background-secondary: var(--background-secondary);
+  --color-background-tertiary: var(--background-tertiary);
+  --color-border-primary: var(--border-strong);
+
+  /* Status aliases (Backward Compatibility) */
+  --color-accent-error: var(--status-error);
+  --color-accent-success: var(--status-success);
+  --color-accent-warning: var(--status-warning);
+
+  /* Focus */
+  --color-focus-glow: var(--focus-glow);
+}
+
+/* ========================================
+ * NON-COLOR TOKENS (Font, Shape, Motion)
+ * Standard @theme block for non-color tokens
+ * ======================================== */
 
 @theme {
   /* === Font Tokens === */
@@ -15,112 +228,55 @@
 
   /* Headings: Fraunces (Variable, Old-Style, Soft) */
   --font-serif: var(--font-serif), "Fraunces", Georgia, serif;
+  /* === SHAPE & ELEVATION TOKENS (Calm Premium) === */
+
+  /* Border Radii - "Radical Softness" principle */
+  --radius-container: 24px;    /* Large containers, featured cards */
+  --radius-card: 16px;         /* Standard cards */
+  --radius-button: 12px;       /* Buttons, inputs */
+  --radius-badge: 8px;         /* Tags, badges, toasts */
+
+  /* Shadows - Multi-layered with Ocean Blue tint */
+  --shadow-subtle:
+    0 1px 2px rgba(14, 76, 117, 0.04),
+    0 1px 3px rgba(0, 0, 0, 0.04);
+
+  --shadow-medium:
+    0 4px 6px -1px rgba(14, 76, 117, 0.06),
+    0 2px 4px -1px rgba(0, 0, 0, 0.04);
+
+  --shadow-elevated:
+    0 10px 15px -3px rgba(14, 76, 117, 0.08),
+    0 4px 6px -2px rgba(0, 0, 0, 0.04);
+
+  --shadow-floating:
+    0 20px 25px -5px rgba(14, 76, 117, 0.10),
+    0 10px 10px -5px rgba(0, 0, 0, 0.02);
+
+  --shadow-lift:
+    0 14px 20px -5px rgba(14, 76, 117, 0.12),
+    0 6px 8px -3px rgba(0, 0, 0, 0.04);
+
+  /* Transitions - "Calm, confident motion" */
+  --ease-calm: cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 150ms var(--ease-calm);
+  --transition-standard: 200ms var(--ease-calm);
+  --transition-slow: 300ms var(--ease-calm);
+
   /* === Animation Tokens === */
   --animate-glow: glow 4s ease-in-out infinite;
   --animate-fog-flow: fog-flow 20s linear infinite;
-
-  /* === BRAND PALETTE (The Brava Tones) === */
-  /* * AUTO-GENERATED from Nos Ilha Design System
-   * Version: 1.0.0 (Ilha das Flores)
-   * Updated: 2025-12-06
-   */
-
-  /* -- Primary Brand -- */
-  --color-ocean-blue: #0e4c75;
-  --color-ocean-blue-light: #2a769e;
-  --color-ocean-blue-deep: #0e4c75;
-  --color-valley-green: #2f6e4d;
-  --color-bougainvillea-pink: #c02669;
-  --color-sobrado-ochre: #d97706;
-  --color-sunny-yellow: #fbbf24;
-
-  /* -- Mist & Basalt (Neutrals) -- */
-  --color-mist-50: #f8fafc;
-  --color-mist-100: #f1f5f9;
-  --color-mist-200: #e2e8f0;
-  --color-basalt-500: #64748b;
-  --color-basalt-800: #1e293b;
-  --color-basalt-900: #0f172a;
-
-  /* -- Functional Status -- */
-  --color-status-error: #be123c;
-  --color-status-success: #15803d;
-  --color-status-warning: #b45309;
-
-  /* === SEMANTIC LAYER (Light Mode) === */
-
-  /* Backgrounds */
-  --color-bg-primary: #ffffff;
-  --color-bg-secondary: var(--color-mist-50);
-  --color-bg-tertiary: var(--color-mist-100);
-
-  /* Text */
-  --color-text-primary: var(--color-basalt-900);
-  --color-text-secondary: var(--color-basalt-500);
-  --color-text-brand: var(--color-ocean-blue);
-
-  /* Borders */
-  --color-border-subtle: var(--color-mist-200);
-  --color-border-strong: var(--color-basalt-500);
-
-  /* Aliases for UI State colors (Backward Compatibility) */
-  --color-accent-error: var(--color-status-error);
-  --color-accent-success: var(--color-status-success);
-  --color-accent-warning: var(--color-status-warning);
-
-  /* === SEMANTIC ALIASES ("Semantic Structure, Branded Soul") === */
-  /* Use these for layouts - dark mode switches automatically */
-
-  /* Backgrounds */
-  --color-canvas: var(--color-bg-primary); /* Page background */
-  --color-surface: var(--color-bg-secondary); /* Cards, sidebars */
-  --color-surface-alt: var(--color-bg-tertiary); /* Hover states, alternates */
-
-  /* Text */
-  --color-body: var(--color-text-primary); /* Main reading text */
-  --color-muted: var(--color-text-secondary); /* Metadata, captions */
-  --color-brand: var(--color-text-brand); /* Brand-colored text */
-
-  /* Borders */
-  --color-hairline: var(--color-border-subtle); /* Light dividers */
-  --color-edge: var(--color-border-strong); /* Strong borders */
-
-  /* === BACKWARD COMPATIBILITY ALIASES === */
-  /* These map old component class names to new tokens */
-  --color-background-primary: var(--color-canvas);
-  --color-background-secondary: var(--color-surface);
-  --color-background-tertiary: var(--color-surface-alt);
-  --color-border-primary: var(--color-edge);
 }
 
-/* === DARK MODE OVERRIDES (Volcanic Night) === */
-@variant dark {
-  /* Brand Adjustments for Dark Mode (Desaturated for eye comfort) */
-  --color-ocean-blue: #38bdf8; /* Sky blue for contrast */
-  --color-ocean-blue-deep: #0c3d5e; /* Deeper ocean for dark mode backgrounds */
-  --color-bougainvillea-pink: #f472b6; /* Lighter pink */
-
-  /* Backgrounds - Deep Basalt */
-  --color-bg-primary: #0b1120; /* Deepest basalt */
-  --color-bg-secondary: #1e293b;
-  --color-bg-tertiary: #334155;
-
-  /* Text */
-  --color-text-primary: #f1f5f9; /* Mist white */
-  --color-text-secondary: #94a3b8;
-  --color-text-brand: #7dd3fc;
-
-  /* Borders */
-  --color-border-subtle: #334155;
-  --color-border-strong: #475569;
-}
+/* Dark mode variant for Tailwind utilities */
+@custom-variant dark (&:is(.dark *));
 
 @layer base {
   /* Enhanced Global Scroll Behavior */
   html {
     scroll-behavior: smooth;
-    color: var(--color-text-primary);
-    background-color: var(--color-bg-primary);
+    color: var(--foreground);
+    background-color: var(--background);
   }
 
   /* Respect reduced motion preferences */
@@ -162,14 +318,14 @@
     to {
       opacity: 0.8;
       text-shadow:
-        0 0 8px var(--color-ocean-blue),
-        0 0 10px var(--color-ocean-blue);
+        0 0 8px var(--brand-ocean-blue),
+        0 0 10px var(--brand-ocean-blue);
     }
     50% {
       opacity: 1;
       text-shadow:
-        0 0 12px var(--color-ocean-blue),
-        0 0 20px var(--color-ocean-blue);
+        0 0 12px var(--brand-ocean-blue),
+        0 0 20px var(--brand-ocean-blue);
     }
   }
 
@@ -290,9 +446,19 @@
     }
   }
 
-  /* Focus ring for better accessibility */
+  /* Fix: text-muted should use foreground color, not background
+   * Tailwind's text-muted maps to --color-muted (bg), but we need --muted-foreground (text)
+   */
+  .text-muted {
+    color: var(--muted-foreground) !important;
+  }
+
+  /* Focus ring with glow effect */
   .focus-ring {
     @apply focus-visible:ring-ocean-blue focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+    &:focus-visible {
+      box-shadow: 0 0 0 4px var(--focus-glow);
+    }
   }
 
   /* Semantic hover surface utilities

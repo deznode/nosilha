@@ -8,14 +8,14 @@ export const dynamic = "force-static";
 export default function PrivacyPage() {
   return (
     <div className="bg-background-secondary font-sans">
-      <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <PageHeader
           title="Privacy Policy"
           subtitle="Our commitment to protecting your privacy while preserving and celebrating Brava Island's cultural heritage together."
         />
 
         {/* Last Updated */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-6 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-6">
           <div className="flex items-center justify-center text-center">
             <Calendar className="text-ocean-blue mr-2 h-6 w-6" />
             <span className="text-text-secondary">
@@ -30,7 +30,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Introduction */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <div className="mb-4 flex items-start">
             <ShieldCheck className="text-ocean-blue mt-1 mr-3 h-8 w-8" />
             <div>
@@ -59,7 +59,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Information We Collect */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
             Information We Collect
           </h3>
@@ -117,7 +117,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* How We Use Information */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
             How We Use Your Information
           </h3>
@@ -158,7 +158,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Data Storage and Security */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <div className="mb-4 flex items-start">
             <Server className="text-valley-green mt-1 mr-3 h-8 w-8" />
             <div>
@@ -202,7 +202,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Your Rights */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <div className="mb-4 flex items-start">
             <Eye className="text-bougainvillea-pink mt-1 mr-3 h-8 w-8" />
             <div>
@@ -243,7 +243,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Cookies and Tracking */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
             Cookies and Tracking Technologies
           </h3>
@@ -288,7 +288,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Third-Party Services */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
             Third-Party Services
           </h3>
@@ -366,7 +366,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Data Retention */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
             Data Retention
           </h3>
@@ -403,8 +403,7 @@ export default function PrivacyPage() {
         </section>
 
         {/* Contact Information */}
-        {/* TODO: Verify that privacy@nosilha.com is set up and monitored */}
-        <section className="from-ocean-blue/10 to-valley-green/10 mt-16 rounded-lg bg-gradient-to-r p-8">
+        <section className="from-ocean-blue/10 to-valley-green/10 rounded-card mt-16 bg-linear-to-r p-8">
           <div className="text-center">
             <Mail className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
             <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
@@ -412,21 +411,20 @@ export default function PrivacyPage() {
             </h3>
             <p className="text-text-secondary mb-6 text-lg">
               If you have questions about this privacy policy or how we handle
-              your data, please contact us.
+              your data, please use our{" "}
+              <Link
+                href="/contact"
+                className="text-ocean-blue font-medium hover:underline"
+              >
+                contact form
+              </Link>{" "}
+              to reach us.
             </p>
-            <div className="space-y-2">
-              <p className="text-text-secondary">
-                <strong>Email:</strong> privacy@nosilha.com
-              </p>
-              <p className="text-text-secondary">
-                <strong>General Contact:</strong> info@nosilha.com
-              </p>
-            </div>
           </div>
         </section>
 
         {/* Policy Updates */}
-        <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+        <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
             Policy Updates
           </h3>
@@ -463,19 +461,19 @@ export default function PrivacyPage() {
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Link
               href="/terms"
-              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-md px-6 py-3 text-base font-semibold text-white shadow-lg transition-transform duration-300 hover:scale-105"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-lift px-6 py-3 text-base font-semibold text-white transition-transform duration-300 hover:scale-105"
             >
               Terms of Service
             </Link>
             <Link
               href="/contact"
-              className="border-valley-green text-valley-green hover:bg-valley-green rounded-md border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
+              className="border-valley-green text-valley-green hover:bg-valley-green rounded-button border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
             >
               Contact Us
             </Link>
             <Link
               href="/about"
-              className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-md border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
+              className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-button border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
             >
               About Us
             </Link>

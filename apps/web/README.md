@@ -54,7 +54,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8080        # Spring Boot backend base URL
 NEXT_PUBLIC_USE_MOCK_API=false                   # true to use src/lib/mock-api.ts
 NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=pk.your_token    # Mapbox public token
 NEXT_PUBLIC_SUPABASE_URL=https://your.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=anon_key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_your_key  # Publishable key from Supabase dashboard
 ```
 
 Additional optional variables are documented in `.env.local.example`. Keep secrets out of the repo; use `npm run clean` before zipping/sharing builds to avoid bundling stale `.next` folders.

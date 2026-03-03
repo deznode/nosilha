@@ -232,10 +232,14 @@ class GalleryController(
 
     /**
      * Extracts user ID from Spring Security authentication.
+     *
+     * For Supabase JWT authentication via JwtAuthenticationToken, the user ID
+     * is stored in the 'name' property (third constructor parameter), not in
+     * the principal (which contains the Jwt object itself).
      */
     private fun extractUserId(authentication: Authentication): String =
-        authentication.principal as? String
-            ?: error("Authentication principal must be a string (user ID)")
+        authentication.name
+            ?: error("Authentication name must be present (user ID)")
 
     /**
      * Checks if authentication has a specific role.

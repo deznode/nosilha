@@ -20,7 +20,7 @@ npx tsc --noEmit        # TypeScript type checking
 
 - **Route Groups**: Uses parentheses for logical organization `(auth)`, `(main)`, `(admin)` without affecting URLs
 - **Server Components First**: Prioritizes React Server Components for performance
-- **Dynamic Routing**: `/directory/[category]`, `/directory/entry/[slug]`
+- **Dynamic Routing**: `/directory/[category]`, `/directory/[category]/[slug]`
 - **Mobile-First Design**: All components are responsive and mobile-optimized
 - **Authentication**: Supabase Auth provider with JWT token management
 - **Caching Strategy**: ISR (Incremental Static Regeneration) for content
@@ -34,7 +34,7 @@ apps/web/src/app/
 ├── (main)/              # Public routes
 │   ├── directory/
 │   │   ├── [category]/
-│   │   └── entry/[slug]/
+│   │   └── [category]/[slug]/
 │   └── [category]/      # MDX content pages
 ├── (admin)/             # Admin dashboard
 └── api/                 # API routes
@@ -69,6 +69,8 @@ pnpm run test:unit  # Vitest unit tests (4 critical store/hook tests)
 
 ```tsx
 // app/directory/page.tsx
+export const revalidate = 3600; // 1 hour ISR
+
 export default async function DirectoryPage() {
   const entries = await fetchDirectoryEntries()
   return <DirectoryList entries={entries} />
@@ -86,6 +88,14 @@ export function InteractiveMap({ markers }: Props) {
 }
 ```
 
+### Static Export
+
+Force a page to be fully static at build time:
+
+```tsx
+export const dynamic = "force-static";
+```
+
 ### Dynamic Routes
 
 ```tsx
@@ -98,6 +108,5 @@ export default async function CategoryPage({ params }: { params: { category: str
 
 ## Reference
 
-- See `docs/DESIGN_SYSTEM.md` for comprehensive styling guide
-- See `docs/TESTING.md` for full testing documentation
-- See `docs/STATE_MANAGEMENT.md` for state management patterns
+- See `docs/design-system.md` for comprehensive styling guide
+- See `docs/testing.md` for full testing documentation

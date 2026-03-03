@@ -126,7 +126,7 @@ export function ContentActionFAB({
         {isExpanded && (
           <motion.div
             {...menuAnimation}
-            className="mb-4 flex flex-col rounded-lg bg-[var(--color-background-primary)] p-4 shadow-lg"
+            className="rounded-button bg-canvas shadow-elevated mb-4 flex flex-col p-4"
           >
             {/* Group 1: Sharing Actions */}
             <div className="flex flex-col gap-2">
@@ -146,7 +146,7 @@ export function ContentActionFAB({
             </div>
 
             {/* Visual Separator */}
-            <div className="border-border-primary my-3 border-t" />
+            <div className="border-hairline my-3 border-t" />
 
             {/* Group 2: Reactions (horizontal orientation, ❤️ 🎉 💡 👏) */}
             <motion.div {...menuItemAnimation} transition={{ delay: 0.15 }}>
@@ -161,7 +161,7 @@ export function ContentActionFAB({
             </motion.div>
 
             {/* Visual Separator */}
-            <div className="border-border-primary my-3 border-t" />
+            <div className="border-hairline my-3 border-t" />
 
             {/* Group 3: Utility Actions */}
             <div className="flex flex-col gap-2">
@@ -210,7 +210,7 @@ export function ContentActionFAB({
             : "Open content actions menu"
         }
         aria-expanded={isExpanded}
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-[var(--color-ocean-blue)] text-white shadow-lg transition-transform hover:scale-105 focus:ring-2 focus:ring-[var(--color-ocean-blue)] focus:ring-offset-2 focus:outline-none"
+        className="bg-ocean-blue focus:ring-ocean-blue flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg transition-transform hover:scale-105 focus:ring-2 focus:ring-offset-2 focus:outline-none"
       >
         {isExpanded ? (
           <X className="h-6 w-6" />

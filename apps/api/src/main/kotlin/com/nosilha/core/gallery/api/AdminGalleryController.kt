@@ -1,5 +1,9 @@
 package com.nosilha.core.gallery.api
 
+import com.nosilha.core.gallery.api.dto.AnalysisTriggerResponse
+import com.nosilha.core.gallery.api.dto.AnalyzeBatchRequest
+import com.nosilha.core.gallery.api.dto.BatchAnalysisTriggerResponse
+import com.nosilha.core.gallery.api.dto.BatchErrorDto
 import com.nosilha.core.gallery.api.dto.CreateExternalMediaRequest
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.ModerationActionRequest
@@ -209,5 +213,96 @@ class AdminGalleryController(
         logger.info { "Admin $adminId archiving media: $id" }
 
         moderationService.archiveMedia(id, adminId)
+    }
+
+    /**
+     * Promote a gallery image to become the hero image for a directory entry.
+     *
+     * This endpoint allows admins to select an approved user-uploaded image
+     * to become the hero image displayed on the directory entry detail page.
+     *
+     * Prerequisites:
+     * - Media must be a user upload (not external media)
+     * - Media must have ACTIVE status (already approved)
+     * - Media must be linked to a directory entry (entryId not null)
+     * - Media must have a public URL
+     *
+     * The update is performed via event-driven communication: this endpoint
+     * publishes a HeroImagePromotedEvent that the Places module consumes
+     * to update the directory entry's imageUrl field.
+     *
+     * Example:
+     * PATCH /api/v1/admin/gallery/{mediaId}/promote-hero
+     *
+     * @param mediaId UUID of the media item to promote
+     * @param authentication Current admin user
+     * @return 200 OK on success
+     */
+    @PatchMapping("/{mediaId}/promote-hero")
+    fun promoteToHeroImage(
+        @PathVariable mediaId: UUID,
+        authentication: Authentication,
+    ): ResponseEntity<ApiResult<Unit>> {
+        val adminId = UUID.fromString(authentication.name)
+        logger.info { "Admin $adminId promoting media $mediaId to hero image" }
+
+        moderationService.promoteToHeroImage(mediaId, adminId)
+
+        return ResponseEntity.ok(ApiResult(data = Unit))
+    }
+
+    /**
+     * Trigger AI analysis for a single media item.
+     *
+     * Returns 202 Accepted — analysis runs asynchronously via events.
+     */
+    @PostMapping("/{mediaId}/analyze")
+    fun triggerAnalysis(
+        @PathVariable mediaId: UUID,
+        authentication: Authentication,
+    ): ResponseEntity<ApiResult<AnalysisTriggerResponse>> {
+        val adminId = UUID.fromString(authentication.name)
+        logger.info { "Admin $adminId triggering AI analysis for media $mediaId" }
+
+        val runId = moderationService.triggerAnalysis(mediaId, adminId)
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(
+            ApiResult(
+                data = AnalysisTriggerResponse(
+                    mediaId = mediaId,
+                    analysisRunId = runId,
+                    status = "PROCESSING",
+                ),
+                status = HttpStatus.ACCEPTED.value(),
+            ),
+        )
+    }
+
+    /**
+     * Trigger AI analysis for multiple media items.
+     *
+     * Returns 202 Accepted with batch progress info.
+     */
+    @PostMapping("/analyze-batch")
+    fun triggerBatchAnalysis(
+        @Valid @RequestBody request: AnalyzeBatchRequest,
+        authentication: Authentication,
+    ): ResponseEntity<ApiResult<BatchAnalysisTriggerResponse>> {
+        val adminId = UUID.fromString(authentication.name)
+        logger.info { "Admin $adminId triggering batch AI analysis for ${request.mediaIds.size} items" }
+
+        val result = moderationService.triggerBatchAnalysis(request.mediaIds, adminId)
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(
+            ApiResult(
+                data = BatchAnalysisTriggerResponse(
+                    batchId = result.batchId,
+                    accepted = result.accepted,
+                    rejected = result.rejected,
+                    errors = result.errors.map { BatchErrorDto(mediaId = it.mediaId, reason = it.reason) },
+                ),
+                status = HttpStatus.ACCEPTED.value(),
+            ),
+        )
     }
 }

@@ -7,3 +7,7 @@ export {
 } from "./filter-toolbar";
 export { ListViewCard } from "./list-view-card";
 export { AddDirectoryEntryForm } from "./add-directory-entry-form";
+export {
+  DirectoryEntryForm,
+  type DirectoryEntryFormProps,
+} from "./directory-entry-form";
