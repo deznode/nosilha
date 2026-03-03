@@ -11,6 +11,12 @@ spring:
   application:
     name: nosilha-core-api
 
+  # Disable Docker Compose auto-detection in production/default profile
+  # Explicitly enabled in application-local.yml for local development
+  docker:
+    compose:
+      enabled: false
+
   # Multipart file upload configuration
   servlet:
     multipart:
