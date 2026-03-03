@@ -20,7 +20,7 @@ import java.util.UUID
  */
 data class StorySubmittedEvent(
     val storyId: UUID,
-    val authorId: String,
+    val authorId: UUID,
     val storyType: StoryType,
     val relatedPlaceId: UUID?,
     override val occurredAt: Instant = Instant.now(),

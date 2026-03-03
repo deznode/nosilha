@@ -32,7 +32,7 @@ interface UserProfileRepository : JpaRepository<UserProfile, UUID> {
      * @param userId User ID from authentication system (Supabase)
      * @return The user's profile if it exists, null otherwise
      */
-    fun findByUserId(userId: String): UserProfile?
+    fun findByUserId(userId: UUID): UserProfile?
 
     /**
      * Finds user profiles by a collection of user IDs.
@@ -43,7 +43,7 @@ interface UserProfileRepository : JpaRepository<UserProfile, UUID> {
      * @param userIds Collection of user IDs from authentication system (Supabase)
      * @return List of user profiles for the given IDs
      */
-    fun findByUserIdIn(userIds: Collection<String>): List<UserProfile>
+    fun findByUserIdIn(userIds: Collection<UUID>): List<UserProfile>
 
     /**
      * Atomically inserts a new user profile with default values, or does nothing if one already exists.
@@ -73,6 +73,6 @@ interface UserProfileRepository : JpaRepository<UserProfile, UUID> {
         nativeQuery = true,
     )
     fun insertIfNotExists(
-        @Param("userId") userId: String,
+        @Param("userId") userId: UUID,
     ): Int
 }

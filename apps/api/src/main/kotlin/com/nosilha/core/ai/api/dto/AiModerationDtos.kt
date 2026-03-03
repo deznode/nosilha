@@ -6,7 +6,6 @@ import com.nosilha.core.ai.domain.AnalysisRunStatus
 import com.nosilha.core.ai.domain.BatchStatus
 import com.nosilha.core.ai.domain.ModerationStatus
 import java.time.Instant
-import java.time.LocalDateTime
 import java.util.UUID
 
 /**
@@ -21,7 +20,7 @@ data class AnalysisRunSummaryDto(
     val resultTags: List<String>,
     val resultAltText: String?,
     val resultDescription: String?,
-    val createdAt: LocalDateTime,
+    val createdAt: Instant,
     val completedAt: Instant?,
 ) {
     companion object {
@@ -63,7 +62,7 @@ data class AnalysisRunDetailDto(
     val requestedBy: UUID,
     val startedAt: Instant?,
     val completedAt: Instant?,
-    val createdAt: LocalDateTime,
+    val createdAt: Instant,
 ) {
     companion object {
         fun from(run: AnalysisRun) =
@@ -120,7 +119,7 @@ data class BatchSummaryDto(
     val requestedBy: UUID,
     val startedAt: Instant?,
     val completedAt: Instant?,
-    val createdAt: LocalDateTime,
+    val createdAt: Instant,
 ) {
     companion object {
         fun from(batch: AnalysisBatch) =

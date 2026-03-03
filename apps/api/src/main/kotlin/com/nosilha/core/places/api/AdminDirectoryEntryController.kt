@@ -146,7 +146,7 @@ class AdminDirectoryEntryController(
         @Valid @RequestBody request: UpdateDirectoryEntryStatusRequest,
         authentication: Authentication,
     ): ResponseEntity<ApiResult<AdminDirectoryEntryDto>> {
-        val adminUserId = authentication.name
+        val adminUserId = UUID.fromString(authentication.name)
         val updated = service.updateEntryStatus(
             id = id,
             status = request.status,

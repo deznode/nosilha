@@ -1,10 +1,9 @@
 package com.nosilha.core.shared.api
 
-import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeName
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.*
 
 /**
@@ -42,11 +41,9 @@ abstract class DirectoryEntryDto {
     abstract val email: String?
     abstract val website: String?
 
-    @get:JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    abstract val createdAt: LocalDateTime
+    abstract val createdAt: Instant
 
-    @get:JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
-    abstract val updatedAt: LocalDateTime
+    abstract val updatedAt: Instant
 
     abstract val category: String
 }
@@ -71,8 +68,8 @@ data class RestaurantDto(
     override val phoneNumber: String? = null,
     override val email: String? = null,
     override val website: String? = null,
-    override val createdAt: LocalDateTime,
-    override val updatedAt: LocalDateTime,
+    override val createdAt: Instant,
+    override val updatedAt: Instant,
     val details: RestaurantDetailsDto,
     override val category: String = "Restaurant",
 ) : DirectoryEntryDto()
@@ -97,8 +94,8 @@ data class HotelDto(
     override val phoneNumber: String? = null,
     override val email: String? = null,
     override val website: String? = null,
-    override val createdAt: LocalDateTime,
-    override val updatedAt: LocalDateTime,
+    override val createdAt: Instant,
+    override val updatedAt: Instant,
     val details: HotelDetailsDto,
     override val category: String = "Hotel",
 ) : DirectoryEntryDto()
@@ -123,8 +120,8 @@ data class BeachDto(
     override val phoneNumber: String? = null,
     override val email: String? = null,
     override val website: String? = null,
-    override val createdAt: LocalDateTime,
-    override val updatedAt: LocalDateTime,
+    override val createdAt: Instant,
+    override val updatedAt: Instant,
     val details: DetailsDto? = null,
     override val category: String = "Beach",
 ) : DirectoryEntryDto()
@@ -149,8 +146,8 @@ data class HeritageDto(
     override val phoneNumber: String? = null,
     override val email: String? = null,
     override val website: String? = null,
-    override val createdAt: LocalDateTime,
-    override val updatedAt: LocalDateTime,
+    override val createdAt: Instant,
+    override val updatedAt: Instant,
     val details: DetailsDto? = null,
     override val category: String = "Heritage",
 ) : DirectoryEntryDto()
@@ -175,8 +172,8 @@ data class NatureDto(
     override val phoneNumber: String? = null,
     override val email: String? = null,
     override val website: String? = null,
-    override val createdAt: LocalDateTime,
-    override val updatedAt: LocalDateTime,
+    override val createdAt: Instant,
+    override val updatedAt: Instant,
     val details: DetailsDto? = null,
     override val category: String = "Nature",
 ) : DirectoryEntryDto()

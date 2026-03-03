@@ -289,9 +289,11 @@ class DirectoryEntryController(
     /**
      * Extracts user ID from Spring Security authentication.
      */
-    private fun extractUserId(authentication: Authentication): String =
-        authentication.name
-            ?: throw IllegalStateException("Authentication name must be present (user ID)")
+    private fun extractUserId(authentication: Authentication): UUID =
+        UUID.fromString(
+            authentication.name
+                ?: throw IllegalStateException("Authentication name must be present (user ID)"),
+        )
 
     /**
      * Extracts the client IP address from the HTTP request.
@@ -368,7 +370,7 @@ class DirectoryEntryController(
         }
 
         // User is authenticated, check actual bookmark status
-        val userId = authentication.name
+        val userId = UUID.fromString(authentication.name)
         val bookmarkStatus = bookmarkService.isBookmarked(userId, id)
 
         return ApiResult(data = bookmarkStatus)

@@ -23,7 +23,7 @@ data class SuggestionStatusChangedEvent(
     val suggestionId: UUID,
     val previousStatus: SuggestionStatus,
     val newStatus: SuggestionStatus,
-    val reviewedBy: String,
+    val reviewedBy: UUID,
     val adminNotes: String?,
     override val occurredAt: Instant = Instant.now(),
 ) : ApplicationModuleEvent

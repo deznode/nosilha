@@ -405,7 +405,7 @@ class DirectoryEntryService(
     @Transactional
     fun submitDirectoryEntry(
         request: CreateDirectoryEntrySubmissionRequest,
-        userId: String,
+        userId: UUID,
         ipAddress: String?,
     ): DirectoryEntrySubmissionConfirmationDto {
         logger.info { "Processing directory submission from user: $userId, IP: $ipAddress" }
@@ -558,7 +558,7 @@ class DirectoryEntryService(
         id: UUID,
         status: DirectoryEntryStatus,
         adminNotes: String?,
-        reviewedBy: String,
+        reviewedBy: UUID,
     ): AdminDirectoryEntryDto {
         val entry = repository.findById(id).orElseThrow {
             ResourceNotFoundException("Directory entry not found: $id")

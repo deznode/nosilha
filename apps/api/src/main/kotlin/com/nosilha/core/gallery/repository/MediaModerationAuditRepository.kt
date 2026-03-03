@@ -20,7 +20,7 @@ interface MediaModerationAuditRepository : JpaRepository<MediaModerationAudit, U
      * recent actions first. Useful for displaying audit trail in admin panel.</p>
      *
      * @param mediaId The UUID of the media file
-     * @return List of audit entries sorted by performedAt descending
+     * @return List of audit entries sorted by createdAt descending
      */
-    fun findByMediaIdOrderByPerformedAtDesc(mediaId: UUID): List<MediaModerationAudit>
+    fun findByMediaIdOrderByCreatedAtDesc(mediaId: UUID): List<MediaModerationAudit>
 }

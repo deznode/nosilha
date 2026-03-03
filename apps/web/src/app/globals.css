@@ -22,8 +22,8 @@
   --brand-ocean-blue: oklch(0.35 0.08 240);
   --brand-ocean-blue-light: oklch(0.48 0.08 220);
   --brand-ocean-blue-deep: oklch(0.35 0.08 240);
-  --brand-valley-green: oklch(0.45 0.10 150);
-  --brand-bougainvillea-pink: oklch(0.50 0.20 350);
+  --brand-valley-green: oklch(0.45 0.1 150);
+  --brand-bougainvillea-pink: oklch(0.5 0.2 350);
   --brand-sobrado-ochre: oklch(0.62 0.18 65);
   --brand-sunny-yellow: oklch(0.82 0.16 85);
 
@@ -32,9 +32,11 @@
   --neutral-mist-100: oklch(0.96 0.007 250);
   --neutral-mist-200: oklch(0.92 0.01 250);
   --neutral-basalt-500: oklch(0.55 0.03 260);
-  --neutral-basalt-600: oklch(0.45 0.03 260); /* WCAG AA compliant for muted text */
+  --neutral-basalt-600: oklch(
+    0.45 0.03 260
+  ); /* WCAG AA compliant for muted text */
   --neutral-basalt-800: oklch(0.28 0.03 260);
-  --neutral-basalt-900: oklch(0.20 0.03 260);
+  --neutral-basalt-900: oklch(0.2 0.03 260);
 
   /* Status Colors in OKLCH */
   --status-error: oklch(0.63 0.22 15);
@@ -85,8 +87,8 @@
   /* @brand-tokens-dark:start */
   /* Brand Adjustments for Dark Mode (Lighter for contrast) */
   --brand-ocean-blue: oklch(0.75 0.14 234);
-  --brand-ocean-blue-light: oklch(0.80 0.13 234);
-  --brand-ocean-blue-deep: oklch(0.30 0.07 240);
+  --brand-ocean-blue-light: oklch(0.8 0.13 234);
+  --brand-ocean-blue-deep: oklch(0.3 0.07 240);
   --brand-valley-green: oklch(0.65 0.12 160);
   --brand-bougainvillea-pink: oklch(0.72 0.18 348);
   /* @brand-tokens-dark:end */
@@ -94,15 +96,15 @@
   /* Backgrounds - Deep Basalt */
   --background: oklch(0.15 0.02 260);
   --background-secondary: oklch(0.22 0.025 260);
-  --background-tertiary: oklch(0.30 0.025 260);
+  --background-tertiary: oklch(0.3 0.025 260);
 
   /* Foreground (Text) */
   --foreground: oklch(0.96 0.007 250);
   --foreground-secondary: oklch(0.78 0.02 250); /* WCAG AA compliant */
-  --foreground-brand: oklch(0.83 0.10 228);
+  --foreground-brand: oklch(0.83 0.1 228);
 
   /* Borders */
-  --border-subtle: oklch(0.30 0.025 260);
+  --border-subtle: oklch(0.3 0.025 260);
   --border-strong: oklch(0.42 0.025 260);
 
   /* shadcn/ui Semantic Tokens - Dark */
@@ -110,7 +112,7 @@
   --primary-foreground: oklch(0.15 0.02 260);
   --secondary: oklch(0.22 0.025 260);
   --secondary-foreground: oklch(0.96 0.007 250);
-  --destructive: oklch(0.55 0.20 15);
+  --destructive: oklch(0.55 0.2 15);
   --destructive-foreground: oklch(1 0 0);
   --muted: oklch(0.22 0.025 260);
   --muted-foreground: oklch(0.78 0.02 250); /* WCAG AA: 4.5:1 on dark bg */
@@ -120,7 +122,7 @@
   --card-foreground: oklch(0.96 0.007 250);
   --popover: oklch(0.18 0.02 260);
   --popover-foreground: oklch(0.96 0.007 250);
-  --input: oklch(0.30 0.025 260);
+  --input: oklch(0.3 0.025 260);
   --ring: oklch(0.75 0.14 234);
 
   /* Focus Ring */
@@ -231,31 +233,27 @@
   /* === SHAPE & ELEVATION TOKENS (Calm Premium) === */
 
   /* Border Radii - "Radical Softness" principle */
-  --radius-container: 24px;    /* Large containers, featured cards */
-  --radius-card: 16px;         /* Standard cards */
-  --radius-button: 12px;       /* Buttons, inputs */
-  --radius-badge: 8px;         /* Tags, badges, toasts */
+  --radius-container: 24px; /* Large containers, featured cards */
+  --radius-card: 16px; /* Standard cards */
+  --radius-button: 12px; /* Buttons, inputs */
+  --radius-badge: 8px; /* Tags, badges, toasts */
 
   /* Shadows - Multi-layered with Ocean Blue tint */
   --shadow-subtle:
-    0 1px 2px rgba(14, 76, 117, 0.04),
-    0 1px 3px rgba(0, 0, 0, 0.04);
+    0 1px 2px rgba(14, 76, 117, 0.04), 0 1px 3px rgba(0, 0, 0, 0.04);
 
   --shadow-medium:
-    0 4px 6px -1px rgba(14, 76, 117, 0.06),
-    0 2px 4px -1px rgba(0, 0, 0, 0.04);
+    0 4px 6px -1px rgba(14, 76, 117, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
 
   --shadow-elevated:
-    0 10px 15px -3px rgba(14, 76, 117, 0.08),
-    0 4px 6px -2px rgba(0, 0, 0, 0.04);
+    0 10px 15px -3px rgba(14, 76, 117, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
 
   --shadow-floating:
-    0 20px 25px -5px rgba(14, 76, 117, 0.10),
+    0 20px 25px -5px rgba(14, 76, 117, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.02);
 
   --shadow-lift:
-    0 14px 20px -5px rgba(14, 76, 117, 0.12),
-    0 6px 8px -3px rgba(0, 0, 0, 0.04);
+    0 14px 20px -5px rgba(14, 76, 117, 0.12), 0 6px 8px -3px rgba(0, 0, 0, 0.04);
 
   /* Transitions - "Calm, confident motion" */
   --ease-calm: cubic-bezier(0.16, 1, 0.3, 1);

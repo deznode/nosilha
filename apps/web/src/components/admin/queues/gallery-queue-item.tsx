@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import {
   CheckCircle,
@@ -11,10 +12,16 @@ import {
   ExternalLink,
   Upload,
   Star,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
+import type { AiStatusResponse, AiModerationStatus } from "@/types/ai";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
 import { Button } from "@/components/catalyst-ui/button";
+import { Checkbox } from "@/components/catalyst-ui/checkbox";
+import { AiStatusBadge } from "./ai-status-badge";
+import { ImageLightbox } from "@/components/ui/image-lightbox";
 
 interface GalleryQueueItemProps {
   item: GalleryMedia;
@@ -25,19 +32,55 @@ interface GalleryQueueItemProps {
     notes?: string
   ) => void;
   onPromoteToHero?: (id: string) => void;
+  aiStatus?: AiStatusResponse;
+  onViewAiReview?: (mediaId: string) => void;
+  onTriggerAnalysis?: (mediaId: string) => void;
+  isTriggerPending?: boolean;
+  triggeringMediaId?: string;
+  isEligibleForAi?: boolean;
+  isSelected?: boolean;
+  onToggleSelect?: (id: string) => void;
 }
 
 export function GalleryQueueItem({
   item,
   onStatusChange,
   onPromoteToHero,
+  aiStatus,
+  onViewAiReview,
+  onTriggerAnalysis,
+  isTriggerPending,
+  triggeringMediaId,
+  isEligibleForAi,
+  isSelected,
+  onToggleSelect,
 }: GalleryQueueItemProps) {
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+
   // Check if this item can be promoted to hero image
   const canPromoteToHero =
     isUserUploadMedia(item) &&
     item.entryId &&
     item.publicUrl &&
     item.status === "ACTIVE";
+
+  const isThisItemTriggering =
+    isTriggerPending && triggeringMediaId === item.id;
+
+  // Get the full-size image URL for lightbox
+  const getFullImageUrl = (): string | null => {
+    if (isUserUploadMedia(item)) {
+      return item.publicUrl;
+    }
+    if (isExternalMedia(item)) {
+      // For external media, prefer full URL over thumbnail
+      return item.url || item.thumbnailUrl;
+    }
+    return null;
+  };
+
+  const fullImageUrl = getFullImageUrl();
+
   const getMediaIcon = () => {
     if (isExternalMedia(item)) {
       if (item.mediaType === "VIDEO") return <Video size={14} />;
@@ -64,11 +107,12 @@ export function GalleryQueueItem({
   };
 
   const getThumbnail = () => {
-    const thumbnailUrl = isUserUploadMedia(item)
-      ? item.publicUrl
-      : isExternalMedia(item)
-        ? item.thumbnailUrl
-        : null;
+    let thumbnailUrl: string | null = null;
+    if (isUserUploadMedia(item)) {
+      thumbnailUrl = item.publicUrl;
+    } else if (isExternalMedia(item)) {
+      thumbnailUrl = item.thumbnailUrl;
+    }
 
     if (thumbnailUrl) {
       return (
@@ -91,10 +135,29 @@ export function GalleryQueueItem({
 
   return (
     <div className="border-hairline bg-surface flex items-start gap-4 rounded-xl border p-4 transition-shadow hover:shadow-md">
-      {/* Thumbnail */}
-      <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg">
+      {/* Selection Checkbox */}
+      {onToggleSelect && (
+        <div className="flex flex-shrink-0 items-center pt-1">
+          <Checkbox
+            checked={isSelected ?? false}
+            onChange={() => onToggleSelect(item.id)}
+            color="blue"
+          />
+        </div>
+      )}
+
+      {/* Thumbnail - clickable to open lightbox */}
+      <button
+        type="button"
+        onClick={() => fullImageUrl && setIsLightboxOpen(true)}
+        disabled={!fullImageUrl}
+        className="focus:ring-ocean-blue relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-lg transition-transform hover:scale-105 focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-default disabled:hover:scale-100"
+        aria-label={
+          fullImageUrl ? "View full-size image" : "No image available"
+        }
+      >
         {getThumbnail()}
-      </div>
+      </button>
 
       {/* Content */}
       <div className="min-w-0 flex-1">
@@ -113,6 +176,16 @@ export function GalleryQueueItem({
               <span className="text-muted text-xs">
                 {new Date(item.createdAt).toLocaleDateString()}
               </span>
+              {aiStatus?.moderationStatus && (
+                <AiStatusBadge
+                  moderationStatus={
+                    aiStatus.moderationStatus as AiModerationStatus
+                  }
+                  onClick={
+                    onViewAiReview ? () => onViewAiReview(item.id) : undefined
+                  }
+                />
+              )}
             </div>
           </div>
         </div>
@@ -197,8 +270,44 @@ export function GalleryQueueItem({
               Set as Hero
             </Button>
           )}
+          {isEligibleForAi && onTriggerAnalysis && (
+            <Button
+              color="dark"
+              onClick={() => onTriggerAnalysis(item.id)}
+              disabled={isThisItemTriggering}
+              title="Trigger AI image analysis"
+            >
+              {isThisItemTriggering ? (
+                <Loader2 data-slot="icon" className="animate-spin" />
+              ) : (
+                <Sparkles data-slot="icon" />
+              )}
+              Analyze with AI
+            </Button>
+          )}
         </div>
       </div>
+
+      {/* Image Lightbox */}
+      {fullImageUrl && (
+        <ImageLightbox
+          photos={[
+            {
+              src: fullImageUrl,
+              alt: item.title || "Gallery item",
+              location: "",
+              date: new Date(item.createdAt).toLocaleDateString(),
+              description: item.description || "",
+              author: isExternalMedia(item)
+                ? item.author || undefined
+                : undefined,
+            },
+          ]}
+          initialIndex={0}
+          isOpen={isLightboxOpen}
+          onClose={() => setIsLightboxOpen(false)}
+        />
+      )}
     </div>
   );
 }

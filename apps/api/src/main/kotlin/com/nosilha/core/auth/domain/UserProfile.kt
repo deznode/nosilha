@@ -46,7 +46,7 @@ class UserProfile : AuditableEntity() {
     var id: UUID? = null
 
     @Column(name = "user_id", nullable = false, unique = true)
-    lateinit var userId: String
+    var userId: UUID? = null
 
     @Column(name = "display_name", length = 100)
     var displayName: String? = null

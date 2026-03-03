@@ -1,9 +1,8 @@
 package com.nosilha.core.engagement.domain
 
+import com.nosilha.core.shared.domain.CreatableEntity
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
-import org.hibernate.annotations.CreationTimestamp
-import java.time.Instant
 import java.util.UUID
 
 /**
@@ -34,7 +33,7 @@ import java.util.UUID
         Index(name = "idx_reactions_created", columnList = "created_at"),
     ],
 )
-data class Reaction(
+class Reaction(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     val id: UUID? = null,
@@ -48,10 +47,18 @@ data class Reaction(
     @Enumerated(EnumType.STRING)
     @Column(name = "reaction_type", nullable = false, length = 20)
     var reactionType: ReactionType,
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    val createdAt: Instant? = null,
-)
+) : CreatableEntity() {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as Reaction
+        return id != null && id == other.id
+    }
+
+    override fun hashCode(): Int = id?.hashCode() ?: 31
+
+    override fun toString(): String = "Reaction(id=$id, userId=$userId, contentId=$contentId, type=$reactionType)"
+}
 
 /**
  * Enum representing the types of emotional responses to cultural heritage content.

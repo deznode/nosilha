@@ -4,6 +4,7 @@ import com.nosilha.core.auth.api.UserProfileQueryService
 import com.nosilha.core.auth.repository.UserProfileRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
 /**
  * Implementation of UserProfileQueryService.
@@ -27,7 +28,7 @@ class UserProfileQueryServiceImpl(
      * @return Map of userId to displayName
      */
     @Transactional(readOnly = true)
-    override fun findDisplayNames(userIds: Collection<String>): Map<String, String> {
+    override fun findDisplayNames(userIds: Collection<UUID>): Map<UUID, String> {
         if (userIds.isEmpty()) {
             return emptyMap()
         }
@@ -35,7 +36,7 @@ class UserProfileQueryServiceImpl(
         return repository
             .findByUserIdIn(userIds)
             .filter { it.displayName != null }
-            .associate { it.userId to it.displayName!! }
+            .associate { it.userId!! to it.displayName!! }
     }
 
     /**
@@ -45,5 +46,5 @@ class UserProfileQueryServiceImpl(
      * @return Display name or null if not found
      */
     @Transactional(readOnly = true)
-    override fun findDisplayName(userId: String): String? = repository.findByUserId(userId)?.displayName
+    override fun findDisplayName(userId: UUID): String? = repository.findByUserId(userId)?.displayName
 }

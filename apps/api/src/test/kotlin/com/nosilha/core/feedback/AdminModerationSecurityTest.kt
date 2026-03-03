@@ -38,15 +38,16 @@ class AdminModerationSecurityTest {
     private lateinit var mockMvc: MockMvc
 
     private val testId = UUID.randomUUID()
+    private val testUserId = UUID.randomUUID()
+    private val testAdminId = UUID.randomUUID()
 
     /**
      * Creates an authentication with USER role.
-     * Matches MediaUploadIntegrationTest pattern.
      */
-    private fun userAuth(userId: String = "test-user-123") =
+    private fun userAuth(userId: UUID = testUserId) =
         authentication(
             UsernamePasswordAuthenticationToken(
-                userId,
+                userId.toString(),
                 null,
                 listOf(SimpleGrantedAuthority("ROLE_USER")),
             ),
@@ -55,10 +56,10 @@ class AdminModerationSecurityTest {
     /**
      * Creates an authentication with ADMIN role.
      */
-    private fun adminAuth(userId: String = "test-admin-456") =
+    private fun adminAuth(userId: UUID = testAdminId) =
         authentication(
             UsernamePasswordAuthenticationToken(
-                userId,
+                userId.toString(),
                 null,
                 listOf(SimpleGrantedAuthority("ROLE_ADMIN")),
             ),

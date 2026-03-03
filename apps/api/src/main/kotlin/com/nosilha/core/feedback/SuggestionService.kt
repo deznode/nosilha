@@ -261,7 +261,7 @@ class SuggestionService(
         id: UUID,
         action: ModerationAction,
         notes: String?,
-        adminId: String,
+        adminId: UUID,
     ): SuggestionDetailDto {
         val suggestion =
             suggestionRepository
@@ -278,15 +278,12 @@ class SuggestionService(
         // Sanitize admin notes if provided
         val sanitizedNotes = notes?.let { ContentSanitizer.sanitizeStrict(it) }
 
-        val updatedSuggestion =
-            suggestion.copy(
-                status = newStatus,
-                adminNotes = sanitizedNotes,
-                reviewedBy = adminId,
-                reviewedAt = Instant.now(),
-            )
+        suggestion.status = newStatus
+        suggestion.adminNotes = sanitizedNotes
+        suggestion.reviewedBy = adminId
+        suggestion.reviewedAt = Instant.now()
 
-        val savedSuggestion = suggestionRepository.save(updatedSuggestion)
+        val savedSuggestion = suggestionRepository.save(suggestion)
         logger.info { "Suggestion $id status changed from $previousStatus to $newStatus by admin $adminId" }
 
         // Publish event for potential email notifications

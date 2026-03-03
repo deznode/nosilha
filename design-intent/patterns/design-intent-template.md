@@ -3,7 +3,7 @@
 ---
 pattern-id: [unique-identifier]
 title: [Pattern Name]
-category: component | layout | interaction | data | styling
+category: component | layout | interaction | data | styling | animation
 status: draft | active | deprecated
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
@@ -25,7 +25,6 @@ updated: YYYY-MM-DD
 
 - [Scenario 1]
 - [Scenario 2]
-- [Scenario 3]
 
 ## When NOT to Use
 
@@ -37,32 +36,93 @@ updated: YYYY-MM-DD
 ### Components
 
 ```
-[Component Diagram or File Structure]
+[Component tree or file structure]
 ```
 
 ### Relationships
 
-[Describe how components interact]
+[How components interact — props, context, events]
 
 ## Implementation
 
 ### Basic Example
 
 ```tsx
-// Minimal implementation showing core pattern
+import { clsx } from "clsx";
+
+interface ExampleProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "default" | "accent";
+}
+
+export function Example({ variant = "default", className, children, ...props }: ExampleProps) {
+  return (
+    <div
+      className={clsx(
+        "bg-surface border-hairline rounded-card border",
+        variant === "accent" && "border-primary",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
 ```
 
-### Full Example
+### With forwardRef
 
 ```tsx
-// Complete implementation with all features
+import * as React from "react";
+import { clsx } from "clsx";
+
+interface ExampleProps extends React.HTMLAttributes<HTMLDivElement> {
+  // props
+}
+
+export const Example = React.forwardRef<HTMLDivElement, ExampleProps>(
+  ({ className, children, ...props }, ref) => (
+    <div ref={ref} className={clsx("bg-surface", className)} {...props}>
+      {children}
+    </div>
+  )
+);
+Example.displayName = "Example";
 ```
 
-### With Tailwind CSS
+### With Animation (Framer Motion)
 
 ```tsx
-// Example showing styling approach
+"use client";
+
+import { motion } from "framer-motion";
+
+export function AnimatedExample() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className="bg-surface rounded-card"
+    >
+      {/* content */}
+    </motion.div>
+  );
+}
 ```
+
+## Design Tokens
+
+| Token | Purpose in Pattern |
+|-------|--------------------|
+| `bg-surface` | [Usage] |
+| `text-body` | [Usage] |
+| `border-hairline` | [Usage] |
+| `shadow-subtle` / `shadow-lift` | [Usage] |
+| `rounded-card` / `rounded-button` | [Usage] |
+| `ease-calm` | [Transition timing] |
+
+Reference: `apps/web/src/app/globals.css`
 
 ## Variants
 
@@ -84,67 +144,51 @@ updated: YYYY-MM-DD
 
 ## Accessibility
 
-### Requirements
-
-- [ARIA requirement 1]
-- [Keyboard navigation]
-- [Screen reader behavior]
-
-### Implementation
-
-```tsx
-// Accessibility-focused code
-```
+- [ARIA roles and labels]
+- [Keyboard navigation (Tab, Enter, Escape)]
+- [Screen reader announcements]
+- [Color contrast — OKLCH tokens maintain AA compliance]
+- [Focus indicators]
 
 ## Responsive Behavior
 
 | Breakpoint | Behavior |
 |------------|----------|
-| Mobile (<640px) | [Description] |
-| Tablet (640-1024px) | [Description] |
-| Desktop (>1024px) | [Description] |
+| Mobile (< 640px) | [Description] |
+| Tablet (640–1024px) | [Description] |
+| Desktop (> 1024px) | [Description] |
 
-## Animation & Transitions
+## Dark Mode
 
-[Describe any motion design]
-
-```css
-/* Transition definitions */
-```
+[Describe any dark mode specific adjustments — semantic tokens handle most cases automatically]
 
 ## Testing
 
-### Unit Test Example
+### playwright-cli Verification
 
-```tsx
-// Test implementation
 ```
-
-### E2E Test Example
-
-```tsx
-// Playwright test
+1. Navigate to page containing pattern
+2. Screenshot at 375px, 768px, 1280px
+3. Toggle dark mode, screenshot
+4. Test keyboard navigation
 ```
 
 ## Known Issues
 
-- [Issue 1]: [Workaround]
-- [Issue 2]: [Workaround]
+- [Issue]: [Workaround]
 
 ## Related Patterns
 
 - [Pattern A]: [Relationship]
-- [Pattern B]: [Relationship]
+- [Catalyst UI Component]: [How this pattern extends/complements it]
 
 ## Examples in Codebase
 
-- `path/to/example1.tsx` - [Context]
-- `path/to/example2.tsx` - [Context]
+- `apps/web/src/components/[path].tsx` — [Context]
 
 ## References
 
-- [External resource 1]
-- [External resource 2]
+- [External resource]
 
 ## Changelog
 

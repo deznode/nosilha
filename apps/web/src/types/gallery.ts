@@ -56,6 +56,7 @@ export interface UserUploadMedia extends GalleryMediaBase {
   entryId?: string;
   source?: MediaSource;
   uploadedBy?: string;
+  uploaderDisplayName?: string;
 }
 
 /**
@@ -71,6 +72,7 @@ export interface ExternalMedia extends GalleryMediaBase {
   embedUrl: string | null;
   author: string | null;
   curatedBy?: string;
+  curatorDisplayName?: string;
 }
 
 /**

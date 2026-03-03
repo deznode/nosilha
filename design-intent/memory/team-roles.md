@@ -31,7 +31,7 @@ Defining the collaboration model between AI assistant and human developer.
 
 ### Available MCP Capabilities
 
-#### Playwright MCP
+#### playwright-cli
 
 - **Browser automation** - Navigate, click, type, screenshot
 - **Visual testing** - Capture and compare UI states

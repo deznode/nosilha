@@ -33,9 +33,6 @@
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
     "test:unit": "vitest --project unit",
-    "mcp:server": "npx @playwright/mcp@latest --config .mcp/server-config.json",
-    "mcp:server:headless": "npx @playwright/mcp@latest --config .mcp/server-config.json --headless",
-    "mcp:server:port": "npx @playwright/mcp@latest --config .mcp/server-config.json --port 8931",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint:fix": "eslint . --fix && prettier --write .",
@@ -54,6 +51,7 @@
     "@tanstack/react-query-devtools": "^5.90.2",
     "@types/react-syntax-highlighter": "^15.5.13",
     "clsx": "^2.1.1",
+    "exifr": "^7.1.3",
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.553.0",
     "mapbox-gl": "^3.12.0",
@@ -61,6 +59,7 @@
     "next-router-mock": "^1.0.4",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "react-dropzone": "^15.0.0",
     "react-hook-form": "^7.65.0",
     "react-map-gl": "^8.0.4",
     "react-markdown": "^10.1.0",
@@ -111,12 +110,6 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^3.2.4"
-  },
-  "pnpm": {
-    "overrides": {
-      "@types/react": "19.2.6",
-      "@types/react-dom": "19.2.3"
-    }
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [

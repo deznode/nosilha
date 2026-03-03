@@ -11,6 +11,7 @@ on:
     branches: [main]
     paths:
       - 'apps/web/**'
+      - 'pnpm-lock.yaml'
       - '.github/workflows/frontend-ci.yml'
       - '.github/workflows/reusable-security-scan.yml'
       # Exclude documentation and non-functional changes to save costs
@@ -24,6 +25,7 @@ on:
     branches: [main]
     paths:
       - 'apps/web/**'
+      - 'pnpm-lock.yaml'
       - '.github/workflows/frontend-ci.yml'
       - '.github/workflows/reusable-security-scan.yml'
       # Exclude documentation and non-functional changes to save costs

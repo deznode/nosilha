@@ -113,7 +113,7 @@ abstract class DirectoryEntry : AuditableEntity() {
 
     /** User ID of the community member who submitted (null for seeded entries) */
     @Column(name = "submitted_by")
-    var submittedBy: String? = null
+    var submittedBy: UUID? = null
 
     /** Email of the submitter (optional, for contact) */
     @Column(name = "submitted_by_email")
@@ -129,7 +129,7 @@ abstract class DirectoryEntry : AuditableEntity() {
 
     /** User ID of admin who reviewed the submission */
     @Column(name = "reviewed_by")
-    var reviewedBy: String? = null
+    var reviewedBy: UUID? = null
 
     /** Timestamp when submission was reviewed */
     @Column(name = "reviewed_at")

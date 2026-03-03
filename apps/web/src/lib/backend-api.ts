@@ -62,6 +62,26 @@ import type {
   UpdateGalleryStatusRequest,
   ExternalMedia,
 } from "@/types/gallery";
+import type {
+  AnalysisRunSummary,
+  AnalysisRunDetail,
+  ApproveEditedRequest,
+  RejectRequest,
+  AiStatusResponse,
+  AnalysisTriggerResponse,
+  AnalyzeBatchRequest,
+  BatchAnalysisTriggerResponse,
+} from "@/types/ai";
+import type {
+  R2BucketListResponse,
+  BulkPresignRequest,
+  BulkPresignResponse,
+  BulkConfirmRequest,
+  BulkConfirmResponse,
+  OrphanDetectionResponse,
+  LinkOrphanRequest,
+  DeleteOrphanRequest,
+} from "@/types/r2-admin";
 import { CacheConfig } from "@/lib/api-contracts";
 import { env } from "@/lib/env";
 import { supabase } from "@/lib/supabase-client";
@@ -2640,6 +2660,314 @@ export class BackendApiClient implements ApiClient {
         );
       }
       throw new Error(`Failed to promote to hero image: ${response.status}`);
+    }
+  }
+
+  // ================================
+  // ADMIN AI REVIEW OPERATIONS
+  // ================================
+
+  /**
+   * Get AI analysis runs pending admin review.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async getAiReviewQueue(
+    page: number = 0,
+    size: number = 20
+  ): Promise<AdminQueueResponse<AnalysisRunSummary>> {
+    const params = new URLSearchParams();
+    params.append("page", String(page));
+    params.append("size", String(size));
+
+    const endpoint = `${env.apiUrl}/api/v1/admin/ai/review-queue?${params.toString()}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch AI review queue: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.transformAdminQueueResponse<AnalysisRunSummary>(payload);
+  }
+
+  /**
+   * Get detailed AI output for a single analysis run.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async getAiRunDetail(runId: string): Promise<AnalysisRunDetail> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/ai/review/${runId}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch AI run detail: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<AnalysisRunDetail>(payload);
+  }
+
+  /**
+   * Approve AI results as-is.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async approveAiRun(runId: string): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/ai/review/${runId}/approve`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to approve AI run: ${response.status}`);
+    }
+  }
+
+  /**
+   * Reject AI results.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async rejectAiRun(runId: string, request?: RejectRequest): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/ai/review/${runId}/reject`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: request ? JSON.stringify(request) : undefined,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to reject AI run: ${response.status}`);
+    }
+  }
+
+  /**
+   * Approve AI results with admin edits.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async approveEditedAiRun(
+    runId: string,
+    request: ApproveEditedRequest
+  ): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/ai/review/${runId}/approve-edited`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to approve edited AI run: ${response.status}`);
+    }
+  }
+
+  /**
+   * Batch fetch AI processing status for multiple media items.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async getAiStatus(mediaIds: string[]): Promise<AiStatusResponse[]> {
+    const params = new URLSearchParams();
+    mediaIds.forEach((id) => params.append("mediaIds", id));
+
+    const endpoint = `${env.apiUrl}/api/v1/admin/ai/status?${params.toString()}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch AI status: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<AiStatusResponse[]>(payload);
+  }
+
+  /**
+   * Trigger AI analysis for a single media item.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async triggerAnalysis(mediaId: string): Promise<AnalysisTriggerResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/${mediaId}/analyze`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to trigger AI analysis: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<AnalysisTriggerResponse>(payload);
+  }
+
+  /**
+   * Trigger AI analysis for multiple media items in batch.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async triggerBatchAnalysis(
+    request: AnalyzeBatchRequest
+  ): Promise<BatchAnalysisTriggerResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/analyze-batch`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to trigger batch AI analysis: ${response.status}`
+      );
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<BatchAnalysisTriggerResponse>(payload);
+  }
+
+  // ================================
+  // ADMIN R2 STORAGE OPERATIONS
+  // ================================
+
+  async listR2Bucket(
+    prefix?: string,
+    continuationToken?: string,
+    maxKeys: number = 100
+  ): Promise<R2BucketListResponse> {
+    const params = new URLSearchParams();
+    if (prefix) params.append("prefix", prefix);
+    if (continuationToken)
+      params.append("continuationToken", continuationToken);
+    params.append("maxKeys", String(maxKeys));
+
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/r2/list?${params.toString()}`;
+    const response = await this.authenticatedFetch(endpoint);
+
+    if (!response.ok) {
+      throw new Error(`Failed to list R2 bucket: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<R2BucketListResponse>(payload);
+  }
+
+  async bulkPresignR2(
+    request: BulkPresignRequest
+  ): Promise<BulkPresignResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/r2/bulk-presign`;
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to generate bulk presign URLs: ${response.status}`
+      );
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<BulkPresignResponse>(payload);
+  }
+
+  async bulkConfirmR2(
+    request: BulkConfirmRequest
+  ): Promise<BulkConfirmResponse> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/r2/bulk-confirm`;
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to confirm bulk upload: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<BulkConfirmResponse>(payload);
+  }
+
+  async detectR2Orphans(
+    prefix?: string,
+    continuationToken?: string,
+    maxKeys: number = 1000
+  ): Promise<OrphanDetectionResponse> {
+    const params = new URLSearchParams();
+    if (prefix) params.append("prefix", prefix);
+    if (continuationToken)
+      params.append("continuationToken", continuationToken);
+    params.append("maxKeys", String(maxKeys));
+
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/r2/orphans?${params.toString()}`;
+    const response = await this.authenticatedFetch(endpoint);
+
+    if (!response.ok) {
+      throw new Error(`Failed to detect R2 orphans: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<OrphanDetectionResponse>(payload);
+  }
+
+  async linkR2Orphan(
+    request: LinkOrphanRequest
+  ): Promise<import("@/types/gallery").UserUploadMedia> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/r2/orphans/link`;
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to link R2 orphan: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<import("@/types/gallery").UserUploadMedia>(
+      payload
+    );
+  }
+
+  async deleteR2Orphan(request: DeleteOrphanRequest): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/r2/orphans`;
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      if (response.status === 422) {
+        throw new Error(
+          "Cannot delete: this R2 object is linked to a database record"
+        );
+      }
+      throw new Error(`Failed to delete R2 orphan: ${response.status}`);
     }
   }
 

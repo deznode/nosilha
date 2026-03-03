@@ -147,6 +147,28 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     ): Page<UserUploadedMedia>
 
     /**
+     * Finds a user-uploaded media item by its R2 storage key.
+     *
+     * Used for orphan linking/deletion safety checks.
+     *
+     * @param storageKey The R2 object key
+     * @return The matching entity, or null if no record exists for this key
+     */
+    @Query("SELECT m FROM UserUploadedMedia m WHERE m.storageKey = :storageKey")
+    fun findByStorageKey(storageKey: String): UserUploadedMedia?
+
+    /**
+     * Returns all non-null storage keys from user-uploaded media.
+     *
+     * Used for orphan detection set comparison against R2 bucket listing.
+     * Returns only the key column (projection) for efficiency.
+     *
+     * @return List of storage key strings
+     */
+    @Query("SELECT m.storageKey FROM UserUploadedMedia m WHERE m.storageKey IS NOT NULL")
+    fun findAllStorageKeys(): List<String>
+
+    /**
      * Finds all user-uploaded media items.
      * Type-specific query for UserUploadedMedia.
      *

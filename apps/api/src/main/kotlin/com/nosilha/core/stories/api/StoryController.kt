@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
 
@@ -196,7 +197,7 @@ class StoryController(
         authentication: Authentication,
         httpRequest: HttpServletRequest,
     ): ResponseEntity<ApiResult<StorySubmittedResponse>> {
-        val authorId = authentication.name
+        val authorId = UUID.fromString(authentication.name)
         val ipAddress = extractIpAddress(httpRequest)
 
         logger.info { "Received story submission from user: $authorId (IP: $ipAddress) - type: ${request.storyType}" }

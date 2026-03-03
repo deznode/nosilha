@@ -17,22 +17,20 @@ import {
   Pencil,
   Trash2,
   Flag,
-  Eye,
 } from "lucide-react";
 import Image from "next/image";
 import type { DirectorySubmission } from "@/types/admin";
 import { SubmissionStatus } from "@/types/story";
 import { Button } from "@/components/catalyst-ui/button";
-
-interface DirectoryQueueProps {
-  submissions: DirectorySubmission[];
-  isLoading?: boolean;
-  onStatusChange?: (id: string, status: SubmissionStatus) => void;
-  onViewFull?: (submission: DirectorySubmission) => void;
-  onEdit?: (submission: DirectorySubmission) => void;
-  onDelete?: (submission: DirectorySubmission) => void;
-  onFlag?: (submission: DirectorySubmission) => void;
-}
+import { DirectoryEditModal } from "@/components/admin/queues/directory-edit-modal";
+import { FlagReasonModal } from "@/components/admin/queues/flag-reason-modal";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import {
+  useAdminDirectorySubmissions,
+  useUpdateDirectoryStatus,
+  useDeleteDirectoryEntry,
+} from "@/hooks/queries/admin";
+import { useToast } from "@/hooks/use-toast";
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   Restaurant: <Utensils size={18} />,
@@ -50,19 +48,135 @@ const CATEGORY_COLORS: Record<string, string> = {
   Nature: "bg-valley-green/10 text-valley-green",
 };
 
-export function DirectoryQueue({
-  submissions,
-  isLoading,
-  onStatusChange,
-  onViewFull,
-  onEdit,
-  onDelete,
-  onFlag,
-}: DirectoryQueueProps) {
+export function DirectoryQueue() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<SubmissionStatus | "ALL">(
     "ALL"
   );
+
+  // Edit modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [directoryToEdit, setDirectoryToEdit] =
+    useState<DirectorySubmission | null>(null);
+
+  // Flag modal state
+  const [isFlagModalOpen, setIsFlagModalOpen] = useState(false);
+  const [directoryToFlag, setDirectoryToFlag] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+
+  // Delete confirmation dialog state
+  const [directoryToDelete, setDirectoryToDelete] =
+    useState<DirectorySubmission | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const directoryQuery = useAdminDirectorySubmissions();
+  const updateDirectory = useUpdateDirectoryStatus();
+  const deleteDirectoryEntry = useDeleteDirectoryEntry();
+  const toast = useToast();
+
+  const submissions = directoryQuery.data?.items ?? [];
+  const isLoading = directoryQuery.isLoading;
+
+  const handleStatusChange = (id: string, status: SubmissionStatus) => {
+    const statusLabels: Record<SubmissionStatus, string> = {
+      [SubmissionStatus.APPROVED]: "approved",
+      [SubmissionStatus.REJECTED]: "rejected",
+      [SubmissionStatus.ARCHIVED]: "archived",
+      [SubmissionStatus.PENDING]: "updated",
+      [SubmissionStatus.DRAFT]: "updated",
+      [SubmissionStatus.FLAGGED]: "flagged",
+      [SubmissionStatus.PUBLISHED]: "published",
+    };
+    const statusLabel = statusLabels[status];
+    updateDirectory.mutate(
+      { id, status },
+      {
+        onSuccess: () => {
+          toast.success(`Entry ${statusLabel} successfully`).show();
+        },
+        onError: () => {
+          toast
+            .error(`Failed to ${statusLabel} entry. Please try again.`)
+            .show();
+        },
+      }
+    );
+  };
+
+  const handleEdit = (submission: DirectorySubmission) => {
+    setDirectoryToEdit(submission);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditClose = () => {
+    setIsEditModalOpen(false);
+    setDirectoryToEdit(null);
+  };
+
+  const handleEditSuccess = () => {
+    toast.success("Directory entry updated successfully").show();
+    setIsEditModalOpen(false);
+    setDirectoryToEdit(null);
+  };
+
+  const handleDelete = (submission: DirectorySubmission) => {
+    setDirectoryToDelete(submission);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (directoryToDelete) {
+      deleteDirectoryEntry.mutate(directoryToDelete.id, {
+        onSuccess: () => {
+          toast.success(`"${directoryToDelete.name}" has been deleted`).show();
+          setIsDeleteDialogOpen(false);
+          setDirectoryToDelete(null);
+        },
+        onError: () => {
+          toast.error("Failed to delete entry. Please try again.").show();
+        },
+      });
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteDialogOpen(false);
+    setDirectoryToDelete(null);
+  };
+
+  const handleFlag = (submission: DirectorySubmission) => {
+    setDirectoryToFlag({ id: submission.id, name: submission.name });
+    setIsFlagModalOpen(true);
+  };
+
+  const handleFlagConfirm = (reason: string) => {
+    if (directoryToFlag) {
+      updateDirectory.mutate(
+        {
+          id: directoryToFlag.id,
+          status: SubmissionStatus.FLAGGED,
+          notes: reason,
+        },
+        {
+          onSuccess: () => {
+            toast.info(`"${directoryToFlag.name}" has been flagged`).show();
+          },
+          onError: () => {
+            toast.error("Failed to flag entry. Please try again.").show();
+          },
+        }
+      );
+    }
+    setIsFlagModalOpen(false);
+    setDirectoryToFlag(null);
+  };
+
+  const handleFlagClose = () => {
+    setIsFlagModalOpen(false);
+    setDirectoryToFlag(null);
+  };
 
   const filteredSubmissions = submissions.filter((s) => {
     const matchesSearch =
@@ -231,25 +345,15 @@ export function DirectoryQueue({
                       {submission.status}
                     </span>
                     <div className="flex flex-wrap items-center justify-end gap-2">
-                      {/* View Full button */}
-                      {onViewFull && (
-                        <Button outline onClick={() => onViewFull(submission)}>
-                          <Eye data-slot="icon" />
-                          View
-                        </Button>
-                      )}
-
                       {/* Edit button */}
-                      {onEdit && (
-                        <Button
-                          outline
-                          onClick={() => onEdit(submission)}
-                          title="Edit entry"
-                        >
-                          <Pencil data-slot="icon" />
-                          Edit
-                        </Button>
-                      )}
+                      <Button
+                        outline
+                        onClick={() => handleEdit(submission)}
+                        title="Edit entry"
+                      >
+                        <Pencil data-slot="icon" />
+                        Edit
+                      </Button>
 
                       {/* Moderation actions for pending items */}
                       {submission.status === SubmissionStatus.PENDING && (
@@ -257,7 +361,7 @@ export function DirectoryQueue({
                           <Button
                             color="green"
                             onClick={() =>
-                              onStatusChange?.(
+                              handleStatusChange(
                                 submission.id,
                                 SubmissionStatus.APPROVED
                               )
@@ -269,7 +373,7 @@ export function DirectoryQueue({
                           <Button
                             color="red"
                             onClick={() =>
-                              onStatusChange?.(
+                              handleStatusChange(
                                 submission.id,
                                 SubmissionStatus.REJECTED
                               )
@@ -278,32 +382,27 @@ export function DirectoryQueue({
                             <XCircle data-slot="icon" />
                             Reject
                           </Button>
-                          {/* Flag button */}
-                          {onFlag && (
-                            <Button
-                              color="yellow"
-                              onClick={() => onFlag(submission)}
-                              title="Flag for review"
-                            >
-                              <Flag data-slot="icon" />
-                              Flag
-                            </Button>
-                          )}
+                          <Button
+                            color="yellow"
+                            onClick={() => handleFlag(submission)}
+                            title="Flag for review"
+                          >
+                            <Flag data-slot="icon" />
+                            Flag
+                          </Button>
                         </>
                       )}
 
                       {/* Delete button (available for all statuses) */}
-                      {onDelete && (
-                        <Button
-                          outline
-                          onClick={() => onDelete(submission)}
-                          title="Delete permanently"
-                          className="text-red-600 hover:text-red-700 dark:text-red-400"
-                        >
-                          <Trash2 data-slot="icon" />
-                          Delete
-                        </Button>
-                      )}
+                      <Button
+                        outline
+                        onClick={() => handleDelete(submission)}
+                        title="Delete permanently"
+                        className="text-red-600 hover:text-red-700 dark:text-red-400"
+                      >
+                        <Trash2 data-slot="icon" />
+                        Delete
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -312,6 +411,35 @@ export function DirectoryQueue({
           </ul>
         )}
       </div>
+
+      {/* Directory Edit Modal */}
+      <DirectoryEditModal
+        isOpen={isEditModalOpen}
+        entry={directoryToEdit}
+        onClose={handleEditClose}
+        onSuccess={handleEditSuccess}
+      />
+
+      {/* Directory Flag Modal */}
+      <FlagReasonModal
+        isOpen={isFlagModalOpen}
+        itemType="Directory Entry"
+        itemTitle={directoryToFlag?.name || ""}
+        onClose={handleFlagClose}
+        onConfirm={handleFlagConfirm}
+      />
+
+      {/* Directory Delete Confirmation */}
+      <ConfirmationDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        title={`Delete "${directoryToDelete?.name}"?`}
+        description="This will permanently remove the directory entry. This action cannot be undone."
+        confirmLabel="Delete Entry"
+        variant="danger"
+        isLoading={deleteDirectoryEntry.isPending}
+      />
     </div>
   );
 }

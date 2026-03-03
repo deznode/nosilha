@@ -84,7 +84,7 @@ class StoryService(
     @Transactional
     fun submitStory(
         request: CreateStoryRequest,
-        authorId: String,
+        authorId: UUID,
         ipAddress: String?,
     ): StorySubmittedResponse {
         // Honeypot check - if filled, silently accept but don't save
@@ -121,7 +121,6 @@ class StoryService(
             templateType = request.templateType,
             authorId = authorId,
             relatedPlaceId = request.relatedPlaceId,
-            status = StoryStatus.PENDING,
             ipAddress = ipAddress,
         )
 
@@ -265,7 +264,7 @@ class StoryService(
         action: StoryModerationAction,
         notes: String?,
         slug: String?,
-        adminId: String,
+        adminId: UUID,
     ): StoryDetailDto {
         val story =
             repository
@@ -290,16 +289,15 @@ class StoryService(
         // Sanitize admin notes if provided
         val sanitizedNotes = notes?.let { ContentSanitizer.sanitizeStrict(it) }
 
-        val updatedStory =
-            story.copy(
-                status = newStatus,
-                adminNotes = sanitizedNotes,
-                reviewedBy = adminId,
-                reviewedAt = Instant.now(),
-                publicationSlug = if (action == StoryModerationAction.PUBLISH) slug else story.publicationSlug,
-            )
+        story.status = newStatus
+        story.adminNotes = sanitizedNotes
+        story.reviewedBy = adminId
+        story.reviewedAt = Instant.now()
+        if (action == StoryModerationAction.PUBLISH) {
+            story.publicationSlug = slug
+        }
 
-        val savedStory = repository.save(updatedStory)
+        val savedStory = repository.save(story)
         logger.info { "Story $id status changed from $previousStatus to $newStatus by admin $adminId" }
 
         // Publish appropriate event
@@ -350,8 +348,8 @@ class StoryService(
                 .findById(id)
                 .orElseThrow { ResourceNotFoundException("Story with id $id not found") }
 
-        val updatedStory = story.copy(isFeatured = isFeatured)
-        val savedStory = repository.save(updatedStory)
+        story.isFeatured = isFeatured
+        val savedStory = repository.save(story)
 
         logger.info { "Story $id featured status changed to $isFeatured" }
         return savedStory.toDetailDto()
@@ -376,7 +374,7 @@ class StoryService(
     fun markAsArchived(
         id: UUID,
         slug: String,
-        adminId: String,
+        adminId: UUID,
         archivedAt: Instant? = null,
     ): StoryDetailDto {
         val story =
@@ -392,14 +390,11 @@ class StoryService(
             )
         }
 
-        val updatedStory =
-            story.copy(
-                archivedAt = archivedAt ?: Instant.now(),
-                archivedSlug = slug,
-                archivedBy = adminId,
-            )
+        story.archivedAt = archivedAt ?: Instant.now()
+        story.archivedSlug = slug
+        story.archivedBy = adminId
 
-        val savedStory = repository.save(updatedStory)
+        val savedStory = repository.save(story)
         logger.info { "Story $id marked as archived with slug '$slug' by admin $adminId" }
 
         return savedStory.toDetailDto()
