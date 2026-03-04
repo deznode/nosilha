@@ -2725,7 +2725,11 @@ export class BackendApiClient implements ApiClient {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to update EXIF metadata: ${response.status}`);
+      const errorBody = await response.json().catch(() => null);
+      const message =
+        errorBody?.message ||
+        `Failed to update EXIF metadata: ${response.status}`;
+      throw new Error(message);
     }
 
     const payload = await response.json();

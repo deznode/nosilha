@@ -575,6 +575,9 @@ class GalleryModerationService(
         request.photoType?.let { media.photoType = it }
         request.gpsPrivacyLevel?.let { media.gpsPrivacyLevel = it }
 
+        media.reviewedBy = adminId
+        media.reviewedAt = Instant.now()
+
         val saved = repository.save(media)
 
         val audit = MediaModerationAudit(

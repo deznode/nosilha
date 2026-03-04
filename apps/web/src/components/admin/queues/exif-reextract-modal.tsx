@@ -92,21 +92,22 @@ function formatFieldValue(
 function buildCurrentMetadata(item: GalleryMedia): PhotoMetadata | null {
   if (!isUserUploadMedia(item)) return null;
   return {
-    latitude: undefined,
-    longitude: undefined,
-    altitude: undefined,
-    dateTimeOriginal: undefined,
-    make: undefined,
-    model: undefined,
-    orientation: undefined,
+    latitude: item.latitude,
+    longitude: item.longitude,
+    altitude: item.altitude,
+    dateTimeOriginal: item.dateTaken ? new Date(item.dateTaken) : undefined,
+    make: item.cameraMake,
+    model: item.cameraModel,
+    orientation: item.orientation,
     width: undefined,
     height: undefined,
     approximateDate: undefined,
     locationName: undefined,
     archiveSource: undefined,
-    photoType: "CULTURAL_SITE" as PhotoType,
-    gpsPrivacyLevel: "NONE" as GpsPrivacyLevel,
-    hasExifData: false,
+    photoType: (item.photoType as PhotoType) || ("CULTURAL_SITE" as PhotoType),
+    gpsPrivacyLevel:
+      (item.gpsPrivacyLevel as GpsPrivacyLevel) || ("NONE" as GpsPrivacyLevel),
+    hasExifData: !!(item.latitude || item.cameraMake || item.dateTaken),
   };
 }
 
@@ -227,9 +228,14 @@ export function ExifReextractModal({
     if (checks.orientation && data.orientation != null)
       request.orientation = data.orientation;
 
-    // Always include photoType and gpsPrivacyLevel
+    // Include photoType always; guard gpsPrivacyLevel on GPS data being applied
     request.photoType = photoType;
-    request.gpsPrivacyLevel = GPS_PRIVACY_MAP[photoType];
+    const hasGpsData =
+      (checks.latitude && data.latitude != null) ||
+      (checks.longitude && data.longitude != null);
+    request.gpsPrivacyLevel = hasGpsData
+      ? GPS_PRIVACY_MAP[photoType]
+      : "NONE";
 
     updateExif.mutate(
       { mediaId: item.id, data: request },

@@ -67,6 +67,16 @@ export interface UserUploadMedia extends GalleryMediaBase {
   aiAltText?: string;
   aiDescription?: string;
   aiProcessedAt?: string;
+  // EXIF fields (returned by backend GalleryMediaDto.UserUpload)
+  latitude?: number;
+  longitude?: number;
+  altitude?: number;
+  dateTaken?: string;
+  cameraMake?: string;
+  cameraModel?: string;
+  orientation?: number;
+  photoType?: string;
+  gpsPrivacyLevel?: string;
 }
 
 /**
