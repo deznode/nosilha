@@ -296,7 +296,7 @@ export function ImageLightbox({
                   src={photo.src}
                   alt={photo.altText || photo.alt}
                   fill
-                  sizes="100vw"
+                  sizes="(min-width: 1024px) calc(100vw - 320px), 100vw"
                   className="object-contain"
                   priority
                 />
