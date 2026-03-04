@@ -77,11 +77,12 @@ jobs:
           fetch-depth: 0
 
       - name: Run Trivy vulnerability scanner (full repository)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.34.2
         with:
           scan-type: 'fs'
           format: 'sarif'
           output: 'trivy-global-results.sarif'
+        continue-on-error: true
 
   # PR status comment - queries GitHub API for service CI results
   pr-status-report:

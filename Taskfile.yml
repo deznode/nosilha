@@ -29,6 +29,7 @@ tasks:
         check_tool "node"    "nvm install 20"                   "node --version"
         check_tool "pnpm"    "npm install -g pnpm"              "pnpm --version"
         check_tool "java"    "sdk install java 25-open"         "java --version 2>&1 | head -1"
+        check_tool "lefthook" "brew install lefthook"            "lefthook version"
         echo ""
 
         if [ "$missing" -gt 0 ]; then
@@ -39,11 +40,23 @@ tasks:
         fi
 
   setup:
-    desc: Full-stack setup — copy env templates, install web dependencies
+    desc: Full-stack setup — copy env templates, install web dependencies, install git hooks
     cmds:
       - task: setup:api
       - task: setup:infra
       - task: setup:web
+      - task: setup:hooks
+
+  setup:hooks:
+    desc: Install git hooks via Lefthook
+    cmds:
+      - |
+        if command -v lefthook &> /dev/null; then
+          lefthook install
+          echo "Git hooks installed via Lefthook"
+        else
+          echo "Warning: lefthook is not installed. Install with: brew install lefthook"
+        fi
 
   setup:api:
     desc: API setup — copy env and config templates if missing
