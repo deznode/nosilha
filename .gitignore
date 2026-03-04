@@ -102,6 +102,9 @@ apps/web/.velite
 
 arkhe-claude-plugins
 
+# Lefthook local overrides
+lefthook-local.yml
+
 # Nx cache
 .nx/
 
