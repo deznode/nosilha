@@ -1811,6 +1811,15 @@ ${story.content
     throw new Error("Not implemented");
   }
 
+  async updateExif(
+    mediaId: string,
+    request: import("@/types/gallery").UpdateExifRequest
+  ): Promise<import("@/types/gallery").GalleryMedia> {
+    console.log(`Mock API: Update EXIF metadata ${mediaId}:`, request);
+    await this.simulateDelay(500);
+    throw new Error("Not implemented");
+  }
+
   async archiveGalleryMedia(): Promise<void> {
     await this.simulateDelay(300);
   }

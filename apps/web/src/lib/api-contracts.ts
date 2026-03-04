@@ -472,6 +472,20 @@ export interface ApiClient {
   ): Promise<import("@/types/gallery").ExternalMedia>;
 
   /**
+   * Update EXIF metadata for a user-uploaded gallery media item.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   *
+   * @param mediaId Gallery media item ID
+   * @param request EXIF fields to update (PATCH semantics)
+   * @returns Updated gallery media item
+   */
+  updateExif(
+    mediaId: string,
+    request: import("@/types/gallery").UpdateExifRequest
+  ): Promise<import("@/types/gallery").GalleryMedia>;
+
+  /**
    * Promotes a gallery image to become the hero image for a directory entry.
    *
    * **Admin Endpoint**: Requires ADMIN role.

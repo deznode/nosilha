@@ -15,6 +15,7 @@ import com.nosilha.core.gallery.api.dto.LinkOrphanRequest
 import com.nosilha.core.gallery.api.dto.ModerationActionRequest
 import com.nosilha.core.gallery.api.dto.OrphanDetectionResponse
 import com.nosilha.core.gallery.api.dto.R2BucketListResponse
+import com.nosilha.core.gallery.api.dto.UpdateExifRequest
 import com.nosilha.core.gallery.api.dto.UpdateGalleryMediaRequest
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.GalleryModerationService
@@ -144,6 +145,40 @@ class AdminGalleryController(
         logger.info { "Admin $adminId updating media metadata: $id" }
 
         val updated = moderationService.updateMediaMetadata(id, request)
+            ?: return ResponseEntity.notFound().build()
+
+        return ResponseEntity.ok(ApiResult(data = updated))
+    }
+
+    /**
+     * Update EXIF metadata for a user-uploaded media item.
+     *
+     * Dedicated endpoint for re-extracting and applying EXIF metadata.
+     * Only applies to UserUploadedMedia. Creates an audit trail entry
+     * with action "EXIF_UPDATE".
+     *
+     * PATCH semantics — only non-null fields in the request body are applied.
+     * Returns 422 if the media is not a UserUploadedMedia.
+     *
+     * Example:
+     * POST /api/v1/admin/gallery/{mediaId}/update-exif
+     * {
+     *   "latitude": 14.8672,
+     *   "longitude": -24.7045,
+     *   "cameraMake": "DJI",
+     *   "photoType": "CULTURAL_SITE"
+     * }
+     */
+    @PostMapping("/{mediaId}/update-exif")
+    fun updateExifMetadata(
+        @PathVariable mediaId: UUID,
+        @Valid @RequestBody request: UpdateExifRequest,
+        authentication: Authentication,
+    ): ResponseEntity<ApiResult<GalleryMediaDto>> {
+        val adminId = extractAdminId(authentication)
+        logger.info { "Admin $adminId updating EXIF metadata for media $mediaId" }
+
+        val updated = moderationService.applyExifUpdate(mediaId, adminId, request)
             ?: return ResponseEntity.notFound().build()
 
         return ResponseEntity.ok(ApiResult(data = updated))

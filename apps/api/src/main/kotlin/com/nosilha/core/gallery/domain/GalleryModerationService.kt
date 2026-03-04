@@ -5,6 +5,7 @@ import com.nosilha.core.auth.api.UserProfileQueryService
 import com.nosilha.core.gallery.api.dto.CreateExternalMediaRequest
 import com.nosilha.core.gallery.api.dto.GalleryMediaDto
 import com.nosilha.core.gallery.api.dto.GalleryModerationAction
+import com.nosilha.core.gallery.api.dto.UpdateExifRequest
 import com.nosilha.core.gallery.api.dto.UpdateGalleryMediaRequest
 import com.nosilha.core.gallery.api.dto.contributorIds
 import com.nosilha.core.gallery.api.dto.toDto
@@ -22,6 +23,7 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID
 
@@ -537,6 +539,60 @@ class GalleryModerationService(
             rejected = errors.size,
             errors = errors,
         )
+    }
+
+    /**
+     * Applies EXIF metadata updates to a UserUploadedMedia record.
+     *
+     * Validates the media is a UserUploadedMedia, writes an audit row
+     * with action "EXIF_UPDATE", and applies only non-null fields from the request.
+     *
+     * @param mediaId UUID of the media item
+     * @param adminId UUID of the admin performing the update
+     * @param request EXIF fields to apply (PATCH semantics)
+     * @return Updated media DTO, or null if not found
+     * @throws BusinessException if media is not UserUploadedMedia
+     */
+    @Transactional
+    fun applyExifUpdate(
+        mediaId: UUID,
+        adminId: UUID,
+        request: UpdateExifRequest,
+    ): GalleryMediaDto? {
+        val media = repository.findById(mediaId).orElse(null) ?: return null
+
+        if (media !is UserUploadedMedia) {
+            throw BusinessException("EXIF update is only supported for user-uploaded media")
+        }
+
+        request.latitude?.let { media.latitude = BigDecimal.valueOf(it) }
+        request.longitude?.let { media.longitude = BigDecimal.valueOf(it) }
+        request.altitude?.let { media.altitude = BigDecimal.valueOf(it) }
+        request.dateTaken?.let { media.dateTaken = it }
+        request.cameraMake?.let { media.cameraMake = it }
+        request.cameraModel?.let { media.cameraModel = it }
+        request.orientation?.let { media.orientation = it }
+        request.photoType?.let { media.photoType = it }
+        request.gpsPrivacyLevel?.let { media.gpsPrivacyLevel = it }
+
+        media.reviewedBy = adminId
+        media.reviewedAt = Instant.now()
+
+        val saved = repository.save(media)
+
+        val audit = MediaModerationAudit(
+            mediaId = mediaId,
+            action = "EXIF_UPDATE",
+            previousStatus = media.status.name,
+            newStatus = media.status.name,
+            reason = "EXIF metadata re-extracted and applied by admin",
+        )
+        auditRepository.save(audit)
+
+        logger.info { "EXIF metadata updated for media $mediaId by admin $adminId" }
+
+        val displayNames = resolveDisplayNames(listOf(saved))
+        return saved.toDto(displayNames)
     }
 
     private fun resolveDisplayNames(mediaList: List<GalleryMedia>): Map<UUID, String> {
