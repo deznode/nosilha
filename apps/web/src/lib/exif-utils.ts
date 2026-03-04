@@ -56,6 +56,27 @@ const EXIFR_OPTIONS = {
 };
 
 /**
+ * Normalizes raw exifr output into our ExtractedExifData shape.
+ */
+function normalizeExifData(
+  data: Record<string, unknown>
+): ExtractedExifData {
+  return {
+    latitude: data.latitude as number | undefined,
+    longitude: data.longitude as number | undefined,
+    altitude: data.GPSAltitude as number | undefined,
+    dateTimeOriginal: (data.DateTimeOriginal ?? data.CreateDate) as
+      | Date
+      | undefined,
+    make: data.Make as string | undefined,
+    model: data.Model as string | undefined,
+    orientation: (data.Orientation as number | undefined) ?? 1,
+    width: (data.ImageWidth ?? data.ExifImageWidth) as number | undefined,
+    height: (data.ImageHeight ?? data.ExifImageHeight) as number | undefined,
+  };
+}
+
+/**
  * Extracts EXIF metadata from an image file.
  *
  * @param file - The image file to extract metadata from
@@ -75,36 +96,36 @@ export async function extractMetadata(
 ): Promise<ExtractedExifData | null> {
   try {
     const data = await exifr.parse(file, EXIFR_OPTIONS);
-
-    if (!data) {
-      return null;
-    }
-
-    // Normalize the extracted data
-    return {
-      // GPS - exifr normalizes to decimal degrees
-      latitude: data.latitude,
-      longitude: data.longitude,
-      altitude: data.GPSAltitude,
-
-      // Date - prefer DateTimeOriginal, fall back to CreateDate
-      dateTimeOriginal: data.DateTimeOriginal ?? data.CreateDate,
-
-      // Camera info
-      make: data.Make,
-      model: data.Model,
-
-      // Orientation (1-8, default 1 = normal)
-      orientation: data.Orientation ?? 1,
-
-      // Image dimensions - try multiple sources
-      width: data.ImageWidth ?? data.ExifImageWidth,
-      height: data.ImageHeight ?? data.ExifImageHeight,
-    };
+    if (!data) return null;
+    return normalizeExifData(data);
   } catch (error) {
-    // Log for debugging but don't throw
     console.warn(
       `EXIF extraction failed for ${file.name}:`,
+      error instanceof Error ? error.message : error
+    );
+    return null;
+  }
+}
+
+/**
+ * Extracts EXIF metadata from an image URL.
+ *
+ * Uses exifr's built-in UrlFetcher which only reads the first ~500 bytes,
+ * avoiding a full image download.
+ *
+ * @param url - The public image URL to extract metadata from
+ * @returns Extracted metadata or null if extraction fails or no data found
+ */
+export async function extractMetadataFromUrl(
+  url: string
+): Promise<ExtractedExifData | null> {
+  try {
+    const data = await exifr.parse(url, EXIFR_OPTIONS);
+    if (!data) return null;
+    return normalizeExifData(data);
+  } catch (error) {
+    console.warn(
+      `EXIF extraction failed for URL ${url}:`,
       error instanceof Error ? error.message : error
     );
     return null;

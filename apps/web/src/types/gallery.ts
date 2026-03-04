@@ -67,6 +67,16 @@ export interface UserUploadMedia extends GalleryMediaBase {
   aiAltText?: string;
   aiDescription?: string;
   aiProcessedAt?: string;
+  // EXIF fields (returned by backend GalleryMediaDto.UserUpload)
+  latitude?: number;
+  longitude?: number;
+  altitude?: number;
+  dateTaken?: string;
+  cameraMake?: string;
+  cameraModel?: string;
+  orientation?: number;
+  photoType?: string;
+  gpsPrivacyLevel?: string;
 }
 
 /**
@@ -273,6 +283,22 @@ export interface CreateExternalMediaRequest {
   author?: string;
   category?: string;
   displayOrder?: number;
+}
+
+/**
+ * Request to update EXIF metadata on user-uploaded gallery media (admin only).
+ * PATCH semantics — only provided fields are updated.
+ */
+export interface UpdateExifRequest {
+  latitude?: number;
+  longitude?: number;
+  altitude?: number;
+  dateTaken?: string; // ISO 8601
+  cameraMake?: string;
+  cameraModel?: string;
+  orientation?: number;
+  photoType?: string;
+  gpsPrivacyLevel?: string;
 }
 
 /**

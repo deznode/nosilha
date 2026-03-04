@@ -2706,6 +2706,37 @@ export class BackendApiClient implements ApiClient {
   }
 
   /**
+   * Update EXIF metadata for a user-uploaded gallery media item.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  async updateExif(
+    mediaId: string,
+    request: import("@/types/gallery").UpdateExifRequest
+  ): Promise<GalleryMedia> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/${mediaId}/update-exif`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => null);
+      const message =
+        errorBody?.message ||
+        `Failed to update EXIF metadata: ${response.status}`;
+      throw new Error(message);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<GalleryMedia>(payload);
+  }
+
+  /**
    * Archive (soft delete) a gallery media item.
    *
    * **Admin Endpoint**: Requires ADMIN role.
