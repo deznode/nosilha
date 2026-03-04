@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
-import org.springframework.http.MediaType as HttpMediaType
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -31,6 +30,7 @@ import tools.jackson.databind.json.JsonMapper
 import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID
+import org.springframework.http.MediaType as HttpMediaType
 
 /**
  * Integration tests for POST /api/v1/admin/gallery/{mediaId}/update-exif.
@@ -68,13 +68,14 @@ class ExifUpdateControllerTest {
         )
     }
 
-    private fun adminAuth() = authentication(
-        UsernamePasswordAuthenticationToken(
-            testAdminId.toString(),
-            null,
-            listOf(SimpleGrantedAuthority("ROLE_ADMIN")),
-        ),
-    )
+    private fun adminAuth() =
+        authentication(
+            UsernamePasswordAuthenticationToken(
+                testAdminId.toString(),
+                null,
+                listOf(SimpleGrantedAuthority("ROLE_ADMIN")),
+            ),
+        )
 
     private fun seedUserUploadedMedia(): UserUploadedMedia {
         val media = UserUploadedMedia().apply {

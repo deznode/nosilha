@@ -19,11 +19,11 @@ import com.nosilha.core.shared.events.MediaAnalysisRequestedEvent
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
 import io.github.oshai.kotlinlogging.KotlinLogging
-import java.math.BigDecimal
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID
 
