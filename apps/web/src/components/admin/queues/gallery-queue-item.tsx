@@ -13,6 +13,7 @@ import {
   Upload,
   Star,
   Pencil,
+  MapPin,
 } from "lucide-react";
 import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
 import type { AiStatusResponse, AiModerationStatus } from "@/types/ai";
@@ -32,6 +33,7 @@ interface GalleryQueueItemProps {
   ) => void;
   onEdit?: (item: GalleryMedia) => void;
   onPromoteToHero?: (id: string) => void;
+  onReextractExif?: (item: GalleryMedia) => void;
   aiStatus?: AiStatusResponse;
 }
 
@@ -40,6 +42,7 @@ export function GalleryQueueItem({
   onStatusChange,
   onEdit,
   onPromoteToHero,
+  onReextractExif,
   aiStatus,
 }: GalleryQueueItemProps) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -221,6 +224,14 @@ export function GalleryQueueItem({
               Edit
             </Button>
           )}
+          {onReextractExif &&
+            isUserUploadMedia(item) &&
+            item.publicUrl && (
+              <Button outline onClick={() => onReextractExif(item)}>
+                <MapPin data-slot="icon" />
+                EXIF
+              </Button>
+            )}
           <Button
             color="green"
             onClick={() => onStatusChange(item.id, "APPROVE")}

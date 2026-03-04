@@ -840,6 +840,19 @@ export async function updateGalleryMedia(
 }
 
 /**
+ * Update EXIF metadata for a user-uploaded gallery media item.
+ * Admin endpoint - requires ADMIN role.
+ * @param mediaId Gallery media item ID
+ * @param request EXIF fields to update (PATCH semantics)
+ */
+export async function updateExif(
+  mediaId: string,
+  request: import("@/types/gallery").UpdateExifRequest
+): Promise<import("@/types/gallery").GalleryMedia> {
+  return apiClient.updateExif(mediaId, request);
+}
+
+/**
  * Archive (soft delete) a gallery media item.
  * Admin endpoint - requires ADMIN role.
  * Automatically uses the configured API implementation (backend or mock).

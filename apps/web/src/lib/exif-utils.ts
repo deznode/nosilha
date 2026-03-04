@@ -112,6 +112,45 @@ export async function extractMetadata(
 }
 
 /**
+ * Extracts EXIF metadata from an image URL.
+ *
+ * Uses exifr's built-in UrlFetcher which only reads the first ~500 bytes,
+ * avoiding a full image download.
+ *
+ * @param url - The public image URL to extract metadata from
+ * @returns Extracted metadata or null if extraction fails or no data found
+ */
+export async function extractMetadataFromUrl(
+  url: string
+): Promise<ExtractedExifData | null> {
+  try {
+    const data = await exifr.parse(url, EXIFR_OPTIONS);
+
+    if (!data) {
+      return null;
+    }
+
+    return {
+      latitude: data.latitude,
+      longitude: data.longitude,
+      altitude: data.GPSAltitude,
+      dateTimeOriginal: data.DateTimeOriginal ?? data.CreateDate,
+      make: data.Make,
+      model: data.Model,
+      orientation: data.Orientation ?? 1,
+      width: data.ImageWidth ?? data.ExifImageWidth,
+      height: data.ImageHeight ?? data.ExifImageHeight,
+    };
+  } catch (error) {
+    console.warn(
+      `EXIF extraction failed for URL ${url}:`,
+      error instanceof Error ? error.message : error
+    );
+    return null;
+  }
+}
+
+/**
  * Checks if the extracted metadata contains GPS coordinates.
  */
 export function hasGpsData(metadata: ExtractedExifData | null): boolean {

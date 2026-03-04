@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
 import { GalleryQueueItem } from "./gallery-queue-item";
 import { GalleryEditModal } from "./gallery-edit-modal";
+import { ExifReextractModal } from "./exif-reextract-modal";
 import {
   useAdminGallery,
   useAiStatus,
@@ -15,6 +16,8 @@ import { Pagination, fromAdminQueueResponse } from "@/components/ui/pagination";
 export function GalleryQueue() {
   const [mediaToEdit, setMediaToEdit] = useState<GalleryMedia | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [exifItem, setExifItem] = useState<GalleryMedia | null>(null);
+  const [isExifModalOpen, setIsExifModalOpen] = useState(false);
   const [page, setPage] = useState(0);
 
   const galleryQuery = useAdminGallery({ page, size: 20 });
@@ -61,6 +64,16 @@ export function GalleryQueue() {
     setMediaToEdit(null);
   };
 
+  const handleReextractExif = (item: GalleryMedia) => {
+    setExifItem(item);
+    setIsExifModalOpen(true);
+  };
+
+  const handleExifClose = () => {
+    setIsExifModalOpen(false);
+    setExifItem(null);
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -104,6 +117,7 @@ export function GalleryQueue() {
           onStatusChange={handleStatusChange}
           onEdit={handleEdit}
           onPromoteToHero={handlePromoteToHero}
+          onReextractExif={handleReextractExif}
           aiStatus={aiStatuses.get(item.id)}
         />
       ))}
@@ -120,6 +134,13 @@ export function GalleryQueue() {
         isOpen={isEditModalOpen}
         item={mediaToEdit}
         onClose={handleEditClose}
+      />
+
+      <ExifReextractModal
+        isOpen={isExifModalOpen}
+        item={exifItem}
+        onClose={handleExifClose}
+        onSuccess={() => galleryQuery.refetch()}
       />
     </div>
   );

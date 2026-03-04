@@ -276,6 +276,22 @@ export interface CreateExternalMediaRequest {
 }
 
 /**
+ * Request to update EXIF metadata on user-uploaded gallery media (admin only).
+ * PATCH semantics — only provided fields are updated.
+ */
+export interface UpdateExifRequest {
+  latitude?: number;
+  longitude?: number;
+  altitude?: number;
+  dateTaken?: string; // ISO 8601
+  cameraMake?: string;
+  cameraModel?: string;
+  orientation?: number;
+  photoType?: string;
+  gpsPrivacyLevel?: string;
+}
+
+/**
  * Moderation action types for gallery media
  */
 export type GalleryModerationAction = "APPROVE" | "FLAG" | "REJECT";
