@@ -11,17 +11,21 @@ import { MapPin, X, RefreshCw, Loader2 } from "lucide-react";
 import { Button } from "@/components/catalyst-ui/button";
 import { useUpdateExif } from "@/hooks/queries/admin";
 import { useToast } from "@/hooks/use-toast";
-import { extractMetadataFromUrl } from "@/lib/exif-utils";
 import {
+  extractMetadataFromUrl,
   formatGpsCoordinates,
   formatCameraInfo,
 } from "@/lib/exif-utils";
 import { MetadataBadges } from "@/components/gallery/metadata-badges";
 import { PhotoTypeSelector } from "@/components/gallery/photo-type-selector";
 import type { GalleryMedia, UpdateExifRequest } from "@/types/gallery";
-import type { ExtractedExifData } from "@/types/media";
-import type { PhotoType, PhotoMetadata, GpsPrivacyLevel } from "@/types/media";
 import { isUserUploadMedia } from "@/types/gallery";
+import type {
+  ExtractedExifData,
+  PhotoType,
+  PhotoMetadata,
+  GpsPrivacyLevel,
+} from "@/types/media";
 
 interface ExifReextractModalProps {
   isOpen: boolean;
@@ -99,14 +103,8 @@ function buildCurrentMetadata(item: GalleryMedia): PhotoMetadata | null {
     make: item.cameraMake,
     model: item.cameraModel,
     orientation: item.orientation,
-    width: undefined,
-    height: undefined,
-    approximateDate: undefined,
-    locationName: undefined,
-    archiveSource: undefined,
-    photoType: (item.photoType as PhotoType) || ("CULTURAL_SITE" as PhotoType),
-    gpsPrivacyLevel:
-      (item.gpsPrivacyLevel as GpsPrivacyLevel) || ("NONE" as GpsPrivacyLevel),
+    photoType: (item.photoType as PhotoType) || "CULTURAL_SITE",
+    gpsPrivacyLevel: (item.gpsPrivacyLevel as GpsPrivacyLevel) || "NONE",
     hasExifData: !!(item.latitude || item.cameraMake || item.dateTaken),
   };
 }
@@ -117,9 +115,6 @@ function buildExtractedMetadata(
 ): PhotoMetadata {
   return {
     ...data,
-    approximateDate: undefined,
-    locationName: undefined,
-    archiveSource: undefined,
     photoType,
     gpsPrivacyLevel:
       data.latitude && data.longitude ? GPS_PRIVACY_MAP[photoType] : "NONE",

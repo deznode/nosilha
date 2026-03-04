@@ -11,12 +11,12 @@ import java.time.Instant
 /**
  * Request DTO for updating EXIF metadata on user-uploaded gallery media.
  *
- * <p>PATCH semantics — only non-null fields are applied to the entity.
+ * PATCH semantics — only non-null fields are applied to the entity.
  * Used by the dedicated EXIF re-extraction endpoint to update GPS coordinates,
- * camera info, and privacy tracking fields after client-side extraction.</p>
+ * camera info, and privacy tracking fields after client-side extraction.
  *
- * <p>All fields are optional. Only fields the admin selects in the comparison
- * modal are included in the request.</p>
+ * All fields are optional. Only fields the admin selects in the comparison
+ * modal are included in the request.
  */
 data class UpdateExifRequest(
     @field:DecimalMin("-90.0", message = "Latitude must be >= -90")

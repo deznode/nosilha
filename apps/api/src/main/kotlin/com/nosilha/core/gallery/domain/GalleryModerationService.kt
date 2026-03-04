@@ -544,8 +544,8 @@ class GalleryModerationService(
     /**
      * Applies EXIF metadata updates to a UserUploadedMedia record.
      *
-     * <p>Validates the media is a UserUploadedMedia, writes an audit row
-     * with action "EXIF_UPDATE", and applies only non-null fields from the request.</p>
+     * Validates the media is a UserUploadedMedia, writes an audit row
+     * with action "EXIF_UPDATE", and applies only non-null fields from the request.
      *
      * @param mediaId UUID of the media item
      * @param adminId UUID of the admin performing the update

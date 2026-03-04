@@ -153,12 +153,12 @@ class AdminGalleryController(
     /**
      * Update EXIF metadata for a user-uploaded media item.
      *
-     * <p>Dedicated endpoint for re-extracting and applying EXIF metadata.
+     * Dedicated endpoint for re-extracting and applying EXIF metadata.
      * Only applies to UserUploadedMedia. Creates an audit trail entry
-     * with action "EXIF_UPDATE".</p>
+     * with action "EXIF_UPDATE".
      *
-     * <p>PATCH semantics — only non-null fields in the request body are applied.
-     * Returns 422 if the media is not a UserUploadedMedia.</p>
+     * PATCH semantics — only non-null fields in the request body are applied.
+     * Returns 422 if the media is not a UserUploadedMedia.
      *
      * Example:
      * POST /api/v1/admin/gallery/{mediaId}/update-exif
