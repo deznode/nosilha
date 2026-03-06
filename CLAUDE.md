@@ -9,9 +9,9 @@ Nos Ilha is a community-driven cultural heritage hub for Brava Island, Cape Verd
 ## Architecture
 
 - **Frontend**: Next.js 16.1 (App Router) with React 19.2, TypeScript, Tailwind CSS, ISR, Supabase Auth
-- **Backend**: Spring Boot 4.0.0 with Kotlin 2.3.0, Java 25, Spring Modulith 2.0.1, PostgreSQL
+- **Backend**: Spring Boot 4.0.3 with Kotlin 2.3.0, Java 25, Spring Modulith 2.0.1, PostgreSQL
 - **Infrastructure**: Docker Compose (local), Terraform + GCP Cloud Run (prod)
-- **CI/CD**: 9 GitHub Actions workflows — security scanning, auto-deployment, health checks
+- **CI/CD**: 10 GitHub Actions workflows — security scanning, auto-deployment, health checks
 
 ## Project Organization
 
@@ -22,7 +22,7 @@ nosilha/
 ├── infrastructure/    # Docker Compose, Terraform, GCP config
 ├── docs/              # Architecture, API reference, ADRs, design system
 ├── plan/              # Git submodule — specs and planning documents
-└── .claude/           # Rules, skills, commands for Claude Code
+└── .claude/           # Rules and skills for Claude Code
 ```
 
 See `docs/20-architecture/architecture.md` for detailed integration flows (auth, content management, media, CI/CD).
@@ -79,33 +79,47 @@ Domain-specific instructions loaded automatically based on file paths:
 | `content/mdx-platform.md` | `apps/web/content/**` | MDX content authoring platform |
 | `infrastructure/cicd-deployment.md` | `infrastructure/**, .github/**` | CI/CD, Docker, cloud deployment |
 
-## Skills and Commands
+## Skills
 
-The codebase uses a two-part system for specialized capabilities:
-- **Skills** (`.claude/skills/`) - Domain experts that execute tasks and write code/content
-- **Commands** (`.claude/commands/`) - Slash commands that expand into prompts and trigger workflows
+Specialized capabilities live in `.claude/skills/` — domain experts that execute tasks and write code/content.
 
 ### Project Skills
 
 Domain-specific executors located in `.claude/skills/`. Each skill has detailed documentation in its SKILL.md file.
 
-| Category | Skills |
-|----------|--------|
-| **Content & Heritage** | `authoring-content`, `planning-content`, `verifying-content` |
-| **Infrastructure** | `mapping-sites` |
-| **Research** | `web-searching` |
-| **Browser Testing** | `playwright:playwright-cli` (Claude Code plugin) |
+| Skill | Purpose | Trigger |
+|-------|---------|---------|
+| `content-pipeline` | Orchestrates Research → Plan → Author → Verify for cultural heritage content | "create content", "write about", "plan content", "content pipeline" |
+| `web-searching` | Web research with multi-source verification | "research", "search", "find information", "verify facts" |
+| `mapping-sites` | Mapbox GL JS + React for cultural heritage maps | "add map", "show locations", "map component" |
+| `playwright:playwright-cli` | Browser automation (Claude Code plugin) | See Playwright section below |
 
-### Slash Commands
+#### Content Pipeline Details
 
-Custom workflow triggers in `.claude/commands/`. Use syntax: `/command-name [arguments]`
+The `content-pipeline` skill coordinates 4 stages with user checkpoints between each:
 
-**Project**: `/research <topic>` - Conduct cultural/historical research with web search
+```
+Research → Plan → Author → Verify → [Revise or Accept]
+```
 
-### Usage Guidelines
+**Modes**:
+- **Full pipeline**: Provide a topic — runs all 4 stages sequentially
+- **Resume**: If `plan/content/{slug}/` has existing artifacts, offers to continue from the last completed stage
+- **Verify only**: Provide a file path — runs only the verification stage on existing content
 
-- **Skills**: Use for executing tasks (writing code, content, infrastructure changes)
-- **Commands**: Use to trigger workflows and specialized operations
+**State**: Intermediate outputs saved to `plan/content/{slug}/` (research.md, content-plan.md, verification-report.md). Final content goes to its destination path.
+
+**Integration**: The Research stage delegates to the `web-searching` skill via file path reference, adding Cape Verdean cultural research constraints on top.
+
+**Reference files** (loaded on-demand per stage):
+- `references/RESEARCH.md` — Cultural research constraints
+- `references/PLANNING.md` — Content planning framework
+- `references/AUTHORING.md` — Writing voice and SEO integration
+- `references/VERIFICATION.md` — Accuracy patterns and bias detection
+- `references/GLOSSARY.md` — Cape Verdean cultural terms
+- `references/SEO_KEYWORDS.md` — Diaspora discovery keywords
+- `references/TEMPLATES.md` — Content and schema markup templates
+- `references/CONSULTATION.md` — Elder and community consultation protocols
 
 ### Playwright Verification
 

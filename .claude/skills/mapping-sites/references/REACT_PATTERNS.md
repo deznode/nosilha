@@ -1,5 +1,12 @@
 # React Integration Patterns
 
+## Table of Contents
+- [Pattern 1: Heritage Map Component](#pattern-1-heritage-map-component)
+- [Pattern 2: Custom Mapbox Hook](#pattern-2-custom-mapbox-hook)
+- [Pattern 3: GeoJSON Transformation](#pattern-3-geojson-transformation)
+- [Pattern 4: TypeScript Interfaces](#pattern-4-typescript-interfaces)
+- [Best Practices](#best-practices)
+
 This document provides comprehensive React component patterns for Mapbox GL JS integration in the Nos Ilha cultural heritage platform.
 
 ## Pattern 1: Heritage Map Component

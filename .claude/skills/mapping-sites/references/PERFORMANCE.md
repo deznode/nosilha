@@ -1,5 +1,15 @@
 # Mobile Performance Optimization
 
+## Table of Contents
+- [Low Connectivity Detection](#low-connectivity-detection)
+- [Cultural Site Proximity Detection](#cultural-site-proximity-detection)
+- [Memory Management](#memory-management)
+- [Marker Clustering Optimization](#marker-clustering-optimization)
+- [Lazy Loading Implementation](#lazy-loading-implementation)
+- [Error Handling and Fallbacks](#error-handling-and-fallbacks)
+- [Performance Monitoring](#performance-monitoring)
+- [Best Practices](#best-practices)
+
 This document provides strategies for optimizing Mapbox GL JS performance for mobile diaspora users with limited connectivity.
 
 ## Low Connectivity Detection
