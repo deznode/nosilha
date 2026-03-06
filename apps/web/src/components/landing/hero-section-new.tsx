@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
-import { MapPin, Users, BookOpen } from "lucide-react";
+import { MapPin, Users, Camera } from "lucide-react";
 import clsx from "clsx";
 
 import { UnifiedSearch } from "@/components/search";
@@ -182,7 +182,7 @@ function HeroContent() {
             href="/gallery"
             className="bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 group shadow-bougainvillea-pink/30 relative flex items-center gap-2 rounded-xl px-8 py-4 text-base font-bold text-white shadow-xl transition-all duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-stone-900"
           >
-            <BookOpen size={20} className="text-white/90" aria-hidden="true" />
+            <Camera size={20} className="text-white/90" aria-hidden="true" />
             <span>Start Exploring Brava</span>
           </Link>
         </motion.div>
@@ -211,7 +211,10 @@ function HeroContent() {
       </motion.div>
 
       {/* Scroll Indicator — visible on mobile; desktop version rendered via children */}
-      <ScrollIndicator onClick={handleScrollDown} className="lg:hidden" />
+      <ScrollIndicator
+        onClick={handleScrollDown}
+        className="hidden sm:block lg:hidden"
+      />
     </section>
   );
 }

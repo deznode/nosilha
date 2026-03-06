@@ -146,7 +146,7 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
     <>
       {/* Left Section: Logo & Mobile Menu Trigger */}
       <div className="flex items-center">
-        <div className="mr-2 flex lg:hidden">
+        <div className="mr-2 flex md:hidden">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className={clsx(
@@ -179,7 +179,7 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
         </div>
 
         {/* Desktop Navigation */}
-        <PopoverGroup className="hidden lg:ml-8 lg:flex lg:space-x-1">
+        <PopoverGroup className="hidden md:ml-8 md:flex md:space-x-1">
           {navigation.map((item) => {
             if (item.type === "dropdown") {
               const isChildActive = item.items.some(
@@ -275,7 +275,7 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
           <Link
             href="/admin"
             className={clsx(
-              "hidden h-16 items-center gap-1.5 border-b-2 px-3 text-sm font-medium transition-colors lg:inline-flex",
+              "hidden h-16 items-center gap-1.5 border-b-2 px-3 text-sm font-medium transition-colors md:inline-flex",
               navLinkClasses(pathname.startsWith("/admin"), isHeroTransparent)
             )}
           >
@@ -287,7 +287,7 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
 
       {/* Right Section: Utilities */}
       <div className="flex items-center space-x-2 md:space-x-3">
-        <div className="hidden items-center space-x-2 lg:flex">
+        <div className="hidden items-center space-x-2 md:flex">
           {/* Language Selector */}
           <Menu as="div" className="relative">
             <MenuButton
@@ -500,7 +500,7 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
           exit={{ opacity: 0, y: isHeroTransparent ? 10 : -10 }}
           transition={{ duration: 0.2 }}
           className={clsx(
-            "border-border-primary bg-canvas fixed inset-x-0 z-40 max-h-[85vh] overflow-y-auto lg:hidden",
+            "border-border-primary bg-canvas fixed inset-x-0 z-40 max-h-[85vh] overflow-y-auto md:hidden",
             isHeroTransparent
               ? "rounded-t-card bottom-20 border-b"
               : "top-16 border-t"

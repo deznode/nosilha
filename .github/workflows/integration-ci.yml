@@ -51,36 +51,11 @@ jobs:
             infrastructure:
               - 'infrastructure/**'
 
-  # Wait for individual service builds to complete
-  wait-for-services:
-    name: Wait for Service Builds
-    runs-on: ubuntu-latest
-    needs: changes
-    if: needs.changes.outputs.any-service == 'true'
-    steps:
-      - name: Wait for Backend Build
-        if: needs.changes.outputs.backend == 'true'
-        uses: lewagon/wait-on-check-action@v1.3.1
-        with:
-          ref: ${{ github.ref }}
-          check-name: 'Build & Package (Backend CI/CD)'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 30
-          
-      - name: Wait for Frontend Build
-        if: needs.changes.outputs.frontend == 'true'
-        uses: lewagon/wait-on-check-action@v1.3.1
-        with:
-          ref: ${{ github.ref }}
-          check-name: 'Build & Package (Frontend CI/CD)'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 30
-
   # API Integration Tests
   api-integration-tests:
     name: API Integration Tests
     runs-on: ubuntu-latest
-    needs: [changes, wait-for-services]
+    needs: [changes]
     if: always() && (needs.changes.outputs.backend == 'true' || github.event_name == 'schedule')
 
     steps:
@@ -115,7 +90,7 @@ jobs:
   security-integration:
     name: Security Integration Tests
     runs-on: ubuntu-latest
-    needs: [changes, wait-for-services]
+    needs: [changes]
     if: always() && (needs.changes.outputs.any-service == 'true' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
 
     # Add OIDC permissions
@@ -155,7 +130,7 @@ jobs:
   deployment-health:
     name: Deployment Health Check
     runs-on: ubuntu-latest
-    needs: [changes, wait-for-services]
+    needs: [changes]
     if: always() && (needs.changes.outputs.any-service == 'true' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
 
     # Add OIDC permissions

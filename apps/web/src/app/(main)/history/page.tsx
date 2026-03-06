@@ -130,8 +130,6 @@ async function cachedHistoryContent(bestLang: Language) {
         <ImageHeroSection
           imageSrc={hero.imageSrc}
           imageAlt="Historical timeline of Brava Island from discovery to present day"
-          title={hero.title}
-          subtitle={hero.subtitle}
           heightClass="h-[65vh]"
           maxHeightClass="max-h-[600px]"
         />
@@ -140,8 +138,8 @@ async function cachedHistoryContent(bestLang: Language) {
         <div className="bg-surface">
           <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
             <PageHeader
-              title="History & Heritage"
-              subtitle="Discover the rich cultural tapestry and fascinating history of Brava Island, from its volcanic origins to its vibrant musical traditions."
+              title="Our Island, Our Story"
+              subtitle="Settled by refugees from a volcanic eruption, immortalized by a poet's pen, and carried across oceans by whalers and dreamers — Brava's story begins here."
             />
 
             {/* Content Action Toolbar */}
