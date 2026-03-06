@@ -1,3 +1,4 @@
+import React from "react";
 import { Card } from "@/components/ui/card";
 import { DirectoryEntry } from "@/types/directory";
 import { BookmarkButton } from "@/components/directory/bookmark-button";
@@ -5,8 +6,7 @@ import { getEntryUrl } from "@/lib/directory-utils";
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
-import { CATEGORY_ICONS } from "@/components/search/unified-search-item";
-import type { DirectoryCategory } from "@/types/search";
+import { getCategoryIcon } from "@/lib/category-icons";
 
 interface DirectoryCardProps {
   entry: DirectoryEntry;
@@ -56,16 +56,10 @@ export function DirectoryCard({
             />
           ) : (
             <div className="bg-surface-alt flex h-full w-full flex-col items-center justify-center gap-2 transition-transform duration-500 group-hover:scale-105">
-              {(() => {
-                const CategoryIcon =
-                  CATEGORY_ICONS[entry.category as DirectoryCategory] || MapPin;
-                return (
-                  <CategoryIcon
-                    className="text-muted h-10 w-10"
-                    aria-hidden="true"
-                  />
-                );
-              })()}
+              {React.createElement(getCategoryIcon(entry.category), {
+                className: "text-muted h-10 w-10",
+                "aria-hidden": true,
+              })}
               <span className="text-muted text-xs">{entry.category}</span>
             </div>
           )}

@@ -1,22 +1,10 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
-import {
-  MapPin,
-  Utensils,
-  Hotel,
-  Umbrella,
-  Castle,
-  TreePine,
-  Building,
-  Eye,
-  Footprints,
-  Church,
-  Anchor,
-  FileText,
-  type LucideIcon,
-} from "lucide-react";
-import type { UnifiedSearchResult, DirectoryCategory } from "@/types/search";
+import { FileText } from "lucide-react";
+import type { UnifiedSearchResult } from "@/types/search";
+import { getCategoryIcon } from "@/lib/category-icons";
 
 interface UnifiedSearchItemProps {
   result: UnifiedSearchResult;
@@ -31,20 +19,6 @@ interface UnifiedSearchItemProps {
 function sanitizeExcerpt(html: string): string {
   return html.replace(/<(?!\/?mark\b)[^>]*>/gi, "");
 }
-
-/** Category icon mapping */
-export const CATEGORY_ICONS: Record<DirectoryCategory, LucideIcon> = {
-  Restaurant: Utensils,
-  Hotel: Hotel,
-  Beach: Umbrella,
-  Heritage: Castle,
-  Nature: TreePine,
-  Town: Building,
-  Viewpoint: Eye,
-  Trail: Footprints,
-  Church: Church,
-  Port: Anchor,
-};
 
 /** Get display label for category */
 function getCategoryLabel(category: string): string {
@@ -66,8 +40,6 @@ export function UnifiedSearchItem({
   onSelect,
 }: UnifiedSearchItemProps) {
   if (result.type === "directory") {
-    const Icon = CATEGORY_ICONS[result.category] || MapPin;
-
     return (
       <li>
         <Link
@@ -76,7 +48,11 @@ export function UnifiedSearchItem({
           className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-white/5"
         >
           <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10">
-            <Icon size={16} className="text-amber-200" aria-hidden="true" />
+            {React.createElement(getCategoryIcon(result.category), {
+              size: 16,
+              className: "text-amber-200",
+              "aria-hidden": true,
+            })}
           </div>
           <div className="min-w-0 flex-1">
             <div className="truncate font-medium text-white">
