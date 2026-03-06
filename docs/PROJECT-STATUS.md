@@ -1,6 +1,6 @@
 # Project Status
 
-**Last Updated:** 2026-03-05
+**Last Updated:** 2026-03-06
 **Branch:** main | **Commits:** ~720
 
 ---
@@ -141,8 +141,13 @@ No critical blockers. Spec 03 (Design System Compliance) is the only active depe
 
 | Issue | Impact |
 |-------|--------|
-| Cloudflare Image Resizing not enabled | 504 errors on media.nosilha.com |
 | R2 oversized images | Need compression in upload pipeline |
+
+### Production Issues (Resolved)
+
+| Issue | Resolution | Date |
+|-------|-----------|------|
+| Cloudflare Image Resizing not enabled | Enabled manually in Cloudflare dashboard | 2026-03 |
 
 ---
 
@@ -159,6 +164,7 @@ No critical blockers. Spec 03 (Design System Compliance) is the only active depe
 - Security: OWASP remediation, HTML sanitizer, rate limiting (Bucket4j)
 - Frontend performance optimized (Spec 027): ISR cache profiles, image optimization
 - Production audit completed (March 2): CSP, hero image, hydration errors, media routes fixed
+- Design review fixes merged (PR #92): responsive improvements, category-to-icon mapping consolidated into shared utility
 
 ## What's Planned
 
