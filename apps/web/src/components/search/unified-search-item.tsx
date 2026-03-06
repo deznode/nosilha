@@ -33,7 +33,7 @@ function sanitizeExcerpt(html: string): string {
 }
 
 /** Category icon mapping */
-const CATEGORY_ICONS: Record<DirectoryCategory, LucideIcon> = {
+export const CATEGORY_ICONS: Record<DirectoryCategory, LucideIcon> = {
   Restaurant: Utensils,
   Hotel: Hotel,
   Beach: Umbrella,

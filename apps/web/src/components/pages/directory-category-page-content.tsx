@@ -252,7 +252,7 @@ export function DirectoryCategoryPageContent({
                 : "flex flex-col gap-4"
             }
           >
-            {filteredEntries.map((entry) => (
+            {filteredEntries.map((entry, index) => (
               <motion.div
                 key={entry.id}
                 variants={{
@@ -261,7 +261,7 @@ export function DirectoryCategoryPageContent({
                 }}
               >
                 {viewMode === "grid" ? (
-                  <DirectoryCard entry={entry} />
+                  <DirectoryCard entry={entry} isPriority={index === 0} />
                 ) : (
                   <ListViewCard entry={entry} />
                 )}

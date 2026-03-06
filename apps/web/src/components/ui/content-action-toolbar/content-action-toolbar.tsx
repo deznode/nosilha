@@ -58,8 +58,10 @@ export function ContentActionToolbar({
   const [reactions, setReactions] = useState<Reaction[]>(initialReactions);
 
   // Calculate scroll threshold (default: window.innerHeight - 81px header height)
-  const defaultThreshold =
-    typeof window !== "undefined" ? window.innerHeight - 81 : 0;
+  const [defaultThreshold, setDefaultThreshold] = useState(0);
+  useEffect(() => {
+    setDefaultThreshold(window.innerHeight - 81);
+  }, []);
   const isScrolled = useScrollTrigger(scrollThreshold ?? defaultThreshold);
 
   // Determine visibility: always show OR show after scroll

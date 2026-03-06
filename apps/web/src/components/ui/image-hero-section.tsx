@@ -7,7 +7,7 @@ import { ScrollIndicator } from "@/components/ui/scroll-indicator";
 interface ImageHeroSectionProps {
   imageSrc: string;
   imageAlt?: string;
-  title: string;
+  title?: string;
   subtitle?: string;
   showScrollIndicator?: boolean;
   className?: string;
@@ -65,21 +65,23 @@ export function ImageHeroSection({
       </div>
 
       {/* Content Overlay */}
-      <div className="relative z-10 flex items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl text-center">
-          {/* Main Title */}
-          <h1 className="font-serif text-4xl font-bold text-white drop-shadow-lg sm:text-5xl md:text-6xl">
-            {title}
-          </h1>
+      {title && (
+        <div className="relative z-10 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl text-center">
+            {/* Main Title */}
+            <h1 className="font-serif text-4xl font-bold text-white drop-shadow-lg sm:text-5xl md:text-6xl">
+              {title}
+            </h1>
 
-          {/* Subtitle */}
-          {subtitle && (
-            <p className="mt-4 font-sans text-lg leading-relaxed text-white/90 drop-shadow-md sm:text-xl md:mt-6">
-              {subtitle}
-            </p>
-          )}
+            {/* Subtitle */}
+            {subtitle && (
+              <p className="mt-4 font-sans text-lg leading-relaxed text-white/90 drop-shadow-md sm:text-xl md:mt-6">
+                {subtitle}
+              </p>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Scroll Indicator */}
       {showScrollIndicator && <ScrollIndicator onClick={handleScrollToNext} />}

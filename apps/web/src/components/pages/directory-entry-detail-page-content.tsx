@@ -151,7 +151,7 @@ export function DirectoryEntryDetailPageContent({
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:pl-24">
         <div className="mt-8 grid grid-cols-1 gap-x-12 gap-y-10 lg:grid-cols-3">
           <motion.div
             initial={{ opacity: 0, y: 40 }}

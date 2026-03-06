@@ -1,10 +1,11 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import clsx from "clsx";
 
 interface PageHeaderProps {
-  title: string;
+  title: ReactNode;
   subtitle?: string;
   /**
    * Heading level to use. Use "h2" when page already has an H1 elsewhere.

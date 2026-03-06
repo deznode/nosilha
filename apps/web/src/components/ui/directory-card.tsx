@@ -5,11 +5,15 @@ import { getEntryUrl } from "@/lib/directory-utils";
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
+import { CATEGORY_ICONS } from "@/components/search/unified-search-item";
+import type { DirectoryCategory } from "@/types/search";
 
 interface DirectoryCardProps {
   entry: DirectoryEntry;
   /** Whether to show the bookmark button (default: true) */
   showBookmark?: boolean;
+  /** Whether this card's image should be loaded with priority (LCP optimization) */
+  isPriority?: boolean;
 }
 
 /**
@@ -30,6 +34,7 @@ interface DirectoryCardProps {
 export function DirectoryCard({
   entry,
   showBookmark = true,
+  isPriority = false,
 }: DirectoryCardProps) {
   return (
     <Link
@@ -47,10 +52,21 @@ export function DirectoryCard({
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover transition-transform duration-500 group-hover:scale-105"
+              priority={isPriority}
             />
           ) : (
-            <div className="bg-surface-alt flex h-full w-full items-center justify-center transition-transform duration-500 group-hover:scale-105">
-              <span className="text-muted">No image available</span>
+            <div className="bg-surface-alt flex h-full w-full flex-col items-center justify-center gap-2 transition-transform duration-500 group-hover:scale-105">
+              {(() => {
+                const CategoryIcon =
+                  CATEGORY_ICONS[entry.category as DirectoryCategory] || MapPin;
+                return (
+                  <CategoryIcon
+                    className="text-muted h-10 w-10"
+                    aria-hidden="true"
+                  />
+                );
+              })()}
+              <span className="text-muted text-xs">{entry.category}</span>
             </div>
           )}
 

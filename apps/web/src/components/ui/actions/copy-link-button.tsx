@@ -71,10 +71,6 @@ export function CopyLinkButton({
     }
   };
 
-  // Check if clipboard API is available
-  const isClipboardAvailable =
-    typeof navigator !== "undefined" && navigator.clipboard;
-
   // Animation configuration using centralized tokens
   const scaleAnimation = prefersReducedMotion
     ? {}
@@ -88,13 +84,12 @@ export function CopyLinkButton({
         {...scaleAnimation}
         type="button"
         onClick={handleCopyLink}
-        disabled={!isClipboardAvailable}
         aria-label="Copy link to clipboard"
-        className={`focus-ring flex h-11 w-11 items-center justify-center rounded-full transition-all ${
+        className={`focus-ring flex h-11 w-11 cursor-pointer items-center justify-center rounded-full transition-all ${
           isActive
             ? "bg-ocean-blue text-white"
             : "hover:bg-surface-alt bg-surface text-body"
-        } ${!isClipboardAvailable ? "cursor-not-allowed opacity-50" : "cursor-pointer"} `}
+        }`}
       >
         <LinkIcon className="h-5 w-5" />
       </motion.button>
