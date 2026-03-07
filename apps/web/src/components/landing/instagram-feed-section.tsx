@@ -7,14 +7,6 @@ import clsx from "clsx";
 
 import type { InstagramPost } from "@/lib/instagram";
 
-/** Truncate text at the nearest word boundary. */
-function truncateAtWord(text: string, maxLength: number): string {
-  if (text.length <= maxLength) return text;
-  const truncated = text.slice(0, maxLength);
-  const lastSpace = truncated.lastIndexOf(" ");
-  return (lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated) + "\u2026";
-}
-
 const headerVariants: Variants = {
   hidden: { opacity: 0, x: -20 },
   visible: {
@@ -134,17 +126,16 @@ export function InstagramFeedSection({ posts }: InstagramFeedSectionProps) {
             href={featured.permalink}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label={
+              featured.caption ? undefined : "Featured Instagram post"
+            }
             variants={pick(featuredVariants)}
-            className="group col-span-2 overflow-hidden lg:row-span-3"
+            className="focus-ring group rounded-container col-span-2 overflow-hidden lg:row-span-3"
           >
-            <div className="rounded-container shadow-floating relative aspect-[4/3] h-full overflow-hidden lg:aspect-auto">
+            <div className="rounded-container shadow-floating relative aspect-[4/3] h-full overflow-hidden md:aspect-[16/9] lg:aspect-auto">
               <Image
                 src={getImageUrl(featured)}
-                alt={
-                  featured.caption
-                    ? truncateAtWord(featured.caption, 120)
-                    : "Featured Instagram post"
-                }
+                alt=""
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -169,19 +160,16 @@ export function InstagramFeedSection({ posts }: InstagramFeedSectionProps) {
               href={post.permalink}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label={post.caption ? undefined : "Instagram post"}
               variants={pick(gridItemVariants)}
               className={clsx(
-                "border-hairline rounded-card shadow-medium group relative aspect-square overflow-hidden border",
+                "focus-ring border-hairline rounded-card shadow-medium group relative aspect-square overflow-hidden border",
                 index >= 4 && "hidden sm:block"
               )}
             >
               <Image
                 src={getImageUrl(post)}
-                alt={
-                  post.caption
-                    ? truncateAtWord(post.caption, 120)
-                    : "Instagram post"
-                }
+                alt=""
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
