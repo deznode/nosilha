@@ -29,3 +29,4 @@ export { FeaturedStoriesSection } from "./featured-stories-section";
 export { CommunityStatsSection } from "./community-stats-section";
 export { MapTeaserSection } from "./map-teaser-section";
 export { NewsletterCtaSection } from "./newsletter-cta-section";
+export { InstagramFeedSection } from "./instagram-feed-section";

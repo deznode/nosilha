@@ -3,15 +3,18 @@
 import {
   ExploreHeritageSection,
   HeroSectionNew,
+  InstagramFeedSection,
   MapTeaserSection,
   NewsletterCtaSection,
 } from "@/components/landing";
 import { ScrollIndicator } from "@/components/ui/scroll-indicator";
 import { StickyNav } from "@/components/ui/sticky-nav";
 import type { DirectoryEntry } from "@/types/directory";
+import type { InstagramPost } from "@/lib/instagram";
 
 export interface HomePageContentProps {
   featuredEntries?: DirectoryEntry[];
+  instagramPosts?: InstagramPost[];
 }
 
 const NAV_OFFSET_PX = 60;
@@ -27,8 +30,10 @@ function scrollToNextSection(): void {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function HomePageContent({ featuredEntries }: HomePageContentProps) {
+export function HomePageContent({
+  featuredEntries: _featuredEntries,
+  instagramPosts,
+}: HomePageContentProps) {
   return (
     <div className="bg-canvas text-body relative -mt-16 transition-colors duration-700">
       {/* === Content Layer === */}
@@ -48,6 +53,10 @@ export function HomePageContent({ featuredEntries }: HomePageContentProps) {
 
         {/* Map section before Stories for progressive disclosure */}
         <MapTeaserSection />
+
+        {instagramPosts && instagramPosts.length > 0 && (
+          <InstagramFeedSection posts={instagramPosts} />
+        )}
 
         <NewsletterCtaSection />
       </div>

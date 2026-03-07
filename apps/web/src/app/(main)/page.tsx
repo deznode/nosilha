@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cacheLife } from "next/cache";
 import { getEntriesByCategory } from "@/lib/api";
+import { fetchInstagramPosts } from "@/lib/instagram";
 import { HomePageContent } from "@/components/pages/home-page-content";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
 import type { PlaceSchema } from "@/types/metadata";
@@ -59,6 +60,14 @@ export const metadata: Metadata = generatePageMetadata({
 export default async function HomePage() {
   "use cache";
   cacheLife("entry");
-  const { items: featuredEntries } = await getEntriesByCategory("all");
-  return <HomePageContent featuredEntries={featuredEntries} />;
+  const [{ items: featuredEntries }, instagramPosts] = await Promise.all([
+    getEntriesByCategory("all"),
+    fetchInstagramPosts(),
+  ]);
+  return (
+    <HomePageContent
+      featuredEntries={featuredEntries}
+      instagramPosts={instagramPosts}
+    />
+  );
 }
