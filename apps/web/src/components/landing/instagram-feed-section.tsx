@@ -137,6 +137,7 @@ export function InstagramFeedSection({ posts }: InstagramFeedSectionProps) {
                 src={getImageUrl(featured)}
                 alt=""
                 fill
+                unoptimized
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
               />
@@ -171,6 +172,7 @@ export function InstagramFeedSection({ posts }: InstagramFeedSectionProps) {
                 src={getImageUrl(post)}
                 alt=""
                 fill
+                unoptimized
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, 25vw"
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
               />
