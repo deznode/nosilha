@@ -150,17 +150,6 @@ jobs:
         env:
           SPRING_PROFILES_ACTIVE: test
 
-      # Upload coverage reports
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        if: always()
-        with:
-          files: ./apps/api/build/reports/jacoco/test/jacocoTestReport.xml
-          flags: backend-unit
-          name: backend-unit-tests
-          fail_ci_if_error: false
-          token: ${{ secrets.CODECOV_TOKEN }}
-
       # Verify Spring Modulith module boundaries (FR-004, FR-009)
       - name: Verify Spring Modulith module boundaries
         run: |

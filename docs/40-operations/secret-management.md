@@ -19,14 +19,17 @@ This document describes secret management for Nos Ilha, optimized for Google Clo
 | `supabase_db_username` | Backend | 3 | Database credentials |
 | `supabase_db_password` | Backend | 4 | Database credentials |
 | `supabase_session_db_url` | Backend | 1 | Flyway migrations connection |
-| `supabase_jwt_secret` | Backend | - | JWT validation (IAM configured, not injected) |
-| `resend_api_key` | Frontend | 1 | Newsletter email service |
 | `gemini_api_key` | Backend | 1 | Google Gemini API authentication |
+| `r2_account_id` | Backend | 2 | Cloudflare R2 storage account ID |
+| `r2_access_key_id` | Backend | 1 | Cloudflare R2 storage access key |
+| `r2_secret_access_key` | Backend | 2 | Cloudflare R2 storage secret key |
+| `resend_api_key` | Frontend | 1 | Newsletter email service |
 | `instagram_access_token` | Frontend | 1 | Instagram Graph API feed |
+| `revalidate_secret` | Both | 1 | Frontend cache revalidation shared secret |
 
 **Free Tier Limits**: 6 active versions, 10,000 access operations/month
 
-**Current Usage**: 8 secrets configured across backend and frontend services
+**Current Usage**: 11 secrets configured across backend and frontend services
 
 > **Note**: Cloud Vision uses GCP Application Default Credentials (same service account as Cloud Run) — no separate secret needed.
 
