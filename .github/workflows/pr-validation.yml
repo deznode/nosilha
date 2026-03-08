@@ -67,10 +67,16 @@ jobs:
             echo "infrastructure=false" >> $GITHUB_OUTPUT
           fi
 
-  # Global security scan (full repository) - unique value not in service CIs
+  # Global security scan (full repository) - only when service-specific scans don't cover it
   global-security-scan:
     name: Global Security Scan
     runs-on: ubuntu-latest
+    needs: [changes]
+    # Skip when service-specific CIs already run their own Trivy scans
+    if: |
+      needs.changes.outputs.backend != 'true' &&
+      needs.changes.outputs.frontend != 'true' &&
+      needs.changes.outputs.infrastructure != 'true'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -97,8 +103,11 @@ jobs:
         id: check-status
         with:
           script: |
-            // Wait up to 10 minutes for checks to complete
-            const maxWait = 10 * 60 * 1000;
+            // Shorter wait when no service changes detected (docs-only PRs)
+            const anyService = '${{ needs.changes.outputs.backend }}' === 'true' ||
+                               '${{ needs.changes.outputs.frontend }}' === 'true' ||
+                               '${{ needs.changes.outputs.infrastructure }}' === 'true';
+            const maxWait = anyService ? 5 * 60 * 1000 : 30 * 1000;
             const pollInterval = 30 * 1000;
             const start = Date.now();
 

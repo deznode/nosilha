@@ -113,7 +113,9 @@ jobs:
   backend-lint:
     name: Backend Code Quality
     runs-on: ubuntu-latest
-    if: contains(inputs.components, 'backend') && inputs.include-lint-analysis == true
+    # Disabled: detekt is commented out pending 2.0.0 stable (Java 25 compatibility)
+    # Re-enable when detekt is ready by removing 'false &&'
+    if: false && contains(inputs.components, 'backend') && inputs.include-lint-analysis == true
 
     defaults:
       run:

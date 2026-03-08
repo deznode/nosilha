@@ -92,6 +92,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 # Copy the optimized static assets to the app directory
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 
+# Copy build-time cache for ISR seed data
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/cache ./apps/web/.next/cache
+
 # Set working directory to the app location within monorepo structure
 WORKDIR /app/apps/web
 
