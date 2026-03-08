@@ -91,7 +91,7 @@ export function InstagramFeedSection({ posts }: InstagramFeedSectionProps) {
   const desktopGrid = gridPosts.slice(0, 6);
 
   return (
-    <section className="bg-surface-alt overflow-hidden py-24">
+    <section className="bg-background-secondary overflow-hidden py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div

@@ -225,7 +225,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.r2_access_key_id.secret_id
-            version = "2"
+            version = "1"
           }
         }
       }
@@ -304,6 +304,8 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
     google_secret_manager_secret.revalidate_secret,
     google_secret_manager_secret_iam_member.grant_revalidate_secret_frontend,
     google_secret_manager_secret_iam_member.grant_resend_api_key_access,
+    google_secret_manager_secret.instagram_access_token,
+    google_secret_manager_secret_iam_member.grant_instagram_access_token_access,
   ]
 
   template {
@@ -373,6 +375,17 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.revalidate_secret.secret_id
+            version = "1"
+          }
+        }
+      }
+
+      # Instagram Graph API access token for homepage feed
+      env {
+        name = "INSTAGRAM_ACCESS_TOKEN"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.instagram_access_token.secret_id
             version = "1"
           }
         }
