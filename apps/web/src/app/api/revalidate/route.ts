@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
 
   // Validate path format (prevent path traversal attacks)
   if (path) {
-    const safePathPattern = /^\/[a-zA-Z0-9\-_\/]+$/;
+    const safePathPattern = /^\/[a-zA-Z0-9\-_\/]*$/;
     if (!safePathPattern.test(path) || path.includes("..")) {
       console.warn(`Invalid revalidation path rejected: ${path}`);
       return NextResponse.json(
