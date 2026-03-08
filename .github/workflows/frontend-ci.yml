@@ -300,9 +300,19 @@ jobs:
         run: |
           SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} --region=${{ env.REGION }} --format='value(status.url)')
           echo "Service URL: $SERVICE_URL"
-          
+
           # Wait for service to be ready
           sleep 30
-          
+
           # Basic health check
           curl -f "$SERVICE_URL" || (echo "Health check failed" && exit 1)
+
+      - name: Warm ISR Cache
+        run: |
+          SERVICE_URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} --region=${{ env.REGION }} --format='value(status.url)')
+
+          # Trigger homepage revalidation so Instagram data fetches with runtime token
+          curl -sf -X POST "$SERVICE_URL/api/revalidate" \
+            -H "Content-Type: application/json" \
+            -H "X-Revalidate-Secret: ${{ secrets.REVALIDATE_SECRET }}" \
+            -d '{"path": "/"}' || echo "Cache warm-up failed (non-fatal)"
