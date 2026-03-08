@@ -71,6 +71,27 @@ resource "google_secret_manager_secret_iam_member" "grant_session_db_url_access"
   member    = google_service_account.backend_runner.member
 }
 
+# Instagram access token for Instagram Graph API feed on homepage
+# After apply, set the value: echo -n "YOUR_TOKEN" | gcloud secrets versions add instagram_access_token --data-file=- --project=<project-id>
+resource "google_secret_manager_secret" "instagram_access_token" {
+  project   = var.gcp_project_id
+  secret_id = "instagram_access_token"
+
+  replication {
+    auto {}
+  }
+
+  depends_on = [google_project_service.secret_manager]
+}
+
+# Grant frontend access to Instagram access token
+resource "google_secret_manager_secret_iam_member" "grant_instagram_access_token_access" {
+  project   = var.gcp_project_id
+  secret_id = google_secret_manager_secret.instagram_access_token.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = google_service_account.frontend_runner.member
+}
+
 # Grant frontend service account access to Resend API key for newsletter email functionality
 resource "google_secret_manager_secret_iam_member" "grant_resend_api_key_access" {
   project   = var.gcp_project_id

@@ -1,5 +1,12 @@
 # Cultural Heritage Map Styling
 
+## Table of Contents
+- [Cultural Category Styling](#cultural-category-styling)
+- [Cultural Clustering Configuration](#cultural-clustering-configuration)
+- [Map Base Style Configuration](#map-base-style-configuration)
+- [Custom Popup Styling](#custom-popup-styling)
+- [Category-Based Layer Configuration](#category-based-layer-configuration)
+
 This document provides styling patterns for cultural heritage map visualization using Nos Ilha brand colors and cultural significance markers.
 
 ## Cultural Category Styling

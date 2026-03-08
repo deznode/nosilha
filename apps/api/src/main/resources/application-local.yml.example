@@ -52,19 +52,6 @@ spring:
         jdbc:
           batch_size: 20
 
-  # OAuth2 Resource Server Configuration (JWKS-based JWT verification)
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: ${supabase.project-url}/auth/v1/.well-known/jwks.json
-          issuer-uri: ${supabase.project-url}/auth/v1
-
-# Supabase Configuration
-# Uses public JWKS endpoint for JWT verification (no secret needed)
-supabase:
-  project-url: https://your-project.supabase.co
-
 # Management endpoints for health checks and debugging
 management:
   endpoints:

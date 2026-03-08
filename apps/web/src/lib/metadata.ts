@@ -61,23 +61,23 @@ export function generatePageMetadata(options: PageMetadataOptions): Metadata {
     structuredData = [],
     baseUrl = siteConfig.url,
     siteName = siteConfig.name,
-    defaultImage = siteConfig.ogImage,
+    defaultImage: _defaultImage = siteConfig.ogImage,
   } = options;
 
   const url = `${baseUrl}${path}`;
   // Don't append siteName here - let Next.js title template handle it
   const fullTitle = title;
 
-  // Default Open Graph image
-  const defaultOgImage: OpenGraphImage = {
-    url: `${baseUrl}${defaultImage}`,
+  // Dynamic OG image via /api/og route
+  const dynamicOgImage: OpenGraphImage = {
+    url: `${baseUrl}/api/og?type=default&title=${encodeURIComponent(title)}`,
     width: 1200,
     height: 630,
     alt: `${title} - ${siteName}`,
-    type: "image/jpeg",
+    type: "image/png",
   };
 
-  const ogImages = images.length > 0 ? images : [defaultOgImage];
+  const ogImages = images.length > 0 ? images : [dynamicOgImage];
 
   return {
     metadataBase: new URL(baseUrl),
@@ -174,14 +174,14 @@ export function generateDirectoryEntryMetadata(
   // Add any additional provided images
   entryImages.push(...images);
 
-  // Fallback to default if no images
+  // Fallback to dynamic OG route if no images
   if (entryImages.length === 0) {
     entryImages.push({
-      url: `${baseUrl}${defaultImage}`,
+      url: `${baseUrl}/api/og?type=directory&title=${encodeURIComponent(entry.name)}&category=${encodeURIComponent(entry.category)}`,
       width: 1200,
       height: 630,
       alt: `${entry.name} - ${siteName}`,
-      type: "image/jpeg",
+      type: "image/png",
     });
   }
 

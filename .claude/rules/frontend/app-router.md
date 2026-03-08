@@ -36,6 +36,7 @@ apps/web/src/app/
 │   │   ├── [category]/
 │   │   └── [category]/[slug]/
 │   └── [category]/      # MDX content pages
+├── (immersive)/         # Full-screen immersive experiences (e.g., maps)
 ├── (admin)/             # Admin dashboard
 └── api/                 # API routes
 ```

@@ -95,7 +95,8 @@ playwright-output/
 .playwright-cli/
 
 # Ideation prototype (nested git repo - temporary reference)
-nosilha-ideate/
+nosilha-ideate
+nosilha-map
 
 # Velite build output
 apps/web/.velite

@@ -84,4 +84,4 @@ All research outputs follow this structure:
 2. [Source 2](URL) - accessed [date]
 ```
 
-See [RESEARCH_TEMPLATE.md](RESEARCH_TEMPLATE.md) for complete template.
+See RESEARCH_TEMPLATE.md (in the web-searching skill directory) for the complete template.

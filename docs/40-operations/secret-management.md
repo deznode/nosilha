@@ -22,10 +22,11 @@ This document describes secret management for Nos Ilha, optimized for Google Clo
 | `supabase_jwt_secret` | Backend | - | JWT validation (IAM configured, not injected) |
 | `resend_api_key` | Frontend | 1 | Newsletter email service |
 | `gemini_api_key` | Backend | 1 | Google Gemini API authentication |
+| `instagram_access_token` | Frontend | 1 | Instagram Graph API feed |
 
 **Free Tier Limits**: 6 active versions, 10,000 access operations/month
 
-**Current Usage**: 7 secrets configured across backend and frontend services
+**Current Usage**: 8 secrets configured across backend and frontend services
 
 > **Note**: Cloud Vision uses GCP Application Default Credentials (same service account as Cloud Run) — no separate secret needed.
 
