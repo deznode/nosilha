@@ -5,8 +5,8 @@ name: Integration & End-to-End
 # Focus: Backend integration, security headers, deployment health
 
 on:
-  push:
-    branches: [main]
+  # Cost optimization: removed push trigger — tests already run in backend-ci.yml
+  # Use workflow_dispatch for on-demand runs, schedule for weekly regression
   workflow_dispatch:
     inputs:
       run_tests:

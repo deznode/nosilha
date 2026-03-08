@@ -233,17 +233,7 @@ jobs:
       - name: GCP Authentication
         uses: ./.github/actions/gcp-auth
 
-      # Set up Docker layer caching for faster builds
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Cache Docker layers
-        uses: actions/cache@v4
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
+      # Note: No Docker Buildx/layer cache needed — bootBuildImage uses Spring Boot Buildpacks
 
       - name: Extract metadata
         id: meta
