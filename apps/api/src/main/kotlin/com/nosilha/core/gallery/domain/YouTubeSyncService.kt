@@ -76,9 +76,16 @@ class YouTubeSyncService(
             val response = youTubeApiClient.fetchPlaylistItems(playlistId, pageToken)
             val items = response.items ?: emptyList()
 
+            // Batch-fetch existing external IDs for this page (1 query per page instead of per-video)
+            val videoIds = items.mapNotNull { it.extractVideoId() }
+            val existingIds = if (videoIds.isNotEmpty()) {
+                repository.findExternalIdsByPlatformAndExternalIds(ExternalPlatform.YOUTUBE, videoIds)
+            } else {
+                emptySet()
+            }
+
             for (item in items) {
-                val videoId = item.snippet?.resourceId?.videoId
-                    ?: item.contentDetails?.videoId
+                val videoId = item.extractVideoId()
                 if (videoId == null) {
                     logger.debug { "Skipping playlist item with no video ID" }
                     continue
@@ -92,12 +99,8 @@ class YouTubeSyncService(
                     continue
                 }
 
-                // Dedup check
-                val existing = repository.findExternalMediaByPlatformAndExternalId(
-                    ExternalPlatform.YOUTUBE,
-                    videoId,
-                )
-                if (existing != null) {
+                // Dedup check (batch pre-fetched)
+                if (videoId in existingIds) {
                     skipped++
                     continue
                 }

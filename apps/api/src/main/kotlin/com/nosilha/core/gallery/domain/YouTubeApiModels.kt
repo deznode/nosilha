@@ -17,7 +17,10 @@ data class YouTubePlaylistItem(
     val snippet: YouTubeSnippet? = null,
     val contentDetails: YouTubePlaylistItemContentDetails? = null,
     val status: YouTubePlaylistItemStatus? = null,
-)
+) {
+    /** Resolves the video ID from snippet (preferred) or contentDetails. */
+    fun extractVideoId(): String? = snippet?.resourceId?.videoId ?: contentDetails?.videoId
+}
 
 data class YouTubeSnippet(
     val title: String? = null,

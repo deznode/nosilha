@@ -220,6 +220,22 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     ): ExternalMedia?
 
     /**
+     * Batch lookup of existing external IDs for a given platform.
+     *
+     * Used for efficient duplicate detection during YouTube channel sync —
+     * fetches all matching IDs in a single query instead of per-video lookups.
+     *
+     * @param platform The external platform (e.g., YOUTUBE)
+     * @param externalIds List of platform-specific identifiers to check
+     * @return Set of external IDs that already exist in the database
+     */
+    @Query("SELECT m.externalId FROM ExternalMedia m WHERE m.platform = :platform AND m.externalId IN :externalIds")
+    fun findExternalIdsByPlatformAndExternalIds(
+        @Param("platform") platform: ExternalPlatform,
+        @Param("externalIds") externalIds: List<String>,
+    ): Set<String>
+
+    /**
      * Finds all external media items.
      * Type-specific query for ExternalMedia.
      *
