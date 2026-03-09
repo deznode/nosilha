@@ -84,6 +84,14 @@ resource "google_project_service" "logging" {
   disable_on_destroy = false
 }
 
+# Enable YouTube Data API v3 for channel sync (gallery video imports)
+resource "google_project_service" "youtube_data" {
+  project = var.gcp_project_id
+  service = "youtube.googleapis.com"
+
+  disable_on_destroy = false
+}
+
 # Enable Cloud Vision API for AI image analysis (label/landmark detection)
 resource "google_project_service" "cloud_vision" {
   project = var.gcp_project_id
@@ -118,6 +126,7 @@ locals {
     google_project_service.billing_budgets,
     google_project_service.logging,
     google_project_service.cloud_vision,
-    google_project_service.generative_language
+    google_project_service.generative_language,
+    google_project_service.youtube_data
   ]
 }

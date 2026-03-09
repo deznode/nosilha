@@ -100,11 +100,12 @@ resource "google_secret_manager_secret_iam_member" "grant_resend_api_key_access"
   member    = google_service_account.frontend_runner.member
 }
 
-# Gemini API key secret (Developer API authentication — see ADR-0008)
-# After apply, set the value: echo -n "YOUR_KEY" | gcloud secrets versions add gemini_api_key --data-file=-
-resource "google_secret_manager_secret" "gemini_api_key" {
+# Google API key (shared: Generative Language API, YouTube Data API v3)
+# After apply, set value via:
+#   echo -n "VALUE" | gcloud secrets versions add google_api_key --data-file=-
+resource "google_secret_manager_secret" "google_api_key" {
   project   = var.gcp_project_id
-  secret_id = "gemini_api_key"
+  secret_id = "google_api_key"
 
   replication {
     auto {}
@@ -113,10 +114,10 @@ resource "google_secret_manager_secret" "gemini_api_key" {
   depends_on = [google_project_service.secret_manager]
 }
 
-# Grant backend access to Gemini API key secret (Developer API auth — see ADR-0008)
-resource "google_secret_manager_secret_iam_member" "grant_gemini_api_key_access" {
+# Grant backend access to Google API key secret (Gemini + YouTube Data API v3)
+resource "google_secret_manager_secret_iam_member" "grant_google_api_key_access" {
   project   = var.gcp_project_id
-  secret_id = google_secret_manager_secret.gemini_api_key.secret_id
+  secret_id = google_secret_manager_secret.google_api_key.secret_id
   role      = "roles/secretmanager.secretAccessor"
   member    = google_service_account.backend_runner.member
 }
