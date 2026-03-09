@@ -1,7 +1,5 @@
 package com.nosilha.core.gallery.domain
 
-import com.nosilha.core.gallery.api.dto.YouTubeChannelResponse
-import com.nosilha.core.gallery.api.dto.YouTubePlaylistResponse
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty

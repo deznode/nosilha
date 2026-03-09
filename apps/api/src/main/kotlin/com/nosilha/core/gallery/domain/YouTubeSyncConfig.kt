@@ -17,8 +17,8 @@ package com.nosilha.core.gallery.domain
  */
 object YouTubeSyncConfig {
     const val PROPERTY_PREFIX = "youtube.sync"
-    const val ENABLED_PROPERTY = "youtube.sync.enabled"
     const val MAX_PAGES = 20
     const val MAX_RESULTS_PER_PAGE = 50
     const val YOUTUBE_API_BASE_URL = "https://www.googleapis.com/youtube/v3"
+    const val PRIVACY_PUBLIC = "public"
 }

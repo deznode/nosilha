@@ -1,19 +1,19 @@
 package com.nosilha.core.gallery
 
-import com.nosilha.core.gallery.api.dto.YouTubePlaylistItem
-import com.nosilha.core.gallery.api.dto.YouTubePlaylistItemContentDetails
-import com.nosilha.core.gallery.api.dto.YouTubePlaylistItemStatus
-import com.nosilha.core.gallery.api.dto.YouTubePlaylistResponse
-import com.nosilha.core.gallery.api.dto.YouTubeResourceId
-import com.nosilha.core.gallery.api.dto.YouTubeSnippet
 import com.nosilha.core.gallery.api.dto.YouTubeSyncRequest
-import com.nosilha.core.gallery.api.dto.YouTubeThumbnail
-import com.nosilha.core.gallery.api.dto.YouTubeThumbnails
 import com.nosilha.core.gallery.domain.ExternalMedia
 import com.nosilha.core.gallery.domain.ExternalPlatform
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.MediaType
 import com.nosilha.core.gallery.domain.YouTubeApiClient
+import com.nosilha.core.gallery.domain.YouTubePlaylistItem
+import com.nosilha.core.gallery.domain.YouTubePlaylistItemContentDetails
+import com.nosilha.core.gallery.domain.YouTubePlaylistItemStatus
+import com.nosilha.core.gallery.domain.YouTubePlaylistResponse
+import com.nosilha.core.gallery.domain.YouTubeResourceId
+import com.nosilha.core.gallery.domain.YouTubeSnippet
+import com.nosilha.core.gallery.domain.YouTubeThumbnail
+import com.nosilha.core.gallery.domain.YouTubeThumbnails
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach

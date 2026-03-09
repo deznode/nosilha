@@ -1,9 +1,7 @@
 package com.nosilha.core.gallery.domain
 
 import com.nosilha.core.gallery.api.dto.CreateExternalMediaRequest
-import com.nosilha.core.gallery.api.dto.YouTubePlaylistItem
 import com.nosilha.core.gallery.api.dto.YouTubeSyncResult
-import com.nosilha.core.gallery.api.dto.YouTubeThumbnails
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
@@ -95,7 +93,7 @@ class YouTubeSyncService(
 
                 // Skip non-public videos
                 val privacyStatus = item.status?.privacyStatus
-                if (privacyStatus != "public") {
+                if (privacyStatus != YouTubeSyncConfig.PRIVACY_PUBLIC) {
                     logger.debug { "Skipping non-public video $videoId (status: $privacyStatus)" }
                     skipped++
                     continue
@@ -128,18 +126,17 @@ class YouTubeSyncService(
             pageCount++
         } while (pageToken != null && pageCount < YouTubeSyncConfig.MAX_PAGES)
 
-        val totalProcessed = synced + skipped + errors.size
-        logger.info {
-            "YouTube sync complete: synced=$synced, skipped=$skipped, errors=${errors.size}, " +
-                "totalProcessed=$totalProcessed, pages=$pageCount"
-        }
-
-        return YouTubeSyncResult(
+        val result = YouTubeSyncResult(
             synced = synced,
             skipped = skipped,
             errors = errors,
-            totalProcessed = totalProcessed,
         )
+        logger.info {
+            "YouTube sync complete: synced=$synced, skipped=$skipped, errors=${errors.size}, " +
+                "totalProcessed=${result.totalProcessed}, pages=$pageCount"
+        }
+
+        return result
     }
 
     private fun mapToCreateRequest(
