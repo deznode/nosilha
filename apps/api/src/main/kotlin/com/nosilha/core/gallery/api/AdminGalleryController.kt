@@ -521,8 +521,8 @@ class AdminGalleryController(
      * channel configured via {@code youtube.sync.channel-handle}. When a
      * {@code playlistId} is provided, syncs that specific playlist.</p>
      *
-     * <p>Requires {@code youtube.sync.enabled=true} configuration. Returns 503
-     * if YouTube sync is not enabled.</p>
+     * <p>Requires {@code youtube.sync.enabled=true} configuration. Returns 500
+     * if YouTube sync is not configured.</p>
      *
      * @param request Optional sync parameters (playlistId, category override)
      * @param authentication Admin authentication

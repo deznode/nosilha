@@ -95,7 +95,7 @@ class YouTubeSyncService(
 
                 // Skip non-public videos
                 val privacyStatus = item.status?.privacyStatus
-                if (privacyStatus != null && privacyStatus != "public") {
+                if (privacyStatus != "public") {
                     logger.debug { "Skipping non-public video $videoId (status: $privacyStatus)" }
                     skipped++
                     continue

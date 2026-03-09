@@ -15,6 +15,7 @@ import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.MediaType
 import com.nosilha.core.gallery.domain.YouTubeApiClient
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -122,12 +123,12 @@ class YouTubeSyncIntegrationTest {
 
         // Assert: verify ExternalMedia records created
         val allMedia = galleryMediaRepository.findAllExternalMedia()
-        assert(allMedia.size == 2) { "Expected 2 external media records, got ${allMedia.size}" }
+        assertEquals(2, allMedia.size, "Expected 2 external media records")
         val video1 = allMedia.find { it.externalId == "video1" }!!
-        assert(video1.title == "Brava Island Overview")
-        assert(video1.platform == ExternalPlatform.YOUTUBE)
-        assert(video1.mediaType == MediaType.VIDEO)
-        assert(video1.status == GalleryMediaStatus.ACTIVE)
+        assertEquals("Brava Island Overview", video1.title)
+        assertEquals(ExternalPlatform.YOUTUBE, video1.platform)
+        assertEquals(MediaType.VIDEO, video1.mediaType)
+        assertEquals(GalleryMediaStatus.ACTIVE, video1.status)
     }
 
     @Test
@@ -171,7 +172,7 @@ class YouTubeSyncIntegrationTest {
 
         // Assert: only 2 total records (1 existing + 1 new)
         val allMedia = galleryMediaRepository.findAllExternalMedia()
-        assert(allMedia.size == 2) { "Expected 2 external media records, got ${allMedia.size}" }
+        assertEquals(2, allMedia.size, "Expected 2 external media records")
     }
 
     @Test
@@ -202,8 +203,8 @@ class YouTubeSyncIntegrationTest {
             .andExpect(jsonPath("$.data.synced").value(1))
 
         val media = galleryMediaRepository.findAllExternalMedia()
-        assert(media.size == 1)
-        assert(media[0].category == "Culture")
+        assertEquals(1, media.size)
+        assertEquals("Culture", media[0].category)
     }
 
     @Test
@@ -234,8 +235,8 @@ class YouTubeSyncIntegrationTest {
             .andExpect(jsonPath("$.data.skipped").value(2))
 
         val allMedia = galleryMediaRepository.findAllExternalMedia()
-        assert(allMedia.size == 1)
-        assert(allMedia[0].externalId == "public_video")
+        assertEquals(1, allMedia.size)
+        assertEquals("public_video", allMedia[0].externalId)
     }
 
     @Test
