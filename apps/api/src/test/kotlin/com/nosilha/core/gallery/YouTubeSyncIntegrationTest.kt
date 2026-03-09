@@ -260,6 +260,26 @@ class YouTubeSyncIntegrationTest {
     }
 
     @Test
+    @DisplayName("POST /youtube/sync - Returns empty result for channel with no uploads")
+    fun `syncChannel should return zero results when channel has no videos`() {
+        `when`(youTubeApiClient.fetchUploadsPlaylistId("testchannel"))
+            .thenReturn("UU_empty_channel")
+
+        `when`(youTubeApiClient.fetchPlaylistItems("UU_empty_channel", null))
+            .thenReturn(YouTubePlaylistResponse())
+
+        mockMvc
+            .perform(
+                post("/api/v1/admin/gallery/youtube/sync")
+                    .with(adminAuth())
+                    .contentType(HttpMediaType.APPLICATION_JSON),
+            ).andExpect(status().isOk)
+            .andExpect(jsonPath("$.data.synced").value(0))
+            .andExpect(jsonPath("$.data.skipped").value(0))
+            .andExpect(jsonPath("$.data.totalProcessed").value(0))
+    }
+
+    @Test
     @DisplayName("POST /youtube/sync - Reports API errors in sync result")
     fun `syncChannel should return 500 when YouTube API fails`() {
         `when`(youTubeApiClient.fetchUploadsPlaylistId("testchannel"))

@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.RestClientException
 
@@ -120,6 +121,9 @@ class YouTubeApiClient(
                 .body(YouTubePlaylistResponse::class.java)
 
             return response ?: YouTubePlaylistResponse()
+        } catch (e: HttpClientErrorException.NotFound) {
+            logger.info { "Playlist $playlistId not found (channel may have no uploads)" }
+            return YouTubePlaylistResponse()
         } catch (e: RestClientException) {
             throw YouTubeApiException("Failed to fetch playlist items for $playlistId: ${e.message}", e)
         }
