@@ -17,9 +17,12 @@ import com.nosilha.core.gallery.api.dto.OrphanDetectionResponse
 import com.nosilha.core.gallery.api.dto.R2BucketListResponse
 import com.nosilha.core.gallery.api.dto.UpdateExifRequest
 import com.nosilha.core.gallery.api.dto.UpdateGalleryMediaRequest
+import com.nosilha.core.gallery.api.dto.YouTubeSyncRequest
+import com.nosilha.core.gallery.api.dto.YouTubeSyncResult
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.GalleryModerationService
 import com.nosilha.core.gallery.domain.R2AdminService
+import com.nosilha.core.gallery.domain.YouTubeSyncService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -71,8 +74,11 @@ private val logger = KotlinLogging.logger {}
 class AdminGalleryController(
     private val moderationService: GalleryModerationService,
     private val r2AdminService: R2AdminService?,
+    private val youTubeSyncService: YouTubeSyncService?,
 ) {
     private fun requireR2Admin(): R2AdminService = requireNotNull(r2AdminService) { "R2 storage is not configured" }
+
+    private fun requireYouTubeSync(): YouTubeSyncService = requireNotNull(youTubeSyncService) { "YouTube sync is not configured" }
 
     private fun extractAdminId(authentication: Authentication): UUID = UUID.fromString(authentication.name)
 
@@ -504,5 +510,39 @@ class AdminGalleryController(
         val adminId = extractAdminId(authentication)
         logger.info { "Admin $adminId deleting orphan: ${request.storageKey}" }
         requireR2Admin().deleteOrphan(request.storageKey)
+    }
+
+    // --- YouTube Sync ---
+
+    /**
+     * Triggers a YouTube channel or playlist sync.
+     *
+     * <p>When called without a request body (or with empty body), syncs the full
+     * channel configured via {@code youtube.sync.channel-handle}. When a
+     * {@code playlistId} is provided, syncs that specific playlist.</p>
+     *
+     * <p>Requires {@code youtube.sync.enabled=true} configuration. Returns 503
+     * if YouTube sync is not enabled.</p>
+     *
+     * @param request Optional sync parameters (playlistId, category override)
+     * @param authentication Admin authentication
+     * @return Sync result summary with synced/skipped/error counts
+     */
+    @PostMapping("/youtube/sync")
+    fun syncYouTubeVideos(
+        @RequestBody(required = false) request: YouTubeSyncRequest?,
+        authentication: Authentication,
+    ): ApiResult<YouTubeSyncResult> {
+        val adminId = extractAdminId(authentication)
+        logger.info { "Admin $adminId triggering YouTube sync" }
+
+        val syncService = requireYouTubeSync()
+        val result = if (request?.playlistId != null) {
+            syncService.syncPlaylist(request.playlistId, request.category, adminId)
+        } else {
+            syncService.syncChannel(adminId)
+        }
+
+        return ApiResult(data = result)
     }
 }

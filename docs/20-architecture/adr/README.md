@@ -18,6 +18,7 @@ Architecture Decision Records (ADRs) document significant technical decisions ma
 | [0010](0010-bravamap-component-decomposition.md) | BravaMap Component Decomposition and State Management | Proposed | 2026-02-23 |
 | [0011](0011-native-10-category-directory-system.md) | Native 10-Category Directory System | Accepted | 2026-02-23 |
 | [0012](0012-spring-boot-dependency-override-strategy.md) | Spring Boot Dependency Override Strategy | Accepted | 2026-03-02 |
+| [0013](0013-isr-cache-strategy-cloud-run.md) | ISR Cache Strategy for Runtime-Only Secrets on Cloud Run | Accepted | 2026-03-08 |
 
 ## Creating New ADRs
 
