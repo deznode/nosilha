@@ -25,6 +25,7 @@ import com.nosilha.core.gallery.domain.R2AdminService
 import com.nosilha.core.gallery.domain.YouTubeSyncService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
+import com.nosilha.core.shared.exception.YouTubeSyncDisabledException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -78,7 +79,9 @@ class AdminGalleryController(
 ) {
     private fun requireR2Admin(): R2AdminService = requireNotNull(r2AdminService) { "R2 storage is not configured" }
 
-    private fun requireYouTubeSync(): YouTubeSyncService = requireNotNull(youTubeSyncService) { "YouTube sync is not configured" }
+    private fun requireYouTubeSync(): YouTubeSyncService =
+        youTubeSyncService
+            ?: throw YouTubeSyncDisabledException("YouTube sync is not enabled. Set youtube.sync.enabled=true to activate.")
 
     private fun extractAdminId(authentication: Authentication): UUID = UUID.fromString(authentication.name)
 
@@ -521,8 +524,8 @@ class AdminGalleryController(
      * channel configured via {@code youtube.sync.channel-handle}. When a
      * {@code playlistId} is provided, syncs that specific playlist.</p>
      *
-     * <p>Requires {@code youtube.sync.enabled=true} configuration. Returns 500
-     * if YouTube sync is not configured.</p>
+     * <p>Requires {@code youtube.sync.enabled=true} configuration. Returns 503
+     * if YouTube sync is not enabled.</p>
      *
      * @param request Optional sync parameters (playlistId, category override)
      * @param authentication Admin authentication

@@ -6,6 +6,7 @@ import com.nosilha.core.gallery.domain.ExternalPlatform
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.MediaType
 import com.nosilha.core.gallery.domain.YouTubeApiClient
+import com.nosilha.core.gallery.domain.YouTubeApiException
 import com.nosilha.core.gallery.domain.YouTubePlaylistItem
 import com.nosilha.core.gallery.domain.YouTubePlaylistItemContentDetails
 import com.nosilha.core.gallery.domain.YouTubePlaylistItemStatus
@@ -256,6 +257,20 @@ class YouTubeSyncIntegrationTest {
                     .with(userAuth)
                     .contentType(HttpMediaType.APPLICATION_JSON),
             ).andExpect(status().isForbidden)
+    }
+
+    @Test
+    @DisplayName("POST /youtube/sync - Reports API errors in sync result")
+    fun `syncChannel should return 500 when YouTube API fails`() {
+        `when`(youTubeApiClient.fetchUploadsPlaylistId("testchannel"))
+            .thenThrow(YouTubeApiException("Failed to resolve channel @testchannel: 403 quotaExceeded"))
+
+        mockMvc
+            .perform(
+                post("/api/v1/admin/gallery/youtube/sync")
+                    .with(adminAuth())
+                    .contentType(HttpMediaType.APPLICATION_JSON),
+            ).andExpect(status().isInternalServerError)
     }
 
     private fun createPlaylistItem(
