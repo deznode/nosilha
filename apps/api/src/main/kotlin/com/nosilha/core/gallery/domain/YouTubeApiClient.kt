@@ -17,7 +17,9 @@ private val logger = KotlinLogging.logger {}
  * and to fetch playlist items with pagination. Uses Spring {@code RestClient}
  * for idiomatic Spring Boot 4 HTTP calls with built-in Jackson deserialization.</p>
  *
- * <p>Activated only when {@code youtube.sync.enabled=true}.</p>
+ * <p>Activated only when {@code youtube.sync.api-key} is configured.
+ * The enabled/disabled toggle is managed at runtime via
+ * {@link YouTubeSyncConfigService}.</p>
  *
  * <p>API quota costs:</p>
  * <ul>
@@ -28,8 +30,7 @@ private val logger = KotlinLogging.logger {}
 @Service
 @ConditionalOnProperty(
     prefix = YouTubeSyncConfig.PROPERTY_PREFIX,
-    name = ["enabled"],
-    havingValue = "true",
+    name = ["api-key"],
 )
 class YouTubeApiClient(
     @Value("\${youtube.sync.api-key}")

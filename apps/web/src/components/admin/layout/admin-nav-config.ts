@@ -11,9 +11,16 @@ import {
   HardDrive,
   Languages,
   Wrench,
+  Youtube,
 } from "lucide-react";
 
-export type NavSection = "main" | "content" | "ai" | "tools" | "dev";
+export type NavSection =
+  | "main"
+  | "content"
+  | "ai"
+  | "integrations"
+  | "tools"
+  | "dev";
 
 export interface AdminNavItem {
   label: string;
@@ -33,6 +40,7 @@ export const adminNavSections: AdminNavSectionConfig[] = [
   { id: "main", label: "" },
   { id: "content", label: "Content" },
   { id: "ai", label: "AI" },
+  { id: "integrations", label: "Integrations" },
   { id: "tools", label: "Tools" },
   { id: "dev", label: "Development" },
 ];
@@ -91,6 +99,14 @@ export const adminNavItems: AdminNavItem[] = [
     href: "/admin/ai-review",
     icon: Sparkles,
     section: "ai",
+  },
+
+  // Integrations
+  {
+    label: "YouTube Sync",
+    href: "/admin/youtube-sync",
+    icon: Youtube,
+    section: "integrations",
   },
 
   // Tools

@@ -17,12 +17,17 @@ import com.nosilha.core.gallery.api.dto.OrphanDetectionResponse
 import com.nosilha.core.gallery.api.dto.R2BucketListResponse
 import com.nosilha.core.gallery.api.dto.UpdateExifRequest
 import com.nosilha.core.gallery.api.dto.UpdateGalleryMediaRequest
+import com.nosilha.core.gallery.api.dto.UpdateYouTubeSyncConfigRequest
+import com.nosilha.core.gallery.api.dto.YouTubeSyncConfigDto
 import com.nosilha.core.gallery.api.dto.YouTubeSyncRequest
 import com.nosilha.core.gallery.api.dto.YouTubeSyncResult
+import com.nosilha.core.gallery.domain.ExternalPlatform
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.GalleryModerationService
 import com.nosilha.core.gallery.domain.R2AdminService
+import com.nosilha.core.gallery.domain.YouTubeSyncConfigService
 import com.nosilha.core.gallery.domain.YouTubeSyncService
+import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
 import com.nosilha.core.shared.exception.YouTubeSyncDisabledException
@@ -37,6 +42,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -74,14 +80,21 @@ private val logger = KotlinLogging.logger {}
 @PreAuthorize("hasRole('ADMIN')")
 class AdminGalleryController(
     private val moderationService: GalleryModerationService,
+    private val galleryMediaRepository: GalleryMediaRepository,
     private val r2AdminService: R2AdminService?,
     private val youTubeSyncService: YouTubeSyncService?,
+    private val youTubeSyncConfigService: YouTubeSyncConfigService?,
 ) {
     private fun requireR2Admin(): R2AdminService = requireNotNull(r2AdminService) { "R2 storage is not configured" }
 
-    private fun requireYouTubeSync(): YouTubeSyncService =
-        youTubeSyncService
-            ?: throw YouTubeSyncDisabledException("YouTube sync is not enabled. Set youtube.sync.enabled=true to activate.")
+    private fun requireYouTubeSync(): YouTubeSyncService {
+        val service = youTubeSyncService
+            ?: throw YouTubeSyncDisabledException("YouTube sync API key is not configured.")
+        if (youTubeSyncConfigService?.isEnabled() != true) {
+            throw YouTubeSyncDisabledException("YouTube sync is disabled. Enable it from the admin dashboard.")
+        }
+        return service
+    }
 
     private fun extractAdminId(authentication: Authentication): UUID = UUID.fromString(authentication.name)
 
@@ -547,5 +560,39 @@ class AdminGalleryController(
         }
 
         return ApiResult(data = result)
+    }
+
+    /**
+     * Returns the current YouTube sync configuration.
+     *
+     * <p>Returns a default disabled config if YouTube sync API key
+     * is not configured on the server.</p>
+     */
+    @GetMapping("/youtube/config")
+    fun getYouTubeSyncConfig(): ApiResult<YouTubeSyncConfigDto> {
+        val config = youTubeSyncConfigService?.getConfig()
+        val videoCount = galleryMediaRepository.countByPlatform(ExternalPlatform.YOUTUBE)
+        val dto = if (config != null) {
+            YouTubeSyncConfigDto.from(config, apiKeyConfigured = true, videoCount = videoCount)
+        } else {
+            YouTubeSyncConfigDto.disabled()
+        }
+        return ApiResult(data = dto)
+    }
+
+    /**
+     * Updates YouTube sync configuration (enabled toggle, default category).
+     */
+    @PutMapping("/youtube/config")
+    fun updateYouTubeSyncConfig(
+        @Valid @RequestBody request: UpdateYouTubeSyncConfigRequest,
+        authentication: Authentication,
+    ): ApiResult<YouTubeSyncConfigDto> {
+        val configService = youTubeSyncConfigService
+            ?: throw YouTubeSyncDisabledException("YouTube sync API key is not configured.")
+        val adminId = extractAdminId(authentication)
+        val updated = configService.updateConfig(request.enabled, request.defaultCategory, adminId)
+        val videoCount = galleryMediaRepository.countByPlatform(ExternalPlatform.YOUTUBE)
+        return ApiResult(data = YouTubeSyncConfigDto.from(updated, apiKeyConfigured = true, videoCount = videoCount))
     }
 }

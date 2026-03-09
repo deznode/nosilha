@@ -229,6 +229,19 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     fun findAllExternalMedia(): List<ExternalMedia>
 
     /**
+     * Counts external media items by platform.
+     *
+     * Used for dashboard statistics (e.g., YouTube video count).
+     *
+     * @param platform The external platform to count
+     * @return Number of external media records for the given platform
+     */
+    @Query("SELECT COUNT(m) FROM ExternalMedia m WHERE m.platform = :platform")
+    fun countByPlatform(
+        @Param("platform") platform: ExternalPlatform,
+    ): Long
+
+    /**
      * Returns IDs of all active gallery-visible media.
      *
      * Lightweight projection query for random selection — avoids loading

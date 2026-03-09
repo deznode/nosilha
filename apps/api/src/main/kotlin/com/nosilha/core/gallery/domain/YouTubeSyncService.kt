@@ -5,7 +5,6 @@ import com.nosilha.core.gallery.api.dto.YouTubeSyncResult
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Service
 import java.util.UUID
 
@@ -28,19 +27,13 @@ private val logger = KotlinLogging.logger {}
  * </ul>
  */
 @Service
-@ConditionalOnProperty(
-    prefix = YouTubeSyncConfig.PROPERTY_PREFIX,
-    name = ["enabled"],
-    havingValue = "true",
-)
 class YouTubeSyncService(
     private val youTubeApiClient: YouTubeApiClient,
     private val moderationService: GalleryModerationService,
     private val repository: GalleryMediaRepository,
+    private val configService: YouTubeSyncConfigService,
     @Value("\${youtube.sync.channel-handle:nosilha}")
     private val channelHandle: String,
-    @Value("\${youtube.sync.default-category:}")
-    private val defaultCategory: String,
 ) {
     /**
      * Syncs all public videos from the configured YouTube channel.
@@ -54,7 +47,7 @@ class YouTubeSyncService(
     fun syncChannel(adminId: UUID): YouTubeSyncResult {
         logger.info { "Starting YouTube channel sync for @$channelHandle (admin: $adminId)" }
         val uploadsPlaylistId = youTubeApiClient.fetchUploadsPlaylistId(channelHandle)
-        val category = defaultCategory.ifBlank { null }
+        val category = configService.getConfig().defaultCategory
         return syncPlaylist(uploadsPlaylistId, category, adminId)
     }
 

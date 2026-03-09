@@ -1,19 +1,11 @@
 package com.nosilha.core.gallery.domain
 
 /**
- * Configuration holder for YouTube channel sync settings.
+ * Constants for YouTube channel sync.
  *
- * <p>All properties are injected via {@code @Value} annotations in consuming services.
- * The sync feature is gated behind {@code youtube.sync.enabled=true} using
- * {@code @ConditionalOnProperty}.</p>
- *
- * <p>Properties:</p>
- * <ul>
- *   <li>{@code youtube.sync.enabled} — Feature flag (default: false)</li>
- *   <li>{@code youtube.sync.api-key} — YouTube Data API v3 key</li>
- *   <li>{@code youtube.sync.channel-handle} — YouTube channel handle (default: nosilha)</li>
- *   <li>{@code youtube.sync.default-category} — Default gallery category for synced videos</li>
- * </ul>
+ * <p>Bean instantiation is gated on {@code youtube.sync.api-key} being present.
+ * The enabled/disabled toggle is managed at runtime via {@code youtube_sync_config}
+ * table and {@link YouTubeSyncConfigService}.</p>
  */
 object YouTubeSyncConfig {
     const val PROPERTY_PREFIX = "youtube.sync"

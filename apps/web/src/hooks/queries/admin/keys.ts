@@ -84,6 +84,10 @@ export const adminKeys = {
     all: () => [...adminKeys.all, "ai-dashboard"] as const,
     health: () => [...adminKeys.all, "ai-dashboard", "health"] as const,
   },
+  youtubeSync: {
+    all: () => [...adminKeys.all, "youtube-sync"] as const,
+    config: () => [...adminKeys.all, "youtube-sync", "config"] as const,
+  },
   contributors: () => [...adminKeys.all, "contributors"] as const,
   system: {
     all: () => [...adminKeys.all, "system"] as const,

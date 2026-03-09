@@ -48,7 +48,6 @@ import org.springframework.http.MediaType as HttpMediaType
 @ActiveProfiles("test")
 @SpringBootTest(
     properties = [
-        "youtube.sync.enabled=true",
         "youtube.sync.api-key=test-api-key",
         "youtube.sync.channel-handle=testchannel",
     ],
@@ -76,11 +75,15 @@ class YouTubeSyncIntegrationTest {
     fun setup() {
         galleryMediaRepository.deleteAll()
         jdbcTemplate.execute("DELETE FROM event_publication")
+        jdbcTemplate.execute("DELETE FROM youtube_sync_config")
         jdbcTemplate.execute("DELETE FROM users")
         jdbcTemplate.execute(
             """INSERT INTO users (id, email) VALUES
                 ('$testAdminId', 'admin@test.com')
                 ON CONFLICT DO NOTHING""",
+        )
+        jdbcTemplate.execute(
+            "INSERT INTO youtube_sync_config (enabled, default_category) VALUES (true, null)",
         )
     }
 
