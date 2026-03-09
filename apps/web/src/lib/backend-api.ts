@@ -3151,6 +3151,75 @@ export class BackendApiClient implements ApiClient {
   }
 
   // ================================
+  // ADMIN YOUTUBE SYNC OPERATIONS
+  // ================================
+
+  async getYouTubeSyncConfig(): Promise<
+    import("@/types/youtube").YouTubeSyncConfig
+  > {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/youtube/config`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch YouTube sync config: ${response.status}`
+      );
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<import("@/types/youtube").YouTubeSyncConfig>(
+      payload
+    );
+  }
+
+  async updateYouTubeSyncConfig(
+    request: import("@/types/youtube").UpdateYouTubeSyncConfigRequest
+  ): Promise<import("@/types/youtube").YouTubeSyncConfig> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/youtube/config`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to update YouTube sync config: ${response.status}`
+      );
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<import("@/types/youtube").YouTubeSyncConfig>(
+      payload
+    );
+  }
+
+  async triggerYouTubeSync(
+    request?: import("@/types/youtube").YouTubeSyncRequest
+  ): Promise<import("@/types/youtube").YouTubeSyncResult> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/youtube/sync`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: request ? JSON.stringify(request) : undefined,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to trigger YouTube sync: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<import("@/types/youtube").YouTubeSyncResult>(
+      payload
+    );
+  }
+
+  // ================================
   // ADMIN R2 STORAGE OPERATIONS
   // ================================
 

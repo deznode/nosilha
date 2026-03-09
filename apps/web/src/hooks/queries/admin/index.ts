@@ -55,6 +55,13 @@ export { useUpdateExif } from "./useUpdateExif";
 export { usePromoteToHeroImage } from "./usePromoteToHeroImage";
 export { useArchiveStory } from "./useArchiveStory";
 
+// YouTube sync hooks
+export {
+  useYouTubeSyncConfig,
+  useUpdateYouTubeSyncConfig,
+  useTriggerYouTubeSync,
+} from "./useYouTubeSync";
+
 // R2 admin hooks
 export { useR2Objects } from "./useR2Objects";
 export { useR2Orphans } from "./useR2Orphans";

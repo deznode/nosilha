@@ -2048,6 +2048,43 @@ ${story.content
   async deleteR2Orphan(): Promise<void> {
     await this.simulateDelay(300);
   }
+
+  // ================================
+  // ADMIN YOUTUBE SYNC - Mock Stubs
+  // ================================
+
+  async getYouTubeSyncConfig(): Promise<
+    import("@/types/youtube").YouTubeSyncConfig
+  > {
+    await this.simulateDelay(200);
+    return {
+      enabled: false,
+      defaultCategory: null,
+      apiKeyConfigured: false,
+      updatedAt: null,
+      videoCount: 0,
+    };
+  }
+
+  async updateYouTubeSyncConfig(
+    request: import("@/types/youtube").UpdateYouTubeSyncConfigRequest
+  ): Promise<import("@/types/youtube").YouTubeSyncConfig> {
+    await this.simulateDelay(200);
+    return {
+      enabled: request.enabled,
+      defaultCategory: request.defaultCategory,
+      apiKeyConfigured: true,
+      updatedAt: new Date().toISOString(),
+      videoCount: 12,
+    };
+  }
+
+  async triggerYouTubeSync(): Promise<
+    import("@/types/youtube").YouTubeSyncResult
+  > {
+    await this.simulateDelay(1000);
+    return { synced: 3, skipped: 1, errors: [], totalProcessed: 4 };
+  }
 }
 
 // Legacy synchronous functions for backward compatibility and build-time use

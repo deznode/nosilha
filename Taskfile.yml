@@ -26,7 +26,7 @@ tasks:
         echo "Checking prerequisites..."
         echo ""
         check_tool "docker"  "brew install --cask docker"       "docker --version | head -1"
-        check_tool "node"    "nvm install 20"                   "node --version"
+        check_tool "node"    "nvm install 24"                   "node --version"
         check_tool "pnpm"    "npm install -g pnpm"              "pnpm --version"
         check_tool "java"    "sdk install java 25-open"         "java --version 2>&1 | head -1"
         check_tool "lefthook" "brew install lefthook"            "lefthook version"

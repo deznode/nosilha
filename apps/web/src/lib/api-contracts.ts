@@ -42,6 +42,12 @@ import type {
   UpdateDomainConfigRequest,
 } from "@/types/ai";
 import type {
+  YouTubeSyncConfig,
+  UpdateYouTubeSyncConfigRequest,
+  YouTubeSyncRequest,
+  YouTubeSyncResult,
+} from "@/types/youtube";
+import type {
   R2BucketListResponse,
   BulkPresignRequest,
   BulkPresignResponse,
@@ -881,6 +887,33 @@ export interface ApiClient {
    * **Admin Endpoint**: Requires ADMIN role.
    */
   deleteR2Orphan(request: DeleteOrphanRequest): Promise<void>;
+
+  // ================================
+  // ADMIN YOUTUBE SYNC OPERATIONS
+  // ================================
+
+  /**
+   * Get YouTube sync configuration.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  getYouTubeSyncConfig(): Promise<YouTubeSyncConfig>;
+
+  /**
+   * Update YouTube sync configuration (enabled toggle, default category).
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  updateYouTubeSyncConfig(
+    request: UpdateYouTubeSyncConfigRequest
+  ): Promise<YouTubeSyncConfig>;
+
+  /**
+   * Trigger YouTube channel or playlist sync.
+   *
+   * **Admin Endpoint**: Requires ADMIN role.
+   */
+  triggerYouTubeSync(request?: YouTubeSyncRequest): Promise<YouTubeSyncResult>;
 }
 
 export interface PaginationMetadata {

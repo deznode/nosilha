@@ -216,6 +216,28 @@ class GlobalExceptionHandler {
     }
 
     /**
+     * Handles YouTube sync disabled (503 errors).
+     */
+    @ExceptionHandler(YouTubeSyncDisabledException::class)
+    fun handleYouTubeSyncDisabled(
+        ex: YouTubeSyncDisabledException,
+        request: HttpServletRequest,
+    ): ResponseEntity<ErrorResponse> {
+        logger.warn { "YouTube sync not available: ${ex.message}" }
+
+        val errorResponse =
+            ErrorResponse(
+                error = "Service Unavailable",
+                message = ex.message ?: "YouTube sync is not enabled",
+                path = request.requestURI,
+                status = HttpStatus.SERVICE_UNAVAILABLE.value(),
+                timestamp = LocalDateTime.now(),
+            )
+
+        return ResponseEntity(errorResponse, HttpStatus.SERVICE_UNAVAILABLE)
+    }
+
+    /**
      * Handles all other unhandled exceptions (500 errors).
      */
     @ExceptionHandler(Exception::class)
@@ -251,5 +273,13 @@ class BusinessException(
  * Allows feature modules to communicate the violation without coupling.
  */
 class RateLimitExceededException(
+    message: String
+) : RuntimeException(message)
+
+/**
+ * Indicates YouTube sync feature is not enabled.
+ * Results in HTTP 503 Service Unavailable responses.
+ */
+class YouTubeSyncDisabledException(
     message: String
 ) : RuntimeException(message)

@@ -4,7 +4,7 @@
 # NOTE: Build context must be the repository root (not apps/web).
 
 # --- Stage 1: Base - Install pnpm ---
-FROM node:22-slim AS base
+FROM node:24-slim AS base
 WORKDIR /app
 
 # Configure pnpm
@@ -69,7 +69,7 @@ RUN pnpm build
 # --- Stage 4: Production Runner ---
 # This stage creates the final, minimal image by copying only the necessary
 # production artifacts from the builder stage.
-FROM node:22-slim AS runner
+FROM node:24-slim AS runner
 WORKDIR /app
 
 # Set the environment to production

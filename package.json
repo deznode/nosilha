@@ -8,9 +8,9 @@
     "url": "https://github.com/bravdigital/nosilha.git"
   },
   "license": "MIT",
-  "packageManager": "pnpm@10.0.0",
+  "packageManager": "pnpm@10.31.0",
   "engines": {
-    "node": ">=20.9.0"
+    "node": ">=24.0.0"
   },
   "scripts": {
     "dev": "nx run-many -t dev",

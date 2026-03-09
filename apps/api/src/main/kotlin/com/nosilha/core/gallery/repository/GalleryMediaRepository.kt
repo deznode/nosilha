@@ -1,6 +1,7 @@
 package com.nosilha.core.gallery.repository
 
 import com.nosilha.core.gallery.domain.ExternalMedia
+import com.nosilha.core.gallery.domain.ExternalPlatform
 import com.nosilha.core.gallery.domain.GalleryMedia
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.UserUploadedMedia
@@ -203,6 +204,38 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     fun findAllUserUploads(): List<UserUploadedMedia>
 
     /**
+     * Finds an external media item by platform and external ID.
+     *
+     * Used for duplicate detection during YouTube channel sync to avoid
+     * creating duplicate records on repeated sync operations.
+     *
+     * @param platform The external platform (e.g., YOUTUBE)
+     * @param externalId The platform-specific identifier (e.g., YouTube video ID)
+     * @return The matching entity, or null if no record exists
+     */
+    @Query("SELECT m FROM ExternalMedia m WHERE m.platform = :platform AND m.externalId = :externalId")
+    fun findExternalMediaByPlatformAndExternalId(
+        @Param("platform") platform: ExternalPlatform,
+        @Param("externalId") externalId: String,
+    ): ExternalMedia?
+
+    /**
+     * Batch lookup of existing external IDs for a given platform.
+     *
+     * Used for efficient duplicate detection during YouTube channel sync —
+     * fetches all matching IDs in a single query instead of per-video lookups.
+     *
+     * @param platform The external platform (e.g., YOUTUBE)
+     * @param externalIds List of platform-specific identifiers to check
+     * @return Set of external IDs that already exist in the database
+     */
+    @Query("SELECT m.externalId FROM ExternalMedia m WHERE m.platform = :platform AND m.externalId IN :externalIds")
+    fun findExternalIdsByPlatformAndExternalIds(
+        @Param("platform") platform: ExternalPlatform,
+        @Param("externalIds") externalIds: List<String>,
+    ): Set<String>
+
+    /**
      * Finds all external media items.
      * Type-specific query for ExternalMedia.
      *
@@ -210,6 +243,19 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
      */
     @Query("SELECT m FROM ExternalMedia m")
     fun findAllExternalMedia(): List<ExternalMedia>
+
+    /**
+     * Counts external media items by platform.
+     *
+     * Used for dashboard statistics (e.g., YouTube video count).
+     *
+     * @param platform The external platform to count
+     * @return Number of external media records for the given platform
+     */
+    @Query("SELECT COUNT(m) FROM ExternalMedia m WHERE m.platform = :platform")
+    fun countByPlatform(
+        @Param("platform") platform: ExternalPlatform,
+    ): Long
 
     /**
      * Returns IDs of all active gallery-visible media.

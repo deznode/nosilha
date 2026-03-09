@@ -187,10 +187,36 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         name = "AI_GEMINI_API_KEY"
         value_source {
           secret_key_ref {
-            secret  = google_secret_manager_secret.gemini_api_key.secret_id
+            secret  = google_secret_manager_secret.google_api_key.secret_id
             version = "1"
           }
         }
+      }
+
+      # YouTube sync configuration
+      env {
+        name  = "YOUTUBE_SYNC_ENABLED"
+        value = "true"
+      }
+
+      env {
+        name = "YOUTUBE_API_KEY"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.google_api_key.secret_id
+            version = "1"
+          }
+        }
+      }
+
+      env {
+        name  = "YOUTUBE_CHANNEL_HANDLE"
+        value = "nosilha"
+      }
+
+      env {
+        name  = "YOUTUBE_DEFAULT_CATEGORY"
+        value = ""
       }
 
       # Cloudflare R2 media storage configuration
@@ -264,8 +290,8 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
   # Service account and permissions are managed in iam.tf
   depends_on = [
     google_project_service.cloud_run,
-    google_secret_manager_secret.gemini_api_key,
-    google_secret_manager_secret_iam_member.grant_gemini_api_key_access,
+    google_secret_manager_secret.google_api_key,
+    google_secret_manager_secret_iam_member.grant_google_api_key_access,
     google_secret_manager_secret.r2_account_id,
     google_secret_manager_secret.r2_access_key_id,
     google_secret_manager_secret.r2_secret_access_key,

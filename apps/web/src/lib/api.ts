@@ -1199,6 +1199,40 @@ export async function deleteR2Orphan(
 }
 
 // ================================
+// ADMIN YOUTUBE SYNC OPERATIONS
+// ================================
+
+/**
+ * Fetches YouTube sync configuration (enabled toggle, default category, API key status).
+ * Requires ADMIN role authentication.
+ */
+export async function getYouTubeSyncConfig(): Promise<
+  import("@/types/youtube").YouTubeSyncConfig
+> {
+  return apiClient.getYouTubeSyncConfig();
+}
+
+/**
+ * Updates YouTube sync configuration (enabled toggle, default category).
+ * Requires ADMIN role authentication.
+ */
+export async function updateYouTubeSyncConfig(
+  request: import("@/types/youtube").UpdateYouTubeSyncConfigRequest
+): Promise<import("@/types/youtube").YouTubeSyncConfig> {
+  return apiClient.updateYouTubeSyncConfig(request);
+}
+
+/**
+ * Triggers a YouTube channel or playlist sync.
+ * Requires ADMIN role authentication.
+ */
+export async function triggerYouTubeSync(
+  request?: import("@/types/youtube").YouTubeSyncRequest
+): Promise<import("@/types/youtube").YouTubeSyncResult> {
+  return apiClient.triggerYouTubeSync(request);
+}
+
+// ================================
 // UTILITY EXPORTS
 // ================================
 

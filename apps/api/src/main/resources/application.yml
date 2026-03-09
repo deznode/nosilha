@@ -98,6 +98,16 @@ nosilha:
       monthly-limit: ${AI_GEMINI_MONTHLY_LIMIT:500}
       text-monthly-limit: ${AI_GEMINI_TEXT_MONTHLY_LIMIT:1000}
 
+# YouTube Channel Sync configuration
+# To enable, set youtube.sync.enabled=true (via YOUTUBE_SYNC_ENABLED env var)
+# Requires a YouTube Data API v3 key from Google Cloud Console
+youtube:
+  sync:
+    enabled: ${YOUTUBE_SYNC_ENABLED:false}
+    api-key: ${YOUTUBE_API_KEY:}
+    channel-handle: ${YOUTUBE_CHANNEL_HANDLE:nosilha}
+    default-category: ${YOUTUBE_DEFAULT_CATEGORY:}
+
 # Supabase JWT configuration using JWKS (asymmetric key verification)
 # Uses the public JWKS endpoint - no secret needed
 supabase:
