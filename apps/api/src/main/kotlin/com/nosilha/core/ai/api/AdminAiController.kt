@@ -67,9 +67,10 @@ class AdminAiController(
     fun getReviewQueue(
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
+        @RequestParam(required = false) moderationStatus: ModerationStatus?,
     ): PagedApiResult<AnalysisRunSummaryDto> {
         val pageable = PageRequest.of(page, minOf(size, 100))
-        val runsPage = moderationService.getReviewQueue(pageable)
+        val runsPage = moderationService.getReviewQueue(pageable, moderationStatus)
         return PagedApiResult.from(runsPage.map { AnalysisRunSummaryDto.from(it) })
     }
 

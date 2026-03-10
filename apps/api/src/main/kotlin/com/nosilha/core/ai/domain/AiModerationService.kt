@@ -30,11 +30,19 @@ class AiModerationService(
     private val eventPublisher: ApplicationEventPublisher,
 ) {
     /**
-     * Lists analysis runs pending moderator review.
+     * Lists analysis runs for moderator review, optionally filtered by moderation status.
+     * When no status is provided, returns all runs (not just PENDING_REVIEW).
      */
     @Transactional(readOnly = true)
-    fun getReviewQueue(pageable: Pageable): Page<AnalysisRun> =
-        analysisRunRepository.findByModerationStatus(ModerationStatus.PENDING_REVIEW, pageable)
+    fun getReviewQueue(
+        pageable: Pageable,
+        moderationStatus: ModerationStatus? = null,
+    ): Page<AnalysisRun> =
+        if (moderationStatus != null) {
+            analysisRunRepository.findByModerationStatus(moderationStatus, pageable)
+        } else {
+            analysisRunRepository.findAll(pageable)
+        }
 
     /**
      * Gets detailed view of an analysis run for moderator review.

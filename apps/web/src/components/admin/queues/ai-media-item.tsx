@@ -165,7 +165,7 @@ export function AiMediaItem({
               <span className="text-muted text-xs">
                 {new Date(item.createdAt).toLocaleDateString()}
               </span>
-              {aiStatus?.moderationStatus && (
+              {aiStatus?.moderationStatus ? (
                 <AiStatusBadge
                   moderationStatus={
                     aiStatus.moderationStatus as AiModerationStatus
@@ -174,6 +174,10 @@ export function AiMediaItem({
                     onViewAiReview ? () => onViewAiReview(item.id) : undefined
                   }
                 />
+              ) : (
+                <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-500 dark:bg-zinc-800/30 dark:text-zinc-500">
+                  Not analyzed
+                </span>
               )}
             </div>
           </div>

@@ -962,13 +962,14 @@ export async function generateDirectoryContent(
  */
 export async function getAiReviewQueue(
   page?: number,
-  size?: number
+  size?: number,
+  status?: import("@/types/ai").AiModerationStatus | "ALL"
 ): Promise<
   import("@/types/admin").AdminQueueResponse<
     import("@/types/ai").AnalysisRunSummary
   >
 > {
-  return apiClient.getAiReviewQueue(page, size);
+  return apiClient.getAiReviewQueue(page, size, status);
 }
 
 /**

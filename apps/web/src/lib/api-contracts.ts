@@ -568,7 +568,8 @@ export interface ApiClient {
    */
   getAiReviewQueue(
     page?: number,
-    size?: number
+    size?: number,
+    status?: import("@/types/ai").AiModerationStatus | "ALL"
   ): Promise<AdminQueueResponse<AnalysisRunSummary>>;
 
   /**

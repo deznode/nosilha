@@ -7,6 +7,7 @@ import { Button } from "@/components/catalyst-ui/button";
 import { Checkbox } from "@/components/catalyst-ui/checkbox";
 import { AiMediaItem } from "./ai-media-item";
 import { AiReviewDetailModal } from "@/components/admin/ai-review-detail-modal";
+import { Pagination, fromAdminQueueResponse } from "@/components/ui/pagination";
 import {
   useAdminGallery,
   useAiStatus,
@@ -16,6 +17,13 @@ import {
 } from "@/hooks/queries/admin";
 import { useToast } from "@/hooks/use-toast";
 
+type AiStatusFilter =
+  | "ALL"
+  | "NOT_ANALYZED"
+  | "PENDING_REVIEW"
+  | "APPROVED"
+  | "REJECTED";
+
 export function AiReviewQueue() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [pendingAnalysisIds, setPendingAnalysisIds] = useState<Set<string>>(
@@ -23,26 +31,56 @@ export function AiReviewQueue() {
   );
   const [selectedAiRunId, setSelectedAiRunId] = useState<string | null>(null);
   const [isAiReviewModalOpen, setIsAiReviewModalOpen] = useState(false);
+  const [page, setPage] = useState(0);
+  const [statusFilter, setStatusFilter] = useState<AiStatusFilter>("ALL");
 
-  const galleryQuery = useAdminGallery();
+  const handleStatusFilterChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setStatusFilter(e.target.value as AiStatusFilter);
+      setPage(0);
+      setSelectedIds(new Set());
+    },
+    []
+  );
+
+  const galleryQuery = useAdminGallery({ page, size: 20 });
   const aiReviewQuery = useAiReviewQueue();
   const triggerAnalysis = useTriggerAnalysis();
   const triggerBatchAnalysis = useTriggerBatchAnalysis();
   const toast = useToast();
 
-  const items = useMemo(
+  const allItems = useMemo(
     () => galleryQuery.data?.items ?? [],
     [galleryQuery.data]
   );
   const isLoading = galleryQuery.isLoading;
+  const paginationData = fromAdminQueueResponse(galleryQuery.data);
   const aiReviewItems = aiReviewQuery.data?.items ?? [];
 
-  const galleryMediaIds = useMemo(() => items.map((item) => item.id), [items]);
+  const galleryMediaIds = useMemo(
+    () => allItems.map((item) => item.id),
+    [allItems]
+  );
   const aiStatusQuery = useAiStatus(galleryMediaIds);
   const aiStatuses = useMemo(
     () => new Map((aiStatusQuery.data ?? []).map((s) => [s.mediaId, s])),
     [aiStatusQuery.data]
   );
+
+  // Client-side filtering by AI status
+  const items = useMemo(() => {
+    if (statusFilter === "ALL") return allItems;
+    if (statusFilter === "NOT_ANALYZED") {
+      return allItems.filter((item) => {
+        const status = aiStatuses.get(item.id);
+        return !status || !status.moderationStatus;
+      });
+    }
+    // PENDING_REVIEW, APPROVED, REJECTED
+    return allItems.filter(
+      (item) => aiStatuses.get(item.id)?.moderationStatus === statusFilter
+    );
+  }, [allItems, aiStatuses, statusFilter]);
 
   const handleTriggerAnalysis = (mediaId: string) => {
     setPendingAnalysisIds((prev) => new Set(prev).add(mediaId));
@@ -137,9 +175,35 @@ export function AiReviewQueue() {
   const allEligibleSelected =
     eligibleIds.length > 0 && eligibleIds.every((id) => selectedIds.has(id));
 
+  const filterBar = (
+    <div className="mb-4 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <select
+          value={statusFilter}
+          onChange={handleStatusFilterChange}
+          className="border-hairline bg-surface text-body rounded-md border px-3 py-1.5 text-sm font-medium"
+        >
+          <option value="ALL">All AI Status</option>
+          <option value="NOT_ANALYZED">Not Analyzed</option>
+          <option value="PENDING_REVIEW">Pending Review</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+        {!isLoading && (
+          <p className="text-muted text-sm">
+            {statusFilter !== "ALL"
+              ? `${items.length} of ${allItems.length} ${allItems.length === 1 ? "item" : "items"}`
+              : `${items.length} ${items.length === 1 ? "item" : "items"}`}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+
   if (isLoading) {
     return (
       <div className="space-y-4">
+        {filterBar}
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
@@ -152,14 +216,21 @@ export function AiReviewQueue() {
 
   if (items.length === 0) {
     return (
-      <div className="border-hairline bg-canvas rounded-card flex min-h-[400px] items-center justify-center border-2 border-dashed">
-        <div className="text-center">
-          <p className="text-muted text-lg font-medium">
-            No gallery items available
-          </p>
-          <p className="text-muted mt-2 text-sm">
-            Upload media to get started with AI analysis.
-          </p>
+      <div className="space-y-4">
+        {filterBar}
+        <div className="border-hairline bg-canvas rounded-card flex min-h-[400px] items-center justify-center border-2 border-dashed">
+          <div className="text-center">
+            <p className="text-muted text-lg font-medium">
+              {statusFilter === "ALL"
+                ? "No gallery items available"
+                : "No items match this filter"}
+            </p>
+            <p className="text-muted mt-2 text-sm">
+              {statusFilter === "ALL"
+                ? "Upload media to get started with AI analysis."
+                : `No items with AI status "${statusFilter.replace("_", " ").toLowerCase()}".`}
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -167,11 +238,7 @@ export function AiReviewQueue() {
 
   return (
     <div className="space-y-4">
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-muted text-sm">
-          {items.length} {items.length === 1 ? "item" : "items"}
-        </p>
-      </div>
+      {filterBar}
 
       {selectedIds.size > 0 && (
         <div className="border-hairline bg-surface rounded-card shadow-subtle flex items-center gap-4 border p-3">
@@ -217,6 +284,14 @@ export function AiReviewQueue() {
           />
         );
       })}
+
+      {paginationData && (
+        <Pagination
+          {...paginationData}
+          onPageChange={setPage}
+          className="mt-4"
+        />
+      )}
 
       <AiReviewDetailModal
         runId={selectedAiRunId}
