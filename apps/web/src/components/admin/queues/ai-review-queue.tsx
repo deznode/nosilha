@@ -102,14 +102,18 @@ export function AiReviewQueue() {
   const eligibleIds = useMemo(
     () =>
       items
-        .filter(
-          (item) =>
-            isUserUploadMedia(item) &&
-            (item.status === "ACTIVE" || item.status === "PENDING_REVIEW") &&
-            !!item.publicUrl
-        )
+        .filter((item) => {
+          if (!isUserUploadMedia(item)) return false;
+          if (item.status !== "ACTIVE" && item.status !== "PENDING_REVIEW")
+            return false;
+          if (!item.publicUrl) return false;
+          const runStatus = aiStatuses.get(item.id)?.lastRunStatus;
+          if (runStatus === "PROCESSING" || runStatus === "PENDING")
+            return false;
+          return true;
+        })
         .map((item) => item.id),
-    [items]
+    [items, aiStatuses]
   );
 
   const toggleSelect = useCallback((id: string) => {

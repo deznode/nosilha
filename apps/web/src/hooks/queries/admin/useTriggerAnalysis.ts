@@ -10,12 +10,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { triggerAnalysis, triggerBatchAnalysis } from "@/lib/api";
 import { adminKeys, invalidateAiCaches } from "./keys";
+import type { QueryKey } from "@tanstack/react-query";
 import type {
   AiStatusResponse,
   AnalysisTriggerResponse,
   AnalyzeBatchRequest,
   BatchAnalysisTriggerResponse,
 } from "@/types/ai";
+
+type AiStatusSnapshot = {
+  snapshot: [QueryKey, AiStatusResponse[] | undefined][];
+};
 
 /**
  * Hook for triggering AI analysis on a single media item.
@@ -25,22 +30,28 @@ import type {
 export function useTriggerAnalysis() {
   const queryClient = useQueryClient();
 
-  return useMutation<AnalysisTriggerResponse, Error, string>({
+  const queryFilter = {
+    queryKey: adminKeys.aiReview.all(),
+    predicate: (query: { queryKey: readonly unknown[] }) =>
+      query.queryKey.includes("status"),
+  };
+
+  return useMutation<AnalysisTriggerResponse, Error, string, AiStatusSnapshot>({
     mutationFn: (mediaId: string) => triggerAnalysis(mediaId),
     onMutate: async (mediaId) => {
-      await queryClient.cancelQueries({
-        queryKey: adminKeys.aiReview.all(),
-        predicate: (query) => query.queryKey.includes("status"),
-      });
-      queryClient.setQueriesData<AiStatusResponse[]>(
-        {
-          queryKey: adminKeys.aiReview.all(),
-          predicate: (query) => query.queryKey.includes("status"),
-        },
-        (old) =>
-          old?.map((s) =>
-            s.mediaId === mediaId ? { ...s, lastRunStatus: "PROCESSING" } : s
-          )
+      await queryClient.cancelQueries(queryFilter);
+      const snapshot =
+        queryClient.getQueriesData<AiStatusResponse[]>(queryFilter);
+      queryClient.setQueriesData<AiStatusResponse[]>(queryFilter, (old) =>
+        old?.map((s) =>
+          s.mediaId === mediaId ? { ...s, lastRunStatus: "PROCESSING" } : s
+        )
+      );
+      return { snapshot };
+    },
+    onError: (_err, _mediaId, context) => {
+      context?.snapshot?.forEach(([key, data]) =>
+        queryClient.setQueryData(key, data)
       );
     },
     onSuccess: () => invalidateAiCaches(queryClient),
@@ -55,25 +66,34 @@ export function useTriggerAnalysis() {
 export function useTriggerBatchAnalysis() {
   const queryClient = useQueryClient();
 
-  return useMutation<BatchAnalysisTriggerResponse, Error, AnalyzeBatchRequest>({
+  const queryFilter = {
+    queryKey: adminKeys.aiReview.all(),
+    predicate: (query: { queryKey: readonly unknown[] }) =>
+      query.queryKey.includes("status"),
+  };
+
+  return useMutation<
+    BatchAnalysisTriggerResponse,
+    Error,
+    AnalyzeBatchRequest,
+    AiStatusSnapshot
+  >({
     mutationFn: (request: AnalyzeBatchRequest) => triggerBatchAnalysis(request),
     onMutate: async (request) => {
-      await queryClient.cancelQueries({
-        queryKey: adminKeys.aiReview.all(),
-        predicate: (query) => query.queryKey.includes("status"),
-      });
+      await queryClient.cancelQueries(queryFilter);
+      const snapshot =
+        queryClient.getQueriesData<AiStatusResponse[]>(queryFilter);
       const mediaIdSet = new Set(request.mediaIds);
-      queryClient.setQueriesData<AiStatusResponse[]>(
-        {
-          queryKey: adminKeys.aiReview.all(),
-          predicate: (query) => query.queryKey.includes("status"),
-        },
-        (old) =>
-          old?.map((s) =>
-            mediaIdSet.has(s.mediaId)
-              ? { ...s, lastRunStatus: "PROCESSING" }
-              : s
-          )
+      queryClient.setQueriesData<AiStatusResponse[]>(queryFilter, (old) =>
+        old?.map((s) =>
+          mediaIdSet.has(s.mediaId) ? { ...s, lastRunStatus: "PROCESSING" } : s
+        )
+      );
+      return { snapshot };
+    },
+    onError: (_err, _request, context) => {
+      context?.snapshot?.forEach(([key, data]) =>
+        queryClient.setQueryData(key, data)
       );
     },
     onSuccess: () => invalidateAiCaches(queryClient),

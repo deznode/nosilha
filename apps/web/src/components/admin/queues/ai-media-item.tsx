@@ -169,11 +169,11 @@ export function AiMediaItem({
               </span>
               {aiStatus?.lastRunStatus === "PROCESSING" ||
               aiStatus?.lastRunStatus === "PENDING" ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                <span className="bg-brand/10 text-brand inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
                   <Loader2 size={10} className="animate-spin" /> Analyzing...
                 </span>
               ) : aiStatus?.lastRunStatus === "FAILED" ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                <span className="bg-status-error/10 text-status-error inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
                   <XCircle size={10} /> Analysis Failed
                 </span>
               ) : aiStatus?.moderationStatus ? (
@@ -186,7 +186,7 @@ export function AiMediaItem({
                   }
                 />
               ) : (
-                <span className="inline-flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-500 dark:bg-zinc-800/30 dark:text-zinc-500">
+                <span className="bg-surface-alt text-muted inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
                   Not analyzed
                 </span>
               )}

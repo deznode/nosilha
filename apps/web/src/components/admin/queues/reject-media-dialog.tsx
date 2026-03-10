@@ -9,12 +9,12 @@ import {
   Transition,
   TransitionChild,
 } from "@headlessui/react";
-import { XCircle } from "lucide-react";
+import { XCircle, Loader2 } from "lucide-react";
 
 interface RejectMediaDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (reason?: string) => void;
+  onConfirm: (reason: string) => void;
   mediaTitle: string;
   isLoading?: boolean;
 }
@@ -28,8 +28,11 @@ export function RejectMediaDialog({
 }: RejectMediaDialogProps) {
   const [reason, setReason] = useState("");
 
+  const canSubmit = reason.trim().length > 0;
+
   const handleConfirm = () => {
-    onConfirm(reason.trim() || undefined);
+    if (!canSubmit) return;
+    onConfirm(reason.trim());
     setReason("");
   };
 
@@ -85,7 +88,7 @@ export function RejectMediaDialog({
                     htmlFor="reject-reason"
                     className="text-muted mb-1 block text-sm"
                   >
-                    Reason (optional)
+                    Reason
                   </label>
                   <textarea
                     id="reject-reason"
@@ -110,30 +113,12 @@ export function RejectMediaDialog({
                   <button
                     type="button"
                     onClick={handleConfirm}
-                    disabled={isLoading}
+                    disabled={isLoading || !canSubmit}
                     className="rounded-button bg-status-error hover:bg-status-error/90 focus:ring-status-error flex-1 px-4 py-2.5 text-sm font-medium text-white transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isLoading ? (
                       <span className="flex items-center justify-center gap-2">
-                        <svg
-                          className="h-4 w-4 animate-spin"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          />
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          />
-                        </svg>
+                        <Loader2 className="h-4 w-4 animate-spin" />
                         Rejecting...
                       </span>
                     ) : (
