@@ -9,6 +9,7 @@ import {
   ChevronDown,
   Loader2,
   CheckCircle,
+  Unlink,
 } from "lucide-react";
 import clsx from "clsx";
 import { Button } from "@/components/catalyst-ui/button";
@@ -119,7 +120,7 @@ export function OrphansTab() {
       <div className="flex items-center justify-between">
         <p className="text-muted text-sm">
           {hasScanned && data
-            ? `${data.orphans.length} orphan${data.orphans.length !== 1 ? "s" : ""} found (${data.totalScanned} scanned)`
+            ? `${data.orphans.length} unlinked file${data.orphans.length !== 1 ? "s" : ""} found (${data.totalScanned} scanned) — these files have no matching database record`
             : "Scan the R2 bucket for objects without a database record."}
         </p>
         <Button color="blue" onClick={handleScan} disabled={isScanning}>
@@ -209,10 +210,15 @@ export function OrphansTab() {
                   >
                     {orphan.key}
                   </p>
-                  <p className="text-muted text-xs">
-                    {formatBytes(orphan.size)} &middot;{" "}
-                    {formatDate(orphan.lastModified)}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-muted text-xs">
+                      {formatBytes(orphan.size)} &middot;{" "}
+                      {formatDate(orphan.lastModified)}
+                    </p>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                      <Unlink size={10} /> Unlinked
+                    </span>
+                  </div>
                 </div>
 
                 {/* Actions */}

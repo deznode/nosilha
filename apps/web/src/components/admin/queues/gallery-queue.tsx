@@ -1,7 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
+import { useState, useMemo, useCallback } from "react";
+import type {
+  GalleryMedia,
+  GalleryModerationAction,
+  GalleryMediaStatus,
+} from "@/types/gallery";
 import { GalleryQueueItem } from "./gallery-queue-item";
 import { GalleryEditModal } from "./gallery-edit-modal";
 import { ExifReextractModal } from "./exif-reextract-modal";
@@ -19,8 +23,23 @@ export function GalleryQueue() {
   const [exifItem, setExifItem] = useState<GalleryMedia | null>(null);
   const [isExifModalOpen, setIsExifModalOpen] = useState(false);
   const [page, setPage] = useState(0);
+  const [statusFilter, setStatusFilter] = useState<GalleryMediaStatus | "ALL">(
+    "ALL"
+  );
 
-  const galleryQuery = useAdminGallery({ page, size: 20 });
+  const handleStatusFilterChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setStatusFilter(e.target.value as GalleryMediaStatus | "ALL");
+      setPage(0);
+    },
+    []
+  );
+
+  const galleryQuery = useAdminGallery({
+    status: statusFilter,
+    page,
+    size: 20,
+  });
   const updateGallery = useUpdateGalleryStatus();
   const promoteToHero = usePromoteToHeroImage();
 
@@ -74,9 +93,35 @@ export function GalleryQueue() {
     setExifItem(null);
   };
 
+  const filterBar = (
+    <div className="mb-4 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <select
+          value={statusFilter}
+          onChange={handleStatusFilterChange}
+          className="border-hairline bg-surface text-body rounded-md border px-3 py-1.5 text-sm font-medium"
+        >
+          <option value="ALL">All Status</option>
+          <option value="PENDING_REVIEW">Pending Review</option>
+          <option value="PROCESSING">Processing</option>
+          <option value="ACTIVE">Active</option>
+          <option value="FLAGGED">Flagged</option>
+          <option value="REJECTED">Rejected</option>
+          <option value="ARCHIVED">Archived</option>
+        </select>
+        {!isLoading && (
+          <p className="text-muted text-sm">
+            {items.length} {items.length === 1 ? "item" : "items"} to review
+          </p>
+        )}
+      </div>
+    </div>
+  );
+
   if (isLoading) {
     return (
       <div className="space-y-4">
+        {filterBar}
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
@@ -89,14 +134,19 @@ export function GalleryQueue() {
 
   if (items.length === 0) {
     return (
-      <div className="border-hairline bg-canvas flex min-h-[400px] items-center justify-center rounded-xl border-2 border-dashed">
-        <div className="text-center">
-          <p className="text-muted text-lg font-medium">
-            No gallery items to review
-          </p>
-          <p className="text-muted mt-2 text-sm">
-            All caught up! Check back later for new submissions.
-          </p>
+      <div className="space-y-4">
+        {filterBar}
+        <div className="border-hairline bg-canvas flex min-h-[400px] items-center justify-center rounded-xl border-2 border-dashed">
+          <div className="text-center">
+            <p className="text-muted text-lg font-medium">
+              No gallery items to review
+            </p>
+            <p className="text-muted mt-2 text-sm">
+              {statusFilter === "ALL"
+                ? "All caught up! Check back later for new submissions."
+                : `No items with status "${statusFilter.replace("_", " ").toLowerCase()}".`}
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -104,11 +154,7 @@ export function GalleryQueue() {
 
   return (
     <div className="space-y-4">
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-muted text-sm">
-          {items.length} {items.length === 1 ? "item" : "items"} to review
-        </p>
-      </div>
+      {filterBar}
 
       {items.map((item) => (
         <GalleryQueueItem

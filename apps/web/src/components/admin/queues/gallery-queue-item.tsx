@@ -14,14 +14,65 @@ import {
   Star,
   Pencil,
   MapPin,
+  Clock,
+  Archive,
+  Loader2,
+  Eye,
+  EyeOff,
 } from "lucide-react";
-import type { GalleryMedia, GalleryModerationAction } from "@/types/gallery";
+import clsx from "clsx";
+import type {
+  GalleryMedia,
+  GalleryModerationAction,
+  GalleryMediaStatus,
+} from "@/types/gallery";
 import type { AiStatusResponse, AiModerationStatus } from "@/types/ai";
 import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
 import { resolveExternalThumbnail } from "@/lib/gallery-mappers";
 import { Button } from "@/components/catalyst-ui/button";
 import { AiStatusBadge } from "./ai-status-badge";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
+
+const STATUS_CONFIG: Record<
+  GalleryMediaStatus,
+  { label: string; icon: React.ReactNode; className: string }
+> = {
+  PENDING_REVIEW: {
+    label: "Pending",
+    icon: <Clock size={10} />,
+    className:
+      "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
+  },
+  PROCESSING: {
+    label: "Processing",
+    icon: <Loader2 size={10} />,
+    className:
+      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+  },
+  ACTIVE: {
+    label: "Active",
+    icon: <CheckCircle size={10} />,
+    className:
+      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+  },
+  FLAGGED: {
+    label: "Flagged",
+    icon: <Flag size={10} />,
+    className:
+      "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+  },
+  REJECTED: {
+    label: "Rejected",
+    icon: <XCircle size={10} />,
+    className: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+  },
+  ARCHIVED: {
+    label: "Archived",
+    icon: <Archive size={10} />,
+    className:
+      "bg-zinc-100 text-zinc-600 dark:bg-zinc-800/30 dark:text-zinc-400",
+  },
+};
 
 interface GalleryQueueItemProps {
   item: GalleryMedia;
@@ -154,14 +205,31 @@ export function GalleryQueueItem({
             </h3>
             <div className="mt-1 flex flex-wrap items-center gap-2">
               {getSourceBadge()}
+              {(() => {
+                const cfg = STATUS_CONFIG[item.status];
+                return (
+                  <span
+                    className={clsx(
+                      "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
+                      cfg.className
+                    )}
+                  >
+                    {cfg.icon} {cfg.label}
+                  </span>
+                );
+              })()}
               {item.category && (
                 <span className="bg-surface-alt text-muted inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs">
                   {getMediaIcon()} {item.category}
                 </span>
               )}
-              {!item.showInGallery && (
-                <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
-                  Hidden from gallery
+              {item.showInGallery ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                  <Eye size={10} /> Visible
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                  <EyeOff size={10} /> Hidden
                 </span>
               )}
               <span className="text-muted text-xs">
@@ -224,14 +292,12 @@ export function GalleryQueueItem({
               Edit
             </Button>
           )}
-          {onReextractExif &&
-            isUserUploadMedia(item) &&
-            item.publicUrl && (
-              <Button outline onClick={() => onReextractExif(item)}>
-                <MapPin data-slot="icon" />
-                EXIF
-              </Button>
-            )}
+          {onReextractExif && isUserUploadMedia(item) && item.publicUrl && (
+            <Button outline onClick={() => onReextractExif(item)}>
+              <MapPin data-slot="icon" />
+              EXIF
+            </Button>
+          )}
           <Button
             color="green"
             onClick={() => onStatusChange(item.id, "APPROVE")}
