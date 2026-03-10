@@ -413,7 +413,8 @@ export interface ApiClient {
   getAdminGallery(
     status?: import("@/types/gallery").GalleryMediaStatus | "ALL",
     page?: number,
-    size?: number
+    size?: number,
+    aiModerationStatus?: string
   ): Promise<AdminQueueResponse<import("@/types/gallery").GalleryMedia>>;
 
   /**
@@ -568,7 +569,8 @@ export interface ApiClient {
    */
   getAiReviewQueue(
     page?: number,
-    size?: number
+    size?: number,
+    status?: import("@/types/ai").AiModerationStatus | "ALL"
   ): Promise<AdminQueueResponse<AnalysisRunSummary>>;
 
   /**

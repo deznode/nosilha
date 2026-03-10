@@ -1841,7 +1841,11 @@ ${story.content
   // ADMIN AI REVIEW OPERATIONS
   // ================================
 
-  async getAiReviewQueue(): Promise<
+  async getAiReviewQueue(
+    _page?: number,
+    _size?: number,
+    _status?: import("@/types/ai").AiModerationStatus | "ALL"
+  ): Promise<
     import("@/types/admin").AdminQueueResponse<
       import("@/types/ai").AnalysisRunSummary
     >

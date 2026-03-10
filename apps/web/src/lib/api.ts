@@ -787,13 +787,14 @@ export async function submitExternalMedia(
 export async function getAdminGallery(
   status?: import("@/types/gallery").GalleryMediaStatus | "ALL",
   page?: number,
-  size?: number
+  size?: number,
+  aiModerationStatus?: string
 ): Promise<
   import("@/types/admin").AdminQueueResponse<
     import("@/types/gallery").GalleryMedia
   >
 > {
-  return apiClient.getAdminGallery(status, page, size);
+  return apiClient.getAdminGallery(status, page, size, aiModerationStatus);
 }
 
 /**
@@ -962,13 +963,14 @@ export async function generateDirectoryContent(
  */
 export async function getAiReviewQueue(
   page?: number,
-  size?: number
+  size?: number,
+  status?: import("@/types/ai").AiModerationStatus | "ALL"
 ): Promise<
   import("@/types/admin").AdminQueueResponse<
     import("@/types/ai").AnalysisRunSummary
   >
 > {
-  return apiClient.getAiReviewQueue(page, size);
+  return apiClient.getAiReviewQueue(page, size, status);
 }
 
 /**

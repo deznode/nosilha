@@ -27,5 +27,13 @@ export function useAiStatus(mediaIds: string[]) {
     queryFn: () => getAiStatus(mediaIds),
     enabled: mediaIds.length > 0,
     staleTime: 30000, // 30 seconds
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      if (!data) return false;
+      const hasActiveRuns = data.some(
+        (s) => s.lastRunStatus === "PROCESSING" || s.lastRunStatus === "PENDING"
+      );
+      return hasActiveRuns ? 3000 : false;
+    },
   });
 }

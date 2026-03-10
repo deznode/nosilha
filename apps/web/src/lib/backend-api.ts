@@ -85,6 +85,7 @@ import type {
   AiHealthResponse,
   AiDomainConfig,
   UpdateDomainConfigRequest,
+  AiModerationStatus,
 } from "@/types/ai";
 import type {
   R2BucketListResponse,
@@ -2593,7 +2594,8 @@ export class BackendApiClient implements ApiClient {
   async getAdminGallery(
     status?: GalleryMediaStatus | "ALL",
     page: number = 0,
-    size: number = 20
+    size: number = 20,
+    aiModerationStatus?: string
   ): Promise<AdminQueueResponse<GalleryMedia>> {
     const params = new URLSearchParams();
     if (status && status !== "ALL") {
@@ -2601,6 +2603,9 @@ export class BackendApiClient implements ApiClient {
     }
     params.append("page", String(page));
     params.append("size", String(size));
+    if (aiModerationStatus && aiModerationStatus !== "ALL") {
+      params.append("aiModerationStatus", aiModerationStatus);
+    }
 
     const endpoint = `${env.apiUrl}/api/v1/admin/gallery/queue?${params.toString()}`;
 
@@ -2837,11 +2842,15 @@ export class BackendApiClient implements ApiClient {
    */
   async getAiReviewQueue(
     page: number = 0,
-    size: number = 20
+    size: number = 20,
+    status?: AiModerationStatus | "ALL"
   ): Promise<AdminQueueResponse<AnalysisRunSummary>> {
     const params = new URLSearchParams();
     params.append("page", String(page));
     params.append("size", String(size));
+    if (status && status !== "ALL") {
+      params.append("moderationStatus", status);
+    }
 
     const endpoint = `${env.apiUrl}/api/v1/admin/ai/review-queue?${params.toString()}`;
 

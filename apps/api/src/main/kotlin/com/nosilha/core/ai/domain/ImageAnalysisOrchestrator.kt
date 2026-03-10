@@ -73,6 +73,9 @@ class ImageAnalysisOrchestrator(
             mediaId = event.mediaId,
             imageUrl = event.imageUrl,
             culturalContext = event.mediaTitle,
+            locationContext = event.locationContext,
+            category = event.category,
+            approximateDate = event.approximateDate,
         )
 
         val errors = mutableListOf<String>()

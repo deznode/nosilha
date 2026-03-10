@@ -10,6 +10,7 @@ import {
   Music,
   ExternalLink,
   Upload,
+  XCircle,
 } from "lucide-react";
 import type { GalleryMedia } from "@/types/gallery";
 import type { AiStatusResponse, AiModerationStatus } from "@/types/ai";
@@ -28,7 +29,6 @@ interface AiMediaItemProps {
   isSelected?: boolean;
   onToggleSelect?: (id: string) => void;
   isEligibleForAi?: boolean;
-  isTriggerPending?: boolean;
 }
 
 export function AiMediaItem({
@@ -39,7 +39,6 @@ export function AiMediaItem({
   isSelected,
   onToggleSelect,
   isEligibleForAi,
-  isTriggerPending,
 }: AiMediaItemProps) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
@@ -120,6 +119,9 @@ export function AiMediaItem({
     );
   };
 
+  const isProcessing =
+    aiStatus?.lastRunStatus === "PROCESSING" ||
+    aiStatus?.lastRunStatus === "PENDING";
   const hasPendingReview = aiStatus?.moderationStatus === "PENDING_REVIEW";
 
   return (
@@ -165,7 +167,16 @@ export function AiMediaItem({
               <span className="text-muted text-xs">
                 {new Date(item.createdAt).toLocaleDateString()}
               </span>
-              {aiStatus?.moderationStatus && (
+              {aiStatus?.lastRunStatus === "PROCESSING" ||
+              aiStatus?.lastRunStatus === "PENDING" ? (
+                <span className="bg-brand/10 text-brand inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
+                  <Loader2 size={10} className="animate-spin" /> Analyzing...
+                </span>
+              ) : aiStatus?.lastRunStatus === "FAILED" ? (
+                <span className="bg-status-error/10 text-status-error inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
+                  <XCircle size={10} /> Analysis Failed
+                </span>
+              ) : aiStatus?.moderationStatus ? (
                 <AiStatusBadge
                   moderationStatus={
                     aiStatus.moderationStatus as AiModerationStatus
@@ -174,6 +185,10 @@ export function AiMediaItem({
                     onViewAiReview ? () => onViewAiReview(item.id) : undefined
                   }
                 />
+              ) : (
+                <span className="bg-surface-alt text-muted inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
+                  Not analyzed
+                </span>
               )}
             </div>
           </div>
@@ -223,9 +238,9 @@ export function AiMediaItem({
             <Button
               color="dark"
               onClick={() => onTriggerAnalysis(item.id)}
-              disabled={isTriggerPending}
+              disabled={isProcessing}
             >
-              {isTriggerPending ? (
+              {isProcessing ? (
                 <Loader2 data-slot="icon" className="animate-spin" />
               ) : (
                 <Sparkles data-slot="icon" />

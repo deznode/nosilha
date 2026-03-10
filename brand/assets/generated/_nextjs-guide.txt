@@ -1,0 +1,18 @@
+# Next.js App Router — Icon Placement Guide
+#
+# Copy to app/ directory (auto-detected by Next.js):
+#   favicon.ico           → app/favicon.ico
+#   icon.svg              → app/icon.svg
+#   apple-icon.png        → app/apple-icon.png
+#   manifest.webmanifest  → app/manifest.webmanifest
+#
+# Copy to public/ directory (referenced by manifest):
+#   icon-192.png          → public/icon-192.png
+#   icon-512.png          → public/icon-512.png
+#   icon-maskable-192.png → public/icon-maskable-192.png
+#   icon-maskable-512.png → public/icon-maskable-512.png
+#
+# Next.js auto-generates <link> tags from file-based metadata.
+# No manual <link> tags needed in layout.tsx.
+#
+# Reference: https://nextjs.org/docs/app/api-reference/file-conventions/metadata/app-icons

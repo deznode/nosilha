@@ -7,6 +7,7 @@ import { Button } from "@/components/catalyst-ui/button";
 import { Checkbox } from "@/components/catalyst-ui/checkbox";
 import { AiMediaItem } from "./ai-media-item";
 import { AiReviewDetailModal } from "@/components/admin/ai-review-detail-modal";
+import { Pagination, fromAdminQueueResponse } from "@/components/ui/pagination";
 import {
   useAdminGallery,
   useAiStatus,
@@ -16,15 +17,34 @@ import {
 } from "@/hooks/queries/admin";
 import { useToast } from "@/hooks/use-toast";
 
+type AiStatusFilter =
+  | "ALL"
+  | "NOT_ANALYZED"
+  | "PENDING_REVIEW"
+  | "APPROVED"
+  | "REJECTED";
+
 export function AiReviewQueue() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [pendingAnalysisIds, setPendingAnalysisIds] = useState<Set<string>>(
-    new Set()
-  );
   const [selectedAiRunId, setSelectedAiRunId] = useState<string | null>(null);
   const [isAiReviewModalOpen, setIsAiReviewModalOpen] = useState(false);
+  const [page, setPage] = useState(0);
+  const [statusFilter, setStatusFilter] = useState<AiStatusFilter>("ALL");
 
-  const galleryQuery = useAdminGallery();
+  const handleStatusFilterChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      setStatusFilter(e.target.value as AiStatusFilter);
+      setPage(0);
+      setSelectedIds(new Set());
+    },
+    []
+  );
+
+  const galleryQuery = useAdminGallery({
+    page,
+    size: 20,
+    aiModerationStatus: statusFilter !== "ALL" ? statusFilter : undefined,
+  });
   const aiReviewQuery = useAiReviewQueue();
   const triggerAnalysis = useTriggerAnalysis();
   const triggerBatchAnalysis = useTriggerBatchAnalysis();
@@ -35,6 +55,7 @@ export function AiReviewQueue() {
     [galleryQuery.data]
   );
   const isLoading = galleryQuery.isLoading;
+  const paginationData = fromAdminQueueResponse(galleryQuery.data);
   const aiReviewItems = aiReviewQuery.data?.items ?? [];
 
   const galleryMediaIds = useMemo(() => items.map((item) => item.id), [items]);
@@ -45,20 +66,12 @@ export function AiReviewQueue() {
   );
 
   const handleTriggerAnalysis = (mediaId: string) => {
-    setPendingAnalysisIds((prev) => new Set(prev).add(mediaId));
     triggerAnalysis.mutate(mediaId, {
       onSuccess: () => {
         toast.success("AI analysis triggered").show();
       },
       onError: () => {
         toast.error("Failed to trigger AI analysis. Please try again.").show();
-      },
-      onSettled: () => {
-        setPendingAnalysisIds((prev) => {
-          const next = new Set(prev);
-          next.delete(mediaId);
-          return next;
-        });
       },
     });
   };
@@ -89,13 +102,16 @@ export function AiReviewQueue() {
   const eligibleIds = useMemo(
     () =>
       items
-        .filter(
-          (item) =>
-            isUserUploadMedia(item) &&
-            (item.status === "ACTIVE" || item.status === "PENDING_REVIEW") &&
-            !!item.publicUrl &&
-            aiStatuses?.get(item.id)?.lastRunStatus !== "PROCESSING"
-        )
+        .filter((item) => {
+          if (!isUserUploadMedia(item)) return false;
+          if (item.status !== "ACTIVE" && item.status !== "PENDING_REVIEW")
+            return false;
+          if (!item.publicUrl) return false;
+          const runStatus = aiStatuses.get(item.id)?.lastRunStatus;
+          if (runStatus === "PROCESSING" || runStatus === "PENDING")
+            return false;
+          return true;
+        })
         .map((item) => item.id),
     [items, aiStatuses]
   );
@@ -137,9 +153,35 @@ export function AiReviewQueue() {
   const allEligibleSelected =
     eligibleIds.length > 0 && eligibleIds.every((id) => selectedIds.has(id));
 
+  const totalElements = galleryQuery.data?.total ?? 0;
+
+  const filterBar = (
+    <div className="mb-4 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <select
+          value={statusFilter}
+          onChange={handleStatusFilterChange}
+          className="border-hairline bg-surface text-body rounded-md border px-3 py-1.5 text-sm font-medium"
+        >
+          <option value="ALL">All AI Status</option>
+          <option value="NOT_ANALYZED">Not Analyzed</option>
+          <option value="PENDING_REVIEW">Pending Review</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+        {!isLoading && (
+          <p className="text-muted text-sm">
+            {totalElements} {totalElements === 1 ? "item" : "items"}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+
   if (isLoading) {
     return (
       <div className="space-y-4">
+        {filterBar}
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
@@ -152,14 +194,21 @@ export function AiReviewQueue() {
 
   if (items.length === 0) {
     return (
-      <div className="border-hairline bg-canvas rounded-card flex min-h-[400px] items-center justify-center border-2 border-dashed">
-        <div className="text-center">
-          <p className="text-muted text-lg font-medium">
-            No gallery items available
-          </p>
-          <p className="text-muted mt-2 text-sm">
-            Upload media to get started with AI analysis.
-          </p>
+      <div className="space-y-4">
+        {filterBar}
+        <div className="border-hairline bg-canvas rounded-card flex min-h-[400px] items-center justify-center border-2 border-dashed">
+          <div className="text-center">
+            <p className="text-muted text-lg font-medium">
+              {statusFilter === "ALL"
+                ? "No gallery items available"
+                : "No items match this filter"}
+            </p>
+            <p className="text-muted mt-2 text-sm">
+              {statusFilter === "ALL"
+                ? "Upload media to get started with AI analysis."
+                : `No items with AI status "${statusFilter.replace("_", " ").toLowerCase()}".`}
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -167,11 +216,7 @@ export function AiReviewQueue() {
 
   return (
     <div className="space-y-4">
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-muted text-sm">
-          {items.length} {items.length === 1 ? "item" : "items"}
-        </p>
-      </div>
+      {filterBar}
 
       {selectedIds.size > 0 && (
         <div className="border-hairline bg-surface rounded-card shadow-subtle flex items-center gap-4 border p-3">
@@ -213,10 +258,17 @@ export function AiReviewQueue() {
             isSelected={selectedIds.has(item.id)}
             onToggleSelect={isEligible ? toggleSelect : undefined}
             isEligibleForAi={isEligible}
-            isTriggerPending={pendingAnalysisIds.has(item.id)}
           />
         );
       })}
+
+      {paginationData && (
+        <Pagination
+          {...paginationData}
+          onPageChange={setPage}
+          className="mt-4"
+        />
+      )}
 
       <AiReviewDetailModal
         runId={selectedAiRunId}

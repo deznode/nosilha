@@ -4,7 +4,6 @@ import { useState } from "react";
 import Image from "next/image";
 import {
   CheckCircle,
-  Flag,
   XCircle,
   Image as ImageIcon,
   Video,
@@ -16,6 +15,7 @@ import {
   MapPin,
   Clock,
   Archive,
+  Flag,
   Loader2,
   Eye,
   EyeOff,
@@ -31,6 +31,7 @@ import { isUserUploadMedia, isExternalMedia } from "@/types/gallery";
 import { resolveExternalThumbnail } from "@/lib/gallery-mappers";
 import { Button } from "@/components/catalyst-ui/button";
 import { AiStatusBadge } from "./ai-status-badge";
+import { RejectMediaDialog } from "./reject-media-dialog";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 
 const STATUS_CONFIG: Record<
@@ -97,6 +98,7 @@ export function GalleryQueueItem({
   aiStatus,
 }: GalleryQueueItemProps) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
 
   const canPromoteToHero =
     isUserUploadMedia(item) &&
@@ -298,36 +300,28 @@ export function GalleryQueueItem({
               EXIF
             </Button>
           )}
-          <Button
-            color="green"
-            onClick={() => onStatusChange(item.id, "APPROVE")}
-            disabled={item.status === "ACTIVE"}
-          >
-            <CheckCircle data-slot="icon" />
-            Approve
-          </Button>
-          <Button
-            color="yellow"
-            onClick={() => onStatusChange(item.id, "FLAG", "Needs review")}
-            disabled={item.status === "FLAGGED"}
-          >
-            <Flag data-slot="icon" />
-            Flag
-          </Button>
-          <Button
-            color="red"
-            onClick={() =>
-              onStatusChange(
-                item.id,
-                "REJECT",
-                "Does not meet quality standards"
-              )
-            }
-            disabled={item.status === "REJECTED"}
-          >
-            <XCircle data-slot="icon" />
-            Reject
-          </Button>
+          {item.status === "ACTIVE" ? (
+            <Button color="green" disabled>
+              <CheckCircle data-slot="icon" />
+              Approved
+            </Button>
+          ) : (
+            <Button outline onClick={() => onStatusChange(item.id, "APPROVE")}>
+              <CheckCircle data-slot="icon" />
+              Approve
+            </Button>
+          )}
+          {item.status === "REJECTED" ? (
+            <Button color="red" disabled>
+              <XCircle data-slot="icon" />
+              Rejected
+            </Button>
+          ) : (
+            <Button outline onClick={() => setIsRejectDialogOpen(true)}>
+              <XCircle data-slot="icon" />
+              Reject
+            </Button>
+          )}
           {canPromoteToHero && onPromoteToHero && (
             <Button
               color="blue"
@@ -361,6 +355,17 @@ export function GalleryQueueItem({
           onClose={() => setIsLightboxOpen(false)}
         />
       )}
+
+      {/* Reject Confirmation Dialog */}
+      <RejectMediaDialog
+        isOpen={isRejectDialogOpen}
+        onClose={() => setIsRejectDialogOpen(false)}
+        onConfirm={(reason) => {
+          onStatusChange(item.id, "REJECT", reason);
+          setIsRejectDialogOpen(false);
+        }}
+        mediaTitle={item.title || "Untitled"}
+      />
     </div>
   );
 }

@@ -272,6 +272,66 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     ): List<UUID>
 
     /**
+     * Finds gallery media filtered by AI moderation status (read-model query spanning gallery + AI tables).
+     *
+     * Uses a native SQL subquery against ai_analysis_log to filter by AI moderation status.
+     * NOT_ANALYZED returns media with no analysis runs; other statuses check the latest run's moderation_status.
+     * Optionally filters by gallery media status as well.
+     *
+     * @param status Optional gallery media status filter
+     * @param aiModerationStatus AI moderation status: NOT_ANALYZED, PENDING_REVIEW, APPROVED, or REJECTED
+     * @param pageable Pagination parameters
+     * @return Page of gallery media matching the criteria
+     */
+    @Query(
+        value = """
+        SELECT gm.* FROM gallery_media gm
+        WHERE (:status IS NULL OR gm.status = CAST(:status AS gallery_media_status))
+        AND (
+            CASE :aiModerationStatus
+                WHEN 'NOT_ANALYZED' THEN
+                    NOT EXISTS (SELECT 1 FROM ai_analysis_log a WHERE a.media_id = gm.id)
+                ELSE
+                    EXISTS (
+                        SELECT 1 FROM ai_analysis_log a
+                        WHERE a.media_id = gm.id
+                        AND a.moderation_status = :aiModerationStatus
+                        AND a.created_at = (
+                            SELECT MAX(a2.created_at) FROM ai_analysis_log a2 WHERE a2.media_id = gm.id
+                        )
+                    )
+            END
+        )
+        ORDER BY gm.created_at DESC
+        """,
+        countQuery = """
+        SELECT COUNT(*) FROM gallery_media gm
+        WHERE (:status IS NULL OR gm.status = CAST(:status AS gallery_media_status))
+        AND (
+            CASE :aiModerationStatus
+                WHEN 'NOT_ANALYZED' THEN
+                    NOT EXISTS (SELECT 1 FROM ai_analysis_log a WHERE a.media_id = gm.id)
+                ELSE
+                    EXISTS (
+                        SELECT 1 FROM ai_analysis_log a
+                        WHERE a.media_id = gm.id
+                        AND a.moderation_status = :aiModerationStatus
+                        AND a.created_at = (
+                            SELECT MAX(a2.created_at) FROM ai_analysis_log a2 WHERE a2.media_id = gm.id
+                        )
+                    )
+            END
+        )
+        """,
+        nativeQuery = true,
+    )
+    fun findByAiModerationStatus(
+        @Param("status") status: String?,
+        @Param("aiModerationStatus") aiModerationStatus: String,
+        pageable: Pageable,
+    ): Page<GalleryMedia>
+
+    /**
      * Full-text search across gallery media using Portuguese text search config.
      * Searches title (weight A), description (B), and location_name (C).
      * Results ranked by ts_rank relevance score.
