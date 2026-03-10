@@ -110,6 +110,7 @@ lefthook-local.yml
 .nx/
 
 .worktrees
+.scratch
 credentials.json
 
 # Large media files (use external storage/CDN instead)
