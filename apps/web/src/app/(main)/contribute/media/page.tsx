@@ -31,7 +31,7 @@ import { CreditPreviewBadge } from "@/components/ui/credit-display";
 interface FormData {
   title: string;
   type: MediaType;
-  category: MediaCategory | "";
+  category: MediaCategory | null;
   description: string;
   url: string;
   author: string;
@@ -75,7 +75,7 @@ export default function MediaContributionPage() {
   const [formData, setFormData] = useState<FormData>({
     title: "",
     type: "IMAGE",
-    category: "",
+    category: null,
     description: "",
     url: "",
     author: "",
@@ -149,7 +149,7 @@ export default function MediaContributionPage() {
     if (formData.type === "IMAGE" && selectedFile) {
       // Upload image to R2 storage with EXIF metadata and credit
       const result = await upload({
-        category: formData.category || undefined,
+        category: formData.category ?? undefined,
         description: formData.description || formData.title,
         photographerCredit: formData.author || undefined,
       });
@@ -182,7 +182,7 @@ export default function MediaContributionPage() {
           url: formData.url,
           externalId: parsed.externalId,
           author: formData.author || undefined,
-          category: formData.category || undefined,
+          category: formData.category ?? undefined,
         });
         toast.success("Video submitted successfully").show();
         setSubmitted(true);
@@ -430,11 +430,11 @@ export default function MediaContributionPage() {
                 </label>
                 <select
                   required
-                  value={formData.category}
+                  value={formData.category ?? ""}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      category: e.target.value as MediaCategory | "",
+                      category: (e.target.value as MediaCategory) || null,
                     })
                   }
                   className={clsx(

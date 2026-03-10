@@ -1,19 +1,19 @@
 # Project Status
 
-**Last Updated:** 2026-03-06
-**Branch:** main | **Commits:** 47 (repo re-initialized 2026-03-02 with squashed history)
+**Last Updated:** 2026-03-10
+**Branch:** main | **Commits:** 52 (repo re-initialized 2026-03-02 with squashed history)
 
 ---
 
 ## Module Maturity
 
-### Backend (apps/api/ — 230 Kotlin files, 9 Flyway migrations, 96 endpoints)
+### Backend (apps/api/ — 243 Kotlin files, 11 Flyway migrations, 99 endpoints)
 
 | Module | Files | Endpoints | Tests | Maturity |
 |--------|-------|-----------|-------|----------|
 | shared | 36 | — | 0 | Production Ready |
 | places | 29 | 19 | 1 | Production Ready |
-| gallery | 38 | 27 | 7 | Production Ready |
+| gallery | 47 | 30 | 9 | Production Ready |
 | ai | 27 | 16 | 5 | Production Ready |
 | feedback | 23 | 13 | 2 | Tested |
 | auth | 18 | 4 | 0 | API Ready |
@@ -23,12 +23,12 @@
 
 **Maturity scale:** Stub > Domain Started > Service Layer > API Ready > Tested > Production Ready
 
-### Frontend (apps/web/ — 192 components, 53 pages)
+### Frontend (apps/web/ — ~196 components, 55 pages)
 
 | Area | Count | Maturity |
 |------|-------|----------|
 | UI components | 55 | Production Ready |
-| Admin components | 37 | Production Ready |
+| Admin components | 38 | Production Ready |
 | Content components | 15 | Production Ready |
 | Gallery components | 14 | Production Ready |
 | Landing components | 15 | Production Ready |
@@ -52,9 +52,9 @@
 
 ## Specification Pipeline
 
-**Source:** `plan/arkhe/specs/` (28 spec directories)
+**Source:** `plan/arkhe/specs/` (30 spec directories)
 
-### Complete (27)
+### Complete (29)
 
 | Spec | Title |
 |------|-------|
@@ -85,12 +85,14 @@
 | 025 | Admin Queue Filter Fixes |
 | 026 | Gallery Map View |
 | 027 | Frontend Performance Improvements |
+| 028 | Social Media Integration |
+| 029 | YouTube Channel Sync |
 
 ### Complete (no spec directory — implemented via PR)
 
 | Spec | Title | PR |
 |------|-------|----|
-| 029 | Design Review Fixes | #92 |
+| — | Design Review Fixes | #92 |
 
 ### In Progress (1)
 
@@ -111,7 +113,7 @@ AI Pipeline:    010 done -> 009 done -> 011 done -> 001 done
 Gallery:        012 done -> 020 done -> 021 done -> 022 done -> 026 done
                 016 done + 019 done + 025 done
 Map:            023 done -> 024 done -> 026 done
-UI Polish:      029 done
+Social Media:   028 done -> 029 done
 ```
 
 No critical blockers. Spec 03 (Design System Compliance) is the only active dependency chain.
@@ -124,14 +126,14 @@ No critical blockers. Spec 03 (Design System Compliance) is the only active depe
 
 | Domain | Coverage | Gap |
 |--------|----------|-----|
-| Gallery & Media | 95% | All 3 phases + map view complete |
+| Gallery & Media | 98% | YouTube sync complete; R2 image compression pending |
 | Directory & Listings | 100% | — |
 | AI Pipeline | 95% | Dashboard + review + moderation complete |
 | Map | 95% | Migration + decomposition + gallery map complete |
 | Frontend & UI/UX | ~60% | Design system compliance sweep (Spec 03) |
 | Content & Heritage | 20% | 5 published articles (music, people, traditions); history/ and places/ categories empty |
 | Multilingual | 0% | Framework built; zero PT/KEA/FR translations live |
-| Community & Social | 25% | Suggestions + contact exist; social media integration roadmap drafted; no story submission flow |
+| Community & Social | 30% | Suggestions + contact exist; OG images + Instagram feed live; YouTube sync live; no story submission flow |
 | Infrastructure | 25% | CI/CD testing improvements unspecced |
 
 ### Test Coverage
@@ -162,6 +164,10 @@ No critical blockers. Spec 03 (Design System Compliance) is the only active depe
 | Issue | Resolution | Date |
 |-------|-----------|------|
 | Cloudflare Image Resizing not enabled | Enabled manually in Cloudflare dashboard | 2026-03 |
+| CSP headers blocking inline scripts | CSP policy tightened, nonce-based exemptions added | 2026-03-10 |
+| React hydration mismatches | Fixed client/server rendering inconsistencies | 2026-03-10 |
+| Chart rendering failures | Fixed chart component initialization on client | 2026-03-10 |
+| YouTube CDN domain not in CSP | Added YouTube CDN to allowed origins | 2026-03-10 |
 
 ---
 
@@ -169,13 +175,16 @@ No critical blockers. Spec 03 (Design System Compliance) is the only active depe
 
 - Full-stack platform operational: Spring Boot 4 + Next.js 16.1
 - Gallery system mature: masonry layout, lightbox, video facade, AI analysis, credit attribution, timeline view, random discovery, gallery map view, R2 storage admin
+- YouTube channel sync: admin-triggered sync of @nosilha channel videos into gallery; DB-backed runtime enable/disable toggle; batch deduplication; 8 integration tests; admin UI panel at `/admin/youtube-sync`
 - AI admin dashboard with domain-level feature toggles, review queue, batch analysis
-- Admin dashboard redesigned with sidebar navigation and 8 moderation queues
+- Admin dashboard redesigned with sidebar navigation and 8 moderation queues + YouTube sync page
 - Interactive map of Brava Island with zones, trails, 3D terrain, marker clustering, decomposed component architecture
 - MDX content platform with Velite processing, Pagefind search, multilingual framework, 5 published articles
+- Dynamic OG images via Next.js ImageResponse/Satori (`/api/og` route, 4 template variants)
+- Instagram feed section on homepage (bento-grid layout, graceful degradation when token absent)
 - CI/CD pipeline with 10 workflows covering security, testing, deployment
 - Event-driven backend with Spring Modulith enforced boundaries (12 event types)
-- Security: OWASP remediation, HTML sanitizer, rate limiting (Bucket4j)
+- Security: OWASP remediation, HTML sanitizer, rate limiting (Bucket4j), CSP headers tightened
 - Frontend performance optimized (Spec 027): ISR cache profiles, image optimization
 - Git hooks migrated from Husky to Lefthook
 - Design review fixes merged (PR #92): responsive improvements, category-to-icon mapping consolidated
@@ -184,7 +193,7 @@ No critical blockers. Spec 03 (Design System Compliance) is the only active depe
 ## What's Planned
 
 - Spec 03: Design System Compliance — 56 files remaining (48 excluding catalyst-ui)
-- Social media integrations — 12-item roadmap drafted (`plan/community/active/social-media-integrations-roadmap.md`)
+- Social media integrations — remaining items from roadmap (newsletters, other platforms)
 - P0 quick wins: fix content tooling bugs, admin role setup (~3 hrs)
 - P1 high impact: language switcher UI, Portuguese translations, admin moderation dashboard, community story submission
 - P2 medium impact: Kriolu content, history category articles, user profile enhancement
@@ -192,12 +201,10 @@ No critical blockers. Spec 03 (Design System Compliance) is the only active depe
 
 ## Recommended Next Actions
 
-1. **Close P0 gaps** — Fix tooling bugs, set up admin roles (~3 hrs)
-2. **Complete Spec 03** (Design System Compliance) — only in-progress spec
-3. **Add backend tests** for auth, engagement, stories modules (reduce critical risk)
-4. **Enhanced OG tags** — Priority 1 from social media roadmap (dynamic OG images, ~1 day)
-5. **YouTube API integration** — Priority 2 from social media roadmap (auto-populate gallery videos)
-6. **Build language switcher** — unblocks all multilingual content work
-7. **Create PT translations** for existing 5 articles (AI-assisted, ~4-6 hrs)
-8. **Seed more MDX content** — history category (5 planned articles)
-9. **Resolve Issue #86** — tag-based revalidation for FrontendRevalidationService
+1. **Complete Spec 03** (Design System Compliance) — only remaining in-progress spec
+2. **Add backend tests** for auth, engagement, stories modules (reduce critical risk; JaCoCo at 5%)
+3. **Build language switcher** — unblocks all multilingual content work
+4. **Create PT translations** for existing 5 articles (AI-assisted, ~4-6 hrs)
+5. **Seed more MDX content** — history category (5 planned articles)
+6. **Resolve Issue #86** — tag-based revalidation for FrontendRevalidationService
+7. **R2 image compression** — only remaining production issue (oversized uploads)

@@ -56,8 +56,6 @@ const GalleryMapCanvas = dynamic(
   }
 );
 
-const FALLBACK_CATEGORIES = GALLERY_CATEGORIES;
-
 function formatSearchStatus(query: string, totalItems: number): string {
   if (totalItems === 0) {
     return `No results for \u201c${query}\u201d`;
@@ -319,7 +317,7 @@ export function GalleryContent({
   const resolvedCategories: MediaCategory[] =
     categories.length > 0
       ? (categories as MediaCategory[])
-      : FALLBACK_CATEGORIES;
+      : GALLERY_CATEGORIES;
 
   const eraOptions = useMemo(
     () =>
