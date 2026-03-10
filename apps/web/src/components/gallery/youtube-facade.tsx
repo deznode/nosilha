@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Play } from "lucide-react";
 import type { MediaItem } from "@/types/media";
@@ -11,16 +11,34 @@ interface YouTubeFacadeProps {
 
 export function YouTubeFacade({ video }: YouTubeFacadeProps) {
   const [activated, setActivated] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const thumbnailUrl = video.thumbnailUrl || "/images/video-placeholder.jpg";
   const iframeSrc = video.url
-    ? video.url + (video.url.includes("?") ? "&" : "?") + "autoplay=1"
+    ? video.url +
+      (video.url.includes("?") ? "&" : "?") +
+      "autoplay=1&enablejsapi=1"
     : "";
+
+  useLayoutEffect(() => {
+    if (!activated) return;
+    const iframe = iframeRef.current;
+    return () => {
+      if (iframe?.contentWindow) {
+        iframe.contentWindow.postMessage(
+          JSON.stringify({ event: "command", func: "pauseVideo", args: "" }),
+          "https://www.youtube.com"
+        );
+      }
+      setActivated(false);
+    };
+  }, [activated]);
 
   if (activated) {
     return (
       <div className="relative bg-black pb-[56.25%]">
         <iframe
+          ref={iframeRef}
           className="absolute top-0 left-0 h-full w-full"
           src={iframeSrc}
           title={video.title || "Video player"}
