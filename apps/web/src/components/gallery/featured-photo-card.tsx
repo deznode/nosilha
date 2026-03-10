@@ -20,10 +20,11 @@ export function FeaturedPhotoCard({ photo }: FeaturedPhotoCardProps) {
     ? (photo.locationName ?? null)
     : null;
   const formattedDate = photo.createdAt
-    ? new Date(photo.createdAt).toLocaleDateString("en-US", {
+    ? new Intl.DateTimeFormat("en-US", {
         month: "long",
         year: "numeric",
-      })
+        timeZone: "UTC",
+      }).format(new Date(photo.createdAt))
     : null;
 
   return (

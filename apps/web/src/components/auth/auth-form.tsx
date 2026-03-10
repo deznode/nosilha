@@ -441,7 +441,10 @@ export default function NosIlhaAuth({
 
       {/* Footer Branding */}
       <div className="text-basalt-500/50 dark:text-mist-200/50 absolute bottom-4 w-full text-center text-xs">
-        <p>© 2025 Nos Ilha. Preserving culture through code.</p>
+        <p>
+          © {new Date().getFullYear()} Nos Ilha. Preserving culture through
+          code.
+        </p>
       </div>
     </div>
   );

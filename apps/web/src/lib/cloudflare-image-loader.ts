@@ -31,7 +31,13 @@ export default function cloudflareLoader({
     return `${src}?w=${width}&q=${q}`;
   }
 
-  // External images (R2, Unsplash, etc.) — route through Cloudflare Image Resizing
+  // YouTube thumbnails are already served from Google's global CDN at fixed sizes.
+  // Proxying through Cloudflare adds latency for no benefit — serve directly.
+  if (src.includes("i.ytimg.com/") || src.includes("img.youtube.com/")) {
+    return src;
+  }
+
+  // External images (R2, Unsplash, Wikimedia, etc.) — route through Cloudflare Image Resizing
   const params = [`width=${width}`, `quality=${q}`, "format=auto"];
   return `/cdn-cgi/image/${params.join(",")}/${src}`;
 }
