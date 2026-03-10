@@ -10,11 +10,23 @@ export type MediaType = "IMAGE" | "VIDEO";
 
 export type MediaCategory =
   | "Heritage"
-  | "Historical"
+  | "Landscape"
   | "Nature"
   | "Culture"
+  | "People"
   | "Event"
   | "Interview";
+
+/** Canonical list of gallery categories for selectors and filters. */
+export const GALLERY_CATEGORIES: MediaCategory[] = [
+  "Heritage",
+  "Landscape",
+  "Nature",
+  "Culture",
+  "People",
+  "Event",
+  "Interview",
+];
 
 export interface MediaItem {
   id: string;
@@ -23,7 +35,7 @@ export interface MediaItem {
   thumbnailUrl?: string;
   title: string;
   description?: string;
-  category: MediaCategory;
+  category?: MediaCategory;
   date?: string;
   author?: string;
   authorId?: string;

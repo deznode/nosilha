@@ -14,7 +14,8 @@ import {
   Link as LinkIcon,
   AlertCircle,
 } from "lucide-react";
-import type { MediaType, ManualMetadata } from "@/types/media";
+import type { MediaType, ManualMetadata, MediaCategory } from "@/types/media";
+import { GALLERY_CATEGORIES } from "@/types/media";
 import type { ExternalPlatform } from "@/types/gallery";
 import { usePhotoUpload } from "@/hooks/usePhotoUpload";
 import { BackendApiClient } from "@/lib/backend-api";
@@ -30,6 +31,7 @@ import { CreditPreviewBadge } from "@/components/ui/credit-display";
 interface FormData {
   title: string;
   type: MediaType;
+  category: MediaCategory | "";
   description: string;
   url: string;
   author: string;
@@ -73,6 +75,7 @@ export default function MediaContributionPage() {
   const [formData, setFormData] = useState<FormData>({
     title: "",
     type: "IMAGE",
+    category: "",
     description: "",
     url: "",
     author: "",
@@ -146,7 +149,7 @@ export default function MediaContributionPage() {
     if (formData.type === "IMAGE" && selectedFile) {
       // Upload image to R2 storage with EXIF metadata and credit
       const result = await upload({
-        category: "gallery",
+        category: formData.category || undefined,
         description: formData.description || formData.title,
         photographerCredit: formData.author || undefined,
       });
@@ -179,7 +182,7 @@ export default function MediaContributionPage() {
           url: formData.url,
           externalId: parsed.externalId,
           author: formData.author || undefined,
-          category: "Community", // Default category for user submissions
+          category: formData.category || undefined,
         });
         toast.success("Video submitted successfully").show();
         setSubmitted(true);
@@ -420,6 +423,38 @@ export default function MediaContributionPage() {
                 </div>
               )}
 
+              {/* Category */}
+              <div>
+                <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
+                  Category
+                </label>
+                <select
+                  required
+                  value={formData.category}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      category: e.target.value as MediaCategory | "",
+                    })
+                  }
+                  className={clsx(
+                    "border-hairline bg-surface rounded-card w-full border px-5 py-3 text-sm font-medium transition-all outline-none focus:ring-2 focus-visible:ring-offset-2",
+                    formData.category
+                      ? "text-body focus-visible:ring-ocean-blue"
+                      : "text-muted focus-visible:ring-ocean-blue"
+                  )}
+                >
+                  <option value="" disabled>
+                    Select a category...
+                  </option>
+                  {GALLERY_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               {/* Description */}
               <div>
                 <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
@@ -491,6 +526,7 @@ export default function MediaContributionPage() {
                   isSubmitting ||
                   requiresAuth ||
                   !formData.title ||
+                  !formData.category ||
                   !formData.url ||
                   uploadState === "extracting"
                 }

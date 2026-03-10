@@ -160,9 +160,11 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
                   <YouTubeFacade video={video} />
                   <div className="p-5">
                     <div className="mb-2 flex items-start justify-between">
-                      <span className="text-bougainvillea-pink text-xs font-bold tracking-wider uppercase">
-                        {video.category}
-                      </span>
+                      {video.category && (
+                        <span className="text-bougainvillea-pink text-xs font-bold tracking-wider uppercase">
+                          {video.category}
+                        </span>
+                      )}
                       <span className="text-muted text-xs">{video.date}</span>
                     </div>
                     <h3 className="text-body mb-2 text-xl font-bold">

@@ -74,7 +74,7 @@ const mockPhotos: MediaItem[] = [
     title: "Eugénio Tavares Bust",
     description:
       "The monument honoring Brava's greatest poet, Eugénio Tavares.",
-    category: "Historical",
+    category: "Heritage",
     date: "2024-03-01",
     author: "Carla Mendes",
     locationName: "Nova Sintra",

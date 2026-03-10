@@ -36,6 +36,7 @@ import type {
   GalleryView,
 } from "@/types/gallery";
 import type { MediaCategory } from "@/types/media";
+import { GALLERY_CATEGORIES } from "@/types/media";
 
 const GalleryMapCanvas = dynamic(
   () =>
@@ -55,13 +56,7 @@ const GalleryMapCanvas = dynamic(
   }
 );
 
-const FALLBACK_CATEGORIES: MediaCategory[] = [
-  "Heritage",
-  "Historical",
-  "Nature",
-  "Event",
-  "Culture",
-];
+const FALLBACK_CATEGORIES = GALLERY_CATEGORIES;
 
 function formatSearchStatus(query: string, totalItems: number): string {
   if (totalItems === 0) {

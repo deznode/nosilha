@@ -167,9 +167,11 @@ export const MasonryPhotoGrid = React.forwardRef<
                   <div className="p-4">
                     <div className="flex items-start justify-between">
                       <div>
-                        <span className="text-ocean-blue text-xs font-bold tracking-wider uppercase">
-                          {photo.category}
-                        </span>
+                        {photo.category && (
+                          <span className="text-ocean-blue text-xs font-bold tracking-wider uppercase">
+                            {photo.category}
+                          </span>
+                        )}
                         <h3 className="text-body mt-1 font-bold">
                           {photo.title}
                         </h3>

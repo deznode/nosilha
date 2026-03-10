@@ -296,7 +296,6 @@ export default async function PhotoDetailPage({
                     url: media.embedUrl || media.url || "",
                     thumbnailUrl: imageUrl || "/images/video-placeholder.jpg",
                     title,
-                    category: "Culture",
                   }}
                 />
               </div>

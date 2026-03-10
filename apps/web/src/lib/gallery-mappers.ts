@@ -76,9 +76,11 @@ export function resolvePublicImageUrl(
 const CATEGORY_MAP: Record<string, MediaCategory> = {
   Heritage: "Heritage",
   Landmark: "Heritage",
-  Historical: "Historical",
+  Historical: "Heritage",
+  Landscape: "Landscape",
   Nature: "Nature",
   Culture: "Culture",
+  People: "People",
   Event: "Event",
   Interview: "Interview",
 };
@@ -94,17 +96,21 @@ export function isRawFilename(title: string): boolean {
   return RAW_FILENAME_PATTERNS.some((pattern) => pattern.test(title));
 }
 
-function humanizeTitle(category: MediaCategory, createdAt: string): string {
+function humanizeTitle(
+  category: MediaCategory | undefined,
+  createdAt: string
+): string {
   const date = new Date(createdAt);
   const month = date.toLocaleDateString("en-US", { month: "long" });
   const year = date.getFullYear();
-  return `${category} — ${month} ${year}`;
+  const prefix = category ?? "Brava Island";
+  return `${prefix} — ${month} ${year}`;
 }
 
 export function mapGalleryMediaToMediaItem(
   media: PublicGalleryMedia
 ): MediaItem {
-  const category = CATEGORY_MAP[media.category || ""] || "Culture";
+  const category = CATEGORY_MAP[media.category || ""] || undefined;
   const date = new Date(media.createdAt).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
@@ -193,7 +199,7 @@ export function mediaItemToGeoFeature(
     properties: {
       cluster: false,
       mediaId: item.id,
-      category: item.category,
+      category: item.category || "",
       title: item.title,
       thumbnailUrl: item.thumbnailUrl ?? item.url,
     },
