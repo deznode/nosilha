@@ -25,6 +25,7 @@ import com.nosilha.core.shared.exception.ResourceNotFoundException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.validation.Valid
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.GetMapping
@@ -69,7 +70,7 @@ class AdminAiController(
         @RequestParam(defaultValue = "20") size: Int,
         @RequestParam(required = false) moderationStatus: ModerationStatus?,
     ): PagedApiResult<AnalysisRunSummaryDto> {
-        val pageable = PageRequest.of(page, minOf(size, 100))
+        val pageable = PageRequest.of(page, minOf(size, 100), Sort.by(Sort.Direction.DESC, "createdAt"))
         val runsPage = moderationService.getReviewQueue(pageable, moderationStatus)
         return PagedApiResult.from(runsPage.map { AnalysisRunSummaryDto.from(it) })
     }
@@ -129,6 +130,9 @@ class AdminAiController(
     fun getAiStatus(
         @RequestParam mediaIds: List<UUID>,
     ): ApiResult<List<AiStatusResponse>> {
+        if (mediaIds.isEmpty()) {
+            return ApiResult(data = emptyList())
+        }
         val latestRuns = analysisRunRepository.findLatestByMediaIds(mediaIds)
         val runsByMediaId = latestRuns.associateBy { it.mediaId }
         val statuses = mediaIds.map { mediaId ->

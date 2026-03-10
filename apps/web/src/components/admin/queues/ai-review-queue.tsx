@@ -40,13 +40,17 @@ export function AiReviewQueue() {
     []
   );
 
-  const galleryQuery = useAdminGallery({ page, size: 20 });
+  const galleryQuery = useAdminGallery({
+    page,
+    size: 20,
+    aiModerationStatus: statusFilter !== "ALL" ? statusFilter : undefined,
+  });
   const aiReviewQuery = useAiReviewQueue();
   const triggerAnalysis = useTriggerAnalysis();
   const triggerBatchAnalysis = useTriggerBatchAnalysis();
   const toast = useToast();
 
-  const allItems = useMemo(
+  const items = useMemo(
     () => galleryQuery.data?.items ?? [],
     [galleryQuery.data]
   );
@@ -54,30 +58,12 @@ export function AiReviewQueue() {
   const paginationData = fromAdminQueueResponse(galleryQuery.data);
   const aiReviewItems = aiReviewQuery.data?.items ?? [];
 
-  const galleryMediaIds = useMemo(
-    () => allItems.map((item) => item.id),
-    [allItems]
-  );
+  const galleryMediaIds = useMemo(() => items.map((item) => item.id), [items]);
   const aiStatusQuery = useAiStatus(galleryMediaIds);
   const aiStatuses = useMemo(
     () => new Map((aiStatusQuery.data ?? []).map((s) => [s.mediaId, s])),
     [aiStatusQuery.data]
   );
-
-  // Client-side filtering by AI status
-  const items = useMemo(() => {
-    if (statusFilter === "ALL") return allItems;
-    if (statusFilter === "NOT_ANALYZED") {
-      return allItems.filter((item) => {
-        const status = aiStatuses.get(item.id);
-        return !status || !status.moderationStatus;
-      });
-    }
-    // PENDING_REVIEW, APPROVED, REJECTED
-    return allItems.filter(
-      (item) => aiStatuses.get(item.id)?.moderationStatus === statusFilter
-    );
-  }, [allItems, aiStatuses, statusFilter]);
 
   const handleTriggerAnalysis = (mediaId: string) => {
     triggerAnalysis.mutate(mediaId, {
@@ -163,6 +149,8 @@ export function AiReviewQueue() {
   const allEligibleSelected =
     eligibleIds.length > 0 && eligibleIds.every((id) => selectedIds.has(id));
 
+  const totalElements = galleryQuery.data?.total ?? 0;
+
   const filterBar = (
     <div className="mb-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -179,9 +167,7 @@ export function AiReviewQueue() {
         </select>
         {!isLoading && (
           <p className="text-muted text-sm">
-            {statusFilter !== "ALL"
-              ? `${items.length} of ${allItems.length} ${allItems.length === 1 ? "item" : "items"}`
-              : `${items.length} ${items.length === 1 ? "item" : "items"}`}
+            {totalElements} {totalElements === 1 ? "item" : "items"}
           </p>
         )}
       </div>

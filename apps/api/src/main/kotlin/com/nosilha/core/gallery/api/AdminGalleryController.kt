@@ -114,11 +114,12 @@ class AdminGalleryController(
     @GetMapping("/queue")
     fun getModerationQueue(
         @RequestParam(required = false) status: GalleryMediaStatus? = null,
+        @RequestParam(required = false) aiModerationStatus: String? = null,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "20") size: Int,
     ): PagedApiResult<GalleryMediaDto> {
-        logger.debug { "Fetching moderation queue - status: $status, page: $page, size: $size" }
-        return moderationService.listMediaForModeration(status, page, size)
+        logger.debug { "Fetching moderation queue - status: $status, aiModerationStatus: $aiModerationStatus, page: $page, size: $size" }
+        return moderationService.listMediaForModeration(status, aiModerationStatus, page, size)
     }
 
     /**

@@ -46,8 +46,17 @@ export const adminKeys = {
   },
   gallery: {
     all: () => [...adminKeys.all, "gallery"] as const,
-    list: (page: number, size: number, status?: GalleryMediaStatus | "ALL") =>
-      [...adminKeys.all, "gallery", { page, size, status }] as const,
+    list: (
+      page: number,
+      size: number,
+      status?: GalleryMediaStatus | "ALL",
+      aiModerationStatus?: string
+    ) =>
+      [
+        ...adminKeys.all,
+        "gallery",
+        { page, size, status, aiModerationStatus },
+      ] as const,
     detail: (id: string) => [...adminKeys.all, "gallery", id] as const,
   },
   aiReview: {

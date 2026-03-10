@@ -2594,7 +2594,8 @@ export class BackendApiClient implements ApiClient {
   async getAdminGallery(
     status?: GalleryMediaStatus | "ALL",
     page: number = 0,
-    size: number = 20
+    size: number = 20,
+    aiModerationStatus?: string
   ): Promise<AdminQueueResponse<GalleryMedia>> {
     const params = new URLSearchParams();
     if (status && status !== "ALL") {
@@ -2602,6 +2603,9 @@ export class BackendApiClient implements ApiClient {
     }
     params.append("page", String(page));
     params.append("size", String(size));
+    if (aiModerationStatus && aiModerationStatus !== "ALL") {
+      params.append("aiModerationStatus", aiModerationStatus);
+    }
 
     const endpoint = `${env.apiUrl}/api/v1/admin/gallery/queue?${params.toString()}`;
 

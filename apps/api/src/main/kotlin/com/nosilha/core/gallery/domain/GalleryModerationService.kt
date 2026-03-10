@@ -80,16 +80,22 @@ class GalleryModerationService(
     @Transactional(readOnly = true)
     fun listMediaForModeration(
         status: GalleryMediaStatus?,
+        aiModerationStatus: String?,
         page: Int,
         size: Int,
     ): PagedApiResult<GalleryMediaDto> {
         val pageable = PageRequest.of(page, minOf(size, 100))
-        val mediaPage =
-            if (status != null) {
+        val mediaPage = when {
+            aiModerationStatus != null -> {
+                repository.findByAiModerationStatus(status?.name, aiModerationStatus, pageable)
+            }
+            status != null -> {
                 repository.findByStatusOrderByCreatedAtDesc(status, pageable)
-            } else {
+            }
+            else -> {
                 repository.findAll(pageable)
             }
+        }
 
         logger.debug { "Retrieved ${mediaPage.numberOfElements} gallery media items (page $page, size $size, status: $status)" }
 

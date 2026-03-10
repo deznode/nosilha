@@ -16,6 +16,7 @@ interface UseAdminGalleryOptions {
   status?: GalleryMediaStatus | "ALL";
   page?: number;
   size?: number;
+  aiModerationStatus?: string;
 }
 
 /**
@@ -24,17 +25,18 @@ interface UseAdminGalleryOptions {
  * Returns both user-uploaded media and admin-curated external content
  * in a unified, type-safe response.
  *
- * @param options Query parameters (status, page, size)
+ * @param options Query parameters (status, page, size, aiModerationStatus)
  * @returns TanStack Query result with AdminQueueResponse<GalleryMedia>
  */
 export function useAdminGallery({
   status = "ALL",
   page = 0,
   size = 20,
+  aiModerationStatus,
 }: UseAdminGalleryOptions = {}) {
   return useQuery({
-    queryKey: adminKeys.gallery.list(page, size, status),
-    queryFn: () => getAdminGallery(status, page, size),
+    queryKey: adminKeys.gallery.list(page, size, status, aiModerationStatus),
+    queryFn: () => getAdminGallery(status, page, size, aiModerationStatus),
     staleTime: 30000, // 30 seconds - admin data changes frequently
   });
 }
