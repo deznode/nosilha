@@ -26,9 +26,6 @@ type AiStatusFilter =
 
 export function AiReviewQueue() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
-  const [pendingAnalysisIds, setPendingAnalysisIds] = useState<Set<string>>(
-    new Set()
-  );
   const [selectedAiRunId, setSelectedAiRunId] = useState<string | null>(null);
   const [isAiReviewModalOpen, setIsAiReviewModalOpen] = useState(false);
   const [page, setPage] = useState(0);
@@ -83,20 +80,12 @@ export function AiReviewQueue() {
   }, [allItems, aiStatuses, statusFilter]);
 
   const handleTriggerAnalysis = (mediaId: string) => {
-    setPendingAnalysisIds((prev) => new Set(prev).add(mediaId));
     triggerAnalysis.mutate(mediaId, {
       onSuccess: () => {
         toast.success("AI analysis triggered").show();
       },
       onError: () => {
         toast.error("Failed to trigger AI analysis. Please try again.").show();
-      },
-      onSettled: () => {
-        setPendingAnalysisIds((prev) => {
-          const next = new Set(prev);
-          next.delete(mediaId);
-          return next;
-        });
       },
     });
   };
@@ -131,11 +120,10 @@ export function AiReviewQueue() {
           (item) =>
             isUserUploadMedia(item) &&
             (item.status === "ACTIVE" || item.status === "PENDING_REVIEW") &&
-            !!item.publicUrl &&
-            aiStatuses?.get(item.id)?.lastRunStatus !== "PROCESSING"
+            !!item.publicUrl
         )
         .map((item) => item.id),
-    [items, aiStatuses]
+    [items]
   );
 
   const toggleSelect = useCallback((id: string) => {
@@ -280,7 +268,6 @@ export function AiReviewQueue() {
             isSelected={selectedIds.has(item.id)}
             onToggleSelect={isEligible ? toggleSelect : undefined}
             isEligibleForAi={isEligible}
-            isTriggerPending={pendingAnalysisIds.has(item.id)}
           />
         );
       })}

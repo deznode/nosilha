@@ -5,6 +5,8 @@ import com.nosilha.core.ai.domain.ModerationStatus
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import java.util.UUID
 
 /**
@@ -21,4 +23,17 @@ interface AnalysisRunRepository : JpaRepository<AnalysisRun, UUID> {
     ): Page<AnalysisRun>
 
     fun findTopByMediaIdOrderByCreatedAtDesc(mediaId: UUID): AnalysisRun?
+
+    @Query(
+        value = """
+            SELECT DISTINCT ON (media_id) *
+            FROM ai_analysis_log
+            WHERE media_id IN (:mediaIds)
+            ORDER BY media_id, created_at DESC
+        """,
+        nativeQuery = true,
+    )
+    fun findLatestByMediaIds(
+        @Param("mediaIds") mediaIds: List<UUID>,
+    ): List<AnalysisRun>
 }

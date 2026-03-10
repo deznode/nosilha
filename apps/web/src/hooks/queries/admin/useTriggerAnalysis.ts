@@ -9,8 +9,9 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { triggerAnalysis, triggerBatchAnalysis } from "@/lib/api";
-import { invalidateAiCaches } from "./keys";
+import { adminKeys, invalidateAiCaches } from "./keys";
 import type {
+  AiStatusResponse,
   AnalysisTriggerResponse,
   AnalyzeBatchRequest,
   BatchAnalysisTriggerResponse,
@@ -26,6 +27,22 @@ export function useTriggerAnalysis() {
 
   return useMutation<AnalysisTriggerResponse, Error, string>({
     mutationFn: (mediaId: string) => triggerAnalysis(mediaId),
+    onMutate: async (mediaId) => {
+      await queryClient.cancelQueries({
+        queryKey: adminKeys.aiReview.all(),
+        predicate: (query) => query.queryKey.includes("status"),
+      });
+      queryClient.setQueriesData<AiStatusResponse[]>(
+        {
+          queryKey: adminKeys.aiReview.all(),
+          predicate: (query) => query.queryKey.includes("status"),
+        },
+        (old) =>
+          old?.map((s) =>
+            s.mediaId === mediaId ? { ...s, lastRunStatus: "PROCESSING" } : s
+          )
+      );
+    },
     onSuccess: () => invalidateAiCaches(queryClient),
   });
 }
@@ -40,6 +57,25 @@ export function useTriggerBatchAnalysis() {
 
   return useMutation<BatchAnalysisTriggerResponse, Error, AnalyzeBatchRequest>({
     mutationFn: (request: AnalyzeBatchRequest) => triggerBatchAnalysis(request),
+    onMutate: async (request) => {
+      await queryClient.cancelQueries({
+        queryKey: adminKeys.aiReview.all(),
+        predicate: (query) => query.queryKey.includes("status"),
+      });
+      const mediaIdSet = new Set(request.mediaIds);
+      queryClient.setQueriesData<AiStatusResponse[]>(
+        {
+          queryKey: adminKeys.aiReview.all(),
+          predicate: (query) => query.queryKey.includes("status"),
+        },
+        (old) =>
+          old?.map((s) =>
+            mediaIdSet.has(s.mediaId)
+              ? { ...s, lastRunStatus: "PROCESSING" }
+              : s
+          )
+      );
+    },
     onSuccess: () => invalidateAiCaches(queryClient),
   });
 }

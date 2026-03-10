@@ -129,8 +129,10 @@ class AdminAiController(
     fun getAiStatus(
         @RequestParam mediaIds: List<UUID>,
     ): ApiResult<List<AiStatusResponse>> {
+        val latestRuns = analysisRunRepository.findLatestByMediaIds(mediaIds)
+        val runsByMediaId = latestRuns.associateBy { it.mediaId }
         val statuses = mediaIds.map { mediaId ->
-            val lastRun = analysisRunRepository.findTopByMediaIdOrderByCreatedAtDesc(mediaId)
+            val lastRun = runsByMediaId[mediaId]
 
             AiStatusResponse(
                 mediaId = mediaId,
