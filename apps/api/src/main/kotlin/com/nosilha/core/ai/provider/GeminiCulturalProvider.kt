@@ -2,6 +2,7 @@ package com.nosilha.core.ai.provider
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonPropertyDescription
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import com.nosilha.core.ai.domain.AnalysisCapability
 import com.nosilha.core.ai.domain.ImageAnalysisProvider
@@ -33,10 +34,18 @@ private val logger = KotlinLogging.logger {}
 data class GeminiCulturalResponse
     @JsonCreator
     constructor(
-        @param:JsonProperty("title") val title: String = "",
-        @param:JsonProperty("altText") val altText: String,
-        @param:JsonProperty("description") val description: String,
-        @param:JsonProperty("tags") val tags: List<String>,
+        @param:JsonProperty("title")
+        @param:JsonPropertyDescription("Concise specific title, max 100 chars, names specific places/subjects")
+        val title: String = "",
+        @param:JsonProperty("altText")
+        @param:JsonPropertyDescription("10-18 word sentence fragment for screen readers. No period. No 'Image of'. Factual only.")
+        val altText: String,
+        @param:JsonProperty("description")
+        @param:JsonPropertyDescription("2-4 sentences, present tense. Objective description then cultural significance. Max 500 chars.")
+        val description: String,
+        @param:JsonProperty("tags")
+        @param:JsonPropertyDescription("5-10 lowercase noun phrases: place names, practices, natural features, architectural styles")
+        val tags: List<String>,
     )
 
 /**
@@ -106,17 +115,20 @@ class GeminiCulturalProvider(
     private fun buildPriorContext(request: ImageAnalysisRequest): String {
         val priorLabels = request.priorResults?.labels?.map { it.label } ?: emptyList()
         val priorLandmarks = request.priorResults?.landmarks ?: emptyList()
+        val priorText = request.priorResults?.textDetected ?: emptyList()
 
         val contextParts = buildList {
-            if (priorLabels.isNotEmpty()) add("Detected labels: ${priorLabels.joinToString(", ")}")
-            if (priorLandmarks.isNotEmpty()) add("Detected landmarks: ${priorLandmarks.joinToString(", ")}")
-            if (request.culturalContext != null) add("Image title: ${request.culturalContext}")
+            // Archive metadata (user-provided)
+            add("Title: ${request.culturalContext ?: "not provided"}")
+            add("Category: ${request.category ?: "not provided"}")
+            add("Location: ${request.locationContext ?: "not provided"}")
+            if (request.approximateDate != null) add("Approximate date: ${request.approximateDate}")
+            // Machine vision context
+            add("Detected labels: ${priorLabels.ifEmpty { listOf("none") }.joinToString(", ")}")
+            add("Detected landmarks: ${priorLandmarks.ifEmpty { listOf("none") }.joinToString(", ")}")
+            if (priorText.isNotEmpty()) add("Detected text (OCR): ${priorText.joinToString(", ")}")
         }
 
-        return if (contextParts.isNotEmpty()) {
-            "\n\nAdditional context from prior analysis:\n${contextParts.joinToString("\n")}"
-        } else {
-            ""
-        }
+        return "\n\nArchive metadata:\n${contextParts.joinToString("\n- ", prefix = "- ")}"
     }
 }

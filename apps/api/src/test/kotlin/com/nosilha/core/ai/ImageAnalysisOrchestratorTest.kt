@@ -5,6 +5,7 @@ import com.nosilha.core.ai.domain.AnalysisRunStatus
 import com.nosilha.core.ai.domain.ApiUsageService
 import com.nosilha.core.ai.domain.ImageAnalysisOrchestrator
 import com.nosilha.core.ai.domain.ImageAnalysisProvider
+import com.nosilha.core.ai.domain.ImageAnalysisRequest
 import com.nosilha.core.ai.domain.ImageAnalysisResult
 import com.nosilha.core.ai.domain.LabelResult
 import com.nosilha.core.ai.domain.ModerationStatus
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
 import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.capture
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
@@ -71,6 +73,10 @@ class ImageAnalysisOrchestratorTest {
         MediaAnalysisRequestedEvent(
             mediaId = mediaId,
             imageUrl = "https://media.nosilha.com/images/test.jpg",
+            mediaTitle = "Church of Nossa Senhora do Monte",
+            locationContext = "Nova Sintra, Brava",
+            category = "heritage",
+            approximateDate = "circa 1960s",
             requestedBy = adminId,
             analysisRunId = runId,
         )
@@ -207,6 +213,32 @@ class ImageAnalysisOrchestratorTest {
         orchestrator.onMediaAnalysisRequested(event)
 
         verify(analysisBatchRepository).incrementCompletedAndUpdateStatus(batchId)
+    }
+
+    @Test
+    fun `metadata from event is passed to gemini provider request`() {
+        val run = createRun()
+        whenever(analysisRunRepository.findById(runId)).thenReturn(Optional.of(run))
+        whenever(analysisRunRepository.save(any<AnalysisRun>())).thenAnswer { it.arguments[0] }
+        whenever(apiUsageService.checkAndIncrementQuota(any(), any())).thenReturn(true)
+
+        whenever(visionProvider.analyze(any())).thenReturn(
+            ImageAnalysisResult(provider = "cloud-vision", labels = listOf(LabelResult("church", 0.95f))),
+        )
+        whenever(geminiProvider.analyze(any())).thenReturn(
+            ImageAnalysisResult(provider = "gemini-cultural", altText = "Test"),
+        )
+
+        orchestrator.onMediaAnalysisRequested(createEvent())
+
+        val captor = argumentCaptor<ImageAnalysisRequest>()
+        verify(geminiProvider).analyze(captor.capture())
+        val geminiRequest = captor.firstValue
+        assertEquals("Church of Nossa Senhora do Monte", geminiRequest.culturalContext)
+        assertEquals("Nova Sintra, Brava", geminiRequest.locationContext)
+        assertEquals("heritage", geminiRequest.category)
+        assertEquals("circa 1960s", geminiRequest.approximateDate)
+        assertNotNull(geminiRequest.priorResults)
     }
 
     @Test

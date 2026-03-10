@@ -21,6 +21,8 @@ import java.util.UUID
  * @property imageUrl publicly accessible URL of the image
  * @property mediaTitle optional title for cultural context
  * @property locationContext optional location hint (e.g., "Nova Sintra, Brava")
+ * @property category optional media category (e.g., "heritage", "nature", "food")
+ * @property approximateDate optional free-text historical date (e.g., "circa 1960s")
  * @property requestedBy admin user ID who triggered the analysis
  * @property analysisRunId ID of the AnalysisRun tracking record
  * @property batchId optional batch ID if part of a batch request
@@ -31,6 +33,8 @@ data class MediaAnalysisRequestedEvent(
     val imageUrl: String,
     val mediaTitle: String? = null,
     val locationContext: String? = null,
+    val category: String? = null,
+    val approximateDate: String? = null,
     val requestedBy: UUID,
     val analysisRunId: UUID,
     val batchId: UUID? = null,
