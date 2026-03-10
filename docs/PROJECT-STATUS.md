@@ -134,7 +134,7 @@ No critical blockers. Spec 03 (Design System Compliance) is the only active depe
 | Content & Heritage | 20% | 5 published articles (music, people, traditions); history/ and places/ categories empty |
 | Multilingual | 0% | Framework built; zero PT/KEA/FR translations live |
 | Community & Social | 30% | Suggestions + contact exist; OG images + Instagram feed live; YouTube sync live; no story submission flow |
-| Infrastructure | 25% | CI/CD testing improvements unspecced |
+| Infrastructure | 35% | CI/CD testing improvements unspecced; deployment performance plan active (Phase 1 pending) |
 
 ### Test Coverage
 
@@ -171,6 +171,22 @@ No critical blockers. Spec 03 (Design System Compliance) is the only active depe
 
 ---
 
+## Deployment & Performance
+
+**Reference:** `plan/infrastructure/active/deployment-performance.md`
+
+| Phase | Focus | Status | Key Items |
+|-------|-------|--------|-----------|
+| 1 | Backend Cold Start Quick Wins | Pending | AppCDS, Startup CPU Boost, lazy init, virtual threads (0 code changes, $0) |
+| 2 | Frontend Performance | Partial | ✅ PPR/cache components, ✅ React Compiler; Pending: MapLibre evaluation, static map preview |
+| 3 | Edge Distribution | Partial | ✅ Cloudflare CDN + R2, ✅ static asset cache headers; Pending: content page cache headers, Workers evaluation |
+| 4 | Backend Migration | Future | Evaluate GraalVM native image or Fly.io Machine Suspend |
+
+**Current pain points:** 10–20s backend cold starts (JVM on Cloud Run), no edge caching for content pages, 250 kB Mapbox bundle on critical path.
+**Target:** 2–4s cold starts (Phase 1), sub-100ms TTFB on cached pages (Phase 2+3).
+
+---
+
 ## What's Working
 
 - Full-stack platform operational: Spring Boot 4 + Next.js 16.1
@@ -197,14 +213,17 @@ No critical blockers. Spec 03 (Design System Compliance) is the only active depe
 - P0 quick wins: fix content tooling bugs, admin role setup (~3 hrs)
 - P1 high impact: language switcher UI, Portuguese translations, admin moderation dashboard, community story submission
 - P2 medium impact: Kriolu content, history category articles, user profile enhancement
+- Deployment & performance optimization — Phase 1 backend cold start quick wins ready to apply ($0, 1 day)
 - API Roadmap: RBAC, i18n, enhanced validation, 80%+ test coverage target
 
 ## Recommended Next Actions
 
-1. **Complete Spec 03** (Design System Compliance) — only remaining in-progress spec
-2. **Add backend tests** for auth, engagement, stories modules (reduce critical risk; JaCoCo at 5%)
-3. **Build language switcher** — unblocks all multilingual content work
-4. **Create PT translations** for existing 5 articles (AI-assisted, ~4-6 hrs)
-5. **Seed more MDX content** — history category (5 planned articles)
-6. **Resolve Issue #86** — tag-based revalidation for FrontendRevalidationService
-7. **R2 image compression** — only remaining production issue (oversized uploads)
+1. **Apply backend cold start optimizations** — AppCDS + CPU Boost + lazy init + virtual threads (1 day, $0, 10s → 2–4s)
+2. **Complete Spec 03** (Design System Compliance) — only remaining in-progress spec
+3. **Add backend tests** for auth, engagement, stories modules (reduce critical risk; JaCoCo at 5%)
+4. **Build language switcher** — unblocks all multilingual content work
+5. **Create PT translations** for existing 5 articles (AI-assisted, ~4-6 hrs)
+6. **Seed more MDX content** — history category (5 planned articles)
+7. **Resolve Issue #86** — tag-based revalidation for FrontendRevalidationService
+8. **R2 image compression** — only remaining production issue (oversized uploads)
+9. **Evaluate MapLibre** — replace Mapbox to remove licensing cost + 250 kB from critical path
