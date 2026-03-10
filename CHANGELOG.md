@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-03-10
+
+### Added
+
+- **YouTube channel sync** — RestClient-based YouTube Data API integration with batch deduplication, privacy filtering, runtime configuration management via admin UI, and integration tests (#95)
+- **Instagram feed** — Dynamic bento-grid Instagram feed component with dynamic OG image generation for social sharing (#93)
+- **AI review queue improvements** — Server-side moderation status filtering, pagination, status badges, media rejection dialog, and optimized AI status queries (#96)
+- **Admin EXIF re-extraction** — Complete admin workflow for re-extracting EXIF metadata from gallery media (#90)
+- **Gemini prompt enrichment** — Gallery metadata and quality rules injected into AI image analysis prompts
+- **Media categories** — Category selector for gallery contributions with refined media category handling and form validation
+- **App icon refresh** — Optimized app icon with centering and platform-specific assets
+
+### Fixed
+
+- Stop YouTube video playback when navigating away from gallery (Activity/cacheComponents media cleanup)
+- Production audit issues — CSP headers, hydration mismatches, charts, and YouTube CDN allowlisting
+- YouTube sync 503 response handling and missing tests
+- Disable image optimization for Instagram CDN URLs to prevent fetch failures
+- Preserve ISR cache in Docker and warm homepage after deploy
+- Keyboard focus indicators and redundant alt text in Instagram feed
+- Scope ajv pnpm override to avoid breaking ESLint
+- Trivy-action updated to 0.34.2 to resolve CI 404 failure
+- Lightbox thumbnail display
+- Revalidation path correction
+- Spring Modulith docs output path references
+- ktlint violations in gallery module
+
+### Changed
+
+- Replace husky with lefthook for git hooks
+- Consolidate database migrations into domain-organized modules
+- Consolidate category-to-icon mapping into shared utility
+- Simplify YouTube sync code architecture with extracted video ID resolution
+- Consolidate content skills into unified pipeline
+- Design review fixes and responsive improvements
+- Upgrade to Node 24 and pnpm 10.31.0
+
+### Security
+
+- Audit and cleanup secret manager configuration
+- Add gitleaks allowlist for known false positives
+
 ## [1.0.0] - 2026-03-03
 
 First public release of Nos Ilha — a community-driven cultural heritage hub for Brava Island, Cape Verde.
@@ -46,4 +88,5 @@ First public release of Nos Ilha — a community-driven cultural heritage hub fo
 - Disable Docker Compose auto-detection in production profile
 - Add `.sdkmanrc` for Java 25 version pinning
 
+[1.1.0]: https://github.com/deznode/nosilha/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/deznode/nosilha/commits/v1.0.0
