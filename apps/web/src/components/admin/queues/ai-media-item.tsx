@@ -124,6 +124,36 @@ export function AiMediaItem({
     aiStatus?.lastRunStatus === "PENDING";
   const hasPendingReview = aiStatus?.moderationStatus === "PENDING_REVIEW";
 
+  const renderAiStatusBadge = () => {
+    if (isProcessing) {
+      return (
+        <span className="bg-brand/10 text-brand inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
+          <Loader2 size={10} className="animate-spin" /> Analyzing...
+        </span>
+      );
+    }
+    if (aiStatus?.lastRunStatus === "FAILED") {
+      return (
+        <span className="bg-status-error/10 text-status-error inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
+          <XCircle size={10} /> Analysis Failed
+        </span>
+      );
+    }
+    if (aiStatus?.moderationStatus) {
+      return (
+        <AiStatusBadge
+          moderationStatus={aiStatus.moderationStatus as AiModerationStatus}
+          onClick={onViewAiReview ? () => onViewAiReview(item.id) : undefined}
+        />
+      );
+    }
+    return (
+      <span className="bg-surface-alt text-muted inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
+        Not analyzed
+      </span>
+    );
+  };
+
   return (
     <div className="border-hairline bg-surface rounded-card hover:shadow-medium flex items-start gap-4 border p-4 transition-shadow">
       {/* Selection Checkbox */}
@@ -167,29 +197,7 @@ export function AiMediaItem({
               <span className="text-muted text-xs">
                 {new Date(item.createdAt).toLocaleDateString()}
               </span>
-              {aiStatus?.lastRunStatus === "PROCESSING" ||
-              aiStatus?.lastRunStatus === "PENDING" ? (
-                <span className="bg-brand/10 text-brand inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
-                  <Loader2 size={10} className="animate-spin" /> Analyzing...
-                </span>
-              ) : aiStatus?.lastRunStatus === "FAILED" ? (
-                <span className="bg-status-error/10 text-status-error inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
-                  <XCircle size={10} /> Analysis Failed
-                </span>
-              ) : aiStatus?.moderationStatus ? (
-                <AiStatusBadge
-                  moderationStatus={
-                    aiStatus.moderationStatus as AiModerationStatus
-                  }
-                  onClick={
-                    onViewAiReview ? () => onViewAiReview(item.id) : undefined
-                  }
-                />
-              ) : (
-                <span className="bg-surface-alt text-muted inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
-                  Not analyzed
-                </span>
-              )}
+              {renderAiStatusBadge()}
             </div>
           </div>
         </div>
