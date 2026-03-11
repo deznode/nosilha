@@ -142,6 +142,7 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
           </h3>
           {videoItems.length > 0 ? (
             <motion.div
+              key={categoryFilter}
               variants={shouldReduceMotion ? undefined : pageStagger}
               initial={shouldReduceMotion ? undefined : "hidden"}
               animate={shouldReduceMotion ? undefined : "visible"}
@@ -192,6 +193,7 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
           </h3>
           {podcastItems.length > 0 ? (
             <motion.div
+              key={categoryFilter}
               variants={shouldReduceMotion ? undefined : pageStagger}
               initial={shouldReduceMotion ? undefined : "hidden"}
               animate={shouldReduceMotion ? undefined : "visible"}
