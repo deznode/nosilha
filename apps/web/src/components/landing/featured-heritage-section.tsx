@@ -29,7 +29,7 @@ const itemVariants: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.4, ease: "easeOut" },
+    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] },
   },
 };
 
@@ -71,7 +71,7 @@ export function FeaturedHeritageSection() {
             <h2 className="text-body font-serif text-3xl font-bold md:text-4xl">
               Featured Heritage
             </h2>
-            <span className="bg-ocean-blue/10 text-ocean-blue rounded-full px-3 py-1 text-sm font-medium">
+            <span className="bg-brand/10 text-brand rounded-full px-3 py-1 text-sm font-medium">
               New Content
             </span>
           </motion.div>
@@ -103,13 +103,13 @@ export function FeaturedHeritageSection() {
               <div className="flex gap-4">
                 <Link
                   href={featuredContent.primaryAction.href}
-                  className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-lg px-6 py-2.5 text-sm font-medium text-white transition-colors"
+                  className="bg-brand hover:bg-brand/90 focus-ring touch-target rounded-button px-6 py-2.5 text-sm font-medium text-white transition-colors"
                 >
                   {featuredContent.primaryAction.label}
                 </Link>
                 <Link
                   href={featuredContent.secondaryAction.href}
-                  className="border-edge text-body hover:bg-surface-alt rounded-lg border px-6 py-2.5 text-sm font-medium transition-colors"
+                  className="border-edge text-body hover:bg-surface-alt focus-ring touch-target rounded-button border px-6 py-2.5 text-sm font-medium transition-colors"
                 >
                   {featuredContent.secondaryAction.label}
                 </Link>
