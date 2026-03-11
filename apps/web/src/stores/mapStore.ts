@@ -29,6 +29,7 @@ interface MapState {
   viewMode: ViewMode;
   isOrbiting: boolean;
   showSidebar: boolean;
+  introCompleted: boolean;
 
   // Actions
   setLocations: (locations: Location[]) => void;
@@ -42,6 +43,7 @@ interface MapState {
   setViewMode: (mode: ViewMode) => void;
   setIsOrbiting: (orbiting: boolean) => void;
   setShowSidebar: (show: boolean) => void;
+  setIntroCompleted: (completed: boolean) => void;
 
   // Convenience actions
   toggleSidebar: () => void;
@@ -66,6 +68,7 @@ export const useMapStore = create<MapState>()(
       viewMode: "satellite",
       isOrbiting: false,
       showSidebar: true,
+      introCompleted: false,
 
       // Simple setters
       setLocations: (locations) => set({ locations }),
@@ -79,6 +82,7 @@ export const useMapStore = create<MapState>()(
       setViewMode: (mode) => set({ viewMode: mode }),
       setIsOrbiting: (orbiting) => set({ isOrbiting: orbiting }),
       setShowSidebar: (show) => set({ showSidebar: show }),
+      setIntroCompleted: (completed) => set({ introCompleted: completed }),
 
       // Convenience actions
       toggleSidebar: () =>
@@ -132,3 +136,5 @@ export const useIs3D = () => useMapStore((state) => state.is3D);
 export const useViewMode = () => useMapStore((state) => state.viewMode);
 export const useIsOrbiting = () => useMapStore((state) => state.isOrbiting);
 export const useShowSidebar = () => useMapStore((state) => state.showSidebar);
+export const useIntroCompleted = () =>
+  useMapStore((state) => state.introCompleted);
