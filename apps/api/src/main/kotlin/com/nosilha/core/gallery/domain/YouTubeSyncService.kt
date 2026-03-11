@@ -6,7 +6,6 @@ import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
@@ -60,7 +59,6 @@ class YouTubeSyncService(
      * @param adminId UUID of the admin triggering the sync
      * @return Sync result summary
      */
-    @Transactional
     fun syncSavedPlaylist(
         savedPlaylistId: UUID,
         adminId: UUID

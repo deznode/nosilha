@@ -454,6 +454,7 @@ function SavedPlaylistsSection() {
       {/* Add/Edit form */}
       {showForm && (
         <SavePlaylistForm
+          key={editingPlaylist?.id ?? "new"}
           initial={editingPlaylist}
           onSave={handleSave}
           onCancel={() => {
