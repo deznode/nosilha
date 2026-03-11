@@ -58,7 +58,6 @@ export const BaseMap = forwardRef<MapRef, BaseMapProps>(
         }}
         mapStyle={style}
         mapboxAccessToken={env.mapboxAccessToken}
-        reuseMaps
         style={{
           position: "absolute",
           inset: 0,

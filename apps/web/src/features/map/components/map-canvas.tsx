@@ -6,7 +6,6 @@ import {
   useMemo,
   useCallback,
   useEffect,
-  useLayoutEffect,
   type RefObject,
 } from "react";
 import {
@@ -80,26 +79,17 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
   // --- Filtered locations for markers ---
   const filteredLocations = useFilteredLocations();
 
-  // --- Clear terrain before Source cleanup removes the DEM source ---
-  // useLayoutEffect cleanup runs synchronously during commit, BEFORE any
-  // useEffect (passive) cleanups. This ensures terrain is cleared before
-  // <Source id="mapbox-dem"> tries to call map.removeSource().
-  // See: https://github.com/visgl/react-map-gl/issues/2553
-  useLayoutEffect(() => {
-    return () => {
-      // Must read mapRef.current at cleanup time (not captured at mount time)
-      // because the MapRef wrapper's getMap() returns null on a stale capture
-      // when reuseMaps is enabled.
-      const map = mapRef.current?.getMap();
-      if (map) {
-        try {
-          map.setTerrain(null);
-        } catch {
-          // Suppress — map may already be recycled
-        }
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mapRef is a stable ref object, must read .current at cleanup time
+  // --- Reset stale state on Activity restore ---
+  // Without reuseMaps the map is destroyed on hide and recreated on show,
+  // but Activity preserves useState. This effect runs on mount AND every
+  // Activity restore so lifecycle state starts fresh for the new map instance.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => {
+    const alreadyPlayed = useMapStore.getState().introCompleted;
+    setIsMapLoaded(false);
+    setMapError(null);
+    setIsIntroPlaying(!alreadyPlayed);
+    setIsIntroComplete(alreadyPlayed);
   }, []);
 
   // --- Cleanup timers on unmount ---
@@ -156,6 +146,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
         if (introAnimationRef.current === 0) return;
         setIsIntroPlaying(false);
         setIsIntroComplete(true);
+        useMapStore.getState().setIntroCompleted(true);
       },
       HOLD_DURATION + SWEEP_DURATION + SETTLE_DURATION
     );
@@ -180,6 +171,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
 
     setIsIntroPlaying(false);
     setIsIntroComplete(true);
+    useMapStore.getState().setIntroCompleted(true);
   }, [mapRef]);
 
   // Trigger cinematic intro when map loads
