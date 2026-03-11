@@ -1235,6 +1235,39 @@ export async function triggerYouTubeSync(
 }
 
 // ================================
+// ADMIN YOUTUBE SAVED PLAYLISTS
+// ================================
+
+export async function getYouTubeSyncPlaylists(): Promise<
+  import("@/types/youtube").YouTubeSyncPlaylist[]
+> {
+  return apiClient.getYouTubeSyncPlaylists();
+}
+
+export async function saveYouTubeSyncPlaylist(
+  request: import("@/types/youtube").SaveYouTubeSyncPlaylistRequest
+): Promise<import("@/types/youtube").YouTubeSyncPlaylist> {
+  return apiClient.saveYouTubeSyncPlaylist(request);
+}
+
+export async function updateYouTubeSyncPlaylist(
+  id: string,
+  request: import("@/types/youtube").SaveYouTubeSyncPlaylistRequest
+): Promise<import("@/types/youtube").YouTubeSyncPlaylist> {
+  return apiClient.updateYouTubeSyncPlaylist(id, request);
+}
+
+export async function deleteYouTubeSyncPlaylist(id: string): Promise<void> {
+  return apiClient.deleteYouTubeSyncPlaylist(id);
+}
+
+export async function syncSavedYouTubePlaylist(
+  id: string
+): Promise<import("@/types/youtube").YouTubeSyncResult> {
+  return apiClient.syncSavedYouTubePlaylist(id);
+}
+
+// ================================
 // UTILITY EXPORTS
 // ================================
 

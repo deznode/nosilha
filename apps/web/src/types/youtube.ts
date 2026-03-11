@@ -34,3 +34,25 @@ export interface YouTubeSyncResult {
   errors: string[];
   totalProcessed: number;
 }
+
+/**
+ * A saved YouTube playlist for one-click sync.
+ */
+export interface YouTubeSyncPlaylist {
+  id: string;
+  playlistId: string;
+  label: string;
+  category: string | null;
+  lastSyncedAt: string | null;
+  lastSyncCount: number;
+  createdAt: string;
+}
+
+/**
+ * Request to save or update a YouTube sync playlist.
+ */
+export interface SaveYouTubeSyncPlaylistRequest {
+  playlistId: string;
+  label: string;
+  category?: string;
+}

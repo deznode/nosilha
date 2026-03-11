@@ -5,11 +5,21 @@
  * and triggering sync operations.
  */
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  type QueryClient,
+} from "@tanstack/react-query";
 import {
   getYouTubeSyncConfig,
   updateYouTubeSyncConfig,
   triggerYouTubeSync,
+  getYouTubeSyncPlaylists,
+  saveYouTubeSyncPlaylist,
+  updateYouTubeSyncPlaylist,
+  deleteYouTubeSyncPlaylist,
+  syncSavedYouTubePlaylist,
 } from "@/lib/api";
 import { adminKeys } from "./keys";
 import type {
@@ -17,21 +27,20 @@ import type {
   UpdateYouTubeSyncConfigRequest,
   YouTubeSyncRequest,
   YouTubeSyncResult,
+  YouTubeSyncPlaylist,
+  SaveYouTubeSyncPlaylistRequest,
 } from "@/types/youtube";
 
-/**
- * Fetches YouTube sync configuration.
- */
 export function useYouTubeSyncConfig() {
   return useQuery({
     queryKey: adminKeys.youtubeSync.config(),
-    queryFn: () => getYouTubeSyncConfig(),
+    queryFn: getYouTubeSyncConfig,
     staleTime: 30_000,
   });
 }
 
 /**
- * Mutation to update YouTube sync config with optimistic update.
+ * Updates YouTube sync config with optimistic update and rollback on error.
  */
 export function useUpdateYouTubeSyncConfig() {
   const queryClient = useQueryClient();
@@ -43,7 +52,7 @@ export function useUpdateYouTubeSyncConfig() {
     UpdateYouTubeSyncConfigRequest,
     { prev: YouTubeSyncConfig | undefined }
   >({
-    mutationFn: (request) => updateYouTubeSyncConfig(request),
+    mutationFn: updateYouTubeSyncConfig,
     onMutate: async (request) => {
       await queryClient.cancelQueries({ queryKey: configKey });
       const prev = queryClient.getQueryData<YouTubeSyncConfig>(configKey);
@@ -68,19 +77,90 @@ export function useUpdateYouTubeSyncConfig() {
   });
 }
 
-/**
- * Mutation to trigger a YouTube sync operation.
- */
 export function useTriggerYouTubeSync() {
   const queryClient = useQueryClient();
 
   return useMutation<YouTubeSyncResult, Error, YouTubeSyncRequest | undefined>({
-    mutationFn: (request) => triggerYouTubeSync(request),
+    mutationFn: triggerYouTubeSync,
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: adminKeys.youtubeSync.all(),
-      });
-      queryClient.invalidateQueries({ queryKey: adminKeys.gallery.all() });
+      invalidateSyncCaches(queryClient);
     },
   });
+}
+
+// --- Saved Playlists ---
+
+export function useYouTubeSyncPlaylists() {
+  return useQuery({
+    queryKey: adminKeys.youtubeSync.playlists(),
+    queryFn: getYouTubeSyncPlaylists,
+    staleTime: 30_000,
+  });
+}
+
+export function useSaveYouTubeSyncPlaylist() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    YouTubeSyncPlaylist,
+    Error,
+    SaveYouTubeSyncPlaylistRequest
+  >({
+    mutationFn: saveYouTubeSyncPlaylist,
+    onSettled: () => {
+      invalidatePlaylistCache(queryClient);
+    },
+  });
+}
+
+export function useUpdateYouTubeSyncPlaylist() {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    YouTubeSyncPlaylist,
+    Error,
+    { id: string; request: SaveYouTubeSyncPlaylistRequest }
+  >({
+    mutationFn: ({ id, request }) => updateYouTubeSyncPlaylist(id, request),
+    onSettled: () => {
+      invalidatePlaylistCache(queryClient);
+    },
+  });
+}
+
+export function useDeleteYouTubeSyncPlaylist() {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: deleteYouTubeSyncPlaylist,
+    onSettled: () => {
+      invalidatePlaylistCache(queryClient);
+    },
+  });
+}
+
+export function useSyncSavedPlaylist() {
+  const queryClient = useQueryClient();
+
+  return useMutation<YouTubeSyncResult, Error, string>({
+    mutationFn: syncSavedYouTubePlaylist,
+    onSettled: () => {
+      invalidateSyncCaches(queryClient);
+    },
+  });
+}
+
+// --- Shared Invalidation Helpers ---
+
+function invalidatePlaylistCache(queryClient: QueryClient): void {
+  queryClient.invalidateQueries({
+    queryKey: adminKeys.youtubeSync.playlists(),
+  });
+}
+
+function invalidateSyncCaches(queryClient: QueryClient): void {
+  queryClient.invalidateQueries({
+    queryKey: adminKeys.youtubeSync.all(),
+  });
+  queryClient.invalidateQueries({ queryKey: adminKeys.gallery.all() });
 }

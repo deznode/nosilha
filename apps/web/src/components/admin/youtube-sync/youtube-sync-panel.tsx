@@ -6,7 +6,10 @@ import {
   AlertTriangle,
   ChevronDown,
   Loader2,
+  Pencil,
   Play,
+  Plus,
+  Trash2,
   Youtube,
   X,
 } from "lucide-react";
@@ -14,9 +17,18 @@ import {
   useYouTubeSyncConfig,
   useUpdateYouTubeSyncConfig,
   useTriggerYouTubeSync,
+  useYouTubeSyncPlaylists,
+  useSaveYouTubeSyncPlaylist,
+  useUpdateYouTubeSyncPlaylist,
+  useDeleteYouTubeSyncPlaylist,
+  useSyncSavedPlaylist,
 } from "@/hooks/queries/admin";
 import { useToast } from "@/hooks/use-toast";
-import type { YouTubeSyncResult } from "@/types/youtube";
+import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
+import type { YouTubeSyncPlaylist, YouTubeSyncResult } from "@/types/youtube";
+
+const INPUT_CLASS =
+  "border-hairline bg-canvas text-body focus:ring-brand rounded-button w-full border px-3 py-2 text-sm focus:ring-2 focus:outline-none";
 
 export function YouTubeSyncPanel() {
   const { data: config, isLoading, error } = useYouTubeSyncConfig();
@@ -212,7 +224,7 @@ function SyncCard({ config }: SyncCardProps) {
               value={defaultCategory}
               onChange={(e) => setDefaultCategory(e.target.value)}
               placeholder="e.g. Culture, Music, Travel"
-              className="border-hairline bg-canvas text-body focus:ring-brand rounded-button flex-1 border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+              className={clsx(INPUT_CLASS, "flex-1")}
             />
             <button
               type="button"
@@ -232,7 +244,17 @@ function SyncCard({ config }: SyncCardProps) {
         </div>
       </div>
 
-      {/* Sync section */}
+      {/* Saved Playlists section */}
+      <div
+        className={clsx(
+          "border-b border-inherit p-6 transition-opacity",
+          disabled && "pointer-events-none opacity-50"
+        )}
+      >
+        <SavedPlaylistsSection />
+      </div>
+
+      {/* Quick Sync section */}
       <div
         className={clsx(
           "space-y-6 p-6 transition-opacity",
@@ -241,7 +263,7 @@ function SyncCard({ config }: SyncCardProps) {
       >
         <div>
           <p className="text-muted mb-4 text-xs font-semibold tracking-wider uppercase">
-            Sync
+            Quick Sync
           </p>
 
           {/* Playlist ID */}
@@ -258,7 +280,7 @@ function SyncCard({ config }: SyncCardProps) {
               value={playlistId}
               onChange={(e) => setPlaylistId(e.target.value)}
               placeholder="Optional — leave empty for full channel sync"
-              className="border-hairline bg-canvas text-body focus:ring-brand rounded-button w-full border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+              className={INPUT_CLASS}
             />
             <p className="text-muted mt-1 text-xs">
               Sync a specific playlist instead of the channel uploads.
@@ -279,7 +301,7 @@ function SyncCard({ config }: SyncCardProps) {
               value={categoryOverride}
               onChange={(e) => setCategoryOverride(e.target.value)}
               placeholder="Optional — overrides default for this sync"
-              className="border-hairline bg-canvas text-body focus:ring-brand rounded-button w-full border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+              className={INPUT_CLASS}
             />
           </div>
 
@@ -325,6 +347,342 @@ function SyncCard({ config }: SyncCardProps) {
       </div>
     </div>
   );
+}
+
+// --- Saved Playlists ---
+
+function SavedPlaylistsSection() {
+  const toast = useToast();
+  const { data: playlists, isLoading } = useYouTubeSyncPlaylists();
+  const savePlaylist = useSaveYouTubeSyncPlaylist();
+  const updatePlaylist = useUpdateYouTubeSyncPlaylist();
+  const deletePlaylist = useDeleteYouTubeSyncPlaylist();
+  const syncPlaylist = useSyncSavedPlaylist();
+
+  const [showForm, setShowForm] = useState(false);
+  const [editingPlaylist, setEditingPlaylist] =
+    useState<YouTubeSyncPlaylist | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<YouTubeSyncPlaylist | null>(
+    null
+  );
+  const [syncingId, setSyncingId] = useState<string | null>(null);
+
+  const handleSave = (data: {
+    playlistId: string;
+    label: string;
+    category?: string;
+  }) => {
+    if (editingPlaylist) {
+      updatePlaylist.mutate(
+        { id: editingPlaylist.id, request: data },
+        {
+          onSuccess: () => {
+            toast.success("Playlist updated").show();
+            setEditingPlaylist(null);
+            setShowForm(false);
+          },
+          onError: (err) => {
+            toast.error(`Failed to update: ${err.message}`).show();
+          },
+        }
+      );
+    } else {
+      savePlaylist.mutate(data, {
+        onSuccess: () => {
+          toast.success("Playlist saved").show();
+          setShowForm(false);
+        },
+        onError: (err) => {
+          toast.error(`Failed to save: ${err.message}`).show();
+        },
+      });
+    }
+  };
+
+  const handleDelete = () => {
+    if (!deleteTarget) return;
+    deletePlaylist.mutate(deleteTarget.id, {
+      onSuccess: () => {
+        toast.success("Playlist deleted").show();
+        setDeleteTarget(null);
+      },
+      onError: (err) => {
+        toast.error(`Failed to delete: ${err.message}`).show();
+        setDeleteTarget(null);
+      },
+    });
+  };
+
+  const handleSync = (playlist: YouTubeSyncPlaylist) => {
+    setSyncingId(playlist.id);
+    syncPlaylist.mutate(playlist.id, {
+      onSuccess: (result) => {
+        setSyncingId(null);
+        if (result.errors.length > 0) {
+          toast
+            .warning(
+              `Synced ${result.synced} video(s) with ${result.errors.length} error(s)`
+            )
+            .show();
+        } else {
+          toast.success(`Synced ${result.synced} video(s)`).show();
+        }
+      },
+      onError: (err) => {
+        setSyncingId(null);
+        toast.error(`Sync failed: ${err.message}`).show();
+      },
+    });
+  };
+
+  return (
+    <>
+      <div className="mb-4 flex items-center justify-between">
+        <p className="text-muted text-xs font-semibold tracking-wider uppercase">
+          Saved Playlists
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            setEditingPlaylist(null);
+            setShowForm(!showForm);
+          }}
+          className="text-brand hover:text-brand/80 inline-flex items-center gap-1 text-xs font-medium"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          Add
+        </button>
+      </div>
+
+      {/* Add/Edit form */}
+      {showForm && (
+        <SavePlaylistForm
+          key={editingPlaylist?.id ?? "new"}
+          initial={editingPlaylist}
+          onSave={handleSave}
+          onCancel={() => {
+            setShowForm(false);
+            setEditingPlaylist(null);
+          }}
+          isPending={savePlaylist.isPending || updatePlaylist.isPending}
+        />
+      )}
+
+      {/* List */}
+      {isLoading ? (
+        <div className="bg-surface-alt h-16 animate-pulse rounded" />
+      ) : playlists && playlists.length > 0 ? (
+        <div className="space-y-2">
+          {playlists.map((pl) => (
+            <div
+              key={pl.id}
+              className="border-hairline flex items-center justify-between rounded-lg border px-4 py-3"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-body truncate text-sm font-medium">
+                    {pl.label}
+                  </span>
+                  {pl.category && (
+                    <span className="bg-surface-alt text-muted rounded-badge shrink-0 px-2 py-0.5 text-xs">
+                      {pl.category}
+                    </span>
+                  )}
+                </div>
+                <div className="text-muted mt-0.5 flex items-center gap-2 text-xs">
+                  <span className="font-mono">{pl.playlistId}</span>
+                  <span>&middot;</span>
+                  {pl.lastSyncedAt ? (
+                    <span>
+                      {formatRelativeTime(pl.lastSyncedAt)} &middot;{" "}
+                      {pl.lastSyncCount} videos
+                    </span>
+                  ) : (
+                    <span>Never synced</span>
+                  )}
+                </div>
+              </div>
+              <div className="ml-3 flex shrink-0 items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => handleSync(pl)}
+                  disabled={syncingId === pl.id}
+                  title="Sync playlist"
+                  className="text-muted hover:text-brand rounded p-1.5 transition-colors disabled:opacity-50"
+                >
+                  {syncingId === pl.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingPlaylist(pl);
+                    setShowForm(true);
+                  }}
+                  title="Edit playlist"
+                  className="text-muted hover:text-body rounded p-1.5 transition-colors"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDeleteTarget(pl)}
+                  title="Delete playlist"
+                  className="text-muted hover:text-status-error rounded p-1.5 transition-colors"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        !showForm && (
+          <p className="text-muted py-4 text-center text-sm">
+            No saved playlists yet. Click &ldquo;Add&rdquo; to save one.
+          </p>
+        )
+      )}
+
+      {/* Delete confirmation */}
+      <ConfirmationDialog
+        isOpen={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        title="Delete Saved Playlist"
+        description={`Remove "${deleteTarget?.label}" from saved playlists? This won't delete any synced videos.`}
+        confirmLabel="Delete"
+        variant="danger"
+        isLoading={deletePlaylist.isPending}
+      />
+    </>
+  );
+}
+
+function SavePlaylistForm({
+  initial,
+  onSave,
+  onCancel,
+  isPending,
+}: {
+  initial: YouTubeSyncPlaylist | null;
+  onSave: (data: {
+    playlistId: string;
+    label: string;
+    category?: string;
+  }) => void;
+  onCancel: () => void;
+  isPending: boolean;
+}) {
+  const [playlistId, setPlaylistId] = useState(initial?.playlistId ?? "");
+  const [label, setLabel] = useState(initial?.label ?? "");
+  const [category, setCategory] = useState(initial?.category ?? "");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!playlistId.trim() || !label.trim()) return;
+    onSave({
+      playlistId: playlistId.trim(),
+      label: label.trim(),
+      category: category.trim() || undefined,
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mb-4 space-y-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div>
+          <label
+            htmlFor="pl-label"
+            className="text-body mb-1 block text-xs font-medium"
+          >
+            Label
+          </label>
+          <input
+            id="pl-label"
+            type="text"
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
+            placeholder="e.g. Brava Music"
+            required
+            maxLength={200}
+            className={INPUT_CLASS}
+          />
+        </div>
+        <div>
+          <label
+            htmlFor="pl-id"
+            className="text-body mb-1 block text-xs font-medium"
+          >
+            Playlist ID
+          </label>
+          <input
+            id="pl-id"
+            type="text"
+            value={playlistId}
+            onChange={(e) => setPlaylistId(e.target.value)}
+            placeholder="PLxyz..."
+            required
+            className={INPUT_CLASS}
+          />
+        </div>
+      </div>
+      <div>
+        <label
+          htmlFor="pl-category"
+          className="text-body mb-1 block text-xs font-medium"
+        >
+          Category (optional)
+        </label>
+        <input
+          id="pl-category"
+          type="text"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          placeholder="Overrides global default for this playlist"
+          className={INPUT_CLASS}
+        />
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          type="submit"
+          disabled={isPending || !playlistId.trim() || !label.trim()}
+          className={clsx(
+            "rounded-button inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition-colors",
+            isPending
+              ? "bg-brand/60 cursor-not-allowed"
+              : "bg-brand hover:bg-brand/90"
+          )}
+        >
+          {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+          {initial ? "Update" : "Save"}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="text-muted hover:text-body rounded-button px-4 py-2 text-sm font-medium transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// --- Shared Components ---
+
+function formatRelativeTime(isoDate: string): string {
+  const diff = Date.now() - new Date(isoDate).getTime();
+  const minutes = Math.floor(diff / 60_000);
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
 }
 
 function SyncResultBanner({

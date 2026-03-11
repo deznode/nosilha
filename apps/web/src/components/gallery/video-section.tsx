@@ -34,6 +34,70 @@ function isPodcast(video: MediaItem): boolean {
   );
 }
 
+interface MediaGridProps {
+  title: string;
+  icon: React.ReactNode;
+  items: MediaItem[];
+  categoryFilter: string;
+  shouldReduceMotion: boolean | null;
+  emptyMessage: string;
+  renderBadge: (video: MediaItem) => React.ReactNode;
+}
+
+function MediaGrid({
+  title,
+  icon,
+  items,
+  categoryFilter,
+  shouldReduceMotion,
+  emptyMessage,
+  renderBadge,
+}: MediaGridProps) {
+  return (
+    <div>
+      <h3 className="text-body mb-4 flex items-center gap-2 text-lg font-bold">
+        {icon}
+        {title} ({items.length})
+      </h3>
+      {items.length > 0 ? (
+        <motion.div
+          key={categoryFilter}
+          variants={shouldReduceMotion ? undefined : pageStagger}
+          initial={shouldReduceMotion ? undefined : "hidden"}
+          animate={shouldReduceMotion ? undefined : "visible"}
+          className="grid grid-cols-1 gap-8 md:grid-cols-2"
+        >
+          {items.map((video, idx) => (
+            <motion.div
+              key={video.id}
+              variants={shouldReduceMotion ? undefined : pageItem}
+              className={clsx(
+                "border-hairline bg-canvas overflow-hidden rounded-lg border shadow-sm",
+                "hover:shadow-elevated transition-shadow",
+                idx === 0 && "md:col-span-2"
+              )}
+            >
+              <YouTubeFacade video={video} />
+              <div className="p-5">
+                <div className="mb-2 flex items-start justify-between">
+                  {renderBadge(video)}
+                  <span className="text-muted text-xs">{video.date}</span>
+                </div>
+                <h3 className="text-body mb-2 text-xl font-bold">
+                  {video.title}
+                </h3>
+                <p className="text-muted text-sm">{video.description}</p>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      ) : (
+        <p className="text-muted py-6 text-center text-sm">{emptyMessage}</p>
+      )}
+    </div>
+  );
+}
+
 export function VideoSection({ videos, isLoading }: VideoSectionProps) {
   const shouldReduceMotion = useReducedMotion();
   const [categoryFilter, setCategoryFilter] = useState<string>("All");
@@ -135,101 +199,39 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
 
       {/* Videos Section */}
       {filtered.length > 0 && (
-        <div>
-          <h3 className="text-body mb-4 flex items-center gap-2 text-lg font-bold">
-            <Film size={20} className="text-bougainvillea-pink" />
-            Videos ({videoItems.length})
-          </h3>
-          {videoItems.length > 0 ? (
-            <motion.div
-              variants={shouldReduceMotion ? undefined : pageStagger}
-              initial={shouldReduceMotion ? undefined : "hidden"}
-              animate={shouldReduceMotion ? undefined : "visible"}
-              className="grid grid-cols-1 gap-8 md:grid-cols-2"
-            >
-              {videoItems.map((video, idx) => (
-                <motion.div
-                  key={video.id}
-                  variants={shouldReduceMotion ? undefined : pageItem}
-                  className={clsx(
-                    "border-hairline bg-canvas overflow-hidden rounded-lg border shadow-sm",
-                    "hover:shadow-elevated transition-shadow",
-                    idx === 0 && "md:col-span-2"
-                  )}
-                >
-                  <YouTubeFacade video={video} />
-                  <div className="p-5">
-                    <div className="mb-2 flex items-start justify-between">
-                      {video.category && (
-                        <span className="text-bougainvillea-pink text-xs font-bold tracking-wider uppercase">
-                          {video.category}
-                        </span>
-                      )}
-                      <span className="text-muted text-xs">{video.date}</span>
-                    </div>
-                    <h3 className="text-body mb-2 text-xl font-bold">
-                      {video.title}
-                    </h3>
-                    <p className="text-muted text-sm">{video.description}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : (
-            <p className="text-muted py-6 text-center text-sm">
-              No videos in this category.
-            </p>
-          )}
-        </div>
+        <MediaGrid
+          title="Videos"
+          icon={<Film size={20} className="text-bougainvillea-pink" />}
+          items={videoItems}
+          categoryFilter={categoryFilter}
+          shouldReduceMotion={shouldReduceMotion}
+          emptyMessage="No videos in this category."
+          renderBadge={(video) =>
+            video.category ? (
+              <span className="text-bougainvillea-pink text-xs font-bold tracking-wider uppercase">
+                {video.category}
+              </span>
+            ) : null
+          }
+        />
       )}
 
       {/* Podcasts & Interviews Section */}
       {filtered.length > 0 && (
-        <div>
-          <h3 className="text-body mb-4 flex items-center gap-2 text-lg font-bold">
-            <Mic size={20} className="text-valley-green" />
-            Podcasts & Interviews ({podcastItems.length})
-          </h3>
-          {podcastItems.length > 0 ? (
-            <motion.div
-              variants={shouldReduceMotion ? undefined : pageStagger}
-              initial={shouldReduceMotion ? undefined : "hidden"}
-              animate={shouldReduceMotion ? undefined : "visible"}
-              className="grid grid-cols-1 gap-8 md:grid-cols-2"
-            >
-              {podcastItems.map((video, idx) => (
-                <motion.div
-                  key={video.id}
-                  variants={shouldReduceMotion ? undefined : pageItem}
-                  className={clsx(
-                    "border-hairline bg-canvas overflow-hidden rounded-lg border shadow-sm",
-                    "hover:shadow-elevated transition-shadow",
-                    idx === 0 && "md:col-span-2"
-                  )}
-                >
-                  <YouTubeFacade video={video} />
-                  <div className="p-5">
-                    <div className="mb-2 flex items-start justify-between">
-                      <span className="text-valley-green text-xs font-bold tracking-wider uppercase">
-                        <Mic size={10} className="mr-1 inline" />
-                        PODCAST
-                      </span>
-                      <span className="text-muted text-xs">{video.date}</span>
-                    </div>
-                    <h3 className="text-body mb-2 text-xl font-bold">
-                      {video.title}
-                    </h3>
-                    <p className="text-muted text-sm">{video.description}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : (
-            <p className="text-muted py-6 text-center text-sm">
-              No podcasts or interviews in this category.
-            </p>
+        <MediaGrid
+          title="Podcasts & Interviews"
+          icon={<Mic size={20} className="text-valley-green" />}
+          items={podcastItems}
+          categoryFilter={categoryFilter}
+          shouldReduceMotion={shouldReduceMotion}
+          emptyMessage="No podcasts or interviews in this category."
+          renderBadge={() => (
+            <span className="text-valley-green text-xs font-bold tracking-wider uppercase">
+              <Mic size={10} className="mr-1 inline" />
+              PODCAST
+            </span>
           )}
-        </div>
+        />
       )}
 
       {/* Empty State */}

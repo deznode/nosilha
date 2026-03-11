@@ -46,6 +46,8 @@ import type {
   UpdateYouTubeSyncConfigRequest,
   YouTubeSyncRequest,
   YouTubeSyncResult,
+  YouTubeSyncPlaylist,
+  SaveYouTubeSyncPlaylistRequest,
 } from "@/types/youtube";
 import type {
   R2BucketListResponse,
@@ -916,6 +918,23 @@ export interface ApiClient {
    * **Admin Endpoint**: Requires ADMIN role.
    */
   triggerYouTubeSync(request?: YouTubeSyncRequest): Promise<YouTubeSyncResult>;
+
+  // --- YouTube Saved Playlists ---
+
+  getYouTubeSyncPlaylists(): Promise<YouTubeSyncPlaylist[]>;
+
+  saveYouTubeSyncPlaylist(
+    request: SaveYouTubeSyncPlaylistRequest
+  ): Promise<YouTubeSyncPlaylist>;
+
+  updateYouTubeSyncPlaylist(
+    id: string,
+    request: SaveYouTubeSyncPlaylistRequest
+  ): Promise<YouTubeSyncPlaylist>;
+
+  deleteYouTubeSyncPlaylist(id: string): Promise<void>;
+
+  syncSavedYouTubePlaylist(id: string): Promise<YouTubeSyncResult>;
 }
 
 export interface PaginationMetadata {

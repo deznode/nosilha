@@ -38,10 +38,10 @@ data class GeminiCulturalResponse
         @param:JsonPropertyDescription("Concise specific title, max 100 chars, names specific places/subjects")
         val title: String = "",
         @param:JsonProperty("altText")
-        @param:JsonPropertyDescription("10-18 word sentence fragment for screen readers. No period. No 'Image of'. Factual only.")
+        @param:JsonPropertyDescription("5-12 word sentence fragment for screen readers. No period. No 'Image of'. Factual only.")
         val altText: String,
         @param:JsonProperty("description")
-        @param:JsonPropertyDescription("2-4 sentences, present tense. Objective description then cultural significance. Max 500 chars.")
+        @param:JsonPropertyDescription("1-2 sentences, present tense. Objective description then cultural significance. Max 250 chars.")
         val description: String,
         @param:JsonProperty("tags")
         @param:JsonPropertyDescription("5-10 lowercase noun phrases: place names, practices, natural features, architectural styles")

@@ -15,17 +15,21 @@ import com.nosilha.core.gallery.api.dto.LinkOrphanRequest
 import com.nosilha.core.gallery.api.dto.ModerationActionRequest
 import com.nosilha.core.gallery.api.dto.OrphanDetectionResponse
 import com.nosilha.core.gallery.api.dto.R2BucketListResponse
+import com.nosilha.core.gallery.api.dto.SaveYouTubeSyncPlaylistRequest
 import com.nosilha.core.gallery.api.dto.UpdateExifRequest
 import com.nosilha.core.gallery.api.dto.UpdateGalleryMediaRequest
 import com.nosilha.core.gallery.api.dto.UpdateYouTubeSyncConfigRequest
 import com.nosilha.core.gallery.api.dto.YouTubeSyncConfigDto
+import com.nosilha.core.gallery.api.dto.YouTubeSyncPlaylistDto
 import com.nosilha.core.gallery.api.dto.YouTubeSyncRequest
 import com.nosilha.core.gallery.api.dto.YouTubeSyncResult
+import com.nosilha.core.gallery.api.dto.toDto
 import com.nosilha.core.gallery.domain.ExternalPlatform
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.GalleryModerationService
 import com.nosilha.core.gallery.domain.R2AdminService
 import com.nosilha.core.gallery.domain.YouTubeSyncConfigService
+import com.nosilha.core.gallery.domain.YouTubeSyncPlaylistService
 import com.nosilha.core.gallery.domain.YouTubeSyncService
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import com.nosilha.core.shared.api.ApiResult
@@ -84,6 +88,7 @@ class AdminGalleryController(
     private val r2AdminService: R2AdminService?,
     private val youTubeSyncService: YouTubeSyncService?,
     private val youTubeSyncConfigService: YouTubeSyncConfigService?,
+    private val youTubeSyncPlaylistService: YouTubeSyncPlaylistService?,
 ) {
     private fun requireR2Admin(): R2AdminService = requireNotNull(r2AdminService) { "R2 storage is not configured" }
 
@@ -595,5 +600,70 @@ class AdminGalleryController(
         val updated = configService.updateConfig(request.enabled, request.defaultCategory, adminId)
         val videoCount = galleryMediaRepository.countByPlatform(ExternalPlatform.YOUTUBE)
         return ApiResult(data = YouTubeSyncConfigDto.from(updated, apiKeyConfigured = true, videoCount = videoCount))
+    }
+
+    // --- YouTube Saved Playlists ---
+
+    private fun requirePlaylistService(): YouTubeSyncPlaylistService =
+        youTubeSyncPlaylistService
+            ?: throw YouTubeSyncDisabledException("YouTube sync API key is not configured.")
+
+    /**
+     * Lists all saved YouTube playlists, sorted by label.
+     */
+    @GetMapping("/youtube/playlists")
+    fun listSavedPlaylists(): ApiResult<List<YouTubeSyncPlaylistDto>> {
+        val playlists = requirePlaylistService().listPlaylists().map { it.toDto() }
+        return ApiResult(data = playlists)
+    }
+
+    /**
+     * Saves a new YouTube playlist for one-click sync.
+     */
+    @PostMapping("/youtube/playlists")
+    @ResponseStatus(HttpStatus.CREATED)
+    fun savePlaylist(
+        @Valid @RequestBody request: SaveYouTubeSyncPlaylistRequest,
+    ): ApiResult<YouTubeSyncPlaylistDto> {
+        val saved = requirePlaylistService().savePlaylist(request)
+        return ApiResult(data = saved.toDto(), status = HttpStatus.CREATED.value())
+    }
+
+    /**
+     * Updates an existing saved playlist.
+     */
+    @PutMapping("/youtube/playlists/{id}")
+    fun updatePlaylist(
+        @PathVariable id: UUID,
+        @Valid @RequestBody request: SaveYouTubeSyncPlaylistRequest,
+    ): ApiResult<YouTubeSyncPlaylistDto> {
+        val updated = requirePlaylistService().updatePlaylist(id, request)
+        return ApiResult(data = updated.toDto())
+    }
+
+    /**
+     * Deletes a saved playlist.
+     */
+    @DeleteMapping("/youtube/playlists/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deletePlaylist(
+        @PathVariable id: UUID
+    ) {
+        requirePlaylistService().deletePlaylist(id)
+    }
+
+    /**
+     * Syncs a saved playlist, using its stored category or the global default.
+     */
+    @PostMapping("/youtube/playlists/{id}/sync")
+    fun syncSavedPlaylist(
+        @PathVariable id: UUID,
+        authentication: Authentication,
+    ): ApiResult<YouTubeSyncResult> {
+        val adminId = extractAdminId(authentication)
+        val syncService = requireYouTubeSync()
+        logger.info { "Admin $adminId syncing saved playlist $id" }
+        val result = syncService.syncSavedPlaylist(id, adminId)
+        return ApiResult(data = result)
     }
 }

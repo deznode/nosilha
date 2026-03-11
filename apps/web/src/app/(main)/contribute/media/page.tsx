@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { clsx } from "clsx";
@@ -102,6 +102,27 @@ export default function MediaContributionPage() {
     upload,
     reset: resetUpload,
   } = usePhotoUpload();
+
+  // Reset form state when Activity restores this route (cacheComponents).
+  // Activity destroys effects on hide and re-creates them on show,
+  // so this runs on initial mount (harmless) AND every return visit.
+  useEffect(() => {
+    setSubmitted(false);
+    setFormData({
+      title: "",
+      type: "IMAGE",
+      category: null,
+      description: "",
+      url: "",
+      author: "",
+      preview: "",
+    });
+    setManualMetadata({});
+    setShowManualForm(false);
+    setVideoError(null);
+    resetUpload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Detect social platform from credit input for instant preview
   const detectedCredit: DetectedCredit | null = useMemo(

@@ -2089,6 +2089,57 @@ ${story.content
     await this.simulateDelay(1000);
     return { synced: 3, skipped: 1, errors: [], totalProcessed: 4 };
   }
+
+  // --- YouTube Saved Playlists (Mock Stubs) ---
+
+  async getYouTubeSyncPlaylists(): Promise<
+    import("@/types/youtube").YouTubeSyncPlaylist[]
+  > {
+    await this.simulateDelay(200);
+    return [];
+  }
+
+  async saveYouTubeSyncPlaylist(
+    request: import("@/types/youtube").SaveYouTubeSyncPlaylistRequest
+  ): Promise<import("@/types/youtube").YouTubeSyncPlaylist> {
+    await this.simulateDelay(300);
+    return {
+      id: "mock-id",
+      playlistId: request.playlistId,
+      label: request.label,
+      category: request.category ?? null,
+      lastSyncedAt: null,
+      lastSyncCount: 0,
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  async updateYouTubeSyncPlaylist(
+    id: string,
+    request: import("@/types/youtube").SaveYouTubeSyncPlaylistRequest
+  ): Promise<import("@/types/youtube").YouTubeSyncPlaylist> {
+    await this.simulateDelay(300);
+    return {
+      id,
+      playlistId: request.playlistId,
+      label: request.label,
+      category: request.category ?? null,
+      lastSyncedAt: null,
+      lastSyncCount: 0,
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  async deleteYouTubeSyncPlaylist(): Promise<void> {
+    await this.simulateDelay(200);
+  }
+
+  async syncSavedYouTubePlaylist(): Promise<
+    import("@/types/youtube").YouTubeSyncResult
+  > {
+    await this.simulateDelay(1000);
+    return { synced: 3, skipped: 1, errors: [], totalProcessed: 4 };
+  }
 }
 
 // Legacy synchronous functions for backward compatibility and build-time use

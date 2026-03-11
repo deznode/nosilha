@@ -3229,6 +3229,106 @@ export class BackendApiClient implements ApiClient {
   }
 
   // ================================
+  // ADMIN YOUTUBE SAVED PLAYLISTS
+  // ================================
+
+  async getYouTubeSyncPlaylists(): Promise<
+    import("@/types/youtube").YouTubeSyncPlaylist[]
+  > {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/youtube/playlists`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch saved playlists: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<
+      import("@/types/youtube").YouTubeSyncPlaylist[]
+    >(payload);
+  }
+
+  async saveYouTubeSyncPlaylist(
+    request: import("@/types/youtube").SaveYouTubeSyncPlaylistRequest
+  ): Promise<import("@/types/youtube").YouTubeSyncPlaylist> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/youtube/playlists`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Failed to save playlist: ${response.status} ${text}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<
+      import("@/types/youtube").YouTubeSyncPlaylist
+    >(payload);
+  }
+
+  async updateYouTubeSyncPlaylist(
+    id: string,
+    request: import("@/types/youtube").SaveYouTubeSyncPlaylistRequest
+  ): Promise<import("@/types/youtube").YouTubeSyncPlaylist> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/youtube/playlists/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Failed to update playlist: ${response.status} ${text}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<
+      import("@/types/youtube").YouTubeSyncPlaylist
+    >(payload);
+  }
+
+  async deleteYouTubeSyncPlaylist(id: string): Promise<void> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/youtube/playlists/${id}`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to delete playlist: ${response.status}`);
+    }
+  }
+
+  async syncSavedYouTubePlaylist(
+    id: string
+  ): Promise<import("@/types/youtube").YouTubeSyncResult> {
+    const endpoint = `${env.apiUrl}/api/v1/admin/gallery/youtube/playlists/${id}/sync`;
+
+    const response = await this.authenticatedFetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to sync saved playlist: ${response.status}`);
+    }
+
+    const payload = await response.json();
+    return this.unwrapApiResponse<import("@/types/youtube").YouTubeSyncResult>(
+      payload
+    );
+  }
+
+  // ================================
   // ADMIN R2 STORAGE OPERATIONS
   // ================================
 
