@@ -7,10 +7,10 @@ import { motion, useReducedMotion, type Variants } from "framer-motion";
 const featuredContent = {
   title: "The Story of Brava Island",
   description:
-    "From volcanic origins to a vibrant diaspora — explore the history of the island that shaped a people, their music, and their longing for home.",
+    "Born from volcanic refuge, connected to New England by whaling ships, and shaped by sodade — Brava's story is one of survival, separation, and an unbreakable bond to home.",
   image: "/images/history/brava-culture.webp",
-  primaryAction: { label: "Explore History", href: "/history" },
-  secondaryAction: { label: "Discover Places", href: "/directory/heritage" },
+  primaryAction: { label: "Read Our Story", href: "/history" },
+  secondaryAction: { label: "Explore Places", href: "/directory/heritage" },
 };
 
 const containerVariants: Variants = {

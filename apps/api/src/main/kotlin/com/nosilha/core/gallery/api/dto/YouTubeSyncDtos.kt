@@ -1,6 +1,9 @@
 package com.nosilha.core.gallery.api.dto
 
 import com.nosilha.core.gallery.domain.YouTubeSyncConfigEntity
+import com.nosilha.core.gallery.domain.YouTubeSyncPlaylistEntity
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Size
 import java.time.Instant
 
 /**
@@ -66,4 +69,40 @@ data class YouTubeSyncConfigDto(
 data class UpdateYouTubeSyncConfigRequest(
     val enabled: Boolean,
     val defaultCategory: String? = null,
+)
+
+/**
+ * Response DTO for a saved YouTube sync playlist.
+ */
+data class YouTubeSyncPlaylistDto(
+    val id: String,
+    val playlistId: String,
+    val label: String,
+    val category: String?,
+    val lastSyncedAt: Instant?,
+    val lastSyncCount: Int,
+    val createdAt: Instant,
+)
+
+fun YouTubeSyncPlaylistEntity.toDto() =
+    YouTubeSyncPlaylistDto(
+        id = id.toString(),
+        playlistId = playlistId,
+        label = label,
+        category = category,
+        lastSyncedAt = lastSyncedAt,
+        lastSyncCount = lastSyncCount,
+        createdAt = createdAt,
+    )
+
+/**
+ * Request DTO for creating or updating a saved YouTube playlist.
+ */
+data class SaveYouTubeSyncPlaylistRequest(
+    @field:NotBlank
+    val playlistId: String = "",
+    @field:NotBlank
+    @field:Size(max = 200)
+    val label: String = "",
+    val category: String? = null,
 )

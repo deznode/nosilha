@@ -96,6 +96,7 @@ export const adminKeys = {
   youtubeSync: {
     all: () => [...adminKeys.all, "youtube-sync"] as const,
     config: () => [...adminKeys.all, "youtube-sync", "config"] as const,
+    playlists: () => [...adminKeys.all, "youtube-sync", "playlists"] as const,
   },
   contributors: () => [...adminKeys.all, "contributors"] as const,
   system: {

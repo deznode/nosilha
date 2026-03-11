@@ -60,6 +60,11 @@ export {
   useYouTubeSyncConfig,
   useUpdateYouTubeSyncConfig,
   useTriggerYouTubeSync,
+  useYouTubeSyncPlaylists,
+  useSaveYouTubeSyncPlaylist,
+  useUpdateYouTubeSyncPlaylist,
+  useDeleteYouTubeSyncPlaylist,
+  useSyncSavedPlaylist,
 } from "./useYouTubeSync";
 
 // R2 admin hooks

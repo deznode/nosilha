@@ -6,6 +6,7 @@ import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.UUID
 
 private val logger = KotlinLogging.logger {}
@@ -32,6 +33,7 @@ class YouTubeSyncService(
     private val moderationService: GalleryModerationService,
     private val repository: GalleryMediaRepository,
     private val configService: YouTubeSyncConfigService,
+    private val playlistService: YouTubeSyncPlaylistService,
     @Value("\${youtube.sync.channel-handle:nosilha}")
     private val channelHandle: String,
 ) {
@@ -49,6 +51,26 @@ class YouTubeSyncService(
         val uploadsPlaylistId = youTubeApiClient.fetchUploadsPlaylistId(channelHandle)
         val category = configService.getConfig().defaultCategory
         return syncPlaylist(uploadsPlaylistId, category, adminId)
+    }
+
+    /**
+     * Syncs a previously saved playlist, using its stored category or the global default.
+     *
+     * @param savedPlaylistId UUID of the saved playlist record
+     * @param adminId UUID of the admin triggering the sync
+     * @return Sync result summary
+     */
+    @Transactional
+    fun syncSavedPlaylist(
+        savedPlaylistId: UUID,
+        adminId: UUID
+    ): YouTubeSyncResult {
+        val saved = playlistService.getPlaylist(savedPlaylistId)
+        val category = saved.category ?: configService.getConfig().defaultCategory
+        logger.info { "Syncing saved playlist '${saved.label}' (${saved.playlistId})" }
+        val result = syncPlaylist(saved.playlistId, category, adminId)
+        playlistService.recordSyncResult(savedPlaylistId, result.synced)
+        return result
     }
 
     /**
