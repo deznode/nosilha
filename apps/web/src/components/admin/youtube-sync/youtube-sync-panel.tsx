@@ -27,6 +27,9 @@ import { useToast } from "@/hooks/use-toast";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import type { YouTubeSyncPlaylist, YouTubeSyncResult } from "@/types/youtube";
 
+const INPUT_CLASS =
+  "border-hairline bg-canvas text-body focus:ring-brand rounded-button w-full border px-3 py-2 text-sm focus:ring-2 focus:outline-none";
+
 export function YouTubeSyncPanel() {
   const { data: config, isLoading, error } = useYouTubeSyncConfig();
 
@@ -221,7 +224,7 @@ function SyncCard({ config }: SyncCardProps) {
               value={defaultCategory}
               onChange={(e) => setDefaultCategory(e.target.value)}
               placeholder="e.g. Culture, Music, Travel"
-              className="border-hairline bg-canvas text-body focus:ring-brand rounded-button flex-1 border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+              className={clsx(INPUT_CLASS, "flex-1")}
             />
             <button
               type="button"
@@ -277,7 +280,7 @@ function SyncCard({ config }: SyncCardProps) {
               value={playlistId}
               onChange={(e) => setPlaylistId(e.target.value)}
               placeholder="Optional — leave empty for full channel sync"
-              className="border-hairline bg-canvas text-body focus:ring-brand rounded-button w-full border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+              className={INPUT_CLASS}
             />
             <p className="text-muted mt-1 text-xs">
               Sync a specific playlist instead of the channel uploads.
@@ -298,7 +301,7 @@ function SyncCard({ config }: SyncCardProps) {
               value={categoryOverride}
               onChange={(e) => setCategoryOverride(e.target.value)}
               placeholder="Optional — overrides default for this sync"
-              className="border-hairline bg-canvas text-body focus:ring-brand rounded-button w-full border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+              className={INPUT_CLASS}
             />
           </div>
 
@@ -606,7 +609,7 @@ function SavePlaylistForm({
             placeholder="e.g. Brava Music"
             required
             maxLength={200}
-            className="border-hairline bg-canvas text-body focus:ring-brand rounded-button w-full border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+            className={INPUT_CLASS}
           />
         </div>
         <div>
@@ -623,7 +626,7 @@ function SavePlaylistForm({
             onChange={(e) => setPlaylistId(e.target.value)}
             placeholder="PLxyz..."
             required
-            className="border-hairline bg-canvas text-body focus:ring-brand rounded-button w-full border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+            className={INPUT_CLASS}
           />
         </div>
       </div>
@@ -640,7 +643,7 @@ function SavePlaylistForm({
           value={category}
           onChange={(e) => setCategory(e.target.value)}
           placeholder="Overrides global default for this playlist"
-          className="border-hairline bg-canvas text-body focus:ring-brand rounded-button w-full border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+          className={INPUT_CLASS}
         />
       </div>
       <div className="flex items-center gap-2">

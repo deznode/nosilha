@@ -5,7 +5,12 @@
  * and triggering sync operations.
  */
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  type QueryClient,
+} from "@tanstack/react-query";
 import {
   getYouTubeSyncConfig,
   updateYouTubeSyncConfig,
@@ -26,19 +31,16 @@ import type {
   SaveYouTubeSyncPlaylistRequest,
 } from "@/types/youtube";
 
-/**
- * Fetches YouTube sync configuration.
- */
 export function useYouTubeSyncConfig() {
   return useQuery({
     queryKey: adminKeys.youtubeSync.config(),
-    queryFn: () => getYouTubeSyncConfig(),
+    queryFn: getYouTubeSyncConfig,
     staleTime: 30_000,
   });
 }
 
 /**
- * Mutation to update YouTube sync config with optimistic update.
+ * Updates YouTube sync config with optimistic update and rollback on error.
  */
 export function useUpdateYouTubeSyncConfig() {
   const queryClient = useQueryClient();
@@ -50,7 +52,7 @@ export function useUpdateYouTubeSyncConfig() {
     UpdateYouTubeSyncConfigRequest,
     { prev: YouTubeSyncConfig | undefined }
   >({
-    mutationFn: (request) => updateYouTubeSyncConfig(request),
+    mutationFn: updateYouTubeSyncConfig,
     onMutate: async (request) => {
       await queryClient.cancelQueries({ queryKey: configKey });
       const prev = queryClient.getQueryData<YouTubeSyncConfig>(configKey);
@@ -75,39 +77,27 @@ export function useUpdateYouTubeSyncConfig() {
   });
 }
 
-/**
- * Mutation to trigger a YouTube sync operation.
- */
 export function useTriggerYouTubeSync() {
   const queryClient = useQueryClient();
 
   return useMutation<YouTubeSyncResult, Error, YouTubeSyncRequest | undefined>({
-    mutationFn: (request) => triggerYouTubeSync(request),
+    mutationFn: triggerYouTubeSync,
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: adminKeys.youtubeSync.all(),
-      });
-      queryClient.invalidateQueries({ queryKey: adminKeys.gallery.all() });
+      invalidateSyncCaches(queryClient);
     },
   });
 }
 
 // --- Saved Playlists ---
 
-/**
- * Fetches saved YouTube playlists.
- */
 export function useYouTubeSyncPlaylists() {
   return useQuery({
     queryKey: adminKeys.youtubeSync.playlists(),
-    queryFn: () => getYouTubeSyncPlaylists(),
+    queryFn: getYouTubeSyncPlaylists,
     staleTime: 30_000,
   });
 }
 
-/**
- * Mutation to save a new YouTube playlist.
- */
 export function useSaveYouTubeSyncPlaylist() {
   const queryClient = useQueryClient();
 
@@ -116,18 +106,13 @@ export function useSaveYouTubeSyncPlaylist() {
     Error,
     SaveYouTubeSyncPlaylistRequest
   >({
-    mutationFn: (request) => saveYouTubeSyncPlaylist(request),
+    mutationFn: saveYouTubeSyncPlaylist,
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: adminKeys.youtubeSync.playlists(),
-      });
+      invalidatePlaylistCache(queryClient);
     },
   });
 }
 
-/**
- * Mutation to update a saved YouTube playlist.
- */
 export function useUpdateYouTubeSyncPlaylist() {
   const queryClient = useQueryClient();
 
@@ -138,42 +123,44 @@ export function useUpdateYouTubeSyncPlaylist() {
   >({
     mutationFn: ({ id, request }) => updateYouTubeSyncPlaylist(id, request),
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: adminKeys.youtubeSync.playlists(),
-      });
+      invalidatePlaylistCache(queryClient);
     },
   });
 }
 
-/**
- * Mutation to delete a saved YouTube playlist.
- */
 export function useDeleteYouTubeSyncPlaylist() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, string>({
-    mutationFn: (id) => deleteYouTubeSyncPlaylist(id),
+    mutationFn: deleteYouTubeSyncPlaylist,
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: adminKeys.youtubeSync.playlists(),
-      });
+      invalidatePlaylistCache(queryClient);
     },
   });
 }
 
-/**
- * Mutation to sync a saved playlist.
- */
 export function useSyncSavedPlaylist() {
   const queryClient = useQueryClient();
 
   return useMutation<YouTubeSyncResult, Error, string>({
-    mutationFn: (id) => syncSavedYouTubePlaylist(id),
+    mutationFn: syncSavedYouTubePlaylist,
     onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: adminKeys.youtubeSync.all(),
-      });
-      queryClient.invalidateQueries({ queryKey: adminKeys.gallery.all() });
+      invalidateSyncCaches(queryClient);
     },
   });
+}
+
+// --- Shared Invalidation Helpers ---
+
+function invalidatePlaylistCache(queryClient: QueryClient): void {
+  queryClient.invalidateQueries({
+    queryKey: adminKeys.youtubeSync.playlists(),
+  });
+}
+
+function invalidateSyncCaches(queryClient: QueryClient): void {
+  queryClient.invalidateQueries({
+    queryKey: adminKeys.youtubeSync.all(),
+  });
+  queryClient.invalidateQueries({ queryKey: adminKeys.gallery.all() });
 }

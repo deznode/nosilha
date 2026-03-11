@@ -59,9 +59,7 @@ class YouTubeSyncPlaylistService(
 
     @Transactional
     fun deletePlaylist(id: UUID) {
-        val entity = repository.findById(id).orElseThrow {
-            ResourceNotFoundException("Saved playlist with ID '$id' not found.")
-        }
+        val entity = getPlaylist(id)
         repository.delete(entity)
         logger.info { "Deleted saved playlist: ${entity.label} (${entity.playlistId})" }
     }
