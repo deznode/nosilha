@@ -25,6 +25,7 @@ export { HeroSectionNew } from "./hero-section-new";
 
 // Section Components
 export { ExploreHeritageSection } from "./explore-heritage-section";
+export { FeaturedHeritageSection } from "./featured-heritage-section";
 export { FeaturedStoriesSection } from "./featured-stories-section";
 export { CommunityStatsSection } from "./community-stats-section";
 export { MapTeaserSection } from "./map-teaser-section";

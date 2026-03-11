@@ -2,6 +2,7 @@
 
 import {
   ExploreHeritageSection,
+  FeaturedHeritageSection,
   HeroSectionNew,
   InstagramFeedSection,
   MapTeaserSection,
@@ -47,6 +48,9 @@ export function HomePageContent({
             <ScrollIndicator onClick={scrollToNextSection} />
           </div>
         </div>
+
+        {/* Spotlight card for featured heritage content */}
+        <FeaturedHeritageSection />
 
         {/* Unified onboarding + navigation: "What is NosIlha?" with 3 clickable pillars */}
         <ExploreHeritageSection />

@@ -16,7 +16,7 @@ title (max 100 chars):
 - Name identifiable places, people, or cultural objects
 - No generic labels like "Beautiful scene" or "Island view"
 
-altText (10-18 words, sentence fragment, no trailing period):
+altText (5-12 words, sentence fragment, no trailing period):
 - Describe the primary visual subject for screen readers
 - Factual only — no interpretation, symbolism, or cultural significance
 - Do NOT start with "Image of" or "Photo of"
@@ -26,7 +26,7 @@ altText (10-18 words, sentence fragment, no trailing period):
 - Mention medium only if clearly visible: "black-and-white photograph"
 - Transcribe any visible text exactly
 
-description (max 500 chars, 2-4 sentences, present tense):
+description (max 250 chars, 1-2 sentences, present tense):
 - First: objective visual description (foreground to background)
 - Then: cultural significance specific to Brava Island heritage
 - Include any visible text transcribed in quotes
