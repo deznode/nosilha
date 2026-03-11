@@ -11,6 +11,24 @@ name: PR Validation
 on:
   pull_request:
     branches: [main]
+    paths-ignore:
+      # Documentation
+      - '**/*.md'
+      - '**/*.txt'
+      - '**/README*'
+      - 'docs/**'
+      - 'SECURITY.md'
+      - 'LICENSE'
+      - 'CODEOWNERS'
+      # Claude Code config
+      - '.claude/**'
+      - 'CLAUDE.md'
+      # Planning submodule
+      - 'plan/**'
+      # Editor/repo meta
+      - '**/.editorconfig'
+      - '**/.gitignore'
+      - '**/.gitattributes'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

@@ -6,11 +6,23 @@ on:
     paths:
       - 'infrastructure/**'
       - '.github/workflows/infrastructure-ci.yml'
+      # Exclude documentation and non-functional changes to save costs
+      - '!infrastructure/**/*.md'
+      - '!infrastructure/**/*.txt'
+      - '!infrastructure/**/README*'
+      - '!infrastructure/**/.editorconfig'
+      - '!infrastructure/**/.gitignore'
   pull_request:
     branches: [main]
     paths:
       - 'infrastructure/**'
       - '.github/workflows/infrastructure-ci.yml'
+      # Exclude documentation and non-functional changes to save costs
+      - '!infrastructure/**/*.md'
+      - '!infrastructure/**/*.txt'
+      - '!infrastructure/**/README*'
+      - '!infrastructure/**/.editorconfig'
+      - '!infrastructure/**/.gitignore'
   schedule:
     - cron: '0 6 * * 1'  # Every Monday at 06:00 UTC — runs drift detection
   workflow_call:
