@@ -97,14 +97,15 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
       }
 
       # Database secrets via Secret Manager (cost-optimized approach)
-      # Using pinned versions instead of "latest" for predictable costs and better control
-      # Each secret access during container startup counts as 1 operation toward free tier limit
+      # Using "latest" alias to always resolve the newest enabled version, avoiding
+      # failures when old versions are destroyed. Each secret access during container
+      # startup counts as 1 operation toward free tier limit.
       env {
         name = "SPRING_DATASOURCE_URL"
         value_source {
           secret_key_ref {
             secret  = "supabase_db_url"
-            version = "3" # Updated to use Session Mode pooler (port 5432) for prepared statement support
+            version = "latest"
           }
         }
       }
@@ -114,7 +115,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = "supabase_db_username"
-            version = "3" # Updated to current enabled version
+            version = "latest"
           }
         }
       }
@@ -124,7 +125,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = "supabase_db_password"
-            version = "4" # Updated to current enabled version
+            version = "latest"
           }
         }
       }
@@ -135,7 +136,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = "supabase_session_db_url"
-            version = "1" # Updated to current enabled version
+            version = "latest"
           }
         }
       }
@@ -145,7 +146,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = "supabase_db_username"
-            version = "3" # Updated to current enabled version
+            version = "latest"
           }
         }
       }
@@ -155,7 +156,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = "supabase_db_password"
-            version = "4" # Updated to current enabled version
+            version = "latest"
           }
         }
       }
@@ -188,7 +189,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.google_api_key.secret_id
-            version = "1"
+            version = "latest"
           }
         }
       }
@@ -204,7 +205,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.google_api_key.secret_id
-            version = "1"
+            version = "latest"
           }
         }
       }
@@ -241,7 +242,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.r2_account_id.secret_id
-            version = "2"
+            version = "latest"
           }
         }
       }
@@ -251,7 +252,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.r2_access_key_id.secret_id
-            version = "1"
+            version = "latest"
           }
         }
       }
@@ -261,7 +262,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.r2_secret_access_key.secret_id
-            version = "2"
+            version = "latest"
           }
         }
       }
@@ -278,7 +279,7 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.revalidate_secret.secret_id
-            version = "1"
+            version = "latest"
           }
         }
       }
@@ -390,7 +391,7 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
         value_source {
           secret_key_ref {
             secret  = "resend_api_key"
-            version = "1" # Pin to specific version for cost predictability
+            version = "latest"
           }
         }
       }
@@ -401,7 +402,7 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.revalidate_secret.secret_id
-            version = "1"
+            version = "latest"
           }
         }
       }
@@ -412,7 +413,7 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
         value_source {
           secret_key_ref {
             secret  = google_secret_manager_secret.instagram_access_token.secret_id
-            version = "1"
+            version = "latest"
           }
         }
       }
