@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useCallback,
+  useRef,
+} from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import {
@@ -45,6 +51,8 @@ export interface Photo {
   archiveSource?: string;
   latitude?: number;
   longitude?: number;
+  type?: "IMAGE" | "VIDEO";
+  videoUrl?: string;
 }
 
 interface ImageLightboxProps {
@@ -87,6 +95,7 @@ export function ImageLightbox({
   const [identifyOpen, setIdentifyOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
+  const videoIframeRef = useRef<HTMLIFrameElement>(null);
   const shouldReduceMotion = useReducedMotion();
 
   // Sync current index when the caller selects a different photo
@@ -99,6 +108,21 @@ export function ImageLightbox({
   }
 
   const photo = photos[currentIndex];
+  const isVideo = photo?.type === "VIDEO" && !!photo.videoUrl;
+
+  // Pause video when navigating away or closing
+  useLayoutEffect(() => {
+    if (!isVideo) return;
+    const iframe = videoIframeRef.current;
+    return () => {
+      if (iframe?.contentWindow) {
+        iframe.contentWindow.postMessage(
+          JSON.stringify({ event: "command", func: "pauseVideo", args: "" }),
+          "https://www.youtube.com"
+        );
+      }
+    };
+  }, [currentIndex, isVideo]);
 
   // Track which element opened the lightbox for focus return
   useEffect(() => {
@@ -225,7 +249,8 @@ export function ImageLightbox({
     >
       {/* WCAG: polite announcement */}
       <div aria-live="polite" className="sr-only">
-        Photo {currentIndex + 1} of {photos.length}: {photo.alt}
+        {isVideo ? "Video" : "Photo"} {currentIndex + 1} of {photos.length}:{" "}
+        {photo.alt}
       </div>
 
       <div className="flex h-full w-full flex-col">
@@ -265,7 +290,7 @@ export function ImageLightbox({
             </>
           )}
 
-          {/* Image area with touch gestures */}
+          {/* Media area with touch gestures */}
           <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.div
@@ -280,26 +305,54 @@ export function ImageLightbox({
                   shouldReduceMotion ? undefined : { opacity: 0, scale: 0.95 }
                 }
                 transition={{ duration: 0.2 }}
-                drag={!isZoomed}
+                drag={!isZoomed && !isVideo}
                 dragDirectionLock
                 dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
                 dragElastic={0.3}
                 onDragEnd={handleDragEnd}
-                onClick={handleTap}
-                className="relative h-full w-full cursor-grab active:cursor-grabbing"
-                style={{
-                  transform: isZoomed ? "scale(2)" : "scale(1)",
-                  transition: "transform 0.3s ease",
-                }}
+                onClick={isVideo ? undefined : handleTap}
+                className={clsx(
+                  "relative h-full w-full",
+                  isVideo
+                    ? "flex items-center justify-center"
+                    : "cursor-grab active:cursor-grabbing"
+                )}
+                style={
+                  isVideo
+                    ? undefined
+                    : {
+                        transform: isZoomed ? "scale(2)" : "scale(1)",
+                        transition: "transform 0.3s ease",
+                      }
+                }
               >
-                <Image
-                  src={photo.src}
-                  alt={photo.altText || photo.alt}
-                  fill
-                  sizes="(min-width: 1024px) calc(100vw - 320px), 100vw"
-                  className="object-contain"
-                  priority
-                />
+                {isVideo ? (
+                  <div className="relative w-full max-w-4xl px-4">
+                    <div className="relative bg-black pb-[56.25%]">
+                      <iframe
+                        ref={videoIframeRef}
+                        className="absolute top-0 left-0 h-full w-full"
+                        src={
+                          photo.videoUrl! +
+                          (photo.videoUrl!.includes("?") ? "&" : "?") +
+                          "autoplay=1&enablejsapi=1"
+                        }
+                        title={photo.title || photo.alt || "Video player"}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <Image
+                    src={photo.src}
+                    alt={photo.altText || photo.alt}
+                    fill
+                    sizes="(min-width: 1024px) calc(100vw - 320px), 100vw"
+                    className="object-contain"
+                    priority
+                  />
+                )}
               </motion.div>
             </AnimatePresence>
           </div>
@@ -327,7 +380,7 @@ export function ImageLightbox({
             {isNeedsIdentification(photo) && (
               <IdentifyButton onClick={() => setIdentifyOpen(true)} />
             )}
-            <ActionsPanel photo={photo} />
+            <ActionsPanel photo={photo} isVideo={isVideo} />
             <ThumbnailNav
               photos={photos}
               currentIndex={currentIndex}
@@ -437,18 +490,20 @@ function IdentifyButton({ onClick }: { onClick: () => void }) {
   );
 }
 
-function ActionsPanel({ photo }: { photo: Photo }) {
+function ActionsPanel({ photo, isVideo }: { photo: Photo; isVideo?: boolean }) {
   return (
     <div className="mt-6 border-t border-white/20 pt-6">
       <div className="flex gap-3">
-        <a
-          href={photo.highResSrc || photo.src}
-          download={`brava-${photo.alt.replace(/\s+/g, "-").toLowerCase()}.jpg`}
-          className="focus-ring touch-target flex flex-1 items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-white/20"
-        >
-          <Download className="h-4 w-4" />
-          Download
-        </a>
+        {!isVideo && (
+          <a
+            href={photo.highResSrc || photo.src}
+            download={`brava-${photo.alt.replace(/\s+/g, "-").toLowerCase()}.jpg`}
+            className="focus-ring touch-target flex flex-1 items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-white/20"
+          >
+            <Download className="h-4 w-4" />
+            Download
+          </a>
+        )}
         <ShareButton
           title={photo.alt}
           url={getShareUrl(photo)}

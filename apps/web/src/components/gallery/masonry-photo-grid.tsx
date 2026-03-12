@@ -4,7 +4,7 @@ import * as React from "react";
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ZoomIn, Camera, Loader2 } from "lucide-react";
+import { ZoomIn, Play, Camera, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import type { Photo } from "@/components/ui/image-lightbox";
@@ -53,6 +53,8 @@ export function mediaItemToPhoto(item: MediaItem): Photo {
     archiveSource: item.archiveSource,
     latitude: item.latitude,
     longitude: item.longitude,
+    type: item.type,
+    videoUrl: item.type === "VIDEO" ? item.url : undefined,
   };
 }
 
@@ -157,10 +159,21 @@ export const MasonryPhotoGrid = React.forwardRef<
                       blurDataURL={SHIMMER_BLUR_DATA_URL}
                       className="h-auto w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
-                    {/* Hover overlay */}
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/20 group-hover:opacity-100">
-                      <ZoomIn className="text-white drop-shadow-md" size={32} />
-                    </div>
+                    {/* Hover overlay / Video play indicator */}
+                    {photo.type === "VIDEO" ? (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                        <span className="shadow-elevated bg-bougainvillea-pink flex h-14 w-14 items-center justify-center rounded-full text-white transition-transform duration-300 group-hover:scale-110">
+                          <Play size={24} className="ml-0.5" />
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all duration-300 group-hover:bg-black/20 group-hover:opacity-100">
+                        <ZoomIn
+                          className="text-white drop-shadow-md"
+                          size={32}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   {/* Card content */}

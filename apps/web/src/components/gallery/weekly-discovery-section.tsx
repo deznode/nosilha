@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Image from "next/image";
-import { Sparkles } from "lucide-react";
+import { Play, Sparkles } from "lucide-react";
 import {
   mapGalleryMediaToMediaItem,
   resolvePublicImageUrl,
@@ -11,6 +11,7 @@ import { mediaItemToPhoto } from "@/components/gallery/masonry-photo-grid";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import type { Photo } from "@/components/ui/image-lightbox";
 import type { PublicGalleryMedia } from "@/types/gallery";
+import { isPublicExternalMedia } from "@/types/gallery";
 
 interface WeeklyDiscoverySectionProps {
   photos: PublicGalleryMedia[];
@@ -45,6 +46,8 @@ export function WeeklyDiscoverySection({
           {photos.map((photo, index) => {
             const thumbUrl = resolvePublicImageUrl(photo);
             if (!thumbUrl) return null;
+            const isVideoItem =
+              isPublicExternalMedia(photo) && photo.mediaType === "VIDEO";
 
             return (
               <button
@@ -60,6 +63,13 @@ export function WeeklyDiscoverySection({
                     sizes="224px"
                     className="ease-calm object-cover transition-transform duration-300 group-hover:scale-105"
                   />
+                  {isVideoItem && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                      <span className="shadow-elevated bg-bougainvillea-pink flex h-10 w-10 items-center justify-center rounded-full text-white transition-transform duration-300 group-hover:scale-110">
+                        <Play size={18} className="ml-0.5" />
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <div className="bg-surface border-hairline border-x border-b p-2">
                   <p className="text-body truncate text-sm font-medium">

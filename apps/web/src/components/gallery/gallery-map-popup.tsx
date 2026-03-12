@@ -23,9 +23,9 @@ export function GalleryMapPopup({
     <div className="bg-surface border-hairline rounded-card shadow-elevated w-56 overflow-hidden border">
       {/* Photo preview */}
       <div className="relative h-32 w-full">
-        {photo.thumbnailUrl ? (
+        {photo.thumbnailUrl || photo.url ? (
           <Image
-            src={photo.thumbnailUrl}
+            src={photo.thumbnailUrl || photo.url}
             alt={photo.title}
             fill
             sizes="224px"
