@@ -644,7 +644,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
           interactiveLayerIds={["zone-fills"]}
           mapProps={{
             terrain:
-              viewMode === "satellite"
+              viewMode === "satellite" && isMapLoaded
                 ? {
                     source: "mapbox-dem",
                     exaggeration: MAP_CONFIG.TERRAIN_EXAGGERATION,

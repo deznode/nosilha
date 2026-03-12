@@ -16,6 +16,7 @@ import {
   BookOpen,
   Puzzle,
   Camera,
+  Share2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -161,6 +162,13 @@ const sections: DevToolSection[] = [
           "StoryEditor with TemplateChips, StoryPromptsPanel, and PhotoUpload for community stories",
         href: "/admin/dev-tools/story-editor",
         icon: PenTool,
+      },
+      {
+        title: "OG Image Preview",
+        description:
+          "Preview OG images across Facebook, Twitter/X, LinkedIn, WhatsApp, and iMessage mockups",
+        href: "/admin/dev-tools/og-preview",
+        icon: Share2,
       },
     ],
   },
