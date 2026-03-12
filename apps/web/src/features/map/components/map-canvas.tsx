@@ -1,11 +1,13 @@
 "use client";
 
 import {
+  Component,
   useState,
   useRef,
   useMemo,
   useCallback,
   useEffect,
+  type ReactNode,
   type RefObject,
 } from "react";
 import {
@@ -41,6 +43,61 @@ import {
   TRAILS_GEOJSON,
 } from "../data/constants";
 import type { Location } from "../data/types";
+
+// ---------------------------------------------------------------------------
+// MapRecoveryBoundary — catches Activity-reconnect crashes from react-map-gl
+// ---------------------------------------------------------------------------
+// When cacheComponents (Activity) restores the map route, react-map-gl's
+// Marker/control useEffects fire addTo() on the destroyed mapbox-gl instance.
+// setState in useLayoutEffect does NOT trigger a re-render before passive
+// effects during Activity reconnect, so we cannot guard against this in React
+// lifecycle. Instead, this error boundary catches the crash and forces a
+// complete remount via an incremented key, giving the map a fresh start.
+
+interface RecoveryState {
+  hasError: boolean;
+  retryKey: number;
+}
+
+class MapRecoveryBoundary extends Component<
+  { children: ReactNode; fallback: ReactNode },
+  RecoveryState
+> {
+  state: RecoveryState = { hasError: false, retryKey: 0 };
+  private recovering = false;
+
+  static getDerivedStateFromError(): Partial<RecoveryState> {
+    return { hasError: true };
+  }
+
+  componentDidCatch() {
+    // Guard against re-entry: during Activity reconnect, multiple Marker/Control
+    // effects may throw in the same frame. Only schedule recovery once.
+    if (this.recovering) return;
+    this.recovering = true;
+
+    // Schedule recovery on the next frame so React can paint the fallback
+    // before we trigger the fresh mount.
+    requestAnimationFrame(() => {
+      this.recovering = false;
+      this.setState((prev) => ({
+        hasError: false,
+        retryKey: prev.retryKey + 1,
+      }));
+    });
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
+    }
+    // Key change forces React to unmount the old subtree and mount fresh,
+    // ensuring all react-map-gl effects run on a live map instance.
+    return <div key={this.state.retryKey}>{this.props.children}</div>;
+  }
+}
+
+// ---------------------------------------------------------------------------
 
 interface MapCanvasProps {
   mapRef: RefObject<MapRef | null>;
@@ -80,10 +137,11 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
   const filteredLocations = useFilteredLocations();
 
   // --- Reset stale state on Activity restore ---
-  // Without reuseMaps the map is destroyed on hide and recreated on show,
-  // but Activity preserves useState. This effect runs on mount AND every
-  // Activity restore so lifecycle state starts fresh for the new map instance.
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+  // Activity preserves useState across hide/show. This resets lifecycle
+  // state so the loading overlay shows while the new map instance loads.
+  // Note: this does NOT prevent the Marker/control crash during Activity
+  // reconnect — MapRecoveryBoundary handles that via error boundary + remount.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const alreadyPlayed = useMapStore.getState().introCompleted;
     setIsMapLoaded(false);
@@ -91,6 +149,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
     setIsIntroPlaying(!alreadyPlayed);
     setIsIntroComplete(alreadyPlayed);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // --- Cleanup timers on unmount ---
   useEffect(() => {
@@ -558,173 +617,193 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
         )}
       </AnimatePresence>
 
-      {/* Mapbox GL Map */}
-      <BaseMap
-        ref={mapRef}
-        style={
-          viewMode === "satellite"
-            ? "mapbox://styles/mapbox/satellite-streets-v12"
-            : "mapbox://styles/mapbox/light-v11"
+      {/* Mapbox GL Map — wrapped in error boundary for Activity restore crashes */}
+      <MapRecoveryBoundary
+        fallback={
+          <div className="bg-surface-alt absolute inset-0 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+              <Loader2 className="text-brand h-10 w-10 animate-spin" />
+              <p className="text-brand animate-pulse font-serif text-lg font-bold">
+                Loading Brava...
+              </p>
+            </div>
+          </div>
         }
-        onClick={handleMapClick}
-        onMove={onMove}
-        onLoad={handleMapLoad}
-        onError={handleMapError}
-        interactiveLayerIds={["zone-fills"]}
-        mapProps={{
-          terrain:
-            viewMode === "satellite"
-              ? {
-                  source: "mapbox-dem",
-                  exaggeration: MAP_CONFIG.TERRAIN_EXAGGERATION,
-                }
-              : undefined,
-          fog:
-            viewMode === "satellite"
-              ? {
-                  range: [0.8, 8],
-                  color: "#e8e4e0",
-                  "horizon-blend": 0.15,
-                  "high-color": "#4a90a4",
-                  "space-color": "#1a1a2e",
-                  "star-intensity": 0.15,
-                }
-              : undefined,
-          maxPitch: MAP_CONFIG.MAX_PITCH,
-          style: {
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            cursor,
-          },
-          onDragStart: handleStopOrbit,
-          onZoomStart: handleStopOrbit,
-          onMouseEnter: onMouseEnterZone,
-          onMouseLeave: onMouseLeaveZone,
-          "aria-label":
-            "Interactive map of Brava Island showing tourist destinations",
-        }}
       >
-        <Source
-          id="mapbox-dem"
-          type="raster-dem"
-          url="mapbox://mapbox.mapbox-terrain-dem-v1"
-          tileSize={MAP_CONFIG.DEM_TILE_SIZE}
-          maxzoom={MAP_CONFIG.DEM_MAX_ZOOM}
-        />
+        <BaseMap
+          ref={mapRef}
+          style={
+            viewMode === "satellite"
+              ? "mapbox://styles/mapbox/satellite-streets-v12"
+              : "mapbox://styles/mapbox/light-v11"
+          }
+          onClick={handleMapClick}
+          onMove={onMove}
+          onLoad={handleMapLoad}
+          onError={handleMapError}
+          interactiveLayerIds={["zone-fills"]}
+          mapProps={{
+            terrain:
+              viewMode === "satellite"
+                ? {
+                    source: "mapbox-dem",
+                    exaggeration: MAP_CONFIG.TERRAIN_EXAGGERATION,
+                  }
+                : undefined,
+            fog:
+              viewMode === "satellite"
+                ? {
+                    range: [0.8, 8],
+                    color: "#e8e4e0",
+                    "horizon-blend": 0.15,
+                    "high-color": "#4a90a4",
+                    "space-color": "#1a1a2e",
+                    "star-intensity": 0.15,
+                  }
+                : undefined,
+            maxPitch: MAP_CONFIG.MAX_PITCH,
+            style: {
+              position: "absolute",
+              inset: 0,
+              width: "100%",
+              height: "100%",
+              cursor,
+            },
+            onDragStart: handleStopOrbit,
+            onZoomStart: handleStopOrbit,
+            onMouseEnter: onMouseEnterZone,
+            onMouseLeave: onMouseLeaveZone,
+            "aria-label":
+              "Interactive map of Brava Island showing tourist destinations",
+          }}
+        >
+          {isMapLoaded && (
+            <>
+              <Source
+                id="mapbox-dem"
+                type="raster-dem"
+                url="mapbox://mapbox.mapbox-terrain-dem-v1"
+                tileSize={MAP_CONFIG.DEM_TILE_SIZE}
+                maxzoom={MAP_CONFIG.DEM_MAX_ZOOM}
+              />
 
-        {/* Illustration Mode Layer */}
-        {viewMode === "illustration" && (
-          <Source
-            id="brava-illustration"
-            type="image"
-            url={ILLUSTRATION_URL}
-            coordinates={ILLUSTRATION_BOUNDS}
-          >
-            <Layer
-              id="brava-illustration-layer"
-              type="raster"
-              paint={{
-                "raster-fade-duration": 0,
-                "raster-opacity": 1,
-              }}
-              beforeId="waterway-label"
-            />
-          </Source>
-        )}
+              {/* Illustration Mode Layer */}
+              {viewMode === "illustration" && (
+                <Source
+                  id="brava-illustration"
+                  type="image"
+                  url={ILLUSTRATION_URL}
+                  coordinates={ILLUSTRATION_BOUNDS}
+                >
+                  <Layer
+                    id="brava-illustration-layer"
+                    type="raster"
+                    paint={{
+                      "raster-fade-duration": 0,
+                      "raster-opacity": 1,
+                    }}
+                    beforeId="waterway-label"
+                  />
+                </Source>
+              )}
 
-        {/* Zone Layers */}
-        {viewMode === "satellite" &&
-          (layerVisibility === "all" || layerVisibility === "zones") && (
-            <Source id="zones" type="geojson" data={ZONES_GEOJSON}>
-              <Layer
-                id="zone-fills"
-                type="fill"
-                paint={{
-                  "fill-color": ["get", "color"],
-                  "fill-opacity": 0.25,
-                }}
-              />
-              <Layer
-                id="zone-lines"
-                type="line"
-                paint={{
-                  "line-color": ["get", "color"],
-                  "line-width": 2,
-                  "line-dasharray": [2, 1],
-                  "line-opacity": 0.8,
-                }}
-              />
-              <Layer
-                id="zone-labels"
-                type="symbol"
-                layout={{
-                  "text-field": ["get", "name"],
-                  "text-size": 12,
-                  "text-transform": "uppercase",
-                  "text-letter-spacing": 0.1,
-                  "text-font": ["DIN Offc Pro Bold", "Arial Unicode MS Bold"],
-                }}
-                paint={{
-                  "text-color": "#ffffff",
-                  "text-halo-color": ["get", "color"],
-                  "text-halo-width": 2,
-                }}
-              />
-            </Source>
+              {/* Zone Layers */}
+              {viewMode === "satellite" &&
+                (layerVisibility === "all" || layerVisibility === "zones") && (
+                  <Source id="zones" type="geojson" data={ZONES_GEOJSON}>
+                    <Layer
+                      id="zone-fills"
+                      type="fill"
+                      paint={{
+                        "fill-color": ["get", "color"],
+                        "fill-opacity": 0.25,
+                      }}
+                    />
+                    <Layer
+                      id="zone-lines"
+                      type="line"
+                      paint={{
+                        "line-color": ["get", "color"],
+                        "line-width": 2,
+                        "line-dasharray": [2, 1],
+                        "line-opacity": 0.8,
+                      }}
+                    />
+                    <Layer
+                      id="zone-labels"
+                      type="symbol"
+                      layout={{
+                        "text-field": ["get", "name"],
+                        "text-size": 12,
+                        "text-transform": "uppercase",
+                        "text-letter-spacing": 0.1,
+                        "text-font": [
+                          "DIN Offc Pro Bold",
+                          "Arial Unicode MS Bold",
+                        ],
+                      }}
+                      paint={{
+                        "text-color": "#ffffff",
+                        "text-halo-color": ["get", "color"],
+                        "text-halo-width": 2,
+                      }}
+                    />
+                  </Source>
+                )}
+
+              {/* Trail Layers */}
+              {viewMode === "satellite" &&
+                (layerVisibility === "all" || layerVisibility === "zones") && (
+                  <Source id="trails" type="geojson" data={TRAILS_GEOJSON}>
+                    <Layer
+                      id="trail-glow"
+                      type="line"
+                      paint={{
+                        "line-color": ["get", "color"],
+                        "line-width": 6,
+                        "line-opacity": 0.3,
+                        "line-blur": 3,
+                      }}
+                    />
+                    <Layer
+                      id="trail-lines"
+                      type="line"
+                      paint={{
+                        "line-color": ["get", "color"],
+                        "line-width": 3,
+                        "line-opacity": 0.9,
+                        "line-dasharray": [2, 1],
+                      }}
+                    />
+                    <Layer
+                      id="trail-labels"
+                      type="symbol"
+                      layout={{
+                        "symbol-placement": "line-center",
+                        "text-field": ["get", "name"],
+                        "text-size": 10,
+                        "text-font": [
+                          "DIN Offc Pro Medium",
+                          "Arial Unicode MS Regular",
+                        ],
+                        "text-rotation-alignment": "viewport",
+                      }}
+                      paint={{
+                        "text-color": "#ffffff",
+                        "text-halo-color": ["get", "color"],
+                        "text-halo-width": 1.5,
+                      }}
+                    />
+                  </Source>
+                )}
+
+              {markers}
+              <NavigationControl position="bottom-right" />
+              <GeolocateControl position="bottom-right" />
+            </>
           )}
-
-        {/* Trail Layers */}
-        {viewMode === "satellite" &&
-          (layerVisibility === "all" || layerVisibility === "zones") && (
-            <Source id="trails" type="geojson" data={TRAILS_GEOJSON}>
-              <Layer
-                id="trail-glow"
-                type="line"
-                paint={{
-                  "line-color": ["get", "color"],
-                  "line-width": 6,
-                  "line-opacity": 0.3,
-                  "line-blur": 3,
-                }}
-              />
-              <Layer
-                id="trail-lines"
-                type="line"
-                paint={{
-                  "line-color": ["get", "color"],
-                  "line-width": 3,
-                  "line-opacity": 0.9,
-                  "line-dasharray": [2, 1],
-                }}
-              />
-              <Layer
-                id="trail-labels"
-                type="symbol"
-                layout={{
-                  "symbol-placement": "line-center",
-                  "text-field": ["get", "name"],
-                  "text-size": 10,
-                  "text-font": [
-                    "DIN Offc Pro Medium",
-                    "Arial Unicode MS Regular",
-                  ],
-                  "text-rotation-alignment": "viewport",
-                }}
-                paint={{
-                  "text-color": "#ffffff",
-                  "text-halo-color": ["get", "color"],
-                  "text-halo-width": 1.5,
-                }}
-              />
-            </Source>
-          )}
-
-        {markers}
-        <NavigationControl position="bottom-right" />
-        <GeolocateControl position="bottom-right" />
-      </BaseMap>
+        </BaseMap>
+      </MapRecoveryBoundary>
 
       {/* Screen reader announcements */}
       <div aria-live="polite" aria-atomic="true" className="sr-only">
