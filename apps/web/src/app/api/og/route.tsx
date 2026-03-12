@@ -1,3 +1,6 @@
+import { readFile } from "fs/promises";
+import { join } from "path";
+
 import { ImageResponse } from "next/og";
 
 import { createComponentLogger } from "@/lib/logger";
@@ -41,6 +44,17 @@ let fontCache: {
   fraunces: ArrayBuffer;
 } | null = null;
 
+let logoCache: string | null = null;
+
+async function loadLogo(): Promise<string> {
+  if (logoCache) return logoCache;
+  const svgBuffer = await readFile(
+    join(process.cwd(), "public/images/logo-avatar.svg")
+  );
+  logoCache = `data:image/svg+xml;base64,${svgBuffer.toString("base64")}`;
+  return logoCache;
+}
+
 async function loadFonts() {
   if (fontCache) return fontCache;
 
@@ -67,7 +81,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const fonts = await loadFonts();
+    const [fonts, logoSrc] = await Promise.all([loadFonts(), loadLogo()]);
 
     // For directory type, try to resolve image from slug
     let imageUrl: string | undefined;
@@ -85,6 +99,7 @@ export async function GET(request: Request) {
         subtitle={subtitle ? decodeURIComponent(subtitle) : undefined}
         category={category ? decodeURIComponent(category) : undefined}
         imageUrl={imageUrl}
+        logoSrc={logoSrc}
       />,
       {
         width: 1200,
