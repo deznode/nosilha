@@ -14,8 +14,9 @@ strip_ansi() {
 
 echo "🔒 Checking for existing Terraform locks..."
 
-# General lock cleanup - run plan with -no-color to avoid ANSI parsing issues
-LOCK_OUTPUT=$(terraform plan -no-color 2>&1 || true)
+# Lightweight lock check — uses `state list` which only touches the state backend.
+# Zero provider API calls (avoids Cloudflare rate limits during lock detection).
+LOCK_OUTPUT=$(terraform state list -no-color 2>&1 || true)
 
 if echo "$LOCK_OUTPUT" | grep -q "Error acquiring the state lock"; then
   echo "⚠️ Lock detected, attempting cleanup..."
