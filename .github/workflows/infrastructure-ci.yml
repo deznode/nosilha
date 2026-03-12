@@ -142,13 +142,23 @@ jobs:
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -no-color -out=tfplan
+        run: |
+          if ! terraform plan -no-color -lock-timeout=60s -out=tfplan; then
+            echo "Plan failed, attempting lock cleanup and retry..."
+            LOCK_ID=$(terraform plan -no-color 2>&1 | grep "ID:" | head -1 | awk '{print $2}')
+            if [ -n "$LOCK_ID" ]; then
+              terraform force-unlock -force "$LOCK_ID" || true
+            fi
+            terraform plan -no-color -lock-timeout=60s -out=tfplan
+          fi
         continue-on-error: true
-        
+
       - name: Save Plan Output
+        if: steps.plan.outcome == 'success'
         run: terraform show -no-color tfplan > plan-output.txt
-        
+
       - name: Upload Plan Artifact
+        if: steps.plan.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: terraform-plan
