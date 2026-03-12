@@ -259,7 +259,11 @@ jobs:
                 echo "Plan failed, retrying in 10 seconds..."
                 sleep 10
                 # Try to clear any potential locks before retry
-                terraform force-unlock -force $(terraform plan 2>&1 | grep "ID:" | awk '{print $2}' | head -n1) || true
+                LOCK_ID=$(terraform plan -no-color 2>&1 | grep -A 10 "Lock Info:" | grep "ID:" | awk '{print $2}' | head -n1)
+                if [ -n "$LOCK_ID" ] && [[ "$LOCK_ID" =~ ^[0-9]+$ ]]; then
+                  echo "Attempting to unlock state with ID: $LOCK_ID"
+                  terraform force-unlock -force "$LOCK_ID" || true
+                fi
               else
                 echo "All retry attempts failed"
                 exit 1

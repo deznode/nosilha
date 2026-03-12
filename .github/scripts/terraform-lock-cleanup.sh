@@ -7,21 +7,25 @@
 
 set -e
 
+# Strip ANSI escape codes from input
+strip_ansi() {
+  sed 's/\x1b\[[0-9;]*m//g'
+}
+
 echo "🔒 Checking for existing Terraform locks..."
 
-# Force unlock the specific known problematic lock if it exists
-terraform force-unlock -force 1752177952260121 2>/dev/null || true
-
-# General lock cleanup - extract any lock ID and unlock
-LOCK_OUTPUT=$(terraform plan 2>&1 || true)
+# General lock cleanup - run plan with -no-color to avoid ANSI parsing issues
+LOCK_OUTPUT=$(terraform plan -no-color 2>&1 || true)
 
 if echo "$LOCK_OUTPUT" | grep -q "Error acquiring the state lock"; then
   echo "⚠️ Lock detected, attempting cleanup..."
-  LOCK_ID=$(echo "$LOCK_OUTPUT" | grep -A 10 "Lock Info:" | grep "ID:" | awk '{print $2}' | head -n1)
-  if [ -n "$LOCK_ID" ]; then
+  LOCK_ID=$(echo "$LOCK_OUTPUT" | strip_ansi | grep -A 10 "Lock Info:" | grep "ID:" | awk '{print $2}' | head -n1)
+  if [ -n "$LOCK_ID" ] && [[ "$LOCK_ID" =~ ^[0-9]+$ ]]; then
     echo "🔓 Unlocking state with ID: $LOCK_ID"
     terraform force-unlock -force "$LOCK_ID" || true
     sleep 5
+  else
+    echo "⚠️ Could not extract a valid numeric lock ID from output"
   fi
 else
   echo "✅ No lock detected, proceeding..."
