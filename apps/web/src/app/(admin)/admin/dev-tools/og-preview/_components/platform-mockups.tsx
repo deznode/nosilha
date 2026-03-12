@@ -2,6 +2,8 @@
 
 import type { CSSProperties } from "react";
 
+import { StaticHibiscus } from "@/components/ui/logo";
+
 /* eslint-disable @next/next/no-img-element */
 
 interface PlatformMockupProps {
@@ -110,17 +112,13 @@ export function FacebookCard({
               width: 36,
               height: 36,
               borderRadius: "50%",
-              background: "#1877f2",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
-              fontSize: 14,
-              fontWeight: 700,
+              background: "#ffffff",
+              border: "1px solid #dadde1",
+              overflow: "hidden",
               flexShrink: 0,
             }}
           >
-            NI
+            <StaticHibiscus className="h-9 w-9" />
           </div>
           <div>
             <div style={{ fontSize: 13, fontWeight: 600, color: "#050505" }}>
@@ -290,17 +288,13 @@ export function LinkedInCard({
               width: 40,
               height: 40,
               borderRadius: "50%",
-              background: "#0a66c2",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
-              fontSize: 14,
-              fontWeight: 700,
+              background: "#ffffff",
+              border: "1px solid #e0e0e0",
+              overflow: "hidden",
               flexShrink: 0,
             }}
           >
-            NI
+            <StaticHibiscus className="h-10 w-10" />
           </div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, color: "#000000e6" }}>
