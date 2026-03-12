@@ -18,39 +18,13 @@ const gradients: Record<string, string> = {
   directory: `linear-gradient(135deg, ${colors.oceanBlue} 0%, ${colors.oceanBlueLight} 100%)`,
 };
 
-// Simple logo mark — Satori has limited SVG support so we use CSS shapes
-function LogoMark({ size = 48 }: { size?: number }): ReactElement {
-  return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        width: size,
-        height: size,
-        borderRadius: "50%",
-        background: colors.bougainvilleaPink,
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          width: Math.round(size * 0.35),
-          height: Math.round(size * 0.35),
-          borderRadius: "50%",
-          background: colors.sunnyYellow,
-        }}
-      />
-    </div>
-  );
-}
-
 interface OgTemplateProps {
   type: "default" | "directory" | "article" | "gallery";
   title: string;
   subtitle?: string;
   category?: string;
   imageUrl?: string;
+  logoSrc?: string;
 }
 
 export function OgTemplate({
@@ -59,6 +33,7 @@ export function OgTemplate({
   subtitle,
   category,
   imageUrl,
+  logoSrc,
 }: OgTemplateProps): ReactElement {
   const hasBackgroundImage = type === "directory" && imageUrl;
 
@@ -85,7 +60,28 @@ export function OgTemplate({
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <LogoMark size={48} />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 48,
+              height: 48,
+              borderRadius: "50%",
+              background: colors.white,
+              overflow: "hidden",
+              flexShrink: 0,
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={logoSrc}
+              width={48}
+              height={48}
+              alt=""
+              style={{ objectFit: "cover" }}
+            />
+          </div>
           <span
             style={{
               fontFamily: "Fraunces",

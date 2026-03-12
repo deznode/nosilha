@@ -2,8 +2,6 @@
 
 import type { CSSProperties } from "react";
 
-import { StaticHibiscus } from "@/components/ui/logo";
-
 /* eslint-disable @next/next/no-img-element */
 
 interface PlatformMockupProps {
@@ -118,7 +116,13 @@ export function FacebookCard({
               flexShrink: 0,
             }}
           >
-            <StaticHibiscus className="h-9 w-9" />
+            <img
+              src="/images/logo-avatar.svg"
+              alt="Nos Ilha"
+              width={36}
+              height={36}
+              style={{ borderRadius: "50%" }}
+            />
           </div>
           <div>
             <div style={{ fontSize: 13, fontWeight: 600, color: "#050505" }}>
@@ -294,7 +298,13 @@ export function LinkedInCard({
               flexShrink: 0,
             }}
           >
-            <StaticHibiscus className="h-10 w-10" />
+            <img
+              src="/images/logo-avatar.svg"
+              alt="Nos Ilha"
+              width={40}
+              height={40}
+              style={{ borderRadius: "50%" }}
+            />
           </div>
           <div>
             <div style={{ fontSize: 14, fontWeight: 600, color: "#000000e6" }}>
