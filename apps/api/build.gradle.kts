@@ -1,18 +1,18 @@
 import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 
 plugins {
-    kotlin("jvm") version "2.3.0"
-    kotlin("plugin.spring") version "2.3.0"
+    kotlin("jvm") version "2.3.10"
+    kotlin("plugin.spring") version "2.3.10"
     id("org.springframework.boot") version "4.0.3"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("plugin.jpa") version "2.3.0"
+    kotlin("plugin.jpa") version "2.3.10"
     jacoco
     // TODO: by JC, 12/26/25 - Re-enable detekt when compatible version is released
     // Issue: detekt 2.0.0-alpha.1 compiled with Kotlin 2.2.20, but we need Kotlin 2.3.0 for Java 25 JVM target
     // Solution: Wait for detekt 2.0.0-alpha.2 or stable release compiled with Kotlin 2.3.0
     // New plugin ID: id("dev.detekt") version "2.0.0+" (changed from io.gitlab.arturbosch.detekt)
     // Track: https://github.com/detekt/detekt/releases
-    id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
+    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
 }
 
 group = "com.nosilha"
@@ -67,7 +67,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 
     // Cloudflare R2 (S3-compatible) integration
-    implementation(platform("software.amazon.awssdk:bom:2.29.51"))
+    implementation(platform("software.amazon.awssdk:bom:2.42.13"))
     implementation("software.amazon.awssdk:s3")
 
     // OWASP HTML Sanitizer for XSS prevention
@@ -81,10 +81,10 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine")
 
     // Bucket4j for efficient in-memory rate limiting (token bucket algorithm)
-    implementation("com.bucket4j:bucket4j_jdk17-core:8.14.0")
+    implementation("com.bucket4j:bucket4j_jdk17-core:8.17.0")
 
     // Google Cloud Vision SDK for image analysis (labels, OCR, landmarks)
-    implementation("com.google.cloud:google-cloud-vision:3.76.0")
+    implementation("com.google.cloud:google-cloud-vision:3.85.0")
 
     // Spring AI for Gemini cultural context generation (native structured output)
     implementation("org.springframework.ai:spring-ai-starter-model-google-genai")
