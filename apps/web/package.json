@@ -87,7 +87,7 @@
     "@types/geojson": "^7946.0.16",
     "@types/mapbox-gl": "^3.4.1",
     "@types/mdx": "^2.0.13",
-    "@types/node": "^20.19.0",
+    "@types/node": "^25.5.0",
     "@types/react": "19.2.6",
     "@types/react-dom": "19.2.3",
     "@types/supercluster": "^7.1.3",
