@@ -62,7 +62,7 @@ jobs:
         working-directory: ./infrastructure/terraform
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Cache Terraform providers
         uses: actions/cache@v4
@@ -110,7 +110,7 @@ jobs:
       id-token: write  # Required for OIDC token requests
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Cache Terraform providers
         uses: actions/cache@v4
@@ -226,7 +226,7 @@ jobs:
       id-token: write  # Required for OIDC token requests
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -299,7 +299,7 @@ jobs:
       id-token: write  # Required for OIDC token requests
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3

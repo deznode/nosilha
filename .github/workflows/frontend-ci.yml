@@ -88,7 +88,7 @@ jobs:
         working-directory: ./apps/web
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Node & pnpm
         uses: ./.github/actions/setup-node-pnpm
@@ -128,7 +128,7 @@ jobs:
         working-directory: ./apps/web
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Check for relevant changes
         id: changes
@@ -215,7 +215,7 @@ jobs:
       id-token: write  # Required for OIDC token requests
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ inputs.deploy_ref || github.sha }}
 
@@ -276,7 +276,7 @@ jobs:
       id-token: write  # Required for OIDC token requests
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: GCP Authentication
         uses: ./.github/actions/gcp-auth

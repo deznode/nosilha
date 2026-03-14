@@ -37,7 +37,7 @@ jobs:
       infrastructure: ${{ steps.changes.outputs.infrastructure }}
       any-service: ${{ (steps.changes.outputs.backend == 'true') || (steps.changes.outputs.frontend == 'true') }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - uses: dorny/paths-filter@v2
@@ -59,7 +59,7 @@ jobs:
     if: always() && (needs.changes.outputs.backend == 'true' || github.event_name == 'schedule')
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Java & Gradle
         uses: ./.github/actions/setup-java-gradle
@@ -99,7 +99,7 @@ jobs:
       id-token: write  # Required for OIDC token requests
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: GCP Authentication
         uses: ./.github/actions/gcp-auth
@@ -139,7 +139,7 @@ jobs:
       id-token: write  # Required for OIDC token requests
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: GCP Authentication
         uses: ./.github/actions/gcp-auth

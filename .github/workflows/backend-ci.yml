@@ -83,7 +83,7 @@ jobs:
         working-directory: ./apps/api
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Java & Gradle
         uses: ./.github/actions/setup-java-gradle
@@ -221,7 +221,7 @@ jobs:
       id-token: write  # Required for OIDC token requests
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ inputs.deploy_ref || github.sha }}
 
@@ -276,7 +276,7 @@ jobs:
       id-token: write  # Required for OIDC token requests
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: GCP Authentication
         uses: ./.github/actions/gcp-auth
