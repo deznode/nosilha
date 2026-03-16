@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 import { useMotionValueEvent, useScroll } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import clsx from "clsx";
+import { useRouter } from "next/navigation";
 import { useScrollDirection } from "@/lib/hooks/use-scroll-direction";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 
@@ -35,6 +36,7 @@ export function CollapsibleHero({
   className,
 }: CollapsibleHeroProps) {
   const heroRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
   const isMobile = useMediaQuery("(max-width: 767px)");
   const direction = useScrollDirection(10);
   const [heroPassed, setHeroPassed] = useState(false);
@@ -53,9 +55,9 @@ export function CollapsibleHero({
 
   const handleBack = () => {
     if (backHref) {
-      window.location.href = backHref;
+      router.push(backHref);
     } else {
-      window.history.back();
+      router.back();
     }
   };
 

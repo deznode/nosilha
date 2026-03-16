@@ -424,9 +424,17 @@ export function GalleryContent({
                 )}
               >
                 <ImageIcon size={18} />
-                <span className={clsx(isSearchExpanded && "hidden sm:inline")}>
+                <span>
                   Photos
-                  <span className="hidden sm:inline"> ({photos.length})</span>
+                  <span
+                    className={clsx(
+                      "hidden sm:inline",
+                      isSearchExpanded && "!hidden"
+                    )}
+                  >
+                    {" "}
+                    ({photos.length})
+                  </span>
                 </span>
               </button>
               <button
@@ -439,9 +447,17 @@ export function GalleryContent({
                 )}
               >
                 <Play size={18} />
-                <span className={clsx(isSearchExpanded && "hidden sm:inline")}>
+                <span>
                   Videos
-                  <span className="hidden sm:inline"> ({videos.length})</span>
+                  <span
+                    className={clsx(
+                      "hidden sm:inline",
+                      isSearchExpanded && "!hidden"
+                    )}
+                  >
+                    {" "}
+                    ({videos.length})
+                  </span>
                 </span>
               </button>
 

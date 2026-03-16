@@ -55,7 +55,7 @@ export const FilterChip = React.forwardRef<HTMLButtonElement, FilterChipProps>(
         {active && onClear && (
           <span
             role="button"
-            tabIndex={-1}
+            tabIndex={0}
             aria-label={`Clear ${label}`}
             onClick={(e) => {
               e.stopPropagation();

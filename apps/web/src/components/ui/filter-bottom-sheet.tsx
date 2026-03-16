@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
 
@@ -24,14 +24,37 @@ export function FilterBottomSheet({
   onClear,
   activeCount = 0,
 }: FilterBottomSheetProps) {
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        onClose();
+      }
+    },
+    [onClose]
+  );
+
   useEffect(() => {
     if (isOpen) {
+      previousFocusRef.current = document.activeElement as HTMLElement;
       document.body.style.overflow = "hidden";
+      document.addEventListener("keydown", handleKeyDown);
+
+      // Move focus into the sheet
+      requestAnimationFrame(() => {
+        sheetRef.current?.focus();
+      });
+
       return () => {
         document.body.style.overflow = "";
+        document.removeEventListener("keydown", handleKeyDown);
+        previousFocusRef.current?.focus();
       };
     }
-  }, [isOpen]);
+  }, [isOpen, handleKeyDown]);
 
   return (
     <AnimatePresence>
@@ -45,10 +68,16 @@ export function FilterBottomSheet({
             transition={{ duration: 0.2 }}
             className="absolute inset-0 bg-black/30 backdrop-blur-sm"
             onClick={onClose}
+            aria-hidden="true"
           />
 
           {/* Sheet */}
           <motion.div
+            ref={sheetRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={title}
+            tabIndex={-1}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -58,7 +87,7 @@ export function FilterBottomSheet({
               stiffness: 280,
               mass: 0.8,
             }}
-            className="bg-surface rounded-t-container shadow-floating absolute right-0 bottom-0 left-0 flex max-h-[70vh] flex-col"
+            className="bg-surface rounded-t-container shadow-floating absolute right-0 bottom-0 left-0 flex max-h-[70vh] flex-col focus:outline-none"
             style={{ touchAction: "pan-y" }}
           >
             {/* Drag handle + title */}
