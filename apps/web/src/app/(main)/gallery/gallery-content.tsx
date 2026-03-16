@@ -363,12 +363,12 @@ export function GalleryContent({
               <h1 className="mb-4 font-serif text-3xl font-bold md:text-5xl">
                 Brava Media Center
               </h1>
-              <p className="max-w-2xl text-lg font-light text-white/70">
+              <p className="hidden max-w-2xl text-lg font-light text-white/70 sm:block">
                 A visual archive of our island. Explore historical photographs,
                 community moments, and videos celebrating the culture of Brava.
               </p>
               {totalItems > 0 && (
-                <p className="mt-2 text-sm text-white/50">
+                <p className="mt-2 hidden text-sm text-white/50 sm:block">
                   Exploring {totalItems} items
                   {contributors.size > 1
                     ? ` from ${contributors.size} contributors`

@@ -51,9 +51,9 @@ export default function StoriesPage() {
     <div className="bg-canvas min-h-screen pb-12">
       {/* Header */}
       <div className="border-hairline bg-canvas shadow-subtle border-b">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 sm:py-12 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="text-center sm:text-left">
+            <div className="text-left">
               <h1 className="text-ocean-blue mb-4 font-serif text-3xl font-bold md:text-4xl">
                 Voices of Brava
               </h1>
@@ -75,7 +75,7 @@ export default function StoriesPage() {
       </div>
 
       {/* Content */}
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-12 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {/* Story Cards */}
           {isLoading ? (

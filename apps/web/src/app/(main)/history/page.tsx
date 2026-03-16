@@ -136,7 +136,7 @@ async function cachedHistoryContent(bestLang: Language) {
 
         {/* Content section with background - starts below hero */}
         <div className="bg-surface">
-          <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-16 lg:px-8">
             <PageHeader
               title="Our Island, Our Story"
               subtitle="Settled by refugees from a volcanic eruption, immortalized by a poet's pen, and carried across oceans by whalers and dreamers — Brava's story begins here."

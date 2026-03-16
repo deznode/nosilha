@@ -22,6 +22,8 @@ interface PageHeaderProps {
    * @default true
    */
   centered?: boolean;
+  /** Additional classes for the subtitle paragraph (e.g. responsive visibility). */
+  subtitleClassName?: string;
   /**
    * Size variant for the header.
    * - "default": 3xl/4xl text (for section headers)
@@ -44,6 +46,7 @@ export function PageHeader({
   as: Heading = "h1",
   showAccentBar = true,
   centered = true,
+  subtitleClassName,
   size = "large",
 }: PageHeaderProps) {
   return (
@@ -51,7 +54,7 @@ export function PageHeader({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className={clsx("mb-12", centered ? "text-center" : "text-left")}
+      className={clsx("mb-4 sm:mb-12", centered ? "text-center" : "text-left")}
     >
       <Heading
         className={clsx(
@@ -65,7 +68,8 @@ export function PageHeader({
         <p
           className={clsx(
             "text-muted max-w-2xl font-sans text-lg leading-relaxed",
-            centered && "mx-auto"
+            centered && "mx-auto",
+            subtitleClassName
           )}
         >
           {subtitle}

@@ -16,7 +16,7 @@ export default async function PeoplePage() {
 
   return (
     <div className="bg-background-secondary min-h-screen font-sans">
-      <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-16 lg:px-8">
         <PageHeader
           title="Historical Figures"
           subtitle="The remarkable individuals who shaped Brava's cultural heritage"
