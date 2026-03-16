@@ -6,8 +6,7 @@ import { useMotionValueEvent, useScroll } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
-import { useScrollDirection } from "@/lib/hooks/use-scroll-direction";
-import { useMediaQuery } from "@/lib/hooks/use-media-query";
+import { useNavHidden } from "@/lib/hooks/use-nav-hidden";
 
 interface CollapsibleHeroProps {
   /** Title shown in the collapsed sticky bar */
@@ -37,8 +36,7 @@ export function CollapsibleHero({
 }: CollapsibleHeroProps) {
   const heroRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
-  const isMobile = useMediaQuery("(max-width: 767px)");
-  const direction = useScrollDirection(10);
+  const navHidden = useNavHidden();
   const [heroPassed, setHeroPassed] = useState(false);
 
   const { scrollYProgress } = useScroll({
@@ -51,7 +49,7 @@ export function CollapsibleHero({
   });
 
   // Show bar only when hero is scrolled away AND nav is hidden (scrolling down)
-  const showBar = isMobile && heroPassed && direction === "down";
+  const showBar = navHidden && heroPassed;
 
   const handleBack = () => {
     if (backHref) {

@@ -7,6 +7,7 @@ import { ViewToggle, type ViewMode } from "./view-toggle";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterBottomSheet } from "@/components/ui/filter-bottom-sheet";
 import { getCategoryDisplayName } from "@/lib/directory-utils";
+import { useNavHidden } from "@/lib/hooks/use-nav-hidden";
 
 export type SortBy = "rating" | "name";
 export type DirectoryCategory =
@@ -55,6 +56,7 @@ export function FilterToolbar({
   resultCount,
   onMapClick,
 }: FilterToolbarProps) {
+  const navHidden = useNavHidden();
   const showCategoryFilter = categories && selectedCategory && onCategoryChange;
   const [isTownSheetOpen, setIsTownSheetOpen] = useState(false);
   const [pendingTown, setPendingTown] = useState(selectedTown);
@@ -74,7 +76,12 @@ export function FilterToolbar({
   };
 
   return (
-    <div className="border-border-primary bg-background-primary/95 sticky top-12 z-40 border-b shadow-sm backdrop-blur-sm md:top-16">
+    <div
+      className={clsx(
+        "border-border-primary bg-background-primary/95 sticky z-40 border-b shadow-sm backdrop-blur-sm md:top-16",
+        navHidden ? "top-0" : "top-12"
+      )}
+    >
       <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 sm:py-4 lg:px-8">
         {/* ── Mobile Layout ── */}
         <div className="flex flex-col gap-2 md:hidden">

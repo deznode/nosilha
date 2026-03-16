@@ -2,8 +2,7 @@
 
 import type { ReactNode } from "react";
 import clsx from "clsx";
-import { useScrollDirection } from "@/lib/hooks/use-scroll-direction";
-import { useMediaQuery } from "@/lib/hooks/use-media-query";
+import { useNavHidden } from "@/lib/hooks/use-nav-hidden";
 
 interface NavVisibilityWrapperProps {
   children: ReactNode;
@@ -19,10 +18,7 @@ export function NavVisibilityWrapper({
   children,
   className,
 }: NavVisibilityWrapperProps) {
-  const direction = useScrollDirection(10);
-  const isMobile = useMediaQuery("(max-width: 767px)");
-
-  const hidden = isMobile && direction === "down";
+  const hidden = useNavHidden();
 
   return (
     <div className={clsx(className)}>

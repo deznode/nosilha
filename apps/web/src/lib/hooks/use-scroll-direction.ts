@@ -28,6 +28,15 @@ export function useScrollDirection(threshold: number = 10): ScrollDirection {
 
     const updateDirection = () => {
       const scrollY = window.scrollY;
+
+      // Always reset when at top of page (e.g., after navigation)
+      if (scrollY <= 0) {
+        setDirection(null);
+        lastScrollY.current = scrollY;
+        ticking.current = false;
+        return;
+      }
+
       const delta = scrollY - lastScrollY.current;
 
       if (Math.abs(delta) >= threshold) {

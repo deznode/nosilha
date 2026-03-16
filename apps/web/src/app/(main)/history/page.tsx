@@ -8,7 +8,6 @@ import Link from "next/link";
 import { PageHeader } from "@/components/ui/page-header";
 import { BackToTopButton } from "@/components/ui/back-to-top-button";
 import { ImageHeroSection } from "@/components/ui/image-hero-section";
-import { CollapsibleHero } from "@/components/ui/collapsible-hero";
 import { CitationSection } from "@/components/ui/citation-section";
 import { ImageWithCourtesy } from "@/components/ui/image-with-courtesy";
 import { PrintPageWrapper } from "@/components/ui/print-page-wrapper";
@@ -127,18 +126,14 @@ async function cachedHistoryContent(bestLang: Language) {
     <PrintPageWrapper>
       {/* Outer wrapper: -mt-16 pulls content up behind fixed header for transparent navbar effect */}
       <div className="relative -mt-16 font-sans">
-        {/* Image Hero - extends behind transparent header, collapses on mobile */}
-        <CollapsibleHero
-          title="History & Heritage"
-          backHref="/"
-          heightClass="h-[45vh] sm:h-[65vh] max-h-[600px]"
-        >
+        {/* Image Hero - extends behind transparent header */}
+        <div className="relative h-[45vh] max-h-[600px] w-full overflow-hidden sm:h-[65vh]">
           <ImageHeroSection
             imageSrc={hero.imageSrc}
             imageAlt="Historical timeline of Brava Island from discovery to present day"
             heightClass="h-full"
           />
-        </CollapsibleHero>
+        </div>
 
         {/* Content section with background - starts below hero */}
         <div className="bg-surface">

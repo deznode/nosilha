@@ -26,6 +26,7 @@ import { Select } from "@/components/ui/select";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FilterBottomSheet } from "@/components/ui/filter-bottom-sheet";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
+import { useNavHidden } from "@/lib/hooks/use-nav-hidden";
 import { mediaItemToPhoto } from "@/components/gallery/masonry-photo-grid";
 import { useGalleryInfiniteQuery } from "@/hooks/queries/useGalleryInfiniteQuery";
 import { getRandomGalleryMedia } from "@/lib/api";
@@ -98,6 +99,7 @@ export function GalleryContent({
 }: GalleryContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const navHidden = useNavHidden();
   const [activeTab, setActiveTab] = useState<"photos" | "videos">(initialTab);
   const [categoryFilter, setCategoryFilter] = useState<MediaCategory | "All">(
     initialCategory
@@ -409,7 +411,12 @@ export function GalleryContent({
       </div>
 
       {/* Sticky Toolbar */}
-      <div className="border-hairline bg-canvas shadow-subtle sticky top-12 z-30 border-b md:top-16">
+      <div
+        className={clsx(
+          "border-hairline bg-canvas shadow-subtle sticky z-30 border-b md:top-16",
+          navHidden ? "top-0" : "top-12"
+        )}
+      >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Row 1: Tabs + search icon + view toggle */}
           <div className="flex items-center justify-between">
