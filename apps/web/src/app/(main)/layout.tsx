@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { StickyNav } from "@/components/ui/sticky-nav";
+import { NavVisibilityWrapper } from "@/components/ui/nav-visibility-wrapper";
 import { Footer } from "@/components/ui/footer";
 import { MobileBottomNav } from "@/components/ui/mobile-bottom-nav";
 
@@ -26,7 +27,9 @@ export default function MainLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <Suspense>
-        <StickyNav className="print:hidden" />
+        <NavVisibilityWrapper>
+          <StickyNav className="print:hidden" />
+        </NavVisibilityWrapper>
       </Suspense>
       <main
         id="main-content"
