@@ -511,9 +511,9 @@ export function GalleryContent({
               )}
             </div>
 
-            {/* View Toggle (photos tab, desktop only — mobile uses chips in Row 2) */}
+            {/* View Toggle (photos tab only) */}
             {activeTab === "photos" && (
-              <div className="border-hairline hidden shrink-0 items-center gap-0.5 rounded-lg border p-0.5 md:flex">
+              <div className="border-hairline flex shrink-0 items-center gap-0.5 rounded-lg border p-0.5">
                 <button
                   onClick={() => handleViewChange("grid")}
                   aria-label="Grid view"
@@ -558,38 +558,11 @@ export function GalleryContent({
             )}
           </div>
 
-          {/* Row 2: Filter chips + view toggle (photos tab) */}
-          {activeTab === "photos" && (
+          {/* Row 2: Filter chips (photos tab, grid/map view only) */}
+          {activeTab === "photos" && activeView !== "timeline" && (
             <div className="border-hairline -mx-4 border-t px-4 sm:mx-0 sm:px-0">
-              {/* Mobile: chip bar with view toggle + filters */}
+              {/* Mobile: chip bar */}
               <div className="scrollbar-hide flex items-center gap-2 overflow-x-auto py-2 md:hidden">
-                {/* View toggle chips */}
-                <FilterChip
-                  label=""
-                  icon={<LayoutGrid size={14} />}
-                  active={activeView === "grid"}
-                  onClick={() => handleViewChange("grid")}
-                  aria-label="Grid view"
-                />
-                <FilterChip
-                  label=""
-                  icon={<CalendarDays size={14} />}
-                  active={activeView === "timeline"}
-                  onClick={() => handleViewChange("timeline")}
-                  aria-label="Timeline view"
-                />
-                <FilterChip
-                  label=""
-                  icon={<MapPin size={14} />}
-                  active={activeView === "map"}
-                  onClick={() => handleViewChange("map")}
-                  aria-label="Map view"
-                />
-
-                {/* Separator */}
-                <div className="bg-border-primary mx-0.5 h-5 w-px shrink-0" />
-
-                {/* Era + category filters */}
                 {ERA_OPTIONS.map((era) => (
                   <FilterChip
                     key={era.value}
@@ -617,13 +590,8 @@ export function GalleryContent({
                 )}
               </div>
 
-              {/* Desktop: selects (grid/map views only) */}
-              <div
-                className={clsx(
-                  "hidden items-center gap-3 py-2",
-                  activeView !== "timeline" ? "md:flex" : ""
-                )}
-              >
+              {/* Desktop: selects */}
+              <div className="hidden items-center gap-3 py-2 md:flex">
                 <Select
                   options={eraOptions}
                   value={decadeFilter}
