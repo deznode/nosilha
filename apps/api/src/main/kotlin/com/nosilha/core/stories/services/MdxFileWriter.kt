@@ -3,6 +3,7 @@ package com.nosilha.core.stories.services
 import com.nosilha.core.stories.events.MdxCommittedEvent
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.annotation.Lazy
 import org.springframework.modulith.events.ApplicationModuleListener
 import org.springframework.stereotype.Component
 import java.nio.file.Files
@@ -40,6 +41,7 @@ private val logger = KotlinLogging.logger {}
  * @property contentPath Base directory for MDX content files (configurable)
  */
 @Component
+@Lazy(false) // Must be eager — holds @ApplicationModuleListener (pure event sink, not injected by controllers)
 class MdxFileWriter(
     @Value("\${nosilha.content.path:content/stories}")
     private val contentPath: String,

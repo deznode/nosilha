@@ -120,6 +120,8 @@ tasks.withType<Test> {
 
 tasks.getByName<BootBuildImage>("bootBuildImage") {
     imageName.set("us-east1-docker.pkg.dev/nosilha/nosilha-backend/nosilha-core-api:${project.version}")
+    // TODO: Enable AppCDS when Paketo fixes Java 25 compatibility (track: paketo-buildpacks/spring-boot#581)
+    // environment.set(mapOf("BP_JVM_CDS_ENABLED" to "true"))
 }
 
 // Configure Spring Boot to generate build info for actuator

@@ -9,6 +9,7 @@ import com.nosilha.core.shared.events.MediaAnalysisRequestedEvent
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.context.annotation.Lazy
 import org.springframework.modulith.events.ApplicationModuleListener
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -29,6 +30,7 @@ private val logger = KotlinLogging.logger {}
  * NOT automatically applied to gallery media entities.
  */
 @Service
+@Lazy(false) // Must be eager — holds @ApplicationModuleListener (pure event sink, not injected by controllers)
 class ImageAnalysisOrchestrator(
     private val providers: List<ImageAnalysisProvider>,
     private val analysisRunRepository: AnalysisRunRepository,

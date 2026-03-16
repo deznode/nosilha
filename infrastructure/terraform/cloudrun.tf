@@ -33,6 +33,10 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
       max_instance_count = 3 # Limit maximum instances (matches CI/CD config)
     }
 
+    # Startup CPU Boost: allocate extra CPU during startup to reduce cold start time
+    # Reverts to normal CPU allocation after startup probe passes
+    startup_cpu_boost = true
+
     containers {
       # The full path to the container image in Artifact Registry.
       # Uses latest tag - actual deployments handled by CI/CD
