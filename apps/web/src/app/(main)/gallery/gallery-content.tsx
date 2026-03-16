@@ -395,7 +395,7 @@ export function GalleryContent({
                 className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-subtle flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95"
               >
                 <Plus size={18} />
-                Add to Archive
+                <span className="hidden sm:inline">Add to Archive</span>
               </Link>
             </div>
           </div>
@@ -540,17 +540,20 @@ export function GalleryContent({
               />
             ) : (
               <>
-                {/* Featured Photo of the Day */}
-                {featuredPhoto && (
+                {/* Featured Photo of the Day — hidden when filtering */}
+                {!hasActiveFilters && !debouncedQuery && featuredPhoto && (
                   <div className="mb-6">
                     <FeaturedPhotoCard photo={featuredPhoto} />
                   </div>
                 )}
 
-                {/* Weekly Discovery */}
-                {weeklyPhotos && weeklyPhotos.length >= 3 && (
-                  <WeeklyDiscoverySection photos={weeklyPhotos} />
-                )}
+                {/* Weekly Discovery — hidden when filtering */}
+                {!hasActiveFilters &&
+                  !debouncedQuery &&
+                  weeklyPhotos &&
+                  weeklyPhotos.length >= 3 && (
+                    <WeeklyDiscoverySection photos={weeklyPhotos} />
+                  )}
 
                 {/* Filter Bar */}
                 <div className="mb-6 flex flex-wrap items-center gap-3">

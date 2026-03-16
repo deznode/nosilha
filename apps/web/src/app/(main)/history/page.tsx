@@ -130,7 +130,7 @@ async function cachedHistoryContent(bestLang: Language) {
         <ImageHeroSection
           imageSrc={hero.imageSrc}
           imageAlt="Historical timeline of Brava Island from discovery to present day"
-          heightClass="h-[65vh]"
+          heightClass="h-[45vh] sm:h-[65vh]"
           maxHeightClass="max-h-[600px]"
         />
 

@@ -182,17 +182,17 @@ All quick wins implemented and verified via Playwright on iPhone SE (390x667) vi
 
 **Note**: QW14 added a `subtitleClassName` prop to `PageHeader` (instead of a raw 1-line change) to keep the component API clean for future per-page subtitle overrides. This also partially addresses M8.
 
-### Medium Improvements (component-level refactoring)
+### Medium Improvements (component-level refactoring) — M1, M2, M4, M6, M7 DONE 2026-03-16
 
-| # | Change | Files | Space Saved | Effort |
+| # | Change | Files | Space Saved | Status |
 |---|--------|-------|-------------|--------|
-| M1 | Directory "Add Location" → icon-only on mobile or move to FilterToolbar | `directory-category-page-content.tsx` | 44px | Small component change |
-| M2 | Gallery "Add to Archive" → icon-only on mobile (match "Surprise Me" pattern) | `gallery-content.tsx` | ~20px | Small |
-| M3 | Gallery: integrate search into sticky tabs bar | `gallery-content.tsx` | ~48px (removes separate block) | Medium refactor |
-| M4 | Gallery: suppress FeaturedPhoto + WeeklyDiscovery when filters active | `gallery-content.tsx` | ~350px when filtering | 4 lines of conditionals |
-| M5 | FilterToolbar: merge "Showing X / View on Map" into search row | `filter-toolbar.tsx` | 36px | Small refactor |
-| M6 | History: reduce `ImageHeroSection` to `h-[45vh]` or `h-[50vh]` on mobile | `history/page.tsx` or `image-hero-section.tsx` | ~130px | 1 prop change |
-| M7 | Directory detail: reduce parallax hero `h-[60vh]` → `h-[45vh]` on mobile | `directory-entry-detail-page-content.tsx` | ~130px | Small |
+| M1 | Directory "Add Location" → icon-only on mobile (`hidden sm:inline`) | `directory-category-page-content.tsx` | 44px | Done |
+| M2 | Gallery "Add to Archive" → icon-only on mobile (matches "Surprise Me" pattern) | `gallery-content.tsx` | ~20px | Done |
+| M3 | Gallery: integrate search into sticky tabs bar | `gallery-content.tsx` | ~48px (removes separate block) | Open |
+| M4 | Gallery: suppress FeaturedPhoto + WeeklyDiscovery when filters active | `gallery-content.tsx` | ~350px when filtering | Done |
+| M5 | FilterToolbar: merge "Showing X / View on Map" into search row | `filter-toolbar.tsx` | 36px | Open |
+| M6 | History: reduce hero to `h-[45vh] sm:h-[65vh]` on mobile | `history/page.tsx` | ~130px | Done |
+| M7 | Directory detail: reduce parallax hero to `h-[45vh] sm:h-[60vh]` on mobile | `directory-entry-detail-page-content.tsx` | ~130px | Done |
 | M8 | `PageHeader` accept `className` prop for responsive `mb-*` override per-page | `page-header.tsx` | Flexibility | Partially done (subtitleClassName added in QW14) |
 
 ### Larger Improvements (new patterns/components)
@@ -217,8 +217,8 @@ All quick wins implemented and verified via Playwright on iPhone SE (390x667) vi
 ## Priority Order
 
 1. ~~**Quick wins QW1-QW21** — ~25 lines, ~400-500px total improvement, zero risk~~ **DONE 2026-03-16**
-2. **M4** (suppress gallery editorial content when filtering) — 4 lines, massive impact
-3. **M1/M2** (icon-only CTAs on mobile) — small changes, good space savings
-4. **M6/M7** (reduce hero heights on mobile) — big visual impact
+2. ~~**M4** (suppress gallery editorial content when filtering) — 4 lines, massive impact~~ **DONE 2026-03-16**
+3. ~~**M1/M2** (icon-only CTAs on mobile) — small changes, good space savings~~ **DONE 2026-03-16**
+4. ~~**M6/M7** (reduce hero heights on mobile) — big visual impact~~ **DONE 2026-03-16**
 5. **L1** (FilterToolbar bottom sheet) — biggest single improvement for Directory UX
 6. **L2** (hide-on-scroll headers) — universal improvement across browsing pages

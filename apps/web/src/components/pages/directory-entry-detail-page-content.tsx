@@ -108,7 +108,7 @@ export function DirectoryEntryDetailPageContent({
       className="bg-background-secondary min-h-screen pb-24 font-sans md:pb-12"
     >
       {/* Parallax Hero */}
-      <div className="relative h-[60vh] min-h-[400px] w-full overflow-hidden">
+      <div className="relative h-[45vh] min-h-[300px] w-full overflow-hidden sm:h-[60vh] sm:min-h-[400px]">
         <motion.div style={{ y }} className="absolute inset-0 h-[120%] w-full">
           {entry.imageUrl ? (
             <Image
