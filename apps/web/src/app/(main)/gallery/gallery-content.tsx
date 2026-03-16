@@ -8,15 +8,14 @@ import {
   Image as ImageIcon,
   Play,
   Plus,
-  Clock,
   Search,
   X,
-  Filter,
   Shuffle,
   Loader2,
   LayoutGrid,
   CalendarDays,
   MapPin,
+  Check,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { MasonryPhotoGrid, VideoSection } from "@/components/gallery";
@@ -24,6 +23,8 @@ import { FeaturedPhotoCard } from "@/components/gallery/featured-photo-card";
 import { WeeklyDiscoverySection } from "@/components/gallery/weekly-discovery-section";
 import { TimelineView } from "@/components/gallery/timeline-view";
 import { Select } from "@/components/ui/select";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FilterBottomSheet } from "@/components/ui/filter-bottom-sheet";
 import { ImageLightbox } from "@/components/ui/image-lightbox";
 import { mediaItemToPhoto } from "@/components/gallery/masonry-photo-grid";
 import { useGalleryInfiniteQuery } from "@/hooks/queries/useGalleryInfiniteQuery";
@@ -116,6 +117,11 @@ export function GalleryContent({
     lng: number;
     photoId: string;
   } | null>(null);
+  const [isSearchExpanded, setIsSearchExpanded] = useState(!!initialQuery);
+  const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
+  const [pendingCategory, setPendingCategory] = useState<MediaCategory | "All">(
+    initialCategory
+  );
 
   const handleSurpriseMe = async () => {
     setSurpriseLoading(true);
@@ -402,38 +408,107 @@ export function GalleryContent({
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Sticky Toolbar */}
       <div className="border-hairline bg-canvas shadow-subtle sticky top-16 z-30 border-b">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {/* Row 1: Tabs + search icon + view toggle */}
           <div className="flex items-center justify-between">
-            <div className="flex space-x-8">
+            <div className="flex min-w-0 flex-1 space-x-8">
               <button
                 onClick={() => handleTabChange("photos")}
                 className={clsx(
-                  "flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium",
+                  "flex shrink-0 items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium",
                   activeTab === "photos"
                     ? "border-ocean-blue text-ocean-blue"
                     : "text-muted hover:border-hairline hover:text-body border-transparent"
                 )}
               >
-                <ImageIcon size={18} /> Photo Gallery ({photos.length})
+                <ImageIcon size={18} />
+                <span className={clsx(isSearchExpanded && "hidden sm:inline")}>
+                  Photo Gallery ({photos.length})
+                </span>
               </button>
               <button
                 onClick={() => handleTabChange("videos")}
                 className={clsx(
-                  "flex items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium",
+                  "flex shrink-0 items-center gap-2 border-b-2 px-1 py-4 text-sm font-medium",
                   activeTab === "videos"
                     ? "border-bougainvillea-pink text-bougainvillea-pink"
                     : "text-muted hover:border-hairline hover:text-body border-transparent"
                 )}
               >
-                <Play size={18} /> Video & Podcasts ({videos.length})
+                <Play size={18} />
+                <span className={clsx(isSearchExpanded && "hidden sm:inline")}>
+                  Video & Podcasts ({videos.length})
+                </span>
               </button>
+
+              {/* Inline search (mobile: expandable, desktop: always visible) */}
+              {isSearchExpanded ? (
+                <div className="flex min-w-0 flex-1 items-center gap-1 py-2">
+                  <div className="relative min-w-0 flex-1">
+                    <Search
+                      size={16}
+                      className="text-muted pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2"
+                    />
+                    <input
+                      type="search"
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                      placeholder="Search..."
+                      autoFocus
+                      className="border-hairline bg-surface text-body placeholder:text-muted focus:border-ocean-blue focus:ring-ocean-blue/20 rounded-button w-full border py-1.5 pr-8 pl-8 text-sm transition-colors focus:ring-2 focus:outline-none"
+                    />
+                    <button
+                      onClick={() => {
+                        clearSearch();
+                        setIsSearchExpanded(false);
+                      }}
+                      className="text-muted hover:text-body absolute top-1/2 right-2 -translate-y-1/2"
+                      aria-label="Close search"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setIsSearchExpanded(true)}
+                  className="text-muted hover:text-body flex shrink-0 items-center self-center p-2 md:hidden"
+                  aria-label="Search"
+                >
+                  <Search size={18} />
+                </button>
+              )}
+            </div>
+
+            {/* Desktop search (always visible) */}
+            <div className="relative mx-4 hidden w-56 md:block">
+              <Search
+                size={16}
+                className="text-muted pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2"
+              />
+              <input
+                type="search"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="Search photos, videos..."
+                className="border-hairline bg-surface text-body placeholder:text-muted focus:border-ocean-blue focus:ring-ocean-blue/20 rounded-button w-full border py-1.5 pr-8 pl-8 text-sm transition-colors focus:ring-2 focus:outline-none"
+              />
+              {searchInput && (
+                <button
+                  onClick={clearSearch}
+                  className="text-muted hover:text-body absolute top-1/2 right-2 -translate-y-1/2"
+                  aria-label="Clear search"
+                >
+                  <X size={16} />
+                </button>
+              )}
             </div>
 
             {/* View Toggle (photos tab only) */}
             {activeTab === "photos" && (
-              <div className="border-hairline flex items-center gap-0.5 rounded-lg border p-0.5">
+              <div className="border-hairline flex shrink-0 items-center gap-0.5 rounded-lg border p-0.5">
                 <button
                   onClick={() => handleViewChange("grid")}
                   aria-label="Grid view"
@@ -477,42 +552,117 @@ export function GalleryContent({
               </div>
             )}
           </div>
+
+          {/* Row 2: Filter chips (photos tab, grid/map view only) */}
+          {activeTab === "photos" && activeView !== "timeline" && (
+            <div className="border-hairline -mx-4 border-t px-4 sm:mx-0 sm:px-0">
+              {/* Mobile: chip bar */}
+              <div className="scrollbar-hide flex items-center gap-2 overflow-x-auto py-2 md:hidden">
+                {ERA_OPTIONS.map((era) => (
+                  <FilterChip
+                    key={era.value}
+                    label={era.label}
+                    active={decadeFilter === era.value}
+                    count={eraCounts.get(era.value)}
+                    onClick={() => handleDecadeChange(era.value)}
+                  />
+                ))}
+                <FilterChip
+                  label={categoryFilter === "All" ? "Category" : categoryFilter}
+                  active={categoryFilter !== "All"}
+                  onClick={() => {
+                    setPendingCategory(categoryFilter);
+                    setIsCategorySheetOpen(true);
+                  }}
+                  onClear={
+                    categoryFilter !== "All"
+                      ? () => handleCategoryChange("All")
+                      : undefined
+                  }
+                />
+                {hasActiveFilters && (
+                  <FilterChip label="Clear" onClick={clearAllFilters} />
+                )}
+              </div>
+
+              {/* Desktop: selects */}
+              <div className="hidden items-center gap-3 py-2 md:flex">
+                <Select
+                  options={eraOptions}
+                  value={decadeFilter}
+                  onChange={(val) => handleDecadeChange(val as DecadeFilter)}
+                  name="era-filter"
+                />
+                <Select
+                  options={categoryOptions}
+                  value={categoryFilter}
+                  onChange={(val) =>
+                    handleCategoryChange(val as MediaCategory | "All")
+                  }
+                  name="category-filter"
+                />
+                {hasActiveFilters && (
+                  <button
+                    onClick={clearAllFilters}
+                    className="text-muted hover:text-body flex items-center gap-1 text-sm transition-colors"
+                  >
+                    <X size={14} />
+                    Clear filters
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Search status (inline) */}
+          {debouncedQuery && (
+            <p
+              className="text-muted border-hairline border-t py-1.5 text-xs"
+              role="status"
+            >
+              {formatSearchStatus(
+                debouncedQuery,
+                activeTab === "photos" ? photos.length : videos.length
+              )}
+            </p>
+          )}
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Search Bar */}
-        <div className="relative mb-6">
-          <Search
-            size={18}
-            className="text-muted pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
-          />
-          <input
-            type="search"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder="Search photos, videos, locations..."
-            className="border-hairline bg-surface text-body placeholder:text-muted-foreground focus:border-ocean-blue focus:ring-ocean-blue/20 rounded-button w-full border py-3 pr-10 pl-10 text-sm transition-colors focus:ring-2 focus:outline-none dark:border-white/15 dark:bg-white/5"
-          />
-          {searchInput && (
+      {/* Category Bottom Sheet (mobile) */}
+      <FilterBottomSheet
+        isOpen={isCategorySheetOpen}
+        onClose={() => setIsCategorySheetOpen(false)}
+        title="Select Category"
+        onApply={() => {
+          handleCategoryChange(pendingCategory);
+          setIsCategorySheetOpen(false);
+        }}
+        onClear={() => setPendingCategory("All")}
+      >
+        <div className="flex flex-col">
+          {(["All", ...resolvedCategories] as string[]).map((cat) => (
             <button
-              onClick={clearSearch}
-              className="text-muted hover:text-body absolute top-1/2 right-3 -translate-y-1/2"
-              aria-label="Clear search"
+              key={cat}
+              type="button"
+              onClick={() => setPendingCategory(cat as MediaCategory | "All")}
+              className={clsx(
+                "flex items-center justify-between px-2 py-3 text-left text-sm transition-colors",
+                pendingCategory === cat
+                  ? "text-ocean-blue font-medium"
+                  : "text-body"
+              )}
             >
-              <X size={18} />
+              <span>{cat === "All" ? "All Categories" : cat}</span>
+              {pendingCategory === cat && (
+                <Check size={18} className="text-ocean-blue shrink-0" />
+              )}
             </button>
-          )}
+          ))}
         </div>
-        {debouncedQuery && (
-          <p className="text-muted -mt-4 mb-4 text-sm" role="status">
-            {formatSearchStatus(
-              debouncedQuery,
-              activeTab === "photos" ? photos.length : videos.length
-            )}
-          </p>
-        )}
+      </FilterBottomSheet>
 
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Photo Gallery */}
         {activeTab === "photos" && (
           <>
@@ -554,51 +704,6 @@ export function GalleryContent({
                   weeklyPhotos.length >= 3 && (
                     <WeeklyDiscoverySection photos={weeklyPhotos} />
                   )}
-
-                {/* Filter Bar */}
-                <div className="mb-6 flex flex-wrap items-center gap-3">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-muted flex items-center text-sm font-medium whitespace-nowrap">
-                      <Clock size={14} className="mr-1" />
-                      Era:
-                    </span>
-                    <div className="w-52">
-                      <Select
-                        options={eraOptions}
-                        value={decadeFilter}
-                        onChange={(val) =>
-                          handleDecadeChange(val as DecadeFilter)
-                        }
-                        name="era-filter"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-muted flex items-center text-sm font-medium whitespace-nowrap">
-                      <Filter size={14} className="mr-1" />
-                      Category:
-                    </span>
-                    <div className="w-52">
-                      <Select
-                        options={categoryOptions}
-                        value={categoryFilter}
-                        onChange={(val) =>
-                          handleCategoryChange(val as MediaCategory | "All")
-                        }
-                        name="category-filter"
-                      />
-                    </div>
-                  </div>
-                  {hasActiveFilters && (
-                    <button
-                      onClick={clearAllFilters}
-                      className="text-muted hover:text-body flex items-center gap-1 text-sm transition-colors"
-                    >
-                      <X size={14} />
-                      Clear filters
-                    </button>
-                  )}
-                </div>
 
                 <MasonryPhotoGrid
                   photos={photos}
