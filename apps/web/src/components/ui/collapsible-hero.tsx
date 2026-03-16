@@ -1,10 +1,11 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useRef, useState } from "react";
+import { useMotionValueEvent, useScroll } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import clsx from "clsx";
+import { useScrollDirection } from "@/lib/hooks/use-scroll-direction";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 
 interface CollapsibleHeroProps {
@@ -21,7 +22,9 @@ interface CollapsibleHeroProps {
 }
 
 /**
- * A hero section that smoothly collapses into a 48px sticky bar on scroll (mobile only).
+ * A hero section that collapses into a 48px sticky bar once the hero
+ * is fully scrolled out of view AND the nav is hidden (mobile only).
+ * The bar replaces the nav space rather than stacking below it.
  * Desktop keeps the full hero with no collapse behavior.
  */
 export function CollapsibleHero({
@@ -33,16 +36,20 @@ export function CollapsibleHero({
 }: CollapsibleHeroProps) {
   const heroRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery("(max-width: 767px)");
+  const direction = useScrollDirection(10);
+  const [heroPassed, setHeroPassed] = useState(false);
 
   const { scrollYProgress } = useScroll({
     target: heroRef,
     offset: ["start start", "end start"],
   });
 
-  // On mobile: interpolate from full opacity to 0 as hero scrolls away
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-  // Collapsed bar appears as hero scrolls away
-  const barOpacity = useTransform(scrollYProgress, [0.6, 0.9], [0, 1]);
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    setHeroPassed(latest >= 0.95);
+  });
+
+  // Show bar only when hero is scrolled away AND nav is hidden (scrolling down)
+  const showBar = isMobile && heroPassed && direction === "down";
 
   const handleBack = () => {
     if (backHref) {
@@ -56,24 +63,12 @@ export function CollapsibleHero({
     <div ref={heroRef} className={clsx("relative", className)}>
       {/* Full hero */}
       <div className={clsx("relative w-full overflow-hidden", heightClass)}>
-        {isMobile ? (
-          <motion.div
-            style={{ opacity: heroOpacity }}
-            className="h-full w-full"
-          >
-            {children}
-          </motion.div>
-        ) : (
-          children
-        )}
+        {children}
       </div>
 
-      {/* Collapsed sticky bar (mobile only) */}
-      {isMobile && (
-        <motion.div
-          style={{ opacity: barOpacity }}
-          className="bg-surface/95 border-hairline pointer-events-auto fixed top-[var(--nav-offset,64px)] right-0 left-0 z-40 flex h-12 items-center gap-3 border-b px-4 shadow-sm backdrop-blur-sm"
-        >
+      {/* Collapsed sticky bar — replaces nav when hero is gone and nav hides */}
+      {showBar && (
+        <div className="bg-surface border-hairline fixed top-0 right-0 left-0 z-50 flex h-12 items-center gap-3 border-b px-4 shadow-sm">
           <button
             onClick={handleBack}
             className="text-body hover:text-brand -ml-1 flex shrink-0 items-center rounded-full p-1 transition-colors"
@@ -82,7 +77,7 @@ export function CollapsibleHero({
             <ArrowLeft size={20} />
           </button>
           <h2 className="text-body truncate text-sm font-semibold">{title}</h2>
-        </motion.div>
+        </div>
       )}
     </div>
   );
