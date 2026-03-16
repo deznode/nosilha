@@ -33,10 +33,6 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
       max_instance_count = 3 # Limit maximum instances (matches CI/CD config)
     }
 
-    # Startup CPU Boost: allocate extra CPU during startup to reduce cold start time
-    # Reverts to normal CPU allocation after startup probe passes
-    startup_cpu_boost = true
-
     containers {
       # The full path to the container image in Artifact Registry.
       # Uses latest tag - actual deployments handled by CI/CD
@@ -49,7 +45,8 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
           cpu    = "1000m" # 1 vCPU max for free tier
           memory = "1Gi"   # Increased from 512Mi to accommodate JVM memory requirements (693MB needed)
         }
-        cpu_idle = true # CPU only allocated during request processing
+        cpu_idle          = true # CPU only allocated during request processing
+        startup_cpu_boost = true # Extra CPU during startup to reduce cold start time
       }
 
       # Request timeout for backend API calls

@@ -112,8 +112,10 @@ Two pure-sink `@ApplicationModuleListener` beans that are never injected by cont
 
 **4. Cloud Run Startup CPU Boost** (`cloudrun.tf`):
 ```hcl
-template {
-  startup_cpu_boost = true
+containers {
+  resources {
+    startup_cpu_boost = true
+  }
 }
 ```
 
