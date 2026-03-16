@@ -409,7 +409,7 @@ export function GalleryContent({
       </div>
 
       {/* Sticky Toolbar */}
-      <div className="border-hairline bg-canvas shadow-subtle sticky top-16 z-30 border-b">
+      <div className="border-hairline bg-canvas shadow-subtle sticky top-12 z-30 border-b md:top-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Row 1: Tabs + search icon + view toggle */}
           <div className="flex items-center justify-between">

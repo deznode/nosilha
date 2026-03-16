@@ -33,7 +33,7 @@ export default function MainLayout({
       </Suspense>
       <main
         id="main-content"
-        className="animate-fade-in flex-grow pt-16 pb-16 lg:pb-0"
+        className="animate-fade-in flex-grow pt-12 pb-16 md:pt-16 lg:pb-0"
       >
         {children}
       </main>

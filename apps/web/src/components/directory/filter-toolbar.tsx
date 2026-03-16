@@ -74,7 +74,7 @@ export function FilterToolbar({
   };
 
   return (
-    <div className="border-border-primary bg-background-primary/95 sticky top-16 z-40 border-b shadow-sm backdrop-blur-sm">
+    <div className="border-border-primary bg-background-primary/95 sticky top-12 z-40 border-b shadow-sm backdrop-blur-sm md:top-16">
       <div className="mx-auto max-w-7xl px-4 py-2 sm:px-6 sm:py-4 lg:px-8">
         {/* ── Mobile Layout ── */}
         <div className="flex flex-col gap-2 md:hidden">
