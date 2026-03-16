@@ -197,6 +197,7 @@ export function DirectoryCategoryPageContent({
               title={pageTitle}
               subtitle={subtitle}
               subtitleClassName="hidden sm:block"
+              size="compact"
             />
             <Link
               href="/contribute/directory"

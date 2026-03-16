@@ -32,7 +32,7 @@ interface PageHeaderProps {
    * - "large": 4xl/5xl text (for page titles)
    * @default "large"
    */
-  size?: "default" | "large";
+  size?: "default" | "large" | "compact";
 }
 
 /**
@@ -58,7 +58,7 @@ export function PageHeader({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
       className={clsx(
-        "mb-4 sm:mb-12",
+        size === "compact" ? "mb-2 sm:mb-8" : "mb-4 sm:mb-12",
         centered ? "text-center" : "text-left",
         className
       )}
@@ -66,7 +66,11 @@ export function PageHeader({
       <Heading
         className={clsx(
           "text-ocean-blue mb-4 font-serif font-bold",
-          size === "large" ? "text-4xl sm:text-5xl" : "text-3xl md:text-4xl"
+          size === "large"
+            ? "text-4xl sm:text-5xl"
+            : size === "compact"
+              ? "text-2xl sm:text-3xl"
+              : "text-3xl md:text-4xl"
         )}
       >
         {title}
@@ -74,7 +78,8 @@ export function PageHeader({
       {subtitle && (
         <p
           className={clsx(
-            "text-muted max-w-2xl font-sans text-lg leading-relaxed",
+            "text-muted max-w-2xl font-sans leading-relaxed",
+            size === "compact" ? "text-base" : "text-lg",
             centered && "mx-auto",
             subtitleClassName
           )}
@@ -89,7 +94,8 @@ export function PageHeader({
           transition={{ duration: 0.6, delay: 0.3 }}
           className={clsx(
             "bg-bougainvillea-pink mt-4 h-1 w-24 rounded-full",
-            centered && "mx-auto"
+            centered && "mx-auto",
+            size === "compact" && "hidden sm:block"
           )}
         />
       )}

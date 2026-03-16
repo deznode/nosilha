@@ -15,6 +15,7 @@ export function AboutPageContent() {
         <PageHeader
           title="About Nos Ilha"
           subtitle="A community-driven platform celebrating the cultural heritage and natural beauty of Brava Island, Cape Verde."
+          size="compact"
         />
 
         {/* Hero Section */}

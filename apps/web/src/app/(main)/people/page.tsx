@@ -20,6 +20,7 @@ export default async function PeoplePage() {
         <PageHeader
           title="Historical Figures"
           subtitle="The remarkable individuals who shaped Brava's cultural heritage"
+          size="compact"
         />
 
         <PeopleGrid people={peoplePages} />

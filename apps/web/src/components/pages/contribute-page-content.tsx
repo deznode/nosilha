@@ -28,6 +28,7 @@ export function ContributePageContent() {
         <PageHeader
           title="Contribute to Nos Ilha"
           subtitle="Help us build the most comprehensive guide to Brava Island by sharing your knowledge, photos, and experiences."
+          size="compact"
         />
 
         {/* Hero Section */}
