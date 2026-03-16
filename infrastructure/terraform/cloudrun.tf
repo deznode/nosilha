@@ -45,7 +45,8 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
           cpu    = "1000m" # 1 vCPU max for free tier
           memory = "1Gi"   # Increased from 512Mi to accommodate JVM memory requirements (693MB needed)
         }
-        cpu_idle = true # CPU only allocated during request processing
+        cpu_idle          = true # CPU only allocated during request processing
+        startup_cpu_boost = true # Extra CPU during startup to reduce cold start time
       }
 
       # Request timeout for backend API calls

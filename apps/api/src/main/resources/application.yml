@@ -11,6 +11,15 @@ spring:
   application:
     name: nosilha-core-api
 
+  # Lazy bean initialization reduces cold start time on Cloud Run (beans created on first use)
+  main:
+    lazy-initialization: true
+
+  # Virtual threads reduce blocking I/O overhead (Project Loom, Java 25)
+  threads:
+    virtual:
+      enabled: true
+
   # Disable Docker Compose auto-detection in production/default profile
   # Explicitly enabled in application-local.yml for local development
   docker:
