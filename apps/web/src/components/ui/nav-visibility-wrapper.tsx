@@ -12,7 +12,8 @@ interface NavVisibilityWrapperProps {
 
 /**
  * Wraps StickyNav to hide on scroll-down and show on scroll-up (mobile only).
- * Sets CSS custom property `--nav-offset` so sticky children can track position.
+ * Only applies -translate-y-full when hiding to avoid creating a containing
+ * block that would break StickyNav's position: fixed.
  */
 export function NavVisibilityWrapper({
   children,
@@ -22,17 +23,13 @@ export function NavVisibilityWrapper({
   const isMobile = useMediaQuery("(max-width: 767px)");
 
   const hidden = isMobile && direction === "down";
-  const navOffset = hidden ? "0px" : "64px";
 
   return (
-    <div
-      className={clsx(className)}
-      style={{ "--nav-offset": navOffset } as React.CSSProperties}
-    >
+    <div className={clsx(className)}>
       <div
         className={clsx(
           "transition-transform duration-300",
-          hidden ? "-translate-y-full" : "translate-y-0"
+          hidden && "-translate-y-full"
         )}
         style={{ transitionTimingFunction: "cubic-bezier(0.16, 1, 0.3, 1)" }}
       >
