@@ -211,11 +211,14 @@ export function MobileBottomNav() {
                     title={lang.disabled ? "Coming soon" : undefined}
                     className={clsx(
                       "flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
-                      lang.disabled
-                        ? "border-hairline text-muted cursor-not-allowed opacity-40"
-                        : currentLang.code === lang.code
-                          ? "border-ocean-blue bg-ocean-blue text-white"
-                          : "border-hairline text-body hover:border-ocean-blue"
+                      lang.disabled &&
+                        "border-hairline text-muted cursor-not-allowed opacity-40",
+                      !lang.disabled &&
+                        currentLang.code === lang.code &&
+                        "border-ocean-blue bg-ocean-blue text-white",
+                      !lang.disabled &&
+                        currentLang.code !== lang.code &&
+                        "border-hairline text-body hover:border-ocean-blue"
                     )}
                   >
                     <span>{lang.flag}</span>

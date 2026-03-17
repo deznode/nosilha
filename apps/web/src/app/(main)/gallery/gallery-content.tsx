@@ -17,7 +17,7 @@ import {
   MapPin,
   Check,
 } from "lucide-react";
-import { clsx } from "clsx";
+import clsx from "clsx";
 import { MasonryPhotoGrid, VideoSection } from "@/components/gallery";
 import { FeaturedPhotoCard } from "@/components/gallery/featured-photo-card";
 import { WeeklyDiscoverySection } from "@/components/gallery/weekly-discovery-section";
@@ -64,6 +64,28 @@ function formatSearchStatus(query: string, totalItems: number): string {
   }
   const plural = totalItems !== 1 ? "s" : "";
   return `${totalItems} result${plural} for \u201c${query}\u201d`;
+}
+
+/** Extracts a 4-digit year from either an ISO date or an approximate date string. */
+function extractYear(
+  dateTaken: string | null | undefined,
+  approximateDate: string | null | undefined
+): number | null {
+  if (dateTaken) {
+    return new Date(dateTaken).getFullYear();
+  }
+  if (approximateDate) {
+    return parseInt(approximateDate.match(/(\d{4})/)?.[1] ?? "0", 10) || null;
+  }
+  return null;
+}
+
+/** Maps a year to its corresponding era filter bucket. */
+function yearToEra(year: number): DecadeFilter {
+  if (year < 1975) return "pre-1975";
+  if (year < 1990) return "1975-1990";
+  if (year < 2010) return "1990-2010";
+  return "2010-plus";
 }
 
 const ERA_OPTIONS: { value: DecadeFilter; label: string }[] = [
@@ -296,22 +318,11 @@ export function GalleryContent({
     const counts = new Map<DecadeFilter, number>();
     counts.set("all", photos.length);
     for (const photo of photos) {
-      const year = photo.dateTaken
-        ? new Date(photo.dateTaken).getFullYear()
-        : photo.approximateDate
-          ? parseInt(photo.approximateDate.match(/(\d{4})/)?.[1] ?? "0", 10)
-          : null;
-      if (year && year > 0) {
-        if (year < 1975) {
-          counts.set("pre-1975", (counts.get("pre-1975") ?? 0) + 1);
-        } else if (year < 1990) {
-          counts.set("1975-1990", (counts.get("1975-1990") ?? 0) + 1);
-        } else if (year < 2010) {
-          counts.set("1990-2010", (counts.get("1990-2010") ?? 0) + 1);
-        } else {
-          counts.set("2010-plus", (counts.get("2010-plus") ?? 0) + 1);
-        }
-      }
+      const year = extractYear(photo.dateTaken, photo.approximateDate);
+      if (year === null || year <= 0) continue;
+
+      const era = yearToEra(year);
+      counts.set(era, (counts.get(era) ?? 0) + 1);
     }
     return counts;
   }, [photos]);
@@ -434,10 +445,7 @@ export function GalleryContent({
                 <span>
                   Photos
                   <span
-                    className={clsx(
-                      "hidden sm:inline",
-                      isSearchExpanded && "!hidden"
-                    )}
+                    className={isSearchExpanded ? "hidden" : "hidden sm:inline"}
                   >
                     {" "}
                     ({photos.length})
@@ -457,10 +465,7 @@ export function GalleryContent({
                 <span>
                   Videos
                   <span
-                    className={clsx(
-                      "hidden sm:inline",
-                      isSearchExpanded && "!hidden"
-                    )}
+                    className={isSearchExpanded ? "hidden" : "hidden sm:inline"}
                   >
                     {" "}
                     ({videos.length})

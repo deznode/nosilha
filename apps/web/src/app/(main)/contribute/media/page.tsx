@@ -3,7 +3,7 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { clsx } from "clsx";
+import clsx from "clsx";
 import {
   ArrowLeft,
   Image as ImageIcon,

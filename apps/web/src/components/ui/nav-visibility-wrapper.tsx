@@ -21,7 +21,7 @@ export function NavVisibilityWrapper({
   const hidden = useNavHidden();
 
   return (
-    <div className={clsx(className)}>
+    <div className={className}>
       <div
         className={clsx(
           "transition-transform duration-300",

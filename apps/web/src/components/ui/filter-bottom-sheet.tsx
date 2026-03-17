@@ -32,6 +32,22 @@ export function FilterBottomSheet({
       if (e.key === "Escape") {
         e.stopPropagation();
         onClose();
+        return;
+      }
+      if (e.key === "Tab" && sheetRef.current) {
+        const focusable = sheetRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     },
     [onClose]

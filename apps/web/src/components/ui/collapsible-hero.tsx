@@ -2,10 +2,10 @@
 
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useMotionValueEvent, useScroll } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import clsx from "clsx";
-import { useRouter } from "next/navigation";
 import { useNavHidden } from "@/lib/hooks/use-nav-hidden";
 
 interface CollapsibleHeroProps {

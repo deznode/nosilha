@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Menu,
   MenuButton,
@@ -22,8 +24,6 @@ import {
   Shield,
   type LucideIcon,
 } from "lucide-react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
 
 import { NosilhaLogo } from "./logo";
@@ -302,12 +302,13 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
                       disabled={lang.disabled}
                       title={lang.disabled ? "Coming soon" : undefined}
                       className={clsx(
-                        lang.disabled
-                          ? "text-text-tertiary cursor-not-allowed opacity-50"
-                          : active
-                            ? "bg-background-secondary text-ocean-blue"
-                            : "text-text-primary",
-                        "group flex w-full items-center justify-between px-4 py-2 text-sm"
+                        "group flex w-full items-center justify-between px-4 py-2 text-sm",
+                        lang.disabled &&
+                          "text-text-tertiary cursor-not-allowed opacity-50",
+                        !lang.disabled &&
+                          active &&
+                          "bg-background-secondary text-ocean-blue",
+                        !lang.disabled && !active && "text-text-primary"
                       )}
                     >
                       <span className="flex items-center gap-2">

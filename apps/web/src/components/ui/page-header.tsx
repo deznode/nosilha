@@ -64,14 +64,11 @@ export function PageHeader({
       )}
     >
       <Heading
-        className={clsx(
-          "text-ocean-blue mb-4 font-serif font-bold",
-          size === "large"
-            ? "text-4xl sm:text-5xl"
-            : size === "compact"
-              ? "text-2xl sm:text-3xl"
-              : "text-3xl md:text-4xl"
-        )}
+        className={clsx("text-ocean-blue mb-4 font-serif font-bold", {
+          "text-4xl sm:text-5xl": size === "large",
+          "text-2xl sm:text-3xl": size === "compact",
+          "text-3xl md:text-4xl": size === "default",
+        })}
       >
         {title}
       </Heading>

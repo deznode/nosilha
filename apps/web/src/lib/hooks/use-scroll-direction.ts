@@ -22,8 +22,6 @@ export function useScrollDirection(threshold: number = 10): ScrollDirection {
   const ticking = useRef(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-
     lastScrollY.current = window.scrollY;
 
     const updateDirection = () => {
