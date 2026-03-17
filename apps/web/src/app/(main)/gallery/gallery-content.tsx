@@ -33,6 +33,7 @@ import { getRandomGalleryMedia } from "@/lib/api";
 import { mapGalleryMediaToMediaItem } from "@/lib/gallery-mappers";
 import type {
   PublicGalleryMedia,
+  PublicExternalMedia,
   TimelineResponse,
   DecadeFilter,
   GalleryView,
@@ -104,6 +105,7 @@ interface GalleryContentProps {
   initialQuery: string;
   initialView?: GalleryView;
   featuredPhoto?: PublicGalleryMedia | null;
+  featuredVideo?: PublicExternalMedia | null;
   weeklyPhotos?: PublicGalleryMedia[];
   timelineData?: TimelineResponse | null;
 }
@@ -116,6 +118,7 @@ export function GalleryContent({
   initialQuery,
   initialView = "grid",
   featuredPhoto,
+  featuredVideo,
   weeklyPhotos,
   timelineData,
 }: GalleryContentProps) {
@@ -195,6 +198,11 @@ export function GalleryContent({
   const videos = useMemo(
     () => allItems.filter((item) => item.type === "VIDEO"),
     [allItems]
+  );
+
+  const featuredVideoItem = useMemo(
+    () => (featuredVideo ? mapGalleryMediaToMediaItem(featuredVideo) : null),
+    [featuredVideo]
   );
 
   // Track loaded page count for URL sync
@@ -751,7 +759,9 @@ export function GalleryContent({
         )}
 
         {/* Video Archive */}
-        {activeTab === "videos" && <VideoSection videos={videos} />}
+        {activeTab === "videos" && (
+          <VideoSection videos={videos} featuredVideo={featuredVideoItem} />
+        )}
       </div>
 
       {/* Surprise Me Lightbox */}

@@ -5,6 +5,7 @@ import {
   getGalleryMedia,
   getGalleryCategories,
   getFeaturedPhoto,
+  getFeaturedVideo,
   getWeeklyDiscovery,
   getGalleryTimeline,
 } from "@/lib/api";
@@ -163,6 +164,7 @@ async function cachedGalleryContent(
     apiCategories,
     galleryResponse,
     featuredPhoto,
+    featuredVideoData,
     weeklyPhotos,
     timelineData,
   ] = await Promise.all([
@@ -180,6 +182,7 @@ async function cachedGalleryContent(
       q: filters.q,
     }),
     getFeaturedPhoto().catch(() => null),
+    getFeaturedVideo().catch(() => null),
     getWeeklyDiscovery().catch(() => []),
     initialView === "timeline"
       ? getGalleryTimeline().catch(() => null)
@@ -228,6 +231,7 @@ async function cachedGalleryContent(
           initialQuery={initialQuery}
           initialView={initialView}
           featuredPhoto={featuredPhoto}
+          featuredVideo={featuredVideoData}
           weeklyPhotos={weeklyPhotos}
           timelineData={timelineData}
         />

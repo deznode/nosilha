@@ -1,108 +1,38 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { motion, useReducedMotion } from "framer-motion";
-import { Play, Mic, Film } from "lucide-react";
-import { clsx } from "clsx";
-import { pageStagger, pageItem } from "@/lib/animation/variants";
-import { YouTubeFacade } from "@/components/gallery/youtube-facade";
+import { Film } from "lucide-react";
+import { FilterChip } from "@/components/ui/filter-chip";
+import { FeaturedVideoHero } from "@/components/gallery/featured-video-hero";
+import { VideoGrid } from "@/components/gallery/video-grid";
 import type { MediaItem } from "@/types/media";
-
-interface VideoSectionProps {
-  videos: MediaItem[];
-  isLoading?: boolean;
-}
 
 function VideoCardSkeleton() {
   return (
-    <div className="border-hairline bg-canvas animate-pulse overflow-hidden rounded-lg border shadow-sm">
-      <div className="bg-surface-alt relative pb-[56.25%]" />
-      <div className="p-5">
-        <div className="bg-surface-alt mb-2 h-3 w-20 rounded" />
-        <div className="bg-surface-alt mb-2 h-6 w-3/4 rounded" />
-        <div className="bg-surface-alt h-4 w-full rounded" />
+    <div className="bg-canvas animate-pulse overflow-hidden rounded-lg shadow-sm">
+      <div className="bg-surface-alt aspect-video w-full" />
+      <div className="space-y-2 p-3">
+        <div className="bg-surface-alt h-3 w-16 rounded" />
+        <div className="bg-surface-alt h-4 w-3/4 rounded" />
+        <div className="bg-surface-alt h-3 w-1/2 rounded" />
       </div>
     </div>
   );
 }
 
-function isPodcast(video: MediaItem): boolean {
-  return (
-    video.category === "Interview" ||
-    (video.title?.toLowerCase().includes("podcast") ?? false) ||
-    (video.title?.toLowerCase().includes("interview") ?? false)
-  );
+interface VideoSectionProps {
+  videos: MediaItem[];
+  featuredVideo?: MediaItem | null;
+  isLoading?: boolean;
 }
 
-interface MediaGridProps {
-  title: string;
-  icon: React.ReactNode;
-  items: MediaItem[];
-  categoryFilter: string;
-  shouldReduceMotion: boolean | null;
-  emptyMessage: string;
-  renderBadge: (video: MediaItem) => React.ReactNode;
-}
+export function VideoSection({
+  videos,
+  featuredVideo,
+  isLoading,
+}: VideoSectionProps) {
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
 
-function MediaGrid({
-  title,
-  icon,
-  items,
-  categoryFilter,
-  shouldReduceMotion,
-  emptyMessage,
-  renderBadge,
-}: MediaGridProps) {
-  return (
-    <div>
-      <h3 className="text-body mb-4 flex items-center gap-2 text-lg font-bold">
-        {icon}
-        {title} ({items.length})
-      </h3>
-      {items.length > 0 ? (
-        <motion.div
-          key={categoryFilter}
-          variants={shouldReduceMotion ? undefined : pageStagger}
-          initial={shouldReduceMotion ? undefined : "hidden"}
-          animate={shouldReduceMotion ? undefined : "visible"}
-          className="grid grid-cols-1 gap-8 md:grid-cols-2"
-        >
-          {items.map((video, idx) => (
-            <motion.div
-              key={video.id}
-              variants={shouldReduceMotion ? undefined : pageItem}
-              className={clsx(
-                "border-hairline bg-canvas overflow-hidden rounded-lg border shadow-sm",
-                "hover:shadow-elevated transition-shadow",
-                idx === 0 && "md:col-span-2"
-              )}
-            >
-              <YouTubeFacade video={video} />
-              <div className="p-5">
-                <div className="mb-2 flex items-start justify-between">
-                  {renderBadge(video)}
-                  <span className="text-muted text-xs">{video.date}</span>
-                </div>
-                <h3 className="text-body mb-2 text-xl font-bold">
-                  {video.title}
-                </h3>
-                <p className="text-muted text-sm">{video.description}</p>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-      ) : (
-        <p className="text-muted py-6 text-center text-sm">{emptyMessage}</p>
-      )}
-    </div>
-  );
-}
-
-export function VideoSection({ videos, isLoading }: VideoSectionProps) {
-  const shouldReduceMotion = useReducedMotion();
-  const [categoryFilter, setCategoryFilter] = useState<string>("All");
-
-  // Extract unique categories with counts
   const categoryCounts = useMemo(() => {
     const counts = new Map<string, number>();
     for (const v of videos) {
@@ -117,125 +47,73 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
     [categoryCounts]
   );
 
-  // Filter by category
-  const filtered = useMemo(
-    () =>
-      categoryFilter === "All"
+  const filtered = useMemo(() => {
+    const items =
+      categoryFilter === null
         ? videos
         : videos.filter(
             (v) => (v.category || "Uncategorized") === categoryFilter
-          ),
-    [videos, categoryFilter]
-  );
-
-  // Split into videos vs podcasts
-  const videoItems = useMemo(
-    () => filtered.filter((v) => !isPodcast(v)),
-    [filtered]
-  );
-  const podcastItems = useMemo(() => filtered.filter(isPodcast), [filtered]);
+          );
+    // Exclude featured video from the grid
+    if (featuredVideo) {
+      return items.filter((v) => v.id !== featuredVideo.id);
+    }
+    return items;
+  }, [videos, categoryFilter, featuredVideo]);
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
-        <div className="bg-surface-alt h-24 animate-pulse rounded-lg md:col-span-2" />
-        <VideoCardSkeleton />
-        <VideoCardSkeleton />
+      <div className="space-y-6">
+        <div className="bg-surface-alt h-64 animate-pulse rounded-2xl sm:h-80" />
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+          <VideoCardSkeleton />
+          <VideoCardSkeleton />
+          <VideoCardSkeleton />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Category Filter Pills */}
+    <div className="space-y-6">
+      {/* Featured Video Hero — shown when no category filter is active */}
+      {!categoryFilter && featuredVideo && (
+        <FeaturedVideoHero video={featuredVideo} />
+      )}
+
+      {/* Category Filter Chips */}
       {categories.length > 1 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            onClick={() => setCategoryFilter("All")}
-            aria-pressed={categoryFilter === "All"}
-            className={clsx(
-              "min-h-[44px] rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-              categoryFilter === "All"
-                ? "border-bougainvillea-pink bg-bougainvillea-pink text-white"
-                : "border-hairline bg-canvas text-muted hover:bg-surface"
-            )}
-          >
-            All ({videos.length})
-          </button>
+        <div className="scrollbar-hide -mx-4 flex items-center gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+          <FilterChip
+            label="All"
+            active={categoryFilter === null}
+            count={videos.length}
+            colorScheme="pink"
+            onClick={() => setCategoryFilter(null)}
+          />
           {categories.map((cat) => (
-            <button
+            <FilterChip
               key={cat}
+              label={cat}
+              active={categoryFilter === cat}
+              count={categoryCounts.get(cat)}
+              colorScheme="pink"
               onClick={() => setCategoryFilter(cat)}
-              aria-pressed={categoryFilter === cat}
-              className={clsx(
-                "min-h-[44px] rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+              onClear={
                 categoryFilter === cat
-                  ? "border-bougainvillea-pink bg-bougainvillea-pink text-white"
-                  : "border-hairline bg-canvas text-muted hover:bg-surface"
-              )}
-            >
-              {cat} ({categoryCounts.get(cat) || 0})
-            </button>
+                  ? () => setCategoryFilter(null)
+                  : undefined
+              }
+            />
           ))}
         </div>
       )}
 
-      {/* Featured banner */}
-      <div className="border-bougainvillea-pink/20 bg-bougainvillea-pink/10 flex items-start gap-4 rounded-lg border p-6">
-        <div className="bg-bougainvillea-pink flex-shrink-0 rounded-full p-2 text-white">
-          <Play size={24} />
-        </div>
-        <div>
-          <h3 className="text-bougainvillea-pink text-lg font-bold">
-            Nos Ilha Channel & Podcast
-          </h3>
-          <p className="text-body mt-1 text-sm">
-            Watch cinematic views of Brava&apos;s landscapes and listen to our
-            exclusive podcast series featuring interviews with elders about the
-            &quot;Sodade&quot; of migration and life in the older times.
-          </p>
-        </div>
-      </div>
-
-      {/* Videos Section */}
-      {filtered.length > 0 && (
-        <MediaGrid
-          title="Videos"
-          icon={<Film size={20} className="text-bougainvillea-pink" />}
-          items={videoItems}
-          categoryFilter={categoryFilter}
-          shouldReduceMotion={shouldReduceMotion}
-          emptyMessage="No videos in this category."
-          renderBadge={(video) =>
-            video.category ? (
-              <span className="text-bougainvillea-pink text-xs font-bold tracking-wider uppercase">
-                {video.category}
-              </span>
-            ) : null
-          }
-        />
-      )}
-
-      {/* Podcasts & Interviews Section */}
-      {filtered.length > 0 && (
-        <MediaGrid
-          title="Podcasts & Interviews"
-          icon={<Mic size={20} className="text-valley-green" />}
-          items={podcastItems}
-          categoryFilter={categoryFilter}
-          shouldReduceMotion={shouldReduceMotion}
-          emptyMessage="No podcasts or interviews in this category."
-          renderBadge={() => (
-            <span className="text-valley-green text-xs font-bold tracking-wider uppercase">
-              <Mic size={10} className="mr-1 inline" />
-              PODCAST
-            </span>
-          )}
-        />
-      )}
+      {/* Video Grid */}
+      <VideoGrid items={filtered} categoryFilter={categoryFilter} />
 
       {/* Empty State */}
-      {filtered.length === 0 && (
+      {videos.length === 0 && !isLoading && (
         <div className="border-hairline bg-canvas flex flex-col items-center rounded-lg border py-20 text-center">
           <Film
             size={48}
@@ -243,9 +121,7 @@ export function VideoSection({ videos, isLoading }: VideoSectionProps) {
             aria-hidden="true"
           />
           <h3 className="text-body mb-2 text-lg font-semibold">
-            {categoryFilter !== "All"
-              ? `No ${categoryFilter.toLowerCase()} videos found`
-              : "No videos available yet"}
+            No videos available yet
           </h3>
           <p className="text-muted mb-6 max-w-sm text-sm">
             Share videos celebrating Brava&apos;s culture, landscapes, and
