@@ -158,6 +158,20 @@ class GalleryController(
     }
 
     /**
+     * Returns the currently featured video for the gallery hero section.
+     *
+     * <p>Returns 404 when no video is currently set as featured.</p>
+     *
+     * @return ApiResult with the featured video, or 404
+     */
+    @GetMapping("/videos/featured")
+    fun getFeaturedVideo(): ResponseEntity<ApiResult<PublicGalleryMediaDto.External>> {
+        val featured = galleryService.getFeaturedVideo()
+            ?: return ResponseEntity.notFound().build()
+        return ResponseEntity.ok(ApiResult(data = featured))
+    }
+
+    /**
      * Returns the daily featured photo.
      *
      * <p>Same photo returned for all users on the same calendar day.

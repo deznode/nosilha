@@ -57,6 +57,7 @@ import type {
   GalleryMedia,
   GalleryMediaStatus,
   PublicGalleryMedia,
+  PublicExternalMedia,
   PublicGalleryMediaPageResponse,
   SubmitExternalMediaRequest,
   CreateExternalMediaRequest,
@@ -2514,6 +2515,21 @@ export class BackendApiClient implements ApiClient {
     const payload = await response.json();
     const items = this.unwrapApiResponse<PublicGalleryMedia[]>(payload);
     return items[0] ?? null;
+  }
+
+  async getFeaturedVideo(): Promise<PublicExternalMedia | null> {
+    const endpoint = `${env.apiUrl}/api/v1/gallery/videos/featured`;
+    const response = await fetch(endpoint, {
+      next: CacheConfig.GALLERY,
+    });
+    if (response.status === 404) {
+      return null;
+    }
+    if (!response.ok) {
+      throw new Error(`Failed to fetch featured video: ${response.status}`);
+    }
+    const payload = await response.json();
+    return this.unwrapApiResponse<PublicExternalMedia>(payload);
   }
 
   async getWeeklyDiscovery(): Promise<PublicGalleryMedia[]> {

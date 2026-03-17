@@ -1751,6 +1751,13 @@ ${story.content
     return null;
   }
 
+  async getFeaturedVideo(): Promise<
+    import("@/types/gallery").PublicExternalMedia | null
+  > {
+    await this.simulateDelay(200);
+    return null;
+  }
+
   async getWeeklyDiscovery(): Promise<
     import("@/types/gallery").PublicGalleryMedia[]
   > {

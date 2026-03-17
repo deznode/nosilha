@@ -720,6 +720,18 @@ class GalleryService(
         return mediaList.map { PublicGalleryMediaDto.from(it, it.uploadedBy?.let { id -> displayNames[id] }) }
     }
 
+    /**
+     * Returns the currently featured video for the gallery hero section.
+     *
+     * @return Public DTO of the featured video, or null if none is set
+     */
+    @Transactional(readOnly = true)
+    fun getFeaturedVideo(): PublicGalleryMediaDto.External? {
+        val media = repository.findFeaturedVideo() ?: return null
+        val displayNames = resolveDisplayNames(listOf(media))
+        return PublicGalleryMediaDto.from(media, media.curatedBy?.let { displayNames[it] })
+    }
+
     // -- Random Discovery methods --
 
     /**

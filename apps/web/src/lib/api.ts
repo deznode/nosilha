@@ -743,6 +743,12 @@ export async function getFeaturedPhoto(): Promise<
   return apiClient.getFeaturedPhoto();
 }
 
+export async function getFeaturedVideo(): Promise<
+  import("@/types/gallery").PublicExternalMedia | null
+> {
+  return apiClient.getFeaturedVideo();
+}
+
 export async function getWeeklyDiscovery(): Promise<
   import("@/types/gallery").PublicGalleryMedia[]
 > {
