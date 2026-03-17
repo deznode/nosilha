@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRef } from "react";
 import { MapPin, Phone, Clock, Building2, Sparkles } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { CollapsibleHero } from "@/components/ui/collapsible-hero";
 import { ContributePhotosSection } from "@/components/ui/contribute-photos-section";
 import { ContentActionToolbar } from "@/components/ui/content-action-toolbar";
 import { ImageGallery } from "@/components/ui/image-gallery";
@@ -107,8 +108,12 @@ export function DirectoryEntryDetailPageContent({
       ref={containerRef}
       className="bg-background-secondary min-h-screen pb-24 font-sans md:pb-12"
     >
-      {/* Parallax Hero */}
-      <div className="relative h-[60vh] min-h-[400px] w-full overflow-hidden">
+      {/* Parallax Hero with Collapsible Bar */}
+      <CollapsibleHero
+        title={entry.name}
+        backHref={`/directory/${entry.category.toLowerCase()}`}
+        heightClass="h-[45vh] min-h-[300px] sm:h-[60vh] sm:min-h-[400px]"
+      >
         <motion.div style={{ y }} className="absolute inset-0 h-[120%] w-full">
           {entry.imageUrl ? (
             <Image
@@ -149,7 +154,7 @@ export function DirectoryEntryDetailPageContent({
             </motion.div>
           </div>
         </div>
-      </div>
+      </CollapsibleHero>
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:pl-24">
         <div className="mt-8 grid grid-cols-1 gap-x-12 gap-y-10 lg:grid-cols-3">

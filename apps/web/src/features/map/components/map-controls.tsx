@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Shuffle,
   Globe,
@@ -10,8 +11,11 @@ import {
   EyeOff,
   RotateCcw,
   Home,
+  Settings2,
+  X,
 } from "lucide-react";
 import { clsx } from "clsx";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   useViewMode,
   useLayerVisibility,
@@ -43,14 +47,10 @@ export function MapControls({
   const showSidebar = useShowSidebar();
   const setLayerVisibility = useMapStore((s) => s.setLayerVisibility);
   const toggleOrbit = useMapStore((s) => s.toggleOrbit);
+  const [mobileExpanded, setMobileExpanded] = useState(false);
 
-  return (
-    <div
-      className={clsx(
-        "pointer-events-auto absolute top-24 right-6 z-30 flex flex-col gap-3",
-        showSidebar && "hidden md:flex"
-      )}
-    >
+  const controlButtons = (
+    <>
       {/* Random Fly To */}
       <button
         onClick={onRandomFlyTo}
@@ -134,7 +134,7 @@ export function MapControls({
         <button
           onClick={toggleOrbit}
           className={clsx(
-            "hidden items-center justify-center rounded-2xl border p-3 shadow-lg backdrop-blur-md transition-all duration-300 md:flex",
+            "map-desktop:flex hidden items-center justify-center rounded-2xl border p-3 shadow-lg backdrop-blur-md transition-all duration-300",
             isOrbiting
               ? "bg-ocean-blue border-ocean-blue animate-pulse text-white"
               : "text-text-secondary border-white/50 bg-white/90 hover:bg-white dark:border-white/15 dark:bg-white/10 dark:hover:bg-white/20"
@@ -173,7 +173,56 @@ export function MapControls({
       >
         <Home size={20} />
       </button>
-    </div>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop: show controls directly */}
+      <div
+        className={clsx(
+          "map-desktop:flex pointer-events-auto absolute top-24 right-6 z-30 hidden flex-col gap-3",
+          showSidebar && "map-desktop:!flex !hidden"
+        )}
+      >
+        {controlButtons}
+      </div>
+
+      {/* Mobile: FAB toggle + collapsible panel */}
+      <div
+        className={clsx(
+          "map-desktop:hidden pointer-events-auto absolute top-24 right-4 z-30 flex flex-col items-end gap-2",
+          showSidebar && "hidden"
+        )}
+      >
+        <button
+          onClick={() => setMobileExpanded((prev) => !prev)}
+          className={clsx(
+            "rounded-xl border p-3 shadow-lg backdrop-blur-md transition-all",
+            mobileExpanded
+              ? "bg-ocean-blue border-ocean-blue text-white"
+              : "text-text-secondary border-white/50 bg-white/90 dark:border-white/15 dark:bg-white/10"
+          )}
+          aria-label={mobileExpanded ? "Close map tools" : "Open map tools"}
+          aria-expanded={mobileExpanded}
+        >
+          {mobileExpanded ? <X size={20} /> : <Settings2 size={20} />}
+        </button>
+        <AnimatePresence>
+          {mobileExpanded && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.85, y: -8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.85, y: -8 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="flex flex-col gap-2"
+            >
+              {controlButtons}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </>
   );
 }
 

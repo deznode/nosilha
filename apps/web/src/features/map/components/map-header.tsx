@@ -10,7 +10,7 @@ export function MapHeader() {
   const toggleSidebar = useMapStore((state) => state.toggleSidebar);
 
   return (
-    <div className="pointer-events-none absolute top-0 right-0 left-0 z-40 flex items-start justify-between p-4 md:p-6">
+    <div className="map-desktop:p-6 pointer-events-none absolute top-0 right-0 left-0 z-40 flex items-start justify-between p-4">
       <Link
         href="/"
         className="pointer-events-auto flex items-center gap-4 rounded-2xl border border-white/40 bg-white/80 p-2 pr-6 shadow-xl backdrop-blur-md transition-transform hover:scale-[1.02] dark:border-white/20 dark:bg-white/10"
@@ -31,7 +31,7 @@ export function MapHeader() {
       </Link>
       <button
         onClick={toggleSidebar}
-        className="text-text-primary pointer-events-auto rounded-xl border border-white/40 bg-white/80 p-3 shadow-xl backdrop-blur-md md:hidden dark:border-white/20 dark:bg-white/10 dark:text-white"
+        className="text-text-primary map-desktop:hidden pointer-events-auto rounded-xl border border-white/40 bg-white/80 p-3 shadow-xl backdrop-blur-md dark:border-white/20 dark:bg-white/10 dark:text-white"
       >
         {showSidebar ? <X size={20} /> : <List size={20} />}
       </button>

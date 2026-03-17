@@ -191,9 +191,14 @@ export function DirectoryCategoryPageContent({
     <div className="bg-background-secondary min-h-screen font-sans">
       {/* Header */}
       <div className="border-border-primary bg-background-primary border-b shadow-sm">
-        <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-screen-xl px-4 py-4 sm:px-6 sm:py-8 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <PageHeader title={pageTitle} subtitle={subtitle} />
+            <PageHeader
+              title={pageTitle}
+              subtitle={subtitle}
+              subtitleClassName="hidden sm:block"
+              size="compact"
+            />
             <Link
               href="/contribute/directory"
               className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-subtle flex shrink-0 items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95"

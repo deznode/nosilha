@@ -3,7 +3,7 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { clsx } from "clsx";
+import clsx from "clsx";
 import {
   ArrowLeft,
   Image as ImageIcon,
@@ -252,7 +252,7 @@ export default function MediaContributionPage() {
   }
 
   return (
-    <div className="bg-canvas min-h-screen px-4 py-20">
+    <div className="bg-canvas min-h-screen px-4 py-10 sm:py-20">
       <div className="mx-auto max-w-xl">
         <Link
           href="/gallery"
@@ -263,14 +263,14 @@ export default function MediaContributionPage() {
 
         <div className="rounded-container border-hairline bg-canvas shadow-floating overflow-hidden border">
           {/* Header */}
-          <div className="bg-bougainvillea-pink px-10 py-10 text-white">
+          <div className="bg-bougainvillea-pink px-10 py-6 text-white sm:py-10">
             <h1 className="font-serif text-2xl font-bold">Add to Archive</h1>
             <p className="mt-1 text-xs text-white/60">
               Expanding Brava&apos;s visual memory
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8 p-10">
+          <form onSubmit={handleSubmit} className="space-y-8 p-6 sm:p-10">
             {/* Type Switcher */}
             <div className="rounded-card bg-surface flex p-1.5">
               <button

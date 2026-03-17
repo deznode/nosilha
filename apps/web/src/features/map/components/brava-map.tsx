@@ -24,6 +24,14 @@ export default function BravaMap() {
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
+    // On mobile, start with sidebar closed so users see the map first
+    const isDesktopLayout = window.matchMedia(
+      "(min-width: 768px) and (min-height: 500px)"
+    ).matches;
+    if (!isDesktopLayout) {
+      useMapStore.getState().setShowSidebar(false);
+    }
+
     useMapStore.getState().fetchLocations();
 
     return () => {
@@ -47,7 +55,9 @@ export default function BravaMap() {
     state.setIsPulsing(false);
 
     if (mapRef.current) {
-      const isDesktop = window.innerWidth > 768;
+      const isDesktop = window.matchMedia(
+        "(min-width: 768px) and (min-height: 500px)"
+      ).matches;
       const offset: [number, number] =
         isDesktop && state.showSidebar ? [150, 0] : [0, 0];
 
@@ -136,7 +146,7 @@ export default function BravaMap() {
         onViewModeToggle={handleViewModeToggle}
       />
       <AnimatePresence>
-        {selectedLocation && <LocationBottomSheet />}
+        {selectedLocation && <LocationBottomSheet key={selectedLocation.id} />}
       </AnimatePresence>
       <AnimatePresence>
         {selectedLocation && <LocationDetailCard />}
