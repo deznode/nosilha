@@ -17,7 +17,7 @@ export function LocationDetailCard() {
       initial={{ opacity: 0, x: 50, scale: 0.95 }}
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 20, scale: 0.95 }}
-      className="absolute bottom-10 left-[450px] z-30 hidden w-[350px] overflow-hidden rounded-3xl border border-white/20 bg-white/80 shadow-xl backdrop-blur-md md:block dark:border-white/10 dark:bg-black/60"
+      className="map-desktop:block absolute bottom-10 left-[450px] z-30 hidden w-[350px] overflow-hidden rounded-3xl border border-white/20 bg-white/80 shadow-xl backdrop-blur-md dark:border-white/10 dark:bg-black/60"
     >
       <div className="group relative h-48">
         {selectedLocation.image ? (
