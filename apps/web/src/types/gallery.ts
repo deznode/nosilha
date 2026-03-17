@@ -95,6 +95,8 @@ export interface ExternalMedia extends GalleryMediaBase {
   curatorDisplayName?: string;
   creditPlatform?: string;
   creditHandle?: string;
+  durationSeconds?: number;
+  featured?: boolean;
 }
 
 /**
@@ -186,6 +188,8 @@ export interface PublicExternalMedia extends PublicGalleryMediaBase {
   curatorDisplayName?: string;
   creditPlatform?: string;
   creditHandle?: string;
+  durationSeconds?: number;
+  featured?: boolean;
 }
 
 /** Discriminated union for public gallery media */

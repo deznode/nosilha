@@ -75,6 +75,20 @@ class ExternalMedia : GalleryMedia() {
     var author: String? = null
 
     /**
+     * Whether this video is the featured video shown in the gallery hero.
+     * At most one video should be featured at a time (exclusivity enforced by service layer).
+     */
+    @Column(name = "featured", nullable = false)
+    var featured: Boolean = false
+
+    /**
+     * Duration of the video/audio content in seconds.
+     * Null for images or when duration is unknown.
+     */
+    @Column(name = "duration_seconds")
+    var durationSeconds: Int? = null
+
+    /**
      * User ID of the admin who curated this media.
      * References Supabase auth user ID.
      */

@@ -150,6 +150,8 @@ export function mapGalleryMediaToMediaItem(
       author: media.author || media.curatorDisplayName || undefined,
       creditPlatform: media.creditPlatform,
       creditHandle: media.creditHandle,
+      duration: media.durationSeconds,
+      featured: media.featured,
     };
   }
 
