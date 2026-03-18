@@ -6,6 +6,7 @@ import com.nosilha.core.gallery.domain.GalleryMedia
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.UserUploadedMedia
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
@@ -207,8 +208,10 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     /**
      * Finds the currently featured video.
      * Returns the most recently updated featured ACTIVE external media item.
+     * Uses Pageable to safely LIMIT 1 — avoids IncorrectResultSizeDataAccessException
+     * if the single-featured invariant is ever violated.
      *
-     * @return The featured video, or null if none is set
+     * @return List containing at most one featured video
      */
     @Query(
         "SELECT m FROM ExternalMedia m " +
@@ -218,7 +221,8 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     )
     fun findFeaturedVideo(
         @Param("status") status: GalleryMediaStatus = GalleryMediaStatus.ACTIVE,
-    ): ExternalMedia?
+        pageable: Pageable = PageRequest.of(0, 1),
+    ): List<ExternalMedia>
 
     /**
      * Clears the featured flag on all external media.

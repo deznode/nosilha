@@ -727,7 +727,7 @@ class GalleryService(
      */
     @Transactional(readOnly = true)
     fun getFeaturedVideo(): PublicGalleryMediaDto.External? {
-        val media = repository.findFeaturedVideo() ?: return null
+        val media = repository.findFeaturedVideo().firstOrNull() ?: return null
         val displayNames = resolveDisplayNames(listOf(media))
         return PublicGalleryMediaDto.from(media, media.curatedBy?.let { displayNames[it] })
     }

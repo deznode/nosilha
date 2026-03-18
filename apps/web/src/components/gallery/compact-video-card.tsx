@@ -43,15 +43,15 @@ export function CompactVideoCard({
         />
 
         {/* Play icon overlay */}
-        <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors duration-300 group-hover/card:bg-black/40">
-          <span className="bg-bougainvillea-pink flex h-10 w-10 items-center justify-center rounded-full text-white transition-transform duration-300 group-hover/card:scale-110">
+        <div className="ease-calm absolute inset-0 flex items-center justify-center bg-black/0 transition-colors duration-300 group-hover/card:bg-black/40">
+          <span className="bg-bougainvillea-pink ease-calm flex h-10 w-10 items-center justify-center rounded-full text-white transition-transform duration-300 group-hover/card:scale-110">
             <Play size={18} className="ml-0.5" />
           </span>
         </div>
 
         {/* Duration badge */}
         {item.duration != null && (
-          <span className="bg-basalt-900/80 pointer-events-none absolute right-2 bottom-2 rounded px-2 py-1 text-xs text-white backdrop-blur-sm">
+          <span className="pointer-events-none absolute right-2 bottom-2 rounded bg-black/80 px-2 py-1 text-xs text-white backdrop-blur-sm">
             {formatDuration(item.duration)}
           </span>
         )}
@@ -108,7 +108,7 @@ export function CompactVideoCard({
         <button
           type="button"
           onClick={() => onSelect(item)}
-          className="w-full cursor-pointer text-left"
+          className="focus-ring w-full cursor-pointer text-left"
           aria-label={`Play ${item.title}`}
         >
           {cardContent}

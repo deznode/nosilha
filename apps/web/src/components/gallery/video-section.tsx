@@ -53,17 +53,25 @@ export function VideoSection({
     return featuredVideo;
   }, [promotedVideoId, featuredVideo, videos]);
 
-  const isPromoted = !!promotedVideoId && promotedVideoId !== featuredVideo?.id;
+  const isPromoted =
+    !!promotedVideoId &&
+    promotedVideoId !== featuredVideo?.id &&
+    resolvedHeroVideo?.id === promotedVideoId;
 
   const handlePromote = useCallback(
     (item: MediaItem) => {
+      // Toggle off if clicking the already-promoted video
+      if (item.id === promotedVideoId) {
+        onPromote?.(null);
+        return;
+      }
       onPromote?.(item.id);
       // Mobile auto-scroll to hero
       if (!isDesktop && heroRef.current) {
         scrollTo(heroRef.current, { offset: 80 });
       }
     },
-    [onPromote, isDesktop, scrollTo]
+    [onPromote, promotedVideoId, isDesktop, scrollTo]
   );
 
   const categoryCounts = useMemo(() => {
@@ -87,12 +95,13 @@ export function VideoSection({
         : videos.filter(
             (v) => (v.category || "Uncategorized") === categoryFilter
           );
-    // Exclude featured video from the grid (promoted stays visible with active ring)
-    if (featuredVideo) {
-      return items.filter((v) => v.id !== featuredVideo.id);
+    // Exclude whichever video is currently in the hero from the grid
+    const heroId = resolvedHeroVideo?.id;
+    if (heroId) {
+      return items.filter((v) => v.id !== heroId);
     }
     return items;
-  }, [videos, categoryFilter, featuredVideo]);
+  }, [videos, categoryFilter, resolvedHeroVideo]);
 
   if (isLoading) {
     return (
