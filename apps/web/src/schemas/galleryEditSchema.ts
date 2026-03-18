@@ -25,6 +25,7 @@ export const galleryEditSchema = z.object({
     .optional()
     .or(z.literal("")),
   showInGallery: z.boolean().optional(),
+  featured: z.boolean().optional(),
 });
 
 export type GalleryEditInput = z.infer<typeof galleryEditSchema>;

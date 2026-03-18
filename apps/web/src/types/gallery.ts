@@ -330,4 +330,6 @@ export interface UpdateGalleryMediaRequest {
   author?: string;
   photographerCredit?: string;
   showInGallery?: boolean;
+  featured?: boolean;
+  durationSeconds?: number;
 }

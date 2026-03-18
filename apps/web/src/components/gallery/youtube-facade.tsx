@@ -1,9 +1,12 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Play } from "lucide-react";
 import type { MediaItem } from "@/types/media";
+
+/** Module-level ref: deactivates whichever facade is currently playing. */
+let deactivateCurrent: (() => void) | null = null;
 
 interface YouTubeFacadeProps {
   video: MediaItem;
@@ -12,6 +15,12 @@ interface YouTubeFacadeProps {
 export function YouTubeFacade({ video }: YouTubeFacadeProps) {
   const [activated, setActivated] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const handlePlay = useCallback(() => {
+    deactivateCurrent?.();
+    deactivateCurrent = () => setActivated(false);
+    setActivated(true);
+  }, []);
 
   const thumbnailUrl = video.thumbnailUrl || "/images/video-placeholder.jpg";
   const iframeSrc = video.url
@@ -60,7 +69,7 @@ export function YouTubeFacade({ video }: YouTubeFacadeProps) {
       />
       <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover/facade:bg-black/40" />
       <button
-        onClick={() => setActivated(true)}
+        onClick={handlePlay}
         aria-label={`Play ${video.title || "video"}`}
         className="absolute inset-0 flex cursor-pointer items-center justify-center focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none"
       >

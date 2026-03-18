@@ -81,6 +81,8 @@ class SecurityConfig(
                     .permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/v1/gallery/approved")
                     .permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/v1/gallery/videos/featured")
+                    .permitAll()
                     // Allow public suggestions (community contributions without authentication)
                     .requestMatchers(HttpMethod.POST, "/api/v1/suggestions")
                     .permitAll()

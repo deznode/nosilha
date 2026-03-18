@@ -64,6 +64,7 @@ export function GalleryEditModal({
     resolver: zodResolver(galleryEditSchema),
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library -- watch() is safe here; component is admin-only
   const attributionValue = watch("attribution");
   const detectedCredit = useMemo(
     () => detectCreditPlatform(attributionValue || ""),
@@ -78,6 +79,7 @@ export function GalleryEditModal({
         category: item.category ?? "",
         attribution: getAttribution(item),
         showInGallery: item.showInGallery,
+        featured: isExternalMedia(item) ? (item.featured ?? false) : false,
       });
     }
   }, [item, reset]);
@@ -99,6 +101,10 @@ export function GalleryEditModal({
       } else if (isExternalMedia(item)) {
         request.author = data.attribution;
       }
+    }
+
+    if (isExternalMedia(item)) {
+      request.featured = data.featured;
     }
 
     updateMutation.mutate(
@@ -252,6 +258,24 @@ export function GalleryEditModal({
                     Show in public gallery
                   </label>
                 </div>
+
+                {/* Featured Video (external media only) */}
+                {item && isExternalMedia(item) && (
+                  <div className="flex items-center gap-3">
+                    <input
+                      id="gallery-featured"
+                      type="checkbox"
+                      {...register("featured")}
+                      className="text-bougainvillea-pink focus:ring-bougainvillea-pink border-hairline h-4 w-4 rounded"
+                    />
+                    <label
+                      htmlFor="gallery-featured"
+                      className="text-body text-sm font-medium"
+                    >
+                      Featured video (hero section)
+                    </label>
+                  </div>
+                )}
               </div>
 
               {/* Footer */}

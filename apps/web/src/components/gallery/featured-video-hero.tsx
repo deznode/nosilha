@@ -13,7 +13,7 @@ export function FeaturedVideoHero({ video }: FeaturedVideoHeroProps) {
   if (!video) return null;
 
   return (
-    <div className="rounded-container relative h-64 overflow-hidden sm:h-80 lg:h-96">
+    <div className="rounded-container relative aspect-video overflow-hidden">
       {/* YouTubeFacade handles thumbnail + play → iframe */}
       <YouTubeFacade video={video} />
 

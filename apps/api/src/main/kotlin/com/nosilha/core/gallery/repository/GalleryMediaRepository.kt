@@ -213,10 +213,12 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     @Query(
         "SELECT m FROM ExternalMedia m " +
             "WHERE m.featured = true " +
-            "AND m.status = com.nosilha.core.gallery.domain.GalleryMediaStatus.ACTIVE " +
+            "AND m.status = :status " +
             "ORDER BY m.updatedAt DESC",
     )
-    fun findFeaturedVideo(): ExternalMedia?
+    fun findFeaturedVideo(
+        @Param("status") status: GalleryMediaStatus = GalleryMediaStatus.ACTIVE,
+    ): ExternalMedia?
 
     /**
      * Clears the featured flag on all external media except the specified one.
