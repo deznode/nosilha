@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Film } from "lucide-react";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { FeaturedVideoHero } from "@/components/gallery/featured-video-hero";
 import { VideoGrid } from "@/components/gallery/video-grid";
+import { useSmoothScroll } from "@/hooks/use-smooth-scroll";
+import { useMediaQuery } from "@/lib/hooks/use-media-query";
 import type { MediaItem } from "@/types/media";
 
 function VideoCardSkeleton() {
@@ -24,14 +26,44 @@ interface VideoSectionProps {
   videos: MediaItem[];
   featuredVideo?: MediaItem | null;
   isLoading?: boolean;
+  /** ID of the currently promoted video (from URL state) */
+  promotedVideoId?: string | null;
+  /** Called when a video is promoted or cleared */
+  onPromote?: (id: string | null) => void;
 }
 
 export function VideoSection({
   videos,
   featuredVideo,
   isLoading,
+  promotedVideoId,
+  onPromote,
 }: VideoSectionProps) {
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollTo } = useSmoothScroll();
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  // Resolve hero video: promoted ?? featured
+  const resolvedHeroVideo = useMemo(() => {
+    if (promotedVideoId && promotedVideoId !== featuredVideo?.id) {
+      return videos.find((v) => v.id === promotedVideoId) ?? featuredVideo;
+    }
+    return featuredVideo;
+  }, [promotedVideoId, featuredVideo, videos]);
+
+  const isPromoted = !!promotedVideoId && promotedVideoId !== featuredVideo?.id;
+
+  const handlePromote = useCallback(
+    (item: MediaItem) => {
+      onPromote?.(item.id);
+      // Mobile auto-scroll to hero
+      if (!isDesktop && heroRef.current) {
+        scrollTo(heroRef.current, { offset: 80 });
+      }
+    },
+    [onPromote, isDesktop, scrollTo]
+  );
 
   const categoryCounts = useMemo(() => {
     const counts = new Map<string, number>();
@@ -54,12 +86,14 @@ export function VideoSection({
         : videos.filter(
             (v) => (v.category || "Uncategorized") === categoryFilter
           );
-    // Exclude featured video from the grid
-    if (featuredVideo) {
-      return items.filter((v) => v.id !== featuredVideo.id);
-    }
-    return items;
-  }, [videos, categoryFilter, featuredVideo]);
+    // Exclude hero video (featured and/or promoted) from the grid
+    const excludeIds = new Set<string>();
+    if (featuredVideo) excludeIds.add(featuredVideo.id);
+    if (promotedVideoId) excludeIds.add(promotedVideoId);
+    return excludeIds.size > 0
+      ? items.filter((v) => !excludeIds.has(v.id))
+      : items;
+  }, [videos, categoryFilter, featuredVideo, promotedVideoId]);
 
   if (isLoading) {
     return (
@@ -76,9 +110,14 @@ export function VideoSection({
 
   return (
     <div className="space-y-6">
-      {/* Featured Video Hero — shown when no category filter is active */}
-      {!categoryFilter && featuredVideo && (
-        <FeaturedVideoHero video={featuredVideo} />
+      {/* Hero Video — shown when resolved hero exists (not gated by category filter) */}
+      {resolvedHeroVideo && (
+        <FeaturedVideoHero
+          key={resolvedHeroVideo.id}
+          ref={heroRef}
+          video={resolvedHeroVideo}
+          isPromoted={isPromoted}
+        />
       )}
 
       {/* Category Filter Chips */}
@@ -110,7 +149,12 @@ export function VideoSection({
       )}
 
       {/* Video Grid */}
-      <VideoGrid items={filtered} categoryFilter={categoryFilter} />
+      <VideoGrid
+        items={filtered}
+        categoryFilter={categoryFilter}
+        selectedVideoId={promotedVideoId}
+        onVideoSelect={handlePromote}
+      />
 
       {/* Empty State */}
       {videos.length === 0 && !isLoading && (

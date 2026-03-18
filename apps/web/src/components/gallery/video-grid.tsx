@@ -8,9 +8,18 @@ import type { MediaItem } from "@/types/media";
 interface VideoGridProps {
   items: MediaItem[];
   categoryFilter: string | null;
+  /** ID of the currently promoted/selected video */
+  selectedVideoId?: string | null;
+  /** Called when a video card is selected */
+  onVideoSelect?: (item: MediaItem) => void;
 }
 
-export function VideoGrid({ items, categoryFilter }: VideoGridProps) {
+export function VideoGrid({
+  items,
+  categoryFilter,
+  selectedVideoId,
+  onVideoSelect,
+}: VideoGridProps) {
   const shouldReduceMotion = useReducedMotion();
 
   if (items.length === 0) {
@@ -27,14 +36,23 @@ export function VideoGrid({ items, categoryFilter }: VideoGridProps) {
         {/* Desktop/tablet grid */}
         <div className="hidden gap-4 md:grid md:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
-            <CompactVideoCard key={item.id} item={item} />
+            <CompactVideoCard
+              key={item.id}
+              item={item}
+              isActive={item.id === selectedVideoId}
+              onSelect={onVideoSelect}
+            />
           ))}
         </div>
         {/* Mobile carousel */}
         <div className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 md:hidden">
           {items.map((item) => (
             <div key={item.id} className="w-72 flex-shrink-0 snap-start">
-              <CompactVideoCard item={item} />
+              <CompactVideoCard
+                item={item}
+                isActive={item.id === selectedVideoId}
+                onSelect={onVideoSelect}
+              />
             </div>
           ))}
         </div>
@@ -53,7 +71,12 @@ export function VideoGrid({ items, categoryFilter }: VideoGridProps) {
         className="hidden gap-4 md:grid md:grid-cols-2 lg:grid-cols-3"
       >
         {items.map((item) => (
-          <CompactVideoCard key={item.id} item={item} />
+          <CompactVideoCard
+            key={item.id}
+            item={item}
+            isActive={item.id === selectedVideoId}
+            onSelect={onVideoSelect}
+          />
         ))}
       </motion.div>
 
@@ -71,7 +94,11 @@ export function VideoGrid({ items, categoryFilter }: VideoGridProps) {
             variants={listItem}
             className="w-72 flex-shrink-0 snap-start"
           >
-            <CompactVideoCard item={item} />
+            <CompactVideoCard
+              item={item}
+              isActive={item.id === selectedVideoId}
+              onSelect={onVideoSelect}
+            />
           </motion.div>
         ))}
       </motion.div>
