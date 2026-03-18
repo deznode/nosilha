@@ -51,6 +51,8 @@ interface GalleryPageProps {
     decade?: string;
     q?: string;
     view?: string;
+    /** Client-side only — promoted video ID, NOT passed to cachedGalleryContent */
+    video?: string;
   }>;
 }
 

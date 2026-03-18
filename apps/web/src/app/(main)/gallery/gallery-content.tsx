@@ -150,6 +150,9 @@ export function GalleryContent({
     initialCategory
   );
 
+  // Promoted video — derived reactively from URL (browser back/forward works automatically)
+  const promotedVideoId = searchParams.get("video") || null;
+
   const handleSurpriseMe = async () => {
     setSurpriseLoading(true);
     try {
@@ -253,6 +256,10 @@ export function GalleryContent({
         params.set("view", v);
       } else {
         params.delete("view");
+      }
+      // Clear promoted video when leaving videos tab
+      if (tab !== "videos") {
+        params.delete("video");
       }
       const qs = params.toString();
       router.replace(`/gallery${qs ? `?${qs}` : ""}`, { scroll: false });
@@ -374,6 +381,20 @@ export function GalleryContent({
     setCategoryFilter("All");
     updateUrl(activeTab, "All", "all");
   };
+
+  const handlePromote = useCallback(
+    (id: string | null) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (id) {
+        params.set("video", id);
+      } else {
+        params.delete("video");
+      }
+      const qs = params.toString();
+      router.replace(`/gallery${qs ? `?${qs}` : ""}`, { scroll: false });
+    },
+    [router, searchParams]
+  );
 
   const contributors = useMemo(
     () => new Set(allItems.map((item) => item.author).filter(Boolean)),
@@ -760,7 +781,12 @@ export function GalleryContent({
 
         {/* Video Archive */}
         {activeTab === "videos" && (
-          <VideoSection videos={videos} featuredVideo={featuredVideoItem} />
+          <VideoSection
+            videos={videos}
+            featuredVideo={featuredVideoItem}
+            promotedVideoId={promotedVideoId}
+            onPromote={handlePromote}
+          />
         )}
       </div>
 
