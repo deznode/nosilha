@@ -86,14 +86,12 @@ export function VideoSection({
         : videos.filter(
             (v) => (v.category || "Uncategorized") === categoryFilter
           );
-    // Exclude hero video (featured and/or promoted) from the grid
-    const excludeIds = new Set<string>();
-    if (featuredVideo) excludeIds.add(featuredVideo.id);
-    if (promotedVideoId) excludeIds.add(promotedVideoId);
-    return excludeIds.size > 0
-      ? items.filter((v) => !excludeIds.has(v.id))
-      : items;
-  }, [videos, categoryFilter, featuredVideo, promotedVideoId]);
+    // Exclude featured video from the grid (promoted stays visible with active ring)
+    if (featuredVideo) {
+      return items.filter((v) => v.id !== featuredVideo.id);
+    }
+    return items;
+  }, [videos, categoryFilter, featuredVideo]);
 
   if (isLoading) {
     return (

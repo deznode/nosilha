@@ -33,7 +33,7 @@ export const FeaturedVideoHero = React.forwardRef<
       {...props}
     >
       {/* YouTubeFacade handles thumbnail + play → iframe */}
-      <YouTubeFacade video={video} />
+      <YouTubeFacade video={video} autoPlay={isPromoted} />
 
       {/* Gradient overlay — pointer-events-none so clicks pass through to facade */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />

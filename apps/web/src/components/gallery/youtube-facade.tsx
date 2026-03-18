@@ -10,10 +10,12 @@ let deactivateCurrent: (() => void) | null = null;
 
 interface YouTubeFacadeProps {
   video: MediaItem;
+  /** When true, starts in activated (iframe) state immediately */
+  autoPlay?: boolean;
 }
 
-export function YouTubeFacade({ video }: YouTubeFacadeProps) {
-  const [activated, setActivated] = useState(false);
+export function YouTubeFacade({ video, autoPlay }: YouTubeFacadeProps) {
+  const [activated, setActivated] = useState(!!autoPlay);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const handlePlay = useCallback(() => {
