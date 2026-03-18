@@ -1,10 +1,11 @@
 "use client";
 
+import Image from "next/image";
+import { clsx } from "clsx";
 import { motion } from "framer-motion";
-import { Film, Mic } from "lucide-react";
+import { Film, Mic, Play } from "lucide-react";
 import { listItem } from "@/lib/animation/variants";
 import { formatDuration } from "@/lib/format-duration";
-import { YouTubeFacade } from "@/components/gallery/youtube-facade";
 import type { MediaItem } from "@/types/media";
 
 function isPodcast(item: MediaItem): boolean {
@@ -15,21 +16,38 @@ function isPodcast(item: MediaItem): boolean {
 
 interface CompactVideoCardProps {
   item: MediaItem;
+  /** Called when the card is clicked to promote this video to the hero player */
+  onSelect?: (item: MediaItem) => void;
+  /** When true, shows a bougainvillea-pink ring highlight */
+  isActive?: boolean;
 }
 
-export function CompactVideoCard({ item }: CompactVideoCardProps) {
+export function CompactVideoCard({
+  item,
+  onSelect,
+  isActive,
+}: CompactVideoCardProps) {
   const podcast = isPodcast(item);
+  const thumbnailUrl = item.thumbnailUrl || "/images/video-placeholder.jpg";
 
-  return (
-    <motion.div
-      variants={listItem}
-      className={`rounded-card bg-canvas shadow-subtle overflow-hidden${
-        podcast ? "border-valley-green border-l-4" : ""
-      }`}
-    >
+  const cardContent = (
+    <>
       {/* Thumbnail */}
-      <div className="relative aspect-video w-full overflow-hidden">
-        <YouTubeFacade video={item} />
+      <div className="group/card relative aspect-video w-full overflow-hidden">
+        <Image
+          src={thumbnailUrl}
+          alt={item.title || "Video thumbnail"}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          className="object-cover"
+        />
+
+        {/* Play icon overlay */}
+        <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-colors duration-300 group-hover/card:bg-black/40">
+          <span className="bg-bougainvillea-pink flex h-10 w-10 items-center justify-center rounded-full text-white transition-transform duration-300 group-hover/card:scale-110">
+            <Play size={18} className="ml-0.5" />
+          </span>
+        </div>
 
         {/* Duration badge */}
         {item.duration != null && (
@@ -74,6 +92,30 @@ export function CompactVideoCard({ item }: CompactVideoCardProps) {
           <p className="text-muted truncate text-xs">{item.author}</p>
         )}
       </div>
+    </>
+  );
+
+  return (
+    <motion.div
+      variants={listItem}
+      className={clsx(
+        "rounded-card bg-canvas shadow-subtle overflow-hidden",
+        podcast && "border-valley-green border-l-4",
+        isActive && "ring-bougainvillea-pink ring-2"
+      )}
+    >
+      {onSelect ? (
+        <button
+          type="button"
+          onClick={() => onSelect(item)}
+          className="w-full cursor-pointer text-left"
+          aria-label={`Play ${item.title}`}
+        >
+          {cardContent}
+        </button>
+      ) : (
+        cardContent
+      )}
     </motion.div>
   );
 }
