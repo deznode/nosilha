@@ -17,6 +17,9 @@ interface YouTubeFacadeProps {
 export function YouTubeFacade({ video, autoPlay }: YouTubeFacadeProps) {
   const [activated, setActivated] = useState(!!autoPlay);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  // One-shot guard: prevents Strict Mode's simulated unmount from
+  // resetting activated state when autoPlay initialized it.
+  const autoPlayGuardRef = useRef(!!autoPlay);
 
   const handlePlay = useCallback(() => {
     deactivateCurrent?.();
@@ -33,8 +36,17 @@ export function YouTubeFacade({ video, autoPlay }: YouTubeFacadeProps) {
 
   useLayoutEffect(() => {
     if (!activated) return;
+    // Register as the currently playing facade
+    deactivateCurrent = () => setActivated(false);
     const iframe = iframeRef.current;
     return () => {
+      // Skip full cleanup on first unmount when autoPlay was the source
+      // (Strict Mode double-mount). Subsequent cleanups (Activity hide,
+      // navigation) proceed normally.
+      if (autoPlayGuardRef.current) {
+        autoPlayGuardRef.current = false;
+        return;
+      }
       if (iframe?.contentWindow) {
         iframe.contentWindow.postMessage(
           JSON.stringify({ event: "command", func: "pauseVideo", args: "" }),
