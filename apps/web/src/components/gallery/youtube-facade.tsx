@@ -1,17 +1,40 @@
 "use client";
 
-import { useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Play } from "lucide-react";
 import type { MediaItem } from "@/types/media";
 
+/** Ref type for the "currently playing" deactivation callback. */
+export type DeactivateRef = React.MutableRefObject<(() => void) | null>;
+
 interface YouTubeFacadeProps {
   video: MediaItem;
+  /** When true, starts in activated (iframe) state immediately */
+  autoPlay?: boolean;
+  /** Shared ref for single-video-at-a-time enforcement (scoped to parent) */
+  deactivateRef?: DeactivateRef;
 }
 
-export function YouTubeFacade({ video }: YouTubeFacadeProps) {
-  const [activated, setActivated] = useState(false);
+export function YouTubeFacade({
+  video,
+  autoPlay,
+  deactivateRef,
+}: YouTubeFacadeProps) {
+  const [activated, setActivated] = useState(!!autoPlay);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  // One-shot guard: prevents Strict Mode's simulated unmount from
+  // resetting activated state when autoPlay initialized it.
+  // Only skips the iframe pause — deactivateRef cleanup still runs.
+  const autoPlayGuardRef = useRef(!!autoPlay);
+
+  const deactivate = useCallback(() => setActivated(false), []);
+
+  const handlePlay = useCallback(() => {
+    deactivateRef?.current?.();
+    if (deactivateRef) deactivateRef.current = deactivate;
+    setActivated(true);
+  }, [deactivateRef, deactivate]);
 
   const thumbnailUrl = video.thumbnailUrl || "/images/video-placeholder.jpg";
   const iframeSrc = video.url
@@ -22,8 +45,20 @@ export function YouTubeFacade({ video }: YouTubeFacadeProps) {
 
   useLayoutEffect(() => {
     if (!activated) return;
+    // Register as the currently playing facade
+    if (deactivateRef) deactivateRef.current = deactivate;
     const iframe = iframeRef.current;
     return () => {
+      // Clear our registration if we still own the ref
+      if (deactivateRef?.current === deactivate) {
+        deactivateRef.current = null;
+      }
+      // Skip iframe pause on first unmount when autoPlay was the source
+      // (Strict Mode double-mount). Subsequent cleanups proceed normally.
+      if (autoPlayGuardRef.current) {
+        autoPlayGuardRef.current = false;
+        return;
+      }
       if (iframe?.contentWindow) {
         iframe.contentWindow.postMessage(
           JSON.stringify({ event: "command", func: "pauseVideo", args: "" }),
@@ -32,7 +67,7 @@ export function YouTubeFacade({ video }: YouTubeFacadeProps) {
       }
       setActivated(false);
     };
-  }, [activated]);
+  }, [activated, deactivate, deactivateRef]);
 
   if (activated) {
     return (
@@ -60,7 +95,7 @@ export function YouTubeFacade({ video }: YouTubeFacadeProps) {
       />
       <div className="absolute inset-0 bg-black/0 transition-colors duration-300 group-hover/facade:bg-black/40" />
       <button
-        onClick={() => setActivated(true)}
+        onClick={handlePlay}
         aria-label={`Play ${video.title || "video"}`}
         className="absolute inset-0 flex cursor-pointer items-center justify-center focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black focus-visible:outline-none"
       >

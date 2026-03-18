@@ -33,6 +33,7 @@ import { getRandomGalleryMedia } from "@/lib/api";
 import { mapGalleryMediaToMediaItem } from "@/lib/gallery-mappers";
 import type {
   PublicGalleryMedia,
+  PublicExternalMedia,
   TimelineResponse,
   DecadeFilter,
   GalleryView,
@@ -104,6 +105,7 @@ interface GalleryContentProps {
   initialQuery: string;
   initialView?: GalleryView;
   featuredPhoto?: PublicGalleryMedia | null;
+  featuredVideo?: PublicExternalMedia | null;
   weeklyPhotos?: PublicGalleryMedia[];
   timelineData?: TimelineResponse | null;
 }
@@ -116,6 +118,7 @@ export function GalleryContent({
   initialQuery,
   initialView = "grid",
   featuredPhoto,
+  featuredVideo,
   weeklyPhotos,
   timelineData,
 }: GalleryContentProps) {
@@ -146,6 +149,9 @@ export function GalleryContent({
   const [pendingCategory, setPendingCategory] = useState<MediaCategory | "All">(
     initialCategory
   );
+
+  // Promoted video — derived reactively from URL (browser back/forward works automatically)
+  const promotedVideoId = searchParams.get("video") || null;
 
   const handleSurpriseMe = async () => {
     setSurpriseLoading(true);
@@ -197,6 +203,11 @@ export function GalleryContent({
     [allItems]
   );
 
+  const featuredVideoItem = useMemo(
+    () => (featuredVideo ? mapGalleryMediaToMediaItem(featuredVideo) : null),
+    [featuredVideo]
+  );
+
   // Track loaded page count for URL sync
   const loadedPages = useMemo(() => {
     if (!allItems.length) return 0;
@@ -245,6 +256,10 @@ export function GalleryContent({
         params.set("view", v);
       } else {
         params.delete("view");
+      }
+      // Clear promoted video when leaving videos tab
+      if (tab !== "videos") {
+        params.delete("video");
       }
       const qs = params.toString();
       router.replace(`/gallery${qs ? `?${qs}` : ""}`, { scroll: false });
@@ -366,6 +381,20 @@ export function GalleryContent({
     setCategoryFilter("All");
     updateUrl(activeTab, "All", "all");
   };
+
+  const handlePromote = useCallback(
+    (id: string | null) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (id) {
+        params.set("video", id);
+      } else {
+        params.delete("video");
+      }
+      const qs = params.toString();
+      router.replace(`/gallery${qs ? `?${qs}` : ""}`, { scroll: false });
+    },
+    [router, searchParams]
+  );
 
   const contributors = useMemo(
     () => new Set(allItems.map((item) => item.author).filter(Boolean)),
@@ -751,7 +780,14 @@ export function GalleryContent({
         )}
 
         {/* Video Archive */}
-        {activeTab === "videos" && <VideoSection videos={videos} />}
+        {activeTab === "videos" && (
+          <VideoSection
+            videos={videos}
+            featuredVideo={featuredVideoItem}
+            promotedVideoId={promotedVideoId}
+            onPromote={handlePromote}
+          />
+        )}
       </div>
 
       {/* Surprise Me Lightbox */}

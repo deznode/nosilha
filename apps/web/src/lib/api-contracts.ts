@@ -718,6 +718,17 @@ export interface ApiClient {
   >;
 
   /**
+   * Fetches the admin-selected featured video for the gallery hero section.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @returns Featured video or null if none is set
+   */
+  getFeaturedVideo(): Promise<
+    import("@/types/gallery").PublicExternalMedia | null
+  >;
+
+  /**
    * Fetches this week's discovery photos (same for all users per ISO week).
    *
    * **Public Endpoint**: No authentication required.

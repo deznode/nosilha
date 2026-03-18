@@ -6,8 +6,10 @@ import com.nosilha.core.gallery.domain.GalleryMedia
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.UserUploadedMedia
 import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
@@ -202,6 +204,36 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
      */
     @Query("SELECT m FROM UserUploadedMedia m")
     fun findAllUserUploads(): List<UserUploadedMedia>
+
+    /**
+     * Finds the currently featured video.
+     * Returns the most recently updated featured ACTIVE external media item.
+     * Uses Pageable to safely LIMIT 1 — avoids IncorrectResultSizeDataAccessException
+     * if the single-featured invariant is ever violated.
+     *
+     * @return List containing at most one featured video
+     */
+    @Query(
+        "SELECT m FROM ExternalMedia m " +
+            "WHERE m.featured = true " +
+            "AND m.status = :status " +
+            "ORDER BY m.updatedAt DESC",
+    )
+    fun findFeaturedVideo(
+        @Param("status") status: GalleryMediaStatus = GalleryMediaStatus.ACTIVE,
+        pageable: Pageable = PageRequest.of(0, 1),
+    ): List<ExternalMedia>
+
+    /**
+     * Clears the featured flag on all external media.
+     * Used to enforce single-featured-video exclusivity before setting a new one.
+     */
+    @Modifying
+    @Query(
+        "UPDATE ExternalMedia m SET m.featured = false " +
+            "WHERE m.featured = true",
+    )
+    fun clearAllFeaturedVideos()
 
     /**
      * Finds an external media item by platform and external ID.

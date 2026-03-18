@@ -143,6 +143,14 @@ describe("mapGalleryMediaToMediaItem", () => {
 
       expect(result.url).toBe("");
     });
+
+    it("does not gain duration or featured fields", () => {
+      const media = userUploadFixture();
+      const result = mapGalleryMediaToMediaItem(media);
+
+      expect(result.duration).toBeUndefined();
+      expect(result.featured).toBeUndefined();
+    });
   });
 
   describe("raw filename detection and humanization", () => {
@@ -273,6 +281,34 @@ describe("mapGalleryMediaToMediaItem", () => {
       const result = mapGalleryMediaToMediaItem(media);
 
       expect(result.description).toBeUndefined();
+    });
+
+    it("maps durationSeconds to duration for external video", () => {
+      const media = externalMediaFixture({ durationSeconds: 272 });
+      const result = mapGalleryMediaToMediaItem(media);
+
+      expect(result.duration).toBe(272);
+    });
+
+    it("maps featured flag for external video", () => {
+      const media = externalMediaFixture({ featured: true });
+      const result = mapGalleryMediaToMediaItem(media);
+
+      expect(result.featured).toBe(true);
+    });
+
+    it("maps undefined duration when durationSeconds is absent", () => {
+      const media = externalMediaFixture({ durationSeconds: undefined });
+      const result = mapGalleryMediaToMediaItem(media);
+
+      expect(result.duration).toBeUndefined();
+    });
+
+    it("maps undefined featured when featured is absent", () => {
+      const media = externalMediaFixture({ featured: undefined });
+      const result = mapGalleryMediaToMediaItem(media);
+
+      expect(result.featured).toBeUndefined();
     });
   });
 

@@ -4,12 +4,33 @@ import * as React from "react";
 import clsx from "clsx";
 import { X } from "lucide-react";
 
+type ColorScheme = "ocean" | "pink";
+
+const colorClasses: Record<
+  ColorScheme,
+  { active: string; count: string; clear: string }
+> = {
+  ocean: {
+    active: "border-ocean-blue bg-ocean-blue/10 text-ocean-blue",
+    count: "text-ocean-blue/70",
+    clear: "text-ocean-blue/70 hover:text-ocean-blue hover:bg-ocean-blue/20",
+  },
+  pink: {
+    active:
+      "border-bougainvillea-pink bg-bougainvillea-pink/10 text-bougainvillea-pink",
+    count: "text-bougainvillea-pink/70",
+    clear:
+      "text-bougainvillea-pink/70 hover:text-bougainvillea-pink hover:bg-bougainvillea-pink/20",
+  },
+};
+
 interface FilterChipProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   label: string;
   active?: boolean;
   count?: number;
   icon?: React.ReactNode;
   onClear?: () => void;
+  colorScheme?: ColorScheme;
 }
 
 export const FilterChip = React.forwardRef<HTMLButtonElement, FilterChipProps>(
@@ -21,11 +42,14 @@ export const FilterChip = React.forwardRef<HTMLButtonElement, FilterChipProps>(
       icon,
       onClick,
       onClear,
+      colorScheme = "ocean",
       className,
       ...props
     },
     ref
   ) => {
+    const colors = colorClasses[colorScheme];
+
     return (
       <button
         ref={ref}
@@ -34,7 +58,7 @@ export const FilterChip = React.forwardRef<HTMLButtonElement, FilterChipProps>(
         className={clsx(
           "touch-target rounded-button inline-flex h-9 shrink-0 items-center gap-1.5 border px-3 text-sm font-medium whitespace-nowrap transition-colors",
           active
-            ? "border-ocean-blue bg-ocean-blue/10 text-ocean-blue"
+            ? colors.active
             : "border-hairline bg-surface text-body shadow-subtle hover:bg-surface-alt",
           className
         )}
@@ -46,7 +70,7 @@ export const FilterChip = React.forwardRef<HTMLButtonElement, FilterChipProps>(
           <span
             className={clsx(
               "ml-0.5 text-xs",
-              active ? "text-ocean-blue/70" : "text-muted"
+              active ? colors.count : "text-muted"
             )}
           >
             {count}
@@ -68,7 +92,10 @@ export const FilterChip = React.forwardRef<HTMLButtonElement, FilterChipProps>(
                 onClear();
               }
             }}
-            className="text-ocean-blue/70 hover:text-ocean-blue hover:bg-ocean-blue/20 -mr-1 ml-0.5 flex shrink-0 items-center rounded-full p-0.5 transition-colors"
+            className={clsx(
+              "-mr-1 ml-0.5 flex shrink-0 items-center rounded-full p-0.5 transition-colors",
+              colors.clear
+            )}
           >
             <X size={14} />
           </span>
