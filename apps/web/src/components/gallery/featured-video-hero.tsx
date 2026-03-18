@@ -4,13 +4,18 @@ import * as React from "react";
 import { clsx } from "clsx";
 import { Film } from "lucide-react";
 import { formatDuration } from "@/lib/format-duration";
-import { YouTubeFacade } from "@/components/gallery/youtube-facade";
+import {
+  YouTubeFacade,
+  type DeactivateRef,
+} from "@/components/gallery/youtube-facade";
 import type { MediaItem } from "@/types/media";
 
 interface FeaturedVideoHeroProps extends React.HTMLAttributes<HTMLDivElement> {
   video: MediaItem | null | undefined;
   /** When true, shows "Now Playing" label instead of "Featured Video" */
   isPromoted?: boolean;
+  /** Shared ref for single-video-at-a-time enforcement */
+  deactivateRef?: DeactivateRef;
 }
 
 /**
@@ -20,7 +25,7 @@ interface FeaturedVideoHeroProps extends React.HTMLAttributes<HTMLDivElement> {
 export const FeaturedVideoHero = React.forwardRef<
   HTMLDivElement,
   FeaturedVideoHeroProps
->(({ video, isPromoted, className, ...props }, ref) => {
+>(({ video, isPromoted, deactivateRef, className, ...props }, ref) => {
   if (!video) return null;
 
   return (
@@ -33,7 +38,11 @@ export const FeaturedVideoHero = React.forwardRef<
       {...props}
     >
       {/* YouTubeFacade handles thumbnail + play → iframe */}
-      <YouTubeFacade video={video} autoPlay={isPromoted} />
+      <YouTubeFacade
+        video={video}
+        autoPlay={isPromoted}
+        deactivateRef={deactivateRef}
+      />
 
       {/* Gradient overlay — pointer-events-none so clicks pass through to facade */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />

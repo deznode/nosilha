@@ -221,19 +221,15 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     ): ExternalMedia?
 
     /**
-     * Clears the featured flag on all external media except the specified one.
-     * Used to enforce single-featured-video exclusivity.
-     *
-     * @param excludeId The UUID of the video to keep as featured
+     * Clears the featured flag on all external media.
+     * Used to enforce single-featured-video exclusivity before setting a new one.
      */
     @Modifying
     @Query(
         "UPDATE ExternalMedia m SET m.featured = false " +
-            "WHERE m.featured = true AND m.id <> :excludeId",
+            "WHERE m.featured = true",
     )
-    fun clearFeaturedVideos(
-        @Param("excludeId") excludeId: UUID,
-    )
+    fun clearAllFeaturedVideos()
 
     /**
      * Finds an external media item by platform and external ID.

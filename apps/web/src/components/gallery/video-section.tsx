@@ -41,6 +41,7 @@ export function VideoSection({
 }: VideoSectionProps) {
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+  const deactivateRef = useRef<(() => void) | null>(null);
   const { scrollTo } = useSmoothScroll();
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
@@ -115,6 +116,7 @@ export function VideoSection({
           ref={heroRef}
           video={resolvedHeroVideo}
           isPromoted={isPromoted}
+          deactivateRef={deactivateRef}
         />
       )}
 

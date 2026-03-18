@@ -272,7 +272,7 @@ class GalleryModerationService(
             request.durationSeconds?.let { media.durationSeconds = it }
             request.featured?.let { newFeatured ->
                 if (newFeatured) {
-                    repository.clearFeaturedVideos(media.id!!)
+                    repository.clearAllFeaturedVideos()
                 }
                 media.featured = newFeatured
             }

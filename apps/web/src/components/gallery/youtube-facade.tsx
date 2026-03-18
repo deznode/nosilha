@@ -5,27 +5,36 @@ import Image from "next/image";
 import { Play } from "lucide-react";
 import type { MediaItem } from "@/types/media";
 
-/** Module-level ref: deactivates whichever facade is currently playing. */
-let deactivateCurrent: (() => void) | null = null;
+/** Ref type for the "currently playing" deactivation callback. */
+export type DeactivateRef = React.MutableRefObject<(() => void) | null>;
 
 interface YouTubeFacadeProps {
   video: MediaItem;
   /** When true, starts in activated (iframe) state immediately */
   autoPlay?: boolean;
+  /** Shared ref for single-video-at-a-time enforcement (scoped to parent) */
+  deactivateRef?: DeactivateRef;
 }
 
-export function YouTubeFacade({ video, autoPlay }: YouTubeFacadeProps) {
+export function YouTubeFacade({
+  video,
+  autoPlay,
+  deactivateRef,
+}: YouTubeFacadeProps) {
   const [activated, setActivated] = useState(!!autoPlay);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   // One-shot guard: prevents Strict Mode's simulated unmount from
   // resetting activated state when autoPlay initialized it.
+  // Only skips the iframe pause — deactivateRef cleanup still runs.
   const autoPlayGuardRef = useRef(!!autoPlay);
 
+  const deactivate = useCallback(() => setActivated(false), []);
+
   const handlePlay = useCallback(() => {
-    deactivateCurrent?.();
-    deactivateCurrent = () => setActivated(false);
+    deactivateRef?.current?.();
+    if (deactivateRef) deactivateRef.current = deactivate;
     setActivated(true);
-  }, []);
+  }, [deactivateRef, deactivate]);
 
   const thumbnailUrl = video.thumbnailUrl || "/images/video-placeholder.jpg";
   const iframeSrc = video.url
@@ -37,12 +46,15 @@ export function YouTubeFacade({ video, autoPlay }: YouTubeFacadeProps) {
   useLayoutEffect(() => {
     if (!activated) return;
     // Register as the currently playing facade
-    deactivateCurrent = () => setActivated(false);
+    if (deactivateRef) deactivateRef.current = deactivate;
     const iframe = iframeRef.current;
     return () => {
-      // Skip full cleanup on first unmount when autoPlay was the source
-      // (Strict Mode double-mount). Subsequent cleanups (Activity hide,
-      // navigation) proceed normally.
+      // Clear our registration if we still own the ref
+      if (deactivateRef?.current === deactivate) {
+        deactivateRef.current = null;
+      }
+      // Skip iframe pause on first unmount when autoPlay was the source
+      // (Strict Mode double-mount). Subsequent cleanups proceed normally.
       if (autoPlayGuardRef.current) {
         autoPlayGuardRef.current = false;
         return;
@@ -55,7 +67,7 @@ export function YouTubeFacade({ video, autoPlay }: YouTubeFacadeProps) {
       }
       setActivated(false);
     };
-  }, [activated]);
+  }, [activated, deactivate, deactivateRef]);
 
   if (activated) {
     return (
