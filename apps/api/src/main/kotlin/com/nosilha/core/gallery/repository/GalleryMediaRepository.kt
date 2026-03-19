@@ -228,7 +228,7 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
      * Clears the featured flag on all external media.
      * Used to enforce single-featured-video exclusivity before setting a new one.
      */
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query(
         "UPDATE ExternalMedia m SET m.featured = false " +
             "WHERE m.featured = true",
