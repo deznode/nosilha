@@ -101,6 +101,9 @@ sealed class PublicGalleryMediaDto {
         // Smart credit attribution
         val creditPlatform: CreditPlatform? = null,
         val creditHandle: String? = null,
+        // Featured video fields
+        val durationSeconds: Int? = null,
+        val featured: Boolean = false,
     ) : PublicGalleryMediaDto()
 
     companion object {
@@ -154,6 +157,8 @@ sealed class PublicGalleryMediaDto {
                 curatorDisplayName = curatorDisplayName,
                 creditPlatform = media.creditPlatform,
                 creditHandle = media.creditHandle,
+                durationSeconds = media.durationSeconds,
+                featured = media.featured,
             )
     }
 }

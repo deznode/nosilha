@@ -14,6 +14,10 @@ import {
   FileText,
   User,
   LogIn,
+  Globe,
+  Plus,
+  UserPlus,
+  Check,
 } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "@/components/providers/auth-provider";
@@ -67,6 +71,12 @@ const moreMenuItems = [
   { label: "Media", href: "/gallery", icon: Film },
 ];
 
+const languages = [
+  { code: "EN", label: "English", flag: "🇺🇸", disabled: false },
+  { code: "PT", label: "Português", flag: "🇵🇹", disabled: true },
+  { code: "CV", label: "Kriolu", flag: "🇨🇻", disabled: true },
+];
+
 /** Routes where bottom nav should be hidden (detail pages) */
 const HIDDEN_ROUTES = [
   /^\/directory\/[^/]+\/[^/]+$/, // /directory/[category]/[slug]
@@ -87,6 +97,7 @@ export function MobileBottomNav() {
   const pathname = usePathname();
   const { session } = useAuth();
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState(languages[0]);
 
   // Hide on detail pages
   const shouldHide = HIDDEN_ROUTES.some((pattern) => pattern.test(pathname));
@@ -131,25 +142,94 @@ export function MobileBottomNav() {
 
             <div className="border-hairline my-2 border-t" />
 
+            {/* Contribute */}
+            <Link
+              href="/contribute/story"
+              onClick={() => setMoreMenuOpen(false)}
+              className="text-ocean-blue hover:bg-surface-alt rounded-button flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors"
+            >
+              <Plus className="h-5 w-5" aria-hidden="true" />
+              Contribute a Story
+            </Link>
+
+            <div className="border-hairline my-2 border-t" />
+
+            {/* Auth */}
             {session ? (
-              <Link
-                href="/profile"
-                onClick={() => setMoreMenuOpen(false)}
-                className="text-body hover:bg-surface-alt rounded-button flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors"
-              >
-                <User className="h-5 w-5" aria-hidden="true" />
-                Profile
-              </Link>
+              <>
+                <Link
+                  href="/profile"
+                  onClick={() => setMoreMenuOpen(false)}
+                  className="text-body hover:bg-surface-alt rounded-button flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors"
+                >
+                  <User className="h-5 w-5" aria-hidden="true" />
+                  Profile
+                </Link>
+                <Link
+                  href="/settings"
+                  onClick={() => setMoreMenuOpen(false)}
+                  className="text-body hover:bg-surface-alt rounded-button flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors"
+                >
+                  <Globe className="h-5 w-5" aria-hidden="true" />
+                  Settings
+                </Link>
+              </>
             ) : (
-              <Link
-                href="/login"
-                onClick={() => setMoreMenuOpen(false)}
-                className="text-body hover:bg-surface-alt rounded-button flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors"
-              >
-                <LogIn className="h-5 w-5" aria-hidden="true" />
-                Log in
-              </Link>
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setMoreMenuOpen(false)}
+                  className="text-body hover:bg-surface-alt rounded-button flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors"
+                >
+                  <LogIn className="h-5 w-5" aria-hidden="true" />
+                  Log in
+                </Link>
+                <Link
+                  href="/signup"
+                  onClick={() => setMoreMenuOpen(false)}
+                  className="text-body hover:bg-surface-alt rounded-button flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors"
+                >
+                  <UserPlus className="h-5 w-5" aria-hidden="true" />
+                  Sign up
+                </Link>
+              </>
             )}
+
+            <div className="border-hairline my-2 border-t" />
+
+            {/* Language */}
+            <div className="px-3 py-2">
+              <div className="text-muted mb-2 text-xs font-semibold tracking-wider uppercase">
+                Language
+              </div>
+              <div className="flex gap-1.5">
+                {languages.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => !lang.disabled && setCurrentLang(lang)}
+                    disabled={lang.disabled}
+                    title={lang.disabled ? "Coming soon" : undefined}
+                    className={clsx(
+                      "flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                      lang.disabled &&
+                        "border-hairline text-muted cursor-not-allowed opacity-40",
+                      !lang.disabled &&
+                        currentLang.code === lang.code &&
+                        "border-ocean-blue bg-ocean-blue text-white",
+                      !lang.disabled &&
+                        currentLang.code !== lang.code &&
+                        "border-hairline text-body hover:border-ocean-blue"
+                    )}
+                  >
+                    <span>{lang.flag}</span>
+                    {lang.code}
+                    {currentLang.code === lang.code && (
+                      <Check className="h-3 w-3" aria-hidden="true" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <div className="border-hairline my-2 border-t" />
 

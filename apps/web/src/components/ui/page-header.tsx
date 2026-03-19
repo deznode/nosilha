@@ -22,13 +22,17 @@ interface PageHeaderProps {
    * @default true
    */
   centered?: boolean;
+  /** Additional classes for the subtitle paragraph (e.g. responsive visibility). */
+  subtitleClassName?: string;
+  /** Additional classes for the outer container. */
+  className?: string;
   /**
    * Size variant for the header.
    * - "default": 3xl/4xl text (for section headers)
    * - "large": 4xl/5xl text (for page titles)
    * @default "large"
    */
-  size?: "default" | "large";
+  size?: "default" | "large" | "compact";
 }
 
 /**
@@ -44,6 +48,8 @@ export function PageHeader({
   as: Heading = "h1",
   showAccentBar = true,
   centered = true,
+  subtitleClassName,
+  className,
   size = "large",
 }: PageHeaderProps) {
   return (
@@ -51,21 +57,28 @@ export function PageHeader({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className={clsx("mb-12", centered ? "text-center" : "text-left")}
+      className={clsx(
+        size === "compact" ? "mb-2 sm:mb-8" : "mb-4 sm:mb-12",
+        centered ? "text-center" : "text-left",
+        className
+      )}
     >
       <Heading
-        className={clsx(
-          "text-ocean-blue mb-4 font-serif font-bold",
-          size === "large" ? "text-4xl sm:text-5xl" : "text-3xl md:text-4xl"
-        )}
+        className={clsx("text-ocean-blue mb-4 font-serif font-bold", {
+          "text-4xl sm:text-5xl": size === "large",
+          "text-2xl sm:text-3xl": size === "compact",
+          "text-3xl md:text-4xl": size === "default",
+        })}
       >
         {title}
       </Heading>
       {subtitle && (
         <p
           className={clsx(
-            "text-muted max-w-2xl font-sans text-lg leading-relaxed",
-            centered && "mx-auto"
+            "text-muted max-w-2xl font-sans leading-relaxed",
+            size === "compact" ? "text-base" : "text-lg",
+            centered && "mx-auto",
+            subtitleClassName
           )}
         >
           {subtitle}
@@ -78,7 +91,8 @@ export function PageHeader({
           transition={{ duration: 0.6, delay: 0.3 }}
           className={clsx(
             "bg-bougainvillea-pink mt-4 h-1 w-24 rounded-full",
-            centered && "mx-auto"
+            centered && "mx-auto",
+            size === "compact" && "hidden sm:block"
           )}
         />
       )}

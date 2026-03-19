@@ -34,11 +34,11 @@ export function MapSidebar({ onFlyTo }: MapSidebarProps) {
   return (
     <div
       className={clsx(
-        "border-border-primary absolute top-0 bottom-0 left-0 z-30 flex w-full flex-col border-r bg-white/95 font-sans shadow-2xl backdrop-blur-xl transition-transform duration-500 ease-in-out md:w-[420px] dark:border-white/10 dark:bg-black/40",
+        "border-border-primary map-desktop:w-[420px] absolute top-0 bottom-0 left-0 z-30 flex w-full flex-col border-r bg-white/95 font-sans shadow-2xl backdrop-blur-xl transition-transform duration-500 ease-in-out dark:border-white/10 dark:bg-black/40",
         !showSidebar && "-translate-x-full"
       )}
     >
-      <div className="h-24 shrink-0 md:h-28" />
+      <div className="map-desktop:h-28 h-24 shrink-0" />
       <div className="shrink-0 px-6 pb-2">
         <div className="relative mb-6" role="search">
           <Search
@@ -103,7 +103,7 @@ export function MapSidebar({ onFlyTo }: MapSidebarProps) {
       </div>
       <button
         onClick={toggleSidebar}
-        className="border-border-primary text-text-tertiary hover:text-ocean-blue absolute top-1/2 -right-6 hidden h-24 w-6 items-center justify-center rounded-r-xl border border-l-0 bg-white/90 shadow-sm backdrop-blur transition-all hover:bg-white md:flex dark:border-white/10 dark:bg-black/40 dark:hover:bg-black/60"
+        className="border-border-primary text-text-tertiary hover:text-ocean-blue map-desktop:flex absolute top-1/2 -right-6 hidden h-24 w-6 items-center justify-center rounded-r-xl border border-l-0 bg-white/90 shadow-sm backdrop-blur transition-all hover:bg-white dark:border-white/10 dark:bg-black/40 dark:hover:bg-black/60"
       >
         {showSidebar ? (
           <div className="bg-border-primary h-8 w-1 rounded-full" />

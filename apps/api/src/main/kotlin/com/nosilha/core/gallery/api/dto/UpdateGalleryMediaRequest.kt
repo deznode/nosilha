@@ -1,5 +1,6 @@
 package com.nosilha.core.gallery.api.dto
 
+import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
 
 /**
@@ -21,4 +22,7 @@ data class UpdateGalleryMediaRequest(
     @field:Size(max = 255, message = "Photographer credit cannot exceed 255 characters")
     val photographerCredit: String? = null,
     val showInGallery: Boolean? = null,
+    val featured: Boolean? = null,
+    @field:Min(value = 0, message = "Duration must be non-negative")
+    val durationSeconds: Int? = null,
 )

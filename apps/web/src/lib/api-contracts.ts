@@ -5,7 +5,7 @@ import type {
   ReactionResponseDto,
   ReactionCountsDto,
 } from "@/types/reaction";
-import type { MediaMetadataDto, ApprovedMediaPageResponse } from "@/types/api";
+import type { ApprovedMediaPageResponse } from "@/types/api";
 import type { StorySubmission, SubmissionStatus } from "@/types/story";
 import type {
   AdminStats,
@@ -144,7 +144,9 @@ export interface ApiClient {
     }
   ): Promise<string>;
 
-  getMediaByEntry(entryId: string): Promise<MediaMetadataDto[]>;
+  getMediaByEntry(
+    entryId: string
+  ): Promise<import("@/types/gallery").PublicUserUploadMedia[]>;
 
   /**
    * Get approved (AVAILABLE) user-uploaded media for gallery display.
@@ -715,6 +717,17 @@ export interface ApiClient {
    */
   getFeaturedPhoto(): Promise<
     import("@/types/gallery").PublicGalleryMedia | null
+  >;
+
+  /**
+   * Fetches the admin-selected featured video for the gallery hero section.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * @returns Featured video or null if none is set
+   */
+  getFeaturedVideo(): Promise<
+    import("@/types/gallery").PublicExternalMedia | null
   >;
 
   /**

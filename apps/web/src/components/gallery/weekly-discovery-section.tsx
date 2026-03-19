@@ -71,7 +71,7 @@ export function WeeklyDiscoverySection({
                     </div>
                   )}
                 </div>
-                <div className="bg-surface border-hairline border-x border-b p-2">
+                <div className="bg-surface border-hairline flex min-h-[3.5rem] flex-col justify-center border-x border-b p-2">
                   <p className="text-body truncate text-sm font-medium">
                     {photo.title}
                   </p>

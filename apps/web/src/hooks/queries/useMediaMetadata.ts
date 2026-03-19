@@ -1,6 +1,6 @@
 import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { getMediaByEntry } from "@/lib/api";
-import type { MediaMetadataDto } from "@/types/api";
+import type { PublicUserUploadMedia } from "@/types/gallery";
 
 /**
  * TanStack Query hook for fetching media metadata for a directory entry.
@@ -13,11 +13,11 @@ import type { MediaMetadataDto } from "@/types/api";
 export function useMediaMetadata(
   entryId: string | undefined,
   options?: Omit<
-    UseQueryOptions<MediaMetadataDto[], Error>,
+    UseQueryOptions<PublicUserUploadMedia[], Error>,
     "queryKey" | "queryFn"
   >
 ) {
-  return useQuery<MediaMetadataDto[], Error>({
+  return useQuery<PublicUserUploadMedia[], Error>({
     queryKey: ["media", "metadata", entryId],
     queryFn: async () => {
       if (!entryId) return [];

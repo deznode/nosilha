@@ -127,16 +127,17 @@ async function cachedHistoryContent(bestLang: Language) {
       {/* Outer wrapper: -mt-16 pulls content up behind fixed header for transparent navbar effect */}
       <div className="relative -mt-16 font-sans">
         {/* Image Hero - extends behind transparent header */}
-        <ImageHeroSection
-          imageSrc={hero.imageSrc}
-          imageAlt="Historical timeline of Brava Island from discovery to present day"
-          heightClass="h-[65vh]"
-          maxHeightClass="max-h-[600px]"
-        />
+        <div className="relative h-[45vh] max-h-[600px] w-full overflow-hidden sm:h-[65vh]">
+          <ImageHeroSection
+            imageSrc={hero.imageSrc}
+            imageAlt="Historical timeline of Brava Island from discovery to present day"
+            heightClass="h-full"
+          />
+        </div>
 
         {/* Content section with background - starts below hero */}
         <div className="bg-surface">
-          <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-16 lg:px-8">
             <PageHeader
               title="Our Island, Our Story"
               subtitle="Settled by refugees from a volcanic eruption, immortalized by a poet's pen, and carried across oceans by whalers and dreamers — Brava's story begins here."

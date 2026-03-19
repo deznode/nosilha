@@ -24,10 +24,11 @@ export function ContributePageContent() {
 
   return (
     <div className="bg-background-secondary font-sans">
-      <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-16 lg:px-8">
         <PageHeader
           title="Contribute to Nos Ilha"
           subtitle="Help us build the most comprehensive guide to Brava Island by sharing your knowledge, photos, and experiences."
+          size="compact"
         />
 
         {/* Hero Section */}
@@ -36,7 +37,7 @@ export function ContributePageContent() {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="bg-background-primary rounded-card shadow-subtle mt-16 p-8"
+          className="bg-background-primary rounded-card shadow-subtle mt-8 p-8 sm:mt-16"
         >
           <div className="text-center">
             <Heart className="text-ocean-blue mx-auto h-16 w-16" />

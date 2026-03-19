@@ -8,6 +8,7 @@ import {
 } from "@headlessui/react";
 import { ChevronDown, Check } from "lucide-react";
 import clsx from "clsx";
+import { useActivityRemountKey } from "@/lib/hooks/use-activity-remount-key";
 
 export interface SelectOption {
   value: string;
@@ -37,9 +38,16 @@ export function Select({
   name,
 }: SelectProps) {
   const selected = options.find((o) => o.value === value);
+  const remountKey = useActivityRemountKey();
 
   return (
-    <Listbox value={value} onChange={onChange} disabled={disabled} name={name}>
+    <Listbox
+      key={remountKey}
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+      name={name}
+    >
       <span
         data-slot="control"
         data-invalid={invalid ? "" : undefined}

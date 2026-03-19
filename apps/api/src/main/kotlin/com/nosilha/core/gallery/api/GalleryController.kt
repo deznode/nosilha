@@ -10,6 +10,7 @@ import com.nosilha.core.gallery.api.dto.TimelineDto
 import com.nosilha.core.gallery.domain.GalleryService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
+import com.nosilha.core.shared.exception.ResourceNotFoundException
 import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -42,6 +43,7 @@ private val logger = KotlinLogging.logger {}
  * - GET /featured - Daily featured photo (seeded by day)
  * - GET /weekly - Weekly discovery photos (seeded by ISO week)
  * - GET /timeline - Decade-grouped timeline aggregation
+ * - GET /videos/featured - Currently featured video for gallery hero
  * - POST /upload/presign - Presigned URL for user upload
  * - POST /upload/confirm - Confirm user upload
  * - POST /submit - Submit external media for review
@@ -155,6 +157,20 @@ class GalleryController(
         val cappedCount = count.coerceIn(1, 10)
         logger.debug { "Random media request: count=$cappedCount" }
         return ApiResult(data = galleryService.getRandomMedia(cappedCount))
+    }
+
+    /**
+     * Returns the currently featured video for the gallery hero section.
+     *
+     * <p>Returns 404 when no video is currently set as featured.</p>
+     *
+     * @return ApiResult with the featured video, or 404
+     */
+    @GetMapping("/videos/featured")
+    fun getFeaturedVideo(): ApiResult<PublicGalleryMediaDto.External> {
+        val featured = galleryService.getFeaturedVideo()
+            ?: throw ResourceNotFoundException("No featured video is currently set.")
+        return ApiResult(data = featured)
     }
 
     /**

@@ -11,10 +11,11 @@ import { pageStagger, pageItem } from "@/lib/animation";
 export function AboutPageContent() {
   return (
     <div className="bg-surface font-sans">
-      <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-screen-xl px-4 py-8 sm:px-6 sm:py-16 lg:px-8">
         <PageHeader
           title="About Nos Ilha"
           subtitle="A community-driven platform celebrating the cultural heritage and natural beauty of Brava Island, Cape Verde."
+          size="compact"
         />
 
         {/* Hero Section */}
@@ -23,7 +24,7 @@ export function AboutPageContent() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="bg-canvas border-hairline rounded-card shadow-subtle mt-16 border p-8"
+          className="bg-canvas border-hairline rounded-card shadow-subtle mt-8 border p-8 sm:mt-16"
         >
           <div className="grid items-center gap-8 lg:grid-cols-2">
             <div>

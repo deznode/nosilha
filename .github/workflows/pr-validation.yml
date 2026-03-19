@@ -49,7 +49,7 @@ jobs:
       frontend: ${{ steps.affected.outputs.web }}
       infrastructure: ${{ steps.infra.outputs.infrastructure }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -96,12 +96,12 @@ jobs:
       needs.changes.outputs.frontend != 'true' &&
       needs.changes.outputs.infrastructure != 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Run Trivy vulnerability scanner (full repository)
-        uses: aquasecurity/trivy-action@0.34.2
+        uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: 'fs'
           format: 'sarif'
@@ -117,7 +117,7 @@ jobs:
 
     steps:
       - name: Wait for service CIs to complete
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         id: check-status
         with:
           script: |
@@ -187,7 +187,7 @@ jobs:
             core.setOutput('security', results.security);
 
       - name: Generate PR Status Report
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const results = {

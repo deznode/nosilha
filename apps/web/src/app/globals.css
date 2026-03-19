@@ -274,6 +274,7 @@
 /* Dark mode variant for Tailwind utilities */
 @custom-variant dark (&:is(.dark *));
 @custom-variant pointer-coarse (@media (pointer: coarse));
+@custom-variant map-desktop (@media (min-width: 768px) and (min-height: 500px));
 
 @layer base {
   /* Enhanced Global Scroll Behavior */

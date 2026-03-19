@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Menu,
   MenuButton,
@@ -12,8 +14,6 @@ import {
   PopoverGroup,
 } from "@headlessui/react";
 import {
-  Menu as MenuIcon,
-  X,
   Globe,
   UserCircle,
   Plus,
@@ -24,9 +24,6 @@ import {
   Shield,
   type LucideIcon,
 } from "lucide-react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
 
 import { NosilhaLogo } from "./logo";
@@ -102,8 +99,6 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [currentLang, setCurrentLang] = useState(languages[0]);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   const isHome = pathname === "/";
 
   // --- Stuck detection ---
@@ -144,26 +139,8 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
   // --- Shared nav bar content (used by both modes) ---
   const navBarContent = (
     <>
-      {/* Left Section: Logo & Mobile Menu Trigger */}
+      {/* Left Section: Logo */}
       <div className="flex items-center">
-        <div className="mr-2 flex md:hidden">
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className={clsx(
-              "group focus-visible:ring-ocean-blue relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-colors focus:outline-none focus-visible:ring-2",
-              isHeroTransparent
-                ? "text-white/70 hover:bg-white/10 hover:text-white"
-                : "text-text-secondary hover:bg-background-secondary hover:text-ocean-blue"
-            )}
-          >
-            <span className="sr-only">Open main menu</span>
-            {mobileMenuOpen ? (
-              <X className="block h-6 w-6" aria-hidden="true" />
-            ) : (
-              <MenuIcon className="block h-6 w-6" aria-hidden="true" />
-            )}
-          </button>
-        </div>
         <div className="flex shrink-0 items-center">
           <Link
             href="/"
@@ -325,12 +302,13 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
                       disabled={lang.disabled}
                       title={lang.disabled ? "Coming soon" : undefined}
                       className={clsx(
-                        lang.disabled
-                          ? "text-text-tertiary cursor-not-allowed opacity-50"
-                          : active
-                            ? "bg-background-secondary text-ocean-blue"
-                            : "text-text-primary",
-                        "group flex w-full items-center justify-between px-4 py-2 text-sm"
+                        "group flex w-full items-center justify-between px-4 py-2 text-sm",
+                        lang.disabled &&
+                          "text-text-tertiary cursor-not-allowed opacity-50",
+                        !lang.disabled &&
+                          active &&
+                          "bg-background-secondary text-ocean-blue",
+                        !lang.disabled && !active && "text-text-primary"
                       )}
                     >
                       <span className="flex items-center gap-2">
@@ -490,172 +468,6 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
     </>
   );
 
-  // --- Shared mobile menu ---
-  const mobileMenu = (
-    <AnimatePresence>
-      {mobileMenuOpen && (
-        <motion.div
-          initial={{ opacity: 0, y: isHeroTransparent ? 10 : -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: isHeroTransparent ? 10 : -10 }}
-          transition={{ duration: 0.2 }}
-          className={clsx(
-            "border-border-primary bg-canvas fixed inset-x-0 z-40 max-h-[85vh] overflow-y-auto md:hidden",
-            isHeroTransparent
-              ? "rounded-t-card bottom-20 border-b"
-              : "top-16 border-t"
-          )}
-        >
-          <div className="space-y-1 pt-2 pb-3">
-            {navigation.map((item) => {
-              if (item.type === "dropdown") {
-                return (
-                  <div key={item.name}>
-                    <div className="text-text-tertiary border-l-4 border-transparent py-2 pr-4 pl-3 text-xs font-semibold tracking-wider uppercase">
-                      {item.name}
-                    </div>
-                    {item.items.map((child) => (
-                      <Link
-                        key={child.name}
-                        href={child.href}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={clsx(
-                          "block border-l-4 py-2 pr-4 pl-6 text-base font-medium",
-                          pathname === child.href
-                            ? "border-ocean-blue bg-ocean-blue/5 text-ocean-blue"
-                            : "text-text-secondary hover:border-border-primary hover:bg-background-secondary hover:text-text-primary border-transparent"
-                        )}
-                      >
-                        {child.name}
-                      </Link>
-                    ))}
-                  </div>
-                );
-              }
-
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={clsx(
-                    "block border-l-4 py-2 pr-4 pl-3 text-base font-medium",
-                    pathname === item.href
-                      ? "border-ocean-blue bg-ocean-blue/5 text-ocean-blue"
-                      : "text-text-secondary hover:border-border-primary hover:bg-background-secondary hover:text-text-primary border-transparent"
-                  )}
-                >
-                  {item.name}
-                </Link>
-              );
-            })}
-
-            {/* Admin Link - Only visible to admins */}
-            {user?.role === "ADMIN" && (
-              <Link
-                href="/admin"
-                onClick={() => setMobileMenuOpen(false)}
-                className={clsx(
-                  "flex items-center gap-2 border-l-4 py-2 pr-4 pl-3 text-base font-medium",
-                  pathname.startsWith("/admin")
-                    ? "border-ocean-blue bg-ocean-blue/5 text-ocean-blue"
-                    : "text-text-secondary hover:border-border-primary hover:bg-background-secondary hover:text-text-primary border-transparent"
-                )}
-              >
-                <Shield className="h-5 w-5" />
-                Admin
-              </Link>
-            )}
-          </div>
-
-          {/* Mobile Actions / Language / Auth */}
-          <div className="border-border-primary border-t pt-4 pb-3">
-            {/* Language Selection Mobile */}
-            <div className="mb-4 px-4">
-              <div className="text-text-tertiary mb-2 text-xs font-semibold tracking-wider uppercase">
-                Language
-              </div>
-              <div className="flex space-x-2">
-                {languages.map((lang) => (
-                  <button
-                    key={lang.code}
-                    onClick={() => !lang.disabled && setCurrentLang(lang)}
-                    disabled={lang.disabled}
-                    title={lang.disabled ? "Coming soon" : undefined}
-                    className={clsx(
-                      "flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
-                      lang.disabled
-                        ? "border-border-primary text-text-tertiary cursor-not-allowed bg-transparent opacity-40"
-                        : currentLang.code === lang.code
-                          ? "border-ocean-blue bg-ocean-blue text-white"
-                          : "border-border-primary text-text-secondary hover:border-ocean-blue bg-transparent"
-                    )}
-                  >
-                    <span>{lang.flag}</span>
-                    {lang.code}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-3 px-4">
-              <div className="grow">
-                {session ? (
-                  <div className="text-text-primary text-base font-medium">
-                    {session.user.email}
-                  </div>
-                ) : (
-                  <div className="text-text-secondary text-base font-medium">
-                    Guest User
-                  </div>
-                )}
-              </div>
-              <ThemeToggle />
-            </div>
-
-            <div className="mt-3 space-y-1 px-2">
-              <Link
-                href="/contribute/story"
-                onClick={() => setMobileMenuOpen(false)}
-                className="text-ocean-blue hover:bg-ocean-blue/10 block rounded-md px-3 py-2 text-base font-medium"
-              >
-                + Contribute a Story
-              </Link>
-              {session ? (
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    handleLogout();
-                  }}
-                  className="text-text-secondary hover:bg-background-secondary block w-full rounded-md px-3 py-2 text-left text-base font-medium"
-                >
-                  Sign out
-                </button>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-text-secondary hover:bg-background-secondary block rounded-md px-3 py-2 text-base font-medium"
-                  >
-                    Log in
-                  </Link>
-                  <Link
-                    href="/signup"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-text-secondary hover:bg-background-secondary block rounded-md px-3 py-2 text-base font-medium"
-                  >
-                    Sign up
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-
   // --- Hero mode: in-flow sticky nav at bottom of hero ---
   if (heroMode) {
     return (
@@ -689,8 +501,6 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
             </div>
           </div>
         </div>
-
-        {mobileMenu}
       </>
     );
   }
@@ -703,11 +513,9 @@ export function StickyNav({ className, heroMode = false }: StickyNavProps) {
         className
       )}
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-12 max-w-7xl items-center justify-between px-4 sm:px-6 md:h-16 lg:px-8">
         {navBarContent}
       </div>
-
-      {mobileMenu}
     </nav>
   );
 }

@@ -268,6 +268,15 @@ class GalleryModerationService(
             media.creditPlatform = parsed.platform
             media.creditHandle = parsed.handle
         }
+        if (media is ExternalMedia) {
+            request.durationSeconds?.let { media.durationSeconds = it }
+            request.featured?.let { newFeatured ->
+                if (newFeatured) {
+                    repository.clearAllFeaturedVideos()
+                }
+                media.featured = newFeatured
+            }
+        }
 
         val saved = repository.save(media)
 

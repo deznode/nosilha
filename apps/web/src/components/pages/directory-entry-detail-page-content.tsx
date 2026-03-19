@@ -4,12 +4,14 @@ import Image from "next/image";
 import { useRef } from "react";
 import { MapPin, Phone, Clock, Building2, Sparkles } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { CollapsibleHero } from "@/components/ui/collapsible-hero";
 import { ContributePhotosSection } from "@/components/ui/contribute-photos-section";
 import { ContentActionToolbar } from "@/components/ui/content-action-toolbar";
 import { ImageGallery } from "@/components/ui/image-gallery";
 import { RelatedEntries } from "@/components/ui/related-entries";
 import StarRating from "@/components/ui/start-rating";
 import { useMediaMetadata } from "@/hooks/queries/useMediaMetadata";
+import { publicUserUploadToPhoto } from "@/lib/gallery-mappers";
 import { getHotelDetails, getRestaurantDetails } from "@/lib/api-validation";
 import { getEntryUrl } from "@/lib/directory-utils";
 import { siteConfig } from "@/lib/metadata";
@@ -90,10 +92,9 @@ export function DirectoryEntryDetailPageContent({
 
   // Fetch gallery images for this entry
   const { data: mediaItems } = useMediaMetadata(entry.id);
-  const galleryImages =
-    mediaItems
-      ?.filter((item) => item.publicUrl)
-      .map((item) => item.publicUrl!) ?? [];
+  const galleryPhotos =
+    mediaItems?.filter((item) => item.publicUrl).map(publicUserUploadToPhoto) ??
+    [];
 
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -107,8 +108,12 @@ export function DirectoryEntryDetailPageContent({
       ref={containerRef}
       className="bg-background-secondary min-h-screen pb-24 font-sans md:pb-12"
     >
-      {/* Parallax Hero */}
-      <div className="relative h-[60vh] min-h-[400px] w-full overflow-hidden">
+      {/* Parallax Hero with Collapsible Bar */}
+      <CollapsibleHero
+        title={entry.name}
+        backHref={`/directory/${entry.category.toLowerCase()}`}
+        heightClass="h-[45vh] min-h-[300px] sm:h-[60vh] sm:min-h-[400px]"
+      >
         <motion.div style={{ y }} className="absolute inset-0 h-[120%] w-full">
           {entry.imageUrl ? (
             <Image
@@ -149,7 +154,7 @@ export function DirectoryEntryDetailPageContent({
             </motion.div>
           </div>
         </div>
-      </div>
+      </CollapsibleHero>
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:pl-24">
         <div className="mt-8 grid grid-cols-1 gap-x-12 gap-y-10 lg:grid-cols-3">
@@ -219,7 +224,7 @@ export function DirectoryEntryDetailPageContent({
               <h2 className="text-text-primary font-serif text-3xl font-bold">
                 Gallery
               </h2>
-              <ImageGallery imageUrls={galleryImages} />
+              <ImageGallery photos={galleryPhotos} />
             </div>
 
             <div className="border-border-primary my-12 border-t" />

@@ -46,6 +46,10 @@ export interface MediaItem {
   source?: "curated" | "user";
   creditPlatform?: string;
   creditHandle?: string;
+  /** Duration in seconds (mapped from durationSeconds for external video/audio) */
+  duration?: number;
+  /** Whether this is the featured video */
+  featured?: boolean;
   // Metadata fields (from gallery API)
   altText?: string;
   dateTaken?: string;
