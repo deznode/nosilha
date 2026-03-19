@@ -47,7 +47,10 @@ export function VideoGrid({
         {/* Mobile carousel */}
         <div className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 md:hidden">
           {items.map((item) => (
-            <div key={item.id} className="w-72 flex-shrink-0 snap-start">
+            <div
+              key={item.id}
+              className="w-[min(18rem,_80vw)] flex-shrink-0 snap-start"
+            >
               <CompactVideoCard
                 item={item}
                 isActive={item.id === selectedVideoId}
@@ -92,7 +95,7 @@ export function VideoGrid({
           <motion.div
             key={item.id}
             variants={listItem}
-            className="w-72 flex-shrink-0 snap-start"
+            className="w-[min(18rem,_80vw)] flex-shrink-0 snap-start"
           >
             <CompactVideoCard
               item={item}

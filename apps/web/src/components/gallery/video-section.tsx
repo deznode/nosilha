@@ -95,13 +95,13 @@ export function VideoSection({
         : videos.filter(
             (v) => (v.category || "Uncategorized") === categoryFilter
           );
-    // Exclude whichever video is currently in the hero from the grid
-    const heroId = resolvedHeroVideo?.id;
-    if (heroId) {
-      return items.filter((v) => v.id !== heroId);
+    // Only exclude the editorial featured video from the grid;
+    // keep the user-promoted video so it shows the active ring indicator
+    if (featuredVideo?.id) {
+      return items.filter((v) => v.id !== featuredVideo.id);
     }
     return items;
-  }, [videos, categoryFilter, resolvedHeroVideo]);
+  }, [videos, categoryFilter, featuredVideo]);
 
   if (isLoading) {
     return (

@@ -12,7 +12,7 @@ const colorClasses: Record<
 > = {
   ocean: {
     active: "border-ocean-blue bg-ocean-blue/10 text-ocean-blue",
-    count: "text-ocean-blue/70",
+    count: "text-ocean-blue",
     clear: "text-ocean-blue/70 hover:text-ocean-blue hover:bg-ocean-blue/20",
   },
   pink: {
@@ -50,20 +50,16 @@ export const FilterChip = React.forwardRef<HTMLButtonElement, FilterChipProps>(
   ) => {
     const colors = colorClasses[colorScheme];
 
-    return (
-      <button
-        ref={ref}
-        type="button"
-        onClick={onClick}
-        className={clsx(
-          "touch-target rounded-button inline-flex h-9 shrink-0 items-center gap-1.5 border px-3 text-sm font-medium whitespace-nowrap transition-colors",
-          active
-            ? colors.active
-            : "border-hairline bg-surface text-body shadow-subtle hover:bg-surface-alt",
-          className
-        )}
-        {...props}
-      >
+    const chipStyles = clsx(
+      "touch-target rounded-button inline-flex h-9 shrink-0 items-center gap-1.5 border text-sm font-medium whitespace-nowrap transition-colors",
+      active
+        ? colors.active
+        : "border-hairline bg-surface text-body shadow-subtle hover:bg-surface-alt",
+      className
+    );
+
+    const labelContent = (
+      <>
         {icon && <span className="flex shrink-0 items-center">{icon}</span>}
         <span>{label}</span>
         {count != null && count > 0 && (
@@ -76,30 +72,47 @@ export const FilterChip = React.forwardRef<HTMLButtonElement, FilterChipProps>(
             {count}
           </span>
         )}
-        {active && onClear && (
-          <span
-            role="button"
-            tabIndex={0}
+      </>
+    );
+
+    // When active with a clear action, render two sibling buttons
+    // to avoid nesting an interactive element inside a button (ARIA violation)
+    if (active && onClear) {
+      return (
+        <div role="group" aria-label={label} className={chipStyles}>
+          <button
+            ref={ref}
+            type="button"
+            onClick={onClick}
+            className="inline-flex items-center gap-1.5 pl-3"
+            {...props}
+          >
+            {labelContent}
+          </button>
+          <button
+            type="button"
             aria-label={`Clear ${label}`}
-            onClick={(e) => {
-              e.stopPropagation();
-              onClear();
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.stopPropagation();
-                e.preventDefault();
-                onClear();
-              }
-            }}
+            onClick={onClear}
             className={clsx(
-              "-mr-1 ml-0.5 flex shrink-0 items-center rounded-full p-0.5 transition-colors",
+              "mr-1.5 ml-0.5 flex shrink-0 items-center rounded-full p-0.5 transition-colors",
               colors.clear
             )}
           >
             <X size={14} />
-          </span>
-        )}
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <button
+        ref={ref}
+        type="button"
+        onClick={onClick}
+        className={clsx(chipStyles, "px-3")}
+        {...props}
+      >
+        {labelContent}
       </button>
     );
   }

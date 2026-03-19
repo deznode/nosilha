@@ -429,6 +429,7 @@ export function GalleryContent({
               <button
                 onClick={handleSurpriseMe}
                 disabled={surpriseLoading || totalItems === 0}
+                aria-label="Surprise Me"
                 className="rounded-button flex items-center gap-2 border border-white/30 px-4 py-2.5 text-sm font-medium text-white transition-all hover:border-white/60 hover:bg-white/10 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {surpriseLoading ? (
@@ -440,6 +441,7 @@ export function GalleryContent({
               </button>
               <Link
                 href="/contribute/media"
+                aria-label="Add to Archive"
                 className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-subtle flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95"
               >
                 <Plus size={18} />
@@ -533,7 +535,7 @@ export function GalleryContent({
               ) : (
                 <button
                   onClick={() => setIsSearchExpanded(true)}
-                  className="text-muted hover:text-body flex shrink-0 items-center self-center p-2 md:hidden"
+                  className="touch-target text-muted hover:text-body flex shrink-0 items-center self-center p-2 md:hidden"
                   aria-label="Search"
                 >
                   <Search size={18} />

@@ -14,12 +14,15 @@ interface YouTubeFacadeProps {
   autoPlay?: boolean;
   /** Shared ref for single-video-at-a-time enforcement (scoped to parent) */
   deactivateRef?: DeactivateRef;
+  /** When true, loads the thumbnail image eagerly (for LCP optimization) */
+  priority?: boolean;
 }
 
 export function YouTubeFacade({
   video,
   autoPlay,
   deactivateRef,
+  priority,
 }: YouTubeFacadeProps) {
   const [activated, setActivated] = useState(!!autoPlay);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -90,6 +93,7 @@ export function YouTubeFacade({
         src={thumbnailUrl}
         alt={video.title || "Video thumbnail"}
         fill
+        priority={priority}
         sizes="(max-width: 768px) 100vw, 50vw"
         className="object-cover transition-transform duration-500 group-hover/facade:scale-105"
       />

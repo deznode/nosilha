@@ -42,6 +42,7 @@ export const FeaturedVideoHero = React.forwardRef<
         video={video}
         autoPlay={isPromoted}
         deactivateRef={deactivateRef}
+        priority
       />
 
       {/* Gradient overlay — pointer-events-none so clicks pass through to facade */}
@@ -51,11 +52,11 @@ export const FeaturedVideoHero = React.forwardRef<
       <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4 sm:p-6">
         <div className="mb-2 flex items-center gap-1.5">
           <Film size={14} className="text-bougainvillea-pink" />
-          <span className="text-bougainvillea-pink text-xs font-bold tracking-wider uppercase">
+          <span className="text-bougainvillea-pink text-[13px] font-bold tracking-wider uppercase">
             {isPromoted ? "Now Playing" : "Featured Video"}
           </span>
         </div>
-        <h2 className="text-lg font-bold text-white sm:text-xl">
+        <h2 className="line-clamp-2 text-lg font-bold text-white sm:text-xl">
           {video.title}
         </h2>
         <div className="mt-1 flex items-center gap-2 text-sm text-white/70">
