@@ -58,6 +58,7 @@ import type {
   GalleryMediaStatus,
   PublicGalleryMedia,
   PublicExternalMedia,
+  PublicUserUploadMedia,
   PublicGalleryMediaPageResponse,
   SubmitExternalMediaRequest,
   CreateExternalMediaRequest,
@@ -438,7 +439,7 @@ export class BackendApiClient implements ApiClient {
    * @param entryId UUID of the directory entry
    * @returns Array of MediaMetadataDto for the entry
    */
-  async getMediaByEntry(entryId: string): Promise<MediaMetadataDto[]> {
+  async getMediaByEntry(entryId: string): Promise<PublicUserUploadMedia[]> {
     const endpoint = `${env.apiUrl}/api/v1/gallery/entry/${entryId}`;
 
     const response = await fetch(endpoint, {
@@ -454,7 +455,7 @@ export class BackendApiClient implements ApiClient {
     }
 
     const payload = await response.json();
-    return this.unwrapApiResponse<MediaMetadataDto[]>(payload);
+    return this.unwrapApiResponse<PublicUserUploadMedia[]>(payload);
   }
 
   /**

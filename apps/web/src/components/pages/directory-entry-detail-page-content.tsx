@@ -11,6 +11,7 @@ import { ImageGallery } from "@/components/ui/image-gallery";
 import { RelatedEntries } from "@/components/ui/related-entries";
 import StarRating from "@/components/ui/start-rating";
 import { useMediaMetadata } from "@/hooks/queries/useMediaMetadata";
+import { publicUserUploadToPhoto } from "@/lib/gallery-mappers";
 import { getHotelDetails, getRestaurantDetails } from "@/lib/api-validation";
 import { getEntryUrl } from "@/lib/directory-utils";
 import { siteConfig } from "@/lib/metadata";
@@ -91,10 +92,9 @@ export function DirectoryEntryDetailPageContent({
 
   // Fetch gallery images for this entry
   const { data: mediaItems } = useMediaMetadata(entry.id);
-  const galleryImages =
-    mediaItems
-      ?.filter((item) => item.publicUrl)
-      .map((item) => item.publicUrl!) ?? [];
+  const galleryPhotos =
+    mediaItems?.filter((item) => item.publicUrl).map(publicUserUploadToPhoto) ??
+    [];
 
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -224,7 +224,7 @@ export function DirectoryEntryDetailPageContent({
               <h2 className="text-text-primary font-serif text-3xl font-bold">
                 Gallery
               </h2>
-              <ImageGallery imageUrls={galleryImages} />
+              <ImageGallery photos={galleryPhotos} />
             </div>
 
             <div className="border-border-primary my-12 border-t" />

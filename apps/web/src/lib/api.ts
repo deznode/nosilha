@@ -5,7 +5,7 @@ import type {
   ReactionResponseDto,
   ReactionCountsDto,
 } from "@/types/reaction";
-import type { MediaMetadataDto, ApprovedMediaPageResponse } from "@/types/api";
+import type { ApprovedMediaPageResponse } from "@/types/api";
 import type {
   PaginatedResult,
   StorySubmitRequest,
@@ -149,7 +149,7 @@ export async function uploadImage(
  */
 export async function getMediaByEntry(
   entryId: string
-): Promise<MediaMetadataDto[]> {
+): Promise<import("@/types/gallery").PublicUserUploadMedia[]> {
   return apiClient.getMediaByEntry(entryId);
 }
 

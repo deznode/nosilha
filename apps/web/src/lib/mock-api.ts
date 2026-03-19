@@ -18,7 +18,7 @@ import type {
   ReactionCountsDto,
   ReactionType,
 } from "@/types/reaction";
-import type { MediaMetadataDto, ApprovedMediaPageResponse } from "@/types/api";
+import type { ApprovedMediaPageResponse } from "@/types/api";
 import type { StorySubmission } from "@/types/story";
 import { SubmissionStatus } from "@/types/story";
 import type {
@@ -490,7 +490,9 @@ export class MockApiClient implements ApiClient {
    * Fetches media metadata for a directory entry.
    * Returns only AVAILABLE media items.
    */
-  async getMediaByEntry(entryId: string): Promise<MediaMetadataDto[]> {
+  async getMediaByEntry(
+    entryId: string
+  ): Promise<import("@/types/gallery").PublicUserUploadMedia[]> {
     console.log(`Mock API: Fetching media for entry: ${entryId}`);
     await this.simulateDelay(100);
 

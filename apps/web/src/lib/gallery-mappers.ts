@@ -6,12 +6,16 @@
  * useGalleryInfiniteQuery hook (subsequent pages).
  */
 
-import type { PublicGalleryMedia } from "@/types/gallery";
+import type {
+  PublicGalleryMedia,
+  PublicUserUploadMedia,
+} from "@/types/gallery";
 import {
   isPublicUserUploadMedia,
   isPublicExternalMedia,
 } from "@/types/gallery";
 import type { MediaItem, MediaCategory } from "@/types/media";
+import type { Photo } from "@/components/ui/image-lightbox";
 import type { GeoPointFeature } from "@/features/map/shared";
 
 const NON_IMAGE_URL_PATTERNS = [
@@ -175,6 +179,40 @@ export function mapGalleryMediaToMediaItem(
     archiveSource: media.archiveSource,
     latitude: media.latitude,
     longitude: media.longitude,
+  };
+}
+
+/**
+ * Maps a PublicUserUploadMedia (from the entry media endpoint) to a Photo
+ * for use in ImageLightbox.
+ */
+export function publicUserUploadToPhoto(media: PublicUserUploadMedia): Photo {
+  return {
+    id: media.id,
+    src: media.publicUrl || "",
+    alt: media.altText || media.title || "Gallery photo",
+    location: media.locationName || "Brava Island",
+    date: media.dateTaken
+      ? new Date(media.dateTaken).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+        })
+      : media.approximateDate || "",
+    description: media.description || "",
+    title: media.title || undefined,
+    cameraMake: media.cameraMake,
+    cameraModel: media.cameraModel,
+    dateTaken: media.dateTaken,
+    approximateDate: media.approximateDate,
+    locationName: media.locationName,
+    photographerCredit: media.photographerCredit,
+    archiveSource: media.archiveSource,
+    creditPlatform: media.creditPlatform,
+    creditHandle: media.creditHandle,
+    author: media.photographerCredit || media.uploaderDisplayName || undefined,
+    latitude: media.latitude,
+    longitude: media.longitude,
+    type: "IMAGE",
   };
 }
 
