@@ -20,7 +20,7 @@ interface ActivityChartProps {
 export function ActivityChart({ data, isLoading }: ActivityChartProps) {
   if (isLoading) {
     return (
-      <div className="border-hairline bg-surface rounded-lg border p-6 shadow-sm lg:col-span-2">
+      <div className="border-hairline bg-surface shadow-subtle rounded-lg border p-6 lg:col-span-2">
         <div className="mb-4 flex items-center justify-between">
           <div className="bg-surface-alt h-6 w-40 animate-pulse rounded" />
         </div>
@@ -30,7 +30,7 @@ export function ActivityChart({ data, isLoading }: ActivityChartProps) {
   }
 
   return (
-    <div className="border-hairline bg-surface rounded-lg border p-6 shadow-sm lg:col-span-2">
+    <div className="border-hairline bg-surface shadow-subtle rounded-lg border p-6 lg:col-span-2">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-body flex items-center text-lg font-bold">
           <TrendingUp size={20} className="text-ocean-blue mr-2" />
@@ -48,7 +48,7 @@ export function ActivityChart({ data, isLoading }: ActivityChartProps) {
             <CartesianGrid
               strokeDasharray="3 3"
               vertical={false}
-              stroke="var(--color-border-subtle)"
+              stroke="var(--border-subtle)"
             />
             <XAxis
               dataKey="day"
@@ -65,28 +65,28 @@ export function ActivityChart({ data, isLoading }: ActivityChartProps) {
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "var(--color-bg-primary)",
+                backgroundColor: "var(--background)",
                 borderRadius: "8px",
-                border: "1px solid var(--color-border-subtle)",
+                border: "1px solid var(--border-subtle)",
                 boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
               }}
               labelStyle={{
-                color: "var(--color-text-primary)",
+                color: "var(--foreground)",
               }}
               itemStyle={{
-                color: "var(--color-text-secondary)",
+                color: "var(--foreground-secondary)",
               }}
             />
             <Bar
               dataKey="suggestions"
               name="Suggestions"
-              fill="var(--color-ocean-blue)"
+              fill="var(--brand-ocean-blue)"
               radius={[4, 4, 0, 0]}
             />
             <Bar
               dataKey="stories"
               name="Stories"
-              fill="var(--color-bougainvillea)"
+              fill="var(--brand-bougainvillea-pink)"
               radius={[4, 4, 0, 0]}
             />
           </BarChart>

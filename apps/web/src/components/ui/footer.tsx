@@ -58,7 +58,7 @@ export function Footer({
 
   return (
     <footer
-      className={clsx("bg-basalt-900 text-slate-400", className)}
+      className={clsx("bg-basalt-900 text-mist-200", className)}
       aria-labelledby="footer-heading"
     >
       <h2 id="footer-heading" className="sr-only">
@@ -113,7 +113,7 @@ export function Footer({
         </div>
 
         {/* Newsletter Section */}
-        <div className="mt-12 border-t border-slate-700 pt-8">
+        <div className="border-basalt-800 mt-12 border-t pt-8">
           <div className="md:flex md:items-start md:justify-between">
             <div className="max-w-md">
               <h3 className="text-base leading-6 font-semibold text-white">
@@ -131,9 +131,9 @@ export function Footer({
         </div>
 
         {/* Bottom Bar: Social + Copyright */}
-        <div className="mt-12 border-t border-slate-700 pt-8 md:flex md:items-center md:justify-between">
+        <div className="border-basalt-800 mt-12 border-t pt-8 md:flex md:items-center md:justify-between">
           <SocialMediaLinks variant="compact" className="md:order-2" />
-          <p className="mt-8 text-xs leading-5 text-slate-400 md:order-1 md:mt-0">
+          <p className="text-mist-200 mt-8 text-xs leading-5 md:order-1 md:mt-0">
             &copy; {COPYRIGHT_YEAR} Nos Ilha. {copy.copyright}
           </p>
         </div>

@@ -298,7 +298,7 @@ export function DirectoryQueue() {
                       </p>
                       {submission.imageUrl && (
                         <div className="mt-4 flex items-center gap-3">
-                          <div className="border-hairline relative h-20 w-32 overflow-hidden rounded-lg border shadow-sm">
+                          <div className="border-hairline shadow-subtle relative h-20 w-32 overflow-hidden rounded-lg border">
                             <Image
                               src={submission.imageUrl}
                               alt={submission.name}

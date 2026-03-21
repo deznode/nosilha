@@ -40,7 +40,7 @@ export function HistoricalFigures({
   return (
     <section
       className={clsx(
-        "bg-surface border-hairline mt-16 rounded-lg border p-8 shadow-sm",
+        "bg-surface border-hairline shadow-subtle mt-16 rounded-lg border p-8",
         className
       )}
     >

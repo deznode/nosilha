@@ -149,7 +149,7 @@ export function ManualMetadataForm({
             />
             {/* Location suggestions dropdown */}
             {showSuggestions && filteredLocations.length > 0 && (
-              <div className="border-hairline bg-canvas rounded-card absolute z-10 mt-1 max-h-40 w-full overflow-y-auto border shadow-lg">
+              <div className="border-hairline bg-canvas rounded-card shadow-elevated absolute z-10 mt-1 max-h-40 w-full overflow-y-auto border">
                 {filteredLocations.map((location) => (
                   <button
                     key={location}

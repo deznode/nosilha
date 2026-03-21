@@ -456,7 +456,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
                   e.stopPropagation();
                   handleClusterClick(cluster.id as number, latitude, longitude);
                 }}
-                className="bg-ocean-blue z-30 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-4 border-white text-sm font-bold text-white shadow-lg"
+                className="bg-ocean-blue shadow-floating z-30 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-4 border-white text-sm font-bold text-white"
               >
                 {pointCount}
               </motion.div>
@@ -540,7 +540,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
               {/* 3. Floating Label */}
               <motion.div
                 className={clsx(
-                  "pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold tracking-wider whitespace-nowrap text-slate-800 uppercase shadow-xl backdrop-blur",
+                  "text-basalt-800 shadow-floating pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold tracking-wider whitespace-nowrap uppercase backdrop-blur",
                   isSelected
                     ? "opacity-100"
                     : "opacity-0 transition-opacity group-hover:opacity-100"
@@ -570,8 +570,8 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
       {mapError && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-white p-8">
           <div className="max-w-md text-center">
-            <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
-            <p className="mb-4 font-bold text-red-600">{mapError}</p>
+            <AlertCircle className="text-status-error mx-auto mb-4 h-12 w-12" />
+            <p className="text-status-error mb-4 font-bold">{mapError}</p>
             <button
               onClick={() => window.location.reload()}
               className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-xl px-6 py-3 font-bold text-white transition-colors"

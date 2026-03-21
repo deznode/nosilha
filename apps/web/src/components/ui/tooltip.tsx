@@ -19,12 +19,12 @@ const positionStyles = {
 };
 
 const arrowStyles = {
-  top: "top-full left-1/2 -translate-x-1/2 border-t-basalt-900 dark:border-t-basalt-700 border-x-transparent border-b-transparent",
+  top: "top-full left-1/2 -translate-x-1/2 border-t-basalt-900 dark:border-t-basalt-800 border-x-transparent border-b-transparent",
   bottom:
-    "bottom-full left-1/2 -translate-x-1/2 border-b-basalt-900 dark:border-b-basalt-700 border-x-transparent border-t-transparent",
-  left: "left-full top-1/2 -translate-y-1/2 border-l-basalt-900 dark:border-l-basalt-700 border-y-transparent border-r-transparent",
+    "bottom-full left-1/2 -translate-x-1/2 border-b-basalt-900 dark:border-b-basalt-800 border-x-transparent border-t-transparent",
+  left: "left-full top-1/2 -translate-y-1/2 border-l-basalt-900 dark:border-l-basalt-800 border-y-transparent border-r-transparent",
   right:
-    "right-full top-1/2 -translate-y-1/2 border-r-basalt-900 dark:border-r-basalt-700 border-y-transparent border-l-transparent",
+    "right-full top-1/2 -translate-y-1/2 border-r-basalt-900 dark:border-r-basalt-800 border-y-transparent border-l-transparent",
 };
 
 /**
@@ -61,7 +61,7 @@ export function Tooltip({
           role="tooltip"
           className={clsx(
             "shadow-elevated absolute z-50 rounded-md px-2.5 py-1.5 text-xs font-medium whitespace-nowrap",
-            "bg-basalt-900 dark:bg-basalt-700 text-white",
+            "bg-basalt-900 dark:bg-basalt-800 text-white",
             positionStyles[position],
             className
           )}

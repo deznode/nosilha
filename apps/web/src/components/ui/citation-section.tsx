@@ -18,7 +18,7 @@ export function CitationSection({ citations }: CitationSectionProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <section className="bg-background-primary border-border-primary mt-16 rounded-lg border p-8 shadow-sm">
+    <section className="bg-background-primary border-border-primary shadow-subtle mt-16 rounded-lg border p-8">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center">
           <BookOpen className="text-ocean-blue mr-3 h-8 w-8" />

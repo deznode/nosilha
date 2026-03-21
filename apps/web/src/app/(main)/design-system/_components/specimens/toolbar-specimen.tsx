@@ -201,7 +201,7 @@ export function ToolbarSpecimen() {
               </div>
             </div>
             {/* FAB button (expanded) */}
-            <div className="bg-ocean-blue flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg">
+            <div className="bg-ocean-blue shadow-floating flex h-14 w-14 items-center justify-center rounded-full text-white">
               <X className="h-6 w-6" />
             </div>
             <p className="text-muted text-xs">Expanded</p>
@@ -209,7 +209,7 @@ export function ToolbarSpecimen() {
 
           {/* Collapsed state */}
           <div className="flex flex-col items-end">
-            <div className="bg-ocean-blue flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg">
+            <div className="bg-ocean-blue shadow-floating flex h-14 w-14 items-center justify-center rounded-full text-white">
               <Sparkles className="h-6 w-6" />
             </div>
             <p className="text-muted mt-4 text-xs">Collapsed</p>

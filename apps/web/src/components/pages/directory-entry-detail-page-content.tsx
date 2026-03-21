@@ -139,7 +139,7 @@ export function DirectoryEntryDetailPageContent({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="font-serif text-4xl font-bold text-white shadow-sm sm:text-6xl"
+              className="shadow-subtle font-serif text-4xl font-bold text-white sm:text-6xl"
             >
               {entry.name}
             </motion.h1>

@@ -152,7 +152,7 @@ export function VideoHeroSection({
                   custom={content.delay}
                   className="font-serif text-lg text-white/95 sm:text-xl"
                 >
-                  <span className="from-ocean-blue/60 to-valley-green/60 inline-block rounded-lg border border-white/20 bg-gradient-to-r px-6 py-3 shadow-lg backdrop-blur-sm">
+                  <span className="from-ocean-blue/60 to-valley-green/60 shadow-elevated inline-block rounded-lg border border-white/20 bg-gradient-to-r px-6 py-3 backdrop-blur-sm">
                     {content.text}
                   </span>
                 </motion.div>
@@ -168,7 +168,7 @@ export function VideoHeroSection({
       {/* Reduced Motion Fallback Message */}
       {reducedMotion && (
         <div className="absolute right-6 bottom-6 z-20">
-          <div className="bg-ocean-blue/70 rounded-lg border border-white/20 px-4 py-2 text-sm text-white/95 shadow-lg backdrop-blur-sm">
+          <div className="bg-ocean-blue/70 shadow-elevated rounded-lg border border-white/20 px-4 py-2 text-sm text-white/95 backdrop-blur-sm">
             Video paused for accessibility
           </div>
         </div>

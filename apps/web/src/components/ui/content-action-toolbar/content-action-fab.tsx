@@ -210,7 +210,7 @@ export function ContentActionFAB({
             : "Open content actions menu"
         }
         aria-expanded={isExpanded}
-        className="bg-ocean-blue focus:ring-ocean-blue flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg transition-transform hover:scale-105 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+        className="bg-ocean-blue focus:ring-ocean-blue shadow-floating flex h-14 w-14 items-center justify-center rounded-full text-white transition-transform hover:scale-105 focus:ring-2 focus:ring-offset-2 focus:outline-none"
       >
         {isExpanded ? (
           <X className="h-6 w-6" />

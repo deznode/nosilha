@@ -38,7 +38,7 @@ export function MapStyleSwitcher({
     STYLES.find((s) => s.url === currentStyle)?.label || "Map Style";
 
   return (
-    <div className="bg-background-primary/90 absolute top-4 left-4 z-10 flex flex-col rounded-md shadow-md backdrop-blur-sm">
+    <div className="bg-background-primary/90 shadow-medium absolute top-4 left-4 z-10 flex flex-col rounded-md backdrop-blur-sm">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="text-text-primary hover:bg-background-tertiary border-border-secondary flex items-center justify-between space-x-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors"
@@ -75,7 +75,7 @@ export function MapStyleSwitcher({
       </button>
 
       {isOpen && (
-        <div className="border-border-secondary bg-background-primary absolute top-full mt-1 w-full overflow-hidden rounded-md border shadow-lg">
+        <div className="border-border-secondary bg-background-primary shadow-elevated absolute top-full mt-1 w-full overflow-hidden rounded-md border">
           {STYLES.map((style) => (
             <button
               key={style.id}

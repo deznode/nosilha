@@ -192,7 +192,7 @@ function SyncCard({ config }: SyncCardProps) {
           >
             <span
               className={clsx(
-                "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200",
+                "shadow-subtle pointer-events-none inline-block h-5 w-5 rounded-full bg-white transition-transform duration-200",
                 config.enabled ? "translate-x-5" : "translate-x-0"
               )}
             />

@@ -93,7 +93,7 @@ export function GalleryNav() {
                   "rounded-button px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors",
                   activeSection === id
                     ? "bg-ocean-blue text-white"
-                    : "bg-surface-alt text-basalt-600 dark:text-basalt-400 hover:text-body"
+                    : "bg-surface-alt text-basalt-600 dark:text-basalt-500 hover:text-body"
                 )}
               >
                 {label}
@@ -117,7 +117,7 @@ export function GalleryNav() {
                   "ease-calm rounded-button block w-full px-4 py-2 text-left text-sm font-medium transition-all",
                   activeSection === id
                     ? "bg-ocean-blue/10 text-ocean-blue dark:bg-ocean-blue/20 dark:text-ocean-blue-light"
-                    : "text-basalt-600 dark:text-basalt-400 hover:bg-surface-alt hover:text-body"
+                    : "text-basalt-600 dark:text-basalt-500 hover:bg-surface-alt hover:text-body"
                 )}
               >
                 {label}

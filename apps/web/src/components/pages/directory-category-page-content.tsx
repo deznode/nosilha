@@ -190,7 +190,7 @@ export function DirectoryCategoryPageContent({
   return (
     <div className="bg-background-secondary min-h-screen font-sans">
       {/* Header */}
-      <div className="border-border-primary bg-background-primary border-b shadow-sm">
+      <div className="border-border-primary bg-background-primary shadow-subtle border-b">
         <div className="mx-auto max-w-screen-xl px-4 py-4 sm:px-6 sm:py-8 lg:px-8">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <PageHeader
