@@ -18,7 +18,7 @@ export function LocationCard({ location, active, onClick }: LocationCardProps) {
       className={clsx(
         "group flex cursor-pointer gap-4 rounded-2xl border p-3 transition-all duration-300",
         active
-          ? "bg-ocean-blue/5 border-ocean-blue/30 shadow-sm"
+          ? "bg-ocean-blue/5 border-ocean-blue/30 shadow-subtle"
           : "hover:bg-background-secondary hover:border-border-secondary border-transparent bg-transparent"
       )}
     >
@@ -63,7 +63,7 @@ export function LocationCard({ location, active, onClick }: LocationCardProps) {
           className={clsx(
             "flex w-fit items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-bold tracking-wider uppercase transition-colors",
             active
-              ? "bg-ocean-blue shadow-ocean-blue/20 text-white shadow-md"
+              ? "bg-ocean-blue shadow-ocean-blue/20 shadow-medium text-white"
               : "bg-background-tertiary text-text-secondary hover:bg-ocean-blue hover:text-white dark:bg-white/10"
           )}
         >

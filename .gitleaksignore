@@ -38,3 +38,19 @@ af90ccf2a35826de223c15de70672a97d4ed0d9b:.github/workflows/integration-testing.y
 # This is not a production secret - it's a well-known local dev default
 4da45ab29177586a0714e5eac2819bf46b4dfdf4:infrastructure/docker/.env.example:generic-api-key:18
 d377db043b4225b6c7daf180355a7069feea3354:infrastructure/docker/.env.example:generic-api-key:18
+
+# ============================================================
+# SOPS Encrypted Files
+# ============================================================
+# Secrets in .enc.yaml files are encrypted with SOPS + age
+# Only the encrypted YAML is committed, not plaintext
+# These are safe to commit since they're encrypted
+apps/api/.env.local.enc.yaml:gcp-api-key:18
+apps/api/.env.local.enc.yaml:gcp-api-key:35
+apps/api/.env.local.enc.yaml:generic-api-key:9
+apps/api/.env.local.enc.yaml:generic-api-key:29
+apps/web/.env.local.enc.yaml:generic-api-key:17
+apps/web/.env.local.enc.yaml:generic-api-key:20
+apps/web/.env.local.enc.yaml:generic-api-key:35
+apps/web/.env.local.enc.yaml:generic-api-key:57
+apps/web/.env.local.enc.yaml:github-fine-grained-pat:49

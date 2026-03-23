@@ -31,10 +31,10 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import clsx from "clsx";
 
-import { NosilhaLogo } from "./logo";
+import { NosilhaLogo } from "@/components/ui/logo";
 import { useAuth } from "@/components/providers/auth-provider";
 import { supabase } from "@/lib/supabase-client";
-import { ThemeToggle } from "./theme-toggle";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 // --- Navigation Config ---
 import type { LucideIcon } from "lucide-react";

@@ -42,36 +42,36 @@ const STATUS_CONFIG: Record<
     label: "Pending",
     icon: <Clock size={10} />,
     className:
-      "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300",
+      "bg-status-warning/10 text-status-warning dark:bg-status-warning/20",
   },
   PROCESSING: {
     label: "Processing",
     icon: <Loader2 size={10} />,
     className:
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+      "bg-ocean-blue/10 text-ocean-blue dark:bg-ocean-blue/20 dark:text-ocean-blue",
   },
   ACTIVE: {
     label: "Active",
     icon: <CheckCircle size={10} />,
     className:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+      "bg-status-success/10 text-status-success dark:bg-status-success/20",
   },
   FLAGGED: {
     label: "Flagged",
     icon: <Flag size={10} />,
     className:
-      "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+      "bg-status-warning/10 text-status-warning dark:bg-status-warning/20",
   },
   REJECTED: {
     label: "Rejected",
     icon: <XCircle size={10} />,
-    className: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+    className: "bg-status-error/10 text-status-error dark:bg-status-error/20",
   },
   ARCHIVED: {
     label: "Archived",
     icon: <Archive size={10} />,
     className:
-      "bg-zinc-100 text-zinc-600 dark:bg-zinc-800/30 dark:text-zinc-400",
+      "bg-mist-100 text-basalt-600 dark:bg-basalt-800/30 dark:text-basalt-500",
   },
 };
 
@@ -138,14 +138,14 @@ export function GalleryQueueItem({
   const getSourceBadge = () => {
     if (isUserUploadMedia(item)) {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+        <span className="bg-ocean-blue/10 text-ocean-blue dark:bg-ocean-blue/20 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
           <Upload size={10} /> User Upload
         </span>
       );
     }
 
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 dark:bg-purple-900/30 dark:text-purple-300">
+      <span className="bg-bougainvillea-pink/10 text-bougainvillea-pink dark:bg-bougainvillea-pink/20 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
         <ExternalLink size={10} /> {item.platform}
       </span>
     );
@@ -184,7 +184,7 @@ export function GalleryQueueItem({
   };
 
   return (
-    <div className="border-hairline bg-surface flex items-start gap-4 rounded-xl border p-4 transition-shadow hover:shadow-md">
+    <div className="border-hairline bg-surface hover:shadow-medium flex items-start gap-4 rounded-xl border p-4 transition-shadow">
       {/* Thumbnail - clickable to open lightbox */}
       <button
         type="button"
@@ -226,11 +226,11 @@ export function GalleryQueueItem({
                 </span>
               )}
               {item.showInGallery ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-300">
+                <span className="bg-status-success/10 text-status-success dark:bg-status-success/20 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
                   <Eye size={10} /> Visible
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                <span className="bg-status-warning/10 text-status-warning dark:bg-status-warning/20 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
                   <EyeOff size={10} /> Hidden
                 </span>
               )}
@@ -275,7 +275,7 @@ export function GalleryQueueItem({
                     href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline dark:text-blue-400"
+                    className="text-ocean-blue hover:underline"
                   >
                     View source
                   </a>

@@ -14,9 +14,10 @@ import {
 import { notFound } from "next/navigation";
 import { getGalleryMediaById } from "@/lib/api";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
-import { ShareButton } from "@/components/ui/actions/share-button";
+import { ShareButton } from "@/components/content/actions/share-button";
 import { CreditDisplay } from "@/components/ui/credit-display";
 import { IdentifyPhotoButton } from "@/components/gallery/identify-photo-button";
+import { ExpandableText } from "@/components/ui/expandable-text";
 import { isRawFilename, resolvePublicImageUrl } from "@/lib/gallery-mappers";
 import { YouTubeFacade } from "@/components/gallery/youtube-facade";
 import type {
@@ -343,9 +344,13 @@ export default async function PhotoDetailPage({
             {title}
           </h1>
           {description && (
-            <p className="mt-3 text-sm leading-relaxed text-white/70">
-              {description}
-            </p>
+            <ExpandableText
+              text={description}
+              lines={3}
+              textClassName="text-sm leading-relaxed text-white/70"
+              buttonClassName="text-white/50 hover:text-white/80"
+              className="mt-3"
+            />
           )}
 
           {/* Metadata */}
@@ -440,9 +445,13 @@ export default async function PhotoDetailPage({
           {title}
         </h1>
         {description && (
-          <p className="mt-2 text-sm leading-relaxed text-white/70">
-            {description}
-          </p>
+          <ExpandableText
+            text={description}
+            lines={3}
+            textClassName="text-sm leading-relaxed text-white/70"
+            buttonClassName="text-white/50 hover:text-white/80"
+            className="mt-2"
+          />
         )}
 
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-white/60">

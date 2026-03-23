@@ -78,7 +78,7 @@ export function FilterToolbar({
   return (
     <div
       className={clsx(
-        "border-border-primary bg-background-primary/95 sticky z-40 border-b shadow-sm backdrop-blur-sm md:top-16",
+        "border-border-primary bg-background-primary/95 shadow-subtle sticky z-40 border-b backdrop-blur-sm md:top-16",
         navHidden ? "top-0" : "top-12"
       )}
     >

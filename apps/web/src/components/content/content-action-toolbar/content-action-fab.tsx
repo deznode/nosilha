@@ -11,11 +11,11 @@ import {
   motionEasing,
   motionDistance,
 } from "@/lib/animation";
-import { ReactionButtons } from "@/components/ui/actions/reaction-buttons";
-import { ShareButton } from "@/components/ui/actions/share-button";
-import { CopyLinkButton } from "@/components/ui/actions/copy-link-button";
-import { PrintButton } from "@/components/ui/actions/print-button";
-import { SuggestImprovementButton } from "@/components/ui/actions/suggest-improvement-button";
+import { ReactionButtons } from "@/components/content/actions/reaction-buttons";
+import { ShareButton } from "@/components/content/actions/share-button";
+import { CopyLinkButton } from "@/components/content/actions/copy-link-button";
+import { PrintButton } from "@/components/content/actions/print-button";
+import { SuggestImprovementButton } from "@/components/content/actions/suggest-improvement-button";
 
 /**
  * Content Action FAB (Floating Action Button) - Wireframe Update
@@ -210,7 +210,7 @@ export function ContentActionFAB({
             : "Open content actions menu"
         }
         aria-expanded={isExpanded}
-        className="bg-ocean-blue focus:ring-ocean-blue flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg transition-transform hover:scale-105 focus:ring-2 focus:ring-offset-2 focus:outline-none"
+        className="bg-ocean-blue focus:ring-ocean-blue shadow-floating flex h-14 w-14 items-center justify-center rounded-full text-white transition-transform hover:scale-105 focus:ring-2 focus:ring-offset-2 focus:outline-none"
       >
         {isExpanded ? (
           <X className="h-6 w-6" />

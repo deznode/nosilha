@@ -238,8 +238,8 @@
   /* === SHAPE & ELEVATION TOKENS (Calm Premium) === */
 
   /* Border Radii - "Radical Softness" principle */
-  --radius-container: 24px; /* Large containers, featured cards */
-  --radius-card: 16px; /* Standard cards */
+  --radius-container: 16px; /* Large containers, featured cards */
+  --radius-card: 12px; /* Standard cards */
   --radius-button: 12px; /* Buttons, inputs */
   --radius-badge: 8px; /* Tags, badges, toasts */
 

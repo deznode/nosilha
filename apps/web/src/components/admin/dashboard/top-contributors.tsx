@@ -15,7 +15,7 @@ export function TopContributors({
 }: TopContributorsProps) {
   if (isLoading) {
     return (
-      <div className="border-hairline bg-surface rounded-lg border p-6 shadow-sm">
+      <div className="border-hairline bg-surface shadow-subtle rounded-lg border p-6">
         <div className="bg-surface-alt mb-4 h-6 w-36 animate-pulse rounded" />
         <ul className="space-y-3">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -39,7 +39,7 @@ export function TopContributors({
   }
 
   return (
-    <div className="border-hairline bg-surface rounded-lg border p-6 shadow-sm">
+    <div className="border-hairline bg-surface shadow-subtle rounded-lg border p-6">
       <h3 className="text-body mb-4 flex items-center text-lg font-bold">
         <Users size={20} className="text-ocean-blue mr-2" />
         Top Contributors

@@ -68,7 +68,7 @@ export function CollapsibleHero({
 
       {/* Collapsed sticky bar — replaces nav when hero is gone and nav hides */}
       {showBar && (
-        <div className="bg-surface border-hairline fixed top-0 right-0 left-0 z-50 flex h-12 items-center gap-3 border-b px-4 shadow-sm">
+        <div className="bg-surface border-hairline shadow-subtle fixed top-0 right-0 left-0 z-50 flex h-12 items-center gap-3 border-b px-4">
           <button
             onClick={handleBack}
             className="text-body hover:text-brand -ml-1 flex shrink-0 items-center rounded-full p-1 transition-colors"

@@ -24,6 +24,8 @@ ehthumbs.db
 .env
 .env.local
 .env.*.local
+# Encrypted environment files (SOPS) - ALLOW these to be committed
+!.env.*.enc.yaml
 
 # Logs
 *.log
