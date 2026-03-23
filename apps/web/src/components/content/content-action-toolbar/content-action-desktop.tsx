@@ -1,11 +1,11 @@
 "use client";
 
 import { ContentActionDesktopProps } from "@/types/content-action-toolbar/component-props";
-import { ReactionButtons } from "@/components/ui/actions/reaction-buttons";
-import { ShareButton } from "@/components/ui/actions/share-button";
-import { CopyLinkButton } from "@/components/ui/actions/copy-link-button";
-import { PrintButton } from "@/components/ui/actions/print-button";
-import { SuggestImprovementButton } from "@/components/ui/actions/suggest-improvement-button";
+import { ReactionButtons } from "@/components/content/actions/reaction-buttons";
+import { ShareButton } from "@/components/content/actions/share-button";
+import { CopyLinkButton } from "@/components/content/actions/copy-link-button";
+import { PrintButton } from "@/components/content/actions/print-button";
+import { SuggestImprovementButton } from "@/components/content/actions/suggest-improvement-button";
 import { motion, useReducedMotion } from "framer-motion";
 import { motionDuration, motionEasing } from "@/lib/animation";
 

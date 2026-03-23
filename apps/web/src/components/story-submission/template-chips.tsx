@@ -194,7 +194,7 @@ export function TemplateChips({
               aria-pressed={isSelected}
               className={`focus:ring-ocean-blue inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-all focus:ring-2 focus:ring-offset-2 focus:outline-none ${
                 isSelected
-                  ? "bg-ocean-blue text-white shadow-sm"
+                  ? "bg-ocean-blue shadow-subtle text-white"
                   : "bg-surface-alt text-muted hover:bg-surface-alt/80 hover:text-body"
               }`}
             >

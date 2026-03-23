@@ -48,7 +48,7 @@ function MapMarker({
       {/* Pin Head (Circle) */}
       <div
         className={clsx(
-          "relative flex h-10 w-10 items-center justify-center rounded-full text-white shadow-xl ring-2 ring-white",
+          "shadow-floating relative flex h-10 w-10 items-center justify-center rounded-full text-white ring-2 ring-white",
           colorClass
         )}
       >
@@ -56,7 +56,7 @@ function MapMarker({
       </div>
 
       {/* Label (Floating below) */}
-      <div className="text-basalt-900 rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold tracking-widest uppercase shadow-sm backdrop-blur-md">
+      <div className="text-basalt-900 shadow-subtle rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold tracking-widest uppercase backdrop-blur-md">
         {label}
       </div>
     </motion.div>
@@ -242,10 +242,10 @@ export function MapTeaserSection() {
 
               {/* UI Overlay Controls */}
               <div className="absolute right-4 bottom-4 z-20 flex flex-col gap-2 opacity-80">
-                <div className="text-basalt-500 rounded-button flex h-8 w-8 items-center justify-center bg-white/90 shadow-md">
+                <div className="text-basalt-500 rounded-button shadow-medium flex h-8 w-8 items-center justify-center bg-white/90">
                   <Navigation size={16} />
                 </div>
-                <div className="text-basalt-500 rounded-button flex h-8 w-8 items-center justify-center bg-white/90 text-xs font-bold shadow-md">
+                <div className="text-basalt-500 rounded-button shadow-medium flex h-8 w-8 items-center justify-center bg-white/90 text-xs font-bold">
                   3D
                 </div>
               </div>

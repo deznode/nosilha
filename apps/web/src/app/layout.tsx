@@ -150,7 +150,7 @@ export default function RootLayout({
       >
         <a
           href="#main-content"
-          className="focus:bg-background-primary focus:text-text-primary focus:ring-ocean-blue sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:shadow-lg focus:ring-2 focus:ring-offset-2 focus:outline-none"
+          className="focus:bg-background-primary focus:text-text-primary focus:ring-ocean-blue focus:shadow-elevated sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:ring-2 focus:ring-offset-2 focus:outline-none"
         >
           Skip to main content
         </a>

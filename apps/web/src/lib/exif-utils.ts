@@ -58,9 +58,7 @@ const EXIFR_OPTIONS = {
 /**
  * Normalizes raw exifr output into our ExtractedExifData shape.
  */
-function normalizeExifData(
-  data: Record<string, unknown>
-): ExtractedExifData {
+function normalizeExifData(data: Record<string, unknown>): ExtractedExifData {
   return {
     latitude: data.latitude as number | undefined,
     longitude: data.longitude as number | undefined,

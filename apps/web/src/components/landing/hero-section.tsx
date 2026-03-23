@@ -36,7 +36,7 @@ const NAVIGATION_LINKS = [
 
 const NosilhaLogo = ({ className }: { className?: string }) => (
   <div className={`flex items-center gap-2 ${className}`}>
-    <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#C02669] to-[#D97706] shadow-lg shadow-[#C02669]/20">
+    <div className="shadow-elevated relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#C02669] to-[#D97706] shadow-[#C02669]/20">
       <div className="absolute inset-0 rounded-lg bg-white/20 blur-[1px]" />
       <span className="relative font-serif text-lg font-bold text-white">
         N
@@ -75,7 +75,7 @@ const SearchBar = ({
     <div
       className={`relative w-full max-w-lg transition-all duration-300 ${isFocused ? "scale-105" : "scale-100"}`}
     >
-      <div className="relative flex items-center overflow-hidden rounded-full border border-white/10 bg-black/40 p-1 shadow-2xl backdrop-blur-md transition-colors hover:border-white/20 hover:bg-black/50">
+      <div className="shadow-floating relative flex items-center overflow-hidden rounded-full border border-white/10 bg-black/40 p-1 backdrop-blur-md transition-colors hover:border-white/20 hover:bg-black/50">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white/50">
           <Search size={18} />
         </div>
@@ -145,7 +145,7 @@ const StickyNav = () => {
         className={`sticky top-0 z-50 w-full transition-all duration-500 ease-in-out ${isStuck ? "px-0 pb-0" : "px-4 pb-4"}`}
       >
         <div
-          className={`mx-auto flex h-16 items-center justify-between border-white/10 bg-[#0F172A]/90 shadow-2xl backdrop-blur-xl transition-all duration-500 ease-in-out ${
+          className={`shadow-floating mx-auto flex h-16 items-center justify-between border-white/10 bg-[#0F172A]/90 backdrop-blur-xl transition-all duration-500 ease-in-out ${
             isStuck
               ? "max-w-full rounded-none border-b px-6"
               : "max-w-6xl rounded-full border px-4"
@@ -184,7 +184,7 @@ const StickyNav = () => {
             </button>
 
             {/* Contribute Button */}
-            <button className="flex items-center gap-1.5 rounded-full bg-[#0E4C75] px-4 py-2 text-xs font-bold text-white shadow-lg shadow-[#0E4C75]/20 transition-transform hover:-translate-y-0.5 hover:bg-[#0E4C75]/90">
+            <button className="shadow-elevated flex items-center gap-1.5 rounded-full bg-[#0E4C75] px-4 py-2 text-xs font-bold text-white shadow-[#0E4C75]/20 transition-transform hover:-translate-y-0.5 hover:bg-[#0E4C75]/90">
               <Plus size={14} />
               Contribute
             </button>
@@ -220,7 +220,7 @@ const StickyNav = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className={`fixed inset-x-0 z-40 border-b border-white/10 bg-[#0F172A] p-4 shadow-2xl md:hidden ${isStuck ? "top-16" : "top-24 mx-4 rounded-2xl border"}`}
+            className={`shadow-floating fixed inset-x-0 z-40 border-b border-white/10 bg-[#0F172A] p-4 md:hidden ${isStuck ? "top-16" : "top-24 mx-4 rounded-2xl border"}`}
           >
             <nav className="flex flex-col gap-2">
               {NAVIGATION_LINKS.map((link) => (
@@ -320,7 +320,7 @@ const HeroContent = () => {
             onClick={handleExplore}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="group relative flex items-center gap-2 rounded-xl bg-[#C02669] px-8 py-4 text-base font-bold text-white shadow-xl shadow-[#C02669]/30 transition-all hover:bg-[#C02669]/90"
+            className="group shadow-floating relative flex items-center gap-2 rounded-xl bg-[#C02669] px-8 py-4 text-base font-bold text-white shadow-[#C02669]/30 transition-all hover:bg-[#C02669]/90"
           >
             <BookOpen size={20} className="text-white/90" />
             <span>Start Exploring Brava</span>

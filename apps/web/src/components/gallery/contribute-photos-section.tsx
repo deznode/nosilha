@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { ImageUploader } from "./image-uploader";
-import { InlineAuthPrompt } from "./inline-auth-prompt";
+import { ImageUploader } from "@/components/ui/image-uploader";
+import { InlineAuthPrompt } from "@/components/ui/inline-auth-prompt";
 import { useAuth } from "@/components/providers/auth-provider";
 
 interface ContributePhotosSectionProps {

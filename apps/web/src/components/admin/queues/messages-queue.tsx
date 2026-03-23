@@ -152,7 +152,7 @@ export function MessagesQueue() {
                     <div
                       className={`mt-1 rounded-xl p-3 ${
                         message.status === "UNREAD"
-                          ? "bg-valley-green text-white shadow-lg"
+                          ? "bg-valley-green shadow-elevated text-white"
                           : "bg-surface-alt text-muted"
                       }`}
                     >

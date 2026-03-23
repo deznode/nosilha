@@ -11,7 +11,7 @@ import { ImageHeroSection } from "@/components/ui/image-hero-section";
 import { CitationSection } from "@/components/ui/citation-section";
 import { ImageWithCourtesy } from "@/components/ui/image-with-courtesy";
 import { PrintPageWrapper } from "@/components/ui/print-page-wrapper";
-import { ContentActionToolbar } from "@/components/ui/content-action-toolbar";
+import { ContentActionToolbar } from "@/components/content/content-action-toolbar";
 
 // Content Components
 import { ThematicSections } from "@/components/content/thematic-sections";
@@ -536,13 +536,13 @@ async function cachedHistoryContent(bestLang: Language) {
               <div className="flex flex-col justify-center gap-4 sm:flex-row">
                 <Link
                   href="/directory/heritage"
-                  className="bg-ocean-blue hover:bg-ocean-blue/90 focus-visible:ring-ocean-blue inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold text-white shadow-sm transition-all duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                  className="bg-ocean-blue hover:bg-ocean-blue/90 focus-visible:ring-ocean-blue shadow-subtle inline-flex items-center justify-center rounded-lg px-6 py-3 text-base font-semibold text-white transition-all duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
                   Historical Landmarks
                 </Link>
                 <Link
                   href="/map"
-                  className="border-basalt-300 text-basalt-700 hover:bg-basalt-50 focus-visible:ring-ocean-blue dark:border-basalt-600 dark:text-basalt-200 dark:hover:bg-basalt-800 inline-flex items-center justify-center rounded-lg border px-6 py-3 text-base font-semibold transition-all duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                  className="border-mist-200 text-basalt-600 hover:bg-mist-50 focus-visible:ring-ocean-blue dark:border-basalt-600 dark:text-mist-200 dark:hover:bg-basalt-800 inline-flex items-center justify-center rounded-lg border px-6 py-3 text-base font-semibold transition-all duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                 >
                   Explore the Map
                 </Link>

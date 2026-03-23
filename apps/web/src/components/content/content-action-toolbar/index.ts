@@ -8,7 +8,7 @@
  * Branch: 005-action-toolbar-refactor
  *
  * @example
- * import { ContentActionToolbar, type Reaction } from '@/components/ui/content-action-toolbar';
+ * import { ContentActionToolbar, type Reaction } from '@/components/content/content-action-toolbar';
  */
 
 // ============================================================================
@@ -25,12 +25,12 @@ export { ContentActionDesktop } from "./content-action-desktop";
 export { ContentActionFAB } from "./content-action-fab";
 
 // Shared action components (moved to ui/actions/)
-export { ReactionButtons } from "@/components/ui/actions/reaction-buttons";
-export { ShareButton } from "@/components/ui/actions/share-button";
-export { SuggestImprovementForm } from "@/components/ui/actions/suggest-improvement-form";
-export { SuggestImprovementButton } from "@/components/ui/actions/suggest-improvement-button";
-export { CopyLinkButton } from "@/components/ui/actions/copy-link-button";
-export { PrintButton } from "@/components/ui/actions/print-button";
+export { ReactionButtons } from "@/components/content/actions/reaction-buttons";
+export { ShareButton } from "@/components/content/actions/share-button";
+export { SuggestImprovementForm } from "@/components/content/actions/suggest-improvement-form";
+export { SuggestImprovementButton } from "@/components/content/actions/suggest-improvement-button";
+export { CopyLinkButton } from "@/components/content/actions/copy-link-button";
+export { PrintButton } from "@/components/content/actions/print-button";
 
 // ============================================================================
 // Type Exports

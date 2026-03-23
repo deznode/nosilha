@@ -17,7 +17,7 @@ export function LocationDetailCard() {
       initial={{ opacity: 0, x: 50, scale: 0.95 }}
       animate={{ opacity: 1, x: 0, scale: 1 }}
       exit={{ opacity: 0, x: 20, scale: 0.95 }}
-      className="map-desktop:block absolute bottom-10 left-[450px] z-30 hidden w-[350px] overflow-hidden rounded-3xl border border-white/20 bg-white/80 shadow-xl backdrop-blur-md dark:border-white/10 dark:bg-black/60"
+      className="map-desktop:block shadow-floating absolute bottom-10 left-[450px] z-30 hidden w-[350px] overflow-hidden rounded-3xl border border-white/20 bg-white/80 backdrop-blur-md dark:border-white/10 dark:bg-black/60"
     >
       <div className="group relative h-48">
         {selectedLocation.image ? (
@@ -74,7 +74,7 @@ export function LocationDetailCard() {
         {selectedLocation.detailUrl && (
           <Link
             href={selectedLocation.detailUrl}
-            className="bg-ocean-blue hover:bg-ocean-blue/90 shadow-ocean-blue/20 flex items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold text-white shadow-lg transition-colors"
+            className="bg-ocean-blue hover:bg-ocean-blue/90 shadow-ocean-blue/20 shadow-floating flex items-center justify-center gap-2 rounded-xl py-3 text-xs font-bold text-white transition-colors"
           >
             View Details <ArrowRight size={14} />
           </Link>

@@ -315,7 +315,7 @@ export function PhotoIdentificationForm({
         aria-modal="true"
         aria-label={title}
       >
-        <div className="bg-canvas ring-hairline max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl p-8 shadow-lg ring-1">
+        <div className="bg-canvas ring-hairline shadow-elevated max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl p-8 ring-1">
           <h2 className="text-body text-lg/6 font-semibold">{title}</h2>
           <p className="text-muted mt-2 text-sm">{description}</p>
           {formContent}

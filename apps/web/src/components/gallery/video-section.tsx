@@ -9,7 +9,7 @@ import type { MediaItem } from "@/types/media";
 
 function VideoCardSkeleton() {
   return (
-    <div className="bg-canvas animate-pulse overflow-hidden rounded-lg shadow-sm">
+    <div className="bg-canvas shadow-subtle animate-pulse overflow-hidden rounded-lg">
       <div className="bg-surface-alt aspect-video w-full" />
       <div className="space-y-2 p-3">
         <div className="bg-surface-alt h-3 w-16 rounded" />
@@ -123,7 +123,6 @@ export function VideoSection({
             key={`mobile-${featuredVideo.id}`}
             video={featuredVideo}
             nativePlayer
-            className="rounded-none"
           />
         </div>
       )}
