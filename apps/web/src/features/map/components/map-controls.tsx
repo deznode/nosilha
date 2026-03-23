@@ -56,6 +56,7 @@ export function MapControls({
         onClick={onRandomFlyTo}
         className="hover:bg-ocean-blue group text-text-secondary shadow-floating rounded-xl border border-white/50 bg-white/90 p-3 backdrop-blur-md transition-all hover:text-white dark:border-white/15 dark:bg-white/10"
         title="Fly to Random Location"
+        aria-label="Fly to random location"
       >
         <Shuffle
           size={20}

@@ -84,6 +84,7 @@ export function ManualMetadataForm({
         type="button"
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between px-4 py-3 text-left"
+        aria-expanded={expanded}
       >
         <div className="flex items-center gap-2">
           <Archive size={16} className="text-ocean-blue" />

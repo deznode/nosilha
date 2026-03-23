@@ -508,6 +508,7 @@ function SavedPlaylistsSection() {
                   onClick={() => handleSync(pl)}
                   disabled={syncingId === pl.id}
                   title="Sync playlist"
+                  aria-label="Sync playlist"
                   className="text-muted hover:text-brand rounded p-1.5 transition-colors disabled:opacity-50"
                 >
                   {syncingId === pl.id ? (
@@ -523,6 +524,7 @@ function SavedPlaylistsSection() {
                     setShowForm(true);
                   }}
                   title="Edit playlist"
+                  aria-label="Edit playlist"
                   className="text-muted hover:text-body rounded p-1.5 transition-colors"
                 >
                   <Pencil className="h-4 w-4" />
@@ -531,6 +533,7 @@ function SavedPlaylistsSection() {
                   type="button"
                   onClick={() => setDeleteTarget(pl)}
                   title="Delete playlist"
+                  aria-label="Delete playlist"
                   className="text-muted hover:text-status-error rounded p-1.5 transition-colors"
                 >
                   <Trash2 className="h-4 w-4" />

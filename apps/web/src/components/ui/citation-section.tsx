@@ -29,6 +29,8 @@ export function CitationSection({ citations }: CitationSectionProps) {
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="hover-surface-strong rounded-full p-2"
+          aria-expanded={isOpen}
+          aria-label={isOpen ? "Hide citations" : "Show citations"}
         >
           <ChevronDown
             className={`text-basalt-500 h-6 w-6 transition-transform ${
