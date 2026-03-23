@@ -123,7 +123,6 @@ export function VideoSection({
             key={`mobile-${featuredVideo.id}`}
             video={featuredVideo}
             nativePlayer
-            className="rounded-none"
           />
         </div>
       )}

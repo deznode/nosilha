@@ -75,8 +75,8 @@ Two-tier architecture: Tier 1 defines raw OKLCH values in `:root`/`.dark` select
 |-------|-------|-------|
 | `rounded-badge` | 8px | Tags, badges, toasts |
 | `rounded-button` | 12px | Buttons, inputs, chips |
-| `rounded-card` | 16px | Standard cards |
-| `rounded-container` | 24px | Featured cards, modals |
+| `rounded-card` | 12px | Standard cards |
+| `rounded-container` | 16px | Featured cards, modals |
 
 ### Shadows (5 levels)
 

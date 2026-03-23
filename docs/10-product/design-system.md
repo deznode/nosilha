@@ -202,8 +202,8 @@ Dark mode is automatic via Tailwind CSS v4's `@variant dark`. Theme is managed b
 |-------|-------|-------|
 | `rounded-badge` | 8px | Tags, badges, toasts |
 | `rounded-button` | 12px | Buttons, inputs, chips |
-| `rounded-card` | 16px | Standard cards |
-| `rounded-container` | 24px | Featured cards, modals |
+| `rounded-card` | 12px | Standard cards |
+| `rounded-container` | 16px | Featured cards, modals |
 
 ```tsx
 // Examples

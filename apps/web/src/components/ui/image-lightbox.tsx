@@ -28,6 +28,7 @@ import { CreditDisplay } from "@/components/ui/credit-display";
 import { ShareButton } from "@/components/ui/actions/share-button";
 import { PhotoIdentificationForm } from "@/components/gallery/photo-identification-form";
 import { isRawFilename } from "@/lib/gallery-mappers";
+import { ExpandableText } from "@/components/ui/expandable-text";
 
 export interface Photo {
   id?: string;
@@ -424,9 +425,13 @@ function MetadataPanel({ photo }: { photo: Photo }) {
   return (
     <div className="space-y-3 text-sm text-white/80">
       {photo.description && (
-        <p className="mb-4 text-base font-medium text-white">
-          {photo.description}
-        </p>
+        <ExpandableText
+          text={photo.description}
+          lines={3}
+          textClassName="text-base font-medium text-white"
+          buttonClassName="text-white/50 hover:text-white/80"
+          className="mb-4"
+        />
       )}
 
       {(photo.locationName || photo.location) && (
@@ -629,7 +634,12 @@ function MobileBottomSheet({
         {/* Collapsed: title, location, date, actions */}
         <div className="space-y-2">
           {photo.description && (
-            <p className="text-sm font-medium">{photo.description}</p>
+            <ExpandableText
+              text={photo.description}
+              lines={2}
+              textClassName="text-sm font-medium"
+              buttonClassName="text-white/50 hover:text-white/80"
+            />
           )}
 
           <div className="flex flex-wrap items-center gap-3 text-xs text-white/70">
