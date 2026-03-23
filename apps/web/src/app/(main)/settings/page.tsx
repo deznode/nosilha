@@ -115,7 +115,10 @@ export default function SettingsPage() {
 
           <div className="mx-auto mt-12 max-w-2xl">
             <div className="bg-canvas rounded-card shadow-subtle p-8 text-center">
-              <Settings className="text-muted mx-auto h-16 w-16" />
+              <Settings
+                className="text-muted mx-auto h-16 w-16"
+                aria-hidden="true"
+              />
               <h2 className="text-body mt-4 text-xl font-bold">
                 Sign in to access settings
               </h2>
@@ -126,13 +129,13 @@ export default function SettingsPage() {
               <div className="mt-6 flex justify-center gap-4">
                 <Link
                   href="/login"
-                  className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button px-6 py-2 text-sm font-semibold text-white transition-colors"
+                  className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button focus-visible:ring-ocean-blue px-6 py-2 text-sm font-semibold text-white transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                   Log in
                 </Link>
                 <Link
                   href="/signup"
-                  className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue/10 rounded-button border px-6 py-2 text-sm font-semibold transition-colors"
+                  className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue/10 rounded-button focus-visible:ring-ocean-blue border px-6 py-2 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                   Sign up
                 </Link>
@@ -167,7 +170,10 @@ export default function SettingsPage() {
               <>
                 <div className="bg-canvas rounded-card shadow-subtle p-6">
                   <div className="flex items-center gap-3">
-                    <Settings className="text-ocean-blue h-6 w-6" />
+                    <Settings
+                      className="text-ocean-blue h-6 w-6"
+                      aria-hidden="true"
+                    />
                     <h2 className="text-body text-lg font-bold">
                       Account Settings
                     </h2>
@@ -178,7 +184,10 @@ export default function SettingsPage() {
                     <div className="border-hairline rounded-card border p-4">
                       <div className="flex items-start gap-4">
                         <div className="bg-surface rounded-button flex h-10 w-10 flex-shrink-0 items-center justify-center">
-                          <Bell className="text-muted h-5 w-5" />
+                          <Bell
+                            className="text-muted h-5 w-5"
+                            aria-hidden="true"
+                          />
                         </div>
                         <div className="flex-1">
                           <h3 className="text-body font-medium">
@@ -243,7 +252,10 @@ export default function SettingsPage() {
                     <div className="border-hairline rounded-card border p-4">
                       <div className="flex items-start gap-4">
                         <div className="bg-surface rounded-button flex h-10 w-10 flex-shrink-0 items-center justify-center">
-                          <Globe className="text-muted h-5 w-5" />
+                          <Globe
+                            className="text-muted h-5 w-5"
+                            aria-hidden="true"
+                          />
                         </div>
                         <div className="flex-1">
                           <h3 className="text-body font-medium">Language</h3>
@@ -252,7 +264,10 @@ export default function SettingsPage() {
                           </p>
 
                           <div className="relative">
-                            <Globe className="text-muted pointer-events-none absolute top-2.5 left-3 h-4 w-4" />
+                            <Globe
+                              className="text-muted pointer-events-none absolute top-2.5 left-3 h-4 w-4"
+                              aria-hidden="true"
+                            />
                             <select
                               value={preferredLanguage}
                               onChange={(e) =>
@@ -260,7 +275,7 @@ export default function SettingsPage() {
                                   e.target.value as PreferredLanguage
                                 )
                               }
-                              className="border-hairline bg-canvas text-body focus:border-ocean-blue focus:ring-ocean-blue rounded-button w-full appearance-none border py-2 pr-3 pl-10"
+                              className="border-hairline bg-canvas text-body focus-visible:border-ocean-blue focus-visible:ring-ocean-blue rounded-button w-full appearance-none border py-2 pr-3 pl-10 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
                             >
                               <option value="EN">English</option>
                               <option value="PT">Portugues</option>
@@ -275,7 +290,10 @@ export default function SettingsPage() {
                     <div className="border-hairline rounded-card border p-4">
                       <div className="flex items-center gap-4">
                         <div className="bg-surface rounded-button flex h-10 w-10 items-center justify-center">
-                          <Moon className="text-muted h-5 w-5" />
+                          <Moon
+                            className="text-muted h-5 w-5"
+                            aria-hidden="true"
+                          />
                         </div>
                         <div className="flex-1">
                           <h3 className="text-body font-medium">Appearance</h3>
@@ -293,7 +311,10 @@ export default function SettingsPage() {
                     <div className="border-hairline rounded-card border p-4">
                       <div className="flex items-center gap-4">
                         <div className="bg-surface rounded-button flex h-10 w-10 items-center justify-center">
-                          <Shield className="text-muted h-5 w-5" />
+                          <Shield
+                            className="text-muted h-5 w-5"
+                            aria-hidden="true"
+                          />
                         </div>
                         <div className="flex-1">
                           <h3 className="text-body font-medium">Privacy</h3>
@@ -312,16 +333,17 @@ export default function SettingsPage() {
                   <div className="mt-6 flex items-center justify-end gap-4">
                     <Link
                       href="/profile"
-                      className="text-muted hover:text-body text-sm font-medium transition-colors"
+                      className="text-muted hover:text-body focus-visible:ring-ocean-blue rounded-sm text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
                     >
                       Cancel
                     </Link>
                     <button
                       onClick={handleSave}
                       disabled={isSaving}
-                      className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button px-6 py-2 text-sm font-semibold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                      className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button focus-visible:ring-ocean-blue px-6 py-2 text-sm font-semibold text-white transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                      aria-busy={isSaving}
                     >
-                      {isSaving ? "Saving..." : "Save Changes"}
+                      {isSaving ? "Saving\u2026" : "Save Changes"}
                     </button>
                   </div>
                 </div>
@@ -329,9 +351,9 @@ export default function SettingsPage() {
                 <div className="mt-6">
                   <Link
                     href="/profile"
-                    className="text-ocean-blue hover:text-ocean-blue/80 inline-flex items-center gap-2 text-sm font-medium"
+                    className="text-ocean-blue hover:text-ocean-blue/80 focus-visible:ring-ocean-blue inline-flex items-center gap-2 rounded-sm text-sm font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
                   >
-                    <UserCircle className="h-4 w-4" />
+                    <UserCircle className="h-4 w-4" aria-hidden="true" />
                     Back to Profile
                   </Link>
                 </div>

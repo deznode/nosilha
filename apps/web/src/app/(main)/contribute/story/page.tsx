@@ -215,7 +215,10 @@ export default function StorySubmissionPage() {
           <div className="mb-6">
             <div className="rounded-card border-ocean-blue/20 bg-ocean-blue/5 flex items-center justify-between border p-4">
               <div className="flex items-center gap-3">
-                <FileText className="text-ocean-blue h-5 w-5" />
+                <FileText
+                  className="text-ocean-blue h-5 w-5"
+                  aria-hidden="true"
+                />
                 <div>
                   <p className="text-body font-medium">
                     You have a saved draft
@@ -275,8 +278,9 @@ export default function StorySubmissionPage() {
               <input
                 type="text"
                 id="title"
+                name="title"
                 required
-                className="border-hairline bg-canvas text-body focus:border-ocean-blue focus:ring-ocean-blue rounded-button shadow-subtle mt-1 block w-full border px-3 py-2 text-sm focus:outline-none"
+                className="border-hairline bg-canvas text-body focus-visible:border-ocean-blue focus-visible:ring-ocean-blue rounded-button shadow-subtle mt-1 block w-full border px-3 py-2 text-sm focus-visible:outline-none"
                 placeholder="e.g., Sunday Afternoons in Nova Sintra"
                 value={formData.title}
                 onChange={(e) =>
@@ -330,10 +334,10 @@ export default function StorySubmissionPage() {
                     requiresAuth ||
                     !agreedToTerms
                   }
-                  className="bg-ocean-blue hover:bg-ocean-blue/90 focus:ring-ocean-blue rounded-button flex items-center px-6 py-2 font-medium text-white focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:opacity-70"
+                  className="bg-ocean-blue hover:bg-ocean-blue/90 focus-visible:ring-ocean-blue rounded-button flex items-center px-6 py-2 font-medium text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:opacity-70"
                 >
                   {isSubmitting
-                    ? "Submitting..."
+                    ? "Submitting\u2026"
                     : requiresAuth
                       ? "Sign in to Submit"
                       : isOverLimit

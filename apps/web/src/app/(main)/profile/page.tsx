@@ -167,7 +167,10 @@ export default function ProfilePage() {
       <div className="bg-canvas min-h-screen py-16">
         <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
           <div className="bg-canvas rounded-card shadow-subtle p-8 text-center">
-            <UserCircle className="text-muted mx-auto h-16 w-16" />
+            <UserCircle
+              className="text-muted mx-auto h-16 w-16"
+              aria-hidden="true"
+            />
             <h2 className="text-body mt-4 text-xl font-bold">
               Sign in to view your profile
             </h2>
@@ -178,13 +181,13 @@ export default function ProfilePage() {
             <div className="mt-6 flex justify-center gap-4">
               <Link
                 href="/login"
-                className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button px-6 py-2 text-sm font-semibold text-white transition-colors"
+                className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button focus-visible:ring-ocean-blue px-6 py-2 text-sm font-semibold text-white transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
               >
                 Log in
               </Link>
               <Link
                 href="/signup"
-                className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue/10 rounded-button border px-6 py-2 text-sm font-semibold transition-colors"
+                className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue/10 rounded-button focus-visible:ring-ocean-blue border px-6 py-2 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
               >
                 Sign up
               </Link>

@@ -24,7 +24,10 @@ export default async function TermsPage() {
         {/* Last Updated */}
         <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-6">
           <div className="flex items-center justify-center text-center">
-            <Calendar className="text-ocean-blue mr-2 h-6 w-6" />
+            <Calendar
+              className="text-ocean-blue mr-2 h-6 w-6"
+              aria-hidden="true"
+            />
             <span className="text-text-secondary">
               <strong>Last Updated:</strong>{" "}
               {new Date().toLocaleDateString("en-US", {
@@ -39,7 +42,10 @@ export default async function TermsPage() {
         {/* Introduction */}
         <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <div className="mb-4 flex items-start">
-            <FileText className="text-ocean-blue mt-1 mr-3 h-8 w-8" />
+            <FileText
+              className="text-ocean-blue mt-1 mr-3 h-8 w-8"
+              aria-hidden="true"
+            />
             <div>
               <h2 className="text-text-primary mb-4 font-serif text-2xl font-bold">
                 Welcome to Our Cultural Heritage Community
@@ -190,7 +196,10 @@ export default async function TermsPage() {
         {/* Community Contributions */}
         <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <div className="mb-4 flex items-start">
-            <Users className="text-valley-green mt-1 mr-3 h-8 w-8" />
+            <Users
+              className="text-valley-green mt-1 mr-3 h-8 w-8"
+              aria-hidden="true"
+            />
             <div>
               <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
                 4. Sharing Our Cultural Heritage
@@ -308,7 +317,10 @@ export default async function TermsPage() {
         {/* Privacy and Data Protection */}
         <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <div className="mb-4 flex items-start">
-            <ShieldCheck className="text-bougainvillea-pink mt-1 mr-3 h-8 w-8" />
+            <ShieldCheck
+              className="text-bougainvillea-pink mt-1 mr-3 h-8 w-8"
+              aria-hidden="true"
+            />
             <div>
               <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
                 6. Privacy and Data Protection
@@ -329,7 +341,10 @@ export default async function TermsPage() {
         {/* Important Notices */}
         <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <div className="mb-4 flex items-start">
-            <AlertTriangle className="text-sobrado-ochre mt-1 mr-3 h-8 w-8" />
+            <AlertTriangle
+              className="text-sobrado-ochre mt-1 mr-3 h-8 w-8"
+              aria-hidden="true"
+            />
             <div>
               <h3 className="text-text-primary mb-6 font-serif text-2xl font-bold">
                 7. Important Things to Know
@@ -450,7 +465,10 @@ export default async function TermsPage() {
         {/* Governing Law */}
         <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <div className="mb-4 flex items-start">
-            <Scale className="text-text-secondary mt-1 mr-3 h-8 w-8" />
+            <Scale
+              className="text-text-secondary mt-1 mr-3 h-8 w-8"
+              aria-hidden="true"
+            />
             <div>
               <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
                 10. Governing Law and Disputes
@@ -493,7 +511,7 @@ export default async function TermsPage() {
               community guidelines or need assistance, please use our{" "}
               <Link
                 href="/contact"
-                className="text-ocean-blue font-medium hover:underline"
+                className="text-ocean-blue focus-visible:ring-ocean-blue rounded-sm font-medium hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
               >
                 contact form
               </Link>{" "}
@@ -510,19 +528,19 @@ export default async function TermsPage() {
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Link
               href="/privacy"
-              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-lift px-6 py-3 text-base font-semibold text-white transition-transform duration-300 hover:scale-105"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-lift focus-visible:ring-ocean-blue px-6 py-3 text-base font-semibold text-white transition-transform duration-300 hover:scale-105 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               Privacy Policy
             </Link>
             <Link
               href="/contact"
-              className="border-valley-green text-valley-green hover:bg-valley-green rounded-button border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
+              className="border-valley-green text-valley-green hover:bg-valley-green rounded-button focus-visible:ring-valley-green border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               Contact Us
             </Link>
             <Link
               href="/about"
-              className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-button border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
+              className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-button focus-visible:ring-ocean-blue border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               About Us
             </Link>
