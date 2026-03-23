@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { clsx } from "clsx";
 import { CreditDisplay } from "@/components/ui/credit-display";
-import { ShareButton } from "@/components/ui/actions/share-button";
+import { ShareButton } from "@/components/content/actions/share-button";
 import { PhotoIdentificationForm } from "@/components/gallery/photo-identification-form";
 import { isRawFilename } from "@/lib/gallery-mappers";
 import { ExpandableText } from "@/components/ui/expandable-text";

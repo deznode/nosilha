@@ -10,15 +10,15 @@ import Link from "next/link";
 // UI Components
 import { VideoHeroSection } from "@/components/ui/video-hero-section";
 import { PageHeader } from "@/components/ui/page-header";
-import { ContentActionToolbar } from "@/components/ui/content-action-toolbar/content-action-toolbar";
+import { ContentActionToolbar } from "@/components/content/content-action-toolbar/content-action-toolbar";
 import { CitationSection } from "@/components/ui/citation-section";
 import { ImageWithCourtesy } from "@/components/ui/image-with-courtesy";
 import { PrintPageWrapper } from "@/components/ui/print-page-wrapper";
 import { BackToTopButton } from "@/components/ui/back-to-top-button";
-import { PrintButton } from "@/components/ui/actions/print-button";
+import { PrintButton } from "@/components/content/actions/print-button";
 import { Card } from "@/components/ui/card";
 import { ImageGallery } from "@/components/ui/image-gallery";
-import { RelatedEntries } from "@/components/ui/related-entries";
+import { RelatedEntries } from "@/components/content/related-entries";
 
 // Content Components (Data-Driven)
 import { HistoricalTimeline } from "@/components/content/historical-timeline";

@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Search, Plus } from "lucide-react";
-import { DirectoryCard } from "@/components/ui/directory-card";
+import { DirectoryCard } from "@/components/directory/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
 import {
   getCategoryFromSlug,

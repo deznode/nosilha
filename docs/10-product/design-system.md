@@ -532,7 +532,7 @@ import { PageHeader } from "@/components/ui/page-header";
 ### DirectoryCard
 
 ```tsx
-import { DirectoryCard } from "@/components/ui/directory-card";
+import { DirectoryCard } from "@/components/directory/directory-card";
 
 <DirectoryCard entry={directoryEntry} showBookmark={true} />
 // Features: Image, category badge, bookmark, rating, tags, hover animations
@@ -609,7 +609,7 @@ Persistent bottom bar for thumb-zone accessibility (mobile only, `md:hidden`).
 
 ```tsx
 // Automatically included in (main) layout
-import { MobileBottomNav } from "@/components/ui/mobile-bottom-nav";
+import { MobileBottomNav } from "@/components/navigation/mobile-bottom-nav";
 ```
 
 ## Animation & Utility Classes

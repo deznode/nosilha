@@ -11,7 +11,7 @@ import { ImageHeroSection } from "@/components/ui/image-hero-section";
 import { CitationSection } from "@/components/ui/citation-section";
 import { ImageWithCourtesy } from "@/components/ui/image-with-courtesy";
 import { PrintPageWrapper } from "@/components/ui/print-page-wrapper";
-import { ContentActionToolbar } from "@/components/ui/content-action-toolbar";
+import { ContentActionToolbar } from "@/components/content/content-action-toolbar";
 
 // Content Components
 import { ThematicSections } from "@/components/content/thematic-sections";

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { DirectoryEntry } from "@/types/directory";
 import { getEntriesByCategory } from "@/lib/api";
 import { getEntryUrl } from "@/lib/directory-utils";
-import { DirectoryCard } from "@/components/ui/directory-card";
+import { DirectoryCard } from "@/components/directory/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { NosilhaLogo } from "@/components/ui/logo";
 import { Logo as Logo2 } from "@/components/ui/logo2";
@@ -13,14 +13,14 @@ import { Logo as Logo4 } from "@/components/ui/logo4";
 import { Logo as Logo5 } from "@/components/ui/logo5";
 import { SocialMediaLinks } from "@/components/ui/social-media-links";
 import Banner from "@/components/ui/banner";
-import { SuggestImprovementForm } from "@/components/ui/actions/suggest-improvement-form";
-import { RelatedEntries } from "@/components/ui/related-entries";
-import { ShareButton } from "@/components/ui/actions/share-button";
-import { CopyLinkButton } from "@/components/ui/actions/copy-link-button";
-import { ReactionButtons } from "@/components/ui/actions/reaction-buttons";
+import { SuggestImprovementForm } from "@/components/content/actions/suggest-improvement-form";
+import { RelatedEntries } from "@/components/content/related-entries";
+import { ShareButton } from "@/components/content/actions/share-button";
+import { CopyLinkButton } from "@/components/content/actions/copy-link-button";
+import { ReactionButtons } from "@/components/content/actions/reaction-buttons";
 import { Button } from "@/components/catalyst-ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Header } from "@/components/ui/header";
+import { Header } from "@/components/navigation/header";
 
 /**
  * An updated test page that uses the PageHeader component.

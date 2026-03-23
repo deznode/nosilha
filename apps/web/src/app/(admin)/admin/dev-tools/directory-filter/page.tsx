@@ -8,7 +8,7 @@ import type { SortBy } from "@/components/directory/filter-toolbar";
 import { ListViewCard } from "@/components/directory/list-view-card";
 import { ViewToggle } from "@/components/directory/view-toggle";
 import type { ViewMode } from "@/components/directory/view-toggle";
-import { DirectoryCard } from "@/components/ui/directory-card";
+import { DirectoryCard } from "@/components/directory/directory-card";
 import { getEntriesByCategory } from "@/lib/api";
 import type { DirectoryEntry } from "@/types/directory";
 

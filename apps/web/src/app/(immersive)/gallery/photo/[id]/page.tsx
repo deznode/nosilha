@@ -14,7 +14,7 @@ import {
 import { notFound } from "next/navigation";
 import { getGalleryMediaById } from "@/lib/api";
 import { generatePageMetadata, siteConfig } from "@/lib/metadata";
-import { ShareButton } from "@/components/ui/actions/share-button";
+import { ShareButton } from "@/components/content/actions/share-button";
 import { CreditDisplay } from "@/components/ui/credit-display";
 import { IdentifyPhotoButton } from "@/components/gallery/identify-photo-button";
 import { ExpandableText } from "@/components/ui/expandable-text";

@@ -33,7 +33,7 @@ import {
 } from "@/hooks/queries/useTextAi";
 import { submitDirectoryEntry, updateDirectoryEntry } from "@/lib/api";
 import { ImageUploader } from "@/components/ui/image-uploader";
-import { GalleryPicker } from "@/components/ui/gallery-picker";
+import { GalleryPicker } from "@/components/gallery/gallery-picker";
 import { Input } from "@/components/catalyst-ui/input";
 import { Field, Label, ErrorMessage } from "@/components/catalyst-ui/fieldset";
 import { Textarea } from "@/components/ui/textarea";

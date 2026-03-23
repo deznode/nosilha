@@ -303,7 +303,7 @@ export function ToolbarSpecimen() {
         <h3 className="text-body mb-2 text-sm font-semibold">Usage</h3>
         <div className="space-y-2">
           <code className="text-muted block text-sm">
-            {`import { ContentActionToolbar } from "@/components/ui/content-action-toolbar";`}
+            {`import { ContentActionToolbar } from "@/components/content/content-action-toolbar";`}
           </code>
           <div className="border-hairline my-2 border-t" />
           <code className="text-muted block text-sm">

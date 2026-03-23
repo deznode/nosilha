@@ -127,19 +127,32 @@ className={`bg-surface border ${isActive ? "ring-primary" : ""}`}
 
 Button, Input, InputGroup, Checkbox, Fieldset, Dialog, Dropdown, Popover, Badge
 
-### Custom UI Components (40+ in `components/ui/`)
+### UI Primitives (`components/ui/`)
+
+Reusable, stateless components with no app-specific imports:
 
 | Category | Components |
 |----------|------------|
-| **Layout** | Card, PageHeader, Banner, Footer, Header |
-| **Navigation** | MobileBottomNav, BackToTopButton, ScrollIndicator, TabGroup |
+| **Layout** | Card, PageHeader, Banner, Footer |
+| **Navigation** | BackToTopButton, ScrollIndicator, TabGroup, Pagination |
 | **Media** | ImageGallery, ImageLightbox, ImageHeroSection, VideoHeroSection, GalleryImageGrid, ImageWithCourtesy |
 | **Forms** | Select, Textarea, ImageUploader |
 | **Feedback** | Toast system, LoadingSpinner, ConfirmationDialog |
 | **Identity** | Avatar, AvatarGroup, Logo variants, ThemeToggle |
-| **Interactive** | AnimatedButton, Tooltip, DirectoryCard, FeatureCard, StarRating |
-| **Actions** (`ui/actions/`) | CopyLink, Print, ReactionButtons, Share, SuggestImprovement |
-| **Content** | CitationSection, RelatedEntries, PrintPageWrapper, ContributePhotosSection |
+| **Interactive** | AnimatedButton, Tooltip, FeatureCard, StarRating, FilterChip |
+| **Content Display** | CitationSection, CreditDisplay, PrintPageWrapper, ExpandableText |
+
+### Domain Components (outside `ui/`)
+
+Components that compose UI primitives with app logic (auth, API, stores):
+
+| Directory | Components |
+|-----------|------------|
+| `components/navigation/` | Header, StickyNav, MobileBottomNav |
+| `components/directory/` | DirectoryCard |
+| `components/gallery/` | GalleryPicker, ContributePhotosSection |
+| `components/content/` | RelatedEntries, ContentActionToolbar |
+| `components/content/actions/` | ReactionButtons, ShareButton, CopyLink, Print, SuggestImprovement |
 
 ## New Component Checklist
 
@@ -167,7 +180,7 @@ When building new components, ensure:
 | `apps/web/src/app/globals.css` | OKLCH CSS variables, semantic tokens, utility classes |
 | `apps/web/tailwind.config.ts` | Tailwind config (border-radius, shadows, timing, colors) |
 | `apps/web/src/app/layout.tsx` | Font loading (Fraunces, Outfit), theme init |
-| `apps/web/src/components/ui/` | Custom UI components (40+) |
+| `apps/web/src/components/ui/` | UI primitives (~38 reusable components) |
 | `apps/web/src/components/catalyst-ui/` | Catalyst UI (9 retained) |
 
 ## Reference
