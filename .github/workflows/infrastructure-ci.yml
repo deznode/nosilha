@@ -156,6 +156,7 @@ jobs:
         with:
           name: terraform-plan
           path: infrastructure/terraform/plan-output.txt
+          retention-days: 3
           
       - name: Cleanup locks on failure
         if: failure()
