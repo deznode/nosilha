@@ -148,7 +148,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create setup completion issue
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const budgetLimit = '${{ steps.budget-setup.outputs.budget_limit }}';
