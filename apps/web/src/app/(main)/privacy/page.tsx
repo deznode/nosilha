@@ -17,7 +17,10 @@ export default async function PrivacyPage() {
         {/* Last Updated */}
         <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-6">
           <div className="flex items-center justify-center text-center">
-            <Calendar className="text-ocean-blue mr-2 h-6 w-6" />
+            <Calendar
+              className="text-ocean-blue mr-2 h-6 w-6"
+              aria-hidden="true"
+            />
             <span className="text-text-secondary">
               <strong>Last Updated:</strong>{" "}
               {new Date().toLocaleDateString("en-US", {
@@ -32,7 +35,10 @@ export default async function PrivacyPage() {
         {/* Introduction */}
         <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <div className="mb-4 flex items-start">
-            <ShieldCheck className="text-ocean-blue mt-1 mr-3 h-8 w-8" />
+            <ShieldCheck
+              className="text-ocean-blue mt-1 mr-3 h-8 w-8"
+              aria-hidden="true"
+            />
             <div>
               <h2 className="text-text-primary mb-4 font-serif text-2xl font-bold">
                 Our Commitment to You and Brava&apos;s Heritage
@@ -160,7 +166,10 @@ export default async function PrivacyPage() {
         {/* Data Storage and Security */}
         <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <div className="mb-4 flex items-start">
-            <Server className="text-valley-green mt-1 mr-3 h-8 w-8" />
+            <Server
+              className="text-valley-green mt-1 mr-3 h-8 w-8"
+              aria-hidden="true"
+            />
             <div>
               <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
                 Data Storage and Security
@@ -204,7 +213,10 @@ export default async function PrivacyPage() {
         {/* Your Rights */}
         <section className="bg-background-primary border-border-primary rounded-card shadow-subtle mt-16 border p-8">
           <div className="mb-4 flex items-start">
-            <Eye className="text-bougainvillea-pink mt-1 mr-3 h-8 w-8" />
+            <Eye
+              className="text-bougainvillea-pink mt-1 mr-3 h-8 w-8"
+              aria-hidden="true"
+            />
             <div>
               <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
                 Your Privacy Rights
@@ -310,7 +322,7 @@ export default async function PrivacyPage() {
                 </p>
                 <Link
                   href="https://supabase.com/privacy"
-                  className="text-ocean-blue text-xs hover:underline"
+                  className="text-ocean-blue focus-visible:ring-ocean-blue rounded-sm text-xs hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                   View Supabase Privacy Policy
                 </Link>
@@ -326,7 +338,7 @@ export default async function PrivacyPage() {
                 </p>
                 <Link
                   href="https://www.mapbox.com/privacy"
-                  className="text-ocean-blue text-xs hover:underline"
+                  className="text-ocean-blue focus-visible:ring-ocean-blue rounded-sm text-xs hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                   View Mapbox Privacy Policy
                 </Link>
@@ -342,7 +354,7 @@ export default async function PrivacyPage() {
                 </p>
                 <Link
                   href="https://cloud.google.com/privacy"
-                  className="text-ocean-blue text-xs hover:underline"
+                  className="text-ocean-blue focus-visible:ring-ocean-blue rounded-sm text-xs hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
                   View Google Cloud Privacy Policy
                 </Link>
@@ -405,7 +417,10 @@ export default async function PrivacyPage() {
         {/* Contact Information */}
         <section className="from-ocean-blue/10 to-valley-green/10 rounded-card mt-16 bg-linear-to-r p-8">
           <div className="text-center">
-            <Mail className="text-ocean-blue mx-auto mb-4 h-12 w-12" />
+            <Mail
+              className="text-ocean-blue mx-auto mb-4 h-12 w-12"
+              aria-hidden="true"
+            />
             <h3 className="text-text-primary mb-4 font-serif text-2xl font-bold">
               Questions About Privacy?
             </h3>
@@ -414,7 +429,7 @@ export default async function PrivacyPage() {
               your data, please use our{" "}
               <Link
                 href="/contact"
-                className="text-ocean-blue font-medium hover:underline"
+                className="text-ocean-blue focus-visible:ring-ocean-blue rounded-sm font-medium hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
               >
                 contact form
               </Link>{" "}
@@ -461,19 +476,19 @@ export default async function PrivacyPage() {
           <div className="flex flex-col justify-center gap-4 sm:flex-row">
             <Link
               href="/terms"
-              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-lift px-6 py-3 text-base font-semibold text-white transition-transform duration-300 hover:scale-105"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-lift focus-visible:ring-ocean-blue px-6 py-3 text-base font-semibold text-white transition-transform duration-300 hover:scale-105 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               Terms of Service
             </Link>
             <Link
               href="/contact"
-              className="border-valley-green text-valley-green hover:bg-valley-green rounded-button border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
+              className="border-valley-green text-valley-green hover:bg-valley-green rounded-button focus-visible:ring-valley-green border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               Contact Us
             </Link>
             <Link
               href="/about"
-              className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-button border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white"
+              className="border-ocean-blue text-ocean-blue hover:bg-ocean-blue rounded-button focus-visible:ring-ocean-blue border-2 px-6 py-3 text-base font-semibold transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
             >
               About Us
             </Link>

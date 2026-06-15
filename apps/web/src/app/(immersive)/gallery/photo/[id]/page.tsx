@@ -283,15 +283,15 @@ export default async function PhotoDetailPage({
           href="/gallery"
           className="flex items-center gap-2 text-sm text-white/70 transition-colors hover:text-white"
         >
-          <ArrowLeft size={16} />
+          <ArrowLeft size={16} aria-hidden="true" />
           Back to Gallery
         </Link>
         <Link
           href="/gallery"
           className="focus-ring rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
-          aria-label="Close"
+          aria-label="Back to gallery"
         >
-          <X size={18} />
+          <X size={18} aria-hidden="true" />
         </Link>
       </nav>
 
@@ -357,7 +357,11 @@ export default async function PhotoDetailPage({
           <div className="mt-6 space-y-3 border-t border-white/20 pt-4">
             {author && (
               <div className="flex items-center gap-3 text-sm">
-                <User size={16} className="shrink-0 text-white/50" />
+                <User
+                  size={16}
+                  className="shrink-0 text-white/50"
+                  aria-hidden="true"
+                />
                 <CreditDisplay
                   credit={author}
                   creditPlatform={media.creditPlatform}
@@ -370,14 +374,22 @@ export default async function PhotoDetailPage({
 
             {upload?.locationName && (
               <div className="flex items-center gap-3 text-sm">
-                <MapPin size={16} className="shrink-0 text-white/50" />
+                <MapPin
+                  size={16}
+                  className="shrink-0 text-white/50"
+                  aria-hidden="true"
+                />
                 <span className="text-white/80">{upload.locationName}</span>
               </div>
             )}
 
             {dateDisplay && (
               <div className="flex items-center gap-3 text-sm">
-                <Calendar size={16} className="shrink-0 text-white/50" />
+                <Calendar
+                  size={16}
+                  className="shrink-0 text-white/50"
+                  aria-hidden="true"
+                />
                 <span className="text-white/80">
                   {dateDisplay}
                   {upload?.approximateDate && !upload.dateTaken && (
@@ -389,7 +401,11 @@ export default async function PhotoDetailPage({
 
             {upload?.cameraMake && (
               <div className="flex items-center gap-3 text-sm">
-                <Camera size={16} className="shrink-0 text-white/50" />
+                <Camera
+                  size={16}
+                  className="shrink-0 text-white/50"
+                  aria-hidden="true"
+                />
                 <span className="text-white/80">
                   {upload.cameraMake}
                   {upload.cameraModel ? ` ${upload.cameraModel}` : ""}
@@ -399,7 +415,11 @@ export default async function PhotoDetailPage({
 
             {upload?.archiveSource && (
               <div className="flex items-center gap-3 text-sm">
-                <Archive size={16} className="shrink-0 text-white/50" />
+                <Archive
+                  size={16}
+                  className="shrink-0 text-white/50"
+                  aria-hidden="true"
+                />
                 <span className="text-white/80">{upload.archiveSource}</span>
               </div>
             )}
@@ -457,32 +477,32 @@ export default async function PhotoDetailPage({
         <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-white/60">
           {author && (
             <span className="flex items-center gap-1">
-              <User size={12} />
+              <User size={12} aria-hidden="true" />
               {author}
             </span>
           )}
           {upload?.locationName && (
             <span className="flex items-center gap-1">
-              <MapPin size={12} />
+              <MapPin size={12} aria-hidden="true" />
               {upload.locationName}
             </span>
           )}
           {dateDisplay && (
             <span className="flex items-center gap-1">
-              <Calendar size={12} />
+              <Calendar size={12} aria-hidden="true" />
               {dateDisplay}
             </span>
           )}
           {upload?.cameraMake && (
             <span className="flex items-center gap-1">
-              <Camera size={12} />
+              <Camera size={12} aria-hidden="true" />
               {upload.cameraMake}
               {upload.cameraModel ? ` ${upload.cameraModel}` : ""}
             </span>
           )}
           {upload?.archiveSource && (
             <span className="flex items-center gap-1">
-              <Archive size={12} />
+              <Archive size={12} aria-hidden="true" />
               {upload.archiveSource}
             </span>
           )}

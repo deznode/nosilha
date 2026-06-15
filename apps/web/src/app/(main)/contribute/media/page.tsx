@@ -137,11 +137,11 @@ export default function MediaContributionPage() {
     videoSubmitting;
 
   function getSubmitButtonLabel(): string {
-    if (uploadState === "extracting") return "Reading photo metadata...";
-    if (uploadState === "requesting-url") return "Preparing upload...";
-    if (uploadState === "uploading") return `Uploading ${progress}%...`;
-    if (uploadState === "confirming") return "Finalizing...";
-    if (videoSubmitting) return "Submitting video...";
+    if (uploadState === "extracting") return "Reading photo metadata\u2026";
+    if (uploadState === "requesting-url") return "Preparing upload\u2026";
+    if (uploadState === "uploading") return `Uploading ${progress}%\u2026`;
+    if (uploadState === "confirming") return "Finalizing\u2026";
+    if (videoSubmitting) return "Submitting video\u2026";
     if (requiresAuth) return "Sign in to Submit";
     return "Add to Visual Record";
   }
@@ -231,7 +231,7 @@ export default function MediaContributionPage() {
       <div className="bg-canvas flex min-h-[70vh] items-center justify-center p-6">
         <div className="max-w-sm text-center">
           <div className="bg-valley-green/10 mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full">
-            <Check className="text-valley-green h-10 w-10" />
+            <Check className="text-valley-green h-10 w-10" aria-hidden="true" />
           </div>
           <h2 className="text-body mb-3 font-serif text-3xl font-bold">
             Archive Updated
@@ -258,7 +258,7 @@ export default function MediaContributionPage() {
           href="/gallery"
           className="text-muted hover:text-body mb-8 flex items-center gap-2 text-[10px] font-bold tracking-widest uppercase"
         >
-          <ArrowLeft size={14} /> Back to Gallery
+          <ArrowLeft size={14} aria-hidden="true" /> Back to Gallery
         </Link>
 
         <div className="rounded-container border-hairline bg-canvas shadow-floating overflow-hidden border">
@@ -272,9 +272,15 @@ export default function MediaContributionPage() {
 
           <form onSubmit={handleSubmit} className="space-y-8 p-6 sm:p-10">
             {/* Type Switcher */}
-            <div className="rounded-card bg-surface flex p-1.5">
+            <div
+              className="rounded-card bg-surface flex p-1.5"
+              role="radiogroup"
+              aria-label="Media type"
+            >
               <button
                 type="button"
+                role="radio"
+                aria-checked={formData.type === "IMAGE"}
                 onClick={() => setFormData({ ...formData, type: "IMAGE" })}
                 className={clsx(
                   "rounded-card flex flex-1 items-center justify-center gap-2 py-3 text-xs font-bold transition-all",
@@ -283,10 +289,12 @@ export default function MediaContributionPage() {
                     : "text-muted hover:text-body"
                 )}
               >
-                <ImageIcon size={14} /> Photograph
+                <ImageIcon size={14} aria-hidden="true" /> Photograph
               </button>
               <button
                 type="button"
+                role="radio"
+                aria-checked={formData.type === "VIDEO"}
                 onClick={() => setFormData({ ...formData, type: "VIDEO" })}
                 className={clsx(
                   "rounded-card flex flex-1 items-center justify-center gap-2 py-3 text-xs font-bold transition-all",
@@ -295,7 +303,7 @@ export default function MediaContributionPage() {
                     : "text-muted hover:text-body"
                 )}
               >
-                <Play size={14} /> Video / Podcast
+                <Play size={14} aria-hidden="true" /> Video / Podcast
               </button>
             </div>
 
@@ -316,13 +324,18 @@ export default function MediaContributionPage() {
             <div className="space-y-6">
               {/* Title */}
               <div>
-                <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
+                <label
+                  htmlFor="media-title"
+                  className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase"
+                >
                   Title of Item
                 </label>
                 <input
+                  id="media-title"
+                  name="title"
                   required
                   type="text"
-                  className="border-hairline bg-surface text-body focus-visible:ring-ocean-blue rounded-card w-full border px-5 py-3 font-medium transition-all outline-none focus:ring-2 focus-visible:ring-offset-2"
+                  className="border-hairline bg-surface text-body focus-visible:ring-ocean-blue rounded-card w-full border px-5 py-3 font-medium transition-all outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   placeholder="e.g., Festival of São João, 1984"
                   value={formData.title}
                   onChange={(e) =>
@@ -335,7 +348,10 @@ export default function MediaContributionPage() {
               {formData.type === "IMAGE" ? (
                 <>
                   <div>
-                    <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
+                    <label
+                      htmlFor="media-upload"
+                      className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase"
+                    >
                       Image File
                     </label>
                     <div
@@ -366,13 +382,18 @@ export default function MediaContributionPage() {
                               clearFile();
                             }}
                             className="bg-status-error shadow-elevated absolute -top-3 -right-3 rounded-full p-1.5 text-white"
+                            aria-label="Remove image"
                           >
-                            <X size={14} />
+                            <X size={14} aria-hidden="true" />
                           </button>
                         </div>
                       ) : (
                         <>
-                          <Upload size={32} className="mx-auto opacity-20" />
+                          <Upload
+                            size={32}
+                            className="mx-auto opacity-20"
+                            aria-hidden="true"
+                          />
                           <p className="text-muted mt-2 text-sm">
                             Click to upload or drag and drop
                           </p>
@@ -423,13 +444,18 @@ export default function MediaContributionPage() {
                 </>
               ) : (
                 <div>
-                  <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
+                  <label
+                    htmlFor="media-url"
+                    className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase"
+                  >
                     Embed Link
                   </label>
                   <div className="relative">
                     <input
+                      id="media-url"
+                      name="url"
                       required
-                      className="border-hairline bg-surface text-body rounded-card w-full border py-3 pr-4 pl-10 transition-all outline-none"
+                      className="border-hairline bg-surface text-body rounded-card focus-visible:ring-ocean-blue w-full border py-3 pr-4 pl-10 transition-all outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                       placeholder="YouTube or Vimeo URL"
                       value={formData.url}
                       onChange={(e) =>
@@ -439,6 +465,7 @@ export default function MediaContributionPage() {
                     <LinkIcon
                       className="text-bougainvillea-pink absolute top-3 left-3.5 opacity-50"
                       size={16}
+                      aria-hidden="true"
                     />
                   </div>
                 </div>
@@ -446,10 +473,15 @@ export default function MediaContributionPage() {
 
               {/* Category */}
               <div>
-                <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
+                <label
+                  htmlFor="media-category"
+                  className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase"
+                >
                   Category
                 </label>
                 <select
+                  id="media-category"
+                  name="category"
                   required
                   value={formData.category ?? ""}
                   onChange={(e) =>
@@ -459,7 +491,7 @@ export default function MediaContributionPage() {
                     })
                   }
                   className={clsx(
-                    "border-hairline bg-surface rounded-card w-full border px-5 py-3 text-sm font-medium transition-all outline-none focus:ring-2 focus-visible:ring-offset-2",
+                    "border-hairline bg-surface rounded-card w-full border px-5 py-3 text-sm font-medium transition-all outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
                     formData.category
                       ? "text-body focus-visible:ring-ocean-blue"
                       : "text-muted focus-visible:ring-ocean-blue"
@@ -478,13 +510,18 @@ export default function MediaContributionPage() {
 
               {/* Description */}
               <div>
-                <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
+                <label
+                  htmlFor="media-description"
+                  className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase"
+                >
                   Description
                 </label>
                 <textarea
+                  id="media-description"
+                  name="description"
                   rows={3}
-                  className="border-hairline bg-surface text-body rounded-card w-full border px-5 py-3 leading-relaxed outline-none"
-                  placeholder="Additional context or story..."
+                  className="border-hairline bg-surface text-body rounded-card focus-visible:ring-ocean-blue w-full border px-5 py-3 leading-relaxed outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                  placeholder="Additional context or story…"
                   value={formData.description}
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
@@ -494,12 +531,17 @@ export default function MediaContributionPage() {
 
               {/* Author/Credit */}
               <div>
-                <label className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase">
+                <label
+                  htmlFor="media-author"
+                  className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase"
+                >
                   Creator Credit
                 </label>
                 <input
+                  id="media-author"
+                  name="author"
                   type="text"
-                  className="border-hairline bg-surface text-body rounded-card w-full border px-5 py-3 outline-none"
+                  className="border-hairline bg-surface text-body rounded-card focus-visible:ring-ocean-blue w-full border px-5 py-3 outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   placeholder="Name, @handle, or profile URL"
                   value={formData.author}
                   onChange={(e) =>
@@ -518,7 +560,11 @@ export default function MediaContributionPage() {
             {/* Error Display */}
             {(uploadError || videoError) && (
               <div className="border-status-error/20 bg-status-error/10 text-status-error rounded-card flex items-center gap-3 border p-4 text-sm">
-                <AlertCircle size={18} className="flex-shrink-0" />
+                <AlertCircle
+                  size={18}
+                  className="flex-shrink-0"
+                  aria-hidden="true"
+                />
                 <span>{uploadError || videoError}</span>
               </div>
             )}
@@ -527,7 +573,7 @@ export default function MediaContributionPage() {
             {uploadState === "uploading" && (
               <div className="space-y-2">
                 <div className="text-muted flex items-center justify-between text-sm">
-                  <span>Uploading...</span>
+                  <span>Uploading\u2026</span>
                   <span>{progress}%</span>
                 </div>
                 <div className="bg-surface-alt h-2 overflow-hidden rounded-full">
