@@ -7,8 +7,14 @@ version: 2
 # PRs are gated automatically.
 
 updates:
+  # `directory: /`, not `/apps/web`. This is a pnpm workspace (see
+  # pnpm-workspace.yaml) and pnpm-lock.yaml lives at the repo root. Scoped to
+  # /apps/web, Dependabot bumped apps/web/package.json but could not see — let
+  # alone regenerate — the root lockfile, so every npm PR failed CI with
+  # ERR_PNPM_OUTDATED_LOCKFILE under `pnpm install --frozen-lockfile`.
+  # From the root, Dependabot resolves the workspace and updates both.
   - package-ecosystem: npm
-    directory: /apps/web
+    directory: /
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
