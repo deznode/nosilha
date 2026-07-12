@@ -105,16 +105,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      # This scan previously wrote a SARIF file that was never uploaded and had
-      # no severity filter, so it produced zero output at maximum cost.
-      - name: Run Trivy vulnerability scanner (full repository)
+      # This scan previously wrote a SARIF file that was never uploaded, so it
+      # produced zero output at maximum cost. Two steps: report, then gate — with
+      # `format: sarif` the action reports all severities and ignores `severity`,
+      # so one step cannot both report everything and gate on HIGH/CRITICAL.
+      - name: Run Trivy vulnerability scanner (report)
         uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: 'fs'
           format: 'sarif'
           output: 'trivy-global-results.sarif'
-          severity: 'HIGH,CRITICAL'
-          exit-code: '1'
 
       - name: Upload SARIF results
         if: always()
@@ -123,6 +123,15 @@ jobs:
           sarif_file: 'trivy-global-results.sarif'
           category: 'security-global'
         continue-on-error: true
+
+      - name: Fail on HIGH/CRITICAL vulnerabilities
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          scan-type: 'fs'
+          format: 'table'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: 'true'
+          exit-code: '1'
 
   # PR status comment - queries GitHub API for service CI results
   pr-status-report:

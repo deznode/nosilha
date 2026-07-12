@@ -31,18 +31,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      # `exit-code: 1` + no `continue-on-error`: this job is a `needs:` prerequisite
-      # for deploy, but previously could not fail, so HIGH/CRITICAL CVEs could not
-      # block a release. To unblock an unactionable finding, add it to .trivyignore.
-      - name: Run Trivy vulnerability scanner
+      # Two passes, deliberately. With `format: sarif` the trivy-action builds the
+      # report with ALL severities (so nothing is hidden from the Security tab) and
+      # ignores the `severity` input — so a single step cannot both report
+      # everything and fail only on HIGH/CRITICAL. Hence: report, then gate.
+      - name: Run Trivy vulnerability scanner (report)
         uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: 'fs'
           scan-ref: './apps/api'
           format: 'sarif'
           output: 'trivy-backend-results.sarif'
-          severity: 'HIGH,CRITICAL'
-          exit-code: '1'
 
       - name: Upload SARIF results
         if: always()
@@ -51,6 +50,19 @@ jobs:
           sarif_file: 'trivy-backend-results.sarif'
           category: 'security-backend'
         continue-on-error: true
+
+      # The real gate. This job is a `needs:` prerequisite for deploy, and
+      # previously could not fail, so HIGH/CRITICAL CVEs could not block a
+      # release. Add unactionable findings to .trivyignore.
+      - name: Fail on HIGH/CRITICAL vulnerabilities
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          scan-type: 'fs'
+          scan-ref: './apps/api'
+          format: 'table'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: 'true'
+          exit-code: '1'
 
   # Frontend security scanning
   frontend-security:
@@ -64,16 +76,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      # See the backend scan above: `exit-code: 1` makes this gate real.
-      - name: Run Trivy vulnerability scanner
+      # See the backend scan above for why this is two steps.
+      - name: Run Trivy vulnerability scanner (report)
         uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: 'fs'
           scan-ref: './apps/web'
           format: 'sarif'
           output: 'trivy-frontend-results.sarif'
-          severity: 'HIGH,CRITICAL'
-          exit-code: '1'
 
       - name: Upload SARIF results
         if: always()
@@ -82,6 +92,16 @@ jobs:
           sarif_file: 'trivy-frontend-results.sarif'
           category: 'security-frontend'
         continue-on-error: true
+
+      - name: Fail on HIGH/CRITICAL vulnerabilities
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          scan-type: 'fs'
+          scan-ref: './apps/web'
+          format: 'table'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: 'true'
+          exit-code: '1'
 
   # Infrastructure security scanning
   infrastructure-security:
@@ -95,16 +115,14 @@ jobs:
         with:
           fetch-depth: 0
 
-      # See the backend scan above: `exit-code: 1` makes this gate real.
-      - name: Run Trivy IaC security scanner
+      # See the backend scan above for why this is two steps.
+      - name: Run Trivy IaC security scanner (report)
         uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: 'config'
           scan-ref: 'infrastructure/terraform'
           format: 'sarif'
           output: 'trivy-infrastructure-results.sarif'
-          severity: 'HIGH,CRITICAL'
-          exit-code: '1'
 
       - name: Upload SARIF results
         if: always()
@@ -113,6 +131,18 @@ jobs:
           sarif_file: 'trivy-infrastructure-results.sarif'
           category: 'security-infrastructure'
         continue-on-error: true
+
+      # Gates on HIGH/CRITICAL misconfigurations only. The Terraform currently has
+      # 7 LOW/MEDIUM findings (public media bucket, missing logging) which are
+      # reported to the Security tab above but do not block; see #166.
+      - name: Fail on HIGH/CRITICAL misconfigurations
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          scan-type: 'config'
+          scan-ref: 'infrastructure/terraform'
+          format: 'table'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '1'
 
   # Optional code quality analysis
   backend-lint:
