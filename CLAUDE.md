@@ -8,16 +8,16 @@ Nos Ilha is a community-driven cultural heritage hub for Brava Island, Cape Verd
 
 ## Architecture
 
-- **Frontend**: Next.js 16.1 (App Router) with React 19.2, TypeScript, Tailwind CSS, ISR, Supabase Auth
-- **Backend**: Spring Boot 4.0.3 with Kotlin 2.3.0, Java 25, Spring Modulith 2.0.1, PostgreSQL
+- **Frontend**: Next.js 16.2 (App Router) with React 19.2, TypeScript, Tailwind CSS, Cache Components (`"use cache"`), Supabase Auth
+- **Backend**: Spring Boot 4.0.4 with Kotlin 2.3.20, Java 25, Spring Modulith 2.0.1, PostgreSQL
 - **Infrastructure**: Docker Compose (local), Terraform + GCP Cloud Run (prod)
-- **CI/CD**: 10 GitHub Actions workflows — security scanning, auto-deployment, health checks
+- **CI/CD**: 11 GitHub Actions workflows — security scanning, auto-deployment, health checks
 
 ## Project Organization
 
 ```
 nosilha/
-├── apps/web/          # Next.js 16.1 frontend
+├── apps/web/          # Next.js 16.2 frontend
 ├── apps/api/          # Spring Boot 4 backend (Kotlin)
 ├── infrastructure/    # Docker Compose, Terraform, GCP config
 ├── docs/              # Architecture, API reference, ADRs, design system

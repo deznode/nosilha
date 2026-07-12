@@ -692,7 +692,7 @@ const Component = ({ className, ...props }) => (
 | `apps/web/src/app/layout.tsx` | Font loading, theme init |
 | `apps/web/tailwind.config.ts` | Tailwind theme extensions |
 | `apps/web/src/stores/uiStore.ts` | Theme state management |
-| `apps/web/src/components/catalyst-ui/` | Catalyst UI components (9 retained) |
+| `apps/web/src/components/catalyst-ui/` | Catalyst UI components (8 retained) |
 | `apps/web/src/components/ui/card.tsx` | Base card with hoverable |
 | `apps/web/src/components/providers/toast-provider.tsx` | Toast system |
-| `apps/web/src/components/ui/mobile-bottom-nav.tsx` | Mobile navigation |
+| `apps/web/src/components/navigation/mobile-bottom-nav.tsx` | Mobile navigation |

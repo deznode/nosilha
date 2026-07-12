@@ -141,7 +141,7 @@ terraform refresh
 ```
 
 **Workload Identity Auth Fails:**
-- Verify GitHub repository is `bravdigital/nosilha` (hardcoded in `iam.tf:246`)
+- Verify GitHub repository is `deznode/nosilha` (hardcoded in `iam.tf` — see `attribute_condition` and the `principalSet` binding)
 - Check pool exists: `gcloud iam workload-identity-pools list --location=global`
 - Ensure workflow uses correct file path (any `.yml` in `.github/workflows/`)
 

@@ -132,7 +132,7 @@ Check current usage with the "Quick Checks" commands above. Free limit is 10,000
 
 ## Related Documentation
 
-- [Cloud Run Configuration](../infrastructure/terraform/cloudrun.tf)
-- [Monitoring Configuration](../infrastructure/terraform/monitoring.tf)
-- [IAM Configuration](../infrastructure/terraform/iam.tf)
+- [Cloud Run Configuration](../../infrastructure/terraform/cloudrun.tf)
+- [Monitoring Configuration](../../infrastructure/terraform/monitoring.tf)
+- [IAM Configuration](../../infrastructure/terraform/iam.tf)
 - [CI/CD Pipeline](ci-cd-pipeline.md)

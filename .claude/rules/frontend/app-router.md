@@ -55,7 +55,7 @@ pnpm run build                    # Next.js build
 
 ```bash
 pnpm run test:e2e   # Playwright E2E tests (Chromium only, local-only)
-pnpm run test:unit  # Vitest unit tests (4 critical store/hook tests)
+pnpm run test:unit  # Vitest unit tests (25 files, 299 tests)
 ```
 
 ### Pre-Release Checklist (15-20 min)

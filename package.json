@@ -5,7 +5,7 @@
   "description": "Nos Ilha - Community-driven cultural heritage hub for Brava Island, Cape Verde",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bravdigital/nosilha.git"
+    "url": "https://github.com/deznode/nosilha.git"
   },
   "license": "MIT",
   "packageManager": "pnpm@10.31.0",
