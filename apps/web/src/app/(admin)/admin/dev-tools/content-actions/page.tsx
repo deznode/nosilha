@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { ContentActionToolbar } from "@/components/ui/content-action-toolbar/content-action-toolbar";
+import { ContentActionToolbar } from "@/components/content/content-action-toolbar/content-action-toolbar";
 import type { Reaction } from "@/types/content-action-toolbar/component-props";
 
 const mockReactions: Reaction[] = [

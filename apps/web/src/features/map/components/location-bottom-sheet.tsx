@@ -152,7 +152,7 @@ export function LocationBottomSheet() {
             {selectedLocation.detailUrl && (
               <Link
                 href={selectedLocation.detailUrl}
-                className="bg-ocean-blue shadow-ocean-blue/30 flex w-full items-center justify-center gap-2 rounded-2xl py-4 font-bold text-white shadow-lg transition-transform active:scale-[0.98]"
+                className="bg-ocean-blue shadow-ocean-blue/30 shadow-floating flex w-full items-center justify-center gap-2 rounded-2xl py-4 font-bold text-white transition-transform active:scale-[0.98]"
               >
                 View Details <ArrowRight size={18} />
               </Link>

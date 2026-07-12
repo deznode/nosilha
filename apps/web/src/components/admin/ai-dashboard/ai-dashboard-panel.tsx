@@ -151,7 +151,7 @@ function GlobalToggleCard({ enabled }: GlobalToggleCardProps) {
         >
           <span
             className={clsx(
-              "pointer-events-none inline-block h-6 w-6 rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out",
+              "shadow-subtle pointer-events-none inline-block h-6 w-6 rounded-full bg-white ring-0 transition-transform duration-200 ease-in-out",
               enabled ? "translate-x-7" : "translate-x-0"
             )}
           />
@@ -301,7 +301,7 @@ function DomainCard({ config, globalEnabled }: DomainCardProps) {
         >
           <span
             className={clsx(
-              "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out",
+              "shadow-subtle pointer-events-none inline-block h-5 w-5 rounded-full bg-white ring-0 transition-transform duration-200 ease-in-out",
               config.enabled ? "translate-x-5" : "translate-x-0"
             )}
           />

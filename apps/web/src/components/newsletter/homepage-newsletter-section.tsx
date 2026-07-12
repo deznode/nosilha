@@ -117,7 +117,7 @@ export default function HomepageNewsletterSection() {
   return (
     <section className="bg-background-primary py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="from-ocean-blue via-ocean-blue/80 to-ocean-blue/60 border-ocean-blue/30 relative isolate overflow-hidden rounded-lg border bg-gradient-to-br px-6 py-24 shadow-lg transition-shadow hover:shadow-xl sm:px-24 xl:py-32">
+        <div className="from-ocean-blue via-ocean-blue/80 to-ocean-blue/60 border-ocean-blue/30 shadow-elevated hover:shadow-floating relative isolate overflow-hidden rounded-lg border bg-gradient-to-br px-6 py-24 transition-shadow sm:px-24 xl:py-32">
           {/* Ocean-inspired radial gradient overlay */}
           <div
             className="absolute inset-0 -z-10 opacity-20"
@@ -192,7 +192,7 @@ export default function HomepageNewsletterSection() {
                 <button
                   type="submit"
                   disabled={isProcessing}
-                  className="text-ocean-blue flex-none rounded-lg bg-white px-6 py-3 font-sans text-sm font-semibold shadow-sm transition-all hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-white disabled:active:scale-100"
+                  className="text-ocean-blue shadow-subtle flex-none rounded-lg bg-white px-6 py-3 font-sans text-sm font-semibold transition-all hover:bg-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-white disabled:active:scale-100"
                 >
                   {isProcessing ? "Subscribing..." : "Subscribe"}
                 </button>
@@ -238,8 +238,8 @@ export default function HomepageNewsletterSection() {
                 gradientUnits="userSpaceOnUse"
                 gradientTransform="translate(512 512) rotate(90) scale(512)"
               >
-                <stop stopColor="var(--color-ocean-blue)" />
-                <stop offset={0.5} stopColor="var(--color-valley-green)" />
+                <stop stopColor="var(--brand-ocean-blue)" />
+                <stop offset={0.5} stopColor="var(--brand-valley-green)" />
                 <stop offset={1} stopColor="transparent" stopOpacity={0} />
               </radialGradient>
             </defs>

@@ -8,7 +8,7 @@ export interface SectionProps {
 }
 
 const VARIANT_CLASSES = {
-  card: "bg-surface border-hairline mt-8 sm:mt-16 rounded-lg border p-8 shadow-sm",
+  card: "bg-surface border-hairline mt-8 sm:mt-16 rounded-lg border p-8 shadow-subtle",
   default: "mt-8 sm:mt-16",
   gradient:
     "from-ocean-blue/10 to-valley-green/10 mt-8 sm:mt-16 rounded-lg bg-gradient-to-r p-8",

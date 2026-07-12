@@ -149,7 +149,7 @@ export function ContentSearch({
 
       {/* Search results dropdown */}
       {isOpen && (query || results.length > 0) && (
-        <div className="border-hairline bg-surface absolute top-full z-50 mt-2 w-full rounded-lg border shadow-lg">
+        <div className="border-hairline bg-surface shadow-elevated absolute top-full z-50 mt-2 w-full rounded-lg border">
           {isLoading ? (
             <div className="text-muted p-4 text-center text-sm">
               Searching...

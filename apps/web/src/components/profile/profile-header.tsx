@@ -12,7 +12,7 @@ interface ProfileHeaderProps {
 
 function ProfileHeaderSkeleton() {
   return (
-    <div className="border-hairline bg-surface mb-6 overflow-hidden rounded-lg border shadow-sm">
+    <div className="border-hairline bg-surface shadow-subtle mb-6 overflow-hidden rounded-lg border">
       <div className="bg-surface-alt relative h-32 animate-pulse">
         <div className="absolute -bottom-12 left-8">
           <div className="bg-surface-alt h-24 w-24 animate-pulse rounded-full" />
@@ -49,11 +49,11 @@ export function ProfileHeader({
   }
 
   return (
-    <div className="border-hairline bg-surface mb-6 overflow-hidden rounded-lg border shadow-sm">
+    <div className="border-hairline bg-surface shadow-subtle mb-6 overflow-hidden rounded-lg border">
       {/* Cover Image */}
       <div className="bg-ocean-blue relative h-32">
         <div className="absolute -bottom-12 left-8">
-          <div className="bg-surface relative h-24 w-24 overflow-hidden rounded-full p-1 shadow-md">
+          <div className="bg-surface shadow-medium relative h-24 w-24 overflow-hidden rounded-full p-1">
             {profile.avatarUrl ? (
               <Image
                 src={profile.avatarUrl}

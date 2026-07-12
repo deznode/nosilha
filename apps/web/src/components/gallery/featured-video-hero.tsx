@@ -43,10 +43,7 @@ export const FeaturedVideoHero = React.forwardRef<
     return (
       <div
         ref={ref}
-        className={clsx(
-          "rounded-container relative aspect-video overflow-hidden",
-          className
-        )}
+        className={clsx("relative aspect-video overflow-hidden", className)}
         {...props}
       >
         {/* Native iframe for mobile; facade with poster for desktop */}

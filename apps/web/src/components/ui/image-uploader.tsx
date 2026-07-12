@@ -278,7 +278,7 @@ export function ImageUploader({
               <button
                 type="button"
                 onClick={cancel}
-                className="bg-canvas/90 hover:bg-canvas absolute top-2 right-2 rounded-full p-1 shadow-sm transition-colors"
+                className="bg-canvas/90 hover:bg-canvas shadow-subtle absolute top-2 right-2 rounded-full p-1 transition-colors"
                 aria-label="Cancel upload"
               >
                 <X className="text-muted h-5 w-5" />

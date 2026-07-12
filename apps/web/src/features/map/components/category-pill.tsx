@@ -20,7 +20,7 @@ export function CategoryPill({
     <button
       onClick={onClick}
       className={clsx(
-        "flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold whitespace-nowrap shadow-sm backdrop-blur-md transition-all duration-300",
+        "shadow-subtle flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold whitespace-nowrap backdrop-blur-md transition-all duration-300",
         active
           ? "bg-ocean-blue border-ocean-blue shadow-ocean-blue/20 text-white"
           : "border-border-primary text-volcanic-gray hover:border-ocean-blue/50 hover:text-ocean-blue bg-white/80 hover:bg-white dark:bg-white/10 dark:text-white/80 dark:hover:bg-white/20 dark:hover:text-white"

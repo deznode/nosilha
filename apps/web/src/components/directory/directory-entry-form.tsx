@@ -33,7 +33,7 @@ import {
 } from "@/hooks/queries/useTextAi";
 import { submitDirectoryEntry, updateDirectoryEntry } from "@/lib/api";
 import { ImageUploader } from "@/components/ui/image-uploader";
-import { GalleryPicker } from "@/components/ui/gallery-picker";
+import { GalleryPicker } from "@/components/gallery/gallery-picker";
 import { Input } from "@/components/catalyst-ui/input";
 import { Field, Label, ErrorMessage } from "@/components/catalyst-ui/fieldset";
 import { Textarea } from "@/components/ui/textarea";
@@ -320,7 +320,7 @@ export function DirectoryEntryForm({
   if (step === 3 && variant === "full-page") {
     return (
       <div className="bg-canvas flex min-h-screen items-center justify-center p-6">
-        <div className="border-hairline bg-surface rounded-container w-full max-w-md border p-12 text-center shadow-2xl">
+        <div className="border-hairline bg-surface rounded-container shadow-floating w-full max-w-md border p-12 text-center">
           <div className="bg-valley-green/10 mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full border-4 border-white shadow-inner">
             <Check className="text-valley-green h-12 w-12" />
           </div>
@@ -334,7 +334,7 @@ export function DirectoryEntryForm({
           </p>
           <button
             onClick={handleBack}
-            className="bg-ocean-blue hover:bg-ocean-blue/90 w-full rounded-2xl py-4 font-bold text-white shadow-xl transition active:scale-[0.98]"
+            className="bg-ocean-blue hover:bg-ocean-blue/90 shadow-floating w-full rounded-2xl py-4 font-bold text-white transition active:scale-[0.98]"
           >
             Back to Directory
           </button>
@@ -638,7 +638,7 @@ export function DirectoryEntryForm({
           Cancel & Return
         </button>
 
-        <div className="border-hairline bg-surface rounded-container overflow-hidden border shadow-2xl">
+        <div className="border-hairline bg-surface rounded-container shadow-floating overflow-hidden border">
           {/* Header Branding */}
           <div className="bg-ocean-blue relative overflow-hidden px-12 py-12 text-white">
             <div className="absolute top-0 right-0 -mt-40 -mr-40 h-80 w-80 rounded-full bg-white/5 blur-3xl"></div>
@@ -691,7 +691,7 @@ export function DirectoryEntryForm({
                           type="button"
                           onClick={handleAIAutoFill}
                           disabled={isGenerating}
-                          className="bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 absolute top-3 right-3 flex items-center gap-2 rounded-xl px-5 py-2 text-xs font-bold text-white shadow-lg transition-all active:scale-95 disabled:opacity-50"
+                          className="bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 shadow-elevated absolute top-3 right-3 flex items-center gap-2 rounded-xl px-5 py-2 text-xs font-bold text-white transition-all active:scale-95 disabled:opacity-50"
                         >
                           <Sparkles
                             size={14}
@@ -723,7 +723,7 @@ export function DirectoryEntryForm({
                             onClick={() => field.onChange(cat.id)}
                             className={`flex flex-col items-center gap-3 rounded-2xl border p-5 transition-all ${
                               field.value === cat.id
-                                ? `${cat.selectedBorderClass} ${cat.selectedBgClass} ring-4 ${cat.selectedRingClass} scale-[1.02] shadow-lg`
+                                ? `${cat.selectedBorderClass} ${cat.selectedBgClass} ring-4 ${cat.selectedRingClass} shadow-elevated scale-[1.02]`
                                 : "border-hairline text-muted hover:border-edge hover:bg-surface-alt"
                             }`}
                           >
@@ -969,7 +969,7 @@ export function DirectoryEntryForm({
                 <button
                   type="submit"
                   disabled={isSubmitting || requiresAuth}
-                  className="bg-ocean-blue hover:bg-ocean-blue/90 flex flex-1 items-center justify-center gap-3 rounded-2xl px-12 py-4 font-bold text-white shadow-xl transition-all active:scale-95 disabled:opacity-50 md:flex-none"
+                  className="bg-ocean-blue hover:bg-ocean-blue/90 shadow-floating flex flex-1 items-center justify-center gap-3 rounded-2xl px-12 py-4 font-bold text-white transition-all active:scale-95 disabled:opacity-50 md:flex-none"
                 >
                   <Send size={18} />{" "}
                   {isSubmitting

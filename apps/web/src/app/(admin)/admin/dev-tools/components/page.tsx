@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { DirectoryEntry } from "@/types/directory";
 import { getEntriesByCategory } from "@/lib/api";
 import { getEntryUrl } from "@/lib/directory-utils";
-import { DirectoryCard } from "@/components/ui/directory-card";
+import { DirectoryCard } from "@/components/directory/directory-card";
 import { PageHeader } from "@/components/ui/page-header";
 import { NosilhaLogo } from "@/components/ui/logo";
 import { Logo as Logo2 } from "@/components/ui/logo2";
@@ -13,14 +13,14 @@ import { Logo as Logo4 } from "@/components/ui/logo4";
 import { Logo as Logo5 } from "@/components/ui/logo5";
 import { SocialMediaLinks } from "@/components/ui/social-media-links";
 import Banner from "@/components/ui/banner";
-import { SuggestImprovementForm } from "@/components/ui/actions/suggest-improvement-form";
-import { RelatedEntries } from "@/components/ui/related-entries";
-import { ShareButton } from "@/components/ui/actions/share-button";
-import { CopyLinkButton } from "@/components/ui/actions/copy-link-button";
-import { ReactionButtons } from "@/components/ui/actions/reaction-buttons";
+import { SuggestImprovementForm } from "@/components/content/actions/suggest-improvement-form";
+import { RelatedEntries } from "@/components/content/related-entries";
+import { ShareButton } from "@/components/content/actions/share-button";
+import { CopyLinkButton } from "@/components/content/actions/copy-link-button";
+import { ReactionButtons } from "@/components/content/actions/reaction-buttons";
 import { Button } from "@/components/catalyst-ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { Header } from "@/components/ui/header";
+import { Header } from "@/components/navigation/header";
 
 /**
  * An updated test page that uses the PageHeader component.
@@ -76,7 +76,7 @@ export default function TestPage() {
   const showcaseContentType = showcaseEntry?.category ?? "LANDMARK";
 
   return (
-    <main className="bg-off-white font-sans">
+    <main className="bg-canvas font-sans">
       <div className="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
         <Banner
           title="Nos Ilha 2025"
@@ -99,7 +99,7 @@ export default function TestPage() {
             </p>
           )}
           {entriesError && !entriesLoading && (
-            <p className="col-span-full text-center text-red-600">
+            <p className="text-status-error col-span-full text-center">
               {entriesError}
             </p>
           )}
@@ -110,13 +110,13 @@ export default function TestPage() {
             ))}
         </div>
 
-        <section className="mt-16 rounded-2xl bg-white/80 p-6 shadow-sm ring-1 ring-zinc-100 ring-inset dark:bg-zinc-900 dark:ring-zinc-800">
+        <section className="bg-surface/80 shadow-subtle ring-mist-200 dark:bg-basalt-900 dark:ring-basalt-800 mt-16 rounded-2xl p-6 ring-1 ring-inset">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
-              <h2 className="text-basalt-900 dark:text-mist-100 text-2xl font-semibold">
+              <h2 className="text-body text-2xl font-semibold">
                 Content Action Components Showcase
               </h2>
-              <p className="text-basalt-500 dark:text-mist-200 text-sm">
+              <p className="text-muted text-sm">
                 Testing every component from{" "}
                 <code className="bg-mist-100 dark:bg-basalt-800 rounded px-2 py-0.5 text-xs">
                   content-actions
@@ -139,10 +139,8 @@ export default function TestPage() {
 
           <div className="mt-8 space-y-6">
             <div>
-              <h3 className="text-basalt-900 dark:text-mist-100 text-lg font-semibold">
-                Reactions
-              </h3>
-              <p className="text-basalt-500 dark:text-mist-200 text-sm">
+              <h3 className="text-body text-lg font-semibold">Reactions</h3>
+              <p className="text-muted text-sm">
                 Powered by the <code>ReactionButtons</code> component with mock
                 API data.
               </p>
@@ -187,10 +185,10 @@ export default function TestPage() {
             </div>
 
             <div>
-              <h3 className="text-basalt-900 dark:text-mist-100 text-lg font-semibold">
+              <h3 className="text-body text-lg font-semibold">
                 Centralized Toast System
               </h3>
-              <p className="text-basalt-500 dark:text-mist-200 text-sm">
+              <p className="text-muted text-sm">
                 Demonstrates global toast notifications using{" "}
                 <code>useToast()</code> hook.
               </p>

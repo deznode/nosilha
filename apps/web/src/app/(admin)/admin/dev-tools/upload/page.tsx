@@ -4,8 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { ImageUploader } from "@/components/ui/image-uploader";
-import { ContributePhotosSection } from "@/components/ui/contribute-photos-section";
-import { GalleryPicker } from "@/components/ui/gallery-picker";
+import { ContributePhotosSection } from "@/components/gallery/contribute-photos-section";
+import { GalleryPicker } from "@/components/gallery/gallery-picker";
 import { Button } from "@/components/catalyst-ui/button";
 
 export default function UploadDevPage() {

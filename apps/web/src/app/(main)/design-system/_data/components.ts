@@ -107,7 +107,7 @@ export const cardComponents: ComponentExample[] = [
     name: "DirectoryCard",
     description:
       "Project-specific card for directory entries. Includes image, category badge, bookmark button, and metadata.",
-    importPath: "@/components/ui/directory-card",
+    importPath: "@/components/directory/directory-card",
     source: "custom",
   },
 ];
@@ -212,7 +212,7 @@ export const navigationComponents: ComponentExample[] = [
     name: "MobileBottomNav",
     description:
       "Fixed bottom navigation for mobile. Thumb-zone optimized with iOS safe area support. Auto-hides on detail pages.",
-    importPath: "@/components/ui/mobile-bottom-nav",
+    importPath: "@/components/navigation/mobile-bottom-nav",
     source: "custom",
   },
 ];
@@ -222,21 +222,23 @@ export const toolbarComponents: ComponentExample[] = [
     name: "ContentActionToolbar",
     description:
       "Responsive toolbar for content pages. Desktop: fixed left-rail. Mobile: FAB with expandable menu. Includes share, reactions, print, suggest.",
-    importPath: "@/components/ui/content-action-toolbar",
+    importPath: "@/components/content/content-action-toolbar",
     source: "custom",
   },
   {
     name: "ContentActionDesktop",
     description:
       "Desktop variant of toolbar. Fixed left-rail with vertical action stack.",
-    importPath: "@/components/ui/content-action-toolbar/content-action-desktop",
+    importPath:
+      "@/components/content/content-action-toolbar/content-action-desktop",
     source: "custom",
   },
   {
     name: "ContentActionFAB",
     description:
       "Mobile variant of toolbar. 56×56px FAB that expands upward with stagger animation.",
-    importPath: "@/components/ui/content-action-toolbar/content-action-fab",
+    importPath:
+      "@/components/content/content-action-toolbar/content-action-fab",
     source: "custom",
   },
 ];

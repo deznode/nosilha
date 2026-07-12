@@ -84,6 +84,7 @@ export function ManualMetadataForm({
         type="button"
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between px-4 py-3 text-left"
+        aria-expanded={expanded}
       >
         <div className="flex items-center gap-2">
           <Archive size={16} className="text-ocean-blue" />
@@ -149,7 +150,7 @@ export function ManualMetadataForm({
             />
             {/* Location suggestions dropdown */}
             {showSuggestions && filteredLocations.length > 0 && (
-              <div className="border-hairline bg-canvas rounded-card absolute z-10 mt-1 max-h-40 w-full overflow-y-auto border shadow-lg">
+              <div className="border-hairline bg-canvas rounded-card shadow-elevated absolute z-10 mt-1 max-h-40 w-full overflow-y-auto border">
                 {filteredLocations.map((location) => (
                   <button
                     key={location}

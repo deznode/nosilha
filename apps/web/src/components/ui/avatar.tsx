@@ -21,7 +21,7 @@ const statusSizes = {
 
 const statusColors = {
   online: "bg-valley-green",
-  offline: "bg-basalt-400 dark:bg-basalt-500",
+  offline: "bg-basalt-500",
   away: "bg-sobrado-ochre",
   busy: "bg-red-500",
 };
@@ -79,12 +79,12 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
         <span
           className={clsx(
             "flex size-full items-center justify-center",
-            "bg-basalt-200 dark:bg-basalt-700",
+            "bg-mist-200 dark:bg-basalt-800",
             square ? "rounded-lg" : "rounded-full"
           )}
         >
           <svg
-            className="text-basalt-400 dark:text-basalt-500 size-[60%]"
+            className="text-basalt-500 size-[60%]"
             fill="currentColor"
             viewBox="0 0 24 24"
           >
@@ -154,7 +154,7 @@ export function AvatarGroup({
           className={clsx(
             sizes[size],
             "inline-flex items-center justify-center rounded-full font-medium",
-            "bg-basalt-100 text-basalt-600 dark:bg-basalt-800 dark:text-basalt-300",
+            "bg-mist-100 text-basalt-600 dark:bg-basalt-800 dark:text-basalt-500",
             "dark:ring-basalt-900 ring-2 ring-white"
           )}
         >

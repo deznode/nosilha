@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export function FeaturedCTA() {
   return (
-    <div className="bg-ocean-blue flex flex-col items-start justify-center rounded-lg p-8 text-white shadow-lg">
+    <div className="bg-ocean-blue shadow-elevated flex flex-col items-start justify-center rounded-lg p-8 text-white">
       <BookOpen className="text-sunny-yellow mb-4 h-10 w-10" />
       <h3 className="mb-3 font-serif text-2xl font-bold">Share Your History</h3>
       <p className="mb-6 leading-relaxed text-blue-100">

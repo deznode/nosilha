@@ -10,16 +10,16 @@ interface CoverageChartProps {
 }
 
 const CHART_COLORS = [
-  "var(--color-ocean-blue)",
-  "var(--color-valley-green)",
-  "var(--color-bougainvillea)",
-  "var(--color-sunny-yellow)",
+  "var(--brand-ocean-blue)",
+  "var(--brand-valley-green)",
+  "var(--brand-bougainvillea-pink)",
+  "var(--brand-sunny-yellow)",
 ];
 
 export function CoverageChart({ data, isLoading }: CoverageChartProps) {
   if (isLoading) {
     return (
-      <div className="border-hairline bg-surface rounded-lg border p-6 shadow-sm">
+      <div className="border-hairline bg-surface shadow-subtle rounded-lg border p-6">
         <div className="bg-surface-alt mb-4 h-6 w-32 animate-pulse rounded" />
         <div className="bg-surface-alt h-40 animate-pulse rounded" />
       </div>
@@ -27,7 +27,7 @@ export function CoverageChart({ data, isLoading }: CoverageChartProps) {
   }
 
   return (
-    <div className="border-hairline bg-surface rounded-lg border p-6 shadow-sm">
+    <div className="border-hairline bg-surface shadow-subtle rounded-lg border p-6">
       <h3 className="text-body mb-4 flex items-center text-lg font-bold">
         <Map size={20} className="text-ocean-blue mr-2" />
         Coverage by Town
@@ -58,14 +58,14 @@ export function CoverageChart({ data, isLoading }: CoverageChartProps) {
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: "var(--color-bg-primary)",
-                border: "1px solid var(--color-border-subtle)",
+                backgroundColor: "var(--background)",
+                border: "1px solid var(--border-subtle)",
               }}
               labelStyle={{
-                color: "var(--color-text-primary)",
+                color: "var(--foreground)",
               }}
               itemStyle={{
-                color: "var(--color-text-secondary)",
+                color: "var(--foreground-secondary)",
               }}
             />
           </PieChart>

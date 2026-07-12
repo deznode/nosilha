@@ -5,10 +5,10 @@ import { useRef } from "react";
 import { MapPin, Phone, Clock, Building2, Sparkles } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { CollapsibleHero } from "@/components/ui/collapsible-hero";
-import { ContributePhotosSection } from "@/components/ui/contribute-photos-section";
-import { ContentActionToolbar } from "@/components/ui/content-action-toolbar";
+import { ContributePhotosSection } from "@/components/gallery/contribute-photos-section";
+import { ContentActionToolbar } from "@/components/content/content-action-toolbar";
 import { ImageGallery } from "@/components/ui/image-gallery";
-import { RelatedEntries } from "@/components/ui/related-entries";
+import { RelatedEntries } from "@/components/content/related-entries";
 import StarRating from "@/components/ui/start-rating";
 import { useMediaMetadata } from "@/hooks/queries/useMediaMetadata";
 import { publicUserUploadToPhoto } from "@/lib/gallery-mappers";
@@ -139,7 +139,7 @@ export function DirectoryEntryDetailPageContent({
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="font-serif text-4xl font-bold text-white shadow-sm sm:text-6xl"
+              className="shadow-subtle font-serif text-4xl font-bold text-white sm:text-6xl"
             >
               {entry.name}
             </motion.h1>

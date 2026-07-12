@@ -210,7 +210,7 @@ export function NavigationSpecimen() {
         <h3 className="text-body mb-2 text-sm font-semibold">Usage</h3>
         <div className="space-y-2">
           <code className="text-muted block text-sm">
-            {`import { MobileBottomNav } from "@/components/ui/mobile-bottom-nav";`}
+            {`import { MobileBottomNav } from "@/components/navigation/mobile-bottom-nav";`}
           </code>
           <div className="border-hairline my-2 border-t" />
           <code className="text-muted block text-sm">

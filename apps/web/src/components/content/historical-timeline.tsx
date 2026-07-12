@@ -44,7 +44,7 @@ export function HistoricalTimeline({
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ delay: index * 0.1 }}
-            className="bg-surface border-hairline flex items-start space-x-4 rounded-lg border p-6 shadow-sm transition-shadow duration-300 hover:shadow-md"
+            className="bg-surface border-hairline shadow-subtle hover:shadow-medium flex items-start space-x-4 rounded-lg border p-6 transition-shadow duration-300"
           >
             <div className="w-16 flex-shrink-0 text-center">
               <span className="text-ocean-blue font-bold">{event.date}</span>

@@ -32,10 +32,10 @@ export const MOCK_ADMIN_STATS: AdminStats = {
     { day: "Sun", suggestions: 1, stories: 0 },
   ],
   coverageByTown: [
-    { name: "Nova Sintra", value: 35, fill: "var(--color-ocean-blue)" },
-    { name: "Furna", value: 25, fill: "var(--color-valley-green)" },
-    { name: "Fajã d'Água", value: 20, fill: "var(--color-bougainvillea)" },
-    { name: "N.S. do Monte", value: 20, fill: "var(--color-sunny-yellow)" },
+    { name: "Nova Sintra", value: 35, fill: "var(--brand-ocean-blue)" },
+    { name: "Furna", value: 25, fill: "var(--brand-valley-green)" },
+    { name: "Fajã d'Água", value: 20, fill: "var(--brand-bougainvillea-pink)" },
+    { name: "N.S. do Monte", value: 20, fill: "var(--brand-sunny-yellow)" },
   ],
 };
 

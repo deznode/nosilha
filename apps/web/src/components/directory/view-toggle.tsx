@@ -16,7 +16,7 @@ export function ViewToggle({ viewMode, onViewModeChange }: ViewToggleProps) {
         onClick={() => onViewModeChange("grid")}
         className={`rounded p-1.5 transition-colors ${
           viewMode === "grid"
-            ? "bg-background-primary text-ocean-blue shadow-sm"
+            ? "bg-background-primary text-ocean-blue shadow-subtle"
             : "text-text-secondary hover:text-text-primary"
         }`}
         aria-label="Grid view"
@@ -27,7 +27,7 @@ export function ViewToggle({ viewMode, onViewModeChange }: ViewToggleProps) {
         onClick={() => onViewModeChange("list")}
         className={`rounded p-1.5 transition-colors ${
           viewMode === "list"
-            ? "bg-background-primary text-ocean-blue shadow-sm"
+            ? "bg-background-primary text-ocean-blue shadow-subtle"
             : "text-text-secondary hover:text-text-primary"
         }`}
         aria-label="List view"

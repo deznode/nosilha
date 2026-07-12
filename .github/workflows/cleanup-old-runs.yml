@@ -1,0 +1,28 @@
+name: Cleanup Old Workflow Runs
+
+on:
+  schedule:
+    - cron: "0 0 * * 0" # Every Sunday at midnight UTC
+  workflow_dispatch:
+
+permissions:
+  actions: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete workflow runs older than 7 days
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Cleaning up old workflow runs..."
+          RUN_IDS=$(gh run list --repo "$GITHUB_REPOSITORY" --limit 200 --json databaseId,createdAt \
+            -q '[.[] | select(.createdAt < (now - 7*24*3600 | strftime("%Y-%m-%dT%H:%M:%SZ")))] | .[].databaseId')
+          if [ -n "$RUN_IDS" ]; then
+            COUNT=$(echo "$RUN_IDS" | wc -l | tr -d ' ')
+            echo "Deleting $COUNT old runs..."
+            echo "$RUN_IDS" | xargs -I {} gh run delete --repo "$GITHUB_REPOSITORY" {}
+          else
+            echo "No old runs to delete"
+          fi

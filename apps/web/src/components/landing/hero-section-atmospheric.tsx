@@ -93,7 +93,7 @@ export function HeroSectionAtmospheric({
             variants={shouldReduceMotion ? undefined : itemVariants}
             className="mb-6 flex items-center gap-3"
           >
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-medium tracking-wide text-amber-100/90 uppercase shadow-sm backdrop-blur-md">
+            <span className="shadow-subtle inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-medium tracking-wide text-amber-100/90 uppercase backdrop-blur-md">
               <Users size={12} aria-hidden="true" />
               Community-Led & Open Source
             </span>
@@ -101,7 +101,7 @@ export function HeroSectionAtmospheric({
               className="hidden h-1 w-1 rounded-full bg-white/40 sm:inline-block"
               aria-hidden="true"
             />
-            <span className="hidden items-center gap-1.5 text-xs font-medium tracking-wide text-stone-300 uppercase shadow-sm sm:flex">
+            <span className="shadow-subtle hidden items-center gap-1.5 text-xs font-medium tracking-wide text-stone-300 uppercase sm:flex">
               <MapPin size={12} aria-hidden="true" />
               Ilha das Flores &bull; Cabo Verde
             </span>

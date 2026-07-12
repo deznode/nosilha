@@ -20,7 +20,7 @@ const ContentSection = () => (
         {[1, 2, 3].map((item) => (
           <div
             key={item}
-            className="group relative overflow-hidden rounded-2xl bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-md"
+            className="group bg-surface shadow-subtle hover:shadow-medium relative overflow-hidden rounded-2xl transition-all hover:-translate-y-1"
           >
             <div className="relative aspect-[4/3] w-full bg-[#E2E8F0]">
               <Image
@@ -64,7 +64,7 @@ export default function App() {
       <ContentSection />
 
       {/* More dummy content to demonstrate scrolling */}
-      <section className="relative z-10 bg-white py-24">
+      <section className="bg-canvas relative z-10 py-24">
         <div className="mx-auto max-w-4xl px-6 text-center">
           <h3 className="mb-4 font-serif text-3xl font-bold text-[#0F172A]">
             Join the Preservation Effort

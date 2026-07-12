@@ -9,7 +9,7 @@ import {
   NewsletterCtaSection,
 } from "@/components/landing";
 import { ScrollIndicator } from "@/components/ui/scroll-indicator";
-import { StickyNav } from "@/components/ui/sticky-nav";
+import { StickyNav } from "@/components/navigation/sticky-nav";
 import type { DirectoryEntry } from "@/types/directory";
 import type { InstagramPost } from "@/lib/instagram";
 

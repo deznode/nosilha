@@ -79,7 +79,7 @@ jobs:
           SPRING_PROFILES_ACTIVE: test
 
       - name: Publish Integration Test Results
-        uses: dorny/test-reporter@v2
+        uses: dorny/test-reporter@v3
         if: always()
         with:
           name: API Integration Tests

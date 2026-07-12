@@ -184,13 +184,16 @@ export function ExifReextractModal({
     } catch {
       setExtractionState({
         status: "error",
-        message: "Failed to extract EXIF data. The image may not be accessible.",
+        message:
+          "Failed to extract EXIF data. The image may not be accessible.",
       });
     }
   }, [item]);
 
   useEffect(() => {
     if (isOpen && item) {
+      // Reset state when modal opens, then start extraction
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setExtractionState({ status: "idle" });
       setPhotoType("CULTURAL_SITE");
       doExtract();
@@ -202,19 +205,17 @@ export function ExifReextractModal({
   };
 
   const handleApply = () => {
-    if (
-      !item ||
-      extractionState.status !== "success"
-    )
-      return;
+    if (!item || extractionState.status !== "success") return;
 
     const { data } = extractionState;
     const request: UpdateExifRequest = {};
 
-    if (checks.latitude && data.latitude != null) request.latitude = data.latitude;
+    if (checks.latitude && data.latitude != null)
+      request.latitude = data.latitude;
     if (checks.longitude && data.longitude != null)
       request.longitude = data.longitude;
-    if (checks.altitude && data.altitude != null) request.altitude = data.altitude;
+    if (checks.altitude && data.altitude != null)
+      request.altitude = data.altitude;
     if (checks.dateTaken && data.dateTimeOriginal) {
       request.dateTaken = data.dateTimeOriginal.toISOString();
     }
@@ -228,9 +229,7 @@ export function ExifReextractModal({
     const hasGpsData =
       (checks.latitude && data.latitude != null) ||
       (checks.longitude && data.longitude != null);
-    request.gpsPrivacyLevel = hasGpsData
-      ? GPS_PRIVACY_MAP[photoType]
-      : "NONE";
+    request.gpsPrivacyLevel = hasGpsData ? GPS_PRIVACY_MAP[photoType] : "NONE";
 
     updateExif.mutate(
       { mediaId: item.id, data: request },
@@ -259,9 +258,7 @@ export function ExifReextractModal({
   const currentMetadata = buildCurrentMetadata(item);
 
   // Get extracted field values mapped to comparison table fields
-  const getExtractedValue = (
-    field: keyof FieldCheckState
-  ): unknown => {
+  const getExtractedValue = (field: keyof FieldCheckState): unknown => {
     if (!extractedData) return null;
     switch (field) {
       case "latitude":
@@ -294,7 +291,7 @@ export function ExifReextractModal({
         <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
           <DialogPanel
             transition
-            className="bg-surface relative w-full max-w-2xl transform overflow-hidden rounded-2xl text-left shadow-xl transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[enter]:ease-out data-[leave]:duration-200 data-[leave]:ease-in sm:my-8 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
+            className="bg-surface shadow-floating relative w-full max-w-2xl transform overflow-hidden rounded-2xl text-left transition-all data-[closed]:translate-y-4 data-[closed]:opacity-0 data-[enter]:duration-300 data-[enter]:ease-out data-[leave]:duration-200 data-[leave]:ease-in sm:my-8 data-[closed]:sm:translate-y-0 data-[closed]:sm:scale-95"
           >
             {/* Header */}
             <div className="border-hairline flex items-center justify-between border-b px-6 py-4">
@@ -332,11 +329,7 @@ export function ExifReextractModal({
                     The image may have had its metadata stripped during
                     processing.
                   </p>
-                  <Button
-                    outline
-                    onClick={doExtract}
-                    className="mt-4"
-                  >
+                  <Button outline onClick={doExtract} className="mt-4">
                     <RefreshCw data-slot="icon" />
                     Retry
                   </Button>
@@ -352,11 +345,7 @@ export function ExifReextractModal({
                   <p className="text-muted mt-1 text-sm">
                     {extractionState.message}
                   </p>
-                  <Button
-                    outline
-                    onClick={doExtract}
-                    className="mt-4"
-                  >
+                  <Button outline onClick={doExtract} className="mt-4">
                     <RefreshCw data-slot="icon" />
                     Retry
                   </Button>
@@ -407,7 +396,10 @@ export function ExifReextractModal({
                         Camera Info
                       </p>
                       <p className="text-body mt-0.5 text-sm">
-                        {formatCameraInfo(extractedData.make, extractedData.model)}
+                        {formatCameraInfo(
+                          extractedData.make,
+                          extractedData.model
+                        )}
                       </p>
                     </div>
                   )}
@@ -478,13 +470,9 @@ export function ExifReextractModal({
                 <Button
                   color="blue"
                   onClick={handleApply}
-                  disabled={
-                    !hasCheckedFields || updateExif.isPending
-                  }
+                  disabled={!hasCheckedFields || updateExif.isPending}
                 >
-                  {updateExif.isPending
-                    ? "Applying..."
-                    : "Apply Selected"}
+                  {updateExif.isPending ? "Applying..." : "Apply Selected"}
                 </Button>
               </div>
             )}

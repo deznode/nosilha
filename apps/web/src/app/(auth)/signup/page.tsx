@@ -5,7 +5,10 @@ function AuthLoading() {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">
-        <div className="border-surface-alt border-t-body h-8 w-8 animate-spin rounded-full border-4" />
+        <div
+          className="border-surface-alt border-t-body h-8 w-8 animate-spin rounded-full border-4"
+          aria-hidden="true"
+        />
       </div>
     </div>
   );

@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 import { useAuth } from "@/components/providers/auth-provider";
-import { ThemeToggle } from "./theme-toggle";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 interface NavItem {
   label: string;
@@ -262,7 +262,7 @@ export function MobileBottomNav() {
                     moreMenuOpen
                       ? "text-ocean-blue"
                       : "text-muted hover:text-ocean-blue focus-visible:text-ocean-blue",
-                    "focus:outline-none"
+                    "focus-visible:ring-ocean-blue/50 focus:outline-none focus-visible:rounded-lg focus-visible:ring-2"
                   )}
                   aria-label={moreMenuOpen ? "Close menu" : "Open menu"}
                   aria-expanded={moreMenuOpen}
@@ -287,7 +287,7 @@ export function MobileBottomNav() {
                   active
                     ? "text-ocean-blue"
                     : "text-muted hover:text-ocean-blue focus-visible:text-ocean-blue",
-                  "focus:outline-none"
+                  "focus-visible:ring-ocean-blue/50 focus:outline-none focus-visible:rounded-lg focus-visible:ring-2"
                 )}
                 aria-current={active ? "page" : undefined}
               >

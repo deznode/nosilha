@@ -117,7 +117,7 @@ jobs:
 
     steps:
       - name: Wait for service CIs to complete
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         id: check-status
         with:
           script: |
@@ -187,7 +187,7 @@ jobs:
             core.setOutput('security', results.security);
 
       - name: Generate PR Status Report
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const results = {

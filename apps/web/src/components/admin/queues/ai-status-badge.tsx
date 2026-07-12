@@ -17,19 +17,19 @@ const STATUS_CONFIG: Record<
     icon: Sparkles,
     label: "AI Pending Review",
     className:
-      "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+      "bg-status-warning/10 text-status-warning dark:bg-status-warning/20",
   },
   APPROVED: {
     icon: CheckCircle,
     label: "AI Applied",
     className:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+      "bg-status-success/10 text-status-success dark:bg-status-success/20",
   },
   REJECTED: {
     icon: XCircle,
     label: "AI Rejected",
     className:
-      "bg-zinc-100 text-zinc-600 dark:bg-zinc-800/30 dark:text-zinc-400",
+      "bg-mist-100 text-basalt-600 dark:bg-basalt-800/30 dark:text-basalt-500",
   },
 };
 

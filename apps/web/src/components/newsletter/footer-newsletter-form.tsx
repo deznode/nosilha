@@ -167,15 +167,15 @@ export function FooterNewsletterForm() {
           <button
             type="submit"
             disabled={isProcessing}
-            className="bg-ocean-blue hover:bg-ocean-blue/90 focus-visible:outline-ocean-blue disabled:hover:bg-ocean-blue rounded-button flex w-full items-center justify-center px-3 py-2 text-sm font-semibold text-white shadow-sm transition-all focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
+            className="bg-ocean-blue hover:bg-ocean-blue/90 focus-visible:outline-ocean-blue disabled:hover:bg-ocean-blue rounded-button shadow-subtle flex w-full items-center justify-center px-3 py-2 text-sm font-semibold text-white transition-all focus-visible:outline-2 focus-visible:outline-offset-2 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
           >
-            {isProcessing ? "..." : "Subscribe"}
+            {isProcessing ? "Subscribing\u2026" : "Subscribe"}
           </button>
         </div>
       </form>
 
       {/* Privacy message */}
-      <p className="mt-4 text-sm text-slate-500">
+      <p className="text-muted mt-4 text-sm">
         We respect your privacy. Unsubscribe at any time.
       </p>
     </div>

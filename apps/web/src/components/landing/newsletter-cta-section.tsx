@@ -176,7 +176,7 @@ export function NewsletterCtaSection() {
           <button
             type="submit"
             disabled={isProcessing}
-            className="bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 focus-visible:ring-offset-ocean-blue-deep rounded-button px-8 py-3 font-bold text-white shadow-lg transition-all duration-200 hover:shadow-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="bg-bougainvillea-pink hover:bg-bougainvillea-pink/90 focus-visible:ring-offset-ocean-blue-deep rounded-button shadow-elevated hover:shadow-floating px-8 py-3 font-bold text-white transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isProcessing ? "Subscribing..." : "Subscribe"}
           </button>

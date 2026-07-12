@@ -218,7 +218,7 @@ export default function NosIlhaAuth({
 
       <div className="z-10 mx-auto flex w-full max-w-6xl items-center justify-center p-4 lg:p-8">
         {/* Card Container */}
-        <div className="dark:bg-basalt-800 dark:shadow-ocean-blue/5 border-mist-200 dark:border-basalt-500 rounded-container shadow-floating grid min-h-150 w-full overflow-hidden border bg-white transition-colors duration-300 lg:grid-cols-2">
+        <div className="dark:bg-basalt-800 dark:shadow-ocean-blue/5 border-mist-200 dark:border-basalt-500 rounded-container shadow-floating bg-surface grid min-h-150 w-full overflow-hidden border transition-colors duration-300 lg:grid-cols-2">
           {/* Left Panel: Brand (Hidden on mobile) */}
           <div className="bg-ocean-blue relative hidden flex-col justify-between overflow-hidden p-12 text-white lg:flex">
             {/* Gradient Overlay for visual depth */}
@@ -348,7 +348,7 @@ export default function NosIlhaAuth({
                   <div className="border-mist-200 dark:border-basalt-500 w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="dark:bg-basalt-800 text-basalt-500 dark:text-mist-200 bg-white px-2">
+                  <span className="dark:bg-basalt-800 text-basalt-500 dark:text-mist-200 bg-surface px-2">
                     Or continue with email
                   </span>
                 </div>

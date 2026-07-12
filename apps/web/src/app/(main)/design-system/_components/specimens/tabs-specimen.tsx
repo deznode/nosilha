@@ -236,7 +236,7 @@ export function TabsSpecimen() {
                   "rounded-button px-4 py-2 text-sm font-medium transition-all",
                   "text-muted hover:text-body",
                   "focus-visible:ring-ocean-blue focus:outline-none focus-visible:ring-2",
-                  "data-selected:bg-surface data-selected:text-body data-selected:shadow-sm"
+                  "data-selected:bg-surface data-selected:text-body data-selected:shadow-subtle"
                 )}
               >
                 {tab}

@@ -65,9 +65,9 @@ export default function StoriesPage() {
             </div>
             <Link
               href="/contribute/story"
-              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-subtle flex shrink-0 items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all active:scale-95"
+              className="bg-ocean-blue hover:bg-ocean-blue/90 rounded-button shadow-subtle focus-visible:ring-ocean-blue flex shrink-0 items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none active:scale-95"
             >
-              <Plus size={18} />
+              <Plus size={18} aria-hidden="true" />
               Share Your Story
             </Link>
           </div>
