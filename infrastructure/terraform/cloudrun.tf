@@ -294,9 +294,15 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
   # backend-ci.yml, which pushes and deploys a SHA-pinned tag. Without this,
   # Terraform sees the SHA-pinned live image as drift and reverts it to `:latest`
   # on every apply — racing the CI deploy and defeating SHA-pinned rollback.
+  #
+  # client/client_version are metadata GCP stamps on any service deployed via
+  # `gcloud run deploy`. Terraform wants to null them on every plan, which would
+  # otherwise be a perpetual diff and a weekly false drift alert.
   lifecycle {
     ignore_changes = [
       template[0].containers[0].image,
+      client,
+      client_version,
     ]
   }
 
@@ -445,6 +451,8 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
   lifecycle {
     ignore_changes = [
       template[0].containers[0].image,
+      client,
+      client_version,
     ]
   }
 }
