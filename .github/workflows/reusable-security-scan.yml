@@ -31,6 +31,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      # `exit-code: 1` + no `continue-on-error`: this job is a `needs:` prerequisite
+      # for deploy, but previously could not fail, so HIGH/CRITICAL CVEs could not
+      # block a release. To unblock an unactionable finding, add it to .trivyignore.
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.35.0
         with:
@@ -39,7 +42,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-backend-results.sarif'
           severity: 'HIGH,CRITICAL'
-        continue-on-error: true
+          exit-code: '1'
 
       - name: Upload SARIF results
         if: always()
@@ -61,6 +64,7 @@ jobs:
         with:
           fetch-depth: 0
 
+      # See the backend scan above: `exit-code: 1` makes this gate real.
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.35.0
         with:
@@ -69,7 +73,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-frontend-results.sarif'
           severity: 'HIGH,CRITICAL'
-        continue-on-error: true
+          exit-code: '1'
 
       - name: Upload SARIF results
         if: always()
@@ -91,6 +95,7 @@ jobs:
         with:
           fetch-depth: 0
 
+      # See the backend scan above: `exit-code: 1` makes this gate real.
       - name: Run Trivy IaC security scanner
         uses: aquasecurity/trivy-action@0.35.0
         with:
@@ -99,7 +104,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-infrastructure-results.sarif'
           severity: 'HIGH,CRITICAL'
-        continue-on-error: true
+          exit-code: '1'
 
       - name: Upload SARIF results
         if: always()

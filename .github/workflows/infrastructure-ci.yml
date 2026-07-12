@@ -136,15 +136,14 @@ jobs:
       - name: Terraform Init
         run: terraform init -reconfigure
 
-      - name: Handle existing state locks
-        run: ${{ github.workspace }}/.github/scripts/terraform-lock-cleanup.sh
-        continue-on-error: true
-
+      # No `continue-on-error`: a failing plan (bad HCL, auth/provider error) used
+      # to leave this job green, skip the artifact upload, and surface only as a
+      # confusing "artifact not found" error in plan-comment. Let it fail here.
+      # The `Cleanup locks on failure` step below still runs via `if: failure()`.
       - name: Terraform Plan
         id: plan
         timeout-minutes: 5
         run: terraform plan -no-color -lock-timeout=60s -out=tfplan
-        continue-on-error: true
 
       - name: Save Plan Output
         if: steps.plan.outcome == 'success'
@@ -158,11 +157,6 @@ jobs:
           path: infrastructure/terraform/plan-output.txt
           retention-days: 3
           
-      - name: Cleanup locks on failure
-        if: failure()
-        run: ${{ github.workspace }}/.github/scripts/terraform-lock-cleanup.sh
-        continue-on-error: true
-
   plan-comment:
     name: Comment Terraform Plan on PR
     runs-on: ubuntu-latest
@@ -242,10 +236,6 @@ jobs:
       - name: Terraform Init
         run: terraform init -reconfigure
 
-      - name: Handle existing state locks
-        run: ${{ github.workspace }}/.github/scripts/terraform-lock-cleanup.sh
-        continue-on-error: true
-
       - name: Terraform Plan with retry
         timeout-minutes: 8
         run: |
@@ -271,7 +261,7 @@ jobs:
           done
         
       - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -auto-approve -lock-timeout=60s tfplan
         
       - name: Output Infrastructure Details
         run: |
@@ -281,11 +271,6 @@ jobs:
           terraform state list >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           
-      - name: Cleanup locks on failure
-        if: failure()
-        run: ${{ github.workspace }}/.github/scripts/terraform-lock-cleanup.sh
-        continue-on-error: true
-
   drift-detection:
     name: Configuration Drift Detection
     runs-on: ubuntu-latest
@@ -316,17 +301,26 @@ jobs:
       - name: Terraform Init
         run: terraform init -reconfigure
 
-      - name: Handle existing state locks
-        run: ${{ github.workspace }}/.github/scripts/terraform-lock-cleanup.sh
-        continue-on-error: true
-
+      # `-detailed-exitcode` returns 0=no drift, 1=error, 2=drift. Under `bash -e`
+      # a bare invocation aborts the script on 2, so the exit code was never
+      # captured and drift could never be reported. `|| rc=$?` keeps it alive.
       - name: Check for Configuration Drift
         id: drift
         run: |
-          terraform plan -detailed-exitcode -no-color > drift-output.txt
-          echo "exit_code=$?" >> $GITHUB_OUTPUT
-        continue-on-error: true
-        
+          rc=0
+          terraform plan -detailed-exitcode -no-color -lock-timeout=60s > drift-output.txt || rc=$?
+          echo "exit_code=$rc" >> $GITHUB_OUTPUT
+
+          if [ "$rc" -eq 1 ]; then
+            echo "::error::terraform plan failed"
+            cat drift-output.txt
+            exit 1
+          fi
+
+          if [ "$rc" -eq 2 ]; then
+            echo "::warning::Infrastructure drift detected - opening an issue"
+          fi
+
       - name: Create Issue for Drift Detection
         if: steps.drift.outputs.exit_code == '2'
         uses: actions/github-script@v9
@@ -361,8 +355,3 @@ jobs:
       - name: Notify on Success
         if: steps.drift.outputs.exit_code == '0'
         run: echo "✅ No configuration drift detected - infrastructure is in sync"
-        
-      - name: Cleanup locks on failure
-        if: failure()
-        run: ${{ github.workspace }}/.github/scripts/terraform-lock-cleanup.sh
-        continue-on-error: true

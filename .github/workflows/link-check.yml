@@ -21,11 +21,13 @@ jobs:
       - name: Install markdown-link-check
         run: npm install -g markdown-link-check
 
+      # No `|| true` / `continue-on-error` here: they made this step incapable of
+      # failing, which left the `if: failure()` issue-reporter below unreachable.
+      # This workflow is schedule/dispatch-only and gates no PR, so failing is safe.
       - name: Check external links in MDX files
         working-directory: apps/web
         run: |
-          find content -name "*.mdx" -print0 | xargs -0 -n1 markdown-link-check --quiet --config ../../.github/markdown-link-check-config.json || true
-        continue-on-error: true
+          find content -name "*.mdx" -print0 | xargs -0 -n1 markdown-link-check --quiet --config ../../.github/markdown-link-check-config.json
 
       - name: Create issue on failure
         if: failure()
