@@ -73,10 +73,10 @@ jobs:
         working-directory: ./infrastructure/terraform
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Cache Terraform providers
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.terraform.d/plugin-cache
           key: ${{ runner.os }}-terraform-${{ hashFiles('infrastructure/terraform/**/.terraform.lock.hcl') }}
@@ -128,10 +128,10 @@ jobs:
       id-token: write  # Required for OIDC token requests
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Cache Terraform providers
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: ~/.terraform.d/plugin-cache
           key: ${{ runner.os }}-terraform-${{ hashFiles('infrastructure/terraform/**/.terraform.lock.hcl') }}
@@ -239,7 +239,7 @@ jobs:
       id-token: write  # Required for OIDC token requests
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4
@@ -303,7 +303,7 @@ jobs:
       id-token: write  # Required for OIDC token requests
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4

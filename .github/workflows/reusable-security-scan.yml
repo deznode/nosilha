@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -36,7 +36,7 @@ jobs:
       # ignores the `severity` input — so a single step cannot both report
       # everything and fail only on HIGH/CRITICAL. Hence: report, then gate.
       - name: Run Trivy vulnerability scanner (report)
-        uses: aquasecurity/trivy-action@0.35.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: './apps/api'
@@ -55,7 +55,7 @@ jobs:
       # previously could not fail, so HIGH/CRITICAL CVEs could not block a
       # release. Add unactionable findings to .trivyignore.
       - name: Fail on HIGH/CRITICAL vulnerabilities
-        uses: aquasecurity/trivy-action@0.35.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: './apps/api'
@@ -72,13 +72,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       # See the backend scan above for why this is two steps.
       - name: Run Trivy vulnerability scanner (report)
-        uses: aquasecurity/trivy-action@0.35.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: './apps/web'
@@ -94,7 +94,7 @@ jobs:
         continue-on-error: true
 
       - name: Fail on HIGH/CRITICAL vulnerabilities
-        uses: aquasecurity/trivy-action@0.35.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: './apps/web'
@@ -111,13 +111,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       # See the backend scan above for why this is two steps.
       - name: Run Trivy IaC security scanner (report)
-        uses: aquasecurity/trivy-action@0.35.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'config'
           scan-ref: 'infrastructure/terraform'
@@ -136,7 +136,7 @@ jobs:
       # 7 LOW/MEDIUM findings (public media bucket, missing logging) which are
       # reported to the Security tab above but do not block; see #166.
       - name: Fail on HIGH/CRITICAL misconfigurations
-        uses: aquasecurity/trivy-action@0.35.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'config'
           scan-ref: 'infrastructure/terraform'
@@ -158,7 +158,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Java & Gradle
         uses: ./.github/actions/setup-java-gradle
@@ -190,7 +190,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node & pnpm
         uses: ./.github/actions/setup-node-pnpm
