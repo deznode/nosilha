@@ -36,11 +36,11 @@ describe("YouTubeFacade", () => {
     expect(iframe).toBeInTheDocument();
     expect(iframe).toHaveAttribute(
       "src",
-      "https://www.youtube.com/embed/abc123?autoplay=1"
+      "https://www.youtube.com/embed/abc123?autoplay=1&enablejsapi=1"
     );
   });
 
-  it("appends autoplay=1 correctly with existing query params", async () => {
+  it("appends autoplay and enablejsapi correctly with existing query params", async () => {
     const user = userEvent.setup();
     const videoWithParams: MediaItem = {
       ...mockVideo,
@@ -53,7 +53,7 @@ describe("YouTubeFacade", () => {
     const iframe = screen.getByTitle("Test Video");
     expect(iframe).toHaveAttribute(
       "src",
-      "https://www.youtube.com/embed/abc123?rel=0&autoplay=1"
+      "https://www.youtube.com/embed/abc123?rel=0&autoplay=1&enablejsapi=1"
     );
   });
 

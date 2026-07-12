@@ -114,17 +114,43 @@ jobs:
           echo "backend_url=$BACKEND_URL" >> $GITHUB_OUTPUT
           echo "frontend_url=$FRONTEND_URL" >> $GITHUB_OUTPUT
           
+      # These checks previously piped to `|| echo "Warning: ..."`, so a stripped
+      # CSP header produced a green run. Track failures and exit non-zero.
       - name: Security Headers Check
         run: |
+          failed=0
+
+          check_headers() {
+            local name="$1" url="$2"
+            shift 2
+            echo "Checking security headers for $name ($url)..."
+            local headers
+            headers=$(curl -fsSI "$url") || {
+              echo "::error::$name is unreachable at $url"
+              failed=1
+              return
+            }
+            for header in "$@"; do
+              if echo "$headers" | grep -qi "^$header:"; then
+                echo "  ✅ $header"
+              else
+                echo "::error::$name is missing the $header header"
+                failed=1
+              fi
+            done
+          }
+
           if [ -n "${{ steps.urls.outputs.frontend_url }}" ]; then
-            echo "Checking security headers for frontend..."
-            curl -I "${{ steps.urls.outputs.frontend_url }}" | grep -E "(X-Frame-Options|X-Content-Type-Options|Content-Security-Policy)" || echo "Warning: Some security headers missing"
+            check_headers "frontend" "${{ steps.urls.outputs.frontend_url }}" \
+              X-Frame-Options X-Content-Type-Options Content-Security-Policy
           fi
-          
+
           if [ -n "${{ steps.urls.outputs.backend_url }}" ]; then
-            echo "Checking security headers for backend..."
-            curl -I "${{ steps.urls.outputs.backend_url }}/actuator/health" | grep -E "(X-Frame-Options|X-Content-Type-Options)" || echo "Warning: Some security headers missing"
+            check_headers "backend" "${{ steps.urls.outputs.backend_url }}/actuator/health" \
+              X-Frame-Options X-Content-Type-Options
           fi
+
+          exit $failed
 
   # Deployment Health Verification
   deployment-health:
@@ -146,21 +172,35 @@ jobs:
         with:
           configure-docker: 'false'
 
+      # Previously `curl -f ... || echo "❌ failed"`, so an outage produced a green
+      # run with the failure buried in the log. Track failures and exit non-zero.
       - name: Check Service Health
         run: |
-          # Check backend health
+          failed=0
+
           if gcloud run services describe nosilha-backend-api --region=${{ env.REGION }} >/dev/null 2>&1; then
             BACKEND_URL=$(gcloud run services describe nosilha-backend-api --region=${{ env.REGION }} --format='value(status.url)')
             echo "Checking backend health: $BACKEND_URL/actuator/health"
-            curl -f "$BACKEND_URL/actuator/health" && echo "✅ Backend is healthy" || echo "❌ Backend health check failed"
+            if curl -fsS --retry 3 --retry-delay 5 "$BACKEND_URL/actuator/health"; then
+              echo "✅ Backend is healthy"
+            else
+              echo "::error::Backend health check failed at $BACKEND_URL/actuator/health"
+              failed=1
+            fi
           fi
-          
-          # Check frontend health
+
           if gcloud run services describe nosilha-frontend --region=${{ env.REGION }} >/dev/null 2>&1; then
             FRONTEND_URL=$(gcloud run services describe nosilha-frontend --region=${{ env.REGION }} --format='value(status.url)')
             echo "Checking frontend health: $FRONTEND_URL"
-            curl -f "$FRONTEND_URL" && echo "✅ Frontend is accessible" || echo "❌ Frontend health check failed"
+            if curl -fsS --retry 3 --retry-delay 5 -o /dev/null "$FRONTEND_URL"; then
+              echo "✅ Frontend is accessible"
+            else
+              echo "::error::Frontend health check failed at $FRONTEND_URL"
+              failed=1
+            fi
           fi
+
+          exit $failed
 
   # Integration Test Report
   integration-report:

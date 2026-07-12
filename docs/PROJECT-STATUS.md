@@ -42,7 +42,7 @@
 
 | Area | Status | Maturity |
 |------|--------|----------|
-| CI/CD | 10 GitHub Actions workflows (incl. release) | Production Ready |
+| CI/CD | 11 GitHub Actions workflows (incl. release) | Production Ready |
 | Docker | Compose (local) + multi-stage builds | Production Ready |
 | Terraform | GCP Cloud Run IaC | Production Ready |
 | Security scanning | Trivy + ktlint + ESLint + tfsec + OWASP remediation | Production Ready |
@@ -195,7 +195,7 @@ No pending production issues.
 
 ## What's Working
 
-- Full-stack platform operational: Spring Boot 4 + Next.js 16.1
+- Full-stack platform operational: Spring Boot 4 + Next.js 16.2
 - Gallery system mature: masonry layout, improved lightbox, cinematic video redesign with promoted player, AI analysis, credit attribution, timeline view, random discovery, gallery map view, R2 storage admin
 - YouTube channel sync: multi-playlist persistence with one-click sync; DB-backed runtime enable/disable toggle; batch deduplication; 10 integration tests; admin UI panel at `/admin/youtube-sync`
 - AI admin dashboard with domain-level feature toggles, review queue, batch analysis

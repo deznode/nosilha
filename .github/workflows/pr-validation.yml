@@ -95,18 +95,43 @@ jobs:
       needs.changes.outputs.backend != 'true' &&
       needs.changes.outputs.frontend != 'true' &&
       needs.changes.outputs.infrastructure != 'true'
+    # Job-level permissions replace the workflow-level block, which grants no
+    # security-events: write — so the SARIF upload below could never have worked.
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-      - name: Run Trivy vulnerability scanner (full repository)
+      # This scan previously wrote a SARIF file that was never uploaded, so it
+      # produced zero output at maximum cost. Two steps: report, then gate — with
+      # `format: sarif` the action reports all severities and ignores `severity`,
+      # so one step cannot both report everything and gate on HIGH/CRITICAL.
+      - name: Run Trivy vulnerability scanner (report)
         uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: 'fs'
           format: 'sarif'
           output: 'trivy-global-results.sarif'
+
+      - name: Upload SARIF results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: 'trivy-global-results.sarif'
+          category: 'security-global'
         continue-on-error: true
+
+      - name: Fail on HIGH/CRITICAL vulnerabilities
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          scan-type: 'fs'
+          format: 'table'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: 'true'
+          exit-code: '1'
 
   # PR status comment - queries GitHub API for service CI results
   pr-status-report:
