@@ -18,18 +18,21 @@ on:
       - '!apps/api/**/*.gitignore'
       - '!apps/api/**/README*'
       - '!apps/api/**/.editorconfig'
+  # No `paths:` filter on pull_request — deliberately.
+  #
+  # "Tests & Code Quality" is a REQUIRED status check. A path filter here means
+  # the workflow never triggers on a frontend-only PR, so the check never
+  # reports, and branch protection blocks the PR forever waiting for a result
+  # that can never arrive. That is why the Dependabot backlog sat unmergeable
+  # for months.
+  #
+  # Instead the workflow always triggers and the expensive jobs skip when
+  # apps/api is untouched (see the `changes` job). A SKIPPED job still reports
+  # its check and satisfies branch protection; a job that never runs does not.
+  # Cost is one ~15s detection job — and Actions minutes are free on public
+  # repos. The `push` filter above is untouched, so deploys stay path-gated.
   pull_request:
     branches: [main]
-    paths:
-      - 'apps/api/**'
-      - '.github/workflows/backend-ci.yml'
-      - '.github/workflows/reusable-security-scan.yml'
-      # Exclude documentation and non-functional changes to save costs
-      - '!apps/api/**/*.md'
-      - '!apps/api/**/*.txt'
-      - '!apps/api/**/*.gitignore'
-      - '!apps/api/**/README*'
-      - '!apps/api/**/.editorconfig'
   workflow_call:
     inputs:
       skip-deploy:
@@ -67,8 +70,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Cheap path detection so the heavy jobs below can skip on PRs that do not
+  # touch the backend, while still reporting their (required) check as skipped.
+  changes:
+    name: Detect Backend Changes
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'apps/api/**'
+              - '!apps/api/**/*.md'
+              - '!apps/api/**/*.txt'
+              - '!apps/api/**/README*'
+              - '!apps/api/**/.gitignore'
+              - '!apps/api/**/.editorconfig'
+              - '.github/workflows/backend-ci.yml'
+              - '.github/workflows/reusable-security-scan.yml'
+
   security-scan:
     name: Security Scanning
+    needs: [changes]
+    if: github.event_name != 'pull_request' || needs.changes.outputs.backend == 'true'
     uses: ./.github/workflows/reusable-security-scan.yml
     with:
       components: 'backend'
@@ -77,6 +106,10 @@ jobs:
   test-and-lint:
     name: Tests & Code Quality
     runs-on: ubuntu-latest
+    needs: [changes]
+    # Skips (and so reports "skipped", satisfying branch protection) when the PR
+    # does not touch the backend. Always runs on push/dispatch.
+    if: github.event_name != 'pull_request' || needs.changes.outputs.backend == 'true'
 
     defaults:
       run:
