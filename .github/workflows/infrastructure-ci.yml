@@ -108,7 +108,14 @@ jobs:
     name: Terraform Plan
     runs-on: ubuntu-latest
     needs: [security-scan, validate]
-    if: github.event_name == 'pull_request'
+    # Skipped for Dependabot. Dependabot PRs run with a restricted token and get
+    # no access to Actions secrets, so TF_VAR_gcp_project_id / the Cloudflare
+    # token are empty and the providers cannot initialise — the plan fails with
+    # "expected a non-empty string ... project was set to ``" no matter what the
+    # PR contains. A gate that cannot pass is not a gate; it just trains people
+    # to ignore red checks. `terraform validate` still runs (it needs no
+    # credentials), and any provider bump is planned for real on the merge to main.
+    if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
     defaults:
       run:
         working-directory: ./infrastructure/terraform
