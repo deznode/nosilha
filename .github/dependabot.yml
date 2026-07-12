@@ -1,9 +1,14 @@
 version: 2
 
+# Do not set `target-branch` here. These entries previously targeted `develop`,
+# but every gating workflow filters on `branches: [main]`, so Dependabot PRs
+# received no CI at all and had to be retargeted to main by hand before merging.
+# With no `target-branch`, Dependabot targets the default branch (main) and the
+# PRs are gated automatically.
+
 updates:
   - package-ecosystem: npm
     directory: /apps/web
-    target-branch: develop
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
@@ -16,7 +21,6 @@ updates:
 
   - package-ecosystem: gradle
     directory: /apps/api
-    target-branch: develop
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
@@ -29,7 +33,6 @@ updates:
 
   - package-ecosystem: github-actions
     directory: /
-    target-branch: develop
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
@@ -42,7 +45,6 @@ updates:
 
   - package-ecosystem: terraform
     directory: /infrastructure/terraform
-    target-branch: develop
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
@@ -55,7 +57,6 @@ updates:
 
   - package-ecosystem: docker
     directory: /infrastructure/docker
-    target-branch: develop
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
