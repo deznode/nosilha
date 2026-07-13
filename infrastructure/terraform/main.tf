@@ -93,6 +93,31 @@ resource "google_artifact_registry_repository" "backend_repository" {
     "service" = "nosilha-backend"
     "env"     = "shared"
   }
+
+  # Cost control. Every deploy pushes a SHA-tagged image and nothing ever removed
+  # them: as of 2026-07 this repo held 65 versions / ~2.1 GB against a 0.5 GB free
+  # tier, growing with every merge to main.
+  #
+  # KEEP takes precedence over DELETE in Artifact Registry, so the 10 most recent
+  # versions always survive regardless of age — the live image and its rollback
+  # targets can never be pruned. Everything else older than 30 days is removed.
+  cleanup_policy_dry_run = false
+
+  cleanup_policies {
+    id     = "keep-recent-versions"
+    action = "KEEP"
+    most_recent_versions {
+      keep_count = 10
+    }
+  }
+
+  cleanup_policies {
+    id     = "delete-stale-versions"
+    action = "DELETE"
+    condition {
+      older_than = "2592000s" # 30 days
+    }
+  }
 }
 
 resource "google_artifact_registry_repository" "frontend_repository" {
@@ -111,6 +136,26 @@ resource "google_artifact_registry_repository" "frontend_repository" {
   labels = {
     "service" = "nosilha-frontend"
     "env"     = "shared"
+  }
+
+  # Cost control — see backend_repository above. This is the bigger offender:
+  # 70 versions / ~6.4 GB as of 2026-07, against a 0.5 GB free tier.
+  cleanup_policy_dry_run = false
+
+  cleanup_policies {
+    id     = "keep-recent-versions"
+    action = "KEEP"
+    most_recent_versions {
+      keep_count = 10
+    }
+  }
+
+  cleanup_policies {
+    id     = "delete-stale-versions"
+    action = "DELETE"
+    condition {
+      older_than = "2592000s" # 30 days
+    }
   }
 }
 
