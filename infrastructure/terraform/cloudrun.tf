@@ -39,11 +39,17 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
       image = "us-east1-docker.pkg.dev/${var.gcp_project_id}/nosilha-backend/nosilha-core-api:latest"
 
       # Configure memory and CPU resources optimized for free tier
-      # These limits align with CI/CD deployment configuration for consistency
+      # These limits align with CI/CD deployment configuration for consistency.
+      #
+      # cpu is "1", not "1000m": backend-ci.yml deploys with `gcloud run deploy
+      # --cpu=1` and the API stores that literal string. "1000m" is semantically
+      # identical but never converges, producing a perpetual diff. (The google
+      # provider only began surfacing this for the backend at 7.39; the frontend
+      # showed it at 7.24 and was fixed the same way.)
       resources {
         limits = {
-          cpu    = "1000m" # 1 vCPU max for free tier
-          memory = "1Gi"   # Increased from 512Mi to accommodate JVM memory requirements (693MB needed)
+          cpu    = "1"   # 1 vCPU max for free tier (matches CI/CD: --cpu=1)
+          memory = "1Gi" # Increased from 512Mi to accommodate JVM memory requirements (693MB needed)
         }
         cpu_idle          = true # CPU only allocated during request processing
         startup_cpu_boost = true # Extra CPU during startup to reduce cold start time
