@@ -35,6 +35,17 @@ jobs:
       # report with ALL severities (so nothing is hidden from the Security tab) and
       # ignores the `severity` input — so a single step cannot both report
       # everything and fail only on HIGH/CRITICAL. Hence: report, then gate.
+      #
+      # SCOPE LIMIT, be aware: Trivy detects NO dependency files under apps/api.
+      # Scanning Gradle requires a `gradle.lockfile` (Gradle dependency locking),
+      # which this project does not use — so these steps provide SECRET scanning
+      # and file-based checks, but NOT Java/Kotlin dependency coverage.
+      #
+      # Enabling Gradle dependency locking to close that would break every
+      # Dependabot Gradle PR: Dependabot does not regenerate gradle.lockfile, so
+      # each PR would fail on lockfile drift — the same trap that made the npm PRs
+      # unmergeable for months. Gradle dependency vulnerabilities are instead
+      # covered by Dependabot alerts, which do scan Gradle and do open PRs.
       - name: Run Trivy vulnerability scanner (report)
         uses: aquasecurity/trivy-action@v0.36.0
         with:
@@ -76,12 +87,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      # scan-ref is '.', NOT './apps/web' — deliberately.
+      #
+      # This is a pnpm workspace: pnpm-lock.yaml lives at the REPO ROOT, and
+      # apps/web contains only a package.json. Trivy cannot resolve a dependency
+      # tree from a package.json alone, so pointing it at ./apps/web meant it
+      # found nothing and the gate passed by scanning nothing — while Dependabot
+      # was separately reporting 137 alerts. A gate that cannot fail is not a gate.
+      #
+      # From the root it reads the lockfile and covers the whole workspace. Trivy
+      # excludes dev dependencies by default, so this reports what actually ships.
       # See the backend scan above for why this is two steps.
       - name: Run Trivy vulnerability scanner (report)
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'fs'
-          scan-ref: './apps/web'
+          scan-ref: '.'
           format: 'sarif'
           output: 'trivy-frontend-results.sarif'
 
@@ -97,7 +118,7 @@ jobs:
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'fs'
-          scan-ref: './apps/web'
+          scan-ref: '.'
           format: 'table'
           severity: 'HIGH,CRITICAL'
           ignore-unfixed: 'true'
