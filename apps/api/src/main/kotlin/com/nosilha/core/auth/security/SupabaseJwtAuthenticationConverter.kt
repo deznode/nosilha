@@ -8,6 +8,7 @@ import org.springframework.core.convert.converter.Converter
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import org.springframework.stereotype.Component
 import java.util.UUID
@@ -31,7 +32,14 @@ class SupabaseJwtAuthenticationConverter(
     private val userSyncService: UserSyncService,
 ) : Converter<Jwt, AbstractAuthenticationToken> {
     override fun convert(jwt: Jwt): AbstractAuthenticationToken {
-        val userId = jwt.subject
+        // Spring Security (Spring Boot 4.1+) declares Jwt.getSubject() as @Nullable, so
+        // Kotlin sees String?. A token with no `sub` claim cannot identify a user, and
+        // userId is load-bearing for everything below — JIT provisioning, the
+        // UserLoggedInEvent, and the authentication principal. Reject it rather than
+        // fabricating an identity.
+        val userId =
+            jwt.subject
+                ?: throw InvalidBearerTokenException("JWT is missing the required 'sub' claim")
         val authorities = extractAuthorities(jwt)
 
         logger.debug {
