@@ -273,7 +273,7 @@ export function AboutPageContent() {
               Contribute Content
             </Link>
             <Link
-              href="https://github.com/bravdigital/nosilha"
+              href="https://github.com/deznode/nosilha"
               className="border-valley-green text-valley-green hover:bg-valley-green rounded-button border-2 px-4 py-3 text-sm font-semibold transition-colors hover:text-white"
             >
               View on GitHub
