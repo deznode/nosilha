@@ -267,10 +267,7 @@ export async function submitSuggestion(suggestionDto: {
   name: string;
   email: string;
   suggestionType:
-    | "CORRECTION"
-    | "ADDITION"
-    | "FEEDBACK"
-    | "PHOTO_IDENTIFICATION";
+    "CORRECTION" | "ADDITION" | "FEEDBACK" | "PHOTO_IDENTIFICATION";
   message: string;
   mediaId?: string;
   honeypot?: string;

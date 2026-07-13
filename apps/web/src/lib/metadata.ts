@@ -111,11 +111,7 @@ export function generatePageMetadata(options: PageMetadataOptions): Metadata {
         height: img.height,
         alt: img.alt,
         type: img.type as
-          | "image/jpeg"
-          | "image/png"
-          | "image/webp"
-          | "image/gif"
-          | undefined,
+          "image/jpeg" | "image/png" | "image/webp" | "image/gif" | undefined,
       })),
     },
     twitter: {

@@ -7,10 +7,7 @@ interface IconGridItem {
   title: string;
   description: string;
   iconColor?:
-    | "ocean-blue"
-    | "valley-green"
-    | "bougainvillea-pink"
-    | "sobrado-ochre";
+    "ocean-blue" | "valley-green" | "bougainvillea-pink" | "sobrado-ochre";
 }
 
 interface IconGridProps {

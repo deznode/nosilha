@@ -109,5 +109,4 @@ export interface NewsletterErrorResponse {
  * ```
  */
 export type NewsletterActionResponse =
-  | NewsletterResponse
-  | NewsletterErrorResponse;
+  NewsletterResponse | NewsletterErrorResponse;

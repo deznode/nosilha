@@ -14,10 +14,7 @@
  * Matches the ContactSubject enum from backend
  */
 export type ContactSubject =
-  | "GENERAL_INQUIRY"
-  | "CONTENT_SUGGESTION"
-  | "TECHNICAL_ISSUE"
-  | "PARTNERSHIP";
+  "GENERAL_INQUIRY" | "CONTENT_SUGGESTION" | "TECHNICAL_ISSUE" | "PARTNERSHIP";
 
 // ================================
 // CONTACT FORM REQUEST/RESPONSE TYPES
