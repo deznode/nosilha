@@ -127,7 +127,7 @@ export function TimelineView({ timeline, onDecadeSelect }: TimelineViewProps) {
           aria-label="Decade navigation"
           onKeyDown={handleKeyDown}
           className={clsx(
-            "scrollbar-thin flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4",
+            "flex snap-x snap-mandatory scrollbar-thin gap-4 overflow-x-auto pb-4",
             !reducedMotion && "scroll-smooth"
           )}
         >

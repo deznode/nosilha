@@ -286,7 +286,7 @@ export function AboutPageContent() {
             </Link>
             <Link
               href="/history"
-              className="border-hairline text-body hover:bg-basalt-900 dark:hover:bg-mist-100 dark:hover:text-basalt-900 rounded-button border-2 px-4 py-3 text-sm font-semibold transition-colors hover:text-white"
+              className="border-hairline text-body hover:bg-basalt-900 dark:hover:text-basalt-900 rounded-button border-2 px-4 py-3 text-sm font-semibold transition-colors hover:text-white dark:hover:bg-mist-100"
             >
               Learn More
             </Link>

@@ -36,7 +36,7 @@ export function TypographySpecimen({ token }: TypographySpecimenProps) {
           onClick={() => copy(token.tailwindClass)}
           className={clsx(
             "rounded-badge bg-surface-alt flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors",
-            "hover:bg-mist-200 dark:hover:bg-basalt-800",
+            "dark:hover:bg-basalt-800 hover:bg-mist-200",
             "focus-ring"
           )}
           aria-label="Copy Tailwind classes"

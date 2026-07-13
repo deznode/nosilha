@@ -19,7 +19,7 @@ export default async function TranslationsPage() {
   }));
 
   return (
-    <div className="bg-mist-50 dark:bg-basalt-900 min-h-screen">
+    <div className="dark:bg-basalt-900 min-h-screen bg-mist-50">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <PageHeader
           title="Translation Dashboard"
