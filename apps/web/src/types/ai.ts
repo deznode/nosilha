@@ -90,10 +90,7 @@ export interface UpdateDomainConfigRequest {
 // ================================
 
 export type AnalysisRunStatus =
-  | "PENDING"
-  | "PROCESSING"
-  | "COMPLETED"
-  | "FAILED";
+  "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
 
 export type AiModerationStatus = "PENDING_REVIEW" | "APPROVED" | "REJECTED";
 

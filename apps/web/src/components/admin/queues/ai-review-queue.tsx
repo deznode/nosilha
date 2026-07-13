@@ -18,11 +18,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 
 type AiStatusFilter =
-  | "ALL"
-  | "NOT_ANALYZED"
-  | "PENDING_REVIEW"
-  | "APPROVED"
-  | "REJECTED";
+  "ALL" | "NOT_ANALYZED" | "PENDING_REVIEW" | "APPROVED" | "REJECTED";
 
 export function AiReviewQueue() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
