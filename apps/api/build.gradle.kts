@@ -1,11 +1,11 @@
 import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 
 plugins {
-    kotlin("jvm") version "2.4.0"
-    kotlin("plugin.spring") version "2.4.0"
+    kotlin("jvm") version "2.4.10"
+    kotlin("plugin.spring") version "2.4.10"
     id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("plugin.jpa") version "2.4.0"
+    kotlin("plugin.jpa") version "2.4.10"
     jacoco
     // TODO: by JC, 12/26/25 - Re-enable detekt when compatible version is released
     // Issue: detekt 2.0.0-alpha.1 compiled with Kotlin 2.2.20, but we need Kotlin 2.3.0 for Java 25 JVM target
@@ -67,7 +67,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 
     // Cloudflare R2 (S3-compatible) integration
-    implementation(platform("software.amazon.awssdk:bom:2.47.5"))
+    implementation(platform("software.amazon.awssdk:bom:2.48.3"))
     implementation("software.amazon.awssdk:s3")
 
     // OWASP HTML Sanitizer for XSS prevention
