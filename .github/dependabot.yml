@@ -1,12 +1,49 @@
 version: 2
 
+# Do not set `target-branch` here. These entries previously targeted `develop`,
+# but every gating workflow filters on `branches: [main]`, so Dependabot PRs
+# received no CI at all and had to be retargeted to main by hand before merging.
+# With no `target-branch`, Dependabot targets the default branch (main) and the
+# PRs are gated automatically.
+
 updates:
+  # `directory: /`, not `/apps/web`. This is a pnpm workspace (see
+  # pnpm-workspace.yaml) and pnpm-lock.yaml lives at the repo root. Scoped to
+  # /apps/web, Dependabot bumped apps/web/package.json but could not see — let
+  # alone regenerate — the root lockfile, so every npm PR failed CI with
+  # ERR_PNPM_OUTDATED_LOCKFILE under `pnpm install --frozen-lockfile`.
+  # From the root, Dependabot resolves the workspace and updates both.
   - package-ecosystem: npm
-    directory: /apps/web
-    target-branch: develop
+    directory: /
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    # These three majors are held back deliberately. Each one silently disables a
+    # quality gate, and Dependabot re-proposed all three in a single group PR
+    # (#173) hours after they were fixed. Remove an entry only once the blocker
+    # below is actually resolved — and re-run the gate to confirm.
+    ignore:
+      # TypeScript 7: no release of typescript-eslint supports it (latest, 8.63.0,
+      # caps at `typescript >=4.8.4 <6.1.0`), and eslint-config-next pulls
+      # typescript-eslint ^8. Adopting TS 7 leaves ESLint permanently crashing
+      # with "Cannot read properties of undefined (reading 'Cjs')".
+      # Unblock when: typescript-eslint ships TS 7 support.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
+
+      # ESLint 10: eslint-config-next's plugin stack is not ESLint 10-ready.
+      # eslint-plugin-react@7.37.5 throws "contextOrFilename.getFilename is not a
+      # function" under it. This is the #163 regression.
+      # Unblock when: eslint-config-next ships an ESLint 10-compatible plugin set.
+      - dependency-name: eslint
+        update-types: ["version-update:semver-major"]
+
+      # @vitejs/plugin-react 6: requires vite ^8, but vitest 4 resolves vite 7, so
+      # vitest.config.ts fails to load with ERR_PACKAGE_PATH_NOT_EXPORTED and the
+      # entire unit suite silently stops running (see 8fcfb4b).
+      # Unblock when: vitest resolves vite 8.
+      - dependency-name: "@vitejs/plugin-react"
+        update-types: ["version-update:semver-major"]
     groups:
       dependencies:
         update-types:
@@ -16,7 +53,6 @@ updates:
 
   - package-ecosystem: gradle
     directory: /apps/api
-    target-branch: develop
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
@@ -29,7 +65,6 @@ updates:
 
   - package-ecosystem: github-actions
     directory: /
-    target-branch: develop
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
@@ -42,7 +77,6 @@ updates:
 
   - package-ecosystem: terraform
     directory: /infrastructure/terraform
-    target-branch: develop
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
@@ -55,7 +89,6 @@ updates:
 
   - package-ecosystem: docker
     directory: /infrastructure/docker
-    target-branch: develop
     schedule:
       interval: weekly
     open-pull-requests-limit: 5

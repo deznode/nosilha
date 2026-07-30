@@ -160,7 +160,6 @@ Backend targets use `nx:run-commands` executor with caching:
 - [Nx Documentation: Gradle Tutorial](https://nx.dev/docs/getting-started/tutorials/gradle-tutorial)
 - [Nx Blog: Journey of the Nx Plugin for Gradle](https://nx.dev/blog/journey-of-the-nx-plugin-for-gradle)
 - [Building a Kotlin + React TypeScript Monorepo with Nx](https://blog.ardikapras.com/building-a-kotlin-react-typescript-monorepo-with-nx-2e9fc71f82f7)
-- [Internal: project-structure-review.md](../../project-structure-review.md)
 
 ## Implementation Notes
 

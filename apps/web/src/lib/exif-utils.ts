@@ -64,8 +64,7 @@ function normalizeExifData(data: Record<string, unknown>): ExtractedExifData {
     longitude: data.longitude as number | undefined,
     altitude: data.GPSAltitude as number | undefined,
     dateTimeOriginal: (data.DateTimeOriginal ?? data.CreateDate) as
-      | Date
-      | undefined,
+      Date | undefined,
     make: data.Make as string | undefined,
     model: data.Model as string | undefined,
     orientation: (data.Orientation as number | undefined) ?? 1,

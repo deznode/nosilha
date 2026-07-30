@@ -24,11 +24,7 @@ export type DirectoryCategory =
 
 /** Article categories from MDX content */
 export type ArticleCategory =
-  | "music"
-  | "history"
-  | "traditions"
-  | "places"
-  | "people";
+  "music" | "history" | "traditions" | "places" | "people";
 
 /** Base search result interface */
 export interface BaseSearchResult {

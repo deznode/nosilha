@@ -90,8 +90,7 @@ export default function ProfilePage() {
         displayName: profileUpdates.displayName,
         location: profileUpdates.location,
         preferredLanguage: profileUpdates.preferredLanguage as
-          | PreferredLanguage
-          | undefined,
+          PreferredLanguage | undefined,
         notificationPreferences: notifUpdates
           ? {
               storyPublished:

@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { Youtube } from "@/components/ui/brand-icons";
 import {
   LayoutDashboard,
   MessageSquare,
@@ -11,16 +12,10 @@ import {
   HardDrive,
   Languages,
   Wrench,
-  Youtube,
 } from "lucide-react";
 
 export type NavSection =
-  | "main"
-  | "content"
-  | "ai"
-  | "integrations"
-  | "tools"
-  | "dev";
+  "main" | "content" | "ai" | "integrations" | "tools" | "dev";
 
 export interface AdminNavItem {
   label: string;

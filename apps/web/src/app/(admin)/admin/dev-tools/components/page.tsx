@@ -110,7 +110,7 @@ export default function TestPage() {
             ))}
         </div>
 
-        <section className="bg-surface/80 shadow-subtle ring-mist-200 dark:bg-basalt-900 dark:ring-basalt-800 mt-16 rounded-2xl p-6 ring-1 ring-inset">
+        <section className="bg-surface/80 shadow-subtle dark:bg-basalt-900 dark:ring-basalt-800 mt-16 rounded-2xl p-6 ring-1 ring-mist-200 ring-inset">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
               <h2 className="text-body text-2xl font-semibold">
@@ -118,7 +118,7 @@ export default function TestPage() {
               </h2>
               <p className="text-muted text-sm">
                 Testing every component from{" "}
-                <code className="bg-mist-100 dark:bg-basalt-800 rounded px-2 py-0.5 text-xs">
+                <code className="dark:bg-basalt-800 rounded bg-mist-100 px-2 py-0.5 text-xs">
                   content-actions
                 </code>{" "}
                 using mock content data.

@@ -54,7 +54,7 @@ describe("useAiReviewQueue", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(result.current.data?.items).toEqual(mockItems);
-    expect(api.getAiReviewQueue).toHaveBeenCalledWith(0, 20);
+    expect(api.getAiReviewQueue).toHaveBeenCalledWith(0, 20, undefined);
     expect(api.getAiReviewQueue).toHaveBeenCalledTimes(1);
   });
 
@@ -74,7 +74,7 @@ describe("useAiReviewQueue", () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(api.getAiReviewQueue).toHaveBeenCalledWith(1, 10);
+    expect(api.getAiReviewQueue).toHaveBeenCalledWith(1, 10, undefined);
   });
 
   it("handles API errors gracefully", async () => {

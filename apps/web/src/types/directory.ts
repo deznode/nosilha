@@ -1,10 +1,6 @@
 // 1. A base interface with all COMMON properties
 export type ContentActionType =
-  | "SHARE"
-  | "COPY_LINK"
-  | "PRINT"
-  | "REACTIONS"
-  | "SUGGEST";
+  "SHARE" | "COPY_LINK" | "PRINT" | "REACTIONS" | "SUGGEST";
 
 export interface ContentActionSettings {
   order?: ContentActionType[];

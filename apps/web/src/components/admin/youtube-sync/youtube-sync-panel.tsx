@@ -10,9 +10,9 @@ import {
   Play,
   Plus,
   Trash2,
-  Youtube,
   X,
 } from "lucide-react";
+import { Youtube } from "@/components/ui/brand-icons";
 import {
   useYouTubeSyncConfig,
   useUpdateYouTubeSyncConfig,

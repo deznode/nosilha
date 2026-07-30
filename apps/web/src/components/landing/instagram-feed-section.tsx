@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
-import { Instagram, Play, Layers2 } from "lucide-react";
+import { Play, Layers2 } from "lucide-react";
+import { Instagram } from "@/components/ui/brand-icons";
 import clsx from "clsx";
 
 import type { InstagramPost } from "@/lib/instagram";

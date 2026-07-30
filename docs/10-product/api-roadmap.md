@@ -6,26 +6,34 @@ Planned backend improvements and migrations. For current standards, see [api-cod
 
 ## ~~1. Spring Data JPA Auditing Migration~~ (Completed)
 
-Shipped via migrations V12-V17. `AuditableEntity` and `CreatableEntity` now use Spring Data JPA Auditing (`@CreatedDate`, `@LastModifiedDate`, `@CreatedBy`, `@LastModifiedBy`) with `Instant`/`TIMESTAMPTZ`. All manual `@PrePersist`/`@PreUpdate` callbacks removed. See `api-coding-standards.md` for current patterns.
+Shipped. `AuditableEntity` and `CreatableEntity` now use Spring Data JPA Auditing (`@CreatedDate`, `@LastModifiedDate`, `@CreatedBy`, `@LastModifiedBy`) with `Instant`/`TIMESTAMPTZ`. All manual `@PrePersist`/`@PreUpdate` callbacks removed. See `api-coding-standards.md` for current patterns.
+
+(The original migrations were folded into the V1-V13 baseline when the repo history was squashed on 2026-03-02, so there is no longer a distinct migration to point at.)
 
 ---
 
-## 2. Role-Based Access Control (RBAC)
+## 2. Role-Based Access Control (RBAC) — partially shipped
 
-### Target Architecture
+### Current State
 
-Method-level security with Spring Security `@PreAuthorize`.
+Method-level security is **live**: `SecurityConfig` has `@EnableMethodSecurity`, and
+`@PreAuthorize("hasRole('ADMIN')")` guards `AdminGalleryController`,
+`AdminAiController` and `DirectoryEntryController`.
 
-### Planned Roles
+### Roles
 
-| Role | Permissions |
-|------|-------------|
-| `ADMIN` | Full access (CRUD all resources) |
-| `EDITOR` | Create/update content, moderate submissions |
-| `MODERATOR` | Review and approve user submissions |
-| `USER` | Read public content, submit suggestions |
+| Role | Permissions | Status |
+|------|-------------|--------|
+| `ADMIN` | Full access (CRUD all resources) | **Implemented** |
+| `USER` | Read public content, submit suggestions | **Implemented** |
+| `EDITOR` | Create/update content, moderate submissions | Planned — not in `UserRole` |
+| `MODERATOR` | Review and approve user submissions | Planned — not in `UserRole` |
 
-### Implementation Plan
+`UserRole` (`auth/domain/User.kt`) currently defines only `USER` and `ADMIN`. The
+remaining work is introducing `EDITOR`/`MODERATOR` and the finer-grained
+permissions below — not the security plumbing, which already exists.
+
+### Implementation Plan (for the remaining roles)
 
 1. **Security configuration**:
    ```kotlin
@@ -129,19 +137,26 @@ Method-level security with Spring Security `@PreAuthorize`.
 |------|---------|--------|
 | Unit test coverage | Basic | 80%+ |
 | Integration tests | Testcontainers | Contract tests |
-| API documentation | Manual | OpenAPI/Swagger |
+| API documentation | **Shipped** — springdoc-openapi + `@Operation` annotations | — |
 
 ### Integration Test Organization
 
+Tests are organized **by module**, mirroring the Spring Modulith package layout —
+not by test type. An earlier `integration/` + `unit/` + `testcontainers/` split was
+proposed but never adopted.
+
 ```
-src/test/kotlin/
-├── integration/           # Integration tests
-│   ├── DirectoryEntryControllerIT.kt
-│   └── DatabaseMigrationIT.kt
-├── unit/                  # Unit tests
-│   └── service/
-└── testcontainers/        # Container configuration
+src/test/kotlin/com/nosilha/core/
+├── places/
+├── gallery/
+├── ai/
+├── feedback/
+└── config/
 ```
+
+Testcontainers is wired via the `jdbc:tc:postgresql://` URL in
+`src/test/resources/application-test.yml`, so there is no separate container
+configuration package.
 
 ---
 

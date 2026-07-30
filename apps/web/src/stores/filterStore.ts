@@ -9,11 +9,7 @@ import type { FilterInput, CategoryValue } from "@/schemas/filterSchema";
  */
 
 export type SortByValue =
-  | "name_asc"
-  | "name_desc"
-  | "rating_desc"
-  | "created_at_desc"
-  | "relevance";
+  "name_asc" | "name_desc" | "rating_desc" | "created_at_desc" | "relevance";
 
 interface FilterState {
   // State

@@ -69,15 +69,22 @@ cd apps/api
 ```
 
 **Flyway migration fails**
+
+Flyway runs at application startup, not as a Gradle task — the Flyway Gradle
+plugin is not applied, so there is no `./gradlew flywayRepair` / `flywayInfo`.
+Inspect and repair via the database directly.
+
 ```bash
 # Check migration files for syntax errors
 ls apps/api/src/main/resources/db/migration/
 
-# Repair Flyway checksum issues
-./gradlew flywayRepair
+# View migration status (Flyway's own bookkeeping table)
+docker compose exec db psql -U nosilha -d nosilha_db \
+  -c "SELECT version, description, success FROM flyway_schema_history ORDER BY installed_rank;"
 
-# View migration status
-./gradlew flywayInfo
+# Repair a checksum mismatch: delete the offending row, then restart the app
+docker compose exec db psql -U nosilha -d nosilha_db \
+  -c "DELETE FROM flyway_schema_history WHERE version = '<version>';"
 ```
 
 **Build fails with Kotlin errors**
@@ -196,8 +203,8 @@ docker compose exec db psql -U nosilha -d nosilha_db -c "\conninfo"
 
 **"relation does not exist" error**
 ```bash
-# Run migrations
-./gradlew flywayMigrate
+# Migrations run automatically on application startup
+cd apps/api && ./gradlew bootRun
 
 # Check if tables exist
 docker compose exec db psql -U nosilha -d nosilha_db -c "\dt"

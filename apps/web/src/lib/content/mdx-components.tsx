@@ -143,7 +143,7 @@ export const mdxComponents: MDXComponents = {
   ),
   pre: ({ children, ...props }) => (
     <pre
-      className="bg-basalt-900 text-mist-100 my-6 overflow-x-auto rounded-lg p-4"
+      className="bg-basalt-900 my-6 overflow-x-auto rounded-lg p-4 text-mist-100"
       {...props}
     >
       {children}

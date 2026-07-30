@@ -214,18 +214,18 @@ describe("mapGalleryMediaToMediaItem", () => {
       expect(result.category).toBe("Heritage");
     });
 
-    it("defaults to 'Culture' for unknown categories", () => {
+    it("leaves category undefined for unknown categories", () => {
       const media = userUploadFixture({ category: "Unknown" });
       const result = mapGalleryMediaToMediaItem(media);
 
-      expect(result.category).toBe("Culture");
+      expect(result.category).toBeUndefined();
     });
 
-    it("defaults to 'Culture' for null category", () => {
+    it("leaves category undefined for null category", () => {
       const media = userUploadFixture({ category: null });
       const result = mapGalleryMediaToMediaItem(media);
 
-      expect(result.category).toBe("Culture");
+      expect(result.category).toBeUndefined();
     });
   });
 

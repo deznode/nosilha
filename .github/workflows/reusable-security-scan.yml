@@ -27,19 +27,32 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.35.0
+      # Two passes, deliberately. With `format: sarif` the trivy-action builds the
+      # report with ALL severities (so nothing is hidden from the Security tab) and
+      # ignores the `severity` input — so a single step cannot both report
+      # everything and fail only on HIGH/CRITICAL. Hence: report, then gate.
+      #
+      # SCOPE LIMIT, be aware: Trivy detects NO dependency files under apps/api.
+      # Scanning Gradle requires a `gradle.lockfile` (Gradle dependency locking),
+      # which this project does not use — so these steps provide SECRET scanning
+      # and file-based checks, but NOT Java/Kotlin dependency coverage.
+      #
+      # Enabling Gradle dependency locking to close that would break every
+      # Dependabot Gradle PR: Dependabot does not regenerate gradle.lockfile, so
+      # each PR would fail on lockfile drift — the same trap that made the npm PRs
+      # unmergeable for months. Gradle dependency vulnerabilities are instead
+      # covered by Dependabot alerts, which do scan Gradle and do open PRs.
+      - name: Run Trivy vulnerability scanner (report)
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'fs'
           scan-ref: './apps/api'
           format: 'sarif'
           output: 'trivy-backend-results.sarif'
-          severity: 'HIGH,CRITICAL'
-        continue-on-error: true
 
       - name: Upload SARIF results
         if: always()
@@ -49,6 +62,19 @@ jobs:
           category: 'security-backend'
         continue-on-error: true
 
+      # The real gate. This job is a `needs:` prerequisite for deploy, and
+      # previously could not fail, so HIGH/CRITICAL CVEs could not block a
+      # release. Add unactionable findings to .trivyignore.
+      - name: Fail on HIGH/CRITICAL vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: 'fs'
+          scan-ref: './apps/api'
+          format: 'table'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: 'true'
+          exit-code: '1'
+
   # Frontend security scanning
   frontend-security:
     name: Frontend Security Scan
@@ -57,19 +83,28 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.35.0
+      # scan-ref is '.', NOT './apps/web' — deliberately.
+      #
+      # This is a pnpm workspace: pnpm-lock.yaml lives at the REPO ROOT, and
+      # apps/web contains only a package.json. Trivy cannot resolve a dependency
+      # tree from a package.json alone, so pointing it at ./apps/web meant it
+      # found nothing and the gate passed by scanning nothing — while Dependabot
+      # was separately reporting 137 alerts. A gate that cannot fail is not a gate.
+      #
+      # From the root it reads the lockfile and covers the whole workspace. Trivy
+      # excludes dev dependencies by default, so this reports what actually ships.
+      # See the backend scan above for why this is two steps.
+      - name: Run Trivy vulnerability scanner (report)
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'fs'
-          scan-ref: './apps/web'
+          scan-ref: '.'
           format: 'sarif'
           output: 'trivy-frontend-results.sarif'
-          severity: 'HIGH,CRITICAL'
-        continue-on-error: true
 
       - name: Upload SARIF results
         if: always()
@@ -79,6 +114,16 @@ jobs:
           category: 'security-frontend'
         continue-on-error: true
 
+      - name: Fail on HIGH/CRITICAL vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: 'true'
+          exit-code: '1'
+
   # Infrastructure security scanning
   infrastructure-security:
     name: Infrastructure Security Scan
@@ -87,19 +132,18 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Run Trivy IaC security scanner
-        uses: aquasecurity/trivy-action@0.35.0
+      # See the backend scan above for why this is two steps.
+      - name: Run Trivy IaC security scanner (report)
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           scan-type: 'config'
           scan-ref: 'infrastructure/terraform'
           format: 'sarif'
           output: 'trivy-infrastructure-results.sarif'
-          severity: 'HIGH,CRITICAL'
-        continue-on-error: true
 
       - name: Upload SARIF results
         if: always()
@@ -108,6 +152,18 @@ jobs:
           sarif_file: 'trivy-infrastructure-results.sarif'
           category: 'security-infrastructure'
         continue-on-error: true
+
+      # Gates on HIGH/CRITICAL misconfigurations only. The Terraform currently has
+      # 7 LOW/MEDIUM findings (public media bucket, missing logging) which are
+      # reported to the Security tab above but do not block; see #166.
+      - name: Fail on HIGH/CRITICAL misconfigurations
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: 'config'
+          scan-ref: 'infrastructure/terraform'
+          format: 'table'
+          severity: 'HIGH,CRITICAL'
+          exit-code: '1'
 
   # Optional code quality analysis
   backend-lint:
@@ -123,7 +179,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Java & Gradle
         uses: ./.github/actions/setup-java-gradle
@@ -155,7 +211,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node & pnpm
         uses: ./.github/actions/setup-node-pnpm

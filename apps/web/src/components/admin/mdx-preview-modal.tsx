@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Github, Code, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Code, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { Github } from "@/components/ui/brand-icons";
 import {
   Dialog,
   DialogTitle,

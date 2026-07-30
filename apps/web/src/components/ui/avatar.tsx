@@ -79,7 +79,7 @@ export const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(function Avatar(
         <span
           className={clsx(
             "flex size-full items-center justify-center",
-            "bg-mist-200 dark:bg-basalt-800",
+            "dark:bg-basalt-800 bg-mist-200",
             square ? "rounded-lg" : "rounded-full"
           )}
         >
@@ -154,7 +154,7 @@ export function AvatarGroup({
           className={clsx(
             sizes[size],
             "inline-flex items-center justify-center rounded-full font-medium",
-            "bg-mist-100 text-basalt-600 dark:bg-basalt-800 dark:text-basalt-500",
+            "text-basalt-600 dark:bg-basalt-800 dark:text-basalt-500 bg-mist-100",
             "dark:ring-basalt-900 ring-2 ring-white"
           )}
         >

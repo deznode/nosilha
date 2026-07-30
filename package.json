@@ -5,7 +5,7 @@
   "description": "Nos Ilha - Community-driven cultural heritage hub for Brava Island, Cape Verde",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bravdigital/nosilha.git"
+    "url": "https://github.com/deznode/nosilha.git"
   },
   "license": "MIT",
   "packageManager": "pnpm@10.31.0",
@@ -29,13 +29,13 @@
     "api:serve": "nx run api:serve"
   },
   "devDependencies": {
-    "@nx/eslint": "^22.5.3",
-    "@nx/next": "^22.5.3",
-    "nx": "^22.5.3"
+    "@nx/eslint": "^23.0.2",
+    "@nx/next": "^23.0.2",
+    "nx": "^23.0.2"
   },
   "dependencies": {
     "@types/react-syntax-highlighter": "^15.5.13",
-    "react-syntax-highlighter": "^16.1.0"
+    "react-syntax-highlighter": "^16.1.1"
   },
   "pnpm": {
     "overrides": {
@@ -49,7 +49,9 @@
       "koa": ">=3.1.2",
       "serialize-javascript": ">=7.0.3",
       "lodash": ">=4.17.23",
-      "ajv@>=8": ">=8.18.0"
+      "ajv@>=8": ">=8.18.0",
+      "shell-quote": ">=1.8.4",
+      "immutable": ">=5.1.5"
     }
   }
 }

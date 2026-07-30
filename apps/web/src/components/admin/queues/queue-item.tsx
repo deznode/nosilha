@@ -7,10 +7,10 @@ import {
   FileText,
   MapPin,
   Flag,
-  Github,
   Code,
   Eye,
 } from "lucide-react";
+import { Github } from "@/components/ui/brand-icons";
 import { SubmissionStatus, StoryType } from "@/types/story";
 import { Badge } from "@/components/catalyst-ui/badge";
 import { Button } from "@/components/catalyst-ui/button";

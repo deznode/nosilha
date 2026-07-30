@@ -9,7 +9,7 @@ Install these tools before proceeding:
 | Tool | Install | Verify |
 |------|---------|--------|
 | **Docker Desktop** | `brew install --cask docker` | `docker --version` |
-| **Node.js 20.9+** | `nvm install` (reads `.nvmrc`) | `node --version` |
+| **Node.js 24** | `nvm install` (reads `.nvmrc`) | `node --version` |
 | **pnpm** | `npm install -g pnpm` | `pnpm --version` |
 | **Java 25** | `sdk install java 25-open` | `java --version` |
 | **Taskfile** | `brew install go-task` | `task --version` |

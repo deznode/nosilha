@@ -6,11 +6,7 @@
  */
 
 export type CreditPlatform =
-  | "YOUTUBE"
-  | "INSTAGRAM"
-  | "FACEBOOK"
-  | "TWITTER"
-  | "TIKTOK";
+  "YOUTUBE" | "INSTAGRAM" | "FACEBOOK" | "TWITTER" | "TIKTOK";
 
 export interface DetectedCredit {
   platform: CreditPlatform;

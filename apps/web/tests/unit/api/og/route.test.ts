@@ -8,8 +8,13 @@ vi.stubGlobal(
   })
 );
 
+// The route calls `new ImageResponse(...)`, so the mock must be constructible.
+// Vitest 4 rejects arrow-function mock implementations as constructors.
 vi.mock("next/og", () => ({
-  ImageResponse: vi.fn().mockImplementation((_jsx, options) => {
+  ImageResponse: vi.fn().mockImplementation(function (
+    _jsx: unknown,
+    options?: ResponseInit
+  ) {
     const headers = new Headers(options?.headers);
     headers.set("content-type", "image/png");
     return new Response("mock-image", {

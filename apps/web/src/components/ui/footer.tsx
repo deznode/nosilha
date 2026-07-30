@@ -133,7 +133,7 @@ export function Footer({
         {/* Bottom Bar: Social + Copyright */}
         <div className="border-basalt-800 mt-12 border-t pt-8 md:flex md:items-center md:justify-between">
           <SocialMediaLinks variant="compact" className="md:order-2" />
-          <p className="text-mist-200 mt-8 text-xs leading-5 md:order-1 md:mt-0">
+          <p className="mt-8 text-xs leading-5 text-mist-200 md:order-1 md:mt-0">
             &copy; {COPYRIGHT_YEAR} Nos Ilha. {copy.copyright}
           </p>
         </div>

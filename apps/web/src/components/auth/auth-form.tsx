@@ -200,7 +200,7 @@ export default function NosIlhaAuth({
   };
 
   return (
-    <div className="bg-mist-50 dark:bg-bg-primary text-basalt-900 dark:text-text-primary relative flex min-h-screen w-full overflow-hidden font-sans transition-colors duration-500">
+    <div className="dark:bg-bg-primary text-basalt-900 dark:text-text-primary relative flex min-h-screen w-full overflow-hidden bg-mist-50 font-sans transition-colors duration-500">
       {/* --- Atmospheric Background --- */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
         {/* Noise Texture */}
@@ -218,7 +218,7 @@ export default function NosIlhaAuth({
 
       <div className="z-10 mx-auto flex w-full max-w-6xl items-center justify-center p-4 lg:p-8">
         {/* Card Container */}
-        <div className="dark:bg-basalt-800 dark:shadow-ocean-blue/5 border-mist-200 dark:border-basalt-500 rounded-container shadow-floating bg-surface grid min-h-150 w-full overflow-hidden border transition-colors duration-300 lg:grid-cols-2">
+        <div className="dark:bg-basalt-800 dark:shadow-ocean-blue/5 dark:border-basalt-500 rounded-container shadow-floating bg-surface grid min-h-150 w-full overflow-hidden border border-mist-200 transition-colors duration-300 lg:grid-cols-2">
           {/* Left Panel: Brand (Hidden on mobile) */}
           <div className="bg-ocean-blue relative hidden flex-col justify-between overflow-hidden p-12 text-white lg:flex">
             {/* Gradient Overlay for visual depth */}
@@ -239,7 +239,7 @@ export default function NosIlhaAuth({
                   ? "Welcome back to the soul of Brava."
                   : "Join the Nos Ilha Community."}
               </h1>
-              <p className="text-mist-100/80 max-w-md text-lg leading-relaxed">
+              <p className="max-w-md text-lg leading-relaxed text-mist-100/80">
                 {isLogin
                   ? "Access your account to manage your contributions and connect with the heritage."
                   : "Create an account to preserve the culture, share stories, and contribute."}
@@ -252,7 +252,7 @@ export default function NosIlhaAuth({
             {/* Back Button - Inside form panel */}
             <button
               onClick={() => router.back()}
-              className="text-basalt-500 hover:text-basalt-900 dark:text-mist-300 absolute top-4 left-4 flex items-center gap-1.5 text-sm font-medium transition-colors lg:top-6 lg:left-6 dark:hover:text-white"
+              className="text-basalt-500 hover:text-basalt-900 absolute top-4 left-4 flex items-center gap-1.5 text-sm font-medium transition-colors lg:top-6 lg:left-6 dark:text-mist-300 dark:hover:text-white"
               type="button"
               aria-label="Go back"
             >
@@ -345,10 +345,10 @@ export default function NosIlhaAuth({
 
               <div className="relative mb-8">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="border-mist-200 dark:border-basalt-500 w-full border-t" />
+                  <div className="dark:border-basalt-500 w-full border-t border-mist-200" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="dark:bg-basalt-800 text-basalt-500 dark:text-mist-200 bg-surface px-2">
+                  <span className="dark:bg-basalt-800 text-basalt-500 bg-surface px-2 dark:text-mist-200">
                     Or continue with email
                   </span>
                 </div>
@@ -440,7 +440,7 @@ export default function NosIlhaAuth({
       </div>
 
       {/* Footer Branding */}
-      <div className="text-basalt-500/50 dark:text-mist-200/50 absolute bottom-4 w-full text-center text-xs">
+      <div className="text-basalt-500/50 absolute bottom-4 w-full text-center text-xs dark:text-mist-200/50">
         <p>
           © {new Date().getFullYear()} Nos Ilha. Preserving culture through
           code.

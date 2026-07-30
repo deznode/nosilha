@@ -39,11 +39,17 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
       image = "us-east1-docker.pkg.dev/${var.gcp_project_id}/nosilha-backend/nosilha-core-api:latest"
 
       # Configure memory and CPU resources optimized for free tier
-      # These limits align with CI/CD deployment configuration for consistency
+      # These limits align with CI/CD deployment configuration for consistency.
+      #
+      # cpu is "1", not "1000m": backend-ci.yml deploys with `gcloud run deploy
+      # --cpu=1` and the API stores that literal string. "1000m" is semantically
+      # identical but never converges, producing a perpetual diff. (The google
+      # provider only began surfacing this for the backend at 7.39; the frontend
+      # showed it at 7.24 and was fixed the same way.)
       resources {
         limits = {
-          cpu    = "1000m" # 1 vCPU max for free tier
-          memory = "1Gi"   # Increased from 512Mi to accommodate JVM memory requirements (693MB needed)
+          cpu    = "1"   # 1 vCPU max for free tier (matches CI/CD: --cpu=1)
+          memory = "1Gi" # Increased from 512Mi to accommodate JVM memory requirements (693MB needed)
         }
         cpu_idle          = true # CPU only allocated during request processing
         startup_cpu_boost = true # Extra CPU during startup to reduce cold start time
@@ -288,6 +294,24 @@ resource "google_cloud_run_v2_service" "nosilha_backend_api" {
     }
   }
 
+  # CI owns deploys, Terraform owns infrastructure.
+  #
+  # The `image` above is a bootstrap value (`:latest`). The real deploys come from
+  # backend-ci.yml, which pushes and deploys a SHA-pinned tag. Without this,
+  # Terraform sees the SHA-pinned live image as drift and reverts it to `:latest`
+  # on every apply — racing the CI deploy and defeating SHA-pinned rollback.
+  #
+  # client/client_version are metadata GCP stamps on any service deployed via
+  # `gcloud run deploy`. Terraform wants to null them on every plan, which would
+  # otherwise be a perpetual diff and a weekly false drift alert.
+  lifecycle {
+    ignore_changes = [
+      template[0].containers[0].image,
+      client,
+      client_version,
+    ]
+  }
+
   # Ensure the Cloud Run API is enabled before creating the service.
   # Service account and permissions are managed in iam.tf
   depends_on = [
@@ -362,10 +386,14 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
       }
 
       # Configure memory and CPU resources optimized for free tier
-      # These limits align with CI/CD deployment configuration for consistency
+      # These limits align with CI/CD deployment configuration for consistency.
+      #
+      # cpu is "1", not "1000m": frontend-ci.yml deploys with `gcloud run deploy
+      # --cpu=1`, and the API stores that literal string. "1000m" is semantically
+      # identical but never converges, producing a perpetual diff on every plan.
       resources {
         limits = {
-          cpu    = "1000m" # 1 vCPU for Next.js frontend
+          cpu    = "1"     # 1 vCPU for Next.js frontend (matches CI/CD: --cpu=1)
           memory = "512Mi" # Increased from 256Mi to fix OOM errors (matches CI/CD: 512Mi)
         }
         cpu_idle = true # CPU only allocated during request processing
@@ -419,6 +447,19 @@ resource "google_cloud_run_v2_service" "nosilha_frontend" {
         }
       }
     }
+  }
+
+  # CI owns deploys, Terraform owns infrastructure. See the backend service above.
+  #
+  # This is the drift that PR #165 surfaced: the live service ran a SHA-pinned
+  # image while this file said `:latest`, so `terraform apply` wanted to revert it
+  # — racing frontend-ci's deploy on every infra-touching merge.
+  lifecycle {
+    ignore_changes = [
+      template[0].containers[0].image,
+      client,
+      client_version,
+    ]
   }
 }
 

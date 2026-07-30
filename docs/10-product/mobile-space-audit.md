@@ -199,8 +199,8 @@ All quick wins implemented and verified via Playwright on iPhone SE (390x667) vi
 
 | # | Change | Files | Impact | Effort |
 |---|--------|-------|--------|--------|
-| L1 | FilterToolbar redesign: single-row chip bar + "Filters" bottom sheet on mobile | `filter-toolbar.tsx` + new bottom sheet component | ~130px saved | New component |
-| L2 | Hide-on-scroll-down header pattern (`useScrollDirection` hook) for Directory/Gallery | New hook + header wrapper | Headers fully hidden after scroll | Medium (new hook) |
+| L1 | FilterToolbar redesign: single-row chip bar + "Filters" bottom sheet on mobile | `filter-toolbar.tsx` + new bottom sheet component | ~130px saved | **DONE 2026-03-16 (#130)** — `filter-bottom-sheet.tsx` + `filter-chip.tsx`, wired in `filter-toolbar.tsx` |
+| L2 | Hide-on-scroll-down header pattern (`useScrollDirection` hook) for Directory/Gallery | New hook + header wrapper | Headers fully hidden after scroll | **DONE 2026-03-16 (#130)** — `use-scroll-direction.ts`, consumed by `use-nav-hidden.ts` |
 | L3 | Collapsing hero pattern: hero shrinks to compact bar on scroll (title + back button) | New component pattern | Detail pages content visible faster | Medium-large |
 | L4 | Gallery: move filters into sticky tab bar as horizontal scrollable chips | `gallery-content.tsx` | ~48px + better UX | Medium refactor |
 | L5 | Responsive `PageHeader` variant: compact mode for mobile (smaller text, no accent bar, tighter spacing) | `page-header.tsx` | ~60px per page | Small-medium |
@@ -220,5 +220,5 @@ All quick wins implemented and verified via Playwright on iPhone SE (390x667) vi
 2. ~~**M4** (suppress gallery editorial content when filtering) — 4 lines, massive impact~~ **DONE 2026-03-16**
 3. ~~**M1/M2** (icon-only CTAs on mobile) — small changes, good space savings~~ **DONE 2026-03-16**
 4. ~~**M6/M7** (reduce hero heights on mobile) — big visual impact~~ **DONE 2026-03-16**
-5. **L1** (FilterToolbar bottom sheet) — biggest single improvement for Directory UX
-6. **L2** (hide-on-scroll headers) — universal improvement across browsing pages
+5. ~~**L1** (FilterToolbar bottom sheet)~~ **DONE 2026-03-16 (#130)**
+6. ~~**L2** (hide-on-scroll headers)~~ **DONE 2026-03-16 (#130)**

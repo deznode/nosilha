@@ -151,11 +151,7 @@ export interface TownDto {
  * Media status enum matching backend MediaStatus
  */
 export type MediaStatus =
-  | "PENDING"
-  | "PROCESSING"
-  | "PENDING_REVIEW"
-  | "AVAILABLE"
-  | "DELETED";
+  "PENDING" | "PROCESSING" | "PENDING_REVIEW" | "AVAILABLE" | "DELETED";
 
 /**
  * Media source enum matching backend MediaSource

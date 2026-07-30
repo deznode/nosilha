@@ -11,12 +11,7 @@ import { useNavHidden } from "@/lib/hooks/use-nav-hidden";
 
 export type SortBy = "rating" | "name";
 export type DirectoryCategory =
-  | "All"
-  | "Restaurant"
-  | "Hotel"
-  | "Beach"
-  | "Heritage"
-  | "Nature";
+  "All" | "Restaurant" | "Hotel" | "Beach" | "Heritage" | "Nature";
 
 interface FilterToolbarProps {
   searchTerm: string;

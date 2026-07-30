@@ -542,7 +542,7 @@ async function cachedHistoryContent(bestLang: Language) {
                 </Link>
                 <Link
                   href="/map"
-                  className="border-mist-200 text-basalt-600 hover:bg-mist-50 focus-visible:ring-ocean-blue dark:border-basalt-600 dark:text-mist-200 dark:hover:bg-basalt-800 inline-flex items-center justify-center rounded-lg border px-6 py-3 text-base font-semibold transition-all duration-200 hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                  className="text-basalt-600 focus-visible:ring-ocean-blue dark:border-basalt-600 dark:hover:bg-basalt-800 inline-flex items-center justify-center rounded-lg border border-mist-200 px-6 py-3 text-base font-semibold transition-all duration-200 hover:scale-[1.02] hover:bg-mist-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 dark:text-mist-200"
                 >
                   Explore the Map
                 </Link>

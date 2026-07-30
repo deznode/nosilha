@@ -231,7 +231,7 @@ function DirectoryPage() {
 cd apps/web && pnpm run test:unit
 ```
 
-Key test files in `apps/web/src/__tests__/`:
+Key test files in `apps/web/tests/unit/`:
 - `authStore.test.ts` - Authentication state transitions
 - `filterStore.test.ts` - Filter state and URL sync
 

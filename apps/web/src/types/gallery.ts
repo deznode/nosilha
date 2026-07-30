@@ -21,10 +21,7 @@ export type GalleryMediaStatus =
 export type MediaType = "IMAGE" | "VIDEO" | "AUDIO";
 
 export type ExternalPlatform =
-  | "YOUTUBE"
-  | "VIMEO"
-  | "SOUNDCLOUD"
-  | "SELF_HOSTED";
+  "YOUTUBE" | "VIMEO" | "SOUNDCLOUD" | "SELF_HOSTED";
 
 export type MediaSource = "LOCAL" | "GOOGLE_PHOTOS" | "ADOBE_LIGHTROOM";
 
@@ -239,11 +236,7 @@ export interface TimelineResponse {
  * Gallery filter types shared between server and client components.
  */
 export type DecadeFilter =
-  | "all"
-  | "pre-1975"
-  | "1975-1990"
-  | "1990-2010"
-  | "2010-plus";
+  "all" | "pre-1975" | "1975-1990" | "1990-2010" | "2010-plus";
 
 export type GalleryView = "grid" | "timeline" | "map";
 

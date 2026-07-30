@@ -90,11 +90,7 @@ export interface DirectoryQueryParams {
   searchQuery?: string;
   town?: string;
   sort?:
-    | "name_asc"
-    | "name_desc"
-    | "rating_desc"
-    | "created_at_desc"
-    | "relevance";
+    "name_asc" | "name_desc" | "rating_desc" | "created_at_desc" | "relevance";
 }
 
 export interface ApiClient {
@@ -178,10 +174,7 @@ export interface ApiClient {
     name: string;
     email: string;
     suggestionType:
-      | "CORRECTION"
-      | "ADDITION"
-      | "FEEDBACK"
-      | "PHOTO_IDENTIFICATION";
+      "CORRECTION" | "ADDITION" | "FEEDBACK" | "PHOTO_IDENTIFICATION";
     message: string;
     mediaId?: string;
     honeypot?: string;
@@ -1054,11 +1047,7 @@ export interface UpdateDirectoryEntryRequest {
  * Moderation action for stories
  */
 export type StoryModerationAction =
-  | "APPROVE"
-  | "REJECT"
-  | "FLAG"
-  | "PUBLISH"
-  | "UNPUBLISH";
+  "APPROVE" | "REJECT" | "FLAG" | "PUBLISH" | "UNPUBLISH";
 
 /**
  * Moderation action for suggestions

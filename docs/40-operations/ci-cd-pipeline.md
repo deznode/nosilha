@@ -103,7 +103,9 @@ infrastructure/**  → Infrastructure CI, PR Validation
 
 **File:** `.github/workflows/pr-validation.yml`
 
-**Jobs:** `changes` (Nx detection) → `global-security-scan` → `pr-status-report` → `dependabot-auto-merge`
+**Jobs:** `changes` (Nx detection) → `global-security-scan` → `pr-status-report`
+
+Dependabot PRs require manual merge — auto-merge was removed to ensure CI gating.
 
 Generates PR comment with component changes and validation results.
 

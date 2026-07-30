@@ -119,7 +119,7 @@ export function NavigationSpecimen() {
               })}
             </div>
             {/* Safe area indicator */}
-            <div className="bg-mist-100 dark:bg-basalt-800 h-4" />
+            <div className="dark:bg-basalt-800 h-4 bg-mist-100" />
           </div>
         </div>
         <p className="text-muted mt-2 text-center text-xs">
