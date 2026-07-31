@@ -13,7 +13,6 @@ interface EnvironmentConfig {
   useMockApi: boolean;
 
   // Third-party Services
-  mapboxAccessToken: string;
   supabaseUrl: string;
   supabaseAnonKey: string;
 
@@ -76,10 +75,6 @@ export const env: EnvironmentConfig = (() => {
       "NEXT_PUBLIC_API_URL",
       process.env.NEXT_PUBLIC_API_URL
     );
-    const mapboxAccessToken = requireEnvVar(
-      "NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN",
-      process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
-    );
     const supabaseUrl = requireEnvVar(
       "NEXT_PUBLIC_SUPABASE_URL",
       process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -117,17 +112,9 @@ export const env: EnvironmentConfig = (() => {
       );
     }
 
-    // Validate Mapbox token format (basic check)
-    if (!mapboxAccessToken.startsWith("pk.")) {
-      console.warn(
-        `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN does not start with "pk." - this might not be a valid Mapbox public token.`
-      );
-    }
-
     return {
       apiUrl,
       useMockApi,
-      mapboxAccessToken,
       supabaseUrl,
       supabaseAnonKey,
       nodeEnv,
@@ -147,9 +134,6 @@ export const env: EnvironmentConfig = (() => {
       console.error("");
       console.error("NEXT_PUBLIC_API_URL=http://localhost:8080");
       console.error("NEXT_PUBLIC_USE_MOCK_API=false");
-      console.error(
-        "NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=pk.your_mapbox_token_here"
-      );
       console.error(
         "NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co"
       );
@@ -231,11 +215,6 @@ export function validateEnvironment(): { valid: boolean; errors: string[] } {
     errors.push(`Invalid Supabase URL: ${env.supabaseUrl}`);
   }
 
-  // Check for required tokens
-  if (!env.mapboxAccessToken) {
-    errors.push("Missing Mapbox access token");
-  }
-
   if (!env.supabaseAnonKey) {
     errors.push("Missing Supabase anonymous key");
   }
@@ -260,7 +239,6 @@ export function logEnvironmentInfo(): void {
   console.log(`  - API URL: ${env.apiUrl}`);
   console.log(`  - Use Mock API: ${env.useMockApi}`);
   console.log(`  - Supabase URL: ${env.supabaseUrl}`);
-  console.log(`  - Mapbox Token: ${env.mapboxAccessToken.substring(0, 20)}...`);
   console.log(`  - Browser: ${isBrowser}`);
   console.log(`  - Server: ${isServer}`);
 }

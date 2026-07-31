@@ -27,6 +27,21 @@ export interface BaseMapProps {
  * Wrapper around react-map-gl/maplibre with MapLibre GL JS, default center/zoom,
  * open tile style (CARTO Voyager), CSS import, and ref forwarding.
  */
+const transformCartoGlyphs = (url: string, resourceType?: string) => {
+  if (
+    resourceType === "Glyphs" ||
+    url.includes("tiles.basemaps.cartocdn.com/fonts/")
+  ) {
+    return {
+      url: url.replace(
+        "https://tiles.basemaps.cartocdn.com/fonts/",
+        "https://fonts.openmaptiles.org/"
+      ),
+    };
+  }
+  return { url };
+};
+
 export const BaseMap = forwardRef<MapRef, BaseMapProps>(
   (
     {
@@ -54,6 +69,7 @@ export const BaseMap = forwardRef<MapRef, BaseMapProps>(
           bearing: MAP_CONFIG.DEFAULT_BEARING,
         }}
         mapStyle={style}
+        transformRequest={transformCartoGlyphs}
         style={{
           position: "absolute",
           inset: 0,

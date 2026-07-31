@@ -116,7 +116,10 @@ export default async function PrivacyPage() {
                   • Analytics data for platform improvement (anonymized usage
                   patterns)
                 </li>
-                <li>• Map data from Mapbox for location services</li>
+                <li>
+                  • Map tile data from CARTO and OpenStreetMap for location
+                  services
+                </li>
               </ul>
             </div>
           </div>
@@ -333,14 +336,14 @@ export default async function PrivacyPage() {
                   Maps & Location
                 </h4>
                 <p className="text-text-secondary mb-2 text-sm">
-                  <strong>Mapbox:</strong> Provides interactive maps and
-                  location services.
+                  <strong>CARTO / OpenStreetMap:</strong> Provides interactive
+                  map tiles and location rendering services via MapLibre GL.
                 </p>
                 <Link
-                  href="https://www.mapbox.com/privacy"
+                  href="https://carto.com/privacy"
                   className="text-ocean-blue focus-visible:ring-ocean-blue rounded-sm text-xs hover:underline focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
                 >
-                  View Mapbox Privacy Policy
+                  View CARTO Privacy Policy
                 </Link>
               </div>
 

@@ -213,7 +213,7 @@ export function MapTeaserSection() {
               <MapMarker
                 icon={Anchor}
                 label="Furna"
-                top="0"
+                top="12%"
                 left="65%"
                 colorClass="bg-ocean-blue"
                 delay={0.3}

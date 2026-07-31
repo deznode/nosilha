@@ -48,7 +48,7 @@ import type { Location } from "../data/types";
 // MapRecoveryBoundary — catches Activity-reconnect crashes from react-map-gl
 // ---------------------------------------------------------------------------
 // When cacheComponents (Activity) restores the map route, react-map-gl's
-// Marker/control useEffects fire addTo() on the destroyed mapbox-gl instance.
+// Marker/control useEffects fire addTo() on the destroyed map instance.
 // setState in useLayoutEffect does NOT trigger a re-render before passive
 // effects during Activity reconnect, so we cannot guard against this in React
 // lifecycle. Instead, this error boundary catches the crash and forces a
@@ -598,7 +598,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
         )}
       </AnimatePresence>
 
-      {/* Mapbox GL Map — wrapped in error boundary for Activity restore crashes */}
+      {/* MapLibre GL Map — wrapped in error boundary for Activity restore crashes */}
       <MapRecoveryBoundary
         fallback={
           <div className="bg-surface-alt absolute inset-0 flex items-center justify-center">
@@ -627,7 +627,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
             terrain:
               viewMode === "satellite" && isMapLoaded
                 ? {
-                    source: "mapbox-dem",
+                    source: "terrain-dem",
                     exaggeration: MAP_CONFIG.TERRAIN_EXAGGERATION,
                   }
                 : undefined,
@@ -661,10 +661,13 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
           {isMapLoaded && (
             <>
               <Source
-                id="mapbox-dem"
+                id="terrain-dem"
                 type="raster-dem"
-                url="mapbox://mapbox.mapbox-terrain-dem-v1"
-                tileSize={MAP_CONFIG.DEM_TILE_SIZE}
+                tiles={[
+                  "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",
+                ]}
+                encoding="terrarium"
+                tileSize={256}
                 maxzoom={MAP_CONFIG.DEM_MAX_ZOOM}
               />
 
