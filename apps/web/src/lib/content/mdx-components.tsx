@@ -8,7 +8,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 // UI Components
-import { VideoHeroSection } from "@/components/ui/video-hero-section";
 import { PageHeader } from "@/components/ui/page-header";
 import { ContentActionToolbar } from "@/components/content/content-action-toolbar/content-action-toolbar";
 import { CitationSection } from "@/components/ui/citation-section";
@@ -68,7 +67,6 @@ export const mdxComponents: MDXComponents = {
   },
 
   // Cultural heritage UI components
-  VideoHeroSection,
   PageHeader,
   ContentActionToolbar,
   CitationSection,

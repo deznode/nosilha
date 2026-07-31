@@ -54,7 +54,6 @@
     "lucide-react": "^1.24.0",
     "mapbox-gl": "^3.26.0",
     "next": "16.2.10",
-    "next-router-mock": "^1.0.5",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "react-dropzone": "^17.0.0",
@@ -63,10 +62,8 @@
     "react-markdown": "^10.1.0",
     "react-syntax-highlighter": "^16.1.1",
     "recharts": "^3.9.2",
-    "rehype-pretty-code": "^0.14.4",
     "resend": "^6.17.2",
     "sharp": "^0.35.3",
-    "shiki": "^4.3.1",
     "supercluster": "^8.0.1",
     "use-supercluster": "^1.2.0",
     "velite": "^0.4.0",
@@ -74,9 +71,6 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@microsoft/eslint-formatter-sarif": "^3.1.0",
-    "@next/bundle-analyzer": "16.2.10",
     "@playwright/test": "^1.61.1",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/postcss": "^4",

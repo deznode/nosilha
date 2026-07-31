@@ -568,7 +568,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
     <>
       {/* Map Error State */}
       {mapError && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-white p-8">
+        <div className="bg-canvas absolute inset-0 z-50 flex items-center justify-center p-8">
           <div className="max-w-md text-center">
             <AlertCircle className="text-status-error mx-auto mb-4 h-12 w-12" />
             <p className="text-status-error mb-4 font-bold">{mapError}</p>
