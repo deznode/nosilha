@@ -6,7 +6,10 @@ import type { MediaItem } from "@/types/media";
 // Mock YouTubeFacade
 vi.mock("@/components/gallery/youtube-facade", () => ({
   YouTubeFacade: ({ autoPlay }: { video: MediaItem; autoPlay?: boolean }) => (
-    <div data-testid="youtube-facade" data-autoplay={autoPlay ? "true" : "false"} />
+    <div
+      data-testid="youtube-facade"
+      data-autoplay={autoPlay ? "true" : "false"}
+    />
   ),
 }));
 
@@ -32,16 +35,24 @@ describe("FeaturedVideoHero", () => {
     render(<FeaturedVideoHero video={mockHeroVideo} isPromoted={false} />);
 
     expect(screen.getByText("Featured Video")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Featured Brava Festival Morna" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Featured Brava Festival Morna" })
+    ).toBeInTheDocument();
     expect(screen.getByText("4:00")).toBeInTheDocument();
-    expect(screen.getByTestId("youtube-facade")).toHaveAttribute("data-autoplay", "false");
+    expect(screen.getByTestId("youtube-facade")).toHaveAttribute(
+      "data-autoplay",
+      "false"
+    );
   });
 
   it("renders 'Now Playing' label and enables autoPlay when promoted", () => {
     render(<FeaturedVideoHero video={mockHeroVideo} isPromoted={true} />);
 
     expect(screen.getByText("Now Playing")).toBeInTheDocument();
-    expect(screen.getByTestId("youtube-facade")).toHaveAttribute("data-autoplay", "true");
+    expect(screen.getByTestId("youtube-facade")).toHaveAttribute(
+      "data-autoplay",
+      "true"
+    );
   });
 
   it("renders native iframe for mobile view when nativePlayer is true", () => {

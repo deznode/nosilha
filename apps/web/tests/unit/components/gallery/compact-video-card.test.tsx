@@ -6,7 +6,11 @@ import type { MediaItem } from "@/types/media";
 // Mock framer-motion to avoid animation issues in unit tests
 vi.mock("framer-motion", () => ({
   motion: {
-    div: ({ children, className, ...props }: React.ComponentPropsWithoutRef<"div">) => (
+    div: ({
+      children,
+      className,
+      ...props
+    }: React.ComponentPropsWithoutRef<"div">) => (
       <div className={className} {...props}>
         {children}
       </div>
@@ -16,7 +20,16 @@ vi.mock("framer-motion", () => ({
 
 // Mock next/image
 vi.mock("next/image", () => ({
-  default: ({ src, alt, className }: { src: string; alt: string; className?: string }) => (
+  default: ({
+    src,
+    alt,
+    className,
+  }: {
+    src: string;
+    alt: string;
+    className?: string;
+  }) => (
+    // eslint-disable-next-line @next/next/no-img-element
     <img src={src} alt={alt} className={className} />
   ),
 }));
@@ -66,7 +79,9 @@ describe("CompactVideoCard", () => {
     const handleSelect = vi.fn();
     render(<CompactVideoCard item={mockVideoItem} onSelect={handleSelect} />);
 
-    const button = screen.getByRole("button", { name: /play morna de brava performance/i });
+    const button = screen.getByRole("button", {
+      name: /play morna de brava performance/i,
+    });
     fireEvent.click(button);
 
     expect(handleSelect).toHaveBeenCalledTimes(1);

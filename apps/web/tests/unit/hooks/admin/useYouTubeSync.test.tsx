@@ -10,7 +10,11 @@ import {
   useDeleteYouTubeSyncPlaylist,
 } from "@/hooks/queries/admin/useYouTubeSync";
 import * as api from "@/lib/api";
-import type { YouTubeSyncConfig, YouTubeSyncResult, YouTubeSyncPlaylist } from "@/types/youtube";
+import type {
+  YouTubeSyncConfig,
+  YouTubeSyncResult,
+  YouTubeSyncPlaylist,
+} from "@/types/youtube";
 
 vi.mock("@/lib/api", () => ({
   getYouTubeSyncConfig: vi.fn(),
@@ -82,7 +86,9 @@ describe("useYouTubeSync Hooks", () => {
 
     queryClient.setQueryData(["admin", "youtube-sync", "config"], mockConfig);
 
-    const { result } = renderHook(() => useUpdateYouTubeSyncConfig(), { wrapper });
+    const { result } = renderHook(() => useUpdateYouTubeSyncConfig(), {
+      wrapper,
+    });
 
     result.current.mutate({ enabled: false, defaultCategory: "Music" });
 
@@ -109,7 +115,9 @@ describe("useYouTubeSync Hooks", () => {
   });
 
   it("fetches saved playlists successfully", async () => {
-    vi.mocked(api.getYouTubeSyncPlaylists).mockResolvedValueOnce([mockPlaylist]);
+    vi.mocked(api.getYouTubeSyncPlaylists).mockResolvedValueOnce([
+      mockPlaylist,
+    ]);
 
     const { result } = renderHook(() => useYouTubeSyncPlaylists(), { wrapper });
 
@@ -120,13 +128,23 @@ describe("useYouTubeSync Hooks", () => {
   it("saves a new YouTube playlist", async () => {
     vi.mocked(api.saveYouTubeSyncPlaylist).mockResolvedValueOnce(mockPlaylist);
 
-    const { result } = renderHook(() => useSaveYouTubeSyncPlaylist(), { wrapper });
+    const { result } = renderHook(() => useSaveYouTubeSyncPlaylist(), {
+      wrapper,
+    });
 
-    result.current.mutate({ playlistId: "PL1234567890", label: "Mornas de Brava", category: "Music" });
+    result.current.mutate({
+      playlistId: "PL1234567890",
+      label: "Mornas de Brava",
+      category: "Music",
+    });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(api.saveYouTubeSyncPlaylist).toHaveBeenCalledWith(
-      { playlistId: "PL1234567890", label: "Mornas de Brava", category: "Music" },
+      {
+        playlistId: "PL1234567890",
+        label: "Mornas de Brava",
+        category: "Music",
+      },
       expect.anything()
     );
   });
@@ -134,11 +152,16 @@ describe("useYouTubeSync Hooks", () => {
   it("deletes a YouTube playlist", async () => {
     vi.mocked(api.deleteYouTubeSyncPlaylist).mockResolvedValueOnce(undefined);
 
-    const { result } = renderHook(() => useDeleteYouTubeSyncPlaylist(), { wrapper });
+    const { result } = renderHook(() => useDeleteYouTubeSyncPlaylist(), {
+      wrapper,
+    });
 
     result.current.mutate("playlist-1");
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(api.deleteYouTubeSyncPlaylist).toHaveBeenCalledWith("playlist-1", expect.anything());
+    expect(api.deleteYouTubeSyncPlaylist).toHaveBeenCalledWith(
+      "playlist-1",
+      expect.anything()
+    );
   });
 });

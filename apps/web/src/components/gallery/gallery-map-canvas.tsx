@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
-import { Marker, Popup, type ViewStateChangeEvent } from "react-map-gl/maplibre";
+import {
+  Marker,
+  Popup,
+  type ViewStateChangeEvent,
+} from "react-map-gl/maplibre";
 import type { MapRef } from "react-map-gl/maplibre";
 import { Loader2, Camera, MapPin } from "lucide-react";
 import { clsx } from "clsx";
