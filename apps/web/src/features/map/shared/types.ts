@@ -30,5 +30,5 @@ export interface UseMapClusteringOptions {
   maxZoom?: number;
 }
 
-/** Mapbox map bounds as a tuple */
+/** Map bounds as a tuple */
 export type MapBounds = BBox | undefined;

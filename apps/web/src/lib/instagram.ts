@@ -40,9 +40,15 @@ export async function fetchInstagramPosts(limit = 9): Promise<InstagramPost[]> {
     });
 
     if (!response.ok) {
-      log.warn("Instagram API returned non-OK status", {
-        status: response.status,
-      });
+      if (process.env.NODE_ENV === "development") {
+        log.debug("Instagram API returned non-OK status", {
+          status: response.status,
+        });
+      } else {
+        log.warn("Instagram API returned non-OK status", {
+          status: response.status,
+        });
+      }
       return [];
     }
 

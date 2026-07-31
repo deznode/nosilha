@@ -152,7 +152,7 @@ const sections: DevToolSection[] = [
       {
         title: "Map Viewer",
         description:
-          "Mapbox style switcher component for streets, outdoors, and satellite views",
+          "Map style switcher component for streets, outdoors, and satellite views",
         href: "/admin/dev-tools/map",
         icon: Map,
       },

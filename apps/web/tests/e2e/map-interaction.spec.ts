@@ -5,7 +5,7 @@
  * to explore cultural sites, landmarks, and points of interest.
  *
  * Test Coverage:
- * - Map loads successfully with Mapbox integration
+ * - Map loads successfully with MapLibre integration
  * - Map displays Brava Island correctly
  * - Markers appear for directory entries
  * - Marker click opens popup with entry details
@@ -15,7 +15,7 @@
  *
  * Requirements:
  * - FR-001: Test execution time < 5 minutes
- * - Mapbox GL JS integration
+ * - MapLibre GL JS integration
  * - Mobile-first responsive design for island visitors
  */
 
@@ -34,35 +34,31 @@ test.describe("Map Loading and Display", () => {
     expect(page.url()).toContain("/map");
   });
 
-  test("should initialize Mapbox map container", async ({ page }) => {
+  test("should initialize map container", async ({ page }) => {
     await page.goto("/map");
     await page.waitForLoadState("networkidle");
 
-    // Wait for map to initialize (Mapbox creates canvas element)
+    // Wait for map to initialize (MapLibre creates canvas element)
     await page.waitForTimeout(2000);
 
     // Map container should exist
     const mapContainer = page
-      .locator('.mapboxgl-map, [class*="mapbox"], [id*="map"]')
+      .locator('.maplibregl-map, .mapboxgl-map, [class*="map"], [id*="map"]')
       .first();
     const hasMapContainer = await mapContainer.isVisible().catch(() => false);
 
     if (hasMapContainer) {
       await expect(mapContainer).toBeVisible();
 
-      // Map should have canvas element (Mapbox GL JS renders to canvas)
+      // Map should have canvas element (MapLibre GL JS renders to canvas)
       const canvas = mapContainer.locator("canvas");
       const hasCanvas = await canvas.isVisible().catch(() => false);
 
       expect(hasCanvas).toBeTruthy();
     } else {
-      // If Mapbox token is not configured, there might be an error message
-      const errorMessage = page.locator(
-        "text=/mapbox.*token/i, text=/map.*error/i"
-      );
+      const errorMessage = page.locator("text=/map.*error/i");
       const hasError = await errorMessage.isVisible().catch(() => false);
 
-      // Either map loads or shows configuration error
       expect(hasError || true).toBeTruthy();
     }
   });

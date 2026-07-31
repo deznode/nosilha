@@ -13,18 +13,18 @@ interface MapStyleSwitcherProps {
 const STYLES: { id: MapStyle; label: string; url: string }[] = [
   {
     id: "streets",
-    label: "Streets",
-    url: "mapbox://styles/mapbox/streets-v12",
+    label: "Voyager",
+    url: "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
   },
   {
     id: "outdoors",
-    label: "Outdoors",
-    url: "mapbox://styles/mapbox/outdoors-v12",
+    label: "Positron",
+    url: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
   },
   {
     id: "satellite",
-    label: "Satellite",
-    url: "mapbox://styles/mapbox/satellite-streets-v12",
+    label: "Dark Matter",
+    url: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
   },
 ];
 
@@ -105,7 +105,7 @@ export default function TestMapPage() {
       <h1 className="mb-4 text-2xl font-bold">Map Style Switcher Test</h1>
       <div className="relative h-96 w-full rounded-lg border bg-mist-100">
         <MapStyleSwitcher
-          currentStyle="mapbox://styles/mapbox/streets-v12"
+          currentStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
           onStyleChange={(style) => console.log("Style changed:", style)}
         />
       </div>

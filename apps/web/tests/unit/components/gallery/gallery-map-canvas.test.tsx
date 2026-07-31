@@ -5,8 +5,8 @@ import type { MediaItem } from "@/types/media";
 
 // --- Mocks ---
 
-// Mock react-map-gl/mapbox — render children for Marker/Popup
-vi.mock("react-map-gl/mapbox", () => ({
+// Mock react-map-gl/maplibre — render children for Marker/Popup
+vi.mock("react-map-gl/maplibre", () => ({
   Marker: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="map-marker">{children}</div>
   ),

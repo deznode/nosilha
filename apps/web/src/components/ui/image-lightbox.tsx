@@ -235,6 +235,19 @@ export function ImageLightbox({
     lastTapRef.current = now;
   }, []);
 
+  // Preload adjacent images for instant, flash-free transitions
+  useEffect(() => {
+    if (!isOpen || photos.length <= 1) return;
+    const nextIndex = (currentIndex + 1) % photos.length;
+    const prevIndex = (currentIndex - 1 + photos.length) % photos.length;
+    [photos[nextIndex]?.src, photos[prevIndex]?.src].forEach((src) => {
+      if (src && typeof window !== "undefined") {
+        const img = new window.Image();
+        img.src = src;
+      }
+    });
+  }, [currentIndex, isOpen, photos]);
+
   if (!photo) return null;
 
   return (
@@ -262,7 +275,7 @@ export function ImageLightbox({
           </span>
           <button
             onClick={onClose}
-            className="focus-ring touch-target rounded-full bg-white/10 p-2.5 text-white transition-colors hover:bg-white/20"
+            className="focus-ring touch-target cursor-pointer rounded-full bg-white/10 p-2.5 text-white transition-colors hover:bg-white/20"
             aria-label="Close lightbox"
           >
             <X className="h-5 w-5" />
@@ -276,14 +289,14 @@ export function ImageLightbox({
             <>
               <button
                 onClick={goToPrevious}
-                className="focus-ring touch-target absolute top-1/2 left-3 z-10 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white transition-colors hover:bg-black/70 pointer-coarse:hidden"
+                className="focus-ring touch-target absolute top-1/2 left-3 z-10 -translate-y-1/2 cursor-pointer rounded-full bg-black/50 p-3 text-white transition-colors hover:bg-black/70 pointer-coarse:hidden"
                 aria-label="Previous image"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
               <button
                 onClick={goToNext}
-                className="focus-ring touch-target absolute top-1/2 right-3 z-10 -translate-y-1/2 rounded-full bg-black/50 p-3 text-white transition-colors hover:bg-black/70 lg:right-[21rem] pointer-coarse:hidden"
+                className="focus-ring touch-target absolute top-1/2 right-3 z-10 -translate-y-1/2 cursor-pointer rounded-full bg-black/50 p-3 text-white transition-colors hover:bg-black/70 lg:right-[21rem] pointer-coarse:hidden"
                 aria-label="Next image"
               >
                 <ChevronRight className="h-5 w-5" />
@@ -293,19 +306,19 @@ export function ImageLightbox({
 
           {/* Media area with touch gestures */}
           <div className="relative flex min-h-0 flex-1 items-center justify-center overflow-hidden">
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="popLayout" initial={false}>
               <motion.div
                 key={currentIndex}
                 initial={
-                  shouldReduceMotion ? undefined : { opacity: 0, scale: 0.95 }
+                  shouldReduceMotion ? undefined : { opacity: 0, scale: 0.98 }
                 }
                 animate={
                   shouldReduceMotion ? undefined : { opacity: 1, scale: 1 }
                 }
                 exit={
-                  shouldReduceMotion ? undefined : { opacity: 0, scale: 0.95 }
+                  shouldReduceMotion ? undefined : { opacity: 0, scale: 0.98 }
                 }
-                transition={{ duration: 0.2 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
                 drag={!isZoomed && !isVideo}
                 dragDirectionLock
                 dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
@@ -486,7 +499,7 @@ function IdentifyButton({ onClick }: { onClick: () => void }) {
     <div className="mt-4 border-t border-white/20 pt-4">
       <button
         onClick={onClick}
-        className="focus-ring touch-target flex w-full items-center justify-center gap-2 rounded-lg border border-white/20 px-4 py-3 text-sm font-medium text-white transition-colors hover:border-white/40 hover:bg-white/10"
+        className="focus-ring touch-target flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-white/20 px-4 py-3 text-sm font-medium text-white transition-colors hover:border-white/40 hover:bg-white/10"
       >
         <HelpCircle className="h-4 w-4" />
         Help identify this photo
@@ -503,7 +516,7 @@ function ActionsPanel({ photo, isVideo }: { photo: Photo; isVideo?: boolean }) {
           <a
             href={photo.highResSrc || photo.src}
             download={`brava-${photo.alt.replace(/\s+/g, "-").toLowerCase()}.jpg`}
-            className="focus-ring touch-target flex flex-1 items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-white/20"
+            className="focus-ring touch-target flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg bg-white/10 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-white/20"
           >
             <Download className="h-4 w-4" />
             Download
@@ -550,7 +563,7 @@ function ThumbnailNav({
             key={index}
             onClick={() => onSelect(index)}
             className={clsx(
-              "focus-ring relative aspect-square overflow-hidden rounded border-2 transition-all",
+              "focus-ring relative aspect-square cursor-pointer overflow-hidden rounded border-2 transition-all",
               index === currentIndex
                 ? "shadow-elevated scale-105 border-white"
                 : "border-transparent opacity-60 hover:border-white/50 hover:opacity-100"
