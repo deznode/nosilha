@@ -109,16 +109,16 @@ const nextConfig: NextConfig = {
             value: "max-age=31536000; includeSubDomains",
           },
 
-          // Content Security Policy - allows Mapbox, Google Analytics, Supabase, fonts
+          // Content Security Policy - allows MapLibre/CARTO, Google Analytics, Supabase, fonts
           {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://api.mapbox.com https://www.googletagmanager.com https://www.google-analytics.com https://www.clarity.ms https://static.cloudflareinsights.com",
-              "style-src 'self' 'unsafe-inline' https://api.mapbox.com https://fonts.googleapis.com",
-              "img-src 'self' data: blob: https: https://*.mapbox.com https://*.supabase.co",
+              "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://www.clarity.ms https://static.cloudflareinsights.com",
+              "style-src 'self' 'unsafe-inline' https://basemaps.cartocdn.com https://fonts.googleapis.com",
+              "img-src 'self' data: blob: https: https://*.cartocdn.com https://basemaps.cartocdn.com https://*.supabase.co",
               "font-src 'self' https://fonts.gstatic.com",
-              `connect-src 'self' ${isDev ? "http://localhost:8080 " : ""}https://api.nosilha.com https://*.nosilha.com https://api.mapbox.com https://*.mapbox.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://*.supabase.co wss://*.supabase.co https://www.clarity.ms https://*.clarity.ms https://*.r2.cloudflarestorage.com https://cloudflareinsights.com`,
+              `connect-src 'self' ${isDev ? "http://localhost:8080 " : ""}https://api.nosilha.com https://*.nosilha.com https://*.cartocdn.com https://basemaps.cartocdn.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://*.supabase.co wss://*.supabase.co https://www.clarity.ms https://*.clarity.ms https://*.r2.cloudflarestorage.com https://cloudflareinsights.com`,
               "worker-src 'self' blob:",
               "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com",
               "frame-ancestors 'none'",

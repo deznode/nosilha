@@ -23,24 +23,26 @@ vi.mock("next/image", () => ({
 
 const mockVideoItem: MediaItem = {
   id: "video-1",
+  type: "VIDEO",
   title: "Morna de Brava Performance",
-  category: "Music",
+  category: "Culture",
   url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
   thumbnailUrl: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
   duration: 215, // 3:35
   author: "Eugénio Tavares Ensemble",
-  createdAt: "2026-03-01T12:00:00Z",
+  date: "2026-03-01T12:00:00Z",
 };
 
 const mockPodcastItem: MediaItem = {
   id: "podcast-1",
+  type: "VIDEO",
   title: "Brava Diaspora Podcast Episode 4",
   category: "Interview",
   url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
   thumbnailUrl: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
   duration: 1845, // 30:45
   author: "Brava Cultural Radio",
-  createdAt: "2026-03-02T12:00:00Z",
+  date: "2026-03-02T12:00:00Z",
 };
 
 describe("CompactVideoCard", () => {
@@ -50,7 +52,7 @@ describe("CompactVideoCard", () => {
     expect(screen.getByText("Morna de Brava Performance")).toBeInTheDocument();
     expect(screen.getByText("Eugénio Tavares Ensemble")).toBeInTheDocument();
     expect(screen.getByText("3:35")).toBeInTheDocument();
-    expect(screen.getByText("Music")).toBeInTheDocument();
+    expect(screen.getByText("Culture")).toBeInTheDocument();
   });
 
   it("renders podcast styling badge and accent border for podcast items", () => {

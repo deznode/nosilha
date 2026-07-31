@@ -26,24 +26,25 @@ vi.mock("@/lib/api", () => ({
 const mockConfig: YouTubeSyncConfig = {
   enabled: true,
   apiKeyConfigured: true,
-  channelHandle: "@nosilha",
   defaultCategory: "Music",
+  updatedAt: "2026-03-01T12:00:00Z",
   videoCount: 42,
 };
 
 const mockSyncResult: YouTubeSyncResult = {
-  syncedCount: 5,
-  skippedCount: 2,
-  errorCount: 0,
-  durationMs: 1250,
+  synced: 5,
+  skipped: 2,
+  errors: [],
+  totalProcessed: 7,
 };
 
 const mockPlaylist: YouTubeSyncPlaylist = {
   id: "playlist-1",
   playlistId: "PL1234567890",
-  title: "Mornas de Brava",
+  label: "Mornas de Brava",
   category: "Music",
-  videoCount: 12,
+  lastSyncedAt: "2026-03-01T12:00:00Z",
+  lastSyncCount: 12,
   createdAt: "2026-03-01T12:00:00Z",
 };
 
@@ -121,11 +122,11 @@ describe("useYouTubeSync Hooks", () => {
 
     const { result } = renderHook(() => useSaveYouTubeSyncPlaylist(), { wrapper });
 
-    result.current.mutate({ playlistId: "PL1234567890", title: "Mornas de Brava", category: "Music" });
+    result.current.mutate({ playlistId: "PL1234567890", label: "Mornas de Brava", category: "Music" });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(api.saveYouTubeSyncPlaylist).toHaveBeenCalledWith(
-      { playlistId: "PL1234567890", title: "Mornas de Brava", category: "Music" },
+      { playlistId: "PL1234567890", label: "Mornas de Brava", category: "Music" },
       expect.anything()
     );
   });

@@ -19,8 +19,8 @@ import {
   type MapRef,
   type MarkerEvent,
   type ViewStateChangeEvent,
-} from "react-map-gl/mapbox";
-import mapboxgl from "mapbox-gl";
+} from "react-map-gl/maplibre";
+import maplibregl from "maplibre-gl";
 import { BaseMap, useMapClustering } from "../shared";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle, Loader2 } from "lucide-react";
@@ -272,26 +272,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
       }
 
       lastFrameTime = timestamp;
-      const secondsElapsed = (Date.now() - orbitStartTimeRef.current) / 1000;
-
-      const camera = map.getFreeCameraOptions();
-      const center = MAP_CONFIG.DEFAULT_CENTER;
-      const altitude = 3000;
-      const radius = 0.03;
-      const speed = 0.1;
-      const phase = secondsElapsed * speed;
-
-      camera.position = mapboxgl.MercatorCoordinate.fromLngLat(
-        {
-          lng: center.lng + Math.cos(phase) * radius,
-          lat: center.lat + Math.sin(phase) * radius,
-        },
-        altitude
-      );
-
-      camera.lookAtPoint({ lng: center.lng, lat: center.lat });
-      map.setFreeCameraOptions(camera);
-
+      map.setBearing((map.getBearing() + 0.2) % 360);
       orbitAnimationRef.current = requestAnimationFrame(rotateCamera);
     };
 
@@ -324,7 +305,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
 
   // --- Handle zone clicks ---
   const handleMapClick = useCallback(
-    (event: mapboxgl.MapLayerMouseEvent) => {
+    (event: maplibregl.MapLayerMouseEvent) => {
       if (event.defaultPrevented) return;
 
       const feature = event.features?.[0];
@@ -336,7 +317,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
           const coordinates = geometry.coordinates[0];
           const b = coordinates.reduce(
             (acc, coord) => acc.extend(coord as [number, number]),
-            new mapboxgl.LngLatBounds(
+            new maplibregl.LngLatBounds(
               coordinates[0] as [number, number],
               coordinates[0] as [number, number]
             )
@@ -361,7 +342,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
 
   // --- Map viewport tracking ---
   const onMove = useCallback(
-    (evt: { viewState: { zoom: number }; target: mapboxgl.Map }) => {
+    (evt: { viewState: { zoom: number }; target: maplibregl.Map }) => {
       // Skip viewport tracking during intro to avoid rapid state updates
       // from continuous flyTo move events causing "Maximum update depth"
       if (isIntroPlaying) return;
@@ -418,7 +399,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
   }, []);
 
   const handleMapError = useCallback(
-    (event: mapboxgl.ErrorEvent) => {
+    (event: maplibregl.ErrorEvent) => {
       console.error("Map error:", event.error);
       // Only show error screen for failures during initial load.
       // Post-load errors (e.g. source cleanup during unmount) are harmless.
@@ -634,8 +615,8 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
           ref={mapRef}
           style={
             viewMode === "satellite"
-              ? "mapbox://styles/mapbox/satellite-streets-v12"
-              : "mapbox://styles/mapbox/light-v11"
+              ? "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
+              : "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
           }
           onClick={handleMapClick}
           onMove={onMove}

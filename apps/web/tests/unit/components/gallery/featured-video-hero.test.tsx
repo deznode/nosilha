@@ -12,13 +12,14 @@ vi.mock("@/components/gallery/youtube-facade", () => ({
 
 const mockHeroVideo: MediaItem = {
   id: "hero-video-1",
+  type: "VIDEO",
   title: "Featured Brava Festival Morna",
-  category: "Music",
+  category: "Culture",
   url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
   thumbnailUrl: "https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
   duration: 240, // 4:00
   author: "Brava Heritage Ensemble",
-  createdAt: "2026-03-01T12:00:00Z",
+  date: "2026-03-01T12:00:00Z",
 };
 
 describe("FeaturedVideoHero", () => {
