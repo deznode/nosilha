@@ -615,8 +615,8 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
           ref={mapRef}
           style={
             viewMode === "satellite"
-              ? "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json"
-              : "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
+              ? "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
+              : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
           }
           onClick={handleMapClick}
           onMove={onMove}
