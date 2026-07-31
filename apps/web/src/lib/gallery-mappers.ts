@@ -223,6 +223,7 @@ export interface GalleryGeoProperties {
   category: string;
   title: string;
   thumbnailUrl: string | null;
+  mediaType?: "IMAGE" | "VIDEO";
 }
 
 /**
@@ -242,6 +243,7 @@ export function mediaItemToGeoFeature(
       category: item.category || "",
       title: item.title,
       thumbnailUrl: item.thumbnailUrl ?? item.url,
+      mediaType: item.type,
     },
     geometry: {
       type: "Point",

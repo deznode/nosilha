@@ -314,6 +314,7 @@ export function GalleryMapCanvas({
                 thumbnailUrl={geoProps.thumbnailUrl}
                 title={geoProps.title}
                 isSelected={isSelected}
+                mediaType={geoProps.mediaType}
                 onClick={() =>
                   handleMarkerClick(geoProps.mediaId, latitude, longitude)
                 }
