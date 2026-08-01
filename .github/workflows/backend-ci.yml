@@ -153,7 +153,7 @@ jobs:
       # Upload code quality SARIF reports to GitHub Security
       - name: Upload ktlint SARIF report
         if: always()
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@v4.37.3
         with:
           sarif_file: apps/api/build/reports/ktlint/ktlintMainSourceSetCheck/ktlintMainSourceSetCheck.sarif
           category: 'code-quality-ktlint'
@@ -162,7 +162,7 @@ jobs:
       # detekt SARIF upload disabled - re-enable when detekt 2.0.0 stable is released
       # - name: Upload detekt SARIF report
       #   if: always()
-      #   uses: github/codeql-action/upload-sarif@v4
+      #   uses: github/codeql-action/upload-sarif@v4.37.3
       #   with:
       #     sarif_file: apps/api/build/reports/detekt/detekt.sarif
       #     category: 'code-quality-detekt'
