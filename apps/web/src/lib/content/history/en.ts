@@ -27,7 +27,7 @@ export const historyData: HistoryPageData = {
     language: "en",
     slug: "history",
     keywords:
-      "Brava Island history video, Cape Verde cultural heritage VideoHeroSection, Eugénio Tavares poet, morna music origins, sodade meaning, 1680 Fogo migration, American whaling industry, Cape Verdean diaspora, New Bedford connections, Brava Crioulo literature, Island of Flowers, volcanic stratovolcano, transnational community, Vila Nova Sintra video, packet trade era, Brava maritime heritage, Cape Verde smallest island, 2004 airport closure, cloud water collection projects, contemporary preservation, whaling heritage, cultural flowering period, geological foundations",
+      "Brava Island history video, Cape Verde cultural heritage, Eugénio Tavares poet, morna music origins, sodade meaning, 1680 Fogo migration, American whaling industry, Cape Verdean diaspora, New Bedford connections, Brava Crioulo literature, Island of Flowers, volcanic stratovolcano, transnational community, Vila Nova Sintra video, packet trade era, Brava maritime heritage, Cape Verde smallest island, 2004 airport closure, cloud water collection projects, contemporary preservation, whaling heritage, cultural flowering period, geological foundations",
     openGraph: {
       title:
         "Brava Island: Complete Cultural History with Video Journey - Wild Island, Tender Soul",

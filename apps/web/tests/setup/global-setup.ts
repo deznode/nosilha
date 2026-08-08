@@ -87,22 +87,6 @@ async function globalSetup(config: FullConfig) {
       }
     }
 
-    // 6. Verify essential dependencies are available
-    console.log("🗺️ Checking map dependencies...");
-    try {
-      // Check if Mapbox token is configured
-      const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
-      if (!mapboxToken || mapboxToken.startsWith("your_mapbox_token")) {
-        console.warn(
-          "⚠️ Mapbox token not configured - map tests will be limited"
-        );
-      } else {
-        console.log("✅ Mapbox integration ready");
-      }
-    } catch (error) {
-      console.warn("⚠️ Map dependencies check failed:", error);
-    }
-
     console.log("🎉 Global setup completed successfully!");
 
     // Store setup state for tests to reference

@@ -152,7 +152,7 @@ const sections: DevToolSection[] = [
       {
         title: "Map Viewer",
         description:
-          "Map style switcher component for streets, outdoors, and satellite views",
+          "Map style switcher component for Voyager, Positron, and Dark Matter styles",
         href: "/admin/dev-tools/map",
         icon: Map,
       },

@@ -37,6 +37,8 @@ import { useFilteredLocations } from "../hooks/useFilteredLocations";
 import {
   INTRO_CONFIG,
   MAP_CONFIG,
+  MAP_STYLES,
+  TERRAIN_DEM,
   ILLUSTRATION_BOUNDS,
   ILLUSTRATION_URL,
   ZONES_GEOJSON,
@@ -118,7 +120,6 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
 
   // --- Local refs ---
   const orbitAnimationRef = useRef<number>(0);
-  const orbitStartTimeRef = useRef<number>(0);
   const isOrbitMovingRef = useRef<boolean>(false);
   const introAnimationRef = useRef<number>(0);
   const introTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -261,7 +262,6 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
     }
 
     const map = mapRef.current.getMap();
-    orbitStartTimeRef.current = Date.now();
     isOrbitMovingRef.current = true;
     let lastFrameTime = 0;
 
@@ -614,9 +614,7 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
         <BaseMap
           ref={mapRef}
           style={
-            viewMode === "satellite"
-              ? "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
-              : "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+            viewMode === "satellite" ? MAP_STYLES.voyager : MAP_STYLES.positron
           }
           onClick={handleMapClick}
           onMove={onMove}
@@ -627,19 +625,8 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
             terrain:
               viewMode === "satellite" && isMapLoaded
                 ? {
-                    source: "terrain-dem",
+                    source: TERRAIN_DEM.SOURCE_ID,
                     exaggeration: MAP_CONFIG.TERRAIN_EXAGGERATION,
-                  }
-                : undefined,
-            fog:
-              viewMode === "satellite"
-                ? {
-                    range: [0.8, 8],
-                    color: "#e8e4e0",
-                    "horizon-blend": 0.15,
-                    "high-color": "#4a90a4",
-                    "space-color": "#1a1a2e",
-                    "star-intensity": 0.15,
                   }
                 : undefined,
             maxPitch: MAP_CONFIG.MAX_PITCH,
@@ -661,14 +648,12 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
           {isMapLoaded && (
             <>
               <Source
-                id="terrain-dem"
+                id={TERRAIN_DEM.SOURCE_ID}
                 type="raster-dem"
-                tiles={[
-                  "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",
-                ]}
-                encoding="terrarium"
-                tileSize={256}
-                maxzoom={MAP_CONFIG.DEM_MAX_ZOOM}
+                tiles={[...TERRAIN_DEM.TILES]}
+                encoding={TERRAIN_DEM.ENCODING}
+                tileSize={TERRAIN_DEM.TILE_SIZE}
+                maxzoom={TERRAIN_DEM.MAX_ZOOM}
               />
 
               {/* Illustration Mode Layer */}

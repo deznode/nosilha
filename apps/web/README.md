@@ -52,7 +52,6 @@ All required variables are validated in `src/lib/env.ts`. Update `.env.local` wi
 ```bash
 NEXT_PUBLIC_API_URL=http://localhost:8080        # Spring Boot backend base URL
 NEXT_PUBLIC_USE_MOCK_API=false                   # true to use src/lib/mock-api.ts
-NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=pk.your_token    # Mapbox public token
 NEXT_PUBLIC_SUPABASE_URL=https://your.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_your_key  # Publishable key from Supabase dashboard
 ```

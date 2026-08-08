@@ -10,6 +10,26 @@ export const INTRO_CONFIG = {
   SETTLE_DURATION: 1000,
 } as const;
 
+// --- Basemap Styles (CARTO, open / no API key) ---
+// Any host added here must also be allowed by the CSP in `next.config.ts`.
+export const MAP_STYLES = {
+  voyager: "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
+  positron: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+  darkMatter:
+    "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
+} as const;
+
+// --- Terrain DEM Source (AWS Terrarium tiles, open / no API key) ---
+export const TERRAIN_DEM = {
+  SOURCE_ID: "terrain-dem",
+  TILES: [
+    "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png",
+  ],
+  ENCODING: "terrarium",
+  TILE_SIZE: 256,
+  MAX_ZOOM: 14,
+} as const;
+
 // --- Map Configuration Constants ---
 export const MAP_CONFIG = {
   DEFAULT_CENTER: { lng: -24.7, lat: 14.86 },
@@ -23,8 +43,6 @@ export const MAP_CONFIG = {
   RESET_DURATION: 1500,
   EASE_DURATION: 500,
   MAX_PITCH: 85,
-  DEM_TILE_SIZE: 512,
-  DEM_MAX_ZOOM: 14,
 } as const;
 
 // --- Illustration Mode Configuration ---

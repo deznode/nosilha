@@ -26,12 +26,6 @@ async function globalTeardown(config: FullConfig) {
         CI: !!process.env.CI,
         NODE_ENV: process.env.NODE_ENV,
         apiUrl: process.env.NEXT_PUBLIC_API_URL,
-        mapboxConfigured: !!(
-          process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN &&
-          !process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN.startsWith(
-            "your_mapbox_token"
-          )
-        ),
       },
     };
 

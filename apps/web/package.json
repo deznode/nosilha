@@ -71,6 +71,7 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "@playwright/test": "^1.61.1",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/postcss": "^4",

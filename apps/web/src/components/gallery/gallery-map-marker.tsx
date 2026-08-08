@@ -3,13 +3,14 @@
 import Image from "next/image";
 import { clsx } from "clsx";
 import { Camera, Play } from "lucide-react";
+import type { MediaType } from "@/types/media";
 
 interface GalleryMapMarkerProps {
   thumbnailUrl: string | null;
   title: string;
   isSelected: boolean;
   onClick: () => void;
-  mediaType?: "IMAGE" | "VIDEO";
+  mediaType?: MediaType;
 }
 
 /**
@@ -61,7 +62,7 @@ export function GalleryMapMarker({
 
         {/* Video Play Badge */}
         {mediaType === "VIDEO" && (
-          <div className="bg-brand absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[1px]">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[1px]">
             <Play className="fill-white text-white drop-shadow" size={14} />
           </div>
         )}

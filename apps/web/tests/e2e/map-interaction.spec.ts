@@ -41,26 +41,13 @@ test.describe("Map Loading and Display", () => {
     // Wait for map to initialize (MapLibre creates canvas element)
     await page.waitForTimeout(2000);
 
-    // Map container should exist
-    const mapContainer = page
-      .locator('.maplibregl-map, .mapboxgl-map, [class*="map"], [id*="map"]')
-      .first();
-    const hasMapContainer = await mapContainer.isVisible().catch(() => false);
+    // Map container should exist. CARTO basemaps need no access token, so
+    // there is no environment in which the map is legitimately absent.
+    const mapContainer = page.locator(".maplibregl-map").first();
+    await expect(mapContainer).toBeVisible();
 
-    if (hasMapContainer) {
-      await expect(mapContainer).toBeVisible();
-
-      // Map should have canvas element (MapLibre GL JS renders to canvas)
-      const canvas = mapContainer.locator("canvas");
-      const hasCanvas = await canvas.isVisible().catch(() => false);
-
-      expect(hasCanvas).toBeTruthy();
-    } else {
-      const errorMessage = page.locator("text=/map.*error/i");
-      const hasError = await errorMessage.isVisible().catch(() => false);
-
-      expect(hasError || true).toBeTruthy();
-    }
+    // MapLibre GL JS renders to a canvas
+    await expect(mapContainer.locator("canvas").first()).toBeVisible();
   });
 
   test("should display map centered on Brava Island", async ({ page }) => {
@@ -86,35 +73,6 @@ test.describe("Map Loading and Display", () => {
       }
     }
   });
-
-  test("should handle missing Mapbox token gracefully", async ({ page }) => {
-    // This test verifies the app handles missing/invalid Mapbox token
-
-    // Monitor console for Mapbox-related errors
-    const consoleErrors: string[] = [];
-    page.on("console", (msg) => {
-      if (msg.type() === "error") {
-        consoleErrors.push(msg.text());
-      }
-    });
-
-    await page.goto("/map");
-    await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
-
-    // If Mapbox token is not configured, should show user-friendly message
-    // rather than just crashing
-    const errorMessages = page.locator(
-      "text=/configuration.*error/i, text=/map.*unavailable/i"
-    );
-    const _hasUserFriendlyError = await errorMessages
-      .first()
-      .isVisible()
-      .catch(() => false);
-
-    // App should either load map or show friendly error (not crash)
-    expect(true).toBeTruthy();
-  });
 });
 
 test.describe("Map Markers and Popups", () => {
@@ -125,8 +83,8 @@ test.describe("Map Markers and Popups", () => {
     // Wait for map and markers to load
     await page.waitForTimeout(3000);
 
-    // Mapbox markers are typically rendered as divs with specific classes
-    const markers = page.locator('.mapboxgl-marker, [class*="marker"]');
+    // MapLibre markers are rendered as divs with specific classes
+    const markers = page.locator('.maplibregl-marker, [class*="marker"]');
     const markerCount = await markers.count();
 
     // Should have at least one marker (if there are directory entries with coordinates)
@@ -141,7 +99,7 @@ test.describe("Map Markers and Popups", () => {
 
     // Find first marker
     const firstMarker = page
-      .locator('.mapboxgl-marker, [class*="marker"]')
+      .locator('.maplibregl-marker, [class*="marker"]')
       .first();
     const hasMarker = await firstMarker.isVisible().catch(() => false);
 
@@ -151,7 +109,7 @@ test.describe("Map Markers and Popups", () => {
       await page.waitForTimeout(500);
 
       // Popup should appear
-      const popup = page.locator('.mapboxgl-popup, [class*="popup"]');
+      const popup = page.locator('.maplibregl-popup, [class*="popup"]');
       const hasPopup = await popup.isVisible().catch(() => false);
 
       expect(hasPopup).toBeTruthy();
@@ -159,7 +117,7 @@ test.describe("Map Markers and Popups", () => {
       if (hasPopup) {
         // Popup should have entry information
         const popupContent = popup.locator(
-          '.mapboxgl-popup-content, [class*="popup-content"]'
+          '.maplibregl-popup-content, [class*="popup-content"]'
         );
         await expect(popupContent).toBeVisible();
 
@@ -175,14 +133,14 @@ test.describe("Map Markers and Popups", () => {
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(3000);
 
-    const firstMarker = page.locator(".mapboxgl-marker").first();
+    const firstMarker = page.locator(".maplibregl-marker").first();
     const hasMarker = await firstMarker.isVisible().catch(() => false);
 
     if (hasMarker) {
       await firstMarker.click();
       await page.waitForTimeout(500);
 
-      const popup = page.locator(".mapboxgl-popup-content");
+      const popup = page.locator(".maplibregl-popup-content");
       const hasPopup = await popup.isVisible().catch(() => false);
 
       if (hasPopup) {
@@ -210,14 +168,14 @@ test.describe("Map Markers and Popups", () => {
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(3000);
 
-    const firstMarker = page.locator(".mapboxgl-marker").first();
+    const firstMarker = page.locator(".maplibregl-marker").first();
     const hasMarker = await firstMarker.isVisible().catch(() => false);
 
     if (hasMarker) {
       await firstMarker.click();
       await page.waitForTimeout(500);
 
-      const popup = page.locator(".mapboxgl-popup-content");
+      const popup = page.locator(".maplibregl-popup-content");
       const hasPopup = await popup.isVisible().catch(() => false);
 
       if (hasPopup) {
@@ -247,20 +205,20 @@ test.describe("Map Markers and Popups", () => {
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(3000);
 
-    const firstMarker = page.locator(".mapboxgl-marker").first();
+    const firstMarker = page.locator(".maplibregl-marker").first();
     const hasMarker = await firstMarker.isVisible().catch(() => false);
 
     if (hasMarker) {
       await firstMarker.click();
       await page.waitForTimeout(500);
 
-      const popup = page.locator(".mapboxgl-popup");
+      const popup = page.locator(".maplibregl-popup");
       const hasPopup = await popup.isVisible().catch(() => false);
 
       if (hasPopup) {
         // Find close button
         const closeButton = popup.locator(
-          'button.mapboxgl-popup-close-button, button:has-text("×")'
+          'button.maplibregl-popup-close-button, button:has-text("×")'
         );
         const hasCloseButton = await closeButton.isVisible().catch(() => false);
 
@@ -285,7 +243,7 @@ test.describe("Map Controls and Interaction", () => {
 
     // Mapbox GL JS adds zoom controls
     const zoomControls = page.locator(
-      ".mapboxgl-ctrl-zoom-in, .mapboxgl-ctrl-zoom-out"
+      ".maplibregl-ctrl-zoom-in, .maplibregl-ctrl-zoom-out"
     );
     const _hasZoomControls = await zoomControls
       .first()
@@ -302,7 +260,7 @@ test.describe("Map Controls and Interaction", () => {
     await page.waitForTimeout(2000);
 
     const zoomInButton = page.locator(
-      '.mapboxgl-ctrl-zoom-in, button[aria-label*="Zoom in"]'
+      '.maplibregl-ctrl-zoom-in, button[aria-label*="Zoom in"]'
     );
     const hasZoomIn = await zoomInButton.isVisible().catch(() => false);
 
@@ -381,7 +339,7 @@ test.describe("Map Controls and Interaction", () => {
 
     // Geolocation control is optional
     const geolocateButton = page.locator(
-      '.mapboxgl-ctrl-geolocate, button[aria-label*="geolocate"]'
+      '.maplibregl-ctrl-geolocate, button[aria-label*="geolocate"]'
     );
     const _hasGeolocate = await geolocateButton.isVisible().catch(() => false);
 
@@ -423,7 +381,7 @@ test.describe("Map Mobile Interactions", () => {
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(2000);
 
-    const firstMarker = page.locator(".mapboxgl-marker").first();
+    const firstMarker = page.locator(".maplibregl-marker").first();
     const hasMarker = await firstMarker.isVisible().catch(() => false);
 
     if (hasMarker) {
@@ -432,7 +390,7 @@ test.describe("Map Mobile Interactions", () => {
       await page.waitForTimeout(500);
 
       // Popup should open
-      const popup = page.locator(".mapboxgl-popup");
+      const popup = page.locator(".maplibregl-popup");
       const hasPopup = await popup.isVisible().catch(() => false);
 
       expect(hasPopup).toBeTruthy();
@@ -464,7 +422,7 @@ test.describe("Map Mobile Interactions", () => {
     await page.waitForTimeout(2000);
 
     // Zoom controls should be visible and accessible on mobile
-    const zoomControls = page.locator(".mapboxgl-ctrl-zoom-in");
+    const zoomControls = page.locator(".maplibregl-ctrl-zoom-in");
     const hasZoomControls = await zoomControls.isVisible().catch(() => false);
 
     if (hasZoomControls) {
@@ -502,11 +460,7 @@ test.describe("Map Performance", () => {
     const consoleErrors: string[] = [];
 
     page.on("console", (msg) => {
-      if (
-        msg.type() === "error" &&
-        !msg.text().includes("Mapbox access token")
-      ) {
-        // Ignore Mapbox token errors in test environment
+      if (msg.type() === "error") {
         consoleErrors.push(msg.text());
       }
     });
@@ -515,7 +469,6 @@ test.describe("Map Performance", () => {
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(3000);
 
-    // Should not have critical errors (excluding Mapbox token warning)
     // Some errors might be acceptable in test environment
     expect(consoleErrors.length).toBeLessThan(5);
   });
@@ -541,14 +494,14 @@ test.describe("Map Accessibility", () => {
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(3000);
 
-    const firstMarker = page.locator(".mapboxgl-marker").first();
+    const firstMarker = page.locator(".maplibregl-marker").first();
     const hasMarker = await firstMarker.isVisible().catch(() => false);
 
     if (hasMarker) {
       await firstMarker.click();
       await page.waitForTimeout(500);
 
-      const popup = page.locator(".mapboxgl-popup-content");
+      const popup = page.locator(".maplibregl-popup-content");
       const hasPopup = await popup.isVisible().catch(() => false);
 
       if (hasPopup) {

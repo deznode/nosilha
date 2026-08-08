@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { clsx } from "clsx";
+import { MAP_STYLES } from "@/features/map/data/constants";
 
-type MapStyle = "streets" | "satellite" | "outdoors";
+type MapStyle = keyof typeof MAP_STYLES;
 
 interface MapStyleSwitcherProps {
   currentStyle: string;
@@ -11,21 +12,9 @@ interface MapStyleSwitcherProps {
 }
 
 const STYLES: { id: MapStyle; label: string; url: string }[] = [
-  {
-    id: "streets",
-    label: "Voyager",
-    url: "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
-  },
-  {
-    id: "outdoors",
-    label: "Positron",
-    url: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
-  },
-  {
-    id: "satellite",
-    label: "Dark Matter",
-    url: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
-  },
+  { id: "voyager", label: "Voyager", url: MAP_STYLES.voyager },
+  { id: "positron", label: "Positron", url: MAP_STYLES.positron },
+  { id: "darkMatter", label: "Dark Matter", url: MAP_STYLES.darkMatter },
 ];
 
 export function MapStyleSwitcher({
@@ -105,7 +94,7 @@ export default function TestMapPage() {
       <h1 className="mb-4 text-2xl font-bold">Map Style Switcher Test</h1>
       <div className="relative h-96 w-full rounded-lg border bg-mist-100">
         <MapStyleSwitcher
-          currentStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
+          currentStyle={MAP_STYLES.voyager}
           onStyleChange={(style) => console.log("Style changed:", style)}
         />
       </div>

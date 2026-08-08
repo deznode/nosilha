@@ -29,7 +29,7 @@ const CONFIG = {
     "coverage",
     "results",
   ],
-  REQUIRED_ENV_VARS: ["NEXT_PUBLIC_API_URL", "NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN"],
+  REQUIRED_ENV_VARS: ["NEXT_PUBLIC_API_URL"],
 };
 
 async function main() {

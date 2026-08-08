@@ -14,7 +14,7 @@ import {
   isPublicUserUploadMedia,
   isPublicExternalMedia,
 } from "@/types/gallery";
-import type { MediaItem, MediaCategory } from "@/types/media";
+import type { MediaItem, MediaCategory, MediaType } from "@/types/media";
 import type { Photo } from "@/components/ui/image-lightbox";
 import type { GeoPointFeature } from "@/features/map/shared";
 
@@ -148,7 +148,7 @@ export function mapGalleryMediaToMediaItem(
 
     return {
       ...base,
-      type: media.mediaType as "IMAGE" | "VIDEO",
+      type: media.mediaType as MediaType,
       url,
       thumbnailUrl: thumbnailUrl || undefined,
       author: media.author || media.curatorDisplayName || undefined,
@@ -223,7 +223,7 @@ export interface GalleryGeoProperties {
   category: string;
   title: string;
   thumbnailUrl: string | null;
-  mediaType?: "IMAGE" | "VIDEO";
+  mediaType?: MediaType;
 }
 
 /**

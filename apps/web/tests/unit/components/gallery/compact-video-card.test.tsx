@@ -3,36 +3,13 @@ import { describe, it, expect, vi } from "vitest";
 import { CompactVideoCard } from "@/components/gallery/compact-video-card";
 import type { MediaItem } from "@/types/media";
 
-// Mock framer-motion to avoid animation issues in unit tests
-vi.mock("framer-motion", () => ({
-  motion: {
-    div: ({
-      children,
-      className,
-      ...props
-    }: React.ComponentPropsWithoutRef<"div">) => (
-      <div className={className} {...props}>
-        {children}
-      </div>
-    ),
-  },
-}));
-
-// Mock next/image
-vi.mock("next/image", () => ({
-  default: ({
-    src,
-    alt,
-    className,
-  }: {
-    src: string;
-    alt: string;
-    className?: string;
-  }) => (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img src={src} alt={alt} className={className} />
-  ),
-}));
+// Mock framer-motion to avoid animation issues in unit tests.
+// next/image is mocked globally in tests/setup/vitest.setup.tsx.
+vi.mock("framer-motion", async () => {
+  const { createFramerMotionMock } =
+    await import("../../../setup/framer-motion-mock");
+  return createFramerMotionMock();
+});
 
 const mockVideoItem: MediaItem = {
   id: "video-1",

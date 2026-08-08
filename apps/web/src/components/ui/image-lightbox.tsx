@@ -29,6 +29,11 @@ import { ShareButton } from "@/components/content/actions/share-button";
 import { PhotoIdentificationForm } from "@/components/gallery/photo-identification-form";
 import { isRawFilename } from "@/lib/gallery-mappers";
 import { ExpandableText } from "@/components/ui/expandable-text";
+import cloudflareLoader from "@/lib/cloudflare-image-loader";
+import type { MediaType } from "@/types/media";
+
+/** Next.js default `images.deviceSizes` — the widths its srcset can request. */
+const NEXT_DEVICE_SIZES = [640, 750, 828, 1080, 1200, 1920, 2048, 3840];
 
 export interface Photo {
   id?: string;
@@ -52,7 +57,7 @@ export interface Photo {
   archiveSource?: string;
   latitude?: number;
   longitude?: number;
-  type?: "IMAGE" | "VIDEO";
+  type?: MediaType;
   videoUrl?: string;
 }
 
@@ -235,17 +240,22 @@ export function ImageLightbox({
     lastTapRef.current = now;
   }, []);
 
-  // Preload adjacent images for instant, flash-free transitions
+  // Preload adjacent images for instant, flash-free transitions.
+  // The URLs must go through the same loader the rendered <Image> uses,
+  // otherwise this downloads the full-resolution original — a resource the
+  // page never requests — and leaves the real request uncached.
   useEffect(() => {
     if (!isOpen || photos.length <= 1) return;
+    const target = window.innerWidth * (window.devicePixelRatio || 1);
+    const width =
+      NEXT_DEVICE_SIZES.find((w) => w >= target) ?? NEXT_DEVICE_SIZES.at(-1)!;
     const nextIndex = (currentIndex + 1) % photos.length;
     const prevIndex = (currentIndex - 1 + photos.length) % photos.length;
-    [photos[nextIndex]?.src, photos[prevIndex]?.src].forEach((src) => {
-      if (src && typeof window !== "undefined") {
-        const img = new window.Image();
-        img.src = src;
-      }
-    });
+    for (const src of [photos[nextIndex]?.src, photos[prevIndex]?.src]) {
+      if (!src) continue;
+      const img = new window.Image();
+      img.src = cloudflareLoader({ src, width, quality: 75 });
+    }
   }, [currentIndex, isOpen, photos]);
 
   if (!photo) return null;

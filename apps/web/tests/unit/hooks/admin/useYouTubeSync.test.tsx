@@ -16,16 +16,7 @@ import type {
   YouTubeSyncPlaylist,
 } from "@/types/youtube";
 
-vi.mock("@/lib/api", () => ({
-  getYouTubeSyncConfig: vi.fn(),
-  updateYouTubeSyncConfig: vi.fn(),
-  triggerYouTubeSync: vi.fn(),
-  getYouTubeSyncPlaylists: vi.fn(),
-  saveYouTubeSyncPlaylist: vi.fn(),
-  updateYouTubeSyncPlaylist: vi.fn(),
-  deleteYouTubeSyncPlaylist: vi.fn(),
-  syncSavedYouTubePlaylist: vi.fn(),
-}));
+vi.mock("@/lib/api");
 
 const mockConfig: YouTubeSyncConfig = {
   enabled: true,
