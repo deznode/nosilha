@@ -13,46 +13,10 @@ vi.mock("@/components/ui/image-lightbox", () => ({
 
 // Mock framer-motion to avoid animation complexity in tests
 vi.mock("framer-motion", async () => {
-  const actual =
-    await vi.importActual<typeof import("framer-motion")>("framer-motion");
-  return {
-    ...actual,
-    AnimatePresence: ({ children }: { children: React.ReactNode }) => (
-      <>{children}</>
-    ),
-    motion: {
-      div: ({
-        children,
-        ...props
-      }: React.PropsWithChildren<Record<string, unknown>>) => (
-        <div {...filterMotionProps(props)}>{children}</div>
-      ),
-    },
-    useReducedMotion: () => true,
-  };
+  const { createFramerMotionMock } =
+    await import("../../../setup/framer-motion-mock");
+  return createFramerMotionMock();
 });
-
-// Filter out framer-motion specific props that shouldn't go to DOM
-function filterMotionProps(props: Record<string, unknown>) {
-  const motionKeys = [
-    "variants",
-    "initial",
-    "animate",
-    "exit",
-    "whileHover",
-    "whileTap",
-    "layout",
-    "layoutId",
-    "transition",
-  ];
-  const filtered: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(props)) {
-    if (!motionKeys.includes(key)) {
-      filtered[key] = value;
-    }
-  }
-  return filtered;
-}
 
 const mockPhotos: MediaItem[] = [
   {

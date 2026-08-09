@@ -55,7 +55,6 @@ Copied from `.env.local.example` by `task setup`. Key variables:
 |----------|----------|-------------|
 | `NEXT_PUBLIC_API_URL` | Yes | Backend URL (`http://localhost:8080` for local) |
 | `NEXT_PUBLIC_USE_MOCK_API` | Yes | `true` for mock data, `false` for real backend |
-| `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` | For maps | [Get a token](https://account.mapbox.com/) |
 | `NEXT_PUBLIC_SUPABASE_URL` | For auth | Your Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | For auth | Your Supabase anon key |
 

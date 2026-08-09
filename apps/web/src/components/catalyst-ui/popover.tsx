@@ -97,33 +97,4 @@ export function PopoverGroup({
   );
 }
 
-/**
- * PopoverBackdrop adds a backdrop when popover is open.
- */
-export function PopoverBackdrop({ className }: { className?: string }) {
-  return (
-    <Headless.PopoverBackdrop
-      transition
-      className={clsx(
-        "fixed inset-0 bg-black/20 dark:bg-black/40",
-        "transition duration-100 ease-out data-closed:opacity-0",
-        className
-      )}
-    />
-  );
-}
 
-/**
- * CloseButton closes the popover when clicked.
- */
-export function PopoverClose({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <Headless.CloseButton className={className}>{children}</Headless.CloseButton>
-  );
-}

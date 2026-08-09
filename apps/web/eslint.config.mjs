@@ -48,6 +48,13 @@ const eslintConfig = [
   // Disables conflicting ESLint rules
   eslintConfigPrettier,
   {
+    settings: {
+      react: {
+        version: "19.0",
+      },
+    },
+  },
+  {
     plugins: {
       prettier,
     },

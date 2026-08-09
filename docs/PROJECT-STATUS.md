@@ -1,7 +1,7 @@
 # Project Status
 
-**Last Updated:** 2026-03-21
-**Branch:** develop | **Commits:** 128 (repo re-initialized 2026-03-02 with squashed history)
+**Last Updated:** 2026-07-30
+**Branch:** develop | **Commits:** 172 (repo re-initialized 2026-03-02 with squashed history)
 
 ---
 
@@ -57,13 +57,14 @@
 
 **Source:** `plan/arkhe/specs/` (33 spec directories)
 
-### Complete (31)
+### Complete (32)
 
 | Spec | Title |
 |------|-------|
 | 001 | AI Admin Dashboard |
 | 002 | Admin UI Standardization |
 | 01 | Directory Admin CRUD |
+| 03 | Design System Compliance |
 | 04 | Token Migration Phase 2 |
 | 05 | Form Components |
 | 06 | Button/Tab Consistency |
@@ -99,18 +100,16 @@
 |------|-------|----|
 | — | Design Review Fixes | #92 |
 
-### In Progress (1)
+### In Progress (0)
 
-| Spec | Title | Remaining Work |
-|------|-------|----------------|
-| 03 | Design System Compliance | 38 files use raw color classes (30 excluding catalyst-ui); `bg-white` context review needed |
+None. All 32 specification directories complete.
 
 ---
 
 ## Dependency Chains
 
 ```
-Design System:  04 done -> 03 in progress
+Design System:  04 done -> 03 done
                 05 done + 06 done
 Directory:      01 done -> 08 done
 AI Pipeline:    010 done -> 009 done -> 011 done -> 001 done
@@ -122,7 +121,7 @@ Social Media:   028 done -> 029 done
 Video:          031 done -> 032 done
 ```
 
-No critical blockers. Spec 03 (Design System Compliance) is the only active dependency chain.
+No critical blockers. All dependency chains complete.
 
 ---
 
@@ -221,7 +220,6 @@ No pending production issues.
 
 ## What's Planned
 
-- Spec 03: Design System Compliance — 38 files remaining (30 excluding catalyst-ui)
 - Social media integrations — remaining items from roadmap (newsletters, other platforms)
 - P0 quick wins: fix content tooling bugs, admin role setup (~3 hrs)
 - P1 high impact: language switcher UI, Portuguese translations, admin moderation dashboard, community story submission
@@ -231,10 +229,10 @@ No pending production issues.
 
 ## Recommended Next Actions
 
-1. **Complete Spec 03** (Design System Compliance) — only remaining in-progress spec
-2. **Add backend tests** for auth, engagement, stories modules (reduce critical risk; JaCoCo at 5%)
-3. **Implement RBAC** — `@EnableMethodSecurity` + `@PreAuthorize` on admin controllers (security gap)
-4. **Build language switcher** — unblocks all multilingual content work
+1. **Add backend tests** for auth, engagement, stories modules (reduce critical risk; JaCoCo at 5%)
+2. **Implement RBAC** — `@EnableMethodSecurity` + `@PreAuthorize` on admin controllers (security gap)
+3. **Build language switcher** — unblocks all multilingual content work
+4. **Execute P0 Quick Wins** — fix content tooling bugs, admin role setup (~3 hrs)
 5. **Create PT translations** for existing 5 articles (AI-assisted, ~4-6 hrs)
 6. **Seed more MDX content** — history category (5 planned articles)
 7. **Resolve Issue #86** — tag-based revalidation for FrontendRevalidationService

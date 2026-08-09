@@ -1,3 +1,4 @@
+import { env } from "@/lib/env";
 import { createComponentLogger } from "@/lib/logger";
 
 const log = createComponentLogger("Instagram");
@@ -40,9 +41,11 @@ export async function fetchInstagramPosts(limit = 9): Promise<InstagramPost[]> {
     });
 
     if (!response.ok) {
-      log.warn("Instagram API returned non-OK status", {
-        status: response.status,
-      });
+      // Dev tokens are routinely stale — don't escalate that to a warning.
+      log[env.isDev ? "debug" : "warn"](
+        "Instagram API returned non-OK status",
+        { status: response.status }
+      );
       return [];
     }
 

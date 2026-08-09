@@ -153,7 +153,6 @@ cat apps/web/.env.local
 
 # Required variables:
 # NEXT_PUBLIC_API_URL=http://localhost:8080
-# NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=pk.xxx
 # NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 # NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_xxx
 ```

@@ -56,7 +56,7 @@ function MapMarker({
       </div>
 
       {/* Label (Floating below) */}
-      <div className="text-basalt-900 shadow-subtle rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold tracking-widest uppercase backdrop-blur-md">
+      <div className="text-basalt-900 shadow-subtle bg-canvas/90 rounded-full px-3 py-1 text-[10px] font-bold tracking-widest uppercase backdrop-blur-md">
         {label}
       </div>
     </motion.div>
@@ -199,7 +199,7 @@ export function MapTeaserSection() {
             className="order-1 w-full lg:order-2 lg:w-1/2"
           >
             {/* Map Container */}
-            <div className="group bg-ocean-blue/5 rounded-container shadow-floating relative aspect-square w-full overflow-hidden border-4 border-white md:aspect-[4/3]">
+            <div className="group bg-ocean-blue/5 rounded-container shadow-floating border-surface relative aspect-square w-full overflow-hidden border-4 md:aspect-[4/3]">
               <div className="pointer-events-none absolute inset-0 z-10 bg-stone-900/5 mix-blend-multiply" />
               <Image
                 src="/images/map.jpg"
@@ -213,7 +213,7 @@ export function MapTeaserSection() {
               <MapMarker
                 icon={Anchor}
                 label="Furna"
-                top="0"
+                top="12%"
                 left="65%"
                 colorClass="bg-ocean-blue"
                 delay={0.3}
@@ -242,10 +242,10 @@ export function MapTeaserSection() {
 
               {/* UI Overlay Controls */}
               <div className="absolute right-4 bottom-4 z-20 flex flex-col gap-2 opacity-80">
-                <div className="text-basalt-500 rounded-button shadow-medium flex h-8 w-8 items-center justify-center bg-white/90">
+                <div className="text-basalt-500 rounded-button shadow-medium bg-canvas/90 flex h-8 w-8 items-center justify-center">
                   <Navigation size={16} />
                 </div>
-                <div className="text-basalt-500 rounded-button shadow-medium flex h-8 w-8 items-center justify-center bg-white/90 text-xs font-bold">
+                <div className="text-basalt-500 rounded-button shadow-medium bg-canvas/90 flex h-8 w-8 items-center justify-center text-xs font-bold">
                   3D
                 </div>
               </div>

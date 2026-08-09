@@ -481,11 +481,11 @@
    * - Dark mode: lighter surface on hover (elevation = closer to light source)
    */
   .hover-surface {
-    @apply hover:bg-mist-50 dark:hover:bg-basalt-800/50;
+    @apply dark:hover:bg-basalt-800/50 hover:bg-mist-50;
   }
 
   .hover-surface-strong {
-    @apply hover:bg-mist-200 dark:hover:bg-basalt-800;
+    @apply dark:hover:bg-basalt-800 hover:bg-mist-200;
   }
 
   /* Glassmorphism Utilities */

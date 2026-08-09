@@ -9,3 +9,11 @@
 # - Uniform bucket-level access (no ACLs)
 # - Write access restricted to authenticated backend service account only
 AVD-GCP-0001
+
+# PostCSS: Information disclosure and denial of service via crafted CSS input
+CVE-2026-45623
+# PostCSS: Path Traversal in Previous Source Map Auto-Loading
+GHSA-r28c-9q8g-f849
+
+# sharp inherited vulnerabilities in libvips
+GHSA-f88m-g3jw-g9cj

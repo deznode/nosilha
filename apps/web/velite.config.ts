@@ -1,5 +1,4 @@
 import { defineConfig, defineCollection, s } from "velite";
-import rehypePrettyCode from "rehype-pretty-code";
 
 // Categories for Cape Verdean cultural heritage content
 const categories = [
@@ -139,15 +138,4 @@ export default defineConfig({
     clean: true,
   },
   collections: { pages, stories },
-  mdx: {
-    rehypePlugins: [
-      [
-        rehypePrettyCode,
-        {
-          theme: "github-dark",
-          keepBackground: false,
-        },
-      ],
-    ],
-  },
 });

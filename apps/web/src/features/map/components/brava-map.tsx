@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useCallback, useEffect } from "react";
-import type { MapRef } from "react-map-gl/mapbox";
+import type { MapRef } from "react-map-gl/maplibre";
 import { AnimatePresence } from "framer-motion";
 import { useMapStore, useSelectedLocation } from "@/stores/mapStore";
 import { calculateBearing, MAP_CONFIG } from "../data/constants";

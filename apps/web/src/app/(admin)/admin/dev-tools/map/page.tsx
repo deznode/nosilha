@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { clsx } from "clsx";
+import { MAP_STYLES } from "@/features/map/data/constants";
 
-type MapStyle = "streets" | "satellite" | "outdoors";
+type MapStyle = keyof typeof MAP_STYLES;
 
 interface MapStyleSwitcherProps {
   currentStyle: string;
@@ -11,21 +12,9 @@ interface MapStyleSwitcherProps {
 }
 
 const STYLES: { id: MapStyle; label: string; url: string }[] = [
-  {
-    id: "streets",
-    label: "Streets",
-    url: "mapbox://styles/mapbox/streets-v12",
-  },
-  {
-    id: "outdoors",
-    label: "Outdoors",
-    url: "mapbox://styles/mapbox/outdoors-v12",
-  },
-  {
-    id: "satellite",
-    label: "Satellite",
-    url: "mapbox://styles/mapbox/satellite-streets-v12",
-  },
+  { id: "voyager", label: "Voyager", url: MAP_STYLES.voyager },
+  { id: "positron", label: "Positron", url: MAP_STYLES.positron },
+  { id: "darkMatter", label: "Dark Matter", url: MAP_STYLES.darkMatter },
 ];
 
 export function MapStyleSwitcher({
@@ -105,7 +94,7 @@ export default function TestMapPage() {
       <h1 className="mb-4 text-2xl font-bold">Map Style Switcher Test</h1>
       <div className="relative h-96 w-full rounded-lg border bg-mist-100">
         <MapStyleSwitcher
-          currentStyle="mapbox://styles/mapbox/streets-v12"
+          currentStyle={MAP_STYLES.voyager}
           onStyleChange={(style) => console.log("Style changed:", style)}
         />
       </div>
