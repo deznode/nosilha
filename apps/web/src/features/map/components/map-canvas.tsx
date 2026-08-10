@@ -20,7 +20,8 @@ import {
   type MarkerEvent,
   type ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
-import maplibregl from "maplibre-gl";
+// maplibre-gl v6 is ESM-only and no longer ships a default export
+import * as maplibregl from "maplibre-gl";
 import { BaseMap, useMapClustering } from "../shared";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle, Loader2 } from "lucide-react";
