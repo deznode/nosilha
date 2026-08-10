@@ -6,7 +6,7 @@ import Map, {
   type ViewStateChangeEvent,
 } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
-import type * as maplibregl from "maplibre-gl";
+import type maplibregl from "maplibre-gl";
 import { MAP_CONFIG, MAP_STYLES } from "../data/constants";
 
 export interface BaseMapProps {

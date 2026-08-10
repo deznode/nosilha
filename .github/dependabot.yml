@@ -44,6 +44,19 @@ updates:
       # Unblock when: vitest resolves vite 8.
       - dependency-name: "@vitejs/plugin-react"
         update-types: ["version-update:semver-major"]
+
+      # maplibre-gl 6: ESM-only, and it derives its worker URL from
+      # `import.meta.url` behind a `/^https?:/` guard. Turbopack emits the library
+      # as hashed media assets, so that guard fails, no worker starts, no tiles
+      # load, and /map hangs on the loading overlay in BOTH dev and production.
+      # It fails silently — tsc, ESLint and `next build` all pass, so no CI gate
+      # catches it. Verified against v5: worker + tiles + markers all fine.
+      # Unblock when: the worker can be pointed at a real asset URL (likely
+      # copying maplibre-gl-worker.mjs into public/ + setWorkerUrl), verified by
+      # a manual /map smoke test. setWorkerUrl with a bare package specifier does
+      # NOT work — Turbopack cannot statically resolve it.
+      - dependency-name: maplibre-gl
+        update-types: ["version-update:semver-major"]
     groups:
       dependencies:
         update-types:
