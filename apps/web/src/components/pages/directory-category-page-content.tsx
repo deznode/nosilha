@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import {
+  useState,
+  useMemo,
+  useEffect,
+  useCallback,
+  useRef,
+  useSyncExternalStore,
+} from "react";
 import { motion } from "framer-motion";
 import { Search, Plus } from "lucide-react";
 import { DirectoryCard } from "@/components/directory/directory-card";
@@ -22,6 +29,10 @@ import {
 } from "@/components/directory";
 import { useBookmarksPrefetch } from "@/hooks/queries/use-bookmarks";
 import { Pagination, fromPaginatedResult } from "@/components/ui/pagination";
+
+// `hasMounted` never changes after the first client render, so there is
+// nothing to subscribe to — useSyncExternalStore just needs a stable no-op.
+const subscribeToNothing = () => () => {};
 
 // All available categories for filtering
 const ALL_CATEGORIES: DirectoryCategory[] = [
@@ -93,9 +104,11 @@ export function DirectoryCategoryPageContent({
 
   // Track client-side mount to fix Framer Motion SSR hydration issue
   // Without this, animations get stuck at opacity: 0 on initial page load
-  // This is a valid SSR hydration pattern - see https://react.dev/learn/you-might-not-need-an-effect
-  const [hasMounted, setHasMounted] = useState(false);
-  useEffect(() => setHasMounted(true), []);
+  const hasMounted = useSyncExternalStore(
+    subscribeToNothing,
+    () => true, // client
+    () => false // server / hydration pass
+  );
 
   // Debounce search to avoid rapid URL updates
   const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
@@ -129,9 +142,16 @@ export function DirectoryCategoryPageContent({
     [debouncedSearch, selectedTown, sortBy, pathname, router]
   );
 
-  // Navigate when debounced search changes (reset to page 0)
+  // Navigate when debounced search changes (reset to page 0).
+  // Guarded by its own ref rather than `hasMounted`: this must skip the very
+  // first run on every mount, including client-side navigation where the
+  // component never renders in its pre-hydration state.
+  const skipInitialNavigation = useRef(true);
   useEffect(() => {
-    if (!hasMounted) return;
+    if (skipInitialNavigation.current) {
+      skipInitialNavigation.current = false;
+      return;
+    }
     navigateWithFilters({ page: 0, q: debouncedSearch });
     // Only trigger on debouncedSearch changes after mount
     // eslint-disable-next-line react-hooks/exhaustive-deps

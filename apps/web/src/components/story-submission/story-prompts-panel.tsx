@@ -29,9 +29,14 @@ export function StoryPromptsPanel({
   const generatePromptsMutation = useGeneratePrompts();
   const geminiAvailable = aiAvailability?.available ?? false;
 
-  // Use ref to access latest existingContent without triggering re-fetches
+  // Use ref to access latest existingContent without triggering re-fetches.
+  // Written in an effect, not during render: a render that React discards
+  // (concurrent rendering, Activity restore) must not mutate the ref. Declared
+  // before the fetch effect below so it syncs first on any shared update.
   const existingContentRef = useRef(existingContent);
-  existingContentRef.current = existingContent;
+  useEffect(() => {
+    existingContentRef.current = existingContent;
+  }, [existingContent]);
 
   const fetchPrompts = async () => {
     if (!geminiAvailable) return;
