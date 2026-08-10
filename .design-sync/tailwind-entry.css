@@ -1,0 +1,28 @@
+/*
+ * Tailwind entry for design-sync.
+ *
+ * globals.css is `@import "tailwindcss"` plus the two token tiers — on its own
+ * it contains NO utility classes, because those are generated at build time by
+ * scanning source. Shipping it raw to the design project would give every
+ * preview card the tokens and none of the layout, i.e. unstyled output.
+ *
+ * This entry pulls in globals.css and points the scanner at exactly the trees
+ * whose classes need to exist in the emitted stylesheet: the synced components
+ * and the authored preview files.
+ *
+ * Regenerate (from the repo root) after changing components, globals.css, or
+ * any file under .design-sync/previews/:
+ *
+ *   pnpm --dir apps/web exec tailwindcss \
+ *     -i ../../.design-sync/tailwind-entry.css -o .ds-styles.css --minify
+ *
+ * Output is apps/web/.ds-styles.css (gitignored) — cfg.cssEntry points there.
+ * It must live inside apps/web because the converter bounds cssEntry to the
+ * package directory.
+ */
+
+@import "../apps/web/src/app/globals.css";
+
+@source "../apps/web/src/components";
+@source "../apps/web/src/features";
+@source "../.design-sync/previews";

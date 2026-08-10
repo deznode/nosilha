@@ -1,0 +1,54 @@
+/*
+ * Resolution map for the design-sync converter ONLY — never used by Next or tsc.
+ *
+ * cfg.tsconfig points here; the converter's tsconfigPathsPlugin reads
+ * compilerOptions.paths and resolves them for esbuild.
+ *
+ * Order matters: the plugin returns the FIRST matching rule, so every
+ * exact-match entry must precede the "@/*" wildcard.
+ *
+ * The barrel entries below are not stylistic. The converter's path plugin
+ * probes candidate extensions starting with the empty string and accepts any
+ * path that merely EXISTS — so a directory import like "@/components/ui/toast"
+ * resolves to the directory itself and esbuild fails with
+ * `Cannot read file ...: is a directory`. Naming each barrel's index.ts
+ * explicitly sidesteps that. Every "@/" import in apps/web/src that resolves
+ * to a directory is listed; regenerate the list with the scan in NOTES.md.
+ *
+ * Paths resolve against baseUrl, i.e. the repo root.
+ */
+{
+  "compilerOptions": {
+    "baseUrl": "..",
+    "jsx": "react-jsx",
+    "paths": {
+      "@/lib/supabase-client": [".design-sync/shims/supabase-client.ts"],
+      "@/lib/env": [".design-sync/shims/env.ts"],
+      "next/link": [".design-sync/shims/next-link.tsx"],
+      "next/image": [".design-sync/shims/next-image.tsx"],
+      "next/navigation": [".design-sync/shims/next-navigation.ts"],
+
+      "@/components/admin/dashboard": ["apps/web/src/components/admin/dashboard/index.ts"],
+      "@/components/admin/layout": ["apps/web/src/components/admin/layout/index.ts"],
+      "@/components/admin/queues": ["apps/web/src/components/admin/queues/index.ts"],
+      "@/components/content": ["apps/web/src/components/content/index.ts"],
+      "@/components/content/content-action-toolbar": ["apps/web/src/components/content/content-action-toolbar/index.ts"],
+      "@/components/directory": ["apps/web/src/components/directory/index.ts"],
+      "@/components/gallery": ["apps/web/src/components/gallery/index.ts"],
+      "@/components/landing": ["apps/web/src/components/landing/index.ts"],
+      "@/components/profile": ["apps/web/src/components/profile/index.ts"],
+      "@/components/search": ["apps/web/src/components/search/index.ts"],
+      "@/components/stories": ["apps/web/src/components/stories/index.ts"],
+      "@/components/story-submission": ["apps/web/src/components/story-submission/index.ts"],
+      "@/components/ui/toast": ["apps/web/src/components/ui/toast/index.ts"],
+      "@/features/map": ["apps/web/src/features/map/index.ts"],
+      "@/features/map/shared": ["apps/web/src/features/map/shared/index.ts"],
+      "@/hooks/queries/admin": ["apps/web/src/hooks/queries/admin/index.ts"],
+      "@/lib/animation": ["apps/web/src/lib/animation/index.ts"],
+      "@/lib/content/history": ["apps/web/src/lib/content/history/index.ts"],
+
+      "@/.velite": ["apps/web/.velite"],
+      "@/*": ["apps/web/src/*"]
+    }
+  }
+}

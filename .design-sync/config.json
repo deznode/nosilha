@@ -1,0 +1,124 @@
+{
+  "projectId": "9c97c1f3-7812-4f66-8e27-14b91d0dcc9c",
+  "shape": "package",
+  "pkg": "frontend",
+  "globalName": "NosIlha",
+  "srcDir": "src",
+  "entry": ".design-sync-entry.ts",
+  "tsconfig": "../../.design-sync/tsconfig.sync.json",
+  "cssEntry": ".ds-styles.css",
+  "buildCmd": "./.ds-sync/node_modules/.bin/tailwindcss -i .design-sync/tailwind-entry.css -o apps/web/.ds-styles.css --minify",
+  "extraFonts": [
+    "../../.design-sync/fonts/fonts.css"
+  ],
+  "extraEntries": [
+    "../../.design-sync/shims/preview-provider.tsx"
+  ],
+  "provider": {
+    "component": "DsPreviewProvider"
+  },
+  "guidelinesGlob": [
+    "../../docs/10-product/design-system.md",
+    "../../docs/10-product/theme-palette-brief.md",
+    "../../brand/docs/brand-system-pack.md"
+  ],
+  "overrides": {
+    "DirectoryCard": {
+      "cardMode": "column",
+      "viewport": "900x1180"
+    },
+    "ListViewCard": {
+      "cardMode": "column",
+      "viewport": "900x900"
+    },
+    "FilterToolbar": {
+      "cardMode": "column",
+      "viewport": "1100x760"
+    },
+    "FilterBottomSheet": {
+      "cardMode": "single",
+      "primaryStory": "Open",
+      "viewport": "520x860"
+    },
+    "Card": {
+      "cardMode": "column",
+      "viewport": "900x900"
+    },
+    "MasonryPhotoGrid": {
+      "cardMode": "column",
+      "viewport": "1000x1000"
+    },
+    "TimelineView": {
+      "cardMode": "column",
+      "viewport": "1400x820"
+    },
+    "VideoGrid": {
+      "cardMode": "column",
+      "viewport": "1000x900"
+    },
+    "CompactVideoCard": {
+      "cardMode": "column",
+      "viewport": "1000x700"
+    },
+    "MetadataBadges": {
+      "cardMode": "column",
+      "viewport": "900x600"
+    }
+  },
+  "dtsPropsFor": {
+    "AnimatedButton": "variant?: \"primary\" | \"secondary\" | \"outline\" | \"ghost\"; size?: \"sm\" | \"md\" | \"lg\"; isLoading?: boolean; icon?: React.ReactNode; iconPosition?: \"left\" | \"right\"; children: React.ReactNode; className?: string; disabled?: boolean; type?: \"button\" | \"submit\" | \"reset\"; onClick?: React.MouseEventHandler<HTMLButtonElement>; \"aria-label\"?: string",
+    "MetadataBadges": "metadata: { latitude?: number; longitude?: number; altitude?: number; dateTimeOriginal?: Date; make?: string; model?: string; orientation?: number; width?: number; height?: number; approximateDate?: string; locationName?: string; archiveSource?: string; photoType: \"CULTURAL_SITE\" | \"COMMUNITY_EVENT\" | \"PERSONAL\"; gpsPrivacyLevel: \"FULL\" | \"APPROXIMATE\" | \"STRIPPED\" | \"NONE\"; hasExifData: boolean } | null; showManualPrompt?: boolean"
+  },
+  "componentSrcMap": {
+    "DirectoryCard": "src/components/directory/directory-card.tsx",
+    "ListViewCard": "src/components/directory/list-view-card.tsx",
+    "FilterToolbar": "src/components/directory/filter-toolbar.tsx",
+    "ViewToggle": "src/components/directory/view-toggle.tsx",
+    "BookmarkButton": "src/components/directory/bookmark-button.tsx",
+    "DirectoryCardSkeleton": "src/components/ui/directory-card-skeleton.tsx",
+    "DirectoryGridSkeleton": "src/components/ui/directory-grid-skeleton.tsx",
+    "LoadingSpinner": "src/components/ui/loading-spinner.tsx",
+    "FilterBottomSheet": "src/components/ui/filter-bottom-sheet.tsx",
+    "FilterChip": "src/components/ui/filter-chip.tsx",
+    "Banner": "src/components/ui/banner.tsx",
+    "Toast": "src/components/ui/toast/toast.tsx",
+    "Card": "src/components/ui/card.tsx",
+    "PageHeader": "src/components/ui/page-header.tsx",
+    "CitationSection": "src/components/ui/citation-section.tsx",
+    "ExpandableText": "src/components/ui/expandable-text.tsx",
+    "CreditDisplay": "src/components/ui/credit-display.tsx",
+    "FeatureCard": "src/components/ui/feature-card.tsx",
+    "StarRating": "src/components/ui/start-rating.tsx",
+    "Pagination": "src/components/ui/pagination.tsx",
+    "TabGroup": "src/components/ui/tab-group.tsx",
+    "Tooltip": "src/components/ui/tooltip.tsx",
+    "NosilhaLogo": "src/components/ui/logo.tsx",
+    "Select": "src/components/ui/select.tsx",
+    "Textarea": "src/components/ui/textarea.tsx",
+    "MasonryPhotoGrid": "src/components/gallery/masonry-photo-grid.tsx",
+    "MasonryPhotoGridSkeleton": "src/components/gallery/masonry-photo-grid.tsx",
+    "TimelineView": "src/components/gallery/timeline-view.tsx",
+    "FeaturedPhotoCard": "src/components/gallery/featured-photo-card.tsx",
+    "MetadataBadges": "src/components/gallery/metadata-badges.tsx",
+    "CompactVideoCard": "src/components/gallery/compact-video-card.tsx",
+    "VideoGrid": "src/components/gallery/video-grid.tsx",
+    "LocationCard": "src/features/map/components/location-card.tsx",
+    "LocationDetailCard": "src/features/map/components/location-detail-card.tsx",
+    "LocationBottomSheet": "src/features/map/components/location-bottom-sheet.tsx",
+    "CategoryPill": "src/features/map/components/category-pill.tsx",
+    "MapControls": "src/features/map/components/map-controls.tsx",
+    "MapHeader": "src/features/map/components/map-header.tsx",
+    "AnimatedButton": "src/components/ui/animated-button.tsx",
+    "Avatar": "src/components/ui/avatar.tsx",
+    "ConfirmationDialog": "src/components/ui/confirmation-dialog.tsx",
+    "MobileBottomNav": "src/components/navigation/mobile-bottom-nav.tsx",
+    "Button": "src/components/catalyst-ui/button.tsx",
+    "Badge": "src/components/catalyst-ui/badge.tsx",
+    "Input": "src/components/catalyst-ui/input.tsx",
+    "Checkbox": "src/components/catalyst-ui/checkbox.tsx",
+    "Dialog": "src/components/catalyst-ui/dialog.tsx",
+    "Dropdown": "src/components/catalyst-ui/dropdown.tsx",
+    "Popover": "src/components/catalyst-ui/popover.tsx",
+    "Field": "src/components/catalyst-ui/fieldset.tsx"
+  }
+}

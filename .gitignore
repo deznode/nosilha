@@ -121,3 +121,12 @@ credentials.json
 *.avi
 *.webm
 *.mkv
+
+# design-sync (claude.ai/design import)
+.ds-sync/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules
+apps/web/.ds-styles.css
+apps/web/ds-types/
