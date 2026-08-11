@@ -8,6 +8,7 @@
   "tsconfig": "../../.design-sync/tsconfig.sync.json",
   "cssEntry": ".ds-styles.css",
   "buildCmd": "./.ds-sync/node_modules/.bin/tailwindcss -i .design-sync/tailwind-entry.css -o apps/web/.ds-styles.css --minify",
+  "readmeHeader": ".design-sync/conventions.md",
   "extraFonts": [
     "../../.design-sync/fonts/fonts.css"
   ],

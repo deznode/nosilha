@@ -179,7 +179,28 @@ best composition source in the repo; port from them before inventing.
 
 ## Known render warns
 
-_(none yet — populate as the authoring loop settles)_
+All six are triaged benign. `package-validate.mjs` screenshots the whole card at
+its default ~1180px canvas, so a small or narrow component legitimately produces
+a sub-5KB PNG. Re-check only if the list changes.
+
+- `[RENDER_BLANK] FilterBottomSheet` — **authored and graded good.** The card is
+  `cardMode: single, viewport: 520x860`; validate shoots it at 1180 wide, where
+  the 520px fixed panel covers a small fraction of the canvas. The per-story
+  capture (`_screenshots/review/general__FilterBottomSheet.png`) shows the scrim,
+  drag handle, both chip groups and the Clear All / Show results footer rendering
+  correctly. Confirmed again 2026-08-10 via
+  `package-capture.mjs --components FilterBottomSheet --spot-check-components FilterBottomSheet`.
+- `[RENDER_BLANK] Badge`, `Checkbox`, `BookmarkButton` — unauthored, rendering
+  the real component with `.d.ts`-derived crash-prevention props. All three are
+  genuinely tiny (a badge, a checkbox, an icon button), so the PNG lands at
+  4.6–5.0KB against a 5KB threshold. Not broken — just small and unauthored.
+- `[RENDER_THIN] FeatureCard` — unauthored; auto props supply no children, so the
+  only mounted text is the component name.
+- `[RENDER_THIN] StarRating` — unauthored; auto props give it no rating value, so
+  it paints nothing.
+
+The five unauthored ones clear the moment someone authors their preview; they are
+in the deliberately-deferred set below, not defects.
 
 ## Re-sync risks
 
@@ -199,8 +220,66 @@ _(none yet — populate as the authoring loop settles)_
 - Tailwind is pinned to 4.3.3 in `.ds-sync` to match `apps/web`. If the app
   upgrades Tailwind, bump it there too or the compiled CSS may diverge from
   what the app actually renders.
+- **The shipped stylesheet is a closed set.** Tailwind compiles only the classes
+  the scanned sources actually use, so plausible-looking names simply don't exist
+  (`text-ocean-blue-deep`, `border-ocean-blue-light`, `text-mist-50`,
+  `dark:bg-card` are all absent today) and fail silently as unstyled elements.
+  This is documented for the design agent in `conventions.md`; if a component is
+  added that needs a new utility, it appears only after the Tailwind rebuild.
+- `conventions.md` enumerates real class names. When components change, re-run
+  the validation pass (grep each name against `ds-bundle/_ds_bundle.css` and the
+  `components/<group>/<Name>/` tree) before trusting it — a header naming classes
+  that no longer exist is worse than no header.
 
-## Progress (first sync, 2026-08-10)
+## Token extraction is app-side — do not chase it locally (2026-08-10)
+
+A validation report flagged "337 custom properties leaking into the token layer"
+and "47 unclassifiable tokens", asking for the extraction rule to be fixed at the
+source. **There is no extraction rule in this repo.** Findings, so a future run
+doesn't re-investigate:
+
+- The converter has no token classification whatsoever — `@kind` appears nowhere
+  in the design-sync skill. `tokens`, `themes` and `kind` are produced by the
+  claude.ai/design self-check and land in the app-generated `_ds_manifest.json`.
+- `lib/css.mjs` documents this as a known, accepted trade-off: the app's scope
+  filter is deliberately permissive (`:root`, single lowercase class selectors,
+  data-attr selectors all register as token scopes) because that is the price of
+  component CSS actually reaching rendered designs.
+- Measured from `_ds_bundle.css`: 667 extracted tokens = **308 real theme tokens**
+  (`:root`) + 30 (`.dark`) + 68 unique `--tw-*` from Tailwind's
+  `*,:before,:after,::backdrop` universal-defaults block + ~259 `--tw-*` declared
+  inside individual utility rules. The 178 "themes" are utility classes
+  (`.translate-x-full`, `.glass-panel`) the app read as theme variants.
+- **The `--tw-*` vars are load-bearing.** `.scale-75{--tw-scale-x:75%…}` — strip
+  them and every transform, gradient, ring, shadow and backdrop utility breaks.
+  There is no local edit that removes them without breaking rendering.
+- The "27 unclassifiable names, all Tailwind internals" claim is wrong: 13 are
+  **real Nos Ilha tokens** — `--ease-calm`, `--animate-fog-flow`, `--animate-glow`,
+  `--animate-ping/pulse/spin`, `--aspect-video`, `--default-transition-*`,
+  `--ease-in/out/in-out`. They get `kind: "other"` because the app classifies only
+  color/spacing/font/shadow/radius. That is already correct behaviour, not a bug.
+
+If the token list matters, the fix belongs in the app's extractor (exclude
+`--tw-*`; only treat `:root`/`.dark`/`[data-*]` as token scopes). Nothing to
+change here. Do **not** hand-annotate `_ds_bundle.css` — it is generated and any
+edit is destroyed on the next build.
+
+## Progress (re-sync, 2026-08-10)
+
+All **50 of 50** components are now uploaded (the first sync had pushed only the
+16 authored ones). The project also now carries `_ds_sync.json` — the prior run
+died before writing the anchor, leaving the project un-anchored, which is why
+this re-sync re-verified everything from scratch.
+
+`.design-sync/conventions.md` was authored this run and wired via
+`cfg.readmeHeader`. Every class, token and component name in it was verified
+against the built artifacts. Re-validate it on each re-sync rather than rewriting.
+
+The project contains two files this build does not produce —
+`Rebrand Directions.html` and `uploads/theme-palette-brief.md`. They are the
+user's own; **never** put them in an upload plan's `deletes`.
+
+### Earlier progress (first sync, 2026-08-10)
 
 Verified, graded `good`, and uploaded — 16 of 50:
 
