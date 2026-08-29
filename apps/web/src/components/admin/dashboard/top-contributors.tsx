@@ -69,7 +69,7 @@ export function TopContributors({
                 <p className="text-muted text-xs">{user.role}</p>
               </div>
             </div>
-            <span className="text-valley-green rounded-full bg-green-50 px-2 py-1 text-xs font-bold dark:bg-green-900/20">
+            <span className="text-valley-green bg-status-success-surface rounded-full px-2 py-1 text-xs font-bold">
               {user.points} pts
             </span>
           </li>

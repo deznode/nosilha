@@ -51,13 +51,12 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 const STATUS_BADGE_CLASSES: Record<string, string> = {
   [SubmissionStatus.PENDING]:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
+    "bg-status-warning-surface text-status-warning-ink",
   [SubmissionStatus.APPROVED]:
-    "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-  [SubmissionStatus.REJECTED]:
-    "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+    "bg-status-success-surface text-status-success-ink",
+  [SubmissionStatus.REJECTED]: "bg-status-error-surface text-status-error-ink",
   [SubmissionStatus.FLAGGED]:
-    "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
+    "bg-status-flagged-surface text-status-flagged-ink",
   [SubmissionStatus.ARCHIVED]: "bg-surface-alt text-muted",
 };
 
@@ -398,7 +397,7 @@ export function DirectoryQueue() {
                         outline
                         onClick={() => handleDelete(submission)}
                         title="Delete permanently"
-                        className="text-red-600 hover:text-red-700 dark:text-red-400"
+                        className="text-status-error-ink hover:opacity-80"
                       >
                         <Trash2 data-slot="icon" />
                         Delete

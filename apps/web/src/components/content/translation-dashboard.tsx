@@ -29,11 +29,10 @@ interface TranslationStatusBadgeProps {
 
 function TranslationStatusBadge({ status }: TranslationStatusBadgeProps) {
   const styles = {
-    current:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+    current: "bg-status-success-surface text-status-success-ink",
     outdated:
       "bg-sobrado-ochre/20 text-sobrado-ochre dark:bg-sobrado-ochre/10 dark:text-sobrado-ochre",
-    missing: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+    missing: "bg-status-error-surface text-status-error-ink",
   };
 
   const labels = {

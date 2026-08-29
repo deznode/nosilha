@@ -59,7 +59,7 @@ export function FlagReasonModal({
             {/* Header */}
             <div className="border-hairline flex items-center justify-between border-b px-6 py-4">
               <div className="flex items-center gap-2">
-                <Flag className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                <Flag className="text-status-flagged-ink h-5 w-5" />
                 <DialogTitle className="text-body text-lg font-semibold">
                   Flag {itemType}
                 </DialogTitle>
@@ -86,7 +86,7 @@ export function FlagReasonModal({
                   htmlFor="flag-reason"
                   className="text-body mb-2 block text-sm font-medium"
                 >
-                  Reason <span className="text-red-500">*</span>
+                  Reason <span className="text-status-error">*</span>
                 </label>
                 <textarea
                   id="flag-reason"
@@ -94,7 +94,7 @@ export function FlagReasonModal({
                   onChange={(e) => setReason(e.target.value)}
                   rows={4}
                   placeholder="e.g., Needs verification, Quality concern, Inappropriate content..."
-                  className="border-hairline bg-surface text-body placeholder-muted block w-full rounded-md border px-3 py-2 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500 focus:outline-none"
+                  className="border-hairline bg-surface text-body placeholder-muted focus:border-status-flagged focus:ring-status-flagged block w-full rounded-md border px-3 py-2 text-sm focus:ring-1 focus:outline-none"
                   required
                 />
                 <p className="text-muted mt-1 text-xs">

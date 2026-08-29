@@ -51,15 +51,14 @@ function StatusBadge({ status }: { status: SubmissionStatus }) {
   const styles: Record<SubmissionStatus, string> = {
     [SubmissionStatus.DRAFT]: "bg-surface-alt text-body",
     [SubmissionStatus.PENDING]:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
+      "bg-status-warning-surface text-status-warning-ink",
     [SubmissionStatus.APPROVED]:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
+      "bg-status-success-surface text-status-success-ink",
     [SubmissionStatus.REJECTED]:
-      "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
+      "bg-status-error-surface text-status-error-ink",
     [SubmissionStatus.FLAGGED]:
-      "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
-    [SubmissionStatus.PUBLISHED]:
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+      "bg-status-flagged-surface text-status-flagged-ink",
+    [SubmissionStatus.PUBLISHED]: "bg-status-info-surface text-status-info-ink",
     [SubmissionStatus.ARCHIVED]: "bg-surface-alt text-muted",
   };
 

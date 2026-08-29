@@ -59,7 +59,7 @@ export const Textarea = forwardRef(function Textarea(
           // Hide default focus styles
           "focus:outline-hidden",
           // Invalid state
-          "data-invalid:border-red-500 data-invalid:data-hover:border-red-500 dark:data-invalid:border-red-500 dark:data-invalid:data-hover:border-red-500",
+          "data-invalid:border-status-error data-invalid:data-hover:border-status-error",
           // Disabled state
           "data-disabled:border-basalt-900/20 dark:data-disabled:border-white/15 dark:data-disabled:bg-white/2.5 dark:data-hover:data-disabled:border-white/15",
           // Resize behavior

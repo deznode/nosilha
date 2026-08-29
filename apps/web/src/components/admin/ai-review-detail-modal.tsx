@@ -198,7 +198,7 @@ export function AiReviewDetailModal({
                     {detail.providersUsed.map((provider) => (
                       <span
                         key={provider}
-                        className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                        className="bg-status-info-surface text-status-info-ink inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium"
                       >
                         {provider}
                       </span>

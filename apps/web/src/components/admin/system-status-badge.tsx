@@ -52,23 +52,23 @@ function StatusBadge({ icon, label, status }: StatusBadgeProps) {
   // Determine status indicator color and accessibility label
   const statusConfig = {
     connected: {
-      dotColor: "bg-green-500",
+      dotColor: "bg-status-success",
       textColor: "text-body",
       ariaLabel: `${label} connected`,
     },
     active: {
-      dotColor: "bg-green-500",
+      dotColor: "bg-status-success",
       textColor: "text-body",
       ariaLabel: `${label} active`,
     },
     disconnected: {
-      dotColor: "bg-red-500",
-      textColor: "text-red-700 dark:text-red-400",
+      dotColor: "bg-status-error",
+      textColor: "text-status-error-ink",
       ariaLabel: `${label} disconnected`,
     },
     inactive: {
-      dotColor: "bg-red-500",
-      textColor: "text-red-700 dark:text-red-400",
+      dotColor: "bg-status-error",
+      textColor: "text-status-error-ink",
       ariaLabel: `${label} inactive`,
     },
     unknown: {

@@ -80,7 +80,7 @@ export function Select({
             // Border
             "data-hover:border-basalt-900/20 border dark:data-hover:border-white/20",
             invalid
-              ? "border-red-500 data-hover:border-red-500 dark:border-red-500 dark:data-hover:border-red-500"
+              ? "border-status-error data-hover:border-status-error"
               : "border-basalt-900/10 dark:border-white/10",
             // Background color
             "dark:bg-background-primary/5 bg-transparent",

@@ -34,16 +34,16 @@ function getStatusStyles(status: string) {
     case "APPROVED":
     case "PUBLISHED":
       return {
-        bg: "bg-green-100 dark:bg-green-900/30",
+        bg: "bg-status-success-surface",
         text: "text-valley-green",
-        badge: "bg-green-100 text-valley-green dark:bg-green-900/30",
+        badge: "bg-status-success-surface text-valley-green",
       };
     case "PENDING":
     case "UNDER_REVIEW":
       return {
-        bg: "bg-yellow-100 dark:bg-yellow-900/30",
+        bg: "bg-status-warning-surface",
         text: "text-sobrado-ochre",
-        badge: "bg-yellow-100 text-sobrado-ochre dark:bg-yellow-900/30",
+        badge: "bg-status-warning-surface text-sobrado-ochre",
       };
     case "REJECTED":
       return {
