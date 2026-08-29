@@ -1,11 +1,11 @@
 import org.springframework.boot.gradle.tasks.bundling.BootBuildImage
 
 plugins {
-    kotlin("jvm") version "2.4.0"
-    kotlin("plugin.spring") version "2.4.0"
-    id("org.springframework.boot") version "4.1.0"
+    kotlin("jvm") version "2.4.10"
+    kotlin("plugin.spring") version "2.4.10"
+    id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("plugin.jpa") version "2.4.0"
+    kotlin("plugin.jpa") version "2.4.10"
     jacoco
     // TODO: by JC, 12/26/25 - Re-enable detekt when compatible version is released
     // Issue: detekt 2.0.0-alpha.1 compiled with Kotlin 2.2.20, but we need Kotlin 2.3.0 for Java 25 JVM target
@@ -43,7 +43,7 @@ dependencyManagement {
         mavenBom("org.testcontainers:testcontainers-bom:${property("testcontainersVersion")}")
         mavenBom("org.springframework.ai:spring-ai-bom:${property("springAiVersion")}")
         // Override Jackson 2.x to fix CVE in async parser DoS (transitive via AWS SDK)
-        mavenBom("com.fasterxml.jackson:jackson-bom:2.22.1")
+        mavenBom("com.fasterxml.jackson:jackson-bom:2.22.2")
     }
 }
 
@@ -57,7 +57,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:${property("springdocOpenApiVersion")}")
-    implementation("tools.jackson.module:jackson-module-kotlin:3.2.1")
+    implementation("tools.jackson.module:jackson-module-kotlin:3.2.2")
     implementation("io.github.oshai:kotlin-logging-jvm:${property("kotlinLogging")}")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("org.flywaydb:flyway-database-postgresql")
@@ -67,7 +67,7 @@ dependencies {
     runtimeOnly("org.postgresql:postgresql")
 
     // Cloudflare R2 (S3-compatible) integration
-    implementation(platform("software.amazon.awssdk:bom:2.47.5"))
+    implementation(platform("software.amazon.awssdk:bom:2.54.4"))
     implementation("software.amazon.awssdk:s3")
 
     // OWASP HTML Sanitizer for XSS prevention
@@ -84,7 +84,7 @@ dependencies {
     implementation("com.bucket4j:bucket4j_jdk17-core:8.19.0")
 
     // Google Cloud Vision SDK for image analysis (labels, OCR, landmarks)
-    implementation("com.google.cloud:google-cloud-vision:3.92.0")
+    implementation("com.google.cloud:google-cloud-vision:3.94.0")
 
     // Spring AI for Gemini cultural context generation (native structured output)
     implementation("org.springframework.ai:spring-ai-starter-model-google-genai")
