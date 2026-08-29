@@ -11,7 +11,6 @@ import {
   Menu,
   X,
   Film,
-  FileText,
   User,
   LogIn,
   Globe,
@@ -66,10 +65,7 @@ const navItems: NavItem[] = [
 ];
 
 /** Additional items shown in the "More" menu */
-const moreMenuItems = [
-  { label: "Stories", href: "/stories", icon: FileText },
-  { label: "Media", href: "/gallery", icon: Film },
-];
+const moreMenuItems = [{ label: "Media", href: "/gallery", icon: Film }];
 
 const languages = [
   { code: "EN", label: "English", flag: "🇺🇸", disabled: false },
@@ -80,7 +76,6 @@ const languages = [
 /** Routes where bottom nav should be hidden (detail pages) */
 const HIDDEN_ROUTES = [
   /^\/directory\/[^/]+\/[^/]+$/, // /directory/[category]/[slug]
-  /^\/stories\/[^/]+$/, // /stories/[slug]
   /^\/people\/[^/]+$/, // /people/[slug]
 ];
 

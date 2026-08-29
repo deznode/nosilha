@@ -71,7 +71,6 @@ const navigation: NavItem[] = [
     ],
   },
   { name: "Directory", href: "/directory" },
-  { name: "Stories", href: "/stories" },
   { name: "Media", href: "/gallery" },
   { name: "Map", href: "/map" },
 ];

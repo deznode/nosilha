@@ -200,7 +200,7 @@ function HeroContent() {
           >
             <UnifiedSearch
               variant="hero"
-              placeholder="Search stories, people, villages, or landmarks…"
+              placeholder="Search places, people, villages, or landmarks…"
               onFocusChange={setSearchFocused}
               onSearchSubmit={(query) =>
                 router.push(`/directory?q=${encodeURIComponent(query)}`)
