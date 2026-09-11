@@ -63,7 +63,7 @@
     "react-syntax-highlighter": "^16.1.1",
     "recharts": "^3.10.1",
     "resend": "^6.18.1",
-    "sharp": "^0.35.3",
+    "sharp": "^0.35.4",
     "supercluster": "^8.0.1",
     "use-supercluster": "^1.2.0",
     "velite": "^0.4.0",
