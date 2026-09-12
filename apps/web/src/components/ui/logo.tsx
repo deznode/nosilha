@@ -15,8 +15,11 @@ export function StaticHibiscus({ className }: { className?: string }) {
       className={className}
       aria-hidden="true"
     >
-      {/* Outer Petals — uses bougainvillea-pink via currentColor */}
-      <g className="text-bougainvillea-pink" fill="currentColor" opacity={0.9}>
+      {/* Outer Petals. Literal fill, not a token: the mark is artwork, not a themed
+          surface, so it stays inert to palette changes. These values match
+          BloomingHibiscus, which StaticHibiscus never actually did -- the token resolved
+          to #ae1173 while the gradient starts at #E91E63. Spec 033 FR-014. */}
+      <g fill="#E91E63" opacity={0.9}>
         {[0, 72, 144, 216, 288].map((rotation, i) => (
           <path
             key={i}
@@ -26,8 +29,8 @@ export function StaticHibiscus({ className }: { className?: string }) {
         ))}
       </g>
 
-      {/* Inner Petals — lighter pink */}
-      <g className="text-bougainvillea-pink" fill="currentColor" opacity={0.5}>
+      {/* Inner Petals — lighter pink, matching BloomingHibiscus's inner fill. */}
+      <g fill="#FF80AB">
         {[36, 108, 180, 252, 324].map((rotation, i) => (
           <path
             key={i}
@@ -38,28 +41,15 @@ export function StaticHibiscus({ className }: { className?: string }) {
       </g>
 
       {/* Center Pistil */}
-      <circle
-        cx="50"
-        cy="50"
-        r="6"
-        className="text-sunny-yellow"
-        fill="currentColor"
-      />
+      <circle cx="50" cy="50" r="6" fill="#FFD740" />
       {/* Pistil Stamen */}
       <path
         d="M50 50 L65 35"
-        className="text-sunny-yellow"
-        stroke="currentColor"
+        stroke="#FFD740"
         strokeWidth="2"
         strokeLinecap="round"
       />
-      <circle
-        cx="65"
-        cy="35"
-        r="2"
-        className="text-sunny-yellow"
-        fill="currentColor"
-      />
+      <circle cx="65" cy="35" r="2" fill="#FFD740" />
     </svg>
   );
 }
@@ -299,9 +289,9 @@ export function NosilhaLogo({
     >
       {/* Icon */}
       <div className={clsx("relative shrink-0", iconSize)}>
-        {size !== "compact" && (
-          <div className="bg-bougainvillea-pink/10 pointer-events-none absolute inset-0 scale-75 animate-pulse rounded-full blur-xl" />
-        )}
+        {/* The pulsing halo is gone. It was the one token BloomingHibiscus's container
+            touched, so under Slate it painted an ochre glow behind a magenta flower; and
+            the pulse argued the opposite of what the archive is saying. Spec 033 FR-014. */}
         <BloomingHibiscus
           className="relative z-10 h-full w-full drop-shadow-lg"
           instanceId={instanceId}

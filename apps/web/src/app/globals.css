@@ -14,29 +14,30 @@
 
 :root {
   /* @brand-tokens:start */
-  /* AUTO-GENERATED from palette.json v2.1.0 */
-  /* Updated: 2026-09-11 */
+  /* AUTO-GENERATED from palette.json v3.0.0 */
+  /* Updated: 2026-09-12 */
 
   /* === BRAND PALETTE (The Brava Tones) in OKLCH === */
   /* Primary Brand */
-  --brand-ocean-blue: oklch(0.35 0.08 240);
-  --brand-ocean-blue-light: oklch(0.48 0.08 220);
-  --brand-ocean-blue-deep: oklch(0.35 0.08 240);
-  --brand-valley-green: oklch(0.45 0.1 150);
-  --brand-bougainvillea-pink: oklch(0.5 0.2 350);
-  --brand-sobrado-ochre: oklch(0.62 0.18 65);
-  --brand-sunny-yellow: oklch(0.82 0.16 85);
+  --brand-ocean-blue: oklch(0.455 0.054 245.4);
+  --brand-primary-fill: oklch(0.455 0.054 245.4);
+  --brand-ocean-blue-light: oklch(0.742 0.053 243.2);
+  --brand-ocean-blue-deep: oklch(0.369 0.047 245.9);
+  --brand-valley-green: oklch(0.511 0.04 170.7);
+  --brand-bougainvillea-pink: oklch(0.53 0.057 65.1);
+  --brand-sobrado-ochre: oklch(0.53 0.057 65.1);
+  --brand-sunny-yellow: oklch(0.584 0.063 89.9);
 
   /* Mist & Basalt (Neutrals) in OKLCH */
-  --neutral-mist-50: oklch(0.98 0.005 250);
-  --neutral-mist-100: oklch(0.96 0.007 250);
-  --neutral-mist-200: oklch(0.92 0.01 250);
-  --neutral-basalt-500: oklch(0.55 0.03 260);
+  --neutral-mist-50: oklch(0.975 0.003 247.9);
+  --neutral-mist-100: oklch(0.947 0.007 247.9);
+  --neutral-mist-200: oklch(0.913 0.009 242.8);
+  --neutral-basalt-500: oklch(0.67 0.018 242.6);
   --neutral-basalt-600: oklch(
-    0.45 0.03 260
+    0.515 0.018 242
   ); /* WCAG AA compliant for muted text */
-  --neutral-basalt-800: oklch(0.28 0.03 260);
-  --neutral-basalt-900: oklch(0.2 0.03 260);
+  --neutral-basalt-800: oklch(0.316 0.017 244.8);
+  --neutral-basalt-900: oklch(0.244 0.014 248.4);
 
   /* Status Colors in OKLCH */
   --status-error: oklch(0.63 0.22 15);
@@ -63,8 +64,24 @@
   --border-strong: var(--neutral-basalt-500);
 
   /* shadcn/ui Compatible Semantic Tokens */
-  --primary: var(--brand-ocean-blue);
+  /* Deliberately NOT --brand-ocean-blue. --primary is a filled-surface token that
+     carries white text (AnimatedButton and Catalyst hardcode it), so it must stay dark
+     enough to pass AA. --brand-ocean-blue is correct for links, accents and text on
+     dark, where it must stay light -- the two roles pull in opposite directions in dark
+     mode, which is why they are separate tokens. Spec 033 FR-014.
+     This block sits outside the sync-brand-tokens.mjs markers, so `pnpm sync:brand`
+     will not revert it -- but a hand edit could. Do not repoint without re-measuring. */
+  --primary: var(--brand-primary-fill);
   --primary-foreground: oklch(1 0 0);
+
+  /* Filled-surface green, for the same reason --primary exists. AnimatedButton's
+     `secondary` variant hardcodes white text on --brand-valley-green, and the Slate dark
+     value (#7FA894) measures 2.65:1 against white -- the same failure class as the
+     #8FB0CB the handoff rejected at 2.27:1, which it caught for `primary` and missed
+     here. #4F6E63 measures 5.61:1 on white and 3.27:1 against the dark canvas, matching
+     --brand-primary-fill's own 5.60/3.28 trade-off. Same value in both themes. */
+  --secondary-fill: oklch(0.511 0.04 170.7);
+
   --secondary: var(--neutral-mist-100);
   --secondary-foreground: var(--neutral-basalt-900);
   --destructive: var(--status-error);
@@ -97,11 +114,12 @@
 .dark {
   /* @brand-tokens-dark:start */
   /* Brand Adjustments for Dark Mode (Lighter for contrast) */
-  --brand-ocean-blue: oklch(0.78 0.14 234);
-  --brand-ocean-blue-light: oklch(0.83 0.13 234);
-  --brand-ocean-blue-deep: oklch(0.3 0.07 240);
-  --brand-valley-green: oklch(0.65 0.12 160);
-  --brand-bougainvillea-pink: oklch(0.72 0.18 348);
+  --brand-ocean-blue: oklch(0.742 0.053 243.2);
+  --brand-primary-fill: oklch(0.514 0.06 245.8);
+  --brand-ocean-blue-light: oklch(0.83 0.037 241.9);
+  --brand-ocean-blue-deep: oklch(0.369 0.047 245.9);
+  --brand-valley-green: oklch(0.696 0.053 163.5);
+  --brand-bougainvillea-pink: oklch(0.721 0.076 64.1);
   --status-error: oklch(0.72 0.19 15);
   --status-success: oklch(0.76 0.15 165);
   --status-warning: oklch(0.83 0.16 70);
@@ -124,8 +142,15 @@
   --border-strong: oklch(0.42 0.025 260);
 
   /* shadcn/ui Semantic Tokens - Dark */
-  --primary: var(--brand-ocean-blue);
-  --primary-foreground: oklch(0.15 0.02 260);
+  /* #4A6B88 measures 5.60:1 against white text and 3.28:1 against the dark canvas.
+     The obvious alternative, --brand-ocean-blue dark (#8FB0CB), measures 2.27:1 and
+     fails AA; reusing light's #3D5A73 fails differently at 2.54:1. Measured, not
+     eyeballed. */
+  --primary: var(--brand-primary-fill);
+  /* Light in both themes: the fill carries white text, not dark. */
+  --primary-foreground: oklch(1 0 0);
+  /* Deliberately identical to light -- see the note in :root. */
+  --secondary-fill: oklch(0.511 0.04 170.7);
   --secondary: oklch(0.22 0.025 260);
   --secondary-foreground: oklch(0.96 0.007 250);
   --destructive: oklch(0.55 0.2 15);
@@ -139,7 +164,7 @@
   --popover: oklch(0.18 0.02 260);
   --popover-foreground: oklch(0.96 0.007 250);
   --input: oklch(0.3 0.025 260);
-  --ring: oklch(0.78 0.14 234);
+  --ring: var(--brand-ocean-blue);
 
   /* Focus Ring */
   --focus-glow: oklch(0.78 0.14 234 / 0.2);
@@ -295,6 +320,7 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-secondary-fill: var(--secondary-fill);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-destructive: var(--destructive);
