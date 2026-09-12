@@ -21,6 +21,7 @@ import {
 import clsx from "clsx";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { languages } from "@/components/navigation/nav-config";
 
 interface NavItem {
   label: string;
@@ -66,12 +67,6 @@ const navItems: NavItem[] = [
 
 /** Additional items shown in the "More" menu */
 const moreMenuItems = [{ label: "Media", href: "/gallery", icon: Film }];
-
-const languages = [
-  { code: "EN", label: "English", flag: "🇺🇸", disabled: false },
-  { code: "PT", label: "Português", flag: "🇵🇹", disabled: true },
-  { code: "CV", label: "Kriolu", flag: "🇨🇻", disabled: true },
-];
 
 /** Routes where bottom nav should be hidden (detail pages) */
 const HIDDEN_ROUTES = [
