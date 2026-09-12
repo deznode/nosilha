@@ -215,7 +215,7 @@ export function OrphansTab() {
                       {formatBytes(orphan.size)} &middot;{" "}
                       {formatDate(orphan.lastModified)}
                     </p>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                    <span className="bg-status-warning-surface text-status-warning-ink inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
                       <Unlink size={10} /> Unlinked
                     </span>
                   </div>

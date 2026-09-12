@@ -48,43 +48,44 @@ interface StatusBadgeProps {
   status: SystemStatus["database"] | SystemStatus["mdxEngine"];
 }
 
-function StatusBadge({ icon, label, status }: StatusBadgeProps) {
-  // Determine status indicator color and accessibility label
-  const statusConfig = {
-    connected: {
-      dotColor: "bg-status-success",
-      textColor: "text-body",
-      ariaLabel: `${label} connected`,
-    },
-    active: {
-      dotColor: "bg-status-success",
-      textColor: "text-body",
-      ariaLabel: `${label} active`,
-    },
-    disconnected: {
-      dotColor: "bg-status-error",
-      textColor: "text-status-error-ink",
-      ariaLabel: `${label} disconnected`,
-    },
-    inactive: {
-      dotColor: "bg-status-error",
-      textColor: "text-status-error-ink",
-      ariaLabel: `${label} inactive`,
-    },
-    unknown: {
-      dotColor: "bg-basalt-500",
-      textColor: "text-muted",
-      ariaLabel: `${label} status unknown`,
-    },
-  };
+/** Dot colour, text colour and the phrase appended to the label for aria. */
+const STATUS_CONFIG = {
+  connected: {
+    dotColor: "bg-status-success",
+    textColor: "text-body",
+    state: "connected",
+  },
+  active: {
+    dotColor: "bg-status-success",
+    textColor: "text-body",
+    state: "active",
+  },
+  disconnected: {
+    dotColor: "bg-status-error",
+    textColor: "text-status-error-ink",
+    state: "disconnected",
+  },
+  inactive: {
+    dotColor: "bg-status-error",
+    textColor: "text-status-error-ink",
+    state: "inactive",
+  },
+  unknown: {
+    dotColor: "bg-basalt-500",
+    textColor: "text-muted",
+    state: "status unknown",
+  },
+};
 
-  const config = statusConfig[status] ?? statusConfig.unknown;
+function StatusBadge({ icon, label, status }: StatusBadgeProps) {
+  const config = STATUS_CONFIG[status] ?? STATUS_CONFIG.unknown;
+  const ariaLabel = `${label} ${config.state}`;
 
   return (
     <div
       className="flex items-center gap-1.5"
       role="status"
-      aria-label={config.ariaLabel}
+      aria-label={ariaLabel}
     >
       {/* Status dot indicator */}
       <div className="relative flex h-2 w-2 items-center justify-center">

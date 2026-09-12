@@ -212,7 +212,7 @@ export function MessagesQueue() {
                     <Button
                       outline
                       onClick={() => handleDelete(message.id)}
-                      className="text-status-error-ink hover:opacity-80"
+                      className="text-status-error-ink hover:bg-status-error-surface"
                     >
                       <Trash2 data-slot="icon" />
                       Delete

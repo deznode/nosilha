@@ -18,23 +18,21 @@ interface MediaQueueItemProps {
   onPreview?: () => void;
 }
 
+const MEDIA_STATUS_BADGE: Record<MediaStatus, string> = {
+  PENDING: "bg-surface-alt text-body",
+  PROCESSING: "bg-status-info-surface text-status-info-ink",
+  PENDING_REVIEW: "bg-status-warning-surface text-status-warning-ink",
+  FLAGGED: "bg-status-flagged-surface text-status-flagged-ink",
+  AVAILABLE: "bg-status-success-surface text-status-success-ink",
+  DELETED: "bg-status-error-surface text-status-error-ink",
+};
+
 function StatusBadge({ status }: { status: MediaStatus }) {
-  const styles: Record<MediaStatus, string> = {
-    PENDING: "bg-surface-alt text-body",
-    PROCESSING: "bg-status-info-surface text-status-info-ink",
-    PENDING_REVIEW: "bg-status-warning-surface text-status-warning-ink",
-    FLAGGED: "bg-status-flagged-surface text-status-flagged-ink",
-    AVAILABLE: "bg-status-success-surface text-status-success-ink",
-    DELETED: "bg-status-error-surface text-status-error-ink",
-  };
-
-  const displayText = status.replace(/_/g, " ");
-
   return (
     <span
-      className={`inline-flex rounded-full px-2 text-xs leading-5 font-semibold ${styles[status]}`}
+      className={`inline-flex rounded-full px-2 text-xs leading-5 font-semibold ${MEDIA_STATUS_BADGE[status]}`}
     >
-      {displayText}
+      {status.replace(/_/g, " ")}
     </span>
   );
 }

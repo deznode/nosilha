@@ -15,7 +15,7 @@
 :root {
   /* @brand-tokens:start */
   /* AUTO-GENERATED from palette.json v2.1.0 */
-  /* Updated: 2026-08-29 */
+  /* Updated: 2026-09-11 */
 
   /* === BRAND PALETTE (The Brava Tones) in OKLCH === */
   /* Primary Brand */
@@ -83,87 +83,14 @@
   /* Focus Ring */
   --focus-glow: oklch(0.35 0.08 240 / 0.15);
 
-  /* Status Surfaces (derived — see @theme inline for utilities) */
-  --status-error-surface: color-mix(
-    in oklch,
-    var(--status-error) 14%,
-    var(--background)
-  );
-  --status-error-ink: color-mix(in oklch, var(--status-error) 70%, black);
-  --status-error-surface-hover: color-mix(
-    in oklch,
-    var(--status-error) 24%,
-    var(--background)
-  );
-  --status-error-edge: color-mix(
-    in oklch,
-    var(--status-error) 38%,
-    var(--background)
-  );
-  --status-success-surface: color-mix(
-    in oklch,
-    var(--status-success) 14%,
-    var(--background)
-  );
-  --status-success-ink: color-mix(in oklch, var(--status-success) 70%, black);
-  --status-success-surface-hover: color-mix(
-    in oklch,
-    var(--status-success) 24%,
-    var(--background)
-  );
-  --status-success-edge: color-mix(
-    in oklch,
-    var(--status-success) 38%,
-    var(--background)
-  );
-  --status-warning-surface: color-mix(
-    in oklch,
-    var(--status-warning) 14%,
-    var(--background)
-  );
-  --status-warning-ink: color-mix(in oklch, var(--status-warning) 70%, black);
-  --status-warning-surface-hover: color-mix(
-    in oklch,
-    var(--status-warning) 24%,
-    var(--background)
-  );
-  --status-warning-edge: color-mix(
-    in oklch,
-    var(--status-warning) 38%,
-    var(--background)
-  );
-  --status-flagged-surface: color-mix(
-    in oklch,
-    var(--status-flagged) 14%,
-    var(--background)
-  );
-  --status-flagged-ink: color-mix(in oklch, var(--status-flagged) 70%, black);
-  --status-flagged-surface-hover: color-mix(
-    in oklch,
-    var(--status-flagged) 24%,
-    var(--background)
-  );
-  --status-flagged-edge: color-mix(
-    in oklch,
-    var(--status-flagged) 38%,
-    var(--background)
-  );
-  --status-info-surface: color-mix(
-    in oklch,
-    var(--status-info) 14%,
-    var(--background)
-  );
-  --status-info-ink: color-mix(in oklch, var(--status-info) 70%, black);
-  --status-info-surface-hover: color-mix(
-    in oklch,
-    var(--status-info) 24%,
-    var(--background)
-  );
-  --status-info-edge: color-mix(
-    in oklch,
-    var(--status-info) 38%,
-    var(--background)
-  );
+  /* @status-mix:start */
+  /* Status mix ratios - see @theme inline for the derived utilities */
+  --status-mix-surface: 14%;
+  --status-mix-surface-hover: 24%;
+  --status-mix-edge: 38%;
+  --status-mix-ink: 70%;
+  --status-ink-base: black;
+  /* @status-mix:end */
 }
 
 /* === DARK MODE OVERRIDES (Volcanic Night) === */
@@ -217,87 +144,14 @@
   /* Focus Ring */
   --focus-glow: oklch(0.78 0.14 234 / 0.2);
 
-  /* Status Surfaces — dark mode inverts the ink/surface relationship */
-  --status-error-surface: color-mix(
-    in oklch,
-    var(--status-error) 22%,
-    var(--background)
-  );
-  --status-error-ink: color-mix(in oklch, var(--status-error) 85%, white);
-  --status-error-surface-hover: color-mix(
-    in oklch,
-    var(--status-error) 34%,
-    var(--background)
-  );
-  --status-error-edge: color-mix(
-    in oklch,
-    var(--status-error) 45%,
-    var(--background)
-  );
-  --status-success-surface: color-mix(
-    in oklch,
-    var(--status-success) 22%,
-    var(--background)
-  );
-  --status-success-ink: color-mix(in oklch, var(--status-success) 85%, white);
-  --status-success-surface-hover: color-mix(
-    in oklch,
-    var(--status-success) 34%,
-    var(--background)
-  );
-  --status-success-edge: color-mix(
-    in oklch,
-    var(--status-success) 45%,
-    var(--background)
-  );
-  --status-warning-surface: color-mix(
-    in oklch,
-    var(--status-warning) 22%,
-    var(--background)
-  );
-  --status-warning-ink: color-mix(in oklch, var(--status-warning) 85%, white);
-  --status-warning-surface-hover: color-mix(
-    in oklch,
-    var(--status-warning) 34%,
-    var(--background)
-  );
-  --status-warning-edge: color-mix(
-    in oklch,
-    var(--status-warning) 45%,
-    var(--background)
-  );
-  --status-flagged-surface: color-mix(
-    in oklch,
-    var(--status-flagged) 22%,
-    var(--background)
-  );
-  --status-flagged-ink: color-mix(in oklch, var(--status-flagged) 85%, white);
-  --status-flagged-surface-hover: color-mix(
-    in oklch,
-    var(--status-flagged) 34%,
-    var(--background)
-  );
-  --status-flagged-edge: color-mix(
-    in oklch,
-    var(--status-flagged) 45%,
-    var(--background)
-  );
-  --status-info-surface: color-mix(
-    in oklch,
-    var(--status-info) 22%,
-    var(--background)
-  );
-  --status-info-ink: color-mix(in oklch, var(--status-info) 85%, white);
-  --status-info-surface-hover: color-mix(
-    in oklch,
-    var(--status-info) 34%,
-    var(--background)
-  );
-  --status-info-edge: color-mix(
-    in oklch,
-    var(--status-info) 45%,
-    var(--background)
-  );
+  /* @status-mix-dark:start */
+  /* Status mix ratios - dark mode inverts the ink/surface relationship */
+  --status-mix-surface: 22%;
+  --status-mix-surface-hover: 34%;
+  --status-mix-edge: 45%;
+  --status-mix-ink: 85%;
+  --status-ink-base: white;
+  /* @status-mix-dark:end */
 }
 
 /* ========================================
@@ -331,27 +185,110 @@
   --color-status-flagged: var(--status-flagged);
   --color-status-info: var(--status-info);
 
-  /* Status surfaces: bg-status-*-surface / text-status-*-ink / border-status-*-edge */
-  --color-status-error-surface: var(--status-error-surface);
-  --color-status-error-ink: var(--status-error-ink);
-  --color-status-error-surface-hover: var(--status-error-surface-hover);
-  --color-status-error-edge: var(--status-error-edge);
-  --color-status-success-surface: var(--status-success-surface);
-  --color-status-success-ink: var(--status-success-ink);
-  --color-status-success-surface-hover: var(--status-success-surface-hover);
-  --color-status-success-edge: var(--status-success-edge);
-  --color-status-warning-surface: var(--status-warning-surface);
-  --color-status-warning-ink: var(--status-warning-ink);
-  --color-status-warning-surface-hover: var(--status-warning-surface-hover);
-  --color-status-warning-edge: var(--status-warning-edge);
-  --color-status-flagged-surface: var(--status-flagged-surface);
-  --color-status-flagged-ink: var(--status-flagged-ink);
-  --color-status-flagged-surface-hover: var(--status-flagged-surface-hover);
-  --color-status-flagged-edge: var(--status-flagged-edge);
-  --color-status-info-surface: var(--status-info-surface);
-  --color-status-info-ink: var(--status-info-ink);
-  --color-status-info-surface-hover: var(--status-info-surface-hover);
-  --color-status-info-edge: var(--status-info-edge);
+  /* @status-surfaces:start */
+  /* Status surfaces: bg-status-*-surface / text-status-*-ink /
+   * border-status-*-edge / hover:bg-status-*-surface-hover */
+  --color-status-error-surface: color-mix(
+    in oklch,
+    var(--status-error) var(--status-mix-surface),
+    var(--background)
+  );
+  --color-status-error-ink: color-mix(
+    in oklch,
+    var(--status-error) var(--status-mix-ink),
+    var(--status-ink-base)
+  );
+  --color-status-error-surface-hover: color-mix(
+    in oklch,
+    var(--status-error) var(--status-mix-surface-hover),
+    var(--background)
+  );
+  --color-status-error-edge: color-mix(
+    in oklch,
+    var(--status-error) var(--status-mix-edge),
+    var(--background)
+  );
+  --color-status-success-surface: color-mix(
+    in oklch,
+    var(--status-success) var(--status-mix-surface),
+    var(--background)
+  );
+  --color-status-success-ink: color-mix(
+    in oklch,
+    var(--status-success) var(--status-mix-ink),
+    var(--status-ink-base)
+  );
+  --color-status-success-surface-hover: color-mix(
+    in oklch,
+    var(--status-success) var(--status-mix-surface-hover),
+    var(--background)
+  );
+  --color-status-success-edge: color-mix(
+    in oklch,
+    var(--status-success) var(--status-mix-edge),
+    var(--background)
+  );
+  --color-status-warning-surface: color-mix(
+    in oklch,
+    var(--status-warning) var(--status-mix-surface),
+    var(--background)
+  );
+  --color-status-warning-ink: color-mix(
+    in oklch,
+    var(--status-warning) var(--status-mix-ink),
+    var(--status-ink-base)
+  );
+  --color-status-warning-surface-hover: color-mix(
+    in oklch,
+    var(--status-warning) var(--status-mix-surface-hover),
+    var(--background)
+  );
+  --color-status-warning-edge: color-mix(
+    in oklch,
+    var(--status-warning) var(--status-mix-edge),
+    var(--background)
+  );
+  --color-status-flagged-surface: color-mix(
+    in oklch,
+    var(--status-flagged) var(--status-mix-surface),
+    var(--background)
+  );
+  --color-status-flagged-ink: color-mix(
+    in oklch,
+    var(--status-flagged) var(--status-mix-ink),
+    var(--status-ink-base)
+  );
+  --color-status-flagged-surface-hover: color-mix(
+    in oklch,
+    var(--status-flagged) var(--status-mix-surface-hover),
+    var(--background)
+  );
+  --color-status-flagged-edge: color-mix(
+    in oklch,
+    var(--status-flagged) var(--status-mix-edge),
+    var(--background)
+  );
+  --color-status-info-surface: color-mix(
+    in oklch,
+    var(--status-info) var(--status-mix-surface),
+    var(--background)
+  );
+  --color-status-info-ink: color-mix(
+    in oklch,
+    var(--status-info) var(--status-mix-ink),
+    var(--status-ink-base)
+  );
+  --color-status-info-surface-hover: color-mix(
+    in oklch,
+    var(--status-info) var(--status-mix-surface-hover),
+    var(--background)
+  );
+  --color-status-info-edge: color-mix(
+    in oklch,
+    var(--status-info) var(--status-mix-edge),
+    var(--background)
+  );
+  /* @status-surfaces:end */
 
   /* === shadcn/ui Semantic Tokens === */
   --color-background: var(--background);

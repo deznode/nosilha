@@ -18,6 +18,10 @@ import {
 } from "lucide-react";
 import type { StorySubmission } from "@/types/story";
 import { StoryType, SubmissionStatus } from "@/types/story";
+import {
+  SUBMISSION_STATUS_BADGE,
+  SUBMISSION_STATUS_LABEL,
+} from "@/lib/submission-status";
 import { StoryMarkdown } from "../stories/story-markdown";
 import { Button } from "@/components/catalyst-ui/button";
 
@@ -67,40 +71,6 @@ function getStoryTypeConfig(storyType: StoryType | string) {
   return DEFAULT_TYPE_CONFIG;
 }
 
-const STATUS_CONFIG: Record<
-  SubmissionStatus,
-  { label: string; color: string }
-> = {
-  [SubmissionStatus.DRAFT]: {
-    label: "Draft",
-    color: "bg-surface-alt text-body",
-  },
-  [SubmissionStatus.PENDING]: {
-    label: "Pending Review",
-    color: "bg-status-warning-surface text-status-warning-ink",
-  },
-  [SubmissionStatus.APPROVED]: {
-    label: "Approved",
-    color: "bg-status-success-surface text-status-success-ink",
-  },
-  [SubmissionStatus.REJECTED]: {
-    label: "Rejected",
-    color: "bg-status-error-surface text-status-error-ink",
-  },
-  [SubmissionStatus.FLAGGED]: {
-    label: "Flagged",
-    color: "bg-status-flagged-surface text-status-flagged-ink",
-  },
-  [SubmissionStatus.PUBLISHED]: {
-    label: "Published",
-    color: "bg-status-info-surface text-status-info-ink",
-  },
-  [SubmissionStatus.ARCHIVED]: {
-    label: "Archived",
-    color: "bg-surface-alt text-muted",
-  },
-};
-
 export function StoryDetailModal({
   story,
   isOpen,
@@ -111,7 +81,7 @@ export function StoryDetailModal({
   if (!story) return null;
 
   const typeConfig = getStoryTypeConfig(story.type);
-  const statusConfig = STATUS_CONFIG[story.status];
+
   const TypeIcon = typeConfig.icon;
   const isPending = story.status === SubmissionStatus.PENDING;
 
@@ -139,9 +109,9 @@ export function StoryDetailModal({
                     {typeConfig.label}
                   </span>
                   <span
-                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusConfig.color}`}
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${SUBMISSION_STATUS_BADGE[story.status]}`}
                   >
-                    {statusConfig.label}
+                    {SUBMISSION_STATUS_LABEL[story.status]}
                   </span>
                 </div>
                 <DialogTitle className="text-body font-serif text-xl font-bold">

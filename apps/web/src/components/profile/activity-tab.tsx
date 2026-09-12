@@ -28,35 +28,19 @@ function ActivityItemSkeleton() {
   );
 }
 
+/** Surface + ink pair for a contribution status; callers combine both. */
 function getStatusStyles(status: string) {
-  const upperStatus = status.toUpperCase();
-  switch (upperStatus) {
+  switch (status.toUpperCase()) {
     case "APPROVED":
     case "PUBLISHED":
-      return {
-        bg: "bg-status-success-surface",
-        text: "text-valley-green",
-        badge: "bg-status-success-surface text-valley-green",
-      };
+      return { bg: "bg-status-success-surface", text: "text-valley-green" };
     case "PENDING":
     case "UNDER_REVIEW":
-      return {
-        bg: "bg-status-warning-surface",
-        text: "text-sobrado-ochre",
-        badge: "bg-status-warning-surface text-sobrado-ochre",
-      };
+      return { bg: "bg-status-warning-surface", text: "text-sobrado-ochre" };
     case "REJECTED":
-      return {
-        bg: "bg-accent-error/10",
-        text: "text-accent-error",
-        badge: "bg-accent-error/10 text-accent-error",
-      };
+      return { bg: "bg-accent-error/10", text: "text-accent-error" };
     default:
-      return {
-        bg: "bg-surface-alt",
-        text: "text-muted",
-        badge: "bg-surface-alt text-muted",
-      };
+      return { bg: "bg-surface-alt", text: "text-muted" };
   }
 }
 
@@ -210,7 +194,7 @@ export function ActivityTab() {
                           {suggestion.suggestionType.replace(/_/g, " ")}
                         </h5>
                         <span
-                          className={`flex-shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${styles.badge}`}
+                          className={`flex-shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${styles.bg} ${styles.text}`}
                         >
                           {suggestion.status}
                         </span>
@@ -255,7 +239,7 @@ export function ActivityTab() {
                         {story.title}
                       </h5>
                       <span
-                        className={`flex-shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${styles.badge}`}
+                        className={`flex-shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${styles.bg} ${styles.text}`}
                       >
                         {story.status}
                       </span>
