@@ -55,7 +55,7 @@ export function HomePageContent({
         {/* Unified onboarding + navigation: "What is NosIlha?" with 3 clickable pillars */}
         <ExploreHeritageSection />
 
-        {/* Map section before Stories for progressive disclosure */}
+        {/* Map section placed early for progressive disclosure */}
         <MapTeaserSection />
 
         {instagramPosts && instagramPosts.length > 0 && (

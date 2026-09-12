@@ -269,6 +269,22 @@ export const statusColors: ColorGroup = {
       description: "Caution state",
       usage: "Warnings, important notices",
     },
+    {
+      name: "Flagged",
+      variable: "--status-flagged",
+      lightHex: "#f97316",
+      oklch: "oklch(0.70 0.19 42)",
+      description: "Flagged for review",
+      usage: "Moderation queues, flagged submissions",
+    },
+    {
+      name: "Info",
+      variable: "--status-info",
+      lightHex: "#3b82f6",
+      oklch: "oklch(0.58 0.15 248)",
+      description: "Neutral information",
+      usage: "Processing states, published badges",
+    },
   ],
 };
 

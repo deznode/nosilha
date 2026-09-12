@@ -119,7 +119,7 @@ export function Tab({
       {Icon && <Icon data-slot="icon" size={16} />}
       {children}
       {badge !== undefined && badge !== 0 && (
-        <span className="ml-1 inline-flex items-center rounded-full bg-yellow-100 px-1.5 py-0.5 text-xs font-medium text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+        <span className="bg-status-warning-surface text-status-warning-ink ml-1 inline-flex items-center rounded-full px-1.5 py-0.5 text-xs font-medium">
           {badge}
         </span>
       )}

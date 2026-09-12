@@ -151,7 +151,7 @@ export function FeedbackSpecimen() {
           </AnimatedButton>
           <AnimatedButton
             variant="outline"
-            className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+            className="border-status-error text-status-error hover:bg-status-error hover:text-white"
             onClick={() => openDialog("danger")}
           >
             Danger Dialog

@@ -19,10 +19,7 @@ import {
   Plus,
   Check,
   ChevronDown,
-  BookOpen,
-  Users,
   Shield,
-  type LucideIcon,
 } from "lucide-react";
 import clsx from "clsx";
 
@@ -33,48 +30,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 // --- Navigation Config ---
 
-type DropdownItem = {
-  name: string;
-  href: string;
-  icon: LucideIcon;
-  description: string;
-};
-
-type NavItem =
-  | { name: string; href: string; type?: "link" }
-  | { name: string; type: "dropdown"; items: DropdownItem[] };
-
-const navigation: NavItem[] = [
-  { name: "Home", href: "/" },
-  {
-    name: "Culture",
-    type: "dropdown",
-    items: [
-      {
-        name: "History of Brava",
-        href: "/history",
-        icon: BookOpen,
-        description: "The island's rich past",
-      },
-      {
-        name: "Historical Figures",
-        href: "/people",
-        icon: Users,
-        description: "People who shaped Brava",
-      },
-    ],
-  },
-  { name: "Directory", href: "/directory" },
-  { name: "Stories", href: "/stories" },
-  { name: "Media", href: "/gallery" },
-  { name: "Map", href: "/map" },
-];
-
-const languages = [
-  { code: "EN", label: "English", flag: "🇺🇸", disabled: false },
-  { code: "PT", label: "Português", flag: "🇵🇹", disabled: true },
-  { code: "CV", label: "Kriolu", flag: "🇨🇻", disabled: true },
-];
+import { navigation, languages } from "@/components/navigation/nav-config";
 
 /** Returns border + text classes for nav links based on active state and hero transparency. */
 function navLinkClasses(isActive: boolean, isHeroTransparent: boolean): string {

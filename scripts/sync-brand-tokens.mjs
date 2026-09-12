@@ -16,6 +16,7 @@
  *   node scripts/sync-brand-tokens.mjs --help    # Show help
  */
 
+import { spawnSync } from "child_process";
 import fs from "fs";
 import path from "path";
 import url from "url";
@@ -35,11 +36,52 @@ const CONFIG = {
       start: "  /* @brand-tokens-dark:start */",
       end: "  /* @brand-tokens-dark:end */",
     },
+    statusMix: {
+      start: "  /* @status-mix:start */",
+      end: "  /* @status-mix:end */",
+    },
+    statusMixDark: {
+      start: "  /* @status-mix-dark:start */",
+      end: "  /* @status-mix-dark:end */",
+    },
+    statusSurfaces: {
+      start: "  /* @status-surfaces:start */",
+      end: "  /* @status-surfaces:end */",
+    },
   },
   prefixes: {
     brand: "--brand-",
     neutrals: "--neutral-",
     status: "--status-",
+  },
+  /**
+   * Derived status tier. Each status color in palette.json gets a surface,
+   * an ink, a hover surface and an edge, mixed against --background (or the
+   * ink base) by the ratios below. Ratios live in :root/.dark as
+   * --status-mix-* so the color-mix formulas themselves are declared once,
+   * in @theme inline, and re-resolve per theme automatically.
+   */
+  statusDerivations: [
+    { suffix: "surface", ratio: "var(--status-mix-surface)", against: "var(--background)" },
+    { suffix: "ink", ratio: "var(--status-mix-ink)", against: "var(--status-ink-base)" },
+    { suffix: "surface-hover", ratio: "var(--status-mix-surface-hover)", against: "var(--background)" },
+    { suffix: "edge", ratio: "var(--status-mix-edge)", against: "var(--background)" },
+  ],
+  statusMixRatios: {
+    light: {
+      "--status-mix-surface": "14%",
+      "--status-mix-surface-hover": "24%",
+      "--status-mix-edge": "38%",
+      "--status-mix-ink": "70%",
+      "--status-ink-base": "black",
+    },
+    dark: {
+      "--status-mix-surface": "22%",
+      "--status-mix-surface-hover": "34%",
+      "--status-mix-edge": "45%",
+      "--status-mix-ink": "85%",
+      "--status-ink-base": "white",
+    },
   },
 };
 
@@ -266,6 +308,81 @@ function generateDarkBlock(palette) {
 }
 
 /**
+ * Generate the per-theme status mix ratios (:root or .dark).
+ * These feed the color-mix formulas emitted by generateStatusSurfacesBlock.
+ */
+function generateStatusMixBlock(theme) {
+  const marker = theme === "dark" ? CONFIG.markers.statusMixDark : CONFIG.markers.statusMix;
+  const ratios = CONFIG.statusMixRatios[theme];
+
+  const lines = [
+    marker.start,
+    theme === "dark"
+      ? "  /* Status mix ratios - dark mode inverts the ink/surface relationship */"
+      : "  /* Status mix ratios - see @theme inline for the derived utilities */",
+  ];
+
+  for (const [varName, value] of Object.entries(ratios)) {
+    lines.push(`  ${varName}: ${value};`);
+  }
+
+  lines.push(marker.end);
+
+  return lines.join("\n");
+}
+
+/**
+ * Generate the derived status surface utilities inside @theme inline.
+ *
+ * Declared here rather than in :root/.dark so each formula exists once:
+ * @theme inline keeps the color-mix unresolved and inlines it into the
+ * utility, which then re-resolves against whichever --status-* / --background
+ * / --status-mix-* values the active theme set. Unused utilities are never
+ * emitted, so covering every status x derivation costs nothing.
+ */
+function generateStatusSurfacesBlock(palette) {
+  const lines = [
+    CONFIG.markers.statusSurfaces.start,
+    "  /* Status surfaces: bg-status-*-surface / text-status-*-ink /",
+    "   * border-status-*-edge / hover:bg-status-*-surface-hover */",
+  ];
+
+  for (const key of Object.keys(palette.status)) {
+    const status = toKebabCase(key);
+    for (const { suffix, ratio, against } of CONFIG.statusDerivations) {
+      lines.push(
+        `  --color-status-${status}-${suffix}: color-mix(in oklch, ` +
+          `var(${CONFIG.prefixes.status}${status}) ${ratio}, ${against});`
+      );
+    }
+  }
+
+  lines.push(CONFIG.markers.statusSurfaces.end);
+
+  return lines.join("\n");
+}
+
+/**
+ * Run Prettier over globals.css so generated single-line declarations land in
+ * the repo's canonical formatting and re-runs stay idempotent. Non-fatal:
+ * the CSS is already valid without it.
+ */
+function formatCss() {
+  const webDir = path.resolve(__dirname, "../apps/web");
+  const result = spawnSync(
+    "npx",
+    ["--no-install", "prettier", "--write", CONFIG.cssPath],
+    { cwd: webDir, stdio: verbose ? "inherit" : "ignore" }
+  );
+
+  if (result.status === 0) {
+    log("Formatted with Prettier");
+  } else {
+    log("Skipped Prettier (not available) - run `pnpm format` in apps/web");
+  }
+}
+
+/**
  * Replace content between markers in CSS
  */
 function replaceSection(css, startMarker, endMarker, newContent) {
@@ -320,15 +437,22 @@ try {
     cssContent.includes(CONFIG.markers.dark.start) &&
     cssContent.includes(CONFIG.markers.dark.end);
 
+  const missingMarkers = Object.entries(CONFIG.markers).filter(
+    ([, marker]) =>
+      !cssContent.includes(marker.start) || !cssContent.includes(marker.end)
+  );
+
   log(`  Light markers: ${hasLightMarkers ? "Found" : "Missing"}`);
   log(`  Dark markers: ${hasDarkMarkers ? "Found" : "Missing"}`);
+  log(`  Status surface markers: ${missingMarkers.length === 0 ? "Found" : "Missing"}`);
 
-  if (!hasLightMarkers || !hasDarkMarkers) {
+  if (missingMarkers.length > 0) {
     throw new Error(
       `Missing markers in globals.css.\n\n` +
         `Please ensure the file contains:\n` +
-        `  ${CONFIG.markers.light.start} ... ${CONFIG.markers.light.end}\n` +
-        `  ${CONFIG.markers.dark.start} ... ${CONFIG.markers.dark.end}`
+        missingMarkers
+          .map(([, marker]) => `  ${marker.start} ... ${marker.end}`)
+          .join("\n")
     );
   }
   log("");
@@ -337,6 +461,9 @@ try {
   log("Generating tokens:");
   const lightBlock = generateLightBlock(palette);
   const darkBlock = generateDarkBlock(palette);
+  const statusMixBlock = generateStatusMixBlock("light");
+  const statusMixDarkBlock = generateStatusMixBlock("dark");
+  const statusSurfacesBlock = generateStatusSurfacesBlock(palette);
 
   const lightCount =
     Object.keys(palette.brand).length +
@@ -350,8 +477,12 @@ try {
     }
   }
 
+  const derivedCount =
+    Object.keys(palette.status).length * CONFIG.statusDerivations.length;
+
   log(`  Light mode: ${lightCount} variables`);
   log(`  Dark mode: ${darkCount} overrides`);
+  log(`  Status surfaces: ${derivedCount} derived utilities`);
   log("");
 
   // 4. Replace sections
@@ -369,6 +500,27 @@ try {
     darkBlock
   );
 
+  updatedCss = replaceSection(
+    updatedCss,
+    CONFIG.markers.statusMix.start,
+    CONFIG.markers.statusMix.end,
+    statusMixBlock
+  );
+
+  updatedCss = replaceSection(
+    updatedCss,
+    CONFIG.markers.statusMixDark.start,
+    CONFIG.markers.statusMixDark.end,
+    statusMixDarkBlock
+  );
+
+  updatedCss = replaceSection(
+    updatedCss,
+    CONFIG.markers.statusSurfaces.start,
+    CONFIG.markers.statusSurfaces.end,
+    statusSurfacesBlock
+  );
+
   // 5. Write or preview
   if (dryRun) {
     log("[DRY RUN] Changes would be:");
@@ -379,17 +531,25 @@ try {
     log("=== Dark Mode Block ===");
     log(darkBlock);
     log("");
+    log("=== Status Mix Ratios (light / dark) ===");
+    log(statusMixBlock);
+    log(statusMixDarkBlock);
+    log("");
+    log("=== Status Surfaces (@theme inline) ===");
+    log(statusSurfacesBlock);
+    log("");
     log("[DRY RUN] No files were modified.");
   } else {
     fs.writeFileSync(CONFIG.cssPath, updatedCss, "utf8");
     log(`Updated: ${CONFIG.cssPath}`);
+    formatCss();
   }
 
   log("");
   log("Summary:");
   log(`  Brand colors: ${Object.keys(palette.brand).length} (${darkCount} with dark overrides)`);
   log(`  Neutrals: ${Object.keys(palette.neutrals).length}`);
-  log(`  Status: ${Object.keys(palette.status).length}`);
+  log(`  Status: ${Object.keys(palette.status).length} (${derivedCount} derived surfaces)`);
   log("");
   log("Done! Brand tokens synced successfully.");
 } catch (error) {

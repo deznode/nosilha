@@ -204,7 +204,7 @@ export function ImageUploader({
       case "error":
         return (
           <div className="py-4 text-center">
-            <div className="mb-2 flex items-center justify-center gap-2 text-red-600">
+            <div className="text-status-error-ink mb-2 flex items-center justify-center gap-2">
               <AlertCircle className="h-5 w-5" />
               <span className="text-sm">{error}</span>
             </div>
@@ -222,7 +222,7 @@ export function ImageUploader({
       case "completed":
         return (
           <div className="border-hairline border-t p-2 text-center">
-            <div className="mb-2 flex items-center justify-center gap-2 text-green-600">
+            <div className="text-status-success-ink mb-2 flex items-center justify-center gap-2">
               <span className="text-sm font-medium">Upload complete!</span>
             </div>
             <Button type="button" plain onClick={handleRemoveImage}>

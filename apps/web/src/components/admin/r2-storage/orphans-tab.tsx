@@ -163,8 +163,8 @@ export function OrphansTab() {
 
       {/* Error state */}
       {orphansQuery.isError && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/30 dark:bg-red-900/10">
-          <p className="text-sm text-red-800 dark:text-red-300">
+        <div className="border-status-error-edge bg-status-error-surface rounded-lg border p-4">
+          <p className="text-status-error-ink text-sm">
             Failed to scan for orphans.{" "}
             {orphansQuery.error instanceof Error
               ? orphansQuery.error.message
@@ -215,7 +215,7 @@ export function OrphansTab() {
                       {formatBytes(orphan.size)} &middot;{" "}
                       {formatDate(orphan.lastModified)}
                     </p>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">
+                    <span className="bg-status-warning-surface text-status-warning-ink inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
                       <Unlink size={10} /> Unlinked
                     </span>
                   </div>
