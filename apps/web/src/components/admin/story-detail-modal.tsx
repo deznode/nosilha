@@ -18,6 +18,10 @@ import {
 } from "lucide-react";
 import type { StorySubmission } from "@/types/story";
 import { StoryType, SubmissionStatus } from "@/types/story";
+import {
+  SUBMISSION_STATUS_BADGE,
+  SUBMISSION_STATUS_LABEL,
+} from "@/lib/submission-status";
 import { StoryMarkdown } from "../stories/story-markdown";
 import { Button } from "@/components/catalyst-ui/button";
 
@@ -34,7 +38,7 @@ const STORY_TYPE_CONFIGS = {
   QUICK: {
     icon: Clock,
     label: "Quick Memory",
-    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
+    color: "bg-status-info-surface text-status-info-ink",
   },
   FULL: {
     icon: BookOpen,
@@ -67,43 +71,6 @@ function getStoryTypeConfig(storyType: StoryType | string) {
   return DEFAULT_TYPE_CONFIG;
 }
 
-const STATUS_CONFIG: Record<
-  SubmissionStatus,
-  { label: string; color: string }
-> = {
-  [SubmissionStatus.DRAFT]: {
-    label: "Draft",
-    color: "bg-surface-alt text-body",
-  },
-  [SubmissionStatus.PENDING]: {
-    label: "Pending Review",
-    color:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
-  },
-  [SubmissionStatus.APPROVED]: {
-    label: "Approved",
-    color:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-  },
-  [SubmissionStatus.REJECTED]: {
-    label: "Rejected",
-    color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
-  },
-  [SubmissionStatus.FLAGGED]: {
-    label: "Flagged",
-    color:
-      "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
-  },
-  [SubmissionStatus.PUBLISHED]: {
-    label: "Published",
-    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-  },
-  [SubmissionStatus.ARCHIVED]: {
-    label: "Archived",
-    color: "bg-surface-alt text-muted",
-  },
-};
-
 export function StoryDetailModal({
   story,
   isOpen,
@@ -114,7 +81,7 @@ export function StoryDetailModal({
   if (!story) return null;
 
   const typeConfig = getStoryTypeConfig(story.type);
-  const statusConfig = STATUS_CONFIG[story.status];
+
   const TypeIcon = typeConfig.icon;
   const isPending = story.status === SubmissionStatus.PENDING;
 
@@ -142,9 +109,9 @@ export function StoryDetailModal({
                     {typeConfig.label}
                   </span>
                   <span
-                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusConfig.color}`}
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${SUBMISSION_STATUS_BADGE[story.status]}`}
                   >
-                    {statusConfig.label}
+                    {SUBMISSION_STATUS_LABEL[story.status]}
                   </span>
                 </div>
                 <DialogTitle className="text-body font-serif text-xl font-bold">

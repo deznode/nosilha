@@ -27,26 +27,25 @@ interface TranslationStatusBadgeProps {
   status: TranslationStatus;
 }
 
+const TRANSLATION_STATUS_BADGE: Record<TranslationStatus, string> = {
+  current: "bg-status-success-surface text-status-success-ink",
+  outdated:
+    "bg-sobrado-ochre/20 text-sobrado-ochre dark:bg-sobrado-ochre/10 dark:text-sobrado-ochre",
+  missing: "bg-status-error-surface text-status-error-ink",
+};
+
+const TRANSLATION_STATUS_LABEL: Record<TranslationStatus, string> = {
+  current: "Current",
+  outdated: "Outdated",
+  missing: "Missing",
+};
+
 function TranslationStatusBadge({ status }: TranslationStatusBadgeProps) {
-  const styles = {
-    current:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-    outdated:
-      "bg-sobrado-ochre/20 text-sobrado-ochre dark:bg-sobrado-ochre/10 dark:text-sobrado-ochre",
-    missing: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
-  };
-
-  const labels = {
-    current: "Current",
-    outdated: "Outdated",
-    missing: "Missing",
-  };
-
   return (
     <span
-      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${styles[status]}`}
+      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${TRANSLATION_STATUS_BADGE[status]}`}
     >
-      {labels[status]}
+      {TRANSLATION_STATUS_LABEL[status]}
     </span>
   );
 }

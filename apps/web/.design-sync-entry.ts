@@ -22,7 +22,11 @@ export { BookmarkButton } from "@/components/directory/bookmark-button";
 /* ── Empty / loading surfaces (brief §4.4) ──────────────────────────── */
 export { DirectoryCardSkeleton } from "@/components/ui/directory-card-skeleton";
 export { DirectoryGridSkeleton } from "@/components/ui/directory-grid-skeleton";
-export { LoadingSpinner, LoadingDots, LoadingPulse } from "@/components/ui/loading-spinner";
+export {
+  LoadingSpinner,
+  LoadingDots,
+  LoadingPulse,
+} from "@/components/ui/loading-spinner";
 
 /* ── Filtering chrome (brief §6 case 7) ─────────────────────────────── */
 export { FilterBottomSheet } from "@/components/ui/filter-bottom-sheet";
@@ -43,12 +47,21 @@ export { CreditDisplay } from "@/components/ui/credit-display";
 export { FeatureCard } from "@/components/ui/feature-card";
 export { default as StarRating } from "@/components/ui/start-rating";
 export { Pagination } from "@/components/ui/pagination";
-export { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@/components/ui/tab-group";
+export {
+  TabGroup,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+} from "@/components/ui/tab-group";
 export { Tooltip } from "@/components/ui/tooltip";
 export { NosilhaLogo } from "@/components/ui/logo";
 
 /* ── Gallery (brief §6 cases 4, 5) ──────────────────────────────────── */
-export { MasonryPhotoGrid, MasonryPhotoGridSkeleton } from "@/components/gallery/masonry-photo-grid";
+export {
+  MasonryPhotoGrid,
+  MasonryPhotoGridSkeleton,
+} from "@/components/gallery/masonry-photo-grid";
 export { TimelineView } from "@/components/gallery/timeline-view";
 export { FeaturedPhotoCard } from "@/components/gallery/featured-photo-card";
 export { MetadataBadges } from "@/components/gallery/metadata-badges";
@@ -80,8 +93,18 @@ export { MobileBottomNav } from "@/components/navigation/mobile-bottom-nav";
 export { Button } from "@/components/catalyst-ui/button";
 export { Badge, BadgeButton } from "@/components/catalyst-ui/badge";
 export { Input, InputGroup } from "@/components/catalyst-ui/input";
-export { Checkbox, CheckboxField, CheckboxGroup } from "@/components/catalyst-ui/checkbox";
-export { Dialog, DialogTitle, DialogDescription, DialogBody, DialogActions } from "@/components/catalyst-ui/dialog";
+export {
+  Checkbox,
+  CheckboxField,
+  CheckboxGroup,
+} from "@/components/catalyst-ui/checkbox";
+export {
+  Dialog,
+  DialogTitle,
+  DialogDescription,
+  DialogBody,
+  DialogActions,
+} from "@/components/catalyst-ui/dialog";
 export {
   Dropdown,
   DropdownButton,
@@ -90,7 +113,17 @@ export {
   DropdownDivider,
   DropdownLabel,
 } from "@/components/catalyst-ui/dropdown";
-export { Popover, PopoverButton, PopoverPanel, PopoverGroup } from "@/components/catalyst-ui/popover";
-export { Field, Label, Description, ErrorMessage } from "@/components/catalyst-ui/fieldset";
+export {
+  Popover,
+  PopoverButton,
+  PopoverPanel,
+  PopoverGroup,
+} from "@/components/catalyst-ui/popover";
+export {
+  Field,
+  Label,
+  Description,
+  ErrorMessage,
+} from "@/components/catalyst-ui/fieldset";
 export { Select } from "@/components/ui/select";
 export { Textarea } from "@/components/ui/textarea";

@@ -19,7 +19,7 @@ export function useFilteredLocations() {
   const layerVisibility = useLayerVisibility();
 
   return useMemo(() => {
-    if (layerVisibility === "zones" || layerVisibility === "none") {
+    if (layerVisibility === "none") {
       return [];
     }
 

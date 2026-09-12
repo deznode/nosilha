@@ -27,7 +27,6 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
 import {
   useViewMode,
-  useLayerVisibility,
   useSelectedLocation,
   useIsPulsing,
   useIsOrbiting,
@@ -41,8 +40,6 @@ import {
   TERRAIN_DEM,
   ILLUSTRATION_BOUNDS,
   ILLUSTRATION_URL,
-  ZONES_GEOJSON,
-  TRAILS_GEOJSON,
 } from "../data/constants";
 import type { Location } from "../data/types";
 
@@ -126,7 +123,6 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
 
   // --- Store selectors ---
   const viewMode = useViewMode();
-  const layerVisibility = useLayerVisibility();
   const selectedLocation = useSelectedLocation();
   const isPulsing = useIsPulsing();
   const isOrbiting = useIsOrbiting();
@@ -675,96 +671,6 @@ export function MapCanvas({ mapRef, onFlyTo }: MapCanvasProps) {
                   />
                 </Source>
               )}
-
-              {/* Zone Layers */}
-              {viewMode === "satellite" &&
-                (layerVisibility === "all" || layerVisibility === "zones") && (
-                  <Source id="zones" type="geojson" data={ZONES_GEOJSON}>
-                    <Layer
-                      id="zone-fills"
-                      type="fill"
-                      paint={{
-                        "fill-color": ["get", "color"],
-                        "fill-opacity": 0.25,
-                      }}
-                    />
-                    <Layer
-                      id="zone-lines"
-                      type="line"
-                      paint={{
-                        "line-color": ["get", "color"],
-                        "line-width": 2,
-                        "line-dasharray": [2, 1],
-                        "line-opacity": 0.8,
-                      }}
-                    />
-                    <Layer
-                      id="zone-labels"
-                      type="symbol"
-                      layout={{
-                        "text-field": ["get", "name"],
-                        "text-size": 12,
-                        "text-transform": "uppercase",
-                        "text-letter-spacing": 0.1,
-                        "text-font": [
-                          "DIN Offc Pro Bold",
-                          "Arial Unicode MS Bold",
-                        ],
-                      }}
-                      paint={{
-                        "text-color": "#ffffff",
-                        "text-halo-color": ["get", "color"],
-                        "text-halo-width": 2,
-                      }}
-                    />
-                  </Source>
-                )}
-
-              {/* Trail Layers */}
-              {viewMode === "satellite" &&
-                (layerVisibility === "all" || layerVisibility === "zones") && (
-                  <Source id="trails" type="geojson" data={TRAILS_GEOJSON}>
-                    <Layer
-                      id="trail-glow"
-                      type="line"
-                      paint={{
-                        "line-color": ["get", "color"],
-                        "line-width": 6,
-                        "line-opacity": 0.3,
-                        "line-blur": 3,
-                      }}
-                    />
-                    <Layer
-                      id="trail-lines"
-                      type="line"
-                      paint={{
-                        "line-color": ["get", "color"],
-                        "line-width": 3,
-                        "line-opacity": 0.9,
-                        "line-dasharray": [2, 1],
-                      }}
-                    />
-                    <Layer
-                      id="trail-labels"
-                      type="symbol"
-                      layout={{
-                        "symbol-placement": "line-center",
-                        "text-field": ["get", "name"],
-                        "text-size": 10,
-                        "text-font": [
-                          "DIN Offc Pro Medium",
-                          "Arial Unicode MS Regular",
-                        ],
-                        "text-rotation-alignment": "viewport",
-                      }}
-                      paint={{
-                        "text-color": "#ffffff",
-                        "text-halo-color": ["get", "color"],
-                        "text-halo-width": 1.5,
-                      }}
-                    />
-                  </Source>
-                )}
 
               {markers}
               <NavigationControl position="bottom-right" />

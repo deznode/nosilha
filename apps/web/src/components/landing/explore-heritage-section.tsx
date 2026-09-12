@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, BookOpen, Users } from "lucide-react";
+import { MapPin, Camera, Users } from "lucide-react";
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { CategoryCard } from "./category-card";
 import type { CategoryCardProps } from "@/types/landing";
@@ -11,19 +11,19 @@ interface ExploreHeritageSectionProps {
 
 /**
  * Consolidated 3 pillars:
- * - Stories: History + Culture merged
+ * - Media: the photo and video archive
  * - Places: Towns + Tourism merged
  * - Community: New pillar for contribution
  */
 const defaultCategories: CategoryCardProps[] = [
   {
-    icon: BookOpen,
-    title: "Stories",
+    icon: Camera,
+    title: "Media",
     description:
-      "Explore oral histories, articles, photos, and personal memories shared by the community.",
+      "Browse photographs and film of Brava's landscapes, villages, and people, contributed by the community.",
     colorClass: "bg-bougainvillea-pink",
-    href: "/stories",
-    actionText: "Read Stories",
+    href: "/gallery",
+    actionText: "Browse Media",
   },
   {
     icon: MapPin,

@@ -18,27 +18,21 @@ interface MediaQueueItemProps {
   onPreview?: () => void;
 }
 
+const MEDIA_STATUS_BADGE: Record<MediaStatus, string> = {
+  PENDING: "bg-surface-alt text-body",
+  PROCESSING: "bg-status-info-surface text-status-info-ink",
+  PENDING_REVIEW: "bg-status-warning-surface text-status-warning-ink",
+  FLAGGED: "bg-status-flagged-surface text-status-flagged-ink",
+  AVAILABLE: "bg-status-success-surface text-status-success-ink",
+  DELETED: "bg-status-error-surface text-status-error-ink",
+};
+
 function StatusBadge({ status }: { status: MediaStatus }) {
-  const styles: Record<MediaStatus, string> = {
-    PENDING: "bg-surface-alt text-body",
-    PROCESSING:
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-    PENDING_REVIEW:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
-    FLAGGED:
-      "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
-    AVAILABLE:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-    DELETED: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
-  };
-
-  const displayText = status.replace(/_/g, " ");
-
   return (
     <span
-      className={`inline-flex rounded-full px-2 text-xs leading-5 font-semibold ${styles[status]}`}
+      className={`inline-flex rounded-full px-2 text-xs leading-5 font-semibold ${MEDIA_STATUS_BADGE[status]}`}
     >
-      {displayText}
+      {status.replace(/_/g, " ")}
     </span>
   );
 }
@@ -59,11 +53,11 @@ function getSeverityLabel(severity: number): string | null {
 function getSeverityColor(severity: number): string {
   switch (severity) {
     case 1:
-      return "text-yellow-600 dark:text-yellow-400";
+      return "text-status-warning-ink";
     case 2:
-      return "text-orange-600 dark:text-orange-400";
+      return "text-status-flagged-ink";
     case 3:
-      return "text-red-600 dark:text-red-400";
+      return "text-status-error-ink";
     default:
       return "text-muted";
   }
@@ -167,19 +161,19 @@ export function MediaQueueItem({
           <div className="mt-4 flex justify-end space-x-3">
             <button
               onClick={onApprove}
-              className="inline-flex items-center rounded border border-transparent bg-green-100 px-3 py-1 text-xs font-medium text-green-800 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-300 dark:hover:bg-green-900/50"
+              className="bg-status-success-surface text-status-success-ink hover:bg-status-success-surface-hover inline-flex items-center rounded border border-transparent px-3 py-1 text-xs font-medium"
             >
               <CheckCircle className="mr-1 h-3 w-3" /> Approve
             </button>
             <button
               onClick={onFlag}
-              className="inline-flex items-center rounded border border-transparent bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:hover:bg-yellow-900/50"
+              className="bg-status-warning-surface text-status-warning-ink hover:bg-status-warning-surface-hover inline-flex items-center rounded border border-transparent px-3 py-1 text-xs font-medium"
             >
               <Flag className="mr-1 h-3 w-3" /> Flag
             </button>
             <button
               onClick={onReject}
-              className="inline-flex items-center rounded border border-transparent bg-red-100 px-3 py-1 text-xs font-medium text-red-800 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50"
+              className="bg-status-error-surface text-status-error-ink hover:bg-status-error-surface-hover inline-flex items-center rounded border border-transparent px-3 py-1 text-xs font-medium"
             >
               <XCircle className="mr-1 h-3 w-3" /> Reject
             </button>

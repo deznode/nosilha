@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Github } from "@/components/ui/brand-icons";
 import { SubmissionStatus, StoryType } from "@/types/story";
+import { SUBMISSION_STATUS_BADGE } from "@/lib/submission-status";
 import { Badge } from "@/components/catalyst-ui/badge";
 import { Button } from "@/components/catalyst-ui/button";
 
@@ -48,24 +49,9 @@ interface StoryQueueItemProps extends BaseQueueItemProps {
 type QueueItemProps = SuggestionQueueItemProps | StoryQueueItemProps;
 
 function StatusBadge({ status }: { status: SubmissionStatus }) {
-  const styles: Record<SubmissionStatus, string> = {
-    [SubmissionStatus.DRAFT]: "bg-surface-alt text-body",
-    [SubmissionStatus.PENDING]:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
-    [SubmissionStatus.APPROVED]:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-    [SubmissionStatus.REJECTED]:
-      "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
-    [SubmissionStatus.FLAGGED]:
-      "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
-    [SubmissionStatus.PUBLISHED]:
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
-    [SubmissionStatus.ARCHIVED]: "bg-surface-alt text-muted",
-  };
-
   return (
     <span
-      className={`inline-flex rounded-full px-2 text-xs leading-5 font-semibold ${styles[status]}`}
+      className={`inline-flex rounded-full px-2 text-xs leading-5 font-semibold ${SUBMISSION_STATUS_BADGE[status]}`}
     >
       {status}
     </span>

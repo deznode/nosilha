@@ -21,6 +21,7 @@ import Image from "next/image";
 import { clsx } from "clsx";
 import type { DirectorySubmission } from "@/types/admin";
 import { SubmissionStatus } from "@/types/story";
+import { SUBMISSION_STATUS_BADGE } from "@/lib/submission-status";
 import { Button } from "@/components/catalyst-ui/button";
 import { DirectoryEditModal } from "@/components/admin/queues/directory-edit-modal";
 import { FlagReasonModal } from "@/components/admin/queues/flag-reason-modal";
@@ -47,18 +48,6 @@ const CATEGORY_COLORS: Record<string, string> = {
   Beach: "bg-sunny-yellow/10 text-sunny-yellow",
   Heritage: "bg-valley-green/10 text-valley-green",
   Nature: "bg-valley-green/10 text-valley-green",
-};
-
-const STATUS_BADGE_CLASSES: Record<string, string> = {
-  [SubmissionStatus.PENDING]:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300",
-  [SubmissionStatus.APPROVED]:
-    "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
-  [SubmissionStatus.REJECTED]:
-    "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300",
-  [SubmissionStatus.FLAGGED]:
-    "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300",
-  [SubmissionStatus.ARCHIVED]: "bg-surface-alt text-muted",
 };
 
 export function DirectoryQueue() {
@@ -341,8 +330,7 @@ export function DirectoryQueue() {
                     <span
                       className={clsx(
                         "rounded-full border px-3 py-1 text-[10px] font-bold",
-                        STATUS_BADGE_CLASSES[submission.status] ??
-                          "bg-surface-alt text-muted"
+                        SUBMISSION_STATUS_BADGE[submission.status]
                       )}
                     >
                       {submission.status}
@@ -398,7 +386,7 @@ export function DirectoryQueue() {
                         outline
                         onClick={() => handleDelete(submission)}
                         title="Delete permanently"
-                        className="text-red-600 hover:text-red-700 dark:text-red-400"
+                        className="text-status-error-ink hover:bg-status-error-surface"
                       >
                         <Trash2 data-slot="icon" />
                         Delete

@@ -86,8 +86,8 @@ describe("mapStore", () => {
     });
 
     it("setLayerVisibility updates visibility", () => {
-      useMapStore.getState().setLayerVisibility("zones");
-      expect(useMapStore.getState().layerVisibility).toBe("zones");
+      useMapStore.getState().setLayerVisibility("none");
+      expect(useMapStore.getState().layerVisibility).toBe("none");
     });
 
     it("setSelectedLocation updates selected location", () => {
