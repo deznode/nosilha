@@ -1,4 +1,4 @@
--- Repeatable migration: Brava Island reference towns (16 settlements)
+-- Repeatable migration: Brava Island reference towns (25 settlements)
 -- Re-runs automatically when file content changes (checksum-based).
 -- Uses upsert pattern so edits to descriptions, coordinates, etc. propagate on next deployment.
 
@@ -91,7 +91,39 @@ INSERT INTO towns (slug, name, description, latitude, longitude, population, ele
     'A quiet settlement in Brava''s interior, maintaining the traditional ways of island life',
     14.85, -24.71, 'Small settlement', '450m', '19th century',
     '["Traditional lifestyle", "Interior settlement", "Rural community", "Mountain location"]',
-    '/images/towns/tome-barraz-hero.jpg', '[]')
+    '/images/towns/tome-barraz-hero.jpg', '[]'),
+-- Promoted from R__seed_brava_map_pois.sql (spec 033, FR-001). These nine settlements
+-- existed only as category='Town' directory entries and were invisible to the towns
+-- table. Name, description and coordinates carried over verbatim; population,
+-- elevation, founded and highlights are deliberately left NULL because the archive
+-- does not hold them -- that absence is what renders them as "name only".
+('minhoto', 'Minhoto',
+    'A small settlement northeast of Nova Sintra, part of the Sao Joao Baptista parish.',
+    14.8784, -24.6958, NULL, NULL, NULL, NULL, NULL, NULL),
+('sorno', 'Sorno',
+    'A small village in the northwestern part of Brava.',
+    14.8850, -24.7182, NULL, NULL, NULL, NULL, NULL, NULL),
+('lagoa', 'Lagoa',
+    'A hamlet near Faja d''Agua.',
+    14.8687, -24.7241, NULL, NULL, NULL, NULL, NULL, NULL),
+('lima-doce', 'Lima Doce',
+    'A small hamlet in the central mountains of Brava.',
+    14.8553, -24.7090, NULL, NULL, NULL, NULL, NULL, NULL),
+('baleia', 'Baleia',
+    'An eastern settlement in Sao Joao Baptista parish.',
+    14.8500, -24.6850, NULL, NULL, NULL, NULL, NULL, NULL),
+('garca', 'Garça',
+    'A small settlement in the central highlands of Brava.',
+    14.8650, -24.7100, NULL, NULL, NULL, NULL, NULL, NULL),
+('cruzinha', 'Cruzinha',
+    'A small settlement in northern Brava.',
+    14.8800, -24.7050, NULL, NULL, NULL, NULL, NULL, NULL),
+('espardeiro', 'Espardeiro',
+    'A small settlement on the eastern slopes of Brava.',
+    14.8550, -24.6900, NULL, NULL, NULL, NULL, NULL, NULL),
+('figueiral', 'Figueiral',
+    'A small settlement in the northern area of Brava, also known as Figueiral Baixo.',
+    14.8750, -24.7150, NULL, NULL, NULL, NULL, NULL, NULL)
 ON CONFLICT (slug) DO UPDATE SET
     name = EXCLUDED.name,
     description = EXCLUDED.description,

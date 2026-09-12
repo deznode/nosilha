@@ -43,6 +43,13 @@ import org.springframework.modulith.PackageInfo
         "shared :: service",
         "shared :: util",
         "engagement",
+        // Settlement documentation status asks gallery whether a place has a publicly
+        // visible photograph (spec 033 FR-005). Whether a photograph counts depends on
+        // moderation state, which is gallery's rule to define -- places reads it through
+        // MediaQueryService rather than reimplementing it against gallery's tables.
+        // Same aggregation precedent as the feedback module. Gallery does not depend on
+        // places, so this introduces no cycle.
+        "gallery",
     ],
     type = ApplicationModule.Type.OPEN,
 )

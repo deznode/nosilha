@@ -117,6 +117,7 @@ class DirectoryEntryController(
         @RequestParam(name = "q", required = false) q: String?,
         @RequestParam(name = "category", required = false) category: String?,
         @RequestParam(name = "town", required = false) town: String?,
+        @RequestParam(name = "townId", required = false) townId: UUID?,
         @RequestParam(name = "sort", defaultValue = "created_at_desc") sortParam: String,
         @RequestParam(name = "page", defaultValue = "0") page: Int,
         @RequestParam(name = "size", defaultValue = "20") size: Int,
@@ -145,6 +146,9 @@ class DirectoryEntryController(
                 val pageable: Pageable = PageRequest.of(page, size, sort)
 
                 when {
+                    // townId is the canonical settlement filter; `town` remains for
+                    // backward compatibility until the legacy column is dropped.
+                    townId != null -> service.getEntriesByTownIdPage(townId, pageable)
                     category != null && town != null ->
                         service.getEntriesByCategoryAndTownPage(category, town, pageable)
                     category != null -> service.getEntriesByCategoryPage(category, pageable)

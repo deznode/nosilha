@@ -21,7 +21,6 @@ import java.util.*
     JsonSubTypes.Type(value = BeachDto::class, name = "Beach"),
     JsonSubTypes.Type(value = HeritageDto::class, name = "Heritage"),
     JsonSubTypes.Type(value = NatureDto::class, name = "Nature"),
-    JsonSubTypes.Type(value = TownPoiDto::class, name = "Town"),
     JsonSubTypes.Type(value = ViewpointDto::class, name = "Viewpoint"),
     JsonSubTypes.Type(value = TrailDto::class, name = "Trail"),
     JsonSubTypes.Type(value = ChurchDto::class, name = "Church"),
@@ -51,7 +50,47 @@ abstract class DirectoryEntryDto {
     abstract val updatedAt: Instant
 
     abstract val category: String
+
+    /**
+     * Canonical settlement reference, or null where the legacy free-text [town] has
+     * not yet resolved to a `towns` row. See spec 033 FR-001.
+     */
+    abstract val townId: UUID?
+
+    /**
+     * How much of this record is documented, computed from the fields its category
+     * can legitimately carry. See spec 033 FR-003.
+     */
+    abstract val completeness: CompletenessDto
+
+    /**
+     * Another record at byte-identical coordinates, when one exists. Surfaced so the
+     * duplication is stated rather than hidden. See spec 033 FR-007.
+     */
+    abstract val coincidentWith: CoincidentRefDto?
 }
+
+/**
+ * Documented-field count for a directory entry.
+ *
+ * Both numerator and denominator are exposed so the UI can render "N of M fields
+ * documented" and a progress bar without recomputing anything. [missingFields] names
+ * the applicable-but-empty fields, so the frontend never re-implements the category
+ * guard — it looks each key up in a question table.
+ */
+data class CompletenessDto(
+    val documented: Int,
+    val total: Int,
+    val missingFields: List<String> = emptyList(),
+)
+
+/** A reference to another record sharing this one's exact coordinates. */
+data class CoincidentRefDto(
+    val id: UUID,
+    val name: String,
+    val slug: String,
+    val category: String,
+)
 
 /**
  * DTO for a Restaurant entry. Includes restaurant-specific details.
@@ -76,6 +115,9 @@ data class RestaurantDto(
     override val createdAt: Instant,
     override val updatedAt: Instant,
     val details: RestaurantDetailsDto,
+    override val townId: UUID? = null,
+    override val completeness: CompletenessDto = CompletenessDto(0, 0),
+    override val coincidentWith: CoincidentRefDto? = null,
     override val category: String = "Restaurant",
 ) : DirectoryEntryDto()
 
@@ -102,6 +144,9 @@ data class HotelDto(
     override val createdAt: Instant,
     override val updatedAt: Instant,
     val details: HotelDetailsDto,
+    override val townId: UUID? = null,
+    override val completeness: CompletenessDto = CompletenessDto(0, 0),
+    override val coincidentWith: CoincidentRefDto? = null,
     override val category: String = "Hotel",
 ) : DirectoryEntryDto()
 
@@ -128,6 +173,9 @@ data class BeachDto(
     override val createdAt: Instant,
     override val updatedAt: Instant,
     val details: DetailsDto? = null,
+    override val townId: UUID? = null,
+    override val completeness: CompletenessDto = CompletenessDto(0, 0),
+    override val coincidentWith: CoincidentRefDto? = null,
     override val category: String = "Beach",
 ) : DirectoryEntryDto()
 
@@ -154,6 +202,9 @@ data class HeritageDto(
     override val createdAt: Instant,
     override val updatedAt: Instant,
     val details: DetailsDto? = null,
+    override val townId: UUID? = null,
+    override val completeness: CompletenessDto = CompletenessDto(0, 0),
+    override val coincidentWith: CoincidentRefDto? = null,
     override val category: String = "Heritage",
 ) : DirectoryEntryDto()
 
@@ -180,33 +231,10 @@ data class NatureDto(
     override val createdAt: Instant,
     override val updatedAt: Instant,
     val details: DetailsDto? = null,
+    override val townId: UUID? = null,
+    override val completeness: CompletenessDto = CompletenessDto(0, 0),
+    override val coincidentWith: CoincidentRefDto? = null,
     override val category: String = "Nature",
-) : DirectoryEntryDto()
-
-/**
- * DTO for a Town POI entry. Does not contain any specific details.
- */
-@JsonTypeName("Town")
-data class TownPoiDto(
-    override val id: UUID,
-    override val name: String,
-    override val slug: String,
-    override val description: String,
-    override val tags: List<String> = emptyList(),
-    override val contentActions: ContentActionSettingsDto? = null,
-    override val town: String,
-    override val latitude: Double,
-    override val longitude: Double,
-    override val imageUrl: String?,
-    override val rating: Double?,
-    override val reviewCount: Int,
-    override val phoneNumber: String? = null,
-    override val email: String? = null,
-    override val website: String? = null,
-    override val createdAt: Instant,
-    override val updatedAt: Instant,
-    val details: DetailsDto? = null,
-    override val category: String = "Town",
 ) : DirectoryEntryDto()
 
 /**
@@ -232,6 +260,9 @@ data class ViewpointDto(
     override val createdAt: Instant,
     override val updatedAt: Instant,
     val details: DetailsDto? = null,
+    override val townId: UUID? = null,
+    override val completeness: CompletenessDto = CompletenessDto(0, 0),
+    override val coincidentWith: CoincidentRefDto? = null,
     override val category: String = "Viewpoint",
 ) : DirectoryEntryDto()
 
@@ -258,6 +289,9 @@ data class TrailDto(
     override val createdAt: Instant,
     override val updatedAt: Instant,
     val details: DetailsDto? = null,
+    override val townId: UUID? = null,
+    override val completeness: CompletenessDto = CompletenessDto(0, 0),
+    override val coincidentWith: CoincidentRefDto? = null,
     override val category: String = "Trail",
 ) : DirectoryEntryDto()
 
@@ -284,6 +318,9 @@ data class ChurchDto(
     override val createdAt: Instant,
     override val updatedAt: Instant,
     val details: DetailsDto? = null,
+    override val townId: UUID? = null,
+    override val completeness: CompletenessDto = CompletenessDto(0, 0),
+    override val coincidentWith: CoincidentRefDto? = null,
     override val category: String = "Church",
 ) : DirectoryEntryDto()
 
@@ -310,6 +347,9 @@ data class PortDto(
     override val createdAt: Instant,
     override val updatedAt: Instant,
     val details: DetailsDto? = null,
+    override val townId: UUID? = null,
+    override val completeness: CompletenessDto = CompletenessDto(0, 0),
+    override val coincidentWith: CoincidentRefDto? = null,
     override val category: String = "Port",
 ) : DirectoryEntryDto()
 

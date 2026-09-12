@@ -1,4 +1,4 @@
--- Repeatable migration: BravaMap POIs (57 directory entries)
+-- Repeatable migration: BravaMap POIs (35 directory entries)
 -- Re-runs automatically when file content changes (checksum-based).
 -- Uses DO NOTHING because entries are curated through the admin UI.
 -- All entries start as DRAFT for admin review before publishing.
@@ -9,94 +9,10 @@
 
 INSERT INTO directory_entries (id, slug, name, description, category, town, latitude, longitude, tags, status)
 VALUES
--- === Towns (category: Town) ===
-(gen_random_uuid(), 'nova-sintra', 'Nova Sintra',
- 'The charming capital of Brava, known as one of the most beautiful towns in Cape Verde. Features colonial architecture, flowering gardens, and cobblestone streets.',
- 'Town', 'Nova Sintra', 14.8711, -24.6956, 'capital,colonial,flowers,historic', 'DRAFT'),
-
-(gen_random_uuid(), 'furna', 'Furna',
- 'The main port town of Brava located in a natural harbor. Gateway to the island with ferry connections to Fogo and Santiago.',
- 'Town', 'Furna', 14.8877, -24.6806, 'port,ferry,harbor,fishing', 'DRAFT'),
-
-(gen_random_uuid(), 'cachaco', 'Cachaço',
- 'A mountain village south of Nova Sintra. The second southernmost settlement in Cape Verde, surrounded by scenic hiking trails through lush oases.',
- 'Town', 'Cachaço', 14.8371, -24.6944, 'village,mountain,hiking,scenic', 'DRAFT'),
-
-(gen_random_uuid(), 'cova-joana', 'Cova Joana',
- 'A picturesque village in a mountain valley north of Nossa Senhora do Monte. Known for its tranquil atmosphere and traditional architecture.',
- 'Town', 'Nossa Senhora do Monte', 14.8627, -24.7123, 'village,mountain,scenic,traditional', 'DRAFT'),
-
-(gen_random_uuid(), 'campo-baixo', 'Campo Baixo',
- 'A small mountain settlement meaning ''low field''. Near a small hilltop chapel shaped like a ship with Santa Maria painted on it.',
- 'Town', 'Nossa Senhora do Monte', 14.8494, -24.7226, 'village,mountain,chapel', 'DRAFT'),
-
-(gen_random_uuid(), 'cova-rodela', 'Cova Rodela',
- 'A village in the mountains famous for the dragon tree (Dracaena draco) in its main street. Popular stop on hiking routes.',
- 'Town', 'Nova Sintra', 14.8705, -24.7053, 'village,dragon-tree,hiking,nature', 'DRAFT'),
-
-(gen_random_uuid(), 'vinagre', 'Vinagre',
- 'A small settlement in the northeastern part of Brava, located between Santa Bárbara and Furna.',
- 'Town', 'Furna', 14.8698, -24.6825, 'village,rural', 'DRAFT'),
-
-(gen_random_uuid(), 'mato', 'Mato',
- 'A village in the Nossa Senhora do Monte parish, situated in the central mountains of Brava.',
- 'Town', 'Nossa Senhora do Monte', 14.8571, -24.7052, 'village,mountain,rural', 'DRAFT'),
-
-(gen_random_uuid(), 'minhoto', 'Minhoto',
- 'A small settlement northeast of Nova Sintra, part of the São João Baptista parish.',
- 'Town', 'Nova Sintra', 14.8784, -24.6958, 'village,rural', 'DRAFT'),
-
-(gen_random_uuid(), 'mato-grande', 'Mato Grande',
- 'A village on the eastern side of Brava with its own church. Known for its scenic location.',
- 'Town', 'Nova Sintra', 14.8632, -24.6895, 'village,scenic', 'DRAFT'),
-
-(gen_random_uuid(), 'sorno', 'Sorno',
- 'A small village in the northwestern part of Brava.',
- 'Town', 'Faja d''Agua', 14.8850, -24.7182, 'village,rural', 'DRAFT'),
-
-(gen_random_uuid(), 'lagoa', 'Lagoa',
- 'A hamlet near Fajã de Água.',
- 'Town', 'Faja d''Agua', 14.8687, -24.7241, 'hamlet,rural', 'DRAFT'),
-
-(gen_random_uuid(), 'lima-doce', 'Lima Doce',
- 'A small hamlet in the central mountains of Brava.',
- 'Town', 'Nossa Senhora do Monte', 14.8553, -24.7090, 'hamlet,mountain', 'DRAFT'),
-
-(gen_random_uuid(), 'tantum', 'Tantum',
- 'The southernmost settlement in Cape Verde, a remote hamlet in the southwestern corner of Brava with traditional mountain architecture.',
- 'Town', 'Cachaço', 14.8280, -24.7200, 'village,remote,southernmost,traditional', 'DRAFT'),
-
-(gen_random_uuid(), 'joao-da-noly', 'João da Noly',
- 'A small northern hamlet in the São João Baptista parish.',
- 'Town', 'Nova Sintra', 14.8820, -24.6950, 'village,rural,northern', 'DRAFT'),
-
-(gen_random_uuid(), 'lem', 'Lem',
- 'A settlement in the northern part of Brava island.',
- 'Town', 'Nova Sintra', 14.8780, -24.7000, 'village,rural', 'DRAFT'),
-
-(gen_random_uuid(), 'tome-barraz', 'Tomé Barraz',
- 'A small hamlet in the Nossa Senhora do Monte parish.',
- 'Town', 'Nossa Senhora do Monte', 14.8560, -24.7180, 'hamlet,mountain', 'DRAFT'),
-
-(gen_random_uuid(), 'baleia', 'Baleia',
- 'An eastern settlement in São João Baptista parish.',
- 'Town', 'Cachaço', 14.8500, -24.6850, 'village,eastern', 'DRAFT'),
-
-(gen_random_uuid(), 'garca', 'Garça',
- 'A small settlement in the central highlands of Brava.',
- 'Town', 'Nossa Senhora do Monte', 14.8650, -24.7100, 'hamlet,highland', 'DRAFT'),
-
-(gen_random_uuid(), 'cruzinha', 'Cruzinha',
- 'A small settlement in northern Brava.',
- 'Town', 'Nova Sintra', 14.8800, -24.7050, 'hamlet,northern', 'DRAFT'),
-
-(gen_random_uuid(), 'espardeiro', 'Espardeiro',
- 'A small settlement on the eastern slopes of Brava.',
- 'Town', 'Cachaço', 14.8550, -24.6900, 'hamlet,eastern', 'DRAFT'),
-
-(gen_random_uuid(), 'figueiral', 'Figueiral',
- 'A small settlement in the northern area of Brava, also known as Figueiral Baixo.',
- 'Town', 'Nova Sintra', 14.8750, -24.7150, 'hamlet,northern', 'DRAFT'),
+-- Settlements are no longer modelled here. The 22 category='Town' rows that
+-- duplicated the towns table were removed in spec 033 (FR-001); nine of them that
+-- existed only here were promoted into R__seed_towns.sql. Existing rows are deleted
+-- by V14__add_town_id_to_directory_entries.sql.
 
 -- === Beaches (category: Beach) ===
 (gen_random_uuid(), 'faja-de-agua', 'Fajã de Água',

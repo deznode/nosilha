@@ -1,9 +1,11 @@
 package com.nosilha.core.places.api
 
 import com.nosilha.core.places.domain.TownService
+import com.nosilha.core.places.domain.TownStatusService
 import com.nosilha.core.shared.api.ApiResult
 import com.nosilha.core.shared.api.PagedApiResult
 import com.nosilha.core.shared.api.TownDto
+import com.nosilha.core.shared.api.TownStatusDto
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
@@ -32,7 +34,20 @@ import java.util.UUID
 @RequestMapping("/api/v1/towns")
 class TownController(
     private val service: TownService,
+    private val statusService: TownStatusService,
 ) {
+    /**
+     * Retrieves every settlement with its derived documentation status.
+     *
+     * <p>Backs the settlements index (spec 033 FR-005). Status is derived from live
+     * counts, never stored, and the counts returned here are the same ones the filter
+     * chips display — so a chip total cannot drift from the cards it describes.</p>
+     *
+     * @return An ApiResult wrapping the list of [TownStatusDto] objects.
+     */
+    @GetMapping("/status-summary")
+    fun getTownsWithStatus(): ApiResult<List<TownStatusDto>> = ApiResult(data = statusService.getAllWithStatus())
+
     /**
      * Retrieves a list of all towns with optional pagination support.
      *

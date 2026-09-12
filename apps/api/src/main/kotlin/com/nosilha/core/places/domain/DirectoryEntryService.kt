@@ -6,6 +6,8 @@ import com.nosilha.core.places.api.AdminDirectoryEntryDto
 import com.nosilha.core.places.api.CreateDirectoryEntrySubmissionRequest
 import com.nosilha.core.places.api.DirectoryEntrySubmissionConfirmationDto
 import com.nosilha.core.places.repository.DirectoryEntryRepository
+import com.nosilha.core.places.repository.TownRepository
+import com.nosilha.core.shared.api.CoincidentRefDto
 import com.nosilha.core.shared.api.CreateEntryRequestDto
 import com.nosilha.core.shared.api.CreateHotelDetailsDto
 import com.nosilha.core.shared.api.CreateRestaurantDetailsDto
@@ -55,6 +57,7 @@ private val logger = KotlinLogging.logger {}
 @Service
 class DirectoryEntryService(
     private val repository: DirectoryEntryRepository,
+    private val townRepository: TownRepository,
     private val eventPublisher: ApplicationEventPublisher,
     private val revalidationService: FrontendRevalidationService,
 ) {
@@ -109,6 +112,7 @@ class DirectoryEntryService(
             this.name = request.name
             this.description = request.description
             this.town = request.town
+            this.townId = resolveTownId(request.town)
             this.latitude = request.latitude
             this.longitude = request.longitude
             this.imageUrl = request.imageUrl
@@ -234,15 +238,52 @@ class DirectoryEntryService(
             .orElseThrow { ResourceNotFoundException("Directory entry with ID '$id' not found.") }
 
     /**
+     * Lists PUBLISHED entries in a settlement by its canonical id.
+     *
+     * Preferred over [getEntriesByTownPage]: matching on a UUID removes the accent and
+     * case hazards the free-text town column carries (spec 033 FR-001).
+     */
+    fun getEntriesByTownIdPage(
+        townId: UUID,
+        pageable: Pageable
+    ): Page<DirectoryEntryDto> =
+        repository
+            .findByStatusAndTownId(DirectoryEntryStatus.PUBLISHED, townId, pageable)
+            .map { it.toDto() }
+
+    /** Lists all PUBLISHED entries in a settlement, unpaged, for the settlement detail page. */
+    fun getEntriesByTownId(townId: UUID): List<DirectoryEntryDto> =
+        repository
+            .findByStatusAndTownIdOrderByNameAsc(DirectoryEntryStatus.PUBLISHED, townId)
+            .map { it.toDto() }
+
+    /**
      * Finds a single directory entry by its unique slug.
      *
      * @param slug The unique slug of the entry to find.
      * @return The corresponding [DirectoryEntryDto].
      * @throws ResourceNotFoundException if no entry with the given slug exists.
      */
-    fun getEntryBySlug(slug: String): DirectoryEntryDto =
-        repository.findBySlug(slug)?.toDto()
+    fun getEntryBySlug(slug: String): DirectoryEntryDto {
+        val entry = repository.findBySlug(slug)
             ?: throw ResourceNotFoundException("Directory entry with slug '$slug' not found.")
+        return entry.toDto(coincidentWith = entry.findCoincidentRef())
+    }
+
+    /**
+     * Looks up another record sharing this one's exact coordinates.
+     *
+     * Only called on the detail path — list views would pay a query per row for a note
+     * they do not render. Returns the first match; the archive holds exactly one such
+     * pair today, and showing one neighbour is enough to state the duplication.
+     */
+    private fun DirectoryEntry.findCoincidentRef(): CoincidentRefDto? {
+        val entryId = this.id ?: return null
+        return repository
+            .findByLatitudeAndLongitudeAndIdNot(latitude, longitude, entryId)
+            .firstOrNull()
+            ?.toCoincidentRef()
+    }
 
     /**
      * Updates an existing directory entry.
@@ -276,6 +317,7 @@ class DirectoryEntryService(
             slug = newSlug
             description = request.description
             town = request.town
+            townId = resolveTownId(request.town)
             latitude = request.latitude
             longitude = request.longitude
             imageUrl = request.imageUrl
@@ -419,6 +461,7 @@ class DirectoryEntryService(
             this.slug = "$baseSlug-${UUID.randomUUID().toString().substring(0, 8)}"
             this.description = sanitizedDescription
             this.town = request.customTown?.trim() ?: request.town.trim()
+            this.townId = resolveTownId(this.town)
             this.latitude = request.latitude?.toDouble() ?: 0.0
             this.longitude = request.longitude?.toDouble() ?: 0.0
             this.imageUrl = request.imageUrl
@@ -442,6 +485,17 @@ class DirectoryEntryService(
     }
 
     /**
+     * Resolves a free-text settlement name to its canonical `towns` row.
+     *
+     * <p>Mirrors the backfill predicate so an entry created through the API links the
+     * same way the migration would have linked it. Returns null for a name no
+     * settlement covers — that entry keeps its free-text `town` and `custom_town`, and
+     * is exactly what `town_backfill_exceptions` is there to surface (spec 033
+     * FR-001).</p>
+     */
+    private fun resolveTownId(townName: String): UUID? = townRepository.findByNameIgnoringCaseAndAccents(townName)?.id
+
+    /**
      * Creates the correct DirectoryEntry subclass for a given category name.
      * Accepts any case (e.g., "Restaurant", "RESTAURANT", "restaurant").
      */
@@ -452,7 +506,6 @@ class DirectoryEntryService(
             "beach" -> Beach()
             "heritage" -> Heritage()
             "nature" -> Nature()
-            "town" -> TownPoi()
             "viewpoint" -> Viewpoint()
             "trail" -> Trail()
             "church" -> Church()
