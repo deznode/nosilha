@@ -130,3 +130,6 @@ ds-bundle/
 .design-sync/node_modules
 apps/web/.ds-styles.css
 apps/web/ds-types/
+
+# design handoff bundles imported from claude.ai/design (13MB; source of truth is the design project)
+.claude-design/
