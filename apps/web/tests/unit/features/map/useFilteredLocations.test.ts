@@ -97,15 +97,8 @@ describe("useFilteredLocations", () => {
     expect(result.current).toHaveLength(0);
   });
 
-  it("returns empty when layer visibility is 'zones'", () => {
-    useMapStore.setState({ layerVisibility: "zones" });
-
-    const { result } = renderHook(() => useFilteredLocations());
-    expect(result.current).toHaveLength(0);
-  });
-
-  it("returns locations when layer visibility is 'pois'", () => {
-    useMapStore.setState({ layerVisibility: "pois" });
+  it("returns locations when layer visibility is 'all'", () => {
+    useMapStore.setState({ layerVisibility: "all" });
 
     const { result } = renderHook(() => useFilteredLocations());
     expect(result.current).toHaveLength(3);

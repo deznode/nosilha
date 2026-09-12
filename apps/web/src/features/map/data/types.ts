@@ -28,4 +28,4 @@ export type ViewMode = "satellite" | "illustration";
 /**
  * Controls which map layers are visible
  */
-export type LayerVisibility = "all" | "pois" | "zones" | "none";
+export type LayerVisibility = "all" | "none";

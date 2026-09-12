@@ -1,7 +1,3 @@
-import type { FeatureCollection, Polygon } from "geojson";
-import zonesData from "./zones.json";
-import trailsData from "./trails.json";
-
 // --- Cinematic Intro Configuration ---
 export const INTRO_CONFIG = {
   PEAK_POSITION: { lng: -24.708, lat: 14.851 }, // Monte Fontainhas
@@ -61,13 +57,6 @@ export const ILLUSTRATION_BOUNDS: [
 export const ILLUSTRATION_URL = "/brava-illustration.jpg";
 
 export const ENABLE_ILLUSTRATION_MODE = false;
-
-// --- GeoJSON Data (imported from files) ---
-export const ZONES_GEOJSON = zonesData as FeatureCollection<
-  Polygon,
-  { name: string; color: string; zoomTo?: number }
->;
-export const TRAILS_GEOJSON = trailsData as FeatureCollection;
 
 // --- Utility: Calculate Bearing Between Two Points ---
 export function calculateBearing(

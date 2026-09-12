@@ -6,8 +6,6 @@ import {
   Globe,
   Image as ImageIcon,
   Layers,
-  MapPin,
-  Map as MapIcon,
   EyeOff,
   RotateCcw,
   Home,
@@ -106,20 +104,6 @@ export function MapControls({
           icon={Layers}
           title="Show All"
           ariaLabel="Show all layers"
-        />
-        <LayerButton
-          active={layerVisibility === "pois"}
-          onClick={() => setLayerVisibility("pois")}
-          icon={MapPin}
-          title="POIs Only"
-          ariaLabel="Show POIs only"
-        />
-        <LayerButton
-          active={layerVisibility === "zones"}
-          onClick={() => setLayerVisibility("zones")}
-          icon={MapIcon}
-          title="Zones Only"
-          ariaLabel="Show zones only"
         />
         <LayerButton
           active={layerVisibility === "none"}
