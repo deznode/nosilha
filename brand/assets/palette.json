@@ -32,11 +32,11 @@
     },
     "sobradoOchre": {
       "light": "oklch(0.530 0.057 65.1)",
-      "dark": null
+      "dark": "oklch(0.721 0.076 64.1)"
     },
     "sunnyYellow": {
       "light": "oklch(0.584 0.063 89.9)",
-      "dark": null
+      "dark": "oklch(0.756 0.071 91.8)"
     }
   },
   "neutrals": {

@@ -15,7 +15,7 @@
 :root {
   /* @brand-tokens:start */
   /* AUTO-GENERATED from palette.json v3.0.0 */
-  /* Updated: 2026-09-12 */
+  /* Updated: 2026-09-13 */
 
   /* === BRAND PALETTE (The Brava Tones) in OKLCH === */
   /* Primary Brand */
@@ -120,6 +120,8 @@
   --brand-ocean-blue-deep: oklch(0.369 0.047 245.9);
   --brand-valley-green: oklch(0.696 0.053 163.5);
   --brand-bougainvillea-pink: oklch(0.721 0.076 64.1);
+  --brand-sobrado-ochre: oklch(0.721 0.076 64.1);
+  --brand-sunny-yellow: oklch(0.756 0.071 91.8);
   --status-error: oklch(0.72 0.19 15);
   --status-success: oklch(0.76 0.15 165);
   --status-warning: oklch(0.83 0.16 70);
