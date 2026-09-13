@@ -13,7 +13,10 @@ pre-commit:
     eslint:
       glob: "apps/web/**/*.{ts,tsx,js,jsx}"
       root: "apps/web/"
-      run: npx eslint --max-warnings=0 --fix {staged_files} && git add {staged_files}
+      # --no-warn-ignored: a staged file covered by an ESLint ignore pattern (the
+      # vendored catalyst-ui components, for example) otherwise emits a "File ignored"
+      # warning, which --max-warnings=0 turns into a failed commit.
+      run: npx eslint --no-warn-ignored --max-warnings=0 --fix {staged_files} && git add {staged_files}
 
     prettier-code:
       glob: "apps/web/**/*.{ts,tsx,js,jsx}"

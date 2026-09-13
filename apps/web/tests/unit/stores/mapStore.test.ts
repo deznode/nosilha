@@ -6,10 +6,12 @@ import { Mountain } from "lucide-react";
 // Mock API
 vi.mock("@/lib/api", () => ({
   getEntriesForMap: vi.fn(),
+  getTownStatusSummary: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("@/features/map/data/locations-adapter", () => ({
   transformEntries: vi.fn((items) => items),
+  transformSettlements: vi.fn((items) => items),
 }));
 
 const initialState = {
@@ -20,10 +22,12 @@ const initialState = {
   layerVisibility: "all" as const,
   selectedLocation: null,
   isPulsing: false,
-  is3D: true,
+  is3D: false,
   viewMode: "satellite" as const,
   isOrbiting: false,
   showSidebar: true,
+  mapMode: "settlements" as const,
+  settlements: [],
 };
 
 const mockLocation: Location = {
@@ -38,6 +42,7 @@ const mockLocation: Location = {
   tags: ["hiking"],
   icon: Mountain,
   color: "#3e7d5a",
+  status: { status: "documented", label: "has a photograph" },
 };
 
 describe("mapStore", () => {
@@ -56,10 +61,26 @@ describe("mapStore", () => {
       expect(state.layerVisibility).toBe("all");
       expect(state.selectedLocation).toBeNull();
       expect(state.isPulsing).toBe(false);
-      expect(state.is3D).toBe(true);
+      expect(state.is3D).toBe(false);
       expect(state.viewMode).toBe("satellite");
       expect(state.isOrbiting).toBe(false);
       expect(state.showSidebar).toBe(true);
+    });
+  });
+
+  describe("Defaults (spec 033 FR-012)", () => {
+    it("opens in Settlements with terrain off", () => {
+      const initial = useMapStore.getInitialState();
+
+      expect(initial.mapMode).toBe("settlements");
+      expect(initial.is3D).toBe(false);
+    });
+
+    it("carries no intro state", () => {
+      const initial = useMapStore.getInitialState();
+
+      expect(initial).not.toHaveProperty("introCompleted");
+      expect(initial).not.toHaveProperty("setIntroCompleted");
     });
   });
 
@@ -115,6 +136,15 @@ describe("mapStore", () => {
       expect(useMapStore.getState().isOrbiting).toBe(true);
     });
 
+    it("setMapMode switches mode and clears the selection", () => {
+      useMapStore.setState({ selectedLocation: mockLocation });
+
+      useMapStore.getState().setMapMode("places");
+
+      expect(useMapStore.getState().mapMode).toBe("places");
+      expect(useMapStore.getState().selectedLocation).toBeNull();
+    });
+
     it("setShowSidebar updates sidebar state", () => {
       useMapStore.getState().setShowSidebar(false);
       expect(useMapStore.getState().showSidebar).toBe(false);
@@ -168,6 +198,25 @@ describe("mapStore", () => {
       expect(getEntriesForMap).toHaveBeenCalledWith("all");
       expect(useMapStore.getState().locations).toEqual([mockLocation]);
       expect(useMapStore.getState().isLoadingLocations).toBe(false);
+    });
+
+    it("loads settlements alongside place records", async () => {
+      const { getEntriesForMap, getTownStatusSummary } =
+        await import("@/lib/api");
+      const { transformSettlements } =
+        await import("@/features/map/data/locations-adapter");
+
+      vi.mocked(getEntriesForMap).mockResolvedValueOnce({
+        items: [],
+        pagination: null,
+      });
+      vi.mocked(getTownStatusSummary).mockResolvedValueOnce([]);
+      vi.mocked(transformSettlements).mockReturnValueOnce([mockLocation]);
+
+      await useMapStore.getState().fetchLocations();
+
+      expect(getTownStatusSummary).toHaveBeenCalled();
+      expect(useMapStore.getState().settlements).toEqual([mockLocation]);
     });
 
     it("sets isLoadingLocations false on error", async () => {

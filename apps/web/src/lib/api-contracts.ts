@@ -1,5 +1,5 @@
 import type { DirectoryEntry } from "@/types/directory";
-import type { Town } from "@/types/town";
+import type { Town, TownStatusSummary } from "@/types/town";
 import type {
   ReactionCreateDto,
   ReactionResponseDto,
@@ -129,6 +129,9 @@ export interface ApiClient {
   getTownBySlug(slug: string): Promise<Town | undefined>;
 
   getTownsForMap(): Promise<Town[]>;
+
+  /** Every settlement with its derived documentation status and coordinates. */
+  getTownStatusSummary(): Promise<TownStatusSummary[]>;
 
   // Media Operations
   uploadImage(

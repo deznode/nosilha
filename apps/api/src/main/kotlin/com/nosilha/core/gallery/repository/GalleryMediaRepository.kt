@@ -122,6 +122,27 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     ): List<UserUploadedMedia>
 
     /**
+     * Returns which of the given directory entries have at least one media record in
+     * the given status.
+     *
+     * <p>Batched deliberately: the settlements index asks this once for every entry on
+     * the island rather than once per settlement. Only UserUploadedMedia carries an
+     * entryId association.</p>
+     *
+     * @param entryIds directory entry ids to test
+     * @param status the media status (typically ACTIVE)
+     * @return the distinct entry ids having at least one matching media record
+     */
+    @Query(
+        "SELECT DISTINCT m.entryId FROM UserUploadedMedia m " +
+            "WHERE m.entryId IN :entryIds AND m.status = :status",
+    )
+    fun findDistinctEntryIdsByEntryIdInAndStatus(
+        @Param("entryIds") entryIds: Collection<UUID>,
+        @Param("status") status: GalleryMediaStatus,
+    ): List<UUID>
+
+    /**
      * Finds all media associated with a directory entry, ordered by display order.
      *
      * Only returns UserUploadedMedia since ExternalMedia doesn't have entryId association.

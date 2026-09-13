@@ -4,6 +4,8 @@ import com.nosilha.core.places.domain.Town
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import java.util.UUID
 
@@ -26,6 +28,25 @@ interface TownRepository : JpaRepository<Town, UUID> {
      * @return The Town if found, null otherwise.
      */
     fun findBySlug(slug: String): Town?
+
+    /**
+     * Finds a settlement by name, ignoring case and accents.
+     *
+     * <p>Mirrors the predicate in `R__towns_fk_backfill.sql` so an entry created through
+     * the API resolves to the same settlement the migration would have chosen. Without
+     * this, 'Cachaço' typed by an admin would not match the 'Cachaco' row (spec 033
+     * FR-001).</p>
+     *
+     * @param name the settlement name as entered
+     * @return the matching Town, or null if no settlement matches
+     */
+    @Query(
+        value = "SELECT * FROM towns WHERE lower(unaccent(name)) = lower(unaccent(trim(:name))) LIMIT 1",
+        nativeQuery = true,
+    )
+    fun findByNameIgnoringCaseAndAccents(
+        @Param("name") name: String,
+    ): Town?
 
     /**
      * Finds all Town instances with pagination support.

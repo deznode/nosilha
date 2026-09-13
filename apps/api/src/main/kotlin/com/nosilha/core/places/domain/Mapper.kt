@@ -2,6 +2,8 @@ package com.nosilha.core.places.domain
 
 import com.nosilha.core.shared.api.BeachDto
 import com.nosilha.core.shared.api.ChurchDto
+import com.nosilha.core.shared.api.CoincidentRefDto
+import com.nosilha.core.shared.api.CompletenessDto
 import com.nosilha.core.shared.api.ContentActionSettingsDto
 import com.nosilha.core.shared.api.DirectoryEntryDto
 import com.nosilha.core.shared.api.HeritageDto
@@ -12,7 +14,6 @@ import com.nosilha.core.shared.api.PortDto
 import com.nosilha.core.shared.api.RestaurantDetailsDto
 import com.nosilha.core.shared.api.RestaurantDto
 import com.nosilha.core.shared.api.TownDto
-import com.nosilha.core.shared.api.TownPoiDto
 import com.nosilha.core.shared.api.TrailDto
 import com.nosilha.core.shared.api.ViewpointDto
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -30,10 +31,12 @@ private val logger = KotlinLogging.logger {}
  * DTO representation (RestaurantDto, HotelDto, etc.).
  *
  * @receiver The DirectoryEntry entity instance to map.
+ * @param coincidentWith another record at byte-identical coordinates, when one is known.
+ *   Supplied only on the detail path — list views do not pay for the lookup. See spec 033 FR-007.
  * @return The corresponding DirectoryEntryDto for the entity.
  * @throws IllegalStateException if the entity's ID is null, as DTOs are meant for persisted entities.
  */
-fun DirectoryEntry.toDto(): DirectoryEntryDto {
+fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEntryDto {
     val entityId = this.id ?: throw IllegalStateException("Cannot map an entity with a null ID to a DTO.")
     val tagList = this.parseTags()
     val contentActionSettings = this.parseContentActions()
@@ -50,13 +53,16 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
             latitude = latitude,
             longitude = longitude,
             imageUrl = imageUrl,
-            rating = rating,
-            reviewCount = reviewCount,
-            phoneNumber = phoneNumber,
-            email = email,
-            website = website,
+            rating = guardedRating(),
+            reviewCount = guardedReviewCount(),
+            phoneNumber = guardedPhoneNumber(),
+            email = guardedEmail(),
+            website = guardedWebsite(),
             createdAt = createdAt,
             updatedAt = updatedAt,
+            townId = townId,
+            completeness = completeness().toDto(),
+            coincidentWith = coincidentWith,
             details = RestaurantDetailsDto(
                 phoneNumber = phoneNumber ?: "",
                 openingHours = openingHours ?: "",
@@ -75,13 +81,16 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
             latitude = latitude,
             longitude = longitude,
             imageUrl = imageUrl,
-            rating = rating,
-            reviewCount = reviewCount,
-            phoneNumber = phoneNumber,
-            email = email,
-            website = website,
+            rating = guardedRating(),
+            reviewCount = guardedReviewCount(),
+            phoneNumber = guardedPhoneNumber(),
+            email = guardedEmail(),
+            website = guardedWebsite(),
             createdAt = createdAt,
             updatedAt = updatedAt,
+            townId = townId,
+            completeness = completeness().toDto(),
+            coincidentWith = coincidentWith,
             details = HotelDetailsDto(amenities = amenities.parseCommaSeparated()),
         )
 
@@ -96,13 +105,16 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
             latitude = latitude,
             longitude = longitude,
             imageUrl = imageUrl,
-            rating = rating,
-            reviewCount = reviewCount,
-            phoneNumber = phoneNumber,
-            email = email,
-            website = website,
+            rating = guardedRating(),
+            reviewCount = guardedReviewCount(),
+            phoneNumber = guardedPhoneNumber(),
+            email = guardedEmail(),
+            website = guardedWebsite(),
             createdAt = createdAt,
             updatedAt = updatedAt,
+            townId = townId,
+            completeness = completeness().toDto(),
+            coincidentWith = coincidentWith,
         )
 
         is Heritage -> HeritageDto(
@@ -116,13 +128,16 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
             latitude = latitude,
             longitude = longitude,
             imageUrl = imageUrl,
-            rating = rating,
-            reviewCount = reviewCount,
-            phoneNumber = phoneNumber,
-            email = email,
-            website = website,
+            rating = guardedRating(),
+            reviewCount = guardedReviewCount(),
+            phoneNumber = guardedPhoneNumber(),
+            email = guardedEmail(),
+            website = guardedWebsite(),
             createdAt = createdAt,
             updatedAt = updatedAt,
+            townId = townId,
+            completeness = completeness().toDto(),
+            coincidentWith = coincidentWith,
         )
 
         is Nature -> NatureDto(
@@ -136,33 +151,16 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
             latitude = latitude,
             longitude = longitude,
             imageUrl = imageUrl,
-            rating = rating,
-            reviewCount = reviewCount,
-            phoneNumber = phoneNumber,
-            email = email,
-            website = website,
+            rating = guardedRating(),
+            reviewCount = guardedReviewCount(),
+            phoneNumber = guardedPhoneNumber(),
+            email = guardedEmail(),
+            website = guardedWebsite(),
             createdAt = createdAt,
             updatedAt = updatedAt,
-        )
-
-        is TownPoi -> TownPoiDto(
-            id = entityId,
-            name = name,
-            slug = slug,
-            description = description,
-            tags = tagList,
-            contentActions = contentActionSettings,
-            town = town,
-            latitude = latitude,
-            longitude = longitude,
-            imageUrl = imageUrl,
-            rating = rating,
-            reviewCount = reviewCount,
-            phoneNumber = phoneNumber,
-            email = email,
-            website = website,
-            createdAt = createdAt,
-            updatedAt = updatedAt,
+            townId = townId,
+            completeness = completeness().toDto(),
+            coincidentWith = coincidentWith,
         )
 
         is Viewpoint -> ViewpointDto(
@@ -176,13 +174,16 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
             latitude = latitude,
             longitude = longitude,
             imageUrl = imageUrl,
-            rating = rating,
-            reviewCount = reviewCount,
-            phoneNumber = phoneNumber,
-            email = email,
-            website = website,
+            rating = guardedRating(),
+            reviewCount = guardedReviewCount(),
+            phoneNumber = guardedPhoneNumber(),
+            email = guardedEmail(),
+            website = guardedWebsite(),
             createdAt = createdAt,
             updatedAt = updatedAt,
+            townId = townId,
+            completeness = completeness().toDto(),
+            coincidentWith = coincidentWith,
         )
 
         is Trail -> TrailDto(
@@ -196,13 +197,16 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
             latitude = latitude,
             longitude = longitude,
             imageUrl = imageUrl,
-            rating = rating,
-            reviewCount = reviewCount,
-            phoneNumber = phoneNumber,
-            email = email,
-            website = website,
+            rating = guardedRating(),
+            reviewCount = guardedReviewCount(),
+            phoneNumber = guardedPhoneNumber(),
+            email = guardedEmail(),
+            website = guardedWebsite(),
             createdAt = createdAt,
             updatedAt = updatedAt,
+            townId = townId,
+            completeness = completeness().toDto(),
+            coincidentWith = coincidentWith,
         )
 
         is Church -> ChurchDto(
@@ -216,13 +220,16 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
             latitude = latitude,
             longitude = longitude,
             imageUrl = imageUrl,
-            rating = rating,
-            reviewCount = reviewCount,
-            phoneNumber = phoneNumber,
-            email = email,
-            website = website,
+            rating = guardedRating(),
+            reviewCount = guardedReviewCount(),
+            phoneNumber = guardedPhoneNumber(),
+            email = guardedEmail(),
+            website = guardedWebsite(),
             createdAt = createdAt,
             updatedAt = updatedAt,
+            townId = townId,
+            completeness = completeness().toDto(),
+            coincidentWith = coincidentWith,
         )
 
         is Port -> PortDto(
@@ -236,13 +243,16 @@ fun DirectoryEntry.toDto(): DirectoryEntryDto {
             latitude = latitude,
             longitude = longitude,
             imageUrl = imageUrl,
-            rating = rating,
-            reviewCount = reviewCount,
-            phoneNumber = phoneNumber,
-            email = email,
-            website = website,
+            rating = guardedRating(),
+            reviewCount = guardedReviewCount(),
+            phoneNumber = guardedPhoneNumber(),
+            email = guardedEmail(),
+            website = guardedWebsite(),
             createdAt = createdAt,
             updatedAt = updatedAt,
+            townId = townId,
+            completeness = completeness().toDto(),
+            coincidentWith = coincidentWith,
         )
 
         else -> throw IllegalStateException("Unsupported or unknown DirectoryEntry type: ${this::class.simpleName}")
@@ -335,10 +345,21 @@ fun DirectoryEntry.getCategoryValue(): String =
         is Beach -> "Beach"
         is Heritage -> "Heritage"
         is Nature -> "Nature"
-        is TownPoi -> "Town"
         is Viewpoint -> "Viewpoint"
         is Trail -> "Trail"
         is Church -> "Church"
         is Port -> "Port"
         else -> throw IllegalStateException("Unknown DirectoryEntry type: ${this::class.simpleName}")
     }
+
+/** Maps the derived completeness value onto its DTO. */
+fun Completeness.toDto(): CompletenessDto = CompletenessDto(documented = documented, total = total, missingFields = missingFields)
+
+/** Maps an entry to a lightweight reference for the coincident-coordinates note. */
+fun DirectoryEntry.toCoincidentRef(): CoincidentRefDto =
+    CoincidentRefDto(
+        id = this.id ?: throw IllegalStateException("Cannot reference an entity with a null ID."),
+        name = name,
+        slug = slug,
+        category = getCategoryValue(),
+    )

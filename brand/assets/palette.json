@@ -1,57 +1,94 @@
 {
   "meta": {
     "source": "Nos Ilha Design System",
-    "version": "2.1.0",
-    "codename": "Ilha das Flores",
+    "version": "3.0.0",
+    "codename": "Slate",
     "colorFormat": "OKLCH"
   },
   "brand": {
     "oceanBlue": {
-      "light": "oklch(0.35 0.08 240)",
-      "dark": "oklch(0.78 0.14 234)"
+      "light": "oklch(0.455 0.054 245.4)",
+      "dark": "oklch(0.742 0.053 243.2)"
+    },
+    "primaryFill": {
+      "light": "oklch(0.455 0.054 245.4)",
+      "dark": "oklch(0.514 0.060 245.8)"
     },
     "oceanBlueLight": {
-      "light": "oklch(0.48 0.08 220)",
-      "dark": "oklch(0.83 0.13 234)"
+      "light": "oklch(0.742 0.053 243.2)",
+      "dark": "oklch(0.830 0.037 241.9)"
     },
     "oceanBlueDeep": {
-      "light": "oklch(0.35 0.08 240)",
-      "dark": "oklch(0.30 0.07 240)"
+      "light": "oklch(0.369 0.047 245.9)",
+      "dark": "oklch(0.369 0.047 245.9)"
     },
     "valleyGreen": {
-      "light": "oklch(0.45 0.10 150)",
-      "dark": "oklch(0.65 0.12 160)"
+      "light": "oklch(0.511 0.040 170.7)",
+      "dark": "oklch(0.696 0.053 163.5)"
     },
     "bougainvilleaPink": {
-      "light": "oklch(0.50 0.20 350)",
-      "dark": "oklch(0.72 0.18 348)"
+      "light": "oklch(0.530 0.057 65.1)",
+      "dark": "oklch(0.721 0.076 64.1)"
     },
     "sobradoOchre": {
-      "light": "oklch(0.62 0.18 65)",
-      "dark": null
+      "light": "oklch(0.530 0.057 65.1)",
+      "dark": "oklch(0.721 0.076 64.1)"
     },
     "sunnyYellow": {
-      "light": "oklch(0.82 0.16 85)",
-      "dark": null
+      "light": "oklch(0.584 0.063 89.9)",
+      "dark": "oklch(0.756 0.071 91.8)"
     }
   },
   "neutrals": {
-    "mist50": { "light": "oklch(0.98 0.005 250)", "dark": null },
-    "mist100": { "light": "oklch(0.96 0.007 250)", "dark": null },
-    "mist200": { "light": "oklch(0.92 0.01 250)", "dark": null },
-    "basalt500": { "light": "oklch(0.55 0.03 260)", "dark": null },
-    "basalt600": { "light": "oklch(0.45 0.03 260)", "dark": null },
-    "basalt800": { "light": "oklch(0.28 0.03 260)", "dark": null },
-    "basalt900": { "light": "oklch(0.20 0.03 260)", "dark": null }
+    "mist50": {
+      "light": "oklch(0.975 0.003 247.9)",
+      "dark": null
+    },
+    "mist100": {
+      "light": "oklch(0.947 0.007 247.9)",
+      "dark": null
+    },
+    "mist200": {
+      "light": "oklch(0.913 0.009 242.8)",
+      "dark": null
+    },
+    "basalt500": {
+      "light": "oklch(0.670 0.018 242.6)",
+      "dark": null
+    },
+    "basalt600": {
+      "light": "oklch(0.515 0.018 242.0)",
+      "dark": null
+    },
+    "basalt800": {
+      "light": "oklch(0.316 0.017 244.8)",
+      "dark": null
+    },
+    "basalt900": {
+      "light": "oklch(0.244 0.014 248.4)",
+      "dark": null
+    }
   },
   "status": {
-    "error": { "light": "oklch(0.63 0.22 15)", "dark": "oklch(0.72 0.19 15)" },
+    "error": {
+      "light": "oklch(0.63 0.22 15)",
+      "dark": "oklch(0.72 0.19 15)"
+    },
     "success": {
       "light": "oklch(0.67 0.17 165)",
       "dark": "oklch(0.76 0.15 165)"
     },
-    "warning": { "light": "oklch(0.75 0.18 70)", "dark": "oklch(0.83 0.16 70)" },
-    "flagged": { "light": "oklch(0.70 0.19 42)", "dark": "oklch(0.78 0.17 42)" },
-    "info": { "light": "oklch(0.58 0.15 248)", "dark": "oklch(0.78 0.13 238)" }
+    "warning": {
+      "light": "oklch(0.75 0.18 70)",
+      "dark": "oklch(0.83 0.16 70)"
+    },
+    "flagged": {
+      "light": "oklch(0.70 0.19 42)",
+      "dark": "oklch(0.78 0.17 42)"
+    },
+    "info": {
+      "light": "oklch(0.58 0.15 248)",
+      "dark": "oklch(0.78 0.13 238)"
+    }
   }
 }

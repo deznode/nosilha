@@ -24,12 +24,12 @@ import java.util.UUID
  * are stored in the `directory_entries` table. The `category` column is used
  * as the discriminator to determine the specific subtype of each row.</p>
  *
- * <p><strong>Inheritance Hierarchy (10 categories):</strong></p>
+ * <p><strong>Inheritance Hierarchy (9 categories):</strong></p>
  * <pre>
  * AuditableEntity (shared kernel - provides createdAt, updatedAt)
  * └── DirectoryEntry (directory module - base directory entry)
  *     ├── Restaurant  ├── Hotel      ├── Beach
- *     ├── Heritage    ├── Nature     ├── TownPoi ("Town")
+ *     ├── Heritage    ├── Nature
  *     ├── Viewpoint   ├── Trail      ├── Church
  *     └── Port
  * </pre>
@@ -63,8 +63,17 @@ abstract class DirectoryEntry : AuditableEntity() {
     @Column(name = "category", nullable = false, insertable = false, updatable = false)
     lateinit var category: String
 
+    /**
+     * Legacy free-text settlement name. Retained until [townId] is verified populated
+     * for every row in every environment; see spec 033 FR-001 and
+     * R__towns_fk_backfill.sql. Prefer [townId] for new reads.
+     */
     @Column(nullable = false)
     lateinit var town: String
+
+    /** Canonical settlement reference. Nullable until the backfill is verified. */
+    @Column(name = "town_id")
+    var townId: UUID? = null
 
     @Column(nullable = false)
     var latitude: Double = 0.0

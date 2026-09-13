@@ -3,7 +3,7 @@ import { renderHook } from "@testing-library/react";
 import { useFilteredLocations } from "@/features/map/hooks/useFilteredLocations";
 import { useMapStore } from "@/stores/mapStore";
 import type { Location } from "@/features/map/data/types";
-import { Mountain, Sun, Church } from "lucide-react";
+import { Building, Mountain, Sun, Church } from "lucide-react";
 
 const mockLocations: Location[] = [
   {
@@ -18,6 +18,7 @@ const mockLocations: Location[] = [
     tags: ["hiking", "viewpoint"],
     icon: Mountain,
     color: "#3e7d5a",
+    status: { status: "documented", label: "has a photograph" },
   },
   {
     id: "2",
@@ -31,6 +32,7 @@ const mockLocations: Location[] = [
     tags: ["beach", "swimming"],
     icon: Sun,
     color: "#f7b801",
+    status: { status: "documented", label: "has a photograph" },
   },
   {
     id: "3",
@@ -44,11 +46,43 @@ const mockLocations: Location[] = [
     tags: ["church", "heritage"],
     icon: Church,
     color: "#8b5cf6",
+    status: { status: "documented", label: "has a photograph" },
+  },
+];
+
+const mockSettlements: Location[] = [
+  {
+    id: "nova-sintra",
+    name: "Nova Sintra",
+    namePortuguese: "Nova Sintra",
+    category: "Town",
+    description: "The island's main town",
+    coordinates: { lat: 14.87111, lng: -24.69611 },
+    elevation: 0,
+    tags: [],
+    icon: Building,
+    color: "#4F6E63",
+    status: { status: "documented", label: "documented" },
+  },
+  {
+    id: "minhoto",
+    name: "Minhoto",
+    namePortuguese: "Minhoto",
+    category: "Town",
+    description: "A hamlet in the north-east",
+    coordinates: { lat: 14.8784, lng: -24.6958 },
+    elevation: 0,
+    tags: [],
+    icon: Building,
+    color: "#836548",
+    status: { status: "gap", label: "name only" },
   },
 ];
 
 function resetStore() {
   useMapStore.setState({
+    mapMode: "places",
+    settlements: mockSettlements,
     locations: mockLocations,
     activeCategory: "All",
     searchQuery: "",
@@ -110,6 +144,27 @@ describe("useFilteredLocations", () => {
     const { result } = renderHook(() => useFilteredLocations());
     expect(result.current).toHaveLength(1);
     expect(result.current[0].name).toBe("Monte Fontainhas");
+  });
+
+  it("shows settlements, not place records, in Settlements mode", () => {
+    useMapStore.setState({ mapMode: "settlements" });
+
+    const { result } = renderHook(() => useFilteredLocations());
+    expect(result.current.map((l) => l.id)).toEqual(["nova-sintra", "minhoto"]);
+  });
+
+  it("ignores a category left over from Place records in Settlements mode", () => {
+    useMapStore.setState({ mapMode: "settlements", activeCategory: "Beach" });
+
+    const { result } = renderHook(() => useFilteredLocations());
+    expect(result.current).toHaveLength(2);
+  });
+
+  it("searches settlements in Settlements mode", () => {
+    useMapStore.setState({ mapMode: "settlements", searchQuery: "hamlet" });
+
+    const { result } = renderHook(() => useFilteredLocations());
+    expect(result.current.map((l) => l.id)).toEqual(["minhoto"]);
   });
 
   it("returns empty when combined filters match nothing", () => {

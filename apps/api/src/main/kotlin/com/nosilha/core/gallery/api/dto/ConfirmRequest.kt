@@ -38,7 +38,8 @@ import java.util.UUID
  * Manual Metadata (for historical photos):
  * @property approximateDate Manual date entry (e.g., "circa 1960s")
  * @property locationName Manual location name (e.g., "Vila Nova Sintra")
- * @property photographerCredit Photographer name
+ * @property photographerCredit Photographer name, or "not known". Required: credit is part of
+ *   contribution, and "not known" is an accepted answer stored as typed (spec 033 FR-004)
  * @property archiveSource Source of historical photo
  */
 data class ConfirmRequest(
@@ -94,6 +95,7 @@ data class ConfirmRequest(
     val approximateDate: String? = null,
     @field:Size(max = 255, message = "Location name must be at most 255 characters")
     val locationName: String? = null,
+    @field:NotBlank(message = "Photographer credit is required — a name, or 'not known'")
     @field:Size(max = 255, message = "Photographer credit must be at most 255 characters")
     val photographerCredit: String? = null,
     @field:Size(max = 255, message = "Archive source must be at most 255 characters")

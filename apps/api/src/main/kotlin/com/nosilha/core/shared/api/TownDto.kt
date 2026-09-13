@@ -26,3 +26,40 @@ data class TownDto(
     val createdAt: Instant,
     val updatedAt: Instant,
 )
+
+/**
+ * How much the archive holds about a settlement.
+ *
+ * Documentation state, not a category — derived on read from live counts. Spec 033
+ * FR-005.
+ */
+enum class SettlementStatus {
+    /** Has at least one record, and at least one of those records has a photograph. */
+    DOCUMENTED,
+
+    /** Has records, but none of them carries a photograph. */
+    PARTIAL,
+
+    /** Name, coordinates and description only. Nothing has been recorded here. */
+    NAME_ONLY,
+}
+
+/**
+ * A settlement with its derived documentation status, for the settlements index and the
+ * map's Settlements mode.
+ *
+ * Counts are live aggregates so the filter-chip totals can never drift from the cards
+ * they describe. Coordinates and description let the map pin and describe every
+ * settlement from this one response (spec 033 FR-012).
+ */
+data class TownStatusDto(
+    val id: UUID?,
+    val slug: String,
+    val name: String,
+    val description: String,
+    val latitude: Double,
+    val longitude: Double,
+    val entryCount: Long,
+    val hasPhotograph: Boolean,
+    val status: SettlementStatus,
+)

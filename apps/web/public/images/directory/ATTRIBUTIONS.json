@@ -1,6 +1,17 @@
 {
   "images": [
     {
+      "filename": "../hero.jpg",
+      "title": null,
+      "author": "NosIlha",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "source": null,
+      "sourceUrl": null,
+      "dateOriginal": "2024",
+      "dateDownloaded": null
+    },
+    {
       "filename": "heritage/igreja-nossa-senhora-do-monte.jpg",
       "title": "Pilgrimage Church, Nossa Senhora do Monte, Brava, Cabo Verde",
       "author": "Torbenbrinker",

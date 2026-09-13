@@ -57,9 +57,11 @@ const styles = {
     "[--btn-icon:var(--color-basalt-500)] data-active:[--btn-icon:var(--color-basalt-800)] data-hover:[--btn-icon:var(--color-basalt-800)] dark:[--btn-icon:var(--color-basalt-500)] dark:data-active:[--btn-icon:var(--color-mist-200)] dark:data-hover:[--btn-icon:var(--color-mist-200)]",
   ],
   colors: {
-    // Primary actions (Ocean Blue)
+    // Primary actions. Reads the semantic --primary token, not --color-ocean-blue:
+    // as a fill carrying white text the raw brand token measures 2.27:1 in dark mode
+    // and fails AA. See globals.css. Spec 033 FR-014.
     blue: [
-      "text-white [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-ocean-blue)] [--btn-border:var(--color-ocean-blue)]/90",
+      "text-primary-foreground [--btn-hover-overlay:var(--color-white)]/10 [--btn-bg:var(--color-primary)] [--btn-border:var(--color-primary)]/90",
       "[--btn-icon:var(--color-white)] data-active:[--btn-icon:var(--color-white)] data-hover:[--btn-icon:var(--color-white)]",
     ],
     // Secondary actions (basalt)

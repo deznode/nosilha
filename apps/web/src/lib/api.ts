@@ -1,5 +1,5 @@
 import type { DirectoryEntry } from "@/types/directory";
-import type { Town } from "@/types/town";
+import type { Town, TownStatusSummary } from "@/types/town";
 import type {
   ReactionCreateDto,
   ReactionResponseDto,
@@ -195,6 +195,15 @@ export async function getTownBySlug(slug: string): Promise<Town | undefined> {
  */
 export async function getTownsForMap(): Promise<Town[]> {
   return apiClient.getTownsForMap();
+}
+
+/**
+ * Fetches every settlement with its derived documentation status and coordinates.
+ * Automatically uses the configured API implementation (backend or mock).
+ * @returns A promise that resolves to an array of settlement status summaries.
+ */
+export async function getTownStatusSummary(): Promise<TownStatusSummary[]> {
+  return apiClient.getTownStatusSummary();
 }
 
 // All components should use the unified API functions above that automatically

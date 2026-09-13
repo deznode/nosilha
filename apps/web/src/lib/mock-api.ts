@@ -1,5 +1,5 @@
 import type { DirectoryEntry } from "@/types/directory";
-import type { Town } from "@/types/town";
+import type { Town, TownStatusSummary } from "@/types/town";
 import type {
   ApiClient,
   PaginatedResult,
@@ -542,6 +542,23 @@ export class MockApiClient implements ApiClient {
   /**
    * Fetches towns for map display.
    */
+  async getTownStatusSummary(): Promise<TownStatusSummary[]> {
+    console.log(`Mock API: Fetching town status summary`);
+    await this.simulateDelay(150);
+    // The mock holds no records per town, so every settlement reads as name only.
+    return MOCK_TOWNS.map((town) => ({
+      id: town.id,
+      slug: town.slug,
+      name: town.name,
+      description: town.description,
+      latitude: town.latitude,
+      longitude: town.longitude,
+      entryCount: 0,
+      hasPhotograph: false,
+      status: "NAME_ONLY",
+    }));
+  }
+
   async getTownsForMap(): Promise<Town[]> {
     console.log(`Mock API: Fetching towns for map`);
     await this.simulateDelay(150);

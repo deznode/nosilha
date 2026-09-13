@@ -18,13 +18,17 @@ interface AnimatedButtonProps extends Omit<
   className?: string;
 }
 
+// Filled variants read the semantic --primary / --secondary-fill tokens rather than the
+// raw brand tokens. The brand tokens are correct for links, accents and text on dark,
+// where they must stay light; as button fills carrying white text they measure 2.27:1
+// and 2.65:1 in dark mode and fail WCAG AA. See the notes in globals.css. Spec 033 FR-014.
 const variants = {
   primary:
-    "bg-ocean-blue text-white hover:bg-ocean-blue/90 focus-visible:ring-ocean-blue",
+    "bg-primary text-primary-foreground hover:bg-primary/90 focus-visible:ring-primary",
   secondary:
-    "bg-valley-green text-white hover:bg-valley-green/90 focus-visible:ring-valley-green",
+    "bg-secondary-fill text-primary-foreground hover:bg-secondary-fill/90 focus-visible:ring-secondary-fill",
   outline:
-    "border-2 border-ocean-blue text-ocean-blue hover:bg-ocean-blue hover:text-white focus-visible:ring-ocean-blue",
+    "border-2 border-ocean-blue text-ocean-blue hover:bg-primary hover:text-primary-foreground focus-visible:ring-primary",
   ghost:
     "text-text-primary hover:bg-background-secondary focus-visible:ring-ocean-blue",
 };

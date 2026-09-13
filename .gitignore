@@ -133,3 +133,5 @@ apps/web/ds-types/
 
 # design handoff bundles imported from claude.ai/design (13MB; source of truth is the design project)
 .claude-design/
+
+.claude/worktrees

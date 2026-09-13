@@ -2,12 +2,16 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import type {
   Location,
+  MapMode,
   ViewMode,
   LayerVisibility,
 } from "@/features/map/data/types";
 import type { CategoryType } from "@/features/map/data/categories";
-import { getEntriesForMap } from "@/lib/api";
-import { transformEntries } from "@/features/map/data/locations-adapter";
+import { getEntriesForMap, getTownStatusSummary } from "@/lib/api";
+import {
+  transformEntries,
+  transformSettlements,
+} from "@/features/map/data/locations-adapter";
 
 /**
  * Zustand store for shared map state.
@@ -17,7 +21,9 @@ import { transformEntries } from "@/features/map/data/locations-adapter";
 
 interface MapState {
   // State
+  mapMode: MapMode;
   locations: Location[];
+  settlements: Location[];
   isLoadingLocations: boolean;
   locationsFetchError: string | null;
   activeCategory: CategoryType;
@@ -29,9 +35,9 @@ interface MapState {
   viewMode: ViewMode;
   isOrbiting: boolean;
   showSidebar: boolean;
-  introCompleted: boolean;
 
   // Actions
+  setMapMode: (mode: MapMode) => void;
   setLocations: (locations: Location[]) => void;
   setIsLoadingLocations: (loading: boolean) => void;
   setActiveCategory: (category: CategoryType) => void;
@@ -43,7 +49,6 @@ interface MapState {
   setViewMode: (mode: ViewMode) => void;
   setIsOrbiting: (orbiting: boolean) => void;
   setShowSidebar: (show: boolean) => void;
-  setIntroCompleted: (completed: boolean) => void;
 
   // Convenience actions
   toggleSidebar: () => void;
@@ -56,7 +61,9 @@ export const useMapStore = create<MapState>()(
   devtools(
     (set) => ({
       // Initial state
+      mapMode: "settlements",
       locations: [],
+      settlements: [],
       isLoadingLocations: true,
       locationsFetchError: null,
       activeCategory: "All",
@@ -64,13 +71,15 @@ export const useMapStore = create<MapState>()(
       layerVisibility: "all",
       selectedLocation: null,
       isPulsing: false,
-      is3D: true,
+      // Terrain stays available but opt-in. Spec 033 FR-012.
+      is3D: false,
       viewMode: "satellite",
       isOrbiting: false,
       showSidebar: true,
-      introCompleted: false,
 
       // Simple setters
+      // The selection belongs to the mode it was made in, so switching clears it.
+      setMapMode: (mode) => set({ mapMode: mode, selectedLocation: null }),
       setLocations: (locations) => set({ locations }),
       setIsLoadingLocations: (loading) => set({ isLoadingLocations: loading }),
       setActiveCategory: (category) => set({ activeCategory: category }),
@@ -82,7 +91,6 @@ export const useMapStore = create<MapState>()(
       setViewMode: (mode) => set({ viewMode: mode }),
       setIsOrbiting: (orbiting) => set({ isOrbiting: orbiting }),
       setShowSidebar: (show) => set({ showSidebar: show }),
-      setIntroCompleted: (completed) => set({ introCompleted: completed }),
 
       // Convenience actions
       toggleSidebar: () =>
@@ -92,7 +100,10 @@ export const useMapStore = create<MapState>()(
 
       fetchLocations: async () => {
         try {
-          const result = await getEntriesForMap("all");
+          const [result, towns] = await Promise.all([
+            getEntriesForMap("all"),
+            getTownStatusSummary(),
+          ]);
           if (result.pagination && result.pagination.totalPages > 1) {
             console.warn(
               `[MapStore] Only fetched page 1 of ${result.pagination.totalPages} — ${result.pagination.totalElements} total entries exist. Increase page size.`
@@ -100,6 +111,7 @@ export const useMapStore = create<MapState>()(
           }
           set({
             locations: transformEntries(result.items),
+            settlements: transformSettlements(towns),
             isLoadingLocations: false,
             locationsFetchError: null,
           });
@@ -118,7 +130,9 @@ export const useMapStore = create<MapState>()(
 );
 
 // Selectors for optimized re-renders
+export const useMapMode = () => useMapStore((state) => state.mapMode);
 export const useLocations = () => useMapStore((state) => state.locations);
+export const useSettlements = () => useMapStore((state) => state.settlements);
 export const useIsLoadingLocations = () =>
   useMapStore((state) => state.isLoadingLocations);
 export const useLocationsFetchError = () =>
@@ -136,5 +150,3 @@ export const useIs3D = () => useMapStore((state) => state.is3D);
 export const useViewMode = () => useMapStore((state) => state.viewMode);
 export const useIsOrbiting = () => useMapStore((state) => state.isOrbiting);
 export const useShowSidebar = () => useMapStore((state) => state.showSidebar);
-export const useIntroCompleted = () =>
-  useMapStore((state) => state.introCompleted);

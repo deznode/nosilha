@@ -3,7 +3,13 @@
 import { useRef, useCallback, useEffect } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import { AnimatePresence } from "framer-motion";
-import { useMapStore, useSelectedLocation } from "@/stores/mapStore";
+import {
+  useLocations,
+  useMapMode,
+  useMapStore,
+  useSelectedLocation,
+  useSettlements,
+} from "@/stores/mapStore";
 import { calculateBearing, MAP_CONFIG } from "../data/constants";
 import type { Location, ViewMode } from "../data/types";
 import { MapHeader } from "./map-header";
@@ -12,12 +18,16 @@ import { MapCanvas } from "./map-canvas";
 import { MapControls } from "./map-controls";
 import { LocationBottomSheet } from "./location-bottom-sheet";
 import { LocationDetailCard } from "./location-detail-card";
+import { MapLegend } from "./map-legend";
 
 export default function BravaMap() {
   const mapRef = useRef<MapRef>(null);
   const pulseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const selectedLocation = useSelectedLocation();
+  const mapMode = useMapMode();
+  const locations = useLocations();
+  const settlements = useSettlements();
 
   useEffect(() => {
     // Prevent iOS Safari body bounce scrolling behind the full-screen map
@@ -92,8 +102,10 @@ export default function BravaMap() {
   }, []);
 
   const handleRandomFlyTo = useCallback(() => {
-    const { locations, selectedLocation } = useMapStore.getState();
-    const available = locations.filter((l) => l.id !== selectedLocation?.id);
+    const { mapMode, locations, settlements, selectedLocation } =
+      useMapStore.getState();
+    const source = mapMode === "settlements" ? settlements : locations;
+    const available = source.filter((l) => l.id !== selectedLocation?.id);
     const random = available[Math.floor(Math.random() * available.length)];
     if (random) handleFlyTo(random);
   }, [handleFlyTo]);
@@ -135,22 +147,32 @@ export default function BravaMap() {
   }, []);
 
   return (
-    <div className="bg-background-secondary text-text-primary relative h-screen w-full overflow-hidden font-sans">
-      <MapHeader />
-      <MapSidebar onFlyTo={handleFlyTo} />
-      <MapCanvas mapRef={mapRef} onFlyTo={handleFlyTo} />
-      <MapControls
-        onRandomFlyTo={handleRandomFlyTo}
-        onReset={handleReset}
-        on3DToggle={handle3DToggle}
-        onViewModeToggle={handleViewModeToggle}
+    <div className="bg-background-secondary text-text-primary flex h-screen w-full flex-col overflow-hidden font-sans">
+      {/* The pin field. Everything overlaid on the map stays inside it, so nothing
+          it holds can cover the legend strip below. */}
+      <div className="relative min-h-0 flex-1 overflow-hidden">
+        <MapHeader />
+        <MapSidebar onFlyTo={handleFlyTo} />
+        <MapCanvas mapRef={mapRef} onFlyTo={handleFlyTo} />
+        <MapControls
+          onRandomFlyTo={handleRandomFlyTo}
+          onReset={handleReset}
+          on3DToggle={handle3DToggle}
+          onViewModeToggle={handleViewModeToggle}
+        />
+        <AnimatePresence>
+          {selectedLocation && (
+            <LocationBottomSheet key={selectedLocation.id} />
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {selectedLocation && <LocationDetailCard />}
+        </AnimatePresence>
+      </div>
+      <MapLegend
+        mode={mapMode}
+        locations={mapMode === "settlements" ? settlements : locations}
       />
-      <AnimatePresence>
-        {selectedLocation && <LocationBottomSheet key={selectedLocation.id} />}
-      </AnimatePresence>
-      <AnimatePresence>
-        {selectedLocation && <LocationDetailCard />}
-      </AnimatePresence>
     </div>
   );
 }

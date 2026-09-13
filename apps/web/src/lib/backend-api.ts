@@ -1,5 +1,5 @@
 import type { DirectoryEntry } from "@/types/directory";
-import type { Town } from "@/types/town";
+import type { Town, TownStatusSummary } from "@/types/town";
 import type {
   ErrorDetail,
   MediaMetadataDto,
@@ -106,8 +106,33 @@ import {
   validateDirectoryEntries,
   validateDirectoryEntry,
   validateTowns,
+  validateTownStatusSummaries,
   validateTown,
 } from "@/lib/api-validation";
+
+/**
+ * Reads a human-readable message from an API error body.
+ *
+ * A validation 400 from `GlobalExceptionHandler` carries no top-level `message`, only
+ * `details[]`, so reading `message` alone reduces a field message such as "Photographer
+ * credit is required" to a bare status code.
+ */
+export function apiErrorMessage(body: unknown, fallback: string): string {
+  if (body && typeof body === "object") {
+    const { details, message } = body as {
+      details?: Array<{ message?: unknown }>;
+      message?: unknown;
+    };
+    const fieldMessages = Array.isArray(details)
+      ? details
+          .map((detail) => detail?.message)
+          .filter((m): m is string => typeof m === "string" && m.length > 0)
+      : [];
+    if (fieldMessages.length > 0) return fieldMessages.join(". ");
+    if (typeof message === "string" && message.length > 0) return message;
+  }
+  return fallback;
+}
 
 /**
  * Backend API Client - Pure implementation without fallbacks
@@ -164,6 +189,9 @@ export class BackendApiClient implements ApiClient {
         loginUrl = `/login?returnUrl=${encodeURIComponent(currentPath)}`;
       }
 
+      // A plain class, not a component: useRouter() and redirect() are unavailable here, and a
+      // full reload after signOut is intended — it drops client state tied to the dead session.
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.href = loginUrl;
       throw new Error("Authentication expired. Please log in again.");
     }
@@ -421,9 +449,12 @@ export class BackendApiClient implements ApiClient {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json().catch(() => null);
       throw new Error(
-        errorData.message || `Upload confirmation failed: ${response.status}`
+        apiErrorMessage(
+          errorData,
+          `Upload confirmation failed: ${response.status}`
+        )
       );
     }
 
@@ -599,6 +630,21 @@ export class BackendApiClient implements ApiClient {
    * Fetches towns for real-time interactive features like maps.
    * Uses no-store cache to ensure fresh data for dynamic interactions.
    */
+  async getTownStatusSummary(): Promise<TownStatusSummary[]> {
+    const endpoint = `${env.apiUrl}/api/v1/towns/status-summary`;
+
+    // Status is derived from live counts, so keep it fresh like the rest of the map data
+    const response = await fetch(endpoint, CacheConfig.MAP_DATA);
+
+    if (!response.ok) {
+      throw new Error(`API call failed with status: ${response.status}`);
+    }
+
+    const payload = (await response.json()) as unknown;
+    const rawData = this.unwrapApiResponse<TownStatusSummary[]>(payload) ?? [];
+    return validateTownStatusSummaries(rawData);
+  }
+
   async getTownsForMap(): Promise<Town[]> {
     const endpoint = `${env.apiUrl}/api/v1/towns/all`;
 

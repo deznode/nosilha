@@ -1,11 +1,3 @@
-// --- Cinematic Intro Configuration ---
-export const INTRO_CONFIG = {
-  PEAK_POSITION: { lng: -24.708, lat: 14.851 }, // Monte Fontainhas
-  HOLD_DURATION: 1500,
-  SWEEP_DURATION: 4000,
-  SETTLE_DURATION: 1000,
-} as const;
-
 // --- Basemap Styles (CARTO, open / no API key) ---
 // Any host added here must also be allowed by the CSP in `next.config.ts`.
 export const MAP_STYLES = {

@@ -256,4 +256,26 @@ class CreditParserTest {
             assertThat(result.handle).isEqualTo("nosilha")
         }
     }
+
+    @Nested
+    @DisplayName("Unknown photographer")
+    inner class UnknownPhotographer {
+        // "not known" is an accepted answer at upload (spec 033 FR-004) and must be
+        // stored as typed, never rewritten into a handle or a normalised name.
+        @ParameterizedTest
+        @ValueSource(strings = ["not known", "Not known", "NOT KNOWN"])
+        fun `keeps not known verbatim with no platform`(input: String) {
+            val result = CreditParser.parseCredit(input)
+            assertThat(result.displayName).isEqualTo(input)
+            assertThat(result.platform).isNull()
+            assertThat(result.handle).isNull()
+        }
+
+        @Test
+        fun `trims surrounding whitespace but keeps the wording`() {
+            val result = CreditParser.parseCredit("  not known  ")
+            assertThat(result.displayName).isEqualTo("not known")
+            assertThat(result.platform).isNull()
+        }
+    }
 }

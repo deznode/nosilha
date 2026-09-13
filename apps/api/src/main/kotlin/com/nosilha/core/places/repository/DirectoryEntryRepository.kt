@@ -200,6 +200,72 @@ interface DirectoryEntryRepository :
     ): Page<DirectoryEntry>
 
     /**
+     * Finds PUBLISHED entries belonging to a settlement, by canonical town reference.
+     *
+     * Prefer this over the town-string variants: UUID equality removes the accent and
+     * case hazards that string matching carries (spec 033 FR-001).
+     *
+     * @param status The status to filter by
+     * @param townId The canonical settlement id
+     * @param pageable Pagination parameters
+     * @return A page of DirectoryEntry entities in that settlement
+     */
+    fun findByStatusAndTownId(
+        status: DirectoryEntryStatus,
+        townId: UUID,
+        pageable: Pageable,
+    ): Page<DirectoryEntry>
+
+    /**
+     * Finds PUBLISHED entries belonging to a settlement, unpaged.
+     *
+     * Used by the settlement detail page, where the record count per settlement is
+     * small and the page renders them all.
+     */
+    fun findByStatusAndTownIdOrderByNameAsc(
+        status: DirectoryEntryStatus,
+        townId: UUID,
+    ): List<DirectoryEntry>
+
+    /**
+     * Counts PUBLISHED entries per settlement, for the settlements index status dots.
+     *
+     * Returns rows of (townId, entryCount, photographCount) so a single query answers
+     * both "has records" and "has a record with a photograph" (spec 033 FR-005).
+     */
+    @Query(
+        """
+        SELECT d.town_id AS townId,
+               COUNT(*) AS entryCount,
+               COUNT(d.image_url) AS photographCount
+        FROM directory_entries d
+        WHERE d.status = 'PUBLISHED' AND d.town_id IS NOT NULL
+        GROUP BY d.town_id
+        """,
+        nativeQuery = true,
+    )
+    fun countByTownIdGroupByTownIdPublished(): List<Array<Any>>
+
+    /**
+     * Finds other entries at byte-identical coordinates.
+     *
+     * The archive holds two records at 14.873 N, 24.732 W. The redesign states that
+     * duplication on the record rather than hiding it (spec 033 FR-007), and this
+     * generalises to any future pair rather than hardcoding those slugs.
+     */
+    fun findByLatitudeAndLongitudeAndIdNot(
+        latitude: Double,
+        longitude: Double,
+        id: UUID,
+    ): List<DirectoryEntry>
+
+    /** Published entry ids for a settlement, used to batch the "has a photograph" lookup. */
+    @Query("SELECT d.id FROM DirectoryEntry d WHERE d.townId = :townId AND d.status = 'PUBLISHED'")
+    fun findPublishedEntryIdsByTownId(
+        @Param("townId") townId: UUID,
+    ): List<UUID>
+
+    /**
      * Finds PUBLISHED DirectoryEntry instances by category and town with pagination.
      *
      * @param status The status to filter by
