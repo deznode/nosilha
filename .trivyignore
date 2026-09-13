@@ -17,3 +17,10 @@ GHSA-r28c-9q8g-f849
 
 # sharp inherited vulnerabilities in libvips
 GHSA-f88m-g3jw-g9cj
+
+# maplibre-gl: XSS sanitizer bypass in DOM.sanitize() (CRITICAL, fixed only in 6.4.1)
+# maplibre-gl v6 stops the map worker from starting under Turbopack, breaking /map
+# in dev and prod, so the dependency is held at v5. Accepted 2026-09-13 to unblock
+# the frontend deploy. Revisit by 2026-10-13: assess whether any popup/attribution
+# path passes untrusted HTML to DOM.sanitize, or land the v6 migration.
+CVE-2026-85061
