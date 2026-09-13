@@ -33,6 +33,16 @@ export type PhotoUploadState =
   | "error";
 
 /**
+ * Options for a photo upload. Manual metadata given here takes precedence over
+ * values set through `setManualMetadata`.
+ */
+export interface PhotoUploadOptions extends ManualMetadata {
+  category?: string;
+  description?: string;
+  photographerCredit?: string;
+}
+
+/**
  * Return type for the usePhotoUpload hook
  */
 export interface UsePhotoUploadReturn {
@@ -81,11 +91,7 @@ export interface UsePhotoUploadReturn {
   /**
    * Upload the file with all metadata
    */
-  upload: (options?: {
-    category?: string;
-    description?: string;
-    photographerCredit?: string;
-  }) => Promise<UploadResult | null>;
+  upload: (options?: PhotoUploadOptions) => Promise<UploadResult | null>;
 
   /**
    * Clear the selected file and reset state
@@ -243,18 +249,14 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
    * Upload the file with all metadata
    */
   const upload = useCallback(
-    async (options?: {
-      category?: string;
-      description?: string;
-      photographerCredit?: string;
-    }): Promise<UploadResult | null> => {
+    async (options?: PhotoUploadOptions): Promise<UploadResult | null> => {
       if (!file || !metadata) {
         setError("No file selected");
         return null;
       }
 
       // Build metadata for confirm request
-      // photographerCredit from upload options takes precedence over manual metadata
+      // Manual fields passed as upload options take precedence over manual metadata
       const confirmMetadata: ConfirmRequestMetadata = {
         // EXIF (privacy-processed)
         latitude: metadata.latitude,
@@ -268,10 +270,10 @@ export function usePhotoUpload(): UsePhotoUploadReturn {
         photoType: metadata.photoType,
         gpsPrivacyLevel: metadata.gpsPrivacyLevel,
         // Manual
-        approximateDate: metadata.approximateDate,
-        locationName: metadata.locationName,
+        approximateDate: options?.approximateDate ?? metadata.approximateDate,
+        locationName: options?.locationName ?? metadata.locationName,
         photographerCredit: options?.photographerCredit,
-        archiveSource: metadata.archiveSource,
+        archiveSource: options?.archiveSource ?? metadata.archiveSource,
       };
 
       // Call R2 upload with extended metadata

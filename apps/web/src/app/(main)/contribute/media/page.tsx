@@ -4,39 +4,67 @@ import { useState, useRef, useMemo, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import clsx from "clsx";
-import {
-  ArrowLeft,
-  Image as ImageIcon,
-  Play,
-  Upload,
-  X,
-  Check,
-  Link as LinkIcon,
-  AlertCircle,
-} from "lucide-react";
-import type { MediaType, ManualMetadata, MediaCategory } from "@/types/media";
-import { GALLERY_CATEGORIES } from "@/types/media";
+import { Check, X, AlertCircle } from "lucide-react";
 import type { ExternalPlatform } from "@/types/gallery";
 import { usePhotoUpload } from "@/hooks/usePhotoUpload";
-import { BackendApiClient } from "@/lib/backend-api";
+import { submitExternalMedia } from "@/lib/api";
 import { useAuth } from "@/components/providers/auth-provider";
-import { InlineAuthPrompt } from "@/components/ui/inline-auth-prompt";
 import { useToast } from "@/hooks/use-toast";
+import { PageHeader } from "@/components/ui/page-header";
+import { AnimatedButton } from "@/components/ui/animated-button";
+import { CreditPreviewBadge } from "@/components/ui/credit-display";
+import { Input } from "@/components/catalyst-ui/input";
+import { Checkbox } from "@/components/catalyst-ui/checkbox";
+import { SignInDialog } from "@/components/auth/sign-in-dialog";
 import { PhotoTypeSelector } from "@/components/gallery/photo-type-selector";
 import { MetadataBadges } from "@/components/gallery/metadata-badges";
-import { ManualMetadataForm } from "@/components/gallery/manual-metadata-form";
 import { detectCreditPlatform, type DetectedCredit } from "@/lib/credit-utils";
-import { CreditPreviewBadge } from "@/components/ui/credit-display";
+
+type ContributionKind = "photo" | "film";
 
 interface FormData {
-  title: string;
-  type: MediaType;
-  category: MediaCategory | null;
-  description: string;
-  url: string;
-  author: string;
-  preview: string;
+  photographer: string;
+  source: string;
+  place: string;
+  date: string;
+  permission: boolean;
+  filmTitle: string;
+  filmUrl: string;
 }
+
+const EMPTY_FORM: FormData = {
+  photographer: "",
+  source: "",
+  place: "",
+  date: "",
+  permission: false,
+  filmTitle: "",
+  filmUrl: "",
+};
+
+/** The next thing the form needs, in the order that makes the argument. */
+type Step =
+  | "photographer"
+  | "contributor"
+  | "permission"
+  | "file"
+  | "filmTitle"
+  | "filmUrl"
+  | "ready";
+
+const STEP_LABELS: Record<Exclude<Step, "ready">, string> = {
+  photographer: "Name the photographer to continue",
+  contributor: "Add your name to continue",
+  permission: "Confirm permission to continue",
+  file: "Add the photograph to continue",
+  filmTitle: "Add the film's title to continue",
+  filmUrl: "Paste a YouTube or Vimeo link to continue",
+};
+
+const labelClass = "text-foreground mb-[7px] block text-[11.5px] font-semibold";
+const columnClass = "text-muted-foreground mt-[7px] font-mono text-[11px]";
+const eyebrowClass =
+  "text-muted-foreground font-mono text-[10.5px] font-semibold tracking-[.13em] uppercase";
 
 /**
  * Parses a video URL to extract platform and video ID.
@@ -66,28 +94,22 @@ function parseVideoUrl(
   return null;
 }
 
+/**
+ * Contribute a photograph or film link. Credit and permission come first; sign-in is
+ * asked for at submit, in place, never as a gate in front of the form. Spec 033 FR-010.
+ */
 export default function MediaContributionPage() {
   const { user, loading: authLoading } = useAuth();
   const toast = useToast();
   const [submitted, setSubmitted] = useState(false);
-  const [videoSubmitting, setVideoSubmitting] = useState(false);
-  const [videoError, setVideoError] = useState<string | null>(null);
-  const [formData, setFormData] = useState<FormData>({
-    title: "",
-    type: "IMAGE",
-    category: null,
-    description: "",
-    url: "",
-    author: "",
-    preview: "",
-  });
-  // Manual metadata for historical photos without EXIF
-  const [manualMetadata, setManualMetadata] = useState<ManualMetadata>({});
-  const [showManualForm, setShowManualForm] = useState(false);
-  const apiClient = useRef(new BackendApiClient());
-
-  // Check if user needs to authenticate (all media submissions require auth)
-  const requiresAuth = !authLoading && !user;
+  const [kind, setKind] = useState<ContributionKind>("photo");
+  const [formData, setFormData] = useState<FormData>(EMPTY_FORM);
+  const [filmSubmitting, setFilmSubmitting] = useState(false);
+  const [filmError, setFilmError] = useState<string | null>(null);
+  const [signInOpen, setSignInOpen] = useState(false);
+  // A ref, not state: Activity preserves useState across navigation, so a pending
+  // submission held in state could fire on an unrelated later visit.
+  const pendingSubmitRef = useRef(false);
 
   // Use the photo upload hook with EXIF extraction
   const {
@@ -95,6 +117,7 @@ export default function MediaContributionPage() {
     progress,
     error: uploadError,
     file: selectedFile,
+    previewUrl,
     metadata,
     photoType,
     setPhotoType,
@@ -108,121 +131,138 @@ export default function MediaContributionPage() {
   // so this runs on initial mount (harmless) AND every return visit.
   useEffect(() => {
     setSubmitted(false);
-    setFormData({
-      title: "",
-      type: "IMAGE",
-      category: null,
-      description: "",
-      url: "",
-      author: "",
-      preview: "",
-    });
-    setManualMetadata({});
-    setShowManualForm(false);
-    setVideoError(null);
+    setKind("photo");
+    setFormData(EMPTY_FORM);
+    setFilmError(null);
+    setSignInOpen(false);
+    pendingSubmitRef.current = false;
     resetUpload();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Detect social platform from credit input for instant preview
   const detectedCredit: DetectedCredit | null = useMemo(
-    () => detectCreditPlatform(formData.author),
-    [formData.author]
+    () => detectCreditPlatform(formData.photographer),
+    [formData.photographer]
   );
 
   const isSubmitting =
     uploadState === "requesting-url" ||
     uploadState === "uploading" ||
     uploadState === "confirming" ||
-    videoSubmitting;
+    filmSubmitting;
 
-  function getSubmitButtonLabel(): string {
-    if (uploadState === "extracting") return "Reading photo metadata\u2026";
-    if (uploadState === "requesting-url") return "Preparing upload\u2026";
-    if (uploadState === "uploading") return `Uploading ${progress}%\u2026`;
-    if (uploadState === "confirming") return "Finalizing\u2026";
-    if (videoSubmitting) return "Submitting video\u2026";
-    if (requiresAuth) return "Sign in to Submit";
-    return "Add to Visual Record";
+  const isFilm = kind === "film";
+  const noun = isFilm ? "film" : "photograph";
+
+  function nextStep(): Step {
+    if (!formData.photographer.trim()) return "photographer";
+    // A film submission has nowhere to store the contributor, so it is not asked for
+    if (!isFilm && !formData.source.trim()) return "contributor";
+    if (!formData.permission) return "permission";
+    if (!isFilm && !selectedFile) return "file";
+    if (isFilm && !formData.filmTitle.trim()) return "filmTitle";
+    if (isFilm && !parseVideoUrl(formData.filmUrl)) return "filmUrl";
+    return "ready";
   }
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Use the photo upload hook to select file and extract EXIF
-      await selectFile(file);
+  const step = nextStep();
 
-      // Create preview for display
-      const reader = new FileReader();
-      reader.onloadend = () =>
-        setFormData({
-          ...formData,
-          preview: reader.result as string,
-          url: "local-upload",
-        });
-      reader.readAsDataURL(file);
-    }
+  function getSubmitButtonLabel(): string {
+    if (uploadState === "extracting") return "Reading photo metadata…";
+    if (uploadState === "requesting-url") return "Preparing upload…";
+    if (uploadState === "uploading") return `Uploading ${progress}%…`;
+    if (uploadState === "confirming") return "Finalizing…";
+    if (filmSubmitting) return "Submitting film…";
+    if (step !== "ready") return STEP_LABELS[step];
+    if (authLoading) return "Checking sign-in…";
+    return user ? "Submit" : "Submit — you sign in at the end";
+  }
+
+  const updateField = <K extends keyof FormData>(key: K, value: FormData[K]) =>
+    setFormData((prev) => ({ ...prev, [key]: value }));
+
+  // The preview is the hook's own object URL for the file it holds, so what is shown is
+  // always what uploads — a second, page-level preview could lag behind a quick re-pick.
+  const handleFile = (file: File | undefined) => {
+    if (file) void selectFile(file);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const clearFile = () => resetUpload();
 
-    if (formData.type === "IMAGE" && selectedFile) {
+  const submitContribution = async () => {
+    if (!isFilm) {
       // Upload image to R2 storage with EXIF metadata and credit
       const result = await upload({
-        category: formData.category ?? undefined,
-        description: formData.description || formData.title,
-        photographerCredit: formData.author || undefined,
+        photographerCredit: formData.photographer.trim(),
+        archiveSource: formData.source.trim(),
+        locationName: formData.place.trim() || undefined,
+        approximateDate: formData.date.trim() || undefined,
       });
 
       if (result) {
         toast.success("Media uploaded successfully").show();
         setSubmitted(true);
-      }
-      // Error handling is done by the hook (uploadError state)
-      if (!result) {
+      } else {
+        // The readable reason is shown inline from the hook's error state
         toast.error("Upload failed. Please try again.").show();
       }
-    } else if (formData.type === "VIDEO") {
-      // Parse the URL to extract platform and video ID
-      const parsed = parseVideoUrl(formData.url);
-      if (!parsed) {
-        setVideoError("Please enter a valid YouTube or Vimeo URL");
-        return;
-      }
+      return;
+    }
 
-      setVideoSubmitting(true);
-      setVideoError(null);
+    const parsed = parseVideoUrl(formData.filmUrl);
+    if (!parsed) return;
 
-      try {
-        await apiClient.current.submitExternalMedia({
-          title: formData.title,
-          description: formData.description || undefined,
-          mediaType: "VIDEO",
-          platform: parsed.platform,
-          url: formData.url,
-          externalId: parsed.externalId,
-          author: formData.author || undefined,
-          category: formData.category ?? undefined,
-        });
-        toast.success("Video submitted successfully").show();
-        setSubmitted(true);
-      } catch (err) {
-        const errorMsg =
-          err instanceof Error ? err.message : "Failed to submit video";
-        setVideoError(errorMsg);
-        toast.error(errorMsg).show();
-      } finally {
-        setVideoSubmitting(false);
-      }
+    setFilmSubmitting(true);
+    setFilmError(null);
+
+    try {
+      await submitExternalMedia({
+        title: formData.filmTitle.trim(),
+        mediaType: "VIDEO",
+        platform: parsed.platform,
+        url: formData.filmUrl.trim(),
+        externalId: parsed.externalId,
+        author: formData.photographer.trim(),
+      });
+      toast.success("Video submitted successfully").show();
+      setSubmitted(true);
+    } catch (err) {
+      const errorMsg =
+        err instanceof Error ? err.message : "Failed to submit video";
+      setFilmError(errorMsg);
+      toast.error(errorMsg).show();
+    } finally {
+      setFilmSubmitting(false);
     }
   };
 
-  const clearFile = () => {
-    setFormData({ ...formData, preview: "", url: "" });
-    setManualMetadata({});
-    setShowManualForm(false);
-    resetUpload();
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (step !== "ready" || isSubmitting || uploadState === "extracting") {
+      return;
+    }
+    // The session is still being read; the button label says so until it is
+    if (authLoading) return;
+
+    if (!user) {
+      pendingSubmitRef.current = true;
+      setSignInOpen(true);
+      return;
+    }
+    void submitContribution();
+  };
+
+  const handleSignedIn = () => {
+    setSignInOpen(false);
+    if (!pendingSubmitRef.current) return;
+    pendingSubmitRef.current = false;
+    void submitContribution();
+  };
+
+  const handleSignInClose = () => {
+    pendingSubmitRef.current = false;
+    setSignInOpen(false);
   };
 
   // Success confirmation screen
@@ -233,16 +273,16 @@ export default function MediaContributionPage() {
           <div className="bg-valley-green/10 mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full">
             <Check className="text-valley-green h-10 w-10" aria-hidden="true" />
           </div>
-          <h2 className="text-body mb-3 font-serif text-3xl font-bold">
+          <h2 className="text-foreground mb-3 font-serif text-3xl font-bold">
             Archive Updated
           </h2>
-          <p className="text-muted mb-8 leading-relaxed">
+          <p className="text-muted-foreground mb-8 leading-relaxed">
             Thank you for contributing to our visual history. Your item is
             pending verification by our team.
           </p>
           <Link
             href="/gallery"
-            className="bg-ocean-blue hover:bg-ocean-blue-deep rounded-button shadow-lift block w-full py-4 font-bold text-white transition-colors"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-button block w-full py-4 font-bold transition-colors"
           >
             Return to Gallery
           </Link>
@@ -251,360 +291,293 @@ export default function MediaContributionPage() {
     );
   }
 
-  return (
-    <div className="bg-canvas min-h-screen px-4 py-10 sm:py-20">
-      <div className="mx-auto max-w-xl">
-        <Link
-          href="/gallery"
-          className="text-muted hover:text-body mb-8 flex items-center gap-2 text-[10px] font-bold tracking-widest uppercase"
-        >
-          <ArrowLeft size={14} aria-hidden="true" /> Back to Gallery
-        </Link>
+  const title = "Give a photograph to the archive";
 
-        <div className="rounded-container border-hairline bg-canvas shadow-floating overflow-hidden border">
-          {/* Header */}
-          <div className="bg-bougainvillea-pink px-10 py-6 text-white sm:py-10">
-            <h1 className="font-serif text-2xl font-bold">Add to Archive</h1>
-            <p className="mt-1 text-xs text-white/60">
-              Expanding Brava&apos;s visual memory
-            </p>
+  return (
+    <div className="bg-canvas min-h-screen">
+      <div className="px-5 pt-[22px] min-[560px]:px-[30px] min-[560px]:pt-8 min-[860px]:px-11 min-[860px]:pt-11">
+        <PageHeader
+          title={title}
+          subtitle="You keep the copyright. We record who took it and who gave it, and we will not publish it without that credit attached."
+          centered={false}
+          className="hidden min-[560px]:block"
+        />
+        <PageHeader
+          title={title}
+          subtitle="You keep the copyright. We record who took it."
+          centered={false}
+          size="compact"
+          showAccentBar={false}
+          className="min-[560px]:hidden [&_h1]:text-[23px]"
+        />
+      </div>
+
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        className="flex flex-wrap gap-10 px-5 pt-[30px] pb-14 min-[560px]:px-[30px] min-[860px]:px-11"
+      >
+        {/* Credit and permission */}
+        <div className="flex min-w-[290px] flex-[1_1_350px] flex-col gap-5">
+          <div>
+            <label htmlFor="f-photographer" className={labelClass}>
+              {isFilm ? "Who made this film?" : "Who took this photograph?"}
+            </label>
+            <Input
+              id="f-photographer"
+              name="photographer_credit"
+              type="text"
+              placeholder={"A name, or “not known”"}
+              value={formData.photographer}
+              onChange={(e) => updateField("photographer", e.target.value)}
+            />
+            <div className={columnClass}>photographer_credit</div>
+            {detectedCredit && (
+              <CreditPreviewBadge detected={detectedCredit} className="mt-2" />
+            )}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8 p-6 sm:p-10">
-            {/* Type Switcher */}
-            <div
-              className="rounded-card bg-surface flex p-1.5"
-              role="radiogroup"
-              aria-label="Media type"
-            >
-              <button
-                type="button"
-                role="radio"
-                aria-checked={formData.type === "IMAGE"}
-                onClick={() => setFormData({ ...formData, type: "IMAGE" })}
-                className={clsx(
-                  "rounded-card flex flex-1 items-center justify-center gap-2 py-3 text-xs font-bold transition-all",
-                  formData.type === "IMAGE"
-                    ? "bg-canvas text-ocean-blue shadow-subtle"
-                    : "text-muted hover:text-body"
-                )}
-              >
-                <ImageIcon size={14} aria-hidden="true" /> Photograph
-              </button>
-              <button
-                type="button"
-                role="radio"
-                aria-checked={formData.type === "VIDEO"}
-                onClick={() => setFormData({ ...formData, type: "VIDEO" })}
-                className={clsx(
-                  "rounded-card flex flex-1 items-center justify-center gap-2 py-3 text-xs font-bold transition-all",
-                  formData.type === "VIDEO"
-                    ? "bg-canvas text-bougainvillea-pink shadow-subtle"
-                    : "text-muted hover:text-body"
-                )}
-              >
-                <Play size={14} aria-hidden="true" /> Video / Podcast
-              </button>
-            </div>
-
-            {/* Auth Prompt - shown when user is not authenticated */}
-            {requiresAuth && (
-              <InlineAuthPrompt
-                title={
-                  formData.type === "IMAGE"
-                    ? "Sign in to Share Photos"
-                    : "Sign in to Share Videos"
-                }
-                description="Media submissions require an account to ensure proper attribution and moderation."
-                returnUrl="/contribute/media"
-              />
-            )}
-
-            {/* Core Fields */}
-            <div className="space-y-6">
-              {/* Title */}
+          {/* SubmitExternalMediaRequest cannot carry these three, so films never show them */}
+          {!isFilm && (
+            <>
               <div>
-                <label
-                  htmlFor="media-title"
-                  className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase"
-                >
-                  Title of Item
+                <label htmlFor="f-source" className={labelClass}>
+                  Who is giving it to us?
                 </label>
-                <input
-                  id="media-title"
-                  name="title"
-                  required
+                <Input
+                  id="f-source"
+                  name="archive_source"
                   type="text"
-                  className="border-hairline bg-surface text-body focus-visible:ring-ocean-blue rounded-card w-full border px-5 py-3 font-medium transition-all outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                  placeholder="e.g., Festival of São João, 1984"
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
+                  placeholder="Your name, as you want it shown"
+                  value={formData.source}
+                  onChange={(e) => updateField("source", e.target.value)}
                 />
+                <div className={columnClass}>archive_source</div>
               </div>
 
-              {/* Image Upload or Video URL */}
-              {formData.type === "IMAGE" ? (
-                <>
-                  <div>
-                    <label
-                      htmlFor="media-upload"
-                      className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase"
-                    >
-                      Image File
-                    </label>
-                    <div
-                      className={clsx(
-                        "rounded-card flex cursor-pointer flex-col items-center justify-center border-2 border-dashed p-8 text-center transition-all",
-                        formData.preview
-                          ? "border-valley-green bg-valley-green/5"
-                          : "border-hairline hover:border-ocean-blue/50 hover:bg-surface"
-                      )}
-                      onClick={() =>
-                        document.getElementById("media-upload")?.click()
-                      }
-                    >
-                      {formData.preview ? (
-                        <div className="relative">
-                          <Image
-                            src={formData.preview}
-                            width={160}
-                            height={160}
-                            className="rounded-card shadow-elevated max-h-40 border-2 border-white object-contain"
-                            alt="Preview"
-                            unoptimized
-                          />
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              clearFile();
-                            }}
-                            className="bg-status-error shadow-elevated absolute -top-3 -right-3 rounded-full p-1.5 text-white"
-                            aria-label="Remove image"
-                          >
-                            <X size={14} aria-hidden="true" />
-                          </button>
-                        </div>
-                      ) : (
-                        <>
-                          <Upload
-                            size={32}
-                            className="mx-auto opacity-20"
-                            aria-hidden="true"
-                          />
-                          <p className="text-muted mt-2 text-sm">
-                            Click to upload or drag and drop
-                          </p>
-                          <p className="text-muted/60 mt-1 text-xs">
-                            Supports JPEG, PNG, HEIC
-                          </p>
-                        </>
-                      )}
-                      <input
-                        id="media-upload"
-                        type="file"
-                        accept="image/*,.heic,.heif"
-                        className="hidden"
-                        onChange={handleFileUpload}
-                      />
-                    </div>
-                  </div>
+              <div>
+                <label htmlFor="f-place" className={labelClass}>
+                  Where was it taken?
+                </label>
+                <Input
+                  id="f-place"
+                  name="location_name"
+                  type="text"
+                  placeholder="Faja d'Agua, by the harbour"
+                  value={formData.place}
+                  onChange={(e) => updateField("place", e.target.value)}
+                />
+                <div className={columnClass}>
+                  location_name · linked to a settlement where possible
+                </div>
+              </div>
 
-                  {/* Metadata display and controls - shown after file selected */}
-                  {selectedFile && metadata && (
-                    <div className="space-y-4">
-                      {/* Metadata badges showing extracted data */}
-                      <MetadataBadges
-                        metadata={metadata}
-                        showManualPrompt={!metadata.hasExifData}
-                      />
+              <div>
+                <label htmlFor="f-date" className={labelClass}>
+                  Roughly when?
+                </label>
+                <Input
+                  id="f-date"
+                  name="approximate_date"
+                  type="text"
+                  placeholder={"1984 — or “sometime in the sixties”"}
+                  value={formData.date}
+                  onChange={(e) => updateField("date", e.target.value)}
+                />
+                <div className={columnClass}>
+                  approximate_date · a decade is enough
+                </div>
+              </div>
+            </>
+          )}
 
-                      {/* Photo type selector for GPS privacy */}
-                      <PhotoTypeSelector
-                        value={photoType}
-                        onChange={setPhotoType}
-                        disabled={isSubmitting}
-                      />
+          <div className="bg-background-secondary flex items-start gap-[13px] rounded-[10px] px-[17px] py-[15px]">
+            <Checkbox
+              checked={formData.permission}
+              onChange={(checked) => updateField("permission", checked)}
+              aria-label={`Confirm you have the right to share this ${noun}`}
+              className="mt-0.5"
+            />
+            <div className="text-muted-foreground text-[12.5px] leading-[1.6]">
+              I have the right to share this, and I am happy for it to appear in
+              the public archive under CC BY-SA 4.0 with the credit above.
+            </div>
+          </div>
+        </div>
 
-                      {/* Manual metadata form for photos without EXIF */}
-                      {!metadata.hasExifData && (
-                        <ManualMetadataForm
-                          value={manualMetadata}
-                          onChange={(updates) =>
-                            setManualMetadata({ ...manualMetadata, ...updates })
-                          }
-                          expanded={showManualForm}
-                          onExpandedChange={setShowManualForm}
-                        />
-                      )}
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div>
-                  <label
-                    htmlFor="media-url"
-                    className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase"
-                  >
-                    Embed Link
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="media-url"
-                      name="url"
-                      required
-                      className="border-hairline bg-surface text-body rounded-card focus-visible:ring-ocean-blue w-full border py-3 pr-4 pl-10 transition-all outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                      placeholder="YouTube or Vimeo URL"
-                      value={formData.url}
-                      onChange={(e) =>
-                        setFormData({ ...formData, url: e.target.value })
-                      }
-                    />
-                    <LinkIcon
-                      className="text-bougainvillea-pink absolute top-3 left-3.5 opacity-50"
-                      size={16}
-                      aria-hidden="true"
-                    />
-                  </div>
+        {/* The file, what happens next, and submit */}
+        <div className="min-w-[250px] flex-[1_1_290px]">
+          {isFilm ? (
+            <div className="flex flex-col gap-5">
+              <div>
+                <label htmlFor="f-film-title" className={labelClass}>
+                  Title of the film
+                </label>
+                <Input
+                  id="f-film-title"
+                  name="title"
+                  type="text"
+                  value={formData.filmTitle}
+                  onChange={(e) => updateField("filmTitle", e.target.value)}
+                />
+              </div>
+              <div>
+                <label htmlFor="f-film-url" className={labelClass}>
+                  Link to the film
+                </label>
+                <Input
+                  id="f-film-url"
+                  name="url"
+                  type="url"
+                  placeholder="YouTube or Vimeo link"
+                  value={formData.filmUrl}
+                  onChange={(e) => updateField("filmUrl", e.target.value)}
+                />
+              </div>
+            </div>
+          ) : selectedFile && previewUrl ? (
+            <div className="border-border-strong flex min-h-[220px] flex-col items-center justify-center gap-4 rounded-xl border-[1.5px] border-dashed p-6">
+              <div className="relative">
+                <Image
+                  src={previewUrl}
+                  width={160}
+                  height={160}
+                  className="max-h-40 rounded-lg object-contain"
+                  alt="The photograph you are giving"
+                  unoptimized
+                />
+                <button
+                  type="button"
+                  onClick={clearFile}
+                  className="bg-status-error shadow-elevated absolute -top-3 -right-3 rounded-full p-1.5 text-white"
+                  aria-label="Remove image"
+                >
+                  <X size={14} aria-hidden="true" />
+                </button>
+              </div>
+              {selectedFile && metadata && (
+                <div className="w-full space-y-4">
+                  <MetadataBadges
+                    metadata={metadata}
+                    showManualPrompt={false}
+                  />
+                  {/* Photo type selector for GPS privacy */}
+                  <PhotoTypeSelector
+                    value={photoType}
+                    onChange={setPhotoType}
+                    disabled={isSubmitting}
+                  />
                 </div>
               )}
-
-              {/* Category */}
-              <div>
-                <label
-                  htmlFor="media-category"
-                  className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase"
-                >
-                  Category
-                </label>
-                <select
-                  id="media-category"
-                  name="category"
-                  required
-                  value={formData.category ?? ""}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      category: (e.target.value as MediaCategory) || null,
-                    })
-                  }
-                  className={clsx(
-                    "border-hairline bg-surface rounded-card w-full border px-5 py-3 text-sm font-medium transition-all outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-                    formData.category
-                      ? "text-body focus-visible:ring-ocean-blue"
-                      : "text-muted focus-visible:ring-ocean-blue"
-                  )}
-                >
-                  <option value="" disabled>
-                    Select a category...
-                  </option>
-                  {GALLERY_CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Description */}
-              <div>
-                <label
-                  htmlFor="media-description"
-                  className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase"
-                >
-                  Description
-                </label>
-                <textarea
-                  id="media-description"
-                  name="description"
-                  rows={3}
-                  className="border-hairline bg-surface text-body rounded-card focus-visible:ring-ocean-blue w-full border px-5 py-3 leading-relaxed outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                  placeholder="Additional context or story…"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                />
-              </div>
-
-              {/* Author/Credit */}
-              <div>
-                <label
-                  htmlFor="media-author"
-                  className="text-muted mb-2 block text-[10px] font-bold tracking-widest uppercase"
-                >
-                  Creator Credit
-                </label>
-                <input
-                  id="media-author"
-                  name="author"
-                  type="text"
-                  className="border-hairline bg-surface text-body rounded-card focus-visible:ring-ocean-blue w-full border px-5 py-3 outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
-                  placeholder="Name, @handle, or profile URL"
-                  value={formData.author}
-                  onChange={(e) =>
-                    setFormData({ ...formData, author: e.target.value })
-                  }
-                />
-                {detectedCredit && (
-                  <CreditPreviewBadge
-                    detected={detectedCredit}
-                    className="mt-2"
-                  />
-                )}
-              </div>
             </div>
+          ) : (
+            <label
+              htmlFor="media-upload"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                void handleFile(e.dataTransfer.files?.[0]);
+              }}
+              className="border-border-strong focus-within:ring-ocean-blue hover:bg-background-secondary flex min-h-[220px] cursor-pointer flex-col items-center justify-center gap-[9px] rounded-xl border-[1.5px] border-dashed p-6 text-center transition-colors focus-within:ring-2"
+            >
+              <span className="text-foreground text-[14.5px] font-semibold">
+                Drop the file here
+              </span>
+              <span className="text-muted-foreground max-w-[28ch] text-[12.5px] leading-[1.55]">
+                A phone photograph of a print is fine. Most pictures of Brava
+                are not on Brava — they are in New Bedford, Pawtucket and
+                Brockton.
+              </span>
+              <span className="text-ocean-blue text-xs font-semibold underline underline-offset-2">
+                or choose a file
+              </span>
+              <input
+                id="media-upload"
+                type="file"
+                accept="image/*,.heic,.heif"
+                className="sr-only"
+                onChange={(e) => void handleFile(e.target.files?.[0])}
+              />
+            </label>
+          )}
 
-            {/* Error Display */}
-            {(uploadError || videoError) && (
-              <div className="border-status-error/20 bg-status-error/10 text-status-error rounded-card flex items-center gap-3 border p-4 text-sm">
-                <AlertCircle
-                  size={18}
-                  className="flex-shrink-0"
-                  aria-hidden="true"
-                />
-                <span>{uploadError || videoError}</span>
-              </div>
-            )}
+          <button
+            type="button"
+            onClick={() => {
+              setKind(isFilm ? "photo" : "film");
+              setFilmError(null);
+            }}
+            className="text-ocean-blue mt-3 text-xs font-semibold hover:underline"
+          >
+            {isFilm
+              ? "Give a photograph instead"
+              : "Or give a film link instead"}
+          </button>
 
-            {/* Upload Progress */}
-            {uploadState === "uploading" && (
-              <div className="space-y-2">
-                <div className="text-muted flex items-center justify-between text-sm">
-                  <span>Uploading\u2026</span>
-                  <span>{progress}%</span>
-                </div>
-                <div className="bg-surface-alt h-2 overflow-hidden rounded-full">
-                  <div
-                    className="bg-ocean-blue h-full rounded-full transition-all duration-300"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Submit Button */}
-            <div className="pt-6">
-              <button
-                type="submit"
-                disabled={
-                  isSubmitting ||
-                  requiresAuth ||
-                  !formData.title ||
-                  !formData.category ||
-                  !formData.url ||
-                  uploadState === "extracting"
-                }
-                className="rounded-card bg-body shadow-elevated hover:bg-ocean-blue flex w-full items-center justify-center gap-3 py-4 font-bold text-white transition-all disabled:opacity-30"
-              >
-                {getSubmitButtonLabel()}
-              </button>
+          <div className="border-border-subtle mt-[18px] rounded-[10px] border px-[19px] py-[17px]">
+            <div className={clsx(eyebrowClass, "mb-2.5")}>
+              What happens next
             </div>
-          </form>
+            <div className="text-muted-foreground text-[12.5px] leading-[1.75]">
+              A person reviews it · it is credited to the name you gave · you
+              can ask for it to be taken down at any time
+            </div>
+          </div>
+
+          {(uploadError || filmError) && (
+            <div
+              role="alert"
+              className="border-status-error/20 bg-status-error/10 text-status-error rounded-card mt-[18px] flex items-center gap-3 border p-4 text-sm"
+            >
+              <AlertCircle
+                size={18}
+                className="flex-shrink-0"
+                aria-hidden="true"
+              />
+              <span>{isFilm ? filmError : uploadError}</span>
+            </div>
+          )}
+
+          {uploadState === "uploading" && (
+            <div className="bg-background-secondary mt-[18px] h-2 overflow-hidden rounded-full">
+              <div
+                className="bg-primary h-full rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          )}
+
+          <div className="mt-[18px]">
+            <AnimatedButton
+              type="submit"
+              variant={step === "ready" ? "primary" : "outline"}
+              size="md"
+              isLoading={isSubmitting}
+              aria-disabled={step !== "ready" || authLoading}
+              className="w-full"
+            >
+              {getSubmitButtonLabel()}
+            </AnimatedButton>
+          </div>
+          {!user && (
+            <p className="text-muted-foreground mt-2.5 text-center text-[11.5px] leading-[1.55]">
+              Sign-in happens at the end, not before the form.
+            </p>
+          )}
         </div>
-      </div>
+      </form>
+
+      <SignInDialog
+        open={signInOpen}
+        onClose={handleSignInClose}
+        onSignedIn={handleSignedIn}
+        held={{
+          noun: isFilm ? "film link" : "photograph",
+          photographer: formData.photographer,
+          source: isFilm ? undefined : formData.source,
+          place: isFilm ? undefined : formData.place,
+        }}
+      />
     </div>
   );
 }

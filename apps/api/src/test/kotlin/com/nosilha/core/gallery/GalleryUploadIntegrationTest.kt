@@ -187,6 +187,7 @@ class GalleryUploadIntegrationTest {
             entryId = null,
             category = "gallery",
             description = "Test upload",
+            photographerCredit = "Test Photographer",
         )
 
         mockMvc
@@ -222,6 +223,7 @@ class GalleryUploadIntegrationTest {
             entryId = null,
             category = null,
             description = null,
+            photographerCredit = "Test Photographer",
         )
 
         mockMvc
@@ -231,6 +233,82 @@ class GalleryUploadIntegrationTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(jsonMapper.writeValueAsString(request)),
             ).andExpect(status().is5xxServerError)
+    }
+
+    @Test
+    @DisplayName("Should reject confirm when photographer credit is blank")
+    fun `confirm with blank photographer credit should return 400`() {
+        setupDefaultMocks()
+
+        val request = ConfirmRequest(
+            key = "uploads/2024/12/test-uuid-blank-credit.jpg",
+            originalName = "blank-credit.jpg",
+            contentType = "image/jpeg",
+            fileSize = 1024,
+            photographerCredit = "   ",
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/gallery/upload/confirm")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(request)),
+            ).andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.details[0].field").value("photographerCredit"))
+
+        assertThat(galleryMediaRepository.findAll()).isEmpty()
+    }
+
+    @Test
+    @DisplayName("Should reject confirm when photographer credit is missing")
+    fun `confirm without photographer credit should return 400`() {
+        setupDefaultMocks()
+
+        // Raw JSON rather than ConfirmRequest, so the field is absent — not merely null.
+        val body =
+            """
+            {"key":"uploads/2024/12/test-uuid-no-credit.jpg","originalName":"no-credit.jpg",
+            "contentType":"image/jpeg","fileSize":1024}
+            """.trimIndent()
+
+        mockMvc
+            .perform(
+                post("/api/v1/gallery/upload/confirm")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(body),
+            ).andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.details[0].field").value("photographerCredit"))
+
+        assertThat(galleryMediaRepository.findAll()).isEmpty()
+    }
+
+    @Test
+    @DisplayName("Should store 'not known' as typed, not as null")
+    fun `confirm with not known credit should persist it verbatim`() {
+        setupDefaultMocks()
+
+        val request = ConfirmRequest(
+            key = "uploads/2024/12/test-uuid-not-known.jpg",
+            originalName = "not-known.jpg",
+            contentType = "image/jpeg",
+            fileSize = 1024,
+            photographerCredit = "not known",
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/gallery/upload/confirm")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(request)),
+            ).andExpect(status().isCreated)
+
+        val media = galleryMediaRepository.findAll().single() as UserUploadedMedia
+        assertThat(media.photographerCredit).isEqualTo("not known")
+        assertThat(media.creditPlatform).isNull()
+        assertThat(media.creditHandle).isNull()
     }
 
     @Test
@@ -295,6 +373,7 @@ class GalleryUploadIntegrationTest {
             entryId = null,
             category = null,
             description = null,
+            photographerCredit = "Test Photographer",
         )
 
         // Upload as user
@@ -337,6 +416,7 @@ class GalleryUploadIntegrationTest {
             entryId = null,
             category = null,
             description = null,
+            photographerCredit = "Test Photographer",
         )
 
         mockMvc
@@ -373,6 +453,7 @@ class GalleryUploadIntegrationTest {
             entryId = null,
             category = null,
             description = null,
+            photographerCredit = "Test Photographer",
         )
 
         mockMvc
@@ -410,6 +491,7 @@ class GalleryUploadIntegrationTest {
             entryId = null,
             category = null,
             description = null,
+            photographerCredit = "Test Photographer",
         )
 
         mockMvc
@@ -455,6 +537,7 @@ class GalleryUploadIntegrationTest {
             entryId = null,
             category = null,
             description = null,
+            photographerCredit = "Test Photographer",
         )
 
         mockMvc
