@@ -52,6 +52,14 @@ spring:
 nosilha:
   ai:
     enabled: false
+    # Pin each provider off explicitly. The beans check these flags, not the master switch above,
+    # and application.yml binds them from AI_GEMINI_ENABLED / AI_CLOUD_VISION_ENABLED. Nx loads
+    # apps/api/.env.local into task environments, which would otherwise register both providers
+    # and break @MockitoBean ImageAnalysisProvider with "found 2 beans".
+    gemini:
+      enabled: false
+    cloud-vision:
+      enabled: false
 
 # Test Supabase Configuration
 supabase:
