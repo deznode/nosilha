@@ -1,5 +1,5 @@
 import type { DirectoryEntry } from "@/types/directory";
-import type { Town } from "@/types/town";
+import type { Town, TownStatusSummary } from "@/types/town";
 
 /**
  * Type guard to check if an object has the basic structure of a DirectoryEntry
@@ -236,6 +236,49 @@ export function validateTowns(data: unknown): Town[] {
   return data.filter((item, index): item is Town => {
     if (!isTown(item)) {
       console.warn(`Invalid Town at index ${index}:`, item);
+      return false;
+    }
+    return true;
+  });
+}
+
+/**
+ * Type guard for a settlement status summary
+ */
+export function isTownStatusSummary(obj: unknown): obj is TownStatusSummary {
+  if (!obj || typeof obj !== "object") {
+    return false;
+  }
+
+  const town = obj as Record<string, unknown>;
+
+  return (
+    (town.id === null || typeof town.id === "string") &&
+    typeof town.slug === "string" &&
+    typeof town.name === "string" &&
+    typeof town.description === "string" &&
+    typeof town.latitude === "number" &&
+    typeof town.longitude === "number" &&
+    typeof town.entryCount === "number" &&
+    typeof town.hasPhotograph === "boolean" &&
+    typeof town.status === "string"
+  );
+}
+
+/**
+ * Safely extracts an array of settlement status summaries, dropping malformed items
+ */
+export function validateTownStatusSummaries(
+  data: unknown
+): TownStatusSummary[] {
+  if (!Array.isArray(data)) {
+    console.warn("API response data is not an array:", data);
+    return [];
+  }
+
+  return data.filter((item, index): item is TownStatusSummary => {
+    if (!isTownStatusSummary(item)) {
+      console.warn(`Invalid TownStatusSummary at index ${index}:`, item);
       return false;
     }
     return true;

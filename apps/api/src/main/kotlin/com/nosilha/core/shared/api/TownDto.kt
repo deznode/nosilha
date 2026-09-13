@@ -45,15 +45,20 @@ enum class SettlementStatus {
 }
 
 /**
- * A settlement with its derived documentation status, for the settlements index.
+ * A settlement with its derived documentation status, for the settlements index and the
+ * map's Settlements mode.
  *
  * Counts are live aggregates so the filter-chip totals can never drift from the cards
- * they describe.
+ * they describe. Coordinates and description let the map pin and describe every
+ * settlement from this one response (spec 033 FR-012).
  */
 data class TownStatusDto(
     val id: UUID?,
     val slug: String,
     val name: String,
+    val description: String,
+    val latitude: Double,
+    val longitude: Double,
     val entryCount: Long,
     val hasPhotograph: Boolean,
     val status: SettlementStatus,

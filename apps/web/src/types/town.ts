@@ -31,12 +31,16 @@ export type SettlementStatus = "DOCUMENTED" | "PARTIAL" | "NAME_ONLY";
 /**
  * A settlement with its derived documentation status and live counts.
  *
- * Matches `TownStatusDto` from `GET /api/v1/towns/status-summary`.
+ * Matches `TownStatusDto` from `GET /api/v1/towns/status-summary`. Carries coordinates
+ * and a description so the map can pin every settlement from this one response.
  */
 export interface TownStatusSummary {
   id: string | null;
   slug: string;
   name: string;
+  description: string;
+  latitude: number;
+  longitude: number;
   entryCount: number;
   hasPhotograph: boolean;
   status: SettlementStatus;

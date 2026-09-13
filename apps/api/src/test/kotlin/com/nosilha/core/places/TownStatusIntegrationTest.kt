@@ -113,6 +113,23 @@ class TownStatusIntegrationTest {
         }
     }
 
+    @Test
+    fun `carries each settlement's coordinates and description for the map`() {
+        // The map's Settlements mode pins every settlement from this one response
+        // (spec 033 FR-012), so the pin sits where the towns table says it does.
+        val town = jdbcTemplate.queryForMap(
+            "SELECT latitude, longitude, description FROM towns WHERE slug = 'nova-sintra'",
+        )
+
+        mockMvc
+            .perform(get("/api/v1/towns/status-summary"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data[?(@.slug == 'nova-sintra')].latitude").value((town["latitude"] as Number).toDouble()))
+            .andExpect(jsonPath("$.data[?(@.slug == 'nova-sintra')].longitude").value((town["longitude"] as Number).toDouble()))
+            .andExpect(jsonPath("$.data[?(@.slug == 'nova-sintra')].description").value(town["description"] as String))
+            .andExpect(jsonPath("$.data[?(@.latitude == null || @.longitude == null)]").isEmpty)
+    }
+
     private fun townIdFor(slug: String): UUID =
         requireNotNull(
             jdbcTemplate.queryForObject("SELECT id FROM towns WHERE slug = ?", UUID::class.java, slug),

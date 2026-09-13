@@ -1,5 +1,5 @@
 import type { DirectoryEntry } from "@/types/directory";
-import type { Town } from "@/types/town";
+import type { Town, TownStatusSummary } from "@/types/town";
 import type {
   ErrorDetail,
   MediaMetadataDto,
@@ -106,6 +106,7 @@ import {
   validateDirectoryEntries,
   validateDirectoryEntry,
   validateTowns,
+  validateTownStatusSummaries,
   validateTown,
 } from "@/lib/api-validation";
 
@@ -629,6 +630,21 @@ export class BackendApiClient implements ApiClient {
    * Fetches towns for real-time interactive features like maps.
    * Uses no-store cache to ensure fresh data for dynamic interactions.
    */
+  async getTownStatusSummary(): Promise<TownStatusSummary[]> {
+    const endpoint = `${env.apiUrl}/api/v1/towns/status-summary`;
+
+    // Status is derived from live counts, so keep it fresh like the rest of the map data
+    const response = await fetch(endpoint, CacheConfig.MAP_DATA);
+
+    if (!response.ok) {
+      throw new Error(`API call failed with status: ${response.status}`);
+    }
+
+    const payload = (await response.json()) as unknown;
+    const rawData = this.unwrapApiResponse<TownStatusSummary[]>(payload) ?? [];
+    return validateTownStatusSummaries(rawData);
+  }
+
   async getTownsForMap(): Promise<Town[]> {
     const endpoint = `${env.apiUrl}/api/v1/towns/all`;
 
