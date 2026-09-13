@@ -115,6 +115,9 @@ tasks:
   dev:api:
     desc: Start API server — auto-starts postgres via spring-boot-docker-compose
     dir: "{{.API_DIR}}"
+    preconditions:
+      - sh: "! lsof -nP -iTCP:8080 -sTCP:LISTEN > /dev/null"
+        msg: "Port 8080 is already in use, likely by an API left over from an earlier run. Run `task stop:all`, then retry."
     cmds:
       - ./gradlew bootRun --args='--spring.profiles.active=local'
 
@@ -124,6 +127,9 @@ tasks:
     env:
       WATCHPACK_POLLING: "true"
       CHOKIDAR_USEPOLLING: "true"
+    preconditions:
+      - sh: "! lsof -nP -iTCP:3000 -sTCP:LISTEN > /dev/null"
+        msg: "Port 3000 is already in use, likely by a web server left over from an earlier run. Run `task stop:all`, then retry."
     cmds:
       - pnpm run dev
 
@@ -180,6 +186,50 @@ tasks:
     desc: Stop database container
     cmds:
       - docker compose -f {{.DOCKER_COMPOSE}} down
+
+  stop:all:
+    desc: Stop everything task dev starts — web, API, database — including servers left over from earlier runs
+    silent: true
+    cmds:
+      - |
+        # Task runs scripts with errexit, so commands that fail harmlessly end in `|| true`
+        pids=""
+        # Only stop port listeners started from this repo; report anything else
+        for pid in $(lsof -t -nP -iTCP:3000,3001,8080 -sTCP:LISTEN 2>/dev/null || true); do
+          cwd=$(lsof -a -p "$pid" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p' || true)
+          case "$cwd" in
+            "{{.ROOT_DIR}}"*) pids="$pids $pid" ;;
+            *) echo "Skipping PID $pid: listens on a dev port but runs from $cwd" ;;
+          esac
+        done
+        # Processes without a port: the Gradle wrapper, next dev, and the Velite watcher
+        pids="$pids $(pgrep -f '{{.ROOT_DIR}}/{{.API_DIR}}/gradle/wrapper/gradle-wrapper.jar bootRun' || true)"
+        pids="$pids $(pgrep -f '{{.ROOT_DIR}}/{{.WEB_DIR}}/node_modules/.*(next dev|velite.*--watch)' || true)"
+        pids=$(printf '%s\n' $pids | sort -u | xargs)
+
+        if [ -z "$pids" ]; then
+          echo "No dev servers running"
+          exit 0
+        fi
+
+        echo "Stopping PIDs: $pids"
+        # Task's shell has no kill builtin; env runs the system binary
+        env kill $pids 2>/dev/null || true
+        alive=""
+        for i in $(seq 1 15); do
+          alive=""
+          for p in $pids; do
+            if env kill -0 "$p" 2>/dev/null; then alive="$alive $p"; fi
+          done
+          if [ -z "$alive" ]; then break; fi
+          sleep 1
+        done
+        if [ -n "$alive" ]; then
+          echo "Force-killing:$alive"
+          env kill -9 $alive 2>/dev/null || true
+        fi
+        echo "Dev servers stopped"
+      - task: stop
 
   clean:
     desc: Clean build artifacts

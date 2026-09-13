@@ -9,6 +9,7 @@ task check     # verify prerequisites
 task setup     # copy env templates, install web deps
 task dev       # start API (auto-starts postgres) + web in parallel
 task stop      # stop database container
+task stop:all  # stop web, API, and database
 ```
 
 Or manually:
@@ -100,7 +101,8 @@ Database data is stored in `infrastructure/docker/data/` and persists between co
 | Action | Command |
 |--------|---------|
 | Start DB | `task dev:db` or `docker compose up -d` |
-| Stop all | `task stop` or `docker compose down` |
+| Stop DB | `task stop` or `docker compose down` |
+| Stop web, API, and DB | `task stop:all` |
 | View DB logs | `docker compose logs -f db` |
 | Reset DB (destructive) | `docker compose down -v` |
 | Connect psql | `docker compose exec db psql -U nosilha -d nosilha_db` |

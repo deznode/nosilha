@@ -83,6 +83,7 @@ The database connection (URL, username, password) is auto-configured from the ru
 | Run web tests | `task test:web` |
 | Run all linters | `task lint` |
 | Stop database | `task stop` |
+| Stop web, API, and database | `task stop:all` |
 | Clean build artifacts | `task clean` |
 
 ## Application URLs
@@ -125,7 +126,7 @@ When in doubt, start with `task`. It wraps the underlying tools with sensible de
 See [troubleshooting.md](troubleshooting.md) for the full list. Common issues:
 
 **Port already in use (3000 or 8080)**
-Kill the process using the port: `lsof -ti:3000 | xargs kill -9`
+A server from an earlier run is usually still running; `task dev` refuses to start until the port is free. Run `task stop:all`, which stops only processes started from this repo. For anything else, find it with `lsof -nP -iTCP:3000 -sTCP:LISTEN`.
 
 **Docker not running**
 Start Docker Desktop, then retry `task dev`. The API server will fail to start if Docker isn't available.
