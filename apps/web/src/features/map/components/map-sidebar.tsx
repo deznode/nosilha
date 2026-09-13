@@ -3,6 +3,9 @@
 import { Search, X, Layers } from "lucide-react";
 import { clsx } from "clsx";
 import {
+  useMapMode,
+  useLocations,
+  useSettlements,
   useMapSearchQuery,
   useActiveCategory,
   useSelectedLocation,
@@ -11,6 +14,7 @@ import {
   useMapStore,
 } from "@/stores/mapStore";
 import { useFilteredLocations } from "../hooks/useFilteredLocations";
+import { FilterChip } from "@/components/ui/filter-chip";
 import { CATEGORIES } from "../data/categories";
 import type { Location } from "../data/types";
 import { CategoryPill } from "./category-pill";
@@ -21,6 +25,10 @@ interface MapSidebarProps {
 }
 
 export function MapSidebar({ onFlyTo }: MapSidebarProps) {
+  const mapMode = useMapMode();
+  const locations = useLocations();
+  const settlements = useSettlements();
+  const setMapMode = useMapStore((s) => s.setMapMode);
   const searchQuery = useMapSearchQuery();
   const activeCategory = useActiveCategory();
   const selectedLocation = useSelectedLocation();
@@ -40,7 +48,26 @@ export function MapSidebar({ onFlyTo }: MapSidebarProps) {
     >
       <div className="map-desktop:h-28 h-24 shrink-0" />
       <div className="shrink-0 px-6 pb-2">
-        <div className="relative mb-6" role="search">
+        <div role="group" aria-label="Map mode" className="mb-4 flex gap-2">
+          <FilterChip
+            label="Settlements"
+            count={settlements.length}
+            active={mapMode === "settlements"}
+            aria-pressed={mapMode === "settlements"}
+            onClick={() => setMapMode("settlements")}
+          />
+          <FilterChip
+            label="Place records"
+            count={locations.length}
+            active={mapMode === "places"}
+            aria-pressed={mapMode === "places"}
+            onClick={() => setMapMode("places")}
+          />
+        </div>
+        <div
+          className={clsx("relative", mapMode === "places" ? "mb-6" : "mb-4")}
+          role="search"
+        >
           <Search
             className="text-text-tertiary absolute top-1/2 left-4 -translate-y-1/2"
             size={18}
@@ -62,28 +89,30 @@ export function MapSidebar({ onFlyTo }: MapSidebarProps) {
             </button>
           )}
         </div>
-        <div className="scrollbar-hide -mx-6 flex gap-2 overflow-x-auto px-6 pb-4">
-          <CategoryPill
-            label="All"
-            icon={Layers}
-            active={activeCategory === "All"}
-            onClick={() => setActiveCategory("All")}
-          />
-          {CATEGORIES.map((cat) => (
+        {mapMode === "places" && (
+          <div className="scrollbar-hide -mx-6 flex gap-2 overflow-x-auto px-6 pb-4">
             <CategoryPill
-              key={cat.id}
-              label={cat.label}
-              icon={cat.icon}
-              active={activeCategory === cat.id}
-              onClick={() => setActiveCategory(cat.id)}
+              label="All"
+              icon={Layers}
+              active={activeCategory === "All"}
+              onClick={() => setActiveCategory("All")}
             />
-          ))}
-        </div>
+            {CATEGORIES.map((cat) => (
+              <CategoryPill
+                key={cat.id}
+                label={cat.label}
+                icon={cat.icon}
+                active={activeCategory === cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+              />
+            ))}
+          </div>
+        )}
       </div>
       <div className="flex-1 space-y-2 overflow-y-auto px-6 pb-6">
         <div className="mb-2 flex items-center justify-between px-1">
           <span className="text-text-tertiary font-sans text-xs font-bold tracking-widest uppercase">
-            Destinations
+            {mapMode === "settlements" ? "Settlements" : "Place records"}
           </span>
           <span className="text-text-secondary bg-background-secondary rounded-full px-2 py-0.5 text-xs font-medium">
             {filteredLocations.length}

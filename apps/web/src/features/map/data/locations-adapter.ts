@@ -1,12 +1,29 @@
 import { MapPin } from "lucide-react";
 import type { DirectoryEntry } from "@/types/directory";
+import type { TownStatusSummary } from "@/types/town";
 import { getEntryUrl } from "@/lib/directory-utils";
 import {
-  getCategoryColor,
-  getCategoryIcon,
-  type CategoryType,
-} from "./categories";
+  getEntryStatus,
+  getTownStatus,
+  type DocumentationStatus,
+} from "@/lib/documentation-status";
+import { getCategoryIcon, type CategoryType } from "./categories";
 import type { Location } from "./types";
+
+/**
+ * Pin colour by documentation status — how well documented a place is, not what kind
+ * of place it is. Spec 033 FR-012.
+ *
+ * The handoff's light-theme brand values: valley green, sunny yellow, sobrado ochre.
+ * Hex rather than a CSS variable because the render sites build tints by appending an
+ * alpha (`${color}20`). Light in both themes because both basemaps are light, so the
+ * pins always sit on light tiles.
+ */
+export const STATUS_PIN_COLOR: Record<DocumentationStatus, string> = {
+  documented: "#4F6E63",
+  partial: "#8A7A4F",
+  gap: "#836548",
+};
 
 /**
  * Maps backend API category names to BravaMap category IDs.
@@ -37,7 +54,7 @@ export function transformEntries(entries: DirectoryEntry[]): Location[] {
       const category = (BACKEND_TO_MAP_CATEGORY[entry.category] ??
         "Nature") as Exclude<CategoryType, "All">;
       const icon = getCategoryIcon(category) ?? MapPin;
-      const color = getCategoryColor(category);
+      const status = getEntryStatus(entry);
 
       return {
         id: entry.id,
@@ -53,12 +70,42 @@ export function transformEntries(entries: DirectoryEntry[]): Location[] {
         image: entry.imageUrl || undefined,
         tags: entry.tags || [],
         icon,
-        color,
+        color: STATUS_PIN_COLOR[status.status],
+        status,
         detailUrl: entry.slug
           ? getEntryUrl(entry.slug, entry.category)
           : undefined,
       };
     });
+}
+
+/**
+ * Transforms settlement status summaries into Location objects for the map's
+ * Settlements mode.
+ */
+export function transformSettlements(towns: TownStatusSummary[]): Location[] {
+  return towns.map((town) => {
+    const status = getTownStatus(town);
+
+    return {
+      id: town.id ?? town.slug,
+      name: town.name,
+      namePortuguese: town.name,
+      category: "Town",
+      description: town.description,
+      coordinates: {
+        lat: town.latitude,
+        lng: town.longitude,
+      },
+      elevation: 0,
+      tags: [],
+      icon: getCategoryIcon("Town") ?? MapPin,
+      color: STATUS_PIN_COLOR[status.status],
+      status,
+      // No settlement page exists yet (spec 033 T-19), so there is nothing to link to.
+      detailUrl: undefined,
+    };
+  });
 }
 
 /**

@@ -1,9 +1,12 @@
 import { describe, it, expect } from "vitest";
 import {
+  STATUS_PIN_COLOR,
   transformEntries,
+  transformSettlements,
   searchLocations,
 } from "@/features/map/data/locations-adapter";
 import type { DirectoryEntry } from "@/types/directory";
+import type { TownStatusSummary } from "@/types/town";
 import type { Location } from "@/features/map/data/types";
 import { Sun } from "lucide-react";
 
@@ -28,6 +31,23 @@ function entryFixture(overrides: Partial<DirectoryEntry> = {}): DirectoryEntry {
   } as DirectoryEntry;
 }
 
+function settlementFixture(
+  overrides: Partial<TownStatusSummary> = {}
+): TownStatusSummary {
+  return {
+    id: "7061feee-74d8-4d52-97d5-c3f9b03bebc8",
+    slug: "faja-de-agua",
+    name: "Faja d'Agua",
+    description: "A coastal village below the cliffs.",
+    latitude: 14.87306,
+    longitude: -24.73194,
+    entryCount: 2,
+    hasPhotograph: false,
+    status: "PARTIAL",
+    ...overrides,
+  };
+}
+
 function locationFixture(overrides: Partial<Location> = {}): Location {
   return {
     id: "loc-1",
@@ -41,6 +61,7 @@ function locationFixture(overrides: Partial<Location> = {}): Location {
     tags: ["beach"],
     icon: Sun,
     color: "#0EA5E9",
+    status: { status: "documented", label: "has a photograph" },
     ...overrides,
   };
 }
@@ -152,6 +173,86 @@ describe("transformEntries", () => {
     const result = transformEntries(entries);
 
     expect(result[0].detailUrl).toBeUndefined();
+  });
+});
+
+// ─── Pin colour (spec 033 FR-012) ────────────────────────────────────────────
+
+describe("pin colour", () => {
+  it("uses the handoff's light status colours", () => {
+    expect(STATUS_PIN_COLOR).toEqual({
+      documented: "#4F6E63",
+      partial: "#8A7A4F",
+      gap: "#836548",
+    });
+  });
+
+  it("colours a record with a photograph as documented", () => {
+    const [location] = transformEntries([
+      entryFixture({ imageUrl: "https://example.com/p.jpg" }),
+    ]);
+
+    expect(location.color).toBe(STATUS_PIN_COLOR.documented);
+    expect(location.status).toEqual({
+      status: "documented",
+      label: "has a photograph",
+    });
+  });
+
+  it("colours a record without a photograph as a gap", () => {
+    const [location] = transformEntries([entryFixture({ imageUrl: null })]);
+
+    expect(location.color).toBe(STATUS_PIN_COLOR.gap);
+    expect(location.status).toEqual({ status: "gap", label: "no photograph" });
+  });
+
+  it("colours equally documented records alike, whatever their kind", () => {
+    const [beach, church] = transformEntries([
+      entryFixture({ id: "1", category: "Beach" }),
+      entryFixture({ id: "2", category: "Church" } as Partial<DirectoryEntry>),
+    ]);
+
+    expect(beach.color).toBe(church.color);
+    expect(beach.icon).not.toBe(church.icon);
+  });
+});
+
+// ─── transformSettlements ────────────────────────────────────────────────────
+
+describe("transformSettlements", () => {
+  it("pins a settlement at its recorded coordinates", () => {
+    const [settlement] = transformSettlements([settlementFixture()]);
+
+    expect(settlement.id).toBe("7061feee-74d8-4d52-97d5-c3f9b03bebc8");
+    expect(settlement.name).toBe("Faja d'Agua");
+    expect(settlement.description).toBe("A coastal village below the cliffs.");
+    expect(settlement.coordinates).toEqual({ lat: 14.87306, lng: -24.73194 });
+    expect(settlement.category).toBe("Town");
+  });
+
+  it.each([
+    ["DOCUMENTED", "documented", "documented"],
+    ["PARTIAL", "partial", "records, no photograph"],
+    ["NAME_ONLY", "gap", "name only"],
+  ] as const)("colours a %s settlement as %s", (status, key, label) => {
+    const [settlement] = transformSettlements([settlementFixture({ status })]);
+
+    expect(settlement.color).toBe(STATUS_PIN_COLOR[key]);
+    expect(settlement.status).toEqual({ status: key, label });
+  });
+
+  it("links nowhere until settlement pages exist", () => {
+    const [settlement] = transformSettlements([settlementFixture()]);
+
+    expect(settlement.detailUrl).toBeUndefined();
+  });
+
+  it("falls back to the slug when a settlement has no id", () => {
+    const [settlement] = transformSettlements([
+      settlementFixture({ id: null }),
+    ]);
+
+    expect(settlement.id).toBe("faja-de-agua");
   });
 });
 

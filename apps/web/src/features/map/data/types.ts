@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import type { DocumentationState } from "@/lib/documentation-status";
 import type { CategoryType } from "./categories";
 
 /**
@@ -16,9 +17,16 @@ export interface Location {
   image?: string;
   tags: string[];
   icon: LucideIcon;
+  /** Pin colour, derived from `status` — not from the category. Spec 033 FR-012. */
   color: string;
+  status: DocumentationState;
   detailUrl?: string;
 }
+
+/**
+ * What the map pins: settlements, or the place records within them
+ */
+export type MapMode = "settlements" | "places";
 
 /**
  * Map view mode toggle (satellite imagery vs illustrated overlay)
