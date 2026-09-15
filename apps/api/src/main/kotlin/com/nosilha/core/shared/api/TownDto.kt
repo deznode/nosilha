@@ -62,4 +62,18 @@ data class TownStatusDto(
     val entryCount: Long,
     val hasPhotograph: Boolean,
     val status: SettlementStatus,
+    /** As recorded on the settlement, e.g. "271 (2010 census)"; null when not recorded. */
+    val population: String?,
+    /** As recorded on the settlement, e.g. "642m"; null when not recorded. */
+    val elevation: String?,
+    /**
+     * Active gallery archive photographs linked to this settlement's records; a record's
+     * hero is not counted (spec 034 FR-017).
+     */
+    val photographCount: Long,
+    /**
+     * Located archive photographs linked to no record, inside this settlement's
+     * proximity box: the records `/photographs?region=<slug>` lists (spec 034 FR-020).
+     */
+    val unconfirmedPhotographCount: Int,
 )

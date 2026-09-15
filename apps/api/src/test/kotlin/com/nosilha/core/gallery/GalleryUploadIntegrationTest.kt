@@ -18,6 +18,7 @@ import org.mockito.Mockito.`when`
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.core.io.ClassPathResource
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.authority.SimpleGrantedAuthority
@@ -30,6 +31,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import tools.jackson.databind.json.JsonMapper
+import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.util.*
 
@@ -572,5 +574,165 @@ class GalleryUploadIntegrationTest {
                     .with(adminAuth()),
             ).andExpect(status().isOk)
             .andExpect(jsonPath("$.data.status").value("ARCHIVED"))
+    }
+
+    // =================================================================
+    // TITLES AND DIMENSIONS (spec 034 FR-019, T-14)
+    // =================================================================
+
+    @Test
+    @DisplayName("An upload with no description is untitled, never named after its file")
+    fun `confirm without a description leaves the upload untitled`() {
+        setupDefaultMocks()
+
+        val request = ConfirmRequest(
+            key = "uploads/2024/12/test-uuid-DJI_0155.JPG",
+            originalName = "DJI_0155.JPG",
+            contentType = "image/jpeg",
+            fileSize = 1024,
+            description = null,
+            photographerCredit = "not known",
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/gallery/upload/confirm")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(request)),
+            ).andExpect(status().isCreated)
+            .andExpect(jsonPath("$.data.title").value(null as Any?))
+            .andExpect(jsonPath("$.data.originalName").value("DJI_0155.JPG"))
+
+        val media = galleryMediaRepository.findAll().single() as UserUploadedMedia
+        assertThat(media.title).isNull()
+        assertThat(media.originalName).isEqualTo("DJI_0155.JPG")
+    }
+
+    @Test
+    @DisplayName("A description becomes the title; a blank one leaves it untitled")
+    fun `confirm uses the description as the title`() {
+        setupDefaultMocks()
+
+        listOf("Festa de São João, Nova Sintra" to "uploads/2024/12/described.jpg", "   " to "uploads/2024/12/blank.jpg")
+            .forEach { (description, key) ->
+                val request = ConfirmRequest(
+                    key = key,
+                    originalName = key.substringAfterLast('/'),
+                    contentType = "image/jpeg",
+                    fileSize = 1024,
+                    description = description,
+                    photographerCredit = "not known",
+                )
+                mockMvc
+                    .perform(
+                        post("/api/v1/gallery/upload/confirm")
+                            .with(userAuth())
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonMapper.writeValueAsString(request)),
+                    ).andExpect(status().isCreated)
+            }
+
+        val titles = galleryMediaRepository.findAll().map { it as UserUploadedMedia }.associate { it.originalName to it.title }
+        assertThat(titles).containsEntry("described.jpg", "Festa de São João, Nova Sintra")
+        assertThat(titles).containsEntry("blank.jpg", null)
+    }
+
+    @Test
+    @DisplayName("Records the dimensions the browser read and shows them with the file name")
+    fun `confirm records dimensions and the public DTO exposes them`() {
+        setupDefaultMocks()
+
+        val request = ConfirmRequest(
+            key = "uploads/2024/12/test-uuid-harbour.jpg",
+            originalName = "harbour.jpg",
+            contentType = "image/jpeg",
+            fileSize = 1024,
+            width = 1200,
+            height = 800,
+            photographerCredit = "Ana Lopes",
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/gallery/upload/confirm")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(request)),
+            ).andExpect(status().isCreated)
+
+        val media = galleryMediaRepository.findAll().single() as UserUploadedMedia
+        assertThat(media.width).isEqualTo(1200)
+        assertThat(media.height).isEqualTo(800)
+
+        media.status = GalleryMediaStatus.ACTIVE
+        galleryMediaRepository.save(media)
+
+        mockMvc
+            .perform(get("/api/v1/gallery/${media.id}"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.data.originalName").value("harbour.jpg"))
+            .andExpect(jsonPath("$.data.width").value(1200))
+            .andExpect(jsonPath("$.data.height").value(800))
+    }
+
+    @Test
+    @DisplayName("Rejects dimensions that are not positive")
+    fun `confirm with a zero width returns 400`() {
+        setupDefaultMocks()
+
+        val request = ConfirmRequest(
+            key = "uploads/2024/12/test-uuid-zero.jpg",
+            originalName = "zero.jpg",
+            contentType = "image/jpeg",
+            fileSize = 1024,
+            width = 0,
+            height = 800,
+            photographerCredit = "not known",
+        )
+
+        mockMvc
+            .perform(
+                post("/api/v1/gallery/upload/confirm")
+                    .with(userAuth())
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonMapper.writeValueAsString(request)),
+            ).andExpect(status().isBadRequest)
+            .andExpect(jsonPath("$.details[0].field").value("width"))
+    }
+
+    @Test
+    @DisplayName("V17 untitles only uploads whose title is their file name")
+    fun `untitle migration clears titles that merely repeat the file name`() {
+        val named = UUID.randomUUID()
+        val titled = UUID.randomUUID()
+        val film = UUID.randomUUID()
+        jdbcTemplate.update(
+            "INSERT INTO gallery_media (id, media_source, status, title, original_name) VALUES (?, 'USER_UPLOAD', 'ACTIVE', 'IMG_0001.jpg', 'IMG_0001.jpg')",
+            named,
+        )
+        jdbcTemplate.update(
+            "INSERT INTO gallery_media (id, media_source, status, title, original_name) VALUES (?, 'USER_UPLOAD', 'ACTIVE', 'Festa', 'IMG_0002.jpg')",
+            titled,
+        )
+        jdbcTemplate.update(
+            "INSERT INTO gallery_media (id, media_source, status, title) VALUES (?, 'EXTERNAL', 'ACTIVE', 'Festa de São João')",
+            film,
+        )
+
+        jdbcTemplate.execute(
+            ClassPathResource("db/migration/V17__untitle_uploads_named_after_their_file.sql").getContentAsString(StandardCharsets.UTF_8),
+        )
+
+        fun titleOf(id: UUID) = jdbcTemplate.queryForObject("SELECT title FROM gallery_media WHERE id = ?", String::class.java, id)
+        assertThat(titleOf(named)).isNull()
+        assertThat(titleOf(titled)).isEqualTo("Festa")
+        assertThat(titleOf(film)).isEqualTo("Festa de São João")
+
+        val applied = jdbcTemplate.queryForObject(
+            "SELECT success FROM flyway_schema_history WHERE version = '17'",
+            Boolean::class.java,
+        )
+        assertThat(applied).isTrue()
     }
 }

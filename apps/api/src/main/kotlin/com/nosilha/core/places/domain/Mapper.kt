@@ -6,6 +6,7 @@ import com.nosilha.core.shared.api.CoincidentRefDto
 import com.nosilha.core.shared.api.CompletenessDto
 import com.nosilha.core.shared.api.ContentActionSettingsDto
 import com.nosilha.core.shared.api.DirectoryEntryDto
+import com.nosilha.core.shared.api.HeritageDetailsDto
 import com.nosilha.core.shared.api.HeritageDto
 import com.nosilha.core.shared.api.HotelDetailsDto
 import com.nosilha.core.shared.api.HotelDto
@@ -61,7 +62,7 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(heroFacts()).toDto(),
             coincidentWith = coincidentWith,
             details = RestaurantDetailsDto(
                 phoneNumber = phoneNumber ?: "",
@@ -89,7 +90,7 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(heroFacts()).toDto(),
             coincidentWith = coincidentWith,
             details = HotelDetailsDto(amenities = amenities.parseCommaSeparated()),
         )
@@ -113,7 +114,7 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(heroFacts()).toDto(),
             coincidentWith = coincidentWith,
         )
 
@@ -136,8 +137,9 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(heroFacts()).toDto(),
             coincidentWith = coincidentWith,
+            details = toHeritageDetails(),
         )
 
         is Nature -> NatureDto(
@@ -159,7 +161,7 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(heroFacts()).toDto(),
             coincidentWith = coincidentWith,
         )
 
@@ -182,7 +184,7 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(heroFacts()).toDto(),
             coincidentWith = coincidentWith,
         )
 
@@ -205,7 +207,7 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(heroFacts()).toDto(),
             coincidentWith = coincidentWith,
         )
 
@@ -228,8 +230,9 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(heroFacts()).toDto(),
             coincidentWith = coincidentWith,
+            details = toHeritageDetails(),
         )
 
         is Port -> PortDto(
@@ -251,13 +254,29 @@ fun DirectoryEntry.toDto(coincidentWith: CoincidentRefDto? = null): DirectoryEnt
             createdAt = createdAt,
             updatedAt = updatedAt,
             townId = townId,
-            completeness = completeness().toDto(),
+            completeness = completeness(heroFacts()).toDto(),
             coincidentWith = coincidentWith,
         )
 
         else -> throw IllegalStateException("Unsupported or unknown DirectoryEntry type: ${this::class.simpleName}")
     }
 }
+
+/**
+ * The hero facts completeness needs, from the entry's own image until heroes resolve
+ * from the gallery (spec 034 T-19). The entry records no credit, so a hero found here
+ * always counts its photographer as not recorded.
+ */
+private fun DirectoryEntry.heroFacts(): HeroFacts? = imageUrl?.takeIf { it.isNotBlank() }?.let { HeroFacts(photographerCredit = null) }
+
+/** Heritage and church details, each field exposed only where the guard shows it. */
+private fun DirectoryEntry.toHeritageDetails(): HeritageDetailsDto =
+    HeritageDetailsDto(
+        established = established.takeIf { shows(PracticalField.ESTABLISHED) },
+        conditionStatus = conditionStatus.takeIf { shows(PracticalField.CONDITION_STATUS) },
+        festival = festival.takeIf { shows(PracticalField.FESTIVAL) },
+        architect = architect.takeIf { shows(PracticalField.ARCHITECT) },
+    )
 
 /**
  * Parses a comma-separated string into a trimmed list, filtering empty entries.

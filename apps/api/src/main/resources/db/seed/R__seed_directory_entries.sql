@@ -43,3 +43,18 @@ INSERT INTO directory_entries (id, slug, name, description, category, town, lati
     'Hotel', 'Faja d''Agua', 14.873, -24.732,
     '+238 977 9998', 'nosraizcv@gmail.com', NULL, NULL, NULL, NULL, 'PUBLISHED')
 ON CONFLICT (slug) DO NOTHING;
+
+-- Heritage fields for the church record (spec 034 FR-016), taken from its description
+-- above: established c. 1826, under reconstruction since 2023, festival on the second
+-- weekend of August. A separate UPDATE because the insert does nothing on a database
+-- that already holds the row. It fills only a record whose heritage fields are all still
+-- empty, so re-runs never overwrite what a curator has recorded since.
+UPDATE directory_entries
+SET established = 'c. 1826',
+    condition_status = 'under reconstruction since 2023',
+    festival = 'second weekend of August'
+WHERE slug = 'igreja-nossa-senhora-do-monte'
+  AND established IS NULL
+  AND condition_status IS NULL
+  AND festival IS NULL
+  AND architect IS NULL;

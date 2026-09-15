@@ -108,6 +108,8 @@ class DirectoryEntryService(
             }
         }
 
+        newEntry.applyHeritageFields(request)
+
         newEntry.apply {
             this.name = request.name
             this.description = request.description
@@ -342,6 +344,8 @@ class DirectoryEntryService(
             }
         }
 
+        existingEntry.applyHeritageFields(request)
+
         val updatedEntry = repository.save(existingEntry)
 
         eventPublisher.publishEvent(
@@ -482,6 +486,18 @@ class DirectoryEntryService(
             name = savedEntry.name,
             status = savedEntry.status.name,
         )
+    }
+
+    /**
+     * Copies the heritage fields from a create or update request onto a category that may
+     * carry them. For any other category the request's values are ignored and existing
+     * values are left alone (spec 034 FR-016).
+     */
+    private fun DirectoryEntry.applyHeritageFields(request: CreateEntryRequestDto) {
+        if (supports(PracticalField.ESTABLISHED)) established = request.established
+        if (supports(PracticalField.CONDITION_STATUS)) conditionStatus = request.conditionStatus
+        if (supports(PracticalField.FESTIVAL)) festival = request.festival
+        if (supports(PracticalField.ARCHITECT)) architect = request.architect
     }
 
     /**

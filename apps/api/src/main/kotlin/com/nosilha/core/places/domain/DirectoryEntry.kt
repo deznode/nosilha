@@ -108,6 +108,15 @@ abstract class DirectoryEntry : AuditableEntity() {
     // Hotel-specific fields
     var amenities: String? = null // e.g., "Wi-Fi,Pool,Air Conditioning"
 
+    // Heritage and Church fields (spec 034 FR-016). Eligibility lives in FieldGuard.
+    var established: String? = null // e.g., "c. 1826"
+
+    @Column(name = "condition_status")
+    var conditionStatus: String? = null // e.g., "under reconstruction since 2023"
+
+    var festival: String? = null // e.g., "second weekend of August"
+    var architect: String? = null
+
     // --- Moderation/Lifecycle fields (DDD Aggregate pattern) ---
 
     /**

@@ -4,6 +4,7 @@ import com.nosilha.core.gallery.domain.ExternalMedia
 import com.nosilha.core.gallery.domain.ExternalPlatform
 import com.nosilha.core.gallery.domain.GalleryMedia
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
+import com.nosilha.core.gallery.domain.MediaRole
 import com.nosilha.core.gallery.domain.UserUploadedMedia
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -122,25 +123,21 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     ): List<UserUploadedMedia>
 
     /**
-     * Returns which of the given directory entries have at least one media record in
-     * the given status.
+     * Counts media per directory entry in the given status and role, as (entryId, count) rows.
      *
-     * <p>Batched deliberately: the settlements index asks this once for every entry on
-     * the island rather than once per settlement. Only UserUploadedMedia carries an
-     * entryId association.</p>
-     *
-     * @param entryIds directory entry ids to test
-     * @param status the media status (typically ACTIVE)
-     * @return the distinct entry ids having at least one matching media record
+     * <p>Batched deliberately: the settlements index asks this once for every entry on the
+     * island rather than once per settlement. Only UserUploadedMedia carries an entryId
+     * association, and entries with no matching media are absent from the result.</p>
      */
     @Query(
-        "SELECT DISTINCT m.entryId FROM UserUploadedMedia m " +
-            "WHERE m.entryId IN :entryIds AND m.status = :status",
+        "SELECT m.entryId, COUNT(m) FROM UserUploadedMedia m " +
+            "WHERE m.entryId IN :entryIds AND m.status = :status AND m.role = :role GROUP BY m.entryId",
     )
-    fun findDistinctEntryIdsByEntryIdInAndStatus(
+    fun countByEntryIdInAndStatusAndRoleGroupByEntryId(
         @Param("entryIds") entryIds: Collection<UUID>,
         @Param("status") status: GalleryMediaStatus,
-    ): List<UUID>
+        @Param("role") role: MediaRole,
+    ): List<Array<Any>>
 
     /**
      * Finds all media associated with a directory entry, ordered by display order.

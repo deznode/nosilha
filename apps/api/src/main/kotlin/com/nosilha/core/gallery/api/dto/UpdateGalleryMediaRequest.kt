@@ -22,6 +22,8 @@ data class UpdateGalleryMediaRequest(
     @field:Size(max = 255, message = "Photographer credit cannot exceed 255 characters")
     val photographerCredit: String? = null,
     val showInGallery: Boolean? = null,
+    /** Shows an identifiable person without confirmed provenance (spec 034 FR-022). */
+    val identifiablePerson: Boolean? = null,
     val featured: Boolean? = null,
     @field:Min(value = 0, message = "Duration must be non-negative")
     val durationSeconds: Int? = null,

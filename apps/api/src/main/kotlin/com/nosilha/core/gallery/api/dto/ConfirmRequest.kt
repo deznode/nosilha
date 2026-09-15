@@ -32,6 +32,8 @@ import java.util.UUID
  * @property cameraMake Camera manufacturer
  * @property cameraModel Camera model
  * @property orientation EXIF orientation (1-8)
+ * @property width Natural pixel width as displayed, so a tile keeps its shape before loading
+ * @property height Natural pixel height as displayed
  * @property photoType Photo type determining GPS privacy: CULTURAL_SITE, COMMUNITY_EVENT, PERSONAL
  * @property gpsPrivacyLevel Applied privacy level: FULL, APPROXIMATE, STRIPPED, NONE
  *
@@ -79,6 +81,10 @@ data class ConfirmRequest(
     @field:Min(value = 1, message = "Orientation must be between 1 and 8")
     @field:Max(value = 8, message = "Orientation must be between 1 and 8")
     val orientation: Int? = null,
+    @field:Min(value = 1, message = "Width must be at least 1 pixel")
+    val width: Int? = null,
+    @field:Min(value = 1, message = "Height must be at least 1 pixel")
+    val height: Int? = null,
     // --- Privacy Tracking ---
     @field:Pattern(
         regexp = "^(CULTURAL_SITE|COMMUNITY_EVENT|PERSONAL)$",

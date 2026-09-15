@@ -13,11 +13,14 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 /**
  * Verifies the category guard and completeness reach the API response
- * (spec 033, FR-002, FR-003, FR-007).
+ * (spec 033 FR-002, FR-003, FR-007; spec 034 FR-016).
  *
  * <p>[FieldGuardTest] proves the rules in isolation. These assertions prove they
  * survive the mapper and serialization — the guard is only useful if a template
  * genuinely cannot see a field it should not render.</p>
+ *
+ * <p>Completeness counts the record's field grid: settlement, category and coordinates,
+ * the category's eligible fields, and the photographer once a hero exists.</p>
  */
 @ActiveProfiles("test")
 @SpringBootTest
@@ -28,13 +31,14 @@ class DirectoryEntryGuardIntegrationTest {
     private lateinit var mockMvc: MockMvc
 
     @Test
-    fun `a heritage record counts only description and photograph`() {
-        // A public square is not incomplete for lacking a phone number or opening hours.
+    fun `a heritage record counts its grid rows, not contact fields`() {
+        // A public square is not incomplete for lacking a phone number: settlement,
+        // category, coordinates, established, status, festival, architect, opening hours.
         mockMvc
             .perform(get("/api/v1/directory/slug/praca-eugenio-tavares"))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.data.completeness.total").value(2))
-            .andExpect(jsonPath("$.data.completeness.missingFields").isArray)
+            .andExpect(jsonPath("$.data.completeness.total").value(8))
+            .andExpect(jsonPath("$.data.completeness.missingFields[?(@ == 'phoneNumber')]").isEmpty)
     }
 
     @Test
@@ -44,7 +48,7 @@ class DirectoryEntryGuardIntegrationTest {
             .perform(get("/api/v1/directory/slug/pousada-nova-sintra"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.data.category").value("Hotel"))
-            .andExpect(jsonPath("$.data.completeness.total").value(8))
+            .andExpect(jsonPath("$.data.completeness.total").value(9))
     }
 
     @Test
@@ -57,8 +61,8 @@ class DirectoryEntryGuardIntegrationTest {
             .andExpect(jsonPath("$.data.category").value("Heritage"))
             .andExpect(jsonPath("$.data.phoneNumber").value("+238 2623385"))
             .andExpect(jsonPath("$.data.website").value("http://www.eugeniotavares.org"))
-            // Still counted as a two-field record: display did not widen the denominator.
-            .andExpect(jsonPath("$.data.completeness.total").value(2))
+            // Display did not widen the denominator: still the eight heritage grid rows.
+            .andExpect(jsonPath("$.data.completeness.total").value(8))
     }
 
     @Test
@@ -71,13 +75,17 @@ class DirectoryEntryGuardIntegrationTest {
     }
 
     @Test
-    fun `a record documented with a photograph reports it`() {
-        // The one directory photograph in the archive.
+    fun `the church record reads six of nine, as the prototype does`() {
+        // Established, status and festival come from the seed; the photograph has no
+        // recorded photographer, and opening hours and architect are not recorded.
         mockMvc
             .perform(get("/api/v1/directory/slug/igreja-nossa-senhora-do-monte"))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.data.completeness.documented").value(2))
-            .andExpect(jsonPath("$.data.completeness.total").value(2))
+            .andExpect(jsonPath("$.data.completeness.documented").value(6))
+            .andExpect(jsonPath("$.data.completeness.total").value(9))
+            .andExpect(jsonPath("$.data.completeness.missingFields[0]").value("photographer"))
+            .andExpect(jsonPath("$.data.completeness.missingFields[1]").value("openingHours"))
+            .andExpect(jsonPath("$.data.completeness.missingFields[2]").value("architect"))
     }
 
     @Test

@@ -71,6 +71,8 @@ sealed class GalleryMediaDto {
         override val showInGallery: Boolean,
         override val altText: String?,
         override val createdAt: Instant?,
+        /** Shows an identifiable person without confirmed provenance (spec 034 FR-022). */
+        val identifiablePerson: Boolean = false,
         val fileName: String,
         val originalName: String,
         val storageKey: String,
@@ -127,6 +129,8 @@ sealed class GalleryMediaDto {
         override val showInGallery: Boolean,
         override val altText: String?,
         override val createdAt: Instant?,
+        /** Shows an identifiable person without confirmed provenance (spec 034 FR-022). */
+        val identifiablePerson: Boolean = false,
         val mediaType: MediaType,
         val platform: ExternalPlatform,
         val externalId: String?,
@@ -163,6 +167,7 @@ sealed class GalleryMediaDto {
                 showInGallery = media.showInGallery,
                 altText = media.altText,
                 createdAt = media.createdAt,
+                identifiablePerson = media.identifiablePerson,
                 fileName = media.fileName ?: "",
                 originalName = media.originalName ?: "",
                 storageKey = media.storageKey ?: "",
@@ -220,6 +225,7 @@ sealed class GalleryMediaDto {
                 showInGallery = media.showInGallery,
                 altText = media.altText,
                 createdAt = media.createdAt,
+                identifiablePerson = media.identifiablePerson,
                 mediaType = media.mediaType,
                 platform = media.platform,
                 externalId = media.externalId,

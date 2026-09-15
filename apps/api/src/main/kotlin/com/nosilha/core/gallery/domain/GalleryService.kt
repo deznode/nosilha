@@ -11,6 +11,7 @@ import com.nosilha.core.gallery.api.dto.TimelineDto
 import com.nosilha.core.gallery.api.dto.contributorIds
 import com.nosilha.core.gallery.api.dto.toDto
 import com.nosilha.core.gallery.api.dto.toPublicDto
+import com.nosilha.core.gallery.repository.GalleryArchiveQueries
 import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import com.nosilha.core.shared.api.PageableInfo
 import com.nosilha.core.shared.api.PagedApiResult
@@ -63,6 +64,7 @@ private val logger = KotlinLogging.logger {}
 class GalleryService(
     private val r2StorageService: R2StorageService?,
     private val repository: GalleryMediaRepository,
+    private val archiveQueries: GalleryArchiveQueries,
     private val userProfileQueryService: UserProfileQueryService,
     meterRegistry: MeterRegistry,
 ) {
@@ -81,12 +83,25 @@ class GalleryService(
 
         /**
          * Detects raw camera filenames and UUID-based strings that should be
-         * replaced with AI-generated titles.
+         * replaced with AI-generated titles. An untitled record counts as raw.
          */
-        fun isRawFilename(title: String): Boolean {
-            if (title.isBlank()) return true
+        fun isRawFilename(title: String?): Boolean {
+            if (title.isNullOrBlank()) return true
             return RAW_FILENAME_PATTERNS.any { it.containsMatchIn(title) }
         }
+
+        /**
+         * Parses a decade filter into a year range, or null for an unrecognised value,
+         * which adds no constraint. Supported values: pre-1975, 1975-1990, 1990-2010, 2010-plus
+         */
+        fun parseDecadeRange(decade: String): IntRange? =
+            when (decade) {
+                "pre-1975" -> Int.MIN_VALUE..1974
+                "1975-1990" -> 1975..1989
+                "1990-2010" -> 1990..2009
+                "2010-plus" -> 2010..Int.MAX_VALUE
+                else -> null
+            }
     }
 
     // Metrics counters for media operations
@@ -266,6 +281,8 @@ class GalleryService(
      * @param cameraMake Camera manufacturer
      * @param cameraModel Camera model
      * @param orientation EXIF orientation (1-8)
+     * @param width Natural pixel width, as displayed
+     * @param height Natural pixel height, as displayed
      * @param photoType Photo type (CULTURAL_SITE, COMMUNITY_EVENT, PERSONAL)
      * @param gpsPrivacyLevel Applied GPS privacy level
      * @param approximateDate Manual date entry for historical photos
@@ -294,6 +311,8 @@ class GalleryService(
         cameraMake: String? = null,
         cameraModel: String? = null,
         orientation: Int? = null,
+        width: Int? = null,
+        height: Int? = null,
         // Privacy tracking
         photoType: String? = null,
         gpsPrivacyLevel: String? = null,
@@ -329,7 +348,8 @@ class GalleryService(
             this.entryId = entryId
             this.category = category
             this.description = description
-            this.title = description ?: originalName // Use description as title, fallback to filename
+            // The filename is never a title: an upload with no description is untitled (spec 034 FR-019)
+            this.title = description?.ifBlank { null }
             this.status = GalleryMediaStatus.PENDING_REVIEW
             this.source = MediaSource.LOCAL
             this.uploadedBy = userId
@@ -343,6 +363,8 @@ class GalleryService(
             this.cameraMake = cameraMake
             this.cameraModel = cameraModel
             this.orientation = orientation ?: 1
+            this.width = width
+            this.height = height
             // Privacy tracking
             this.photoType = photoType
             this.gpsPrivacyLevel = gpsPrivacyLevel
@@ -575,64 +597,6 @@ class GalleryService(
         }
     }
 
-    /**
-     * Parses a decade string into an IntRange of years.
-     * Supported values: pre-1975, 1975-1990, 1990-2010, 2010-plus
-     */
-    private fun parseDecadeRange(decade: String): IntRange? =
-        when (decade) {
-            "pre-1975" -> Int.MIN_VALUE..1974
-            "1975-1990" -> 1975..1989
-            "1990-2010" -> 1990..2009
-            "2010-plus" -> 2010..Int.MAX_VALUE
-            else -> null
-        }
-
-    /**
-     * Full-text search across active gallery media.
-     * Uses the search_vector GIN index for Portuguese text search.
-     * Optionally applies category and decade post-filters.
-     */
-    private fun searchActiveMedia(
-        query: String,
-        category: String?,
-        decade: String?,
-        hasGeo: Boolean?,
-        page: Int,
-        size: Int,
-    ): Page<GalleryMedia> {
-        val cappedSize = minOf(size, 100)
-        val pageable = PageRequest.of(page, cappedSize)
-
-        val needsPostFilter = category != null || decade != null || hasGeo == true
-        if (!needsPostFilter) return repository.searchGallery(query, pageable)
-
-        // Fetch all search results then filter in-memory for accurate totalElements
-        val allResults = repository.searchGallery(query, PageRequest.of(0, Int.MAX_VALUE))
-        var filtered = allResults.content.toList()
-
-        if (category != null) {
-            filtered = filtered.filter { it.category == category }
-        }
-        if (decade != null) {
-            val yearRange = parseDecadeRange(decade)
-            if (yearRange != null) {
-                filtered = filtered.filter { resolveYear(it) in yearRange }
-            }
-        }
-        if (hasGeo == true) {
-            filtered = filtered.filter { media ->
-                media is UserUploadedMedia && media.latitude != null && media.longitude != null
-            }
-        }
-
-        val start = page * cappedSize
-        val end = minOf(start + cappedSize, filtered.size)
-        val pageContent = if (start < filtered.size) filtered.subList(start, end) else emptyList()
-
-        return PageImpl(pageContent, pageable, filtered.size.toLong())
-    }
-
     private val yearPattern = Regex("""(\d{4})""")
 
     /**
@@ -665,25 +629,19 @@ class GalleryService(
     // -- Public API methods (lean DTO) --
 
     /**
-     * Lists active gallery media for public API consumption.
+     * Lists archive records for public API consumption.
      *
-     * Returns a lean DTO that excludes AI fields, storage internals,
-     * and internal user IDs.
+     * Every filter and the total are evaluated in SQL over the archive predicate the
+     * facets count, so heroes are never listed (spec 034 FR-018, FR-020). Returns a
+     * lean DTO that excludes AI fields, storage internals, and internal user IDs.
      */
     @Transactional(readOnly = true)
     fun listActiveMediaPublic(
-        category: String?,
-        decade: String?,
-        query: String?,
-        hasGeo: Boolean?,
+        filter: ArchiveFilter,
         page: Int,
         size: Int,
     ): PagedApiResult<PublicGalleryMediaDto> {
-        val mediaPage = if (!query.isNullOrBlank()) {
-            searchActiveMedia(query.trim(), category, decade, hasGeo, page, size)
-        } else {
-            queryActiveMedia(category, decade, hasGeo, page, size)
-        }
+        val mediaPage = archiveQueries.findArchive(filter, PageRequest.of(page, size.coerceIn(1, 100)))
         val displayNames = resolveDisplayNames(mediaPage.content)
         val dtos = mediaPage.content.map { it.toPublicDto(displayNames) }
 

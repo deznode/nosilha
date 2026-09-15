@@ -26,6 +26,7 @@ class GalleryServiceTest {
     private val service = GalleryService(
         r2StorageService = null,
         repository = repository,
+        archiveQueries = mock(),
         userProfileQueryService = userProfileQueryService,
         meterRegistry = meterRegistry,
     )

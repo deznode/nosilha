@@ -145,7 +145,7 @@ fun GalleryMedia.toAdminListDto(): AdminMediaListDto =
         is ExternalMedia -> AdminMediaListDto(
             id = id!!,
             fileName = "",
-            originalName = title,
+            originalName = title ?: "",
             contentType = "",
             fileSize = 0L,
             publicUrl = resolvedThumbnailUrl(),
@@ -190,7 +190,7 @@ fun GalleryMedia.toAdminDetailDto(): AdminMediaDetailDto =
         is ExternalMedia -> AdminMediaDetailDto(
             id = id!!,
             fileName = "",
-            originalName = title,
+            originalName = title ?: "",
             contentType = "",
             fileSize = 0L,
             storageKey = "",

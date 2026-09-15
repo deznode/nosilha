@@ -10,6 +10,7 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest
+import software.amazon.awssdk.services.s3.model.GetObjectRequest
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException
@@ -268,6 +269,35 @@ class R2StorageService(
                 contentLength = response.contentLength(),
                 lastModified = response.lastModified(),
             )
+        } catch (_: NoSuchKeyException) {
+            null
+        }
+    }
+
+    /**
+     * Reads the first [maxBytes] bytes of an object, or all of it when smaller. Enough to
+     * read an image's dimensions from its header without downloading the file.
+     *
+     * @param key The storage key to read
+     * @param maxBytes Upper bound on bytes read (at least 1)
+     * @return The bytes read, or null if the object does not exist
+     * @throws IllegalStateException if R2 is not configured
+     */
+    fun readObjectPrefix(
+        key: String,
+        maxBytes: Int,
+    ): ByteArray? {
+        check(isConfigured) { "R2 storage is not configured" }
+        require(maxBytes > 0) { "maxBytes must be positive" }
+
+        return try {
+            val request = GetObjectRequest
+                .builder()
+                .bucket(bucketName)
+                .key(key)
+                .range("bytes=0-${maxBytes - 1}")
+                .build()
+            s3Client.getObjectAsBytes(request).asByteArray()
         } catch (_: NoSuchKeyException) {
             null
         }
