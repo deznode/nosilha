@@ -84,9 +84,13 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
      * Used for category extraction from gallery-visible items.
      *
      * @param status The media status to filter by
+     * @param role The record's role; a hero heads its entry and is never a gallery item
      * @return List of gallery-visible media entities
      */
-    fun findByStatusAndShowInGalleryTrue(status: GalleryMediaStatus): List<GalleryMedia>
+    fun findByStatusAndRoleAndShowInGalleryTrue(
+        status: GalleryMediaStatus,
+        role: MediaRole,
+    ): List<GalleryMedia>
 
     /**
      * Finds all media in a specific category.
@@ -114,12 +118,17 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
      *
      * @param entryId The UUID of the directory entry
      * @param status The media status (typically ACTIVE)
+     * @param role The record's role; an entry's photographs are its archive records, not its hero
      * @return List of user uploaded media entities sorted by displayOrder ascending
      */
-    @Query("SELECT m FROM UserUploadedMedia m WHERE m.entryId = :entryId AND m.status = :status ORDER BY m.displayOrder ASC")
-    fun findByEntryIdAndStatusOrderByDisplayOrderAsc(
+    @Query(
+        "SELECT m FROM UserUploadedMedia m WHERE m.entryId = :entryId AND m.status = :status AND m.role = :role " +
+            "ORDER BY m.displayOrder ASC",
+    )
+    fun findByEntryIdAndStatusAndRoleOrderByDisplayOrderAsc(
         entryId: UUID,
         status: GalleryMediaStatus,
+        role: MediaRole,
     ): List<UserUploadedMedia>
 
     /**
@@ -138,6 +147,34 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
         @Param("status") status: GalleryMediaStatus,
         @Param("role") role: MediaRole,
     ): List<Array<Any>>
+
+    /**
+     * Finds the hero rows of the given entries in the given statuses, in one query (spec 034 FR-023).
+     */
+    @Query("SELECT m FROM UserUploadedMedia m WHERE m.entryId IN :entryIds AND m.role = :role AND m.status IN :statuses")
+    fun findByEntryIdInAndRoleAndStatusIn(
+        @Param("entryIds") entryIds: Collection<UUID>,
+        @Param("role") role: MediaRole,
+        @Param("statuses") statuses: Collection<GalleryMediaStatus>,
+    ): List<UserUploadedMedia>
+
+    /** An entry's uploads in [role], whatever their status. An entry has at most one hero. */
+    @Query("SELECT m FROM UserUploadedMedia m WHERE m.entryId = :entryId AND m.role = :role")
+    fun findUploadsByEntryIdAndRole(
+        @Param("entryId") entryId: UUID,
+        @Param("role") role: MediaRole,
+    ): List<UserUploadedMedia>
+
+    /** An entry's uploads served from [publicUrl] in the given statuses, oldest first. */
+    @Query(
+        "SELECT m FROM UserUploadedMedia m WHERE m.entryId = :entryId AND m.publicUrl = :publicUrl " +
+            "AND m.status IN :statuses ORDER BY m.createdAt ASC",
+    )
+    fun findUploadsByEntryIdAndPublicUrl(
+        @Param("entryId") entryId: UUID,
+        @Param("publicUrl") publicUrl: String,
+        @Param("statuses") statuses: Collection<GalleryMediaStatus>,
+    ): List<UserUploadedMedia>
 
     /**
      * Finds all media associated with a directory entry, ordered by display order.
@@ -314,11 +351,13 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
      * full entity graphs into memory. Only returns the UUID primary key.
      *
      * @param status The media status to filter by (typically ACTIVE)
+     * @param role The record's role; a hero heads its entry and is never offered as a gallery item
      * @return List of media UUIDs matching the criteria
      */
-    @Query("SELECT gm.id FROM GalleryMedia gm WHERE gm.status = :status AND gm.showInGallery = true")
-    fun findIdsByStatusAndShowInGalleryTrue(
+    @Query("SELECT gm.id FROM GalleryMedia gm WHERE gm.status = :status AND gm.role = :role AND gm.showInGallery = true")
+    fun findIdsByStatusAndRoleAndShowInGalleryTrue(
         @Param("status") status: GalleryMediaStatus,
+        @Param("role") role: MediaRole,
     ): List<UUID>
 
     /**

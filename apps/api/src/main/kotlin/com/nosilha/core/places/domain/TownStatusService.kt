@@ -21,7 +21,7 @@ import java.util.UUID
  *
  * <p>Photographs are counted by the gallery module through [MediaQueryService] rather
  * than reimplemented here: whether a photograph counts depends on moderation state,
- * which is gallery's rule to define.</p>
+ * which is gallery's rule to define, and an entry's hero lives there too (spec 034 FR-023).</p>
  */
 @Service
 @Transactional(readOnly = true)
@@ -41,17 +41,17 @@ class TownStatusService(
     fun getAllWithStatus(): List<TownStatusDto> {
         val towns = townRepository.findAllByOrderByNameAsc()
 
-        // (townId, entryCount, entries carrying their own image) in one grouped query.
-        val aggregates: Map<UUID, Pair<Long, Long>> =
+        // (townId, entryCount) in one grouped query.
+        val entryCounts: Map<UUID, Long> =
             directoryEntryRepository
                 .countByTownIdGroupByTownIdPublished()
                 .mapNotNull { row ->
                     val townId = row[0] as? UUID ?: return@mapNotNull null
-                    townId to Pair((row[1] as Number).toLong(), (row[2] as Number).toLong())
+                    townId to (row[1] as Number).toLong()
                 }.toMap()
 
-        // Every published entry's settlement, then every entry's photograph count in one
-        // gallery call.
+        // Every published entry's settlement, then every entry's photograph count and hero in
+        // one gallery call each.
         val townIdByEntryId: Map<UUID, UUID> =
             directoryEntryRepository
                 .findPublishedEntryIdsWithTownId()
@@ -63,6 +63,12 @@ class TownStatusService(
                 .mapNotNull { (entryId, count) -> townIdByEntryId[entryId]?.let { it to count } }
                 .groupBy({ it.first }, { it.second })
                 .mapValues { (_, counts) -> counts.sum() }
+        val townsWithHero: Set<UUID> =
+            mediaQueryService
+                .findHeroMedia(townIdByEntryId.keys)
+                .keys
+                .mapNotNull { townIdByEntryId[it] }
+                .toSet()
 
         // Photographs near each settlement that no record claims yet, in one gallery call.
         val unconfirmedByTown: Map<UUID, Int> =
@@ -74,11 +80,11 @@ class TownStatusService(
 
         return towns.map { town ->
             val townId = town.id
-            val (entryCount, entriesWithOwnImage) = aggregates[townId] ?: Pair(0L, 0L)
+            val entryCount = entryCounts[townId] ?: 0L
             val photographCount = photographsByTown[townId] ?: 0L
-            // An entry's own image still documents it until heroes move into the gallery
-            // (spec 034 Wave 3); it is not a gallery photograph, so it is not counted.
-            val hasPhotograph = entriesWithOwnImage > 0 || photographCount > 0
+            // A record's hero documents it, but heads the record rather than being a photograph
+            // of the settlement, so it is not counted (decided 2026-09-15).
+            val hasPhotograph = (townId != null && townId in townsWithHero) || photographCount > 0
 
             TownStatusDto(
                 id = townId,

@@ -211,8 +211,6 @@ export function isTown(obj: unknown): obj is Town {
     (town.elevation === null || typeof town.elevation === "string") &&
     (town.founded === null || typeof town.founded === "string") &&
     Array.isArray(town.highlights) &&
-    (town.heroImage === null || typeof town.heroImage === "string") &&
-    Array.isArray(town.gallery) &&
     (town.createdAt === undefined || typeof town.createdAt === "string") &&
     (town.updatedAt === undefined || typeof town.updatedAt === "string");
 

@@ -50,6 +50,9 @@ class ArchiveFixtures(
         category: String? = null,
         entryId: UUID? = null,
         displayOrder: Int = 0,
+        publicUrl: String? = null,
+        archiveSource: String? = null,
+        identifiablePerson: Boolean = false,
     ): UUID {
         require(source in setOf("USER_UPLOAD", "EXTERNAL")) { "unexpected source literal: $source" }
         require(status in setOf("ACTIVE", "PENDING_REVIEW")) { "unexpected status literal: $status" }
@@ -62,10 +65,10 @@ class ArchiveFixtures(
             INSERT INTO gallery_media (
                 id, media_source, status, role, show_in_gallery, latitude, longitude, date_taken, created_at,
                 approximate_date, photographer_credit, author, media_type, platform, category, entry_id,
-                display_order, title
+                display_order, title, public_url, archive_source, identifiable_person
             ) VALUES (
                 ?, '$source', '$status', '$role', ?, ?, ?, ?, COALESCE(CAST(? AS TIMESTAMPTZ), NOW()),
-                ?, ?, ?, ?, ?, ?, ?, ?, 'Fixture'
+                ?, ?, ?, ?, ?, ?, ?, ?, 'Fixture', ?, ?, ?
             )
             """.trimIndent(),
             id,
@@ -82,6 +85,9 @@ class ArchiveFixtures(
             category,
             entryId,
             displayOrder,
+            publicUrl,
+            archiveSource,
+            identifiablePerson,
         )
         return id
     }

@@ -567,7 +567,7 @@ class GalleryService(
 
         return if (needsInMemoryFilter) {
             var filtered: List<GalleryMedia> = repository
-                .findByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
+                .findByStatusAndRoleAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE, MediaRole.ARCHIVE)
 
             if (category != null) {
                 filtered = filtered.filter { it.category == category }
@@ -624,7 +624,7 @@ class GalleryService(
     }
 
     private fun queryMediaByEntry(entryId: UUID): List<UserUploadedMedia> =
-        repository.findByEntryIdAndStatusOrderByDisplayOrderAsc(entryId, GalleryMediaStatus.ACTIVE)
+        repository.findByEntryIdAndStatusAndRoleOrderByDisplayOrderAsc(entryId, GalleryMediaStatus.ACTIVE, MediaRole.ARCHIVE)
 
     // -- Public API methods (lean DTO) --
 
@@ -669,7 +669,8 @@ class GalleryService(
     }
 
     /**
-     * Gets all ACTIVE user-uploaded media for a directory entry (public API).
+     * Gets all ACTIVE archive uploads for a directory entry (public API). The entry's hero heads
+     * its record and is not one of its photographs (spec 034 FR-023).
      */
     @Transactional(readOnly = true)
     fun getMediaByEntryPublic(entryId: UUID): List<PublicGalleryMediaDto.UserUpload> {
@@ -704,7 +705,7 @@ class GalleryService(
      */
     @Transactional(readOnly = true)
     fun getRandomMedia(count: Int): List<PublicGalleryMediaDto> {
-        val ids = repository.findIdsByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
+        val ids = repository.findIdsByStatusAndRoleAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE, MediaRole.ARCHIVE)
         if (ids.isEmpty()) return emptyList()
 
         val selectedIds = ids.shuffled().take(count)
@@ -723,7 +724,7 @@ class GalleryService(
     @Transactional(readOnly = true)
     fun getDailyFeatured(): PublicGalleryMediaDto? {
         val cached = dailyFeaturedCache.get("daily") {
-            val ids = repository.findIdsByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
+            val ids = repository.findIdsByStatusAndRoleAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE, MediaRole.ARCHIVE)
             if (ids.isEmpty()) return@get emptyList()
 
             val today = LocalDate.now()
@@ -747,7 +748,7 @@ class GalleryService(
     @Transactional(readOnly = true)
     fun getWeeklyDiscovery(count: Int = 5): List<PublicGalleryMediaDto> =
         weeklyDiscoveryCache.get("weekly") {
-            val ids = repository.findIdsByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
+            val ids = repository.findIdsByStatusAndRoleAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE, MediaRole.ARCHIVE)
             if (ids.isEmpty()) return@get emptyList()
 
             val today = LocalDate.now()
@@ -779,7 +780,7 @@ class GalleryService(
     @Transactional(readOnly = true)
     fun getTimelineAggregation(): TimelineDto =
         timelineCache.get("timeline") {
-            val allMedia = repository.findByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
+            val allMedia = repository.findByStatusAndRoleAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE, MediaRole.ARCHIVE)
             if (allMedia.isEmpty()) return@get TimelineDto(groups = emptyList(), totalCount = 0)
 
             val displayNames = resolveDisplayNames(allMedia)
@@ -894,7 +895,7 @@ class GalleryService(
     @Transactional(readOnly = true)
     fun getCategories(): List<String> =
         repository
-            .findByStatusAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE)
+            .findByStatusAndRoleAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE, MediaRole.ARCHIVE)
             .mapNotNull { it.category }
             .distinct()
             .sorted()

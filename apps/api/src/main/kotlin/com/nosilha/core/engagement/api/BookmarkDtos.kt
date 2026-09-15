@@ -117,23 +117,27 @@ fun Bookmark.toDto() =
  * <p>Maps domain entity to bookmark with full entry summary for list display.</p>
  *
  * @param entry The directory entry associated with this bookmark
+ * @param thumbnailUrl The entry's hero image URL, resolved from the gallery module; null when it has none
  * @return BookmarkWithEntryDto with bookmark and entry summary
  */
-fun Bookmark.toWithEntryDto(entry: DirectoryEntry) =
-    BookmarkWithEntryDto(
-        id = this.id!!,
-        entry = entry.toSummaryDto(),
-        createdAt = this.createdAt,
-    )
+fun Bookmark.toWithEntryDto(
+    entry: DirectoryEntry,
+    thumbnailUrl: String?,
+) = BookmarkWithEntryDto(
+    id = this.id!!,
+    entry = entry.toSummaryDto(thumbnailUrl),
+    createdAt = this.createdAt,
+)
 
 /**
  * Extension function to convert DirectoryEntry to summary DTO.
  *
  * <p>Maps directory entry to lightweight summary representation.</p>
  *
+ * @param thumbnailUrl The entry's hero image URL (spec 034 FR-023); null when it has none
  * @return DirectoryEntrySummaryDto with essential entry fields
  */
-fun DirectoryEntry.toSummaryDto() =
+fun DirectoryEntry.toSummaryDto(thumbnailUrl: String?) =
     DirectoryEntrySummaryDto(
         id = this.id!!,
         name = this.name,
@@ -142,5 +146,5 @@ fun DirectoryEntry.toSummaryDto() =
         description = this.description,
         town = this.town,
         averageRating = this.rating,
-        thumbnailUrl = this.imageUrl,
+        thumbnailUrl = thumbnailUrl,
     )

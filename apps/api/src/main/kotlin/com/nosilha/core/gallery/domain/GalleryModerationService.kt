@@ -15,7 +15,6 @@ import com.nosilha.core.gallery.repository.GalleryMediaRepository
 import com.nosilha.core.gallery.repository.MediaModerationAuditRepository
 import com.nosilha.core.shared.api.PageableInfo
 import com.nosilha.core.shared.api.PagedApiResult
-import com.nosilha.core.shared.events.HeroImagePromotedEvent
 import com.nosilha.core.shared.events.MediaAnalysisBatchRequestedEvent
 import com.nosilha.core.shared.events.MediaAnalysisRequestedEvent
 import com.nosilha.core.shared.exception.BusinessException
@@ -448,59 +447,6 @@ class GalleryModerationService(
         val displayName = userProfileQueryService.findDisplayName(adminId)
 
         return GalleryMediaDto.from(saved, displayName)
-    }
-
-    /**
-     * Promotes a gallery image to become the hero image for its associated directory entry.
-     *
-     * This action publishes a HeroImagePromotedEvent that the Places module will consume
-     * to update the directory entry's imageUrl field. This maintains Spring Modulith
-     * module boundaries by using event-driven communication.
-     *
-     * Prerequisites:
-     * - Media must be a UserUploadedMedia (not ExternalMedia)
-     * - Media must have ACTIVE status (approved)
-     * - Media must have an entryId (linked to a directory entry)
-     * - Media must have a publicUrl (accessible via CDN)
-     *
-     * @param mediaId UUID of the media item to promote
-     * @param adminId UUID of the admin user performing the promotion
-     * @throws NotFoundException if media not found
-     * @throws BusinessException if validation fails
-     */
-    @Transactional
-    fun promoteToHeroImage(
-        mediaId: UUID,
-        adminId: UUID,
-    ) {
-        val media = repository.findById(mediaId).orElseThrow {
-            ResourceNotFoundException("Media not found: $mediaId")
-        }
-
-        // Validations
-        if (media !is UserUploadedMedia) {
-            throw BusinessException("Only user uploads can be promoted to hero image")
-        }
-        if (media.status != GalleryMediaStatus.ACTIVE) {
-            throw BusinessException("Media must be ACTIVE to promote as hero image")
-        }
-        if (media.entryId == null) {
-            throw BusinessException("Media must be linked to a directory entry")
-        }
-        if (media.publicUrl.isNullOrBlank()) {
-            throw BusinessException("Media must have a public URL")
-        }
-
-        eventPublisher.publishEvent(
-            HeroImagePromotedEvent(
-                entryId = media.entryId!!,
-                imageUrl = media.publicUrl!!,
-                mediaId = mediaId,
-                promotedBy = adminId,
-            ),
-        )
-
-        logger.info { "Published HeroImagePromotedEvent for entry ${media.entryId}, media $mediaId, by admin $adminId" }
     }
 
     /**

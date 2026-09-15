@@ -31,6 +31,7 @@ import com.nosilha.core.gallery.api.dto.toDto
 import com.nosilha.core.gallery.domain.ExternalPlatform
 import com.nosilha.core.gallery.domain.GalleryMediaStatus
 import com.nosilha.core.gallery.domain.GalleryModerationService
+import com.nosilha.core.gallery.domain.HeroMediaService
 import com.nosilha.core.gallery.domain.R2AdminService
 import com.nosilha.core.gallery.domain.YouTubeSyncConfigService
 import com.nosilha.core.gallery.domain.YouTubeSyncPlaylistService
@@ -88,6 +89,7 @@ private val logger = KotlinLogging.logger {}
 @PreAuthorize("hasRole('ADMIN')")
 class AdminGalleryController(
     private val moderationService: GalleryModerationService,
+    private val heroMediaService: HeroMediaService,
     private val galleryMediaRepository: GalleryMediaRepository,
     private val r2AdminService: R2AdminService?,
     private val youTubeSyncService: YouTubeSyncService?,
@@ -338,9 +340,8 @@ class AdminGalleryController(
      * - Media must be linked to a directory entry (entryId not null)
      * - Media must have a public URL
      *
-     * The update is performed via event-driven communication: this endpoint
-     * publishes a HeroImagePromotedEvent that the Places module consumes
-     * to update the directory entry's imageUrl field.
+     * The upload becomes the entry's hero record (spec 034 FR-023); any previous
+     * hero returns to the archive in the same transaction.
      *
      * Example:
      * PATCH /api/v1/admin/gallery/{mediaId}/promote-hero
@@ -357,9 +358,31 @@ class AdminGalleryController(
         val adminId = extractAdminId(authentication)
         logger.info { "Admin $adminId promoting media $mediaId to hero image" }
 
-        moderationService.promoteToHeroImage(mediaId, adminId)
+        heroMediaService.promote(mediaId, adminId)
 
         return ResponseEntity.ok(ApiResult(data = Unit))
+    }
+
+    /**
+     * Removes a hero image: the record returns to the archive and its directory entry
+     * has no hero (spec 034 FR-023).
+     *
+     * Example:
+     * DELETE /api/v1/admin/gallery/{mediaId}/hero
+     *
+     * @param mediaId UUID of the hero media item
+     * @param authentication Current admin user
+     */
+    @DeleteMapping("/{mediaId}/hero")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun removeHeroImage(
+        @PathVariable mediaId: UUID,
+        authentication: Authentication,
+    ) {
+        val adminId = extractAdminId(authentication)
+        logger.info { "Admin $adminId removing hero image $mediaId" }
+
+        heroMediaService.removeHero(mediaId, adminId)
     }
 
     /**

@@ -21,8 +21,6 @@ data class TownDto(
     val elevation: String?,
     val founded: String?,
     val highlights: List<String>,
-    val heroImage: String?,
-    val gallery: List<String>,
     val createdAt: Instant,
     val updatedAt: Instant,
 )

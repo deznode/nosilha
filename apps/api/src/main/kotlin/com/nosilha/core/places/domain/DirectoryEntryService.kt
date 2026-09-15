@@ -15,6 +15,7 @@ import com.nosilha.core.shared.api.DirectoryEntryDto
 import com.nosilha.core.shared.events.DirectoryEntryCreatedEvent
 import com.nosilha.core.shared.events.DirectoryEntryDeletedEvent
 import com.nosilha.core.shared.events.DirectoryEntryUpdatedEvent
+import com.nosilha.core.shared.events.EntryImageSubmittedEvent
 import com.nosilha.core.shared.events.HeroImagePromotedEvent
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.RateLimitExceededException
@@ -60,6 +61,7 @@ class DirectoryEntryService(
     private val townRepository: TownRepository,
     private val eventPublisher: ApplicationEventPublisher,
     private val revalidationService: FrontendRevalidationService,
+    private val heroImageResolver: HeroImageResolver,
 ) {
     companion object {
         /** Maximum directory submissions per hour per IP address */
@@ -84,6 +86,9 @@ class DirectoryEntryService(
      * Creates a new directory entry based on the provided request data.
      *
      * <p>Publishes {@link DirectoryEntryCreatedEvent} after successful creation.</p>
+     *
+     * <p>An image URL in the request becomes the entry's hero in the gallery module once this
+     * transaction commits, so the returned DTO does not show it yet (spec 034 FR-023).</p>
      *
      * @param request The DTO containing all necessary data for the new entry.
      * @return The DTO of the newly created and saved entry.
@@ -117,7 +122,6 @@ class DirectoryEntryService(
             this.townId = resolveTownId(request.town)
             this.latitude = request.latitude
             this.longitude = request.longitude
-            this.imageUrl = request.imageUrl
             this.tags = request.tags?.joinToString(",")
             this.contentActions =
                 request.contentActions?.let {
@@ -136,7 +140,9 @@ class DirectoryEntryService(
             ),
         )
 
-        return savedEntry.toDto()
+        if (!request.imageUrl.isNullOrBlank()) submitImage(savedEntry, request.imageUrl)
+
+        return savedEntry.toDtoWithHero()
     }
 
     // =====================================================
@@ -149,10 +155,7 @@ class DirectoryEntryService(
      * @return A list of [DirectoryEntryDto] representing all published entries.
      */
     fun getAllEntries(): List<DirectoryEntryDto> =
-        repository
-            .findByStatus(DirectoryEntryStatus.PUBLISHED, Pageable.unpaged())
-            .map { it.toDto() }
-            .content
+        toDtos(repository.findByStatus(DirectoryEntryStatus.PUBLISHED, Pageable.unpaged()).content)
 
     /**
      * Retrieves PUBLISHED directory entries with pagination support.
@@ -161,7 +164,7 @@ class DirectoryEntryService(
      * @return A page of [DirectoryEntryDto] representing the requested published entries.
      */
     fun getEntriesPage(pageable: Pageable): Page<DirectoryEntryDto> =
-        repository.findByStatus(DirectoryEntryStatus.PUBLISHED, pageable).map { it.toDto() }
+        toDtoPage(repository.findByStatus(DirectoryEntryStatus.PUBLISHED, pageable))
 
     /**
      * Retrieves PUBLISHED directory entries filtered by category with pagination support.
@@ -173,10 +176,7 @@ class DirectoryEntryService(
     fun getEntriesByCategoryPage(
         category: String,
         pageable: Pageable,
-    ): Page<DirectoryEntryDto> =
-        repository
-            .findByStatusAndCategoryIgnoreCase(DirectoryEntryStatus.PUBLISHED, category, pageable)
-            .map { it.toDto() }
+    ): Page<DirectoryEntryDto> = toDtoPage(repository.findByStatusAndCategoryIgnoreCase(DirectoryEntryStatus.PUBLISHED, category, pageable))
 
     /**
      * Retrieves PUBLISHED directory entries filtered by town with pagination support.
@@ -188,10 +188,7 @@ class DirectoryEntryService(
     fun getEntriesByTownPage(
         town: String,
         pageable: Pageable,
-    ): Page<DirectoryEntryDto> =
-        repository
-            .findByStatusAndTownIgnoreCase(DirectoryEntryStatus.PUBLISHED, town, pageable)
-            .map { it.toDto() }
+    ): Page<DirectoryEntryDto> = toDtoPage(repository.findByStatusAndTownIgnoreCase(DirectoryEntryStatus.PUBLISHED, town, pageable))
 
     /**
      * Retrieves PUBLISHED directory entries filtered by both category and town with pagination support.
@@ -206,13 +203,14 @@ class DirectoryEntryService(
         town: String,
         pageable: Pageable,
     ): Page<DirectoryEntryDto> =
-        repository
-            .findByStatusAndCategoryIgnoreCaseAndTownIgnoreCase(
+        toDtoPage(
+            repository.findByStatusAndCategoryIgnoreCaseAndTownIgnoreCase(
                 DirectoryEntryStatus.PUBLISHED,
                 category,
                 town,
                 pageable,
-            ).map { it.toDto() }
+            ),
+        )
 
     /**
      * Retrieves all PUBLISHED directory entries of a specific category and maps them to DTOs.
@@ -221,10 +219,7 @@ class DirectoryEntryService(
      * @return A list of [DirectoryEntryDto] for the given category.
      */
     fun getEntriesByCategory(category: String): List<DirectoryEntryDto> =
-        repository
-            .findByStatusAndCategoryIgnoreCase(DirectoryEntryStatus.PUBLISHED, category, Pageable.unpaged())
-            .map { it.toDto() }
-            .content
+        toDtos(repository.findByStatusAndCategoryIgnoreCase(DirectoryEntryStatus.PUBLISHED, category, Pageable.unpaged()).content)
 
     /**
      * Finds a single directory entry by its unique ID.
@@ -236,8 +231,8 @@ class DirectoryEntryService(
     fun getEntryById(id: UUID): DirectoryEntryDto =
         repository
             .findById(id)
-            .map { it.toDto() }
             .orElseThrow { ResourceNotFoundException("Directory entry with ID '$id' not found.") }
+            .toDtoWithHero()
 
     /**
      * Lists PUBLISHED entries in a settlement by its canonical id.
@@ -247,17 +242,12 @@ class DirectoryEntryService(
      */
     fun getEntriesByTownIdPage(
         townId: UUID,
-        pageable: Pageable
-    ): Page<DirectoryEntryDto> =
-        repository
-            .findByStatusAndTownId(DirectoryEntryStatus.PUBLISHED, townId, pageable)
-            .map { it.toDto() }
+        pageable: Pageable,
+    ): Page<DirectoryEntryDto> = toDtoPage(repository.findByStatusAndTownId(DirectoryEntryStatus.PUBLISHED, townId, pageable))
 
     /** Lists all PUBLISHED entries in a settlement, unpaged, for the settlement detail page. */
     fun getEntriesByTownId(townId: UUID): List<DirectoryEntryDto> =
-        repository
-            .findByStatusAndTownIdOrderByNameAsc(DirectoryEntryStatus.PUBLISHED, townId)
-            .map { it.toDto() }
+        toDtos(repository.findByStatusAndTownIdOrderByNameAsc(DirectoryEntryStatus.PUBLISHED, townId))
 
     /**
      * Finds a single directory entry by its unique slug.
@@ -269,7 +259,7 @@ class DirectoryEntryService(
     fun getEntryBySlug(slug: String): DirectoryEntryDto {
         val entry = repository.findBySlug(slug)
             ?: throw ResourceNotFoundException("Directory entry with slug '$slug' not found.")
-        return entry.toDto(coincidentWith = entry.findCoincidentRef())
+        return entry.toDtoWithHero(coincidentWith = entry.findCoincidentRef())
     }
 
     /**
@@ -291,6 +281,9 @@ class DirectoryEntryService(
      * Updates an existing directory entry.
      *
      * <p>Publishes {@link DirectoryEntryUpdatedEvent} after successful update.</p>
+     *
+     * <p>The request's image URL replaces the entry's hero, and a null or blank one removes it,
+     * once this transaction commits (spec 034 FR-023).</p>
      *
      * @param id The UUID of the entry to update.
      * @param request The DTO containing updated data for the entry.
@@ -322,7 +315,6 @@ class DirectoryEntryService(
             townId = resolveTownId(request.town)
             latitude = request.latitude
             longitude = request.longitude
-            imageUrl = request.imageUrl
             tags = request.tags?.joinToString(",")
             contentActions =
                 request.contentActions?.let {
@@ -355,7 +347,9 @@ class DirectoryEntryService(
             ),
         )
 
-        return updatedEntry.toDto()
+        submitImage(updatedEntry, request.imageUrl)
+
+        return updatedEntry.toDtoWithHero()
     }
 
     /**
@@ -380,16 +374,12 @@ class DirectoryEntryService(
     }
 
     /**
-     * Handles HeroImagePromotedEvent from the Gallery module.
+     * Refreshes an entry's cached pages when an admin promotes a gallery image to its hero.
      *
-     * <p>Updates the directory entry's imageUrl to the promoted gallery image.
-     * This listener maintains Spring Modulith module boundaries by consuming
-     * events from the Gallery module rather than accepting direct imports.</p>
+     * <p>The hero lives in the gallery module (spec 034 FR-023, ADR-001), so there is nothing
+     * to store here. If the entry is gone, the event is logged and dropped.</p>
      *
-     * <p>If the directory entry is not found (race condition), the event is
-     * logged but no exception is thrown since the event has already been committed.</p>
-     *
-     * @param event The HeroImagePromotedEvent containing entryId and imageUrl
+     * @param event The HeroImagePromotedEvent naming the entry and its new hero
      */
     @ApplicationModuleListener
     fun onHeroImagePromoted(event: HeroImagePromotedEvent) {
@@ -401,16 +391,6 @@ class DirectoryEntryService(
             return
         }
 
-        val previousImageUrl = entry.imageUrl
-        entry.imageUrl = event.imageUrl
-        repository.save(entry)
-
-        logger.info {
-            "Updated hero image for entry ${event.entryId} (${entry.name}): " +
-                "previous='$previousImageUrl', new='${event.imageUrl}'"
-        }
-
-        // Trigger frontend cache revalidation so users see the update immediately
         revalidationService.revalidateDirectoryEntry(
             category = entry.getCategoryValue(),
             slug = entry.slug,
@@ -468,7 +448,6 @@ class DirectoryEntryService(
             this.townId = resolveTownId(this.town)
             this.latitude = request.latitude?.toDouble() ?: 0.0
             this.longitude = request.longitude?.toDouble() ?: 0.0
-            this.imageUrl = request.imageUrl
             this.tags = sanitizedTags.joinToString(",").takeIf { it.isNotBlank() }
             this.status = DirectoryEntryStatus.PENDING
             this.submittedBy = userId
@@ -481,10 +460,60 @@ class DirectoryEntryService(
         val savedEntry = repository.saveAndFlush(newEntry)
         logger.info { "Directory submission ${savedEntry.id} created successfully" }
 
+        // A submitted image waits for review, like the entry itself (spec 034 FR-023)
+        if (!request.imageUrl.isNullOrBlank()) submitImage(savedEntry, request.imageUrl)
+
         return DirectoryEntrySubmissionConfirmationDto(
             id = savedEntry.id!!,
             name = savedEntry.name,
             status = savedEntry.status.name,
+        )
+    }
+
+    // =====================================================
+    // HERO IMAGES (owned by the gallery module)
+    // =====================================================
+
+    /**
+     * Maps entries to DTOs, resolving every entry's hero in one gallery query.
+     *
+     * <p>Every entry read maps through here, [toDtoPage] or [toDtoWithHero]. An entry stores no
+     * image, and resolving heroes entry by entry would query once per row (spec 034 FR-023).</p>
+     */
+    fun toDtos(entries: List<DirectoryEntry>): List<DirectoryEntryDto> {
+        val heroes = heroImageResolver.resolve(entries)
+        return entries.map { it.toDto(heroes[it.id]) }
+    }
+
+    /** [toDtos] for a page of entries. */
+    fun toDtoPage(page: Page<DirectoryEntry>): Page<DirectoryEntryDto> {
+        val heroes = heroImageResolver.resolve(page.content)
+        return page.map { it.toDto(heroes[it.id]) }
+    }
+
+    private fun DirectoryEntry.toDtoWithHero(coincidentWith: CoincidentRefDto? = null): DirectoryEntryDto =
+        toDto(heroImageResolver.resolve(listOf(this))[id], coincidentWith)
+
+    /** A moderator sees a hero awaiting review or flagged, so editing the entry keeps it. */
+    private fun DirectoryEntry.toAdminDto(): AdminDirectoryEntryDto =
+        AdminDirectoryEntryDto.fromEntity(this, heroImageResolver.resolve(listOf(this), forModeration = true)[id])
+
+    /**
+     * Hands an entry write's image to the gallery module, which owns heroes (ADR-001).
+     *
+     * <p>A null or blank URL removes the hero. The gallery writes the hero after this
+     * transaction commits.</p>
+     */
+    private fun submitImage(
+        entry: DirectoryEntry,
+        imageUrl: String?,
+    ) {
+        eventPublisher.publishEvent(
+            EntryImageSubmittedEvent(
+                entryId = entry.id!!,
+                imageUrl = imageUrl?.takeIf { it.isNotBlank() },
+                entryPublished = entry.status == DirectoryEntryStatus.PUBLISHED,
+            ),
         )
     }
 
@@ -585,7 +614,8 @@ class DirectoryEntryService(
         }
 
         logger.debug { "Found ${entries.totalElements} directory entries (status=$status, page=$page)" }
-        return entries.map { AdminDirectoryEntryDto.fromEntity(it) }
+        val heroes = heroImageResolver.resolve(entries.content, forModeration = true)
+        return entries.map { AdminDirectoryEntryDto.fromEntity(it, heroes[it.id]) }
     }
 
     /**
@@ -600,7 +630,7 @@ class DirectoryEntryService(
         val entry = repository.findById(id).orElseThrow {
             ResourceNotFoundException("Directory entry not found: $id")
         }
-        return AdminDirectoryEntryDto.fromEntity(entry)
+        return entry.toAdminDto()
     }
 
     /**
@@ -642,7 +672,7 @@ class DirectoryEntryService(
             )
         }
 
-        return AdminDirectoryEntryDto.fromEntity(saved)
+        return saved.toAdminDto()
     }
 
     /**

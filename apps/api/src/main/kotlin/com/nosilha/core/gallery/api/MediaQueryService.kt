@@ -34,4 +34,21 @@ interface MediaQueryService {
      * @return the same keys, each with its count (zero included)
      */
     fun countUnplacedNear(points: Map<UUID, GeoPoint>): Map<UUID, Int>
+
+    /**
+     * Resolves the hero image of each given entry in one query (spec 034 FR-023, ADR-001).
+     *
+     * <p>By default only heroes the public may see: ACTIVE, and not flagged as showing an
+     * identifiable person without confirmed provenance, which stays out of every hero slot
+     * (FR-022). [forModeration] also returns heroes awaiting review and flagged ones, so an
+     * admin editing an entry sees the image it carries.</p>
+     *
+     * @param entryIds directory entry ids
+     * @param forModeration include heroes the public may not see
+     * @return entry id to hero, omitting entries without one
+     */
+    fun findHeroMedia(
+        entryIds: Collection<UUID>,
+        forModeration: Boolean = false,
+    ): Map<UUID, HeroMediaRef>
 }

@@ -7,6 +7,7 @@ import com.nosilha.core.engagement.api.toDto
 import com.nosilha.core.engagement.api.toWithEntryDto
 import com.nosilha.core.engagement.domain.Bookmark
 import com.nosilha.core.engagement.repository.BookmarkRepository
+import com.nosilha.core.places.domain.HeroImageResolver
 import com.nosilha.core.places.repository.DirectoryEntryRepository
 import com.nosilha.core.shared.exception.BusinessException
 import com.nosilha.core.shared.exception.ResourceNotFoundException
@@ -42,6 +43,7 @@ private val logger = KotlinLogging.logger {}
 class BookmarkService(
     private val bookmarkRepository: BookmarkRepository,
     private val directoryEntryRepository: DirectoryEntryRepository,
+    private val heroImageResolver: HeroImageResolver,
 ) {
     companion object {
         private const val MAX_BOOKMARKS_PER_USER = 100
@@ -161,6 +163,8 @@ class BookmarkService(
         } else {
             emptyMap()
         }
+        // An entry stores no image: its hero comes from the gallery, in one query (spec 034 FR-023)
+        val thumbnails = heroImageResolver.heroUrls(entriesById.values)
 
         // Map to DTOs with entry details
         return bookmarksPage.map { bookmark ->
@@ -170,7 +174,7 @@ class BookmarkService(
                     logger.error { "Directory entry ${bookmark.entryId} not found for bookmark ${bookmark.id}" }
                     throw ResourceNotFoundException("Directory entry with ID ${bookmark.entryId} not found")
                 }
-            bookmark.toWithEntryDto(entry)
+            bookmark.toWithEntryDto(entry, thumbnails[entry.id])
         }
     }
 

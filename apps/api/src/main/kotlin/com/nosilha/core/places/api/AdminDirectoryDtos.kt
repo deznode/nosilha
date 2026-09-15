@@ -1,8 +1,11 @@
 package com.nosilha.core.places.api
 
+import com.nosilha.core.gallery.api.HeroMediaRef
 import com.nosilha.core.places.domain.DirectoryEntry
 import com.nosilha.core.places.domain.DirectoryEntryStatus
 import com.nosilha.core.places.domain.getCategoryValue
+import com.nosilha.core.places.domain.toHeroImageDto
+import com.nosilha.core.shared.api.HeroImageDto
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 import java.math.BigDecimal
@@ -26,6 +29,8 @@ data class AdminDirectoryEntryDto(
     val description: String,
     val tags: List<String>,
     val imageUrl: String?,
+    /** The hero as a moderator sees it, awaiting review included; [imageUrl] is its URL (spec 034 FR-023). */
+    val heroImage: HeroImageDto?,
     val priceLevel: String?,
     val latitude: Double,
     val longitude: Double,
@@ -46,8 +51,13 @@ data class AdminDirectoryEntryDto(
     companion object {
         /**
          * Maps a DirectoryEntry entity to AdminDirectoryEntryDto.
+         *
+         * @param hero The entry's hero, resolved for moderation; null when it has none
          */
-        fun fromEntity(entity: DirectoryEntry): AdminDirectoryEntryDto =
+        fun fromEntity(
+            entity: DirectoryEntry,
+            hero: HeroMediaRef?,
+        ): AdminDirectoryEntryDto =
             AdminDirectoryEntryDto(
                 id = entity.id!!,
                 name = entity.name,
@@ -60,7 +70,8 @@ data class AdminDirectoryEntryDto(
                     ?.split(",")
                     ?.map { it.trim() }
                     ?.filter { it.isNotBlank() } ?: emptyList(),
-                imageUrl = entity.imageUrl,
+                imageUrl = hero?.url,
+                heroImage = hero?.toHeroImageDto(),
                 priceLevel = entity.priceLevel,
                 latitude = entity.latitude,
                 longitude = entity.longitude,

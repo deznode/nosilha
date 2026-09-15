@@ -75,8 +75,6 @@ class TownService(
      * @param elevation The elevation information (optional).
      * @param founded The founding information (optional).
      * @param highlights List of highlights for the town (optional).
-     * @param heroImage The hero image URL (optional).
-     * @param gallery List of gallery image URLs (optional).
      * @return The [TownDto] of the newly created town.
      */
     @Transactional
@@ -89,8 +87,6 @@ class TownService(
         elevation: String? = null,
         founded: String? = null,
         highlights: List<String> = emptyList(),
-        heroImage: String? = null,
-        gallery: List<String> = emptyList(),
     ): TownDto {
         val town =
             Town().apply {
@@ -101,7 +97,6 @@ class TownService(
                 this.population = population
                 this.elevation = elevation
                 this.founded = founded
-                this.heroImage = heroImage
 
                 // Generate a simple, URL-friendly slug
                 this.slug =
@@ -114,13 +109,6 @@ class TownService(
                 this.highlights =
                     if (highlights.isNotEmpty()) {
                         objectMapper.writeValueAsString(highlights)
-                    } else {
-                        null
-                    }
-
-                this.gallery =
-                    if (gallery.isNotEmpty()) {
-                        objectMapper.writeValueAsString(gallery)
                     } else {
                         null
                     }
@@ -142,8 +130,6 @@ class TownService(
      * @param elevation The updated elevation information.
      * @param founded The updated founding information.
      * @param highlights The updated list of highlights.
-     * @param heroImage The updated hero image URL.
-     * @param gallery The updated list of gallery images.
      * @return The updated [TownDto].
      * @throws ResourceNotFoundException if no town with the given ID exists.
      */
@@ -158,8 +144,6 @@ class TownService(
         elevation: String? = null,
         founded: String? = null,
         highlights: List<String> = emptyList(),
-        heroImage: String? = null,
-        gallery: List<String> = emptyList(),
     ): TownDto {
         val existingTown =
             repository
@@ -174,7 +158,6 @@ class TownService(
             this.population = population
             this.elevation = elevation
             this.founded = founded
-            this.heroImage = heroImage
 
             // Update slug if name changed
             this.slug =
@@ -187,13 +170,6 @@ class TownService(
             this.highlights =
                 if (highlights.isNotEmpty()) {
                     objectMapper.writeValueAsString(highlights)
-                } else {
-                    null
-                }
-
-            this.gallery =
-                if (gallery.isNotEmpty()) {
-                    objectMapper.writeValueAsString(gallery)
                 } else {
                     null
                 }

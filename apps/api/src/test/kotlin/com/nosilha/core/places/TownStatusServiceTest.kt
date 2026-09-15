@@ -1,6 +1,7 @@
 package com.nosilha.core.places
 
 import com.nosilha.core.gallery.api.GeoPoint
+import com.nosilha.core.gallery.api.HeroMediaRef
 import com.nosilha.core.gallery.api.MediaQueryService
 import com.nosilha.core.places.domain.Town
 import com.nosilha.core.places.domain.TownStatusService
@@ -50,7 +51,7 @@ class TownStatusServiceTest {
         }
 
     @Test
-    fun `answers the whole island in one entry query and two gallery calls`() {
+    fun `answers the whole island in one entry query and three gallery calls`() {
         val documented = town("documented")
         val partial = town("partial")
         val nameOnly = town("name-only")
@@ -60,7 +61,7 @@ class TownStatusServiceTest {
 
         whenever(townRepository.findAllByOrderByNameAsc()).thenReturn(listOf(documented, partial, nameOnly))
         whenever(directoryEntryRepository.countByTownIdGroupByTownIdPublished()).thenReturn(
-            listOf(arrayOf<Any>(documented.id!!, 2L, 0L), arrayOf<Any>(partial.id!!, 1L, 0L)),
+            listOf(arrayOf<Any>(documented.id!!, 2L), arrayOf<Any>(partial.id!!, 1L)),
         )
         whenever(directoryEntryRepository.findPublishedEntryIdsWithTownId()).thenReturn(
             listOf(
@@ -73,11 +74,13 @@ class TownStatusServiceTest {
             mapOf(photographed to 2L, alsoPhotographed to 1L),
         )
         whenever(mediaQueryService.countUnplacedNear(any())).thenReturn(mapOf(partial.id!! to 2))
+        whenever(mediaQueryService.findHeroMedia(any(), any())).thenReturn(emptyMap())
 
         val result = service.getAllWithStatus().associateBy { it.slug }
 
         verify(directoryEntryRepository, times(1)).findPublishedEntryIdsWithTownId()
         verify(mediaQueryService, times(1)).countActiveMediaByEntryIds(any())
+        verify(mediaQueryService, times(1)).findHeroMedia(any(), any())
         // Every settlement's point goes to the gallery in the one call.
         verify(mediaQueryService, times(1)).countUnplacedNear(
             check { points ->
@@ -99,18 +102,20 @@ class TownStatusServiceTest {
     }
 
     @Test
-    fun `a record's own image still documents its settlement`() {
-        // Until heroes move into the gallery (spec 034 Wave 3), an entry image_url is
-        // a photograph for status purposes, though not a gallery photograph to count.
+    fun `a record's hero documents its settlement without counting as a photograph`() {
+        // A hero heads its record (decided 2026-09-15): the settlement is documented, but
+        // "Photographs of <town>" counts archive records only.
         val town = town("furna")
         val entry = UUID.randomUUID()
 
         whenever(townRepository.findAllByOrderByNameAsc()).thenReturn(listOf(town))
         whenever(directoryEntryRepository.countByTownIdGroupByTownIdPublished())
-            .thenReturn(listOf(arrayOf<Any>(town.id!!, 1L, 1L)))
+            .thenReturn(listOf(arrayOf<Any>(town.id!!, 1L)))
         whenever(directoryEntryRepository.findPublishedEntryIdsWithTownId())
             .thenReturn(listOf(arrayOf<Any>(entry, town.id!!)))
         whenever(mediaQueryService.countActiveMediaByEntryIds(any())).thenReturn(emptyMap())
+        whenever(mediaQueryService.findHeroMedia(any(), any()))
+            .thenReturn(mapOf(entry to HeroMediaRef(UUID.randomUUID(), "/images/probe/hero.jpg", null, null)))
 
         val status = service.getAllWithStatus().single()
 

@@ -93,10 +93,13 @@ class TownStatusIntegrationTest {
         val partialTown = townIdFor("furna")
         val withPhoto = UUID.randomUUID()
         val withoutPhoto = UUID.randomUUID()
+        val hero = UUID.randomUUID()
 
         try {
-            insertEntry(withPhoto, "status-probe-photo", documentedTown, imageUrl = "/images/probe.jpg")
-            insertEntry(withoutPhoto, "status-probe-plain", partialTown, imageUrl = null)
+            insertEntry(withPhoto, "status-probe-photo", documentedTown)
+            // Its hero is the record's photograph.
+            insertMedia(hero, withPhoto, "ACTIVE", roleLiteral = "HERO")
+            insertEntry(withoutPhoto, "status-probe-plain", partialTown)
 
             mockMvc
                 .perform(get("/api/v1/towns/status-summary"))
@@ -111,6 +114,7 @@ class TownStatusIntegrationTest {
                 // are in this state, and the archive says so rather than padding it out.
                 .andExpect(jsonPath("$.data[?(@.slug == 'minhoto')].status").value("NAME_ONLY"))
         } finally {
+            jdbcTemplate.update("DELETE FROM gallery_media WHERE id = ?", hero)
             jdbcTemplate.update("DELETE FROM directory_entries WHERE id IN (?, ?)", withPhoto, withoutPhoto)
         }
     }
@@ -152,7 +156,7 @@ class TownStatusIntegrationTest {
         val before = photographCountFor("furna")
 
         try {
-            insertEntry(entry, "photograph-count-probe", town, imageUrl = null)
+            insertEntry(entry, "photograph-count-probe", town)
             insertMedia(media[0], entry, "ACTIVE")
             insertMedia(media[1], entry, "ACTIVE")
             // Awaiting review is not a photograph the archive shows.
@@ -176,7 +180,7 @@ class TownStatusIntegrationTest {
         val before = photographCountFor("furna")
 
         try {
-            insertEntry(entry, "hero-count-probe", town, imageUrl = null)
+            insertEntry(entry, "hero-count-probe", town)
             insertMedia(hero, entry, "ACTIVE", roleLiteral = "HERO")
             insertMedia(archive, entry, "ACTIVE")
 
@@ -199,7 +203,7 @@ class TownStatusIntegrationTest {
         val before = unconfirmedCountFor("nova-sintra")
 
         try {
-            insertEntry(claimingEntry, "unconfirmed-count-probe", townIdFor("furna"), imageUrl = null)
+            insertEntry(claimingEntry, "unconfirmed-count-probe", townIdFor("furna"))
             insertLocatedMedia(media[0], lat + 0.003, lng - 0.004, entryId = null)
             insertLocatedMedia(media[1], lat - 0.005, lng + 0.005, entryId = null)
             insertLocatedMedia(media[2], lat + 0.05, lng, entryId = null)
@@ -214,14 +218,14 @@ class TownStatusIntegrationTest {
 
     @Test
     fun `every settlement's status agrees with an independent derivation`() {
-        // The same rule written once more in SQL: records, and a record image or an
+        // The same rule written once more in SQL: records, and a public hero or an
         // active gallery archive photograph on any of them.
         val expected = jdbcTemplate
             .queryForList(
                 """
                 SELECT t.slug,
                        COUNT(d.id) AS entries,
-                       COUNT(d.image_url) + (
+                       COUNT(h.id) + (
                            SELECT COUNT(*) FROM gallery_media m
                            JOIN directory_entries de ON m.entry_id = de.id
                            WHERE de.town_id = t.id AND de.status = 'PUBLISHED' AND m.status = 'ACTIVE'
@@ -229,6 +233,8 @@ class TownStatusIntegrationTest {
                        ) AS photographs
                 FROM towns t
                 LEFT JOIN directory_entries d ON d.town_id = t.id AND d.status = 'PUBLISHED'
+                LEFT JOIN gallery_media h ON h.entry_id = d.id AND h.role = 'HERO' AND h.status = 'ACTIVE'
+                    AND NOT h.identifiable_person AND NULLIF(h.public_url, '') IS NOT NULL
                 GROUP BY t.id, t.slug
                 """.trimIndent(),
             ).associate { row ->
@@ -272,10 +278,11 @@ class TownStatusIntegrationTest {
         require(statusLiteral in setOf("ACTIVE", "PENDING_REVIEW")) { "unexpected status literal" }
         require(roleLiteral in setOf("ARCHIVE", "HERO")) { "unexpected role literal" }
         jdbcTemplate.update(
-            "INSERT INTO gallery_media (id, media_source, status, entry_id, role) " +
-                "VALUES (?, 'USER_UPLOAD', '$statusLiteral', ?, '$roleLiteral')",
+            "INSERT INTO gallery_media (id, media_source, status, entry_id, role, public_url) " +
+                "VALUES (?, 'USER_UPLOAD', '$statusLiteral', ?, '$roleLiteral', ?)",
             id,
             entryId,
+            "/images/probe/$id.jpg",
         )
     }
 
@@ -304,18 +311,16 @@ class TownStatusIntegrationTest {
         id: UUID,
         slug: String,
         townId: UUID,
-        imageUrl: String?,
     ) {
         jdbcTemplate.update(
             """
             INSERT INTO directory_entries
-                (id, slug, name, description, category, town, town_id, latitude, longitude, image_url, status)
-            VALUES (?, ?, 'Status Probe', 'Probe row.', 'Heritage', 'Probe Town', ?, 14.87, -24.69, ?, 'PUBLISHED')
+                (id, slug, name, description, category, town, town_id, latitude, longitude, status)
+            VALUES (?, ?, 'Status Probe', 'Probe row.', 'Heritage', 'Probe Town', ?, 14.87, -24.69, 'PUBLISHED')
             """.trimIndent(),
             id,
             slug,
             townId,
-            imageUrl,
         )
     }
 }

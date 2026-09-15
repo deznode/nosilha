@@ -53,7 +53,6 @@ class RelatedContentControllerTest {
                 latitude = 14.8651
                 longitude = -24.7092
                 cuisine = "Cape Verdean,Seafood"
-                imageUrl = "https://example.com/image1.jpg"
             }
         testRestaurant1 = directoryEntryRepository.save(testRestaurant1)
 
@@ -66,7 +65,6 @@ class RelatedContentControllerTest {
                 latitude = 14.8652
                 longitude = -24.7093
                 cuisine = "Cape Verdean,International"
-                imageUrl = "https://example.com/image2.jpg"
             }
         testRestaurant2 = directoryEntryRepository.save(testRestaurant2)
 
@@ -80,7 +78,6 @@ class RelatedContentControllerTest {
                 latitude = 14.8500
                 longitude = -24.7200
                 cuisine = "Cape Verdean,Seafood"
-                imageUrl = "https://example.com/image3.jpg"
             }
         testRestaurant3 = directoryEntryRepository.save(testRestaurant3)
     }

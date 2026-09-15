@@ -81,8 +81,6 @@ abstract class DirectoryEntry : AuditableEntity() {
     @Column(nullable = false)
     var longitude: Double = 0.0
 
-    var imageUrl: String? = null
-
     var rating: Double? = null // Nullable to indicate no ratings yet
 
     var reviewCount: Int = 0

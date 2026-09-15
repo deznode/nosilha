@@ -5,11 +5,14 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.core.io.ClassPathResource
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import javax.sql.DataSource
 
 /**
  * Verifies the category guard and completeness reach the API response
@@ -29,6 +32,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 class DirectoryEntryGuardIntegrationTest {
     @Autowired
     private lateinit var mockMvc: MockMvc
+
+    @Autowired
+    private lateinit var dataSource: DataSource
 
     @Test
     fun `a heritage record counts its grid rows, not contact fields`() {
@@ -75,17 +81,26 @@ class DirectoryEntryGuardIntegrationTest {
     }
 
     @Test
-    fun `the church record reads six of nine, as the prototype does`() {
-        // Established, status and festival come from the seed; the photograph has no
-        // recorded photographer, and opening hours and architect are not recorded.
+    fun `the church record reads seven of nine once its hero carries the recorded credit`() {
+        // Its hero lives in gallery_media, which other test classes empty, so restore it.
+        // Established, status and festival come from the entry seed; the hero seed records
+        // the photographer (Torbenbrinker, spec 034 FR-023), which the prototype's "six of
+        // nine" predates. Opening hours and architect are not recorded. FieldGuardTest keeps
+        // the uncredited six-of-nine case.
+        ResourceDatabasePopulator(
+            ClassPathResource("db/seed/R__seed_directory_entries.sql"),
+            ClassPathResource("db/seed/R__seed_gallery_heroes.sql"),
+        ).execute(dataSource)
+
         mockMvc
             .perform(get("/api/v1/directory/slug/igreja-nossa-senhora-do-monte"))
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.data.completeness.documented").value(6))
+            .andExpect(jsonPath("$.data.heroImage.photographerCredit").value("Torbenbrinker"))
+            .andExpect(jsonPath("$.data.completeness.documented").value(7))
             .andExpect(jsonPath("$.data.completeness.total").value(9))
-            .andExpect(jsonPath("$.data.completeness.missingFields[0]").value("photographer"))
-            .andExpect(jsonPath("$.data.completeness.missingFields[1]").value("openingHours"))
-            .andExpect(jsonPath("$.data.completeness.missingFields[2]").value("architect"))
+            .andExpect(jsonPath("$.data.completeness.missingFields.length()").value(2))
+            .andExpect(jsonPath("$.data.completeness.missingFields[0]").value("openingHours"))
+            .andExpect(jsonPath("$.data.completeness.missingFields[1]").value("architect"))
     }
 
     @Test
