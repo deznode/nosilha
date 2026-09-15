@@ -52,6 +52,9 @@ export interface UploadOptions {
   cameraMake?: string;
   cameraModel?: string;
   orientation?: number;
+  // Natural size as displayed
+  width?: number;
+  height?: number;
   // Privacy tracking
   photoType?: string;
   gpsPrivacyLevel?: string;
@@ -249,6 +252,8 @@ export function useR2Upload(): UseR2UploadReturn {
           cameraMake: options?.cameraMake,
           cameraModel: options?.cameraModel,
           orientation: options?.orientation,
+          width: options?.width,
+          height: options?.height,
           // Privacy tracking
           photoType: options?.photoType,
           gpsPrivacyLevel: options?.gpsPrivacyLevel,

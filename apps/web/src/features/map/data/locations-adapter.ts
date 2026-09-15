@@ -3,10 +3,11 @@ import type { DirectoryEntry } from "@/types/directory";
 import type { TownStatusSummary } from "@/types/town";
 import { getEntryUrl } from "@/lib/directory-utils";
 import {
+  STATUS_CONFIG,
   getEntryStatus,
   getTownStatus,
   type DocumentationStatus,
-} from "@/lib/documentation-status";
+} from "@/lib/status";
 import { getCategoryIcon, type CategoryType } from "./categories";
 import type { Location } from "./types";
 
@@ -14,16 +15,18 @@ import type { Location } from "./types";
  * Pin colour by documentation status — how well documented a place is, not what kind
  * of place it is. Spec 033 FR-012.
  *
- * The handoff's light-theme brand values: valley green, sunny yellow, sobrado ochre.
- * Hex rather than a CSS variable because the render sites build tints by appending an
- * alpha (`${color}20`). Light in both themes because both basemaps are light, so the
- * pins always sit on light tiles.
+ * The light values of the status table's tokens (spec 034 FR-002). Hex rather than a
+ * CSS variable because the render sites build tints by appending an alpha
+ * (`${color}20`). Light in both themes because both basemaps are light, so the pins
+ * always sit on light tiles. Spec 034 T-32 moves the render sites to `statusVar` /
+ * `statusTint` and removes this map.
  */
-export const STATUS_PIN_COLOR: Record<DocumentationStatus, string> = {
-  documented: "#4F6E63",
-  partial: "#8A7A4F",
-  gap: "#836548",
-};
+export const STATUS_PIN_COLOR = Object.fromEntries(
+  Object.entries(STATUS_CONFIG).map(([status, config]) => [
+    status,
+    config.lightHex,
+  ])
+) as Record<DocumentationStatus, string>;
 
 /**
  * Maps backend API category names to BravaMap category IDs.

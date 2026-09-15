@@ -179,11 +179,11 @@ describe("transformEntries", () => {
 // ─── Pin colour (spec 033 FR-012) ────────────────────────────────────────────
 
 describe("pin colour", () => {
-  it("uses the handoff's light status colours", () => {
+  it("uses the light values of the status tokens", () => {
     expect(STATUS_PIN_COLOR).toEqual({
       documented: "#4F6E63",
-      partial: "#8A7A4F",
-      gap: "#836548",
+      partial: "#3D5A73",
+      name: "#7A5730",
     });
   });
 
@@ -199,11 +199,11 @@ describe("pin colour", () => {
     });
   });
 
-  it("colours a record without a photograph as a gap", () => {
+  it("colours a record without a photograph as name only", () => {
     const [location] = transformEntries([entryFixture({ imageUrl: null })]);
 
-    expect(location.color).toBe(STATUS_PIN_COLOR.gap);
-    expect(location.status).toEqual({ status: "gap", label: "no photograph" });
+    expect(location.color).toBe(STATUS_PIN_COLOR.name);
+    expect(location.status).toEqual({ status: "name", label: "no photograph" });
   });
 
   it("colours equally documented records alike, whatever their kind", () => {
@@ -233,7 +233,7 @@ describe("transformSettlements", () => {
   it.each([
     ["DOCUMENTED", "documented", "documented"],
     ["PARTIAL", "partial", "records, no photograph"],
-    ["NAME_ONLY", "gap", "name only"],
+    ["NAME_ONLY", "name", "name only"],
   ] as const)("colours a %s settlement as %s", (status, key, label) => {
     const [settlement] = transformSettlements([settlementFixture({ status })]);
 

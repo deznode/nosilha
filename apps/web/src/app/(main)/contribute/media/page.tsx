@@ -501,6 +501,13 @@ export default function MediaContributionPage() {
             </label>
           )}
 
+          {!isFilm && (
+            <div className={columnClass}>
+              original_name · the file&apos;s name is published with the
+              photograph
+            </div>
+          )}
+
           <button
             type="button"
             onClick={() => {

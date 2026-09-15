@@ -157,6 +157,10 @@ export interface ConfirmRequestMetadata {
   cameraModel?: string;
   orientation?: number;
 
+  // Natural size as displayed
+  width?: number;
+  height?: number;
+
   // Privacy tracking
   photoType?: PhotoType;
   gpsPrivacyLevel?: GpsPrivacyLevel;

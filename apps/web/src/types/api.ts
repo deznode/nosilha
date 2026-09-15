@@ -228,6 +228,9 @@ export interface ConfirmRequest {
   cameraMake?: string;
   cameraModel?: string;
   orientation?: number;
+  // Natural size as displayed, so a tile keeps its shape before it loads
+  width?: number;
+  height?: number;
   // Privacy tracking
   photoType?: string;
   gpsPrivacyLevel?: string;

@@ -75,7 +75,7 @@ const mockSettlements: Location[] = [
     tags: [],
     icon: Building,
     color: "#836548",
-    status: { status: "gap", label: "name only" },
+    status: { status: "name", label: "name only" },
   },
 ];
 

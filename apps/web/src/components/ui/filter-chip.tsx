@@ -31,6 +31,8 @@ interface FilterChipProps extends React.ButtonHTMLAttributes<HTMLButtonElement> 
   icon?: React.ReactNode;
   onClear?: () => void;
   colorScheme?: ColorScheme;
+  /** Show a count of zero instead of hiding it, where zero is the answer. */
+  showZero?: boolean;
 }
 
 export const FilterChip = React.forwardRef<HTMLButtonElement, FilterChipProps>(
@@ -43,6 +45,7 @@ export const FilterChip = React.forwardRef<HTMLButtonElement, FilterChipProps>(
       onClick,
       onClear,
       colorScheme = "ocean",
+      showZero = false,
       className,
       ...props
     },
@@ -62,7 +65,7 @@ export const FilterChip = React.forwardRef<HTMLButtonElement, FilterChipProps>(
       <>
         {icon && <span className="flex shrink-0 items-center">{icon}</span>}
         <span>{label}</span>
-        {count != null && count > 0 && (
+        {count != null && (count > 0 || showZero) && (
           <span
             className={clsx(
               "ml-0.5 text-xs",

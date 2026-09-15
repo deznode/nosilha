@@ -4,7 +4,7 @@ import { MapPin } from "lucide-react";
 import { MapLegend } from "@/features/map/components/map-legend";
 import { STATUS_PIN_COLOR } from "@/features/map/data/locations-adapter";
 import type { Location } from "@/features/map/data/types";
-import type { DocumentationStatus } from "@/lib/documentation-status";
+import type { DocumentationStatus } from "@/lib/status";
 
 function loc(id: string, status: DocumentationStatus): Location {
   return {
@@ -45,8 +45,8 @@ describe("MapLegend", () => {
         locations={[
           loc("a", "documented"),
           loc("b", "partial"),
-          loc("c", "gap"),
-          loc("d", "gap"),
+          loc("c", "name"),
+          loc("d", "name"),
         ]}
       />
     );
@@ -62,7 +62,7 @@ describe("MapLegend", () => {
     render(
       <MapLegend
         mode="places"
-        locations={[loc("a", "documented"), loc("b", "gap"), loc("c", "gap")]}
+        locations={[loc("a", "documented"), loc("b", "name"), loc("c", "name")]}
       />
     );
 
@@ -90,6 +90,6 @@ describe("MapLegend", () => {
       backgroundColor: STATUS_PIN_COLOR.documented,
     });
     expect(dots[1]).toHaveStyle({ backgroundColor: STATUS_PIN_COLOR.partial });
-    expect(dots[2]).toHaveStyle({ backgroundColor: STATUS_PIN_COLOR.gap });
+    expect(dots[2]).toHaveStyle({ backgroundColor: STATUS_PIN_COLOR.name });
   });
 });

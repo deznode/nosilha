@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import type { DocumentationState } from "@/lib/documentation-status";
+import type { DocumentationState } from "@/lib/status";
 import type { CategoryType } from "./categories";
 
 /**

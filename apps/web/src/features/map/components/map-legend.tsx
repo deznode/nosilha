@@ -1,22 +1,21 @@
 "use client";
 
 import { clsx } from "clsx";
-import type { DocumentationStatus } from "@/lib/documentation-status";
+import { STATUS_CONFIG, type DocumentationStatus } from "@/lib/status";
 import { STATUS_PIN_COLOR } from "../data/locations-adapter";
 import type { Location, MapMode } from "../data/types";
 
-// Settlements and place records share the colours but word them differently, matching
-// `getTownStatus` and `getEntryStatus`. Place records have no partial state.
+// Settlements word their keys from the status table. Place records word them as
+// `getEntryStatus` does, and have no partial state.
 const KEYS: Record<MapMode, { status: DocumentationStatus; label: string }[]> =
   {
-    settlements: [
-      { status: "documented", label: "documented" },
-      { status: "partial", label: "records, no photograph" },
-      { status: "gap", label: "name only" },
-    ],
+    settlements: (["documented", "partial", "name"] as const).map((status) => ({
+      status,
+      label: STATUS_CONFIG[status].label,
+    })),
     places: [
       { status: "documented", label: "has a photograph" },
-      { status: "gap", label: "no photograph" },
+      { status: "name", label: "no photograph" },
     ],
   };
 

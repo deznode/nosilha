@@ -15,7 +15,7 @@
 :root {
   /* @brand-tokens:start */
   /* AUTO-GENERATED from palette.json v3.0.0 */
-  /* Updated: 2026-09-13 */
+  /* Updated: 2026-09-15 */
 
   /* === BRAND PALETTE (The Brava Tones) in OKLCH === */
   /* Primary Brand */
@@ -24,8 +24,8 @@
   --brand-ocean-blue-light: oklch(0.742 0.053 243.2);
   --brand-ocean-blue-deep: oklch(0.369 0.047 245.9);
   --brand-valley-green: oklch(0.511 0.04 170.7);
-  --brand-bougainvillea-pink: oklch(0.53 0.057 65.1);
-  --brand-sobrado-ochre: oklch(0.53 0.057 65.1);
+  --brand-bougainvillea-pink: oklch(0.485 0.072 67.7);
+  --brand-sobrado-ochre: oklch(0.485 0.072 67.7);
   --brand-sunny-yellow: oklch(0.584 0.063 89.9);
 
   /* Mist & Basalt (Neutrals) in OKLCH */
@@ -49,19 +49,29 @@
 
   /* === SEMANTIC TOKENS (Light Mode) === */
 
+  /* Paper light theme. Spec 034 FR-001, handoff SPECS §1. The archive is print-adjacent,
+     so light mode re-points the neutrals to a warm paper set; .dark is untouched. Brand
+     hues stay in palette.json. The hex beside each value is the handoff's.
+     Measured (WCAG 2.x relative luminance, sRGB):
+       --foreground on --background            14.97:1  (handoff states ~15)
+       --foreground-secondary on --background   6.66:1
+       --brand-sobrado-ochre on --card          6.28:1
+       --primary vs --primary-foreground        6.98:1 light, 5.60:1 dark
+     Hand-authored below the markers: `pnpm sync:brand` does not touch it. */
+
   /* Backgrounds */
-  --background: oklch(1 0 0);
-  --background-secondary: var(--neutral-mist-50);
-  --background-tertiary: var(--neutral-mist-100);
+  --background: oklch(0.962 0.011 84.6); /* #F6F2EA */
+  --background-secondary: oklch(0.933 0.018 81.3); /* #EFE8DC */
+  --background-tertiary: oklch(0.889 0.024 79.7); /* #E3D9C9 */
 
   /* Foreground (Text) */
-  --foreground: var(--neutral-basalt-900);
-  --foreground-secondary: var(--neutral-basalt-600); /* WCAG AA compliant */
+  --foreground: oklch(0.234 0.014 72.2); /* #221D17 */
+  --foreground-secondary: oklch(0.451 0.019 73.4); /* #5C544A */
   --foreground-brand: var(--brand-ocean-blue);
 
   /* Borders */
-  --border-subtle: var(--neutral-mist-200);
-  --border-strong: var(--neutral-basalt-500);
+  --border-subtle: oklch(0.88 0.024 79.7); /* #E0D6C6 */
+  --border-strong: oklch(0.655 0.027 77.4); /* #9A8F7F */
 
   /* shadcn/ui Compatible Semantic Tokens */
   /* Deliberately NOT --brand-ocean-blue. --primary is a filled-surface token that
@@ -72,7 +82,8 @@
      This block sits outside the sync-brand-tokens.mjs markers, so `pnpm sync:brand`
      will not revert it -- but a hand edit could. Do not repoint without re-measuring. */
   --primary: var(--brand-primary-fill);
-  --primary-foreground: oklch(1 0 0);
+  /* Paper, not white, in light only: 6.98:1 on the fill. Dark keeps white (5.60:1). */
+  --primary-foreground: oklch(0.988 0.007 88.6); /* #FDFBF6 */
 
   /* Filled-surface green, for the same reason --primary exists. AnimatedButton's
      `secondary` variant hardcodes white text on --brand-valley-green, and the Slate dark
@@ -82,18 +93,18 @@
      --brand-primary-fill's own 5.60/3.28 trade-off. Same value in both themes. */
   --secondary-fill: oklch(0.511 0.04 170.7);
 
-  --secondary: var(--neutral-mist-100);
-  --secondary-foreground: var(--neutral-basalt-900);
+  --secondary: var(--background-secondary);
+  --secondary-foreground: var(--foreground);
   --destructive: var(--status-error);
   --destructive-foreground: oklch(1 0 0);
-  --muted: var(--neutral-mist-100);
-  --muted-foreground: var(--neutral-basalt-600); /* WCAG AA: 4.5:1 on white */
-  --accent: var(--neutral-mist-100);
-  --accent-foreground: var(--neutral-basalt-900);
-  --card: oklch(1 0 0);
-  --card-foreground: var(--neutral-basalt-900);
-  --popover: oklch(1 0 0);
-  --popover-foreground: var(--neutral-basalt-900);
+  --muted: oklch(0.918 0.019 83.1); /* #EAE3D6 */
+  --muted-foreground: var(--foreground-secondary);
+  --accent: var(--background-secondary);
+  --accent-foreground: var(--foreground);
+  --card: oklch(0.988 0.007 88.6); /* #FDFBF6 */
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
   --input: var(--neutral-mist-200);
   --ring: var(--brand-ocean-blue);
 

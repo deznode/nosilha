@@ -17,7 +17,7 @@ function loc(id: string, name: string): Location {
     tags: [],
     icon: Landmark,
     color: "#836548",
-    status: { status: "gap", label: "no photograph" },
+    status: { status: "name", label: "no photograph" },
   };
 }
 
