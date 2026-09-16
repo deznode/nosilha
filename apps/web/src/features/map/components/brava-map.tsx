@@ -147,7 +147,7 @@ export default function BravaMap() {
   }, []);
 
   return (
-    <div className="bg-background-secondary text-text-primary flex h-screen w-full flex-col overflow-hidden font-sans">
+    <div className="bg-background-secondary text-text-primary flex h-full w-full flex-col overflow-hidden font-sans">
       {/* The pin field. Everything overlaid on the map stays inside it, so nothing
           it holds can cover the legend strip below. */}
       <div className="relative min-h-0 flex-1 overflow-hidden">

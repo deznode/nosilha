@@ -6,7 +6,8 @@ import { STATUS_PIN_COLOR } from "../data/locations-adapter";
 import type { Location, MapMode } from "../data/types";
 
 // Settlements word their keys from the status table. Place records word them as
-// `getEntryStatus` does, and have no partial state.
+// `getEntryStatus` does, and use two of the three states — never `name`, which means
+// "a name and a coordinate, nothing else" and describes no record.
 const KEYS: Record<MapMode, { status: DocumentationStatus; label: string }[]> =
   {
     settlements: (["documented", "partial", "name"] as const).map((status) => ({
@@ -15,7 +16,7 @@ const KEYS: Record<MapMode, { status: DocumentationStatus; label: string }[]> =
     })),
     places: [
       { status: "documented", label: "has a photograph" },
-      { status: "name", label: "no photograph" },
+      { status: "partial", label: "no photograph" },
     ],
   };
 

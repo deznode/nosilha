@@ -87,10 +87,14 @@ export function getTownStatus(
 }
 
 /**
- * Status of a place record: documented when it carries a photograph, name only when not.
+ * Status of a place record: documented when it carries a photograph, otherwise
+ * "records, no photograph".
  *
- * Place records have two states, not three — the prototype's Place records map mode
- * reads "has a photograph" or "no photograph". There is no partial record.
+ * Place records use two of the three states, never `name`. `name` means "a name and a
+ * coordinate, nothing else" (FR-002), and a record is by definition more than that —
+ * it has a category, a description and a settlement. The prototype agrees: every
+ * photograph-less record in its `RECORDS` fixture is `partial`, and its records-mode
+ * legend counts zero name-only pins.
  *
  * Unlike `getTownStatus`, this reads only the record's own `imageUrl`: a photograph
  * that exists solely in the gallery does not count, because the entry DTO carries no
@@ -101,5 +105,5 @@ export function getEntryStatus(
 ): DocumentationState {
   return entry.imageUrl?.trim()
     ? { status: "documented", label: "has a photograph" }
-    : { status: "name", label: "no photograph" };
+    : { status: "partial", label: "no photograph" };
 }

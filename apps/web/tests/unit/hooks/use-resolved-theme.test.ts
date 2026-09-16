@@ -1,6 +1,7 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { useResolvedTheme } from "@/hooks/use-resolved-theme";
+import { resolveInitialTheme } from "@/lib/theme/initial-theme";
 import { useUiStore } from "@/stores/uiStore";
 import { mockMatchMedia } from "../../setup/match-media-mock";
 
@@ -63,5 +64,52 @@ describe("useResolvedTheme", () => {
 
     act(() => media.setMatches(DARK_SCHEME, true));
     expect(result.current).toBe("light");
+  });
+
+  /**
+   * Spec 034 T-42 — first paint and the hydrated render must not disagree, or a
+   * stored dark choice flashes light. The pre-hydration script decides with
+   * `resolveInitialTheme`; this hook decides after hydration. Same table, same answer.
+   */
+  describe("agrees with the pre-hydration rule", () => {
+    const cases = [
+      { theme: "light", prefersDark: false },
+      { theme: "light", prefersDark: true },
+      { theme: "dark", prefersDark: false },
+      { theme: "dark", prefersDark: true },
+      { theme: "system", prefersDark: false },
+      { theme: "system", prefersDark: true },
+    ] as const;
+
+    it.each(cases)(
+      "a stored $theme choice with prefersDark=$prefersDark",
+      ({ theme, prefersDark }) => {
+        useUiStore.setState({ theme });
+        media.setMatches(DARK_SCHEME, prefersDark);
+
+        const { result } = renderHook(() => useResolvedTheme());
+        const atFirstPaint = resolveInitialTheme(
+          JSON.stringify({ state: { theme }, version: 0 }),
+          prefersDark
+        );
+
+        expect(result.current).toBe(atFirstPaint);
+      }
+    );
+
+    it.each([false, true])(
+      "a first visit with nothing stored, prefersDark=%s",
+      (prefersDark) => {
+        media.setMatches(DARK_SCHEME, prefersDark);
+        // Nothing persisted yet: the store keeps its own declared default, which is
+        // what rehydration would leave in place when storage holds no choice.
+        useUiStore.setState({ theme: useUiStore.getInitialState().theme });
+
+        const { result } = renderHook(() => useResolvedTheme());
+
+        expect(result.current).toBe("light");
+        expect(resolveInitialTheme(null, prefersDark)).toBe("light");
+      }
+    );
   });
 });

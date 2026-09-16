@@ -101,7 +101,10 @@ fun DirectoryEntry.toDto(
             completeness = completeness(hero?.toHeroFacts()).toDto(),
             coincidentWith = coincidentWith,
             heroImage = hero?.toHeroImageDto(),
-            details = HotelDetailsDto(amenities = amenities.parseCommaSeparated()),
+            details = HotelDetailsDto(
+                amenities = amenities.parseCommaSeparated(),
+                openingHours = openingHours.takeIf { shows(PracticalField.OPENING_HOURS) },
+            ),
         )
 
         is Beach -> BeachDto(
@@ -292,6 +295,7 @@ private fun DirectoryEntry.toHeritageDetails(): HeritageDetailsDto =
         conditionStatus = conditionStatus.takeIf { shows(PracticalField.CONDITION_STATUS) },
         festival = festival.takeIf { shows(PracticalField.FESTIVAL) },
         architect = architect.takeIf { shows(PracticalField.ARCHITECT) },
+        openingHours = openingHours.takeIf { shows(PracticalField.OPENING_HOURS) },
     )
 
 /**

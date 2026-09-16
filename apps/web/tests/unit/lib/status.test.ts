@@ -23,6 +23,10 @@ function town(
     entryCount,
     hasPhotograph,
     status,
+    population: null,
+    elevation: null,
+    photographCount: 0,
+    unconfirmedPhotographCount: 0,
   };
 }
 
@@ -144,15 +148,23 @@ describe("getEntryStatus", () => {
     });
   });
 
-  it("reads a record without a photograph as name only", () => {
+  it("reads a record without a photograph as records-no-photograph, not name only", () => {
+    // `name` means "a name and a coordinate, nothing else" (FR-002). A record always
+    // carries more than that, so ochre would misdescribe every undocumented record.
     expect(getEntryStatus({ imageUrl: null })).toEqual({
-      status: "name",
+      status: "partial",
       label: "no photograph",
     });
   });
 
   it("treats an empty image URL as no photograph", () => {
-    expect(getEntryStatus({ imageUrl: "" }).status).toBe("name");
-    expect(getEntryStatus({ imageUrl: "   " }).status).toBe("name");
+    expect(getEntryStatus({ imageUrl: "" }).status).toBe("partial");
+    expect(getEntryStatus({ imageUrl: "   " }).status).toBe("partial");
+  });
+
+  it("never reads a record as name only", () => {
+    for (const imageUrl of [null, "", "   ", "/images/igreja.jpg"]) {
+      expect(getEntryStatus({ imageUrl }).status).not.toBe("name");
+    }
   });
 });

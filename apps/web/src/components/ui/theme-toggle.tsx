@@ -1,26 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sun, Moon, Monitor } from "lucide-react";
 import clsx from "clsx";
 import { useTheme, useUiStore } from "@/stores/uiStore";
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
 
-// Apply theme helper - defined outside component to avoid recreation
-function applyTheme(
-  newTheme: "system" | "light" | "dark",
-  systemPrefersDark: boolean
-) {
-  const shouldBeDark =
-    newTheme === "dark" || (newTheme === "system" && systemPrefersDark);
-
-  if (shouldBeDark) {
-    document.documentElement.classList.add("dark");
-  } else {
-    document.documentElement.classList.remove("dark");
-  }
-}
+// The `.dark` class is applied by `ThemeSync` in the root layout, from `uiStore`
+// (spec 034 FR-001). This component only records the choice. It used to apply the
+// class itself, which meant the theme changed only on screens rendering this button
+// — and its copy of the rule read `useMediaQuery`, whose server snapshot is `false`
+// during hydration, so a stored "system" choice on a dark OS flashed light.
 
 export interface ThemeToggleProps {
   variant?: "default" | "light";
@@ -43,11 +33,6 @@ export function ThemeToggle({
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const systemTheme = prefersDarkMode ? "dark" : "light";
 
-  // Apply theme when theme or system preference changes
-  useEffect(() => {
-    applyTheme(theme, prefersDarkMode);
-  }, [theme, prefersDarkMode]);
-
   const cycleTheme = () => {
     const themes: ("system" | "light" | "dark")[] = ["system", "light", "dark"];
     const currentIndex = themes.indexOf(theme);
@@ -55,7 +40,6 @@ export function ThemeToggle({
     const nextTheme = themes[nextIndex];
 
     setTheme(nextTheme);
-    applyTheme(nextTheme, systemTheme === "dark");
   };
 
   const getIcon = () => {

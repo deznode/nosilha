@@ -89,6 +89,8 @@ export interface DirectoryQueryParams {
   size?: number;
   searchQuery?: string;
   town?: string;
+  /** Canonical settlement id — the settlement screens filter by this, not by name. */
+  townId?: string;
   sort?:
     "name_asc" | "name_desc" | "rating_desc" | "created_at_desc" | "relevance";
 }
@@ -102,6 +104,21 @@ export interface ApiClient {
     searchQuery?: string,
     town?: string,
     sort?: string
+  ): Promise<PaginatedResult<DirectoryEntry>>;
+
+  /**
+   * Query directory entries.
+   *
+   * Preferred over the positional `getEntriesByCategory` for new callers, and the
+   * only way to filter by canonical settlement (`townId`). Spec 034 T-21.
+   *
+   * The API applies exactly one filter, in this order: a non-blank `searchQuery`
+   * wins outright, then `townId`, then `category` + `town`, then `category`, then
+   * `town`. So `{ townId, category }` returns the whole settlement, not the
+   * settlement's Heritage records — pass one filter, not a combination.
+   */
+  getEntries(
+    params?: DirectoryQueryParams
   ): Promise<PaginatedResult<DirectoryEntry>>;
 
   getEntryBySlug(slug: string): Promise<DirectoryEntry | undefined>;
@@ -662,14 +679,34 @@ export interface ApiClient {
    * @param options Query parameters (category, page, size)
    * @returns PublicGalleryMediaPageResponse with paginated gallery items
    */
-  getGalleryMedia(options?: {
-    category?: string;
-    decade?: string;
-    q?: string;
-    hasGeo?: boolean;
-    page?: number;
-    size?: number;
-  }): Promise<import("@/types/gallery").PublicGalleryMediaPageResponse>;
+  getGalleryMedia(
+    options?: import("@/types/gallery").GalleryQueryParams
+  ): Promise<import("@/types/gallery").PublicGalleryMediaPageResponse>;
+
+  /**
+   * Whole-archive counts for chips, standfirsts and home copy.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * Every number rendered in prose comes from here or from a list total, never from
+   * a loaded page. Spec 034 FR-018.
+   */
+  getGalleryFacets(): Promise<import("@/types/gallery").GalleryFacets>;
+
+  /**
+   * Where a located photograph sits among all located archive photographs.
+   *
+   * **Public Endpoint**: No authentication required.
+   *
+   * Neighbours wrap at the ends. A record with no coordinates comes back with a null
+   * position and no neighbours. Spec 034 FR-021.
+   *
+   * @param id UUID of the gallery media item
+   * @returns The sequence, or undefined when the id is unknown
+   */
+  getPhotoSequence(
+    id: string
+  ): Promise<import("@/types/gallery").PhotoSequence | undefined>;
 
   /**
    * Get a single gallery media item by ID.

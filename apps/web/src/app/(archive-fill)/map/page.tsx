@@ -9,7 +9,7 @@ const BravaMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="bg-surface-alt flex h-screen w-full items-center justify-center">
+      <div className="bg-surface-alt flex h-full w-full items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2
             className="text-brand h-10 w-10 animate-spin"

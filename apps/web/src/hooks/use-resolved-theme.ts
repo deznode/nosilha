@@ -1,6 +1,7 @@
 "use client";
 
 import { useMediaQuery } from "@/lib/hooks/use-media-query";
+import { resolveTheme } from "@/lib/theme/initial-theme";
 import { useTheme } from "@/stores/uiStore";
 
 export type ResolvedTheme = "light" | "dark";
@@ -16,6 +17,5 @@ export function useResolvedTheme(): ResolvedTheme {
   const theme = useTheme();
   const prefersDark = useMediaQuery("(prefers-color-scheme: dark)");
 
-  if (theme === "system") return prefersDark ? "dark" : "light";
-  return theme;
+  return resolveTheme(theme, prefersDark);
 }

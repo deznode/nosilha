@@ -10,7 +10,7 @@ describe("uiStore", () => {
   beforeEach(() => {
     // Reset store to initial state before each test
     useUiStore.setState({
-      theme: "system",
+      theme: "light",
       activeModal: null,
       filterPanelOpen: false,
       sidebarOpen: false,
@@ -21,7 +21,11 @@ describe("uiStore", () => {
     it("should have correct initial state", () => {
       const state = useUiStore.getState();
 
-      expect(state.theme).toBe("system");
+      // Spec 034 FR-001: light is the default, not the OS preference. Read from
+      // the store's declared initial state — `beforeEach` writes `theme` above, so
+      // asserting against `getState()` would only assert what this test just set.
+      expect(useUiStore.getInitialState().theme).toBe("light");
+      expect(state.theme).toBe("light");
       expect(state.activeModal).toBeNull();
       expect(state.filterPanelOpen).toBe(false);
       expect(state.sidebarOpen).toBe(false);

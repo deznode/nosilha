@@ -59,6 +59,12 @@ sealed class PublicGalleryMediaDto {
         override val mediaSource: String = "USER_UPLOAD",
         override val altText: String?,
         override val createdAt: Instant?,
+        /**
+         * Shows an identifiable person whose provenance nobody has confirmed
+         * (spec 034 FR-022). Public so the archive screens can keep such a record out
+         * of a promotional slot while still listing it where it can be identified.
+         */
+        val identifiablePerson: Boolean = false,
         val publicUrl: String?,
         /** The file's name as given by the contributor. */
         val originalName: String?,
@@ -98,6 +104,12 @@ sealed class PublicGalleryMediaDto {
         override val mediaSource: String = "EXTERNAL",
         override val altText: String?,
         override val createdAt: Instant?,
+        /**
+         * Shows an identifiable person whose provenance nobody has confirmed
+         * (spec 034 FR-022). Public so the archive screens can keep such a record out
+         * of a promotional slot while still listing it where it can be identified.
+         */
+        val identifiablePerson: Boolean = false,
         val mediaType: MediaType,
         val platform: ExternalPlatform,
         val externalId: String?,
@@ -127,6 +139,7 @@ sealed class PublicGalleryMediaDto {
                 displayOrder = media.displayOrder,
                 altText = media.altText,
                 createdAt = media.createdAt,
+                identifiablePerson = media.identifiablePerson,
                 publicUrl = media.publicUrl,
                 originalName = media.originalName,
                 width = media.width,
@@ -158,6 +171,7 @@ sealed class PublicGalleryMediaDto {
                 displayOrder = media.displayOrder,
                 altText = media.altText,
                 createdAt = media.createdAt,
+                identifiablePerson = media.identifiablePerson,
                 mediaType = media.mediaType,
                 platform = media.platform,
                 externalId = media.externalId,

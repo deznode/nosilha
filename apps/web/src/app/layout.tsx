@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Outfit, Fraunces } from "next/font/google";
 import clsx from "clsx";
 import Script from "next/script";
+import { ThemeSync } from "@/components/theme-sync";
+import { buildThemeInitScript } from "@/lib/theme/initial-theme";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Suspense } from "react";
 
@@ -111,28 +113,15 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Theme initialization script */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  const theme = localStorage.getItem('theme') || 'system';
-                  const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                  const shouldBeDark = theme === 'dark' || (theme === 'system' && systemDark);
-                  if (shouldBeDark) {
-                    document.documentElement.classList.add('dark');
-                  }
-                } catch (e) {
-                  // Fallback to system preference
-                  if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    document.documentElement.classList.add('dark');
-                  }
-                }
-              })();
-            `,
-          }}
-        />
+        {/*
+          Theme initialization — runs before first paint so a stored dark choice
+          never flashes light, and a first visit on a dark OS never flashes dark.
+          The rule itself is injected from `resolveInitialTheme`'s own source: an
+          inline script cannot import a module, and duplicating the rule in a string
+          is how first paint and the hydrated render drifted apart before.
+          Spec 034 FR-001.
+        */}
+        <script dangerouslySetInnerHTML={{ __html: buildThemeInitScript() }} />
         {/* Organization structured data */}
         <script
           type="application/ld+json"
@@ -148,6 +137,8 @@ export default function RootLayout({
           fraunces.variable
         )}
       >
+        {/* Keeps the .dark class in step with uiStore on every route (FR-001) */}
+        <ThemeSync />
         <a
           href="#main-content"
           className="focus:bg-background-primary focus:text-text-primary focus:ring-ocean-blue focus:shadow-elevated sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:rounded-md focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:ring-2 focus:ring-offset-2 focus:outline-none"

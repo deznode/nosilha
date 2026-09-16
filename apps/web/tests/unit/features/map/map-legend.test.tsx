@@ -2,9 +2,13 @@ import { render, screen, within } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import { MapPin } from "lucide-react";
 import { MapLegend } from "@/features/map/components/map-legend";
-import { STATUS_PIN_COLOR } from "@/features/map/data/locations-adapter";
+import {
+  STATUS_PIN_COLOR,
+  transformEntries,
+} from "@/features/map/data/locations-adapter";
 import type { Location } from "@/features/map/data/types";
 import type { DocumentationStatus } from "@/lib/status";
+import type { DirectoryEntry } from "@/types/directory";
 
 function loc(id: string, status: DocumentationStatus): Location {
   return {
@@ -59,10 +63,36 @@ describe("MapLegend", () => {
   });
 
   it("keys place records by whether they carry a photograph", () => {
+    // Built through the adapter, not hand-stamped with a status: the legend's job is
+    // to explain the pins the adapter produces, and a fixture that invents its own
+    // status stays green against a key production can no longer emit.
+    const entry = (id: string, imageUrl: string | null): DirectoryEntry =>
+      ({
+        id,
+        slug: id,
+        name: id,
+        category: "Heritage",
+        imageUrl,
+        town: "Nova Sintra",
+        latitude: 14.86,
+        longitude: -24.7,
+        description: "",
+        rating: null,
+        reviewCount: 0,
+        createdAt: "",
+        updatedAt: "",
+        tags: [],
+        details: null,
+      }) as DirectoryEntry;
+
     render(
       <MapLegend
         mode="places"
-        locations={[loc("a", "documented"), loc("b", "name"), loc("c", "name")]}
+        locations={transformEntries([
+          entry("a", "/images/igreja.jpg"),
+          entry("b", null),
+          entry("c", null),
+        ])}
       />
     );
 

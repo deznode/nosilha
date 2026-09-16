@@ -1,5 +1,6 @@
 import type { DirectoryEntry } from "@/types/directory";
 import type { Town, TownStatusSummary } from "@/types/town";
+import type { GalleryFacets, PhotoSequence } from "@/types/gallery";
 
 /**
  * Type guard to check if an object has the basic structure of a DirectoryEntry
@@ -39,6 +40,12 @@ export function isDirectoryEntry(obj: unknown): obj is DirectoryEntry {
       typeof entry.imageUrl === "string") &&
     (entry.createdAt === undefined || typeof entry.createdAt === "string") &&
     (entry.updatedAt === undefined || typeof entry.updatedAt === "string") &&
+    (entry.townId === undefined ||
+      entry.townId === null ||
+      typeof entry.townId === "string") &&
+    isValidCompleteness(entry.completeness) &&
+    isValidCoincidentRef(entry.coincidentWith) &&
+    isValidHeroImage(entry.heroImage) &&
     [
       "Restaurant",
       "Hotel",
@@ -58,6 +65,76 @@ export function isDirectoryEntry(obj: unknown): obj is DirectoryEntry {
   }
 
   return true;
+}
+
+/**
+ * Completeness may be absent when a client reads an older response; when present it
+ * must be a real pair of counts, because the UI renders "N of M" from it directly.
+ */
+function isValidCompleteness(value: unknown): boolean {
+  if (value === undefined || value === null) {
+    return true;
+  }
+
+  if (typeof value !== "object") {
+    return false;
+  }
+
+  const completeness = value as Record<string, unknown>;
+
+  return (
+    typeof completeness.documented === "number" &&
+    typeof completeness.total === "number" &&
+    (completeness.missingFields === undefined ||
+      (Array.isArray(completeness.missingFields) &&
+        completeness.missingFields.every((f) => typeof f === "string")))
+  );
+}
+
+function isValidCoincidentRef(value: unknown): boolean {
+  if (value === undefined || value === null) {
+    return true;
+  }
+
+  if (typeof value !== "object") {
+    return false;
+  }
+
+  const ref = value as Record<string, unknown>;
+
+  return (
+    typeof ref.id === "string" &&
+    typeof ref.name === "string" &&
+    typeof ref.slug === "string" &&
+    typeof ref.category === "string"
+  );
+}
+
+/**
+ * A hero without a URL is useless to every caller, so it is rejected rather than
+ * passed through as a half-object. Spec 034 FR-023.
+ */
+function isValidHeroImage(value: unknown): boolean {
+  if (value === undefined || value === null) {
+    return true;
+  }
+
+  if (typeof value !== "object") {
+    return false;
+  }
+
+  const hero = value as Record<string, unknown>;
+
+  return (
+    typeof hero.mediaId === "string" &&
+    typeof hero.url === "string" &&
+    (hero.photographerCredit === undefined ||
+      hero.photographerCredit === null ||
+      typeof hero.photographerCredit === "string") &&
+    (hero.archiveSource === undefined ||
+      hero.archiveSource === null ||
+      typeof hero.archiveSource === "string")
+  );
 }
 
 function isValidContentActions(value: unknown): boolean {
@@ -259,7 +336,15 @@ export function isTownStatusSummary(obj: unknown): obj is TownStatusSummary {
     typeof town.longitude === "number" &&
     typeof town.entryCount === "number" &&
     typeof town.hasPhotograph === "boolean" &&
-    typeof town.status === "string"
+    typeof town.status === "string" &&
+    (town.population === undefined ||
+      town.population === null ||
+      typeof town.population === "string") &&
+    (town.elevation === undefined ||
+      town.elevation === null ||
+      typeof town.elevation === "string") &&
+    typeof town.photographCount === "number" &&
+    typeof town.unconfirmedPhotographCount === "number"
   );
 }
 
@@ -294,6 +379,74 @@ export function validateTown(data: unknown): Town | null {
 
   if (!isTown(data)) {
     console.warn("Invalid Town structure:", data);
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Type guard for the whole-archive facet counts. Spec 034 FR-018.
+ *
+ * All seven counts must be present: a partial object would silently render a wrong
+ * number in prose, which is exactly what FR-005 forbids.
+ */
+export function isGalleryFacets(obj: unknown): obj is GalleryFacets {
+  if (!obj || typeof obj !== "object") {
+    return false;
+  }
+
+  const facets = obj as Record<string, unknown>;
+
+  return (
+    [
+      "total",
+      "photographs",
+      "films",
+      "withPlace",
+      "withoutPlace",
+      "withoutDate",
+      "uncredited",
+    ] as const
+  ).every((key) => typeof facets[key] === "number");
+}
+
+/** Safely extracts facet counts, returning null rather than a partial object. */
+export function validateGalleryFacets(data: unknown): GalleryFacets | null {
+  if (!isGalleryFacets(data)) {
+    console.warn("Invalid GalleryFacets structure:", data);
+    return null;
+  }
+
+  return data;
+}
+
+/**
+ * Type guard for a photograph's position among located photographs. Spec 034 FR-021.
+ *
+ * A record with no coordinates has a null position and null neighbours, which is a
+ * valid answer, not a malformed one.
+ */
+export function isPhotoSequence(obj: unknown): obj is PhotoSequence {
+  if (!obj || typeof obj !== "object") {
+    return false;
+  }
+
+  const sequence = obj as Record<string, unknown>;
+
+  return (
+    typeof sequence.id === "string" &&
+    (sequence.position === null || typeof sequence.position === "number") &&
+    typeof sequence.total === "number" &&
+    (sequence.previousId === null || typeof sequence.previousId === "string") &&
+    (sequence.nextId === null || typeof sequence.nextId === "string")
+  );
+}
+
+/** Safely extracts a photo sequence, returning null for a malformed payload. */
+export function validatePhotoSequence(data: unknown): PhotoSequence | null {
+  if (!isPhotoSequence(data)) {
+    console.warn("Invalid PhotoSequence structure:", data);
     return null;
   }
 

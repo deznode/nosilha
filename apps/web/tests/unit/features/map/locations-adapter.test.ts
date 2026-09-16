@@ -44,6 +44,10 @@ function settlementFixture(
     entryCount: 2,
     hasPhotograph: false,
     status: "PARTIAL",
+    population: null,
+    elevation: null,
+    photographCount: 0,
+    unconfirmedPhotographCount: 0,
     ...overrides,
   };
 }
@@ -199,11 +203,16 @@ describe("pin colour", () => {
     });
   });
 
-  it("colours a record without a photograph as name only", () => {
+  it("colours a record without a photograph as records-no-photograph", () => {
+    // Ochre means "a name and a coordinate, nothing else" (FR-002), which no place
+    // record is. The handoff's records-mode legend counts zero name-only pins.
     const [location] = transformEntries([entryFixture({ imageUrl: null })]);
 
-    expect(location.color).toBe(STATUS_PIN_COLOR.name);
-    expect(location.status).toEqual({ status: "name", label: "no photograph" });
+    expect(location.color).toBe(STATUS_PIN_COLOR.partial);
+    expect(location.status).toEqual({
+      status: "partial",
+      label: "no photograph",
+    });
   });
 
   it("colours equally documented records alike, whatever their kind", () => {

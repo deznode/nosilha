@@ -9,7 +9,6 @@ import {
   NewsletterCtaSection,
 } from "@/components/landing";
 import { ScrollIndicator } from "@/components/ui/scroll-indicator";
-import { StickyNav } from "@/components/navigation/sticky-nav";
 import type { DirectoryEntry } from "@/types/directory";
 import type { InstagramPost } from "@/lib/instagram";
 
@@ -41,9 +40,9 @@ export function HomePageContent({
       <div className="bg-background-secondary relative">
         <HeroSectionNew />
         {/* Dark wrapper: bg matches hero's bottom gradient for seamless transition.
-            StickyNav is at this DOM level so sticky top-0 works across the page. */}
+            The ArchiveBar in the (archive) layout is this route's chrome now
+            (spec 034 FR-003), so the page no longer carries its own StickyNav. */}
         <div className="hidden bg-stone-950 lg:block">
-          <StickyNav heroMode />
           <div className="relative h-36">
             <ScrollIndicator onClick={scrollToNextSection} />
           </div>
