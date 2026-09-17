@@ -445,7 +445,6 @@
 /* Dark mode variant for Tailwind utilities */
 @custom-variant dark (&:is(.dark *));
 @custom-variant pointer-coarse (@media (pointer: coarse));
-@custom-variant map-desktop (@media (min-width: 768px) and (min-height: 500px));
 
 @layer base {
   /* Enhanced Global Scroll Behavior */
@@ -775,4 +774,25 @@
       display: none;
     }
   }
+}
+
+/*
+ * Map explorer hover preview (spec 034 FR-011): a card on the theme's ground with a
+ * strong edge and no tip. MapLibre sets these on its own elements, so they are styled
+ * here rather than through the popup's props. The pointer passes through, so the
+ * popup can never steal the hover that keeps it open.
+ */
+.map-hover-popup {
+  pointer-events: none;
+}
+.map-hover-popup .maplibregl-popup-content {
+  background: var(--card);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+}
+.map-hover-popup .maplibregl-popup-tip {
+  display: none;
 }

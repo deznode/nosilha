@@ -1,178 +1,276 @@
 "use client";
 
-import { useRef, useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
-import { AnimatePresence } from "framer-motion";
+import { clsx } from "clsx";
+import { useNarrow } from "@/hooks/use-narrow";
+import { useMapStore, useModeItems } from "@/stores/mapStore";
+import { EXPLORER_VIEW } from "../data/constants";
+import { statusCounts } from "../data/locations-adapter";
+import { legendRows, overlayOffsets, photographsNote } from "../data/map-copy";
+import type { MapItem } from "../data/types";
 import {
-  useLocations,
-  useMapMode,
-  useMapStore,
-  useSelectedLocation,
-  useSettlements,
-} from "@/stores/mapStore";
-import { calculateBearing, MAP_CONFIG } from "../data/constants";
-import type { Location, ViewMode } from "../data/types";
-import { MapHeader } from "./map-header";
-import { MapSidebar } from "./map-sidebar";
-import { MapCanvas } from "./map-canvas";
-import { MapControls } from "./map-controls";
+  useApplyPendingSelection,
+  useMapUrlSync,
+} from "../hooks/use-map-url-sync";
+import {
+  useFilteredLocations,
+  useSelectedItem,
+} from "../hooks/useFilteredLocations";
 import { LocationBottomSheet } from "./location-bottom-sheet";
 import { LocationDetailCard } from "./location-detail-card";
-import { MapLegend } from "./map-legend";
+import { MapCanvas } from "./map-canvas";
+import { MapControls, type MapControl } from "./map-controls";
+import { MapLegend, PhotographsNote } from "./map-legend";
+import { MapSidebar } from "./map-sidebar";
 
+/** Share of the canvas height kept clear below an eased-to pin on a phone. */
+const NARROW_EASE_BOTTOM_SHARE = 0.6;
+
+/**
+ * The map explorer at `/map`: sidebar and canvas side by side, or a full-bleed canvas
+ * under a bottom sheet below 860px. Spec 034 FR-011, FR-012.
+ *
+ * The narrow layout restructures rather than reflows, so it is chosen by `useNarrow`
+ * in render, not by a CSS breakpoint.
+ */
 export default function BravaMap() {
   const mapRef = useRef<MapRef>(null);
-  const pulseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [mapReady, setMapReady] = useState(false);
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
-  const selectedLocation = useSelectedLocation();
-  const mapMode = useMapMode();
-  const locations = useLocations();
-  const settlements = useSettlements();
+  const narrow = useNarrow();
+  const mode = useMapStore((s) => s.mode);
+  const satellite = useMapStore((s) => s.satellite);
+  const is3D = useMapStore((s) => s.is3D);
+  const sheetOpen = useMapStore((s) => s.sheetOpen);
+  const isLoading = useMapStore((s) => s.isLoading);
+  const fetchError = useMapStore((s) => s.fetchError);
+  const photos = useMapStore((s) => s.photos);
+  const unlocatedCount = useMapStore((s) => s.unlocatedCount);
+  const modeItems = useModeItems();
+  const visible = useFilteredLocations();
+  const selected = useSelectedItem();
+
+  const pendingSelectionRef = useMapUrlSync();
 
   useEffect(() => {
+    const store = useMapStore.getState();
+    // Activity keeps this component's state across a hide; an open sheet or fan from
+    // the last visit should not greet the next one.
+    store.resetTransient();
+    store.fetchData();
+
     // Prevent iOS Safari body bounce scrolling behind the full-screen map
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
-    // On mobile, start with sidebar closed so users see the map first
-    const isDesktopLayout = window.matchMedia(
-      "(min-width: 768px) and (min-height: 500px)"
-    ).matches;
-    if (!isDesktopLayout) {
-      useMapStore.getState().setShowSidebar(false);
-    }
-
-    useMapStore.getState().fetchLocations();
-
     return () => {
       document.body.style.overflow = prevOverflow;
-      if (pulseTimeoutRef.current) {
-        clearTimeout(pulseTimeoutRef.current);
-      }
+      // The map instance does not survive a hide; wait for the next one to load.
+      setMapReady(false);
     };
   }, []);
 
-  // --- Cross-cutting callbacks (require mapRef) ---
+  // --- Camera ---
 
-  const handleFlyTo = useCallback((loc: Location) => {
-    const state = useMapStore.getState();
-    state.setIsOrbiting(false);
-    state.setSelectedLocation(loc);
+  // Read inside callbacks without re-creating them on every breakpoint change.
+  const narrowRef = useRef(narrow);
+  useEffect(() => {
+    narrowRef.current = narrow;
+  }, [narrow]);
 
-    if (pulseTimeoutRef.current) {
-      clearTimeout(pulseTimeoutRef.current);
-    }
-    state.setIsPulsing(false);
-
-    if (mapRef.current) {
-      const isDesktop = window.matchMedia(
-        "(min-width: 768px) and (min-height: 500px)"
-      ).matches;
-      const offset: [number, number] =
-        isDesktop && state.showSidebar ? [150, 0] : [0, 0];
-
-      const pitch =
-        state.viewMode === "satellite" && state.is3D
-          ? MAP_CONFIG.PITCH_3D
-          : MAP_CONFIG.PITCH_2D;
-
-      const currentCenter = mapRef.current.getCenter();
-      const bearing = calculateBearing(
-        { lng: currentCenter.lng, lat: currentCenter.lat },
-        loc.coordinates
-      );
-
-      mapRef.current.flyTo({
-        center: [loc.coordinates.lng, loc.coordinates.lat],
-        zoom: MAP_CONFIG.LOCATION_ZOOM,
-        pitch,
-        bearing,
-        padding: { left: offset[0], right: 0, top: 0, bottom: 0 },
-        duration: MAP_CONFIG.ANIMATION_DURATION,
-        essential: true,
-      });
-
-      pulseTimeoutRef.current = setTimeout(() => {
-        useMapStore.getState().setIsPulsing(true);
-        pulseTimeoutRef.current = setTimeout(() => {
-          useMapStore.getState().setIsPulsing(false);
-        }, 3000);
-      }, MAP_CONFIG.ANIMATION_DURATION);
-    }
-  }, []);
-
-  const handleRandomFlyTo = useCallback(() => {
-    const { mapMode, locations, settlements, selectedLocation } =
-      useMapStore.getState();
-    const source = mapMode === "settlements" ? settlements : locations;
-    const available = source.filter((l) => l.id !== selectedLocation?.id);
-    const random = available[Math.floor(Math.random() * available.length)];
-    if (random) handleFlyTo(random);
-  }, [handleFlyTo]);
-
-  const handleReset = useCallback(() => {
-    useMapStore.getState().clearSelection();
-    mapRef.current?.flyTo({
-      center: [MAP_CONFIG.DEFAULT_CENTER.lng, MAP_CONFIG.DEFAULT_CENTER.lat],
-      zoom: MAP_CONFIG.DEFAULT_ZOOM,
-      pitch: MAP_CONFIG.PITCH_2D,
-      bearing: MAP_CONFIG.DEFAULT_BEARING,
-      duration: MAP_CONFIG.RESET_DURATION,
+  const easeToItem = useCallback((item: MapItem) => {
+    const map = mapRef.current;
+    if (!map) return;
+    // On a phone the peeking sheet and the selection card cover the lower half of the
+    // canvas, so the pin is eased into the part that stays visible.
+    const bottom = narrowRef.current
+      ? Math.round(map.getContainer().clientHeight * NARROW_EASE_BOTTOM_SHARE)
+      : 0;
+    map.easeTo({
+      center: [item.coordinates.lng, item.coordinates.lat],
+      zoom: EXPLORER_VIEW.SELECT_ZOOM,
+      duration: EXPLORER_VIEW.SELECT_DURATION,
+      padding: { top: 0, right: 0, bottom, left: 0 },
     });
   }, []);
 
-  const handle3DToggle = useCallback(() => {
-    const state = useMapStore.getState();
-    const newIs3D = !state.is3D;
-    state.setIs3D(newIs3D);
+  /** A pin click selects in place, as prototyped. */
+  const selectPin = useCallback((item: MapItem) => {
+    useMapStore.getState().select(item.key);
+  }, []);
+
+  /**
+   * A list row selects and brings the pin into view. On a phone the expanded sheet
+   * would hide both the pin and its card, so it drops back to peeking.
+   */
+  const selectRow = useCallback(
+    (item: MapItem) => {
+      const store = useMapStore.getState();
+      store.select(item.key);
+      if (narrowRef.current && store.sheetOpen) store.toggleSheet();
+      easeToItem(item);
+    },
+    [easeToItem]
+  );
+
+  const handleMapLoad = useCallback(() => setMapReady(true), []);
+
+  // Pitch follows the 3D toggle, once there is a map to tilt.
+  const is3DRef = useRef(is3D);
+  useEffect(() => {
+    if (!mapReady || is3DRef.current === is3D) return;
+    is3DRef.current = is3D;
     mapRef.current?.easeTo({
-      pitch: newIs3D ? MAP_CONFIG.PITCH_3D : MAP_CONFIG.PITCH_2D,
-      duration: MAP_CONFIG.EASE_DURATION,
+      pitch: is3D ? EXPLORER_VIEW.PITCH_3D : 0,
+      duration: EXPLORER_VIEW.PITCH_DURATION,
     });
-  }, []);
+  }, [is3D, mapReady]);
 
-  const handleViewModeToggle = useCallback((mode: ViewMode) => {
-    const state = useMapStore.getState();
-    if (mode === "illustration" && state.isOrbiting) {
-      state.setIsOrbiting(false);
-    }
-    state.setViewMode(mode);
+  // A deep link's selection waits for the pins and the map, then flies once.
+  const dropSelection = useCallback(
+    () => useMapStore.getState().clearSelection(),
+    []
+  );
+  useApplyPendingSelection(pendingSelectionRef, {
+    ready: mapReady && !isLoading && !fetchError,
+    items: visible,
+    onFound: easeToItem,
+    onMissing: dropSelection,
+  });
 
-    if (mode === "illustration" && mapRef.current) {
-      mapRef.current.easeTo({
-        pitch: MAP_CONFIG.PITCH_2D,
-        duration: MAP_CONFIG.EASE_DURATION,
-      });
-    }
-  }, []);
+  const controls: MapControl[] = useMemo(
+    () => [
+      {
+        label: "◐",
+        title: "Satellite",
+        pressed: satellite,
+        onClick: () => useMapStore.getState().toggleSatellite(),
+      },
+      {
+        label: "3D",
+        title: "3D terrain",
+        pressed: is3D,
+        onClick: () => useMapStore.getState().toggle3D(),
+      },
+      {
+        label: "⟲",
+        title: "Reset view",
+        onClick: () => {
+          useMapStore.getState().clearSelection();
+          mapRef.current?.easeTo({
+            center: [EXPLORER_VIEW.CENTER.lng, EXPLORER_VIEW.CENTER.lat],
+            zoom: EXPLORER_VIEW.ZOOM,
+            pitch: 0,
+            bearing: 0,
+            duration: EXPLORER_VIEW.RESET_DURATION,
+          });
+          if (useMapStore.getState().is3D) useMapStore.getState().toggle3D();
+          is3DRef.current = false;
+        },
+      },
+      {
+        label: "⌖",
+        title: "My location",
+        onClick: () => {
+          if (!("geolocation" in navigator)) return;
+          navigator.geolocation.getCurrentPosition(
+            ({ coords }) => {
+              const point = { lat: coords.latitude, lng: coords.longitude };
+              setUserLocation(point);
+              mapRef.current?.easeTo({
+                center: [point.lng, point.lat],
+                zoom: EXPLORER_VIEW.LOCATE_ZOOM,
+                duration: EXPLORER_VIEW.SELECT_DURATION,
+              });
+            },
+            (error) => console.warn("Location unavailable:", error.message)
+          );
+        },
+      },
+    ],
+    [satellite, is3D]
+  );
 
-  return (
-    <div className="bg-background-secondary text-text-primary flex h-full w-full flex-col overflow-hidden font-sans">
-      {/* The pin field. Everything overlaid on the map stays inside it, so nothing
-          it holds can cover the legend strip below. */}
-      <div className="relative min-h-0 flex-1 overflow-hidden">
-        <MapHeader />
-        <MapSidebar onFlyTo={handleFlyTo} />
-        <MapCanvas mapRef={mapRef} onFlyTo={handleFlyTo} />
-        <MapControls
-          onRandomFlyTo={handleRandomFlyTo}
-          onReset={handleReset}
-          on3DToggle={handle3DToggle}
-          onViewModeToggle={handleViewModeToggle}
-        />
-        <AnimatePresence>
-          {selectedLocation && (
-            <LocationBottomSheet key={selectedLocation.id} />
-          )}
-        </AnimatePresence>
-        <AnimatePresence>
-          {selectedLocation && <LocationDetailCard />}
-        </AnimatePresence>
-      </div>
-      <MapLegend
-        mode={mapMode}
-        locations={mapMode === "settlements" ? settlements : locations}
+  const counts = useMemo(() => statusCounts(modeItems), [modeItems]);
+  const ready = !isLoading && !fetchError;
+  const offsets = overlayOffsets(narrow, sheetOpen);
+  const note =
+    ready && mode === "photographs" ? photographsNote(unlocatedCount) : null;
+
+  const canvas = (
+    <div
+      className={clsx(
+        narrow
+          ? "absolute inset-0"
+          : "relative min-h-[420px] min-w-0 flex-[1_1_420px]"
+      )}
+      style={{ background: "var(--muted)" }}
+    >
+      <MapCanvas
+        mapRef={mapRef}
+        onSelect={selectPin}
+        onLoad={handleMapLoad}
+        userLocation={userLocation}
       />
+      <MapControls controls={controls} />
+      {ready && (
+        <MapLegend
+          rows={legendRows(mode, counts, photos, unlocatedCount)}
+          bottom={offsets.legend}
+        />
+      )}
+      {note && <PhotographsNote note={note} bottom={offsets.note} />}
+      {selected && (
+        <LocationDetailCard
+          key={selected.key}
+          item={selected}
+          bottom={offsets.card}
+          onClose={() => useMapStore.getState().clearSelection()}
+        />
+      )}
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {selected ? `Selected ${selected.name}, ${selected.eyebrow}.` : ""}
+      </div>
+    </div>
+  );
+
+  // One tree for both layouts, with the canvas in the same slot, so crossing the
+  // breakpoint restyles the map rather than rebuilding it.
+  return (
+    <div
+      data-layout={narrow ? "narrow" : "wide"}
+      className={clsx(
+        "h-full w-full overflow-hidden font-sans",
+        narrow ? "relative" : "flex flex-wrap"
+      )}
+      style={{ color: "var(--foreground)" }}
+    >
+      {narrow ? null : (
+        <aside
+          aria-label="Filters and list"
+          className="flex h-full max-w-full min-w-[280px] flex-[0_0_348px] flex-col overflow-hidden border-r"
+          style={{
+            background: "var(--background)",
+            borderColor: "var(--border-subtle)",
+          }}
+        >
+          <MapSidebar onSelect={selectRow} />
+        </aside>
+      )}
+      {canvas}
+      {narrow ? (
+        <LocationBottomSheet
+          open={sheetOpen}
+          onToggle={() => useMapStore.getState().toggleSheet()}
+        >
+          {(grabber) => <MapSidebar onSelect={selectRow} header={grabber} />}
+        </LocationBottomSheet>
+      ) : null}
     </div>
   );
 }

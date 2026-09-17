@@ -121,7 +121,7 @@ const nextConfig: NextConfig = {
               // `https:` already covers every https host — no per-host entries needed here.
               "img-src 'self' data: blob: https:",
               "font-src 'self' https://fonts.gstatic.com",
-              `connect-src 'self' ${isDev ? "http://localhost:8080 " : ""}https://api.nosilha.com https://*.nosilha.com https://*.cartocdn.com https://fonts.openmaptiles.org https://s3.amazonaws.com/elevation-tiles-prod/ https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://*.supabase.co wss://*.supabase.co https://www.clarity.ms https://*.clarity.ms https://*.r2.cloudflarestorage.com https://cloudflareinsights.com`,
+              `connect-src 'self' ${isDev ? "http://localhost:8080 " : ""}https://api.nosilha.com https://*.nosilha.com https://*.cartocdn.com https://fonts.openmaptiles.org https://s3.amazonaws.com/elevation-tiles-prod/ https://services.arcgisonline.com https://www.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://*.supabase.co wss://*.supabase.co https://www.clarity.ms https://*.clarity.ms https://*.r2.cloudflarestorage.com https://cloudflareinsights.com`,
               "worker-src 'self' blob:",
               "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com",
               "frame-ancestors 'none'",

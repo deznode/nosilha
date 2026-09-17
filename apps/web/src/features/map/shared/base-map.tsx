@@ -7,13 +7,15 @@ import Map, {
 } from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type maplibregl from "maplibre-gl";
+import type { StyleSpecification } from "maplibre-gl";
 import { MAP_CONFIG, MAP_STYLES } from "../data/constants";
 
 export interface BaseMapProps {
   children?: ReactNode;
   center?: { lng: number; lat: number };
   zoom?: number;
-  style?: string;
+  /** A style URL, or an inline style such as the satellite raster. */
+  style?: string | StyleSpecification;
   onMove?: (evt: ViewStateChangeEvent) => void;
   onLoad?: () => void;
   onError?: (event: maplibregl.ErrorEvent) => void;

@@ -1,145 +1,190 @@
 "use client";
 
-import { Search, X, Layers } from "lucide-react";
-import { clsx } from "clsx";
-import {
-  useMapMode,
-  useLocations,
-  useSettlements,
-  useMapSearchQuery,
-  useActiveCategory,
-  useSelectedLocation,
-  useShowSidebar,
-  useLocationsFetchError,
-  useMapStore,
-} from "@/stores/mapStore";
-import { useFilteredLocations } from "../hooks/useFilteredLocations";
+import { useMemo, type ReactNode } from "react";
 import { FilterChip } from "@/components/ui/filter-chip";
-import { CATEGORIES } from "../data/categories";
-import type { Location } from "../data/types";
-import { CategoryPill } from "./category-pill";
+import { statusVar, type DocumentationStatus } from "@/lib/status";
+import { useMapStore, useModeItems, useSelectedKey } from "@/stores/mapStore";
+import { statusCounts } from "../data/locations-adapter";
+import { listFooter } from "../data/map-copy";
+import type { MapItem, MapMode, StatusFilter } from "../data/types";
+import { useFilteredLocations } from "../hooks/useFilteredLocations";
 import { LocationCard } from "./location-card";
 
-interface MapSidebarProps {
-  onFlyTo: (location: Location) => void;
+const MODES: { mode: MapMode; label: string }[] = [
+  { mode: "settlements", label: "Settlements" },
+  { mode: "records", label: "Place records" },
+  { mode: "photographs", label: "Photographs" },
+];
+
+const CHIPS: { status: StatusFilter; label: string }[] = [
+  { status: "all", label: "All" },
+  { status: "documented", label: "Documented" },
+  { status: "partial", label: "No photograph" },
+  { status: "name", label: "Name only" },
+];
+
+function ChipDot({ status }: { status: StatusFilter }) {
+  return (
+    <span
+      aria-hidden
+      className="inline-block size-[7px] rounded-full"
+      style={{
+        background:
+          status === "all"
+            ? "var(--foreground-secondary)"
+            : statusVar(status as DocumentationStatus),
+      }}
+    />
+  );
 }
 
-export function MapSidebar({ onFlyTo }: MapSidebarProps) {
-  const mapMode = useMapMode();
-  const locations = useLocations();
-  const settlements = useSettlements();
-  const setMapMode = useMapStore((s) => s.setMapMode);
-  const searchQuery = useMapSearchQuery();
-  const activeCategory = useActiveCategory();
-  const selectedLocation = useSelectedLocation();
-  const showSidebar = useShowSidebar();
-  const setSearchQuery = useMapStore((s) => s.setSearchQuery);
-  const setActiveCategory = useMapStore((s) => s.setActiveCategory);
-  const toggleSidebar = useMapStore((s) => s.toggleSidebar);
-  const filteredLocations = useFilteredLocations();
-  const fetchError = useLocationsFetchError();
+interface MapSidebarProps {
+  onSelect: (item: MapItem) => void;
+  /** Shown above the tabs — the bottom sheet's grabber on a narrow screen. */
+  header?: ReactNode;
+}
+
+/**
+ * Mode tabs, search, status chips and the list, with its footer. The same body sits in
+ * the desktop column and in the narrow bottom sheet. Spec 034 FR-011.
+ */
+export function MapSidebar({ onSelect, header }: MapSidebarProps) {
+  const mode = useMapStore((s) => s.mode);
+  const status = useMapStore((s) => s.status);
+  const query = useMapStore((s) => s.query);
+  const fetchError = useMapStore((s) => s.fetchError);
+  const isLoading = useMapStore((s) => s.isLoading);
+  const modeCounts: Record<MapMode, number> = {
+    settlements: useMapStore((s) => s.settlements.length),
+    records: useMapStore((s) => s.records.length),
+    photographs: useMapStore((s) => s.photos.length),
+  };
+  const setMode = useMapStore((s) => s.setMode);
+  const setStatus = useMapStore((s) => s.setStatus);
+  const setQuery = useMapStore((s) => s.setQuery);
+  const selectedKey = useSelectedKey();
+  const modeItems = useModeItems();
+  const visible = useFilteredLocations();
+
+  const counts = useMemo(() => statusCounts(modeItems), [modeItems]);
+  const ready = !isLoading && !fetchError;
 
   return (
-    <div
-      className={clsx(
-        "border-border-primary map-desktop:w-[420px] shadow-floating absolute top-0 bottom-0 left-0 z-30 flex w-full flex-col border-r bg-white/95 font-sans backdrop-blur-xl transition-transform duration-500 ease-in-out dark:border-white/10 dark:bg-black/40",
-        !showSidebar && "-translate-x-full"
-      )}
-    >
-      <div className="map-desktop:h-28 h-24 shrink-0" />
-      <div className="shrink-0 px-6 pb-2">
-        <div role="group" aria-label="Map mode" className="mb-4 flex gap-2">
-          <FilterChip
-            label="Settlements"
-            count={settlements.length}
-            active={mapMode === "settlements"}
-            aria-pressed={mapMode === "settlements"}
-            onClick={() => setMapMode("settlements")}
-          />
-          <FilterChip
-            label="Place records"
-            count={locations.length}
-            active={mapMode === "places"}
-            aria-pressed={mapMode === "places"}
-            onClick={() => setMapMode("places")}
-          />
-        </div>
+    <>
+      {header}
+      <div
+        className="border-b px-[18px] pt-[18px] pb-3.5"
+        style={{ borderColor: "var(--border-subtle)" }}
+      >
         <div
-          className={clsx("relative", mapMode === "places" ? "mb-6" : "mb-4")}
-          role="search"
+          role="group"
+          aria-label="Map mode"
+          className="mb-3.5 flex gap-1 rounded-[10px] border p-[3px]"
+          style={{
+            background: "var(--card)",
+            borderColor: "var(--border-subtle)",
+          }}
         >
-          <Search
-            className="text-text-tertiary absolute top-1/2 left-4 -translate-y-1/2"
-            size={18}
-          />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Explore Brava..."
-            className="bg-background-secondary focus:border-ocean-blue/30 focus:ring-ocean-blue/20 placeholder:text-text-tertiary text-text-primary w-full rounded-2xl border border-transparent py-3.5 pr-10 pl-12 text-sm font-medium transition-all outline-none focus:ring-2"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="text-text-tertiary hover:text-text-primary absolute top-1/2 right-4 -translate-y-1/2 transition-colors"
-              aria-label="Clear search"
-            >
-              <X size={16} />
-            </button>
-          )}
+          {MODES.map(({ mode: key, label }) => {
+            const active = mode === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setMode(key)}
+                className="flex flex-1 cursor-pointer flex-col items-center gap-0.5 rounded-lg px-1 py-2 text-xs"
+                style={{
+                  background: active ? "var(--border-subtle)" : "transparent",
+                  color: active
+                    ? "var(--foreground)"
+                    : "var(--foreground-secondary)",
+                }}
+              >
+                <span>{label}</span>
+                <span className="text-[10px] tabular-nums opacity-65">
+                  {ready ? modeCounts[key] : "–"}
+                </span>
+              </button>
+            );
+          })}
         </div>
-        {mapMode === "places" && (
-          <div className="scrollbar-hide -mx-6 flex gap-2 overflow-x-auto px-6 pb-4">
-            <CategoryPill
-              label="All"
-              icon={Layers}
-              active={activeCategory === "All"}
-              onClick={() => setActiveCategory("All")}
+
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search Brava…"
+          aria-label="Search Brava"
+          className="w-full rounded-[10px] border px-3 py-2.5 text-[13px] outline-none focus:border-[var(--brand-ocean-blue)]"
+          style={{
+            background: "var(--card)",
+            borderColor: "var(--border-subtle)",
+            color: "var(--foreground)",
+          }}
+        />
+
+        <div
+          role="group"
+          aria-label="Filter by status"
+          className="mt-3 flex flex-wrap gap-1.5"
+        >
+          {CHIPS.map(({ status: key, label }) => (
+            <FilterChip
+              key={key}
+              label={label}
+              icon={<ChipDot status={key} />}
+              count={
+                ready
+                  ? key === "all"
+                    ? modeItems.length
+                    : counts[key as DocumentationStatus]
+                  : undefined
+              }
+              showZero
+              active={status === key}
+              aria-pressed={status === key}
+              onClick={() => setStatus(key)}
             />
-            {CATEGORIES.map((cat) => (
-              <CategoryPill
-                key={cat.id}
-                label={cat.label}
-                icon={cat.icon}
-                active={activeCategory === cat.id}
-                onClick={() => setActiveCategory(cat.id)}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-      <div className="flex-1 space-y-2 overflow-y-auto px-6 pb-6">
-        <div className="mb-2 flex items-center justify-between px-1">
-          <span className="text-text-tertiary font-sans text-xs font-bold tracking-widest uppercase">
-            {mapMode === "settlements" ? "Settlements" : "Place records"}
-          </span>
-          <span className="text-text-secondary bg-background-secondary rounded-full px-2 py-0.5 text-xs font-medium">
-            {filteredLocations.length}
-          </span>
+          ))}
         </div>
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto p-2.5">
         {fetchError && (
-          <p className="text-status-error px-1 text-sm">{fetchError}</p>
+          <p
+            role="alert"
+            className="px-[11px] py-3 text-[13px]"
+            style={{ color: "var(--brand-sobrado-ochre)" }}
+          >
+            {fetchError}
+          </p>
         )}
-        {filteredLocations.map((loc) => (
+        {ready && visible.length === 0 && (
+          <p
+            className="px-[11px] py-3 text-[13px]"
+            style={{ color: "var(--foreground-secondary)" }}
+          >
+            Nothing on the map matches that.
+          </p>
+        )}
+        {visible.map((item) => (
           <LocationCard
-            key={loc.id}
-            location={loc}
-            active={selectedLocation?.id === loc.id}
-            onClick={() => onFlyTo(loc)}
+            key={item.key}
+            item={item}
+            active={item.key === selectedKey}
+            onSelect={onSelect}
           />
         ))}
-      </div>
-      <button
-        onClick={toggleSidebar}
-        className="border-border-primary text-text-tertiary hover:text-ocean-blue map-desktop:flex shadow-subtle absolute top-1/2 -right-6 hidden h-24 w-6 items-center justify-center rounded-r-xl border border-l-0 bg-white/90 backdrop-blur transition-all hover:bg-white dark:border-white/10 dark:bg-black/40 dark:hover:bg-black/60"
-      >
-        {showSidebar ? (
-          <div className="bg-border-primary h-8 w-1 rounded-full" />
-        ) : (
-          <div className="bg-ocean-blue h-8 w-1 rounded-full" />
+        {ready && (
+          <p
+            className="px-[11px] pt-3 pb-5 text-[11px] leading-normal"
+            style={{ color: "var(--foreground-secondary)" }}
+          >
+            {listFooter(mode, modeItems)}
+          </p>
         )}
-      </button>
-    </div>
+      </div>
+    </>
   );
 }

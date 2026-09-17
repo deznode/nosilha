@@ -1,28 +1,33 @@
 import { describe, it, expect } from "vitest";
 import {
-  STATUS_PIN_COLOR,
-  transformEntries,
-  transformSettlements,
-  searchLocations,
+  filterItems,
+  photoItems,
+  recordItems,
+  settlementItems,
+  statusCounts,
 } from "@/features/map/data/locations-adapter";
+import type { MapItem } from "@/features/map/data/types";
 import type { DirectoryEntry } from "@/types/directory";
+import type {
+  PublicExternalMedia,
+  PublicUserUploadMedia,
+} from "@/types/gallery";
 import type { TownStatusSummary } from "@/types/town";
-import type { Location } from "@/features/map/data/types";
-import { Sun } from "lucide-react";
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
-function entryFixture(overrides: Partial<DirectoryEntry> = {}): DirectoryEntry {
+function entry(overrides: Partial<DirectoryEntry> = {}): DirectoryEntry {
   return {
     id: "a1b2c3d4-e5f6-7890-abcd-000000000001",
-    slug: "test-beach",
-    name: "Praia Test",
-    category: "Beach",
+    slug: "nos-raiz",
+    name: "Nos Raiz",
+    category: "Hotel",
     imageUrl: null,
-    town: "Nova Sintra",
-    latitude: 14.85,
-    longitude: -24.7,
-    description: "A beautiful test beach",
+    town: "Fajã d'Água",
+    townId: "town-faja",
+    latitude: 14.87306,
+    longitude: -24.73194,
+    description: "A guesthouse by the pools.",
     createdAt: "2024-01-01T00:00:00Z",
     updatedAt: "2024-01-01T00:00:00Z",
     tags: [],
@@ -31,13 +36,11 @@ function entryFixture(overrides: Partial<DirectoryEntry> = {}): DirectoryEntry {
   } as DirectoryEntry;
 }
 
-function settlementFixture(
-  overrides: Partial<TownStatusSummary> = {}
-): TownStatusSummary {
+function town(overrides: Partial<TownStatusSummary> = {}): TownStatusSummary {
   return {
-    id: "7061feee-74d8-4d52-97d5-c3f9b03bebc8",
+    id: "town-faja",
     slug: "faja-de-agua",
-    name: "Faja d'Agua",
+    name: "Fajã d'Água",
     description: "A coastal village below the cliffs.",
     latitude: 14.87306,
     longitude: -24.73194,
@@ -52,286 +55,268 @@ function settlementFixture(
   };
 }
 
-function locationFixture(overrides: Partial<Location> = {}): Location {
+function photo(
+  overrides: Partial<PublicUserUploadMedia> = {}
+): PublicUserUploadMedia {
   return {
-    id: "loc-1",
-    name: "Test Location",
-    namePortuguese: "Test Location",
-    category: "Beach",
-    description: "A test location",
-    coordinates: { lat: 14.85, lng: -24.7 },
-    elevation: 0,
-    image: "https://example.com/img.jpg",
-    tags: ["beach"],
-    icon: Sun,
-    color: "#0EA5E9",
-    status: { status: "documented", label: "has a photograph" },
+    id: "media-1",
+    title: null,
+    description: null,
+    category: null,
+    displayOrder: 0,
+    mediaSource: "USER_UPLOAD",
+    altText: null,
+    createdAt: "2024-01-01T00:00:00Z",
+    publicUrl: "https://r2.example/DJI_0047.JPG",
+    originalName: "DJI_0047.JPG",
+    latitude: 14.8601,
+    longitude: -24.7102,
     ...overrides,
   };
 }
 
-// ─── transformEntries ────────────────────────────────────────────────────────
+const film: PublicExternalMedia = {
+  id: "film-1",
+  title: "Explorando Furna",
+  description: null,
+  category: null,
+  displayOrder: 0,
+  mediaSource: "EXTERNAL",
+  altText: null,
+  createdAt: "2024-01-01T00:00:00Z",
+  mediaType: "VIDEO",
+  platform: "YOUTUBE",
+  externalId: "abc",
+  url: null,
+  thumbnailUrl: null,
+  embedUrl: null,
+  author: null,
+};
 
-describe("transformEntries", () => {
-  it("converts a DirectoryEntry to a Location", () => {
-    const entries = [entryFixture()];
-    const result = transformEntries(entries);
+// ─── settlementItems ─────────────────────────────────────────────────────────
 
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe("a1b2c3d4-e5f6-7890-abcd-000000000001");
-    expect(result[0].name).toBe("Praia Test");
-    expect(result[0].coordinates).toEqual({ lat: 14.85, lng: -24.7 });
-    expect(result[0].category).toBe("Beach");
-    expect(result[0].description).toBe("A beautiful test beach");
-  });
-
-  it("filters out entries without coordinates", () => {
-    const entries = [
-      entryFixture(),
-      entryFixture({
-        id: "no-coords",
-        latitude: null as unknown as number,
-        longitude: null as unknown as number,
-      }),
-    ];
-    const result = transformEntries(entries);
-
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe("a1b2c3d4-e5f6-7890-abcd-000000000001");
-  });
-
-  it("maps native categories directly", () => {
-    const entries = [
-      entryFixture({
-        category: "Town",
-        tags: ["capital"],
-        details: null,
-      } as Partial<DirectoryEntry>),
-    ];
-    const result = transformEntries(entries);
-    expect(result[0].category).toBe("Town");
-  });
-
-  it("maps Hotel to Accommodation via BACKEND_TO_MAP_CATEGORY", () => {
-    const entries = [
-      entryFixture({
-        category: "Hotel",
-        tags: ["luxury"],
-        details: { amenities: ["pool"] },
-      } as Partial<DirectoryEntry>),
-    ];
-    const result = transformEntries(entries);
-
-    expect(result[0].category).toBe("Accommodation");
-  });
-
-  it("uses entry imageUrl when available", () => {
-    const entries = [
-      entryFixture({ imageUrl: "https://example.com/custom.jpg" }),
-    ];
-    const result = transformEntries(entries);
-
-    expect(result[0].image).toBe("https://example.com/custom.jpg");
-  });
-
-  it("returns undefined image when no imageUrl", () => {
-    const entries = [entryFixture({ imageUrl: null })];
-    const result = transformEntries(entries);
-
-    expect(result[0].image).toBeUndefined();
-  });
-
-  it("transforms multiple entries", () => {
-    const entries = [
-      entryFixture({ id: "1", name: "Beach One" }),
-      entryFixture({ id: "2", name: "Beach Two" }),
-      entryFixture({ id: "3", name: "Beach Three" }),
-    ];
-    const result = transformEntries(entries);
-
-    expect(result).toHaveLength(3);
-    expect(result.map((r) => r.name)).toEqual([
-      "Beach One",
-      "Beach Two",
-      "Beach Three",
-    ]);
-  });
-
-  it("returns empty array for empty input", () => {
-    expect(transformEntries([])).toEqual([]);
-  });
-
-  it("computes detailUrl from slug and category", () => {
-    const entries = [
-      entryFixture({ slug: "igreja-nossa-senhora", category: "Heritage" }),
-    ];
-    const result = transformEntries(entries);
-
-    expect(result[0].detailUrl).toBe(
-      "/directory/heritage/igreja-nossa-senhora"
-    );
-  });
-
-  it("sets detailUrl to undefined when slug is empty", () => {
-    const entries = [entryFixture({ slug: "" })];
-    const result = transformEntries(entries);
-
-    expect(result[0].detailUrl).toBeUndefined();
-  });
-});
-
-// ─── Pin colour (spec 033 FR-012) ────────────────────────────────────────────
-
-describe("pin colour", () => {
-  it("uses the light values of the status tokens", () => {
-    expect(STATUS_PIN_COLOR).toEqual({
-      documented: "#4F6E63",
-      partial: "#3D5A73",
-      name: "#7A5730",
-    });
-  });
-
-  it("colours a record with a photograph as documented", () => {
-    const [location] = transformEntries([
-      entryFixture({ imageUrl: "https://example.com/p.jpg" }),
+describe("settlementItems", () => {
+  it("keys a settlement by its slug and carries its status and counts", () => {
+    const [item] = settlementItems([
+      town({ entryCount: 5, photographCount: 2 }),
     ]);
 
-    expect(location.color).toBe(STATUS_PIN_COLOR.documented);
-    expect(location.status).toEqual({
-      status: "documented",
-      label: "has a photograph",
-    });
-  });
-
-  it("colours a record without a photograph as records-no-photograph", () => {
-    // Ochre means "a name and a coordinate, nothing else" (FR-002), which no place
-    // record is. The handoff's records-mode legend counts zero name-only pins.
-    const [location] = transformEntries([entryFixture({ imageUrl: null })]);
-
-    expect(location.color).toBe(STATUS_PIN_COLOR.partial);
-    expect(location.status).toEqual({
+    expect(item).toMatchObject({
+      key: "s:faja-de-agua",
+      kind: "settlement",
+      name: "Fajã d'Água",
+      eyebrow: "Settlement",
       status: "partial",
-      label: "no photograph",
+      hasRecords: true,
+      recordCount: 5,
+      photographCount: 2,
+      coordinates: { lat: 14.87306, lng: -24.73194 },
+      href: "/faja-de-agua",
+      regionSlug: "faja-de-agua",
     });
   });
 
-  it("colours equally documented records alike, whatever their kind", () => {
-    const [beach, church] = transformEntries([
-      entryFixture({ id: "1", category: "Beach" }),
-      entryFixture({ id: "2", category: "Church" } as Partial<DirectoryEntry>),
-    ]);
+  it("maps the backend's three states onto the status table", () => {
+    const statuses = settlementItems([
+      town({ slug: "a", status: "DOCUMENTED" }),
+      town({ slug: "b", status: "PARTIAL" }),
+      town({ slug: "c", status: "NAME_ONLY", entryCount: 0 }),
+    ]).map((i) => i.status);
 
-    expect(beach.color).toBe(church.color);
-    expect(beach.icon).not.toBe(church.icon);
+    expect(statuses).toEqual(["documented", "partial", "name"]);
+  });
+
+  it("says a name-only settlement has no records", () => {
+    const [item] = settlementItems([
+      town({ status: "NAME_ONLY", entryCount: 0 }),
+    ]);
+    expect(item.hasRecords).toBe(false);
+    // Every settlement has a page, even one that is only a name.
+    expect(item.href).toBe("/faja-de-agua");
   });
 });
 
-// ─── transformSettlements ────────────────────────────────────────────────────
+// ─── recordItems ─────────────────────────────────────────────────────────────
 
-describe("transformSettlements", () => {
-  it("pins a settlement at its recorded coordinates", () => {
-    const [settlement] = transformSettlements([settlementFixture()]);
+describe("recordItems", () => {
+  const slugs = { "town-faja": "faja-de-agua" };
 
-    expect(settlement.id).toBe("7061feee-74d8-4d52-97d5-c3f9b03bebc8");
-    expect(settlement.name).toBe("Faja d'Agua");
-    expect(settlement.description).toBe("A coastal village below the cliffs.");
-    expect(settlement.coordinates).toEqual({ lat: 14.87306, lng: -24.73194 });
-    expect(settlement.category).toBe("Town");
+  it("keys a record by its entry slug and links it under its settlement", () => {
+    const [item] = recordItems([entry()], slugs);
+
+    expect(item).toMatchObject({
+      key: "r:nos-raiz",
+      kind: "record",
+      name: "Nos Raiz",
+      townName: "Fajã d'Água",
+      href: "/faja-de-agua/nos-raiz",
+      regionSlug: "faja-de-agua",
+      hasRecords: false,
+    });
   });
 
-  it.each([
-    ["DOCUMENTED", "documented", "documented"],
-    ["PARTIAL", "partial", "records, no photograph"],
-    ["NAME_ONLY", "name", "name only"],
-  ] as const)("colours a %s settlement as %s", (status, key, label) => {
-    const [settlement] = transformSettlements([settlementFixture({ status })]);
-
-    expect(settlement.color).toBe(STATUS_PIN_COLOR[key]);
-    expect(settlement.status).toEqual({ status: key, label });
+  it("names the category as the archive does", () => {
+    const [hotel, church] = recordItems(
+      [entry(), entry({ slug: "igreja", category: "Church" })],
+      slugs
+    );
+    expect(hotel.eyebrow).toBe("Stay");
+    expect(church.eyebrow).toBe("Church");
   });
 
-  it("links nowhere until settlement pages exist", () => {
-    const [settlement] = transformSettlements([settlementFixture()]);
-
-    expect(settlement.detailUrl).toBeUndefined();
+  it("is documented with a photograph and partial without, never name-only", () => {
+    const [withPhoto, without] = recordItems(
+      [
+        entry({ slug: "a", imageUrl: "https://r2.example/hero.jpg" }),
+        entry({ slug: "b", imageUrl: null }),
+      ],
+      slugs
+    );
+    expect(withPhoto.status).toBe("documented");
+    expect(without.status).toBe("partial");
   });
 
-  it("falls back to the slug when a settlement has no id", () => {
-    const [settlement] = transformSettlements([
-      settlementFixture({ id: null }),
-    ]);
+  it("has no page when its settlement has not resolved", () => {
+    const [item] = recordItems([entry({ townId: null })], slugs);
+    expect(item.href).toBeNull();
+    expect(item.regionSlug).toBeNull();
+  });
 
-    expect(settlement.id).toBe("faja-de-agua");
+  it("drops a record without coordinates, which has nowhere to pin", () => {
+    const items = recordItems(
+      [entry({ latitude: null as unknown as number })],
+      slugs
+    );
+    expect(items).toEqual([]);
   });
 });
 
-// ─── searchLocations ─────────────────────────────────────────────────────────
+// ─── photoItems ──────────────────────────────────────────────────────────────
 
-describe("searchLocations", () => {
-  const locations: Location[] = [
-    locationFixture({
-      id: "1",
-      name: "Praia Faja d'Agua",
-      description: "Famous beach",
-      tags: ["beach", "swimming"],
-    }),
-    locationFixture({
-      id: "2",
-      name: "Monte Fontainhas",
-      description: "Scenic viewpoint",
-      tags: ["viewpoint", "hiking"],
-    }),
-    locationFixture({
-      id: "3",
-      name: "Nossa Senhora do Monte",
-      description: "Historic church",
-      tags: ["church", "heritage"],
+describe("photoItems", () => {
+  const towns = [
+    town(),
+    town({
+      id: "town-nova",
+      slug: "nova-sintra",
+      name: "Nova Sintra",
+      latitude: 14.861,
+      longitude: -24.711,
     }),
   ];
 
-  it("returns all locations for empty query", () => {
-    expect(searchLocations("", locations)).toHaveLength(3);
-    expect(searchLocations("  ", locations)).toHaveLength(3);
+  it("pins a located upload with its thumbnail, filename and page", () => {
+    const [item] = photoItems([photo()], towns);
+
+    expect(item).toMatchObject({
+      key: "p:media-1",
+      kind: "photo",
+      name: "Untitled",
+      eyebrow: "Photograph",
+      status: "partial",
+      image: "https://r2.example/DJI_0047.JPG",
+      filename: "DJI_0047.JPG",
+      placeName: null,
+      credit: null,
+      href: "/photographs/media-1",
+      hasRecords: false,
+    });
   });
 
-  it("matches by name (case-insensitive)", () => {
-    const result = searchLocations("praia", locations);
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe("1");
+  it("narrows to the nearest settlement", () => {
+    const [item] = photoItems([photo()], towns);
+    expect(item.regionSlug).toBe("nova-sintra");
   });
 
-  it("matches by description", () => {
-    const result = searchLocations("scenic", locations);
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe("2");
+  it("skips films and unlocated uploads, which have no point", () => {
+    const items = photoItems(
+      [film, photo({ id: "x", latitude: undefined, longitude: undefined })],
+      towns
+    );
+    expect(items).toEqual([]);
   });
 
-  it("matches by tags", () => {
-    const result = searchLocations("heritage", locations);
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe("3");
+  it("shows no thumbnail of an identifiable person nobody has vouched for", () => {
+    const [item] = photoItems([photo({ identifiablePerson: true })], towns);
+    expect(item.image).toBeUndefined();
   });
 
-  it("matches partial strings", () => {
-    const result = searchLocations("font", locations);
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe("2");
+  it("carries the recorded title, place name and credit", () => {
+    const [item] = photoItems(
+      [
+        photo({
+          title: "Harbour at dusk",
+          locationName: "Furna",
+          photographerCredit: "Maria Lopes",
+        }),
+      ],
+      towns
+    );
+    expect(item).toMatchObject({
+      name: "Harbour at dusk",
+      placeName: "Furna",
+      credit: "Maria Lopes",
+    });
+  });
+});
+
+// ─── filterItems / statusCounts ──────────────────────────────────────────────
+
+function item(key: string, name: string, status: MapItem["status"]): MapItem {
+  return {
+    key,
+    kind: "settlement",
+    name,
+    eyebrow: "Settlement",
+    description: "",
+    coordinates: { lat: 14.86, lng: -24.7 },
+    status,
+    hasRecords: false,
+    href: null,
+    regionSlug: null,
+  };
+}
+
+const items = [
+  item("s:a", "Nova Sintra", "documented"),
+  item("s:b", "Fajã d'Água", "partial"),
+  item("s:c", "Furna", "name"),
+  item("s:d", "Cachaço", "name"),
+];
+
+describe("filterItems", () => {
+  it("returns everything for all and no query", () => {
+    expect(filterItems(items, "all", "")).toEqual(items);
   });
 
-  it("returns empty array when no match", () => {
-    const result = searchLocations("nonexistent", locations);
-    expect(result).toHaveLength(0);
+  it("keeps one status", () => {
+    expect(filterItems(items, "name", "").map((i) => i.key)).toEqual([
+      "s:c",
+      "s:d",
+    ]);
   });
 
-  it("is case-insensitive", () => {
-    const result = searchLocations("PRAIA", locations);
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe("1");
+  it("matches the query against the name, ignoring case and accents", () => {
+    expect(filterItems(items, "all", "  FAJA ").map((i) => i.key)).toEqual([
+      "s:b",
+    ]);
+    expect(filterItems(items, "all", "cachaco").map((i) => i.key)).toEqual([
+      "s:d",
+    ]);
   });
 
-  it("trims whitespace from query", () => {
-    const result = searchLocations("  praia  ", locations);
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe("1");
+  it("applies status and query together", () => {
+    expect(filterItems(items, "partial", "furna")).toEqual([]);
+  });
+});
+
+describe("statusCounts", () => {
+  it("counts every state, zero included", () => {
+    expect(statusCounts(items)).toEqual({
+      documented: 1,
+      partial: 1,
+      name: 2,
+    });
+    expect(statusCounts([])).toEqual({ documented: 0, partial: 0, name: 0 });
   });
 });

@@ -22,15 +22,11 @@ export interface StatusConfig {
   label: string;
   /** Status line, as under a settlement or record name. */
   line: string;
-  /**
-   * The token's light-theme value, for the map sites that still build tints by
-   * appending an alpha to a hex string. Removed with them in spec 034 T-32.
-   */
-  lightHex: string;
 }
 
 /**
- * The one status table. Pins, legend, status chips, the coincident ring, list rows,
+ * The one status table. It carries tokens, never resolved colours: a pin painted from
+ * `statusVar` repaints itself when the theme changes. Pins, legend, status chips, the coincident ring, list rows,
  * settlement cards, the settlement-detail dot and both mini-map markers read from it.
  */
 export const STATUS_CONFIG: Record<DocumentationStatus, StatusConfig> = {
@@ -38,19 +34,16 @@ export const STATUS_CONFIG: Record<DocumentationStatus, StatusConfig> = {
     token: "--brand-valley-green",
     label: "documented",
     line: "records and a photograph",
-    lightHex: "#4F6E63",
   },
   partial: {
     token: "--brand-ocean-blue",
     label: "records, no photograph",
     line: "records, no photograph",
-    lightHex: "#3D5A73",
   },
   name: {
     token: "--brand-sobrado-ochre",
     label: "name only",
     line: "a name and a coordinate, nothing else",
-    lightHex: "#7A5730",
   },
 };
 

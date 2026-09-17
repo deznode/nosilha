@@ -1,137 +1,184 @@
-import { MapPin } from "lucide-react";
 import type { DirectoryEntry } from "@/types/directory";
-import type { TownStatusSummary } from "@/types/town";
-import { getEntryUrl } from "@/lib/directory-utils";
 import {
-  STATUS_CONFIG,
+  isPublicUserUploadMedia,
+  type PublicGalleryMedia,
+} from "@/types/gallery";
+import type { TownStatusSummary } from "@/types/town";
+import { categoryLabel } from "@/lib/category-label";
+import {
+  photoCredit,
+  photoFilename,
+  photoIsIdentifiablePerson,
+  photoIsLocated,
+  photoTitle,
+} from "@/lib/photo-facts";
+import {
   getEntryStatus,
   getTownStatus,
   type DocumentationStatus,
 } from "@/lib/status";
-import { getCategoryIcon, type CategoryType } from "./categories";
-import type { Location } from "./types";
+import type { MapItem, StatusFilter } from "./types";
 
 /**
- * Pin colour by documentation status — how well documented a place is, not what kind
- * of place it is. Spec 033 FR-012.
+ * API responses → map items, one builder per mode. Spec 034 FR-011.
  *
- * The light values of the status table's tokens (spec 034 FR-002). Hex rather than a
- * CSS variable because the render sites build tints by appending an alpha
- * (`${color}20`). Light in both themes because both basemaps are light, so the pins
- * always sit on light tiles. Spec 034 T-32 moves the render sites to `statusVar` /
- * `statusTint` and removes this map.
+ * Status comes from the one status table (FR-002); the pin reads its colour from the
+ * status token at render time, so nothing here holds a colour.
  */
-export const STATUS_PIN_COLOR = Object.fromEntries(
-  Object.entries(STATUS_CONFIG).map(([status, config]) => [
-    status,
-    config.lightHex,
-  ])
-) as Record<DocumentationStatus, string>;
+
+function text(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
+
+/** Every settlement, pinned at its recorded coordinate. */
+export function settlementItems(towns: TownStatusSummary[]): MapItem[] {
+  return towns.map((town) => ({
+    key: `s:${town.slug}`,
+    kind: "settlement",
+    name: town.name,
+    eyebrow: "Settlement",
+    description: town.description ?? "",
+    coordinates: { lat: town.latitude, lng: town.longitude },
+    status: getTownStatus(town).status,
+    hasRecords: town.entryCount > 0,
+    // A name-only settlement still has a page: it is where its questions are asked.
+    href: `/${town.slug}`,
+    regionSlug: town.slug,
+    recordCount: town.entryCount,
+    hasPhotograph: town.hasPhotograph,
+    photographCount: town.photographCount,
+  }));
+}
 
 /**
- * Maps backend API category names to BravaMap category IDs.
- * Most map 1:1, but Hotel -> "Accommodation" and Heritage -> "Historic"
- * to match the BravaMap category system defined in categories.ts.
+ * Every place record with coordinates.
+ *
+ * `townSlugs` maps a settlement id to its slug. The display name is not slugged here:
+ * "Fajã d'Água" slugs to `faja-d-agua`, the settlement's slug is `faja-de-agua`.
  */
-const BACKEND_TO_MAP_CATEGORY: Record<string, CategoryType> = {
-  Restaurant: "Restaurant",
-  Hotel: "Accommodation",
-  Beach: "Beach",
-  Heritage: "Historic",
-  Nature: "Nature",
-  Town: "Town",
-  Viewpoint: "Viewpoint",
-  Trail: "Trail",
-  Church: "Church",
-  Port: "Port",
-};
-
-/**
- * Transforms an array of DirectoryEntry objects from the Spring Boot API
- * into Location objects that BravaMap expects.
- */
-export function transformEntries(entries: DirectoryEntry[]): Location[] {
+export function recordItems(
+  entries: DirectoryEntry[],
+  townSlugs: Record<string, string>
+): MapItem[] {
   return entries
     .filter((entry) => entry.latitude != null && entry.longitude != null)
     .map((entry) => {
-      const category = (BACKEND_TO_MAP_CATEGORY[entry.category] ??
-        "Nature") as Exclude<CategoryType, "All">;
-      const icon = getCategoryIcon(category) ?? MapPin;
-      const status = getEntryStatus(entry);
+      const townSlug = entry.townId ? (townSlugs[entry.townId] ?? null) : null;
 
       return {
-        id: entry.id,
+        key: `r:${entry.slug}`,
+        kind: "record",
         name: entry.name,
-        namePortuguese: entry.name,
-        category,
-        description: entry.description || "",
-        coordinates: {
-          lat: entry.latitude,
-          lng: entry.longitude,
-        },
-        elevation: 0,
-        image: entry.imageUrl || undefined,
-        tags: entry.tags || [],
-        icon,
-        color: STATUS_PIN_COLOR[status.status],
-        status,
-        detailUrl: entry.slug
-          ? getEntryUrl(entry.slug, entry.category)
-          : undefined,
+        eyebrow: categoryLabel(entry.category),
+        description: entry.description ?? "",
+        coordinates: { lat: entry.latitude, lng: entry.longitude },
+        status: getEntryStatus(entry).status,
+        hasRecords: false,
+        href: townSlug ? `/${townSlug}/${entry.slug}` : null,
+        regionSlug: townSlug,
+        townName: entry.town,
       };
     });
 }
 
-/**
- * Transforms settlement status summaries into Location objects for the map's
- * Settlements mode.
- */
-export function transformSettlements(towns: TownStatusSummary[]): Location[] {
-  return towns.map((town) => {
-    const status = getTownStatus(town);
-
-    return {
-      id: town.id ?? town.slug,
-      name: town.name,
-      namePortuguese: town.name,
-      category: "Town",
-      description: town.description,
-      coordinates: {
-        lat: town.latitude,
-        lng: town.longitude,
-      },
-      elevation: 0,
-      tags: [],
-      icon: getCategoryIcon("Town") ?? MapPin,
-      color: STATUS_PIN_COLOR[status.status],
-      status,
-      // No settlement page exists yet (spec 033 T-19), so there is nothing to link to.
-      detailUrl: undefined,
-    };
-  });
+/** Squared distance is enough to rank settlements a few kilometres apart. */
+function nearestSlug(
+  lat: number,
+  lng: number,
+  towns: TownStatusSummary[]
+): string | null {
+  let best: string | null = null;
+  let bestDistance = Infinity;
+  for (const town of towns) {
+    const distance = (town.latitude - lat) ** 2 + (town.longitude - lng) ** 2;
+    if (distance < bestDistance) {
+      bestDistance = distance;
+      best = town.slug;
+    }
+  }
+  return best;
 }
 
 /**
- * Filters locations by matching a query string against name, description, and tags.
- * Case-insensitive partial matching.
+ * Every archive upload that carries coordinates. Films carry none by design.
+ *
+ * A record flagged as showing an identifiable person nobody has vouched for still
+ * pins — its coordinates are a fact — but its thumbnail is not shown on the map's
+ * pins and previews (FR-022).
  */
-export function searchLocations(
-  query: string,
-  locations: Location[]
-): Location[] {
-  if (!query.trim()) return locations;
+export function photoItems(
+  media: PublicGalleryMedia[],
+  towns: TownStatusSummary[]
+): MapItem[] {
+  const items: MapItem[] = [];
 
-  const normalizedQuery = query.toLowerCase().trim();
+  for (const record of media) {
+    if (!isPublicUserUploadMedia(record) || !photoIsLocated(record)) continue;
 
-  return locations.filter((location) => {
-    const name = location.name.toLowerCase();
-    const description = location.description.toLowerCase();
-    const tags = location.tags.map((t) => t.toLowerCase()).join(" ");
+    const lat = record.latitude as number;
+    const lng = record.longitude as number;
+    const image =
+      !photoIsIdentifiablePerson(record) && text(record.publicUrl)
+        ? (record.publicUrl as string)
+        : undefined;
 
-    return (
-      name.includes(normalizedQuery) ||
-      description.includes(normalizedQuery) ||
-      tags.includes(normalizedQuery)
-    );
-  });
+    items.push({
+      key: `p:${record.id}`,
+      kind: "photo",
+      name: photoTitle(record).text,
+      eyebrow: "Photograph",
+      description: text(record.description) ?? "",
+      coordinates: { lat, lng },
+      // A pin from a file's coordinates: records a point, not a documented place.
+      status: "partial",
+      hasRecords: false,
+      href: `/photographs/${record.id}`,
+      regionSlug: nearestSlug(lat, lng, towns),
+      image,
+      filename: photoFilename(record),
+      placeName: text(record.locationName),
+      credit: photoCredit(record),
+    });
+  }
+
+  return items;
+}
+
+/** Lower case, accents stripped, so "faja" finds "Fajã". */
+function fold(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .trim();
+}
+
+/** The status chip and the search box, applied to one mode's items. */
+export function filterItems(
+  items: MapItem[],
+  status: StatusFilter,
+  query: string
+): MapItem[] {
+  const needle = fold(query);
+  if (status === "all" && !needle) return items;
+
+  return items.filter(
+    (item) =>
+      (status === "all" || item.status === status) &&
+      (!needle || fold(item.name).includes(needle))
+  );
+}
+
+/** How many items are in each state, zero included. */
+export function statusCounts(
+  items: MapItem[]
+): Record<DocumentationStatus, number> {
+  const counts: Record<DocumentationStatus, number> = {
+    documented: 0,
+    partial: 0,
+    name: 0,
+  };
+  for (const item of items) counts[item.status] += 1;
+  return counts;
 }

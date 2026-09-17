@@ -1,50 +1,38 @@
 import { useMemo } from "react";
 import {
-  useMapMode,
-  useLocations,
-  useSettlements,
-  useActiveCategory,
-  useMapSearchQuery,
-  useLayerVisibility,
+  useMapQuery,
+  useMapStatus,
+  useModeItems,
+  useSelectedKey,
 } from "@/stores/mapStore";
-import { searchLocations } from "../data/locations-adapter";
+import { filterItems } from "../data/locations-adapter";
+import type { MapItem } from "../data/types";
 
 /**
- * Custom hook that encapsulates location filtering logic.
- * Reads map store selectors and applies category, search, and layer visibility filters.
- * Settlements mode lists settlements; category filtering applies only to place records.
- * Shared by MapSidebar and MapCanvas to avoid duplicating filter logic.
+ * The active mode's items after the status chip and the search box. The list and the
+ * pins both read this, so they can never disagree about what is shown.
  */
-export function useFilteredLocations() {
-  const mapMode = useMapMode();
-  const locations = useLocations();
-  const settlements = useSettlements();
-  const activeCategory = useActiveCategory();
-  const searchQuery = useMapSearchQuery();
-  const layerVisibility = useLayerVisibility();
+export function useFilteredLocations(): MapItem[] {
+  const items = useModeItems();
+  const status = useMapStatus();
+  const query = useMapQuery();
 
-  return useMemo(() => {
-    if (layerVisibility === "none") {
-      return [];
-    }
+  return useMemo(
+    () => filterItems(items, status, query),
+    [items, status, query]
+  );
+}
 
-    const source = mapMode === "settlements" ? settlements : locations;
+/**
+ * The selected item, if it is among the shown ones. A selection the filter hides has
+ * no pin to point at, so it has no card either — as prototyped.
+ */
+export function useSelectedItem(): MapItem | null {
+  const visible = useFilteredLocations();
+  const selectedKey = useSelectedKey();
 
-    let results = searchQuery.trim()
-      ? searchLocations(searchQuery, source)
-      : source;
-
-    if (mapMode === "places" && activeCategory !== "All") {
-      results = results.filter((l) => l.category === activeCategory);
-    }
-
-    return results;
-  }, [
-    mapMode,
-    locations,
-    settlements,
-    activeCategory,
-    searchQuery,
-    layerVisibility,
-  ]);
+  return useMemo(
+    () => visible.find((item) => item.key === selectedKey) ?? null,
+    [visible, selectedKey]
+  );
 }

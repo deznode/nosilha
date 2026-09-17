@@ -1,239 +1,277 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { useMapStore } from "@/stores/mapStore";
-import type { Location } from "@/features/map/data/types";
-import { Mountain } from "lucide-react";
+import { useMapStore, initialMapState } from "@/stores/mapStore";
+import {
+  getEntriesForMap,
+  getGalleryFacets,
+  getGalleryMedia,
+  getTownStatusSummary,
+} from "@/lib/api";
+import type { TownStatusSummary } from "@/types/town";
 
-// Mock API
 vi.mock("@/lib/api", () => ({
   getEntriesForMap: vi.fn(),
-  getTownStatusSummary: vi.fn().mockResolvedValue([]),
+  getTownStatusSummary: vi.fn(),
+  getGalleryMedia: vi.fn(),
+  getGalleryFacets: vi.fn(),
 }));
 
-vi.mock("@/features/map/data/locations-adapter", () => ({
-  transformEntries: vi.fn((items) => items),
-  transformSettlements: vi.fn((items) => items),
-}));
-
-const initialState = {
-  locations: [],
-  isLoadingLocations: true,
-  activeCategory: "All" as const,
-  searchQuery: "",
-  layerVisibility: "all" as const,
-  selectedLocation: null,
-  isPulsing: false,
-  is3D: false,
-  viewMode: "satellite" as const,
-  isOrbiting: false,
-  showSidebar: true,
-  mapMode: "settlements" as const,
-  settlements: [],
+const town: TownStatusSummary = {
+  id: "town-faja",
+  slug: "faja-de-agua",
+  name: "Fajã d'Água",
+  description: "",
+  latitude: 14.87306,
+  longitude: -24.73194,
+  entryCount: 1,
+  hasPhotograph: false,
+  status: "PARTIAL",
+  population: null,
+  elevation: null,
+  photographCount: 0,
+  unconfirmedPhotographCount: 0,
 };
 
-const mockLocation: Location = {
-  id: "1",
-  name: "Monte Fontainhas",
-  namePortuguese: "Monte Fontainhas",
-  category: "Nature",
-  description: "Highest peak on Brava Island",
-  coordinates: { lat: 14.851, lng: -24.708 },
-  elevation: 976,
-  image: "/images/fontainhas.jpg",
-  tags: ["hiking"],
-  icon: Mountain,
-  color: "#3e7d5a",
-  status: { status: "documented", label: "has a photograph" },
-};
+function mockApi() {
+  vi.mocked(getTownStatusSummary).mockResolvedValue([town]);
+  vi.mocked(getEntriesForMap).mockResolvedValue({
+    items: [
+      {
+        id: "e1",
+        slug: "nos-raiz",
+        name: "Nos Raiz",
+        category: "Hotel",
+        imageUrl: null,
+        town: "Fajã d'Água",
+        townId: "town-faja",
+        latitude: 14.87306,
+        longitude: -24.73194,
+        description: "",
+        tags: [],
+      },
+    ],
+    pagination: { page: 0, size: 100, totalElements: 1, totalPages: 1 },
+  } as never);
+  vi.mocked(getGalleryMedia).mockResolvedValue({
+    items: [
+      {
+        id: "m1",
+        title: null,
+        description: null,
+        category: null,
+        displayOrder: 0,
+        mediaSource: "USER_UPLOAD",
+        altText: null,
+        createdAt: "2024-01-01T00:00:00Z",
+        publicUrl: "https://r2.example/a.jpg",
+        latitude: 14.86,
+        longitude: -24.71,
+      },
+    ],
+    totalItems: 1,
+    totalPages: 1,
+    currentPage: 0,
+  });
+  vi.mocked(getGalleryFacets).mockResolvedValue({
+    total: 26,
+    photographs: 17,
+    films: 9,
+    withPlace: 11,
+    withoutPlace: 6,
+    withoutDate: 3,
+    uncredited: 17,
+  });
+}
 
 describe("mapStore", () => {
   beforeEach(() => {
-    useMapStore.setState(initialState);
+    vi.clearAllMocks();
+    useMapStore.setState(initialMapState);
   });
 
-  describe("Initial State", () => {
-    it("should have correct initial values", () => {
-      const state = useMapStore.getState();
-
-      expect(state.locations).toEqual([]);
-      expect(state.isLoadingLocations).toBe(true);
-      expect(state.activeCategory).toBe("All");
-      expect(state.searchQuery).toBe("");
-      expect(state.layerVisibility).toBe("all");
-      expect(state.selectedLocation).toBeNull();
-      expect(state.isPulsing).toBe(false);
-      expect(state.is3D).toBe(false);
-      expect(state.viewMode).toBe("satellite");
-      expect(state.isOrbiting).toBe(false);
-      expect(state.showSidebar).toBe(true);
-    });
-  });
-
-  describe("Defaults (spec 033 FR-012)", () => {
-    it("opens in Settlements with terrain off", () => {
-      const initial = useMapStore.getInitialState();
-
-      expect(initial.mapMode).toBe("settlements");
-      expect(initial.is3D).toBe(false);
-    });
-
-    it("carries no intro state", () => {
-      const initial = useMapStore.getInitialState();
-
-      expect(initial).not.toHaveProperty("introCompleted");
-      expect(initial).not.toHaveProperty("setIntroCompleted");
+  describe("initial state", () => {
+    it("opens on settlements, unfiltered, with nothing selected", () => {
+      const s = useMapStore.getState();
+      expect(s.mode).toBe("settlements");
+      expect(s.status).toBe("all");
+      expect(s.query).toBe("");
+      expect(s.selectedKey).toBeNull();
+      expect(s.expandedGroupKey).toBeNull();
+      expect(s.satellite).toBe(false);
+      expect(s.is3D).toBe(false);
+      expect(s.sheetOpen).toBe(false);
+      expect(s.isLoading).toBe(true);
     });
   });
 
-  describe("Setter Actions", () => {
-    it("setLocations updates locations", () => {
-      useMapStore.getState().setLocations([mockLocation]);
-      expect(useMapStore.getState().locations).toHaveLength(1);
-      expect(useMapStore.getState().locations[0].id).toBe("1");
-    });
+  describe("mode", () => {
+    it("clears the selection and the fan, as prototyped, and keeps the filter", () => {
+      useMapStore.setState({
+        status: "name",
+        query: "furna",
+        selectedKey: "s:furna",
+        expandedGroupKey: "g",
+      });
 
-    it("setIsLoadingLocations updates loading state", () => {
-      useMapStore.getState().setIsLoadingLocations(false);
-      expect(useMapStore.getState().isLoadingLocations).toBe(false);
-    });
+      useMapStore.getState().setMode("records");
 
-    it("setActiveCategory updates active category", () => {
-      useMapStore.getState().setActiveCategory("Beach");
-      expect(useMapStore.getState().activeCategory).toBe("Beach");
-    });
-
-    it("setSearchQuery updates search query", () => {
-      useMapStore.getState().setSearchQuery("church");
-      expect(useMapStore.getState().searchQuery).toBe("church");
-    });
-
-    it("setLayerVisibility updates visibility", () => {
-      useMapStore.getState().setLayerVisibility("none");
-      expect(useMapStore.getState().layerVisibility).toBe("none");
-    });
-
-    it("setSelectedLocation updates selected location", () => {
-      useMapStore.getState().setSelectedLocation(mockLocation);
-      expect(useMapStore.getState().selectedLocation?.id).toBe("1");
-    });
-
-    it("setIsPulsing updates pulsing state", () => {
-      useMapStore.getState().setIsPulsing(true);
-      expect(useMapStore.getState().isPulsing).toBe(true);
-    });
-
-    it("setIs3D updates 3D state", () => {
-      useMapStore.getState().setIs3D(false);
-      expect(useMapStore.getState().is3D).toBe(false);
-    });
-
-    it("setViewMode updates view mode", () => {
-      useMapStore.getState().setViewMode("illustration");
-      expect(useMapStore.getState().viewMode).toBe("illustration");
-    });
-
-    it("setIsOrbiting updates orbiting state", () => {
-      useMapStore.getState().setIsOrbiting(true);
-      expect(useMapStore.getState().isOrbiting).toBe(true);
-    });
-
-    it("setMapMode switches mode and clears the selection", () => {
-      useMapStore.setState({ selectedLocation: mockLocation });
-
-      useMapStore.getState().setMapMode("places");
-
-      expect(useMapStore.getState().mapMode).toBe("places");
-      expect(useMapStore.getState().selectedLocation).toBeNull();
-    });
-
-    it("setShowSidebar updates sidebar state", () => {
-      useMapStore.getState().setShowSidebar(false);
-      expect(useMapStore.getState().showSidebar).toBe(false);
+      const s = useMapStore.getState();
+      expect(s.mode).toBe("records");
+      expect(s.selectedKey).toBeNull();
+      expect(s.expandedGroupKey).toBeNull();
+      expect(s.status).toBe("name");
+      expect(s.query).toBe("furna");
     });
   });
 
-  describe("Convenience Actions", () => {
-    it("toggleSidebar flips showSidebar", () => {
-      expect(useMapStore.getState().showSidebar).toBe(true);
+  describe("status", () => {
+    it("clears the selection", () => {
+      useMapStore.setState({ selectedKey: "s:furna" });
+      useMapStore.getState().setStatus("documented");
 
-      useMapStore.getState().toggleSidebar();
-      expect(useMapStore.getState().showSidebar).toBe(false);
-
-      useMapStore.getState().toggleSidebar();
-      expect(useMapStore.getState().showSidebar).toBe(true);
+      expect(useMapStore.getState().status).toBe("documented");
+      expect(useMapStore.getState().selectedKey).toBeNull();
     });
+  });
 
-    it("clearSelection resets selectedLocation to null", () => {
-      useMapStore.setState({ selectedLocation: mockLocation });
-      expect(useMapStore.getState().selectedLocation).not.toBeNull();
+  describe("selection", () => {
+    it("selects and clears by key", () => {
+      useMapStore.getState().select("r:nos-raiz");
+      expect(useMapStore.getState().selectedKey).toBe("r:nos-raiz");
 
       useMapStore.getState().clearSelection();
-      expect(useMapStore.getState().selectedLocation).toBeNull();
+      expect(useMapStore.getState().selectedKey).toBeNull();
     });
 
-    it("toggleOrbit flips isOrbiting", () => {
-      expect(useMapStore.getState().isOrbiting).toBe(false);
-
-      useMapStore.getState().toggleOrbit();
-      expect(useMapStore.getState().isOrbiting).toBe(true);
-
-      useMapStore.getState().toggleOrbit();
-      expect(useMapStore.getState().isOrbiting).toBe(false);
+    it("closes the fan when the selection is cleared", () => {
+      useMapStore.setState({ selectedKey: "r:a", expandedGroupKey: "g" });
+      useMapStore.getState().clearSelection();
+      expect(useMapStore.getState().expandedGroupKey).toBeNull();
     });
   });
 
-  describe("fetchLocations", () => {
-    it("calls API and sets locations on success", async () => {
-      const { getEntriesForMap } = await import("@/lib/api");
-      const { transformEntries } =
-        await import("@/features/map/data/locations-adapter");
-
-      vi.mocked(getEntriesForMap).mockResolvedValueOnce({
-        items: [mockLocation as never],
-        pagination: null,
+  describe("hydrate", () => {
+    it("sets mode, filter, query and selection in one step", () => {
+      useMapStore.getState().hydrate({
+        mode: "settlements",
+        status: "name",
+        query: "fur",
+        selectedKey: "s:furna",
       });
-      vi.mocked(transformEntries).mockReturnValueOnce([mockLocation]);
 
-      await useMapStore.getState().fetchLocations();
+      const s = useMapStore.getState();
+      expect(s.mode).toBe("settlements");
+      expect(s.status).toBe("name");
+      expect(s.query).toBe("fur");
+      // setMode would have cleared this; hydrate must not.
+      expect(s.selectedKey).toBe("s:furna");
+    });
+  });
 
-      expect(getEntriesForMap).toHaveBeenCalledWith("all");
-      expect(useMapStore.getState().locations).toEqual([mockLocation]);
-      expect(useMapStore.getState().isLoadingLocations).toBe(false);
+  describe("toggles", () => {
+    it("flips satellite, 3D and the sheet", () => {
+      const s = useMapStore.getState();
+      s.toggleSatellite();
+      s.toggle3D();
+      s.toggleSheet();
+
+      const next = useMapStore.getState();
+      expect(next.satellite).toBe(true);
+      expect(next.is3D).toBe(true);
+      expect(next.sheetOpen).toBe(true);
     });
 
-    it("loads settlements alongside place records", async () => {
-      const { getEntriesForMap, getTownStatusSummary } =
-        await import("@/lib/api");
-      const { transformSettlements } =
-        await import("@/features/map/data/locations-adapter");
-
-      vi.mocked(getEntriesForMap).mockResolvedValueOnce({
-        items: [],
-        pagination: null,
+    it("resetTransient closes the sheet and the fan, and nothing else", () => {
+      useMapStore.setState({
+        sheetOpen: true,
+        expandedGroupKey: "g",
+        selectedKey: "s:a",
+        mode: "records",
       });
-      vi.mocked(getTownStatusSummary).mockResolvedValueOnce([]);
-      vi.mocked(transformSettlements).mockReturnValueOnce([mockLocation]);
+      useMapStore.getState().resetTransient();
 
-      await useMapStore.getState().fetchLocations();
+      const s = useMapStore.getState();
+      expect(s.sheetOpen).toBe(false);
+      expect(s.expandedGroupKey).toBeNull();
+      expect(s.selectedKey).toBe("s:a");
+      expect(s.mode).toBe("records");
+    });
+  });
 
-      expect(getTownStatusSummary).toHaveBeenCalled();
-      expect(useMapStore.getState().settlements).toEqual([mockLocation]);
+  describe("fetchData", () => {
+    it("builds items for all three modes and keeps the unlocated count", async () => {
+      mockApi();
+      await useMapStore.getState().fetchData();
+
+      const s = useMapStore.getState();
+      expect(s.isLoading).toBe(false);
+      expect(s.fetchError).toBeNull();
+      expect(s.settlements.map((i) => i.key)).toEqual(["s:faja-de-agua"]);
+      expect(s.records.map((i) => i.key)).toEqual(["r:nos-raiz"]);
+      // Records link under the settlement the summary names.
+      expect(s.records[0].href).toBe("/faja-de-agua/nos-raiz");
+      expect(s.photos.map((i) => i.key)).toEqual(["p:m1"]);
+      expect(s.unlocatedCount).toBe(6);
     });
 
-    it("sets isLoadingLocations false on error", async () => {
-      const { getEntriesForMap } = await import("@/lib/api");
-      vi.mocked(getEntriesForMap).mockRejectedValueOnce(
-        new Error("Network error")
+    it("asks the gallery for located photographs only", async () => {
+      mockApi();
+      await useMapStore.getState().fetchData();
+
+      expect(getGalleryMedia).toHaveBeenCalledWith(
+        expect.objectContaining({ hasPlace: true })
       );
+    });
 
-      const consoleSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
+    it("loads again on a return visit, and says so while it does", async () => {
+      mockApi();
+      await useMapStore.getState().fetchData();
 
-      await useMapStore.getState().fetchLocations();
+      const pending = useMapStore.getState().fetchData();
+      expect(useMapStore.getState().isLoading).toBe(true);
+      await pending;
 
-      expect(useMapStore.getState().isLoadingLocations).toBe(false);
-      expect(useMapStore.getState().locations).toEqual([]);
-      consoleSpy.mockRestore();
+      expect(useMapStore.getState().isLoading).toBe(false);
+      expect(getTownStatusSummary).toHaveBeenCalledTimes(2);
+    });
+
+    it("clears an earlier failure when a new load starts", async () => {
+      useMapStore.setState({ fetchError: "earlier", isLoading: false });
+      mockApi();
+
+      const pending = useMapStore.getState().fetchData();
+      expect(useMapStore.getState().fetchError).toBeNull();
+      await pending;
+    });
+
+    it("keeps the newest load when an older one answers last", async () => {
+      mockApi();
+      let answerFirst!: (value: TownStatusSummary[]) => void;
+      vi.mocked(getTownStatusSummary).mockReturnValueOnce(
+        new Promise((resolve) => (answerFirst = resolve))
+      );
+      const first = useMapStore.getState().fetchData();
+      await useMapStore.getState().fetchData();
+
+      answerFirst([{ ...town, slug: "stale" }]);
+      await first;
+
+      expect(useMapStore.getState().settlements.map((i) => i.key)).toEqual([
+        "s:faja-de-agua",
+      ]);
+      expect(useMapStore.getState().isLoading).toBe(false);
+    });
+
+    it("reports a failure instead of showing empty modes as fact", async () => {
+      mockApi();
+      vi.mocked(getGalleryFacets).mockRejectedValue(new Error("down"));
+      vi.spyOn(console, "error").mockImplementation(() => {});
+
+      await useMapStore.getState().fetchData();
+
+      const s = useMapStore.getState();
+      expect(s.isLoading).toBe(false);
+      expect(s.fetchError).toMatch(/could not load/i);
+      expect(s.settlements).toEqual([]);
     });
   });
 });

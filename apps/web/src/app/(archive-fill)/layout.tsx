@@ -10,13 +10,12 @@ import { ArchiveBar } from "@/components/navigation/archive-bar";
  * so a child like the map owns its own scrolling without the page growing past the
  * viewport (FR-003's last criterion).
  *
- * The 65px is the constant tasks.md prescribes. The bar actually measures 64.5px: its
- * tallest child is a 13px nav pill at the inherited `line-height: 1.5` (19.5px) plus
- * 14px padding and 2px border = 35.5px, inside 14px + 14px bar padding and a 1px
- * bottom border. Subtracting the larger number under-reserves by half a pixel, which
- * is the safe direction — a smaller one would put a scrollbar on every fill screen.
- * Nothing pins the two together, so a change to the pill's font size or padding, or to
- * a global line-height, would silently desync this.
+ * The main takes the remaining height of a viewport-tall column rather than
+ * subtracting a constant. The bar measures about 65px on a wide screen, but below
+ * ~640px its nav pills wrap and it grows to about 158px, so `calc(100vh - 65px)` let
+ * `/map` overflow a phone by the difference and pushed the bottom sheet below the fold
+ * (FR-012). `dvh` follows the mobile browser's collapsing toolbar, which `vh` does not.
+ * The photo detail still sizes its own panes from the 65px constant.
  */
 export default function ArchiveFillLayout({
   children,
@@ -24,7 +23,7 @@ export default function ArchiveFillLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-dvh flex-col">
       <Suspense>
         <ArchiveBar />
       </Suspense>
@@ -35,7 +34,7 @@ export default function ArchiveFillLayout({
         this layout opt out of instant navigation instead (`export const instant =
         false`), which keeps `notFound()` able to set a status. Spec 034 FR-010.
       */}
-      <main id="main-content" className="h-[calc(100vh-65px)]">
+      <main id="main-content" className="min-h-0 flex-1">
         {children}
       </main>
       {/* One sheet for every missing-field question on these screens (FR-004) */}

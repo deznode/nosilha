@@ -1,96 +1,55 @@
-import type { ComponentProps } from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
-import { Landmark } from "lucide-react";
-import { CoincidentFan } from "@/features/map/components/coincident-fan";
-import type { Location } from "@/features/map/data/types";
+import {
+  CoincidentRing,
+  FAN_RADIUS,
+  fanOffsets,
+} from "@/features/map/components/coincident-fan";
 
-function loc(id: string, name: string): Location {
-  return {
-    id,
-    name,
-    namePortuguese: name,
-    category: "Historic",
-    description: "",
-    coordinates: { lat: 14.873, lng: -24.732 },
-    elevation: 0,
-    tags: [],
-    icon: Landmark,
-    color: "#836548",
-    status: { status: "name", label: "no photograph" },
-  };
-}
-
-const faja = loc("faja", "Faja d'Agua");
-const nosRaiz = loc("nos-raiz", "Nos Raiz");
-
-function renderFan(props: Partial<ComponentProps<typeof CoincidentFan>> = {}) {
-  const handlers = {
-    onToggle: vi.fn(),
-    onSelect: vi.fn(),
-    onCollapse: vi.fn(),
-  };
-  render(
-    <CoincidentFan
-      locations={[faja, nosRaiz]}
-      expanded={false}
-      selectedId={null}
-      {...handlers}
-      {...props}
-    />
-  );
-  return handlers;
-}
-
-const ring = () =>
-  screen.getByRole("button", { name: "2 records at one point" });
-
-describe("CoincidentFan", () => {
-  it("collapsed, names how many records share the point and hides them", () => {
-    renderFan();
-
-    expect(ring()).toHaveAttribute("aria-expanded", "false");
-    expect(screen.queryByRole("button", { name: /Nos Raiz/ })).toBeNull();
+describe("fanOffsets", () => {
+  it("puts a pair 34px either side, lifted 6px, as prototyped", () => {
+    expect(FAN_RADIUS).toBe(34);
+    expect(fanOffsets(2)).toEqual([
+      [-34, -6],
+      [34, -6],
+    ]);
   });
 
-  it("toggles from the ring", () => {
-    const { onToggle } = renderFan();
+  it("spreads more than two on a 34px circle, starting at nine o'clock", () => {
+    const offsets = fanOffsets(4);
+    expect(offsets).toHaveLength(4);
+    expect(offsets[0]).toEqual([-34, 0]);
+    for (const [x, y] of offsets) {
+      expect(Math.round(Math.hypot(x, y))).toBe(34);
+    }
+    // Every record gets its own spot.
+    expect(new Set(offsets.map((o) => o.join(","))).size).toBe(4);
+  });
+});
 
-    fireEvent.click(ring());
+describe("CoincidentRing", () => {
+  it("shows the count and names what it holds", () => {
+    render(<CoincidentRing count={3} onExpand={vi.fn()} />);
 
-    expect(onToggle).toHaveBeenCalledTimes(1);
+    const ring = screen.getByRole("button", { name: "3 records at one point" });
+    expect(ring).toHaveTextContent("3");
+    expect(ring).toHaveAttribute("aria-expanded", "false");
   });
 
-  it("expanded, makes every record its own button", () => {
-    const { onSelect } = renderFan({ expanded: true });
+  it("draws a dashed ring in the records colour, following the theme", () => {
+    render(<CoincidentRing count={2} onExpand={vi.fn()} />);
 
-    expect(ring()).toHaveAttribute("aria-expanded", "true");
-    fireEvent.click(screen.getByRole("button", { name: /Faja d'Agua/ }));
-    expect(onSelect).toHaveBeenLastCalledWith(faja);
-    fireEvent.click(screen.getByRole("button", { name: /Nos Raiz/ }));
-    expect(onSelect).toHaveBeenLastCalledWith(nosRaiz);
+    const ring = screen.getByRole("button");
+    expect(ring.style.border).toBe("2px dashed var(--brand-ocean-blue)");
+    expect(ring.style.color).toBe("var(--brand-ocean-blue)");
+    expect(ring.className).toContain("size-10");
   });
 
-  it("marks the selected record", () => {
-    renderFan({ expanded: true, selectedId: "nos-raiz" });
+  it("fans out on click", () => {
+    const onExpand = vi.fn();
+    render(<CoincidentRing count={2} onExpand={onExpand} />);
 
-    expect(screen.getByRole("button", { name: /Nos Raiz/ })).toHaveAttribute(
-      "aria-pressed",
-      "true"
-    );
-    expect(screen.getByRole("button", { name: /Faja d'Agua/ })).toHaveAttribute(
-      "aria-pressed",
-      "false"
-    );
-  });
-
-  it("collapses on Escape", () => {
-    const { onCollapse } = renderFan({ expanded: true });
-
-    fireEvent.keyDown(screen.getByRole("button", { name: /Nos Raiz/ }), {
-      key: "Escape",
-    });
-
-    expect(onCollapse).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole("button"));
+    expect(onExpand).toHaveBeenCalledTimes(1);
   });
 });

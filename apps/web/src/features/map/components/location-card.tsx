@@ -1,79 +1,50 @@
 "use client";
 
-import Image from "next/image";
-import { Navigation } from "lucide-react";
-import { clsx } from "clsx";
-import type { Location } from "../data/types";
+import { statusVar } from "@/lib/status";
+import { listStatusLine } from "../data/map-copy";
+import type { MapItem } from "../data/types";
 
 interface LocationCardProps {
-  location: Location;
+  item: MapItem;
   active: boolean;
-  onClick: () => void;
+  onSelect: (item: MapItem) => void;
 }
 
-export function LocationCard({ location, active, onClick }: LocationCardProps) {
+/** One row of the sidebar list. Spec 034 FR-011. */
+export function LocationCard({ item, active, onSelect }: LocationCardProps) {
   return (
-    <div
-      onClick={onClick}
-      className={clsx(
-        "group flex cursor-pointer gap-4 rounded-2xl border p-3 transition-all duration-300",
-        active
-          ? "bg-ocean-blue/5 border-ocean-blue/30 shadow-subtle"
-          : "hover:bg-background-secondary hover:border-border-secondary border-transparent bg-transparent"
-      )}
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={() => onSelect(item)}
+      className="mb-1.5 flex w-full cursor-pointer items-start gap-[11px] rounded-[10px] border p-[11px] text-left transition-colors hover:border-[var(--border-strong)]"
+      style={{
+        background: active ? "var(--background-secondary)" : "transparent",
+        borderColor: active ? "var(--border-strong)" : "transparent",
+      }}
     >
-      <div className="bg-background-tertiary relative h-20 w-20 shrink-0 overflow-hidden rounded-xl">
-        {location.image ? (
-          <Image
-            src={location.image}
-            alt={location.name}
-            fill
-            sizes="80px"
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
-          />
-        ) : (
-          <div
-            className="flex h-full w-full items-center justify-center"
-            style={{ backgroundColor: `${location.color}18` }}
-          >
-            <location.icon size={28} style={{ color: location.color }} />
-          </div>
-        )}
-      </div>
-      <div className="flex min-w-0 flex-col justify-center">
-        <h3
-          className={clsx(
-            "truncate font-serif text-sm font-bold",
-            active ? "text-ocean-blue" : "text-text-primary"
-          )}
+      <span
+        aria-hidden
+        className="mt-[5px] size-[9px] flex-none rounded-full"
+        style={{ background: statusVar(item.status) }}
+      />
+      <span className="block min-w-0 flex-1">
+        <span className="block font-serif text-[15px] leading-[1.2] font-normal">
+          {item.name}
+        </span>
+        <span
+          className="mt-[3px] mb-[5px] block text-[10px] tracking-[.12em] uppercase"
+          style={{ color: "var(--foreground-secondary)" }}
         >
-          {location.name}
-        </h3>
-        <div className="text-text-secondary mb-1 flex items-center gap-1 font-sans text-[11px] font-medium">
-          <span className="tracking-wider uppercase">{location.category}</span>
-        </div>
-        <p className="text-text-secondary mb-2 line-clamp-2 font-sans text-xs leading-relaxed">
-          {location.description}
-        </p>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onClick();
-          }}
-          className={clsx(
-            "flex w-fit items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-bold tracking-wider uppercase transition-colors",
-            active
-              ? "bg-ocean-blue shadow-ocean-blue/20 shadow-medium text-white"
-              : "bg-background-tertiary text-text-secondary hover:bg-ocean-blue hover:text-white dark:bg-white/10"
-          )}
+          {item.eyebrow}
+        </span>
+        <span
+          className="block text-xs leading-[1.45]"
+          style={{ color: "var(--foreground-secondary)" }}
         >
-          <Navigation
-            size={12}
-            className={active ? "text-white" : "text-current"}
-          />
-          Fly to
-        </button>
-      </div>
-    </div>
+          {listStatusLine(item)}
+        </span>
+      </span>
+    </button>
   );
 }

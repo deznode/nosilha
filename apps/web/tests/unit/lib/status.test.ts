@@ -57,11 +57,11 @@ describe("STATUS_CONFIG", () => {
     }
   });
 
-  it("keeps light hex values of the same tokens for the hex-alpha pin sites", () => {
-    // Interim until spec 034 T-32 moves pins to statusVar / statusTint.
-    expect(STATUS_CONFIG.documented.lightHex).toBe("#4F6E63");
-    expect(STATUS_CONFIG.partial.lightHex).toBe("#3D5A73");
-    expect(STATUS_CONFIG.name.lightHex).toBe("#7A5730");
+  it("holds no resolved colour, only the token that follows the theme", () => {
+    // Spec 034 T-32 retired the light hex values once no pin site read them.
+    for (const config of Object.values(STATUS_CONFIG)) {
+      expect(Object.keys(config).sort()).toEqual(["label", "line", "token"]);
+    }
   });
 });
 
