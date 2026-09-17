@@ -1,5 +1,6 @@
 import { MissingPills } from "@/components/ui/missing-pills";
 import { formatDuration } from "@/lib/format-duration";
+import { resolveExternalWatchUrl } from "@/lib/gallery-mappers";
 import { photoFacts } from "@/lib/photo-facts";
 import type { PublicExternalMedia } from "@/types/gallery";
 
@@ -19,9 +20,15 @@ export function FilmsList({
    * already says "Films", and a heading repeating it would read as a second list.
    */
   heading = "Films",
+  /**
+   * The archive's film count (FR-018). Films arrive one page at a time, so the
+   * loaded array is only the right number while the archive fits in one page.
+   */
+  total,
 }: {
   films: PublicExternalMedia[];
   heading?: string | null;
+  total?: number;
 }) {
   if (films.length === 0) return null;
 
@@ -41,7 +48,7 @@ export function FilmsList({
           <span
             style={{ color: "var(--foreground-secondary)", fontSize: "13px" }}
           >
-            {filmsNote(films)}
+            {filmsNote(films, total)}
           </span>
         </div>
       )}
@@ -64,12 +71,18 @@ function FilmCard({ film }: { film: PublicExternalMedia }) {
     ? formatDuration(film.durationSeconds)
     : null;
 
-  const Card = film.url ? "a" : "div";
+  const watchUrl = resolveExternalWatchUrl(
+    film.url,
+    film.platform,
+    film.externalId,
+    film.embedUrl
+  );
+  const Card = watchUrl ? "a" : "div";
 
   return (
     <Card
-      {...(film.url
-        ? { href: film.url, target: "_blank", rel: "noopener noreferrer" }
+      {...(watchUrl
+        ? { href: watchUrl, target: "_blank", rel: "noopener noreferrer" }
         : {})}
       className="flex flex-col gap-[9px] rounded-xl border transition-colors hover:border-[var(--border-strong)]"
       style={{

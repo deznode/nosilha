@@ -51,6 +51,29 @@ export function resolveExternalThumbnail(
 }
 
 /**
+ * The address that plays an external film.
+ *
+ * The YouTube sync records `embedUrl`, `thumbnailUrl` and `externalId` but leaves
+ * `url` null, so a card that trusts `url` alone can never reach its film. Prefer a
+ * recorded `url`, then build the watch address from the platform's own id, and only
+ * then fall back to the embed player. Null means nothing can reach it.
+ */
+export function resolveExternalWatchUrl(
+  url: string | null | undefined,
+  platform: string | null | undefined,
+  externalId: string | null | undefined,
+  embedUrl: string | null | undefined
+): string | null {
+  if (url?.trim()) return url;
+
+  if (platform === "YOUTUBE" && externalId?.trim()) {
+    return `https://www.youtube.com/watch?v=${externalId}`;
+  }
+
+  return embedUrl?.trim() || null;
+}
+
+/**
  * Resolves the best available image URL for any PublicGalleryMedia item.
  *
  * Handles all media source + type combinations:

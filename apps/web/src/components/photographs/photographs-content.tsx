@@ -285,7 +285,7 @@ export function PhotographsContent({
       )}
 
       {showTray && <UnlocatedTray facets={facets} records={unlocated} />}
-      {showFilms && <FilmsList films={films} />}
+      {showFilms && <FilmsList films={films} total={facets.films} />}
     </div>
   );
 }

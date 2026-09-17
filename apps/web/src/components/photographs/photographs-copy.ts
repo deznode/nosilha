@@ -203,9 +203,18 @@ export function unlocatedTray(
   return { heading, body };
 }
 
-/** "Nine, synced from YouTube. None records a length." */
-export function filmsNote(films: { durationSeconds?: number }[]): string {
-  if (films.length === 0) return "None yet.";
+/**
+ * "Nine, synced from YouTube. None records a length."
+ *
+ * `total` is the archive's film count (FR-018); the loaded array only matches it
+ * while every film fits in one page. The length sentence counts what is loaded,
+ * because no facet records durations.
+ */
+export function filmsNote(
+  films: { durationSeconds?: number }[],
+  total: number = films.length
+): string {
+  if (total === 0) return "None yet.";
 
   const timed = films.filter((film) => !!film.durationSeconds).length;
   const lengths =
@@ -215,7 +224,7 @@ export function filmsNote(films: { durationSeconds?: number }[]): string {
           timed === 1 ? "records" : "record"
         } a length.`;
 
-  return `${capitalise(toWords(films.length))}, synced from YouTube. ${lengths}`;
+  return `${capitalise(toWords(total))}, synced from YouTube. ${lengths}`;
 }
 
 /**

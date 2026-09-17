@@ -320,8 +320,10 @@ describe("PhotographsContent", () => {
     renderContent();
 
     expect(screen.getByRole("heading", { name: "Films" })).toBeInTheDocument();
+    // The archive holds nine films (FACETS.films) and this page loaded one; the
+    // sentence counts the archive, not the page (FR-018).
     expect(
-      screen.getByText("One, synced from YouTube. None records a length.")
+      screen.getByText("Nine, synced from YouTube. None records a length.")
     ).toBeInTheDocument();
     expect(screen.getByText("length not recorded")).toBeInTheDocument();
   });
