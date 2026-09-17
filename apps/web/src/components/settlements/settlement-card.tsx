@@ -56,7 +56,7 @@ export function SettlementCard({ town }: { town: TownStatusSummary }) {
               fontSize: "12px",
               marginTop: "3px",
               color: line.ochre
-                ? "var(--brand-sobrado-ochre)"
+                ? statusVar("name")
                 : "var(--foreground-secondary)",
             }}
           >

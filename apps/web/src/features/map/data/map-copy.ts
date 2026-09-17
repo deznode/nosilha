@@ -1,4 +1,9 @@
-import { capitalise, countSentence, toWords } from "@/lib/copy/number-words";
+import {
+  capitalise,
+  countSentence,
+  plural,
+  toWords,
+} from "@/lib/copy/number-words";
 import { STATUS_CONFIG, type DocumentationStatus } from "@/lib/status";
 import type { MapItem, MapMode } from "./types";
 
@@ -9,8 +14,6 @@ import type { MapItem, MapMode } from "./types";
  * The prototype's footers describe its extract ("Twenty-two are named in this
  * extract"); those halves are not ported — production shows the whole archive.
  */
-
-const plural = (n: number, one: string, many: string) => (n === 1 ? one : many);
 
 /** A settlement's photographs as a phrase. A hero turns the dot green without being counted. */
 function settlementPhotoPhrase(item: MapItem): string {

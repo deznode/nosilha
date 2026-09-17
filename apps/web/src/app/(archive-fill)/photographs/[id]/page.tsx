@@ -4,7 +4,7 @@ import { cacheLife, cacheTag } from "next/cache";
 
 import { PhotoDetail } from "@/components/photographs/photo-detail/photo-detail";
 import { getGalleryMediaById, getPhotoSequence } from "@/lib/api";
-import { generatePageMetadata, siteConfig } from "@/lib/metadata";
+import { generatePageMetadata } from "@/lib/metadata";
 import { photoTitle } from "@/lib/photo-facts";
 
 /**
@@ -33,9 +33,6 @@ export async function generateMetadata({
       "A record in the Brava Island archive, with what it is still missing.",
     path: `/photographs/${media.id}`,
     keywords: ["Brava Island", "Cape Verde", "archive photograph"],
-    baseUrl: siteConfig.url,
-    siteName: siteConfig.name,
-    defaultImage: siteConfig.ogImage,
   });
 }
 
@@ -49,13 +46,17 @@ async function cachedPhoto(id: string) {
   cacheLife("entry");
   cacheTag("gallery");
 
-  const media = await getGalleryMediaById(id);
+  // Independent reads on the same id, so they go together: this page renders
+  // blocking (`instant = false`), which makes their latency TTFB.
+  //
+  // The sequence is not caught: without one the position line reads "This one has
+  // no place recorded", which is a statement about the record rather than about the
+  // request that failed — and `use cache` would keep saying it for half an hour.
+  const [media, sequence] = await Promise.all([
+    getGalleryMediaById(id),
+    getPhotoSequence(id),
+  ]);
   if (!media) notFound();
-
-  // Not caught: without a sequence the position line reads "This one has no place
-  // recorded", which is a statement about the record rather than about the request
-  // that failed — and `use cache` would keep saying it for half an hour.
-  const sequence = await getPhotoSequence(id);
 
   return <PhotoDetail media={media} sequence={sequence ?? null} />;
 }

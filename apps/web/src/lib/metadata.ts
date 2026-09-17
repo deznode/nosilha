@@ -54,7 +54,6 @@ export function generatePageMetadata(options: PageMetadataOptions): Metadata {
     structuredData = [],
     baseUrl = siteConfig.url,
     siteName = siteConfig.name,
-    defaultImage: _defaultImage = siteConfig.ogImage,
   } = options;
 
   const url = `${baseUrl}${path}`;

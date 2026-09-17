@@ -20,7 +20,7 @@ import {
   getGalleryMedia,
   getTownStatusSummary,
 } from "@/lib/api";
-import { generatePageMetadata, siteConfig } from "@/lib/metadata";
+import { generatePageMetadata } from "@/lib/metadata";
 import { getQueryClient } from "@/lib/query-client";
 
 export const metadata: Metadata = generatePageMetadata({
@@ -34,9 +34,6 @@ export const metadata: Metadata = generatePageMetadata({
     "historical photographs Brava",
     "Cape Verdean visual archive",
   ],
-  baseUrl: siteConfig.url,
-  siteName: siteConfig.name,
-  defaultImage: siteConfig.ogImage,
 });
 
 interface PhotographsPageProps {

@@ -6,7 +6,7 @@ import { SettlementsContent } from "@/components/settlements/settlements-content
 import { parseSettlementFilter } from "@/components/settlements/settlements-copy";
 import { ArchiveSkeleton } from "@/components/ui/archive-skeleton";
 import { getTownStatusSummary } from "@/lib/api";
-import { generatePageMetadata, siteConfig } from "@/lib/metadata";
+import { generatePageMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Settlements",
@@ -20,9 +20,6 @@ export const metadata: Metadata = generatePageMetadata({
     "Fajã d'Água",
     "Brava towns",
   ],
-  baseUrl: siteConfig.url,
-  siteName: siteConfig.name,
-  defaultImage: siteConfig.ogImage,
 });
 
 interface SettlementsPageProps {

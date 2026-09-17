@@ -4,7 +4,7 @@ import { cacheLife, cacheTag } from "next/cache";
 
 import { SettlementDetail } from "@/components/settlements/settlement-detail/settlement-detail";
 import { getEntries, getTownBySlug, getTownStatusSummary } from "@/lib/api";
-import { generatePageMetadata, siteConfig } from "@/lib/metadata";
+import { generatePageMetadata } from "@/lib/metadata";
 import { isReservedSlug } from "@/lib/reserved-slugs";
 
 /**
@@ -39,9 +39,6 @@ export async function generateMetadata({
       `What the archive holds about ${town.name}, a settlement on Brava Island, Cape Verde.`,
     path: `/${town.slug}`,
     keywords: [town.name, "Brava Island", "Cape Verde", "settlement"],
-    baseUrl: siteConfig.url,
-    siteName: siteConfig.name,
-    defaultImage: siteConfig.ogImage,
   });
 }
 

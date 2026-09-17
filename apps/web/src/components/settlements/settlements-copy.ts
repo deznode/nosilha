@@ -1,4 +1,9 @@
-import { capitalise, countSentence, toWords } from "@/lib/copy/number-words";
+import {
+  capitalise,
+  countSentence,
+  plural,
+  toWords,
+} from "@/lib/copy/number-words";
 import type { TownStatusSummary } from "@/types/town";
 
 /**
@@ -55,11 +60,6 @@ export function settlementChipCounts(
   return { all: towns.length, has, none: towns.length - has };
 }
 
-/** "One is documented" / "Three are documented" — the verb follows the count. */
-function isAre(n: number): string {
-  return n === 1 ? "is" : "are";
-}
-
 /**
  * The standfirst: how many names the island carries, then how the three states
  * divide them.
@@ -78,9 +78,9 @@ export function settlementStandfirst(towns: TownStatusSummary[]): string {
   });
 
   const split = [
-    `${capitalise(toWords(documented))} ${isAre(documented)} documented`,
+    `${capitalise(toWords(documented))} ${plural(documented, "is", "are")} documented`,
     `${toWords(partial)} ${partial === 1 ? "holds" : "hold"} records without a photograph`,
-    `and ${toWords(nameOnly)} ${isAre(nameOnly)} a name and a coordinate`,
+    `and ${toWords(nameOnly)} ${plural(nameOnly, "is", "are")} a name and a coordinate`,
   ].join(", ");
 
   return `${opening}. ${split}.`;

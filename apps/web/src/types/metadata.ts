@@ -273,9 +273,10 @@ export interface ImageObjectSchema extends BaseSchema {
  * Utility functions for generating metadata
  */
 export interface MetadataGeneratorOptions {
-  baseUrl: string;
-  siteName: string;
-  defaultImage: string;
+  /** Defaults to `siteConfig.url`; pages only pass this to override it. */
+  baseUrl?: string;
+  /** Defaults to `siteConfig.name`; pages only pass this to override it. */
+  siteName?: string;
   twitterHandle?: string;
 }
 

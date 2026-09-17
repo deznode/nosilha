@@ -24,8 +24,6 @@ import io.github.bucket4j.Bucket
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.micrometer.core.instrument.Counter
 import io.micrometer.core.instrument.MeterRegistry
-import org.springframework.data.domain.Page
-import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.modulith.events.ApplicationModuleListener
 import org.springframework.stereotype.Service
@@ -552,51 +550,6 @@ class GalleryService(
     // Query Operations
     // ================================
 
-    // -- Private query methods (shared logic) --
-
-    private fun queryActiveMedia(
-        category: String?,
-        decade: String?,
-        hasGeo: Boolean?,
-        page: Int,
-        size: Int,
-    ): Page<GalleryMedia> {
-        val cappedSize = minOf(size, 100)
-        val pageable = PageRequest.of(page, cappedSize)
-        val needsInMemoryFilter = category != null || decade != null || hasGeo == true
-
-        return if (needsInMemoryFilter) {
-            var filtered: List<GalleryMedia> = repository
-                .findByStatusAndRoleAndShowInGalleryTrue(GalleryMediaStatus.ACTIVE, MediaRole.ARCHIVE)
-
-            if (category != null) {
-                filtered = filtered.filter { it.category == category }
-            }
-
-            if (decade != null) {
-                val yearRange = parseDecadeRange(decade)
-                if (yearRange != null) {
-                    filtered = filtered.filter { media -> resolveYear(media) in yearRange }
-                }
-            }
-
-            if (hasGeo == true) {
-                filtered = filtered.filter { media ->
-                    media is UserUploadedMedia && media.latitude != null && media.longitude != null
-                }
-            }
-
-            filtered = filtered.sortedBy { it.displayOrder }
-            val start = page * cappedSize
-            val end = minOf(start + cappedSize, filtered.size)
-            val pageContent = if (start < filtered.size) filtered.subList(start, end) else emptyList()
-
-            PageImpl(pageContent, pageable, filtered.size.toLong())
-        } else {
-            repository.findByStatusAndShowInGalleryTrueOrderByDisplayOrderAsc(GalleryMediaStatus.ACTIVE, pageable)
-        }
-    }
-
     private val yearPattern = Regex("""(\d{4})""")
 
     /**
@@ -824,35 +777,6 @@ class GalleryService(
         }
 
     // -- Admin API methods (full DTO) --
-
-    /**
-     * Lists active gallery media with optional category filtering and pagination.
-     *
-     * Returns the full DTO including AI fields and storage internals.
-     * Used by admin endpoints.
-     */
-    @Transactional(readOnly = true)
-    fun listActiveMedia(
-        category: String?,
-        page: Int,
-        size: Int,
-    ): PagedApiResult<GalleryMediaDto> {
-        val mediaPage = queryActiveMedia(category, null, null, page, size)
-        val displayNames = resolveDisplayNames(mediaPage.content)
-        val dtos = mediaPage.content.map { it.toDto(displayNames) }
-
-        return PagedApiResult(
-            data = dtos,
-            pageable = PageableInfo(
-                page = mediaPage.number,
-                size = mediaPage.size,
-                totalElements = mediaPage.totalElements,
-                totalPages = mediaPage.totalPages,
-                first = mediaPage.isFirst,
-                last = mediaPage.isLast,
-            ),
-        )
-    }
 
     /**
      * Gets a single gallery media item by ID.

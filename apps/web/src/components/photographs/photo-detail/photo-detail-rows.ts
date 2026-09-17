@@ -1,5 +1,10 @@
 import { formatCoordinates } from "@/lib/coordinates";
-import { photoCredit, photoDateLabel, photoIsLocated } from "@/lib/photo-facts";
+import {
+  photoCredit,
+  photoDateLabel,
+  photoIsLocated,
+  trimmed,
+} from "@/lib/photo-facts";
 import {
   isPublicUserUploadMedia,
   type PhotoSequence,
@@ -28,11 +33,6 @@ export interface AskRow {
   key: string;
   label: string;
   question: string;
-}
-
-function trimmed(value: string | null | undefined): string | null {
-  const text = value?.trim();
-  return text ? text : null;
 }
 
 /** What the archive holds about this record, in the prototype's order. */

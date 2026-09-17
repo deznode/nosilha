@@ -11,6 +11,7 @@ import {
   photoIsIdentifiablePerson,
   photoIsLocated,
   photoTitle,
+  trimmed as text,
 } from "@/lib/photo-facts";
 import {
   getEntryStatus,
@@ -25,11 +26,6 @@ import type { MapItem, StatusFilter } from "./types";
  * Status comes from the one status table (FR-002); the pin reads its colour from the
  * status token at render time, so nothing here holds a colour.
  */
-
-function text(value: string | null | undefined): string | null {
-  const trimmed = value?.trim();
-  return trimmed ? trimmed : null;
-}
 
 /** Every settlement, pinned at its recorded coordinate. */
 export function settlementItems(towns: TownStatusSummary[]): MapItem[] {

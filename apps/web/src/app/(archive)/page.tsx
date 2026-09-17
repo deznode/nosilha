@@ -63,9 +63,6 @@ export const metadata: Metadata = generatePageMetadata({
       },
     } as PlaceSchema,
   ],
-  baseUrl: siteConfig.url,
-  siteName: siteConfig.name,
-  defaultImage: siteConfig.ogImage,
 });
 
 export default async function HomePage() {

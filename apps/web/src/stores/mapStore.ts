@@ -12,6 +12,7 @@ import {
   recordItems,
   settlementItems,
 } from "@/features/map/data/locations-adapter";
+import { townSlugsById } from "@/lib/place-path";
 
 /**
  * The map explorer's state. Spec 034 FR-011, FR-012.
@@ -134,15 +135,9 @@ export const useMapStore = create<MapState>()(
 
           if (request !== latestRequest) return;
 
-          const townSlugs = Object.fromEntries(
-            towns
-              .filter((town) => town.id)
-              .map((town) => [town.id as string, town.slug])
-          );
-
           set({
             settlements: settlementItems(towns),
-            records: recordItems(entries.items, townSlugs),
+            records: recordItems(entries.items, townSlugsById(towns)),
             photos: photoItems(media.items, towns),
             unlocatedCount: facets.withoutPlace,
             isLoading: false,

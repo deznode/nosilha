@@ -13,7 +13,7 @@ import {
 } from "@/lib/field-questions";
 import { resolvePublicImageUrl } from "@/lib/gallery-mappers";
 import { photoFacts } from "@/lib/photo-facts";
-import { getEntryStatus, statusVar } from "@/lib/status";
+import { getEntryStatus, statusTint, statusVar } from "@/lib/status";
 import type { DirectoryEntry } from "@/types/directory";
 import type { PublicGalleryMedia } from "@/types/gallery";
 
@@ -223,8 +223,8 @@ export function PlaceRecord({
                     height: "5px",
                     background:
                       field.value !== null
-                        ? "var(--brand-valley-green)"
-                        : "color-mix(in srgb, var(--brand-sobrado-ochre) 35%, transparent)",
+                        ? statusVar("documented")
+                        : statusTint("name", 35),
                   }}
                 />
               ))}

@@ -55,6 +55,16 @@ export function toWords(n: number): string {
 }
 
 /** Upper-cases the first character only. */
+/**
+ * The form that agrees with `n` — "photograph"/"photographs", "is"/"are", "holds"/"hold".
+ *
+ * Here rather than in each screen's copy module: agreement is a formatting primitive,
+ * not a per-screen editorial choice, and it was being rewritten in seven shapes.
+ */
+export function plural(n: number, one: string, many: string): string {
+  return n === 1 ? one : many;
+}
+
 export function capitalise(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }

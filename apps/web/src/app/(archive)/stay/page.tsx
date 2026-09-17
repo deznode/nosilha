@@ -3,7 +3,8 @@ import { cacheLife, cacheTag } from "next/cache";
 
 import { StayContent } from "@/components/stay/stay-content";
 import { getEntriesByCategory, getTownStatusSummary } from "@/lib/api";
-import { generatePageMetadata, siteConfig } from "@/lib/metadata";
+import { generatePageMetadata } from "@/lib/metadata";
+import { townSlugsById } from "@/lib/place-path";
 
 const STAY_PAGE_SIZE = 100;
 
@@ -18,9 +19,6 @@ export const metadata: Metadata = generatePageMetadata({
     "where to stay Brava",
     "pensão Brava",
   ],
-  baseUrl: siteConfig.url,
-  siteName: siteConfig.name,
-  defaultImage: siteConfig.ogImage,
 });
 
 export default async function StayPage() {
@@ -36,9 +34,5 @@ export default async function StayPage() {
     getTownStatusSummary(),
   ]);
 
-  const townSlugs = Object.fromEntries(
-    towns.flatMap((town) => (town.id ? [[town.id, town.slug] as const] : []))
-  );
-
-  return <StayContent stays={stays.items} townSlugs={townSlugs} />;
+  return <StayContent stays={stays.items} townSlugs={townSlugsById(towns)} />;
 }

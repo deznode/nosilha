@@ -35,21 +35,6 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     fun findByStatus(status: GalleryMediaStatus): List<GalleryMedia>
 
     /**
-     * Finds media by status with pagination, ordered by display order ascending.
-     *
-     * Used for public gallery display (ACTIVE status).
-     * Polymorphic query returns both UserUploadedMedia and ExternalMedia.
-     *
-     * @param status The media status to filter by
-     * @param pageable Pagination parameters
-     * @return Page of gallery media entities with the specified status
-     */
-    fun findByStatusOrderByDisplayOrderAsc(
-        status: GalleryMediaStatus,
-        pageable: Pageable,
-    ): Page<GalleryMedia>
-
-    /**
      * Finds media by status with pagination, ordered by creation date descending.
      *
      * Used for admin moderation queue (PENDING_REVIEW status).
@@ -60,20 +45,6 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
      * @return Page of gallery media entities with the specified status
      */
     fun findByStatusOrderByCreatedAtDesc(
-        status: GalleryMediaStatus,
-        pageable: Pageable,
-    ): Page<GalleryMedia>
-
-    /**
-     * Finds media by status where showInGallery is true, with pagination and display order.
-     *
-     * Used for public gallery display (ACTIVE + gallery-visible only).
-     *
-     * @param status The media status to filter by
-     * @param pageable Pagination parameters
-     * @return Page of gallery-visible media entities
-     */
-    fun findByStatusAndShowInGalleryTrueOrderByDisplayOrderAsc(
         status: GalleryMediaStatus,
         pageable: Pageable,
     ): Page<GalleryMedia>
@@ -208,26 +179,6 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
      */
     @Query("SELECT m FROM UserUploadedMedia m WHERE m.contentType LIKE CONCAT(:contentTypePrefix, '%')")
     fun findByContentTypeStartingWith(contentTypePrefix: String): List<UserUploadedMedia>
-
-    /**
-     * Finds media by status and content type prefix with pagination.
-     *
-     * Used for gallery display with media type filtering (e.g., "image/").
-     * Only returns UserUploadedMedia since ExternalMedia doesn't have contentType.
-     *
-     * @param status The media status to filter by
-     * @param contentTypePrefix The content type prefix (e.g., "image/")
-     * @param pageable Pagination parameters
-     * @return Page of user uploaded media entities matching the criteria
-     */
-    @Query(
-        "SELECT m FROM UserUploadedMedia m WHERE m.status = :status AND m.contentType LIKE CONCAT(:contentTypePrefix, '%') ORDER BY m.displayOrder ASC"
-    )
-    fun findByStatusAndContentTypeStartingWithOrderByDisplayOrderAsc(
-        status: GalleryMediaStatus,
-        contentTypePrefix: String,
-        pageable: Pageable,
-    ): Page<UserUploadedMedia>
 
     /**
      * Finds a user-uploaded media item by its R2 storage key.
@@ -417,31 +368,6 @@ interface GalleryMediaRepository : JpaRepository<GalleryMedia, UUID> {
     fun findByAiModerationStatus(
         @Param("status") status: String?,
         @Param("aiModerationStatus") aiModerationStatus: String,
-        pageable: Pageable,
-    ): Page<GalleryMedia>
-
-    /**
-     * Full-text search across gallery media using Portuguese text search config.
-     * Searches title (weight A), description (B), and location_name (C).
-     * Results ranked by ts_rank relevance score.
-     * Only returns ACTIVE, gallery-visible items.
-     */
-    @Query(
-        value = """
-        SELECT * FROM gallery_media
-        WHERE search_vector @@ plainto_tsquery('portuguese', :query)
-        AND status = 'ACTIVE' AND show_in_gallery = true
-        ORDER BY ts_rank(search_vector, plainto_tsquery('portuguese', :query)) DESC
-        """,
-        countQuery = """
-        SELECT COUNT(*) FROM gallery_media
-        WHERE search_vector @@ plainto_tsquery('portuguese', :query)
-        AND status = 'ACTIVE' AND show_in_gallery = true
-        """,
-        nativeQuery = true,
-    )
-    fun searchGallery(
-        @Param("query") query: String,
         pageable: Pageable,
     ): Page<GalleryMedia>
 }

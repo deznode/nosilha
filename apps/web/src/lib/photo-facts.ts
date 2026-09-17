@@ -22,7 +22,11 @@ export const ASPECT_FALLBACK = "388 / 300";
 /** A credit that answers the question without naming anyone. */
 const CREDIT_NOT_KNOWN = "not known";
 
-function trimmed(value: string | null | undefined): string | null {
+/**
+ * A non-empty trimmed string, or null. Exported because the photograph row builder
+ * and the map adapter both need exactly this rule and each had its own copy.
+ */
+export function trimmed(value: string | null | undefined): string | null {
   const text = value?.trim();
   return text ? text : null;
 }

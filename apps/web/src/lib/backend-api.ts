@@ -696,8 +696,11 @@ export class BackendApiClient implements ApiClient {
   async getTownStatusSummary(): Promise<TownStatusSummary[]> {
     const endpoint = `${env.apiUrl}/api/v1/towns/status-summary`;
 
-    // Status is derived from live counts, so keep it fresh like the rest of the map data
-    const response = await fetch(endpoint, CacheConfig.MAP_DATA);
+    // Status is derived from live counts, but the answer is the same for every caller,
+    // and nine of them are archive pages whose `use cache` keys vary by filter and
+    // region. `no-store` re-hit this endpoint — the heaviest read in the API — once per
+    // variant. The `towns` tag is what those pages already declare.
+    const response = await fetch(endpoint, { next: CacheConfig.TOWN_STATUS });
 
     if (!response.ok) {
       throw new Error(`API call failed with status: ${response.status}`);
